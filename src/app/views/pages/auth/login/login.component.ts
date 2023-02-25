@@ -12,6 +12,8 @@ export class LoginComponent implements OnInit {
 
   returnUrl: any;
   public form: FormGroup;
+  public showingPassword = false;
+  inputType = 'password';
 
   constructor(private router: Router,
               private route: ActivatedRoute,
@@ -41,4 +43,12 @@ export class LoginComponent implements OnInit {
     }
   }
 
+  toggleShowPassword() {
+    this.showingPassword = !this.showingPassword;
+    if (this.showingPassword){
+      this.inputType = "text";
+    } else {
+      this.inputType = "password";
+    }
+  }
 }

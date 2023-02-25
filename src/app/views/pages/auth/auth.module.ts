@@ -6,6 +6,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { AuthComponent } from './auth.component';
 import {ForgotPasswordComponent} from "./forgot-password/forgot-password.component";
 import {ReactiveFormsModule} from "@angular/forms";
+import {FeatherIconModule} from "../../../core/feather-icon/feather-icon.module";
 
 const routes: Routes = [
   {
@@ -38,7 +39,8 @@ const routes: Routes = [
   imports: [
     CommonModule,
     RouterModule.forChild(routes),
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    FeatherIconModule
   ]
 })
 export class AuthModule { }

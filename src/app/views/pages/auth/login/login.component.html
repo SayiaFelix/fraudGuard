@@ -14,14 +14,29 @@
             <form class="forms-sample" [formGroup]="form">
               <div class="mb-3">
                 <label for="email" class="form-label">Email address</label>
-                <input type="email" formControlName="username" class="form-control" id="email" placeholder="Email" value="admin@demo.com">
-                <small class="text-light" *ngIf="form.get('username')?.touched && form.get('username')?.hasError('required')">Username is required</small>
-                <small class="text-light" *ngIf="form.get('username')?.touched && form.get('username')?.hasError('email')">Please key in a valid email</small>
-                <small class="text-light" *ngIf="form.get('username')?.touched && form.get('username')?.hasError('minlength')">Username isn't long enough, minimum of 6 characters</small>
+                <input type="email" formControlName="username" class="form-control" id="email" placeholder="Email">
+                <small class="text-danger" *ngIf="form.get('username')?.touched && form.get('username')?.hasError('required')">Username is required</small>
+                <small class="text-danger" *ngIf="form.get('username')?.touched && form.get('username')?.hasError('email')">Please key in a valid email</small>
+                <small class="text-danger" *ngIf="form.get('username')?.touched && form.get('username')?.hasError('minlength')">Username isn't long enough, minimum of 6 characters</small>
               </div>
+<!--              <div class="mb-3">-->
+<!--                <label for="password" class="form-label">Password</label>-->
+<!--                <input type="password" formControlName="password" class="form-control" id="password" placeholder="Password">-->
+<!--                <small class="text-danger" *ngIf="form.get('password')?.touched && form.get('password')?.hasError('required')">Password is required</small>-->
+<!--                <small class="text-danger" *ngIf="form.get('password')?.touched && form.get('password')?.hasError('minlength')">Password isn't long enough, minimum of 6 characters</small>-->
+<!--              </div>-->
+
               <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
-                <input type="password" formControlName="password" class="form-control" id="password" placeholder="Password" value="12345678">
+                <div class="input-group mb-3">
+                  <input [type]="inputType" formControlName="password" class="form-control" placeholder="password" id="password" aria-label="password">
+                  <div class="input-group-prepend" style="cursor: pointer;" (click)="toggleShowPassword()">
+                    <span class="input-group-text" *ngIf="!this.showingPassword"><i class="mdi mdi-eye"></i></span>
+                    <span class="input-group-text" *ngIf="this.showingPassword"><i class="mdi mdi-eye-off"></i></span>
+                  </div>
+                </div>
+                <small class="text-danger" *ngIf="form.get('password')?.touched && form.get('password')?.hasError('required')">Password is required</small>
+                <small class="text-danger" *ngIf="form.get('password')?.touched && form.get('password')?.hasError('minlength')">Password isn't long enough, minimum of 6 characters</small>
               </div>
               <div class="form-check mb-3">
                 <input type="checkbox" class="form-check-input" id="authCheck">
