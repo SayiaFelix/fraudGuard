@@ -1,20 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import {FormBuilder} from "@angular/forms";
 
 @Component({
-  selector: 'app-login',
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  selector: 'app-forgot-password',
+  templateUrl: './forgot-password.component.html',
+  styleUrls: ['./forgot-password.component.scss']
 })
-export class LoginComponent implements OnInit {
+export class ForgotPasswordComponent implements OnInit {
 
   returnUrl: any;
 
-  constructor(private router: Router,
-              private route: ActivatedRoute,
-              fb: FormBuilder,
-              private _router: Router) { }
+  constructor(private router: Router, private route: ActivatedRoute) { }
 
   ngOnInit(): void {
     // get return url from route parameters or default to '/'
