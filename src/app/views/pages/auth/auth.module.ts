@@ -7,6 +7,8 @@ import { AuthComponent } from './auth.component';
 import {ForgotPasswordComponent} from "./forgot-password/forgot-password.component";
 import {ReactiveFormsModule} from "@angular/forms";
 import {FeatherIconModule} from "../../../core/feather-icon/feather-icon.module";
+import {SharedModule} from "../../../shared/shared.module";
+import {HttpClientModule} from "@angular/common/http";
 
 const routes: Routes = [
   {
@@ -35,10 +37,14 @@ const routes: Routes = [
 ]
 
 @NgModule({
-  declarations: [LoginComponent, RegisterComponent, ForgotPasswordComponent, AuthComponent],
+  declarations: [LoginComponent,
+    RegisterComponent,
+    ForgotPasswordComponent,
+    AuthComponent],
   imports: [
     CommonModule,
     RouterModule.forChild(routes),
+    SharedModule,
     ReactiveFormsModule,
     FeatherIconModule
   ]

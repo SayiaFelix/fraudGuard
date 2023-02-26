@@ -2,6 +2,10 @@ import {Component, OnInit} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {AbstractControl, FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {CustomValidators} from "ngx-custom-validators";
+import {HttpParams} from "@angular/common/http";
+import {HttpService} from "../../../../shared/services/http.service";
+import {catchError, Observable, of} from "rxjs";
+import {map} from "rxjs/operators";
 
 @Component({
   selector: 'app-login',
@@ -15,8 +19,12 @@ export class LoginComponent implements OnInit {
   public showingPassword = false;
   inputType = 'password';
 
+  loginResponse$: Observable<any>;
+  errorMsg: string;
+
   constructor(private router: Router,
               private route: ActivatedRoute,
+              private httpService: HttpService,
               fb: FormBuilder,
               private _router: Router) {
     this.form = fb.group({
@@ -34,18 +42,32 @@ export class LoginComponent implements OnInit {
   onSubmit(e: Event) {
     e.preventDefault();
 
-    console.log("this.form.value");
-    console.log(this.form.value);
+    const model = new HttpParams()
+      .set('grant_type', 'password')
+      .set('username', this.form.value.username.trim())
+      .set('password', this.form.value.password);
 
-    localStorage.setItem('isLoggedin', 'true');
-    if (localStorage.getItem('isLoggedin')) {
-      this.router.navigate([this.returnUrl]);
-    }
+    this.loginResponse$ = this.httpService.mobileBankingLogin('api/v1/oauth/token', model)
+
+
+    // this.loginResponse$.subscribe(data => {
+    //   // Handle data
+    //   console.log(data)
+    // }, error => {
+    //   // Handle error
+    //   console.log(error)
+    // },(complete: any) => {
+    //   console.log(complete)
+    // });
+    // localStorage.setItem('isLoggedin', 'true');
+    // if (localStorage.getItem('isLoggedin')) {
+    //   this.router.navigate([this.returnUrl]);
+    // }
   }
 
   toggleShowPassword() {
     this.showingPassword = !this.showingPassword;
-    if (this.showingPassword){
+    if (this.showingPassword) {
       this.inputType = "text";
     } else {
       this.inputType = "password";
