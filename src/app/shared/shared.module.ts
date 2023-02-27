@@ -10,6 +10,7 @@ import { LabelActiveComponent } from './components/label-active/label-active.com
 import { LabelOnlineComponent } from './components/label-online/label-online.component';
 import { LabelPassedComponent } from './components/label-passed/label-passed.component';
 import {ConfirmDialogComponent} from './components/confirm-dialog/confirm-dialog.component';
+import { JwtModule } from '@auth0/angular-jwt';
 
 @NgModule({
   declarations: [
@@ -34,6 +35,7 @@ import {ConfirmDialogComponent} from './components/confirm-dialog/confirm-dialog
     FormsModule,
     ReactiveFormsModule,
     NgbModule,
+    JwtModule
   ],
   exports: [
     CommonModule,
