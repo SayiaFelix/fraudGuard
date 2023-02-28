@@ -4,6 +4,7 @@ import {GlobalService} from './global.service';
 import {AuthService} from './auth.service';
 import {map} from 'rxjs/operators';
 import {Observable} from "rxjs";
+import { Router } from '@angular/router';
 
 @Injectable(
   {
@@ -16,6 +17,7 @@ export class HttpService {
     private http: HttpClient,
     private globalService: GlobalService,
     private authService: AuthService,
+    private router: Router
   ) {
   }
 
@@ -26,7 +28,10 @@ export class HttpService {
       this.generateLoginHeaders()
     )
       .pipe(
-        map((result: any) => {
+        map((result: any) => {        
+          localStorage.setItem('isLoggedin', 'true')
+          localStorage.setItem('access_token', result['access_token'])
+          this.router.navigate(['/dashboard'])
           return result;
         }));
   }
@@ -43,7 +48,6 @@ export class HttpService {
 
   // For Pagination
   public mobileBankingPaginationPost(endpoint: string, model: any): any {
-
     const updatedModel = {
       page: (model.page - 1),
       size: model.size
@@ -57,7 +61,6 @@ export class HttpService {
         })
       );
   }
-
 
   // endpoint for submitting form Data
   public mobileBankingFormRequestPost(endpoint: string, model: any): any {
@@ -93,9 +96,8 @@ export class HttpService {
     return {
       headers: new HttpHeaders({
         'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: 'Basic ' + btoa('BANK_ADMIN' + ':' + 'RPk68Y)5vL+gLQ(')
+        Authorization: 'Basic ' + btoa('CORPORATE_ADMIN' + ':' + 'YP@kduzzbm#YfkJX')
       })
     };
   }
-
 }
