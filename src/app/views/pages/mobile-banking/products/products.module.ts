@@ -8,12 +8,14 @@ import {ProductsComponent} from './profiles/products.component';
 // import {CreateProductComponent} from './profiles/create-product-subitem/create-product.component';
 import {SharedModule} from "../../../../shared/shared.module";
 import {FeatherIconModule} from "../../../../core/feather-icon/feather-icon.module";
+import {NgxDatatableModule} from "@swimlane/ngx-datatable";
 
 @NgModule({
   imports: [
     SharedModule,
     ProductsRoutingModule,
     FeatherIconModule,
+    NgxDatatableModule
   ],
   declarations: [
     ProductsComponent,

@@ -39,7 +39,7 @@ const routes: Routes = [
     SharedModule,
     ReactiveFormsModule,
     FeatherIconModule,
-    NgxDatatableModule
+    NgxDatatableModule,
   ]
 })
 export class MobileBankingModule { }

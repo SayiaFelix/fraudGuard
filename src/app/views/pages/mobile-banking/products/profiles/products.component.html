@@ -15,94 +15,35 @@
     </button>
   </div>
 </div>
-<!--  <app-page-title [breadcrumbItems]="breadCrumbItems" title="All Profiles"></app-page-title>-->
 
-  <div class="profiles-container pt-2">
-
-          <div class="card-body pt-0 widget-body mt-2" *ngIf="selectedTab === 0">
-            <div class="table-responsive table-striped table-bordered">
-<!--              <ng2-smart-table (custom)="onCustomAction($event)" *ngIf="source && isLoaded" [settings]="settings"-->
-<!--                               [source]="source"-->
-<!--                               class="table table-hover table-bordered">-->
-<!--              </ng2-smart-table>-->
-            </div>
-<!--            <ul class="d-none">-->
-<!--              <li *ngFor="let item of data | paginate: {itemsPerPage: perPage, currentPage: page, totalItems: total}">-->
-<!--              </li>-->
-<!--            </ul>-->
-
-<!--            <div class="d-flex justify-content-between mt-2">-->
-<!--              <div class="row col-xl-6 col-lg-1 col-md-1 text-center">-->
-<!--                <div class="col-sm-4 pl-0">-->
-<!--                  <select (change)="onChange()" [(ngModel)]="perPage" class="form-control custom-select">-->
-<!--                    <option *ngFor="let pageSize of pageSizes" [ngValue]="pageSize">{{ pageSize }}</option>-->
-<!--                  </select>-->
-<!--                </div>-->
-<!--                <label class="pt-2">Items per page</label>-->
-<!--              </div>-->
-<!--              <pagination-controls (pageChange)="getIndividualData($event)" autoHide="true" maxSize="5"-->
-<!--                                   previousLabel="Prev" responsive="true">-->
-<!--              </pagination-controls>-->
-<!--            </div>-->
-
-          </div>
-
-<!--          <div class="card-body pt-0 widget-body mt-2" *ngIf="selectedTab === 1">-->
-<!--            <div class="table-responsive table-striped table-bordered">-->
-<!--              <ng2-smart-table (custom)="onCustomApproveAction($event)" *ngIf="pendingCreateDataSet && isLoaded"-->
-<!--                               [settings]="pendingSettings"-->
-<!--                               [source]="pendingCreateDataSet" class="table table-hover table-bordered">-->
-<!--              </ng2-smart-table>-->
-<!--            </div>-->
-<!--            <ul class="d-none">-->
-<!--              <li *ngFor="let item of data | paginate: {itemsPerPage: perPage, currentPage: page, totalItems: total}">-->
-<!--              </li>-->
-<!--            </ul>-->
-
-<!--            <div class="d-flex justify-content-between mt-2">-->
-<!--              <div class="row col-xl-6 col-lg-1 col-md-1 text-center">-->
-<!--                <div class="col-sm-4 pl-0">-->
-<!--                  <select (change)="onChange()" [(ngModel)]="perPage" class="form-control custom-select">-->
-<!--                    <option *ngFor="let pageSize of pageSizes" [ngValue]="pageSize">{{ pageSize }}</option>-->
-<!--                  </select>-->
-<!--                </div>-->
-<!--                <label class="pt-2">Items per page</label>-->
-<!--              </div>-->
-<!--              <pagination-controls (pageChange)="getIndividualData($event)" autoHide="true" maxSize="5"-->
-<!--                                   previousLabel="Prev" responsive="true">-->
-<!--              </pagination-controls>-->
-<!--            </div>-->
-<!--          </div>-->
-
-<!--          <div class="card-body pt-0 widget-body mt-2" *ngIf="selectedTab === 2">-->
-<!--            <div class="table-responsive table-striped table-bordered">-->
-<!--              <ng2-smart-table (custom)="onCustomApproveAction($event)" *ngIf="pendingUpdateDataSet && isLoaded"-->
-<!--                               [settings]="pendingSettings" [source]="pendingUpdateDataSet"-->
-<!--                               class="table table-hover table-bordered">-->
-<!--              </ng2-smart-table>-->
-<!--            </div>-->
-
-<!--            <ul class="d-none">-->
-<!--              <li *ngFor="let item of data | paginate: {itemsPerPage: perPage, currentPage: page, totalItems: total}">-->
-<!--              </li>-->
-<!--            </ul>-->
-
-<!--            <div class="d-flex justify-content-between mt-2">-->
-<!--              <div class="row col-xl-6 col-lg-1 col-md-1 text-center">-->
-<!--                <div class="col-sm-4 pl-0">-->
-<!--                  <select (change)="onChange()" [(ngModel)]="perPage" class="form-control custom-select">-->
-<!--                    <option *ngFor="let pageSize of pageSizes" [ngValue]="pageSize">{{ pageSize }}</option>-->
-<!--                  </select>-->
-<!--                </div>-->
-<!--                <label class="pt-2">Items per page</label>-->
-<!--              </div>-->
-<!--              <pagination-controls (pageChange)="getIndividualData($event)" autoHide="true" maxSize="5"-->
-<!--                                   previousLabel="Prev" responsive="true">-->
-<!--              </pagination-controls>-->
-<!--            </div>-->
-<!--          </div>-->
-
+<div class="row">
+  <div class="col-md-12 stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-title">Products</h6>
+        <div class="table-responsive">
+          <ngx-datatable
+            class="bootstrap"
+            [rows]="rows"
+            [loadingIndicator]="loadingIndicator"
+            [columnMode]="ColumnMode.force"
+            [footerHeight]="50"
+            [limit]="10"
+            rowHeight="auto"
+          >
+            <ngx-datatable-column name="Id"></ngx-datatable-column>
+            <ngx-datatable-column name="ProductName"></ngx-datatable-column>
+            <ngx-datatable-column name="Remarks"></ngx-datatable-column>
+            <ngx-datatable-column name="IsActive">
+              <app-label-active [value] = "true"></app-label-active>
+              </ngx-datatable-column>
+            <ngx-datatable-column name="CreatedOn"></ngx-datatable-column>
+          </ngx-datatable>
+        </div>
+      </div>
+    </div>
   </div>
+</div>
 
 <!-- Modal -->
 <ng-template #verticalCenteredModal let-modal>
