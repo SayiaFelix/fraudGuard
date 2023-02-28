@@ -1,10 +1,11 @@
-import {Component, OnInit, TemplateRef} from '@angular/core';
+import {Component, Input, OnInit, TemplateRef} from '@angular/core';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {DatePipe} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
 import { ColumnMode } from '@swimlane/ngx-datatable';
 import {HttpService} from "../../../../../shared/services/http.service";
 import {GlobalService} from "../../../../../shared/services/global.service";
+import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 
 @Component({
   selector: 'app-starter',
@@ -60,10 +61,25 @@ export class ProductsComponent implements OnInit {
   rows: any = [];
   loadingIndicator = true;
   reorderable = true;
+
+  columns = [
+    { name: 'ID', prop: 'id' },
+    { name: 'ProductName', prop:'productName' },
+    { name: 'Remarks', prop:'remarks' },
+    { name: 'IsActive', prop:'isActive' },
+    { name: 'Actions', prop: 'id' }
+  ];
+
+  public form: FormGroup;
+  @Input() formData: { name: any; description: any; is_active: any; };
+
   ColumnMode = ColumnMode;
+  public imageFile: File;
+
 
   constructor(private httpService: HttpService,
               private modalService: NgbModal,
+              public fb: FormBuilder,
               public datePipe: DatePipe,
 
               public router: Router,
@@ -76,6 +92,12 @@ export class ProductsComponent implements OnInit {
     this.breadCrumbItems = [{ label: 'Mobile banking', path: '/mobile-banking/products/all-products' },
       { label: 'Pages', path: '/' }, { label: 'Products', active: true }];
     this.getIndividualData(0);
+
+    this.form = this.fb.group({
+      name: [this.formData ? this.formData.name : '', [Validators.required]],
+      description: [this.formData ? this.formData.description : '', [Validators.required]],
+      is_active: [this.formData ? this.formData.is_active : '', [Validators.nullValidator]]
+    });
   }
 
   // public openModal(parentData: any) {
@@ -147,5 +169,11 @@ export class ProductsComponent implements OnInit {
     this.modalService.open(content, {centered: true}).result.then((result) => {
       console.log("Modal closed" + result);
     }).catch((res) => {});
+  }
+
+  onFileChange(event: any) {
+    if (event.target.files && event.target.files.length) {
+      this.imageFile = event.target.files[0];
+    }
   }
 }

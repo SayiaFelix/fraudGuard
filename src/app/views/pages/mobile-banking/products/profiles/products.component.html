@@ -5,12 +5,13 @@
   <div class="d-flex align-items-center flex-wrap text-nowrap">
     <div class="input-group wd-200 me-2 mb-2 mb-md-0">
     </div>
-    <button type="button" class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0">
-      <i class="btn-icon-prepend" data-feather="printer" appFeatherIcon></i>
+    <button class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0" type="button">
+      <i appFeatherIcon class="btn-icon-prepend" data-feather="printer"></i>
       Download
     </button>
-    <button type="button" class="btn btn-primary btn-icon-text mb-2 mb-md-0" (click)="openAddProductModal(verticalCenteredModal)">
-      <i class="btn-icon-prepend" data-feather="plus" appFeatherIcon></i>
+    <button (click)="openAddProductModal(verticalCenteredModal)" class="btn btn-primary btn-icon-text mb-2 mb-md-0"
+            type="button">
+      <i appFeatherIcon class="btn-icon-prepend" data-feather="plus"></i>
       Add Product
     </button>
   </div>
@@ -23,21 +24,38 @@
         <h6 class="card-title">Products</h6>
         <div class="table-responsive">
           <ngx-datatable
-            class="bootstrap"
             [rows]="rows"
+            class="bootstrap"
             [loadingIndicator]="loadingIndicator"
             [columnMode]="ColumnMode.force"
             [footerHeight]="50"
+            [columns]="columns"
             [limit]="10"
-            rowHeight="auto"
+            [rowHeight]="'auto'"
           >
-            <ngx-datatable-column name="Id"></ngx-datatable-column>
-            <ngx-datatable-column name="ProductName"></ngx-datatable-column>
-            <ngx-datatable-column name="Remarks"></ngx-datatable-column>
-            <ngx-datatable-column name="IsActive">
-              <app-label-active [value] = "true"></app-label-active>
-              </ngx-datatable-column>
-            <ngx-datatable-column name="CreatedOn"></ngx-datatable-column>
+            <ngx-datatable-column
+              *ngFor="let column of columns; let i = index"
+              name="{{ column.name }}"
+              prop="{{ column.prop }}"
+            >
+              <ng-template
+                *ngIf="column.name === 'Actions'"
+                let-row="row"
+                let-value="value"
+                ngx-datatable-cell-template
+              >
+                <span>
+                      <button class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0" type="button">
+                        <i appFeatherIcon class="btn-icon-prepend" data-feather="printer"></i>
+                        View
+                      </button>
+                      <button class="btn btn-primary btn-icon-text mb-2 mb-md-0" type="button">
+                        <i appFeatherIcon class="btn-icon-prepend" data-feather="download-cloud"></i>
+                        Edit
+                      </button>
+                </span>
+              </ng-template>
+            </ngx-datatable-column>
           </ngx-datatable>
         </div>
       </div>
@@ -48,14 +66,46 @@
 <!-- Modal -->
 <ng-template #verticalCenteredModal let-modal>
   <div class="modal-header">
-    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-    <button type="button" class="btn-close" (click)="modal.close('by: close icon')" aria-label="Close"></button>
+    <h5 class="modal-title" id="exampleModalLabel">Add Product</h5>
+    <button (click)="modal.close('by: close icon')" aria-label="Close" class="btn-close" type="button"></button>
   </div>
   <div class="modal-body">
-    <p>Modal body</p>
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="mb-3">
+          <label class="form-label">Product Name</label>
+          <input class="form-control" formControlName="name" type="text">
+          <small *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')" class="text-danger">Required
+            Field</small>
+        </div>
+      </div>
+      <div class="col-sm-12">
+        <div class="mb-3">
+          <label class="text-gray">Description</label>
+          <textarea class="form-control" formControlName="description" type="text"></textarea>
+          <small *ngIf="form.get('description')?.touched &&
+          form.get('description')?.hasError('required')" class="text-danger">Required
+            Field</small>
+        </div>
+      </div>
+      <div class="col-sm-12">
+        <div class="mb-3">
+          <label class="text-gray">Product Image</label>
+          <input #fileUpload (change)="onFileChange($event)"
+                 accept="image/*"
+                 class="form-control"
+                 id="file"
+                 type="file"
+          />
+        </div>
+      </div>
+
+    </div>
+
+
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="modal.close('by: close button')">Close</button>
-    <button type="button" class="btn btn-primary" (click)="modal.close('by: save button')">Save changes</button>
+    <button (click)="modal.close('by: close button')" class="btn btn-secondary" type="button">Close</button>
+    <button (click)="modal.close('by: save button')" class="btn btn-primary" type="button">Save changes</button>
   </div>
 </ng-template>
