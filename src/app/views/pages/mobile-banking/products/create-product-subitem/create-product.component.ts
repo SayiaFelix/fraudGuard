@@ -161,7 +161,7 @@
 //       size: 100
 //     };
 //
-//     this.httpService.advancysPost('api/v1/corporate/admin/profiles/all', model).subscribe(
+//     this.httpService.advancysPost('api/v1/corporate/admin/list-products/all', model).subscribe(
 //       result => {
 //
 //         // console.log(result.status);

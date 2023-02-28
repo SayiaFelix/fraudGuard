@@ -70,7 +70,7 @@
 //   }
 //
 //   ngOnInit(): void {
-//     this.breadCrumbItems = [{ label: 'Mobile banking', path: '/mobile-banking/all-profiles' },
+//     this.breadCrumbItems = [{ label: 'Mobile banking', path: '/mobile-banking/all-list-products' },
 //       { label: 'Pages', path: '/' }, { label: 'RBAC', active: true }];
 //     this.loadData();
 //
@@ -84,7 +84,7 @@
 //       size: 100
 //     };
 //
-//     this.httpService.advancysPost('api/v1/corporate/admin/profiles/all', model).subscribe(
+//     this.httpService.advancysPost('api/v1/corporate/admin/list-products/all', model).subscribe(
 //       (result: any) => {
 //         this.dataSet = [];
 //

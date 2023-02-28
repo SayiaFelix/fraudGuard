@@ -2,10 +2,10 @@ import {NgModule} from '@angular/core';
 import {ProductsRoutingModule} from './products-routing';
 
 
-import {ProductsComponent} from './profiles/products.component';
-// import {AddProductComponent} from './profiles/add-product/add-product.component';
-// import {ViewProductComponent} from './profiles/view-product/view-product.component';
-// import {CreateProductComponent} from './profiles/create-product-subitem/create-product.component';
+import {ProductsComponent} from './list-products/products.component';
+// import {AddProductComponent} from './list-products/add-product/add-product.component';
+// import {ViewProductComponent} from './list-products/view-product/view-product.component';
+// import {CreateProductComponent} from './list-products/create-product-subitem/create-product.component';
 import {SharedModule} from "../../../../shared/shared.module";
 import {FeatherIconModule} from "../../../../core/feather-icon/feather-icon.module";
 import {NgxDatatableModule} from "@swimlane/ngx-datatable";

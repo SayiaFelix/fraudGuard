@@ -149,7 +149,7 @@ export class ProductsComponent implements OnInit {
       size: 5
     };
 
-    this.httpService.mobileBankingPost('api/v1/corporate/admin/profiles/all', model).subscribe((res: any) => {
+    this.httpService.mobileBankingPost('api/v1/corporate/admin/list-products/all', model).subscribe((res: any) => {
 
       if (res.status === 200) {
         setTimeout(() => {
