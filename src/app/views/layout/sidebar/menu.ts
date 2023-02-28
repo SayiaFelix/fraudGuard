@@ -19,7 +19,20 @@ export const MENU: MenuItem[] = [
     label: 'Tables',
     icon: 'home',
     link: '/mobile-banking/sample-table'
+  },
+
+  {
+    label: 'Products',
+    isTitle: true
+  },
+  {
+    label: 'Products',
+    icon: 'home',
+    link: '/mobile-banking/products/list-products'
   }
+
+
+
 ];
 
 // Commented out menu options

@@ -35,7 +35,6 @@ import { JwtModule } from '@auth0/angular-jwt';
     FormsModule,
     ReactiveFormsModule,
     NgbModule,
-    JwtModule
   ],
   exports: [
     CommonModule,

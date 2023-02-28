@@ -21,7 +21,9 @@ const routes: Routes = [
       {
         path: 'sample-table',
         component: NgxDatatableComponent
-      }
+      },
+      { path: 'products', loadChildren: () => import('./products/products.module').then(m => m.ProductsModule) },
+
     ]
   },
 ]

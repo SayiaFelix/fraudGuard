@@ -1,0 +1,120 @@
+<div class="d-flex justify-content-between align-items-center flex-wrap grid-margin">
+  <div>
+    <h4 class="mb-3 mb-md-0">All Products</h4>
+  </div>
+  <div class="d-flex align-items-center flex-wrap text-nowrap">
+    <div class="input-group wd-200 me-2 mb-2 mb-md-0">
+    </div>
+    <button type="button" class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0">
+      <i class="btn-icon-prepend" data-feather="printer" appFeatherIcon></i>
+      Download
+    </button>
+    <button type="button" class="btn btn-primary btn-icon-text mb-2 mb-md-0" (click)="openAddProductModal(verticalCenteredModal)">
+      <i class="btn-icon-prepend" data-feather="plus" appFeatherIcon></i>
+      Add Product
+    </button>
+  </div>
+</div>
+<!--  <app-page-title [breadcrumbItems]="breadCrumbItems" title="All Profiles"></app-page-title>-->
+
+  <div class="profiles-container pt-2">
+
+          <div class="card-body pt-0 widget-body mt-2" *ngIf="selectedTab === 0">
+            <div class="table-responsive table-striped table-bordered">
+<!--              <ng2-smart-table (custom)="onCustomAction($event)" *ngIf="source && isLoaded" [settings]="settings"-->
+<!--                               [source]="source"-->
+<!--                               class="table table-hover table-bordered">-->
+<!--              </ng2-smart-table>-->
+            </div>
+<!--            <ul class="d-none">-->
+<!--              <li *ngFor="let item of data | paginate: {itemsPerPage: perPage, currentPage: page, totalItems: total}">-->
+<!--              </li>-->
+<!--            </ul>-->
+
+<!--            <div class="d-flex justify-content-between mt-2">-->
+<!--              <div class="row col-xl-6 col-lg-1 col-md-1 text-center">-->
+<!--                <div class="col-sm-4 pl-0">-->
+<!--                  <select (change)="onChange()" [(ngModel)]="perPage" class="form-control custom-select">-->
+<!--                    <option *ngFor="let pageSize of pageSizes" [ngValue]="pageSize">{{ pageSize }}</option>-->
+<!--                  </select>-->
+<!--                </div>-->
+<!--                <label class="pt-2">Items per page</label>-->
+<!--              </div>-->
+<!--              <pagination-controls (pageChange)="getIndividualData($event)" autoHide="true" maxSize="5"-->
+<!--                                   previousLabel="Prev" responsive="true">-->
+<!--              </pagination-controls>-->
+<!--            </div>-->
+
+          </div>
+
+<!--          <div class="card-body pt-0 widget-body mt-2" *ngIf="selectedTab === 1">-->
+<!--            <div class="table-responsive table-striped table-bordered">-->
+<!--              <ng2-smart-table (custom)="onCustomApproveAction($event)" *ngIf="pendingCreateDataSet && isLoaded"-->
+<!--                               [settings]="pendingSettings"-->
+<!--                               [source]="pendingCreateDataSet" class="table table-hover table-bordered">-->
+<!--              </ng2-smart-table>-->
+<!--            </div>-->
+<!--            <ul class="d-none">-->
+<!--              <li *ngFor="let item of data | paginate: {itemsPerPage: perPage, currentPage: page, totalItems: total}">-->
+<!--              </li>-->
+<!--            </ul>-->
+
+<!--            <div class="d-flex justify-content-between mt-2">-->
+<!--              <div class="row col-xl-6 col-lg-1 col-md-1 text-center">-->
+<!--                <div class="col-sm-4 pl-0">-->
+<!--                  <select (change)="onChange()" [(ngModel)]="perPage" class="form-control custom-select">-->
+<!--                    <option *ngFor="let pageSize of pageSizes" [ngValue]="pageSize">{{ pageSize }}</option>-->
+<!--                  </select>-->
+<!--                </div>-->
+<!--                <label class="pt-2">Items per page</label>-->
+<!--              </div>-->
+<!--              <pagination-controls (pageChange)="getIndividualData($event)" autoHide="true" maxSize="5"-->
+<!--                                   previousLabel="Prev" responsive="true">-->
+<!--              </pagination-controls>-->
+<!--            </div>-->
+<!--          </div>-->
+
+<!--          <div class="card-body pt-0 widget-body mt-2" *ngIf="selectedTab === 2">-->
+<!--            <div class="table-responsive table-striped table-bordered">-->
+<!--              <ng2-smart-table (custom)="onCustomApproveAction($event)" *ngIf="pendingUpdateDataSet && isLoaded"-->
+<!--                               [settings]="pendingSettings" [source]="pendingUpdateDataSet"-->
+<!--                               class="table table-hover table-bordered">-->
+<!--              </ng2-smart-table>-->
+<!--            </div>-->
+
+<!--            <ul class="d-none">-->
+<!--              <li *ngFor="let item of data | paginate: {itemsPerPage: perPage, currentPage: page, totalItems: total}">-->
+<!--              </li>-->
+<!--            </ul>-->
+
+<!--            <div class="d-flex justify-content-between mt-2">-->
+<!--              <div class="row col-xl-6 col-lg-1 col-md-1 text-center">-->
+<!--                <div class="col-sm-4 pl-0">-->
+<!--                  <select (change)="onChange()" [(ngModel)]="perPage" class="form-control custom-select">-->
+<!--                    <option *ngFor="let pageSize of pageSizes" [ngValue]="pageSize">{{ pageSize }}</option>-->
+<!--                  </select>-->
+<!--                </div>-->
+<!--                <label class="pt-2">Items per page</label>-->
+<!--              </div>-->
+<!--              <pagination-controls (pageChange)="getIndividualData($event)" autoHide="true" maxSize="5"-->
+<!--                                   previousLabel="Prev" responsive="true">-->
+<!--              </pagination-controls>-->
+<!--            </div>-->
+<!--          </div>-->
+
+  </div>
+
+<!-- Modal -->
+<ng-template #verticalCenteredModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+    <button type="button" class="btn-close" (click)="modal.close('by: close icon')" aria-label="Close"></button>
+  </div>
+  <div class="modal-body">
+    <p>Modal body</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.close('by: close button')">Close</button>
+    <button type="button" class="btn btn-primary" (click)="modal.close('by: save button')">Save changes</button>
+  </div>
+</ng-template>
