@@ -59,10 +59,10 @@ export class LoginComponent implements OnInit {
     // },(complete: any) => {
     //   console.log(complete)
     // });
-    // localStorage.setItem('isLoggedin', 'true');
-    // if (localStorage.getItem('isLoggedin')) {
-    //   this.router.navigate([this.returnUrl]);
-    // }
+    localStorage.setItem('isLoggedin', 'true');
+    if (localStorage.getItem('isLoggedin')) {
+      this.router.navigate([this.returnUrl]);
+    }
   }
 
   toggleShowPassword() {

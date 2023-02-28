@@ -21,6 +21,10 @@ const routes: Routes = [
         loadChildren: () => import('./views/pages/apps/apps.module').then(m => m.AppsModule)
       },
       {
+        path: 'mobile-banking',
+        loadChildren: () => import('./views/pages/mobile-banking/mobile-banking.module').then(m => m.MobileBankingModule)
+      },
+      {
         path: 'ui-components',
         loadChildren: () => import('./views/pages/ui-components/ui-components.module').then(m => m.UiComponentsModule)
       },
@@ -52,17 +56,17 @@ const routes: Routes = [
         path: 'general',
         loadChildren: () => import('./views/pages/general/general.module').then(m => m.GeneralModule)
       },
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }, 
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       // { path: '**', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },
-  { 
+  {
     path: 'error',
     component: ErrorPageComponent,
     data: {
       'type': 404,
       'title': 'Page Not Found',
-      'desc': 'Oopps!! The page you were looking for doesn\'t exist.'
+      'desc': 'Ooops!! The page you were looking for doesn\'t exist.'
     }
   },
   {

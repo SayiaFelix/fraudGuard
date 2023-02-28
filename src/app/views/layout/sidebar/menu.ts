@@ -9,6 +9,16 @@ export const MENU: MenuItem[] = [
     label: 'Dashboard',
     icon: 'home',
     link: '/dashboard'
+  },
+
+  {
+    label: 'Table Example',
+    isTitle: true
+  },
+  {
+    label: 'Tables',
+    icon: 'home',
+    link: '/mobile-banking/sample-table'
   }
 ];
 
@@ -31,7 +41,7 @@ export const MENU: MenuItem[] = [
 //   },
 //   {
 //     label: 'Compose',
-//     link: '/apps/email/compose'
+//     link: '/apps/email/sample-table'
 //   },
 // ]
 // },
