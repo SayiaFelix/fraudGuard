@@ -5,8 +5,8 @@ import {ReactiveFormsModule} from "@angular/forms";
 import {FeatherIconModule} from "../../../core/feather-icon/feather-icon.module";
 import {SharedModule} from "../../../shared/shared.module";
 import {MobileBankingComponent} from "./mobile-banking.component";
-import {NgxDatatableComponent} from "./ngx-datatable/ngx-datatable.component";
 import {NgxDatatableModule} from "@swimlane/ngx-datatable";
+import {NgxDatatableComponent} from "../tables/ngx-datatable/ngx-datatable.component";
 
 const routes: Routes = [
   {
@@ -31,7 +31,6 @@ const routes: Routes = [
 @NgModule({
   declarations: [
     MobileBankingComponent,
-    NgxDatatableComponent
     ],
   imports: [
     CommonModule,
@@ -39,7 +38,7 @@ const routes: Routes = [
     SharedModule,
     ReactiveFormsModule,
     FeatherIconModule,
-    NgxDatatableModule,
+
   ]
 })
 export class MobileBankingModule { }
