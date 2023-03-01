@@ -43,7 +43,27 @@ export const MENU: MenuItem[] = [
     label: 'Branches',
     icon: 'file-text',
     link: 'mobile-banking/setups/list-branches'
-  }
+  },
+
+  {
+    label: 'User Management',
+    isTitle: true
+  },
+  {
+    label: 'Users',
+    icon: 'home',
+    link: '/mobile-banking/products/list-products'
+  },
+  {
+    label: 'Roles',
+    icon: 'home',
+    link: '/mobile-banking/products/list-products'
+  },
+  {
+    label: 'Profiles',
+    icon: 'home',
+    link: '/mobile-banking/products/list-products'
+  },
 
 
 

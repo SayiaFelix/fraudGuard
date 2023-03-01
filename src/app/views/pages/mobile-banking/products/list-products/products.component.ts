@@ -6,6 +6,8 @@ import { ColumnMode } from '@swimlane/ngx-datatable';
 import {HttpService} from "../../../../../shared/services/http.service";
 import {GlobalService} from "../../../../../shared/services/global.service";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {NgxDatatableComponent} from "../../../tables/ngx-datatable/ngx-datatable.component";
+import {DatatableComponent} from "@swimlane/ngx-datatable/lib/components/datatable.component";
 
 @Component({
   selector: 'app-starter',
@@ -19,7 +21,7 @@ import {FormBuilder, FormGroup, Validators} from "@angular/forms";
  */
 export class ProductsComponent implements OnInit {
 
-  @ViewChild('myTable') table: any;
+  @ViewChild('table') table: DatatableComponent;
 
   tempProductData = [
     {
@@ -85,10 +87,9 @@ export class ProductsComponent implements OnInit {
   constructor(private httpService: HttpService,
               private modalService: NgbModal,
               public fb: FormBuilder,
-              public datePipe: DatePipe,
 
               public router: Router,
-              public globalService: GlobalService) {
+  ) {
 
 
   }
@@ -129,21 +130,6 @@ export class ProductsComponent implements OnInit {
   //   });
   // }
 
-  onCustomAction(event: { action: any; data: any; }) {
-    switch (event.action) {
-      case 'viewrecord':
-        // this.viewProduct(event.data);
-        break;
-      case 'editrecord':
-        // this.editProduct(event.data);
-    }
-  }
-
-  private viewProduct(data: any): void {
-    console.log('here is the product data');
-    console.log(data);
-    this.router.navigate(['products', 'product', data.id], {queryParams: data});
-  }
 
   getIndividualData(event: number): void {
 
@@ -192,9 +178,7 @@ export class ProductsComponent implements OnInit {
     this.router.navigateByUrl(`/mobile-banking/products/product/${data.id}`);
   }
 
-  toggleExpandRow(row: any, value: any) {
-    console.log(row);
-    console.log(value);
+  toggleExpandRow(row: any) {
     this.table.rowDetail.toggleExpandRow(row);
   }
 
