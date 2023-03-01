@@ -29,6 +29,15 @@ export const MENU: MenuItem[] = [
     label: 'Products',
     icon: 'home',
     link: '/mobile-banking/products/list-products'
+  },
+  {
+    label: 'Setup',
+    isTitle: true
+  },
+  {
+    label: 'Branches',
+    icon: 'file-text',
+    link: '/mobile-banking/branches/list-branches'
   }
 
 
