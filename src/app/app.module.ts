@@ -1,5 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -18,6 +19,7 @@ import {HttpClientModule} from "@angular/common/http";
   declarations: [
     AppComponent,
     ErrorPageComponent,
+  
   ],
   imports: [
     BrowserModule,
@@ -25,6 +27,7 @@ import {HttpClientModule} from "@angular/common/http";
     HttpClientModule,
     BrowserAnimationsModule,
     LayoutModule,
+   
   ],
   providers: [
     AuthGuard,
