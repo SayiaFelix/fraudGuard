@@ -7,6 +7,7 @@ import {SharedModule} from "../../../shared/shared.module";
 import {MobileBankingComponent} from "./mobile-banking.component";
 import {NgxDatatableModule} from "@swimlane/ngx-datatable";
 import {NgxDatatableComponent} from "../tables/ngx-datatable/ngx-datatable.component";
+import { ListBranchesComponent } from './branches/list-branches/list-branches.component';
 
 const routes: Routes = [
   {
@@ -23,6 +24,8 @@ const routes: Routes = [
         component: NgxDatatableComponent
       },
       { path: 'products', loadChildren: () => import('./products/products.module').then(m => m.ProductsModule) },
+
+      { path: 'branches', loadChildren: () => import('./branches/branches.module').then(m => m.BranchesModule) },
 
     ]
   },
