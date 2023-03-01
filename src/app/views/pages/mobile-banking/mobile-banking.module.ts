@@ -8,6 +8,7 @@ import {MobileBankingComponent} from "./mobile-banking.component";
 import {NgxDatatableModule} from "@swimlane/ngx-datatable";
 import {NgxDatatableComponent} from "../tables/ngx-datatable/ngx-datatable.component";
 import { ListBranchesComponent } from './branches/list-branches/list-branches.component';
+import { ListAtmsComponent } from './Atms/list-atms/list-atms.component';
 
 const routes: Routes = [
   {
@@ -26,6 +27,8 @@ const routes: Routes = [
       { path: 'products', loadChildren: () => import('./products/products.module').then(m => m.ProductsModule) },
 
       { path: 'branches', loadChildren: () => import('./branches/branches.module').then(m => m.BranchesModule) },
+
+      { path: 'Atms', loadChildren: () => import('./Atms/Atms.module').then(m => m.AtmsModule) },
 
     ]
   },

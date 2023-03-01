@@ -38,6 +38,11 @@ export const MENU: MenuItem[] = [
     label: 'Branches',
     icon: 'file-text',
     link: '/mobile-banking/branches/list-branches'
+  },
+  {
+    label: 'ATMs',
+    icon: 'file-text',
+    link: '/mobile-banking/Atms/list-atms'
   }
 
 
