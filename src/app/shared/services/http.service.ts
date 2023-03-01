@@ -28,7 +28,7 @@ export class HttpService {
       this.generateLoginHeaders()
     )
       .pipe(
-        map((result: any) => {        
+        map((result: any) => {
           localStorage.setItem('isLoggedin', 'true')
           localStorage.setItem('access_token', result['access_token'])
           this.router.navigate(['/dashboard'])
@@ -72,6 +72,15 @@ export class HttpService {
       return response;
     }));
   }
+
+  public getMapCoordinates(endpoint: string): any {
+    return this.http.get(endpoint, this.getHeaders()
+    ).pipe(map(response => {
+      response = response;
+      return response;
+    }));
+  }
+
 
   private getHeaders(): any {
     return {
