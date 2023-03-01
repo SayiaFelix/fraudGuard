@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, TemplateRef} from '@angular/core';
+import {Component, Input, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {DatePipe} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -19,11 +19,14 @@ import {FormBuilder, FormGroup, Validators} from "@angular/forms";
  */
 export class ProductsComponent implements OnInit {
 
+  @ViewChild('myTable') table: any;
+
   tempProductData = [
     {
       id: 1,
       productName: 'Bank Accounts',
       remarks: 'Bank Accounts Description',
+      status: true,
       createdOn: '12-02-2023',
 
     },
@@ -31,27 +34,28 @@ export class ProductsComponent implements OnInit {
       id: 2,
       productName: 'Card Accounts',
       remarks: 'Card Accounts Description',
+      status: true,
       createdOn: '12-02-2023',
     },
     {
       id: 3,
       productName: 'Loan Accounts',
       remarks: 'Loan Accounts Description',
-      isActive: true,
+      status: true,
       createdOn: '12-02-2023',
     },
     {
       id: 4,
       productName: 'Investment Accounts',
       remarks: 'Investment Accounts Description',
-      isActive: true,
+      status: true,
       createdOn: '12-02-2023',
     },
     {
       id: 5,
       productName: 'Insurance Accounts',
       remarks: 'Insurance Accounts Description',
-      isActive: true,
+      status: false,
       createdOn: '12-02-2023',
     },
   ];
@@ -66,7 +70,8 @@ export class ProductsComponent implements OnInit {
     { name: 'ID', prop: 'id' },
     { name: 'ProductName', prop:'productName' },
     { name: 'Remarks', prop:'remarks' },
-    { name: 'IsActive', prop:'isActive' },
+    { name: 'Status', prop:'status' },
+    { name: 'CreatedOn', prop:'createdOn' },
     { name: 'Actions', prop: 'id' }
   ];
 
@@ -186,4 +191,11 @@ export class ProductsComponent implements OnInit {
   navigateToViewProduct(data: any) {
     this.router.navigateByUrl(`/mobile-banking/products/product/${data.id}`);
   }
+
+  toggleExpandRow(row: any, value: any) {
+    console.log(row);
+    console.log(value);
+    this.table.rowDetail.toggleExpandRow(row);
+  }
+
 }
