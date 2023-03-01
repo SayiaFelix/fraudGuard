@@ -7,6 +7,13 @@
   resolved "https://registry.yarnpkg.com/@adobe/css-tools/-/css-tools-4.2.0.tgz#e1a84fca468f4b337816fcb7f0964beb620ba855"
   integrity sha512-E09FiIft46CmH5Qnjb0wsW54/YQd69LsxeKUOWawmws1XWvyFGURnAChH0mlr7YPFR1ofwvUQfcL0J3lMxXqPA==
 
+"@agm/core@1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@agm/core/-/core-1.1.0.tgz#6f8dcbac068f681fe4fa9b0a0cbf660588025911"
+  integrity sha512-cMvmm3+3/uuVFurLv1FKhE0/6ssIlDvYBjQFCi8ELg7h0OY2MkIU1MXWr7z+f/xZ08E936I4eeddni6k4yUTIA==
+  dependencies:
+    tslib "^1.9.0"
+
 "@ampproject/remapping@2.2.0", "@ampproject/remapping@^2.1.0", "@ampproject/remapping@^2.2.0":
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/@ampproject/remapping/-/remapping-2.2.0.tgz#56c133824780de3174aed5ab6834f3026790154d"
@@ -1729,6 +1736,11 @@
   version "4.29.1"
   resolved "https://registry.yarnpkg.com/@types/feather-icons/-/feather-icons-4.29.1.tgz#6feec838a628fe3cf93582b71f4809e9753c38f7"
   integrity sha512-8+PdenCN8UWTfyIHNaJdmk/oPg6zyw7S9kHtT8PdkmHEwfTHSrSWEHpNZJzbuWmZBXQKA/+dLVXjrloX9XixPg==
+
+"@types/googlemaps@^3.43.3":
+  version "3.43.3"
+  resolved "https://registry.yarnpkg.com/@types/googlemaps/-/googlemaps-3.43.3.tgz#70cf962154a160fe78bcd69d6ccc296dd9175b1f"
+  integrity sha512-ZWNoz/O8MPEpiajvj7QiqCY8tTLFNqNZ/a+s+zTV58wFVNAvvqV4bdGfnsjTb5Cs4V6wEsLrX8XRhmnyYJ2Tdg==
 
 "@types/http-proxy@^1.17.8":
   version "1.17.10"

@@ -11,6 +11,7 @@
   },
   "private": true,
   "dependencies": {
+    "@agm/core": "1.1.0",
     "@angular/animations": "^14.2.10",
     "@angular/common": "^14.2.10",
     "@angular/compiler": "^14.2.10",
@@ -33,6 +34,7 @@
     "@popperjs/core": "^2.11.6",
     "@sweetalert2/ngx-sweetalert2": "^11.0.0",
     "@swimlane/ngx-datatable": "^20.1.0",
+    "@types/googlemaps": "^3.43.3",
     "angular-archwizard": "^7.0.0",
     "angular-cropperjs": "^1.0.2",
     "animate.css": "^4.1.1",

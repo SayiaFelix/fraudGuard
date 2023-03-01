@@ -35,10 +35,16 @@ export const MENU: MenuItem[] = [
     isTitle: true
   },
   {
+    label: 'Regions',
+    icon: 'file-text',
+    link: '/mobile-banking/setups/list-regions'
+  },
+  {
     label: 'Branches',
     icon: 'file-text',
-    link: '/mobile-banking/branches/list-branches'
+    link: 'mobile-banking/setups/list-branches'
   }
+
 
 
 
