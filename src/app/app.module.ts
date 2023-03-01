@@ -13,13 +13,14 @@ import { ErrorPageComponent } from './views/pages/error-page/error-page.componen
 
 import { HIGHLIGHT_OPTIONS } from 'ngx-highlightjs';
 import {HttpClientModule} from "@angular/common/http";
+import {AgmCoreModule} from "@agm/core";
 
 
 @NgModule({
   declarations: [
     AppComponent,
     ErrorPageComponent,
-  
+
   ],
   imports: [
     BrowserModule,
@@ -27,7 +28,7 @@ import {HttpClientModule} from "@angular/common/http";
     HttpClientModule,
     BrowserAnimationsModule,
     LayoutModule,
-   
+    AgmCoreModule.forRoot({  apiKey: "AIzaSyCeXaOKfJXQZuh-3wZmMmYSt5NruUJPVgU",  libraries: ["places", "drawing", "geometry"]}),
   ],
   providers: [
     AuthGuard,
