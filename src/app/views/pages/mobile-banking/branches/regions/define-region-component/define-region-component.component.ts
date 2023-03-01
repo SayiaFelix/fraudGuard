@@ -4,7 +4,7 @@ import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 
 
 
-import {constituencies, counties, kcbRegions} from "../CountiesAndConstituencies";
+import {constituencies, counties} from "../CountiesAndConstituencies";
 import { HttpService } from "src/app/shared/services/http.service";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 

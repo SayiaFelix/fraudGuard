@@ -290,7 +290,7 @@ export let constituencies = [
     "Wundanyi",
     "Yatta"
   ];
-  
+
   export let counties = [
     "Baringo",
     "Bomet",
@@ -339,12 +339,4 @@ export let constituencies = [
     "Wajir",
     "West Pokot",
     "Nakuru"
-  ];
-  export let kcbRegions = [
-    "GREAT_RIFT",
-    "NAIROBI_ENVIRONS",
-    "NAIROBI_CENTRAL",
-    "WESTERN",
-    "CENTRAL",
-    "COAST"
   ];
