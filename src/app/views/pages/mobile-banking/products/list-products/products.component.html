@@ -30,32 +30,26 @@
             [columnMode]="ColumnMode.force"
             [footerHeight]="50"
             [columns]="columns"
-            [limit]="10"
+            [limit]="2"
             [rowHeight]="'auto'"
           >
-            <ngx-datatable-column
-              *ngFor="let column of columns; let i = index"
-              name="{{ column.name }}"
-              prop="{{ column.prop }}"
-            >
-              <ng-template
-                *ngIf="column.name === 'Actions'"
-                let-row="row"
-                let-value="value"
-                ngx-datatable-cell-template
-              >
-                <span>
-                      <button class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0" type="button">
-                        <i appFeatherIcon class="btn-icon-prepend" data-feather="printer"></i>
-                        View
+            <ng-container *ngFor='let column of columns' >
+              <ngx-datatable-column *ngIf='column.name === "Actions"' name="Actions" prop="actions">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                    <span>
+                      <button type="button" class="btn btn-outline-primary btn-icon-text me-2 btn-sm" (click)="navigateToViewProduct(row)">
+                          View
                       </button>
-                      <button class="btn btn-primary btn-icon-text mb-2 mb-md-0" type="button">
-                        <i appFeatherIcon class="btn-icon-prepend" data-feather="download-cloud"></i>
-                        Edit
+                      <button type="button" class="btn btn-primary btn-icon-text btn-sm" (click)="openEditProductModal(verticalCenteredModal)">
+                          Edit
                       </button>
-                </span>
-              </ng-template>
-            </ngx-datatable-column>
+                    </span>
+                </ng-template>
+              </ngx-datatable-column>
+              <ngx-datatable-column *ngIf='column.name !== "Actions"' name="{{column.name}}" prop="{{column.prop}}">
+              </ngx-datatable-column>
+            </ng-container>
+
           </ngx-datatable>
         </div>
       </div>
@@ -69,7 +63,7 @@
     <h5 class="modal-title" id="exampleModalLabel">Add Product</h5>
     <button (click)="modal.close('by: close icon')" aria-label="Close" class="btn-close" type="button"></button>
   </div>
-  <div class="modal-body">
+  <div class="modal-body" [formGroup]="form">
     <div class="row">
       <div class="col-sm-12">
         <div class="mb-3">

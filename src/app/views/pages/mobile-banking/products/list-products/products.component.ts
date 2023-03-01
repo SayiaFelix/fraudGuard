@@ -171,9 +171,19 @@ export class ProductsComponent implements OnInit {
     }).catch((res) => {});
   }
 
+  openEditProductModal(content: TemplateRef<any>) {
+    this.modalService.open(content, {centered: true}).result.then((result) => {
+      console.log("Modal closed" + result);
+    }).catch((res) => {});
+  }
+
   onFileChange(event: any) {
     if (event.target.files && event.target.files.length) {
       this.imageFile = event.target.files[0];
     }
+  }
+
+  navigateToViewProduct(data: any) {
+    this.router.navigateByUrl(`/mobile-banking/products/product/${data.id}`);
   }
 }

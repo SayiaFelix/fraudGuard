@@ -11,15 +11,15 @@ export const MENU: MenuItem[] = [
     link: '/dashboard'
   },
 
-  {
-    label: 'Table Example',
-    isTitle: true
-  },
-  {
-    label: 'Tables',
-    icon: 'home',
-    link: '/mobile-banking/sample-table'
-  },
+  // {
+  //   label: 'Table Example',
+  //   isTitle: true
+  // },
+  // {
+  //   label: 'Tables',
+  //   icon: 'home',
+  //   link: '/mobile-banking/sample-table'
+  // },
 
   {
     label: 'Products',
