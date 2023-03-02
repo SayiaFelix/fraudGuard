@@ -98,15 +98,15 @@
                   <span>
                     <button
                       type="button"
-                      class="btn btn-outline-primary btn-icon-text me-2 btn-sm"
+                      class="btn btn-outline-primary btn-icon-text me-2 btn-xs"
                       (click)="navigateToViewProduct(row)"
                     >
                       View
                     </button>
                     <button
                       type="button"
-                      class="btn btn-primary btn-icon-text btn-sm"
-                      (click)="openEditProductModal(verticalCenteredModal)"
+                      class="btn btn-primary btn-icon-text btn-xs"
+                      (click)="openEditProductModal(verticalCenteredModal, row)"
                     >
                       Edit
                     </button>
@@ -145,7 +145,7 @@
 <!-- Modal -->
 <ng-template #verticalCenteredModal let-modal>
   <div class="modal-header">
-    <h5 class="modal-title" id="exampleModalLabel">Add Product</h5>
+    <h5 class="modal-title" id="exampleModalLabel">{{title}}</h5>
     <button
       (click)="modal.close('by: close icon')"
       aria-label="Close"
@@ -192,6 +192,7 @@
           <label class="text-gray">Product Image</label>
           <input
             #fileUpload
+            formControlName="image"
             (change)="onFileChange($event)"
             accept="image/*"
             class="form-control"

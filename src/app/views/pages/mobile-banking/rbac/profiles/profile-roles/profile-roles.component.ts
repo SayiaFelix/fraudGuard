@@ -306,10 +306,13 @@ export class ProfileRolesComponent implements OnInit {
         const model = {
         };
 
-        this.httpService.mobileBankingPost('api/v1/bank/role/all', model).subscribe((result: any) => {
+        this.httpService.mobileBankingPost('api/v1/corporate/admin/roles/all', model).subscribe((result: any) => {
                 if (result.status === 200) {
 
                     this.allRolesList = result.data;
+
+                  console.log("this.allRolesList");
+                  console.log(this.allRolesList);
 
                     this.getAssignedRoles();
 
@@ -431,13 +434,14 @@ export class ProfileRolesComponent implements OnInit {
     }
 
   onAddRole(event: any ) {
-    this.allAddedRolesListPending.push(event);
-    this.pendingDataSet = this.pendingDataSet.filter((item: any) => item !== event);
+    this.allAddedRolesListPending.push(event.selected.name);
+    this.pendingDataSet = this.pendingDataSet.filter((item: any) => item !== event.selected.name);
   }
 
   onRemoveRole(event: any ) {
-    this.allRemovedRolesListPending.push(event);
-    this.approvedDataSet = this.approvedDataSet.filter((item: any) => item !== event);
+    console.log(event);
+    this.allRemovedRolesListPending.push(event.selected);
+    this.approvedDataSet = this.approvedDataSet.filter((item: any) => item !== event.selected);
   }
 
   remove() {
