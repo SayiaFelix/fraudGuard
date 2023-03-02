@@ -1,0 +1,122 @@
+<div class="d-flex justify-content-between align-items-center flex-wrap grid-margin">
+    <div>
+      <h4 class="mb-3 mb-md-0">All Branches</h4>
+    </div>
+    <div class="d-flex align-items-center flex-wrap text-nowrap">
+      <div class="input-group wd-200 me-2 mb-2 mb-md-0">
+      </div>
+      <button class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0" type="button">
+        <i appFeatherIcon class="btn-icon-prepend" data-feather="printer"></i>
+        Download
+      </button>
+      <button (click)="openAddProductModal(verticalCenteredModal)" class="btn btn-primary btn-icon-text mb-2 mb-md-0"
+              type="button">
+        <i appFeatherIcon class="btn-icon-prepend" data-feather="plus"></i>
+        Add Branch
+      </button>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12 stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <h6 class="card-title">Branches</h6>
+           <div class="table-responsive table-striped">
+            <ngx-datatable
+              [rows]="rows"
+              class="bootstrap"
+              [loadingIndicator]="loadingIndicator"
+              [columnMode]="ColumnMode.force"
+              [footerHeight]="50"
+              [columns]="columns"
+              [limit]="2"
+              [rowHeight]="'auto'"
+            >
+              <ng-container *ngFor='let column of columns' >
+                <ngx-datatable-column *ngIf='column.name === "Actions"' name="Actions" prop="actions">
+                  <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                    <span>
+                      <button type="button" class="btn btn-outline-primary btn-icon-text me-2 btn-sm" (click)="navigateToViewBranch(row)">
+                          View
+                      </button>
+                      <button type="button" class="btn btn-primary btn-icon-text btn-sm" (click)="openEditBranchModal(verticalCenteredModal)">
+                          Edit
+                      </button>
+                    </span>
+                  </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column *ngIf='column.name !== "Actions"' name="{{column.name}}" prop="{{column.prop}}">
+                </ngx-datatable-column>
+              </ng-container>
+
+            </ngx-datatable>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <ng-template #verticalCenteredModal let-modal>
+    <div class="modal-header">
+      <h5 class="modal-title" id="exampleModalLabel">Add Branch</h5>
+      <button (click)="modal.close('by: close icon')" aria-label="Close" class="btn-close" type="button"></button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="mb-3">
+            <label class="form-label">Branch Name</label>
+            <input class="form-control" formControlName="name" type="text">
+            <small *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')" class="text-danger">Required
+              Field</small>
+          </div>
+        </div>
+        <div class="col-sm-12">
+          <div class="mb-3">
+            <label class="text-gray">Branch Code</label>
+            <input class="form-control" formControlName="branchCode" type="text">
+            <small *ngIf="form.get('branchCode')?.touched &&
+            form.get('branchCode')?.hasError('required')" class="text-danger">Required
+              Field</small>
+          </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="mb-3">
+                <label class="text-gray">Select Region</label>
+                <select
+                        class="form-select"
+                        formControlName="branch"
+                        id="branch"
+                        name="branch"
+                >
+                    <option *ngFor="let item of [{id: 1, name: 'Nairobi'}]"
+                            [value]="item.id">
+                     {{ item.name | titlecase}}
+
+                </option>
+                <option *ngFor="let item of [{id: 2, name: 'Kisumu'}]"
+                [value]="item.id">
+         {{ item.name | titlecase}}
+
+    </option>
+    <option *ngFor="let item of [{id: 3, name: 'Nakuru'}]"
+    [value]="item.id">
+{{ item.name | titlecase}}
+
+</option>
+                </select>
+             </div>
+
+        </div>
+
+      </div>
+
+
+    </div>
+    <div class="modal-footer">
+      <button (click)="modal.close('by: close button')" class="btn btn-secondary" type="button">Close</button>
+      <button (click)="modal.close('by: save button')" class="btn btn-primary" type="button">Save changes</button>
+    </div>
+  </ng-template>
