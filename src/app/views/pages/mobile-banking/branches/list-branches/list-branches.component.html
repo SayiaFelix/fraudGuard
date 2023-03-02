@@ -37,10 +37,10 @@
                 <ngx-datatable-column *ngIf='column.name === "Actions"' name="Actions" prop="actions">
                   <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                     <span>
-                      <button type="button" class="btn btn-outline-primary btn-icon-text me-2 btn-sm" (click)="navigateToViewBranch(row)">
+                      <button type="button" class="btn btn-outline-primary btn-icon-text me-2  btn-xs" (click)="navigateToViewBranch(row)">
                           View
                       </button>
-                      <button type="button" class="btn btn-primary btn-icon-text btn-sm" (click)="openEditBranchModal(verticalCenteredModal)">
+                      <button type="button" class="btn btn-primary btn-icon-text btn-xs" (click)="openEditBranchModal(verticalCenteredModal)">
                           Edit
                       </button>
                     </span>

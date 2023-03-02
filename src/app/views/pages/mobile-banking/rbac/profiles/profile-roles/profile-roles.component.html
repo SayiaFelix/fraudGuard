@@ -113,61 +113,69 @@
 
 <div class="row profile-body">
   <!-- left wrapper start -->
-  <div class="d-none d-md-block col-md-4 col-xl-4 left-wrapper">
-    <div class="card rounded">
-      <div class="card-body">
-        <div class="d-flex align-items-center justify-content-between mb-2">
-          <h6 class="card-title mb-0">All Roles</h6>
-          <hr>
-          <div ngbDropdown>
-            <button class="btn p-0 no-dropdown-toggle-icon" type="button" id="dropdownMenuButton" ngbDropdownToggle>
-              <i class="feather icon-more-horizontal icon-lg text-muted pb-3px"></i>
-            </button>
-            <div ngbDropdownMenu aria-labelledby="dropdownMenuButton">
-              <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i class="feather icon-edit-2 icon-sm me-2"></i> <span class="">Edit</span></a>
-              <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i class="feather icon-git-branch icon-sm me-2"></i> <span class="">Update</span></a>
-              <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i class="feather icon-eye icon-sm me-2"></i> <span class="">View all</span></a>
+  <div class="col-md-4 col-xl-4 left-wrapper">
+    <div class="row">
+      <div class="col-md-12 grid-margin">
+        <div class="card rounded">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <h6 class="card-title mb-0">All Roles</h6>
+              <hr>
+              <div ngbDropdown>
+                <button class="btn p-0 no-dropdown-toggle-icon" id="dropdownMenuButton" ngbDropdownToggle type="button">
+                  <i class="feather icon-more-horizontal icon-lg text-muted pb-3px"></i>
+                </button>
+                <div aria-labelledby="dropdownMenuButton" ngbDropdownMenu>
+                  <a (click)="false" class="d-flex align-items-center" href="" ngbDropdownItem><i
+                    class="feather icon-edit-2 icon-sm me-2"></i> <span class="">Edit</span></a>
+                  <a (click)="false" class="d-flex align-items-center" href="" ngbDropdownItem><i
+                    class="feather icon-git-branch icon-sm me-2"></i> <span class="">Update</span></a>
+                  <a (click)="false" class="d-flex align-items-center" href="" ngbDropdownItem><i
+                    class="feather icon-eye icon-sm me-2"></i> <span class="">View all</span></a>
+                </div>
+              </div>
             </div>
+
+            <div class="table table-responsive table-striped table-bordered">
+              <ngx-datatable
+                #table
+                (select)="onAddRole($event)"
+                [columnMode]="ColumnMode.force"
+                [columns]="columns"
+                [displayCheck]="displayCheck"
+                [footerHeight]="50"
+                [limit]="20"
+                [loadingIndicator]="loadingIndicator"
+                [rowHeight]="'auto'"
+                [rows]="pendingDataSet"
+                [selectAllRowsOnPage]="false"
+                [selected]="selected"
+                [selectionType]="SelectionType.checkbox"
+                class="bootstrap"
+              >
+                <ng-container *ngFor='let column of columns'>
+
+                  <ngx-datatable-column
+                    [canAutoResize]="false"
+                    [checkboxable]="true"
+                    [draggable]="false"
+                    [headerCheckboxable]="true"
+                    [resizeable]="false"
+                    [sortable]="false"
+                    [width]="60"
+                  >
+                  </ngx-datatable-column>
+
+                  <ngx-datatable-column *ngIf='column.name == "ROLE NAME"' name="{{column.name}}"
+                                        prop="{{column.prop}}">
+                  </ngx-datatable-column>
+                </ng-container>
+
+              </ngx-datatable>
+            </div>
+
           </div>
         </div>
-
-        <div class="table table-responsive table-striped table-bordered">
-          <ngx-datatable
-            #table
-            [rows]="pendingDataSet"
-            class="bootstrap"
-            [loadingIndicator]="loadingIndicator"
-            [columnMode]="ColumnMode.force"
-            [footerHeight]="50"
-            [columns]="columns"
-            [limit]="20"
-            [rowHeight]="'auto'"
-            [selected]="selected"
-            [selectionType]="SelectionType.checkbox"
-            [selectAllRowsOnPage]="false"
-            [displayCheck]="displayCheck"
-            (select)="onAddRole($event)"
-          >
-            <ng-container *ngFor='let column of columns' >
-
-              <ngx-datatable-column
-                [width]="60"
-                [sortable]="false"
-                [canAutoResize]="false"
-                [draggable]="false"
-                [resizeable]="false"
-                [headerCheckboxable]="true"
-                [checkboxable]="true"
-              >
-              </ngx-datatable-column>
-
-              <ngx-datatable-column *ngIf='column.name == "ROLE NAME"' name="{{column.name}}" prop="{{column.prop}}">
-              </ngx-datatable-column>
-            </ng-container>
-
-          </ngx-datatable>
-        </div>
-
       </div>
     </div>
   </div>
@@ -177,53 +185,57 @@
     <div class="row">
       <div class="col-md-12 grid-margin">
         <div class="card rounded">
-
           <div class="card-body">
             <div class="d-flex align-items-center justify-content-between mb-2">
               <h6 class="card-title mb-0">Granted Roles</h6>
               <div ngbDropdown>
-                <button class="btn p-0 no-dropdown-toggle-icon" type="button" id="dropdownMenuButton1" ngbDropdownToggle>
+                <button class="btn p-0 no-dropdown-toggle-icon" id="dropdownMenuButton1" ngbDropdownToggle
+                        type="button">
                   <i class="feather icon-more-horizontal icon-lg text-muted pb-3px"></i>
                 </button>
-                <div ngbDropdownMenu aria-labelledby="dropdownMenuButton">
-                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i class="feather icon-edit-2 icon-sm me-2"></i> <span class="">Edit</span></a>
-                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i class="feather icon-git-branch icon-sm me-2"></i> <span class="">Update</span></a>
-                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i class="feather icon-eye icon-sm me-2"></i> <span class="">View all</span></a>
+                <div aria-labelledby="dropdownMenuButton" ngbDropdownMenu>
+                  <a (click)="false" class="d-flex align-items-center" href="" ngbDropdownItem><i
+                    class="feather icon-edit-2 icon-sm me-2"></i> <span class="">Edit</span></a>
+                  <a (click)="false" class="d-flex align-items-center" href="" ngbDropdownItem><i
+                    class="feather icon-git-branch icon-sm me-2"></i> <span class="">Update</span></a>
+                  <a (click)="false" class="d-flex align-items-center" href="" ngbDropdownItem><i
+                    class="feather icon-eye icon-sm me-2"></i> <span class="">View all</span></a>
                 </div>
               </div>
             </div>
 
-            <div class="table-responsive table-striped">
+            <div class="table table-responsive table-striped table-bordered">
               <ngx-datatable
                 #table
-                [rows]="approvedDataSet"
-                class="bootstrap"
-                [loadingIndicator]="loadingIndicator"
+                (select)="onRemoveRole($event)"
                 [columnMode]="ColumnMode.force"
-                [footerHeight]="50"
                 [columns]="columns"
+                [displayCheck]="displayCheck"
+                [footerHeight]="50"
                 [limit]="20"
+                [loadingIndicator]="loadingIndicator"
                 [rowHeight]="'auto'"
+                [rows]="tempData"
+                [selectAllRowsOnPage]="false"
                 [selected]="selected"
                 [selectionType]="SelectionType.checkbox"
-                [selectAllRowsOnPage]="false"
-                [displayCheck]="displayCheck"
-                (select)="onRemoveRole($event)"
+                class="bootstrap"
               >
-                <ng-container *ngFor='let column of columns' >
+                <ng-container *ngFor='let column of columns'>
 
                   <ngx-datatable-column
-                    [width]="60"
-                    [sortable]="false"
                     [canAutoResize]="false"
-                    [draggable]="false"
-                    [resizeable]="false"
-                    [headerCheckboxable]="true"
                     [checkboxable]="true"
+                    [draggable]="false"
+                    [headerCheckboxable]="true"
+                    [resizeable]="false"
+                    [sortable]="false"
+                    [width]="60"
                   >
                   </ngx-datatable-column>
 
-                  <ngx-datatable-column *ngIf='column.name == "ROLE NAME"' name="{{column.name}}" prop="{{column.prop}}">
+                  <ngx-datatable-column *ngIf='column.name == "ROLE NAME"' name="{{column.name}}"
+                                        prop="{{column.prop}}">
                   </ngx-datatable-column>
                 </ng-container>
 
@@ -244,18 +256,22 @@
             <div class="d-flex align-items-center justify-content-between mb-2">
               <h6 class="card-title mb-0">Updated Roles</h6>
               <div ngbDropdown>
-                <button class="btn p-0 no-dropdown-toggle-icon" type="button" id="dropdownMenuButton3" ngbDropdownToggle>
+                <button class="btn p-0 no-dropdown-toggle-icon" id="dropdownMenuButton3" ngbDropdownToggle
+                        type="button">
                   <i class="feather icon-more-horizontal icon-lg text-muted pb-3px"></i>
                 </button>
-                <div ngbDropdownMenu aria-labelledby="dropdownMenuButton">
-                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i class="feather icon-edit-2 icon-sm me-2"></i> <span class="">Edit</span></a>
-                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i class="feather icon-git-branch icon-sm me-2"></i> <span class="">Update</span></a>
-                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i class="feather icon-eye icon-sm me-2"></i> <span class="">View all</span></a>
+                <div aria-labelledby="dropdownMenuButton" ngbDropdownMenu>
+                  <a (click)="false" class="d-flex align-items-center" href="" ngbDropdownItem><i
+                    class="feather icon-edit-2 icon-sm me-2"></i> <span class="">Edit</span></a>
+                  <a (click)="false" class="d-flex align-items-center" href="" ngbDropdownItem><i
+                    class="feather icon-git-branch icon-sm me-2"></i> <span class="">Update</span></a>
+                  <a (click)="false" class="d-flex align-items-center" href="" ngbDropdownItem><i
+                    class="feather icon-eye icon-sm me-2"></i> <span class="">View all</span></a>
                 </div>
               </div>
             </div>
 
-            <h4 class="text-center mx-auto mb-2"> <u>Updated Roles Summary</u></h4>
+            <h4 class="text-center mx-auto mb-2"><u>Updated Roles Summary</u></h4>
 
 
             <div class="card-body pt-0 widget-body pb-1 mb-3 text-center mx-auto">
@@ -265,7 +281,8 @@
               <table class="text-left" width="100%">
                 <tr *ngFor="let item of allAddedRolesListPending">
                   <td style="text-align: left!important;">{{item.name}}</td>
-                  <td style="text-align: right!important; cursor: pointer" class="float-right" (click)="returnAddedRole(item)">
+                  <td (click)="returnAddedRole(item)" class="float-right"
+                      style="text-align: right!important; cursor: pointer">
                     <ng-container aria-label="Close">
                       <i class="fa fa-times fa-sm text-danger mr-2 text-danger"></i>
                       <span class="text-danger">Remove</span>
@@ -279,7 +296,8 @@
               <table class="text-left" width="100%">
                 <tr *ngFor="let item of allRemovedRolesListPending">
                   <td style="text-align: left!important;">{{item.name}}</td>
-                  <td style="text-align: right!important; cursor: pointer " class="float-right" (click)="returnRemovedRole(item)">
+                  <td (click)="returnRemovedRole(item)" class="float-right"
+                      style="text-align: right!important; cursor: pointer ">
                     <ng-container aria-label="Close">
                       <i class="fa fa-times fa-sm text-danger mr-2 text-danger"></i>
                       <span class="text-danger">Remove</span>
@@ -290,20 +308,21 @@
 
               <hr>
 
-<!--              <div class="mx-auto text-center mb-2" role="group">-->
+              <!--              <div class="mx-auto text-center mb-2" role="group">-->
 
               <div class="row">
                 <div class="col-5">
-                  <button class="btn btn-primary mr-2 pr-2" type="button" (click)="changeRolesForProfile()">Submit</button>
+                  <button (click)="changeRolesForProfile()" class="btn btn-primary mr-2 pr-2" type="button">Submit
+                  </button>
                 </div>
 
                 <div class="col-2"></div>
 
                 <div class="col-5">
-                  <button class="btn btn-outline-primary" type="button" (click)="resetRolesForProfile()">Reset</button>
+                  <button (click)="resetRolesForProfile()" class="btn btn-outline-primary" type="button">Reset</button>
                 </div>
               </div>
-<!--              </div>-->
+              <!--              </div>-->
 
             </div>
 

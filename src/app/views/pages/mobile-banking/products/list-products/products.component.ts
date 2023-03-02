@@ -8,6 +8,7 @@ import {GlobalService} from "../../../../../shared/services/global.service";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {NgxDatatableComponent} from "../../../tables/ngx-datatable/ngx-datatable.component";
 import {DatatableComponent} from "@swimlane/ngx-datatable/lib/components/datatable.component";
+import {DefineRegionComponent} from "../../branches/regions/define-region-component/define-region-component.component";
 
 @Component({
   selector: 'app-starter',
@@ -22,6 +23,7 @@ import {DatatableComponent} from "@swimlane/ngx-datatable/lib/components/datatab
 export class ProductsComponent implements OnInit {
 
   @ViewChild('table') table: DatatableComponent;
+
 
   tempProductData = [
     {
@@ -78,10 +80,13 @@ export class ProductsComponent implements OnInit {
   ];
 
   public form: FormGroup;
-  @Input() formData: { name: any; description: any; is_active: any; };
+  public formData: { productName: any; remarks: any; image: any; };
+  public title: any;
 
   ColumnMode = ColumnMode;
   public imageFile: File;
+  public modalRef: NgbModalRef;
+
 
 
   constructor(private httpService: HttpService,
@@ -100,36 +105,11 @@ export class ProductsComponent implements OnInit {
     this.getIndividualData(0);
 
     this.form = this.fb.group({
-      name: [this.formData ? this.formData.name : '', [Validators.required]],
-      description: [this.formData ? this.formData.description : '', [Validators.required]],
-      is_active: [this.formData ? this.formData.is_active : '', [Validators.nullValidator]]
+      name: ['', [Validators.required]],
+      description: ['', [Validators.required]],
+      image: ['']
     });
   }
-
-  // public openModal(parentData: any) {
-  //   this.modalRef = this.modalService.open(AddProductComponent);
-  //   this.modalRef.componentInstance.title = 'Add Product';
-  //   this.modalRef.componentInstance.parentData = '';
-  //   this.modalRef.result.then((result) => {
-  //     if (result === 'success') {
-  //       this.getIndividualData(this.page);
-  //     }
-  //   }, (reason) => {
-  //   });
-  // }
-
-  // public editProduct(formData: any) {
-  //   this.modalRef = this.modalService.open(AddProductComponent);
-  //   this.modalRef.componentInstance.formData = formData;
-  //   this.modalRef.componentInstance.title = 'Edit Product: ';
-  //   this.modalRef.result.then((result) => {
-  //     if (result === 'success') {
-  //       this.getIndividualData(this.page);
-  //     }
-  //   }, (reason) => {
-  //   });
-  // }
-
 
   getIndividualData(event: number): void {
 
@@ -162,10 +142,25 @@ export class ProductsComponent implements OnInit {
     }).catch((res) => {});
   }
 
-  openEditProductModal(content: TemplateRef<any>) {
-    this.modalService.open(content, {centered: true}).result.then((result) => {
-      console.log("Modal closed" + result);
-    }).catch((res) => {});
+  openEditProductModal(content: TemplateRef<any>, rowData: any) {
+
+    this.modalRef = this.modalService.open(content, {centered: true});
+
+    this.form.patchValue({
+      name: rowData.productName,
+      description: rowData.remarks,
+      image: '',
+    });
+
+    this.title = 'Edit Product';
+
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        this.getIndividualData(0);
+      } else {
+        console.log("Error occurred")
+      }
+    });
   }
 
   onFileChange(event: any) {
@@ -181,7 +176,7 @@ export class ProductsComponent implements OnInit {
   toggleExpandRow(row: any) {
     console.log(row);
     console.log(this.table);
-    
+
     this.table.rowDetail.toggleExpandRow(row);
   }
 

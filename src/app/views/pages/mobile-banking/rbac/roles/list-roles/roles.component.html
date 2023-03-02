@@ -59,7 +59,7 @@
               <ngx-datatable-column *ngIf='column.name === "Actions"' name="Actions" prop="actions">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                     <span>
-                      <button type="button" class="btn btn-primary btn-icon-text btn-sm"
+                      <button type="button" class="btn btn-primary btn-icon-text btn-xs"
                               (click)="openEditProductModal(verticalCenteredModal)">
                           Edit
                       </button>

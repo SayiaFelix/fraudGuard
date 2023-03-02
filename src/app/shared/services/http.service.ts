@@ -108,6 +108,15 @@ export class HttpService {
       );
   }
 
+  public getMapCoordinates(endpoint: string): any {
+    return this.http.get(endpoint, this.getHeaders()
+    ).pipe(map(response => {
+      response = response;
+      return response;
+    }));
+  }
+
+
   private getHeaders(): any {
     return {
       headers: new HttpHeaders({
