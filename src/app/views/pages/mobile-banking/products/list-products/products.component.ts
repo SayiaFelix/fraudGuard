@@ -179,7 +179,14 @@ export class ProductsComponent implements OnInit {
   }
 
   toggleExpandRow(row: any) {
+    console.log(row);
+    console.log(this.table);
+    
     this.table.rowDetail.toggleExpandRow(row);
+  }
+
+  onDetailToggle(event: any) {
+    console.log('Detail Toggled', event);
   }
 
 }
