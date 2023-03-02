@@ -4,7 +4,7 @@ import { ContentChange, SelectionChange } from 'ngx-quill';
 import { PeoplesData } from '../../../../../core/dummy-datas/peoples.data';
 
 @Component({
-  selector: 'app-compose',
+  selector: 'app-sample-table',
   templateUrl: './compose.component.html',
   styleUrls: ['./compose.component.scss']
 })

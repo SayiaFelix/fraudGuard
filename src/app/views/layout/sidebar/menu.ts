@@ -9,7 +9,65 @@ export const MENU: MenuItem[] = [
     label: 'Dashboard',
     icon: 'home',
     link: '/dashboard'
-  }
+  },
+
+  // {
+  //   label: 'Table Example',
+  //   isTitle: true
+  // },
+  // {
+  //   label: 'Tables',
+  //   icon: 'home',
+  //   link: '/mobile-banking/sample-table'
+  // },
+
+  {
+    label: 'Products',
+    isTitle: true
+  },
+  {
+    label: 'Products',
+    icon: 'home',
+    link: '/mobile-banking/products/list-products'
+  },
+  {
+    label: 'Setup',
+    isTitle: true
+  },
+  {
+    label: 'Regions',
+    icon: 'file-text',
+    link: '/mobile-banking/setups/list-regions'
+  },
+  {
+    label: 'Branches',
+    icon: 'file-text',
+    link: 'mobile-banking/setups/list-branches'
+  },
+
+  {
+    label: 'User Management',
+    isTitle: true
+  },
+  {
+    label: 'Users',
+    icon: 'home',
+    link: '/mobile-banking/products/list-products'
+  },
+  {
+    label: 'Roles',
+    icon: 'home',
+    link: '/mobile-banking/rbac/all-roles'
+  },
+  {
+    label: 'Profiles',
+    icon: 'home',
+    link: '/mobile-banking/rbac/all-profiles'
+  },
+
+
+
+
 ];
 
 // Commented out menu options
@@ -31,7 +89,7 @@ export const MENU: MenuItem[] = [
 //   },
 //   {
 //     label: 'Compose',
-//     link: '/apps/email/compose'
+//     link: '/apps/email/sample-table'
 //   },
 // ]
 // },
