@@ -67,6 +67,7 @@ export class ProductsComponent implements OnInit {
   // bread crumb items
   breadCrumbItems: Array<{}>;
   rows: any = [];
+  temp: any = [];
   loadingIndicator = true;
   reorderable = true;
 
@@ -113,7 +114,10 @@ export class ProductsComponent implements OnInit {
 
   getIndividualData(event: number): void {
 
+
     this.rows = this.tempProductData;
+
+    this.temp =[...this.tempProductData];
 
     const model = {
       page: 0,
@@ -184,4 +188,17 @@ export class ProductsComponent implements OnInit {
     console.log('Detail Toggled', event);
   }
 
+  updateFilter(event: any) {
+    const val = event.target.value.toLowerCase();
+
+    // filter our data
+    const temp = this.temp.filter(function (d: any) {
+      return d.productName.toLowerCase().indexOf(val) !== -1 || !val;
+    });
+
+    // update the rows
+    this.rows = temp;
+    // Whenever the filter changes, always go back to the first page
+    this.table.offset = 0;
+  }
 }
