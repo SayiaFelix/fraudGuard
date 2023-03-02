@@ -39,7 +39,9 @@
                 </label>
               </div>
               <div>
-                <p *ngIf="loginResponse$ | async">Success</p>
+                <p *ngIf="loginResponse$ | async">
+                  <strong *ngIf="userDataResp$ | async">Success</strong>
+                </p>
                 <button type="submit" class="btn btn-primary me-2 mb-2 mb-md-0" (click)="onSubmit($event)">Login</button>
               </div>
               <a routerLink="/auth/forgot-password" class="d-block mt-3 text-muted">Forgot Password? Click here to reset</a>
