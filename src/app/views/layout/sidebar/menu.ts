@@ -57,12 +57,12 @@ export const MENU: MenuItem[] = [
   {
     label: 'Roles',
     icon: 'home',
-    link: '/mobile-banking/products/list-products'
+    link: '/mobile-banking/rbac/all-roles'
   },
   {
     label: 'Profiles',
     icon: 'home',
-    link: '/mobile-banking/products/list-products'
+    link: '/mobile-banking/rbac/all-profiles'
   },
 
 
