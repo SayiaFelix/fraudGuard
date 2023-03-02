@@ -11,6 +11,7 @@ import { LabelOnlineComponent } from './components/label-online/label-online.com
 import { LabelPassedComponent } from './components/label-passed/label-passed.component';
 import {ConfirmDialogComponent} from './components/confirm-dialog/confirm-dialog.component';
 import { JwtModule } from '@auth0/angular-jwt';
+import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
 @NgModule({
   declarations: [
@@ -35,6 +36,7 @@ import { JwtModule } from '@auth0/angular-jwt';
     FormsModule,
     ReactiveFormsModule,
     NgbModule,
+    NgxDatatableModule
   ],
   exports: [
     CommonModule,

@@ -1,16 +1,23 @@
-<div class="d-flex justify-content-between align-items-center flex-wrap grid-margin">
+<div
+  class="d-flex justify-content-between align-items-center flex-wrap grid-margin"
+>
   <div>
     <h4 class="mb-3 mb-md-0">All Products</h4>
   </div>
   <div class="d-flex align-items-center flex-wrap text-nowrap">
-    <div class="input-group wd-200 me-2 mb-2 mb-md-0">
-    </div>
-    <button class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0" type="button">
+    <div class="input-group wd-200 me-2 mb-2 mb-md-0"></div>
+    <button
+      class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0"
+      type="button"
+    >
       <i appFeatherIcon class="btn-icon-prepend" data-feather="printer"></i>
       Download
     </button>
-    <button (click)="openAddProductModal(verticalCenteredModal)" class="btn btn-primary btn-icon-text mb-2 mb-md-0"
-            type="button">
+    <button
+      (click)="openAddProductModal(verticalCenteredModal)"
+      class="btn btn-primary btn-icon-text mb-2 mb-md-0"
+      type="button"
+    >
       <i appFeatherIcon class="btn-icon-prepend" data-feather="plus"></i>
       Add Product
     </button>
@@ -34,6 +41,23 @@
             [limit]="10"
             [rowHeight]="'auto'"
           >
+            <!-- Row Detail Template -->
+            <ngx-datatable-row-detail
+              [rowHeight]="100"
+              #myDetailRow
+              (toggle)="onDetailToggle($event)"
+            >
+              <ng-template
+                let-row="row"
+                let-expanded="expanded"
+                ngx-datatable-row-detail-template
+              >
+                <div style="padding-left: 35px">
+                  <div><strong>Address</strong></div>
+                  <div>{{ row.productName }}, {{ row.remarks }}</div>
+                </div>
+              </ng-template>
+            </ngx-datatable-row-detail>
 
             <!-- Column Templates -->
             <ngx-datatable-column
@@ -43,7 +67,12 @@
               [draggable]="false"
               [canAutoResize]="false"
             >
-              <ng-template  let-value="value" let-row="row" let-expanded="expanded" ngx-datatable-cell-template>
+              <ng-template
+                let-value="value"
+                let-row="row"
+                let-expanded="expanded"
+                ngx-datatable-cell-template
+              >
                 <a
                   href="javascript:void(0)"
                   [class.datatable-icon-right]="!expanded"
@@ -55,30 +84,57 @@
               </ng-template>
             </ngx-datatable-column>
 
-            <ng-container *ngFor='let column of columns' >
-              <ngx-datatable-column *ngIf='column.name === "Actions"' name="Actions" prop="actions">
-                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
-                    <span>
-                      <button type="button" class="btn btn-outline-primary btn-icon-text me-2 btn-sm" (click)="navigateToViewProduct(row)">
-                          View
-                      </button>
-                      <button type="button" class="btn btn-primary btn-icon-text btn-sm" (click)="openEditProductModal(verticalCenteredModal)">
-                          Edit
-                      </button>
-                    </span>
+            <ng-container *ngFor="let column of columns">
+              <ngx-datatable-column
+                *ngIf="column.name === 'Actions'"
+                name="Actions"
+                prop="actions"
+              >
+                <ng-template
+                  let-value="value"
+                  let-row="row"
+                  ngx-datatable-cell-template
+                >
+                  <span>
+                    <button
+                      type="button"
+                      class="btn btn-outline-primary btn-icon-text me-2 btn-sm"
+                      (click)="navigateToViewProduct(row)"
+                    >
+                      View
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-primary btn-icon-text btn-sm"
+                      (click)="openEditProductModal(verticalCenteredModal)"
+                    >
+                      Edit
+                    </button>
+                  </span>
                 </ng-template>
               </ngx-datatable-column>
 
-              <ngx-datatable-column *ngIf='column.name === "Status"' name="Status" prop="status">
-                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
-                  <app-label-active [value] = "row.status"></app-label-active>
+              <ngx-datatable-column
+                *ngIf="column.name === 'Status'"
+                name="Status"
+                prop="status"
+              >
+                <ng-template
+                  let-value="value"
+                  let-row="row"
+                  ngx-datatable-cell-template
+                >
+                  <app-label-active [value]="row.status"></app-label-active>
                 </ng-template>
               </ngx-datatable-column>
 
-              <ngx-datatable-column *ngIf='column.name !== "Actions" && column.name !== "Status"' name="{{column.name}}" prop="{{column.prop}}">
+              <ngx-datatable-column
+                *ngIf="column.name !== 'Actions' && column.name !== 'Status'"
+                name="{{ column.name }}"
+                prop="{{ column.prop }}"
+              >
               </ngx-datatable-column>
             </ng-container>
-
           </ngx-datatable>
         </div>
       </div>
@@ -90,45 +146,76 @@
 <ng-template #verticalCenteredModal let-modal>
   <div class="modal-header">
     <h5 class="modal-title" id="exampleModalLabel">Add Product</h5>
-    <button (click)="modal.close('by: close icon')" aria-label="Close" class="btn-close" type="button"></button>
+    <button
+      (click)="modal.close('by: close icon')"
+      aria-label="Close"
+      class="btn-close"
+      type="button"
+    ></button>
   </div>
   <div class="modal-body" [formGroup]="form">
     <div class="row">
       <div class="col-sm-12">
         <div class="mb-3">
           <label class="form-label">Product Name</label>
-          <input class="form-control" formControlName="name" type="text">
-          <small *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')" class="text-danger">Required
-            Field</small>
+          <input class="form-control" formControlName="name" type="text" />
+          <small
+            *ngIf="
+              form.get('name')?.touched &&
+              form.get('name')?.hasError('required')
+            "
+            class="text-danger"
+            >Required Field</small
+          >
         </div>
       </div>
       <div class="col-sm-12">
         <div class="mb-3">
           <label class="text-gray">Description</label>
-          <textarea class="form-control" formControlName="description" type="text"></textarea>
-          <small *ngIf="form.get('description')?.touched &&
-          form.get('description')?.hasError('required')" class="text-danger">Required
-            Field</small>
+          <textarea
+            class="form-control"
+            formControlName="description"
+            type="text"
+          ></textarea>
+          <small
+            *ngIf="
+              form.get('description')?.touched &&
+              form.get('description')?.hasError('required')
+            "
+            class="text-danger"
+            >Required Field</small
+          >
         </div>
       </div>
       <div class="col-sm-12">
         <div class="mb-3">
           <label class="text-gray">Product Image</label>
-          <input #fileUpload (change)="onFileChange($event)"
-                 accept="image/*"
-                 class="form-control"
-                 id="file"
-                 type="file"
+          <input
+            #fileUpload
+            (change)="onFileChange($event)"
+            accept="image/*"
+            class="form-control"
+            id="file"
+            type="file"
           />
         </div>
       </div>
-
     </div>
-
-
   </div>
   <div class="modal-footer">
-    <button (click)="modal.close('by: close button')" class="btn btn-secondary" type="button">Close</button>
-    <button (click)="modal.close('by: save button')" class="btn btn-primary" type="button">Save changes</button>
+    <button
+      (click)="modal.close('by: close button')"
+      class="btn btn-secondary"
+      type="button"
+    >
+      Close
+    </button>
+    <button
+      (click)="modal.close('by: save button')"
+      class="btn btn-primary"
+      type="button"
+    >
+      Save changes
+    </button>
   </div>
 </ng-template>
