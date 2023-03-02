@@ -1,0 +1,21 @@
+<nz-card [nzBordered]="true" nzTitle="{{cardTitle}}" [nzExtra]="extraTemplate" [nzActions]="[actionAdd]">
+    <form nz-form [formGroup]="form">
+        <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="remarks">Remarks</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="This field is required">
+              <textarea rows="3" nz-input formControlName="remarks" id="remarks"></textarea>
+            </nz-form-control>
+        </nz-form-item>
+    </form>
+</nz-card>
+<ng-template #extraTemplate>
+    <button class="atma-danger" mat-mini-fab (click)="close()"><span aria-hidden="true">×</span></button>
+</ng-template>
+<ng-template #actionAdd>
+    <button *ngIf="data.edit; else editRole" nz-button nzType="primary" [disabled]="!form.valid">
+        {{data.atitle}}
+    </button>
+    <ng-template #editRole>
+        <button nz-button nzType="primary" [disabled]="!form.valid" aria-describedby="Remove Role" title="Remove Role" (click)="removeRoles()">{{data.title}}</button>
+    </ng-template>
+</ng-template>
