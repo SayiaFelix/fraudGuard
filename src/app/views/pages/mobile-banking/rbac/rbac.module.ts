@@ -7,6 +7,8 @@ import {FeatherIconModule} from "../../../../core/feather-icon/feather-icon.modu
 import {NgxDatatableModule} from "@swimlane/ngx-datatable";
 import {ProfilesComponent} from "./profiles/list-profiles/profiles.component";
 import {ProfileRolesComponent} from "./profiles/profile-roles/profile-roles.component";
+import {ListUsersComponent} from "./Users/list-users/list-users.component";
+import {ViewUserComponent} from "./Users/view-user/view-user.component";
 
 
 @NgModule({
@@ -20,7 +22,9 @@ import {ProfileRolesComponent} from "./profiles/profile-roles/profile-roles.comp
         RolesComponent,
         AddRoleComponent,
         ProfilesComponent,
-        ProfileRolesComponent
+        ProfileRolesComponent,
+        ListUsersComponent,
+        ViewUserComponent,
     ]
     ,
     entryComponents: [
@@ -29,4 +33,3 @@ import {ProfileRolesComponent} from "./profiles/profile-roles/profile-roles.comp
 })
 export class RbacModule {
 }
-

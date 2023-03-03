@@ -23,6 +23,8 @@ const routes: Routes = [
 
       { path: 'Atms', loadChildren: () => import('./Atms/Atms.module').then(m => m.AtmsModule) },
 
+      { path: 'Users', loadChildren: () => import('./rbac/rbac.module').then(m => m.RbacModule) },
+
     ]
   },
 ]
