@@ -15,18 +15,11 @@ const routes: Routes = [
     path: '',
     component: MobileBankingComponent,
     children: [
-      {
-        path: '',
-        redirectTo: 'sample-table',
-        pathMatch: 'full'
-      },
-      {
-        path: 'sample-table',
-        component: NgxDatatableComponent
-      },
       { path: 'products', loadChildren: () => import('./products/products.module').then(m => m.ProductsModule) },
 
-      { path: 'branches', loadChildren: () => import('./branches/branches.module').then(m => m.BranchesModule) },
+      { path: 'setups', loadChildren: () => import('./branches/branches.module').then(m => m.BranchesModule) },
+
+      { path: 'rbac', loadChildren: () => import('./rbac/rbac.module').then(m => m.RbacModule) },
 
       { path: 'Atms', loadChildren: () => import('./Atms/Atms.module').then(m => m.AtmsModule) },
 

@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, TemplateRef} from '@angular/core';
+import {Component, Input, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {DatePipe} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -6,6 +6,9 @@ import { ColumnMode } from '@swimlane/ngx-datatable';
 import {HttpService} from "../../../../../shared/services/http.service";
 import {GlobalService} from "../../../../../shared/services/global.service";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {NgxDatatableComponent} from "../../../tables/ngx-datatable/ngx-datatable.component";
+import {DatatableComponent} from "@swimlane/ngx-datatable/lib/components/datatable.component";
+import {DefineRegionComponent} from "../../branches/regions/define-region-component/define-region-component.component";
 
 @Component({
   selector: 'app-starter',
@@ -19,11 +22,15 @@ import {FormBuilder, FormGroup, Validators} from "@angular/forms";
  */
 export class ProductsComponent implements OnInit {
 
+  @ViewChild('table') table: DatatableComponent;
+
+
   tempProductData = [
     {
       id: 1,
       productName: 'Bank Accounts',
       remarks: 'Bank Accounts Description',
+      status: true,
       createdOn: '12-02-2023',
 
     },
@@ -31,27 +38,28 @@ export class ProductsComponent implements OnInit {
       id: 2,
       productName: 'Card Accounts',
       remarks: 'Card Accounts Description',
+      status: true,
       createdOn: '12-02-2023',
     },
     {
       id: 3,
       productName: 'Loan Accounts',
       remarks: 'Loan Accounts Description',
-      isActive: true,
+      status: true,
       createdOn: '12-02-2023',
     },
     {
       id: 4,
       productName: 'Investment Accounts',
       remarks: 'Investment Accounts Description',
-      isActive: true,
+      status: true,
       createdOn: '12-02-2023',
     },
     {
       id: 5,
       productName: 'Insurance Accounts',
       remarks: 'Insurance Accounts Description',
-      isActive: true,
+      status: false,
       createdOn: '12-02-2023',
     },
   ];
@@ -59,6 +67,7 @@ export class ProductsComponent implements OnInit {
   // bread crumb items
   breadCrumbItems: Array<{}>;
   rows: any = [];
+  temp: any = [];
   loadingIndicator = true;
   reorderable = true;
 
@@ -66,24 +75,27 @@ export class ProductsComponent implements OnInit {
     { name: 'ID', prop: 'id' },
     { name: 'ProductName', prop:'productName' },
     { name: 'Remarks', prop:'remarks' },
-    { name: 'IsActive', prop:'isActive' },
+    { name: 'Status', prop:'status' },
+    { name: 'CreatedOn', prop:'createdOn' },
     { name: 'Actions', prop: 'id' }
   ];
 
   public form: FormGroup;
-  @Input() formData: { name: any; description: any; is_active: any; };
+  public formData: { productName: any; remarks: any; image: any; };
+  public title: any;
 
   ColumnMode = ColumnMode;
   public imageFile: File;
+  public modalRef: NgbModalRef;
+
 
 
   constructor(private httpService: HttpService,
               private modalService: NgbModal,
               public fb: FormBuilder,
-              public datePipe: DatePipe,
 
               public router: Router,
-              public globalService: GlobalService) {
+  ) {
 
 
   }
@@ -94,55 +106,18 @@ export class ProductsComponent implements OnInit {
     this.getIndividualData(0);
 
     this.form = this.fb.group({
-      name: [this.formData ? this.formData.name : '', [Validators.required]],
-      description: [this.formData ? this.formData.description : '', [Validators.required]],
-      is_active: [this.formData ? this.formData.is_active : '', [Validators.nullValidator]]
+      name: ['', [Validators.required]],
+      description: ['', [Validators.required]],
+      image: ['']
     });
-  }
-
-  // public openModal(parentData: any) {
-  //   this.modalRef = this.modalService.open(AddProductComponent);
-  //   this.modalRef.componentInstance.title = 'Add Product';
-  //   this.modalRef.componentInstance.parentData = '';
-  //   this.modalRef.result.then((result) => {
-  //     if (result === 'success') {
-  //       this.getIndividualData(this.page);
-  //     }
-  //   }, (reason) => {
-  //   });
-  // }
-
-  // public editProduct(formData: any) {
-  //   this.modalRef = this.modalService.open(AddProductComponent);
-  //   this.modalRef.componentInstance.formData = formData;
-  //   this.modalRef.componentInstance.title = 'Edit Product: ';
-  //   this.modalRef.result.then((result) => {
-  //     if (result === 'success') {
-  //       this.getIndividualData(this.page);
-  //     }
-  //   }, (reason) => {
-  //   });
-  // }
-
-  onCustomAction(event: { action: any; data: any; }) {
-    switch (event.action) {
-      case 'viewrecord':
-        // this.viewProduct(event.data);
-        break;
-      case 'editrecord':
-        // this.editProduct(event.data);
-    }
-  }
-
-  private viewProduct(data: any): void {
-    console.log('here is the product data');
-    console.log(data);
-    this.router.navigate(['products', 'product', data.id], {queryParams: data});
   }
 
   getIndividualData(event: number): void {
 
+
     this.rows = this.tempProductData;
+
+    this.temp =[...this.tempProductData];
 
     const model = {
       page: 0,
@@ -171,10 +146,25 @@ export class ProductsComponent implements OnInit {
     }).catch((res) => {});
   }
 
-  openEditProductModal(content: TemplateRef<any>) {
-    this.modalService.open(content, {centered: true}).result.then((result) => {
-      console.log("Modal closed" + result);
-    }).catch((res) => {});
+  openEditProductModal(content: TemplateRef<any>, rowData: any) {
+
+    this.modalRef = this.modalService.open(content, {centered: true});
+
+    this.form.patchValue({
+      name: rowData.productName,
+      description: rowData.remarks,
+      image: '',
+    });
+
+    this.title = 'Edit Product';
+
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        this.getIndividualData(0);
+      } else {
+        console.log("Error occurred")
+      }
+    });
   }
 
   onFileChange(event: any) {
@@ -185,5 +175,30 @@ export class ProductsComponent implements OnInit {
 
   navigateToViewProduct(data: any) {
     this.router.navigateByUrl(`/mobile-banking/products/product/${data.id}`);
+  }
+
+  toggleExpandRow(row: any) {
+    console.log(row);
+    console.log(this.table);
+
+    this.table.rowDetail.toggleExpandRow(row);
+  }
+
+  onDetailToggle(event: any) {
+    console.log('Detail Toggled', event);
+  }
+
+  updateFilter(event: any) {
+    const val = event.target.value.toLowerCase();
+
+    // filter our data
+    const temp = this.temp.filter(function (d: any) {
+      return d.productName.toLowerCase().indexOf(val) !== -1 || !val;
+    });
+
+    // update the rows
+    this.rows = temp;
+    // Whenever the filter changes, always go back to the first page
+    this.table.offset = 0;
   }
 }
