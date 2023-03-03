@@ -42,7 +42,12 @@ export const MENU: MenuItem[] = [
   {
     label: 'Branches',
     icon: 'file-text',
-    link: 'mobile-banking/setups/list-branches'
+    link: '/mobile-banking/setups/list-branches'
+  },
+  {
+    label: 'ATMs',
+    icon: 'file-text',
+    link: '/mobile-banking/Atms/list-atms'
   },
 
   {
@@ -65,6 +70,7 @@ export const MENU: MenuItem[] = [
     link: '/mobile-banking/rbac/all-profiles'
   },
 
+>>>>>>> src/app/views/layout/sidebar/menu.ts
 
 
 
