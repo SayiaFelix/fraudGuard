@@ -1,0 +1,174 @@
+<div class="d-flex justify-content-between align-items-center flex-wrap grid-margin">
+    <div>
+      <h4 class="mb-3 mb-md-0">All Users</h4>
+    </div>
+    <div class="d-flex align-items-center flex-wrap text-nowrap">
+      <div class="input-group wd-200 me-2 mb-2 mb-md-0">
+      </div>
+      <button class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0" type="button">
+        <i appFeatherIcon class="btn-icon-prepend" data-feather="printer"></i>
+        Download
+      </button>
+      <button (click)="openAddProductModal(verticalCenteredModal)" class="btn btn-primary btn-icon-text mb-2 mb-md-0"
+              type="button">
+        <i appFeatherIcon class="btn-icon-prepend" data-feather="plus"></i>
+        Add User
+      </button>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-md-12 stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <h6 class="card-title">Users</h6>
+          <div class="table-responsive">
+            <ngx-datatable
+            #table
+            [columnMode]="ColumnMode.force"
+            [columns]="columns"
+            [footerHeight]="50"
+            [limit]="10"
+            [loadingIndicator]="loadingIndicator"
+            [rowHeight]="'auto'"
+            [rows]="rows"
+            class="bootstrap"
+          >            <!-- Row Detail Template -->            
+          <ngx-datatable-row-detail
+              #myDetailRow
+              (toggle)="onDetailToggle($event)"
+              [rowHeight]="100"
+            >              
+            <ng-template
+                let-expanded="expanded"
+                let-row="row"
+                ngx-datatable-row-detail-template
+              >                <div style="padding-left: 35px">                  
+                <div><strong>Address</strong></div>                 
+                 <div>{{ row.productName }}, {{ row.remarks }}</div>                
+                </div>             
+               </ng-template>            
+              </ngx-datatable-row-detail>            <!-- Column Templates -->           
+               <ngx-datatable-column
+              [canAutoResize]="false"
+              [draggable]="false"
+              [resizeable]="false"
+              [sortable]="false"
+              [width]="50"
+            >              <ng-template
+                let-expanded="expanded"
+                let-row="row"
+                let-value="value"
+                ngx-datatable-cell-template
+              >                <a
+                  (click)="toggleExpandRow(row)"
+                  [class.datatable-icon-down]="expanded"
+                  [class.datatable-icon-right]="!expanded"
+                  href="javascript:void(0)"
+                  title="Expand/Collapse Row"
+                >               
+               </a>             
+               </ng-template>           
+               </ngx-datatable-column>           
+                <ng-container *ngFor="let column of columns">             
+                   <ngx-datatable-column
+                *ngIf="column.name === 'Actions'"
+                name="Actions"
+                prop="actions"
+              >                <ng-template
+                  let-row="row"
+                  let-value="value"
+                  ngx-datatable-cell-template
+                >                  <span>                    <button
+                      (click)="navigateToViewProduct(row)"
+                      class="btn btn-outline-primary btn-icon-text me-2 btn-xs"
+                      type="button"
+                    >                      View
+                    </button>                    <button
+                      (click)="openEditProductModal(verticalCenteredModal)"
+                      class="btn btn-primary btn-icon-text btn-xs"
+                      type="button"
+                    >                      Edit
+                    </button>                  </span>                </ng-template>              </ngx-datatable-column>              <ngx-datatable-column
+                *ngIf="column.name === 'Status'"
+                name="Status"
+                prop="status"
+              >                <ng-template
+                  let-row="row"
+                  let-value="value"
+                  ngx-datatable-cell-template
+                >                  <app-label-active [value]="row.status"></app-label-active>                </ng-template>              </ngx-datatable-column>              <ngx-datatable-column
+                *ngIf="column.name !== 'Actions' && column.name !== 'Status'"
+                name="{{ column.name }}"
+                prop="{{ column.prop }}"
+              >              </ngx-datatable-column>            </ng-container>          </ngx-datatable>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal -->
+  <ng-template #verticalCenteredModal let-modal>
+    <div class="modal-header">
+      <h5 class="modal-title" id="exampleModalLabel">Add User</h5>
+      <button (click)="modal.close('by: close icon')" aria-label="Close" class="btn-close" type="button"></button>
+    </div>
+    <div class="modal-body" [formGroup]="form">
+      <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label">First Name</label>
+            <input class="form-control" formControlName="name" type="text">
+            <small *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')" class="text-danger">Required
+              Field</small>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Middle Name</label>
+            <input class="form-control" formControlName="name" type="text">
+            <small *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')" class="text-danger">Required
+              Field</small>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Last Name</label>
+            <input class="form-control" formControlName="name" type="text">
+            <small *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')" class="text-danger">Required
+              Field</small>
+          </div>
+      
+        <div class="col-md-6">
+         
+            <label class="text-gray">Phone Number</label>
+            <input class="form-control" formControlName="description" type="text">
+            <small *ngIf="form.get('description')?.touched &&
+            form.get('description')?.hasError('required')" class="text-danger">Required
+              Field</small>
+          </div>
+          <div class="col-md-6">
+            <label class="text-gray">Email Address</label>
+            <input class="form-control" formControlName="description" type="text">
+            <small *ngIf="form.get('description')?.touched &&
+            form.get('description')?.hasError('required')" class="text-danger">Required
+              Field</small>
+          </div>
+          <div class="col-md-6">
+           
+                <label class="text-gray">Select User Profile</label> 
+                <select
+                        class="form-select"
+                        formControlName="branch"
+                        id="branch"
+                        name="branch"
+                >
+                </select>
+             </div>
+              
+        </div>
+        
+  
+      </div>
+    <div class="modal-footer">
+      <button (click)="modal.close('by: close button')" class="btn btn-secondary" type="button">Close</button>
+      <button (click)="modal.close('by: save button')" class="btn btn-primary" type="button">Save changes</button>
+    </div>
+  </ng-template>

@@ -30,6 +30,27 @@ export const MENU: MenuItem[] = [
     icon: 'home',
     link: '/mobile-banking/products/list-products'
   },
+
+  {
+    label: 'User Management',
+    isTitle: true
+  },
+  {
+    label: 'Users',
+    icon: 'file-text',
+    link: '/mobile-banking/Users/list-users'
+  },
+  {
+    label: 'Roles',
+    icon: 'file-text',
+    link: '/mobile-banking/rbac/Roles/list-roles'
+  },
+  {
+    label: 'Profiles',
+    icon: 'file-text',
+    link: '/mobile-banking/rbac/Profiles/list-profiles'
+  },
+  
   {
     label: 'Setup',
     isTitle: true
