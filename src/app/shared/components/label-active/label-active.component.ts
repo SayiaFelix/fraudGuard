@@ -5,17 +5,15 @@ import { Component, OnInit, Input } from '@angular/core';
   templateUrl: './label-active.component.html',
   styleUrls: ['./label-active.component.scss']
 })
-export class LabelActiveComponent implements  OnInit {
+export class LabelActiveComponent implements OnInit {
   label: any;
   labelClass: string;
   renderValue: string;
   @Input() value: any;
   @Input() rowData: any;
 
-  constructor() {}
+  constructor() { }
   ngOnInit(): void {
-
-
     if ( this.value === 1 || this.value === true || this.value === 'true' || this.value === 'TRUE') {
       this.label = 'Active';
       this.labelClass = 'badge bg-primary mr-1';
@@ -26,6 +24,7 @@ export class LabelActiveComponent implements  OnInit {
       this.label = 'Not set';
       this.labelClass = 'badge bg-light text-dark';
     }
-   this.renderValue = this.value.toString().toUpperCase();
+    this.renderValue = this.value.toString().toUpperCase();
   }
 }
+
