@@ -68,12 +68,7 @@ export const MENU: MenuItem[] = [
     label: 'Profiles',
     icon: 'home',
     link: '/mobile-banking/rbac/all-profiles'
-  },
-
->>>>>>> src/app/views/layout/sidebar/menu.ts
-
-
-
+  }
 ];
 
 // Commented out menu options
