@@ -33,22 +33,24 @@
             [rowHeight]="'auto'"
             [rows]="rows"
             class="bootstrap"
-          >            <!-- Row Detail Template -->
+
           <ngx-datatable-row-detail
               #myDetailRow
               (toggle)="onDetailToggle($event)"
               [rowHeight]="100"
-            >
+
             <ng-template
                 let-expanded="expanded"
                 let-row="row"
                 ngx-datatable-row-detail-template
+
               >                <div style="padding-left: 35px">
                 <div><strong>Address</strong></div>
                  <div>{{ row.productName }}, {{ row.remarks }}</div>
                 </div>
                </ng-template>
               </ngx-datatable-row-detail>            <!-- Column Templates -->
+
                <ngx-datatable-column
               [canAutoResize]="false"
               [draggable]="false"
@@ -66,11 +68,13 @@
                   [class.datatable-icon-right]="!expanded"
                   href="javascript:void(0)"
                   title="Expand/Collapse Row"
+
                 >
                </a>
                </ng-template>
                </ngx-datatable-column>
                 <ng-container *ngFor="let column of columns">
+
                    <ngx-datatable-column
                 *ngIf="column.name === 'Actions'"
                 name="Actions"
@@ -138,6 +142,7 @@
 
         <div class="col-md-6">
 
+
             <label class="text-gray">Phone Number</label>
             <input class="form-control" formControlName="description" type="text">
             <small *ngIf="form.get('description')?.touched &&
@@ -153,20 +158,22 @@
           </div>
           <div class="col-md-6">
 
+
                 <label class="text-gray">Select User Profile</label>
+
                 <select
                         class="form-select"
                         formControlName="branch"
                         id="branch"
                         name="branch"
                 >
+
                   <option>Super Admin</option>
                   <option>Admin</option>
                 </select>
              </div>
 
         </div>
-
 
       </div>
     <div class="modal-footer">

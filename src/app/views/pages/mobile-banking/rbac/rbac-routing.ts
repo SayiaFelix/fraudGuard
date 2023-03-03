@@ -20,6 +20,7 @@ const routes: Routes = [
       path: 'profile/:id',
       component: ProfileRolesComponent
     },
+
   {
     path: 'list-users',
     component: ListUsersComponent

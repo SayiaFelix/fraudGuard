@@ -16,6 +16,7 @@ onDetailToggle($event: any) {
 throw new Error('Method not implemented.');
 }
 
+
   @ViewChild('table') table: DatatableComponent;
 
   tempProductData = [
@@ -31,6 +32,7 @@ throw new Error('Method not implemented.');
     {
       id: 2,
       FullNames: 'Lilian Kamau',
+
       Email:'liliankamau001@gmail.com',
       TelephoneNo: '0798075432',
       status: true,
