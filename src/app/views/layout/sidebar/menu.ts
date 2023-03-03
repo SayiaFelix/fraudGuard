@@ -35,15 +35,42 @@ export const MENU: MenuItem[] = [
     isTitle: true
   },
   {
+    label: 'Regions',
+    icon: 'file-text',
+    link: '/mobile-banking/setups/list-regions'
+  },
+  {
     label: 'Branches',
     icon: 'file-text',
-    link: '/mobile-banking/branches/list-branches'
+    link: '/mobile-banking/setups/list-branches'
   },
   {
     label: 'ATMs',
     icon: 'file-text',
     link: '/mobile-banking/Atms/list-atms'
-  }
+  },
+
+  {
+    label: 'User Management',
+    isTitle: true
+  },
+  {
+    label: 'Users',
+    icon: 'home',
+    link: '/mobile-banking/products/list-products'
+  },
+  {
+    label: 'Roles',
+    icon: 'home',
+    link: '/mobile-banking/rbac/all-roles'
+  },
+  {
+    label: 'Profiles',
+    icon: 'home',
+    link: '/mobile-banking/rbac/all-profiles'
+  },
+
+>>>>>>> src/app/views/layout/sidebar/menu.ts
 
 
 

@@ -6,6 +6,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ColumnMode } from '@swimlane/ngx-datatable';
 import { GlobalService } from 'src/app/shared/services/global.service';
 import { HttpService } from 'src/app/shared/services/http.service';
+import {DefineRegionComponent} from "../regions/define-region-component/define-region-component.component";
 
 @Component({
   selector: 'app-list-branches',
@@ -74,7 +75,7 @@ export class ListBranchesComponent implements OnInit {
   constructor(private httpService: HttpService,
               private modalService: NgbModal,
               public fb: FormBuilder,
-              
+
 
               public router: Router,
               public globalService: GlobalService) {
@@ -169,5 +170,16 @@ export class ListBranchesComponent implements OnInit {
     if (event.target.files && event.target.files.length) {
       this.imageFile = event.target.files[0];
     }
+  }
+
+  navigateToViewBranch(row: any) {
+
+  }
+
+  openEditBranchModal(content: TemplateRef<any>) {
+    this.modalService.open(content, {centered: true}).result.then((result) => {
+      console.log("Modal closed" + result);
+    }).catch((res) => {
+    });
   }
 }
