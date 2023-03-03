@@ -30,6 +30,7 @@ export const MENU: MenuItem[] = [
     icon: 'home',
     link: '/mobile-banking/products/list-products'
   },
+
   {
     label: 'Setup',
     isTitle: true
@@ -56,8 +57,8 @@ export const MENU: MenuItem[] = [
   },
   {
     label: 'Users',
-    icon: 'home',
-    link: '/mobile-banking/products/list-products'
+    icon: 'file-text',
+    link: '/mobile-banking/Users/list-users'
   },
   {
     label: 'Roles',
@@ -68,9 +69,7 @@ export const MENU: MenuItem[] = [
     label: 'Profiles',
     icon: 'home',
     link: '/mobile-banking/rbac/all-profiles'
-  }
-];
-
+  }]
 // Commented out menu options
 // {
 //   label: 'Web Apps',
