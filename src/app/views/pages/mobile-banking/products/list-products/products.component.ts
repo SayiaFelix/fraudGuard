@@ -25,7 +25,7 @@ export class ProductsComponent implements OnInit {
 
 
   tempProductData = [
-    {
+    { 
       id: 1,
       productName: 'Bank Accounts',
       remarks: 'Bank Accounts Description',
