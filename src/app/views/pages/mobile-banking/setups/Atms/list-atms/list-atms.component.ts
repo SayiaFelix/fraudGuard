@@ -1,8 +1,8 @@
-import { Component, Input, OnInit, TemplateRef } from '@angular/core';
+import { Component, Input, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ColumnMode } from '@swimlane/ngx-datatable';
+import { ColumnMode, DatatableComponent } from '@swimlane/ngx-datatable';
 import { GlobalService } from 'src/app/shared/services/global.service';
 import { HttpService } from 'src/app/shared/services/http.service';
 
@@ -12,6 +12,8 @@ import { HttpService } from 'src/app/shared/services/http.service';
   styleUrls: ['./list-atms.component.scss']
 })
 export class ListAtmsComponent implements OnInit {
+  
+  @ViewChild('table') table: DatatableComponent;
   tempProductData = [
     {
       id: 1,
@@ -178,6 +180,15 @@ export class ListAtmsComponent implements OnInit {
   }
   navigateToViewProduct(data: any) {
     this.router.navigateByUrl(`/mobile-banking/products/product/${data.id}`);
+  }
+  toggleExpandRow(row: any) {
+    console.log(row);
+    console.log(this.table);
+
+    this.table.rowDetail.toggleExpandRow(row);
+  }
+  onDetailToggle(event: any) {
+    console.log('Detail Toggled', event);
   }
 
 }
