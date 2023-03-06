@@ -38,7 +38,7 @@ export const MENU: MenuItem[] = [
   {
     label: 'Regions',
     icon: 'file-text',
-    link: '/mobile-banking/setups/list-regions'
+    link: '/mobile-banking/setups/list-Regions'
   },
   {
     label: 'Branches',
@@ -48,7 +48,7 @@ export const MENU: MenuItem[] = [
   {
     label: 'ATMs',
     icon: 'file-text',
-    link: '/mobile-banking/Atms/list-atms'
+    link: '/mobile-banking/setups/list-atms'
   },
 
   {

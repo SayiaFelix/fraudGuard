@@ -10,7 +10,7 @@ import {DefineRegionComponent} from "../define-region-component/define-region-co
 
 
 @Component({
-  selector: 'app-regions-list',
+  selector: 'app-Regions-list',
   templateUrl: './regions-list.component.html',
   styleUrls: ['./regions-list.component.scss'],
   providers: [DatePipe]
@@ -67,7 +67,7 @@ export class RegionsListComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.breadCrumbItems = [{label: 'Mobile banking', path: '/mobile-banking/setup/all-regions'},
+    this.breadCrumbItems = [{label: 'Mobile banking', path: '/mobile-banking/setup/all-Regions'},
       {label: 'Pages', path: '/'}, {label: 'Products', active: true}];
     this.getIndividualData(0);
 
