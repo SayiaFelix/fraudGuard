@@ -5,13 +5,23 @@
     <h4 class="mb-3 mb-md-0">All Products</h4>
   </div>
   <div class="d-flex align-items-center flex-wrap text-nowrap">
-    <div class="input-group wd-200 me-2 mb-2 mb-md-0"></div>
+    <div class="input-group wd-200 me-2 mb-2 mb-md-0">
+      <div id="list1" class="dropdown-check-list" tabindex="100">
+        <span class="anchor" (click)="toggleDrop()">Show/Hide Columns</span>
+        <ul class="items">
+          <li *ngFor="let col of allColumns">
+            <input type="checkbox" [id]="col.name" (click)="toggle(col)" [checked]="isChecked(col)" />
+            <label [attr.for]="col.name"> {{ col.name }}</label>
+          </li>
+        </ul>
+      </div>
+    </div>
     <button
       class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0 btn-xs"
       type="button"
     >
       <i appFeatherIcon class="btn-icon-prepend" data-feather="printer"></i>
-      Download
+      {{"downloadTextOnButton" | translate}}
     </button>
     <button
       (click)="openAddProductModal(verticalCenteredModal)"

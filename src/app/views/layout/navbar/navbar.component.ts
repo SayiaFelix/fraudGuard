@@ -10,6 +10,7 @@ import { DOCUMENT } from '@angular/common';
 import { Router } from '@angular/router';
 import { HttpService } from 'src/app/shared/services/http.service';
 import { map, Observable } from 'rxjs';
+import {TranslateService} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-navbar',
@@ -25,9 +26,16 @@ export class NavbarComponent implements OnInit {
   taxPin: string;
   logo: string;
 
+  // internationalization management
+  selectedLanguage: any = "English";
+  selectedLanguageFlag: any = "assets/images/flags/us.svg";
+
   constructor(
     @Inject(DOCUMENT) private document: Document,
     private renderer: Renderer2,
+
+    private translate: TranslateService,
+
     private router: Router,
     private httpService: HttpService
   ) {}
@@ -65,6 +73,18 @@ export class NavbarComponent implements OnInit {
     localStorage.clear();
     if (!localStorage.getItem('isLoggedin')) {
       this.router.navigate(['/auth/login']);
+    }
+  }
+
+  changeLanguage(lang: string) {
+    this.translate.use(lang);
+
+    if (lang === "en"){
+      this.selectedLanguage = "English";
+      this.selectedLanguageFlag = "assets/images/flags/us.svg";
+    } else if (lang === "kis") {
+      this.selectedLanguage = "Kiswahili";
+      this.selectedLanguageFlag = "assets/images/flags/es.svg";
     }
   }
 }

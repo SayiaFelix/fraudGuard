@@ -55,7 +55,7 @@ export class ViewUserComponent implements OnInit {
 
   @Input() formData: any;
   public form: FormGroup;
-  
+
   ColumnMode = ColumnMode;
 
   public imageFile: File;
@@ -107,61 +107,7 @@ export class ViewUserComponent implements OnInit {
       }
     );
   }
-
-
-  // public openModal(parentData: any) {
-  //   this.modalRef = this.modalService.open(CreateProductComponent, {size: 'lg'});
-  //   this.modalRef.componentInstance.title = 'Add Product';
-  //   this.modalRef.componentInstance.parentData = '';
-  //   this.modalRef.result.then((result) => {
-  //     if (result === 'success') {
-  //       this.getIndividualData(this.page);
-  //     }
-  //   }, (reason) => {
-  //   });
-  // }
-
-  // getIndividualData(event: number): void {
-  //   this.isLoaded = false;
-  //   this.page = event;
-  //
-  //   const model = {
-  //     page: this.page,
-  //     size: this.perPage
-  //   };
-  //
-  //   this.httpService.post('api/v1/corporate/admin/all', model).subscribe((res: any) => {
-  //
-  //     if (res.status === 200) {
-  //       setTimeout(() => {
-  //         this.data = res.data.content;
-  //         this.source.load(this.data);
-  //         this.isLoaded = true;
-  //
-  //         this.total = res.totalItems;
-  //
-  //       }, 10);
-  //     } else {
-  //       this.toastrService.error(res.message, 'Error');
-  //     }
-  //   });
-  // }
   isAsideNavCollapsed: any;
-
-  // getDetails({}) {
-
-  //   this.productDetails = {
-  //     productName: 'Salary Advance',
-  //     shortDescription: 'Get Salary Advance Loans',
-  //     longDescription: 'Enjoy quick salary advances when you are in need of a quick loan to sort out your regular bills.',
-  //     requirements: ['Minimum Salary KES 15,000 per month', 'Repayment period 1 month'],
-  //     features: ['Get access up to 70% of your monthly salary']
-  //   };
-
-  //   this.subcategoryTitle = this.productDetails.productName;
-  // }
-
-
 
   openAddProductSubcategoryModal(content: TemplateRef<any>) {
     this.modalService.open(content, {centered: true, size: "md"}).result.then((result) => {
@@ -219,26 +165,6 @@ openDeleteUserModal(content: TemplateRef<any>){
         if (result.status === 200) {
         } else {
 
-        }
-      }
-    );
-  }
-
-  private loadProducts() {
-    const model = {
-      page: 0,
-      size: 100
-    };
-
-    this.httpService.mobileBankingPost('api/v1/corporate/admin/profiles/all', model).subscribe(
-      (result: any) => {
-
-        // console.log(result.status);
-
-        if (result.status === 200) {
-
-
-        } else {
         }
       }
     );

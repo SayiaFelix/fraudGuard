@@ -1,12 +1,10 @@
-import { DatePipe } from '@angular/common';
-import { Component, Input, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, TemplateRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ColumnMode, DatatableComponent } from '@swimlane/ngx-datatable';
 import { GlobalService } from 'src/app/shared/services/global.service';
 import { HttpService } from 'src/app/shared/services/http.service';
-import {DefineRegionComponent} from "../../Regions/define-region-component/define-region-component.component";
 
 @Component({
   selector: 'app-list-branches',
