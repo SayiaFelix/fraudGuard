@@ -13,6 +13,7 @@ import { ProfileComponent } from './profile/profile.component';
 import { PricingComponent } from './pricing/pricing.component';
 import { TimelineComponent } from './timeline/timeline.component';
 import { Routes, RouterModule } from '@angular/router';
+import {NgxDatatableModule} from "@swimlane/ngx-datatable";
 
 const routes: Routes = [
   {
@@ -54,13 +55,14 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [GeneralComponent, BlankComponent, FaqComponent, InvoiceComponent, ProfileComponent, PricingComponent, TimelineComponent],
-  imports: [
-    CommonModule,
-    RouterModule.forChild(routes),
-    FeatherIconModule,
-    NgbAccordionModule,
-    NgbDropdownModule,
-    NgbTooltipModule
-  ]
+    imports: [
+        CommonModule,
+        RouterModule.forChild(routes),
+        FeatherIconModule,
+        NgbAccordionModule,
+        NgbDropdownModule,
+        NgbTooltipModule,
+        NgxDatatableModule
+    ]
 })
 export class GeneralModule { }
