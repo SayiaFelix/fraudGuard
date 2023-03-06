@@ -5,11 +5,11 @@
     <div class="d-flex align-items-center flex-wrap text-nowrap">
       <div class="input-group wd-200 me-2 mb-2 mb-md-0">
       </div>
-      <button class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0" type="button">
+      <button class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0 btn-xs" type="button">
         <i appFeatherIcon class="btn-icon-prepend" data-feather="printer"></i>
         Download
       </button>
-      <button (click)="openAddProductModal(verticalCenteredModal)" class="btn btn-primary btn-icon-text mb-2 mb-md-0"
+      <button (click)="openAddProductModal(verticalCenteredModal)" class="btn btn-primary btn-icon-text mb-2 mb-md-0 btn-xs"
               type="button">
         <i appFeatherIcon class="btn-icon-prepend" data-feather="plus"></i>
         Add ATM
@@ -36,10 +36,10 @@
             <ngx-datatable-column *ngIf='column.name === "Actions"' name="Actions" prop="actions">
               <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                 <span>
-                    <button type="button" class="btn btn-outline-primary btn-icon-text me-2 btn-sm" (click)="navigateToViewProduct(row)">
+                    <button type="button" class="btn btn-outline-primary btn-icon-text me-2 btn-xs" (click)="navigateToViewProduct(row)">
                         View
                     </button>
-                    <button type="button" class="btn btn-primary btn-icon-text btn-sm" (click)="openEditProductModal(verticalCenteredModal)">
+                    <button type="button" class="btn btn-primary btn-icon-text btn-xs" (click)="openEditProductModal(verticalCenteredModal)">
                         Edit
                     </button>
                 </span>
@@ -82,7 +82,7 @@
       </div>
       <div class="col-sm-12">
           <div class="mb-3">
-              <label class="text-gray">Select Branch</label> 
+              <label class="text-gray">Select Branch</label>
               <select
                       class="form-select"
                       formControlName="branch"
@@ -91,22 +91,22 @@
               >
                   <option *ngFor="let item of [{id: 1, name: 'Haile Selassie Avenue'}]"
                           [value]="item.id">
-                   {{ item.name | titlecase}} 
-               
+                   {{ item.name | titlecase}}
+
               </option>
               <option *ngFor="let item of [{id: 2, name: 'Harambee Avenue'}]"
               [value]="item.id">
-       {{ item.name | titlecase}} 
-   
+       {{ item.name | titlecase}}
+
   </option>
   <option *ngFor="let item of [{id: 3, name: 'Kimathi Street'}]"
   [value]="item.id">
-{{ item.name | titlecase}} 
+{{ item.name | titlecase}}
 
 </option>
               </select>
            </div>
-            
+
       </div>
 
     </div>
