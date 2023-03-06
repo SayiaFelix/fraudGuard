@@ -7,9 +7,9 @@
       </div>
       <button class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0" type="button">
         <i appFeatherIcon class="btn-icon-prepend" data-feather="printer"></i>
-        Download
+        {{"downloadTextOnButton" | translate}}
       </button>
-      <button (click)="openAddProductModal(verticalCenteredModal)" class="btn btn-primary btn-icon-text mb-2 mb-md-0"
+      <button (click)="openAddProductModal(verticalCenteredModal)" class="btn btn-primary btn-icon-text mb-2 mb-md-0 btn-xs"
               type="button">
         <i appFeatherIcon class="btn-icon-prepend" data-feather="plus"></i>
         Add ATM
@@ -82,7 +82,7 @@
       </div>
       <div class="col-sm-12">
           <div class="mb-3">
-              <label class="text-gray">Select Branch</label> 
+              <label class="text-gray">Select Branch</label>
               <select
                       class="form-select"
                       formControlName="branch"
@@ -91,22 +91,22 @@
               >
                   <option *ngFor="let item of [{id: 1, name: 'Haile Selassie Avenue'}]"
                           [value]="item.id">
-                   {{ item.name | titlecase}} 
-               
+                   {{ item.name | titlecase}}
+
               </option>
               <option *ngFor="let item of [{id: 2, name: 'Harambee Avenue'}]"
               [value]="item.id">
-       {{ item.name | titlecase}} 
-   
+       {{ item.name | titlecase}}
+
   </option>
   <option *ngFor="let item of [{id: 3, name: 'Kimathi Street'}]"
   [value]="item.id">
-{{ item.name | titlecase}} 
+{{ item.name | titlecase}}
 
 </option>
               </select>
            </div>
-            
+
       </div>
 
     </div>
