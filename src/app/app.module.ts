@@ -12,9 +12,15 @@ import { AppComponent } from './app.component';
 import { ErrorPageComponent } from './views/pages/error-page/error-page.component';
 
 import { HIGHLIGHT_OPTIONS } from 'ngx-highlightjs';
-import {HttpClientModule} from "@angular/common/http";
+import {HttpClient, HttpClientModule} from "@angular/common/http";
 import {AgmCoreModule} from "@agm/core";
+import {TranslateLoader, TranslateModule} from "@ngx-translate/core";
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
+// AoT requires an exported function for factories
+export function HttpLoaderFactory(http: HttpClient) {
+  return new TranslateHttpLoader(http);
+}
 
 @NgModule({
   declarations: [
@@ -27,6 +33,13 @@ import {AgmCoreModule} from "@agm/core";
     AppRoutingModule,
     HttpClientModule,
     BrowserAnimationsModule,
+    TranslateModule.forRoot({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: HttpLoaderFactory,
+        deps: [HttpClient]
+      }
+    }),
     LayoutModule,
     AgmCoreModule.forRoot({  apiKey: "AIzaSyCeXaOKfJXQZuh-3wZmMmYSt5NruUJPVgU",  libraries: ["places", "drawing", "geometry"]}),
   ],
