@@ -31,6 +31,8 @@
     "@mdi/font": "^7.0.96",
     "@ng-bootstrap/ng-bootstrap": "^13.1.1",
     "@ng-select/ng-select": "^9.1.0",
+    "@ngx-translate/core": "^14.0.0",
+    "@ngx-translate/http-loader": "^7.0.0",
     "@popperjs/core": "^2.11.6",
     "@sweetalert2/ngx-sweetalert2": "^11.0.0",
     "@swimlane/ngx-datatable": "^20.1.0",

@@ -1,30 +1,30 @@
 import {NgModule} from '@angular/core';
-import {BranchesRoutingModule} from './branches-routing';
+import {SetupsRoutingModule} from './setups-routing';
 
 
-import {ListBranchesComponent} from './list-branches/list-branches.component';
+import {ListBranchesComponent} from './Branches/list-branches/list-branches.component';
 import {SharedModule} from "../../../../shared/shared.module";
 import {FeatherIconModule} from "../../../../core/feather-icon/feather-icon.module";
 import {NgxDatatableModule} from "@swimlane/ngx-datatable";
-import {RegionsListComponent} from "./regions/regions-list/regions-list.component";
-import {DefineRegionComponent} from "./regions/define-region-component/define-region-component.component";
+import {RegionsListComponent} from "./Regions/regions-list/regions-list.component";
+import {DefineRegionComponent} from "./Regions/define-region-component/define-region-component.component";
 import {AgmCoreModule} from "@agm/core";
+import {ListAtmsComponent} from "./Atms/list-atms/list-atms.component";
 
 
 @NgModule({
   imports: [
     SharedModule,
-    BranchesRoutingModule,
+    SetupsRoutingModule,
     FeatherIconModule,
     NgxDatatableModule,
     AgmCoreModule,
-
-
   ],
   declarations: [
     ListBranchesComponent,
     RegionsListComponent,
-    DefineRegionComponent
+    DefineRegionComponent,
+    ListAtmsComponent
     // AddBranchComponent,
     // ViewBranchComponent,
     // CreateBranchComponent
@@ -36,5 +36,5 @@ import {AgmCoreModule} from "@agm/core";
     // CreateBranchComponent
   ],
 })
-export class BranchesModule {
+export class SetupsModule {
 }
