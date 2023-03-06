@@ -1,28 +1,32 @@
-import {Component, Input, OnInit, TemplateRef, ViewChild} from '@angular/core';
-import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
-import {DatePipe} from '@angular/common';
-import {ActivatedRoute, Router} from '@angular/router';
+import {
+  Component,
+  Input,
+  OnInit,
+  TemplateRef,
+  ViewChild,
+} from '@angular/core';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { DatePipe } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ColumnMode } from '@swimlane/ngx-datatable';
-import {HttpService} from "../../../../../shared/services/http.service";
-import {GlobalService} from "../../../../../shared/services/global.service";
-import {FormBuilder, FormGroup, Validators} from "@angular/forms";
-import {NgxDatatableComponent} from "../../../tables/ngx-datatable/ngx-datatable.component";
-import {DatatableComponent} from "@swimlane/ngx-datatable/lib/components/datatable.component";
+import { HttpService } from '../../../../../shared/services/http.service';
+import { GlobalService } from '../../../../../shared/services/global.service';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { NgxDatatableComponent } from '../../../tables/ngx-datatable/ngx-datatable.component';
+import { DatatableComponent } from '@swimlane/ngx-datatable/lib/components/datatable.component';
 
 @Component({
   selector: 'app-starter',
   templateUrl: './products.component.html',
   styleUrls: ['./products.component.scss'],
-  providers: [DatePipe]
+  providers: [DatePipe],
 })
 
 /**
  * Starter-component
  */
 export class ProductsComponent implements OnInit {
-
   @ViewChild('table') table: DatatableComponent;
-
 
   tempProductData = [
     {
@@ -31,7 +35,6 @@ export class ProductsComponent implements OnInit {
       remarks: 'Bank Accounts Description',
       status: true,
       createdOn: '12-02-2023',
-
     },
     {
       id: 2,
@@ -72,82 +75,86 @@ export class ProductsComponent implements OnInit {
 
   columns = [
     { name: 'ID', prop: 'id' },
-    { name: 'ProductName', prop:'productName' },
-    { name: 'Remarks', prop:'remarks' },
-    { name: 'Status', prop:'status' },
-    { name: 'CreatedOn', prop:'createdOn' },
-    { name: 'Actions', prop: 'id' }
+    { name: 'ProductName', prop: 'productName' },
+    { name: 'Remarks', prop: 'remarks' },
+    { name: 'Status', prop: 'status' },
+    { name: 'CreatedOn', prop: 'createdOn' },
+    { name: 'Actions', prop: 'id' },
   ];
 
+  allColumns = [...this.columns];
+
   public form: FormGroup;
-  public formData: { productName: any; remarks: any; image: any; };
+  public formData: { productName: any; remarks: any; image: any };
   public title: any;
 
   ColumnMode = ColumnMode;
   public imageFile: File;
   public modalRef: NgbModalRef;
 
+  constructor(
+    private httpService: HttpService,
+    private modalService: NgbModal,
+    public fb: FormBuilder,
 
-
-  constructor(private httpService: HttpService,
-              private modalService: NgbModal,
-              public fb: FormBuilder,
-
-              public router: Router,
-  ) {
-
-
-  }
+    public router: Router
+  ) {}
 
   ngOnInit() {
-    this.breadCrumbItems = [{ label: 'Mobile banking', path: '/mobile-banking/products/all-products' },
-      { label: 'Pages', path: '/' }, { label: 'Products', active: true }];
+    this.breadCrumbItems = [
+      {
+        label: 'Mobile banking',
+        path: '/mobile-banking/products/all-products',
+      },
+      { label: 'Pages', path: '/' },
+      { label: 'Products', active: true },
+    ];
     this.getIndividualData(0);
 
     this.form = this.fb.group({
       name: ['', [Validators.required]],
       description: ['', [Validators.required]],
-      image: ['']
+      image: [''],
     });
   }
 
   getIndividualData(event: number): void {
-
-
     this.rows = this.tempProductData;
 
-    this.temp =[...this.tempProductData];
+    this.temp = [...this.tempProductData];
 
     const model = {
       page: 0,
-      size: 5
+      size: 5,
     };
 
-    this.httpService.mobileBankingPost('api/v1/corporate/admin/list-products/all', model).subscribe((res: any) => {
+    this.httpService
+      .mobileBankingPost('api/v1/corporate/admin/list-products/all', model)
+      .subscribe((res: any) => {
+        if (res.status === 200) {
+          setTimeout(() => {
+            // this.data = res.data;
+            this.rows = this.tempProductData;
+            // let data = this.tempProductData;
 
-      if (res.status === 200) {
-        setTimeout(() => {
-          // this.data = res.data;
-          this.rows = this.tempProductData;
-          // let data = this.tempProductData;
-
-          let total = res.totalItems;
-
-        }, 10);
-      } else {
-      }
-    });
+            let total = res.totalItems;
+          }, 10);
+        } else {
+        }
+      });
   }
 
   openAddProductModal(content: TemplateRef<any>) {
-    this.modalService.open(content, {centered: true}).result.then((result) => {
-      console.log("Modal closed" + result);
-    }).catch((res) => {});
+    this.modalService
+      .open(content, { centered: true })
+      .result.then((result) => {
+        console.log('Modal closed' + result);
+      })
+      .catch((res) => {});
   }
 
   openEditProductModal(content: TemplateRef<any>, rowData: any) {
-
-    this.modalRef = this.modalService.open(content, {centered: true});
+    this.modalRef = this.modalService.open(content, { centered: true });
 
     this.form.patchValue({
       name: rowData.productName,
@@ -161,7 +168,7 @@ export class ProductsComponent implements OnInit {
       if (result === 'success') {
         this.getIndividualData(0);
       } else {
-        console.log("Error occurred")
+        console.log('Error occurred');
       }
     });
   }
@@ -199,5 +206,33 @@ export class ProductsComponent implements OnInit {
     this.rows = temp;
     // Whenever the filter changes, always go back to the first page
     this.table.offset = 0;
+  }
+
+  toggle(col: any) {
+    const isChecked = this.isChecked(col);
+
+    if (isChecked) {
+      this.columns = this.columns.filter((c) => {
+        return c.name !== col.name;
+      });
+    } else {
+      this.columns = [...this.columns, col];
+    }
+  }
+
+  isChecked(col: any) {
+    return (
+      this.columns.find((c) => {
+        return c.name === col.name;
+      }) !== undefined
+    );
+  }
+
+  toggleDrop() {
+    let checkList: HTMLElement = document.getElementById('list1')!;
+
+    if (checkList.classList.contains('visible'))
+      checkList.classList.remove('visible');
+    else checkList.classList.add('visible');
   }
 }
