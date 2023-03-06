@@ -8,15 +8,12 @@
     <ul class="navbar-nav">
       <li class="nav-item" ngbDropdown>
         <a class="nav-link" ngbDropdownToggle id="languageDropdown" role="button">
-          <img src="assets/images/flags/us.svg" class="wd-20 me-1" title="us" alt="us">
-          <span class="fw-bold ms-1 me-1 d-none d-md-inline-block">English</span>
+          <img [src]="selectedLanguageFlag" class="wd-20 me-1" title="us" alt="us">
+          <span class="fw-bold ms-1 me-1 d-none d-md-inline-block">{{selectedLanguage}}</span>
         </a>
         <div ngbDropdownMenu aria-labelledby="languageDropdown">
-          <a ngbDropdownItem class="py-2"> <img src="assets/images/flags/us.svg" class="wd-20 me-1" title="us" alt="us"> <span class="ms-1"> English </span></a>
-          <a ngbDropdownItem class="py-2"> <img src="assets/images/flags/fr.svg" class="wd-20 me-1" title="fr" alt="fr"> <span class="ms-1"> French </span></a>
-          <a ngbDropdownItem class="py-2"> <img src="assets/images/flags/de.svg" class="wd-20 me-1" title="de" alt="de"> <span class="ms-1"> German </span></a>
-          <a ngbDropdownItem class="py-2"> <img src="assets/images/flags/pt.svg" class="wd-20 me-1" title="pt" alt="pt"> <span class="ms-1"> Portuguese </span></a>
-          <a ngbDropdownItem class="py-2"> <img src="assets/images/flags/es.svg" class="wd-20 me-1" title="es" alt="es"> <span class="ms-1"> Spanish </span></a>
+          <a ngbDropdownItem class="py-2" (click)="changeLanguage('en')"> <img src="assets/images/flags/us.svg" class="wd-20 me-1" title="us" alt="us"> <span class="ms-1"> English </span></a>
+          <a ngbDropdownItem class="py-2" (click)="changeLanguage('kis')"> <img src="assets/images/flags/es.svg" class="wd-20 me-1" title="es" alt="es"> <span class="ms-1"> Kiswahili </span></a>
         </div>
       </li>
       <li class="nav-item nav-apps" ngbDropdown>
@@ -47,7 +44,82 @@
           </div>
         </div>
       </li>
-
+      <li class="nav-item nav-messages" ngbDropdown>
+        <a class="nav-link" ngbDropdownToggle id="messageDropdown">
+          <i class="link-icon feather icon-mail"></i>
+        </a>
+        <div ngbDropdownMenu class="px-0" aria-labelledby="messageDropdown">
+          <div class="px-3 py-2 d-flex align-items-center justify-content-between border-bottom">
+            <p>9 New Messages</p>
+            <a href="" (click)="false" class="text-muted">Clear all</a>
+          </div>
+          <div class="p-1">
+            <a href="" (click)="false" class="dropdown-item d-flex align-items-center py-2">
+              <div class="me-3">
+                <img class="wd-30 ht-30 rounded-circle" src="https://via.placeholder.com/30x30" alt="user">
+              </div>
+              <div class="d-flex justify-content-between flex-grow-1">
+                <div class="me-4">
+                  <p>Leonardo Payne</p>
+                  <p class="tx-12 text-muted">Project status</p>
+                </div>
+                <p class="tx-12 text-muted">2 min ago</p>
+              </div>
+            </a>
+            <a href="" (click)="false" class="dropdown-item d-flex align-items-center py-2">
+              <div class="me-3">
+                <img class="wd-30 ht-30 rounded-circle" src="https://via.placeholder.com/30x30" alt="user">
+              </div>
+              <div class="d-flex justify-content-between flex-grow-1">
+                <div class="me-4">
+                  <p>Carl Henson</p>
+                  <p class="tx-12 text-muted">Client meeting</p>
+                </div>
+                <p class="tx-12 text-muted">30 min ago</p>
+              </div>
+            </a>
+            <a href="" (click)="false" class="dropdown-item d-flex align-items-center py-2">
+              <div class="me-3">
+                <img class="wd-30 ht-30 rounded-circle" src="https://via.placeholder.com/30x30" alt="user">
+              </div>
+              <div class="d-flex justify-content-between flex-grow-1">
+                <div class="me-4">
+                  <p>Jensen Combs</p>
+                  <p class="tx-12 text-muted">Project updates</p>
+                </div>
+                <p class="tx-12 text-muted">1 hrs ago</p>
+              </div>
+            </a>
+            <a href="" (click)="false" class="dropdown-item d-flex align-items-center py-2">
+              <div class="me-3">
+                <img class="wd-30 ht-30 rounded-circle" src="https://via.placeholder.com/30x30" alt="user">
+              </div>
+              <div class="d-flex justify-content-between flex-grow-1">
+                <div class="me-4">
+                  <p>Amiah Burton</p>
+                  <p class="tx-12 text-muted">Project deatline</p>
+                </div>
+                <p class="tx-12 text-muted">2 hrs ago</p>
+              </div>
+            </a>
+            <a href="" (click)="false" class="dropdown-item d-flex align-items-center py-2">
+              <div class="me-3">
+                <img class="wd-30 ht-30 rounded-circle" src="https://via.placeholder.com/30x30" alt="user">
+              </div>
+              <div class="d-flex justify-content-between flex-grow-1">
+                <div class="me-4">
+                  <p>Yaretzi Mayo</p>
+                  <p class="tx-12 text-muted">New record</p>
+                </div>
+                <p class="tx-12 text-muted">5 hrs ago</p>
+              </div>
+            </a>
+          </div>
+          <div class="px-3 py-2 d-flex align-items-center justify-content-center border-top">
+            <a href="" (click)="false">View all</a>
+          </div>
+        </div>
+      </li>
       <li class="nav-item nav-notifications" ngbDropdown>
         <a class="nav-link" ngbDropdownToggle id="notificationDropdown">
           <i class="link-icon feather icon-bell"></i>
@@ -68,7 +140,7 @@
               <div class="flex-grow-1 me-2">
                 <p>New Order Recieved</p>
                 <p class="tx-12 text-muted">30 min ago</p>
-              </div>	
+              </div>
             </a>
             <a href="" (click)="false" class="dropdown-item d-flex align-items-center py-2">
               <div class="wd-30 ht-30 d-flex align-items-center justify-content-center bg-primary rounded-circle me-3">
@@ -77,7 +149,7 @@
               <div class="flex-grow-1 me-2">
                 <p>Server Limit Reached!</p>
                 <p class="tx-12 text-muted">1 hrs ago</p>
-              </div>	
+              </div>
             </a>
             <a href="" (click)="false" class="dropdown-item d-flex align-items-center py-2">
               <div class="wd-30 ht-30 d-flex align-items-center justify-content-center bg-primary rounded-circle me-3">
@@ -86,7 +158,7 @@
               <div class="flex-grow-1 me-2">
                 <p>New customer registered</p>
                 <p class="tx-12 text-muted">2 sec ago</p>
-              </div>	
+              </div>
             </a>
             <a href="" (click)="false" class="dropdown-item d-flex align-items-center py-2">
               <div class="wd-30 ht-30 d-flex align-items-center justify-content-center bg-primary rounded-circle me-3">
@@ -95,7 +167,7 @@
               <div class="flex-grow-1 me-2">
                 <p>Apps are ready for update</p>
                 <p class="tx-12 text-muted">5 hrs ago</p>
-              </div>	
+              </div>
             </a>
             <a href="" (click)="false" class="dropdown-item d-flex align-items-center py-2">
               <div class="wd-30 ht-30 d-flex align-items-center justify-content-center bg-primary rounded-circle me-3">
@@ -104,7 +176,7 @@
               <div class="flex-grow-1 me-2">
                 <p>Download completed</p>
                 <p class="tx-12 text-muted">6 hrs ago</p>
-              </div>	
+              </div>
             </a>
           </div>
           <div class="px-3 py-2 d-flex align-items-center justify-content-center border-top">
