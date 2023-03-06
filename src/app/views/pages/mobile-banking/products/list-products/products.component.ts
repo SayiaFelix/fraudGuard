@@ -8,7 +8,6 @@ import {GlobalService} from "../../../../../shared/services/global.service";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {NgxDatatableComponent} from "../../../tables/ngx-datatable/ngx-datatable.component";
 import {DatatableComponent} from "@swimlane/ngx-datatable/lib/components/datatable.component";
-import {DefineRegionComponent} from "../../branches/regions/define-region-component/define-region-component.component";
 
 @Component({
   selector: 'app-starter',

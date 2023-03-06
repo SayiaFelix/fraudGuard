@@ -1,9 +1,6 @@
 import {AfterViewInit, Component, ElementRef, Inject, Input, OnInit, ViewChild} from "@angular/core";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 
-
-
-
 import {constituencies, counties} from "../CountiesAndConstituencies";
 import { HttpService } from "src/app/shared/services/http.service";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
