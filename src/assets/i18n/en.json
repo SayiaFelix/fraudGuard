@@ -1,5 +1,8 @@
 {
   "welcomeMessage": "Thanks for joining, {{ firstName }}! It's great to have you!",
+  "loginMessage":"Log in to your account",
+  "welcomeDashboardMessage": "Welcome to the Dashboard",
+  "downloadTextOnButton": "Download",
   "login": {
     "username": "Enter your user name",
     "password": "Password here"
