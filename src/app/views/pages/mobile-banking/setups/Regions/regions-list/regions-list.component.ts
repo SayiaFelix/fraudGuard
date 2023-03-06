@@ -1,8 +1,8 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {DatePipe} from '@angular/common';
 import {Router} from '@angular/router';
-import {ColumnMode} from '@swimlane/ngx-datatable';
+import {ColumnMode, DatatableComponent} from '@swimlane/ngx-datatable';
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {HttpService} from "../../../../../../shared/services/http.service";
 import {GlobalService} from "../../../../../../shared/services/global.service";
@@ -16,6 +16,9 @@ import {DefineRegionComponent} from "../define-region-component/define-region-co
   providers: [DatePipe]
 })
 export class RegionsListComponent implements OnInit {
+
+  @ViewChild('table') table: DatatableComponent;
+
   tempProductData = [
     {
       id: 1,
@@ -127,6 +130,18 @@ export class RegionsListComponent implements OnInit {
       console.log("Modal closed" + result);
     }).catch((res) => {
     });
+  }
+  toggleExpandRow(row: any) {
+    console.log(row);
+    // console.log(this.table);
+    this.table.rowDetail.toggleExpandRow(row);
+
+    // this.table.rowDetail.toggleExpandRow(row);
+
+  }
+
+  onDetailToggle(event: any) {
+    console.log('Detail Toggled', event);
   }
 
   navigateToViewProduct(data: any) {

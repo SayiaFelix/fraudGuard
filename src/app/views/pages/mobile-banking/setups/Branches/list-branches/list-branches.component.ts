@@ -2,7 +2,7 @@ import { Component, Input, OnInit, TemplateRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ColumnMode } from '@swimlane/ngx-datatable';
+import { ColumnMode, DatatableComponent } from '@swimlane/ngx-datatable';
 import { GlobalService } from 'src/app/shared/services/global.service';
 import { HttpService } from 'src/app/shared/services/http.service';
 
@@ -68,6 +68,7 @@ export class ListBranchesComponent implements OnInit {
 
   ColumnMode = ColumnMode;
   public imageFile: File;
+  @ViewChild('table') table: DatatableComponent;
 
 
   constructor(private httpService: HttpService,
@@ -179,5 +180,12 @@ export class ListBranchesComponent implements OnInit {
       console.log("Modal closed" + result);
     }).catch((res) => {
     });
+  }
+  toggleExpandRow(row:any){
+    this.table.rowDetail.toggleExpandRow(row);
+  }
+  
+  onDetailToggle(event:any){
+    console.log('Detail Toggled', event);
   }
 }

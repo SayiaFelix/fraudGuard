@@ -133,6 +133,10 @@ export class RolesComponent implements OnInit {
   toggleExpandRow(row: any) {
     this.table.rowDetail.toggleExpandRow(row);
   }
+  onDetailToggle(event:any){
+    console.log('Detail Toggled', event);
+
+  }
 
 
 }
