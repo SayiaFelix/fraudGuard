@@ -33,6 +33,43 @@
               [limit]="2"
               [rowHeight]="'auto'"
             >
+                       <!-- Row Detail Template -->
+                       <ngx-datatable-row-detail
+                       #myDetailRow
+                              (toggle)="onDetailToggle($event)"
+                              [rowHeight]="100"
+                            >
+                              <ng-template
+                                let-expanded="expanded"
+                                let-row="row"
+                                ngx-datatable-row-detail-template
+                              >
+                                <div style="padding-left: 35px">
+                                  <div><strong>Address</strong></div>
+                                  <div>{{ row.productName }}, {{ row.remarks }}</div>
+                                </div>
+                              </ng-template>
+                            </ngx-datatable-row-detail>
+         
+                     <!-- Column Templates -->
+                     <ngx-datatable-column
+                       [width]="50"
+                       [resizeable]="false"
+                       [sortable]="false"
+                       [draggable]="false"
+                       [canAutoResize]="false"
+                     >
+                       <ng-template  let-value="value" let-row="row" let-expanded="expanded" ngx-datatable-cell-template>
+                         <a
+                           href="javascript:void(0)"
+                           [class.datatable-icon-right]="!expanded"
+                           [class.datatable-icon-down]="expanded"
+                           title="Expand/Collapse Row"
+                           (click)="toggleExpandRow(row)"
+                         >
+                         </a>
+                       </ng-template>
+                     </ngx-datatable-column>
               <ng-container *ngFor='let column of columns' >
                 <ngx-datatable-column *ngIf='column.name === "Actions"' name="Actions" prop="actions">
                   <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>

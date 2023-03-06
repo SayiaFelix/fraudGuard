@@ -29,7 +29,7 @@ export class ProductsComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
 
   tempProductData = [
-    {
+    { 
       id: 1,
       productName: 'Bank Accounts',
       remarks: 'Bank Accounts Description',

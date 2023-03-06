@@ -34,6 +34,23 @@
             [limit]="10"
             [rowHeight]="'auto'"
           >
+               <!-- Row Detail Template -->
+               <ngx-datatable-row-detail
+               #myDetailRow
+                      (toggle)="onDetailToggle($event)"
+                      [rowHeight]="100"
+                    >
+                      <ng-template
+                        let-expanded="expanded"
+                        let-row="row"
+                        ngx-datatable-row-detail-template
+                      >
+                        <div style="padding-left: 35px">
+                          <div><strong>Address</strong></div>
+                          <div>{{ row.productName }}, {{ row.remarks }}</div>
+                        </div>
+                      </ng-template>
+                    </ngx-datatable-row-detail>
 
             <!-- Column Templates -->
             <ngx-datatable-column
