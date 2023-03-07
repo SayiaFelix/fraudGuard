@@ -11,6 +11,7 @@ import { HttpParams } from '@angular/common/http';
 import { HttpService } from '../../../../shared/services/http.service';
 import {catchError, concat, Observable, of} from 'rxjs';
 import { delay, map } from 'rxjs/operators';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-login',
@@ -30,7 +31,11 @@ export class LoginComponent implements OnInit {
 
   errorMsg: string;
 
+  selectedLanguage: any = "English";
+  selectedLanguageFlag: any = "assets/images/flags/us.svg";
+
   constructor(
+    private translate: TranslateService,
     private router: Router,
     private route: ActivatedRoute,
     private httpService: HttpService,
@@ -80,6 +85,18 @@ export class LoginComponent implements OnInit {
       this.inputType = 'text';
     } else {
       this.inputType = 'password';
+    }
+  }
+
+  changeLanguage(lang: string) {
+    this.translate.use(lang);
+
+    if (lang === "en"){
+      this.selectedLanguage = "English";
+      this.selectedLanguageFlag = "assets/images/flags/us.svg";
+    } else if (lang === "kis") {
+      this.selectedLanguage = "Kiswahili";
+      this.selectedLanguageFlag = "assets/images/flags/es.svg";
     }
   }
 }
