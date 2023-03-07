@@ -1,7 +1,7 @@
 {
   "welcomeMessage": "Asante kwa kujiunga nasi, {{ firstName }}! Tuna furaha",
   "loginMessage":"Jisajili katika Akaunti yako.",
-  "welcomeDashboardMessage": "Karibu kwenye Dashboard",
+  "welcomeDashboardMessage": "Karibu kwenye Dashibodi",
   "downloadTextOnButton": "Hifadhi",
   "login": {
     "username": "Andika jina lako la mtumiaji",
