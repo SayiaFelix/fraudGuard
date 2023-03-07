@@ -32,6 +32,7 @@ export class HttpService {
           this.router.navigate(['/dashboard']);
 
           this.mobileBankingGetUserDetails();
+          this.mobileBankingGetUserPermissions();
           return result;
         })
       );
@@ -52,6 +53,29 @@ export class HttpService {
             JSON.stringify(result['data']['corporate'])
           );
           return result['data']['corporate'];
+        })
+      );
+  }
+
+  public mobileBankingGetUserPermissions(): Observable<any> {
+    localStorage.setItem('profile', "SUPER_ADMIN");
+
+    return this.http
+      .post(
+        this.globalService.mobileBankingHost +
+          'api/v1/corporate/admin/permissions',
+        {},
+        this.getHeaders()
+      )
+      .pipe(
+        map((result: any) => {
+          console.log("result");
+          console.log(result);
+          localStorage.setItem(
+            'profile',
+            JSON.stringify(result['data']['user']['profile']['name'])
+          );
+          return result['data']['user']['profile']['name'];
         })
       );
   }
