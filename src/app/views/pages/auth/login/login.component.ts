@@ -27,6 +27,9 @@ export class LoginComponent implements OnInit {
   userDataResp$: Observable<any>;
   errorMsg: string;
 
+  selectedLanguage: any = "English";
+  selectedLanguageFlag: any = "assets/images/flags/us.svg";
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,

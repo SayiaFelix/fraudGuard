@@ -8,6 +8,21 @@
           </div>
         </div>
         <div class="col-md-8 ps-md-0">
+          <div class="row">
+            <div class="col-8"></div>
+            <div class="col-4 text-right">
+              <li class="nav-item" ngbDropdown>
+                <a class="nav-link" ngbDropdownToggle id="languageDropdown" role="button">
+                  <img [src]="selectedLanguageFlag" class="wd-20 me-1" title="us" alt="us">
+                  <span class="fw-bold ms-1 me-1 d-none d-md-inline-block">{{selectedLanguage}}</span>
+                </a>
+                <div ngbDropdownMenu aria-labelledby="languageDropdown">
+                  <a ngbDropdownItem class="py-2" > <img src="assets/images/flags/us.svg" class="wd-20 me-1" title="us" alt="us"> <span class="ms-1"> English </span></a>
+                  <a ngbDropdownItem class="py-2" > <img src="assets/images/flags/es.svg" class="wd-20 me-1" title="es" alt="es"> <span class="ms-1"> Kiswahili </span></a>
+                </div>
+              </li>
+            </div>
+          </div>
           <div class="auth-form-wrapper px-4 py-5">
             <a routerLink="." class="nobleui-logo d-block mb-2">Eclectics <span>Channel Manager</span></a>
             <h5 class="text-muted fw-normal mb-4">{{ 'loginMessage' | translate }}</h5>
