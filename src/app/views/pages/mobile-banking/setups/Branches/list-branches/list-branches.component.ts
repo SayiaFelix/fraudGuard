@@ -1,12 +1,11 @@
-import { DatePipe } from '@angular/common';
-import { Component, Input, OnInit, TemplateRef } from '@angular/core';
+import {Component, Input, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ColumnMode } from '@swimlane/ngx-datatable';
+import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
+import { ColumnMode, DatatableComponent } from '@swimlane/ngx-datatable';
 import { GlobalService } from 'src/app/shared/services/global.service';
 import { HttpService } from 'src/app/shared/services/http.service';
-import {DefineRegionComponent} from "../../Regions/define-region-component/define-region-component.component";
+import {AddBranchComponent} from "../add-branch/add-branch.component";
 
 @Component({
   selector: 'app-list-branches',
@@ -70,6 +69,9 @@ export class ListBranchesComponent implements OnInit {
 
   ColumnMode = ColumnMode;
   public imageFile: File;
+  @ViewChild('table') table: DatatableComponent;
+
+  public modalRef: NgbModalRef;
 
 
   constructor(private httpService: HttpService,
@@ -95,44 +97,28 @@ export class ListBranchesComponent implements OnInit {
     });
   }
 
-  // public openModal(parentData: any) {
-  //   this.modalRef = this.modalService.open(AddProductComponent);
-  //   this.modalRef.componentInstance.title = 'Add Product';
-  //   this.modalRef.componentInstance.parentData = '';
-  //   this.modalRef.result.then((result) => {
-  //     if (result === 'success') {
-  //       this.getIndividualData(this.page);
-  //     }
-  //   }, (reason) => {
-  //   });
-  // }
-
-  // public editProduct(formData: any) {
-  //   this.modalRef = this.modalService.open(AddProductComponent);
-  //   this.modalRef.componentInstance.formData = formData;
-  //   this.modalRef.componentInstance.title = 'Edit Product: ';
-  //   this.modalRef.result.then((result) => {
-  //     if (result === 'success') {
-  //       this.getIndividualData(this.page);
-  //     }
-  //   }, (reason) => {
-  //   });
-  // }
-
-  onCustomAction(event: { action: any; data: any; }) {
-    switch (event.action) {
-      case 'viewrecord':
-        // this.viewProduct(event.data);
-        break;
-      case 'editrecord':
-        // this.editProduct(event.data);
-    }
+  public addBranch(parentData: any) {
+    this.modalRef = this.modalService.open(AddBranchComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Add Branch';
+    this.modalRef.componentInstance.parentData = '';
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        // this.getIndividualData(this.page);
+      }
+    }, (reason) => {
+    });
   }
 
-  private viewProduct(data: any): void {
-    console.log('here is the product data');
-    console.log(data);
-    this.router.navigate(['products', 'product', data.id], {queryParams: data});
+  public editBranch(formData: any) {
+    this.modalRef = this.modalService.open(AddBranchComponent, {centered: true});
+    this.modalRef.componentInstance.formData = formData;
+    this.modalRef.componentInstance.title = 'Edit Branch';
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        // this.getIndividualData(this.page);
+      }
+    }, (reason) => {
+    });
   }
 
   getIndividualData(event: number): void {
@@ -181,5 +167,12 @@ export class ListBranchesComponent implements OnInit {
       console.log("Modal closed" + result);
     }).catch((res) => {
     });
+  }
+  toggleExpandRow(row:any){
+    this.table.rowDetail.toggleExpandRow(row);
+  }
+
+  onDetailToggle(event:any){
+    console.log('Detail Toggled', event);
   }
 }

@@ -10,6 +10,7 @@ import { NgbDropdownModule, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstr
 import { NgApexchartsModule } from "ng-apexcharts";
 
 import { DashboardComponent } from './dashboard.component';
+import {TranslateModule} from "@ngx-translate/core";
 
 const routes: Routes = [
   {
@@ -20,14 +21,15 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [DashboardComponent],
-  imports: [
-    CommonModule,
-    RouterModule.forChild(routes),
-    FormsModule,
-    FeatherIconModule,
-    NgbDropdownModule,
-    NgbDatepickerModule,
-    NgApexchartsModule
-  ]
+    imports: [
+        CommonModule,
+        RouterModule.forChild(routes),
+        FormsModule,
+        FeatherIconModule,
+        NgbDropdownModule,
+        NgbDatepickerModule,
+        NgApexchartsModule,
+        TranslateModule
+    ]
 })
 export class DashboardModule { }

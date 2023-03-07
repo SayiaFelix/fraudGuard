@@ -5,11 +5,11 @@
     <div class="d-flex align-items-center flex-wrap text-nowrap">
       <div class="input-group wd-200 me-2 mb-2 mb-md-0">
       </div>
-      <button class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0" type="button">
+      <button class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0 btn-xs" type="button">
         <i appFeatherIcon class="btn-icon-prepend" data-feather="printer"></i>
-        Download
+        {{"downloadTextOnButton" | translate}}
       </button>
-      <button (click)="openAddProductModal(verticalCenteredModal)" class="btn btn-primary btn-icon-text mb-2 mb-md-0"
+      <button (click)="addAtm('')" class="btn btn-primary btn-icon-text mb-2 mb-md-0 btn-xs"
               type="button">
         <i appFeatherIcon class="btn-icon-prepend" data-feather="plus"></i>
         Add ATM
@@ -32,14 +32,56 @@
             [limit]="10"
             [rowHeight]="'auto'"
           >
+                     <!-- Row Detail Template -->
+                     <ngx-datatable-row-detail
+                     #myDetailRow
+                     (toggle)="onDetailToggle($event)"
+                     [rowHeight]="100"
+                   >
+                     <ng-template
+                       let-expanded="expanded"
+                       let-row="row"
+                       ngx-datatable-row-detail-template
+                     >
+                       <div style="padding-left: 35px">
+                         <div><strong>Address</strong></div>
+                         <div>{{ row.productName }}, {{ row.remarks }}</div>
+                       </div>
+                     </ng-template>
+                   </ngx-datatable-row-detail>
+
+                   <!-- Column Templates -->
+                   <ngx-datatable-column
+                     [canAutoResize]="false"
+                     [draggable]="false"
+                     [resizeable]="false"
+                     [sortable]="false"
+                     [width]="50"
+                   >
+                     <ng-template
+                       let-expanded="expanded"
+                       let-row="row"
+                       let-value="value"
+                       ngx-datatable-cell-template
+                     >
+                       <a
+                         (click)="toggleExpandRow(row)"
+                         [class.datatable-icon-down]="expanded"
+                         [class.datatable-icon-right]="!expanded"
+                         href="javascript:void(0)"
+                         title="Expand/Collapse Row"
+                       >
+                       </a>
+                     </ng-template>
+                   </ngx-datatable-column>
           <ng-container *ngFor='let column of columns' >
             <ngx-datatable-column *ngIf='column.name === "Actions"' name="Actions" prop="actions">
               <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                 <span>
-                    <button type="button" class="btn btn-outline-primary btn-icon-text me-2 btn-sm" (click)="navigateToViewProduct(row)">
-                        View
-                    </button>
-                    <button type="button" class="btn btn-primary btn-icon-text btn-sm" (click)="openEditProductModal(verticalCenteredModal)">
+<!--                    <button type="button" class="btn btn-outline-primary btn-icon-text me-2 btn-xs" (click)="navigateToViewProduct(row)">-->
+<!--                        View-->
+<!--                    </button>-->
+                    <button type="button" class="btn btn-primary btn-icon-text btn-xs" (click)="editAtm(row)">
                         Edit
                     </button>
                 </span>
@@ -82,7 +124,7 @@
       </div>
       <div class="col-sm-12">
           <div class="mb-3">
-              <label class="text-gray">Select Branch</label> 
+              <label class="text-gray">Select Branch</label>
               <select
                       class="form-select"
                       formControlName="branch"
@@ -91,22 +133,22 @@
               >
                   <option *ngFor="let item of [{id: 1, name: 'Haile Selassie Avenue'}]"
                           [value]="item.id">
-                   {{ item.name | titlecase}} 
-               
+                   {{ item.name | titlecase}}
+
               </option>
               <option *ngFor="let item of [{id: 2, name: 'Harambee Avenue'}]"
               [value]="item.id">
-       {{ item.name | titlecase}} 
-   
+       {{ item.name | titlecase}}
+
   </option>
   <option *ngFor="let item of [{id: 3, name: 'Kimathi Street'}]"
   [value]="item.id">
-{{ item.name | titlecase}} 
+{{ item.name | titlecase}}
 
 </option>
               </select>
            </div>
-            
+
       </div>
 
     </div>
