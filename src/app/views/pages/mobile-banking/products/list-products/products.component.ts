@@ -14,6 +14,8 @@ import { GlobalService } from '../../../../../shared/services/global.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgxDatatableComponent } from '../../../tables/ngx-datatable/ngx-datatable.component';
 import { DatatableComponent } from '@swimlane/ngx-datatable/lib/components/datatable.component';
+import { DataExportationService } from 'src/app/shared/services/data-exportation.service';
+import { ItemsList } from '@ng-select/ng-select/lib/items-list';
 
 @Component({
   selector: 'app-starter',
@@ -96,8 +98,8 @@ export class ProductsComponent implements OnInit {
     private httpService: HttpService,
     private modalService: NgbModal,
     public fb: FormBuilder,
-
-    public router: Router
+    public router: Router,
+    private dataExploration: DataExportationService
   ) {}
 
   ngOnInit() {
@@ -234,5 +236,70 @@ export class ProductsComponent implements OnInit {
     if (checkList.classList.contains('visible'))
       checkList.classList.remove('visible');
     else checkList.classList.add('visible');
+  }
+
+  exportCSV() {
+    let cols: string[] = this.columns.map(item => {
+      if(item['name'].toLowerCase() !== 'actions'){
+        return item['prop']
+      } else {
+        return ''
+      }
+    })
+    cols = cols.filter(item => item !== '')
+    let arr: Record<string, string>[]= []
+
+    this.rows.forEach((row: any) => {
+      let temp: Record<string, string> = {}
+      cols.forEach(key => {
+        temp = {...temp, [key]: row[key]}
+      })
+      arr.push(temp)
+    })
+    this.dataExploration.exportToCsv(arr, 'Products')
+  }
+
+  exportXLSX() {
+    let cols: string[] = this.columns.map(item => {
+      if(item['name'].toLowerCase() !== 'actions'){
+        return item['prop']
+      } else {
+        return ''
+      }
+    })
+    cols = cols.filter(item => item !== '')
+    let arr: Record<string, string>[]= []
+
+    this.rows.forEach((row: any) => {
+      let temp: Record<string, string> = {}
+      cols.forEach(key => {
+        temp = {...temp, [key]: row[key]}
+      })
+      arr.push(temp)
+    })
+
+    this.dataExploration.exportDataXlsx(arr, 'Products')
+  }
+
+  exportPDF() {
+    console.log(this.rows);
+    let cols: string[] = this.columns.map(item => {
+      if(item['name'].toLowerCase() !== 'actions'){
+        return item['name'].toUpperCase()
+      } else {
+        return ''
+      }
+    })
+    cols = cols.filter(item => item !== '')
+    let rowKeys: string[] = Object.keys(this.rows[0]);
+    let arr: string[][]= []
+    this.rows.forEach((row: any) => {
+      let temp: string[] = []
+      rowKeys.forEach(key => {
+        temp.push(row[key])
+      })
+      arr.push(temp)
+    })
+    this.dataExploration.exportToPdf(cols, arr, 'Products')
   }
 }
