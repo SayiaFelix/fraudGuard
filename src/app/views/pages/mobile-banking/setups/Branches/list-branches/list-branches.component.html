@@ -9,7 +9,7 @@
         <i appFeatherIcon class="btn-icon-prepend" data-feather="printer"></i>
          {{"downloadTextOnButton" | translate}}
       </button>
-      <button (click)="openAddProductModal(verticalCenteredModal)" class="btn btn-primary btn-icon-text mb-2 mb-md-0 btn-xs"
+      <button (click)="addBranch('')" class="btn btn-primary btn-icon-text mb-2 mb-md-0 btn-xs"
               type="button">
         <i appFeatherIcon class="btn-icon-prepend" data-feather="plus"></i>
         Add Branch
@@ -50,7 +50,7 @@
                                 </div>
                               </ng-template>
                             </ngx-datatable-row-detail>
-         
+
                      <!-- Column Templates -->
                      <ngx-datatable-column
                        [width]="50"
@@ -74,10 +74,10 @@
                 <ngx-datatable-column *ngIf='column.name === "Actions"' name="Actions" prop="actions">
                   <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                     <span>
-                      <button type="button" class="btn btn-outline-primary btn-icon-text me-2  btn-xs" (click)="navigateToViewBranch(row)">
-                          View
-                      </button>
-                      <button type="button" class="btn btn-primary btn-icon-text btn-xs" (click)="openEditBranchModal(verticalCenteredModal)">
+<!--                      <button type="button" class="btn btn-outline-primary btn-icon-text me-2  btn-xs" (click)="navigateToViewBranch(row)">-->
+<!--                          View-->
+<!--                      </button>-->
+                      <button type="button" class="btn btn-primary btn-icon-text btn-xs" (click)="editBranch(row)">
                           Edit
                       </button>
                     </span>
@@ -149,8 +149,6 @@
         </div>
 
       </div>
-
-
     </div>
     <div class="modal-footer">
       <button (click)="modal.close('by: close button')" class="btn btn-secondary" type="button">Close</button>

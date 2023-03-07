@@ -10,6 +10,7 @@ import {ProfileRolesComponent} from "./profiles/profile-roles/profile-roles.comp
 import {ListUsersComponent} from "./Users/list-users/list-users.component";
 import {ViewUserComponent} from "./Users/view-user/view-user.component";
 import {TranslateModule} from "@ngx-translate/core";
+import {AddUserComponent} from "./Users/add-user/add-user.component";
 
 
 @NgModule({
@@ -27,10 +28,12 @@ import {TranslateModule} from "@ngx-translate/core";
         ProfileRolesComponent,
         ListUsersComponent,
         ViewUserComponent,
+        AddUserComponent
     ]
     ,
     entryComponents: [
-        AddRoleComponent,
+      AddUserComponent,
+      AddRoleComponent,
     ],
 })
 export class RbacModule {

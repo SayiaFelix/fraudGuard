@@ -12,6 +12,7 @@ import { LabelPassedComponent } from './components/label-passed/label-passed.com
 import {ConfirmDialogComponent} from './components/confirm-dialog/confirm-dialog.component';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import {TranslateModule} from "@ngx-translate/core";
+import {CustomNgxTable} from "./components/ngx-table/custom-ngx-table.component";
 
 
 @NgModule({
@@ -22,6 +23,7 @@ import {TranslateModule} from "@ngx-translate/core";
     LabelOnlineComponent,
     LabelPassedComponent,
     ConfirmDialogComponent,
+    CustomNgxTable
   ],
   entryComponents: [
     LabelBooleanComponent,

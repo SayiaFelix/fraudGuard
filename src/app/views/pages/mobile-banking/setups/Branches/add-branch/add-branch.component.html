@@ -1,0 +1,60 @@
+<div>
+  <div class="modal-header">
+    <h5 class="modal-title" id="exampleModalLabel">{{title}}</h5>
+    <button (click)="closeModal()" aria-label="Close" class="btn-close" type="button"></button>
+  </div>
+  <div class="modal-body" [formGroup]="form">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="mb-3">
+          <label class="form-label">Branch Name</label>
+          <input class="form-control" formControlName="branchName" type="text">
+          <small *ngIf="form.get('branchName')?.touched && form.get('branchName')?.hasError('required')" class="text-danger">Required
+            Field</small>
+        </div>
+      </div>
+      <div class="col-sm-12">
+        <div class="mb-3">
+          <label class="text-gray">Branch Code</label>
+          <input class="form-control" formControlName="branchCode" type="text">
+          <small *ngIf="form.get('branchCode')?.touched &&
+            form.get('branchCode')?.hasError('required')" class="text-danger">Required
+            Field</small>
+        </div>
+      </div>
+      <div class="col-sm-12">
+        <div class="mb-3">
+          <label class="text-gray">Select Region</label>
+          <select
+            class="form-select"
+            formControlName="region"
+            id="region"
+            name="region"
+          >
+            <option *ngFor="let item of [{id: 1, name: 'Nairobi'}]"
+                    [value]="item.id">
+              {{ item.name | titlecase}}
+
+            </option>
+            <option *ngFor="let item of [{id: 2, name: 'Kisumu'}]"
+                    [value]="item.id">
+              {{ item.name | titlecase}}
+
+            </option>
+            <option *ngFor="let item of [{id: 3, name: 'Nakuru'}]"
+                    [value]="item.id">
+              {{ item.name | titlecase}}
+
+            </option>
+          </select>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button (click)="closeModal()" class="btn btn-secondary" type="button">Close</button>
+    <button (click)="closeModal()" class="btn btn-primary" type="button">Save changes</button>
+  </div>
+</div>

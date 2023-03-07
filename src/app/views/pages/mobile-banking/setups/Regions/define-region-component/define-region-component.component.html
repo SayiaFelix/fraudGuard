@@ -1,6 +1,6 @@
 <div>
   <div class="modal-header">
-    <h5 class="modal-title" id="exampleModalLabel">Add Region</h5>
+    <h5 class="modal-title" id="exampleModalLabel">{{title}}</h5>
     <button aria-label="Close" class="btn-close" type="button" (click)="close()"></button>
   </div>
   <div class="modal-body">
@@ -9,7 +9,7 @@
     <div class="row inbox-wrapper">
       <div class="col-lg-12">
         <div class="card">
-          <div class="card-body">
+          <div class="card-body" [formGroup]="form">
             <div class="row">
               <div class="col-lg-4 border-end-lg">
                 <h4 class="text-center mx-auto tx-16 fw-bold">Define Your Region Selection</h4>
