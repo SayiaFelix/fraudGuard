@@ -39,8 +39,8 @@
                 </label>
               </div>
               <div>
-                <p *ngIf="loginResponse$ | async">
-                  <strong *ngIf="userDataResp$ | async">Success</strong>
+                <p *ngIf="combinedLoginResult$ | async">
+                  Success
                 </p>
                 <button type="submit" class="btn btn-primary me-2 mb-2 mb-md-0" (click)="onSubmit($event)">Login</button>
               </div>

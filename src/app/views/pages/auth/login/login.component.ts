@@ -9,7 +9,7 @@ import {
 import { CustomValidators } from 'ngx-custom-validators';
 import { HttpParams } from '@angular/common/http';
 import { HttpService } from '../../../../shared/services/http.service';
-import { catchError, Observable, of } from 'rxjs';
+import {catchError, concat, Observable, of} from 'rxjs';
 import { delay, map } from 'rxjs/operators';
 
 @Component({
@@ -25,6 +25,9 @@ export class LoginComponent implements OnInit {
 
   loginResponse$: Observable<any>;
   userDataResp$: Observable<any>;
+  profileResp$: Observable<any>;
+  combinedLoginResult$: Observable<any>;
+
   errorMsg: string;
 
   constructor(
@@ -64,7 +67,11 @@ export class LoginComponent implements OnInit {
       model
     );
 
-    this.userDataResp$ = this.httpService.mobileBankingGetUserDetails().pipe(delay(2000));
+    this.userDataResp$ = this.httpService.mobileBankingGetUserDetails();
+
+    this.profileResp$ = this.httpService.mobileBankingGetUserPermissions();
+
+    this.combinedLoginResult$ = concat(this.loginResponse$, this.userDataResp$, this.profileResp$);
   }
 
   toggleShowPassword() {
