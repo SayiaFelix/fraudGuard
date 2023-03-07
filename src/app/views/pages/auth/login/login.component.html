@@ -8,12 +8,30 @@
           </div>
         </div>
         <div class="col-md-8 ps-md-0">
+          <div class="row">
+            <div class="col-8"></div>
+            <div class="col-4 text-right">
+
+              <div class="nav-item mt-2 " ngbDropdown>
+                  <a class="nav-link" ngbDropdownToggle id="languageDropdown" role="button">
+                    <img [src]="selectedLanguageFlag" class="wd-20 me-1" title="us" alt="us">
+                    <span class="fw-bold ms-1 me-1 d-none d-md-inline-block">{{selectedLanguage}}</span>
+                  </a>
+                  <div ngbDropdownMenu aria-labelledby="languageDropdown">
+                    <a ngbDropdownItem class="py-2" (click)="changeLanguage('en')"> <img src="assets/images/flags/us.svg" class="wd-20 me-1" title="us" alt="us"> <span class="ms-1"> English </span></a>
+                    <a ngbDropdownItem class="py-2" (click)="changeLanguage('kis')"> <img src="assets/images/flags/es.svg" class="wd-20 me-1" title="es" alt="es"> <span class="ms-1"> Kiswahili </span></a>
+                  </div>
+                </div> 
+
+             
+            </div>
+          </div>
           <div class="auth-form-wrapper px-4 py-5">
             <a routerLink="." class="nobleui-logo d-block mb-2">Eclectics <span>Channel Manager</span></a>
             <h5 class="text-muted fw-normal mb-4">{{ 'loginMessage' | translate }}</h5>
             <form class="forms-sample" [formGroup]="form">
               <div class="mb-3">
-                <label for="email" class="form-label">Email address</label>
+                <label for="email" class="form-label">{{ 'login.username' | translate }}</label>
                 <input type="email" formControlName="username" class="form-control" id="email" placeholder="Email">
                 <small class="text-danger" *ngIf="form.get('username')?.touched && form.get('username')?.hasError('required')">Username is required</small>
                 <small class="text-danger" *ngIf="form.get('username')?.touched && form.get('username')?.hasError('email')">Please key in a valid email</small>
@@ -21,7 +39,7 @@
               </div>
 
               <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
+                <label for="password" class="form-label">{{ 'login.password' | translate }}</label>
                 <div class="input-group mb-3">
                   <input [type]="inputType" formControlName="password" class="form-control" placeholder="password" id="password" aria-label="password">
                   <div class="input-group-prepend" style="cursor: pointer;" (click)="toggleShowPassword()">
@@ -39,8 +57,8 @@
                 </label>
               </div>
               <div>
-                <p *ngIf="loginResponse$ | async">
-                  <strong *ngIf="userDataResp$ | async">Success</strong>
+                <p *ngIf="combinedLoginResult$ | async">
+                  Success
                 </p>
                 <button type="submit" class="btn btn-primary me-2 mb-2 mb-md-0" (click)="onSubmit($event)">Login</button>
               </div>
