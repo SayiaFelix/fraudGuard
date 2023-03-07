@@ -7,9 +7,9 @@
     </div>
      <button class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0 btn-xs" type="button">
       <i appFeatherIcon class="btn-icon-prepend" data-feather="printer"></i>
-      Download
+       {{"downloadTextOnButton" | translate}}
     </button>
-    <button (click)="openAddProductModal()" class="btn btn-primary btn-icon-text mb-2 mb-md-0 btn-xs"
+    <button (click)="addRegion()" class="btn btn-primary btn-icon-text mb-2 mb-md-0 btn-xs"
             type="button">
       <i appFeatherIcon class="btn-icon-prepend" data-feather="plus"></i>
       Add Region
@@ -33,14 +33,56 @@
             [limit]="2"
             [rowHeight]="'auto'"
           >
+                    <!-- Row Detail Template -->
+                    <ngx-datatable-row-detail
+                    #myDetailRow
+                    (toggle)="onDetailToggle($event)"
+                    [rowHeight]="100"
+                  >
+                    <ng-template
+                      let-expanded="expanded"
+                      let-row="row"
+                      ngx-datatable-row-detail-template
+                    >
+                      <div style="padding-left: 35px">
+                        <div><strong>Address</strong></div>
+                        <div>{{ row.productName }}, {{ row.remarks }}</div>
+                      </div>
+                    </ng-template>
+                  </ngx-datatable-row-detail>
+
+                  <!-- Column Templates -->
+                  <ngx-datatable-column
+                    [canAutoResize]="false"
+                    [draggable]="false"
+                    [resizeable]="false"
+                    [sortable]="false"
+                    [width]="50"
+                  >
+                    <ng-template
+                      let-expanded="expanded"
+                      let-row="row"
+                      let-value="value"
+                      ngx-datatable-cell-template
+                    >
+                      <a
+                        (click)="toggleExpandRow(row)"
+                        [class.datatable-icon-down]="expanded"
+                        [class.datatable-icon-right]="!expanded"
+                        href="javascript:void(0)"
+                        title="Expand/Collapse Row"
+                      >
+                      </a>
+                    </ng-template>
+                  </ngx-datatable-column>
             <ng-container *ngFor='let column of columns' >
               <ngx-datatable-column *ngIf='column.name === "Actions"' name="Actions" prop="actions">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                     <span>
-                      <button type="button" class="btn btn-outline-primary btn-icon-text me-2  btn-xs" (click)="navigateToViewProduct(row)">
-                          View
-                      </button>
-                      <button type="button" class="btn btn-primary btn-icon-text btn-xs" (click)="openEditProductModal(row)">
+<!--                      <button type="button" class="btn btn-outline-primary btn-icon-text me-2  btn-xs" (click)="navigateToViewProduct(row)">-->
+<!--                          View-->
+<!--                      </button>-->
+                      <button type="button" class="btn btn-primary btn-icon-text btn-xs" (click)="openEditRegionsModal(row)">
                           Edit
                       </button>
                     </span>

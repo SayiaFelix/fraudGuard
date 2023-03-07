@@ -5,6 +5,7 @@ import {ReactiveFormsModule} from "@angular/forms";
 import {FeatherIconModule} from "../../../core/feather-icon/feather-icon.module";
 import {SharedModule} from "../../../shared/shared.module";
 import {MobileBankingComponent} from "./mobile-banking.component";
+import {TranslateModule} from "@ngx-translate/core";
 
 const routes: Routes = [
   {
@@ -33,6 +34,7 @@ const routes: Routes = [
     SharedModule,
     ReactiveFormsModule,
     FeatherIconModule,
+    TranslateModule,
   ]
 })
 export class MobileBankingModule { }

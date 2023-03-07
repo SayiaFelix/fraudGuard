@@ -10,8 +10,10 @@ import { LabelActiveComponent } from './components/label-active/label-active.com
 import { LabelOnlineComponent } from './components/label-online/label-online.component';
 import { LabelPassedComponent } from './components/label-passed/label-passed.component';
 import {ConfirmDialogComponent} from './components/confirm-dialog/confirm-dialog.component';
-import { JwtModule } from '@auth0/angular-jwt';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
+import {TranslateModule} from "@ngx-translate/core";
+import {CustomNgxTable} from "./components/ngx-table/custom-ngx-table.component";
+
 
 @NgModule({
   declarations: [
@@ -21,6 +23,7 @@ import { NgxDatatableModule } from '@swimlane/ngx-datatable';
     LabelOnlineComponent,
     LabelPassedComponent,
     ConfirmDialogComponent,
+    CustomNgxTable
   ],
   entryComponents: [
     LabelBooleanComponent,
@@ -36,13 +39,15 @@ import { NgxDatatableModule } from '@swimlane/ngx-datatable';
     FormsModule,
     ReactiveFormsModule,
     NgbModule,
-    NgxDatatableModule
+    NgxDatatableModule,
+    TranslateModule,
   ],
   exports: [
     CommonModule,
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
+    TranslateModule,
     NgbModule,
     LabelBooleanComponent,
     LabelCompletedComponent,

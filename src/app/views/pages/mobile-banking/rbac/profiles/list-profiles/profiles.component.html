@@ -7,7 +7,7 @@
     </div>
      <button class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0 btn-xs" type="button">
       <i appFeatherIcon class="btn-icon-prepend" data-feather="printer"></i>
-      Download
+       {{"downloadTextOnButton" | translate}}
     </button>
     <button (click)="openAddRoleModal(verticalCenteredModal)" class="btn btn-primary btn-icon-text mb-2 mb-md-0 btn-xs"
             type="button">
@@ -34,6 +34,23 @@
             [limit]="10"
             [rowHeight]="'auto'"
           >
+               <!-- Row Detail Template -->
+               <ngx-datatable-row-detail
+               #myDetailRow
+                      (toggle)="onDetailToggle($event)"
+                      [rowHeight]="100"
+                    >
+                      <ng-template
+                        let-expanded="expanded"
+                        let-row="row"
+                        ngx-datatable-row-detail-template
+                      >
+                        <div style="padding-left: 35px">
+                          <div><strong>Address</strong></div>
+                          <div>{{ row.productName }}, {{ row.remarks }}</div>
+                        </div>
+                      </ng-template>
+                    </ngx-datatable-row-detail>
 
             <!-- Column Templates -->
             <ngx-datatable-column

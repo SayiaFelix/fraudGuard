@@ -7,9 +7,9 @@
       </div>
        <button class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0 btn-xs" type="button">
         <i appFeatherIcon class="btn-icon-prepend" data-feather="printer"></i>
-        Download
+         {{"downloadTextOnButton" | translate}}
       </button>
-      <button (click)="openAddProductModal(verticalCenteredModal)" class="btn btn-primary btn-icon-text mb-2 mb-md-0 btn-xs"
+      <button (click)="addBranch('')" class="btn btn-primary btn-icon-text mb-2 mb-md-0 btn-xs"
               type="button">
         <i appFeatherIcon class="btn-icon-prepend" data-feather="plus"></i>
         Add Branch
@@ -33,14 +33,51 @@
               [limit]="2"
               [rowHeight]="'auto'"
             >
+                       <!-- Row Detail Template -->
+                       <ngx-datatable-row-detail
+                       #myDetailRow
+                              (toggle)="onDetailToggle($event)"
+                              [rowHeight]="100"
+                            >
+                              <ng-template
+                                let-expanded="expanded"
+                                let-row="row"
+                                ngx-datatable-row-detail-template
+                              >
+                                <div style="padding-left: 35px">
+                                  <div><strong>Address</strong></div>
+                                  <div>{{ row.productName }}, {{ row.remarks }}</div>
+                                </div>
+                              </ng-template>
+                            </ngx-datatable-row-detail>
+
+                     <!-- Column Templates -->
+                     <ngx-datatable-column
+                       [width]="50"
+                       [resizeable]="false"
+                       [sortable]="false"
+                       [draggable]="false"
+                       [canAutoResize]="false"
+                     >
+                       <ng-template  let-value="value" let-row="row" let-expanded="expanded" ngx-datatable-cell-template>
+                         <a
+                           href="javascript:void(0)"
+                           [class.datatable-icon-right]="!expanded"
+                           [class.datatable-icon-down]="expanded"
+                           title="Expand/Collapse Row"
+                           (click)="toggleExpandRow(row)"
+                         >
+                         </a>
+                       </ng-template>
+                     </ngx-datatable-column>
               <ng-container *ngFor='let column of columns' >
                 <ngx-datatable-column *ngIf='column.name === "Actions"' name="Actions" prop="actions">
                   <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                     <span>
-                      <button type="button" class="btn btn-outline-primary btn-icon-text me-2  btn-xs" (click)="navigateToViewBranch(row)">
-                          View
-                      </button>
-                      <button type="button" class="btn btn-primary btn-icon-text btn-xs" (click)="openEditBranchModal(verticalCenteredModal)">
+<!--                      <button type="button" class="btn btn-outline-primary btn-icon-text me-2  btn-xs" (click)="navigateToViewBranch(row)">-->
+<!--                          View-->
+<!--                      </button>-->
+                      <button type="button" class="btn btn-primary btn-icon-text btn-xs" (click)="editBranch(row)">
                           Edit
                       </button>
                     </span>
@@ -112,8 +149,6 @@
         </div>
 
       </div>
-
-
     </div>
     <div class="modal-footer">
       <button (click)="modal.close('by: close button')" class="btn btn-secondary" type="button">Close</button>
