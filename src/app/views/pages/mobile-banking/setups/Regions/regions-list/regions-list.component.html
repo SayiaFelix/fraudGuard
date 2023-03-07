@@ -9,7 +9,7 @@
       <i appFeatherIcon class="btn-icon-prepend" data-feather="printer"></i>
        {{"downloadTextOnButton" | translate}}
     </button>
-    <button (click)="openAddProductModal()" class="btn btn-primary btn-icon-text mb-2 mb-md-0 btn-xs"
+    <button (click)="addRegion()" class="btn btn-primary btn-icon-text mb-2 mb-md-0 btn-xs"
             type="button">
       <i appFeatherIcon class="btn-icon-prepend" data-feather="plus"></i>
       Add Region
@@ -50,7 +50,7 @@
                       </div>
                     </ng-template>
                   </ngx-datatable-row-detail>
-      
+
                   <!-- Column Templates -->
                   <ngx-datatable-column
                     [canAutoResize]="false"
@@ -79,10 +79,10 @@
               <ngx-datatable-column *ngIf='column.name === "Actions"' name="Actions" prop="actions">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                     <span>
-                      <button type="button" class="btn btn-outline-primary btn-icon-text me-2  btn-xs" (click)="navigateToViewProduct(row)">
-                          View
-                      </button>
-                      <button type="button" class="btn btn-primary btn-icon-text btn-xs" (click)="openEditProductModal(row)">
+<!--                      <button type="button" class="btn btn-outline-primary btn-icon-text me-2  btn-xs" (click)="navigateToViewProduct(row)">-->
+<!--                          View-->
+<!--                      </button>-->
+                      <button type="button" class="btn btn-primary btn-icon-text btn-xs" (click)="openEditRegionsModal(row)">
                           Edit
                       </button>
                     </span>

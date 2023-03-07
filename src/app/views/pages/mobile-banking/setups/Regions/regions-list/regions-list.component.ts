@@ -106,10 +106,9 @@ export class RegionsListComponent implements OnInit {
     });
   }
 
-  openAddProductModal() {
+  addRegion() {
 
     this.modalRef = this.modalService.open(DefineRegionComponent, {centered: true, size: "xl"});
-    this.modalRef.componentInstance.formData = "formData";
     this.modalRef.componentInstance.title = 'Add Region: ';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
@@ -119,6 +118,23 @@ export class RegionsListComponent implements OnInit {
       }
     });
 
+    // this.modalService.open(DefineRegionComponent, {centered: true, size: "xl"}).result.then((result) => {
+    //   console.log("Modal closed" + result);
+    // }).catch((res) => {
+    // });
+  }
+
+  openEditRegionsModal(rowData: any) {
+    this.modalRef = this.modalService.open(DefineRegionComponent, {centered: true, size: "xl"});
+    this.modalRef.componentInstance.data = rowData;
+    this.modalRef.componentInstance.title = 'Edit Region';
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        this.getIndividualData(0);
+      } else {
+        console.log("Error occurred")
+      }
+    });
     // this.modalService.open(DefineRegionComponent, {centered: true, size: "xl"}).result.then((result) => {
     //   console.log("Modal closed" + result);
     // }).catch((res) => {
