@@ -21,77 +21,83 @@
     <div class="card">
       <div class="card-body">
         <h6 class="card-title">ATMs</h6>
-        <div class="table-responsive">
-          <ngx-datatable
-            [rows]="rows"
-            class="bootstrap"
-            [loadingIndicator]="loadingIndicator"
-            [columnMode]="ColumnMode.force"
-            [footerHeight]="50"
-            [columns]="columns"
-            [limit]="10"
-            [rowHeight]="'auto'"
-          >
-                     <!-- Row Detail Template -->
-                     <ngx-datatable-row-detail
-                     #myDetailRow
-                     (toggle)="onDetailToggle($event)"
-                     [rowHeight]="100"
-                   >
-                     <ng-template
-                       let-expanded="expanded"
-                       let-row="row"
-                       ngx-datatable-row-detail-template
-                     >
-                       <div style="padding-left: 35px">
-                         <div><strong>Address</strong></div>
-                         <div>{{ row.productName }}, {{ row.remarks }}</div>
-                       </div>
-                     </ng-template>
-                   </ngx-datatable-row-detail>
+        <app-custom-ngx-table
+          [columns]="columns"
+          [rows]="rows"
+          [hasViewAndEdit]="false"
+          (editEvent)="editAtm($event)"></app-custom-ngx-table>
 
-                   <!-- Column Templates -->
-                   <ngx-datatable-column
-                     [canAutoResize]="false"
-                     [draggable]="false"
-                     [resizeable]="false"
-                     [sortable]="false"
-                     [width]="50"
-                   >
-                     <ng-template
-                       let-expanded="expanded"
-                       let-row="row"
-                       let-value="value"
-                       ngx-datatable-cell-template
-                     >
-                       <a
-                         (click)="toggleExpandRow(row)"
-                         [class.datatable-icon-down]="expanded"
-                         [class.datatable-icon-right]="!expanded"
-                         href="javascript:void(0)"
-                         title="Expand/Collapse Row"
-                       >
-                       </a>
-                     </ng-template>
-                   </ngx-datatable-column>
-          <ng-container *ngFor='let column of columns' >
-            <ngx-datatable-column *ngIf='column.name === "Actions"' name="Actions" prop="actions">
-              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
-                <span>
-<!--                    <button type="button" class="btn btn-outline-primary btn-icon-text me-2 btn-xs" (click)="navigateToViewProduct(row)">-->
-<!--                        View-->
+<!--        <div class="table-responsive">-->
+<!--          <ngx-datatable-->
+<!--            [rows]="rows"-->
+<!--            class="bootstrap"-->
+<!--            [loadingIndicator]="loadingIndicator"-->
+<!--            [columnMode]="ColumnMode.force"-->
+<!--            [footerHeight]="50"-->
+<!--            [columns]="columns"-->
+<!--            [limit]="10"-->
+<!--            [rowHeight]="'auto'"-->
+<!--          >-->
+<!--                     &lt;!&ndash; Row Detail Template &ndash;&gt;-->
+<!--                     <ngx-datatable-row-detail-->
+<!--                     #myDetailRow-->
+<!--                     (toggle)="onDetailToggle($event)"-->
+<!--                     [rowHeight]="100"-->
+<!--                   >-->
+<!--                     <ng-template-->
+<!--                       let-expanded="expanded"-->
+<!--                       let-row="row"-->
+<!--                       ngx-datatable-row-detail-template-->
+<!--                     >-->
+<!--                       <div style="padding-left: 35px">-->
+<!--                         <div><strong>Address</strong></div>-->
+<!--                         <div>{{ row.productName }}, {{ row.remarks }}</div>-->
+<!--                       </div>-->
+<!--                     </ng-template>-->
+<!--                   </ngx-datatable-row-detail>-->
+
+<!--                   &lt;!&ndash; Column Templates &ndash;&gt;-->
+<!--                   <ngx-datatable-column-->
+<!--                     [canAutoResize]="false"-->
+<!--                     [draggable]="false"-->
+<!--                     [resizeable]="false"-->
+<!--                     [sortable]="false"-->
+<!--                     [width]="50"-->
+<!--                   >-->
+<!--                     <ng-template-->
+<!--                       let-expanded="expanded"-->
+<!--                       let-row="row"-->
+<!--                       let-value="value"-->
+<!--                       ngx-datatable-cell-template-->
+<!--                     >-->
+<!--                       <a-->
+<!--                         (click)="toggleExpandRow(row)"-->
+<!--                         [class.datatable-icon-down]="expanded"-->
+<!--                         [class.datatable-icon-right]="!expanded"-->
+<!--                         href="javascript:void(0)"-->
+<!--                         title="Expand/Collapse Row"-->
+<!--                       >-->
+<!--                       </a>-->
+<!--                     </ng-template>-->
+<!--                   </ngx-datatable-column>-->
+<!--          <ng-container *ngFor='let column of columns' >-->
+<!--            <ngx-datatable-column *ngIf='column.name === "Actions"' name="Actions" prop="actions">-->
+<!--              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>-->
+<!--                <span>-->
+<!--&lt;!&ndash;                    <button type="button" class="btn btn-outline-primary btn-icon-text me-2 btn-xs" (click)="navigateToViewProduct(row)">&ndash;&gt;-->
+<!--&lt;!&ndash;                        View&ndash;&gt;-->
+<!--&lt;!&ndash;                    </button>&ndash;&gt;-->
+<!--                    <button type="button" class="btn btn-primary btn-icon-text btn-xs" (click)="editAtm(row)">-->
+<!--                        Edit-->
 <!--                    </button>-->
-                    <button type="button" class="btn btn-primary btn-icon-text btn-xs" (click)="editAtm(row)">
-                        Edit
-                    </button>
-                </span>
-              </ng-template>
-            </ngx-datatable-column>
-            <ngx-datatable-column *ngIf='column.name !== "Actions"' name="{{column.name}}" prop="{{column.prop}}">
-            </ngx-datatable-column>
-            </ng-container>
-          </ngx-datatable>
-        </div>
+<!--                </span>-->
+<!--              </ng-template>-->
+<!--            </ngx-datatable-column>-->
+<!--            <ngx-datatable-column *ngIf='column.name !== "Actions"' name="{{column.name}}" prop="{{column.prop}}">-->
+<!--            </ngx-datatable-column>-->
+<!--            </ng-container>-->
+<!--          </ngx-datatable>-->
+<!--        </div>-->
       </div>
     </div>
   </div>
