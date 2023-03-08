@@ -5,6 +5,7 @@ import {DatatableComponent} from "@swimlane/ngx-datatable/lib/components/datatab
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import { ColumnMode } from '@swimlane/ngx-datatable';
 import {HttpService} from "../../../../../../shared/services/http.service";
+import {AddRoleComponent} from "../add-role/add-role.component";
 
 @Component({
     selector: 'app-roles',
@@ -57,11 +58,18 @@ export class RolesComponent implements OnInit {
     { name: 'Actions', prop: 'id' }
   ];
 
+  allColumns = [...this.columns]
+
+
   public form: FormGroup;
   @Input() formData: { name: any; description: any; is_active: any; };
 
   ColumnMode = ColumnMode;
   public imageFile: File;
+
+  public modalRef: NgbModalRef;
+
+  title: string = "Roles";
 
 
   constructor(private httpService: HttpService,
@@ -112,16 +120,32 @@ export class RolesComponent implements OnInit {
     });
   }
 
-  openAddRoleModal(content: TemplateRef<any>) {
-    this.modalService.open(content, {centered: true}).result.then((result) => {
-      console.log("Modal closed" + result);
-    }).catch((res) => {});
+  openAddRoleModal() {
+    this.modalRef = this.modalService.open(AddRoleComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Add Role: ';
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        this.getIndividualData(0);
+      } else {
+        console.log("Error occurred")
+      }
+    });
   }
 
-  openEditProductModal(content: TemplateRef<any>) {
-    this.modalService.open(content, {centered: true}).result.then((result) => {
-      console.log("Modal closed" + result);
-    }).catch((res) => {});
+  openEditRoleModal(formData: any) {
+
+    console.log("output formData")
+    console.log(formData)
+    this.modalRef = this.modalService.open(AddRoleComponent, {centered: true});
+    this.modalRef.componentInstance.formData = formData;
+    this.modalRef.componentInstance.title = 'Edit Role: ';
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        this.getIndividualData(0);
+      } else {
+        console.log("Error occurred")
+      }
+    });
   }
 
   onFileChange(event: any) {
@@ -133,6 +157,12 @@ export class RolesComponent implements OnInit {
   toggleExpandRow(row: any) {
     this.table.rowDetail.toggleExpandRow(row);
   }
+  onDetailToggle(event:any){
+    console.log('Detail Toggled', event);
 
+  }
 
+  updateColumns(updatedColumns: any) {
+    this.columns = [...updatedColumns];
+  }
 }

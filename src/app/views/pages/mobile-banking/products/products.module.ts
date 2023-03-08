@@ -8,23 +8,26 @@ import {ViewProductComponent} from "./view-product/view-product.component";
 import {SharedModule} from "../../../../shared/shared.module";
 import {FeatherIconModule} from "../../../../core/feather-icon/feather-icon.module";
 import {NgxDatatableModule} from "@swimlane/ngx-datatable";
+import {TranslateModule} from "@ngx-translate/core";
+import {AddProductComponent} from "./add-product/add-product.component";
 
 @NgModule({
-  imports: [
-    SharedModule,
-    ProductsRoutingModule,
-    FeatherIconModule,
-    NgxDatatableModule
-  ],
+    imports: [
+        SharedModule,
+        ProductsRoutingModule,
+        FeatherIconModule,
+        NgxDatatableModule,
+        TranslateModule
+    ],
   declarations: [
     ProductsComponent,
     ViewProductComponent,
-    // AddProductComponent,
+    AddProductComponent,
     // CreateProductComponent
   ]
   ,
   entryComponents: [
-    // AddProductComponent,
+    AddProductComponent,
     // CreateProductComponent
   ],
 })

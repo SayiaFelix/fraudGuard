@@ -2,19 +2,13 @@
     <div>
       <h4 class="mb-3 mb-md-0">All Users</h4>
     </div>
-    <div class="d-flex align-items-center flex-wrap text-nowrap">
-      <div class="input-group wd-200 me-2 mb-2 mb-md-0">
-      </div>
-      <button class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0" type="button">
-        <i appFeatherIcon class="btn-icon-prepend" data-feather="printer"></i>
-        Download
-      </button>
-      <button (click)="openAddProductModal(verticalCenteredModal)" class="btn btn-primary btn-icon-text mb-2 mb-md-0"
-              type="button">
-        <i appFeatherIcon class="btn-icon-prepend" data-feather="plus"></i>
-        Add User
-      </button>
-    </div>
+  <app-table-header
+    [allColumns]="allColumns"
+    [rows]="rows"
+    [title]="title"
+    (changeColumnsEvent)="updateColumns($event)"
+    (openAddModalEvent)="addUser()"
+  ></app-table-header>
   </div>
 
   <div class="row">
@@ -22,116 +16,15 @@
       <div class="card">
         <div class="card-body">
           <h6 class="card-title">Users</h6>
-          <div class="table-responsive">
-            <ngx-datatable
-              #table
-              [columnMode]="ColumnMode.force"
-              [columns]="columns"
-              [footerHeight]="50"
-              [limit]="10"
-              [loadingIndicator]="loadingIndicator"
-              [rowHeight]="'auto'"
-              [rows]="rows"
-              class="bootstrap"
-            >
-              <!-- Row Detail Template -->
-              <ngx-datatable-row-detail
-                #myDetailRow
-                (toggle)="onDetailToggle($event)"
-                [rowHeight]="100"
-              >
-                <ng-template
-                  let-expanded="expanded"
-                  let-row="row"
-                  ngx-datatable-row-detail-template
-                >
-                  <div style="padding-left: 35px">
-                    <div><strong>Address</strong></div>
-                    <div>{{ row.productName }}, {{ row.remarks }}</div>
-                  </div>
-                </ng-template>
-              </ngx-datatable-row-detail>
 
-              <!-- Column Templates -->
-              <ngx-datatable-column
-                [canAutoResize]="false"
-                [draggable]="false"
-                [resizeable]="false"
-                [sortable]="false"
-                [width]="50"
-              >
-                <ng-template
-                  let-expanded="expanded"
-                  let-row="row"
-                  let-value="value"
-                  ngx-datatable-cell-template
-                >
-                  <a
-                    (click)="toggleExpandRow(row)"
-                    [class.datatable-icon-down]="expanded"
-                    [class.datatable-icon-right]="!expanded"
-                    href="javascript:void(0)"
-                    title="Expand/Collapse Row"
-                  >
-                  </a>
-                </ng-template>
-              </ngx-datatable-column>
+          <app-custom-ngx-table
+            [columns]="columns"
+            [rows]="rows"
+            [hasViewAndEdit]="true"
+            (viewEvent)="navigateToViewProduct($event)"
+            (editEvent)="editUser($event)"
+          ></app-custom-ngx-table>
 
-              <ng-container *ngFor="let column of columns">
-                <ngx-datatable-column
-                  *ngIf="column.name === 'Actions'"
-                  name="Actions"
-                  prop="actions"
-                >
-                  <ng-template
-                    let-row="row"
-                    let-value="value"
-                    ngx-datatable-cell-template
-                  >
-                  <span>
-                    <button
-                      (click)="navigateToViewProduct(row)"
-                      class="btn btn-outline-primary btn-icon-text me-2 btn-xs"
-                      type="button"
-                    >
-                      View
-                    </button>
-                    <button
-                      (click)="openEditProductModal(verticalCenteredModal)"
-                      class="btn btn-primary btn-icon-text btn-xs"
-                      type="button"
-                    >
-                      Edit
-                    </button>
-                  </span>
-                  </ng-template>
-                </ngx-datatable-column>
-
-                <ngx-datatable-column
-                  *ngIf="column.name === 'Status'"
-                  name="Status"
-                  prop="status"
-                >
-                  <ng-template
-                    let-row="row"
-                    let-value="value"
-                    ngx-datatable-cell-template
-                  >
-                    <app-label-active [value]="row.status"></app-label-active>
-                  </ng-template>
-                </ngx-datatable-column>
-
-                <ngx-datatable-column
-                  *ngIf="column.name !== 'Actions' && column.name !== 'Status'"
-                  name="{{ column.name }}"
-                  prop="{{ column.prop }}"
-                >
-                </ngx-datatable-column>
-              </ng-container>
-            </ngx-datatable>
-
-
-          </div>
         </div>
       </div>
     </div>

@@ -1,10 +1,11 @@
-import { Component, Input, OnInit, TemplateRef } from '@angular/core';
+import { Component, Input, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ColumnMode } from '@swimlane/ngx-datatable';
+import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
+import { ColumnMode, DatatableComponent } from '@swimlane/ngx-datatable';
 import { GlobalService } from 'src/app/shared/services/global.service';
 import { HttpService } from 'src/app/shared/services/http.service';
+import {AddAtmsComponent} from "../add-atms/add-atms.component";
 
 @Component({
   selector: 'app-list-atms',
@@ -12,6 +13,8 @@ import { HttpService } from 'src/app/shared/services/http.service';
   styleUrls: ['./list-atms.component.scss']
 })
 export class ListAtmsComponent implements OnInit {
+
+  @ViewChild('table') table: DatatableComponent;
   tempProductData = [
     {
       id: 1,
@@ -63,17 +66,22 @@ export class ListAtmsComponent implements OnInit {
     { name: 'Actions', prop: 'id' }
   ];
 
+  allColumns = [...this.columns];
+
   public form: FormGroup;
   @Input() formData: { name: any; atmCode: any; is_active: any; };
 
   ColumnMode = ColumnMode;
   public imageFile: File;
 
+  public modalRef: NgbModalRef;
+  title: string = "ATMs";
+
 
   constructor(private httpService: HttpService,
               private modalService: NgbModal,
               public fb: FormBuilder,
-              
+
 
               public router: Router,
               public globalService: GlobalService) {
@@ -93,45 +101,30 @@ export class ListAtmsComponent implements OnInit {
     });
   }
 
-  // public openModal(parentData: any) {
-  //   this.modalRef = this.modalService.open(AddProductComponent);
-  //   this.modalRef.componentInstance.title = 'Add Product';
-  //   this.modalRef.componentInstance.parentData = '';
-  //   this.modalRef.result.then((result) => {
-  //     if (result === 'success') {
-  //       this.getIndividualData(this.page);
-  //     }
-  //   }, (reason) => {
-  //   });
-  // }
-
-  // public editProduct(formData: any) {
-  //   this.modalRef = this.modalService.open(AddProductComponent);
-  //   this.modalRef.componentInstance.formData = formData;
-  //   this.modalRef.componentInstance.title = 'Edit Product: ';
-  //   this.modalRef.result.then((result) => {
-  //     if (result === 'success') {
-  //       this.getIndividualData(this.page);
-  //     }
-  //   }, (reason) => {
-  //   });
-  // }
-
-  onCustomAction(event: { action: any; data: any; }) {
-    switch (event.action) {
-      case 'viewrecord':
-        // this.viewProduct(event.data);
-        break;
-      case 'editrecord':
-        // this.editProduct(event.data);
-    }
+  public addAtm() {
+    this.modalRef = this.modalService.open(AddAtmsComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Add ATM';
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        // this.getIndividualData(this.page);
+      }
+    }, (reason) => {
+    });
   }
 
-  private viewProduct(data: any): void {
-    console.log('here is the product data');
-    console.log(data);
-    this.router.navigate(['products', 'product', data.id], {queryParams: data});
+  public editAtm(formData: any) {
+    this.modalRef = this.modalService.open(AddAtmsComponent, {centered: true});
+    this.modalRef.componentInstance.formData = formData;
+    this.modalRef.componentInstance.title = 'Edit ATM';
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        // this.getIndividualData(this.page);
+      }
+    }, (reason) => {
+    });
   }
+
+
 
   getIndividualData(event: number): void {
 
@@ -179,5 +172,17 @@ export class ListAtmsComponent implements OnInit {
   navigateToViewProduct(data: any) {
     this.router.navigateByUrl(`/mobile-banking/products/product/${data.id}`);
   }
+  toggleExpandRow(row: any) {
+    console.log(row);
+    console.log(this.table);
 
+    this.table.rowDetail.toggleExpandRow(row);
+  }
+  onDetailToggle(event: any) {
+    console.log('Detail Toggled', event);
+  }
+
+  updateColumns(updatedColumns: any) {
+    this.columns = [...updatedColumns];
+  }
 }

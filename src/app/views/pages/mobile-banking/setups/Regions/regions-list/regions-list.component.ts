@@ -1,8 +1,8 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {DatePipe} from '@angular/common';
 import {Router} from '@angular/router';
-import {ColumnMode} from '@swimlane/ngx-datatable';
+import {ColumnMode, DatatableComponent} from '@swimlane/ngx-datatable';
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {HttpService} from "../../../../../../shared/services/http.service";
 import {GlobalService} from "../../../../../../shared/services/global.service";
@@ -16,6 +16,9 @@ import {DefineRegionComponent} from "../define-region-component/define-region-co
   providers: [DatePipe]
 })
 export class RegionsListComponent implements OnInit {
+
+  @ViewChild('table') table: DatatableComponent;
+
   tempProductData = [
     {
       id: 1,
@@ -48,12 +51,16 @@ export class RegionsListComponent implements OnInit {
     {name: 'Actions', prop: 'id'}
   ];
 
+  allColumns = [...this.columns];
+
   public form: FormGroup;
   @Input() formData: { name: any; description: any; is_active: any; };
 
   ColumnMode = ColumnMode;
   public imageFile: File;
   public modalRef: NgbModalRef;
+
+  title: string = "Regions";
 
 
   constructor(private httpService: HttpService,
@@ -103,10 +110,9 @@ export class RegionsListComponent implements OnInit {
     });
   }
 
-  openAddProductModal() {
+  addRegion() {
 
     this.modalRef = this.modalService.open(DefineRegionComponent, {centered: true, size: "xl"});
-    this.modalRef.componentInstance.formData = "formData";
     this.modalRef.componentInstance.title = 'Add Region: ';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
@@ -116,24 +122,26 @@ export class RegionsListComponent implements OnInit {
       }
     });
 
-    // this.modalService.open(DefineRegionComponent, {centered: true, size: "xl"}).result.then((result) => {
-    //   console.log("Modal closed" + result);
-    // }).catch((res) => {
-    // });
   }
 
-  openEditProductModal(rowData: any) {
-    this.modalService.open(DefineRegionComponent, {centered: true, size: "xl"}).result.then((result) => {
-      console.log("Modal closed" + result);
-    }).catch((res) => {
+  openEditRegionsModal(rowData: any) {
+    this.modalRef = this.modalService.open(DefineRegionComponent, {centered: true, size: "xl"});
+    this.modalRef.componentInstance.data = rowData;
+    this.modalRef.componentInstance.title = 'Edit Region';
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        this.getIndividualData(0);
+      } else {
+        console.log("Error occurred")
+      }
     });
   }
 
-  navigateToViewProduct(data: any) {
-    this.router.navigateByUrl(`/mobile-banking/products/product/${data.id}`);
+  onDetailToggle(event: any) {
+    console.log('Detail Toggled', event);
   }
 
-  private viewRegion(data: any): void {
-    this.router.navigate(['products', 'product', data.id], {queryParams: data});
+  updateColumns(updatedColumns: any) {
+    this.columns = [...updatedColumns];
   }
 }

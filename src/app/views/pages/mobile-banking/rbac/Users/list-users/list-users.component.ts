@@ -1,10 +1,11 @@
 import { Component, Input, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import { ColumnMode, DatatableComponent } from '@swimlane/ngx-datatable';
 import { active } from 'sortablejs';
 import { HttpService } from 'src/app/shared/services/http.service';
+import {AddUserComponent} from "../add-user/add-user.component";
 
 @Component({
   selector: 'app-list-users',
@@ -80,11 +81,18 @@ throw new Error('Method not implemented.');
     { name: 'Actions', prop: 'id' }
   ];
 
+  allColumns = [...this.columns];
+
   public form: FormGroup;
   @Input() formData: { name: any; description: any; is_active: any; };
 
   ColumnMode = ColumnMode;
   public imageFile: File;
+
+  public modalRef: NgbModalRef;
+
+  title: string = "Users";
+
 
 
   constructor(private httpService: HttpService,
@@ -109,29 +117,26 @@ throw new Error('Method not implemented.');
     });
   }
 
-  // public openModal(parentData: any) {
-  //   this.modalRef = this.modalService.open(AddProductComponent);
-  //   this.modalRef.componentInstance.title = 'Add Product';
-  //   this.modalRef.componentInstance.parentData = '';
-  //   this.modalRef.result.then((result) => {
-  //     if (result === 'success') {
-  //       this.getIndividualData(this.page);
-  //     }
-  //   }, (reason) => {
-  //   });
-  // }
+  public addUser() {
+    this.modalRef = this.modalService.open(AddUserComponent);
+    this.modalRef.componentInstance.title = 'Add User';
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+      }
+    }, (reason) => {
+    });
+  }
 
-  // public editProduct(formData: any) {
-  //   this.modalRef = this.modalService.open(AddProductComponent);
-  //   this.modalRef.componentInstance.formData = formData;
-  //   this.modalRef.componentInstance.title = 'Edit Product: ';
-  //   this.modalRef.result.then((result) => {
-  //     if (result === 'success') {
-  //       this.getIndividualData(this.page);
-  //     }
-  //   }, (reason) => {
-  //   });
-  // }
+  public editUser(formData: any) {
+    this.modalRef = this.modalService.open(AddUserComponent);
+    this.modalRef.componentInstance.formData = formData;
+    this.modalRef.componentInstance.title = 'Edit User: ';
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+      }
+    }, (reason) => {
+    });
+  }
 
 
   getIndividualData(event: number): void {
@@ -159,17 +164,6 @@ throw new Error('Method not implemented.');
     });
   }
 
-  openAddProductModal(content: TemplateRef<any>) {
-    this.modalService.open(content, {centered: true}).result.then((result) => {
-      console.log("Modal closed" + result);
-    }).catch((res) => {});
-  }
-
-  openEditProductModal(content: TemplateRef<any>) {
-    this.modalService.open(content, {centered: true}).result.then((result) => {
-      console.log("Modal closed" + result);
-    }).catch((res) => {});
-  }
 
   onFileChange(event: any) {
     if (event.target.files && event.target.files.length) {
@@ -181,9 +175,7 @@ throw new Error('Method not implemented.');
     this.router.navigateByUrl(`/mobile-banking/Users/users/${data.id}`);
   }
 
-  toggleExpandRow(row: any) {
-    this.table.rowDetail.toggleExpandRow(row);
+  updateColumns(updatedColumns: any) {
+    this.columns = [...updatedColumns];
   }
-
-
 }
