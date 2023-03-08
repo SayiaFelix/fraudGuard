@@ -66,6 +66,8 @@ export class ListAtmsComponent implements OnInit {
     { name: 'Actions', prop: 'id' }
   ];
 
+  allColumns = [...this.columns];
+
   public form: FormGroup;
   @Input() formData: { name: any; atmCode: any; is_active: any; };
 
@@ -73,6 +75,8 @@ export class ListAtmsComponent implements OnInit {
   public imageFile: File;
 
   public modalRef: NgbModalRef;
+  title: string = "ATMs";
+
 
   constructor(private httpService: HttpService,
               private modalService: NgbModal,
@@ -97,10 +101,9 @@ export class ListAtmsComponent implements OnInit {
     });
   }
 
-  public addAtm(parentData: any) {
+  public addAtm() {
     this.modalRef = this.modalService.open(AddAtmsComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Add ATM';
-    this.modalRef.componentInstance.parentData = '';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
         // this.getIndividualData(this.page);
@@ -179,4 +182,7 @@ export class ListAtmsComponent implements OnInit {
     console.log('Detail Toggled', event);
   }
 
+  updateColumns(updatedColumns: any) {
+    this.columns = [...updatedColumns];
+  }
 }
