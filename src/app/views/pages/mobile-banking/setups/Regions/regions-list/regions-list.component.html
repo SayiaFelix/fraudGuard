@@ -14,13 +14,11 @@
 <div class="row">
   <div class="col-md-12 stretch-card">
     <div class="card">
-      <div class="card-body">
         <app-custom-ngx-table
           [columns]="columns"
           [rows]="rows"
           [hasViewAndEdit]="false"
           (editEvent)="openEditRegionsModal($event)"></app-custom-ngx-table>
-      </div>
     </div>
   </div>
 </div>
