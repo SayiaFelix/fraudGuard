@@ -9,6 +9,7 @@ import {ReactiveFormsModule} from "@angular/forms";
 import {FeatherIconModule} from "../../../core/feather-icon/feather-icon.module";
 import {SharedModule} from "../../../shared/shared.module";
 import {HttpClientModule} from "@angular/common/http";
+import {TranslateModule} from "@ngx-translate/core";
 
 const routes: Routes = [
   {
@@ -41,12 +42,13 @@ const routes: Routes = [
     RegisterComponent,
     ForgotPasswordComponent,
     AuthComponent],
-  imports: [
-    CommonModule,
-    RouterModule.forChild(routes),
-    SharedModule,
-    ReactiveFormsModule,
-    FeatherIconModule
-  ]
+    imports: [
+        CommonModule,
+        RouterModule.forChild(routes),
+        SharedModule,
+        ReactiveFormsModule,
+        FeatherIconModule,
+        TranslateModule
+    ]
 })
 export class AuthModule { }

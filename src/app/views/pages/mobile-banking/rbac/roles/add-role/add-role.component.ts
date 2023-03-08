@@ -25,8 +25,13 @@ export class AddRoleComponent implements OnInit {
     }
 
     ngOnInit() {
+
+      console.log("this.formData");
+      console.log(this.formData);
+
         this.form = this.fb.group({
-            name: [this.formData ? this.formData.name : '', [Validators.required]],
+            roleName: [this.formData ? this.formData.roleName : '', [Validators.required]],
+            roleCode: [this.formData ? this.formData.roleCode : '', [Validators.required]],
             description: [this.formData ? this.formData.description : '', [Validators.required]],
             is_active: [this.formData ? this.formData.is_active : '', [Validators.nullValidator]]
         });

@@ -1,0 +1,67 @@
+<div>
+  <div class="modal-header">
+    <h5 class="modal-title" id="exampleModalLabel">{{title}}</h5>
+    <button (click)="closeModal()" aria-label="Close" class="btn-close" type="button"></button>
+  </div>
+  <div class="modal-body" [formGroup]="form">
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label">First Name</label>
+        <input class="form-control" formControlName="firstName" type="text">
+        <small *ngIf="form.get('firstName')?.touched && form.get('firstName')?.hasError('required')" class="text-danger">Required
+          Field</small>
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">Middle Name</label>
+        <input class="form-control" formControlName="middleName" type="text">
+        <small *ngIf="form.get('middleName')?.touched && form.get('middleName')?.hasError('required')" class="text-danger">Required
+          Field</small>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Last Name</label>
+        <input class="form-control" formControlName="lastName" type="text">
+        <small *ngIf="form.get('lastName')?.touched && form.get('lastName')?.hasError('required')" class="text-danger">Required
+          Field</small>
+      </div>
+
+      <div class="col-md-6">
+
+
+        <label class="text-gray">Phone Number</label>
+        <input class="form-control" formControlName="phone" type="text">
+        <small *ngIf="form.get('phone')?.touched &&
+            form.get('phone')?.hasError('required')" class="text-danger">Required
+          Field</small>
+      </div>
+      <div class="col-md-6">
+        <label class="text-gray">Email Address</label>
+        <input class="form-control" formControlName="email" type="text">
+        <small *ngIf="form.get('email')?.touched &&
+            form.get('email')?.hasError('required')" class="text-danger">Required
+          Field</small>
+      </div>
+      <div class="col-md-6">
+
+
+        <label class="text-gray">Select User Profile</label>
+
+        <select
+          class="form-select"
+          formControlName="profile"
+          id="profile"
+          name="profile"
+        >
+
+          <option>Super Admin</option>
+          <option>Admin</option>
+        </select>
+      </div>
+
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button (click)="closeModal()" class="btn btn-secondary" type="button">Close</button>
+    <button (click)="closeModal()" class="btn btn-primary" type="button">Save changes</button>
+  </div>
+</div>

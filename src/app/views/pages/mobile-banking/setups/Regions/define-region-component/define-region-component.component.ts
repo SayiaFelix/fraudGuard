@@ -49,6 +49,9 @@ export class DefineRegionComponent implements OnInit {
 
   ngOnInit(): void {
 
+    console.log("here is the formData");
+    console.log(this.data);
+
     // this.setCurrentPosition();
 
     if (this.data && this.data.content) {
@@ -69,8 +72,8 @@ export class DefineRegionComponent implements OnInit {
 
 
     this.form = this.fb.group({
-      name: ["", Validators.compose([Validators.required])],
-      code: ["", Validators.compose([Validators.required])],
+      regionName: [this.data ? this.data.regionName : "", Validators.compose([Validators.required])],
+      regionCode: [this.data ? this.data.regionCode : "", Validators.compose([Validators.required])],
     });
   }
 
