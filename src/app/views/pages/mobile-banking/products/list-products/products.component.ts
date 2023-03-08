@@ -17,6 +17,8 @@ import { DatatableComponent } from '@swimlane/ngx-datatable/lib/components/datat
 import { DataExportationService } from 'src/app/shared/services/data-exportation.service';
 import { ItemsList } from '@ng-select/ng-select/lib/items-list';
 import { HttpService } from 'src/app/shared/services/http.service';
+import {AddRoleComponent} from "../../rbac/roles/add-role/add-role.component";
+import {AddProductComponent} from "../add-product/add-product.component";
 
 @Component({
   selector: 'app-starter',
@@ -89,11 +91,12 @@ export class ProductsComponent implements OnInit {
 
   public form: FormGroup;
   public formData: { productName: any; remarks: any; image: any };
-  public title: any;
-
   ColumnMode = ColumnMode;
   public imageFile: File;
   public modalRef: NgbModalRef;
+
+  title: string = "Products";
+
 
   constructor(
     private httpService: HttpService,
@@ -147,31 +150,28 @@ export class ProductsComponent implements OnInit {
       });
   }
 
-  openAddProductModal(content: TemplateRef<any>) {
-    this.modalService
-      .open(content, { centered: true })
-      .result.then((result) => {
-        console.log('Modal closed' + result);
-      })
-      .catch((res) => {});
-  }
+  openAddProductModal() {
 
-  openEditProductModal(content: TemplateRef<any>, rowData: any) {
-    this.modalRef = this.modalService.open(content, { centered: true });
-
-    this.form.patchValue({
-      name: rowData.productName,
-      description: rowData.remarks,
-      image: '',
-    });
-
-    this.title = 'Edit Product';
-
+    this.modalRef = this.modalService.open(AddProductComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Add Product';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
         this.getIndividualData(0);
       } else {
-        console.log('Error occurred');
+        console.log("Error occurred")
+      }
+    });
+  }
+
+  openEditProductModal(formData: any) {
+    this.modalRef = this.modalService.open(AddProductComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Edit Product';
+    this.modalRef.componentInstance.formData = formData;
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        this.getIndividualData(0);
+      } else {
+        console.log("Error occurred")
       }
     });
   }
@@ -302,5 +302,9 @@ export class ProductsComponent implements OnInit {
       arr.push(temp)
     })
     this.dataExploration.exportToPdf(cols, arr, 'Products')
+  }
+
+  updateColumns(updatedColumns: any) {
+    this.columns = [...updatedColumns];
   }
 }

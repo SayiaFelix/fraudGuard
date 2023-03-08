@@ -33,10 +33,12 @@ export class AddUserComponent implements OnInit {
     console.log(this.formData)
 
     this.form = this.fb.group({
-      name: [this.formData ? this.formData.ATMName : '', [Validators.required]],
-      atmCode: [this.formData ? this.formData.ATMCode : '', [Validators.required]],
-      branch: [this.formData ? this.formData.branch : '', [Validators.required]],
-      is_active: [this.formData ? this.formData.is_active : '', [Validators.nullValidator]]
+      firstName: [this.formData ? this.formData.firstName : '', [Validators.required]],
+      middleName: [this.formData ? this.formData.middleName : '', [Validators.required]],
+      lastName: [this.formData ? this.formData.lastName : '', [Validators.required]],
+      phone: [this.formData ? this.formData.phone : '', [Validators.required]],
+      email: [this.formData ? this.formData.email : '', [Validators.required]],
+      profile: [this.formData ? this.formData.profile : '', [Validators.nullValidator]]
     });
 
   }

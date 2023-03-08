@@ -4,7 +4,10 @@
   </div>
   <app-table-header
     [allColumns]="allColumns"
+    [rows]="rows"
+    [title]="title"
     (changeColumnsEvent)="updateColumns($event)"
+    (openAddModalEvent)="openAddRoleModal()"
   ></app-table-header>
 </div>
 
@@ -19,81 +22,6 @@
           [rows]="rows"
           [hasViewAndEdit]="false"
           (editEvent)="openEditRoleModal($event)"></app-custom-ngx-table>
-
-<!--         <div class="table-responsive table-striped">-->
-<!--          <ngx-datatable-->
-<!--            #table-->
-<!--            [rows]="rows"-->
-<!--            class="bootstrap"-->
-<!--            [loadingIndicator]="loadingIndicator"-->
-<!--            [columnMode]="ColumnMode.force"-->
-<!--            [footerHeight]="50"-->
-<!--            [columns]="columns"-->
-<!--            [limit]="10"-->
-<!--            [rowHeight]="'auto'"-->
-<!--          >-->
-<!--            &lt;!&ndash; Row Detail Template &ndash;&gt;-->
-<!--             <ngx-datatable-row-detail-->
-<!--              #myDetailRow-->
-<!--                     (toggle)="onDetailToggle($event)"-->
-<!--                     [rowHeight]="100"-->
-<!--                   >-->
-<!--                     <ng-template-->
-<!--                       let-expanded="expanded"-->
-<!--                       let-row="row"-->
-<!--                       ngx-datatable-row-detail-template-->
-<!--                     >-->
-<!--                       <div style="padding-left: 35px">-->
-<!--                         <div><strong>Address</strong></div>-->
-<!--                         <div>{{ row.productName }}, {{ row.remarks }}</div>-->
-<!--                       </div>-->
-<!--                     </ng-template>-->
-<!--                   </ngx-datatable-row-detail>-->
-
-<!--            &lt;!&ndash; Column Templates &ndash;&gt;-->
-<!--            <ngx-datatable-column-->
-<!--              [width]="50"-->
-<!--              [resizeable]="false"-->
-<!--              [sortable]="false"-->
-<!--              [draggable]="false"-->
-<!--              [canAutoResize]="false"-->
-<!--            >-->
-<!--              <ng-template  let-value="value" let-row="row" let-expanded="expanded" ngx-datatable-cell-template>-->
-<!--                <a-->
-<!--                  href="javascript:void(0)"-->
-<!--                  [class.datatable-icon-right]="!expanded"-->
-<!--                  [class.datatable-icon-down]="expanded"-->
-<!--                  title="Expand/Collapse Row"-->
-<!--                  (click)="toggleExpandRow(row)"-->
-<!--                >-->
-<!--                </a>-->
-<!--              </ng-template>-->
-<!--            </ngx-datatable-column>-->
-
-<!--            <ng-container *ngFor='let column of columns' >-->
-<!--              <ngx-datatable-column *ngIf='column.name === "Actions"' name="Actions" prop="actions">-->
-<!--                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>-->
-<!--                    <span>-->
-<!--                      <button type="button" class="btn btn-primary btn-icon-text btn-xs"-->
-<!--                              (click)="openEditRoleModal(row)">-->
-<!--                          Edit-->
-<!--                      </button>-->
-<!--                    </span>-->
-<!--                </ng-template>-->
-<!--              </ngx-datatable-column>-->
-
-<!--              <ngx-datatable-column *ngIf='column.name === "Status"' name="Status" prop="status">-->
-<!--                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>-->
-<!--                  <app-label-active [value] = "row.status"></app-label-active>-->
-<!--                </ng-template>-->
-<!--              </ngx-datatable-column>-->
-
-<!--              <ngx-datatable-column *ngIf='column.name !== "Actions" && column.name !== "Status"' name="{{column.name}}" prop="{{column.prop}}">-->
-<!--              </ngx-datatable-column>-->
-<!--            </ng-container>-->
-
-<!--          </ngx-datatable>-->
-<!--        </div>-->
       </div>
     </div>
   </div>

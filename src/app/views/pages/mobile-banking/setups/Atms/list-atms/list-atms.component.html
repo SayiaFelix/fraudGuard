@@ -2,19 +2,14 @@
     <div>
       <h4 class="mb-3 mb-md-0">All ATMs</h4>
     </div>
-    <div class="d-flex align-items-center flex-wrap text-nowrap">
-      <div class="input-group wd-200 me-2 mb-2 mb-md-0">
-      </div>
-      <button class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0 btn-xs" type="button">
-        <i appFeatherIcon class="btn-icon-prepend" data-feather="printer"></i>
-        {{"downloadTextOnButton" | translate}}
-      </button>
-      <button (click)="addAtm('')" class="btn btn-primary btn-icon-text mb-2 mb-md-0 btn-xs"
-              type="button">
-        <i appFeatherIcon class="btn-icon-prepend" data-feather="plus"></i>
-        Add ATM
-      </button>
-    </div>
+  <app-table-header
+    [allColumns]="allColumns"
+    [rows]="rows"
+    [title]="title"
+    (changeColumnsEvent)="updateColumns($event)"
+    (openAddModalEvent)="addAtm()"
+  ></app-table-header>
+
   </div>
 <div class="row">
   <div class="col-md-12 stretch-card">
@@ -26,143 +21,7 @@
           [rows]="rows"
           [hasViewAndEdit]="false"
           (editEvent)="editAtm($event)"></app-custom-ngx-table>
-
-<!--        <div class="table-responsive">-->
-<!--          <ngx-datatable-->
-<!--            [rows]="rows"-->
-<!--            class="bootstrap"-->
-<!--            [loadingIndicator]="loadingIndicator"-->
-<!--            [columnMode]="ColumnMode.force"-->
-<!--            [footerHeight]="50"-->
-<!--            [columns]="columns"-->
-<!--            [limit]="10"-->
-<!--            [rowHeight]="'auto'"-->
-<!--          >-->
-<!--                     &lt;!&ndash; Row Detail Template &ndash;&gt;-->
-<!--                     <ngx-datatable-row-detail-->
-<!--                     #myDetailRow-->
-<!--                     (toggle)="onDetailToggle($event)"-->
-<!--                     [rowHeight]="100"-->
-<!--                   >-->
-<!--                     <ng-template-->
-<!--                       let-expanded="expanded"-->
-<!--                       let-row="row"-->
-<!--                       ngx-datatable-row-detail-template-->
-<!--                     >-->
-<!--                       <div style="padding-left: 35px">-->
-<!--                         <div><strong>Address</strong></div>-->
-<!--                         <div>{{ row.productName }}, {{ row.remarks }}</div>-->
-<!--                       </div>-->
-<!--                     </ng-template>-->
-<!--                   </ngx-datatable-row-detail>-->
-
-<!--                   &lt;!&ndash; Column Templates &ndash;&gt;-->
-<!--                   <ngx-datatable-column-->
-<!--                     [canAutoResize]="false"-->
-<!--                     [draggable]="false"-->
-<!--                     [resizeable]="false"-->
-<!--                     [sortable]="false"-->
-<!--                     [width]="50"-->
-<!--                   >-->
-<!--                     <ng-template-->
-<!--                       let-expanded="expanded"-->
-<!--                       let-row="row"-->
-<!--                       let-value="value"-->
-<!--                       ngx-datatable-cell-template-->
-<!--                     >-->
-<!--                       <a-->
-<!--                         (click)="toggleExpandRow(row)"-->
-<!--                         [class.datatable-icon-down]="expanded"-->
-<!--                         [class.datatable-icon-right]="!expanded"-->
-<!--                         href="javascript:void(0)"-->
-<!--                         title="Expand/Collapse Row"-->
-<!--                       >-->
-<!--                       </a>-->
-<!--                     </ng-template>-->
-<!--                   </ngx-datatable-column>-->
-<!--          <ng-container *ngFor='let column of columns' >-->
-<!--            <ngx-datatable-column *ngIf='column.name === "Actions"' name="Actions" prop="actions">-->
-<!--              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>-->
-<!--                <span>-->
-<!--&lt;!&ndash;                    <button type="button" class="btn btn-outline-primary btn-icon-text me-2 btn-xs" (click)="navigateToViewProduct(row)">&ndash;&gt;-->
-<!--&lt;!&ndash;                        View&ndash;&gt;-->
-<!--&lt;!&ndash;                    </button>&ndash;&gt;-->
-<!--                    <button type="button" class="btn btn-primary btn-icon-text btn-xs" (click)="editAtm(row)">-->
-<!--                        Edit-->
-<!--                    </button>-->
-<!--                </span>-->
-<!--              </ng-template>-->
-<!--            </ngx-datatable-column>-->
-<!--            <ngx-datatable-column *ngIf='column.name !== "Actions"' name="{{column.name}}" prop="{{column.prop}}">-->
-<!--            </ngx-datatable-column>-->
-<!--            </ng-container>-->
-<!--          </ngx-datatable>-->
-<!--        </div>-->
       </div>
     </div>
   </div>
 </div>
-
-<!-- Modal -->
-<ng-template #verticalCenteredModal let-modal>
-  <div class="modal-header">
-    <h5 class="modal-title" id="exampleModalLabel">Add ATM</h5>
-    <button (click)="modal.close('by: close icon')" aria-label="Close" class="btn-close" type="button"></button>
-  </div>
-  <div class="modal-body">
-    <div class="row">
-      <div class="col-sm-12">
-        <div class="mb-3">
-          <label class="form-label">ATM Name</label>
-          <input class="form-control" formControlName="name" type="text">
-          <small *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')" class="text-danger">Required
-            Field</small>
-        </div>
-      </div>
-      <div class="col-sm-12">
-        <div class="mb-3">
-          <label class="text-gray">ATM Code</label>
-          <input class="form-control" formControlName="branchCode" type="text">
-          <small *ngIf="form.get('branchCode')?.touched &&
-          form.get('branchCode')?.hasError('required')" class="text-danger">Required
-            Field</small>
-        </div>
-      </div>
-      <div class="col-sm-12">
-          <div class="mb-3">
-              <label class="text-gray">Select Branch</label>
-              <select
-                      class="form-select"
-                      formControlName="branch"
-                      id="branch"
-                      name="branch"
-              >
-                  <option *ngFor="let item of [{id: 1, name: 'Haile Selassie Avenue'}]"
-                          [value]="item.id">
-                   {{ item.name | titlecase}}
-
-              </option>
-              <option *ngFor="let item of [{id: 2, name: 'Harambee Avenue'}]"
-              [value]="item.id">
-       {{ item.name | titlecase}}
-
-  </option>
-  <option *ngFor="let item of [{id: 3, name: 'Kimathi Street'}]"
-  [value]="item.id">
-{{ item.name | titlecase}}
-
-</option>
-              </select>
-           </div>
-
-      </div>
-
-    </div>
-
-
-  </div>
-  <div class="modal-footer">
-    <button (click)="modal.close('by: close button')" class="btn btn-secondary" type="button">Close</button>
-    <button (click)="modal.close('by: save button')" class="btn btn-primary" type="button">Save changes</button>
-  </div>
-</ng-template>
