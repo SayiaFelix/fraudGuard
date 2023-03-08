@@ -58,6 +58,9 @@ export class RolesComponent implements OnInit {
     { name: 'Actions', prop: 'id' }
   ];
 
+  allColumns = [...this.columns]
+
+
   public form: FormGroup;
   @Input() formData: { name: any; description: any; is_active: any; };
 
@@ -128,6 +131,9 @@ export class RolesComponent implements OnInit {
   }
 
   openEditRoleModal(formData: any) {
+
+    console.log("output formData")
+    console.log(formData)
     this.modalRef = this.modalService.open(AddRoleComponent, {centered: true});
     this.modalRef.componentInstance.formData = formData;
     this.modalRef.componentInstance.title = 'Edit Role: ';
@@ -154,5 +160,7 @@ export class RolesComponent implements OnInit {
 
   }
 
-
+  updateColumns(updatedColumns: any) {
+    this.columns = [...updatedColumns];
+  }
 }

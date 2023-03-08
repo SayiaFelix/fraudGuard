@@ -29,7 +29,7 @@ export class ProductsComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
 
   tempProductData = [
-    { 
+    {
       id: 1,
       productName: 'Bank Accounts',
       remarks: 'Bank Accounts Description',
@@ -194,7 +194,7 @@ export class ProductsComponent implements OnInit {
     console.log('Detail Toggled', event);
   }
 
-  updateFilter(event: any) {
+  updateFilter(event: any, columnName: any) {
     const val = event.target.value.toLowerCase();
 
     // filter our data
