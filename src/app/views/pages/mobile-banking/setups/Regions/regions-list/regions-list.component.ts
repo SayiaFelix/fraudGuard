@@ -51,12 +51,16 @@ export class RegionsListComponent implements OnInit {
     {name: 'Actions', prop: 'id'}
   ];
 
+  allColumns = [...this.columns];
+
   public form: FormGroup;
   @Input() formData: { name: any; description: any; is_active: any; };
 
   ColumnMode = ColumnMode;
   public imageFile: File;
   public modalRef: NgbModalRef;
+
+  title: string = "Regions";
 
 
   constructor(private httpService: HttpService,
@@ -118,10 +122,6 @@ export class RegionsListComponent implements OnInit {
       }
     });
 
-    // this.modalService.open(DefineRegionComponent, {centered: true, size: "xl"}).result.then((result) => {
-    //   console.log("Modal closed" + result);
-    // }).catch((res) => {
-    // });
   }
 
   openEditRegionsModal(rowData: any) {
@@ -135,36 +135,13 @@ export class RegionsListComponent implements OnInit {
         console.log("Error occurred")
       }
     });
-    // this.modalService.open(DefineRegionComponent, {centered: true, size: "xl"}).result.then((result) => {
-    //   console.log("Modal closed" + result);
-    // }).catch((res) => {
-    // });
-  }
-
-  openEditProductModal(rowData: any) {
-    this.modalService.open(DefineRegionComponent, {centered: true, size: "xl"}).result.then((result) => {
-      console.log("Modal closed" + result);
-    }).catch((res) => {
-    });
-  }
-  toggleExpandRow(row: any) {
-    console.log(row);
-    // console.log(this.table);
-    this.table.rowDetail.toggleExpandRow(row);
-
-    // this.table.rowDetail.toggleExpandRow(row);
-
   }
 
   onDetailToggle(event: any) {
     console.log('Detail Toggled', event);
   }
 
-  navigateToViewProduct(data: any) {
-    this.router.navigateByUrl(`/mobile-banking/products/product/${data.id}`);
-  }
-
-  private viewRegion(data: any): void {
-    this.router.navigate(['products', 'product', data.id], {queryParams: data});
+  updateColumns(updatedColumns: any) {
+    this.columns = [...updatedColumns];
   }
 }

@@ -4,56 +4,61 @@
     <button (click)="closeModal()" aria-label="Close" class="btn-close" type="button"></button>
   </div>
   <div class="modal-body" [formGroup]="form">
-    <div class="row">
-      <div class="col-sm-12">
-        <div class="mb-3">
-          <label class="form-label">ATM Name</label>
-          <input class="form-control" formControlName="name" type="text">
-          <small *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')" class="text-danger">Required
-            Field</small>
-        </div>
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label">First Name</label>
+        <input class="form-control" formControlName="firstName" type="text">
+        <small *ngIf="form.get('firstName')?.touched && form.get('firstName')?.hasError('required')" class="text-danger">Required
+          Field</small>
       </div>
-      <div class="col-sm-12">
-        <div class="mb-3">
-          <label class="text-gray">ATM Code</label>
-          <input class="form-control" formControlName="atmCode" type="text">
-          <small *ngIf="form.get('atmCode')?.touched &&
-          form.get('atmCode')?.hasError('required')" class="text-danger">Required
-            Field</small>
-        </div>
+
+      <div class="col-md-6">
+        <label class="form-label">Middle Name</label>
+        <input class="form-control" formControlName="middleName" type="text">
+        <small *ngIf="form.get('middleName')?.touched && form.get('middleName')?.hasError('required')" class="text-danger">Required
+          Field</small>
       </div>
-      <div class="col-sm-12">
-        <div class="mb-3">
-          <label class="text-gray">Select Branch</label>
-          <select
-            class="form-select"
-            formControlName="branch"
-            id="branch"
-            name="branch"
-          >
-            <option *ngFor="let item of [{id: 1, name: 'Haile Selassie Avenue'}]"
-                    [value]="item.id">
-              {{ item.name | titlecase}}
+      <div class="col-md-6">
+        <label class="form-label">Last Name</label>
+        <input class="form-control" formControlName="lastName" type="text">
+        <small *ngIf="form.get('lastName')?.touched && form.get('lastName')?.hasError('required')" class="text-danger">Required
+          Field</small>
+      </div>
 
-            </option>
-            <option *ngFor="let item of [{id: 2, name: 'Harambee Avenue'}]"
-                    [value]="item.id">
-              {{ item.name | titlecase}}
+      <div class="col-md-6">
 
-            </option>
-            <option *ngFor="let item of [{id: 3, name: 'Kimathi Street'}]"
-                    [value]="item.id">
-              {{ item.name | titlecase}}
 
-            </option>
-          </select>
-        </div>
+        <label class="text-gray">Phone Number</label>
+        <input class="form-control" formControlName="phone" type="text">
+        <small *ngIf="form.get('phone')?.touched &&
+            form.get('phone')?.hasError('required')" class="text-danger">Required
+          Field</small>
+      </div>
+      <div class="col-md-6">
+        <label class="text-gray">Email Address</label>
+        <input class="form-control" formControlName="email" type="text">
+        <small *ngIf="form.get('email')?.touched &&
+            form.get('email')?.hasError('required')" class="text-danger">Required
+          Field</small>
+      </div>
+      <div class="col-md-6">
 
+
+        <label class="text-gray">Select User Profile</label>
+
+        <select
+          class="form-select"
+          formControlName="profile"
+          id="profile"
+          name="profile"
+        >
+
+          <option>Super Admin</option>
+          <option>Admin</option>
+        </select>
       </div>
 
     </div>
-
-
   </div>
   <div class="modal-footer">
     <button (click)="closeModal()" class="btn btn-secondary" type="button">Close</button>
