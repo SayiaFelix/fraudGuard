@@ -1,5 +1,6 @@
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import { ColumnMode } from '@swimlane/ngx-datatable';
+import {DatatableComponent} from "@swimlane/ngx-datatable/lib/components/datatable.component";
 
 @Component({
     selector: 'app-custom-ngx-table',
@@ -7,29 +8,46 @@ import {Component, Input, OnInit} from '@angular/core';
     styleUrls: ['./custom-ngx-table.component.scss']
 })
 export class CustomNgxTable implements OnInit {
+    @ViewChild('table') table: DatatableComponent;
+    ColumnMode = ColumnMode;
+    loadingIndicator = true;
+    reorderable = true;
 
-    @Input() title: any;
-    @Input() body: any;
+    @Input() columns: any;
+    @Input() rows: any;
 
-    username: any;
+    @Input() hasViewAndEdit: boolean;
 
-    public errorMessages: any;
-    public activeModal: any;
+  @Output() editEvent = new EventEmitter<string>();
+  @Output() viewEvent = new EventEmitter<string>();
+
+
 
     constructor(
-        activeModal: NgbActiveModal,
-    ) {
-        this.activeModal = activeModal;
-    }
 
+    ) {
+
+    }
     ngOnInit() {
     }
 
-    close() {
-        this.activeModal.close();
-    }
+  onDetailToggle(event: any) {
+    console.log('Detail Toggled', event);
+  }
 
-    submitData() {
-        this.activeModal.close('success');
-    }
+  toggleExpandRow(row: any) {
+    console.log(row);
+    console.log(this.table);
+
+    this.table.rowDetail.toggleExpandRow(row);
+  }
+
+
+
+  openEditModal(row: any) {
+    this.editEvent.emit(row);
+  }
+  viewItem(row: any) {
+    this.viewEvent.emit(row);
+  }
 }

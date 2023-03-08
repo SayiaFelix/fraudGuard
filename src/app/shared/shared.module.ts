@@ -13,6 +13,7 @@ import {ConfirmDialogComponent} from './components/confirm-dialog/confirm-dialog
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import {TranslateModule} from "@ngx-translate/core";
 import {CustomNgxTable} from "./components/ngx-table/custom-ngx-table.component";
+import {TableHeaderComponent} from "./components/table-header/table-header.component";
 
 
 @NgModule({
@@ -23,7 +24,8 @@ import {CustomNgxTable} from "./components/ngx-table/custom-ngx-table.component"
     LabelOnlineComponent,
     LabelPassedComponent,
     ConfirmDialogComponent,
-    CustomNgxTable
+    CustomNgxTable,
+    TableHeaderComponent
   ],
   entryComponents: [
     LabelBooleanComponent,
@@ -54,6 +56,8 @@ import {CustomNgxTable} from "./components/ngx-table/custom-ngx-table.component"
     LabelActiveComponent,
     LabelOnlineComponent,
     LabelPassedComponent,
+    CustomNgxTable,
+    TableHeaderComponent,
   ]
 })
 export class SharedModule {

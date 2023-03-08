@@ -1,0 +1,49 @@
+<div class="d-flex align-items-center flex-wrap text-nowrap">
+  <div class="input-group wd-200 me-2 mb-2 mb-md-0">
+
+  </div>
+  <div ngbDropdown>
+    <button
+      class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0 btn-xs"
+      id="dropdownBasic1"
+      ngbDropdownToggle
+    >
+      <i appFeatherIcon class="btn-icon-prepend" data-feather="eye"></i>
+      Show/Hide Columns
+    </button>
+    <ul ngbDropdownMenu aria-labelledby="dropdownBasic1">
+      <li *ngFor="let col of allColumns">
+        <input
+          type="checkbox"
+          [id]="col.name"
+          (click)="toggle(col)"
+          [checked]="isChecked(col)"
+        />
+        <label [attr.for]="col.name"> {{ col.name }}</label>
+      </li>
+    </ul>
+  </div>
+  <div ngbDropdown>
+    <button
+      class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0 btn-xs"
+      id="dropdownBasic1"
+      ngbDropdownToggle
+    >
+      <i appFeatherIcon class="btn-icon-prepend" data-feather="printer"></i>
+      Download
+    </button>
+    <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+      <button ngbDropdownItem (click)="exportPDF()">PDF</button>
+      <button ngbDropdownItem (click)="exportXLSX()">XLSX</button>
+      <button ngbDropdownItem (click)="exportCSV()">CSV</button>
+    </div>
+  </div>
+  <button
+    (click)="openAddItemModal()"
+    class="btn btn-primary btn-icon-text mb-2 mb-md-0 btn-xs"
+    type="button"
+  >
+    <i appFeatherIcon class="btn-icon-prepend" data-feather="plus"></i>
+    Add {{title}}
+  </button>
+</div>

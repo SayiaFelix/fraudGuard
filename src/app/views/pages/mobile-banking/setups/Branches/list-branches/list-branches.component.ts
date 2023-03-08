@@ -65,6 +65,8 @@ export class ListBranchesComponent implements OnInit {
     { name: 'Actions', prop: 'id' }
   ];
 
+  allColumns = [...this.columns]
+
   public form: FormGroup;
   @Input() formData: { name: any; branchCode: any; is_active: any; };
 
@@ -73,6 +75,8 @@ export class ListBranchesComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
 
   public modalRef: NgbModalRef;
+
+  title: string = "Branches";
 
 
   constructor(private httpService: HttpService,
@@ -98,10 +102,9 @@ export class ListBranchesComponent implements OnInit {
     });
   }
 
-  public addBranch(parentData: any) {
+  public addBranch() {
     this.modalRef = this.modalService.open(AddBranchComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Add Branch';
-    this.modalRef.componentInstance.parentData = '';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
         // this.getIndividualData(this.page);
@@ -147,33 +150,21 @@ export class ListBranchesComponent implements OnInit {
     });
   }
 
-  openAddProductModal(content: TemplateRef<any>) {
-    this.modalService.open(content, {centered: true}).result.then((result) => {
-      console.log("Modal closed" + result);
-    }).catch((res) => {});
-  }
-
   onFileChange(event: any) {
     if (event.target.files && event.target.files.length) {
       this.imageFile = event.target.files[0];
     }
   }
 
-  navigateToViewBranch(row: any) {
-
-  }
-
-  openEditBranchModal(content: TemplateRef<any>) {
-    this.modalService.open(content, {centered: true}).result.then((result) => {
-      console.log("Modal closed" + result);
-    }).catch((res) => {
-    });
-  }
   toggleExpandRow(row:any){
     this.table.rowDetail.toggleExpandRow(row);
   }
 
   onDetailToggle(event:any){
     console.log('Detail Toggled', event);
+  }
+
+  updateColumns(updatedColumns: any) {
+    this.columns = [...updatedColumns];
   }
 }
