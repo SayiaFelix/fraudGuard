@@ -6,23 +6,43 @@
   </div>
   <div class="d-flex align-items-center flex-wrap text-nowrap">
     <div class="input-group wd-200 me-2 mb-2 mb-md-0">
-      <div id="list1" class="dropdown-check-list" tabindex="100">
-        <span class="anchor" (click)="toggleDrop()">Show/Hide Columns</span>
-        <ul class="items">
-          <li *ngFor="let col of allColumns">
-            <input type="checkbox" [id]="col.name" (click)="toggle(col)" [checked]="isChecked(col)" />
-            <label [attr.for]="col.name"> {{ col.name }}</label>
-          </li>
-        </ul>
+    </div>
+    <div ngbDropdown>
+      <button
+        class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0 btn-xs"
+        id="dropdownBasic1"
+        ngbDropdownToggle
+      >
+        <i appFeatherIcon class="btn-icon-prepend" data-feather="eye"></i>
+        Show/Hide Columns
+      </button>
+      <ul ngbDropdownMenu aria-labelledby="dropdownBasic1">
+        <li *ngFor="let col of allColumns">
+          <input
+            type="checkbox"
+            [id]="col.name"
+            (click)="toggle(col)"
+            [checked]="isChecked(col)"
+          />
+          <label [attr.for]="col.name"> {{ col.name }}</label>
+        </li>
+      </ul>
+    </div>
+    <div ngbDropdown>
+      <button
+        class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0 btn-xs"
+        id="dropdownBasic1"
+        ngbDropdownToggle
+      >
+        <i appFeatherIcon class="btn-icon-prepend" data-feather="printer"></i>
+        Download
+      </button>
+      <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+        <button ngbDropdownItem (click)="exportPDF()">PDF</button>
+        <button ngbDropdownItem (click)="exportXLSX()">XLSX</button>
+        <button ngbDropdownItem (click)="exportCSV()">CSV</button>
       </div>
     </div>
-    <button
-      class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0 btn-xs"
-      type="button"
-    >
-      <i appFeatherIcon class="btn-icon-prepend" data-feather="printer"></i>
-      {{"downloadTextOnButton" | translate}}
-    </button>
     <button
       (click)="openAddProductModal(verticalCenteredModal)"
       class="btn btn-primary btn-icon-text mb-2 mb-md-0 btn-xs"
@@ -33,7 +53,6 @@
     </button>
   </div>
 </div>
-
 
 <!--<div class="row">-->
 <!--  <div class="col-md-12 stretch-card">-->
@@ -67,14 +86,12 @@
 <!--  </div>-->
 <!--</div>-->
 
-
 <div class="row">
   <div class="col-md-12 stretch-card">
     <div class="card">
       <div class="card-body">
         <div class="table-responsive table-striped">
-
-          <hr>
+          <hr />
           <ngx-datatable
             #table
             [columnMode]="ColumnMode.force"
@@ -190,7 +207,7 @@
 <!-- Modal -->
 <ng-template #verticalCenteredModal let-modal>
   <div class="modal-header">
-    <h5 class="modal-title" id="exampleModalLabel">{{title}}</h5>
+    <h5 class="modal-title" id="exampleModalLabel">{{ title }}</h5>
     <button
       (click)="modal.close('by: close icon')"
       aria-label="Close"
@@ -203,14 +220,14 @@
       <div class="col-sm-12">
         <div class="mb-3">
           <label class="form-label">Product Name</label>
-          <input class="form-control" formControlName="name" type="text"/>
+          <input class="form-control" formControlName="name" type="text" />
           <small
             *ngIf="
               form.get('name')?.touched &&
               form.get('name')?.hasError('required')
             "
             class="text-danger"
-          >Required Field</small
+            >Required Field</small
           >
         </div>
       </div>
@@ -228,7 +245,7 @@
               form.get('description')?.hasError('required')
             "
             class="text-danger"
-          >Required Field</small
+            >Required Field</small
           >
         </div>
       </div>
