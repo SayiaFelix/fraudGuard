@@ -8,10 +8,11 @@ import {
 } from '@angular/forms';
 import { CustomValidators } from 'ngx-custom-validators';
 import { HttpParams } from '@angular/common/http';
-import { HttpService } from '../../../../shared/services/http.service';
+
 import {catchError, concat, Observable, of} from 'rxjs';
 import { delay, map } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
+import { HttpService } from 'src/app/shared/services/http.service';
 
 @Component({
   selector: 'app-login',
