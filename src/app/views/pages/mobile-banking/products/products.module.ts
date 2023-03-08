@@ -9,6 +9,7 @@ import {SharedModule} from "../../../../shared/shared.module";
 import {FeatherIconModule} from "../../../../core/feather-icon/feather-icon.module";
 import {NgxDatatableModule} from "@swimlane/ngx-datatable";
 import {TranslateModule} from "@ngx-translate/core";
+import {AddProductComponent} from "./add-product/add-product.component";
 
 @NgModule({
     imports: [
@@ -21,12 +22,12 @@ import {TranslateModule} from "@ngx-translate/core";
   declarations: [
     ProductsComponent,
     ViewProductComponent,
-    // AddProductComponent,
+    AddProductComponent,
     // CreateProductComponent
   ]
   ,
   entryComponents: [
-    // AddProductComponent,
+    AddProductComponent,
     // CreateProductComponent
   ],
 })

@@ -2,19 +2,13 @@
   <div>
     <h4 class="mb-3 mb-md-0">All Regions</h4>
   </div>
-  <div class="d-flex align-items-center flex-wrap text-nowrap">
-    <div class="input-group wd-200 me-2 mb-2 mb-md-0">
-    </div>
-     <button class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0 btn-xs" type="button">
-      <i appFeatherIcon class="btn-icon-prepend" data-feather="printer"></i>
-       {{"downloadTextOnButton" | translate}}
-    </button>
-    <button (click)="addRegion()" class="btn btn-primary btn-icon-text mb-2 mb-md-0 btn-xs"
-            type="button">
-      <i appFeatherIcon class="btn-icon-prepend" data-feather="plus"></i>
-      Add Region
-    </button>
-  </div>
+  <app-table-header
+    [allColumns]="allColumns"
+    [rows]="rows"
+    [title]="title"
+    (changeColumnsEvent)="updateColumns($event)"
+    (openAddModalEvent)="addRegion()"
+  ></app-table-header>
 </div>
 
 <div class="row">
@@ -22,132 +16,12 @@
     <div class="card">
       <div class="card-body">
         <h6 class="card-title">Regions</h6>
-         <div class="table-responsive table-striped">
-          <ngx-datatable
-            [rows]="rows"
-            class="bootstrap"
-            [loadingIndicator]="loadingIndicator"
-            [columnMode]="ColumnMode.force"
-            [footerHeight]="50"
-            [columns]="columns"
-            [limit]="2"
-            [rowHeight]="'auto'"
-          >
-                    <!-- Row Detail Template -->
-                    <ngx-datatable-row-detail
-                    #myDetailRow
-                    (toggle)="onDetailToggle($event)"
-                    [rowHeight]="100"
-                  >
-                    <ng-template
-                      let-expanded="expanded"
-                      let-row="row"
-                      ngx-datatable-row-detail-template
-                    >
-                      <div style="padding-left: 35px">
-                        <div><strong>Address</strong></div>
-                        <div>{{ row.productName }}, {{ row.remarks }}</div>
-                      </div>
-                    </ng-template>
-                  </ngx-datatable-row-detail>
-
-                  <!-- Column Templates -->
-                  <ngx-datatable-column
-                    [canAutoResize]="false"
-                    [draggable]="false"
-                    [resizeable]="false"
-                    [sortable]="false"
-                    [width]="50"
-                  >
-                    <ng-template
-                      let-expanded="expanded"
-                      let-row="row"
-                      let-value="value"
-                      ngx-datatable-cell-template
-                    >
-                      <a
-                        (click)="toggleExpandRow(row)"
-                        [class.datatable-icon-down]="expanded"
-                        [class.datatable-icon-right]="!expanded"
-                        href="javascript:void(0)"
-                        title="Expand/Collapse Row"
-                      >
-                      </a>
-                    </ng-template>
-                  </ngx-datatable-column>
-            <ng-container *ngFor='let column of columns' >
-              <ngx-datatable-column *ngIf='column.name === "Actions"' name="Actions" prop="actions">
-                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
-                    <span>
-<!--                      <button type="button" class="btn btn-outline-primary btn-icon-text me-2  btn-xs" (click)="navigateToViewProduct(row)">-->
-<!--                          View-->
-<!--                      </button>-->
-                      <button type="button" class="btn btn-primary btn-icon-text btn-xs" (click)="openEditRegionsModal(row)">
-                          Edit
-                      </button>
-                    </span>
-                </ng-template>
-              </ngx-datatable-column>
-              <ngx-datatable-column *ngIf='column.name !== "Actions"' name="{{column.name}}" prop="{{column.prop}}">
-              </ngx-datatable-column>
-            </ng-container>
-
-          </ngx-datatable>
-        </div>
+        <app-custom-ngx-table
+          [columns]="columns"
+          [rows]="rows"
+          [hasViewAndEdit]="false"
+          (editEvent)="openEditRegionsModal($event)"></app-custom-ngx-table>
       </div>
     </div>
   </div>
 </div>
-
-<!-- Modal-->
-<!--<ng-template #verticalCenteredModal let-modal>-->
-<!--  <div class="modal-header">-->
-<!--    <h5 class="modal-title" id="exampleModalLabel">Add Product</h5>-->
-<!--    <button (click)="modal.close('by: close icon')" aria-label="Close" class="btn-close" type="button"></button>-->
-<!--  </div>-->
-<!--  <div class="modal-body">-->
-
-
-<!--    <div class="row inbox-wrapper">-->
-<!--      <div class="col-lg-12">-->
-<!--        <div class="card">-->
-<!--          <div class="card-body">-->
-<!--            <div class="row">-->
-<!--              <div class="col-lg-3 border-end-lg">-->
-<!--                <div class="col-sm-12">-->
-<!--                  <div class="mb-3">-->
-<!--                    <label class="form-label">Region Name</label>-->
-<!--                  </div>-->
-<!--                </div>-->
-<!--                <div class="col-sm-6">-->
-<!--                  <div class="mb-3">-->
-<!--                    <label class="form-label">Product Name</label>-->
-<!--                    <input class="form-control" formControlName="name" maxlength="24" type="text">-->
-<!--                    <p *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')"-->
-<!--                       class="text-danger mt-1 mb-1 pt-0 small text-center">Required-->
-<!--                      Field</p>-->
-<!--                  </div>-->
-<!--                </div>-->
-<!--              </div>-->
-<!--              <div class="col-lg-9">-->
-<!--                <div #updatedMap>-->
-<!--                  <agm-map (mapReady)="onMapReady($event)" [latitude]="lat" [longitude]="lng" [zoom]="8">-->
-<!--                    <agm-polygon [strokeColor]="'#1890FF'" [fillColor]="'#1890FF'" [strokeWeight]="2" [paths]="pointList">-->
-<!--                    </agm-polygon>-->
-
-<!--                  </agm-map>-->
-
-<!--                </div>-->
-<!--              </div>-->
-<!--            </div>-->
-<!--          </div>-->
-<!--        </div>-->
-<!--      </div>-->
-<!--    </div>-->
-
-<!--    <div class="modal-footer">-->
-<!--      <button (click)="modal.close('by: close button')" class="btn btn-secondary" type="button">Close</button>-->
-<!--      <button (click)="modal.close('by: save button')" class="btn btn-primary" type="button">Save changes</button>-->
-<!--    </div>-->
-<!--  </div>-->
-<!--</ng-template>-->

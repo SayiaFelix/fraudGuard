@@ -69,6 +69,8 @@ export class RolesComponent implements OnInit {
 
   public modalRef: NgbModalRef;
 
+  title: string = "Roles";
+
 
   constructor(private httpService: HttpService,
               private modalService: NgbModal,
@@ -118,7 +120,7 @@ export class RolesComponent implements OnInit {
     });
   }
 
-  openAddRoleModal(data: any) {
+  openAddRoleModal() {
     this.modalRef = this.modalService.open(AddRoleComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Add Role: ';
     this.modalRef.result.then((result) => {
