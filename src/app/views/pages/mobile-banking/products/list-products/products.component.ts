@@ -303,8 +303,8 @@ export class ProductsComponent implements OnInit {
     })
     this.dataExploration.exportToPdf(cols, arr, 'Products')
   }
-
   updateColumns(updatedColumns: any) {
     this.columns = [...updatedColumns];
   }
+
 }
