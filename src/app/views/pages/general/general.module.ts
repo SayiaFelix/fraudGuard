@@ -14,6 +14,7 @@ import { PricingComponent } from './pricing/pricing.component';
 import { TimelineComponent } from './timeline/timeline.component';
 import { Routes, RouterModule } from '@angular/router';
 import {NgxDatatableModule} from "@swimlane/ngx-datatable";
+import {SharedModule} from "../../../shared/shared.module";
 
 const routes: Routes = [
   {
@@ -62,7 +63,8 @@ const routes: Routes = [
         NgbAccordionModule,
         NgbDropdownModule,
         NgbTooltipModule,
-        NgxDatatableModule
+        NgxDatatableModule,
+        SharedModule
     ]
 })
 export class GeneralModule { }

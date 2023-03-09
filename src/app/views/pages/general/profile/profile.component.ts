@@ -19,6 +19,14 @@ export class ProfileComponent implements OnInit {
   physicalAddress: string;
   registeredName: string;
 
+  columns = [
+    { name: 'ID', prop: 'id' },
+    { name: 'Action', prop:'action' },
+    { name: 'Description', prop:'description' },
+    { name: 'CreatedOn', prop:'createdOn' },
+  ];
+  rows: any = [];
+
   constructor(private httpService: HttpService) {}
 
   ngOnInit(): void {

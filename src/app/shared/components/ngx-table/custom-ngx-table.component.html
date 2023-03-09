@@ -1,6 +1,4 @@
-<div class="table-responsive table-striped">
-
-  <hr>
+<div class="table-responsive table-striped table-bordered">
   <ngx-datatable
     #table
     [columnMode]="ColumnMode.force"
@@ -10,7 +8,7 @@
     [loadingIndicator]="loadingIndicator"
     [rowHeight]="'auto'"
     [rows]="rows"
-    class="bootstrap"
+    class="bootstrap table-bordered table-striped striped"
   >
     <!-- Row Detail Template -->
     <ngx-datatable-row-detail
@@ -57,9 +55,18 @@
 
     <ng-container *ngFor="let column of columns">
       <ngx-datatable-column
+        *ngIf="column.name === 'ID'"
+        name="ID"
+        prop="id"
+        [width]="10"
+      >
+      </ngx-datatable-column>
+
+      <ngx-datatable-column
         *ngIf="column.name === 'Actions'"
         name="Actions"
         prop="actions"
+        [sortable]="false"
       >
         <ng-template
           let-row="row"
@@ -100,7 +107,14 @@
       </ngx-datatable-column>
 
       <ngx-datatable-column
-        *ngIf="column.name !== 'Actions' && column.name !== 'Status'"
+        *ngIf="column.name === 'CreatedOn'"
+        name="CreatedOn"
+        prop="createdOn"
+      >
+      </ngx-datatable-column>
+
+      <ngx-datatable-column
+        *ngIf="column.name !== 'Actions' && column.name !== 'Status' && column.name !== 'ID' && column.name !== 'CreatedOn'"
         name="{{ column.name }}"
         prop="{{ column.prop }}"
       >
