@@ -37,6 +37,7 @@ export class ProductsComponent implements OnInit {
     {
       id: 1,
       productName: 'Bank Accounts',
+
       remarks: 'Bank Accounts Description',
       status: true,
       createdOn: '12-02-2023',
@@ -44,6 +45,7 @@ export class ProductsComponent implements OnInit {
     {
       id: 2,
       productName: 'Card Accounts',
+
       remarks: 'Card Accounts Description',
       status: true,
       createdOn: '12-02-2023',
@@ -51,6 +53,7 @@ export class ProductsComponent implements OnInit {
     {
       id: 3,
       productName: 'Loan Accounts',
+
       remarks: 'Loan Accounts Description',
       status: true,
       createdOn: '12-02-2023',
@@ -58,6 +61,7 @@ export class ProductsComponent implements OnInit {
     {
       id: 4,
       productName: 'Investment Accounts',
+
       remarks: 'Investment Accounts Description',
       status: true,
       createdOn: '12-02-2023',
@@ -65,6 +69,7 @@ export class ProductsComponent implements OnInit {
     {
       id: 5,
       productName: 'Insurance Accounts',
+
       remarks: 'Insurance Accounts Description',
       status: false,
       createdOn: '12-02-2023',
@@ -81,6 +86,7 @@ export class ProductsComponent implements OnInit {
   columns = [
     { name: 'ID', prop: 'id' },
     { name: 'ProductName', prop: 'productName' },
+
     { name: 'Remarks', prop: 'remarks' },
     { name: 'Status', prop: 'status' },
     { name: 'CreatedOn', prop: 'createdOn' },
@@ -154,6 +160,7 @@ export class ProductsComponent implements OnInit {
 
     this.modalRef = this.modalService.open(AddProductComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Add Product';
+
     this.modalRef.result.then((result) => {
       if (result === 'success') {
         this.getIndividualData(0);
@@ -184,6 +191,7 @@ export class ProductsComponent implements OnInit {
 
   navigateToViewProduct(data: any) {
     this.router.navigateByUrl(`/mobile-banking/products/product/${data.id}`);
+
   }
 
   toggleExpandRow(row: any) {
@@ -306,5 +314,6 @@ export class ProductsComponent implements OnInit {
   updateColumns(updatedColumns: any) {
     this.columns = [...updatedColumns];
   }
+
 
 }
