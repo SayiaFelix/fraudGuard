@@ -2,7 +2,7 @@ import {NgModule} from '@angular/core';
 import {ProductsRoutingModule} from './products-routing';
 
 
-import {ProductsComponent} from './list-products/products.component';
+import {ProductsComponent} from './list-products-categories/products.component';
 import {ViewProductComponent} from "./view-product/view-product.component";
 
 import {SharedModule} from "../../../../shared/shared.module";
@@ -10,6 +10,7 @@ import {FeatherIconModule} from "../../../../core/feather-icon/feather-icon.modu
 import {NgxDatatableModule} from "@swimlane/ngx-datatable";
 import {TranslateModule} from "@ngx-translate/core";
 import {AddProductComponent} from "./add-product/add-product.component";
+import { ListProductsComponent } from './list-products/list-products.component';
 
 @NgModule({
     imports: [
@@ -23,6 +24,8 @@ import {AddProductComponent} from "./add-product/add-product.component";
     ProductsComponent,
     ViewProductComponent,
     AddProductComponent,
+    ListProductsComponent,
+    
     // CreateProductComponent
   ]
   ,
