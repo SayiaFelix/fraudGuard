@@ -27,11 +27,11 @@ export class ViewProductComponent implements OnInit {
     }
   ];
   public productDetails = {
-    productName: 'Salary Advance',
+    productName: 'Personal Accident',
     shortDescription: 'Get Salary Advance Loans',
     longDescription: 'Enjoy quick salary advances when you are in need of a quick loan to sort out your regular bills.',
     requirements: ['Minimum Salary KES 15,000 per month', 'Repayment period 1 month'],
-    features: ['Get access up to 70% of your monthly salary']
+    // features: ['Get access up to 70% of your monthly salary']
   };
   public mainProduct: any;
   public subcategoryTitle: any;
@@ -134,11 +134,11 @@ export class ViewProductComponent implements OnInit {
   getDetails({}) {
 
     this.productDetails = {
-      productName: 'Salary Advance',
+      productName: 'Personal Accident',
       shortDescription: 'Get Salary Advance Loans',
       longDescription: 'Enjoy quick salary advances when you are in need of a quick loan to sort out your regular bills.',
       requirements: ['Minimum Salary KES 15,000 per month', 'Repayment period 1 month'],
-      features: ['Get access up to 70% of your monthly salary']
+      // features: ['Get access up to 70% of your monthly salary']
     };
 
     this.subcategoryTitle = this.productDetails.productName;
