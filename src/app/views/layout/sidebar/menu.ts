@@ -22,7 +22,7 @@ export const MENU: MenuItem[] = [
     profiles: ['SUPER_ADMIN'],
     label: 'Products',
     icon: 'home',
-    link: '/mobile-banking/products/list-products'
+    link: '/mobile-banking/products/list-products-categories'
   },
 
   {
