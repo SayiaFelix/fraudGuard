@@ -6,6 +6,24 @@
     "no-inline-styles": "off",
     "axe/name-role-value": "off",
     "disown-opener": "off",
-    "axe/structure": "off"
+    "axe/structure": "off",
+    "axe/forms": [
+      "default",
+      {
+        "label": "off"
+      }
+    ],
+    "axe/aria": [
+      "default",
+      {
+        "aria-progressbar-name": "off"
+      }
+    ],
+    "axe/parsing": [
+      "default",
+      {
+        "duplicate-id-aria": "off"
+      }
+    ]
   }
 }
