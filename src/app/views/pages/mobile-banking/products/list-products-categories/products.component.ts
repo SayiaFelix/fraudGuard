@@ -36,40 +36,40 @@ export class ProductsComponent implements OnInit {
   tempProductData = [
     {
       id: 1,
-      productName: 'Bank Accounts',
-
+      productCategory: 'Bank Accounts',
+      parentCategory:'-',
       remarks: 'Bank Accounts Description',
       status: true,
       createdOn: '12-02-2023',
     },
     {
       id: 2,
-      productName: 'Card Accounts',
-
+      productCategory: 'Card Accounts',
+      parentCategory:'-',
       remarks: 'Card Accounts Description',
       status: true,
       createdOn: '12-02-2023',
     },
     {
       id: 3,
-      productName: 'Loan Accounts',
-
+      productCategory: 'Loan Accounts',
+      parentCategory:'-',
       remarks: 'Loan Accounts Description',
       status: true,
       createdOn: '12-02-2023',
     },
     {
       id: 4,
-      productName: 'Investment Accounts',
-
+      productCategory: 'Investment Accounts',
+      parentCategory:'-',
       remarks: 'Investment Accounts Description',
       status: true,
       createdOn: '12-02-2023',
     },
     {
       id: 5,
-      productName: 'Insurance Accounts',
-
+      productCategory: 'Insurance Accounts',
+      parentCategory:'-',
       remarks: 'Insurance Accounts Description',
       status: false,
       createdOn: '12-02-2023',
@@ -85,8 +85,8 @@ export class ProductsComponent implements OnInit {
 
   columns = [
     { name: 'ID', prop: 'id' },
-    { name: 'ProductName', prop: 'productName' },
-
+    { name: 'ProductCategory', prop: 'productCategory' },
+    {name:'ParentCategory',prop:'parentCategory'},
     { name: 'Remarks', prop: 'remarks' },
     { name: 'Status', prop: 'status' },
     { name: 'CreatedOn', prop: 'createdOn' },
@@ -159,8 +159,7 @@ export class ProductsComponent implements OnInit {
   openAddProductModal() {
 
     this.modalRef = this.modalService.open(AddProductComponent, {centered: true});
-    this.modalRef.componentInstance.title = 'Add Product';
-
+    this.modalRef.componentInstance.title = 'Add Categories';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
         this.getIndividualData(0);
@@ -190,8 +189,7 @@ export class ProductsComponent implements OnInit {
   }
 
   navigateToViewProduct(data: any) {
-    this.router.navigateByUrl(`/mobile-banking/products/product/${data.id}`);
-
+    this.router.navigateByUrl(`/mobile-banking/products/list-products/${data.id}`);
   }
 
   toggleExpandRow(row: any) {
@@ -311,9 +309,8 @@ export class ProductsComponent implements OnInit {
     })
     this.dataExploration.exportToPdf(cols, arr, 'Products')
   }
+
   updateColumns(updatedColumns: any) {
     this.columns = [...updatedColumns];
   }
-
-
 }
