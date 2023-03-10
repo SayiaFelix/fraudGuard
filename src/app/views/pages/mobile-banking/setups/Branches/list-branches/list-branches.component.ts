@@ -5,8 +5,8 @@ import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import { ColumnMode, DatatableComponent } from '@swimlane/ngx-datatable';
 import { GlobalService } from 'src/app/shared/services/global.service';
 import { HttpService } from 'src/app/shared/services/http.service';
-
 import {AddBranchComponent} from "../add-branch/add-branch.component";
+
 
 @Component({
   selector: 'app-list-branches',
@@ -103,7 +103,7 @@ export class ListBranchesComponent implements OnInit {
   }
 
   public addBranch() {
-    this.modalRef = this.modalService.open(AddBranchComponent, {centered: true});
+    this.modalRef = this.modalService.open(AddBranchComponent, {centered: true, size: "xl"});
     this.modalRef.componentInstance.title = 'Add Branch';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
@@ -114,7 +114,7 @@ export class ListBranchesComponent implements OnInit {
   }
 
   public editBranch(formData: any) {
-    this.modalRef = this.modalService.open(AddBranchComponent, {centered: true});
+    this.modalRef = this.modalService.open(AddBranchComponent, {centered: true, size: "xl"});
     this.modalRef.componentInstance.formData = formData;
     this.modalRef.componentInstance.title = 'Edit Branch';
     this.modalRef.result.then((result) => {

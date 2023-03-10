@@ -5,7 +5,7 @@ import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import { ColumnMode, DatatableComponent } from '@swimlane/ngx-datatable';
 import { GlobalService } from 'src/app/shared/services/global.service';
 import { HttpService } from 'src/app/shared/services/http.service';
-import {AddAtmsComponent} from "../add-atms/add-atms.component";
+import {AddAtmComponent} from "../add-atm/add-atm.component";
 
 @Component({
   selector: 'app-list-atms',
@@ -102,7 +102,7 @@ export class ListAtmsComponent implements OnInit {
   }
 
   public addAtm() {
-    this.modalRef = this.modalService.open(AddAtmsComponent, {centered: true});
+    this.modalRef = this.modalService.open(AddAtmComponent, {centered: true, size: "xl"});
     this.modalRef.componentInstance.title = 'Add ATM';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
@@ -113,7 +113,7 @@ export class ListAtmsComponent implements OnInit {
   }
 
   public editAtm(formData: any) {
-    this.modalRef = this.modalService.open(AddAtmsComponent, {centered: true});
+    this.modalRef = this.modalService.open(AddAtmComponent, {centered: true, size: "xl"});
     this.modalRef.componentInstance.formData = formData;
     this.modalRef.componentInstance.title = 'Edit ATM';
     this.modalRef.result.then((result) => {

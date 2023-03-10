@@ -12,46 +12,46 @@
           <div class="card-body" [formGroup]="form">
             <div class="row">
               <div class="col-lg-4 border-end-lg">
-                <h4 class="text-center mx-auto tx-16 fw-bold">Branch Details</h4>
+                <h4 class="text-center mx-auto tx-16 fw-bold">ATM Details</h4>
                 <hr>
                 <div class="row justify-content-center mx-auto text-center">
                   <div class="col-sm-12">
                     <div class="mb-3">
-                      <label class="form-label">Branch Name</label>
-                      <input class="form-control" formControlName="branchName" type="text">
-                      <small *ngIf="form.get('branchName')?.touched && form.get('branchName')?.hasError('required')" class="text-danger">Required
+                      <label class="form-label">ATM Name</label>
+                      <input class="form-control" formControlName="name" type="text">
+                      <small *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')" class="text-danger">Required
                         Field</small>
                     </div>
                   </div>
                   <div class="col-sm-12">
                     <div class="mb-3">
-                      <label class="text-gray">Branch Code</label>
-                      <input class="form-control" formControlName="branchCode" type="text">
-                      <small *ngIf="form.get('branchCode')?.touched &&
-          form.get('branchCode')?.hasError('required')" class="text-danger">Required
+                      <label class="text-gray">ATM Code</label>
+                      <input class="form-control" formControlName="atmCode" type="text">
+                      <small *ngIf="form.get('atmCode')?.touched &&
+          form.get('atmCode')?.hasError('required')" class="text-danger">Required
                         Field</small>
                     </div>
                   </div>
                   <div class="col-sm-12">
                     <div class="mb-3">
-                      <label class="text-gray">Select Region</label>
+                      <label class="text-gray">Select Branch</label>
                       <select
                         class="form-select"
-                        formControlName="region"
-                        id="region"
-                        name="region"
+                        formControlName="branch"
+                        id="branch"
+                        name="branch"
                       >
-                        <option *ngFor="let item of [{id: 1, name: 'North Eastern'}]"
+                        <option *ngFor="let item of [{id: 1, name: 'Haile Selassie Avenue'}]"
                                 [value]="item.id">
                           {{ item.name | titlecase}}
 
                         </option>
-                        <option *ngFor="let item of [{id: 2, name: 'Nairobi West'}]"
+                        <option *ngFor="let item of [{id: 2, name: 'Harambee Avenue'}]"
                                 [value]="item.id">
                           {{ item.name | titlecase}}
 
                         </option>
-                        <option *ngFor="let item of [{id: 3, name: 'Nairobi Central'}]"
+                        <option *ngFor="let item of [{id: 3, name: 'Kimathi Street'}]"
                                 [value]="item.id">
                           {{ item.name | titlecase}}
 

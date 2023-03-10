@@ -10,10 +10,10 @@ declare const google: any;
 
 @Component({
   selector: 'app-add-branch',
-  templateUrl: './add-branch.component.html',
-  styleUrls: ['./add-branch.component.scss']
+  templateUrl: './add-atm.component.html',
+  styleUrls: ['./add-atm.component.scss']
 })
-export class AddBranchComponent implements OnInit {
+export class AddAtmComponent implements OnInit {
   edit = false;
   @Input() title: any;
   @Input() data: any;
@@ -77,19 +77,19 @@ export class AddBranchComponent implements OnInit {
 
     if (this.data && this.data.content) {
       this.edit = true;
-      this.cardTitle = "Edit Branch";
+      this.cardTitle = "Edit ATM";
 
       this.atmName = this.data.content.name;
 
     } else {
-      this.cardTitle = "Add Branch";
+      this.cardTitle = "Add ATM";
     }
 
 
     this.form = this.fb.group({
-      branchName: [this.data ? this.data.branchName : '', [Validators.required]],
-      branchCode: [this.data ? this.data.branchCode : '', [Validators.required]],
-      region: [this.data ? this.data.region : '', [Validators.required]],
+      name: [this.data ? this.data.ATMName : '', [Validators.required]],
+      atmCode: [this.data ? this.data.ATMCode : '', [Validators.required]],
+      branch: [this.data ? this.data.branch : '', [Validators.required]],
       is_active: [this.data ? this.data.is_active : '', [Validators.nullValidator]]
     });
   }
