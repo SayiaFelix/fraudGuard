@@ -118,38 +118,65 @@
 
 //NGX-Tables Styling
 .ngx-datatable.bootstrap {
- box-shadow: none;
- font-size: 12px!important;
- .datatable-header {
-   height: unset !important;
-   .datatable-header-cell {
-     vertical-align: bottom;
-     padding: 0.75rem;
-     border-top: 1px solid #E6E6E6;
-     border-bottom: 1px solid #E6E6E6;
-     border-left: 1px solid #E6E6E6;
-     text-align: center;
-     .datatable-header-cell-label {
-       line-height: 6px!important;
-     }
-   }
- }
- .datatable-body {
-   .datatable-body-cell {
-     border-top: 1px solid #E6E6E6;
-     border-bottom: 1px solid #E6E6E6;
-     border-left: 1px solid #E6E6E6;
-     text-align: center!important;
-   }
+  box-shadow: none;
+  font-size: 12px !important;
+  font-family: 'Nunito', sans-serif;
+
+  .datatable-header {
+    height: unset !important;
+
+    .datatable-header-cell {
+      padding: 0.75rem;
+      border-top: 1px solid #d1d4d7;
+      border-bottom: 1px solid #d1d4d7;
+      border-left: 2px solid #d1d4d7;
+      text-align: center;
+      font-weight: bolder;
+      color: #1E6BB8;
+      vertical-align: middle;
+
+      .datatable-header-cell-label {
+        line-height: 6px !important;
+      }
+    }
+  }
+
+  .datatable-body {
+    .datatable-body-row {
+      vertical-align: middle;
+      border-top: 1px solid #d1d4d7;
+
+      &.datatable-row-even {
+        background-color: rgba(0, 0, 0, 0.05);
+      }
+
+      &.active {
+        background-color: #1483ff;
+        color: #FFF;
+      }
+    }
+
+    .datatable-body-cell {
+
+      border-left: 2px solid #d1d4d7;
+      text-align: center !important;
+      vertical-align: middle;
+      padding-top: 4px!important;
+      padding-bottom: 2px!important;
+      font-weight: bold;
+    }
     .datatable-row-detail{
       background-color:#75C7EC;
     }
 
    }
  .datatable-footer {
-   background: #424242;
-   color: #ededed;
-   margin-top: -1px;
+   background: #ffffff;
+   color: #000000;
+   margin-top: -5px;
+   border-top: 1px solid #d1d4d7;
+   border-bottom: 1px solid #d1d4d7;
+   font-weight: bolder;
    .page-count {
      line-height: 12px;
      height: 12px;

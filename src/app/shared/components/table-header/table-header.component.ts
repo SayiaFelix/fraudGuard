@@ -41,7 +41,7 @@ export class TableHeaderComponent implements OnInit {
       this.columns = [...this.columns, col];
     }
 
-    this.allColumnsChecked = this.columns.length == this.allColumns.length ? true : false 
+    this.allColumnsChecked = this.columns.length == this.allColumns.length ? true : false
     this.changeColumnsEvent.emit(this.columns);
   }
 
@@ -58,7 +58,7 @@ export class TableHeaderComponent implements OnInit {
     this.changeColumnsEvent.emit(this.columns);
     this.allColumnsChecked = true
   }
-  
+
   uncheckAll(){
     if(this.columns.length == 0){
       this.columns = this.allColumns
