@@ -2,11 +2,11 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {DataExportationService} from "../../services/data-exportation.service";
 
 @Component({
-  selector: 'app-table-header',
-  templateUrl: './table-header.component.html',
-  styleUrls: ['./table-header.component.scss']
+  selector: 'app-table-filters',
+  templateUrl: './table-filters.component.html',
+  styleUrls: ['./table-filters.component.scss']
 })
-export class TableHeaderComponent implements OnInit {
+export class TableFiltersComponent implements OnInit {
 
   @Input() allColumns: any;
   @Input() rows: any;
