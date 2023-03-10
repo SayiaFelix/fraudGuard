@@ -9,7 +9,7 @@ import {MapsAPILoader, MouseEvent} from "@agm/core";
 declare const google: any;
 
 @Component({
-  selector: 'app-add-atm',
+  selector: 'app-add-branch',
   templateUrl: './add-atm.component.html',
   styleUrls: ['./add-atm.component.scss']
 })

@@ -1,12 +1,49 @@
-.atma-danger {
-    background-color: #d51317;
-    color: white;
-}
-
-mat-divider {
-    margin-bottom: 10px;
-}
-
-mat-dialog-content {
+.card-form {
     overflow-y: hidden;
+    .atma-danger {
+        background-color: #d51317;
+        color: white;
+    }
+    .phone-select {
+        width: 80px;
+    }
 }
+
+.agm-container{
+  width: 60%;
+  margin: auto;
+  padding:2rem;
+}
+h3{
+  text-align: center;
+}
+button{
+  float: right;
+}
+.mat-list-item{
+  color:green;
+  background-color: #eeeeee;
+  margin: 1rem;
+  margin-left:0;
+  border: none;
+  border-radius: 10px;
+}
+.display-flex{
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+agm-map {
+  height: 350px;
+}
+
+
+#map {
+  height: 500px;
+  width: 100%;
+}
+
+nz-form-item {
+  margin-bottom: 0!important;
+}
+
