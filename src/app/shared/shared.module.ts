@@ -14,6 +14,7 @@ import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import {TranslateModule} from "@ngx-translate/core";
 import {CustomNgxTable} from "./components/ngx-table/custom-ngx-table.component";
 import {TableHeaderComponent} from "./components/table-header/table-header.component";
+import {TableFiltersComponent} from "./components/table-filters/table-filters.component";
 
 
 @NgModule({
@@ -25,7 +26,8 @@ import {TableHeaderComponent} from "./components/table-header/table-header.compo
     LabelPassedComponent,
     ConfirmDialogComponent,
     CustomNgxTable,
-    TableHeaderComponent
+    TableHeaderComponent,
+    TableFiltersComponent
   ],
   entryComponents: [
     LabelBooleanComponent,
@@ -58,6 +60,7 @@ import {TableHeaderComponent} from "./components/table-header/table-header.compo
     LabelPassedComponent,
     CustomNgxTable,
     TableHeaderComponent,
+    TableFiltersComponent
   ]
 })
 export class SharedModule {
