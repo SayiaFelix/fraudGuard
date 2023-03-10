@@ -10,8 +10,7 @@ import {RegionsListComponent} from "./Regions/regions-list/regions-list.componen
 import {DefineRegionComponent} from "./Regions/define-region-component/define-region-component.component";
 import {AgmCoreModule} from "@agm/core";
 import {ListAtmsComponent} from "./Atms/list-atms/list-atms.component";
-import {TranslateModule} from "@ngx-translate/core";
-import {AddAtmsComponent} from "./Atms/add-atms/add-atms.component";
+import {AddAtmComponent} from "./Atms/add-atm/add-atm.component";
 import {AddBranchComponent} from "./Branches/add-branch/add-branch.component";
 
 
@@ -28,16 +27,16 @@ import {AddBranchComponent} from "./Branches/add-branch/add-branch.component";
     RegionsListComponent,
     DefineRegionComponent,
     ListAtmsComponent,
-    AddAtmsComponent,
     AddBranchComponent,
+    AddAtmComponent
     // ViewBranchComponent,
     // CreateBranchComponent
   ]
   ,
   entryComponents: [
     DefineRegionComponent,
-    AddAtmsComponent,
     AddBranchComponent,
+    AddAtmComponent
     // CreateBranchComponent
   ],
 })
