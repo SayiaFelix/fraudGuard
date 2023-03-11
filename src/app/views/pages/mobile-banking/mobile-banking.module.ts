@@ -12,6 +12,8 @@ const routes: Routes = [
     path: '',
     component: MobileBankingComponent,
     children: [
+      { path: 'customers', loadChildren: () => import('./customers/customers.module').then(m => m.CustomersModule) },
+
       { path: 'products', loadChildren: () => import('./products/products.module').then(m => m.ProductsModule) },
 
       { path: 'setups', loadChildren: () => import('./setups/setups.module').then(m => m.SetupsModule) },
