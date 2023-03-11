@@ -1,0 +1,219 @@
+<div class="row inbox-wrapper">
+  <div class="col-lg-12">
+    <div class="card">
+      <div class="card-body">
+        <div class="row">
+          <div class="col-lg-3 border-end-lg">
+            <div class="d-flex align-items-center justify-content-between">
+              <button (click)="openAddProductSubcategoryModal(verticalCenteredModal)" aria-controls="asideNav"
+                      class="navbar-toggle btn btn-icon border d-inline-flex d-lg-none" type="button">
+                <i appFeatherIcon class="btn-icon-prepend" data-feather="plus"></i> Button
+              </button>
+              <div class="order-first">
+                <h4>Personal Accident</h4>
+                <img class="PersonalAccident" src="assets/images/screenshots/PersonalAccident.png">
+              </div>
+              <br>
+<!--                <img class="profile-pic text-center" src="assets/img/logos/person.png"/>-->
+            </div>
+
+            <!-- <div [ngbCollapse]="isAsideNavCollapsed" class="email-aside-nav" id="asideNav">
+
+              <hr>
+              <ul class="nav flex-column">
+                <li [ngClass]="{'active': inbox.isActive}" class="nav-item">
+                  <a #inbox="routerLinkActive" class="nav-link d-flex align-items-center"
+                     routerLinkActive="active">
+                    1. Personal Accident
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a (click)="false" class="nav-link d-flex align-items-center">
+                    2. Mutual Funds
+                  </a>
+                </li>
+              </ul>
+              <hr>
+            </div> -->
+
+            <!-- <div class="d-grid my-3">
+              <a class="btn btn-primary" (click)="openAddProductSubcategoryModal(verticalCenteredModal)">Loan Products</a>
+            </div> -->
+
+          </div>
+          <div class="col-lg-9">
+            <div class="mt-2">
+              <h5>{{subcategoryTitle}}</h5>
+              <hr/>
+              <div class="media mb-4 mt-1">
+<!--                <img alt="Generic placeholder image" class=" mr-2 rounded-circle avatar-lg"-->
+<!--                     src="assets/images/users/avatar-2.jpg">-->
+                <!-- <div class="media-body">
+                <span class="float-right">
+                  <button (click)="openEditProductSubcategoryModal(verticalCenteredModal)" class="btn btn-success width-sm mt-1"
+                          type="button">Edit Product</button>
+                </span>
+                </div> -->
+              </div>
+
+              <h6 class="text-left font-size-20 fw-bold mt-0 mb-2">Product Name</h6>
+              <p class="text-muted fw-normal mb-4">{{productDetails.productName}}</p>
+
+              <h6 class="text-left font-size-20 fw-bold mt-0 mb-2">Short Description</h6>
+              <div class="text-muted">
+                <p class="text-muted fw-normal mb-4">{{productDetails.shortDescription}}</p>
+              </div>
+              <h6 class="text-left font-size-20 fw-bold mt-0 mb-2">Long Description</h6>
+              <div class="text-muted">
+                <p class="text-muted fw-normal mb-4">{{productDetails.longDescription}}</p>
+              </div>
+
+              <h6 class="text-left font-size-20 fw-bold mt-0 mb-2">Requirements</h6>
+
+
+              <ul style="list-style-type: none;">
+                <li *ngFor="let item of ['Minimum Salary KES 15,000 per month', 'Repayment period 1 month']">
+<!--                  <input class="mr-3 pr-3" type="checkbox">-->
+                  <span class="text-muted fw-normal mb-4">- {{item}}</span>
+                </li>
+              </ul>
+
+
+              <h6 class="text-left font-size-20 fw-bold mt-0 mb-2">Features</h6>
+              <ul style="list-style-type: none;">
+                <li *ngFor="let item of ['Get access up to 70% of your monthly salary']">
+<!--                  <input class="mr-2 pr-2" type="checkbox">-->
+                  <span class="text-muted fw-normal mb-4">- {{item}}</span>
+                </li>
+              </ul>
+
+              <hr/>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<ng-template #verticalCenteredModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title" id="exampleModalLabel">Add Product</h5>
+    <button (click)="modal.close('by: close icon')" aria-label="Close" class="btn-close" type="button"></button>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="row">
+
+        <div class="col-sm-12">
+          <div class="mb-3">
+            <label class="form-label">Product Image</label>
+            <input #fileUpload (change)="onFileChange($event)"
+                   accept="image/*"
+                   class="form-control"
+                   id="file"
+                   type="file"
+            />
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="mb-3">
+            <label class="form-label">Product Name</label>
+            <input class="form-control" formControlName="name" maxlength="24" type="text">
+            <p *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')"
+               class="text-danger mt-1 mb-1 pt-0 small text-center">Required
+              Field</p>
+          </div>
+        </div>
+
+
+        <div class="col-sm-6">
+          <div class="mb-3">
+            <label class="form-label">Short Description</label>
+            <input class="form-control" formControlName="description" maxlength="36" type="text">
+            <p *ngIf="form.get('description')?.touched && form.get('description')?.hasError('required')"
+               class="text-danger mt-1 mb-1 pt-0 small text-center">Required
+              Field</p>
+          </div>
+        </div>
+
+        <div class="col-sm-12">
+          <div class="mb-3">
+            <label class="form-label">Long Description (Narration)</label>
+            <textarea class="form-control" formControlName="longDescription" type="text"></textarea>
+            <p *ngIf="form.get('longDescription')?.touched && form.get('longDescription')?.hasError('required')"
+               class="text-danger mt-1 mb-1 pt-0 small text-center">Required
+              Field</p>
+          </div>
+        </div>
+
+        <div class="col-sm-6">
+          <div class="mb-3">
+            <div class="row">
+              <div class="col-10">
+                <label class="form-label">Features</label>
+                <input class="form-control" formControlName="feature" maxlength="36" type="text">
+                <p *ngIf="form.get('feature')?.touched && form.get('feature')?.hasError('required')"
+                   class="text-danger mt-1 mb-1 pt-0 small text-center">Required
+                  Field</p>
+              </div>
+              <div class="col-2 mt-1 pt-4">
+                <button (click)="addFeature()" class="btn  btn-md btn-primary" type="button">Add</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-6">
+
+          <div class="mb-3">
+            <div class="row">
+              <div class="col-10">
+                <label class="form-label">Requirements</label>
+                <input class="form-control" formControlName="requirement" maxlength="36" type="text">
+                <p *ngIf="form.get('requirement')?.touched && form.get('requirement')?.hasError('required')"
+                   class="text-danger mt-1 mb-1 pt-0 small text-center">Required Field</p>
+              </div>
+              <div class="col-2 mt-1 pt-4">
+                <button (click)="addRequirement()" class="btn btn-md btn-primary" type="button">Add</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="col-12">
+          <div class="row">
+            <div class="col-6">
+              <h5 class="text-left">Features</h5>
+              <div>
+                <ul>
+                  <li *ngFor="let item of features">{{item}}</li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-6">
+              <h5 class="text-left">Requirements</h5>
+              <div>
+                <ul>
+                  <li *ngFor="let item of requirements">{{item}}</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+
+    </div>
+    <div class="modal-footer">
+      <button (click)="modal.close('by: close button')" class="btn btn-secondary" type="button">Close</button>
+      <button (click)="modal.close('by: save button')" class="btn btn-primary" type="button">Save changes</button>
+    </div>
+  </div>
+</ng-template>
+
+

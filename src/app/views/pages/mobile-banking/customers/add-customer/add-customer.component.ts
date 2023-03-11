@@ -6,10 +6,10 @@ import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
     selector: 'app-add-customer',
-    templateUrl: './add-product.component.html',
-    styleUrls: ['./add-product.component.scss']
+    templateUrl: './add-customer.component.html',
+    styleUrls: ['./add-customer.component.scss']
 })
-export class AddProductComponent implements OnInit {
+export class AddCustomerComponent implements OnInit {
 
     @Input() title: any;
     @Input() formData: any;
