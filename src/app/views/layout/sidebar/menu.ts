@@ -52,7 +52,7 @@ export const MENU: MenuItem[] = [
   {
     profiles: ['SUPER_ADMIN'],
     label: 'Setup',
-    isTitle: true
+    isTitle: true,
   },
   {
     profiles: ['SUPER_ADMIN'],

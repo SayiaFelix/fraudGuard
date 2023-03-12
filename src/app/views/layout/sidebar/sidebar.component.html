@@ -39,6 +39,7 @@
         <li class="nav-item" *ngIf="showMenuItem(item.profiles) && !item.isTitle" >
 
           <a class="nav-link" *ngIf="hasItems(item) && showSubItems" href="javascript:void(0);">
+
             <i class="link-icon" [attr.data-feather]="item.icon" appFeatherIcon *ngIf="item.icon"></i>
             <span class="link-title"> {{ item.label }}</span>
             <span class="link-arrow" data-feather="chevron-down" appFeatherIcon></span>
@@ -77,7 +78,9 @@
               </ul>
             </li>
           </ul>
+
         </li>
+
       </ng-container>
 
     </ul>
