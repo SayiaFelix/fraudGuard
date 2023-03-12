@@ -84,13 +84,13 @@ export class ProductsComponent implements OnInit {
   reorderable = true;
 
   columns = [
-    { name: 'ID', prop: 'id' },
-    { name: 'ProductCategory', prop: 'productCategory' },
-    {name:'ParentCategory',prop:'parentCategory'},
-    { name: 'Remarks', prop: 'remarks' },
-    { name: 'Status', prop: 'status' },
-    { name: 'CreatedOn', prop: 'createdOn' },
-    { name: 'Actions', prop: 'id' },
+    {name: 'ID', prop: 'id'},
+    {name: 'ProductCategory', prop: 'productCategory'},
+    {name: 'ParentCategory', prop: 'parentCategory'},
+    {name: 'Remarks', prop: 'remarks'},
+    {name: 'Status', prop: 'status'},
+    {name: 'CreatedOn', prop: 'createdOn'},
+    {name: 'Actions', prop: 'id'},
   ];
 
   allColumns = [...this.columns];
