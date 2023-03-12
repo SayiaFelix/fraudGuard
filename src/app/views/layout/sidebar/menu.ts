@@ -45,7 +45,7 @@ export const MENU: MenuItem[] = [
   {
     profiles: ['SUPER_ADMIN'],
     label: 'Send Bulk SMS',
-    icon: 'message',
+    icon: 'home',
     link: '/mobile-banking/customers/send-bulk-sms'
   },
 

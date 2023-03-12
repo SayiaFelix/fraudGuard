@@ -1,24 +1,16 @@
-import {
-  Component,
-  Input,
-  OnInit,
-  TemplateRef,
-  ViewChild,
-} from '@angular/core';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { DatePipe } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ColumnMode } from '@swimlane/ngx-datatable';
-
-import { GlobalService } from '../../../../../shared/services/global.service';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { NgxDatatableComponent } from '../../../tables/ngx-datatable/ngx-datatable.component';
-import { DatatableComponent } from '@swimlane/ngx-datatable/lib/components/datatable.component';
-import { DataExportationService } from 'src/app/shared/services/data-exportation.service';
-import { ItemsList } from '@ng-select/ng-select/lib/items-list';
-import { HttpService } from 'src/app/shared/services/http.service';
-import {AddRoleComponent} from "../../rbac/roles/add-role/add-role.component";
+import {Component, OnInit, ViewChild,} from '@angular/core';
+import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
+import {DatePipe} from '@angular/common';
+import {Router} from '@angular/router';
+import {ColumnMode} from '@swimlane/ngx-datatable';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {DatatableComponent} from '@swimlane/ngx-datatable/lib/components/datatable.component';
+import {DataExportationService} from 'src/app/shared/services/data-exportation.service';
+import {HttpService} from 'src/app/shared/services/http.service';
 import {AddCustomerComponent} from "../add-customer/add-customer.component";
+import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
+import {SwalComponent} from "@sweetalert2/ngx-sweetalert2";
+import Swal from "sweetalert2";
 
 @Component({
   selector: 'app-list-failed-registrations',
@@ -36,44 +28,28 @@ export class ListFailedRegistrationsComponent implements OnInit {
   tempProductData = [
     {
       id: 1,
-      productCategory: 'Bank Accounts',
-      parentCategory:'-',
-      remarks: 'Bank Accounts Description',
-      status: true,
-      createdOn: '12-02-2023',
+      mobileNumber: '254708223443',
+      account: '1238**3747',
+      dob: '12-10-1996',
+      attemptedOn: '12-02-2023',
+      response: "Failed record Mismatch",
     },
     {
       id: 2,
-      productCategory: 'Card Accounts',
-      parentCategory:'-',
-      remarks: 'Card Accounts Description',
-      status: true,
-      createdOn: '12-02-2023',
+      mobileNumber: '254708223443',
+      account: '1238**3747',
+      dob: '12-10-1996',
+      attemptedOn: '12-02-2023',
+      response: "Failed record Mismatch",
     },
     {
       id: 3,
-      productCategory: 'Loan Accounts',
-      parentCategory:'-',
-      remarks: 'Loan Accounts Description',
-      status: true,
-      createdOn: '12-02-2023',
-    },
-    {
-      id: 4,
-      productCategory: 'Investment Accounts',
-      parentCategory:'-',
-      remarks: 'Investment Accounts Description',
-      status: true,
-      createdOn: '12-02-2023',
-    },
-    {
-      id: 5,
-      productCategory: 'Insurance Accounts',
-      parentCategory:'-',
-      remarks: 'Insurance Accounts Description',
-      status: false,
-      createdOn: '12-02-2023',
-    },
+      mobileNumber: '254708223443',
+      account: '1238**3747',
+      dob: '12-10-1996',
+      attemptedOn: '12-02-2023',
+      response: "Failed record Mismatch",
+    }
   ];
 
   // bread crumb items
@@ -84,13 +60,13 @@ export class ListFailedRegistrationsComponent implements OnInit {
   reorderable = true;
 
   columns = [
-    { name: 'ID', prop: 'id' },
-    { name: 'ProductCategory', prop: 'productCategory' },
-    {name:'ParentCategory',prop:'parentCategory'},
-    { name: 'Remarks', prop: 'remarks' },
-    { name: 'Status', prop: 'status' },
-    { name: 'CreatedOn', prop: 'createdOn' },
-    { name: 'Actions', prop: 'id' },
+    {name: 'ID', prop: 'id'},
+    {name: 'Mobile Number', prop: 'mobileNumber'},
+    {name: 'Account', prop: 'account'},
+    {name: 'DOB', prop: 'dob'},
+    {name: 'Attempted On', prop: 'attemptedOn'},
+    {name: 'Response', prop: 'response'},
+    {name: 'Actions', prop: 'id'},
   ];
 
   allColumns = [...this.columns];
@@ -101,8 +77,10 @@ export class ListFailedRegistrationsComponent implements OnInit {
   public imageFile: File;
   public modalRef: NgbModalRef;
 
-  title: string = "Products";
+  title: string = "Failed Registration";
 
+  @ViewChild('mySwal')
+  public readonly mySwal!: SwalComponent;
 
   constructor(
     private httpService: HttpService,
@@ -110,7 +88,8 @@ export class ListFailedRegistrationsComponent implements OnInit {
     public fb: FormBuilder,
     public router: Router,
     private dataExploration: DataExportationService
-  ) {}
+  ) {
+  }
 
   ngOnInit() {
     this.breadCrumbItems = [
@@ -169,28 +148,21 @@ export class ListFailedRegistrationsComponent implements OnInit {
     });
   }
 
-  openEditProductModal(formData: any) {
-    this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true});
-    this.modalRef.componentInstance.title = 'Edit Product';
-    this.modalRef.componentInstance.formData = formData;
+  openResetModal(formData: any) {
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Reset Customer';
+    this.modalRef.componentInstance.body = 'Do you want to reset this customer?';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
-        this.getIndividualData(0);
+        Swal.fire('Reset Successful',
+          'Customer has been reset successfully!',
+          'success').then(r => this.getIndividualData(0))
       } else {
         console.log("Error occurred")
       }
     });
   }
 
-  onFileChange(event: any) {
-    if (event.target.files && event.target.files.length) {
-      this.imageFile = event.target.files[0];
-    }
-  }
-
-  navigateToViewProduct(data: any) {
-    this.router.navigateByUrl(`/mobile-banking/products/list-products/${data.id}`);
-  }
 
   toggleExpandRow(row: any) {
     console.log(row);
@@ -243,71 +215,6 @@ export class ListFailedRegistrationsComponent implements OnInit {
     if (checkList.classList.contains('visible'))
       checkList.classList.remove('visible');
     else checkList.classList.add('visible');
-  }
-
-  exportCSV() {
-    let cols: string[] = this.columns.map(item => {
-      if(item['name'].toLowerCase() !== 'actions'){
-        return item['prop']
-      } else {
-        return ''
-      }
-    })
-    cols = cols.filter(item => item !== '')
-    let arr: Record<string, string>[]= []
-
-    this.rows.forEach((row: any) => {
-      let temp: Record<string, string> = {}
-      cols.forEach(key => {
-        temp = {...temp, [key]: row[key]}
-      })
-      arr.push(temp)
-    })
-    this.dataExploration.exportToCsv(arr, 'Products')
-  }
-
-  exportXLSX() {
-    let cols: string[] = this.columns.map(item => {
-      if(item['name'].toLowerCase() !== 'actions'){
-        return item['prop']
-      } else {
-        return ''
-      }
-    })
-    cols = cols.filter(item => item !== '')
-    let arr: Record<string, string>[]= []
-
-    this.rows.forEach((row: any) => {
-      let temp: Record<string, string> = {}
-      cols.forEach(key => {
-        temp = {...temp, [key]: row[key]}
-      })
-      arr.push(temp)
-    })
-
-    this.dataExploration.exportDataXlsx(arr, 'Products')
-  }
-
-  exportPDF() {
-    console.log(this.rows);
-    let cols: string[] = this.columns.map(item => {
-      if(item['name'].toLowerCase() !== 'actions'){
-        return item['name'].toUpperCase()
-      } else {
-        return ''
-      }
-    })
-    cols = cols.filter(item => item !== '')
-    let rowKeys: string[] = Object.keys(this.rows[0]);
-    let arr: string[][]= []
-    this.rows.forEach((row: any) => {
-      let temp: string[] = []
-      rowKeys.forEach(key => {
-        temp.push(row[key])
-      })
-      arr.push(temp)
-    })
-    this.dataExploration.exportToPdf(cols, arr, 'Products')
   }
 
   updateColumns(updatedColumns: any) {
