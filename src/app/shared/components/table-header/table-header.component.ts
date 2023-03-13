@@ -12,10 +12,10 @@ export class TableHeaderComponent implements OnInit {
   @Input() rows: any;
   @Input() title: any;
   columns: any
+  allColumnsChecked: boolean = true
 
   @Output() toggleDropEvent = new EventEmitter<string>();
   @Output() changeColumnsEvent = new EventEmitter<string>();
-
   @Output() openAddModalEvent = new EventEmitter<string>();
 
 
@@ -40,6 +40,7 @@ export class TableHeaderComponent implements OnInit {
       this.columns = [...this.columns, col];
     }
 
+    this.allColumnsChecked = this.columns.length == this.allColumns.length ? true : false
     this.changeColumnsEvent.emit(this.columns);
   }
 
@@ -49,6 +50,24 @@ export class TableHeaderComponent implements OnInit {
         return c.name === col.name;
       }) !== undefined
     );
+  }
+
+  checkAll(){
+    this.columns = this.allColumns
+    this.changeColumnsEvent.emit(this.columns);
+    this.allColumnsChecked = true
+  }
+
+  uncheckAll(){
+    if(this.columns.length == 0){
+      this.columns = this.allColumns
+      this.changeColumnsEvent.emit(this.columns);
+      this.allColumnsChecked = true
+    } else {
+      this.columns = []
+      this.changeColumnsEvent.emit(this.columns);
+      this.allColumnsChecked = false
+    }
   }
 
   openAddItemModal() {

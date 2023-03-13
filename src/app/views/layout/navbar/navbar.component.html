@@ -3,6 +3,7 @@
     <i class="feather icon-menu"></i>
   </a>
   <div class="navbar-content">
+    
     <form class="search-form">
     </form>
     <ul class="navbar-nav">
@@ -84,11 +85,16 @@
       <li class="nav-item nav-profile" *ngIf="userData$ | async" ngbDropdown>
         <a class="nav-link" ngbDropdownToggle id="profileDropdown">
           <img class="wd-30 ht-30 rounded-circle" src="./assets/images/user.png" alt="profile">
+
+
         </a>
         <div ngbDropdownMenu class="px-0" aria-labelledby="profileDropdown">
           <div class="d-flex flex-column align-items-center border-bottom px-5 py-3">
             <div class="mb-3">
+
               <img class="wd-30 ht-30 rounded-circle" src="./assets/images/user.png" alt="profile">
+
+
             </div>
             <div class="text-center">
               <p class="tx-16 fw-bolder">{{companyEmail}}</p>
