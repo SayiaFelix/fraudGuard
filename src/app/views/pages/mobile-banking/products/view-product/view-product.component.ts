@@ -6,7 +6,7 @@ import {ActivatedRoute, Params} from '@angular/router';
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 
 @Component({
-  selector: 'app-view-product',
+  selector: 'app-view-customer',
   templateUrl: './view-product.component.html',
   styleUrls: ['./view-product.component.scss']
 })

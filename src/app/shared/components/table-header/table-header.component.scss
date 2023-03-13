@@ -1,10 +1,9 @@
-.container{
-    padding: 20px;
+.container {
+  padding: 20px;
 }
-.first> img{
-    width: 200px !important;
+.first > img {
+  width: 200px !important;
 }
-
 
 .anchor {
   border-radius: 6px;
@@ -12,7 +11,6 @@
   color: #6571ff;
   border-color: #6571ff !important;
   font-size: small;
-
 }
 
 .items {
@@ -22,6 +20,9 @@
   background: #f9fafb;
 }
 
+label {
+  padding-left: 2px;
+}
 .dropdown-check-list {
   display: inline-block;
 }
