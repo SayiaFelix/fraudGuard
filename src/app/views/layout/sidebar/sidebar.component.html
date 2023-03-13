@@ -3,7 +3,7 @@
 
     <!--- Logo -->
     <a routerLink="/" class="sidebar-brand nobleui-logo">
-      <img class="" src="\assets\images\MicrosoftTeams-image (1).png" alt="Portal" height="150px" style="padding-left: 15%">
+      <img class="" [src]="logo" alt="Portal" height="150px" style="padding-left: 15%">
     </a>
 
     <!-- <a routerLink="/" class="sidebar-brand nobleui-logo">
@@ -98,14 +98,14 @@
     <div class="mb-3 pb-3 border-bottom">
       <div class="form-check form-check-inline">
         <label class="form-check-label">
-          <input type="radio" class="form-check-input" name="sidebarThemeSettings" (change)="onSidebarThemeChange($event)" id="sidebarLight" value="sidebar-light" checked>
+          <input type="radio" class="form-check-input" name="sidebarThemeSettings" (change)="onSidebarThemeChange($event)" id="sidebarLight" value="sidebar-light">
           <i class="input-frame"></i>
           Light
         </label>
       </div>
       <div class="form-check form-check-inline">
         <label class="form-check-label">
-          <input type="radio" class="form-check-input" name="sidebarThemeSettings" (change)="onSidebarThemeChange($event)" id="sidebarDark" value="sidebar-dark">
+          <input type="radio" class="form-check-input" name="sidebarThemeSettings" (change)="onSidebarThemeChange($event)" id="sidebarDark" value="sidebar-dark" checked>
           <i class="input-frame"></i>
           Dark
         </label>
