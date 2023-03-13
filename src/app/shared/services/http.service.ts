@@ -168,15 +168,6 @@ export class HttpService {
     };
   }
 
-  get isLoggedIn() {
-    const loggedIn = localStorage.getItem('access_token');
-    if (!!loggedIn) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
   get getProfile() {
     let profile = JSON.parse(localStorage.getItem('profile')!);
     return profile;
