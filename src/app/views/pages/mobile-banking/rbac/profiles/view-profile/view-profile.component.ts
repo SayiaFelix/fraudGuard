@@ -1,8 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { GlobalService } from 'src/app/shared/services/global.service';
-import { HttpService } from 'src/app/shared/services/http.service';
-
-
+import {HttpService} from "../../../../../../shared/services/http.service";
+import {GlobalService} from "../../../../../../shared/services/global.service";
 
 @Component({
   selector: 'app-view-profile',
@@ -23,7 +21,9 @@ export class ViewProfileComponent implements OnInit {
       corporateId: 0
     }
   ];
-  constructor(private httpService: HttpService, public globalService: GlobalService) { }
+
+  constructor(private httpService: HttpService,
+              public globalService: GlobalService) { }
 
   ngOnInit(): void {
     this.loadData();
@@ -42,7 +42,7 @@ export class ViewProfileComponent implements OnInit {
     //     result => {
     //       this.dataSet =
     //           this.tempData;
-    //           result.data.content;
+    //           // result.data.content;
     //     },
     //     error => {
     //     },
