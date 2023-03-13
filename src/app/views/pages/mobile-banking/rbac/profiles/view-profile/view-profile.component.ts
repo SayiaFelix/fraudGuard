@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import {HttpService} from '../../../shared/services/http.service';
-import {GlobalService} from '../../../shared/services/global.service';
+import {HttpService} from "../../../../../../shared/services/http.service";
+import {GlobalService} from "../../../../../../shared/services/global.service";
 
 @Component({
   selector: 'app-view-profile',
@@ -22,7 +22,8 @@ export class ViewProfileComponent implements OnInit {
     }
   ];
 
-  constructor(private httpService: HttpService, public globalService: GlobalService) { }
+  constructor(private httpService: HttpService,
+              public globalService: GlobalService) { }
 
   ngOnInit(): void {
     this.loadData();
@@ -37,17 +38,17 @@ export class ViewProfileComponent implements OnInit {
         size: 100
     };
 
-    this.httpService.advancysPost('api/v1/bank/profile/all', model).subscribe(
-        result => {
-          this.dataSet =
-              this.tempData;
-              // result.data.content;
-        },
-        error => {
-        },
-        complete => {
-        }
-    );
+    // this.httpService.advancysPost('api/v1/bank/profile/all', model).subscribe(
+    //     result => {
+    //       this.dataSet =
+    //           this.tempData;
+    //           // result.data.content;
+    //     },
+    //     error => {
+    //     },
+    //     complete => {
+    //     }
+    // );
   }
 
 
