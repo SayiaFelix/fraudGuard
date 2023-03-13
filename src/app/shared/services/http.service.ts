@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { GlobalService } from './global.service';
 import { AuthService } from './auth.service';
 import { map } from 'rxjs/operators';
-import { Observable, throwError } from 'rxjs';
+import { forkJoin, Observable, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 
 @Injectable({
@@ -29,19 +29,16 @@ export class HttpService {
           if (result['status'] == 200) {
             localStorage.setItem('isLoggedin', 'true');
             localStorage.setItem('access_token', result['access_token']);
-
-            this.mobileBankingGetUserDetails();
-            this.mobileBankingGetUserPermissions();
           } else {
-            throwError(() => new Error(result['message']))
+            throwError(() => new Error(result['message']));
           }
           return result;
         })
       );
   }
 
-  public mobileBankingGetUserDetails(): Observable<any> {
-    return this.http
+  public mobileBankingGetUserDetailsAndPermissions(): Observable<any> {
+    const userDetails$ = this.http
       .post(
         this.globalService.mobileBankingHost +
           'api/v1/corporate/admin/corporate/details',
@@ -57,12 +54,8 @@ export class HttpService {
           return result['data']['corporate'];
         })
       );
-  }
 
-  public mobileBankingGetUserPermissions(): Observable<any> {
-    localStorage.setItem('profile', 'SUPER_ADMIN');
-
-    return this.http
+    const userPermissions$ = this.http
       .post(
         this.globalService.mobileBankingHost +
           'api/v1/corporate/admin/permissions',
@@ -71,15 +64,19 @@ export class HttpService {
       )
       .pipe(
         map((result: any) => {
-          console.log('result');
-          console.log(result);
           localStorage.setItem(
             'profile',
-            JSON.stringify(result['data']['user']['profile']['name'])
+            JSON.stringify(result['data']['data']['profile']['userType'])
           );
-          return result['data']['user']['profile']['name'];
+          localStorage.setItem(
+            'roles',
+            JSON.stringify(result['data']['data']['roleList'])
+          );
+          return result['data']['data']['profile'];
         })
       );
+
+    return forkJoin([userDetails$, userPermissions$]);
   }
 
   public mobileBankingPost(endpoint: string, model: any): any {
@@ -169,5 +166,19 @@ export class HttpService {
           'Basic ' + btoa('CORPORATE_ADMIN' + ':' + 'YP@kduzzbm#YfkJX'),
       }),
     };
+  }
+
+  get isLoggedIn() {
+    const loggedIn = localStorage.getItem('access_token');
+    if (!!loggedIn) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  get getProfile() {
+    let profile = JSON.parse(localStorage.getItem('profile')!);
+    return profile;
   }
 }
