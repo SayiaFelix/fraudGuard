@@ -19,7 +19,6 @@
     [columnMode]="ColumnMode.force"
     [columns]="columns"
     [footerHeight]="50"
-    [limit]="2"
     [loadingIndicator]="loadingIndicator"
     [rowHeight]="'auto'"
     [rows]="rows"
@@ -71,17 +70,17 @@
     <ng-container *ngFor="let column of columns">
       <ngx-datatable-column
         *ngIf="column.name === 'ID'"
+        [width]="30"
         name="ID"
         prop="id"
-        [width]="30"
       >
       </ngx-datatable-column>
 
       <ngx-datatable-column
         *ngIf="column.name === 'Actions'"
+        [sortable]="false"
         name="Actions"
         prop="actions"
-        [sortable]="false"
       >
         <ng-template
           let-row="row"
@@ -89,8 +88,8 @@
           ngx-datatable-cell-template
         >
                   <span>
-                    <button *ngIf="hasViewAndEdit"
-                            (click)="viewItem(row)"
+                    <button (click)="viewItem(row)"
+                            *ngIf="hasViewAndEdit"
                             class="btn btn-outline-primary btn-icon-text me-2 btn-xs"
                             type="button"
                     >
@@ -103,6 +102,18 @@
                     >
                       Edit
                     </button>
+
+                    <!--                    <div class="btn-group mb-1 mb-md-0">-->
+                    <!--                      <button class="btn btn-secondary" type="button">Split dropleft</button>-->
+                    <!--                      <div class="btn-group" ngbDropdown placement="start-top" role="group">-->
+                    <!--                        <button class="btn btn-secondary dropdown-toggle-split" ngbDropdownToggle></button>-->
+                    <!--                        <div ngbDropdownMenu>-->
+                    <!--                          <button ngbDropdownItem>Action - 1</button>-->
+                    <!--                          <button ngbDropdownItem>Another Action</button>-->
+                    <!--                          <button ngbDropdownItem>Something else is here</button>-->
+                    <!--                        </div>-->
+                    <!--                      </div>-->
+                    <!--                    </div>-->
                   </span>
         </ng-template>
       </ngx-datatable-column>
@@ -135,5 +146,43 @@
       >
       </ngx-datatable-column>
     </ng-container>
+    <ngx-datatable-footer>
+      <ng-template ngx-datatable-footer-template>
+
+        <div class="row">
+          <div class="col">
+             <label class="form-label" for="exampleInputEmail1">Email address</label>
+              <input class="form-control" id="exampleInputEmail1" placeholder="Email" type="email">
+          </div>
+        </div>
+
+          <!--        <ul class="d-none">-->
+<!--          <li *ngFor="let item of data | paginate: {itemsPerPage: perPage, currentPage: page, totalItems: total}">-->
+<!--          </li>-->
+<!--        </ul>-->
+
+<!--        <div class="row text-center stretch-card">-->
+<!--          <div class="col-xl-12 text-center mt-2">-->
+<!--            Items Per Page-->
+<!--            <select (change)="onChange()" [(ngModel)]="perPage" class="form-control custom-select">-->
+<!--              <option *ngFor="let pageSize of pageSizes" [ngValue]="pageSize">{{ pageSize }}</option>-->
+<!--            </select>-->
+<!--            &lt;!&ndash;              <div class="col-6 pl-0">&ndash;&gt;-->
+<!--            &lt;!&ndash;                <label class="pt-2">Items per page</label>&ndash;&gt;-->
+<!--            &lt;!&ndash;              </div>&ndash;&gt;-->
+<!--          </div>-->
+
+<!--          <div class="col-xl-6">-->
+<!--            <pagination-controls (pageChange)="getIndividualData($event)" [autoHide]="true" [maxSize]="maxSize"-->
+<!--                                 [responsive]="true" previousLabel="Prev">-->
+<!--            </pagination-controls>-->
+<!--          </div>-->
+
+<!--        </div>-->
+
+      </ng-template>
+    </ngx-datatable-footer>
+
   </ngx-datatable>
+
 </div>
