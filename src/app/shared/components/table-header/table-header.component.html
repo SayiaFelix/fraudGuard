@@ -1,7 +1,8 @@
 <div class="d-flex align-items-center flex-wrap text-nowrap">
-  <div class="input-group wd-200 me-2 mb-2 mb-md-0">
 
-  </div>
+
+  <div class="input-group wd-200 me-2 mb-2 mb-md-0"></div>
+
   <div ngbDropdown>
     <button
       class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0 btn-xs"
@@ -12,6 +13,17 @@
       Show/Hide Columns
     </button>
     <ul ngbDropdownMenu aria-labelledby="dropdownBasic1">
+      <li>
+        <input
+          type="checkbox"
+          id="Select All"
+          (click)="allColumnsChecked ? uncheckAll() : checkAll()"
+          [checked]="allColumnsChecked"
+        />
+        <label [attr.for]="allColumnsChecked">{{
+          allColumnsChecked ? "Unselect All" : "Select All"
+        }}</label>
+      </li>
       <li *ngFor="let col of allColumns">
         <input
           type="checkbox"
@@ -44,6 +56,7 @@
     type="button"
   >
     <i appFeatherIcon class="btn-icon-prepend" data-feather="plus"></i>
-    Add {{title}}
+    Add {{ title }}
   </button>
 </div>
+

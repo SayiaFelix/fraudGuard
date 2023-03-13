@@ -13,10 +13,9 @@ export class CustomNgxTable implements OnInit {
     loadingIndicator = true;
     reorderable = true;
 
-    @Input() columns: any;
-    @Input() rows: any;
-
-    @Input() hasViewAndEdit: boolean;
+  @Input() columns: any;
+  @Input() rows: any;
+  @Input() hasViewAndEdit: boolean;
 
   @Output() editEvent = new EventEmitter<string>();
   @Output() viewEvent = new EventEmitter<string>();

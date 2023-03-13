@@ -22,13 +22,37 @@ export const MENU: MenuItem[] = [
     profiles: ['SUPER_ADMIN'],
     label: 'Products',
     icon: 'home',
-    link: '/mobile-banking/products/list-products'
+    link: '/mobile-banking/products/list-customers'
+  },
+
+  {
+    profiles: ['SUPER_ADMIN'],
+    label: 'Customers Module',
+    isTitle: true
+  },
+  {
+    profiles: ['SUPER_ADMIN'],
+    label: 'Customers',
+    icon: 'file-text',
+    link: '/mobile-banking/customers/list-customers'
+  },
+  {
+    profiles: ['SUPER_ADMIN'],
+    label: 'Failed Registrations',
+    icon: 'home',
+    link: '/mobile-banking/customers/list-failed-registrations'
+  },
+  {
+    profiles: ['SUPER_ADMIN'],
+    label: 'Send Bulk SMS',
+    icon: 'home',
+    link: '/mobile-banking/customers/send-bulk-sms'
   },
 
   {
     profiles: ['SUPER_ADMIN'],
     label: 'Setup',
-    isTitle: true
+    isTitle: true,
   },
   {
     profiles: ['SUPER_ADMIN'],
