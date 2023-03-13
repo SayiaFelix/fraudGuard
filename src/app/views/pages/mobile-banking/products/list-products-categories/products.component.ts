@@ -159,7 +159,7 @@ export class ProductsComponent implements OnInit {
   openAddProductModal() {
 
     this.modalRef = this.modalService.open(AddProductComponent, {centered: true});
-    this.modalRef.componentInstance.title = 'Add Categories';
+    this.modalRef.componentInstance.title = 'Add Product Categories';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
         this.getIndividualData(0);
@@ -171,7 +171,7 @@ export class ProductsComponent implements OnInit {
 
   openEditProductModal(formData: any) {
     this.modalRef = this.modalService.open(AddProductComponent, {centered: true});
-    this.modalRef.componentInstance.title = 'Edit Product';
+    this.modalRef.componentInstance.title = 'Edit Product Category';
     this.modalRef.componentInstance.formData = formData;
     this.modalRef.result.then((result) => {
       if (result === 'success') {
