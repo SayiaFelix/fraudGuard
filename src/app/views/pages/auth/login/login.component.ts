@@ -9,7 +9,7 @@ import {
 import { CustomValidators } from 'ngx-custom-validators';
 import { HttpParams } from '@angular/common/http';
 
-import {catchError, concat, Observable, of} from 'rxjs';
+import { catchError, concat, Observable, of } from 'rxjs';
 import { delay, map } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 import { HttpService } from 'src/app/shared/services/http.service';
@@ -26,14 +26,16 @@ export class LoginComponent implements OnInit {
   inputType = 'password';
 
   loginResponse$: Observable<any>;
-  userDataResp$: Observable<any>;
-  profileResp$: Observable<any>;
-  combinedLoginResult$: Observable<any>;
+  // userDataResp$: Observable<any>;
+  // profileResp$: Observable<any>;
+  // combinedLoginResult$: Observable<any>;
 
   errorMsg: string;
+  hasError: boolean = false;
+  isLoading: boolean = false;
 
-  selectedLanguage: any = "English";
-  selectedLanguageFlag: any = "assets/images/flags/us.svg";
+  selectedLanguage: any = 'English';
+  selectedLanguageFlag: any = 'assets/images/flags/us.svg';
 
   constructor(
     private translate: TranslateService,
@@ -61,6 +63,7 @@ export class LoginComponent implements OnInit {
   }
 
   onSubmit(e: Event) {
+    this.isLoading = true;
     e.preventDefault();
 
     const model = new HttpParams()
@@ -68,16 +71,27 @@ export class LoginComponent implements OnInit {
       .set('username', this.form.value.username.trim())
       .set('password', this.form.value.password);
 
-    this.loginResponse$ = this.httpService.mobileBankingLogin(
-      'api/v1/oauth/token',
-      model
-    );
-
-    this.userDataResp$ = this.httpService.mobileBankingGetUserDetails();
-
-    this.profileResp$ = this.httpService.mobileBankingGetUserPermissions();
-
-    this.combinedLoginResult$ = concat(this.loginResponse$, this.userDataResp$, this.profileResp$);
+    this.loginResponse$ = this.httpService
+      .mobileBankingLogin('api/v1/oauth/token', model)
+      .pipe(
+        map((result) => {
+          this.isLoading = false;
+          if (result['status'] != 200) {
+            this.hasError = true;
+            this.errorMsg = result['message'];
+            setTimeout(() => {
+              this.hasError = false;
+              this.errorMsg = '';
+              this.form.reset();
+            }, 4000);
+          } else {
+            setTimeout(() => {
+              this.router.navigate(['/dashboard']);
+            }, 1000);
+            return result;
+          }
+        })
+      );
   }
 
   toggleShowPassword() {
@@ -92,12 +106,12 @@ export class LoginComponent implements OnInit {
   changeLanguage(lang: string) {
     this.translate.use(lang);
 
-    if (lang === "en"){
-      this.selectedLanguage = "English";
-      this.selectedLanguageFlag = "assets/images/flags/us.svg";
-    } else if (lang === "kis") {
-      this.selectedLanguage = "Kiswahili";
-      this.selectedLanguageFlag = "assets/images/flags/es.svg";
+    if (lang === 'en') {
+      this.selectedLanguage = 'English';
+      this.selectedLanguageFlag = 'assets/images/flags/us.svg';
+    } else if (lang === 'kis') {
+      this.selectedLanguage = 'Kiswahili';
+      this.selectedLanguageFlag = 'assets/images/flags/es.svg';
     }
   }
 }
