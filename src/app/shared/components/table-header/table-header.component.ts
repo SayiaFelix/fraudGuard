@@ -16,7 +16,6 @@ export class TableHeaderComponent implements OnInit {
 
   @Output() toggleDropEvent = new EventEmitter<string>();
   @Output() changeColumnsEvent = new EventEmitter<string>();
-
   @Output() openAddModalEvent = new EventEmitter<string>();
 
 
