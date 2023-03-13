@@ -125,6 +125,7 @@ throw new Error('Method not implemented.');
       if (result === 'success') {
       }
     }, (reason) => {
+      console.log(reason);
     });
   }
 
