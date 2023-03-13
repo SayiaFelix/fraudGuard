@@ -33,7 +33,7 @@ export const MENU: MenuItem[] = [
   {
     profiles: ['SUPER_ADMIN'],
     label: 'Customers',
-    icon: 'file-text',
+    icon: 'home',
     link: '/mobile-banking/customers/list-customers'
   },
   {
