@@ -2,15 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { GlobalService } from './global.service';
 import { AuthService } from './auth.service';
-import { map, mergeMap, switchMap, tap } from 'rxjs/operators';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
 })
 export class HttpService {
-
   constructor(
     private http: HttpClient,
     private globalService: GlobalService,
@@ -27,12 +26,15 @@ export class HttpService {
       )
       .pipe(
         map((result: any) => {
-          localStorage.setItem('isLoggedin', 'true');
-          localStorage.setItem('access_token', result['access_token']);
-          this.router.navigate(['/dashboard']);
+          if (result['status'] == 200) {
+            localStorage.setItem('isLoggedin', 'true');
+            localStorage.setItem('access_token', result['access_token']);
 
-          this.mobileBankingGetUserDetails();
-          this.mobileBankingGetUserPermissions();
+            this.mobileBankingGetUserDetails();
+            this.mobileBankingGetUserPermissions();
+          } else {
+            throwError(() => new Error(result['message']))
+          }
           return result;
         })
       );
@@ -58,7 +60,7 @@ export class HttpService {
   }
 
   public mobileBankingGetUserPermissions(): Observable<any> {
-    localStorage.setItem('profile', "SUPER_ADMIN");
+    localStorage.setItem('profile', 'SUPER_ADMIN');
 
     return this.http
       .post(
@@ -69,7 +71,7 @@ export class HttpService {
       )
       .pipe(
         map((result: any) => {
-          console.log("result");
+          console.log('result');
           console.log(result);
           localStorage.setItem(
             'profile',
@@ -133,13 +135,13 @@ export class HttpService {
   }
 
   public getMapCoordinates(endpoint: string): any {
-    return this.http.get(endpoint, this.getHeaders()
-    ).pipe(map(response => {
-      response = response;
-      return response;
-    }));
+    return this.http.get(endpoint, this.getHeaders()).pipe(
+      map((response) => {
+        response = response;
+        return response;
+      })
+    );
   }
-
 
   private getHeaders(): any {
     return {
