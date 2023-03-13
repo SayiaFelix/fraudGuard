@@ -251,7 +251,7 @@ export class SidebarComponent implements OnInit, AfterViewInit {
   };
 
   showMenuItem(profiles: any) {
-    let assignedProfile = localStorage.getItem('profile');
+    let assignedProfile = JSON.parse(localStorage.getItem('profile')!);
     let found = profiles.find((allowedProfile: string) => {
       return allowedProfile === assignedProfile;
     })
