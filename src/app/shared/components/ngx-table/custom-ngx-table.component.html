@@ -79,48 +79,56 @@
       <ngx-datatable-column
         *ngIf="column.name === 'Actions'"
         [sortable]="false"
+        class="parent-item"
         name="Actions"
         prop="actions"
       >
         <ng-template
+          class="parent-item"
           let-row="row"
           let-value="value"
           ngx-datatable-cell-template
         >
                   <span class="parent-item">
-
-<!--                    <button *ngFor="let action of actions" (click)="viewItem(row)"-->
-
-<!--                            class="btn btn-outline-primary btn-icon-text me-2 btn-xs"-->
-<!--                            type="button"-->
-<!--                    >-->
-<!--                      {{action}}-->
-<!--                    </button>-->
-
-                    <div ngbDropdown>
-                      <button class="btn btn-outline-primary btn-icon-text me-2 btn-xs"
-                              id="dropdownBasic1"
-                              ngbDropdownToggle>Actions
+                    <ng-template #buttons>
+                      <ul class="list-group list-group-flush">
+                        <li *ngFor="let action of actions; index as i"
+                            (click)="sendEvent(row, action)"
+                            class="action-buttons list-group-item pt-1 pb-1 text-center">
+                          {{action}}
+                        </li>
+                      </ul>
+                    </ng-template>
+                    <div class="example">
+                      <button class="btn btn-primary btn-sm" [ngbPopover]="buttons" placement="bottom" type="button">
+                        Actions
                       </button>
-                      <div ngbDropdownMenu aria-labelledby="dropdownBasic1" class="menu-items">
-                        <button ngbDropdownItem *ngFor="let action of actions">{{action}}</button>
-                      </div>
                     </div>
 
-<!--                    <button (click)="viewItem(row)"-->
-<!--                            *ngIf="hasViewAndEdit"-->
-<!--                            class="btn btn-outline-primary btn-icon-text me-2 btn-xs"-->
-<!--                            type="button"-->
-<!--                    >-->
-<!--                      View-->
-<!--                    </button>-->
-<!--                    <button-->
-<!--                      (click)="openEditModal(row)"-->
-<!--                      class="btn btn-primary btn-icon-text btn-xs"-->
-<!--                      type="button"-->
-<!--                    >-->
-<!--                      Edit-->
-<!--                    </button>-->
+<!--                    <div ngbDropdown>-->
+<!--                      <button class="btn btn-outline-primary btn-icon-text me-2 btn-xs"-->
+<!--                              id="dropdownBasic1"-->
+<!--                              ngbDropdownToggle>Actions-->
+<!--                      </button>-->
+<!--                      <div aria-labelledby="dropdownBasic1" class="menu-items" ngb ngbDropdownMenu>-->
+<!--                        <button *ngFor="let action of actions" ngbDropdownItem>{{action}}</button>-->
+<!--                      </div>-->
+<!--                    </div>-->
+
+                    <!--                    <button (click)="viewItem(row)"-->
+                    <!--                            *ngIf="hasViewAndEdit"-->
+                    <!--                            class="btn btn-outline-primary btn-icon-text me-2 btn-xs"-->
+                    <!--                            type="button"-->
+                    <!--                    >-->
+                    <!--                      View-->
+                    <!--                    </button>-->
+                    <!--                    <button-->
+                    <!--                      (click)="openEditModal(row)"-->
+                    <!--                      class="btn btn-primary btn-icon-text btn-xs"-->
+                    <!--                      type="button"-->
+                    <!--                    >-->
+                    <!--                      Edit-->
+                    <!--                    </button>-->
 
                     <!--                    <div class="btn-group mb-1 mb-md-0">-->
                     <!--                      <button class="btn btn-secondary" type="button">Split dropleft</button>-->
@@ -170,34 +178,34 @@
 
         <div class="row">
           <div class="col">
-             <label class="form-label" for="exampleInputEmail1">Email address</label>
-              <input class="form-control" id="exampleInputEmail1" placeholder="Email" type="email">
+            <label class="form-label" for="exampleInputEmail1">Email address</label>
+            <input class="form-control" id="exampleInputEmail1" placeholder="Email" type="email">
           </div>
         </div>
 
-          <!--        <ul class="d-none">-->
-<!--          <li *ngFor="let item of data | paginate: {itemsPerPage: perPage, currentPage: page, totalItems: total}">-->
-<!--          </li>-->
-<!--        </ul>-->
+        <!--        <ul class="d-none">-->
+        <!--          <li *ngFor="let item of data | paginate: {itemsPerPage: perPage, currentPage: page, totalItems: total}">-->
+        <!--          </li>-->
+        <!--        </ul>-->
 
-<!--        <div class="row text-center stretch-card">-->
-<!--          <div class="col-xl-12 text-center mt-2">-->
-<!--            Items Per Page-->
-<!--            <select (change)="onChange()" [(ngModel)]="perPage" class="form-control custom-select">-->
-<!--              <option *ngFor="let pageSize of pageSizes" [ngValue]="pageSize">{{ pageSize }}</option>-->
-<!--            </select>-->
-<!--            &lt;!&ndash;              <div class="col-6 pl-0">&ndash;&gt;-->
-<!--            &lt;!&ndash;                <label class="pt-2">Items per page</label>&ndash;&gt;-->
-<!--            &lt;!&ndash;              </div>&ndash;&gt;-->
-<!--          </div>-->
+        <!--        <div class="row text-center stretch-card">-->
+        <!--          <div class="col-xl-12 text-center mt-2">-->
+        <!--            Items Per Page-->
+        <!--            <select (change)="onChange()" [(ngModel)]="perPage" class="form-control custom-select">-->
+        <!--              <option *ngFor="let pageSize of pageSizes" [ngValue]="pageSize">{{ pageSize }}</option>-->
+        <!--            </select>-->
+        <!--            &lt;!&ndash;              <div class="col-6 pl-0">&ndash;&gt;-->
+        <!--            &lt;!&ndash;                <label class="pt-2">Items per page</label>&ndash;&gt;-->
+        <!--            &lt;!&ndash;              </div>&ndash;&gt;-->
+        <!--          </div>-->
 
-<!--          <div class="col-xl-6">-->
-<!--            <pagination-controls (pageChange)="getIndividualData($event)" [autoHide]="true" [maxSize]="maxSize"-->
-<!--                                 [responsive]="true" previousLabel="Prev">-->
-<!--            </pagination-controls>-->
-<!--          </div>-->
+        <!--          <div class="col-xl-6">-->
+        <!--            <pagination-controls (pageChange)="getIndividualData($event)" [autoHide]="true" [maxSize]="maxSize"-->
+        <!--                                 [responsive]="true" previousLabel="Prev">-->
+        <!--            </pagination-controls>-->
+        <!--          </div>-->
 
-<!--        </div>-->
+        <!--        </div>-->
 
       </ng-template>
     </ngx-datatable-footer>
