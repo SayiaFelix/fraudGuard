@@ -10,6 +10,7 @@ import { HttpService } from 'src/app/shared/services/http.service';
 })
 export class ProfileComponent implements OnInit {
   userData$: Observable<any>;
+  userType: string;
   companyEmail: string;
   companyPhone: string;
   companyRegistrationDate: string;
@@ -33,6 +34,7 @@ export class ProfileComponent implements OnInit {
     this.userData$ = this.httpService.mobileBankingGetUserDetailsAndPermissions().pipe(
       map((resp) => {
         if (resp) {
+          this.userType = resp[1]['userType']
           this.companyEmail = resp[0]['companyEmail'];
           this.companyPhone = resp[0]['companyPhone'];
           this.companyRegistrationDate = resp[0]['companyRegistrationDate'];
