@@ -238,6 +238,12 @@
   z-index: 2000 !important;
 }
 
+parent-item {
+  position: relative;
+  padding: 10px;
+}
+
 .menu-items {
-  z-index: 2000 !important;
+  float: left;
+  z-index: 2000000000 !important;
 }
