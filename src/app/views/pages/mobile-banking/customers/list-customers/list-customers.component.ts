@@ -33,45 +33,30 @@ export class ListCustomersComponent implements OnInit {
 
   tempProductData = [
     {
-      id: 1,
-      productCategory: 'Bank Accounts',
-      parentCategory:'-',
-      remarks: 'Bank Accounts Description',
-      status: true,
+      customerid: 1,
+      customerName: 'Bank Accounts',
+      phoneNumber:'0728357775',
+      idNumber: 'Bank Accounts Description',
+      cbsCustomerNumber:'013465890',
+      accountNumber:'0119787899900',
+      email:'Carey004@gmail.com',
       createdOn: '12-02-2023',
+      dob:'08-05-1997',
+      gender:'Female',
     },
     {
-      id: 2,
-      productCategory: 'Card Accounts',
-      parentCategory:'-',
-      remarks: 'Card Accounts Description',
-      status: true,
+      customerid: 2,
+      customerName: 'Card Accounts',
+      phoneNumber:'0745983290',
+      idNumber: 'Card Accounts Description',
+      cbsCustomerNumber:'032178900',
+      accountNumber:'0116987349900',
+      email:'karikamau004@gmail.com',
       createdOn: '12-02-2023',
+      dob:'28-08-1995',
+      gender:'Male',
     },
-    {
-      id: 3,
-      productCategory: 'Loan Accounts',
-      parentCategory:'-',
-      remarks: 'Loan Accounts Description',
-      status: true,
-      createdOn: '12-02-2023',
-    },
-    {
-      id: 4,
-      productCategory: 'Investment Accounts',
-      parentCategory:'-',
-      remarks: 'Investment Accounts Description',
-      status: true,
-      createdOn: '12-02-2023',
-    },
-    {
-      id: 5,
-      productCategory: 'Insurance Accounts',
-      parentCategory:'-',
-      remarks: 'Insurance Accounts Description',
-      status: false,
-      createdOn: '12-02-2023',
-    },
+
   ];
 
   // bread crumb items
@@ -82,12 +67,16 @@ export class ListCustomersComponent implements OnInit {
   reorderable = true;
 
   columns = [
-    { name: 'ID', prop: 'id' },
-    { name: 'ProductCategory', prop: 'productCategory' },
-    {name:'ParentCategory',prop:'parentCategory'},
-    { name: 'Remarks', prop: 'remarks' },
-    { name: 'Status', prop: 'status' },
+    { name: '#', prop: 'customerid' },
+    { name: 'CustomerName', prop: 'customerName' },
+    {name:'PhoneNumber',prop:'phoneNumber'},
+    { name: 'IDNumber', prop: 'idNumber' },
+    {name: 'CBSCustomerNumber',prop:'cbsCustomerNumber'},
+    {name: 'AccountNumber',prop:'accountNumber'},
+    // {name: 'Email',prop:'email'},
     { name: 'CreatedOn', prop: 'createdOn' },
+    // {name: 'DOB',prop:'dob'},
+    // {name: 'Gender',prop:'gender'},
     { name: 'Actions', prop: 'id' },
   ];
 
@@ -99,7 +88,7 @@ export class ListCustomersComponent implements OnInit {
   public imageFile: File;
   public modalRef: NgbModalRef;
 
-  title: string = "Products";
+  title: string = "New Customer";
 
 
   constructor(
@@ -114,10 +103,10 @@ export class ListCustomersComponent implements OnInit {
     this.breadCrumbItems = [
       {
         label: 'Mobile banking',
-        path: '/mobile-banking/products/all-products',
+        path: '/mobile-banking/products/all-customers',
       },
       { label: 'Pages', path: '/' },
-      { label: 'Products', active: true },
+      { label: 'Customers', active: true },
     ];
     this.getIndividualData(0);
 
@@ -132,7 +121,7 @@ export class ListCustomersComponent implements OnInit {
     this.rows = this.tempProductData;
 
     this.temp = [...this.tempProductData];
-
+     
     const model = {
       page: 0,
       size: 5,
@@ -156,8 +145,8 @@ export class ListCustomersComponent implements OnInit {
 
   openAddProductModal() {
 
-    this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true});
-    this.modalRef.componentInstance.title = 'Add Categories';
+    this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true,size:"lg"});
+    this.modalRef.componentInstance.title = 'Add New Customer';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
         this.getIndividualData(0);
@@ -167,18 +156,18 @@ export class ListCustomersComponent implements OnInit {
     });
   }
 
-  openEditProductModal(formData: any) {
-    this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true});
-    this.modalRef.componentInstance.title = 'Edit Product';
-    this.modalRef.componentInstance.formData = formData;
-    this.modalRef.result.then((result) => {
-      if (result === 'success') {
-        this.getIndividualData(0);
-      } else {
-        console.log("Error occurred")
-      }
-    });
-  }
+  // openEditProductModal(formData: any) {
+  //   this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true});
+  //   this.modalRef.componentInstance.title = 'Edit Product';
+  //   this.modalRef.componentInstance.formData = formData;
+  //   this.modalRef.result.then((result) => {
+  //     if (result === 'success') {
+  //       this.getIndividualData(0);
+  //     } else {
+  //       console.log("Error occurred")
+  //     }
+  //   });
+  // }
 
   onFileChange(event: any) {
     if (event.target.files && event.target.files.length) {
@@ -187,7 +176,7 @@ export class ListCustomersComponent implements OnInit {
   }
 
   navigateToViewProduct(data: any) {
-    this.router.navigateByUrl(`/mobile-banking/products/list-products/${data.id}`);
+    this.router.navigateByUrl(`/mobile-banking/customers/customer/${data.id}`);
   }
 
   toggleExpandRow(row: any) {

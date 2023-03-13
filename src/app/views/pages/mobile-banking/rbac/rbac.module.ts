@@ -12,6 +12,7 @@ import {ViewUserComponent} from "./Users/view-user/view-user.component";
 import {TranslateModule} from "@ngx-translate/core";
 import {AddUserComponent} from "./Users/add-user/add-user.component";
 import {AddProfileComponent} from "./profiles/add-profile/add-profile.component";
+import {ViewProfileComponent} from "./profiles/view-profile/view-profile.component";
 
 
 @NgModule({
@@ -30,7 +31,8 @@ import {AddProfileComponent} from "./profiles/add-profile/add-profile.component"
         ListUsersComponent,
         ViewUserComponent,
         AddUserComponent,
-      AddProfileComponent
+        AddProfileComponent,
+        ViewProfileComponent
     ]
     ,
     entryComponents: [
