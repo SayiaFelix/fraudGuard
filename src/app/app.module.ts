@@ -12,10 +12,11 @@ import { AppComponent } from './app.component';
 import { ErrorPageComponent } from './views/pages/error-page/error-page.component';
 
 import { HIGHLIGHT_OPTIONS } from 'ngx-highlightjs';
-import {HttpClient, HttpClientModule} from "@angular/common/http";
+import {HTTP_INTERCEPTORS, HttpClient, HttpClientModule} from "@angular/common/http";
 import {AgmCoreModule} from "@agm/core";
 import {TranslateLoader, TranslateModule} from "@ngx-translate/core";
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import {CheckTokenValidityInterceptor} from "./shared/services/checkTokenValidity.interceptor";
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
@@ -44,6 +45,11 @@ export function HttpLoaderFactory(http: HttpClient) {
     AgmCoreModule.forRoot({  apiKey: "AIzaSyCeXaOKfJXQZuh-3wZmMmYSt5NruUJPVgU",  libraries: ["places", "drawing", "geometry"]}),
   ],
   providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: CheckTokenValidityInterceptor,
+      multi: true
+    },
     AuthGuard,
     {
       provide: HIGHLIGHT_OPTIONS, // https://www.npmjs.com/package/ngx-highlightjs
