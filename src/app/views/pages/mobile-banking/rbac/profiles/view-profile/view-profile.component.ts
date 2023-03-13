@@ -3,6 +3,7 @@ import { GlobalService } from 'src/app/shared/services/global.service';
 import { HttpService } from 'src/app/shared/services/http.service';
 
 
+
 @Component({
   selector: 'app-view-profile',
   templateUrl: './view-profile.component.html',
