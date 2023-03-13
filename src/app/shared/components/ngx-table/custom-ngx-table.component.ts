@@ -13,15 +13,24 @@ export class CustomNgxTable implements OnInit {
     loadingIndicator = true;
     reorderable = true;
 
-    @Input() columns: any;
-    @Input() rows: any;
-
-    @Input() hasViewAndEdit: boolean;
+  @Input() columns: any;
+  @Input() rows: any;
+  @Input() hasViewAndEdit: boolean;
 
   @Output() editEvent = new EventEmitter<string>();
   @Output() viewEvent = new EventEmitter<string>();
 
 
+
+  // New Params
+  data: any[];
+  total: any;
+  perPage = 10;
+  pageSizes: number[] = [2, 5, 10, 20, 50, 100, 200];
+  page = 1;
+  dataLoaded = false;
+  // New Params
+  maxSize: number;
 
     constructor(
 
@@ -29,6 +38,8 @@ export class CustomNgxTable implements OnInit {
 
     }
     ngOnInit() {
+
+      this.maxSize = 5;
     }
 
   onDetailToggle(event: any) {
@@ -50,4 +61,13 @@ export class CustomNgxTable implements OnInit {
   viewItem(row: any) {
     this.viewEvent.emit(row);
   }
+
+  onChange() {
+    this.getIndividualData(this.page);
+  }
+
+  getIndividualData(event: any): void {
+    console.log(event);
+  }
+
 }

@@ -14,6 +14,8 @@ import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import {TranslateModule} from "@ngx-translate/core";
 import {CustomNgxTable} from "./components/ngx-table/custom-ngx-table.component";
 import {TableHeaderComponent} from "./components/table-header/table-header.component";
+import {TableFiltersComponent} from "./components/table-filters/table-filters.component";
+import {NgxPaginationModule} from "ngx-pagination";
 
 
 @NgModule({
@@ -25,7 +27,8 @@ import {TableHeaderComponent} from "./components/table-header/table-header.compo
     LabelPassedComponent,
     ConfirmDialogComponent,
     CustomNgxTable,
-    TableHeaderComponent
+    TableHeaderComponent,
+    TableFiltersComponent
   ],
   entryComponents: [
     LabelBooleanComponent,
@@ -35,15 +38,16 @@ import {TableHeaderComponent} from "./components/table-header/table-header.compo
     LabelPassedComponent,
     ConfirmDialogComponent,
   ],
-  imports: [
-    CommonModule,
-    HttpClientModule,
-    FormsModule,
-    ReactiveFormsModule,
-    NgbModule,
-    NgxDatatableModule,
-    TranslateModule,
-  ],
+    imports: [
+        CommonModule,
+        HttpClientModule,
+        FormsModule,
+        ReactiveFormsModule,
+        NgbModule,
+        NgxDatatableModule,
+        TranslateModule,
+        NgxPaginationModule,
+    ],
   exports: [
     CommonModule,
     HttpClientModule,
@@ -58,6 +62,7 @@ import {TableHeaderComponent} from "./components/table-header/table-header.compo
     LabelPassedComponent,
     CustomNgxTable,
     TableHeaderComponent,
+    TableFiltersComponent
   ]
 })
 export class SharedModule {

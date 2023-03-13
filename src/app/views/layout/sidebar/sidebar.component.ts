@@ -18,6 +18,8 @@ export class SidebarComponent implements OnInit, AfterViewInit {
 
   menuItems: MenuItem[] = [];
   @ViewChild('sidebarMenu') sidebarMenu: ElementRef;
+  showSubItems: boolean = true;
+  logo: string = '\\assets\\images\\MicrosoftTeams-image (2).png'
 
   constructor(@Inject(DOCUMENT) private document: Document, private renderer: Renderer2, router: Router) {
     router.events.forEach((event) => {
@@ -122,6 +124,7 @@ export class SidebarComponent implements OnInit, AfterViewInit {
     this.document.body.classList.remove('sidebar-light', 'sidebar-dark');
     this.document.body.classList.add((<HTMLInputElement>event.target).value);
     this.document.body.classList.remove('settings-open');
+    this.logo = this.logo == '\\assets\\images\\MicrosoftTeams-image (1).png'? '\\assets\\images\\MicrosoftTeams-image (2).png' : '\\assets\\images\\MicrosoftTeams-image (1).png'
   }
 
 
@@ -248,7 +251,7 @@ export class SidebarComponent implements OnInit, AfterViewInit {
   };
 
   showMenuItem(profiles: any) {
-    let assignedProfile = localStorage.getItem('profile');
+    let assignedProfile = JSON.parse(localStorage.getItem('profile')!);
     let found = profiles.find((allowedProfile: string) => {
       return allowedProfile === assignedProfile;
     })
@@ -256,5 +259,10 @@ export class SidebarComponent implements OnInit, AfterViewInit {
       return true;
     } else
     return false;
+  }
+
+  collapseSubMenuItems(item: any) {
+    this.showSubItems = !this.showSubItems;
+    console.log("Hiding ", item)
   }
 }

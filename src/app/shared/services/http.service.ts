@@ -2,15 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { GlobalService } from './global.service';
 import { AuthService } from './auth.service';
-import { map, mergeMap, switchMap, tap } from 'rxjs/operators';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { forkJoin, Observable, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
 })
 export class HttpService {
-
   constructor(
     private http: HttpClient,
     private globalService: GlobalService,
@@ -27,19 +26,19 @@ export class HttpService {
       )
       .pipe(
         map((result: any) => {
-          localStorage.setItem('isLoggedin', 'true');
-          localStorage.setItem('access_token', result['access_token']);
-          this.router.navigate(['/dashboard']);
-
-          this.mobileBankingGetUserDetails();
-          this.mobileBankingGetUserPermissions();
+          if (result['status'] == 200) {
+            localStorage.setItem('isLoggedin', 'true');
+            localStorage.setItem('access_token', result['access_token']);
+          } else {
+            throwError(() => new Error(result['message']));
+          }
           return result;
         })
       );
   }
 
-  public mobileBankingGetUserDetails(): Observable<any> {
-    return this.http
+  public mobileBankingGetUserDetailsAndPermissions(): Observable<any> {
+    const userDetails$ = this.http
       .post(
         this.globalService.mobileBankingHost +
           'api/v1/corporate/admin/corporate/details',
@@ -55,12 +54,8 @@ export class HttpService {
           return result['data']['corporate'];
         })
       );
-  }
 
-  public mobileBankingGetUserPermissions(): Observable<any> {
-    localStorage.setItem('profile', "SUPER_ADMIN");
-
-    return this.http
+    const userPermissions$ = this.http
       .post(
         this.globalService.mobileBankingHost +
           'api/v1/corporate/admin/permissions',
@@ -69,15 +64,19 @@ export class HttpService {
       )
       .pipe(
         map((result: any) => {
-          console.log("result");
-          console.log(result);
           localStorage.setItem(
             'profile',
-            JSON.stringify(result['data']['user']['profile']['name'])
+            JSON.stringify(result['data']['data']['profile']['userType'])
           );
-          return result['data']['user']['profile']['name'];
+          localStorage.setItem(
+            'roles',
+            JSON.stringify(result['data']['data']['roleList'])
+          );
+          return result['data']['data']['profile'];
         })
       );
+
+    return forkJoin([userDetails$, userPermissions$]);
   }
 
   public mobileBankingPost(endpoint: string, model: any): any {
@@ -133,13 +132,13 @@ export class HttpService {
   }
 
   public getMapCoordinates(endpoint: string): any {
-    return this.http.get(endpoint, this.getHeaders()
-    ).pipe(map(response => {
-      response = response;
-      return response;
-    }));
+    return this.http.get(endpoint, this.getHeaders()).pipe(
+      map((response) => {
+        response = response;
+        return response;
+      })
+    );
   }
-
 
   private getHeaders(): any {
     return {
@@ -167,5 +166,10 @@ export class HttpService {
           'Basic ' + btoa('CORPORATE_ADMIN' + ':' + 'YP@kduzzbm#YfkJX'),
       }),
     };
+  }
+
+  get getProfile() {
+    let profile = JSON.parse(localStorage.getItem('profile')!);
+    return profile;
   }
 }

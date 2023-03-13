@@ -23,7 +23,8 @@ export class ViewProfileComponent implements OnInit {
     }
   ];
 
-  constructor(private httpService: HttpService, public globalService: GlobalService) { }
+  constructor(private httpService: HttpService,
+              public globalService: GlobalService) { }
 
   ngOnInit(): void {
     this.loadData();
@@ -50,6 +51,4 @@ export class ViewProfileComponent implements OnInit {
     //     }
     // );
   }
-
-
 }

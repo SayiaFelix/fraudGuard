@@ -3,7 +3,8 @@
 
     <!--- Logo -->
     <a routerLink="/" class="sidebar-brand nobleui-logo">
-      <img class="" src="\assets\images\MicrosoftTeams-image (1).png" alt="Portal" height="150px" style="padding-left: 15%">
+
+      <img class="" [src]="logo" alt="Portal" height="150px" style="padding-left: 15%">
     </a>
 
     <!-- <a routerLink="/" class="sidebar-brand nobleui-logo">
@@ -24,11 +25,22 @@
 
     <ul class="sidebar-nav metismenu" id="sidebar-menu" #sidebarMenu>
       <ng-container *ngFor="let item of menuItems">
-        <li class="nav-item nav-category" *ngIf="showMenuItem(item.profiles) && item.isTitle">{{ item.label }}</li>
+        <li class="nav-item nav-category showHand" *ngIf="showMenuItem(item.profiles) && item.isTitle" (click)="collapseSubMenuItems(item)">
+          <div class="row justify-content-around">
+            <div class="col-10">
+              {{ item.label }}
+            </div>
+            <div class="col-2">
+              <i data-feather="chevron-down" appFeatherIcon class="icon-sm"></i>
+<!--              <i data-feather="chevron-right" appFeatherIcon class="icon-sm" *ngIf="!showSubItems"></i>-->
+            </div>
+          </div>
+        </li>
 
         <li class="nav-item" *ngIf="showMenuItem(item.profiles) && !item.isTitle" >
 
-          <a class="nav-link" *ngIf="hasItems(item)" href="javascript:void(0);">
+          <a class="nav-link" *ngIf="hasItems(item) && showSubItems" href="javascript:void(0);">
+
             <i class="link-icon" [attr.data-feather]="item.icon" appFeatherIcon *ngIf="item.icon"></i>
             <span class="link-title"> {{ item.label }}</span>
             <span class="link-arrow" data-feather="chevron-down" appFeatherIcon></span>
@@ -67,7 +79,9 @@
               </ul>
             </li>
           </ul>
+
         </li>
+
       </ng-container>
 
     </ul>
@@ -85,14 +99,14 @@
     <div class="mb-3 pb-3 border-bottom">
       <div class="form-check form-check-inline">
         <label class="form-check-label">
-          <input type="radio" class="form-check-input" name="sidebarThemeSettings" (change)="onSidebarThemeChange($event)" id="sidebarLight" value="sidebar-light" checked>
+          <input type="radio" class="form-check-input" name="sidebarThemeSettings" (change)="onSidebarThemeChange($event)" id="sidebarLight" value="sidebar-light">
           <i class="input-frame"></i>
           Light
         </label>
       </div>
       <div class="form-check form-check-inline">
         <label class="form-check-label">
-          <input type="radio" class="form-check-input" name="sidebarThemeSettings" (change)="onSidebarThemeChange($event)" id="sidebarDark" value="sidebar-dark">
+          <input type="radio" class="form-check-input" name="sidebarThemeSettings" (change)="onSidebarThemeChange($event)" id="sidebarDark" value="sidebar-dark" checked>
           <i class="input-frame"></i>
           Dark
         </label>
@@ -100,11 +114,11 @@
     </div>
     <div class="theme-wrapper">
       <h6 class="text-muted mb-2">Light Theme:</h6>
-      <a class="theme-item active" href="https://www.nobleui.com/angular/template/demo1/">
+      <a class="theme-item active">
         <img src="assets/images/screenshots/light.jpg" alt="light theme">
       </a>
       <h6 class="text-muted mb-2">Dark Theme:</h6>
-      <a class="theme-item" href="https://www.nobleui.com/angular/template/demo2/">
+      <a class="theme-item">
         <img src="assets/images/screenshots/dark.jpg" alt="dark theme">
       </a>
     </div>
