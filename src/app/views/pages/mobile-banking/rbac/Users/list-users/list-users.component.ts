@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import { ColumnMode, DatatableComponent } from '@swimlane/ngx-datatable';
+import { map, Observable } from 'rxjs';
 import { active } from 'sortablejs';
 import { HttpService } from 'src/app/shared/services/http.service';
 import {AddUserComponent} from "../add-user/add-user.component";
@@ -73,15 +74,16 @@ throw new Error('Method not implemented.');
 
   columns = [
     { name: 'ID', prop: 'id' },
-    { name: 'FullNames', prop:'FullNames' },
-    { name:'Email',prop:'Email'},
-    { name: 'TelephoneNo', prop:'TelephoneNo' },
-    { name: 'Status', prop:'status'},
+    { name: 'FullNames', prop:'firstName' },
+    { name:'Email',prop:'email'},
+    { name: 'TelephoneNo', prop:'phoneNumber' },
+    { name: 'Status', prop:'active'},
     { name: 'CreatedOn', prop:'createdOn' },
     { name: 'Actions', prop: 'id' }
   ];
 
   allColumns = [...this.columns];
+  usersList$: Observable<any>
 
   public form: FormGroup;
   @Input() formData: { name: any; description: any; is_active: any; };
@@ -98,7 +100,6 @@ throw new Error('Method not implemented.');
   constructor(private httpService: HttpService,
               private modalService: NgbModal,
               public fb: FormBuilder,
-
               public router: Router,
   ) {
 
@@ -141,27 +142,35 @@ throw new Error('Method not implemented.');
 
   getIndividualData(event: number): void {
 
-    this.rows = this.tempProductData;
-
+    
     const model = {
       page: 0,
-      size: 5
+      size: 50
     };
 
-    this.httpService.mobileBankingPost('api/v1/corporate/admin/list-products/all', model).subscribe((res: any) => {
-
-      if (res.status === 200) {
-        setTimeout(() => {
-          // this.data = res.data;
-          this.rows = this.tempProductData;
-          // let data = this.tempProductData;
-
-          let total = res.totalItems;
-
-        }, 10);
+    this.usersList$ = this.httpService.mobileBankingPost('api/v1/corporate/admin/all', model).pipe(map((result: any) => {
+      if(result['status'] === 200){
+        this.rows = result['data']['content']
+        return result
       } else {
+        return []
       }
-    });
+    }))
+
+    // this.httpService.mobileBankingPost('api/v1/corporate/admin/list-products/all', model).subscribe((res: any) => {
+
+    //   if (res.status === 200) {
+    //     setTimeout(() => {
+    //       // this.data = res.data;
+    //       this.rows = this.tempProductData;
+    //       // let data = this.tempProductData;
+
+    //       let total = res.totalItems;
+
+    //     }, 10);
+    //   } else {
+    //   }
+    // });
   }
 
 
