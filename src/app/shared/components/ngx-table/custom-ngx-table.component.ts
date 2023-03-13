@@ -17,6 +17,9 @@ export class CustomNgxTable implements OnInit {
   @Input() rows: any;
   @Input() hasViewAndEdit: boolean;
 
+  @Input() actions: any;
+
+  events: EventEmitter<string>[] = [];
   @Output() editEvent = new EventEmitter<string>();
   @Output() viewEvent = new EventEmitter<string>();
 
@@ -38,8 +41,19 @@ export class CustomNgxTable implements OnInit {
 
     }
     ngOnInit() {
-
       this.maxSize = 5;
+
+
+      for (let action of this.actions) {
+        console.log("Found Action");
+        console.log(action);
+        // create an event emitter for each action
+        action = new EventEmitter<string>();
+        this.events = [...this.events, action];
+      }
+
+      console.log("this.events passed.");
+      console.log(this.events);
     }
 
   onDetailToggle(event: any) {

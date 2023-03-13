@@ -81,6 +81,7 @@ export class ListFailedRegistrationsComponent implements OnInit {
 
   @ViewChild('mySwal')
   public readonly mySwal!: SwalComponent;
+  actions = ["view", "edit"];
 
   constructor(
     private httpService: HttpService,
