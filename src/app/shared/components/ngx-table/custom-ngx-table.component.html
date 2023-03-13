@@ -29,7 +29,7 @@
 
     <!-- Column Templates -->
     <ngx-datatable-column [canAutoResize]="false" [draggable]="false" [resizeable]="false" [sortable]="false"
-      [width]="50">
+      [width]="5">
       <ng-template let-expanded="expanded" let-row="row" let-value="value" ngx-datatable-cell-template>
         <a (click)="toggleExpandRow(row)" [class.datatable-icon-down]="expanded"
           [class.datatable-icon-right]="!expanded" href="javascript:void(0)" title="Expand/Collapse Row">
@@ -38,7 +38,7 @@
     </ngx-datatable-column>
 
     <ng-container *ngFor="let column of columns">
-      <ngx-datatable-column *ngIf="column.name === 'ID'" name="ID" prop="id" [width]="5">
+      <ngx-datatable-column *ngIf="column.name === 'ID'" name="ID" prop="id" [width]="10">
       </ngx-datatable-column>
 
       <ngx-datatable-column *ngIf="column.name === 'Actions'" name="Actions" prop="actions" [sortable]="false">
