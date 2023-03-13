@@ -33,7 +33,7 @@ export const MENU: MenuItem[] = [
   {
     profiles: ['SUPER_ADMIN'],
     label: 'Customers',
-    icon: 'file-text',
+    icon: 'home',
     link: '/mobile-banking/customers/list-customers'
   },
   {
@@ -45,7 +45,7 @@ export const MENU: MenuItem[] = [
   {
     profiles: ['SUPER_ADMIN'],
     label: 'Send Bulk SMS',
-    icon: 'message',
+    icon: 'home',
     link: '/mobile-banking/customers/send-bulk-sms'
   },
 
