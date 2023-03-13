@@ -55,9 +55,9 @@
         </ng-template>
       </ngx-datatable-column>
 
-      <ngx-datatable-column *ngIf="column.name === 'Status'" name="Status" prop="status">
+      <ngx-datatable-column *ngIf="column.name === 'Status' || column.name === 'Active'" name="Status" prop="status">
         <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
-          <app-label-active [value]="row.status"></app-label-active>
+          <app-label-active [value]="row.status || row.active"></app-label-active>
         </ng-template>
       </ngx-datatable-column>
 
