@@ -5,6 +5,9 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ColumnMode, DatatableComponent } from '@swimlane/ngx-datatable';
 import { DataExportationService } from 'src/app/shared/services/data-exportation.service';
 import { HttpService } from 'src/app/shared/services/http.service';
+import { AddProductSubitemComponent } from '../add-product-subitem/add-product-subitem.component';
+import { AddProductComponent } from '../add-product/add-product.component';
+
 
 @Component({
   selector: 'app-list-products',
@@ -110,19 +113,32 @@ export class ListProductsComponent implements OnInit {
         }
       });
   }
+  
+  openEditProductModal(formData: any) {
+    this.modalRef = this.modalService.open(AddProductSubitemComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Edit Product';
+    this.modalRef.componentInstance.formData = formData;
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        this.getIndividualData(0);
+      } else {
+        console.log("Error occurred")
+      }
+    });
+  }
 
-  // openAddProductModal() {
+  openAddProductModal() {
 
-  //   this.modalRef = this.modalService.open(AddProductComponent, {centered: true});
-  //   this.modalRef.componentInstance.title = 'Add Product';
-  //   this.modalRef.result.then((result) => {
-  //     if (result === 'success') {
-  //       this.getIndividualData(0);
-  //     } else {
-  //       console.log("Error occurred")
-  //     }
-  //   });
-  // }
+    this.modalRef = this.modalService.open(AddProductSubitemComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Add Product';
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        this.getIndividualData(0);
+      } else {
+        console.log("Error occurred")
+      }
+    });
+  }
 
   onFileChange(event: any) {
     if (event.target.files && event.target.files.length) {

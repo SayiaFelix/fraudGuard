@@ -9,7 +9,7 @@
     [rows]="rows"
     [title]="title"
     (changeColumnsEvent)="updateColumns($event)"
-
+   (openAddModalEvent)="openAddProductModal()"
   ></app-table-header>
 
 </div>
@@ -22,6 +22,7 @@
           [rows]="rows"
           [hasViewAndEdit]="true"
           (viewEvent)="navigateToViewProduct($event)"
+          (editEvent)="openEditProductModal($event)"
         ></app-custom-ngx-table>
     </div>
   </div>
