@@ -19,7 +19,7 @@ export class CustomNgxTable implements OnInit {
 
   @Input() actions: any;
 
-  events: EventEmitter<string>[] = [];
+  @Output() outputEvent = new EventEmitter<string>();
   @Output() editEvent = new EventEmitter<string>();
   @Output() viewEvent = new EventEmitter<string>();
 
@@ -33,7 +33,7 @@ export class CustomNgxTable implements OnInit {
   page = 1;
   dataLoaded = false;
   // New Params
-  maxSize: number;
+  maxSize: number = 5;
 
     constructor(
 
@@ -41,19 +41,6 @@ export class CustomNgxTable implements OnInit {
 
     }
     ngOnInit() {
-      this.maxSize = 5;
-
-
-      for (let action of this.actions) {
-        console.log("Found Action");
-        console.log(action);
-        // create an event emitter for each action
-        action = new EventEmitter<string>();
-        this.events = [...this.events, action];
-      }
-
-      console.log("this.events passed.");
-      console.log(this.events);
     }
 
   onDetailToggle(event: any) {
@@ -84,4 +71,11 @@ export class CustomNgxTable implements OnInit {
     console.log(event);
   }
 
+  sendEvent(row: any, action: any) {
+      let result = {
+        row: row,
+        action: action
+      }
+    this.outputEvent.emit(JSON.stringify(result))
+  }
 }
