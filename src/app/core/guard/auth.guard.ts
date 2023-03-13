@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, RouterStateSnapshot, ActivatedRouteSnapshot, Router, UrlTree } from '@angular/router';
 import { Observable } from 'rxjs';
+import { GlobalService } from 'src/app/shared/services/global.service';
 import { HttpService } from 'src/app/shared/services/http.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private router: Router, private httpService: HttpService) {}
+  constructor(private router: Router, private httpService: HttpService, private globalService: GlobalService) {}
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
     let url: string = state.url;
@@ -19,7 +20,7 @@ export class AuthGuard implements CanActivate {
   }
 
   checkUserLogin(route: ActivatedRouteSnapshot, url: any): boolean {
-    if (this.httpService.isLoggedIn) {
+    if (!!this.globalService.getToken()) {
       const userRole = this.httpService.getProfile;
       
       if (route.data.role && !route.data.role.includes(userRole)) {
