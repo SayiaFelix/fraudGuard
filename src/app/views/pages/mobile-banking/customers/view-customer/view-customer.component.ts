@@ -4,6 +4,7 @@ import {GlobalService} from '../../../../../shared/services/global.service';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {ActivatedRoute, Params} from '@angular/router';
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import { ColumnMode } from '@swimlane/ngx-datatable';
 
 @Component({
   selector: 'app-view-customer',
@@ -14,7 +15,7 @@ export class ViewCustomerComponent implements OnInit {
   public myProductList = [
     {
       icon: '',
-      name: '1. Personal Accident',
+      TransID: '123',
       value: 8,
       text: 'danger'
     },
@@ -26,13 +27,39 @@ export class ViewCustomerComponent implements OnInit {
 
     }
   ];
-  public productDetails = {
-    productName: 'Personal Accident',
-    shortDescription: 'Get Salary Advance Loans',
-    longDescription: 'Enjoy quick salary advances when you are in need of a quick loan to sort out your regular bills.',
-    requirements: ['Minimum Salary KES 15,000 per month', 'Repayment period 1 month'],
-    // features: ['Get access up to 70% of your monthly salary']
-  };
+  breadCrumbItems: Array<{}>;
+  rows: any = [];
+  loadingIndicator = true;
+  reorderable = true;
+
+
+  Transactioncolumns = [
+    // { name: 'ID', prop: 'id' },
+    { name: 'TransID', prop:'TransID' },
+    { name: 'CreatedOn', prop:'CreatedOn' },
+    {name:'ServiceName',prop:'ServiceName'},
+    {name:'AccountNo.',prop:'AccountNo.'},
+    {name:'Amount',prop:'Amount'},
+    {name:'ChargeAmt',prop:'ChargeAmt'},
+    {name:'ResCode',prop:'Respons'},
+    // { name: 'IsActive', prop:'isActive' },
+    // { name: 'Actions', prop: 'id' }
+  ];
+  public myproductList =[
+      {
+        customerID:'1256',
+        accNo:'01198564321908',
+      }
+  ];
+Accountscolumns = [
+  { name:'CustomerID', prop:'customerID'},
+  { name:'AccNo', prop:'accNo'},
+  { name:'AccName', prop:'AccName'},
+  { name:'AccBalance', prop:'AccBalance'},
+  { name:'Status', prop:'Status'},
+
+];
+
   public mainProduct: any;
   public subcategoryTitle: any;
 
@@ -40,13 +67,8 @@ export class ViewCustomerComponent implements OnInit {
   public form: FormGroup;
 
   public imageFile: File;
-
-  public features = ['Get access up to 70% of your monthly salary'];
-  public requirements = ['Minimum Salary KES 15,000 per month', 'Repayment period 1 month'];
-
-
-
-
+ 
+  ColumnMode = ColumnMode;
   constructor(private httpService: HttpService,
               public globalService: GlobalService,
               public activatedRoute: ActivatedRoute,
@@ -91,58 +113,9 @@ export class ViewCustomerComponent implements OnInit {
     );
   }
 
-
-  // public openModal(parentData: any) {
-  //   this.modalRef = this.modalService.open(CreateProductComponent, {size: 'lg'});
-  //   this.modalRef.componentInstance.title = 'Add Product';
-  //   this.modalRef.componentInstance.parentData = '';
-  //   this.modalRef.result.then((result) => {
-  //     if (result === 'success') {
-  //       this.getIndividualData(this.page);
-  //     }
-  //   }, (reason) => {
-  //   });
-  // }
-
-  // getIndividualData(event: number): void {
-  //   this.isLoaded = false;
-  //   this.page = event;
-  //
-  //   const model = {
-  //     page: this.page,
-  //     size: this.perPage
-  //   };
-  //
-  //   this.httpService.post('api/v1/corporate/admin/all', model).subscribe((res: any) => {
-  //
-  //     if (res.status === 200) {
-  //       setTimeout(() => {
-  //         this.data = res.data.content;
-  //         this.source.load(this.data);
-  //         this.isLoaded = true;
-  //
-  //         this.total = res.totalItems;
-  //
-  //       }, 10);
-  //     } else {
-  //       this.toastrService.error(res.message, 'Error');
-  //     }
-  //   });
-  // }
   isAsideNavCollapsed: any;
+  
 
-  getDetails({}) {
-
-    this.productDetails = {
-      productName: 'Personal Accident',
-      shortDescription: 'Get Salary Advance Loans',
-      longDescription: 'Enjoy quick salary advances when you are in need of a quick loan to sort out your regular bills.',
-      requirements: ['Minimum Salary KES 15,000 per month', 'Repayment period 1 month'],
-      // features: ['Get access up to 70% of your monthly salary']
-    };
-
-    this.subcategoryTitle = this.productDetails.productName;
-  }
 
 
 
@@ -152,11 +125,6 @@ export class ViewCustomerComponent implements OnInit {
     }).catch((res) => {});
   }
 
-  openEditProductSubcategoryModal(content: TemplateRef<any>) {
-    this.modalService.open(content, {centered: true, size: "lg"}).result.then((result) => {
-      console.log("Modal closed" + result);
-    }).catch((res) => {});
-  }
 
   onFileChange(event: any) {
     if (event.target.files && event.target.files.length) {
@@ -164,13 +132,7 @@ export class ViewCustomerComponent implements OnInit {
     }
   }
 
-  addFeature() {
-    this.features = [this.form.value.feature, ...this.features];
-  }
 
-  addRequirement() {
-    this.requirements = [this.form.value.requirement, ...this.requirements];
-  }
 
   private createRecord(): any {
 
@@ -212,5 +174,15 @@ export class ViewCustomerComponent implements OnInit {
         }
       }
     );
+  }
+  openResetPinModal(content: TemplateRef<any>){
+    this.modalService.open(content, {centered: true, size: "md"}).result.then((result) => {
+      console.log("Modal closed" + result);
+    }).catch((res) => {});
+  }
+  openDisableCustomerModal(content: TemplateRef<any>){
+    this.modalService.open(content, {centered: true, size: "md"}).result.then((result) => {
+      console.log("Modal closed" + result);
+    }).catch((res) => {});
   }
 }
