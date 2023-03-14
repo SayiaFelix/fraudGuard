@@ -12,6 +12,7 @@ import {AddCustomerComponent} from "./add-customer/add-customer.component";
 import {ListInternetBankingCustomersComponent} from "./list-internet-banking/list-internet-banking-customers.component";
 import {ListUssdCustomersComponent} from "./list-ussd/list-ussd-customers.component";
 import {ListMobileBankingCustomersComponent} from "./list-mobile-application/list-mobile-banking-customers.component";
+import {ViewMobileAppCustomerComponent} from "./view-mobile-app-customers/view-mobile-app-customer.component";
 
 @NgModule({
     imports: [
@@ -26,6 +27,7 @@ import {ListMobileBankingCustomersComponent} from "./list-mobile-application/lis
     ListInternetBankingCustomersComponent,
     ListMobileBankingCustomersComponent,
     ViewCustomerComponent,
+    ViewMobileAppCustomerComponent,
     AddCustomerComponent,
   ]
   ,
