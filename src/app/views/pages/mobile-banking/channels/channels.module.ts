@@ -10,8 +10,8 @@ import {NgxDatatableModule} from "@swimlane/ngx-datatable";
 import {TranslateModule} from "@ngx-translate/core";
 import {AddCustomerComponent} from "./add-customer/add-customer.component";
 import {ListInternetBankingCustomersComponent} from "./list-internet-banking/list-internet-banking-customers.component";
-import {ListMobileAppCustomersComponent} from "./list-mobile-app/list-mobile-app-customers.component";
 import {ListUssdCustomersComponent} from "./list-ussd/list-ussd-customers.component";
+import {ListMobileBankingCustomersComponent} from "./list-mobile-application/list-mobile-banking-customers.component";
 
 @NgModule({
     imports: [
@@ -24,7 +24,7 @@ import {ListUssdCustomersComponent} from "./list-ussd/list-ussd-customers.compon
   declarations: [
     ListUssdCustomersComponent,
     ListInternetBankingCustomersComponent,
-    ListMobileAppCustomersComponent,
+    ListMobileBankingCustomersComponent,
     ViewCustomerComponent,
     AddCustomerComponent,
   ]
