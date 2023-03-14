@@ -33,28 +33,24 @@ export class ListUssdCustomersComponent implements OnInit {
 
   tempProductData = [
     {
-      customerid: 1,
-      customerName: 'Bank Accounts',
-      phoneNumber:'0728357775',
-      idNumber: 'Bank Accounts Description',
-      cbsCustomerNumber:'013465890',
-      accountNumber:'0119787899900',
-      email:'Carey004@gmail.com',
+      id: 1,
+      customerName: 'Michael Mbugua',
+      phoneNumber:'0708453901',
+      idNumber: '31397137',
+      IMSINumber:'265011254765',
+      accountNumber:'0116987349900',
+      email:'michaelmbugua004@gmail.com',
       createdOn: '12-02-2023',
-      dob:'08-05-1997',
-      gender:'Female',
     },
     {
-      customerid: 2,
-      customerName: 'Card Accounts',
-      phoneNumber:'0745983290',
-      idNumber: 'Card Accounts Description',
-      cbsCustomerNumber:'032178900',
-      accountNumber:'0116987349900',
-      email:'karikamau004@gmail.com',
+      id: 2,
+      customerName: 'Lilian Kamau',
+      phoneNumber:'0728357775',
+      idNumber: '37059671',
+      IMSINumber:'265011234567',
+      accountNumber:'0119787899900',
+      email:'lilian002@gmail.com',
       createdOn: '12-02-2023',
-      dob:'28-08-1995',
-      gender:'Male',
     },
 
   ];
@@ -67,11 +63,12 @@ export class ListUssdCustomersComponent implements OnInit {
   reorderable = true;
 
   columns = [
-    { name: '#', prop: 'customerid' },
+    { name: 'ID', prop: 'id' },
     { name: 'CustomerName', prop: 'customerName' },
     {name:'PhoneNumber',prop:'phoneNumber'},
     { name: 'IDNumber', prop: 'idNumber' },
-    {name: 'CBSCustomerNumber',prop:'cbsCustomerNumber'},
+    { name: 'IMSINumber', prop: 'IMSINumber' },
+    // {name: 'CBSCustomerNumber',prop:'cbsCustomerNumber'},
     {name: 'AccountNumber',prop:'accountNumber'},
     // {name: 'Email',prop:'email'},
     { name: 'CreatedOn', prop: 'createdOn' },
@@ -88,7 +85,7 @@ export class ListUssdCustomersComponent implements OnInit {
   public imageFile: File;
   public modalRef: NgbModalRef;
 
-  title: string = "New Customer";
+  title: string = "USSD Customer";
 
 
   constructor(
@@ -146,7 +143,7 @@ export class ListUssdCustomersComponent implements OnInit {
   openAddProductModal() {
 
     this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true,size:"lg"});
-    this.modalRef.componentInstance.title = 'Add New Customer';
+    this.modalRef.componentInstance.title = 'Add USSD Customer';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
         this.getIndividualData(0);
@@ -175,8 +172,8 @@ export class ListUssdCustomersComponent implements OnInit {
     }
   }
 
-  navigateToViewProduct(data: any) {
-    this.router.navigateByUrl(`/mobile-banking/customers/customer/${data.id}`);
+  navigateToViewUssdCustomer(data: any) {
+    this.router.navigateByUrl(`/mobile-banking/channels/ussdcustomer/${data.id}`);
   }
 
   toggleExpandRow(row: any) {

@@ -28,28 +28,25 @@ export class ListInternetBankingCustomersComponent implements OnInit {
   tempProductData = [
     {
       id: 1,
-      mobileNumber: '254708223443',
-      account: '1238**3747',
-      dob: '12-10-1996',
-      attemptedOn: '12-02-2023',
-      response: "Failed record Mismatch",
+      customerName: 'Michael Mbugua',
+      phoneNumber:'0708453901',
+      idNumber: '31397137',
+      InternetBankingID:'IBank4567',
+      accountNumber:'0116987349900',
+      email:'michaelmbugua004@gmail.com',
+      createdOn: '12-02-2023',
     },
     {
       id: 2,
-      mobileNumber: '254708223443',
-      account: '1238**3747',
-      dob: '12-10-1996',
-      attemptedOn: '12-02-2023',
-      response: "Failed record Mismatch",
+      customerName: 'Lilian Kamau',
+      phoneNumber:'0728357775',
+      idNumber: '37059671',
+      InternetBankingID:'IBank1234',
+      accountNumber:'0119787899900',
+      email:'lilian002@gmail.com',
+      createdOn: '12-02-2023',
     },
-    {
-      id: 3,
-      mobileNumber: '254708223443',
-      account: '1238**3747',
-      dob: '12-10-1996',
-      attemptedOn: '12-02-2023',
-      response: "Failed record Mismatch",
-    }
+
   ];
 
   // bread crumb items
@@ -60,13 +57,18 @@ export class ListInternetBankingCustomersComponent implements OnInit {
   reorderable = true;
 
   columns = [
-    {name: 'ID', prop: 'id'},
-    {name: 'Mobile Number', prop: 'mobileNumber'},
-    {name: 'Account', prop: 'account'},
-    {name: 'DOB', prop: 'dob'},
-    {name: 'Attempted On', prop: 'attemptedOn'},
-    {name: 'Response', prop: 'response'},
-    {name: 'Actions', prop: 'id'},
+    { name: 'ID', prop: 'id' },
+    { name: 'CustomerName', prop: 'customerName' },
+    {name:'PhoneNumber',prop:'phoneNumber'},
+    { name: 'IDNumber', prop: 'idNumber' },
+    { name: 'InternetBankingID', prop: 'InternetBankingID' },
+    // {name: 'CBSCustomerNumber',prop:'cbsCustomerNumber'},
+    {name: 'AccountNumber',prop:'accountNumber'},
+    // {name: 'Email',prop:'email'},
+    { name: 'CreatedOn', prop: 'createdOn' },
+    // {name: 'DOB',prop:'dob'},
+    // {name: 'Gender',prop:'gender'},
+    { name: 'Actions', prop: 'id' },
   ];
 
   allColumns = [...this.columns];
@@ -77,10 +79,8 @@ export class ListInternetBankingCustomersComponent implements OnInit {
   public imageFile: File;
   public modalRef: NgbModalRef;
 
-  title: string = "Failed Registration";
+  title: string = "IB Customer";
 
-  @ViewChild('mySwal')
-  public readonly mySwal!: SwalComponent;
 
   constructor(
     private httpService: HttpService,
@@ -88,17 +88,16 @@ export class ListInternetBankingCustomersComponent implements OnInit {
     public fb: FormBuilder,
     public router: Router,
     private dataExploration: DataExportationService
-  ) {
-  }
+  ) {}
 
   ngOnInit() {
     this.breadCrumbItems = [
       {
         label: 'Mobile banking',
-        path: '/mobile-banking/products/all-products',
+        path: '/mobile-banking/products/all-customers',
       },
       { label: 'Pages', path: '/' },
-      { label: 'Products', active: true },
+      { label: 'Customers', active: true },
     ];
     this.getIndividualData(0);
 
@@ -137,8 +136,8 @@ export class ListInternetBankingCustomersComponent implements OnInit {
 
   openAddProductModal() {
 
-    this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true});
-    this.modalRef.componentInstance.title = 'Add Categories';
+    this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true,size:"lg"});
+    this.modalRef.componentInstance.title = 'Add IB Customer';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
         this.getIndividualData(0);
@@ -148,21 +147,28 @@ export class ListInternetBankingCustomersComponent implements OnInit {
     });
   }
 
-  openResetModal(formData: any) {
-    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
-    this.modalRef.componentInstance.title = 'Reset Customer';
-    this.modalRef.componentInstance.body = 'Do you want to reset this customer?';
-    this.modalRef.result.then((result) => {
-      if (result === 'success') {
-        Swal.fire('Reset Successful',
-          'Customer has been reset successfully!',
-          'success').then(r => this.getIndividualData(0))
-      } else {
-        console.log("Error occurred")
-      }
-    });
+  // openEditProductModal(formData: any) {
+  //   this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true});
+  //   this.modalRef.componentInstance.title = 'Edit Product';
+  //   this.modalRef.componentInstance.formData = formData;
+  //   this.modalRef.result.then((result) => {
+  //     if (result === 'success') {
+  //       this.getIndividualData(0);
+  //     } else {
+  //       console.log("Error occurred")
+  //     }
+  //   });
+  // }
+
+  onFileChange(event: any) {
+    if (event.target.files && event.target.files.length) {
+      this.imageFile = event.target.files[0];
+    }
   }
 
+  navigateToViewUssdCustomer(data: any) {
+    this.router.navigateByUrl(`/mobile-banking/channels/InternetBanking/${data.id}`);
+  }
 
   toggleExpandRow(row: any) {
     console.log(row);
@@ -215,6 +221,71 @@ export class ListInternetBankingCustomersComponent implements OnInit {
     if (checkList.classList.contains('visible'))
       checkList.classList.remove('visible');
     else checkList.classList.add('visible');
+  }
+
+  exportCSV() {
+    let cols: string[] = this.columns.map(item => {
+      if(item['name'].toLowerCase() !== 'actions'){
+        return item['prop']
+      } else {
+        return ''
+      }
+    })
+    cols = cols.filter(item => item !== '')
+    let arr: Record<string, string>[]= []
+
+    this.rows.forEach((row: any) => {
+      let temp: Record<string, string> = {}
+      cols.forEach(key => {
+        temp = {...temp, [key]: row[key]}
+      })
+      arr.push(temp)
+    })
+    this.dataExploration.exportToCsv(arr, 'Products')
+  }
+
+  exportXLSX() {
+    let cols: string[] = this.columns.map(item => {
+      if(item['name'].toLowerCase() !== 'actions'){
+        return item['prop']
+      } else {
+        return ''
+      }
+    })
+    cols = cols.filter(item => item !== '')
+    let arr: Record<string, string>[]= []
+
+    this.rows.forEach((row: any) => {
+      let temp: Record<string, string> = {}
+      cols.forEach(key => {
+        temp = {...temp, [key]: row[key]}
+      })
+      arr.push(temp)
+    })
+
+    this.dataExploration.exportDataXlsx(arr, 'Products')
+  }
+
+  exportPDF() {
+    console.log(this.rows);
+    let cols: string[] = this.columns.map(item => {
+      if(item['name'].toLowerCase() !== 'actions'){
+        return item['name'].toUpperCase()
+      } else {
+        return ''
+      }
+    })
+    cols = cols.filter(item => item !== '')
+    let rowKeys: string[] = Object.keys(this.rows[0]);
+    let arr: string[][]= []
+    this.rows.forEach((row: any) => {
+      let temp: string[] = []
+      rowKeys.forEach(key => {
+        temp.push(row[key])
+      })
+      arr.push(temp)
+    })
+    this.dataExploration.exportToPdf(cols, arr, 'Products')
   }
 
   updateColumns(updatedColumns: any) {
