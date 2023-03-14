@@ -4,6 +4,7 @@ import {ListUssdCustomersComponent} from "./list-ussd/list-ussd-customers.compon
 import {ViewCustomerComponent} from "./view-customer/view-customer.component";
 import {ListInternetBankingCustomersComponent} from "./list-internet-banking/list-internet-banking-customers.component";
 import {ListMobileBankingCustomersComponent} from "./list-mobile-application/list-mobile-banking-customers.component";
+import {ViewMobileAppCustomerComponent} from "./view-mobile-app-customers/view-mobile-app-customer.component";
 
 
 const routes: Routes = [
@@ -24,8 +25,8 @@ const routes: Routes = [
   },
 
   {
-    path: 'customer/:id',
-    component: ViewCustomerComponent
+    path: 'mobile-app/:id',
+    component: ViewMobileAppCustomerComponent
   }
 ];
 

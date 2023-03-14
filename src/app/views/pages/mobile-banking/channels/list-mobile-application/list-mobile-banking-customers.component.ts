@@ -220,4 +220,8 @@ export class ListMobileBankingCustomersComponent implements OnInit {
   updateColumns(updatedColumns: any) {
     this.columns = [...updatedColumns];
   }
+
+  navigateToView(data: any) {
+    this.router.navigateByUrl(`/mobile-banking/channels/mobile-app/${data.id}`);
+  }
 }
