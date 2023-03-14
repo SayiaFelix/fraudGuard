@@ -237,3 +237,23 @@
 .pac-container {
   z-index: 2000 !important;
 }
+
+parent-item {
+  float: right!important;
+  position: relative!important;
+  display: inline-block!important;
+}
+
+.menu-items {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  position: absolute;
+  z-index: 2000000000 !important;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  opacity: 0;
+  visibility: hidden;
+  transition: visibility 0.5s;
+}
+
