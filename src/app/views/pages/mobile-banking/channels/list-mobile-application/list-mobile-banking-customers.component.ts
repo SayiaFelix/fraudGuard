@@ -24,7 +24,7 @@ import Swal from "sweetalert2";
  */
 export class ListMobileBankingCustomersComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
-
+ actions = ["View","Edit"];
   tempProductData = [
     {
       id: 1,
@@ -223,5 +223,16 @@ export class ListMobileBankingCustomersComponent implements OnInit {
 
   navigateToView(data: any) {
     this.router.navigateByUrl(`/mobile-banking/channels/mobile-app/${data.id}`);
+  }
+  openEditProductModal(data:any){
+
+  }
+  triggerEvent(data:any){
+    let eventData = JSON.parse(data)
+    if (eventData.action == 'View') {
+      this.navigateToView(eventData.row);
+    }else if (eventData.action == 'Edit') {
+      this.openEditProductModal(eventData.row);
+    }
   }
 }
