@@ -58,7 +58,7 @@ export const MENU: MenuItem[] = [
     profiles: ['CORPORATE_ADMIN'],
     label: 'USSD',
     icon: 'home',
-    link: '/mobile-banking/channels/ussd'
+    link: '/mobile-banking/channels/list-ussd'
   },
   {
     profiles: ['CORPORATE_ADMIN'],
