@@ -81,86 +81,14 @@
                             <li [ngbNavItem]="1">
                               <a ngbNavLink>Mobile App Instances</a>
                               <ng-template ngbNavContent>
-                                <div class="table-responsive">
-                                  <ngx-datatable
-                                    [rows]="rows"
-                                    class="bootstrap"
-                                    [loadingIndicator]="loadingIndicator"
-                                    [columnMode]="ColumnMode.force"
-                                    [footerHeight]="50"
-                                    [columns]="Transactioncolumns"
-                                    [limit]="10"
-                                    [rowHeight]="'auto'"
-                                  >
-                                    <ngx-datatable-column
-                                      *ngFor="let column of Transactioncolumns; let i = index"
-                                      name="{{ column.name }}"
-                                      prop="{{ column.prop }}"
-                                    >
-                                      <ng-template
-                                        *ngIf="column.name === 'Actions'"
-                                        let-row="row"
-                                        let-value="value"
-                                        ngx-datatable-cell-template
-                                      >
-                                        <span>
-                                              <button class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0" type="button">
-                                                <i appFeatherIcon class="btn-icon-prepend" data-feather="printer"></i>
-                                                View
-                                              </button>
-                                              <button class="btn btn-primary btn-icon-text mb-2 mb-md-0" type="button">
-                                                <i appFeatherIcon class="btn-icon-prepend" data-feather="download-cloud"></i>
-                                                Edit
-                                              </button>
-                                        </span>
-                                      </ng-template>
-                                    </ngx-datatable-column>
-                                  </ngx-datatable>
-                                </div>
+                                <app-custom-ngx-table
+                                  [columns]="columns"
+                                  [rows]="rows"
+                                  [actions]="actions"
+                                  (outputEvent)="triggerEvent($event)"
+                                ></app-custom-ngx-table>
                               </ng-template>
                             </li>
-
-<!--                            <li [ngbNavItem]="">-->
-<!--                              <a ngbNavLink>Customer Accounts</a>-->
-<!--                              <ng-template ngbNavContent>-->
-<!--                                <div class="table-responsive">-->
-<!--                                  <ngx-datatable-->
-<!--                                    [rows]="rows"-->
-<!--                                    class="bootstrap"-->
-<!--                                    [loadingIndicator]="loadingIndicator"-->
-<!--                                    [columnMode]="ColumnMode.force"-->
-<!--                                    [footerHeight]="50"-->
-<!--                                    [columns]="Accountscolumns"-->
-<!--                                    [limit]="10"-->
-<!--                                    [rowHeight]="'auto'"-->
-<!--                                  >-->
-<!--                                    <ngx-datatable-column-->
-<!--                                      *ngFor="let column of Accountscolumns; let i = index"-->
-<!--                                      name="{{ column.name }}"-->
-<!--                                      prop="{{ column.prop }}"-->
-<!--                                    >-->
-<!--                                      <ng-template-->
-<!--                                        *ngIf="column.name === 'Actions'"-->
-<!--                                        let-row="row"-->
-<!--                                        let-value="value"-->
-<!--                                        ngx-datatable-cell-template-->
-<!--                                      >-->
-<!--                                        <span>-->
-<!--                                              <button class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0" type="button">-->
-<!--                                                <i appFeatherIcon class="btn-icon-prepend" data-feather="printer"></i>-->
-<!--                                                View-->
-<!--                                              </button>-->
-<!--                                              <button class="btn btn-primary btn-icon-text mb-2 mb-md-0" type="button">-->
-<!--                                                <i appFeatherIcon class="btn-icon-prepend" data-feather="download-cloud"></i>-->
-<!--                                                Edit-->
-<!--                                              </button>-->
-<!--                                        </span>-->
-<!--                                      </ng-template>-->
-<!--                                    </ngx-datatable-column>-->
-<!--                                  </ngx-datatable>-->
-<!--                                </div>-->
-<!--                              </ng-template>-->
-<!--                            </li>-->
                           </ul>
                           <div [ngbNavOutlet]="fillJustifyNav" class="border border-top-0 p-3"></div>
 

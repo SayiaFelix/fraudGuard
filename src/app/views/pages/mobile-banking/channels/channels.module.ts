@@ -14,15 +14,18 @@ import {ListUssdCustomersComponent} from "./list-ussd/list-ussd-customers.compon
 import { ViewInternetBankingComponent } from './view-internet-banking/view-internet-banking.component';
 import {ListMobileBankingCustomersComponent} from "./list-mobile-application/list-mobile-banking-customers.component";
 import {ViewMobileAppCustomerComponent} from "./view-mobile-app-customers/view-mobile-app-customer.component";
+import {AddMobileAppCustomerComponent} from "./add-mobile-app-customer/add-mobile-app-customer.component";
+import {NgSelectModule} from "@ng-select/ng-select";
 
 @NgModule({
-    imports: [
-        SharedModule,
-        ChannelsRoutingModule,
-        FeatherIconModule,
-        NgxDatatableModule,
-        TranslateModule
-    ],
+  imports: [
+    SharedModule,
+    ChannelsRoutingModule,
+    FeatherIconModule,
+    NgxDatatableModule,
+    TranslateModule,
+    NgSelectModule
+  ],
   declarations: [
     ListUssdCustomersComponent,
     ListInternetBankingCustomersComponent,
@@ -30,11 +33,14 @@ import {ViewMobileAppCustomerComponent} from "./view-mobile-app-customers/view-m
     ViewCustomerComponent,
     ViewMobileAppCustomerComponent,
     AddCustomerComponent,
+    AddMobileAppCustomerComponent,
     ViewInternetBankingComponent,
+
   ]
   ,
   entryComponents: [
     AddCustomerComponent,
+    AddMobileAppCustomerComponent
   ],
 })
 export class ChannelsModule {
