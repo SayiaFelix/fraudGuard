@@ -21,6 +21,12 @@ const routes: Routes = [
       },
 
       {
+        path: 'channels',
+        loadChildren: () =>
+          import('./channels/channels.module').then((m) => m.ChannelsModule)
+      },
+
+      {
         path: 'products',
         loadChildren: () =>
           import('./products/products.module').then((m) => m.ProductsModule),

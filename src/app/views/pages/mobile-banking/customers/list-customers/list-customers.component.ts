@@ -19,7 +19,7 @@ import { HttpService } from 'src/app/shared/services/http.service';
 import {AddCustomerComponent} from "../add-customer/add-customer.component";
 
 @Component({
-  selector: 'app-list-customers',
+  selector: 'app-list-ussd',
   templateUrl: './list-customers.component.html',
   styleUrls: ['./list-customers.component.scss'],
   providers: [DatePipe],
@@ -121,7 +121,7 @@ export class ListCustomersComponent implements OnInit {
     this.rows = this.tempProductData;
 
     this.temp = [...this.tempProductData];
-     
+
     const model = {
       page: 0,
       size: 5,
