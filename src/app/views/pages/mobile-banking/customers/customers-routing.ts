@@ -26,7 +26,9 @@ const routes: Routes = [
   {
     path: 'customer/:id',
     component: ViewCustomerComponent
-  }
+  },
+
+
 ];
 
 @NgModule({
