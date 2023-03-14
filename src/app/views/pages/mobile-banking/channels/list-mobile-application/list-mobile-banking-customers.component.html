@@ -21,9 +21,9 @@
         <app-custom-ngx-table
           [columns]="columns"
           [rows]="rows"
+          [actions]="actions"
           [hasViewAndEdit]="true"
-          (viewEvent)="navigateToView($event)"
-          (editEvent)="openResetModal($event)"
+          (outputEvent)="triggerEvent($event)"
         ></app-custom-ngx-table>
     </div>
   </div>
