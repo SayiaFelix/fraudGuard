@@ -1,52 +1,37 @@
-import {Component, OnInit, ViewChild,} from '@angular/core';
+import {Component, Input, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {HttpService} from '../../../../../shared/services/http.service';
+import {GlobalService} from '../../../../../shared/services/global.service';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
-import {DatePipe} from '@angular/common';
-import {Router} from '@angular/router';
-import {ColumnMode} from '@swimlane/ngx-datatable';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {DatatableComponent} from '@swimlane/ngx-datatable/lib/components/datatable.component';
-import {DataExportationService} from 'src/app/shared/services/data-exportation.service';
-import {HttpService} from 'src/app/shared/services/http.service';
-import {AddCustomerComponent} from "../add-customer/add-customer.component";
-import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
-import {SwalComponent} from "@sweetalert2/ngx-sweetalert2";
-import Swal from "sweetalert2";
+import {ActivatedRoute, Params, Router} from '@angular/router';
+import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import { ColumnMode, DatatableComponent } from '@swimlane/ngx-datatable';
+import { DataExportationService } from 'src/app/shared/services/data-exportation.service';
+import { AddCustomerComponent } from '../add-customer/add-customer.component';
 
 @Component({
-  selector: 'app-list-internet-banking',
-  templateUrl: './list-internet-banking-customers.component.html',
-  styleUrls: ['./list-internet-banking-customers.component.scss'],
-  providers: [DatePipe],
+  selector: 'app-view-customer',
+  templateUrl: './view-customer.component.html',
+  styleUrls: ['./view-customer.component.scss']
 })
-
-/**
- * Starter-component
- */
-export class ListInternetBankingCustomersComponent implements OnInit {
+export class ViewCustomerComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
 
   tempProductData = [
     {
       id: 1,
-      customerName: 'Michael Mbugua',
-      phoneNumber:'0708453901',
-      idNumber: '31397137',
-      InternetBankingID:'IBank4567',
-      accountNumber:'0116987349900',
-      email:'michaelmbugua004@gmail.com',
+      IMSINumber: '234035678765',
+      description: 'Short Description',
+      status: true,
       createdOn: '12-02-2023',
     },
     {
       id: 2,
-      customerName: 'Lilian Kamau',
-      phoneNumber:'0728357775',
-      idNumber: '37059671',
-      InternetBankingID:'IBank1234',
-      accountNumber:'0119787899900',
-      email:'lilian002@gmail.com',
+      IMSINumber: '262062345678',
+      description: 'short Description',
+      status: true,
       createdOn: '12-02-2023',
     },
-
+  
   ];
 
   // bread crumb items
@@ -58,16 +43,9 @@ export class ListInternetBankingCustomersComponent implements OnInit {
 
   columns = [
     { name: 'ID', prop: 'id' },
-    { name: 'CustomerName', prop: 'customerName' },
-    {name:'PhoneNumber',prop:'phoneNumber'},
-    { name: 'IDNumber', prop: 'idNumber' },
-    { name: 'InternetBankingID', prop: 'InternetBankingID' },
-    // {name: 'CBSCustomerNumber',prop:'cbsCustomerNumber'},
-    {name: 'AccountNumber',prop:'accountNumber'},
-    // {name: 'Email',prop:'email'},
+    { name: 'IMSINumber', prop: 'IMSINumber' },
+    { name: 'Status', prop: 'status' },
     { name: 'CreatedOn', prop: 'createdOn' },
-    // {name: 'DOB',prop:'dob'},
-    // {name: 'Gender',prop:'gender'},
     { name: 'Actions', prop: 'id' },
   ];
 
@@ -79,8 +57,9 @@ export class ListInternetBankingCustomersComponent implements OnInit {
   public imageFile: File;
   public modalRef: NgbModalRef;
 
-  title: string = "IB Customer";
-
+  title: string = "USSD";
+  isAsideNavCollapsed :any;
+  public subcategoryTitle: any;
 
   constructor(
     private httpService: HttpService,
@@ -94,10 +73,10 @@ export class ListInternetBankingCustomersComponent implements OnInit {
     this.breadCrumbItems = [
       {
         label: 'Mobile banking',
-        path: '/mobile-banking/products/all-customers',
+        path: '/mobile-banking/products/all-products',
       },
       { label: 'Pages', path: '/' },
-      { label: 'Customers', active: true },
+      { label: 'Products', active: true },
     ];
     this.getIndividualData(0);
 
@@ -133,11 +112,11 @@ export class ListInternetBankingCustomersComponent implements OnInit {
         }
       });
   }
-
-  openAddProductModal() {
-
-    this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true,size:"lg"});
-    this.modalRef.componentInstance.title = 'Add IB Customer';
+  
+  openEditProductModal(formData: any) {
+    this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Edit Product';
+    this.modalRef.componentInstance.formData = formData;
     this.modalRef.result.then((result) => {
       if (result === 'success') {
         this.getIndividualData(0);
@@ -147,18 +126,24 @@ export class ListInternetBankingCustomersComponent implements OnInit {
     });
   }
 
-  // openEditProductModal(formData: any) {
-  //   this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true});
-  //   this.modalRef.componentInstance.title = 'Edit Product';
-  //   this.modalRef.componentInstance.formData = formData;
-  //   this.modalRef.result.then((result) => {
-  //     if (result === 'success') {
-  //       this.getIndividualData(0);
-  //     } else {
-  //       console.log("Error occurred")
-  //     }
-  //   });
-  // }
+  openAddProductSubcategoryModal(content: TemplateRef<any>) {
+    this.modalService.open(content, {centered: true, size: "lg"}).result.then((result) => {
+      console.log("Modal closed" + result);
+    }).catch((res) => {});
+  }
+
+  openAddProductModal() {
+
+    this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Add Product';
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        this.getIndividualData(0);
+      } else {
+        console.log("Error occurred")
+      }
+    });
+  }
 
   onFileChange(event: any) {
     if (event.target.files && event.target.files.length) {
@@ -166,8 +151,8 @@ export class ListInternetBankingCustomersComponent implements OnInit {
     }
   }
 
-  navigateToViewUssdCustomer(data: any) {
-    this.router.navigateByUrl(`/mobile-banking/channels/InternetBanking/${data.id}`);
+  navigateToViewProduct(data: any) {
+    this.router.navigateByUrl(`/mobile-banking/products/product/${data.id}`);
   }
 
   toggleExpandRow(row: any) {
@@ -290,5 +275,15 @@ export class ListInternetBankingCustomersComponent implements OnInit {
 
   updateColumns(updatedColumns: any) {
     this.columns = [...updatedColumns];
+  }
+  openResetPinModal(content: TemplateRef<any>){
+    this.modalService.open(content, {centered: true, size: "md"}).result.then((result) => {
+      console.log("Modal closed" + result);
+    }).catch((res) => {});
+  }
+  openDisableCustomerModal(content: TemplateRef<any>){
+    this.modalService.open(content, {centered: true, size: "md"}).result.then((result) => {
+      console.log("Modal closed" + result);
+    }).catch((res) => {});
   }
 }
