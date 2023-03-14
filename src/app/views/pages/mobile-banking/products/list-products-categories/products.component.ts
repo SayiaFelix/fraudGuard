@@ -33,6 +33,8 @@ import {AddProductComponent} from "../add-product/add-product.component";
 export class ProductsComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
 
+  actions = ["View", "Edit"];
+
   tempProductData = [
     {
       id: 1,
@@ -312,5 +314,17 @@ export class ProductsComponent implements OnInit {
 
   updateColumns(updatedColumns: any) {
     this.columns = [...updatedColumns];
+  }
+
+  triggerEvent(data: string) {
+
+    let eventData = JSON.parse(data)
+
+    if (eventData.action == 'View') {
+      this.navigateToViewProduct(eventData.row);
+    }else if (eventData.action == 'Edit') {
+      this.openEditProductModal(eventData.row);
+    }
+
   }
 }

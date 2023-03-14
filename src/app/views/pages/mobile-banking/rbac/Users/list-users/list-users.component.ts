@@ -94,9 +94,7 @@ throw new Error('Method not implemented.');
   public modalRef: NgbModalRef;
 
   title: string = "Users";
-
-
-
+  actions = ["View", "Edit"];
   constructor(private httpService: HttpService,
               private modalService: NgbModal,
               public fb: FormBuilder,
@@ -188,4 +186,17 @@ throw new Error('Method not implemented.');
   updateColumns(updatedColumns: any) {
     this.columns = [...updatedColumns];
   }
+
+  triggerEvent(data: string) {
+
+    let eventData = JSON.parse(data)
+
+    if (eventData.action == 'View') {
+      this.navigateToViewProduct(eventData.row);
+    }else if (eventData.action == 'Edit') {
+      this.editUser(eventData.row);
+    }
+
+  }
+
 }
