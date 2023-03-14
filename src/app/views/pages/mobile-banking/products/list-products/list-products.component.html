@@ -22,7 +22,7 @@
           [rows]="rows"
           [actions]="actions"
           [hasViewAndEdit]="true"
-          (viewEvent)="navigateToViewProduct($event)"
+          (outputEvent)="triggerEvent($event)"
         ></app-custom-ngx-table>
     </div>
   </div>
