@@ -70,6 +70,8 @@ export class RolesComponent implements OnInit {
   public modalRef: NgbModalRef;
 
   title: string = "Roles";
+  actions = ["View", "Edit"];
+
 
 
   constructor(private httpService: HttpService,
@@ -164,5 +166,17 @@ export class RolesComponent implements OnInit {
 
   updateColumns(updatedColumns: any) {
     this.columns = [...updatedColumns];
+  }
+
+  triggerEvent(data: string) {
+
+    let eventData = JSON.parse(data)
+
+    if (eventData.action == 'View') {
+      // this.navigateToViewProduct(eventData.row);
+    }else if (eventData.action == 'Edit') {
+      this.openEditRoleModal(eventData.row);
+    }
+
   }
 }

@@ -517,6 +517,53 @@
   }
 }
 
+.sidebar-light {
+  .sidebar {
+    .sidebar-header {
+      background: $sidebar-light-bg;
+      border-bottom: 1px solid rgba($border-color, .1);
+      border-right: 1px solid rgba($border-color, .1);
+      .sidebar-brand {
+        color: $dark;
+      }
+      .sidebar-toggler {
+        span {
+          background: $text-muted;
+        }
+      }
+    }
+    .sidebar-body {
+      background: $sidebar-light-bg;
+      border-right: 1px solid rgba($border-color, .1);
+      .sidebar-nav {
+        .nav-item {
+          &.nav-category {
+            color: $black;
+          }
+          .nav-link {
+            color: $text-muted;
+            svg {
+              fill: none;
+            }
+          }
+          &:hover,
+          &.mm-active {
+            > .nav-link {
+              color: $primary;
+              svg {
+                fill: rgba($primary, .2);
+              }
+              .link-title {
+                color: $primary;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
 // Right sidebar
 .settings-sidebar {
   position: fixed;

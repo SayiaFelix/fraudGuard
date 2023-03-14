@@ -61,6 +61,8 @@ export class RegionsListComponent implements OnInit {
   public modalRef: NgbModalRef;
 
   title: string = "Regions";
+  actions = ["Edit"];
+
 
 
   constructor(private httpService: HttpService,
@@ -143,5 +145,16 @@ export class RegionsListComponent implements OnInit {
 
   updateColumns(updatedColumns: any) {
     this.columns = [...updatedColumns];
+  }
+
+  triggerEvent(data: string) {
+
+    let eventData = JSON.parse(data)
+
+    if (eventData.action == 'View') {
+    }else if (eventData.action == 'Edit') {
+      this.openEditRegionsModal(eventData.row);
+    }
+
   }
 }
