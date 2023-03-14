@@ -1,16 +1,14 @@
 import {
   Component,
   OnInit,
-  ViewChild,
-  ElementRef,
   Inject,
   Renderer2,
 } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { Router } from '@angular/router';
 import { HttpService } from 'src/app/shared/services/http.service';
-import {map, Observable, of} from 'rxjs';
-import {TranslateService} from "@ngx-translate/core";
+import { map, Observable, of } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-navbar',
@@ -27,8 +25,8 @@ export class NavbarComponent implements OnInit {
   logo: string;
 
   // internationalization management
-  selectedLanguage: any = "English";
-  selectedLanguageFlag: any = "assets/images/flags/us.svg";
+  selectedLanguage: any = 'English';
+  selectedLanguageFlag: any = 'assets/images/flags/us.svg';
 
   constructor(
     @Inject(DOCUMENT) private document: Document,
@@ -41,38 +39,32 @@ export class NavbarComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-
     let userDetails = JSON.parse(localStorage.getItem('userData')!);
     if (userDetails) {
-
       this.companyEmail = userDetails['companyEmail'];
       this.companyPhone = userDetails['companyPhone'];
       this.companyRegistrationDate = userDetails['companyRegistrationDate'];
       this.country = userDetails['country'];
       this.taxPin = userDetails['taxPin'];
-      this.logo = 'https://images.unsplash.com/photo-151740421573-15263e9f9178?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80';
+      this.logo =
+        'https://images.unsplash.com/photo-151740421573-15263e9f9178?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80';
 
       this.userData$ = of(userDetails);
-
-    }else {
-      this.userData$ = this.httpService.mobileBankingGetUserDetails().pipe(
+    } else {
+      this.userData$ = this.httpService.mobileBankingGetUserDetailsAndPermissions().pipe(
         map((resp) => {
           console.log(resp);
           if (resp) {
-            this.companyEmail = resp['companyEmail'];
-            this.companyPhone = resp['companyPhone'];
-            this.companyRegistrationDate = resp['companyRegistrationDate'];
-            this.country = resp['country'];
-            this.taxPin = resp['taxPin'];
-            this.logo = 'https://images.unsplash.com/photo-1517404215738-15263e9f9178?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80';
-            return resp;
+            this.companyEmail = resp[0]['companyEmail'];
+            this.companyPhone = resp[0]['companyPhone'];
+            this.companyRegistrationDate = resp[0]['companyRegistrationDate'];
+            this.country = resp[0]['country'];
+            this.taxPin = resp[0]['taxPin'];
+            return resp[0];
           }
-
         })
       );
     }
-
-
   }
 
   /**
@@ -97,12 +89,12 @@ export class NavbarComponent implements OnInit {
   changeLanguage(lang: string) {
     this.translate.use(lang);
 
-    if (lang === "en"){
-      this.selectedLanguage = "English";
-      this.selectedLanguageFlag = "assets/images/flags/us.svg";
-    } else if (lang === "kis") {
-      this.selectedLanguage = "Kiswahili";
-      this.selectedLanguageFlag = "assets/images/flags/es.svg";
+    if (lang === 'en') {
+      this.selectedLanguage = 'English';
+      this.selectedLanguageFlag = 'assets/images/flags/us.svg';
+    } else if (lang === 'kis') {
+      this.selectedLanguage = 'Kiswahili';
+      this.selectedLanguageFlag = 'assets/images/flags/es.svg';
     }
   }
 }

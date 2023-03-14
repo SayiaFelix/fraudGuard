@@ -10,6 +10,7 @@ import { HttpService } from 'src/app/shared/services/http.service';
 })
 export class ProfileComponent implements OnInit {
   userData$: Observable<any>;
+  userType: string;
   companyEmail: string;
   companyPhone: string;
   companyRegistrationDate: string;
@@ -30,18 +31,17 @@ export class ProfileComponent implements OnInit {
   constructor(private httpService: HttpService) {}
 
   ngOnInit(): void {
-    this.userData$ = this.httpService.mobileBankingGetUserDetails().pipe(
+    this.userData$ = this.httpService.mobileBankingGetUserDetailsAndPermissions().pipe(
       map((resp) => {
         if (resp) {
-          this.companyEmail = resp['companyEmail'];
-          this.companyPhone = resp['companyPhone'];
-          this.companyRegistrationDate = resp['companyRegistrationDate'];
-          this.country = resp['country'];
-          this.taxPin = resp['taxPin'];
-          this.registeredName = resp['registeredName'];
-          this.physicalAddress = resp['physicalAddress'];
-          this.logo =
-            'https://images.unsplash.com/photo-1517404215738-15263e9f9178?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80';
+          this.userType = resp[1]['userType']
+          this.companyEmail = resp[0]['companyEmail'];
+          this.companyPhone = resp[0]['companyPhone'];
+          this.companyRegistrationDate = resp[0]['companyRegistrationDate'];
+          this.country = resp[0]['country'];
+          this.taxPin = resp[0]['taxPin'];
+          this.registeredName = resp[0]['registeredName'];
+          this.physicalAddress = resp[0]['physicalAddress'];
           return resp;
         }
       })

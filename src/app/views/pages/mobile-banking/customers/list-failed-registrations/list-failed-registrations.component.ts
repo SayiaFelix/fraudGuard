@@ -13,7 +13,7 @@ import {SwalComponent} from "@sweetalert2/ngx-sweetalert2";
 import Swal from "sweetalert2";
 
 @Component({
-  selector: 'app-list-failed-registrations',
+  selector: 'app-list-internet-banking',
   templateUrl: './list-failed-registrations.component.html',
   styleUrls: ['./list-failed-registrations.component.scss'],
   providers: [DatePipe],

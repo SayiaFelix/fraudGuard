@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import {HttpService} from "../../../../../../shared/services/http.service";
-import {GlobalService} from "../../../../../../shared/services/global.service";
+import { GlobalService } from 'src/app/shared/services/global.service';
+import { HttpService } from 'src/app/shared/services/http.service';
+
 
 @Component({
   selector: 'app-view-profile',
@@ -42,7 +43,7 @@ export class ViewProfileComponent implements OnInit {
     //     result => {
     //       this.dataSet =
     //           this.tempData;
-    //           // result.data.content;
+    //           result.data.content;
     //     },
     //     error => {
     //     },
@@ -50,6 +51,4 @@ export class ViewProfileComponent implements OnInit {
     //     }
     // );
   }
-
-
 }

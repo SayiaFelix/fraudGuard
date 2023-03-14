@@ -21,7 +21,7 @@ import {AddRoleComponent} from "../../rbac/roles/add-role/add-role.component";
 import {AddCustomerComponent} from "../add-customer/add-customer.component";
 
 @Component({
-  selector: 'app-send-sms-component',
+  selector: 'app-list-mobile-app',
   templateUrl: './send-sms.component.html',
   styleUrls: ['./send-sms.component.scss'],
   providers: [DatePipe],
