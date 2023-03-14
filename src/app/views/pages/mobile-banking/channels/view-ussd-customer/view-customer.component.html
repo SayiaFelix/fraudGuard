@@ -10,7 +10,7 @@
                 <i appFeatherIcon class="btn-icon-prepend" data-feather="plus"></i> Button
               </button>
               <div class="order-first">
-                <h4>Customer Details</h4>
+                <h4>USSD Customer Details</h4>
               <br>
               <div [ngbCollapse]="isAsideNavCollapsed" class="email-aside-nav" id="asideNav">
                 <ul class="list-group list-group-flush">
@@ -29,22 +29,12 @@
                   </li>
                   
                   <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Gender:
-                    <span >Male</span>
-                  </li>
-                  
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    CBS Customer No:
-                    <span>78543298</span>
-                  </li>
-                  
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
                      National ID:
                     <span >31391339</span>
                   </li>
                   <li class="list-group-item d-flex justify-content-between align-items-center">
-                    D.O.B:
-                    <span >15-7-2001</span>
+                    IMSINumber:
+                    <span >265011254765</span>
                   </li>
                   <li class="list-group-item d-flex justify-content-between align-items-center">
                     Account Type:
@@ -77,92 +67,35 @@
                     <div class="col-md-12 stretch-card">
                       <div class="card">
                         <!-- <div class="card-body"> -->
-                          <ul ngbNav #fillJustifyNav="ngbNav" class="nav-tabs nav-fill">
-                            <li [ngbNavItem]="1">
-                              <a ngbNavLink>Customer Transactions</a>
-                              <ng-template ngbNavContent>
-                                <div class="table-responsive">
-                                  <ngx-datatable
-                                    [rows]="rows"
-                                    class="bootstrap"
-                                    [loadingIndicator]="loadingIndicator"
-                                    [columnMode]="ColumnMode.force"
-                                    [footerHeight]="50"
-                                    [columns]="Transactioncolumns"
-                                    [limit]="10"
-                                    [rowHeight]="'auto'"
-                                  >
-                                    <ngx-datatable-column
-                                      *ngFor="let column of Transactioncolumns; let i = index"
-                                      name="{{ column.name }}"
-                                      prop="{{ column.prop }}"
-                                    >
-                                      <ng-template
-                                        *ngIf="column.name === 'Actions'"
-                                        let-row="row"
-                                        let-value="value"
-                                        ngx-datatable-cell-template
-                                      >
-                                        <span>
-                                              <button class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0" type="button">
-                                                <i appFeatherIcon class="btn-icon-prepend" data-feather="printer"></i>
-                                                View
-                                              </button>
-                                              <button class="btn btn-primary btn-icon-text mb-2 mb-md-0" type="button">
-                                                <i appFeatherIcon class="btn-icon-prepend" data-feather="download-cloud"></i>
-                                                Edit
-                                              </button>
-                                        </span>
-                                      </ng-template>
-                                    </ngx-datatable-column>
-                                  </ngx-datatable>
-                                </div>
-                              </ng-template>
-                            </li>
-                       
-                            <li [ngbNavItem]="">
-                              <a ngbNavLink>Customer Accounts</a>
-                              <ng-template ngbNavContent>
-                                <div class="table-responsive">
-                                  <ngx-datatable
-                                    [rows]="rows"
-                                    class="bootstrap"
-                                    [loadingIndicator]="loadingIndicator"
-                                    [columnMode]="ColumnMode.force"
-                                    [footerHeight]="50"
-                                    [columns]="Accountscolumns"
-                                    [limit]="10"
-                                    [rowHeight]="'auto'"
-                                  >
-                                    <ngx-datatable-column
-                                      *ngFor="let column of Accountscolumns; let i = index"
-                                      name="{{ column.name }}"
-                                      prop="{{ column.prop }}"
-                                    >
-                                      <ng-template
-                                        *ngIf="column.name === 'Actions'"
-                                        let-row="row"
-                                        let-value="value"
-                                        ngx-datatable-cell-template
-                                      >
-                                        <span>
-                                              <button class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0" type="button">
-                                                <i appFeatherIcon class="btn-icon-prepend" data-feather="printer"></i>
-                                                View
-                                              </button>
-                                              <button class="btn btn-primary btn-icon-text mb-2 mb-md-0" type="button">
-                                                <i appFeatherIcon class="btn-icon-prepend" data-feather="download-cloud"></i>
-                                                Edit
-                                              </button>
-                                        </span>
-                                      </ng-template>
-                                    </ngx-datatable-column>
-                                  </ngx-datatable>
-                                </div>
-                              </ng-template>
-                            </li>
-                          </ul>
-                          <div [ngbNavOutlet]="fillJustifyNav" class="border border-top-0 p-3"></div>
+                          <div
+                          class="d-flex justify-content-between align-items-center flex-wrap grid-margin"
+                        >
+                          <div>
+                            <h4 class="mb-3 mb-md-0">All USSD Registered</h4>
+                          </div>
+                          <app-table-header
+                            [allColumns]="allColumns"
+                            [rows]="rows"
+                            [title]="title"
+                            (changeColumnsEvent)="updateColumns($event)"
+                           (openAddModalEvent)="openAddProductModal()"
+                          ></app-table-header>
+                        
+                        </div>
+                        
+                        <div class="row">
+                          <div class="col-md-12 stretch-card">
+                            <div class="card">
+                                <app-custom-ngx-table
+                                  [columns]="columns"
+                                  [rows]="rows"
+                                  [hasViewAndEdit]="true"
+                                  (viewEvent)="navigateToViewProduct($event)"
+                                  (editEvent)="openEditProductModal($event)"
+                                ></app-custom-ngx-table>
+                            </div>
+                          </div>
+                        </div>
                         
                         </div>
                       </div>

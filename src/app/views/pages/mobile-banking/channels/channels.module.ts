@@ -2,7 +2,7 @@ import {NgModule} from '@angular/core';
 import {ChannelsRoutingModule} from './channels-routing';
 
 
-import {ViewCustomerComponent} from "./view-customer/view-customer.component";
+import {ViewCustomerComponent} from "./view-ussd-customer/view-customer.component";
 
 import {SharedModule} from "../../../../shared/shared.module";
 import {FeatherIconModule} from "../../../../core/feather-icon/feather-icon.module";
@@ -12,6 +12,7 @@ import {AddCustomerComponent} from "./add-customer/add-customer.component";
 import {ListInternetBankingCustomersComponent} from "./list-internet-banking/list-internet-banking-customers.component";
 import {ListMobileAppCustomersComponent} from "./list-mobile-app/list-mobile-app-customers.component";
 import {ListUssdCustomersComponent} from "./list-ussd/list-ussd-customers.component";
+import { ViewInternetBankingComponent } from './view-internet-banking/view-internet-banking.component';
 
 @NgModule({
     imports: [
@@ -27,6 +28,7 @@ import {ListUssdCustomersComponent} from "./list-ussd/list-ussd-customers.compon
     ListMobileAppCustomersComponent,
     ViewCustomerComponent,
     AddCustomerComponent,
+    ViewInternetBankingComponent,
   ]
   ,
   entryComponents: [
