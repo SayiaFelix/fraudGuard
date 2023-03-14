@@ -260,5 +260,17 @@ export class ListProductsComponent implements OnInit {
     this.columns = [...updatedColumns];
   }
 
+  triggerEvent(data: string) {
+
+    let eventData = JSON.parse(data)
+
+    if (eventData.action == 'View') {
+      this.navigateToViewProduct(eventData.row);
+    }else if (eventData.action == 'Edit') {
+      this.openEditProductModal(eventData.row);
+    }
+
+  }
+
 
 }
