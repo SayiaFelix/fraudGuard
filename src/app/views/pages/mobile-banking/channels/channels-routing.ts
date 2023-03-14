@@ -3,7 +3,7 @@ import {RouterModule, Routes} from '@angular/router';
 import {ListUssdCustomersComponent} from "./list-ussd/list-ussd-customers.component";
 import {ViewCustomerComponent} from "./view-customer/view-customer.component";
 import {ListInternetBankingCustomersComponent} from "./list-internet-banking/list-internet-banking-customers.component";
-import {ListMobileAppCustomersComponent} from "./list-mobile-app/list-mobile-app-customers.component";
+import {ListMobileBankingCustomersComponent} from "./list-mobile-application/list-mobile-banking-customers.component";
 
 
 const routes: Routes = [
@@ -19,8 +19,8 @@ const routes: Routes = [
   },
 
   {
-    path: 'send-bulk-sms',
-    component: ListMobileAppCustomersComponent
+    path: 'list-mobile-app',
+    component: ListMobileBankingCustomersComponent
   },
 
   {
