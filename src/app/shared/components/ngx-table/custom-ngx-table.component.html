@@ -38,7 +38,7 @@
     </ngx-datatable-column>
 
     <ng-container *ngFor="let column of columns">
-      <ngx-datatable-column *ngIf="column.name === 'ID'" name="ID" prop="id" [width]="10">
+      <ngx-datatable-column *ngIf="column.name === 'ID'" name="ID" prop="id" [maxWidth]="40" [minWidth]="35">
       </ngx-datatable-column>
 
       <ngx-datatable-column
