@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ListMobileAppCustomersComponent } from './list-mobile-app-customers.component';
+import { ListMobileBankingCustomersComponent } from './list-mobile-banking-customers.component';
 
 describe('StarterComponent', () => {
-  let component: ListMobileAppCustomersComponent;
-  let fixture: ComponentFixture<ListMobileAppCustomersComponent>;
+  let component: ListMobileBankingCustomersComponent;
+  let fixture: ComponentFixture<ListMobileBankingCustomersComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ListMobileAppCustomersComponent ]
+      declarations: [ ListMobileBankingCustomersComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ListMobileAppCustomersComponent);
+    fixture = TestBed.createComponent(ListMobileBankingCustomersComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

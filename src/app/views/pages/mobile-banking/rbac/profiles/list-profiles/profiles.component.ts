@@ -71,6 +71,7 @@ export class ProfilesComponent implements OnInit {
   public imageFile: File;
 
   title: string = "Profiles";
+  actions = ["View", "Edit"];
 
 
   constructor(private httpService: HttpService,
@@ -166,5 +167,17 @@ export class ProfilesComponent implements OnInit {
 
   updateColumns(updatedColumns: any) {
     this.columns = [...updatedColumns];
+  }
+
+  triggerEvent(data: string) {
+
+    let eventData = JSON.parse(data)
+
+    if (eventData.action == 'View') {
+      this.openViewProfile(eventData.row);
+    }else if (eventData.action == 'Edit') {
+      this.openEditProfileModal(eventData.row);
+    }
+
   }
 }

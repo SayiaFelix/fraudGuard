@@ -78,6 +78,8 @@ export class ListBranchesComponent implements OnInit {
 
   title: string = "Branches";
 
+  actions = ["Edit"];
+
 
   constructor(private httpService: HttpService,
               private modalService: NgbModal,
@@ -166,5 +168,16 @@ export class ListBranchesComponent implements OnInit {
 
   updateColumns(updatedColumns: any) {
     this.columns = [...updatedColumns];
+  }
+
+  triggerEvent(data: string) {
+
+    let eventData = JSON.parse(data)
+
+    if (eventData.action == 'View') {
+    }else if (eventData.action == 'Edit') {
+      this.editBranch(eventData.row);
+    }
+
   }
 }
