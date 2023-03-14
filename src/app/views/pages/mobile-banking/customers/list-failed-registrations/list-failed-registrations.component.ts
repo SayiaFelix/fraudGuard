@@ -13,7 +13,7 @@ import {SwalComponent} from "@sweetalert2/ngx-sweetalert2";
 import Swal from "sweetalert2";
 
 @Component({
-  selector: 'app-list-failed-registrations',
+  selector: 'app-list-internet-banking',
   templateUrl: './list-failed-registrations.component.html',
   styleUrls: ['./list-failed-registrations.component.scss'],
   providers: [DatePipe],
@@ -81,6 +81,7 @@ export class ListFailedRegistrationsComponent implements OnInit {
 
   @ViewChild('mySwal')
   public readonly mySwal!: SwalComponent;
+  actions = ["View", "Edit"];
 
   constructor(
     private httpService: HttpService,
@@ -219,5 +220,15 @@ export class ListFailedRegistrationsComponent implements OnInit {
 
   updateColumns(updatedColumns: any) {
     this.columns = [...updatedColumns];
+  }
+
+  triggerEvent(data: string) {
+
+    let eventData = JSON.parse(data)
+
+    if (eventData.action == 'View') {
+
+    }
+
   }
 }

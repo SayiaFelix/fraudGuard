@@ -17,9 +17,11 @@
         <app-custom-ngx-table
           [columns]="columns"
           [rows]="rows"
+          [actions]="actions"
           [hasViewAndEdit]="true"
-          (viewEvent)="openViewProfile($event)"
-          (editEvent)="openEditProfileModal($event)"></app-custom-ngx-table>
+          (outputEvent)="triggerEvent($event)"
+          (editEvent)="openEditProfileModal($event)"
+        ></app-custom-ngx-table>
     </div>
   </div>
 </div>

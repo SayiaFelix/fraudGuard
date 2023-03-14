@@ -5,6 +5,9 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ColumnMode, DatatableComponent } from '@swimlane/ngx-datatable';
 import { DataExportationService } from 'src/app/shared/services/data-exportation.service';
 import { HttpService } from 'src/app/shared/services/http.service';
+import { AddProductSubitemComponent } from '../add-product-subitem/add-product-subitem.component';
+import { AddProductComponent } from '../add-product/add-product.component';
+
 
 @Component({
   selector: 'app-list-products',
@@ -12,7 +15,7 @@ import { HttpService } from 'src/app/shared/services/http.service';
   styleUrls: ['./list-products.component.scss']
 })
 export class ListProductsComponent implements OnInit {
-    @ViewChild('table') table: DatatableComponent;
+  @ViewChild('table') table: DatatableComponent;
 
   tempProductData = [
     {
@@ -29,7 +32,7 @@ export class ListProductsComponent implements OnInit {
       status: true,
       createdOn: '12-02-2023',
     },
-  
+
   ];
 
   // bread crumb items
@@ -39,13 +42,15 @@ export class ListProductsComponent implements OnInit {
   loadingIndicator = true;
   reorderable = true;
 
+  actions = ["View", "Edit"];
+
   columns = [
-    { name: 'ID', prop: 'id' },
-    { name: 'ProductName', prop: 'productName' },
-    { name: 'Description', prop: 'description' },
-    { name: 'Status', prop: 'status' },
-    { name: 'CreatedOn', prop: 'createdOn' },
-    { name: 'Actions', prop: 'id' },
+    {name: 'ID', prop: 'id'},
+    {name: 'ProductName', prop: 'productName'},
+    {name: 'Description', prop: 'description'},
+    {name: 'Status', prop: 'status'},
+    {name: 'CreatedOn', prop: 'createdOn'},
+    {name: 'Actions', prop: 'id'},
   ];
 
   allColumns = [...this.columns];
@@ -65,7 +70,8 @@ export class ListProductsComponent implements OnInit {
     public fb: FormBuilder,
     public router: Router,
     private dataExploration: DataExportationService
-  ) {}
+  ) {
+  }
 
   ngOnInit() {
     this.breadCrumbItems = [
@@ -73,8 +79,8 @@ export class ListProductsComponent implements OnInit {
         label: 'Mobile banking',
         path: '/mobile-banking/products/all-products',
       },
-      { label: 'Pages', path: '/' },
-      { label: 'Products', active: true },
+      {label: 'Pages', path: '/'},
+      {label: 'Products', active: true},
     ];
     this.getIndividualData(0);
 
@@ -110,19 +116,33 @@ export class ListProductsComponent implements OnInit {
         }
       });
   }
+  
+  openEditProductModal(formData: any) {
+    this.modalRef = this.modalService.open(AddProductSubitemComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Edit Product';
+    this.modalRef.componentInstance.formData = formData;
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        this.getIndividualData(0);
+      } else {
+        console.log("Error occurred")
+      }
+    });
+  }
 
-  // openAddProductModal() {
+  openAddProductModal() {
 
-  //   this.modalRef = this.modalService.open(AddProductComponent, {centered: true});
-  //   this.modalRef.componentInstance.title = 'Add Product';
-  //   this.modalRef.result.then((result) => {
-  //     if (result === 'success') {
-  //       this.getIndividualData(0);
-  //     } else {
-  //       console.log("Error occurred")
-  //     }
-  //   });
-  // }
+    this.modalRef = this.modalService.open(AddProductSubitemComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Add Product';
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        this.getIndividualData(0);
+      } else {
+        console.log("Error occurred")
+      }
+    });
+  }
+
 
   onFileChange(event: any) {
     if (event.target.files && event.target.files.length) {
@@ -189,14 +209,14 @@ export class ListProductsComponent implements OnInit {
 
   exportCSV() {
     let cols: string[] = this.columns.map(item => {
-      if(item['name'].toLowerCase() !== 'actions'){
+      if (item['name'].toLowerCase() !== 'actions') {
         return item['prop']
       } else {
         return ''
       }
     })
     cols = cols.filter(item => item !== '')
-    let arr: Record<string, string>[]= []
+    let arr: Record<string, string>[] = []
 
     this.rows.forEach((row: any) => {
       let temp: Record<string, string> = {}
@@ -210,14 +230,14 @@ export class ListProductsComponent implements OnInit {
 
   exportXLSX() {
     let cols: string[] = this.columns.map(item => {
-      if(item['name'].toLowerCase() !== 'actions'){
+      if (item['name'].toLowerCase() !== 'actions') {
         return item['prop']
       } else {
         return ''
       }
     })
     cols = cols.filter(item => item !== '')
-    let arr: Record<string, string>[]= []
+    let arr: Record<string, string>[] = []
 
     this.rows.forEach((row: any) => {
       let temp: Record<string, string> = {}
@@ -233,7 +253,7 @@ export class ListProductsComponent implements OnInit {
   exportPDF() {
     console.log(this.rows);
     let cols: string[] = this.columns.map(item => {
-      if(item['name'].toLowerCase() !== 'actions'){
+      if (item['name'].toLowerCase() !== 'actions') {
         return item['name'].toUpperCase()
       } else {
         return ''
@@ -241,7 +261,7 @@ export class ListProductsComponent implements OnInit {
     })
     cols = cols.filter(item => item !== '')
     let rowKeys: string[] = Object.keys(this.rows[0]);
-    let arr: string[][]= []
+    let arr: string[][] = []
     this.rows.forEach((row: any) => {
       let temp: string[] = []
       rowKeys.forEach(key => {
@@ -256,6 +276,17 @@ export class ListProductsComponent implements OnInit {
     this.columns = [...updatedColumns];
   }
 
- 
+  triggerEvent(data: string) {
+
+    let eventData = JSON.parse(data)
+
+    if (eventData.action == 'View') {
+      this.navigateToViewProduct(eventData.row);
+    }else if (eventData.action == 'Edit') {
+      this.openEditProductModal(eventData.row);
+    }
+
+  }
+
 
 }

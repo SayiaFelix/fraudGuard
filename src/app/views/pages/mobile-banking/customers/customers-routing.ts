@@ -9,12 +9,12 @@ import {SendSmsComponent} from "./send-sms-component/send-sms.component";
 const routes: Routes = [
 
   {
-    path: 'list-customers',
+    path: 'list-ussd',
     component: ListCustomersComponent
   },
 
   {
-    path: 'list-failed-registrations',
+    path: 'list-internet-banking',
     component: ListFailedRegistrationsComponent
   },
 
@@ -26,7 +26,9 @@ const routes: Routes = [
   {
     path: 'customer/:id',
     component: ViewCustomerComponent
-  }
+  },
+
+
 ];
 
 @NgModule({

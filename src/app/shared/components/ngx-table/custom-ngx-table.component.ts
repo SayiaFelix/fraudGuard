@@ -17,10 +17,23 @@ export class CustomNgxTable implements OnInit {
   @Input() rows: any;
   @Input() hasViewAndEdit: boolean;
 
+  @Input() actions: any;
+
+  @Output() outputEvent = new EventEmitter<string>();
   @Output() editEvent = new EventEmitter<string>();
   @Output() viewEvent = new EventEmitter<string>();
 
 
+
+  // New Params
+  data: any[];
+  total: any;
+  perPage = 10;
+  pageSizes: number[] = [2, 5, 10, 20, 50, 100, 200];
+  page = 1;
+  dataLoaded = false;
+  // New Params
+  maxSize: number = 5;
 
     constructor(
 
@@ -48,5 +61,21 @@ export class CustomNgxTable implements OnInit {
   }
   viewItem(row: any) {
     this.viewEvent.emit(row);
+  }
+
+  onChange() {
+    this.getIndividualData(this.page);
+  }
+
+  getIndividualData(event: any): void {
+    console.log(event);
+  }
+
+  sendEvent(row: any, action: any) {
+      let result = {
+        row: row,
+        action: action
+      }
+    this.outputEvent.emit(JSON.stringify(result))
   }
 }

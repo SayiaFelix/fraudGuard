@@ -20,7 +20,7 @@ export class CheckTokenValidityInterceptor implements HttpInterceptor {
             // this.toastrService.warning('Logging you out', 'Your Token is expired');
             // here remove the auth token
             localStorage.clear();
-            this.router.navigate(['/login']);
+            this.router.navigate(['/auth/login']);
         } else {
       }
       return next.handle(req);
