@@ -30,7 +30,7 @@ import {AddCustomerComponent} from "../add-customer/add-customer.component";
  */
 export class ListCustomersComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
-
+  actions=["View","Edit"]
   tempProductData = [
     {
       customerid: 1,
@@ -299,5 +299,17 @@ export class ListCustomersComponent implements OnInit {
 
   updateColumns(updatedColumns: any) {
     this.columns = [...updatedColumns];
+  }
+  openEditProductModal(data:any){
+    
+  }
+  triggerEvent(data:any){
+    let eventData = JSON.parse(data)
+
+    if (eventData.action == 'View') {
+      this. navigateToViewProduct(eventData.row);
+    }else if (eventData.action == 'Edit') {
+      this.openEditProductModal(eventData.row);
+    }
   }
 }

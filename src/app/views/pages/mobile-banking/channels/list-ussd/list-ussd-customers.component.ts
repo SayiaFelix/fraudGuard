@@ -30,7 +30,7 @@ import {AddCustomerComponent} from "../add-customer/add-customer.component";
  */
 export class ListUssdCustomersComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
-
+ actions = ["View","Edit"];
   tempProductData = [
     {
       id: 1,
@@ -86,7 +86,7 @@ export class ListUssdCustomersComponent implements OnInit {
   public modalRef: NgbModalRef;
 
   title: string = "USSD Customer";
-
+  
 
   constructor(
     private httpService: HttpService,
@@ -153,18 +153,18 @@ export class ListUssdCustomersComponent implements OnInit {
     });
   }
 
-  // openEditProductModal(formData: any) {
-  //   this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true});
-  //   this.modalRef.componentInstance.title = 'Edit Product';
-  //   this.modalRef.componentInstance.formData = formData;
-  //   this.modalRef.result.then((result) => {
-  //     if (result === 'success') {
-  //       this.getIndividualData(0);
-  //     } else {
-  //       console.log("Error occurred")
-  //     }
-  //   });
-  // }
+  openEditProductModal(formData: any) {
+    this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Edit Product';
+    this.modalRef.componentInstance.formData = formData;
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        this.getIndividualData(0);
+      } else {
+        console.log("Error occurred")
+      }
+    });
+  }
 
   onFileChange(event: any) {
     if (event.target.files && event.target.files.length) {
@@ -296,5 +296,14 @@ export class ListUssdCustomersComponent implements OnInit {
 
   updateColumns(updatedColumns: any) {
     this.columns = [...updatedColumns];
+  }
+  triggerEvent(data:string){
+    let eventData = JSON.parse(data)
+
+    if (eventData.action == 'View') {
+      this.navigateToViewUssdCustomer(eventData.row);
+    }else if (eventData.action == 'Edit') {
+      this.openEditProductModal(eventData.row);
+    }
   }
 }
