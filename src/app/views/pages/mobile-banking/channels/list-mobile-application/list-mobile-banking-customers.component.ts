@@ -11,6 +11,7 @@ import {AddCustomerComponent} from "../add-customer/add-customer.component";
 import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
 import {SwalComponent} from "@sweetalert2/ngx-sweetalert2";
 import Swal from "sweetalert2";
+import {AddMobileAppCustomerComponent} from "../add-mobile-app-customer/add-mobile-app-customer.component";
 
 @Component({
   selector: 'app-list-internet-banking',
@@ -81,6 +82,7 @@ export class ListMobileBankingCustomersComponent implements OnInit {
 
   @ViewChild('mySwal')
   public readonly mySwal!: SwalComponent;
+  actions = ["View", "Reset"];
 
   constructor(
     private httpService: HttpService,
@@ -137,8 +139,8 @@ export class ListMobileBankingCustomersComponent implements OnInit {
 
   openAddProductModal() {
 
-    this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true});
-    this.modalRef.componentInstance.title = 'Add Categories';
+    this.modalRef = this.modalService.open(AddMobileAppCustomerComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Add Customer to Channel';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
         this.getIndividualData(0);
@@ -224,4 +226,15 @@ export class ListMobileBankingCustomersComponent implements OnInit {
   navigateToView(data: any) {
     this.router.navigateByUrl(`/mobile-banking/channels/mobile-app/${data.id}`);
   }
+
+  triggerEvent(data: string) {
+    let eventData = JSON.parse(data)
+    if (eventData.action == 'View') {
+      this.navigateToView(eventData.row);
+    }else if (eventData.action == 'Reset') {
+      this.openResetModal(eventData.row);
+    }
+
+  }
+
 }
