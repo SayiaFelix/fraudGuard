@@ -14,15 +14,15 @@ import Swal from "sweetalert2";
 
 @Component({
   selector: 'app-list-internet-banking',
-  templateUrl: './list-failed-registrations.component.html',
-  styleUrls: ['./list-failed-registrations.component.scss'],
+  templateUrl: './list-mobile-banking-customers.component.html',
+  styleUrls: ['./list-mobile-banking-customers.component.scss'],
   providers: [DatePipe],
 })
 
 /**
  * Starter-component
  */
-export class ListFailedRegistrationsComponent implements OnInit {
+export class ListMobileBankingCustomersComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
 
   tempProductData = [
@@ -77,11 +77,10 @@ export class ListFailedRegistrationsComponent implements OnInit {
   public imageFile: File;
   public modalRef: NgbModalRef;
 
-  title: string = "Failed Registration";
+  title: string = "Customer";
 
   @ViewChild('mySwal')
   public readonly mySwal!: SwalComponent;
-  actions = ["View", "Edit"];
 
   constructor(
     private httpService: HttpService,
@@ -222,13 +221,7 @@ export class ListFailedRegistrationsComponent implements OnInit {
     this.columns = [...updatedColumns];
   }
 
-  triggerEvent(data: string) {
-
-    let eventData = JSON.parse(data)
-
-    if (eventData.action == 'View') {
-
-    }
-
+  navigateToView(data: any) {
+    this.router.navigateByUrl(`/mobile-banking/channels/mobile-app/${data.id}`);
   }
 }

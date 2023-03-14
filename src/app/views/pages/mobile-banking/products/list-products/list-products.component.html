@@ -20,9 +20,9 @@
         <app-custom-ngx-table
           [columns]="columns"
           [rows]="rows"
+          [actions]="actions"
           [hasViewAndEdit]="true"
-          (viewEvent)="navigateToViewProduct($event)"
-          (editEvent)="openEditProductModal($event)"
+          (outputEvent)="triggerEvent($event)"
         ></app-custom-ngx-table>
     </div>
   </div>

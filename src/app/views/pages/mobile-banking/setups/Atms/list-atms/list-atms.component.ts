@@ -76,6 +76,8 @@ export class ListAtmsComponent implements OnInit {
 
   public modalRef: NgbModalRef;
   title: string = "ATMs";
+  actions = ["Edit"];
+
 
 
   constructor(private httpService: HttpService,
@@ -184,5 +186,17 @@ export class ListAtmsComponent implements OnInit {
 
   updateColumns(updatedColumns: any) {
     this.columns = [...updatedColumns];
+  }
+
+  triggerEvent(data: string) {
+
+    let eventData = JSON.parse(data)
+
+    if (eventData.action == 'View') {
+      // this.navigateToViewProduct(eventData.row);
+    }else if (eventData.action == 'Edit') {
+      this.editAtm(eventData.row);
+    }
+
   }
 }

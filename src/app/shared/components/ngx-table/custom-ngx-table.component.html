@@ -15,8 +15,8 @@
 
 <div class="table-responsive table-striped table-bordered">
   <ngx-datatable #table [columnMode]="ColumnMode.force" [columns]="columns" [footerHeight]="50" [limit]="2"
-    [loadingIndicator]="loadingIndicator" [rowHeight]="'auto'" [rows]="rows"
-    class="bootstrap table-bordered table-striped striped">
+                 [loadingIndicator]="loadingIndicator" [rowHeight]="'auto'" [rows]="rows"
+                 class="bootstrap table-bordered table-striped striped">
     <!-- Row Detail Template -->
     <ngx-datatable-row-detail #myDetailRow (toggle)="onDetailToggle($event)" [rowHeight]="100">
       <ng-template let-expanded="expanded" let-row="row" ngx-datatable-row-detail-template>
@@ -29,39 +29,102 @@
 
     <!-- Column Templates -->
     <ngx-datatable-column [canAutoResize]="false" [draggable]="false" [resizeable]="false" [sortable]="false"
-      [width]="5">
+                          [width]="5">
       <ng-template let-expanded="expanded" let-row="row" let-value="value" ngx-datatable-cell-template>
         <a (click)="toggleExpandRow(row)" [class.datatable-icon-down]="expanded"
-          [class.datatable-icon-right]="!expanded" href="javascript:void(0)" title="Expand/Collapse Row">
+           [class.datatable-icon-right]="!expanded" href="javascript:void(0)" title="Expand/Collapse Row">
         </a>
       </ng-template>
     </ngx-datatable-column>
 
     <ng-container *ngFor="let column of columns">
-      <ngx-datatable-column *ngIf="column.name === 'ID'" name="ID" prop="id" [width]="10">
+      <ngx-datatable-column *ngIf="column.name === 'ID'" [maxWidth]="40" [minWidth]="35" name="ID" prop="id">
       </ngx-datatable-column>
 
-      <ngx-datatable-column *ngIf="column.name === 'Actions'" name="Actions" prop="actions" [sortable]="false">
-        <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
-          <span>
-            <button *ngIf="hasViewAndEdit" (click)="viewItem(row)"
-              class="btn btn-outline-primary btn-icon-text me-2 btn-xs" type="button">
-              View
-            </button>
-            <button (click)="openEditModal(row)" class="btn btn-primary btn-icon-text btn-xs" type="button">
-              Edit
-            </button>
-          </span>
+      <ngx-datatable-column
+        *ngIf="column.name === 'Actions'"
+        [maxWidth]="150"
+        [minWidth]="150"
+        [sortable]="false"
+        class="parent-item"
+        name="Actions" prop="actions"
+      >
+        <ng-template
+          class="parent-item"
+          let-row="row"
+          let-value="value"
+          ngx-datatable-cell-template
+        >
+                  <span class="parent-item">
+                    <ng-template #buttons>
+                      <ul class="list-group list-group-flush">
+                        <li (click)="sendEvent(row, action)"
+                            *ngFor="let action of actions; index as i"
+                            class="action-buttons list-group-item pt-1 pb-1 text-center">
+                          {{action}}
+                        </li>
+                      </ul>
+                    </ng-template>
+                    <div class="example">
+                      <button [ngbPopover]="buttons" class="btn btn-primary btn-sm" placement="bottom" type="button">
+                        <i class="feather icon-chevron-down"></i> Actions
+                      </button>
+                    </div>
+
+                    <!--                    <div ngbDropdown>-->
+                    <!--                      <button class="btn btn-outline-primary btn-icon-text me-2 btn-xs"-->
+                    <!--                              id="dropdownBasic1"-->
+                    <!--                              ngbDropdownToggle>Actions-->
+                    <!--                      </button>-->
+                    <!--                      <div aria-labelledby="dropdownBasic1" class="menu-items" ngb ngbDropdownMenu>-->
+                    <!--                        <button *ngFor="let action of actions" ngbDropdownItem>{{action}}</button>-->
+                    <!--                      </div>-->
+                    <!--                    </div>-->
+
+                    <!--                    <button (click)="viewItem(row)"-->
+                    <!--                            *ngIf="hasViewAndEdit"-->
+                    <!--                            class="btn btn-outline-primary btn-icon-text me-2 btn-xs"-->
+                    <!--                            type="button"-->
+                    <!--                    >-->
+                    <!--                      View-->
+                    <!--                    </button>-->
+                    <!--                    <button-->
+                    <!--                      (click)="openEditModal(row)"-->
+                    <!--                      class="btn btn-primary btn-icon-text btn-xs"-->
+                    <!--                      type="button"-->
+                    <!--                    >-->
+                    <!--                      Edit-->
+                    <!--                    </button>-->
+
+                    <!--                    <div class="btn-group mb-1 mb-md-0">-->
+                    <!--                      <button class="btn btn-secondary" type="button">Split dropleft</button>-->
+                    <!--                      <div class="btn-group" ngbDropdown placement="start-top" role="group">-->
+                    <!--                        <button class="btn btn-secondary dropdown-toggle-split" ngbDropdownToggle></button>-->
+                    <!--                        <div ngbDropdownMenu>-->
+                    <!--                          <button ngbDropdownItem>Action - 1</button>-->
+                    <!--                          <button ngbDropdownItem>Another Action</button>-->
+                    <!--                          <button ngbDropdownItem>Something else is here</button>-->
+                    <!--                        </div>-->
+                    <!--                      </div>-->
+                    <!--                    </div>-->
+                  </span>
         </ng-template>
       </ngx-datatable-column>
 
-      <ngx-datatable-column *ngIf="column.name === 'Status' || column.name === 'Active'" name="Status" prop="status">
+      <ngx-datatable-column
+        *ngIf="column.name === 'Status' || column.name === 'Active'"
+        [maxWidth]="150"
+        [minWidth]="150"
+        name="Status" prop="status">
         <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
           <app-label-active [value]="row.status || row.active"></app-label-active>
         </ng-template>
       </ngx-datatable-column>
 
-      <ngx-datatable-column *ngIf="column.name === 'CreatedOn'" name="CreatedOn" prop="createdOn">
+      <ngx-datatable-column *ngIf="column.name === 'CreatedOn'"
+                            [maxWidth]="150"
+                            [minWidth]="150"
+                            name="CreatedOn" prop="createdOn">
       </ngx-datatable-column>
 
       <ngx-datatable-column
@@ -69,42 +132,42 @@
         name="{{ column.name }}" prop="{{ column.prop }}">
       </ngx-datatable-column>
     </ng-container>
-<!--    <ngx-datatable-footer>-->
-<!--      <ng-template ngx-datatable-footer-template>-->
+    <!--    <ngx-datatable-footer>-->
+    <!--      <ng-template ngx-datatable-footer-template>-->
 
-<!--        <div class="row">-->
-<!--          <div class="col">-->
-<!--             <label class="form-label" for="exampleInputEmail1">Email address</label>-->
-<!--              <input class="form-control" id="exampleInputEmail1" placeholder="Email" type="email">-->
-<!--          </div>-->
-<!--        </div>-->
+    <!--        <div class="row">-->
+    <!--          <div class="col">-->
+    <!--            <label class="form-label" for="exampleInputEmail1">Email address</label>-->
+    <!--            <input class="form-control" id="exampleInputEmail1" placeholder="Email" type="email">-->
+    <!--          </div>-->
+    <!--        </div>-->
 
-<!--          &lt;!&ndash;        <ul class="d-none">&ndash;&gt;-->
-<!--&lt;!&ndash;          <li *ngFor="let item of data | paginate: {itemsPerPage: perPage, currentPage: page, totalItems: total}">&ndash;&gt;-->
-<!--&lt;!&ndash;          </li>&ndash;&gt;-->
-<!--&lt;!&ndash;        </ul>&ndash;&gt;-->
+    <!--        &lt;!&ndash;        <ul class="d-none">&ndash;&gt;-->
+    <!--        &lt;!&ndash;          <li *ngFor="let item of data | paginate: {itemsPerPage: perPage, currentPage: page, totalItems: total}">&ndash;&gt;-->
+    <!--        &lt;!&ndash;          </li>&ndash;&gt;-->
+    <!--        &lt;!&ndash;        </ul>&ndash;&gt;-->
 
-<!--&lt;!&ndash;        <div class="row text-center stretch-card">&ndash;&gt;-->
-<!--&lt;!&ndash;          <div class="col-xl-12 text-center mt-2">&ndash;&gt;-->
-<!--&lt;!&ndash;            Items Per Page&ndash;&gt;-->
-<!--&lt;!&ndash;            <select (change)="onChange()" [(ngModel)]="perPage" class="form-control custom-select">&ndash;&gt;-->
-<!--&lt;!&ndash;              <option *ngFor="let pageSize of pageSizes" [ngValue]="pageSize">{{ pageSize }}</option>&ndash;&gt;-->
-<!--&lt;!&ndash;            </select>&ndash;&gt;-->
-<!--&lt;!&ndash;            &lt;!&ndash;              <div class="col-6 pl-0">&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;            &lt;!&ndash;                <label class="pt-2">Items per page</label>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;            &lt;!&ndash;              </div>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;          </div>&ndash;&gt;-->
+    <!--        &lt;!&ndash;        <div class="row text-center stretch-card">&ndash;&gt;-->
+    <!--        &lt;!&ndash;          <div class="col-xl-12 text-center mt-2">&ndash;&gt;-->
+    <!--        &lt;!&ndash;            Items Per Page&ndash;&gt;-->
+    <!--        &lt;!&ndash;            <select (change)="onChange()" [(ngModel)]="perPage" class="form-control custom-select">&ndash;&gt;-->
+    <!--        &lt;!&ndash;              <option *ngFor="let pageSize of pageSizes" [ngValue]="pageSize">{{ pageSize }}</option>&ndash;&gt;-->
+    <!--        &lt;!&ndash;            </select>&ndash;&gt;-->
+    <!--        &lt;!&ndash;            &lt;!&ndash;              <div class="col-6 pl-0">&ndash;&gt;&ndash;&gt;-->
+    <!--        &lt;!&ndash;            &lt;!&ndash;                <label class="pt-2">Items per page</label>&ndash;&gt;&ndash;&gt;-->
+    <!--        &lt;!&ndash;            &lt;!&ndash;              </div>&ndash;&gt;&ndash;&gt;-->
+    <!--        &lt;!&ndash;          </div>&ndash;&gt;-->
 
-<!--&lt;!&ndash;          <div class="col-xl-6">&ndash;&gt;-->
-<!--&lt;!&ndash;            <pagination-controls (pageChange)="getIndividualData($event)" [autoHide]="true" [maxSize]="maxSize"&ndash;&gt;-->
-<!--&lt;!&ndash;                                 [responsive]="true" previousLabel="Prev">&ndash;&gt;-->
-<!--&lt;!&ndash;            </pagination-controls>&ndash;&gt;-->
-<!--&lt;!&ndash;          </div>&ndash;&gt;-->
+    <!--        &lt;!&ndash;          <div class="col-xl-6">&ndash;&gt;-->
+    <!--        &lt;!&ndash;            <pagination-controls (pageChange)="getIndividualData($event)" [autoHide]="true" [maxSize]="maxSize"&ndash;&gt;-->
+    <!--        &lt;!&ndash;                                 [responsive]="true" previousLabel="Prev">&ndash;&gt;-->
+    <!--        &lt;!&ndash;            </pagination-controls>&ndash;&gt;-->
+    <!--        &lt;!&ndash;          </div>&ndash;&gt;-->
 
-<!--&lt;!&ndash;        </div>&ndash;&gt;-->
+    <!--        &lt;!&ndash;        </div>&ndash;&gt;-->
 
-<!--      </ng-template>-->
-<!--    </ngx-datatable-footer>-->
+    <!--      </ng-template>-->
+    <!--    </ngx-datatable-footer>-->
 
   </ngx-datatable>
 </div>
