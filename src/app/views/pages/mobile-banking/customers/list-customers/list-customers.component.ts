@@ -67,7 +67,7 @@ export class ListCustomersComponent implements OnInit {
   reorderable = true;
 
   columns = [
-    { name: '#', prop: 'customerid' },
+    { name: 'ID', prop: 'customerid' },
     { name: 'CustomerName', prop: 'customerName' },
     {name:'PhoneNumber',prop:'phoneNumber'},
     { name: 'IDNumber', prop: 'idNumber' },
