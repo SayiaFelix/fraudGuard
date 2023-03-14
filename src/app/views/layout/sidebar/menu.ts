@@ -22,7 +22,7 @@ export const MENU: MenuItem[] = [
     profiles: ['CORPORATE_ADMIN'],
     label: 'Products',
     icon: 'home',
-    link: '/mobile-banking/products/list-customers'
+    link: '/mobile-banking/products/list-ussd'
   },
 
   {
@@ -34,19 +34,43 @@ export const MENU: MenuItem[] = [
     profiles: ['CORPORATE_ADMIN'],
     label: 'Customers',
     icon: 'home',
-    link: '/mobile-banking/customers/list-customers'
+    link: '/mobile-banking/customers/list-ussd'
   },
   {
     profiles: ['CORPORATE_ADMIN'],
     label: 'Failed Registrations',
     icon: 'home',
-    link: '/mobile-banking/customers/list-failed-registrations'
+    link: '/mobile-banking/customers/list-internet-banking'
   },
   {
     profiles: ['CORPORATE_ADMIN'],
     label: 'Send Bulk SMS',
     icon: 'home',
     link: '/mobile-banking/customers/send-bulk-sms'
+  },
+
+  {
+    profiles: ['CORPORATE_ADMIN'],
+    label: 'Channel Management',
+    isTitle: true
+  },
+  {
+    profiles: ['CORPORATE_ADMIN'],
+    label: 'USSD',
+    icon: 'home',
+    link: '/mobile-banking/channels/ussd'
+  },
+  {
+    profiles: ['CORPORATE_ADMIN'],
+    label: 'Internet Banking',
+    icon: 'home',
+    link: '/mobile-banking/channels/list-internet-banking'
+  },
+  {
+    profiles: ['CORPORATE_ADMIN'],
+    label: 'Mobile App',
+    icon: 'home',
+    link: '/mobile-banking/channels/list-mobile-app'
   },
 
   {

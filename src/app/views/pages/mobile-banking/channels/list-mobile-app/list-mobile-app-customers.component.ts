@@ -22,15 +22,15 @@ import {AddCustomerComponent} from "../add-customer/add-customer.component";
 
 @Component({
   selector: 'app-list-mobile-app',
-  templateUrl: './send-sms.component.html',
-  styleUrls: ['./send-sms.component.scss'],
+  templateUrl: './list-mobile-app-customers.component.html',
+  styleUrls: ['./list-mobile-app-customers.component.scss'],
   providers: [DatePipe],
 })
 
 /**
  * Starter-component
  */
-export class SendSmsComponent implements OnInit {
+export class ListMobileAppCustomersComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
 
   tempProductData = [

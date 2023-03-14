@@ -14,15 +14,15 @@ import Swal from "sweetalert2";
 
 @Component({
   selector: 'app-list-internet-banking',
-  templateUrl: './list-failed-registrations.component.html',
-  styleUrls: ['./list-failed-registrations.component.scss'],
+  templateUrl: './list-internet-banking-customers.component.html',
+  styleUrls: ['./list-internet-banking-customers.component.scss'],
   providers: [DatePipe],
 })
 
 /**
  * Starter-component
  */
-export class ListFailedRegistrationsComponent implements OnInit {
+export class ListInternetBankingCustomersComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
 
   tempProductData = [
