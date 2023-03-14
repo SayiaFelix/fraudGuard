@@ -15,7 +15,6 @@ export class CustomNgxTable implements OnInit {
 
   @Input() columns: any;
   @Input() rows: any;
-  @Input() hasViewAndEdit: boolean;
 
   @Input() actions: any;
 
@@ -52,15 +51,6 @@ export class CustomNgxTable implements OnInit {
     console.log(this.table);
 
     this.table.rowDetail.toggleExpandRow(row);
-  }
-
-
-
-  openEditModal(row: any) {
-    this.editEvent.emit(row);
-  }
-  viewItem(row: any) {
-    this.viewEvent.emit(row);
   }
 
   onChange() {

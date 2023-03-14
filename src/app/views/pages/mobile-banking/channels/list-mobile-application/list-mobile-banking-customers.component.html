@@ -22,10 +22,8 @@
           [columns]="columns"
           [rows]="rows"
           [actions]="actions"
-          [hasViewAndEdit]="true"
+
           (outputEvent)="triggerEvent($event)"
-          (viewEvent)="navigateToView($event)"
-          (editEvent)="openResetModal($event)"
         ></app-custom-ngx-table>
     </div>
   </div>
