@@ -31,10 +31,10 @@ const routes: Routes = [
     path: 'ussdcustomer/:id',
     component: ViewCustomerComponent
   },
-  
+
   {
     path: 'InternetBanking/:id',
-    component: ViewInternetBankingComponent
+    component: ViewInternetBankingComponent,
   },
   {
     path: 'mobile-app/:id',
