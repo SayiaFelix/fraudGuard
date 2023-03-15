@@ -4,120 +4,121 @@ export const MENU: MenuItem[] = [
   {
     profiles: ['CORPORATE_ADMIN'],
     label: 'Main',
-    isTitle: true
-  },
-  {
-    profiles: ['CORPORATE_ADMIN'],
-    label: 'Dashboard',
     icon: 'home',
-    link: '/dashboard'
+    subItems: [
+      {
+        profiles: ['CORPORATE_ADMIN'],
+        label: 'Dashboard',
+        link: '/dashboard'
+      },
+    ]
   },
 
   {
     profiles: ['CORPORATE_ADMIN'],
     label: 'Products',
-    isTitle: true
-  },
-  {
-    profiles: ['CORPORATE_ADMIN'],
-    label: 'Products',
     icon: 'home',
-    link: '/mobile-banking/products/list-ussd'
+    subItems: [
+      {
+        profiles: ['CORPORATE_ADMIN'],
+        label: 'Products',
+        link: '/mobile-banking/products/list-ussd'
+      },
+    ]
   },
 
   {
     profiles: ['CORPORATE_ADMIN'],
     label: 'Customers Module',
-    isTitle: true
-  },
-  {
-    profiles: ['CORPORATE_ADMIN'],
-    label: 'Customers',
     icon: 'home',
-    link: '/mobile-banking/customers/list-ussd'
+    subItems: [
+      {
+        profiles: ['CORPORATE_ADMIN'],
+        label: 'Customers',
+        link: '/mobile-banking/customers/list-ussd'
+      },
+      {
+        profiles: ['CORPORATE_ADMIN'],
+        label: 'Failed Registrations',
+        link: '/mobile-banking/customers/list-internet-banking'
+      },
+      {
+        profiles: ['CORPORATE_ADMIN'],
+        label: 'Send Bulk SMS',
+        link: '/mobile-banking/customers/send-bulk-sms'
+      },
+    ]
   },
-  {
-    profiles: ['CORPORATE_ADMIN'],
-    label: 'Failed Registrations',
-    icon: 'home',
-    link: '/mobile-banking/customers/list-internet-banking'
-  },
-  {
-    profiles: ['CORPORATE_ADMIN'],
-    label: 'Send Bulk SMS',
-    icon: 'home',
-    link: '/mobile-banking/customers/send-bulk-sms'
-  },
+
 
   {
     profiles: ['CORPORATE_ADMIN'],
     label: 'Channel Management',
-    isTitle: true
-  },
-  {
-    profiles: ['CORPORATE_ADMIN'],
-    label: 'USSD',
     icon: 'home',
-    link: '/mobile-banking/channels/list-ussd'
+    subItems: [
+      {
+        profiles: ['CORPORATE_ADMIN'],
+        label: 'USSD',
+        link: '/mobile-banking/channels/list-ussd'
+      },
+      {
+        profiles: ['CORPORATE_ADMIN'],
+        label: 'Internet Banking',
+        link: '/mobile-banking/channels/list-internet-banking'
+      },
+      {
+        profiles: ['CORPORATE_ADMIN', 'ADMIN'],
+        label: 'Mobile App',
+        link: '/mobile-banking/channels/list-mobile-app'
+      },
+    ]
   },
-  {
-    profiles: ['CORPORATE_ADMIN'],
-    label: 'Internet Banking',
-    icon: 'home',
-    link: '/mobile-banking/channels/list-internet-banking'
-  },
-  {
-    profiles: ['CORPORATE_ADMIN'],
-    label: 'Mobile App',
-    icon: 'home',
-    link: '/mobile-banking/channels/list-mobile-app'
-  },
+
 
   {
     profiles: ['CORPORATE_ADMIN'],
     label: 'Setup',
-    isTitle: true,
-  },
-  {
-    profiles: ['CORPORATE_ADMIN'],
-    label: 'Regions',
     icon: 'file-text',
-    link: '/mobile-banking/setups/list-Regions'
-  },
-  {
-    profiles: ['CORPORATE_ADMIN'],
-    label: 'Branches',
-    icon: 'file-text',
-    link: '/mobile-banking/setups/list-branches'
-  },
-  {
-    profiles: ['CORPORATE_ADMIN'],
-    label: 'ATMs',
-    icon: 'file-text',
-    link: '/mobile-banking/setups/list-atms'
+    subItems: [
+      {
+        profiles: ['CORPORATE_ADMIN'],
+        label: 'Regions',
+        link: '/mobile-banking/setups/list-Regions'
+      },
+      {
+        profiles: ['CORPORATE_ADMIN'],
+        label: 'Branches',
+        link: '/mobile-banking/setups/list-branches'
+      },
+      {
+        profiles: ['CORPORATE_ADMIN'],
+        label: 'ATMs',
+        link: '/mobile-banking/setups/list-atms'
+      },
+    ]
   },
 
   {
     profiles: ['CORPORATE_ADMIN'],
     label: 'User Management',
-    isTitle: true
-  },
-  {
-    profiles: ['CORPORATE_ADMIN'],
-    label: 'Users',
     icon: 'file-text',
-    link: '/mobile-banking/Users/list-users'
-  },
-  {
-    profiles: ['CORPORATE_ADMIN'],
-    label: 'Roles',
-    icon: 'home',
-    link: '/mobile-banking/rbac/all-roles'
-  },
-  {
-    profiles: ['CORPORATE_ADMIN'],
-    label: 'Profiles',
-    icon: 'home',
-    link: '/mobile-banking/rbac/all-profiles'
-  }]
+    subItems: [
+      {
+        profiles: ['CORPORATE_ADMIN'],
+        label: 'Users',
+        link: '/mobile-banking/Users/list-users'
+      },
+      {
+        profiles: ['CORPORATE_ADMIN'],
+        label: 'Roles',
+        link: '/mobile-banking/rbac/all-roles'
+      },
+      {
+        profiles: ['CORPORATE_ADMIN'],
+        label: 'Profiles',
+        link: '/mobile-banking/rbac/all-profiles'
+      }
+    ]
+  }
+  ]
 
