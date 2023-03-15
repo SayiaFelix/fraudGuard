@@ -12,7 +12,7 @@
     (changeColumnsEvent)="updateColumns($event)"
     (openAddModalEvent)="openAddProductModal()"
   ></app-table-header>
-  
+
 </div>
 
 
@@ -22,7 +22,9 @@
         <app-custom-ngx-table
           [columns]="columns"
           [rows]="rows"
+          [actions]="actions"
           [hasViewAndEdit]="true"
+          (outputEvent)="triggerEvent($event)"
           (viewEvent)="navigateToViewUssdCustomer($event)"
         ></app-custom-ngx-table>
     </div>

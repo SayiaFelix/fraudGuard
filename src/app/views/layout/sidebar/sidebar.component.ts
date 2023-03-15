@@ -20,6 +20,8 @@ export class SidebarComponent implements OnInit, AfterViewInit {
   @ViewChild('sidebarMenu') sidebarMenu: ElementRef;
   showSubItems: boolean = true;
   logo: string = '\\assets\\images\\MicrosoftTeams-image (2).png'
+  showingClass = "d-none";
+  selectedParent: string | undefined;
 
   constructor(@Inject(DOCUMENT) private document: Document, private renderer: Renderer2, router: Router) {
     router.events.forEach((event) => {
@@ -261,8 +263,4 @@ export class SidebarComponent implements OnInit, AfterViewInit {
     return false;
   }
 
-  collapseSubMenuItems(item: any) {
-    this.showSubItems = !this.showSubItems;
-    console.log("Hiding ", item)
-  }
 }

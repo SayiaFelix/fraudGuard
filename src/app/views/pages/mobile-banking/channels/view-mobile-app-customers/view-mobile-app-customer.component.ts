@@ -1,10 +1,10 @@
 import {Component, Input, OnInit, TemplateRef} from '@angular/core';
 import {HttpService} from '../../../../../shared/services/http.service';
 import {GlobalService} from '../../../../../shared/services/global.service';
-import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
-import {ActivatedRoute, Params} from '@angular/router';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {ActivatedRoute} from '@angular/router';
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
-import { ColumnMode } from '@swimlane/ngx-datatable';
+import {ColumnMode} from '@swimlane/ngx-datatable';
 
 @Component({
   selector: 'app-view-customer',
@@ -33,32 +33,15 @@ export class ViewMobileAppCustomerComponent implements OnInit {
   reorderable = true;
 
 
-  Transactioncolumns = [
-    // { name: 'ID', prop: 'id' },
-    { name: 'TransID', prop:'TransID' },
-    { name: 'CreatedOn', prop:'CreatedOn' },
-    {name:'ServiceName',prop:'ServiceName'},
-    {name:'AccountNo.',prop:'AccountNo.'},
-    {name:'Amount',prop:'Amount'},
-    {name:'ChargeAmt',prop:'ChargeAmt'},
-    {name:'ResCode',prop:'Respons'},
-    // { name: 'IsActive', prop:'isActive' },
-    // { name: 'Actions', prop: 'id' }
+  columns = [
+    {name: 'ID', prop: 'id'},
+    {name: 'IMEI', prop: 'imei'},
+    {name: 'LastLogin', prop: 'ServiceName'},
+    {name: 'Status', prop: 'isActive'},
+    {name: 'CreatedOn', prop: 'CreatedOn'},
+    {name: 'Actions', prop: 'id'}
   ];
-  public myproductList =[
-      {
-        customerID:'1256',
-        accNo:'01198564321908',
-      }
-  ];
-Accountscolumns = [
-  { name:'CustomerID', prop:'customerID'},
-  { name:'AccNo', prop:'accNo'},
-  { name:'AccName', prop:'AccName'},
-  { name:'AccBalance', prop:'AccBalance'},
-  { name:'Status', prop:'Status'},
 
-];
 
   public mainProduct: any;
   public subcategoryTitle: any;
@@ -69,12 +52,14 @@ Accountscolumns = [
   public imageFile: File;
 
   ColumnMode = ColumnMode;
+  isAsideNavCollapsed: any;
+  actions = ["Reset"];
+
   constructor(private httpService: HttpService,
               public globalService: GlobalService,
               public activatedRoute: ActivatedRoute,
               private modalService: NgbModal,
               public fb: FormBuilder,
-
   ) {
     activatedRoute.queryParams.subscribe(
       params => {
@@ -100,6 +85,40 @@ Accountscolumns = [
 
   }
 
+  openAddProductSubcategoryModal(content: TemplateRef<any>) {
+    this.modalService.open(content, {centered: true, size: "lg"}).result.then((result) => {
+      console.log("Modal closed" + result);
+    }).catch((res) => {
+    });
+  }
+
+  onFileChange(event: any) {
+    if (event.target.files && event.target.files.length) {
+      this.imageFile = event.target.files[0];
+    }
+  }
+
+  openResetPinModal(content: TemplateRef<any>) {
+    this.modalService.open(content, {centered: true, size: "md"}).result.then((result) => {
+      console.log("Modal closed" + result);
+    }).catch((res) => {
+    });
+  }
+
+  openDisableCustomerModal(content: TemplateRef<any>) {
+    this.modalService.open(content, {centered: true, size: "md"}).result.then((result) => {
+      console.log("Modal closed" + result);
+    }).catch((res) => {
+    });
+  }
+
+  triggerEvent(data: string) {
+    let eventData = JSON.parse(data)
+    if (eventData.action == 'Reset') {
+      this.openResetPinModal(eventData.row);
+    }
+  }
+
   private loadData(): any {
 
     const model = {
@@ -112,27 +131,6 @@ Accountscolumns = [
       }
     );
   }
-
-  isAsideNavCollapsed: any;
-
-
-
-
-
-  openAddProductSubcategoryModal(content: TemplateRef<any>) {
-    this.modalService.open(content, {centered: true, size: "lg"}).result.then((result) => {
-      console.log("Modal closed" + result);
-    }).catch((res) => {});
-  }
-
-
-  onFileChange(event: any) {
-    if (event.target.files && event.target.files.length) {
-      this.imageFile = event.target.files[0];
-    }
-  }
-
-
 
   private createRecord(): any {
 
@@ -174,15 +172,5 @@ Accountscolumns = [
         }
       }
     );
-  }
-  openResetPinModal(content: TemplateRef<any>){
-    this.modalService.open(content, {centered: true, size: "md"}).result.then((result) => {
-      console.log("Modal closed" + result);
-    }).catch((res) => {});
-  }
-  openDisableCustomerModal(content: TemplateRef<any>){
-    this.modalService.open(content, {centered: true, size: "md"}).result.then((result) => {
-      console.log("Modal closed" + result);
-    }).catch((res) => {});
   }
 }
