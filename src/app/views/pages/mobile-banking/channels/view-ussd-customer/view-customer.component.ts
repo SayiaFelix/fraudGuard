@@ -15,7 +15,7 @@ import { AddCustomerComponent } from '../add-customer/add-customer.component';
 })
 export class ViewCustomerComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
-
+    actions = ["View","Edit"]
   tempProductData = [
     {
       id: 1,
@@ -285,5 +285,14 @@ export class ViewCustomerComponent implements OnInit {
     this.modalService.open(content, {centered: true, size: "md"}).result.then((result) => {
       console.log("Modal closed" + result);
     }).catch((res) => {});
+  }
+  triggerEvent(data:string){
+    let eventData = JSON.parse(data)
+
+    if (eventData.action == 'View') {
+      this. navigateToViewProduct(eventData.row);
+    }else if (eventData.action == 'Edit') {
+      this.openEditProductModal(eventData.row);
+    }
   }
 }

@@ -3,6 +3,7 @@ import {RouterModule, Routes} from '@angular/router';
 import {ListUssdCustomersComponent} from "./list-ussd/list-ussd-customers.component";
 import {ViewCustomerComponent} from "./view-ussd-customer/view-customer.component";
 import {ListInternetBankingCustomersComponent} from "./list-internet-banking/list-internet-banking-customers.component";
+
 import { ViewInternetBankingComponent } from './view-internet-banking/view-internet-banking.component';
 import {ListMobileBankingCustomersComponent} from "./list-mobile-application/list-mobile-banking-customers.component";
 import {ViewMobileAppCustomerComponent} from "./view-mobile-app-customers/view-mobile-app-customer.component";
