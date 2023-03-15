@@ -1,17 +1,24 @@
-import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { ColumnMode } from '@swimlane/ngx-datatable';
-import {DatatableComponent} from "@swimlane/ngx-datatable/lib/components/datatable.component";
+import { DatatableComponent } from '@swimlane/ngx-datatable/lib/components/datatable.component';
 
 @Component({
-    selector: 'app-custom-ngx-table',
-    templateUrl: './custom-ngx-table.component.html',
-    styleUrls: ['./custom-ngx-table.component.scss']
+  selector: 'app-custom-ngx-table',
+  templateUrl: './custom-ngx-table.component.html',
+  styleUrls: ['./custom-ngx-table.component.scss'],
 })
 export class CustomNgxTable implements OnInit {
-    @ViewChild('table') table: DatatableComponent;
-    ColumnMode = ColumnMode;
-    loadingIndicator = true;
-    reorderable = true;
+  @ViewChild('table') table: DatatableComponent;
+  ColumnMode = ColumnMode;
+  loadingIndicator = true;
+  reorderable = true;
 
   @Input() columns: any;
   @Input() rows: any;
@@ -24,25 +31,29 @@ export class CustomNgxTable implements OnInit {
   @Output() editEvent = new EventEmitter<string>();
   @Output() viewEvent = new EventEmitter<string>();
 
-
-
   // New Params
   data: any[];
   total: any;
   perPage = 10;
-  pageSizes: number[] = [2, 5, 10, 20, 50, 100, 200];
+  pageSizes: number[] = [5, 10, 20, 50, 100];
+  pageSize = 5;
   page = 1;
   dataLoaded = false;
+  showPageSizeDropdown = false;
   // New Params
   maxSize: number = 5;
 
-    constructor(
+  constructor() {}
+  ngOnInit() {}
 
-    ) {
+  togglePageSizeDropdown() {
+    this.showPageSizeDropdown = !this.showPageSizeDropdown;
+  }
 
-    }
-    ngOnInit() {
-    }
+  changePageSize(pageSize: number) {
+    this.pageSize = pageSize;
+    this.togglePageSizeDropdown();
+  }
 
   onDetailToggle(event: any) {
     console.log('Detail Toggled', event);
@@ -64,10 +75,10 @@ export class CustomNgxTable implements OnInit {
   }
 
   sendEvent(row: any, action: any) {
-      let result = {
-        row: row,
-        action: action
-      }
-    this.outputEvent.emit(JSON.stringify(result))
+    let result = {
+      row: row,
+      action: action,
+    };
+    this.outputEvent.emit(JSON.stringify(result));
   }
 }
