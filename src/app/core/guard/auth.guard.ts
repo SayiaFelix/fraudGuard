@@ -22,14 +22,20 @@ export class AuthGuard implements CanActivate {
   checkUserLogin(route: ActivatedRouteSnapshot, url: any): boolean {
     if (!!this.globalService.getToken()) {
       const userRole = this.httpService.getProfile;
-      
+
+      console.log("route details:::");
+      console.log(route);
+
+      console.log("user role details:::");
+      console.log(userRole);
+
       if (route.data.role && !route.data.role.includes(userRole)) {
         this.router.navigate(['/auth/login']);
         return false;
       }
       return true;
     }
-    
+
     this.router.navigate(['/auth/login']);
     return false;
   }

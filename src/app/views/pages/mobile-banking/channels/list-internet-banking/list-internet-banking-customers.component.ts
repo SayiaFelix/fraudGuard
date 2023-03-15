@@ -24,7 +24,7 @@ import Swal from "sweetalert2";
  */
 export class ListInternetBankingCustomersComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
-
+ actions=["View","Edit"]
   tempProductData = [
     {
       id: 1,
@@ -147,18 +147,18 @@ export class ListInternetBankingCustomersComponent implements OnInit {
     });
   }
 
-  // openEditProductModal(formData: any) {
-  //   this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true});
-  //   this.modalRef.componentInstance.title = 'Edit Product';
-  //   this.modalRef.componentInstance.formData = formData;
-  //   this.modalRef.result.then((result) => {
-  //     if (result === 'success') {
-  //       this.getIndividualData(0);
-  //     } else {
-  //       console.log("Error occurred")
-  //     }
-  //   });
-  // }
+  openEditProductModal(formData: any) {
+    this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Edit Product';
+    this.modalRef.componentInstance.formData = formData;
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        this.getIndividualData(0);
+      } else {
+        console.log("Error occurred")
+      }
+    });
+  }
 
   onFileChange(event: any) {
     if (event.target.files && event.target.files.length) {
@@ -290,5 +290,15 @@ export class ListInternetBankingCustomersComponent implements OnInit {
 
   updateColumns(updatedColumns: any) {
     this.columns = [...updatedColumns];
+  }
+
+  triggerEvent(data:any){
+    let eventData = JSON.parse(data)
+
+    if (eventData.action == 'View') {
+      this.navigateToViewUssdCustomer(eventData.row);
+    }else if (eventData.action == 'Edit') {
+      this.openEditProductModal(eventData.row);
+    }
   }
 }
