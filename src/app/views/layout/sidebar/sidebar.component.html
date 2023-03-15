@@ -25,28 +25,28 @@
 
     <ul class="sidebar-nav metismenu" id="sidebar-menu" #sidebarMenu>
       <ng-container *ngFor="let item of menuItems">
-        <li class="nav-item nav-category showHand" *ngIf="showMenuItem(item.profiles) && item.isTitle" (click)="collapseSubMenuItems(item)">
+        <li class="nav-item nav-category showHand" *ngIf="showMenuItem(item.profiles) && item.isTitle">
           <div class="row justify-content-around">
             <div class="col-10">
               {{ item.label }}
             </div>
             <div class="col-2">
-              <i data-feather="chevron-down" appFeatherIcon class="icon-sm"></i>
+<!--              <i data-feather="chevron-down" appFeatherIcon class="icon-sm"></i>-->
 <!--              <i data-feather="chevron-right" appFeatherIcon class="icon-sm" *ngIf="!showSubItems"></i>-->
             </div>
           </div>
         </li>
 
-        <li class="nav-item" *ngIf="showMenuItem(item.profiles) && !item.isTitle" >
+        <li class="nav-item " *ngIf="showMenuItem(item.profiles) && !item.isTitle">
 
           <a class="nav-link" *ngIf="hasItems(item) && showSubItems" href="javascript:void(0);">
 
             <i class="link-icon" [attr.data-feather]="item.icon" appFeatherIcon *ngIf="item.icon"></i>
-            <span class="link-title"> {{ item.label }}</span>
+            <span class="link-title linkTitle"> {{ item.label }}</span>
             <span class="link-arrow" data-feather="chevron-down" appFeatherIcon></span>
           </a>
 
-          <a class="nav-link nav-link-ref" [routerLink]="item.link" *ngIf="!hasItems(item)"
+          <a class="nav-link nav-link-ref nav-sub-items" [routerLink]="item.link" *ngIf="!hasItems(item)"
             [attr.data-parent]="item.parentId">
             <i class="link-icon" [attr.data-feather]="item.icon" appFeatherIcon *ngIf="item.icon"></i>
             <span class="link-title"> {{ item.label }}</span>
@@ -62,7 +62,7 @@
                 <span class="link-arrow" data-feather="chevron-down" appFeatherIcon></span>
               </a>
 
-              <a class="nav-link nav-link-ref" [routerLink]="subitem.link" *ngIf="!hasItems(subitem)"
+              <a class="nav-link nav-link-ref nav-sub-items" [routerLink]="subitem.link" *ngIf="!hasItems(subitem)"
                 [attr.data-parent]="subitem.parentId">
                 <i class="link-icon" [attr.data-feather]="subitem.icon" appFeatherIcon *ngIf="subitem.icon"></i>
                 {{ subitem.label }}
@@ -70,7 +70,7 @@
 
               <ul class="sidebar-nav sub-menu nav-third-level" *ngIf="hasItems(subitem)" aria-expanded="false">
                 <li class="nav-item" *ngFor="let subSubitem of subitem.subItems">
-                  <a class="nav-link nav-link-ref" [routerLink]="subSubitem.link" [routerLinkActive]="['active']"
+                  <a class="nav-link nav-link-ref nav-sub-items" [routerLink]="subSubitem.link" [routerLinkActive]="['active']"
                     [attr.data-parent]="subSubitem.parentId">
                     <i class="link-icon" [attr.data-feather]="subitem.icon" appFeatherIcon *ngIf="subitem.icon"></i>
                     {{ subSubitem.label }}
