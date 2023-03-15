@@ -16,6 +16,8 @@ export class CustomNgxTable implements OnInit {
   @Input() columns: any;
   @Input() rows: any;
 
+  @Input() hasViewAndEdit: any;
+
   @Input() actions: any;
 
   @Output() outputEvent = new EventEmitter<string>();
