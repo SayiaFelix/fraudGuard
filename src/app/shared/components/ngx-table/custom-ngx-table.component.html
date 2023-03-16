@@ -168,7 +168,7 @@
         let-selectedCount="selectedCount"
         ngx-datatable-footer-template
       >
-          <div ngbDropdown class="ms-4">
+        <!-- <div ngbDropdown class="ms-4">
             <button
               class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0 btn-xs"
               id="dropdownBasic1"
@@ -188,8 +188,15 @@
                   >{{ size }}</label> 
               </li>
             </ul>
-          </div>
-          Items per page
+          </div> -->
+        <select
+          class="form-select ms-2 w-auto"
+          (change)="changePageSize($event)"
+        >
+          <option *ngFor="let size of pageSizes" [value]="size">
+            {{ size }} Items per page
+          </option>
+        </select>
         <datatable-pager
           (change)="table.onFooterPage($event)"
           [count]="rowCount"
