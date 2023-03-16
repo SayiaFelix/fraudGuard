@@ -19,7 +19,7 @@ import { HttpService } from 'src/app/shared/services/http.service';
 import {AddCustomerComponent} from "../add-customer/add-customer.component";
 
 @Component({
-  selector: 'app-list-ussd',
+  selector: 'app-list-requests',
   templateUrl: './list-customers.component.html',
   styleUrls: ['./list-customers.component.scss'],
   providers: [DatePipe],
@@ -301,7 +301,7 @@ export class ListCustomersComponent implements OnInit {
     this.columns = [...updatedColumns];
   }
   openEditProductModal(data:any){
-    
+
   }
   triggerEvent(data:any){
     let eventData = JSON.parse(data)

@@ -15,13 +15,27 @@ export const MENU: MenuItem[] = [
   },
   {
     profiles: ['CORPORATE_ADMIN'],
+    label: 'Requests',
+    icon: 'home',
+    subItems: [
+      {
+        profiles: ['CORPORATE_ADMIN'],
+        label: 'View All Requests',
+        link: '/mobile-banking/requests/list-requests'
+      },
+    ]
+  },
+
+
+  {
+    profiles: ['CORPORATE_ADMIN'],
     label: 'Products',
     icon: 'home',
     subItems: [
       {
         profiles: ['CORPORATE_ADMIN'],
         label: 'Products',
-        link: '/mobile-banking/products/list-ussd'
+        link: '/mobile-banking/products/list-requests'
       },
     ]
   },
@@ -34,7 +48,7 @@ export const MENU: MenuItem[] = [
       {
         profiles: ['CORPORATE_ADMIN'],
         label: 'Customers',
-        link: '/mobile-banking/customers/list-ussd'
+        link: '/mobile-banking/customers/list-requests'
       },
       {
         profiles: ['CORPORATE_ADMIN'],
@@ -125,7 +139,7 @@ export const MENU: MenuItem[] = [
       {
         profiles: ['CORPORATE_ADMIN'],
         label: 'USSD',
-        link: '/mobile-banking/channels/list-ussd'
+        link: '/mobile-banking/channels/list-requests'
       },
       {
         profiles: ['CORPORATE_ADMIN'],
