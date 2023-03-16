@@ -11,6 +11,7 @@ import {AddCustomerComponent} from "../add-customer/add-customer.component";
 import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
 import {SwalComponent} from "@sweetalert2/ngx-sweetalert2";
 import Swal from "sweetalert2";
+import {AddMobileAppCustomerComponent} from "../add-mobile-app-customer/add-mobile-app-customer.component";
 
 @Component({
   selector: 'app-list-internet-banking',
@@ -136,7 +137,7 @@ export class ListInternetBankingCustomersComponent implements OnInit {
 
   openAddProductModal() {
 
-    this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true,size:"lg"});
+    this.modalRef = this.modalService.open(AddMobileAppCustomerComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Add IB Customer';
     this.modalRef.result.then((result) => {
       if (result === 'success') {

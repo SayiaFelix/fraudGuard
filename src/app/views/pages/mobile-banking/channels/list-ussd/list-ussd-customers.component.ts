@@ -17,9 +17,10 @@ import { DatatableComponent } from '@swimlane/ngx-datatable/lib/components/datat
 import { DataExportationService } from 'src/app/shared/services/data-exportation.service';
 import { HttpService } from 'src/app/shared/services/http.service';
 import {AddCustomerComponent} from "../add-customer/add-customer.component";
+import {AddMobileAppCustomerComponent} from "../add-mobile-app-customer/add-mobile-app-customer.component";
 
 @Component({
-  selector: 'app-list-ussd',
+  selector: 'app-list-requests',
   templateUrl: './list-ussd-customers.component.html',
   styleUrls: ['./list-ussd-customers.component.scss'],
   providers: [DatePipe],
@@ -86,7 +87,7 @@ export class ListUssdCustomersComponent implements OnInit {
   public modalRef: NgbModalRef;
 
   title: string = "USSD Customer";
-  
+
 
   constructor(
     private httpService: HttpService,
@@ -142,7 +143,7 @@ export class ListUssdCustomersComponent implements OnInit {
 
   openAddProductModal() {
 
-    this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true,size:"lg"});
+    this.modalRef = this.modalService.open(AddMobileAppCustomerComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Add USSD Customer';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
