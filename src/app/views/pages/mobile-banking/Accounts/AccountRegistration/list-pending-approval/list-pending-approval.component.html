@@ -2,12 +2,13 @@
   class="d-flex justify-content-between align-items-center flex-wrap grid-margin"
 >
   <div>
-    <h4 class="mb-3 mb-md-0">All Registered Accounts</h4>
+    <h4 class="mb-3 mb-md-0">All Pending Accounts</h4>
   </div>
   <app-table-header
     [allColumns]="allColumns"
     [rows]="rows"
     [title]="title"
+    [showAddButton]="true"
     (changeColumnsEvent)="updateColumns($event)"
   ></app-table-header>
 

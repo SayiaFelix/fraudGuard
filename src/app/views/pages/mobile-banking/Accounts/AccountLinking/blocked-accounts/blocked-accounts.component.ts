@@ -23,9 +23,9 @@ export class BlockedAccountsComponent implements OnInit {
       LinkedAccount: '21765429076542',
       NationalID:'31498564',
       Channel:'USSD',
-      T24AccountName:'test',
+      T24AccountName:'Chiuri',
       status: true,
-      BlockRequestBy:'Kari',
+      BlockRequestBy:'Lilian',
       BlockRequestOn: '12-02-2023',
     },
     {
@@ -34,9 +34,9 @@ export class BlockedAccountsComponent implements OnInit {
       LinkedAccount: '15487096534123',
       NationalID:'37059671',
       Channel:'MobileApp',
-      T24AccountName:'test',
+      T24AccountName:'Makuba',
       status: true,
-      BlockRequestBy:'Lilian',
+      BlockRequestBy:'Mike',
       BlockRequestOn: '10-02-2023',
     },
 
@@ -49,7 +49,7 @@ export class BlockedAccountsComponent implements OnInit {
   loadingIndicator = true;
   reorderable = true;
 
- 
+
   columns = [
     {name: 'ID', prop: 'id'},
     // {name: 'PhoneNumber', prop: 'PhoneNumber'},
@@ -126,7 +126,7 @@ export class BlockedAccountsComponent implements OnInit {
         }
       });
   }
-  
+
   openUnblockModal(formData: any) {
     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Unblock Account';

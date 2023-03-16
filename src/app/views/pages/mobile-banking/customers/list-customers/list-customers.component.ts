@@ -34,9 +34,9 @@ export class ListCustomersComponent implements OnInit {
   tempProductData = [
     {
       customerid: 1,
-      customerName: 'Bank Accounts',
+      customerName: 'Lilian Kamau',
       phoneNumber:'0728357775',
-      idNumber: 'Bank Accounts Description',
+      idNumber: '8343849849',
       cbsCustomerNumber:'013465890',
       accountNumber:'0119787899900',
       email:'Carey004@gmail.com',
@@ -46,12 +46,12 @@ export class ListCustomersComponent implements OnInit {
     },
     {
       customerid: 2,
-      customerName: 'Card Accounts',
+      customerName: 'Michael Mbugua',
       phoneNumber:'0745983290',
-      idNumber: 'Card Accounts Description',
+      idNumber: '495875004',
       cbsCustomerNumber:'032178900',
       accountNumber:'0116987349900',
-      email:'karikamau004@gmail.com',
+      email:'mike@gmail@gmail.com',
       createdOn: '12-02-2023',
       dob:'28-08-1995',
       gender:'Male',

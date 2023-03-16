@@ -22,9 +22,8 @@ export class ListPendingApprovalComponent implements OnInit {
       Name: 'Michael Mbugua',
       RegistrationNumber: '45321876',
       AccountNumber:'01167972316587',
-      // status: true,
+      status: true,
       CustomerID:'87142367',
-      Email:'michaelmbugua123@gmal.com',
       createdOn: '12-02-2023',
       CreatedBy:'Mary Njoki'
     },
@@ -33,8 +32,7 @@ export class ListPendingApprovalComponent implements OnInit {
       Name: 'Lilian Kamau',
       RegistrationNumber: '21658975',
       AccountNumber:'01176431096534',
-      // status: true,
-      Email:'liliankamau001@gmail.com',
+      status: true,
       CustomerID:'23569980',
       createdOn: '12-02-2023',
       CreatedBy:'Wendy Akinyi'
@@ -54,10 +52,9 @@ export class ListPendingApprovalComponent implements OnInit {
     {name: 'ID', prop: 'id'},
     {name: 'Name', prop: 'Name'},
     {name: 'RegistrationNumber', prop: 'RegistrationNumber'},
-    // {name: 'Status', prop: 'status'},
     {name:'AccountNumber',prop:'AccountNumber'},
-    {name:'Email',prop:'Email'},
     {name: 'CreatedOn', prop: 'createdOn'},
+    {name: 'Status', prop: 'status'},
     {name:'CreatedBy',prop:'CreatedBy'},
     {name: 'Actions', prop: 'id'},
   ];
@@ -125,7 +122,7 @@ export class ListPendingApprovalComponent implements OnInit {
         }
       });
   }
-  
+
   openRejectModal(formData: any) {
     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Reject Account';

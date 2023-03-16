@@ -11,6 +11,8 @@ export class TableHeaderComponent implements OnInit {
   @Input() allColumns: any;
   @Input() rows: any;
   @Input() title: any;
+
+  @Input() showAddButton: boolean;
   columns: any
   allColumnsChecked: boolean = true
 

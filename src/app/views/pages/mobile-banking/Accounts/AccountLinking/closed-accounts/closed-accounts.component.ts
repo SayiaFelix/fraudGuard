@@ -48,7 +48,7 @@ export class ClosedAccountsComponent implements OnInit {
   loadingIndicator = true;
   reorderable = true;
 
-  actions = ["Close"];
+  actions = [];
 
   columns = [
     {name: 'ID', prop: 'id'},
@@ -126,7 +126,7 @@ export class ClosedAccountsComponent implements OnInit {
         }
       });
   }
-  
+
   openUnblockModal(formData: any) {
     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Close Account';
@@ -289,17 +289,17 @@ export class ClosedAccountsComponent implements OnInit {
     this.columns = [...updatedColumns];
   }
 
-  triggerEvent(data: string) {
-
-    let eventData = JSON.parse(data)
-
-    // if (eventData.action == 'View') {
-    //   this.navigateToViewProduct(eventData.row);
-    // }
-   if (eventData.action == 'Close') {
-      this.openUnblockModal(eventData.row);
-    }
-
-  }
+  // triggerEvent(data: string) {
+  //
+  //   let eventData = JSON.parse(data)
+  //
+  //   // if (eventData.action == 'View') {
+  //   //   this.navigateToViewProduct(eventData.row);
+  //   // }
+  //  if (eventData.action == 'Close') {
+  //     this.openUnblockModal(eventData.row);
+  //   }
+  //
+  // }
 
 }

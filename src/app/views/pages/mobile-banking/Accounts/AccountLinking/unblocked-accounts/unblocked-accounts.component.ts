@@ -15,7 +15,7 @@ import Swal from 'sweetalert2';
 })
 export class UnblockedAccountsComponent implements OnInit {
 
-  actions = ["View"];
+  actions = [];
   @ViewChild('table') table: DatatableComponent;
   tempProductData = [
     {
@@ -127,7 +127,7 @@ export class UnblockedAccountsComponent implements OnInit {
         }
       });
   }
-  
+
   openUnblockModal(formData: any) {
     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Unblock Account';
@@ -290,18 +290,18 @@ export class UnblockedAccountsComponent implements OnInit {
     this.columns = [...updatedColumns];
   }
 
-  triggerEvent(data: string) {
-
-    let eventData = JSON.parse(data)
-
-    if (eventData.action == 'View') {
-      this.navigateToViewProduct(eventData.row);
-    }
-    // if (eventData.action == 'View') {
-    //   this.openUnblockModal(eventData.row);
-    // }
-
-  }
+  // triggerEvent(data: string) {
+  //
+  //   let eventData = JSON.parse(data)
+  //
+  //   if (eventData.action == 'View') {
+  //     this.navigateToViewProduct(eventData.row);
+  //   }
+  //   if (eventData.action == 'View') {
+  //     this.openUnblockModal(eventData.row);
+  //   }
+  //
+  // }
 
 
 

@@ -5,6 +5,8 @@ import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {ActivatedRoute, Params} from '@angular/router';
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import { ColumnMode } from '@swimlane/ngx-datatable';
+import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
+import Swal from "sweetalert2";
 
 @Component({
   selector: 'app-view-customer',
@@ -67,8 +69,10 @@ Accountscolumns = [
   public form: FormGroup;
 
   public imageFile: File;
- 
+
   ColumnMode = ColumnMode;
+
+  modalRef: NgbModalRef;
   constructor(private httpService: HttpService,
               public globalService: GlobalService,
               public activatedRoute: ActivatedRoute,
@@ -114,7 +118,7 @@ Accountscolumns = [
   }
 
   isAsideNavCollapsed: any;
-  
+
 
 
 
@@ -180,9 +184,34 @@ Accountscolumns = [
       console.log("Modal closed" + result);
     }).catch((res) => {});
   }
-  openDisableCustomerModal(content: TemplateRef<any>){
-    this.modalService.open(content, {centered: true, size: "md"}).result.then((result) => {
-      console.log("Modal closed" + result);
-    }).catch((res) => {});
+  openDisableCustomerModal(){
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Delete Customer';
+    this.modalRef.componentInstance.body = 'Do you want to permanently delete this customer?';
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        Swal.fire('Delete Successful',
+          'Customer has been deleted successfully!',
+          'success').then(r => {});
+      } else {
+        console.log("Error occurred")
+      }
+    });
+  }
+
+
+  openBlockCustomerModal() {
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Block Customer';
+    this.modalRef.componentInstance.body = 'Do you want to  block this customer?';
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        Swal.fire('Blocking Successful',
+          'Customer has been blocked successfully!',
+          'success').then(r => {});
+      } else {
+        console.log("Error occurred")
+      }
+    });
   }
 }

@@ -20,7 +20,7 @@ import {HttpService} from 'src/app/shared/services/http.service';
  */
 export class ListRequestsComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
-  actions = ["View", "Edit"];
+  actions = [];
   tempProductData = [
     {
       'id': "1",
