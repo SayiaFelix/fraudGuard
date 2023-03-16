@@ -8,12 +8,19 @@ import { MobileBankingComponent } from './mobile-banking.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthGuard } from 'src/app/core/guard/auth.guard';
 
+
+
 const routes: Routes = [
   {
     path: '',
     component: MobileBankingComponent,
     canActivateChild: [AuthGuard],
     children: [
+      {
+        path: 'accounts',
+        loadChildren: () =>
+          import('./Accounts/accounts.module').then((m) => m.AccountsModule)
+      },
       {
         path: 'customers',
         loadChildren: () =>
