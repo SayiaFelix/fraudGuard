@@ -2,19 +2,17 @@
   class="d-flex justify-content-between align-items-center flex-wrap grid-margin"
 >
   <div>
-    <h4 class="mb-3 mb-md-0">All Customers</h4>
+    <h4 class="mb-3 mb-md-0">All Registered Accounts</h4>
   </div>
-<div>Total number of Customers: 25000 </div>
   <app-table-header
     [allColumns]="allColumns"
     [rows]="rows"
     [title]="title"
     (changeColumnsEvent)="updateColumns($event)"
-    (openAddModalEvent)="openAddProductModal()"
+   (openAddModalEvent)="openAddProductModal()"
   ></app-table-header>
 
 </div>
-
 
 <div class="row">
   <div class="col-md-12 stretch-card">
@@ -24,8 +22,8 @@
           [rows]="rows"
           [actions]="actions"
           (outputEvent)="triggerEvent($event)"
-          (viewEvent)="navigateToViewProduct($event)"
         ></app-custom-ngx-table>
     </div>
   </div>
 </div>
+

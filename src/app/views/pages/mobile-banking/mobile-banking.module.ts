@@ -8,6 +8,8 @@ import { MobileBankingComponent } from './mobile-banking.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthGuard } from 'src/app/core/guard/auth.guard';
 
+
+
 const routes: Routes = [
   {
     path: '',
@@ -21,6 +23,11 @@ const routes: Routes = [
           import('./requests/requests.module').then((m) => m.RequestsModule)
       },
 
+      {
+        path: 'accounts',
+        loadChildren: () =>
+          import('./Accounts/accounts.module').then((m) => m.AccountsModule)
+      },
       {
         path: 'customers',
         loadChildren: () =>
