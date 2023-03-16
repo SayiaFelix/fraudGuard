@@ -35,8 +35,8 @@ export class CustomNgxTable implements OnInit {
   data: any[];
   total: any;
   perPage = 10;
-  pageSizes: number[] = [5, 10, 20, 50, 100];
-  pageSize = 5;
+  pageSizes: number[] = [2, 5, 10, 20, 50, 100];
+  pageSize = 2;
   page = 1;
   dataLoaded = false;
   showPageSizeDropdown = false;
@@ -46,13 +46,8 @@ export class CustomNgxTable implements OnInit {
   constructor() {}
   ngOnInit() {}
 
-  togglePageSizeDropdown() {
-    this.showPageSizeDropdown = !this.showPageSizeDropdown;
-  }
-
-  changePageSize(pageSize: number) {
-    this.pageSize = pageSize;
-    this.togglePageSizeDropdown();
+  changePageSize(event: Event) {
+    this.pageSize = parseInt((event.target as HTMLSelectElement).value);
   }
 
   onDetailToggle(event: any) {
