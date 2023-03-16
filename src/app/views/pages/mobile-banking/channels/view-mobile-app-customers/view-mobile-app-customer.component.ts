@@ -17,14 +17,14 @@ export class ViewMobileAppCustomerComponent implements OnInit {
   tempProductData = [
     {
       id: 1,
-      IMEINumber:'3847566483929',
+      DeviceID:'3847566483929',
       description: 'Mobile Banking',
       status:'true',
       createdOn: '12-02-2023',
     },
     {
       id: 2,
-      IMEINumber:'384756748392847',
+      DeviceID:'384756748392847',
       description: 'Mobile Banking',
       status:'true',
       createdOn: '12-02-2023',
@@ -41,7 +41,7 @@ export class ViewMobileAppCustomerComponent implements OnInit {
 
   columns = [
       { name: 'ID', prop: 'id' },
-      { name: 'IMEINumber', prop: 'IMEINumber' },
+      { name: 'DeviceID', prop: 'DeviceID' },
       { name: 'Status', prop: 'status' },
       { name: 'CreatedOn', prop: 'createdOn' },
       { name: 'Actions', prop: 'id' },
@@ -105,14 +105,30 @@ export class ViewMobileAppCustomerComponent implements OnInit {
     }
   }
 
-  openResetPinModal(data: any) {
+  openDisableModal(data: any) {
     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
     this.modalRef.componentInstance.title = `Disable this device?`;
-    this.modalRef.componentInstance.body = `Do you want to disable device {${data.IMEINumber}} for this customer?`;
+    this.modalRef.componentInstance.body = `Do you want to disable device {${data.DeviceID}} for this customer?`;
     this.modalRef.result.then((result: any) => {
       if (result === 'success') {
         Swal.fire(`Disable device`,
           `Device has been disabled successfully`,
+          'success').then(r => {
+          console.log("successful")
+        })
+      } else {
+        console.log("Error occurred")
+      }
+    });
+  }
+  openResetPinModal() {
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+    this.modalRef.componentInstance.title = `Reset Pin?`;
+    this.modalRef.componentInstance.body = `Do you want to reset pin for this customer?`;
+    this.modalRef.result.then((result: any) => {
+      if (result === 'success') {
+        Swal.fire(`Reset Pin`,
+          `Pin has been disabled successfully`,
           'success').then(r => {
           console.log("successful")
         })
@@ -132,7 +148,7 @@ export class ViewMobileAppCustomerComponent implements OnInit {
   triggerEvent(data: string) {
     let eventData = JSON.parse(data)
     if (eventData.action == 'Disable') {
-      this.openResetPinModal(eventData.row);
+      this.openDisableModal(eventData.row);
     }
   }
 

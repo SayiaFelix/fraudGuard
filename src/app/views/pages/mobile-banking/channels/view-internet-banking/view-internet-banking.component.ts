@@ -279,8 +279,8 @@ export class ViewInternetBankingComponent implements OnInit {
   }
   openResetPinModal(content: TemplateRef<any>){
     this.modalService.open(content, {centered: true, size: "md"}).result.then((result) => {
-      Swal.fire('Customer pin reset Successfully',
-        'Customer pin has been reset successfully.',
+      Swal.fire('Customer password reset Successfully',
+        'Customer password has been reset successfully.',
         'success').then(r => this.getIndividualData(0))
     }).catch((res) => {});
   }

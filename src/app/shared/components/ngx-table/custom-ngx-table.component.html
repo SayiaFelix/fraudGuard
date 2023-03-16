@@ -79,7 +79,7 @@
       </ngx-datatable-column>
 
       <ngx-datatable-column
-        *ngIf="column.name === 'Actions'"
+        *ngIf="column.name === 'Actions' && actions.length > 0"
         [maxWidth]="150"
         [minWidth]="150"
         [sortable]="false"

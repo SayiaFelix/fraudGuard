@@ -54,6 +54,7 @@
     (click)="openAddItemModal()"
     class="btn btn-primary btn-icon-text mb-2 mb-md-0 btn-xs"
     type="button"
+    *ngIf="showAddButton"
   >
     <i appFeatherIcon class="btn-icon-prepend" data-feather="plus"></i>
     Add {{ title }}
