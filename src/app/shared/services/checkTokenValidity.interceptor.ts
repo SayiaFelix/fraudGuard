@@ -32,7 +32,13 @@ export class CheckTokenValidityInterceptor implements HttpInterceptor {
         if (!this.globalService.getToken()) {
             return false;
         } else if (this.globalService.getToken() && helper.isTokenExpired(this.globalService.getToken())){
-            return false;
+
+          // send refresh to backend
+          // receive new access
+          // update local storage
+          // this.isTokenValid();
+          
+          return false;
         } else {
             return true;
         }

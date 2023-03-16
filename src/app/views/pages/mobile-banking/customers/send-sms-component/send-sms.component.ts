@@ -313,4 +313,8 @@ export class SendSmsComponent implements OnInit {
   updateColumns(updatedColumns: any) {
     this.columns = [...updatedColumns];
   }
+
+  downloadTemplate() {
+
+  }
 }

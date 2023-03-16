@@ -17,16 +17,16 @@ export class ViewMobileAppCustomerComponent implements OnInit {
   tempProductData = [
     {
       id: 1,
-      imei:'3847566483929',
-      serviceName: 'Mobile Banking',
-      isActive:'true',
+      IMEINumber:'3847566483929',
+      description: 'Mobile Banking',
+      status:'true',
       createdOn: '12-02-2023',
     },
     {
       id: 2,
-      imei:'384756748392847',
-      serviceName: 'Mobile Banking',
-      isActive:'true',
+      IMEINumber:'384756748392847',
+      description: 'Mobile Banking',
+      status:'true',
       createdOn: '12-02-2023',
     },
 
@@ -40,12 +40,11 @@ export class ViewMobileAppCustomerComponent implements OnInit {
   reorderable = true;
 
   columns = [
-    {name: 'ID', prop: 'id'},
-    {name: 'IMEI', prop: 'imei'},
-    // {name: 'LastLogin', prop: 'serviceName'},
-    {name: 'Status', prop: 'isActive'},
-    {name: 'CreatedOn', prop: 'createdOn'},
-    {name: 'Actions', prop: 'id'}
+      { name: 'ID', prop: 'id' },
+      { name: 'IMEINumber', prop: 'IMEINumber' },
+      { name: 'Status', prop: 'status' },
+      { name: 'CreatedOn', prop: 'createdOn' },
+      { name: 'Actions', prop: 'id' },
   ];
 
 
@@ -59,7 +58,7 @@ export class ViewMobileAppCustomerComponent implements OnInit {
 
   ColumnMode = ColumnMode;
   isAsideNavCollapsed: any;
-  actions = ["Reset"];
+  actions = ["Disable"];
   public modalRef: NgbModalRef;
 
   constructor(private httpService: HttpService,
@@ -106,10 +105,20 @@ export class ViewMobileAppCustomerComponent implements OnInit {
     }
   }
 
-  openResetPinModal(content: TemplateRef<any>) {
-    this.modalService.open(content, {centered: true, size: "md"}).result.then((result) => {
-      console.log("Modal closed" + result);
-    }).catch((res) => {
+  openResetPinModal(data: any) {
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+    this.modalRef.componentInstance.title = `Disable this device?`;
+    this.modalRef.componentInstance.body = `Do you want to disable device {${data.IMEINumber}} for this customer?`;
+    this.modalRef.result.then((result: any) => {
+      if (result === 'success') {
+        Swal.fire(`Disable device`,
+          `Device has been disabled successfully`,
+          'success').then(r => {
+          console.log("successful")
+        })
+      } else {
+        console.log("Error occurred")
+      }
     });
   }
 
@@ -122,7 +131,7 @@ export class ViewMobileAppCustomerComponent implements OnInit {
 
   triggerEvent(data: string) {
     let eventData = JSON.parse(data)
-    if (eventData.action == 'Reset') {
+    if (eventData.action == 'Disable') {
       this.openResetPinModal(eventData.row);
     }
   }
