@@ -73,14 +73,6 @@
                           <div>
                             <h4 class="mb-3 mb-md-0">All USSD Registered</h4>
                           </div>
-                          <app-table-header
-                            [allColumns]="allColumns"
-                            [rows]="rows"
-                            [title]="title"
-                            (changeColumnsEvent)="updateColumns($event)"
-                           (openAddModalEvent)="openAddProductModal()"
-                          ></app-table-header>
-
                         </div>
 
                         <div class="row">
@@ -89,7 +81,7 @@
                                 <app-custom-ngx-table
                                   [columns]="columns"
                                   [rows]="rows"
-                                  [actions]="actions"
+                                  [actions]="ussdActions"
                                   [hasViewAndEdit]="true"
                                   (outputEvent)="triggerEvent($event)"
                                   (viewEvent)="navigateToViewProduct($event)"

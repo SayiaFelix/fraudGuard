@@ -9,7 +9,7 @@ import {SendSmsComponent} from "./send-sms-component/send-sms.component";
 const routes: Routes = [
 
   {
-    path: 'list-ussd',
+    path: 'list-requests',
     component: ListCustomersComponent
   },
 

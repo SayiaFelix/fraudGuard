@@ -7,6 +7,8 @@ import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import { ColumnMode, DatatableComponent } from '@swimlane/ngx-datatable';
 import { DataExportationService } from 'src/app/shared/services/data-exportation.service';
 import { AddCustomerComponent } from '../add-customer/add-customer.component';
+import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
+import Swal from "sweetalert2";
 
 @Component({
   selector: 'app-view-customer',
@@ -16,6 +18,7 @@ import { AddCustomerComponent } from '../add-customer/add-customer.component';
 export class ViewCustomerComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
     actions = ["View","Edit"]
+    ussdActions = ["Disable"]
   tempProductData = [
     {
       id: 1,
@@ -31,7 +34,7 @@ export class ViewCustomerComponent implements OnInit {
       status: true,
       createdOn: '12-02-2023',
     },
-  
+
   ];
 
   // bread crumb items
@@ -112,7 +115,7 @@ export class ViewCustomerComponent implements OnInit {
         }
       });
   }
-  
+
   openEditProductModal(formData: any) {
     this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Edit Product';
@@ -278,12 +281,16 @@ export class ViewCustomerComponent implements OnInit {
   }
   openResetPinModal(content: TemplateRef<any>){
     this.modalService.open(content, {centered: true, size: "md"}).result.then((result) => {
-      console.log("Modal closed" + result);
+      Swal.fire('Pin Reset Successful',
+        'Customer pin has been reset successfully.',
+        'success').then(r => this.getIndividualData(0))
     }).catch((res) => {});
   }
   openDisableCustomerModal(content: TemplateRef<any>){
     this.modalService.open(content, {centered: true, size: "md"}).result.then((result) => {
-      console.log("Modal closed" + result);
+      Swal.fire('Disabled Successfully',
+        'Customer has been disabled successfully.',
+        'success').then(r => this.getIndividualData(0))
     }).catch((res) => {});
   }
   triggerEvent(data:string){
@@ -291,8 +298,25 @@ export class ViewCustomerComponent implements OnInit {
 
     if (eventData.action == 'View') {
       this. navigateToViewProduct(eventData.row);
-    }else if (eventData.action == 'Edit') {
+    } else if (eventData.action == 'Edit') {
       this.openEditProductModal(eventData.row);
+    } else if (eventData.action == 'Disable') {
+      this.openDisableModal(eventData.row);
     }
+  }
+
+  openDisableModal(row: any) {
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Disable USSD';
+    this.modalRef.componentInstance.body = `Do you want to disable USSD for ${row.IMSINumber}?`;
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        Swal.fire('Disabled Successfully',
+          'IMSI has been disabled successfully.',
+          'success').then(r => this.getIndividualData(0))
+      } else {
+        console.log("Error occurred")
+      }
+    });
   }
 }

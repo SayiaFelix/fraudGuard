@@ -9,7 +9,7 @@ import {ViewProductComponent} from "./view-product/view-product.component";
 const routes: Routes = [
 
   {
-    path: 'list-ussd',
+    path: 'list-requests',
     component: ProductsComponent
   },
   {
