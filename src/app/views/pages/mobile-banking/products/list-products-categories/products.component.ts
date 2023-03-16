@@ -38,7 +38,7 @@ export class ProductsComponent implements OnInit {
   tempProductData = [
 
     {
-      id: 3,
+      id: 1,
       productCategory: 'Loan Accounts',
       parentCategory:'-',
       remarks: 'Loan Accounts Description',
@@ -46,7 +46,7 @@ export class ProductsComponent implements OnInit {
       createdOn: '12-02-2023',
     },
     {
-      id: 4,
+      id: 2,
       productCategory: 'Investment Accounts',
       parentCategory:'-',
       remarks: 'Investment Accounts Description',
@@ -54,11 +54,11 @@ export class ProductsComponent implements OnInit {
       createdOn: '12-02-2023',
     },
     {
-      id: 5,
+      id: 3,
       productCategory: 'Insurance Accounts',
       parentCategory:'-',
       remarks: 'Insurance Accounts Description',
-      status: false,
+      status: true,
       createdOn: '12-02-2023',
     },
   ];
