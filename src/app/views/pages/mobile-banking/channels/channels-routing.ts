@@ -13,7 +13,7 @@ import {ViewMobileAppCustomerComponent} from "./view-mobile-app-customers/view-m
 const routes: Routes = [
 
   {
-    path: 'list-ussd',
+    path: 'list-requests',
     component: ListUssdCustomersComponent
   },
 

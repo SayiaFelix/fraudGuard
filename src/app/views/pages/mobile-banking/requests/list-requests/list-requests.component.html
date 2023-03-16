@@ -2,14 +2,14 @@
   class="d-flex justify-content-between align-items-center flex-wrap grid-margin"
 >
   <div>
-    <h4 class="mb-3 mb-md-0">All Mobile Application Customers</h4>
+    <h4 class="mb-3 mb-md-0">List All Requests</h4>
   </div>
+<!-- <div>Total number of Customers: 25000 </div> -->
   <app-table-header
     [allColumns]="allColumns"
     [rows]="rows"
     [title]="title"
     (changeColumnsEvent)="updateColumns($event)"
-    (openAddModalEvent)="openAddProductModal()"
   ></app-table-header>
 
 </div>
@@ -22,7 +22,7 @@
           [columns]="columns"
           [rows]="rows"
           [actions]="actions"
-
+          [hasViewAndEdit]="true"
           (outputEvent)="triggerEvent($event)"
         ></app-custom-ngx-table>
     </div>

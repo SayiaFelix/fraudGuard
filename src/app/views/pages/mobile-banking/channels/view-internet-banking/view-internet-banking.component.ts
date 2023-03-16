@@ -6,6 +6,8 @@ import { ColumnMode, DatatableComponent } from '@swimlane/ngx-datatable';
 import { DataExportationService } from 'src/app/shared/services/data-exportation.service';
 import { HttpService } from 'src/app/shared/services/http.service';
 import { AddCustomerComponent } from '../add-customer/add-customer.component';
+import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
+import Swal from "sweetalert2";
 
 @Component({
   selector: 'app-view-internet-banking',
@@ -29,7 +31,7 @@ export class ViewInternetBankingComponent implements OnInit {
       status: true,
       createdOn: '12-02-2023',
     },
-  
+
   ];
 
   // bread crumb items
@@ -58,6 +60,7 @@ export class ViewInternetBankingComponent implements OnInit {
   title: string = "IB";
   isAsideNavCollapsed :any;
   public subcategoryTitle: any;
+  actions = ["Disable"];
 
   constructor(
     private httpService: HttpService,
@@ -110,7 +113,7 @@ export class ViewInternetBankingComponent implements OnInit {
         }
       });
   }
-  
+
   openEditProductModal(formData: any) {
     this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Edit Product';
@@ -276,13 +279,43 @@ export class ViewInternetBankingComponent implements OnInit {
   }
   openResetPinModal(content: TemplateRef<any>){
     this.modalService.open(content, {centered: true, size: "md"}).result.then((result) => {
-      console.log("Modal closed" + result);
+      Swal.fire('Customer pin reset Successfully',
+        'Customer pin has been reset successfully.',
+        'success').then(r => this.getIndividualData(0))
     }).catch((res) => {});
   }
   openDisableCustomerModal(content: TemplateRef<any>){
     this.modalService.open(content, {centered: true, size: "md"}).result.then((result) => {
-      console.log("Modal closed" + result);
+      Swal.fire('Customer disabled Successfully',
+        'Customer has been disabled successfully.',
+        'success').then(r => this.getIndividualData(0))
     }).catch((res) => {});
   }
 
+  triggerEvent(data: any) {
+    let eventData = JSON.parse(data)
+
+    if (eventData.action == 'View') {
+      this. navigateToViewProduct(eventData.row);
+    } else if (eventData.action == 'Edit') {
+      this.openEditProductModal(eventData.row);
+    } else if (eventData.action == 'Disable') {
+      this.openDisableModal(eventData.row);
+    }
+  }
+
+  private openDisableModal(row: any) {
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Disable Internet Banking';
+    this.modalRef.componentInstance.body = `Do you want to disable InternetBankingID: ${row.InternetBankingID}?`;
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        Swal.fire('Disabled Successfully',
+          'Account has been disabled successfully.',
+          'success').then(r => this.getIndividualData(0))
+      } else {
+        console.log("Error occurred")
+      }
+    });
+  }
 }

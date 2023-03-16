@@ -67,16 +67,8 @@
                             class="d-flex justify-content-between align-items-center flex-wrap grid-margin"
                           >
                             <div>
-                              <h4 class="mb-3 mb-md-0"> IB Customer Details</h4>
+                              <h4 class="mt-2 mb-3 mb-md-0"> IB Customer Details</h4>
                             </div>
-                            <app-table-header
-                              [allColumns]="allColumns"
-                              [rows]="rows"
-                              [title]="title"
-                              (changeColumnsEvent)="updateColumns($event)"
-                             (openAddModalEvent)="openAddProductModal()"
-                            ></app-table-header>
-
                           </div>
 
                           <div class="row">
@@ -85,6 +77,8 @@
                                   <app-custom-ngx-table
                                     [columns]="columns"
                                     [rows]="rows"
+                                    [actions]="actions"
+                                    (outputEvent)="triggerEvent($event)"
                                     (viewEvent)="navigateToViewProduct($event)"
                                     (editEvent)="openEditProductModal($event)"
                                   ></app-custom-ngx-table>

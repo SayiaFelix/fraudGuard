@@ -25,7 +25,6 @@ import {AddMobileAppCustomerComponent} from "../add-mobile-app-customer/add-mobi
  */
 export class ListMobileBankingCustomersComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
- actions = ["View","Edit"];
   tempProductData = [
     {
       id: 1,

@@ -16,6 +16,13 @@ const routes: Routes = [
     component: MobileBankingComponent,
     canActivateChild: [AuthGuard],
     children: [
+
+      {
+        path: 'requests',
+        loadChildren: () =>
+          import('./requests/requests.module').then((m) => m.RequestsModule)
+      },
+
       {
         path: 'accounts',
         loadChildren: () =>
