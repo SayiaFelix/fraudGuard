@@ -10,49 +10,35 @@
                 <i appFeatherIcon class="btn-icon-prepend" data-feather="plus"></i> Button
               </button>
               <div class="order-first">
-                <h4>Customer Details</h4>
+                <h4>Mobile App Customer Details</h4>
               <br>
-              <div [ngbCollapse]="isAsideNavCollapsed" class="email-aside-nav" id="asideNav">
-                <ul class="list-group list-group-flush">
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Name:
-                    <span class="text-right" >Michael Mbugua</span>
-                  </li>
+                <div [ngbCollapse]="isAsideNavCollapsed" class="email-aside-nav" id="asideNav">
+                  <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      Name:
+                      <span class="text-right" >Michael Mbugua</span>
+                    </li>
 
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
                       A/C Number:
-                    <span class="text-right">01145896541098</span>
-                  </li>
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Phone Number:
-                    <span class="text-right" >0708453901</span>
-                  </li>
+                      <span class="text-right">01145896541098</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      Phone Number:
+                      <span class="text-right" >0708453901</span>
+                    </li>
 
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Gender:
-                    <span >Male</span>
-                  </li>
-
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    CBS Customer No:
-                    <span>78543298</span>
-                  </li>
-
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                     National ID:
-                    <span >31391339</span>
-                  </li>
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    D.O.B:
-                    <span >15-7-2001</span>
-                  </li>
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Account Type:
-                    <span >Personal Account</span>
-                  </li>
-                </ul>
-                <hr>
-              </div>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      National ID:
+                      <span >31391339</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      Logged-In Devices:
+                      <span>5</span>
+                    </li>
+                  </ul>
+                  <hr>
+                </div>
             </div>
             </div>
 
@@ -66,6 +52,28 @@
               <a class="btn btn-danger" (click)="openDisableCustomerModal(DisableUserModal)">
                 <i class="mdi mdi-account-cancel-outline"></i>
                 Disable Customer</a>
+            </div>
+
+            <h4 class="text-center mb-2">Login Modes</h4>
+            <div class="d-flex justify-content-between">
+              <div class="">
+                <a class="btn btn-primary" (click)="openDisableLoginModeModal('fingerprint')">
+                  Disable Fingerprint</a>
+              </div>
+              <div class="">
+                <a class="btn btn-primary" (click)="openDisableLoginModeModal('voice')">
+                  Disable Voice</a>
+              </div>
+            </div>
+            <div class="d-flex justify-content-between mt-2">
+              <div class="">
+                <a class="btn btn-primary" (click)="openDisableLoginModeModal('face')">
+                  Disable Face</a>
+              </div>
+              <div class="">
+                <a class="btn btn-primary" (click)="openDisableLoginModeModal('pin')">
+                  Disable Pin</a>
+              </div>
             </div>
           </div>
 

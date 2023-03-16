@@ -4,15 +4,19 @@
 
 .linkTitle {
     color: #7987a1;
-    font-size: 12px!important;
+    font-size: 13px!important;
     text-transform: uppercase;
-    font-weight: 600!important;
+    font-weight: 700!important;
     letter-spacing: 0.5px;
     margin-bottom: 5px;
     height: 15px;
+    //-webkit-text-decoration: slateblue solid underline;
+    //text-decoration: slateblue solid underline;
+    //-webkit-text-underline-position: auto;
+    //text-underline-position: under;
 }
-
-.nav-sub-items {
-  font-size: 15px!important;
-  font-weight: 600!important;
-}
+//
+//.nav-sub-items {
+//  font-size: 15px!important;
+//  font-weight: 600!important;
+//}
