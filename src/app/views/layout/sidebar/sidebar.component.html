@@ -65,7 +65,7 @@
               <a class="nav-link nav-link-ref nav-sub-items" [routerLink]="subitem.link" *ngIf="!hasItems(subitem)"
                 [attr.data-parent]="subitem.parentId">
                 <i class="link-icon" [attr.data-feather]="subitem.icon" appFeatherIcon *ngIf="subitem.icon"></i>
-                {{ subitem.label }}
+                {{ subitem.label }} 
               </a>
 
               <ul class="sidebar-nav sub-menu nav-third-level" *ngIf="hasItems(subitem)" aria-expanded="false">
