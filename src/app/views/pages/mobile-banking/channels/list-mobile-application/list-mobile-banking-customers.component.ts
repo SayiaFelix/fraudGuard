@@ -28,28 +28,25 @@ export class ListMobileBankingCustomersComponent implements OnInit {
   tempProductData = [
     {
       id: 1,
-      mobileNumber: '254708223443',
-      account: '1238**3747',
-      dob: '12-10-1996',
-      attemptedOn: '12-02-2023',
-      response: "Failed record Mismatch",
+      customerName: 'Michael Mbugua',
+      phoneNumber:'0708453901',
+      idNumber: '31397137',
+      InternetBankingID:'IBank4567',
+      accountNumber:'0116987349900',
+      email:'michaelmbugua004@gmail.com',
+      createdOn: '12-02-2023',
     },
     {
       id: 2,
-      mobileNumber: '254708223443',
-      account: '1238**3747',
-      dob: '12-10-1996',
-      attemptedOn: '12-02-2023',
-      response: "Failed record Mismatch",
+      customerName: 'Lilian Kamau',
+      phoneNumber:'0728357775',
+      idNumber: '37059671',
+      InternetBankingID:'IBank1234',
+      accountNumber:'0119787899900',
+      email:'lilian002@gmail.com',
+      createdOn: '12-02-2023',
     },
-    {
-      id: 3,
-      mobileNumber: '254708223443',
-      account: '1238**3747',
-      dob: '12-10-1996',
-      attemptedOn: '12-02-2023',
-      response: "Failed record Mismatch",
-    }
+
   ];
 
   // bread crumb items
@@ -60,13 +57,18 @@ export class ListMobileBankingCustomersComponent implements OnInit {
   reorderable = true;
 
   columns = [
-    {name: 'ID', prop: 'id'},
-    {name: 'Mobile Number', prop: 'mobileNumber'},
-    {name: 'Account', prop: 'account'},
-    {name: 'DOB', prop: 'dob'},
-    {name: 'Attempted On', prop: 'attemptedOn'},
-    {name: 'Response', prop: 'response'},
-    {name: 'Actions', prop: 'id'},
+    { name: 'ID', prop: 'id' },
+    { name: 'CustomerName', prop: 'customerName' },
+    {name:'PhoneNumber',prop:'phoneNumber'},
+    { name: 'IDNumber', prop: 'idNumber' },
+    { name: 'InternetBankingID', prop: 'InternetBankingID' },
+    // {name: 'CBSCustomerNumber',prop:'cbsCustomerNumber'},
+    {name: 'AccountNumber',prop:'accountNumber'},
+    // {name: 'Email',prop:'email'},
+    { name: 'CreatedOn', prop: 'createdOn' },
+    // {name: 'DOB',prop:'dob'},
+    // {name: 'Gender',prop:'gender'},
+    { name: 'Actions', prop: 'id' },
   ];
 
   allColumns = [...this.columns];

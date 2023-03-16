@@ -7,6 +7,7 @@ import { DataExportationService } from 'src/app/shared/services/data-exportation
 import { HttpService } from 'src/app/shared/services/http.service';
 import { AddProductSubitemComponent } from '../add-product-subitem/add-product-subitem.component';
 import { AddProductComponent } from '../add-product/add-product.component';
+import {AddProductCategoryComponent} from "../add-product-subitem/add-product-category.component";
 
 
 @Component({
@@ -116,9 +117,9 @@ export class ListProductsComponent implements OnInit {
         }
       });
   }
-  
+
   openEditProductModal(formData: any) {
-    this.modalRef = this.modalService.open(AddProductSubitemComponent, {centered: true});
+    this.modalRef = this.modalService.open(AddProductCategoryComponent, {centered: true, size: "lg"});
     this.modalRef.componentInstance.title = 'Edit Product';
     this.modalRef.componentInstance.formData = formData;
     this.modalRef.result.then((result) => {
@@ -132,7 +133,7 @@ export class ListProductsComponent implements OnInit {
 
   openAddProductModal() {
 
-    this.modalRef = this.modalService.open(AddProductSubitemComponent, {centered: true});
+    this.modalRef = this.modalService.open(AddProductCategoryComponent, {centered: true, size: "lg"});
     this.modalRef.componentInstance.title = 'Add Product';
     this.modalRef.result.then((result) => {
       if (result === 'success') {

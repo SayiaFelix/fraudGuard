@@ -22,7 +22,7 @@
             <div class="form-group">
                 <label class="text-gray">Product Name</label>
                 <input formControlName="name" class="form-control" type="text" maxlength="24">
-                <p *ngIf="form.get('name').touched && form.get('name').hasError('required')"
+                <p *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')"
                    class="text-danger mt-1 mb-1 pt-0 small text-center">Required
                     Field</p>
             </div>
@@ -34,7 +34,7 @@
             <div class="form-group">
                 <label class="text-gray">Short Description</label>
                 <input formControlName="description" class="form-control" type="text" maxlength="36">
-                <p *ngIf="form.get('description').touched && form.get('description').hasError('required')"
+                <p *ngIf="form.get('description')?.touched && form.get('description')?.hasError('required')"
                    class="text-danger mt-1 mb-1 pt-0 small text-center">Required
                     Field</p>
             </div>
@@ -44,7 +44,7 @@
             <div class="form-group">
                 <label class="text-gray">Long Description (Narration)</label>
               <textarea formControlName="longDescription" class="form-control" type="text"></textarea>
-                <p *ngIf="form.get('longDescription').touched && form.get('longDescription').hasError('required')"
+                <p *ngIf="form.get('longDescription')?.touched && form.get('longDescription')?.hasError('required')"
                    class="text-danger mt-1 mb-1 pt-0 small text-center">Required
                     Field</p>
             </div>
@@ -56,11 +56,11 @@
             <div class="col-10">
               <label class="text-gray">Features</label>
               <input formControlName="feature" class="form-control" type="text" maxlength="36">
-              <p *ngIf="form.get('feature').touched && form.get('feature').hasError('required')"
+              <p *ngIf="form.get('feature')?.touched && form.get('feature')?.hasError('required')"
                  class="text-danger mt-1 mb-1 pt-0 small text-center">Required
                 Field</p>
             </div>
-            <div class="col-2 mt-1 pt-4">
+            <div class="col-2 pt-4">
               <button type="button" class="btn  btn-md btn-primary" (click)="addFeature()">Add</button>
             </div>
           </div>
@@ -74,10 +74,10 @@
                 <div class="col-10">
                   <label class="text-gray">Requirements</label>
                   <input formControlName="requirement" class="form-control" type="text" maxlength="36">
-                  <p *ngIf="form.get('requirement').touched && form.get('requirement').hasError('required')"
+                  <p *ngIf="form.get('requirement')?.touched && form.get('requirement')?.hasError('required')"
                      class="text-danger mt-1 mb-1 pt-0 small text-center">Required Field</p>
                 </div>
-                <div class="col-2 mt-1 pt-4">
+                <div class="col-2 pt-4">
                   <button type="button" class="btn btn-md btn-primary"  (click)="addRequirement()">Add</button>
                 </div>
               </div>

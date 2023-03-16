@@ -36,22 +36,7 @@ export class ProductsComponent implements OnInit {
   actions = ["View", "Edit"];
 
   tempProductData = [
-    {
-      id: 1,
-      productCategory: 'Levi Kamau',
-      parentCategory:'-',
-      remarks: 'Premium Customer',
-      status: true,
-      createdOn: '12-02-2023',
-    },
-    {
-      id: 2,
-      productCategory: 'Jack Mutai',
-      parentCategory:'-',
-      remarks: 'Customer has joint account',
-      status: true,
-      createdOn: '12-02-2023',
-    },
+
     {
       id: 3,
       productCategory: 'Loan Accounts',
