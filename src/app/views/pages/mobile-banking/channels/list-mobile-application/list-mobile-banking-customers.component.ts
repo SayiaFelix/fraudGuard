@@ -81,7 +81,7 @@ export class ListMobileBankingCustomersComponent implements OnInit {
 
   @ViewChild('mySwal')
   public readonly mySwal!: SwalComponent;
-  actions = ["View", "Reset"];
+ 
 
   constructor(
     private httpService: HttpService,
