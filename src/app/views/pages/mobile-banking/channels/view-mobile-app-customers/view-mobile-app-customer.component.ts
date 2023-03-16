@@ -1,10 +1,12 @@
 import {Component, Input, OnInit, TemplateRef} from '@angular/core';
 import {HttpService} from '../../../../../shared/services/http.service';
 import {GlobalService} from '../../../../../shared/services/global.service';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {ActivatedRoute} from '@angular/router';
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {ColumnMode} from '@swimlane/ngx-datatable';
+import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
+import Swal from "sweetalert2";
 
 @Component({
   selector: 'app-view-customer',
@@ -54,6 +56,7 @@ export class ViewMobileAppCustomerComponent implements OnInit {
   ColumnMode = ColumnMode;
   isAsideNavCollapsed: any;
   actions = ["Reset"];
+  public modalRef: NgbModalRef;
 
   constructor(private httpService: HttpService,
               public globalService: GlobalService,
@@ -172,5 +175,22 @@ export class ViewMobileAppCustomerComponent implements OnInit {
         }
       }
     );
+  }
+
+  openDisableLoginModeModal(loginMode: string) {
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+    this.modalRef.componentInstance.title = `Disable ${loginMode}`;
+    this.modalRef.componentInstance.body = `Do you want to disable ${loginMode} for this customer?`;
+    this.modalRef.result.then((result: any) => {
+      if (result === 'success') {
+        Swal.fire(`Disable ${loginMode}`,
+          `${loginMode} has been disabled successfully`,
+          'success').then(r => {
+          console.log("successful")
+        })
+      } else {
+        console.log("Error occurred")
+      }
+    });
   }
 }

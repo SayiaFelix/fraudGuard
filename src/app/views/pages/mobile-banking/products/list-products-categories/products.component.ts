@@ -38,17 +38,17 @@ export class ProductsComponent implements OnInit {
   tempProductData = [
     {
       id: 1,
-      productCategory: 'Bank Accounts',
+      productCategory: 'Levi Kamau',
       parentCategory:'-',
-      remarks: 'Bank Accounts Description',
+      remarks: 'Premium Customer',
       status: true,
       createdOn: '12-02-2023',
     },
     {
       id: 2,
-      productCategory: 'Card Accounts',
+      productCategory: 'Jack Mutai',
       parentCategory:'-',
-      remarks: 'Card Accounts Description',
+      remarks: 'Customer has joint account',
       status: true,
       createdOn: '12-02-2023',
     },
