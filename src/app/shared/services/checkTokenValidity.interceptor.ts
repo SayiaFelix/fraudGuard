@@ -37,7 +37,7 @@ export class CheckTokenValidityInterceptor implements HttpInterceptor {
           // receive new access
           // update local storage
           // this.isTokenValid();
-          
+
           return false;
         } else {
             return true;
