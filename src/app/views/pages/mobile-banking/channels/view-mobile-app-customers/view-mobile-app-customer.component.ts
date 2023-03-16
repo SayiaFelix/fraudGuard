@@ -14,33 +14,37 @@ import Swal from "sweetalert2";
   styleUrls: ['./view-mobile-app-customer.component.scss']
 })
 export class ViewMobileAppCustomerComponent implements OnInit {
-  public myProductList = [
+  tempProductData = [
     {
-      icon: '',
-      TransID: '123',
-      value: 8,
-      text: 'danger'
+      id: 1,
+      imei:'3847566483929',
+      serviceName: 'Mobile Banking',
+      isActive:'true',
+      createdOn: '12-02-2023',
     },
     {
-      icon: '',
-      name: '2. Mutual Funds',
-      text: 'danger',
-      value: 8,
+      id: 2,
+      imei:'384756748392847',
+      serviceName: 'Mobile Banking',
+      isActive:'true',
+      createdOn: '12-02-2023',
+    },
 
-    }
   ];
+
+  // bread crumb items
   breadCrumbItems: Array<{}>;
   rows: any = [];
+  temp: any = [];
   loadingIndicator = true;
   reorderable = true;
-
 
   columns = [
     {name: 'ID', prop: 'id'},
     {name: 'IMEI', prop: 'imei'},
-    {name: 'LastLogin', prop: 'ServiceName'},
+    // {name: 'LastLogin', prop: 'serviceName'},
     {name: 'Status', prop: 'isActive'},
-    {name: 'CreatedOn', prop: 'CreatedOn'},
+    {name: 'CreatedOn', prop: 'createdOn'},
     {name: 'Actions', prop: 'id'}
   ];
 
@@ -74,6 +78,7 @@ export class ViewMobileAppCustomerComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadData();
+    this.rows = this.tempProductData;
 
     this.form = this.fb.group({
       name: [this.formData ? this.formData.name : '',

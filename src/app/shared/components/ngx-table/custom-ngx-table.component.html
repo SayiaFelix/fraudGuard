@@ -108,7 +108,7 @@
             <div class="example">
               <button
                 [ngbPopover]="buttons"
-                class="btn btn-primary btn-sm"
+                class="btn btn-primary btn-xs"
                 placement="bottom"
                 type="button"
               >
@@ -174,7 +174,7 @@
               id="dropdownBasic1"
               ngbDropdownToggle
             >
-              {{ pageSize }} 
+              {{ pageSize }}
             </button>
             <ul
               ngbDropdownMenu
@@ -185,7 +185,7 @@
                   class="dropdown-item"
                   [attr.for]="size"
                   (click)="changePageSize(size)"
-                  >{{ size }}</label> 
+                  >{{ size }}</label>
               </li>
             </ul>
           </div>
