@@ -6,6 +6,7 @@ import {ListFailedRegistrationsComponent} from "./list-failed-registrations/list
 import {SendSmsComponent} from "./send-sms-component/send-sms.component";
 
 
+
 const routes: Routes = [
 
   {
