@@ -13,7 +13,6 @@ export const MENU: MenuItem[] = [
       },
     ]
   },
-
   {
     profiles: ['CORPORATE_ADMIN'],
     label: 'Requests',
@@ -62,6 +61,73 @@ export const MENU: MenuItem[] = [
         link: '/mobile-banking/customers/send-bulk-sms'
       },
     ]
+  },
+  {
+     profiles:['CORPORATE_ADMIN'],
+     label:'Accounts',
+     icon:'home',
+     subItems: [
+      {
+        profiles: ['CORPORATE_ADMIN'],
+        label: 'Account Registration',
+        subItems: [
+          {
+            profiles: ['CORPORATE_ADMIN'],
+            label:'Registered Accounts',
+            link:'/mobile-banking/accounts/list-accounts'
+          },
+          {
+            profiles: ['CORPORATE_ADMIN'],
+            label:'Approve Account ',
+            link:'/mobile-banking/accounts/list-pending'
+          },
+      
+        ]
+      },
+      {
+        profiles: ['CORPORATE_ADMIN'],
+        label: 'Account Linking',
+     
+         subItems: [
+          {
+            profiles: ['CORPORATE_ADMIN'],
+            label:'New Account',
+            link:'/mobile-banking/accounts/linked-accounts'
+          },
+          {
+            profiles: ['CORPORATE_ADMIN'],
+            label:'Approve Account',
+            link:'/mobile-banking/accounts/account-registration/account-opening'
+          },
+             {
+            profiles: ['CORPORATE_ADMIN'],
+            label:'Rejected Accounts',
+            link:'/mobile-banking/accounts/account-registration/account-opening'
+          },
+             {
+            profiles: ['CORPORATE_ADMIN'],
+            label:'Manage Accounts',
+            link:'/mobile-banking/accounts/manage-accounts'
+          },
+             {
+            profiles: ['CORPORATE_ADMIN'],
+            label:'Blocked Accounts',
+            link:'/mobile-banking/accounts/blocked-accounts'
+          },
+                {
+            profiles: ['CORPORATE_ADMIN'],
+            label:'Unblocked Accounts',
+            link:'/mobile-banking/accounts/unblocked-accounts'
+          },
+          {
+            profiles: ['CORPORATE_ADMIN'],
+            label:'Close Accounts',
+            link:'/mobile-banking/accounts/closed-accounts'
+          },
+      
+        ]
+      }
+     ]
   },
 
 
