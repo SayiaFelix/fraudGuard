@@ -147,4 +147,20 @@ export class TableFiltersComponent implements OnInit {
     })
     this.dataExploration.exportToPdf(cols, arr, this.title)
   }
+
+  updateFilter(event: any, field: any) {
+    // const val = event.target.value.toLowerCase();
+    //
+    // // filter our data
+    // const temp = this.rows.filter(function (d: any) {
+    //   return d.name.toLowerCase().indexOf(val) !== -1 || !val;
+    // });
+    //
+    // // update the rows
+    // this.rows = temp;
+    // // Whenever the filter changes, always go back to the first page
+    // this.table.offset = 0;
+
+    console.log(`Got field and value: ${field} - ${event.target.value}`)
+  }
 }

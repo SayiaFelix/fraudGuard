@@ -74,6 +74,7 @@ export class DefineRegionComponent implements OnInit {
     this.form = this.fb.group({
       regionName: [this.data ? this.data.regionName : "", Validators.compose([Validators.required])],
       regionCode: [this.data ? this.data.regionCode : "", Validators.compose([Validators.required])],
+      zone: [""],
     });
   }
 
@@ -312,4 +313,13 @@ export class DefineRegionComponent implements OnInit {
 
   }
 
+  showSelectionChange() {
+
+    console.log("selection changed");
+
+    this.administationZoneType = this.form.value.zone;
+
+    console.log('this.administationZoneType')
+    console.log(this.administationZoneType)
+  }
 }
