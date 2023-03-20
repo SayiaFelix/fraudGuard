@@ -74,10 +74,10 @@ throw new Error('Method not implemented.');
 
   columns = [
     { name: 'ID', prop: 'id' },
-    { name: 'FullNames', prop:'firstName' },
+    { name: 'FirstName', prop:'firstName' },
     { name:'Email',prop:'email'},
-    { name: 'TelephoneNo', prop:'phoneNumber' },
-    { name: 'Status', prop:'active'},
+    { name: 'PhoneNumber', prop:'phoneNumber' },
+    { name: 'Active', prop:'active'},
     { name: 'CreatedOn', prop:'createdOn' },
     { name: 'Actions', prop: 'id' }
   ];
