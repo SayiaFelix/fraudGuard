@@ -16,7 +16,8 @@ import { NgxDatatableComponent } from '../../../tables/ngx-datatable/ngx-datatab
 import { DatatableComponent } from '@swimlane/ngx-datatable/lib/components/datatable.component';
 import { DataExportationService } from 'src/app/shared/services/data-exportation.service';
 import { HttpService } from 'src/app/shared/services/http.service';
-import {AddCustomerComponent} from "../add-customer/add-customer.component";
+import {AddWorkflowStepComponent} from "../add-workflow-step/add-workflow-step.component";
+import { AddCustomerComponent } from '../add-customer/add-customer.component';
 
 @Component({
   selector: 'app-list-requests',
@@ -161,7 +162,7 @@ export class ListWorkflowsComponent implements OnInit {
   }
 
   navigateToViewProduct(data: any) {
-    this.router.navigateByUrl(`/mobile-banking/customers/customer/${data.id}`);
+    this.router.navigateByUrl(`/mobile-banking/workflows/workflow/${7}`);
   }
 
   toggleExpandRow(row: any) {

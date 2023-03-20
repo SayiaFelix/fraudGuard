@@ -5,7 +5,7 @@ import {HttpService} from 'src/app/shared/services/http.service';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-    selector: 'app-add-customer',
+    selector: 'app-add-workflow-step',
     templateUrl: './add-customer.component.html',
     styleUrls: ['./add-customer.component.scss']
 })

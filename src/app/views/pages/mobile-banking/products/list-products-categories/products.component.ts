@@ -88,7 +88,7 @@ export class ProductsComponent implements OnInit {
   public imageFile: File;
   public modalRef: NgbModalRef;
 
-  title: string = "Products";
+  title: string = "Category";
 
 
   constructor(

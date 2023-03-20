@@ -1,0 +1,90 @@
+<div>
+  <div class="modal-header">
+    <h5 class="modal-title" id="exampleModalLabel">{{title}}</h5>
+    <button (click)="closeModal()" aria-label="Close" class="btn-close" type="button"></button>
+  </div>
+  <div [formGroup]="workflowForm" class="modal-body">
+
+
+    <div class="row g-3">
+      <div class="col-12">
+
+        <form class="text-left mx-auto" [formGroup]="workflowForm" >
+
+          <div class="form-group mb-2">
+            <label class="text-gray">Step Name</label>
+            <input
+              class="form-control"
+              formControlName="name"
+              style="font-weight: 500"
+              type="text">
+          </div>
+
+          <div class="form-group mb-2">
+            <label class="text-gray">Step No.</label>
+            <input
+              class="form-control"
+              formControlName="name"
+              style="font-weight: 500"
+              type="number">
+          </div>
+
+          <div class="form-group mb-2">
+            <label class="text-gray">Select Role</label>
+            <select
+              class="form-control"
+              formControlName="profile"
+              id="profile"
+              name="profile"
+            >
+              <option *ngFor="let item of [{name: 'a', id: 1}]"
+                      [value]="item?.id"
+              >{{ item?.name | titlecase}}</option>
+            </select>
+          </div>
+
+
+          <div class="form-group mb-2">
+            <label class="text-gray">Remarks</label>
+            <textarea
+              class="form-control"
+              cols="1"
+              formControlName="remarks"
+            ></textarea>
+          </div>
+
+
+          <div class="form-group mb-2">
+            <label class="text-gray">Notification Email</label>
+            <input
+              class="form-control"
+              formControlName="notificationEmail"
+              style="font-weight: 500"
+              type="text">
+          </div>
+
+          <div class="form-group mb-2">
+            <label class="text-gray">Notification Message</label>
+            <textarea
+              class="form-control"
+              cols="1"
+              formControlName="notificationEmailMessage"
+            ></textarea>
+          </div>
+
+<!--          <button class="btn btn-primary mb-2 ml-2" type="submit" (click)="submitAddData()" *ngIf="isAdd" [disabled]="!workflowForm.valid">Add Step</button>-->
+<!--          <button class="btn btn-primary mb-2 ml-2" type="submit" (click)="submitEditData()" *ngIf="!isAdd" [disabled]="!workflowForm.valid">Edit Step</button>-->
+        </form>
+
+<!--        <div class="form-group text-left mx-auto mt-2"  *ngIf="!isAdd">-->
+<!--          <small style="cursor: pointer;" (click)="revertToAdd()"><strong><u><i class="fa fa-arrow-left mr-1" aria-hidden="true"></i>Back to Add Steps</u></strong></small>-->
+<!--        </div>-->
+
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button (click)="closeModal()" class="btn btn-secondary" type="button">Close</button>
+    <button (click)="closeModal()" class="btn btn-primary" type="button">Save changes</button>
+  </div>
+</div>
