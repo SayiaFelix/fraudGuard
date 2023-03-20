@@ -6,7 +6,7 @@ import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import Swal from "sweetalert2";
 
 @Component({
-  selector: 'app-add-customer',
+  selector: 'app-add-workflow-step',
   templateUrl: './add-product.component.html',
   styleUrls: ['./add-product.component.scss']
 })
