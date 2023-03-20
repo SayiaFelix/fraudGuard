@@ -141,13 +141,14 @@ throw new Error('Method not implemented.');
 
   getIndividualData(event: number): void {
 
-    
+
     const model = {
       page: 0,
       size: 50
     };
 
-    this.usersList$ = this.httpService.mobileBankingPost('api/v1/corporate/admin/all', model).pipe(map((result: any) => {
+    this.usersList$ = this.httpService.mobileBankingPost('api/v1/corporate/admin/all', model)
+      .pipe(map((result: any) => {
       if(result['status'] === 200){
         this.rows = result['data']['content']
         return result
