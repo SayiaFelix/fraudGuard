@@ -1,0 +1,161 @@
+<div>
+  <div class="modal-header">
+    <h5 class="modal-title" id="exampleModalLabel">{{title}}</h5>
+    <button (click)="closeModal()" aria-label="Close" class="btn-close" type="button"></button>
+  </div>
+  <div [formGroup]="form" class="modal-body">
+    <div class="row g-3">
+
+      <div class="col-4">
+        <label class="form-label">First Name</label>
+        <input class="form-control" formControlName="name" type="text"/>
+        <small
+          *ngIf="
+            form.get('name')?.touched &&
+            form.get('name')?.hasError('required')
+          "
+          class="text-danger"
+        >Required Field</small
+        >
+      </div>
+      <div class="col-4">
+        <label class="form-label">Middle Name</label>
+        <input class="form-control" formControlName="name" type="text"/>
+        <small
+          *ngIf="
+          form.get('name')?.touched &&
+          form.get('name')?.hasError('required')
+        "
+          class="text-danger"
+        >Required Field</small
+        >
+      </div>
+
+      <div class="col-4">
+        <label class="form-label">Last Name</label>
+        <input class="form-control" formControlName="name" type="text"/>
+        <small
+          *ngIf="
+          form.get('name')?.touched &&
+          form.get('name')?.hasError('required')
+        "
+          class="text-danger"
+        >Required Field</small
+        >
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label">Account Number</label>
+        <input class="form-control" formControlName="name" type="text"/>
+        <small
+          *ngIf="
+              form.get('name')?.touched &&
+              form.get('name')?.hasError('required')
+            "
+          class="text-danger"
+        >Required Field</small
+        >
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label">Phone Number</label>
+        <input class="form-control" formControlName="name" type="text"/>
+        <small
+          *ngIf="
+      form.get('name')?.touched &&
+      form.get('name')?.hasError('required')
+    "
+          class="text-danger"
+        >Required Field</small
+        >
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Device IMEI (optional)</label>
+        <input class="form-control" formControlName="name" type="text"/>
+        <small
+          *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')"
+          class="text-danger"
+        >Required Field</small
+        >
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label">Email (optional)</label>
+        <input class="form-control" formControlName="name" type="text"/>
+        <small
+          *ngIf="
+        form.get('name')?.touched &&
+        form.get('name')?.hasError('required')
+      "
+          class="text-danger"
+        >Required Field</small
+        >
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label">Date of Birth</label>
+        <input class="form-control" formControlName="name" placeholder="Select Date " type="date"/>
+        <small
+          *ngIf="
+    form.get('name')?.touched &&
+    form.get('name')?.hasError('required')
+  "
+          class="text-danger"
+        >Required Field</small
+        >
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">National ID/Passport No.</label>
+        <input class="form-control" formControlName="name" type="text"/>
+        <small
+          *ngIf="
+    form.get('name')?.touched &&
+    form.get('name')?.hasError('required')
+  "
+          class="text-danger"
+        >Required Field</small
+        >
+      </div>
+      <div class="col-sm-8">
+        <div class="mb-3">
+          <label class="text-gray">Remarks</label>
+          <textarea
+            class="form-control"
+            formControlName="description"
+            type="text"
+          ></textarea>
+          <small
+            *ngIf="
+              form.get('description')?.touched &&
+              form.get('description')?.hasError('required')
+            "
+            class="text-danger"
+          >Required Field</small
+          >
+        </div>
+      </div>
+      <div class="col-md-4 mt-4">
+        <label class="form-label">Gender</label>
+        <br>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" id="inlineRadio1" name="inlineRadioOptions" type="radio" value="option1">
+          <label class="form-check-label" for="inlineRadio1">Male</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" id="inlineRadio2" name="inlineRadioOptions" type="radio" value="option2">
+          <label class="form-check-label" for="inlineRadio2">Female</label>
+        </div>
+        <small
+          *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')"
+          class="text-danger"
+        >Required Field</small
+        >
+      </div>
+
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button (click)="closeModal()" class="btn btn-secondary" type="button">Close</button>
+    <button (click)="closeModal()" class="btn btn-primary" type="button">Save changes</button>
+  </div>
+</div>
