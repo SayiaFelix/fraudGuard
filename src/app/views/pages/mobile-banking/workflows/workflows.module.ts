@@ -1,31 +1,25 @@
 import {NgModule} from '@angular/core';
-import {CustomersRoutingModule} from './workflows-routing';
+import {WorkflowsRoutingModule} from './workflows-routing';
 
 
 import {ListWorkflowsComponent} from './list-customers/list-workflows.component';
-import {ViewCustomerComponent} from "./view-customer/view-customer.component";
 
 import {SharedModule} from "../../../../shared/shared.module";
 import {FeatherIconModule} from "../../../../core/feather-icon/feather-icon.module";
 import {NgxDatatableModule} from "@swimlane/ngx-datatable";
 import {TranslateModule} from "@ngx-translate/core";
 import {AddCustomerComponent} from "./add-customer/add-customer.component";
-import {ListFailedRegistrationsComponent} from "./list-failed-registrations/list-failed-registrations.component";
-import {SendSmsComponent} from "./send-sms-component/send-sms.component";
 
 @NgModule({
     imports: [
         SharedModule,
-        CustomersRoutingModule,
+        WorkflowsRoutingModule,
         FeatherIconModule,
         NgxDatatableModule,
         TranslateModule
     ],
   declarations: [
     ListWorkflowsComponent,
-    ListFailedRegistrationsComponent,
-    SendSmsComponent,
-    ViewCustomerComponent,
     AddCustomerComponent,
 
     // CreateProductComponent

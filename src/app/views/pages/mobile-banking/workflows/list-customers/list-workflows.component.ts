@@ -88,7 +88,7 @@ export class ListWorkflowsComponent implements OnInit {
   public imageFile: File;
   public modalRef: NgbModalRef;
 
-  title: string = "New Customer";
+  title: string = "New Workflow";
 
 
   constructor(
@@ -103,10 +103,10 @@ export class ListWorkflowsComponent implements OnInit {
     this.breadCrumbItems = [
       {
         label: 'Mobile banking',
-        path: '/mobile-banking/products/all-customers',
+        path: '/mobile-banking/workflows/list-workflows',
       },
       { label: 'Pages', path: '/' },
-      { label: 'Customers', active: true },
+      { label: 'Workflows', active: true },
     ];
     this.getIndividualData(0);
 
@@ -146,7 +146,7 @@ export class ListWorkflowsComponent implements OnInit {
   openAddProductModal() {
 
     this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true,size:"lg"});
-    this.modalRef.componentInstance.title = 'Add New Customer';
+    this.modalRef.componentInstance.title = 'Add New Workflow';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
         this.getIndividualData(0);
