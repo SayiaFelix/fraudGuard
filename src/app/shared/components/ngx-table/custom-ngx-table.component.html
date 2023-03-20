@@ -71,8 +71,9 @@
     <ng-container *ngFor="let column of columns">
       <ngx-datatable-column
         *ngIf="column.name === 'ID'"
-        [maxWidth]="40"
+        [maxWidth]="45"
         [minWidth]="35"
+        [draggable]="false"
         name="ID"
         prop="id"
       >
@@ -83,6 +84,7 @@
         [maxWidth]="150"
         [minWidth]="150"
         [sortable]="false"
+        [draggable]="false"
         class="parent-item"
         name="Actions"
         prop="actions"
@@ -125,6 +127,7 @@
         [minWidth]="150"
         name="Status"
         prop="status"
+        [draggable]="false"
       >
         <ng-template
           let-row="row"
@@ -143,6 +146,7 @@
         [minWidth]="150"
         name="CreatedOn"
         prop="createdOn"
+        [draggable]="false"
       >
       </ngx-datatable-column>
 
@@ -150,11 +154,13 @@
         *ngIf="
           column.name !== 'Actions' &&
           column.name !== 'Status' &&
+          column.name !== 'Active' &&
           column.name !== 'ID' &&
           column.name !== 'CreatedOn'
         "
         name="{{ column.name }}"
         prop="{{ column.prop }}"
+        [draggable]="false"
       >
       </ngx-datatable-column>
     </ng-container>

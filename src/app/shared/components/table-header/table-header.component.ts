@@ -15,6 +15,7 @@ export class TableHeaderComponent implements OnInit {
   @Input() showAddButton: boolean;
   columns: any
   allColumnsChecked: boolean = true
+  initialColumnArrangement: any
 
   @Output() toggleDropEvent = new EventEmitter<string>();
   @Output() changeColumnsEvent = new EventEmitter<string>();
@@ -27,9 +28,8 @@ export class TableHeaderComponent implements OnInit {
 
   ngOnInit() {
     this.columns = [...this.allColumns]
+    this.initialColumnArrangement = [...this.allColumns]
   }
-
-
 
   toggle(col: any) {
     const isChecked = this.isChecked(col);
@@ -42,6 +42,9 @@ export class TableHeaderComponent implements OnInit {
       this.columns = [...this.columns, col];
     }
 
+    let common = this.initialColumnArrangement.filter((col: any) => this.columns.indexOf(col) !== -1);
+    this.columns = common
+    
     this.allColumnsChecked = this.columns.length == this.allColumns.length ? true : false
     this.changeColumnsEvent.emit(this.columns);
   }
@@ -113,6 +116,7 @@ export class TableHeaderComponent implements OnInit {
         return ''
       }
     })
+
     cols = cols.filter(item => item !== '')
     let arr: Record<string, string>[]= []
 
@@ -136,16 +140,25 @@ export class TableHeaderComponent implements OnInit {
         return ''
       }
     })
+
     cols = cols.filter(item => item !== '')
+    
     let rowKeys: string[] = Object.keys(this.rows[0]);
     let arr: string[][]= []
+    
     this.rows.forEach((row: any) => {
       let temp: string[] = []
-      rowKeys.forEach(key => {
-        temp.push(row[key])
+      cols.forEach(colKey => {
+        rowKeys.forEach(key => {   
+          if(colKey == key.toUpperCase()){            
+            temp.push(row[key])
+          }
+        })
       })
+     
       arr.push(temp)
     })
+    
     this.dataExploration.exportToPdf(cols, arr, this.title)
   }
 }
