@@ -66,7 +66,7 @@ const routes: Routes = [
       {
         path: 'workflows',
         loadChildren: () =>
-          import('./rbac/rbac.module').then((m) => m.RbacModule),
+          import('./workflows/workflows.module').then((m) => m.WorkflowsModule),
       },
     ],
   },
