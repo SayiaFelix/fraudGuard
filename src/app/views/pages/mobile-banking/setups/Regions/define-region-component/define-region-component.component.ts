@@ -49,8 +49,7 @@ export class DefineRegionComponent implements OnInit {
 
   ngOnInit(): void {
 
-    console.log("here is the formData");
-    console.log(this.data);
+
 
     // this.setCurrentPosition();
 
@@ -75,6 +74,8 @@ export class DefineRegionComponent implements OnInit {
       regionName: [this.data ? this.data.regionName : "", Validators.compose([Validators.required])],
       regionCode: [this.data ? this.data.regionCode : "", Validators.compose([Validators.required])],
       zone: [""],
+      selectedZone: [""],
+
     });
   }
 
@@ -167,8 +168,6 @@ export class DefineRegionComponent implements OnInit {
             );
           }
           self.updatePointList(event.overlay.getPath());
-          console.log("event");
-          console.log(event);
 
 
           this.selectedShape = event.overlay;
@@ -176,8 +175,7 @@ export class DefineRegionComponent implements OnInit {
         }
         if (event.type !== google.maps.drawing.OverlayType.MARKER) {
           // Switch back to non-drawing mode after drawing a shape.
-          console.log("this.pointList");
-          console.log(this.pointList);
+
           self.drawingManager.setDrawingMode(null);
           // To hide:
           self.drawingManager.setOptions({
@@ -227,9 +225,6 @@ export class DefineRegionComponent implements OnInit {
 
   zoneChanged(event: string) {
 
-    console.log("Zone changed");
-    console.log(event);
-
     if (event === "County") {
       this.administationZoneType = "County";
       this.regions = counties;
@@ -242,11 +237,12 @@ export class DefineRegionComponent implements OnInit {
 
   }
 
-  regionSelected(event: string) {
+  regionSelected() {
+
+    let event = this.form.value.selectedZone;
 
     if (this.administationZoneType === "Constituency") {
       this._httpService.getMapCoordinates("/assets/constituencies.json").subscribe((json: any) => {
-        console.log(json);
 
         // @ts-ignore
         json.features.map((item: any) => {
@@ -277,7 +273,6 @@ export class DefineRegionComponent implements OnInit {
       });
     } else if (this.administationZoneType === "County") {
       this._httpService.getMapCoordinates("/assets/counties.json").subscribe((json: any) => {
-        // console.log(json);
 
         // @ts-ignore
         json.features.map((item: any) => {
@@ -288,9 +283,6 @@ export class DefineRegionComponent implements OnInit {
             item.geometry.coordinates[0].map((itemNew: any[]) => {
               cleanItem.push({lat: itemNew[1], lng: itemNew[0]});
             });
-
-            console.log("item.geometry.coordinates");
-            console.log(cleanItem);
 
             this.pointList = cleanItem;
 
@@ -314,12 +306,8 @@ export class DefineRegionComponent implements OnInit {
   }
 
   showSelectionChange() {
-
-    console.log("selection changed");
-
     this.administationZoneType = this.form.value.zone;
 
-    console.log('this.administationZoneType')
-    console.log(this.administationZoneType)
+    this.zoneChanged(this.administationZoneType);
   }
 }

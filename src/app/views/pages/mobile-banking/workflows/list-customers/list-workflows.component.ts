@@ -16,7 +16,7 @@ import { NgxDatatableComponent } from '../../../tables/ngx-datatable/ngx-datatab
 import { DatatableComponent } from '@swimlane/ngx-datatable/lib/components/datatable.component';
 import { DataExportationService } from 'src/app/shared/services/data-exportation.service';
 import { HttpService } from 'src/app/shared/services/http.service';
-import {AddCustomerComponent} from "../add-customer/add-customer.component";
+import {AddWorkflowStepComponent} from "../add-workflow-step/add-workflow-step.component";
 
 @Component({
   selector: 'app-list-requests',
@@ -67,16 +67,10 @@ export class ListWorkflowsComponent implements OnInit {
   reorderable = true;
 
   columns = [
-    { name: 'ID', prop: 'customerid' },
-    { name: 'CustomerName', prop: 'customerName' },
-    {name:'PhoneNumber',prop:'phoneNumber'},
-    { name: 'IDNumber', prop: 'idNumber' },
-    {name: 'CBSCustomerNumber',prop:'cbsCustomerNumber'},
-    {name: 'AccountNumber',prop:'accountNumber'},
-    // {name: 'Email',prop:'email'},
+    { name: 'Workflow Name', prop: 'customerid' },
+    { name: 'Description', prop: 'description' },
+    { name: 'Status', prop: 'status' },
     { name: 'CreatedOn', prop: 'createdOn' },
-    // {name: 'DOB',prop:'dob'},
-    // {name: 'Gender',prop:'gender'},
     { name: 'Actions', prop: 'id' },
   ];
 
@@ -145,7 +139,7 @@ export class ListWorkflowsComponent implements OnInit {
 
   openAddProductModal() {
 
-    this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true,size:"lg"});
+    this.modalRef = this.modalService.open(AddWorkflowStepComponent, {centered: true,size:"lg"});
     this.modalRef.componentInstance.title = 'Add New Workflow';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
@@ -176,7 +170,7 @@ export class ListWorkflowsComponent implements OnInit {
   }
 
   navigateToViewProduct(data: any) {
-    this.router.navigateByUrl(`/mobile-banking/customers/customer/${data.id}`);
+    this.router.navigateByUrl(`/mobile-banking/workflows/workflow/${7}`);
   }
 
   toggleExpandRow(row: any) {
