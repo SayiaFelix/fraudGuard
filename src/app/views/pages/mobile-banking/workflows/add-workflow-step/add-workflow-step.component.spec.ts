@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AddCustomerComponent } from './add-customer.component';
+import { AddWorkflowStepComponent } from './add-workflow-step.component';
 
 describe('AddRoleComponent', () => {
-  let component: AddCustomerComponent;
-  let fixture: ComponentFixture<AddCustomerComponent>;
+  let component: AddWorkflowStepComponent;
+  let fixture: ComponentFixture<AddWorkflowStepComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ AddCustomerComponent ]
+      declarations: [ AddWorkflowStepComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(AddCustomerComponent);
+    fixture = TestBed.createComponent(AddWorkflowStepComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

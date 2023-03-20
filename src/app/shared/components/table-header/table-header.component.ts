@@ -13,6 +13,7 @@ export class TableHeaderComponent implements OnInit {
   @Input() title: any;
 
   @Input() showAddButton: boolean;
+  @Input() hideExtraOptions: boolean;
   columns: any
   allColumnsChecked: boolean = true
   initialColumnArrangement: any
@@ -44,7 +45,7 @@ export class TableHeaderComponent implements OnInit {
 
     let common = this.initialColumnArrangement.filter((col: any) => this.columns.indexOf(col) !== -1);
     this.columns = common
-    
+
     this.allColumnsChecked = this.columns.length == this.allColumns.length ? true : false
     this.changeColumnsEvent.emit(this.columns);
   }
@@ -142,23 +143,23 @@ export class TableHeaderComponent implements OnInit {
     })
 
     cols = cols.filter(item => item !== '')
-    
+
     let rowKeys: string[] = Object.keys(this.rows[0]);
     let arr: string[][]= []
-    
+
     this.rows.forEach((row: any) => {
       let temp: string[] = []
       cols.forEach(colKey => {
-        rowKeys.forEach(key => {   
-          if(colKey == key.toUpperCase()){            
+        rowKeys.forEach(key => {
+          if(colKey == key.toUpperCase()){
             temp.push(row[key])
           }
         })
       })
-     
+
       arr.push(temp)
     })
-    
+
     this.dataExploration.exportToPdf(cols, arr, this.title)
   }
 }
