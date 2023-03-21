@@ -17,6 +17,7 @@ import { DatatableComponent } from '@swimlane/ngx-datatable/lib/components/datat
 import { DataExportationService } from 'src/app/shared/services/data-exportation.service';
 import { HttpService } from 'src/app/shared/services/http.service';
 import {AddWorkflowStepComponent} from "../add-workflow-step/add-workflow-step.component";
+import { AddCustomerComponent } from '../add-customer/add-customer.component';
 
 @Component({
   selector: 'app-list-requests',
@@ -33,28 +34,18 @@ export class ListWorkflowsComponent implements OnInit {
   actions=["View","Edit"]
   tempProductData = [
     {
-      customerid: 1,
-      customerName: 'Lilian Kamau',
-      phoneNumber:'0728357775',
-      idNumber: '8343849849',
-      cbsCustomerNumber:'013465890',
-      accountNumber:'0119787899900',
-      email:'Carey004@gmail.com',
+      Workflowid: 2,
+      WorkflowName: 'Create New User',
+      Description:'Create User',
+      Status: 'true',
       createdOn: '12-02-2023',
-      dob:'08-05-1997',
-      gender:'Female',
     },
     {
-      customerid: 2,
-      customerName: 'Michael Mbugua',
-      phoneNumber:'0745983290',
-      idNumber: '495875004',
-      cbsCustomerNumber:'032178900',
-      accountNumber:'0116987349900',
-      email:'mike@gmail@gmail.com',
+      Workflowid: 2,
+      WorkflowName: 'Create Signatory',
+      Description:'Create Signatory',
+      Status: 'false',
       createdOn: '12-02-2023',
-      dob:'28-08-1995',
-      gender:'Male',
     },
 
   ];
@@ -67,9 +58,10 @@ export class ListWorkflowsComponent implements OnInit {
   reorderable = true;
 
   columns = [
-    { name: 'Workflow Name', prop: 'customerid' },
-    { name: 'Description', prop: 'description' },
-    { name: 'Status', prop: 'status' },
+    { name: 'ID', prop: 'Workflowid' },
+    { name: 'WorkflowName', prop: 'WorkflowName' },
+    {name:'Description',prop:'Description'},
+    { name: 'Status', prop: 'Status' },
     { name: 'CreatedOn', prop: 'createdOn' },
     { name: 'Actions', prop: 'id' },
   ];
@@ -139,7 +131,7 @@ export class ListWorkflowsComponent implements OnInit {
 
   openAddProductModal() {
 
-    this.modalRef = this.modalService.open(AddWorkflowStepComponent, {centered: true,size:"lg"});
+    this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true,size:"md"});
     this.modalRef.componentInstance.title = 'Add New Workflow';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
@@ -150,18 +142,18 @@ export class ListWorkflowsComponent implements OnInit {
     });
   }
 
-  // openEditProductModal(formData: any) {
-  //   this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true});
-  //   this.modalRef.componentInstance.title = 'Edit Product';
-  //   this.modalRef.componentInstance.formData = formData;
-  //   this.modalRef.result.then((result) => {
-  //     if (result === 'success') {
-  //       this.getIndividualData(0);
-  //     } else {
-  //       console.log("Error occurred")
-  //     }
-  //   });
-  // }
+  openEditProductModal(formData: any) {
+    this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Edit Workflow';
+    this.modalRef.componentInstance.formData = formData;
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        this.getIndividualData(0);
+      } else {
+        console.log("Error occurred")
+      }
+    });
+  }
 
   onFileChange(event: any) {
     if (event.target.files && event.target.files.length) {
@@ -293,9 +285,6 @@ export class ListWorkflowsComponent implements OnInit {
 
   updateColumns(updatedColumns: any) {
     this.columns = [...updatedColumns];
-  }
-  openEditProductModal(data:any){
-
   }
   triggerEvent(data:any){
     let eventData = JSON.parse(data)
