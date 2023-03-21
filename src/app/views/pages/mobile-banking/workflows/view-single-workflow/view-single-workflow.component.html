@@ -1,0 +1,232 @@
+
+<div
+  class="d-flex justify-content-between align-items-center flex-wrap grid-margin"
+>
+  <div>
+    <h4 class="mb-3 mb-md-0" style="font-weight: 700; font-size: 120%" class="text-center">Workflow Name: {{workflowItemData?.name}}</h4>
+  </div>
+  <app-table-header
+    [title]="'Workflow Step'"
+    [showAddButton]="true"
+    [hideExtraOptions]="true"
+    (openAddModalEvent)="openAddModal()"
+  ></app-table-header>
+
+</div>
+
+
+<div class="row">
+
+    <div class="col-md-4">
+        <div class="card border-0 box-shadow" widget>
+            <div class="text-left pt-2 ml-4" style="color: green;">
+                <p style="font-weight: 700; font-size: 120%">Workflow Details</p>
+            </div>
+            <hr>
+            <div class="card-body pt-0 widget-body">
+
+              <h6><strong>Workflow Name: </strong> Create Signatory</h6>
+                  <h6><strong>Workflow Role: </strong> Create Signatory</h6>
+                  <h6><strong>Created On: </strong>22-05-2023</h6>
+                  <h6><strong>Status: </strong>Active</h6>
+                  <h6><strong>Description: </strong>Create signatory Description</h6>
+
+<!--                    <ul class="list-group list-group-flush" *ngIf="workflowSteps.length !== 0">-->
+<!--&lt;!&ndash;                        <li class="list-group-item" *ngFor="let item of workflowSteps; index as i"  style="cursor: pointer;">&ndash;&gt;-->
+<!--&lt;!&ndash;                            <span (click)="getStepClicked(item)" class="pt-2">{{i+1}} . {{item?.stepName}}</span>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <button class="btn btn-sm btn-primary mr-2 float-right" (click)="getStepClicked(item)">View</button>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </li>&ndash;&gt;-->
+<!--                      -->
+<!--                      -->
+<!--                      -->
+<!--                    </ul>-->
+
+
+
+<!--                <mat-vertical-stepper class="text-left" [linear]="false" #stepper>-->
+<!--&lt;!&ndash;                    <ng-container *ngIf="workflowSteps.length !== 0">&ndash;&gt;-->
+<!--&lt;!&ndash;                        <mat-step [stepControl]="item.stepName" class="text-left" *ngFor="let item of workflowSteps">&ndash;&gt;-->
+<!--&lt;!&ndash;                            <ng-template matStepLabel><small style="cursor: pointer;" (click)="getStepClicked(item)"><strong><u>{{item.stepName}}</u></strong></small></ng-template>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </mat-step>&ndash;&gt;-->
+<!--&lt;!&ndash;                    </ng-container>&ndash;&gt;-->
+<!--                    <ng-container *ngIf="workflowSteps.length === 0">-->
+<!--                        <mat-step [stepControl]="'No Steps Created Yet'" class="text-left">-->
+<!--                            <ng-template matStepLabel><span>No steps created yet</span></ng-template>-->
+<!--                        </mat-step>-->
+<!--                    </ng-container>-->
+
+<!--                </mat-vertical-stepper>-->
+
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <ng-container *ngIf="selectedWorkflowStep">
+            <div class="card border-0 box-shadow" widget>
+                <div class="row">
+                    <div class="col-8">
+                        <div class="text-left pt-2 ml-4" style="color: green;">
+                            <p class="ml-4 pl-4" style="font-weight: 700; font-size: 80%">Showing Step: {{selectedWorkflowStep?.stepName}}</p>
+                        </div>
+                    </div>
+                    <div class="col-2"></div>
+                    <div class="col-2 mt-2 ml-5" *ngIf="enableEditAndDeleteButtons">
+                        <button class="btn btn-danger btn-xs" (click)="deleteWorkflowStep()">Delete Step</button>
+                    </div>
+                </div>
+
+                <hr>
+                <div class="card-body pt-0 widget-body pb-1 mb-1">
+                    <div class="row mt-2">
+                        <div class="col-12 text-center">
+                            <b>
+                                {{this.selectedWorkflowStep?.remarks}}
+                            </b>
+
+                        </div>
+
+                        <div class="col-12 text-left">
+                            <b>Notification Email : </b> <span class="">{{this.selectedWorkflowStep?.notificationEmail}}</span>
+                        </div>
+                        <div class="col-12 text-left">
+                            <b>Notification Email Message : </b> <span class="">{{this.selectedWorkflowStep?.notificationEmailMessage}}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body pt-0 widget-body pb-1 mb-1 mx-auto" *ngIf="enableEditAndDeleteButtons">
+                    <button class="btn btn-success" (click)="editWorkflowStep()"> Edit Workflow Step</button>
+                </div>
+            </div>
+        </ng-container>
+
+        <ng-container *ngIf="!selectedWorkflowStep">
+            <div class="card border-0 box-shadow" widget>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="text-center pt-2 ml-4" style="color: green;">
+                            <p style="font-weight: 700; font-size: 120%" class="text-center">No Workflow Step Selected.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+
+
+    </div>
+
+    <div class="col-md-3 d-none">
+        <div class="card border-0 box-shadow" widget>
+            <div class="text-center pt-2" style="color: green; font-family: monospace;">
+                <p style="font-weight: 700; font-size: 120%">{{formTitle}}</p>
+            </div>
+
+            <div class="row text-center mx-auto align-items-center m-2">
+                <div class="col-12">
+
+                    <form class="text-left mx-auto" [formGroup]="workflowForm" >
+                        <div class="form-group mb-2">
+                            <label class="text-gray">Select Profile</label>
+                            <select
+                                    class="form-control"
+                                    formControlName="profile"
+                                    id="profile"
+                                    name="profile"
+                            >
+                                <option *ngFor="let item of allProfilesList"
+                                        [value]="item.id"
+                                >{{ item.name | titlecase}}</option>
+                            </select>
+                        </div>
+
+<!--                        <div class="form-group mb-2">-->
+<!--                            <label class="text-gray">Select User</label>-->
+<!--                            <select-->
+<!--                                    class="form-control"-->
+<!--                                    formControlName="user"-->
+<!--                                    id="user"-->
+<!--                                    name="user"-->
+<!--                            >-->
+<!--                                <option *ngFor="let item of [{name: 'Samuel Mutava', id: 1}, {name: 'John Bakari', id: 2}]"-->
+<!--                                        [value]="item.id"-->
+<!--                                >{{ item.name | titlecase}}</option>-->
+<!--                            </select>-->
+<!--                        </div>-->
+
+                        <div class="form-group mb-2">
+                            <label class="text-gray">Step Name</label>
+                            <input
+                                    class="form-control"
+                                    formControlName="name"
+                                    style="font-weight: 500"
+                                    type="text">
+                        </div>
+
+<!--                        <div class="form-group mb-2">-->
+<!--                            <label class="text-gray">Step Number</label>-->
+
+<!--                            <input-->
+<!--                                    class="form-control"-->
+<!--                                    formControlName="stepNumber"-->
+<!--                                    style="font-weight: 500"-->
+<!--                                    type="number" min="0">-->
+<!--                        </div>-->
+
+                        <div class="form-group mb-2">
+                            <label class="text-gray">Remarks</label>
+                            <textarea
+                                    class="form-control"
+                                    cols="1"
+                                    formControlName="remarks"
+                            ></textarea>
+                        </div>
+
+
+                        <div class="form-group mb-2">
+                            <label class="text-gray">Notification Email</label>
+                            <input
+                                    class="form-control"
+                                    formControlName="notificationEmail"
+                                    style="font-weight: 500"
+                                    type="text">
+                        </div>
+
+                        <div class="form-group mb-2">
+                            <label class="text-gray">Notification Message</label>
+                            <textarea
+                                    class="form-control"
+                                    cols="1"
+                                    formControlName="notificationEmailMessage"
+                            ></textarea>
+                        </div>
+
+<!--                        <div class="form-group mb-2">-->
+<!--                            <label class="text-gray">Is Final</label>-->
+<!--                            <br>-->
+<!--                            <mat-radio-group-->
+<!--                                    formControlName="isFinal"-->
+<!--                            >-->
+<!--                                <mat-radio-button value="1"><span class="mr-2">Yes</span></mat-radio-button>-->
+<!--                                <mat-radio-button value="0"><span class="mr-2">No</span></mat-radio-button>-->
+<!--                            </mat-radio-group>-->
+<!--                        </div>-->
+
+
+                        <button class="btn btn-primary mb-2 ml-2" type="submit" (click)="submitAddData()" *ngIf="isAdd" [disabled]="!workflowForm.valid">Add Step</button>
+                        <button class="btn btn-primary mb-2 ml-2" type="submit" (click)="submitEditData()" *ngIf="!isAdd" [disabled]="!workflowForm.valid">Edit Step</button>
+                    </form>
+
+                    <div class="form-group text-left mx-auto mt-2"  *ngIf="!isAdd">
+                        <small style="cursor: pointer;" (click)="revertToAdd()"><strong><u><i class="fa fa-arrow-left mr-1" aria-hidden="true"></i>Back to Add Steps</u></strong></small>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+    </div>
+</div>
+

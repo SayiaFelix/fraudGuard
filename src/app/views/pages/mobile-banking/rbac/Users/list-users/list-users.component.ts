@@ -3,10 +3,11 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import { ColumnMode, DatatableComponent } from '@swimlane/ngx-datatable';
-import { map, Observable } from 'rxjs';
+import {catchError, finalize, map, Observable, throwError} from 'rxjs';
 import { active } from 'sortablejs';
 import { HttpService } from 'src/app/shared/services/http.service';
 import {AddUserComponent} from "../add-user/add-user.component";
+import Swal from "sweetalert2";
 
 @Component({
   selector: 'app-list-users',
@@ -148,14 +149,20 @@ throw new Error('Method not implemented.');
     };
 
     this.usersList$ = this.httpService.mobileBankingPost('api/v1/corporate/admin/all', model)
-      .pipe(map((result: any) => {
-      if(result['status'] === 200){
-        this.rows = result['data']['content']
-        return result
-      } else {
-        return []
-      }
-    }))
+      .pipe(
+        catchError((error: any) => {
+          Swal.fire('Error', "Unable to fetch records", 'error');
+          return throwError(error);
+        }),
+        map((result: any) => {
+          if(result['status'] === 200){
+            this.rows = result['data']['content']
+            return result
+          } else {
+            return []
+          }
+        }),
+      )
 
     // this.httpService.mobileBankingPost('api/v1/corporate/admin/list-products/all', model).subscribe((res: any) => {
 

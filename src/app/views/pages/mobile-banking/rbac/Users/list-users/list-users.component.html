@@ -22,13 +22,13 @@
 
             (outputEvent)="triggerEvent($event)"
           ></app-custom-ngx-table>
+      </div>
 
-        </div>
       <div class="card" *ngIf="!(usersList$ | async)">
         <div class="spinner-border text-success" role="status">
           <span class="visually-hidden">Loading...</span>
         </div>
-        </div>
+      </div>
     </div>
   </div>
 
