@@ -10,7 +10,7 @@ import {NgxDatatableModule} from "@swimlane/ngx-datatable";
 import {TranslateModule} from "@ngx-translate/core";
 import {AddWorkflowStepComponent} from "./add-workflow-step/add-workflow-step.component";
 import {ViewSingleWorkflowComponent} from "./view-single-workflow/view-single-workflow.component";
-
+import { AddCustomerComponent } from './add-customer/add-customer.component';
 @NgModule({
     imports: [
         SharedModule,
@@ -23,12 +23,13 @@ import {ViewSingleWorkflowComponent} from "./view-single-workflow/view-single-wo
     ListWorkflowsComponent,
     ViewSingleWorkflowComponent,
     AddWorkflowStepComponent,
-
+    AddCustomerComponent
     // CreateProductComponent
   ]
   ,
   entryComponents: [
     AddWorkflowStepComponent,
+    AddCustomerComponent
     // CreateProductComponent
   ],
 })
