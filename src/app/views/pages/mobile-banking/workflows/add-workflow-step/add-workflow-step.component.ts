@@ -6,17 +6,17 @@ import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
     selector: 'app-add-workflow-step',
-    templateUrl: './add-customer.component.html',
-    styleUrls: ['./add-customer.component.scss']
+    templateUrl: './add-workflow-step.component.html',
+    styleUrls: ['./add-workflow-step.component.scss']
 })
-export class AddCustomerComponent implements OnInit {
+export class AddWorkflowStepComponent implements OnInit {
 
     @Input() title: any;
     @Input() formData: any;
     public loading = false;
     public hasErrors = false;
     public errorMessages: any;
-    public form: FormGroup;
+    public workflowForm: FormGroup;
     public imageFile: File;
 
     constructor(
@@ -30,7 +30,7 @@ export class AddCustomerComponent implements OnInit {
       console.log("this.formData");
       console.log(this.formData);
 
-        this.form = this.fb.group({
+        this.workflowForm = this.fb.group({
             name: [this.formData ? this.formData.productName : '', [Validators.required]],
             description: [this.formData ? this.formData.remarks : '', [Validators.required]],
             image: [this.formData ? this.formData.image : '', [Validators.nullValidator]]

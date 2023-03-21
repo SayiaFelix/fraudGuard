@@ -41,15 +41,15 @@
                     <select
                       aria-label="Select Administrative Region"
                       class="form-control form-select mb-2"
-                      formControlName="zone" name="administationZoneType" (selectionchange)="showSelectionChange()">
+                      formControlName="zone" name="administationZoneType" (change)="showSelectionChange()">
                       <option value="County">County</option>
                       <option value="Constituency">Constituency</option>
                     </select>
 
                     <label class="pt-1"></label>
-                    <select (ngModelChange)="regionSelected($event)" aria-label="Select Administrative Region"
+                    <select (change)="regionSelected()" aria-label="Select Administrative Region"
                             class="form-select"
-                            name="administationZoneType" ngModel="zone">
+                            name="administationZoneType" formControlName="selectedZone">
                       <option *ngFor="let region of regions" [value]="region">{{region}}</option>
                     </select>
 

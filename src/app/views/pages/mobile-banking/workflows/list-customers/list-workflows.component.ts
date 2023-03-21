@@ -15,52 +15,39 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgxDatatableComponent } from '../../../tables/ngx-datatable/ngx-datatable.component';
 import { DatatableComponent } from '@swimlane/ngx-datatable/lib/components/datatable.component';
 import { DataExportationService } from 'src/app/shared/services/data-exportation.service';
-import { ItemsList } from '@ng-select/ng-select/lib/items-list';
 import { HttpService } from 'src/app/shared/services/http.service';
-import {AddRoleComponent} from "../../rbac/roles/add-role/add-role.component";
-import {AddProductComponent} from "../add-product/add-product.component";
+import {AddWorkflowStepComponent} from "../add-workflow-step/add-workflow-step.component";
+import { AddCustomerComponent } from '../add-customer/add-customer.component';
 
 @Component({
-  selector: 'app-starter',
-  templateUrl: './products.component.html',
-  styleUrls: ['./products.component.scss'],
+  selector: 'app-list-requests',
+  templateUrl: './list-workflows.component.html',
+  styleUrls: ['./list-workflows.component.scss'],
   providers: [DatePipe],
 })
 
 /**
  * Starter-component
  */
-export class ProductsComponent implements OnInit {
+export class ListWorkflowsComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
-
-  actions = ["View", "Edit"];
-
+  actions=["View","Edit"]
   tempProductData = [
+    {
+      Workflowid: 2,
+      WorkflowName: 'Create New User',
+      Description:'Create User',
+      Status: 'true',
+      createdOn: '12-02-2023',
+    },
+    {
+      Workflowid: 2,
+      WorkflowName: 'Create Signatory',
+      Description:'Create Signatory',
+      Status: 'false',
+      createdOn: '12-02-2023',
+    },
 
-    {
-      id: 1,
-      productCategory: 'Loan Accounts',
-      parentCategory:'-',
-      remarks: 'Loan Accounts Description',
-      status: true,
-      createdOn: '12-02-2023',
-    },
-    {
-      id: 2,
-      productCategory: 'Investment Accounts',
-      parentCategory:'-',
-      remarks: 'Investment Accounts Description',
-      status: true,
-      createdOn: '12-02-2023',
-    },
-    {
-      id: 3,
-      productCategory: 'Insurance Accounts',
-      parentCategory:'-',
-      remarks: 'Insurance Accounts Description',
-      status: true,
-      createdOn: '12-02-2023',
-    },
   ];
 
   // bread crumb items
@@ -71,13 +58,12 @@ export class ProductsComponent implements OnInit {
   reorderable = true;
 
   columns = [
-    {name: 'ID', prop: 'id'},
-    {name: 'ProductCategory', prop: 'productCategory'},
-    {name: 'ParentCategory', prop: 'parentCategory'},
-    {name: 'Remarks', prop: 'remarks'},
-    {name: 'Status', prop: 'status'},
-    {name: 'CreatedOn', prop: 'createdOn'},
-    {name: 'Actions', prop: 'id'},
+    { name: 'ID', prop: 'Workflowid' },
+    { name: 'WorkflowName', prop: 'WorkflowName' },
+    {name:'Description',prop:'Description'},
+    { name: 'Status', prop: 'Status' },
+    { name: 'CreatedOn', prop: 'createdOn' },
+    { name: 'Actions', prop: 'id' },
   ];
 
   allColumns = [...this.columns];
@@ -88,7 +74,7 @@ export class ProductsComponent implements OnInit {
   public imageFile: File;
   public modalRef: NgbModalRef;
 
-  title: string = "Category";
+  title: string = "New Workflow";
 
 
   constructor(
@@ -103,10 +89,10 @@ export class ProductsComponent implements OnInit {
     this.breadCrumbItems = [
       {
         label: 'Mobile banking',
-        path: '/mobile-banking/products/all-products',
+        path: '/mobile-banking/workflows/list-workflows',
       },
       { label: 'Pages', path: '/' },
-      { label: 'Products', active: true },
+      { label: 'Workflows', active: true },
     ];
     this.getIndividualData(0);
 
@@ -145,8 +131,8 @@ export class ProductsComponent implements OnInit {
 
   openAddProductModal() {
 
-    this.modalRef = this.modalService.open(AddProductComponent, {centered: true});
-    this.modalRef.componentInstance.title = 'Add Product Categories';
+    this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true,size:"md"});
+    this.modalRef.componentInstance.title = 'Add New Workflow';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
         this.getIndividualData(0);
@@ -157,8 +143,8 @@ export class ProductsComponent implements OnInit {
   }
 
   openEditProductModal(formData: any) {
-    this.modalRef = this.modalService.open(AddProductComponent, {centered: true});
-    this.modalRef.componentInstance.title = 'Edit Product Category';
+    this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Edit Workflow';
     this.modalRef.componentInstance.formData = formData;
     this.modalRef.result.then((result) => {
       if (result === 'success') {
@@ -176,7 +162,7 @@ export class ProductsComponent implements OnInit {
   }
 
   navigateToViewProduct(data: any) {
-    this.router.navigateByUrl(`/mobile-banking/products/list-products/${data.id}`);
+    this.router.navigateByUrl(`/mobile-banking/workflows/workflow/${7}`);
   }
 
   toggleExpandRow(row: any) {
@@ -300,16 +286,13 @@ export class ProductsComponent implements OnInit {
   updateColumns(updatedColumns: any) {
     this.columns = [...updatedColumns];
   }
-
-  triggerEvent(data: string) {
-
+  triggerEvent(data:any){
     let eventData = JSON.parse(data)
 
     if (eventData.action == 'View') {
-      this.navigateToViewProduct(eventData.row);
+      this. navigateToViewProduct(eventData.row);
     }else if (eventData.action == 'Edit') {
       this.openEditProductModal(eventData.row);
     }
-
   }
 }

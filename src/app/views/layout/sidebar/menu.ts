@@ -81,13 +81,13 @@ export const MENU: MenuItem[] = [
             label:'Approve Account ',
             link:'/mobile-banking/accounts/list-pending'
           },
-      
+
         ]
       },
       {
         profiles: ['CORPORATE_ADMIN'],
         label: 'Account Linking',
-     
+
          subItems: [
           {
             profiles: ['CORPORATE_ADMIN'],
@@ -124,7 +124,7 @@ export const MENU: MenuItem[] = [
             label:'Close Accounts',
             link:'/mobile-banking/accounts/closed-accounts'
           },
-      
+
         ]
       }
      ]
@@ -197,6 +197,19 @@ export const MENU: MenuItem[] = [
         profiles: ['CORPORATE_ADMIN'],
         label: 'Profiles',
         link: '/mobile-banking/rbac/all-profiles'
+      }
+    ]
+  },
+
+  {
+    profiles: ['CORPORATE_ADMIN'],
+    label: 'Workflows Module',
+    icon: 'file-text',
+    subItems: [
+      {
+        profiles: ['CORPORATE_ADMIN'],
+        label: 'Workflows',
+        link: '/mobile-banking/workflows/list-workflows'
       }
     ]
   }
