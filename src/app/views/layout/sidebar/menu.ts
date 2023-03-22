@@ -200,6 +200,12 @@ export const MENU: MenuItem[] = [
       }
     ]
   },
+  {
+    profiles: ['CORPORATE_ADMIN'],
+    label:'Audit Trail',
+    icon:'file-text',
+    link:'/mobile-banking/audit-trail/list-audits'
+  },
 
   {
     profiles: ['CORPORATE_ADMIN'],
