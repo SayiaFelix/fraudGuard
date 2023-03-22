@@ -54,7 +54,7 @@
                   Disable User</a>
               </div>
               <div class="d-grid my-3">
-                <a class="btn btn-danger" (click)="openDeleteUserModal(DeleteUserModal)">
+                <a class="btn btn-danger" (click)="openDeleteUserModal()">
                   <i class="mdi mdi-account-remove-outline"></i>
                   Delete User</a>
               </div>
@@ -173,27 +173,7 @@
       </div>
 
   </ng-template>
-  <ng-template #DeleteUserModal let-modal>
-    <div class="modal-header">
-      <h5 class="modal-title" id="exampleModalLabel">Delete User</h5>
-      <button (click)="modal.close('by: close icon')" aria-label="Close" class="btn-close" type="button"></button>
-    </div>
-    <div class="modal-body">
-      <div class="row ">
 
-          <div class="col-md-12">
-            <div class="mb-3">
-              <p class="form-label">Do you want to Delete this User?</p>
-            </div>
-          </div>
-      </div>
-      </div>
-      <div class="modal-footer">
-        <button (click)="modal.close('by: close button')" class="btn btn-secondary" type="button">Close</button>
-        <button (click)="modal.close('by: save button')" class="btn btn-primary" type="button">Confirm</button>
-      </div>
-
-  </ng-template>
   <ng-template #verticalCenteredModal let-modal>
     <div class="modal-header">
       <h5 class="modal-title" id="exampleModalLabel">Change Profile</h5>

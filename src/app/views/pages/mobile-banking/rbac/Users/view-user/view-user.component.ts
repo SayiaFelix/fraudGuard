@@ -1,10 +1,12 @@
 import { Component, Input, OnInit, TemplateRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import { ColumnMode } from '@swimlane/ngx-datatable';
 import { GlobalService } from 'src/app/shared/services/global.service';
 import { HttpService } from 'src/app/shared/services/http.service';
+import {ConfirmDialogComponent} from "../../../../../../shared/components/confirm-dialog/confirm-dialog.component";
+import Swal from "sweetalert2";
 
 @Component({
   selector: 'app-view-user',
@@ -57,6 +59,8 @@ export class ViewUserComponent implements OnInit {
   ColumnMode = ColumnMode;
 
   public imageFile: File;
+  public modalRef: NgbModalRef;
+
 
   constructor(
     private httpService: HttpService,
@@ -136,13 +140,35 @@ export class ViewUserComponent implements OnInit {
       })
       .catch((res) => {});
   }
-  openDeleteUserModal(content: TemplateRef<any>) {
-    this.modalService
-      .open(content, { centered: true, size: 'md' })
-      .result.then((result) => {
-        console.log('Modal closed' + result);
-      })
-      .catch((res) => {});
+  openDeleteUserModal() {
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Delete User';
+
+    this.modalRef.componentInstance.body = "Do you want to delete this user?";
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+
+        let model = {
+          "id": 123
+        }
+
+        this.httpService.mobileBankingPost('api/v1/admin/user/delete',
+          model).subscribe((res: any) => {
+
+          if (res.status === 200) {
+            setTimeout(() => {
+              Swal.fire('Deleted Successfully', 'User has been deleted successfully.', 'success')
+            }, 10);
+          } else {
+            Swal.fire('Deletion Failed', res.message, 'error')
+          }
+        }, (error: any) => {
+          Swal.fire('Deletion Failed', 'User deletion failed.', 'error')
+        });
+
+
+      }
+    })
   }
 
   openEditProductSubcategoryModal(content: TemplateRef<any>) {
