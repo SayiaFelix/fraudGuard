@@ -42,7 +42,9 @@ export function HttpLoaderFactory(http: HttpClient) {
       }
     }),
     LayoutModule,
-    AgmCoreModule.forRoot({  apiKey: "AIzaSyCeXaOKfJXQZuh-3wZmMmYSt5NruUJPVgU",  libraries: ["places", "drawing", "geometry"]}),
+    AgmCoreModule.forRoot({
+      apiKey: "AIzaSyCeXaOKfJXQZuh-3wZmMmYSt5NruUJPVgU",
+      libraries: ["places", "drawing", "geometry"]}),
   ],
   providers: [
     {
