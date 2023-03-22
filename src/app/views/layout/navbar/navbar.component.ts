@@ -9,6 +9,9 @@ import { Router } from '@angular/router';
 import { HttpService } from 'src/app/shared/services/http.service';
 import { map, Observable, of } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
+import {AddProductComponent} from "../../pages/mobile-banking/products/add-product/add-product.component";
+import {NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
+import {NotificationModalComponent} from "../../../shared/components/notification-modal/notification-modal.component";
 
 @Component({
   selector: 'app-navbar',
@@ -24,6 +27,9 @@ export class NavbarComponent implements OnInit {
   taxPin: string;
   logo: string;
 
+  public modalRef: NgbModalRef;
+
+
   // internationalization management
   selectedLanguage: any = 'English';
   selectedLanguageFlag: any = 'assets/images/flags/us.svg';
@@ -35,7 +41,8 @@ export class NavbarComponent implements OnInit {
     private translate: TranslateService,
 
     private router: Router,
-    private httpService: HttpService
+    private httpService: HttpService,
+    private modalService: NgbModal
   ) {}
 
   ngOnInit(): void {
@@ -96,5 +103,16 @@ export class NavbarComponent implements OnInit {
       this.selectedLanguage = 'Kiswahili';
       this.selectedLanguageFlag = 'assets/images/flags/es.svg';
     }
+  }
+
+  openNotificationModal() {
+    this.modalRef = this.modalService.open(NotificationModalComponent, {centered: true, size:"lg"});
+    this.modalRef.componentInstance.title = 'Approve Create User';
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+      } else {
+        console.log("Error occurred")
+      }
+    });
   }
 }

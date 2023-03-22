@@ -82,7 +82,7 @@ export class HttpService {
   public mobileBankingPost(endpoint: string, model: any): any {
     return this.http
       .post(
-        this.globalService.mobileBankingHost + endpoint,
+        this.globalService.channelManagerHost + endpoint,
         model,
         this.getHeaders()
       )
@@ -163,7 +163,8 @@ export class HttpService {
       headers: new HttpHeaders({
         'Content-Type': 'application/x-www-form-urlencoded',
         Authorization:
-          'Basic ' + btoa('CORPORATE_ADMIN' + ':' + 'YP@kduzzbm#YfkJX'),
+          // 'Basic ' + btoa('ADMIN_PORTAL' + ':' + 'PAr6hu6n}k;@'),
+        'Basic ' + btoa('CORPORATE_ADMIN' + ':' + 'YP@kduzzbm#YfkJX'),
       }),
     };
   }
