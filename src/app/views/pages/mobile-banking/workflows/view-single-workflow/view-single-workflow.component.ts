@@ -6,6 +6,8 @@ import {GlobalService} from "../../../../../shared/services/global.service";
 import {AddMobileAppCustomerComponent} from "../../channels/add-mobile-app-customer/add-mobile-app-customer.component";
 import {NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {AddWorkflowStepComponent} from "../add-workflow-step/add-workflow-step.component";
+import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
+import Swal from "sweetalert2";
 
 @Component({
     selector: 'app-view-single-workflow',
@@ -216,32 +218,49 @@ export class ViewSingleWorkflowComponent implements OnInit {
     }
 
     deleteWorkflowStep() {
-        const model = {
-                id: this.selectedWorkflowStep.id,
-                workFlowId: this.workflowId
-        };
+      this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+      this.modalRef.componentInstance.title = 'Delete Workflow Step';
 
-        // Delete workflow step
-        this.httpService.mobileBankingPost('api/v1/corporate/workflow/delete/step', model).subscribe(
-          (result:any) => {
-                if (result.status === 200) {
+      this.modalRef.componentInstance.body= "Do you want to delete this workflow step?";
+      this.modalRef.result.then((result) => {
+        if (result === 'success') {
+          Swal.fire('Deleted Successfully',  'Workflow Step Deleted successfully.',  'success')
+            .then
+            (r => {
+            })
+        } else {
+          console.log("Error occurred")
+        }
+      });
 
-                    this.getWorkflowSteps();
 
-                    // reset center div
-                    this.selectedWorkflowStep = null;
 
-                    this.workflowForm.reset();
-
-                } else {
-
-                }
-            });
+        // const model = {
+        //         id: this.selectedWorkflowStep.id,
+        //         workFlowId: this.workflowId
+        // };
+        //
+        // // Delete workflow step
+        // this.httpService.mobileBankingPost('api/v1/corporate/workflow/delete/step', model).subscribe(
+        //   (result:any) => {
+        //         if (result.status === 200) {
+        //
+        //             this.getWorkflowSteps();
+        //
+        //             // reset center div
+        //             this.selectedWorkflowStep = null;
+        //
+        //             this.workflowForm.reset();
+        //
+        //         } else {
+        //
+        //         }
+        //     });
     }
 
   openAddModal() {
     this.modalRef = this.modalService.open(AddWorkflowStepComponent, {centered: true});
-    this.modalRef.componentInstance.title = 'Add Workflow Step';
+    this.modalRef.componentInstance.title = 'Edit Workflow Step';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
       } else {

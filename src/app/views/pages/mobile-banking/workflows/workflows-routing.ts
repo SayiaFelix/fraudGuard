@@ -8,7 +8,7 @@ const routes: Routes = [
 
   {
     path: 'list-workflows',
-    component: ListWorkflowsComponent
+    component: ListWorkflowsComponent,
   },
 
   {

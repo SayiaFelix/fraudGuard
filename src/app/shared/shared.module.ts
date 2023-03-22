@@ -16,6 +16,7 @@ import {CustomNgxTable} from "./components/ngx-table/custom-ngx-table.component"
 import {TableHeaderComponent} from "./components/table-header/table-header.component";
 import {TableFiltersComponent} from "./components/table-filters/table-filters.component";
 import {NgxPaginationModule} from "ngx-pagination";
+import {NotificationModalComponent} from "./components/notification-modal/notification-modal.component";
 
 
 @NgModule({
@@ -26,6 +27,7 @@ import {NgxPaginationModule} from "ngx-pagination";
     LabelOnlineComponent,
     LabelPassedComponent,
     ConfirmDialogComponent,
+    NotificationModalComponent,
     CustomNgxTable,
     TableHeaderComponent,
     TableFiltersComponent
@@ -37,6 +39,7 @@ import {NgxPaginationModule} from "ngx-pagination";
     LabelOnlineComponent,
     LabelPassedComponent,
     ConfirmDialogComponent,
+    NotificationModalComponent
   ],
     imports: [
         CommonModule,
