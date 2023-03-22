@@ -60,6 +60,7 @@ export class ViewUserComponent implements OnInit {
 
   public imageFile: File;
   public modalRef: NgbModalRef;
+  public userId: any;
 
 
   constructor(
@@ -69,13 +70,17 @@ export class ViewUserComponent implements OnInit {
     private modalService: NgbModal,
     public fb: FormBuilder
   ) {
-    activatedRoute.queryParams.subscribe((params) => {
-      this.mainProduct = params;
-      console.log('queryParams', params);
-    });
+
   }
 
   ngOnInit(): void {
+
+    this.activatedRoute.params.subscribe(params => {
+      if (typeof params.id !== 'undefined') {
+        this.userId = params.id;
+      }
+    });
+
     this.loadData();
 
     this.loadProfiles();
@@ -132,13 +137,35 @@ export class ViewUserComponent implements OnInit {
       })
       .catch((res) => {});
   }
-  openDisableUserModal(content: TemplateRef<any>) {
-    this.modalService
-      .open(content, { centered: true, size: 'md' })
-      .result.then((result) => {
-        console.log('Modal closed' + result);
-      })
-      .catch((res) => {});
+  openDisableUserModal() {
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Block User';
+
+    this.modalRef.componentInstance.body = "Do you want to block this user?";
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+
+        let model = {
+          "id": this.userId
+        }
+
+        this.httpService.mobileBankingPost('api/v1/admin/user/block',
+          model).subscribe((res: any) => {
+
+          if (res.status === 200) {
+            setTimeout(() => {
+              Swal.fire('Blocked Successfully', 'User has been blocked successfully.', 'success')
+            }, 10);
+          } else {
+            Swal.fire('Block Failed', res.message, 'error')
+          }
+        }, (error: any) => {
+          Swal.fire('Block Failed', 'User deletion failed.', 'error')
+        });
+
+
+      }
+    })
   }
   openDeleteUserModal() {
     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
@@ -149,7 +176,7 @@ export class ViewUserComponent implements OnInit {
       if (result === 'success') {
 
         let model = {
-          "id": 123
+          "id": this.userId
         }
 
         this.httpService.mobileBankingPost('api/v1/admin/user/delete',
