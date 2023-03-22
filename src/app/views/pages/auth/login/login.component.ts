@@ -67,12 +67,12 @@ export class LoginComponent implements OnInit {
     e.preventDefault();
 
     const model = new HttpParams()
-      .set('grant_type', 'password')
+      // .set('grant_type', 'password')
       .set('username', this.form.value.username.trim())
       .set('password', this.form.value.password);
 
     this.loginResponse$ = this.httpService
-      .mobileBankingLogin('api/v1/oauth/token', model)
+      .channelManagerLogin('oauth/token', model)
       .pipe(
         map((result) => {
           this.isLoading = false;

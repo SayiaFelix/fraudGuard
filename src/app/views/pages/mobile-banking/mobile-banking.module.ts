@@ -10,6 +10,7 @@ import { AuthGuard } from 'src/app/core/guard/auth.guard';
 
 
 
+
 const routes: Routes = [
   {
     path: '',
@@ -62,6 +63,11 @@ const routes: Routes = [
         path: 'Users',
         loadChildren: () =>
           import('./rbac/rbac.module').then((m) => m.RbacModule),
+      },
+      {
+        path: 'audit-trail',
+        loadChildren:() =>
+        import('./audit-trail/audit-trail.module').then((m) => m.AuditTrailModule)
       },
       {
         path: 'workflows',

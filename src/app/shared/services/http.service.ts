@@ -17,10 +17,10 @@ export class HttpService {
     private router: Router
   ) {}
 
-  public mobileBankingLogin(endpoint: string, model: any): Observable<any> {
+  public channelManagerLogin(endpoint: string, model: any): Observable<any> {
     return this.http
       .post(
-        this.globalService.mobileBankingHost + endpoint,
+        this.globalService.channelManagerHost + endpoint,
         model,
         this.generateLoginHeaders()
       )
@@ -40,7 +40,7 @@ export class HttpService {
   public mobileBankingGetUserDetailsAndPermissions(): Observable<any> {
     const userDetails$ = this.http
       .post(
-        this.globalService.mobileBankingHost +
+        this.globalService.channelManagerHost +
           'api/v1/corporate/admin/corporate/details',
         {},
         this.getHeaders()
@@ -57,7 +57,7 @@ export class HttpService {
 
     const userPermissions$ = this.http
       .post(
-        this.globalService.mobileBankingHost +
+        this.globalService.channelManagerHost +
           'api/v1/corporate/admin/permissions',
         {},
         this.getHeaders()
@@ -82,7 +82,7 @@ export class HttpService {
   public mobileBankingPost(endpoint: string, model: any): any {
     return this.http
       .post(
-        this.globalService.mobileBankingHost + endpoint,
+        this.globalService.channelManagerHost + endpoint,
         model,
         this.getHeaders()
       )
@@ -103,7 +103,7 @@ export class HttpService {
 
     return this.http
       .post(
-        this.globalService.mobileBankingHost + endpoint,
+        this.globalService.channelManagerHost + endpoint,
         updatedModel,
         this.getHeaders()
       )
@@ -119,7 +119,7 @@ export class HttpService {
   public mobileBankingFormRequestPost(endpoint: string, model: any): any {
     return this.http
       .post(
-        this.globalService.mobileBankingHost + endpoint,
+        this.globalService.channelManagerHost + endpoint,
         model,
         this.getFormHeaders()
       )
@@ -163,13 +163,13 @@ export class HttpService {
       headers: new HttpHeaders({
         'Content-Type': 'application/x-www-form-urlencoded',
         Authorization:
-          'Basic ' + btoa('CORPORATE_ADMIN' + ':' + 'YP@kduzzbm#YfkJX'),
+          'Basic ' + btoa('ADMIN_PORTAL' + ':' + 'PAr6hu6n}k;@'),
       }),
     };
   }
 
   get getProfile() {
-    let profile = JSON.parse(localStorage.getItem('profile')!);
+    let profile = JSON.parse(localStorage.getItem('profile')!); 
     return profile;
   }
 }
