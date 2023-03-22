@@ -11,179 +11,185 @@
               </button>
               <div class="order-first">
                 <h4>Customer Details</h4>
-              <br>
-              <div [ngbCollapse]="isAsideNavCollapsed" class="email-aside-nav" id="asideNav">
-                <ul class="list-group list-group-flush">
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Name:
-                    <span class="text-right" >Michael Mbugua</span>
-                  </li>
+                <br>
+                <div [ngbCollapse]="isAsideNavCollapsed" class="email-aside-nav" id="asideNav">
+                  <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      Name:
+                      <span class="text-right">Michael Mbugua</span>
+                    </li>
 
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
                       A/C Number:
-                    <span class="text-right">01145896541098</span>
-                  </li>
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Phone Number:
-                    <span class="text-right" >0708453901</span>
-                  </li>
+                      <span class="text-right">01145896541098</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      Phone Number:
+                      <span class="text-right">0708453901</span>
+                    </li>
 
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Gender:
-                    <span >Male</span>
-                  </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      Gender:
+                      <span>Male</span>
+                    </li>
 
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    CBS Customer No:
-                    <span>78543298</span>
-                  </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      CBS Customer No:
+                      <span>78543298</span>
+                    </li>
 
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                     National ID:
-                    <span >31391339</span>
-                  </li>
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    D.O.B:
-                    <span >15-7-2001</span>
-                  </li>
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Account Type:
-                    <span >Personal Account</span>
-                  </li>
-                </ul>
-                <hr>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      National ID:
+                      <span>31391339</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      D.O.B:
+                      <span>15-7-2001</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      Account Type:
+                      <span>Personal Account</span>
+                    </li>
+                  </ul>
+                  <hr>
+                </div>
               </div>
-            </div>
             </div>
 
             <div class="d-grid my-3">
 
-              <a class="btn btn-primary" (click)="openResetPinModal(ResetPasswordModal)">
+              <a (click)="openResetPinModal(ResetPasswordModal)" class="btn btn-primary">
                 <i class="mdi mdi-lock-reset"></i>
                 Reset Pin</a>
             </div>
             <div class="d-grid my-3">
-              <a class="btn btn-danger" (click)="openBlockCustomerModal()">
+              <a (click)="openBlockCustomerModal()" class="btn btn-danger">
                 <i class="mdi mdi-account-cancel-outline"></i>
                 Block Customer</a>
             </div>
 
             <div class="d-grid my-3">
-              <a class="btn btn-danger" (click)="openDisableCustomerModal()">
+              <a (click)="openDisableCustomerModal()" class="btn btn-danger">
                 <i class="mdi mdi-trash-can-outline"></i>
                 Delete Customer</a>
             </div>
 
           </div>
 
-         <div class="col-lg-8">
-              <div class="mt-2">
-                <h5>{{subcategoryTitle}}</h5>
-                <hr/>
-                <div class="row">
-                    <div class="col-md-12 stretch-card">
-                      <div class="card">
-                        <!-- <div class="card-body"> -->
-                          <ul ngbNav #fillJustifyNav="ngbNav" class="nav-tabs nav-fill">
-                            <li [ngbNavItem]="1">
-                              <a ngbNavLink>Customer Transactions</a>
-                              <ng-template ngbNavContent>
-                                <div class="table-responsive">
-                                  <ngx-datatable
-                                    [rows]="rows"
-                                    class="bootstrap"
-                                    [loadingIndicator]="loadingIndicator"
-                                    [columnMode]="ColumnMode.force"
-                                    [footerHeight]="50"
-                                    [columns]="Transactioncolumns"
-                                    [limit]="10"
-                                    [rowHeight]="'auto'"
-                                  >
-                                    <ngx-datatable-column
-                                      *ngFor="let column of Transactioncolumns; let i = index"
-                                      name="{{ column.name }}"
-                                      prop="{{ column.prop }}"
-                                    >
-                                      <ng-template
-                                        *ngIf="column.name === 'Actions'"
-                                        let-row="row"
-                                        let-value="value"
-                                        ngx-datatable-cell-template
-                                      >
+          <div class="col-lg-8">
+            <div class="mt-2">
+              <h5>{{subcategoryTitle}}</h5>
+              <hr/>
+              <div class="row">
+                <div class="col-md-12 stretch-card">
+                  <div class="card">
+                    <!-- <div class="card-body"> -->
+                    <ul #fillJustifyNav="ngbNav" class="nav-tabs nav-fill" ngbNav>
+                      <li [ngbNavItem]="1">
+                        <a ngbNavLink>Customer Transactions</a>
+                        <ng-template ngbNavContent>
+                          <div class="table-responsive">
+                            <ngx-datatable
+                              [columnMode]="ColumnMode.force"
+                              [columns]="Transactioncolumns"
+                              [footerHeight]="50"
+                              [limit]="10"
+                              [loadingIndicator]="loadingIndicator"
+                              [rowHeight]="'auto'"
+                              [rows]="rows"
+                              class="bootstrap"
+                            >
+                              <ngx-datatable-column
+                                *ngFor="let column of Transactioncolumns; let i = index"
+                                name="{{ column.name }}"
+                                prop="{{ column.prop }}"
+                              >
+                                <ng-template
+                                  *ngIf="column.name === 'Actions'"
+                                  let-row="row"
+                                  let-value="value"
+                                  ngx-datatable-cell-template
+                                >
                                         <span>
-                                              <button class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0" type="button">
+                                              <button class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0"
+                                                      type="button">
                                                 <i appFeatherIcon class="btn-icon-prepend" data-feather="printer"></i>
                                                 View
                                               </button>
                                               <button class="btn btn-primary btn-icon-text mb-2 mb-md-0" type="button">
-                                                <i appFeatherIcon class="btn-icon-prepend" data-feather="download-cloud"></i>
+                                                <i appFeatherIcon class="btn-icon-prepend"
+                                                   data-feather="download-cloud"></i>
                                                 Edit
                                               </button>
                                         </span>
-                                      </ng-template>
-                                    </ngx-datatable-column>
-                                  </ngx-datatable>
-                                </div>
-                              </ng-template>
-                            </li>
+                                </ng-template>
+                              </ngx-datatable-column>
+                            </ngx-datatable>
+                          </div>
+                        </ng-template>
+                      </li>
 
-                            <li [ngbNavItem]="">
-                              <a ngbNavLink>Customer Accounts</a>
-                              <ng-template ngbNavContent>
-                                <div class="table-responsive">
-                                  <ngx-datatable
-                                    [rows]="rows"
-                                    class="bootstrap"
-                                    [loadingIndicator]="loadingIndicator"
-                                    [columnMode]="ColumnMode.force"
-                                    [footerHeight]="50"
-                                    [columns]="Accountscolumns"
-                                    [limit]="10"
-                                    [rowHeight]="'auto'"
-                                  >
-                                    <ngx-datatable-column
-                                      *ngFor="let column of Accountscolumns; let i = index"
-                                      name="{{ column.name }}"
-                                      prop="{{ column.prop }}"
-                                    >
-                                      <ng-template
-                                        *ngIf="column.name === 'Actions'"
-                                        let-row="row"
-                                        let-value="value"
-                                        ngx-datatable-cell-template
-                                      >
+                      <li [ngbNavItem]="">
+                        <a ngbNavLink>Customer Accounts</a>
+                        <ng-template ngbNavContent>
+                          <div class="table-responsive">
+                            <ngx-datatable
+                              [columnMode]="ColumnMode.force"
+                              [columns]="Accountscolumns"
+                              [footerHeight]="50"
+                              [limit]="10"
+                              [loadingIndicator]="loadingIndicator"
+                              [rowHeight]="'auto'"
+                              [rows]="rows"
+                              class="bootstrap"
+                            >
+                              <ngx-datatable-column
+                                *ngFor="let column of Accountscolumns; let i = index"
+                                name="{{ column.name }}"
+                                prop="{{ column.prop }}"
+                              >
+                                <ng-template
+                                  *ngIf="column.name === 'Actions'"
+                                  let-row="row"
+                                  let-value="value"
+                                  ngx-datatable-cell-template
+                                >
                                         <span>
-                                              <button class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0" type="button">
+                                              <button class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0"
+                                                      type="button">
                                                 <i appFeatherIcon class="btn-icon-prepend" data-feather="printer"></i>
                                                 View
                                               </button>
                                               <button class="btn btn-primary btn-icon-text mb-2 mb-md-0" type="button">
-                                                <i appFeatherIcon class="btn-icon-prepend" data-feather="download-cloud"></i>
+                                                <i appFeatherIcon class="btn-icon-prepend"
+                                                   data-feather="download-cloud"></i>
                                                 Edit
                                               </button>
                                         </span>
-                                      </ng-template>
-                                    </ngx-datatable-column>
-                                  </ngx-datatable>
-                                </div>
-                              </ng-template>
-                            </li>
-                          </ul>
-                          <div [ngbNavOutlet]="fillJustifyNav" class="border border-top-0 p-3"></div>
+                                </ng-template>
+                              </ngx-datatable-column>
+                            </ngx-datatable>
+                          </div>
+                        </ng-template>
+                      </li>
+                    </ul>
+                    <div [ngbNavOutlet]="fillJustifyNav" class="border border-top-0 p-3"></div>
 
-                        </div>
-                      </div>
-                    </div>
                   </div>
-
-                <hr/>
-
+                </div>
               </div>
             </div>
+
+            <hr/>
+
+
+
+          </div>
         </div>
       </div>
     </div>
   </div>
+</div>
 <!-- </div> -->
 
 <!-- Modal -->
@@ -195,17 +201,17 @@
   <div class="modal-body">
     <div class="row ">
 
-        <div class="col-md-12">
-          <div class="mb-3">
-            <p> Do you want to Reset this Customer's Pin?</p>
-          </div>
+      <div class="col-md-12">
+        <div class="mb-3">
+          <p> Do you want to Reset this Customer's Pin?</p>
         </div>
+      </div>
     </div>
-    </div>
-    <div class="modal-footer">
-      <button (click)="modal.close('by: close button')" class="btn btn-secondary" type="button">Close</button>
-      <button (click)="modal.close('by: save button')" class="btn btn-primary" type="button">Confirm</button>
-    </div>
+  </div>
+  <div class="modal-footer">
+    <button (click)="modal.close('by: close button')" class="btn btn-secondary" type="button">Close</button>
+    <button (click)="modal.close('by: save button')" class="btn btn-primary" type="button">Confirm</button>
+  </div>
 
 </ng-template>
 <ng-template #DisableUserModal let-modal>
@@ -216,17 +222,17 @@
   <div class="modal-body">
     <div class="row ">
 
-        <div class="col-md-12">
-          <div class="mb-3">
-            <p class="form-label">Do you want to Disable this Customer?</p>
-          </div>
+      <div class="col-md-12">
+        <div class="mb-3">
+          <p class="form-label">Do you want to Disable this Customer?</p>
         </div>
+      </div>
     </div>
-    </div>
-    <div class="modal-footer">
-      <button (click)="modal.close('by: close button')" class="btn btn-secondary" type="button">Close</button>
-      <button (click)="modal.close('by: save button')" class="btn btn-primary" type="button">Confirm</button>
-    </div>
+  </div>
+  <div class="modal-footer">
+    <button (click)="modal.close('by: close button')" class="btn btn-secondary" type="button">Close</button>
+    <button (click)="modal.close('by: save button')" class="btn btn-primary" type="button">Confirm</button>
+  </div>
 
 </ng-template>
 <ng-template #DeleteUserModal let-modal>
@@ -237,17 +243,17 @@
   <div class="modal-body">
     <div class="row ">
 
-        <div class="col-md-12">
-          <div class="mb-3">
-            <p class="form-label">Do you want to Delete this User?</p>
-          </div>
+      <div class="col-md-12">
+        <div class="mb-3">
+          <p class="form-label">Do you want to Delete this User?</p>
         </div>
+      </div>
     </div>
-    </div>
-    <div class="modal-footer">
-      <button (click)="modal.close('by: close button')" class="btn btn-secondary" type="button">Close</button>
-      <button (click)="modal.close('by: save button')" class="btn btn-primary" type="button">Confirm</button>
-    </div>
+  </div>
+  <div class="modal-footer">
+    <button (click)="modal.close('by: close button')" class="btn btn-secondary" type="button">Close</button>
+    <button (click)="modal.close('by: save button')" class="btn btn-primary" type="button">Confirm</button>
+  </div>
 
 </ng-template>
 <ng-template #verticalCenteredModal let-modal>
@@ -258,23 +264,23 @@
   <div class="modal-body">
     <div class="row ">
 
-        <div class="col-md-12">
-          <div class="mb-3">
-            <label class="form-label">Profile Name</label>
-            <select class="form-select" formControlName="name" maxlength="24" type="text">
-              <option></option>
+      <div class="col-md-12">
+        <div class="mb-3">
+          <label class="form-label">Profile Name</label>
+          <select class="form-select" formControlName="name" maxlength="24" type="text">
+            <option></option>
             <p *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')"
                class="text-danger mt-1 mb-1 pt-0 small text-center">Required
               Field</p>
-              </select>
-          </div>
+          </select>
         </div>
+      </div>
     </div>
-    </div>
-    <div class="modal-footer">
-      <button (click)="modal.close('by: close button')" class="btn btn-secondary" type="button">Close</button>
-      <button (click)="modal.close('by: save button')" class="btn btn-primary" type="button">Save changes</button>
-    </div>
+  </div>
+  <div class="modal-footer">
+    <button (click)="modal.close('by: close button')" class="btn btn-secondary" type="button">Close</button>
+    <button (click)="modal.close('by: save button')" class="btn btn-primary" type="button">Save changes</button>
+  </div>
 
 </ng-template>
 

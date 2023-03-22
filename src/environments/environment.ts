@@ -4,5 +4,5 @@
 
 export const environment = {
   production: false,
-  mobileBanking: 'https://test-api.ekenya.co.ke/advancys/',
+  channelManager: 'https://test-api.ekenya.co.ke/channel/',
 };
