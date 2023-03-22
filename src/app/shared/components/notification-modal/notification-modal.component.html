@@ -1,0 +1,51 @@
+<div class="row text-center">
+  <div class="modal-header">
+    <h5 class="modal-title" id="exampleModalLabel">{{title}}</h5>
+    <button (click)="close()" aria-label="Close" class="btn-close" type="button"></button>
+  </div>
+  <div class="modal-body" style="height: 90%;">
+    <div class="row text-center max-auto">
+      <div class="col-3">
+        Previous Data
+        <div>
+          {{previousData}}
+        </div>
+      </div>
+    </div>
+    <div class="outer">
+      <div class="inner"></div>
+    </div>
+    <div class="col-3">
+      Current Data
+
+      <div>
+          <pre>
+            {{currentData}}
+          </pre>
+      </div>
+    </div>
+    <div class="outer">
+      <div class="inner"></div>
+    </div>
+    <div class="col-3">
+      Action Form
+      <div>
+          <pre>
+          <div class="form-check">
+              <input class="form-check-input" id="flexRadioDefault1" name="flexRadioDefault" type="radio">
+  <label class="form-check-label" for="flexRadioDefault1">
+    Action
+  </label>
+
+          </div>
+          </pre>
+      </div>
+    </div>
+
+  </div>
+  <div class="modal-footer">
+    <button (click)="close()" class="btn btn-secondary" type="button">Close</button>
+    <button (click)="submitData()" class="btn btn-primary" type="button">Confirm</button>
+  </div>
+</div>
+

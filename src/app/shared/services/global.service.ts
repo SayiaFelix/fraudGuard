@@ -7,12 +7,12 @@ import {environment} from 'src/environments/environment';
   }
 )
 export class GlobalService {
-  public mobileBankingHost: string;
+  public channelManagerHost: string;
 
   public setting: any = {};
 
   constructor() {
-    this.mobileBankingHost = environment.mobileBanking;
+    this.channelManagerHost = environment.channelManager;
   }
 
   loadGlobalSettingsFromLocalStorage(): void {

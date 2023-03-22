@@ -74,6 +74,8 @@ export class ViewUserComponent implements OnInit {
   ngOnInit(): void {
     this.loadData();
 
+    this.loadProfiles();
+
     this.form = this.fb.group({
       name: [this.formData ? this.formData.name : '', [Validators.required]],
       description: [
@@ -176,5 +178,16 @@ export class ViewUserComponent implements OnInit {
     //     } else {
     //     }
     //   });
+  }
+
+  private loadProfiles() {
+    const model = {
+      page: 0,
+      size: 100,
+    };
+
+    this.httpService
+      .mobileBankingPost('api/v1/admin/profile/get/all', model)
+      .subscribe((result: any) => {});
   }
 }
