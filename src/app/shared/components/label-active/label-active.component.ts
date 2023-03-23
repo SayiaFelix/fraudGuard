@@ -24,7 +24,7 @@ export class LabelActiveComponent implements OnInit {
       this.label = 'Not set';
       this.labelClass = 'badge bg-light text-dark';
     }
-    this.renderValue = this.value.toString().toUpperCase();
+    this.renderValue = this.value?.toString().toUpperCase();
   }
 }
 
