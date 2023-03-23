@@ -101,7 +101,7 @@ export class AddUserComponent implements OnInit {
         return throwError(error);
       }),
       map((res: any) => {
-        if (res.status === 200 || res.status === 0) {
+        if (res.status === 200) {
           setTimeout(() => {
             Swal.fire('Success', 'User Edited Successfully.', 'success')
           }, 10);
