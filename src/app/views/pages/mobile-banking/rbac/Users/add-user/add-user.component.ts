@@ -33,6 +33,9 @@ export class AddUserComponent implements OnInit {
 
   ngOnInit() {
 
+    console.log("this.formData");
+    console.log(this.formData);
+
     this.getAllProfiles();
 
     this.form = this.fb.group({
@@ -81,7 +84,10 @@ export class AddUserComponent implements OnInit {
 
   private saveChanges(): any {
 
+
+
     const model = {
+      id: this.formData.id,
       firstName: this.form.value.firstName,
       lastName: this.form.value.firstName,
       profileId: this.form.value.profile
