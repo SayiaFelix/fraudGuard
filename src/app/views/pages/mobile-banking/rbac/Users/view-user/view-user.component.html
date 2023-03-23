@@ -46,9 +46,12 @@
                   Reset Password</a>
               </div>
               <div class="my-3 text-center">
-                <a class="btn btn-danger" (click)="openDisableUserModal()">
+                <a class="btn btn-danger" (click)="openDisableUserModal()" *ngIf="!userDetails?.blocked">
                   <i class="mdi mdi-account-cancel-outline"></i>
                   Block/ Disable User</a>
+                <a class="btn btn-success" (click)="openDisableUserModal()" *ngIf="userDetails?.blocked">
+                  <i class="mdi mdi-account-cancel-outline"></i>
+                  Unblock/ Enable User</a>
               </div>
               <div class="my-3 text-center">
                 <a class="btn btn-danger" (click)="openDeleteUserModal()">
