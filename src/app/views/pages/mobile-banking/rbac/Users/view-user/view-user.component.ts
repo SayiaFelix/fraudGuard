@@ -282,4 +282,11 @@ export class ViewUserComponent implements OnInit {
       .mobileBankingPost('api/v1/admin/profile/get/all', model)
       .subscribe((result: any) => {});
   }
+
+  getFullName(firstName: any, lastName: any) {
+    let fullname: string = `${firstName} ${lastName}`;
+
+    fullname = fullname.slice(0, 16)
+    return fullname;
+  }
 }
