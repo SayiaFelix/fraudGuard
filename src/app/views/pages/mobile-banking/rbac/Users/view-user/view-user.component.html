@@ -22,7 +22,7 @@
                 <ul class="list-group list-group-flush">
                   <li class="list-group-item d-flex justify-content-between align-items-center">
                     Name:
-                    <span class="text-right">{{userDetails?.firstName | titlecase}} {{userDetails?.lastName | titlecase}}</span>
+                    <span class="text-right">{{getFullName(userDetails?.firstName, userDetails?.lastName)}}</span>
                   </li>
                   <li class="list-group-item d-flex justify-content-between align-items-center">
                     Email:
