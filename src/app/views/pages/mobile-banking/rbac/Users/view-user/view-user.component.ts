@@ -7,6 +7,7 @@ import { GlobalService } from 'src/app/shared/services/global.service';
 import { HttpService } from 'src/app/shared/services/http.service';
 import {ConfirmDialogComponent} from "../../../../../../shared/components/confirm-dialog/confirm-dialog.component";
 import Swal from "sweetalert2";
+import {catchError, map, Observable, throwError} from "rxjs";
 
 @Component({
   selector: 'app-view-user',
@@ -62,6 +63,9 @@ export class ViewUserComponent implements OnInit {
   public modalRef: NgbModalRef;
   public userId: any;
 
+  public userDetails: any;
+  public resetPassword$: Observable<any>;
+
 
   constructor(
     private httpService: HttpService,
@@ -101,15 +105,26 @@ export class ViewUserComponent implements OnInit {
   }
 
   private loadData(): any {
-    const model = {
-      page: 0,
-      size: 100,
-    };
 
-    // this.httpService
-    //   .mobileBankingPost('api/v1/corporate/admin/list-products/all', model)
-    //   .subscribe((result: any) => {});
+    const model = {
+      id: this.userId
+    }
+
+    this.httpService
+      .mobileBankingPost('api/v1/admin/user/id', model)
+      .subscribe((res: any) => {
+        if (res.status === 200 || res.status === 0) {
+            this.userDetails = res.data;
+        } else {
+
+        }
+      }, (error: any) => {
+        Swal.fire('Failed', error, 'error')
+      });
+
+
   }
+
   isAsideNavCollapsed: any;
 
   openAddProductSubcategoryModal(content: TemplateRef<any>) {
@@ -129,14 +144,38 @@ export class ViewUserComponent implements OnInit {
       })
       .catch((res) => {});
   }
-  openResetPasswordModal(content: TemplateRef<any>) {
-    this.modalService
-      .open(content, { centered: true, size: 'md' })
-      .result.then((result) => {
-        console.log('Modal closed' + result);
-      })
-      .catch((res) => {});
+  openResetPasswordModal() {
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Reset Password';
+
+    this.modalRef.componentInstance.body = "Do you want to reset this user's password?";
+
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+
+        let model = {
+          userId: this.userId
+        }
+
+        this.resetPassword$ = this.httpService.mobileBankingPost('api/v1/admin/user/reset',
+          model).pipe(
+            catchError((error: any) => {
+              Swal.fire('Failed', "Password could not be reset", 'error')
+              return throwError(error);
+            }),
+            map((res: any) => {
+              if (res.status === 200 || res.status === 0) {
+                setTimeout(() => {
+                  Swal.fire('Success', 'User Password Reset Successfully.', 'success')
+                }, 10);
+              } else {
+                Swal.fire('Failed', res.message, 'error')
+              }
+            }))
+      }
+    })
   }
+
   openDisableUserModal() {
     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Block User';
@@ -182,7 +221,7 @@ export class ViewUserComponent implements OnInit {
         this.httpService.mobileBankingPost('api/v1/admin/user/delete',
           model).subscribe((res: any) => {
 
-          if (res.status === 200) {
+          if (res.status === 200 || res.status === 0) {
             setTimeout(() => {
               Swal.fire('Deleted Successfully', 'User has been deleted successfully.', 'success')
             }, 10);

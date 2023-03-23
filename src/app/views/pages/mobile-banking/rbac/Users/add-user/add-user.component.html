@@ -1,3 +1,4 @@
+
 <div>
   <div class="modal-header">
     <h5 class="modal-title" id="exampleModalLabel">{{title}}</h5>
@@ -52,16 +53,21 @@
           id="profile"
           name="profile"
         >
-
-          <option>Super Admin</option>
-          <option>Admin</option>
+          <option *ngFor="let profile of allProfiles" [value]="profile.id">
+            {{profile.name | titlecase}}
+          </option>
         </select>
       </div>
 
     </div>
   </div>
   <div class="modal-footer">
+    <div class="mb-1 text-center" *ngIf="formData && editUser$ | async">
+      <ngb-alert [type]="'success'" (close)="false">
+        <strong>Edit Successful!</strong>
+      </ngb-alert>
+    </div>
     <button (click)="closeModal()" class="btn btn-secondary" type="button">Close</button>
-    <button (click)="closeModal()" class="btn btn-primary" type="button">Save changes</button>
+    <button (click)="submitData()" class="btn btn-primary" type="button">Save changes</button>
   </div>
 </div>
