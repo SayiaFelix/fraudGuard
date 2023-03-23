@@ -4,6 +4,8 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {HttpService} from 'src/app/shared/services/http.service';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {GlobalService} from "../../../../../../shared/services/global.service";
+import {catchError, map, Observable, throwError} from "rxjs";
+import Swal from "sweetalert2";
 
 
 @Component({
@@ -19,18 +21,19 @@ export class AddUserComponent implements OnInit {
   public hasErrors = false;
   public errorMessages = "";
   public form: FormGroup;
+  public editUser$: Observable<any>;
+  public allProfiles: any;
 
   constructor(
       public activeModal: NgbActiveModal,
       public fb: FormBuilder,
-      private _httpService: HttpService,
+      private httpService: HttpService,
       public globalService: GlobalService) {
   }
 
   ngOnInit() {
 
-    console.log("here is the this.formData")
-    console.log(this.formData)
+    this.getAllProfiles();
 
     this.form = this.fb.group({
       firstName: [this.formData ? this.formData.firstName : '', [Validators.required]],
@@ -64,7 +67,7 @@ export class AddUserComponent implements OnInit {
     };
 
 
-    this._httpService.mobileBankingPost('api/v1/bank/profile/new', model).subscribe(
+    this.httpService.mobileBankingPost('api/v1/bank/profile/new', model).subscribe(
       (result: any) => {
           if (result.status === 200) {
             this.activeModal.close('success');
@@ -79,20 +82,43 @@ export class AddUserComponent implements OnInit {
   private saveChanges(): any {
 
     const model = {
-        name: this.form.value.name,
-        remarks: this.form.value.description
+      firstName: this.form.value.firstName,
+      lastName: this.form.value.firstName,
+      profileId: this.form.value.profile
     };
 
-
-    this._httpService.mobileBankingPost('api/v1/bank/profile/new', model).subscribe(
-      (result: any) => {
-          if (result.status === 200) {
-            this.activeModal.close('success');
-          } else {
-            this.activeModal.close('error');
-          }
+    this.editUser$ = this.httpService.mobileBankingPost('api/v1/admin/user/update',
+      model)
+      .pipe(
+      catchError((error: any) => {
+        Swal.fire('Failed', "Unable to Edit User", 'error')
+        return throwError(error);
+      }),
+      map((res: any) => {
+        if (res.status === 200 || res.status === 0) {
+          setTimeout(() => {
+            Swal.fire('Success', 'User Edited Successfully.', 'success')
+          }, 10);
+        } else {
+          Swal.fire('Failed', res.message, 'error')
         }
-    );
+      }))
+
   }
 
+  private getAllProfiles() {
+
+    const model = {
+      page: 0,
+      size: 100
+    };
+
+    this.httpService.mobileBankingPost('api/v1/admin/profile/get/all', model).subscribe(
+      (res: any) => {
+
+        if (res.status === 200) {
+            this.allProfiles = res.data;
+        }
+      });
+  }
 }
