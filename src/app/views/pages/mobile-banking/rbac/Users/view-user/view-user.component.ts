@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, TemplateRef } from '@angular/core';
+import {Component, Input, OnDestroy, OnInit, TemplateRef} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
@@ -7,14 +7,14 @@ import { GlobalService } from 'src/app/shared/services/global.service';
 import { HttpService } from 'src/app/shared/services/http.service';
 import {ConfirmDialogComponent} from "../../../../../../shared/components/confirm-dialog/confirm-dialog.component";
 import Swal from "sweetalert2";
-import {catchError, map, Observable, throwError} from "rxjs";
+import {catchError, map, Observable, Subscription, throwError} from "rxjs";
 
 @Component({
   selector: 'app-view-user',
   templateUrl: './view-user.component.html',
   styleUrls: ['./view-user.component.scss'],
 })
-export class ViewUserComponent implements OnInit {
+export class ViewUserComponent implements OnInit, OnDestroy {
   public myProductList = [
     {
       icon: '',
@@ -66,6 +66,8 @@ export class ViewUserComponent implements OnInit {
   public userDetails: any;
   public resetPassword$: Observable<any>;
 
+  subs: Subscription[] = [];
+
 
   constructor(
     private httpService: HttpService,
@@ -110,10 +112,10 @@ export class ViewUserComponent implements OnInit {
       id: this.userId
     }
 
-    this.httpService
+    let loadUserDetails = this.httpService
       .mobileBankingPost('api/v1/admin/user/id', model)
       .subscribe((res: any) => {
-        if (res.status === 200 || res.status === 0) {
+        if (res.status === 200) {
             this.userDetails = res.data;
         } else {
 
@@ -122,6 +124,7 @@ export class ViewUserComponent implements OnInit {
         Swal.fire('Failed', error, 'error')
       });
 
+    this.subs.push(loadUserDetails);
 
   }
 
@@ -164,7 +167,7 @@ export class ViewUserComponent implements OnInit {
               return throwError(error);
             }),
             map((res: any) => {
-              if (res.status === 200 || res.status === 0) {
+              if (res.status === 200) {
                 setTimeout(() => {
                   Swal.fire('Success', 'User Password Reset Successfully.', 'success')
                 }, 10);
@@ -188,7 +191,7 @@ export class ViewUserComponent implements OnInit {
           "id": this.userId
         }
 
-        this.httpService.mobileBankingPost('api/v1/admin/user/block',
+         this.httpService.mobileBankingPost('api/v1/admin/user/block',
           model).subscribe((res: any) => {
 
           if (res.status === 200) {
@@ -221,7 +224,7 @@ export class ViewUserComponent implements OnInit {
         this.httpService.mobileBankingPost('api/v1/admin/user/delete',
           model).subscribe((res: any) => {
 
-          if (res.status === 200 || res.status === 0) {
+          if (res.status === 200) {
             setTimeout(() => {
               Swal.fire('Deleted Successfully', 'User has been deleted successfully.', 'success')
             }, 10);
@@ -288,5 +291,9 @@ export class ViewUserComponent implements OnInit {
 
     fullname = fullname.slice(0, 16)
     return fullname;
+  }
+
+  ngOnDestroy(): void {
+    this.subs.forEach(sub => sub.unsubscribe())
   }
 }
