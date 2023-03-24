@@ -1,10 +1,12 @@
 import { Component, Input, OnInit, TemplateRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal,NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ColumnMode } from '@swimlane/ngx-datatable';
+import { ConfirmDialogComponent } from 'src/app/shared/components/confirm-dialog/confirm-dialog.component';
 import { GlobalService } from 'src/app/shared/services/global.service';
 import { HttpService } from 'src/app/shared/services/http.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-view-user',
@@ -55,8 +57,11 @@ export class ViewUserComponent implements OnInit {
   public form: FormGroup;
 
   ColumnMode = ColumnMode;
-
+  public currentUser:any;
   public imageFile: File;
+  public userDetail:any;
+ public userId:any;
+  modalRef: NgbModalRef;
 
   constructor(
     private httpService: HttpService,
@@ -65,15 +70,17 @@ export class ViewUserComponent implements OnInit {
     private modalService: NgbModal,
     public fb: FormBuilder
   ) {
-    activatedRoute.queryParams.subscribe((params) => {
-      this.mainProduct = params;
-      console.log('queryParams', params);
-    });
   }
 
   ngOnInit(): void {
+    this.activatedRoute.params.subscribe(params => {
+      if (typeof params.id !== 'undefined') {
+        this.userId = params.id;
+        console.log('params.id')
+      }
+    });
     this.loadData();
-
+    
     this.loadProfiles();
 
     this.form = this.fb.group({
@@ -93,13 +100,12 @@ export class ViewUserComponent implements OnInit {
 
   private loadData(): any {
     const model = {
-      page: 0,
-      size: 100,
+      id:this.userId
     };
 
-    // this.httpService
-    //   .mobileBankingPost('api/v1/corporate/admin/list-products/all', model)
-    //   .subscribe((result: any) => {});
+    this.httpService
+      .mobileBankingPost('api/v1/admin/user/id', model)
+      .subscribe((result: any) => {});
   }
   isAsideNavCollapsed: any;
 
@@ -128,13 +134,45 @@ export class ViewUserComponent implements OnInit {
       })
       .catch((res) => {});
   }
-  openDisableUserModal(content: TemplateRef<any>) {
-    this.modalService
-      .open(content, { centered: true, size: 'md' })
-      .result.then((result) => {
-        console.log('Modal closed' + result);
-      })
-      .catch((res) => {});
+  // openDisableUserModal(content: TemplateRef<any>) {
+  //   this.modalService
+  //     .open(content, { centered: true, size: 'md' })
+  //     .result.then((result) => {
+  //       console.log('Modal closed' + result);
+  //     })
+  //     .catch((res) => {});
+  
+  // }
+  openDisableUserModal(){
+
+  }
+  openEnableUserModal(){
+    this.modalRef = this.modalService.open(ConfirmDialogComponent);
+    this.modalRef.componentInstance.title = 'Unblock user';
+    this.modalRef.componentInstance.body = 'Do you want to unblock this User?';
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        // on success, send request to backend
+        const model = {
+          id: this.currentUser.id
+        };
+
+        this.httpService.mobileBankingPost('api/v1/admin/user/unblock', model).subscribe(
+            (result:any)=> {
+              if (result.status === 200) {
+                Swal.fire('user unblocked successfully','success')
+                .then(r =>(console.log(r)))
+              } else {
+               Swal.fire(result.message.error)
+               .then(r =>(console.log(r)))
+              }
+            }
+        );
+
+
+      }
+    });
+
   }
   openDeleteUserModal(content: TemplateRef<any>) {
     this.modalService
@@ -182,8 +220,8 @@ export class ViewUserComponent implements OnInit {
 
   private loadProfiles() {
     const model = {
-      page: 0,
-      size: 100,
+      page:0,
+      size:50
     };
 
     this.httpService

@@ -144,11 +144,12 @@ throw new Error('Method not implemented.');
 
 
     const model = {
+      filter: "all",
       page: 0,
       size: 50
     };
 
-    this.usersList$ = this.httpService.mobileBankingPost('api/v1/corporate/admin/all', model)
+    this.usersList$ = this.httpService.mobileBankingPost('api/v1/admin/user/all', model)
       .pipe(
         catchError((error: any) => {
           Swal.fire('Error', "Unable to fetch records", 'error');
@@ -156,7 +157,11 @@ throw new Error('Method not implemented.');
         }),
         map((result: any) => {
           if(result['status'] === 200){
-            this.rows = result['data']['content']
+            
+            console.log(result);
+            console.log(result.data);
+
+            this.rows = result['data']
             return result
           } else {
             return []

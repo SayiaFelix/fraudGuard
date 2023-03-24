@@ -6,6 +6,8 @@ import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import { ColumnMode } from '@swimlane/ngx-datatable';
 import {HttpService} from "../../../../../../shared/services/http.service";
 import {AddRoleComponent} from "../add-role/add-role.component";
+import { catchError, map, Observable,  pipe, throwError } from 'rxjs';
+import Swal from 'sweetalert2';
 
 @Component({
     selector: 'app-roles',
@@ -49,12 +51,13 @@ export class RolesComponent implements OnInit {
   rows: any = [];
   loadingIndicator = true;
   reorderable = true;
-
+  rolesList$:Observable<any>
   columns = [
     { name: 'ID', prop: 'id' },
-    { name: 'RoleName', prop:'roleName' },
+    { name: 'Name', prop:'name' },
     { name: 'Status', prop:'status' },
-    { name: 'CreatedOn', prop:'createdOn' },
+    { name: 'createdOn', prop:'createdOn' },
+    {name:'remarks',prop:'remarks'},
     { name: 'Actions', prop: 'id' }
   ];
 
@@ -98,28 +101,30 @@ export class RolesComponent implements OnInit {
 
 
   getIndividualData(event: number): void {
-
-    this.rows = this.tempRolesData;
-
     const model = {
-      page: 0,
-      size: 5
+      "page":0,
+      "size":50
     };
 
-    this.httpService.mobileBankingPost('api/v1/corporate/admin/list-products/all', model).subscribe((res: any) => {
-
-      if (res.status === 200) {
-        setTimeout(() => {
-          // this.data = res.data;
-          this.rows = this.tempRolesData;
-          // let data = this.tempProductData;
-
-          let total = res.totalItems;
-
-        }, 10);
-      } else {
-      }
-    });
+    this.rolesList$ = this.httpService.mobileBankingPost('api/v1/admin/role/get/all', model)
+      .pipe(
+        catchError((error: any) => {
+          Swal.fire('Error', "Unable to fetch records", 'error');
+          return throwError(error);
+        }),
+        map((result: any) => {
+          if(result['status'] === 200){
+            
+            console.log(result);
+            // console.log(result.data);
+            this.rows = result['data']
+            
+            return result;
+          } else {
+            return []
+          }
+        }),
+      )
   }
 
   openAddRoleModal() {

@@ -4,6 +4,8 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {HttpService} from 'src/app/shared/services/http.service';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {GlobalService} from "../../../../../../shared/services/global.service";
+import Swal from "sweetalert2";
+import { StringDecoder } from 'string_decoder';
 
 
 @Component({
@@ -59,18 +61,24 @@ export class AddUserComponent implements OnInit {
   private createRecord(): any {
 
     const model = {
-        name: this.form.value.name,
-        remarks: this.form.value.description
+      firstName: this.form.value.firstName,
+      lastName: this.form.value.lastName,
+      email: this.form.value.email,
+      profileId:this.form.value.profile,
     };
 
 
-    this._httpService.mobileBankingPost('api/v1/bank/profile/new', model).subscribe(
+    this._httpService.mobileBankingPost('api/v1/admin/user/create', model).subscribe(
       (result: any) => {
           if (result.status === 200) {
             this.activeModal.close('success');
+            Swal.fire(result.mesage,'success')
+            .then(r => console.log(r))
+            console.log('result')
           } else {
             this.activeModal.close('error');
-
+            Swal.fire(result.message,'error')
+            .then(r =>console.log(r))
           }
         }
     );
@@ -79,17 +87,23 @@ export class AddUserComponent implements OnInit {
   private saveChanges(): any {
 
     const model = {
-        name: this.form.value.name,
-        remarks: this.form.value.description
+      firstName: this.form.value.firstName,
+      lastName: this.form.value.lastName,
+      email: this.form.value.email,
+      profileId:1
     };
 
 
-    this._httpService.mobileBankingPost('api/v1/bank/profile/new', model).subscribe(
+    this._httpService.mobileBankingPost('api/v1/admin/user/update', model).subscribe(
       (result: any) => {
           if (result.status === 200) {
             this.activeModal.close('success');
+            Swal.fire('Update successful','records updated successfully','success')
+            .then(r =>(console.log(r)))
           } else {
             this.activeModal.close('error');
+            Swal.fire('failed to update','error updating records','error')
+            .then(r =>(console.log(r)))
           }
         }
     );

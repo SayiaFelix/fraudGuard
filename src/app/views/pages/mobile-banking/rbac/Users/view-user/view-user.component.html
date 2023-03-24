@@ -48,10 +48,15 @@
                   <i class="mdi mdi-lock-reset"></i>
                   Reset Password</a>
               </div>
-              <div class="d-grid my-3">
-                <a class="btn btn-danger" (click)="openDisableUserModal(DisableUserModal)">
+              <div class="d-grid my-3" *ngIf="userDetail?.active">
+                <a class="btn btn-danger" (click)="openDisableUserModal()">
                   <i class="mdi mdi-account-cancel-outline"></i>
                   Disable User</a>
+              </div>
+              <div class="d-grid my-3" *ngIf="!userDetail?.active">
+                <a class="btn btn-danger" (click)="openEnableUserModal()">
+                  <i class="mdi mdi-account-cancel-outline"></i>
+                  Enable User</a>
               </div>
               <div class="d-grid my-3">
                 <a class="btn btn-danger" (click)="openDeleteUserModal(DeleteUserModal)">
@@ -152,7 +157,7 @@
       </div>
 
   </ng-template>
-  <ng-template #DisableUserModal let-modal>
+  <!-- <ng-template #DisableUserModal let-modal>
     <div class="modal-header">
       <h5 class="modal-title" id="exampleModalLabel">Disable User</h5>
       <button (click)="modal.close('by: close icon')" aria-label="Close" class="btn-close" type="button"></button>
@@ -172,7 +177,7 @@
         <button (click)="modal.close('by: save button')" class="btn btn-primary" type="button">Confirm</button>
       </div>
 
-  </ng-template>
+  </ng-template> -->
   <ng-template #DeleteUserModal let-modal>
     <div class="modal-header">
       <h5 class="modal-title" id="exampleModalLabel">Delete User</h5>

@@ -7,6 +7,8 @@ import { ColumnMode } from '@swimlane/ngx-datatable';
 import {HttpService} from "../../../../../../shared/services/http.service";
 import {AddRoleComponent} from "../../roles/add-role/add-role.component";
 import {AddProfileComponent} from "../add-profile/add-profile.component";
+import Swal from 'sweetalert2';
+import { catchError, map, Observable, observable, throwError } from 'rxjs';
 
 @Component({
   selector: 'app-profiles',
@@ -50,12 +52,12 @@ export class ProfilesComponent implements OnInit {
   rows: any = [];
   loadingIndicator = true;
   reorderable = true;
-
+  profilesList$:Observable<any>
   columns = [
     { name: 'ID', prop: 'id' },
-    { name: 'ProfileName', prop:'profileName' },
-    { name: 'Description', prop:'description' },
-    { name: 'UserType', prop:'userType' },
+    { name: 'Name', prop:'name' },
+    { name: 'Remarks', prop:'remarks' },
+    // { name: 'UserType', prop:'userType' },
     { name: 'CreatedOn', prop:'createdOn' },
     { name: 'Actions', prop: 'id' }
   ];
@@ -72,6 +74,7 @@ export class ProfilesComponent implements OnInit {
 
   title: string = "Profiles";
   actions = ["View", "Edit"];
+  data: any;
 
 
   constructor(private httpService: HttpService,
@@ -98,27 +101,30 @@ export class ProfilesComponent implements OnInit {
 
   getIndividualData(event: number): void {
 
-    this.rows = this.tempRolesData;
-
     const model = {
-      page: 0,
-      size: 5
+      page:0,
+      size:50
     };
+ 
+    this.profilesList$ = this.httpService.mobileBankingPost('api/v1/admin/profile/get/all', model)
+      .pipe(
+        catchError((error: any) => {
+          Swal.fire('Error', "unable to fetch records", 'error');
+          return throwError(error);
+        }),
+        map((result: any) => {
+          if(result['status'] === 200){
+            
+            console.log(result);
+            console.log(result.data);
 
-    this.httpService.mobileBankingPost('api/v1/corporate/admin/list-products/all', model).subscribe((res: any) => {
-
-      if (res.status === 200) {
-        setTimeout(() => {
-          // this.data = res.data;
-          this.rows = this.tempRolesData;
-          // let data = this.tempProductData;
-
-          let total = res.totalItems;
-
-        }, 10);
-      } else {
-      }
-    });
+            this.rows = result['data']
+            return result
+          } else {
+            return []
+          }
+        }),
+      )
   }
 
   openAddProfileModal() {
