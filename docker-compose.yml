@@ -1,1 +1,7 @@
-
+version: '3.7'
+services:
+  channel-manager:
+    image: devops-registry.ekenya.co.ke/channel-manager/portal:latest
+    container_name: channel-manager
+    ports:
+      - '9056:80'
