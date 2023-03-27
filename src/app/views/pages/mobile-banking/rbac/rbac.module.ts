@@ -14,6 +14,7 @@ import {AddUserComponent} from "./Users/add-user/add-user.component";
 import {AddProfileComponent} from "./profiles/add-profile/add-profile.component";
 import {ViewProfileComponent} from "./profiles/view-profile/view-profile.component";
 import { ChangeProfileModalComponent } from './Users/change-profile-modal/change-profile-modal.component';
+import {DeleteRoleModalComponent} from "./roles/delete-role-modal/delete-role-modal.component";
 
 
 @NgModule({
@@ -26,6 +27,7 @@ import { ChangeProfileModalComponent } from './Users/change-profile-modal/change
     ],
     declarations: [
         RolesComponent,
+        DeleteRoleModalComponent,
         AddRoleComponent,
         ProfilesComponent,
         ProfileRolesComponent,
@@ -41,7 +43,8 @@ import { ChangeProfileModalComponent } from './Users/change-profile-modal/change
       AddUserComponent,
       AddRoleComponent,
       AddProfileComponent,
-      ChangeProfileModalComponent
+      ChangeProfileModalComponent,
+      DeleteRoleModalComponent
     ],
 })
 export class RbacModule {
