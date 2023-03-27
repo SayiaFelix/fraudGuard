@@ -48,7 +48,7 @@ export class AddUserComponent implements OnInit {
     });
 
 
-    
+
   }
 
   public submitData(): void {
@@ -78,12 +78,12 @@ export class AddUserComponent implements OnInit {
       (result: any) => {
           if (result.status === 200) {
             this.activeModal.close('success');
-            Swal.fire('success',result.mesage)
+            Swal.fire('Success',result.mesage, "success")
             .then(r => console.log(r))
             console.log('result')
           } else {
             this.activeModal.close('error');
-            Swal.fire(result.message,'error')
+            Swal.fire('Error', result.message, "error")
             .then(r =>console.log(r))
           }
         }
