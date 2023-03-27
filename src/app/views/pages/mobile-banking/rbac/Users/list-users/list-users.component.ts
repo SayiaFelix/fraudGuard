@@ -118,7 +118,7 @@ throw new Error('Method not implemented.');
   }
 
   public addUser() {
-    this.modalRef = this.modalService.open(AddUserComponent);
+    this.modalRef = this.modalService.open(AddUserComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Add User';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
@@ -129,7 +129,7 @@ throw new Error('Method not implemented.');
   }
 
   public editUser(formData: any) {
-    this.modalRef = this.modalService.open(AddUserComponent);
+    this.modalRef = this.modalService.open(AddUserComponent, {centered: true});
     this.modalRef.componentInstance.formData = formData;
     this.modalRef.componentInstance.title = 'Edit User: ';
     this.modalRef.result.then((result) => {
