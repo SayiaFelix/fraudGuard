@@ -17,6 +17,7 @@ import {TableHeaderComponent} from "./components/table-header/table-header.compo
 import {TableFiltersComponent} from "./components/table-filters/table-filters.component";
 import {NgxPaginationModule} from "ngx-pagination";
 import {NotificationModalComponent} from "./components/notification-modal/notification-modal.component";
+import {LabelSystemCustomRoleComponent} from "./components/label-system-custom-role/label-system-custom-role.component";
 
 
 @NgModule({
@@ -26,6 +27,7 @@ import {NotificationModalComponent} from "./components/notification-modal/notifi
     LabelActiveComponent,
     LabelOnlineComponent,
     LabelPassedComponent,
+    LabelSystemCustomRoleComponent,
     ConfirmDialogComponent,
     NotificationModalComponent,
     CustomNgxTable,
@@ -36,6 +38,7 @@ import {NotificationModalComponent} from "./components/notification-modal/notifi
     LabelBooleanComponent,
     LabelCompletedComponent,
     LabelActiveComponent,
+    LabelSystemCustomRoleComponent,
     LabelOnlineComponent,
     LabelPassedComponent,
     ConfirmDialogComponent,
@@ -61,6 +64,7 @@ import {NotificationModalComponent} from "./components/notification-modal/notifi
     LabelBooleanComponent,
     LabelCompletedComponent,
     LabelActiveComponent,
+    LabelSystemCustomRoleComponent,
     LabelOnlineComponent,
     LabelPassedComponent,
     CustomNgxTable,

@@ -71,9 +71,9 @@
     <ng-container *ngFor="let column of columns">
       <ngx-datatable-column
         *ngIf="column.name === 'ID'"
+        [draggable]="false"
         [maxWidth]="45"
         [minWidth]="35"
-        [draggable]="false"
         name="ID"
         prop="id"
       >
@@ -81,10 +81,10 @@
 
       <ngx-datatable-column
         *ngIf="column.name === 'Actions' && actions.length > 0"
+        [draggable]="false"
         [maxWidth]="150"
         [minWidth]="150"
         [sortable]="false"
-        [draggable]="false"
         class="parent-item"
         name="Actions"
         prop="actions"
@@ -123,11 +123,11 @@
 
       <ngx-datatable-column
         *ngIf="column.name === 'Status' || column.name === 'Active'"
+        [draggable]="false"
         [maxWidth]="150"
         [minWidth]="150"
         name="Status"
         prop="status"
-        [draggable]="false"
       >
         <ng-template
           let-row="row"
@@ -141,12 +141,31 @@
       </ngx-datatable-column>
 
       <ngx-datatable-column
+        *ngIf="column.name === 'SystemRole'"
+        [draggable]="false"
+        [maxWidth]="150"
+        [minWidth]="150"
+        name="System Role"
+        prop="systemRole"
+      >
+        <ng-template
+          let-row="row"
+          let-value="value"
+          ngx-datatable-cell-template
+        >
+          <app-label-system-custom-role
+            [value]="row.systemRole"
+          ></app-label-system-custom-role>
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column
         *ngIf="column.name === 'CreatedOn'"
+        [draggable]="false"
         [maxWidth]="150"
         [minWidth]="150"
         name="CreatedOn"
         prop="createdOn"
-        [draggable]="false"
       >
       </ngx-datatable-column>
 
@@ -156,11 +175,12 @@
           column.name !== 'Status' &&
           column.name !== 'Active' &&
           column.name !== 'ID' &&
+          column.name !== 'SystemRole' &&
           column.name !== 'CreatedOn'
         "
+        [draggable]="false"
         name="{{ column.name }}"
         prop="{{ column.prop }}"
-        [draggable]="false"
       >
       </ngx-datatable-column>
     </ng-container>
@@ -196,8 +216,8 @@
             </ul>
           </div> -->
         <select
-          class="form-select ms-2 w-auto"
           (change)="changePageSize($event)"
+          class="form-select ms-2 w-auto"
         >
           <option *ngFor="let size of pageSizes" [value]="size">
             {{ size }} Items per page
