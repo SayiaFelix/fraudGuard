@@ -131,7 +131,7 @@ throw new Error('Method not implemented.');
   public editUser(formData: any) {
     this.modalRef = this.modalService.open(AddUserComponent);
     this.modalRef.componentInstance.formData = formData;
-    this.modalRef.componentInstance.title = 'Edit User: ';
+    this.modalRef.componentInstance.title = 'Edit User';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
       }
