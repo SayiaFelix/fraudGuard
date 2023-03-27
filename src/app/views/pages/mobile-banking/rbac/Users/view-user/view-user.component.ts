@@ -271,7 +271,7 @@ export class ViewUserComponent implements OnInit, OnDestroy {
       if (result === 'success') {
 
         let model = {
-          "id": this.userId
+          id: this.userId
         }
 
         this.httpService.mobileBankingPost('api/v1/admin/user/delete',
