@@ -140,7 +140,7 @@ export class ViewUserComponent implements OnInit, OnDestroy {
   }
 
   openChangeProfileModal() {
-    this.modalRef = this.modalService.open( ChangeProfileModalComponent );
+    this.modalRef = this.modalService.open( ChangeProfileModalComponent, {centered: true} );
     this.modalRef.componentInstance.title = 'Change Profile';
 
     this.modalRef.componentInstance.body = "Do you want to change this user's profile?";
@@ -170,7 +170,7 @@ export class ViewUserComponent implements OnInit, OnDestroy {
       }
     })
 
-   
+
   }
   openResetPasswordModal() {
     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
@@ -204,7 +204,7 @@ export class ViewUserComponent implements OnInit, OnDestroy {
     })
   }
   openEnableUserModal(){
-    this.modalRef = this.modalService.open(ConfirmDialogComponent);
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Unblock user';
     this.modalRef.componentInstance.body = 'Do you want to unblock this User?';
     this.modalRef.result.then((result) => {
@@ -217,6 +217,7 @@ export class ViewUserComponent implements OnInit, OnDestroy {
         this.httpService.mobileBankingPost('api/v1/admin/user/unblock', model).subscribe(
             (result:any)=> {
               if (result.status === 200) {
+                this.loadData();
                 Swal.fire('Success','user unblocked successfully','success')
                 .then(r =>(console.log(r)))
               } else {
