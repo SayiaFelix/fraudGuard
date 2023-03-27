@@ -4,8 +4,8 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {HttpService} from 'src/app/shared/services/http.service';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {GlobalService} from "../../../../../../shared/services/global.service";
+import {catchError, map, Observable, throwError} from "rxjs";
 import Swal from "sweetalert2";
-import { StringDecoder } from 'string_decoder';
 
 
 @Component({
@@ -21,18 +21,22 @@ export class AddUserComponent implements OnInit {
   public hasErrors = false;
   public errorMessages = "";
   public form: FormGroup;
+  public editUser$: Observable<any>;
+  public allProfiles: any;
 
   constructor(
       public activeModal: NgbActiveModal,
       public fb: FormBuilder,
-      private _httpService: HttpService,
+      private httpService: HttpService,
       public globalService: GlobalService) {
   }
 
   ngOnInit() {
 
-    console.log("here is the this.formData")
-    console.log(this.formData)
+    console.log("this.formData");
+    console.log(this.formData);
+
+    this.getAllProfiles();
 
     this.form = this.fb.group({
       firstName: [this.formData ? this.formData.firstName : '', [Validators.required]],
@@ -43,6 +47,8 @@ export class AddUserComponent implements OnInit {
       profile: [this.formData ? this.formData.profile : '', [Validators.nullValidator]]
     });
 
+
+    
   }
 
   public submitData(): void {
@@ -68,11 +74,11 @@ export class AddUserComponent implements OnInit {
     };
 
 
-    this._httpService.mobileBankingPost('api/v1/admin/user/create', model).subscribe(
+    this.httpService.mobileBankingPost('api/v1/admin/user/create', model).subscribe(
       (result: any) => {
           if (result.status === 200) {
             this.activeModal.close('success');
-            Swal.fire(result.mesage,'success')
+            Swal.fire('success',result.mesage)
             .then(r => console.log(r))
             console.log('result')
           } else {
@@ -86,27 +92,47 @@ export class AddUserComponent implements OnInit {
 
   private saveChanges(): any {
 
+
+
     const model = {
+      id: this.formData.id,
       firstName: this.form.value.firstName,
-      lastName: this.form.value.lastName,
-      email: this.form.value.email,
-      profileId:1
+      lastName: this.form.value.firstName,
+      profileId: this.form.value.profile
     };
 
-
-    this._httpService.mobileBankingPost('api/v1/admin/user/update', model).subscribe(
-      (result: any) => {
-          if (result.status === 200) {
-            this.activeModal.close('success');
-            Swal.fire('Update successful','records updated successfully','success')
-            .then(r =>(console.log(r)))
-          } else {
-            this.activeModal.close('error');
-            Swal.fire('failed to update','error updating records','error')
-            .then(r =>(console.log(r)))
-          }
+    this.editUser$ = this.httpService.mobileBankingPost('api/v1/admin/user/update',
+      model)
+      .pipe(
+      catchError((error: any) => {
+        Swal.fire('Failed', "Unable to Edit User", 'error')
+        return throwError(error);
+      }),
+      map((res: any) => {
+        if (res.status === 200) {
+          setTimeout(() => {
+            Swal.fire('Success', 'User Edited Successfully.', 'success')
+          }, 10);
+        } else {
+          Swal.fire('Failed', res.message, 'error')
         }
-    );
+      }))
+
   }
 
+  private getAllProfiles() {
+
+    const model = {
+      page: 0,
+      size: 100
+    };
+
+    this.httpService.mobileBankingPost('api/v1/admin/profile/get/all', model).subscribe(
+      (res: any) => {
+
+        if (res.status === 200) {
+            this.allProfiles = res.data;
+        }
+      });
+  }
 }

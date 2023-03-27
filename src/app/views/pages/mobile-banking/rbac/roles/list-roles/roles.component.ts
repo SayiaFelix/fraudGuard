@@ -8,6 +8,7 @@ import {HttpService} from "../../../../../../shared/services/http.service";
 import {AddRoleComponent} from "../add-role/add-role.component";
 import { catchError, map, Observable,  pipe, throwError } from 'rxjs';
 import Swal from 'sweetalert2';
+import { ConfirmDialogComponent } from 'src/app/shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
     selector: 'app-roles',
@@ -52,6 +53,7 @@ export class RolesComponent implements OnInit {
   loadingIndicator = true;
   reorderable = true;
   rolesList$:Observable<any>
+  roleId:number;
   columns = [
     { name: 'ID', prop: 'id' },
     { name: 'Name', prop:'name' },
@@ -73,7 +75,7 @@ export class RolesComponent implements OnInit {
   public modalRef: NgbModalRef;
 
   title: string = "Roles";
-  actions = ["View", "Edit"];
+  actions = ["Delete", "Edit"];
 
 
 
@@ -106,7 +108,7 @@ export class RolesComponent implements OnInit {
       "size":50
     };
 
-    this.rolesList$ = this.httpService.mobileBankingPost('api/v1/admin/role/get/all', model)
+    this.rolesList$ = this.httpService.mobileBankingPost('api/v1/admin/role/all', model)
       .pipe(
         catchError((error: any) => {
           Swal.fire('Error', "Unable to fetch records", 'error');
@@ -155,6 +157,37 @@ export class RolesComponent implements OnInit {
     });
   }
 
+    openDeleteRoleModal(formData: any) {
+
+    console.log("output formData")
+    console.log(formData)
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+    this.modalRef.componentInstance.body = 'Do you want to delete this role?';
+    this.modalRef.componentInstance.title = 'Delete Role';
+    this.modalRef.componentInstance.userId = this.roleId;
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+
+        let model = {
+          roleId: this.roleId
+        }
+
+        this.httpService.mobileBankingPost('api/v1/admin/role/delete',
+        model).subscribe((res: any) => {
+
+        if (res.status === 200) {
+          setTimeout(() => {
+            Swal.fire('Deleted Successfully', res.message, 'success')
+          }, 10);
+        } else {
+          Swal.fire('Deletion Failed', 'failed to delete role', 'error')
+        }
+      });
+      }
+    })
+
+  }
+
   onFileChange(event: any) {
     if (event.target.files && event.target.files.length) {
       this.imageFile = event.target.files[0];
@@ -177,8 +210,8 @@ export class RolesComponent implements OnInit {
 
     let eventData = JSON.parse(data)
 
-    if (eventData.action == 'View') {
-      // this.navigateToViewProduct(eventData.row);
+    if (eventData.action == 'Delete') {
+      this.openDeleteRoleModal(eventData.row);
     }else if (eventData.action == 'Edit') {
       this.openEditRoleModal(eventData.row);
     }

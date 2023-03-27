@@ -78,7 +78,7 @@ throw new Error('Method not implemented.');
     { name: 'FirstName', prop:'firstName' },
     { name:'Email',prop:'email'},
     { name: 'PhoneNumber', prop:'phoneNumber' },
-    { name: 'Active', prop:'active'},
+    { name: 'Active', prop:'blocked'},
     { name: 'CreatedOn', prop:'createdOn' },
     { name: 'Actions', prop: 'id' }
   ];
@@ -156,11 +156,12 @@ throw new Error('Method not implemented.');
           return throwError(error);
         }),
         map((result: any) => {
-          if(result['status'] === 200){
-            
-            console.log(result);
-            console.log(result.data);
 
+
+          console.log("result");
+          console.log(result);
+
+          if(result['status'] === 200){
             this.rows = result['data']
             return result
           } else {

@@ -13,6 +13,7 @@ import {TranslateModule} from "@ngx-translate/core";
 import {AddUserComponent} from "./Users/add-user/add-user.component";
 import {AddProfileComponent} from "./profiles/add-profile/add-profile.component";
 import {ViewProfileComponent} from "./profiles/view-profile/view-profile.component";
+import { ChangeProfileModalComponent } from './Users/change-profile-modal/change-profile-modal.component';
 
 
 @NgModule({
@@ -32,13 +33,15 @@ import {ViewProfileComponent} from "./profiles/view-profile/view-profile.compone
         ViewUserComponent,
         AddUserComponent,
         AddProfileComponent,
-        ViewProfileComponent
+        ViewProfileComponent,
+        ChangeProfileModalComponent
     ]
     ,
     entryComponents: [
       AddUserComponent,
       AddRoleComponent,
-      AddProfileComponent
+      AddProfileComponent,
+      ChangeProfileModalComponent
     ],
 })
 export class RbacModule {
