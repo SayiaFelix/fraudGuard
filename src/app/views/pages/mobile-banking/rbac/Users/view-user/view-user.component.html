@@ -49,15 +49,11 @@
                 <a class="btn btn-danger" (click)="openDisableUserModal()" *ngIf="!userDetails?.blocked">
                   <i class="mdi mdi-account-cancel-outline"></i>
                   Block/ Disable User</a>
-                <a class="btn btn-success" (click)="openDisableUserModal()" *ngIf="userDetails?.blocked">
+                <a class="btn btn-success" (click)="openEnableUserModal()" *ngIf="userDetails?.blocked">
                   <i class="mdi mdi-account-cancel-outline"></i>
                   Unblock/ Enable User</a>
               </div>
-              <div class="my-3 text-center" *ngIf="userDetails?.blocked">
-                <a class="btn btn-success" (click)="openEnableUserModal()">
-                  <i class="mdi mdi-account-cancel-outline"></i>
-                  Enable User</a>
-              </div>
+
               <div class="my-3 text-center">
                 <a class="btn btn-danger" (click)="openDeleteUserModal()">
                   <i class="mdi mdi-account-remove-outline"></i>
