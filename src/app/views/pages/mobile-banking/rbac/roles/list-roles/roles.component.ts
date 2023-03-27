@@ -118,7 +118,7 @@ export class RolesComponent implements OnInit {
     console.log(formData)
     this.modalRef = this.modalService.open(AddRoleComponent, {centered: true});
     this.modalRef.componentInstance.formData = formData;
-    this.modalRef.componentInstance.title = 'Edit Role: ';
+    this.modalRef.componentInstance.title = 'Edit Role';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
         this.getIndividualData(0);
