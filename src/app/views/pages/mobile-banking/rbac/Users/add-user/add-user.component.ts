@@ -47,6 +47,8 @@ export class AddUserComponent implements OnInit {
       profile: [this.formData ? this.formData.profile : '', [Validators.nullValidator]]
     });
 
+
+    
   }
 
   public submitData(): void {
@@ -65,18 +67,24 @@ export class AddUserComponent implements OnInit {
   private createRecord(): any {
 
     const model = {
-        name: this.form.value.name,
-        remarks: this.form.value.description
+      firstName: this.form.value.firstName,
+      lastName: this.form.value.lastName,
+      email: this.form.value.email,
+      profileId:this.form.value.profile,
     };
 
 
-    this.httpService.mobileBankingPost('api/v1/bank/profile/new', model).subscribe(
+    this.httpService.mobileBankingPost('api/v1/admin/user/create', model).subscribe(
       (result: any) => {
           if (result.status === 200) {
             this.activeModal.close('success');
+            Swal.fire('success',result.mesage)
+            .then(r => console.log(r))
+            console.log('result')
           } else {
             this.activeModal.close('error');
-
+            Swal.fire(result.message,'error')
+            .then(r =>console.log(r))
           }
         }
     );

@@ -25,7 +25,8 @@
 
     <ul class="sidebar-nav metismenu" id="sidebar-menu" #sidebarMenu>
       <ng-container *ngFor="let item of menuItems">
-        <li class="nav-item nav-category showHand" *ngIf="showMenuItem(item.profiles) && item.isTitle">
+
+        <li class="nav-item nav-category showHand" *ngIf="item.isTitle">
           <div class="row justify-content-around">
             <div class="col-10">
               {{ item.label }}
