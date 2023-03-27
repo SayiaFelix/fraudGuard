@@ -278,7 +278,7 @@ export class ViewUserComponent implements OnInit, OnDestroy {
 
           if (res.status === 200) {
             setTimeout(() => {
-              Swal.fire('Deleted Successfully', 'User has been deleted successfully.', 'success')
+              Swal.fire('Deleted Successfully', 'User has been deleted successfully', 'success')
             }, 10);
           } else {
             Swal.fire('Deletion Failed', res.message, 'error')
