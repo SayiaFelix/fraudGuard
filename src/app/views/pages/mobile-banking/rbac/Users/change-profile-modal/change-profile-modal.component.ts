@@ -44,7 +44,7 @@ export class ChangeProfileModalComponent implements OnInit {
       model)
       .pipe(
         catchError((error: any) => {
-          Swal.fire('Failed', "Unable to fetch profiles", 'error')
+          Swal.fire('Failed', 'Unable to fetch profiles', 'error')
           return throwError(error);
         }),
         map((res: any) => {
