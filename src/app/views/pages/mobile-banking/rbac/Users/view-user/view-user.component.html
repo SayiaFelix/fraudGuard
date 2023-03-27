@@ -45,10 +45,13 @@
                   <i class="mdi mdi-lock-reset"></i>
                   Reset Password</a>
               </div>
-              <div class="my-3 text-center"  *ngIf="!userDetails?.blocked">
-                <a class="btn btn-danger" (click)="openDisableUserModal()">
+              <div class="my-3 text-center">
+                <a class="btn btn-danger" (click)="openDisableUserModal()" *ngIf="!userDetails?.blocked">
                   <i class="mdi mdi-account-cancel-outline"></i>
                   Block/ Disable User</a>
+                <a class="btn btn-success" (click)="openDisableUserModal()" *ngIf="userDetails?.blocked">
+                  <i class="mdi mdi-account-cancel-outline"></i>
+                  Unblock/ Enable User</a>
               </div>
               <div class="d-grid my-3" *ngIf="userDetails?.blocked">
                 <a class="btn btn-success" (click)="openEnableUserModal()">

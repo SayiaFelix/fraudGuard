@@ -248,6 +248,7 @@ export class ViewUserComponent implements OnInit, OnDestroy {
           if (res.status === 200) {
             setTimeout(() => {
               Swal.fire('Blocked Successfully', 'User has been blocked successfully.', 'success')
+              this.loadData();
             }, 10);
           } else {
             Swal.fire('Block Failed', res.message, 'error')
