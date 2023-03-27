@@ -19,34 +19,6 @@ export class RolesComponent implements OnInit {
 
   @ViewChild('table') table: DatatableComponent;
 
-  tempRolesData = [
-    {
-      id: 1,
-      roleName: 'CREATE_BANK_ADMIN',
-      status: true,
-      createdOn: '12-02-2023',
-
-    },
-    {
-      id: 2,
-      roleName: 'EDIT_BANK_ADMIN',
-      status: true,
-      createdOn: '12-02-2023',
-    },
-    {
-      id: 3,
-      roleName: 'CREATE_SERVICE',
-      status: true,
-      createdOn: '12-02-2023',
-    },
-    {
-      id: 4,
-      roleName: 'RESET_ADMIN_PASSWORD',
-      status: true,
-      createdOn: '12-02-2023',
-    }
-  ];
-
   // bread crumb items
   breadCrumbItems: Array<{}>;
   rows: any = [];
@@ -58,8 +30,9 @@ export class RolesComponent implements OnInit {
     {name: 'ID', prop: 'id'},
     {name: 'Name', prop: 'name'},
     {name: 'Status', prop: 'status'},
-    {name: 'createdOn', prop: 'createdOn'},
     {name: 'remarks', prop: 'remarks'},
+    {name: 'SystemRole', prop: 'systemRole'},
+    {name: 'createdOn', prop: 'createdOn'},
     {name: 'Actions', prop: 'id'}
   ];
 
