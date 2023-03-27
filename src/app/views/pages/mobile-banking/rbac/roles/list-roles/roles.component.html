@@ -13,7 +13,7 @@
 </div>
 
 <div class="row">
-  <div class="col-md-12 stretch-card">
+  <div class="col-md-12 stretch-card" *ngIf="this.rolesList$ | async">
     <div class="card">
         <app-custom-ngx-table
           [columns]="columns"

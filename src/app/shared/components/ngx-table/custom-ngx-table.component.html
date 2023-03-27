@@ -135,7 +135,7 @@
           ngx-datatable-cell-template
         >
           <app-label-active
-            [value]="row.status || row.active"
+            [value]="row.status || row.active || !row.blocked"
           ></app-label-active>
         </ng-template>
       </ngx-datatable-column>

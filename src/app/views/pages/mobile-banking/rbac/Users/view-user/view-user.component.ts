@@ -1,19 +1,21 @@
-import { Component, Input, OnInit, TemplateRef } from '@angular/core';
+import {Component, Input, OnDestroy, OnInit, TemplateRef} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NgbModal,NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ColumnMode } from '@swimlane/ngx-datatable';
-import { ConfirmDialogComponent } from 'src/app/shared/components/confirm-dialog/confirm-dialog.component';
 import { GlobalService } from 'src/app/shared/services/global.service';
 import { HttpService } from 'src/app/shared/services/http.service';
-import Swal from 'sweetalert2';
+import {ConfirmDialogComponent} from "../../../../../../shared/components/confirm-dialog/confirm-dialog.component";
+import Swal from "sweetalert2";
+import {catchError, map, Observable, Subscription, throwError} from "rxjs";
+import { ChangeProfileModalComponent } from '../change-profile-modal/change-profile-modal.component';
 
 @Component({
   selector: 'app-view-user',
   templateUrl: './view-user.component.html',
   styleUrls: ['./view-user.component.scss'],
 })
-export class ViewUserComponent implements OnInit {
+export class ViewUserComponent implements OnInit, OnDestroy {
   public myProductList = [
     {
       icon: '',
@@ -59,9 +61,15 @@ export class ViewUserComponent implements OnInit {
   ColumnMode = ColumnMode;
   public currentUser:any;
   public imageFile: File;
-  public userDetail:any;
- public userId:any;
-  modalRef: NgbModalRef;
+  public modalRef: NgbModalRef;
+  public userId: number;
+
+
+  public userDetails: any;
+  public resetPassword$: Observable<any>;
+
+  subs: Subscription[] = [];
+
 
   constructor(
     private httpService: HttpService,
@@ -70,18 +78,18 @@ export class ViewUserComponent implements OnInit {
     private modalService: NgbModal,
     public fb: FormBuilder
   ) {
+
   }
 
   ngOnInit(): void {
+
     this.activatedRoute.params.subscribe(params => {
       if (typeof params.id !== 'undefined') {
         this.userId = params.id;
-        console.log('params.id')
       }
     });
+
     this.loadData();
-    
-    this.loadProfiles();
 
     this.form = this.fb.group({
       name: [this.formData ? this.formData.name : '', [Validators.required]],
@@ -99,14 +107,27 @@ export class ViewUserComponent implements OnInit {
   }
 
   private loadData(): any {
-    const model = {
-      id:this.userId
-    };
 
-    this.httpService
+    const model = {
+      id: this.userId
+    }
+
+    let loadUserDetails = this.httpService
       .mobileBankingPost('api/v1/admin/user/id', model)
-      .subscribe((result: any) => {});
+      .subscribe((res: any) => {
+        if (res.status === 200) {
+            this.userDetails = res.data;
+        } else {
+
+        }
+      }, (error: any) => {
+        Swal.fire('Failed', error, 'error')
+      });
+
+    this.subs.push(loadUserDetails);
+
   }
+
   isAsideNavCollapsed: any;
 
   openAddProductSubcategoryModal(content: TemplateRef<any>) {
@@ -118,33 +139,69 @@ export class ViewUserComponent implements OnInit {
       .catch((res) => {});
   }
 
-  openChangeProfileModal(content: TemplateRef<any>) {
-    this.modalService
-      .open(content, { centered: true, size: 'md' })
-      .result.then((result) => {
-        console.log('Modal closed' + result);
-      })
-      .catch((res) => {});
-  }
-  openResetPasswordModal(content: TemplateRef<any>) {
-    this.modalService
-      .open(content, { centered: true, size: 'md' })
-      .result.then((result) => {
-        console.log('Modal closed' + result);
-      })
-      .catch((res) => {});
-  }
-  // openDisableUserModal(content: TemplateRef<any>) {
-  //   this.modalService
-  //     .open(content, { centered: true, size: 'md' })
-  //     .result.then((result) => {
-  //       console.log('Modal closed' + result);
-  //     })
-  //     .catch((res) => {});
-  
-  // }
-  openDisableUserModal(){
+  openChangeProfileModal() {
+    this.modalRef = this.modalService.open( ChangeProfileModalComponent );
+    this.modalRef.componentInstance.title = 'Change Profile';
 
+    this.modalRef.componentInstance.body = "Do you want to change this user's profile?";
+    this.modalRef.componentInstance.userId = this.userId;
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+
+        let model = {
+          userId: this.userId
+        }
+
+        this.resetPassword$ = this.httpService.mobileBankingPost('api/v1/admin/user/reset',
+          model).pipe(
+            catchError((error: any) => {
+              Swal.fire('Failed', "Password could not be reset", 'error')
+              return throwError(error);
+            }),
+            map((res: any) => {
+              if (res.status === 200) {
+                setTimeout(() => {
+                  Swal.fire('Success', 'User Password Reset Successfully.', 'success')
+                }, 10);
+              } else {
+                Swal.fire('Failed', res.message, 'error')
+              }
+            }))
+      }
+    })
+
+   
+  }
+  openResetPasswordModal() {
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Reset Password';
+
+    this.modalRef.componentInstance.body = "Do you want to reset this user's password?";
+
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+
+        let model = {
+          userId: this.userId
+        }
+
+        this.resetPassword$ = this.httpService.mobileBankingPost('api/v1/admin/user/reset',
+          model).pipe(
+            catchError((error: any) => {
+              Swal.fire('Failed', "Password could not be reset", 'error')
+              return throwError(error);
+            }),
+            map((res: any) => {
+              if (res.status === 200) {
+                setTimeout(() => {
+                  Swal.fire('Success', 'User Password Reset Successfully.', 'success')
+                }, 10);
+              } else {
+                Swal.fire('Failed', res.message, 'error')
+              }
+            }))
+      }
+    })
   }
   openEnableUserModal(){
     this.modalRef = this.modalService.open(ConfirmDialogComponent);
@@ -154,13 +211,13 @@ export class ViewUserComponent implements OnInit {
       if (result === 'success') {
         // on success, send request to backend
         const model = {
-          id: this.currentUser.id
+          id: this.userId
         };
 
         this.httpService.mobileBankingPost('api/v1/admin/user/unblock', model).subscribe(
             (result:any)=> {
               if (result.status === 200) {
-                Swal.fire('user unblocked successfully','success')
+                Swal.fire('Success','user unblocked successfully','success')
                 .then(r =>(console.log(r)))
               } else {
                Swal.fire(result.message.error)
@@ -172,15 +229,66 @@ export class ViewUserComponent implements OnInit {
 
       }
     });
-
   }
-  openDeleteUserModal(content: TemplateRef<any>) {
-    this.modalService
-      .open(content, { centered: true, size: 'md' })
-      .result.then((result) => {
-        console.log('Modal closed' + result);
-      })
-      .catch((res) => {});
+  openDisableUserModal() {
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Block User';
+
+    this.modalRef.componentInstance.body = "Do you want to block this user?";
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+
+        let model = {
+          "id": this.userId
+        }
+
+         this.httpService.mobileBankingPost('api/v1/admin/user/block',
+          model).subscribe((res: any) => {
+
+          if (res.status === 200) {
+            setTimeout(() => {
+              Swal.fire('Blocked Successfully', 'User has been blocked successfully.', 'success')
+            }, 10);
+          } else {
+            Swal.fire('Block Failed', res.message, 'error')
+          }
+        }, (error: any) => {
+          Swal.fire('Block Failed', 'User deletion failed.', 'error')
+        });
+
+
+      }
+    })
+  }
+  openDeleteUserModal() {
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Delete User';
+
+    this.modalRef.componentInstance.body = "Do you want to delete this user?";
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+
+        let model = {
+          "id": this.userId
+        }
+
+        this.httpService.mobileBankingPost('api/v1/admin/user/delete',
+          model).subscribe((res: any) => {
+
+          if (res.status === 200) {
+            setTimeout(() => {
+              Swal.fire('Deleted Successfully', 'User has been deleted successfully.', 'success')
+            }, 10);
+          } else {
+            Swal.fire('Deletion Failed', res.message, 'error')
+          }
+        }, (error: any) => {
+          Swal.fire('Deletion Failed', 'User deletion failed.', 'error')
+        });
+
+
+      }
+    })
   }
 
   openEditProductSubcategoryModal(content: TemplateRef<any>) {
@@ -218,14 +326,14 @@ export class ViewUserComponent implements OnInit {
     //   });
   }
 
-  private loadProfiles() {
-    const model = {
-      page:0,
-      size:50
-    };
+  getFullName(firstName: any, lastName: any) {
+    let fullname: string = `${firstName} ${lastName}`;
 
-    this.httpService
-      .mobileBankingPost('api/v1/admin/profile/get/all', model)
-      .subscribe((result: any) => {});
+    fullname = fullname.slice(0, 16)
+    return fullname;
+  }
+
+  ngOnDestroy(): void {
+    this.subs.forEach(sub => sub.unsubscribe())
   }
 }

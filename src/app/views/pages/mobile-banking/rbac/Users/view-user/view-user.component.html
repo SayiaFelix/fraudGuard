@@ -3,69 +3,66 @@
       <div class="card">
         <div class="card-body">
           <div class="row">
-            <div class="col-lg-3 border-end-lg">
-              <div class="d-flex align-items-center justify-content-between">
-
-
+            <div class="col-lg-4 border-end-lg">
+              <div>
                 <button (click)="openAddProductSubcategoryModal(verticalCenteredModal)" aria-controls="asideNav"
                         class="navbar-toggle btn btn-icon border d-inline-flex d-lg-none" type="button">
                   <i appFeatherIcon class="btn-icon-prepend" data-feather="plus"></i> Button
                 </button>
-                <!-- <div class="order-first">
-                  <h4>Loan Products</h4>
-                </div> -->
-                 <img class="profile-pic" src="assets/images/profile.png"/>
+                <div class="text-center">
+                  <img src="assets/images/user_img.png" class="rounded profile-pic" alt="profileImage">
+                </div>
               </div>
 
+              <hr>
               <div [ngbCollapse]="isAsideNavCollapsed" class="email-aside-nav" id="asideNav">
 
-                <hr>
-                <ul class="nav flex-column">
-                  <li [ngClass]="{'active': inbox.isActive}" class="nav-item">
-                    <a #inbox="routerLinkActive" class="nav-link d-flex align-items-center"
-                       routerLinkActive="active">
-                      Email
-                    </a>
+                <h5 class="text-center fw-bolder"><u>User Details</u></h5>
+
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Name:
+                    <span class="text-right">{{getFullName(userDetails?.firstName, userDetails?.lastName)}}</span>
                   </li>
-                  <li class="nav-item">
-                    <a (click)="false" class="nav-link d-flex align-items-center">
-                      Phone Number
-                    </a>
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Email:
+                    <span class="text-right">{{userDetails?.email}}</span>
                   </li>
                 </ul>
-                <hr>
               </div>
 
-              <div class="d-grid my-3">
-                <a class="btn btn-primary" (click)="openChangeProfileModal(verticalCenteredModal)">
+              <div class="my-3 text-center">
+                <a class="btn btn-primary" (click)="openChangeProfileModal()">
                   <i class="mdi mdi-account-edit-outline"></i>
                   Change Profile
               </a>
               </div>
-              <div class="d-grid my-3">
+              <div class="my-3 text-center">
 
-                <a class="btn btn-primary" (click)="openResetPasswordModal(ResetPasswordModal)">
+                <a class="btn btn-primary" (click)="openResetPasswordModal()">
+                  {{resetPassword$ | async}}
+
                   <i class="mdi mdi-lock-reset"></i>
                   Reset Password</a>
               </div>
-              <div class="d-grid my-3" *ngIf="userDetail?.active">
+              <div class="my-3 text-center"  *ngIf="!userDetails?.blocked">
                 <a class="btn btn-danger" (click)="openDisableUserModal()">
                   <i class="mdi mdi-account-cancel-outline"></i>
-                  Disable User</a>
+                  Block/ Disable User</a>
               </div>
-              <div class="d-grid my-3" *ngIf="!userDetail?.active">
-                <a class="btn btn-danger" (click)="openEnableUserModal()">
+              <div class="d-grid my-3" *ngIf="userDetails?.blocked">
+                <a class="btn btn-success" (click)="openEnableUserModal()">
                   <i class="mdi mdi-account-cancel-outline"></i>
                   Enable User</a>
               </div>
               <div class="d-grid my-3">
-                <a class="btn btn-danger" (click)="openDeleteUserModal(DeleteUserModal)">
+                <a class="btn btn-danger" (click)="openDeleteUserModal()">
                   <i class="mdi mdi-account-remove-outline"></i>
-                  Delete User</a>
+                  DELETE USER</a>
               </div>
 
             </div>
-            <div class="col-lg-9">
+            <div class="col-lg-8">
               <div class="mt-2">
                 <h5>{{subcategoryTitle}}</h5>
                 <hr/>
@@ -136,69 +133,6 @@
   </div>
 
   <!-- Modal -->
-  <ng-template #ResetPasswordModal let-modal>
-    <div class="modal-header">
-      <h5 class="modal-title" id="exampleModalLabel">Reset Password</h5>
-      <button (click)="modal.close('by: close icon')" aria-label="Close" class="btn-close" type="button"></button>
-    </div>
-    <div class="modal-body">
-      <div class="row ">
-
-          <div class="col-md-12">
-            <div class="mb-3">
-              <p> Do you want to Reset this User's Password?</p>
-            </div>
-          </div>
-      </div>
-      </div>
-      <div class="modal-footer">
-        <button (click)="modal.close('by: close button')" class="btn btn-secondary" type="button">Close</button>
-        <button (click)="modal.close('by: save button')" class="btn btn-primary" type="button">Confirm</button>
-      </div>
-
-  </ng-template>
-  <!-- <ng-template #DisableUserModal let-modal>
-    <div class="modal-header">
-      <h5 class="modal-title" id="exampleModalLabel">Disable User</h5>
-      <button (click)="modal.close('by: close icon')" aria-label="Close" class="btn-close" type="button"></button>
-    </div>
-    <div class="modal-body">
-      <div class="row ">
-
-          <div class="col-md-12">
-            <div class="mb-3">
-              <p class="form-label">Do you want to Disable this User?</p>
-            </div>
-          </div>
-      </div>
-      </div>
-      <div class="modal-footer">
-        <button (click)="modal.close('by: close button')" class="btn btn-secondary" type="button">Close</button>
-        <button (click)="modal.close('by: save button')" class="btn btn-primary" type="button">Confirm</button>
-      </div>
-
-  </ng-template> -->
-  <ng-template #DeleteUserModal let-modal>
-    <div class="modal-header">
-      <h5 class="modal-title" id="exampleModalLabel">Delete User</h5>
-      <button (click)="modal.close('by: close icon')" aria-label="Close" class="btn-close" type="button"></button>
-    </div>
-    <div class="modal-body">
-      <div class="row ">
-
-          <div class="col-md-12">
-            <div class="mb-3">
-              <p class="form-label">Do you want to Delete this User?</p>
-            </div>
-          </div>
-      </div>
-      </div>
-      <div class="modal-footer">
-        <button (click)="modal.close('by: close button')" class="btn btn-secondary" type="button">Close</button>
-        <button (click)="modal.close('by: save button')" class="btn btn-primary" type="button">Confirm</button>
-      </div>
-
-  </ng-template>
   <ng-template #verticalCenteredModal let-modal>
     <div class="modal-header">
       <h5 class="modal-title" id="exampleModalLabel">Change Profile</h5>

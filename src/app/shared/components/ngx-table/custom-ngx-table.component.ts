@@ -36,7 +36,7 @@ export class CustomNgxTable implements OnInit {
   total: any;
   perPage = 10;
   pageSizes: number[] = [2, 5, 10, 20, 50, 100];
-  pageSize = 2;
+  pageSize = 10;
   page = 1;
   dataLoaded = false;
   showPageSizeDropdown = false;

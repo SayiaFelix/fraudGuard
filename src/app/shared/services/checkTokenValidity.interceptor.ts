@@ -30,6 +30,7 @@ export class CheckTokenValidityInterceptor implements HttpInterceptor {
         const helper = new JwtHelperService();
 
         if (!this.globalService.getToken()) {
+          console.log("No token available");
             return false;
         } else if (this.globalService.getToken() && helper.isTokenExpired(this.globalService.getToken())){
 
