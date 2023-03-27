@@ -32,7 +32,7 @@
               </div>
 
               <div class="my-3 text-center">
-                <a class="btn btn-primary" (click)="openChangeProfileModal(verticalCenteredModal)">
+                <a class="btn btn-primary" (click)="openChangeProfileModal()">
                   <i class="mdi mdi-account-edit-outline"></i>
                   Change Profile
               </a>
@@ -53,7 +53,12 @@
                   <i class="mdi mdi-account-cancel-outline"></i>
                   Unblock/ Enable User</a>
               </div>
-              <div class="my-3 text-center">
+              <div class="d-grid my-3" *ngIf="userDetails?.blocked">
+                <a class="btn btn-success" (click)="openEnableUserModal()">
+                  <i class="mdi mdi-account-cancel-outline"></i>
+                  Enable User</a>
+              </div>
+              <div class="d-grid my-3">
                 <a class="btn btn-danger" (click)="openDeleteUserModal()">
                   <i class="mdi mdi-account-remove-outline"></i>
                   DELETE USER</a>
