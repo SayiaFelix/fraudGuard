@@ -122,6 +122,7 @@ throw new Error('Method not implemented.');
     this.modalRef.componentInstance.title = 'Add User';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
+        this.getIndividualData(0);
       }
     }, (reason) => {
       console.log(reason);
@@ -134,6 +135,7 @@ throw new Error('Method not implemented.');
     this.modalRef.componentInstance.title = 'Edit User';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
+        this.getIndividualData(0);
       }
     }, (reason) => {
     });
