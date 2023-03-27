@@ -1,19 +1,19 @@
-import {Component, Input, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {Router} from '@angular/router';
 import {DatatableComponent} from "@swimlane/ngx-datatable/lib/components/datatable.component";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
-import { ColumnMode } from '@swimlane/ngx-datatable';
+import {ColumnMode} from '@swimlane/ngx-datatable';
 import {HttpService} from "../../../../../../shared/services/http.service";
 import {AddRoleComponent} from "../add-role/add-role.component";
-import { catchError, map, Observable,  pipe, throwError } from 'rxjs';
+import {catchError, map, Observable, throwError} from 'rxjs';
 import Swal from 'sweetalert2';
-import { ConfirmDialogComponent } from 'src/app/shared/components/confirm-dialog/confirm-dialog.component';
+import {DeleteRoleModalComponent} from "../delete-role-modal/delete-role-modal.component";
 
 @Component({
-    selector: 'app-roles',
-    templateUrl: './roles.component.html',
-    styleUrls: ['./roles.component.scss']
+  selector: 'app-roles',
+  templateUrl: './roles.component.html',
+  styleUrls: ['./roles.component.scss']
 })
 export class RolesComponent implements OnInit {
 
@@ -52,15 +52,15 @@ export class RolesComponent implements OnInit {
   rows: any = [];
   loadingIndicator = true;
   reorderable = true;
-  rolesList$:Observable<any>
-  roleId:number;
+  rolesList$: Observable<any>
+  roleId: number;
   columns = [
-    { name: 'ID', prop: 'id' },
-    { name: 'Name', prop:'name' },
-    { name: 'Status', prop:'status' },
-    { name: 'createdOn', prop:'createdOn' },
-    {name:'remarks',prop:'remarks'},
-    { name: 'Actions', prop: 'id' }
+    {name: 'ID', prop: 'id'},
+    {name: 'Name', prop: 'name'},
+    {name: 'Status', prop: 'status'},
+    {name: 'createdOn', prop: 'createdOn'},
+    {name: 'remarks', prop: 'remarks'},
+    {name: 'Actions', prop: 'id'}
   ];
 
   allColumns = [...this.columns]
@@ -78,11 +78,9 @@ export class RolesComponent implements OnInit {
   actions = ["Delete", "Edit"];
 
 
-
   constructor(private httpService: HttpService,
               private modalService: NgbModal,
               public fb: FormBuilder,
-
               public router: Router,
   ) {
 
@@ -90,8 +88,8 @@ export class RolesComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.breadCrumbItems = [{ label: 'Mobile banking', path: '/mobile-banking/products/all-products' },
-      { label: 'Pages', path: '/' }, { label: 'Products', active: true }];
+    this.breadCrumbItems = [{label: 'Mobile banking', path: '/mobile-banking/products/all-products'},
+      {label: 'Pages', path: '/'}, {label: 'Products', active: true}];
     this.getIndividualData(0);
 
     this.form = this.fb.group({
@@ -104,8 +102,8 @@ export class RolesComponent implements OnInit {
 
   getIndividualData(event: number): void {
     const model = {
-      "page":0,
-      "size":50
+      "page": 0,
+      "size": 50
     };
 
     this.rolesList$ = this.httpService.mobileBankingPost('api/v1/admin/role/all', model)
@@ -115,12 +113,12 @@ export class RolesComponent implements OnInit {
           return throwError(error);
         }),
         map((result: any) => {
-          if(result['status'] === 200){
-            
+          if (result['status'] === 200) {
+
             console.log(result);
             // console.log(result.data);
             this.rows = result['data']
-            
+
             return result;
           } else {
             return []
@@ -157,32 +155,16 @@ export class RolesComponent implements OnInit {
     });
   }
 
-    openDeleteRoleModal(formData: any) {
+  openDeleteRoleModal(formData: any) {
 
-    console.log("output formData")
-    console.log(formData)
-    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+    this.modalRef = this.modalService.open(DeleteRoleModalComponent, {centered: true});
     this.modalRef.componentInstance.body = 'Do you want to delete this role?';
     this.modalRef.componentInstance.title = 'Delete Role';
-    this.modalRef.componentInstance.userId = this.roleId;
+    this.modalRef.componentInstance.roleId = formData.id;
     this.modalRef.result.then((result) => {
-      if (result === 'success') {
-
-        let model = {
-          roleId: this.roleId
-        }
-
-        this.httpService.mobileBankingPost('api/v1/admin/role/delete',
-        model).subscribe((res: any) => {
-
-        if (res.status === 200) {
-          setTimeout(() => {
-            Swal.fire('Deleted Successfully', res.message, 'success')
-          }, 10);
-        } else {
-          Swal.fire('Deletion Failed', 'failed to delete role', 'error')
-        }
-      });
+      if (result == "success") {
+        this.modalRef.close();
+        this.getIndividualData(0);
       }
     })
 
@@ -197,7 +179,8 @@ export class RolesComponent implements OnInit {
   toggleExpandRow(row: any) {
     this.table.rowDetail.toggleExpandRow(row);
   }
-  onDetailToggle(event:any){
+
+  onDetailToggle(event: any) {
     console.log('Detail Toggled', event);
 
   }
@@ -212,7 +195,7 @@ export class RolesComponent implements OnInit {
 
     if (eventData.action == 'Delete') {
       this.openDeleteRoleModal(eventData.row);
-    }else if (eventData.action == 'Edit') {
+    } else if (eventData.action == 'Edit') {
       this.openEditRoleModal(eventData.row);
     }
 
