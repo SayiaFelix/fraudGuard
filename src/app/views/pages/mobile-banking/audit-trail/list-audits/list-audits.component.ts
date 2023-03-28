@@ -17,15 +17,24 @@ export class ListAuditsComponent implements OnInit {
   actions = [];
   tempProductData = [
     {
-      id: 1,
-      AuditMessage: 'Personal Accident',
-      CreatedBy:'Michael',
+      id: 4734,
+      AuditMessage: 'Login',
+      CreatedBy:'Jackson Biko',
+      ip:'124.12.33.12',
       createdOn: '12-02-2023',
     },
     {
-      id: 2,
-      AuditMessage: 'Mutual Funds',
-      CreatedBy:'Leah',
+      id: 5873,
+      AuditMessage: 'Login',
+      CreatedBy:'Leah Muthui',
+      ip:'10.14.13.6',
+      createdOn: '12-02-2023',
+    },
+    {
+      id: 8483,
+      AuditMessage: 'Failed Login',
+      CreatedBy:'Leah Muthui',
+      ip:'10.14.13.6',
       createdOn: '12-02-2023',
     },
 
@@ -40,10 +49,11 @@ export class ListAuditsComponent implements OnInit {
 
 
   columns = [
-    {name: 'ID', prop: 'id'},
-    {name: 'AuditMessage', prop: 'AuditMessage'},
-    {name:'CreatedBy', prop:'CreatedBy'},
-    {name: 'CreatedOn', prop: 'createdOn'},
+    {name: 'User ID', prop: 'id'},
+    {name: 'User Name', prop:'CreatedBy'},
+    {name: 'Date & Time', prop: 'createdOn'},
+    {name: 'AuditAction', prop: 'AuditMessage'},
+    {name: 'IP', prop: 'ip'},
     {name: 'Actions', prop: 'id'},
   ];
 
