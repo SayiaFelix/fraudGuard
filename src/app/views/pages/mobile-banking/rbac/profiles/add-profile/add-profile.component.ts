@@ -3,6 +3,8 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 
 import {HttpService} from 'src/app/shared/services/http.service';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import { catchError, map, Observable, throwError } from 'rxjs';
+import Swal from 'sweetalert2';
 
 @Component({
     selector: 'app-add-role',
@@ -17,6 +19,7 @@ export class AddProfileComponent implements OnInit {
     public hasErrors = false;
     public errorMessages: any;
     public form: FormGroup;
+    public editProfile$: Observable<any>;
 
     constructor(
         public activeModal: NgbActiveModal,
@@ -29,7 +32,7 @@ export class AddProfileComponent implements OnInit {
       this.form = this.fb.group({
         name: [this.formData ? this.formData.name : '', [Validators.required]],
         code: [this.formData ? this.formData.code : '', [Validators.required]],
-        description: [this.formData ? this.formData.description : '', [Validators.required]],
+        description: [this.formData ? this.formData.remarks : '', [Validators.required]],
         is_active: [this.formData ? this.formData.is_active : '', [Validators.nullValidator]]
       });
 
@@ -49,9 +52,44 @@ export class AddProfileComponent implements OnInit {
     }
 
     private createRecord(): any {
-    }
+        const model = {
+            name: this.form.value.name,
+            remarks: this.form.value.description
+        }
+        this._httpService.mobileBankingPost('http://10.20.2.19:7600/api/v1/admin/profile/add', model).subscribe(
+            (result:any) => {
+                if(result.status === 200){
+                    this.activeModal.close('success');
+                    Swal.fire('Success', result.message, "success")
+                    .then(r => console.log(r))
+                    console.log('result');
+                } else 
+                    this.activeModal.close('error');
+                    Swal.fire('Error', result.message, "error")
+                    .then(r => console.log(r))
+                }
+                )
+            }
 
     private saveChanges(): any {
+        const model = {
+            id: this.formData.id,
+            remarks: this.form.value.description
+        }
+        this.editProfile$ = this._httpService.mobileBankingPost('api/v1/admin/profile/edit', model).pipe(
+            catchError((error: any) => {
+                Swal.fire('Failed', "Unable to edit profile", 'error')
+                return throwError(error)
+            }),
+            map((res: any) => {
+                if(res.status === 200) {
+                    setTimeout(() => {
+                        Swal.fire('Success', 'Profile Editor Successfully', 'success')
+                    }, 10);
+                } else {
+                    Swal.fire('Failed', res.message, 'error');
+                }
+            })
+        )
     }
-
 }
