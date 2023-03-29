@@ -56,7 +56,7 @@ export class AddProfileComponent implements OnInit {
             name: this.form.value.name,
             remarks: this.form.value.description
         }
-        this._httpService.mobileBankingPost('http://10.20.2.19:7600/api/v1/admin/profile/add', model).subscribe(
+        this._httpService.mobileBankingPost('api/v1/admin/profile/add', model).subscribe(
             (result:any) => {
                 if(result.status === 200){
                     this.activeModal.close('success');
@@ -76,7 +76,7 @@ export class AddProfileComponent implements OnInit {
             id: this.formData.id,
             remarks: this.form.value.description
         }
-        this.editProfile$ = this._httpService.mobileBankingPost('api/v1/admin/profile/edit', model).pipe(
+        this._httpService.mobileBankingPost('api/v1/admin/profile/edit', model).pipe(
             catchError((error: any) => {
                 Swal.fire('Failed', "Unable to edit profile", 'error')
                 return throwError(error)
