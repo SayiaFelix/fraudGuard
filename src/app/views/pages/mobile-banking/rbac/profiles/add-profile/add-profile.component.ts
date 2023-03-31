@@ -28,7 +28,6 @@ export class AddProfileComponent implements OnInit {
 
       this.form = this.fb.group({
         name: [this.formData ? this.formData.name : '', [Validators.required]],
-        code: [this.formData ? this.formData.code : '', [Validators.required]],
         description: [this.formData ? this.formData.description : '', [Validators.required]],
         is_active: [this.formData ? this.formData.is_active : '', [Validators.nullValidator]]
       });
