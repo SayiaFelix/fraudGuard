@@ -8,11 +8,11 @@
 
       <div class="col-4">
         <label class="form-label">First Name</label>
-        <input class="form-control" formControlName="name" type="text"/>
+        <input class="form-control" formControlName="firstName" type="text"/>
         <small
           *ngIf="
-            form.get('name')?.touched &&
-            form.get('name')?.hasError('required')
+            form.get('firstName')?.touched &&
+            form.get('firstName')?.hasError('required')
           "
           class="text-danger"
         >Required Field</small
@@ -20,11 +20,11 @@
       </div>
       <div class="col-4">
         <label class="form-label">Middle Name</label>
-        <input class="form-control" formControlName="name" type="text"/>
+        <input class="form-control" formControlName="middleName" type="text"/>
         <small
           *ngIf="
-          form.get('name')?.touched &&
-          form.get('name')?.hasError('required')
+          form.get('middleName')?.touched &&
+          form.get('middleName')?.hasError('required')
         "
           class="text-danger"
         >Required Field</small
@@ -33,11 +33,11 @@
 
       <div class="col-4">
         <label class="form-label">Last Name</label>
-        <input class="form-control" formControlName="name" type="text"/>
+        <input class="form-control" formControlName="lastName" type="text"/>
         <small
           *ngIf="
-          form.get('name')?.touched &&
-          form.get('name')?.hasError('required')
+          form.get('lastName')?.touched &&
+          form.get('lastName')?.hasError('required')
         "
           class="text-danger"
         >Required Field</small
@@ -46,11 +46,12 @@
 
       <div class="col-md-4">
         <label class="form-label">Account Number</label>
-        <input class="form-control" formControlName="name" type="text"/>
+        <input class="form-control" formControlName="accountNumber" type="number" min="0" maxlength="14"
+        oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"/>
         <small
           *ngIf="
-              form.get('name')?.touched &&
-              form.get('name')?.hasError('required')
+              form.get('accountNumber')?.touched &&
+              form.get('accountNumber')?.hasError('required')
             "
           class="text-danger"
         >Required Field</small
@@ -59,11 +60,12 @@
 
       <div class="col-md-4">
         <label class="form-label">Phone Number</label>
-        <input class="form-control" formControlName="name" type="text"/>
+        <input class="form-control" formControlName="phoneNumber" type="number" min="0" maxlength="12"
+        oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"/>
         <small
           *ngIf="
-      form.get('name')?.touched &&
-      form.get('name')?.hasError('required')
+      form.get('phoneNumber')?.touched &&
+      form.get('phoneNumber')?.hasError('required')
     "
           class="text-danger"
         >Required Field</small
@@ -71,9 +73,10 @@
       </div>
       <div class="col-md-4">
         <label class="form-label">Device IMEI (optional)</label>
-        <input class="form-control" formControlName="name" type="text"/>
+        <input class="form-control" formControlName="imeiNumber" type="number" min="0" maxlength="12"
+        oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"/>
         <small
-          *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')"
+          *ngIf="form.get('imeiNumber')?.touched && form.get('imeiNumber')?.hasError('required')"
           class="text-danger"
         >Required Field</small
         >
@@ -81,11 +84,11 @@
 
       <div class="col-md-4">
         <label class="form-label">Email (optional)</label>
-        <input class="form-control" formControlName="name" type="text"/>
+        <input class="form-control" formControlName="email" type="email"/>
         <small
           *ngIf="
-        form.get('name')?.touched &&
-        form.get('name')?.hasError('required')
+        form.get('email')?.touched &&
+        form.get('email')?.hasError('required')
       "
           class="text-danger"
         >Required Field</small
@@ -106,11 +109,12 @@
       </div>
       <div class="col-md-4">
         <label class="form-label">National ID/Passport No.</label>
-        <input class="form-control" formControlName="name" type="text"/>
+        <input class="form-control" formControlName="idNumber" type="number" min="0" maxlength="8"
+        oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"/>
         <small
           *ngIf="
-    form.get('name')?.touched &&
-    form.get('name')?.hasError('required')
+    form.get('idNumber')?.touched &&
+    form.get('idNumber')?.hasError('required')
   "
           class="text-danger"
         >Required Field</small
@@ -156,6 +160,6 @@
   </div>
   <div class="modal-footer">
     <button (click)="closeModal()" class="btn btn-secondary" type="button">Close</button>
-    <button (click)="closeModal()" class="btn btn-primary" type="button">Save changes</button>
+    <button (click)="closeModal()" class="btn btn-primary" type="button"[disabled]="!form.valid">Save changes</button>
   </div>
 </div>
