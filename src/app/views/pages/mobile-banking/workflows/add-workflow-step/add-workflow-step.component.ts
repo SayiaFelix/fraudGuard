@@ -10,7 +10,10 @@ import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
     styleUrls: ['./add-workflow-step.component.scss']
 })
 export class AddWorkflowStepComponent implements OnInit {
-
+selectedprofiles: any = null;
+selectedroles: any = null;
+ profiles :any[] = ['System Admin','Corporate Admin'];
+ users :any[] = ['Michael','Lilian'];
     @Input() title: any;
     @Input() formData: any;
     public loading = false;
@@ -18,6 +21,7 @@ export class AddWorkflowStepComponent implements OnInit {
     public errorMessages: any;
     public workflowForm: FormGroup;
     public imageFile: File;
+    public form:FormGroup;
 
     constructor(
         public activeModal: NgbActiveModal,
@@ -26,40 +30,41 @@ export class AddWorkflowStepComponent implements OnInit {
     }
 
     ngOnInit() {
-
-      console.log("this.formData");
-      console.log(this.formData);
-
-        this.workflowForm = this.fb.group({
-            name: [this.formData ? this.formData.productName : '', [Validators.required]],
-            description: [this.formData ? this.formData.remarks : '', [Validators.required]],
-            image: [this.formData ? this.formData.image : '', [Validators.nullValidator]]
-        });
-
+      console.log(this.formData)
+      this.form = this.fb.group({
+        stepNumber: [this.formData ? this.formData.productName : '', [Validators.required]],
+        stepName: [this.formData ? this.formData.Name : '', [Validators.required]],
+    });
     }
 
-    public submitData(): void {
+      onAdd(item: any) {
+        console.log('tag added: value is ' + item.value);
+      }
+    
+      onSelect(item: any) {
+        console.log('tag selected: value is ' + item);
+      }
+      onTextChange(text: any) {
+        console.log('text changed: value is ' + text);
+      }
+
+      public closeModal(): void {
+        this.activeModal.dismiss('Cross click');
+      }
+
+      public submitData(): void {
         if (this.formData) {
-            this.saveChanges();
+          this.editRecord();
         } else {
-            this.createRecord();
+          this.createRecord();
         }
         this.loading = true;
-    }
+      }
 
-    public closeModal(): void {
-        this.activeModal.dismiss('Cross click');
-    }
-
-    private createRecord(): any {
-    }
-
-    private saveChanges(): any {
-    }
-
-  onFileChange(event: any) {
-    if (event.target.files && event.target.files.length) {
-      this.imageFile = event.target.files[0];
-    }
+      
+  private editRecord(): any {
   }
-}
+  private createRecord(): any {
+  }
+
+    }
