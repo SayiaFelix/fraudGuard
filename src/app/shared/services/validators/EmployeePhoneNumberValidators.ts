@@ -12,7 +12,17 @@ export class EmployeePhoneNumberValidators {
         const phoneNumber = control.value as string;
 
 
+        
         if (phoneNumber && phoneNumber !== '' && (!PHONE_REGEXP.test(phoneNumber))) {
+            if (phoneNumber.length!==12){
+                return {
+                    mustStartWith254:
+                        {
+                            phoneNumber,
+                            error: 'Phone Number must have 12 numbers.'
+                        }
+                    }
+                }
 
             return {
                 mustStartWith254:

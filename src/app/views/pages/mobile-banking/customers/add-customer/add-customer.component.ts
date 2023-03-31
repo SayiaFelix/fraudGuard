@@ -31,7 +31,14 @@ export class AddCustomerComponent implements OnInit {
       console.log(this.formData);
 
         this.form = this.fb.group({
-            name: [this.formData ? this.formData.productName : '', [Validators.required]],
+            firstName: [this.formData ? this.formData.firstName : '', [Validators.required]],
+            middleName: [this.formData ? this.formData.middleName : '', [Validators.required]],
+            lastName: [this.formData ? this.formData.lastName : '', [Validators.required]],
+            accountNumber: [this.formData ? this.formData.accountNumber : '', [Validators.required]],
+            phoneNumber: [this.formData ? this.formData.phoneNumber : '', [Validators.required]],
+            imeiNumber: [this.formData ? this.formData.imeiNumber : '', [Validators.required]],
+            email: [this.formData ? this.formData.email : '', [Validators.required]],
+            idNumber: [this.formData ? this.formData.idNumber : '', [Validators.required]],
             description: [this.formData ? this.formData.remarks : '', [Validators.required]],
             image: [this.formData ? this.formData.image : '', [Validators.nullValidator]]
         });
