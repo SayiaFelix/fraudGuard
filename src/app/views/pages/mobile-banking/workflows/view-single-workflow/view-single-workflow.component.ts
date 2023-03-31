@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute} from '@angular/router';
 import {HttpService} from "../../../../../shared/services/http.service";
@@ -8,6 +8,7 @@ import {NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {AddWorkflowStepComponent} from "../add-workflow-step/add-workflow-step.component";
 import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
 import Swal from "sweetalert2";
+import { ColumnMode, DatatableComponent } from '@swimlane/ngx-datatable';
 
 @Component({
     selector: 'app-view-single-workflow',
@@ -15,6 +16,36 @@ import Swal from "sweetalert2";
     styleUrls: ['./view-single-workflow.component.scss']
 })
 export class ViewSingleWorkflowComponent implements OnInit {
+    @ViewChild('table') table: DatatableComponent;
+    actions=["Edit"]
+    tempProductData = [
+      {
+        Steps: 1,
+        Name: 'Step 1',
+        isFinal:'Create User',
+        isActive: 'true',
+        sendSms: '12-02-2023',
+      },
+      {
+        Steps:2,
+        Name: 'Step 2',
+        isFinal:'Create Signatory',
+        isActive: 'false',
+        sendSms: '12-02-2023',
+      },
+  
+    ];
+
+    columns = [
+        { name: 'Steps', prop: 'Steps' },
+        { name: 'Name', prop: 'Name' },
+        {name:'isFinal',prop:'isFinal'},
+        { name: 'isActive', prop: 'isActive' },
+        { name: 'sendSms', prop: 'sendSms' },
+        { name: 'Actions', prop: 'id' },
+      ];
+    
+      allColumns = [...this.columns];
 
 
     public workflowForm: FormGroup;
@@ -31,6 +62,12 @@ export class ViewSingleWorkflowComponent implements OnInit {
     isAdd: boolean = true;
 
     public modalRef: NgbModalRef;
+    ColumnMode = ColumnMode;
+
+
+    rows:any[];
+    
+  title: string = "Step";
 
     constructor(
         public fb: FormBuilder,
@@ -123,6 +160,8 @@ export class ViewSingleWorkflowComponent implements OnInit {
     }
 
     private loadData(): any {
+        this.rows = this.tempProductData;
+        
         const model = {
                 id: parseInt(this.workflowId, 10)
         };
@@ -216,11 +255,13 @@ export class ViewSingleWorkflowComponent implements OnInit {
 
         this.isAdd = true;
     }
+    navigateToViewProduct(data:any){
+
+    }
 
     deleteWorkflowStep() {
       this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
-      this.modalRef.componentInstance.title = 'Delete Workflow Step';
-
+      this.modalRef.componentInstance.title = 'Delete Workflow Step'
       this.modalRef.componentInstance.body= "Do you want to delete this workflow step?";
       this.modalRef.result.then((result) => {
         if (result === 'success') {
@@ -259,13 +300,38 @@ export class ViewSingleWorkflowComponent implements OnInit {
     }
 
   openAddModal() {
-    this.modalRef = this.modalService.open(AddWorkflowStepComponent, {centered: true});
-    this.modalRef.componentInstance.title = 'Edit Workflow Step';
+    this.modalRef = this.modalService.open(AddWorkflowStepComponent, {centered: true, size:'lg'});
+    this.modalRef.componentInstance.title = 'Add Workflow Step';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
       } else {
         console.log("Error occurred")
       }
     });
+  }
+  openEditModal(data:any) {
+    this.modalRef = this.modalService.open(AddWorkflowStepComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Edit Workflow Step';
+    this.modalRef.componentInstance.formData = data;
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+      } else {
+        console.log("Error occurred")
+      }
+    });
+  }
+
+  updateColumns(updatedColumns: any) {
+    this.columns = [...updatedColumns];
+  }
+  triggerEvent(data:any){
+    let eventData = JSON.parse(data)
+
+    // if (eventData.action == 'View') {
+    //   this. navigateToViewProduct(eventData.row);
+    // }
+     if (eventData.action == 'Edit') {
+      this.openEditModal(eventData.row);
+    }
   }
 }
