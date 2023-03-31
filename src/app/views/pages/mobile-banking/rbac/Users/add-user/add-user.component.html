@@ -11,6 +11,7 @@
         <input class="form-control" formControlName="firstName" type="text">
         <small *ngIf="form.get('firstName')?.touched && form.get('firstName')?.hasError('required')" class="text-danger">Required
           Field</small>
+          <small *ngIf="form.get('firstName')?.touched && form.get('firstName')?.hasError('pattern')" class="text-danger">Input text only</small>
       </div>
 
       <div class="col-md-6">
@@ -18,29 +19,34 @@
         <input class="form-control" formControlName="middleName" type="text">
         <small *ngIf="form.get('middleName')?.touched && form.get('middleName')?.hasError('required')" class="text-danger">Required
           Field</small>
+          <small *ngIf="form.get('middleName')?.touched && form.get('middleName')?.hasError('pattern')" class="text-danger">Input text only</small>
       </div>
       <div class="col-md-6">
         <label class="form-label">Last Name</label>
         <input class="form-control" formControlName="lastName" type="text">
         <small *ngIf="form.get('lastName')?.touched && form.get('lastName')?.hasError('required')" class="text-danger">Required
           Field</small>
+          <small *ngIf="form.get('lastName')?.touched && form.get('lastName')?.hasError('pattern')" class="text-danger">Input text only</small>
       </div>
 
       <div class="col-md-6">
-
-
-        <label class="text-gray">Phone Number</label>
-        <input class="form-control" formControlName="phone" type="text">
+        <label class="text-gray">Phone Number (start with 254)</label>
+        <input class="form-control" formControlName="phone" type="number" min="0" maxlength="12"
+        oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);">
         <small *ngIf="form.get('phone')?.touched &&
             form.get('phone')?.hasError('required')" class="text-danger">Required
           Field</small>
+          <small *ngIf="form.get('phone')?.touched &&
+          form.get('phone')?.hasError('mustStartWith254')" class="text-danger">Phone number must start with 254 & have 12 digits</small>
       </div>
       <div class="col-md-6">
         <label class="text-gray">Email Address</label>
-        <input class="form-control" formControlName="email" type="text">
-        <small *ngIf="form.get('email')?.touched &&
+        <input class="form-control" formControlName="email" type="text" (keyup)="showFormErrors()">
+       <small *ngIf="form.get('email')?.touched &&
             form.get('email')?.hasError('required')" class="text-danger">Required
           Field</small>
+          <small *ngIf="form.get('email')?.touched &&
+            form.get('email')?.hasError('pattern')" class="text-danger">Enter a valid email</small> 
       </div>
       <div class="col-md-6">
 
@@ -68,6 +74,6 @@
       </ngb-alert>
     </div>
     <button (click)="closeModal()" class="btn btn-secondary" type="button">Close</button>
-    <button (click)="submitData()" class="btn btn-primary" type="button">Save Record</button>
+    <button (click)="submitData()" class="btn btn-primary" type="button" [disabled]="!form.valid">Save Record</button>
   </div>
 </div>
