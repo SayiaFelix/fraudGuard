@@ -15,14 +15,6 @@
         </div>
         <div class="col-sm-12">
           <div class="mb-3">
-            <label class="form-label">Profile Code</label>
-            <input class="form-control" formControlName="code" type="text">
-            <small *ngIf="form.get('code')?.touched && form.get('code')?.hasError('required')" class="text-danger">Required
-              Field</small>
-          </div>
-        </div>
-        <div class="col-sm-12">
-          <div class="mb-3">
             <label class="text-gray">Description</label>
             <textarea class="form-control" formControlName="description" type="text"></textarea>
             <small *ngIf="form.get('description')?.touched &&

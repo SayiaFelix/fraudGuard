@@ -6,6 +6,8 @@ import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {GlobalService} from "../../../../../../shared/services/global.service";
 import {catchError, map, Observable, throwError} from "rxjs";
 import Swal from "sweetalert2";
+import { CompanyEmailValidator } from 'src/app/shared/services/validators/CompanyEmailValidators';
+import { EmployeePhoneNumberValidators } from 'src/app/shared/services/validators/EmployeePhoneNumberValidators';
 
 
 @Component({
@@ -39,14 +41,13 @@ export class AddUserComponent implements OnInit {
     this.getAllProfiles();
 
     this.form = this.fb.group({
-      firstName: [this.formData ? this.formData.firstName : '', [Validators.required]],
-      middleName: [this.formData ? this.formData.middleName : '', [Validators.required]],
-      lastName: [this.formData ? this.formData.lastName : '', [Validators.required]],
-      phone: [this.formData ? this.formData.phone : '', [Validators.required]],
-      email: [this.formData ? this.formData.email : '', [Validators.required]],
+      firstName: [this.formData ? this.formData.firstName : '', [Validators.required,Validators.pattern('^([^0-9]*)$')]],
+      middleName: [this.formData ? this.formData.middleName : '', [Validators.required,Validators.pattern('^([^0-9]*)$')]],
+      lastName: [this.formData ? this.formData.lastName : '', [Validators.required,Validators.pattern('^([^0-9]*)$')]],
+      phone: [this.formData ? this.formData.phone : '', [Validators.required,EmployeePhoneNumberValidators.mustStartWith254]],
+      email: [this.formData ? this.formData.email : '', [Validators.required, CompanyEmailValidator.mustBeBusinessEmail]],
       profile: [this.formData ? this.formData.profile : '', [Validators.nullValidator]]
     });
-
 
 
   }
@@ -134,5 +135,10 @@ export class AddUserComponent implements OnInit {
             this.allProfiles = res.data;
         }
       });
+  }
+
+  showFormErrors(){
+    console.log("this.form");
+    console.log(this.form);
   }
 }
