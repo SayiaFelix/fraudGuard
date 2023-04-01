@@ -50,6 +50,8 @@ export class ListAuditsComponent implements OnInit {
 
   columns = [
     {name: 'User ID', prop: 'id'},
+    {name: 'User Name', prop:'CreatedBy'},
+    {name: 'Date & Time', prop: 'createdOn'},
     {name: 'AuditAction', prop: 'AuditMessage'},
     {name: 'IP', prop: 'ip'},
     {name: 'Actions', prop: 'id'},

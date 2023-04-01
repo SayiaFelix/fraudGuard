@@ -304,9 +304,11 @@ export class ProfileRolesComponent implements OnInit {
     private getAllRoles() {
         this.loading = true;
         const model = {
+            page: 0,
+            size: 50
         };
 
-        this.httpService.mobileBankingPost('api/v1/corporate/admin/roles/all', model).subscribe((result: any) => {
+        this.httpService.mobileBankingPost('api/v1/admin/role/all', model).subscribe((result: any) => {
                 if (result.status === 200) {
 
                     this.allRolesList = result.data;
