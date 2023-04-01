@@ -46,7 +46,14 @@ export class NavbarComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    let userDetails = JSON.parse(localStorage.getItem('userData')!);
+    // let userDetails = JSON.parse(localStorage.getItem('userData')!);
+    let userDetails = {
+      companyEmail: "testEmail@gmail.com",
+      companyPhone: "254700112334",
+      companyRegistrationDate: "24-12-1999",
+      country: "Kenya",
+      taxPin: "A029384794G",
+    };
     if (userDetails) {
       this.companyEmail = userDetails['companyEmail'];
       this.companyPhone = userDetails['companyPhone'];
@@ -106,13 +113,16 @@ export class NavbarComponent implements OnInit {
   }
 
   openNotificationModal() {
-    this.modalRef = this.modalService.open(NotificationModalComponent, {centered: true, size:"lg"});
-    this.modalRef.componentInstance.title = 'Approve Create User';
-    this.modalRef.result.then((result) => {
-      if (result === 'success') {
-      } else {
-        console.log("Error occurred")
-      }
-    });
+
+    this.router.navigateByUrl(`/mobile-banking/workflows/my-task/${7}`);
+
+    // this.modalRef = this.modalService.open(NotificationModalComponent, {centered: true, size:"lg"});
+    // this.modalRef.componentInstance.title = 'Approve Create User';
+    // this.modalRef.result.then((result) => {
+    //   if (result === 'success') {
+    //   } else {
+    //     console.log("Error occurred")
+    //   }
+    // });
   }
 }
