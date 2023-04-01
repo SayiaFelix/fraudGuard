@@ -18,6 +18,7 @@ import {TableFiltersComponent} from "./components/table-filters/table-filters.co
 import {NgxPaginationModule} from "ngx-pagination";
 import {NotificationModalComponent} from "./components/notification-modal/notification-modal.component";
 import {LabelSystemCustomRoleComponent} from "./components/label-system-custom-role/label-system-custom-role.component";
+import {LabelTaskStatusComponent} from "./components/label-task-status/label-task-status.component";
 
 
 @NgModule({
@@ -28,6 +29,7 @@ import {LabelSystemCustomRoleComponent} from "./components/label-system-custom-r
     LabelOnlineComponent,
     LabelPassedComponent,
     LabelSystemCustomRoleComponent,
+    LabelTaskStatusComponent,
     ConfirmDialogComponent,
     NotificationModalComponent,
     CustomNgxTable,
@@ -39,6 +41,7 @@ import {LabelSystemCustomRoleComponent} from "./components/label-system-custom-r
     LabelCompletedComponent,
     LabelActiveComponent,
     LabelSystemCustomRoleComponent,
+    LabelTaskStatusComponent,
     LabelOnlineComponent,
     LabelPassedComponent,
     ConfirmDialogComponent,
@@ -65,6 +68,7 @@ import {LabelSystemCustomRoleComponent} from "./components/label-system-custom-r
     LabelCompletedComponent,
     LabelActiveComponent,
     LabelSystemCustomRoleComponent,
+    LabelTaskStatusComponent,
     LabelOnlineComponent,
     LabelPassedComponent,
     CustomNgxTable,

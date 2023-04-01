@@ -1,8 +1,11 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
-import {ListWorkflowsComponent} from "./list-customers/list-workflows.component";
+import {ListWorkflowsComponent} from "./list-workflows/list-workflows.component";
 import { ListWorkflowMenuComponent } from './list-workflow-menu/list-workflow-menu.component';
 import {ViewSingleWorkflowComponent} from "./view-single-workflow/view-single-workflow.component";
+import {MyTasksComponent} from "./my-tasks/my-tasks.component";
+import {AllTasksComponent} from "./all-tasks/all-tasks.component";
+import {ViewSingleTaskComponent} from "./view-single-task/view-single-task.component";
 
 
 const routes: Routes = [
@@ -20,6 +23,21 @@ const routes: Routes = [
         component: ListWorkflowsComponent
       }
     ]
+  },
+
+  {
+    path: 'my-tasks',
+    component: MyTasksComponent,
+  },
+
+  {
+    path: 'my-task/:id',
+    component: ViewSingleTaskComponent
+  },
+
+  {
+    path: 'all-tasks',
+    component: AllTasksComponent,
   },
 
   {
