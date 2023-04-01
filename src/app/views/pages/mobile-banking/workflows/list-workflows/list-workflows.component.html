@@ -4,7 +4,7 @@
   <div>
     <h4 class="mb-3 mb-md-0">All Workflows</h4>
   </div>
-<div>Total number of Workflows: 10 </div>
+
   <app-table-header
     [allColumns]="allColumns"
     [rows]="rows"
@@ -12,7 +12,7 @@
     [showAddButton]="true"
     (changeColumnsEvent)="updateColumns($event)"
     (openAddModalEvent)="openAddProductModal()"
-    
+
   ></app-table-header>
 
 </div>
