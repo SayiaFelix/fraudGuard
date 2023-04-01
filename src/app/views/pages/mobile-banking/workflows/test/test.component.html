@@ -1,0 +1,60 @@
+<div class="row inbox-wrapper">
+  <div class="col-lg-12">
+    <div class="card">
+      <div class="card-body">
+        <div class="row">
+          <div class="col-lg-2 border-end-lg">
+            <div class="d-flex align-items-center justify-content-between">
+              <button class="navbar-toggle btn btn-icon border d-inline-flex d-lg-none" type="button"
+                      aria-controls="asideNav">
+                <i class="feather icon-chevron-down"></i>
+              </button>
+              <div class="order-first">
+                <h4>Menu Items</h4>
+              </div>
+            </div>
+
+            <div class="email-aside-nav" id="asideNav" [ngbCollapse]="true">
+              <ul class="nav flex-column">
+                <li class="nav-item" [ngClass]="{'active': workflows.isActive}">
+                  <a class="nav-link d-flex align-items-center"
+                     routerLink="/mobile-banking/workflows/test/list-workflows"
+                     routerLinkActive="active"
+                     #workflows="routerLinkActive">
+                    <i class="feather icon-briefcase icon-lg me-2"></i>
+                    Workflows
+                  </a>
+                </li>
+                <li class="nav-item" [ngClass]="{'active': myTasks.isActive}">
+                  <a class="nav-link d-flex align-items-center"
+                     routerLink="/mobile-banking/workflows/test/my-tasks"
+                     (click)="false"
+                     routerLinkActive="active"
+                     #myTasks="routerLinkActive">
+                    <i class="feather icon-folder-minus icon-lg me-2"></i>
+                    My Tasks
+                  </a>
+                </li>
+
+                <li class="nav-item">
+                  <a class="nav-link d-flex align-items-center"
+                     routerLink="/mobile-banking/workflows/test/all-tasks"
+                     routerLinkActive="active"
+                     (click)="false">
+                    <i class="feather icon-inbox icon-lg me-2"></i>
+                    All Tasks
+                  </a>
+                </li>
+
+              </ul>
+
+            </div>
+          </div>
+          <div class="col-lg-10 perfect-scrollbar-example" [perfectScrollbar]>
+            <router-outlet></router-outlet>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

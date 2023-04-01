@@ -73,8 +73,7 @@ export class AllTasksComponent implements OnInit {
   columns = [
     { name: 'DateRecorded', prop: 'createdOn' },
     { name: 'Workflow', prop: 'WorkflowName' },
-    {name:'Process',prop:'Description'},
-    { name: 'Task Description', prop: 'Description' },
+    {name:'Process',prop:'WorkflowName'},
     { name: 'Current Step', prop: 'currentStep' },
     { name: 'TaskStatus', prop: 'taskStatus' },
     { name: 'Actions', prop: 'id' },

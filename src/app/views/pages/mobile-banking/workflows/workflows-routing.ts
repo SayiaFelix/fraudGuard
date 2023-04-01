@@ -6,6 +6,7 @@ import {ViewSingleWorkflowComponent} from "./view-single-workflow/view-single-wo
 import {MyTasksComponent} from "./my-tasks/my-tasks.component";
 import {AllTasksComponent} from "./all-tasks/all-tasks.component";
 import {ViewSingleTaskComponent} from "./view-single-task/view-single-task.component";
+import {TestComponent} from "./test/test.component";
 
 
 const routes: Routes = [
@@ -17,6 +18,37 @@ const routes: Routes = [
       {
         path:'list-workflows',
         component: ListWorkflowsComponent
+      },
+      {
+        path:'my-tasks',
+        component: MyTasksComponent
+      },
+      {
+        path:'all-tasks',
+        component: AllTasksComponent
+      }
+    ]
+  },
+
+  {
+    path: 'test',
+    component: TestComponent,
+    children: [
+      {
+        path: '',
+        component: ListWorkflowsComponent
+      },
+      {
+        path:'list-workflows',
+        component: ListWorkflowsComponent
+      },
+      {
+        path:'my-tasks',
+        component: MyTasksComponent
+      },
+      {
+        path:'all-tasks',
+        component: AllTasksComponent
       }
     ]
   },

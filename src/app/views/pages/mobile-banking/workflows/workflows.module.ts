@@ -16,16 +16,19 @@ import {AllTasksComponent} from "./all-tasks/all-tasks.component";
 import {ViewSingleTaskComponent} from "./view-single-task/view-single-task.component";
 import { ListWorkflowMenuComponent } from './list-workflow-menu/list-workflow-menu.component';
 import { NgSelectModule } from '@ng-select/ng-select';
+import {TestComponent} from "./test/test.component";
+import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
 
 @NgModule({
-    imports: [
-        SharedModule,
-        WorkflowsRoutingModule,
-        FeatherIconModule,
-        NgxDatatableModule,
-        TranslateModule,
-        NgSelectModule
-    ],
+  imports: [
+    SharedModule,
+    WorkflowsRoutingModule,
+    FeatherIconModule,
+    NgxDatatableModule,
+    TranslateModule,
+    NgSelectModule,
+    PerfectScrollbarModule
+  ],
   declarations: [
     ListWorkflowsComponent,
     ViewSingleWorkflowComponent,
@@ -35,7 +38,8 @@ import { NgSelectModule } from '@ng-select/ng-select';
     AllTasksComponent,
     ViewSingleTaskComponent,
     ListWorkflowMenuComponent,
-  
+    TestComponent
+
     // CreateProductComponent
   ]
   ,

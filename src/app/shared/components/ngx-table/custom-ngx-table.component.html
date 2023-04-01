@@ -44,29 +44,29 @@
     </ngx-datatable-row-detail>
 
     <!-- Column Templates -->
-    <ngx-datatable-column
-      [canAutoResize]="false"
-      [draggable]="false"
-      [resizeable]="false"
-      [sortable]="false"
-      [width]="5"
-    >
-      <ng-template
-        let-expanded="expanded"
-        let-row="row"
-        let-value="value"
-        ngx-datatable-cell-template
-      >
-        <a
-          (click)="toggleExpandRow(row)"
-          [class.datatable-icon-down]="expanded"
-          [class.datatable-icon-right]="!expanded"
-          href="javascript:void(0)"
-          title="Expand/Collapse Row"
-        >
-        </a>
-      </ng-template>
-    </ngx-datatable-column>
+<!--    <ngx-datatable-column-->
+<!--      [canAutoResize]="false"-->
+<!--      [draggable]="false"-->
+<!--      [resizeable]="false"-->
+<!--      [sortable]="false"-->
+<!--      [width]="5"-->
+<!--    >-->
+<!--      <ng-template-->
+<!--        let-expanded="expanded"-->
+<!--        let-row="row"-->
+<!--        let-value="value"-->
+<!--        ngx-datatable-cell-template-->
+<!--      >-->
+<!--        <a-->
+<!--          (click)="toggleExpandRow(row)"-->
+<!--          [class.datatable-icon-down]="expanded"-->
+<!--          [class.datatable-icon-right]="!expanded"-->
+<!--          href="javascript:void(0)"-->
+<!--          title="Expand/Collapse Row"-->
+<!--        >-->
+<!--        </a>-->
+<!--      </ng-template>-->
+<!--    </ngx-datatable-column>-->
 
     <ng-container *ngFor="let column of columns">
       <ngx-datatable-column
@@ -166,6 +166,7 @@
       <ngx-datatable-column
         *ngIf="column.name === 'SystemRole'"
         [draggable]="false"
+        [resizeable]="false"
         [maxWidth]="150"
         [minWidth]="150"
         name="System Role"
@@ -210,6 +211,7 @@
       >
       </ngx-datatable-column>
     </ng-container>
+
     <ngx-datatable-footer>
       <ng-template
         let-curPage="curPage"

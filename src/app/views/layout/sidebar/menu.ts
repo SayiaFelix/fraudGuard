@@ -231,13 +231,8 @@ export const MENU: MenuItem[] = [
       },
       {
         profiles: ['CORPORATE_ADMIN'],
-        label: 'My Tasks',
-        link: '/mobile-banking/workflows/my-tasks'
-      },
-      {
-        profiles: ['CORPORATE_ADMIN'],
-        label: 'All Tasks',
-        link: '/mobile-banking/workflows/all-tasks'
+        label: 'Test',
+        link: '/mobile-banking/workflows/test'
       }
     ]
   }
