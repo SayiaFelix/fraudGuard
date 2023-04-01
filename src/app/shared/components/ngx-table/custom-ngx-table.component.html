@@ -71,9 +71,10 @@
     <ng-container *ngFor="let column of columns">
       <ngx-datatable-column
         *ngIf="column.name === 'ID'"
-        [draggable]="false"
         [maxWidth]="45"
         [minWidth]="35"
+        [draggable]="false"
+        [resizeable]="false"
         name="ID"
         prop="id"
       >
@@ -81,10 +82,11 @@
 
       <ngx-datatable-column
         *ngIf="column.name === 'Actions' && actions.length > 0"
-        [draggable]="false"
         [maxWidth]="150"
         [minWidth]="150"
         [sortable]="false"
+        [draggable]="false"
+        [resizeable]="false"
         class="parent-item"
         name="Actions"
         prop="actions"
@@ -123,11 +125,12 @@
 
       <ngx-datatable-column
         *ngIf="column.name === 'Status' || column.name === 'Active'"
-        [draggable]="false"
         [maxWidth]="150"
         [minWidth]="150"
+        [resizeable]="false"
         name="Status"
         prop="status"
+        [draggable]="false"
       >
         <ng-template
           let-row="row"
@@ -137,6 +140,26 @@
           <app-label-active
             [value]="row.status || row.active || !row.blocked"
           ></app-label-active>
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column
+        *ngIf="column.name === 'TaskStatus'"
+        [maxWidth]="150"
+        [minWidth]="150"
+        [resizeable]="false"
+        name="TaskStatus"
+        prop="taskStatus"
+        [draggable]="false"
+      >
+        <ng-template
+          let-row="row"
+          let-value="value"
+          ngx-datatable-cell-template
+        >
+          <app-label-task-status
+            [value]="row.TaskStatus"
+          ></app-label-task-status>
         </ng-template>
       </ngx-datatable-column>
 
@@ -162,6 +185,7 @@
       <ngx-datatable-column
         *ngIf="column.name === 'CreatedOn'"
         [draggable]="false"
+        [resizeable]="false"
         [maxWidth]="150"
         [minWidth]="150"
         name="CreatedOn"
@@ -173,14 +197,16 @@
         *ngIf="
           column.name !== 'Actions' &&
           column.name !== 'Status' &&
+          column.name !== 'TaskStatus' &&
           column.name !== 'Active' &&
           column.name !== 'ID' &&
           column.name !== 'SystemRole' &&
           column.name !== 'CreatedOn'
         "
-        [draggable]="false"
         name="{{ column.name }}"
         prop="{{ column.prop }}"
+        [draggable]="false"
+        [resizeable]="false"
       >
       </ngx-datatable-column>
     </ng-container>

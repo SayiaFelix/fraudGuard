@@ -1,41 +1,64 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import {
+  Component,
+  Input,
+  OnInit,
+  TemplateRef,
+  ViewChild,
+} from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { ColumnMode, DatatableComponent } from '@swimlane/ngx-datatable';
+import { DatePipe } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ColumnMode } from '@swimlane/ngx-datatable';
+
+import { GlobalService } from '../../../../../shared/services/global.service';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { NgxDatatableComponent } from '../../../tables/ngx-datatable/ngx-datatable.component';
+import { DatatableComponent } from '@swimlane/ngx-datatable/lib/components/datatable.component';
 import { DataExportationService } from 'src/app/shared/services/data-exportation.service';
 import { HttpService } from 'src/app/shared/services/http.service';
+import {AddWorkflowStepComponent} from "../add-workflow-step/add-workflow-step.component";
+import { AddCustomerComponent } from '../add-customer/add-customer.component';
 
 @Component({
-  selector: 'app-list-audits',
-  templateUrl: './list-audits.component.html',
-  styleUrls: ['./list-audits.component.scss']
+  selector: 'app-all-tasks',
+  templateUrl: './all-tasks.component.html',
+  styleUrls: ['./all-tasks.component.scss'],
+  providers: [DatePipe],
 })
-export class ListAuditsComponent implements OnInit {
-  @ViewChild('table') table: DatatableComponent;
 
-  actions = [];
+/**
+ * Starter-component
+ */
+export class AllTasksComponent implements OnInit {
+  @ViewChild('table') table: DatatableComponent;
+  actions=["View"]
   tempProductData = [
     {
-      id: 4734,
-      AuditMessage: 'Login',
-      CreatedBy:'Jackson Biko',
-      ip:'124.12.33.12',
+      Workflowid: 2,
+      WorkflowName: 'USERS CREATE',
+      Process: 'CREATE USER',
+      Description:'Approve Create User',
+      TaskStatus: 'PARTIALLY APPROVED',
       createdOn: '12-02-2023',
+      currentStep: 'Step 1',
     },
     {
-      id: 5873,
-      AuditMessage: 'Login',
-      CreatedBy:'Leah Muthui',
-      ip:'10.14.13.6',
+      Workflowid: 2,
+      WorkflowName: 'USERS EDIT',
+      Process: 'EDIT USER',
+      Description:'Approve User Edit',
+      TaskStatus: 'APPROVED',
       createdOn: '12-02-2023',
+      currentStep: 'Step 3',
     },
     {
-      id: 8483,
-      AuditMessage: 'Failed Login',
-      CreatedBy:'Leah Muthui',
-      ip:'10.14.13.6',
+      Workflowid: 2,
+      WorkflowName: 'USERS EDIT',
+      Process: 'EDIT USER',
+      Description:'Approve User Edit',
+      TaskStatus: 'PENDING APPROVAL',
       createdOn: '12-02-2023',
+      currentStep: 'Step 1',
     },
 
   ];
@@ -47,14 +70,14 @@ export class ListAuditsComponent implements OnInit {
   loadingIndicator = true;
   reorderable = true;
 
-
   columns = [
-    {name: 'User ID', prop: 'id'},
-    {name: 'AuditAction', prop: 'AuditMessage'},
-    {name: 'IP', prop: 'ip'},
-    {name: 'Actions', prop: 'id'},
-    {name: 'User Name', prop:'CreatedBy'},
-    {name: 'CreatedOn', prop: 'createdOn'},
+    { name: 'DateRecorded', prop: 'createdOn' },
+    { name: 'Workflow', prop: 'WorkflowName' },
+    {name:'Process',prop:'Description'},
+    { name: 'Task Description', prop: 'Description' },
+    { name: 'Current Step', prop: 'currentStep' },
+    { name: 'TaskStatus', prop: 'taskStatus' },
+    { name: 'Actions', prop: 'id' },
   ];
 
   allColumns = [...this.columns];
@@ -65,7 +88,7 @@ export class ListAuditsComponent implements OnInit {
   public imageFile: File;
   public modalRef: NgbModalRef;
 
-  title: string = "Audits";
+  title: string = "My Tasks";
 
 
   constructor(
@@ -74,17 +97,16 @@ export class ListAuditsComponent implements OnInit {
     public fb: FormBuilder,
     public router: Router,
     private dataExploration: DataExportationService
-  ) {
-  }
+  ) {}
 
   ngOnInit() {
     this.breadCrumbItems = [
       {
         label: 'Mobile banking',
-        path: '/mobile-banking/products/all-products',
+        path: '/mobile-banking/workflows/list-workflows',
       },
-      {label: 'Pages', path: '/'},
-      {label: 'Products', active: true},
+      { label: 'Pages', path: '/' },
+      { label: 'Workflows', active: true },
     ];
     this.getIndividualData(0);
 
@@ -121,8 +143,31 @@ export class ListAuditsComponent implements OnInit {
       });
   }
 
+  openAddProductModal() {
 
+    this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true,size:"md"});
+    this.modalRef.componentInstance.title = 'Add New Workflow';
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        this.getIndividualData(0);
+      } else {
+        console.log("Error occurred")
+      }
+    });
+  }
 
+  openEditProductModal(formData: any) {
+    this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Edit Workflow';
+    this.modalRef.componentInstance.formData = formData;
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        this.getIndividualData(0);
+      } else {
+        console.log("Error occurred")
+      }
+    });
+  }
 
   onFileChange(event: any) {
     if (event.target.files && event.target.files.length) {
@@ -131,7 +176,7 @@ export class ListAuditsComponent implements OnInit {
   }
 
   navigateToViewProduct(data: any) {
-    this.router.navigateByUrl(`/mobile-banking/products/product/${data.id}`);
+    this.router.navigateByUrl(`/mobile-banking/workflows/my-task/${7}`);
   }
 
   toggleExpandRow(row: any) {
@@ -189,14 +234,14 @@ export class ListAuditsComponent implements OnInit {
 
   exportCSV() {
     let cols: string[] = this.columns.map(item => {
-      if (item['name'].toLowerCase() !== 'actions') {
+      if(item['name'].toLowerCase() !== 'actions'){
         return item['prop']
       } else {
         return ''
       }
     })
     cols = cols.filter(item => item !== '')
-    let arr: Record<string, string>[] = []
+    let arr: Record<string, string>[]= []
 
     this.rows.forEach((row: any) => {
       let temp: Record<string, string> = {}
@@ -210,14 +255,14 @@ export class ListAuditsComponent implements OnInit {
 
   exportXLSX() {
     let cols: string[] = this.columns.map(item => {
-      if (item['name'].toLowerCase() !== 'actions') {
+      if(item['name'].toLowerCase() !== 'actions'){
         return item['prop']
       } else {
         return ''
       }
     })
     cols = cols.filter(item => item !== '')
-    let arr: Record<string, string>[] = []
+    let arr: Record<string, string>[]= []
 
     this.rows.forEach((row: any) => {
       let temp: Record<string, string> = {}
@@ -233,7 +278,7 @@ export class ListAuditsComponent implements OnInit {
   exportPDF() {
     console.log(this.rows);
     let cols: string[] = this.columns.map(item => {
-      if (item['name'].toLowerCase() !== 'actions') {
+      if(item['name'].toLowerCase() !== 'actions'){
         return item['name'].toUpperCase()
       } else {
         return ''
@@ -241,7 +286,7 @@ export class ListAuditsComponent implements OnInit {
     })
     cols = cols.filter(item => item !== '')
     let rowKeys: string[] = Object.keys(this.rows[0]);
-    let arr: string[][] = []
+    let arr: string[][]= []
     this.rows.forEach((row: any) => {
       let temp: string[] = []
       rowKeys.forEach(key => {
@@ -255,19 +300,13 @@ export class ListAuditsComponent implements OnInit {
   updateColumns(updatedColumns: any) {
     this.columns = [...updatedColumns];
   }
-
-  triggerEvent(data: string) {
-
+  triggerEvent(data:any){
     let eventData = JSON.parse(data)
 
     if (eventData.action == 'View') {
-      this.navigateToViewProduct(eventData.row);
+      this. navigateToViewProduct(eventData.row);
+    }else if (eventData.action == 'Edit') {
+      this.openEditProductModal(eventData.row);
     }
-    // else if (eventData.action == 'Edit') {
-    //   this.openEditProductModal(eventData.row);
-    // }
-
   }
-
-
 }
