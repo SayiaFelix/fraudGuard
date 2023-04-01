@@ -14,13 +14,17 @@ import { AddCustomerComponent } from './add-customer/add-customer.component';
 import {MyTasksComponent} from "./my-tasks/my-tasks.component";
 import {AllTasksComponent} from "./all-tasks/all-tasks.component";
 import {ViewSingleTaskComponent} from "./view-single-task/view-single-task.component";
+import { ListWorkflowMenuComponent } from './list-workflow-menu/list-workflow-menu.component';
+import { NgSelectModule } from '@ng-select/ng-select';
+
 @NgModule({
     imports: [
         SharedModule,
         WorkflowsRoutingModule,
         FeatherIconModule,
         NgxDatatableModule,
-        TranslateModule
+        TranslateModule,
+        NgSelectModule
     ],
   declarations: [
     ListWorkflowsComponent,
@@ -29,7 +33,10 @@ import {ViewSingleTaskComponent} from "./view-single-task/view-single-task.compo
     AddCustomerComponent,
     MyTasksComponent,
     AllTasksComponent,
-    ViewSingleTaskComponent
+    ViewSingleTaskComponent,
+    ListWorkflowMenuComponent,
+  
+    // CreateProductComponent
   ]
   ,
   entryComponents: [

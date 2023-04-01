@@ -1,90 +1,60 @@
-<div>
-  <div class="modal-header">
-    <h5 class="modal-title" id="exampleModalLabel">{{title}}</h5>
-    <button (click)="closeModal()" aria-label="Close" class="btn-close" type="button"></button>
+<div class="modal-header">
+  <h5 class="modal-title" id="exampleModalLabel">{{title}}</h5>
+  <button (click)="closeModal()" aria-label="Close" class="btn-close" type="button"></button>
+</div>
+<div class="modal-body" [formGroup]="form">
+<div class="row">
+  <div class="col-md-6">
+    <label class="form-label">Step Number</label>
+    <input class="form-control" formControlName="stepNumber" type="text"/>
   </div>
-  <div [formGroup]="workflowForm" class="modal-body">
-
-
-    <div class="row g-3">
-      <div class="col-12">
-
-        <form class="text-left mx-auto" [formGroup]="workflowForm" >
-
-          <div class="form-group mb-2">
-            <label class="text-gray">Step Name</label>
-            <input
-              class="form-control"
-              formControlName="name"
-              style="font-weight: 500"
-              type="text">
-          </div>
-
-          <div class="form-group mb-2">
-            <label class="text-gray">Step No.</label>
-            <input
-              class="form-control"
-              formControlName="name"
-              style="font-weight: 500"
-              type="number">
-          </div>
-
-          <div class="form-group mb-2">
-            <label class="text-gray">Select Role</label>
-            <select
-              class="form-control"
-              formControlName="profile"
-              id="profile"
-              name="profile"
-            >
-              <option *ngFor="let item of [{name: 'a', id: 1}]"
-                      [value]="item?.id"
-              >{{ item?.name | titlecase}}</option>
-            </select>
-          </div>
-
-
-          <div class="form-group mb-2">
-            <label class="text-gray">Remarks</label>
-            <textarea
-              class="form-control"
-              cols="1"
-              formControlName="remarks"
-            ></textarea>
-          </div>
-
-
-          <div class="form-group mb-2">
-            <label class="text-gray">Profile Status</label>
-            <input
-              class="form-control"
-              formControlName="notificationEmail"
-              style="font-weight: 500"
-              type="checkbox">
-          </div>
-
-          <div class="form-group mb-2">
-            <label class="text-gray">Active Status</label>
-            <textarea
-              class="form-control"
-              cols="1"
-              formControlName="notificationEmailMessage"
-            ></textarea>
-          </div>
-
-<!--          <button class="btn btn-primary mb-2 ml-2" type="submit" (click)="submitAddData()" *ngIf="isAdd" [disabled]="!workflowForm.valid">Add Step</button>-->
-<!--          <button class="btn btn-primary mb-2 ml-2" type="submit" (click)="submitEditData()" *ngIf="!isAdd" [disabled]="!workflowForm.valid">Edit Step</button>-->
-        </form>
-
-<!--        <div class="form-group text-left mx-auto mt-2"  *ngIf="!isAdd">-->
-<!--          <small style="cursor: pointer;" (click)="revertToAdd()"><strong><u><i class="fa fa-arrow-left mr-1" aria-hidden="true"></i>Back to Add Steps</u></strong></small>-->
-<!--        </div>-->
-
+  <div class="col-md-6">
+    <label class="form-label">Step Name</label>
+    <input class="form-control" formControlName="stepName" type="text"/>
+  </div>
+  <div class="col-md-6 mt-4">
+    
+    <label class="form-label">Authorized Profiles </label>
+        <ng-select
+          [items]="profiles"
+          [multiple]=true
+          [closeOnSelect]="false"
+          [searchable]="false"
+          bindLabel="name"
+          placeholder="Select profile"
+          [(ngModel)]="selectedprofiles">
+        </ng-select>  
+  </div> <!-- col -->
+  <div class="col-md-6 mt-4">
+    <label class="form-label">Authorized Users </label>
+        <ng-select
+          [items]="users"
+          [multiple]=true
+          [closeOnSelect]="false"
+          [searchable]="false"
+          bindLabel="name"
+          placeholder="Select user"
+          [(ngModel)]="selectedroles">
+        </ng-select>  
       </div>
     </div>
-  </div>
-  <div class="modal-footer">
-    <button (click)="closeModal()" class="btn btn-secondary" type="button">Close</button>
-    <button (click)="closeModal()" class="btn btn-primary" type="button">Save changes</button>
-  </div>
+    <div class="col-md-4 mt-4">
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" id="inlineRadio1" name="inlineRadioOptions" type="checkbox" value="option1">
+        <label class="form-check-label" for="inlineRadio1">Send SMS</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" id="inlineRadio2" name="inlineRadioOptions" type="checkbox" value="option2">
+        <label class="form-check-label" for="inlineRadio2">Active</label>
+      </div>
+      <small
+        *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')"
+        class="text-danger"
+      >Required Field</small
+      >
+    </div>
+  </div> <!-- col -->
+<div class="modal-footer">
+  <button (click)="closeModal()" class="btn btn-secondary" type="button">Close</button>
+  <button (click)="submitData()" class="btn btn-primary" type="button">Submit</button>
 </div>
