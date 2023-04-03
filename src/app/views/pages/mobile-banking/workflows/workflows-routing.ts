@@ -15,6 +15,10 @@ const routes: Routes = [
     component: ListWorkflowMenuComponent,
     children: [
       {
+        path:'',
+        component: ListWorkflowsComponent
+      },
+      {
         path:'list-workflows',
         component: ListWorkflowsComponent
       }
