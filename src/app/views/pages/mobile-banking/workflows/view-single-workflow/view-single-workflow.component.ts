@@ -3,7 +3,6 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute} from '@angular/router';
 import {HttpService} from "../../../../../shared/services/http.service";
 import {GlobalService} from "../../../../../shared/services/global.service";
-import {AddMobileAppCustomerComponent} from "../../channels/add-mobile-app-customer/add-mobile-app-customer.component";
 import {NgbActiveModal, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {AddWorkflowStepComponent} from "../add-workflow-step/add-workflow-step.component";
 import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
@@ -33,7 +32,7 @@ export class ViewSingleWorkflowComponent implements OnInit {
         isActive: 'false',
         sendSms: '12-02-2023',
       },
-  
+
     ];
 
     columns = [
@@ -44,7 +43,7 @@ export class ViewSingleWorkflowComponent implements OnInit {
         { name: 'sendSms', prop: 'sendSms' },
         { name: 'Actions', prop: 'id' },
       ];
-    
+
       allColumns = [...this.columns];
 
 
@@ -66,7 +65,7 @@ export class ViewSingleWorkflowComponent implements OnInit {
 
 
     rows:any[];
-    
+
   title: string = "Step";
 
     constructor(
@@ -74,9 +73,7 @@ export class ViewSingleWorkflowComponent implements OnInit {
         private httpService: HttpService,
         public globalService: GlobalService,
         public activatedRoute: ActivatedRoute,
-        private modalService: NgbModal,  
-        public activeModal: NgbActiveModal,
-
+        private modalService: NgbModal,
     ) {
     }
 
@@ -123,11 +120,9 @@ export class ViewSingleWorkflowComponent implements OnInit {
         this.httpService.mobileBankingPost('api/v1/admin/workflow/create/step', model).subscribe(
             (result: any) => {
                 if (result.status === 200) {
-                  this.activeModal.close('success')
                   Swal.fire('success','step created successfully','success')
                   .then (r =>(console.log(r)))
                 } else {
-                  this.activeModal.close('error')
                   Swal.fire('error','unable to create step','error')
                   .then (r=>(console.log(r)))
                 }
@@ -165,7 +160,7 @@ export class ViewSingleWorkflowComponent implements OnInit {
 
     private loadData(): any {
         this.rows = this.tempProductData;
-        
+
         const model = {
                 id: parseInt(this.workflowId, 10)
         };

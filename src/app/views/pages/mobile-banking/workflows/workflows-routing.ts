@@ -13,7 +13,7 @@ const routes: Routes = [
 
   {
     path: 'list-workflow-menu',
-    component: ListWorkflowMenuComponent,
+    component: TestComponent,
     children: [
       {
         path:'',
@@ -23,6 +23,7 @@ const routes: Routes = [
         path:'list-workflows',
         component: ListWorkflowsComponent
       },
+
       {
         path:'my-tasks',
         component: MyTasksComponent
@@ -35,26 +36,8 @@ const routes: Routes = [
   },
 
   {
-    path: 'test',
-    component: TestComponent,
-    children: [
-      {
-        path: '',
-        component: ListWorkflowsComponent
-      },
-      {
-        path:'list-workflows',
-        component: ListWorkflowsComponent
-      },
-      {
-        path:'my-tasks',
-        component: MyTasksComponent
-      },
-      {
-        path:'all-tasks',
-        component: AllTasksComponent
-      }
-    ]
+    path:'workflow/:id',
+    component: ViewSingleWorkflowComponent
   },
 
   {
