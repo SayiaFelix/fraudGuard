@@ -21,13 +21,13 @@ export class ViewInternetBankingComponent implements OnInit {
   tempProductData = [
     {
       id: 1,
-      InternetBankingID: 'IBank1234',
+      // InternetBankingID: 'IBank1234',
       status: true,
       createdOn: '12-02-2023',
     },
     {
       id: 2,
-      InternetBankingID: 'IBank4567',
+      // InternetBankingID: 'IBank4567',
       status: true,
       createdOn: '12-02-2023',
     },
@@ -43,7 +43,7 @@ export class ViewInternetBankingComponent implements OnInit {
 
   columns = [
     { name: 'ID', prop: 'id' },
-    { name: 'InternetBankingID', prop: 'InternetBankingID' },
+    // { name: 'InternetBankingID', prop: 'InternetBankingID' },
     { name: 'Status', prop: 'status' },
     { name: 'CreatedOn', prop: 'createdOn' },
     { name: 'Actions', prop: 'id' },

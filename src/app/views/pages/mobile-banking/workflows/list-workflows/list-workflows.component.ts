@@ -17,7 +17,7 @@ import { DatatableComponent } from '@swimlane/ngx-datatable/lib/components/datat
 import { DataExportationService } from 'src/app/shared/services/data-exportation.service';
 import { HttpService } from 'src/app/shared/services/http.service';
 import {AddWorkflowStepComponent} from "../add-workflow-step/add-workflow-step.component";
-import { AddCustomerComponent } from '../add-customer/add-customer.component';
+import { AddWorkflowComponent } from '../add-workflow/add-workflow.component';
 
 @Component({
   selector: 'app-list-requests',
@@ -34,17 +34,17 @@ export class ListWorkflowsComponent implements OnInit {
   actions=["View","Edit"]
   tempProductData = [
     {
-      Workflowid: 2,
-      WorkflowName: 'Create New User',
-      Description:'Create User',
-      Status: 'true',
+      workflowid: 1,
+      name: 'Create New User',
+      remark:'Create User',
+      status: 'true',
       createdOn: '12-02-2023',
     },
     {
-      Workflowid: 2,
-      WorkflowName: 'Create Signatory',
-      Description:'Create Signatory',
-      Status: 'false',
+      workflowid: 2,
+      name: 'Create Signatory',
+      remark:'Create Signatory',
+      status: 'false',
       createdOn: '12-02-2023',
     },
 
@@ -58,23 +58,24 @@ export class ListWorkflowsComponent implements OnInit {
   reorderable = true;
 
   columns = [
-    { name: 'ID', prop: 'Workflowid' },
-    { name: 'WorkflowName', prop: 'WorkflowName' },
-    {name:'Description',prop:'Description'},
-    { name: 'Status', prop: 'Status' },
+    { name: 'ID', prop: 'workflowid' },
+    { name: 'WorkflowName', prop: 'name' },
+    {name:'Description',prop:'remark'},
+    { name: 'Status', prop: 'status' },
     { name: 'CreatedOn', prop: 'createdOn' },
     { name: 'Actions', prop: 'id' },
   ];
 
   allColumns = [...this.columns];
 
-  public form: FormGroup;
   public formData: { productName: any; remarks: any; image: any };
   ColumnMode = ColumnMode;
   public imageFile: File;
   public modalRef: NgbModalRef;
 
   title: string = "New Workflow";
+
+  workflowData: any;
 
 
   constructor(
@@ -96,11 +97,6 @@ export class ListWorkflowsComponent implements OnInit {
     ];
     this.getIndividualData(0);
 
-    this.form = this.fb.group({
-      name: ['', [Validators.required]],
-      description: ['', [Validators.required]],
-      image: [''],
-    });
   }
 
   getIndividualData(event: number): void {
@@ -114,24 +110,21 @@ export class ListWorkflowsComponent implements OnInit {
     };
 
     this.httpService
-      .mobileBankingPost('api/v1/corporate/admin/list-products/all', model)
+      .mobileBankingPost('/api/v1/admin/workflow/get/workflows', model)
       .subscribe((res: any) => {
         if (res.status === 200) {
           setTimeout(() => {
-            // this.data = res.data;
-            this.rows = this.tempProductData;
-            // let data = this.tempProductData;
+            this.workflowData = res.data;
 
-            let total = res.totalItems;
           }, 10);
         } else {
         }
       });
   }
 
-  openAddProductModal() {
+  openAddWorkflowModal() {
 
-    this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true,size:"md"});
+    this.modalRef = this.modalService.open(AddWorkflowComponent, {centered: true,size:"md"});
     this.modalRef.componentInstance.title = 'Add New Workflow';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
@@ -143,7 +136,7 @@ export class ListWorkflowsComponent implements OnInit {
   }
 
   openEditProductModal(formData: any) {
-    this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true});
+    this.modalRef = this.modalService.open(AddWorkflowComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Edit Workflow';
     this.modalRef.componentInstance.formData = formData;
     this.modalRef.result.then((result) => {
