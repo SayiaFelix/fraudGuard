@@ -18,6 +18,7 @@ import { DataExportationService } from 'src/app/shared/services/data-exportation
 import { HttpService } from 'src/app/shared/services/http.service';
 import {AddWorkflowStepComponent} from "../add-workflow-step/add-workflow-step.component";
 import { AddWorkflowComponent } from '../add-workflow/add-workflow.component';
+
 import { catchError, map, Observable, throwError } from 'rxjs';
 import Swal from 'sweetalert2';
 
@@ -114,6 +115,7 @@ export class ListWorkflowsComponent implements OnInit {
       "page":0,
       "size":50
     };
+
 
     this.workflowList$ = this.httpService.mobileBankingPost('api/v1/admin/workflow/get/workflows', model)
       .pipe(

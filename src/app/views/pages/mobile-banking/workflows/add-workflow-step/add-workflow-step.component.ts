@@ -38,30 +38,31 @@ export class AddWorkflowStepComponent implements OnInit {
   }
 
 
+  onAdd(item: any) {
+    console.log('tag added: value is ' + item.value);
+  }
 
-      onAdd(item: any) {
-        console.log('tag added: value is ' + item.value);
-      }
+  onSelect(item: any) {
+    console.log('tag selected: value is ' + item);
+  }
 
-      onSelect(item: any) {
-        console.log('tag selected: value is ' + item);
-      }
-      onTextChange(text: any) {
-        console.log('text changed: value is ' + text);
-      }
+  onTextChange(text: any) {
+    console.log('text changed: value is ' + text);
+  }
 
-      public closeModal(): void {
-        this.activeModal.dismiss('Cross click');
-      }
+  public closeModal(): void {
+    this.activeModal.dismiss('Cross click');
+  }
 
-      public submitData(): void {
-        if (this.formData) {
-          this.editRecord();
-        } else {
-          this.createRecord();
-        }
-        this.loading = true;
-      }
+  public submitData(): void {
+    if (this.formData) {
+      this.editRecord();
+    } else {
+      this.createRecord();
+    }
+    this.loading = true;
+  }
+
 
   private editRecord(): any {
   }
