@@ -19,6 +19,9 @@ import { HttpService } from 'src/app/shared/services/http.service';
 import {AddWorkflowStepComponent} from "../add-workflow-step/add-workflow-step.component";
 import { AddWorkflowComponent } from '../add-workflow/add-workflow.component';
 
+import { catchError, map, Observable, throwError } from 'rxjs';
+import Swal from 'sweetalert2';
+
 @Component({
   selector: 'app-list-requests',
   templateUrl: './list-workflows.component.html',
@@ -58,15 +61,19 @@ export class ListWorkflowsComponent implements OnInit {
   reorderable = true;
 
   columns = [
-    { name: 'ID', prop: 'workflowid' },
+
+    { name: 'ID', prop: 'Workflowid' },
     { name: 'WorkflowName', prop: 'name' },
-    {name:'Description',prop:'remark'},
-    { name: 'Status', prop: 'status' },
+    {name:'Remarks',prop:'remarks'},
+    { name: 'Process', prop: 'process' },
     { name: 'CreatedOn', prop: 'createdOn' },
     { name: 'Actions', prop: 'id' },
   ];
 
   allColumns = [...this.columns];
+
+  workflowList$:Observable<any>
+  public form: FormGroup;
 
   public formData: { productName: any; remarks: any; image: any };
   ColumnMode = ColumnMode;
@@ -100,26 +107,38 @@ export class ListWorkflowsComponent implements OnInit {
   }
 
   getIndividualData(event: number): void {
-    this.rows = this.tempProductData;
+    // this.rows = this.tempProductData;
 
-    this.temp = [...this.tempProductData];
+    // this.temp = [...this.tempProductData];
 
     const model = {
-      page: 0,
-      size: 5,
+      "page":0,
+      "size":50
     };
 
-    this.httpService
-      .mobileBankingPost('/api/v1/admin/workflow/get/workflows', model)
-      .subscribe((res: any) => {
-        if (res.status === 200) {
-          setTimeout(() => {
-            this.workflowData = res.data;
 
-          }, 10);
-        } else {
-        }
-      });
+    this.workflowList$ = this.httpService.mobileBankingPost('api/v1/admin/workflow/get/workflows', model)
+      .pipe(
+        catchError((error: any) => {
+          Swal.fire('Error', "Unable to fetch records", 'error');
+          return throwError(error);
+        }),
+        map((result: any) => {
+
+
+          console.log("result");
+          console.log(result);
+
+          if(result['status'] === 200){
+            this.rows = result['data']['content']
+            console.log(result.data)
+            return result
+          } else {
+            return []
+          }
+        }),
+      )
+
   }
 
   openAddWorkflowModal() {
