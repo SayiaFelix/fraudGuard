@@ -11,6 +11,7 @@ import {AddCustomerComponent} from "../add-customer/add-customer.component";
 import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
 import {SwalComponent} from "@sweetalert2/ngx-sweetalert2";
 import Swal from "sweetalert2";
+import {AddWorkflowStepComponent} from "../../workflows/add-workflow-step/add-workflow-step.component";
 
 @Component({
   selector: 'app-list-internet-banking',
@@ -227,9 +228,22 @@ export class ListFailedRegistrationsComponent implements OnInit {
     let eventData = JSON.parse(data)
 
     if (eventData.action == 'View') {
-      
+      this.openAddModal();
 
     }
 
+  }
+
+  openAddModal() {
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Registration Failed';
+
+    this.modalRef.componentInstance.body= "You input the wrong mobile number.";
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+      } else {
+        console.log("Error occurred")
+      }
+    });
   }
 }
