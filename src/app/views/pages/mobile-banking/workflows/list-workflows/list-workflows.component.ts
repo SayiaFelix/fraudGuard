@@ -18,6 +18,8 @@ import { DataExportationService } from 'src/app/shared/services/data-exportation
 import { HttpService } from 'src/app/shared/services/http.service';
 import {AddWorkflowStepComponent} from "../add-workflow-step/add-workflow-step.component";
 import { AddCustomerComponent } from '../add-customer/add-customer.component';
+import { catchError, map, Observable, throwError } from 'rxjs';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-list-requests',
@@ -59,15 +61,15 @@ export class ListWorkflowsComponent implements OnInit {
 
   columns = [
     { name: 'ID', prop: 'Workflowid' },
-    { name: 'WorkflowName', prop: 'WorkflowName' },
-    {name:'Description',prop:'Description'},
-    { name: 'Status', prop: 'Status' },
+    { name: 'WorkflowName', prop: 'name' },
+    {name:'Remarks',prop:'remarks'},
+    { name: 'Process', prop: 'process' },
     { name: 'CreatedOn', prop: 'createdOn' },
     { name: 'Actions', prop: 'id' },
   ];
 
   allColumns = [...this.columns];
-
+  workflowList$:Observable<any>
   public form: FormGroup;
   public formData: { productName: any; remarks: any; image: any };
   ColumnMode = ColumnMode;
@@ -104,29 +106,38 @@ export class ListWorkflowsComponent implements OnInit {
   }
 
   getIndividualData(event: number): void {
-    this.rows = this.tempProductData;
+    // this.rows = this.tempProductData;
 
-    this.temp = [...this.tempProductData];
+    // this.temp = [...this.tempProductData];
 
     const model = {
-      page: 0,
-      size: 5,
+      "page":0,
+      "size":50
     };
 
-    this.httpService
-      .mobileBankingPost('api/v1/corporate/admin/list-products/all', model)
-      .subscribe((res: any) => {
-        if (res.status === 200) {
-          setTimeout(() => {
-            // this.data = res.data;
-            this.rows = this.tempProductData;
-            // let data = this.tempProductData;
+    
+    this.workflowList$ = this.httpService.mobileBankingPost('api/v1/admin/workflow/get/workflows', model)
+      .pipe(
+        catchError((error: any) => {
+          Swal.fire('Error', "Unable to fetch records", 'error');
+          return throwError(error);
+        }),
+        map((result: any) => {
 
-            let total = res.totalItems;
-          }, 10);
-        } else {
-        }
-      });
+
+          console.log("result");
+          console.log(result);
+
+          if(result['status'] === 200){
+            this.rows = result['data']['content']
+            console.log(result.data)
+            return result
+          } else {
+            return []
+          }
+        }),
+      )
+
   }
 
   openAddProductModal() {
