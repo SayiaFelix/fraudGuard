@@ -40,7 +40,7 @@ selectedroles: any = null;
       onAdd(item: any) {
         console.log('tag added: value is ' + item.value);
       }
-    
+
       onSelect(item: any) {
         console.log('tag selected: value is ' + item);
       }
@@ -61,7 +61,7 @@ selectedroles: any = null;
         this.loading = true;
       }
 
-      
+
   private editRecord(): any {
   }
   private createRecord(): any {
