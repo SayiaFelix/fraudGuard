@@ -10,7 +10,7 @@ import {NgxDatatableModule} from "@swimlane/ngx-datatable";
 import {TranslateModule} from "@ngx-translate/core";
 import {AddWorkflowStepComponent} from "./add-workflow-step/add-workflow-step.component";
 import {ViewSingleWorkflowComponent} from "./view-single-workflow/view-single-workflow.component";
-import { AddCustomerComponent } from './add-customer/add-customer.component';
+import { AddWorkflowComponent } from './add-workflow/add-workflow.component';
 import {MyTasksComponent} from "./my-tasks/my-tasks.component";
 import {AllTasksComponent} from "./all-tasks/all-tasks.component";
 import {ViewSingleTaskComponent} from "./view-single-task/view-single-task.component";
@@ -33,7 +33,7 @@ import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
     ListWorkflowsComponent,
     ViewSingleWorkflowComponent,
     AddWorkflowStepComponent,
-    AddCustomerComponent,
+    AddWorkflowComponent,
     MyTasksComponent,
     AllTasksComponent,
     ViewSingleTaskComponent,
@@ -45,7 +45,7 @@ import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
   ,
   entryComponents: [
     AddWorkflowStepComponent,
-    AddCustomerComponent
+    AddWorkflowComponent
     // CreateProductComponent
   ],
 })

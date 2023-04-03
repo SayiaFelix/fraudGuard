@@ -212,7 +212,7 @@ export const MENU: MenuItem[] = [
       },
       {
         profiles: ['CORPORATE_ADMIN'],
-        label: 'System :Logs',
+        label: 'System Logs',
         link:'/mobile-banking/audit-trail/list-audits',
       },
     ]
@@ -224,14 +224,14 @@ export const MENU: MenuItem[] = [
     label: 'Workflows Module',
     icon: 'file-text',
     subItems: [
+      // {
+      //   profiles: ['CORPORATE_ADMIN'],
+      //   label: 'Workflows',
+      //   link: '/mobile-banking/workflows/list-workflow-menu'
+      // },
       {
         profiles: ['CORPORATE_ADMIN'],
         label: 'Workflows',
-        link: '/mobile-banking/workflows/list-workflow-menu'
-      },
-      {
-        profiles: ['CORPORATE_ADMIN'],
-        label: 'Test',
         link: '/mobile-banking/workflows/test'
       }
     ]

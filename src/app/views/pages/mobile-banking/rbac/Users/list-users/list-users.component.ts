@@ -144,33 +144,36 @@ throw new Error('Method not implemented.');
 
   getIndividualData(event: number): void {
 
+    this.rows = this.tempProductData;
 
-    const model = {
-      filter: "all",
-      page: 0,
-      size: 50
-    };
-
-    this.usersList$ = this.httpService.mobileBankingPost('api/v1/admin/user/all', model)
-      .pipe(
-        catchError((error: any) => {
-          Swal.fire('Error', "Unable to fetch records", 'error');
-          return throwError(error);
-        }),
-        map((result: any) => {
-
-
-          console.log("result");
-          console.log(result);
-
-          if(result['status'] === 200){
-            this.rows = result['data']
-            return result
-          } else {
-            return []
-          }
-        }),
-      )
+    // const model = {
+    //   filter: "all",
+    //   page: 0,
+    //   size: 50
+    // };
+    //
+    // this.usersList$ = this.httpService.mobileBankingPost('api/v1/admin/user/all', model)
+    //   .pipe(
+    //     catchError((error: any) => {
+    //       Swal.fire('Error', "Unable to fetch records", 'error');
+    //       return throwError(error);
+    //     }),
+    //     map((result: any) => {
+    //
+    //
+    //       console.log("result");
+    //       console.log(result);
+    //
+    //       if(result['status'] === 200){
+    //         // this.rows = result['data']
+    //         this.rows = this.tempProductData;
+    //
+    //         return result
+    //       } else {
+    //         return []
+    //       }
+    //     }),
+    //   )
 
     // this.httpService.mobileBankingPost('api/v1/corporate/admin/list-products/all', model).subscribe((res: any) => {
 
