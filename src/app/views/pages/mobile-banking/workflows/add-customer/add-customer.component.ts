@@ -3,6 +3,7 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 
 import {HttpService} from 'src/app/shared/services/http.service';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import Swal from 'sweetalert2';
 
 @Component({
     selector: 'app-add-workflow-step',
@@ -31,9 +32,9 @@ export class AddCustomerComponent implements OnInit {
       console.log(this.formData);
 
         this.form = this.fb.group({
-            name: [this.formData ? this.formData.productName : '', [Validators.required]],
-            description: [this.formData ? this.formData.remarks : '', [Validators.required]],
-            image: [this.formData ? this.formData.image : '', [Validators.nullValidator]]
+            name: [this.formData ? this.formData.name : '', [Validators.required]],
+            process: [this.formData ? this.formData.process : '', [Validators.required]],
+            remarks: [this.formData ? this.formData.remarks : '', [Validators.nullValidator]]
         });
 
     }
@@ -52,9 +53,52 @@ export class AddCustomerComponent implements OnInit {
     }
 
     private createRecord(): any {
+      const model = {
+        name:this.form.value.name,
+        process:this.form.value.process,
+        remarks:this.form.value.remarks
+        
+      }
+      this._httpService.mobileBankingPost('api/v1/admin/workflow/get/workflows',model).
+      subscribe(
+        (res:any) =>{
+          if (res.status === 200){
+              this.activeModal.close('success')
+              Swal.fire('success','workflow created successfully','success')
+              .then ( r=>console.log(r))
+          }
+          else{
+            this.activeModal.close('error')
+            Swal.fire('error','unable to create workflow','error')
+            .then (r=>console.log(r))
+          }
+        }
+      )
     }
 
     private saveChanges(): any {
+
+    const model={
+      id:this.form.value.id,
+      name:this.form.value.name,
+      remarks:this.form.value.remarks
+    }
+
+    this._httpService.mobileBankingPost('api/v1/admin/workflow/update',model)
+    .subscribe(
+      (res:any) =>{
+        if (res.status===200){
+          this.activeModal.close('success')
+          Swal.fire('success','workflow updated successfully','success')
+          .then(r=>(console.log(r)))
+        }
+        else{
+          this.activeModal.close('error')
+          Swal.fire('error','unable to update workflow','error')
+          .then(r=>(console.log(r)))
+        }
+      }
+    )
     }
 
   onFileChange(event: any) {
