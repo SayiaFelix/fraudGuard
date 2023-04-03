@@ -4,7 +4,7 @@ import {ActivatedRoute} from '@angular/router';
 import {HttpService} from "../../../../../shared/services/http.service";
 import {GlobalService} from "../../../../../shared/services/global.service";
 import {AddMobileAppCustomerComponent} from "../../channels/add-mobile-app-customer/add-mobile-app-customer.component";
-import {NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
+import {NgbActiveModal, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {AddWorkflowStepComponent} from "../add-workflow-step/add-workflow-step.component";
 import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
 import Swal from "sweetalert2";
@@ -37,7 +37,7 @@ export class ViewSingleWorkflowComponent implements OnInit {
     ];
 
     columns = [
-        { name: 'Steps', prop: 'Steps' },
+        { name: 'stepName', prop: 'stepName' },
         { name: 'Name', prop: 'Name' },
         {name:'isFinal',prop:'isFinal'},
         { name: 'isActive', prop: 'isActive' },
@@ -74,7 +74,8 @@ export class ViewSingleWorkflowComponent implements OnInit {
         private httpService: HttpService,
         public globalService: GlobalService,
         public activatedRoute: ActivatedRoute,
-        private modalService: NgbModal,
+        private modalService: NgbModal,  
+        public activeModal: NgbActiveModal,
 
     ) {
     }
@@ -96,9 +97,9 @@ export class ViewSingleWorkflowComponent implements OnInit {
         this.loadData();
 
         this.workflowForm = this.fb.group({
-            profile: ['', [Validators.required]],
-            name: ['', [Validators.required]],
+            stepName: ['', [Validators.required]],
             remarks: ['', [Validators.required]],
+            profile: ['', [Validators.required]],
             isActive: [0],
             notificationEmail: ['', [Validators.required]],
             notificationEmailMessage: ['', [Validators.required]],
@@ -108,9 +109,10 @@ export class ViewSingleWorkflowComponent implements OnInit {
     submitAddData() {
 
         const model = {
-                stepName: this.workflowForm.value.name,
+                id:this.workflowForm.value.id,
+                stepName: this.workflowForm.value.stepName,
                 remarks: this.workflowForm.value.remarks,
-                profileId: this.workflowForm.value.profile,
+                requiredRoleId: this.workflowForm.value.profile,
                 workFlowId: parseInt(this.workflowId, 10),
                 notificationEmail: this.workflowForm.value.notificationEmail,
                 notificationEmailMessage: this.workflowForm.value.notificationEmailMessage,
@@ -118,14 +120,16 @@ export class ViewSingleWorkflowComponent implements OnInit {
         };
 
         // Create workflow step
-        this.httpService.mobileBankingPost('api/v1/corporate/workflow/create/step', model).subscribe(
+        this.httpService.mobileBankingPost('api/v1/admin/workflow/create/step', model).subscribe(
             (result: any) => {
                 if (result.status === 200) {
-                    this.getWorkflowSteps();
-
-                    this.workflowForm.reset();
-
+                  this.activeModal.close('success')
+                  Swal.fire('success','step created successfully','success')
+                  .then (r =>(console.log(r)))
                 } else {
+                  this.activeModal.close('error')
+                  Swal.fire('error','unable to create step','error')
+                  .then (r=>(console.log(r)))
                 }
             });
     }
