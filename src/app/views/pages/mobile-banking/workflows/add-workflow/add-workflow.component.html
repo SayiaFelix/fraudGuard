@@ -33,17 +33,16 @@
           <label class="text-gray">Remarks</label>
           <textarea
             class="form-control"
-            formControlName="remark"
+            formControlName="remarks"
             type="text"
           ></textarea>
           <small
             *ngIf="
-              form.get('remark')?.touched &&
-              form.get('remark')?.hasError('required')
+              form.get('remarks')?.touched &&
+              form.get('remarks')?.hasError('required')
             "
             class="text-danger"
-          >Required Field</small
-          >
+          >Required Field</small>
         </div>
 
       <div class="col-md-4 mt-4">

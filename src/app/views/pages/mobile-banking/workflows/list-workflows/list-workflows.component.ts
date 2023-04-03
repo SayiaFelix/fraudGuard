@@ -35,23 +35,7 @@ import Swal from 'sweetalert2';
 export class ListWorkflowsComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
   actions=["View","Edit"]
-  tempProductData = [
-    {
-      workflowid: 1,
-      name: 'Create New User',
-      remark:'Create User',
-      status: 'true',
-      createdOn: '12-02-2023',
-    },
-    {
-      workflowid: 2,
-      name: 'Create Signatory',
-      remark:'Create Signatory',
-      status: 'false',
-      createdOn: '12-02-2023',
-    },
 
-  ];
 
   // bread crumb items
   breadCrumbItems: Array<{}>;
@@ -62,7 +46,7 @@ export class ListWorkflowsComponent implements OnInit {
 
   columns = [
 
-    { name: 'ID', prop: 'Workflowid' },
+    { name: '#', prop: 'frontendId' },
     { name: 'WorkflowName', prop: 'name' },
     {name:'Remarks',prop:'remarks'},
     { name: 'Process', prop: 'process' },
@@ -130,8 +114,12 @@ export class ListWorkflowsComponent implements OnInit {
           console.log(result);
 
           if(result['status'] === 200){
-            this.rows = result['data']['content']
-            console.log(result.data)
+            let response = result['data']['content'];
+
+            this.rows = response.map((item: any, index: any) => {
+              const res = {...item, frontendId: index + 1};
+              return res;
+            });
             return result
           } else {
             return []
@@ -174,7 +162,10 @@ export class ListWorkflowsComponent implements OnInit {
   }
 
   navigateToViewProduct(data: any) {
-    this.router.navigateByUrl(`/mobile-banking/workflows/workflow/${7}`);
+    console.log("data");
+    console.log(data);
+
+    this.router.navigateByUrl(`/mobile-banking/workflows/workflow/${data.id}`);
   }
 
   toggleExpandRow(row: any) {
