@@ -224,15 +224,10 @@ export const MENU: MenuItem[] = [
     label: 'Workflows Module',
     icon: 'file-text',
     subItems: [
-      // {
-      //   profiles: ['CORPORATE_ADMIN'],
-      //   label: 'Workflows',
-      //   link: '/mobile-banking/workflows/list-workflow-menu'
-      // },
       {
         profiles: ['CORPORATE_ADMIN'],
         label: 'Workflows',
-        link: '/mobile-banking/workflows/test'
+        link: '/mobile-banking/workflows/list-workflow-menu'
       }
     ]
   }

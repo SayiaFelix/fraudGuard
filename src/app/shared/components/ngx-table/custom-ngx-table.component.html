@@ -70,13 +70,13 @@
 
     <ng-container *ngFor="let column of columns">
       <ngx-datatable-column
-        *ngIf="column.name === 'ID'"
+        *ngIf="column.name === 'ID' || column.name === '#'"
         [maxWidth]="45"
         [minWidth]="35"
         [draggable]="false"
         [resizeable]="false"
-        name="ID"
-        prop="id"
+        name="#"
+        prop="frontendId"
       >
       </ngx-datatable-column>
 
@@ -201,6 +201,7 @@
           column.name !== 'TaskStatus' &&
           column.name !== 'Active' &&
           column.name !== 'ID' &&
+          column.name !== '#' &&
           column.name !== 'SystemRole' &&
           column.name !== 'CreatedOn'
         "

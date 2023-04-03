@@ -61,7 +61,7 @@ export class AddWorkflowComponent implements OnInit {
         remarks: this.form.value.remarks
       };
 
-      this.httpService.mobileBankingPost('/api/v1/admin/workflow/create', model).subscribe(
+      this.httpService.mobileBankingPost('api/v1/admin/workflow/create', model).subscribe(
         (result: any) => {
           if (result.status === 200) {
             this.activeModal.close('success');
