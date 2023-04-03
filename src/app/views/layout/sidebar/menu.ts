@@ -138,17 +138,17 @@ export const MENU: MenuItem[] = [
     subItems: [
       {
         profiles: ['CORPORATE_ADMIN'],
-        label: 'USSD',
+        label: 'Mobile Banking USSD',
         link: '/mobile-banking/channels/list-requests'
       },
       {
         profiles: ['CORPORATE_ADMIN'],
-        label: 'Internet Banking',
+        label: 'Mobile Banking Internet Banking',
         link: '/mobile-banking/channels/list-internet-banking'
       },
       {
         profiles: ['CORPORATE_ADMIN', 'ADMIN'],
-        label: 'Mobile App',
+        label: 'Mobile Banking Mobile App',
         link: '/mobile-banking/channels/list-mobile-app'
       },
     ]

@@ -9,6 +9,7 @@ import {
 import { ColumnMode } from '@swimlane/ngx-datatable';
 import { DatatableComponent } from '@swimlane/ngx-datatable/lib/components/datatable.component';
 
+
 @Component({
   selector: 'app-custom-ngx-table',
   templateUrl: './custom-ngx-table.component.html',
