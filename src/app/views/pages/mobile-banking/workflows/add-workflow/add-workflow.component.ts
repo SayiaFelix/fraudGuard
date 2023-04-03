@@ -1,0 +1,88 @@
+import {Component, Input, OnInit} from '@angular/core';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+
+import {HttpService} from 'src/app/shared/services/http.service';
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import Swal from "sweetalert2";
+
+@Component({
+    selector: 'app-add-workflow',
+    templateUrl: './add-workflow.component.html',
+    styleUrls: ['./add-workflow.component.scss']
+})
+export class AddWorkflowComponent implements OnInit {
+
+    @Input() title: any;
+    @Input() formData: any;
+    public loading = false;
+    public hasErrors = false;
+    public errorMessages: any;
+    public form: FormGroup;
+    public imageFile: File;
+
+    constructor(
+        public activeModal: NgbActiveModal,
+        public fb: FormBuilder,
+        private httpService: HttpService) {
+    }
+
+    ngOnInit() {
+
+      console.log("this.formData");
+      console.log(this.formData);
+
+        this.form = this.fb.group({
+            name: [this.formData ? this.formData.name : '', [Validators.required]],
+            process: [this.formData ? this.formData.process : '', [Validators.required]],
+            remark: [this.formData ? this.formData.remark : '', [Validators.nullValidator]],
+            status: [this.formData ? this.formData.status : '', [Validators.nullValidator]]
+        });
+
+    }
+
+    public submitData(): void {
+        if (this.formData) {
+            this.saveChanges();
+        } else {
+            this.createRecord();
+        }
+        this.loading = true;
+    }
+
+    public closeModal(): void {
+        this.activeModal.dismiss('Cross click');
+    }
+
+    private createRecord(): any {
+
+      const model = {
+        name: this.form.value.name,
+        process: this.form.value.process,
+        remarks: this.form.value.remarks
+      };
+
+      this.httpService.mobileBankingPost('/api/v1/admin/workflow/create', model).subscribe(
+        (result: any) => {
+          if (result.status === 200) {
+            this.activeModal.close('success');
+            Swal.fire('Success',result.mesage, "success")
+              .then(r => console.log(r))
+            console.log('result')
+          } else {
+            this.activeModal.close('error');
+            Swal.fire('Error', result.message, "error")
+              .then(r =>console.log(r))
+          }
+        }
+      );
+    }
+
+    private saveChanges(): any {
+    }
+
+  onFileChange(event: any) {
+    if (event.target.files && event.target.files.length) {
+      this.imageFile = event.target.files[0];
+    }
+  }
+}

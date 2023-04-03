@@ -19,53 +19,50 @@
         >
       </div>
       <div class="col-12">
-    
-        <label class="form-label">Role</label>
-        <select class="form-select"  >
-          <option selected disabled hidden>Select </option>
+
+        <label class="form-label">Process</label>
+        <select class="form-select" formControlName="process">
+          <option selected disabled hidden>Select Process Name </option>
           <option> Create Mandate </option>
           <option> Update Mandate </option>
         </select>
-   
+
       </div>
 
       <div class="col-12">
           <label class="text-gray">Remarks</label>
           <textarea
             class="form-control"
-            formControlName="description"
+            formControlName="remark"
             type="text"
           ></textarea>
           <small
             *ngIf="
-              form.get('description')?.touched &&
-              form.get('description')?.hasError('required')
+              form.get('remark')?.touched &&
+              form.get('remark')?.hasError('required')
             "
             class="text-danger"
           >Required Field</small
           >
         </div>
+
       <div class="col-md-4 mt-4">
-        <label class="form-label">Status</label>
+        <label class="form-label">Workflow Status</label>
+
+        <div class="form-check form-switch mb-2">
+          <input type="checkbox" class="form-check-input" id="formSwitch1" formControlName="status">
+          <label class="form-check-label" for="formSwitch1">{{form.get('status')?.value ? "ACTIVE" : "INACTIVE"}}</label>
+        </div>
+
         <br>
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" id="inlineRadio1" name="inlineRadioOptions" type="radio" value="option1">
-          <label class="form-check-label" for="inlineRadio1">Active</label>
-        </div>
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" id="inlineRadio2" name="inlineRadioOptions" type="radio" value="option2">
-          <label class="form-check-label" for="inlineRadio2">Disable</label>
-        </div>
         <small
           *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')"
-          class="text-danger"
-        >Required Field</small
-        >
+          class="text-danger">Required Field</small>
       </div>
 
     </div>
   <div class="modal-footer">
     <button (click)="closeModal()" class="btn btn-secondary" type="button">Close</button>
-    <button (click)="closeModal()" class="btn btn-primary" type="button">Create workflow</button>
+    <button (click)="submitData()" class="btn btn-primary" type="button">Create workflow</button>
   </div>
 

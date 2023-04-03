@@ -17,7 +17,7 @@ import { DatatableComponent } from '@swimlane/ngx-datatable/lib/components/datat
 import { DataExportationService } from 'src/app/shared/services/data-exportation.service';
 import { HttpService } from 'src/app/shared/services/http.service';
 import {AddWorkflowStepComponent} from "../add-workflow-step/add-workflow-step.component";
-import { AddCustomerComponent } from '../add-customer/add-customer.component';
+import { AddWorkflowComponent } from '../add-workflow/add-workflow.component';
 
 @Component({
   selector: 'app-my-tasks',
@@ -144,7 +144,7 @@ export class MyTasksComponent implements OnInit {
 
   openAddProductModal() {
 
-    this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true,size:"md"});
+    this.modalRef = this.modalService.open(AddWorkflowComponent, {centered: true,size:"md"});
     this.modalRef.componentInstance.title = 'Add New Workflow';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
@@ -156,7 +156,7 @@ export class MyTasksComponent implements OnInit {
   }
 
   openEditProductModal(formData: any) {
-    this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true});
+    this.modalRef = this.modalService.open(AddWorkflowComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Edit Workflow';
     this.modalRef.componentInstance.formData = formData;
     this.modalRef.result.then((result) => {
