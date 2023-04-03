@@ -81,7 +81,7 @@ export class ListFailedRegistrationsComponent implements OnInit {
 
   @ViewChild('mySwal')
   public readonly mySwal!: SwalComponent;
-  actions = ["View", "Edit"];
+  actions = ["View"];
 
   constructor(
     private httpService: HttpService,
@@ -227,6 +227,7 @@ export class ListFailedRegistrationsComponent implements OnInit {
     let eventData = JSON.parse(data)
 
     if (eventData.action == 'View') {
+      
 
     }
 

@@ -26,6 +26,7 @@ export class ViewCustomerComponent implements OnInit {
       description: 'Short Description',
       status: true,
       createdOn: '12-02-2023',
+      lastUsed:'31-03-2023'
     },
     {
       id: 2,
@@ -33,8 +34,27 @@ export class ViewCustomerComponent implements OnInit {
       description: 'short Description',
       status: true,
       createdOn: '12-02-2023',
+      lastUsed:'31-03-2023'
     },
 
+  ];
+  registeredColumns = [
+    { name: 'ID', prop: 'id' },
+    { name: 'IMSINumber', prop: 'IMSINumber' },
+    { name: 'Status', prop: 'status' },
+    { name: 'CreatedOn', prop: 'createdOn' },
+    {name:'LastUsed',prop:'lastUsed'},
+    { name: 'Actions', prop: 'id' },
+  ];
+ transactionsColumns = [
+  { name: 'TransID', prop:'TransID' },
+  { name: 'CreatedOn', prop:'CreatedOn' },
+  {name:'ServiceName',prop:'ServiceName'},
+  {name:'AccountNo.',prop:'AccountNo.'},
+  {name:'Amount',prop:'Amount'},
+  {name:'ChargeAmt',prop:'ChargeAmt'},
+  {name:'ResCode',prop:'Respons'},
+  
   ];
 
   // bread crumb items
