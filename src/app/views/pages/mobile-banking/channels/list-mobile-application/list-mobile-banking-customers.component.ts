@@ -32,7 +32,6 @@ export class ListMobileBankingCustomersComponent implements OnInit {
       phoneNumber:'0708453901',
       idNumber: '31397137',
       DeviceID:'IBank4567',
-      accountNumber:'0116987349900',
       email:'michaelmbugua004@gmail.com',
       createdOn: '12-02-2023',
     },
@@ -42,7 +41,6 @@ export class ListMobileBankingCustomersComponent implements OnInit {
       phoneNumber:'0728357775',
       idNumber: '37059671',
       DeviceID:'IBank1234',
-      accountNumber:'0119787899900',
       email:'lilian002@gmail.com',
       createdOn: '12-02-2023',
     },
@@ -63,7 +61,7 @@ export class ListMobileBankingCustomersComponent implements OnInit {
     { name: 'IDNumber', prop: 'idNumber' },
     { name: 'DeviceID', prop: 'DeviceID' },
     // {name: 'CBSCustomerNumber',prop:'cbsCustomerNumber'},
-    {name: 'AccountNumber',prop:'accountNumber'},
+    // {name: 'AccountNumber',prop:'accountNumber'},
     // {name: 'Email',prop:'email'},
     { name: 'CreatedOn', prop: 'createdOn' },
     // {name: 'DOB',prop:'dob'},
@@ -79,7 +77,7 @@ export class ListMobileBankingCustomersComponent implements OnInit {
   public imageFile: File;
   public modalRef: NgbModalRef;
 
-  title: string = "Customer";
+  title: string = "Mobile App Customer";
 
   @ViewChild('mySwal')
   public readonly mySwal!: SwalComponent;

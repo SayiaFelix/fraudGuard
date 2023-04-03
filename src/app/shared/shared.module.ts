@@ -19,6 +19,14 @@ import {NgxPaginationModule} from "ngx-pagination";
 import {NotificationModalComponent} from "./components/notification-modal/notification-modal.component";
 import {LabelSystemCustomRoleComponent} from "./components/label-system-custom-role/label-system-custom-role.component";
 import {LabelTaskStatusComponent} from "./components/label-task-status/label-task-status.component";
+import { PerfectScrollbarModule } from 'ngx-perfect-scrollbar';
+import { PERFECT_SCROLLBAR_CONFIG } from 'ngx-perfect-scrollbar';
+import { PerfectScrollbarConfigInterface } from 'ngx-perfect-scrollbar';
+
+const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
+  suppressScrollX: true
+};
+
 
 
 @NgModule({
@@ -56,6 +64,7 @@ import {LabelTaskStatusComponent} from "./components/label-task-status/label-tas
         NgxDatatableModule,
         TranslateModule,
         NgxPaginationModule,
+        PerfectScrollbarModule
     ],
   exports: [
     CommonModule,
@@ -74,6 +83,12 @@ import {LabelTaskStatusComponent} from "./components/label-task-status/label-tas
     CustomNgxTable,
     TableHeaderComponent,
     TableFiltersComponent
+  ],
+  providers: [
+    {
+      provide: PERFECT_SCROLLBAR_CONFIG,
+      useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG
+    }
   ]
 })
 export class SharedModule {

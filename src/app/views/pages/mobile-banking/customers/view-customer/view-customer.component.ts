@@ -118,11 +118,6 @@ Accountscolumns = [
   }
 
   isAsideNavCollapsed: any;
-
-
-
-
-
   openAddProductSubcategoryModal(content: TemplateRef<any>) {
     this.modalService.open(content, {centered: true, size: "lg"}).result.then((result) => {
       console.log("Modal closed" + result);
