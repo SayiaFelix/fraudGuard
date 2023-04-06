@@ -94,6 +94,21 @@ export class HttpService {
       );
   }
 
+  public mobileBankingPostFormData(endpoint: string, model: any): any {
+    return this.http
+      .post(
+        this.globalService.channelManagerHost + endpoint,
+        model,
+        this.getFormHeaders()
+      )
+      .pipe(
+        map((response) => {
+          response = response;
+          return response;
+        })
+      );
+  }
+
   // For Pagination
   public mobileBankingPaginationPost(endpoint: string, model: any): any {
     const updatedModel = {
@@ -152,7 +167,7 @@ export class HttpService {
   private getFormHeaders(): any {
     return {
       headers: new HttpHeaders({
-        // 'Content-Type': 'multipart/form-data',
+        'Content-Type': '**',
         Authorization: 'Bearer ' + this.globalService.getToken(),
       }),
     };
@@ -169,7 +184,7 @@ export class HttpService {
   }
 
   get getProfile() {
-    let profile = JSON.parse(localStorage.getItem('profile')!); 
+    let profile = JSON.parse(localStorage.getItem('profile')!);
     return profile;
   }
 }

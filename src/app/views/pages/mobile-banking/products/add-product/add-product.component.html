@@ -23,12 +23,16 @@
             <label class="form-label">Parent Category</label>
             <select
               class="form-select"
-              id="profile"
-              name="profile"
+              id="parentId"
+              name="parentId"
+              formControlName="parentId"
             >
-              <option>_</option>
-              <option>Loans</option>
-              <option>Investments</option>
+              <option [value]="''">_</option>
+              <option disabled hidden selected>Select Parent Category</option>
+              <option
+                *ngFor="let parentCategory of allProductCategories"
+                [value]="parentCategory.id">
+                {{parentCategory.name}}</option>
             </select>
           </div>
         </div>

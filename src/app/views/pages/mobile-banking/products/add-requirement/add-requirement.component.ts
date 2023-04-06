@@ -6,11 +6,11 @@ import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import Swal from "sweetalert2";
 
 @Component({
-  selector: 'app-add-workflow-step',
-  templateUrl: './add-product.component.html',
-  styleUrls: ['./add-product.component.scss']
+  selector: 'app-add-requirement',
+  templateUrl: './add-requirement.component.html',
+  styleUrls: ['./add-requirement.component.scss']
 })
-export class AddProductComponent implements OnInit {
+export class AddRequirementComponent implements OnInit {
 
   @Input() title: any;
   @Input() formData: any;
@@ -30,9 +30,7 @@ export class AddProductComponent implements OnInit {
   ngOnInit() {
 
     this.form = this.fb.group({
-      name: [this.formData ? this.formData.name : '', [Validators.required]],
-      description: [this.formData ? this.formData.description : '', [Validators.required]],
-      parentId: [this.formData ? this.formData.parentId : '', [Validators.nullValidator]],
+      requirement: [this.formData ? this.formData.requirement : '', [Validators.required]],
     });
 
 
@@ -56,12 +54,13 @@ export class AddProductComponent implements OnInit {
   private createRecord(): any {
 
     const model = {
-      name: this.form.value.name,
-      description: this.form.value.description,
-      parentCategoryId: this.form.value.parentId,
+      // productId: this.productId,
+      requirementCode: this.form.value.requirementCode,
+      requirement: this.form.value.requirementCode,
+      approvalId:1
     };
 
-    this._httpService.mobileBankingPost('product/portal/category/create', model).subscribe(
+    this._httpService.mobileBankingPost('product/portal/requirement/add', model).subscribe(
       (result: any) => {
         if (result.status === 200) {
           this.activeModal.close('success');

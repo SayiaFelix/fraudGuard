@@ -1,23 +1,12 @@
-import {
-  Component,
-  Input,
-  OnInit,
-  TemplateRef,
-  ViewChild,
-} from '@angular/core';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { DatePipe } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ColumnMode } from '@swimlane/ngx-datatable';
-
-import { GlobalService } from '../../../../../shared/services/global.service';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { NgxDatatableComponent } from '../../../tables/ngx-datatable/ngx-datatable.component';
-import { DatatableComponent } from '@swimlane/ngx-datatable/lib/components/datatable.component';
-import { DataExportationService } from 'src/app/shared/services/data-exportation.service';
-import { ItemsList } from '@ng-select/ng-select/lib/items-list';
-import { HttpService } from 'src/app/shared/services/http.service';
-import {AddRoleComponent} from "../../rbac/roles/add-role/add-role.component";
+import {Component, OnInit, ViewChild,} from '@angular/core';
+import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
+import {DatePipe} from '@angular/common';
+import {Router} from '@angular/router';
+import {ColumnMode} from '@swimlane/ngx-datatable';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {DatatableComponent} from '@swimlane/ngx-datatable/lib/components/datatable.component';
+import {DataExportationService} from 'src/app/shared/services/data-exportation.service';
+import {HttpService} from 'src/app/shared/services/http.service';
 import {AddProductComponent} from "../add-product/add-product.component";
 
 @Component({
@@ -35,33 +24,6 @@ export class ProductsComponent implements OnInit {
 
   actions = ["View", "Edit"];
 
-  tempProductData = [
-
-    {
-      id: 1,
-      productCategory: 'Loan Accounts',
-      parentCategory:'-',
-      remarks: 'Loan Accounts Description',
-      status: true,
-      createdOn: '12-02-2023',
-    },
-    {
-      id: 2,
-      productCategory: 'Investment Accounts',
-      parentCategory:'-',
-      remarks: 'Investment Accounts Description',
-      status: true,
-      createdOn: '12-02-2023',
-    },
-    {
-      id: 3,
-      productCategory: 'Insurance Accounts',
-      parentCategory:'-',
-      remarks: 'Insurance Accounts Description',
-      status: true,
-      createdOn: '12-02-2023',
-    },
-  ];
 
   // bread crumb items
   breadCrumbItems: Array<{}>;
@@ -72,9 +34,9 @@ export class ProductsComponent implements OnInit {
 
   columns = [
     {name: 'ID', prop: 'id'},
-    {name: 'ProductCategory', prop: 'productCategory'},
-    {name: 'ParentCategory', prop: 'parentCategory'},
-    {name: 'Remarks', prop: 'remarks'},
+    {name: 'Name', prop: 'name'},
+    {name: 'ParentCategory', prop: 'parentCategoryName'},
+    {name: 'Remarks', prop: 'description'},
     {name: 'Status', prop: 'status'},
     {name: 'CreatedOn', prop: 'createdOn'},
     {name: 'Actions', prop: 'id'},
@@ -97,7 +59,8 @@ export class ProductsComponent implements OnInit {
     public fb: FormBuilder,
     public router: Router,
     private dataExploration: DataExportationService
-  ) {}
+  ) {
+  }
 
   ngOnInit() {
     this.breadCrumbItems = [
@@ -105,39 +68,31 @@ export class ProductsComponent implements OnInit {
         label: 'Mobile banking',
         path: '/mobile-banking/products/all-products',
       },
-      { label: 'Pages', path: '/' },
-      { label: 'Products', active: true },
+      {label: 'Pages', path: '/'},
+      {label: 'Products', active: true},
     ];
     this.getIndividualData(0);
-
-    this.form = this.fb.group({
-      name: ['', [Validators.required]],
-      description: ['', [Validators.required]],
-      image: [''],
-    });
   }
 
   getIndividualData(event: number): void {
-    this.rows = this.tempProductData;
-
-    this.temp = [...this.tempProductData];
 
     const model = {
       page: 0,
-      size: 5,
+      size: 50,
     };
 
     this.httpService
-      .mobileBankingPost('api/v1/corporate/admin/list-products/all', model)
+      .mobileBankingPost('product/portal/category/fetch/all', model)
       .subscribe((res: any) => {
         if (res.status === 200) {
-          setTimeout(() => {
-            // this.data = res.data;
-            this.rows = this.tempProductData;
-            // let data = this.tempProductData;
-
-            let total = res.totalItems;
-          }, 10);
+          console.log(res.data);
+            let response = res.data.map((item: any) => {
+              let res = {...item, parentCategoryName: item.parentCategory ? item.parentCategory.name : "_"};
+              return res;
+            })
+            this.rows = response;
+            console.log("this.rows");
+            console.log(this.rows);
         } else {
         }
       });
@@ -151,7 +106,7 @@ export class ProductsComponent implements OnInit {
       if (result === 'success') {
         this.getIndividualData(0);
       } else {
-        console.log("Error occurred")
+        console.log("Error occurred");
       }
     });
   }
@@ -234,14 +189,14 @@ export class ProductsComponent implements OnInit {
 
   exportCSV() {
     let cols: string[] = this.columns.map(item => {
-      if(item['name'].toLowerCase() !== 'actions'){
+      if (item['name'].toLowerCase() !== 'actions') {
         return item['prop']
       } else {
         return ''
       }
     })
     cols = cols.filter(item => item !== '')
-    let arr: Record<string, string>[]= []
+    let arr: Record<string, string>[] = []
 
     this.rows.forEach((row: any) => {
       let temp: Record<string, string> = {}
@@ -255,14 +210,14 @@ export class ProductsComponent implements OnInit {
 
   exportXLSX() {
     let cols: string[] = this.columns.map(item => {
-      if(item['name'].toLowerCase() !== 'actions'){
+      if (item['name'].toLowerCase() !== 'actions') {
         return item['prop']
       } else {
         return ''
       }
     })
     cols = cols.filter(item => item !== '')
-    let arr: Record<string, string>[]= []
+    let arr: Record<string, string>[] = []
 
     this.rows.forEach((row: any) => {
       let temp: Record<string, string> = {}
@@ -278,7 +233,7 @@ export class ProductsComponent implements OnInit {
   exportPDF() {
     console.log(this.rows);
     let cols: string[] = this.columns.map(item => {
-      if(item['name'].toLowerCase() !== 'actions'){
+      if (item['name'].toLowerCase() !== 'actions') {
         return item['name'].toUpperCase()
       } else {
         return ''
@@ -286,7 +241,7 @@ export class ProductsComponent implements OnInit {
     })
     cols = cols.filter(item => item !== '')
     let rowKeys: string[] = Object.keys(this.rows[0]);
-    let arr: string[][]= []
+    let arr: string[][] = []
     this.rows.forEach((row: any) => {
       let temp: string[] = []
       rowKeys.forEach(key => {
@@ -307,7 +262,7 @@ export class ProductsComponent implements OnInit {
 
     if (eventData.action == 'View') {
       this.navigateToViewProduct(eventData.row);
-    }else if (eventData.action == 'Edit') {
+    } else if (eventData.action == 'Edit') {
       this.openEditProductModal(eventData.row);
     }
 
