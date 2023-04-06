@@ -2,17 +2,43 @@
   <h5 class="modal-title" id="exampleModalLabel">{{title}}</h5>
   <button (click)="closeModal()" aria-label="Close" class="btn-close" type="button"></button>
 </div>
-<div class="modal-body" [formGroup]="form">
+<div class="modal-body" [formGroup]="workflowForm">
 <div class="row">
-  <div class="col-md-6">
+  <div class="col-md-12">
     <label class="form-label">Step Number</label>
     <input class="form-control" formControlName="stepNumber" type="text"/>
   </div>
-  <div class="col-md-6">
+  <div class="col-md-12">
     <label class="form-label">Step Name</label>
     <input class="form-control" formControlName="stepName" type="text"/>
   </div>
-  <div class="col-md-6 mt-4">
+  <div class="col-md-12">
+    <label class="form-label">Remarks</label>
+    <input class="form-control" formControlName="remarks" type="text"/>
+  </div>
+  <div class="col-md-12">
+    <label class="form-label">Required Profile</label>
+    <select
+          class="form-select"
+          formControlName="requiredRoleId"
+          id="profile"
+          name="profile"
+        >
+          <option *ngFor="let profile of allProfiles" [value]="profile.id">
+            {{profile.name | titlecase}}
+          </option>
+        </select>
+  </div>
+  <!-- <div class="col-md-12">
+    <label class="form-label">Notification Email</label>
+    <input class="form-control" formControlName="notificationEmail" type="email"/>
+  </div>
+  <div class="col-md-12">
+    <label class="form-label">Notification Email Message</label>
+    <textarea class="form-control" formControlName="notificationEmailMessage" type="text">
+      </textarea>
+  </div> -->
+  <!-- <div class="col-md-6 mt-4">
     
     <label class="form-label">Authorized Profiles </label>
         <ng-select
@@ -24,7 +50,7 @@
           placeholder="Select profile"
           [(ngModel)]="selectedprofiles">
         </ng-select>  
-  </div> <!-- col -->
+  </div> 
   <div class="col-md-6 mt-4">
     <label class="form-label">Authorized Users </label>
         <ng-select
@@ -36,9 +62,27 @@
           placeholder="Select user"
           [(ngModel)]="selectedroles">
         </ng-select>  
+      </div> -->
+    </div>
+    <div class="row mt-4">
+      <div class="col-md-6">
+        <div class="form-check form-switch mb-2">
+          <input type="checkbox" class="form-check-input" id="formSwitch1" formControlName="status">
+          <label class="form-check-label" for="formSwitch1">Send SMS</label>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="form-check form-switch mb-2">
+          <input type="checkbox" class="form-check-input" id="formSwitch1" formControlName="status">
+          <label class="form-check-label" for="formSwitch1">ACTIVE</label>
+        </div>
       </div>
     </div>
-    <div class="col-md-4 mt-4">
+    
+
+    
+
+    <!-- <div class="col-md-4 mt-4">
       <div class="form-check form-check-inline">
         <input class="form-check-input" id="inlineRadio1" name="inlineRadioOptions" type="checkbox" value="option1">
         <label class="form-check-label" for="inlineRadio1">Send SMS</label>
@@ -52,9 +96,10 @@
         class="text-danger"
       >Required Field</small
       >
-    </div>
+    </div> -->
   </div> <!-- col -->
 <div class="modal-footer">
   <button (click)="closeModal()" class="btn btn-secondary" type="button">Close</button>
-  <button (click)="submitData()" class="btn btn-primary" type="button">Submit</button>
+  <button (click)="submitData()"  *ngIf="!this.formData"  class="btn btn-primary" type="button">Create Step</button>
+  <button (click)="submitData()"  *ngIf="this.formData"  class="btn btn-primary" type="button">Edit Step</button>
 </div>

@@ -21,11 +21,19 @@
       <div class="col-12">
 
         <label class="form-label">Process</label>
-        <select class="form-select" formControlName="process">
-          <option disabled hidden selected>Select Process Name</option>
-          <option> Create Mandate</option>
-          <option> Update Mandate</option>
-        </select>
+      <select class="form-select" formControlName="process" type="text">
+  <option disabled hidden selected>Select Process Name</option>
+  <option
+    *ngFor="let process of processes"
+    [value]="process.id">
+    {{process.name}}
+  </option>
+</select>
+        <!-- <select class="form-select" formControlName="process">
+          <option selected disabled hidden>Select Process Name </option>
+          <option> Create Mandate </option>
+          <option> Update Mandate </option>
+        </select> -->
 
       </div>
 
@@ -61,11 +69,9 @@
       </div>
 
     </div>
-    <div class="modal-footer">
-      <button (click)="closeModal()" class="btn btn-secondary" type="button">Close</button>
-      <button (click)="submitData()" *ngIf="!this.formData" class="btn btn-primary" type="button">Create workflow
-      </button>
-      <button (click)="submitData()" *ngIf="this.formData" class="btn btn-primary" type="button">Edit workflow</button>
-    </div>
+  <div class="modal-footer">
+    <button (click)="closeModal()" class="btn btn-secondary" type="button">Close</button>
+    <button (click)="submitData()" *ngIf="!this.formData" class="btn btn-primary" type="button">Create workflow</button>
+    <button (click)="submitData()" *ngIf="this.formData" class="btn btn-primary" type="button">Save Changes</button>
   </div>
 </div>

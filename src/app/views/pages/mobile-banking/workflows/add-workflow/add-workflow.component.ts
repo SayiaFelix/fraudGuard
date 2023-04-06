@@ -12,8 +12,11 @@ import Swal from "sweetalert2";
 })
 export class AddWorkflowComponent implements OnInit {
 
+  processes:any[]
+
     @Input() title: any;
     @Input() formData: any;
+    @Input() workflowId:any;
     public loading = false;
     public hasErrors = false;
     public errorMessages: any;
@@ -34,7 +37,7 @@ export class AddWorkflowComponent implements OnInit {
         this.form = this.fb.group({
             name: [this.formData ? this.formData.name : '', [Validators.required]],
             process: [this.formData ? this.formData.process : '', [Validators.required]],
-            remark: [this.formData ? this.formData.remark : '', [Validators.nullValidator]],
+            remarks: [this.formData ? this.formData.remark : '', [Validators.nullValidator]],
             status: [this.formData ? this.formData.status : '', [Validators.nullValidator]]
         });
 
@@ -77,7 +80,33 @@ export class AddWorkflowComponent implements OnInit {
       );
     }
 
-    private saveChanges(): any {
+  private saveChanges(): any {
+      
+    const model= {
+      id:this.formData.id,
+      name:this.form.value.name,
+      remarks:this.form.value.remarks,
+      process:this.form.value.process
+     }
+
+   this.httpService.mobileBankingPost('api/v1/admin/workflow/update',model)
+   .subscribe(
+   (result:any)  =>{
+     if (result.status == 200){
+      this.activeModal.close('success')
+       Swal.fire('workflow updated',result.message,'success')
+       .then (r=>console.log(r))
+      
+     }
+     else{
+      this.activeModal.close('error')
+       Swal.fire('failed','workflow update failed','error')
+       .then(r=>console.log(r))
+     }
+   }
+   
+   )
+
     }
 
   onFileChange(event: any) {
