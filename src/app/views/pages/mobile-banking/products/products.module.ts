@@ -11,8 +11,8 @@ import {NgxDatatableModule} from "@swimlane/ngx-datatable";
 import {TranslateModule} from "@ngx-translate/core";
 import {AddProductComponent} from "./add-product/add-product.component";
 import { ListProductsComponent } from './list-products/list-products.component';
-import { AddProductSubitemComponent } from './add-product-subitem/add-product-subitem.component';
 import {AddProductCategoryComponent} from "./add-product-subitem/add-product-category.component";
+import {AddRequirementComponent} from "./add-requirement/add-requirement.component";
 
 @NgModule({
     imports: [
@@ -27,15 +27,15 @@ import {AddProductCategoryComponent} from "./add-product-subitem/add-product-cat
     ViewProductComponent,
     AddProductComponent,
     ListProductsComponent,
-    AddProductSubitemComponent,
     AddProductCategoryComponent,
+    AddRequirementComponent
 
   ]
   ,
   entryComponents: [
     AddProductComponent,
-    AddProductSubitemComponent,
-    AddProductCategoryComponent
+    AddProductCategoryComponent,
+    AddRequirementComponent
   ],
 })
 export class ProductsModule {

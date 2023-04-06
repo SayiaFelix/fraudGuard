@@ -33,8 +33,8 @@
         <div class="col-sm-6">
             <div class="form-group">
                 <label class="text-gray">Short Description</label>
-                <input formControlName="description" class="form-control" type="text" maxlength="36">
-                <p *ngIf="form.get('description')?.touched && form.get('description')?.hasError('required')"
+                <input formControlName="shortDescription" class="form-control" type="text" maxlength="36">
+                <p *ngIf="form.get('shortDescription')?.touched && form.get('shortDescription')?.hasError('required')"
                    class="text-danger mt-1 mb-1 pt-0 small text-center">Required
                     Field</p>
             </div>
@@ -43,68 +43,68 @@
       <div class="col-sm-12">
             <div class="form-group">
                 <label class="text-gray">Long Description (Narration)</label>
-              <textarea formControlName="longDescription" class="form-control" type="text"></textarea>
-                <p *ngIf="form.get('longDescription')?.touched && form.get('longDescription')?.hasError('required')"
+              <textarea formControlName="productDescription" class="form-control" type="text"></textarea>
+                <p *ngIf="form.get('productDescription')?.touched && form.get('productDescription')?.hasError('required')"
                    class="text-danger mt-1 mb-1 pt-0 small text-center">Required
                     Field</p>
             </div>
       </div>
 
-      <div class="col-sm-6">
-        <div class="form-group">
-          <div class="row">
-            <div class="col-10">
-              <label class="text-gray">Features</label>
-              <input formControlName="feature" class="form-control" type="text" maxlength="36">
-              <p *ngIf="form.get('feature')?.touched && form.get('feature')?.hasError('required')"
-                 class="text-danger mt-1 mb-1 pt-0 small text-center">Required
-                Field</p>
-            </div>
-            <div class="col-2 pt-4">
-              <button type="button" class="btn  btn-md btn-primary" (click)="addFeature()">Add</button>
-            </div>
-          </div>
-        </div>
-      </div>
+<!--      <div class="col-sm-6">-->
+<!--        <div class="form-group">-->
+<!--          <div class="row">-->
+<!--            <div class="col-10">-->
+<!--              <label class="text-gray">Features</label>-->
+<!--              <input formControlName="feature" class="form-control" type="text" maxlength="36">-->
+<!--              <p *ngIf="form.get('feature')?.touched && form.get('feature')?.hasError('required')"-->
+<!--                 class="text-danger mt-1 mb-1 pt-0 small text-center">Required-->
+<!--                Field</p>-->
+<!--            </div>-->
+<!--            <div class="col-2 pt-4">-->
+<!--              <button type="button" class="btn  btn-md btn-primary" (click)="addFeature()">Add</button>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
 
-      <div class="col-sm-6">
+<!--      <div class="col-sm-6">-->
 
-            <div class="form-group">
-              <div class="row">
-                <div class="col-10">
-                  <label class="text-gray">Requirements</label>
-                  <input formControlName="requirement" class="form-control" type="text" maxlength="36">
-                  <p *ngIf="form.get('requirement')?.touched && form.get('requirement')?.hasError('required')"
-                     class="text-danger mt-1 mb-1 pt-0 small text-center">Required Field</p>
-                </div>
-                <div class="col-2 pt-4">
-                  <button type="button" class="btn btn-md btn-primary"  (click)="addRequirement()">Add</button>
-                </div>
-              </div>
-            </div>
+<!--            <div class="form-group">-->
+<!--              <div class="row">-->
+<!--                <div class="col-10">-->
+<!--                  <label class="text-gray">Requirements</label>-->
+<!--                  <input formControlName="requirement" class="form-control" type="text" maxlength="36">-->
+<!--                  <p *ngIf="form.get('requirement')?.touched && form.get('requirement')?.hasError('required')"-->
+<!--                     class="text-danger mt-1 mb-1 pt-0 small text-center">Required Field</p>-->
+<!--                </div>-->
+<!--                <div class="col-2 pt-4">-->
+<!--                  <button type="button" class="btn btn-md btn-primary"  (click)="addRequirement()">Add</button>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            </div>-->
 
-      </div>
+<!--      </div>-->
 
-      <div class="col-12">
-        <div class="row">
-          <div class="col-6">
-            <h5 class="text-left">Features</h5>
-            <div>
-              <ul>
-                <li *ngFor="let item of features">{{item}}</li>
-              </ul>
-            </div>
-          </div>
-          <div class="col-6">
-            <h5 class="text-left">Requirements</h5>
-            <div>
-              <ul>
-                <li *ngFor="let item of requirements">{{item}}</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
+<!--      <div class="col-12">-->
+<!--        <div class="row">-->
+<!--          <div class="col-6">-->
+<!--            <h5 class="text-left">Features</h5>-->
+<!--            <div>-->
+<!--              <ul>-->
+<!--                <li *ngFor="let item of features">{{item}}</li>-->
+<!--              </ul>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--          <div class="col-6">-->
+<!--            <h5 class="text-left">Requirements</h5>-->
+<!--            <div>-->
+<!--              <ul>-->
+<!--                <li *ngFor="let item of requirements">{{item}}</li>-->
+<!--              </ul>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
 
     </div>
 
