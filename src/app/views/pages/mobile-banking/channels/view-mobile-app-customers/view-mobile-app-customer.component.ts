@@ -14,22 +14,43 @@ import Swal from "sweetalert2";
   styleUrls: ['./view-mobile-app-customer.component.scss']
 })
 export class ViewMobileAppCustomerComponent implements OnInit {
+  ussdActions = ["Disable"]
   tempProductData = [
     {
       id: 1,
-      DeviceID:'3847566483929',
-      description: 'Mobile Banking',
-      status:'true',
+      IMSINumber: 'Oppo Reno 8',
+      description: 'Short Description',
+      status: true,
       createdOn: '12-02-2023',
+      lastUsed:'31-03-2023'
     },
     {
       id: 2,
-      DeviceID:'384756748392847',
-      description: 'Mobile Banking',
-      status:'true',
+      IMSINumber: 'Redmi 10',
+      description: 'short Description',
+      status: true,
       createdOn: '12-02-2023',
+      lastUsed:'31-03-2023'
     },
 
+  ];
+  registeredColumns = [
+    { name: 'ID', prop: 'id' },
+    { name: 'Device', prop: 'IMSINumber' },
+    { name: 'Status', prop: 'status' },
+    { name: 'CreatedOn', prop: 'createdOn' },
+    {name:'LastUsed',prop:'lastUsed'},
+    { name: 'Actions', prop: 'id' },
+  ];
+ transactionsColumns = [
+  { name: 'TransID', prop:'TransID' },
+  { name: 'CreatedOn', prop:'CreatedOn' },
+  {name:'ServiceName',prop:'ServiceName'},
+  {name:'AccountNo.',prop:'AccountNo.'},
+  {name:'Amount',prop:'Amount'},
+  {name:'ChargeAmt',prop:'ChargeAmt'},
+  {name:'ResCode',prop:'Respons'},
+  
   ];
 
   // bread crumb items
@@ -38,7 +59,6 @@ export class ViewMobileAppCustomerComponent implements OnInit {
   temp: any = [];
   loadingIndicator = true;
   reorderable = true;
-
   columns = [
       { name: 'ID', prop: 'id' },
       { name: 'DeviceID', prop: 'DeviceID' },

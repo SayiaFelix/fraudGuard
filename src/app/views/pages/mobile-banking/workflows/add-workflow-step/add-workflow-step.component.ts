@@ -3,6 +3,7 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 
 import {HttpService} from 'src/app/shared/services/http.service';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-add-workflow-step',
@@ -16,9 +17,11 @@ export class AddWorkflowStepComponent implements OnInit {
   users: any[] = ['Michael', 'Lilian'];
   @Input() title: any;
   @Input() formData: any;
+  @Input() workflowId: any;
   public loading = false;
   public hasErrors = false;
   public errorMessages: any;
+  public allProfiles: any;
   public workflowForm: FormGroup;
   public imageFile: File;
   public form: FormGroup;
@@ -30,12 +33,35 @@ export class AddWorkflowStepComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log(this.formData)
-    this.form = this.fb.group({
-      stepNumber: [this.formData ? this.formData.productName : '', [Validators.required]],
-      stepName: [this.formData ? this.formData.Name : '', [Validators.required]],
-    });
+
+    console.log(this.workflowId);
+
+    this.fetchAllProfiles();
+
+    this.workflowForm = this.fb.group({
+      stepNumber:[this.formData ? this.formData.id:'', [Validators.required]],
+      stepName: [this.formData ? this.formData.stepName : '', [Validators.required]],
+      remarks: [this.formData ? this.formData.remarks : '', [Validators.required]],
+      requiredRoleId: [this.formData ? this.formData.requiredRoleId : '', [Validators.required]],
+
+  });
   }
+  fetchAllProfiles() {
+    const model = {
+      page:0,
+      size:50
+    };
+ 
+    this._httpService.mobileBankingPost('api/v1/admin/profile/get/all', model)
+      .subscribe(
+        (result: any) => {
+          if(result['status'] === 200){            
+             this.allProfiles = result['data']
+          } else {
+            Swal.fire("Error", "Unable to Fetch profiles", "error");
+          }
+        })
+    }
 
 
   onAdd(item: any) {
@@ -65,9 +91,51 @@ export class AddWorkflowStepComponent implements OnInit {
 
 
   private editRecord(): any {
+    const model={
+      id:this.workflowForm.value.stepNumber,
+      stepName:this.workflowForm.value.stepName,
+      remarks:this.workflowForm.value.remarks,
+      workFlowId:this.workflowId,
+      requiredRoleId:this.workflowForm.value.requiredRoleId
+    } 
+  this._httpService.mobileBankingPost('api/v1/admin/workflow/update/step',model).subscribe(
+    (result:any) =>{
+      this.activeModal.close('success')
+      if(result.status === 200){
+         Swal.fire('step updated successfully',result.message,'success')
+         .then(r=>(console.log(r)))
+      }
+      else{
+        this.activeModal.close('error')
+        Swal.fire('failed','unable to update step','error')
+      }
+    }
+  ) 
+    
   }
 
   private createRecord(): any {
+    const model={
+      id: this.workflowForm.value.stepNumber,
+      stepName:this.workflowForm.value.stepName,
+      remarks:this.workflowForm.value.remarks,
+      workFlowId:this.workflowId,
+      requiredRoleId: this.workflowForm.value.requiredRoleId,
+    }
+    this._httpService.mobileBankingPost('api/v1/admin/workflow/create/step',model).subscribe(
+      (result:any) =>{
+        this.activeModal.close('success')
+        if(result.status === 200){
+           Swal.fire('step created successfully',result.message,'success')
+           .then(r=>(console.log(r)))
+        }
+        else{
+          this.activeModal.close('error')
+          Swal.fire('failed','unable to create step','error')
+        }
+      }
+    )
+
 
   }
 

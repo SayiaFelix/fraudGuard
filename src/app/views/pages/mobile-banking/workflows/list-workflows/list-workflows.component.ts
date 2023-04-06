@@ -21,6 +21,7 @@ import { AddWorkflowComponent } from '../add-workflow/add-workflow.component';
 
 import { catchError, map, Observable, throwError } from 'rxjs';
 import Swal from 'sweetalert2';
+import { ConfirmDialogComponent } from 'src/app/shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-list-requests',
@@ -34,7 +35,7 @@ import Swal from 'sweetalert2';
  */
 export class ListWorkflowsComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
-  actions=["View","Edit"]
+  actions=["View","Edit","Delete"]
 
 
   // bread crumb items
@@ -146,13 +147,45 @@ export class ListWorkflowsComponent implements OnInit {
     this.modalRef = this.modalService.open(AddWorkflowComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Edit Workflow';
     this.modalRef.componentInstance.formData = formData;
-    this.modalRef.result.then((result) => {
-      if (result === 'success') {
-        this.getIndividualData(0);
-      } else {
-        console.log("Error occurred")
+    this.modalRef.result.then((ans) => {
+      if (ans === 'success') {
+        this.getIndividualData(0); 
+      } 
+      else{
+        console.log("error occurred")
       }
     });
+  }
+
+  openDeleteWorkflowModal(formData:any){
+    this.modalRef = this.modalService.open(ConfirmDialogComponent,{centered:true});
+    this.modalRef.componentInstance.title ='Delete Workflow';
+    this.modalRef.componentInstance.body='Do you want to delete this workflow?'
+    this.modalRef.componentInstance.formData =formData;
+    this.modalRef.result.then((ans) => {
+      if (ans === 'success') {
+        const model={
+            id: formData.id
+        }
+
+        this.httpService.mobileBankingPost('api/v1/admin/workflow/delete',model)
+        .subscribe(
+          (result:any) =>{
+            if (result.status == 200){
+             Swal.fire('workflow deleted successfully',result.message,'success')
+             .then(r=>console.log(r))
+             this.getIndividualData(0)
+          }
+          else{
+            Swal.fire('failed','unable to delete workflow','error')
+            .then (r=>(console.log(r)))
+          }
+          }
+        )
+        }
+
+      }
+    )
   }
 
   onFileChange(event: any) {
@@ -296,6 +329,9 @@ export class ListWorkflowsComponent implements OnInit {
       this. navigateToViewProduct(eventData.row);
     }else if (eventData.action == 'Edit') {
       this.openEditProductModal(eventData.row);
+    }
+    else if (eventData.action == 'Delete'){
+      this.openDeleteWorkflowModal(eventData.row);
     }
   }
 }
