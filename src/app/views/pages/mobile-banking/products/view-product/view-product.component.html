@@ -14,7 +14,7 @@
                 <img class="PersonalAccident" src="assets/images/screenshots/PersonalAccident.png">
               </div>
               <br>
-<!--                <img class="profile-pic text-center" src="assets/img/logos/person.png"/>-->
+              <!--                <img class="profile-pic text-center" src="assets/img/logos/person.png"/>-->
             </div>
 
             <!-- <div [ngbCollapse]="isAsideNavCollapsed" class="email-aside-nav" id="asideNav">
@@ -46,10 +46,10 @@
               <h5>{{subcategoryTitle}}</h5>
               <hr/>
               <div class="media mb-4 mt-1">
-<!--                <img alt="Generic placeholder image" class=" mr-2 rounded-circle avatar-lg"-->
-<!--                     src="assets/images/users/avatar-2.jpg">-->
+                <!--                <img alt="Generic placeholder image" class=" mr-2 rounded-circle avatar-lg"-->
+                <!--                     src="assets/images/users/avatar-2.jpg">-->
                 <!-- <div class="media-body">
-                <span class="float-right">
+                <span class="pull-right">
                   <button (click)="openEditProductSubcategoryModal(verticalCenteredModal)" class="btn btn-success width-sm mt-1"
                           type="button">Edit Product</button>
                 </span>
@@ -57,35 +57,46 @@
               </div>
 
               <h6 class="text-left font-size-20 fw-bold mt-0 mb-2">Product Name</h6>
-              <p class="text-muted fw-normal mb-4">{{productDetails.productName}}</p>
+              <p class="text-muted fw-normal mb-4">{{productDetails?.name}}</p>
 
               <h6 class="text-left font-size-20 fw-bold mt-0 mb-2">Short Description</h6>
               <div class="text-muted">
-                <p class="text-muted fw-normal mb-4">{{productDetails.shortDescription}}</p>
+                <p class="text-muted fw-normal mb-4">{{productDetails?.shortDescription}}</p>
               </div>
               <h6 class="text-left font-size-20 fw-bold mt-0 mb-2">Long Description</h6>
               <div class="text-muted">
-                <p class="text-muted fw-normal mb-4">{{productDetails.longDescription}}</p>
+                <p class="text-muted fw-normal mb-4">{{productDetails?.detailedDescription}}</p>
               </div>
 
               <h6 class="text-left font-size-20 fw-bold mt-0 mb-2">Requirements</h6>
 
-
               <ul style="list-style-type: none;">
                 <li *ngFor="let item of ['Minimum Salary KES 15,000 per month', 'Repayment period 1 month']">
-<!--                  <input class="mr-3 pr-3" type="checkbox">-->
+                  <!--                  <input class="mr-3 pr-3" type="checkbox">-->
                   <span class="text-muted fw-normal mb-4">- {{item}}</span>
                 </li>
               </ul>
+              <button (click)="addRequirement()"
+                      class="btn btn-primary btn-xs pull-right"
+                      type="button">Add Requirement
+              </button>
 
 
-              <h6 class="text-left font-size-20 fw-bold mt-0 mb-2">Features</h6>
-              <ul style="list-style-type: none;">
-                <li *ngFor="let item of ['Get access up to 70% of your monthly salary']">
-<!--                  <input class="mr-2 pr-2" type="checkbox">-->
-                  <span class="text-muted fw-normal mb-4">- {{item}}</span>
-                </li>
-              </ul>
+              <!--              <div class="row">-->
+              <!--                <div class="col-8">-->
+              <!--                  <h6 class="text-left font-size-20 fw-bold mt-0 mb-2">Features</h6>-->
+              <!--                </div>-->
+              <!--                <div class="col-4">-->
+              <!--                  <button class="btn btn-primary btn-xs pull-right" type="button">Add Feature</button>-->
+              <!--                </div>-->
+
+              <!--              </div>-->
+              <!--              <ul style="list-style-type: none;">-->
+              <!--                <li *ngFor="let item of ['Get access up to 70% of your monthly salary']">-->
+              <!--&lt;!&ndash;                  <input class="mr-2 pr-2" type="checkbox">&ndash;&gt;-->
+              <!--                  <span class="text-muted fw-normal mb-4">- {{item}}</span>-->
+              <!--                </li>-->
+              <!--              </ul>-->
 
               <hr/>
 

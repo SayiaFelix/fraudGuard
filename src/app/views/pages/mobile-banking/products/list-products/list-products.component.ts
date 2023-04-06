@@ -1,13 +1,12 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { ColumnMode, DatatableComponent } from '@swimlane/ngx-datatable';
-import { DataExportationService } from 'src/app/shared/services/data-exportation.service';
-import { HttpService } from 'src/app/shared/services/http.service';
-import { AddProductSubitemComponent } from '../add-product-subitem/add-product-subitem.component';
-import { AddProductComponent } from '../add-product/add-product.component';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {ActivatedRoute, Router} from '@angular/router';
+import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
+import {ColumnMode, DatatableComponent} from '@swimlane/ngx-datatable';
+import {DataExportationService} from 'src/app/shared/services/data-exportation.service';
+import {HttpService} from 'src/app/shared/services/http.service';
 import {AddProductCategoryComponent} from "../add-product-subitem/add-product-category.component";
+import Swal from "sweetalert2";
 
 
 @Component({
@@ -21,19 +20,12 @@ export class ListProductsComponent implements OnInit {
   tempProductData = [
     {
       id: 1,
-      productName: 'Personal Accident',
-      description: 'Short Description',
+      name: 'Personal Accident',
+      shortDescription: 'Short Description',
+      productDescription: 'Short Description',
       status: true,
       createdOn: '12-02-2023',
     },
-    {
-      id: 2,
-      productName: 'Mutual Funds',
-      description: 'short Description',
-      status: true,
-      createdOn: '12-02-2023',
-    },
-
   ];
 
   // bread crumb items
@@ -45,10 +37,12 @@ export class ListProductsComponent implements OnInit {
 
   actions = ["View", "Edit"];
 
+  public productCategoryId: any;
+
   columns = [
     {name: 'ID', prop: 'id'},
-    {name: 'ProductName', prop: 'productName'},
-    {name: 'Description', prop: 'description'},
+    {name: 'ProductName', prop: 'name'},
+    {name: 'Description', prop: 'shortDescription'},
     {name: 'Status', prop: 'status'},
     {name: 'CreatedOn', prop: 'createdOn'},
     {name: 'Actions', prop: 'id'},
@@ -70,11 +64,19 @@ export class ListProductsComponent implements OnInit {
     private modalService: NgbModal,
     public fb: FormBuilder,
     public router: Router,
-    private dataExploration: DataExportationService
+    private dataExploration: DataExportationService,
+    private activatedRoute: ActivatedRoute,
   ) {
   }
 
   ngOnInit() {
+
+    this.activatedRoute.params.subscribe(params => {
+      if (typeof params.id !== 'undefined') {
+        this.productCategoryId = params.id;
+      }
+    });
+
     this.breadCrumbItems = [
       {
         label: 'Mobile banking',
@@ -93,35 +95,38 @@ export class ListProductsComponent implements OnInit {
   }
 
   getIndividualData(event: number): void {
-    this.rows = this.tempProductData;
-
-    this.temp = [...this.tempProductData];
 
     const model = {
+
+      size: 50,
       page: 0,
-      size: 5,
+      id: this.productCategoryId
     };
 
     this.httpService
-      .mobileBankingPost('api/v1/corporate/admin/list-products/all', model)
-      .subscribe((res: any) => {
-        if (res.status === 200) {
-          setTimeout(() => {
-            // this.data = res.data;
-            this.rows = this.tempProductData;
-            // let data = this.tempProductData;
+      .mobileBankingPost('product/portal/fetch/all', model)
+      .subscribe(
+        (res: any) => {
+          if (res.status === 200) {
+            let response = res['data'];
 
-            let total = res.totalItems;
-          }, 10);
-        } else {
-        }
-      });
+            this.rows = response.map((item: any, index: any) => {
+              const res = {...item, frontendId: index + 1};
+              return res;
+            });
+          } else {
+            Swal.fire('Failed', "Unable to fetch products", 'error')
+          }
+        }, (error: any) => {
+          Swal.fire("Error", error.message, "error");
+        });
   }
 
   openEditProductModal(formData: any) {
     this.modalRef = this.modalService.open(AddProductCategoryComponent, {centered: true, size: "lg"});
     this.modalRef.componentInstance.title = 'Edit Product';
     this.modalRef.componentInstance.formData = formData;
+    this.modalRef.componentInstance.productCategoryId = this.productCategoryId;
     this.modalRef.result.then((result) => {
       if (result === 'success') {
         this.getIndividualData(0);
@@ -133,8 +138,10 @@ export class ListProductsComponent implements OnInit {
 
   openAddProductModal() {
 
-    this.modalRef = this.modalService.open(AddProductCategoryComponent, {centered: true, size: "lg"});
+    this.modalRef = this.modalService.open(AddProductCategoryComponent,
+      {centered: true});
     this.modalRef.componentInstance.title = 'Add Product';
+    this.modalRef.componentInstance.productCategoryId = this.productCategoryId;
     this.modalRef.result.then((result) => {
       if (result === 'success') {
         this.getIndividualData(0);
@@ -283,7 +290,7 @@ export class ListProductsComponent implements OnInit {
 
     if (eventData.action == 'View') {
       this.navigateToViewProduct(eventData.row);
-    }else if (eventData.action == 'Edit') {
+    } else if (eventData.action == 'Edit') {
       this.openEditProductModal(eventData.row);
     }
 

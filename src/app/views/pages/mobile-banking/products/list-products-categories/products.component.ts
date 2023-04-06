@@ -24,33 +24,6 @@ export class ProductsComponent implements OnInit {
 
   actions = ["View", "Edit"];
 
-  tempProductData = [
-
-    {
-      id: 1,
-      productCategory: 'Loan Accounts',
-      parentCategory: '-',
-      remarks: 'Loan Accounts Description',
-      status: true,
-      createdOn: '12-02-2023',
-    },
-    {
-      id: 2,
-      productCategory: 'Investment Accounts',
-      parentCategory: '-',
-      remarks: 'Investment Accounts Description',
-      status: true,
-      createdOn: '12-02-2023',
-    },
-    {
-      id: 3,
-      productCategory: 'Insurance Accounts',
-      parentCategory: '-',
-      remarks: 'Insurance Accounts Description',
-      status: true,
-      createdOn: '12-02-2023',
-    },
-  ];
 
   // bread crumb items
   breadCrumbItems: Array<{}>;
@@ -61,9 +34,9 @@ export class ProductsComponent implements OnInit {
 
   columns = [
     {name: 'ID', prop: 'id'},
-    {name: 'ProductCategory', prop: 'productCategory'},
-    {name: 'ParentCategory', prop: 'parentCategory'},
-    {name: 'Remarks', prop: 'remarks'},
+    {name: 'Name', prop: 'name'},
+    {name: 'ParentCategory', prop: 'parentCategoryName'},
+    {name: 'Remarks', prop: 'description'},
     {name: 'Status', prop: 'status'},
     {name: 'CreatedOn', prop: 'createdOn'},
     {name: 'Actions', prop: 'id'},
@@ -99,28 +72,27 @@ export class ProductsComponent implements OnInit {
       {label: 'Products', active: true},
     ];
     this.getIndividualData(0);
-
-    this.form = this.fb.group({
-      name: ['', [Validators.required]],
-      description: ['', [Validators.required]],
-      image: [''],
-    });
   }
 
   getIndividualData(event: number): void {
 
     const model = {
-      page: 50,
-      size: 1,
+      page: 0,
+      size: 50,
     };
 
     this.httpService
       .mobileBankingPost('product/portal/category/fetch/all', model)
       .subscribe((res: any) => {
         if (res.status === 200) {
-          setTimeout(() => {
-            this.rows = res.data;
-          }, 10);
+          console.log(res.data);
+            let response = res.data.map((item: any) => {
+              let res = {...item, parentCategoryName: item.parentCategory ? item.parentCategory.name : "_"};
+              return res;
+            })
+            this.rows = response;
+            console.log("this.rows");
+            console.log(this.rows);
         } else {
         }
       });
@@ -134,7 +106,7 @@ export class ProductsComponent implements OnInit {
       if (result === 'success') {
         this.getIndividualData(0);
       } else {
-        console.log("Error occurred")
+        console.log("Error occurred");
       }
     });
   }

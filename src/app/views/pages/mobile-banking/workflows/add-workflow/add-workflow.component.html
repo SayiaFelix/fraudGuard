@@ -22,35 +22,36 @@
 
         <label class="form-label">Process</label>
         <select class="form-select" formControlName="process">
-          <option selected disabled hidden>Select Process Name </option>
-          <option> Create Mandate </option>
-          <option> Update Mandate </option>
+          <option disabled hidden selected>Select Process Name</option>
+          <option> Create Mandate</option>
+          <option> Update Mandate</option>
         </select>
 
       </div>
 
       <div class="col-12">
-          <label class="text-gray">Remarks</label>
-          <textarea
-            class="form-control"
-            formControlName="remarks"
-            type="text"
-          ></textarea>
-          <small
-            *ngIf="
+        <label class="text-gray">Remarks</label>
+        <textarea
+          class="form-control"
+          formControlName="remarks"
+          type="text"
+        ></textarea>
+        <small
+          *ngIf="
               form.get('remarks')?.touched &&
               form.get('remarks')?.hasError('required')
             "
-            class="text-danger"
-          >Required Field</small>
-        </div>
+          class="text-danger"
+        >Required Field</small>
+      </div>
 
       <div class="col-md-4 mt-4">
         <label class="form-label">Workflow Status</label>
 
         <div class="form-check form-switch mb-2">
-          <input type="checkbox" class="form-check-input" id="formSwitch1" formControlName="status">
-          <label class="form-check-label" for="formSwitch1">{{form.get('status')?.value ? "ACTIVE" : "INACTIVE"}}</label>
+          <input class="form-check-input" formControlName="status" id="formSwitch1" type="checkbox">
+          <label class="form-check-label"
+                 for="formSwitch1">{{form.get('status')?.value ? "ACTIVE" : "INACTIVE"}}</label>
         </div>
 
         <br>
@@ -60,8 +61,11 @@
       </div>
 
     </div>
-  <div class="modal-footer">
-    <button (click)="closeModal()" class="btn btn-secondary" type="button">Close</button>
-    <button (click)="submitData()" class="btn btn-primary" type="button">Create workflow</button>
+    <div class="modal-footer">
+      <button (click)="closeModal()" class="btn btn-secondary" type="button">Close</button>
+      <button (click)="submitData()" *ngIf="!this.formData" class="btn btn-primary" type="button">Create workflow
+      </button>
+      <button (click)="submitData()" *ngIf="this.formData" class="btn btn-primary" type="button">Edit workflow</button>
+    </div>
   </div>
-
+</div>
