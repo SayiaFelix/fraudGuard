@@ -18,20 +18,43 @@ export class ViewInternetBankingComponent implements OnInit {
 
   @ViewChild('table') table: DatatableComponent;
 
+  ussdActions = ["Disable"]
   tempProductData = [
     {
       id: 1,
-      // InternetBankingID: 'IBank1234',
+      IMSINumber: '192.16.0.73',
+      description: 'Short Description',
       status: true,
       createdOn: '12-02-2023',
+      lastUsed:'31-03-2023'
     },
     {
       id: 2,
-      // InternetBankingID: 'IBank4567',
+      IMSINumber: '00:00:5e:00:53:af',
+      description: 'short Description',
       status: true,
       createdOn: '12-02-2023',
+      lastUsed:'31-03-2023'
     },
 
+  ];
+  registeredColumns = [
+    { name: 'ID', prop: 'id' },
+    { name: 'IP/MAC Address', prop: 'IMSINumber' },
+    { name: 'Status', prop: 'status' },
+    { name: 'CreatedOn', prop: 'createdOn' },
+    {name:'LastUsed',prop:'lastUsed'},
+    { name: 'Actions', prop: 'id' },
+  ];
+ transactionsColumns = [
+  { name: 'TransID', prop:'TransID' },
+  { name: 'CreatedOn', prop:'CreatedOn' },
+  {name:'ServiceName',prop:'ServiceName'},
+  {name:'AccountNo.',prop:'AccountNo.'},
+  {name:'Amount',prop:'Amount'},
+  {name:'ChargeAmt',prop:'ChargeAmt'},
+  {name:'ResCode',prop:'Respons'},
+  
   ];
 
   // bread crumb items
@@ -42,12 +65,13 @@ export class ViewInternetBankingComponent implements OnInit {
   reorderable = true;
 
   columns = [
-    { name: 'ID', prop: 'id' },
-    // { name: 'InternetBankingID', prop: 'InternetBankingID' },
-    { name: 'Status', prop: 'status' },
-    { name: 'CreatedOn', prop: 'createdOn' },
-    { name: 'Actions', prop: 'id' },
-  ];
+      { name: 'ID', prop: 'id' },
+      { name: 'IP/MAC Address', prop: 'IP/MAC Address' },
+      { name: 'Status', prop: 'status' },
+      { name: 'CreatedOn', prop: 'createdOn' },
+      { name: 'Actions', prop: 'id' },
+    ];
+
 
   allColumns = [...this.columns];
 
