@@ -23,26 +23,26 @@
 
             <ul class="list-group list-group-flush">
               <li class="list-group-item d-flex justify-content-between align-items-center">
-                Workflow Name:
-                <span class="text-right">Create Signatory</span>
+                Name:
+                <span class="text-right">{{workflowItemData?.name}}</span>
               </li>
 
               <li class="list-group-item d-flex justify-content-between align-items-center">
-                Workflow Role:
-                <span class="text-right">Create Signatory</span>
+                Process:
+                <span class="text-right">{{workflowItemData?.process | titlecase}}</span>
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 Created On:
-                <span class="text-right">22-05-2023</span>
+                <span class="text-right">{{workflowItemData?.createdOn}}</span>
               </li>
-
+<!-- 
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 Status:
                 <span>Active</span>
-              </li>
+              </li> -->
               <li class="list-group-item d-flex justify-content-between align-items-center">
-                Desc:
-                <span>Create signatory Description</span>
+                Remarks:
+                <span>{{workflowItemData?.remarks}}</span>
               </li>
             </ul>
           </div>
@@ -51,7 +51,7 @@
 
       <div class="col-md-8">
         <div class="d-flex justify-content-between align-items-center flex-wrap grid-margin">
-          <div>Add Workflow step</div>
+          <!-- <div>Add Workflow step</div> -->
           <app-table-header
           [allColumns]="allColumns"
           [rows]="rows" [title]="title"
@@ -70,7 +70,7 @@
                [columns]="columns"
                [rows]="rows"
                [actions]="actions"
-                (outputEvent)="triggerEvent($event)">
+              (outputEvent)="triggerEvent($event)">
               </app-custom-ngx-table>
             </div>
           </div>
