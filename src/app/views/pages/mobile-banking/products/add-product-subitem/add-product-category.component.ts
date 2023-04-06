@@ -3,6 +3,7 @@ import {Component, Input, OnInit} from '@angular/core';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {HttpService} from '../../../../../shared/services/http.service';
 import {GlobalService} from '../../../../../shared/services/global.service';
+import Swal from "sweetalert2";
 
 @Component({
   selector: 'app-product-category',
@@ -12,6 +13,7 @@ import {GlobalService} from '../../../../../shared/services/global.service';
 export class AddProductCategoryComponent implements OnInit {
   @Input() title: any;
   @Input() formData: any;
+  @Input() productCategoryId: any;
   public loading = false;
   public hasErrors = false;
   public errorMessages: any;
@@ -37,10 +39,11 @@ export class AddProductCategoryComponent implements OnInit {
     this.form = this.fb.group({
       name: [this.formData ? this.formData.name : '',
         [Validators.required]],
-      description: [this.formData ? this.formData.description : '',
+      shortDescription: [this.formData ? this.formData.shortDescription : '',
         [Validators.required]],
-      longDescription: [this.formData ? this.formData.longDescription : '',
+      productDescription: [this.formData ? this.formData.productDescription : '',
         [Validators.required]],
+
       feature: [this.formData ? this.formData.feature : ''],
       requirement: [this.formData ? this.formData.requirement : '']
     });
@@ -65,6 +68,7 @@ export class AddProductCategoryComponent implements OnInit {
   }
 
   onFileChange(event: any) {
+
     if (event.target.files && event.target.files.length) {
       this.imageFile = event.target.files[0];
     }
@@ -83,14 +87,38 @@ export class AddProductCategoryComponent implements OnInit {
     this.loading = true;
 
     const model = {
-      firstName: this.form.value.firstName,
-      lastName: this.form.value.lastName,
-      middleName: this.form.value.middleName,
-      phoneNumber: this.form.value.phoneNumber,
-      email: this.form.value.email,
-      position: this.form.value.position,
-      profileId: this.form.value.profile
+      name: this.form.value.name,
+      shortDescription: this.form.value.shortDescription,
+      productDescription: this.form.value.productDescription,
+      productCategoryId: this.productCategoryId
     };
+
+
+    const formData = new FormData();
+
+    formData.append('product', JSON.stringify(model));
+    formData.append('image', this.imageFile);
+
+    this.httpService.mobileBankingFormRequestPost('product/portal/category/create', formData).subscribe(
+      (result: any) => {
+        if (result.status === 200) {
+          this.activeModal.close('success');
+          Swal.fire('Product Created',
+            'Product has been created successfully.',
+            'success').then(r => console.log(r))
+        } else {
+          this.activeModal.close('error');
+          Swal.fire('Record creation error',
+            'Product Category could not be created.',
+            'error').then(r => console.log(r))
+        }
+      },
+      (error: any) => {
+        Swal.fire('Record creation error',
+          `${error}`,
+          'error')
+      }
+    );
 
 
   }
@@ -104,18 +132,39 @@ export class AddProductCategoryComponent implements OnInit {
 
 
     const model = {
-      adminId: data.id,
-      firstName: this.form.value.firstName,
-      lastName: this.form.value.lastName,
-      middleName: this.form.value.middleName,
-      phoneNumber: this.form.value.phoneNumber,
-      email: data.email,
-      position: this.form.value.position,
-      profileId: this.form.value.profile
+      id: data.id,
+      name: this.form.value.name,
+      shortDescription: this.form.value.shortDescription,
+      productDescription: this.form.value.productDescription,
+      productCategoryId: this.productCategoryId
     };
 
-    // console.log("here is the model");
-    // console.log(model);
+
+    const formData = new FormData();
+
+    formData.append('product', JSON.stringify(model));
+    formData.append('image', this.imageFile);
+
+    this.httpService.mobileBankingPost('product/portal/category/update', formData).subscribe(
+      (result: any) => {
+        if (result.status === 200) {
+          this.activeModal.close('success');
+          Swal.fire('Product Updated',
+            'Product has been updated successfully.',
+            'success').then(r => console.log(r))
+        } else {
+          this.activeModal.close('error');
+          Swal.fire('Record update error',
+            'Product could not be updated.',
+            'error').then(r => console.log(r))
+        }
+      },
+      (error: any) => {
+        Swal.fire('Record creation error',
+          `${error}`,
+          'error')
+      }
+    );
 
   }
 

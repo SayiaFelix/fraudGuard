@@ -38,27 +38,28 @@
       </div>
 
       <div class="col-12">
-          <label class="text-gray">Remarks</label>
-          <textarea
-            class="form-control"
-            formControlName="remarks"
-            type="text"
-          ></textarea>
-          <small
-            *ngIf="
+        <label class="text-gray">Remarks</label>
+        <textarea
+          class="form-control"
+          formControlName="remarks"
+          type="text"
+        ></textarea>
+        <small
+          *ngIf="
               form.get('remarks')?.touched &&
               form.get('remarks')?.hasError('required')
             "
-            class="text-danger"
-          >Required Field</small>
-        </div>
+          class="text-danger"
+        >Required Field</small>
+      </div>
 
       <div class="col-md-4 mt-4">
         <label class="form-label">Workflow Status</label>
 
         <div class="form-check form-switch mb-2">
-          <input type="checkbox" class="form-check-input" id="formSwitch1" formControlName="status">
-          <label class="form-check-label" for="formSwitch1">{{form.get('status')?.value ? "ACTIVE" : "INACTIVE"}}</label>
+          <input class="form-check-input" formControlName="status" id="formSwitch1" type="checkbox">
+          <label class="form-check-label"
+                 for="formSwitch1">{{form.get('status')?.value ? "ACTIVE" : "INACTIVE"}}</label>
         </div>
 
         <br>
@@ -73,4 +74,4 @@
     <button (click)="submitData()" *ngIf="!this.formData" class="btn btn-primary" type="button">Create workflow</button>
     <button (click)="submitData()" *ngIf="this.formData" class="btn btn-primary" type="button">Save Changes</button>
   </div>
-
+</div>

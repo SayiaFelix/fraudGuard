@@ -4,6 +4,9 @@ import {GlobalService} from '../../../../../shared/services/global.service';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {ActivatedRoute, Params} from '@angular/router';
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import Swal from "sweetalert2";
+import {AddProductCategoryComponent} from "../add-product-subitem/add-product-category.component";
+import {AddRequirementComponent} from "../add-requirement/add-requirement.component";
 
 @Component({
   selector: 'app-view-customer',
@@ -26,13 +29,15 @@ export class ViewProductComponent implements OnInit {
 
     }
   ];
-  public productDetails = {
-    productName: 'Personal Accident',
-    shortDescription: 'Get Salary Advance Loans',
-    longDescription: 'Enjoy quick salary advances when you are in need of a quick loan to sort out your regular bills.',
-    requirements: ['Minimum Salary KES 15,000 per month', 'Repayment period 1 month'],
-    // features: ['Get access up to 70% of your monthly salary']
-  };
+  public productDetails: any;
+  //   {
+  //   productName: 'Personal Accident',
+  //   shortDescription: 'Get Salary Advance Loans',
+  //   longDescription: 'Enjoy quick salary advances when you are in need of a quick loan to sort out your regular bills.',
+  //   requirements: ['Minimum Salary KES 15,000 per month', 'Repayment period 1 month'],
+  //   // features: ['Get access up to 70% of your monthly salary']
+  // };
+
   public mainProduct: any;
   public subcategoryTitle: any;
 
@@ -44,6 +49,8 @@ export class ViewProductComponent implements OnInit {
   public features = ['Get access up to 70% of your monthly salary'];
   public requirements = ['Minimum Salary KES 15,000 per month', 'Repayment period 1 month'];
 
+  public productId: number;
+  public modalRef: NgbModalRef;
 
 
 
@@ -54,41 +61,37 @@ export class ViewProductComponent implements OnInit {
               public fb: FormBuilder,
 
   ) {
-    activatedRoute.queryParams.subscribe(
-      params => {
 
-        this.mainProduct = params;
-        console.log('queryParams', params);
-      });
   }
 
   ngOnInit(): void {
-    this.loadData();
 
-    this.form = this.fb.group({
-      name: [this.formData ? this.formData.name : '',
-        [Validators.required]],
-      description: [this.formData ? this.formData.description : '',
-        [Validators.required]],
-      longDescription: [this.formData ? this.formData.longDescription : '',
-        [Validators.required]],
-      feature: [this.formData ? this.formData.feature : ''],
-      requirement: [this.formData ? this.formData.requirement : '']
+    this.activatedRoute.params.subscribe(params => {
+      if (typeof params.id !== 'undefined') {
+        this.productId = params.id;
+      }
     });
 
+    this.loadData();
   }
 
   private loadData(): any {
 
     const model = {
-      page: 0,
-      size: 100
+      id: this.productId
     };
 
-    this.httpService.mobileBankingPost('api/v1/corporate/admin/list-products/all', model).subscribe(
-      (result: any) => {
-      }
-    );
+    this.httpService.mobileBankingPost('product/portal/fetch/single', model).subscribe(
+      (res: any) => {
+        if (res.status == 200) {
+          this.productDetails = res['data'];
+
+        } else {
+          Swal.fire('Failed', "Unable to fetch product details", 'error')
+        }
+      }, (error: any) => {
+        Swal.fire("Error", error.message, "error");
+      });
   }
 
 
@@ -131,21 +134,6 @@ export class ViewProductComponent implements OnInit {
   // }
   isAsideNavCollapsed: any;
 
-  getDetails({}) {
-
-    this.productDetails = {
-      productName: 'Personal Accident',
-      shortDescription: 'Get Salary Advance Loans',
-      longDescription: 'Enjoy quick salary advances when you are in need of a quick loan to sort out your regular bills.',
-      requirements: ['Minimum Salary KES 15,000 per month', 'Repayment period 1 month'],
-      // features: ['Get access up to 70% of your monthly salary']
-    };
-
-    this.subcategoryTitle = this.productDetails.productName;
-  }
-
-
-
   openAddProductSubcategoryModal(content: TemplateRef<any>) {
     this.modalService.open(content, {centered: true, size: "lg"}).result.then((result) => {
       console.log("Modal closed" + result);
@@ -169,6 +157,16 @@ export class ViewProductComponent implements OnInit {
   }
 
   addRequirement() {
+    this.modalRef = this.modalService.open(AddRequirementComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Add Requirement';
+    this.modalRef.result.then((result: any) => {
+      if (result === 'success') {
+        this.loadData();
+      } else {
+        console.log("Error occurred")
+      }
+    });
+
     this.requirements = [this.form.value.requirement, ...this.requirements];
   }
 
@@ -194,23 +192,4 @@ export class ViewProductComponent implements OnInit {
     );
   }
 
-  private loadProducts() {
-    const model = {
-      page: 0,
-      size: 100
-    };
-
-    this.httpService.mobileBankingPost('api/v1/corporate/admin/profiles/all', model).subscribe(
-      (result: any) => {
-
-        // console.log(result.status);
-
-        if (result.status === 200) {
-
-
-        } else {
-        }
-      }
-    );
-  }
 }
