@@ -54,7 +54,7 @@ export class ProfilesComponent implements OnInit {
   reorderable = true;
   profilesList$:Observable<any>
   columns = [
-    { name: 'ID', prop: 'id' },
+    { name: 'ID', prop: 'frontendId' },
     { name: 'Name', prop:'name' },
     { name: 'Remarks', prop:'remarks' },
     // { name: 'UserType', prop:'userType' },
@@ -118,7 +118,12 @@ export class ProfilesComponent implements OnInit {
             console.log(result);
             console.log(result.data);
 
-            this.rows = result['data']
+            let response = result['data'];
+            this.rows = response.map((item: any, index: any) => {
+              const res = {...item, frontendId: index + 1};
+              console.log(res);
+              return res;
+            });
             return result
           } else {
             return []

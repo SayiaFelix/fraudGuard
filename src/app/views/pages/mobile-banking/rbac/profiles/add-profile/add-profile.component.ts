@@ -65,7 +65,7 @@ export class AddProfileComponent implements OnInit {
                     console.log('result');
                 } else 
                     this.activeModal.close('error');
-                    Swal.fire('Error', result.message, "error")
+                    Swal.fire('Error',"Unable to create profile","error")
                     .then(r => console.log(r))
                 }
                 )
@@ -76,20 +76,20 @@ export class AddProfileComponent implements OnInit {
             id: this.formData.id,
             remarks: this.form.value.description
         }
-        this._httpService.mobileBankingPost('api/v1/admin/profile/edit', model).pipe(
-            catchError((error: any) => {
-                Swal.fire('Failed', "Unable to edit profile", 'error')
-                return throwError(error)
-            }),
-            map((res: any) => {
-                if(res.status === 200) {
-                    setTimeout(() => {
-                        Swal.fire('Success', 'Profile Editor Successfully', 'success')
-                    }, 10);
-                } else {
-                    Swal.fire('Failed', res.message, 'error');
+        this._httpService.mobileBankingPost('api/v1/admin/profile/edit',model)
+        .subscribe(
+            (result:any) =>{
+                if(result.status === 200){
+                    this.activeModal.close('success')
+                    Swal.fire('Profile edited successfully',result.data,'success')
+                    .then(r=>console.log(r))
                 }
-            })
+                else{
+                    this.activeModal.close('error')
+                    Swal.fire('failed','unable to edit profile','error')
+                    .then(r=>console.log(r))
+                }
+            }
         )
     }
 }
