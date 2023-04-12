@@ -34,7 +34,7 @@ export class ListCustomersComponent implements OnInit {
   tempProductData = [
     {
       customerid: 1,
-      customerName: 'Lilian Kamau',
+      customerName: 'Jane Mwangi',
       phoneNumber:'0728357775',
       idNumber: '8343849849',
       cbsCustomerNumber:'013465890',
@@ -46,7 +46,7 @@ export class ListCustomersComponent implements OnInit {
     },
     {
       customerid: 2,
-      customerName: 'Michael Mbugua',
+      customerName: 'Andrew Kamau',
       phoneNumber:'0745983290',
       idNumber: '495875004',
       cbsCustomerNumber:'032178900',

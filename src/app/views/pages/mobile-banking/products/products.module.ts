@@ -2,7 +2,7 @@ import {NgModule} from '@angular/core';
 import {ProductsRoutingModule} from './products-routing';
 
 
-import {ProductsComponent} from './list-products-categories/products.component';
+import {ProductCategoriesComponent} from './list-products-categories/product-categories.component';
 import {ViewProductComponent} from "./view-product/view-product.component";
 
 import {SharedModule} from "../../../../shared/shared.module";
@@ -11,8 +11,12 @@ import {NgxDatatableModule} from "@swimlane/ngx-datatable";
 import {TranslateModule} from "@ngx-translate/core";
 import {AddProductComponent} from "./add-product/add-product.component";
 import { ListProductsComponent } from './list-products/list-products.component';
-import {AddProductCategoryComponent} from "./add-product-subitem/add-product-category.component";
+import {AddProductSubItemComponent} from "./add-product-subitem/add-product-sub-item.component";
 import {AddRequirementComponent} from "./add-requirement/add-requirement.component";
+import {
+  ProductCategoriesAsCardsComponent
+} from "./list-products-categories-cards/product-categories-as-cards.component";
+import {CarouselModule} from "ngx-owl-carousel-o";
 
 @NgModule({
     imports: [
@@ -20,21 +24,23 @@ import {AddRequirementComponent} from "./add-requirement/add-requirement.compone
         ProductsRoutingModule,
         FeatherIconModule,
         NgxDatatableModule,
-        TranslateModule
+        TranslateModule,
+        CarouselModule
     ],
   declarations: [
-    ProductsComponent,
+    ProductCategoriesComponent,
+    ProductCategoriesAsCardsComponent,
     ViewProductComponent,
     AddProductComponent,
     ListProductsComponent,
-    AddProductCategoryComponent,
+    AddProductSubItemComponent,
     AddRequirementComponent
 
   ]
   ,
   entryComponents: [
     AddProductComponent,
-    AddProductCategoryComponent,
+    AddProductSubItemComponent,
     AddRequirementComponent
   ],
 })

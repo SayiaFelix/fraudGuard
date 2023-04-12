@@ -5,7 +5,7 @@ import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {ActivatedRoute, Params} from '@angular/router';
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import Swal from "sweetalert2";
-import {AddProductCategoryComponent} from "../add-product-subitem/add-product-category.component";
+import {AddProductSubItemComponent} from "../add-product-subitem/add-product-sub-item.component";
 import {AddRequirementComponent} from "../add-requirement/add-requirement.component";
 
 @Component({

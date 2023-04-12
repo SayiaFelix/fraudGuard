@@ -34,7 +34,7 @@ throw new Error('Method not implemented.');
     },
     {
       id: 2,
-      FullNames: 'Lilian Kamau',
+      FullNames: 'Jane Mwangi',
 
       Email:'liliankamau001@gmail.com',
       TelephoneNo: '0798075432',
@@ -51,7 +51,7 @@ throw new Error('Method not implemented.');
     },
     {
       id: 4,
-      FullNames: 'Michael Mbugua',
+      FullNames: 'Andrew Kamau',
       Email:'michaelmbugua@gmail.com',
       TelephoneNo: '0743286541',
       status: true,
@@ -148,7 +148,7 @@ throw new Error('Method not implemented.');
       page: 0,
       size: 50
     };
-    
+
     this.usersList$ = this.httpService.mobileBankingPost('api/v1/admin/user/all', model)
       .pipe(
         catchError((error: any) => {
@@ -156,11 +156,11 @@ throw new Error('Method not implemented.');
           return throwError(error);
         }),
         map((result: any) => {
-    
-    
+
+
           console.log("result");
           console.log(result);
-    
+
           if(result['status'] === 200){
             this.rows = result['data']
             return result

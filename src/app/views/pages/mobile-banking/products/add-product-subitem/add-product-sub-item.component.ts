@@ -6,11 +6,11 @@ import {GlobalService} from '../../../../../shared/services/global.service';
 import Swal from "sweetalert2";
 
 @Component({
-  selector: 'app-product-category',
-  templateUrl: './add-product-category.component.html',
-  styleUrls: ['./add-product-category.component.scss']
+  selector: 'app-product-sub-item',
+  templateUrl: './add-product-sub-item.component.html',
+  styleUrls: ['./add-product-sub-item.component.scss']
 })
-export class AddProductCategoryComponent implements OnInit {
+export class AddProductSubItemComponent implements OnInit {
   @Input() title: any;
   @Input() formData: any;
   @Input() productCategoryId: any;
@@ -90,16 +90,23 @@ export class AddProductCategoryComponent implements OnInit {
       name: this.form.value.name,
       shortDescription: this.form.value.shortDescription,
       productDescription: this.form.value.productDescription,
-      productCategoryId: this.productCategoryId
+      productCategoryId: this.productCategoryId,
+      approvalId: 4
     };
 
 
-    const formData = new FormData();
+    let formData = new FormData();
 
-    formData.append('product', JSON.stringify(model));
+    formData.append('product',
+      new Blob([JSON.stringify(model)], {type: "application/json"} ));
     formData.append('image', this.imageFile);
+    // formData.append("image", this.imageFile, "/home/allang/Downloads/eclectics/tylersoft-backend/esb-wallet/src/main/resources/images/mari.png");
 
-    this.httpService.mobileBankingFormRequestPost('product/portal/category/create', formData).subscribe(
+
+    console.log("here is the formData")
+    console.log(formData)
+
+    this.httpService.mobileBankingFormRequestPost('product/portal/create', formData).subscribe(
       (result: any) => {
         if (result.status === 200) {
           this.activeModal.close('success');
@@ -145,7 +152,7 @@ export class AddProductCategoryComponent implements OnInit {
     formData.append('product', JSON.stringify(model));
     formData.append('image', this.imageFile);
 
-    this.httpService.mobileBankingPost('product/portal/category/update', formData).subscribe(
+    this.httpService.mobileBankingPostFormData('product/portal/category/update', formData).subscribe(
       (result: any) => {
         if (result.status === 200) {
           this.activeModal.close('success');

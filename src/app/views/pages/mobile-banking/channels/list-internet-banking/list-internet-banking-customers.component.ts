@@ -29,7 +29,7 @@ export class ListInternetBankingCustomersComponent implements OnInit {
   tempProductData = [
     {
       id: 1,
-      customerName: 'Michael Mbugua',
+      customerName: 'Andrew Kamau',
       phoneNumber:'0708453901',
       idNumber: '31397137',
       InternetBankingID:'IBank4567',
@@ -39,7 +39,7 @@ export class ListInternetBankingCustomersComponent implements OnInit {
     },
     {
       id: 2,
-      customerName: 'Lilian Kamau',
+      customerName: 'Jane Mwangi',
       phoneNumber:'0728357775',
       idNumber: '37059671',
       InternetBankingID:'IBank1234',

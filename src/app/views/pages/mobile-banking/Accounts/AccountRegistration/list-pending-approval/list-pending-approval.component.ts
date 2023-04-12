@@ -19,7 +19,7 @@ export class ListPendingApprovalComponent implements OnInit {
   tempProductData = [
     {
       id: 1,
-      Name: 'Michael Mbugua',
+      Name: 'Andrew Kamau',
       RegistrationNumber: '45321876',
       AccountNumber:'01167972316587',
       status: true,
@@ -29,7 +29,7 @@ export class ListPendingApprovalComponent implements OnInit {
     },
     {
       id: 2,
-      Name: 'Lilian Kamau',
+      Name: 'Jane Mwangi',
       RegistrationNumber: '21658975',
       AccountNumber:'01176431096534',
       status: true,

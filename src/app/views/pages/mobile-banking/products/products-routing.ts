@@ -1,16 +1,23 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 
-import {ProductsComponent} from './list-products-categories/products.component';
+import {ProductCategoriesComponent} from './list-products-categories/product-categories.component';
 import { ListProductsComponent } from './list-products/list-products.component';
 import {ViewProductComponent} from "./view-product/view-product.component";
+import {
+  ProductCategoriesAsCardsComponent
+} from "./list-products-categories-cards/product-categories-as-cards.component";
 // import {ViewProductComponent} from './list-products/view-customer/view-customer.component';
 
 const routes: Routes = [
 
   {
     path: 'list-requests',
-    component: ProductsComponent
+    component: ProductCategoriesComponent
+  },
+  {
+    path: 'list-categories-as-cards',
+    component: ProductCategoriesAsCardsComponent
   },
   {
     path:'list-products/:id',

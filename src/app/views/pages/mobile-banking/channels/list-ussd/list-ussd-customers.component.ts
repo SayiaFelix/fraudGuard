@@ -35,7 +35,7 @@ export class ListUssdCustomersComponent implements OnInit {
   tempProductData = [
     {
       id: 1,
-      customerName: 'Michael Mbugua',
+      customerName: 'Andrew Kamau',
       phoneNumber:'0708453901',
       idNumber: '31397137',
       email:'michaelmbugua004@gmail.com',
@@ -43,7 +43,7 @@ export class ListUssdCustomersComponent implements OnInit {
     },
     {
       id: 2,
-      customerName: 'Lilian Kamau',
+      customerName: 'Jane Mwangi',
       phoneNumber:'0728357775',
       idNumber: '37059671',
       IMSINumber:'265011234567',

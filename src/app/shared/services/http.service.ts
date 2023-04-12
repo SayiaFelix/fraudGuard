@@ -132,6 +132,8 @@ export class HttpService {
 
   // endpoint for submitting form Data
   public mobileBankingFormRequestPost(endpoint: string, model: any): any {
+
+
     return this.http
       .post(
         this.globalService.channelManagerHost + endpoint,
@@ -167,11 +169,13 @@ export class HttpService {
   private getFormHeaders(): any {
     return {
       headers: new HttpHeaders({
-        'Content-Type': '**',
-        Authorization: 'Bearer ' + this.globalService.getToken(),
-      }),
+        // 'Content-Type': 'multipart/form-data',
+        Authorization: 'Bearer ' + this.globalService.getToken()
+
+      })
     };
   }
+
 
   private generateLoginHeaders(): { headers: HttpHeaders } {
     return {
