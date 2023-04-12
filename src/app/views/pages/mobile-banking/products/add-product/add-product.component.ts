@@ -18,6 +18,7 @@ export class AddProductComponent implements OnInit {
   public hasErrors = false;
   public errorMessages: any;
   public form: FormGroup;
+  public imageFile: File;
 
   public allProductCategories: any;
 
@@ -131,4 +132,11 @@ export class AddProductComponent implements OnInit {
         }
       });
   }
+
+  onFileChange(event: any) {
+    if (event.target.files && event.target.files.length) {
+      this.imageFile = event.target.files[0];
+    }
+  }
+
 }

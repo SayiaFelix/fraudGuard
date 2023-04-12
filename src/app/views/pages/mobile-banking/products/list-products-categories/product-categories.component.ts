@@ -10,16 +10,16 @@ import {HttpService} from 'src/app/shared/services/http.service';
 import {AddProductComponent} from "../add-product/add-product.component";
 
 @Component({
-  selector: 'app-starter',
-  templateUrl: './products.component.html',
-  styleUrls: ['./products.component.scss'],
+  selector: 'app-product-categories',
+  templateUrl: './product-categories.component.html',
+  styleUrls: ['./product-categories.component.scss'],
   providers: [DatePipe],
 })
 
 /**
  * Starter-component
  */
-export class ProductsComponent implements OnInit {
+export class ProductCategoriesComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
 
   actions = ["View", "Edit"];
@@ -101,7 +101,7 @@ export class ProductsComponent implements OnInit {
   openAddProductModal() {
 
     this.modalRef = this.modalService.open(AddProductComponent, {centered: true});
-    this.modalRef.componentInstance.title = 'Add Product Categories';
+    this.modalRef.componentInstance.title = 'Add Product Category';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
         this.getIndividualData(0);

@@ -12,6 +12,8 @@ import { TranslateService } from '@ngx-translate/core';
 import {AddProductComponent} from "../../pages/mobile-banking/products/add-product/add-product.component";
 import {NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {NotificationModalComponent} from "../../../shared/components/notification-modal/notification-modal.component";
+import {NotificationService} from "../../../shared/services/NotificationService";
+import {Notification} from "../../../shared/services/Notification";
 
 @Component({
   selector: 'app-navbar',
@@ -33,6 +35,7 @@ export class NavbarComponent implements OnInit {
   // internationalization management
   selectedLanguage: any = 'English';
   selectedLanguageFlag: any = 'assets/images/flags/us.svg';
+  public notifications: Notification[];
 
   constructor(
     @Inject(DOCUMENT) private document: Document,
@@ -42,10 +45,18 @@ export class NavbarComponent implements OnInit {
 
     private router: Router,
     private httpService: HttpService,
-    private modalService: NgbModal
+    private modalService: NgbModal,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
+
+    // Subscribe to notification service observable
+    this.notificationService.castNotifications.subscribe((notifications: Notification[]) => {
+      this.notifications = notifications;
+    });
+
+
     // let userDetails = JSON.parse(localStorage.getItem('userData')!);
     let userDetails = {
       companyEmail: "testEmail@gmail.com",
@@ -79,6 +90,10 @@ export class NavbarComponent implements OnInit {
         })
       );
     }
+  }
+
+  updatedNotificationList(newList: any[]) {
+    this.notificationService.updateNotifications(newList);
   }
 
   /**

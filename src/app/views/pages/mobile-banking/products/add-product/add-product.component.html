@@ -54,6 +54,18 @@
             >
           </div>
         </div>
+
+        <div class="col-sm-12">
+          <div class="form-group">
+            <label class="text-gray">Category Image</label>
+            <input #fileUpload (change)="onFileChange($event)"
+                   accept="image/*"
+                   class="form-control"
+                   id="file"
+                   type="file"
+            />
+          </div>
+        </div>
         <div class="col-sm-12">
           <!-- <div class="mb-3">
             <label class="text-gray">Product Image</label>

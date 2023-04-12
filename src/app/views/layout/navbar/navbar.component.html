@@ -29,18 +29,19 @@
         </a>
         <div ngbDropdownMenu class="px-0" aria-labelledby="notificationDropdown">
           <div class="px-3 py-2 d-flex align-items-center justify-content-between border-bottom">
-            <p>6 New Notifications</p>
+            <p>{{notifications.length}} New Notifications</p>
             <a  (click)="false" class="text-muted">Clear all</a>
           </div>
           <div class="p-1">
-            <a (click)="openNotificationModal()" class="dropdown-item d-flex align-items-center py-2">
+            <a (click)="openNotificationModal()" class="dropdown-item d-flex align-items-center py-2"
+               *ngFor="let notification of notifications">
               <div class="wd-30 ht-30 d-flex align-items-center justify-content-center bg-primary rounded-circle me-3">
                 <i class="feather icon-alert-circle icon-sm text-white"></i>
               </div>
               <div class="flex-grow-1 me-2">
-                <p>Create Corporate Profile</p>
-                <p class="tx-12 text-muted">Created By: Lilian Kamau</p>
-                <p class="tx-10 text-muted">24th April 2022</p>
+                <p>{{notification?.myTaskName}}</p>
+                <p class="tx-12 text-muted">Created By: {{notification?.createdBy}}</p>
+                <p class="tx-10 text-muted">{{notification?.createdOn}}</p>
               </div>
             </a>
 

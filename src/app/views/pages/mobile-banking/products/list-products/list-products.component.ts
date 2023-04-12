@@ -5,7 +5,7 @@ import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {ColumnMode, DatatableComponent} from '@swimlane/ngx-datatable';
 import {DataExportationService} from 'src/app/shared/services/data-exportation.service';
 import {HttpService} from 'src/app/shared/services/http.service';
-import {AddProductCategoryComponent} from "../add-product-subitem/add-product-category.component";
+import {AddProductSubItemComponent} from "../add-product-subitem/add-product-sub-item.component";
 import Swal from "sweetalert2";
 
 
@@ -123,7 +123,7 @@ export class ListProductsComponent implements OnInit {
   }
 
   openEditProductModal(formData: any) {
-    this.modalRef = this.modalService.open(AddProductCategoryComponent, {centered: true, size: "lg"});
+    this.modalRef = this.modalService.open(AddProductSubItemComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Edit Product';
     this.modalRef.componentInstance.formData = formData;
     this.modalRef.componentInstance.productCategoryId = this.productCategoryId;
@@ -138,7 +138,7 @@ export class ListProductsComponent implements OnInit {
 
   openAddProductModal() {
 
-    this.modalRef = this.modalService.open(AddProductCategoryComponent,
+    this.modalRef = this.modalService.open(AddProductSubItemComponent,
       {centered: true});
     this.modalRef.componentInstance.title = 'Add Product';
     this.modalRef.componentInstance.productCategoryId = this.productCategoryId;

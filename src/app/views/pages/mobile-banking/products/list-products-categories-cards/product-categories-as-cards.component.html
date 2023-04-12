@@ -1,0 +1,53 @@
+<div
+  class="d-flex justify-content-between align-items-center flex-wrap grid-margin"
+>
+  <div>
+    <h4 class="mb-3 mb-md-0">All Product Categories</h4>
+  </div>
+
+  <div ngbDropdown>
+    <button class="btn btn-primary btn-xs" id="dropdownBasic1" ngbDropdownToggle>Select View</button>
+    <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+      <button ngbDropdownItem routerLink="/mobile-banking/products/list-categories-as-cards">Card View</button>
+      <button ngbDropdownItem routerLink="/mobile-banking/products/list-requests">Table View</button>
+    </div>
+  </div>
+
+  <app-table-header
+    [allColumns]="allColumns"
+    [rows]="rows"
+    [title]="title"
+    [showAddButton]="true"
+    (changeColumnsEvent)="updateColumns($event)"
+    (openAddModalEvent)="openAddProductModal()"
+  ></app-table-header>
+
+</div>
+
+<!--<app-table-filters-->
+<!--[allColumns]="columns">-->
+<!--</app-table-filters>-->
+
+<div class="row">
+  <div class="col-md-12 stretch-card">
+
+    <div class="col-md-12 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title mb-5">Product Categories</h4>
+          <owl-carousel-o [options]="autoPlayExampleOptions">
+            <ng-template carouselSlide *ngFor="let slide of slidesStore" [id]="slide.id">
+              <div class="m-3 p-3">
+                <h5 class="text-center">Loan Product</h5>
+                <img [src]="slide.src" [alt]="slide.alt" [title]="slide.title">
+                <p class="text-center">Here is the product description.</p>
+              </div>
+
+            </ng-template>
+          </owl-carousel-o>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

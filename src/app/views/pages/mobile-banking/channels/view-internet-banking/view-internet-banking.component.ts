@@ -54,7 +54,7 @@ export class ViewInternetBankingComponent implements OnInit {
   {name:'Amount',prop:'Amount'},
   {name:'ChargeAmt',prop:'ChargeAmt'},
   {name:'ResCode',prop:'Respons'},
-  
+
   ];
 
   // bread crumb items

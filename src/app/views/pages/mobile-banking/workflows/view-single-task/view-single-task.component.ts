@@ -8,6 +8,8 @@ import {NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {AddWorkflowStepComponent} from "../add-workflow-step/add-workflow-step.component";
 import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
 import Swal from "sweetalert2";
+import {NotificationService} from "../../../../../shared/services/NotificationService";
+import {Notification} from "../../../../../shared/services/Notification";
 
 @Component({
     selector: 'app-view-single-task',
@@ -38,6 +40,7 @@ export class ViewSingleTaskComponent implements OnInit {
         public globalService: GlobalService,
         public activatedRoute: ActivatedRoute,
         private modalService: NgbModal,
+        private notificationService: NotificationService,
 
     ) {
     }
@@ -276,9 +279,17 @@ export class ViewSingleTaskComponent implements OnInit {
     this.modalRef.componentInstance.body= "Do you want to approve this task?";
     this.modalRef.result.then((result) => {
       if (result === 'success') {
+
+        // TODO call backend to approve task
+        // if successful
         Swal.fire('Task Approved Successfully',  'Task has been approved successfully.',  'success')
           .then
           (r => {
+            let remainingTasks: Notification[] = [];
+            this.notificationService.castNotifications.subscribe(item => remainingTasks = item);
+            remainingTasks.splice(0, 1);
+
+            this.notificationService.updateNotifications(remainingTasks);
           })
       } else {
         console.log("Error occurred")
