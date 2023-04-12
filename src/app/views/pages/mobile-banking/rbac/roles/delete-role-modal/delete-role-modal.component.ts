@@ -39,13 +39,12 @@ export class DeleteRoleModalComponent implements OnInit {
   }
 
   public submitData(): void {
-    this.saveChanges();
+    this.deleteRecord();
   }
 
-  saveChanges() {
-
+  deleteRecord() {
     const model = {
-      roleId: this.roleId,
+      roleId:this.roleId,
       remarks: this.form.value.remark
     }
 
@@ -61,6 +60,7 @@ export class DeleteRoleModalComponent implements OnInit {
             this.activeModal.close('success');
             Swal.fire('success', 'role deleted successfully', 'success')
           } else {
+            this.activeModal.close('error');
             Swal.fire('Failed', res.message, 'error')
           }
         }))

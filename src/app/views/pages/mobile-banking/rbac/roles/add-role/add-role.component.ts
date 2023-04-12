@@ -75,6 +75,26 @@ export class AddRoleComponent implements OnInit {
     }
 
     private saveChanges(): any {
+     const model={
+        roleId:this.formData.id,
+        name:this.form.value.roleName,
+        remarks:this.form.value.description
+     }
+     this._httpService.mobileBankingPost('api/v1/admin/role/edit',model)
+     .subscribe(
+        (result:any) =>{
+            if (result.status==200){
+                this.activeModal.close('success')
+                Swal.fire('role edited successfully',result.mesage,'success')
+                .then(r=>console.log(r))
+            }
+            else{
+                this.activeModal.close('error')
+                Swal.fire('failed','Unable to edit role','error')
+                .then(r=>console.log(r))
+            }
+        }
+     )
     }
 
 
