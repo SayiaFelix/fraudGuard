@@ -27,7 +27,7 @@ export class RolesComponent implements OnInit {
   rolesList$: Observable<any>
   roleId: number;
   columns = [
-    {name: 'ID', prop: 'id'},
+    {name: 'ID', prop: 'frontendId'},
     {name: 'Name', prop: 'name'},
     {name: 'Status', prop: 'status'},
     {name: 'remarks', prop: 'remarks'},
@@ -90,9 +90,13 @@ export class RolesComponent implements OnInit {
 
             console.log(result);
             // console.log(result.data);
-            this.rows = result['data']
-
-            return result;
+            let response = result['data'];
+            this.rows = response.map((item: any, index: any) => {
+              const res = {...item, frontendId: index + 1};
+              console.log(res);
+              return res;
+            });
+            return result
           } else {
             return []
           }
@@ -134,6 +138,7 @@ export class RolesComponent implements OnInit {
     this.modalRef.componentInstance.body = 'Do you want to delete this role?';
     this.modalRef.componentInstance.title = 'Delete Role';
     this.modalRef.componentInstance.roleId = formData.id;
+    console.log(formData.id)
     this.modalRef.result.then((result) => {
       if (result == "success") {
         this.modalRef.close();
