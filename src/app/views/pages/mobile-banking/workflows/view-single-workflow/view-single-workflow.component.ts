@@ -75,7 +75,13 @@ export class ViewSingleWorkflowComponent implements OnInit {
     this.loadData();
     this.loadAllProfiles();
 
+    this.workflowForm = this.fb.group({
+      stepNumber:[this.formData ? this.formData.id:'', [Validators.required]],
+      stepName: [this.formData ? this.formData.stepName : '', [Validators.required]],
+      remarks: [this.formData ? this.formData.remarks : '', [Validators.required]],
+      requiredRoleId: [this.formData ? this.formData.requiredRoleId : '', [Validators.required]],
 
+  });
 
 
   }
@@ -274,17 +280,22 @@ export class ViewSingleWorkflowComponent implements OnInit {
     this.modalRef.componentInstance.title = 'Delete Workflow step';
     this.modalRef.componentInstance.body = 'Do you want to delete this workflow step?'
     this.modalRef.componentInstance.formData = formData;
+    console.log(formData)
     this.modalRef.result.then((ans) => {
       if (ans === 'success') {
         const model = {
-           id:this.formData.id,
+          //  id:this.workflowForm.value.stepNumber,
+           id:formData.id,
            workFlowId:this.workflowId
         }
        this.httpService.mobileBankingPost('api/v1/admin/workflow/delete/step',model).subscribe(
        (result:any)=>{
         if(result.status == 200){
-          Swal.fire('workflow step deleted','workflow step deleted successfully','success')
+          console.log(result)
+          console.log(result.data)
+          Swal.fire('workflow step deleted',result.message,'success')
           .then(r=>(console.log(r)))
+          this.getWorkflowSteps();
         }
         else{
           Swal.fire('failed','workflow step could not be deleted','error')

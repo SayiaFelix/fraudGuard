@@ -74,7 +74,7 @@ throw new Error('Method not implemented.');
   reorderable = true;
 
   columns = [
-    { name: 'ID', prop: 'id' },
+    { name: 'ID', prop: 'frontendId' },
     { name: 'FirstName', prop:'firstName' },
     { name:'Email',prop:'email'},
     { name: 'PhoneNumber', prop:'phoneNumber' },
@@ -162,7 +162,12 @@ throw new Error('Method not implemented.');
           console.log(result);
     
           if(result['status'] === 200){
-            this.rows = result['data']
+            let response = result['data'];
+            this.rows = response.map((item: any, index: any) => {
+              const res = {...item, frontendId: index + 1};
+              console.log(res);
+              return res;
+            });
             return result
           } else {
             return []
