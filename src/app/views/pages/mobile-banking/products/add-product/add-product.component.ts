@@ -61,8 +61,14 @@ export class AddProductComponent implements OnInit {
       description: this.form.value.description,
       parentCategoryId: this.form.value.parentId,
     };
+     
+    let formData=new FormData;
+    formData.append('category',
+    new Blob([JSON.stringify(model)], {type: "application/json"} ));
+    formData.append('file', this.imageFile);
+     console.log(formData)
 
-    this._httpService.mobileBankingPost('product/portal/category/create', model).subscribe(
+    this._httpService.mobileBankingFormRequestPost('product/portal/category/create', formData).subscribe(
       (result: any) => {
         if (result.status === 200) {
           this.activeModal.close('success');
