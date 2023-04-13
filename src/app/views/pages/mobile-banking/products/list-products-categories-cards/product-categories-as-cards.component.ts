@@ -10,6 +10,8 @@ import {HttpService} from 'src/app/shared/services/http.service';
 import {AddProductComponent} from "../add-product/add-product.component";
 import {OwlOptions} from "ngx-owl-carousel-o";
 import {AddProductSubItemComponent} from "../add-product-subitem/add-product-sub-item.component";
+import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
+import Swal from "sweetalert2";
 
 @Component({
   selector: 'app-product-categories',
@@ -341,6 +343,40 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
         this.getIndividualData(0);
       } else {
         console.log("Error occurred")
+      }
+    });
+  }
+
+  openDeleteModal(formData: any) {
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+    this.modalRef.componentInstance.title = `Delete this Category?`;
+    this.modalRef.componentInstance.body = `Do you want to delete category: {${formData.name}}?`;
+    this.modalRef.result.then((result: any) => {
+      if (result === 'success') {
+
+        let model = {
+          id: formData.id
+        }
+
+        this.httpService.mobileBankingPost('product/portal/category/delete',
+          model).subscribe(
+          (result: any) => {
+            if (result.status === 200) {
+              Swal.fire('Product Deleted',
+                'Product has been deleted successfully.',
+                'success').then(r => console.log(r))
+            } else {
+              Swal.fire('Record deletion error',
+                'Product Category could not be deleted.',
+                'error').then(r => console.log(r))
+            }
+          },
+          (error: any) => {
+            Swal.fire('Record deletion error',
+              `${error}`,
+              'error')
+          }
+        );
       }
     });
   }
