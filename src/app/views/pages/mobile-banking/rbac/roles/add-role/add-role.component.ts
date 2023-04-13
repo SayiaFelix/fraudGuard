@@ -64,6 +64,8 @@ export class AddRoleComponent implements OnInit {
             (result: any) => {
                 if (result.status === 200) {
                   this.activeModal.close('success');
+                  Swal.fire('role created successfully',result.message,'success')
+                  .then(r=>console.log(r))
                   console.log('result')
                 } else {
                   this.activeModal.close('error');
