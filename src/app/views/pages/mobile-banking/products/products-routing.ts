@@ -7,6 +7,7 @@ import {ViewProductComponent} from "./view-product/view-product.component";
 import {
   ProductCategoriesAsCardsComponent
 } from "./list-products-categories-cards/product-categories-as-cards.component";
+import {ProductAsCardsComponent} from "./list-products-as-cards/product-as-cards.component";
 // import {ViewProductComponent} from './list-products/view-customer/view-customer.component';
 
 const routes: Routes = [
@@ -22,7 +23,10 @@ const routes: Routes = [
   {
     path:'list-products/:id',
     component:ListProductsComponent
-
+  },
+  {
+    path: 'list-products-as-cards/:id',
+    component: ProductAsCardsComponent
   },
 
   {

@@ -17,6 +17,7 @@ import {
   ProductCategoriesAsCardsComponent
 } from "./list-products-categories-cards/product-categories-as-cards.component";
 import {CarouselModule} from "ngx-owl-carousel-o";
+import {ProductAsCardsComponent} from "./list-products-as-cards/product-as-cards.component";
 
 @NgModule({
     imports: [
@@ -30,6 +31,7 @@ import {CarouselModule} from "ngx-owl-carousel-o";
   declarations: [
     ProductCategoriesComponent,
     ProductCategoriesAsCardsComponent,
+    ProductAsCardsComponent,
     ViewProductComponent,
     AddProductComponent,
     ListProductsComponent,

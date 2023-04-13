@@ -2,14 +2,14 @@
   class="d-flex justify-content-between align-items-center flex-wrap grid-margin"
 >
   <div>
-    <h4 class="mb-3 mb-md-0">All Product Categories</h4>
+    <h4 class="mb-3 mb-md-0">All Products</h4>
   </div>
 
   <div ngbDropdown>
     <button class="btn btn-primary btn-xs" id="dropdownBasic1" ngbDropdownToggle>Select View</button>
     <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
-      <button ngbDropdownItem routerLink="/mobile-banking/products/list-categories-as-cards">Card View</button>
-      <button ngbDropdownItem routerLink="/mobile-banking/products/list-requests">Table View</button>
+      <button ngbDropdownItem routerLink="/mobile-banking/products/list-products-as-cards/1">Card View</button>
+      <button ngbDropdownItem routerLink="/mobile-banking/products/product/1">Table View</button>
     </div>
   </div>
 
@@ -34,7 +34,7 @@
     <div class="col-md-12 grid-margin stretch-card">
       <div class="card">
         <div class="card-body">
-          <h4 class="card-title mb-5">Product Categories</h4>
+          <h4 class="card-title mb-5">Products</h4>
           <owl-carousel-o [options]="autoPlayExampleOptions">
             <ng-template carouselSlide *ngFor="let slide of slidesStore" [id]="slide.id">
               <div class="m-3 p-3 ">
@@ -42,11 +42,11 @@
                   <img class="card-img-top" [src]="slide.src" [alt]="slide.alt">
                   <!-- <img src="..." class="card-img-top" alt="..."> -->
                   <div class="card-body">
-                    <h5 class="card-title">{{slide.name}}</h5>
+                    <h5 class="card-title">{{slide.title}}</h5>
                     <p class="card-text">{{slide.description}}</p>
                     <div class="d-grid gap-2 d-md-block">
-                      <a routerLink='/mobile-banking/products/list-products-as-cards/1' class="btn btn-primary btn-sm">View</a>
-                      <a (click)="editProduct(slide)"  class="btn btn-secondary btn-sm">Edit</a>
+                      <a href="#" class="btn btn-primary btn-sm">View</a>
+                      <a href="#" class="btn btn-secondary btn-sm">Edit</a>
                       <a href="#" class="btn btn-danger btn-sm">Delete</a>
                     </div>
                   </div>

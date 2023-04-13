@@ -33,13 +33,13 @@ export class AddRoleComponent implements OnInit {
       console.log(this.formData);
 
         this.form = this.fb.group({
-            roleName: [this.formData ? this.formData.roleName : '', [Validators.required]],
-            description: [this.formData ? this.formData.description : '', [Validators.required]],
+            roleName: [this.formData ? this.formData.name : '', [Validators.required]],
+            description: [this.formData ? this.formData.remarks : '', [Validators.required]],
             is_active: [this.formData ? this.formData.is_active : '', [Validators.nullValidator]]
         });
-       
 
-  
+
+
     }
 
     public submitData(): void {
