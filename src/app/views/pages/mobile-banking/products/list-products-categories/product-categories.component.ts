@@ -22,7 +22,7 @@ import {AddProductComponent} from "../add-product/add-product.component";
 export class ProductCategoriesComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
 
-  actions = ["View", "Edit"];
+  actions = ["View", "Edit", "Delete"];
 
 
   // bread crumb items
@@ -264,6 +264,8 @@ export class ProductCategoriesComponent implements OnInit {
       this.navigateToViewProduct(eventData.row);
     } else if (eventData.action == 'Edit') {
       this.openEditProductModal(eventData.row);
+    } else if (eventData.action == 'Delete') {
+      // this.openDeleteModal(eventData.row);
     }
 
   }
