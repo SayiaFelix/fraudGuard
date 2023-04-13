@@ -38,3 +38,4 @@ var isValid = function(s) {
   }
 
   isValid("[](){}");
+}
