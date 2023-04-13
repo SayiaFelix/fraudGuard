@@ -37,10 +37,23 @@
           <h4 class="card-title mb-5">Product Categories</h4>
           <owl-carousel-o [options]="autoPlayExampleOptions">
             <ng-template carouselSlide *ngFor="let slide of slidesStore" [id]="slide.id">
-              <div class="m-3 p-3">
-                <h5 class="text-center">Loan Product</h5>
-                <img [src]="slide.src" [alt]="slide.alt" [title]="slide.title">
-                <p class="text-center">Here is the product description.</p>
+              <div class="m-3 p-3 ">
+                <div class="card" style="width: 18rem;">
+                  <img class="card-img-top" [src]="slide.src" [alt]="slide.alt">
+                  <!-- <img src="..." class="card-img-top" alt="..."> -->
+                  <div class="card-body">
+                    <h5 class="card-title">{{slide.title}}</h5>                  
+                    <p class="card-text">{{slide.description}}</p>
+                    <div class="d-grid gap-2 d-md-block">
+                      <a href="#" class="btn btn-primary btn-sm">View</a>
+                      <a href="#" class="btn btn-secondary btn-sm">Edit</a>
+                      <a href="#" class="btn btn-danger btn-sm">Delete</a>
+                    </div>
+                  </div>
+                </div>
+                <!-- <h5 class="text-center">Loan Product</h5> -->
+                <!-- <img [src]="slide.src" [alt]="slide.alt" [title]="slide.title">
+                <p class="text-center">Here is the product description.</p> -->
               </div>
 
             </ng-template>
