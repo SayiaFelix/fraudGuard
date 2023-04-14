@@ -87,6 +87,7 @@ export class LoginComponent implements OnInit {
           } else {
             setTimeout(() => {
               this.router.navigate(['/dashboard']);
+              this.getUserRoles();
             }, 1000);
             return result;
           }
@@ -113,5 +114,13 @@ export class LoginComponent implements OnInit {
       this.selectedLanguage = 'Kiswahili';
       this.selectedLanguageFlag = 'assets/images/flags/es.svg';
     }
+  }
+
+  private getUserRoles() {
+    let model = {
+      uid: 1
+    }
+
+    this.httpService.mobileBankingPost("", model).subscribe()
   }
 }

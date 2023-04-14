@@ -364,7 +364,8 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
             if (result.status === 200) {
               Swal.fire('Product Deleted',
                 'Product has been deleted successfully.',
-                'success').then(r => console.log(r))
+                'success').then(r => console.log(r));
+              this.getIndividualData(0);
             } else {
               Swal.fire('Record deletion error',
                 'Product Category could not be deleted.',

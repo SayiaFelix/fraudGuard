@@ -44,10 +44,11 @@
                   <div class="card-body">
                     <h5 class="card-title">{{slide.title}}</h5>
                     <p class="card-text">{{slide.description}}</p>
+                    <p class="card-text">{{slide.productDescription}}</p>
                     <div class="d-grid gap-2 d-md-block">
-                      <a href="#" class="btn btn-primary btn-sm">View</a>
-                      <a href="#" class="btn btn-secondary btn-sm">Edit</a>
-                      <a href="#" class="btn btn-danger btn-sm">Delete</a>
+                      <a [routerLink]="'/mobile-banking/products/product/' + slide.id" class="btn btn-primary btn-sm">View</a>
+                      <a (click)="editProduct(slide)"  class="btn btn-secondary btn-sm">Edit</a>
+                      <a (click)="openDeleteModal(slide)" class="btn btn-danger btn-sm">Delete</a>
                     </div>
                   </div>
                 </div>
