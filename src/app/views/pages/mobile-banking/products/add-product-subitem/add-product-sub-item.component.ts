@@ -37,9 +37,9 @@ export class AddProductSubItemComponent implements OnInit {
 
 
     this.form = this.fb.group({
-      name: [this.formData ? this.formData.name : '',
+      name: [this.formData ? this.formData.title : '',
         [Validators.required]],
-      shortDescription: [this.formData ? this.formData.shortDescription : '',
+      shortDescription: [this.formData ? this.formData.description : '',
         [Validators.required]],
       productDescription: [this.formData ? this.formData.productDescription : '',
         [Validators.required]],
@@ -149,10 +149,11 @@ export class AddProductSubItemComponent implements OnInit {
 
     const formData = new FormData();
 
-    formData.append('product', JSON.stringify(model));
+    formData.append('product',
+      new Blob([JSON.stringify(model)], {type: "application/json"} ));
     formData.append('image', this.imageFile);
 
-    this.httpService.mobileBankingPostFormData('product/portal/category/update', formData).subscribe(
+    this.httpService.mobileBankingPostFormData('product/portal/update', formData).subscribe(
       (result: any) => {
         if (result.status === 200) {
           this.activeModal.close('success');

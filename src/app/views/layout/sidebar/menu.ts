@@ -34,7 +34,7 @@ export const MENU: MenuItem[] = [
     subItems: [
       {
         profiles: ['CORPORATE_ADMIN'],
-        label: 'Products',
+        label: 'Product Categories',
         link: '/mobile-banking/products/list-requests'
       },
     ]
