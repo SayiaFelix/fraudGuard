@@ -35,7 +35,7 @@ export class ProductCategoriesComponent implements OnInit {
   reorderable = true;
 
   columns = [
-    {name: 'ID', prop: 'id'},
+    {name: '#', prop: 'frontendId'},
     {name: 'Name', prop: 'name'},
     {name: 'ParentCategory', prop: 'parentCategoryName'},
     {name: 'Remarks', prop: 'description'},
@@ -88,8 +88,11 @@ export class ProductCategoriesComponent implements OnInit {
       .subscribe((res: any) => {
         if (res.status === 200) {
           console.log(res.data);
-            let response = res.data.map((item: any) => {
-              let res = {...item, parentCategoryName: item.parentCategory ? item.parentCategory.name : "_"};
+            let response = res.data.map((item: any, index: any) => {
+              let res = {...item,
+                parentCategoryName: item.parentCategory ? item.parentCategory.name : "_",
+                frontendId: index + 1
+              };
               return res;
             })
             this.rows = response;
