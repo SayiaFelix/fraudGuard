@@ -55,7 +55,7 @@ export class ProductAsCardsComponent implements OnInit {
   public imageFile: File;
   public modalRef: NgbModalRef;
 
-  title: string = "Category";
+  title: string = "Product";
   autoPlayExampleOptions: OwlOptions = {
     items:4,
     loop:true,
