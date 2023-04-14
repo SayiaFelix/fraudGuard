@@ -7,6 +7,7 @@ import {DataExportationService} from 'src/app/shared/services/data-exportation.s
 import {HttpService} from 'src/app/shared/services/http.service';
 import {AddProductSubItemComponent} from "../add-product-subitem/add-product-sub-item.component";
 import Swal from "sweetalert2";
+import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
 
 
 @Component({
@@ -35,7 +36,7 @@ export class ListProductsComponent implements OnInit {
   loadingIndicator = true;
   reorderable = true;
 
-  actions = ["View", "Edit"];
+  actions = ["View", "Edit", "Delete"];
 
   public productCategoryId: any;
 
@@ -292,8 +293,44 @@ export class ListProductsComponent implements OnInit {
       this.navigateToViewProduct(eventData.row);
     } else if (eventData.action == 'Edit') {
       this.openEditProductModal(eventData.row);
+    } else if (eventData.action == 'Delete') {
+      this.openDeleteModal(eventData.row);
     }
+  }
 
+  openDeleteModal(formData: any) {
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+    this.modalRef.componentInstance.title = `Delete this Product?`;
+    this.modalRef.componentInstance.body = `Do you want to delete product: {${formData.name}}?`;
+    this.modalRef.result.then((result: any) => {
+      if (result === 'success') {
+
+        let model = {
+          id: formData.id
+        }
+
+        this.httpService.mobileBankingPost('product/portal/delete',
+          model).subscribe(
+          (result: any) => {
+            if (result.status === 200) {
+              Swal.fire('Product Deleted',
+                'Product has been deleted successfully.',
+                'success').then(r => console.log(r))
+                this.getIndividualData(0);
+            } else {
+              Swal.fire('Record deletion error',
+                'Product could not be deleted.',
+                'error').then(r => console.log(r))
+            }
+          },
+          (error: any) => {
+            Swal.fire('Record deletion error',
+              `${error}`,
+              'error')
+          }
+        );
+      }
+    });
   }
 
 
