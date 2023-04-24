@@ -1,33 +1,28 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {ActivatedRoute, Router} from '@angular/router';
-import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
-import {ColumnMode, DatatableComponent} from '@swimlane/ngx-datatable';
-import {DataExportationService} from 'src/app/shared/services/data-exportation.service';
-import {HttpService} from 'src/app/shared/services/http.service';
-import {AddProductSubItemComponent} from "../add-product-subitem/add-product-sub-item.component";
-import Swal from "sweetalert2";
-import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
-
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { ConfirmDialogComponent } from 'src/app/shared/components/confirm-dialog/confirm-dialog.component';
+import Swal from 'sweetalert2';
+import { AddProductSubItemComponent } from '../add-product-subitem/add-product-sub-item.component';
+import { DomSanitizer } from '@angular/platform-browser';
+import { DataExportationService } from 'src/app/shared/services/data-exportation.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { HttpService } from 'src/app/shared/services/http.service';
+import { OwlOptions } from 'ngx-owl-carousel-o';
+import { ColumnMode, DatatableComponent } from '@swimlane/ngx-datatable';
 
 @Component({
-  selector: 'app-list-products',
-  templateUrl: './list-products.component.html',
-  styleUrls: ['./list-products.component.scss']
+  selector: 'app-list-all-products-as-cards',
+  templateUrl: './list-all-products-as-cards.component.html',
+  styleUrls: ['./list-all-products-as-cards.component.scss']
 })
-export class ListProductsComponent implements OnInit {
+export class ListAllProductsAsCardsComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
 
-  tempProductData = [
-    {
-      id: 1,
-      name: 'Personal Accident',
-      shortDescription: 'Short Description',
-      productDescription: 'Short Description',
-      status: true,
-      createdOn: '12-02-2023',
-    },
-  ];
+
+
+  actions = ["View", "Edit"];
+
 
   // bread crumb items
   breadCrumbItems: Array<{}>;
@@ -36,14 +31,11 @@ export class ListProductsComponent implements OnInit {
   loadingIndicator = true;
   reorderable = true;
 
-  actions = ["View", "Edit", "Delete"];
-
-  public productCategoryId: any;
-
   columns = [
     {name: 'ID', prop: 'id'},
-    {name: 'ProductName', prop: 'name'},
-    {name: 'Description', prop: 'shortDescription'},
+    {name: 'Name', prop: 'name'},
+    {name: 'ParentCategory', prop: 'parentCategoryName'},
+    {name: 'Remarks', prop: 'description'},
     {name: 'Status', prop: 'status'},
     {name: 'CreatedOn', prop: 'createdOn'},
     {name: 'Actions', prop: 'id'},
@@ -56,17 +48,76 @@ export class ListProductsComponent implements OnInit {
   ColumnMode = ColumnMode;
   public imageFile: File;
   public modalRef: NgbModalRef;
+  public productCategoryId:any;
 
-  title: string = "Products";
+
+  title: string = "Product";
+  autoPlayExampleOptions: OwlOptions = {
+    items:4,
+    loop:false,
+    margin:0,
+    autoplay:false,
+    autoplayTimeout:9000,
+    autoplayHoverPause:true,
+    responsive:{
+      0:{
+        items: 2
+      },
+      600:{
+        items: 3
+      },
+      1000:{
+        items: 3
+      }
+    }
+  }
+
+  slidesStore:any = [
+    // {
+    //   id:'1',
+    //   src:'assets/images/category4.png',
+    //   alt:'Image_1',
+    //   title:'Personal Accounts',
+    //   description: "Describing personal accounts.",
+    //   productDescription: "Here is the product description"
+    // },
+    // {
+    //   id:'2',
+    //   src:'assets/images/category2.png',
+    //   alt:'Image_2',
+    //   title:'Business Accounts',
+    //   description: "Describing Business Accounts.",
+    //   productDescription: "Here is the product description"
+
+    // },
+    // {
+    //   id:'3',
+    //   src:'assets/images/category3.png',
+    //   alt:'Image_3',
+    //   title:'Islamic accounts',
+    //   description: "Describing Islamic accounts",
+    //   productDescription: "Here is the product description"
+    // },
+    // {
+    //   id:'4',
+    //   src:'assets/images/category2.png',
+    //   alt:'Image_4',
+    //   title:'Student Accounts',
+    //   description: "Describing Student Accounts.",
+    //   productDescription: "Here is the product description"
+    // }
+  ]
 
 
   constructor(
     private httpService: HttpService,
     private modalService: NgbModal,
+    private activatedRoute:ActivatedRoute,
     public fb: FormBuilder,
     public router: Router,
     private dataExploration: DataExportationService,
-    private activatedRoute: ActivatedRoute,
+    public domSanitizer:DomSanitizer,
+    private sanitizer: DomSanitizer
   ) {
   }
 
@@ -76,8 +127,13 @@ export class ListProductsComponent implements OnInit {
       if (typeof params.id !== 'undefined') {
         this.productCategoryId = params.id;
       }
-    });
+    })
 
+//     this.slidesStore.forEach((slide:any)=> {
+//       slide.productUrl = this.domSanitizer.bypassSecurityTrustUrl(slide.productUrl);
+//  });
+    
+    
     this.breadCrumbItems = [
       {
         label: 'Mobile banking',
@@ -87,19 +143,14 @@ export class ListProductsComponent implements OnInit {
       {label: 'Products', active: true},
     ];
     this.getIndividualData(0);
-
-    this.form = this.fb.group({
-      name: ['', [Validators.required]],
-      description: ['', [Validators.required]],
-      image: [''],
-    });
   }
+
 
   getIndividualData(event: number): void {
 
     const model = {
-        "page":0,
-        "size":100
+      page:0,
+      size:100
     };
 
     this.httpService
@@ -107,12 +158,13 @@ export class ListProductsComponent implements OnInit {
       .subscribe(
         (res: any) => {
           if (res.status === 200) {
-            let response = res['data'];
+            // let response = res['data'];
 
-            this.rows = response.map((item: any, index: any) => {
+            let response = res.data.map((item: any, index: any) => {
               const res = {...item, frontendId: index + 1};
               return res;
             });
+            this.slidesStore = response;
           } else {
             Swal.fire('Failed', "Unable to fetch products", 'error')
           }
@@ -121,26 +173,23 @@ export class ListProductsComponent implements OnInit {
         });
   }
 
-  openEditProductModal(formData: any) {
-    this.modalRef = this.modalService.open(AddProductSubItemComponent, {centered: true,size:"md"});
-    this.modalRef.componentInstance.title = 'Edit Product';
-    this.modalRef.componentInstance.formData = formData;
-    this.modalRef.componentInstance.productCategoryId = this.productCategoryId;
-    this.modalRef.result.then((result) => {
-      if (result === 'success') {
-        this.getIndividualData(0);
-      } else {
-        console.log("Error occurred")
-      }
-    });
-  }
-
   openAddProductModal() {
 
-    this.modalRef = this.modalService.open(AddProductSubItemComponent,
-      {centered: true,size:"md"});
+    this.modalRef = this.modalService.open(AddProductSubItemComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Add Product';
-    this.modalRef.componentInstance.productCategoryId = this.productCategoryId;
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        this.getIndividualData(0);
+      } else {
+        console.log("Error occurred");
+      }
+    });
+  }
+
+  openEditProductModal(formData: any) {
+    this.modalRef = this.modalService.open(AddProductSubItemComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Edit Product';
+    this.modalRef.componentInstance.formData = formData;
     this.modalRef.result.then((result) => {
       if (result === 'success') {
         this.getIndividualData(0);
@@ -149,7 +198,6 @@ export class ListProductsComponent implements OnInit {
       }
     });
   }
-
 
   onFileChange(event: any) {
     if (event.target.files && event.target.files.length) {
@@ -158,7 +206,7 @@ export class ListProductsComponent implements OnInit {
   }
 
   navigateToViewProduct(data: any) {
-    this.router.navigateByUrl(`/mobile-banking/products/product/${data.id}`);
+    this.router.navigateByUrl(`/mobile-banking/products/list-products/${data.id}`);
   }
 
   toggleExpandRow(row: any) {
@@ -291,9 +339,8 @@ export class ListProductsComponent implements OnInit {
       this.navigateToViewProduct(eventData.row);
     } else if (eventData.action == 'Edit') {
       this.openEditProductModal(eventData.row);
-    } else if (eventData.action == 'Delete') {
-      this.openDeleteModal(eventData.row);
     }
+
   }
 
   openDeleteModal(formData: any) {
@@ -314,7 +361,7 @@ export class ListProductsComponent implements OnInit {
               Swal.fire('Product Deleted',
                 'Product has been deleted successfully.',
                 'success').then(r => console.log(r))
-                this.getIndividualData(0);
+              this.getIndividualData(0)
             } else {
               Swal.fire('Record deletion error',
                 'Product could not be deleted.',
@@ -331,5 +378,17 @@ export class ListProductsComponent implements OnInit {
     });
   }
 
+  editProduct(formData: any) {
+    this.modalRef = this.modalService.open(AddProductSubItemComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Edit Product';
+    this.modalRef.componentInstance.formData = formData;
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        this.getIndividualData(0);
+      } else {
+        console.log("Error occurred")
+      }
+    });
+  }
 
 }

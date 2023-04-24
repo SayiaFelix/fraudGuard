@@ -8,6 +8,8 @@ import {
   ProductCategoriesAsCardsComponent
 } from "./list-products-categories-cards/product-categories-as-cards.component";
 import {ProductAsCardsComponent} from "./list-products-as-cards/product-as-cards.component";
+import { ViewCategoriesComponent } from './view-categories/view-categories.component';
+import { ListAllProductsAsCardsComponent } from './list-all-products-as-cards/list-all-products-as-cards.component';
 // import {ViewProductComponent} from './list-products/view-customer/view-customer.component';
 
 const routes: Routes = [
@@ -22,11 +24,20 @@ const routes: Routes = [
   },
   {
     path:'list-products/:id',
+    component:ViewCategoriesComponent
+  },
+
+  {
+    path:'list-products',
     component:ListProductsComponent
   },
   {
     path: 'list-products-as-cards/:id',
     component: ProductAsCardsComponent
+  },
+  {
+    path: 'list-all-products-as-cards',
+    component: ListAllProductsAsCardsComponent
   },
 
   {
