@@ -1,8 +1,5 @@
-FROM node:14.17.3 as builder
+FROM devops-registry.ekenya.co.ke/channel-manager/portal-builder:latest as builder
 WORKDIR /app
-RUN yarn global add @angular/cli@14.2.10
-COPY package.json .
-RUN yarn install
 COPY . .
 RUN ng build --configuration production --aot
 
