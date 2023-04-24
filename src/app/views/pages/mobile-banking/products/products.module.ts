@@ -43,12 +43,14 @@ import { ListAllProductsAsCardsComponent } from './list-all-products-as-cards/li
     ProductCategoriesAsCardsComponent,
     ProductAsCardsComponent,
     ViewProductComponent,
+    ViewCategoriesComponent,
     AddProductComponent,
     ListProductsComponent,
     AddProductSubItemComponent,
     AddRequirementComponent,
     ProductCategoriesComponentRedesigned,
-    ProductCategoriesComponentSubItem
+    ProductCategoriesComponentSubItem,
+    ListAllProductsAsCardsComponent
 
   ]
   ,
