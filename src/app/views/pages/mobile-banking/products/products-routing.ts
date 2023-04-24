@@ -8,6 +8,9 @@ import {
   ProductCategoriesAsCardsComponent
 } from "./list-products-categories-cards/product-categories-as-cards.component";
 import {ProductAsCardsComponent} from "./list-products-as-cards/product-as-cards.component";
+import {
+  ProductCategoriesComponentRedesigned
+} from "./list-products-categories-redesigned/product-categories-component-redesigned.component";
 // import {ViewProductComponent} from './list-products/view-customer/view-customer.component';
 
 const routes: Routes = [
@@ -32,7 +35,12 @@ const routes: Routes = [
   {
     path: 'product/:id',
     component: ViewProductComponent
-  }
+  },
+
+  {
+    path: 'list-categories-redesigned',
+    component: ProductCategoriesComponentRedesigned
+  },
 ];
 
 @NgModule({

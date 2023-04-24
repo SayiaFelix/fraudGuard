@@ -18,16 +18,24 @@ import {
 } from "./list-products-categories-cards/product-categories-as-cards.component";
 import {CarouselModule} from "ngx-owl-carousel-o";
 import {ProductAsCardsComponent} from "./list-products-as-cards/product-as-cards.component";
+import {
+  ProductCategoriesComponentRedesigned
+} from "./list-products-categories-redesigned/product-categories-component-redesigned.component";
+import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
+import {
+  ProductCategoriesComponentSubItem
+} from "./list-products-categories-subitems-table/product-categories-component-subitem.component";
 
 @NgModule({
-    imports: [
-        SharedModule,
-        ProductsRoutingModule,
-        FeatherIconModule,
-        NgxDatatableModule,
-        TranslateModule,
-        CarouselModule
-    ],
+  imports: [
+    SharedModule,
+    ProductsRoutingModule,
+    FeatherIconModule,
+    NgxDatatableModule,
+    TranslateModule,
+    CarouselModule,
+    PerfectScrollbarModule
+  ],
   declarations: [
     ProductCategoriesComponent,
     ProductCategoriesAsCardsComponent,
@@ -36,7 +44,9 @@ import {ProductAsCardsComponent} from "./list-products-as-cards/product-as-cards
     AddProductComponent,
     ListProductsComponent,
     AddProductSubItemComponent,
-    AddRequirementComponent
+    AddRequirementComponent,
+    ProductCategoriesComponentRedesigned,
+    ProductCategoriesComponentSubItem
 
   ]
   ,
