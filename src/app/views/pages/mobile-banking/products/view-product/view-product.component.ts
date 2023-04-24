@@ -7,6 +7,7 @@ import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import Swal from "sweetalert2";
 import {AddProductSubItemComponent} from "../add-product-subitem/add-product-sub-item.component";
 import {AddRequirementComponent} from "../add-requirement/add-requirement.component";
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-view-customer',
@@ -14,20 +15,20 @@ import {AddRequirementComponent} from "../add-requirement/add-requirement.compon
   styleUrls: ['./view-product.component.scss']
 })
 export class ViewProductComponent implements OnInit {
-  public myProductList = [
-    {
-      icon: '',
-      name: '1. Personal Accident',
-      value: 8,
-      text: 'danger'
-    },
-    {
-      icon: '',
-      name: '2. Mutual Funds',
-      text: 'danger',
-      value: 8,
+  public myProductList:any = [
+    // {
+    //   icon: '',
+    //   name: '1. Personal Accident',
+    //   value: 8,
+    //   text: 'danger'
+    // },
+    // {
+    //   icon: '',
+    //   name: '2. Mutual Funds',
+    //   text: 'danger',
+    //   value: 8,
 
-    }
+    // }
   ];
   public productDetails: any;
   //   {
@@ -47,7 +48,7 @@ export class ViewProductComponent implements OnInit {
   public imageFile: File;
 
   public features = ['Get access up to 70% of your monthly salary'];
-  public requirements = ['Minimum Salary KES 15,000 per month', 'Repayment period 1 month'];
+  public requirements:any;
 
   public productId: number;
   public modalRef: NgbModalRef;
@@ -59,6 +60,7 @@ export class ViewProductComponent implements OnInit {
               public activatedRoute: ActivatedRoute,
               private modalService: NgbModal,
               public fb: FormBuilder,
+              public domSanitizer:DomSanitizer,
 
   ) {
 
@@ -73,6 +75,7 @@ export class ViewProductComponent implements OnInit {
     });
 
     this.loadData();
+    this.loadRequirements();
   }
 
   private loadData(): any {
@@ -83,9 +86,10 @@ export class ViewProductComponent implements OnInit {
 
     this.httpService.mobileBankingPost('product/portal/fetch/single', model).subscribe(
       (res: any) => {
+    
         if (res.status == 200) {
           this.productDetails = res['data'];
-
+  
         } else {
           Swal.fire('Failed', "Unable to fetch product details", 'error')
         }
@@ -93,7 +97,27 @@ export class ViewProductComponent implements OnInit {
         Swal.fire("Error", error.message, "error");
       });
   }
+  private loadRequirements():any {
+     const model ={
+      id:this.productId
+     }
+     this.httpService.mobileBankingPost('product/portal/fetch/requirement',model).subscribe(
+      (result:any)=>{
+        if (result.status===200){
+           this.requirements =result['data'];
+        }
+        else{
+          Swal.fire('Failed','unable to fetch requirements','error')
+        }
 
+      },
+      (error:any)=>{
+        Swal.fire("Error",error.message,"error")
+      }
+     );
+  }
+
+  
 
   // public openModal(parentData: any) {
   //   this.modalRef = this.modalService.open(CreateProductComponent, {size: 'lg'});

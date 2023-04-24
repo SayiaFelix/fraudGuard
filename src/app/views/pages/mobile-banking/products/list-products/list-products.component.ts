@@ -98,10 +98,9 @@ export class ListProductsComponent implements OnInit {
   getIndividualData(event: number): void {
 
     const model = {
-
       size: 50,
       page: 0,
-      id: this.productCategoryId
+      id: this.productCategoryId 
     };
 
     this.httpService
@@ -124,7 +123,7 @@ export class ListProductsComponent implements OnInit {
   }
 
   openEditProductModal(formData: any) {
-    this.modalRef = this.modalService.open(AddProductSubItemComponent, {centered: true});
+    this.modalRef = this.modalService.open(AddProductSubItemComponent, {centered: true,size:"md"});
     this.modalRef.componentInstance.title = 'Edit Product';
     this.modalRef.componentInstance.formData = formData;
     this.modalRef.componentInstance.productCategoryId = this.productCategoryId;
@@ -140,7 +139,7 @@ export class ListProductsComponent implements OnInit {
   openAddProductModal() {
 
     this.modalRef = this.modalService.open(AddProductSubItemComponent,
-      {centered: true});
+      {centered: true,size:"md"});
     this.modalRef.componentInstance.title = 'Add Product';
     this.modalRef.componentInstance.productCategoryId = this.productCategoryId;
     this.modalRef.result.then((result) => {

@@ -39,8 +39,8 @@ export class ProductCategoriesComponent implements OnInit {
     {name: 'Name', prop: 'name'},
     {name: 'ParentCategory', prop: 'parentCategoryName'},
     {name: 'Remarks', prop: 'description'},
-    {name: 'Status', prop: 'status'},
-    {name: 'CreatedOn', prop: 'createdOn'},
+    {name: 'Status', prop: 'active'},
+    {name: 'CreatedOn', prop: 'createdAt'},
     {name: 'Actions', prop: 'id'},
   ];
 
@@ -87,8 +87,10 @@ export class ProductCategoriesComponent implements OnInit {
       .mobileBankingPost('product/portal/category/fetch/all', model)
       .subscribe((res: any) => {
         if (res.status === 200) {
+          this.rows=res.data;
+          this.rows = [...this.flatten(this.rows)]
           console.log(res.data);
-            let response = res.data.map((item: any, index: any) => {
+            let response = this.rows.map((item: any, index: any) => {
               let res = {...item,
                 parentCategoryName: item.parentCategory ? item.parentCategory.name : "_",
                 frontendId: index + 1
@@ -102,7 +104,11 @@ export class ProductCategoriesComponent implements OnInit {
         }
       });
   }
-
+  public flatten(arr:any) { 
+    console.log(arr)
+    return arr ? arr.reduce((r:any, i:any) => [...r, i, ...this.flatten(i.children)], []) : [];
+    
+   } 
   openAddProductModal() {
 
     this.modalRef = this.modalService.open(AddProductComponent, {centered: true});
@@ -136,6 +142,8 @@ export class ProductCategoriesComponent implements OnInit {
   }
 
   navigateToViewProduct(data: any) {
+    console.log(data);
+    
     this.router.navigateByUrl(`/mobile-banking/products/list-products/${data.id}`);
   }
 

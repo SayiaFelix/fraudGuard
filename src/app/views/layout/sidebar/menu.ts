@@ -35,7 +35,12 @@ export const MENU: MenuItem[] = [
       {
         profiles: ['CORPORATE_ADMIN'],
         label: 'Product Categories',
-        link: '/mobile-banking/products/list-requests'
+        link: '/mobile-banking/products/list-categories'
+      },
+      {
+        profiles: ['CORPORATE_ADMIN'],
+        label: 'All Products',
+        link: '/mobile-banking/products/list-products/:id'
       },
     ]
   },
