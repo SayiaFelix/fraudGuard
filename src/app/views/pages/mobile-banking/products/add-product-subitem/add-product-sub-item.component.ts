@@ -37,9 +37,9 @@ export class AddProductSubItemComponent implements OnInit {
 
 
     this.form = this.fb.group({
-      name: [this.formData ? this.formData.title : '',
+      name: [this.formData ? this.formData.name : '',
         [Validators.required]],
-      shortDescription: [this.formData ? this.formData.description : '',
+      shortDescription: [this.formData ? this.formData.shortDescription : '',
         [Validators.required]],
       productDescription: [this.formData ? this.formData.productDescription : '',
         [Validators.required]],

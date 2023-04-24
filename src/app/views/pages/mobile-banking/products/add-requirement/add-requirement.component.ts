@@ -4,6 +4,7 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {HttpService} from 'src/app/shared/services/http.service';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import Swal from "sweetalert2";
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-add-requirement',
@@ -18,17 +19,17 @@ export class AddRequirementComponent implements OnInit {
   public hasErrors = false;
   public errorMessages: any;
   public form: FormGroup;
-
+  public productId:number;
   public allProductCategories: any;
 
   constructor(
     public activeModal: NgbActiveModal,
+    private activatedRoute:ActivatedRoute,
     public fb: FormBuilder,
     private _httpService: HttpService) {
   }
 
   ngOnInit() {
-
     this.form = this.fb.group({
       requirement: [this.formData ? this.formData.requirement : '', [Validators.required]],
     });
@@ -54,7 +55,7 @@ export class AddRequirementComponent implements OnInit {
   private createRecord(): any {
 
     const model = {
-      // productId: this.productId,
+      productId: this.productId,
       requirementCode: this.form.value.requirementCode,
       requirement: this.form.value.requirementCode,
       approvalId:1
@@ -64,13 +65,13 @@ export class AddRequirementComponent implements OnInit {
       (result: any) => {
         if (result.status === 200) {
           this.activeModal.close('success');
-          Swal.fire('Product Category Created',
-            'Product Category has been created successfully.',
+          Swal.fire('Product requirement created',
+            'Product requirement has been created successfully.',
             'success').then(r => console.log(r))
         } else {
           this.activeModal.close('error');
           Swal.fire('Record creation error',
-            'Product Category could not be created.',
+            'Product requirement could not be created.',
             'error').then(r => console.log(r))
         }
       },

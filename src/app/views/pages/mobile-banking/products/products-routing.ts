@@ -13,7 +13,7 @@ import {ProductAsCardsComponent} from "./list-products-as-cards/product-as-cards
 const routes: Routes = [
 
   {
-    path: 'list-requests',
+    path: 'list-categories',
     component: ProductCategoriesComponent
   },
   {

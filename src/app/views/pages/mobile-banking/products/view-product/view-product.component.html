@@ -9,9 +9,10 @@
                       class="navbar-toggle btn btn-icon border d-inline-flex d-lg-none" type="button">
                 <i appFeatherIcon class="btn-icon-prepend" data-feather="plus"></i> Button
               </button>
-              <div class="order-first">
-                <h4>Personal Accident</h4>
-                <img class="PersonalAccident" src="assets/images/screenshots/PersonalAccident.png">
+              <div class="order-first" >
+              <!-- <div class="order-first" *ngFor="let product of myProductList"> -->
+                <h4>{{productDetails?.name}} </h4>
+                <img class="image" [src]="domSanitizer.bypassSecurityTrustResourceUrl(productDetails?.productUrl)" [alt]="productDetails?.alt">
               </div>
               <br>
               <!--                <img class="profile-pic text-center" src="assets/img/logos/person.png"/>-->
@@ -67,36 +68,22 @@
               <div class="text-muted">
                 <p class="text-muted fw-normal mb-4">{{productDetails?.detailedDescription}}</p>
               </div>
-
-              <h6 class="text-left font-size-20 fw-bold mt-0 mb-2">Requirements</h6>
-
+             <!-- <div>
+              <p class="text-muted fw-normal mb-4">{{productDetails?.detailedDescription}}</p>
+             </div> -->
+              <h5 class="text-left font-size-20 fw-bold mt-0 mb-2">Requirements</h5>
               <ul style="list-style-type: none;">
-                <li *ngFor="let item of ['Minimum Salary KES 15,000 per month', 'Repayment period 1 month']">
+                <div *ngFor="let requirements of requirements">
                   <!--                  <input class="mr-3 pr-3" type="checkbox">-->
-                  <span class="text-muted fw-normal mb-4">- {{item}}</span>
-                </li>
+                  <h6 class="text-muted fw-normal mb-2 align-items-start">{{requirements?.requirement}}</h6>
+                  <li class="text-muted fw-normal mb-2">-{{requirements?.requirementDescription}}</li>
+                </div>
               </ul>
               <button (click)="addRequirement()"
                       class="btn btn-primary btn-xs pull-right"
                       type="button">Add Requirement
               </button>
 
-
-              <!--              <div class="row">-->
-              <!--                <div class="col-8">-->
-              <!--                  <h6 class="text-left font-size-20 fw-bold mt-0 mb-2">Features</h6>-->
-              <!--                </div>-->
-              <!--                <div class="col-4">-->
-              <!--                  <button class="btn btn-primary btn-xs pull-right" type="button">Add Feature</button>-->
-              <!--                </div>-->
-
-              <!--              </div>-->
-              <!--              <ul style="list-style-type: none;">-->
-              <!--                <li *ngFor="let item of ['Get access up to 70% of your monthly salary']">-->
-              <!--&lt;!&ndash;                  <input class="mr-2 pr-2" type="checkbox">&ndash;&gt;-->
-              <!--                  <span class="text-muted fw-normal mb-4">- {{item}}</span>-->
-              <!--                </li>-->
-              <!--              </ul>-->
 
               <hr/>
 

@@ -21,7 +21,7 @@
         <div class="col-sm-6">
             <div class="form-group">
                 <label class="text-gray">Product Name</label>
-                <input formControlName="name" class="form-control" type="text" maxlength="24">
+                <input formControlName="name" class="form-control" type="text" >
                 <p *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')"
                    class="text-danger mt-1 mb-1 pt-0 small text-center">Required
                     Field</p>
@@ -33,7 +33,7 @@
         <div class="col-sm-6">
             <div class="form-group">
                 <label class="text-gray">Short Description</label>
-                <input formControlName="shortDescription" class="form-control" type="text" maxlength="36">
+                <textarea formControlName="shortDescription" class="form-control" type="text"></textarea>
                 <p *ngIf="form.get('shortDescription')?.touched && form.get('shortDescription')?.hasError('required')"
                    class="text-danger mt-1 mb-1 pt-0 small text-center">Required
                     Field</p>
