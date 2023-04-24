@@ -98,13 +98,12 @@ export class ListProductsComponent implements OnInit {
   getIndividualData(event: number): void {
 
     const model = {
-      size: 50,
-      page: 0,
-      id: this.productCategoryId 
+        "page":0,
+        "size":100
     };
 
     this.httpService
-      .mobileBankingPost('product/portal/fetch/all', model)
+      .mobileBankingPost('product/portal/fetch/all/active', model)
       .subscribe(
         (res: any) => {
           if (res.status === 200) {

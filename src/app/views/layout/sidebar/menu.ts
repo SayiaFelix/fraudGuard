@@ -40,7 +40,7 @@ export const MENU: MenuItem[] = [
       {
         profiles: ['CORPORATE_ADMIN'],
         label: 'All Products',
-        link: '/mobile-banking/products/list-products/:id'
+        link: '/mobile-banking/products/list-products'
       },
     ]
   },
