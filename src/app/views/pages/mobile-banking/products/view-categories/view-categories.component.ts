@@ -1,3 +1,4 @@
+
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -9,13 +10,12 @@ import {AddProductSubItemComponent} from "../add-product-subitem/add-product-sub
 import Swal from "sweetalert2";
 import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
 
-
 @Component({
-  selector: 'app-list-products',
-  templateUrl: './list-products.component.html',
-  styleUrls: ['./list-products.component.scss']
+  selector: 'app-view-categories',
+  templateUrl: './view-categories.component.html',
+  styleUrls: ['./view-categories.component.scss']
 })
-export class ListProductsComponent implements OnInit {
+export class ViewCategoriesComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
 
   tempProductData = [
@@ -98,12 +98,13 @@ export class ListProductsComponent implements OnInit {
   getIndividualData(event: number): void {
 
     const model = {
-        "page":0,
-        "size":100
+      size: 50,
+      page: 0,
+      id: this.productCategoryId 
     };
 
     this.httpService
-      .mobileBankingPost('product/portal/fetch/all/active', model)
+      .mobileBankingPost('product/portal/fetch/all', model)
       .subscribe(
         (res: any) => {
           if (res.status === 200) {
@@ -333,3 +334,4 @@ export class ListProductsComponent implements OnInit {
 
 
 }
+
