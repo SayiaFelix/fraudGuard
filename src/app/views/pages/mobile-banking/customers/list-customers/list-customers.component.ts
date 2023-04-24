@@ -73,7 +73,6 @@ export class ListCustomersComponent implements OnInit {
     { name: 'CustomerName', prop: 'customerName' },
     {name:'PhoneNumber',prop:'phoneNumber'},
     { name: 'IDNumber', prop: 'idNumber' },
-    { name: 'PrimaryDevice', prop: 'primaryDevice' },
     {name: 'CBSCustomerNumber',prop:'cbsCustomerNumber'},
     {name: 'AccountNumber',prop:'accountNumber'},
     // {name: 'Email',prop:'email'},
