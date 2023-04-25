@@ -94,6 +94,7 @@
                 <li
                     *ngFor="let action of actions; index as i"
                     class="action-buttons list-group-item pt-1 pb-1 text-center"
+                    (click)="sendEvent(row, action)"
                   >
                     {{ action }}
                 </li>

@@ -300,4 +300,20 @@ export class ProductCategoriesComponentSubItem implements OnInit {
       }
     });
   }
+
+  sendEvent(row: any, action: any) {
+    let result = {
+      row: row,
+      action: action,
+    };
+
+    if (result.action == 'View') {
+      this.navigateToViewProduct(result.row);
+    } else if (result.action == 'Edit') {
+      this.openEditProductModal(result.row);
+    } else if (result.action == 'Delete') {
+      this.openDeleteModal(result.row);
+    }
+  }
+
 }

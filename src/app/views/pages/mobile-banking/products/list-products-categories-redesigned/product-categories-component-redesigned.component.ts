@@ -283,19 +283,6 @@ export class ProductCategoriesComponentRedesigned implements OnInit {
     this.columns = [...updatedColumns];
   }
 
-  triggerEvent(data: string) {
-
-    let eventData = JSON.parse(data)
-
-    if (eventData.action == 'View') {
-      this.navigateToViewProduct(eventData.row);
-    } else if (eventData.action == 'Edit') {
-      this.openEditProductModal(eventData.row);
-    } else if (eventData.action == 'Delete') {
-      this.openDeleteModal(eventData.row);
-    }
-
-  }
 
   openDeleteModal(formData: any) {
     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
@@ -332,4 +319,20 @@ export class ProductCategoriesComponentRedesigned implements OnInit {
       }
     });
   }
+
+  sendEvent(row: any, action: any) {
+    let result = {
+      row: row,
+      action: action,
+    };
+
+    if (result.action == 'View') {
+      this.navigateToViewProduct(result.row);
+    } else if (result.action == 'Edit') {
+      this.openEditProductModal(result.row);
+    } else if (result.action == 'Delete') {
+      this.openDeleteModal(result.row);
+    }
+  }
+
 }
