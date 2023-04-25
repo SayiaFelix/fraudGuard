@@ -38,7 +38,7 @@ export class ProductCategoriesComponent implements OnInit {
     {name: '#', prop: 'frontendId'},
     {name: 'Name', prop: 'name'},
     {name: 'ParentCategory', prop: 'parentCategoryName'},
-    {name: 'Remarks', prop: 'description'},
+    // {name: 'Remarks', prop: 'description'},
     {name: 'Status', prop: 'active'},
     {name: 'CreatedOn', prop: 'createdAt'},
     {name: 'Actions', prop: 'id'},
@@ -87,28 +87,25 @@ export class ProductCategoriesComponent implements OnInit {
       .mobileBankingPost('product/portal/category/fetch/all', model)
       .subscribe((res: any) => {
         if (res.status === 200) {
-          this.rows=res.data;
-          this.rows = [...this.flatten(this.rows)]
-          console.log(res.data);
-            let response = this.rows.map((item: any, index: any) => {
-              let res = {...item,
-                parentCategoryName: item.parentCategory ? item.parentCategory.name : "_",
-                frontendId: index + 1
-              };
-              return res;
-            })
-            this.rows = response;
-            console.log("this.rows");
-            console.log(this.rows);
+          this.rows = res.data;
+          let response = this.rows.map((item: any, index: any) => {
+            let res = {...item,
+              parentCategoryName: item.parentCategory ? item.parentCategory.name : "_",
+              frontendId: index + 1
+            };
+            return res;
+          })
+          this.rows = response;
+
         } else {
         }
       });
   }
-  public flatten(arr:any) { 
+  public flatten(arr:any) {
     console.log(arr)
     return arr ? arr.reduce((r:any, i:any) => [...r, i, ...this.flatten(i.children)], []) : [];
-    
-   } 
+
+  }
   openAddProductModal() {
 
     this.modalRef = this.modalService.open(AddProductComponent, {centered: true});
@@ -143,15 +140,32 @@ export class ProductCategoriesComponent implements OnInit {
 
   navigateToViewProduct(data: any) {
     console.log(data);
-    
+
     this.router.navigateByUrl(`/mobile-banking/products/list-products/${data.id}`);
   }
 
-  toggleExpandRow(row: any) {
-    console.log(row);
-    console.log(this.table);
+  toggleExpandRow(row: any, $event: Event) {
 
-    this.table.rowDetail.toggleExpandRow(row);
+    console.log("here is my $event");
+    console.log($event);
+
+    if(row.$$expanded){
+      this.expandRow($event);
+    }else {
+      this.collapseRow($event);
+    } this.table.rowDetail.toggleExpandRow(row);
+  }
+
+  expandRow(e: Event) {
+
+    // @ts-ignore
+    (<HTMLInputElement>e.target).closest('datatable-row-wrapper')
+      .className = "";
+  }
+  collapseRow(e: any) {
+    // @ts-ignore
+    (<HTMLInputElement>e.target).closest('datatable-row-wrapper')
+      .className ="expanded";
   }
 
   onDetailToggle(event: any) {
@@ -269,19 +283,6 @@ export class ProductCategoriesComponent implements OnInit {
     this.columns = [...updatedColumns];
   }
 
-  triggerEvent(data: string) {
-
-    let eventData = JSON.parse(data)
-
-    if (eventData.action == 'View') {
-      this.navigateToViewProduct(eventData.row);
-    } else if (eventData.action == 'Edit') {
-      this.openEditProductModal(eventData.row);
-    } else if (eventData.action == 'Delete') {
-      this.openDeleteModal(eventData.row);
-    }
-
-  }
 
   openDeleteModal(formData: any) {
     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
@@ -318,4 +319,20 @@ export class ProductCategoriesComponent implements OnInit {
       }
     });
   }
+
+  sendEvent(row: any, action: any) {
+    let result = {
+      row: row,
+      action: action,
+    };
+
+    if (result.action == 'View') {
+      this.navigateToViewProduct(result.row);
+    } else if (result.action == 'Edit') {
+      this.openEditProductModal(result.row);
+    } else if (result.action == 'Delete') {
+      this.openDeleteModal(result.row);
+    }
+  }
+
 }
