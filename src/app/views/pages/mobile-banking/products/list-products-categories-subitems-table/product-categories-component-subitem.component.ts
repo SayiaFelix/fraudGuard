@@ -83,7 +83,7 @@ export class ProductCategoriesComponentSubItem implements OnInit {
 
     let response = this.rows.map((item: any, index: any) => {
       let res = {...item,
-        parentCategoryName: item.parentCategory ? item.parentCategory.name : "_",
+        parentCategoryName: item.parentCategoryName ? item.parentCategoryName : "_",
         frontendId: index + 1
       };
       return res;
