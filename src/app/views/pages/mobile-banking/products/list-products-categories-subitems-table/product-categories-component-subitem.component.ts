@@ -40,7 +40,7 @@ export class ProductCategoriesComponentSubItem implements OnInit {
     {name: '#', prop: 'frontendId'},
     {name: 'Name', prop: 'name'},
     {name: 'ParentCategory', prop: 'parentCategoryName'},
-    {name: 'Remarks', prop: 'description'},
+    // {name: 'Remarks', prop: 'description'},
     {name: 'Status', prop: 'active'},
     {name: 'CreatedOn', prop: 'createdAt'},
     {name: 'Actions', prop: 'id'},
@@ -80,6 +80,16 @@ export class ProductCategoriesComponentSubItem implements OnInit {
 
   getSubCategories(): void {
     this.rows = this.subItems;
+
+    let response = this.rows.map((item: any, index: any) => {
+      let res = {...item,
+        parentCategoryName: item.parentCategory ? item.parentCategory.name : "_",
+        frontendId: index + 1
+      };
+      return res;
+    })
+    this.rows = response;
+
   }
   openAddProductModal() {
 

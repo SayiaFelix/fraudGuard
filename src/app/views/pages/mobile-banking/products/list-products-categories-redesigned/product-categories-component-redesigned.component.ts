@@ -38,7 +38,7 @@ export class ProductCategoriesComponentRedesigned implements OnInit {
     {name: '#', prop: 'frontendId'},
     {name: 'Name', prop: 'name'},
     {name: 'ParentCategory', prop: 'parentCategoryName'},
-    {name: 'Remarks', prop: 'description'},
+    // {name: 'Remarks', prop: 'description'},
     {name: 'Status', prop: 'active'},
     {name: 'CreatedOn', prop: 'createdAt'},
     {name: 'Actions', prop: 'id'},
@@ -87,19 +87,15 @@ export class ProductCategoriesComponentRedesigned implements OnInit {
       .mobileBankingPost('product/portal/category/fetch/all', model)
       .subscribe((res: any) => {
         if (res.status === 200) {
-          this.rows=res.data;
-          // this.rows = [...this.flatten(this.rows)]
-          // console.log(res.data);
-          //   let response = this.rows.map((item: any, index: any) => {
-          //     let res = {...item,
-          //       parentCategoryName: item.parentCategory ? item.parentCategory.name : "_",
-          //       frontendId: index + 1
-          //     };
-          //     return res;
-          //   })
-          //   this.rows = response;
-          //   console.log("this.rows");
-          //   console.log(this.rows);
+          this.rows = res.data;
+            let response = this.rows.map((item: any, index: any) => {
+              let res = {...item,
+                parentCategoryName: item.parentCategory ? item.parentCategory.name : "_",
+                frontendId: index + 1
+              };
+              return res;
+            })
+            this.rows = response;
 
         } else {
         }
@@ -148,7 +144,11 @@ export class ProductCategoriesComponentRedesigned implements OnInit {
     this.router.navigateByUrl(`/mobile-banking/products/list-products/${data.id}`);
   }
 
-  toggleExpandRow(row: any, $event: any) {
+  toggleExpandRow(row: any, $event: Event) {
+
+    console.log("here is my $event");
+    console.log($event);
+
     if(row.$$expanded){
       this.expandRow($event);
     }else {
@@ -156,12 +156,15 @@ export class ProductCategoriesComponentRedesigned implements OnInit {
     } this.table.rowDetail.toggleExpandRow(row);
   }
 
-  expandRow($event: any) {
-    $event.toElement.closest('datatable-row-wrapper')
+  expandRow(e: Event) {
+
+    // @ts-ignore
+    (<HTMLInputElement>e.target).closest('datatable-row-wrapper')
       .className = "";
   }
-  collapseRow($event: any) {
-    $event.toElement.closest('datatable-row-wrapper')
+  collapseRow(e: any) {
+    // @ts-ignore
+    (<HTMLInputElement>e.target).closest('datatable-row-wrapper')
       .className ="expanded";
   }
 
