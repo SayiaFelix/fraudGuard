@@ -7,21 +7,20 @@
 
   <div ngbDropdown>
     <button class="btn btn-primary btn-xs" id="dropdownBasic1" ngbDropdownToggle>Select View</button>
-    <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+    <div aria-labelledby="dropdownBasic1" ngbDropdownMenu>
       <button ngbDropdownItem routerLink="/mobile-banking/products/list-categories-as-cards">Card View</button>
       <button ngbDropdownItem routerLink="/mobile-banking/products/list-requests">Table View</button>
     </div>
   </div>
 
   <app-table-header
-    [allColumns]="allColumns"
-    [rows]="rows"
-    [title]="title"
-    [showAddButton]="true"
     (changeColumnsEvent)="updateColumns($event)"
     (openAddModalEvent)="openAddProductModal()"
+    [allColumns]="allColumns"
+    [rows]="rows"
+    [showAddButton]="true"
+    [title]="title"
   ></app-table-header>
-
 
 
 </div>
@@ -30,7 +29,7 @@
   <div class="col-md-12 stretch-card">
     <div class="card">
 
-      <div class="table-responsive" [perfectScrollbar]>
+      <div [perfectScrollbar] class="table-responsive">
         <ngx-datatable
           #table
           [columnMode]="ColumnMode.force"
@@ -54,46 +53,49 @@
               ngx-datatable-row-detail-template
             >
 
-              <div style="padding-left: 35px; padding-top: 15px; background-color: #ecedee!important;" *ngIf="row.children.length > 0">
-                <div><h4><strong>Sub-Categories of {{row.name}}</strong></h4></div>
+              <div *ngIf="row.children.length > 0"
+                   style="padding-left: 35px; padding-top: 15px; background-color: #ecedee!important;">
+                <div><h5>Sub-Categories of {{row.name}}</h5></div>
                 <div class="card">
-                  <app-product-categories-subitem [subItems] = "row.children"></app-product-categories-subitem>
+                  <app-product-categories-subitem [subItems]="row.children"></app-product-categories-subitem>
                 </div>
               </div>
             </ng-template>
           </ngx-datatable-row-detail>
 
-           Column Templates
-              <ngx-datatable-column
-                [canAutoResize]="false"
-                [draggable]="false"
-                [resizeable]="false"
-                [sortable]="false"
-                [width]="5"
-              >
-                <ng-template
-                  let-expanded="expanded"
-                  let-row="row"
-                  let-value="value"
-                  ngx-datatable-cell-template
+          Column Templates
+          <ngx-datatable-column
+            [canAutoResize]="false"
+            [draggable]="false"
+            [resizeable]="false"
+            [sortable]="false"
+            [width]="5"
+          >
+            <ng-template
+              let-expanded="expanded"
+              let-row="row"
+              let-value="value"
+              ngx-datatable-cell-template
+            >
+              <ng-container *ngIf="row.children.length > 0">
+                <a
+                  (click)="toggleExpandRow(row, $event)"
+                  [class.datatable-icon-down]="expanded"
+                  [class.datatable-icon-right]="!expanded"
+                  href="javascript:void(0)"
+                  title="Expand/Collapse Row"
                 >
-                  <a
-                    (click)="toggleExpandRow(row, $event)"
-                    [class.datatable-icon-down]="expanded"
-                    [class.datatable-icon-right]="!expanded"
-                    href="javascript:void(0)"
-                    title="Expand/Collapse Row"
-                  >
-                  </a>
-                </ng-template>
-              </ngx-datatable-column>
+                </a>
+              </ng-container>
+            </ng-template>
+          </ngx-datatable-column>
 
           <ng-container *ngFor="let column of columns">
             <ngx-datatable-column
               *ngIf="column.name === 'ID' || column.name === '#'"
+              [draggable]="false"
               [maxWidth]="45"
               [minWidth]="35"
-              [draggable]="false"
               [resizeable]="false"
               name="#"
               prop="frontendId"
@@ -102,11 +104,11 @@
 
             <ngx-datatable-column
               *ngIf="column.name === 'Actions' && actions.length > 0"
+              [draggable]="false"
               [maxWidth]="150"
               [minWidth]="150"
-              [sortable]="false"
-              [draggable]="false"
               [resizeable]="false"
+              [sortable]="false"
               class="parent-item"
               name="Actions"
               prop="actions"
@@ -124,6 +126,7 @@
                 <li
                   *ngFor="let action of ['Edit', 'Delete']; index as i"
                   class="action-buttons list-group-item pt-1 pb-1 text-center"
+                  (click)="sendEvent(row, action)"
                 >
                   {{ action }}
                 </li>
@@ -135,6 +138,7 @@
               <li
                 *ngFor="let action of actions; index as i"
                 class="action-buttons list-group-item pt-1 pb-1 text-center"
+                (click)="sendEvent(row, action)"
               >
                   {{ action }}
                 </li>
@@ -155,12 +159,12 @@
 
             <ngx-datatable-column
               *ngIf="column.name === 'Status' || column.name === 'Active'"
+              [draggable]="false"
               [maxWidth]="150"
               [minWidth]="150"
               [resizeable]="false"
               name="Status"
               prop="status"
-              [draggable]="false"
             >
               <ng-template
                 let-row="row"
@@ -176,9 +180,9 @@
             <ngx-datatable-column
               *ngIf="column.name === 'CreatedOn'"
               [draggable]="false"
-              [resizeable]="false"
               [maxWidth]="150"
               [minWidth]="150"
+              [resizeable]="false"
               name="CreatedOn"
               prop="createdOn"
             >
@@ -195,10 +199,10 @@
           column.name !== 'SystemRole' &&
           column.name !== 'CreatedOn'
         "
-              name="{{ column.name }}"
-              prop="{{ column.prop }}"
               [draggable]="false"
               [resizeable]="false"
+              name="{{ column.name }}"
+              prop="{{ column.prop }}"
             >
             </ngx-datatable-column>
           </ng-container>
