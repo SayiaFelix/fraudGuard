@@ -46,7 +46,7 @@
           <ngx-datatable-row-detail
             #myDetailRow
             (toggle)="onDetailToggle($event)"
-            [rowHeight]="100"
+            [rowHeight]="200"
           >
             <ng-template
               let-expanded="expanded"
@@ -54,8 +54,8 @@
               ngx-datatable-row-detail-template
             >
 
-              <div style="padding-left: 35px" *ngIf="row.children.length > 0">
-                <div><strong>Sub-Categories</strong></div>
+              <div style="padding-left: 35px; padding-top: 15px; background-color: #ecedee!important;" *ngIf="row.children.length > 0">
+                <div><h4><strong>Sub-Categories of {{row.name}}</strong></h4></div>
                 <div class="card">
                   <app-product-categories-subitem [subItems] = "row.children"></app-product-categories-subitem>
                 </div>
@@ -120,13 +120,24 @@
           <span class="parent-item">
             <ng-template #buttons>
               <ul class="list-group list-group-flush">
+                <ng-container *ngIf="row.children.length > 0; else showAllButtons">
                 <li
-                  *ngFor="let action of actions; index as i"
+                  *ngFor="let action of ['Edit', 'Delete']; index as i"
                   class="action-buttons list-group-item pt-1 pb-1 text-center"
                 >
                   {{ action }}
                 </li>
+                </ng-container>
               </ul>
+            </ng-template>
+
+            <ng-template #showAllButtons>
+              <li
+                *ngFor="let action of actions; index as i"
+                class="action-buttons list-group-item pt-1 pb-1 text-center"
+              >
+                  {{ action }}
+                </li>
             </ng-template>
             <div class="example">
               <button

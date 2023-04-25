@@ -43,9 +43,10 @@ export class ListProductsComponent implements OnInit {
   columns = [
     {name: 'ID', prop: 'id'},
     {name: 'ProductName', prop: 'name'},
+    {name: 'ProductCategory', prop: 'categoryName'},
     {name: 'Description', prop: 'shortDescription'},
     {name: 'Status', prop: 'status'},
-    {name: 'CreatedOn', prop: 'createdOn'},
+    {name: 'CreatedOn', prop: 'createdAt'},
     {name: 'Actions', prop: 'id'},
   ];
 
@@ -110,7 +111,11 @@ export class ListProductsComponent implements OnInit {
             let response = res['data'];
 
             this.rows = response.map((item: any, index: any) => {
-              const res = {...item, frontendId: index + 1};
+              const res = {
+                ...item,
+                frontendId: index + 1,
+                categoryName: item.productCategory.name
+              };
               return res;
             });
           } else {
