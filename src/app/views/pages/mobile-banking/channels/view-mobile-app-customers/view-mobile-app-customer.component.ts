@@ -18,25 +18,28 @@ export class ViewMobileAppCustomerComponent implements OnInit {
   tempProductData = [
     {
       id: 1,
-      IMSINumber: 'Oppo Reno 8',
+      IMSINumber: 'Redmi Note 11 pro',
+      primaryDevice:'Redmi Note 11 pro',
       description: 'Short Description',
       status: true,
       createdOn: '12-02-2023',
       lastUsed:'31-03-2023'
     },
-    {
-      id: 2,
-      IMSINumber: 'Redmi 10',
-      description: 'short Description',
-      status: true,
-      createdOn: '12-02-2023',
-      lastUsed:'31-03-2023'
-    },
+    // {
+    //   id: 2,
+    //   IMSINumber: 'Redmi 10',
+    //   primaryDevice:'',
+    //   description: 'short Description',
+    //   status: true,
+    //   createdOn: '12-02-2023',
+    //   lastUsed:'31-03-2023'
+    // },
 
   ];
   registeredColumns = [
     { name: 'ID', prop: 'id' },
     { name: 'Device', prop: 'IMSINumber' },
+    { name: 'PrimaryDevice', prop: 'primaryDevice' },
     { name: 'Status', prop: 'status' },
     { name: 'CreatedOn', prop: 'createdOn' },
     {name:'LastUsed',prop:'lastUsed'},
