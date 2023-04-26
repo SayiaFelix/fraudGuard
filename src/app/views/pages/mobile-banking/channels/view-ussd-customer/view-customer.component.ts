@@ -43,6 +43,7 @@ export class ViewCustomerComponent implements OnInit {
   registeredColumns = [
     { name: 'ID', prop: 'id' },
     { name: 'IMSINumber', prop: 'IMSINumber' },
+    { name: 'PrimaryIMSINumber', prop: 'primaryIMSINumber' },
     { name: 'ServiceProvider', prop: 'serviceProvider' },
     { name: 'Status', prop: 'status' },
     { name: 'CreatedOn', prop: 'createdOn' },
