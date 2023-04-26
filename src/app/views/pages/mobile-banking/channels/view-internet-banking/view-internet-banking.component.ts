@@ -31,6 +31,7 @@ export class ViewInternetBankingComponent implements OnInit {
     {
       id: 2,
       IMSINumber: '00:00:5e:00:53:af',
+    
       description: 'short Description',
       status: true,
       createdOn: '12-02-2023',
@@ -41,6 +42,7 @@ export class ViewInternetBankingComponent implements OnInit {
   registeredColumns = [
     { name: 'ID', prop: 'id' },
     { name: 'IP/MAC Address', prop: 'IMSINumber' },
+    { name: 'Primary IP/Mac Address',prop:'primaryIPAddress'},
     { name: 'Status', prop: 'status' },
     { name: 'CreatedOn', prop: 'createdOn' },
     {name:'LastUsed',prop:'lastUsed'},
