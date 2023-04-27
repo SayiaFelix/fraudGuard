@@ -158,7 +158,7 @@ export class ListMobileBankingCustomersComponent implements OnInit {
 
     const model = {
       page: 0,
-      size: 5,
+      size: 50,
     };
 
     this.httpService

@@ -58,7 +58,7 @@ export class ViewCustomerComponent implements OnInit {
   {name:'Amount',prop:'Amount'},
   {name:'ChargeAmt',prop:'ChargeAmt'},
   {name:'ResCode',prop:'Respons'},
-  
+
   ];
 
   // bread crumb items
@@ -121,7 +121,7 @@ export class ViewCustomerComponent implements OnInit {
 
     const model = {
       page: 0,
-      size: 5,
+      size: 50,
     };
 
     this.httpService

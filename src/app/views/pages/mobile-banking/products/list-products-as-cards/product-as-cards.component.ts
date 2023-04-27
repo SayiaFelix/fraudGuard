@@ -141,8 +141,8 @@ export class ProductAsCardsComponent implements OnInit {
 //     this.slidesStore.forEach((slide:any)=> {
 //       slide.productUrl = this.domSanitizer.bypassSecurityTrustUrl(slide.productUrl);
 //  });
-    
-    
+
+
     this.breadCrumbItems = [
       {
         label: 'Mobile banking',
