@@ -72,6 +72,7 @@ export class AddUserComponent implements OnInit {
       firstName: this.form.value.firstName,
       lastName: this.form.value.lastName,
       email: this.form.value.email,
+      phoneNumber: this.form.value.phone,
       profileId:this.form.value.profile,
     };
 

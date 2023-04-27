@@ -24,6 +24,9 @@ import {
 } from "./list-products-categories-subitems-table/product-categories-component-subitem.component";
 import { ViewCategoriesComponent } from './view-categories/view-categories.component';
 import { ListAllProductsAsCardsComponent } from './list-all-products-as-cards/list-all-products-as-cards.component';
+import {
+  ProductSubCategoriesAsCardsComponent
+} from "./list-products-subcategories-cards/product-sub-categories-as-cards.component";
 
 @NgModule({
   imports: [
@@ -46,7 +49,8 @@ import { ListAllProductsAsCardsComponent } from './list-all-products-as-cards/li
     AddProductSubItemComponent,
     AddRequirementComponent,
     ProductCategoriesComponentSubItem,
-    ListAllProductsAsCardsComponent
+    ListAllProductsAsCardsComponent,
+    ProductSubCategoriesAsCardsComponent
 
   ]
   ,

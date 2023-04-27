@@ -1,4 +1,4 @@
-import {Component, OnInit, Pipe, ViewChild,} from '@angular/core';
+import {Component, Input, OnInit, Pipe, PipeTransform, ViewChild,} from '@angular/core';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {DatePipe} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -9,29 +9,32 @@ import {DataExportationService} from 'src/app/shared/services/data-exportation.s
 import {HttpService} from 'src/app/shared/services/http.service';
 import {AddProductComponent} from "../add-product/add-product.component";
 import {OwlOptions} from "ngx-owl-carousel-o";
+import {AddProductSubItemComponent} from "../add-product-subitem/add-product-sub-item.component";
 import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
 import Swal from "sweetalert2";
-import {AddProductSubItemComponent} from "../add-product-subitem/add-product-sub-item.component";
-import { DomSanitizer } from '@angular/platform-browser';
+import {DomSanitizer, SafeUrl} from '@angular/platform-browser';
 
 @Component({
-  selector: 'app-product-as-cards',
-  templateUrl: './product-as-cards.component.html',
-  styleUrls: ['./product-as-cards.component.scss'],
+  selector: 'app-product-sub-categories',
+  templateUrl: './product-sub-categories-as-cards.component.html',
+  styleUrls: ['./product-sub-categories-as-cards.component.scss'],
   providers: [DatePipe],
 })
+
 
 /**
  * Starter-component
  */
-export class ProductAsCardsComponent implements OnInit {
-
-  @ViewChild('table') table: DatatableComponent;
-
+export class ProductSubCategoriesAsCardsComponent implements OnInit {
+  // @Pipe({
+  //   name: 'safeUrl'
+  // })
 
 
   actions = ["View", "Edit"];
 
+
+  @Input() subCategories: any
 
   // bread crumb items
   breadCrumbItems: Array<{}>;
@@ -57,76 +60,41 @@ export class ProductAsCardsComponent implements OnInit {
   ColumnMode = ColumnMode;
   public imageFile: File;
   public modalRef: NgbModalRef;
-  public productCategoryId:any;
 
-
-  title: string = "Product";
+  title: string = "Category";
   autoPlayExampleOptions: OwlOptions = {
-    items:4,
-    loop:false,
-    margin:0,
-    autoplay:false,
-    autoplayTimeout:9000,
-    autoplayHoverPause:true,
-    responsive:{
-      0:{
+    items: 3,
+    loop: false,
+    margin: 0,
+    autoplay: false,
+    autoplayTimeout: 9000,
+    autoplayHoverPause: true,
+    responsive: {
+      0: {
         items: 2
       },
-      600:{
-        items: 3
+      600: {
+        items: 2
       },
-      1000:{
-        items: 3
+      1000: {
+        items: 2
       }
     }
   }
 
-  slidesStore:any = [
-    // {
-    //   id:'1',
-    //   src:'assets/images/category4.png',
-    //   alt:'Image_1',
-    //   title:'Personal Accounts',
-    //   description: "Describing personal accounts.",
-    //   productDescription: "Here is the product description"
-    // },
-    // {
-    //   id:'2',
-    //   src:'assets/images/category2.png',
-    //   alt:'Image_2',
-    //   title:'Business Accounts',
-    //   description: "Describing Business Accounts.",
-    //   productDescription: "Here is the product description"
+  fetchedSubCategories: any = [];
 
-    // },
-    // {
-    //   id:'3',
-    //   src:'assets/images/category3.png',
-    //   alt:'Image_3',
-    //   title:'Islamic accounts',
-    //   description: "Describing Islamic accounts",
-    //   productDescription: "Here is the product description"
-    // },
-    // {
-    //   id:'4',
-    //   src:'assets/images/category2.png',
-    //   alt:'Image_4',
-    //   title:'Student Accounts',
-    //   description: "Describing Student Accounts.",
-    //   productDescription: "Here is the product description"
-    // }
-  ]
-
+  categoryId: any;
 
   constructor(
     private httpService: HttpService,
     private modalService: NgbModal,
-    private activatedRoute:ActivatedRoute,
     public fb: FormBuilder,
     public router: Router,
     private dataExploration: DataExportationService,
-    public domSanitizer:DomSanitizer,
-    private sanitizer: DomSanitizer
+    public domSanitizer: DomSanitizer,
+
+    public activatedRoute: ActivatedRoute,
   ) {
   }
 
@@ -134,14 +102,9 @@ export class ProductAsCardsComponent implements OnInit {
 
     this.activatedRoute.params.subscribe(params => {
       if (typeof params.id !== 'undefined') {
-        this.productCategoryId = params.id;
+        this.categoryId = params.id;
       }
     })
-
-//     this.slidesStore.forEach((slide:any)=> {
-//       slide.productUrl = this.domSanitizer.bypassSecurityTrustUrl(slide.productUrl);
-//  });
-
 
     this.breadCrumbItems = [
       {
@@ -152,42 +115,45 @@ export class ProductAsCardsComponent implements OnInit {
       {label: 'Products', active: true},
     ];
     this.getIndividualData(0);
+
   }
 
-
-  getIndividualData(event: number): void {
+  async getIndividualData(event: number) {
 
     const model = {
-
-      size: 50,
-      page: 0,
-      id: this.productCategoryId
+      id: this.categoryId
     };
 
     this.httpService
-      .mobileBankingPost('product/portal/fetch/all', model)
-      .subscribe(
-        (res: any) => {
-          if (res.status === 200) {
-            // let response = res['data'];
+      .mobileBankingPost('product/portal/category/fetch/single', model)
+      .subscribe((res: any) => {
+        if (res.status === 200) {
+          console.log(res.data);
+          let response = res.data.children.map((item: any) => {
 
-            let response = res.data.map((item: any, index: any) => {
-              const res = {...item, frontendId: index + 1};
-              return res;
-            });
-            this.slidesStore = response;
-          } else {
-            Swal.fire('Failed', "Unable to fetch products", 'error')
-          }
-        }, (error: any) => {
-          Swal.fire("Error", error.message, "error");
-        });
+            const imageUrl = this.getBase64ImageFromUrl(item.categoryUrl.trim());
+
+            let result = {
+              ...item,
+              parentCategoryName: item.parentCategory ? item.parentCategory.name : "_",
+              categoryUrl: imageUrl
+            };
+
+
+            return result;
+          })
+
+
+          this.fetchedSubCategories = response;
+        } else {
+        }
+      });
   }
 
   openAddProductModal() {
 
-    this.modalRef = this.modalService.open(AddProductSubItemComponent, {centered: true});
-    this.modalRef.componentInstance.title = 'Add Product';
+    this.modalRef = this.modalService.open(AddProductComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Add Product Category';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
         this.getIndividualData(0);
@@ -198,8 +164,8 @@ export class ProductAsCardsComponent implements OnInit {
   }
 
   openEditProductModal(formData: any) {
-    this.modalRef = this.modalService.open(AddProductSubItemComponent, {centered: true});
-    this.modalRef.componentInstance.title = 'Edit Product';
+    this.modalRef = this.modalService.open(AddProductComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Edit Product Category';
     this.modalRef.componentInstance.formData = formData;
     this.modalRef.result.then((result) => {
       if (result === 'success') {
@@ -220,42 +186,11 @@ export class ProductAsCardsComponent implements OnInit {
     this.router.navigateByUrl(`/mobile-banking/products/list-products/${data.id}`);
   }
 
-  toggleExpandRow(row: any) {
-    console.log(row);
-    console.log(this.table);
-
-    this.table.rowDetail.toggleExpandRow(row);
-  }
 
   onDetailToggle(event: any) {
     console.log('Detail Toggled', event);
   }
 
-  updateFilter(event: any, columnName: any) {
-    const val = event.target.value.toLowerCase();
-
-    // filter our data
-    const temp = this.temp.filter(function (d: any) {
-      return d.productName.toLowerCase().indexOf(val) !== -1 || !val;
-    });
-
-    // update the rows
-    this.rows = temp;
-    // Whenever the filter changes, always go back to the first page
-    this.table.offset = 0;
-  }
-
-  toggle(col: any) {
-    const isChecked = this.isChecked(col);
-
-    if (isChecked) {
-      this.columns = this.columns.filter((c) => {
-        return c.name !== col.name;
-      });
-    } else {
-      this.columns = [...this.columns, col];
-    }
-  }
 
   isChecked(col: any) {
     return (
@@ -354,10 +289,24 @@ export class ProductAsCardsComponent implements OnInit {
 
   }
 
+  editProduct(formData: any) {
+    this.modalRef = this.modalService.open(AddProductComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Edit Product Category';
+    this.modalRef.componentInstance.formData = formData;
+    // this.modalRef.componentInstance.productCategoryId = this.productCategoryId;
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        this.getIndividualData(0);
+      } else {
+        console.log("Error occurred")
+      }
+    });
+  }
+
   openDeleteModal(formData: any) {
     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
-    this.modalRef.componentInstance.title = `Delete this Product?`;
-    this.modalRef.componentInstance.body = `Do you want to delete product: {${formData.name}}?`;
+    this.modalRef.componentInstance.title = `Delete this Category?`;
+    this.modalRef.componentInstance.body = `Do you want to delete category: {${formData.name}}?`;
     this.modalRef.result.then((result: any) => {
       if (result === 'success') {
 
@@ -365,17 +314,17 @@ export class ProductAsCardsComponent implements OnInit {
           id: formData.id
         }
 
-        this.httpService.mobileBankingPost('product/portal/delete',
+        this.httpService.mobileBankingPost('product/portal/category/delete',
           model).subscribe(
           (result: any) => {
             if (result.status === 200) {
               Swal.fire('Product Deleted',
                 'Product has been deleted successfully.',
-                'success').then(r => console.log(r))
-              this.getIndividualData(0)
+                'success').then(r => console.log(r));
+              this.getIndividualData(0);
             } else {
               Swal.fire('Record deletion error',
-                'Product could not be deleted.',
+                'Product Category could not be deleted.',
                 'error').then(r => console.log(r))
             }
           },
@@ -389,16 +338,38 @@ export class ProductAsCardsComponent implements OnInit {
     });
   }
 
-  editProduct(formData: any) {
-    this.modalRef = this.modalService.open(AddProductSubItemComponent, {centered: true});
-    this.modalRef.componentInstance.title = 'Edit Product';
-    this.modalRef.componentInstance.formData = formData;
-    this.modalRef.result.then((result) => {
-      if (result === 'success') {
-        this.getIndividualData(0);
-      } else {
-        console.log("Error occurred")
-      }
-    });
+  viewSubProducts(children: any) {
+    this.router.navigate(["/mobile-banking/products/list-categories-cards-subcategories"])
   }
+
+  // Get base64 from Image URL
+  async getBase64ImageFromUrl(imageUrl: string) {
+
+    console.log(imageUrl);
+
+    let url = this.domSanitizer.bypassSecurityTrustUrl(imageUrl);
+    // domSanitizer.bypassSecurityTrustResourceUrl(category.categoryUrl)
+    console.log("here is the url")
+    console.log(url)
+
+    // let res = await fetch("https://www.google.com");
+    //
+    // console.log(res);
+    // let blob = await res.blob();
+    //
+    // console.log(blob);
+    //
+    // return new Promise((resolve, reject) => {
+    //   let reader  = new FileReader();
+    //   reader.addEventListener("load", function () {
+    //     resolve(reader.result);
+    //   }, false);
+    //
+    //   reader.onerror = () => {
+    //     return reject(this);
+    //   };
+    //   reader.readAsDataURL(blob);
+    // })
+  }
+
 }

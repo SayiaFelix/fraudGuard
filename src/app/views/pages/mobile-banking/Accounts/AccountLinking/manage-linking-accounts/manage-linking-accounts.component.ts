@@ -112,7 +112,7 @@ export class ManageLinkingAccountsComponent implements OnInit {
 
     const model = {
       page: 0,
-      size: 5,
+      size: 50,
     };
 
     this.httpService
@@ -130,7 +130,7 @@ export class ManageLinkingAccountsComponent implements OnInit {
         }
       });
   }
-  
+
   openBlockModal(formData: any) {
     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Block Account';
@@ -156,7 +156,7 @@ export class ManageLinkingAccountsComponent implements OnInit {
       if (result === 'success') {
         Swal.fire('Account closed successfully','Account has been closed successfully','success')
         .then(r =>  this.getIndividualData(0));
-    
+
       } else {
         console.log("Error occurred")
       }
@@ -309,7 +309,7 @@ export class ManageLinkingAccountsComponent implements OnInit {
     else if (eventData.action == 'Close') {
       this.openCloseModal(eventData.row);
     }
-    
+
     }
 
   }

@@ -23,6 +23,8 @@ export class AddWorkflowComponent implements OnInit {
     public form: FormGroup;
     public imageFile: File;
 
+    public allProcesses: any;
+
     constructor(
         public activeModal: NgbActiveModal,
         public fb: FormBuilder,
@@ -120,19 +122,16 @@ export class AddWorkflowComponent implements OnInit {
 
   private loadAllProcesses() {
     const model = {
-      id: this.formData.id,
-      name: this.form.value.name,
-      remarks: this.form.value.remarks,
-      process: this.form.value.process
+      page: 0,
+      size: 50
+
     }
 
-    this.httpService.mobileBankingPost('api/v1/admin/workflow/update', model)
+    this.httpService.mobileBankingPost('api/v1/admin/role/AllProcesses', model)
       .subscribe(
         (result: any) => {
           if (result.status == 200) {
-            this.activeModal.close('success')
-            Swal.fire('workflow updated',result.message,'success')
-              .then (r=>console.log(r))
+            this.allProcesses = result.data;
 
           }
           else{

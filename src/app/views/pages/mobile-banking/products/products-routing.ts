@@ -10,6 +10,9 @@ import {
 import {ProductAsCardsComponent} from "./list-products-as-cards/product-as-cards.component";
 import { ViewCategoriesComponent } from './view-categories/view-categories.component';
 import { ListAllProductsAsCardsComponent } from './list-all-products-as-cards/list-all-products-as-cards.component';
+import {
+  ProductSubCategoriesAsCardsComponent
+} from "./list-products-subcategories-cards/product-sub-categories-as-cards.component";
 
 const routes: Routes = [
 
@@ -37,6 +40,10 @@ const routes: Routes = [
   {
     path: 'list-all-products-as-cards',
     component: ListAllProductsAsCardsComponent
+  },
+  {
+    path: 'list-categories-cards-subcategories/:id',
+    component: ProductSubCategoriesAsCardsComponent
   },
 
   {
