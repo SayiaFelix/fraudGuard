@@ -19,12 +19,13 @@ export class AddUserComponent implements OnInit {
 
   @Input() title: any;
   @Input() formData: any;
-  public loading = false;
   public hasErrors = false;
   public errorMessages = "";
   public form: FormGroup;
   public editUser$: Observable<any>;
   public allProfiles: any;
+
+  public isLoading: boolean;
 
   constructor(
       public activeModal: NgbActiveModal,
@@ -53,12 +54,12 @@ export class AddUserComponent implements OnInit {
   }
 
   public submitData(): void {
+    this.isLoading = true;
     if (this.formData) {
       this.saveChanges();
     } else {
       this.createRecord();
     }
-    this.loading = true;
   }
 
   public closeModal(): void {
@@ -78,6 +79,7 @@ export class AddUserComponent implements OnInit {
     this.httpService.mobileBankingPost('api/v1/admin/user/create', model).subscribe(
       (result: any) => {
           if (result.status === 200) {
+            this.isLoading = false;
             this.activeModal.close('success');
             Swal.fire('Success',result.mesage, "success")
             .then(r => console.log(r))
@@ -111,6 +113,7 @@ export class AddUserComponent implements OnInit {
       }),
       map((res: any) => {
         if (res.status === 200) {
+          this.isLoading = false;
           setTimeout(() => {
             Swal.fire('Success', 'User Edited Successfully.', 'success')
           }, 10);

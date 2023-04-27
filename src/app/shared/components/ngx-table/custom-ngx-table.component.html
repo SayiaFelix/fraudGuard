@@ -68,7 +68,7 @@
 <!--      </ng-template>-->
 <!--    </ngx-datatable-column>-->
 
-    <ng-container *ngFor="let column of columns">
+      <ng-container *ngFor="let column of columns">
       <ngx-datatable-column
         *ngIf="column.name === 'ID' || column.name === '#'"
         [maxWidth]="45"
@@ -212,6 +212,7 @@
       >
       </ngx-datatable-column>
     </ng-container>
+
 
     <ngx-datatable-footer>
       <ng-template

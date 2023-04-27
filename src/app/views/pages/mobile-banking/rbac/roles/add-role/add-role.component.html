@@ -22,12 +22,12 @@
               Field</small>
           </div>
         </div>
-
+        <p *ngIf="isLoading"><ngb-progressbar type="primary" [value]="95" [striped]="true" [animated]="true"></ngb-progressbar></p>
       </div>
     </div>
     <div class="modal-footer">
       <button (click)="closeModal()" class="btn btn-secondary" type="button">Close</button>
-      <button (click)="submitData()" class="btn btn-primary" *ngIf="!this.formData"  type="button" [disabled]="!form.valid">Create Role</button>
-      <button (click)="submitData()" class="btn btn-primary" *ngIf="this.formData" type="button" [disabled]="!form.valid">Save changes</button>
+      <button (click)="submitData()" class="btn btn-primary" *ngIf="!this.formData"  type="button" [disabled]="!form.valid || isLoading">Create Role</button>
+      <button (click)="submitData()" class="btn btn-primary" *ngIf="this.formData" type="button" [disabled]="!form.valid || isLoading">Save changes</button>
     </div>
   </div>

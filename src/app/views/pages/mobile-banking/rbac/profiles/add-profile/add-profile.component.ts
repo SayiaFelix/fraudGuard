@@ -21,6 +21,8 @@ export class AddProfileComponent implements OnInit {
     public form: FormGroup;
     public editProfile$: Observable<any>;
 
+    isLoading: boolean;
+
     constructor(
         public activeModal: NgbActiveModal,
         public fb: FormBuilder,
@@ -52,18 +54,22 @@ export class AddProfileComponent implements OnInit {
     }
 
     private createRecord(): any {
-        const model = {
+      this.isLoading = true;
+      const model = {
             name: this.form.value.name,
             remarks: this.form.value.description
         }
         this._httpService.mobileBankingPost('api/v1/admin/profile/add', model).subscribe(
             (result:any) => {
                 if(result.status === 200){
-                    this.activeModal.close('success');
+
+                  this.isLoading = false;
+
+                  this.activeModal.close('success');
                     Swal.fire('Success', result.message, "success")
                     .then(r => console.log(r))
                     console.log('result');
-                } else 
+                } else
                     this.activeModal.close('error');
                     Swal.fire('Error',"Unable to create profile","error")
                     .then(r => console.log(r))
@@ -72,6 +78,7 @@ export class AddProfileComponent implements OnInit {
             }
 
     private saveChanges(): any {
+      this.isLoading = true;
         const model = {
             id: this.formData.id,
             remarks: this.form.value.description
@@ -80,7 +87,9 @@ export class AddProfileComponent implements OnInit {
         .subscribe(
             (result:any) =>{
                 if(result.status === 200){
-                    this.activeModal.close('success')
+                  this.isLoading = false;
+
+                  this.activeModal.close('success')
                     Swal.fire('Profile edited successfully',result.data,'success')
                     .then(r=>console.log(r))
                 }

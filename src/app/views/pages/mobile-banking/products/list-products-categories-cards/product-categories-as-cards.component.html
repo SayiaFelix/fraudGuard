@@ -24,10 +24,6 @@
 
 </div>
 
-<!--<app-table-filters-->
-<!--[allColumns]="columns">-->
-<!--</app-table-filters>-->
-
 <div class="row">
   <div class="col-md-12 stretch-card">
 
@@ -36,26 +32,36 @@
         <div class="card-body">
           <h4 class="card-title mb-5">Product Categories</h4>
           <owl-carousel-o [options]="autoPlayExampleOptions">
-            <ng-template carouselSlide *ngFor="let slide of slidesStore" [id]="slide.id">
+            <ng-template carouselSlide *ngFor="let category of fetchedCategories" [id]="category.id">
               <div class="m-3 p-3 ">
                 <div class="card" style="width: 20rem;">
                   <!-- <img class="card-img-top" [src]="domSanitizer.bypassSecurityTrustResourceUrl(slide.categoryUrl)" [alt]="slide.alt"> -->
-                  <img class="card-img-top" [src]="domSanitizer.bypassSecurityTrustResourceUrl(slide.categoryUrl)" [alt]="slide.alt">
+                  <img class="card-img-top" [src]="domSanitizer.bypassSecurityTrustResourceUrl(category.categoryUrl)" [alt]="category.alt">
                   <!-- <img [src]="slide.categoryUrl | SafeUrl"> -->
                   <!-- <img src="..." class="card-img-top" alt="..."> -->
                   <div class="card-body">
-                    <h5 class="card-title">{{slide.name}}</h5>
-                    <p class="card-text">{{slide.description}}</p>
+                    <h5 class="card-title">{{category.name}}</h5>
+                    <p class="card-text">{{category.description}}</p>
+
                     <div class="d-grid gap-2 d-md-block">
-                      <a [routerLink]="'/mobile-banking/products/list-products-as-cards/' + slide.id" class="btn btn-primary btn-sm">View</a>
-                      <a (click)="editProduct(slide)"  class="btn btn-secondary btn-sm">Edit</a>
-                      <a (click)="openDeleteModal(slide)" class="btn btn-danger btn-sm"> Delete</a>
+                      <a [routerLink]="'/mobile-banking/products/list-products-as-cards/' + category.id"
+                         class="btn btn-primary btn-sm"
+                         *ngIf="category.children.length === 0">
+                        View Products
+                      </a>
+                      <a
+                        (click)="viewSubProducts(category.children)"
+                         class="btn btn-primary btn-sm"
+                         *ngIf="category.children.length > 0">
+                        View Sub-Categories
+                      </a>
+                      <a (click)="editProduct(category)" class="btn btn-secondary btn-sm">Edit</a>
+                      <a (click)="openDeleteModal(category)" class="btn btn-danger btn-sm"> Delete</a>
                     </div>
+
                   </div>
                 </div>
-                <!-- <h5 class="text-center">Loan Product</h5> -->
-                <!-- <img [src]="slide.src" [alt]="slide.alt" [title]="slide.title">
-                <p class="text-center">Here is the product description.</p> -->
+
               </div>
 
             </ng-template>

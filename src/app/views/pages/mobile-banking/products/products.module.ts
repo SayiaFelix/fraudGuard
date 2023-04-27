@@ -18,9 +18,6 @@ import {
 } from "./list-products-categories-cards/product-categories-as-cards.component";
 import {CarouselModule} from "ngx-owl-carousel-o";
 import {ProductAsCardsComponent} from "./list-products-as-cards/product-as-cards.component";
-import {
-  ProductCategoriesComponentRedesigned
-} from "./list-products-categories-redesigned/product-categories-component-redesigned.component";
 import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
 import {
   ProductCategoriesComponentSubItem
@@ -48,7 +45,6 @@ import { ListAllProductsAsCardsComponent } from './list-all-products-as-cards/li
     ListProductsComponent,
     AddProductSubItemComponent,
     AddRequirementComponent,
-    ProductCategoriesComponentRedesigned,
     ProductCategoriesComponentSubItem,
     ListAllProductsAsCardsComponent
 
