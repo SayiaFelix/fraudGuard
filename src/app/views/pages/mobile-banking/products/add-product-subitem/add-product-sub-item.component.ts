@@ -41,7 +41,7 @@ export class AddProductSubItemComponent implements OnInit {
         [Validators.required]],
       shortDescription: [this.formData ? this.formData.shortDescription : '',
         [Validators.required]],
-      productDescription: [this.formData ? this.formData.productDescription : '',
+      productDescription: [this.formData ? this.formData.detailedDescription : '',
         [Validators.required]],
 
       feature: [this.formData ? this.formData.feature : ''],
@@ -89,7 +89,7 @@ export class AddProductSubItemComponent implements OnInit {
     const model = {
       name: this.form.value.name,
       shortDescription: this.form.value.shortDescription,
-      productDescription: this.form.value.productDescription,
+      productDescription: this.form.value.detailedDescription,
       productCategoryId: this.productCategoryId,
       approvalId: 4
     };
@@ -142,7 +142,7 @@ export class AddProductSubItemComponent implements OnInit {
       id: data.id,
       name: this.form.value.name,
       shortDescription: this.form.value.shortDescription,
-      productDescription: this.form.value.productDescription,
+      productDescription: this.form.value.detailedDescription,
       productCategoryId: this.productCategoryId
     };
 

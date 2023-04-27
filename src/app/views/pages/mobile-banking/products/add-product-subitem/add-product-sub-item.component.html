@@ -118,6 +118,7 @@
     <div class="modal-footer">
 
         <button type="button" class="btn btn-outline-dark" (click)="activeModal.close('Close click')">Close</button>
-        <button [disabled]="!form.valid" type="button" class="btn  btn-md btn-primary" (click)="submitData()">Save Record</button>
+        <button [disabled]="!form.valid" type="button" class="btn  btn-md btn-primary" *ngIf="!this.formData" (click)="submitData()">Create Record</button>
+        <button [disabled]="!form.valid" type="button" class="btn  btn-md btn-primary" *ngIf="this.formData" (click)="submitData()">Save Record</button>
 
     </div>
