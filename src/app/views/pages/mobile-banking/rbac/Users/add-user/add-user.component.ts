@@ -45,12 +45,16 @@ export class AddUserComponent implements OnInit {
       firstName: [this.formData ? this.formData.firstName : '', [Validators.required,Validators.pattern('^([^0-9]*)$')]],
       middleName: [this.formData ? this.formData.middleName : '', [Validators.required,Validators.pattern('^([^0-9]*)$')]],
       lastName: [this.formData ? this.formData.lastName : '', [Validators.required,Validators.pattern('^([^0-9]*)$')]],
-      phone: [this.formData ? this.formData.phone : '', [Validators.required,EmployeePhoneNumberValidators.mustStartWith254]],
+      phoneNumber: [this.formData ? this.formData.phoneNumber : '', [Validators.required,EmployeePhoneNumberValidators.mustStartWith254]],
       email: [this.formData ? this.formData.email : '', [Validators.required, CompanyEmailValidator.mustBeBusinessEmail]],
       profile: [this.formData ? this.formData.profile : '', [Validators.nullValidator]]
     });
 
 
+  }
+  logErrors(){
+    console.log(this.form);
+    
   }
 
   public submitData(): void {
@@ -70,13 +74,16 @@ export class AddUserComponent implements OnInit {
 
     const model = {
       firstName: this.form.value.firstName,
+      middleName:this.form.value.middleName,
       lastName: this.form.value.lastName,
       email: this.form.value.email,
+<<<<<<< HEAD
       phoneNumber: this.form.value.phone,
+=======
+      phoneNumber:this.form.value.phoneNumber,
+>>>>>>> b75d358e62c59b291beb3a8ee8cad11ad781fd77
       profileId:this.form.value.profile,
     };
-
-
     this.httpService.mobileBankingPost('api/v1/admin/user/create', model).subscribe(
       (result: any) => {
           if (result.status === 200) {
@@ -95,14 +102,14 @@ export class AddUserComponent implements OnInit {
   }
 
   private saveChanges(): any {
-
-
-
     const model = {
       id: this.formData.id,
       firstName: this.form.value.firstName,
+      middleName:this.form.value.middleName,
       lastName: this.form.value.firstName,
-      profileId: this.form.value.profile
+      email: this.form.value.email,
+      phoneNumber:this.form.value.phoneNumber,
+      profileId:parseInt(this.form.value.profile, 10)
     };
 
     this.editUser$ = this.httpService.mobileBankingPost('api/v1/admin/user/update',

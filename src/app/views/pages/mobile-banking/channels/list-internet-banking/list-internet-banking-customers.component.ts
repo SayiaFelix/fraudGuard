@@ -61,7 +61,7 @@ export class ListInternetBankingCustomersComponent implements OnInit {
   columns = [
     { name: 'ID', prop: 'id' },
     { name: 'CustomerName', prop: 'customerName' },
-    {name:'PhoneNumber',prop:'phoneNumber'},
+    {name:'PrimaryPhoneNumber',prop:'phoneNumber'},
     { name: 'IDNumber', prop: 'idNumber' },
     { name: 'InternetBankingID', prop: 'InternetBankingID' },
     {name:'Primary IP/Mac Address',prop:'primaryIP'},

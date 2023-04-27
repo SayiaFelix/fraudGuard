@@ -19,18 +19,18 @@
 
                   <div class="mb-3">
                     <label class="form-label" for="regionName">Region Name:</label>
-                    <input class="form-control" formControlName="regionName" id="regionName" placeholder="Enter Region Name"
+                    <input class="form-control" formControlName="name" id="name" placeholder="Enter Region Name"
                            type="text">
-                    <small *ngIf="form.get('regionName')?.touched && form.get('regionName')?.hasError('required')"
+                    <small *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')"
                            class="text-danger">Region
                       is required</small>
                   </div>
 
                   <div class="mb-3">
                     <label class="form-label" for="regionCode">Region Code:</label>
-                    <input class="form-control" formControlName="regionCode" id="regionCode" placeholder="Enter Region Code"
+                    <input class="form-control" formControlName="code" id="code" placeholder="Enter Region Code"
                            type="text">
-                    <small *ngIf="form.get('regionCode')?.touched && form.get('regionCode')?.hasError('required')"
+                    <small *ngIf="form.get('code')?.touched && form.get('code')?.hasError('required')"
                            class="text-danger">Region
                       is required</small>
                   </div>
@@ -52,6 +52,10 @@
                             name="administationZoneType" formControlName="selectedZone">
                       <option *ngFor="let region of regions" [value]="region">{{region}}</option>
                     </select>
+                    <!-- <option *ngFor="let region of Regions "
+                    [value]="region.id">
+              {{ region.name | titlecase}}
+            </option> -->
 
                   </ng-container>
 
@@ -78,7 +82,7 @@
 
     <div class="modal-footer">
       <button (click)="close()" class="btn btn-secondary" type="button">Close</button>
-      <button class="btn btn-primary" type="button">Save changes</button>
-    </div>
+      <button class="btn btn-primary" (click)="submitData()" *ngIf="!this.formData" type="button">Create Region</button>
+      <button class="btn btn-primary" (click)="submitData()" *ngIf="this.formData" type="button">Save changes</button>
   </div>
 </div>

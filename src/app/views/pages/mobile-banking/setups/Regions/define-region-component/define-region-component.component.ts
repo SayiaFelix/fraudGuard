@@ -4,6 +4,7 @@ import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {constituencies, counties} from "../CountiesAndConstituencies";
 import { HttpService } from "src/app/shared/services/http.service";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
+import Swal from "sweetalert2";
 
 
 declare const google: any;
@@ -16,7 +17,8 @@ declare const google: any;
 export class DefineRegionComponent implements OnInit {
   edit = false;
   @Input() title: any;
-  @Input() data: any;
+  @Input() formData: any;
+  public loading:boolean;
 
   constructor(
     public activeModal: NgbActiveModal,
@@ -48,20 +50,17 @@ export class DefineRegionComponent implements OnInit {
   errorMessage: any;
 
   ngOnInit(): void {
-
-
-
     // this.setCurrentPosition();
 
-    if (this.data && this.data.content) {
+    if (this.formData && this.formData.content) {
       this.edit = true;
       this.cardTitle = "Edit Region";
 
-      this.regionName = this.data.content.name;
-      this.regionCode = this.data.content.name;
-      this.pointList = this.data.content.bounds;
-      this.lat = this.data.content.bounds[0] ? this.data.content.bounds[0].lat : 0.51796165;
-      this.lng = this.data.content.bounds[0] ? this.data.content.bounds[0].lng : 36.48531687;
+      this.regionName = this.formData.content.name;
+      this.regionCode = this.formData.content.name;
+      this.pointList = this.formData.content.bounds;
+      this.lat = this.formData.content.bounds[0] ? this.formData.content.bounds[0].lat : 0.51796165;
+      this.lng = this.formData.content.bounds[0] ? this.formData.content.bounds[0].lng : 36.48531687;
     } else {
       this.cardTitle = "Add Region";
       this.lat = 0.51796165;
@@ -71,22 +70,39 @@ export class DefineRegionComponent implements OnInit {
 
 
     this.form = this.fb.group({
-      regionName: [this.data ? this.data.regionName : "", Validators.compose([Validators.required])],
-      regionCode: [this.data ? this.data.regionCode : "", Validators.compose([Validators.required])],
+      name: [this.formData ? this.formData.name : "", Validators.compose([Validators.required])],
+      code: [this.formData ? this.formData.code : "", Validators.compose([Validators.required])],
+      constituency: [this.formData ? this.formData.constituency: "", Validators.compose([Validators.required])],
+      county: [this.formData ? this.formData.county : "", Validators.compose([Validators.required])],
       zone: [""],
       selectedZone: [""],
 
     });
   }
 
-  addRegion(): void {
+  public submitData(): void {
+    if (this.formData) {
+      this.saveChanges();
+    } else {
+      this.createRecord();
+    }
+    this.loading = true;
+  }
+  createRecord(): void {
     const model = {
-      bounds: this.pointList,
-      code: this.regionCode,
-      name: this.regionName,
+      // bounds: this.pointList,
+      // code: this.regionCode,
+      name: this.form.value.name,
+      code:this.form.value.code,
+      constituency:this.form.value.selectedZone,
+      county:this.form.value.zone,
+      coordinates: this.pointList.toString()
     };
-    this._httpService.mobileBankingPost("dsr-create-region", model).subscribe((result: any) => {
-      if (result.status === 1) {
+    this._httpService.mobileBankingPost("config/region/create", model).subscribe((result: any) => {
+      if (result.status === 200) {
+        this.activeModal.close("success")
+        Swal.fire('Success',result.message,'success')
+        .then(r=>console.log(r))
         this.close();
       } else {
       }
@@ -94,15 +110,19 @@ export class DefineRegionComponent implements OnInit {
       });
   }
 
-  editRegion(): void {
+  saveChanges(): void {
     const model = {
-      bounds: this.pointList,
-      code: this.regionCode,
-      name: this.regionName,
-      id: this.data.content.id
+      id:this.formData.id,
+      name: this.form.value.name,
+      code:this.form.value.code,
+      constituency:this.form.value.selectedZone,
+      county:this.form.value.zone,
+      coordinates: this.pointList.toString()
     };
-    this._httpService.mobileBankingPost("dsr-update-region", model).subscribe((result:any) => {
-      if (result.status === 1) {
+    this._httpService.mobileBankingPost("config/region/update", model).subscribe((result:any) => {
+      if (result.status === 200) {
+        this.activeModal.close("success")
+        Swal.fire('Success',result.message,'success')
         this.close();
       } else {
       }
