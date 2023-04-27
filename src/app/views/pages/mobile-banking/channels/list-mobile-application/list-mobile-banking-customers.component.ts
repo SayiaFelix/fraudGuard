@@ -95,7 +95,7 @@ export class ListMobileBankingCustomersComponent implements OnInit {
   columns = [
     { name: 'ID', prop: 'id' },
     { name: 'CustomerName', prop: 'customerName' },
-    {name:'PhoneNumber',prop:'phoneNumber'},
+    {name:'PrimaryPhoneNumber',prop:'phoneNumber'},
     { name: 'IDNumber', prop: 'idNumber' },
     { name: 'DeviceID', prop: 'DeviceID' },
     { name: 'PrimaryDevice', prop: 'primaryDevice' },
