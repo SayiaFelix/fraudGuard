@@ -54,7 +54,7 @@ export class AddUserComponent implements OnInit {
   }
   logErrors(){
     console.log(this.form);
-    
+
   }
 
   public submitData(): void {
@@ -77,11 +77,8 @@ export class AddUserComponent implements OnInit {
       middleName:this.form.value.middleName,
       lastName: this.form.value.lastName,
       email: this.form.value.email,
-<<<<<<< HEAD
-      phoneNumber: this.form.value.phone,
-=======
+
       phoneNumber:this.form.value.phoneNumber,
->>>>>>> b75d358e62c59b291beb3a8ee8cad11ad781fd77
       profileId:this.form.value.profile,
     };
     this.httpService.mobileBankingPost('api/v1/admin/user/create', model).subscribe(

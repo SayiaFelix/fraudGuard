@@ -42,7 +42,7 @@ export class ListWorkflowsComponent implements OnInit {
   breadCrumbItems: Array<{}>;
   rows: any = [];
   temp: any = [];
-  loadingIndicator = true;
+  loading = true;
   reorderable = true;
 
   columns = [
@@ -101,6 +101,7 @@ export class ListWorkflowsComponent implements OnInit {
       "size":50
     };
 
+    this.loading = true;
 
     this.workflowList$ = this.httpService.mobileBankingPost('api/v1/admin/workflow/get/workflows', model)
       .pipe(
@@ -115,6 +116,8 @@ export class ListWorkflowsComponent implements OnInit {
           console.log(result);
 
           if(result['status'] === 200){
+            this.loading = false;
+
             let response = result['data']['content'];
 
             this.rows = response.map((item: any, index: any) => {
@@ -149,8 +152,8 @@ export class ListWorkflowsComponent implements OnInit {
     this.modalRef.componentInstance.formData = formData;
     this.modalRef.result.then((ans) => {
       if (ans === 'success') {
-        this.getIndividualData(0); 
-      } 
+        this.getIndividualData(0);
+      }
       else{
         console.log("error occurred")
       }
