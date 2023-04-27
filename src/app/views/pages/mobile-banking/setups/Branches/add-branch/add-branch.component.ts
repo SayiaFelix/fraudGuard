@@ -4,6 +4,7 @@ import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import { HttpService } from "src/app/shared/services/http.service";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import {MapsAPILoader, MouseEvent} from "@agm/core";
+import Swal from "sweetalert2";
 
 
 declare const google: any;
@@ -16,8 +17,9 @@ declare const google: any;
 export class AddBranchComponent implements OnInit {
   edit = false;
   @Input() title: any;
-  @Input() data: any;
-
+  @Input() formData: any;
+  public loading:boolean;
+  public Regions:any;
   constructor(
     public activeModal: NgbActiveModal,
     // tslint:disable-next-line:variable-name
@@ -51,6 +53,7 @@ export class AddBranchComponent implements OnInit {
   private geoCoder: any;
 
   ngOnInit(): void {
+    this.getRegions();
 
     this.mapsAPILoader.load().then(() => {
       this.setCurrentLocation();
@@ -75,11 +78,11 @@ export class AddBranchComponent implements OnInit {
       });
     });
 
-    if (this.data && this.data.content) {
+    if (this.formData && this.formData.content) {
       this.edit = true;
       this.cardTitle = "Edit Branch";
 
-      this.atmName = this.data.content.name;
+      this.atmName = this.formData.content.name;
 
     } else {
       this.cardTitle = "Add Branch";
@@ -87,37 +90,73 @@ export class AddBranchComponent implements OnInit {
 
 
     this.form = this.fb.group({
-      branchName: [this.data ? this.data.branchName : '', [Validators.required]],
-      branchCode: [this.data ? this.data.branchCode : '', [Validators.required]],
-      region: [this.data ? this.data.region : '', [Validators.required]],
-      is_active: [this.data ? this.data.is_active : '', [Validators.nullValidator]]
+      name: [this.formData ? this.formData.name : '', [Validators.required]],
+      code: [this.formData ? this.formData.code : '', [Validators.required]],
+      region: [this.formData ? this.formData.region : '', [Validators.required]],
+      is_active: [this.formData ? this.formData.is_active : '', [Validators.nullValidator]]
     });
   }
+  public submitData(): void {
+    if (this.formData) {
+      this.saveChanges();
+    } else {
+      this.createBranch();
+    }
+    this.loading = true;
+  }
 
-  addRegion(): void {
-    const model = {
-      bounds: this.pointList,
-      name: this.atmName,
-    };
-    this._httpService.mobileBankingPost("dsr-create-region", model).subscribe((result: any) => {
-      if (result.status === 1) {
+  createBranch(): void {
+    const model = 
+    {
+    name:this.form.value.name,
+    code: this.form.value.code,
+    regionId:this.form.value.region
+  }
+    this._httpService.mobileBankingPost("config/branch/create", model).subscribe((result: any) => {
+      if (result.status === 200) {
+        this.activeModal.close('success');
+        Swal.fire('Success',result.message,'success')
+        .then(r=>(console.log(r)))
         this.close();
       } else {
+        Swal.fire('Failed','Unable to create branch','error')
       }
     }, (error: any) => {
       });
   }
-
-  editRegion(): void {
+  getRegions(){
     const model = {
-      bounds: this.pointList,
-      name: this.atmName,
-      id: this.data.content.id
+      page:0,
+      size:50
+    }
+    this._httpService.mobileBankingPost("config/region/fetch/all",model).subscribe(
+      (result:any)=>{
+          if(result.status===200){
+            this.Regions = result.data;
+          }
+          else{
+            Swal.fire('failed','unable to fetch records','error')
+          }
+      }
+    )
+  }
+
+  saveChanges(): void {
+    console.log(this.formData);
+    const model = {
+      id: this.formData.id,
+      name:this.form.value.name,
+      code: this.form.value.code,
+      regionId:this.form.value.region,
     };
-    this._httpService.mobileBankingPost("dsr-update-region", model).subscribe((result:any) => {
-      if (result.status === 1) {
+    this._httpService.mobileBankingPost("config/branch/update", model).subscribe((result:any) => {
+      if (result.status === 200) {
+        this.activeModal.close('success');
+        Swal.fire('Success',result.message,'success')        
+        .then(r=>(console.log(r)))
         this.close();
       } else {
+        Swal.fire('Failed','Uanble to update branch','error')
       }
     }, (error: any) => {
       });
