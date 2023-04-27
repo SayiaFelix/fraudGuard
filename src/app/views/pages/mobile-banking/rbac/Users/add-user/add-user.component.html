@@ -46,7 +46,7 @@
             form.get('email')?.hasError('required')" class="text-danger">Required
           Field</small>
           <small *ngIf="form.get('email')?.touched &&
-            form.get('email')?.hasError('pattern')" class="text-danger">Enter a valid email</small> 
+            form.get('email')?.hasError('pattern')" class="text-danger">Enter a valid email</small>
       </div>
       <div class="col-md-6">
 
@@ -64,6 +64,8 @@
           </option>
         </select>
       </div>
+
+      <p *ngIf="isLoading"><ngb-progressbar type="primary" [value]="95" [striped]="true" [animated]="true"></ngb-progressbar></p>
 
     </div>
   </div>

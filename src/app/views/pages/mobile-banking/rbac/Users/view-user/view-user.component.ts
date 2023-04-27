@@ -1,6 +1,6 @@
 import {Component, Input, OnDestroy, OnInit, TemplateRef} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import { NgbModal,NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ColumnMode } from '@swimlane/ngx-datatable';
 import { GlobalService } from 'src/app/shared/services/global.service';
@@ -76,7 +76,8 @@ export class ViewUserComponent implements OnInit, OnDestroy {
     public globalService: GlobalService,
     public activatedRoute: ActivatedRoute,
     private modalService: NgbModal,
-    public fb: FormBuilder
+    public fb: FormBuilder,
+    public router: Router,
   ) {
 
   }
@@ -162,6 +163,8 @@ export class ViewUserComponent implements OnInit, OnDestroy {
               if (res.status === 200) {
                 setTimeout(() => {
                   Swal.fire('Success', 'User Password Reset Successfully.', 'success')
+                  this.router.navigate(['/mobile-banking/Users/list-users']);
+
                 }, 10);
               } else {
                 Swal.fire('Failed', res.message, 'error')
@@ -181,6 +184,7 @@ export class ViewUserComponent implements OnInit, OnDestroy {
     this.modalRef.result.then((result) => {
       if (result === 'success') {
 
+
         let model = {
           userId: this.userId
         }
@@ -195,6 +199,7 @@ export class ViewUserComponent implements OnInit, OnDestroy {
               if (res.status === 200) {
                 setTimeout(() => {
                   Swal.fire('Success', 'User Password Reset Successfully.', 'success')
+                  this.router.navigate(['/mobile-banking/Users/list-users']);
                 }, 10);
               } else {
                 Swal.fire('Failed', res.message, 'error')
@@ -220,6 +225,7 @@ export class ViewUserComponent implements OnInit, OnDestroy {
                 this.loadData();
                 Swal.fire('Success','user unblocked successfully','success')
                 .then(r =>(console.log(r)))
+                this.router.navigate(['/mobile-banking/Users/list-users']);
               } else {
                Swal.fire(result.message.error)
                .then(r =>(console.log(r)))
@@ -249,6 +255,7 @@ export class ViewUserComponent implements OnInit, OnDestroy {
           if (res.status === 200) {
             setTimeout(() => {
               Swal.fire('Blocked Successfully', 'User has been blocked successfully.', 'success')
+              this.router.navigate(['/mobile-banking/Users/list-users']);
               this.loadData();
             }, 10);
           } else {
@@ -280,6 +287,7 @@ export class ViewUserComponent implements OnInit, OnDestroy {
           if (res.status === 200) {
             setTimeout(() => {
               Swal.fire('Deleted Successfully', 'User has been deleted successfully', 'success')
+              this.router.navigate(['/mobile-banking/Users/list-users']);
             }, 10);
           } else {
             Swal.fire('Deletion Failed', res.message, 'error')

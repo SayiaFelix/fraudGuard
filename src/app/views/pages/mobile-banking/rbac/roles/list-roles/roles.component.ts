@@ -22,7 +22,7 @@ export class RolesComponent implements OnInit {
   // bread crumb items
   breadCrumbItems: Array<{}>;
   rows: any = [];
-  loadingIndicator = true;
+  loading: boolean;
   reorderable = true;
   rolesList$: Observable<any>
   roleId: number;
@@ -74,6 +74,9 @@ export class RolesComponent implements OnInit {
 
 
   getIndividualData(event: number): void {
+
+    this.loading = true;
+
     const model = {
       "page": 0,
       "size": 50
@@ -88,6 +91,7 @@ export class RolesComponent implements OnInit {
         map((result: any) => {
           if (result['status'] === 200) {
 
+            this.loading = false;
             console.log(result);
             // console.log(result.data);
             let response = result['data'];
@@ -147,22 +151,6 @@ export class RolesComponent implements OnInit {
     })
 
   }
-
-  onFileChange(event: any) {
-    if (event.target.files && event.target.files.length) {
-      this.imageFile = event.target.files[0];
-    }
-  }
-
-  toggleExpandRow(row: any) {
-    this.table.rowDetail.toggleExpandRow(row);
-  }
-
-  onDetailToggle(event: any) {
-    console.log('Detail Toggled', event);
-
-  }
-
   updateColumns(updatedColumns: any) {
     this.columns = [...updatedColumns];
   }

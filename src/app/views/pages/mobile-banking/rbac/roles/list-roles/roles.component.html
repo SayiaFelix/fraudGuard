@@ -13,15 +13,20 @@
 </div>
 
 <div class="row">
-  <div class="col-md-12 stretch-card" *ngIf="this.rolesList$ | async">
+  <div class="col-md-12 stretch-card">
     <div class="card">
         <app-custom-ngx-table
           [columns]="columns"
           [rows]="rows"
           [actions]="actions"
-
+          [loadingIndicator]="loading"
           (outputEvent)="triggerEvent($event)"
         ></app-custom-ngx-table>
+    </div>
+    <div class="card" *ngIf="!(rolesList$ | async)">
+      <div class="spinner-border text-success" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
     </div>
   </div>
 </div>

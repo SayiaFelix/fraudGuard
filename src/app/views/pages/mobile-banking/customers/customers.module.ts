@@ -12,6 +12,7 @@ import {TranslateModule} from "@ngx-translate/core";
 import {AddCustomerComponent} from "./add-customer/add-customer.component";
 import {ListFailedRegistrationsComponent} from "./list-failed-registrations/list-failed-registrations.component";
 import {SendSmsComponent} from "./send-sms-component/send-sms.component";
+import {ReasonsForFailureComponent} from "./reasons-for-failure/reasons-for-failure.component";
 
 @NgModule({
     imports: [
@@ -27,6 +28,7 @@ import {SendSmsComponent} from "./send-sms-component/send-sms.component";
     SendSmsComponent,
     ViewCustomerComponent,
     AddCustomerComponent,
+    ReasonsForFailureComponent
 
     // CreateProductComponent
   ]

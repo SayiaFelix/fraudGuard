@@ -31,6 +31,9 @@ export class AddWorkflowComponent implements OnInit {
 
     ngOnInit() {
 
+
+      this.loadAllProcesses();
+
       console.log("this.formData");
       console.log(this.formData);
 
@@ -81,22 +84,22 @@ export class AddWorkflowComponent implements OnInit {
     }
 
   private saveChanges(): any {
-      
-    const model= {
-      id:this.formData.id,
-      name:this.form.value.name,
-      remarks:this.form.value.remarks,
-      process:this.form.value.process
-     }
 
-   this.httpService.mobileBankingPost('api/v1/admin/workflow/update',model)
-   .subscribe(
-   (result:any)  =>{
-     if (result.status == 200){
-      this.activeModal.close('success')
-       Swal.fire('workflow updated',result.message,'success')
+    const model = {
+      id: this.formData.id,
+      name: this.form.value.name,
+      remarks: this.form.value.remarks,
+      process: this.form.value.process
+    }
+
+    this.httpService.mobileBankingPost('api/v1/admin/workflow/update', model)
+      .subscribe(
+        (result: any) => {
+          if (result.status == 200) {
+            this.activeModal.close('success')
+            Swal.fire('workflow updated',result.message,'success')
        .then (r=>console.log(r))
-      
+
      }
      else{
       this.activeModal.close('error')
@@ -104,7 +107,7 @@ export class AddWorkflowComponent implements OnInit {
        .then(r=>console.log(r))
      }
    }
-   
+
    )
 
     }
@@ -113,5 +116,32 @@ export class AddWorkflowComponent implements OnInit {
     if (event.target.files && event.target.files.length) {
       this.imageFile = event.target.files[0];
     }
+  }
+
+  private loadAllProcesses() {
+    const model = {
+      id: this.formData.id,
+      name: this.form.value.name,
+      remarks: this.form.value.remarks,
+      process: this.form.value.process
+    }
+
+    this.httpService.mobileBankingPost('api/v1/admin/workflow/update', model)
+      .subscribe(
+        (result: any) => {
+          if (result.status == 200) {
+            this.activeModal.close('success')
+            Swal.fire('workflow updated',result.message,'success')
+              .then (r=>console.log(r))
+
+          }
+          else{
+            this.activeModal.close('error')
+            Swal.fire('failed','workflow update failed','error')
+              .then(r=>console.log(r))
+          }
+        }
+
+      )
   }
 }
