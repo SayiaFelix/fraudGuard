@@ -65,7 +65,7 @@ export class ListCustomersComponent implements OnInit {
   breadCrumbItems: Array<{}>;
   rows: any = [];
   temp: any = [];
-  loadingIndicator = true;
+  loading = true;
   reorderable = true;
 
   columns = [
@@ -124,6 +124,8 @@ export class ListCustomersComponent implements OnInit {
 
     this.temp = [...this.tempProductData];
 
+    this.loading = true;
+
     const model = {
       page: 0,
       size: 5,
@@ -143,6 +145,9 @@ export class ListCustomersComponent implements OnInit {
         } else {
         }
       });
+
+    this.loading = false;
+
   }
 
   openAddProductModal() {

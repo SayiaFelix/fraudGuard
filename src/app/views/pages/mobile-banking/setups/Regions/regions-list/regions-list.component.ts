@@ -39,7 +39,7 @@ export class RegionsListComponent implements OnInit {
   // bread crumb items
   breadCrumbItems: Array<{}>;
   rows: any = [];
-  loadingIndicator = true;
+  loading = true;
   reorderable = true;
 
   columns = [
@@ -89,6 +89,7 @@ export class RegionsListComponent implements OnInit {
 
   getIndividualData(event: number): void {
 
+    this.loading = true;
     this.rows = this.tempProductData;
 
     const model = {

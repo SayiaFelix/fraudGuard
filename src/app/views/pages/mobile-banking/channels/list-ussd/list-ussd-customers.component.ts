@@ -62,7 +62,7 @@ export class ListUssdCustomersComponent implements OnInit {
   breadCrumbItems: Array<{}>;
   rows: any = [];
   temp: any = [];
-  loadingIndicator = true;
+  loading = true;
   reorderable = true;
 
   columns = [
@@ -118,6 +118,8 @@ export class ListUssdCustomersComponent implements OnInit {
   }
 
   getIndividualData(event: number): void {
+
+    this.loading = true;
     this.rows = this.tempProductData;
 
     this.temp = [...this.tempProductData];
@@ -141,6 +143,7 @@ export class ListUssdCustomersComponent implements OnInit {
         } else {
         }
       });
+    this.loading = false;
   }
 
   openAddProductModal() {
