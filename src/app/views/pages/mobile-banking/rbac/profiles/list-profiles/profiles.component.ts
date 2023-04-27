@@ -19,39 +19,12 @@ export class ProfilesComponent implements OnInit {
 
   @ViewChild('table') table: DatatableComponent;
 
-  tempRolesData = [
-    {
-      id: 1,
-      profileName: 'SUPER-ADMIN',
-      description: 'Super Admin',
-      userType: 'BANK_ADMIN',
-      status: true,
-      createdOn: '12-02-2023',
-
-    },
-    {
-      id: 2,
-      profileName: 'HR',
-      description: 'Human Resource Profile',
-      userType: 'BANK_ADMIN',
-      status: true,
-      createdOn: '12-02-2023',
-    },
-    {
-      id: 3,
-      profileName: 'Finance',
-      description: 'Access Financial',
-      userType: 'BANK_ADMIN',
-      status: true,
-      createdOn: '12-02-2023',
-    }
-  ];
 
   // bread crumb items
   breadCrumbItems: Array<{}>;
   rows: any = [];
-  loadingIndicator = true;
-  reorderable = true;
+  loading: boolean = true;
+
   profilesList$:Observable<any>
   columns = [
     { name: 'ID', prop: 'frontendId' },
@@ -101,11 +74,13 @@ export class ProfilesComponent implements OnInit {
 
   getIndividualData(event: number): void {
 
+    this.loading = true;
+
     const model = {
       page:0,
       size:50
     };
- 
+
     this.profilesList$ = this.httpService.mobileBankingPost('api/v1/admin/profile/get/all', model)
       .pipe(
         catchError((error: any) => {
@@ -114,9 +89,8 @@ export class ProfilesComponent implements OnInit {
         }),
         map((result: any) => {
           if(result['status'] === 200){
-            
-            console.log(result);
-            console.log(result.data);
+
+            this.loading = false;
 
             let response = result['data'];
             this.rows = response.map((item: any, index: any) => {

@@ -20,6 +20,7 @@ export class AddRoleComponent implements OnInit {
     public errorMessages: any;
     public form: FormGroup;
     public addRole$:Observable<any>
+    isLoading: boolean;
 
     constructor(
         public activeModal: NgbActiveModal,
@@ -56,6 +57,8 @@ export class AddRoleComponent implements OnInit {
     }
 
     private createRecord(): any {
+      this.isLoading = true;
+
         const model={
             name:this.form.value.roleName,
             remarks:this.form.value.description
@@ -63,6 +66,7 @@ export class AddRoleComponent implements OnInit {
         this.addRole$ = this._httpService.mobileBankingPost("api/v1/admin/role/add",model).subscribe(
             (result: any) => {
                 if (result.status === 200) {
+                  this.isLoading = false;
                   this.activeModal.close('success');
                   Swal.fire('role created successfully',result.message,'success')
                   .then(r=>console.log(r))
@@ -77,6 +81,8 @@ export class AddRoleComponent implements OnInit {
     }
 
     private saveChanges(): any {
+
+      this.isLoading = true;
      const model={
         roleId:this.formData.id,
         name:this.form.value.roleName,
@@ -86,6 +92,7 @@ export class AddRoleComponent implements OnInit {
      .subscribe(
         (result:any) =>{
             if (result.status==200){
+              this.isLoading = false;
                 this.activeModal.close('success')
                 Swal.fire('role edited successfully',result.mesage,'success')
                 .then(r=>console.log(r))

@@ -235,6 +235,11 @@ export class ListFailedRegistrationsComponent implements OnInit {
   }
 
   openAddModal() {
+
+
+    // Open other page with details on why customer creation failed.
+this.router.navigate(['/mobile-banking/customers/reason'])
+
     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Registration Failed';
 

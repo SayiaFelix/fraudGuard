@@ -15,63 +15,14 @@ import Swal from "sweetalert2";
   styleUrls: ['./list-users.component.scss']
 })
 export class ListUsersComponent implements OnInit {
-onDetailToggle($event: any) {
-throw new Error('Method not implemented.');
-}
-
 
   @ViewChild('table') table: DatatableComponent;
 
-  tempProductData = [
-    {
-      id: 1,
-      FullNames: 'Test Test',
-      Email:'test123@gmail.com',
-      TelephoneNo: '0743097643',
-      status: false,
-      createdOn: '12-02-2023',
-
-    },
-    {
-      id: 2,
-      FullNames: 'Jane Mwangi',
-
-      Email:'liliankamau001@gmail.com',
-      TelephoneNo: '0798075432',
-      status: true,
-      createdOn: '12-02-2023',
-    },
-    {
-      id: 3,
-      FullNames: 'Winnie Mwikali',
-      Email:'winniemwikali07@gmail.com',
-      TelephoneNo: '0742138965',
-      status: true,
-      createdOn: '12-02-2023',
-    },
-    {
-      id: 4,
-      FullNames: 'Andrew Kamau',
-      Email:'michaelmbugua@gmail.com',
-      TelephoneNo: '0743286541',
-      status: true,
-      createdOn: '12-02-2023',
-    },
-    {
-      id: 5,
-      FullNames: 'Kari Kamau',
-      Email:'karikamau001@gmail.com',
-      TelephoneNo: '0734658976',
-      status: false,
-      createdOn: '12-02-2023',
-    },
-  ];
+  loading: boolean = true;
 
   // bread crumb items
   breadCrumbItems: Array<{}>;
   rows: any = [];
-  loadingIndicator = true;
-  reorderable = true;
 
   columns = [
     { name: 'ID', prop: 'frontendId' },
@@ -143,6 +94,9 @@ throw new Error('Method not implemented.');
 
 
   getIndividualData(event: number): void {
+
+    this.loading  = true;
+
     const model = {
       filter: "all",
       page: 0,
@@ -165,7 +119,7 @@ throw new Error('Method not implemented.');
             let response = result['data'];
             this.rows = response.map((item: any, index: any) => {
               const res = {...item, frontendId: index + 1};
-              console.log(res);
+              this.loading = false;
               return res;
             });
             return result

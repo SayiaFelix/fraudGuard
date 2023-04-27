@@ -127,7 +127,7 @@ export class NavbarComponent implements OnInit {
       this.selectedLanguageFlag = 'assets/images/flags/us.svg';
     } else if (lang === 'kis') {
       this.selectedLanguage = 'Kiswahili';
-      this.selectedLanguageFlag = 'assets/images/flags/es.svg';
+      this.selectedLanguageFlag = 'assets/images/flags/ke.svg';
     }
   }
 

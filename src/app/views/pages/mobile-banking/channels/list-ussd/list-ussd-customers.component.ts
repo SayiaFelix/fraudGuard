@@ -18,6 +18,9 @@ import { DataExportationService } from 'src/app/shared/services/data-exportation
 import { HttpService } from 'src/app/shared/services/http.service';
 import {AddCustomerComponent} from "../add-customer/add-customer.component";
 import {AddMobileAppCustomerComponent} from "../add-mobile-app-customer/add-mobile-app-customer.component";
+import {AddProductComponent} from "../../products/add-product/add-product.component";
+import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
+import Swal from "sweetalert2";
 
 @Component({
   selector: 'app-list-requests',
@@ -305,5 +308,40 @@ export class ListUssdCustomersComponent implements OnInit {
     }else if (eventData.action == 'Edit') {
       this.openEditProductModal(eventData.row);
     }
+  }
+
+  openDisableModal(channelName: string) {
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+    this.modalRef.componentInstance.title = `Disable this channel?`;
+    this.modalRef.componentInstance.body = `Do you want to disable: ${channelName}?`;
+    this.modalRef.result.then((result: any) => {
+      if (result === 'success') {
+
+        let model = {
+          // id: formData.id
+        }
+
+        this.httpService.mobileBankingPost('product/portal/delete',
+          model).subscribe(
+          (result: any) => {
+            if (result.status === 200) {
+              Swal.fire('Product Deleted',
+                'Product has been deleted successfully.',
+                'success').then(r => console.log(r))
+              this.getIndividualData(0);
+            } else {
+              Swal.fire('Record deletion error',
+                'Product could not be deleted.',
+                'error').then(r => console.log(r))
+            }
+          },
+          (error: any) => {
+            Swal.fire('Record deletion error',
+              `${error}`,
+              'error')
+          }
+        );
+      }
+    });
   }
 }
