@@ -35,12 +35,12 @@ export const MENU: MenuItem[] = [
       {
         profiles: ['CORPORATE_ADMIN'],
         label: 'Product Categories',
-        link: '/mobile-banking/products/list-categories'
+        link: '/mobile-banking/products/list-categories-as-cards'
       },
       {
         profiles: ['CORPORATE_ADMIN'],
         label: 'All Products',
-        link: '/mobile-banking/products/list-products'
+        link: '/mobile-banking/products/list-all-products-as-cards'
       },
     ]
   },
