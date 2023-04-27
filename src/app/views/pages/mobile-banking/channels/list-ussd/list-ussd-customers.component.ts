@@ -65,7 +65,7 @@ export class ListUssdCustomersComponent implements OnInit {
   columns = [
     { name: 'ID', prop: 'id' },
     { name: 'CustomerName', prop: 'customerName' },
-    {name:'PhoneNumber',prop:'phoneNumber'},
+    {name:'PrimaryPhoneNumber',prop:'phoneNumber'},
     { name: 'IDNumber', prop: 'idNumber' },
     // { name: 'IMSINumber', prop: 'IMSINumber' },
     // {name: 'CBSCustomerNumber',prop:'cbsCustomerNumber'},

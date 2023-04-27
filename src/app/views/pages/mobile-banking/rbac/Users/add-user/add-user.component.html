@@ -31,8 +31,8 @@
 
       <div class="col-md-6">
         <label class="text-gray">Phone Number (start with 254)</label>
-        <input class="form-control" formControlName="phone" type="number" min="0" maxlength="12"
-        oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);">
+        <input class="form-control" formControlName="phoneNumber" type="number" min="0" maxlength="12" (keyup)="logErrors()"
+        oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"/>
         <small *ngIf="form.get('phone')?.touched &&
             form.get('phone')?.hasError('required')" class="text-danger">Required
           Field</small>
@@ -74,6 +74,7 @@
       </ngb-alert>
     </div>
     <button (click)="closeModal()" class="btn btn-secondary" type="button">Close</button>
-    <button (click)="submitData()" class="btn btn-primary" type="button" [disabled]="!form.valid">Save Record</button>
+    <button (click)="submitData()" *ngIf="!this.formData" class="btn btn-primary" type="button" [disabled]="!form.valid">Create Record</button>
+    <button (click)="submitData()" *ngIf="this.formData" class="btn btn-primary" type="button" [disabled]="!form.valid">Save Record</button>
   </div>
 </div>

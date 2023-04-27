@@ -23,7 +23,8 @@ import {Notification} from "../../../shared/services/Notification";
 export class NavbarComponent implements OnInit {
   userData$: Observable<any>;
   companyEmail: string;
-  companyPhone: string;
+  employeeNumber: string;
+  profile:string;
   companyRegistrationDate: string;
   country: string;
   taxPin: string;
@@ -60,14 +61,16 @@ export class NavbarComponent implements OnInit {
     // let userDetails = JSON.parse(localStorage.getItem('userData')!);
     let userDetails = {
       companyEmail: "testEmail@gmail.com",
-      companyPhone: "254700112334",
+      employeeNumber: "E334",
+      profile: "Admin",
       companyRegistrationDate: "24-12-1999",
       country: "Kenya",
       taxPin: "A029384794G",
     };
     if (userDetails) {
       this.companyEmail = userDetails['companyEmail'];
-      this.companyPhone = userDetails['companyPhone'];
+      this.employeeNumber = userDetails['employeeNumber'];
+      this.profile = userDetails['profile'];
       this.companyRegistrationDate = userDetails['companyRegistrationDate'];
       this.country = userDetails['country'];
       this.taxPin = userDetails['taxPin'];
@@ -81,7 +84,8 @@ export class NavbarComponent implements OnInit {
           console.log(resp);
           if (resp) {
             this.companyEmail = resp[0]['companyEmail'];
-            this.companyPhone = resp[0]['companyPhone'];
+            this.employeeNumber = resp[0]['employeeNumber'];
+            this.profile = resp[0]['profile'];
             this.companyRegistrationDate = resp[0]['companyRegistrationDate'];
             this.country = resp[0]['country'];
             this.taxPin = resp[0]['taxPin'];
