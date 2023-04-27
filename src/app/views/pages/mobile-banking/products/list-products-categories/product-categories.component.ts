@@ -31,7 +31,7 @@ export class ProductCategoriesComponent implements OnInit {
   breadCrumbItems: Array<{}>;
   rows: any = [];
   temp: any = [];
-  loadingIndicator = true;
+  loading = true;
   reorderable = true;
 
   columns = [
@@ -78,6 +78,7 @@ export class ProductCategoriesComponent implements OnInit {
 
   getIndividualData(event: number): void {
 
+    this.loading = true;
     const model = {
       page: 0,
       size: 50,
@@ -87,6 +88,7 @@ export class ProductCategoriesComponent implements OnInit {
       .mobileBankingPost('product/portal/category/fetch/all', model)
       .subscribe((res: any) => {
         if (res.status === 200) {
+          this.loading = false;
           this.rows = res.data;
           let response = this.rows.map((item: any, index: any) => {
             let res = {...item,

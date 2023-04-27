@@ -22,7 +22,7 @@
         <app-custom-ngx-table
           [columns]="columns"
           [rows]="rows"
-
+          [loadingIndicator]="loading"
           [actions]="actions"
           (editEvent)="openResetModal($event)"
           (outputEvent)="triggerEvent($event)"

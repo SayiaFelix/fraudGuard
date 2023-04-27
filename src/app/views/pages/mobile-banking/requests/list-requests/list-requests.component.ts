@@ -41,7 +41,7 @@ export class ListRequestsComponent implements OnInit {
   breadCrumbItems: Array<{}>;
   rows: any = [];
   temp: any = [];
-  loadingIndicator = true;
+  loading = true;
   reorderable = true;
 
   columns = [
@@ -97,6 +97,8 @@ export class ListRequestsComponent implements OnInit {
   }
 
   getIndividualData(event: number): void {
+
+    this.loading = true;
     this.rows = this.tempProductData;
 
     this.temp = [...this.tempProductData];
@@ -110,6 +112,7 @@ export class ListRequestsComponent implements OnInit {
       .mobileBankingPost('api/v1/corporate/admin/list-products/all', model)
       .subscribe((res: any) => {
         if (res.status === 200) {
+          this.loading = false;
           setTimeout(() => {
             // this.data = res.data;
             this.rows = this.tempProductData;
@@ -118,8 +121,10 @@ export class ListRequestsComponent implements OnInit {
             let total = res.totalItems;
           }, 10);
         } else {
+          this.loading = false;
         }
       });
+    this.loading = false;
   }
 
 

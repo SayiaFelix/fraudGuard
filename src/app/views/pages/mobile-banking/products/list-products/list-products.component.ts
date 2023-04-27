@@ -33,7 +33,7 @@ export class ListProductsComponent implements OnInit {
   breadCrumbItems: Array<{}>;
   rows: any = [];
   temp: any = [];
-  loadingIndicator = true;
+  loading = true;
   reorderable = true;
 
   actions = ["View", "Edit", "Delete"];
@@ -97,6 +97,7 @@ export class ListProductsComponent implements OnInit {
   }
 
   getIndividualData(event: number): void {
+    this.loading = true;
 
     const model = {
         "page":0,
@@ -108,6 +109,8 @@ export class ListProductsComponent implements OnInit {
       .subscribe(
         (res: any) => {
           if (res.status === 200) {
+            this.loading = false;
+
             let response = res['data'];
 
             this.rows = response.map((item: any, index: any) => {
