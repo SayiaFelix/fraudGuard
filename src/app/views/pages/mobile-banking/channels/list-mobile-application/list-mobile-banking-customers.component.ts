@@ -276,4 +276,39 @@ export class ListMobileBankingCustomersComponent implements OnInit {
       this.openEditProductModal(eventData.row);
     }
   }
+
+  openDisableModal(channelName: string) {
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+    this.modalRef.componentInstance.title = `Disable this channel?`;
+    this.modalRef.componentInstance.body = `Do you want to disable: ${channelName}?`;
+    this.modalRef.result.then((result: any) => {
+      if (result === 'success') {
+
+        let model = {
+          // id: formData.id
+        }
+
+        this.httpService.mobileBankingPost('product/portal/delete',
+          model).subscribe(
+          (result: any) => {
+            if (result.status === 200) {
+              Swal.fire('Product Deleted',
+                'Product has been deleted successfully.',
+                'success').then(r => console.log(r))
+              this.getIndividualData(0);
+            } else {
+              Swal.fire('Record deletion error',
+                'Product could not be deleted.',
+                'error').then(r => console.log(r))
+            }
+          },
+          (error: any) => {
+            Swal.fire('Record deletion error',
+              `${error}`,
+              'error')
+          }
+        );
+      }
+    });
+  }
 }

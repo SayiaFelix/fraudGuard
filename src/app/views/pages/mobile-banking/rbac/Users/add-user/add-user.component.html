@@ -46,7 +46,7 @@
             form.get('email')?.hasError('required')" class="text-danger">Required
           Field</small>
           <small *ngIf="form.get('email')?.touched &&
-            form.get('email')?.hasError('pattern')" class="text-danger">Enter a valid email</small> 
+            form.get('email')?.hasError('pattern')" class="text-danger">Enter a valid email</small>
       </div>
       <div class="col-md-6">
 
@@ -65,6 +65,8 @@
         </select>
       </div>
 
+      <p *ngIf="isLoading"><ngb-progressbar type="primary" [value]="95" [striped]="true" [animated]="true"></ngb-progressbar></p>
+
     </div>
   </div>
   <div class="modal-footer">
@@ -74,6 +76,6 @@
       </ngb-alert>
     </div>
     <button (click)="closeModal()" class="btn btn-secondary" type="button">Close</button>
-    <button (click)="submitData()" class="btn btn-primary" type="button" [disabled]="!form.valid">Save Record</button>
+    <button (click)="submitData()" class="btn btn-primary" type="button" [disabled]="!form.valid || isLoading">Save Record</button>
   </div>
 </div>

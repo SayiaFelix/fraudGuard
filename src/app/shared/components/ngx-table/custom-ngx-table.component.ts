@@ -18,7 +18,7 @@ import { DatatableComponent } from '@swimlane/ngx-datatable/lib/components/datat
 export class CustomNgxTable implements OnInit {
   @ViewChild('table') table: DatatableComponent;
   ColumnMode = ColumnMode;
-  loadingIndicator = true;
+  @Input() loadingIndicator = true;
   reorderable = true;
 
   @Input() columns: any;
@@ -27,6 +27,7 @@ export class CustomNgxTable implements OnInit {
   @Input() hasViewAndEdit: any;
 
   @Input() actions: any;
+
 
   @Output() outputEvent = new EventEmitter<string>();
   @Output() editEvent = new EventEmitter<string>();

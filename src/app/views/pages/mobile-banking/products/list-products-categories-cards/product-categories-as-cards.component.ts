@@ -1,4 +1,4 @@
-import {Component, OnInit, Pipe,PipeTransform, ViewChild,} from '@angular/core';
+import {Component, Input, OnInit, Pipe, PipeTransform, ViewChild,} from '@angular/core';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {DatePipe} from '@angular/common';
 import {Router} from '@angular/router';
@@ -38,6 +38,8 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
 
   actions = ["View", "Edit"];
 
+
+  @Input() subCategories: any
 
   // bread crumb items
   breadCrumbItems: Array<{}>;
@@ -85,7 +87,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
     }
   }
 
-  slidesStore:any = [
+  fetchedCategories:any = [
     // {
     //   id:'1',
     //   src:'assets/images/category4.png',
@@ -133,7 +135,6 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
     public router: Router,
     private dataExploration: DataExportationService,
     public domSanitizer: DomSanitizer,
-    private sanitizer: DomSanitizer
   ) {
   }
 
@@ -151,7 +152,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
 
   }
 
-  getIndividualData(event: number): void {
+  async getIndividualData(event: number) {
 
     const model = {
       page: 0,
@@ -163,14 +164,21 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
       .subscribe((res: any) => {
         if (res.status === 200) {
           console.log(res.data);
-            let response = res.data.map((item: any) => {
-              let res = {...item, parentCategoryName: item.parentCategory ? item.parentCategory.name : "_"};
+            let response = res.data.map(async (item: any) => {
+
+              const imageUrl = await this.getBase64ImageFromUrl(item.categoryUrl.trim());
+
+              res = {
+                ...item,
+                parentCategoryName: item.parentCategory ? item.parentCategory.name : "_",
+                categoryUrl: imageUrl
+              };
+
+              console.log("this is the latest res");
+              console.log(res);
               return res;
             })
-            this.slidesStore=response;
-            console.log(this.slidesStore);
-            console.log("this.rows");
-            console.log(this.rows);
+            this.fetchedCategories=response;
         } else {
         }
       });
@@ -394,4 +402,39 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
       }
     });
   }
+
+  viewSubProducts(children: any) {
+    this.router.navigate(["/mobile-banking/products/list-categories-redesigned"])
+  }
+
+  // Get base64 from Image URL
+  async getBase64ImageFromUrl(imageUrl: string) {
+
+    console.log(imageUrl);
+
+    let url = this.domSanitizer.bypassSecurityTrustUrl(imageUrl);
+
+    console.log("here is the url")
+    console.log(url)
+
+    let res = await fetch("https://www.google.com");
+
+    console.log(res);
+    let blob = await res.blob();
+
+    console.log(blob);
+
+    return new Promise((resolve, reject) => {
+      let reader  = new FileReader();
+      reader.addEventListener("load", function () {
+        resolve(reader.result);
+      }, false);
+
+      reader.onerror = () => {
+        return reject(this);
+      };
+      reader.readAsDataURL(blob);
+    })
+  }
+
 }
