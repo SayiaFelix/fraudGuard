@@ -1,3 +1,4 @@
+.....
 <div class="modal-header">
     <h4 class="modal-title">{{title}}</h4>
     <button type="button" class="close" aria-label="Close" (click)="closeModal()">
@@ -28,6 +29,15 @@
             </div>
         </div>
 
+      <div class="col-sm-6">
+        <div class="form-group">
+          <label class="text-gray">Product Code</label>
+          <input formControlName="productCode" class="form-control" type="text" >
+          <p *ngIf="form.get('productCode')?.touched && form.get('productCode')?.hasError('required')"
+             class="text-danger mt-1 mb-1 pt-0 small text-center">Required
+            Field</p>
+        </div>
+      </div>
 
 
         <div class="col-sm-6">
