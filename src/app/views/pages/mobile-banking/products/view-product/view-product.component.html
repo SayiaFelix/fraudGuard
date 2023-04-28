@@ -12,7 +12,7 @@
               <div class="order-first" >
               <!-- <div class="order-first" *ngFor="let product of myProductList"> -->
                 <h4>{{productDetails?.name}} </h4>
-                <img class="image" [src]="domSanitizer.bypassSecurityTrustResourceUrl(productDetails?.productUrl)" [alt]="productDetails?.alt">
+                <img class="image" [src]="domSanitizer.bypassSecurityTrustResourceUrl(productDetails?.productUrl?.trim())">
               </div>
               <br>
               <!--                <img class="profile-pic text-center" src="assets/img/logos/person.png"/>-->
@@ -72,13 +72,21 @@
               <p class="text-muted fw-normal mb-4">{{productDetails?.detailedDescription}}</p>
              </div> -->
               <h5 class="text-left font-size-20 fw-bold mt-0 mb-2">Requirements</h5>
-              <ul style="list-style-type: none;">
-                <div *ngFor="let requirements of requirements">
-                  <!--                  <input class="mr-3 pr-3" type="checkbox">-->
-                  <h6 class="text-muted fw-normal mb-2 align-items-start">{{requirements?.requirement}}</h6>
-                  <li class="text-muted fw-normal mb-2">-{{requirements?.requirementDescription}}</li>
+
+              <div class="w-50">
+                <div class="d-flex justify-content-between" *ngFor="let requirements of requirements">
+                  <h6 class="text-body mb-2">Requirement:</h6>
+                  <p class="text-muted tx-12"> {{requirements?.requirement}}</p>
                 </div>
-              </ul>
+                <p class="text-muted tx-13">Requirement Description: {{requirements?.requirementDescription}}</p>
+                <button (click)="removeRequirement()"
+                        class="btn btn-danger btn-xs pull-right"
+                        type="button">Remove Requirement
+                </button>
+                <hr>
+              </div>
+
+
               <button (click)="addRequirement()"
                       class="btn btn-primary btn-xs pull-right"
                       type="button">Add Requirement

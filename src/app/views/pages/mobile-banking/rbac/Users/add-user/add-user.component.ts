@@ -54,7 +54,7 @@ export class AddUserComponent implements OnInit {
   }
   logErrors(){
     console.log(this.form);
-    
+
   }
 
   public submitData(): void {
@@ -77,6 +77,7 @@ export class AddUserComponent implements OnInit {
       middleName:this.form.value.middleName,
       lastName: this.form.value.lastName,
       email: this.form.value.email,
+
       phoneNumber:this.form.value.phoneNumber,
       profileId:this.form.value.profile,
     };

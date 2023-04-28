@@ -245,15 +245,15 @@ export class ListFailedRegistrationsComponent implements OnInit {
     // Open other page with details on why customer creation failed.
 this.router.navigate(['/mobile-banking/customers/reason'])
 
-    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
-    this.modalRef.componentInstance.title = 'Registration Failed';
-
-    this.modalRef.componentInstance.body= "You input the wrong mobile number.";
-    this.modalRef.result.then((result) => {
-      if (result === 'success') {
-      } else {
-        console.log("Error occurred")
-      }
-    });
+    // this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+    // this.modalRef.componentInstance.title = 'Registration Failed';
+    //
+    // this.modalRef.componentInstance.body= "You input the wrong mobile number.";
+    // this.modalRef.result.then((result) => {
+    //   if (result === 'success') {
+    //   } else {
+    //     console.log("Error occurred")
+    //   }
+    // });
   }
 }

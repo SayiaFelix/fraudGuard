@@ -1,18 +1,19 @@
-import {Component, Input, OnInit, Pipe, PipeTransform, ViewChild,} from '@angular/core';
+import {Component, Input, OnInit, ViewChild,} from '@angular/core';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {DatePipe} from '@angular/common';
 import {Router} from '@angular/router';
 import {ColumnMode} from '@swimlane/ngx-datatable';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {FormBuilder, FormGroup} from '@angular/forms';
 import {DatatableComponent} from '@swimlane/ngx-datatable/lib/components/datatable.component';
 import {DataExportationService} from 'src/app/shared/services/data-exportation.service';
 import {HttpService} from 'src/app/shared/services/http.service';
 import {AddProductComponent} from "../add-product/add-product.component";
 import {OwlOptions} from "ngx-owl-carousel-o";
-import {AddProductSubItemComponent} from "../add-product-subitem/add-product-sub-item.component";
 import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
 import Swal from "sweetalert2";
-import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import {DomSanitizer} from '@angular/platform-browser';
+import {HttpClient} from "@angular/common/http";
+import {map} from "rxjs";
 
 @Component({
   selector: 'app-product-categories',
@@ -68,26 +69,26 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
 
   title: string = "Category";
   autoPlayExampleOptions: OwlOptions = {
-    items:3,
-    loop:false,
-    margin:0,
-    autoplay:false,
-    autoplayTimeout:9000,
-    autoplayHoverPause:true,
-    responsive:{
-      0:{
+    items: 3,
+    loop: false,
+    margin: 0,
+    autoplay: false,
+    autoplayTimeout: 9000,
+    autoplayHoverPause: true,
+    responsive: {
+      0: {
         items: 2
       },
-      600:{
+      600: {
         items: 2
       },
-      1000:{
+      1000: {
         items: 2
       }
     }
   }
 
-  fetchedCategories:any = [
+  fetchedCategories: any = [
     // {
     //   id:'1',
     //   src:'assets/images/category4.png',
@@ -127,6 +128,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
     //   description: "Describing insurance categories."
     // },
   ]
+  private base64Image: string;
 
   constructor(
     private httpService: HttpService,
@@ -135,6 +137,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
     public router: Router,
     private dataExploration: DataExportationService,
     public domSanitizer: DomSanitizer,
+    public http: HttpClient
   ) {
   }
 
@@ -165,21 +168,19 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
         if (res.status === 200) {
           console.log(res.data);
           let response = res.data.map((item: any) => {
+                res = {
+                  ...item,
+                  parentCategoryName: item.parentCategory ? item.parentCategory.name : "_",
+                  categoryUrl: item.categoryUrl
+                };
 
-            // const imageUrl = await this.getBase64ImageFromUrl(item.categoryUrl.trim());
+                return res;
 
-            res = {
-              ...item,
-              parentCategoryName: item.parentCategory ? item.parentCategory.name : "_",
-              categoryUrl: item.categoryUrl
-            };
+              });
 
-            console.log("this is the latest res");
-            console.log(res);
-            return res;
-          })
-          this.fetchedCategories=response;
-        } else {
+
+          this.fetchedCategories = response;
+
         }
       });
   }
@@ -402,39 +403,24 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
       }
     });
   }
+
   viewSubProducts(category: any) {
     this.router.navigate([`/mobile-banking/products/list-categories-cards-subcategories/${category.id}`])
   }
 
   // Get base64 from Image URL
-  async getBase64ImageFromUrl(imageUrl: string) {
-
-    return "";
-    console.log(imageUrl);
-
-    // let url = this.domSanitizer.bypassSecurityTrustUrl(imageUrl);
-    //
-    // console.log("here is the url")
-    // console.log(url)
-    //
-    // let res = await fetch("https://www.google.com");
-    //
-    // console.log(res);
-    // let blob = await res.blob();
-    //
-    // console.log(blob);
-    //
-    // return new Promise((resolve, reject) => {
-    //   let reader  = new FileReader();
-    //   reader.addEventListener("load", function () {
-    //     resolve(reader.result);
-    //   }, false);
-    //
-    //   reader.onerror = () => {
-    //     return reject(this);
-    //   };
-    //   reader.readAsDataURL(blob);
-    // })
+  getImageAsBase64(url: string) {
+    return this.http.get(url, {responseType: 'blob'})
+      .pipe(
+        map((res: Blob) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(res);
+          reader.onloadend = () => {
+            // @ts-ignore
+            return reader.result.toString();
+            // .split(',')[1];
+          }
+        }));
   }
 
 }

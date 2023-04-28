@@ -148,28 +148,10 @@ export class ViewUserComponent implements OnInit, OnDestroy {
     this.modalRef.componentInstance.userId = this.userId;
     this.modalRef.result.then((result) => {
       if (result === 'success') {
-
-        let model = {
-          userId: this.userId
-        }
-
-        this.resetPassword$ = this.httpService.mobileBankingPost('api/v1/admin/user/reset',
-          model).pipe(
-            catchError((error: any) => {
-              Swal.fire('Failed', "Password could not be reset", 'error')
-              return throwError(error);
-            }),
-            map((res: any) => {
-              if (res.status === 200) {
-                setTimeout(() => {
-                  Swal.fire('Success', 'User Password Reset Successfully.', 'success')
-                  this.router.navigate(['/mobile-banking/Users/list-users']);
-
-                }, 10);
-              } else {
-                Swal.fire('Failed', res.message, 'error')
-              }
-            }))
+        Swal.fire('Update Successful',
+          'Profile has been updated successfully.',
+          'success')
+        this.loadData();
       }
     })
 
