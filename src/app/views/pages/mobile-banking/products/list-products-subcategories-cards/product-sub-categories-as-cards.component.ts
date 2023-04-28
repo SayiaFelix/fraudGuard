@@ -136,7 +136,6 @@ export class ProductSubCategoriesAsCardsComponent implements OnInit {
             let result = {
               ...item,
               parentCategoryName: item.parentCategory ? item.parentCategory.name : "_",
-              categoryUrl: imageUrl
             };
 
 
@@ -144,7 +143,7 @@ export class ProductSubCategoriesAsCardsComponent implements OnInit {
           })
 
 
-          this.fetchedSubCategories = response;
+          this.fetchedSubCategories = response;          
         } else {
         }
       });

@@ -40,7 +40,8 @@
               <div class="m-2 p-2">
                 <div class="card" style="width: 18rem;">
                   <!-- <img class="card-img-top" src=".\assets\images\category1.png" alt="slide"> -->
-                  <img class="card-img-top" [src]="domSanitizer.bypassSecurityTrustResourceUrl(slide.productUrl)">
+                  <!-- <img class="card-img-top" [src]="domSanitizer.bypassSecurityTrustResourceUrl(slide.productUrl)"> -->
+                  <img class="card-img-top" [src]="slide.productUrl.trim()" [alt]="slide.alt" preload>
 
                   <!-- <img class=card-img-top [src]="slide.productUrl"> -->
                   <!-- <img src="..." class="card-img-top" alt="..."> -->
