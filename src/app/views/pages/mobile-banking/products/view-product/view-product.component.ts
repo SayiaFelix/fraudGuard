@@ -221,7 +221,7 @@ export class ViewProductComponent implements OnInit {
     );
   }
 
-  removeRequirement() {
+  removeRequirement(id: any) {
     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Remove Requirement';
 
@@ -229,12 +229,14 @@ export class ViewProductComponent implements OnInit {
     this.modalRef.result.then((result) => {
       if (result === 'success') {
         const model = {
-          id: 1
+          id: id
         };
 
         this.httpService.mobileBankingPost('product/portal/requirement/remove', model).subscribe(
           (result: any) => {
             if (result.status === 200) {
+              this.loadData();
+              this.loadRequirements();
             } else {
 
             }

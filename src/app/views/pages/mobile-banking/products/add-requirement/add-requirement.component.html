@@ -22,7 +22,7 @@
         <div class="col-sm-12">
           <div class="mb-3">
             <label class="form-label">Requirement Code</label>
-            <input class="form-control" formControlName="requirementCode" type="text" />
+            <input class="form-control" formControlName="requirementCode" type="number" />
             <small
               *ngIf="
               form.get('requirementCode')?.touched &&
@@ -34,10 +34,28 @@
           </div>
         </div>
 
+        <div class="col-sm-12">
+          <div class="mb-3">
+            <label class="form-label">Requirement Description</label>
+            <input class="form-control" formControlName="requirementDesc" type="text" />
+            <small
+              *ngIf="
+              form.get('requirementDesc')?.touched &&
+              form.get('requirementDesc')?.hasError('required')
+            "
+              class="text-danger"
+            >Required Field</small>
+          </div>
+
+
+          <p *ngIf="isLoading"><ngb-progressbar type="primary" [value]="95" [striped]="true" [animated]="true"></ngb-progressbar></p>
+
+        </div>
+
       </div>
     </div>
     <div class="modal-footer">
       <button (click)="closeModal()" class="btn btn-secondary" type="button">Close</button>
-      <button (click)="submitData()" class="btn btn-primary" type="button">Save changes</button>
+      <button (click)="submitData()" class="btn btn-primary" type="button" [disabled]="!form.valid || isLoading">Save changes</button>
     </div>
   </div>

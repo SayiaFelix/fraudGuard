@@ -21,6 +21,7 @@ export class AddRequirementComponent implements OnInit {
   public form: FormGroup;
 
   public allProductCategories: any;
+  isLoading: boolean;
 
   constructor(
     public activeModal: NgbActiveModal,
@@ -37,6 +38,7 @@ export class AddRequirementComponent implements OnInit {
     this.form = this.fb.group({
       requirement: ['', [Validators.required]],
       requirementCode: ['', [Validators.required]],
+      requirementDesc: ['', [Validators.required]],
     });
 
 
@@ -55,18 +57,21 @@ export class AddRequirementComponent implements OnInit {
 
   private createRecord(): any {
 
+    this.isLoading =true;
+
     const model = {
       id: this.formData.productId,
       productCode: this.formData.productCode,
       requirementCode: this.form.value.requirementCode,
       requirement: this.form.value.requirement,
-      description: 'Desc',
+      description: this.form.value.requirementDesc,
       approvalId: 1
     };
 
     this._httpService.mobileBankingPost('product/portal/requirement/add', model).subscribe(
       (result: any) => {
         if (result.status === 200) {
+          this.isLoading =false;
           this.activeModal.close('success');
           Swal.fire('Product requirement created',
             'Product requirement has been created successfully.',
