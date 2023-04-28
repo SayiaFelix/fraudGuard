@@ -24,23 +24,24 @@
 
 </div>
 
-<div class="row">
+<div class="row text-center m-auto">
   <div class="col-md-12 stretch-card">
 
     <div class="col-md-12 grid-margin stretch-card">
       <div class="card">
         <div class="card-body">
           <owl-carousel-o [options]="autoPlayExampleOptions">
-            <ng-template carouselSlide *ngFor="let category of fetchedCategories" [id]="category.id">
+            <ng-template carouselSlide *ngFor="let category of fetchedCategories" [id]="category?.id">
               <div class="m-3 p-3 ">
-                <div class="card">
+                <div class="card d-flex justify-content-center">
                   <!-- <img class="card-img-top" [src]="domSanitizer.bypassSecurityTrustResourceUrl(slide.categoryUrl)" [alt]="slide.alt"> -->
-                  <img class="card-img-top" [src]="category.categoryUrl" [alt]="category.alt">
+                  <img class="card-img-top text-center m-auto" [src]="domSanitizer.bypassSecurityTrustResourceUrl(category?.categoryUrl?.trim())">
+
                   <!-- <img [src]="slide.categoryUrl | SafeUrl"> -->
                   <!-- <img src="..." class="card-img-top" alt="..."> -->
                   <div class="card-body">
-                    <h5 class="card-title">{{category.name}}</h5>
-                    <p class="card-text">{{category.description}}</p>
+                    <h5 class="card-title">{{category?.name}}</h5>
+                    <p class="card-text">{{category?.description}}</p>
 
                     <div class="d-grid gap-2 d-md-block">
                       <a [routerLink]="'/mobile-banking/products/list-products-as-cards/' + category.id"

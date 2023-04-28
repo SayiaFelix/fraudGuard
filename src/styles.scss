@@ -308,3 +308,7 @@ parent-item {
     transform: translateX(-50%) scale(0, 1);
   }
 }
+
+.owl-carousel .owl-item img {
+  height: 200px!important;
+}

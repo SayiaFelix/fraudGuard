@@ -21,19 +21,15 @@
                   <table class="mx-auto">
                     <tr>
                       <td><i class="feather icon-check icon-md text-primary me-2"></i></td>
-                      <td><p>Accounting dashboard</p></td>
+                      <td><p>Name: John Doe</p></td>
                     </tr>
                     <tr>
                       <td><i class="feather icon-check icon-md text-primary me-2"></i></td>
-                      <td><p>Invoicing</p></td>
+                      <td><p>ID Number: 2039485765</p></td>
                     </tr>
                     <tr>
                       <td><i class="feather icon-check icon-md text-primary me-2"></i></td>
-                      <td><p>Online payments</p></td>
-                    </tr>
-                    <tr>
-                      <td><i class="feather icon-x icon-md text-danger me-2"></i></td>
-                      <td><p class="text-muted">Name</p></td>
+                      <td><p>Phone Number: 254037588484</p></td>
                     </tr>
                     <tr>
                       <td><i class="feather icon-x icon-md text-danger me-2"></i></td>
@@ -62,10 +58,6 @@
                   <table class="mx-auto">
                     <tr>
                       <td><i class="feather icon-x icon-md text-danger me-2"></i></td>
-                      <td><p>Name</p></td>
-                    </tr>
-                    <tr>
-                      <td><i class="feather icon-x icon-md text-danger me-2"></i></td>
                       <td><p>Account Number</p></td>
                     </tr>
                     <tr>
@@ -85,7 +77,10 @@
                 <div class="card-body">
                   <h4 class="text-center mt-3 mb-4">Actions</h4>
                   <div class="d-grid">
-                    <button class="btn btn-primary mt-4">Approve Record</button>
+                    <button class="btn btn-primary mt-4" (click)="approveRecord()">Approve Record</button>
+                  </div>
+                  <div class="d-grid">
+                    <button class="btn btn-danger mt-4" (click)="deleteRecord()">Delete Record</button>
                   </div>
                 </div>
               </div>

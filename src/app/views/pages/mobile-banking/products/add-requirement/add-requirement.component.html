@@ -8,11 +8,11 @@
         <div class="col-sm-12">
           <div class="mb-3">
             <label class="form-label">Requirement</label>
-            <input class="form-control" formControlName="name" type="text" />
+            <input class="form-control" formControlName="requirement" type="text" />
             <small
               *ngIf="
-              form.get('name')?.touched &&
-              form.get('name')?.hasError('required')
+              form.get('requirement')?.touched &&
+              form.get('requirement')?.hasError('required')
             "
               class="text-danger"
             >Required Field</small
@@ -20,8 +20,20 @@
           </div>
         </div>
         <div class="col-sm-12">
-
+          <div class="mb-3">
+            <label class="form-label">Requirement Code</label>
+            <input class="form-control" formControlName="requirementCode" type="text" />
+            <small
+              *ngIf="
+              form.get('requirementCode')?.touched &&
+              form.get('requirementCode')?.hasError('required')
+            "
+              class="text-danger"
+            >Required Field</small
+            >
+          </div>
         </div>
+
       </div>
     </div>
     <div class="modal-footer">

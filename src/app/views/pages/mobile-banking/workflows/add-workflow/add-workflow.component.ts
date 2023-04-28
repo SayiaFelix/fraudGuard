@@ -42,7 +42,7 @@ export class AddWorkflowComponent implements OnInit {
         this.form = this.fb.group({
             name: [this.formData ? this.formData.name : '', [Validators.required]],
             process: [this.formData ? this.formData.process : '', [Validators.required]],
-            remarks: [this.formData ? this.formData.remark : '', [Validators.nullValidator]],
+            remarks: [this.formData ? this.formData.remarks : '', [Validators.nullValidator]],
             status: [this.formData ? this.formData.status : '', [Validators.nullValidator]]
         });
 

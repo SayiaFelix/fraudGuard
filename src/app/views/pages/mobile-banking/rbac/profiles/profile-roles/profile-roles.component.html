@@ -1,116 +1,3 @@
-<!--<div class="row m-0 p-0">-->
-<!--    <div class="col-md-4">-->
-<!--        <div class="card border-0 box-shadow" widget>-->
-<!--            <div class="text-left pt-2" style="color: green;">-->
-<!--                <p class="text-center" style="font-weight: 700; font-size: 120%">All Roles</p>-->
-<!--            </div>-->
-<!--            <hr>-->
-<!--            <div class="card-body pt-0 widget-body">-->
-
-<!--                <div class="table-responsive table-striped table-bordered">-->
-<!--&lt;!&ndash;                    <ng2-smart-table (custom)="onCustomActionAddRole($event)" [settings]="pendingSettings" [source]="pendingDataSet"&ndash;&gt;-->
-<!--&lt;!&ndash;                                     class="table table-hover">&ndash;&gt;-->
-<!--&lt;!&ndash;                    </ng2-smart-table>&ndash;&gt;-->
-<!--                </div>-->
-
-<!--            </div>-->
-<!--        </div>-->
-<!--    </div>-->
-
-<!--    <div class="col-md-4">-->
-<!--        <div class="card border-0 box-shadow" widget>-->
-
-<!--            <div class="text-left pt-2" style="color: green;">-->
-<!--                <p class="text-center" style="font-weight: 700; font-size: 120%">Granted Roles</p>-->
-<!--            </div>-->
-<!--            <hr>-->
-
-<!--            <div class="card-body pt-0 widget-body pb-1 mb-3">-->
-
-<!--                <div class="table-responsive table-striped table-bordered">-->
-<!--&lt;!&ndash;                    <ng2-smart-table (custom)="onCustomActionRemoveRole($event)" [settings]="approvedSettings" [source]="approvedDataSet"&ndash;&gt;-->
-<!--&lt;!&ndash;                                     class="table table-hover">&ndash;&gt;-->
-<!--&lt;!&ndash;                    </ng2-smart-table>&ndash;&gt;-->
-<!--                </div>-->
-
-<!--            </div>-->
-<!--        </div>-->
-
-<!--    </div>-->
-
-<!--    <div class="col-md-4">-->
-<!--        <div class="card border-0 box-shadow" widget>-->
-
-<!--            <mat-tab-group mat-stretch-tabs>-->
-<!--                <mat-tab label="Update Roles">-->
-<!--                    <div class="text-left pt-2" style="color: green;">-->
-<!--                        <p class="text-center" style="font-weight: 700; font-size: 120%">Updated Roles Summary</p>-->
-<!--                    </div>-->
-<!--                    <hr>-->
-
-<!--                    <div class="card-body pt-0 widget-body pb-1 mb-3 text-center mx-auto">-->
-
-<!--                        <p class="mb-1 text-center"><strong>Added Roles</strong></p>-->
-
-<!--                        <ul style="list-style: none">-->
-<!--                            <li *ngFor="let item of allAddedRolesListPending">{{item.name}}-->
-<!--                                <button aria-label="Close" class="close" type="button" (click)="returnAddedRole(item)">-->
-<!--                                    <span aria-hidden="true">&times;</span>-->
-<!--                                </button>-->
-<!--                            </li>-->
-
-<!--                        </ul>-->
-
-<!--                        <p class="mb-1 text-center"><strong>Removed Roles</strong></p>-->
-<!--                        <ul style="list-style: none">-->
-<!--                            <li *ngFor="let item of allRemovedRolesListPending">{{item.name}}-->
-<!--                                <button aria-label="Close" class="close" type="button" (click)="returnRemovedRole(item)">-->
-<!--                                    <span aria-hidden="true">&times;</span>-->
-<!--                                </button>-->
-<!--                            </li>-->
-
-<!--                        </ul>-->
-
-<!--                        <hr>-->
-
-<!--                        <div class="btn-group mx-auto text-center mb-2" role="group">-->
-<!--                            <button class="btn btn-orange-eclectics mr-2" type="button" (click)="changeRolesForProfile()">Submit</button>-->
-<!--                            <button class="btn btn-danger" type="button" (click)="resetRolesForProfile()">Reset</button>-->
-<!--                        </div>-->
-
-<!--                    </div>-->
-
-<!--                </mat-tab>-->
-<!--&lt;!&ndash;                <mat-tab label="Users">&ndash;&gt;-->
-<!--&lt;!&ndash;                    <div class="card border-0 box-shadow" widget>&ndash;&gt;-->
-<!--&lt;!&ndash;                        <div class="text-center pt-2" style="color: green; font-family: monospace;">&ndash;&gt;-->
-<!--&lt;!&ndash;                            <p style="font-weight: 700; font-size: 120%">Users in Profile</p>&ndash;&gt;-->
-<!--&lt;!&ndash;                        </div>&ndash;&gt;-->
-<!--&lt;!&ndash;                        <hr>&ndash;&gt;-->
-<!--&lt;!&ndash;                        <div class="row mb-2">&ndash;&gt;-->
-<!--&lt;!&ndash;                            <div class="col-12">&ndash;&gt;-->
-
-<!--&lt;!&ndash;                                <div class="table-responsive table-striped" style="padding: 4px">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    <ng2-smart-table class="table table-hover" [settings]="settings" [source]="dataSet"&ndash;&gt;-->
-<!--&lt;!&ndash;                                                     (custom)="onCustomAction($event)">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    </ng2-smart-table>&ndash;&gt;-->
-<!--&lt;!&ndash;                                </div>&ndash;&gt;-->
-
-
-<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
-
-<!--&lt;!&ndash;                        </div>&ndash;&gt;-->
-<!--&lt;!&ndash;                    </div>&ndash;&gt;-->
-<!--&lt;!&ndash;                </mat-tab>&ndash;&gt;-->
-<!--            </mat-tab-group>-->
-
-
-<!--        </div>-->
-
-<!--    </div>-->
-
-<!--</div>-->
-
 <div class="row profile-body">
   <!-- left wrapper start -->
   <div class="col-md-4 col-xl-4 left-wrapper">
@@ -119,7 +6,7 @@
         <div class="card rounded">
           <div class="card-body">
             <div class="d-flex align-items-center justify-content-between mb-2">
-              <h6 class="card-title mb-0">All Roles</h6>
+              <h6 class="card-title mb-0">Missing Roles</h6>
               <hr>
               <div ngbDropdown>
                 <button class="btn p-0 no-dropdown-toggle-icon" id="dropdownMenuButton" ngbDropdownToggle type="button">
@@ -147,9 +34,9 @@
                 [limit]="20"
                 [loadingIndicator]="loadingIndicator"
                 [rowHeight]="'auto'"
-                [rows]="allRolesList"
+                [rows]="pendingDataSet"
                 [selectAllRowsOnPage]="false"
-                [selected]="selected"
+                [selected]="selectedAdd"
                 [selectionType]="SelectionType.checkbox"
                 class="bootstrap"
               >
@@ -215,9 +102,9 @@
                 [limit]="20"
                 [loadingIndicator]="loadingIndicator"
                 [rowHeight]="'auto'"
-                [rows]="allRolesList"
+                [rows]="rolesList"
                 [selectAllRowsOnPage]="false"
-                [selected]="selected"
+                [selected]="selectedRemove"
                 [selectionType]="SelectionType.checkbox"
                 class="bootstrap"
               >

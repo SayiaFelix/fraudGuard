@@ -72,12 +72,12 @@ export class ChangeProfileModalComponent implements OnInit {
       model)
       .pipe(
         catchError((error: any) => {
-          Swal.fire('Failed', "Unable to fetch profiles", 'error')
+          Swal.fire('Failed', "Unable to update profile", 'error')
           return throwError(error);
         }),
         map((res: any) => {
           if (res.status === 200) {
-           Swal.fire('success','profile changed successfully','success')
+            this.activeModal.close("success");
           } else {
             Swal.fire('Failed', res.message, 'error')
           }
