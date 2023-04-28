@@ -24,7 +24,7 @@
 
 </div>
 
-<div class="row">
+<div class="row text-center m-auto">
   <div class="col-md-12 stretch-card">
 
     <div class="col-md-12 grid-margin stretch-card">
@@ -35,7 +35,7 @@
               <div class="m-3 p-3 ">
                 <div class="card">
                   <!-- <img class="card-img-top" [src]="domSanitizer.bypassSecurityTrustResourceUrl(slide.categoryUrl)" [alt]="slide.alt"> -->
-                  <img class="card-img-top" [src]="" [alt]="category.alt">
+                  <img class="card-img-top text-center m-auto" [src]="domSanitizer.bypassSecurityTrustResourceUrl(category?.categoryUrl)">
                   <!-- <img [src]="slide.categoryUrl | SafeUrl"> -->
                   <!-- <img src="..." class="card-img-top" alt="..."> -->
                   <div class="card-body">

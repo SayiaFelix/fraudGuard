@@ -62,7 +62,7 @@
               <a routerLink="/auth/forgot-password" class="d-block mt-3 text-muted">Forgot Password? Click here to reset</a>
             </form>
             <p *ngIf="isLoading"><ngb-progressbar type="primary" [value]="95" [striped]="true" [animated]="true"></ngb-progressbar></p>
-            <ngb-alert [type]="'danger'" *ngIf="hasError" (close)="false">
+            <ngb-alert [type]="'danger'" *ngIf="hasError" (close)="false" class="mt-2">
               <strong>Login Error!</strong> {{errorMsg}}
             </ngb-alert>
           </div>
