@@ -141,15 +141,21 @@ export class ProfileRolesComponent implements OnInit {
     this.loading = false
   }
 
-  changeRolesForProfile() {
+  changeRolesForProfile(str: string) {
     // this.toastrService.
-    this.assignRolesToProfile()
-    this.removeRolesFromProfile()
+    if(str == 'add'){
+      this.assignRolesToProfile()
+      this.selectedAdd = []
+      this.allAddedRolesListPending = []
+    }
 
-    this.selectedAdd = []
-    this.selectedRemove = []
-    this.allAddedRolesListPending = []
-    this.allRemovedRolesListPending = []
+    if(str == 'remove'){
+      this.removeRolesFromProfile()
+      this.selectedRemove = []
+      this.allRemovedRolesListPending = []
+    }
+
+    this.rolesList = []
     this.getAllRoles()
   }
 
@@ -266,12 +272,14 @@ export class ProfileRolesComponent implements OnInit {
 
     let removedArr = this.allRemovedRolesListPending.map((item: any) => item)
 
-    removedArr.forEach((role: any) => {
-      let idx = this.rolesList.indexOf(role)
-      this.rolesList.splice(idx, 1)
-    })
+    // removedArr.forEach((role: any) => {
+    //   let idx = this.rolesList.indexOf(role)
+    //   this.rolesList.splice(idx, 1)
+    // })
 
-    model.roleList = this.rolesList.map((role: any) => role.roleId)
+    model.roleList = removedArr.map((role: any) => role.roleId)
+    console.log(model);
+    
     this.httpService
       .mobileBankingPost('api/v1/admin/profile/remove/roles', model)
       .subscribe(

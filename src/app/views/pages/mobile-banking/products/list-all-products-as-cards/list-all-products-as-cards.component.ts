@@ -122,18 +122,18 @@ export class ListAllProductsAsCardsComponent implements OnInit {
   }
 
   ngOnInit() {
-
-    this.activatedRoute.params.subscribe(params => {
-      if (typeof params.id !== 'undefined') {
-        this.productCategoryId = params.id;
-      }
-    })
+    //
+    // this.activatedRoute.params.subscribe(params => {
+    //   if (typeof params.id !== 'undefined') {
+    //     this.productCategoryId = params.id;
+    //   }
+    // })
 
 //     this.slidesStore.forEach((slide:any)=> {
 //       slide.productUrl = this.domSanitizer.bypassSecurityTrustUrl(slide.productUrl);
 //  });
-    
-    
+
+
     this.breadCrumbItems = [
       {
         label: 'Mobile banking',
@@ -166,7 +166,7 @@ export class ListAllProductsAsCardsComponent implements OnInit {
             });
             this.slidesStore = response;
             console.log(this.slidesStore);
-            
+
           } else {
             Swal.fire('Failed', "Unable to fetch products", 'error')
           }
@@ -179,6 +179,7 @@ export class ListAllProductsAsCardsComponent implements OnInit {
 
     this.modalRef = this.modalService.open(AddProductSubItemComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Add Product';
+    this.modalRef.componentInstance.productCategoryId = this.productCategoryId;
     this.modalRef.result.then((result) => {
       if (result === 'success') {
         this.getIndividualData(0);
