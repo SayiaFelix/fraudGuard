@@ -4,7 +4,7 @@
   <div>
     <h4 class="mb-3 mb-md-0">All Customers</h4>
   </div>
-<div>Total number of Customers: 25000 </div>
+<div>Total number of Customers: 3 </div>
   <app-table-header
     [allColumns]="allColumns"
     [rows]="rows"
@@ -24,6 +24,7 @@
           [columns]="columns"
           [rows]="rows"
           [actions]="actions"
+          [loadingIndicator]="loading"
           (outputEvent)="triggerEvent($event)"
           (viewEvent)="navigateToViewProduct($event)"
         ></app-custom-ngx-table>

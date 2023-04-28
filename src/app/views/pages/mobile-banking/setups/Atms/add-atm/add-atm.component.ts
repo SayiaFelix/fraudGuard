@@ -16,7 +16,7 @@ declare const google: any;
 export class AddAtmComponent implements OnInit {
   edit = false;
   @Input() title: any;
-  @Input() data: any;
+  @Input() formData: any;
 
   constructor(
     public activeModal: NgbActiveModal,
@@ -75,11 +75,11 @@ export class AddAtmComponent implements OnInit {
       });
     });
 
-    if (this.data && this.data.content) {
+    if (this.formData && this.formData.content) {
       this.edit = true;
       this.cardTitle = "Edit ATM";
 
-      this.atmName = this.data.content.name;
+      this.atmName = this.formData.content.name;
 
     } else {
       this.cardTitle = "Add ATM";
@@ -87,10 +87,10 @@ export class AddAtmComponent implements OnInit {
 
 
     this.form = this.fb.group({
-      name: [this.data ? this.data.ATMName : '', [Validators.required]],
-      atmCode: [this.data ? this.data.ATMCode : '', [Validators.required]],
-      branch: [this.data ? this.data.branch : '', [Validators.required]],
-      is_active: [this.data ? this.data.is_active : '', [Validators.nullValidator]]
+      name: [this.formData ? this.formData.ATMName : '', [Validators.required]],
+      atmCode: [this.formData ? this.formData.ATMCode : '', [Validators.required]],
+      branch: [this.formData ? this.formData.branch : '', [Validators.required]],
+      is_active: [this.formData ? this.formData.is_active : '', [Validators.nullValidator]]
     });
   }
 
@@ -112,7 +112,7 @@ export class AddAtmComponent implements OnInit {
     const model = {
       bounds: this.pointList,
       name: this.atmName,
-      id: this.data.content.id
+      id: this.formData.content.id
     };
     this._httpService.mobileBankingPost("dsr-update-region", model).subscribe((result:any) => {
       if (result.status === 1) {

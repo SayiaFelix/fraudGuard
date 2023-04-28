@@ -89,13 +89,13 @@ export class ListMobileBankingCustomersComponent implements OnInit {
   breadCrumbItems: Array<{}>;
   rows: any = [];
   temp: any = [];
-  loadingIndicator = true;
+  loading = true;
   reorderable = true;
 
   columns = [
     { name: 'ID', prop: 'id' },
     { name: 'CustomerName', prop: 'customerName' },
-    {name:'PhoneNumber',prop:'phoneNumber'},
+    {name:'PrimaryPhoneNumber',prop:'phoneNumber'},
     { name: 'IDNumber', prop: 'idNumber' },
     { name: 'DeviceID', prop: 'DeviceID' },
     { name: 'PrimaryDevice', prop: 'primaryDevice' },
@@ -151,13 +151,14 @@ export class ListMobileBankingCustomersComponent implements OnInit {
   }
 
   getIndividualData(event: number): void {
+    this.loading = true;
     this.rows = this.tempProductData;
 
     this.temp = [...this.tempProductData];
 
     const model = {
       page: 0,
-      size: 5,
+      size: 50,
     };
 
     this.httpService
@@ -174,6 +175,8 @@ export class ListMobileBankingCustomersComponent implements OnInit {
         } else {
         }
       });
+    this.loading = false;
+
   }
 
   openAddProductModal() {

@@ -45,7 +45,7 @@ export class ListRegisteredAccountsComponent implements OnInit {
   breadCrumbItems: Array<{}>;
   rows: any = [];
   temp: any = [];
-  loadingIndicator = true;
+  loading = true;
   reorderable = true;
 
   actions = ["View", "Edit"];
@@ -101,19 +101,22 @@ export class ListRegisteredAccountsComponent implements OnInit {
   }
 
   getIndividualData(event: number): void {
+
+    this.loading = true;
     this.rows = this.tempProductData;
 
     this.temp = [...this.tempProductData];
 
     const model = {
       page: 0,
-      size: 5,
+      size: 50,
     };
 
     this.httpService
       .mobileBankingPost('api/v1/corporate/admin/list-products/all', model)
       .subscribe((res: any) => {
         if (res.status === 200) {
+          this.loading = false;
           setTimeout(() => {
             // this.data = res.data;
             this.rows = this.tempProductData;
@@ -124,6 +127,8 @@ export class ListRegisteredAccountsComponent implements OnInit {
         } else {
         }
       });
+    this.loading = false;
+
   }
 
   openEditProductModal(formData: any) {

@@ -1,46 +1,55 @@
-import {Component, OnInit, ViewChild,} from '@angular/core';
+import {Component, Input, OnInit, Pipe, PipeTransform, ViewChild,} from '@angular/core';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {DatePipe} from '@angular/common';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {ColumnMode} from '@swimlane/ngx-datatable';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {DatatableComponent} from '@swimlane/ngx-datatable/lib/components/datatable.component';
 import {DataExportationService} from 'src/app/shared/services/data-exportation.service';
 import {HttpService} from 'src/app/shared/services/http.service';
 import {AddProductComponent} from "../add-product/add-product.component";
+import {OwlOptions} from "ngx-owl-carousel-o";
+import {AddProductSubItemComponent} from "../add-product-subitem/add-product-sub-item.component";
 import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
 import Swal from "sweetalert2";
+import {DomSanitizer, SafeUrl} from '@angular/platform-browser';
 
 @Component({
-  selector: 'app-product-categories',
-  templateUrl: './product-categories.component.html',
-  styleUrls: ['./product-categories.component.scss'],
+  selector: 'app-product-sub-categories',
+  templateUrl: './product-sub-categories-as-cards.component.html',
+  styleUrls: ['./product-sub-categories-as-cards.component.scss'],
   providers: [DatePipe],
 })
+
 
 /**
  * Starter-component
  */
-export class ProductCategoriesComponent implements OnInit {
-  @ViewChild('table') table: DatatableComponent;
+export class ProductSubCategoriesAsCardsComponent implements OnInit {
+  // @Pipe({
+  //   name: 'safeUrl'
+  // })
 
-  actions = ["View", "Edit", "Delete"];
 
+  actions = ["View", "Edit"];
+
+
+  @Input() subCategories: any
 
   // bread crumb items
   breadCrumbItems: Array<{}>;
   rows: any = [];
   temp: any = [];
-  loading = true;
+  loadingIndicator = true;
   reorderable = true;
 
   columns = [
-    {name: '#', prop: 'frontendId'},
+    {name: 'ID', prop: 'id'},
     {name: 'Name', prop: 'name'},
     {name: 'ParentCategory', prop: 'parentCategoryName'},
-    // {name: 'Remarks', prop: 'description'},
-    {name: 'Status', prop: 'active'},
-    {name: 'CreatedOn', prop: 'createdAt'},
+    {name: 'Remarks', prop: 'description'},
+    {name: 'Status', prop: 'status'},
+    {name: 'CreatedOn', prop: 'createdOn'},
     {name: 'Actions', prop: 'id'},
   ];
 
@@ -53,18 +62,50 @@ export class ProductCategoriesComponent implements OnInit {
   public modalRef: NgbModalRef;
 
   title: string = "Category";
+  autoPlayExampleOptions: OwlOptions = {
+    items: 3,
+    loop: false,
+    margin: 0,
+    autoplay: false,
+    autoplayTimeout: 9000,
+    autoplayHoverPause: true,
+    responsive: {
+      0: {
+        items: 2
+      },
+      600: {
+        items: 2
+      },
+      1000: {
+        items: 2
+      }
+    }
+  }
 
+  fetchedSubCategories: any = [];
+
+  categoryId: any;
 
   constructor(
     private httpService: HttpService,
     private modalService: NgbModal,
     public fb: FormBuilder,
     public router: Router,
-    private dataExploration: DataExportationService
+    private dataExploration: DataExportationService,
+    public domSanitizer: DomSanitizer,
+
+    public activatedRoute: ActivatedRoute,
   ) {
   }
 
   ngOnInit() {
+
+    this.activatedRoute.params.subscribe(params => {
+      if (typeof params.id !== 'undefined') {
+        this.categoryId = params.id;
+      }
+    })
+
     this.breadCrumbItems = [
       {
         label: 'Mobile banking',
@@ -74,40 +115,41 @@ export class ProductCategoriesComponent implements OnInit {
       {label: 'Products', active: true},
     ];
     this.getIndividualData(0);
+
   }
 
-  getIndividualData(event: number): void {
+  async getIndividualData(event: number) {
 
-    this.loading = true;
     const model = {
-      page: 0,
-      size: 50,
+      id: this.categoryId
     };
 
     this.httpService
-      .mobileBankingPost('product/portal/category/fetch/all', model)
+      .mobileBankingPost('product/portal/category/fetch/single', model)
       .subscribe((res: any) => {
         if (res.status === 200) {
-          this.loading = false;
-          this.rows = res.data;
-          let response = this.rows.map((item: any, index: any) => {
-            let res = {...item,
-              parentCategoryName: item.parentCategory ? item.parentCategory.name : "_",
-              frontendId: index + 1
-            };
-            return res;
-          })
-          this.rows = response;
+          console.log(res.data);
+          let response = res.data.children.map((item: any) => {
 
+            const imageUrl = this.getBase64ImageFromUrl(item.categoryUrl.trim());
+
+            let result = {
+              ...item,
+              parentCategoryName: item.parentCategory ? item.parentCategory.name : "_",
+              categoryUrl: imageUrl
+            };
+
+
+            return result;
+          })
+
+
+          this.fetchedSubCategories = response;
         } else {
         }
       });
   }
-  public flatten(arr:any) {
-    console.log(arr)
-    return arr ? arr.reduce((r:any, i:any) => [...r, i, ...this.flatten(i.children)], []) : [];
 
-  }
   openAddProductModal() {
 
     this.modalRef = this.modalService.open(AddProductComponent, {centered: true});
@@ -141,64 +183,14 @@ export class ProductCategoriesComponent implements OnInit {
   }
 
   navigateToViewProduct(data: any) {
-    console.log(data);
-
     this.router.navigateByUrl(`/mobile-banking/products/list-products/${data.id}`);
   }
 
-  toggleExpandRow(row: any, $event: Event) {
-
-    console.log("here is my $event");
-    console.log($event);
-
-    if(row.$$expanded){
-      this.expandRow($event);
-    }else {
-      this.collapseRow($event);
-    } this.table.rowDetail.toggleExpandRow(row);
-  }
-
-  expandRow(e: Event) {
-
-    // @ts-ignore
-    (<HTMLInputElement>e.target).closest('datatable-row-wrapper')
-      .className = "";
-  }
-  collapseRow(e: any) {
-    // @ts-ignore
-    (<HTMLInputElement>e.target).closest('datatable-row-wrapper')
-      .className ="expanded";
-  }
 
   onDetailToggle(event: any) {
     console.log('Detail Toggled', event);
   }
 
-  updateFilter(event: any, columnName: any) {
-    const val = event.target.value.toLowerCase();
-
-    // filter our data
-    const temp = this.temp.filter(function (d: any) {
-      return d.productName.toLowerCase().indexOf(val) !== -1 || !val;
-    });
-
-    // update the rows
-    this.rows = temp;
-    // Whenever the filter changes, always go back to the first page
-    this.table.offset = 0;
-  }
-
-  toggle(col: any) {
-    const isChecked = this.isChecked(col);
-
-    if (isChecked) {
-      this.columns = this.columns.filter((c) => {
-        return c.name !== col.name;
-      });
-    } else {
-      this.columns = [...this.columns, col];
-    }
-  }
 
   isChecked(col: any) {
     return (
@@ -285,6 +277,31 @@ export class ProductCategoriesComponent implements OnInit {
     this.columns = [...updatedColumns];
   }
 
+  triggerEvent(data: string) {
+
+    let eventData = JSON.parse(data)
+
+    if (eventData.action == 'View') {
+      this.navigateToViewProduct(eventData.row);
+    } else if (eventData.action == 'Edit') {
+      this.openEditProductModal(eventData.row);
+    }
+
+  }
+
+  editProduct(formData: any) {
+    this.modalRef = this.modalService.open(AddProductComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Edit Product Category';
+    this.modalRef.componentInstance.formData = formData;
+    // this.modalRef.componentInstance.productCategoryId = this.productCategoryId;
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        this.getIndividualData(0);
+      } else {
+        console.log("Error occurred")
+      }
+    });
+  }
 
   openDeleteModal(formData: any) {
     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
@@ -303,7 +320,7 @@ export class ProductCategoriesComponent implements OnInit {
             if (result.status === 200) {
               Swal.fire('Product Deleted',
                 'Product has been deleted successfully.',
-                'success').then(r => console.log(r))
+                'success').then(r => console.log(r));
               this.getIndividualData(0);
             } else {
               Swal.fire('Record deletion error',
@@ -312,9 +329,8 @@ export class ProductCategoriesComponent implements OnInit {
             }
           },
           (error: any) => {
-            console.log("this triggered")
-            Swal.fire('Product Category could not be deleted.',
-              `${error.message}`,
+            Swal.fire('Record deletion error',
+              `${error}`,
               'error')
           }
         );
@@ -322,19 +338,38 @@ export class ProductCategoriesComponent implements OnInit {
     });
   }
 
-  sendEvent(row: any, action: any) {
-    let result = {
-      row: row,
-      action: action,
-    };
+  viewSubProducts(children: any) {
+    this.router.navigate(["/mobile-banking/products/list-categories-cards-subcategories"])
+  }
 
-    if (result.action == 'View') {
-      this.navigateToViewProduct(result.row);
-    } else if (result.action == 'Edit') {
-      this.openEditProductModal(result.row);
-    } else if (result.action == 'Delete') {
-      this.openDeleteModal(result.row);
-    }
+  // Get base64 from Image URL
+  async getBase64ImageFromUrl(imageUrl: string) {
+
+    console.log(imageUrl);
+
+    let url = this.domSanitizer.bypassSecurityTrustUrl(imageUrl);
+    // domSanitizer.bypassSecurityTrustResourceUrl(category.categoryUrl)
+    console.log("here is the url")
+    console.log(url)
+
+    // let res = await fetch("https://www.google.com");
+    //
+    // console.log(res);
+    // let blob = await res.blob();
+    //
+    // console.log(blob);
+    //
+    // return new Promise((resolve, reject) => {
+    //   let reader  = new FileReader();
+    //   reader.addEventListener("load", function () {
+    //     resolve(reader.result);
+    //   }, false);
+    //
+    //   reader.onerror = () => {
+    //     return reject(this);
+    //   };
+    //   reader.readAsDataURL(blob);
+    // })
   }
 
 }

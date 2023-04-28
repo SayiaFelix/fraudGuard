@@ -7,6 +7,7 @@ import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {HttpService} from "../../../../../../shared/services/http.service";
 import {GlobalService} from "../../../../../../shared/services/global.service";
 import {DefineRegionComponent} from "../define-region-component/define-region-component.component";
+import Swal from 'sweetalert2';
 
 
 @Component({
@@ -39,14 +40,16 @@ export class RegionsListComponent implements OnInit {
   // bread crumb items
   breadCrumbItems: Array<{}>;
   rows: any = [];
-  loadingIndicator = true;
+  loading = true;
   reorderable = true;
 
   columns = [
     {name: 'ID', prop: 'id'},
-    {name: 'RegionName', prop: 'regionName'},
-    {name: 'RegionCode', prop: 'regionCode'},
-    {name: 'Status', prop: 'status'},
+    {name: 'RegionName', prop: 'name'},
+    {name: 'RegionCode', prop: 'code'},
+    {name: 'Constituency', prop: 'constituency'},
+    {name: 'County', prop: 'county'},
+    {name: 'Status', prop: 'active'},
     {name: 'RegisteredOn', prop: 'registeredOn'},
     {name: 'Actions', prop: 'id'}
   ];
@@ -62,17 +65,12 @@ export class RegionsListComponent implements OnInit {
 
   title: string = "Regions";
   actions = ["Edit"];
-
-
-
   constructor(private httpService: HttpService,
               private modalService: NgbModal,
               public fb: FormBuilder,
               public datePipe: DatePipe,
               public router: Router,
               public globalService: GlobalService) {
-
-
   }
 
   ngOnInit() {
@@ -89,27 +87,40 @@ export class RegionsListComponent implements OnInit {
 
   getIndividualData(event: number): void {
 
+    this.loading = true;
     this.rows = this.tempProductData;
 
     const model = {
       page: 0,
-      size: 5
+      size: 50
     };
-
-    this.httpService.mobileBankingPost('api/v1/corporate/admin/list-products/all', model).subscribe((res: any) => {
-
-      if (res.status === 200) {
-        setTimeout(() => {
-          // this.data = res.data;
-          this.rows = this.tempProductData;
-          // let data = this.tempProductData;
-
-          let total = res.totalItems;
-
-        }, 10);
-      } else {
+    this.httpService.mobileBankingPost("config/region/fetch/all",model).subscribe(
+      (result:any)=>{
+          if(result.status===200){
+            this.rows = result.data;
+          }
+          else{
+            Swal.fire('failed','unable to fetch records','error')
+          }
       }
-    });
+    )
+
+    // this.httpService.mobileBankingPost('config/region/fetch/all', model).subscribe((res: any) => {
+
+    //   if (res.status === 200) {
+    //     Swal.fire('Success','records fetched successfully','success')
+    //     .then(r=>console.log(r))
+    //     setTimeout(() => {
+    //       // this.data = res.data;
+    //       this.rows = res.data;
+    //       // let data = this.tempProductData;
+
+    //       let total = res.totalItems;
+
+    //     }, 10);
+    //   } else {
+    //   }
+    // });
   }
 
   addRegion() {
@@ -126,9 +137,9 @@ export class RegionsListComponent implements OnInit {
 
   }
 
-  openEditRegionsModal(rowData: any) {
+  openEditRegionsModal(formData: any) {
     this.modalRef = this.modalService.open(DefineRegionComponent, {centered: true, size: "xl"});
-    this.modalRef.componentInstance.data = rowData;
+    this.modalRef.componentInstance.formData = formData;
     this.modalRef.componentInstance.title = 'Edit Region';
     this.modalRef.result.then((result) => {
       if (result === 'success') {

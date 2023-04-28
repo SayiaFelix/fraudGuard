@@ -79,10 +79,10 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
         items: 2
       },
       600:{
-        items: 3
+        items: 2
       },
       1000:{
-        items: 3
+        items: 2
       }
     }
   }
@@ -164,15 +164,15 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
       .subscribe((res: any) => {
         if (res.status === 200) {
           console.log(res.data);
-            let response = res.data.map(async (item: any) => {
+          let response = res.data.map((item: any) => {
 
-              const imageUrl = await this.getBase64ImageFromUrl(item.categoryUrl.trim());
+            // const imageUrl = await this.getBase64ImageFromUrl(item.categoryUrl.trim());
 
-              res = {
-                ...item,
-                parentCategoryName: item.parentCategory ? item.parentCategory.name : "_",
-                categoryUrl: imageUrl
-              };
+            res = {
+              ...item,
+              parentCategoryName: item.parentCategory ? item.parentCategory.name : "_",
+              categoryUrl: item.categoryUrl
+            };
 
             console.log("this is the latest res");
             console.log(res);
@@ -404,39 +404,39 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
       }
     });
   }
-
-  viewSubProducts(children: any) {
-    this.router.navigate(["/mobile-banking/products/list-categories-redesigned"])
+  viewSubProducts(category: any) {
+    this.router.navigate([`/mobile-banking/products/list-categories-cards-subcategories/${category.id}`])
   }
 
   // Get base64 from Image URL
   async getBase64ImageFromUrl(imageUrl: string) {
 
+    return "";
     console.log(imageUrl);
 
-    let url = this.domSanitizer.bypassSecurityTrustUrl(imageUrl);
-
-    console.log("here is the url")
-    console.log(url)
-
-    let res = await fetch("https://www.google.com");
-
-    console.log(res);
-    let blob = await res.blob();
-
-    console.log(blob);
-
-    return new Promise((resolve, reject) => {
-      let reader  = new FileReader();
-      reader.addEventListener("load", function () {
-        resolve(reader.result);
-      }, false);
-
-      reader.onerror = () => {
-        return reject(this);
-      };
-      reader.readAsDataURL(blob);
-    })
+    // let url = this.domSanitizer.bypassSecurityTrustUrl(imageUrl);
+    //
+    // console.log("here is the url")
+    // console.log(url)
+    //
+    // let res = await fetch("https://www.google.com");
+    //
+    // console.log(res);
+    // let blob = await res.blob();
+    //
+    // console.log(blob);
+    //
+    // return new Promise((resolve, reject) => {
+    //   let reader  = new FileReader();
+    //   reader.addEventListener("load", function () {
+    //     resolve(reader.result);
+    //   }, false);
+    //
+    //   reader.onerror = () => {
+    //     return reject(this);
+    //   };
+    //   reader.readAsDataURL(blob);
+    // })
   }
 
 }

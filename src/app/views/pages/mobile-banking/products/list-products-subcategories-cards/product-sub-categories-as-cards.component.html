@@ -2,7 +2,7 @@
   class="d-flex justify-content-between align-items-center flex-wrap grid-margin"
 >
   <div>
-    <h4 class="mb-3 mb-md-0">All Product Categories</h4>
+    <h4 class="mb-3 mb-md-0">Subcategories: Category</h4>
   </div>
 
   <div ngbDropdown>
@@ -31,11 +31,11 @@
       <div class="card">
         <div class="card-body">
           <owl-carousel-o [options]="autoPlayExampleOptions">
-            <ng-template carouselSlide *ngFor="let category of fetchedCategories" [id]="category.id">
+            <ng-template carouselSlide *ngFor="let category of fetchedSubCategories" [id]="category.id">
               <div class="m-3 p-3 ">
                 <div class="card">
-                  <!-- <img class="card-img-top" [src]="domSanitizer.bypassSecurityTrustResourceUrl(category.categoryUrl)" [alt]="category.alt" preload> -->
-                  <img class="card-img-top" [src]="category.categoryUrl.trim()" [alt]="category.alt" preload>
+                  <!-- <img class="card-img-top" [src]="domSanitizer.bypassSecurityTrustResourceUrl(slide.categoryUrl)" [alt]="slide.alt"> -->
+                  <img class="card-img-top" [src]="" [alt]="category.alt">
                   <!-- <img [src]="slide.categoryUrl | SafeUrl"> -->
                   <!-- <img src="..." class="card-img-top" alt="..."> -->
                   <div class="card-body">
@@ -49,7 +49,7 @@
                         View Products
                       </a>
                       <a
-                        (click)="viewSubProducts(category)"
+                        (click)="viewSubProducts(category?.children)"
                         class="btn btn-primary btn-sm"
                         *ngIf="category?.children?.length > 0">
                         View Sub-Categories

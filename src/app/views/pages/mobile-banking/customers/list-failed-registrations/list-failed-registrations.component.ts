@@ -57,7 +57,7 @@ export class ListFailedRegistrationsComponent implements OnInit {
   breadCrumbItems: Array<{}>;
   rows: any = [];
   temp: any = [];
-  loadingIndicator = true;
+  loading = true;
   reorderable = true;
 
   columns = [
@@ -112,13 +112,15 @@ export class ListFailedRegistrationsComponent implements OnInit {
   }
 
   getIndividualData(event: number): void {
+
+    this.loading = true;
     this.rows = this.tempProductData;
 
     this.temp = [...this.tempProductData];
 
     const model = {
       page: 0,
-      size: 5,
+      size: 50,
     };
 
     this.httpService
@@ -135,6 +137,9 @@ export class ListFailedRegistrationsComponent implements OnInit {
         } else {
         }
       });
+
+    this.loading = false;
+
   }
 
   openAddProductModal() {

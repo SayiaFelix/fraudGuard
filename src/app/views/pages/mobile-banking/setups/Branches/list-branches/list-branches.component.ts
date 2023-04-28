@@ -1,11 +1,14 @@
 import { Component, Input, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
+import {NgbActiveModal, NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import { ColumnMode, DatatableComponent } from '@swimlane/ngx-datatable';
 import { GlobalService } from 'src/app/shared/services/global.service';
 import { HttpService } from 'src/app/shared/services/http.service';
 import {AddBranchComponent} from "../add-branch/add-branch.component";
+import { HttpResponseBase } from '@angular/common/http';
+import Swal from 'sweetalert2';
+import { ConfirmDialogComponent } from 'src/app/shared/components/confirm-dialog/confirm-dialog.component';
 
 
 @Component({
@@ -59,8 +62,8 @@ export class ListBranchesComponent implements OnInit {
 
   columns = [
     { name: 'ID', prop: 'id' },
-    { name: 'BranchName', prop:'branchName' },
-    { name: 'BranchCode', prop:'branchCode' },
+    { name: 'BranchName', prop:'name' },
+    { name: 'BranchCode', prop:'code' },
     { name: 'IsActive', prop:'isActive' },
     { name: 'Actions', prop: 'id' }
   ];
@@ -78,18 +81,14 @@ export class ListBranchesComponent implements OnInit {
 
   title: string = "Branches";
 
-  actions = ["Edit"];
+  actions = ["Edit","Delete"];
 
 
   constructor(private httpService: HttpService,
               private modalService: NgbModal,
               public fb: FormBuilder,
-
-
               public router: Router,
               public globalService: GlobalService) {
-
-
   }
 
   ngOnInit() {
@@ -99,7 +98,7 @@ export class ListBranchesComponent implements OnInit {
 
     this.form = this.fb.group({
       name: [this.formData ? this.formData.name : '', [Validators.required]],
-      description: [this.formData ? this.formData.branchCode : '', [Validators.required]],
+      code: [this.formData ? this.formData.branchCode : '', [Validators.required]],
       is_active: [this.formData ? this.formData.is_active : '', [Validators.nullValidator]]
     });
   }
@@ -109,7 +108,7 @@ export class ListBranchesComponent implements OnInit {
     this.modalRef.componentInstance.title = 'Add Branch';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
-        // this.getIndividualData(this.page);
+        this.getIndividualData(0);
       }
     }, (reason) => {
     });
@@ -121,33 +120,62 @@ export class ListBranchesComponent implements OnInit {
     this.modalRef.componentInstance.title = 'Edit Branch';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
-        // this.getIndividualData(this.page);
+        this.getIndividualData(0);
       }
     }, (reason) => {
     });
   }
 
+  deleteBranch(formData: any) {
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+    this.modalRef.componentInstance.title = `Delete this Branch?`;
+    this.modalRef.componentInstance.body = `Do you want to delete branch?`;
+    // this.modalRef.componentInstance.formData = formData;
+    this.modalRef.result.then((result: any) => {
+      if (result === 'success') {
+      const model = {
+          id: formData.id
+        }
+        this.httpService.mobileBankingPost('config/branch/delete',model).subscribe(
+          (result: any) => {
+            if (result.status === 200) {
+              Swal.fire('Branch Deleted',
+                'Branch has been deleted successfully.',
+                'success').then(r => console.log(r))
+                this.getIndividualData(0);
+            } else {
+              Swal.fire('Record deletion error',
+                'Branch could not be deleted.',
+                'error').then(r => console.log(r))
+            }
+          },
+          (error: any) => {
+            Swal.fire('Record deletion error',
+              `${error}`,
+              'error')
+          }
+        );
+      }
+    });
+  }
+
   getIndividualData(event: number): void {
 
-    this.rows = this.tempProductData;
-
+    // this.rows = this.tempProductData;
     const model = {
-      page: 0,
-      size: 5
+      page:0,
+      size:50
     };
 
-    this.httpService.mobileBankingPost('api/v1/corporate/admin/list-products/all', model).subscribe((res: any) => {
-
-      if (res.status === 200) {
-        setTimeout(() => {
-          // this.data = res.data;
-          this.rows = this.tempProductData;
-          // let data = this.tempProductData;
-
-          let total = res.totalItems;
-
-        }, 10);
-      } else {
+    this.httpService.mobileBankingPost('config/branch/fetch/region/page', model).subscribe((res: any) => {
+      if (res.status===200){
+        // this.activeModal.close('success');
+      //  Swal.fire('success','records fetched successfully','success')
+      //  .then(r=>console.log(r))
+       this.rows=res.data;
+      }
+      else{
+        Swal.fire('failed','unable to fetch records','error')
       }
     });
   }
@@ -177,6 +205,9 @@ export class ListBranchesComponent implements OnInit {
     if (eventData.action == 'View') {
     }else if (eventData.action == 'Edit') {
       this.editBranch(eventData.row);
+    }
+    else if (eventData.action == 'Delete') {
+      this.deleteBranch(eventData.row);
     }
 
   }
