@@ -34,8 +34,8 @@
             <ng-template carouselSlide *ngFor="let category of fetchedCategories" [id]="category.id">
               <div class="m-3 p-3 ">
                 <div class="card">
-                  <!-- <img class="card-img-top" [src]="domSanitizer.bypassSecurityTrustResourceUrl(slide.categoryUrl)" [alt]="slide.alt"> -->
-                  <img class="card-img-top" [src]="category.categoryUrl" [alt]="category.alt">
+                  <!-- <img class="card-img-top" [src]="domSanitizer.bypassSecurityTrustResourceUrl(category.categoryUrl)" [alt]="category.alt" preload> -->
+                  <img class="card-img-top" [src]="category.categoryUrl.trim()" [alt]="category.alt" preload>
                   <!-- <img [src]="slide.categoryUrl | SafeUrl"> -->
                   <!-- <img src="..." class="card-img-top" alt="..."> -->
                   <div class="card-body">
