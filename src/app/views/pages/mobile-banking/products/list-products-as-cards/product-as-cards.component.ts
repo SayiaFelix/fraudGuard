@@ -176,6 +176,8 @@ export class ProductAsCardsComponent implements OnInit {
               return res;
             });
             this.slidesStore = response;
+            console.log(this.slidesStore);
+            
           } else {
             Swal.fire('Failed', "Unable to fetch products", 'error')
           }
