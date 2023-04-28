@@ -174,11 +174,13 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
                 categoryUrl: imageUrl
               };
 
-              console.log("this is the latest res");
-              console.log(res);
-              return res;
-            })
-            this.fetchedCategories=response;
+            console.log("this is the latest res");
+            console.log(res);
+            return res;
+          })
+          this.fetchedCategories=response;
+          console.log(this.fetchedCategories);
+          
         } else {
         }
       });

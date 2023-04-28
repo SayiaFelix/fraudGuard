@@ -146,11 +146,11 @@ export class ProfileRolesComponent implements OnInit {
     this.assignRolesToProfile()
     this.removeRolesFromProfile()
 
-    this.getAllRoles()
     this.selectedAdd = []
     this.selectedRemove = []
     this.allAddedRolesListPending = []
     this.allRemovedRolesListPending = []
+    this.getAllRoles()
   }
 
   resetRolesForProfile() {
@@ -173,6 +173,9 @@ export class ProfileRolesComponent implements OnInit {
         (result: any) => {
           if (result.status === 200) {
             this.rolesList = result.data.roles
+
+            console.log(this.rolesList, 'sakdaskj');
+            
 
             this.approvedDataSet = this.rolesList
 
@@ -226,13 +229,13 @@ export class ProfileRolesComponent implements OnInit {
   private assignRolesToProfile() {
     const model = {
       profileId: parseInt(this.profileId, 10),
-      roles: this.allAddedRolesListPending.map((item: any) => {
+      roleList: this.allAddedRolesListPending.map((item: any) => {
         return item.id
       }),
     }
 
     this.rolesList.forEach((role: any) => {
-      model.roles.push(role.roleId)
+      model.roleList.push(role.roleId)
     })
 
     this.httpService
@@ -244,7 +247,7 @@ export class ProfileRolesComponent implements OnInit {
           if (result.status === 200) {
             // console.log('here is result.data');
             // console.log(result.data);
-            this.router.navigate(['/rbac/all-profiles'])
+            // this.router.navigate(['/rbac/all-profiles'])
           } else {
           }
         },
@@ -258,7 +261,7 @@ export class ProfileRolesComponent implements OnInit {
   private removeRolesFromProfile() {
     const model = {
       profileId: parseInt(this.profileId, 10),
-      roles: [],
+      roleList: [],
     }
 
     let removedArr = this.allRemovedRolesListPending.map((item: any) => item)
@@ -268,7 +271,7 @@ export class ProfileRolesComponent implements OnInit {
       this.rolesList.splice(idx, 1)
     })
 
-    model.roles = this.rolesList.map((role: any) => role.roleId)
+    model.roleList = this.rolesList.map((role: any) => role.roleId)
     this.httpService
       .mobileBankingPost('api/v1/admin/profile/remove/roles', model)
       .subscribe(
@@ -277,7 +280,7 @@ export class ProfileRolesComponent implements OnInit {
 
           if (result.status === 200) {
             // this.toastrService.success(`Successfully removed ${model.roles.length} roles`, 'Success!');
-            this.router.navigate(['/rbac/all-profiles'])
+            // this.router.navigate(['/rbac/all-profiles'])
           } else {
           }
         },
