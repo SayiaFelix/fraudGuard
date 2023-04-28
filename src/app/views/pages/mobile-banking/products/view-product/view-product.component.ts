@@ -229,7 +229,7 @@ export class ViewProductComponent implements OnInit {
     this.modalRef.result.then((result) => {
       if (result === 'success') {
         const model = {
-          id": this.
+          id: 1
         };
 
         this.httpService.mobileBankingPost('product/portal/requirement/remove', model).subscribe(

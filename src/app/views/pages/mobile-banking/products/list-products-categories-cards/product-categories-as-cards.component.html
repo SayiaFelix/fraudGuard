@@ -36,6 +36,7 @@
                 <div class="card d-flex justify-content-center">
                   <!-- <img class="card-img-top" [src]="domSanitizer.bypassSecurityTrustResourceUrl(slide.categoryUrl)" [alt]="slide.alt"> -->
                   <img class="card-img-top text-center m-auto" [src]="domSanitizer.bypassSecurityTrustResourceUrl(category?.categoryUrl?.trim())">
+
                   <!-- <img [src]="slide.categoryUrl | SafeUrl"> -->
                   <!-- <img src="..." class="card-img-top" alt="..."> -->
                   <div class="card-body">

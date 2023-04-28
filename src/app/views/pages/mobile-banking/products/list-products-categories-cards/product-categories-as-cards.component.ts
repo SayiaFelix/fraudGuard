@@ -178,7 +178,9 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
 
               });
 
+
           this.fetchedCategories = response;
+
         }
       });
   }
