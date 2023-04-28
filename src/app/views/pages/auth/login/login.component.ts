@@ -9,10 +9,11 @@ import {
 import { CustomValidators } from 'ngx-custom-validators';
 import { HttpParams } from '@angular/common/http';
 
-import { catchError, concat, Observable, of } from 'rxjs';
+import {catchError, concat, Observable, of, throwError} from 'rxjs';
 import { delay, map } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 import { HttpService } from 'src/app/shared/services/http.service';
+import Swal from "sweetalert2";
 
 @Component({
   selector: 'app-login',
@@ -74,6 +75,12 @@ export class LoginComponent implements OnInit {
     this.loginResponse$ = this.httpService
       .channelManagerLogin('oauth/token', model)
       .pipe(
+        catchError((error: any) => {
+          console.log(error);
+          this.hasError = error.message;
+          this.isLoading = false;
+          return throwError(error);
+        }),
         map((result) => {
           this.isLoading = false;
           if (result['status'] != 200) {

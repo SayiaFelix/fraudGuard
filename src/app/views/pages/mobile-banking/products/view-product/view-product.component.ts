@@ -8,6 +8,7 @@ import Swal from "sweetalert2";
 import {AddProductSubItemComponent} from "../add-product-subitem/add-product-sub-item.component";
 import {AddRequirementComponent} from "../add-requirement/add-requirement.component";
 import { DomSanitizer } from '@angular/platform-browser';
+import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
 
 @Component({
   selector: 'app-view-customer',
@@ -75,7 +76,7 @@ export class ViewProductComponent implements OnInit {
     });
 
     this.loadData();
-    this.loadRequirements();
+    // this.loadRequirements();
   }
 
   private loadData(): any {
@@ -86,10 +87,12 @@ export class ViewProductComponent implements OnInit {
 
     this.httpService.mobileBankingPost('product/portal/fetch/single', model).subscribe(
       (res: any) => {
-    
+
         if (res.status == 200) {
           this.productDetails = res['data'];
-  
+
+          this.requirements = this.productDetails.requirementList;
+
         } else {
           Swal.fire('Failed', "Unable to fetch product details", 'error')
         }
@@ -117,7 +120,7 @@ export class ViewProductComponent implements OnInit {
      );
   }
 
-  
+
 
   // public openModal(parentData: any) {
   //   this.modalRef = this.modalService.open(CreateProductComponent, {size: 'lg'});
@@ -183,15 +186,17 @@ export class ViewProductComponent implements OnInit {
   addRequirement() {
     this.modalRef = this.modalService.open(AddRequirementComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Add Requirement';
+    this.modalRef.componentInstance.formData = this.productDetails;
     this.modalRef.result.then((result: any) => {
       if (result === 'success') {
         this.loadData();
+        // this.loadRequirements();
       } else {
         console.log("Error occurred")
       }
     });
 
-    this.requirements = [this.form.value.requirement, ...this.requirements];
+    // this.requirements = [this.form.value.requirement, ...this.requirements];
   }
 
   private createRecord(): any {
@@ -216,4 +221,33 @@ export class ViewProductComponent implements OnInit {
     );
   }
 
+  removeRequirement() {
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Remove Requirement';
+
+    this.modalRef.componentInstance.body= "Do you want to remove this requirement?";
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        const model = {
+          id": this.
+        };
+
+        this.httpService.mobileBankingPost('product/portal/requirement/remove', model).subscribe(
+          (result: any) => {
+            if (result.status === 200) {
+            } else {
+
+            }
+          }
+        );
+
+
+        Swal.fire('Remove Requirement',  'Requirement removed successfully.',  'success')
+          .then
+          (r => this.loadData())
+      } else {
+        console.log("Error occurred")
+      }
+    });
+  }
 }

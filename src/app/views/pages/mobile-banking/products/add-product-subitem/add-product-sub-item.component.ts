@@ -89,7 +89,7 @@ export class AddProductSubItemComponent implements OnInit {
     const model = {
       name: this.form.value.name,
       shortDescription: this.form.value.shortDescription,
-      productDescription: this.form.value.detailedDescription,
+      productDescription: this.form.value.productDescription,
       productCategoryId: this.productCategoryId,
       approvalId: 4
     };
@@ -142,7 +142,7 @@ export class AddProductSubItemComponent implements OnInit {
       id: data.id,
       name: this.form.value.name,
       shortDescription: this.form.value.shortDescription,
-      productDescription: this.form.value.detailedDescription,
+      productDescription: this.form.value.productDescription,
       productCategoryId: this.productCategoryId
     };
 

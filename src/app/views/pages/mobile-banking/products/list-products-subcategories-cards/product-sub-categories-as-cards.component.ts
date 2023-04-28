@@ -131,7 +131,7 @@ export class ProductSubCategoriesAsCardsComponent implements OnInit {
           console.log(res.data);
           let response = res.data.children.map((item: any) => {
 
-            const imageUrl = this.getBase64ImageFromUrl(item.categoryUrl.trim());
+            const imageUrl = this.getBase64ImageFromUrl(item?.categoryUrl?.trim());
 
             let result = {
               ...item,

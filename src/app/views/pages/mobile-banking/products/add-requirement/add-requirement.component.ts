@@ -19,7 +19,7 @@ export class AddRequirementComponent implements OnInit {
   public hasErrors = false;
   public errorMessages: any;
   public form: FormGroup;
-  public productId:number;
+
   public allProductCategories: any;
 
   constructor(
@@ -30,21 +30,22 @@ export class AddRequirementComponent implements OnInit {
   }
 
   ngOnInit() {
+
+    console.log("this.formData");
+    console.log(this.formData);
+
     this.form = this.fb.group({
-      requirement: [this.formData ? this.formData.requirement : '', [Validators.required]],
+      requirement: ['', [Validators.required]],
+      requirementCode: ['', [Validators.required]],
     });
 
 
-    this.getAllProductCategories();
+    // this.getAllProductCategories();
   }
 
   public submitData(): void {
-    if (this.formData) {
-      this.editRecord();
-    } else {
       this.createRecord();
-    }
-    this.loading = true;
+      this.loading = true;
   }
 
   public closeModal(): void {
@@ -55,10 +56,12 @@ export class AddRequirementComponent implements OnInit {
   private createRecord(): any {
 
     const model = {
-      productId: this.productId,
+      id: this.formData.productId,
+      productCode: this.formData.productCode,
       requirementCode: this.form.value.requirementCode,
-      requirement: this.form.value.requirementCode,
-      approvalId:1
+      requirement: this.form.value.requirement,
+      description: 'Desc',
+      approvalId: 1
     };
 
     this._httpService.mobileBankingPost('product/portal/requirement/add', model).subscribe(
@@ -84,51 +87,4 @@ export class AddRequirementComponent implements OnInit {
 
   }
 
-  private editRecord(): any {
-    const model = {
-      id: this.formData.id,
-      name: this.form.value.name,
-      description: this.form.value.description,
-      parentCategoryId: this.form.value.parentId,
-    };
-
-    this._httpService.mobileBankingPost('product/portal/category/update', model).subscribe(
-      (result: any) => {
-        if (result.status === 200) {
-          this.activeModal.close('success');
-          Swal.fire('Product Category Edited',
-            'Product Category has been edited successfully.',
-            'success').then(r => console.log(r))
-        } else {
-          this.activeModal.close('error');
-          Swal.fire('Record editing error',
-            'Product Category could not be edited.',
-            'error').then(r => console.log(r))
-        }
-      },
-      (error: any) => {
-        Swal.fire('Record editing error',
-          `${error}`,
-          'error')
-      }
-    );
-  }
-
-  private getAllProductCategories() {
-    const model = {
-      page: 0,
-      size: 50,
-    };
-
-    this._httpService
-      .mobileBankingPost('product/portal/category/fetch/all', model)
-      .subscribe((res: any) => {
-        if (res.status === 200) {
-          setTimeout(() => {
-            this.allProductCategories = res.data;
-          }, 10);
-        } else {
-        }
-      });
-  }
 }
