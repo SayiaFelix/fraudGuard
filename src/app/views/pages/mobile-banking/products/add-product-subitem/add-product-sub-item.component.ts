@@ -4,6 +4,7 @@ import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {HttpService} from '../../../../../shared/services/http.service';
 import {GlobalService} from '../../../../../shared/services/global.service';
 import Swal from "sweetalert2";
+import {ActivatedRoute} from "@angular/router";
 
 @Component({
   selector: 'app-product-sub-item',
@@ -29,17 +30,19 @@ export class AddProductSubItemComponent implements OnInit {
     public activeModal: NgbActiveModal,
     public fb: FormBuilder,
     private httpService: HttpService,
+    private activatedRoute: ActivatedRoute,
     public globalService: GlobalService) {
   }
 
   ngOnInit() {
     this.loadProducts();
 
-
     this.form = this.fb.group({
       name: [this.formData ? this.formData.name : '',
         [Validators.required]],
       shortDescription: [this.formData ? this.formData.shortDescription : '',
+        [Validators.required]],
+      productCode: [this.formData ? this.formData.productCode : '',
         [Validators.required]],
       productDescription: [this.formData ? this.formData.detailedDescription : '',
         [Validators.required]],
@@ -90,12 +93,16 @@ export class AddProductSubItemComponent implements OnInit {
       name: this.form.value.name,
       shortDescription: this.form.value.shortDescription,
       productDescription: this.form.value.productDescription,
+      productCode: this.form.value.productCode,
       productCategoryId: this.productCategoryId,
       approvalId: 4
     };
 
 
     let formData = new FormData();
+
+    console.log("model")
+    console.log(model)
 
     formData.append('product',
       new Blob([JSON.stringify(model)], {type: "application/json"} ));

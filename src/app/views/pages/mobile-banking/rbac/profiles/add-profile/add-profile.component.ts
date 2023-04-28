@@ -60,27 +60,26 @@ export class AddProfileComponent implements OnInit {
             remarks: this.form.value.description
         }
         this._httpService.mobileBankingPost('api/v1/admin/profile/add', model).subscribe(
-            (result:any) => {
-                if(result.status === 200){
+            (result: any) => {
 
-                  this.isLoading = false;
+              if(result.status === 200) {
 
-                  this.activeModal.close('success');
-                    Swal.fire('Success', result.message, "success")
-                    .then(r => console.log(r))
-                    console.log('result');
-                } else
-                    this.activeModal.close('error');
-                    Swal.fire('Error',"Unable to create profile","error")
-                    .then(r => console.log(r))
-                }
-                )
-            }
+                this.isLoading = false;
+
+                this.activeModal.close('success');
+                Swal.fire('Success', result.message, "success")
+              } else {
+                this.activeModal.close('error');
+                Swal.fire('Error',"Unable to create profile","error")
+              }
+            })
+    }
 
     private saveChanges(): any {
       this.isLoading = true;
         const model = {
             id: this.formData.id,
+            name: this.form.value.name,
             remarks: this.form.value.description
         }
         this._httpService.mobileBankingPost('api/v1/admin/profile/edit',model)
