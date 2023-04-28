@@ -164,7 +164,7 @@
             <div class="card-body pt-0 widget-body pb-1 mb-3 text-center mx-auto">
 
               <p class="mb-1 text-center"><strong>Added Roles</strong></p>
-
+              
               <table class="text-left" width="100%">
                 <tr *ngFor="let item of allAddedRolesListPending">
                   <td style="text-align: left!important;">{{item.name}}</td>
@@ -177,9 +177,12 @@
                   </td>
                 </tr>
               </table>
+              <div class="col-12">
+                <button (click)="changeRolesForProfile('add')" class="btn btn-primary mr-2 pr-2" type="button">Add
+                </button>
+              </div>              <hr>
 
               <p class="mb-1 text-center"><strong>Removed Roles</strong></p>
-
               <table class="text-left" width="100%">
                 <tr *ngFor="let item of allRemovedRolesListPending">
                   <td style="text-align: left!important;">{{item.name}}</td>
@@ -192,20 +195,23 @@
                   </td>
                 </tr>
               </table>
-
+              <div class="col-12">
+                <button (click)="changeRolesForProfile('remove')" class="btn btn-danger mr-2 pr-2" type="button">Remove
+                </button>
+              </div>
               <hr>
 
               <!--              <div class="mx-auto text-center mb-2" role="group">-->
 
               <div class="row">
-                <div class="col-5">
+                <!-- <div class="col-5">
                   <button (click)="changeRolesForProfile()" class="btn btn-primary mr-2 pr-2" type="button">Submit
                   </button>
-                </div>
+                </div> -->
 
-                <div class="col-2"></div>
+                <!-- <div class="col-12"></div> -->
 
-                <div class="col-5">
+                <div class="col-12">
                   <button (click)="resetRolesForProfile()" class="btn btn-outline-primary" type="button">Reset</button>
                 </div>
               </div>
