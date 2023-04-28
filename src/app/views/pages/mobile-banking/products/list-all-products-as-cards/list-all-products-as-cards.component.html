@@ -5,7 +5,7 @@
     <h4 class="mb-3 mb-md-0">All Products</h4>
   </div>
 
-  <div ngbDropdown>
+  <div ngbDropdown >
     <button class="btn btn-primary btn-xs" id="dropdownBasic1" ngbDropdownToggle>Select View</button>
     <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
       <button ngbDropdownItem routerLink="/mobile-banking/products/list-all-products-as-cards">Card View</button>
@@ -19,7 +19,7 @@
     [title]="title"
     [showAddButton]="false"
     (changeColumnsEvent)="updateColumns($event)"
-    (openAddModalEvent)="openAddProductModal()" 
+    (openAddModalEvent)="openAddProductModal()"
   ></app-table-header>
 
 </div>
