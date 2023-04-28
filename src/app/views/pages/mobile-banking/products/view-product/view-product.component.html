@@ -73,16 +73,17 @@
              </div> -->
               <h5 class="text-left font-size-20 fw-bold mt-0 mb-2">Requirements</h5>
 
-              <div class="w-50">
-                <div class="d-flex justify-content-between" *ngFor="let requirements of requirements">
-                  <h6 class="text-body mb-2">Requirement:</h6>
-                  <p class="text-muted tx-12"> {{requirements?.requirement}}</p>
+              <div class="w-75">
+                <div class="justify-content-evenly" *ngFor="let requirements of requirements">
+                  <h6 class="text-body mb-2">Requirements: {{requirements?.requirement}}</h6>
+                  <p class="text-muted tx-13 mb-2">Description: {{requirements?.requirementDescription}}</p>
+
+                  <button (click)="removeRequirement(requirements?.id)"
+                          class="btn btn-danger btn-xs pull-right mb-3"
+                          type="button">Remove Requirement
+                  </button>
                 </div>
-                <p class="text-muted tx-13">Requirement Description: {{requirements?.requirementDescription}}</p>
-                <button (click)="removeRequirement()"
-                        class="btn btn-danger btn-xs pull-right"
-                        type="button">Remove Requirement
-                </button>
+
                 <hr>
               </div>
 

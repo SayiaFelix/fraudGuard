@@ -177,7 +177,7 @@ export class ProductAsCardsComponent implements OnInit {
             });
             this.slidesStore = response;
             console.log(this.slidesStore);
-            
+
           } else {
             Swal.fire('Failed', "Unable to fetch products", 'error')
           }
@@ -190,6 +190,7 @@ export class ProductAsCardsComponent implements OnInit {
 
     this.modalRef = this.modalService.open(AddProductSubItemComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Add Product';
+    this.modalRef.componentInstance.productCategoryId = this.productCategoryId;
     this.modalRef.result.then((result) => {
       if (result === 'success') {
         this.getIndividualData(0);
@@ -202,6 +203,7 @@ export class ProductAsCardsComponent implements OnInit {
   openEditProductModal(formData: any) {
     this.modalRef = this.modalService.open(AddProductSubItemComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Edit Product';
+    this.modalRef.componentInstance.productCategoryId = this.productCategoryId;
     this.modalRef.componentInstance.formData = formData;
     this.modalRef.result.then((result) => {
       if (result === 'success') {

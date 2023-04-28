@@ -60,8 +60,8 @@ export class ListAtmsComponent implements OnInit {
 
   columns = [
     { name: 'ID', prop: 'id' },
-    { name: 'ATMName', prop:'ATMName' },
-    { name: 'ATMCode', prop:'ATMCode' },
+    { name: 'ATMName', prop:'name' },
+    { name: 'ATMCode', prop:'atmCode' },
     { name: 'IsActive', prop:'isActive' },
     { name: 'Actions', prop: 'id' }
   ];
@@ -127,12 +127,11 @@ export class ListAtmsComponent implements OnInit {
   }
   getIndividualData(event: number): void {
     const model = {
-       id:1,
-       size:100,
-       page:0
-    };
+      "size":50,
+      "page":0
+    }
 
-    this.httpService.mobileBankingPost('config/branch/fetch/atms/all', model).subscribe((res: any) => {
+    this.httpService.mobileBankingPost('config/branch/fetch/atms/page', model).subscribe((res: any) => {
       if (res.status === 200) {
         // setTimeout(() => {
         //    this.rows=res.data;
