@@ -125,29 +125,21 @@ export class ListAtmsComponent implements OnInit {
     }, (reason) => {
     });
   }
-
-
-
   getIndividualData(event: number): void {
-
-    this.rows = this.tempProductData;
-
     const model = {
-      page: 0,
-      size: 5
+       id:1,
+       size:100,
+       page:0
     };
 
-    this.httpService.mobileBankingPost('api/v1/corporate/admin/list-products/all', model).subscribe((res: any) => {
-
+    this.httpService.mobileBankingPost('config/branch/fetch/atms/all', model).subscribe((res: any) => {
       if (res.status === 200) {
-        setTimeout(() => {
-          // this.data = res.data;
-          this.rows = this.tempProductData;
-          // let data = this.tempProductData;
+        // setTimeout(() => {
+        //    this.rows=res.data;
+        //   let total = res.totalItems;
 
-          let total = res.totalItems;
-
-        }, 10);
+        // }, 10);
+        this.rows=res.data;
       } else {
       }
     });

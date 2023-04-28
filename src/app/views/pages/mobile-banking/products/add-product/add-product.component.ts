@@ -22,6 +22,8 @@ export class AddProductComponent implements OnInit {
 
   public allProductCategories: any;
 
+  isLoading: boolean;
+
   constructor(
     public activeModal: NgbActiveModal,
     public fb: FormBuilder,
@@ -56,6 +58,8 @@ export class AddProductComponent implements OnInit {
 
   private createRecord(): any {
 
+    this.isLoading = true;
+
     const model = {
       name: this.form.value.name,
       description: this.form.value.description,
@@ -71,6 +75,8 @@ export class AddProductComponent implements OnInit {
     this._httpService.mobileBankingFormRequestPost('product/portal/category/create', formData).subscribe(
       (result: any) => {
         if (result.status === 200) {
+          this.isLoading = false;
+
           this.activeModal.close('success');
           Swal.fire('Product Category Created',
             'Product Category has been created successfully.',
@@ -92,6 +98,8 @@ export class AddProductComponent implements OnInit {
   }
 
   private editRecord(): any {
+
+    this.isLoading = true;
     const model = {
       id: this.formData.id,
       name: this.form.value.name,
@@ -109,6 +117,8 @@ export class AddProductComponent implements OnInit {
       (result: any) => {
         if (result.status === 200) {
           this.activeModal.close('success');
+          this.isLoading = false;
+
           Swal.fire('Product Category Edited',
             'Product Category has been edited successfully.',
             'success').then(r => console.log(r))

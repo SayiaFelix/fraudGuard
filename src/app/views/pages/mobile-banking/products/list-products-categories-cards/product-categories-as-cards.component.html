@@ -30,7 +30,6 @@
     <div class="col-md-12 grid-margin stretch-card">
       <div class="card">
         <div class="card-body">
-          <h4 class="card-title mb-5">Product Categories</h4>
           <owl-carousel-o [options]="autoPlayExampleOptions">
             <ng-template carouselSlide *ngFor="let category of fetchedCategories" [id]="category.id">
               <div class="m-3 p-3 ">
@@ -46,13 +45,13 @@
                     <div class="d-grid gap-2 d-md-block">
                       <a [routerLink]="'/mobile-banking/products/list-products-as-cards/' + category.id"
                          class="btn btn-primary btn-sm"
-                         *ngIf="category.children.length === 0">
+                         *ngIf="category?.children?.length === 0">
                         View Products
                       </a>
                       <a
-                        (click)="viewSubProducts(category.children)"
-                         class="btn btn-primary btn-sm"
-                         *ngIf="category.children.length > 0">
+                        (click)="viewSubProducts(category)"
+                        class="btn btn-primary btn-sm"
+                        *ngIf="category?.children?.length > 0">
                         View Sub-Categories
                       </a>
                       <a (click)="editProduct(category)" class="btn btn-secondary btn-sm">Edit</a>
