@@ -27,19 +27,17 @@ import { ListAllProductsAsCardsComponent } from './list-all-products-as-cards/li
 import {
   ProductSubCategoriesAsCardsComponent
 } from "./list-products-subcategories-cards/product-sub-categories-as-cards.component";
-import {NgxPaginationModule} from "ngx-pagination";
 
 @NgModule({
-    imports: [
-        SharedModule,
-        ProductsRoutingModule,
-        FeatherIconModule,
-        NgxDatatableModule,
-        TranslateModule,
-        CarouselModule,
-        PerfectScrollbarModule,
-        NgxPaginationModule
-    ],
+  imports: [
+    SharedModule,
+    ProductsRoutingModule,
+    FeatherIconModule,
+    NgxDatatableModule,
+    TranslateModule,
+    CarouselModule,
+    PerfectScrollbarModule
+  ],
   declarations: [
     ProductCategoriesComponent,
     ProductCategoriesAsCardsComponent,

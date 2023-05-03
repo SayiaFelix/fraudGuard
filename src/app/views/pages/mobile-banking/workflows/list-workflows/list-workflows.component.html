@@ -20,7 +20,7 @@
 
 <div class="row">
   <div class="col-md-12 stretch-card" *ngIf="workflowList$ | async">
-    <div class="card"  *ngIf="rows.length > 0">
+    <div class="card">
         <app-custom-ngx-table
           [columns]="columns"
           [rows]="rows"

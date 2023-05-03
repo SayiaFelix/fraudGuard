@@ -14,7 +14,7 @@
 
 <div class="row">
   <div class="col-md-12 stretch-card">
-    <div class="card" *ngIf="rows.length > 0; else noRecords">
+    <div class="card">
         <app-custom-ngx-table
           [columns]="columns"
           [rows]="rows"
@@ -28,10 +28,6 @@
         <span class="visually-hidden">Loading...</span>
       </div>
     </div>
-
-    <ng-template #noRecords>
-      No records found
-    </ng-template > 
   </div>
 </div>
 
