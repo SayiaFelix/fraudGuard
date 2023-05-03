@@ -14,7 +14,7 @@ export class ChartjsComponent implements OnInit {
     secondary      : "#7987a1",
     success        : "#05a34a",
     info           : "#66d1d1",
-    warning        : "#fbbc06",
+    warning        : "#F69414",
     danger         : "#ff3366",
     light          : "#e9ecef",
     dark           : "#060c17",
@@ -71,7 +71,7 @@ export class ChartjsComponent implements OnInit {
   public barChartData: ChartData<'bar'> = {
     labels: [ "China", "America", "India", "Germany", "Oman"],
     datasets: [
-      { 
+      {
         label: "Population",
         backgroundColor: [this.obj.primary, this.obj.danger, this.obj.warning, this.obj.success, this.obj.info],
         hoverBackgroundColor: [this.obj.primary, this.obj.danger, this.obj.warning, this.obj.success, this.obj.info],
@@ -89,7 +89,7 @@ export class ChartjsComponent implements OnInit {
    */
   public lineChartData: ChartConfiguration['data'] = {
     labels: [1500,1600,1700,1750,1800,1850,1900,1950,1999,2050],
-    datasets: [{ 
+    datasets: [{
         data: [86,114,106,106,107,111,133,221,783,2478],
         label: "Africa",
         borderColor: this.obj.info,
@@ -102,7 +102,7 @@ export class ChartjsComponent implements OnInit {
         pointBorderWidth: 2,
         pointHoverBorderWidth: 3,
         tension: .3
-      }, { 
+      }, {
         data: [282,350,411,502,635,809,947,1402,3700,5267],
         label: "Asia",
         borderColor: this.obj.danger,
@@ -121,7 +121,7 @@ export class ChartjsComponent implements OnInit {
   public lineChartOptions: ChartConfiguration['options'] = {
     responsive: true,
     plugins: {
-      legend: { 
+      legend: {
         display: true,
         labels: {
           color: this.obj.bodyColor,
@@ -173,7 +173,7 @@ export class ChartjsComponent implements OnInit {
   public doughnutChartOptions: ChartConfiguration['options'] = {
     aspectRatio: 2,
     plugins: {
-      legend: { 
+      legend: {
         display: true,
         labels: {
           color: this.obj.bodyColor,
@@ -208,7 +208,7 @@ export class ChartjsComponent implements OnInit {
    */
   public areaChartData: ChartConfiguration['data'] = {
     labels: [1500,1600,1700,1750,1800,1850,1900,1950,1999,2050],
-    datasets: [{ 
+    datasets: [{
         data: [86,114,106,106,107,111,133,221,783,2478],
         label: "Africa",
         borderColor: this.obj.danger,
@@ -221,7 +221,7 @@ export class ChartjsComponent implements OnInit {
         pointBorderWidth: 2,
         pointHoverBorderWidth: 3,
         tension: .3
-      }, { 
+      }, {
         data: [282,350,411,502,635,809,947,1402,3700,5267],
         label: "Asia",
         borderColor: this.obj.info,
@@ -240,7 +240,7 @@ export class ChartjsComponent implements OnInit {
   public areaChartOptions: ChartConfiguration['options'] = {
     responsive: true,
     plugins: {
-      legend: { 
+      legend: {
         display: true,
         labels: {
           color: this.obj.bodyColor,
@@ -292,7 +292,7 @@ export class ChartjsComponent implements OnInit {
   public pieChartOptions: ChartConfiguration['options'] = {
     aspectRatio: 2,
     plugins: {
-      legend: { 
+      legend: {
         display: true,
         labels: {
           color: this.obj.bodyColor,
@@ -326,7 +326,7 @@ export class ChartjsComponent implements OnInit {
    public bubbleChartOptions: ChartConfiguration['options'] = {
     responsive: true,
     plugins: {
-      legend: { 
+      legend: {
         display: true,
         labels: {
           color: this.obj.bodyColor,
@@ -338,7 +338,7 @@ export class ChartjsComponent implements OnInit {
       },
     },
     scales: {
-      x: { 
+      x: {
         display: true,
         title: {
           display: true,
@@ -360,7 +360,7 @@ export class ChartjsComponent implements OnInit {
           }
         }
       },
-      y: { 
+      y: {
         display: true,
         title: {
           display: true,
@@ -474,7 +474,7 @@ export class ChartjsComponent implements OnInit {
       }
     },
     plugins: {
-      legend: { 
+      legend: {
         display: true,
         labels: {
           color: this.obj.bodyColor,
@@ -555,7 +555,7 @@ export class ChartjsComponent implements OnInit {
       }
     },
     plugins: {
-      legend: { 
+      legend: {
         display: true,
         labels: {
           color: this.obj.bodyColor,
@@ -592,7 +592,7 @@ export class ChartjsComponent implements OnInit {
   public groupedBarChartOptions: ChartConfiguration['options'] = {
     responsive: true,
     plugins: {
-      legend: { 
+      legend: {
         display: true,
         labels: {
           color: this.obj.bodyColor,
@@ -664,7 +664,7 @@ export class ChartjsComponent implements OnInit {
   public mixedChartOptions: ChartConfiguration['options'] = {
     responsive: true,
     plugins: {
-      legend: { 
+      legend: {
         display: true,
         labels: {
           color: this.obj.bodyColor,

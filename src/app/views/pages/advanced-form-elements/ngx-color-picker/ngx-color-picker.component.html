@@ -23,10 +23,10 @@
       <div class="card-body">
         <h6 class="card-title">Simple example</h6>
 
-        <input class="form-control wd-150" 
-          [(colorPicker)]="color1" 
+        <input class="form-control wd-150"
+          [(colorPicker)]="color1"
           [style.background]="color1"/>
-        
+
         <p class="text-muted mt-2">Value: {{color1}}</p>
 
       </div>
@@ -37,11 +37,11 @@
       <div class="card-body">
         <h6 class="card-title">Grayscale color mode</h6>
 
-        <input class="form-control wd-150" 
-          [(colorPicker)]="grayscaleColor" 
+        <input class="form-control wd-150"
+          [(colorPicker)]="grayscaleColor"
           [cpColorMode]="'grayscale'"
           [style.background]="grayscaleColor"/>
-        
+
         <p class="text-muted mt-2">Value: {{grayscaleColor}}</p>
 
       </div>
@@ -56,7 +56,7 @@
           [value]="color2"
           [style.background]="color2"
           [(colorPicker)]="color2"/>
-        
+
         <p class="text-muted mt-2">Value: {{color2}}</p>
 
       </div>
@@ -72,7 +72,7 @@
             [style.background]="color3"
             [cpOutputFormat]="'rgba'"
             [(colorPicker)]="color3"/>
-          
+
             <p class="text-muted mt-2">Value: {{color3}}</p>
           </div>
           <div class="col-md-6">
@@ -80,7 +80,7 @@
             [style.background]="color4"
             [cpOutputFormat]="'hsla'"
             [(colorPicker)]="color4"/>
-          
+
             <p class="text-muted mt-2">Value: {{color4}}</p>
           </div>
         </div>
@@ -96,7 +96,7 @@
           [style.background]="color5"
           [cpPosition]="'top-right'"
           [(colorPicker)]="color5"/>
-        
+
         <p class="text-muted mt-2">Value: {{color5}}</p>
 
       </div>
@@ -110,7 +110,7 @@
         <h4 class="d-inline-block fw-bolder"
           [style.color]="color6"
           [(colorPicker)]="color6"> Click to change me </h4>
-        
+
         <p class="text-muted mt-2">Value: {{color6}}</p>
 
       </div>
@@ -130,7 +130,7 @@
           [cpSaveClickOutside]="false"
           [cpPosition]="'top-right'"
           [(colorPicker)]="color7"/>
-        
+
         <p class="text-muted mt-2">Value: {{color7}}</p>
 
       </div>
@@ -144,9 +144,9 @@
         <input class="form-control wd-150"
           [style.background]="color8"
           [cpPosition]="'top-right'"
-          [cpPresetColors]="['#727cf5', '#7987a1', '#10b759', '#66d1d1', '#fbbc06', '#ff3366']"
+          [cpPresetColors]="['#727cf5', '#7987a1', '#10b759', '#66d1d1', '#F69414', '#ff3366']"
           [(colorPicker)]="color8"/>
-        
+
         <p class="text-muted mt-2">Value: {{color8}}</p>
 
       </div>
