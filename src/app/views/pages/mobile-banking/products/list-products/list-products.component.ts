@@ -45,7 +45,7 @@ export class ListProductsComponent implements OnInit {
     {name: 'ProductName', prop: 'name'},
     {name: 'ProductCategory', prop: 'categoryName'},
     {name: 'Description', prop: 'shortDescription'},
-    {name: 'Status', prop: 'status'},
+    {name: 'Status', prop: 'active'},
     {name: 'CreatedOn', prop: 'createdAt'},
     {name: 'Actions', prop: 'id'},
   ];
