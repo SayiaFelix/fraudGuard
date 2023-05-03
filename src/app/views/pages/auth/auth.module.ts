@@ -10,6 +10,7 @@ import {FeatherIconModule} from "../../../core/feather-icon/feather-icon.module"
 import {SharedModule} from "../../../shared/shared.module";
 import {HttpClientModule} from "@angular/common/http";
 import {TranslateModule} from "@ngx-translate/core";
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
 
 const routes: Routes = [
   {
@@ -32,6 +33,10 @@ const routes: Routes = [
       {
         path: 'forgot-password',
         component: ForgotPasswordComponent
+      },
+      {
+        path: 'reset-password',
+        component: ResetPasswordComponent
       }
     ]
   },
@@ -41,7 +46,8 @@ const routes: Routes = [
   declarations: [LoginComponent,
     RegisterComponent,
     ForgotPasswordComponent,
-    AuthComponent],
+    AuthComponent,
+    ResetPasswordComponent],
     imports: [
         CommonModule,
         RouterModule.forChild(routes),
