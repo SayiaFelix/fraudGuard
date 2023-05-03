@@ -52,6 +52,7 @@ export class ViewProductComponent implements OnInit {
   public requirements:any;
 
   public productId: number;
+  public categoryId: number;
   public modalRef: NgbModalRef;
 
 
@@ -71,7 +72,12 @@ export class ViewProductComponent implements OnInit {
 
     this.activatedRoute.params.subscribe(params => {
       if (typeof params.id !== 'undefined') {
+
+        console.log('query-params');
+        console.log(params);
+
         this.productId = params.id;
+        this.categoryId = params.categoryId;
       }
     });
 
@@ -80,7 +86,7 @@ export class ViewProductComponent implements OnInit {
   }
 
   private loadData(): any {
-
+    this.isLoading = true;
     const model = {
       id: this.productId
     };
@@ -92,6 +98,8 @@ export class ViewProductComponent implements OnInit {
           this.productDetails = res['data'];
 
           this.requirements = this.productDetails.requirementList;
+          this.rows = this.productDetails.requirementList;
+          this.isLoading = false;
 
         } else {
           Swal.fire('Failed', "Unable to fetch product details", 'error')
@@ -160,6 +168,15 @@ export class ViewProductComponent implements OnInit {
   //   });
   // }
   isAsideNavCollapsed: any;
+  columns = [
+    { name: 'ID', prop: 'id' },
+    { name: 'Requirement Name', prop:'requirement' },
+    { name: 'Requirement Code', prop:'requirementCode' },
+    { name: 'Actions', prop: 'id' }
+  ];
+  rows: any = [];
+  actions = ["Edit", "Delete"];
+  isLoading: boolean;
 
   openAddProductSubcategoryModal(content: TemplateRef<any>) {
     this.modalService.open(content, {centered: true, size: "lg"}).result.then((result) => {
@@ -199,26 +216,20 @@ export class ViewProductComponent implements OnInit {
     // this.requirements = [this.form.value.requirement, ...this.requirements];
   }
 
-  private createRecord(): any {
 
-    const model = {
-      firstName: this.form.value.firstName,
-      lastName: this.form.value.lastName,
-      middleName: this.form.value.middleName,
-      phoneNumber: this.form.value.phoneNumber,
-      email: this.form.value.email,
-      position: this.form.value.position,
-      profileId: this.form.value.profile
-    };
-
-    this.httpService.mobileBankingPost('api/v1/corporate/admin/create', model).subscribe(
-      (result: any) => {
-        if (result.status === 200) {
-        } else {
-
-        }
+  editRequirement(rowData: any) {
+    this.modalRef = this.modalService.open(AddRequirementComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Edit Requirement';
+    this.modalRef.componentInstance.formData = this.productDetails;
+    this.modalRef.result.then((result: any) => {
+      if (result === 'success') {
+        this.loadData();
+        // this.loadRequirements();
+      } else {
+        console.log("Error occurred")
       }
-    );
+    });
+
   }
 
   removeRequirement(id: any) {
@@ -251,5 +262,15 @@ export class ViewProductComponent implements OnInit {
         console.log("Error occurred")
       }
     });
+  }
+
+  triggerEvent(data: string) {
+    let eventData = JSON.parse(data)
+
+    if (eventData.action == 'Edit') {
+      this.editRequirement(eventData.row);
+    }else if (eventData.action == 'Delete') {
+      this.removeRequirement(eventData.row);
+    }
   }
 }

@@ -53,7 +53,8 @@
         <div class="card-body">
           <h4 class="card-title mb-5">Products</h4>
           <owl-carousel-o [options]="autoPlayExampleOptions">
-            <ng-template carouselSlide *ngFor="let slide of slidesStore" [id]="slide.id">
+            <ng-template carouselSlide *ngFor="let slide of slidesStore; index as i" [id]="slide.id"
+                         [dotContent]="(i).toString()">
               <div class="m-2 p-2">
                 <div class="card" style="width: 18rem;"> -->
                   <!-- <img class="card-img-top" src=".\assets\images\category1.png" alt="slide"> -->
@@ -80,6 +81,18 @@
 
             </ng-template>
           </owl-carousel-o>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title mb-5">Products</h4>
+          <div class="grid text-center">
+            <div class="g-col-6">.g-col-6</div>
+            <div class="g-col-6">.g-col-6</div>
+
+            <div class="g-col-6">.g-col-6</div>
+            <div class="g-col-6">.g-col-6</div>
+          </div>
         </div>
       </div>
     </div>

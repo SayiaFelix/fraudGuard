@@ -221,7 +221,8 @@ export class ProductAsCardsComponent implements OnInit {
   }
 
   navigateToViewProduct(data: any) {
-    this.router.navigateByUrl(`/mobile-banking/products/list-products/${data.id}`);
+    this.router.navigate([`/mobile-banking/products/product/${this.productCategoryId}/${data.id}`]
+    );
   }
 
   toggleExpandRow(row: any) {
@@ -361,7 +362,7 @@ export class ProductAsCardsComponent implements OnInit {
   openDeleteModal(formData: any) {
     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
     this.modalRef.componentInstance.title = `Delete this Product?`;
-    this.modalRef.componentInstance.body = `Do you want to delete product: {${formData.name}}?`;
+    this.modalRef.componentInstance.body = `Do you want to delete product: ${formData.name}?`;
     this.modalRef.result.then((result: any) => {
       if (result === 'success') {
 

@@ -35,7 +35,7 @@
   --bs-secondary: #7987a1;
   --bs-success: #05a34a;
   --bs-info: #66d1d1;
-  --bs-warning: #fbbc06;
+  --bs-warning: #F69414;
   --bs-danger: #ff3366;
   --bs-light: #e9ecef;
   --bs-dark: #060c17;
@@ -2994,8 +2994,8 @@ quill-editor .ql-container .ql-tooltip .input-group.has-validation > .form-float
 
 .btn-warning {
   --bs-btn-color: #000;
-  --bs-btn-bg: #fbbc06;
-  --bs-btn-border-color: #fbbc06;
+  --bs-btn-bg: #F69414;
+  --bs-btn-border-color: #F69414;
   --bs-btn-hover-color: #000;
   --bs-btn-hover-bg: #fcc62b;
   --bs-btn-hover-border-color: #fbc31f;
@@ -3005,8 +3005,8 @@ quill-editor .ql-container .ql-tooltip .input-group.has-validation > .form-float
   --bs-btn-active-border-color: #fbc31f;
   --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
   --bs-btn-disabled-color: #000;
-  --bs-btn-disabled-bg: #fbbc06;
-  --bs-btn-disabled-border-color: #fbbc06;
+  --bs-btn-disabled-bg: #F69414;
+  --bs-btn-disabled-border-color: #F69414;
 }
 
 .btn-danger, .swal2-container .swal2-popup .swal2-actions button.swal2-cancel {
@@ -3129,19 +3129,19 @@ quill-editor .ql-container .ql-tooltip .input-group.has-validation > .form-float
 }
 
 .btn-outline-warning {
-  --bs-btn-color: #fbbc06;
-  --bs-btn-border-color: #fbbc06;
+  --bs-btn-color: #F69414;
+  --bs-btn-border-color: #F69414;
   --bs-btn-hover-color: #000;
-  --bs-btn-hover-bg: #fbbc06;
-  --bs-btn-hover-border-color: #fbbc06;
+  --bs-btn-hover-bg: #F69414;
+  --bs-btn-hover-border-color: #F69414;
   --bs-btn-focus-shadow-rgb: 251, 188, 6;
   --bs-btn-active-color: #000;
-  --bs-btn-active-bg: #fbbc06;
-  --bs-btn-active-border-color: #fbbc06;
+  --bs-btn-active-bg: #F69414;
+  --bs-btn-active-border-color: #F69414;
   --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
-  --bs-btn-disabled-color: #fbbc06;
+  --bs-btn-disabled-color: #F69414;
   --bs-btn-disabled-bg: transparent;
-  --bs-btn-disabled-border-color: #fbbc06;
+  --bs-btn-disabled-border-color: #F69414;
   --bs-gradient: none;
 }
 
@@ -6208,7 +6208,7 @@ full-calendar.fc .btn-group-vertical > .btn-group:not(:first-child) > .fc-button
 }
 
 .link-warning {
-  color: #fbbc06 !important;
+  color: #F69414 !important;
 }
 .link-warning:hover, .link-warning:focus {
   color: #fcc938 !important;
@@ -20323,8 +20323,8 @@ a.badge:hover {
 
 .alert-fill-warning {
   --bs-alert-color: #fff;
-  --bs-alert-bg: #fbbc06;
-  --bs-alert-border-color: #fbbc06;
+  --bs-alert-bg: #F69414;
+  --bs-alert-border-color: #F69414;
 }
 .alert-fill-warning .alert-link {
   color: #cccccc;
@@ -20964,7 +20964,7 @@ ngb-alert:not(.show) {
   border-color: rgba(251, 188, 6, 0);
 }
 .btn-inverse-warning:not(.btn-inverse-light) {
-  color: #fbbc06;
+  color: #F69414;
 }
 .btn-inverse-warning:hover, .btn-inverse-warning.active, .btn-inverse-warning:active, .show > .btn-inverse-warning.dropdown-toggle {
   background-color: rgba(251, 188, 6, 0.3);
@@ -20974,7 +20974,7 @@ ngb-alert:not(.show) {
   box-shadow: 0 0 0 3px rgba(251, 188, 6, 0.5);
 }
 .btn-inverse-warning.disabled, .btn-inverse-warning:disabled {
-  color: #fbbc06;
+  color: #F69414;
   background-color: transparent;
 }
 
