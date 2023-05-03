@@ -402,4 +402,7 @@ export class ListAllProductsAsCardsComponent implements OnInit {
     });
   }
 
+  onChange() {
+    this.getIndividualData(0);
+  }
 }

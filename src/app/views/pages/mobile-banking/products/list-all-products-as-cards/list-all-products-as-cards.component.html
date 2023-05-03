@@ -23,13 +23,30 @@
   ></app-table-header>
 
 </div>
+
+<!--  Pagination-->
+<div class="d-flex justify-content-between mt-2">
+  <div class="row col-xl-6 col-lg-1 col-md-1 text-center">
+    <div class="col-sm-4 pl-0">
+      <select (change)="onChange()" class="form-control custom-select">
+        <option *ngFor="let pageSize of [2, 5, 10, 20, 50]" [ngValue]="pageSize">{{ pageSize }}</option>
+      </select>
+    </div>
+    <label class="pt-2 text-start">Items per page</label>
+  </div>
+  <pagination-controls [responsive]="true" [autoHide]="true" previousLabel="Prev"
+                       (pageChange)="getIndividualData(0)" [maxSize]="5">
+  </pagination-controls>
+</div>
+<!--  Pagination-->
+
 <div class="row row-cols-1 row-cols-md-3 g-4">
   <div class="col-6" *ngFor="let slide of slidesStore" [id]="slide.id">
     <div class="card">
       <!-- <img src="assets/images/others/placeholder.jpg" class="card-img-top" alt="..."> -->
           <img class="card-img-top" [src]="slide.productUrl.trim()" [alt]="slide.alt" preload>
       <div class="card-body">
-        <h5 class="card-title">{{slide.name}}</h5> 
+        <h5 class="card-title">{{slide.name}}</h5>
         <p class="card-text">{{slide.description}}</p>
         <p class="card-text">{{slide.productDescription}}</p>
         <div class="d-grid gap-2 d-md-block">
@@ -40,6 +57,10 @@
       </div>
     </div>
   </div>
+
+
+
+
 </div>
 <!--<app-table-filters-->
 <!--[allColumns]="columns">-->
