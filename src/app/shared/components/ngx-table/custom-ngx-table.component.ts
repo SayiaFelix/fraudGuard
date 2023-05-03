@@ -55,7 +55,7 @@ export class CustomNgxTable implements OnInit {
     this.toggleFilters = [...this.columns].filter(
       (col: any) => col['name'] == 'Active' || col['name'] == 'Status' || col['name'] == 'SystemRole',
     )
-    
+
     this.data = [...this.rows]
   }
 
@@ -91,39 +91,39 @@ export class CustomNgxTable implements OnInit {
   }
 
   updateFilter( event: any, col: any) {
-    
+
     const val = event.target.value.toLowerCase()
-    
+
     let tempRows = [...this.rows]
-    // filter our data    
+    // filter our data
     const temp = tempRows.filter(function (d: any) {
       let key = col.prop
       console.log(col, val, d);
       return d[key].toString().toLowerCase().indexOf(val) !== -1 || !val
-    })        
+    })
 
     // update the rows
     this.rows = temp
-    
+
     // Whenever the filter changes, always go back to the first page
     this.table.offset = 0
   }
-  
+
   clearFilters() {
-  // refresh the rows
+    // refresh the rows
     this.rows = [...this.data]
 
     const filterInputs = document.querySelectorAll('.filterInputs');
-    filterInputs.forEach((input: any) => {    
+    filterInputs.forEach((input: any) => {
       input.value = '';
-    });    
+    });
 
     const filterSelect = document.querySelectorAll('.filterSelect');
-    filterSelect.forEach((select: any) => {    
+    filterSelect.forEach((select: any) => {
       select.selectedIndex  = 0;
-    });   
+    });
     // Whenever the filter changes, always go back to the first page
     this.table.offset = 0
   }
-  
+
 }

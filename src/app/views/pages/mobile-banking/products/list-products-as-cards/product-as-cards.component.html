@@ -35,13 +35,13 @@
   <div class="col-6" *ngFor="let slide of slidesStore" [id]="slide.id">
     <div class="card">
       <!-- <img src="assets/images/others/placeholder.jpg" class="card-img-top" alt="..."> -->
-           <img class="card-img-top images-styling" [src]="slide.productUrl.trim()" [alt]="slide.alt" preload>
+      <img class="card-img-top images-styling" [src]="slide.productUrl.trim()" [alt]="slide.alt" preload>
       <div class="card-body">
         <h5 class="card-title">{{slide.name}}</h5>
         <p class="card-text">{{slide.description}}</p>
         <p class="card-text">{{slide.productDescription}}</p>
         <div class="d-grid gap-2 d-md-block">
-          <a [routerLink]="'/mobile-banking/products/product/' + slide.id" class="btn btn-primary btn-sm">View</a>
+          <a [routerLink]="'/mobile-banking/products/product/' + productCategoryId + '/' + slide.id" class="btn btn-primary btn-sm">View</a>
           <a (click)="editProduct(slide)"  class="btn btn-secondary btn-sm">Edit</a>
           <a (click)="openDeleteModal(slide)" class="btn btn-danger btn-sm">Delete</a>
         </div>
@@ -65,33 +65,33 @@
             <ng-template carouselSlide *ngFor="let slide of slidesStore" [id]="slide.id">
               <div class="m-2 p-2">
                 <div class="card" style="width: 18rem;"> -->
-                   <!-- <img class="card-img-top images-styling" [src]="domSanitizer.bypassSecurityTrustResourceUrl(slide?.productUrl?.trim())"> -->
-                   <!-- <img class="card-img-top images-styling" [src]="slide.productUrl.trim()" [alt]="slide.alt" preload> -->
+<!-- <img class="card-img-top images-styling" [src]="domSanitizer.bypassSecurityTrustResourceUrl(slide?.productUrl?.trim())"> -->
+<!-- <img class="card-img-top images-styling" [src]="slide.productUrl.trim()" [alt]="slide.alt" preload> -->
 
 <!--              <img class="card-img-top" [src]="domSanitizer.bypassSecurityTrustResourceUrl(slide.productUrl)" [alt]="slide.alt">-->
-                  <!-- <img class=card-img-top [src]="slide.productUrl"> -->
-                  <!-- <img src="..." class="card-img-top" alt="..."> -->
-                  <!-- <div class="card-body">
-                    <h5 class="card-title">{{slide.name}}</h5>
-                    <p class="card-text">{{slide.description}}</p>
-                    <p class="card-text">{{slide.productDescription}}</p>
-                    <div class="d-grid gap-2 d-md-block">
-                      <a [routerLink]="'/mobile-banking/products/product/' + productCategoryId + '/' + slide.id" class="btn btn-primary btn-sm" style="color:white">View</a>
-                      <a (click)="editProduct(slide)"  class="btn btn-secondary btn-sm">Edit</a>
-                      <a (click)="openDeleteModal(slide)" class="btn btn-danger btn-sm">Delete</a>
-                    </div>
-                  </div>
-                </div> -->
-                <!-- <h5 class="text-center">Loan Product</h5> -->
-                <!-- <img [src]="slide.src" [alt]="slide.alt" [title]="slide.title">
-                <p class="text-center">Here is the product description.</p> -->
-              <!-- </div>
+<!-- <img class=card-img-top [src]="slide.productUrl"> -->
+<!-- <img src="..." class="card-img-top" alt="..."> -->
+<!-- <div class="card-body">
+  <h5 class="card-title">{{slide.name}}</h5>
+  <p class="card-text">{{slide.description}}</p>
+  <p class="card-text">{{slide.productDescription}}</p>
+  <div class="d-grid gap-2 d-md-block">
+    <a [routerLink]="'/mobile-banking/products/product/' + productCategoryId + '/' + slide.id" class="btn btn-primary btn-sm" style="color:white">View</a>
+    <a (click)="editProduct(slide)"  class="btn btn-secondary btn-sm">Edit</a>
+    <a (click)="openDeleteModal(slide)" class="btn btn-danger btn-sm">Delete</a>
+  </div>
+</div>
+</div> -->
+<!-- <h5 class="text-center">Loan Product</h5> -->
+<!-- <img [src]="slide.src" [alt]="slide.alt" [title]="slide.title">
+<p class="text-center">Here is the product description.</p> -->
+<!-- </div>
 
-            </ng-template>
-          </owl-carousel-o> -->
-        <!-- </div>
-      </div>
-    </div>
+</ng-template>
+</owl-carousel-o> -->
+<!-- </div>
+</div>
+</div>
 
-  </div> -->
+</div> -->
 <!-- </div> -->
