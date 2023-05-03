@@ -46,17 +46,17 @@
 
                     <div class="d-grid gap-2 d-md-block">
                       <a [routerLink]="'/mobile-banking/products/list-products-as-cards/' + category.id"
-                         class="btn btn-primary btn-sm"
+                         class="btn btn-warning btn-sm" style="color:white"
                          *ngIf="category?.children?.length === 0">
                         View Products
                       </a>
                       <a
                         (click)="viewSubProducts(category)"
-                        class="btn btn-primary btn-sm"
+                        class="btn btn-warning btn-sm" style="color:white"
                         *ngIf="category?.children?.length > 0">
                         View Sub-Categories
                       </a>
-                      <a (click)="editProduct(category)" class="btn btn-secondary btn-sm">Edit</a>
+                      <a (click)="editProduct(category)" class="btn btn-primary btn-sm">Edit</a>
                       <a (click)="openDeleteModal(category)" class="btn btn-danger btn-sm"> Delete</a>
                     </div>
 

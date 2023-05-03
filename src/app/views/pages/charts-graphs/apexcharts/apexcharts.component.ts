@@ -23,7 +23,7 @@ export class ApexchartsComponent implements OnInit {
     secondary      : "#7987a1",
     success        : "#05a34a",
     info           : "#66d1d1",
-    warning        : "#fbbc06",
+    warning        : "#F69414",
     danger         : "#ff3366",
     light          : "#e9ecef",
     dark           : "#060c17",
@@ -34,7 +34,7 @@ export class ApexchartsComponent implements OnInit {
     fontFamily     : "'Roboto', Helvetica, sans-serif"
   }
 
-  
+
   constructor() {}
 
   ngOnInit(): void {
@@ -190,7 +190,7 @@ function getBarChartOptions(obj: any) {
         show: false
       },
     },
-    colors: [obj.primary],    
+    colors: [obj.primary],
     grid: {
       padding: {
         bottom: -4
@@ -229,7 +229,7 @@ function getBarChartOptions(obj: any) {
 
 /**
  * Area chart options
- */    
+ */
 function getAreaChartOptions(obj: any) {
   return {
     series: [
@@ -838,7 +838,7 @@ function getRadialBarChartOptions(obj: any) {
           background: obj.gridBorder,
           strokeWidth: '100%',
           opacity: 1,
-          margin: 5, 
+          margin: 5,
         },
       }
     },
@@ -860,7 +860,7 @@ function getRadialBarChartOptions(obj: any) {
 
 /**
  * Generating demo data for area chart
- */    
+ */
 function generateDayWiseTimeSeries(s: number, count: number) {
   var values = [[
     4,3,10,9,29,19,25,9,12,7,19,5,13,9,17,2,7,5

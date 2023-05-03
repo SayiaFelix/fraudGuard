@@ -12,7 +12,7 @@ export class NgxColorPickerComponent implements OnInit {
   color2 = "#7987a1";
   color3 = "rgb(247, 126, 185)";
   color4 = "hsl(180, 54%, 61%)";
-  color5 = "#fbbc06";
+  color5 = "#F69414";
   color6 = "#ff3366";
   color7 = "#ececec";
   color8 = "#b1cfec";

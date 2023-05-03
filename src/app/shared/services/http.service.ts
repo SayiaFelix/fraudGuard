@@ -82,6 +82,7 @@ export class HttpService {
   public mobileBankingPost(endpoint: string, model: any): any {
     return this.http
       .post(
+
         this.globalService.channelManagerHost + endpoint,
         model,
         this.getHeaders()

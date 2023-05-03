@@ -1,100 +1,128 @@
+<nav class="page-breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a routerLink="/mobile-banking/products/list-categories-as-cards">All Categories</a></li>
+    <li class="breadcrumb-item"><a [routerLink]="'/mobile-banking/products/list-products-as-cards/'+ categoryId">View Products</a></li>
+    <li class="breadcrumb-item active" aria-current="page">View {{productDetails?.name}}</li>
+  </ol>
+</nav>
+
 <div class="row inbox-wrapper">
   <div class="col-lg-12">
     <div class="card">
       <div class="card-body">
         <div class="row">
-          <div class="col-lg-3 border-end-lg">
+          <div class="col-lg-4 border-end-lg">
             <div class="d-flex align-items-center justify-content-between">
               <button (click)="openAddProductSubcategoryModal(verticalCenteredModal)" aria-controls="asideNav"
                       class="navbar-toggle btn btn-icon border d-inline-flex d-lg-none" type="button">
                 <i appFeatherIcon class="btn-icon-prepend" data-feather="plus"></i> Button
               </button>
               <div class="order-first" >
-              <!-- <div class="order-first" *ngFor="let product of myProductList"> -->
                 <h4>{{productDetails?.name}} </h4>
                 <img class="image" [src]="domSanitizer.bypassSecurityTrustResourceUrl(productDetails?.productUrl?.trim())">
               </div>
               <br>
-              <!--                <img class="profile-pic text-center" src="assets/img/logos/person.png"/>-->
             </div>
 
-            <!-- <div [ngbCollapse]="isAsideNavCollapsed" class="email-aside-nav" id="asideNav">
+            <h5>{{subcategoryTitle}}</h5>
+            <hr/>
+            <div class="media mb-4 mt-1">
+            </div>
 
-              <hr>
-              <ul class="nav flex-column">
-                <li [ngClass]="{'active': inbox.isActive}" class="nav-item">
-                  <a #inbox="routerLinkActive" class="nav-link d-flex align-items-center"
-                     routerLinkActive="active">
-                    1. Personal Accident
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a (click)="false" class="nav-link d-flex align-items-center">
-                    2. Mutual Funds
-                  </a>
-                </li>
-              </ul>
-              <hr>
-            </div> -->
+            <h6 class="text-left font-size-20 fw-bold mt-0 mb-2">Product Name</h6>
+            <p class="text-muted fw-normal mb-4">{{productDetails?.name}}</p>
 
-            <!-- <div class="d-grid my-3">
-              <a class="btn btn-primary" (click)="openAddProductSubcategoryModal(verticalCenteredModal)">Loan Products</a>
-            </div> -->
+            <h6 class="text-left font-size-20 fw-bold mt-0 mb-2">Summary</h6>
+            <div class="text-muted">
+              <p class="text-muted fw-normal mb-4">{{productDetails?.shortDescription}}</p>
+            </div>
+
+            <h6 class="text-left font-size-20 fw-bold mt-0 mb-2">Long Description</h6>
+            <div class="text-muted">
+              <p class="text-muted fw-normal mb-4">{{productDetails?.detailedDescription}}</p>
+            </div>
 
           </div>
-          <div class="col-lg-9">
+          <div class="col-lg-8">
             <div class="mt-2">
               <h5>{{subcategoryTitle}}</h5>
               <hr/>
-              <div class="media mb-4 mt-1">
-                <!--                <img alt="Generic placeholder image" class=" mr-2 rounded-circle avatar-lg"-->
-                <!--                     src="assets/images/users/avatar-2.jpg">-->
-                <!-- <div class="media-body">
-                <span class="pull-right">
-                  <button (click)="openEditProductSubcategoryModal(verticalCenteredModal)" class="btn btn-success width-sm mt-1"
-                          type="button">Edit Product</button>
-                </span>
-                </div> -->
+
+
+
+              <div class="container-fluid d-flex justify-content-between mb-2">
+                <div class="col-lg-3 ps-0">
+                  <h5 class="text-left font-size-20 fw-bold mt-0 mb-2">Benefits</h5>
+                </div>
+                <div class="col-lg-3 pe-0">
+
+                  <div class="text-end">
+                    <button class="btn btn-sm btn-primary text-end" (click)="addRequirement()">Add Benefit</button>
+                  </div>
+                </div>
               </div>
+              <div class="w-100">
+                <div class="card">
+                  <app-custom-ngx-table
+                    [columns]="columns"
+                    [rows]="rows"
+                    [actions]="actions"
+                    [loadingIndicator]="isLoading"
 
-              <h6 class="text-left font-size-20 fw-bold mt-0 mb-2">Product Name</h6>
-              <p class="text-muted fw-normal mb-4">{{productDetails?.name}}</p>
-
-              <h6 class="text-left font-size-20 fw-bold mt-0 mb-2">Short Description</h6>
-              <div class="text-muted">
-                <p class="text-muted fw-normal mb-4">{{productDetails?.shortDescription}}</p>
-              </div>
-              <h6 class="text-left font-size-20 fw-bold mt-0 mb-2">Long Description</h6>
-              <div class="text-muted">
-                <p class="text-muted fw-normal mb-4">{{productDetails?.detailedDescription}}</p>
-              </div>
-             <!-- <div>
-              <p class="text-muted fw-normal mb-4">{{productDetails?.detailedDescription}}</p>
-             </div> -->
-              <h5 class="text-left font-size-20 fw-bold mt-0 mb-2">Requirements</h5>
-
-              <div class="w-75">
-                <div class="justify-content-evenly" *ngFor="let requirements of requirements">
-                  <h6 class="text-body mb-2">Requirements: {{requirements?.requirement}}</h6>
-                  <p class="text-muted tx-13 mb-2">Description: {{requirements?.requirementDescription}}</p>
-
-                  <button (click)="removeRequirement(requirements?.id)"
-                          class="btn btn-danger btn-xs pull-right mb-3"
-                          type="button">Remove Requirement
-                  </button>
+                    (outputEvent)="triggerEvent($event)"
+                  ></app-custom-ngx-table>
                 </div>
 
                 <hr>
               </div>
 
+              <div class="container-fluid d-flex justify-content-between mb-2">
+                <div class="col-lg-3 ps-0">
+                  <h5 class="text-left font-size-20 fw-bold mt-0 mb-2">Requirements</h5>
+                </div>
+                <div class="col-lg-3 pe-0">
 
-              <button (click)="addRequirement()"
-                      class="btn btn-primary btn-xs pull-right"
-                      type="button">Add Requirement
-              </button>
+                  <div class="text-end">
+                    <button class="btn btn-sm btn-primary text-end" (click)="addRequirement()">Add Requirement</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="w-100">
+                <div class="card">
+                  <app-custom-ngx-table
+                    [columns]="columns"
+                    [rows]="rows"
+                    [actions]="actions"
+                    [loadingIndicator]="isLoading"
+
+                    (outputEvent)="triggerEvent($event)"
+                  ></app-custom-ngx-table>
+                </div>
 
 
-              <hr/>
+
+<!--                <div class="justify-content-evenly" *ngFor="let requirements of requirements">-->
+<!--                  <h6 class="text-body mb-2">Requirements: {{requirements?.requirement}}</h6>-->
+<!--                  <p class="text-muted tx-13 mb-2">Description: {{requirements?.requirementDescription}}</p>-->
+
+<!--                  <button (click)="removeRequirement(requirements?.id)"-->
+<!--                          class="btn btn-danger btn-xs pull-right mb-3"-->
+<!--                          type="button">Remove Requirement-->
+<!--                  </button>-->
+<!--                </div>-->
+
+                <hr>
+              </div>
+
+
+<!--              <button (click)="addRequirement()"-->
+<!--                      class="btn btn-primary btn-xs pull-right"-->
+<!--                      type="button">Add Requirement-->
+<!--              </button>-->
+
+
+<!--              <hr/>-->
 
             </div>
           </div>
@@ -138,7 +166,7 @@
 
         <div class="col-sm-6">
           <div class="mb-3">
-            <label class="form-label">Short Description</label>
+            <label class="form-label">Summary</label>
             <input class="form-control" formControlName="description" maxlength="36" type="text">
             <p *ngIf="form.get('description')?.touched && form.get('description')?.hasError('required')"
                class="text-danger mt-1 mb-1 pt-0 small text-center">Required

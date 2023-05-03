@@ -1,3 +1,11 @@
+<nav class="page-breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a routerLink="/mobile-banking/product
+    s/list-categories-as-cards">All Categories</a></li>
+    <li class="breadcrumb-item active" aria-current="page">View Products</li>
+  </ol>
+</nav>
+
 <div
   class="d-flex justify-content-between align-items-center flex-wrap grid-margin"
 >
@@ -34,7 +42,7 @@
     <div class="col-md-12 grid-margin stretch-card">
       <div class="card">
         <div class="card-body">
-          <h4 class="card-title mb-5">Products</h4>
+          <h4 class="card-title mb-2">Products</h4>
           <owl-carousel-o [options]="autoPlayExampleOptions">
             <ng-template carouselSlide *ngFor="let slide of slidesStore" [id]="slide.id">
               <div class="m-2 p-2">
@@ -50,7 +58,7 @@
                     <p class="card-text">{{slide.description}}</p>
                     <p class="card-text">{{slide.productDescription}}</p>
                     <div class="d-grid gap-2 d-md-block">
-                      <a [routerLink]="'/mobile-banking/products/product/' + slide.id" class="btn btn-primary btn-sm">View</a>
+                      <a [routerLink]="'/mobile-banking/products/product/' + productCategoryId + '/' + slide.id" class="btn btn-primary btn-sm" style="color:white">View</a>
                       <a (click)="editProduct(slide)"  class="btn btn-secondary btn-sm">Edit</a>
                       <a (click)="openDeleteModal(slide)" class="btn btn-danger btn-sm">Delete</a>
                     </div>

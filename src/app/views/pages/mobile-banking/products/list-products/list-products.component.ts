@@ -22,8 +22,8 @@ export class ListProductsComponent implements OnInit {
     {
       id: 1,
       name: 'Personal Accident',
-      shortDescription: 'Short Description',
-      productDescription: 'Short Description',
+      shortDescription: 'Summary',
+      productDescription: 'Summary',
       status: true,
       createdOn: '12-02-2023',
     },
@@ -307,7 +307,7 @@ export class ListProductsComponent implements OnInit {
   openDeleteModal(formData: any) {
     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
     this.modalRef.componentInstance.title = `Delete this Product?`;
-    this.modalRef.componentInstance.body = `Do you want to delete product: {${formData.name}}?`;
+    this.modalRef.componentInstance.body = `Do you want to delete product: ${formData.name}?`;
     this.modalRef.result.then((result: any) => {
       if (result === 'success') {
 

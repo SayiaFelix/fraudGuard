@@ -58,13 +58,21 @@ export class ListAllProductsAsCardsComponent implements OnInit {
     margin:0,
     autoplay:false,
     autoplayTimeout:9000,
-    autoplayHoverPause:true,
+    autoplayHoverPause: false,
+    navSpeed: 20,
+    dotsSpeed: 20,
+    dragEndSpeed: 20,
+    slideTransition: "none",
+    mouseDrag: false,
+    pullDrag: false,
+    dots: true,
+    dotsData: true,
     responsive:{
       0:{
-        items: 2
+        items: 1
       },
       600:{
-        items: 3
+        items: 2
       },
       1000:{
         items: 3
@@ -349,7 +357,7 @@ export class ListAllProductsAsCardsComponent implements OnInit {
   openDeleteModal(formData: any) {
     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
     this.modalRef.componentInstance.title = `Delete this Product?`;
-    this.modalRef.componentInstance.body = `Do you want to delete product: {${formData.name}}?`;
+    this.modalRef.componentInstance.body = `Do you want to delete product: ${formData.name}?`;
     this.modalRef.result.then((result: any) => {
       if (result === 'success') {
 

@@ -24,7 +24,7 @@ export class ViewCustomerComponent implements OnInit {
       id: 1,
       IMSINumber: '234035678765',
       serviceProvider:'Safaricom',
-      description: 'Short Description',
+      description: 'Summary',
       status: true,
       createdOn: '12-02-2023',
       lastUsed:'31-03-2023'
@@ -33,7 +33,7 @@ export class ViewCustomerComponent implements OnInit {
       id: 2,
       IMSINumber: '262062345678',
       serviceProvider:'Airtel',
-      description: 'short Description',
+      description: 'Summary',
       status: true,
       createdOn: '12-02-2023',
       lastUsed:'31-03-2023'
