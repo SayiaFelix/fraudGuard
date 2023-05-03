@@ -20,7 +20,7 @@ export class ViewMobileAppCustomerComponent implements OnInit {
       id: 1,
       IMSINumber: 'Redmi Note 11 pro',
       primaryDevice:'Redmi Note 11 pro',
-      description: 'Short Description',
+      description: 'Summary',
       status: true,
       createdOn: '12-02-2023',
       lastUsed:'31-03-2023'
@@ -29,7 +29,7 @@ export class ViewMobileAppCustomerComponent implements OnInit {
     //   id: 2,
     //   IMSINumber: 'Redmi 10',
     //   primaryDevice:'',
-    //   description: 'short Description',
+    //   description: 'Summary',
     //   status: true,
     //   createdOn: '12-02-2023',
     //   lastUsed:'31-03-2023'
@@ -53,7 +53,7 @@ export class ViewMobileAppCustomerComponent implements OnInit {
   {name:'Amount',prop:'Amount'},
   {name:'ChargeAmt',prop:'ChargeAmt'},
   {name:'ResCode',prop:'Respons'},
-  
+
   ];
 
   // bread crumb items

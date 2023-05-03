@@ -1,3 +1,15 @@
+<nav class="page-breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a routerLink="/mobile-banking/rbac/all-profiles">Profiles</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Assign Roles to Profile</li>
+  </ol>
+</nav>
+
+<div class="card-body">
+  <h3 class="text-center mb-3 mt-4">Assign Roles to Profile</h3>
+<!--  <p class="text-muted text-center mb-4 pb-2">Add or Remove Roles from Profile.</p>-->
+</div>
+
 <div class="row profile-body">
   <!-- left wrapper start -->
   <div class="col-md-4 col-xl-4 left-wrapper">
@@ -164,7 +176,7 @@
             <div class="card-body pt-0 widget-body pb-1 mb-3 text-center mx-auto">
 
               <p class="mb-1 text-center"><strong>Added Roles</strong></p>
-              
+
               <table class="text-left" width="100%">
                 <tr *ngFor="let item of allAddedRolesListPending">
                   <td style="text-align: left!important;">{{item.name}}</td>

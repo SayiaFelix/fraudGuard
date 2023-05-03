@@ -15,6 +15,7 @@ import {AddProfileComponent} from "./profiles/add-profile/add-profile.component"
 import {ViewProfileComponent} from "./profiles/view-profile/view-profile.component";
 import { ChangeProfileModalComponent } from './Users/change-profile-modal/change-profile-modal.component';
 import {DeleteRoleModalComponent} from "./roles/delete-role-modal/delete-role-modal.component";
+import {NgSelectModule} from "@ng-select/ng-select";
 
 
 @NgModule({
@@ -23,7 +24,8 @@ import {DeleteRoleModalComponent} from "./roles/delete-role-modal/delete-role-mo
         RbacRoutingModule,
         FeatherIconModule,
         NgxDatatableModule,
-        TranslateModule
+        TranslateModule,
+        NgSelectModule
     ],
     declarations: [
         RolesComponent,
