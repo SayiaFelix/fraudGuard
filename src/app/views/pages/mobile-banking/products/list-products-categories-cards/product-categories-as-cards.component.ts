@@ -129,7 +129,6 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
     // },
   ]
   private base64Image: string;
-
   constructor(
     private httpService: HttpService,
     private modalService: NgbModal,
@@ -140,9 +139,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
     public http: HttpClient
   ) {
   }
-
   ngOnInit() {
-
     this.breadCrumbItems = [
       {
         label: 'Mobile banking',
@@ -173,12 +170,8 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
                   parentCategoryName: item.parentCategory ? item.parentCategory.name : "_",
                   categoryUrl: item.categoryUrl
                 };
-
                 return res;
-
               });
-
-
           this.fetchedCategories = response;              
         }
       });

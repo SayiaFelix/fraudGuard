@@ -23,7 +23,34 @@
   ></app-table-header>
 
 </div>
-
+<div class="row row-cols-1 row-cols-md-3 g-4">
+  <div class="col-6" *ngFor="let category of fetchedSubCategories" [id]="category.id">
+    <div class="card">
+      <!-- <img src="assets/images/others/placeholder.jpg" class="card-img-top" alt="..."> -->
+       <img class="card-img-top text-center m-auto" [src]="category?.categoryUrl.trim()" [alt]="category.alt">
+      <div class="card-body">
+        <h5 class="card-title">{{category.name}}</h5>
+        <p class="card-text">{{category.description}}</p>
+        <div class="d-grid gap-2 d-md-block">
+          <a [routerLink]="'/mobile-banking/products/list-products-as-cards/' + category.id"
+             class="btn btn-primary btn-sm"
+             *ngIf="category?.children?.length === 0">
+            View Products
+          </a>
+          <a
+            (click)="viewSubProducts(category?.children)"
+            class="btn btn-primary btn-sm"
+            *ngIf="category?.children?.length > 0">
+            View Sub-Categories
+          </a>
+          <a (click)="editProduct(category)" class="btn btn-secondary btn-sm">Edit</a>
+          <a (click)="openDeleteModal(category)" class="btn btn-danger btn-sm"> Delete</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 
 <div class="row text-center m-auto">
   <div class="col-md-12 stretch-card">
 
@@ -33,13 +60,13 @@
           <owl-carousel-o [options]="autoPlayExampleOptions">
             <ng-template carouselSlide *ngFor="let category of fetchedSubCategories" [id]="category.id">
               <div class="m-3 p-3 ">
-                <div class="card">
+                <div class="card"> -->
                   <!-- <img class="card-img-top" [src]="domSanitizer.bypassSecurityTrustResourceUrl(slide.categoryUrl)" [alt]="slide.alt"> -->
                   <!-- <img class="card-img-top text-center m-auto" [src]="domSanitizer.bypassSecurityTrustResourceUrl(category?.categoryUrl)"> -->
-                  <img class="card-img-top text-center m-auto" [src]="category?.categoryUrl.trim()" [alt]="category.alt">
+                  <!-- <img class="card-img-top text-center m-auto" [src]="category?.categoryUrl.trim()" [alt]="category.alt"> -->
                   <!-- <img [src]="slide.categoryUrl | SafeUrl"> -->
                   <!-- <img src="..." class="card-img-top" alt="..."> -->
-                  <div class="card-body">
+                  <!-- <div class="card-body">
                     <h5 class="card-title">{{category.name}}</h5>
                     <p class="card-text">{{category.description}}</p>
 
@@ -71,4 +98,4 @@
     </div>
 
   </div>
-</div>
+</div> -->
