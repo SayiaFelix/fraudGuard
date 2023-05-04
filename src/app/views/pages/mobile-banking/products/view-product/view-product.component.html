@@ -57,19 +57,18 @@
                 <div class="col-lg-3 pe-0">
 
                   <div class="text-end">
-                    <button class="btn btn-sm btn-primary text-end" (click)="addRequirement()">Add Benefit</button>
+                    <button class="btn btn-sm btn-primary text-end" (click)="addBenefit()">Add Benefit</button>
                   </div>
                 </div>
               </div>
               <div class="w-100">
                 <div class="card">
                   <app-custom-ngx-table
-                    [columns]="columns"
-                    [rows]="rows"
+                    [columns]="benefitsColumn"
+                    [rows]="benefits"
                     [actions]="actions"
                     [loadingIndicator]="isLoading"
-
-                    (outputEvent)="triggerEvent($event)"
+                    (outputEvent)="triggerEventBenefit($event)"
                   ></app-custom-ngx-table>
                 </div>
 
@@ -95,8 +94,7 @@
                     [rows]="rows"
                     [actions]="actions"
                     [loadingIndicator]="isLoading"
-
-                    (outputEvent)="triggerEvent($event)"
+                    (outputEvent)="triggerEventRequirement($event)"
                   ></app-custom-ngx-table>
                 </div>
 
