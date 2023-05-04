@@ -43,9 +43,9 @@ export class ListProductsComponent implements OnInit {
   columns = [
     {name: 'ID', prop: 'id'},
     {name: 'ProductName', prop: 'name'},
-    {name: 'ProductCategory', prop: 'categoryName'},
+    {name: 'CategoryName', prop: 'categoryName'},
     {name: 'Description', prop: 'shortDescription'},
-    {name: 'Status', prop: 'status'},
+    {name: 'Status', prop: 'active'},
     {name: 'CreatedOn', prop: 'createdAt'},
     {name: 'Actions', prop: 'id'},
   ];
