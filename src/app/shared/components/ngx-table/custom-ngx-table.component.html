@@ -18,17 +18,17 @@
 <!--</div>-->
 
 <div class="table-responsive table-striped table-bordered" [perfectScrollbar]>
-  <div class="d-flex flex-wrap">
+  <div class="d-flex flex-wrap align-items-center">
     <input
       *ngFor="let col of filterColumns"
-      class="form-control wd-150 border m-1 filterInputs"
+      class="form-control wd-150 border m-1 filterInputs form-control-sm"
       type="text"
       [placeholder]="col.name"
       (keyup)="updateFilter($event, col)"
     />
 
     <select
-      class="form-select m-1 wd-150 border filterSelect"
+      class="form-select m-1 wd-150 border filterSelect form-select-sm"
       *ngFor="let colm of toggleFilters"
       (change)="updateFilter($event, colm)"
     >
@@ -41,7 +41,7 @@
 
     <button
       (click)="clearFilters()"
-      class="btn btn-danger btn-icon-text m-1"
+      class="btn btn-danger btn-icon-text m-1 btn-xs"
     >
       <i appFeatherIcon class="btn-icon-prepend" data-feather="x-square"></i>
       Clear Filters

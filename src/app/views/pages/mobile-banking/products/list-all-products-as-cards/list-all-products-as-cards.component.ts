@@ -80,7 +80,7 @@ export class ListAllProductsAsCardsComponent implements OnInit {
     }
   }
 
-  slidesStore:any = [
+  allItems:any[] = [
     // {
     //   id:'1',
     //   src:'assets/images/category4.png',
@@ -116,6 +116,9 @@ export class ListAllProductsAsCardsComponent implements OnInit {
     // }
   ]
 
+  itemsForPresentation: any[];
+  perPage: number = 6;
+  page: any = 1;
 
   constructor(
     private httpService: HttpService,
@@ -172,8 +175,8 @@ export class ListAllProductsAsCardsComponent implements OnInit {
               const res = {...item, frontendId: index + 1};
               return res;
             });
-            this.slidesStore = response;
-            console.log(this.slidesStore);
+            this.allItems = response;
+            this.itemsForPresentation = this.allItems.slice(0, 6);
 
           } else {
             Swal.fire('Failed', "Unable to fetch products", 'error')
@@ -402,4 +405,17 @@ export class ListAllProductsAsCardsComponent implements OnInit {
     });
   }
 
+  onChange() {
+    this.getIndividualData(0);
+  }
+
+  retrieveItemsForPresentation(page: number){
+    let startingItem = (page-1) * 6;
+    this.itemsForPresentation = this.allItems.slice(startingItem, startingItem + 6);
+  }
+
+  pageChangeEvent(page: number) {
+    this.page = page;
+    this.retrieveItemsForPresentation(page);
+  }
 }

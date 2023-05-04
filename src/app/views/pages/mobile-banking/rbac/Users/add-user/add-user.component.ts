@@ -80,6 +80,7 @@ export class AddUserComponent implements OnInit {
 
       phoneNumber:this.form.value.phoneNumber,
       profileId:this.form.value.profile,
+      employeeNumber: '1234'
     };
     this.httpService.mobileBankingPost('api/v1/admin/user/create', model).subscribe(
       (result: any) => {

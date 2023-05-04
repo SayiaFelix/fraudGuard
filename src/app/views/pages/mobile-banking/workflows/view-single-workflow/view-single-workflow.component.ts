@@ -150,7 +150,7 @@ export class ViewSingleWorkflowComponent implements OnInit {
     this.httpService.mobileBankingPost('api/v1/admin/workflow/get/id', model).subscribe(
       (result: any) => {
         if (result.status === 200) {
-          
+
           this.workflowItemData = result.data;
         } else {
           Swal.fire('unable to fetch data', 'unable to fetch workflow details', 'error')
@@ -185,7 +185,7 @@ export class ViewSingleWorkflowComponent implements OnInit {
       id: this.workflowId,
     };
 
-    this.httpService.mobileBankingPost('api/v1/admin/workflow/get/workflow/steps', model).subscribe(
+    this.httpService.mobileBankingPost('api/v1/admin/workflow/get/workflowSteps', model).subscribe(
       (result: any) => {
         if (result.status === 200) {
 

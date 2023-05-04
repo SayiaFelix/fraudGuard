@@ -165,7 +165,7 @@ export class ViewSingleTaskComponent implements OnInit {
                 id: this.workflowId
         };
 
-        this.httpService.mobileBankingPost('api/v1/corporate/workflow/get/workflow/steps/', model).subscribe(
+        this.httpService.mobileBankingPost('api/v1/admin/workflow/get/workflowSteps', model).subscribe(
           (result:any) => {
                 if (result.status === 200) {
                     this.workflowSteps = result.data;
