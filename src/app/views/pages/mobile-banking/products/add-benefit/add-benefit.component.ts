@@ -1,18 +1,16 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-
-import {HttpService} from 'src/app/shared/services/http.service';
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import Swal from "sweetalert2";
+import { Component, Input, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { HttpService } from 'src/app/shared/services/http.service';
+import Swal from 'sweetalert2';
 
 @Component({
-  selector: 'app-add-requirement',
-  templateUrl: './add-requirement.component.html',
-  styleUrls: ['./add-requirement.component.scss']
+  selector: 'app-add-benefit',
+  templateUrl: './add-benefit.component.html',
+  styleUrls: ['./add-benefit.component.scss']
 })
-export class AddRequirementComponent implements OnInit {
-
+export class AddBenefitComponent implements OnInit {
   @Input() title: any;
   @Input() formData: any;
   public loading = false;
@@ -36,10 +34,12 @@ export class AddRequirementComponent implements OnInit {
     console.log(this.formData);
 
     this.form = this.fb.group({
-      requirement: ['', [Validators.required]],
-      requirementCode: ['', [Validators.required]],
-      requirementDesc: ['', [Validators.required]],
+      benefit: ['', [Validators.required]],
+      benefitCode: ['', [Validators.required]],
+      description: ['', [Validators.required]],
     });
+
+
     // this.getAllProductCategories();
   }
 
@@ -52,30 +52,28 @@ export class AddRequirementComponent implements OnInit {
     this.activeModal.dismiss('Cross click');
   }
   private createRecord(): any {
-
     this.isLoading =true;
-
     const model = {
-      id: this.formData.productId,
-      productCode: this.formData.productCode,
-      requirementCode: this.form.value.requirementCode,
-      requirement: this.form.value.requirement,
-      description: this.form.value.requirementDesc,
-      approvalId: 1
+      productId: this.formData.id,
+      // productCode: this.formData.productCode,
+      benefitCode: this.form.value.benefitCode,
+      benefit: this.form.value.benefit,
+      description: this.form.value.description,
+      // approvalId: 1
     };
-
-    this._httpService.mobileBankingPost('product/portal/requirement/add', model).subscribe(
+      console.log(this.formData)
+    this._httpService.mobileBankingPost('product/portal/benefits/add', model).subscribe(
       (result: any) => {
         if (result.status === 200) {
           this.isLoading =false;
           this.activeModal.close('success');
-          Swal.fire('Product requirement created',
-            'Product requirement has been created successfully.',
+          Swal.fire('Benefit created',
+            'Benefit has been created successfully.',
             'success').then(r => console.log(r))
         } else {
           this.activeModal.close('error');
           Swal.fire('Record creation error',
-            'Product requirement could not be created.',
+            'Benefit could not be created.',
             'error').then(r => console.log(r))
         }
       },
@@ -87,5 +85,4 @@ export class AddRequirementComponent implements OnInit {
     );
 
   }
-
 }
