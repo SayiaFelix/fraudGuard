@@ -24,35 +24,40 @@
 
 </div>
 
-<!--&lt;!&ndash;  Pagination&ndash;&gt;-->
-<!--<div class="d-flex justify-content-between mt-2">-->
-<!--  <div class="row col-xl-6 col-lg-1 col-md-1 text-center">-->
-<!--    <div class="col-sm-4 pl-0">-->
-<!--      <select (change)="onChange()" class="form-control custom-select">-->
-<!--        <option *ngFor="let pageSize of [2, 5, 10, 20, 50]" [ngValue]="pageSize">{{ pageSize }}</option>-->
-<!--      </select>-->
-<!--    </div>-->
-<!--    <label class="pt-2 text-start">Items per page</label>-->
-<!--  </div>-->
-<!--  <pagination-controls [responsive]="true" [autoHide]="true" previousLabel="Prev"-->
-<!--                       (pageChange)="getIndividualData(0)" [maxSize]="5">-->
-<!--  </pagination-controls>-->
-<!--</div>-->
-<!--&lt;!&ndash;  Pagination&ndash;&gt;-->
+<!--  Pagination-->
+
+<ul class="d-none">
+  <li *ngFor="let item of allItems | paginate: {itemsPerPage: perPage, currentPage: page, totalItems: allItems.length}">
+  </li>
+</ul>
+<div class="d-flex justify-content-between mt-2">
+  <div class="row col-xl-6 col-lg-1 col-md-1 text-center">
+    <div class="col-sm-4 pl-0">
+      <select (change)="onChange()" [(ngModel)]="perPage" class="form-control custom-select">
+        <option *ngFor="let pageSize of [6]" [ngValue]="pageSize">{{ pageSize }}</option>
+      </select>
+    </div>
+    <label class="pt-2 text-start">Items per page</label>
+  </div>
+  <pagination-controls [responsive]="true" [autoHide]="false" previousLabel="Prev"
+                       (pageChange)="pageChangeEvent($event)" [maxSize]="7">
+  </pagination-controls>
+</div>
+<!--  Pagination-->
 
 <div class="row row-cols-1 row-cols-md-3 g-4">
-  <div class="col-6" *ngFor="let slide of slidesStore" [id]="slide.id">
-    <div class="card">
+  <div class="col-6" *ngFor="let item of itemsForPresentation" [id]="item.id">
+    <div class="card unique-card">
       <!-- <img src="assets/images/others/placeholder.jpg" class="card-img-top" alt="..."> -->
-      <img class="card-img-top" [src]="slide.productUrl.trim()" [alt]="slide.alt" preload>
+      <img class="card-img-top" [src]="item.productUrl.trim()" [alt]="item.alt" preload>
       <div class="card-body">
-        <h5 class="card-title">{{slide.name}}</h5>
-        <p class="card-text">{{slide.description}}</p>
-        <p class="card-text">{{slide.productDescription}}</p>
+        <h5 class="card-title">{{item.name}}</h5>
+        <p class="card-text">{{item.description}}</p>
+        <p class="card-text">{{item.productDescription}}</p>
         <div class="d-grid gap-2 d-md-block">
-          <a [routerLink]="'/mobile-banking/products/product/' + productCategoryId + '/' + slide.id" class="btn btn-primary btn-sm">View</a>
-          <a (click)="editProduct(slide)"  class="btn btn-secondary btn-sm">Edit</a>
-          <a (click)="openDeleteModal(slide)" class="btn btn-danger btn-sm">Delete</a>
+          <a [routerLink]="'/mobile-banking/products/product/' + productCategoryId + '/' + item.id" class="btn btn-primary btn-sm">View</a>
+          <a (click)="editProduct(item)" class="btn btn-secondary btn-sm">Edit</a>
+          <a (click)="openDeleteModal(item)" class="btn btn-danger btn-sm">Delete</a>
         </div>
       </div>
     </div>
