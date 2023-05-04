@@ -40,8 +40,6 @@ export class AddRequirementComponent implements OnInit {
       requirementCode: ['', [Validators.required]],
       requirementDesc: ['', [Validators.required]],
     });
-
-
     // this.getAllProductCategories();
   }
 
@@ -53,8 +51,6 @@ export class AddRequirementComponent implements OnInit {
   public closeModal(): void {
     this.activeModal.dismiss('Cross click');
   }
-
-
   private createRecord(): any {
 
     this.isLoading =true;
