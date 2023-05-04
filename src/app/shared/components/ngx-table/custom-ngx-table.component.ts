@@ -30,6 +30,7 @@ export class CustomNgxTable implements OnInit {
   @Output() outputEvent = new EventEmitter<string>()
   @Output() editEvent = new EventEmitter<string>()
   @Output() viewEvent = new EventEmitter<string>()
+  @Output() updateFilteredRows = new EventEmitter<string>()
 
   // New Params
   data: any[]
@@ -107,12 +108,13 @@ export class CustomNgxTable implements OnInit {
 
     // Whenever the filter changes, always go back to the first page
     this.table.offset = 0
+    this.updateFilteredRows.emit(this.rows)
   }
-
+  
   clearFilters() {
     // refresh the rows
     this.rows = [...this.data]
-
+    
     const filterInputs = document.querySelectorAll('.filterInputs');
     filterInputs.forEach((input: any) => {
       input.value = '';
@@ -124,6 +126,7 @@ export class CustomNgxTable implements OnInit {
     });
     // Whenever the filter changes, always go back to the first page
     this.table.offset = 0
+    this.updateFilteredRows.emit(this.rows)
   }
 
 }
