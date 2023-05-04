@@ -23,6 +23,7 @@ export class ListUsersComponent implements OnInit {
   // bread crumb items
   breadCrumbItems: Array<{}>;
   rows: any = [];
+  filteredRows: any = [];
 
   columns = [
     { name: 'ID', prop: 'frontendId' },
@@ -170,6 +171,12 @@ export class ListUsersComponent implements OnInit {
       this.editUser(eventData.row);
     }
 
+  }
+
+  updateFilteredRowsEvent(data: string) {
+    console.log(data);
+    
+    this.filteredRows = data
   }
 
 }
