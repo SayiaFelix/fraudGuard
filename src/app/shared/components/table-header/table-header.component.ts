@@ -136,7 +136,7 @@ export class TableHeaderComponent implements OnInit {
     console.log(this.rows);
     let cols: string[] = this.columns.map((item: any) => {
       if(item['name'].toLowerCase() !== 'actions'){
-        return item['name'].toUpperCase()
+        return item['prop'].toUpperCase()
       } else {
         return ''
       }
@@ -156,10 +156,9 @@ export class TableHeaderComponent implements OnInit {
           }
         })
       })
-
       arr.push(temp)
     })
-
+    
     this.dataExploration.exportToPdf(cols, arr, this.title)
   }
 }
