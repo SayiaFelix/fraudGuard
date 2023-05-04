@@ -25,7 +25,7 @@
 </div>
 <div class="row row-cols-1 row-cols-md-3 g-4">
   <div class="col-6" *ngFor="let category of fetchedSubCategories" [id]="category.id">
-    <div class="card">
+    <div class="card unique-card">
       <!-- <img src="assets/images/others/placeholder.jpg" class="card-img-top" alt="..."> -->
       <img class="card-img-top text-center m-auto" [src]="category?.categoryUrl.trim()" [alt]="category.alt">
       <div class="card-body">
