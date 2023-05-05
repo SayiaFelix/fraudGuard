@@ -9,25 +9,24 @@ import { LabelCompletedComponent } from './components/label-completed/label-comp
 import { LabelActiveComponent } from './components/label-active/label-active.component';
 import { LabelOnlineComponent } from './components/label-online/label-online.component';
 import { LabelPassedComponent } from './components/label-passed/label-passed.component';
-import {ConfirmDialogComponent} from './components/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
-import {TranslateModule} from "@ngx-translate/core";
-import {CustomNgxTable} from "./components/ngx-table/custom-ngx-table.component";
-import {TableHeaderComponent} from "./components/table-header/table-header.component";
-import {TableFiltersComponent} from "./components/table-filters/table-filters.component";
-import {NgxPaginationModule} from "ngx-pagination";
-import {NotificationModalComponent} from "./components/notification-modal/notification-modal.component";
-import {LabelSystemCustomRoleComponent} from "./components/label-system-custom-role/label-system-custom-role.component";
-import {LabelTaskStatusComponent} from "./components/label-task-status/label-task-status.component";
+import { TranslateModule } from '@ngx-translate/core';
+import { CustomNgxTable } from './components/ngx-table/custom-ngx-table.component';
+import { TableHeaderComponent } from './components/table-header/table-header.component';
+import { TableFiltersComponent } from './components/table-filters/table-filters.component';
+import { NgxPaginationModule } from 'ngx-pagination';
+import { NotificationModalComponent } from './components/notification-modal/notification-modal.component';
+import { LabelSystemCustomRoleComponent } from './components/label-system-custom-role/label-system-custom-role.component';
+import { LabelTaskStatusComponent } from './components/label-task-status/label-task-status.component';
 import { PerfectScrollbarModule } from 'ngx-perfect-scrollbar';
 import { PERFECT_SCROLLBAR_CONFIG } from 'ngx-perfect-scrollbar';
 import { PerfectScrollbarConfigInterface } from 'ngx-perfect-scrollbar';
+import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 
 const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
-  suppressScrollX: true
+  suppressScrollX: true,
 };
-
-
 
 @NgModule({
   declarations: [
@@ -42,7 +41,7 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
     NotificationModalComponent,
     CustomNgxTable,
     TableHeaderComponent,
-    TableFiltersComponent
+    TableFiltersComponent,
   ],
   entryComponents: [
     LabelBooleanComponent,
@@ -53,19 +52,20 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
     LabelOnlineComponent,
     LabelPassedComponent,
     ConfirmDialogComponent,
-    NotificationModalComponent
+    NotificationModalComponent,
   ],
-    imports: [
-        CommonModule,
-        HttpClientModule,
-        FormsModule,
-        ReactiveFormsModule,
-        NgbModule,
-        NgxDatatableModule,
-        TranslateModule,
-        NgxPaginationModule,
-        PerfectScrollbarModule
-    ],
+  imports: [
+    CommonModule,
+    HttpClientModule,
+    FormsModule,
+    ReactiveFormsModule,
+    NgbModule,
+    NgxDatatableModule,
+    TranslateModule,
+    NgxPaginationModule,
+    PerfectScrollbarModule,
+    BsDatepickerModule.forRoot(),
+  ],
   exports: [
     CommonModule,
     HttpClientModule,
@@ -82,16 +82,15 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
     LabelPassedComponent,
     CustomNgxTable,
     TableHeaderComponent,
-    TableFiltersComponent
+    TableFiltersComponent,
   ],
   providers: [
     {
       provide: PERFECT_SCROLLBAR_CONFIG,
-      useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG
-    }
-  ]
+      useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG,
+    },
+  ],
 })
 export class SharedModule {
-  constructor() {
-  }
+  constructor() {}
 }
