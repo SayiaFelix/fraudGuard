@@ -152,7 +152,7 @@ export class ListBranchesComponent implements OnInit {
           },
           (error: any) => {
             Swal.fire('Record deletion error',
-              `${error}`,
+              `Record deletion error`,
               'error')
           }
         );

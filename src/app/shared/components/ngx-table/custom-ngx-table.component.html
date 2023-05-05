@@ -52,7 +52,8 @@
 
     <button
       (click)="clearFilters()"
-      class="btn btn-danger btn-icon-text m-1 btn-xs"
+      class="btn btn-icon-text m-1 btn-xs"
+      style="background-color: #F6950C!important; color: white!important;"
     >
       <i appFeatherIcon class="btn-icon-prepend" data-feather="x-square"></i>
       Clear Filters
@@ -295,7 +296,10 @@
           <option *ngFor="let size of pageSizes" [value]="size">
             {{ size }} Items per page
           </option>
+
+
         </select>
+        <h6 class="ml-4" style="margin-left: 20px">{{20}} Total</h6>
         <datatable-pager
           (change)="table.onFooterPage($event)"
           [count]="rowCount"

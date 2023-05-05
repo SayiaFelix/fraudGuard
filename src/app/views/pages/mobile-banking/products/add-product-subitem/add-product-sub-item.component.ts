@@ -129,7 +129,7 @@ export class AddProductSubItemComponent implements OnInit {
       },
       (error: any) => {
         Swal.fire('Record creation error',
-          `${error}`,
+          `Record creation error`,
           'error')
       }
     );
@@ -176,7 +176,7 @@ export class AddProductSubItemComponent implements OnInit {
       },
       (error: any) => {
         Swal.fire('Record creation error',
-          `${error}`,
+          `Record creation error`,
           'error')
       }
     );

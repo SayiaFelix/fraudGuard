@@ -386,7 +386,7 @@ export class ProductAsCardsComponent implements OnInit {
           },
           (error: any) => {
             Swal.fire('Record deletion error',
-              `${error}`,
+              `Record deletion error`,
               'error')
           }
         );

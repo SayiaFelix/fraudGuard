@@ -79,7 +79,7 @@ export class AddBenefitComponent implements OnInit {
       },
       (error: any) => {
         Swal.fire('Record creation error',
-          `${error}`,
+          `Record creation error`,
           'error')
       }
     );

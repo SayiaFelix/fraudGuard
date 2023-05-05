@@ -4612,7 +4612,7 @@ lodash.debounce@^4.0.8:
   resolved "https://registry.npmjs.org/lodash.debounce/-/lodash.debounce-4.0.8.tgz"
   integrity sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==
 
-lodash@^4.17.10, lodash@^4.17.21:
+lodash@^4.17.21:
   version "4.17.21"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
@@ -4962,13 +4962,12 @@ ng2-material-dropdown@>=1.0.0:
   dependencies:
     tslib "^2.0.0"
 
-ng2-smart-table@1.7.2:
-  version "1.7.2"
-  resolved "https://registry.yarnpkg.com/ng2-smart-table/-/ng2-smart-table-1.7.2.tgz#227efacc243c6d0ba0281281c0841282a604d201"
-  integrity sha512-TwREaaTtgaPyxxocoxH4W4BQEpiuYhOhPxDOgR/+O36i7m61c0O+OWx2u7wSHU9UabdQDWwgWU6Eus2tOT3RJA==
+ngx-bootstrap@^9.0.0:
+  version "9.0.0"
+  resolved "https://registry.yarnpkg.com/ngx-bootstrap/-/ngx-bootstrap-9.0.0.tgz#8524958cdd479aefcc9549788694fe08789f2f52"
+  integrity sha512-wVwKs1jIASzJrKSPUhOcHY8f39MKyG31SruJdVQ3S/v/PdBVmVuFUJL86Awc8F60di2xD9C4DzzGObkvsHbirw==
   dependencies:
-    lodash "^4.17.10"
-    tslib "^2.0.0"
+    tslib "^2.3.0"
 
 ngx-chips@^3.0.0:
   version "3.0.0"
