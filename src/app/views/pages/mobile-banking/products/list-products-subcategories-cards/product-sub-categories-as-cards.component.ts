@@ -143,7 +143,7 @@ export class ProductSubCategoriesAsCardsComponent implements OnInit {
           })
 
 
-          this.fetchedSubCategories = response;          
+          this.fetchedSubCategories = response;
         } else {
         }
       });
@@ -305,7 +305,7 @@ export class ProductSubCategoriesAsCardsComponent implements OnInit {
   openDeleteModal(formData: any) {
     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
     this.modalRef.componentInstance.title = `Delete this Category?`;
-    this.modalRef.componentInstance.body = `Do you want to delete category: {${formData.name}}?`;
+    this.modalRef.componentInstance.body = `Do you want to delete category: ${formData.name}?`;
     this.modalRef.result.then((result: any) => {
       if (result === 'success') {
 
@@ -329,7 +329,7 @@ export class ProductSubCategoriesAsCardsComponent implements OnInit {
           },
           (error: any) => {
             Swal.fire('Record deletion error',
-              `${error}`,
+              `Record deletion error`,
               'error')
           }
         );

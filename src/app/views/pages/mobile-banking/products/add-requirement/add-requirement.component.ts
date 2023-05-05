@@ -81,7 +81,7 @@ export class AddRequirementComponent implements OnInit {
       },
       (error: any) => {
         Swal.fire('Record creation error',
-          `${error}`,
+          `Record deletion error`,
           'error')
       }
     );

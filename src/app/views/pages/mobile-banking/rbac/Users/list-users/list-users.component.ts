@@ -27,11 +27,11 @@ export class ListUsersComponent implements OnInit {
 
   columns = [
     { name: 'ID', prop: 'frontendId' },
-    { name: 'FirstName', prop:'firstName' },
+    { name: 'First Name', prop:'firstName' },
     { name:'Email',prop:'email'},
     // { name: 'PhoneNumber', prop:'phoneNumber' },
     { name: 'Active', prop:'blocked'},
-    { name: 'CreatedOn', prop:'createdOn' },
+    { name: 'Created On', prop:'createdOn' },
     { name: 'Actions', prop: 'id' }
   ];
 
@@ -175,7 +175,7 @@ export class ListUsersComponent implements OnInit {
 
   updateFilteredRowsEvent(data: string) {
     console.log(data);
-    
+
     this.filteredRows = data
   }
 

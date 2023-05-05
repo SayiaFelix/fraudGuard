@@ -5,7 +5,7 @@
     <h4 class="mb-3 mb-md-0">All Products</h4>
   </div>
 
-  <div ngbDropdown >
+  <div ngbDropdown>
     <button class="btn btn-primary btn-xs" id="dropdownBasic1" ngbDropdownToggle>Select View</button>
     <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
       <button ngbDropdownItem routerLink="/mobile-banking/products/list-all-products-as-cards">Card View</button>
@@ -13,14 +13,15 @@
     </div>
   </div>
 
-  <app-table-header
-    [allColumns]="allColumns"
-    [rows]="rows"
-    [title]="title"
-    [showAddButton]="false"
-    (changeColumnsEvent)="updateColumns($event)"
-    (openAddModalEvent)="openAddProductModal()"
-  ></app-table-header>
+<!--  <app-table-header-->
+<!--    [allColumns]="allColumns"-->
+<!--    [rows]="rows"-->
+<!--    [title]="title"-->
+<!--    [showAddButton]="false"-->
+<!--    [hideExtraOptions]="true"-->
+<!--    (changeColumnsEvent)="updateColumns($event)"-->
+<!--    (openAddModalEvent)="openAddProductModal()"-->
+<!--  ></app-table-header>-->
 
 </div>
 
@@ -33,11 +34,11 @@
 <div class="d-flex justify-content-between mt-2">
   <div class="row col-xl-6 col-lg-1 col-md-1 text-center">
     <div class="col-sm-4 pl-0">
-      <select (change)="onChange()" [(ngModel)]="perPage" class="form-control custom-select">
-        <option *ngFor="let pageSize of [6]" [ngValue]="pageSize">{{ pageSize }}</option>
+      <select (change)="onChange(perPage, page)" [(ngModel)]="perPage" class="form-control custom-select">
+        <option *ngFor="let pageSize of [{id: 3, name: '3 Items per Page'}, {id: 6, name: '6 Items per Page'}, {id: 9, name: '9 Items per Page'}]" [ngValue]="pageSize.id">{{ pageSize.name }}</option>
       </select>
     </div>
-    <label class="pt-2 text-start">Items per page</label>
+
   </div>
   <pagination-controls [responsive]="true" [autoHide]="false" previousLabel="Prev"
                        (pageChange)="pageChangeEvent($event)" [maxSize]="7">
@@ -55,7 +56,10 @@
         <p class="card-text">{{item.description}}</p>
         <p class="card-text">{{item.productDescription}}</p>
         <div class="d-grid gap-2 d-md-block">
-          <a [routerLink]="'/mobile-banking/products/product/' + productCategoryId + '/' + item.id" class="btn btn-primary btn-sm">View</a>
+          <a [routerLink]="'/mobile-banking/products/product/' + productCategoryId + '/' + item.id"
+             class="btn btn-primary btn-sm"
+             style="margin-left: 0!important;"
+          >View</a>
           <a (click)="editProduct(item)" class="btn btn-secondary btn-sm">Edit</a>
           <a (click)="openDeleteModal(item)" class="btn btn-danger btn-sm">Delete</a>
         </div>

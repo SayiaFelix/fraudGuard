@@ -268,7 +268,7 @@ export class ProductCategoriesComponentSubItem implements OnInit {
   openDeleteModal(formData: any) {
     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
     this.modalRef.componentInstance.title = `Delete this Category?`;
-    this.modalRef.componentInstance.body = `Do you want to delete category: {${formData.name}}?`;
+    this.modalRef.componentInstance.body = `Do you want to delete category: ${formData.name}?`;
     this.modalRef.result.then((result: any) => {
       if (result === 'success') {
 
@@ -293,7 +293,7 @@ export class ProductCategoriesComponentSubItem implements OnInit {
           (error: any) => {
             console.log("this triggered")
             Swal.fire('Product Category could not be deleted.',
-              `${error.message}`,
+              `Record deletion error`,
               'error')
           }
         );
