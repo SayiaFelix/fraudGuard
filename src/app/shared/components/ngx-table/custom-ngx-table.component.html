@@ -23,21 +23,32 @@
       *ngFor="let col of filterColumns"
       class="form-control wd-150 border m-1 filterInputs form-control-sm"
       type="text"
-      [placeholder]="col.name"
+      [placeholder]="col.prop"
       (keyup)="updateFilter($event, col)"
+      (keydown)="updateFilter($event, col)"
     />
 
     <select
       class="form-select m-1 wd-150 border filterSelect form-select-sm"
       *ngFor="let colm of toggleFilters"
-      (change)="updateFilter($event, colm)"
+      (change)="updateFilterSelect($event, colm)"
     >
-      <option [defaultSelected]="true" value="">
+      <option disabled selected value="">
         {{ colm["name"] }}
       </option>
       <option [value]="true">True</option>
       <option [value]="false">False</option>
     </select>
+
+    <input
+      type="text"
+      class="form-control wd-200 border filterInputs form-control-sm"
+      bsDaterangepicker
+      [(ngModel)]="selectedRange"
+      placeholder="CreatedOn"
+      [bsConfig]="{ dateInputFormat: 'DD/MM/YYYY' }"
+      (ngModelChange)="updateCreatedOn($event)"
+    />
 
     <button
       (click)="clearFilters()"
@@ -157,12 +168,12 @@
       </ngx-datatable-column>
 
       <ngx-datatable-column
-        *ngIf="column.name === 'Status' || column.name === 'Active'"
+        *ngIf="column.name === 'Status' || column.name === 'Active' || column.name === 'Blocked'"
         [maxWidth]="150"
         [minWidth]="150"
         [resizeable]="false"
-        name="Status"
-        prop="status"
+        [name]="column.name"
+        [prop]="column.name.toLowerCase()"
         [draggable]="false"
       >
         <ng-template
@@ -172,6 +183,7 @@
         >
           <app-label-active
             [value]="row.status || row.active || !row.blocked"
+            [keyName]="column.name"
           ></app-label-active>
         </ng-template>
       </ngx-datatable-column>
@@ -217,13 +229,13 @@
       </ngx-datatable-column>
 
       <ngx-datatable-column
-        *ngIf="column.name === 'CreatedOn'"
+        *ngIf="column.name === 'CreatedOn' || column.name === 'CreatedAt'"
         [draggable]="false"
         [resizeable]="false"
         [maxWidth]="150"
         [minWidth]="150"
-        name="CreatedOn"
-        prop="createdOn"
+        [name]="column.name"
+        [prop]="column.prop"
       >
       </ngx-datatable-column>
 

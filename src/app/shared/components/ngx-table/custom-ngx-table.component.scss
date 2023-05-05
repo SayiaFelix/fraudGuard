@@ -16,3 +16,12 @@
   max-height: 250px;
 
 }
+
+
+:host {
+  ::ng-deep {
+    .bs-datepicker-head{
+      background-color: #f2f2f2 !important;
+    }
+  }
+}
