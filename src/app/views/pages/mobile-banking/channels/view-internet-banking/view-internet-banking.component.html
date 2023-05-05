@@ -74,6 +74,7 @@
                             [rows]="rows"
                             [actions]="ussdActions"
                             [hasViewAndEdit]="true"
+                            [loadingIndicator]="false"
                             (outputEvent)="triggerEvent($event)"
                           ></app-custom-ngx-table>
                           </div>
@@ -87,6 +88,7 @@
                             <app-custom-ngx-table
                             [columns]="transactionsColumns"
                             [rows]="rows"
+                            [loadingIndicator]="false"
                           ></app-custom-ngx-table>
                           </div>
                         </ng-template>

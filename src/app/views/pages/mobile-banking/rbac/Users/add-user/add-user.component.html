@@ -49,8 +49,14 @@
             form.get('email')?.hasError('pattern')" class="text-danger">Enter a valid email</small>
       </div>
       <div class="col-md-6">
+        <label class="text-gray">Employee Number</label>
+        <input class="form-control" formControlName="employeeNo" type="text" (keyup)="showFormErrors()">
+       <small *ngIf="form.get('employeeNo')?.touched &&
+            form.get('employeeNo')?.hasError('required')" class="text-danger">Required
+          Field</small>
+      </div>
 
-
+      <div class="col-md-6">
         <label class="text-gray">Select User Profile</label>
 <!--        <ng-select-->
 <!--          [items]="allProfiles"-->

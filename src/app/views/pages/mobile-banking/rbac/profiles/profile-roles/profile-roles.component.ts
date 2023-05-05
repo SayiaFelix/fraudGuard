@@ -18,7 +18,7 @@ export class ProfileRolesComponent implements OnInit {
   selectedAdd: any = []
   selectedRemove: any = []
 
-  loadingIndicator = true
+  missingRolesloading = true
   reorderable = true
 
   columns = [{ name: 'ROLE NAME', prop: 'name' }]
@@ -181,7 +181,7 @@ export class ProfileRolesComponent implements OnInit {
             this.rolesList = result.data.roles
 
             console.log(this.rolesList, 'sakdaskj');
-            
+
 
             this.approvedDataSet = this.rolesList
 
@@ -207,7 +207,7 @@ export class ProfileRolesComponent implements OnInit {
   }
 
   private getAllRoles() {
-    this.loading = true
+    this.missingRolesloading = true;
     const model = {
       page: 0,
       size: 50,
@@ -218,9 +218,10 @@ export class ProfileRolesComponent implements OnInit {
       .subscribe(
         (result: any) => {
           if (result.status === 200) {
+
+            this.missingRolesloading = false;
             this.allRolesList = result.data
             this.getAssignedRoles()
-            this.loading = false
           } else {
             this.allRolesList = []
           }
@@ -279,7 +280,7 @@ export class ProfileRolesComponent implements OnInit {
 
     model.roleList = removedArr.map((role: any) => role.roleId)
     console.log(model);
-    
+
     this.httpService
       .mobileBankingPost('api/v1/admin/profile/remove/roles', model)
       .subscribe(
