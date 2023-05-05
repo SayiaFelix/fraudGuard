@@ -41,17 +41,7 @@
                         id="branch"
                         name="branch"
                       >
-                        <option *ngFor="let item of [{id: 1, name: 'Haile Selassie Avenue'}]"
-                                [value]="item.id">
-                          {{ item.name | titlecase}}
-
-                        </option>
-                        <option *ngFor="let item of [{id: 2, name: 'Harambee Avenue'}]"
-                                [value]="item.id">
-                          {{ item.name | titlecase}}
-
-                        </option>
-                        <option *ngFor="let item of [{id: 3, name: 'Kimathi Street'}]"
+                        <option *ngFor="let item of Branches"
                                 [value]="item.id">
                           {{ item.name | titlecase}}
 
@@ -84,8 +74,8 @@
 
     <div class="modal-footer">
       <button class="btn btn-secondary" type="button" (click)="close()">Close</button>
-      <button class="btn btn-primary" *ngIf="!this.formData" type="button">Create Record</button>
-      <button class="btn btn-primary"  *ngIf="this.formData" type="button">Save changes</button>
+      <button class="btn btn-primary" (click)="submitData()" *ngIf="this.formData" type="button">EDIT ATM</button>
+      <button class="btn btn-primary" (click)="submitData()" *ngIf="!this.formData" type="button">CREATE ATM</button>
     </div>
   </div>
 </div>

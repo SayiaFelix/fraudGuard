@@ -15,47 +15,12 @@ import {AddAtmComponent} from "../add-atm/add-atm.component";
 export class ListAtmsComponent implements OnInit {
 
   @ViewChild('table') table: DatatableComponent;
-  tempProductData = [
-    {
-      id: 1,
-      ATMName: 'KCB ATM KU Building',
-      ATMCode: '01079',
-      createdOn: '12-02-2023',
 
-    },
-    {
-      id: 2,
-     ATMName: 'KCB ATM Oil Libya',
-      ATMCode: '19006',
-      createdOn: '12-02-2023',
-    },
-    {
-      id: 3,
-      ATMName: 'KCB ATM KICC',
-      ATMCode: '45170',
-      isActive: true,
-      createdOn: '12-02-2023',
-    },
-    {
-      id: 4,
-      ATMName: 'KCB ATM HighWay Plaza',
-      ATMCode: '29698',
-      isActive: true,
-      createdOn: '12-02-2023',
-    },
-    {
-      id: 5,
-      ATMName: 'KCB ATM Kipande House',
-      ATMCode: '34856',
-      isActive: true,
-      createdOn: '12-02-2023',
-    },
-  ];
 
   // bread crumb items
   breadCrumbItems: Array<{}>;
   rows: any = [];
-  loadingIndicator = true;
+  loading = true;
   reorderable = true;
 
   columns = [
@@ -126,13 +91,17 @@ export class ListAtmsComponent implements OnInit {
     });
   }
   getIndividualData(event: number): void {
+
+    this.loading = true;
     const model = {
-      "size":50,
-      "page":0
+      "page":0,
+      "size":50
     }
 
     this.httpService.mobileBankingPost('config/branch/fetch/atms/page', model).subscribe((res: any) => {
       if (res.status === 200) {
+
+        this.loading = false;
         // setTimeout(() => {
         //    this.rows=res.data;
         //   let total = res.totalItems;

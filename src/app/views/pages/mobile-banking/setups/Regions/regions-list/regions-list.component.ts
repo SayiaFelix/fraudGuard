@@ -20,23 +20,6 @@ export class RegionsListComponent implements OnInit {
 
   @ViewChild('table') table: DatatableComponent;
 
-  tempProductData = [
-    {
-      id: 1,
-      regionName: 'Nairobi',
-      regionCode: '001',
-      status: 'active',
-      registeredOn: '12-02-2023',
-    },
-    {
-      id: 2,
-      regionName: 'Mombasa',
-      regionCode: '002',
-      status: 'active',
-      registeredOn: '13-01-2023',
-    }
-  ];
-
   // bread crumb items
   breadCrumbItems: Array<{}>;
   rows: any = [];
@@ -88,7 +71,6 @@ export class RegionsListComponent implements OnInit {
   getIndividualData(event: number): void {
 
     this.loading = true;
-    this.rows = this.tempProductData;
 
     const model = {
       page: 0,
@@ -97,6 +79,7 @@ export class RegionsListComponent implements OnInit {
     this.httpService.mobileBankingPost("config/region/fetch/all",model).subscribe(
       (result:any)=>{
           if(result.status===200){
+            this.loading = false;
             this.rows = result.data;
           }
           else{

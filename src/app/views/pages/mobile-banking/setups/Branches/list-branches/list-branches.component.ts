@@ -83,7 +83,7 @@ export class ListBranchesComponent implements OnInit {
 
   actions = ["Edit","Delete"];
 
-
+  loading: boolean;
   constructor(private httpService: HttpService,
               private modalService: NgbModal,
               public fb: FormBuilder,
@@ -92,6 +92,7 @@ export class ListBranchesComponent implements OnInit {
   }
 
   ngOnInit() {
+
     this.breadCrumbItems = [{ label: 'Mobile banking', path: '/mobile-banking/branches/all-branches' },
       { label: 'Pages', path: '/' }, { label: 'Branches', active: true }];
     this.getIndividualData(0);
@@ -161,6 +162,8 @@ export class ListBranchesComponent implements OnInit {
 
   getIndividualData(event: number): void {
 
+    this.loading = true;
+
     // this.rows = this.tempProductData;
     const model = {
       page:0,
@@ -169,6 +172,8 @@ export class ListBranchesComponent implements OnInit {
 
     this.httpService.mobileBankingPost('config/branch/fetch/region/page', model).subscribe((res: any) => {
       if (res.status===200){
+        this.loading = false;
+
         // this.activeModal.close('success');
       //  Swal.fire('success','records fetched successfully','success')
       //  .then(r=>console.log(r))
