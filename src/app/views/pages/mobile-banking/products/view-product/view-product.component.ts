@@ -9,6 +9,7 @@ import {AddProductSubItemComponent} from "../add-product-subitem/add-product-sub
 import {AddRequirementComponent} from "../add-requirement/add-requirement.component";
 import { DomSanitizer } from '@angular/platform-browser';
 import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
+import { AddBenefitComponent } from '../add-benefit/add-benefit.component';
 
 @Component({
   selector: 'app-view-customer',
@@ -50,13 +51,11 @@ export class ViewProductComponent implements OnInit {
 
   public features = ['Get access up to 70% of your monthly salary'];
   public requirements:any;
+  public benefits:any;
 
   public productId: number;
   public categoryId: number;
   public modalRef: NgbModalRef;
-
-
-
   constructor(private httpService: HttpService,
               public globalService: GlobalService,
               public activatedRoute: ActivatedRoute,
@@ -83,6 +82,7 @@ export class ViewProductComponent implements OnInit {
 
     this.loadData();
     // this.loadRequirements();
+    this.loadBenefits();
   }
 
   private loadData(): any {
@@ -127,7 +127,25 @@ export class ViewProductComponent implements OnInit {
       }
      );
   }
+  private loadBenefits():any {
+    const model ={
+     id:this.productId
+    }
+    this.httpService.mobileBankingPost('product/portal/fetch/benefits',model).subscribe(
+     (result:any)=>{
+       if (result.status===200){
+          this.benefits =result['data'];
+       }
+       else{
+         Swal.fire('Failed','unable to fetch requirements','error')
+       }
 
+     },
+     (error:any)=>{
+       Swal.fire("Error",error.message,"error")
+     }
+    );
+ }
 
 
   // public openModal(parentData: any) {
@@ -174,6 +192,13 @@ export class ViewProductComponent implements OnInit {
     { name: 'Requirement Code', prop:'requirementCode' },
     { name: 'Actions', prop: 'id' }
   ];
+  benefitsColumn =[
+    { name: 'ID', prop: 'id' },
+    {name:"Benefit",prop:'benefit'},
+    {name:"Description",prop:'description'},
+    { name: 'Benefit Code', prop:'benefitCode' },
+    { name: 'Actions', prop: 'id' }
+  ]
   rows: any = [];
   actions = ["Edit", "Delete"];
   isLoading: boolean;
@@ -207,6 +232,22 @@ export class ViewProductComponent implements OnInit {
     this.modalRef.result.then((result: any) => {
       if (result === 'success') {
         this.loadData();
+        // this.loadRequirements();
+      } else {
+        console.log("Error occurred")
+      }
+    });
+
+    // this.requirements = [this.form.value.requirement, ...this.requirements];
+  }
+  
+  addBenefit() {
+    this.modalRef = this.modalService.open(AddBenefitComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Add Benefit';
+    this.modalRef.componentInstance.formData = this.productDetails;
+    this.modalRef.result.then((result: any) => {
+      if (result === 'success') {
+        this.loadBenefits();
         // this.loadRequirements();
       } else {
         console.log("Error occurred")
@@ -263,14 +304,53 @@ export class ViewProductComponent implements OnInit {
       }
     });
   }
+  
+  removeBenefit(formData: any) {
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Remove Benefit';
+    this.modalRef.componentInstance.body= "Do you want to remove this benefit?";
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        this.loadBenefits();
+        const model = {
+          id: formData.id
+        };
+        this.httpService.mobileBankingPost('product/portal/benefits/remove', model).subscribe(
+          (result: any) => {
+            if (result.status === 200){
+            Swal.fire('Remove Benefit','Benefit removed successfully.','success')
+            .then
+            (r=>console.log(r))
+            // (r => this.loadBenefits())
+        } else {
+          console.log("Error occurred")
+        }
+          }
+      );
+    }
+  });
+  }
 
-  triggerEvent(data: string) {
+  triggerEventRequirement(data: string) {
     let eventData = JSON.parse(data)
 
     if (eventData.action == 'Edit') {
       this.editRequirement(eventData.row);
     }else if (eventData.action == 'Delete') {
       this.removeRequirement(eventData.row);
+    }
+    else if (eventData.action == 'Delete') {
+      this.removeBenefit(eventData.row);
+    }
+  }
+  triggerEventBenefit(data: string) {
+    let eventData = JSON.parse(data)
+
+    if (eventData.action == 'Edit') {
+      this.editRequirement(eventData.row);
+    }
+    else if (eventData.action == 'Delete') {
+      this.removeBenefit(eventData.row);
     }
   }
 }
