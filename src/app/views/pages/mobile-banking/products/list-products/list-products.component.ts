@@ -45,7 +45,7 @@ export class ListProductsComponent implements OnInit {
     {name: 'ProductName', prop: 'name'},
     {name: 'CategoryName', prop: 'categoryName'},
     {name: 'Description', prop: 'shortDescription'},
-    {name: 'Status', prop: 'active'},
+    {name: 'Active', prop: 'active'},
     {name: 'CreatedOn', prop: 'createdAt'},
     {name: 'Actions', prop: 'id'},
   ];
@@ -117,7 +117,8 @@ export class ListProductsComponent implements OnInit {
               const res = {
                 ...item,
                 frontendId: index + 1,
-                categoryName: item.productCategory.name
+                categoryName: item.productCategory.name,
+                createdAt: item.createdAt.replace('T', ' ')
               };
               return res;
             });

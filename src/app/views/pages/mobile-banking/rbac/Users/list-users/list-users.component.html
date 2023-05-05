@@ -4,7 +4,7 @@
     </div>
   <app-table-header
     [allColumns]="allColumns"
-    [rows]="filteredRows ? filteredRows : rows"
+    [rows]="filteredRows.length > 0 ? filteredRows : rows"
     [title]="title"
     [showAddButton]="true"
     (changeColumnsEvent)="updateColumns($event)"

@@ -29,10 +29,10 @@ export class RolesComponent implements OnInit {
   columns = [
     {name: 'ID', prop: 'frontendId'},
     {name: 'Name', prop: 'name'},
-    {name: 'Status', prop: 'status'},
+    // {name: 'Status', prop: 'status'},
     {name: 'remarks', prop: 'remarks'},
     {name: 'SystemRole', prop: 'systemRole'},
-    {name: 'createdOn', prop: 'createdOn'},
+    {name: 'CreatedOn', prop: 'createdOn'},
     {name: 'Actions', prop: 'id'}
   ];
 
