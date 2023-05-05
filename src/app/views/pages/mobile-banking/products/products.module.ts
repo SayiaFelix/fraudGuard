@@ -27,7 +27,9 @@ import { ListAllProductsAsCardsComponent } from './list-all-products-as-cards/li
 import {
   ProductSubCategoriesAsCardsComponent
 } from "./list-products-subcategories-cards/product-sub-categories-as-cards.component";
+import { AddBenefitComponent } from './add-benefit/add-benefit.component';
 import {NgxPaginationModule} from "ngx-pagination";
+
 
 @NgModule({
     imports: [
@@ -52,14 +54,16 @@ import {NgxPaginationModule} from "ngx-pagination";
     AddRequirementComponent,
     ProductCategoriesComponentSubItem,
     ListAllProductsAsCardsComponent,
-    ProductSubCategoriesAsCardsComponent
-
+    ProductSubCategoriesAsCardsComponent,
+    AddBenefitComponent
+    
   ]
   ,
   entryComponents: [
     AddProductComponent,
     AddProductSubItemComponent,
-    AddRequirementComponent
+    AddRequirementComponent,
+    AddBenefitComponent
   ],
 })
 export class ProductsModule {
