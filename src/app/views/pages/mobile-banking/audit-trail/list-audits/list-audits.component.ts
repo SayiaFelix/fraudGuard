@@ -14,37 +14,11 @@ import { HttpService } from 'src/app/shared/services/http.service';
 export class ListAuditsComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
 
-  actions = [];
-  tempProductData = [
-    {
-      id: 4734,
-      AuditMessage: 'Login',
-      CreatedBy:'Jackson Biko',
-      ip:'124.12.33.12',
-      createdOn: '12-02-2023',
-    },
-    {
-      id: 5873,
-      AuditMessage: 'Login',
-      CreatedBy:'Leah Muthui',
-      ip:'10.14.13.6',
-      createdOn: '12-02-2023',
-    },
-    {
-      id: 8483,
-      AuditMessage: 'Failed Login',
-      CreatedBy:'Leah Muthui',
-      ip:'10.14.13.6',
-      createdOn: '12-02-2023',
-    },
-
-  ];
-
   // bread crumb items
   breadCrumbItems: Array<{}>;
   rows: any = [];
   temp: any = [];
-  loadingIndicator = true;
+  loading = true;
   reorderable = true;
 
 
@@ -98,9 +72,8 @@ export class ListAuditsComponent implements OnInit {
   }
 
   getIndividualData(event: number): void {
-    this.rows = this.tempProductData;
 
-    this.temp = [...this.tempProductData];
+    this.loading = false;
 
     const model = {
       page: 0,
@@ -113,7 +86,6 @@ export class ListAuditsComponent implements OnInit {
         if (res.status === 200) {
           setTimeout(() => {
             // this.data = res.data;
-            this.rows = this.tempProductData;
             // let data = this.tempProductData;
 
             let total = res.totalItems;

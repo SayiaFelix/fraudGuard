@@ -53,6 +53,8 @@ export class ViewSingleWorkflowComponent implements OnInit {
 
   title: string = "Step";
 
+  loading = true;
+
   constructor(
     public fb: FormBuilder,
     private httpService: HttpService,
@@ -142,6 +144,8 @@ export class ViewSingleWorkflowComponent implements OnInit {
   }
 
   private loadData(): any {
+
+    this.loading = true;
     const model = {
       // id: parseInt(this.workflowId, 10)
       id: this.workflowId
@@ -150,7 +154,7 @@ export class ViewSingleWorkflowComponent implements OnInit {
     this.httpService.mobileBankingPost('api/v1/admin/workflow/get/id', model).subscribe(
       (result: any) => {
         if (result.status === 200) {
-
+          this.loading = false;
           this.workflowItemData = result.data;
         } else {
           Swal.fire('unable to fetch data', 'unable to fetch workflow details', 'error')

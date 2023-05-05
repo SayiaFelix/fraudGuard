@@ -4,6 +4,7 @@ import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import { HttpService } from "src/app/shared/services/http.service";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import {MapsAPILoader, MouseEvent} from "@agm/core";
+import Swal from "sweetalert2";
 
 
 declare const google: any;
@@ -17,6 +18,8 @@ export class AddAtmComponent implements OnInit {
   edit = false;
   @Input() title: any;
   @Input() formData: any;
+  private loading: boolean;
+  Branches: any;
 
   constructor(
     public activeModal: NgbActiveModal,
@@ -51,6 +54,11 @@ export class AddAtmComponent implements OnInit {
   private geoCoder: any;
 
   ngOnInit(): void {
+
+    console.log("this.formData");
+    console.log(this.formData);
+
+    this.getBranches()
 
     this.mapsAPILoader.load().then(() => {
       this.setCurrentLocation();
@@ -87,40 +95,11 @@ export class AddAtmComponent implements OnInit {
 
 
     this.form = this.fb.group({
-      name: [this.formData ? this.formData.ATMName : '', [Validators.required]],
-      atmCode: [this.formData ? this.formData.ATMCode : '', [Validators.required]],
+      name: [this.formData ? this.formData.name : '', [Validators.required]],
+      atmCode: [this.formData ? this.formData.atmCode : '', [Validators.required]],
       branch: [this.formData ? this.formData.branch : '', [Validators.required]],
       is_active: [this.formData ? this.formData.is_active : '', [Validators.nullValidator]]
     });
-  }
-
-  addRegion(): void {
-    const model = {
-      bounds: this.pointList,
-      name: this.atmName,
-    };
-    this._httpService.mobileBankingPost("dsr-create-region", model).subscribe((result: any) => {
-      if (result.status === 1) {
-        this.close();
-      } else {
-      }
-    }, (error: any) => {
-      });
-  }
-
-  editRegion(): void {
-    const model = {
-      bounds: this.pointList,
-      name: this.atmName,
-      id: this.formData.content.id
-    };
-    this._httpService.mobileBankingPost("dsr-update-region", model).subscribe((result:any) => {
-      if (result.status === 1) {
-        this.close();
-      } else {
-      }
-    }, (error: any) => {
-      });
   }
 
   close(): void {
@@ -166,5 +145,77 @@ export class AddAtmComponent implements OnInit {
 
     });
   }
+
+  public submitData(): void {
+    if (this.formData) {
+      this.saveChanges();
+    } else {
+      this.createATM();
+    }
+    this.loading = true;
+  }
+
+
+  createATM(): void {
+    const model =
+      {
+        branchId: this.form.value.branch,
+        name: this.form.value.name,
+        atmCode: this.form.value.atmCode,
+      }
+    this._httpService.mobileBankingPost("config/branch/addAtms", model).subscribe((result: any) => {
+      if (result.status === 200) {
+        this.activeModal.close('success');
+        Swal.fire('Success',result.message,'success')
+          .then(r=>(console.log(r)))
+        this.close();
+      } else {
+        Swal.fire('Failed','Unable to create ATM','error')
+      }
+    }, (error: any) => {
+    });
+  }
+
+  saveChanges(): void {
+    console.log(this.formData);
+
+
+
+    const model = {
+      id: this.formData.id,
+      branchId: this.form.value.branch,
+      name: this.form.value.name,
+      atmCode: this.form.value.atmCode,
+    };
+    this._httpService.mobileBankingPost("config/branch/atm/edit", model).subscribe((result:any) => {
+      if (result.status === 200) {
+        this.activeModal.close('success');
+        Swal.fire('Success',result.message,'success')
+          .then(r=>(console.log(r)))
+        this.close();
+      } else {
+        Swal.fire('Failed','Unable to update ATM','error')
+      }
+    }, (error: any) => {
+    });
+  }
+
+  getBranches(){
+    const model = {
+      page:0,
+      size:50
+    }
+    this._httpService.mobileBankingPost("config/branch/fetch/region/page",model).subscribe(
+      (result:any)=>{
+        if(result.status===200){
+          this.Branches = result.data;
+        }
+        else{
+          Swal.fire('failed','unable to fetch records','error')
+        }
+      }
+    )
+  }
+
 
 }

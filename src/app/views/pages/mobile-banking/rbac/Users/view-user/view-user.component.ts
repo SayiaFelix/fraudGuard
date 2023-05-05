@@ -16,23 +16,10 @@ import { ChangeProfileModalComponent } from '../change-profile-modal/change-prof
   styleUrls: ['./view-user.component.scss'],
 })
 export class ViewUserComponent implements OnInit, OnDestroy {
-  public myProductList = [
-    {
-      icon: '',
-      name: 'Email:test@gmail.com',
-      value: 8,
-      text: 'danger',
-    },
-    {
-      icon: '',
-      name: 'Phone Number:0734567865',
-      text: 'danger',
-      value: 8,
-    },
-  ];
+
   breadCrumbItems: Array<{}>;
   rows: any = [];
-  loadingIndicator = true;
+  loading = true;
   reorderable = true;
 
   columns = [
@@ -43,15 +30,7 @@ export class ViewUserComponent implements OnInit, OnDestroy {
     // { name: 'Actions', prop: 'id' }
   ];
 
-  // public productDetails = {
-  //   columns = [
-  //     { name: 'ID', prop: 'id' },
-  //     { name: 'BranchName', prop:'branchName' },
-  //     { name: 'BranchCode', prop:'branchCode' },
-  //     { name: 'IsActive', prop:'isActive' },
-  //     { name: 'Actions', prop: 'id' }
-  //   ];
-  // };
+
   public mainProduct: any;
   public subcategoryTitle: any;
 
@@ -109,6 +88,8 @@ export class ViewUserComponent implements OnInit, OnDestroy {
 
   private loadData(): any {
 
+    this.loading = true;
+
     const model = {
       id: this.userId
     }
@@ -117,6 +98,7 @@ export class ViewUserComponent implements OnInit, OnDestroy {
       .mobileBankingPost('api/v1/admin/user/id', model)
       .subscribe((res: any) => {
         if (res.status === 200) {
+          this.loading = false;
             this.userDetails = res.data;
         } else {
 

@@ -69,6 +69,7 @@ export class ListPendingApprovalComponent implements OnInit {
 
   title: string = "Products";
 
+  isLoading = true;
 
   constructor(
     private httpService: HttpService,
@@ -98,9 +99,12 @@ export class ListPendingApprovalComponent implements OnInit {
   }
 
   getIndividualData(event: number): void {
+
+    this.isLoading = true;
     this.rows = this.tempProductData;
 
     this.temp = [...this.tempProductData];
+    this.isLoading = false;
 
     const model = {
       page: 0,
@@ -111,6 +115,8 @@ export class ListPendingApprovalComponent implements OnInit {
       .mobileBankingPost('api/v1/corporate/admin/list-products/all', model)
       .subscribe((res: any) => {
         if (res.status === 200) {
+          this.isLoading = false;
+
           setTimeout(() => {
             // this.data = res.data;
             this.rows = this.tempProductData;
