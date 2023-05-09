@@ -28,12 +28,12 @@ export class RegionsListComponent implements OnInit {
 
   columns = [
     {name: 'ID', prop: 'id'},
-    {name: 'RegionName', prop: 'name'},
-    {name: 'RegionCode', prop: 'code'},
+    {name: 'Region Name', prop: 'name'},
+    {name: 'Region Code', prop: 'code'},
     {name: 'Constituency', prop: 'constituency'},
     {name: 'County', prop: 'county'},
     {name: 'Status', prop: 'active'},
-    {name: 'RegisteredOn', prop: 'registeredOn'},
+    {name: 'Registered On', prop: 'registeredOn'},
     {name: 'Actions', prop: 'id'}
   ];
 

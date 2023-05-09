@@ -53,12 +53,12 @@ export class ListRegisteredAccountsComponent implements OnInit {
   columns = [
     {name: 'ID', prop: 'id'},
     {name: 'Name', prop: 'Name'},
-    {name: 'RegistrationNumber', prop: 'RegistrationNumber'},
+    {name: 'Registration No.', prop: 'RegistrationNumber'},
     // {name: 'Status', prop: 'status'},
-    {name:'AccountNumber',prop:'AccountNumber'},
+    {name:'Account Number',prop:'AccountNumber'},
     {name:'Email',prop:'Email'},
-    {name: 'CreatedOn', prop: 'createdOn'},
-    {name:'CreatedBy',prop:'CreatedBy'},
+    {name: 'Created On', prop: 'createdOn'},
+    {name:'Created By',prop:'CreatedBy'},
     {name: 'Actions', prop: 'id'},
   ];
 
