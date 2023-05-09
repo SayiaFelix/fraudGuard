@@ -58,7 +58,7 @@ export const MENU: MenuItem[] = [
       {
         profiles: ['CORPORATE_ADMIN'],
         label: 'Failed Registrations',
-        link: '/mobile-banking/customers/list-internet-banking'
+        link: '/mobile-banking/customers/list-failed-registrations'
       },
       {
         profiles: ['CORPORATE_ADMIN'],

@@ -67,7 +67,8 @@
                     [columns]="benefitsColumn"
                     [rows]="benefits"
                     [actions]="actions"
-                    [loadingIndicator]="isLoading"
+                    [loadingIndicator]="loading"
+                    [disableFilters]="true"
                     (outputEvent)="triggerEventBenefit($event)"
                   ></app-custom-ngx-table>
                 </div>
@@ -93,7 +94,8 @@
                     [columns]="columns"
                     [rows]="rows"
                     [actions]="actions"
-                    [loadingIndicator]="isLoading"
+                    [disableFilters]="true"
+                    [loadingIndicator]="loading"
                     (outputEvent)="triggerEventRequirement($event)"
                   ></app-custom-ngx-table>
                 </div>

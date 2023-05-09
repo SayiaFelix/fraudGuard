@@ -16,7 +16,7 @@ const routes: Routes = [
   },
 
   {
-    path: 'list-internet-banking',
+    path: 'list-failed-registrations',
     component: ListFailedRegistrationsComponent
   },
 

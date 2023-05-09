@@ -33,7 +33,7 @@ export class ListCustomersComponent implements OnInit {
   actions=["View","Edit"]
   tempProductData = [
     {
-      customerid: 1,
+      id: 1,
       customerName: 'Jane Mwangi',
       phoneNumber:'0728357775',
       idNumber: '8343849849',
@@ -46,7 +46,7 @@ export class ListCustomersComponent implements OnInit {
       gender:'Female',
     },
     {
-      customerid: 2,
+      id: 2,
       customerName: 'Andrew Kamau',
       phoneNumber:'0745983290',
       idNumber: '495875004',
@@ -69,14 +69,14 @@ export class ListCustomersComponent implements OnInit {
   reorderable = true;
 
   columns = [
-    { name: 'ID', prop: 'customerid' },
-    { name: 'CustomerName', prop: 'customerName' },
-    {name:'PhoneNumber',prop:'phoneNumber'},
-    { name: 'IDNumber', prop: 'idNumber' },
-    {name: 'CBSCustomerNumber',prop:'cbsCustomerNumber'},
-    {name: 'AccountNumber',prop:'accountNumber'},
+    { name: '#', prop: 'id' },
+    { name: 'Customer Name', prop: 'customerName' },
+    {name:'Phone Number',prop:'phoneNumber'},
+    { name: 'ID Number', prop: 'idNumber' },
+    {name: 'CBS Customer No.',prop:'cbsCustomerNumber'},
+    {name: 'Account Number',prop:'accountNumber'},
     // {name: 'Email',prop:'email'},
-    { name: 'CreatedOn', prop: 'createdOn' },
+    { name: 'Created On', prop: 'createdOn' },
     // {name: 'DOB',prop:'dob'},
     // {name: 'Gender',prop:'gender'},
     { name: 'Actions', prop: 'id' },

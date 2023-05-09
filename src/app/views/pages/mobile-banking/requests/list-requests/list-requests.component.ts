@@ -23,7 +23,7 @@ export class ListRequestsComponent implements OnInit {
   actions = [];
   tempProductData = [
     {
-      'id': "1",
+      'frontendId': "1",
       'accountNo': "1234",
       'currency': "KES",
       'mobileNo': "2547887337332",
@@ -46,14 +46,14 @@ export class ListRequestsComponent implements OnInit {
 
   columns = [
     {name: 'ID', prop: 'id'},
-    {name: 'AccountNo', prop: 'accountNo'},
+    {name: 'Account No.', prop: 'accountNo'},
     {name: 'Currency', prop: 'currency'},
-    {name: 'MobileNo', prop: 'mobileNo'},
+    {name: 'Mobile No.', prop: 'mobileNo'},
     {name: 'Request', prop: 'requestType'},
     {name: 'Charge', prop: 'requestCharge'},
-    {name: 'RefCode', prop: 'transactionRef'},
+    {name: 'Ref Code', prop: 'transactionRef'},
     {name: 'Channel', prop: 'channel'},
-    {name: 'DateRequested', prop: 'dateRequested'},
+    {name: 'Date Requested', prop: 'dateRequested'},
     {name: 'Status', prop: 'status'},
     {name: 'Actions', prop: 'id'},
   ];

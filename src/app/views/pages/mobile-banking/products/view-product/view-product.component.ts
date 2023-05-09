@@ -17,30 +17,8 @@ import { AddBenefitComponent } from '../add-benefit/add-benefit.component';
   styleUrls: ['./view-product.component.scss']
 })
 export class ViewProductComponent implements OnInit {
-  public myProductList:any = [
-    // {
-    //   icon: '',
-    //   name: '1. Personal Accident',
-    //   value: 8,
-    //   text: 'danger'
-    // },
-    // {
-    //   icon: '',
-    //   name: '2. Mutual Funds',
-    //   text: 'danger',
-    //   value: 8,
 
-    // }
-  ];
   public productDetails: any;
-  //   {
-  //   productName: 'Personal Accident',
-  //   shortDescription: 'Get Salary Advance Loans',
-  //   longDescription: 'Enjoy quick salary advances when you are in need of a quick loan to sort out your regular bills.',
-  //   requirements: ['Minimum Salary KES 15,000 per month', 'Repayment period 1 month'],
-  //   // features: ['Get access up to 70% of your monthly salary']
-  // };
-
   public mainProduct: any;
   public subcategoryTitle: any;
 
@@ -86,7 +64,7 @@ export class ViewProductComponent implements OnInit {
   }
 
   private loadData(): any {
-    this.isLoading = true;
+    this.loading = true;
     const model = {
       id: this.productId
     };
@@ -96,10 +74,11 @@ export class ViewProductComponent implements OnInit {
 
         if (res.status == 200) {
           this.productDetails = res['data'];
+          this.loading = false;
 
           this.requirements = this.productDetails.requirementList;
           this.rows = this.productDetails.requirementList;
-          this.isLoading = false;
+          this.loading = false;
 
         } else {
           Swal.fire('Failed', "Unable to fetch product details", 'error')
@@ -110,7 +89,7 @@ export class ViewProductComponent implements OnInit {
   }
   private loadRequirements():any {
      const model ={
-      id:this.productId
+      id: this.productId
      }
      this.httpService.mobileBankingPost('product/portal/fetch/requirement',model).subscribe(
       (result:any)=>{
@@ -147,44 +126,6 @@ export class ViewProductComponent implements OnInit {
     );
  }
 
-
-  // public openModal(parentData: any) {
-  //   this.modalRef = this.modalService.open(CreateProductComponent, {size: 'lg'});
-  //   this.modalRef.componentInstance.title = 'Add Product';
-  //   this.modalRef.componentInstance.parentData = '';
-  //   this.modalRef.result.then((result) => {
-  //     if (result === 'success') {
-  //       this.getIndividualData(this.page);
-  //     }
-  //   }, (reason) => {
-  //   });
-  // }
-
-  // getIndividualData(event: number): void {
-  //   this.isLoaded = false;
-  //   this.page = event;
-  //
-  //   const model = {
-  //     page: this.page,
-  //     size: this.perPage
-  //   };
-  //
-  //   this.httpService.post('api/v1/corporate/admin/all', model).subscribe((res: any) => {
-  //
-  //     if (res.status === 200) {
-  //       setTimeout(() => {
-  //         this.data = res.data.content;
-  //         this.source.load(this.data);
-  //         this.isLoaded = true;
-  //
-  //         this.total = res.totalItems;
-  //
-  //       }, 10);
-  //     } else {
-  //       this.toastrService.error(res.message, 'Error');
-  //     }
-  //   });
-  // }
   isAsideNavCollapsed: any;
   columns = [
     { name: 'ID', prop: 'id' },
@@ -201,7 +142,7 @@ export class ViewProductComponent implements OnInit {
   ]
   rows: any = [];
   actions = ["Edit", "Delete"];
-  isLoading: boolean;
+  loading: boolean;
 
   openAddProductSubcategoryModal(content: TemplateRef<any>) {
     this.modalService.open(content, {centered: true, size: "lg"}).result.then((result) => {
@@ -231,8 +172,7 @@ export class ViewProductComponent implements OnInit {
     this.modalRef.componentInstance.formData = this.productDetails;
     this.modalRef.result.then((result: any) => {
       if (result === 'success') {
-        this.loadData();
-        // this.loadRequirements();
+        this.loadRequirements();
       } else {
         console.log("Error occurred")
       }
@@ -240,7 +180,7 @@ export class ViewProductComponent implements OnInit {
 
     // this.requirements = [this.form.value.requirement, ...this.requirements];
   }
-  
+
   addBenefit() {
     this.modalRef = this.modalService.open(AddBenefitComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Add Benefit';
@@ -261,11 +201,11 @@ export class ViewProductComponent implements OnInit {
   editRequirement(rowData: any) {
     this.modalRef = this.modalService.open(AddRequirementComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Edit Requirement';
-    this.modalRef.componentInstance.formData = this.productDetails;
+    this.modalRef.componentInstance.formData = rowData;
     this.modalRef.result.then((result: any) => {
       if (result === 'success') {
-        this.loadData();
-        // this.loadRequirements();
+        // this.loadData();
+        this.loadRequirements();
       } else {
         console.log("Error occurred")
       }
@@ -304,7 +244,22 @@ export class ViewProductComponent implements OnInit {
       }
     });
   }
-  
+
+  editBenefit(formData: any) {
+    this.modalRef = this.modalService.open(AddBenefitComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Edit Benefit';
+    this.modalRef.componentInstance.formData = formData;
+    this.modalRef.result.then((result: any) => {
+      if (result === 'success') {
+        this.loadData();
+        // this.loadRequirements();
+      } else {
+        console.log("Error occurred")
+      }
+    });
+
+  }
+
   removeBenefit(formData: any) {
     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Remove Benefit';
@@ -347,7 +302,7 @@ export class ViewProductComponent implements OnInit {
     let eventData = JSON.parse(data)
 
     if (eventData.action == 'Edit') {
-      this.editRequirement(eventData.row);
+      this.editBenefit(eventData.row);
     }
     else if (eventData.action == 'Delete') {
       this.removeBenefit(eventData.row);
