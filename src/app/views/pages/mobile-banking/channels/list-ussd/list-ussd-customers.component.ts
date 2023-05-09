@@ -340,7 +340,7 @@ export class ListUssdCustomersComponent implements OnInit {
           },
           (error: any) => {
             Swal.fire('Record deletion error',
-              `${error}`,
+              `Record creation error`,
               'error')
           }
         );

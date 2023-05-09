@@ -4,7 +4,7 @@
   "welcomeDashboardMessage": "Welcome to the Dashboard",
   "downloadTextOnButton": "Download",
   "login": {
-    "username": "Enter your user name",
-    "password": "Password here"
+    "username": "Username/ Email Address",
+    "password": "Password"
   }
 }

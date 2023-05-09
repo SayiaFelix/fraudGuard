@@ -13,6 +13,7 @@ export class TableHeaderComponent implements OnInit {
   @Input() title: any;
 
   @Input() showAddButton: boolean;
+
   @Input() hideExtraOptions: boolean;
   columns: any
   allColumnsChecked: boolean = true
@@ -158,7 +159,7 @@ export class TableHeaderComponent implements OnInit {
       })
       arr.push(temp)
     })
-    
+
     this.dataExploration.exportToPdf(cols, arr, this.title)
   }
 }

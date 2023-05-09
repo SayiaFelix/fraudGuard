@@ -120,6 +120,8 @@ export class ListAllProductsAsCardsComponent implements OnInit {
   perPage: number = 6;
   page: any = 1;
 
+  pageSize: number;
+
   constructor(
     private httpService: HttpService,
     private modalService: NgbModal,
@@ -384,7 +386,7 @@ export class ListAllProductsAsCardsComponent implements OnInit {
           },
           (error: any) => {
             Swal.fire('Record deletion error',
-              `${error}`,
+              `Record deletion error`,
               'error')
           }
         );
@@ -405,17 +407,30 @@ export class ListAllProductsAsCardsComponent implements OnInit {
     });
   }
 
-  onChange() {
-    this.getIndividualData(0);
+  onChange(pageSize: any, page: any) {
+
+    console.log(`${pageSize} + ${page}`)
+
+    this.pageSize = pageSize;
+    this.retrieveItemsForPresentation(page, pageSize);
   }
 
-  retrieveItemsForPresentation(page: number){
-    let startingItem = (page-1) * 6;
-    this.itemsForPresentation = this.allItems.slice(startingItem, startingItem + 6);
+  retrieveItemsForPresentation(page: number, pageSize: number){
+    let startingItem = (page-1) * this.pageSize;
+
+
+    console.log(startingItem)
+    console.log(pageSize)
+
+    this.itemsForPresentation = this.allItems.slice(startingItem, startingItem + pageSize);
+
+    console.log("this.itemsForPresentation");
+    console.log(this.itemsForPresentation);
   }
 
   pageChangeEvent(page: number) {
     this.page = page;
-    this.retrieveItemsForPresentation(page);
+    console.log(`page:::::${page}`);
+    this.retrieveItemsForPresentation(page, this.pageSize);
   }
 }

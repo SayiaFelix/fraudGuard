@@ -4902,6 +4902,7 @@ ngx-bootstrap@^9.0.0:
   integrity sha512-wVwKs1jIASzJrKSPUhOcHY8f39MKyG31SruJdVQ3S/v/PdBVmVuFUJL86Awc8F60di2xD9C4DzzGObkvsHbirw==
   dependencies:
     tslib "^2.3.0"
+    tslib "^2.3.0"
 
 ngx-chips@^3.0.0:
   version "3.0.0"

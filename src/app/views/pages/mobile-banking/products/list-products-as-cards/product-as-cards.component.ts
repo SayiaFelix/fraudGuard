@@ -117,6 +117,49 @@ export class ProductAsCardsComponent implements OnInit {
     // }
   ]
 
+  allItems:any[] = [
+    // {
+    //   id:'1',
+    //   src:'assets/images/category4.png',
+    //   alt:'Image_1',
+    //   title:'Personal Accounts',
+    //   description: "Describing personal accounts.",
+    //   productDescription: "Here is the product description"
+    // },
+    // {
+    //   id:'2',
+    //   src:'assets/images/category2.png',
+    //   alt:'Image_2',
+    //   title:'Business Accounts',
+    //   description: "Describing Business Accounts.",
+    //   productDescription: "Here is the product description"
+
+    // },
+    // {
+    //   id:'3',
+    //   src:'assets/images/category3.png',
+    //   alt:'Image_3',
+    //   title:'Islamic accounts',
+    //   description: "Describing Islamic accounts",
+    //   productDescription: "Here is the product description"
+    // },
+    // {
+    //   id:'4',
+    //   src:'assets/images/category2.png',
+    //   alt:'Image_4',
+    //   title:'Student Accounts',
+    //   description: "Describing Student Accounts.",
+    //   productDescription: "Here is the product description"
+    // }
+  ]
+
+  itemsForPresentation: any[];
+  perPage: number = 6;
+  page: any = 1;
+
+  pageSize: number;
+
+
 
   constructor(
     private httpService: HttpService,
@@ -175,8 +218,8 @@ export class ProductAsCardsComponent implements OnInit {
               const res = {...item, frontendId: index + 1};
               return res;
             });
-            this.slidesStore = response;
-            console.log(this.slidesStore);
+            this.allItems = response;
+            this.itemsForPresentation = this.allItems.slice(0, 6);
 
           } else {
             Swal.fire('Failed', "Unable to fetch products", 'error')
@@ -386,7 +429,7 @@ export class ProductAsCardsComponent implements OnInit {
           },
           (error: any) => {
             Swal.fire('Record deletion error',
-              `${error}`,
+              `Record deletion error`,
               'error')
           }
         );
@@ -405,5 +448,32 @@ export class ProductAsCardsComponent implements OnInit {
         console.log("Error occurred")
       }
     });
+  }
+
+  onChange(pageSize: any, page: any) {
+
+    console.log(`${pageSize} + ${page}`)
+
+    this.pageSize = pageSize;
+    this.retrieveItemsForPresentation(page, pageSize);
+  }
+
+  retrieveItemsForPresentation(page: number, pageSize: number){
+    let startingItem = (page-1) * this.pageSize;
+
+
+    console.log(startingItem)
+    console.log(pageSize)
+
+    this.itemsForPresentation = this.allItems.slice(startingItem, startingItem + pageSize);
+
+    console.log("this.itemsForPresentation");
+    console.log(this.itemsForPresentation);
+  }
+
+  pageChangeEvent(page: number) {
+    this.page = page;
+    console.log(`page:::::${page}`);
+    this.retrieveItemsForPresentation(page, this.pageSize);
   }
 }

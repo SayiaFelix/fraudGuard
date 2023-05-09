@@ -90,7 +90,7 @@ export class AddProductComponent implements OnInit {
       },
       (error: any) => {
         Swal.fire('Record creation error',
-          `${error}`,
+          `Record creation error`,
           'error')
       }
     );
@@ -131,7 +131,7 @@ export class AddProductComponent implements OnInit {
       },
       (error: any) => {
         Swal.fire('Record editing error',
-          `${error}`,
+          `Record deletion error`,
           'error')
       }
     );

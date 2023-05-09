@@ -33,7 +33,7 @@ export class ProductCategoriesComponentSubItem implements OnInit {
   breadCrumbItems: Array<{}>;
   rows: any = [];
   temp: any = [];
-  loadingIndicator = true;
+  loading = true;
   reorderable = true;
 
   columns = [
@@ -79,9 +79,12 @@ export class ProductCategoriesComponentSubItem implements OnInit {
   }
 
   getSubCategories(): void {
+    this.loading = true;
     this.rows = this.subItems;
 
     let response = this.rows.map((item: any, index: any) => {
+      this.loading = false;
+
       let res = {...item,
         parentCategoryName: item.parentCategoryName ? item.parentCategoryName : "_",
         frontendId: index + 1
@@ -268,7 +271,7 @@ export class ProductCategoriesComponentSubItem implements OnInit {
   openDeleteModal(formData: any) {
     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
     this.modalRef.componentInstance.title = `Delete this Category?`;
-    this.modalRef.componentInstance.body = `Do you want to delete category: {${formData.name}}?`;
+    this.modalRef.componentInstance.body = `Do you want to delete category: ${formData.name}?`;
     this.modalRef.result.then((result: any) => {
       if (result === 'success') {
 
@@ -293,7 +296,7 @@ export class ProductCategoriesComponentSubItem implements OnInit {
           (error: any) => {
             console.log("this triggered")
             Swal.fire('Product Category could not be deleted.',
-              `${error.message}`,
+              `Record deletion error`,
               'error')
           }
         );
