@@ -39,20 +39,20 @@ export class ViewMobileAppCustomerComponent implements OnInit {
   registeredColumns = [
     { name: 'ID', prop: 'id' },
     { name: 'Device', prop: 'IMSINumber' },
-    { name: 'PrimaryDevice', prop: 'primaryDevice' },
+    { name: 'Primary Device', prop: 'primaryDevice' },
     { name: 'Status', prop: 'status' },
-    { name: 'CreatedOn', prop: 'createdOn' },
-    {name:'LastUsed',prop:'lastUsed'},
+    { name: 'Created On', prop: 'createdOn' },
+    {name:'Last Used',prop:'lastUsed'},
     { name: 'Actions', prop: 'id' },
   ];
  transactionsColumns = [
-  { name: 'TransID', prop:'TransID' },
-  { name: 'CreatedOn', prop:'CreatedOn' },
-  {name:'ServiceName',prop:'ServiceName'},
-  {name:'AccountNo.',prop:'AccountNo.'},
+  { name: 'Trans ID', prop:'TransID' },
+  { name: 'Created On', prop:'CreatedOn' },
+  {name:'Service Name',prop:'ServiceName'},
+  {name:'Account No.',prop:'AccountNo.'},
   {name:'Amount',prop:'Amount'},
-  {name:'ChargeAmt',prop:'ChargeAmt'},
-  {name:'ResCode',prop:'Respons'},
+  {name:'Charge Amt',prop:'ChargeAmt'},
+  {name:'Res Code',prop:'Respons'},
 
   ];
 
@@ -64,9 +64,9 @@ export class ViewMobileAppCustomerComponent implements OnInit {
   reorderable = true;
   columns = [
       { name: 'ID', prop: 'id' },
-      { name: 'DeviceID', prop: 'DeviceID' },
+      { name: 'Device ID', prop: 'DeviceID' },
       { name: 'Status', prop: 'status' },
-      { name: 'CreatedOn', prop: 'createdOn' },
+      { name: 'Created On', prop: 'createdOn' },
       { name: 'Actions', prop: 'id' },
   ];
 

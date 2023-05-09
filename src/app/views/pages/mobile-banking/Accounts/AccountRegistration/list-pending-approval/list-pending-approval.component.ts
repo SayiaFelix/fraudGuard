@@ -51,11 +51,11 @@ export class ListPendingApprovalComponent implements OnInit {
   columns = [
     {name: 'ID', prop: 'id'},
     {name: 'Name', prop: 'Name'},
-    {name: 'RegistrationNumber', prop: 'RegistrationNumber'},
-    {name:'AccountNumber',prop:'AccountNumber'},
-    {name: 'CreatedOn', prop: 'createdOn'},
+    {name: 'Registration No.', prop: 'RegistrationNumber'},
+    {name:'Account Number',prop:'AccountNumber'},
+    {name: 'Created On', prop: 'createdOn'},
     {name: 'Status', prop: 'status'},
-    {name:'CreatedBy',prop:'CreatedBy'},
+    {name:'Created By',prop:'CreatedBy'},
     {name: 'Actions', prop: 'id'},
   ];
 
@@ -67,7 +67,7 @@ export class ListPendingApprovalComponent implements OnInit {
   public imageFile: File;
   public modalRef: NgbModalRef;
 
-  title: string = "Products";
+  title: string = "Pending Acc.";
 
   isLoading = true;
 
