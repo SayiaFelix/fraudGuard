@@ -25,6 +25,8 @@ export class CustomNgxTable implements OnInit {
 
   @Input() hasViewAndEdit: any;
 
+  @Input() disableFilters: any;
+
   @Input() actions: any;
 
   @Output() outputEvent = new EventEmitter<string>();

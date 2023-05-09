@@ -1,7 +1,8 @@
 <nav class="page-breadcrumb">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a routerLink="/mobile-banking/product
-    s/list-categories-as-cards">All Categories</a></li>
+    <li class="breadcrumb-item"><a routerLink="/mobile-banking/products/list-categories-as-cards">
+      All Categories
+    </a></li>
     <li class="breadcrumb-item active" aria-current="page">View Products</li>
   </ol>
 </nav>
@@ -10,29 +11,55 @@
   class="d-flex justify-content-between align-items-center flex-wrap grid-margin"
 >
   <div>
-    <h4 class="mb-3 mb-md-0">All Products</h4>
+    <h4 class="mb-3 mb-md-0">{{itemsForPresentation[0]?.productCategory?.name}}</h4>
   </div>
 
-  <div ngbDropdown>
-    <button class="btn btn-primary btn-xs" id="dropdownBasic1" ngbDropdownToggle>Select View</button>
-    <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
-      <button ngbDropdownItem routerLink="/mobile-banking/products/list-products-as-cards/1">Card View</button>
-      <button ngbDropdownItem routerLink="/mobile-banking/products/product/1">Table View</button>
-    </div>
-  </div>
+<!--  <div ngbDropdown>-->
+<!--    <button class="btn btn-primary btn-xs" id="dropdownBasic1" ngbDropdownToggle>Select View</button>-->
+<!--    <div ngbDropdownMenu aria-labelledby="dropdownBasic1">-->
+<!--      <button ngbDropdownItem routerLink="/mobile-banking/products/list-products-as-cards/1">Card View</button>-->
+<!--      <button ngbDropdownItem routerLink="/mobile-banking/products/product/1">Table View</button>-->
+<!--    </div>-->
+<!--  </div>-->
 
   <app-table-header
     [allColumns]="allColumns"
     [rows]="rows"
     [title]="title"
     [showAddButton]="true"
+    [hideExtraOptions]="true"
     (changeColumnsEvent)="updateColumns($event)"
     (openAddModalEvent)="openAddProductModal()"
   ></app-table-header>
 
 </div>
-<div class="row row-cols-1 row-cols-md-3 g-4">
-  <div class="col-6" *ngFor="let slide of slidesStore" [id]="slide.id">
+
+<!--  Pagination-->
+
+<ng-container *ngIf="itemsForPresentation.length > 0">
+  <ul class="d-none">
+    <li *ngFor="let item of allItems | paginate: {itemsPerPage: perPage, currentPage: page, totalItems: allItems.length}">
+    </li>
+  </ul>
+  <div class="d-flex justify-content-between mt-2">
+    <div class="row col-xl-6 col-lg-1 col-md-1 text-center">
+      <div class="col-sm-4 pl-0">
+        <select (change)="onChange(perPage, page)" [(ngModel)]="perPage" class="form-control custom-select">
+          <option *ngFor="let pageSize of [{id: 3, name: '3 Items per Page'}, {id: 6, name: '6 Items per Page'}, {id: 9, name: '9 Items per Page'}]" [ngValue]="pageSize.id">{{ pageSize.name }}</option>
+        </select>
+      </div>
+
+    </div>
+    <pagination-controls [responsive]="true" [autoHide]="false" previousLabel="Prev"
+                         (pageChange)="pageChangeEvent($event)" [maxSize]="7">
+    </pagination-controls>
+  </div>
+</ng-container>
+<!--  Pagination-->
+
+
+<div class="row row-cols-1 row-cols-md-3 g-4" *ngIf="itemsForPresentation.length > 0; else noItems">
+  <div class="col-6" *ngFor="let slide of itemsForPresentation" [id]="slide.id">
     <div class="card unique-card">
       <!-- <img src="assets/images/others/placeholder.jpg" class="card-img-top" alt="..."> -->
       <img class="card-img-top images-styling" [src]="slide.productUrl.trim()" [alt]="slide.alt" preload>
@@ -41,57 +68,23 @@
         <p class="card-text">{{slide.description}}</p>
         <p class="card-text">{{slide.productDescription}}</p>
         <div class="d-grid gap-2 d-md-block">
-          <a [routerLink]="'/mobile-banking/products/product/' + productCategoryId + '/' + slide.id" class="btn btn-primary btn-sm">View</a>
+          <a [routerLink]="'/mobile-banking/products/product/' + productCategoryId + '/' + slide.id"
+             class="btn btn-primary btn-sm"
+             style="margin-left: 0!important;"
+          >View</a>
           <a (click)="editProduct(slide)"  class="btn btn-secondary btn-sm">Edit</a>
           <a (click)="openDeleteModal(slide)" class="btn btn-danger btn-sm">Delete</a>
         </div>
       </div>
     </div>
   </div>
+
 </div>
-
-<!--<app-table-filters-->
-<!--[allColumns]="columns">-->
-<!--</app-table-filters>-->
-
-<!-- <div class="row">
-  <div class="col-md-12 stretch-card">
-
-    <div class="col-md-12 grid-margin stretch-card">
-      <div class="card">
-        <div class="card-body">
-          <h4 class="card-title mb-2">Products</h4>
-          <owl-carousel-o [options]="autoPlayExampleOptions">
-            <ng-template carouselSlide *ngFor="let slide of slidesStore" [id]="slide.id">
-              <div class="m-2 p-2">
-                <div class="card" style="width: 18rem;"> -->
-<!-- <img class="card-img-top images-styling" [src]="domSanitizer.bypassSecurityTrustResourceUrl(slide?.productUrl?.trim())"> -->
-<!-- <img class="card-img-top images-styling" [src]="slide.productUrl.trim()" [alt]="slide.alt" preload> -->
-
-<!--              <img class="card-img-top" [src]="domSanitizer.bypassSecurityTrustResourceUrl(slide.productUrl)" [alt]="slide.alt">-->
-<!-- <img class=card-img-top [src]="slide.productUrl"> -->
-<!-- <img src="..." class="card-img-top" alt="..."> -->
-<!-- <div class="card-body">
-  <h5 class="card-title">{{slide.name}}</h5>
-  <p class="card-text">{{slide.description}}</p>
-  <p class="card-text">{{slide.productDescription}}</p>
-  <div class="d-grid gap-2 d-md-block">
-    <a [routerLink]="'/mobile-banking/products/product/' + productCategoryId + '/' + slide.id" class="btn btn-primary btn-sm" style="color:white">View</a>
-    <a (click)="editProduct(slide)"  class="btn btn-secondary btn-sm">Edit</a>
-    <a (click)="openDeleteModal(slide)" class="btn btn-danger btn-sm">Delete</a>
+<ng-template #noItems>
+  <div class="text-center">
+    <i appFeatherIcon class="btn-icon-prepend icon-xl" data-feather="archive"></i><br>
+    <p class="mt-2">No Products Available</p>
   </div>
-</div>
-</div> -->
-<!-- <h5 class="text-center">Loan Product</h5> -->
-<!-- <img [src]="slide.src" [alt]="slide.alt" [title]="slide.title">
-<p class="text-center">Here is the product description.</p> -->
-<!-- </div>
-
 </ng-template>
-</owl-carousel-o> -->
-<!-- </div>
-</div>
-</div>
 
-</div> -->
-<!-- </div> -->
+
