@@ -33,7 +33,7 @@ export class ProductCategoriesComponentSubItem implements OnInit {
   breadCrumbItems: Array<{}>;
   rows: any = [];
   temp: any = [];
-  loadingIndicator = true;
+  loading = true;
   reorderable = true;
 
   columns = [
@@ -79,9 +79,12 @@ export class ProductCategoriesComponentSubItem implements OnInit {
   }
 
   getSubCategories(): void {
+    this.loading = true;
     this.rows = this.subItems;
 
     let response = this.rows.map((item: any, index: any) => {
+      this.loading = false;
+
       let res = {...item,
         parentCategoryName: item.parentCategoryName ? item.parentCategoryName : "_",
         frontendId: index + 1
