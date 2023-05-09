@@ -25,9 +25,9 @@ export class ListAtmsComponent implements OnInit {
 
   columns = [
     { name: 'ID', prop: 'id' },
-    { name: 'ATMName', prop:'name' },
-    { name: 'ATMCode', prop:'atmCode' },
-    { name: 'IsActive', prop:'isActive' },
+    { name: 'ATM Name', prop:'name' },
+    { name: 'ATM Code', prop:'atmCode' },
+    { name: 'Active', prop:'isActive' },
     { name: 'Actions', prop: 'id' }
   ];
 
