@@ -76,6 +76,8 @@ export class CustomNgxTable implements OnInit {
   }
 
   changePageSize(event: Event) {
+    console.log("event when changing page.");
+    console.log(event);
     this.pageSize = parseInt((event.target as HTMLSelectElement).value);
   }
 

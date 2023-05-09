@@ -17,6 +17,7 @@ import { DatatableComponent } from '@swimlane/ngx-datatable/lib/components/datat
 import { DataExportationService } from 'src/app/shared/services/data-exportation.service';
 import { HttpService } from 'src/app/shared/services/http.service';
 import {AddCustomerComponent} from "../add-customer/add-customer.component";
+import {ChannelDetailsWrapper} from "../../../../../shared/services/channelDetailsWrapper";
 
 @Component({
   selector: 'app-list-requests',
@@ -31,35 +32,6 @@ import {AddCustomerComponent} from "../add-customer/add-customer.component";
 export class ListCustomersComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
   actions=["View","Edit"]
-  tempProductData = [
-    {
-      id: 1,
-      customerName: 'Jane Mwangi',
-      phoneNumber:'0728357775',
-      idNumber: '8343849849',
-      primaryDevice:'Mobile Banking Mobile App',
-      cbsCustomerNumber:'013465890',
-      accountNumber:'0119787899900',
-      email:'Carey004@gmail.com',
-      createdOn: '12-02-2023',
-      dob:'08-05-1997',
-      gender:'Female',
-    },
-    {
-      id: 2,
-      customerName: 'Andrew Kamau',
-      phoneNumber:'0745983290',
-      idNumber: '495875004',
-      primaryDevice:'Mobile Banking USSD',
-      cbsCustomerNumber:'032178900',
-      accountNumber:'0116987349900',
-      email:'mike@gmail@gmail.com',
-      createdOn: '12-02-2023',
-      dob:'28-08-1995',
-      gender:'Male',
-    },
-
-  ];
 
   // bread crumb items
   breadCrumbItems: Array<{}>;
@@ -70,15 +42,12 @@ export class ListCustomersComponent implements OnInit {
 
   columns = [
     { name: '#', prop: 'id' },
-    { name: 'Customer Name', prop: 'customerName' },
+    { name: 'Customer Name', prop: 'name' },
     {name:'Phone Number',prop:'phoneNumber'},
-    { name: 'ID Number', prop: 'idNumber' },
-    {name: 'CBS Customer No.',prop:'cbsCustomerNumber'},
-    {name: 'Account Number',prop:'accountNumber'},
-    // {name: 'Email',prop:'email'},
-    { name: 'Created On', prop: 'createdOn' },
-    // {name: 'DOB',prop:'dob'},
-    // {name: 'Gender',prop:'gender'},
+    { name: 'Wallet Account', prop: 'walletAccount' },
+    {name: 'Id Type.',prop:'identificationType'},
+    {name: 'Identification',prop:'identification'},
+    {name: 'Email',prop:'email'},
     { name: 'Actions', prop: 'id' },
   ];
 
@@ -120,27 +89,24 @@ export class ListCustomersComponent implements OnInit {
   }
 
   getIndividualData(event: number): void {
-    this.rows = this.tempProductData;
-
-    this.temp = [...this.tempProductData];
 
     this.loading = true;
 
-    const model = {
+    let model = ChannelDetailsWrapper.channelDetailsWrapper;
+
+    model.payload = {
       page: 0,
-      size: 50,
-    };
+      size: 1000
+    }
 
     this.httpService
-      .mobileBankingPost('api/v1/corporate/admin/list-products/all', model)
+      .mobileBankingPostUpdated('api/v1/kyc/portal/get-customers', model)
       .subscribe((res: any) => {
-        if (res.status === 200) {
+        if (res.status === '00') {
           setTimeout(() => {
-            // this.data = res.data;
-            this.rows = this.tempProductData;
-            // let data = this.tempProductData;
+            this.rows = res.data;
 
-            let total = res.totalItems;
+            let total = res.metadata.numofrecords;
           }, 10);
         } else {
         }

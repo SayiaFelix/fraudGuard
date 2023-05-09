@@ -192,4 +192,22 @@ export class HttpService {
     let profile = JSON.parse(localStorage.getItem('profile')!);
     return profile;
   }
+
+  // Other requests to backend...Mobile Banking extended endpoints
+  public mobileBankingPostUpdated(endpoint: string, model: any): any {
+    return this.http
+      .post(
+
+        this.globalService.mobileBankingHost + endpoint,
+        model,
+        this.getHeaders()
+      )
+      .pipe(
+        map((response) => {
+          response = response;
+          return response;
+        })
+      );
+  }
+
 }

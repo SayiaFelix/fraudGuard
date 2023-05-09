@@ -99,16 +99,16 @@ export const MENU: MenuItem[] = [
             label:'New Account',
             link:'/mobile-banking/accounts/linked-accounts'
           },
-          {
-            profiles: ['CORPORATE_ADMIN'],
-            label:'Approve Account',
-            link:'/mobile-banking/accounts/account-registration/account-opening'
-          },
-             {
-            profiles: ['CORPORATE_ADMIN'],
-            label:'Rejected Accounts',
-            link:'/mobile-banking/accounts/account-registration/account-opening'
-          },
+          // {
+          //   profiles: ['CORPORATE_ADMIN'],
+          //   label:'Approve Account',
+          //   link:'/mobile-banking/accounts/account-registration/account-opening'
+          // },
+          //    {
+          //   profiles: ['CORPORATE_ADMIN'],
+          //   label:'Rejected Accounts',
+          //   link:'/mobile-banking/accounts/account-registration/account-opening'
+          // },
              {
             profiles: ['CORPORATE_ADMIN'],
             label:'Manage Accounts',
