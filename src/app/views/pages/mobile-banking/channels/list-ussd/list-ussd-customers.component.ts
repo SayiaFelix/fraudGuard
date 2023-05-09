@@ -21,6 +21,7 @@ import {AddMobileAppCustomerComponent} from "../add-mobile-app-customer/add-mobi
 import {AddProductComponent} from "../../products/add-product/add-product.component";
 import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
 import Swal from "sweetalert2";
+import {ChannelDetailsWrapper} from "../../../../../shared/services/channelDetailsWrapper";
 
 @Component({
   selector: 'app-list-requests',
@@ -313,28 +314,38 @@ export class ListUssdCustomersComponent implements OnInit {
     }
   }
 
-  openDisableModal(channelName: string) {
+  openDisableModal(channelName: string, status: boolean) {
     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
-    this.modalRef.componentInstance.title = `Disable this channel?`;
-    this.modalRef.componentInstance.body = `Do you want to disable: ${channelName}?`;
+    if (status){
+      this.modalRef.componentInstance.title = `Enable this channel?`;
+      this.modalRef.componentInstance.body = `Do you want to enable: ${channelName}?`;
+    } else {
+      this.modalRef.componentInstance.title = `Disable this channel?`;
+      this.modalRef.componentInstance.body = `Do you want to disable: ${channelName}?`;
+    }
     this.modalRef.result.then((result: any) => {
       if (result === 'success') {
 
-        let model = {
-          // id: formData.id
+        this.loading = true;
+
+        let model = ChannelDetailsWrapper.channelDetailsWrapper;
+
+        model.payload = {
+          action: status,
+          channelId: 1
         }
 
-        this.httpService.mobileBankingPost('product/portal/delete',
+        this.httpService.mobileBankingPostUpdated('api/v1/kyc/portal/activate-deactivate',
           model).subscribe(
           (result: any) => {
-            if (result.status === 200) {
-              Swal.fire('Product Deleted',
-                'Product has been deleted successfully.',
+            if (result.status === '00') {
+              Swal.fire(`Channel ${status ? 'Activated': 'Deactivated'} Successfully`,
+                `Channel has been ${status ? 'Activated': 'Deactivated'} Successfully.`,
                 'success').then(r => console.log(r))
               this.getIndividualData(0);
             } else {
-              Swal.fire('Record deletion error',
-                'Product could not be deleted.',
+              Swal.fire('Error',
+                'Product could not be activated/ deactivated.',
                 'error').then(r => console.log(r))
             }
           },

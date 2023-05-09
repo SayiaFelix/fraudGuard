@@ -1,0 +1,36 @@
+<div class="row w-100 mx-0 auth-page">
+  <div class="col-md-8 col-xl-6 mx-auto">
+    <div class="card">
+      <div class="row">
+        <div class="col-md-4 pe-md-0" style="background-color:#086e89 ;">
+          <div class="auth-side-wrapper" [ngStyle]="{ 'background-image': 'url(\'/assets/images/misc/login.jpg\')' }" >
+<!--          <div class="auth-side-wrapper" [ngStyle]="{ 'background-image': 'url(https://eclectics.io/wp-content/uploads/assets/eclectics.svg)' }">-->
+          </div>
+        </div>
+        <div class="col-md-8 ps-md-0">
+          <div class="auth-form-wrapper px-4 py-5">
+            <a routerLink="." class="nobleui-logo d-block mb-2">Eclectics <span>Channel Manager</span></a>
+            <h5 class="text-muted fw-normal mb-4">First Time Login</h5>
+            <h6 class="text-muted fw-normal mb-4">Set your preferred password</h6>
+            <form class="forms-sample">
+              <div class="mb-3">
+                <label for="exampleInputEmail1" class="form-label">One-Time Password</label>
+                <input type="text" class="form-control" id="exampleInputEmail1" placeholder="One Time Password">
+                <small class="text-center">Enter the password that was sent to your email</small>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Preferred Password</label>
+                <input type="text" class="form-control" id="exampleInputEmail1" placeholder="One Time Password">
+                <small class="text-center">Enter the password that was sent to your email</small>
+              </div>
+              <div>
+                <button type="submit" class="btn btn-primary me-2 mb-2 mb-md-0" (click)="onLoggedin($event)">Reset Password</button>
+              </div>
+              <a routerLink="/auth/login" class="d-block mt-3 text-muted">Return to Login</a>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

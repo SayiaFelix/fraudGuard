@@ -7,6 +7,7 @@ import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import { ColumnMode } from '@swimlane/ngx-datatable';
 import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
 import Swal from "sweetalert2";
+import {ChannelDetailsWrapper} from "../../../../../shared/services/channelDetailsWrapper";
 
 @Component({
   selector: 'app-view-customer',
@@ -14,23 +15,10 @@ import Swal from "sweetalert2";
   styleUrls: ['./view-customer.component.scss']
 })
 export class ViewCustomerComponent implements OnInit {
-  public myProductList = [
-    {
-      icon: '',
-      TransID: '123',
-      value: 8,
-      text: 'danger'
-    },
-    {
-      icon: '',
-      name: '2. Mutual Funds',
-      text: 'danger',
-      value: 8,
 
-    }
-  ];
   breadCrumbItems: Array<{}>;
   rows: any = [];
+  channelRows: any = [];
   loadingIndicator = true;
   reorderable = true;
 
@@ -47,12 +35,7 @@ export class ViewCustomerComponent implements OnInit {
     // { name: 'IsActive', prop:'isActive' },
     // { name: 'Actions', prop: 'id' }
   ];
-  public myproductList =[
-      {
-        customerID:'1256',
-        accNo:'01198564321908',
-      }
-  ];
+
 Accountscolumns = [
   { name:'CustomerID', prop:'customerID'},
   { name:'AccNo', prop:'accNo'},
@@ -61,6 +44,13 @@ Accountscolumns = [
   { name:'Status', prop:'Status'},
 
 ];
+
+  channelsColumns = [
+    { name:'Channel', prop:'channel'},
+    { name:'CreatedOn', prop:'createdOn'},
+    { name:'Status', prop:'status'},
+
+  ];
 
   public mainProduct: any;
   public subcategoryTitle: any;
@@ -73,6 +63,11 @@ Accountscolumns = [
   ColumnMode = ColumnMode;
 
   modalRef: NgbModalRef;
+
+  loading: boolean;
+  customerId: any;
+  channelsLoading: boolean = true;
+
   constructor(private httpService: HttpService,
               public globalService: GlobalService,
               public activatedRoute: ActivatedRoute,
@@ -89,7 +84,16 @@ Accountscolumns = [
   }
 
   ngOnInit(): void {
-    this.loadData();
+
+    this.activatedRoute.params.subscribe(params => {
+      if (typeof params.id !== 'undefined') {
+        this.customerId = params.id;
+      }
+    })
+
+    // this.loadData();
+
+    this.loadChannelData();
 
     this.form = this.fb.group({
       name: [this.formData ? this.formData.name : '',
@@ -104,17 +108,42 @@ Accountscolumns = [
 
   }
 
-  private loadData(): any {
+  // private loadData(): any {
+  //
+  //   const model = {
+  //     page: 0,
+  //     size: 100
+  //   };
+  //
+  //   this.httpService.mobileBankingPost('api/v1/corporate/admin/list-products/all', model).subscribe(
+  //     (result: any) => {
+  //     }
+  //   );
+  // }
 
-    const model = {
-      page: 0,
-      size: 100
-    };
+  private loadChannelData(): any {
+    this.channelsLoading = true;
+    let model = ChannelDetailsWrapper.channelDetailsWrapper;
 
-    this.httpService.mobileBankingPost('api/v1/corporate/admin/list-products/all', model).subscribe(
-      (result: any) => {
-      }
-    );
+    model.payload = {
+      customerId: this.customerId
+    }
+
+    this.httpService
+      .mobileBankingPostUpdated('api/v1/kyc/portal/get-user-channels', model)
+      .subscribe((res: any) => {
+        if (res.status === '00') {
+          setTimeout(() => {
+            this.channelRows = res.data;
+
+            let total = res.metadata.numofrecords;
+          }, 10);
+        } else {
+        }
+      });
+
+    this.channelsLoading = false;
+
   }
 
   isAsideNavCollapsed: any;

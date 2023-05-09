@@ -10,6 +10,7 @@ import {FeatherIconModule} from "../../../core/feather-icon/feather-icon.module"
 import {SharedModule} from "../../../shared/shared.module";
 import {HttpClientModule} from "@angular/common/http";
 import {TranslateModule} from "@ngx-translate/core";
+import {FirstTimeLoginComponent} from "./first-time-login/first-time-login.component";
 
 const routes: Routes = [
   {
@@ -41,7 +42,8 @@ const routes: Routes = [
   declarations: [LoginComponent,
     RegisterComponent,
     ForgotPasswordComponent,
-    AuthComponent],
+    AuthComponent,
+    FirstTimeLoginComponent],
     imports: [
         CommonModule,
         RouterModule.forChild(routes),

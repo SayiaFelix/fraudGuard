@@ -93,8 +93,15 @@ export class LoginComponent implements OnInit {
             }, 4000);
           } else {
             setTimeout(() => {
-              this.router.navigate(['/dashboard']);
-              this.getUserRoles();
+
+              this.saveUsernameAndRolesOnLogin();
+
+              if(result.data.firstTimeLogin) {
+                this.router.navigate(['/dashboard']);
+              } else{
+                this.router.navigate(['/dashboard']);
+              }
+
             }, 1000);
             return result;
           }
@@ -123,11 +130,28 @@ export class LoginComponent implements OnInit {
     }
   }
 
-  private getUserRoles() {
-    let model = {
-      uid: 1
-    }
+  private saveUsernameAndRolesOnLogin() {
 
-    this.httpService.mobileBankingPost("", model).subscribe()
+    let accessToken = localStorage.getItem("access_token");
+
+    // decode token to get response
+    let model = {
+      token: accessToken,
+    };
+    // console.log("remove model: ", model);
+    this.httpService.mobileBankingPost('oauth/validate', model).subscribe((res: any) => {
+      if (res.status === 200) {
+
+        console.log(res.data);
+
+        localStorage.setItem('userName', res.data.username);
+        localStorage.setItem('roles', res.data.roles);
+
+      } else {
+        Swal.fire('Error',  'Unable to fetch user details.',  'error');
+      }
+    })
+
+
   }
 }
