@@ -11,7 +11,20 @@
         <div class="card">
           <div [formGroup]="form" class="card-body">
             <div class="row">
-              <div class="col-lg-4 border-end-lg">
+              <!-- <div class="col-lg-8"> -->
+                <div class="col-lg-7 border-end-lg">
+                <div #updatedMap>
+                  <agm-map (mapReady)="onMapReady($event)" [latitude]="lat" [longitude]="lng" [zoom]="8">
+                    <agm-polygon [fillColor]="'#1890FF'" [paths]="pointList" [strokeColor]="'#1890FF'"
+                                 [strokeWeight]="2">
+                    </agm-polygon>
+
+                  </agm-map>
+
+                </div>
+              </div>
+              <div class="col-lg-5">
+              <!-- <div class="col-lg-4 border-end-lg"> -->
                 <h4 class="text-center mx-auto tx-16 fw-bold">Define Your Region Selection</h4>
                 <hr>
 
@@ -63,7 +76,7 @@
 
 
               </div>
-              <div class="col-lg-8">
+              <!-- <div class="col-lg-8">
                 <div #updatedMap>
                   <agm-map (mapReady)="onMapReady($event)" [latitude]="lat" [longitude]="lng" [zoom]="8">
                     <agm-polygon [fillColor]="'#1890FF'" [paths]="pointList" [strokeColor]="'#1890FF'"
@@ -73,7 +86,7 @@
                   </agm-map>
 
                 </div>
-              </div>
+              </div> -->
             </div>
           </div>
         </div>
