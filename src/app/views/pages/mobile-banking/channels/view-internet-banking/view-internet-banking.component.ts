@@ -44,18 +44,18 @@ export class ViewInternetBankingComponent implements OnInit {
     { name: 'IP/MAC Address', prop: 'IMSINumber' },
     { name: 'Primary IP/Mac Address',prop:'primaryIPAddress'},
     { name: 'Status', prop: 'status' },
-    { name: 'CreatedOn', prop: 'createdOn' },
-    {name:'LastUsed',prop:'lastUsed'},
+    { name: 'Created On', prop: 'createdOn' },
+    {name:'Last Used',prop:'lastUsed'},
     { name: 'Actions', prop: 'id' },
   ];
  transactionsColumns = [
-  { name: 'TransID', prop:'TransID' },
-  { name: 'CreatedOn', prop:'CreatedOn' },
-  {name:'ServiceName',prop:'ServiceName'},
-  {name:'AccountNo.',prop:'AccountNo.'},
+  { name: 'Trans ID', prop:'TransID' },
+  { name: 'Created On', prop:'CreatedOn' },
+  {name:'Service Name',prop:'ServiceName'},
+  {name:'Account No.',prop:'AccountNo.'},
   {name:'Amount',prop:'Amount'},
-  {name:'ChargeAmt',prop:'ChargeAmt'},
-  {name:'ResCode',prop:'Respons'},
+  {name:'Charge Amt',prop:'ChargeAmt'},
+  {name:'Res Code',prop:'Respons'},
 
   ];
 
@@ -70,7 +70,7 @@ export class ViewInternetBankingComponent implements OnInit {
       { name: 'ID', prop: 'id' },
       { name: 'IP/MAC Address', prop: 'IP/MAC Address' },
       { name: 'Status', prop: 'status' },
-      { name: 'CreatedOn', prop: 'createdOn' },
+      { name: 'Created On', prop: 'createdOn' },
       { name: 'Actions', prop: 'id' },
     ];
 
@@ -141,8 +141,8 @@ export class ViewInternetBankingComponent implements OnInit {
   }
 
   openEditProductModal(formData: any) {
-    this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true});
-    this.modalRef.componentInstance.title = 'Edit Product';
+    this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true,size:"md"} );
+    this.modalRef.componentInstance.title = 'Edit IB';
     this.modalRef.componentInstance.formData = formData;
     this.modalRef.result.then((result) => {
       if (result === 'success') {

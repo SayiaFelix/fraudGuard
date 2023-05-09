@@ -26,11 +26,11 @@ export class ListAuditsComponent implements OnInit {
     {name: 'User ID', prop: 'id'},
     {name: 'User Name', prop:'CreatedBy'},
     {name: 'Date & Time', prop: 'createdOn'},
-    {name: 'AuditAction', prop: 'AuditMessage'},
+    {name: 'Audit Action', prop: 'AuditMessage'},
     {name: 'IP', prop: 'ip'},
     {name: 'Actions', prop: 'id'},
     {name: 'User Name', prop:'CreatedBy'},
-    {name: 'CreatedOn', prop: 'createdOn'},
+    {name: 'Created On', prop: 'createdOn'},
   ];
 
   allColumns = [...this.columns];

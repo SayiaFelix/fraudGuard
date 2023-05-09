@@ -62,9 +62,9 @@ export class ListBranchesComponent implements OnInit {
 
   columns = [
     { name: 'ID', prop: 'id' },
-    { name: 'BranchName', prop:'name' },
-    { name: 'BranchCode', prop:'code' },
-    { name: 'IsActive', prop:'isActive' },
+    { name: 'Branch Name', prop:'name' },
+    { name: 'Branch Code', prop:'code' },
+    { name: 'Active', prop:'isActive' },
     { name: 'Actions', prop: 'id' }
   ];
 

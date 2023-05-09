@@ -54,16 +54,16 @@ export class ManageLinkingAccountsComponent implements OnInit {
 
   columns = [
     {name: 'ID', prop: 'id'},
-    {name: 'PhoneNumber', prop: 'PhoneNumber'},
-    {name: 'LinkedAccount', prop: 'LinkedAccount'},
-    {name:'NationalID', prop:'NationalID'},
+    {name: 'Phone Number', prop: 'PhoneNumber'},
+    {name: 'Linked Account', prop: 'LinkedAccount'},
+    {name:'National ID', prop:'NationalID'},
     {name:'Channel',prop:'Channel'},
-    {name:'T24AccountName',prop:'T24AccountName'},
+    {name:'T24 Account Name',prop:'T24AccountName'},
     {name:'Currency',prop:'Currency'},
-    {name:'DailyTxnLimit',prop:'DailyTxnLimit'},
+    {name:'Daily Txn Limit',prop:'DailyTxnLimit'},
     // {name: 'Status', prop: 'status'},
-    {name:'LinkedBy',prop:'LinkedBy'},
-    {name: 'AuthorisedOn', prop: 'AuthorisedOn'},
+    {name:'Linked By',prop:'LinkedBy'},
+    {name: 'Authorised On', prop: 'AuthorisedOn'},
     {name: 'Actions', prop: 'id'},
   ];
 
