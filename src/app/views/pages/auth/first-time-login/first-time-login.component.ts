@@ -4,6 +4,8 @@ import {ConfirmDialogComponent} from "../../../../shared/components/confirm-dial
 import Swal from "sweetalert2";
 import {NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {HttpService} from "../../../../shared/services/http.service";
+import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {CustomValidators} from "ngx-custom-validators";
 
 @Component({
   selector: 'app-first-time-login',
@@ -15,46 +17,63 @@ export class FirstTimeLoginComponent implements OnInit {
   returnUrl: any;
   public modalRef: NgbModalRef;
 
+  public form: FormGroup;
+
   constructor(private router: Router,
               private route: ActivatedRoute,
               private httpService: HttpService,
               private modalService: NgbModal,
-              ) { }
+
+              fb: FormBuilder,
+
+  ) {
+    this.form = fb.group({
+      oldPassword: [
+        '',
+        Validators.compose([Validators.required, CustomValidators.email]),
+      ],
+      newPassword: [
+        '',
+        Validators.compose([Validators.required, Validators.minLength(6)]),
+      ],
+    });
+  }
 
   ngOnInit(): void {
     // get return url from route parameters or default to '/'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
 
-  onLoggedin(e: Event) {
+  onSubmit(e: Event) {
+    console.log("On button click")
     e.preventDefault();
 
-    this.resetPassword();
+    this.setPassword();
 
 
   }
 
-  resetPassword(){
+  setPassword(){
     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
-    this.modalRef.componentInstance.title = 'Reset Password';
+    this.modalRef.componentInstance.title = 'Set Password';
 
-    this.modalRef.componentInstance.body= "Do you want to Reset password for this email address?";
+    this.modalRef.componentInstance.body= "Do you want to Set this as your new password?";
     this.modalRef.result.then((result) => {
       if (result === 'success') {
+
         const model = {
-          email: "testEmail@gmail.com"
+          oldPassword: this.form.value.oldPassword,
+          newPassword: this.form.value.newPassword
         };
 
-        this.httpService.mobileBankingPost('endpoint', model).subscribe(
+        this.httpService.mobileBankingPost('api/v1/admin/user/update/password', model).subscribe(
           (result: any) => {
             if (result.status === 200) {
-              Swal.fire('Password Reset',  'Password Sent to Email.',  'success')
+              Swal.fire('Password Set',  'Password Set Successfully.',  'success')
 
               // Navigate back to login screen.
-              localStorage.setItem('isLoggedin', 'true');
-              if (localStorage.getItem('isLoggedin')) {
-                this.router.navigate([this.returnUrl]);
-              }
+              this.router.navigate([this.returnUrl]);
+
             } else {
 
             }

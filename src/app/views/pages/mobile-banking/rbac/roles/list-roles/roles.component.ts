@@ -50,7 +50,7 @@ export class RolesComponent implements OnInit {
   title: string = "Roles";
   actions = ["Delete", "Edit"];
 
-
+  totalRecords: number;
   constructor(private httpService: HttpService,
               private modalService: NgbModal,
               public fb: FormBuilder,
@@ -95,6 +95,9 @@ export class RolesComponent implements OnInit {
             console.log(result);
             // console.log(result.data);
             let response = result['data'];
+
+            this.totalRecords = result.totalItems;
+
             this.rows = response.map((item: any, index: any) => {
               const res = {...item, frontendId: index + 1};
               console.log(res);

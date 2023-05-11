@@ -14,13 +14,13 @@
           <small *ngIf="form.get('firstName')?.touched && form.get('firstName')?.hasError('pattern')" class="text-danger">Input text only</small>
       </div>
 
-      <div class="col-md-6">
-        <label class="form-label">Middle Name</label>
-        <input class="form-control" formControlName="middleName" type="text">
-        <small *ngIf="form.get('middleName')?.touched && form.get('middleName')?.hasError('required')" class="text-danger">Required
-          Field</small>
-          <small *ngIf="form.get('middleName')?.touched && form.get('middleName')?.hasError('pattern')" class="text-danger">Input text only</small>
-      </div>
+<!--      <div class="col-md-6">-->
+<!--        <label class="form-label">Middle Name</label>-->
+<!--        <input class="form-control" formControlName="middleName" type="text">-->
+<!--        <small *ngIf="form.get('middleName')?.touched && form.get('middleName')?.hasError('required')" class="text-danger">Required-->
+<!--          Field</small>-->
+<!--          <small *ngIf="form.get('middleName')?.touched && form.get('middleName')?.hasError('pattern')" class="text-danger">Input text only</small>-->
+<!--      </div>-->
       <div class="col-md-6">
         <label class="form-label">Last Name</label>
         <input class="form-control" formControlName="lastName" type="text">
@@ -50,7 +50,7 @@
       </div>
       <div class="col-md-6">
         <label class="text-gray">Employee Number</label>
-        <input class="form-control" formControlName="employeeNo" type="text" (keyup)="showFormErrors()">
+        <input class="form-control" formControlName="employeeNo" type="number" (keyup)="showFormErrors()">
        <small *ngIf="form.get('employeeNo')?.touched &&
             form.get('employeeNo')?.hasError('required')" class="text-danger">Required
           Field</small>

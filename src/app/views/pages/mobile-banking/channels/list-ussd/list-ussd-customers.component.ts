@@ -1,24 +1,19 @@
 import {
   Component,
-  Input,
   OnInit,
-  TemplateRef,
   ViewChild,
 } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { DatePipe } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { ColumnMode } from '@swimlane/ngx-datatable';
 
-import { GlobalService } from '../../../../../shared/services/global.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { NgxDatatableComponent } from '../../../tables/ngx-datatable/ngx-datatable.component';
 import { DatatableComponent } from '@swimlane/ngx-datatable/lib/components/datatable.component';
 import { DataExportationService } from 'src/app/shared/services/data-exportation.service';
 import { HttpService } from 'src/app/shared/services/http.service';
 import {AddCustomerComponent} from "../add-customer/add-customer.component";
 import {AddMobileAppCustomerComponent} from "../add-mobile-app-customer/add-mobile-app-customer.component";
-import {AddProductComponent} from "../../products/add-product/add-product.component";
 import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
 import Swal from "sweetalert2";
 import {ChannelDetailsWrapper} from "../../../../../shared/services/channelDetailsWrapper";
@@ -35,7 +30,7 @@ import {ChannelDetailsWrapper} from "../../../../../shared/services/channelDetai
  */
 export class ListUssdCustomersComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
- actions = ["View","Edit"];
+ actions = ["View"];
   tempProductData = [
     {
       id: 1,
@@ -90,6 +85,9 @@ export class ListUssdCustomersComponent implements OnInit {
   public modalRef: NgbModalRef;
 
   title: string = "USSD Customer";
+  channelEnabled = true;
+  channels: any;
+  channel: any;
 
 
   constructor(
@@ -111,6 +109,8 @@ export class ListUssdCustomersComponent implements OnInit {
     ];
     this.getIndividualData(0);
 
+    this.getChannelsToKnowStatus();
+
     this.form = this.fb.group({
       name: ['', [Validators.required]],
       description: ['', [Validators.required]],
@@ -120,31 +120,11 @@ export class ListUssdCustomersComponent implements OnInit {
 
   getIndividualData(event: number): void {
 
-    this.loading = true;
+    this.loading = false;
     this.rows = this.tempProductData;
 
     this.temp = [...this.tempProductData];
 
-    const model = {
-      page: 0,
-      size: 50,
-    };
-
-    this.httpService
-      .mobileBankingPost('api/v1/corporate/admin/list-products/all', model)
-      .subscribe((res: any) => {
-        if (res.status === 200) {
-          setTimeout(() => {
-            // this.data = res.data;
-            this.rows = this.tempProductData;
-            // let data = this.tempProductData;
-
-            let total = res.totalItems;
-          }, 10);
-        } else {
-        }
-      });
-    this.loading = false;
   }
 
   openAddProductModal() {
@@ -328,11 +308,13 @@ export class ListUssdCustomersComponent implements OnInit {
 
         this.loading = true;
 
+        this.channelEnabled = !this.channelEnabled;
+
         let model = ChannelDetailsWrapper.channelDetailsWrapper;
 
         model.payload = {
           action: status,
-          channelId: 1
+          channelId: this.channel[0].id
         }
 
         this.httpService.mobileBankingPostUpdated('api/v1/kyc/portal/activate-deactivate',
@@ -357,5 +339,42 @@ export class ListUssdCustomersComponent implements OnInit {
         );
       }
     });
+  }
+
+  private getChannelsToKnowStatus() {
+    let model = ChannelDetailsWrapper.channelDetailsWrapper;
+
+    model.payload = {
+      page: 0,
+      size: 10
+    }
+
+    this.httpService.mobileBankingPostUpdated('api/v1/kyc/portal/get-channels',
+      model).subscribe(
+      (result: any) => {
+        if (result.status === '00') {
+          console.log("result.data");
+          console.log(result.data);
+
+          this.channels = result.data;
+
+          this.channel = this.channels.filter((item: any) => item.channel === 'USSD');
+
+          console.log("found channel: this.channel");
+          console.log(this.channel);
+          this.channelEnabled = this.channel[0].active;
+
+        } else {
+          Swal.fire('Error',
+            'Product could not be activated/ deactivated.',
+            'error').then(r => console.log(r))
+        }
+      },
+      (error: any) => {
+        Swal.fire('Record deletion error',
+          `Record creation error`,
+          'error')
+      }
+    );
   }
 }

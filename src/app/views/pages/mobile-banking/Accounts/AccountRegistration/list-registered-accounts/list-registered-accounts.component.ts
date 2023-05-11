@@ -23,7 +23,7 @@ export class ListRegisteredAccountsComponent implements OnInit {
       AccountNumber:'01167972316587',
       // status: true,
       CustomerID:'87142367',
-      Email:'michaelmbugua123@gmal.com',
+      Email:'michaelmbugua123@gmail.com',
       createdOn: '12-02-2023',
       CreatedBy:'Mary Njoki'
     },

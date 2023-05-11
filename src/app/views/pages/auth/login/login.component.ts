@@ -64,6 +64,7 @@ export class LoginComponent implements OnInit {
   }
 
   onSubmit(e: Event) {
+    this.hasError = false;
     this.isLoading = true;
     e.preventDefault();
 
@@ -96,8 +97,8 @@ export class LoginComponent implements OnInit {
 
               this.saveUsernameAndRolesOnLogin();
 
-              if(result.data.firstTimeLogin) {
-                this.router.navigate(['/dashboard']);
+              if(result.firstTimeLogin) {
+                this.router.navigate(['/auth/first-time-login']);
               } else{
                 this.router.navigate(['/dashboard']);
               }

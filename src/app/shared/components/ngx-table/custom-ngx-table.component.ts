@@ -28,6 +28,7 @@ export class CustomNgxTable implements OnInit {
   @Input() disableFilters: any;
 
   @Input() actions: any;
+  @Input() totalItems: any;
 
   @Output() outputEvent = new EventEmitter<string>();
   @Output() editEvent = new EventEmitter<string>();
@@ -40,7 +41,7 @@ export class CustomNgxTable implements OnInit {
   toggleFilters: any[];
   total: any;
   perPage = 10;
-  pageSizes: number[] = [2, 5, 10, 20, 50, 100];
+  pageSizes: number[] = [2, 5, 10, 20, 50, 100, 1000];
   pageSize = 10;
   page = 1;
   dataLoaded = false;

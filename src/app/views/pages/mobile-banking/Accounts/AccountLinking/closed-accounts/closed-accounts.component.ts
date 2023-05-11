@@ -45,7 +45,7 @@ export class ClosedAccountsComponent implements OnInit {
   breadCrumbItems: Array<{}>;
   rows: any = [];
   temp: any = [];
-  loadingIndicator = true;
+  loading = true;
   reorderable = true;
 
   actions = [];
@@ -53,13 +53,13 @@ export class ClosedAccountsComponent implements OnInit {
   columns = [
     {name: 'ID', prop: 'id'},
     // {name: 'PhoneNumber', prop: 'PhoneNumber'},
-    {name: 'LinkedAccount', prop: 'LinkedAccount'},
-    {name: 'NationaID',prop:'NationalID'},
+    {name: 'Linked Account', prop: 'LinkedAccount'},
+    {name: 'National ID',prop:'NationalID'},
     {name:'Channel',prop:'Channel'},
-    {name:'T24AccountName',prop:'T24AccountName'},
+    {name:'T24 Account Name',prop:'T24AccountName'},
     {name: 'Status', prop: 'status'},
-    { name:'CloseRequestBy',prop:'CloseRequestBy'},
-    {name: 'CloseRequestOn', prop: 'CloseRequestOn'},
+    { name:'Close Request By',prop:'CloseRequestBy'},
+    {name: 'Close Request On', prop: 'CloseRequestOn'},
     {name: 'Actions', prop: 'id'},
   ];
 
@@ -102,6 +102,8 @@ export class ClosedAccountsComponent implements OnInit {
   }
 
   getIndividualData(event: number): void {
+
+    this.loading = true;
     this.rows = this.tempProductData;
 
     this.temp = [...this.tempProductData];
@@ -110,6 +112,8 @@ export class ClosedAccountsComponent implements OnInit {
       page: 0,
       size: 50,
     };
+    this.loading = false;
+
 
     this.httpService
       .mobileBankingPost('api/v1/corporate/admin/list-products/all', model)

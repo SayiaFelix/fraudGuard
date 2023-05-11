@@ -144,4 +144,8 @@ export class NavbarComponent implements OnInit {
     //   }
     // });
   }
+
+  changePassword() {
+
+  }
 }

@@ -48,6 +48,7 @@ export class ListUsersComponent implements OnInit {
 
   title: string = "Users";
   actions = ["View", "Edit"];
+  totalRecords: number;
   constructor(private httpService: HttpService,
               private modalService: NgbModal,
               public fb: FormBuilder,
@@ -118,6 +119,7 @@ export class ListUsersComponent implements OnInit {
 
           if(result['status'] === 200){
             let response = result['data'];
+            this.totalRecords = result.totalItems;
             this.rows = response.map((item: any, index: any) => {
               const res = {...item, frontendId: index + 1};
               this.loading = false;

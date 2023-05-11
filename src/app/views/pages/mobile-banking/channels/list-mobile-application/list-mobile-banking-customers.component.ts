@@ -12,6 +12,7 @@ import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-d
 import {SwalComponent} from "@sweetalert2/ngx-sweetalert2";
 import Swal from "sweetalert2";
 import {AddMobileAppCustomerComponent} from "../add-mobile-app-customer/add-mobile-app-customer.component";
+import {ChannelDetailsWrapper} from "../../../../../shared/services/channelDetailsWrapper";
 
 @Component({
   selector: 'app-list-internet-banking',
@@ -120,7 +121,10 @@ export class ListMobileBankingCustomersComponent implements OnInit {
 
   @ViewChild('mySwal')
   public readonly mySwal!: SwalComponent;
-  actions = ["View", "Edit"];
+  actions = ["View"];
+  channelEnabled: any;
+  channels: any;
+  channel: any;
 
 
   constructor(
@@ -142,6 +146,7 @@ export class ListMobileBankingCustomersComponent implements OnInit {
       { label: 'Products', active: true },
     ];
     this.getIndividualData(0);
+    this.getChannelsToKnowStatus();
 
     this.form = this.fb.group({
       name: ['', [Validators.required]],
@@ -280,14 +285,81 @@ export class ListMobileBankingCustomersComponent implements OnInit {
     }
   }
 
-  openDisableModal(channelName: string) {
+  openDisableModal(channelName: string, status: boolean) {
     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
-    this.modalRef.componentInstance.title = `Disable this channel?`;
-    this.modalRef.componentInstance.body = `Do you want to disable: ${channelName}?`;
+    if (status){
+      this.modalRef.componentInstance.title = `Enable this channel?`;
+      this.modalRef.componentInstance.body = `Do you want to enable: ${channelName}?`;
+    } else {
+      this.modalRef.componentInstance.title = `Disable this channel?`;
+      this.modalRef.componentInstance.body = `Do you want to disable: ${channelName}?`;
+    }
     this.modalRef.result.then((result: any) => {
       if (result === 'success') {
-        Swal.fire('Success',  'Channel has been disabled successfully.',  'success');
+
+        this.loading = true;
+
+        let model = ChannelDetailsWrapper.channelDetailsWrapper;
+
+        model.payload = {
+          action: status,
+          channelId: this.channel[0].id
+        }
+
+        this.httpService.mobileBankingPostUpdated('api/v1/kyc/portal/activate-deactivate',
+          model).subscribe(
+          (result: any) => {
+            if (result.status === '00') {
+              Swal.fire(`Channel ${status ? 'Activated': 'Deactivated'} Successfully`,
+                `Channel has been ${status ? 'Activated': 'Deactivated'} Successfully.`,
+                'success').then(r => console.log(r))
+              this.getIndividualData(0);
+            } else {
+              Swal.fire('Error',
+                'Product could not be activated/ deactivated.',
+                'error').then(r => console.log(r))
+            }
+          },
+          (error: any) => {
+            Swal.fire('Record deletion error',
+              `Record creation error`,
+              'error')
+          }
+        );
       }
     });
+  }
+  private getChannelsToKnowStatus() {
+    let model = ChannelDetailsWrapper.channelDetailsWrapper;
+
+    model.payload = {
+      page: 0,
+      size: 10
+    }
+
+    this.httpService.mobileBankingPostUpdated('api/v1/kyc/portal/get-channels',
+      model).subscribe(
+      (result: any) => {
+        if (result.status === '00') {
+          console.log("result.data");
+          console.log(result.data);
+
+          this.channels = result.data;
+
+          this.channel = this.channels.filter((item: any) => item.channel === 'APP');
+          this.channelEnabled = this.channel[0].active;
+
+        } else {
+          Swal.fire('Error',
+            'Product could not be activated/ deactivated.',
+            'error').then(r => console.log(r))
+        }
+      },
+      (error: any) => {
+        Swal.fire('Record deletion error',
+          `Record creation error`,
+          'error')
+      }
+    );
   }
 }

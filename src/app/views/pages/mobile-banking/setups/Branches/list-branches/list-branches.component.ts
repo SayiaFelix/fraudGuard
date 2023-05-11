@@ -84,6 +84,8 @@ export class ListBranchesComponent implements OnInit {
   actions = ["Edit","Delete"];
 
   loading: boolean;
+
+  totalRecords: number;
   constructor(private httpService: HttpService,
               private modalService: NgbModal,
               public fb: FormBuilder,
@@ -174,10 +176,16 @@ export class ListBranchesComponent implements OnInit {
       if (res.status===200){
         this.loading = false;
 
+        this.totalRecords = res.totalItems;
         // this.activeModal.close('success');
       //  Swal.fire('success','records fetched successfully','success')
       //  .then(r=>console.log(r))
-       this.rows=res.data;
+        let response = res.data.map((item: any, index: any) => {
+          const res = {...item, frontendId: index + 1};
+          return res;
+        });
+
+        this.rows = response;
       }
       else{
         Swal.fire('failed','unable to fetch records','error')
