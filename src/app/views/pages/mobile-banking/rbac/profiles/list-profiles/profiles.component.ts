@@ -49,7 +49,7 @@ export class ProfilesComponent implements OnInit {
   actions = ["View", "Edit"];
   data: any;
 
-
+  totalRecords: number;
   constructor(private httpService: HttpService,
               private modalService: NgbModal,
               public fb: FormBuilder,
@@ -91,6 +91,7 @@ export class ProfilesComponent implements OnInit {
           if(result['status'] === 200){
 
             this.loading = false;
+            this.totalRecords = result.totalItems;
 
             let response = result['data'];
             this.rows = response.map((item: any, index: any) => {

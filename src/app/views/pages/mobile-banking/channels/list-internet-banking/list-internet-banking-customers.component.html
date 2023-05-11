@@ -20,12 +20,14 @@
 <div class="row mb-2">
   <div class="col-10">
   </div>
-  <div class="col-2 text-right">
-    <div>
-      <button class="btn btn-danger btn-sm" (click)="openDisableModal('Internet Banking')"><i class="feather icon-x icon-sm me-2"></i>Disable Channel</button>
+  <div class="col-2 align-items-end">
+    <div class="float-right align-items-end">
+      <button style="margin-left: 10px"  class="btn btn-outline-success btn-sm" *ngIf="channelEnabled"  (click)="openDisableModal('IB', true)"><i class="feather icon-check icon-sm me-2"></i>Enable Channel</button>
+      <button  style="margin-left: 10px" class="btn btn-outline-danger btn-sm"  *ngIf="!channelEnabled" (click)="openDisableModal('IB', false)"><i class="feather icon-x icon-sm me-2"></i>Disable Channel</button>
     </div>
   </div>
 </div>
+
 
 <div class="row">
   <div class="col-md-12 stretch-card">

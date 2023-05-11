@@ -43,11 +43,12 @@ export class AddUserComponent implements OnInit {
 
     this.form = this.fb.group({
       firstName: [this.formData ? this.formData.firstName : '', [Validators.required,Validators.pattern('^([^0-9]*)$')]],
-      middleName: [this.formData ? this.formData.middleName : '', [Validators.required,Validators.pattern('^([^0-9]*)$')]],
+      // middleName: [this.formData ? this.formData.middleName : '', [Validators.required,Validators.pattern('^([^0-9]*)$')]],
       lastName: [this.formData ? this.formData.lastName : '', [Validators.required,Validators.pattern('^([^0-9]*)$')]],
       phoneNumber: [this.formData ? this.formData.phoneNumber : '', [Validators.required,EmployeePhoneNumberValidators.mustStartWith254]],
       email: [this.formData ? this.formData.email : '', [Validators.required, CompanyEmailValidator.mustBeBusinessEmail]],
-      profile: [this.formData ? this.formData.profile : '', [Validators.nullValidator]]
+      profile: [this.formData ? this.formData.profile : '', [Validators.nullValidator]],
+      employeeNo: [this.formData ? this.formData.employeeNo : '', [Validators.nullValidator]]
     });
 
 
@@ -74,13 +75,12 @@ export class AddUserComponent implements OnInit {
 
     const model = {
       firstName: this.form.value.firstName,
-      middleName:this.form.value.middleName,
-      lastName: this.form.value.lastName,
+      // middleName:this.form.value.middleName,
+      lastName: this.form.value.firstName,
       email: this.form.value.email,
-
       phoneNumber:this.form.value.phoneNumber,
-      profileId:this.form.value.profile,
-      employeeNumber: '1234'
+      employeeNumber: this.form.value.employeeNo,
+      profileId:parseInt(this.form.value.profile, 10)
     };
     this.httpService.mobileBankingPost('api/v1/admin/user/create', model).subscribe(
       (result: any) => {
@@ -103,9 +103,10 @@ export class AddUserComponent implements OnInit {
     const model = {
       id: this.formData.id,
       firstName: this.form.value.firstName,
-      middleName:this.form.value.middleName,
+      // middleName:this.form.value.middleName,
       lastName: this.form.value.firstName,
       phoneNumber:this.form.value.phoneNumber,
+      employeeNumber: this.form.value.employeeNo,
       profileId:parseInt(this.form.value.profile, 10)
     };
 
@@ -119,6 +120,7 @@ export class AddUserComponent implements OnInit {
       map((res: any) => {
         if (res.status === 200) {
           this.isLoading = false;
+          this.activeModal.close('success');
           setTimeout(() => {
             Swal.fire('Success', 'User Edited Successfully.', 'success')
           }, 10);

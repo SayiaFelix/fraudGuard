@@ -47,20 +47,20 @@ export class UnblockedAccountsComponent implements OnInit {
   breadCrumbItems: Array<{}>;
   rows: any = [];
   temp: any = [];
-  loadingIndicator = true;
+  loading = true;
   reorderable = true;
 
 
   columns = [
     {name: 'ID', prop: 'id'},
     // {name: 'PhoneNumber', prop: 'PhoneNumber'},
-    {name: 'LinkedAccount', prop: 'LinkedAccount'},
-    {name: 'NationaID',prop:'NationalID'},
+    {name: 'Linked Account', prop: 'LinkedAccount'},
+    {name: 'National ID',prop:'NationalID'},
     {name:'Channel',prop:'Channel'},
-    {name:'T24AccountName',prop:'T24AccountName'},
+    {name:'T24 Account Name',prop:'T24AccountName'},
     {name: 'Status', prop: 'status'},
-    { name:'UnblockedBy',prop:'UnblockedBy'},
-    {name: 'UnblockedOn', prop: 'UnblockedOn'},
+    { name:'Unblocked By',prop:'UnblockedBy'},
+    {name: 'Unblocked On', prop: 'UnblockedOn'},
     {name: 'Actions', prop: 'id'},
   ];
 
@@ -103,7 +103,11 @@ export class UnblockedAccountsComponent implements OnInit {
   }
 
   getIndividualData(event: number): void {
+
+    this.loading = true;
+
     this.rows = this.tempProductData;
+
 
     this.temp = [...this.tempProductData];
 
@@ -111,6 +115,8 @@ export class UnblockedAccountsComponent implements OnInit {
       page: 0,
       size: 50,
     };
+
+    this.loading = false;
 
     this.httpService
       .mobileBankingPost('api/v1/corporate/admin/list-products/all', model)

@@ -34,6 +34,8 @@ export class ViewProductComponent implements OnInit {
   public productId: number;
   public categoryId: number;
   public modalRef: NgbModalRef;
+
+  public requirementsLoading = true;
   constructor(private httpService: HttpService,
               public globalService: GlobalService,
               public activatedRoute: ActivatedRoute,
@@ -59,7 +61,7 @@ export class ViewProductComponent implements OnInit {
     });
 
     this.loadData();
-    // this.loadRequirements();
+    this.loadRequirements();
     this.loadBenefits();
   }
 
@@ -76,8 +78,8 @@ export class ViewProductComponent implements OnInit {
           this.productDetails = res['data'];
           this.loading = false;
 
-          this.requirements = this.productDetails.requirementList;
-          this.rows = this.productDetails.requirementList;
+          // this.requirements = this.productDetails.requirementList;
+          // this.rows = this.productDetails.requirementList;
           this.loading = false;
 
         } else {
@@ -88,13 +90,15 @@ export class ViewProductComponent implements OnInit {
       });
   }
   private loadRequirements():any {
+    this.requirementsLoading = true;
      const model ={
       id: this.productId
      }
      this.httpService.mobileBankingPost('product/portal/fetch/requirement',model).subscribe(
       (result:any)=>{
         if (result.status===200){
-           this.requirements =result['data'];
+           this.requirements = result['data'];
+          this.requirementsLoading = false;
         }
         else{
           Swal.fire('Failed','unable to fetch requirements','error')
@@ -213,7 +217,7 @@ export class ViewProductComponent implements OnInit {
 
   }
 
-  removeRequirement(id: any) {
+  removeRequirement(formData: any) {
     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Remove Requirement';
 
@@ -221,7 +225,7 @@ export class ViewProductComponent implements OnInit {
     this.modalRef.result.then((result) => {
       if (result === 'success') {
         const model = {
-          id: id
+          id: formData.id
         };
 
         this.httpService.mobileBankingPost('product/portal/requirement/remove', model).subscribe(

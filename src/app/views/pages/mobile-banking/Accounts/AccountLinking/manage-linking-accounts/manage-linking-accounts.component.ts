@@ -47,7 +47,7 @@ export class ManageLinkingAccountsComponent implements OnInit {
   breadCrumbItems: Array<{}>;
   rows: any = [];
   temp: any = [];
-  loadingIndicator = true;
+  loading = true;
   reorderable = true;
 
   actions = ["View", "Block","Close"];
@@ -106,9 +106,12 @@ export class ManageLinkingAccountsComponent implements OnInit {
   }
 
   getIndividualData(event: number): void {
+    this.loading = true;
     this.rows = this.tempProductData;
 
     this.temp = [...this.tempProductData];
+
+    this.loading = false;
 
     const model = {
       page: 0,

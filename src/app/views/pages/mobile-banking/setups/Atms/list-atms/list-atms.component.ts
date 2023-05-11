@@ -43,6 +43,7 @@ export class ListAtmsComponent implements OnInit {
   title: string = "ATMs";
   actions = ["Edit"];
 
+  totalRecords: number;
 
 
   constructor(private httpService: HttpService,
@@ -102,12 +103,20 @@ export class ListAtmsComponent implements OnInit {
       if (res.status === 200) {
 
         this.loading = false;
+
+        this.totalRecords = res.totalItems;
         // setTimeout(() => {
         //    this.rows=res.data;
         //   let total = res.totalItems;
 
         // }, 10);
-        this.rows=res.data;
+
+        let response = res.data.map((item: any, index: any) => {
+          const res = {...item, frontendId: index + 1};
+          return res;
+        });
+
+        this.rows = response;
       } else {
       }
     });

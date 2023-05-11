@@ -33,6 +33,10 @@ const routes: Routes = [
       {
         path: 'forgot-password',
         component: ForgotPasswordComponent
+      },
+      {
+        path: 'first-time-login',
+        component: FirstTimeLoginComponent
       }
     ]
   },

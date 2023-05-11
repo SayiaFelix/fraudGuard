@@ -33,7 +33,7 @@ export class RegionsListComponent implements OnInit {
     {name: 'Constituency', prop: 'constituency'},
     {name: 'County', prop: 'county'},
     {name: 'Status', prop: 'active'},
-    {name: 'Registered On', prop: 'registeredOn'},
+    {name: 'Registered On', prop: 'createdOn'},
     {name: 'Actions', prop: 'id'}
   ];
 
@@ -48,6 +48,8 @@ export class RegionsListComponent implements OnInit {
 
   title: string = "Regions";
   actions = ["Edit"];
+
+  totalRecords: number;
   constructor(private httpService: HttpService,
               private modalService: NgbModal,
               public fb: FormBuilder,
@@ -81,6 +83,15 @@ export class RegionsListComponent implements OnInit {
           if(result.status===200){
             this.loading = false;
             this.rows = result.data;
+
+            this.totalRecords = result.totalItems;
+
+            let response = result.data.map((item: any, index: any) => {
+              const res = {...item, frontendId: index + 1};
+              return res;
+            });
+
+            this.rows = response;
           }
           else{
             Swal.fire('failed','unable to fetch records','error')

@@ -52,15 +52,20 @@ export class DefineRegionComponent implements OnInit {
   ngOnInit(): void {
     // this.setCurrentPosition();
 
-    if (this.formData && this.formData.content) {
+    console.log("this.formData");
+    console.log(this.formData);
+    if (this.formData && this.formData) {
       this.edit = true;
       this.cardTitle = "Edit Region";
 
-      this.regionName = this.formData.content.name;
-      this.regionCode = this.formData.content.name;
-      this.pointList = this.formData.content.bounds;
-      this.lat = this.formData.content.bounds[0] ? this.formData.content.bounds[0].lat : 0.51796165;
-      this.lng = this.formData.content.bounds[0] ? this.formData.content.bounds[0].lng : 36.48531687;
+      // this.regionName = this.formData.content.name;
+      // this.regionCode = this.formData.content.name;
+      this.pointList = JSON.parse(atob(this.formData.coordinates));
+
+      console.log('returned pointslist')
+      console.log(this.pointList);
+      this.lat = this.pointList[0] ? this.pointList[0].lat : 0.51796165;
+      this.lng = this.pointList[0] ? this.pointList[0].lng : 36.48531687;
     } else {
       this.cardTitle = "Add Region";
       this.lat = 0.51796165;
@@ -89,6 +94,10 @@ export class DefineRegionComponent implements OnInit {
     this.loading = true;
   }
   createRecord(): void {
+
+    console.log(JSON.stringify(this.pointList));
+
+
     const model = {
       // bounds: this.pointList,
       // code: this.regionCode,
@@ -96,7 +105,7 @@ export class DefineRegionComponent implements OnInit {
       code:this.form.value.code,
       constituency:this.form.value.selectedZone,
       county:this.form.value.zone,
-      coordinates: this.pointList.toString()
+      coordinates: JSON.stringify(this.pointList)
     };
     this._httpService.mobileBankingPost("config/region/create", model).subscribe((result: any) => {
       if (result.status === 200) {
@@ -111,13 +120,16 @@ export class DefineRegionComponent implements OnInit {
   }
 
   saveChanges(): void {
+
+    console.log(JSON.stringify(this.pointList));
+
     const model = {
       id:this.formData.id,
       name: this.form.value.name,
       code:this.form.value.code,
       constituency:this.form.value.selectedZone,
       county:this.form.value.zone,
-      coordinates: this.pointList.toString()
+      coordinates: JSON.stringify(this.pointList)
     };
     this._httpService.mobileBankingPost("config/region/update", model).subscribe((result:any) => {
       if (result.status === 200) {
@@ -276,6 +288,9 @@ export class DefineRegionComponent implements OnInit {
 
             this.pointList = cleanItem;
 
+
+            console.log("this.pointList");
+            console.log(this.pointList);
             // clear previous region
             this.deleteSelectedShape();
 

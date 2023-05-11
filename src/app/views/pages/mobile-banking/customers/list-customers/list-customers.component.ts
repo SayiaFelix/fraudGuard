@@ -129,19 +129,6 @@ export class ListCustomersComponent implements OnInit {
     });
   }
 
-  // openEditProductModal(formData: any) {
-  //   this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true});
-  //   this.modalRef.componentInstance.title = 'Edit Product';
-  //   this.modalRef.componentInstance.formData = formData;
-  //   this.modalRef.result.then((result) => {
-  //     if (result === 'success') {
-  //       this.getIndividualData(0);
-  //     } else {
-  //       console.log("Error occurred")
-  //     }
-  //   });
-  // }
-
   onFileChange(event: any) {
     if (event.target.files && event.target.files.length) {
       this.imageFile = event.target.files[0];

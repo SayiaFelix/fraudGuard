@@ -294,12 +294,12 @@
           class="form-select ms-2 w-auto"
         >
           <option *ngFor="let size of pageSizes" [value]="size">
-            {{ size }} Items per page
+            {{ size === 1000 ? ' All Items' : size + ' Items per page' }}
           </option>
 
 
         </select>
-        <h6 class="ml-4" style="margin-left: 20px">{{total}} Total</h6>
+        <h6 class="ml-4" style="margin-left: 20px">{{totalItems}} Total</h6>
         <datatable-pager
           (change)="table.onFooterPage($event)"
           [count]="rowCount"

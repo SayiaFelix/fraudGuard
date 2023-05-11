@@ -48,6 +48,7 @@ export class ViewUserComponent implements OnInit, OnDestroy {
   public resetPassword$: Observable<any>;
 
   subs: Subscription[] = [];
+  total: any;
 
 
   constructor(
@@ -100,6 +101,7 @@ export class ViewUserComponent implements OnInit, OnDestroy {
         if (res.status === 200) {
           this.loading = false;
             this.userDetails = res.data;
+            this.total = res.totalItems;
         } else {
 
         }

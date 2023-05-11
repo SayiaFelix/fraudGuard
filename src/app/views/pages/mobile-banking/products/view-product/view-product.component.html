@@ -92,10 +92,10 @@
                 <div class="card">
                   <app-custom-ngx-table
                     [columns]="columns"
-                    [rows]="rows"
+                    [rows]="requirements"
                     [actions]="actions"
                     [disableFilters]="true"
-                    [loadingIndicator]="loading"
+                    [loadingIndicator]="requirementsLoading"
                     (outputEvent)="triggerEventRequirement($event)"
                   ></app-custom-ngx-table>
                 </div>
