@@ -144,6 +144,11 @@ export const MENU: MenuItem[] = [
       {
         profiles: ['CORPORATE_ADMIN'],
         label: 'Mobile Banking USSD',
+        link: '/mobile-banking/channels/ussd-ussd-channel-dashboard'
+      },
+      {
+        profiles: ['CORPORATE_ADMIN'],
+        label: 'Mobile Banking USSD',
         link: '/mobile-banking/channels/list-requests'
       },
       {

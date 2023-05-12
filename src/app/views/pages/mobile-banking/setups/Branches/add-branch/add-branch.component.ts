@@ -3,7 +3,7 @@ import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 
 import { HttpService } from "src/app/shared/services/http.service";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import {MapsAPILoader, MouseEvent} from "@agm/core";
+import {AgmGeocoder, Geocoder, MapsAPILoader, MouseEvent} from "@agm/core";
 import Swal from "sweetalert2";
 
 
@@ -53,16 +53,24 @@ export class AddBranchComponent implements OnInit {
   longitude: number;
   zoom: number;
   address: string;
-  private geoCoder: any;
+  private geoCoder: Geocoder;
 
   ngOnInit(): void {
 
-
+    console.log("this.formData");
     console.log(this.formData);
 
+
+    this.form = this.fb.group({
+      name: [this.formData ? this.formData.name : '', [Validators.required]],
+      code: [this.formData ? this.formData.code : '', [Validators.required]],
+      region: [this.formData ? this.formData.region : '', [Validators.required]],
+      is_active: [this.formData ? this.formData.is_active : '', [Validators.nullValidator]]
+    });
+
+
+
     if (this.formData && this.formData.coordinates) {
-
-
 
       let receivedCoordinates = JSON.parse(atob(this.formData.coordinates));
       console.log("receivedCoordinates");
@@ -83,7 +91,6 @@ export class AddBranchComponent implements OnInit {
     this.getRegions();
 
     this.mapsAPILoader.load().then(() => {
-      this.setCurrentLocation();
       this.geoCoder = new google.maps.Geocoder;
 
       let autocomplete = new google.maps.places.Autocomplete(this.searchElementRef.nativeElement);
@@ -118,12 +125,7 @@ export class AddBranchComponent implements OnInit {
     }
 
 
-    this.form = this.fb.group({
-      name: [this.formData ? this.formData.name : '', [Validators.required]],
-      code: [this.formData ? this.formData.code : '', [Validators.required]],
-      region: [this.formData ? this.formData.region : '', [Validators.required]],
-      is_active: [this.formData ? this.formData.is_active : '', [Validators.nullValidator]]
-    });
+
   }
   public submitData(): void {
     if (this.formData) {
@@ -187,7 +189,7 @@ export class AddBranchComponent implements OnInit {
         .then(r=>(console.log(r)))
         this.close();
       } else {
-        Swal.fire('Failed','Uanble to update branch','error')
+        Swal.fire('Failed','Unable to update branch','error')
       }
     }, (error: any) => {
       });
@@ -221,11 +223,11 @@ export class AddBranchComponent implements OnInit {
 
   getAddress(latitude: any, longitude: any) {
 
-    if (this.latitude && this.longitude){
+    console.log("1");
+    if (this.latitude && this.longitude && this.geoCoder){
+      console.log("2");
       this.geoCoder.geocode({ 'location': { lat: latitude, lng: longitude } }, (results: any, status: any) => {
-        console.log("results");
-        console.log(results);
-        console.log("status");
+
         console.log(status);
         if (status === 'OK') {
           if (results[0]) {

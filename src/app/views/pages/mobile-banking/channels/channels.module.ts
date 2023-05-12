@@ -16,9 +16,10 @@ import {ListMobileBankingCustomersComponent} from "./list-mobile-application/lis
 import {ViewMobileAppCustomerComponent} from "./view-mobile-app-customers/view-mobile-app-customer.component";
 import {AddMobileAppCustomerComponent} from "./add-mobile-app-customer/add-mobile-app-customer.component";
 import {NgSelectModule} from "@ng-select/ng-select";
-import {ChannelDashboardComponent} from "./channel-dashboard/channel-dashboard.component";
+import {UssdChannelDashboardComponent} from "./ussd-channel-dashboard/ussd-channel-dashboard.component";
 import {NgApexchartsModule} from "ng-apexcharts";
 import {AgmCoreModule} from "@agm/core";
+import {AppChannelDashboardComponent} from "./app-channel-dashboard/app-channel-dashboard.component";
 
 @NgModule({
   imports: [
@@ -40,7 +41,9 @@ import {AgmCoreModule} from "@agm/core";
     AddCustomerComponent,
     AddMobileAppCustomerComponent,
     ViewInternetBankingComponent,
-    ChannelDashboardComponent
+    UssdChannelDashboardComponent,
+    AppChannelDashboardComponent,
+
   ]
   ,
   entryComponents: [

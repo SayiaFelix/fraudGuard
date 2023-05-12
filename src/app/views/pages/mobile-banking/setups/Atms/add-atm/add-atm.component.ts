@@ -3,11 +3,12 @@ import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 
 import { HttpService } from "src/app/shared/services/http.service";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import {MapsAPILoader, MouseEvent} from "@agm/core";
+import {Geocoder, MapsAPILoader, MouseEvent} from "@agm/core";
 import Swal from "sweetalert2";
 
-
 declare const google: any;
+
+
 
 @Component({
   selector: 'app-add-branch',
@@ -53,7 +54,7 @@ export class AddAtmComponent implements OnInit {
   longitude: number;
   zoom: number;
   address: string;
-  private geoCoder: any;
+  private geoCoder: Geocoder;
 
   ngOnInit(): void {
 
@@ -79,7 +80,7 @@ export class AddAtmComponent implements OnInit {
     this.getBranches()
 
     this.mapsAPILoader.load().then(() => {
-      this.setCurrentLocation();
+
       this.geoCoder = new google.maps.Geocoder;
 
       let autocomplete = new google.maps.places.Autocomplete(this.searchElementRef.nativeElement);
@@ -152,21 +153,24 @@ export class AddAtmComponent implements OnInit {
   }
 
   getAddress(latitude: any, longitude: any) {
-    this.geoCoder.geocode({ 'location': { lat: latitude, lng: longitude } }, (results: any, status: any) => {
-      console.log(results);
-      console.log(status);
-      if (status === 'OK') {
-        if (results[0]) {
-          this.zoom = 12;
-          this.address = results[0].formatted_address;
-        } else {
-          window.alert('No results found');
-        }
-      } else {
-        window.alert('Geocoder failed due to: ' + status);
-      }
 
-    });
+    if (this.latitude && this.longitude && this.geoCoder) {
+      this.geoCoder.geocode({'location': {lat: latitude, lng: longitude}}, (results: any, status: any) => {
+        console.log(results);
+        console.log(status);
+        if (status === 'OK') {
+          if (results[0]) {
+            this.zoom = 12;
+            this.address = results[0].formatted_address;
+          } else {
+            window.alert('No results found');
+          }
+        } else {
+          window.alert('Geocoder failed due to: ' + status);
+        }
+
+      });
+    }
   }
 
   public submitData(): void {
