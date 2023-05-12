@@ -48,7 +48,7 @@ export class AddUserComponent implements OnInit {
       phoneNumber: [this.formData ? this.formData.phoneNumber : '', [Validators.required,EmployeePhoneNumberValidators.mustStartWith254]],
       email: [this.formData ? this.formData.email : '', [Validators.required, CompanyEmailValidator.mustBeBusinessEmail]],
       profile: [this.formData ? this.formData.profile : '', [Validators.nullValidator]],
-      employeeNo: [this.formData ? this.formData.employeeNo : '', [Validators.nullValidator]]
+      employeeNumber: [this.formData ? this.formData.employeeNumber : '', [Validators.nullValidator]]
     });
 
 
@@ -79,7 +79,7 @@ export class AddUserComponent implements OnInit {
       lastName: this.form.value.firstName,
       email: this.form.value.email,
       phoneNumber:this.form.value.phoneNumber,
-      employeeNumber: this.form.value.employeeNo,
+      employeeNumber: this.form.value.employeeNumber,
       profileId:parseInt(this.form.value.profile, 10)
     };
     this.httpService.mobileBankingPost('api/v1/admin/user/create', model).subscribe(

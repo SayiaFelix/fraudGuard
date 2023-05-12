@@ -24,8 +24,8 @@ export class ViewUserComponent implements OnInit, OnDestroy {
 
   columns = [
     { name: 'ID', prop: 'id' },
-    { name: 'AuditMessage', prop: 'AuditMessage' },
-    { name: 'CreatedOn', prop: 'CreatedOn' },
+    { name: 'Audit Message', prop: 'AuditMessage'},
+    { name: 'Created On', prop: 'CreatedOn' },
     // { name: 'IsActive', prop:'isActive' },
     // { name: 'Actions', prop: 'id' }
   ];
