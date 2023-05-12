@@ -7,7 +7,7 @@
   <div class="modal-body" [formGroup]="form">
     <div class="row g-3">
       <div class="col-md-6">
-        <label class="form-label">First Name</label>
+        <label class="form-label fw-bold">First Name</label>
         <input class="form-control" formControlName="firstName" type="text">
         <small *ngIf="form.get('firstName')?.touched && form.get('firstName')?.hasError('required')" class="text-danger">Required
           Field</small>
@@ -22,7 +22,7 @@
 <!--          <small *ngIf="form.get('middleName')?.touched && form.get('middleName')?.hasError('pattern')" class="text-danger">Input text only</small>-->
 <!--      </div>-->
       <div class="col-md-6">
-        <label class="form-label">Last Name</label>
+        <label class="form-label fw-bold">Last Name</label>
         <input class="form-control" formControlName="lastName" type="text">
         <small *ngIf="form.get('lastName')?.touched && form.get('lastName')?.hasError('required')" class="text-danger">Required
           Field</small>
@@ -30,7 +30,7 @@
       </div>
 
       <div class="col-md-6">
-        <label class="text-gray">Phone Number (start with 254)</label>
+        <label class="text-gray fw-bold">Phone Number (start with 254)</label>
         <input class="form-control" formControlName="phoneNumber" type="number" min="0" maxlength="12" (keyup)="logErrors()"
         oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"/>
         <small *ngIf="form.get('phone')?.touched &&
@@ -40,7 +40,7 @@
           form.get('phone')?.hasError('mustStartWith254')" class="text-danger">Phone number must start with 254 & have 12 digits</small>
       </div>
       <div class="col-md-6">
-        <label class="text-gray">Email Address</label>
+        <label class="text-gray fw-bold">Email Address</label>
         <input class="form-control" formControlName="email" type="text" (keyup)="showFormErrors()">
        <small *ngIf="form.get('email')?.touched &&
             form.get('email')?.hasError('required')" class="text-danger">Required
@@ -49,15 +49,15 @@
             form.get('email')?.hasError('pattern')" class="text-danger">Enter a valid email</small>
       </div>
       <div class="col-md-6">
-        <label class="text-gray">Employee Number</label>
-        <input class="form-control" formControlName="employeeNo" type="number" (keyup)="showFormErrors()">
-       <small *ngIf="form.get('employeeNo')?.touched &&
-            form.get('employeeNo')?.hasError('required')" class="text-danger">Required
+        <label class="text-gray fw-bold">Employee Number</label>
+        <input class="form-control" formControlName="employeeNumber" type="number" (keyup)="showFormErrors()">
+       <small *ngIf="form.get('employeeNumber')?.touched &&
+            form.get('employeeNumber')?.hasError('required')" class="text-danger">Required
           Field</small>
       </div>
 
       <div class="col-md-6">
-        <label class="text-gray">Select User Profile</label>
+        <label class="text-gray fw-bold">Select User Profile</label>
 <!--        <ng-select-->
 <!--          [items]="allProfiles"-->
 <!--          [multiple]=true-->

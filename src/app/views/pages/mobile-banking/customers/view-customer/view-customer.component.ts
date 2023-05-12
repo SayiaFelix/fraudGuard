@@ -25,29 +25,29 @@ export class ViewCustomerComponent implements OnInit {
 
   Transactioncolumns = [
     // { name: 'ID', prop: 'id' },
-    { name: 'TransID', prop:'TransID' },
-    { name: 'CreatedOn', prop:'CreatedOn' },
-    {name:'ServiceName',prop:'ServiceName'},
-    {name:'AccountNo.',prop:'AccountNo.'},
+    { name: 'Trans. ID', prop:'TransID' },
+    { name: 'Created On', prop:'CreatedOn' },
+    {name:'Service Name',prop:'ServiceName'},
+    {name:'Account No.',prop:'AccountNo.'},
     {name:'Amount',prop:'Amount'},
-    {name:'ChargeAmt',prop:'ChargeAmt'},
-    {name:'ResCode',prop:'Respons'},
+    {name:'Charge Amt.',prop:'ChargeAmt'},
+    {name:'Res. Code',prop:'Respons'},
     // { name: 'IsActive', prop:'isActive' },
     // { name: 'Actions', prop: 'id' }
   ];
 
 Accountscolumns = [
-  { name:'CustomerID', prop:'customerID'},
-  { name:'AccNo', prop:'accNo'},
-  { name:'AccName', prop:'AccName'},
-  { name:'AccBalance', prop:'AccBalance'},
+  { name:'Manufacturer', prop:'manufacturer'},
+  { name:'Device Name', prop:'deviceName'},
+  { name:'Android Version', prop:'androidVersion'},
+  { name:'Acc. Balance', prop:'AccBalance'},
   { name:'Status', prop:'Status'},
 
 ];
 
   channelsColumns = [
     { name:'Channel', prop:'channel'},
-    { name:'CreatedOn', prop:'createdOn'},
+    { name:'Created On', prop:'createdOn'},
     { name:'Status', prop:'status'},
 
   ];

@@ -49,7 +49,7 @@ export class RolesComponent implements OnInit {
   public modalRef: NgbModalRef;
 
   title: string = "Roles";
-  actions = ["Delete", "Edit"];
+  actions = ["Edit", "Delete"];
 
   totalRecords: number;
   constructor(private httpService: HttpService,

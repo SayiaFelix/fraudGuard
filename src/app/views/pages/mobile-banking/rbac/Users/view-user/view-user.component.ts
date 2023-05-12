@@ -24,8 +24,13 @@ export class ViewUserComponent implements OnInit, OnDestroy {
 
   columns = [
     { name: 'ID', prop: 'id' },
+<<<<<<< src/app/views/pages/mobile-banking/rbac/Users/view-user/view-user.component.ts
+    { name: 'Audit Message', prop: 'AuditMessage'},
+    { name: 'Created On', prop: 'CreatedOn' },
+=======
     { name: 'ProfileName', prop: 'profileName' },
     { name: 'CreatedOn', prop: 'createdOn' },
+>>>>>>> src/app/views/pages/mobile-banking/rbac/Users/view-user/view-user.component.ts
     // { name: 'IsActive', prop:'isActive' },
     // { name: 'Actions', prop: 'id' }
   ];
