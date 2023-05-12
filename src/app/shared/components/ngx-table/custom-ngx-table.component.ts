@@ -63,7 +63,8 @@ export class CustomNgxTable implements OnInit {
         col['name'] !== 'CreatedAt' &&
         col['name'] !== 'Active' &&
         col['name'] !== 'Status' &&
-        col['name'] !== 'SystemRole'
+        col['name'] !== 'SystemRole'&&
+        col['prop'] !== 'createdOn'
     );
 
     this.toggleFilters = [...this.columns].filter(

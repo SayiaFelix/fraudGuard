@@ -14,7 +14,7 @@
               <div class="col-lg-7">
 
                 <div class="form-group mb-2">
-                  <label>Enter ATM Location</label>
+                  <label class="fw-bolder">Enter ATM Location</label>
                   <input type="text" class="form-control" (keydown.enter)="$event.preventDefault()" placeholder="Search Nearest Location" autocorrect="off" autocapitalize="off" spellcheck="off" type="text" #search>
                 </div>
 
@@ -24,12 +24,12 @@
                 </agm-map>
               </div>
               <div class="col-lg-5 border-end-lg mt-6">
-                <h4 class="text-center mx-auto tx-16 fw-bold">ATM Details</h4>
+                <h4 class="text-center mx-auto tx-16 fw-bolder d-flex align-items-start">ATM Details</h4>
                 <hr>
                 <div class="row justify-content-center mx-auto text-center">
                   <div class="col-sm-12">
                     <div class="mb-3">
-                      <label class="form-label">ATM Name</label>
+                      <label class="form-label d-flex align-items-start fw-bold">ATM Name</label>
                       <input class="form-control" formControlName="name" type="text">
                       <small *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')" class="text-danger">Required
                         Field</small>
@@ -37,7 +37,7 @@
                   </div>
                   <div class="col-sm-12">
                     <div class="mb-3">
-                      <label class="text-gray">ATM Code</label>
+                      <label class="text-gray d-flex align-items-start fw-bold">ATM Code</label>
                       <input class="form-control" formControlName="atmCode" type="text">
                       <small *ngIf="form.get('atmCode')?.touched &&
           form.get('atmCode')?.hasError('required')" class="text-danger">Required
@@ -46,7 +46,7 @@
                   </div>
                   <div class="col-sm-12">
                     <div class="mb-3">
-                      <label class="text-gray">Select Branch</label>
+                      <label class="text-gray d-flex align-items-start fw-bold">Select Branch</label>
                       <select
                         class="form-select"
                         formControlName="branch"
