@@ -1,3 +1,11 @@
+<nav class="page-breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a routerLink="/mobile-banking/products/list-categories">All Categories</a></li>
+    <li class="breadcrumb-item"><a>View Products</a></li>
+  </ol>
+</nav>
+
+
 <div
   class="d-flex justify-content-between align-items-center flex-wrap grid-margin"
 >
@@ -31,7 +39,7 @@
           [columns]="columns"
           [rows]="rows"
           [actions]="actions"
-
+          [loadingIndicator]="loading"
           (outputEvent)="triggerEvent($event)"
         ></app-custom-ngx-table>
     </div>

@@ -7,6 +7,7 @@ import {ListInternetBankingCustomersComponent} from "./list-internet-banking/lis
 import { ViewInternetBankingComponent } from './view-internet-banking/view-internet-banking.component';
 import {ListMobileBankingCustomersComponent} from "./list-mobile-application/list-mobile-banking-customers.component";
 import {ViewMobileAppCustomerComponent} from "./view-mobile-app-customers/view-mobile-app-customer.component";
+import {ChannelDashboardComponent} from "./channel-dashboard/channel-dashboard.component";
 
 
 
@@ -25,6 +26,10 @@ const routes: Routes = [
   {
     path: 'list-mobile-app',
     component: ListMobileBankingCustomersComponent
+  },
+  {
+    path: 'channel-dashboard',
+    component: ChannelDashboardComponent
   },
 
   {

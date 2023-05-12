@@ -79,8 +79,8 @@ export class DefineRegionComponent implements OnInit {
       code: [this.formData ? this.formData.code : "", Validators.compose([Validators.required])],
       constituency: [this.formData ? this.formData.constituency: "", Validators.compose([Validators.required])],
       county: [this.formData ? this.formData.county : "", Validators.compose([Validators.required])],
-      zone: [""],
-      selectedZone: [""],
+      zone: [this.formData ? this.formData.county: ""],
+      selectedZone: [this.formData ? this.formData.constituency: ""],
 
     });
   }

@@ -33,7 +33,7 @@ export class ListUssdCustomersComponent implements OnInit {
  actions = ["View"];
   tempProductData = [
     {
-      id: 1,
+      frontendId: 1,
       customerName: 'Andrew Kamau',
       phoneNumber:'0708453901',
       idNumber: '31397137',
@@ -42,7 +42,7 @@ export class ListUssdCustomersComponent implements OnInit {
       createdOn: '12-02-2023',
     },
     {
-      id: 2,
+      frontendId: 2,
       customerName: 'Jane Mwangi',
       phoneNumber:'0728357775',
       idNumber: '37059671',

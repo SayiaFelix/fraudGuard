@@ -20,6 +20,9 @@ export class AddBranchComponent implements OnInit {
   @Input() formData: any;
   public loading:boolean;
   public Regions:any;
+
+  selectedCoordinates: {lat: number, lng: number };
+
   constructor(
     public activeModal: NgbActiveModal,
     // tslint:disable-next-line:variable-name
@@ -53,6 +56,30 @@ export class AddBranchComponent implements OnInit {
   private geoCoder: any;
 
   ngOnInit(): void {
+
+
+    console.log(this.formData);
+
+    if (this.formData && this.formData.coordinates) {
+
+
+
+      let receivedCoordinates = JSON.parse(atob(this.formData.coordinates));
+      console.log("receivedCoordinates");
+      console.log(receivedCoordinates);
+
+      this.latitude = receivedCoordinates.lat;
+      this.longitude = receivedCoordinates.lng;
+
+      this.zoom = 8;
+      this.getAddress(this.latitude, this.longitude);
+
+    } else {
+      this.setCurrentLocation();
+    }
+
+
+
     this.getRegions();
 
     this.mapsAPILoader.load().then(() => {
@@ -73,14 +100,16 @@ export class AddBranchComponent implements OnInit {
           //set latitude, longitude and zoom
           this.latitude = place.geometry.location.lat();
           this.longitude = place.geometry.location.lng();
-          this.zoom = 12;
+          this.zoom = 8;
+
+          this.selectedCoordinates = {lat: this.latitude, lng: this.longitude};
         });
       });
     });
 
     if (this.formData && this.formData.content) {
       this.edit = true;
-      this.cardTitle = "Edit Branch";
+      this.cardTitle = `Edit Branch(${this.formData.name})`;
 
       this.atmName = this.formData.content.name;
 
@@ -106,11 +135,12 @@ export class AddBranchComponent implements OnInit {
   }
 
   createBranch(): void {
-    const model = 
+    const model =
     {
-    name:this.form.value.name,
-    code: this.form.value.code,
-    regionId:this.form.value.region
+      name:this.form.value.name,
+      code: this.form.value.code,
+      regionId:this.form.value.region,
+      coordinates: JSON.stringify({"lat": this.latitude, lng: this.longitude})
   }
     this._httpService.mobileBankingPost("config/branch/create", model).subscribe((result: any) => {
       if (result.status === 200) {
@@ -148,11 +178,12 @@ export class AddBranchComponent implements OnInit {
       name:this.form.value.name,
       code: this.form.value.code,
       regionId:this.form.value.region,
+      coordinates: JSON.stringify({"lat": this.latitude, lng: this.longitude})
     };
     this._httpService.mobileBankingPost("config/branch/update", model).subscribe((result:any) => {
       if (result.status === 200) {
         this.activeModal.close('success');
-        Swal.fire('Success',result.message,'success')        
+        Swal.fire('Success',result.message,'success')
         .then(r=>(console.log(r)))
         this.close();
       } else {
@@ -189,21 +220,27 @@ export class AddBranchComponent implements OnInit {
   }
 
   getAddress(latitude: any, longitude: any) {
-    this.geoCoder.geocode({ 'location': { lat: latitude, lng: longitude } }, (results: any, status: any) => {
-      console.log(results);
-      console.log(status);
-      if (status === 'OK') {
-        if (results[0]) {
-          this.zoom = 12;
-          this.address = results[0].formatted_address;
-        } else {
-          window.alert('No results found');
-        }
-      } else {
-        window.alert('Geocoder failed due to: ' + status);
-      }
 
-    });
+    if (this.latitude && this.longitude){
+      this.geoCoder.geocode({ 'location': { lat: latitude, lng: longitude } }, (results: any, status: any) => {
+        console.log("results");
+        console.log(results);
+        console.log("status");
+        console.log(status);
+        if (status === 'OK') {
+          if (results[0]) {
+            this.zoom = 12;
+            this.address = results[0].formatted_address;
+          } else {
+            window.alert('No results found');
+          }
+        } else {
+          window.alert('Geocoder failed due to: ' + status);
+        }
+
+      });
+    }
+
   }
 
 }

@@ -28,7 +28,7 @@ export class ListMobileBankingCustomersComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
   tempProductData = [
     {
-      id: 1,
+      frontendId: 1,
       customerName: 'Perpetua Kabute',
       phoneNumber:'0708453901',
       idNumber: '31397137',
@@ -38,7 +38,7 @@ export class ListMobileBankingCustomersComponent implements OnInit {
       createdOn: '12-02-2023',
     },
     {
-      id: 2,
+      frontendId: 2,
       customerName: 'Faisal Farah',
       phoneNumber:'0728378986',
       idNumber: '36059678',
@@ -47,7 +47,7 @@ export class ListMobileBankingCustomersComponent implements OnInit {
       createdOn: '12-02-2023',
     },
     {
-      id: 3,
+      frontendId: 3,
       customerName: 'Chiuri Karanja',
       phoneNumber:'0713278096',
       idNumber: '31059673',
@@ -56,7 +56,7 @@ export class ListMobileBankingCustomersComponent implements OnInit {
       createdOn: '12-02-2023',
     },
     {
-      id: 4,
+      frontendId: 4,
       customerName: 'Daniel Kimani',
       phoneNumber:'0712786543',
       idNumber: '30059677',
@@ -66,7 +66,7 @@ export class ListMobileBankingCustomersComponent implements OnInit {
       createdOn: '12-02-2023',
     },
     {
-      id: 5,
+      frontendId: 5,
       customerName: 'Michael Mbugua',
       phoneNumber:'0725654318',
       idNumber: '31359673',
@@ -75,7 +75,7 @@ export class ListMobileBankingCustomersComponent implements OnInit {
       createdOn: '12-02-2023',
     },
     {
-      id: 6,
+      frontendId: 6,
       customerName: 'Lilian Kamau',
       phoneNumber:'0728675498',
       idNumber: '32859637',

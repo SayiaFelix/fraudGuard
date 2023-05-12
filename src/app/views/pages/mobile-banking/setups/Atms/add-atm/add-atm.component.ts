@@ -21,6 +21,8 @@ export class AddAtmComponent implements OnInit {
   private loading: boolean;
   Branches: any;
 
+  selectedCoordinates: {lat: number, lng: number };
+
   constructor(
     public activeModal: NgbActiveModal,
     // tslint:disable-next-line:variable-name
@@ -58,6 +60,22 @@ export class AddAtmComponent implements OnInit {
     console.log("this.formData");
     console.log(this.formData);
 
+    if (this.formData && this.formData.coordinates) {
+
+      let receivedCoordinates = JSON.parse(atob(this.formData.coordinates));
+      console.log("receivedCoordinates");
+      console.log(receivedCoordinates);
+
+      this.latitude = receivedCoordinates.lat;
+      this.longitude = receivedCoordinates.lng;
+
+      this.zoom = 14;
+      this.getAddress(this.latitude, this.longitude);
+
+    } else {
+      this.setCurrentLocation();
+    }
+
     this.getBranches()
 
     this.mapsAPILoader.load().then(() => {
@@ -79,6 +97,11 @@ export class AddAtmComponent implements OnInit {
           this.latitude = place.geometry.location.lat();
           this.longitude = place.geometry.location.lng();
           this.zoom = 12;
+
+          this.selectedCoordinates = {lat: this.latitude, lng: this.longitude};
+
+
+
         });
       });
     });
@@ -162,6 +185,7 @@ export class AddAtmComponent implements OnInit {
         branchId: this.form.value.branch,
         name: this.form.value.name,
         atmCode: this.form.value.atmCode,
+        coordinates: JSON.stringify(this.selectedCoordinates)
       }
     this._httpService.mobileBankingPost("config/branch/addAtms", model).subscribe((result: any) => {
       if (result.status === 200) {
@@ -186,6 +210,7 @@ export class AddAtmComponent implements OnInit {
       branchId: this.form.value.branch,
       name: this.form.value.name,
       atmCode: this.form.value.atmCode,
+      coordinates: JSON.stringify(this.selectedCoordinates)
     };
     this._httpService.mobileBankingPost("config/branch/atm/edit", model).subscribe((result:any) => {
       if (result.status === 200) {
