@@ -20,6 +20,7 @@ export class ListAtmsComponent implements OnInit {
   // bread crumb items
   breadCrumbItems: Array<{}>;
   rows: any = [];
+  filteredRows: any = [];
   loading = true;
   reorderable = true;
 
@@ -27,7 +28,9 @@ export class ListAtmsComponent implements OnInit {
     { name: 'ID', prop: 'id' },
     { name: 'ATM Name', prop:'name' },
     { name: 'ATM Code', prop:'atmCode' },
-    { name: 'Status', prop:'isActive' },
+    // { name: 'Status', prop:'isActive' },
+    { name: 'Created On', prop:'createdOn' },
+    { name: 'Updated On', prop:'updatedOn' },
     { name: 'Actions', prop: 'id' }
   ];
 
@@ -112,9 +115,9 @@ export class ListAtmsComponent implements OnInit {
         // }, 10);
 
         let response = res.data.map((item: any, index: any) => {
-          const res = {...item, frontendId: index + 1};
+          const res = {...item, frontendId: index + 1, createdOn: item.createdOn.replace('T', ' '), updatedOn: item.updatedOn.replace('T', ' ')};
           return res;
-        });
+        }); 
 
         this.rows = response;
       } else {
@@ -167,5 +170,11 @@ export class ListAtmsComponent implements OnInit {
       this.editAtm(eventData.row);
     }
 
+  }
+
+  updateFilteredRowsEvent(data: string) {
+    console.log(data);
+
+    this.filteredRows = data
   }
 }

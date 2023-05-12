@@ -17,46 +17,11 @@ import { ConfirmDialogComponent } from 'src/app/shared/components/confirm-dialog
   styleUrls: ['./list-branches.component.scss']
 })
 export class ListBranchesComponent implements OnInit {
-  tempProductData = [
-    {
-      id: 1,
-     branchName: 'KCB Kipande House',
-      branchCode: '00679',
-      createdOn: '12-02-2023',
-
-    },
-    {
-      id: 2,
-     branchName: 'KCB Biashara Street',
-      branchCode: '17806',
-      createdOn: '12-02-2023',
-    },
-    {
-      id: 3,
-      branchName: 'KCB Tom Mboya',
-      branchCode: '45670',
-      isActive: true,
-      createdOn: '12-02-2023',
-    },
-    {
-      id: 4,
-      branchName: 'KCB River Road',
-      branchCode: '45698',
-      isActive: true,
-      createdOn: '12-02-2023',
-    },
-    {
-      id: 5,
-      branchName: 'KCB Milimani',
-      branchCode: '34876',
-      isActive: true,
-      createdOn: '12-02-2023',
-    },
-  ];
 
   // bread crumb items
   breadCrumbItems: Array<{}>;
   rows: any = [];
+  filteredRows: any = [];
   loadingIndicator = true;
   reorderable = true;
 
@@ -64,7 +29,8 @@ export class ListBranchesComponent implements OnInit {
     { name: 'ID', prop: 'id' },
     { name: 'Branch Name', prop:'name' },
     { name: 'Branch Code', prop:'code' },
-    { name: 'Status', prop:'isActive' },
+    { name: 'Created On', prop:'createdOn' },
+    { name: 'Updated On', prop:'updatedOn' },
     { name: 'Actions', prop: 'id' }
   ];
 
@@ -181,11 +147,13 @@ export class ListBranchesComponent implements OnInit {
       //  Swal.fire('success','records fetched successfully','success')
       //  .then(r=>console.log(r))
         let response = res.data.map((item: any, index: any) => {
-          const res = {...item, frontendId: index + 1};
+          const res = {...item, frontendId: index + 1, createdOn: item.createdOn.replace('T', ' '), updatedOn: item.updatedOn.replace('T', ' ')};
           return res;
         });
 
         this.rows = response;
+        console.log(this.rows);
+        
       }
       else{
         Swal.fire('failed','unable to fetch records','error')
@@ -223,5 +191,11 @@ export class ListBranchesComponent implements OnInit {
       this.deleteBranch(eventData.row);
     }
 
+  }
+
+  updateFilteredRowsEvent(data: string) {
+    console.log(data);
+
+    this.filteredRows = data
   }
 }
