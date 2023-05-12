@@ -31,7 +31,7 @@ import {ChannelDetailsWrapper} from "../../../../../shared/services/channelDetai
  */
 export class ListCustomersComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
-  actions=["View","Edit"]
+  actions=["View"]
 
   // bread crumb items
   breadCrumbItems: Array<{}>;
@@ -204,9 +204,10 @@ export class ListCustomersComponent implements OnInit {
 
     if (eventData.action == 'View') {
       this. navigateToViewProduct(eventData.row);
-    }else if (eventData.action == 'Edit') {
-      this.openEditProductModal(eventData.row);
     }
+    // else if (eventData.action == 'Edit') {
+    //   this.openEditProductModal(eventData.row);
+    // }
   }
 
   updateFilteredRowsEvent(data: string) {

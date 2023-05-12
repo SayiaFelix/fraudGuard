@@ -24,12 +24,12 @@
                 </agm-map>
               </div>
               <div class="col-lg-5 border-end-lg mt-6">
-                <h4 class="text-center mx-auto tx-16 fw-bold mt-4">Branch Details</h4>
+                <h4 class="text-center mx-auto tx-16 fw-bolder mt-4 d-flex align-items-start">Branch Details</h4>
                 <hr>
                 <div class="row justify-content-center mx-auto text-center">
                   <div class="col-sm-12">
                     <div class="mb-3">
-                      <label class="form-label">Branch Name</label>
+                      <label class="form-label d-flex align-items-start fw-bold">Branch Name</label>
                       <input class="form-control" formControlName="name" type="text">
 <!--                      <small *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')" class="text-danger">Required-->
 <!--                        Field</small>-->
@@ -37,7 +37,7 @@
                   </div>
                   <div class="col-sm-12">
                     <div class="mb-3">
-                      <label class="text-gray">Branch Code</label>
+                      <label class="text-gray d-flex align-items-start fw-bold">Branch Code</label>
                       <input class="form-control" formControlName="code" type="text">
 <!--                      <small *ngIf="form.get('code')?.touched &&-->
 <!--          form.get('code')?.hasError('required')" class="text-danger">Required-->
@@ -46,7 +46,7 @@
                   </div>
                   <div class="col-sm-12">
                     <div class="mb-3">
-                      <label class="text-gray">Select Region</label>
+                      <label class="text-gray d-flex align-items-start fw-bold">Select Region</label>
                       <select
                         class="form-select"
                         formControlName="region"

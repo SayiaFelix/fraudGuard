@@ -7,7 +7,7 @@
       <div class="row">
         <div class="col-sm-12">
           <div class="mb-3">
-            <label class="form-label">Role Name</label>
+            <label class="form-label fw-bold">Role Name</label>
             <input class="form-control" formControlName="roleName" type="text">
             <small *ngIf="form.get('roleName')?.touched && form.get('roleName')?.hasError('required')" class="text-danger">Required
               Field</small>
@@ -15,7 +15,7 @@
         </div>
         <div class="col-sm-12">
           <div class="mb-3">
-            <label class="text-gray">Description</label>
+            <label class="text-gray fw-bold">Description</label>
             <textarea class="form-control" formControlName="description" type="text"></textarea>
             <small *ngIf="form.get('description')?.touched &&
           form.get('description')?.hasError('required')" class="text-danger">Required

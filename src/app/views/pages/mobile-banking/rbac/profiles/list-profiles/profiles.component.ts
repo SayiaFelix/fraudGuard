@@ -32,7 +32,7 @@ export class ProfilesComponent implements OnInit {
     { name: 'Name', prop:'name' },
     { name: 'Remarks', prop:'remarks' },
     // { name: 'UserType', prop:'userType' },
-    { name: 'CreatedOn', prop:'createdOn' },
+    { name: 'Created On', prop:'createdOn' },
     { name: 'Actions', prop: 'id' }
   ];
 
