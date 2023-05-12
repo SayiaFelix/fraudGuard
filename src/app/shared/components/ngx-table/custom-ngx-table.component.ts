@@ -39,16 +39,17 @@ export class CustomNgxTable implements OnInit {
   data: any[];
   filterColumns: any[];
   toggleFilters: any[];
+  dateFilters: any[];
   total: any;
   perPage = 10;
   pageSizes: number[] = [2, 5, 10, 20, 50, 100, 1000];
-  pageSize = 10;
+  pageSize = 2;
   page = 1;
   dataLoaded = false;
   showPageSizeDropdown = false;
   // New Params
   maxSize: number = 5;
-  selectedRange: any;
+  selectedRange: any = {};
 
   constructor() {}
 
@@ -59,25 +60,43 @@ export class CustomNgxTable implements OnInit {
       (col: any) =>
         col['name'] !== 'Actions' &&
         col['name'] !== 'Description' &&
-        col['name'] !== 'CreatedOn' &&
-        col['name'] !== 'CreatedAt' &&
+        col['prop'] !== 'createdOn' &&
+        col['prop'] !== 'createdAt' &&
+        col['prop'] !== 'updatedOn' &&
+        col['prop'] !== 'updatedAt' &&
         col['name'] !== 'Active' &&
         col['name'] !== 'Status' &&
-        col['name'] !== 'SystemRole'
+        col['prop'] !== 'systemRole' &&
+        col['prop'] !== 'firstTimeLogin'
     );
 
     this.toggleFilters = [...this.columns].filter(
       (col: any) =>
         col['name'] == 'Active' ||
         col['name'] == 'Status' ||
-        col['name'] == 'SystemRole'
+        col['prop'] == 'systemRole' ||
+        col['prop'] == 'firstTimeLogin' 
     );
+
+    this.dateFilters = [...this.columns].filter(
+      (col: any) => {  
+        if(col['prop'] == 'updatedOn' ||
+            col['prop'] == 'createdOn' || 
+            col['prop'] == 'createdAt' || col.prop === 'updatedAt') {
+              this.selectedRange[col['prop']] = []
+              
+              return col
+        } }
+
+    );
+    console.log(this.selectedRange);
+    
 
     this.data = [...this.rows];
   }
 
-  changePageSize(event: Event) {
-    console.log("event when changing page.");
+  changePageSize(event: Event) { 
+    console.log('event when changing page.');
     console.log(event);
     this.pageSize = parseInt((event.target as HTMLSelectElement).value);
   }
@@ -109,8 +128,7 @@ export class CustomNgxTable implements OnInit {
     this.outputEvent.emit(JSON.stringify(result));
   }
 
-  updateFilter(event: any, col: any) {
-    if (event.key === 'Backspace') {
+  updateFilter() {
       let tempRows = [...this.data];
 
       const filterInputs = document.querySelectorAll('.filterInputs');
@@ -119,15 +137,18 @@ export class CustomNgxTable implements OnInit {
           input.placeholder == 'CreatedOn' ||
           input.placeholder == 'createdOn' ||
           input.placeholder == 'CreatedAt' ||
-          input.placeholder == 'createdAt'
+          input.placeholder == 'createdAt' ||
+          input.placeholder == 'updatedOn' ||
+          input.placeholder == 'updatedAt'
         ) {
-          if (this.selectedRange) {
-            let startDate = this.selectedRange[0].toISOString();
-            let endDate = this.selectedRange[1].toISOString();
+          if (this.selectedRange[input.placeholder].length > 0) {
+            console.log(this.selectedRange);
+            
+            let startDate = this.selectedRange[input.placeholder][0].toISOString();
+            let endDate = this.selectedRange[input.placeholder][1].toISOString();
 
             const temp = tempRows.filter(function (d: any) {
-              let date: any =
-                d['createdOn'] == undefined ? d['createdAt'] : d['createdOn'];
+              let date: any = d[input.placeholder]
               date = date.replace(' ', 'T');
               return date >= startDate && date <= endDate;
             });
@@ -146,113 +167,30 @@ export class CustomNgxTable implements OnInit {
         }
       });
 
+      const filterSelects = document.querySelectorAll('.filterSelect');
+      filterSelects.forEach((select: any) => {
+        let val = select.value;
+        if (val == true || val == false || val == 'true' || val == 'false') {
+          if (val == 'false') {
+            val = false;
+          } else if (val == 'true') {
+            val = true;
+          }
+          const temp = tempRows.filter(function (d: any) {
+            let key = select.options[0].value;
+            // if (key.indexOf('blocked') !== -1) {
+              return d[key] == val;
+            // } else {
+              return d[key] == val;
+            // }
+          });
+
+          tempRows = [...temp];
+        }
+      });
+
       this.rows = [...tempRows];
-    }
-
-    const val = event.target.value.toLowerCase();
-
-    let tempRows = [...this.rows];
-    // filter our data
-    const temp = tempRows.filter(function (d: any) {
-      let key = col.prop;
-      console.log(key, d[key]);
-
-      return d[key].toString().toLowerCase().indexOf(val) !== -1 || !val;
-    });
-
-    // update the rows
-    this.rows = temp;
-
     // Whenever the filter changes, always go back to the first page
-    this.table.offset = 0;
-    this.updateFilteredRows.emit(this.rows);
-  }
-
-  updateFilterSelect(event: any, col: any) {
-    let tempRows = [...this.data];
-
-      const filterInputs = document.querySelectorAll('.filterInputs');
-      filterInputs.forEach((input: any) => {
-        if (
-          input.placeholder == 'CreatedOn' ||
-          input.placeholder == 'createdOn' ||
-          input.placeholder == 'CreatedAt' ||
-          input.placeholder == 'createdAt'
-        ) {
-          if (this.selectedRange) {
-            let startDate = this.selectedRange[0].toISOString();
-            let endDate = this.selectedRange[1].toISOString();
-
-            const temp = tempRows.filter(function (d: any) {
-              let date: any =
-                d['createdOn'] == undefined ? d['createdAt'] : d['createdOn'];
-              date = date.replace(' ', 'T');
-              return date >= startDate && date <= endDate;
-            });
-            tempRows = [...temp];
-          }
-        } else {
-          const temp = tempRows.filter(function (d: any) {
-            let key = input.placeholder;
-            return (
-              d[key].toString().toLowerCase().indexOf(input.value) !== -1 ||
-              !input.value
-            );
-          });
-
-          tempRows = [...temp];
-        }
-      });
-
-      this.rows = [...tempRows];
-    // let flag = false;
-    // const filterInputs = document.querySelectorAll('.filterInputs');
-    // filterInputs.forEach((input: any) => {
-    //   if (input.value !== '') {
-    //     flag = true;
-    //   }
-    // });
-    // if (flag) {
-    //   this.rows = [...this.rows]
-    // } else {
-    //   this.rows = [...this.data]
-    // }
-    const val = event.target.value.toLowerCase();
-
-    let tempRowsArr = [...this.rows];
-    // // filter our data
-    const temp = tempRowsArr.filter(function (d: any) {
-      let key = col.prop;
-      console.log(key, d[key]);
-
-      return d[key].toString().toLowerCase().indexOf(val) !== -1 || !val;
-    });
-
-    // // update the rows
-    this.rows = temp;
-
-    // // Whenever the filter changes, always go back to the first page
-    this.table.offset = 0;
-    this.updateFilteredRows.emit(this.rows);
-  }
-
-  updateCreatedOn(event: any) {
-    // const val = event.target.value.toLowerCase();
-    let tempRows = [...this.rows];
-    let startDate = event[0].toISOString();
-    let endDate = event[1].toISOString();
-
-    const temp = tempRows.filter(function (d: any) {
-      let date: any =
-        d['createdOn'] == undefined ? d['createdAt'] : d['createdOn'];
-      date = date.replace(' ', 'T');
-      return date >= startDate && date <= endDate;
-    });
-
-    // // update the rows
-    this.rows = temp;
-
-    // // Whenever the filter changes, always go back to the first page
     this.table.offset = 0;
     this.updateFilteredRows.emit(this.rows);
   }
@@ -271,7 +209,11 @@ export class CustomNgxTable implements OnInit {
       select.selectedIndex = 0;
     });
 
-    this.selectedRange = null;
+    let dateKeys = Object.keys(this.selectedRange)
+    dateKeys.forEach(key => {
+      this.selectedRange[key] = []
+    }) 
+
     // Whenever the filter changes, always go back to the first page
     this.table.offset = 0;
     this.updateFilteredRows.emit(this.rows);
