@@ -7,7 +7,7 @@
     <div class="row g-3">
 
       <div class="col-12">
-        <label class="form-label">Workflow Name</label>
+        <label class="form-label fw-bold">Workflow Name</label>
         <input class="form-control" formControlName="name" type="text"/>
         <small
           *ngIf="
@@ -20,7 +20,7 @@
       </div>
       <div class="col-12">
 
-        <label class="form-label">Process</label>
+        <label class="form-label fw-bold">Process</label>
         <select class="form-select" formControlName="process" type="text">
           <option disabled hidden selected>Select Process Name</option>
           <option
@@ -38,7 +38,7 @@
       </div>
 
       <div class="col-12">
-        <label class="text-gray">Remarks</label>
+        <label class="text-gray fw-bold">Remarks</label>
         <textarea
           class="form-control"
           formControlName="remarks"
@@ -54,11 +54,11 @@
       </div>
 
       <div class="col-md-4 mt-4">
-        <label class="form-label">Workflow Status</label>
+        <label class="form-label fw-bold">Workflow Status</label>
 
         <div class="form-check form-switch mb-2">
           <input class="form-check-input" formControlName="status" id="formSwitch1" type="checkbox">
-          <label class="form-check-label"
+          <label class="form-check-label fw-bold"
                  for="formSwitch1">{{form.get('status')?.value ? "ACTIVE" : "INACTIVE"}}</label>
         </div>
 

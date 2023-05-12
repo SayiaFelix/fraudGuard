@@ -19,13 +19,13 @@ export class ViewSingleWorkflowComponent implements OnInit {
   actions = ["Edit", "Delete"]
 
   columns = [
-    {name:'stepNumber',prop:'id'},
-    { name: 'stepName', prop: 'stepName' },
-    { name: 'remarks', prop: 'remarks' },
-    { name: 'requiredRoleId', prop: 'requiredRoleId' },
+    {name:'Step Number',prop:'id'},
+    { name: 'Step Name', prop: 'stepName' },
+    { name: 'Remarks', prop: 'remarks' },
+    { name: 'Required Role ID', prop: 'requiredRoleId' },
     // { name: 'notificationEmail', prop: 'notificationEmail'},
     // { name: 'notificationEmailMessage', prop: 'notificationEmailMessage' },
-    { name: 'createdOn', prop: 'createdOn' },
+    { name: 'Updated On', prop: 'createdOn' },
     { name: 'Actions', prop: 'id' },
   ];
 

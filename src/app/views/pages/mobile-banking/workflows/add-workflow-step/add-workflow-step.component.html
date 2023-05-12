@@ -5,19 +5,19 @@
 <div class="modal-body" [formGroup]="workflowForm">
 <div class="row">
   <div class="col-md-12">
-    <label class="form-label">Step Number</label>
+    <label class="form-label fw-bold">Step Number</label>
     <input class="form-control" formControlName="stepNumber" type="text"/>
   </div>
   <div class="col-md-12">
-    <label class="form-label">Step Name</label>
+    <label class="form-label fw-bold">Step Name</label>
     <input class="form-control" formControlName="stepName" type="text"/>
   </div>
   <div class="col-md-12">
-    <label class="form-label">Remarks</label>
+    <label class="form-label fw-bold">Remarks</label>
     <input class="form-control" formControlName="remarks" type="text"/>
   </div>
   <div class="col-md-12">
-    <label class="form-label">Required Profile</label>
+    <label class="form-label fw-bold">Required Profile</label>
     <select
           class="form-select"
           formControlName="requiredRoleId"
@@ -65,16 +65,22 @@
       </div> -->
     </div>
     <div class="row mt-4">
-      <div class="col-md-6">
+      <div class="col-md-4">
         <div class="form-check form-switch mb-2">
           <input type="checkbox" class="form-check-input" id="formSwitch1" formControlName="status">
-          <label class="form-check-label" for="formSwitch1">Send SMS</label>
+          <label class="form-check-label fw-bold" for="formSwitch1 ">Send SMS</label>
         </div>
       </div>
-      <div class="col-md-6">
+      <div class="col-md-4">
         <div class="form-check form-switch mb-2">
           <input type="checkbox" class="form-check-input" id="formSwitch1" formControlName="status">
-          <label class="form-check-label" for="formSwitch1">ACTIVE</label>
+          <label class="form-check-label fw-bold" for="formSwitch1 ">Send EMAIL</label>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="form-check form-switch mb-2">
+          <input type="checkbox" class="form-check-input" id="formSwitch1" formControlName="status">
+          <label class="form-check-label fw-bold" for="formSwitch1 ">ACTIVE</label>
         </div>
       </div>
     </div>

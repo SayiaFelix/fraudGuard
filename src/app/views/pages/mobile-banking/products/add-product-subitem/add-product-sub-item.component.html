@@ -9,7 +9,7 @@
 
       <div class="col-sm-12">
         <div class="form-group">
-          <label class="text-gray">Product Image</label>
+          <label class="text-gray fw-bold">Product Image</label>
           <input #fileUpload (change)="onFileChange($event)"
                  accept="image/*"
                  class="form-control"
@@ -20,7 +20,7 @@
       </div>
         <div class="col-sm-6">
             <div class="form-group">
-                <label class="text-gray">Product Name</label>
+                <label class="text-gray fw-bold">Product Name</label>
                 <input formControlName="name" class="form-control" type="text" >
                 <p *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')"
                    class="text-danger mt-1 mb-1 pt-0 small text-center">Required
@@ -30,7 +30,7 @@
 
       <div class="col-sm-6">
         <div class="form-group">
-          <label class="text-gray">Product Code</label>
+          <label class="text-gray fw-bold">Product Code</label>
           <input formControlName="productCode" class="form-control" type="text" >
           <p *ngIf="form.get('productCode')?.touched && form.get('productCode')?.hasError('required')"
              class="text-danger mt-1 mb-1 pt-0 small text-center">Required
@@ -41,7 +41,7 @@
 
         <div class="col-sm-12">
             <div class="form-group">
-                <label class="text-gray">Summary</label>
+                <label class="text-gray fw-bold">Summary</label>
                 <textarea formControlName="shortDescription" class="form-control" type="text"></textarea>
                 <p *ngIf="form.get('shortDescription')?.touched && form.get('shortDescription')?.hasError('required')"
                    class="text-danger mt-1 mb-1 pt-0 small text-center">Required
@@ -51,7 +51,7 @@
 
       <div class="col-sm-12">
             <div class="form-group">
-                <label class="text-gray">Long Description (Narration)</label>
+                <label class="text-gray fw-bold">Long Description (Narration)</label>
               <textarea formControlName="productDescription" class="form-control" type="text"></textarea>
                 <p *ngIf="form.get('productDescription')?.touched && form.get('productDescription')?.hasError('required')"
                    class="text-danger mt-1 mb-1 pt-0 small text-center">Required
