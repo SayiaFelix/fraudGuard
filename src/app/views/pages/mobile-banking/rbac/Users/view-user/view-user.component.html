@@ -151,7 +151,7 @@
 
                                 >
                                   <ngx-datatable-column
-                                    *ngFor="let column of columns; let i = index"
+                                    *ngFor="let column of [ { name: 'ID', prop: 'id' }, { name: 'Role', prop: 'role' }, { name: 'CreatedOn', prop: 'createdOn' } ]; let i = index"
                                     name="{{ column.name }}"
                                     prop="{{ column.prop }}"
                                   >
@@ -177,6 +177,7 @@
                               </div>
                             </ng-template>
                           </li>
+
                           <li [ngbNavItem]="">
                                 <a ngbNavLink>User Audit Trail</a>
                                 <ng-template ngbNavContent>

@@ -71,7 +71,7 @@ export class AddBranchComponent implements OnInit {
       this.latitude = receivedCoordinates.lat;
       this.longitude = receivedCoordinates.lng;
 
-      this.zoom = 14;
+      this.zoom = 8;
       this.getAddress(this.latitude, this.longitude);
 
     } else {
@@ -100,7 +100,7 @@ export class AddBranchComponent implements OnInit {
           //set latitude, longitude and zoom
           this.latitude = place.geometry.location.lat();
           this.longitude = place.geometry.location.lng();
-          this.zoom = 12;
+          this.zoom = 8;
 
           this.selectedCoordinates = {lat: this.latitude, lng: this.longitude};
         });
@@ -140,7 +140,7 @@ export class AddBranchComponent implements OnInit {
       name:this.form.value.name,
       code: this.form.value.code,
       regionId:this.form.value.region,
-      coordinates: JSON.stringify({"lat": 20, lng: -15})
+      coordinates: JSON.stringify({"lat": this.latitude, lng: this.longitude})
   }
     this._httpService.mobileBankingPost("config/branch/create", model).subscribe((result: any) => {
       if (result.status === 200) {
@@ -178,7 +178,7 @@ export class AddBranchComponent implements OnInit {
       name:this.form.value.name,
       code: this.form.value.code,
       regionId:this.form.value.region,
-      coordinates: JSON.stringify({"lat": 20, lng: -15})
+      coordinates: JSON.stringify({"lat": this.latitude, lng: this.longitude})
     };
     this._httpService.mobileBankingPost("config/branch/update", model).subscribe((result:any) => {
       if (result.status === 200) {
@@ -221,23 +221,26 @@ export class AddBranchComponent implements OnInit {
 
   getAddress(latitude: any, longitude: any) {
 
-    this.geoCoder.geocode({ 'location': { lat: latitude, lng: longitude } }, (results: any, status: any) => {
-      console.log("results");
-      console.log(results);
-      console.log("status");
-      console.log(status);
-      if (status === 'OK') {
-        if (results[0]) {
-          this.zoom = 12;
-          this.address = results[0].formatted_address;
+    if (this.latitude && this.longitude){
+      this.geoCoder.geocode({ 'location': { lat: latitude, lng: longitude } }, (results: any, status: any) => {
+        console.log("results");
+        console.log(results);
+        console.log("status");
+        console.log(status);
+        if (status === 'OK') {
+          if (results[0]) {
+            this.zoom = 12;
+            this.address = results[0].formatted_address;
+          } else {
+            window.alert('No results found');
+          }
         } else {
-          window.alert('No results found');
+          window.alert('Geocoder failed due to: ' + status);
         }
-      } else {
-        window.alert('Geocoder failed due to: ' + status);
-      }
 
-    });
+      });
+    }
+
   }
 
 }
