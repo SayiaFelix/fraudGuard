@@ -30,9 +30,9 @@ export class RolesComponent implements OnInit {
     {name: 'ID', prop: 'frontendId'},
     {name: 'Name', prop: 'name'},
     // {name: 'Status', prop: 'status'},
-    {name: 'remarks', prop: 'remarks'},
-    {name: 'SystemRole', prop: 'systemRole'},
-    {name: 'CreatedOn', prop: 'createdOn'},
+    {name: 'Remarks', prop: 'remarks'},
+    {name: 'System Role', prop: 'systemRole'},
+    {name: 'Created On', prop: 'createdOn'},
     {name: 'Actions', prop: 'id'}
   ];
 
@@ -48,7 +48,7 @@ export class RolesComponent implements OnInit {
   public modalRef: NgbModalRef;
 
   title: string = "Roles";
-  actions = ["Delete", "Edit"];
+  actions = ["Edit", "Delete"];
 
   totalRecords: number;
   constructor(private httpService: HttpService,
