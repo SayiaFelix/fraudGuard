@@ -14,7 +14,7 @@
               <div class="col-lg-7">
 
                 <div class="form-group mb-2">
-                  <label>Enter ATM Location</label>
+                  <label>Enter Branch Location</label>
                   <input type="text" class="form-control" (keydown.enter)="$event.preventDefault()" placeholder="Search Nearest Location" autocorrect="off" autocapitalize="off" spellcheck="off" type="text" #search>
                 </div>
 
@@ -31,17 +31,17 @@
                     <div class="mb-3">
                       <label class="form-label">Branch Name</label>
                       <input class="form-control" formControlName="name" type="text">
-                      <small *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')" class="text-danger">Required
-                        Field</small>
+<!--                      <small *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')" class="text-danger">Required-->
+<!--                        Field</small>-->
                     </div>
                   </div>
                   <div class="col-sm-12">
                     <div class="mb-3">
                       <label class="text-gray">Branch Code</label>
                       <input class="form-control" formControlName="code" type="text">
-                      <small *ngIf="form.get('code')?.touched &&
-          form.get('code')?.hasError('required')" class="text-danger">Required
-                        Field</small>
+<!--                      <small *ngIf="form.get('code')?.touched &&-->
+<!--          form.get('code')?.hasError('required')" class="text-danger">Required-->
+<!--                        Field</small>-->
                     </div>
                   </div>
                   <div class="col-sm-12">

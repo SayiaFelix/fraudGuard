@@ -45,7 +45,7 @@ export class ListProductsComponent implements OnInit {
     {name: 'ProductName', prop: 'name'},
     {name: 'CategoryName', prop: 'categoryName'},
     {name: 'Description', prop: 'shortDescription'},
-    {name: 'Active', prop: 'active'},
+    {name: 'Status', prop: 'active'},
     {name: 'CreatedOn', prop: 'createdAt'},
     {name: 'Actions', prop: 'id'},
   ];
@@ -167,7 +167,7 @@ export class ListProductsComponent implements OnInit {
   }
 
   navigateToViewProduct(data: any) {
-    this.router.navigateByUrl(`/mobile-banking/products/product/${data.id}`);
+    this.router.navigate([`/mobile-banking/products/product/${this.productCategoryId}/${data.id}`]);
   }
 
   toggleExpandRow(row: any) {

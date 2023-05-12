@@ -30,7 +30,7 @@ export class ListUsersComponent implements OnInit {
     { name: 'First Name', prop:'firstName' },
     { name:'Email',prop:'email'},
     // { name: 'PhoneNumber', prop:'phoneNumber' },
-    { name: 'Active', prop:'blocked'},
+    { name: 'Status', prop:'blocked'},
     { name: 'Created On', prop:'createdOn' },
     { name: 'Actions', prop: 'id' }
   ];
