@@ -24,8 +24,13 @@ export class ViewUserComponent implements OnInit, OnDestroy {
 
   columns = [
     { name: 'ID', prop: 'id' },
+<<<<<<< src/app/views/pages/mobile-banking/rbac/Users/view-user/view-user.component.ts
     { name: 'Audit Message', prop: 'AuditMessage'},
     { name: 'Created On', prop: 'CreatedOn' },
+=======
+    { name: 'ProfileName', prop: 'profileName' },
+    { name: 'CreatedOn', prop: 'createdOn' },
+>>>>>>> src/app/views/pages/mobile-banking/rbac/Users/view-user/view-user.component.ts
     // { name: 'IsActive', prop:'isActive' },
     // { name: 'Actions', prop: 'id' }
   ];
@@ -63,6 +68,8 @@ export class ViewUserComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+
+    this.getAllUserRoles();
 
     this.activatedRoute.params.subscribe(params => {
       if (typeof params.id !== 'undefined') {
@@ -114,6 +121,14 @@ export class ViewUserComponent implements OnInit, OnDestroy {
   }
 
   isAsideNavCollapsed: any;
+
+  userRolesColumns = [
+    { name: 'ID', prop: 'id' },
+    { name: 'RoleName', prop: 'role' },
+    { name: 'CreatedOn', prop: 'createdOn' }
+  ];
+
+  userRolesRows: any;
 
   openAddProductSubcategoryModal(content: TemplateRef<any>) {
     this.modalService
@@ -311,5 +326,18 @@ export class ViewUserComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subs.forEach(sub => sub.unsubscribe())
+  }
+
+  getAllUserRoles(){
+    let allRoles: any;
+    allRoles = localStorage.getItem("roles") ? localStorage.getItem("roles") : "";
+
+    let array = allRoles.split(",");
+
+    this.userRolesRows = array.map((item: any, index: any) => {
+      console.log(item);
+      const res = {role: item, id: index + 1, createdOn: "12-12-2022"};
+      return res;
+    })
   }
 }

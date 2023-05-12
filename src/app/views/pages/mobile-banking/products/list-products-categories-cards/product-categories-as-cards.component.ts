@@ -14,6 +14,7 @@ import Swal from "sweetalert2";
 import {DomSanitizer} from '@angular/platform-browser';
 import {HttpClient} from "@angular/common/http";
 import {map} from "rxjs";
+import {log10} from "chart.js/helpers";
 
 @Component({
   selector: 'app-product-categories',
@@ -394,8 +395,10 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
             }
           },
           (error: any) => {
+            console.log(error)
             Swal.fire('Record deletion error',
-              `Record deletion error`,
+
+              error.error.message,
               'error')
           }
         );
