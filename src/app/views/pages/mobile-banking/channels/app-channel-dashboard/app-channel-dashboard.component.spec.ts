@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ChannelDashboardComponent } from './channel-dashboard.component';
+import { AppChannelDashboardComponent } from './app-channel-dashboard.component';
 
 describe('StarterComponent', () => {
-  let component: ChannelDashboardComponent;
-  let fixture: ComponentFixture<ChannelDashboardComponent>;
+  let component: AppChannelDashboardComponent;
+  let fixture: ComponentFixture<AppChannelDashboardComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ChannelDashboardComponent ]
+      declarations: [ AppChannelDashboardComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ChannelDashboardComponent);
+    fixture = TestBed.createComponent(AppChannelDashboardComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

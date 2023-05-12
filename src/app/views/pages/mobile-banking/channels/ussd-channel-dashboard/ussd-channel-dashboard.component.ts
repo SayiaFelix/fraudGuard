@@ -1,20 +1,28 @@
 import {Component, OnInit, ViewChild,} from '@angular/core';
 import {NgbCalendar, NgbDateStruct, NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {DatePipe} from '@angular/common';
+import {DatatableComponent} from "@swimlane/ngx-datatable/lib/components/datatable.component";
+import {AddCustomerComponent} from "../add-customer/add-customer.component";
+import {FormBuilder} from "@angular/forms";
+import {Router} from "@angular/router";
+import {DataExportationService} from "../../../../../shared/services/data-exportation.service";
+import {ChannelDetailsWrapper} from "../../../../../shared/services/channelDetailsWrapper";
+import Swal from "sweetalert2";
+import {HttpService} from "../../../../../shared/services/http.service";
 
 declare const google: any;
 
 @Component({
-  selector: 'app-channel-dashboard',
-  templateUrl: './channel-dashboard.component.html',
-  styleUrls: ['./channel-dashboard.component.scss'],
+  selector: 'app-ussd-channel-dashboard',
+  templateUrl: './ussd-channel-dashboard.component.html',
+  styleUrls: ['./ussd-channel-dashboard.component.scss'],
   providers: [DatePipe],
 })
 
 /**
  * Starter-component
  */
-export class ChannelDashboardComponent implements OnInit {
+export class UssdChannelDashboardComponent implements OnInit {
   /**
    * Apex chart
    */
@@ -46,6 +54,7 @@ export class ChannelDashboardComponent implements OnInit {
    * NgbDatepicker
    */
   currentDate: NgbDateStruct;
+  public modalRef: NgbModalRef;
 
   // Map variables
   @ViewChild("updatedMap", {static: true})
@@ -57,9 +66,18 @@ export class ChannelDashboardComponent implements OnInit {
   lat: number;
   lng: number;
   // Map variables
-  constructor(private calendar: NgbCalendar) {}
+  constructor(private calendar: NgbCalendar,
+              private modalService: NgbModal,
+              public fb: FormBuilder,
+              public router: Router,
+              public httpService: HttpService,
+              private dataExploration: DataExportationService) {}
 
   ngOnInit(): void {
+
+    this.getIndividualData(0);
+
+    this.getChannelsToKnowStatus();
 
     this.lat = this.pointList[0] ? this.pointList[0].lat : 0.51796165;
     this.lng = this.pointList[0] ? this.pointList[0].lng : 36.48531687;
@@ -165,6 +183,74 @@ export class ChannelDashboardComponent implements OnInit {
     );
   }
 
+  // Table Details
+  @ViewChild('table') table: DatatableComponent;
+  actions = ["View"];
+  tempProductData = [
+    {
+      frontendId: 1,
+      customerName: 'Andrew Kamau',
+      phoneNumber:'0708453901',
+      idNumber: '31397137',
+      primaryIMSINumber:'234035678765',
+      email:'michaelmbugua004@gmail.com',
+      createdOn: '12-02-2023',
+    },
+    {
+      frontendId: 2,
+      customerName: 'Jane Mwangi',
+      phoneNumber:'0728357775',
+      idNumber: '37059671',
+      primaryIMSINumber:'262062345678',
+      IMSINumber:'265011234567',
+      email:'lilian002@gmail.com',
+      createdOn: '12-02-2023',
+    },
+
+  ];
+
+  channelEnabled = true;
+  channels: any;
+  channel: any;
+
+
+  // bread crumb items
+  breadCrumbItems: Array<{}>;
+  rows: any = [];
+  temp: any = [];
+  loading = true;
+  reorderable = true;
+
+  columns = [
+    { name: 'ID', prop: 'id' },
+    { name: 'Customer Name', prop: 'customerName' },
+    {name:'Primary Phone No.',prop:'phoneNumber'},
+    { name: 'ID Number', prop: 'idNumber' },
+    // { name: 'IMSINumber', prop: 'IMSINumber' },
+    // {name: 'CBSCustomerNumber',prop:'cbsCustomerNumber'},
+    {name: 'Primary IMSI No.',prop:'primaryIMSINumber'},
+    // {name: 'Email',prop:'email'},
+    { name: 'Created On', prop: 'createdOn' },
+    // {name: 'DOB',prop:'dob'},
+    // {name: 'Gender',prop:'gender'},
+    { name: 'Actions', prop: 'id' },
+  ];
+
+  allColumns = [...this.columns];
+
+  triggerEvent(data:string){
+    let eventData = JSON.parse(data)
+
+    if (eventData.action == 'View') {
+      this.navigateToViewUssdCustomer(eventData.row);
+    }else if (eventData.action == 'Edit') {
+      this.openEditProductModal(eventData.row);
+    }
+  }
+
+  // Table Details
+
+
   updatePointList(path: { getLength: () => any; getAt: (arg0: number) => { (): any; new(): any; toJSON: { (): { lat: number; lng: number; }; new(): any; }; }; }) {
 
     this.pointList = [];
@@ -180,6 +266,64 @@ export class ChannelDashboardComponent implements OnInit {
   }
 
 
+  navigateToViewUssdCustomer(data: any) {
+    this.router.navigateByUrl(`/mobile-banking/channels/ussdcustomer/${data.id}`);
+  }
+  openEditProductModal(formData: any) {
+    this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Edit Product';
+    this.modalRef.componentInstance.formData = formData;
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+      } else {
+        console.log("Error occurred")
+      }
+    });
+  }
+
+  getIndividualData(event: number): void {
+
+    this.loading = false;
+    this.rows = this.tempProductData;
+
+    this.temp = [...this.tempProductData];
+
+  }
+
+  private getChannelsToKnowStatus() {
+    let model = ChannelDetailsWrapper.channelDetailsWrapper;
+
+    model.payload = {
+      page: 0,
+      size: 10
+    }
+
+    this.httpService.mobileBankingPostUpdated('api/v1/kyc/portal/get-channels',
+      model).subscribe(
+      (result: any) => {
+        if (result.status === '00') {
+          console.log("result.data");
+          console.log(result.data);
+
+          this.channels = result.data;
+
+          this.channel = this.channels.filter((item: any) => item.channel === 'USSD');
+
+          this.channelEnabled = this.channel[0].active;
+
+        } else {
+          Swal.fire('Error',
+            'Product could not be activated/ deactivated.',
+            'error').then(r => console.log(r))
+        }
+      },
+      (error: any) => {
+        Swal.fire('Record deletion error',
+          `Record creation error`,
+          'error')
+      }
+    );
+  }
 }
 
 

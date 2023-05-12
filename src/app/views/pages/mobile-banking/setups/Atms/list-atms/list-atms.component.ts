@@ -74,7 +74,7 @@ export class ListAtmsComponent implements OnInit {
     this.modalRef.componentInstance.title = 'Add ATM';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
-        // this.getIndividualData(this.page);
+        this.getIndividualData(0);
       }
     }, (reason) => {
     });
@@ -86,7 +86,7 @@ export class ListAtmsComponent implements OnInit {
     this.modalRef.componentInstance.title = 'Edit ATM';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
-        // this.getIndividualData(this.page);
+        this.getIndividualData(0);
       }
     }, (reason) => {
     });
