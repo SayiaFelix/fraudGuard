@@ -64,7 +64,7 @@ export class ListBranchesComponent implements OnInit {
     { name: 'ID', prop: 'id' },
     { name: 'Branch Name', prop:'name' },
     { name: 'Branch Code', prop:'code' },
-    { name: 'Active', prop:'isActive' },
+    { name: 'Status', prop:'isActive' },
     { name: 'Actions', prop: 'id' }
   ];
 
@@ -120,7 +120,7 @@ export class ListBranchesComponent implements OnInit {
   public editBranch(formData: any) {
     this.modalRef = this.modalService.open(AddBranchComponent, {centered: true, size: "xl"});
     this.modalRef.componentInstance.formData = formData;
-    this.modalRef.componentInstance.title = 'Edit Branch';
+    this.modalRef.componentInstance.title = `Edit Branch (${formData.name})`;
     this.modalRef.result.then((result) => {
       if (result === 'success') {
         this.getIndividualData(0);

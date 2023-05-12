@@ -31,7 +31,7 @@
                 <div class="row justify-content-center mx-auto text-center">
 
                   <div class="mb-3">
-                    <label class="form-label" for="regionName">Region Name:</label>
+                    <label class="form-label" for="name">Region Name:</label>
                     <input class="form-control" formControlName="name" id="name" placeholder="Enter Region Name"
                            type="text">
                     <small *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')"
@@ -40,7 +40,7 @@
                   </div>
 
                   <div class="mb-3">
-                    <label class="form-label" for="regionCode">Region Code:</label>
+                    <label class="form-label" for="code">Region Code:</label>
                     <input class="form-control" formControlName="code" id="code" placeholder="Enter Region Code"
                            type="text">
                     <small *ngIf="form.get('code')?.touched && form.get('code')?.hasError('required')"

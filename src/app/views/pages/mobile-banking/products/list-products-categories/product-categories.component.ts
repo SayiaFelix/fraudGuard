@@ -307,14 +307,14 @@ export class ProductCategoriesComponent implements OnInit {
               this.getIndividualData(0);
             } else {
               Swal.fire('Record deletion error',
-                'Product Category could not be deleted.',
+                'Delete products in this category before deleting it',
                 'error').then(r => console.log(r))
             }
           },
           (error: any) => {
             console.log("this triggered")
             Swal.fire('Product Category could not be deleted.',
-              `Record deletion error`,
+              `error.message`,
               'error')
           }
         );

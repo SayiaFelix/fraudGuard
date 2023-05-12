@@ -59,6 +59,7 @@ export class ViewCategoriesComponent implements OnInit {
 
   title: string = "Products";
 
+  loading = true;
 
   constructor(
     private httpService: HttpService,
@@ -99,6 +100,9 @@ export class ViewCategoriesComponent implements OnInit {
 
   getIndividualData(event: number): void {
 
+
+    this.loading = true;
+
     const model = {
       size: 50,
       page: 0,
@@ -111,6 +115,7 @@ export class ViewCategoriesComponent implements OnInit {
         (res: any) => {
           if (res.status === 200) {
             let response = res['data'];
+            this.loading = false;
 
             this.rows = response.map((item: any, index: any) => {
               const res = {...item, frontendId: index + 1};
@@ -161,7 +166,7 @@ export class ViewCategoriesComponent implements OnInit {
   }
 
   navigateToViewProduct(data: any) {
-    this.router.navigateByUrl(`/mobile-banking/products/product/${data.id}`);
+    this.router.navigate([`/mobile-banking/products/product/${this.productCategoryId}/${data.id}`]);
   }
 
   toggleExpandRow(row: any) {

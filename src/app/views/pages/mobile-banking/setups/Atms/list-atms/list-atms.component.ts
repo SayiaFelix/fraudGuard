@@ -27,7 +27,7 @@ export class ListAtmsComponent implements OnInit {
     { name: 'ID', prop: 'id' },
     { name: 'ATM Name', prop:'name' },
     { name: 'ATM Code', prop:'atmCode' },
-    { name: 'Active', prop:'isActive' },
+    { name: 'Status', prop:'isActive' },
     { name: 'Actions', prop: 'id' }
   ];
 
