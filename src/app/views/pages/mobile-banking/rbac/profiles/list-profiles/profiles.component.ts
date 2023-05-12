@@ -23,6 +23,7 @@ export class ProfilesComponent implements OnInit {
   // bread crumb items
   breadCrumbItems: Array<{}>;
   rows: any = [];
+  filteredRows: any = [];
   loading: boolean = true;
 
   profilesList$:Observable<any>
@@ -165,5 +166,11 @@ export class ProfilesComponent implements OnInit {
       this.openEditProfileModal(eventData.row);
     }
 
+  }
+
+  updateFilteredRowsEvent(data: string) {
+    console.log(data);
+
+    this.filteredRows = data
   }
 }
