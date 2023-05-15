@@ -4,7 +4,7 @@
   </div>
   <app-table-header
     [allColumns]="allColumns"
-    [rows]="rows"
+    [rows]="filteredRows.length > 0 ? filteredRows : rows"
     [title]="title"
     [showAddButton]="true"
     (changeColumnsEvent)="updateColumns($event)"
@@ -21,7 +21,9 @@
           [actions]="actions"
           [totalItems]="totalRecords"
           [loadingIndicator]="loading"
-          (outputEvent)="triggerEvent($event)"></app-custom-ngx-table>
+          (outputEvent)="triggerEvent($event)"
+          (updateFilteredRows)="updateFilteredRowsEvent($event)"
+          ></app-custom-ngx-table>
     </div>
   </div>
 </div>

@@ -23,6 +23,7 @@ export class RegionsListComponent implements OnInit {
   // bread crumb items
   breadCrumbItems: Array<{}>;
   rows: any = [];
+  filteredRows: any = [];
   loading = true;
   reorderable = true;
 
@@ -33,7 +34,8 @@ export class RegionsListComponent implements OnInit {
     {name: 'Constituency', prop: 'constituency'},
     {name: 'County', prop: 'county'},
     {name: 'Status', prop: 'active'},
-    {name: 'Registered On', prop: 'createdOn'},
+    {name: 'Created On', prop: 'createdOn'},
+    {name: 'Updated On', prop: 'updatedOn'},
     {name: 'Actions', prop: 'id'}
   ];
 
@@ -92,6 +94,8 @@ export class RegionsListComponent implements OnInit {
             });
 
             this.rows = response;
+            console.log(this.rows);
+            
           }
           else{
             Swal.fire('failed','unable to fetch records','error')
@@ -161,5 +165,11 @@ export class RegionsListComponent implements OnInit {
       this.openEditRegionsModal(eventData.row);
     }
 
+  }
+
+  updateFilteredRowsEvent(data: string) {
+    console.log(data);
+
+    this.filteredRows = data
   }
 }

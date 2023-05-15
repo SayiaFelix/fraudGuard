@@ -7,7 +7,7 @@
 
   <app-table-header
     [allColumns]="allColumns"
-    [rows]="rows"
+    [rows]="filteredRows.length > 0 ? filteredRows : rows"
     [title]="title"
     [showAddButton]="true"
     (changeColumnsEvent)="updateColumns($event)"
@@ -27,6 +27,7 @@
           [loadingIndicator]="loading"
           (outputEvent)="triggerEvent($event)"
           (viewEvent)="navigateToViewProduct($event)"
+          (updateFilteredRows)="updateFilteredRowsEvent($event)"
         ></app-custom-ngx-table>
     </div>
   </div>
