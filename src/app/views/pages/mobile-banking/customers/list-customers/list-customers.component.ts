@@ -36,6 +36,7 @@ export class ListCustomersComponent implements OnInit {
   // bread crumb items
   breadCrumbItems: Array<{}>;
   rows: any = [];
+  filteredRows: any = [];
   temp: any = [];
   loading = true;
   reorderable = true;
@@ -192,71 +193,6 @@ export class ListCustomersComponent implements OnInit {
     else checkList.classList.add('visible');
   }
 
-  exportCSV() {
-    let cols: string[] = this.columns.map(item => {
-      if(item['name'].toLowerCase() !== 'actions'){
-        return item['prop']
-      } else {
-        return ''
-      }
-    })
-    cols = cols.filter(item => item !== '')
-    let arr: Record<string, string>[]= []
-
-    this.rows.forEach((row: any) => {
-      let temp: Record<string, string> = {}
-      cols.forEach(key => {
-        temp = {...temp, [key]: row[key]}
-      })
-      arr.push(temp)
-    })
-    this.dataExploration.exportToCsv(arr, 'Products')
-  }
-
-  exportXLSX() {
-    let cols: string[] = this.columns.map(item => {
-      if(item['name'].toLowerCase() !== 'actions'){
-        return item['prop']
-      } else {
-        return ''
-      }
-    })
-    cols = cols.filter(item => item !== '')
-    let arr: Record<string, string>[]= []
-
-    this.rows.forEach((row: any) => {
-      let temp: Record<string, string> = {}
-      cols.forEach(key => {
-        temp = {...temp, [key]: row[key]}
-      })
-      arr.push(temp)
-    })
-
-    this.dataExploration.exportDataXlsx(arr, 'Products')
-  }
-
-  exportPDF() {
-    console.log(this.rows);
-    let cols: string[] = this.columns.map(item => {
-      if(item['name'].toLowerCase() !== 'actions'){
-        return item['name'].toUpperCase()
-      } else {
-        return ''
-      }
-    })
-    cols = cols.filter(item => item !== '')
-    let rowKeys: string[] = Object.keys(this.rows[0]);
-    let arr: string[][]= []
-    this.rows.forEach((row: any) => {
-      let temp: string[] = []
-      rowKeys.forEach(key => {
-        temp.push(row[key])
-      })
-      arr.push(temp)
-    })
-    this.dataExploration.exportToPdf(cols, arr, 'Products')
-  }
-
   updateColumns(updatedColumns: any) {
     this.columns = [...updatedColumns];
   }
@@ -272,5 +208,11 @@ export class ListCustomersComponent implements OnInit {
     // else if (eventData.action == 'Edit') {
     //   this.openEditProductModal(eventData.row);
     // }
+  }
+
+  updateFilteredRowsEvent(data: string) {
+    console.log(data);
+
+    this.filteredRows = data
   }
 }
