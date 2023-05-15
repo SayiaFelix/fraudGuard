@@ -22,6 +22,7 @@ export class RolesComponent implements OnInit {
   // bread crumb items
   breadCrumbItems: Array<{}>;
   rows: any = [];
+  filteredRows: any = [];
   loading: boolean;
   reorderable = true;
   rolesList$: Observable<any>
@@ -30,9 +31,9 @@ export class RolesComponent implements OnInit {
     {name: 'ID', prop: 'frontendId'},
     {name: 'Name', prop: 'name'},
     // {name: 'Status', prop: 'status'},
-    {name: 'Remarks', prop: 'remarks'},
-    {name: 'System Role', prop: 'systemRole'},
-    {name: 'Created On', prop: 'createdOn'},
+    {name: 'remarks', prop: 'remarks'},
+    {name: 'Role Type', prop: 'systemRole'},
+    {name: 'CreatedOn', prop: 'createdOn'},
     {name: 'Actions', prop: 'id'}
   ];
 
@@ -154,6 +155,7 @@ export class RolesComponent implements OnInit {
     })
 
   }
+
   updateColumns(updatedColumns: any) {
     this.columns = [...updatedColumns];
   }
@@ -168,5 +170,11 @@ export class RolesComponent implements OnInit {
       this.openEditRoleModal(eventData.row);
     }
 
+  }
+
+  updateFilteredRowsEvent(data: string) {
+    console.log(data);
+
+    this.filteredRows = data
   }
 }

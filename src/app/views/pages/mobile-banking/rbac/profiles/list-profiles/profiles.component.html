@@ -4,7 +4,7 @@
   </div>
   <app-table-header
     [allColumns]="allColumns"
-    [rows]="rows"
+    [rows]="filteredRows.length > 0 ? filteredRows : rows"
     [title]="title"
     [showAddButton]="true"
     (changeColumnsEvent)="updateColumns($event)"
@@ -23,6 +23,7 @@
           [totalItems]="totalRecords"
           (outputEvent)="triggerEvent($event)"
           (editEvent)="openEditProfileModal($event)"
+          (updateFilteredRows)="updateFilteredRowsEvent($event)"
         ></app-custom-ngx-table>
     </div>
     <div class="card" *ngIf="!(profilesList$ | async)">

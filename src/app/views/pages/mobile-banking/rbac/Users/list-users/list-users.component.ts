@@ -31,6 +31,7 @@ export class ListUsersComponent implements OnInit {
     { name:'Email',prop:'email'},
     // { name: 'PhoneNumber', prop:'phoneNumber' },
     { name: 'Status', prop:'blocked'},
+    { name: 'First Time Login', prop:'firstTimeLogin'},
     { name: 'Created On', prop:'createdOn' },
     { name: 'Actions', prop: 'id' }
   ];
