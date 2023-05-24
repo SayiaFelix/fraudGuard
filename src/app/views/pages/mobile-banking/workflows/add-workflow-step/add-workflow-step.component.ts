@@ -51,11 +51,11 @@ export class AddWorkflowStepComponent implements OnInit {
       page:0,
       size:50
     };
- 
+
     this._httpService.mobileBankingPost('api/v1/admin/profile/get/all', model)
       .subscribe(
         (result: any) => {
-          if(result['status'] === 200){            
+          if(result['status'] === 200){
              this.allProfiles = result['data']
           } else {
             Swal.fire("Error", "Unable to Fetch profiles", "error");
@@ -97,8 +97,8 @@ export class AddWorkflowStepComponent implements OnInit {
       remarks:this.workflowForm.value.remarks,
       workFlowId:this.workflowId,
       requiredRoleId:this.workflowForm.value.requiredRoleId
-    } 
-  this._httpService.mobileBankingPost('api/v1/admin/workflow/update/step',model).subscribe(
+    }
+  this._httpService.mobileBankingPost('workflow/update/step',model).subscribe(
     (result:any) =>{
       this.activeModal.close('success')
       if(result.status === 200){
@@ -110,8 +110,8 @@ export class AddWorkflowStepComponent implements OnInit {
         Swal.fire('failed','unable to update step','error')
       }
     }
-  ) 
-    
+  )
+
   }
 
   private createRecord(): any {
@@ -122,7 +122,7 @@ export class AddWorkflowStepComponent implements OnInit {
       workFlowId:this.workflowId,
       requiredRoleId: this.workflowForm.value.requiredRoleId,
     }
-    this._httpService.mobileBankingPost('api/v1/admin/workflow/create/step',model).subscribe(
+    this._httpService.mobileBankingPost('workflow/create/step',model).subscribe(
       (result:any) =>{
         this.activeModal.close('success')
         if(result.status === 200){

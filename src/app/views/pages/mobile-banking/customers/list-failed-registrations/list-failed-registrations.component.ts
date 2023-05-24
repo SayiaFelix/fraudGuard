@@ -28,7 +28,7 @@ export class ListFailedRegistrationsComponent implements OnInit {
 
   tempProductData = [
     {
-      id: 1,
+      frontendId: 1,
       mobileNumber: '254708223443',
       account: '1238**3747',
       dob: '12-10-1996',
@@ -36,7 +36,7 @@ export class ListFailedRegistrationsComponent implements OnInit {
       response: "Failed record Mismatch",
     },
     {
-      id: 2,
+      frontendId: 2,
       mobileNumber: '254708223443',
       account: '1238**3747',
       dob: '12-10-1996',
@@ -44,7 +44,7 @@ export class ListFailedRegistrationsComponent implements OnInit {
       response: "Failed record Mismatch",
     },
     {
-      id: 3,
+      frontendId: 3,
       mobileNumber: '254708223443',
       account: '1238**3747',
       dob: '12-10-1996',
@@ -61,7 +61,7 @@ export class ListFailedRegistrationsComponent implements OnInit {
   reorderable = true;
 
   columns = [
-    {name: 'ID', prop: 'id'},
+    {name: 'ID', prop: 'frontendId'},
     {name: 'Mobile Number', prop: 'mobileNumber'},
     {name: 'Account', prop: 'account'},
     {name: 'DOB', prop: 'dob'},

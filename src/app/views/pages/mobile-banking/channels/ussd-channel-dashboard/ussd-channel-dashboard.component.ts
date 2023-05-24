@@ -9,6 +9,7 @@ import {DataExportationService} from "../../../../../shared/services/data-export
 import {ChannelDetailsWrapper} from "../../../../../shared/services/channelDetailsWrapper";
 import Swal from "sweetalert2";
 import {HttpService} from "../../../../../shared/services/http.service";
+import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
 
 declare const google: any;
 
@@ -324,6 +325,55 @@ export class UssdChannelDashboardComponent implements OnInit {
       }
     );
   }
+
+  openDisableModal(channelName: string, status: boolean) {
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+    if (status){
+      this.modalRef.componentInstance.title = `Enable this channel?`;
+      this.modalRef.componentInstance.body = `Do you want to enable: ${channelName}?`;
+    } else {
+      this.modalRef.componentInstance.title = `Disable this channel?`;
+      this.modalRef.componentInstance.body = `Do you want to disable: ${channelName}?`;
+    }
+    this.modalRef.result.then((result: any) => {
+      if (result === 'success') {
+
+        this.loading = true;
+
+        let model = ChannelDetailsWrapper.channelDetailsWrapper;
+
+        model.payload = {
+          action: status,
+          channelId: this.channel[0].id
+        }
+
+        this.httpService.mobileBankingPostUpdated('api/v1/kyc/portal/activate-deactivate',
+          model).subscribe(
+          (result: any) => {
+            if (result.status === '00') {
+              Swal.fire(`Channel ${status ? 'Activated': 'Deactivated'} Successfully`,
+                `Channel has been ${status ? 'Activated': 'Deactivated'} Successfully.`,
+                'success').then(r => console.log(r))
+              this.getIndividualData(0);
+              this.getChannelsToKnowStatus();
+
+            } else {
+              Swal.fire('Error',
+                'Product could not be activated/ deactivated.',
+                'error').then(r => console.log(r))
+            }
+          },
+          (error: any) => {
+            Swal.fire('Record deletion error',
+              `Record creation error`,
+              'error')
+          }
+        );
+      }
+    });
+  }
+
+
 }
 
 

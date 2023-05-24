@@ -11,6 +11,21 @@ export const MENU: MenuItem[] = [
         label: 'Dashboard',
         link: '/dashboard'
       },
+      {
+        profiles: ['CORPORATE_ADMIN'],
+        label: 'Channel Dashboard',
+        link: '/mobile-banking/channels/ussd-ussd-channel-dashboard'
+      },
+      // {
+      //   profiles: ['CORPORATE_ADMIN'],
+      //   label: 'Mobile Banking IB',
+      //   link: '/mobile-banking/channels/ib-ussd-channel-dashboard'
+      // },
+      // {
+      //   profiles: ['CORPORATE_ADMIN'],
+      //   label: 'Mobile Banking APP',
+      //   link: '/mobile-banking/channels/app-ussd-channel-dashboard'
+      // },
     ]
   },
   {
@@ -78,13 +93,18 @@ export const MENU: MenuItem[] = [
         subItems: [
           {
             profiles: ['CORPORATE_ADMIN'],
-            label:'Registered Accounts',
+            label:'All Accounts',
             link:'/mobile-banking/accounts/list-accounts'
           },
           {
             profiles: ['CORPORATE_ADMIN'],
-            label:'Approve Account ',
+            label:'Pending Account Openings',
             link:'/mobile-banking/accounts/list-pending'
+          },
+          {
+            profiles: ['CORPORATE_ADMIN'],
+            label:'Failed Account Openings',
+            link:'/mobile-banking/accounts/list-failed'
           },
 
         ]
@@ -143,24 +163,24 @@ export const MENU: MenuItem[] = [
     subItems: [
       {
         profiles: ['CORPORATE_ADMIN'],
-        label: 'Mobile Banking USSD',
-        link: '/mobile-banking/channels/ussd-ussd-channel-dashboard'
+        label: 'Channels',
+        link: '/mobile-banking/channels/all-channels'
       },
-      {
-        profiles: ['CORPORATE_ADMIN'],
-        label: 'Mobile Banking USSD',
-        link: '/mobile-banking/channels/list-requests'
-      },
-      {
-        profiles: ['CORPORATE_ADMIN'],
-        label: 'Mobile Banking Internet Banking',
-        link: '/mobile-banking/channels/list-internet-banking'
-      },
-      {
-        profiles: ['CORPORATE_ADMIN', 'ADMIN'],
-        label: 'Mobile Banking Mobile App',
-        link: '/mobile-banking/channels/list-mobile-app'
-      },
+      // {
+      //   profiles: ['CORPORATE_ADMIN'],
+      //   label: 'Mobile Banking USSD',
+      //   link: '/mobile-banking/channels/ussd-ussd-channel-dashboard'
+      // },
+      // {
+      //   profiles: ['CORPORATE_ADMIN'],
+      //   label: 'Mobile Banking IB',
+      //   link: '/mobile-banking/channels/ib-ussd-channel-dashboard'
+      // },
+      // {
+      //   profiles: ['CORPORATE_ADMIN'],
+      //   label: 'Mobile Banking APP',
+      //   link: '/mobile-banking/channels/app-ussd-channel-dashboard'
+      // },
     ]
   },
 

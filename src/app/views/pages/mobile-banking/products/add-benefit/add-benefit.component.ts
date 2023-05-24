@@ -12,6 +12,7 @@ import Swal from 'sweetalert2';
 })
 export class AddBenefitComponent implements OnInit {
   @Input() title: any;
+  @Input() productDetails: any;
   @Input() formData: any;
   public loading = false;
   public hasErrors = false;
@@ -30,8 +31,6 @@ export class AddBenefitComponent implements OnInit {
 
   ngOnInit() {
 
-    console.log("this.formData");
-    console.log(this.formData);
 
     this.form = this.fb.group({
       benefit: [this.formData ? this.formData.benefit : '', [Validators.required]],
@@ -58,14 +57,14 @@ export class AddBenefitComponent implements OnInit {
   private createRecord(): any {
     this.isLoading =true;
     const model = {
-      productId: this.formData.id,
+      productId: this.productDetails.id,
       // productCode: this.formData.productCode,
       benefitCode: this.form.value.benefitCode,
       benefit: this.form.value.benefit,
       description: this.form.value.description,
       // approvalId: 1
     };
-      console.log(this.formData)
+      console.log(this.productDetails)
     this._httpService.mobileBankingPost('product/portal/benefits/add', model).subscribe(
       (result: any) => {
         if (result.status === 200) {
@@ -98,7 +97,7 @@ export class AddBenefitComponent implements OnInit {
       code: this.form.value.benefitCode,
       description: this.form.value.description,
     };
-    console.log(this.formData)
+    console.log(this.productDetails)
     this._httpService.mobileBankingPost('product/portal/benefit/update', model).subscribe(
       (result: any) => {
         if (result.status === 200) {

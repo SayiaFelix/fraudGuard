@@ -9,6 +9,7 @@ import {DataExportationService} from "../../../../../shared/services/data-export
 import {ChannelDetailsWrapper} from "../../../../../shared/services/channelDetailsWrapper";
 import Swal from "sweetalert2";
 import {HttpService} from "../../../../../shared/services/http.service";
+import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
 
 declare const google: any;
 
@@ -66,6 +67,9 @@ export class AppChannelDashboardComponent implements OnInit {
   lat: number;
   lng: number;
   // Map variables
+
+  currentRate = 5;
+
   constructor(private calendar: NgbCalendar,
               private modalService: NgbModal,
               public fb: FormBuilder,
@@ -189,23 +193,61 @@ export class AppChannelDashboardComponent implements OnInit {
   tempProductData = [
     {
       frontendId: 1,
-      customerName: 'Andrew Kamau',
+      customerName: 'Perpetua Kabute',
       phoneNumber:'0708453901',
       idNumber: '31397137',
-      primaryIMSINumber:'234035678765',
+      DeviceID:'IBank4567',
+      primaryDevice:'Redmi Note 11 pro',
       email:'michaelmbugua004@gmail.com',
       createdOn: '12-02-2023',
     },
     {
       frontendId: 2,
-      customerName: 'Jane Mwangi',
-      phoneNumber:'0728357775',
-      idNumber: '37059671',
-      primaryIMSINumber:'262062345678',
-      IMSINumber:'265011234567',
+      customerName: 'Faisal Farah',
+      phoneNumber:'0728378986',
+      idNumber: '36059678',
+      DeviceID:'IBank1234',
+      primaryDevice:'Samsung Galaxy A02',
+      createdOn: '12-02-2023',
+    },
+    {
+      frontendId: 3,
+      customerName: 'Chiuri Karanja',
+      phoneNumber:'0713278096',
+      idNumber: '31059673',
+      DeviceID:'IBank1234',
+      primaryDevice:'Oppo Reno 3',
+      createdOn: '12-02-2023',
+    },
+    {
+      frontendId: 4,
+      customerName: 'Lilian Kamau',
+      phoneNumber:'0728675498',
+      idNumber: '32859637',
+      DeviceID:'IBank1234',
+      primaryDevice:'Redmi 10 C',
+      createdOn: '12-02-2023',
+    },
+    {
+      frontendId: 5,
+      customerName: 'Daniel Kimani',
+      phoneNumber:'0712786543',
+      idNumber: '30059677',
+      DeviceID:'IBank1234',
+      primaryDevice:'Oppo A16K',
       email:'lilian002@gmail.com',
       createdOn: '12-02-2023',
     },
+    {
+      frontendId: 6,
+      customerName: 'Michael Mbugua',
+      phoneNumber:'0725654318',
+      idNumber: '31359673',
+      DeviceID:'IBank1234',
+      primaryDevice:'Redmi Note 10 pro',
+      createdOn: '12-02-2023',
+    },
+
 
   ];
 
@@ -226,9 +268,10 @@ export class AppChannelDashboardComponent implements OnInit {
     { name: 'Customer Name', prop: 'customerName' },
     {name:'Primary Phone No.',prop:'phoneNumber'},
     { name: 'ID Number', prop: 'idNumber' },
-    // { name: 'IMSINumber', prop: 'IMSINumber' },
+    { name: 'Device ID', prop: 'DeviceID' },
+    { name: 'Primary Device', prop: 'primaryDevice' },
     // {name: 'CBSCustomerNumber',prop:'cbsCustomerNumber'},
-    {name: 'Primary IMSI No.',prop:'primaryIMSINumber'},
+    // {name: 'AccountNumber',prop:'accountNumber'},
     // {name: 'Email',prop:'email'},
     { name: 'Created On', prop: 'createdOn' },
     // {name: 'DOB',prop:'dob'},
@@ -242,7 +285,7 @@ export class AppChannelDashboardComponent implements OnInit {
     let eventData = JSON.parse(data)
 
     if (eventData.action == 'View') {
-      this.navigateToViewUssdCustomer(eventData.row);
+      this.navigateToView(eventData.row);
     }else if (eventData.action == 'Edit') {
       this.openEditProductModal(eventData.row);
     }
@@ -266,9 +309,10 @@ export class AppChannelDashboardComponent implements OnInit {
   }
 
 
-  navigateToViewUssdCustomer(data: any) {
-    this.router.navigateByUrl(`/mobile-banking/channels/ussdcustomer/${data.id}`);
+  navigateToView(data: any) {
+    this.router.navigateByUrl(`/mobile-banking/channels/mobile-app/${data.id}`);
   }
+
   openEditProductModal(formData: any) {
     this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Edit Product';
@@ -323,6 +367,51 @@ export class AppChannelDashboardComponent implements OnInit {
           'error')
       }
     );
+  }
+
+  openDisableModal(channelName: string, status: boolean) {
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+    if (status){
+      this.modalRef.componentInstance.title = `Enable this channel?`;
+      this.modalRef.componentInstance.body = `Do you want to enable: ${channelName}?`;
+    } else {
+      this.modalRef.componentInstance.title = `Disable this channel?`;
+      this.modalRef.componentInstance.body = `Do you want to disable: ${channelName}?`;
+    }
+    this.modalRef.result.then((result: any) => {
+      if (result === 'success') {
+
+        this.loading = true;
+
+        let model = ChannelDetailsWrapper.channelDetailsWrapper;
+
+        model.payload = {
+          action: status,
+          channelId: this.channel[0].id
+        }
+
+        this.httpService.mobileBankingPostUpdated('api/v1/kyc/portal/activate-deactivate',
+          model).subscribe(
+          (result: any) => {
+            if (result.status === '00') {
+              Swal.fire(`Channel ${status ? 'Activated': 'Deactivated'} Successfully`,
+                `Channel has been ${status ? 'Activated': 'Deactivated'} Successfully.`,
+                'success').then(r => console.log(r))
+              this.getIndividualData(0);
+            } else {
+              Swal.fire('Error',
+                'Product could not be activated/ deactivated.',
+                'error').then(r => console.log(r))
+            }
+          },
+          (error: any) => {
+            Swal.fire('Record deletion error',
+              `Record creation error`,
+              'error')
+          }
+        );
+      }
+    });
   }
 }
 

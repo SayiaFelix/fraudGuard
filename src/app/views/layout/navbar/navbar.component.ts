@@ -22,7 +22,7 @@ import {Notification} from "../../../shared/services/Notification";
 })
 export class NavbarComponent implements OnInit {
   userData$: Observable<any>;
-  companyEmail: string;
+  companyEmail: string | null;
   employeeNumber: string;
   profile:string;
   companyRegistrationDate: string;
@@ -57,10 +57,11 @@ export class NavbarComponent implements OnInit {
       this.notifications = notifications;
     });
 
+    this.updateNotificationList();
 
     // let userDetails = JSON.parse(localStorage.getItem('userData')!);
     let userDetails = {
-      companyEmail: "testEmail@gmail.com",
+      companyEmail: localStorage.getItem('userName') ? localStorage.getItem('userName') : "test@gmail.com",
       employeeNumber: "E334",
       profile: "Admin",
       companyRegistrationDate: "24-12-1999",
@@ -96,8 +97,9 @@ export class NavbarComponent implements OnInit {
     }
   }
 
-  updatedNotificationList(newList: any[]) {
-    this.notificationService.updateNotifications(newList);
+  updateNotificationList() {
+    console.log("Nmechapa toggle")
+    this.pullNotificationsList();
   }
 
   /**
@@ -145,7 +147,38 @@ export class NavbarComponent implements OnInit {
     // });
   }
 
-  changePassword() {
+//   changePassword() {
+// this.modalRef = this.modalService.open(NotificationModalComponent, {centered: true, size:"lg"});
+//     this.modalRef.componentInstance.title = 'Approve Create User';
+//     this.modalRef.result.then((result) => {
+//       if (result === 'success') {
+//       } else {
+//         console.log("Error occurred")
+//       }
+//     });
+//   }
+  private pullNotificationsList() {
 
+    const model = {
+      userName: "maina.alex@eclectics.io"
+    }
+
+    this.httpService.mobileBankingPost('workflow/staged', model).subscribe(
+      (result: any) => {
+        if (result.status === 200) {
+          console.log("workflow result");
+          console.log(result);
+
+          this.notificationService.updateNotifications(result.data);
+        } else {
+
+        }
+      }
+    );
+
+
+
+
+    // this.notificationService.updateNotifications(newList);
   }
 }

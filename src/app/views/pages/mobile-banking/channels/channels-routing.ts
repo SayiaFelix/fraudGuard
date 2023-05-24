@@ -8,11 +8,18 @@ import { ViewInternetBankingComponent } from './view-internet-banking/view-inter
 import {ListMobileBankingCustomersComponent} from "./list-mobile-application/list-mobile-banking-customers.component";
 import {ViewMobileAppCustomerComponent} from "./view-mobile-app-customers/view-mobile-app-customer.component";
 import {UssdChannelDashboardComponent} from "./ussd-channel-dashboard/ussd-channel-dashboard.component";
+import {IbChannelDashboardComponent} from "./ib-channel-dashboard/ib-channel-dashboard.component";
+import {AppChannelDashboardComponent} from "./app-channel-dashboard/app-channel-dashboard.component";
+import {ListChannelsComponent} from "./list-channels/list-channels.component";
 
 
 
 const routes: Routes = [
 
+  {
+    path: 'all-channels',
+    component: ListChannelsComponent
+  },
   {
     path: 'list-requests',
     component: ListUssdCustomersComponent
@@ -33,11 +40,11 @@ const routes: Routes = [
   },
   {
     path: 'ib-ussd-channel-dashboard',
-    component: UssdChannelDashboardComponent
+    component: IbChannelDashboardComponent
   },
   {
     path: 'app-ussd-channel-dashboard',
-    component: UssdChannelDashboardComponent
+    component: AppChannelDashboardComponent
   },
 
   {

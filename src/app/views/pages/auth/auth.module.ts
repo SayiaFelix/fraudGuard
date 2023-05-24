@@ -11,6 +11,7 @@ import {SharedModule} from "../../../shared/shared.module";
 import {HttpClientModule} from "@angular/common/http";
 import {TranslateModule} from "@ngx-translate/core";
 import {FirstTimeLoginComponent} from "./first-time-login/first-time-login.component";
+import {ChangePasswordComponent} from "./change-password/change-password.component";
 
 const routes: Routes = [
   {
@@ -37,17 +38,24 @@ const routes: Routes = [
       {
         path: 'first-time-login',
         component: FirstTimeLoginComponent
+      },
+      {
+        path: 'change-password',
+        component: ChangePasswordComponent
       }
     ]
   },
 ]
 
 @NgModule({
-  declarations: [LoginComponent,
+  declarations: [
+    LoginComponent,
     RegisterComponent,
     ForgotPasswordComponent,
     AuthComponent,
-    FirstTimeLoginComponent],
+    FirstTimeLoginComponent,
+    ChangePasswordComponent
+  ],
     imports: [
         CommonModule,
         RouterModule.forChild(routes),

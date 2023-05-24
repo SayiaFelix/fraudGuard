@@ -1,34 +1,52 @@
-<div class="d-flex justify-content-between align-items-center flex-wrap grid-margin">
+<div
+  class="d-flex justify-content-between align-items-center flex-wrap grid-margin"
+>
   <div>
-    <h4 class="mb-3 mb-md-0">USSD Channel Management</h4>
-
+    <h4 class="mb-3 mb-md-0">{{'channels.ussd.title' | translate}}</h4>
   </div>
+
+  <div ngbDropdown>
+    <button class="btn btn-primary btn-xs" id="dropdownBasic16" ngbDropdownToggle>{{'channels.ussd.btnSelect' | translate}}</button>
+    <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+      <button ngbDropdownItem routerLink="/mobile-banking/channels/ussd-ussd-channel-dashboard">USSD</button>
+      <button ngbDropdownItem routerLink="/mobile-banking/channels/ib-ussd-channel-dashboard">IB</button>
+      <button ngbDropdownItem routerLink="/mobile-banking/channels/app-ussd-channel-dashboard">APP</button>
+    </div>
+  </div>
+
   <div class="d-flex align-items-center flex-wrap text-nowrap">
-    <button type="button" class="btn btn-primary btn-icon-text mb-2 mb-md-0 btn-xs">
+    <button type="button" class="btn btn-primary btn-icon-text mb-2 mb-md-0 btn-xs"
+            *ngIf="!channelEnabled"
+            (click)="openDisableModal('USSD', true)">
       <i class="btn-icon-prepend" data-feather="download-cloud" appFeatherIcon></i>
-      Disable Channel
+      Enable Channel
+    </button>
+
+    <button type="button" class="btn btn-danger btn-icon-text mb-2 mb-md-0 btn-xs"
+            *ngIf="channelEnabled"
+            (click)="openDisableModal('USSD', false)">
+      <i class="btn-icon-prepend" data-feather="x" appFeatherIcon></i>
+      {{'channels.ussd.disableBtn' | translate}}
     </button>
   </div>
+
 </div>
+
 
 <div class="row">
   <div class="col-12 col-xl-12 stretch-card">
     <div class="row flex-grow-1">
-      <div class="col-md-3 grid-margin stretch-card">
+      <div class="col-md-4 grid-margin stretch-card">
         <div class="card">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-baseline">
-              <h6 class="card-title mb-0">USSD Customers</h6>
+              <h6 class="card-title mb-0">{{'channels.ussd.ussdCustomers' | translate}}</h6>
               <div ngbDropdown class="mb-2">
                 <button ngbDropdownToggle class="btn p-0 no-dropdown-toggle-icon" type="button" id="dropdownMenuButton">
                   <i class="icon-lg text-muted pb-3px" data-feather="more-horizontal" appFeatherIcon></i>
                 </button>
                 <div ngbDropdownMenu aria-labelledby="dropdownMenuButton">
-                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="eye" appFeatherIcon class="icon-sm me-2"></i> <span class="">View</span></a>
-                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span class="">Edit</span></a>
-                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span class="">Delete</span></a>
-                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="printer" appFeatherIcon class="icon-sm me-2"></i> <span class="">Print</span></a>
-                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="download" appFeatherIcon class="icon-sm me-2"></i> <span class="">Download</span></a>
+                  <a ngbDropdownItem class="d-flex align-items-center" [routerLink]="'/mobile-banking/channels/list-requests'" (click)="false"><i data-feather="eye" appFeatherIcon class="icon-sm me-2"></i> <span class="">View</span></a>
                 </div>
               </div>
             </div>
@@ -58,21 +76,17 @@
           </div>
         </div>
       </div>
-      <div class="col-md-3 grid-margin stretch-card">
+      <div class="col-md-4 grid-margin stretch-card">
         <div class="card">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-baseline">
-              <h6 class="card-title mb-0">USSD Devices</h6>
+              <h6 class="card-title mb-0">{{'channels.ussd.ussdDevices' | translate}}</h6>
               <div ngbDropdown class="mb-2">
                 <button ngbDropdownToggle class="btn p-0 no-dropdown-toggle-icon" type="button" id="dropdownMenuButton1">
                   <i class="icon-lg text-muted pb-3px" data-feather="more-horizontal" appFeatherIcon></i>
                 </button>
                 <div ngbDropdownMenu aria-labelledby="dropdownMenuButton1">
-                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="eye" appFeatherIcon class="icon-sm me-2"></i> <span class="">View</span></a>
-                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span class="">Edit</span></a>
-                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span class="">Delete</span></a>
-                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="printer" appFeatherIcon class="icon-sm me-2"></i> <span class="">Print</span></a>
-                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="download" appFeatherIcon class="icon-sm me-2"></i> <span class="">Download</span></a>
+                  <a ngbDropdownItem class="d-flex align-items-center" [routerLink]="'/mobile-banking/channels/list-requests'" (click)="false"><i data-feather="eye" appFeatherIcon class="icon-sm me-2"></i> <span class="">View</span></a>
                 </div>
               </div>
             </div>
@@ -101,55 +115,11 @@
           </div>
         </div>
       </div>
-      <div class="col-md-3 grid-margin stretch-card">
+      <div class="col-md-4 grid-margin stretch-card">
         <div class="card">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-baseline">
-              <h6 class="card-title mb-0"></h6>
-              <div ngbDropdown class="mb-2">
-                <button ngbDropdownToggle class="btn p-0 no-dropdown-toggle-icon" type="button" id="dropdownMenuButton12">
-                  <i class="icon-lg text-muted pb-3px" data-feather="more-horizontal" appFeatherIcon></i>
-                </button>
-                <div ngbDropdownMenu aria-labelledby="dropdownMenuButton12">
-                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="eye" appFeatherIcon class="icon-sm me-2"></i> <span class="">View</span></a>
-                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span class="">Edit</span></a>
-                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span class="">Delete</span></a>
-                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="printer" appFeatherIcon class="icon-sm me-2"></i> <span class="">Print</span></a>
-                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="download" appFeatherIcon class="icon-sm me-2"></i> <span class="">Download</span></a>
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-6 col-md-12 col-xl-5">
-                <h3 class="mb-2">89.87%</h3>
-                <div class="d-flex align-items-baseline">
-                  <p class="text-success">
-                    <span>+2.8%</span>
-                    <i data-feather="arrow-up" appFeatherIcon class="icon-sm mb-1"></i>
-                  </p>
-                </div>
-              </div>
-              <div class="col-6 col-md-12 col-xl-7">
-                <div class="mt-md-3 mt-xl-0">
-                  <apx-chart
-                    [series]="growthChartOptions.series"
-                    [chart]="growthChartOptions.chart"
-                    [colors]="growthChartOptions.colors"
-                    [xaxis]="growthChartOptions.xaxis"
-                    [stroke]="growthChartOptions.stroke"
-                    [markers]="growthChartOptions.markers"
-                  ></apx-chart>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3 grid-margin stretch-card">
-        <div class="card">
-          <div class="card-body">
-            <div class="d-flex justify-content-between align-items-baseline">
-              <h6 class="card-title mb-0">Growth</h6>
+              <h6 class="card-title mb-0">{{'channels.ussd.growth' | translate}}</h6>
               <div ngbDropdown class="mb-2">
                 <button ngbDropdownToggle class="btn p-0 no-dropdown-toggle-icon" type="button" id="dropdownMenuButton2">
                   <i class="icon-lg text-muted pb-3px" data-feather="more-horizontal" appFeatherIcon></i>
@@ -198,23 +168,20 @@
     <div class="card overflow-hidden">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-baseline mb-4 mb-md-3">
-          <h6 class="card-title mb-0">USSD Customer Locations</h6>
+          <h6 class="card-title mb-0">{{'channels.ussd.locationsTitle' | translate}}</h6>
           <div ngbDropdown>
             <button ngbDropdownToggle class="btn p-0 no-dropdown-toggle-icon" type="button" id="dropdownMenuButton3">
               <i class="icon-lg text-muted pb-3px" data-feather="more-horizontal" appFeatherIcon></i>
             </button>
             <div ngbDropdownMenu aria-labelledby="dropdownMenuButton3">
-              <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="eye" appFeatherIcon class="icon-sm me-2"></i> <span class="">View</span></a>
-              <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span class="">Edit</span></a>
-              <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span class="">Delete</span></a>
-              <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="printer" appFeatherIcon class="icon-sm me-2"></i> <span class="">Print</span></a>
-              <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="download" appFeatherIcon class="icon-sm me-2"></i> <span class="">Download</span></a>
+              <a ngbDropdownItem class="d-flex align-items-center" [routerLink]="'/mobile-banking/channels/list-requests'" (click)="false"><i data-feather="eye" appFeatherIcon class="icon-sm me-2"></i> <span class="">View</span></a>
+
             </div>
           </div>
         </div>
         <div class="row align-items-start">
           <div class="col-md-7">
-            <p class="text-muted tx-13 mb-3 mb-md-0">Get the positions of all onboarded customers using USSD.</p>
+            <p class="text-muted tx-13 mb-3 mb-md-0">{{'channels.ussd.locationsDesc' | translate}}</p>
           </div>
 <!--          <div class="col-md-5 d-flex justify-content-md-end">-->
 <!--            <div class="btn-group mb-3 mb-md-0" role="group" aria-label="Basic example">-->
@@ -246,7 +213,7 @@
     <div class="card">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-baseline mb-2">
-          <h6 class="card-title mb-0">All USSD Customers</h6>
+          <h6 class="card-title mb-0">{{'channels.ussd.customersTable' | translate}}</h6>
           <div ngbDropdown class="mb-2">
             <button ngbDropdownToggle class="btn p-0 no-dropdown-toggle-icon" type="button" id="dropdownMenuButton7">
               <i class="icon-lg text-muted pb-3px" data-feather="more-horizontal" appFeatherIcon></i>
