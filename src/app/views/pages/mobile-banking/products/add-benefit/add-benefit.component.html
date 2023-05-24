@@ -46,9 +46,11 @@
       </div>
     </div>
     <div class="modal-footer">
+
+<!--      {{this.formData | json}}-->
       <button (click)="closeModal()" class="btn btn-secondary" type="button">Close</button>
-      <button (click)="submitData()" class="btn btn-primary" type="button" *ngIf="this.formData && !this.formData.id">Add Benefit</button>
-      <button (click)="submitData()" class="btn btn-primary" type="button" *ngIf="this.formData && this.formData.id">Edit Benefit</button>
+      <button (click)="submitData()" class="btn btn-primary" type="button" *ngIf="!this.formData">Add Benefit</button>
+      <button (click)="submitData()" class="btn btn-primary" type="button" *ngIf="this.formData">Edit Benefit</button>
       <!-- [disabled]="!form.valid || isLoading" -->
     </div>
   </div>

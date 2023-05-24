@@ -61,6 +61,7 @@ export class ListCustomersComponent implements OnInit {
   public modalRef: NgbModalRef;
 
   title: string = "New Customer";
+  total: any;
 
 
   constructor(
@@ -105,9 +106,16 @@ export class ListCustomersComponent implements OnInit {
       .subscribe((res: any) => {
         if (res.status === '00') {
           setTimeout(() => {
-            this.rows = res.data;
 
-            let total = res.metadata.numofrecords;
+            let response = res['data'].map((item: any, index: any) => {
+              let res = {...item,
+                frontendId: index + 1
+              };
+              return res;
+            })
+            this.rows = response;
+
+            this.total = res.metadata.numofrecords;
           }, 10);
         } else {
         }

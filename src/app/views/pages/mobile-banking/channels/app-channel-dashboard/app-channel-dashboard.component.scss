@@ -83,6 +83,30 @@ agm-map {
   display: block;
 }
 
+svg, i {
+  color: rgba(114, 124, 245, 0.3);
+}
+i {
+  font-size: 1.5rem;
+}
+svg {
+  width: 20px;
+  height: 20px;
+}
+.filled svg, .filled i {
+  color: #727cf5;
+}
+.bad svg, .bad i {
+  color: rgba(255, 51, 102, 0.3);
+}
+.filled.bad svg, .filled.bad i {
+  color: #ff3366;
+}
+
+.rating_icon {
+  font-size: 100px;
+}
+
 //.ngx-datatable.bootstrap {
 //  box-shadow: none;
 //  font-size: 12px!important;;

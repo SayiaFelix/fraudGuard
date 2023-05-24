@@ -15,32 +15,6 @@ import { AddAccountComponent } from '../add-account/add-account.component';
 export class ListRegisteredAccountsComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
 
-  tempProductData = [
-    {
-      id: 1,
-      Name: 'Andrew Kamau',
-      RegistrationNumber: '45321876',
-      AccountNumber:'01167972316587',
-      // status: true,
-      CustomerID:'87142367',
-      Email:'michaelmbugua123@gmail.com',
-      createdOn: '12-02-2023',
-      CreatedBy:'Mary Njoki'
-    },
-    {
-      id: 2,
-      Name: 'Jane Mwangi',
-      RegistrationNumber: '21658975',
-      AccountNumber:'01176431096534',
-      // status: true,
-      Email:'liliankamau001@gmail.com',
-      CustomerID:'23569980',
-      createdOn: '12-02-2023',
-      CreatedBy:'Wendy Akinyi'
-    },
-
-  ];
-
   // bread crumb items
   breadCrumbItems: Array<{}>;
   rows: any = [];
@@ -51,14 +25,15 @@ export class ListRegisteredAccountsComponent implements OnInit {
   actions = ["View", "Edit"];
 
   columns = [
-    {name: 'ID', prop: 'id'},
-    {name: 'Name', prop: 'Name'},
-    {name: 'Registration No.', prop: 'RegistrationNumber'},
+    {name: 'ID', prop: 'frontendId'},
+    {name: 'Name', prop: 'name'},
+    {name: 'Phone No.', prop: 'phoneNumber'},
     // {name: 'Status', prop: 'status'},
-    {name:'Account Number',prop:'AccountNumber'},
-    {name:'Email',prop:'Email'},
+    {name:'Account No.',prop:'accountNumber'},
+    {name:'Account Name',prop:'accountName'},
+    {name: 'Account Status', prop: 'accountStatus'},
     {name: 'Created On', prop: 'createdOn'},
-    {name:'Created By',prop:'CreatedBy'},
+    {name:'Created By',prop:'createdBy'},
     {name: 'Actions', prop: 'id'},
   ];
 
@@ -103,9 +78,6 @@ export class ListRegisteredAccountsComponent implements OnInit {
   getIndividualData(event: number): void {
 
     this.loading = true;
-    this.rows = this.tempProductData;
-
-    this.temp = [...this.tempProductData];
 
     const model = {
       page: 0,
@@ -113,14 +85,25 @@ export class ListRegisteredAccountsComponent implements OnInit {
     };
 
     this.httpService
-      .mobileBankingPost('api/v1/corporate/admin/list-products/all', model)
+      .mobileBankingPostUpdated('api/v1/mbs/on-board/accounts/all', model)
       .subscribe((res: any) => {
-        if (res.status === 200) {
+        if (res.status === '00') {
           this.loading = false;
           setTimeout(() => {
-            // this.data = res.data;
-            this.rows = this.tempProductData;
-            // let data = this.tempProductData;
+            this.rows = res.data;
+
+            let response = this.rows.map((item: any, index: any) => {
+              let res = {...item,
+                createdBy: item.createdBy ? item.createdBy : "_",
+                createdOn: new Date(item.createdOn).toLocaleDateString('en-US'),
+                accountNumber: item.accountNumber ? item.accountNumber : "_",
+                accountStatus: item.status,
+                frontendId: index + 1
+              };
+              return res;
+            })
+            this.rows = response;
+
 
             let total = res.totalItems;
           }, 10);

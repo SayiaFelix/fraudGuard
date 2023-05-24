@@ -7,6 +7,7 @@ import { BlockedAccountsComponent } from './AccountLinking/blocked-accounts/bloc
 import { UnblockedAccountsComponent } from './AccountLinking/unblocked-accounts/unblocked-accounts.component';
 import { ClosedAccountsComponent } from './AccountLinking/closed-accounts/closed-accounts.component';
 import { NewLinkedAccountsComponent } from './new-linked-accounts/new-linked-accounts.component';
+import {ListFailedApprovalComponent} from "./AccountRegistration/list-failed-approval/list-failed-approval.component";
 
 
 // import {ViewProductComponent} from './list-products/view-customer/view-customer.component';
@@ -21,6 +22,10 @@ const routes: Routes = [
     path:'list-pending',
     component:ListPendingApprovalComponent
 
+  },
+  {
+    path:'list-failed',
+    component:ListFailedApprovalComponent
   },
   {
     path: 'linked-accounts',

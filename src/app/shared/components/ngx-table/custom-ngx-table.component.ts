@@ -1,4 +1,6 @@
 import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   Input,
@@ -6,11 +8,12 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
-import { ColumnMode } from '@swimlane/ngx-datatable';
-import { DatatableComponent } from '@swimlane/ngx-datatable/lib/components/datatable.component';
+import {ColumnMode} from '@swimlane/ngx-datatable';
+import {DatatableComponent} from '@swimlane/ngx-datatable/lib/components/datatable.component';
 
 @Component({
   selector: 'app-custom-ngx-table',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './custom-ngx-table.component.html',
   styleUrls: ['./custom-ngx-table.component.scss'],
 })
@@ -43,7 +46,7 @@ export class CustomNgxTable implements OnInit {
   total: any;
   perPage = 10;
   pageSizes: number[] = [2, 5, 10, 20, 50, 100, 1000];
-  pageSize = 2;
+  pageSize = 20;
   page = 1;
   dataLoaded = false;
   showPageSizeDropdown = false;
@@ -51,7 +54,9 @@ export class CustomNgxTable implements OnInit {
   maxSize: number = 5;
   selectedRange: any = {};
 
-  constructor() {}
+  constructor(private ref: ChangeDetectorRef) {
+
+  }
 
   ngOnInit() {
     console.log(this.columns, this.rows);
@@ -75,27 +80,27 @@ export class CustomNgxTable implements OnInit {
         col['name'] == 'Active' ||
         col['name'] == 'Status' ||
         col['prop'] == 'systemRole' ||
-        col['prop'] == 'firstTimeLogin' 
+        col['prop'] == 'firstTimeLogin'
     );
 
     this.dateFilters = [...this.columns].filter(
-      (col: any) => {  
+      (col: any) => {
         if(col['prop'] == 'updatedOn' ||
-            col['prop'] == 'createdOn' || 
+            col['prop'] == 'createdOn' ||
             col['prop'] == 'createdAt' || col.prop === 'updatedAt') {
               this.selectedRange[col['prop']] = []
-              
+
               return col
         } }
 
     );
     console.log(this.selectedRange);
-    
+
 
     this.data = [...this.rows];
   }
 
-  changePageSize(event: Event) { 
+  changePageSize(event: Event) {
     console.log('event when changing page.');
     console.log(event);
     this.pageSize = parseInt((event.target as HTMLSelectElement).value);
@@ -143,7 +148,7 @@ export class CustomNgxTable implements OnInit {
         ) {
           if (this.selectedRange[input.placeholder].length > 0) {
             console.log(this.selectedRange);
-            
+
             let startDate = this.selectedRange[input.placeholder][0].toISOString();
             let endDate = this.selectedRange[input.placeholder][1].toISOString();
 
@@ -157,6 +162,11 @@ export class CustomNgxTable implements OnInit {
         } else {
           const temp = tempRows.filter(function (d: any) {
             let key = input.placeholder;
+
+            if (key === 'Active') {
+              console.log("d[key]");
+              console.log(d[key]);
+            }
             return (
               d[key].toString().toLowerCase().indexOf(input.value) !== -1 ||
               !input.value
@@ -185,14 +195,23 @@ export class CustomNgxTable implements OnInit {
             // }
           });
 
+          console.log("tempRows");
+          console.log(temp);
+
+          // this.data = [...temp];
+
           tempRows = [...temp];
         }
+        this.loadingIndicator = false;
       });
 
       this.rows = [...tempRows];
     // Whenever the filter changes, always go back to the first page
     this.table.offset = 0;
     this.updateFilteredRows.emit(this.rows);
+
+    // Detect changes after filter.
+    this.ref.detectChanges();
   }
 
   clearFilters() {
@@ -212,7 +231,7 @@ export class CustomNgxTable implements OnInit {
     let dateKeys = Object.keys(this.selectedRange)
     dateKeys.forEach(key => {
       this.selectedRange[key] = []
-    }) 
+    })
 
     // Whenever the filter changes, always go back to the first page
     this.table.offset = 0;

@@ -102,6 +102,8 @@ export class ProductSubCategoriesAsCardsComponent implements OnInit {
 
     this.activatedRoute.params.subscribe(params => {
       if (typeof params.id !== 'undefined') {
+        console.log("params");
+        console.log(params);
         this.categoryId = params.id;
       }
     })
@@ -337,19 +339,17 @@ export class ProductSubCategoriesAsCardsComponent implements OnInit {
     });
   }
 
-  viewSubProducts(children: any) {
-    this.router.navigate(["/mobile-banking/products/list-categories-cards-subcategories"])
+  viewSubProducts(category: any) {
+    this.categoryId = category.id;
+    this.getIndividualData(0);
   }
 
   // Get base64 from Image URL
   async getBase64ImageFromUrl(imageUrl: string) {
 
-    console.log(imageUrl);
 
     let url = this.domSanitizer.bypassSecurityTrustUrl(imageUrl);
     // domSanitizer.bypassSecurityTrustResourceUrl(category.categoryUrl)
-    console.log("here is the url")
-    console.log(url)
 
     // let res = await fetch("https://www.google.com");
     //

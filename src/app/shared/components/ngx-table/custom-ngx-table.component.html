@@ -54,7 +54,7 @@
         <option [value]="true">True</option>
         <option [value]="false">False</option>
       </ng-container>
-      
+
     </select>
 
     <input
@@ -74,7 +74,7 @@
       style="background-color: #F6950C!important; color: white!important;"
     >
       <i appFeatherIcon class="btn-icon-prepend" data-feather="x-square"></i>
-      Clear Filters
+      {{'customTables.clearFilters' | translate}}
     </button>
   </div>
   <ngx-datatable
@@ -179,7 +179,7 @@
                 placement="left-top"
                 type="button"
               >
-                <i class="feather icon-chevron-down"></i> Actions
+                <i class="feather icon-chevron-down"></i> {{'customTables.actions' | translate}}
               </button>
             </div>
           </span>
@@ -200,9 +200,11 @@
           let-value="value"
           ngx-datatable-cell-template
         >
-          <app-label-active
-            [value]="row.status || row.active || !row.blocked"
-          ></app-label-active>
+          <span class="{{ (row.status || row.active || !row.blocked) === true ?  'badge bg-primary mr-1' : 'badge bg-danger mr-1'}}">
+            {{(row.status || row.active || !row.blocked) === true ?  'Active' : 'Inactive'}}</span>
+<!--          <app-label-active-->
+<!--            [value]="row.status || row.active || !row.blocked"-->
+<!--          ></app-label-active>-->
         </ng-template>
       </ngx-datatable-column>
 
@@ -220,9 +222,33 @@
           let-value="value"
           ngx-datatable-cell-template
         >
-          <app-label-boolean
-            [value]="row.firstTimeLogin"
-          ></app-label-boolean>
+
+          <span class="{{ (row.firstTimeLogin) === true ?  'badge bg-primary mr-1' : 'badge bg-danger mr-1'}}">
+            {{(row.firstTimeLogin) === true ?  'Yes' : 'No'}}</span>
+
+<!--          <app-label-boolean-->
+<!--            [value]="row.firstTimeLogin"-->
+<!--          ></app-label-boolean>-->
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column
+        *ngIf="column.prop === 'accountStatus'"
+        [maxWidth]="150"
+        [minWidth]="150"
+        [resizeable]="false"
+        [name]="column.name"
+        [prop]="column.prop.toLowerCase()"
+        [draggable]="false"
+      >
+        <ng-template
+          let-row="row"
+          let-value="value"
+          ngx-datatable-cell-template
+        >
+
+          <span class="{{ (row.accountStatus) === 'SUCCESS' ?  'badge bg-primary mr-1' : 'badge bg-danger mr-1'}}">
+            {{(row.accountStatus).toUpperCase()}}</span>
         </ng-template>
       </ngx-datatable-column>
 
@@ -260,9 +286,12 @@
           let-value="value"
           ngx-datatable-cell-template
         >
-          <app-label-system-custom-role
-            [value]="row.systemRole"
-          ></app-label-system-custom-role>
+          {{row.d}}
+          <span class="{{ (row.systemRole) === true ?  'badge bg-primary mr-1' : 'badge bg-success mr-1'}}">
+            {{(row.systemRole) === true ?  'System Role' : 'Custom Role'}}</span>
+<!--          <app-label-system-custom-role *ngIf="!loadingIndicator"-->
+<!--            [value]="row.systemRole"-->
+<!--          ></app-label-system-custom-role>-->
         </ng-template>
       </ngx-datatable-column>
 
@@ -283,6 +312,7 @@
           column.name !== 'Status' &&
           column.name !== 'TaskStatus' &&
           column.name !== 'Active' &&
+          column.name !== 'Account Status' &&
           column.name !== 'ID' &&
           column.name !== '#' &&
           column.prop !== 'systemRole' &&

@@ -15,6 +15,9 @@ export class LabelActiveComponent implements OnInit {
   constructor() { }
   ngOnInit(): void {
 
+    console.log("value")
+    console.log(this.value);
+
     if ( this.value === 1 || this.value === true || this.value === 'true' || this.value === 'TRUE') {
       this.label = 'Active';
       this.labelClass = 'badge bg-primary mr-1';

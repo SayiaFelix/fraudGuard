@@ -103,7 +103,7 @@ export class ListWorkflowsComponent implements OnInit {
 
     this.loading = true;
 
-    this.workflowList$ = this.httpService.mobileBankingPost('api/v1/admin/workflow/get/workflows', model)
+    this.workflowList$ = this.httpService.mobileBankingPost('workflow/get/workflows', model)
       .pipe(
         catchError((error: any) => {
           Swal.fire('Error', "Unable to fetch records", 'error');
@@ -171,7 +171,7 @@ export class ListWorkflowsComponent implements OnInit {
             id: formData.id
         }
 
-        this.httpService.mobileBankingPost('api/v1/admin/workflow/delete',model)
+        this.httpService.mobileBankingPost('workflow/delete',model)
         .subscribe(
           (result:any) =>{
             if (result.status == 200){

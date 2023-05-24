@@ -1,11 +1,11 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { ColumnMode, DatatableComponent } from '@swimlane/ngx-datatable';
-import { ConfirmDialogComponent } from 'src/app/shared/components/confirm-dialog/confirm-dialog.component';
-import { DataExportationService } from 'src/app/shared/services/data-exportation.service';
-import { HttpService } from 'src/app/shared/services/http.service';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {Router} from '@angular/router';
+import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
+import {ColumnMode, DatatableComponent} from '@swimlane/ngx-datatable';
+import {ConfirmDialogComponent} from 'src/app/shared/components/confirm-dialog/confirm-dialog.component';
+import {DataExportationService} from 'src/app/shared/services/data-exportation.service';
+import {HttpService} from 'src/app/shared/services/http.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -15,30 +15,7 @@ import Swal from 'sweetalert2';
 })
 export class ListPendingApprovalComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
-  actions = ["Approve","Reject"];
-  tempProductData = [
-    {
-      id: 1,
-      Name: 'Andrew Kamau',
-      RegistrationNumber: '45321876',
-      AccountNumber:'01167972316587',
-      status: true,
-      CustomerID:'87142367',
-      createdOn: '12-02-2023',
-      CreatedBy:'Mary Njoki'
-    },
-    {
-      id: 2,
-      Name: 'Jane Mwangi',
-      RegistrationNumber: '21658975',
-      AccountNumber:'01176431096534',
-      status: true,
-      CustomerID:'23569980',
-      createdOn: '12-02-2023',
-      CreatedBy:'Wendy Akinyi'
-    },
-
-  ];
+  actions = ["Approve", "Reject"];
 
   // bread crumb items
   breadCrumbItems: Array<{}>;
@@ -49,13 +26,14 @@ export class ListPendingApprovalComponent implements OnInit {
 
 
   columns = [
-    {name: 'ID', prop: 'id'},
-    {name: 'Name', prop: 'Name'},
-    {name: 'Registration No.', prop: 'RegistrationNumber'},
-    {name:'Account Number',prop:'AccountNumber'},
+    {name: 'ID', prop: 'frontendId'},
+    {name: 'Name', prop: 'name'},
+    {name: 'Phone No.', prop: 'phoneNumber'},
+    {name: 'Account No.', prop: 'accountNumber'},
+    {name: 'Account Name', prop: 'accountName'},
+    {name: 'Account Status', prop: 'accountStatus'},
     {name: 'Created On', prop: 'createdOn'},
-    {name: 'Status', prop: 'status'},
-    {name:'Created By',prop:'CreatedBy'},
+    {name: 'Created By', prop: 'createdBy'},
     {name: 'Actions', prop: 'id'},
   ];
 
@@ -101,10 +79,6 @@ export class ListPendingApprovalComponent implements OnInit {
   getIndividualData(event: number): void {
 
     this.isLoading = true;
-    this.rows = this.tempProductData;
-
-    this.temp = [...this.tempProductData];
-    this.isLoading = false;
 
     const model = {
       page: 0,
@@ -112,47 +86,61 @@ export class ListPendingApprovalComponent implements OnInit {
     };
 
     this.httpService
-      .mobileBankingPost('api/v1/corporate/admin/list-products/all', model)
+      .mobileBankingPostUpdated('api/v1/mbs/on-board/accounts/all', model)
       .subscribe((res: any) => {
-        if (res.status === 200) {
+        if (res.status === '00') {
           this.isLoading = false;
-
           setTimeout(() => {
-            // this.data = res.data;
-            this.rows = this.tempProductData;
-            // let data = this.tempProductData;
+            this.rows = res.data;
+
+            let response = this.rows.map((item: any, index: any) => {
+              let res = {
+                ...item,
+                createdBy: item.createdBy ? item.createdBy : "_",
+                createdOn: new Date(item.createdOn).toLocaleDateString('en-US'),
+                accountNumber: item.accountNumber ? item.accountNumber : "_",
+                accountStatus: item.status,
+                frontendId: index + 1
+              };
+              return res;
+            })
+            this.rows = response;
+
 
             let total = res.totalItems;
           }, 10);
         } else {
         }
       });
+    this.isLoading = false;
+
   }
 
   openRejectModal(formData: any) {
     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Reject Account';
-    this.modalRef.componentInstance.body= "Do you want to reject this account?";
+    this.modalRef.componentInstance.body = "Do you want to reject this account?";
     this.modalRef.result.then((result) => {
       if (result === 'success') {
-        Swal.fire('Rejected Successfully',  'Account has been rejected  successfully.',  'success')
-        .then
-        (r => this.getIndividualData(0))
+        Swal.fire('Rejected Successfully', 'Account has been rejected  successfully.', 'success')
+          .then
+          (r => this.getIndividualData(0))
         this.getIndividualData(0);
       } else {
         console.log("Error occurred")
       }
     });
   }
+
   openApproveModal(formData: any) {
     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Approve Account';
-    this.modalRef.componentInstance.body= "Do you want to approve this account?";
+    this.modalRef.componentInstance.body = "Do you want to approve this account?";
     this.modalRef.result.then((result) => {
       if (result === 'success') {
-        Swal.fire('Approval Successfully',  'Account has been approved successfully.',  'success')
-        .then
-        (r => this.getIndividualData(0))
+        Swal.fire('Approval Successfully', 'Account has been approved successfully.', 'success')
+          .then
+          (r => this.getIndividualData(0))
         this.getIndividualData(0);
       } else {
         console.log("Error occurred")
@@ -312,15 +300,11 @@ export class ListPendingApprovalComponent implements OnInit {
 
     if (eventData.action == 'Approve') {
       this.openApproveModal(eventData.row);
-    }else if (eventData.action == 'Reject') {
+    } else if (eventData.action == 'Reject') {
       this.openRejectModal(eventData.row);
     }
 
   }
-
-
-
-
 
 
 }

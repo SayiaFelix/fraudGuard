@@ -46,9 +46,9 @@ Accountscolumns = [
 ];
 
   channelsColumns = [
-    { name:'Channel', prop:'channel'},
-    { name:'Created On', prop:'createdOn'},
-    { name:'Status', prop:'status'},
+    { name: 'Channel', prop: 'channel'},
+    { name: 'Created At', prop: 'createdOn'},
+    { name: 'Status', prop:'active'},
 
   ];
 
@@ -134,7 +134,17 @@ Accountscolumns = [
       .subscribe((res: any) => {
         if (res.status === '00') {
           setTimeout(() => {
-            this.channelRows = res.data;
+
+
+            let response = res['data'].map((item: any, index: any) => {
+              let res = {...item,
+                createdOn: new Date(item.createdOn).toLocaleDateString()
+              };
+              return res;
+            })
+
+            this.channelRows = response;
+
 
             let total = res.metadata.numofrecords;
           }, 10);

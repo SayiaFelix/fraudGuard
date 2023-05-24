@@ -9,7 +9,7 @@
     [allColumns]="allColumns"
     [rows]="filteredRows.length > 0 ? filteredRows : rows"
     [title]="title"
-    [showAddButton]="true"
+    [showAddButton]="false"
     (changeColumnsEvent)="updateColumns($event)"
     (openAddModalEvent)="openAddProductModal()"
   ></app-table-header>
@@ -25,6 +25,7 @@
           [rows]="rows"
           [actions]="actions"
           [loadingIndicator]="loading"
+          [totalItems]="total"
           (outputEvent)="triggerEvent($event)"
           (viewEvent)="navigateToViewProduct($event)"
           (updateFilteredRows)="updateFilteredRowsEvent($event)"

@@ -44,7 +44,8 @@ export class LoginComponent implements OnInit {
     private route: ActivatedRoute,
     private httpService: HttpService,
     fb: FormBuilder,
-    private _router: Router
+    private _router: Router,
+
   ) {
     this.form = fb.group({
       username: [
@@ -59,6 +60,11 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
+
+    localStorage.clear();
+
+
+
     // get return url from route parameters or default to '/'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }

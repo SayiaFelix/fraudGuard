@@ -102,7 +102,7 @@ export class ViewSingleWorkflowComponent implements OnInit {
     };
 
     // Create workflow step
-    this.httpService.mobileBankingPost('api/v1/admin/workflow/create/step', model).subscribe(
+    this.httpService.mobileBankingPost('workflow/create/step', model).subscribe(
       (result: any) => {
         if (result.status === 200) {
           Swal.fire('success', 'step created successfully', 'success')
@@ -151,7 +151,7 @@ export class ViewSingleWorkflowComponent implements OnInit {
       id: this.workflowId
     };
 
-    this.httpService.mobileBankingPost('api/v1/admin/workflow/get/id', model).subscribe(
+    this.httpService.mobileBankingPost('workflow/get/id', model).subscribe(
       (result: any) => {
         if (result.status === 200) {
           this.loading = false;
@@ -189,7 +189,7 @@ export class ViewSingleWorkflowComponent implements OnInit {
       id: this.workflowId,
     };
 
-    this.httpService.mobileBankingPost('api/v1/admin/workflow/get/workflowSteps', model).subscribe(
+    this.httpService.mobileBankingPost('workflow/get/workflowSteps', model).subscribe(
       (result: any) => {
         if (result.status === 200) {
 
@@ -292,7 +292,7 @@ export class ViewSingleWorkflowComponent implements OnInit {
            id:formData.id,
            workFlowId:this.workflowId
         }
-       this.httpService.mobileBankingPost('api/v1/admin/workflow/delete/step',model).subscribe(
+       this.httpService.mobileBankingPost('workflow/delete/step',model).subscribe(
        (result:any)=>{
         if(result.status == 200){
           console.log(result)

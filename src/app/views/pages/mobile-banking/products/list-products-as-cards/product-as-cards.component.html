@@ -61,6 +61,21 @@
 <div class="row row-cols-1 row-cols-md-3 g-4" *ngIf="itemsForPresentation.length > 0; else noItems">
   <div class="col-6" *ngFor="let slide of itemsForPresentation" [id]="slide.id">
     <div class="card unique-card">
+
+      <div class="card-header p-1">
+        <div ngbDropdown class="d-flex justify-content-end">
+          <button class="btn p-0 no-dropdown-toggle-icon" id="dropdownMenuButton" ngbDropdownToggle type="button">
+            <i class="feather icon-more-horizontal icon-lg text-muted pb-3px"></i>
+          </button>
+          <div aria-labelledby="dropdownMenuButton" ngbDropdownMenu>
+            <a (click)="false" class="d-flex align-items-center" ngbDropdownItem
+               (click)="openDeleteModal(slide)"
+            ><i class="feather icon-trash-2 icon-sm me-2 text-danger"></i> <span class="text-danger">Delete</span></a>
+          </div>
+        </div>
+      </div>
+
+
       <!-- <img src="assets/images/others/placeholder.jpg" class="card-img-top" alt="..."> -->
       <img class="card-img-top images-styling" [src]="slide.productUrl.trim()" [alt]="slide.alt" preload>
       <div class="card-body">
@@ -73,7 +88,7 @@
              style="margin-left: 0!important;"
           >View</a>
           <a (click)="editProduct(slide)"  class="btn btn-secondary btn-sm">Edit</a>
-          <a (click)="openDeleteModal(slide)" class="btn btn-danger btn-sm">Delete</a>
+<!--          <a (click)="openDeleteModal(slide)" class="btn btn-danger btn-sm">Delete</a>-->
         </div>
       </div>
     </div>

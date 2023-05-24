@@ -52,10 +52,10 @@
             View Products
           </a>
           <a
-            (click)="viewSubProducts(category?.children)"
+            (click)="viewSubProducts(category)"
             class="btn btn-primary btn-sm"
             *ngIf="category?.children?.length > 0">
-            View Sub-Categories
+            View Business Type
           </a>
           <a (click)="editProduct(category)" class="btn btn-secondary btn-sm">Edit</a>
 <!--          <a (click)="openDeleteModal(category)" class="btn btn-danger btn-sm"> Delete</a>-->

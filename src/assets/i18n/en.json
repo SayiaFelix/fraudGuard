@@ -6,5 +6,30 @@
   "login": {
     "username": "Username/ Email Address",
     "password": "Password"
+  },
+  "dashboard": {
+    "newCustomers": "New Customers",
+    "newDevices": "New Devices",
+    "growth": "Growth",
+    "revenue": "Revenue",
+    "revenueDesc": "Revenue is the income that a business has from its normal business activities, usually from the sale of goods and services to customers."
+  },
+  "channels": {
+    "ussd": {
+      "title": "USSD Channel Management",
+      "btnSelect": "Select Channel",
+      "disableBtn": "Disable Channel",
+      "ussdCustomers": "USSD Customers",
+      "ussdDevices": "USSD Devices",
+      "growth": "Growth",
+      "locationsTitle": "USSD CUSTOMER LOCATIONS",
+      "locationsDesc": "Get the positions of all onboarded customers using USSD.",
+      "customersTable": "ALL USSD CUSTOMERS"
+    }
+  },
+  "customTables": {
+    "actions": "Actions",
+    "clearFilters": "Clear Filters"
+
   }
 }

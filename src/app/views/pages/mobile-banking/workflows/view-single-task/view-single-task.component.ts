@@ -165,7 +165,7 @@ export class ViewSingleTaskComponent implements OnInit {
                 id: this.workflowId
         };
 
-        this.httpService.mobileBankingPost('api/v1/admin/workflow/get/workflowSteps', model).subscribe(
+        this.httpService.mobileBankingPost('workflow/get/workflowSteps', model).subscribe(
           (result:any) => {
                 if (result.status === 200) {
                     this.workflowSteps = result.data;
@@ -281,6 +281,25 @@ export class ViewSingleTaskComponent implements OnInit {
       if (result === 'success') {
 
         // TODO call backend to approve task
+
+        const model = {
+          "stageId":41,
+          "approverId":1,
+          "approved":true,
+          "approverDetails":""
+        }
+
+        this.httpService.mobileBankingPost('workflow/approve/staged', model).subscribe(
+          (result: any) => {
+            if (result.status === 200) {
+              console.log("workflow approved successfully");
+              console.log(result);
+
+              this.notificationService.updateNotifications(result.data);
+            } else {
+
+            }
+          })
         // if successful
         Swal.fire('Task Approved Successfully',  'Task has been approved successfully.',  'success')
           .then

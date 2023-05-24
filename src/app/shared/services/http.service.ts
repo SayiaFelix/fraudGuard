@@ -188,9 +188,9 @@ export class HttpService {
     };
   }
 
-  get getProfile() {
-    let profile = JSON.parse(localStorage.getItem('profile')!);
-    return profile;
+  get getRoles() {
+    let roles = JSON.parse(localStorage.getItem('roles')!);
+    return roles;
   }
 
   // Other requests to backend...Mobile Banking extended endpoints

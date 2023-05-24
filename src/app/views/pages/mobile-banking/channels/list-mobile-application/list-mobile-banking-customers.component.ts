@@ -39,6 +39,15 @@ export class ListMobileBankingCustomersComponent implements OnInit {
     },
     {
       frontendId: 2,
+      customerName: 'Lilian Kamau',
+      phoneNumber:'0728675498',
+      idNumber: '32859637',
+      DeviceID:'IBank1234',
+      primaryDevice:'Redmi 10 C',
+      createdOn: '12-02-2023',
+    },
+    {
+      frontendId: 3,
       customerName: 'Faisal Farah',
       phoneNumber:'0728378986',
       idNumber: '36059678',
@@ -47,7 +56,7 @@ export class ListMobileBankingCustomersComponent implements OnInit {
       createdOn: '12-02-2023',
     },
     {
-      frontendId: 3,
+      frontendId: 4,
       customerName: 'Chiuri Karanja',
       phoneNumber:'0713278096',
       idNumber: '31059673',
@@ -56,7 +65,7 @@ export class ListMobileBankingCustomersComponent implements OnInit {
       createdOn: '12-02-2023',
     },
     {
-      frontendId: 4,
+      frontendId: 5,
       customerName: 'Daniel Kimani',
       phoneNumber:'0712786543',
       idNumber: '30059677',
@@ -66,7 +75,7 @@ export class ListMobileBankingCustomersComponent implements OnInit {
       createdOn: '12-02-2023',
     },
     {
-      frontendId: 5,
+      frontendId: 6,
       customerName: 'Michael Mbugua',
       phoneNumber:'0725654318',
       idNumber: '31359673',
@@ -74,16 +83,6 @@ export class ListMobileBankingCustomersComponent implements OnInit {
       primaryDevice:'Redmi Note 10 pro',
       createdOn: '12-02-2023',
     },
-    {
-      frontendId: 6,
-      customerName: 'Lilian Kamau',
-      phoneNumber:'0728675498',
-      idNumber: '32859637',
-      DeviceID:'IBank1234',
-      primaryDevice:'Redmi 10 C',
-      createdOn: '12-02-2023',
-    },
-
   ];
 
   // bread crumb items

@@ -20,6 +20,9 @@ import {UssdChannelDashboardComponent} from "./ussd-channel-dashboard/ussd-chann
 import {NgApexchartsModule} from "ng-apexcharts";
 import {AgmCoreModule} from "@agm/core";
 import {AppChannelDashboardComponent} from "./app-channel-dashboard/app-channel-dashboard.component";
+import {IbChannelDashboardComponent} from "./ib-channel-dashboard/ib-channel-dashboard.component";
+import {ListChannelsComponent} from "./list-channels/list-channels.component";
+import {AddChannelComponent} from "./add-channel/add-channel.component";
 
 @NgModule({
   imports: [
@@ -43,12 +46,15 @@ import {AppChannelDashboardComponent} from "./app-channel-dashboard/app-channel-
     ViewInternetBankingComponent,
     UssdChannelDashboardComponent,
     AppChannelDashboardComponent,
-
+    IbChannelDashboardComponent,
+    ListChannelsComponent,
+    AddChannelComponent
   ]
   ,
   entryComponents: [
     AddCustomerComponent,
-    AddMobileAppCustomerComponent
+    AddMobileAppCustomerComponent,
+    AddChannelComponent
   ],
 })
 export class ChannelsModule {

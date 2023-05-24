@@ -69,7 +69,7 @@ export class AddWorkflowComponent implements OnInit {
         remarks: this.form.value.remarks
       };
 
-      this.httpService.mobileBankingPost('api/v1/admin/workflow/create', model).subscribe(
+      this.httpService.mobileBankingPost('workflow/create', model).subscribe(
         (result: any) => {
           if (result.status === 200) {
             this.activeModal.close('success');
@@ -94,7 +94,7 @@ export class AddWorkflowComponent implements OnInit {
       process: this.form.value.process
     }
 
-    this.httpService.mobileBankingPost('api/v1/admin/workflow/update', model)
+    this.httpService.mobileBankingPost('workflow/update', model)
       .subscribe(
         (result: any) => {
           if (result.status == 200) {

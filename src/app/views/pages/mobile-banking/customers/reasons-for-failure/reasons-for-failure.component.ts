@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
 import Swal from "sweetalert2";
 import {NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
+import {CompareImageComponent} from "../../../../../shared/components/compare-image-component/compare-image.component";
 
 @Component({
   selector: 'app-reasons-for-failure',
@@ -35,5 +36,11 @@ export class ReasonsForFailureComponent implements OnInit {
     this.modalRef.componentInstance.title = `Delete Record?`;
     this.modalRef.componentInstance.body = `Do you want to delete this record?`;
 
+  }
+
+  openImage() {
+    this.modalRef = this.modalService.open(CompareImageComponent, {centered: true});
+    this.modalRef.componentInstance.title = `Image Comparison`;
+    this.modalRef.componentInstance.body = `Do you want to approve this record?`;
   }
 }

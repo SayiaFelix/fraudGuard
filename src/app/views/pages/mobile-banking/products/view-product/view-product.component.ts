@@ -97,7 +97,15 @@ export class ViewProductComponent implements OnInit {
      this.httpService.mobileBankingPost('product/portal/fetch/requirement',model).subscribe(
       (result:any)=>{
         if (result.status===200){
-           this.requirements = result['data'];
+
+          let response = result['data'].map((item: any, index: any) => {
+            let res = {...item,
+              frontendId: index + 1
+            };
+            return res;
+          })
+          this.requirements = response;
+
           this.requirementsLoading = false;
         }
         else{
@@ -117,7 +125,15 @@ export class ViewProductComponent implements OnInit {
     this.httpService.mobileBankingPost('product/portal/fetch/benefits',model).subscribe(
      (result:any)=>{
        if (result.status===200){
-          this.benefits =result['data'];
+
+         let response = result['data'].map((item: any, index: any) => {
+           let res = {...item,
+             frontendId: index + 1
+           };
+           return res;
+         })
+         this.benefits = response;
+
        }
        else{
          Swal.fire('Failed','unable to fetch requirements','error')
@@ -188,7 +204,7 @@ export class ViewProductComponent implements OnInit {
   addBenefit() {
     this.modalRef = this.modalService.open(AddBenefitComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Add Benefit';
-    this.modalRef.componentInstance.formData = this.productDetails;
+    this.modalRef.componentInstance.productDetails = this.productDetails;
     this.modalRef.result.then((result: any) => {
       if (result === 'success') {
         this.loadBenefits();
@@ -256,6 +272,7 @@ export class ViewProductComponent implements OnInit {
     this.modalRef.result.then((result: any) => {
       if (result === 'success') {
         this.loadData();
+        this.loadBenefits();
         // this.loadRequirements();
       } else {
         console.log("Error occurred")
