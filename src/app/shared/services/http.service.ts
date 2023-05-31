@@ -210,4 +210,21 @@ export class HttpService {
       );
   }
 
+  // Other requests to backend...Nest Mobile Banking extended endpoints
+  public mobileBankingPostNest(endpoint: string, model: any): any {
+    return this.http
+      .post(
+
+        this.globalService.mobileBankingHost + endpoint,
+        model,
+        this.getHeaders()
+      )
+      .pipe(
+        map((response) => {
+          response = response;
+          return response;
+        })
+      );
+  }
+
 }

@@ -8,7 +8,7 @@ import { HttpService } from 'src/app/shared/services/http.service';
 import {AddAtmComponent} from "../add-atm/add-atm.component";
 
 @Component({
-  selector: 'app-list-atms',
+  selector: 'app-list-services',
   templateUrl: './list-atms.component.html',
   styleUrls: ['./list-atms.component.scss']
 })
@@ -117,7 +117,7 @@ export class ListAtmsComponent implements OnInit {
         let response = res.data.map((item: any, index: any) => {
           const res = {...item, frontendId: index + 1, createdOn: item.createdOn.replace('T', ' '), updatedOn: item.updatedOn.replace('T', ' ')};
           return res;
-        }); 
+        });
 
         this.rows = response;
       } else {

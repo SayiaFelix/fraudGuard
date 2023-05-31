@@ -31,7 +31,7 @@ export const MENU: MenuItem[] = [
   {
     profiles: ['CORPORATE_ADMIN'],
     label: 'Requests',
-    icon: 'home',
+    icon: 'help-circle',
     subItems: [
       {
         profiles: ['CORPORATE_ADMIN'],
@@ -45,7 +45,7 @@ export const MENU: MenuItem[] = [
   {
     profiles: ['CORPORATE_ADMIN'],
     label: 'Products',
-    icon: 'home',
+    icon: 'shopping-bag',
     subItems: [
       {
         profiles: ['CORPORATE_ADMIN'],
@@ -63,7 +63,7 @@ export const MENU: MenuItem[] = [
   {
     profiles: ['CORPORATE_ADMIN'],
     label: 'Customers Module',
-    icon: 'home',
+    icon: 'user',
     subItems: [
       {
         profiles: ['CORPORATE_ADMIN'],
@@ -159,7 +159,7 @@ export const MENU: MenuItem[] = [
   {
     profiles: ['CORPORATE_ADMIN'],
     label: 'Channel Management',
-    icon: 'home',
+    icon: 'airplay',
     subItems: [
       {
         profiles: ['CORPORATE_ADMIN'],
@@ -188,7 +188,7 @@ export const MENU: MenuItem[] = [
   {
     profiles: ['CORPORATE_ADMIN'],
     label: 'Setup',
-    icon: 'file-text',
+    icon: 'settings',
     subItems: [
       {
         profiles: ['CORPORATE_ADMIN'],
@@ -203,7 +203,12 @@ export const MENU: MenuItem[] = [
       {
         profiles: ['CORPORATE_ADMIN'],
         label: 'ATMs',
-        link: '/mobile-banking/setups/list-atms'
+        link: '/mobile-banking/setups/list-services'
+      },
+      {
+        profiles: ['CORPORATE_ADMIN'],
+        label: 'Services',
+        link: '/mobile-banking/setups/list-services'
       },
     ]
   },
@@ -211,7 +216,7 @@ export const MENU: MenuItem[] = [
   {
     profiles: ['CORPORATE_ADMIN'],
     label: 'User Management',
-    icon: 'file-text',
+    icon: 'users',
     subItems: [
       {
         profiles: ['CORPORATE_ADMIN'],
@@ -252,7 +257,7 @@ export const MENU: MenuItem[] = [
   {
     profiles: ['CORPORATE_ADMIN'],
     label: 'Workflows Module',
-    icon: 'file-text',
+    icon: 'briefcase',
     subItems: [
       {
         profiles: ['CORPORATE_ADMIN'],

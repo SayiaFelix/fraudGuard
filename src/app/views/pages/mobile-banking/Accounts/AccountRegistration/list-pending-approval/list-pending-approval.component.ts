@@ -7,6 +7,7 @@ import {ConfirmDialogComponent} from 'src/app/shared/components/confirm-dialog/c
 import {DataExportationService} from 'src/app/shared/services/data-exportation.service';
 import {HttpService} from 'src/app/shared/services/http.service';
 import Swal from 'sweetalert2';
+import {ApproveAccountComponent} from "../approve-account/approve-account.component";
 
 @Component({
   selector: 'app-list-pending-approval',
@@ -83,10 +84,12 @@ export class ListPendingApprovalComponent implements OnInit {
     const model = {
       page: 0,
       size: 50,
+      fieldName: "status",
+      fieldValue: "PENDING"
     };
 
     this.httpService
-      .mobileBankingPostUpdated('api/v1/mbs/on-board/accounts/all', model)
+      .mobileBankingPostUpdated('api/v1/mbs/on-board/accounts/all/filter', model)
       .subscribe((res: any) => {
         if (res.status === '00') {
           this.isLoading = false;
@@ -299,12 +302,20 @@ export class ListPendingApprovalComponent implements OnInit {
     let eventData = JSON.parse(data)
 
     if (eventData.action == 'Approve') {
-      this.openApproveModal(eventData.row);
+      this.openApproveRejectModal(eventData.row);
     } else if (eventData.action == 'Reject') {
-      this.openRejectModal(eventData.row);
+      this.openApproveRejectModal(eventData.row);
     }
 
   }
 
+  openApproveRejectModal(formData: any) {
+    this.modalRef = this.modalService.open(ApproveAccountComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Approve/ Reject Account';
+    this.modalRef.componentInstance.formData = formData;
+    this.modalRef.result.then((result) => {
+        this.getIndividualData(0);
+    });
+  }
 
 }

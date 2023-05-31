@@ -15,7 +15,7 @@ import Swal from 'sweetalert2';
 })
 export class ListFailedApprovalComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
-  actions = ["Approve", "Reject"];
+  actions = [];
 
   // bread crumb items
   breadCrumbItems: Array<{}>;

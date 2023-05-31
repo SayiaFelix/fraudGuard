@@ -66,7 +66,9 @@ Accountscolumns = [
 
   loading: boolean;
   customerId: any;
+  customerDetails: any;
   channelsLoading: boolean = true;
+  customerLoading: boolean = true;
 
   constructor(private httpService: HttpService,
               public globalService: GlobalService,
@@ -91,7 +93,7 @@ Accountscolumns = [
       }
     })
 
-    // this.loadData();
+    this.loadCustomerData();
 
     this.loadChannelData();
 
@@ -147,6 +149,32 @@ Accountscolumns = [
 
 
             let total = res.metadata.numofrecords;
+          }, 10);
+        } else {
+        }
+      });
+
+    this.channelsLoading = false;
+
+  }
+
+  private loadCustomerData(): any {
+    this.customerLoading = true;
+
+    let model = ChannelDetailsWrapper.channelDetailsWrapper;
+
+    model.payload = {
+      customerId: this.customerId
+    }
+
+    this.httpService
+      .mobileBankingPostUpdated('api/v1/kyc/portal/get-customer', model)
+      .subscribe((res: any) => {
+        if (res.status === '00') {
+          setTimeout(() => {
+            let response = res['data'];
+
+            this.customerDetails = response;
           }, 10);
         } else {
         }
@@ -236,12 +264,28 @@ Accountscolumns = [
 
   openBlockCustomerModal() {
     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
-    this.modalRef.componentInstance.title = 'Block Customer';
-    this.modalRef.componentInstance.body = 'Do you want to  block this customer?';
+    this.modalRef.componentInstance.title = 'Disable Customer';
+    this.modalRef.componentInstance.body = 'Do you want to  disable this customer?';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
-        Swal.fire('Blocking Successful',
-          'Customer has been blocked successfully!',
+        Swal.fire('Disable Successful',
+          'Customer has been disabled successfully!',
+          'success').then(r => {});
+      } else {
+        console.log("Error occurred")
+      }
+    });
+  }
+
+
+  resetCustomerPassword() {
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Reset Customer Password';
+    this.modalRef.componentInstance.body = 'Do you want to reset customer password?';
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        Swal.fire('Reset Password',
+          'Customer password has been reset successfully!',
           'success').then(r => {});
       } else {
         console.log("Error occurred")

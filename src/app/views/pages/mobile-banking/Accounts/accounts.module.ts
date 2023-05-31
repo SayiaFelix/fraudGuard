@@ -20,6 +20,8 @@ import { UnblockedAccountsComponent } from './AccountLinking/unblocked-accounts/
 import { ClosedAccountsComponent } from './AccountLinking/closed-accounts/closed-accounts.component';
 import { NewLinkedAccountsComponent } from './new-linked-accounts/new-linked-accounts.component';
 import {ListFailedApprovalComponent} from "./AccountRegistration/list-failed-approval/list-failed-approval.component";
+import {ViewAccountComponent} from "./AccountRegistration/view-account/view-account.component";
+import {ApproveAccountComponent} from "./AccountRegistration/approve-account/approve-account.component";
 
 
 @NgModule({
@@ -33,6 +35,7 @@ import {ListFailedApprovalComponent} from "./AccountRegistration/list-failed-app
   declarations: [
     ListRegisteredAccountsComponent,
     AddAccountComponent,
+    ApproveAccountComponent,
     ListPendingApprovalComponent,
     ListFailedApprovalComponent,
     NewLinkedAccountsComponent,
@@ -40,9 +43,13 @@ import {ListFailedApprovalComponent} from "./AccountRegistration/list-failed-app
     BlockedAccountsComponent,
     UnblockedAccountsComponent,
     ClosedAccountsComponent,
+    ViewAccountComponent
   ]
   ,
   entryComponents: [
+    ViewAccountComponent,
+    AddAccountComponent,
+    ApproveAccountComponent
     // AddProductComponent,
     // AddProductSubitemComponent
   ],

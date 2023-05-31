@@ -147,13 +147,15 @@ export class ListBranchesComponent implements OnInit {
       //  Swal.fire('success','records fetched successfully','success')
       //  .then(r=>console.log(r))
         let response = res.data.map((item: any, index: any) => {
-          const res = {...item, frontendId: index + 1, createdOn: item.createdOn.replace('T', ' '), updatedOn: item.updatedOn.replace('T', ' ')};
+          const res = {...item,
+            frontendId: index + 1,
+          };
           return res;
         });
 
         this.rows = response;
         console.log(this.rows);
-        
+
       }
       else{
         Swal.fire('failed','unable to fetch records','error')

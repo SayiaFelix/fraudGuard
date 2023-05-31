@@ -12,7 +12,7 @@
         <div class="row profile-body">
           <div class="d-none d-md-block col-md-4 col-xl-4 left-wrapper">
             <div class="card rounded">
-              <div class="card-body">
+              <div class="card-body pb-1">
                 <button (click)="openAddProductSubcategoryModal(verticalCenteredModal)" aria-controls="asideNav"
                         class="navbar-toggle btn btn-icon border d-inline-flex d-lg-none" type="button">
                   <i appFeatherIcon class="btn-icon-prepend" data-feather="plus"></i> Button
@@ -22,37 +22,30 @@
                   <br>
                   <div [ngbCollapse]="isAsideNavCollapsed" class="email-aside-nav" id="asideNav">
                     <ul class="list-group list-group-flush">
-                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                      <li class="list-group-item d-flex justify-content-between align-items-center p-0 mb-3">
                         Name:
-                        <span class="text-right">Andrew Kamau</span>
+                        <span class="text-right">{{customerDetails?.name}}</span>
                       </li>
-                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                      <li class="list-group-item d-flex justify-content-between align-items-center p-0 mb-3 mb-2">
                         Phone Number:
-                        <span class="text-right">0708453901</span>
+                        <span class="text-right">{{customerDetails?.phoneNumber}}</span>
                       </li>
 
-                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                      <li class="list-group-item d-flex justify-content-between align-items-center p-0 mb-3 mb-2">
                         Gender:
-                        <span>Male</span>
+                        <span>{{customerDetails?.gender ? customerDetails?.gender : 'Male'}}</span>
                       </li>
 
-                      <li class="list-group-item d-flex justify-content-between align-items-center">
-                        CBS Customer No:
-                        <span>78543298</span>
+                      <li class="list-group-item d-flex justify-content-between align-items-center p-0 mb-3">
+                        Wallet No:
+                        <span>{{customerDetails?.walletAccount}}</span>
                       </li>
 
-                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                      <li class="list-group-item d-flex justify-content-between align-items-center p-0 mb-3">
                         National ID/Passport No:
-                        <span>31391339</span>
+                        <span>{{customerDetails?.identification}}</span>
                       </li>
-                      <li class="list-group-item d-flex justify-content-between align-items-center">
-                        D.O.B:
-                        <span>15-7-2001</span>
-                      </li>
-                      <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Account Type:
-                        <span>Personal Account</span>
-                      </li>
+
                     </ul>
                     <hr>
                   </div>
@@ -60,13 +53,13 @@
               </div>
 
               <div class="d-grid my-3 mx-2">
-                <a (click)="openBlockCustomerModal()" class="btn btn-danger">
+                <a (click)="resetCustomerPassword()" class="btn btn-success">
                   <i class="mdi mdi-account-cancel-outline"></i>
-                  Block Customer</a>
+                  Reset Customer Password</a>
               </div>
 
               <div class="d-grid my-3 mx-2">
-                <a (click)="openDisableCustomerModal()" class="btn btn-danger">
+                <a (click)="openBlockCustomerModal()" class="btn btn-danger">
                   <i class="mdi mdi-trash-can-outline"></i>
                   Disable Customer</a>
               </div>
