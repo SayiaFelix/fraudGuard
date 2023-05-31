@@ -14,6 +14,7 @@ import {NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {NotificationModalComponent} from "../../../shared/components/notification-modal/notification-modal.component";
 import {NotificationService} from "../../../shared/services/NotificationService";
 import {Notification} from "../../../shared/services/Notification";
+import {compareSegments} from "@angular/compiler-cli/src/ngtsc/sourcemaps/src/segment_marker";
 
 @Component({
   selector: 'app-navbar',
@@ -169,7 +170,17 @@ export class NavbarComponent implements OnInit {
           console.log("workflow result");
           console.log(result);
 
-          this.notificationService.updateNotifications(result.data);
+          let response = result['data'].map((item: any, index: any) => {
+            let res = {...item,
+              stagerDetails: JSON.parse(item.stagingUserDetails)
+            };
+            return res;
+          })
+
+          let updatedResult = response;
+
+
+          this.notificationService.updateNotifications(updatedResult);
         } else {
 
         }

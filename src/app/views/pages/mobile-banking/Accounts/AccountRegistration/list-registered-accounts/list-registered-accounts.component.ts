@@ -6,6 +6,7 @@ import { ColumnMode, DatatableComponent } from '@swimlane/ngx-datatable';
 import { DataExportationService } from 'src/app/shared/services/data-exportation.service';
 import { HttpService } from 'src/app/shared/services/http.service';
 import { AddAccountComponent } from '../add-account/add-account.component';
+import {ApproveAccountComponent} from "../approve-account/approve-account.component";
 
 @Component({
   selector: 'app-list-registered-accounts',
@@ -23,6 +24,7 @@ export class ListRegisteredAccountsComponent implements OnInit {
   reorderable = true;
 
   actions = ["View", "Edit"];
+  pendingActions = ["View", "Edit", "Approve/ Reject"];
 
   columns = [
     {name: 'ID', prop: 'frontendId'},
@@ -46,6 +48,8 @@ export class ListRegisteredAccountsComponent implements OnInit {
   public modalRef: NgbModalRef;
 
   title: string = "Account";
+
+  public currentRowStatus: any;
 
 
   constructor(
@@ -93,6 +97,7 @@ export class ListRegisteredAccountsComponent implements OnInit {
             this.rows = res.data;
 
             let response = this.rows.map((item: any, index: any) => {
+
               let res = {...item,
                 createdBy: item.createdBy ? item.createdBy : "_",
                 createdOn: new Date(item.createdOn).toLocaleDateString('en-US'),
@@ -116,7 +121,20 @@ export class ListRegisteredAccountsComponent implements OnInit {
 
   openEditProductModal(formData: any) {
     this.modalRef = this.modalService.open(AddAccountComponent, {centered: true});
-    this.modalRef.componentInstance.title = 'Edit Product';
+    this.modalRef.componentInstance.title = 'Edit Account';
+    this.modalRef.componentInstance.formData = formData;
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        this.getIndividualData(0);
+      } else {
+        console.log("Error occurred")
+      }
+    });
+  }
+
+  openApproveRejectModal(formData: any) {
+    this.modalRef = this.modalService.open(ApproveAccountComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Approve/ Reject Account';
     this.modalRef.componentInstance.formData = formData;
     this.modalRef.result.then((result) => {
       if (result === 'success') {
@@ -148,7 +166,7 @@ export class ListRegisteredAccountsComponent implements OnInit {
   }
 
   navigateToViewProduct(data: any) {
-    this.router.navigateByUrl(`/mobile-banking/products/product/${data.id}`);
+    this.router.navigateByUrl(`/mobile-banking/accounts/account/${data.id}`);
   }
 
   toggleExpandRow(row: any) {
@@ -273,18 +291,22 @@ export class ListRegisteredAccountsComponent implements OnInit {
     this.columns = [...updatedColumns];
   }
 
-  triggerEvent(data: string) {
+  triggerEvent(data: any) {
 
-    let eventData = JSON.parse(data)
+    let eventData = data
 
     if (eventData.action == 'View') {
       this.navigateToViewProduct(eventData.row);
-    }else if (eventData.action == 'Edit') {
+    } else if (eventData.action == 'Edit') {
       this.openEditProductModal(eventData.row);
+    } else if (eventData.action == 'Approve/ Reject') {
+      this.openApproveRejectModal(eventData.row);
     }
 
   }
 
 
-
+  outputStatus(event: any) {
+    this.currentRowStatus = event;
+  }
 }

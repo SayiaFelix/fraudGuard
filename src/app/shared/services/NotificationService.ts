@@ -8,8 +8,8 @@ import {Notification} from './Notification'
 })
 export class NotificationService {
   private notifications = new BehaviorSubject<Notification[]>([
-    {myTaskName: "Approve User creation", createdBy: "Andrew Mukaya", createdOn: "20-05-2023"},
-    {myTaskName: "Approve Bank Branch creation", createdBy: "Festus Nzioka", createdOn: "10-05-2023"}
+    {process: "Approve User creation", stagerDetails: "Andrew Mukaya", createdOn: "20-05-2023"},
+    {process: "Approve Bank Branch creation", stagerDetails: "Festus Nzioka", createdOn: "10-05-2023"}
   ]);
   castNotifications = this.notifications.asObservable();
 

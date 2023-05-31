@@ -116,7 +116,7 @@ export class AddWorkflowStepComponent implements OnInit {
 
   private createRecord(): any {
     const model={
-      id: this.workflowForm.value.stepNumber,
+      id: this.workflowId,
       stepName:this.workflowForm.value.stepName,
       remarks:this.workflowForm.value.remarks,
       workFlowId:this.workflowId,

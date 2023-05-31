@@ -18,6 +18,7 @@ import { DataExportationService } from 'src/app/shared/services/data-exportation
 import { HttpService } from 'src/app/shared/services/http.service';
 import {AddCustomerComponent} from "../add-customer/add-customer.component";
 import {ChannelDetailsWrapper} from "../../../../../shared/services/channelDetailsWrapper";
+import {AddAccountComponent} from "../../Accounts/AccountRegistration/add-account/add-account.component";
 
 @Component({
   selector: 'app-list-requests',
@@ -31,7 +32,7 @@ import {ChannelDetailsWrapper} from "../../../../../shared/services/channelDetai
  */
 export class ListCustomersComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
-  actions=["View"]
+  actions=["View", "Edit"]
 
   // bread crumb items
   breadCrumbItems: Array<{}>;
@@ -107,7 +108,7 @@ export class ListCustomersComponent implements OnInit {
         if (res.status === '00') {
           setTimeout(() => {
 
-            let response = res['data'].map((item: any, index: any) => {
+            let response = res['data'].filter((i: any) => i.walletAccount !== "").map((item: any, index: any) => {
               let res = {...item,
                 frontendId: index + 1
               };
@@ -205,7 +206,16 @@ export class ListCustomersComponent implements OnInit {
     this.columns = [...updatedColumns];
   }
   openEditProductModal(data:any){
-
+    this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Edit Customer';
+    this.modalRef.componentInstance.formData = "";
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        this.getIndividualData(0);
+      } else {
+        console.log("Error occurred")
+      }
+    });
   }
   triggerEvent(data:any){
     let eventData = JSON.parse(data)
@@ -213,9 +223,9 @@ export class ListCustomersComponent implements OnInit {
     if (eventData.action == 'View') {
       this. navigateToViewProduct(eventData.row);
     }
-    // else if (eventData.action == 'Edit') {
-    //   this.openEditProductModal(eventData.row);
-    // }
+    else if (eventData.action == 'Edit') {
+      this.openEditProductModal(eventData.row);
+    }
   }
 
   updateFilteredRowsEvent(data: string) {

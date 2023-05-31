@@ -38,6 +38,8 @@ export class CustomNgxTable implements OnInit {
   @Output() viewEvent = new EventEmitter<string>();
   @Output() updateFilteredRows = new EventEmitter<string>();
 
+  @Output() outputStatus = new EventEmitter<string>();
+
   // New Params
   data: any[];
   filterColumns: any[];

@@ -12,6 +12,8 @@ import {AgmCoreModule} from "@agm/core";
 import {ListAtmsComponent} from "./Atms/list-atms/list-atms.component";
 import {AddAtmComponent} from "./Atms/add-atm/add-atm.component";
 import {AddBranchComponent} from "./Branches/add-branch/add-branch.component";
+import {ListServicesComponent} from "./Services/list-services/list-services.component";
+import {AddServiceComponent} from "./Services/add-service/add-service.component";
 
 
 @NgModule({
@@ -28,7 +30,9 @@ import {AddBranchComponent} from "./Branches/add-branch/add-branch.component";
     DefineRegionComponent,
     ListAtmsComponent,
     AddBranchComponent,
-    AddAtmComponent
+    AddAtmComponent,
+    ListServicesComponent,
+    AddServiceComponent
     // ViewBranchComponent,
     // CreateBranchComponent
   ]

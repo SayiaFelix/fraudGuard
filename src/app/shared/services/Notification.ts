@@ -1,5 +1,7 @@
 export type Notification = {
-  myTaskName: string,
-  createdBy: string,
-  createdOn: string
+  process: string,
+
+  stagerDetails: any;
+  createdOn: string,
+
 }

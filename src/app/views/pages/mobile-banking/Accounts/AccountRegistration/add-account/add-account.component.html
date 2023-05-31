@@ -7,7 +7,7 @@
       <div class="row">
         <div class="col-sm-12">
           <div class="mb-3">
-            <label class="form-label">Category Name</label>
+            <label class="form-label">Customer Name</label>
             <input class="form-control" formControlName="name" type="text" />
             <small
               *ngIf="
@@ -19,24 +19,7 @@
             >
           </div>
         </div>
-        <div class="col-sm-12">
-          <div class="mb-3">
-            <label class="text-gray">Description</label>
-            <textarea
-              class="form-control"
-              formControlName="description"
-              type="text"
-            ></textarea>
-            <small
-              *ngIf="
-              form.get('description')?.touched &&
-              form.get('description')?.hasError('required')
-            "
-              class="text-danger"
-            >Required Field</small
-            >
-          </div>
-        </div>
+
         <div class="col-sm-12">
           <!-- <div class="mb-3">
             <label class="text-gray">Product Image</label>
