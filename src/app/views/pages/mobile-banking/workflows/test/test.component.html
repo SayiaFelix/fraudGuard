@@ -3,7 +3,7 @@
     <div class="card">
       <div class="card-body">
         <div class="row">
-          <div class="col-lg-2 border-end-lg">
+          <div class="col-lg-3 border-end-lg">
             <div class="d-flex align-items-center justify-content-between">
               <button class="navbar-toggle btn btn-icon border d-inline-flex d-lg-none" type="button"
                       aria-controls="asideNav">
@@ -18,7 +18,7 @@
               <ul class="nav flex-column">
                 <li class="nav-item" [ngClass]="{'active': workflows.isActive}">
                   <a class="nav-link d-flex align-items-center"
-                     routerLink="/mobile-banking/workflows/test/list-workflows"
+                     routerLink="/mobile-banking/workflows/list-workflow-menu/list-workflows"
                      routerLinkActive="active"
                      #workflows="routerLinkActive">
                     <i class="feather icon-briefcase icon-lg me-2"></i>
@@ -27,22 +27,22 @@
                 </li>
                 <li class="nav-item" [ngClass]="{'active': myTasks.isActive}">
                   <a class="nav-link d-flex align-items-center"
-                     routerLink="/mobile-banking/workflows/test/my-tasks"
+                     routerLink="/mobile-banking/workflows/list-workflow-menu/my-tasks"
                      (click)="false"
                      routerLinkActive="active"
                      #myTasks="routerLinkActive">
                     <i class="feather icon-folder-minus icon-lg me-2"></i>
-                    My Tasks
+                    My Work-Items
                   </a>
                 </li>
 
                 <li class="nav-item">
                   <a class="nav-link d-flex align-items-center"
-                     routerLink="/mobile-banking/workflows/test/all-tasks"
+                     routerLink="/mobile-banking/workflows/list-workflow-menu/all-tasks"
                      routerLinkActive="active"
                      (click)="false">
                     <i class="feather icon-inbox icon-lg me-2"></i>
-                    All Tasks
+                    All Work-Items
                   </a>
                 </li>
 
@@ -50,7 +50,7 @@
 
             </div>
           </div>
-          <div class="col-lg-10 perfect-scrollbar-example" [perfectScrollbar]>
+          <div class="col-lg-9 perfect-scrollbar-example" [perfectScrollbar]>
             <router-outlet></router-outlet>
           </div>
         </div>

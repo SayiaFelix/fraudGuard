@@ -34,7 +34,7 @@ export class MyTasksComponent implements OnInit {
   actions=["View"]
   tempProductData = [
     {
-      Workflowid: 2,
+      id: 1,
       WorkflowName: 'USERS CREATE',
       Process: 'CREATE USER',
       Description:'Approve Create User',
@@ -43,7 +43,7 @@ export class MyTasksComponent implements OnInit {
       currentStep: 'Step 1',
     },
     {
-      Workflowid: 2,
+      id: 2,
       WorkflowName: 'USERS EDIT',
       Process: 'EDIT USER',
       Description:'Approve User Edit',
@@ -52,7 +52,7 @@ export class MyTasksComponent implements OnInit {
       currentStep: 'Step 3',
     },
     {
-      Workflowid: 2,
+      id: 3,
       WorkflowName: 'USERS EDIT',
       Process: 'EDIT USER',
       Description:'Approve User Edit',
@@ -67,11 +67,12 @@ export class MyTasksComponent implements OnInit {
   breadCrumbItems: Array<{}>;
   rows: any = [];
   temp: any = [];
-  loadingIndicator = true;
+  loading = true;
   reorderable = true;
 
+
   columns = [
-    { name: 'DateRecorded', prop: 'createdOn' },
+    { name: 'ID', prop: 'id' },
     { name: 'Workflow', prop: 'WorkflowName' },
     {name:'Process',prop:'WorkflowName'},
     { name: 'Current Step', prop: 'currentStep' },
@@ -117,9 +118,13 @@ export class MyTasksComponent implements OnInit {
   }
 
   getIndividualData(event: number): void {
+
+    this.loading = true;
     this.rows = this.tempProductData;
 
     this.temp = [...this.tempProductData];
+
+    this.loading = false;
 
     const model = {
       page: 0,

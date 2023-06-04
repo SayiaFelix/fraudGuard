@@ -161,16 +161,16 @@ Accountscolumns = [
   private loadCustomerData(): any {
     this.customerLoading = true;
 
-    let model = ChannelDetailsWrapper.channelDetailsWrapper;
+    // let model = ChannelDetailsWrapper.channelDetailsWrapper;
 
-    model.payload = {
-      customerId: this.customerId
+    let payload = {
+      id: this.customerId
     }
 
     this.httpService
-      .mobileBankingPostUpdated('api/v1/kyc/portal/get-customer', model)
+      .mobileBankingPostNest('customers/getCustomerById', payload)
       .subscribe((res: any) => {
-        if (res.status === '00') {
+        if (res.status === 201) {
           setTimeout(() => {
             let response = res['data'];
 
@@ -222,24 +222,26 @@ Accountscolumns = [
     );
   }
 
-  private loadProducts() {
+  private disableCustomer(id: string) {
     const model = {
-      page: 0,
-      size: 100
+      id
     };
 
-    this.httpService.mobileBankingPost('api/v1/corporate/admin/profiles/all', model).subscribe(
-      (result: any) => {
-
-        // console.log(result.status);
-
-        if (result.status === 200) {
-
-
+    this.httpService
+      .mobileBankingPostNest('customers/disableCustomerById', model)
+      .subscribe((res: any) => {
+        if (res.status === 201) {
+          setTimeout(() => {
+            Swal.fire('Disable Successful',
+              'Customer has been disabled successfully!',
+              'success').then(r => {});
+          }, 10);
         } else {
+          Swal.fire('Unable to disable customer',
+            'Customer could not be disabled!',
+            'error').then(r => {});
         }
-      }
-    );
+      });
   }
   openResetPinModal(content: TemplateRef<any>){
     this.modalService.open(content, {centered: true, size: "md"}).result.then((result) => {
@@ -262,17 +264,13 @@ Accountscolumns = [
   }
 
 
-  openBlockCustomerModal() {
+  openBlockCustomerModal(id: string) {
     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Disable Customer';
     this.modalRef.componentInstance.body = 'Do you want to  disable this customer?';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
-        Swal.fire('Disable Successful',
-          'Customer has been disabled successfully!',
-          'success').then(r => {});
-      } else {
-        console.log("Error occurred")
+        this.disableCustomer(id);
       }
     });
   }

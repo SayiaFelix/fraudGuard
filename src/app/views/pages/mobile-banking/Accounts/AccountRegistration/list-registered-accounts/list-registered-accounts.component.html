@@ -269,28 +269,28 @@
                 ngx-datatable-footer-template
               >
 
-<!--                <select-->
-<!--                  (change)="changePageSize($event)"-->
-<!--                  class="form-select ms-2 w-auto"-->
-<!--                >-->
-<!--                  <option *ngFor="let size of pageSizes" [value]="size">-->
-<!--                    {{ size === 1000 ? ' All Items' : size + ' Items per page' }}-->
-<!--                  </option>-->
+                <select
+                  (change)="changePageSize($event)"
+                  class="form-select ms-2 w-auto"
+                >
+                  <option *ngFor="let size of pageSizes" [value]="size">
+                    {{ size === 1000 ? ' All Items' : size + ' Items per page' }}
+                  </option>
 
 
-<!--                </select>-->
-<!--                <h6 class="ml-4" style="margin-left: 20px">{{totalItems}} Total</h6>-->
-                <datatable-pager
-                  (change)="table.onFooterPage($event)"
-                  [count]="rowCount"
-                  [hidden]="!(rowCount / pageSize > 1)"
-                  [page]="curPage"
-                  [pagerLeftArrowIcon]="'datatable-icon-left'"
-                  [pagerNextIcon]="'datatable-icon-skip'"
-                  [pagerPreviousIcon]="'datatable-icon-prev'"
-                  [pagerRightArrowIcon]="'datatable-icon-right'"
-                  [size]="pageSize"
-                ></datatable-pager>
+                </select>
+<!--                <h6 class="ml-4" style="margin-left: 20px">{{20}} Total</h6>-->
+<!--                <datatable-pager-->
+<!--                  (change)="table.onFooterPage($event)"-->
+<!--                  [count]="rowCount"-->
+<!--                  [hidden]="!(rowCount / pageSize > 1)"-->
+<!--                  [page]="curPage"-->
+<!--                  [pagerLeftArrowIcon]="'datatable-icon-left'"-->
+<!--                  [pagerNextIcon]="'datatable-icon-skip'"-->
+<!--                  [pagerPreviousIcon]="'datatable-icon-prev'"-->
+<!--                  [pagerRightArrowIcon]="'datatable-icon-right'"-->
+<!--                  [size]="pageSize"-->
+<!--                ></datatable-pager>-->
               </ng-template>
             </ngx-datatable-footer>
           </ngx-datatable>

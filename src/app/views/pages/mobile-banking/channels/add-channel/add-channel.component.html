@@ -17,12 +17,12 @@
             >Required Field</small>
         </div>
         <div class="col-md-12">
-          <label class="form-label">Channel Code</label>
-          <input class="form-control" formControlName="code" type="text" />
+          <label class="form-label">Client ID.</label>
+          <input class="form-control" formControlName="client_id" type="text" />
           <small
             *ngIf="
-              form.get('code')?.touched &&
-              form.get('code')?.hasError('required')
+              form.get('client_id')?.touched &&
+              form.get('client_id')?.hasError('required')
             "
             class="text-danger"
           >Required Field</small>

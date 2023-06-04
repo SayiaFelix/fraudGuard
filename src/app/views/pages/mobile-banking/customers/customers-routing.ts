@@ -31,7 +31,7 @@ const routes: Routes = [
   },
 
   {
-    path: 'reason',
+    path: 'reason/:id',
     component: ReasonsForFailureComponent
   },
 ];

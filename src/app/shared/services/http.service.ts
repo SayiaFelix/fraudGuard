@@ -215,7 +215,7 @@ export class HttpService {
     return this.http
       .post(
 
-        this.globalService.mobileBankingHost + endpoint,
+        this.globalService.mobileBankingNest + endpoint,
         model,
         this.getHeaders()
       )

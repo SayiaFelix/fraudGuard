@@ -1,4 +1,3 @@
-
 <div
   class="d-flex justify-content-between align-items-center flex-wrap grid-margin"
 >
@@ -35,6 +34,26 @@
 
 
 </div>
+
+<ul ngbNav #fillJustifyNav="ngbNav" class="nav-tabs nav-fill mb-4">
+  <li [ngbNavItem]="1">
+    <a ngbNavLink>Home</a>
+    <ng-template ngbNavContent>
+      <h6 class="mb-2">Home</h6>
+      <p>Raw denim you probably haven't heard of them jean shorts Austin. Nesciunt tofu stumptown aliqua, retro synth
+        master cleanse. Mustache cliche tempor, williamsburg carles vegan helvetica.</p>
+    </ng-template>
+  </li>
+  <li [ngbNavItem]="2">
+    <a ngbNavLink>Profile</a>
+    <ng-template ngbNavContent>
+      <h6 class="mb-2">Profile</h6>
+      <p>Exercitation +1 labore velit, blog sartorial PBR leggings next level wes anderson artisan four loko
+        farm-to-table craft beer twee. Qui photo booth letterpress, commodo enim craft beer mlkshk aliquip jean shorts
+        ullamco ad vinyl cillum PBR. Homo nostrud organic, assumenda labore aesthetic magna delectus mollit.</p>
+    </ng-template>
+  </li>
+</ul>
 
 
 <div class="row">
@@ -115,4 +134,22 @@
   </div>
 
 </div>
+
+<div class="row">
+  <div class="col-md-12">
+    Workflow Item Summary
+    Stage:
+
+    Approvers Timeline
+
+    <p>- Mike</p>
+    <p>- Dan</p>
+    <p>- Kev</p>
+    <p>- Muthui</p>
+    <p>- Nancy</p>
+
+  </div>
+</div>
+
+
 

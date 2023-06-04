@@ -74,21 +74,23 @@
           </div>
         </div>
       </div>
-
-
-      <!-- <img src="assets/images/others/placeholder.jpg" class="card-img-top" alt="..."> -->
-      <img class="card-img-top images-styling" [src]="slide.productUrl.trim()" [alt]="slide.alt" preload>
-      <div class="card-body">
+      <img class="card-img-top text-center m-auto"
+           [src]="slide.productUrl.trim()"
+           [alt]="slide.alt"
+           style="padding: 0 12px!important"
+           preload>
+      <div class="card-body" style="padding:24px 12px 24px 12px!important;">
         <h5 class="card-title">{{slide.name}}</h5>
-        <p class="card-text">{{slide.description}}</p>
-        <p class="card-text">{{slide.productDescription}}</p>
-        <div class="d-grid gap-2 d-md-block">
+        <p class="card-text text" style="min-height: 65px!important;">{{slide.detailedDescription}}</p>
+        <div class="d-flex justify-content-between pt-2">
           <a [routerLink]="'/mobile-banking/products/product/' + productCategoryId + '/' + slide.id"
              class="btn btn-primary btn-sm"
-             style="margin-left: 0!important;"
+             style="width:140px!important; margin-left: 0!important"
           >View</a>
-          <a (click)="editProduct(slide)"  class="btn btn-secondary btn-sm">Edit</a>
-<!--          <a (click)="openDeleteModal(slide)" class="btn btn-danger btn-sm">Delete</a>-->
+          <a (click)="editProduct(slide)"
+             class="btn btn-secondary btn-sm"
+             style="width:140px!important; margin-right: 0!important"
+          >Edit</a>
         </div>
       </div>
     </div>

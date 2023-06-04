@@ -31,9 +31,8 @@ export class AddChannelComponent implements OnInit {
       console.log(this.formData);
 
         this.form = this.fb.group({
-            name: [this.formData ? this.formData.productName : '', [Validators.required]],
-            description: [this.formData ? this.formData.remarks : '', [Validators.required]],
-            image: [this.formData ? this.formData.image : '', [Validators.nullValidator]]
+            name: [this.formData ? this.formData.channel : '', [Validators.required]],
+            client_id: [this.formData ? this.formData.client_id : '', [Validators.required]],
         });
 
     }

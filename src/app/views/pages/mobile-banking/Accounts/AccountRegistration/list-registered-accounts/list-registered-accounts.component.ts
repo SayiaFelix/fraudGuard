@@ -50,7 +50,9 @@ export class ListRegisteredAccountsComponent implements OnInit {
   title: string = "Account";
 
   public currentRowStatus: any;
-
+  pageSizes: number[] = [2, 5, 10, 20, 50, 100, 1000];
+  pageSize = 20;
+  page = 1;
 
   constructor(
     private httpService: HttpService,
@@ -166,7 +168,11 @@ export class ListRegisteredAccountsComponent implements OnInit {
   }
 
   navigateToViewProduct(data: any) {
-    this.router.navigateByUrl(`/mobile-banking/accounts/account/${data.id}`);
+
+    console.log('here is the data');
+    console.log(data);
+
+    this.router.navigateByUrl(`/mobile-banking/accounts/account/${data.requestId}`);
   }
 
   toggleExpandRow(row: any) {
@@ -308,5 +314,11 @@ export class ListRegisteredAccountsComponent implements OnInit {
 
   outputStatus(event: any) {
     this.currentRowStatus = event;
+  }
+
+  changePageSize(event: Event) {
+    console.log('event when changing page.');
+    console.log(event);
+    this.pageSize = parseInt((event.target as HTMLSelectElement).value);
   }
 }

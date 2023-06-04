@@ -1,7 +1,7 @@
 
 <div class="row">
 
-    <div class="col-md-2">
+    <div class="col-md-3">
         <div class="card border-0 box-shadow" widget>
             <div class="text-center pt-2 ml-4 list-group list-group-flush" style="color: green;">
                 <p style="font-weight: 700; font-size: 120%">Menu Items</p>
@@ -15,12 +15,12 @@
                   class="list-group-item d-flex justify-content-between align-items-center"
                   routerLink="/mobile-banking/workflows/list-workflow-menu/my-tasks"
                 >
-                  My Tasks
+                  My Workflow Items
                 </li>
 
                 <li class="list-group-item d-flex justify-content-between align-items-center"
                     routerLink="/mobile-banking/workflows/list-workflow-menu/all-tasks">
-                  All Tasks
+                  All Workflow Items
                 </li>
                 <button class="btn btn-primary" (click)="navigateToListWorkflows()">
                   Workflows
@@ -58,7 +58,7 @@
         </div>
     </div>
 
-    <div class="col-md-10">
+    <div class="col-md-9">
         <router-outlet></router-outlet>
 
     </div>

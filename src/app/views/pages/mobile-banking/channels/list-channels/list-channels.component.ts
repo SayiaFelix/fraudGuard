@@ -31,7 +31,7 @@ import {AddChannelComponent} from "../add-channel/add-channel.component";
  */
 export class ListChannelsComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
- actions = ["Edit", "Delete"];
+ actions = ["Edit", "Regenerate Keys", "Disable"];
   tempProductData = [
     {"frontendId": "1", "channel": "new_channel",        "code":	"t799",       "consumer_key":	"5af501456f79", "consumer_secret":	"a72ce719-6d91-49f0-80c8-83e1cd1496a1"},
     {"frontendId": "2", "channel": "test_channel",       "code":	"ts005",      "consumer_key":	"8e05faeba34b", "consumer_secret":	"953471a7-5461-46c9-93fb-125a2c7548da"},
@@ -153,6 +153,40 @@ export class ListChannelsComponent implements OnInit {
     this.modalRef.componentInstance.formData = formData;
     this.modalRef.result.then((result) => {
       if (result === 'success') {
+        this.getIndividualData(0);
+      } else {
+        console.log("Error occurred")
+      }
+    });
+  }
+
+
+  openRegenerateTokenModal(formData: any) {
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Regenerate Keys';
+    this.modalRef.componentInstance.body = "Do you want to Regenerate Keys for this channel?";
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        Swal.fire('Regenerated Successfully', 'Channel Keys have been regenerated successfully.', 'success')
+          .then
+          (r => this.getIndividualData(0))
+        this.getIndividualData(0);
+      } else {
+        console.log("Error occurred")
+      }
+    });
+  }
+
+
+  openDisableChannel(formData: any) {
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Disable Channel';
+    this.modalRef.componentInstance.body = "Do you want to disable this channel?";
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        Swal.fire('Successful', 'Channel has been disabled successfully.', 'success')
+          .then
+          (r => this.getIndividualData(0))
         this.getIndividualData(0);
       } else {
         console.log("Error occurred")
@@ -298,6 +332,10 @@ export class ListChannelsComponent implements OnInit {
       this.navigateToViewUssdCustomer(eventData.row);
     }else if (eventData.action == 'Edit') {
       this.openEditModal(eventData.row);
+    }else if (eventData.action == 'Regenerate Keys') {
+      this.openRegenerateTokenModal(eventData.row);
+    }else if (eventData.action == 'Disable') {
+      this.openDisableChannel(eventData.row);
     }
   }
 

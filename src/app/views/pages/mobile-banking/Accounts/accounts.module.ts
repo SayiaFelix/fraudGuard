@@ -22,6 +22,7 @@ import { NewLinkedAccountsComponent } from './new-linked-accounts/new-linked-acc
 import {ListFailedApprovalComponent} from "./AccountRegistration/list-failed-approval/list-failed-approval.component";
 import {ViewAccountComponent} from "./AccountRegistration/view-account/view-account.component";
 import {ApproveAccountComponent} from "./AccountRegistration/approve-account/approve-account.component";
+import {AccReasonsForFailureComponent} from "./acc-reasons-for-failure/acc-reasons-for-failure.component";
 
 
 @NgModule({
@@ -43,6 +44,7 @@ import {ApproveAccountComponent} from "./AccountRegistration/approve-account/app
     BlockedAccountsComponent,
     UnblockedAccountsComponent,
     ClosedAccountsComponent,
+    AccReasonsForFailureComponent,
     ViewAccountComponent
   ]
   ,

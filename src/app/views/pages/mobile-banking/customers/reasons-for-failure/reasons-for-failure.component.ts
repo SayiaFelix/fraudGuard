@@ -3,6 +3,8 @@ import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-d
 import Swal from "sweetalert2";
 import {NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {CompareImageComponent} from "../../../../../shared/components/compare-image-component/compare-image.component";
+import {ActivatedRoute} from "@angular/router";
+import {HttpService} from "../../../../../shared/services/http.service";
 
 @Component({
   selector: 'app-reasons-for-failure',
@@ -13,14 +15,24 @@ import {CompareImageComponent} from "../../../../../shared/components/compare-im
 export class ReasonsForFailureComponent implements OnInit {
 
   public modalRef: NgbModalRef;
+  public customerId: any;
+  public accountData: any;
 
   constructor(
     private modalService: NgbModal,
+    private activatedRoute: ActivatedRoute,
+    private httpService: HttpService,
   ) {
   }
 
   ngOnInit() {
+    this.activatedRoute.params.subscribe((params: any) => {
+      if (typeof params.id !== 'undefined') {
+        this.customerId = params.id;
+      }
+    });
 
+    this.getIndividualData();
   }
 
 
@@ -42,5 +54,29 @@ export class ReasonsForFailureComponent implements OnInit {
     this.modalRef = this.modalService.open(CompareImageComponent, {centered: true});
     this.modalRef.componentInstance.title = `Image Comparison`;
     this.modalRef.componentInstance.body = `Do you want to approve this record?`;
+  }
+
+  private getIndividualData() {
+
+    const model = {
+      id: this.customerId
+    };
+
+    this.httpService
+      .mobileBankingPostNest('accounts/getAccountById', model)
+      .subscribe((res: any) => {
+        if (res.status === 201) {
+          setTimeout(() => {
+            this.accountData = res.data;
+
+            console.log('this.accountData')
+            console.log(this.accountData)
+
+            let total = res.totalItems;
+          }, 10);
+        } else {
+        }
+      });
+
   }
 }
