@@ -6,7 +6,7 @@
     [allColumns]="allColumns"
     [rows]="filteredRows.length > 0 ? filteredRows : rows"
     [title]="title"
-    [showAddButton]="false"
+    [showAddButton]="true"
     (changeColumnsEvent)="updateColumns($event)"
     (openAddModalEvent)="addService()"
   ></app-table-header>

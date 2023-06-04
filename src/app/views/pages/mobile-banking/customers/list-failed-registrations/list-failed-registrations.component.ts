@@ -1,7 +1,7 @@
 import {Component, OnInit, ViewChild,} from '@angular/core';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {DatePipe} from '@angular/common';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {ColumnMode} from '@swimlane/ngx-datatable';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {DatatableComponent} from '@swimlane/ngx-datatable/lib/components/datatable.component';
@@ -11,7 +11,6 @@ import {AddCustomerComponent} from "../add-customer/add-customer.component";
 import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
 import {SwalComponent} from "@sweetalert2/ngx-sweetalert2";
 import Swal from "sweetalert2";
-import {AddWorkflowStepComponent} from "../../workflows/add-workflow-step/add-workflow-step.component";
 
 @Component({
   selector: 'app-list-internet-banking',
@@ -61,12 +60,12 @@ export class ListFailedRegistrationsComponent implements OnInit {
   reorderable = true;
 
   columns = [
-    {name: 'ID', prop: 'frontendId'},
-    {name: 'Mobile Number', prop: 'mobileNumber'},
-    {name: 'Account', prop: 'account'},
-    {name: 'DOB', prop: 'dob'},
-    {name: 'Attempted On', prop: 'attemptedOn'},
-    {name: 'Response', prop: 'response'},
+    {name: '#', prop: 'id'},
+    {name: 'Customer Name', prop: 'name'},
+    {name: 'Phone Number', prop: 'phone_number'},
+    {name: 'Email', prop: 'email'},
+    {name: 'Identification', prop: 'identification'},
+    {name: 'Wallet Account', prop: 'wallet_account'},
     {name: 'Actions', prop: 'id'},
   ];
 
@@ -83,12 +82,15 @@ export class ListFailedRegistrationsComponent implements OnInit {
   @ViewChild('mySwal')
   public readonly mySwal!: SwalComponent;
   actions = ["View"];
+  private total: any;
+  public customerId: any;
 
   constructor(
     private httpService: HttpService,
     private modalService: NgbModal,
     public fb: FormBuilder,
     public router: Router,
+    public activatedRoute: ActivatedRoute,
     private dataExploration: DataExportationService
   ) {
   }
@@ -99,9 +101,12 @@ export class ListFailedRegistrationsComponent implements OnInit {
         label: 'Mobile banking',
         path: '/mobile-banking/products/all-products',
       },
-      { label: 'Pages', path: '/' },
-      { label: 'Products', active: true },
+      {label: 'Pages', path: '/'},
+      {label: 'Products', active: true},
     ];
+
+
+
     this.getIndividualData(0);
 
     this.form = this.fb.group({
@@ -114,25 +119,29 @@ export class ListFailedRegistrationsComponent implements OnInit {
   getIndividualData(event: number): void {
 
     this.loading = true;
-    this.rows = this.tempProductData;
 
-    this.temp = [...this.tempProductData];
 
-    const model = {
+    let payload = {
       page: 0,
-      size: 50,
-    };
+      size: 1000
+    }
 
     this.httpService
-      .mobileBankingPost('api/v1/corporate/admin/list-products/all', model)
+      .mobileBankingPostNest('customers/getAllCustomers?walletAccountAvailable=false', payload)
       .subscribe((res: any) => {
-        if (res.status === 200) {
+        if (res.status === 201) {
           setTimeout(() => {
-            // this.data = res.data;
-            this.rows = this.tempProductData;
-            // let data = this.tempProductData;
 
-            let total = res.totalItems;
+            let response = res['data'].filter((i: any) => i.walletAccount !== "").map((item: any, index: any) => {
+              let res = {...item,
+                frontendId: index + 1,
+                wallet_account: "Not Assigned"
+              };
+              return res;
+            })
+            this.rows = response;
+
+            this.total = res.metadata.numofrecords;
           }, 10);
         } else {
         }
@@ -233,17 +242,19 @@ export class ListFailedRegistrationsComponent implements OnInit {
     let eventData = JSON.parse(data)
 
     if (eventData.action == 'View') {
-      this.openAddModal();
+      this.openAddModal(eventData.row);
 
     }
 
   }
 
-  openAddModal() {
+  openAddModal(data: any) {
 
+    console.log("data...")
+    console.log(data)
 
     // Open other page with details on why customer creation failed.
-this.router.navigate(['/mobile-banking/customers/reason'])
+    this.router.navigate([`/mobile-banking/customers/reason/${data.id}`])
 
     // this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
     // this.modalRef.componentInstance.title = 'Registration Failed';

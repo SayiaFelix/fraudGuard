@@ -34,7 +34,7 @@ export class AllTasksComponent implements OnInit {
   actions=["View"]
   tempProductData = [
     {
-      Workflowid: 2,
+      id: 1,
       WorkflowName: 'USERS CREATE',
       Process: 'CREATE USER',
       Description:'Approve Create User',
@@ -43,7 +43,7 @@ export class AllTasksComponent implements OnInit {
       currentStep: 'Step 1',
     },
     {
-      Workflowid: 2,
+      id: 2,
       WorkflowName: 'USERS EDIT',
       Process: 'EDIT USER',
       Description:'Approve User Edit',
@@ -52,7 +52,7 @@ export class AllTasksComponent implements OnInit {
       currentStep: 'Step 3',
     },
     {
-      Workflowid: 2,
+      id: 3,
       WorkflowName: 'USERS EDIT',
       Process: 'EDIT USER',
       Description:'Approve User Edit',
@@ -71,7 +71,7 @@ export class AllTasksComponent implements OnInit {
   reorderable = true;
 
   columns = [
-    { name: 'DateRecorded', prop: 'createdOn' },
+    { name: '#', prop: 'id' },
     { name: 'Workflow', prop: 'WorkflowName' },
     {name:'Process',prop:'WorkflowName'},
     { name: 'Current Step', prop: 'currentStep' },
@@ -88,6 +88,8 @@ export class AllTasksComponent implements OnInit {
   public modalRef: NgbModalRef;
 
   title: string = "My Tasks";
+
+  loading = true;
 
 
   constructor(
@@ -117,9 +119,13 @@ export class AllTasksComponent implements OnInit {
   }
 
   getIndividualData(event: number): void {
+
+    this.loading = true;
     this.rows = this.tempProductData;
 
     this.temp = [...this.tempProductData];
+
+    this.loading = false;
 
     const model = {
       page: 0,

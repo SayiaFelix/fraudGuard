@@ -75,11 +75,11 @@ export const MENU: MenuItem[] = [
         label: 'Failed Registrations',
         link: '/mobile-banking/customers/list-failed-registrations'
       },
-      {
-        profiles: ['CORPORATE_ADMIN'],
-        label: 'Send Bulk SMS',
-        link: '/mobile-banking/customers/send-bulk-sms'
-      },
+      // {
+      //   profiles: ['CORPORATE_ADMIN'],
+      //   label: 'Send Bulk SMS',
+      //   link: '/mobile-banking/customers/send-bulk-sms'
+      // },
     ]
   },
   {

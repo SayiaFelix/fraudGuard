@@ -44,7 +44,7 @@ export class ListServicesComponent implements OnInit {
   public imageFile: File;
 
   public modalRef: NgbModalRef;
-  title: string = "Services";
+  title: string = "Service";
   actions = ["View", "Edit"];
 
   totalRecords: number;
@@ -74,7 +74,7 @@ export class ListServicesComponent implements OnInit {
   }
 
   public addService() {
-    this.modalRef = this.modalService.open(AddServiceComponent, {centered: true, size: "xl"});
+    this.modalRef = this.modalService.open(AddServiceComponent, {centered: true, size: "md"});
     this.modalRef.componentInstance.title = 'Add Service';
     this.modalRef.result.then((result) => {
       if (result === 'success') {

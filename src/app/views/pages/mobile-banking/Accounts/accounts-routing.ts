@@ -9,6 +9,7 @@ import { ClosedAccountsComponent } from './AccountLinking/closed-accounts/closed
 import { NewLinkedAccountsComponent } from './new-linked-accounts/new-linked-accounts.component';
 import {ListFailedApprovalComponent} from "./AccountRegistration/list-failed-approval/list-failed-approval.component";
 import {ViewAccountComponent} from "./AccountRegistration/view-account/view-account.component";
+import {AccReasonsForFailureComponent} from "./acc-reasons-for-failure/acc-reasons-for-failure.component";
 
 
 // import {ViewProductComponent} from './list-products/view-customer/view-customer.component';
@@ -51,6 +52,10 @@ const routes: Routes = [
   {
     path: 'account/:id',
     component: ViewAccountComponent
+  },
+  {
+    path: 'account/reason/:id',
+    component: AccReasonsForFailureComponent
   },
 
 ];

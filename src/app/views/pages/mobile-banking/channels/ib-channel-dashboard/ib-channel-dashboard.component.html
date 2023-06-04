@@ -5,29 +5,15 @@
     <h4 class="mb-3 mb-md-0">IB Channel Management</h4>
   </div>
 
-  <div ngbDropdown>
-    <button class="btn btn-primary btn-xs" id="dropdownBasic16" ngbDropdownToggle>Select Channel</button>
-    <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
-      <button ngbDropdownItem routerLink="/mobile-banking/channels/ussd-ussd-channel-dashboard">USSD</button>
-      <button ngbDropdownItem routerLink="/mobile-banking/channels/ib-ussd-channel-dashboard">IB</button>
-      <button ngbDropdownItem routerLink="/mobile-banking/channels/app-ussd-channel-dashboard">APP</button>
-    </div>
-  </div>
-
   <div class="d-flex align-items-center flex-wrap text-nowrap">
-    <button type="button" class="btn btn-primary btn-icon-text mb-2 mb-md-0 btn-xs"
-            *ngIf="!channelEnabled"
-            (click)="openDisableModal('IB', true)">
-      <i class="btn-icon-prepend" data-feather="download-cloud" appFeatherIcon></i>
-      Enable Channel
-    </button>
-
-    <button type="button" class="btn btn-danger btn-icon-text mb-2 mb-md-0 btn-xs"
-            *ngIf="channelEnabled"
-            (click)="openDisableModal('IB', false)">
-      <i class="btn-icon-prepend" data-feather="download-cloud" appFeatherIcon></i>
-      Disable Channel
-    </button>
+    <div ngbDropdown>
+      <button class="btn btn-primary btn-xs" id="dropdownBasic16" ngbDropdownToggle>{{'channels.ussd.btnSelect' | translate}}</button>
+      <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+        <button ngbDropdownItem routerLink="/mobile-banking/channels/ussd-ussd-channel-dashboard">USSD</button>
+        <button ngbDropdownItem routerLink="/mobile-banking/channels/ib-ussd-channel-dashboard">IB</button>
+        <button ngbDropdownItem routerLink="/mobile-banking/channels/app-ussd-channel-dashboard">APP</button>
+      </div>
+    </div>
   </div>
 
 </div>

@@ -1,19 +1,21 @@
 <div
-  class="d-flex justify-content-between align-items-center flex-wrap grid-margin"
->
-  <div>
-    <h4 class="mb-3 mb-md-0">All Tasks</h4>
+  class="d-flex  justify-content-between flex-wrap grid-margin">
+  <h4 class="mb-3 mb-md-0">All Work-Items</h4>
+
+  <div
+    class="d-flex justify-content-end align-items-end flex-wrap grid-margin"
+  >
+    <app-table-header
+      [allColumns]="allColumns"
+      [rows]="rows"
+      [title]="title"
+      (changeColumnsEvent)="updateColumns($event)"
+    ></app-table-header>
   </div>
-<div>Total number of Tasks: 10 </div>
-  <app-table-header
-    [allColumns]="allColumns"
-    [rows]="rows"
-    [title]="title"
-    (changeColumnsEvent)="updateColumns($event)"
-
-  ></app-table-header>
-
 </div>
+
+
+
 
 
 <div class="row">
@@ -23,6 +25,7 @@
           [columns]="columns"
           [rows]="rows"
           [actions]="actions"
+          [loadingIndicator]="loading"
           (outputEvent)="triggerEvent($event)"
           (viewEvent)="navigateToViewProduct($event)"
         ></app-custom-ngx-table>

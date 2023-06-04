@@ -19,27 +19,6 @@ export class ViewCustomerComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
     actions = ["View","Edit"]
     ussdActions = ["Disable"]
-  tempProductData = [
-    {
-      id: 1,
-      IMSINumber: '234035678765',
-      serviceProvider:'Safaricom',
-      description: 'Summary',
-      status: true,
-      createdOn: '12-02-2023',
-      lastUsed:'31-03-2023'
-    },
-    {
-      id: 2,
-      IMSINumber: '262062345678',
-      serviceProvider:'Airtel',
-      description: 'Summary',
-      status: true,
-      createdOn: '12-02-2023',
-      lastUsed:'31-03-2023'
-    },
-
-  ];
   registeredColumns = [
     { name: 'ID', prop: 'id' },
     { name: 'IMSI Number', prop: 'IMSINumber' },
@@ -88,6 +67,8 @@ export class ViewCustomerComponent implements OnInit {
   isAsideNavCollapsed :any;
   public subcategoryTitle: any;
 
+  customerData: any;
+
   constructor(
     private httpService: HttpService,
     private modalService: NgbModal,
@@ -115,9 +96,6 @@ export class ViewCustomerComponent implements OnInit {
   }
 
   getIndividualData(event: number): void {
-    this.rows = this.tempProductData;
-
-    this.temp = [...this.tempProductData];
 
     const model = {
       page: 0,
@@ -125,13 +103,11 @@ export class ViewCustomerComponent implements OnInit {
     };
 
     this.httpService
-      .mobileBankingPost('api/v1/corporate/admin/list-products/all', model)
+      .mobileBankingPostNest('customers/getCustomerById', model)
       .subscribe((res: any) => {
-        if (res.status === 200) {
+        if (res.status === 201) {
           setTimeout(() => {
-            // this.data = res.data;
-            this.rows = this.tempProductData;
-            // let data = this.tempProductData;
+            this.customerData = res.data;
 
             let total = res.totalItems;
           }, 10);

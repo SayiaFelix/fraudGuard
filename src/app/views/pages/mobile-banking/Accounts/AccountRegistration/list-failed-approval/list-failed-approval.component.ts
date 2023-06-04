@@ -15,7 +15,7 @@ import Swal from 'sweetalert2';
 })
 export class ListFailedApprovalComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
-  actions = [];
+  actions = ["View"];
 
   // bread crumb items
   breadCrumbItems: Array<{}>;
@@ -300,12 +300,16 @@ export class ListFailedApprovalComponent implements OnInit {
 
     let eventData = JSON.parse(data)
 
-    if (eventData.action == 'Approve') {
-      this.openApproveModal(eventData.row);
+    if (eventData.action == 'View') {
+      this.navigateToViewFailDetails(eventData.row);
     } else if (eventData.action == 'Reject') {
       this.openRejectModal(eventData.row);
     }
 
+  }
+
+  navigateToViewFailDetails(data: any) {
+    this.router.navigateByUrl(`mobile-banking/customers/reason/${data.id}`);
   }
 
 

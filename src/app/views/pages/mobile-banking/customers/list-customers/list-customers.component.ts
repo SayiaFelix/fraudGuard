@@ -45,11 +45,11 @@ export class ListCustomersComponent implements OnInit {
   columns = [
     { name: '#', prop: 'id' },
     { name: 'Customer Name', prop: 'name' },
-    {name:'Phone Number',prop:'phoneNumber'},
-    { name: 'Wallet Account', prop: 'walletAccount' },
-    {name: 'Id Type.',prop:'identificationType'},
-    {name: 'Identification',prop:'identification'},
+    {name:'Phone Number',prop:'phone_number'},
     {name: 'Email',prop:'email'},
+    {name: 'Identification',prop:'identification'},
+    { name: 'Wallet Account', prop: 'wallet_account' },
+    {name: 'Status',prop:'active'},
     { name: 'Actions', prop: 'id' },
   ];
 
@@ -95,17 +95,16 @@ export class ListCustomersComponent implements OnInit {
 
     this.loading = true;
 
-    let model = ChannelDetailsWrapper.channelDetailsWrapper;
 
-    model.payload = {
+    let payload = {
       page: 0,
       size: 1000
     }
 
     this.httpService
-      .mobileBankingPostUpdated('api/v1/kyc/portal/get-customers', model)
+      .mobileBankingPostNest('customers/getAllCustomers?walletAccountAvailable=true', payload)
       .subscribe((res: any) => {
-        if (res.status === '00') {
+        if (res.status === 201) {
           setTimeout(() => {
 
             let response = res['data'].filter((i: any) => i.walletAccount !== "").map((item: any, index: any) => {

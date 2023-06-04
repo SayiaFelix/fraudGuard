@@ -87,10 +87,14 @@ export class ViewAccountComponent implements OnInit {
   isAsideNavCollapsed :any;
   public subcategoryTitle: any;
 
+  public accountData: any;
+  private customerId: any;
+
   constructor(
     private httpService: HttpService,
     private modalService: NgbModal,
     public fb: FormBuilder,
+    public activatedRoute: ActivatedRoute,
     public router: Router,
     private dataExploration: DataExportationService
   ) {}
@@ -104,6 +108,14 @@ export class ViewAccountComponent implements OnInit {
       { label: 'Pages', path: '/' },
       { label: 'Products', active: true },
     ];
+
+
+    this.activatedRoute.params.subscribe((params: any) => {
+      if (typeof params.id !== 'undefined') {
+        this.customerId = params.id;
+      }
+    })
+
     this.getIndividualData(0);
 
     this.form = this.fb.group({
@@ -114,23 +126,17 @@ export class ViewAccountComponent implements OnInit {
   }
 
   getIndividualData(event: number): void {
-    this.rows = this.tempProductData;
-
-    this.temp = [...this.tempProductData];
 
     const model = {
-      page: 0,
-      size: 50,
+      id: this.customerId
     };
 
     this.httpService
-      .mobileBankingPost('api/v1/corporate/admin/list-products/all', model)
+      .mobileBankingPostNest('accounts/getAccountById', model)
       .subscribe((res: any) => {
-        if (res.status === 200) {
+        if (res.status === 201) {
           setTimeout(() => {
-            // this.data = res.data;
-            this.rows = this.tempProductData;
-            // let data = this.tempProductData;
+            this.accountData = res.data;
 
             let total = res.totalItems;
           }, 10);
@@ -309,12 +315,38 @@ export class ViewAccountComponent implements OnInit {
         'success').then(r => this.getIndividualData(0))
     }).catch((res) => {});
   }
-  openDisableCustomerModal(content: TemplateRef<any>){
-    this.modalService.open(content, {centered: true, size: "md"}).result.then((result) => {
-      Swal.fire('Disabled Successfully',
-        'Customer has been disabled successfully.',
-        'success').then(r => this.getIndividualData(0))
-    }).catch((res) => {});
+  openDisableCustomerModal(){
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Delete Customer';
+    this.modalRef.componentInstance.body = 'Do you want to permanently delete this customer?';
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+
+        const model = {
+          id: this.customerId
+        };
+
+        this.httpService
+          .mobileBankingPostNest('accounts/disableAccountById', model)
+          .subscribe((res: any) => {
+            if (res.status === 201) {
+              setTimeout(() => {
+                this.accountData = res.data;
+                this.router.navigate(['/mobile-banking/accounts/list-accounts']);
+
+                let total = res.totalItems;
+              }, 10);
+            } else {
+            }
+          });
+
+        Swal.fire('Delete Successful',
+          'Customer has been deleted successfully!',
+          'success').then(r => {});
+      } else {
+        console.log("Error occurred")
+      }
+    });
   }
   triggerEvent(data:string){
     let eventData = JSON.parse(data)
