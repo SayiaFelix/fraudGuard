@@ -1,6 +1,6 @@
 
 <div class="row w-100 mx-0 auth-page"  >
-  <div class="col-md-8 col-xl-6 mx-auto"  >
+  <div class="col-md-8 col-xl-6 mx-auto" >
     <div class="card" >
       <div class="row">
         <div class="col-md-4 pe-md-0" style="background-color:#086e89 ;">
@@ -12,7 +12,6 @@
           <div class="row">
             <div class="col-8"></div>
             <div class="col-4 text-right">
-
               <div class="nav-item mt-2 " ngbDropdown>
                   <a class="nav-link" ngbDropdownToggle id="languageDropdown" role="button">
                     <img [src]="selectedLanguageFlag" class="wd-20 me-1" title="us" alt="us">
@@ -23,12 +22,10 @@
                     <a ngbDropdownItem class="py-2" (click)="changeLanguage('kis')"> <img src="assets/images/flags/ke.svg" class="wd-20 me-1" title="es" alt="kis"> <span class="ms-1"> Kiswahili </span></a>
                   </div>
                 </div>
-
-
             </div>
           </div>
           <div class="auth-form-wrapper px-4 py-5">
-            <a routerLink="." class="nobleui-logo d-block mb-2">Eclectics <span>Channel Manager</span></a>
+            <a routerLink="." class="nobleui-logo d-block mb-2">Tourism <span>Regulatory Authority</span></a>
             <h5 class="text-muted fw-normal mb-4">{{ 'loginMessage' | translate }}</h5>
             <form class="forms-sample" [formGroup]="form">
               <div class="mb-3">
@@ -51,6 +48,7 @@
                 <small class="text-danger" *ngIf="form.get('password')?.touched && form.get('password')?.hasError('required')">Password is required</small>
                 <small class="text-danger" *ngIf="form.get('password')?.touched && form.get('password')?.hasError('minlength')">Password isn't long enough, minimum of 6 characters</small>
               </div>
+
               <div class="mb-1" *ngIf="loginResponse$ | async">
                 <ngb-alert [type]="'success'" (close)="false">
                   <strong>Login Success!</strong>
