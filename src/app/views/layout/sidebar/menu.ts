@@ -8,12 +8,12 @@ export const MENU: MenuItem[] = [
     subItems: [
       {
         profiles: ['CORPORATE_ADMIN'],
-        label: 'Dashboard',
+        label: 'Standards',
         link: '/dashboard'
       },
       {
         profiles: ['CORPORATE_ADMIN'],
-        label: 'Channel Dashboard',
+        label: 'Chat( Comments )',
         link: '/mobile-banking/channels/ussd-ussd-channel-dashboard'
       },
       // {
@@ -30,12 +30,12 @@ export const MENU: MenuItem[] = [
   },
   {
     profiles: ['CORPORATE_ADMIN'],
-    label: 'Requests',
+    label: 'Standard Control',
     icon: 'help-circle',
     subItems: [
       {
         profiles: ['CORPORATE_ADMIN'],
-        label: 'View All Requests',
+        label: 'View All Standards',
         link: '/mobile-banking/requests/list-requests'
       },
     ]
@@ -44,17 +44,17 @@ export const MENU: MenuItem[] = [
 
   {
     profiles: ['CORPORATE_ADMIN'],
-    label: 'Products',
+    label: 'Accreditations',
     icon: 'shopping-bag',
     subItems: [
       {
         profiles: ['CORPORATE_ADMIN'],
-        label: 'Product Categories',
+        label: 'List Accreditations',
         link: '/mobile-banking/products/list-categories-as-cards'
       },
       {
         profiles: ['CORPORATE_ADMIN'],
-        label: 'All Products',
+        label: 'All Accreditations',
         link: '/mobile-banking/products/list-all-products-as-cards'
       },
     ]
@@ -62,172 +62,172 @@ export const MENU: MenuItem[] = [
 
   {
     profiles: ['CORPORATE_ADMIN'],
-    label: 'Customers Module',
+    label: 'Classification',
     icon: 'user',
     subItems: [
       {
         profiles: ['CORPORATE_ADMIN'],
-        label: 'Customers',
+        label: 'View Requests',
         link: '/mobile-banking/customers/list-requests'
       },
       {
         profiles: ['CORPORATE_ADMIN'],
-        label: 'Failed Registrations',
+        label: 'Classification Results',
         link: '/mobile-banking/customers/list-failed-registrations'
       },
-      // {
-      //   profiles: ['CORPORATE_ADMIN'],
-      //   label: 'Send Bulk SMS',
-      //   link: '/mobile-banking/customers/send-bulk-sms'
-      // },
-    ]
-  },
-  {
-     profiles:['CORPORATE_ADMIN'],
-     label:'Accounts',
-     icon:'home',
-     subItems: [
       {
         profiles: ['CORPORATE_ADMIN'],
-        label: 'Account Registration',
-        subItems: [
-          {
-            profiles: ['CORPORATE_ADMIN'],
-            label:'All Accounts',
-            link:'/mobile-banking/accounts/list-accounts'
-          },
-          {
-            profiles: ['CORPORATE_ADMIN'],
-            label:'Pending Account Openings',
-            link:'/mobile-banking/accounts/list-pending'
-          },
-          {
-            profiles: ['CORPORATE_ADMIN'],
-            label:'Failed Account Openings',
-            link:'/mobile-banking/accounts/list-failed'
-          },
-
-        ]
-      },
-      {
-        profiles: ['CORPORATE_ADMIN'],
-        label: 'Account Linking',
-
-         subItems: [
-          {
-            profiles: ['CORPORATE_ADMIN'],
-            label:'New Account',
-            link:'/mobile-banking/accounts/linked-accounts'
-          },
-          // {
-          //   profiles: ['CORPORATE_ADMIN'],
-          //   label:'Approve Account',
-          //   link:'/mobile-banking/accounts/account-registration/account-opening'
-          // },
-          //    {
-          //   profiles: ['CORPORATE_ADMIN'],
-          //   label:'Rejected Accounts',
-          //   link:'/mobile-banking/accounts/account-registration/account-opening'
-          // },
-             {
-            profiles: ['CORPORATE_ADMIN'],
-            label:'Manage Accounts',
-            link:'/mobile-banking/accounts/manage-accounts'
-          },
-             {
-            profiles: ['CORPORATE_ADMIN'],
-            label:'Blocked Accounts',
-            link:'/mobile-banking/accounts/blocked-accounts'
-          },
-                {
-            profiles: ['CORPORATE_ADMIN'],
-            label:'Unblocked Accounts',
-            link:'/mobile-banking/accounts/unblocked-accounts'
-          },
-          {
-            profiles: ['CORPORATE_ADMIN'],
-            label:'Close Accounts',
-            link:'/mobile-banking/accounts/closed-accounts'
-          },
-
-        ]
-      }
-     ]
-  },
-
-
-  {
-    profiles: ['CORPORATE_ADMIN'],
-    label: 'Channel Management',
-    icon: 'airplay',
-    subItems: [
-      {
-        profiles: ['CORPORATE_ADMIN'],
-        label: 'Channels',
-        link: '/mobile-banking/channels/all-channels'
-      },
-      // {
-      //   profiles: ['CORPORATE_ADMIN'],
-      //   label: 'Mobile Banking USSD',
-      //   link: '/mobile-banking/channels/ussd-ussd-channel-dashboard'
-      // },
-      // {
-      //   profiles: ['CORPORATE_ADMIN'],
-      //   label: 'Mobile Banking IB',
-      //   link: '/mobile-banking/channels/ib-ussd-channel-dashboard'
-      // },
-      // {
-      //   profiles: ['CORPORATE_ADMIN'],
-      //   label: 'Mobile Banking APP',
-      //   link: '/mobile-banking/channels/app-ussd-channel-dashboard'
-      // },
-    ]
-  },
-
-
-  {
-    profiles: ['CORPORATE_ADMIN'],
-    label: 'Setup',
-    icon: 'settings',
-    subItems: [
-      {
-        profiles: ['CORPORATE_ADMIN'],
-        label: 'Regions',
-        link: '/mobile-banking/setups/list-Regions'
-      },
-      {
-        profiles: ['CORPORATE_ADMIN'],
-        label: 'Branches',
-        link: '/mobile-banking/setups/list-branches'
-      },
-      {
-        profiles: ['CORPORATE_ADMIN'],
-        label: 'ATMs',
-        link: '/mobile-banking/setups/list-services'
-      },
-      {
-        profiles: ['CORPORATE_ADMIN'],
-        label: 'Services',
-        link: '/mobile-banking/setups/list-services'
+        label: 'Notifications',
+        link: '/mobile-banking/customers/send-bulk-sms'
       },
     ]
   },
+  // {
+  //    profiles:['CORPORATE_ADMIN'],
+  //    label:'Accounts',
+  //    icon:'home',
+  //    subItems: [
+  //     {
+  //       profiles: ['CORPORATE_ADMIN'],
+  //       label: 'Account Registration',
+  //       subItems: [
+  //         {
+  //           profiles: ['CORPORATE_ADMIN'],
+  //           label:'All Accounts',
+  //           link:'/mobile-banking/accounts/list-accounts'
+  //         },
+  //         {
+  //           profiles: ['CORPORATE_ADMIN'],
+  //           label:'Pending Account Openings',
+  //           link:'/mobile-banking/accounts/list-pending'
+  //         },
+  //         {
+  //           profiles: ['CORPORATE_ADMIN'],
+  //           label:'Failed Account Openings',
+  //           link:'/mobile-banking/accounts/list-failed'
+  //         },
+
+  //       ]
+  //     },
+  //     // {
+  //     //   profiles: ['CORPORATE_ADMIN'],
+  //     //   label: 'Account Linking',
+
+  //     //    subItems: [
+  //     //     {
+  //     //       profiles: ['CORPORATE_ADMIN'],
+  //     //       label:'New Account',
+  //     //       link:'/mobile-banking/accounts/linked-accounts'
+  //     //     },
+  //     //     // {
+  //     //     //   profiles: ['CORPORATE_ADMIN'],
+  //     //     //   label:'Approve Account',
+  //     //     //   link:'/mobile-banking/accounts/account-registration/account-opening'
+  //     //     // },
+  //     //     //    {
+  //     //     //   profiles: ['CORPORATE_ADMIN'],
+  //     //     //   label:'Rejected Accounts',
+  //     //     //   link:'/mobile-banking/accounts/account-registration/account-opening'
+  //     //     // },
+  //     //        {
+  //     //       profiles: ['CORPORATE_ADMIN'],
+  //     //       label:'Manage Accounts',
+  //     //       link:'/mobile-banking/accounts/manage-accounts'
+  //     //     },
+  //     //        {
+  //     //       profiles: ['CORPORATE_ADMIN'],
+  //     //       label:'Blocked Accounts',
+  //     //       link:'/mobile-banking/accounts/blocked-accounts'
+  //     //     },
+  //     //           {
+  //     //       profiles: ['CORPORATE_ADMIN'],
+  //     //       label:'Unblocked Accounts',
+  //     //       link:'/mobile-banking/accounts/unblocked-accounts'
+  //     //     },
+  //     //     {
+  //     //       profiles: ['CORPORATE_ADMIN'],
+  //     //       label:'Close Accounts',
+  //     //       link:'/mobile-banking/accounts/closed-accounts'
+  //     //     },
+
+  //     //   ]
+  //     // }
+  //    ]
+  // },
+
+
+  // {
+  //   profiles: ['CORPORATE_ADMIN'],
+  //   label: 'Channel Management',
+  //   icon: 'airplay',
+  //   subItems: [
+  //     {
+  //       profiles: ['CORPORATE_ADMIN'],
+  //       label: 'Channels',
+  //       link: '/mobile-banking/channels/all-channels'
+  //     },
+  //     // {
+  //     //   profiles: ['CORPORATE_ADMIN'],
+  //     //   label: 'Mobile Banking USSD',
+  //     //   link: '/mobile-banking/channels/ussd-ussd-channel-dashboard'
+  //     // },
+  //     // {
+  //     //   profiles: ['CORPORATE_ADMIN'],
+  //     //   label: 'Mobile Banking IB',
+  //     //   link: '/mobile-banking/channels/ib-ussd-channel-dashboard'
+  //     // },
+  //     // {
+  //     //   profiles: ['CORPORATE_ADMIN'],
+  //     //   label: 'Mobile Banking APP',
+  //     //   link: '/mobile-banking/channels/app-ussd-channel-dashboard'
+  //     // },
+  //   ]
+  // },
+
+
+  // {
+  //   profiles: ['CORPORATE_ADMIN'],
+  //   label: 'Setup',
+  //   icon: 'settings',
+  //   subItems: [
+  //     {
+  //       profiles: ['CORPORATE_ADMIN'],
+  //       label: 'Regions',
+  //       link: '/mobile-banking/setups/list-Regions'
+  //     },
+  //     {
+  //       profiles: ['CORPORATE_ADMIN'],
+  //       label: 'Branches',
+  //       link: '/mobile-banking/setups/list-branches'
+  //     },
+  //     {
+  //       profiles: ['CORPORATE_ADMIN'],
+  //       label: 'ATMs',
+  //       link: '/mobile-banking/setups/list-services'
+  //     },
+  //     {
+  //       profiles: ['CORPORATE_ADMIN'],
+  //       label: 'Services',
+  //       link: '/mobile-banking/setups/list-services'
+  //     },
+  //   ]
+  // },
 
   {
     profiles: ['CORPORATE_ADMIN'],
-    label: 'User Management',
+    label: 'Chats',
     icon: 'users',
     subItems: [
       {
         profiles: ['CORPORATE_ADMIN'],
-        label: 'Users',
+        label: 'Inbox',
         link: '/mobile-banking/Users/list-users'
       },
-      {
-        profiles: ['CORPORATE_ADMIN'],
-        label: 'Roles',
-        link: '/mobile-banking/rbac/all-roles'
-      },
+      // {
+      //   profiles: ['CORPORATE_ADMIN'],
+      //   label: 'Roles',
+      //   link: '/mobile-banking/rbac/all-roles'
+      // },
       {
         profiles: ['CORPORATE_ADMIN'],
         label: 'Profiles',
@@ -235,36 +235,36 @@ export const MENU: MenuItem[] = [
       }
     ]
   },
-  {
-    profiles: ['CORPORATE_ADMIN'],
-    label:'AUDIT TRAIL',
-    icon:'file-text',
-    subItems: [
-      {
-        profiles: ['CORPORATE_ADMIN'],
-        label: 'Audit Logs',
-        link:'/mobile-banking/audit-trail/list-audits',
-      },
-      {
-        profiles: ['CORPORATE_ADMIN'],
-        label: 'System Logs',
-        link:'/mobile-banking/audit-trail/list-audits',
-      },
-    ]
-  },
+  // {
+  //   profiles: ['CORPORATE_ADMIN'],
+  //   label:'AUDIT TRAIL',
+  //   icon:'file-text',
+  //   subItems: [
+  //     {
+  //       profiles: ['CORPORATE_ADMIN'],
+  //       label: 'Audit Logs',
+  //       link:'/mobile-banking/audit-trail/list-audits',
+  //     },
+  //     {
+  //       profiles: ['CORPORATE_ADMIN'],
+  //       label: 'System Logs',
+  //       link:'/mobile-banking/audit-trail/list-audits',
+  //     },
+  //   ]
+  // },
 
 
-  {
-    profiles: ['CORPORATE_ADMIN'],
-    label: 'Workflows Module',
-    icon: 'briefcase',
-    subItems: [
-      {
-        profiles: ['CORPORATE_ADMIN'],
-        label: 'Workflows',
-        link: '/mobile-banking/workflows/list-workflow-menu'
-      }
-    ]
-  }
+  // {
+  //   profiles: ['CORPORATE_ADMIN'],
+  //   label: 'Workflows Module',
+  //   icon: 'briefcase',
+  //   subItems: [
+  //     {
+  //       profiles: ['CORPORATE_ADMIN'],
+  //       label: 'Workflows',
+  //       link: '/mobile-banking/workflows/list-workflow-menu'
+  //     }
+  //   ]
+  // }
   ]
 

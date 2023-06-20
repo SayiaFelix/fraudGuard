@@ -1,10 +1,8 @@
 <nav class="sidebar">
-  <div class="sidebar-header">
-
+  <div class="sidebar-header" style="background-color: #EFEFEF; ">
     <!--- Logo -->
     <a routerLink="/" class="sidebar-brand nobleui-logo">
-
-      <img class="" [src]="logo" alt="Portal" height="150px" style="padding-left: 15%">
+      <img class="" [src]="logo" alt="Portal" width="110px" height="170px" style="padding-left: 15%">
     </a>
 
     <!-- <a routerLink="/" class="sidebar-brand nobleui-logo">
@@ -19,13 +17,11 @@
     </div>
 
   </div>
-  <div class="sidebar-body" (mouseenter)="operSidebarFolded()" (mouseleave)="closeSidebarFolded()" [perfectScrollbar]>
 
+  <div class="sidebar-body" style="background-color: white; box-shadow: 0 1px 3px #EFEFEF;" (mouseenter)="operSidebarFolded()" (mouseleave)="closeSidebarFolded()" [perfectScrollbar]>
     <!--- Sidemenu start -->
-
     <ul class="sidebar-nav metismenu" id="sidebar-menu" #sidebarMenu>
       <ng-container *ngFor="let item of menuItems">
-
         <li class="nav-item nav-category showHand" *ngIf="item.isTitle">
           <div class="row justify-content-around">
             <div class="col-10">

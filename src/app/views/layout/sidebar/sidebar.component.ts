@@ -19,7 +19,7 @@ export class SidebarComponent implements OnInit, AfterViewInit {
   menuItems: MenuItem[] = [];
   @ViewChild('sidebarMenu') sidebarMenu: ElementRef;
   showSubItems: boolean = true;
-  logo: string = '\\assets\\images\\MicrosoftTeams-image (2).png'
+  logo: string = '\\assets\\images\\TRA_Logo.png'
   showingClass = "d-none";
   selectedParent: string | undefined;
 
