@@ -2,11 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-register',
-  templateUrl: './register.component.html',
-  styleUrls: ['./register.component.scss']
+  selector: 'app-all-standards',
+  templateUrl: './all-standards.component.html',
+  styleUrls: ['./all-standards.component.scss']
 })
-export class RegisterComponent implements OnInit {
+export class StandardsComponent implements OnInit {
 
   constructor(private router: Router) { }
 

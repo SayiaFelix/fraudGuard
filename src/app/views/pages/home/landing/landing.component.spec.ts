@@ -5,7 +5,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { LandingComponent } from './landing.component';
 
-describe('LoginComponent', () => {
+describe('LandingComponent', () => {
   let landingComponent: LandingComponent;
   let fixture: ComponentFixture<LandingComponent>;
 

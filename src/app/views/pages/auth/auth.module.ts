@@ -8,26 +8,24 @@ import {ForgotPasswordComponent} from "./forgot-password/forgot-password.compone
 import {ReactiveFormsModule} from "@angular/forms";
 import {FeatherIconModule} from "../../../core/feather-icon/feather-icon.module";
 import {SharedModule} from "../../../shared/shared.module";
-import {HttpClientModule} from "@angular/common/http";
 import {TranslateModule} from "@ngx-translate/core";
 import {FirstTimeLoginComponent} from "./first-time-login/first-time-login.component";
 import {ChangePasswordComponent} from "./change-password/change-password.component";
-import { LandingComponent } from './landing/landing.component';
 
 const routes: Routes = [
   {
     path: '',
     component: AuthComponent,
     children: [
-      {
-        path: '',
-        redirectTo: 'home',
-        pathMatch: 'full'
-      },
-      {
-        path: 'home',
-        component: LandingComponent
-      },
+      // {
+      //   path: '',
+      //   redirectTo: 'login',
+      //   pathMatch: 'full'
+      // },
+      // {
+      //   path: 'home',
+      //   component: LandingComponent
+      // },
       {
         path: 'login',
         component: LoginComponent
@@ -54,9 +52,7 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [
-    LandingComponent,
     LoginComponent,
-    LandingComponent,
     RegisterComponent,
     ForgotPasswordComponent,
     AuthComponent,

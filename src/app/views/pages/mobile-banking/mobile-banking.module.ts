@@ -23,23 +23,11 @@ const routes: Routes = [
         loadChildren: () =>
           import('./requests/requests.module').then((m) => m.RequestsModule)
       },
-
-      // {
-      //   path: 'accounts',
-      //   loadChildren: () =>
-      //     import('./Accounts/accounts.module').then((m) => m.AccountsModule)
-      // },
       {
         path: 'customers',
         loadChildren: () =>
           import('./customers/customers.module').then((m) => m.CustomersModule)
       },
-
-      // {
-      //   path: 'channels',
-      //   loadChildren: () =>
-      //     import('./channels/channels.module').then((m) => m.ChannelsModule)
-      // },
 
       {
         path: 'products',
@@ -65,6 +53,19 @@ const routes: Routes = [
           import('./rbac/rbac.module').then((m) => m.RbacModule),
       },
       // {
+      //   path: 'accounts',
+      //   loadChildren: () =>
+      //     import('./Accounts/accounts.module').then((m) => m.AccountsModule)
+      // },
+
+
+      // {
+      //   path: 'channels',
+      //   loadChildren: () =>
+      //     import('./channels/channels.module').then((m) => m.ChannelsModule)
+      // },
+
+      // {
       //   path: 'audit-trail',
       //   loadChildren:() =>
       //   import('./audit-trail/audit-trail.module').then((m) => m.AuditTrailModule)
@@ -89,4 +90,4 @@ const routes: Routes = [
     TranslateModule,
   ],
 })
-export class MobileBankingModule {}
+export class MobileBankingModule { }
