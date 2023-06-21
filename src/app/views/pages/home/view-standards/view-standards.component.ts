@@ -16,65 +16,15 @@ import { HttpService } from 'src/app/shared/services/http.service';
 import Swal from "sweetalert2";
 
 @Component({
-  selector: 'app-landing',
-  templateUrl: './landing.component.html',
-  styleUrls: ['./landing.component.scss'],
+  selector: 'app-view-standards',
+  templateUrl: './view-standards.component.html',
+  styleUrls: ['./view-standards.component.scss'],
 })
-export class LandingComponent implements OnInit {
+export class ViewStandardsComponent implements OnInit {
   returnUrl: any;
   public form: FormGroup;
   public showingPassword = false;
   inputType = 'password';
-  standards: any = [
-    {
-      id: '1',
-      icon: "assets/images/icon.png",
-      name: 'Accommodation And Catering Establishment',
-      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    },
-    {
-      id: '2',
-      icon: "assets/images/icon.png",
-      name: 'Meetings, Incentives, Conferences & Exhibitions Facilities And Services',
-      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    },
-    {
-      id: '3',
-      icon: "assets/images/icon.png",
-      name: 'Standards For Food Safety And Hygiene Standards',
-      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    },
-    {
-      id: '4',
-      icon: "assets/images/icon.png",
-      name: 'Standards For Safety And Security Standards',
-      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    },
-    {
-      id: '5',
-      icon: "assets/images/icon.png",
-      name: ' Tour Guides And Hotel Employees Accommodation Standard',
-      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    },
-    {
-      id: '6',
-      icon: "assets/images/icon.png",
-      name: 'Halal Compliance Standard For Accommodation And Catering Establishments',
-      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    },
-    {
-      id: '7',
-      icon: "assets/images/icon.png",
-      name: 'Standards For Spa And Wellness Facilities',
-      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    },
-    {
-      id: '8',
-      icon: "assets/images/icon.png",
-      name: 'Standards For Tourism Tours & Travel Enterprises',
-      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    },
-  ]
 
   loginResponse$: Observable<any>;
   // userDataResp$: Observable<any>;

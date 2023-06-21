@@ -1,53 +1,53 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LoginComponent } from './login/login.component';
-import { RegisterComponent } from './register/register.component';
 import { Routes, RouterModule } from '@angular/router';
-import { AuthComponent } from './auth.component';
 import {ForgotPasswordComponent} from "./forgot-password/forgot-password.component";
 import {ReactiveFormsModule} from "@angular/forms";
 import {FeatherIconModule} from "../../../core/feather-icon/feather-icon.module";
 import {SharedModule} from "../../../shared/shared.module";
-import {HttpClientModule} from "@angular/common/http";
 import {TranslateModule} from "@ngx-translate/core";
 import {FirstTimeLoginComponent} from "./first-time-login/first-time-login.component";
 import {ChangePasswordComponent} from "./change-password/change-password.component";
 import { LandingComponent } from './landing/landing.component';
+import { StandardsComponent } from './all-standards/all-standards.component';
+import { ViewStandardsComponent } from './view-standards/view-standards.component';
+import { HomeComponent } from './home.component';
 
 const routes: Routes = [
   {
     path: '',
-    component: AuthComponent,
+    component: HomeComponent,
     children: [
       {
         path: '',
-        redirectTo: 'home',
+        redirectTo: 'standards',
         pathMatch: 'full'
       },
       {
-        path: 'home',
+        path: 'standards',
         component: LandingComponent
       },
+      
       {
-        path: 'login',
-        component: LoginComponent
+        path: 'all-standards',
+        component: StandardsComponent
       },
       {
-        path: 'register',
-        component: RegisterComponent
+        path: 'standard/:id',
+        component: ViewStandardsComponent
       },
-      {
-        path: 'forgot-password',
-        component: ForgotPasswordComponent
-      },
-      {
-        path: 'first-time-login',
-        component: FirstTimeLoginComponent
-      },
-      {
-        path: 'change-password',
-        component: ChangePasswordComponent
-      }
+      // {
+      //   path: 'forgot-password',
+      //   component: ForgotPasswordComponent
+      // },
+      // {
+      //   path: 'first-time-login',
+      //   component: FirstTimeLoginComponent
+      // },
+      // {
+      //   path: 'change-password',
+      //   component: ChangePasswordComponent
+      // }
     ]
   },
 ]
@@ -55,11 +55,10 @@ const routes: Routes = [
 @NgModule({
   declarations: [
     LandingComponent,
-    LoginComponent,
-    LandingComponent,
-    RegisterComponent,
+    StandardsComponent,
+    ViewStandardsComponent,
     ForgotPasswordComponent,
-    AuthComponent,
+    HomeComponent,
     FirstTimeLoginComponent,
     ChangePasswordComponent
   ],
@@ -72,4 +71,4 @@ const routes: Routes = [
         TranslateModule
     ]
 })
-export class AuthModule { }
+export class HomeModule { }

@@ -1,17 +1,14 @@
 import { async, ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-
-
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { LandingComponent } from './landing.component';
-
-describe('LoginComponent', () => {
-  let landingComponent: LandingComponent;
-  let fixture: ComponentFixture<LandingComponent>;
+import { ViewStandardsComponent} from './view-standards.component';
+describe('ViewStandardsComponent', () => {
+  let component: ViewStandardsComponent;
+  let fixture: ComponentFixture<ViewStandardsComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ LandingComponent ],
+      declarations: [ ViewStandardsComponent ],
       imports: [
         BrowserModule,
         FormsModule,
@@ -22,12 +19,12 @@ describe('LoginComponent', () => {
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(LandingComponent);
+    fixture = TestBed.createComponent(ViewStandardsComponent);
          // Create instance of login component
-    landingComponent = fixture.componentInstance;
+    component = fixture.componentInstance;
     fixture.detectChanges();
   });
   it(`should have a login form 'form'`, waitForAsync(() => {
-    expect(landingComponent).toContain('form');
+    expect(component).toContain('form');
   }));
 });
