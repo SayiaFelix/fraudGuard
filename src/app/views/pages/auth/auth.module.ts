@@ -12,6 +12,7 @@ import {HttpClientModule} from "@angular/common/http";
 import {TranslateModule} from "@ngx-translate/core";
 import {FirstTimeLoginComponent} from "./first-time-login/first-time-login.component";
 import {ChangePasswordComponent} from "./change-password/change-password.component";
+import { LandingComponent } from './landing/landing.component';
 
 const routes: Routes = [
   {
@@ -20,8 +21,12 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'login',
+        redirectTo: 'home',
         pathMatch: 'full'
+      },
+      {
+        path: 'home',
+        component: LandingComponent
       },
       {
         path: 'login',
@@ -49,7 +54,9 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [
+    LandingComponent,
     LoginComponent,
+    LandingComponent,
     RegisterComponent,
     ForgotPasswordComponent,
     AuthComponent,
