@@ -24,22 +24,22 @@ const routes: Routes = [
           import('./requests/requests.module').then((m) => m.RequestsModule)
       },
 
-      {
-        path: 'accounts',
-        loadChildren: () =>
-          import('./Accounts/accounts.module').then((m) => m.AccountsModule)
-      },
+      // {
+      //   path: 'accounts',
+      //   loadChildren: () =>
+      //     import('./Accounts/accounts.module').then((m) => m.AccountsModule)
+      // },
       {
         path: 'customers',
         loadChildren: () =>
           import('./customers/customers.module').then((m) => m.CustomersModule)
       },
 
-      {
-        path: 'channels',
-        loadChildren: () =>
-          import('./channels/channels.module').then((m) => m.ChannelsModule)
-      },
+      // {
+      //   path: 'channels',
+      //   loadChildren: () =>
+      //     import('./channels/channels.module').then((m) => m.ChannelsModule)
+      // },
 
       {
         path: 'products',
@@ -64,16 +64,16 @@ const routes: Routes = [
         loadChildren: () =>
           import('./rbac/rbac.module').then((m) => m.RbacModule),
       },
-      {
-        path: 'audit-trail',
-        loadChildren:() =>
-        import('./audit-trail/audit-trail.module').then((m) => m.AuditTrailModule)
-      },
-      {
-        path: 'workflows',
-        loadChildren: () =>
-          import('./workflows/workflows.module').then((m) => m.WorkflowsModule),
-      },
+      // {
+      //   path: 'audit-trail',
+      //   loadChildren:() =>
+      //   import('./audit-trail/audit-trail.module').then((m) => m.AuditTrailModule)
+      // },
+      // {
+      //   path: 'workflows',
+      //   loadChildren: () =>
+      //     import('./workflows/workflows.module').then((m) => m.WorkflowsModule),
+      // },
     ],
   },
 ];
