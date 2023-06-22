@@ -6,7 +6,14 @@ import { HttpService } from 'src/app/shared/services/http.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private router: Router, private httpService: HttpService, private globalService: GlobalService) {}
+  currState: RouterStateSnapshot;
+  constructor(private router: Router, 
+    private httpService: HttpService, private globalService: GlobalService) {
+      this.currState = router.routerState.snapshot;
+
+      
+
+    }
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
     let url: string = state.url;
@@ -20,6 +27,9 @@ export class AuthGuard implements CanActivate {
   }
 
   checkUserLogin(route: ActivatedRouteSnapshot, url: any): boolean {
+
+    console.log(this.currState.url);
+
     if (!!this.globalService.getToken()) {
       // let userRole = this.httpService.getRoles;
       let userRole = "CORPORATE_ADMIN";
@@ -35,9 +45,12 @@ export class AuthGuard implements CanActivate {
         return false;
       }
       return true;
-    }
+    } else if (this.currState.url === '/standards') {
+      return true;
+    } else {
 
     this.router.navigate(['/auth/login']);
     return false;
+    }
   }
 }
