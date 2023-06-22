@@ -25,6 +25,24 @@ export class ViewStandardsComponent implements OnInit {
   public form: FormGroup;
   public showingPassword = false;
   inputType = 'password';
+  currentDescription = 'Tourism Regulatory Authority (TRA) is a corporate body established under section 4 of the Tourism Act No.28 of 2011 and is mandated to regulate the tourism sector in Kenya. This entails developing regulations, standards and guidelines that are necessary to ensure an all-round quality service delivery in the tourism sector.This standard was developed by a select team drawn from relevant institutions, including; Tourism Regulatory Authority (TRA), Kenya Utalii College (KUC), Kenya Association of Hotels and Caterers (KAHC), Kenya Association of Tour Operators (KATO), Ministry of Health (MoH), Architectural of Association of Kenya (AAK) and Kenya Bureau of Standards (KEBS). This standard will ensure that the service provided by all the hospitality establishments in the country is of quality and meet the minimum expectations of the tourist. It will form the basis for quality control in the sector as well act as the essential item for the rating of hotels and restaurants in the country.'
+  standards: any = [
+    {
+      id: '1',
+      name: 'Part I - PRELIMINARY ',
+      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    },
+    {
+      id: '2',
+      name: 'Part II - Statutory Obligations',
+      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    },
+    {
+      id: '3',
+      name: ' Part III - Facility Requirements',
+      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    },
+  ]
 
   loginResponse$: Observable<any>;
   // userDataResp$: Observable<any>;
@@ -159,5 +177,8 @@ export class ViewStandardsComponent implements OnInit {
     })
 
 
+  }
+  updateCurrentDescription(describe: string) {
+    this.currentDescription = describe;
   }
 }
