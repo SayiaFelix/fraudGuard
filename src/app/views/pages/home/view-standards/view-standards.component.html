@@ -1,94 +1,117 @@
-<div class="body w-100" style="position: relative; background-color: #EFEFEF; max-height: 1000px;">
-  <div class="row">
-    <div class="d-flex"
-      style="max-width: 100%; max-height: 25px; order: 0; align-self: stretch;flex: none; flex-grow: 1;">
-      <img class="img-fluid" style="max-height:25px;" src="assets/images/headerl.png" alt="header-bar" />
-      <img class="img-fluid" style="max-height: 25px ;" src="assets/images/headerl.png" alt="header-bar" />
+<div class="body w-100" style="position: relative; background-color: #EFEFEF;">
+  <div class="">
+    <div class="row" style="max-width: 100%; max-height: 70px;">
+      <div class="col-md-2" style="margin-left: 50px;">
+        <div class="p-2">
+          <button class="btn btn-md" style="background-color: #6D36A8 ; color: #F8F8F8; border-radius: 4px; "> <a
+              href="" style="text-decoration: none; text-transform: none;" target="_blank"
+              class="transition text-light">
+              VISIT:WWW.TRA.GO.KE </a>
+          </button>
+        </div>
+      </div>
+      <div class="col-md-2 col-lg-2 col-xl-2 col-sm-2 p-2 ml-2">
+        <img class="img-fluid" src="assets/images/TRA_Logo.png" width="110" height="50" alt="" />
+      </div>
+      <div class="col-md-5 col-lg-5 col-xl-5 col-sm-5"></div>
+      <div class=" col-md-2 col-lg-2 col-xl-2 col-sm-2 d-flex p-2 justify-content-around" style="margin-left: 12px;">
+        <button class="btn btn-sm btn-light transition" type="submit"><a routerLink="/auth/login" style="text-decoration: none; color:  #1E0F2E;font-family: 'Muli';font-style: normal;
+          font-weight: 700;font-size: 12px; letter-spacing: 0.08em;border-radius: 8px;text-transform: uppercase;"
+            class="transition m-1">Sign In</a>
+        </button>
+        <button class="btn btn-md login-btn transition" type="submit">
+          <a routerLink="/auth/register" style="text-decoration: none;" class="transition">
+            <span style="color:  #F8F8F8; font-weight: 700;letter-spacing: 0.08em; font-size: 12px;">REGISTER</span></a>
+        </button>
+      </div>
     </div>
   </div>
-  <div class="row d-flex justify-content-center login-row">
-    <div class="col-md-6 col-lg-5 col-xl-5 col-sm-7">
-      <div class="" style="padding-top: 28px; padding-left: 30px;">
-        <img class="img-fluid" style="position: absolute;" src="assets/images/TRA_Logo.png" width="150" height="50"
-          alt="" />
-      </div>
-      <div class="card card-login-container">
-        <div class="">
-          <h3
-            style="font-family: Mulish; font-style: normal; font-weight: 700; font-size: 21px; line-height: 30px; color: #F8F8F8;">
-            Welcome to our Quality Assurance Portal!</h3>
-          <p class="mt-2"
-            style="font-family: Mulish; font-style: normal; font-weight: 400; font-size: 17px; line-height: 25px; color: #F8F8F8;">
-            Ensure Standards, Certification & Registration in Tourism</p>
-        </div>
-        <div class="card-body card-login text-center pb-1">
-          <form class="forms-sample text-left" [formGroup]="form">
-            <div class="mb-3">
-              <!-- <label for="email" class="form-label">{{ 'login.username' | translate }}</label> -->
-              <input type="email" formControlName="username" class="form-control" id="email" placeholder="Enter Email">
-              <small class="text-danger"
-                *ngIf="form.get('username')?.touched && form.get('username')?.hasError('required')">Username is
-                required</small>
-              <small class="text-danger"
-                *ngIf="form.get('username')?.touched && form.get('username')?.hasError('email')">Please key in a valid
-                email</small>
-              <small class="text-danger"
-                *ngIf="form.get('username')?.touched && form.get('username')?.hasError('minlength')">Username isn't long
-                enough, minimum of 6 characters</small>
-            </div>
-
-            <div class="mb-3">
-              <!-- <label for="password" class="form-label">{{ 'login.password' | translate }}</label> -->
-              <div class="input-group mb-3">
-                <input [type]="inputType" formControlName="password" class="form-control" placeholder="Enter password"
-                  id="password" aria-label="password">
-                <div class="input-group-prepend" style="cursor: pointer;" (click)="toggleShowPassword()">
-                  <span class="input-group-text" *ngIf="!this.showingPassword"><i class="mdi mdi-eye"></i></span>
-                  <span class="input-group-text" *ngIf="this.showingPassword"><i class="mdi mdi-eye-off"></i></span>
-                </div>
-              </div>
-              <small class="text-danger"
-                *ngIf="form.get('password')?.touched && form.get('password')?.hasError('required')">Password is
-                required</small>
-              <small class="text-danger"
-                *ngIf="form.get('password')?.touched && form.get('password')?.hasError('minlength')">Password isn't long
-                enough, minimum of 6 characters</small>
-            </div>
-
-            <div class="mb-1" *ngIf="loginResponse$ | async">
-              <ngb-alert [type]="'success'" (close)="false">
-                <strong>Login Success!</strong>
-              </ngb-alert>
-            </div>
-            <div>
-              <button [disabled]="!form.valid" (click)="onSubmit($event)" style="width: 100%; border: none;" class="btn btn-block login-btn transition"
-                type="submit">
-                <span style="color: white;">SIGN IN</span>
-              </button>
-            </div>
-            <hr>
-            <div class="mt-2 d-flex justify-content-between" style="margin-top: -10%;">
-              <p class="text-light"> <a routerLink="/auth/register" style="text-decoration: none;"
-                  class="transition text-light"> Register Now! </a></p>
-              <p class="text-light"> <a routerLink="/auth/forgot-password" style="text-decoration: none;"
-                  class="transition text-light">Forgot Password?</a></p>
-            </div>
-          </form>
-          <p *ngIf="isLoading"><ngb-progressbar type="primary" [value]="95" [striped]="true"
-              [animated]="true"></ngb-progressbar></p>
-          <ngb-alert [type]="'danger'" *ngIf="hasError" (close)="false" class="mt-2">
-            <strong>Login Error!</strong> {{errorMsg}}
-          </ngb-alert>
-        </div>
-      </div>
-      <div class="" style=" padding-bottom: 15px; padding-left: 15px; justify-content: center; margin-top: -7%;">
-        <button class="btn btn-md" style="background-color: #6D36A8 ; color: #F8F8F8; border-radius: 8px; "> <a href=""
-            style="text-decoration: none; text-transform: none;" target="_blank" class="transition text-light"> VISIT:
-            WWW.TRA.GO.KE </a></button>
+  <div class="card">
+    <div class="row">
+      <div class="card col-md-12 col-lg-12 col-xl-12 col-sm-12"
+        style="background-image: url('assets/images/landing2.png'); background-size: cover; background-repeat: no-repeat; padding: 60px 120px; color:#F8F8F8;height: 150px;">
+        <h2 style="font-family: 'Mulish';line-height: 25px;font-weight: 600;font-size: 25px; color:#F8F8F8;">
+          Ignite Success in Tourism: Align with Our Benchmark Minimum Standards.
+        </h2>
       </div>
     </div>
-    <div class="card col-md-6 col-lg-7 col-xl-7 col-sm-5"
-      style="background-image: url('assets/images/login_bg.png'); background-size: cover; background-repeat: no-repeat; max-height:100%;">
+    <div class="card border-0 box-shadow">
+      <div class="d-flex justify-content-start mt-4" style="padding-left: 40px;">
+        <div style="width: 96%; border-bottom: 2px solid #6D36A8;">
+          <h3 class="card-title" style="color: #6D36A8; font-family: 'Muli';font-weight: 700;font-size: 16px;">Standards
+            For Accommodation & Catering Establishment</h3>
+        </div>
+      </div>
+      <div class="card-body mt-3">
+        <div class="border-0 box-shadow">
+          <div class="grid-margin stretch-card ">
+            <div class="row">
+              <div class="col-md-2">
+                <div class="mt-2">
+                  <h5 class="card-title stadards-title" style="color: #2268AA;"> Part I - PRELIMINARY </h5>
+                </div>
+                <div class="mt-4">
+                  <h5 class="card-title stadards-title" style="color: #76AFE5;"> Part II - Statutory Obligations </h5>
+                </div>
+                <div class="mt-4">
+                   <h5 class="card-title stadards-title" style="color: #76AFE5;"> Part III - Facility Requirements</h5>
+                </div>
+              </div>
+              <div class="col-md-7">
+                <div style=" width: 25%; border-bottom: 2px solid #2268AA;" class="stadards-title p-2">
+                  <h2 style="color: #2268AA;">Preliminary</h2>
+                </div>
+                <div class="mt-3">
+                  <p style="color: #000000; font-family: Muli;font-size: 15px;font-weight: 400;line-height: 17px;letter-spacing: 0em;text-align: justified;" >
+                    Tourism Regulatory Authority (TRA) is a corporate body established under section 4 of the Tourism
+                    Act No.28 of 2011 and is mandated to regulate the tourism sector in Kenya. This entails developing
+                    regulations, standards and guidelines that are necessary to ensure an all-round quality service
+                    delivery in the tourism sector.
+                    This standard was developed by a select team drawn from relevant institutions, including; Tourism
+                    Regulatory Authority (TRA), Kenya Utalii College (KUC), Kenya Association of Hotels and Caterers
+                    (KAHC), Kenya Association of Tour Operators (KATO), Ministry of Health (MoH), Architectural of
+                    Association of Kenya (AAK) and Kenya Bureau of Standards (KEBS).
+                    This standard will ensure that the service provided by all the hospitality establishments in the
+                    country is of quality and meet the minimum expectations of the tourist. It will form the basis for
+                    quality control in the sector as well act as the essential item for the rating of hotels and
+                    restaurants in the country.
+                  </p>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="stadards-title">
+                  <h2 style="color: #1E0F2E;">Definition of Terms</h2>
+                </div>
+                <div>
+                  <p style="font-family: Muli;font-weight: 400;">For the purpose of this standard the following definitions shall apply:</p>
+                </div>
+                <div>
+                  <h5 style="font-family: Muli;font-weight: 600;">A-la-carte:</h5>
+                  <p style="font-family: Muli;font-weight: 500;">For the purpose of this standard the following definitions shall apply: means a menu in a restaurant that offers individual priced</p>
+                  <h5 style="font-family: Muli;font-weight: 600;">Beverages:</h5>
+                  <p style="font-family: Muli;font-weight: 500;">For the purpose of this standard the following definitions shall apply: means a menu in a restaurant that offers individual priced</p>
+                  <h5 style="font-family: Muli;font-weight: 600;">Catering Establishments:</h5>
+                  <p style="font-family: Muli;font-weight: 500;">For the purpose of this standard the following definitions shall apply: means a menu in a restaurant that offers individual priced</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card"
+    style="background-color:#D0DDF0 ; display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 25px 96px;">
+    <div>
+      <img class="img-fluid" style="position: absolute; margin-top: -1%;" src="assets/images/TRA_Logo.png" width="115"
+        height="60" alt="logo" />
+    </div>
+    <div
+      style="font-family:'Mulish';font-style: normal; text-transform: uppercase; font-weight: 700; font-size: 15px;line-height: 25px; text-align: center; letter-spacing: 0.08em;">
+      <a routerLink="/" style="text-decoration: none; color: #1E0F2E;" class="transition">Home</a>
+      <a routerLink="/" class="" style="text-decoration: none; margin: 18px; color: #1E0F2E;" class="transition">Tourism
+        ACT 2011</a>
+      <a routerLink="/" style="text-decoration: none; color: #1E0F2E;" class="transition">Tourism Regulations 2014</a>
     </div>
   </div>
 </div>

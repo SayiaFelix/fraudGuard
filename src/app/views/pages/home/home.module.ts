@@ -33,7 +33,7 @@ const routes: Routes = [
         component: StandardsComponent
       },
       {
-        path: 'standard/:id',
+        path: 'standard',
         component: ViewStandardsComponent
       },
       // {
