@@ -48,11 +48,11 @@ export function HttpLoaderFactory(http: HttpClient) {
       libraries: ["places", "drawing", "geometry"]}),
   ],
   providers: [
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: CheckTokenValidityInterceptor,
-      multi: true
-    },
+    // {
+    //   provide: HTTP_INTERCEPTORS,
+    //   useClass: CheckTokenValidityInterceptor,
+    //   multi: true
+    // },
     AuthGuard,
     {
       provide: HIGHLIGHT_OPTIONS, // https://www.npmjs.com/package/ngx-highlightjs

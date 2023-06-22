@@ -18,13 +18,13 @@ const routes: Routes = [
     path: '',
     component: HomeComponent,
     children: [
+      // {
+      //   path: '',
+      //   redirectTo: 'standards',
+      //   pathMatch: 'full'
+      // },
       {
         path: '',
-        redirectTo: 'standards',
-        pathMatch: 'full'
-      },
-      {
-        path: 'standards',
         component: LandingComponent
       },
       
@@ -33,7 +33,7 @@ const routes: Routes = [
         component: StandardsComponent
       },
       {
-        path: 'standard',
+        path: 'Id',
         component: ViewStandardsComponent
       },
       // {

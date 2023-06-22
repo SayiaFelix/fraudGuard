@@ -33,22 +33,17 @@
       </div>
     </div>
     <div class="card border-0 box-shadow">
-      <div class="d-flex justify-content-around p-2 mt-4" style="margin-bottom: -3%;">
+      <div class="mt-4 d-flex justify-content-around">
         <div>
-          <h3 class="card-title" style="color: #1E0F2E; font-family: 'Muli';font-weight: 600;font-size: 16px;">Standard
+          <h3 class="card-title" style="color: #1E0F2E; font-family: 'Muli';font-weight: 600;font-size: 17px;">Standard
             development is an integral part of sustainable tourism development.</h3>
         </div>
-        <div>
-          <a routerLink="/all-standards"
-            style="text-decoration: none; color:  #6D36A8;; font-family: 'Muli';font-style: normal;font-weight: 700;font-size: 18px;">
-            View all Standards</a>
-        </div>
+        <a style=" cursor: pointer; color:  #6D36A8;; font-family: 'Muli';font-style: normal;font-weight: 700;font-size: 18px;" routerLink="/standards/all-standards" >View all Standards</a>
       </div>
-
       <div class="card-body p-2">
         <div class="border-0 box-shadow">
           <div class="grid-margin stretch-card ">
-            <div class="row" style="padding: 40px;">
+            <div class="row" style="padding-left: 40px;">
               <div class="col-md-3 col-lg-3 col-xl-3 col-sm-4 mt-3 pt-2" *ngFor="let std of standards">
                 <div class="" [id]="std.id">
                   <img class="img-fluid" style="max-height: 55px;" [src]="std.icon">
