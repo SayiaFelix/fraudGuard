@@ -1,65 +1,82 @@
 <div class="body w-100" style="position: relative; background-color: #EFEFEF;">
-  <div class="row">
-    <div class="d-flex"
-      style="max-width: 100%; max-height: 35px; order: 0; align-self: stretch;flex: none; flex-grow: 1;">
-      <img class="img-fluid" style="max-height:25px;" src="assets/images/headerl.png" alt="header-bar" />
-      <img class="img-fluid" style="max-height:25px ;" src="assets/images/headerl.png" alt="header-bar" />
+  <div class="">
+    <div class="row" style="max-width: 100%; max-height: 70px;">
+      <div class="col-md-2" style="margin-left: 50px;">
+        <div class="p-2">
+          <button class="btn btn-md" style="background-color: #6D36A8 ; color: #F8F8F8; border-radius: 4px; "> <a
+              href="" style="text-decoration: none; text-transform: none;" target="_blank"
+              class="transition text-light">
+              VISIT:WWW.TRA.GO.KE </a>
+          </button>
+        </div>
+      </div>
+      <div class="col-md-2 col-lg-2 col-xl-2 col-sm-2 p-2 ml-2">
+        <img class="img-fluid" src="assets/images/TRA_Logo.png" width="110" height="50" alt="" />
+      </div>
+      <div class="col-md-5 col-lg-5 col-xl-5 col-sm-5"></div>
+      <div class=" col-md-2 col-lg-2 col-xl-2 col-sm-2 d-flex p-2 justify-content-around" style="margin-left: 12px;">
+        <button class="btn btn-sm btn-light transition" type="submit"><a routerLink="/auth/login" style="text-decoration: none; color:  #1E0F2E;font-family: 'Muli';font-style: normal;
+          font-weight: 700;font-size: 12px; letter-spacing: 0.08em;border-radius: 8px;text-transform: uppercase;"
+            class="transition m-1">Sign In</a>
+        </button>
+        <button class="btn btn-md login-btn transition" type="submit">
+          <a routerLink="/auth/register" style="text-decoration: none;" class="transition">
+            <span style="color:  #F8F8F8; font-weight: 700;letter-spacing: 0.08em; font-size: 12px;">REGISTER</span></a>
+        </button>
+      </div>
     </div>
   </div>
-  <div class="row d-flex justify-content-center login-row">
-    <div class="col-md-6 col-lg-5 col-xl-5 col-sm-7">
-      <div style="padding-top: 28px; padding-left: 30px;">
-        <img class="img-fluid" style="position: absolute;" src="assets/images/TRA_Logo.png" width="150" height="50" alt="" />
-      </div>
-      <div class="card card-login-container">
-        <div class="mt-1">
-          <h3
-            style="font-family: Mulish; font-style: normal; font-weight: 700; font-size: 21px; line-height: 30px; color: #F8F8F8;">
-            Welcome to our Quality Assurance Portal!</h3>
-          <p class="mt-2"
-            style="font-family: Mulish; font-style: normal; font-weight: 400; font-size: 17px; line-height: 25px; color: #F8F8F8;">
-            Ensure Standards, Certification & Registration in Tourism</p>
-        </div>
-        <div class="card-body card-login text-center pb-1">
-          <form class="forms-sample">
-            <div class="mb-3">
-              <!-- <label for="exampleInputUsername1" class="form-label">Username</label> -->
-              <input type="text" class="form-control" id="exampleInputUsername1" autocomplete="Username" placeholder="Enter Names">
-            </div>
-            <div class="mb-3">
-              <!-- <label for="exampleInputEmail1" class="form-label">Email address</label> -->
-              <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Enter Email">
-            </div>
-            <div class="mb-3">
-              <!-- <label for="exampleInputPassword1" class="form-label">Password</label> -->
-              <input type="password" class="form-control" id="exampleInputPassword1" autocomplete="current-password" placeholder="Enter Password">
-            </div>
-            <!-- <div class="form-check mb-3">
-              <input type="checkbox" class="form-check-input" id="authCheck">
-               <label class="form-check-label" for="authCheck">
-                Remember me
-              </label> --
-            </div> -->
-            <div>
-              <button type="submit" style="width: 100%; border: none;" class="btn btn-block login-btn transition" (click)="onRegister($event)">SIGN UP</button>
-            </div>
-            <hr>
-            <div class="mt-2 d-flex justify-content-center">
-              <p class="text-light"> <a routerLink="/auth/login" style="text-decoration: none;"
-                  class="transition text-light"> Back to Login! </a></p>
-            </div>
-          </form>
-
-        </div>
-      </div>
-      <div class="" style=" padding-bottom: 15px; padding-left: 15px; justify-content: center; margin-top: -7%;">
-        <button class="btn btn-md" style="background-color: #6D36A8 ; color: #F8F8F8; border-radius: 8px; "> <a href=""
-            style="text-decoration: none; text-transform: none;" target="_blank" class="transition text-light"> VISIT:
-            WWW.TRA.GO.KE </a></button>
+  <div class="card bg-light">
+    <div class="row">
+      <div class="card col-md-12 col-lg-12 col-xl-12 col-sm-12"
+        style="background-image: url('assets/images/headerl.png'); background-size: cover; background-repeat: no-repeat; padding: 40px 90px; color:#F8F8F8">
+        <h2 style="font-family: 'Mulish';line-height: 25px;font-weight: 600;font-size: 25px;">
+          Ignite Success in Tourism: Align with Our Benchmark Minimum Standards.
+        </h2>
       </div>
     </div>
-    <div class="card col-md-6 col-lg-7 col-xl-7 col-sm-5"
-      style="background-image: url('assets/images/login_bg.png'); background-size: cover; background-repeat: no-repeat;">
+    <div class="card border-0 box-shadow">
+      <div class="d-flex justify-content-start mt-4" style="margin-bottom: -4%; padding-left: 40px;">
+        <div>
+          <h3 class="card-title" style="color: #1E0F2E; font-family: 'Muli';font-weight: 600;font-size: 16px;">All Standards</h3>
+        </div>
+      </div>
+      <div class="card-body p-2">
+        <div class="border-0 box-shadow">
+          <div class="grid-margin stretch-card ">
+            <div class="row" style="padding: 40px;">
+              <div class="col-md-3 col-lg-3 col-xl-3 col-sm-4 mt-3 pt-2" *ngFor="let std of standards">
+                <div class="" [id]="std.id">
+                  <img class="img-fluid" style="max-height: 55px;" [src]="std.icon">
+                  <hr>
+                  <div class="mt-2">
+                    <p style="color: #2268AA; font-family: 'Muli';font-weight: 600;font-size: 15px;" class="h2">
+                      {{std.name}}
+                    </p>
+                  </div>
+                  <div class="mt-3">
+                    <p style="color: #1E0F2E; font-family: 'Muli';font-weight: 400;font-size: 13px;" class="h3">
+                      {{std.describe}}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="background-color:#D0DDF0 ; display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 25px 96px;">
+    <div>
+      <img class="img-fluid" style="position: absolute; margin-top: -1%;" src="assets/images/TRA_Logo.png" width="115"
+        height="60" alt="logo" />
+    </div>
+    <div style="font-family:'Mulish';font-style: normal; text-transform: uppercase; font-weight: 700; font-size: 15px;line-height: 25px; text-align: center; letter-spacing: 0.08em;">
+      <a routerLink="/" style="text-decoration: none; color: #1E0F2E;" class="transition">Home</a>
+      <a routerLink="/" class="" style="text-decoration: none; margin: 18px; color: #1E0F2E;" class="transition">Tourism
+        ACT 2011</a>
+      <a routerLink="/" style="text-decoration: none; color: #1E0F2E;" class="transition">Tourism Regulations 2014</a>
     </div>
   </div>
 </div>

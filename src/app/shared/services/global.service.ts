@@ -16,7 +16,7 @@ export class GlobalService {
   constructor() {
     this.channelManagerHost = environment.channelManager;
     this.mobileBankingHost = environment.mobileBanking;
-    this.mobileBankingNest = environment.mobileBankingNest;
+    // this.mobileBankingNest = environment.mobileBankingNest;
   }
 
   loadGlobalSettingsFromLocalStorage(): void {
