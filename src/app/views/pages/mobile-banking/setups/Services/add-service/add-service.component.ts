@@ -11,7 +11,7 @@ declare const google: any;
 
 
 @Component({
-  selector: 'app-add-branch',
+  selector: 'app-service',
   templateUrl: './add-service.component.html',
   styleUrls: ['./add-service.component.scss']
 })
@@ -57,7 +57,6 @@ export class AddServiceComponent implements OnInit {
   private geoCoder: Geocoder;
 
   ngOnInit(): void {
-
     console.log("this.formData");
     console.log(this.formData);
 
@@ -100,9 +99,6 @@ export class AddServiceComponent implements OnInit {
           this.zoom = 12;
 
           this.selectedCoordinates = {lat: this.latitude, lng: this.longitude};
-
-
-
         });
       });
     });

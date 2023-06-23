@@ -1,36 +1,34 @@
 workflow:
   rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'first-phase'
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'developer' || $CI_COMMIT_BRANCH == 'cicd-testing' || $CI_COMMIT_BRANCH == 'developer'
       when: always
-    - if: $CI_COMMIT_BRANCH == 'cicd-testing' || $CI_COMMIT_BRANCH == 'first-phase'
-      when: always
-
-image: docker:20.10.21
 
 stages:
   - preBuild
-  - test
   - build
+  - deploy
 
-buildBaseContainer:
+buildBaseImage:
   stage: preBuild
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
   script:
-    - docker login -u test-dev-account -p $REGISTRY_PASSWORD devops-registry.ekenya.co.ke
-    - docker build . -t devops-registry.ekenya.co.ke/channel-manager/portal-builder:latest -f builder.Dockerfile
-    - docker push devops-registry.ekenya.co.ke/channel-manager/portal-builder:latest
+    - /kaniko/executor
+      --context "$PWD"
+      --dockerfile "builder.Dockerfile"
+      --destination "devops-registry.ekenya.co.ke/tra-project/customer-portal-builder:latest"
   only:
     changes:
       - package.json
 
-#runTests:
-#    stage: test
-#    image: devops-registry.ekenya.co.ke/channel-manager/portal-builder:latest
-#    script:
-#    - ng test
-
-buildLatestContainer:
+buildImage:
   stage: build
+  image: 
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
   script:
-    - docker login -u test-dev-account -p $REGISTRY_PASSWORD devops-registry.ekenya.co.ke
-    - docker build . -t devops-registry.ekenya.co.ke/channel-manager/portal:latest
-    - docker push devops-registry.ekenya.co.ke/channel-manager/portal:latest
+    - /kaniko/executor
+      --context "$PWD"
+      --dockerfile "Dockerfile"
+      --destination "devops-registry.ekenya.co.ke/tra-project/customer-portal:latest"

@@ -17,8 +17,8 @@ import { DatatableComponent } from '@swimlane/ngx-datatable/lib/components/datat
 import { DataExportationService } from 'src/app/shared/services/data-exportation.service';
 import { HttpService } from 'src/app/shared/services/http.service';
 import {AddCustomerComponent} from "../add-customer/add-customer.component";
-import {ChannelDetailsWrapper} from "../../../../../shared/services/channelDetailsWrapper";
-import {AddAccountComponent} from "../../Accounts/AccountRegistration/add-account/add-account.component";
+// import {ChannelDetailsWrapper} from "../../../../../shared/services/channelDetailsWrapper";
+// import {AddAccountComponent} from "../../Accounts/AccountRegistration/add-account/add-account.component";
 
 @Component({
   selector: 'app-list-requests',

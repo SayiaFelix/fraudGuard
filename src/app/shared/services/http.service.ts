@@ -10,6 +10,9 @@ import { Router } from '@angular/router';
   providedIn: 'root',
 })
 export class HttpService {
+  post(arg0: string, model: { profileId: any; roleIds: any; active: string; remarks: any; }) {
+    throw new Error('Method not implemented.');
+  }
   constructor(
     private http: HttpClient,
     private globalService: GlobalService,

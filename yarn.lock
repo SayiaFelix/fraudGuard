@@ -4902,7 +4902,6 @@ ngx-bootstrap@^9.0.0:
   integrity sha512-wVwKs1jIASzJrKSPUhOcHY8f39MKyG31SruJdVQ3S/v/PdBVmVuFUJL86Awc8F60di2xD9C4DzzGObkvsHbirw==
   dependencies:
     tslib "^2.3.0"
-    tslib "^2.3.0"
 
 ngx-chips@^3.0.0:
   version "3.0.0"
@@ -4992,6 +4991,13 @@ ngx-sortablejs@^11.1.0:
   integrity sha512-eM4dHwWSmXDcvF5gUmyMMQ0qqcqBXWCSZ9IRpqx4UkBKfo4N7pk/QuYh5io2fXVHWVFDaxW1yhn2FNpqxV6Jqw==
   dependencies:
     tslib "^2.0.0"
+
+ngx-toastr@^17.0.2:
+  version "17.0.2"
+  resolved "https://registry.yarnpkg.com/ngx-toastr/-/ngx-toastr-17.0.2.tgz#fb7bb4fc22e5425bbacde0856165d30b7900adec"
+  integrity sha512-KehiPx6bkbiUyJbabf0ZA04+ASumS8r/y4wPsUOMI9OrBvBcfq27UQmWuQKoVR8E+9y4Pq7eZkSg2kvxNvpxTA==
+  dependencies:
+    tslib "^2.3.0"
 
 ngx-window-token@>=6.0.0:
   version "7.0.0"
