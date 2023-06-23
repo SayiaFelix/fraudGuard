@@ -1,0 +1,96 @@
+<div class="body w-100" style="position: relative; background-color: #EFEFEF;">
+  <div class="">
+    <div class="row" style="max-width: 100%; max-height: 70px;">
+      <div class="col-md-2" style="margin-left: 50px;">
+        <div class="p-2">
+          <button class="btn btn-md" style="background-color: #6D36A8 ; color: #F8F8F8; border-radius: 4px; "> <a
+              href="https://www.tra.go.ke/" style="text-decoration: none; text-transform: none;" target="_blank"
+              class="transition text-light">
+              VISIT:WWW.TRA.GO.KE </a>
+          </button>
+        </div>
+      </div>
+      <div class="col-md-2 col-lg-2 col-xl-2 col-sm-2 p-2 ml-2">
+        <img class="img-fluid" src="assets/images/TRA_Logo.png" width="110" height="50" alt="" />
+      </div>
+      <div class="col-md-5 col-lg-5 col-xl-5 col-sm-5"></div>
+      <div class=" col-md-2 col-lg-2 col-xl-2 col-sm-2 d-flex p-2 justify-content-around" style="margin-left: 12px;">
+        <button class="btn btn-sm btn-light transition" type="submit"><a routerLink="/auth/login" style="text-decoration: none; color:  #1E0F2E;font-family: 'Muli';font-style: normal;
+          font-weight: 700;font-size: 12px; letter-spacing: 0.08em;border-radius: 8px;text-transform: uppercase;"
+            class="transition m-1">Sign In</a>
+        </button>
+        <button class="btn btn-md login-btn transition" type="submit">
+          <a routerLink="/auth/register" style="text-decoration: none;" class="transition">
+            <span style="color:  #F8F8F8; font-weight: 700;letter-spacing: 0.08em; font-size: 12px;">REGISTER</span></a>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="row">
+      <div class="col-md-12 col-lg-12 col-xl-12 col-sm-12">
+        <img class="card-img-top img-fluid" src="assets/images/landing.png" />
+      </div>
+    </div>
+    <div class="card border-0 box-shadow">
+      <div class="mt-4 d-flex justify-content-around">
+        <div>
+          <h3 class="card-title" style="color: #1E0F2E; font-family: 'Muli';font-weight: 600;font-size: 17px;">Standard
+            development is an integral part of sustainable tourism development.</h3>
+        </div>
+        <a style=" cursor: pointer; color:  #6D36A8;; font-family: 'Muli';font-style: normal;font-weight: 700;font-size: 18px;" routerLink="/standards/all-standards" >View all Standards</a>
+      </div>
+      <div class="card-body p-2">
+        <div class="border-0 box-shadow">
+          <div class="grid-margin stretch-card ">
+            <div class="row" style="padding-left: 40px;">
+              <div class="col-md-3 col-lg-3 col-xl-3 col-sm-4 mt-3 pt-2" *ngFor="let std of standards">
+                <div class="" [id]="std.id">
+                  <img class="img-fluid" style="max-height: 55px;" [src]="std.icon">
+                  <hr>
+                  <div class="mt-2">
+                    <p style="color: #2268AA; font-family: 'Muli';font-weight: 600;font-size: 15px;" class="h2">
+                      {{std.name}}
+                    </p>
+                  </div>
+                  <div class="mt-3">
+                    <p style="color: #1E0F2E; font-family: 'Muli';font-weight: 400;font-size: 13px;" class="h3">
+                      {{std.describe}}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="card col-md-12 col-lg-12 col-xl-12 col-sm-12"
+      style="background-image: url('assets/images/headerl.png');    background-repeat: repeat-x; background-repeat: repeat-y; padding: 40px 90px; color:#F8F8F8">
+      <h2 style="font-family: 'Mulish';line-height: 25px;font-weight: 600;font-size: 25px;">
+        Ignite Success in Tourism: Align with Our Benchmark Minimum Standards.
+      </h2>
+      <p style="font-family: 'Mulish';font-weight: 400;font-size: 15px; line-height: 20px; margin-top: 15px;">
+        Access all develop Minimum Standards for
+        regulated tourism enterprises in collaboration with stakeholders and relevant agencies. Align with our
+        benchmarks to gain a competitive edge, enhance customer satisfaction, and experience the transformative power
+        of excellence in tourism. Partner with us for a future of unparalleled success.</p>
+    </div>
+  </div>
+  <div class="card"
+    style="background-color:#D0DDF0 ; display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 25px 96px;">
+    <div>
+      <img class="img-fluid" style="position: absolute; margin-top: -1%;" src="assets/images/TRA_Logo.png" width="115"
+        height="60" alt="logo" />
+    </div>
+    <div
+      style="font-family:'Mulish';font-style: normal; text-transform: uppercase; font-weight: 700; font-size: 15px;line-height: 25px; text-align: center; letter-spacing: 0.08em;">
+      <a routerLink="/" style="text-decoration: none; color: #1E0F2E;" class="transition">Home</a>
+      <a routerLink="/" class="" style="text-decoration: none; margin: 18px; color: #1E0F2E;" class="transition">Tourism
+        ACT 2011</a>
+      <a routerLink="/" style="text-decoration: none; color: #1E0F2E;" class="transition">Tourism Regulations 2014</a>
+    </div>
+  </div>
+</div>

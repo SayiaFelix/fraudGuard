@@ -3,8 +3,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
-
-import { HttpService } from '../../../shared/http.service';
+import { HttpService } from 'src/app/shared/services/http.service';
 
 
 @Component({

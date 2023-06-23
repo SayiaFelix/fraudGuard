@@ -6,6 +6,16 @@ import { ErrorPageComponent } from './views/pages/error-page/error-page.componen
 
 const routes: Routes = [
   {
+    path: '',
+    redirectTo: 'standards',
+    pathMatch: 'full'
+  },
+  {
+    path: 'standards', 
+    loadChildren: () =>
+      import('./views/pages/home/home.module').then((m) => m.HomeModule),
+  },
+  {
     path: 'auth',
     loadChildren: () =>
       import('./views/pages/auth/auth.module').then((m) => m.AuthModule),
@@ -15,6 +25,7 @@ const routes: Routes = [
     component: BaseComponent,
     canActivateChild: [AuthGuard],
     children: [
+      
       {
         path: 'dashboard',
         loadChildren: () =>

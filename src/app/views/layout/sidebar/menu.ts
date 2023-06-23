@@ -11,11 +11,11 @@ export const MENU: MenuItem[] = [
         label: 'Standards',
         link: '/dashboard'
       },
-      {
-        profiles: ['CORPORATE_ADMIN'],
-        label: 'Chat( Comments )',
-        link: '/mobile-banking/channels/ussd-ussd-channel-dashboard'
-      },
+      // {
+      //   profiles: ['CORPORATE_ADMIN'],
+      //   label: 'Chat( Comments )',
+      //   link: '/mobile-banking/channels/ussd-ussd-channel-dashboard'
+      // },
       // {
       //   profiles: ['CORPORATE_ADMIN'],
       //   label: 'Mobile Banking IB',
