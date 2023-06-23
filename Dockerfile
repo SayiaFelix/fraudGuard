@@ -1,5 +1,5 @@
 # base image
-FROM node:14.20.1-alpine as build
+FROM devops-registry.ekenya.co.ke/tra-project/customer-portal-builder as build
 
 # install chrome for protractor tests
 #RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
@@ -10,12 +10,12 @@ FROM node:14.20.1-alpine as build
 WORKDIR /app
 
 # add `/app/node_modules/.bin` to $PATH
-ENV PATH /app/node_modules/.bin:$PATH
+# ENV PATH /app/node_modules/.bin:$PATH
 
 # install and cache app dependencies
-COPY package.json /app/package.json
-RUN yarn install
-RUN npm install @angular/cli@14.2.10
+# COPY package.json /app/package.json
+# RUN yarn install
+# RUN npm install @angular/cli@14.2.10
 
 # add app
 COPY . /app
