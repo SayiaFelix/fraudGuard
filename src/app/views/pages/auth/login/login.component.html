@@ -22,11 +22,11 @@
             style="font-family: Mulish; font-style: normal; font-weight: 400; font-size: 17px; line-height: 25px; color: #F8F8F8;">
             Ensure Standards, Certification & Registration in Tourism</p>
         </div>
-        <div class="card-body card-login text-center pb-1">
+        <div class="card-login text-center pb-1 mt-3">
           <form class="forms-sample text-left" [formGroup]="form">
             <div class="mb-3">
               <!-- <label for="email" class="form-label">{{ 'login.username' | translate }}</label> -->
-              <input type="email" formControlName="username" class="form-control" id="email" placeholder="Enter Email">
+              <input type="email" class="inputs" formControlName="username" class="form-control" id="email" placeholder="Enter Email">
               <small class="text-danger"
                 *ngIf="form.get('username')?.touched && form.get('username')?.hasError('required')">Username is
                 required</small>
@@ -41,7 +41,7 @@
             <div class="mb-3">
               <!-- <label for="password" class="form-label">{{ 'login.password' | translate }}</label> -->
               <div class="input-group mb-3">
-                <input [type]="inputType" formControlName="password" class="form-control" placeholder="Enter password"
+                <input [type]="inputType" class="inputs" formControlName="password" class="form-control" placeholder="Enter password"
                   id="password" aria-label="password">
                 <div class="input-group-prepend" style="cursor: pointer;" (click)="toggleShowPassword()">
                   <span class="input-group-text" *ngIf="!this.showingPassword"><i class="mdi mdi-eye"></i></span>
@@ -69,10 +69,17 @@
             </div>
             <hr>
             <div class="mt-2 d-flex justify-content-between" style="margin-top: -10%;">
-              <p class="text-light"> <a routerLink="/auth/register" style="text-decoration: none;"
-                  class="transition text-light"> Register Now! </a></p>
+              <div class="d-flex justify-content-between">
+                <input class="form-check-input mt-2" type="checkbox"  style="width: 10px; height: 10px;"> 
+                <p class="m-1" style="font-family: Mulish; font-weight: 400; ">Remember for 30 days</p>
+              </div>
+            
               <p class="text-light"> <a routerLink="/auth/forgot-password" style="text-decoration: none;"
-                  class="transition text-light">Forgot Password?</a></p>
+                  class="transition text-light fw-bold">Forgot Password?</a></p>
+            </div>
+            <div class="d-flex justify-content-center mt-3">
+              <p class="text-light">Don't have an account? <a routerLink="/auth/register" style="text-decoration: none;"
+                class="transition text-light fw-bold"> Sign Up </a></p>
             </div>
           </form>
           <p *ngIf="isLoading"><ngb-progressbar type="primary" [value]="95" [striped]="true"
