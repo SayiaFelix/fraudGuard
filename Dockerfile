@@ -14,7 +14,7 @@ FROM devops-registry.ekenya.co.ke/tra-project/customer-portal-builder as build
 # set working directory
 WORKDIR /app
 # add app
-# COPY . /app
+COPY . /app
 RUN ng build
 
 # # base image
