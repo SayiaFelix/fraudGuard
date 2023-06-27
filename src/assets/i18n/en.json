@@ -1,15 +1,15 @@
 {
   "welcomeMessage": "Thanks for joining, {{ firstName }}! It's great to have you!",
   "loginMessage":"Log in to your account",
-  "welcomeDashboardMessage": "Welcome to the Dashboard",
+  "welcomeDashboardMessage": "Welcome to the Sarova dashboard",
   "downloadTextOnButton": "Download",
   "login": {
     "username": "Username/ Email Address",
     "password": "Password"
   },
   "dashboard": {
-    "newCustomers": "New Customers",
-    "newDevices": "New Devices",
+    "newCustomers": "Staffs",
+    "newDevices": "Customers",
     "growth": "Growth",
     "revenue": "Revenue",
     "revenueDesc": "Revenue is the income that a business has from its normal business activities, usually from the sale of goods and services to customers."

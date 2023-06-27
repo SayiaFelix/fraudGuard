@@ -30,13 +30,13 @@ export const MENU: MenuItem[] = [
   },
   {
     profiles: ['CORPORATE_ADMIN'],
-    label: 'Standard Control',
+    label: 'Standards',
     icon: 'help-circle',
     subItems: [
       {
         profiles: ['CORPORATE_ADMIN'],
         label: 'View All Standards',
-        link: '/tra-client/standards/list-standards'
+        link: '/tra-client/standards/all-standards'
       },
     ]
   },

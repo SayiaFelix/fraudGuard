@@ -10,18 +10,16 @@ export class BaseComponent implements OnInit {
 
   isLoading: boolean;
 
-  constructor(private router: Router) { 
+  constructor(private router: Router) {
 
     // Spinner for lazyload modules
-    router.events.forEach((event) => { 
+    router.events.forEach((event) => {
       if (event instanceof RouteConfigLoadStart) {
         this.isLoading = true;
       } else if (event instanceof RouteConfigLoadEnd) {
         this.isLoading = false;
       }
     });
-
-    
   }
 
   ngOnInit(): void {
