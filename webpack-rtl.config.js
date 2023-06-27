@@ -1,6 +1,3 @@
-/**
- * Main file of webpack config for RTL.
- */
 
 const path = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
@@ -18,7 +15,7 @@ const entries = {
   "scss/style": "./src/assets/scss/style.scss"
 };
 
-const mainConfig = function() {
+const mainConfig = function () {
   return {
     mode: "development",
     stats: "errors-only",
@@ -78,6 +75,7 @@ const mainConfig = function() {
   };
 };
 
-module.exports = function() {
+module.exports = function () {
   return [mainConfig()];
 };
+
