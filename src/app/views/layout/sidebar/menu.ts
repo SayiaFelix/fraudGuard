@@ -36,7 +36,7 @@ export const MENU: MenuItem[] = [
       {
         profiles: ['CORPORATE_ADMIN'],
         label: 'View All Standards',
-        link: '/mobile-banking/requests/list-requests'
+        link: '/tra-client/standards/list-standards'
       },
     ]
   },
@@ -50,12 +50,12 @@ export const MENU: MenuItem[] = [
       {
         profiles: ['CORPORATE_ADMIN'],
         label: 'List Accreditations',
-        link: '/mobile-banking/products/list-categories-as-cards'
+        link: '/tra-client/accreditations/all'
       },
       {
         profiles: ['CORPORATE_ADMIN'],
         label: 'All Accreditations',
-        link: '/mobile-banking/products/list-all-products-as-cards'
+        link: '/tra-client/accreditations/all-accreditations'
       },
     ]
   },
@@ -68,17 +68,17 @@ export const MENU: MenuItem[] = [
       {
         profiles: ['CORPORATE_ADMIN'],
         label: 'View Requests',
-        link: '/mobile-banking/customers/list-requests'
+        link: '/tra-client/customers/list-requests'
       },
       {
         profiles: ['CORPORATE_ADMIN'],
         label: 'Classification Results',
-        link: '/mobile-banking/customers/list-failed-registrations'
+        link: '/tra-client/customers/list-failed-registrations'
       },
       {
         profiles: ['CORPORATE_ADMIN'],
         label: 'Notifications',
-        link: '/mobile-banking/customers/send-bulk-sms'
+        link: '/tra-client/customers/send-bulk-sms'
       },
     ]
   },
@@ -221,7 +221,7 @@ export const MENU: MenuItem[] = [
       {
         profiles: ['CORPORATE_ADMIN'],
         label: 'Inbox',
-        link: '/mobile-banking/Users/list-users'
+        link: '/tra-client/Users/list-users'
       },
       // {
       //   profiles: ['CORPORATE_ADMIN'],
@@ -231,7 +231,7 @@ export const MENU: MenuItem[] = [
       {
         profiles: ['CORPORATE_ADMIN'],
         label: 'Profiles',
-        link: '/mobile-banking/rbac/all-profiles'
+        link: '/tra-client/rbac/all-profiles'
       }
     ]
   },

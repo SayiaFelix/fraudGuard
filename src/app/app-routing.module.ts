@@ -42,7 +42,7 @@ const routes: Routes = [
           import('./views/pages/apps/apps.module').then((m) => m.AppsModule),
       },
       {
-        path: 'mobile-banking',
+        path: 'tra-client',
         loadChildren: () =>
           import('./views/pages/mobile-banking/mobile-banking.module').then(
             (m) => m.MobileBankingModule

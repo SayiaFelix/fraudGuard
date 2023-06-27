@@ -2,76 +2,30 @@
   class="d-flex justify-content-between align-items-center flex-wrap grid-margin"
 >
   <div>
-    <h4 class="mb-3 mb-md-0">All Products</h4>
+    <h4 class="mb-3 mb-md-0">All Accreditation</h4>
   </div>
+  <app-table-header
+    [allColumns]="allColumns"
+    [rows]="rows"
+    [title]="title"
+    [showAddButton]="false"
+    (changeColumnsEvent)="updateColumns($event)"
+  ></app-table-header>
 
-  <div ngbDropdown>
-    <button class="btn btn-primary btn-xs" id="dropdownBasic1" ngbDropdownToggle>Select View</button>
-    <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
-      <button ngbDropdownItem routerLink="/mobile-banking/products/list-all-products-as-cards">Card View</button>
-      <button ngbDropdownItem routerLink="/mobile-banking/products/list-products">Table View</button>
-    </div>
-  </div>
-
-</div>
-<ul class="d-none">
-  <li *ngFor="let item of allItems | paginate: {itemsPerPage: perPage, currentPage: page, totalItems: allItems.length}">
-  </li>
-</ul>
-<div class="d-flex justify-content-between mt-2">
-  <div class="row col-xl-6 col-lg-1 col-md-1 text-center">
-    <div class="col-sm-4 pl-0">
-      <select (change)="onChange(perPage, page)" [(ngModel)]="perPage" class="form-control custom-select">
-        <option *ngFor="let pageSize of [{id: 3, name: '3 Items per Page'}, {id: 6, name: '6 Items per Page'}, {id: 9, name: '9 Items per Page'}]" [ngValue]="pageSize.id">{{ pageSize.name }}</option>
-      </select>
-    </div>
-
-  </div>
-  <pagination-controls [responsive]="true" [autoHide]="false" previousLabel="Prev"
-                       (pageChange)="pageChangeEvent($event)" [maxSize]="7">
-  </pagination-controls>
-</div>
-<!--  Pagination-->
-
-<div class="row row-cols-1 row-cols-md-3 g-4">
-  <div class="col-6" *ngFor="let item of itemsForPresentation" [id]="item.id">
-    <div class="card unique-card">
-
-      <div class="p-1">
-        <div ngbDropdown class="d-flex justify-content-end">
-          <button class="btn p-0 no-dropdown-toggle-icon" id="dropdownMenuButton" ngbDropdownToggle type="button">
-            <i class="feather icon-more-horizontal icon-lg text-muted pb-3px"></i>
-          </button>
-          <div aria-labelledby="dropdownMenuButton" ngbDropdownMenu>
-            <a (click)="false" class="d-flex align-items-center" ngbDropdownItem
-               (click)="openDeleteModal(item)"
-            ><i class="feather icon-trash-2 icon-sm me-2 text-danger"></i> <span class="text-danger">Delete</span></a>
-          </div>
-        </div>
-      </div>
-
-      <img class="card-img-top" [src]="item.productUrl.trim()"
-           [alt]="item.alt"
-           style="padding: 0 12px!important"
-           preload>
-      <div class="card-body" style="padding:24px 12px 24px 12px!important;">
-        <h5 class="card-title">{{item.name}}</h5>
-        <p class="card-text text" style="min-height: 65px!important;">{{item.detailedDescription}}</p>
-        <p class="card-text">{{item.productDescription}}</p>
-        <div class="d-flex justify-content-between pt-2">
-          <a [routerLink]="'/mobile-banking/products/product/' + productCategoryId + '/' + item.id"
-             class="btn btn-primary btn-sm"
-
-             style="width:140px!important; margin-left: 0!important"
-          >View</a>
-          <a (click)="editProduct(item)"
-             class="btn btn-secondary btn-sm"
-             style="width:140px!important; margin-right: 0!important">
-            Edit</a>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 
 
+<div class="row">
+  <div class="col-md-12 stretch-card">
+    <div class="card" *ngIf="rows.length > 0">
+        <app-custom-ngx-table
+          [columns]="columns"
+          [rows]="rows"
+          [actions]="actions"
+          [hasViewAndEdit]="true"
+          [loadingIndicator]="loading"
+          (outputEvent)="triggerEvent($event)"
+        ></app-custom-ngx-table>
+    </div>
+  </div>
+</div>

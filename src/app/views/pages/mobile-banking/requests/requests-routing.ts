@@ -8,7 +8,7 @@ import {ListRequestsComponent} from "./list-requests/list-requests.component";
 const routes: Routes = [
 
   {
-    path: 'list-requests',
+    path: 'list-standards',
     component: ListRequestsComponent
   }
 ];
