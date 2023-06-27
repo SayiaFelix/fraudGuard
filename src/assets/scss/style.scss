@@ -7,21 +7,15 @@
 // Theme style for demo2 (Vertical-Menu-Dark & Vertical-Menu-Dark-RTL)
 
 
-
 // Custom variables
 @import './variables';
 
-
-
 // Bootstrap stylesheets
-
-@import "~bootstrap/scss/functions";
-@import "~bootstrap/scss/variables";
-@import "~bootstrap/scss/maps"; // **Newly added!**
-@import "~bootstrap/scss/mixins";
-@import "~bootstrap/scss/utilities";
-@import "~bootstrap/scss/helpers";
-@import "~bootstrap/scss/utilities/api";
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/maps";
+@import "bootstrap/scss/mixins";
+@import "bootstrap/scss/utilities";
 
 // Bootstrap layout & components
 @import "bootstrap/scss/root";
