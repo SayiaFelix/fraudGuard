@@ -17,7 +17,6 @@ CMD [ "nginx", "-g", "daemon off;" ]
 # COPY . /app
 # RUN ng build --configuration production --base-href /client-portal/ --deploy-url /client-portal/
 
-
 # # base image
 # FROM nginx:1.17.1-alpine
 # # Replace default nginx configuration
