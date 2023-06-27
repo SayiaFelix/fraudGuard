@@ -15,7 +15,7 @@ FROM devops-registry.ekenya.co.ke/tra-project/customer-portal-builder as build
 WORKDIR /app
 # add app
 # COPY . /app
-RUN ng build --configuration production --base-href /client-portal/ --deploy-url /client-portal/
+RUN ng build
 
 # # base image
 FROM nginx:1.17.1-alpine
