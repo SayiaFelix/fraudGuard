@@ -44,7 +44,7 @@ export const MENU: MenuItem[] = [
 
   {
     profiles: ['CORPORATE_ADMIN'],
-    label: 'Accreditations',
+    label: 'All Accreditations',
     icon: 'shopping-bag',
     subItems: [
       {
@@ -54,7 +54,7 @@ export const MENU: MenuItem[] = [
       },
       {
         profiles: ['CORPORATE_ADMIN'],
-        label: 'All Accreditations',
+        label: 'All Requests',
         link: '/tra-client/accreditations/all-accreditations'
       },
     ]
