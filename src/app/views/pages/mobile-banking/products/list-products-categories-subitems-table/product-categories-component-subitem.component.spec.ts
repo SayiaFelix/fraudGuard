@@ -1,6 +1,5 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { ProductCategoriesComponentSubItem } from './product-categories-component-redesigned.component';
+import { ProductCategoriesComponentSubItem } from './product-categories-component-subitem.component';
 
 describe('StarterComponent', () => {
   let component: ProductCategoriesComponentSubItem;
