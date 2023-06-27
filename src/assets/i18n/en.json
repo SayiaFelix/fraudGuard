@@ -11,8 +11,7 @@
     "newCustomers": "Staffs",
     "newDevices": "Customers",
     "growth": "Growth",
-    "revenue": "Revenue",
-    "revenueDesc": "Revenue is the income that a business has from its normal business activities, usually from the sale of goods and services to customers."
+    "revenue": "Location"
   },
   "channels": {
     "ussd": {
