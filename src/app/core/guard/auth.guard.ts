@@ -10,9 +10,6 @@ export class AuthGuard implements CanActivate {
   constructor(private router: Router, 
     private httpService: HttpService, private globalService: GlobalService) {
       this.currState = router.routerState.snapshot;
-
-      
-
     }
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
@@ -48,7 +45,6 @@ export class AuthGuard implements CanActivate {
     } else if (this.currState.url === '/standards') {
       return true;
     } else {
-
     this.router.navigate(['/auth/login']);
     return false;
     }

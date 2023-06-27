@@ -5,7 +5,7 @@ import { AddProductSubItemComponent } from '../add-product-subitem/add-product-s
 import { DomSanitizer } from '@angular/platform-browser';
 import { DataExportationService } from 'src/app/shared/services/data-exportation.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { HttpService } from 'src/app/shared/services/http.service';
 import { OwlOptions } from 'ngx-owl-carousel-o';
@@ -18,26 +18,41 @@ import { ColumnMode, DatatableComponent } from '@swimlane/ngx-datatable';
 })
 export class ListAllProductsAsCardsComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
+  actions = [];
+  tempProductData = [
+    {
+      'frontendId': "1",
+      'accountNo': "1234",
+      'currency': "KES",
+      'mobileNo': "2547887337332",
+      'requestType': "STO_START",
+      'requestCharge': ".00",
+      'transactionRef': "BDJ93839G",
+      'channel': "APP",
+      'dateRequested': "2023-02-12",
+      'status': "05",
+    }
 
-
-
-  actions = ["View", "Edit"];
-
+  ];
 
   // bread crumb items
   breadCrumbItems: Array<{}>;
   rows: any = [];
   temp: any = [];
-  loadingIndicator = true;
+  loading = true;
   reorderable = true;
 
   columns = [
     {name: 'ID', prop: 'id'},
-    {name: 'Name', prop: 'name'},
-    {name: 'ParentCategory', prop: 'parentCategoryName'},
-    {name: 'Remarks', prop: 'description'},
+    {name: 'Account No.', prop: 'accountNo'},
+    {name: 'Currency', prop: 'currency'},
+    {name: 'Mobile No.', prop: 'mobileNo'},
+    {name: 'Request', prop: 'requestType'},
+    {name: 'Charge', prop: 'requestCharge'},
+    {name: 'Ref Code', prop: 'transactionRef'},
+    {name: 'Channel', prop: 'channel'},
+    {name: 'Date Requested', prop: 'dateRequested'},
     {name: 'Status', prop: 'status'},
-    {name: 'CreatedOn', prop: 'createdOn'},
     {name: 'Actions', prop: 'id'},
   ];
 
@@ -48,172 +63,68 @@ export class ListAllProductsAsCardsComponent implements OnInit {
   ColumnMode = ColumnMode;
   public imageFile: File;
   public modalRef: NgbModalRef;
-  public productCategoryId:any;
 
+  title: string = "USSD Customer";
 
-  title: string = "Product";
-  autoPlayExampleOptions: OwlOptions = {
-    items:4,
-    loop:false,
-    margin:0,
-    autoplay:false,
-    autoplayTimeout:9000,
-    autoplayHoverPause: false,
-    navSpeed: 20,
-    dotsSpeed: 20,
-    dragEndSpeed: 20,
-    slideTransition: "none",
-    mouseDrag: false,
-    pullDrag: false,
-    dots: true,
-    dotsData: true,
-    responsive:{
-      0:{
-        items: 1
-      },
-      600:{
-        items: 2
-      },
-      1000:{
-        items: 3
-      }
-    }
-  }
-
-  allItems:any[] = [
-    // {
-    //   id:'1',
-    //   src:'assets/images/category4.png',
-    //   alt:'Image_1',
-    //   title:'Personal Accounts',
-    //   description: "Describing personal accounts.",
-    //   productDescription: "Here is the product description"
-    // },
-    // {
-    //   id:'2',
-    //   src:'assets/images/category2.png',
-    //   alt:'Image_2',
-    //   title:'Business Accounts',
-    //   description: "Describing Business Accounts.",
-    //   productDescription: "Here is the product description"
-
-    // },
-    // {
-    //   id:'3',
-    //   src:'assets/images/category3.png',
-    //   alt:'Image_3',
-    //   title:'Islamic accounts',
-    //   description: "Describing Islamic accounts",
-    //   productDescription: "Here is the product description"
-    // },
-    // {
-    //   id:'4',
-    //   src:'assets/images/category2.png',
-    //   alt:'Image_4',
-    //   title:'Student Accounts',
-    //   description: "Describing Student Accounts.",
-    //   productDescription: "Here is the product description"
-    // }
-  ]
-
-  itemsForPresentation: any[];
-  perPage: number = 6;
-  page: any = 1;
-
-  pageSize: number;
 
   constructor(
     private httpService: HttpService,
     private modalService: NgbModal,
-    private activatedRoute:ActivatedRoute,
     public fb: FormBuilder,
     public router: Router,
-    private dataExploration: DataExportationService,
-    public domSanitizer:DomSanitizer,
-    private sanitizer: DomSanitizer
+    private dataExploration: DataExportationService
   ) {
   }
 
   ngOnInit() {
-    //
-    // this.activatedRoute.params.subscribe(params => {
-    //   if (typeof params.id !== 'undefined') {
-    //     this.productCategoryId = params.id;
-    //   }
-    // })
-
-//     this.slidesStore.forEach((slide:any)=> {
-//       slide.productUrl = this.domSanitizer.bypassSecurityTrustUrl(slide.productUrl);
-//  });
-
-
     this.breadCrumbItems = [
       {
         label: 'Mobile banking',
-        path: '/mobile-banking/products/all-products',
+        path: '/mobile-banking/products/all-customers',
       },
       {label: 'Pages', path: '/'},
-      {label: 'Products', active: true},
+      {label: 'Customers', active: true},
     ];
     this.getIndividualData(0);
-  }
 
+    this.form = this.fb.group({
+      name: ['', [Validators.required]],
+      description: ['', [Validators.required]],
+      image: [''],
+    });
+  }
 
   getIndividualData(event: number): void {
 
+    this.loading = true;
+    this.rows = this.tempProductData;
+
+    this.temp = [...this.tempProductData];
+
     const model = {
-      page:0,
-      size:100
+      page: 0,
+      size: 50,
     };
 
     this.httpService
-      .mobileBankingPost('product/portal/fetch/all/active', model)
-      .subscribe(
-        (res: any) => {
-          if (res.status === 200) {
-            // let response = res['data'];
+      .mobileBankingPost('api/v1/corporate/admin/list-products/all', model)
+      .subscribe((res: any) => {
+        if (res.status === 200) {
+          this.loading = false;
+          setTimeout(() => {
+            // this.data = res.data;
+            this.rows = this.tempProductData;
+            // let data = this.tempProductData;
 
-            let response = res.data.map((item: any, index: any) => {
-              const res = {...item, frontendId: index + 1};
-              return res;
-            });
-            this.allItems = response;
-            this.itemsForPresentation = this.allItems.slice(0, 6);
-
-          } else {
-            Swal.fire('Failed', "Unable to fetch products", 'error')
-          }
-        }, (error: any) => {
-          Swal.fire("Error", error.message, "error");
-        });
+            let total = res.totalItems;
+          }, 10);
+        } else {
+          this.loading = false;
+        }
+      });
+    this.loading = false;
   }
 
-  openAddProductModal() {
-
-    this.modalRef = this.modalService.open(AddProductSubItemComponent, {centered: true});
-    this.modalRef.componentInstance.title = 'Add Product';
-    this.modalRef.componentInstance.productCategoryId = this.productCategoryId;
-    this.modalRef.result.then((result) => {
-      if (result === 'success') {
-        this.getIndividualData(0);
-      } else {
-        console.log("Error occurred");
-      }
-    });
-  }
-
-  openEditProductModal(formData: any) {
-    this.modalRef = this.modalService.open(AddProductSubItemComponent, {centered: true});
-    this.modalRef.componentInstance.title = 'Edit Product';
-    this.modalRef.componentInstance.formData = formData;
-    this.modalRef.result.then((result) => {
-      if (result === 'success') {
-        this.getIndividualData(0);
-      } else {
-        console.log("Error occurred")
-      }
-    });
-  }
 
   onFileChange(event: any) {
     if (event.target.files && event.target.files.length) {
@@ -221,8 +132,8 @@ export class ListAllProductsAsCardsComponent implements OnInit {
     }
   }
 
-  navigateToViewProduct(data: any) {
-    this.router.navigateByUrl(`/mobile-banking/products/list-products/${data.id}`);
+  navigateToViewUssdCustomer(data: any) {
+    this.router.navigateByUrl(`/mobile-banking/channels/ussdcustomer/${data.id}`);
   }
 
   toggleExpandRow(row: any) {
@@ -348,89 +259,12 @@ export class ListAllProductsAsCardsComponent implements OnInit {
   }
 
   triggerEvent(data: string) {
-
     let eventData = JSON.parse(data)
 
     if (eventData.action == 'View') {
-      this.navigateToViewProduct(eventData.row);
+      this.navigateToViewUssdCustomer(eventData.row);
     } else if (eventData.action == 'Edit') {
-      this.openEditProductModal(eventData.row);
+
     }
-
-  }
-
-  openDeleteModal(formData: any) {
-    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
-    this.modalRef.componentInstance.title = `Delete this Product?`;
-    this.modalRef.componentInstance.body = `Do you want to delete product: ${formData.name}?`;
-    this.modalRef.result.then((result: any) => {
-      if (result === 'success') {
-
-        let model = {
-          id: formData.id
-        }
-
-        this.httpService.mobileBankingPost('product/portal/delete',
-          model).subscribe(
-          (result: any) => {
-            if (result.status === 200) {
-              Swal.fire('Product Deleted',
-                'Product has been deleted successfully.',
-                'success').then(r => console.log(r))
-              this.getIndividualData(0)
-            } else {
-              Swal.fire('Record deletion error',
-                'Product could not be deleted.',
-                'error').then(r => console.log(r))
-            }
-          },
-          (error: any) => {
-            Swal.fire('Record deletion error',
-              `Record deletion error`,
-              'error')
-          }
-        );
-      }
-    });
-  }
-
-  editProduct(formData: any) {
-    this.modalRef = this.modalService.open(AddProductSubItemComponent, {centered: true});
-    this.modalRef.componentInstance.title = 'Edit Product';
-    this.modalRef.componentInstance.formData = formData;
-    this.modalRef.result.then((result) => {
-      if (result === 'success') {
-        this.getIndividualData(0);
-      } else {
-        console.log("Error occurred")
-      }
-    });
-  }
-
-  onChange(pageSize: any, page: any) {
-
-    console.log(`${pageSize} + ${page}`)
-
-    this.pageSize = pageSize;
-    this.retrieveItemsForPresentation(page, pageSize);
-  }
-
-  retrieveItemsForPresentation(page: number, pageSize: number){
-    let startingItem = (page-1) * this.pageSize;
-
-
-    console.log(startingItem)
-    console.log(pageSize)
-
-    this.itemsForPresentation = this.allItems.slice(startingItem, startingItem + pageSize);
-
-    console.log("this.itemsForPresentation");
-    console.log(this.itemsForPresentation);
-  }
-
-  pageChangeEvent(page: number) {
-    this.page = page;
-    console.log(`page:::::${page}`);
-    this.retrieveItemsForPresentation(page, this.pageSize);
   }
 }

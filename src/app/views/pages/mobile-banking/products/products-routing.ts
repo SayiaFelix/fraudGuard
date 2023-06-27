@@ -21,7 +21,7 @@ const routes: Routes = [
     component: ProductCategoriesComponent
   },
   {
-    path: 'list-categories-as-cards',
+    path: 'all',
     component: ProductCategoriesAsCardsComponent
   },
   {
@@ -38,7 +38,7 @@ const routes: Routes = [
     component: ProductAsCardsComponent
   },
   {
-    path: 'list-all-products-as-cards',
+    path: 'all-accreditations',
     component: ListAllProductsAsCardsComponent
   },
   {

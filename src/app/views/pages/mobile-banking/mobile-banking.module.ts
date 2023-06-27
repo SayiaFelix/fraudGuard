@@ -19,7 +19,7 @@ const routes: Routes = [
     children: [
 
       {
-        path: 'requests',
+        path: 'standards',
         loadChildren: () =>
           import('./requests/requests.module').then((m) => m.RequestsModule)
       },
@@ -30,7 +30,7 @@ const routes: Routes = [
       },
 
       {
-        path: 'products',
+        path: 'accreditations',
         loadChildren: () =>
           import('./products/products.module').then((m) => m.ProductsModule),
       },
