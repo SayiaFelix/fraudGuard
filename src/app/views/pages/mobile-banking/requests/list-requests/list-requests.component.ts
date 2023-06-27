@@ -19,254 +19,127 @@ import {HttpService} from 'src/app/shared/services/http.service';
  * Starter-component
  */
 export class ListRequestsComponent implements OnInit {
-  @ViewChild('table') table: DatatableComponent;
-  actions = [];
-  tempProductData = [
+  standards: any = [
     {
-      'frontendId': "1",
-      'accountNo': "1234",
-      'currency': "KES",
-      'mobileNo': "2547887337332",
-      'requestType': "STO_START",
-      'requestCharge': ".00",
-      'transactionRef': "BDJ93839G",
-      'channel': "APP",
-      'dateRequested': "2023-02-12",
-      'status': "05",
-    }
+      id: '1',
+      icon: "assets/images/icon.png",
+      name: 'Accommodation And Catering Establishment',
+      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    },
+    {
+      id: '2',
+      icon: "assets/images/icon.png",
+      name: 'Meetings, Incentives, Conferences & Exhibitions Facilities And Services',
+      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    },
+    {
+      id: '3',
+      icon: "assets/images/icon.png",
+      name: 'Standards For Food Safety And Hygiene Standards',
+      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    },
+    {
+      id: '4',
+      icon: "assets/images/icon.png",
+      name: 'Standards For Safety And Security Standards',
+      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    },
+    {
+      id: '5',
+      icon: "assets/images/icon.png",
+      name: ' Tour Guides And Hotel Employees Accommodation Standard',
+      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    },
+    {
+      id: '6',
+      icon: "assets/images/icon.png",
+      name: 'Halal Compliance Standard For Accommodation And Catering Establishments',
+      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    },
+    {
+      id: '7',
+      icon: "assets/images/icon.png",
+      name: 'Standards For Spa And Wellness Facilities',
+      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    },
+    {
+      id: '8',
+      icon: "assets/images/icon.png",
+      name: 'Standards For Tourism Tours & Travel Enterprises',
+      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    },
+    {
+      id: '9',
+      icon: "assets/images/icon.png",
+      name: 'Standards For Adventure Sports Tourism',
+      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    },
+    {
+      id: '10',
+      icon: "assets/images/icon.png",
+      name: 'Standards For Amusement Parks',
+      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    },
+    {
+      id: '11',
+      icon: "assets/images/icon.png",
+      name: 'Standards For Nature Trails',
+      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    },
+    {
+      id: '12',
+      icon: "assets/images/icon.png",
+      name: 'Standards For Private Zoos',
+      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    },
+    {
+      id: '13',
+      icon: "assets/images/icon.png",
+      name: ' Tour Guides And Hotel Employees Accommodation Standard',
+      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    },
+    {
+      id: '14',
+      icon: "assets/images/icon.png",
+      name: 'Professional Photographers Standards',
+      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    },
+    {
+      id: '15',
+      icon: "assets/images/icon.png",
+      name: 'Standards For Spa And Wellness Facilities',
+      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    },
+    {
+      id: '16',
+      icon: "assets/images/icon.png",
+      name: 'Digital Tourism Standards',
+      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    },
+    {
+      id: '17',
+      icon: "assets/images/icon.png",
+      name: 'Standards For Spa And Wellness Facilities',
+      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    },
+    {
+      id: '18',
+      icon: "assets/images/icon.png",
+      name: 'Standards For Tourism Tours & Travel Enterprises',
+      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    },
+  ]
+  constructor(private router: Router) { }
 
-  ];
-
-  // bread crumb items
-  breadCrumbItems: Array<{}>;
-  rows: any = [];
-  temp: any = [];
-  loading = true;
-  reorderable = true;
-
-  columns = [
-    {name: 'ID', prop: 'id'},
-    {name: 'Account No.', prop: 'accountNo'},
-    {name: 'Currency', prop: 'currency'},
-    {name: 'Mobile No.', prop: 'mobileNo'},
-    {name: 'Request', prop: 'requestType'},
-    {name: 'Charge', prop: 'requestCharge'},
-    {name: 'Ref Code', prop: 'transactionRef'},
-    {name: 'Channel', prop: 'channel'},
-    {name: 'Date Requested', prop: 'dateRequested'},
-    {name: 'Status', prop: 'status'},
-    {name: 'Actions', prop: 'id'},
-  ];
-
-  allColumns = [...this.columns];
-
-  public form: FormGroup;
-  public formData: { productName: any; remarks: any; image: any };
-  ColumnMode = ColumnMode;
-  public imageFile: File;
-  public modalRef: NgbModalRef;
-
-  title: string = "USSD Customer";
-
-
-  constructor(
-    private httpService: HttpService,
-    private modalService: NgbModal,
-    public fb: FormBuilder,
-    public router: Router,
-    private dataExploration: DataExportationService
-  ) {
+  ngOnInit(): void {
   }
 
-  ngOnInit() {
-    this.breadCrumbItems = [
-      {
-        label: 'Mobile banking',
-        path: '/mobile-banking/products/all-customers',
-      },
-      {label: 'Pages', path: '/'},
-      {label: 'Customers', active: true},
-    ];
-    this.getIndividualData(0);
-
-    this.form = this.fb.group({
-      name: ['', [Validators.required]],
-      description: ['', [Validators.required]],
-      image: [''],
-    });
-  }
-
-  getIndividualData(event: number): void {
-
-    this.loading = true;
-    this.rows = this.tempProductData;
-
-    this.temp = [...this.tempProductData];
-
-    const model = {
-      page: 0,
-      size: 50,
-    };
-
-    this.httpService
-      .mobileBankingPost('api/v1/corporate/admin/list-products/all', model)
-      .subscribe((res: any) => {
-        if (res.status === 200) {
-          this.loading = false;
-          setTimeout(() => {
-            // this.data = res.data;
-            this.rows = this.tempProductData;
-            // let data = this.tempProductData;
-
-            let total = res.totalItems;
-          }, 10);
-        } else {
-          this.loading = false;
-        }
-      });
-    this.loading = false;
-  }
-
-
-  onFileChange(event: any) {
-    if (event.target.files && event.target.files.length) {
-      this.imageFile = event.target.files[0];
-    }
-  }
-
-  navigateToViewUssdCustomer(data: any) {
-    this.router.navigateByUrl(`/mobile-banking/channels/ussdcustomer/${data.id}`);
-  }
-
-  toggleExpandRow(row: any) {
-    console.log(row);
-    console.log(this.table);
-
-    this.table.rowDetail.toggleExpandRow(row);
-  }
-
-  onDetailToggle(event: any) {
-    console.log('Detail Toggled', event);
-  }
-
-  updateFilter(event: any, columnName: any) {
-    const val = event.target.value.toLowerCase();
-
-    // filter our data
-    const temp = this.temp.filter(function (d: any) {
-      return d.productName.toLowerCase().indexOf(val) !== -1 || !val;
-    });
-
-    // update the rows
-    this.rows = temp;
-    // Whenever the filter changes, always go back to the first page
-    this.table.offset = 0;
-  }
-
-  toggle(col: any) {
-    const isChecked = this.isChecked(col);
-
-    if (isChecked) {
-      this.columns = this.columns.filter((c) => {
-        return c.name !== col.name;
-      });
-    } else {
-      this.columns = [...this.columns, col];
+  onRegister(e: Event) {
+    e.preventDefault();
+    localStorage.setItem('isLoggedin', 'true');
+    if (localStorage.getItem('isLoggedin')) {
+      this.router.navigate(['/']);
     }
   }
 
-  isChecked(col: any) {
-    return (
-      this.columns.find((c) => {
-        return c.name === col.name;
-      }) !== undefined
-    );
-  }
-
-  toggleDrop() {
-    let checkList: HTMLElement = document.getElementById('list1')!;
-
-    if (checkList.classList.contains('visible'))
-      checkList.classList.remove('visible');
-    else checkList.classList.add('visible');
-  }
-
-  exportCSV() {
-    let cols: string[] = this.columns.map(item => {
-      if (item['name'].toLowerCase() !== 'actions') {
-        return item['prop']
-      } else {
-        return ''
-      }
-    })
-    cols = cols.filter(item => item !== '')
-    let arr: Record<string, string>[] = []
-
-    this.rows.forEach((row: any) => {
-      let temp: Record<string, string> = {}
-      cols.forEach(key => {
-        temp = {...temp, [key]: row[key]}
-      })
-      arr.push(temp)
-    })
-    this.dataExploration.exportToCsv(arr, 'Products')
-  }
-
-  exportXLSX() {
-    let cols: string[] = this.columns.map(item => {
-      if (item['name'].toLowerCase() !== 'actions') {
-        return item['prop']
-      } else {
-        return ''
-      }
-    })
-    cols = cols.filter(item => item !== '')
-    let arr: Record<string, string>[] = []
-
-    this.rows.forEach((row: any) => {
-      let temp: Record<string, string> = {}
-      cols.forEach(key => {
-        temp = {...temp, [key]: row[key]}
-      })
-      arr.push(temp)
-    })
-
-    this.dataExploration.exportDataXlsx(arr, 'Products')
-  }
-
-  exportPDF() {
-    console.log(this.rows);
-    let cols: string[] = this.columns.map(item => {
-      if (item['name'].toLowerCase() !== 'actions') {
-        return item['name'].toUpperCase()
-      } else {
-        return ''
-      }
-    })
-    cols = cols.filter(item => item !== '')
-    let rowKeys: string[] = Object.keys(this.rows[0]);
-    let arr: string[][] = []
-    this.rows.forEach((row: any) => {
-      let temp: string[] = []
-      rowKeys.forEach(key => {
-        temp.push(row[key])
-      })
-      arr.push(temp)
-    })
-    this.dataExploration.exportToPdf(cols, arr, 'Products')
-  }
-
-  updateColumns(updatedColumns: any) {
-    this.columns = [...updatedColumns];
-  }
-
-  triggerEvent(data: string) {
-    let eventData = JSON.parse(data)
-
-    if (eventData.action == 'View') {
-      this.navigateToViewUssdCustomer(eventData.row);
-    } else if (eventData.action == 'Edit') {
-
-    }
-  }
 }

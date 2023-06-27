@@ -3,7 +3,7 @@
   // overflow: hidden; // commented for fixing content-nav sticky position
   .page-wrapper {
     min-height: 100vh;
-    background: $body-bg;
+    background: white;
     width: calc(100% - #{$sidebar-width-lg});
     margin-left: $sidebar-width-lg;
     display: flex;
@@ -12,10 +12,10 @@
     transition: margin .1s ease, width .1s ease;
     .page-content {
       flex-grow: 1;
-      padding: 25px;
+      padding: 15px;
       margin-top: $navbar-height;
       @media(max-width: 767px) {
-        padding: 25px 15px;
+        padding: 20px 15px;
       }
     }
     &.full-page {
