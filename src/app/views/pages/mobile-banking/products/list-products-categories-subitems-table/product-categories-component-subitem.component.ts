@@ -92,10 +92,8 @@ export class ProductCategoriesComponentSubItem implements OnInit {
       return res;
     })
     this.rows = response;
-
   }
   openAddProductModal() {
-
     this.modalRef = this.modalService.open(AddProductComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Add Product Category';
     this.modalRef.result.then((result) => {
