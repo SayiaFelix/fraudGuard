@@ -3,7 +3,6 @@ FROM devops-registry.ekenya.co.ke/tra-project/customer-portal-builder as build
 WORKDIR /app
 COPY . .
 RUN ng build
-
 ## Create nginx image
 FROM nginx:1.17.1-alpine
 COPY default.conf /etc/nginx/conf.d/
