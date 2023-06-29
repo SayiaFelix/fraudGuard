@@ -19,11 +19,6 @@ const routes: Routes = [
     path: '',
     component: HomeComponent,
     children: [
-      // {
-      //   path: '',
-      //   redirectTo: 'standards',
-      //   pathMatch: 'full'
-      // },
       {
         path: '',
         component: LandingComponent
