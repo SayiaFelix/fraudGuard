@@ -14,6 +14,7 @@ import { delay, map } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 import { HttpService } from 'src/app/shared/services/http.service';
 import Swal from "sweetalert2";
+import { NgbActiveModal, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-view-standards',
@@ -24,7 +25,9 @@ export class ViewStandardsComponent implements OnInit {
   returnUrl: any;
   public form: FormGroup;
   public showingPassword = false;
+  modalRef: NgbModalRef;
   inputType = 'password';
+  errorMessage: string;
   currentDescription = 'Tourism Regulatory Authority (TRA) is a corporate body established under section 4 of the Tourism Act No.28 of 2011 and is mandated to regulate the tourism sector in Kenya. This entails developing regulations, standards and guidelines that are necessary to ensure an all-round quality service delivery in the tourism sector.This standard was developed by a select team drawn from relevant institutions, including; Tourism Regulatory Authority (TRA), Kenya Utalii College (KUC), Kenya Association of Hotels and Caterers (KAHC), Kenya Association of Tour Operators (KATO), Ministry of Health (MoH), Architectural of Association of Kenya (AAK) and Kenya Bureau of Standards (KEBS). This standard will ensure that the service provided by all the hospitality establishments in the country is of quality and meet the minimum expectations of the tourist. It will form the basis for quality control in the sector as well act as the essential item for the rating of hotels and restaurants in the country.'
   standards: any = [
     {
@@ -61,30 +64,29 @@ export class ViewStandardsComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private httpService: HttpService,
-    fb: FormBuilder,
+    public activeModal: NgbActiveModal,
     private _router: Router,
+    private fb: FormBuilder,
+    public modal: NgbModal,
 
   ) {
     this.form = fb.group({
-      username: [
-        '',
-        Validators.compose([Validators.required, CustomValidators.email]),
-      ],
-      password: [
-        '',
-        Validators.compose([Validators.required, Validators.minLength(6)]),
-      ],
+      email: ['',Validators.compose([Validators.required, CustomValidators.email])],
+      occupation: ['',Validators.compose([Validators.required])],
+      purpose: ["", Validators.compose([Validators.required])],
+      name: ["", Validators.compose([Validators.required])],
     });
   }
 
   ngOnInit(): void {
 
     localStorage.clear();
-
-
-
     // get return url from route parameters or default to '/'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+  
+  }
+  get f(): { [p: string]: AbstractControl } {
+    return this.form.controls;
   }
 
   onSubmit(e: Event) {
@@ -142,6 +144,27 @@ export class ViewStandardsComponent implements OnInit {
       this.inputType = 'password';
     }
   }
+  onRequestStandards() {
+    // let body = {
+    //   concern: this.f.concern?.value,
+    //   groupId: this.param
+    // }
+    // this.subs.sink = this.memberService.raiseConcern(body).subscribe(
+    //   res => {
+    //     if (res["status"] == "success") {
+    //       console.log(res);
+    //       this.toastr.success('Concern Raised Successfully. Awaiting Approval!');
+    //       this.closeModal();
+    //       this.getGroup();
+    //     } else {
+    //       this.errorMessage = res["message"];
+    //     }
+    //   },
+    //   err => {
+    //     this.toastr.error('Something wrong happened. Try Again!!!')
+    //   }
+    // )
+}
 
   changeLanguage(lang: string) {
     this.translate.use(lang);
@@ -153,7 +176,12 @@ export class ViewStandardsComponent implements OnInit {
       this.selectedLanguageFlag = 'assets/images/flags/ke.svg';
     }
   }
-
+  openModal(modalContent: any) {
+    this.modalRef = this.modal.open(modalContent);
+  }
+  closeModal() {
+    this.activeModal.close();
+  }
   private saveUsernameAndRolesOnLogin() {
 
     let accessToken = localStorage.getItem("access_token");
