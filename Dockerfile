@@ -10,14 +10,13 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 EXPOSE 80
 CMD [ "nginx", "-g", "daemon off;" ]
 
-# set working directory
+# # set working directory
 # WORKDIR /app
-# add app
+# # add app
 # COPY . /app
-# RUN ng build --configuration production --base-href /client-portal/ --deploy-url /client-portal/
+# RUN ng build
 
-
-# # base image
+# # # base image
 # FROM nginx:1.17.1-alpine
 # # Replace default nginx configuration
 # COPY nginx.conf /etc/nginx/conf.d/default.conf
