@@ -12,6 +12,7 @@ import { LandingComponent } from './landing/landing.component';
 import { StandardsComponent } from './all-standards/all-standards.component';
 import { ViewStandardsComponent } from './view-standards/view-standards.component';
 import { HomeComponent } from './home.component';
+import { NgbActiveModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 const routes: Routes = [
   {
@@ -66,9 +67,13 @@ const routes: Routes = [
         CommonModule,
         RouterModule.forChild(routes),
         SharedModule,
+        NgbModule,
         ReactiveFormsModule,
         FeatherIconModule,
         TranslateModule
+    ],
+    providers: [
+      NgbActiveModal,
     ]
 })
 export class HomeModule { }
