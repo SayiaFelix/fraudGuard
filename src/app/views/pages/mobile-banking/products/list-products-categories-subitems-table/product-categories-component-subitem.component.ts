@@ -27,8 +27,6 @@ export class ProductCategoriesComponentSubItem implements OnInit {
   @ViewChild('table') table: DatatableComponent;
 
   actions = ["View", "Edit", "Delete"];
-
-
   // bread crumb items
   breadCrumbItems: Array<{}>;
   rows: any = [];
@@ -55,8 +53,6 @@ export class ProductCategoriesComponentSubItem implements OnInit {
   public modalRef: NgbModalRef;
 
   title: string = "Category";
-
-
   constructor(
     private httpService: HttpService,
     private modalService: NgbModal,
