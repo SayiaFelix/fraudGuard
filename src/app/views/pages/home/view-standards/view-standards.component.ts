@@ -58,6 +58,9 @@ export class ViewStandardsComponent implements OnInit {
 
   selectedLanguage: any = 'English';
   selectedLanguageFlag: any = 'assets/images/flags/us.svg';
+  images: string[];
+  currentIndex: number;
+  changeIndex: (index: any) => void;
 
   constructor(
     private translate: TranslateService,
@@ -88,6 +91,31 @@ export class ViewStandardsComponent implements OnInit {
   get f(): { [p: string]: AbstractControl } {
     return this.form.controls;
   }
+
+  
+CarouselController($interval: (arg0: () => void, arg1: number) => void) {
+  var vm = this;
+  vm.currentIndex = 0;
+
+  // Array of background images
+  vm.images = [
+    'landing2.png',
+    'landing.png',
+    'landing2.png',
+  ];
+
+  // Function to change the current index
+  vm.changeIndex = function (index: any) {
+    vm.currentIndex = index;
+  };
+
+  // Function to handle automatic sliding
+  function slideNext() {
+    vm.currentIndex = (vm.currentIndex + 1) % vm.images.length;
+  }
+  // Start the automatic sliding
+  $interval(slideNext, 5000);
+}
 
   onSubmit(e: Event) {
     // this.hasError = false;

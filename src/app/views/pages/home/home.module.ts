@@ -13,6 +13,7 @@ import { StandardsComponent } from './all-standards/all-standards.component';
 import { ViewStandardsComponent } from './view-standards/view-standards.component';
 import { HomeComponent } from './home.component';
 import { NgbActiveModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { CarouselModule } from 'ngx-bootstrap/carousel';
 
 const routes: Routes = [
   {
@@ -63,6 +64,7 @@ const routes: Routes = [
         RouterModule.forChild(routes),
         SharedModule,
         NgbModule,
+        CarouselModule,
         ReactiveFormsModule,
         FeatherIconModule,
         TranslateModule
