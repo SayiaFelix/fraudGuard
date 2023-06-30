@@ -13,6 +13,9 @@ import {CustomValidators} from "ngx-custom-validators";
   styleUrls: ['./change-password.component.scss']
 })
 export class ChangePasswordComponent implements OnInit {
+  errorMsg: string;
+  hasError: boolean = false;
+  isLoading: boolean = false;
 
   returnUrl: any;
   public modalRef: NgbModalRef;
