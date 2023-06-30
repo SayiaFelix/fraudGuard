@@ -120,50 +120,50 @@ export class LandingComponent implements OnInit {
   }
 
   onSubmit(e: Event) {
-    this.hasError = false;
-    this.isLoading = true;
-    e.preventDefault();
+    // this.hasError = false;
+    // this.isLoading = true;
+    // e.preventDefault();
 
-    const model = new HttpParams()
-      // .set('grant_type', 'password')
-      .set('username', this.form.value.username.trim())
-      .set('password', this.form.value.password);
+    // const model = new HttpParams()
+    //   // .set('grant_type', 'password')
+    //   .set('username', this.form.value.username.trim())
+    //   .set('password', this.form.value.password);
 
-    this.loginResponse$ = this.httpService
-      .channelManagerLogin('oauth/token', model)
-      .pipe(
-        catchError((error: any) => {
-          console.log(error);
-          this.hasError = error.message;
-          this.isLoading = false;
-          return throwError(error);
-        }),
-        map((result) => {
-          this.isLoading = false;
-          if (result['status'] != 200) {
-            this.hasError = true;
-            this.errorMsg = result['message'];
-            setTimeout(() => {
-              this.hasError = false;
-              this.errorMsg = '';
-              this.form.reset();
-            }, 4000);
-          } else {
-            setTimeout(() => {
+    // this.loginResponse$ = this.httpService
+    //   .channelManagerLogin('oauth/token', model)
+    //   .pipe(
+    //     catchError((error: any) => {
+    //       console.log(error);
+    //       this.hasError = error.message;
+    //       this.isLoading = false;
+    //       return throwError(error);
+    //     }),
+    //     map((result) => {
+    //       this.isLoading = false;
+    //       if (result['status'] != 200) {
+    //         this.hasError = true;
+    //         this.errorMsg = result['message'];
+    //         setTimeout(() => {
+    //           this.hasError = false;
+    //           this.errorMsg = '';
+    //           this.form.reset();
+    //         }, 4000);
+    //       } else {
+    //         setTimeout(() => {
 
-              this.saveUsernameAndRolesOnLogin();
+    //           this.saveUsernameAndRolesOnLogin();
 
-              if(result.firstTimeLogin) {
-                this.router.navigate(['/auth/first-time-login']);
-              } else{
-                this.router.navigate(['/dashboard']);
-              }
+    //           if(result.firstTimeLogin) {
+    //             this.router.navigate(['/auth/first-time-login']);
+    //           } else{
+    //             this.router.navigate(['/dashboard']);
+    //           }
 
-            }, 1000);
-            return result;
-          }
-        })
-      );
+    //         }, 1000);
+    //         return result;
+    //       }
+    //     })
+    //   );
   }
 
   toggleShowPassword() {

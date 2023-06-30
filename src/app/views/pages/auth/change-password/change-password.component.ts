@@ -31,14 +31,8 @@ export class ChangePasswordComponent implements OnInit {
 
   ) {
     this.form = fb.group({
-      oldPassword: [
-        '',
-        Validators.compose([Validators.required, CustomValidators.email]),
-      ],
-      newPassword: [
-        '',
-        Validators.compose([Validators.required, Validators.minLength(6)]),
-      ],
+      resetToken: ['',Validators.compose([Validators.required]),],
+      password: ['',Validators.compose([Validators.required, Validators.minLength(6)])],
     });
   }
 
@@ -65,20 +59,16 @@ export class ChangePasswordComponent implements OnInit {
       if (result === 'success') {
 
         const model = {
-          oldPassword: this.form.value.oldPassword,
-          newPassword: this.form.value.newPassword
+          resetToken: this.form.value.resetToken,
+          password: this.form.value.password
         };
 
-        this.httpService.mobileBankingPost('api/v1/admin/user/update/password', model).subscribe(
+        this.httpService.customerPortalAuth('api/v1/auth/reset-password', model).subscribe(
           (result: any) => {
-            if (result.status === 200) {
+            if (result.status === '00') {
               Swal.fire('Password Set',  'Password Set Successfully.',  'success')
-
-              localStorage.clear();
-
               // Navigate back to login screen.
               this.router.navigate(["/auth/login"]);
-
             } else {
               Swal.fire('Error',  'You have entered an incorrect password',  'error')
             }
@@ -89,5 +79,4 @@ export class ChangePasswordComponent implements OnInit {
       }
     });
   }
-
 }

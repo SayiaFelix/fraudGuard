@@ -4,6 +4,8 @@ import {ConfirmDialogComponent} from "../../../../shared/components/confirm-dial
 import Swal from "sweetalert2";
 import {NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {HttpService} from "../../../../shared/services/http.service";
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { CustomValidators } from 'ngx-custom-validators';
 
 @Component({
   selector: 'app-forgot-password',
@@ -11,7 +13,7 @@ import {HttpService} from "../../../../shared/services/http.service";
   styleUrls: ['./forgot-password.component.scss']
 })
 export class ForgotPasswordComponent implements OnInit {
-
+  public form: FormGroup;
   returnUrl: any;
   public modalRef: NgbModalRef;
 
@@ -19,7 +21,15 @@ export class ForgotPasswordComponent implements OnInit {
               private route: ActivatedRoute,
               private httpService: HttpService,
               private modalService: NgbModal,
-              ) { }
+              fb: FormBuilder,
+              ) {
+                this.form = fb.group({
+                  email: [
+                    '',
+                    Validators.compose([Validators.required, CustomValidators.email]),
+                  ]
+                });
+               }
 
   ngOnInit(): void {
     // get return url from route parameters or default to '/'
@@ -42,19 +52,21 @@ export class ForgotPasswordComponent implements OnInit {
     this.modalRef.result.then((result) => {
       if (result === 'success') {
         const model = {
-          email: "testEmail@gmail.com"
+          email: this.form.value.email,
         };
 
-        this.httpService.mobileBankingPost('endpoint', model).subscribe(
+        this.httpService.customerPortalAuth('api/v1/auth/forget-passsword', model).subscribe(
           (result: any) => {
-            if (result.status === 200) {
+            if (result.status === "00") {
               Swal.fire('Password Reset',  'Password Sent to Email.',  'success')
+              this.router.navigate(['/auth/change-password']);
 
               // Navigate back to login screen.
               localStorage.setItem('isLoggedin', 'true');
-              if (localStorage.getItem('isLoggedin')) {
-                this.router.navigate([this.returnUrl]);
-              }
+
+              // if (localStorage.getItem('isLoggedin')) {
+              //   this.router.navigate([this.returnUrl]);
+              // }
             } else {
 
             }
