@@ -120,7 +120,9 @@
 //  url('./assets/fonts/nunito-v24-latin-700.svg#Nunito') format('svg'); /* Legacy iOS */
 //}
 
-
+body{
+  font-family: 'Muli';
+}
 //NGX-Tables Styling
 .ngx-datatable.bootstrap {
   box-shadow: none;

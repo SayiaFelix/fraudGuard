@@ -20,6 +20,25 @@ export class FirstTimeLoginComponent implements OnInit {
   public modalRef: NgbModalRef;
 
   public form: FormGroup;
+  public showingPassword = false;
+  inputType = 'password';
+
+  MatchPassword(passName: string, confirmPassName: string) {
+    return (formGroup: FormGroup) => {
+      const control = formGroup.controls[passName];
+      const matchingControl = formGroup.controls[confirmPassName];
+      if (matchingControl.errors && !matchingControl.errors['MatchPass']) {
+        return
+      }
+      if (control.value !== matchingControl.value) {
+        matchingControl.setErrors({ MatchPass: true });
+      }
+      else {
+        matchingControl.setErrors(null);
+      }
+    }
+
+  }
 
   constructor(private router: Router,
               private route: ActivatedRoute,
@@ -31,6 +50,10 @@ export class FirstTimeLoginComponent implements OnInit {
     this.form = fb.group({
       lookUpToken: ['',Validators.compose([Validators.required])],
       password: ['',Validators.compose([Validators.required, Validators.minLength(6)])],
+      confirmPassword: ['',Validators.compose([Validators.required, Validators.minLength(6)])],
+    }
+    ,{
+      validators: this.MatchPassword('password', 'confirmPassword')
     });
   }
 
@@ -74,6 +97,14 @@ export class FirstTimeLoginComponent implements OnInit {
         console.log("Error occurred")
       }
     });
+  }
+  toggleShowPassword() {
+    this.showingPassword = !this.showingPassword;
+    if (this.showingPassword) {
+      this.inputType = 'text';
+    } else {
+      this.inputType = 'password';
+    }
   }
 
 }
