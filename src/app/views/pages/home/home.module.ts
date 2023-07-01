@@ -13,7 +13,7 @@ import { StandardsComponent } from './all-standards/all-standards.component';
 import { ViewStandardsComponent } from './view-standards/view-standards.component';
 import { HomeComponent } from './home.component';
 import { NgbActiveModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { CarouselModule } from 'ngx-bootstrap/carousel';
+import { CarouselModule } from 'ngx-owl-carousel-o';
 
 const routes: Routes = [
   {
