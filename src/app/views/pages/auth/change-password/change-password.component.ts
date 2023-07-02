@@ -80,7 +80,8 @@ export class ChangePasswordComponent implements OnInit {
 
         const model = {
           resetToken: this.form.value.resetToken,
-          password: this.form.value.password
+          password: this.form.value.password,
+          confirmPassword: this.form.value.confirmPassword
         };
 
         this.httpService.customerPortalAuth('api/v1/auth/reset-password', model).subscribe(

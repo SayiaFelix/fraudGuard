@@ -65,10 +65,7 @@ export class FirstTimeLoginComponent implements OnInit {
   onSubmit(e: Event) {
     console.log("On button click")
     e.preventDefault();
-
     this.setPassword();
-
-
   }
 
   setPassword(){
@@ -80,7 +77,8 @@ export class FirstTimeLoginComponent implements OnInit {
       if (result === 'success') {
         const model = {
           lookUpToken: this.form.value.lookUpToken,
-          password: this.form.value.password
+          password: this.form.value.password,
+          confirmPassword: this.form.value.confirmPassword
         };
         this.httpService.customerPortalAuth('api/v1/auth/first-time-password', model).subscribe(
           (result: any) => {

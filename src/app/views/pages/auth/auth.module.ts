@@ -11,6 +11,7 @@ import {SharedModule} from "../../../shared/shared.module";
 import {TranslateModule} from "@ngx-translate/core";
 import {FirstTimeLoginComponent} from "./first-time-login/first-time-login.component";
 import {ChangePasswordComponent} from "./change-password/change-password.component";
+import { ChangeAuthPasswordComponent } from './changePassword/changePassword.component';
 
 const routes: Routes = [
   {
@@ -45,7 +46,12 @@ const routes: Routes = [
       {
         path: 'change-password',
         component: ChangePasswordComponent
+      },
+      {
+        path: 'change-auth-password',
+        component: ChangeAuthPasswordComponent
       }
+
     ]
   },
 ]
@@ -57,7 +63,8 @@ const routes: Routes = [
     ForgotPasswordComponent,
     AuthComponent,
     FirstTimeLoginComponent,
-    ChangePasswordComponent
+    ChangePasswordComponent,
+    ChangeAuthPasswordComponent
   ],
     imports: [
         CommonModule,

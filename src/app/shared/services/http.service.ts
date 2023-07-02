@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
   providedIn: 'root',
 })
 export class HttpService {
+  userId: any;
   post(arg0: string, model: { profileId: any; roleIds: any; active: string; remarks: any; }) {
     throw new Error('Method not implemented.');
   }
@@ -44,14 +45,12 @@ export class HttpService {
       );
   }
 
-
-
   public customerPortalAuth(endpoint: string, model: any): Observable<any> {
     return this.http
       .post(
         this.globalService.customerPortalNest + endpoint,
         model,
-        // this.generateLoginHeaders()
+        this.getHeaders()
       )
       .pipe(
         map((result: any) => {
@@ -64,6 +63,26 @@ export class HttpService {
           return result;
         })
       );
+  }
+
+  public customerUserDetails(): Observable<any> {
+    const userDetails$ = this.http
+      .get(
+        this.globalService.customerPortalNest +
+          `api/v1/auth/userProfile/2`,
+        this.getHeaders()
+      )
+      .pipe(
+        map((result: any) => {
+          console.log(result)
+          localStorage.setItem(
+            'userData',
+            JSON.stringify(result['data'])
+          );
+          return result['data'];
+        })
+      );
+    return userDetails$;
   }
 
   public mobileBankingGetUserDetailsAndPermissions(): Observable<any> {

@@ -44,24 +44,24 @@
   <div class="card bg-light">
     <div class="row">
       <div class="card col-md-12 col-lg-12 col-xl-12 col-sm-12"
-        style="background-image: url('assets/images/headerl.png');   background-repeat: repeat-x; background-repeat: repeat-y; padding: 40px 90px; color:#F8F8F8">
+        style="background-image: url('assets/images/headerl.png');   background-repeat: repeat-x; background-repeat: repeat-y; padding: 40px 60px; color:#F8F8F8">
         <h2 style="font-family: 'Mulish';line-height: 25px;font-weight: 600;font-size: 25px;">
           Ignite Success in Tourism: Align with Our Benchmark Minimum Standards.
         </h2>
       </div>
     </div>
     <div class="card border-0 box-shadow">
-      <div class="d-flex justify-content-start mt-4" style="margin-bottom: -4%; padding-left: 60px;">
+      <div class="d-flex justify-content-start mt-4" style="margin-bottom: -20px; padding-left: 50px;">
         <div>
           <h3 class="card-title" style="color: #1E0F2E; font-family: 'Muli';font-weight: 600;font-size: 16px;">All
             Standards</h3>
         </div>
       </div>
-      <a class="mt-4" href="" routerLink="/standards/Id">
-        <div class="card-body p-3">
+      <a href="" routerLink="/standards/Id">
+        <div class="card-body p-1">
           <div class="border-0 box-shadow">
             <div class="grid-margin stretch-card">
-              <div class="row" style="padding: 0px 30px">
+              <div class="row" style="padding: 0px 40px">
                 <div class="col-md-3 col-lg-3 col-xl-3 col-sm-4 mt-3 pt-2" *ngFor="let std of standards">
                   <div class="" [id]="std.id">
                     <div style="position: relative; display: inline-block;">
@@ -71,12 +71,13 @@
                           [src]="std.icon" />
                       </div>
                       <div
-                        style="position: absolute; width: 61px; height: 61px; margin-left: 4%; margin-top: -11%; border-radius: 50%; background-color: #D0DDF0;"
+                        style="position: absolute; width: 60px; height: 60px; margin-left: 4%; margin-top: -11%; border-radius: 50%; background-color: #D0DDF0;"
                         class="card-header d-flex justify-content-center align-items-center border-0 box-shadow">
                       </div>
                     </div>
-                    <div style="margin-top:15%;">
-                      <div class="mt-2">
+                    <br><br>
+                    <div style="position: relative;">
+                      <div class="mt-3">
                         <p style="
                             color: #2268aa;
                             font-family: 'Muli';
@@ -87,7 +88,7 @@
                         </p>
                         <!-- <p style="color: #2268AA; font-family: 'Muli';font-weight: 600;font-size: 15px;" class="h2"> <a href="" routerLink="/standards/Id">{{std.name}}</a></p> -->
                       </div>
-                      <div class="mt-3">
+                      <div class="mt-2">
                         <p style="
                             color: #1e0f2e;
                             font-family: 'Muli';

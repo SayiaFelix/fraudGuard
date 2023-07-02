@@ -24,7 +24,7 @@ import {compareSegments} from "@angular/compiler-cli/src/ngtsc/sourcemaps/src/se
 export class NavbarComponent implements OnInit {
   userData$: Observable<any>;
   companyEmail: string | null;
-  employeeNumber: string;
+  employeeNumber: string | null;
   profile:string;
   companyRegistrationDate: string;
   country: string;
@@ -38,6 +38,7 @@ export class NavbarComponent implements OnInit {
   selectedLanguage: any = 'English';
   selectedLanguageFlag: any = 'assets/images/flags/us.svg';
   public notifications: Notification[];
+  enterpriseData: any;
 
   constructor(
     @Inject(DOCUMENT) private document: Document,
@@ -52,7 +53,7 @@ export class NavbarComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-
+   this.getUsers()
     // Subscribe to notification service observable
     this.notificationService.castNotifications.subscribe((notifications: Notification[]) => {
       this.notifications = notifications;
@@ -62,8 +63,8 @@ export class NavbarComponent implements OnInit {
 
     // let userDetails = JSON.parse(localStorage.getItem('userData')!);
     let userDetails = {
-      companyEmail: localStorage.getItem('userName') ? localStorage.getItem('userName') : "test@gmail.com",
-      employeeNumber: "E334",
+      companyEmail: localStorage.getItem('email') ? localStorage.getItem('email') : "test@gmail.com",
+      employeeNumber: localStorage.getItem('licenceNo') ? localStorage.getItem('licenceNo') : "87654321",
       profile: "Admin",
       companyRegistrationDate: "24-12-1999",
       country: "Kenya",
@@ -81,21 +82,27 @@ export class NavbarComponent implements OnInit {
 
       this.userData$ = of(userDetails);
     } else {
-      this.userData$ = this.httpService.mobileBankingGetUserDetailsAndPermissions().pipe(
+      this.userData$ = this.httpService.customerUserDetails().pipe(
         map((resp) => {
           console.log(resp);
           if (resp) {
-            this.companyEmail = resp[0]['companyEmail'];
-            this.employeeNumber = resp[0]['employeeNumber'];
+            this.companyEmail = resp[0]['email'];
+            this.employeeNumber = resp[0]['licenceNo'];
             this.profile = resp[0]['profile'];
-            this.companyRegistrationDate = resp[0]['companyRegistrationDate'];
+            this.companyRegistrationDate = resp[0]['enterpriseName'];
             this.country = resp[0]['country'];
-            this.taxPin = resp[0]['taxPin'];
             return resp[0];
           }
         })
       );
     }
+  }
+
+  getUsers() {
+    this.httpService.getEnterpriseUsers('api/v1/auth/users').subscribe( res=>{
+      this.enterpriseData = res;
+      console.log(this.enterpriseData)
+    })
   }
 
   updateNotificationList() {
@@ -138,14 +145,14 @@ export class NavbarComponent implements OnInit {
 
     this.router.navigateByUrl(`/mobile-banking/workflows/my-task/${7}`);
 
-    // this.modalRef = this.modalService.open(NotificationModalComponent, {centered: true, size:"lg"});
-    // this.modalRef.componentInstance.title = 'Approve Create User';
-    // this.modalRef.result.then((result) => {
-    //   if (result === 'success') {
-    //   } else {
-    //     console.log("Error occurred")
-    //   }
-    // });
+    this.modalRef = this.modalService.open(NotificationModalComponent, {centered: true, size:"lg"});
+    this.modalRef.componentInstance.title = 'Approve Create User';
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+      } else {
+        console.log("Error occurred")
+      }
+    });
   }
 
 //   changePassword() {
@@ -187,9 +194,5 @@ export class NavbarComponent implements OnInit {
       }
     );
 
-
-
-
-    // this.notificationService.updateNotifications(newList);
   }
 }
