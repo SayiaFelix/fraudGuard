@@ -180,7 +180,7 @@ export class ViewStandardsComponent implements OnInit {
     }
   }
   openModal(modalContent: any) {
-    this.modalRef = this.modal.open(modalContent);
+    this.modalRef = this.modal.open(modalContent, {centered: true, size:"md"});
   }
   closeModal() {
     this.activeModal.close();

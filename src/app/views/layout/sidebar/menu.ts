@@ -8,7 +8,7 @@ export const MENU: MenuItem[] = [
     subItems: [
       {
         profiles: ['CORPORATE_ADMIN'],
-        label: 'Standards',
+        label: 'Dashboard',
         link: '/dashboard'
       },
       // {
@@ -213,28 +213,28 @@ export const MENU: MenuItem[] = [
   //   ]
   // },
 
-  {
-    profiles: ['CORPORATE_ADMIN'],
-    label: 'Chats',
-    icon: 'users',
-    subItems: [
-      {
-        profiles: ['CORPORATE_ADMIN'],
-        label: 'Inbox',
-        link: '/tra-client/Users/list-users'
-      },
-      // {
-      //   profiles: ['CORPORATE_ADMIN'],
-      //   label: 'Roles',
-      //   link: '/mobile-banking/rbac/all-roles'
-      // },
-      {
-        profiles: ['CORPORATE_ADMIN'],
-        label: 'Profiles',
-        link: '/tra-client/rbac/all-profiles'
-      }
-    ]
-  },
+  // {
+  //   profiles: ['CORPORATE_ADMIN'],
+  //   label: 'Chats',
+  //   icon: 'users',
+  //   subItems: [
+  //     {
+  //       profiles: ['CORPORATE_ADMIN'],
+  //       label: 'Inbox',
+  //       link: '/tra-client/Users/list-users'
+  //     },
+  //     // {
+  //     //   profiles: ['CORPORATE_ADMIN'],
+  //     //   label: 'Roles',
+  //     //   link: '/mobile-banking/rbac/all-roles'
+  //     // },
+  //     {
+  //       profiles: ['CORPORATE_ADMIN'],
+  //       label: 'Profiles',
+  //       link: '/tra-client/rbac/all-profiles'
+  //     }
+  //   ]
+  // },
   // {
   //   profiles: ['CORPORATE_ADMIN'],
   //   label:'AUDIT TRAIL',

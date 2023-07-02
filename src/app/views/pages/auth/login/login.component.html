@@ -55,7 +55,6 @@
                 *ngIf="form.get('password')?.touched && form.get('password')?.hasError('minlength')">Password isn't long
                 enough, minimum of 6 characters</small>
             </div>
-
             <div class="mb-1" *ngIf="loginResponse$ | async">
               <ngb-alert [type]="'success'" (close)="false">
                 <strong>Login Success!</strong>
@@ -67,6 +66,10 @@
                 <span style="color: white;">SIGN IN</span>
               </button>
             </div>
+            <ngb-alert [type]="'danger'" *ngIf="hasError" (close)="false" class="mt-2">
+              <strong>Login Error!</strong> 
+              {{errorMsg}}
+            </ngb-alert>
             <hr>
             <div class="mt-1 d-flex justify-content-between" style="margin-top: -10%;">
               <div class="d-flex justify-content-between">
@@ -84,10 +87,7 @@
           </form>
           <p *ngIf="isLoading"><ngb-progressbar type="primary" [value]="95" [striped]="true"
               [animated]="true"></ngb-progressbar></p>
-          <ngb-alert [type]="'danger'" *ngIf="hasError" (close)="false" class="mt-2">
-            <strong>Login Error!</strong> 
-            {{errorMsg}}
-          </ngb-alert>
+        
         </div>
       </div>
       <div class="" style=" padding-bottom: 15px; padding-left: 15px; justify-content: center; margin-top: -7%;">
