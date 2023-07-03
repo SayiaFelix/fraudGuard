@@ -63,8 +63,8 @@ export class NavbarComponent implements OnInit {
 
     // let userDetails = JSON.parse(localStorage.getItem('userData')!);
     let userDetails = {
-      companyEmail: localStorage.getItem('email') ? localStorage.getItem('email') : "test@gmail.com",
-      employeeNumber: localStorage.getItem('licenceNo') ? localStorage.getItem('licenceNo') : "87654321",
+      companyEmail: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['email'] : "test@gmail.com",
+      employeeNumber: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['licenceNo']  : "87654321",
       profile: "Admin",
       companyRegistrationDate: "24-12-1999",
       country: "Kenya",

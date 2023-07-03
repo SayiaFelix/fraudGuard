@@ -57,6 +57,7 @@ export class HttpService {
           if (result['status'] == '00') {
             localStorage.setItem('isLoggedin', 'true');
             localStorage.setItem('access_token', result['access_token']);
+            localStorage.setItem('data', JSON.stringify(result['data']));
           } else {
             throwError(() => new Error(result['message']));
           }
@@ -66,10 +67,12 @@ export class HttpService {
   }
 
   public customerUserDetails(): Observable<any> {
+
+    let userId = JSON.parse(localStorage.getItem('data')!).id
     const userDetails$ = this.http
       .get(
         this.globalService.customerPortalNest +
-          `api/v1/auth/userProfile/2`,
+          `api/v1/auth/userProfile/${userId}`,
         this.getHeaders()
       )
       .pipe(

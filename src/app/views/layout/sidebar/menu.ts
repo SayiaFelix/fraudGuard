@@ -5,12 +5,13 @@ export const MENU: MenuItem[] = [
     profiles: ['CORPORATE_ADMIN'],
     label: 'Main',
     icon: 'home',
+    link: '/dashboard',
     subItems: [
-      {
-        profiles: ['CORPORATE_ADMIN'],
-        label: 'Dashboard',
-        link: '/dashboard'
-      },
+      // {
+      //   profiles: ['CORPORATE_ADMIN'],
+      //   label: 'Dashboard',
+      //   link: '/dashboard'
+      // },
       // {
       //   profiles: ['CORPORATE_ADMIN'],
       //   label: 'Chat( Comments )',
@@ -31,7 +32,7 @@ export const MENU: MenuItem[] = [
   {
     profiles: ['CORPORATE_ADMIN'],
     label: 'Standards',
-    icon: 'help-circle',
+    icon: 'pocket',
     subItems: [
       {
         profiles: ['CORPORATE_ADMIN'],
