@@ -22,19 +22,19 @@
             style="font-family: Mulish; font-style: normal; font-weight: 400; font-size: 17px; line-height: 25px; color: #F8F8F8;">
             Ensure Standards, Certification & Registration in Tourism</p>
         </div>
-        <div class="card-login text-center pb-1 mt-4">
+        <div class="card-login text-start pb-1 mt-4">
           <form class="forms-sample text-left" [formGroup]="form">
             <div class="mb-3">
               <!-- <label for="email" class="form-label">{{ 'login.username' | translate }}</label> -->
-              <input type="email" class="inputs" formControlName="username" class="form-control" id="email" placeholder="Enter Email">
+              <input type="email" class="inputs" formControlName="email" class="form-control" id="email" placeholder="Enter Email">
               <small class="text-danger"
-                *ngIf="form.get('username')?.touched && form.get('username')?.hasError('required')">Username is
+                *ngIf="form.get('email')?.touched && form.get('email')?.hasError('required')">Email is
                 required</small>
               <small class="text-danger"
-                *ngIf="form.get('username')?.touched && form.get('username')?.hasError('email')">Please key in a valid
+                *ngIf="form.get('email')?.touched && form.get('email')?.hasError('email')">Please key in a valid
                 email</small>
               <small class="text-danger"
-                *ngIf="form.get('username')?.touched && form.get('username')?.hasError('minlength')">Username isn't long
+                *ngIf="form.get('email')?.touched && form.get('email')?.hasError('minlength')">Email isn't long
                 enough, minimum of 6 characters</small>
             </div>
 
@@ -85,7 +85,8 @@
           <p *ngIf="isLoading"><ngb-progressbar type="primary" [value]="95" [striped]="true"
               [animated]="true"></ngb-progressbar></p>
           <ngb-alert [type]="'danger'" *ngIf="hasError" (close)="false" class="mt-2">
-            <strong>Login Error!</strong> {{errorMsg}}
+            <strong>Login Error!</strong> 
+            {{errorMsg}}
           </ngb-alert>
         </div>
       </div>

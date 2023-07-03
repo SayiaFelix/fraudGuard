@@ -21,21 +21,25 @@
             style="font-family: Mulish; font-style: normal; font-weight: 400; font-size: 17px; line-height: 25px; color: #F8F8F8;">
             Ensure Standards, Certification & Registration in Tourism</p>
         </div>
-        <div class="card-login text-center pt-3">
-          <form class="forms-sample">
+        <div class="card-login text-start pt-3">
+          <form class="forms-sample"  [formGroup]="form">
             <div class="mb-3">
-              <input type="text" class="form-control" id="exampleInputUsername1" autocomplete="Username" placeholder="Enter Licence Number For Account Activation">
+              <!-- <input type="email" class="inputs" class="form-control" id="email" placeholder="Enter Email"> -->
+              <input type="text" class="form-control" id="licence" formControlName="licenceNo"  autocomplete="Licence" placeholder="Enter Licence Number For Account Activation">
+              <small class="text-danger"
+              *ngIf="form.get('password')?.touched && form.get('password')?.hasError('required')">Licence Number is
+              required</small>
+            <small class="text-danger"
+              *ngIf="form.get('password')?.touched && form.get('password')?.hasError('minlength')">Licence Number isn't long
+              enough, minimum of 6 characters</small>
             </div>
-            <div class="mb-3">
-              <!-- <label for="exampleInputEmail1" class="form-label">Email address</label> -->
-              <!-- <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Enter Email"> -->
-            </div>
-            <div class="mb-3">
-              <!-- <label for="exampleInputPassword1" class="form-label">Password</label> -->
-              <!-- <input type="password" class="form-control" id="exampleInputPassword1" autocomplete="current-password" placeholder="Enter Password"> -->
+            <div class="mb-1" *ngIf="registerResponse$ | async">
+              <ngb-alert [type]="'success'" (close)="false">
+                <strong>Activation success!</strong>
+              </ngb-alert>
             </div>
             <div class="mt-2">
-              <button type="submit" style="width: 100%; border: none;" class="btn btn-block login-btn transition" (click)="onRegister($event)">ACTIVATE</button>
+              <button type="submit" [disabled]="!form.valid"  style="width: 100%; border: none;" class="btn btn-block login-btn transition" (click)="onRegister($event)">ACTIVATE</button>
             </div>
             <hr>
             <div class="mt-2 d-flex justify-content-center">
@@ -43,6 +47,12 @@
                   class="transition text-light"> Back to Login! </a></p>
             </div>
           </form>
+          <p *ngIf="isLoading"><ngb-progressbar type="success" [value]="95" [striped]="true"
+            [animated]="true"></ngb-progressbar></p>
+        <ngb-alert [type]="'danger'" *ngIf="hasError" (close)="false" class="mt-2">
+          <strong>Activation Error!</strong>
+           {{errorMsg}}
+        </ngb-alert>
 
         </div>
       </div>

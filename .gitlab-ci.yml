@@ -3,6 +3,9 @@ workflow:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'developer' || $CI_COMMIT_BRANCH == 'cicd-testing' || $CI_COMMIT_BRANCH == 'developer'
       when: always
 
+.curl_template: &trigger_awx_deploy_to_testing |
+ curl --insecure --header "X-Gitlab-Token: $AWX_WEBHOOK_KEY" -X POST $AWX_WEBHOOK_URL -H "Content-Type: application/json" -d '{"ci_commit_sha" : "'"$CI_COMMIT_SHA"'", "deploy_environment" : "'"$DEPLOY_ENVIRONMENT"'", "tag" : "false", "deploy_branch" : "'"$DEPLOY_BRANCH"'" }'
+
 stages:
   - preBuild
   - build
@@ -32,3 +35,19 @@ buildImage:
       --context "$PWD"
       --dockerfile "Dockerfile"
       --destination "devops-registry.ekenya.co.ke/tra-project/customer-portal:latest"
+
+deploy-application:
+  stage: deploy
+  image: devops-registry.ekenya.co.ke/library/busybox-with-curl:latest
+  variables:
+    DEPLOY_ENVIRONMENT: "development"
+    DEPLOY_BRANCH: "developer"
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'cicd-testing' || $CI_COMMIT_BRANCH == 'developer'
+      variables:                            
+        DEPLOY_BRANCH: $CI_COMMIT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      variables:
+        DEPLOY_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME          
+  script:
+    - *trigger_awx_deploy_to_testing

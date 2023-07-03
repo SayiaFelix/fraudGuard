@@ -13,7 +13,9 @@ import {CustomValidators} from "ngx-custom-validators";
   styleUrls: ['./first-time-login.component.scss']
 })
 export class FirstTimeLoginComponent implements OnInit {
-
+  errorMsg: string;
+  hasError: boolean = false;
+  isLoading: boolean = false;
   returnUrl: any;
   public modalRef: NgbModalRef;
 
@@ -23,19 +25,12 @@ export class FirstTimeLoginComponent implements OnInit {
               private route: ActivatedRoute,
               private httpService: HttpService,
               private modalService: NgbModal,
-
               fb: FormBuilder,
 
   ) {
     this.form = fb.group({
-      oldPassword: [
-        '',
-        Validators.compose([Validators.required, CustomValidators.email]),
-      ],
-      newPassword: [
-        '',
-        Validators.compose([Validators.required, Validators.minLength(6)]),
-      ],
+      lookUpToken: ['',Validators.compose([Validators.required])],
+      password: ['',Validators.compose([Validators.required, Validators.minLength(6)])],
     });
   }
 
@@ -60,26 +55,21 @@ export class FirstTimeLoginComponent implements OnInit {
     this.modalRef.componentInstance.body= "Do you want to Set this as your new password?";
     this.modalRef.result.then((result) => {
       if (result === 'success') {
-
         const model = {
-          oldPassword: this.form.value.oldPassword,
-          newPassword: this.form.value.newPassword
+          lookUpToken: this.form.value.lookUpToken,
+          password: this.form.value.password
         };
-
-        this.httpService.mobileBankingPost('api/v1/admin/user/update/password', model).subscribe(
+        this.httpService.customerPortalAuth('api/v1/auth/first-time-password', model).subscribe(
           (result: any) => {
-            if (result.status === 200) {
+            if (result.status === '00') {
               Swal.fire('Password Set',  'Password Set Successfully.',  'success')
-
               // Navigate back to login screen.
-              this.router.navigate([this.returnUrl]);
-
+              this.router.navigate(["/auth/login"]);
             } else {
-
+              Swal.fire('Error',  'You have entered an incorrect password',  'error')
             }
           }
         );
-        Swal.fire('Password Reset',  'Password Sent to Email.',  'success')
       } else {
         console.log("Error occurred")
       }

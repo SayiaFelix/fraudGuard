@@ -9,14 +9,14 @@ import {environment} from 'src/environments/environment';
 export class GlobalService {
   public channelManagerHost: string;
   public mobileBankingHost: string;
-  public mobileBankingNest: string;
+  public customerPortalNest: string;
 
   public setting: any = {};
 
   constructor() {
     this.channelManagerHost = environment.channelManager;
     this.mobileBankingHost = environment.mobileBanking;
-    // this.mobileBankingNest = environment.mobileBankingNest;
+    this.customerPortalNest = environment.customerPortalNest;
   }
 
   loadGlobalSettingsFromLocalStorage(): void {

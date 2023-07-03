@@ -58,6 +58,9 @@ export class ViewStandardsComponent implements OnInit {
 
   selectedLanguage: any = 'English';
   selectedLanguageFlag: any = 'assets/images/flags/us.svg';
+  images: string[];
+  currentIndex: number;
+  changeIndex: (index: any) => void;
 
   constructor(
     private translate: TranslateService,
@@ -89,51 +92,76 @@ export class ViewStandardsComponent implements OnInit {
     return this.form.controls;
   }
 
+  
+CarouselController($interval: (arg0: () => void, arg1: number) => void) {
+  var vm = this;
+  vm.currentIndex = 0;
+
+  // Array of background images
+  vm.images = [
+    'landing2.png',
+    'landing.png',
+    'landing2.png',
+  ];
+
+  // Function to change the current index
+  vm.changeIndex = function (index: any) {
+    vm.currentIndex = index;
+  };
+
+  // Function to handle automatic sliding
+  function slideNext() {
+    vm.currentIndex = (vm.currentIndex + 1) % vm.images.length;
+  }
+  // Start the automatic sliding
+  $interval(slideNext, 5000);
+}
+
   onSubmit(e: Event) {
-    this.hasError = false;
-    this.isLoading = true;
-    e.preventDefault();
+    // this.hasError = false;
+    // this.isLoading = true;
+    // e.preventDefault();
 
-    const model = new HttpParams()
-      // .set('grant_type', 'password')
-      .set('username', this.form.value.username.trim())
-      .set('password', this.form.value.password);
+    // const model = new HttpParams()
+    //   // .set('grant_type', 'password')
+    //   .set('username', this.form.value.username.trim())
+    //   .set('password', this.form.value.password);
 
-    this.loginResponse$ = this.httpService
-      .channelManagerLogin('oauth/token', model)
-      .pipe(
-        catchError((error: any) => {
-          console.log(error);
-          this.hasError = error.message;
-          this.isLoading = false;
-          return throwError(error);
-        }),
-        map((result) => {
-          this.isLoading = false;
-          if (result['status'] != 200) {
-            this.hasError = true;
-            this.errorMsg = result['message'];
-            setTimeout(() => {
-              this.hasError = false;
-              this.errorMsg = '';
-              this.form.reset();
-            }, 4000);
-          } else {
-            setTimeout(() => {
+    // this.loginResponse$ = this.httpService
+    //   .channelManagerLogin('oauth/token', model)
+    //   .pipe(
+    //     catchError((error: any) => {
+    //       console.log(error);
+    //       this.hasError = error.message;
+    //       this.isLoading = false;
+    //       return throwError(error);
+    //     }),
+    //     map((result) => {
+    //       this.isLoading = false;
+    //       if (result['status'] != 200) {
+    //         this.hasError = true;
+    //         this.errorMsg = result['message'];
+    //         setTimeout(() => {
+    //           this.hasError = false;
+    //           this.errorMsg = '';
+    //           this.form.reset();
+    //         }, 4000);
+    //       } else {
+    //         setTimeout(() => {
 
-              this.saveUsernameAndRolesOnLogin();
+    //           this.saveUsernameAndRolesOnLogin();
 
-              if(result.firstTimeLogin) {
-                this.router.navigate(['/auth/first-time-login']);
-              } else{
-                this.router.navigate(['/dashboard']);
-              }
+    //           // if(result.firstTimeLogin) {
+    //           //   this.router.navigate(['/auth/first-time-login']);
+    //           // } else{
+    //           //   this.router.navigate(['/dashboard']);
+    //           // }
 
-            }, 1000);
-            return result;
-          }
-        })
-      );
+    //         }, 1000);
+    //         return result;
+    //       }
+    //     })
+    //   );
   }
 
   toggleShowPassword() {

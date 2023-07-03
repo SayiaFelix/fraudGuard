@@ -20,16 +20,42 @@ export class HttpService {
     private router: Router
   ) {}
 
-  public channelManagerLogin(endpoint: string, model: any): Observable<any> {
+  public getEnterpriseUsers(endpoint: string):Observable<any> {
+    return this.http.get(this.globalService.customerPortalNest + endpoint)
+  }
+  public channelManagerLogin(){
+
+  }
+  public customerPortalActivate(endpoint: string, model: any): Observable<any> {
     return this.http
       .post(
-        this.globalService.channelManagerHost + endpoint,
-        model,
-        this.generateLoginHeaders()
+        this.globalService.customerPortalNest + endpoint,
+        model
       )
       .pipe(
         map((result: any) => {
-          if (result['status'] == 200) {
+          if (result['status'] == '00') {
+            localStorage.setItem('isActivated', 'true');
+          } else {
+            throwError(() => new Error(result['message']));
+          }
+          return result;
+        })
+      );
+  }
+
+
+
+  public customerPortalAuth(endpoint: string, model: any): Observable<any> {
+    return this.http
+      .post(
+        this.globalService.customerPortalNest + endpoint,
+        model,
+        // this.generateLoginHeaders()
+      )
+      .pipe(
+        map((result: any) => {
+          if (result['status'] == '00') {
             localStorage.setItem('isLoggedin', 'true');
             localStorage.setItem('access_token', result['access_token']);
           } else {
@@ -218,7 +244,7 @@ export class HttpService {
     return this.http
       .post(
 
-        this.globalService.mobileBankingNest + endpoint,
+        this.globalService.customerPortalNest + endpoint,
         model,
         this.getHeaders()
       )
