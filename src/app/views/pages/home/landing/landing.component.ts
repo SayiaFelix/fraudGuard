@@ -14,6 +14,7 @@ import { delay, map } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 import { HttpService } from 'src/app/shared/services/http.service';
 import Swal from "sweetalert2";
+import { OwlOptions } from 'ngx-owl-carousel-o';
 
 @Component({
   selector: 'app-landing',
@@ -28,54 +29,121 @@ export class LandingComponent implements OnInit {
   standards: any = [
     {
       id: '1',
-      icon: "assets/images/icon.png",
+      icon: "assets/images/3.png",
       name: 'Accommodation And Catering Establishment',
       describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '2',
-      icon: "assets/images/icon.png",
+      icon: "assets/images/2.png",
       name: 'Meetings, Incentives, Conferences & Exhibitions Facilities And Services',
       describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '3',
-      icon: "assets/images/icon.png",
+      icon: "assets/images/6.jpg",
       name: 'Standards For Food Safety And Hygiene Standards',
       describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '4',
-      icon: "assets/images/icon.png",
+      icon: "assets/images/4.jpg",
       name: 'Standards For Safety And Security Standards',
       describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '5',
-      icon: "assets/images/icon.png",
+      icon: "assets/images/5.jpg",
       name: ' Tour Guides And Hotel Employees Accommodation Standard',
       describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '6',
-      icon: "assets/images/icon.png",
+      icon: "assets/images/3.png",
       name: 'Halal Compliance Standard For Accommodation And Catering Establishments',
       describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '7',
-      icon: "assets/images/icon.png",
+      icon: "assets/images/7.jpg",
       name: 'Standards For Spa And Wellness Facilities',
       describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '8',
-      icon: "assets/images/icon.png",
+      icon: "assets/images/1.jpg",
       name: 'Standards For Tourism Tours & Travel Enterprises',
       describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
+    // {
+    //   id: '9',
+    //   icon: "assets/images/3.png",
+    //   name: 'Accommodation And Catering Establishment',
+    //   describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    // },
   ]
 
+  autoPlayOptions: OwlOptions = {
+    items:4,
+    loop:true,
+    margin:5,
+    autoplay:true,
+    autoWidth:true,
+    mouseDrag: false,
+    touchDrag: false,
+    dots: false,
+    autoplayTimeout:1000,
+    autoplayHoverPause:true,
+    responsive:{
+      0:{
+          items:2
+      },
+      600:{
+          items:3
+      },
+      1000:{
+          items:4
+      }
+    }
+  }
+
+  slidesStore = [
+    {
+      id:'1',
+      src:'assets/images/5.jpg',
+      title:'Halal Compliance Standard For Accommodation And Catering Establishments'
+    },
+    {
+      id:'2',
+      src:'assets/images/1.jpg',
+      title:'Standards For Tourism Tours & Travel Enterprises'
+    },
+    {
+      id:'3',
+      src:'assets/images/3.png',
+      title:'Standards For Spa And Wellness Facilities',
+    },
+    {
+      id:'4',
+      src:'assets/images/7.jpg',
+      title:'Tour Guides And Hotel Employees Accommodation Standard'
+    },
+    {
+      id:'5',
+      src:'assets/images/2.png',
+      title:'Meetings, Incentives, Conferences & Exhibitions Facilities And Services'
+    },
+    {
+      id:'6',
+      src:'assets/images/4.jpg',
+      title:'Accommodation And Catering Establishment',
+    },
+    {
+      id:'7',
+      src:'assets/images/6.jpg',
+      title:'Standards For Safety And Security Standards'
+    },
+  ]
   loginResponse$: Observable<any>;
   // userDataResp$: Observable<any>;
   // profileResp$: Observable<any>;

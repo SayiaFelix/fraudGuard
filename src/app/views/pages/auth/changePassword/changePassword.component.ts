@@ -8,14 +8,15 @@ import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {CustomValidators} from "ngx-custom-validators";
 
 @Component({
-  selector: 'app-first-time-login',
-  templateUrl: './first-time-login.component.html',
-  styleUrls: ['./first-time-login.component.scss']
+  selector: 'app-changePassword',
+  templateUrl: './changePassword.component.html',
+  styleUrls: ['./changePassword.component.scss']
 })
-export class FirstTimeLoginComponent implements OnInit {
+export class ChangeAuthPasswordComponent implements OnInit {
   errorMsg: string;
   hasError: boolean = false;
   isLoading: boolean = false;
+
   returnUrl: any;
   public modalRef: NgbModalRef;
 
@@ -39,21 +40,21 @@ export class FirstTimeLoginComponent implements OnInit {
     }
 
   }
-
   constructor(private router: Router,
               private route: ActivatedRoute,
               private httpService: HttpService,
               private modalService: NgbModal,
+
               fb: FormBuilder,
 
   ) {
     this.form = fb.group({
-      lookUpToken: ['',Validators.compose([Validators.required])],
       password: ['',Validators.compose([Validators.required, Validators.minLength(6)])],
+      newPassword: ['',Validators.compose([Validators.required, Validators.minLength(6)])],
       confirmPassword: ['',Validators.compose([Validators.required, Validators.minLength(6)])],
-    }
-    ,{
-      validators: this.MatchPassword('password', 'confirmPassword')
+    },
+    {
+      validators: this.MatchPassword('newPassword', 'confirmPassword')
     });
   }
 
@@ -65,25 +66,28 @@ export class FirstTimeLoginComponent implements OnInit {
   onSubmit(e: Event) {
     console.log("On button click")
     e.preventDefault();
+
     this.setPassword();
   }
 
   setPassword(){
     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
-    this.modalRef.componentInstance.title = 'Set Password';
+    this.modalRef.componentInstance.title = 'Change Password';
 
     this.modalRef.componentInstance.body= "Do you want to Set this as your new password?";
     this.modalRef.result.then((result) => {
       if (result === 'success') {
+
         const model = {
-          lookUpToken: this.form.value.lookUpToken,
           password: this.form.value.password,
+          newPassword: this.form.value.newPassword,
           confirmPassword: this.form.value.confirmPassword
         };
-        this.httpService.customerPortalAuth('api/v1/auth/first-time-password', model).subscribe(
+
+        this.httpService.customerPortalAuth('api/v1/auth/change-password', model).subscribe(
           (result: any) => {
             if (result.status === '00') {
-              Swal.fire('Password Set',  'Password Set Successfully.',  'success')
+              Swal.fire('Password Set',  'Password Changed Successfully.',  'success')
               // Navigate back to login screen.
               this.router.navigate(["/auth/login"]);
             } else {
@@ -104,5 +108,4 @@ export class FirstTimeLoginComponent implements OnInit {
       this.inputType = 'password';
     }
   }
-
 }
