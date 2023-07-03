@@ -32,7 +32,7 @@ export class ChangePasswordComponent implements OnInit {
         return
       }
       if (control.value !== matchingControl.value) {
-        matchingControl.setErrors({ MatchPass: true });
+        matchingControl.setErrors({ MatchPassword: true });
       }
       else {
         matchingControl.setErrors(null);

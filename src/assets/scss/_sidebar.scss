@@ -9,7 +9,7 @@
   z-index: 999;
 
   .sidebar-header {
-    background: $card-bg;
+    background: #6D36A8;
     height: $navbar-height;
     border-bottom: 1px solid $border-color;
     display: flex;
@@ -290,7 +290,9 @@
     background: $card-bg;   
     .sidebar-nav {
       list-style: none;
+      // background-color: #6D36A8; 
       padding: 25px 25px 50px 25px;
+      height: 100%;
       .nav-item {
         font-weight: 700;
         font-family: Mulish;
@@ -304,21 +306,20 @@
           white-space: nowrap;
           color: $body-color;
           .link-icon {
-            width: 18px;
-            // height: 16px;
+            width: 21px;
             fill: #6D36A8;;
             position: absolute;
             color: inherit;
           }
           .link-title {
             margin-left: 30px;
-            font-size: 20px;
             -webkit-transition: all .2s ease-in-out;
             transition: all .2s ease-in-out;
           }
           .link-arrow {
             width: 14px;
             height: 14px;
+            display: none;
             margin-left: auto;
             -webkit-transition: all .3s ease;
             -webkit-transition: all .3s ease-in-out;
@@ -451,7 +452,7 @@
     .sidebar-header {
       // transform: translateX($sidebar-folded-width);
       // visibility: visible;
-      // transition: none;
+      transition: none;
       // .sidebar-open & {
       //    transform: translateX(0);
       // }
@@ -523,7 +524,8 @@
 .sidebar-light {
   .sidebar {
     .sidebar-header {
-      background: $sidebar-light-bg;
+      background: #F8F8F8;
+      ;
       border-bottom: 1px solid rgba($border-color, .1);
       border-right: 1px solid rgba($border-color, .1);
       .sidebar-brand {
@@ -557,7 +559,7 @@
                 fill: rgba($primary, .2);
               }
               .link-title {
-                color: $primary;
+                color: #297bcb ;
               }
             }
           }

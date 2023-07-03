@@ -51,6 +51,7 @@
               "src/.htaccess"
             ],
             "styles": [
+              "node_modules/intl-tel-input/build/css/intlTelInput.css",
               "./node_modules/@fullcalendar/common/main.css",
               "./node_modules/@fullcalendar/daygrid/main.css",
               "./node_modules/@fullcalendar/timegrid/main.css",
@@ -58,6 +59,7 @@
               "src/styles.scss"
             ],
             "scripts": [
+              "node_modules/intl-tel-input/build/js/intlTelInput.min.js",
               "node_modules/apexcharts/dist/apexcharts.min.js"
             ]
           },
