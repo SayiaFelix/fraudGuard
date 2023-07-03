@@ -17,6 +17,7 @@ import {TranslateLoader, TranslateModule} from "@ngx-translate/core";
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import {CheckTokenValidityInterceptor} from "./shared/services/checkTokenValidity.interceptor";
 import { CarouselModule } from 'ngx-owl-carousel-o';
+import { Ng2TelInputModule } from 'ng2-tel-input';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
@@ -31,6 +32,7 @@ export function HttpLoaderFactory(http: HttpClient) {
   ],
   imports: [
     BrowserModule,
+    Ng2TelInputModule,
     AppRoutingModule,
     HttpClientModule,
     BrowserAnimationsModule,

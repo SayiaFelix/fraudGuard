@@ -24,12 +24,12 @@ import {compareSegments} from "@angular/compiler-cli/src/ngtsc/sourcemaps/src/se
 export class NavbarComponent implements OnInit {
   userData$: Observable<any>;
   companyEmail: string | null;
-  employeeNumber: string | null;
-  profile:string;
-  companyRegistrationDate: string;
-  country: string;
-  taxPin: string;
-  logo: string;
+  licenceNumber: string | null;
+  profile:string | null;
+  companyRegistrationDate: string | null;
+  county: string | null;
+  taxPin: string | null;
+  logo: string | null;
 
   public modalRef: NgbModalRef;
 
@@ -63,19 +63,19 @@ export class NavbarComponent implements OnInit {
 
     // let userDetails = JSON.parse(localStorage.getItem('userData')!);
     let userDetails = {
-      companyEmail: localStorage.getItem('email') ? localStorage.getItem('email') : "test@gmail.com",
-      employeeNumber: localStorage.getItem('licenceNo') ? localStorage.getItem('licenceNo') : "87654321",
-      profile: "Admin",
+      companyEmail: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['email'] : "test@gmail.com",
+      licenceNumber: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['licenceNo']  : "87654321",
+      profile: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['enterpriseName']  : "Eka Hotel Nairobi",
       companyRegistrationDate: "24-12-1999",
-      country: "Kenya",
+      county: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['county']  : "Nairobi",
       taxPin: "A029384794G",
     };
     if (userDetails) {
       this.companyEmail = userDetails['companyEmail'];
-      this.employeeNumber = userDetails['employeeNumber'];
+      this.licenceNumber = userDetails['licenceNumber'];
       this.profile = userDetails['profile'];
       this.companyRegistrationDate = userDetails['companyRegistrationDate'];
-      this.country = userDetails['country'];
+      this.county = userDetails['county'];
       this.taxPin = userDetails['taxPin'];
       this.logo =
         'https://images.unsplash.com/photo-151740421573-15263e9f9178?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80';
@@ -87,10 +87,10 @@ export class NavbarComponent implements OnInit {
           console.log(resp);
           if (resp) {
             this.companyEmail = resp[0]['email'];
-            this.employeeNumber = resp[0]['licenceNo'];
-            this.profile = resp[0]['profile'];
+            this.licenceNumber = resp[0]['licenceNo'];
+            this.profile = resp[0]['enterpriseName'];
             this.companyRegistrationDate = resp[0]['enterpriseName'];
-            this.country = resp[0]['country'];
+            this.county = resp[0]['country'];
             return resp[0];
           }
         })

@@ -3,13 +3,14 @@
 }
 
 .linkTitle {
-    color:#2268AA;;
-    font-size: 13px!important;
+    color:#F8F8F8;
+    ;;
+    font-size: 14px!important;
     text-transform: uppercase;
-    font-weight: 700!important;
+    font-weight: 800!important;
     letter-spacing: 0.5px;
     margin-bottom: 5px;
-    height: 15px;
+    height: 18px;
     //-webkit-text-decoration: slateblue solid underline;
     //text-decoration: slateblue solid underline;
     //-webkit-text-underline-position: auto;
@@ -20,3 +21,7 @@
 //  font-size: 15px!important;
 //  font-weight: 600!important;
 //}
+
+.metismenu .mm-collapse:not(.mm-show) {
+  display: contents!important;
+}

@@ -1,7 +1,8 @@
 .navbar {
   width: calc(100% - #{$sidebar-width-lg});
   height: $navbar-height;
-  background: $card-bg;
+  background:#6D36A8;
+  border-radius: 1px;
   border-bottom: 1px solid $border-color;
   display: flex;
   align-items: center;

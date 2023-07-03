@@ -1,8 +1,8 @@
 <nav class="sidebar">
-  <div class="sidebar-header" style="background-color: #EFEFEF; ">
+  <div class="sidebar-header" style="background-color: #EFEFEF!important; ">
     <!--- Logo -->
     <a routerLink="standards" class="sidebar-brand nobleui-logo">
-      <img class="" [src]="logo" alt="Portal" width="110px" height="170px" style="padding-left: 15%">
+      <img class="" [src]="logo" alt="Portal" width="140px" height="200px" style="padding-left: 1%">
     </a>
 
     <!-- <a routerLink="/" class="sidebar-brand nobleui-logo">
@@ -20,7 +20,7 @@
 
   <div class="sidebar-body" style="background-color: white; box-shadow: 0 1px 3px #EFEFEF;" (mouseenter)="operSidebarFolded()" (mouseleave)="closeSidebarFolded()" [perfectScrollbar]>
     <!--- Sidemenu start -->
-    <ul class="sidebar-nav metismenu" id="sidebar-menu" #sidebarMenu>
+    <ul class="sidebar-nav metismenu"  style="background-image: url('assets/images/headerl.png'); background-repeat: repeat-y; color:#F8F8F8" id="sidebar-menu" #sidebarMenu>
       <ng-container *ngFor="let item of menuItems">
         <li class="nav-item nav-category showHand" *ngIf="item.isTitle">
           <div class="row justify-content-around">
@@ -36,9 +36,7 @@
 
 <!--        <li class="nav-item " *ngIf="showMenuItem(item.profiles) && !item.isTitle">-->
         <li class="nav-item" *ngIf="!item.isTitle">
-
           <a class="nav-link" *ngIf="hasItems(item) && showSubItems" href="javascript:void(0);">
-
             <i class="link-icon" [attr.data-feather]="item.icon" appFeatherIcon *ngIf="item.icon"></i>
             <span class="link-title linkTitle"> {{ item.label }}</span>
             <span class="link-arrow" data-feather="chevron-down" appFeatherIcon></span>

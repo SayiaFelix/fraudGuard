@@ -2,9 +2,10 @@ import { MenuItem } from './menu.model';
 
 export const MENU: MenuItem[] = [
   {
-    profiles: ['CORPORATE_ADMIN'],
-    label: 'Main',
+    // profiles: ['CORPORATE_ADMIN'],
+    label: 'MAIN',
     icon: 'home',
+    // link: '/dashboard',
     subItems: [
       {
         profiles: ['CORPORATE_ADMIN'],
@@ -29,9 +30,9 @@ export const MENU: MenuItem[] = [
     ]
   },
   {
-    profiles: ['CORPORATE_ADMIN'],
-    label: 'Standards',
-    icon: 'help-circle',
+    // profiles: ['CORPORATE_ADMIN'],
+    label: 'STANDARDS',
+    icon: 'star',
     subItems: [
       {
         profiles: ['CORPORATE_ADMIN'],
@@ -40,20 +41,18 @@ export const MENU: MenuItem[] = [
       },
     ]
   },
-
-
   {
-    profiles: ['CORPORATE_ADMIN'],
-    label: 'All Accreditations',
-    icon: 'shopping-bag',
+    // profiles: ['CORPORATE_ADMIN'],
+    label: 'ALL ACCREDITATION',
+    icon: 'award',
     subItems: [
       {
-        profiles: ['CORPORATE_ADMIN'],
+        // profiles: ['CORPORATE_ADMIN'],
         label: 'List Accreditations',
         link: '/tra-client/accreditations/all'
       },
       {
-        profiles: ['CORPORATE_ADMIN'],
+        // profiles: ['CORPORATE_ADMIN'],
         label: 'All Requests',
         link: '/tra-client/accreditations/all-accreditations'
       },
@@ -61,9 +60,9 @@ export const MENU: MenuItem[] = [
   },
 
   {
-    profiles: ['CORPORATE_ADMIN'],
-    label: 'Classification',
-    icon: 'user',
+    // profiles: ['CORPORATE_ADMIN'],
+    label: 'CLASSIFICATION',
+    icon: 'search',
     subItems: [
       {
         profiles: ['CORPORATE_ADMIN'],
