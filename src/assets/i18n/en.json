@@ -1,7 +1,7 @@
 {
   "welcomeMessage": "Thanks for joining, {{ firstName }}! It's great to have you!",
   "loginMessage":"Log in to your account",
-  "welcomeDashboardMessage": "Welcome to the Eka Hotel Nairobi Dashboard",
+  "welcomeDashboardMessage": "Welcome to your Dashboard",
   "downloadTextOnButton": "Download",
   "login": {
     "username": "Username/ Email Address",
