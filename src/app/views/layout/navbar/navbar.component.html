@@ -1,11 +1,10 @@
-<nav class="navbar">
+<nav class="navbar" >
   <a  class="sidebar-toggler" (click)="toggleSidebar($event)">
     <i class="feather icon-menu"></i>
   </a>
   <div class="navbar-content">
-
     <form class="search-form">
-      <h3 class="header" style="font-weight: 700; font-family: Mulish; "> <span style="color: #6D36A8; font-style: normal; font-weight: 700;">{{profile}}</span></h3>
+      <!-- <h3 class="header" style="font-weight: 700; font-family: Mulish; "> <span style="color: #6D36A8; font-style: normal; font-weight: 700;">{{profile}}</span></h3> -->
     </form>
     <ul class="navbar-nav">
       <!-- <li class="nav-item" ngbDropdown>
@@ -18,6 +17,11 @@
           <a ngbDropdownItem class="py-2" (click)="changeLanguage('kis')"> <img src="assets/images/flags/ke.svg" class="wd-20 me-1" title="es" alt="es"> <span class="ms-1"> Kiswahili </span></a>
         </div>
       </li> -->
+
+      <li class="nav-item">
+        <P class="header" style="font-weight: 700; font-family: Mulish; "> <span style="color:#F8F8F8;
+          ; font-style: normal; font-weight: 700;">{{profile}}</span></P>
+      </li>
 
       <li class="nav-item nav-notifications" ngbDropdown (click)="updateNotificationList()">
         <a class="nav-link" ngbDropdownToggle id="notificationDropdown">

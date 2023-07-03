@@ -3,35 +3,35 @@ import { MenuItem } from './menu.model';
 export const MENU: MenuItem[] = [
   {
     // profiles: ['CORPORATE_ADMIN'],
-    label: 'Main',
+    label: 'MAIN',
     icon: 'home',
-    link: '/dashboard',
-    // subItems: [
-    //   // {
-    //   //   profiles: ['CORPORATE_ADMIN'],
-    //   //   label: 'Dashboard',
-    //   //   link: '/dashboard'
-    //   // },
-    //   // {
-    //   //   profiles: ['CORPORATE_ADMIN'],
-    //   //   label: 'Chat( Comments )',
-    //   //   link: '/mobile-banking/channels/ussd-ussd-channel-dashboard'
-    //   // },
-    //   // {
-    //   //   profiles: ['CORPORATE_ADMIN'],
-    //   //   label: 'Mobile Banking IB',
-    //   //   link: '/mobile-banking/channels/ib-ussd-channel-dashboard'
-    //   // },
-    //   // {
-    //   //   profiles: ['CORPORATE_ADMIN'],
-    //   //   label: 'Mobile Banking APP',
-    //   //   link: '/mobile-banking/channels/app-ussd-channel-dashboard'
-    //   // },
-    // ]
+    // link: '/dashboard',
+    subItems: [
+      {
+        profiles: ['CORPORATE_ADMIN'],
+        label: 'Dashboard',
+        link: '/dashboard'
+      },
+      // {
+      //   profiles: ['CORPORATE_ADMIN'],
+      //   label: 'Chat( Comments )',
+      //   link: '/mobile-banking/channels/ussd-ussd-channel-dashboard'
+      // },
+      // {
+      //   profiles: ['CORPORATE_ADMIN'],
+      //   label: 'Mobile Banking IB',
+      //   link: '/mobile-banking/channels/ib-ussd-channel-dashboard'
+      // },
+      // {
+      //   profiles: ['CORPORATE_ADMIN'],
+      //   label: 'Mobile Banking APP',
+      //   link: '/mobile-banking/channels/app-ussd-channel-dashboard'
+      // },
+    ]
   },
   {
     // profiles: ['CORPORATE_ADMIN'],
-    label: 'Standards',
+    label: 'STANDARDS',
     icon: 'star',
     subItems: [
       {
@@ -43,7 +43,7 @@ export const MENU: MenuItem[] = [
   },
   {
     // profiles: ['CORPORATE_ADMIN'],
-    label: 'All Accreditations',
+    label: 'ALL ACCREDITATION',
     icon: 'award',
     subItems: [
       {
@@ -61,7 +61,7 @@ export const MENU: MenuItem[] = [
 
   {
     // profiles: ['CORPORATE_ADMIN'],
-    label: 'Classification',
+    label: 'CLASSIFICATION',
     icon: 'search',
     subItems: [
       {
