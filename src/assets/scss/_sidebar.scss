@@ -304,21 +304,20 @@
           white-space: nowrap;
           color: $body-color;
           .link-icon {
-            width: 18px;
-            // height: 16px;
+            width: 21px;
             fill: #6D36A8;;
             position: absolute;
             color: inherit;
           }
           .link-title {
             margin-left: 30px;
-            font-size: 20px;
             -webkit-transition: all .2s ease-in-out;
             transition: all .2s ease-in-out;
           }
           .link-arrow {
             width: 14px;
             height: 14px;
+            display: none;
             margin-left: auto;
             -webkit-transition: all .3s ease;
             -webkit-transition: all .3s ease-in-out;

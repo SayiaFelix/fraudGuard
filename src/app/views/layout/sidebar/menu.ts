@@ -2,37 +2,37 @@ import { MenuItem } from './menu.model';
 
 export const MENU: MenuItem[] = [
   {
-    profiles: ['CORPORATE_ADMIN'],
+    // profiles: ['CORPORATE_ADMIN'],
     label: 'Main',
     icon: 'home',
     link: '/dashboard',
-    subItems: [
-      // {
-      //   profiles: ['CORPORATE_ADMIN'],
-      //   label: 'Dashboard',
-      //   link: '/dashboard'
-      // },
-      // {
-      //   profiles: ['CORPORATE_ADMIN'],
-      //   label: 'Chat( Comments )',
-      //   link: '/mobile-banking/channels/ussd-ussd-channel-dashboard'
-      // },
-      // {
-      //   profiles: ['CORPORATE_ADMIN'],
-      //   label: 'Mobile Banking IB',
-      //   link: '/mobile-banking/channels/ib-ussd-channel-dashboard'
-      // },
-      // {
-      //   profiles: ['CORPORATE_ADMIN'],
-      //   label: 'Mobile Banking APP',
-      //   link: '/mobile-banking/channels/app-ussd-channel-dashboard'
-      // },
-    ]
+    // subItems: [
+    //   // {
+    //   //   profiles: ['CORPORATE_ADMIN'],
+    //   //   label: 'Dashboard',
+    //   //   link: '/dashboard'
+    //   // },
+    //   // {
+    //   //   profiles: ['CORPORATE_ADMIN'],
+    //   //   label: 'Chat( Comments )',
+    //   //   link: '/mobile-banking/channels/ussd-ussd-channel-dashboard'
+    //   // },
+    //   // {
+    //   //   profiles: ['CORPORATE_ADMIN'],
+    //   //   label: 'Mobile Banking IB',
+    //   //   link: '/mobile-banking/channels/ib-ussd-channel-dashboard'
+    //   // },
+    //   // {
+    //   //   profiles: ['CORPORATE_ADMIN'],
+    //   //   label: 'Mobile Banking APP',
+    //   //   link: '/mobile-banking/channels/app-ussd-channel-dashboard'
+    //   // },
+    // ]
   },
   {
-    profiles: ['CORPORATE_ADMIN'],
+    // profiles: ['CORPORATE_ADMIN'],
     label: 'Standards',
-    icon: 'pocket',
+    icon: 'star',
     subItems: [
       {
         profiles: ['CORPORATE_ADMIN'],
@@ -41,20 +41,18 @@ export const MENU: MenuItem[] = [
       },
     ]
   },
-
-
   {
-    profiles: ['CORPORATE_ADMIN'],
+    // profiles: ['CORPORATE_ADMIN'],
     label: 'All Accreditations',
-    icon: 'shopping-bag',
+    icon: 'award',
     subItems: [
       {
-        profiles: ['CORPORATE_ADMIN'],
+        // profiles: ['CORPORATE_ADMIN'],
         label: 'List Accreditations',
         link: '/tra-client/accreditations/all'
       },
       {
-        profiles: ['CORPORATE_ADMIN'],
+        // profiles: ['CORPORATE_ADMIN'],
         label: 'All Requests',
         link: '/tra-client/accreditations/all-accreditations'
       },
@@ -62,9 +60,9 @@ export const MENU: MenuItem[] = [
   },
 
   {
-    profiles: ['CORPORATE_ADMIN'],
+    // profiles: ['CORPORATE_ADMIN'],
     label: 'Classification',
-    icon: 'user',
+    icon: 'search',
     subItems: [
       {
         profiles: ['CORPORATE_ADMIN'],
