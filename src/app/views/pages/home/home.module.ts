@@ -14,6 +14,7 @@ import { ViewStandardsComponent } from './view-standards/view-standards.componen
 import { HomeComponent } from './home.component';
 import { NgbActiveModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CarouselModule } from 'ngx-owl-carousel-o';
+import { Ng2TelInputModule } from 'ng2-tel-input';
 
 const routes: Routes = [
   {
@@ -61,6 +62,7 @@ const routes: Routes = [
   ],
     imports: [
         CommonModule,
+        Ng2TelInputModule,
         RouterModule.forChild(routes),
         SharedModule,
         NgbModule,
