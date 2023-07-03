@@ -91,8 +91,8 @@ export class LandingComponent implements OnInit {
     autoWidth:true,
     mouseDrag: false,
     touchDrag: false,
-    dots: false,
-    autoplayTimeout:1000,
+    dots: true,
+    autoplayTimeout:2000,
     autoplayHoverPause:true,
     responsive:{
       0:{
