@@ -4,10 +4,6 @@ import { NgModule } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppRoutingModule } from './app-routing.module';
-
-import { CarouselModule } from 'ngx-bootstrap/carousel';
-
-
 import { LayoutModule } from './views/layout/layout.module';
 import { AuthGuard } from './core/guard/auth.guard';
 
@@ -20,7 +16,7 @@ import {AgmCoreModule} from "@agm/core";
 import {TranslateLoader, TranslateModule} from "@ngx-translate/core";
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import {CheckTokenValidityInterceptor} from "./shared/services/checkTokenValidity.interceptor";
-
+import { CarouselModule } from 'ngx-owl-carousel-o';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
@@ -38,7 +34,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     AppRoutingModule,
     HttpClientModule,
     BrowserAnimationsModule,
-    CarouselModule.forRoot(),
+    CarouselModule ,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,

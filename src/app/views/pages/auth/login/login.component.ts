@@ -86,6 +86,7 @@ export class LoginComponent implements OnInit {
           return throwError(error);
         }),
         map((result) => {
+          console.log(result)
           this.isLoading = false;
           if (result['status'] != '00') {
             this.hasError = true;
@@ -94,7 +95,7 @@ export class LoginComponent implements OnInit {
               this.hasError = false;
               this.errorMsg = '';
               this.form.reset();
-            }, 4000);
+            }, 3000);
           } else {
             setTimeout(() => {
               this.router.navigate(['/dashboard']);

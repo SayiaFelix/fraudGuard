@@ -1,41 +1,23 @@
 <div class="body w-100" style="position: relative; background-color: #EFEFEF;">
-  <div
-    class="d-flex justify-content-between"
-    style="max-width: 100%; max-height: 70px"
-  >
+  <div class="d-flex justify-content-between" style="max-width: 100%; max-height: 70px">
     <div class="d-flex justify-content-around" style="margin-left: 40px">
       <div class="p-2">
-        <button
-          class="btn btn-md"
-          style="background-color: #6d36a8; color: #f8f8f8; border-radius: 4px"
-        >
-          <a
-            href="https://www.tra.go.ke/"
-            style="text-decoration: none; text-transform: none"
-            target="_blank"
-            class="transition text-light"
-          >
+        <button class="btn btn-md" style="background-color: #6d36a8; color: #f8f8f8; border-radius: 4px">
+          <a href="https://www.tra.go.ke/" style="text-decoration: none; text-transform: none" target="_blank"
+            class="transition text-light">
             VISIT:WWW.TRA.GO.KE
           </a>
         </button>
       </div>
       <div class="mt-2">
-        <img
-          class="img-fluid"
-          src="assets/images/TRA_Logo.png"
-          width="110"
-          height="50"
-          alt=""
-        />
+        <img class="img-fluid" src="assets/images/TRA_Logo.png" width="110" height="50" alt="" />
       </div>
     </div>
 
     <div style="margin-right: 10px">
       <div class="d-flex p-2 justify-content-between">
-        <!-- <button class="btn btn-md btn-light transition" type="submit">
-          <a
-            routerLink="/dashboard"
-            style="
+        <button class="btn btn-md btn-light transition" type="submit">
+          <a routerLink="/auth/activate" style="
               text-decoration: none;
               color: #1e0f2e;
               font-family: 'Muli';
@@ -45,27 +27,16 @@
               letter-spacing: 0.08em;
               border-radius: 8px;
               text-transform: uppercase;
-            "
-            class="transition m-1"
-            >Dashboard</a
-          >
-        </button> -->
+            " class="transition m-1">Sign Up</a>
+        </button>
         <button class="btn btn-md login-btn transition" type="submit">
-          <a
-            routerLink="/auth/register"
-            style="text-decoration: none"
-            class="transition"
-          >
-            <span
-              style="
+          <a routerLink="/auth/login" style="text-decoration: none" class="transition">
+            <span style="
                 color: #f8f8f8;
                 font-weight: 700;
                 letter-spacing: 0.08em;
                 font-size: 12px;
-              "
-              >SIGN IN</span
-            ></a
-          >
+              ">SIGN IN</span></a>
         </button>
       </div>
     </div>
@@ -73,48 +44,60 @@
   <div class="card bg-light">
     <div class="row">
       <div class="card col-md-12 col-lg-12 col-xl-12 col-sm-12"
-        style="background-image: url('assets/images/headerl.png');   background-repeat: repeat-x; background-repeat: repeat-y; padding: 40px 90px; color:#F8F8F8">
+        style="background-image: url('assets/images/headerl.png');   background-repeat: repeat-x; background-repeat: repeat-y; padding: 40px 60px; color:#F8F8F8">
         <h2 style="font-family: 'Mulish';line-height: 25px;font-weight: 600;font-size: 25px;">
           Ignite Success in Tourism: Align with Our Benchmark Minimum Standards.
         </h2>
       </div>
     </div>
     <div class="card border-0 box-shadow">
-      <div class="d-flex justify-content-start mt-4" style="margin-bottom: -4%; padding-left: 40px;">
+      <div class="d-flex justify-content-start mt-4" style="margin-bottom: -20px; padding-left: 50px;">
         <div>
-          <h3 class="card-title" style="color: #1E0F2E; font-family: 'Muli';font-weight: 600;font-size: 16px;">All Standards</h3>
+          <h3 class="card-title" style="color: #1E0F2E; font-family: 'Muli';font-weight: 600;font-size: 16px;">All
+            Standards</h3>
         </div>
       </div>
-      <a class="mt-4" href="" routerLink="/standards/Id">
-        <div class="card-body p-3">
+      <a href="" routerLink="/standards/Id">
+        <div class="card-body p-1">
           <div class="border-0 box-shadow">
             <div class="grid-margin stretch-card">
-              <div class="row" style="padding-left: 40px">
+              <div class="row" style="padding: 0px 40px">
                 <div class="col-md-3 col-lg-3 col-xl-3 col-sm-4 mt-3 pt-2" *ngFor="let std of standards">
                   <div class="" [id]="std.id">
-                   
-                    <img class="img-fluid" style="max-height: 55px" [src]="std.icon" />
-                    <hr />
-                    <div class="mt-2">
-                      <p style="
-                          color: #2268aa;
-                          font-family: 'Muli';
-                          font-weight: 600;
-                          font-size: 15px;
-                        " class="h2">
-                        {{ std.name }}
-                      </p>
-                      <!-- <p style="color: #2268AA; font-family: 'Muli';font-weight: 600;font-size: 15px;" class="h2"> <a href="" routerLink="/standards/Id">{{std.name}}</a></p> -->
+                    <div style="position: relative; display: inline-block;">
+                      <div>
+                        <img class="img-fluid card-img-top"
+                          style="height: 95px; border-top-left-radius: 13px; border-top-right-radius: 13px;"
+                          [src]="std.icon" />
+                      </div>
+                      <div
+                        style="position: absolute; width: 60px; height: 60px; margin-left: 4%; margin-top: -11%; border-radius: 50%; background-color: #D0DDF0;"
+                        class="card-header d-flex justify-content-center align-items-center border-0 box-shadow">
+                      </div>
                     </div>
-                    <div class="mt-3">
-                      <p style="
-                          color: #1e0f2e;
-                          font-family: 'Muli';
-                          font-weight: 400;
-                          font-size: 13px;
-                        " class="h3">
-                        {{ std.describe }}
-                      </p>
+                    <br><br>
+                    <div style="position: relative;">
+                      <div class="mt-3">
+                        <p style="
+                            color: #2268aa;
+                            font-family: 'Muli';
+                            font-weight: 600;
+                            font-size: 15px;
+                          " class="h2">
+                          {{ std.name }}
+                        </p>
+                        <!-- <p style="color: #2268AA; font-family: 'Muli';font-weight: 600;font-size: 15px;" class="h2"> <a href="" routerLink="/standards/Id">{{std.name}}</a></p> -->
+                      </div>
+                      <div class="mt-2">
+                        <p style="
+                            color: #1e0f2e;
+                            font-family: 'Muli';
+                            font-weight: 400;
+                            font-size: 13px;
+                          " class="h3">
+                          {{ std.describe }}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -125,25 +108,15 @@
       </a>
     </div>
   </div>
-  <div
-    class="card d-flex justify-content-between"
-    style="
+  <div class="card d-flex justify-content-between" style="
       background-color: #d0ddf0;
       padding: 25px 96px;
-    "
-  >
+    ">
     <div>
-      <img
-        class="img-fluid"
-        style="position: absolute; margin-top: 4px"
-        src="assets/images/TRA_Logo.png"
-        width="115"
-        height="60"
-        alt="logo"
-      />
+      <img class="img-fluid" style="position: absolute; margin-top: 4px" src="assets/images/TRA_Logo.png" width="115"
+        height="60" alt="logo" />
     </div>
-    <div
-      style="
+    <div style="
         font-family: 'Mulish';
         font-style: normal;
         text-transform: uppercase;
@@ -153,27 +126,11 @@
         text-align: center;
         letter-spacing: 0.08em;
         margin-left: 50%;
-      "
-    >
-      <a
-        routerLink="/"
-        style="text-decoration: none; color: #1e0f2e"
-        class="transition"
-        >Home</a
-      >
-      <a
-        routerLink="/"
-        class=""
-        style="text-decoration: none; margin: 20px; color: #1e0f2e"
-        class="transition"
-        >Tourism ACT 2011</a
-      >
-      <a
-        routerLink="/"
-        style="text-decoration: none; color: #1e0f2e"
-        class="transition"
-        >Tourism Regulations 2014</a
-      >
+      ">
+      <a routerLink="/" style="text-decoration: none; color: #1e0f2e" class="transition">Home</a>
+      <a routerLink="/" class="" style="text-decoration: none; margin: 20px; color: #1e0f2e" class="transition">Tourism
+        ACT 2011</a>
+      <a routerLink="/" style="text-decoration: none; color: #1e0f2e" class="transition">Tourism Regulations 2014</a>
     </div>
   </div>
 </div>

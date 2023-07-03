@@ -78,6 +78,7 @@ export class ViewStandardsComponent implements OnInit {
       occupation: ['',Validators.compose([Validators.required])],
       purpose: ["", Validators.compose([Validators.required])],
       name: ["", Validators.compose([Validators.required])],
+      phoneNumber: ["", Validators.compose([Validators.required])],
     });
   }
 
@@ -91,32 +92,6 @@ export class ViewStandardsComponent implements OnInit {
   get f(): { [p: string]: AbstractControl } {
     return this.form.controls;
   }
-
-  
-CarouselController($interval: (arg0: () => void, arg1: number) => void) {
-  var vm = this;
-  vm.currentIndex = 0;
-
-  // Array of background images
-  vm.images = [
-    'landing2.png',
-    'landing.png',
-    'landing2.png',
-  ];
-
-  // Function to change the current index
-  vm.changeIndex = function (index: any) {
-    vm.currentIndex = index;
-  };
-
-  // Function to handle automatic sliding
-  function slideNext() {
-    vm.currentIndex = (vm.currentIndex + 1) % vm.images.length;
-  }
-  // Start the automatic sliding
-  $interval(slideNext, 5000);
-}
-
   onSubmit(e: Event) {
     // this.hasError = false;
     // this.isLoading = true;
@@ -205,7 +180,7 @@ CarouselController($interval: (arg0: () => void, arg1: number) => void) {
     }
   }
   openModal(modalContent: any) {
-    this.modalRef = this.modal.open(modalContent);
+    this.modalRef = this.modal.open(modalContent, {centered: true, size:"md"});
   }
   closeModal() {
     this.activeModal.close();

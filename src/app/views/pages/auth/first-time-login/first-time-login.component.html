@@ -25,19 +25,51 @@
               <input type="text" class="form-control" formControlName="lookUpToken"
                 placeholder="Enter the password that was sent to your email">
               <small class="text-danger"
-                *ngIf="form.get('lookUpToken')?.touched && form.get('lookUpToken')?.hasError('required')"> Old Password is
+                *ngIf="form.get('lookUpToken')?.touched && form.get('lookUpToken')?.hasError('required')"> Old Password
+                is
                 required</small>
             </div>
             <div class="mb-3">
-              <!-- <label class="form-label font-weight-bold"><b>Preferred Password</b></label> -->
-              <input type="text" class="form-control" formControlName="password"
-                placeholder="Enter the preferred password">
-                <small class="text-danger"
-                *ngIf="form.get('password')?.touched && form.get('password')?.hasError('required')"> New Password is
+              <div class="input-group mb-3">
+                <input [type]="inputType" class="inputs" formControlName="password" class="form-control"
+                  placeholder="Enter New password" id="password" aria-label="password">
+                <div class="input-group-prepend" style="cursor: pointer;" (click)="toggleShowPassword()">
+                  <span class="input-group-text" *ngIf="!this.showingPassword"><i class="mdi mdi-eye"></i></span>
+                  <span class="input-group-text" *ngIf="this.showingPassword"><i class="mdi mdi-eye-off"></i></span>
+                </div>
+              </div>
+              <small class="text-danger"
+                *ngIf="form.get('password')?.touched && form.get('password')?.hasError('required')">Password is
                 required</small>
+              <small class="text-danger"
+                *ngIf="form.get('password')?.touched && form.get('password')?.hasError('minlength')">Password isn't long
+                enough, minimum of 6 characters</small>
+            </div>
+            <div class="mb-3">
+              <div class="input-group mb-3">
+                <input [type]="inputType" class="inputs" formControlName="confirmPassword" class="form-control"
+                  placeholder="Confirm Password" id="password" aria-label="password">
+                <div class="input-group-prepend" style="cursor: pointer;" (click)="toggleShowPassword()">
+                  <span class="input-group-text" *ngIf="!this.showingPassword"><i class="mdi mdi-eye"></i></span>
+                  <span class="input-group-text" *ngIf="this.showingPassword"><i class="mdi mdi-eye-off"></i></span>
+                </div>
+              </div>
+              <small class="text-danger"
+                *ngIf="form.get('confirmPassword')?.touched && form.get('confirmPassword')?.hasError('required')">Confirm
+                Password is
+                required
+              </small>
+              <small class="text-danger"
+                *ngIf="form.get('confirmPassword')?.touched && form.get('confirmPassword')?.hasError('minlength')">Confirm
+                Password isn't long enough, minimum of 6 characters
+              </small>
+              <small class="text-danger"
+                *ngIf="form.get('confirmPassword')?.touched && form.get('confirmPassword')?.hasError('MatchPassword')">Passwords
+                Do Not Match
+              </small>
             </div>
             <div>
-              <button  [disabled]="!form.valid" (click)="onSubmit($event)" style="width: 100%; border: none;"
+              <button [disabled]="!form.valid" (click)="onSubmit($event)" style="width: 100%; border: none;"
                 class="btn btn-block login-btn transition" type="submit">
                 <span style="color: white;">SET PASSWORD</span>
               </button>

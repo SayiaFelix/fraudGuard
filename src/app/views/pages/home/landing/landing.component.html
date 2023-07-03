@@ -16,10 +16,8 @@
 
     <div style="margin-right: 10px">
       <div class="d-flex p-2 justify-content-between">
-        <!-- <button class="btn btn-md btn-light transition ml-1" type="submit">
-          <a
-            routerLink="/dashboard"
-            style="
+        <button class="btn btn-md btn-light transition ml-1" type="submit">
+          <a routerLink="/auth/activate" style="
               text-decoration: none;
               color: #1e0f2e;
               font-family: 'Muli';
@@ -29,11 +27,8 @@
               letter-spacing: 0.08em;
               border-radius: 8px;
               text-transform: uppercase;
-            "
-            class="transition m-1"
-            >Dashboard</a
-          >
-        </button> -->
+            " class="transition m-1">Sign Up</a>
+        </button>
         <button class="btn btn-md login-btn transition" type="submit">
           <a routerLink="/auth/login" style="text-decoration: none" class="transition">
             <span style="
@@ -50,13 +45,25 @@
   <div class="card">
     <div class="row">
       <div class="col-md-12 col-lg-12 col-xl-12 col-sm-12">
-        <img class="card-img-top img-fluid" src="assets/images/landing.png" />
+        <!-- <img class="card-img-top img-fluid" src="assets/images/7.jpg" /> -->
+        <div class="card border-0 box-shadow" style="max-width:100% ; height: auto;">
+          <div class="">
+            <owl-carousel-o [options]="autoPlayOptions">
+              <ng-template carouselSlide [width]="630" *ngFor="let slide of slidesStore" [id]="slide.id">
+                <div class="w-100 h-90">
+                  <img class="card-img-top img-fluid" style="width: 100%; height: auto;" [src]="slide.src"
+                    [title]="slide.title">
+                </div>
+              </ng-template>
+            </owl-carousel-o>
+          </div>
+        </div>
       </div>
     </div>
     <div class="card border-0 box-shadow">
-      <div class="mt-4 d-flex justify-content-around">
+      <div class="mt-2 card-header d-flex justify-content-between" style="padding: 0px 28px">
         <div>
-          <h3 class="card-title mr-2" style="
+          <h3 class="card-title mt-2" style="
               color: #1e0f2e;
               font-family: 'Muli';
               font-weight: 600;
@@ -76,34 +83,46 @@
           " routerLink="/standards/all-standards">View all Standards</a>
       </div>
       <a href="" routerLink="/standards/Id">
-        <div class="card-body p-2">
+        <div class="card-body p-1">
           <div class="border-0 box-shadow">
             <div class="grid-margin stretch-card">
-              <div class="row" style="padding-left: 40px">
+              <div class="row" style="padding: 0px 30px">
                 <div class="col-md-3 col-lg-3 col-xl-3 col-sm-4 mt-3 pt-2" *ngFor="let std of standards">
                   <div class="" [id]="std.id">
-                   
-                    <img class="img-fluid" style="max-height: 55px" [src]="std.icon" />
-                    <hr />
-                    <div class="mt-2">
-                      <p style="
-                          color: #2268aa;
-                          font-family: 'Muli';
-                          font-weight: 600;
-                          font-size: 15px;
-                        " class="h2">
-                        {{ std.name }}
-                      </p>
+                    <div style="position: relative; display: inline-block;">
+                      <div>
+                        <img class="img-fluid card-img-top"
+                          style="height: 95px; border-top-left-radius: 13px; border-top-right-radius: 13px;"
+                          [src]="std.icon" />
+                      </div>
+                      <div
+                        style="position: absolute; width: 60px; height: 60px; margin-left: 4%; margin-top: -11%; border-radius: 50%; background-color: #D0DDF0;"
+                        class="card-header d-flex justify-content-center align-items-center border-0 box-shadow">
+                      </div>
                     </div>
-                    <div class="mt-3">
-                      <p style="
-                          color: #1e0f2e;
-                          font-family: 'Muli';
-                          font-weight: 400;
-                          font-size: 13px;
-                        " class="h3">
-                        {{ std.describe }}
-                      </p>
+                    <br><br>
+                    <div style="position: relative;">
+                      <div class="mt-3">
+                        <p style="
+                            color: #2268aa;
+                            font-family: 'Muli';
+                            font-weight: 600;
+                            font-size: 15px;
+                          " class="h2">
+                          {{ std.name }}
+                        </p>
+                        <!-- <p style="color: #2268AA; font-family: 'Muli';font-weight: 600;font-size: 15px;" class="h2"> <a href="" routerLink="/standards/Id">{{std.name}}</a></p> -->
+                      </div>
+                      <div class="mt-2">
+                        <p style="
+                            color: #1e0f2e;
+                            font-family: 'Muli';
+                            font-weight: 400;
+                            font-size: 13px;
+                          " class="h3">
+                          {{ std.describe }}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -111,7 +130,7 @@
             </div>
           </div>
         </div>
-      </a> 
+      </a>
     </div>
   </div>
   <div class="row">
