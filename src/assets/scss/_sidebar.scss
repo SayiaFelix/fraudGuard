@@ -9,7 +9,7 @@
   z-index: 999;
 
   .sidebar-header {
-    background: #6D36A8;
+    // background: #6D36A8;
     height: $navbar-height;
     border-bottom: 1px solid $border-color;
     display: flex;
@@ -27,12 +27,14 @@
     }
   
     .sidebar-brand {
+      // background-color: #F8F8F8;
       opacity: 1;
       visibility: visible;
       -webkit-transition: opacity .5s ease;
       transition: opacity .5s ease;
       img {
-        height: 26px;
+        height: 50px;
+        width:155px;
       }
     }
     .sidebar-toggler {
@@ -285,12 +287,13 @@
     position: relative;
     border-right: 1px solid $border-color;
     height: 100%;
-    -webkit-box-shadow: 0 8px 10px 0 rgba(183,192,206,.2);
-            box-shadow: 0 8px 10px 0 rgba(247, 248, 249, 0.2); 
-    background: $card-bg;   
+    -webkit-box-shadow: -3px 0 10px 0 rgba(183,192,206,0.2);
+          box-shadow: -3px 0 10px 0 rgba(183,192,206,0.2);
+    // background-color: #6D36A8;   
     .sidebar-nav {
       list-style: none;
-      // background-color: #6D36A8; 
+      overflow-y: hidden;
+      overflow-x: hidden;
       padding: 25px 25px 50px 25px;
       height: 100%;
       .nav-item {
@@ -307,9 +310,9 @@
           color: $body-color;
           .link-icon {
             width: 21px;
-            fill: #6D36A8;;
+            fill: #2981d2;
             position: absolute;
-            color: inherit;
+            color: #F8F8F8;
           }
           .link-title {
             margin-left: 30px;
@@ -324,7 +327,7 @@
             -webkit-transition: all .3s ease;
             -webkit-transition: all .3s ease-in-out;
             transition: all .3s ease-in-out;
-            color: inherit;
+            color: #2981d2;
           }
           .badge {
             margin-left: auto;
@@ -337,7 +340,7 @@
           }
         }
         &.nav-category {
-          color: $text-muted;
+          color: #2981d2;
           font-size: 14px;
           text-transform: uppercase;
           font-weight: 700;
@@ -350,13 +353,15 @@
         }
         &:hover {
           .nav-link {
-            color: $primary;
+            color: #2981d2; 
+            .linkTitle{ color: #2981d2; }
             .link-title {
               margin-left: 31px;
+              color: #2981d2; 
             }
             .link-icon {
               color: $primary;
-              fill: #6D36A8;;
+              fill: #2981d2;
             }
           }
         }
@@ -376,7 +381,7 @@
               left: -25px;
             }
             .link-icon {
-              fill: #6D36A8;;
+              fill: #2981d2;
               color: $primary;
             }
           }
@@ -410,7 +415,7 @@
               color: $primary;
               &::before {
               border: 1px solid $primary;
-              background: $primary;       
+              color: $primary;     
               }
             }
             .link-title {
