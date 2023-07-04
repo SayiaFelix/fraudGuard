@@ -201,7 +201,7 @@
   dependencies:
     "tslib" "^2.3.0"
 
-"@angular/core@^11.0.0", "@angular/core@^14.0.0", "@angular/core@^14.0.0-rc.0 || ^14.0.0", "@angular/core@^14.1.0", "@angular/core@^14.2.10", "@angular/core@^6.0.0 || ^7.0.0 || ^8.0.0", "@angular/core@^6.0.0-rc.0 || ^6.0.0", "@angular/core@^8.0.0", "@angular/core@<15.0.0", "@angular/core@>=10.0.0", "@angular/core@>=10.1.5", "@angular/core@>=11.0.0", "@angular/core@>=11.0.2", "@angular/core@>=12.0.0", "@angular/core@>=13.0.0", "@angular/core@>=14.0.0", "@angular/core@>=16.0.0-0", "@angular/core@>=2.3.1", "@angular/core@>=9.0.0", "@angular/core@14.3.0", "@angular/core@9 - 14":
+"@angular/core@^11.0.0", "@angular/core@^14.0.0", "@angular/core@^14.0.0-rc.0 || ^14.0.0", "@angular/core@^14.1.0", "@angular/core@^14.2.10", "@angular/core@^6.0.0 || ^7.0.0 || ^8.0.0", "@angular/core@^6.0.0-rc.0 || ^6.0.0", "@angular/core@^8.0.0", "@angular/core@^8.0.3", "@angular/core@<15.0.0", "@angular/core@>=10.0.0", "@angular/core@>=10.1.5", "@angular/core@>=11.0.0", "@angular/core@>=11.0.2", "@angular/core@>=12.0.0", "@angular/core@>=13.0.0", "@angular/core@>=14.0.0", "@angular/core@>=16.0.0-0", "@angular/core@>=2.0.0 || >=4.0.0 || >=5.0.0", "@angular/core@>=2.3.1", "@angular/core@>=9.0.0", "@angular/core@14.3.0", "@angular/core@9 - 14":
   "integrity" "sha512-wYiwItc0Uyn4FWZ/OAx/Ubp2/WrD3EgUJ476y1XI7yATGPF8n9Ld5iCXT08HOvc4eBcYlDfh90kTXR6/MfhzdQ=="
   "resolved" "https://registry.npmjs.org/@angular/core/-/core-14.3.0.tgz"
   "version" "14.3.0"
@@ -2239,6 +2239,11 @@
     "require-from-string" "^2.0.2"
     "uri-js" "^4.2.2"
 
+"angular-animate@^1.8.3":
+  "integrity" "sha512-/LtTKvy5sD6MZbV0v+nHgOIpnFF0mrUp+j5WIxVprVhcrJriYpuCZf4S7Owj1o76De/J0eRzANUozNJ6hVepnQ=="
+  "resolved" "https://registry.npmjs.org/angular-animate/-/angular-animate-1.8.3.tgz"
+  "version" "1.8.3"
+
 "angular-archwizard@^7.0.0":
   "integrity" "sha512-2yLRWGOjNx4U++awtEmaHmJyJANQ8gUlBHbH4fWHJ0V16gT0SOiM+tg1L2Tpfg+RvFkz02+MltJichJvFwce5w=="
   "resolved" "https://registry.npmjs.org/angular-archwizard/-/angular-archwizard-7.0.0.tgz"
@@ -2252,6 +2257,16 @@
   "version" "1.0.2"
   dependencies:
     "tslib" "^1.9.0"
+
+"angular-font-awesome@^3.1.2":
+  "integrity" "sha512-fgNL2jdhBmapaCS9MrcI33LyoYHH4WL9gIL59y334wBnKDZB6JgDRiImbCoNchEm1wFBbVwr9b7cWuQkV0dwEg=="
+  "resolved" "https://registry.npmjs.org/angular-font-awesome/-/angular-font-awesome-3.1.2.tgz"
+  "version" "3.1.2"
+
+"angular-touch@^1.8.3":
+  "integrity" "sha512-QFLhJl5K7AsMBgK87Mxx/XtBYiFl2lBnjgGNCjGyAh5gM8eHsBWgaOxZsovP6qZSljG4wIA9dA9NPkXXtbo/WQ=="
+  "resolved" "https://registry.npmjs.org/angular-touch/-/angular-touch-1.8.3.tgz"
+  "version" "1.8.3"
 
 "animate.css@^4.1.1":
   "integrity" "sha512-+mRmCTv6SbCmtYJCN4faJMNFVNN5EuCTTprDTAo7YzIGji2KADmakjVA3+8mVDkZ2Bf09vayB35lSQIex2+QaQ=="
@@ -4245,6 +4260,16 @@
   "resolved" "https://registry.npmjs.org/interpret/-/interpret-2.2.0.tgz"
   "version" "2.2.0"
 
+"intl-tel-input@^16.0.0":
+  "integrity" "sha512-AsMOCDyvBqdVpKU/55AYzgycm0Wc3a55ErPVxjiek9EiuEC9CZmvtyADB6/7eE+iy814a5T43ThRh5kYMPOx7g=="
+  "resolved" "https://registry.npmjs.org/intl-tel-input/-/intl-tel-input-16.1.0.tgz"
+  "version" "16.1.0"
+
+"intl-tel-input@^18.1.7":
+  "integrity" "sha512-pmo83RQ8oZex96sKsuOnjQo0v/oGl1JdZKjxIIG0J/SsHRA14pI9NpnjK6cUyJASvsJJYl9Av4RjQo/etw5BNg=="
+  "resolved" "https://registry.npmjs.org/intl-tel-input/-/intl-tel-input-18.1.7.tgz"
+  "version" "18.1.7"
+
 "ip@^2.0.0":
   "integrity" "sha512-WKa+XuLG1A1R0UWhl2+1XQSi+fZWMsYKffMZTTYsiZaUD8k2yDAj5atimTUD2TZkyCkNEeYE5NhFZmupOGtjYQ=="
   "resolved" "https://registry.npmjs.org/ip/-/ip-2.0.0.tgz"
@@ -5087,6 +5112,11 @@
   dependencies:
     "tslib" "^2.0.0"
 
+"ng-intl-tel-input@^2.0.0":
+  "integrity" "sha512-kaARiZZbQSABLYWVaY15JyYU+1hNPVF04Y+vA2LPFjrfxAxU4DANmSg6en+eJ04NKvQb+XBCnOYRaMXwXbmtYQ=="
+  "resolved" "https://registry.npmjs.org/ng-intl-tel-input/-/ng-intl-tel-input-2.0.0.tgz"
+  "version" "2.0.0"
+
 "ng2-charts@^3.1.2":
   "integrity" "sha512-KkbpQhbf8DhcEm5SnqKBQMa25cBOKBiopjl4+8aUbfOaKY59uOfImAYPDsT3du7cfMVD6w7xt4SWhRbbelY9sQ=="
   "resolved" "https://registry.npmjs.org/ng2-charts/-/ng2-charts-3.1.2.tgz"
@@ -5101,6 +5131,13 @@
   "version" "1.0.0"
   dependencies:
     "tslib" "^2.0.0"
+
+"ng2-tel-input@^2.3.0":
+  "integrity" "sha512-sdcovwjeAgg/rctXfxz68oq5GbablLT3L+Khw165hqnkUA0xLASE+LybK4C+fMc6TLuMKlZ6Nsgc1ij2IGcs9Q=="
+  "resolved" "https://registry.npmjs.org/ng2-tel-input/-/ng2-tel-input-2.3.0.tgz"
+  "version" "2.3.0"
+  dependencies:
+    "intl-tel-input" "^16.0.0"
 
 "ngx-bootstrap@^9.0.0":
   "integrity" "sha512-wVwKs1jIASzJrKSPUhOcHY8f39MKyG31SruJdVQ3S/v/PdBVmVuFUJL86Awc8F60di2xD9C4DzzGObkvsHbirw=="
