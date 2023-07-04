@@ -51,17 +51,17 @@
       </div>
     </div>
     <div class="card border-0 box-shadow">
-      <div class="d-flex justify-content-start mt-4" style="margin-bottom: -20px; padding-left: 50px;">
-        <div>
-          <h3 class="card-title" style="color: #1E0F2E; font-family: 'Muli';font-weight: 600;font-size: 16px;">All
+      <div class="d-flex justify-content-start mt-4" style="margin-bottom: -20px; padding-left: 40px;">
+        <div class="card-title">
+          <h3  style="color: #1E0F2E; font-family: 'Mulish';font-weight: 600;font-size: 20px; text-transform: none;">All
             Standards</h3>
         </div>
       </div>
-      <a href="" routerLink="/standards/Id">
-        <div class="card-body p-1">
+      <a routerLink="/standards/Id">
+        <div class="card-body p-2">
           <div class="border-0 box-shadow">
             <div class="grid-margin stretch-card">
-              <div class="row" style="padding: 0px 40px">
+              <div class="row" style="padding: 0px 30px">
                 <div class="col-md-3 col-lg-3 col-xl-3 col-sm-4 mt-3 pt-2" *ngFor="let std of standards">
                   <div class="" [id]="std.id">
                     <div style="position: relative; display: inline-block;">
@@ -83,6 +83,7 @@
                             font-family: 'Muli';
                             font-weight: 600;
                             font-size: 15px;
+                            line-height: 19px;
                           " class="h2">
                           {{ std.name }}
                         </p>
@@ -94,6 +95,7 @@
                             font-family: 'Muli';
                             font-weight: 400;
                             font-size: 13px;
+                            line-height: 18px;
                           " class="h3">
                           {{ std.describe }}
                         </p>

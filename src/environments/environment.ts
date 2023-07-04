@@ -6,7 +6,10 @@ export const environment = {
   production: false,
   channelManager: 'https://test-api.ekenya.co.ke/channel/',
   mobileBanking: 'https://test-api.ekenya.co.ke/mobile-banking/',
-  customerPortalNest: 'http://localhost:8000/',
+  // customerPortalNest: 'http://localhost:8000/',
+  customerPortalNest: 'https://10.20.2.19:7782/',
+
+  
   // mobileBanking: 'http://10.20.2.148:7140/',
   // mobileBanking: 'http://10.20.2.148:7140/',
 };

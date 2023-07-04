@@ -34,7 +34,7 @@ export class RegisterComponent implements OnInit {
   }
 
   getUsers() {
-    this.httpService.getEnterpriseUsers('api/v1/auth/users').subscribe( res=>{
+    this.httpService.getEnterpriseUsers('api/v1/auth/facilities').subscribe( res=>{
       this.enterpriseData = res;
       console.log(this.enterpriseData)
     })
@@ -55,7 +55,7 @@ export class RegisterComponent implements OnInit {
     };
     console.log(model);
     this.registerResponse$ = this.httpService
-      .customerPortalActivate('api/v1/auth/lookUpUser', model)
+      .customerPortalActivate('api/v1/auth/lookUpFacility', model)
       .pipe(
         catchError((error: any) => {
           console.log(error);
