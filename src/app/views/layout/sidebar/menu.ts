@@ -43,7 +43,7 @@ export const MENU: MenuItem[] = [
   },
   {
     // profiles: ['CORPORATE_ADMIN'],
-    label: 'ALL ACCREDITATION',
+    label: 'ACCREDITATION',
     icon: 'award',
     subItems: [
       {
