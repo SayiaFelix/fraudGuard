@@ -193,11 +193,12 @@
     </div>
     <div class="d-flex justify-content-end">
       <div
-        style="position: absolute; width: 65px; height: 65px; margin-right:-2%;  margin-top:-19%; border-radius: 50%; background-color: #2766BF;"
+        style="position: absolute; width: 60px; height: 60px; margin-right:-2%;  margin-top:-19%; border-radius: 50%; background-color: #2766BF;"
         class="card-header d-flex align-items-center border-0">
-        <img   (click)='openModal(leaveComment)' class="img-fluid"  style="height: 25px ;" src="assets/images/chat.png" alt="logo" />
-        <!-- <p style="color: #F8F8F8; font-size: 15px;
-        "> <i class="fa-solid fa-comments" title="Leave A Comment"></i></p> -->
+        <!-- <img   (click)='openModal(leaveComment)' class="img-fluid"  style="height: 25px ;" src="assets/images/chat.png" alt="logo" /> -->
+        <p style="color: #F8F8F8; font-size: 30px; margin-left: -13px;
+        "> <i (click)='openModal(leaveComment)' class="fa-solid fa-comments" title="Leave A Comment"></i></p>
+  
       </div>
     </div>
   </div>
@@ -209,7 +210,7 @@
         <div class="card">
           <header class="card-header d-flex justify-content-between" style="background-color: #d0ddf0; font-family: 'Mulish'; font-weight: 700;">
             <h4 class=" text-start" style="color: #6D36A8;">Talk to Customer Care</h4>
-            <button type="button btn-md" style="color: #6D36A8;" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button type="button" style="color: #6D36A8;" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </header>
           <article class="">
             <p *ngIf="errorMessage" class="text-danger">{{errorMessage}}</p>
