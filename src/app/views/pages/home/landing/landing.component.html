@@ -61,13 +61,14 @@
       </div>
     </div>
     <div class="card border-0 box-shadow">
-      <div class="mt-2 card-header d-flex justify-content-between" style="padding: 0px 28px">
-        <div>
-          <h3 class="card-title mt-2" style="
-              color: #1e0f2e;
+      <div class="mt-3 card-header d-flex justify-content-between" style="padding: 0px 30px">
+        <div class="card-title">
+          <h3  class="mt-2" style="
+              color: #6D36A8;
               font-family: 'Muli';
               font-weight: 600;
-              font-size: 17px;
+              font-size: 19px;
+              text-transform: none;
             ">
             Standard development is an integral part of sustainable tourism
             development.
@@ -108,6 +109,7 @@
                             font-family: 'Muli';
                             font-weight: 600;
                             font-size: 15px;
+                            line-height: 19px;
                           " class="h2">
                           {{ std.name }}
                         </p>
@@ -119,6 +121,7 @@
                             font-family: 'Muli';
                             font-weight: 400;
                             font-size: 13px;
+                            line-height: 18px;
                           " class="h3">
                           {{ std.describe }}
                         </p>
@@ -188,5 +191,68 @@
         ACT 2011</a>
       <a routerLink="/" style="text-decoration: none; color: #1e0f2e" class="transition">Tourism Regulations 2014</a>
     </div>
+    <div class="d-flex justify-content-end">
+      <div
+        style="position: absolute; width: 65px; height: 65px; margin-right:-2%;  margin-top:-19%; border-radius: 50%; background-color: #2766BF;"
+        class="card-header d-flex align-items-center border-0">
+        <img   (click)='openModal(leaveComment)' class="img-fluid"  style="height: 25px ;" src="assets/images/chat.png" alt="logo" />
+        <!-- <p style="color: #F8F8F8; font-size: 15px;
+        "> <i class="fa-solid fa-comments" title="Leave A Comment"></i></p> -->
+      </div>
+    </div>
   </div>
 </div>
+<ng-template #leaveComment>
+  <div class="">
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <header class="card-header d-flex justify-content-between" style="background-color: #d0ddf0; font-family: 'Mulish'; font-weight: 700;">
+            <h4 class=" text-start" style="color: #6D36A8;">Talk to Customer Care</h4>
+            <button type="button btn-md" style="color: #6D36A8;" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </header>
+          <article class="">
+            <p *ngIf="errorMessage" class="text-danger">{{errorMessage}}</p>
+            <form class="mt-1" [formGroup]="form" (ngSubmit)="onleaveComment()" class="row px-3">
+              <div class="tab-content col-12 border-0">
+                <div class="form-group mt-2">
+                  <input formControlName="name" type="text" class="form-control validation-field border-0" id="name"
+                    placeholder="Your Name or Company*">
+                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+                </div>
+                <div class="form-group mt-2">
+                  <input formControlName="email" type="email" class="form-control validation-field border-0" id="email"
+                    placeholder="Your email address*">
+                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+                </div>
+                <div class="form-group mt-2">
+                  <input type="text" name="tel" formControlName="phoneNumber" id="phoneNumber"
+                    placeholder="Phone Number*" class="form-control validation-field border-0" ng2TelInput
+                    data-initial-country="ke">
+                  <!-- <input formControlName="phoneNumber" id="phoneNumber" type="text"  placeholder="Phone Number*" class="form-control validation-field border-0"
+                    id="purpose" placeholder="Your Phone No,"> -->
+                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+                </div>
+                <div class="form-group mt-2">
+                  <input formControlName="name" type="text" class="form-control validation-field border-0" id="name"
+                    placeholder="Subject">
+                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+                </div>
+                <div class="form-group mt-2">
+                  <textarea formControlName="message"  type="text" id="message" cols="15" rows="3"  placeholder="Message" class="form-control validation-field border-0"></textarea>
+                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+                </div>
+                <div class="col-12 bg-white text-center py-1 mt-3 mb-2">
+                  <button style="width: 100%; border: none;"
+                    class="btn btn-block bronchure-btn transition" type="submit">
+                    <span style="color: white;">SEND</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </article>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>

@@ -15,6 +15,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { HttpService } from 'src/app/shared/services/http.service';
 import Swal from "sweetalert2";
 import { OwlOptions } from 'ngx-owl-carousel-o';
+import { NgbActiveModal, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-landing',
@@ -26,6 +27,7 @@ export class LandingComponent implements OnInit {
   public form: FormGroup;
   public showingPassword = false;
   inputType = 'password';
+  modalRef: NgbModalRef;
   standards: any = [
     {
       id: '1',
@@ -152,6 +154,7 @@ export class LandingComponent implements OnInit {
   errorMsg: string;
   hasError: boolean = false;
   isLoading: boolean = false;
+  errorMessage: string;
 
   selectedLanguage: any = 'English';
   selectedLanguageFlag: any = 'assets/images/flags/us.svg';
@@ -163,17 +166,16 @@ export class LandingComponent implements OnInit {
     private httpService: HttpService,
     fb: FormBuilder,
     private _router: Router,
+    public modal: NgbModal,
+    public activeModal: NgbActiveModal,
 
   ) {
     this.form = fb.group({
-      username: [
-        '',
-        Validators.compose([Validators.required, CustomValidators.email]),
-      ],
-      password: [
-        '',
-        Validators.compose([Validators.required, Validators.minLength(6)]),
-      ],
+      email: ['',Validators.compose([Validators.required, CustomValidators.email])],
+      occupation: ['',Validators.compose([Validators.required])],
+      purpose: ["", Validators.compose([Validators.required])],
+      name: ["", Validators.compose([Validators.required])],
+      phoneNumber: ["", Validators.compose([Validators.required])],
     });
   }
 
@@ -187,7 +189,7 @@ export class LandingComponent implements OnInit {
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
 
-  onSubmit(e: Event) {
+  onleaveComment() {
     // this.hasError = false;
     // this.isLoading = true;
     // e.preventDefault();
@@ -234,6 +236,12 @@ export class LandingComponent implements OnInit {
     //   );
   }
 
+  openModal(modalContent: any) {
+    this.modalRef = this.modal.open(modalContent, {centered: true, size:"md"});
+  }
+  closeModal() {
+    this.activeModal.close();
+  }
   toggleShowPassword() {
     this.showingPassword = !this.showingPassword;
     if (this.showingPassword) {

@@ -53,7 +53,6 @@ export class NavbarComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-   this.getUsers()
     // Subscribe to notification service observable
     this.notificationService.castNotifications.subscribe((notifications: Notification[]) => {
       this.notifications = notifications;
@@ -65,7 +64,7 @@ export class NavbarComponent implements OnInit {
     let userDetails = {
       companyEmail: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['email'] : "test@gmail.com",
       licenceNumber: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['licenceNo']  : "87654321",
-      profile: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['enterpriseName']  : "Eka Hotel Nairobi",
+      profile: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['bussiness_name']  : "Eka Hotel Nairobi",
       companyRegistrationDate: "24-12-1999",
       county: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['county']  : "Nairobi",
       taxPin: "A029384794G",
@@ -96,13 +95,6 @@ export class NavbarComponent implements OnInit {
         })
       );
     }
-  }
-
-  getUsers() {
-    this.httpService.getEnterpriseUsers('api/v1/auth/users').subscribe( res=>{
-      this.enterpriseData = res;
-      console.log(this.enterpriseData)
-    })
   }
 
   updateNotificationList() {
