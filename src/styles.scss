@@ -197,7 +197,9 @@ body{
     line-height: 22px;
     letter-spacing: 0em;
   }
-  
+  input{
+    background-color: #FFFFFF;
+  }
   ::-ms-input-placeholder {
     color: #1e0f2e73;
     font-family: Mulish;

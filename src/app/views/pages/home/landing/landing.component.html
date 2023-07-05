@@ -49,7 +49,7 @@
         <div class="card border-0 box-shadow" style="max-width:100% ; height: auto;">
           <div class="">
             <owl-carousel-o [options]="autoPlayOptions">
-              <ng-template carouselSlide [width]="620" *ngFor="let slide of slidesStore" [id]="slide.id">
+              <ng-template carouselSlide [width]="629"  *ngFor="let slide of slidesStore" [id]="slide.id">
                 <div class="w-100 h-90">
                   <img class="card-img-top img-fluid" style="width: 100%; height: auto;" [src]="slide.src"
                     [title]="slide.title">
@@ -208,8 +208,11 @@
     <div class="row">
       <div class="col-12">
         <div class="card">
-          <header class="card-header d-flex justify-content-between" style="background-color: #d0ddf0; font-family: 'Mulish'; font-weight: 700;">
+          <header class="card-header d-flex justify-content-between" style="background-color: #d0ddf0; font-family: 'Mulish'; font-weight: 900;">
             <h4 class=" text-start" style="color: #6D36A8;">Talk to Customer Care</h4>
+            <!-- <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+              <span aria-hidden="true">&times;</span>
+            </button> -->
             <button type="button" style="color: #6D36A8;" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </header>
           <article class="">
@@ -235,7 +238,7 @@
                   <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
                 </div>
                 <div class="form-group mt-2">
-                  <input formControlName="name" type="text" class="form-control validation-field border-0" id="name"
+                  <input formControlName="subject" type="text" class="form-control validation-field border-0" id="subject"
                     placeholder="Subject">
                   <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
                 </div>
