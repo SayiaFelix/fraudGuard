@@ -172,8 +172,8 @@ export class LandingComponent implements OnInit {
   ) {
     this.form = fb.group({
       email: ['',Validators.compose([Validators.required, CustomValidators.email])],
-      occupation: ['',Validators.compose([Validators.required])],
-      purpose: ["", Validators.compose([Validators.required])],
+      subject: ['',Validators.compose([Validators.required])],
+      message: ["", Validators.compose([Validators.required])],
       name: ["", Validators.compose([Validators.required])],
       phoneNumber: ["", Validators.compose([Validators.required])],
     });
@@ -239,8 +239,11 @@ export class LandingComponent implements OnInit {
   openModal(modalContent: any) {
     this.modalRef = this.modal.open(modalContent, {centered: true, size:"md"});
   }
-  closeModal() {
-    this.activeModal.close();
+  // closeModal() {
+  //   this.activeModal.close();
+  // }
+  public closeModal(): void {
+    this.activeModal.dismiss('Cross click');
   }
   toggleShowPassword() {
     this.showingPassword = !this.showingPassword;

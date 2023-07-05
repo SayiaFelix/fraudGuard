@@ -53,7 +53,9 @@
     <div class="card border-0 box-shadow">
       <div class="d-flex justify-content-start mt-4" style="padding-left: 40px;">
         <div class="d-flex justify-content-between" style="width: 96%; border-bottom: 2px solid #6D36A8;">
-          <h3 class="card-title" style="color: #6D36A8; font-family: 'Muli';font-weight: 700;font-size: 23px; text-transform: none;">Standards
+          <h3 class="card-title"
+            style="color: #6D36A8; font-family: 'Muli';font-weight: 700;font-size: 23px; text-transform: none;">
+            Standards
             For Accommodation & Catering Establishment</h3>
           <div class="d-flex justify-content-between">
             <p style="font-weight: 600; font-size: 23px; color:#2268AA;">
@@ -170,52 +172,55 @@
   </div>
 </div>
 <ng-template #requestStandard>
-  <div class="modal-body bg-gray">
+  <div class="">
     <div class="row">
       <div class="col-12">
         <div class="card">
-          <header class="card-header" style="background-color: #d0ddf0; font-family: 'Muli'; font-weight: 800;">
-            <h5 class=" text-start" style="color: #6D36A8;">Request a Standard</h5>
+          <header class="card-header d-flex justify-content-between"
+            style="background-color: #d0ddf0; font-family: 'Mulish'; font-weight: bold;">
+            <h4 class=" text-start" style="color: #6D36A8;">Request A Standard</h4>
+            <button type="button" style="color: #6D36A8;" (mousedown)="closeModal()" class="btn-close" data-bs-dismiss="modal"
+              aria-label="Close"></button>
           </header>
-          <article class="card-body">
+          <article class="">
             <p *ngIf="errorMessage" class="text-danger">{{errorMessage}}</p>
-            <form [formGroup]="form" (ngSubmit)="onRequestStandards()" class="row px-3">
+            <form class="mt-1" [formGroup]="form" (ngSubmit)="onRequestStandards()" class="row px-3">
               <div class="tab-content col-12 border-0">
-                <div class="form-group">
-                  <!-- <label for="purpose" class="text-gray">Purpose</label> -->
-                  <input formControlName="purpose" type="text" class="form-control validation-field" id="purpose"
-                    placeholder="Your Purpose">
+                <div class="form-group mt-2">
+                  <input formControlName="name" type="text" class="form-control validation-field border-0" id="name"
+                    placeholder="Your Name or Company*">
                   <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
                 </div>
                 <div class="form-group mt-2">
-                  <!-- <label for="name" class="text-gray">Name</label> -->
-                  <input formControlName="name" type="text" class="form-control validation-field" id="name"
-                    placeholder="Your Name">
+                  <input formControlName="email" type="email" class="form-control validation-field border-0" id="email"
+                    placeholder="Your email address*">
                   <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
                 </div>
                 <div class="form-group mt-2">
-                  <!-- <label for="purpose" class="text-gray">Mobile Number</label> -->
-                  <input formControlName="phoneNumber" type="text" class="form-control validation-field" id="purpose"
-                    placeholder="Your Phone No,">
-                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
-                </div>
-                <div class="form-group mt-2">
-                  <!-- <label for="email" class="text-gray">Email</label> -->
-                  <input formControlName="email" type="email" class="form-control validation-field" id="email"
-                    placeholder="Your Email">
+                  <input type="text" name="tel" formControlName="phoneNumber" id="phoneNumber"
+                    placeholder="Phone Number*" class="form-control validation-field border-0 w-100" ng2TelInput
+                    data-initial-country="ke">
+                  <!-- <input formControlName="phoneNumber" id="phoneNumber" type="text"  placeholder="Phone Number*" class="form-control validation-field border-0"
+                    id="purpose" placeholder="Your Phone No,"> -->
                   <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
                 </div>
                 <div class="form-group mt-2">
                   <!-- <label for="occupation" class="text-gray">Occupation</label> -->
-                  <input formControlName="occupation" type="text" class="form-control validation-field" id="occupation"
+                  <input formControlName="occupation" type="text" class="form-control validation-field border-0" id="occupation"
                     placeholder="Your Occupation">
                   <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
                 </div>
-                <div class="col-12 bg-white text-center py-1 mt-3">
-                  <button [disabled]="!form.valid" class="btn btn-sm btn-success text-center"
-                    type="submit">Submit</button>
-                  <button type="submit" style="margin-left: 2%;" class="btn btn-sm btn-danger text-center"
-                    (mousedown)="closeModal()">Close</button>
+                <div class="form-group mt-2">
+                  <!-- <label for="purpose" class="text-gray">Purpose</label> -->
+                  <input formControlName="purpose" type="text" class="form-control validation-field border-0" id="purpose"
+                    placeholder="Your Purpose">
+                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+                </div>
+                <div class="col-12 bg-white text-center py-1 mt-3 mb-2">
+                  <button style="width: 100%; border: none;" class="btn btn-block bronchure-btn transition"
+                    type="submit">
+                    <span style="color: white;">REQUEST</span>
+                  </button>
                 </div>
               </div>
             </form>
@@ -224,7 +229,6 @@
       </div>
     </div>
   </div>
-
 </ng-template>
 
 <ng-template #downloadBronchure>
@@ -232,12 +236,16 @@
     <div class="row">
       <div class="col-12">
         <div class="card">
-          <header class="card-header" style="background-color: #d0ddf0; font-family: 'Mulish'; font-weight: 800;">
-            <h4 class=" text-start" style="color: #6D36A8;">One More Step</h4>
-          </header>
+          <header class="card-header d-flex justify-content-between"
+          style="background-color: #d0ddf0; font-family: 'Mulish'; font-weight: 900;">
+          <h4 class=" text-start" style="color: #6D36A8;">One More Step</h4>
+          <button type="button" style="color: #6D36A8;" class="btn-close" data-bs-dismiss="modal"
+            aria-label="Close"></button>
+        </header>
           <article class="">
             <p *ngIf="errorMessage" class="text-danger">{{errorMessage}}</p>
-            <p class="form-control border-0" style="color: #1E0F2E; font-family: 'Mulish'; font-weight: 400; padding-left: 24px;">Fill out
+            <p class="form-control border-0"
+              style="color: #1E0F2E; font-family: 'Mulish'; font-weight: 400; padding-left: 24px;">Fill out
               this form and the download will be sent to your email</p>
             <form class="mt-1" [formGroup]="form" (ngSubmit)="onRequestStandards()" class="row px-3">
               <div class="tab-content col-12 border-0">
