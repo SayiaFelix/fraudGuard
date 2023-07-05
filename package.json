@@ -13,11 +13,13 @@
   "dependencies": {
     "@agm/core": "1.1.0",
     "@angular/animations": "^14.2.10",
+    "@angular/cdk": "^13.0.0",
     "@angular/common": "^14.2.10",
     "@angular/compiler": "^14.2.10",
     "@angular/core": "^14.2.10",
     "@angular/forms": "^14.2.10",
     "@angular/localize": "^14.2.10",
+    "@angular/material": "^13.0.0",
     "@angular/platform-browser": "^14.2.10",
     "@angular/platform-browser-dynamic": "^14.2.10",
     "@angular/router": "^14.2.10",
