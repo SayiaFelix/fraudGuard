@@ -23,6 +23,10 @@ export class AddProductComponent implements OnInit {
   public allProductCategories: any;
 
   isLoading: boolean;
+  ClassData: any[];
+  SubClassData: any;
+  enterpriseData: any;
+  selectedClass: any[];
 
   constructor(
     public activeModal: NgbActiveModal,
@@ -33,16 +37,64 @@ export class AddProductComponent implements OnInit {
   ngOnInit() {
 
     this.form = this.fb.group({
-      name: [this.formData ? this.formData.name : '', [Validators.required]],
-      description: [this.formData ? this.formData.description : '', [Validators.required]],
-      parentId: [this.formData ? this.formData.parentId : '', [Validators.nullValidator]],
+      class_name: [this.formData ? this.formData.class_name : '', [Validators.required]],
+      request_category: [this.formData ? this.formData.request_category : '', [Validators.required]],
+      subClass_Id: [{ value: this.formData ? this.formData.subClass_Id : '', disabled: true }, [Validators.required]],
     });
 
+    this.getUsers();
+    this.getClassData(0);
+    this.getSubClassData(0);
+  }
 
-    this.getAllProductCategories();
+  getUsers() {
+    this._httpService.getEnterpriseUsers('api/v1/auth/facilities').subscribe( res=>{
+      this.enterpriseData = res;
+      console.log(this.enterpriseData)
+    })
+  }
+
+  getClassData(event: number): void {
+    this.loading = true;
+    this._httpService
+      .customerPortalPost('api/v1/portal/getClasses',{})
+      .subscribe((res: any) => {
+        console.log(res)
+        if (res.status === '00') {
+          this.loading = false;
+          setTimeout(() => {
+           this.ClassData = res.data
+            console.log(this.ClassData)
+          }, 10);
+        } else {
+          this.loading = false;
+        }
+      });
+    this.loading = false;
+  }
+
+  getSubClassData(event: number): void {
+    this.loading = true;
+    this._httpService
+      .customerPortalPost('api/v1/portal/getSubclasses',{})
+      .subscribe((res: any) => {
+        console.log(res)
+        if (res.status === '00') {
+          this.loading = false;
+          setTimeout(() => {
+           this.SubClassData = res.data
+            console.log(this.SubClassData)
+          }, 10);
+        } else {
+          this.loading = false;
+        }
+      });
+    this.loading = false;
   }
 
   public submitData(): void {
+
+    console.log(this.form)
     if (this.formData) {
       this.editRecord();
     } else {
@@ -57,40 +109,30 @@ export class AddProductComponent implements OnInit {
 
 
   private createRecord(): any {
-
     this.isLoading = true;
 
+    let userId = JSON.parse(localStorage.getItem('data')!)['id']
     const model = {
-      name: this.form.value.name,
-      description: this.form.value.description,
-      parentCategoryId: this.form.value.parentId,
+      userId,
+      request_category: this.form.value.request_category,
+      subClass_Id: this.form.value.subClass_Id,
     };
-
-    let formData=new FormData;
-    formData.append('category',
-    new Blob([JSON.stringify(model)], {type: "application/json"} ));
-    formData.append('file', this.imageFile);
-     console.log(formData)
-
-    this._httpService.mobileBankingFormRequestPost('product/portal/category/create', formData).subscribe(
+    console.log(model)
+    this._httpService.customerPortalPost('api/v1/portal/requestAccreditation', model).subscribe(
       (result: any) => {
-        if (result.status === 200) {
+        if (result.status === '00') {
           this.isLoading = false;
-
           this.activeModal.close('success');
-          Swal.fire('Product Category Created',
-            'Product Category has been created successfully.',
+          Swal.fire('Request Recieved Successfully',
             'success').then(r => console.log(r))
         } else {
           this.activeModal.close('error');
-          Swal.fire('Record creation error',
-            'Product Category could not be created.',
+          Swal.fire('Request Failed, Try Again',
             'error').then(r => console.log(r))
         }
       },
       (error: any) => {
-        Swal.fire('Record creation error',
-          `Record creation error`,
+        Swal.fire('Request error',
           'error')
       }
     );
@@ -99,65 +141,68 @@ export class AddProductComponent implements OnInit {
 
   private editRecord(): any {
 
-    this.isLoading = true;
-    const model = {
-      id: this.formData.id,
-      name: this.form.value.name,
-      description: this.form.value.description,
-      parentCategoryId: this.form.value.parentId,
-    };
+    // this.isLoading = true;
+    // const model = {
+    //   id: this.formData.id,
+    //   name: this.form.value.name,
+    //   description: this.form.value.description,
+    //   parentCategoryId: this.form.value.parentId,
+    // };
 
-    let formData=new FormData;
-    formData.append('category',
-      new Blob([JSON.stringify(model)], {type: "application/json"} ));
-    formData.append('file', this.imageFile);
-    console.log(formData)
+    // let formData=new FormData;
+    // formData.append('category',
+    //   new Blob([JSON.stringify(model)], {type: "application/json"} ));
+    // formData.append('file', this.imageFile);
+    // console.log(formData)
 
-    this._httpService.mobileBankingPostFormData('product/portal/category/update', formData).subscribe(
-      (result: any) => {
-        if (result.status === 200) {
-          this.activeModal.close('success');
-          this.isLoading = false;
+    // this._httpService.mobileBankingPostFormData('product/portal/category/update', formData).subscribe(
+    //   (result: any) => {
+    //     if (result.status === 200) {
+    //       this.activeModal.close('success');
+    //       this.isLoading = false;
 
-          Swal.fire('Product Category Edited',
-            'Product Category has been edited successfully.',
-            'success').then(r => console.log(r))
-        } else {
-          this.activeModal.close('error');
-          Swal.fire('Record editing error',
-            'Product Category could not be edited.',
-            'error').then(r => console.log(r))
-        }
-      },
-      (error: any) => {
-        Swal.fire('Record editing error',
-          `Record deletion error`,
-          'error')
-      }
-    );
-  }
-
-  private getAllProductCategories() {
-    const model = {
-      page: 0,
-      size: 50,
-    };
-
-    this._httpService
-      .mobileBankingPost('product/portal/category/fetch/all', model)
-      .subscribe((res: any) => {
-        if (res.status === 200) {
-          setTimeout(() => {
-            this.allProductCategories = res.data;
-          }, 10);
-        } else {
-        }
-      });
+    //       Swal.fire('Product Category Edited',
+    //         'Product Category has been edited successfully.',
+    //         'success').then(r => console.log(r))
+    //     } else {
+    //       this.activeModal.close('error');
+    //       Swal.fire('Record editing error',
+    //         'Product Category could not be edited.',
+    //         'error').then(r => console.log(r))
+    //     }
+    //   },
+    //   (error: any) => {
+    //     Swal.fire('Record editing error',
+    //       `Record deletion error`,
+    //       'error')
+    //   }
+    // );
   }
 
   onFileChange(event: any) {
     if (event.target.files && event.target.files.length) {
       this.imageFile = event.target.files[0];
+    }
+  }
+
+  public checkFormValue(event:any) {
+    console.log(event.target.value);
+
+    // filter
+    this.selectedClass = this.ClassData.filter(item => { 
+    console.log(item.class_name);
+    console.log(event.target.value);
+      
+      return item.class_name === event.target.value;
+    })
+
+    console.log(this.selectedClass);
+
+    if (this.form.value.class_name) {
+      this.getSubClassData(event.target.value);
+      this.form.controls['subClass_Id'].enable()
+    } else {
+      this.form.controls['subClass_Id'].disable()
     }
   }
 

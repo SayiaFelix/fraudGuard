@@ -4,14 +4,17 @@
   <div>
     <h4 class="mb-3 mb-md-0">Accreditation</h4>
   </div>
-  <app-table-header
+  <div class="d-flex justify-content-between">
+    <app-table-header
     [allColumns]="allColumns"
     [rows]="rows"
     [title]="title"
-    [showAddButton]="false"
+    [showAddButton]="true"
+    (openAddModalEvent)="openAddRequestModal()"
     (changeColumnsEvent)="updateColumns($event)">
   </app-table-header>
-
+  <!-- <button (click)="openAddRequestModal()" class="btn btn-sm btn-primary pull-right mr-3"><span class="mr-1"></span>Make Request </button> -->
+  </div>
 </div>
 
 

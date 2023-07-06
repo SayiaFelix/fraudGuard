@@ -1,93 +1,63 @@
   <div>
     <div class="modal-header">
-      <h5 class="modal-title" id="exampleModalLabel">{{title}}</h5>
+      <h5 class="modal-title" style="font-family: 'Mulish'; font-weight: 900; color: #6D36A8; font-size:23px;" id="exampleModalLabel">Make Your Request</h5>
       <button (click)="closeModal()" aria-label="Close" class="btn-close" type="button"></button>
     </div>
     <div class="modal-body" [formGroup]="form">
       <div class="row">
         <div class="col-sm-12">
           <div class="mb-3">
-            <label class="form-label fw-bold">Category Name</label>
-            <input class="form-control" formControlName="name" type="text" />
-            <small
-              *ngIf="
-              form.get('name')?.touched &&
-              form.get('name')?.hasError('required')
-            "
-              class="text-danger"
-            >Required Field</small
-            >
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label fw-bold">Parent Category</label>
+            <label class="form-label fw-bold">Class Enterprise</label>
             <select
               class="form-select"
-              id="parentId"
-              name="parentId"
-              formControlName="parentId"
+              id="class_name"
+              name="class_name"
+              formControlName="class_name" (change)="checkFormValue($event)"
             >
-              <option [value]="''">_</option>
-              <option disabled hidden selected>Select Parent Category</option>
               <option
-                *ngFor="let parentCategory of allProductCategories"
-                [value]="parentCategory.id">
-                {{parentCategory.name}}</option>
+                *ngFor="let data of ClassData"
+                [value]="data.id">
+                {{data.class_name}}</option>
             </select>
           </div>
-        </div>
-        <div class="col-sm-12">
+
           <div class="mb-3">
-            <label class="text-gray fw-bold">Description</label>
-            <textarea
-              class="form-control"
-              formControlName="description"
-              type="text"
-            ></textarea>
-            <small
-              *ngIf="
-              form.get('description')?.touched &&
-              form.get('description')?.hasError('required')
-            "
-              class="text-danger"
-            >Required Field</small
-            >
+            <label class="form-label fw-bold">Enterprise Category</label>
+            <select
+            class="form-select"
+            id="subClass_Id"
+            name="subClass_Id"
+            formControlName="subClass_Id"
+          >
+            <option
+              *ngFor="let data of SubClassData"
+              [value]="data.id">
+              {{data.sub_class}}
+            </option>
+          </select>
+          </div>
+
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Type of Request</label>
+            <select
+            class="form-select"
+            id="request_category"
+            name="request_category"
+            formControlName="request_category"
+          >
+          <option  value="ACCREDITATION">ACCREDITATION</option>
+          <option  value="CLASSIFICATION">CLASSIFICATION</option>
+          </select>
           </div>
         </div>
-
-        <div class="col-sm-12">
-          <div class="form-group">
-            <label class="text-gray fw-bold">Category Image</label>
-            <input #fileUpload (change)="onFileChange($event)"
-                   accept="image/*"
-                   class="form-control"
-                   id="file"
-                   type="file"
-            />
-          </div>
-        </div>
-        <div class="col-sm-12">
-          <!-- <div class="mb-3">
-            <label class="text-gray">Product Image</label>
-            <input
-              #fileUpload
-              (change)="onFileChange($event)"
-              accept="image/*"
-              class="form-control"
-              formControlName="image"
-              id="file"
-              type="file"
-            />
-          </div> -->
-        </div>
-
         <p *ngIf="isLoading"><ngb-progressbar type="primary" [value]="95" [striped]="true" [animated]="true"></ngb-progressbar></p>
 
       </div>
     </div>
     <div class="modal-footer">
       <button (click)="closeModal()" class="btn btn-secondary" type="button">Close</button>
-      <button (click)="submitData()" *ngIf="!this.formData" class="btn btn-primary" type="button" [disabled]="!form.valid || isLoading">Create Category</button>
-      <button (click)="submitData()" *ngIf="this.formData" class="btn btn-primary" type="button" [disabled]="!form.valid || isLoading">Save changes</button>
+      <button (click)="submitData()" *ngIf="!this.formData" class="btn btn-success" type="button" [disabled]="!form.valid || isLoading">Request</button>
+      <button (click)="submitData()" *ngIf="this.formData" class="btn btn-success" type="button" [disabled]="!form.valid || isLoading">Save changes</button>
     </div>
   </div>

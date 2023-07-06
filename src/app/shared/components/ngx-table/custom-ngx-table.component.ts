@@ -204,6 +204,16 @@ export class CustomNgxTable implements OnInit {
 
           tempRows = [...temp];
         }
+        else {
+          const temp = tempRows.filter(function (d: any) {
+            let key = select.options[0].value;
+            return d[key] == val;
+          });
+
+          console.log(temp);
+          tempRows = [...temp];
+        }
+
         this.loadingIndicator = false;
       });
 
