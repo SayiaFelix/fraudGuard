@@ -32,18 +32,11 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
   actions = [];
   tempProductData = [
     {
-      'frontendId': "1",
-      'accountNo': "1234",
-      'currency': "KES",
-      'mobileNo': "2547887337332",
-      'requestType': "STO_START",
-      'requestCharge': ".00",
-      'transactionRef': "BDJ93839G",
-      'channel': "APP",
-      'dateRequested': "2023-02-12",
-      'status': "05",
+      'Id': "1",
+      'request_category': "STO_START",
+      'createdOn': "2023-02-12",
+      'status': "Pending",
     }
-
   ];
 
   // bread crumb items
@@ -55,15 +48,9 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
 
   columns = [
     {name: 'ID', prop: 'id'},
-    {name: 'Account No.', prop: 'accountNo'},
-    {name: 'Currency', prop: 'currency'},
-    {name: 'Mobile No.', prop: 'mobileNo'},
-    {name: 'Request', prop: 'requestType'},
-    {name: 'Charge', prop: 'requestCharge'},
-    {name: 'Ref Code', prop: 'transactionRef'},
-    {name: 'Channel', prop: 'channel'},
-    {name: 'Date Requested', prop: 'dateRequested'},
+    {name: 'Request', prop: 'request_category'},
     {name: 'Status', prop: 'status'},
+    {name: 'Created On', prop: 'createdOn'},
     {name: 'Actions', prop: 'id'},
   ];
 
@@ -75,7 +62,9 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
   public imageFile: File;
   public modalRef: NgbModalRef;
 
-  title: string = "USSD Customer";
+  title: string = "Make Request";
+  ClassData: any;
+  SubClassData: any;
 
 
   constructor(
@@ -105,29 +94,36 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
     });
   }
 
+  
   getIndividualData(event: number): void {
-
     this.loading = true;
     this.rows = this.tempProductData;
 
     this.temp = [...this.tempProductData];
 
-    const model = {
-      page: 0,
-      size: 50,
-    };
-
+    // const model = {
+    //   page: 0,
+    //   size: 50,
+    // };
     this.httpService
-      .mobileBankingPost('api/v1/corporate/admin/list-products/all', model)
+      .customerPortalPost('api/v1/portal/getRequests',{})
       .subscribe((res: any) => {
-        if (res.status === 200) {
+        if (res.status === '00') {
           this.loading = false;
+          this.rows = res.data.filter((category:any) => category.request_category === 'Accreditation');
           setTimeout(() => {
             // this.data = res.data;
-            this.rows = this.tempProductData;
+            let response = res['data'];
+            this.rows = response.map((item: any, index: any) => {
+              const res = {
+                ...item,
+                frontendId: index + 1,
+              };
+              return res 
+            });
             // let data = this.tempProductData;
-
-            let total = res.totalItems;
+            console.log(this.rows)
+            // let total = res.totalItems;
           }, 10);
         } else {
           this.loading = false;
@@ -136,6 +132,18 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
     this.loading = false;
   }
 
+  // api/v1/portal/getClasses
+  openAddRequestModal() {
+    this.modalRef = this.modalService.open(AddProductComponent, {centered: true,size:"md"});
+    this.modalRef.componentInstance.title = 'Make Request';
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        this.getIndividualData(0);
+      } else {
+        console.log("Error occurred")
+      }
+    });
+  }
 
   onFileChange(event: any) {
     if (event.target.files && event.target.files.length) {

@@ -88,6 +88,21 @@ export class HttpService {
     return userDetails$;
   }
 
+  
+  public customerPortalPost(endpoint: string, model: any): any {
+    return this.http
+      .post(
+        this.globalService.customerPortalNest + endpoint,
+        model,
+        this.getHeaders()
+      )
+      .pipe(
+        map((response) => {
+          response = response;
+          return response;
+        })
+      );
+  }
   public mobileBankingGetUserDetailsAndPermissions(): Observable<any> {
     const userDetails$ = this.http
       .post(

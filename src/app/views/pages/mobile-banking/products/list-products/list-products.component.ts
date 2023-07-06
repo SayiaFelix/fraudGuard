@@ -40,6 +40,7 @@ export class ListProductsComponent implements OnInit {
     {name: 'Updated On', prop: 'updatedAt'},
     {name: 'Actions', prop: 'id'},
   ];
+  
 
   allColumns = [...this.columns];
 
