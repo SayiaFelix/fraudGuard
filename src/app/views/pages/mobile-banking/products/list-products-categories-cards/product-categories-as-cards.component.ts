@@ -110,10 +110,14 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
       .subscribe((res: any) => {
         if (res.status === '00') {
           this.loading = false;
-          this.rows = res.data.filter((category:any) => category.request_category === 'Accreditation');
+          const accreditations = res.data.filter((request:any) => request.request_category === "Accreditation");
+          const classifications = res.data.filter((request:any) => request.request_category === "Classification");
+          console.log(accreditations)
+          // console.log(classifications)
+          
           setTimeout(() => {
-            // this.data = res.data;
-            let response = res['data'];
+            // let response = res.data;
+            let response = accreditations;
             this.rows = response.map((item: any, index: any) => {
               const res = {
                 ...item,

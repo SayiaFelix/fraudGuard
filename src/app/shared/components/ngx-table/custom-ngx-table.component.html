@@ -140,17 +140,17 @@
         </ng-template>
       </ngx-datatable-column> -->
 
-      <ngx-datatable-column *ngIf="column.prop === 'status'" [draggable]="false" [maxWidth]="150" [minWidth]="150"
+      <ngx-datatable-column *ngIf="column.prop === 'status'" [draggable]="false" [maxWidth]="160" [minWidth]="160"
         [name]="column.name" [prop]="column.name.toLowerCase()" [resizeable]="false">
         <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
 
 
           <span class="{{
-    (row.status) === 'COMPLETE' ? 'badge bg-success mr-1'
-    : (row.status) === 'PENDING' ? 'badge bg-warning mr-1'
-    : (row.status) === 'APPROVED' ? 'badge bg-info mr-1'
-    : (row.status) === 'APPEAL' ? 'badge bg-secondary mr-1'
-    : (row.status) === 'REJECT' ? 'badge bg-danger mr-1'
+    (row.status) === 'Complete' ? 'badge bg-success mr-1'
+    : (row.status) === 'Pending' ? 'badge bg-warning mr-1'
+    : (row.status) === 'Approved' ? 'badge bg-info mr-1'
+    : (row.status) === 'Appeal' ? 'badge bg-secondary mr-1'
+    : (row.status) === 'Rejected' ? 'badge bg-danger mr-1'
     : 'badge bg-secondary mr-1'
     }}">
             {{row.status}}</span>
