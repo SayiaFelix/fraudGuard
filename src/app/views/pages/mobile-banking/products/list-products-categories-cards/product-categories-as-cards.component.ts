@@ -95,18 +95,16 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
   }
 
   
-  getIndividualData(event: number): void {
+  getIndividualData(event: any): void {
     this.loading = true;
     this.rows = this.tempProductData;
-
     this.temp = [...this.tempProductData];
-
-    // const model = {
-    //   page: 0,
-    //   size: 50,
-    // };
+    const model = {
+      page: 0,
+      size: 10,
+    };
     this.httpService
-      .customerPortalPost('api/v1/portal/getRequests',{})
+      .customerPortalPostData('api/v1/portal/getRequests',model)
       .subscribe((res: any) => {
         if (res.status === '00') {
           this.loading = false;

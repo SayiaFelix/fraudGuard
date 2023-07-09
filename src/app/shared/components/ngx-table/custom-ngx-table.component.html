@@ -50,7 +50,6 @@
         <option [value]="true">True</option>
         <option [value]="false">False</option>
       </ng-container>
-
     </select>
 
     <input *ngFor="let col of dateFilters" class="form-control wd-200 border m-1 filterInputs form-control-sm"
@@ -253,7 +252,7 @@
 
 
         </select>
-        <h6 class="ml-4" style="margin-left: 20px">{{totalItems}} Total</h6>
+        <!-- <h6 class="ml-4" style="margin-left: 20px">{{totalItems}} Total</h6> -->
         <datatable-pager (change)="table.onFooterPage($event)" [count]="rowCount" [hidden]="!(rowCount / pageSize > 1)"
           [page]="curPage" [pagerLeftArrowIcon]="'datatable-icon-left'" [pagerNextIcon]="'datatable-icon-skip'"
           [pagerPreviousIcon]="'datatable-icon-prev'" [pagerRightArrowIcon]="'datatable-icon-right'"

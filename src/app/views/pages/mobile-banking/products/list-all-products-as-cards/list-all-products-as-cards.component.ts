@@ -44,15 +44,9 @@ export class ListAllProductsAsCardsComponent implements OnInit {
 
   columns = [
     {name: 'ID', prop: 'id'},
-    {name: 'Account No.', prop: 'accountNo'},
-    {name: 'Currency', prop: 'currency'},
-    {name: 'Mobile No.', prop: 'mobileNo'},
-    {name: 'Request', prop: 'requestType'},
-    {name: 'Charge', prop: 'requestCharge'},
-    {name: 'Ref Code', prop: 'transactionRef'},
-    {name: 'Channel', prop: 'channel'},
-    {name: 'Date Requested', prop: 'dateRequested'},
+    {name: 'Request', prop: 'request_category'},
     {name: 'Status', prop: 'status'},
+    {name: 'Created On', prop: 'createdOn'},
     {name: 'Actions', prop: 'id'},
   ];
 
@@ -94,29 +88,34 @@ export class ListAllProductsAsCardsComponent implements OnInit {
     });
   }
 
-  getIndividualData(event: number): void {
-
+  getIndividualData(event: any): void {
     this.loading = true;
     this.rows = this.tempProductData;
-
     this.temp = [...this.tempProductData];
-
     const model = {
       page: 0,
-      size: 50,
+      size: 10,
     };
-
     this.httpService
-      .mobileBankingPost('api/v1/corporate/admin/list-products/all', model)
+      .customerPortalPostData('api/v1/portal/getRequests',model)
       .subscribe((res: any) => {
-        if (res.status === 200) {
+        if (res.status === '00') {
           this.loading = false;
+          const accreditations = res.data.filter((request:any) => request.request_category === "Accreditation");
+          console.log(accreditations)
+          
           setTimeout(() => {
-            // this.data = res.data;
-            this.rows = this.tempProductData;
+            let response = res.data;
+            this.rows = response.map((item: any, index: any) => {
+              const res = {
+                ...item,
+                frontendId: index + 1,
+              };
+              return res 
+            });
             // let data = this.tempProductData;
-
-            let total = res.totalItems;
+            console.log(this.rows)
+            // let total = res.totalItems;
           }, 10);
         } else {
           this.loading = false;
@@ -124,6 +123,36 @@ export class ListAllProductsAsCardsComponent implements OnInit {
       });
     this.loading = false;
   }
+  // getIndividualData(event: number): void {
+
+  //   this.loading = true;
+  //   this.rows = this.tempProductData;
+
+  //   this.temp = [...this.tempProductData];
+
+  //   const model = {
+  //     page: 0,
+  //     size: 50,
+  //   };
+
+  //   this.httpService
+  //     .mobileBankingPost('api/v1/corporate/admin/list-products/all', model)
+  //     .subscribe((res: any) => {
+  //       if (res.status === 200) {
+  //         this.loading = false;
+  //         setTimeout(() => {
+  //           // this.data = res.data;
+  //           this.rows = this.tempProductData;
+  //           // let data = this.tempProductData;
+
+  //           let total = res.totalItems;
+  //         }, 10);
+  //       } else {
+  //         this.loading = false;
+  //       }
+  //     });
+  //   this.loading = false;
+  // }
 
 
   onFileChange(event: any) {
