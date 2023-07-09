@@ -64,9 +64,9 @@ export class NavbarComponent implements OnInit {
     let userDetails = {
       companyEmail: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['email'] : "test@gmail.com",
       licenceNumber: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['licenceNo']  : "87654321",
-      profile: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['bussiness_name']  : "Eka Hotel Nairobi",
+      profile: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['bussiness_name']  : "Eka Hotel Nairobi",
       companyRegistrationDate: "24-12-1999",
-      county: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['county']  : "Nairobi",
+      county: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['county']  : "Nairobi",
       taxPin: "A029384794G",
     };
     if (userDetails) {

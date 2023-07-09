@@ -9,7 +9,6 @@
   z-index: 999;
 
   .sidebar-header {
-    // background: #6D36A8;
     height: $navbar-height;
     border-bottom: 1px solid $border-color;
     display: flex;
@@ -27,7 +26,6 @@
     }
   
     .sidebar-brand {
-      // background-color: #F8F8F8;
       opacity: 1;
       visibility: visible;
       -webkit-transition: opacity .5s ease;
@@ -289,17 +287,15 @@
     height: 100%;
     -webkit-box-shadow: -3px 0 10px 0 rgba(183,192,206,0.2);
           box-shadow: -3px 0 10px 0 rgba(183,192,206,0.2);
-    // background-color: #6D36A8;   
     .sidebar-nav {
       list-style: none;
       overflow-y: hidden;
       overflow-x: hidden;
-      padding: 25px 25px 50px 25px;
+      padding: 30px 30px 50px 25px;
       height: 100%;
       .nav-item {
-        font-weight: 700;
+        font-weight: 500;
         font-family: Mulish;
-        font-size: 20px;
         position: relative;
         > .nav-link {
           display: flex;
@@ -307,17 +303,23 @@
           padding: 0;
           height: 35px;
           white-space: nowrap;
-          color: $body-color;
+          // color: $body-color;
           .link-icon {
             width: 21px;
             fill: #2981d2;
             position: absolute;
             color: #F8F8F8;
+            margin-bottom: 5px;
           }
           .link-title {
-            margin-left: 30px;
+            margin-left: 28px;
             -webkit-transition: all .2s ease-in-out;
             transition: all .2s ease-in-out;
+            color: #F8F8F8;
+            font-size: 15px;
+            height: 18px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
           }
           .link-arrow {
             width: 14px;
@@ -353,36 +355,45 @@
         }
         &:hover {
           .nav-link {
-            color: #2981d2; 
+            color: #2981d2 !important; 
+            font-size: 14px;
             .linkTitle{ color: #2981d2; }
             .link-title {
               margin-left: 31px;
-              color: #2981d2; 
+              color: #2981d2 !important; 
+              font-size: 16px;
             }
             .link-icon {
-              color: $primary;
+              color: #2981d2;
               fill: #2981d2;
+              font-size: 16px;
             }
           }
         }
         &.mm-active {
           > .nav-link {
-            color: $primary;
+            color: #2981d2;
+            .linkTitle{ color: #2981d2; }
+            .link-title {
+              // margin-left: 31px;
+              color: #2981d2 !important; 
+            }
             .link-arrow {
               -webkit-transform: rotate(90deg);
               transform: rotate(180deg);
+              color:#2981d2;
             }
             &::before {
               content: '';
               width: 3px;
               height: 26px;
-              background: $primary;
+              background: #2981d2;
               position: absolute;
               left: -25px;
             }
             .link-icon {
               fill: #2981d2;
-              color: $primary;
+              color:#2981d2;
             }
           }
         }
@@ -392,11 +403,9 @@
         .nav-item {
           position: relative;
           .nav-link {
-            height: 25px;
-            color: $body-color;
-            font-size: 13px;
             -webkit-transition: all .3s ease-in-out;
             transition: all .3s ease-in-out;
+            // color: #2981d2 !important; 
             &::before {
               content: '';
               width: 6px;
@@ -412,21 +421,23 @@
               transition: all .4s ease-in-out;
             }
             &.mm-active {
-              color: $primary;
+              color: #2981d2 !important; 
               &::before {
-              border: 1px solid $primary;
-              color: $primary;     
+              border: 1px solid #2981d2;
+              color:#2981d2;  
+              margin-top: 5px;   
               }
             }
-            .link-title {
+            .linkTitle {
               margin-left: 0;
+              color: #2981d2;
             }
             &:hover {
-              color: $primary;
+              color: #2981d2;
               margin-left: 3px;
               &::before {
-                border: 1px solid $primary;
-                background: $primary;       
+                border: 1px solid #2981d2;
+                background: #2981d2;       
               }
             }
           }

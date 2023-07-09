@@ -27,6 +27,7 @@ export class AddProductComponent implements OnInit {
   SubClassData: any;
   enterpriseData: any;
   selectedClass: any[];
+  classData: any[];
 
   constructor(
     public activeModal: NgbActiveModal,
@@ -57,7 +58,7 @@ export class AddProductComponent implements OnInit {
   getClassData(event: number): void {
     this.loading = true;
     this._httpService
-      .customerPortalPost('api/v1/portal/getClasses',{})
+      .customerPortalPost('api/v1/portal/getClassAndSubclasses',{})
       .subscribe((res: any) => {
         console.log(res)
         if (res.status === '00') {
@@ -76,7 +77,7 @@ export class AddProductComponent implements OnInit {
   getSubClassData(event: number): void {
     this.loading = true;
     this._httpService
-      .customerPortalPost('api/v1/portal/getSubclasses',{})
+      .customerPortalPost('api/v1/portal/getSubClassesAndClasses',{})
       .subscribe((res: any) => {
         console.log(res)
         if (res.status === '00') {
@@ -187,13 +188,11 @@ export class AddProductComponent implements OnInit {
 
   public checkFormValue(event:any) {
     console.log(event.target.value);
-
     // filter
     this.selectedClass = this.ClassData.filter(item => { 
     console.log(item.class_name);
-    console.log(event.target.value);
-      
-      return item.class_name === event.target.value;
+    console.log(this.form.value.class_name)
+      return item.class_name === event.target.value
     })
 
     console.log(this.selectedClass);

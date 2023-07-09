@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { GlobalService } from './global.service';
 import { AuthService } from './auth.service';
 import { map } from 'rxjs/operators';
@@ -89,6 +89,34 @@ export class HttpService {
   }
 
   
+  // getData(page: number, size: number): any {
+  //   const params = new HttpParams()
+  //     .set('page', page.toString())
+  //     .set('size', size.toString());
+    
+  //   return this.http.get(this.url + '/kyc/group/' + filter, {params, headers: this.apiService.generateHeaders()})
+  // }
+  
+  public customerPortalPostData(endpoint: string,model: { page: { toString: () => string | number | boolean; }; size: { toString: () => string | number | boolean; }; }): any {
+    const params = new HttpParams()
+    .set('page', model.page.toString())
+    .set('size', model.size.toString());
+    return this.http
+      .post(
+        this.globalService.customerPortalNest + endpoint,
+        {params},this.getHeaders()
+      )
+      .pipe(
+        map((response) => {
+          response = response;
+          return response;
+        })
+      );
+  }
+
+
+
+
   public customerPortalPost(endpoint: string, model: any): any {
     return this.http
       .post(
