@@ -66,7 +66,7 @@ export const MENU: MenuItem[] = [
     subItems: [
       {
         profiles: ['CORPORATE_ADMIN'],
-        label: 'View Requests',
+        label: 'List Classifications',
         link: '/tra-client/customers/list-requests'
       },
       {
