@@ -26,8 +26,9 @@ export class AddProductComponent implements OnInit {
   ClassData: any[];
   SubClassData: any;
   enterpriseData: any;
-  selectedClass: any[];
+  selectedClass: any;
   classData: any[];
+  enterpriseItems: any;
 
   constructor(
     public activeModal: NgbActiveModal,
@@ -112,7 +113,7 @@ export class AddProductComponent implements OnInit {
   private createRecord(): any {
     this.isLoading = true;
 
-    let userId = JSON.parse(localStorage.getItem('data')!)['id']
+    let userId = JSON.parse(localStorage.getItem('data')!)['user']['id']
     const model = {
       userId,
       request_category: this.form.value.request_category,
@@ -190,12 +191,15 @@ export class AddProductComponent implements OnInit {
     console.log(event.target.value);
     // filter
     this.selectedClass = this.ClassData.filter(item => { 
-    console.log(item.class_name);
-    console.log(this.form.value.class_name)
-      return item.class_name === event.target.value
+    console.log(item);
+    console.log(item.id)
+      return parseInt(item.id) == parseInt(event.target.value)
     })
 
-    console.log(this.selectedClass);
+    this.enterpriseItems = this.selectedClass.map((item: any) => item.subEnterprises);
+
+    console.log('this.enterpriseItems');
+    console.log(this.enterpriseItems);
 
     if (this.form.value.class_name) {
       this.getSubClassData(event.target.value);

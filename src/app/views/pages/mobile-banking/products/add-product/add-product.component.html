@@ -30,9 +30,9 @@
             formControlName="subClass_Id"
           >
             <option
-              *ngFor="let data of SubClassData"
-              [value]="data.id">
-              {{data.sub_class}}
+              *ngFor="let data of enterpriseItems"
+              [value]="data.id"> 
+              {{data | json}}
             </option>
           </select>
           </div>
