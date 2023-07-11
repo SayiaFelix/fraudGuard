@@ -25,12 +25,12 @@
           <form class="forms-sample"  [formGroup]="form">
             <div class="mb-3">
               <!-- <input type="email" class="inputs" class="form-control" id="email" placeholder="Enter Email"> -->
-              <input type="text" class="form-control" id="licence" formControlName="licenceNo"  autocomplete="Licence" placeholder="Licence Number For Account Activation">
+              <input type="text" class="form-control" id="licence" formControlName="licenceNumber"  autocomplete="Licence" placeholder="Licence Number For Account Activation">
               <small class="text-danger"
-              *ngIf="form.get('password')?.touched && form.get('password')?.hasError('required')">Licence Number is
+              *ngIf="form.get('licenceNumber')?.touched && form.get('licenceNumber')?.hasError('required')">Licence Number is
               required</small>
             <small class="text-danger"
-              *ngIf="form.get('password')?.touched && form.get('password')?.hasError('minlength')">Licence Number isn't long
+              *ngIf="form.get('licenceNumber')?.touched && form.get('licenceNumber')?.hasError('minlength')">Licence Number isn't long
               enough, minimum of 6 characters</small>
             </div>
             <div class="mb-1" *ngIf="registerResponse$ | async">

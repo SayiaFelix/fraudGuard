@@ -21,16 +21,11 @@ export class ListAllProductsAsCardsComponent implements OnInit {
   actions = [];
   tempProductData = [
     {
-      'frontendId': "1",
-      'accountNo': "1234",
-      'currency': "KES",
-      'mobileNo': "2547887337332",
-      'requestType': "STO_START",
-      'requestCharge': ".00",
-      'transactionRef': "BDJ93839G",
-      'channel': "APP",
-      'dateRequested': "2023-02-12",
-      'status': "05",
+      'Id': "1",
+      'request_category': "STO_START",
+      'refNumber': 'REF0000',
+      'createdOn': "2023-02-12",
+      'status': "Pending",
     }
 
   ];
@@ -45,6 +40,7 @@ export class ListAllProductsAsCardsComponent implements OnInit {
   columns = [
     {name: 'ID', prop: 'id'},
     {name: 'Request', prop: 'request_category'},
+    { name: 'REF NO:', prop: 'refNumber' },
     {name: 'Status', prop: 'status'},
     {name: 'Created On', prop: 'createdOn'},
     {name: 'Actions', prop: 'id'},
@@ -107,9 +103,12 @@ export class ListAllProductsAsCardsComponent implements OnInit {
           setTimeout(() => {
             let response = res.data;
             this.rows = response.map((item: any, index: any) => {
+              const myDate = item['createdOn'].replace(' ', 'T');
+              const dateObj = new Date(myDate).toString().split('GMT')[0];
               const res = {
                 ...item,
                 frontendId: index + 1,
+                createdOn: dateObj,
               };
               return res 
             });

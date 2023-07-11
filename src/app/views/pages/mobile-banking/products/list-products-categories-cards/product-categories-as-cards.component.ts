@@ -1,20 +1,20 @@
-import {Component, Input, OnInit, ViewChild,} from '@angular/core';
-import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
-import {DatePipe} from '@angular/common';
-import {Router} from '@angular/router';
-import {ColumnMode} from '@swimlane/ngx-datatable';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {DatatableComponent} from '@swimlane/ngx-datatable/lib/components/datatable.component';
-import {DataExportationService} from 'src/app/shared/services/data-exportation.service';
-import {HttpService} from 'src/app/shared/services/http.service';
-import {AddProductComponent} from "../add-product/add-product.component";
-import {OwlOptions} from "ngx-owl-carousel-o";
-import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
+import { Component, Input, OnInit, ViewChild, } from '@angular/core';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { DatePipe } from '@angular/common';
+import { Router } from '@angular/router';
+import { ColumnMode } from '@swimlane/ngx-datatable';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { DatatableComponent } from '@swimlane/ngx-datatable/lib/components/datatable.component';
+import { DataExportationService } from 'src/app/shared/services/data-exportation.service';
+import { HttpService } from 'src/app/shared/services/http.service';
+import { AddProductComponent } from "../add-product/add-product.component";
+import { OwlOptions } from "ngx-owl-carousel-o";
+import { ConfirmDialogComponent } from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
 import Swal from "sweetalert2";
-import {DomSanitizer} from '@angular/platform-browser';
-import {HttpClient} from "@angular/common/http";
-import {map} from "rxjs";
-import {log10} from "chart.js/helpers";
+import { DomSanitizer } from '@angular/platform-browser';
+import { HttpClient } from "@angular/common/http";
+import { map } from "rxjs";
+import { log10 } from "chart.js/helpers";
 
 @Component({
   selector: 'app-product-categories',
@@ -34,6 +34,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
     {
       'Id': "1",
       'request_category': "STO_START",
+      'refNumber': 'REF0000',
       'createdOn': "2023-02-12",
       'status': "Pending",
     }
@@ -45,13 +46,16 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
   temp: any = [];
   loading = true;
   reorderable = true;
-
+  perPage = 10;
+  page = 1
+  pageSizes = [5, 10, 25, 50, 100,200];
   columns = [
-    {name: 'ID', prop: 'id'},
-    {name: 'Request', prop: 'request_category'},
-    {name: 'Status', prop: 'status'},
-    {name: 'Created On', prop: 'createdOn'},
-    {name: 'Actions', prop: 'id'},
+    { name: 'ID', prop: 'id' },
+    { name: 'Request', prop: 'request_category' },
+    { name: 'REF NO:', prop: 'refNumber' },
+    { name: 'Status', prop: 'status' },
+    { name: 'Created On', prop: 'createdOn' },
+    { name: 'Actions', prop: 'id' },
   ];
 
   allColumns = [...this.columns];
@@ -82,8 +86,8 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
         label: 'Mobile banking',
         path: '/mobile-banking/products/all-customers',
       },
-      {label: 'Pages', path: '/'},
-      {label: 'Customers', active: true},
+      { label: 'Pages', path: '/' },
+      { label: 'Customers', active: true },
     ];
     this.getIndividualData(0);
 
@@ -94,7 +98,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
     });
   }
 
-  
+
   getIndividualData(event: any): void {
     this.loading = true;
     this.rows = this.tempProductData;
@@ -108,18 +112,18 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
       .subscribe((res: any) => {
         if (res.status === '00') {
           this.loading = false;
-          const accreditations = res.data.filter((request:any) => request.request_category === "Accreditation");
-          const classifications = res.data.filter((request:any) => request.request_category === "Classification");
+          const accreditations = res.data.filter((request:any) => request.request_category === "ACCREDITATION");
           console.log(accreditations)
-          // console.log(classifications)
           
           setTimeout(() => {
-            // let response = res.data;
             let response = accreditations;
             this.rows = response.map((item: any, index: any) => {
+              const myDate = item['createdOn'].replace(' ', 'T');
+              const dateObj = new Date(myDate).toString().split('GMT')[0];
               const res = {
                 ...item,
                 frontendId: index + 1,
+                createdOn: dateObj,
               };
               return res 
             });
@@ -134,9 +138,8 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
     this.loading = false;
   }
 
-  // api/v1/portal/getClasses
   openAddRequestModal() {
-    this.modalRef = this.modalService.open(AddProductComponent, {centered: true,size:"md"});
+    this.modalRef = this.modalService.open(AddProductComponent, { centered: true, size: "md" });
     this.modalRef.componentInstance.title = 'Make Request';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
@@ -224,7 +227,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
     this.rows.forEach((row: any) => {
       let temp: Record<string, string> = {}
       cols.forEach(key => {
-        temp = {...temp, [key]: row[key]}
+        temp = { ...temp, [key]: row[key] }
       })
       arr.push(temp)
     })
@@ -245,7 +248,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
     this.rows.forEach((row: any) => {
       let temp: Record<string, string> = {}
       cols.forEach(key => {
-        temp = {...temp, [key]: row[key]}
+        temp = { ...temp, [key]: row[key] }
       })
       arr.push(temp)
     })

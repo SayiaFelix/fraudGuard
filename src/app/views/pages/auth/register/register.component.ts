@@ -24,21 +24,21 @@ export class RegisterComponent implements OnInit {
      private http: HttpClient,
      fb: FormBuilder,) { 
       this.form = fb.group({
-        licenceNo: ['',Validators.compose([Validators.required,Validators.minLength(6)])],
+        licenceNumber: ['',Validators.compose([Validators.required,Validators.minLength(6)])],
       });
      }
 
   ngOnInit(): void {
     // this.getEnterpriseEmail(this.enterpriseData)
-    this.getUsers();
+    // this.getUsers();
   }
 
-  getUsers() {
-    this.httpService.getEnterpriseUsers('api/v1/auth/facilities').subscribe( res=>{
-      this.enterpriseData = res;
-      console.log(this.enterpriseData)
-    })
-  }
+  // getUsers() {
+  //   this.httpService.getEnterpriseUsers('api/v1/auth/facilities').subscribe( res=>{
+  //     this.enterpriseData = res;
+  //     console.log(this.enterpriseData)
+  //   })
+  // }
 
   onRegister(e: Event) {
     this.hasError = false;
@@ -50,8 +50,7 @@ export class RegisterComponent implements OnInit {
     console.log(selectedUser);
     
     let model = {
-      email: selectedUser.email,
-      licenceNo:this.form.value.licenceNo
+      licenceNumber:this.form.value.licenceNumber
     };
     console.log(model);
     this.registerResponse$ = this.httpService
