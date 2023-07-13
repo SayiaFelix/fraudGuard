@@ -40,7 +40,7 @@ export class AddProductComponent implements OnInit {
 
     this.form = this.fb.group({
       class_name: [this.formData ? this.formData.class_name : '', [Validators.required]],
-      request_category: [this.formData ? this.formData.request_category : '', [Validators.required]],
+      requestType: [this.formData ? this.formData.request_category : '', [Validators.required]],
       subClass_Id: [{ value: this.formData ? this.formData.subClass_Id : '', disabled: true }, [Validators.required]],
     });
 
@@ -116,7 +116,7 @@ export class AddProductComponent implements OnInit {
     let userId = JSON.parse(localStorage.getItem('data')!)['user']['id']
     const model = {
       userId,
-      request_category: this.form.value.request_category,
+      requestType: this.form.value.requestType,
       subClass_Id: this.form.value.subClass_Id,
     };
     console.log(model)

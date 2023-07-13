@@ -30,9 +30,9 @@
             formControlName="subClass_Id"
           >
             <option
-              *ngFor="let data of enterpriseItems"
+              *ngFor="let data of SubClassData"
               [value]="data.id"> 
-              {{data | json}}
+              {{data.sub_class}}
             </option>
           </select>
           </div>
@@ -44,7 +44,7 @@
             class="form-select"
             id="request_category"
             name="request_category"
-            formControlName="request_category"
+            formControlName="requestType"
           >
           <option  value="ACCREDITATION">ACCREDITATION</option>
           <option  value="CLASSIFICATION">CLASSIFICATION</option>
