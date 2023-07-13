@@ -291,7 +291,7 @@
       list-style: none;
       overflow-y: hidden;
       overflow-x: hidden;
-      padding: 30px 30px 50px 25px;
+      padding: 30px 30px 25px 25px;
       height: 100%;
       .nav-item {
         font-weight: 500;
@@ -306,19 +306,19 @@
           // color: $body-color;
           .link-icon {
             width: 21px;
-            fill: #2981d2;
+            fill: #F7941D;
             position: absolute;
-            color: #F8F8F8;
+            color: #F7941D;
             margin-bottom: 5px;
           }
           .link-title {
-            margin-left: 28px;
+            // margin-left: 28px;
             -webkit-transition: all .2s ease-in-out;
             transition: all .2s ease-in-out;
-            color: #F8F8F8;
-            font-size: 15px;
+            color: #F7941D;
+            font-size: 16px;
             height: 18px;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
             text-transform: uppercase;
           }
           .link-arrow {
@@ -329,7 +329,7 @@
             -webkit-transition: all .3s ease;
             -webkit-transition: all .3s ease-in-out;
             transition: all .3s ease-in-out;
-            color: #2981d2;
+            color: #F7941D;
           }
           .badge {
             margin-left: auto;
@@ -342,7 +342,7 @@
           }
         }
         &.nav-category {
-          color: #2981d2;
+          color: #F7941D;
           font-size: 14px;
           text-transform: uppercase;
           font-weight: 700;
@@ -355,45 +355,46 @@
         }
         &:hover {
           .nav-link {
-            color: #2981d2 !important; 
-            font-size: 14px;
-            .linkTitle{ color: #2981d2; }
+            color: #F8F8F8 !important; 
+            opacity: 1.0 !important;
+            font-size: 13px;
+            .linkTitle{ color: #F7941D; }
             .link-title {
-              margin-left: 31px;
-              color: #2981d2 !important; 
-              font-size: 16px;
+              margin-left: 2px;
+              color: #F7941D !important; 
+              font-size: 18px;
             }
             .link-icon {
-              color: #2981d2;
-              fill: #2981d2;
+              color:#F7941D;
+              fill: #F7941D;
               font-size: 16px;
             }
           }
         }
         &.mm-active {
           > .nav-link {
-            color: #2981d2;
-            .linkTitle{ color: #2981d2; }
+            // color: #F8F8F8 !important;
+            .linkTitle{ color: #F8F8F8 !important; }
             .link-title {
               // margin-left: 31px;
-              color: #2981d2 !important; 
+              color: #F8F8F8 !important; 
             }
             .link-arrow {
               -webkit-transform: rotate(90deg);
               transform: rotate(180deg);
-              color:#2981d2;
+              color:#F8F8F8;
             }
             &::before {
               content: '';
               width: 3px;
               height: 26px;
-              background: #2981d2;
+              background: #F8F8F8;
               position: absolute;
               left: -25px;
             }
             .link-icon {
-              fill: #2981d2;
-              color:#2981d2;
+              fill: #F8F8F8;
+              color:#F8F8F8;
             }
           }
         }
@@ -403,9 +404,12 @@
         .nav-item {
           position: relative;
           .nav-link {
+            margin-left: 10px;
+            font-size: 14px;
             -webkit-transition: all .3s ease-in-out;
             transition: all .3s ease-in-out;
-            // color: #2981d2 !important; 
+            color: #F8F8F8 !important;
+            opacity:  0.7 !important;
             &::before {
               content: '';
               width: 6px;
@@ -420,24 +424,34 @@
               -webkit-transition: all .4s ease-in-out;
               transition: all .4s ease-in-out;
             }
-            &.mm-active {
-              color: #2981d2 !important; 
+            &:hover {
+              opacity: 1.0 !important;
+              font-size: 15px;
+              margin-left: -5px !important;
               &::before {
-              border: 1px solid #2981d2;
-              color:#2981d2;  
+                border: 1px solid #F8F8F8;
+                background: #F8F8F8;    
+              }
+            }
+            &.mm-active {
+              margin-left: -12px;
+              opacity: 1.0 !important;
+              &::before {
+              border: 1px solid #F8F8F8;
+              color:#F8F8F8;  
               margin-top: 5px;   
               }
             }
             .linkTitle {
               margin-left: 0;
-              color: #2981d2;
+              color: #F8F8F8;
             }
             &:hover {
-              color: #2981d2;
+              color: #F8F8F8;
               margin-left: 3px;
               &::before {
-                border: 1px solid #2981d2;
-                background: #2981d2;       
+                border: 1px solid #F8F8F8;
+                background: #F8F8F8;       
               }
             }
           }

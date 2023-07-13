@@ -39,7 +39,7 @@ export class ListAllProductsAsCardsComponent implements OnInit {
 
   columns = [
     {name: 'ID', prop: 'id'},
-    {name: 'Request', prop: 'request_category'},
+    {name: 'Request', prop: 'requestType'},
     { name: 'REF NO:', prop: 'refNumber' },
     {name: 'Status', prop: 'status'},
     {name: 'Created On', prop: 'createdOn'},
