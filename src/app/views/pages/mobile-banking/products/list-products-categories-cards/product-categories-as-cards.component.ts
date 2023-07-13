@@ -29,7 +29,7 @@ import { log10 } from "chart.js/helpers";
  */
 export class ProductCategoriesAsCardsComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
-  actions = [];
+  actions = ['View'];
   tempProductData = [
     {
       'Id': "1",
@@ -51,11 +51,11 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
   pageSizes = [5, 10, 25, 50, 100,200];
   columns = [
     { name: 'ID', prop: 'id' },
-    { name: 'Request', prop: 'request_category' },
-    { name: 'REF NO:', prop: 'refNumber' },
+    { name: 'Request Type', prop: 'requestType' },
+    { name: 'REQ NO:', prop: 'refNumber' },
     { name: 'Status', prop: 'status' },
     { name: 'Created On', prop: 'createdOn' },
-    { name: 'Actions', prop: 'id' },
+    { name: 'Actions', prop: 'actions' },
   ];
 
   allColumns = [...this.columns];
@@ -116,7 +116,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
           console.log(accreditations)
           
           setTimeout(() => {
-            let response = accreditations;
+            let response = res.data;
             this.rows = response.map((item: any, index: any) => {
               const myDate = item['createdOn'].replace(' ', 'T');
               const dateObj = new Date(myDate).toString().split('GMT')[0];
@@ -157,7 +157,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
   }
 
   navigateToViewUssdCustomer(data: any) {
-    this.router.navigateByUrl(`/mobile-banking/channels/ussdcustomer/${data.id}`);
+    this.router.navigateByUrl(`tra-client/accreditations/view/${data.id}`);
   }
 
   toggleExpandRow(row: any) {
