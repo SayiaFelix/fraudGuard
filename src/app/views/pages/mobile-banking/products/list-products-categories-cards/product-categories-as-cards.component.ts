@@ -52,7 +52,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
   columns = [
     { name: 'ID', prop: 'id' },
     { name: 'Request Type', prop: 'requestType' },
-    { name: 'REQ NO:', prop: 'refNumber' },
+    { name: 'REQ NO:', prop: 'ref_number' },
     { name: 'Status', prop: 'status' },
     { name: 'Created On', prop: 'createdOn' },
     { name: 'Actions', prop: 'actions' },
