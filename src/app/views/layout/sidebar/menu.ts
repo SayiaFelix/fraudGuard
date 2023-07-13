@@ -36,7 +36,7 @@ export const MENU: MenuItem[] = [
     subItems: [
       {
         profiles: ['CORPORATE_ADMIN'],
-        label: 'View All Standards',
+        label: 'All Standards',
         link: '/tra-client/standards/all-standards'
       },
     ]
@@ -48,14 +48,14 @@ export const MENU: MenuItem[] = [
     subItems: [
       {
         // profiles: ['CORPORATE_ADMIN'],
-        label: 'List Accreditations',
+        label: 'All Accreditations',
         link: '/tra-client/accreditations/all'
       },
-      {
-        // profiles: ['CORPORATE_ADMIN'],
-        label: 'All Requests',
-        link: '/tra-client/accreditations/all-accreditations'
-      },
+      // {
+      //   // profiles: ['CORPORATE_ADMIN'],
+      //   label: 'All Requests',
+      //   link: '/tra-client/accreditations/all-accreditations'
+      // },
     ]
   },
 
@@ -66,14 +66,14 @@ export const MENU: MenuItem[] = [
     subItems: [
       {
         profiles: ['CORPORATE_ADMIN'],
-        label: 'List Classifications',
+        label: 'All Classifications',
         link: '/tra-client/customers/list-requests'
       },
-      {
-        profiles: ['CORPORATE_ADMIN'],
-        label: 'Classification Results',
-        link: '/tra-client/customers/list-failed-registrations'
-      },
+      // {
+      //   profiles: ['CORPORATE_ADMIN'],
+      //   label: 'Classification Results',
+      //   link: '/tra-client/customers/list-failed-registrations'
+      // },
       {
         profiles: ['CORPORATE_ADMIN'],
         label: 'Notifications',
