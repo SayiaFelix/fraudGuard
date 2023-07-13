@@ -179,6 +179,8 @@ export class ViewStandardsComponent implements OnInit {
       this.selectedLanguageFlag = 'assets/images/flags/ke.svg';
     }
   }
+
+  onleaveComment(){}
   openModal(modalContent: any) {
     this.modalRef = this.modal.open(modalContent, {centered: true, size:"md"});
   }

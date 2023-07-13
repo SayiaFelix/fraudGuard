@@ -59,7 +59,7 @@
             For Accommodation & Catering Establishment</h3>
           <div class="d-flex justify-content-between">
             <p style="font-weight: 600; font-size: 23px; color:#2268AA;">
-              <i (click)='openModal(requestStandard)' class="fa-solid fa-file" title="Request Standard"></i>
+              <!-- <i (click)='openModal(requestStandard)' class="fa-solid fa-file" title="Request Standard"></i> -->
             </p>
             <!-- <p style="  font-family: 'Mulish';font-weight: 600; font-size: 23px; color:#2268AA;">
                   <i class="fa-solid fa-download" title="Download Bronchure"></i></p> -->
@@ -84,7 +84,10 @@
               </div>
               <div class="col-md-7">
                 <div style="width: 25%; border-bottom: 2px solid #2268AA; ">
-                  <h3 style="color: #2268AA; font-size: 20px; font-family: Muli; font-weight: 800; line-height: 24px;letter-spacing: 0em;">Preliminary</h3>
+                  <h3
+                    style="color: #2268AA; font-size: 20px; font-family: Muli; font-weight: 800; line-height: 24px;letter-spacing: 0em;">
+                    Preliminary
+                  </h3>
                 </div>
                 <div class="mt-3">
                   <p
@@ -103,7 +106,8 @@
                 </div>
                 <div class="p-1 m-1">
                   <button class="btn btn-lg "
-                    style="background-color: #2268AA; font-family:Muli; align-items: center; color: #f8f8f8; font-weight: 700; border-radius: 4px; font-size:15px;">
+                    style="background-color: #2268AA; font-family:Muli; align-items: center; color: #f8f8f8; font-weight: 700; border-radius: 4px; font-size:15px;"
+                    (click)='openModal(requestStandard)'>
                     DOWNLOAD STANDARDS
                   </button>
                 </div>
@@ -168,6 +172,16 @@
       <a routerLink="/" class="" style="text-decoration: none; margin: 20px; color: #1e0f2e" class="transition">Tourism
         ACT 2011</a>
       <a routerLink="/" style="text-decoration: none; color: #1e0f2e" class="transition">Tourism Regulations 2014</a>
+      <div class="d-flex justify-content-end">
+        <div
+          style="position:absolute; border-radius: 50%; bottom:45px; right:38px; width:60px; height: 60px;background-color: #2766BF;"
+          class="card-header d-flex align-items-center border-0">
+          <!-- <img   (click)='openModal(leaveComment)' class="img-fluid"  style="height: 25px ;" src="assets/images/chat.png" alt="logo" /> -->
+          <p style="color: #F8F8F8; font-size: 30px; margin-left: -13px;
+          "> <i (click)='openModal(leaveComment)' class="mt-2 fa-solid fa-comments" title="Leave A Comment"></i></p>
+
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -176,10 +190,12 @@
     <div class="row">
       <div class="col-12">
         <div class="">
-          <div class="card-header d-flex justify-content-between" style="background-color: #d0ddf0; font-family: 'Mulish'; font-weight: 900; border-radius:4px;">
+          <div class="card-header d-flex justify-content-between"
+            style="background-color: #d0ddf0; font-family: 'Mulish'; font-weight: 900; border-radius:4px;">
             <h4 class=" text-start mt-3 p-2" style="color: #6D36A8; font-size: 23px;">Request A Standard</h4>
             <div style="color: #6D36A8;">
-              <button type="button "  class="mt-3 p-2 btn-close"  (click)="closeModal()" data-bs-dismiss="modal" aria-label="Close"></button>
+              <button type="button " class="mt-3 p-2 btn-close" (click)="closeModal()" data-bs-dismiss="modal"
+                aria-label="Close"></button>
             </div>
           </div>
           <article class="">
@@ -206,14 +222,14 @@
                 </div>
                 <div class="form-group mt-2">
                   <!-- <label for="occupation" class="text-gray">Occupation</label> -->
-                  <input formControlName="occupation" type="text" class="form-control validation-field border-0" id="occupation"
-                    placeholder="Your Occupation">
+                  <input formControlName="occupation" type="text" class="form-control validation-field border-0"
+                    id="occupation" placeholder="Your Occupation">
                   <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
                 </div>
                 <div class="form-group mt-2">
                   <!-- <label for="purpose" class="text-gray">Purpose</label> -->
-                  <input formControlName="purpose" type="text" class="form-control validation-field border-0" id="purpose"
-                    placeholder="Your Purpose">
+                  <input formControlName="purpose" type="text" class="form-control validation-field border-0"
+                    id="purpose" placeholder="Your Purpose">
                   <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
                 </div>
                 <div class="col-12 bg-white text-center py-1 mt-3 mb-2">
@@ -231,15 +247,77 @@
   </div>
 </ng-template>
 
+<ng-template #leaveComment>
+  <div class="">
+    <div class="row">
+      <div class="col-12">
+        <div class="">
+          <div class="card-header d-flex justify-content-between"
+            style="background-color: #d0ddf0; font-family: 'Mulish'; font-weight: 900; border-radius:4px;">
+            <h4 class="text-start p-2 mt-2" style="color: #6D36A8; font-size: 23px;">Talk to Customer Care</h4>
+            <div style="color: #6D36A8;">
+              <button type="button " class="mt-3 p-2 btn-close" (click)="closeModal()" data-bs-dismiss="modal"
+                aria-label="Close"></button>
+            </div>
+          </div>
+          <article class="">
+            <p *ngIf="errorMessage" class="text-danger">{{errorMessage}}</p>
+            <form class="mt-1" [formGroup]="form" (ngSubmit)="onleaveComment()" class="row px-3">
+              <div class="tab-content col-12 border-0">
+                <div class="form-group mt-2">
+                  <input formControlName="name" type="text" class="form-control validation-field border-0" id="name"
+                    placeholder="Your Name or Company*">
+                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+                </div>
+                <div class="form-group mt-2">
+                  <input formControlName="email" type="email" class="form-control validation-field border-0" id="email"
+                    placeholder="Your email address*">
+                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+                </div>
+                <div class="form-group mt-2">
+                  <input type="text" name="tel" formControlName="phoneNumber" id="phoneNumber"
+                    placeholder="Phone Number*" class="form-control validation-field border-0" ng2TelInput
+                    data-initial-country="ke">
+                  <!-- <input formControlName="phoneNumber" id="phoneNumber" type="text"  placeholder="Phone Number*" class="form-control validation-field border-0"
+                    id="purpose" placeholder="Your Phone No,"> -->
+                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+                </div>
+                <div class="form-group mt-2">
+                  <input formControlName="subject" type="text" class="form-control validation-field border-0"
+                    id="subject" placeholder="Subject">
+                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+                </div>
+                <div class="form-group mt-2">
+                  <textarea formControlName="message" type="text" id="message" cols="15" rows="3" placeholder="Message"
+                    class="form-control validation-field border-0"></textarea>
+                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+                </div>
+                <div class="col-12 bg-white text-center py-1 mt-3 mb-2">
+                  <button style="width: 100%; border: none;" class="btn btn-block bronchure-btn transition"
+                    type="submit">
+                    <span style="color: white;">SEND</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </article>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
 <ng-template #downloadBronchure>
   <div>
     <div class="row">
       <div class="col-12">
         <div class="">
-          <div class="card-header d-flex justify-content-between" style="background-color: #d0ddf0; font-family: 'Mulish'; font-weight: 900; border-radius:4px;">
+          <div class="card-header d-flex justify-content-between"
+            style="background-color: #d0ddf0; font-family: 'Mulish'; font-weight: 900; border-radius:4px;">
             <h4 class=" text-start mt-3 p-2" style="color: #6D36A8; font-size: 23px;">One More Step</h4>
             <div style="color: #6D36A8;">
-              <button type="button "  class="mt-3 p-2 btn-close"  (click)="closeModal()" data-bs-dismiss="modal" aria-label="Close"></button>
+              <button type="button " class="mt-3 p-2 btn-close" (click)="closeModal()" data-bs-dismiss="modal"
+                aria-label="Close"></button>
             </div>
           </div>
           <article class="">
@@ -263,6 +341,9 @@
                   <input type="text" name="tel" formControlName="phoneNumber" id="phoneNumber"
                     placeholder="Phone Number*" class="form-control validation-field border-0" ng2TelInput
                     data-initial-country="ke">
+                  <!-- <ngx-mat-intl-tel-input formControlName="phoneNumber" [preferredCountries]="['us', 'gb']"
+                    [enablePlaceholder]="true" [enableSearch]="true" name="phone">
+                  </ngx-mat-intl-tel-input> -->
                   <!-- <input formControlName="phoneNumber" id="phoneNumber" type="text"  placeholder="Phone Number*" class="form-control validation-field border-0"
                     id="purpose" placeholder="Your Phone No,"> -->
                   <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->

@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { NgbActiveModal, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { CustomValidators } from 'ngx-custom-validators';
 
 @Component({
   selector: 'app-all-standards',
@@ -129,11 +132,35 @@ export class StandardsComponent implements OnInit {
       describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
   ]
-  constructor(private router: Router) { }
+  errorMsg: string;
+  hasError: boolean = false;
+  isLoading: boolean = false;
+  errorMessage: string;
+
+  public form: FormGroup;
+  modalRef: NgbModalRef;
+  constructor(private router: Router,   
+     public modal: NgbModal,
+    public activeModal: NgbActiveModal, fb: FormBuilder,) { 
+      this.form = fb.group({
+        email: ['',Validators.compose([Validators.required, CustomValidators.email])],
+        subject: ['',Validators.compose([Validators.required])],
+        message: ["", Validators.compose([Validators.required])],
+        name: ["", Validators.compose([Validators.required])],
+        phoneNumber: ["", Validators.compose([Validators.required])],
+      });
+    }
 
   ngOnInit(): void {
   }
 
+  onleaveComment(){}
+  openModal(modalContent: any) {
+    this.modalRef = this.modal.open(modalContent, {centered: true, size:"md"});
+  }
+  closeModal() {
+    this.activeModal.close();
+  }
   onRegister(e: Event) {
     e.preventDefault();
     localStorage.setItem('isLoggedin', 'true');
