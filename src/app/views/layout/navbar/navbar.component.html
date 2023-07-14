@@ -79,8 +79,7 @@
             </li> -->
 
             <li class="dropdown-item py-2">
-              <a class="d-flex text-body ms-0"
-                 routerLink="/auth/change-auth-password">
+              <a class="d-flex text-body ms-0" (click)='openModal(changePassword)'>
                 <i class="feather icon-log-out me-2 icon-md"></i>
                 <span>Change Password</span>
               </a>
@@ -98,3 +97,78 @@
     </ul>
   </div>
 </nav>
+<ng-template #changePassword>
+  <div class="">
+    <div class="row">
+      <div class="col-12">
+        <div class="card card-login-container">
+          <div class="card-header d-flex justify-content-between" style="background-color: #d0ddf0; font-family: 'Mulish'; font-weight: 900; border-radius:4px;">
+            <h3
+            style="font-family: Mulish; font-style: normal; font-weight: 700; font-size: 21px; line-height: 30px; color: #6D36A8; text-transform: uppercase; text-align: center;">
+            Change Password</h3>
+            <div style="color: #6D36A8;">
+              <button type="button "  class="mt-3 p-2 btn-close"  (click)="closeModal()" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+          </div>
+          <article class="">
+            <form class="mt-2" [formGroup]="form" class="row px-3">
+              <div class="mb-3 mt-3">
+                <input type="password"  class="form-control validation-field" formControlName="password" placeholder="Enter Current Password">
+                <small class="text-danger"
+                  *ngIf="form.get('password')?.touched && form.get('password')?.hasError('required')"> Current Password is
+                  required</small>
+              </div>
+              <div class="mb-3">
+                <div class="input-group mb-3">
+                  <input [type]="inputType"  class="form-control validation-field" formControlName="newPassword"
+                    placeholder="Enter password" id="newPassword" aria-label="password">
+                  <div class="input-group-prepend" style="cursor: pointer;" (click)="toggleShowPassword()">
+                    <span class="input-group-text" *ngIf="!this.showingPassword"><i class="mdi mdi-eye"></i></span>
+                    <span class="input-group-text" *ngIf="this.showingPassword"><i class="mdi mdi-eye-off"></i></span>
+                  </div>
+                </div>
+                <small class="text-danger"
+                  *ngIf="form.get('newPassword')?.touched && form.get('newPassword')?.hasError('required')">Password is
+                  required</small>
+                <small class="text-danger"
+                  *ngIf="form.get('newPassword')?.touched && form.get('newPassword')?.hasError('minlength')">Password isn't long
+                  enough, minimum of 6 characters</small>
+              </div>
+              <div class="mb-3">
+                <div class="input-group mb-3">
+                  <input [type]="inputType" class="form-control validation-field" formControlName="confirmPassword" class="form-control"
+                    placeholder="Confirm Password" id="confirmPassword" aria-label="confirmPassword">
+                  <div class="input-group-prepend" style="cursor: pointer;" (click)="toggleShowPassword()">
+                    <span class="input-group-text" *ngIf="!this.showingPassword"><i class="mdi mdi-eye"></i></span>
+                    <span class="input-group-text" *ngIf="this.showingPassword"><i class="mdi mdi-eye-off"></i></span>
+                  </div>
+                </div>
+                <small class="text-danger"
+                  *ngIf="form.get('confirmPassword')?.touched && form.get('confirmPassword')?.hasError('required')">Confirm
+                  Password is
+                  required</small>
+                <small class="text-danger"
+                  *ngIf="form.get('confirmPassword')?.touched && form.get('confirmPassword')?.hasError('minlength')">Confirm
+                  Password isn't long
+                  enough, minimum of 6 characters</small>
+                <small *ngIf="form.controls['confirmPassword'].dirty && 
+                    form.hasError('MatchPassword','confirmPassword')" class="text-danger">Passwords Do Not Match</small>
+              </div>
+              <div>
+                <button [disabled]="!form.valid" (click)="onSubmit($event)" style="width: 100%; border: none;"
+                  class="btn btn-block login-btn transition" type="submit">
+                  <span style="color: white;">SET PASSWORD</span>
+                </button>
+              </div>
+              <hr>
+              <!-- <div class="mt-2 d-flex justify-content-center">
+                <a routerLink="/auth/login" style="text-decoration: none;" class="transition text-primary">Back to
+                  Login</a>
+              </div> -->
+            </form>
+          </article>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>

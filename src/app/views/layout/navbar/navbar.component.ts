@@ -10,12 +10,14 @@ import { HttpService } from 'src/app/shared/services/http.service';
 import { map, Observable, of } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import {AddProductComponent} from "../../pages/mobile-banking/products/add-product/add-product.component";
-import {NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
+import {NgbActiveModal, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {NotificationModalComponent} from "../../../shared/components/notification-modal/notification-modal.component";
 import {NotificationService} from "../../../shared/services/NotificationService";
 import {Notification} from "../../../shared/services/Notification";
 import {compareSegments} from "@angular/compiler-cli/src/ngtsc/sourcemaps/src/segment_marker";
-
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ConfirmDialogComponent } from 'src/app/shared/components/confirm-dialog/confirm-dialog.component';
+import Swal from "sweetalert2";
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
@@ -32,7 +34,7 @@ export class NavbarComponent implements OnInit {
   logo: string | null;
 
   public modalRef: NgbModalRef;
-
+  public form: FormGroup;
 
   // internationalization management
   selectedLanguage: any = 'English';
@@ -40,17 +42,51 @@ export class NavbarComponent implements OnInit {
   public notifications: Notification[];
   enterpriseData: any;
 
+  errorMsg: string;
+  hasError: boolean = false;
+  isLoading: boolean = false;
+
+  returnUrl: any;
+  public showingPassword = false;
+  inputType = 'password';
+
+  MatchPassword(passName: string, confirmPassName: string) {
+    return (formGroup: FormGroup) => {
+      const control = formGroup.controls[passName];
+      const matchingControl = formGroup.controls[confirmPassName];
+      if (matchingControl.errors && !matchingControl.errors['MatchPass']) {
+        return
+      }
+      if (control.value !== matchingControl.value) {
+        matchingControl.setErrors({ MatchPassword: true });
+      }
+      else {
+        matchingControl.setErrors(null);
+      }
+    }
+
+  }
+
   constructor(
     @Inject(DOCUMENT) private document: Document,
     private renderer: Renderer2,
-
+    fb: FormBuilder,
     private translate: TranslateService,
-
     private router: Router,
     private httpService: HttpService,
+    public activeModal: NgbActiveModal,
     private modalService: NgbModal,
     private notificationService: NotificationService
-  ) {}
+  ) {
+    this.form = fb.group({
+      password: ['',Validators.compose([Validators.required, Validators.minLength(6)])],
+      newPassword: ['',Validators.compose([Validators.required, Validators.minLength(6)])],
+      confirmPassword: ['',Validators.compose([Validators.required, Validators.minLength(6)])],
+    },
+    {
+      validators: this.MatchPassword('newPassword', 'confirmPassword')
+    });
+  }
 
   ngOnInit(): void {
     // Subscribe to notification service observable
@@ -147,16 +183,60 @@ export class NavbarComponent implements OnInit {
     });
   }
 
-//   changePassword() {
-// this.modalRef = this.modalService.open(NotificationModalComponent, {centered: true, size:"lg"});
-//     this.modalRef.componentInstance.title = 'Approve Create User';
-//     this.modalRef.result.then((result) => {
-//       if (result === 'success') {
-//       } else {
-//         console.log("Error occurred")
-//       }
-//     });
-//   }
+  onSubmit(e: Event) {
+    console.log("On button click")
+    e.preventDefault();
+
+    this.setPassword();
+  }
+
+  setPassword(){
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+    this.modalRef.componentInstance.title = 'Change Password';
+
+    this.modalRef.componentInstance.body= "Do you want to Set this as your new password?";
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+
+        const model = {
+          password: this.form.value.password,
+          newPassword: this.form.value.newPassword,
+          confirmPassword: this.form.value.confirmPassword
+        };
+
+        this.httpService.customerPortalAuth('api/v1/auth/change-password', model).subscribe(
+          (result: any) => {
+            if (result.status === '00') { 
+              Swal.fire('Password Set',  'Password Changed Successfully.',  'success')
+              this.activeModal.close();
+              // Navigate back to login screen.
+              this.form.reset()
+              this.router.navigate(["/auth/login"]);
+            } else {
+              Swal.fire('Error',  'You have entered an incorrect password',  'error')
+            }
+          }
+        );
+      } else {
+        console.log("Error occurred")
+      }
+    });
+  }
+
+  openModal(modalContent: any) {
+    this.modalRef = this.modalService.open(modalContent, {centered: true, size:"md"});
+  }
+  closeModal() {
+    this.activeModal.close();
+  }
+  toggleShowPassword() {
+    this.showingPassword = !this.showingPassword;
+    if (this.showingPassword) {
+      this.inputType = 'text';
+    } else {
+      this.inputType = 'password';
+    }
+  }
   private pullNotificationsList() {
 
     const model = {
