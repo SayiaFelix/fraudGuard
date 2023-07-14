@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { BaseComponent } from './base/base.component';
 import { NavbarComponent } from './navbar/navbar.component';
@@ -10,7 +10,7 @@ import { FooterComponent } from './footer/footer.component';
 
 import { ContentAnimateDirective } from '../../core/content-animate/content-animate.directive';
 
-import { NgbDropdownModule, NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDropdownModule, NgbCollapseModule, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { FeatherIconModule } from '../../core/feather-icon/feather-icon.module';
 
@@ -29,6 +29,7 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
     CommonModule,
     RouterModule,
     FormsModule,
+    ReactiveFormsModule,
     NgbDropdownModule,
     NgbCollapseModule,
     PerfectScrollbarModule,
@@ -38,7 +39,8 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
     {
       provide: PERFECT_SCROLLBAR_CONFIG,
       useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG
-    }
+    }, 
+     NgbActiveModal,
   ]
 })
 export class LayoutModule { }

@@ -43,12 +43,12 @@ export const MENU: MenuItem[] = [
   },
   {
     // profiles: ['CORPORATE_ADMIN'],
-    label: 'ACCREDITATION',
+    label: 'Requests',
     icon: 'award',
     subItems: [
       {
         // profiles: ['CORPORATE_ADMIN'],
-        label: 'All Accreditations',
+        label: 'All Requests',
         link: '/tra-client/accreditations/all'
       },
       // {
@@ -61,21 +61,21 @@ export const MENU: MenuItem[] = [
 
   {
     // profiles: ['CORPORATE_ADMIN'],
-    label: 'CLASSIFICATION',
+    label: 'Notifications',
     icon: 'search',
     subItems: [
-      {
-        profiles: ['CORPORATE_ADMIN'],
-        label: 'All Classifications',
-        link: '/tra-client/customers/list-requests'
-      },
+      // {
+      //   // profiles: ['CORPORATE_ADMIN'],
+      //   label: 'All Classifications',
+      //   link: '/tra-client/customers/list-requests'
+      // },
       // {
       //   profiles: ['CORPORATE_ADMIN'],
       //   label: 'Classification Results',
       //   link: '/tra-client/customers/list-failed-registrations'
       // },
       {
-        profiles: ['CORPORATE_ADMIN'],
+        // profiles: ['CORPORATE_ADMIN'],
         label: 'Notifications',
         link: '/tra-client/customers/send-bulk-sms'
       },
