@@ -1,4 +1,4 @@
-<div class="card border-0 box-shadow">
+<div class="card border-0 box-shadow" style="margin-bottom: 5%;">
   <div class="d-flex justify-content-start mt-3" style="margin-bottom: -40px; padding-left: 30px;">
     <div class="card-title">
       <h3 style="color: #1E0F2E; font-family: 'Mulish';font-weight: 600;font-size: 20px; text-transform: none;">All
@@ -57,5 +57,67 @@
     </div>
 
   </a>
-
+  <div class="d-flex justify-content-end">
+    <div style="position:absolute; border-radius: 50%;right:38px; width:60px; height: 60px;background-color: var(--lavender-web, #D0DDF0);      ;"
+      class="d-flex align-items-center border-0">
+      <p style="color: var(--green-blue, #2268AA); font-size: 30px; margin-left: -13px;
+      "> <i (click)='openModal(leaveComment)' class="mt-2 fa-solid fa-comments" title="Leave A Comment"></i></p>
+    </div>
+  </div>
 </div>
+<ng-template #leaveComment>
+  <div class="">
+    <div class="row">
+      <div class="col-12">
+        <div class="">
+          <div class="card-header d-flex justify-content-between" style="background-color: #d0ddf0; font-family: 'Mulish'; font-weight: 900; border-radius:4px;">
+            <h4 class="text-start p-2 mt-2" style="color: #6D36A8; font-size: 23px;">Talk to Customer Care</h4>
+            <div style="color: #6D36A8;">
+              <button type="button "  class="mt-3 p-2 btn-close"  (click)="closeModal()" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+          </div>
+          <article class="">
+            <p *ngIf="errorMessage" class="text-danger">{{errorMessage}}</p>
+            <form class="mt-1" [formGroup]="form" (ngSubmit)="onleaveComment()" class="row px-3">
+              <div class="tab-content col-12 border-0">
+                <div class="form-group mt-2">
+                  <input formControlName="name" type="text" class="form-control validation-field border-0" id="name"
+                    placeholder="Your Name or Company*">
+                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+                </div>
+                <div class="form-group mt-2">
+                  <input formControlName="email" type="email" class="form-control validation-field border-0" id="email"
+                    placeholder="Your email address*">
+                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+                </div>
+                <div class="form-group mt-2">
+                  <input type="text" name="tel" formControlName="phoneNumber" id="phoneNumber"
+                    placeholder="Phone Number*" class="form-control validation-field border-0" ng2TelInput
+                    data-initial-country="ke">
+                  <!-- <input formControlName="phoneNumber" id="phoneNumber" type="text"  placeholder="Phone Number*" class="form-control validation-field border-0"
+                    id="purpose" placeholder="Your Phone No,"> -->
+                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+                </div>
+                <div class="form-group mt-2">
+                  <input formControlName="subject" type="text" class="form-control validation-field border-0" id="subject"
+                    placeholder="Subject">
+                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+                </div>
+                <div class="form-group mt-2">
+                  <textarea formControlName="message"  type="text" id="message" cols="15" rows="3"  placeholder="Message" class="form-control validation-field border-0"></textarea>
+                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+                </div>
+                <div class="col-12 bg-white text-center py-1 mt-3 mb-2">
+                  <button style="width: 100%; border: none;"
+                    class="btn btn-block login-btn transition" type="submit">
+                    <span style="color: white;">SEND</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </article>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>

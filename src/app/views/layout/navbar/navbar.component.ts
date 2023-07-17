@@ -30,7 +30,7 @@ export class NavbarComponent implements OnInit {
   profile:string | null;
   companyRegistrationDate: string | null;
   county: string | null;
-  taxPin: string | null;
+  contactPerson: string | null;
   logo: string | null;
 
   public modalRef: NgbModalRef;
@@ -103,7 +103,7 @@ export class NavbarComponent implements OnInit {
       profile: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['name']  : "Eka Hotel Nairobi",
       companyRegistrationDate: "24-12-1999",
       county: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['location']  : "Nairobi",
-      taxPin: "A029384794G",
+      contactPerson: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['contactPerson']  : "Sayia Felix",
     };
     if (userDetails) {
       this.companyEmail = userDetails['companyEmail'];
@@ -111,7 +111,7 @@ export class NavbarComponent implements OnInit {
       this.profile = userDetails['profile'];
       this.companyRegistrationDate = userDetails['companyRegistrationDate'];
       this.county = userDetails['county'];
-      this.taxPin = userDetails['taxPin'];
+      this.contactPerson = userDetails['contactPerson'];
       this.logo =
         'https://images.unsplash.com/photo-151740421573-15263e9f9178?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80';
 
@@ -126,6 +126,7 @@ export class NavbarComponent implements OnInit {
             this.profile = resp[0]['enterpriseName'];
             this.companyRegistrationDate = resp[0]['enterpriseName'];
             this.county = resp[0]['country'];
+            this.contactPerson = resp[0]['contactPerson'];
             return resp[0];
           }
         })
