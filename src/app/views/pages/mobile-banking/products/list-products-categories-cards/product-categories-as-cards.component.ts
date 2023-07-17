@@ -33,8 +33,8 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
   tempProductData = [
     {
       'Id': "1",
-      'request_category': "STO_START",
-      'refNumber': 'REF0000',
+      'requestType': "ACCREDITATION",
+      'ref_number': 'REQ0000',
       'createdOn': "2023-02-12",
       'status': "Pending",
     }
