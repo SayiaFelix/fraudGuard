@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 
-import { NgbDateStruct, NgbCalendar } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDateStruct, NgbCalendar, NgbActiveModal, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { CustomValidators } from 'ngx-custom-validators';
 
 @Component({
   selector: 'app-dashboard',
@@ -9,7 +12,12 @@ import { NgbDateStruct, NgbCalendar } from '@ng-bootstrap/ng-bootstrap';
   preserveWhitespaces: true
 })
 export class DashboardComponent implements OnInit {
-
+  public form: FormGroup;
+  errorMsg: string;
+  hasError: boolean = false;
+  isLoading: boolean = false;
+  errorMessage: string;
+  modalRef: NgbModalRef;
   /**
    * Apex chart
    */
@@ -42,7 +50,19 @@ export class DashboardComponent implements OnInit {
    */
   currentDate: NgbDateStruct;
 
-  constructor(private calendar: NgbCalendar) {}
+  constructor(private calendar: NgbCalendar,
+    fb: FormBuilder,
+    private _router: Router,
+    public modal: NgbModal,
+    public activeModal: NgbActiveModal,) {
+      this.form = fb.group({
+        email: ['',Validators.compose([Validators.required, CustomValidators.email])],
+        subject: ['',Validators.compose([Validators.required])],
+        message: ["", Validators.compose([Validators.required])],
+        name: ["", Validators.compose([Validators.required])],
+        phoneNumber: ["", Validators.compose([Validators.required])],
+      });
+    }
 
   ngOnInit(): void {
     this.currentDate = this.calendar.getToday();
@@ -60,7 +80,63 @@ export class DashboardComponent implements OnInit {
     }
 
   }
-
+  onleaveComment() {
+    // this.hasError = false;
+    // this.isLoading = true;
+    // e.preventDefault();
+  
+    // const model = new HttpParams()
+    //   // .set('grant_type', 'password')
+    //   .set('username', this.form.value.username.trim())
+    //   .set('password', this.form.value.password);
+  
+    // this.loginResponse$ = this.httpService
+    //   .channelManagerLogin('oauth/token', model)
+    //   .pipe(
+    //     catchError((error: any) => {
+    //       console.log(error);
+    //       this.hasError = error.message;
+    //       this.isLoading = false;
+    //       return throwError(error);
+    //     }),
+    //     map((result) => {
+    //       this.isLoading = false;
+    //       if (result['status'] != 200) {
+    //         this.hasError = true;
+    //         this.errorMsg = result['message'];
+    //         setTimeout(() => {
+    //           this.hasError = false;
+    //           this.errorMsg = '';
+    //           this.form.reset();
+    //         }, 4000);
+    //       } else {
+    //         setTimeout(() => {
+  
+    //           this.saveUsernameAndRolesOnLogin();
+  
+    //           if(result.firstTimeLogin) {
+    //             this.router.navigate(['/auth/first-time-login']);
+    //           } else{
+    //             this.router.navigate(['/dashboard']);
+    //           }
+  
+    //         }, 1000);
+    //         return result;
+    //       }
+    //     })
+    //   );
+  }
+  
+  openModal(modalContent: any) {
+    this.modalRef = this.modal.open(modalContent, {centered: true, size:"md"});
+  }
+  // closeModal() {
+  //   this.activeModal.close();
+  // }
+  public closeModal(): void {
+    this.activeModal.dismiss('Cross click');
+  }
+  
 
   /**
    * Only for RTL (feel free to remove if you are using LTR)
@@ -107,7 +183,6 @@ function getCustomerseChartOptions(obj: any) {
     },
   }
 };
-
 
 
 /**

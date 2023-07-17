@@ -1,29 +1,136 @@
 <div class="d-flex justify-content-between align-items-center flex-wrap grid-margin mt-3">
   <div>
-<!--    <h4 class="mb-3 mb-md-0">Welcome to Dashboard</h4>-->
-    <h4 class="mb-3 mb-md-0">{{"welcomeDashboardMessage" | translate}}</h4>
-
+    <h4 class="mb-3 mb-md-0" style="color: var(--dark-purple, #1E0F2E);font-family: Muli;font-size: 20px;font-style: normal;font-weight: 700;line-height: 26px; ">Unlocking Efficiency with Customer Care Self Service</h4>
   </div>
-  <!-- <div class="d-flex align-items-center flex-wrap text-nowrap">
-    <div class="input-group wd-200 me-2 mb-2 mb-md-0">
-      <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="d.toggle()">
-        <i data-feather="calendar" appFeatherIcon></i>
-      </button>
-      <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd"
-          name="dp" [(ngModel)]="currentDate" ngbDatepicker #d="ngbDatepicker">
-    </div>
-    <button type="button" class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0 btn-xs">
-      <i class="btn-icon-prepend" data-feather="printer" appFeatherIcon></i>
-      Print
-    </button>
-    <button type="button" class="btn btn-primary btn-icon-text mb-2 mb-md-0 btn-xs">
-      <i class="btn-icon-prepend" data-feather="download-cloud" appFeatherIcon></i>
-      Download Report
-    </button>
-  </div> -->
 </div>
 
-<div class="row">
+<div class="card" style="position: relative;">
+  <div class="row">
+    <div class="col-md-12 col-lg-12 col-xl-12 col-sm-12">
+      <div class="card border-0 box-shadow">
+         <img class="card-img-top img-fluid" style="max-width:100% ; height: 350px ; border-radius: 16px;" src="assets/images/serena.jpeg" />
+      </div>
+    </div>
+  </div>
+
+  <div style=" position:absolute; padding: 16px 24px; align-items: center; border-radius: 16px; background: #FFF; width: 90%; margin-left: 5%; margin-top: 30%;">
+    <div class="d-flex justify-content-between" >
+      <div class="mt-2 p-2" style="border-right: 2px solid  rgba(182, 147, 220, 0.80);">
+        <div class="box-shadow" style="height: 95px ; width: 95px; border-radius: 50%;border: 2px solid #CCC; align-items: center;" >
+          <img class="card-img-top img-fluid" style="height: 63px; width: 75px; border-radius: 25%; margin-left: 8px; margin-top: 9px;" src="assets/images/ns.jpg" />
+       </div>
+      </div>
+      <div>
+        <p class="title">Enterprise</p>
+        <h2 class="content">Type of Enterprise</h2>
+      </div>
+      <div>
+        <p class="title">Facility</p>
+        <h2 class="content">Type of Facility</h2>
+      </div>
+      <div>
+        <p class="title">Email</p>
+        <h2 class="content">nairobi@serenahotels.com</h2>
+      </div>
+      <div>
+        <p class="title">Phone</p>
+        <h2 class="content">(+254) 732 124000</h2>
+      </div>
+    </div>
+  </div>
+
+  <div style="align-items: center; border-radius: 16px; background: #D0DDF0; width: 90%; margin-left: 5%; margin-top: 10%;">
+    <div class="d-flex justify-content-between" style="padding: 24px 24px;" >
+      <div>
+        <div class="card border-0 box-shadow" style="height: 100px ; width: 150px;" >
+          <img class="card-img-top img-fluid" style="height: 100px; width: 150px;" src="assets/images/certificate.png" />
+       </div>
+      </div>
+      <div style="font-family: Mulish;font-style: normal;font-weight: 600;line-height: normal;">
+        <p style="color: var(--dark-purple, #1E0F2E);font-size: 15px;">LIC.NO 29BC4XYZ89</p>
+        <h2 style="color: var(--green-blue, #2268AA);font-size: 17px;">Tourism Regulatory Authority (TRA) Licence Certificate Earned</h2>
+        <h4 style="color: var(--dark-purple, #1E0F2E);font-size: 17px;">Certificate expires | 24th September 2024 </h4>
+      </div>
+      <div style="margin-top: 3%;">
+        <button class="btn btn-md login-btn transition"  type="submit">
+          <a  style="text-decoration: none" class="transition">
+            <span style="color: #f8f8f8; font-weight: 700;letter-spacing: 0.08em;font-size: 12px;
+            ">DOWNLOAD</span></a>
+        </button>
+      </div>
+    </div>
+  </div>
+  <br><br><br>
+  <div class="d-flex justify-content-end">
+    <div
+      style="position:absolute; border-radius: 50%;right:38px; width:60px; height: 60px;background-color: var(--lavender-web, #D0DDF0);      ;"
+      class="card-header d-flex align-items-center border-0">
+      <p style="color: var(--green-blue, #2268AA); font-size: 30px; margin-left: -13px;
+      "> <i (click)='openModal(leaveComment)' class="mt-2 fa-solid fa-comments" title="Leave A Comment"></i></p>
+    </div>
+  </div>
+</div>
+<ng-template #leaveComment>
+  <div class="">
+    <div class="row">
+      <div class="col-12">
+        <div class="">
+          <div class="card-header d-flex justify-content-between" style="background-color: #d0ddf0; font-family: 'Mulish'; font-weight: 900; border-radius:4px;">
+            <h4 class="text-start p-2 mt-2" style="color: #6D36A8; font-size: 23px;">Talk to Customer Care</h4>
+            <div style="color: #6D36A8;">
+              <button type="button "  class="mt-3 p-2 btn-close"  (click)="closeModal()" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+          </div>
+          <article class="">
+            <p *ngIf="errorMessage" class="text-danger">{{errorMessage}}</p>
+            <form class="mt-1" [formGroup]="form" (ngSubmit)="onleaveComment()" class="row px-3">
+              <div class="tab-content col-12 border-0">
+                <div class="form-group mt-2">
+                  <input formControlName="name" type="text" class="form-control validation-field border-0" id="name"
+                    placeholder="Your Name or Company*">
+                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+                </div>
+                <div class="form-group mt-2">
+                  <input formControlName="email" type="email" class="form-control validation-field border-0" id="email"
+                    placeholder="Your email address*">
+                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+                </div>
+                <div class="form-group mt-2">
+                  <input type="text" name="tel" formControlName="phoneNumber" id="phoneNumber"
+                    placeholder="Phone Number*" class="form-control validation-field border-0" ng2TelInput
+                    data-initial-country="ke">
+                  <!-- <input formControlName="phoneNumber" id="phoneNumber" type="text"  placeholder="Phone Number*" class="form-control validation-field border-0"
+                    id="purpose" placeholder="Your Phone No,"> -->
+                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+                </div>
+                <div class="form-group mt-2">
+                  <input formControlName="subject" type="text" class="form-control validation-field border-0" id="subject"
+                    placeholder="Subject">
+                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+                </div>
+                <div class="form-group mt-2">
+                  <textarea formControlName="message"  type="text" id="message" cols="15" rows="3"  placeholder="Message" class="form-control validation-field border-0"></textarea>
+                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+                </div>
+                <div class="col-12 bg-white text-center py-1 mt-3 mb-2">
+                  <button style="width: 100%; border: none;"
+                    class="btn btn-block login-btn transition" type="submit">
+                    <span style="color: white;">SEND</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </article>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+<br><br><br>
+
+
+
+<!-- <div class="row">
   <div class="col-12 col-xl-12 stretch-card mt-1">
     <div class="row flex-grow-1">
       <div class="col-md-4 grid-margin stretch-card">
@@ -159,7 +266,7 @@
       </div>
     </div>
   </div>
-</div> <!-- row -->
+</div> <!-- row --
 
 <div class="row">
   <div class="col-12 col-xl-12 grid-margin stretch-card">
@@ -192,7 +299,7 @@
               <button type="button" class="btn btn-primary">Month</button>
               <button type="button" class="btn btn-outline-primary">Year</button>
             </div>
-          </div> -->
+          </div> --
         </div>
         <div class="flot-wrapper">
           <apx-chart
@@ -209,7 +316,8 @@
       </div>
     </div>
   </div>
-</div> <!-- row -->
+</div> -->
+ <!-- row -->
 
 <!-- <div class="row">
   <div class="col-lg-7 col-xl-8 grid-margin stretch-card">
