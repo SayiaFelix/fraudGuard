@@ -1,0 +1,24 @@
+.title{
+color: var(--dark-purple, #1E0F2E);
+font-family: Mulish;
+font-size: 15px;
+font-style: normal;
+font-weight: 400;
+line-height: normal;
+}
+
+.content{
+overflow: hidden;
+color: var(--dark-purple, #1E0F2E);
+text-overflow: ellipsis;
+font-family: Mulish;
+font-size: 18px;
+font-style: normal;
+font-weight: 600;
+line-height: normal;
+}
+.login-btn {
+    color: #ffffff;
+    background-color: #F7941D;
+    border-radius: 64px;
+  }

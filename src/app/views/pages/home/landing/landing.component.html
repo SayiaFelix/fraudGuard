@@ -45,13 +45,12 @@
   <div class="card">
     <div class="row">
       <div class="col-md-12 col-lg-12 col-xl-12 col-sm-12">
-        <!-- <img class="card-img-top img-fluid" src="assets/images/7.jpg" /> -->
         <div class="card border-0 box-shadow" style="max-width:100% ; height: auto;">
           <div class="">
             <owl-carousel-o [options]="autoPlayOptions">
               <ng-template carouselSlide [width]="629"  *ngFor="let slide of slidesStore" [id]="slide.id">
-                <div class="w-100 h-90">
-                  <img class="card-img-top img-fluid" style="width: 100%; height: auto;" [src]="slide.src"
+                <div class="w-100">
+                  <img class="card-img-top img-fluid" style="width: 100%;" [src]="slide.src"
                     [title]="slide.title">
                 </div>
               </ng-template>
@@ -198,7 +197,6 @@
         <!-- <img   (click)='openModal(leaveComment)' class="img-fluid"  style="height: 25px ;" src="assets/images/chat.png" alt="logo" /> -->
         <p style="color: #F8F8F8; font-size: 30px; margin-left: -13px;
         "> <i (click)='openModal(leaveComment)' class="mt-2 fa-solid fa-comments" title="Leave A Comment"></i></p>
-  
       </div>
     </div>
   </div>
