@@ -157,7 +157,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
   }
 
   navigateToViewUssdCustomer(data: any) {
-    this.router.navigateByUrl(`tra-client/accreditations/view/${data.id}`);
+    this.router.navigateByUrl(`tra-client/requests/view/${data.id}`);
   }
 
   toggleExpandRow(row: any) {

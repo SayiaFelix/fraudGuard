@@ -30,7 +30,7 @@ const routes: Routes = [
       },
 
       {
-        path: 'accreditations',
+        path: 'requests',
         loadChildren: () =>
           import('./products/products.module').then((m) => m.ProductsModule),
       },
