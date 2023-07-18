@@ -1,58 +1,341 @@
-<div>
-    <div class="modal-header">
-      <h5 class="modal-title" id="exampleModalLabel">{{title}}</h5>
-      <button (click)="closeModal()" aria-label="Close" class="btn-close" type="button"></button>
-    </div>
-    <div class="modal-body" [formGroup]="form">
-      <div class="row">
-        <div class="col-sm-12">
-          <div class="mb-3">
-            <label class="form-label fw-bold">Benefit</label>
-            <input class="form-control" formControlName="benefit" type="text" />
-            <small
-              *ngIf="
-              form.get('benefit')?.touched &&
-              form.get('benefit')?.hasError('required')"
-              class="text-danger"
-            >Required Field</small
-            >
-          </div>
-        </div>
-        <div class="col-sm-12">
-          <div class="mb-3">
-            <label class="form-label fw-bold">Benefit Code</label>
-            <input class="form-control" formControlName="benefitCode" type="text" />
-            <small
-              *ngIf="
-              form.get('benefitCode')?.touched &&
-              form.get('benefitCode')?.hasError('required')"
-              class="text-danger"
-            >Required Field</small>
-          </div>
-        </div>
-        <div class="col-sm-12">
-          <div class="mb-3">
-            <label class="form-label fw-bold">Benefit Description</label>
-            <input class="form-control" formControlName="description" type="text" />
-            <small
-              *ngIf="
-              form.get('description')?.touched &&
-              form.get('description')?.hasError('required')"
-              class="text-danger"
-            >Required Field</small>
-          </div>
-          <p *ngIf="isLoading"><ngb-progressbar type="primary" [value]="95" [striped]="true" [animated]="true"></ngb-progressbar></p>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
+<div class="d-flex justify-content-between align-items-center flex-wrap grid-margin p-2">
+  <div>
+    <h4 class="mb-3 mb-md-0"
+      style="color: var(--dark-purple, #1E0F2E);font-family: Muli;font-size: 20px;font-style: normal;font-weight: 700;line-height: 26px; ">
+      My Request | New Pre- Qualification Assessment Checklist</h4>
+  </div>
+</div>
 
-<!--      {{this.formData | json}}-->
-      <button (click)="closeModal()" class="btn btn-secondary" type="button">Close</button>
-      <button (click)="submitData()" class="btn btn-primary" type="button" *ngIf="!this.formData">Add Benefit</button>
-      <button (click)="submitData()" class="btn btn-primary" type="button" *ngIf="this.formData">Edit Benefit</button>
-      <!-- [disabled]="!form.valid || isLoading" -->
+<div class="card" style="position: relative; margin-top:-1%; margin-bottom: 70%;">
+  <div class="row">
+    <div class="col-md-12 col-lg-12 col-xl-12 col-sm-12">
+      <div class="box-shadow">
+        <img class="card-img-top img-fluid" style="max-width:100% ; height: 250px ; border-radius: 16px;"
+          src="assets/images/requests.png" />
+      </div>
     </div>
   </div>
 
+  <div
+    style="position:absolute; padding: 16px 24px; border-radius: 16px; background: #FFF; width: 90%; margin-left: 5%; margin-top: 21%;">
+    <div>
+      <h1
+        style="color: var(--grape-tra, #6D36A8);font-family: Mulish;font-size: 20px;font-style: normal;font-weight: 700;line-height: 24px;">
+        New Pre- Qualification Assessment Checklist
+      </h1>
 
+      <div class="mt-2">
+        <h3 class="quiz">01. Occupational Permit: Does the hotel have approved (a) Building Plan?</h3>
+        <div class="d-flex justify-content-between">
+          <p class="sub-quiz">Compliant with the building law</p>
+          <div class="d-flex justify-content-between">
+            <div class="form-group" style="margin-right: 18px;">
+              <input type="checkbox" class="custom-control-input" id="Yes">
+              <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+            </div>
+            <div class="form-group">
+              <input type="checkbox" class="custom-control-input" id="No">
+              <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-between">
+          <p class="sub-quiz">Copy availability</p>
+          <div class="d-flex justify-content-evenly">
+            <div class="form-group" style="margin-right: 15px;">
+              <input type="checkbox" class="custom-control-input" id="Yes">
+              <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+            </div>
+            <div class="form-group">
+              <input type="checkbox" class="custom-control-input" id="No">
+              <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+            </div>
+          </div>
+        </div>
+        <div class="form-group mt-2">
+          <textarea formControlName="" type="text" id="message" cols="13" rows="2"
+            class="form-control validation-field text"></textarea>
+          <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+        </div>
+
+      </div>
+
+      <div class="mt-4">
+        <h3 class="quiz">02. Occupational Permit: Does the hotel have approved Building Plan?</h3>
+        <div class="d-flex justify-content-between">
+          <p class="sub-quiz">Compliant with the building law</p>
+          <div class="d-flex justify-content-between">
+            <div class="form-group" style="margin-right: 18px;">
+              <input type="checkbox" class="custom-control-input" id="Yes">
+              <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+            </div>
+            <div class="form-group">
+              <input type="checkbox" class="custom-control-input" id="No">
+              <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-between">
+          <p class="sub-quiz">Copy availability</p>
+          <div class="d-flex justify-content-evenly">
+            <div class="form-group" style="margin-right: 15px;">
+              <input type="checkbox" class="custom-control-input" id="Yes">
+              <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+            </div>
+            <div class="form-group">
+              <input type="checkbox" class="custom-control-input" id="No">
+              <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+            </div>
+          </div>
+        </div>
+        <div class="form-group mt-2">
+          <textarea formControlName="" type="text" id="message" cols="13" rows="2"
+            class="form-control validation-field text"></textarea>
+          <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+        </div>
+
+      </div>
+
+      <div class="mt-4">
+        <h3 class="quiz">03. Drainage Are there adequate & functional drains especially within and around the Kitchen
+          area? Connected to main drainage systems, properly covered & have provision for grease trap? </h3>
+        <div class="d-flex justify-content-between">
+          <p class="sub-quiz">Compliant with the public health Act & the building code </p>
+          <div class="d-flex justify-content-between">
+            <div class="form-group" style="margin-right: 18px;">
+              <input type="checkbox" class="custom-control-input" id="Yes">
+              <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+            </div>
+            <div class="form-group">
+              <input type="checkbox" class="custom-control-input" id="No">
+              <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-between">
+          <p class="sub-quiz">Functionality </p>
+          <div class="d-flex justify-content-evenly">
+            <div class="form-group" style="margin-right: 15px;">
+              <input type="checkbox" class="custom-control-input" id="Yes">
+              <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+            </div>
+            <div class="form-group">
+              <input type="checkbox" class="custom-control-input" id="No">
+              <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-between">
+          <p class="sub-quiz">Good state of Repair /Maintenance </p>
+          <div class="d-flex justify-content-evenly">
+            <div class="form-group" style="margin-right: 15px;">
+              <input type="checkbox" class="custom-control-input" id="Yes">
+              <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+            </div>
+            <div class="form-group">
+              <input type="checkbox" class="custom-control-input" id="No">
+              <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+            </div>
+          </div>
+        </div>
+        <div class="form-group mt-2">
+          <textarea formControlName="" type="text" id="message" cols="13" rows="2"
+            class="form-control validation-field text"></textarea>
+          <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+        </div>
+
+      </div>
+
+      <div class="mt-4">
+        <h3 class="quiz">04. EIA/Environmental Audit Reports Does the hotel have a certified EIA and/or current EA
+          report? </h3>
+        <div class="d-flex justify-content-between">
+          <p class="sub-quiz">Compliant EMCA Act </p>
+          <div class="d-flex justify-content-between">
+            <div class="form-group" style="margin-right: 18px;">
+              <input type="checkbox" class="custom-control-input" id="Yes">
+              <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+            </div>
+            <div class="form-group">
+              <input type="checkbox" class="custom-control-input" id="No">
+              <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-between">
+          <p class="sub-quiz">Copy availability</p>
+          <div class="d-flex justify-content-evenly">
+            <div class="form-group" style="margin-right: 15px;">
+              <input type="checkbox" class="custom-control-input" id="Yes">
+              <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+            </div>
+            <div class="form-group">
+              <input type="checkbox" class="custom-control-input" id="No">
+              <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+            </div>
+          </div>
+        </div>
+        <div class="form-group mt-2">
+          <textarea formControlName="" type="text" id="message" cols="13" rows="2"
+            class="form-control validation-field text"></textarea>
+          <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <h3 class="quiz">05. Room Designation If a hotel, are the rooms clearly designated? With signs showing the
+          location of rooms in the hotel? </h3>
+        <div class="d-flex justify-content-between">
+          <p class="sub-quiz">Guest rooms numbered </p>
+          <div class="d-flex justify-content-between">
+            <div class="form-group" style="margin-right: 18px;">
+              <input type="checkbox" class="custom-control-input" id="Yes">
+              <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+            </div>
+            <div class="form-group">
+              <input type="checkbox" class="custom-control-input" id="No">
+              <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-between">
+          <p class="sub-quiz">Functional & stylish </p>
+          <div class="d-flex justify-content-evenly">
+            <div class="form-group" style="margin-right: 15px;">
+              <input type="checkbox" class="custom-control-input" id="Yes">
+              <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+            </div>
+            <div class="form-group">
+              <input type="checkbox" class="custom-control-input" id="No">
+              <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-between">
+          <p class="sub-quiz">Good State of Repair /Maintenance </p>
+          <div class="d-flex justify-content-evenly">
+            <div class="form-group" style="margin-right: 15px;">
+              <input type="checkbox" class="custom-control-input" id="Yes">
+              <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+            </div>
+            <div class="form-group">
+              <input type="checkbox" class="custom-control-input" id="No">
+              <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+            </div>
+          </div>
+        </div>
+        <div class="form-group mt-2">
+          <textarea formControlName="" type="text" id="message" cols="13" rows="2"
+            class="form-control validation-field text"></textarea>
+          <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <h3 class="quiz">06. Room Designation: If a hotel, are the rooms clearly designated? With signs showing the
+          location of rooms in the hotel?</h3>
+        <div class="d-flex justify-content-between">
+          <p class="sub-quiz">Guest rooms numbered</p>
+          <div class="d-flex justify-content-between">
+            <div class="form-group" style="margin-right: 18px;">
+              <input type="checkbox" class="custom-control-input" id="Yes">
+              <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+            </div>
+            <div class="form-group">
+              <input type="checkbox" class="custom-control-input" id="No">
+              <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-between">
+          <p class="sub-quiz">Functional & stylish</p>
+          <div class="d-flex justify-content-evenly">
+            <div class="form-group" style="margin-right: 15px;">
+              <input type="checkbox" class="custom-control-input" id="Yes">
+              <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+            </div>
+            <div class="form-group">
+              <input type="checkbox" class="custom-control-input" id="No">
+              <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-between">
+          <p class="sub-quiz">Good State of Repair /Maintenance</p>
+          <div class="d-flex justify-content-evenly">
+            <div class="form-group" style="margin-right: 15px;">
+              <input type="checkbox" class="custom-control-input" id="Yes">
+              <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+            </div>
+            <div class="form-group">
+              <input type="checkbox" class="custom-control-input" id="No">
+              <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+            </div>
+          </div>
+        </div>
+        <div class="form-group mt-2">
+          <textarea formControlName="" type="text" id="message" cols="13" rows="2"
+            class="form-control validation-field text"></textarea>
+          <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+        </div>
+
+      </div>
+
+      <div class="mt-4">
+        <h3 class="quiz">07. Safe Deposit: Is there provision for any form safe deposit, either in the rooms or
+          centrally placed? Are guests informed?</h3>
+        <div class="d-flex justify-content-between">
+          <p class="sub-quiz">Availability & appropriately located </p>
+          <div class="d-flex justify-content-between">
+            <div class="form-group" style="margin-right: 18px;">
+              <input type="checkbox" class="custom-control-input" id="Yes">
+              <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+            </div>
+            <div class="form-group">
+              <input type="checkbox" class="custom-control-input" id="No">
+              <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-between">
+          <p class="sub-quiz">Functionality</p>
+          <div class="d-flex justify-content-evenly">
+            <div class="form-group" style="margin-right: 15px;">
+              <input type="checkbox" class="custom-control-input" id="Yes">
+              <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+            </div>
+            <div class="form-group">
+              <input type="checkbox" class="custom-control-input" id="No">
+              <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-between">
+          <p class="sub-quiz">Good State of Repair /Maintenance</p>
+          <div class="d-flex justify-content-evenly">
+            <div class="form-group" style="margin-right: 15px;">
+              <input type="checkbox" class="custom-control-input" id="Yes">
+              <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+            </div>
+            <div class="form-group">
+              <input type="checkbox" class="custom-control-input" id="No">
+              <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+            </div>
+          </div>
+        </div>
+        <div class="form-group mt-2">
+          <textarea formControlName="" type="text" id="message" cols="13" rows="2"
+            class="form-control validation-field text"></textarea>
+          <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+        </div>
+
+      </div>
+
+      <!-- <button class="btn btn-md login-btn transition mt-1" type="submit">
+        <a style="text-decoration: none" routerLink="/tra-client/requests/addRequest" class="transition">
+          <span style="color: #f8f8f8; font-weight: 700;letter-spacing: 0.08em;font-size: 12px;
+            ">NEW REQUEST</span></a>
+      </button> -->
+    </div>
+  </div>
+</div>

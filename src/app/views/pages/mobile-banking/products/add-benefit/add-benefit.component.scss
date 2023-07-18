@@ -1,4 +1,40 @@
 .atma-danger {
-    background-color: #d51317;
-    color: white;
+  background-color: #d51317;
+  color: white;
+}
+.quiz {
+  color: var(--green-blue, #2268aa);
+  font-family: Mulish;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 23px;
+}
+.sub-quiz {
+  color: #000;
+  font-family: Mulish;
+  font-size: 17px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 22px;
+  margin-left: 3%;
+}
+.quiz-check {
+  color: var(--green-blue, #2268aa);
+  font-family: Mulish;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 600;
+}
+.custom-control-input {
+  border-radius: 4px;
+  margin-right: 8px;
+  border: 2px solid var(--lavender-web, #d0ddf0);
+}
+
+.text {
+  border-radius: 4px;
+  border: 1px solid var(--lavender-web, #d0ddf0);
+  background: var(--white, #fff);
+  margin-left: 3%;
 }

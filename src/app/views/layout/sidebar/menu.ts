@@ -49,12 +49,12 @@ export const MENU: MenuItem[] = [
       {
         // profiles: ['CORPORATE_ADMIN'],
         label: 'All Requests',
-        link: '/tra-client/accreditations/all'
+        link: '/tra-client/requests/all'
       },
       // {
       //   // profiles: ['CORPORATE_ADMIN'],
       //   label: 'All Requests',
-      //   link: '/tra-client/accreditations/all-accreditations'
+      //   link: '/tra-client/requests/all-accreditations'
       // },
     ]
   },
