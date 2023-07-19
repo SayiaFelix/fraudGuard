@@ -13,20 +13,26 @@ stages:
 
 buildBaseImage:
   stage: preBuild
+  tags:
+    - angular
   image:
-    name: gcr.io/kaniko-project/executor:debug
-    entrypoint: [""]
+    name: node:16.16.0
   script:
-    - /kaniko/executor
-      --context "$PWD"
-      --dockerfile "builder.Dockerfile"
-      --destination "devops-registry.ekenya.co.ke/tra-project/customer-portal-builder:latest"
-  only:
-    changes:
-      - package.json
+    - npm install -g @angular/cli@14.2.9
+    - yarn install
+    - ng build --configuration production --base-href /tra-customer-portal/ --deploy-url /tra-customer-portal/
+  artifacts:
+    paths:
+      - dist/
+      - package*.json
+    expire_in: 1 week
+    when: always
 
 buildImage:
   stage: build
+  needs:
+    - job: buildBaseImage
+      artifacts: true
   image: 
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
