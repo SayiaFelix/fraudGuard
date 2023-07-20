@@ -6,27 +6,38 @@ workflow:
 .curl_template: &trigger_awx_deploy_to_testing |
  curl --insecure --header "X-Gitlab-Token: $AWX_WEBHOOK_KEY" -X POST $AWX_WEBHOOK_URL -H "Content-Type: application/json" -d '{"ci_commit_sha" : "'"$CI_COMMIT_SHA"'", "deploy_environment" : "'"$DEPLOY_ENVIRONMENT"'", "tag" : "false", "deploy_branch" : "'"$DEPLOY_BRANCH"'" }'
 
+.notify_teams: &notify_teams |
+ curl --insecure -X POST -H "Content-Type: application/json" -d '{ "title": "TRA Deployment Notification Test ", "appName": "Customer Portal", "description": "'"$GITLAB_USER_NAME"' committed: '"$CI_COMMIT_TITLE"'" , "notificationUrl": "https://test-portal.ekenya.co.ke/tra-customer-portal", "targetGroupChatId":"19:5289d22e5e894a499db1f713ce1a980d@thread.v2"}' $TEAMS_NOTIFICATION_API
+
+
 stages:
   - preBuild
   - build
   - deploy
+  - notify
 
 buildBaseImage:
   stage: preBuild
+  tags:
+    - angular
   image:
-    name: gcr.io/kaniko-project/executor:debug
-    entrypoint: [""]
+    name: node:16.16.0
   script:
-    - /kaniko/executor
-      --context "$PWD"
-      --dockerfile "builder.Dockerfile"
-      --destination "devops-registry.ekenya.co.ke/tra-project/customer-portal-builder:latest"
-  only:
-    changes:
-      - package.json
+    - npm install -g @angular/cli@14.2.9
+    - yarn install
+    - ng build --configuration production --base-href /tra-customer-portal/ --deploy-url /tra-customer-portal/
+  artifacts:
+    paths:
+      - dist/
+      - package*.json
+    expire_in: 1 week
+    when: always
 
 buildImage:
   stage: build
+  needs:
+    - job: buildBaseImage
+      artifacts: true
   image: 
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
@@ -51,3 +62,13 @@ deploy-application:
         DEPLOY_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME          
   script:
     - *trigger_awx_deploy_to_testing
+
+notify-teams:
+  stage: notify
+  image: curlimages/curl:latest
+  needs:
+    - job: deploy-application
+      artifacts: true
+  script:
+    - sleep 600
+    - *notify_teams
