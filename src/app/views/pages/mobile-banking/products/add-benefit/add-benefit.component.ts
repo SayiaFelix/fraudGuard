@@ -5,18 +5,6 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpService } from 'src/app/shared/services/http.service';
 import Swal from 'sweetalert2';
 
-interface Question {
-  text: string;
-  subQuestions?: SubQuestion[]; // Include the subQuestions property
-}
-
-interface SubQuestion {
-  text: string;
-  options: string[];
-}
-
-
-
 @Component({
   selector: 'app-add-benefit',
   templateUrl: './add-benefit.component.html',
@@ -102,6 +90,112 @@ export class AddBenefitComponent implements OnInit {
         subQuestion4: new FormControl(false, Validators.required),
         subQuestion5: new FormControl(false, Validators.required),
         subQuestion6: new FormControl(false, Validators.required)
+      }),
+      question8: this.fb.group({
+        subQuestion1: new FormControl(false, Validators.required),
+        subQuestion2: new FormControl(false, Validators.required),
+        subQuestion3: new FormControl(false, Validators.required),
+        subQuestion4: new FormControl(false, Validators.required),
+        subQuestion5: new FormControl(false, Validators.required),
+        subQuestion6: new FormControl(false, Validators.required)
+      }),
+      question9: this.fb.group({
+        subQuestion1: new FormControl(false, Validators.required),
+        subQuestion2: new FormControl(false, Validators.required),
+        subQuestion3: new FormControl(false, Validators.required),
+        subQuestion4: new FormControl(false, Validators.required),
+        subQuestion5: new FormControl(false, Validators.required),
+        subQuestion6: new FormControl(false, Validators.required)
+      }),
+      question10: this.fb.group({
+        subQuestion1: new FormControl(false, Validators.required),
+        subQuestion2: new FormControl(false, Validators.required),
+        subQuestion3: new FormControl(false, Validators.required),
+        subQuestion4: new FormControl(false, Validators.required),
+        subQuestion5: new FormControl(false, Validators.required),
+        subQuestion6: new FormControl(false, Validators.required)
+      }),
+      question11: this.fb.group({
+        subQuestion1: new FormControl(false, Validators.required),
+        subQuestion2: new FormControl(false, Validators.required),
+        subQuestion3: new FormControl(false, Validators.required),
+        subQuestion4: new FormControl(false, Validators.required)
+      }),
+      question12: this.fb.group({
+        subQuestion1: new FormControl(false, Validators.required),
+        subQuestion2: new FormControl(false, Validators.required),
+        subQuestion3: new FormControl(false, Validators.required),
+        subQuestion4: new FormControl(false, Validators.required),
+        subQuestion5: new FormControl(false, Validators.required),
+        subQuestion6: new FormControl(false, Validators.required)
+      }),
+      question13: this.fb.group({
+        subQuestion1: new FormControl(false, Validators.required),
+        subQuestion2: new FormControl(false, Validators.required),
+        subQuestion3: new FormControl(false, Validators.required),
+        subQuestion4: new FormControl(false, Validators.required),
+        subQuestion5: new FormControl(false, Validators.required),
+        subQuestion6: new FormControl(false, Validators.required)
+      }),
+      question14: this.fb.group({
+        subQuestion1: new FormControl(false, Validators.required),
+        subQuestion2: new FormControl(false, Validators.required),
+        subQuestion3: new FormControl(false, Validators.required),
+        subQuestion4: new FormControl(false, Validators.required),
+        subQuestion5: new FormControl(false, Validators.required),
+        subQuestion6: new FormControl(false, Validators.required)
+      }),
+      question15: this.fb.group({
+        subQuestion1: new FormControl(false, Validators.required),
+        subQuestion2: new FormControl(false, Validators.required),
+        subQuestion3: new FormControl(false, Validators.required),
+        subQuestion4: new FormControl(false, Validators.required),
+        subQuestion5: new FormControl(false, Validators.required),
+        subQuestion6: new FormControl(false, Validators.required)
+      }),
+      question16: this.fb.group({
+        subQuestion1: new FormControl(false, Validators.required),
+        subQuestion2: new FormControl(false, Validators.required),
+        subQuestion3: new FormControl(false, Validators.required),
+        subQuestion4: new FormControl(false, Validators.required),
+      }),
+      question17: this.fb.group({
+        subQuestion1: new FormControl(false, Validators.required),
+        subQuestion2: new FormControl(false, Validators.required),
+        subQuestion3: new FormControl(false, Validators.required),
+        subQuestion4: new FormControl(false, Validators.required),
+        subQuestion5: new FormControl(false, Validators.required),
+        subQuestion6: new FormControl(false, Validators.required)
+      }),
+      question18: this.fb.group({
+        subQuestion1: new FormControl(false, Validators.required),
+        subQuestion2: new FormControl(false, Validators.required),
+        subQuestion3: new FormControl(false, Validators.required),
+        subQuestion4: new FormControl(false, Validators.required),
+        subQuestion5: new FormControl(false, Validators.required),
+        subQuestion6: new FormControl(false, Validators.required)
+      }),
+      question19: this.fb.group({
+        subQuestion1: new FormControl(false, Validators.required),
+        subQuestion2: new FormControl(false, Validators.required),
+        subQuestion3: new FormControl(false, Validators.required),
+        subQuestion4: new FormControl(false, Validators.required),
+        subQuestion5: new FormControl(false, Validators.required),
+        subQuestion6: new FormControl(false, Validators.required)
+      }),
+      question20: this.fb.group({
+        subQuestion1: new FormControl(false, Validators.required),
+        subQuestion2: new FormControl(false, Validators.required),
+        subQuestion3: new FormControl(false, Validators.required),
+        subQuestion4: new FormControl(false, Validators.required),
+        subQuestion5: new FormControl(false, Validators.required),
+        subQuestion6: new FormControl(false, Validators.required)
+      }),
+      question21: this.fb.group({
+        subQuestion1: new FormControl(false, Validators.required),
+        subQuestion2: new FormControl(false, Validators.required),
+        subQuestion3: new FormControl(false, Validators.required),
+        subQuestion4: new FormControl(false, Validators.required),
       }),
       // Add more questions and sub-questions as needed
     });

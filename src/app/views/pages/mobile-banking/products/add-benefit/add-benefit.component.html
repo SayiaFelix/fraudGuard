@@ -25,10 +25,10 @@
       </h1>
 
       <form [formGroup]="form">
-
         <div class="mt-3">
           <h3 class="form-label quiz">Class Enterprise</h3>
-          <select class="form-select" id="class_name" (change)="checkFormValue($event)" name="class_name" formControlName="class_name">
+          <select class="form-select" id="class_name" (change)="checkFormValue($event)" name="class_name"
+            formControlName="class_name">
             <option *ngFor="let data of ClassData" [value]="data.id">
               {{data.class_name}}</option>
           </select>
@@ -85,7 +85,7 @@
               class="form-control validation-field text"></textarea>
           </div>
         </div>
-         <div class="mt-4">
+        <div class="mt-4">
           <h3 class="quiz">02. Occupational Permit: Does the hotel have approved Building Plan?</h3>
           <div class="d-flex justify-content-between">
             <p class="sub-quiz">Compliant with the building law</p>
@@ -373,6 +373,704 @@
           </div>
         </div>
 
+        <div class="mt-4">
+          <h3 class="quiz">08. Wash rooms/Guest Cloak rooms Is there a provision of public wash rooms for general hotel
+            guests? </h3>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz">Availability & appropriately located </p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question8', 'subQuestion1')"
+                  class="custom-control-input" (change)="toggleCheckbox('question8', 'subQuestion1', $event)">
+                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question8', 'subQuestion2')"
+                  class="custom-control-input" (change)="toggleCheckbox('question8', 'subQuestion2', $event)">
+                <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz">Functionality</p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question8', 'subQuestion3')"
+                  class="custom-control-input" (change)="toggleCheckbox('question8', 'subQuestion3', $event)">
+                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question8', 'subQuestion4')"
+                  class="custom-control-input" (change)="toggleCheckbox('question8', 'subQuestion4', $event)">
+                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz">Good State of Repair /Maintenance</p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question8', 'subQuestion5')"
+                  class="custom-control-input" (change)="toggleCheckbox('question8', 'subQuestion5', $event)">
+                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question8', 'subQuestion6')"
+                  class="custom-control-input" (change)="toggleCheckbox('question8', 'subQuestion6', $event)">
+                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group mt-2">
+            <textarea formControlName="" type="text" id="message" cols="13" rows="2"
+              class="form-control validation-field text"></textarea>
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="quiz">09.Waste/Refuse Disposal Does the hotel have in place a system of waste collection,
+            separation, storage and disposal?</h3>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz">Waste bins & storage area available </p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question9', 'subQuestion1')"
+                  class="custom-control-input" (change)="toggleCheckbox('question9', 'subQuestion1', $event)">
+                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question9', 'subQuestion2')"
+                  class="custom-control-input" (change)="toggleCheckbox('question9', 'subQuestion2', $event)">
+                <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz"> Waste separation done correctly</p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question9', 'subQuestion3')"
+                  class="custom-control-input" (change)="toggleCheckbox('question9', 'subQuestion3', $event)">
+                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question9', 'subQuestion4')"
+                  class="custom-control-input" (change)="toggleCheckbox('question9', 'subQuestion4', $event)">
+                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz">Inner lining & well Covered</p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question9', 'subQuestion5')"
+                  class="custom-control-input" (change)="toggleCheckbox('question9', 'subQuestion5', $event)">
+                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question9', 'subQuestion6')"
+                  class="custom-control-input" (change)="toggleCheckbox('question9', 'subQuestion6', $event)">
+                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group mt-2">
+            <textarea formControlName="" type="text" id="message" cols="13" rows="2"
+              class="form-control validation-field text"></textarea>
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="quiz">10. Sewage Disposal & Treatment Does the hotel have a system of sewage disposal and/or
+            treatment? Is there a certificate from relevant authorities showing sewage is disposed and or treated
+            appropriately where applicable?</h3>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz">Availability </p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question10', 'subQuestion1')"
+                  class="custom-control-input" (change)="toggleCheckbox('question10', 'subQuestion1', $event)">
+                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question10', 'subQuestion2')"
+                  class="custom-control-input" (change)="toggleCheckbox('question10', 'subQuestion2', $event)">
+                <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz">Functionality</p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question10', 'subQuestion3')"
+                  class="custom-control-input" (change)="toggleCheckbox('question10', 'subQuestion3', $event)">
+                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question10', 'subQuestion4')"
+                  class="custom-control-input" (change)="toggleCheckbox('question10', 'subQuestion4', $event)">
+                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz">Certified if a septic tank in use </p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question10', 'subQuestion5')"
+                  class="custom-control-input" (change)="toggleCheckbox('question10', 'subQuestion5', $event)">
+                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question10', 'subQuestion6')"
+                  class="custom-control-input" (change)="toggleCheckbox('question10', 'subQuestion6', $event)">
+                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group mt-2">
+            <textarea formControlName="" type="text" id="message" cols="13" rows="2"
+              class="form-control validation-field text"></textarea>
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="quiz">11. Vermin Proofing Is the hotel regularly fumigated? Does the hotel have a certificate as
+            evidence of previous fumigation?</h3>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz">Conforms to the relevant laws</p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question11', 'subQuestion1')"
+                  class="custom-control-input" (change)="toggleCheckbox('question11', 'subQuestion1', $event)">
+                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question11', 'subQuestion2')"
+                  class="custom-control-input" (change)="toggleCheckbox('question11', 'subQuestion2', $event)">
+                <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz">Certificates availability to evidence the service </p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question11', 'subQuestion3')"
+                  class="custom-control-input" (change)="toggleCheckbox('question11', 'subQuestion3', $event)">
+                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question11', 'subQuestion4')"
+                  class="custom-control-input" (change)="toggleCheckbox('question11', 'subQuestion4', $event)">
+                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group mt-2">
+            <textarea formControlName="" type="text" id="message" cols="13" rows="2"
+              class="form-control validation-field text"></textarea>
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="quiz">12. Water Supply Does the hotel have in place a system of water supply and storage?</h3>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz">Availability</p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question12', 'subQuestion1')"
+                  class="custom-control-input" (change)="toggleCheckbox('question12', 'subQuestion1', $event)">
+                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question12', 'subQuestion2')"
+                  class="custom-control-input" (change)="toggleCheckbox('question12', 'subQuestion2', $event)">
+                <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz"> Water sources certified for use</p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question12', 'subQuestion3')"
+                  class="custom-control-input" (change)="toggleCheckbox('question12', 'subQuestion3', $event)">
+                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question12', 'subQuestion4')"
+                  class="custom-control-input" (change)="toggleCheckbox('question12', 'subQuestion4', $event)">
+                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz">Reservoir Adequate commensurate to capacity</p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question12', 'subQuestion5')"
+                  class="custom-control-input" (change)="toggleCheckbox('question12', 'subQuestion5', $event)">
+                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question12', 'subQuestion6')"
+                  class="custom-control-input" (change)="toggleCheckbox('question12', 'subQuestion6', $event)">
+                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group mt-2">
+            <textarea formControlName="" type="text" id="message" cols="13" rows="2"
+              class="form-control validation-field text"></textarea>
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="quiz">13.Communication System Does the hotel have appropriate system of internal and external
+            communication?</h3>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz">Availability</p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question13', 'subQuestion1')"
+                  class="custom-control-input" (change)="toggleCheckbox('question13', 'subQuestion1', $event)">
+                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question13', 'subQuestion2')"
+                  class="custom-control-input" (change)="toggleCheckbox('question13', 'subQuestion2', $event)">
+                <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz"> Functionality</p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question13', 'subQuestion3')"
+                  class="custom-control-input" (change)="toggleCheckbox('question13', 'subQuestion3', $event)">
+                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question13', 'subQuestion4')"
+                  class="custom-control-input" (change)="toggleCheckbox('question13', 'subQuestion4', $event)">
+                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz">Good State of Repair /Maintenance </p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question13', 'subQuestion5')"
+                  class="custom-control-input" (change)="toggleCheckbox('question13', 'subQuestion5', $event)">
+                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question13', 'subQuestion6')"
+                  class="custom-control-input" (change)="toggleCheckbox('question13', 'subQuestion6', $event)">
+                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group mt-2">
+            <textarea formControlName="" type="text" id="message" cols="13" rows="2"
+              class="form-control validation-field text"></textarea>
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="quiz">14. Security Systems Does the hotel have in place a security policy or system? Are all doors,
+            windows accessible from outside lockable & secure?</h3>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz">Security measures Availability</p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question14', 'subQuestion1')"
+                  class="custom-control-input" (change)="toggleCheckbox('question14', 'subQuestion1', $event)">
+                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question14', 'subQuestion2')"
+                  class="custom-control-input" (change)="toggleCheckbox('question14', 'subQuestion2', $event)">
+                <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz">Security apparatus</p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question14', 'subQuestion3')"
+                  class="custom-control-input" (change)="toggleCheckbox('question14', 'subQuestion3', $event)">
+                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question14', 'subQuestion4')"
+                  class="custom-control-input" (change)="toggleCheckbox('question14', 'subQuestion4', $event)">
+                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz">Functionality</p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question14', 'subQuestion5')"
+                  class="custom-control-input" (change)="toggleCheckbox('question14', 'subQuestion5', $event)">
+                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question14', 'subQuestion6')"
+                  class="custom-control-input" (change)="toggleCheckbox('question14', 'subQuestion6', $event)">
+                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group mt-2">
+            <textarea formControlName="" type="text" id="message" cols="13" rows="2"
+              class="form-control validation-field text"></textarea>
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="quiz">15. Fire Safety Does the hotel have proper fire Safety, protection procedures, fire
+            notification, detection & extinguishing devices? </h3>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz">Availability </p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question15', 'subQuestion1')"
+                  class="custom-control-input" (change)="toggleCheckbox('question15', 'subQuestion1', $event)">
+                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question15', 'subQuestion2')"
+                  class="custom-control-input" (change)="toggleCheckbox('question15', 'subQuestion2', $event)">
+                <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz"> Functionality</p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question15', 'subQuestion3')"
+                  class="custom-control-input" (change)="toggleCheckbox('question15', 'subQuestion3', $event)">
+                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question15', 'subQuestion4')"
+                  class="custom-control-input" (change)="toggleCheckbox('question15', 'subQuestion4', $event)">
+                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz">Good State of Repair /Maintenance</p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question15', 'subQuestion5')"
+                  class="custom-control-input" (change)="toggleCheckbox('question15', 'subQuestion5', $event)">
+                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question15', 'subQuestion6')"
+                  class="custom-control-input" (change)="toggleCheckbox('question15', 'subQuestion6', $event)">
+                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group mt-2">
+            <textarea formControlName="" type="text" id="message" cols="13" rows="2"
+              class="form-control validation-field text"></textarea>
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="quiz">16. Electrical Safety Does permanently installed electrical fixtures and fittings in all
+            areas properly fitted, free from hazards, regularly inspected and certified?</h3>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz">KPLC certificate Availability</p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question16', 'subQuestion1')"
+                  class="custom-control-input" (change)="toggleCheckbox('question16', 'subQuestion1', $event)">
+                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question16', 'subQuestion2')"
+                  class="custom-control-input" (change)="toggleCheckbox('question16', 'subQuestion2', $event)">
+                <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz"> Compliant with regular inspection requirement </p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question16', 'subQuestion3')"
+                  class="custom-control-input" (change)="toggleCheckbox('question16', 'subQuestion3', $event)">
+                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question16', 'subQuestion4')"
+                  class="custom-control-input" (change)="toggleCheckbox('question16', 'subQuestion4', $event)">
+                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group mt-2">
+            <textarea formControlName="" type="text" id="message" cols="13" rows="2"
+              class="form-control validation-field text"></textarea>
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="quiz">17. First Aid Is there provision for first aid kits located in essential areas? Are there
+            trained staffs on first aid procedure?</h3>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz"> Availability in key areas </p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question17', 'subQuestion1')"
+                  class="custom-control-input" (change)="toggleCheckbox('question17', 'subQuestion1', $event)">
+                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question17', 'subQuestion2')"
+                  class="custom-control-input" (change)="toggleCheckbox('question17', 'subQuestion2', $event)">
+                <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz">Content expiry dates valid</p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question17', 'subQuestion3')"
+                  class="custom-control-input" (change)="toggleCheckbox('question17', 'subQuestion3', $event)">
+                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question17', 'subQuestion4')"
+                  class="custom-control-input" (change)="toggleCheckbox('question17', 'subQuestion4', $event)">
+                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz"> Staff capable of administering first aid</p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question17', 'subQuestion5')"
+                  class="custom-control-input" (change)="toggleCheckbox('question17', 'subQuestion5', $event)">
+                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question17', 'subQuestion6')"
+                  class="custom-control-input" (change)="toggleCheckbox('question17', 'subQuestion6', $event)">
+                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group mt-2">
+            <textarea formControlName="" type="text" id="message" cols="13" rows="2"
+              class="form-control validation-field text"></textarea>
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="quiz">18.Qualification/experience of Management staff Property managed by a professionally
+            qualified person, certified by recognized institutions/authority?</h3>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz">Manager Qualified</p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question18', 'subQuestion1')"
+                  class="custom-control-input" (change)="toggleCheckbox('question18', 'subQuestion1', $event)">
+                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question18', 'subQuestion2')"
+                  class="custom-control-input" (change)="toggleCheckbox('question18', 'subQuestion2', $event)">
+                <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz"> Certified by a recognized tourism training institution</p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question18', 'subQuestion3')"
+                  class="custom-control-input" (change)="toggleCheckbox('question18', 'subQuestion3', $event)">
+                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question18', 'subQuestion4')"
+                  class="custom-control-input" (change)="toggleCheckbox('question18', 'subQuestion4', $event)">
+                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz">Competence</p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question18', 'subQuestion5')"
+                  class="custom-control-input" (change)="toggleCheckbox('question18', 'subQuestion5', $event)">
+                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question18', 'subQuestion6')"
+                  class="custom-control-input" (change)="toggleCheckbox('question18', 'subQuestion6', $event)">
+                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group mt-2">
+            <textarea formControlName="" type="text" id="message" cols="13" rows="2"
+              class="form-control validation-field text"></textarea>
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="quiz">19.Qualification/experience of Department Heads The hotel has suitably qualified &
+            experienced staff supervising departments/section operations?For 50 rooms and above, departmental heads
+            trained from recognized institutions?</h3>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz"> Key departments supervised by qualified person</p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question19', 'subQuestion1')"
+                  class="custom-control-input" (change)="toggleCheckbox('question19', 'subQuestion1', $event)">
+                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question19', 'subQuestion2')"
+                  class="custom-control-input" (change)="toggleCheckbox('question19', 'subQuestion2', $event)">
+                <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz">Certified by a recognized tourism training institution</p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question19', 'subQuestion3')"
+                  class="custom-control-input" (change)="toggleCheckbox('question19', 'subQuestion3', $event)">
+                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question19', 'subQuestion4')"
+                  class="custom-control-input" (change)="toggleCheckbox('question19', 'subQuestion4', $event)">
+                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz">Competence</p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question19', 'subQuestion5')"
+                  class="custom-control-input" (change)="toggleCheckbox('question19', 'subQuestion5', $event)">
+                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question19', 'subQuestion6')"
+                  class="custom-control-input" (change)="toggleCheckbox('question19', 'subQuestion6', $event)">
+                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group mt-2">
+            <textarea formControlName="" type="text" id="message" cols="13" rows="2"
+              class="form-control validation-field text"></textarea>
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="quiz">20. Health/Medical Examination Does the hotel staff especially food handlers undergo routine
+            medical examination?</h3>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz">Food handlers examined</p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question20', 'subQuestion1')"
+                  class="custom-control-input" (change)="toggleCheckbox('question20', 'subQuestion1', $event)">
+                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question20', 'subQuestion2')"
+                  class="custom-control-input" (change)="toggleCheckbox('question20', 'subQuestion2', $event)">
+                <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz">Compliant with 6 months medical examination</p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question20', 'subQuestion3')"
+                  class="custom-control-input" (change)="toggleCheckbox('question20', 'subQuestion3', $event)">
+                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question20', 'subQuestion4')"
+                  class="custom-control-input" (change)="toggleCheckbox('question20', 'subQuestion4', $event)">
+                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz">Medical certificates available </p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question20', 'subQuestion5')"
+                  class="custom-control-input" (change)="toggleCheckbox('question20', 'subQuestion5', $event)">
+                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question20', 'subQuestion6')"
+                  class="custom-control-input" (change)="toggleCheckbox('question20', 'subQuestion6', $event)">
+                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group mt-2">
+            <textarea formControlName="" type="text" id="message" cols="13" rows="2"
+              class="form-control validation-field text"></textarea>
+          </div>
+        </div>
+        <div class="mt-4">
+          <h3 class="quiz">21. Hotel Insurance Is the hotel comprehensively insured under public liability insurance
+            policy?</h3>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz"> Property properly insured </p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question21', 'subQuestion1')"
+                  class="custom-control-input" (change)="toggleCheckbox('question21', 'subQuestion1', $event)">
+                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question21', 'subQuestion2')"
+                  class="custom-control-input" (change)="toggleCheckbox('question21', 'subQuestion2', $event)">
+                <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <p class="sub-quiz">Copy of insurance contract available </p>
+            <div class="d-flex justify-content-between">
+              <div class="form-group" style="margin-right: 18px;">
+                <input type="checkbox" [formControl]="getFormControl('question21', 'subQuestion3')"
+                  class="custom-control-input" (change)="toggleCheckbox('question21', 'subQuestion3', $event)">
+                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+              </div>
+              <div class="form-group">
+                <input type="checkbox" [formControl]="getFormControl('question21', 'subQuestion4')"
+                  class="custom-control-input" (change)="toggleCheckbox('question21', 'subQuestion4', $event)">
+                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group mt-2">
+            <textarea formControlName="" type="text" id="message" cols="13" rows="2"
+              class="form-control validation-field text"></textarea>
+          </div>
+        </div>
         <div class="d-flex justify-content-end mt-4">
           <button class="btn btn-md login-btn transition mt-1" type="submit">
             <a style="text-decoration: none" class="transition">
@@ -381,18 +1079,6 @@
           </button>
         </div>
       </form>
-
-   
-
-
-      <!-- <div class="pagination mt-4">
-          <button (click)="prevPage()" [disabled]="currentPage === 1">Previous</button>
-          <span>Page {{ currentPage }}</span>
-          <button (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
-        </div>
-
-        <button type="button" (click)="onSubmit()">Submit</button> -->
-
     </div>
   </div>
 </div>
