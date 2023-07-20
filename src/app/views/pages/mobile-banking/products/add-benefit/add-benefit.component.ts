@@ -197,10 +197,8 @@ export class AddBenefitComponent implements OnInit {
         subQuestion3: new FormControl(false, Validators.required),
         subQuestion4: new FormControl(false, Validators.required),
       }),
-      // Add more questions and sub-questions as needed
     });
    
-    // this.initializeForm();
     this.getClassData(0);
     this.getSubClassData(0);
   }
@@ -309,8 +307,17 @@ export class AddBenefitComponent implements OnInit {
 
   onSubmit() {
     if (this.form.valid) {
+      // Access the form data using the `value` property of the FormGroup
       const formData = this.form.value;
-      console.log(formData); // Handle the form data as needed
+      console.log(formData);
+
+      // You can now send `formData` to the backend using Angular's HttpClient
+      // For example:
+      // this.http.post('your_backend_url', formData).subscribe(response => {
+      //   console.log('Data submitted successfully!');
+      // }, error => {
+      //   console.error('Error while submitting data:', error);
+      // });
     } else {
       console.log("Please answer all questions.");
     }

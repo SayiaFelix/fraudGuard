@@ -54,12 +54,12 @@
             <p class="sub-quiz">Compliant with the building law</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question1', 'subQuestion1')"
+                <input type="checkbox"  id="q1s1" name="q1s1" [formControl]="getFormControl('question1', 'subQuestion1')"
                   class="custom-control-input" (change)="toggleCheckbox('question1', 'subQuestion1', $event)">
                 <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question1', 'subQuestion2')"
+                <input type="checkbox" id="q1s2" name="q1s2" [formControl]="getFormControl('question1', 'subQuestion2')"
                   class="custom-control-input" (change)="toggleCheckbox('question1', 'subQuestion2', $event)">
                 <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
               </div>
@@ -69,14 +69,14 @@
             <p class="sub-quiz">Copy availability</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question1', 'subQuestion3')"
+                <input type="checkbox" id="q1s3" name="q1s3" [formControl]="getFormControl('question1', 'subQuestion3')"
                   class="custom-control-input" (change)="toggleCheckbox('question1', 'subQuestion3', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question1', 'subQuestion4')"
+                <input type="checkbox" id="q1s4" name="q1s4" [formControl]="getFormControl('question1', 'subQuestion4')"
                   class="custom-control-input" (change)="toggleCheckbox('question1', 'subQuestion4', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
               </div>
             </div>
           </div>
@@ -91,12 +91,12 @@
             <p class="sub-quiz">Compliant with the building law</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question2', 'subQuestion1')"
+                <input type="checkbox" id="q2s1" name="q2s1" [formControl]="getFormControl('question2', 'subQuestion1')"
                   class="custom-control-input" (change)="toggleCheckbox('question2', 'subQuestion1', $event)">
                 <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question2', 'subQuestion2')"
+                <input type="checkbox" id="q2s2" name="q2s2" [formControl]="getFormControl('question2', 'subQuestion2')"
                   class="custom-control-input" (change)="toggleCheckbox('question2', 'subQuestion2', $event)">
                 <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
               </div>
@@ -106,14 +106,14 @@
             <p class="sub-quiz">Copy availability</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question2', 'subQuestion3')"
+                <input type="checkbox" id="q2s3" name="q2s3" [formControl]="getFormControl('question2', 'subQuestion3')"
                   class="custom-control-input" (change)="toggleCheckbox('question2', 'subQuestion3', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question2', 'subQuestion4')"
+                <input type="checkbox" id="q2s4" name="q2s4" [formControl]="getFormControl('question2', 'subQuestion4')"
                   class="custom-control-input" (change)="toggleCheckbox('question2', 'subQuestion4', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
               </div>
             </div>
           </div>
@@ -129,14 +129,14 @@
             <p class="sub-quiz">Compliant with the public health Act & the building code </p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question3', 'subQuestion1')"
+                <input type="checkbox" id="q3s1" name="q3s1" [formControl]="getFormControl('question3', 'subQuestion1')"
                   class="custom-control-input" (change)="toggleCheckbox('question3', 'subQuestion1', $event)">
-                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q3s1">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question3', 'subQuestion2')"
+                <input type="checkbox" id="q3s2" name="q3s2" [formControl]="getFormControl('question3', 'subQuestion2')"
                   class="custom-control-input" (change)="toggleCheckbox('question3', 'subQuestion2', $event)">
-                <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q3s2">No</label>
               </div>
             </div>
           </div>
@@ -144,14 +144,14 @@
             <p class="sub-quiz">Functionality </p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question3', 'subQuestion3')"
+                <input type="checkbox" id="q3s3" name="q3s3" [formControl]="getFormControl('question3', 'subQuestion3')"
                   class="custom-control-input" (change)="toggleCheckbox('question3', 'subQuestion3', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q3s3">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question3', 'subQuestion4')"
+                <input type="checkbox" id="q3s4" name="q3s4" [formControl]="getFormControl('question3', 'subQuestion4')"
                   class="custom-control-input" (change)="toggleCheckbox('question3', 'subQuestion4', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q3s4">No</label>
               </div>
             </div>
           </div>
@@ -159,14 +159,14 @@
             <p class="sub-quiz">Good state of Repair /Maintenance </p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question3', 'subQuestion5')"
+                <input type="checkbox" id="q3s5" name="q3s5" [formControl]="getFormControl('question3', 'subQuestion5')"
                   class="custom-control-input" (change)="toggleCheckbox('question3', 'subQuestion5', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q3s5">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question3', 'subQuestion6')"
+                <input type="checkbox" id="q3s6" name="q3s6" [formControl]="getFormControl('question3', 'subQuestion6')"
                   class="custom-control-input" (change)="toggleCheckbox('question3', 'subQuestion6', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q3s6">No</label>
               </div>
             </div>
           </div>
@@ -182,14 +182,14 @@
             <p class="sub-quiz">Compliant EMCA Act </p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question4', 'subQuestion1')"
+                <input type="checkbox" id="q4s1" name="q4s1" [formControl]="getFormControl('question4', 'subQuestion1')"
                   class="custom-control-input" (change)="toggleCheckbox('question4', 'subQuestion1', $event)">
-                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q4s1">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question4', 'subQuestion2')"
+                <input type="checkbox" id="q4s2" name="q4s2" [formControl]="getFormControl('question4', 'subQuestion2')"
                   class="custom-control-input" (change)="toggleCheckbox('question4', 'subQuestion2', $event)">
-                <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q4s2">No</label>
               </div>
             </div>
           </div>
@@ -197,14 +197,14 @@
             <p class="sub-quiz">Copy availability</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question4', 'subQuestion3')"
+                <input type="checkbox" id="q4s3" name="q4s3" [formControl]="getFormControl('question4', 'subQuestion3')"
                   class="custom-control-input" (change)="toggleCheckbox('question4', 'subQuestion3', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q4s3">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question4', 'subQuestion4')"
+                <input type="checkbox" id="q4s4" name="q4s4" [formControl]="getFormControl('question4', 'subQuestion4')"
                   class="custom-control-input" (change)="toggleCheckbox('question4', 'subQuestion4', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q4s4">No</label>
               </div>
             </div>
           </div>
@@ -220,14 +220,14 @@
             <p class="sub-quiz">Guest rooms numbered </p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question5', 'subQuestion1')"
+                <input type="checkbox" id="q5s1" name="q5s1" [formControl]="getFormControl('question5', 'subQuestion1')"
                   class="custom-control-input" (change)="toggleCheckbox('question5', 'subQuestion1', $event)">
-                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q5s1">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question5', 'subQuestion2')"
+                <input type="checkbox" id="q5s2" name="q5s2" [formControl]="getFormControl('question5', 'subQuestion2')"
                   class="custom-control-input" (change)="toggleCheckbox('question5', 'subQuestion2', $event)">
-                <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q5s2">No</label>
               </div>
             </div>
           </div>
@@ -235,14 +235,14 @@
             <p class="sub-quiz">Functional & stylish </p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question5', 'subQuestion3')"
+                <input type="checkbox" id="q5s3" name="q5s3" [formControl]="getFormControl('question5', 'subQuestion3')"
                   class="custom-control-input" (change)="toggleCheckbox('question5', 'subQuestion3', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q5s3">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question5', 'subQuestion4')"
+                <input type="checkbox" id="q5s4" name="q5s4" [formControl]="getFormControl('question5', 'subQuestion4')"
                   class="custom-control-input" (change)="toggleCheckbox('question5', 'subQuestion4', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q5s4">No</label>
               </div>
             </div>
           </div>
@@ -250,14 +250,14 @@
             <p class="sub-quiz">Good State of Repair /Maintenance </p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question5', 'subQuestion5')"
+                <input type="checkbox" id="q5s5" name="q5s5" [formControl]="getFormControl('question5', 'subQuestion5')"
                   class="custom-control-input" (change)="toggleCheckbox('question5', 'subQuestion5', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q5s5">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question5', 'subQuestion6')"
+                <input type="checkbox" id="q5s6" name="q5s6" [formControl]="getFormControl('question5', 'subQuestion6')"
                   class="custom-control-input" (change)="toggleCheckbox('question5', 'subQuestion6', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q5s6">No</label>
               </div>
             </div>
           </div>
@@ -273,14 +273,14 @@
             <p class="sub-quiz">Guest rooms numbered</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question6', 'subQuestion1')"
+                <input type="checkbox" id="q6s1" name="q6s1" [formControl]="getFormControl('question6', 'subQuestion1')"
                   class="custom-control-input" (change)="toggleCheckbox('question6', 'subQuestion1', $event)">
-                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q6s1">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question6', 'subQuestion2')"
+                <input type="checkbox" id="q6s2" name="q6s2" [formControl]="getFormControl('question6', 'subQuestion2')"
                   class="custom-control-input" (change)="toggleCheckbox('question6', 'subQuestion2', $event)">
-                <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q6s2">No</label>
               </div>
             </div>
           </div>
@@ -288,14 +288,14 @@
             <p class="sub-quiz">Functional & stylish</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question6', 'subQuestion3')"
+                <input type="checkbox" id="q6s3" name="q6s3" [formControl]="getFormControl('question6', 'subQuestion3')"
                   class="custom-control-input" (change)="toggleCheckbox('question6', 'subQuestion3', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q6s3">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question6', 'subQuestion4')"
+                <input type="checkbox" id="q6s4" name="q6s4" [formControl]="getFormControl('question6', 'subQuestion4')"
                   class="custom-control-input" (change)="toggleCheckbox('question6', 'subQuestion4', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q6s4">No</label>
               </div>
             </div>
           </div>
@@ -303,14 +303,14 @@
             <p class="sub-quiz">Good State of Repair /Maintenance</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question6', 'subQuestion5')"
+                <input type="checkbox" id="q6s5" name="q6s5" [formControl]="getFormControl('question6', 'subQuestion5')"
                   class="custom-control-input" (change)="toggleCheckbox('question6', 'subQuestion5', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q6s5">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question6', 'subQuestion6')"
+                <input type="checkbox" id="q6s6" name="q6s6" [formControl]="getFormControl('question6', 'subQuestion6')"
                   class="custom-control-input" (change)="toggleCheckbox('question6', 'subQuestion6', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q6s6">No</label>
               </div>
             </div>
           </div>
@@ -326,14 +326,14 @@
             <p class="sub-quiz">Availability & appropriately located </p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question7', 'subQuestion1')"
+                <input type="checkbox" id="q7s1" name="q7s1" [formControl]="getFormControl('question7', 'subQuestion1')"
                   class="custom-control-input" (change)="toggleCheckbox('question7', 'subQuestion1', $event)">
-                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q7s1">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question7', 'subQuestion2')"
+                <input type="checkbox" id="q7s2" name="q7s2" [formControl]="getFormControl('question7', 'subQuestion2')"
                   class="custom-control-input" (change)="toggleCheckbox('question7', 'subQuestion2', $event)">
-                <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q7s2">No</label>
               </div>
             </div>
           </div>
@@ -341,14 +341,14 @@
             <p class="sub-quiz">Functionality</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question7', 'subQuestion3')"
+                <input type="checkbox" id="q7s3" name="q7s3" [formControl]="getFormControl('question7', 'subQuestion3')"
                   class="custom-control-input" (change)="toggleCheckbox('question7', 'subQuestion3', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q7s3">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question7', 'subQuestion4')"
+                <input type="checkbox" id="q7s4" name="q7s4" [formControl]="getFormControl('question7', 'subQuestion4')"
                   class="custom-control-input" (change)="toggleCheckbox('question7', 'subQuestion4', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q7s4">No</label>
               </div>
             </div>
           </div>
@@ -356,9 +356,9 @@
             <p class="sub-quiz">Good State of Repair /Maintenance</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question7', 'subQuestion5')"
+                <input type="checkbox" id="q7s5" name="q7s5" [formControl]="getFormControl('question7', 'subQuestion5')"
                   class="custom-control-input" (change)="toggleCheckbox('question7', 'subQuestion5', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q7s5">Yes</label>
               </div>
               <div class="form-group">
                 <input type="checkbox" [formControl]="getFormControl('question7', 'subQuestion6')"
@@ -372,7 +372,6 @@
               class="form-control validation-field text"></textarea>
           </div>
         </div>
-
         <div class="mt-4">
           <h3 class="quiz">08. Wash rooms/Guest Cloak rooms Is there a provision of public wash rooms for general hotel
             guests? </h3>
@@ -380,14 +379,14 @@
             <p class="sub-quiz">Availability & appropriately located </p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question8', 'subQuestion1')"
+                <input type="checkbox" id="q8s1" name="q8s1" [formControl]="getFormControl('question8', 'subQuestion1')"
                   class="custom-control-input" (change)="toggleCheckbox('question8', 'subQuestion1', $event)">
-                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q8s1">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question8', 'subQuestion2')"
+                <input type="checkbox" id="q8s2" name="q8s2" [formControl]="getFormControl('question8', 'subQuestion2')"
                   class="custom-control-input" (change)="toggleCheckbox('question8', 'subQuestion2', $event)">
-                <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q8s2">No</label>
               </div>
             </div>
           </div>
@@ -395,14 +394,14 @@
             <p class="sub-quiz">Functionality</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question8', 'subQuestion3')"
+                <input type="checkbox" id="q8s3" name="q8s3" [formControl]="getFormControl('question8', 'subQuestion3')"
                   class="custom-control-input" (change)="toggleCheckbox('question8', 'subQuestion3', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q8s3">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question8', 'subQuestion4')"
+                <input type="checkbox" id="q8s4" name="q8s4" [formControl]="getFormControl('question8', 'subQuestion4')"
                   class="custom-control-input" (change)="toggleCheckbox('question8', 'subQuestion4', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q8s4">No</label>
               </div>
             </div>
           </div>
@@ -410,14 +409,14 @@
             <p class="sub-quiz">Good State of Repair /Maintenance</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question8', 'subQuestion5')"
+                <input type="checkbox" id="q8s5" name="q8s5" [formControl]="getFormControl('question8', 'subQuestion5')"
                   class="custom-control-input" (change)="toggleCheckbox('question8', 'subQuestion5', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q8s5">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question8', 'subQuestion6')"
+                <input type="checkbox" id="q8s6" name="q8s6" [formControl]="getFormControl('question8', 'subQuestion6')"
                   class="custom-control-input" (change)="toggleCheckbox('question8', 'subQuestion6', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q8s6">No</label>
               </div>
             </div>
           </div>
@@ -433,14 +432,14 @@
             <p class="sub-quiz">Waste bins & storage area available </p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question9', 'subQuestion1')"
+                <input type="checkbox" id="q9s1" name="q9s1" [formControl]="getFormControl('question9', 'subQuestion1')"
                   class="custom-control-input" (change)="toggleCheckbox('question9', 'subQuestion1', $event)">
-                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q9s1">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question9', 'subQuestion2')"
+                <input type="checkbox" id="q9s2" name="q9s2" [formControl]="getFormControl('question9', 'subQuestion2')"
                   class="custom-control-input" (change)="toggleCheckbox('question9', 'subQuestion2', $event)">
-                <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q9s2">No</label>
               </div>
             </div>
           </div>
@@ -448,14 +447,14 @@
             <p class="sub-quiz"> Waste separation done correctly</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question9', 'subQuestion3')"
+                <input type="checkbox" id="q9s3" name="q9s3" [formControl]="getFormControl('question9', 'subQuestion3')"
                   class="custom-control-input" (change)="toggleCheckbox('question9', 'subQuestion3', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q9s3">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question9', 'subQuestion4')"
+                <input type="checkbox" id="q9s4" name="q9s4" [formControl]="getFormControl('question9', 'subQuestion4')"
                   class="custom-control-input" (change)="toggleCheckbox('question9', 'subQuestion4', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q9s4">No</label>
               </div>
             </div>
           </div>
@@ -463,14 +462,14 @@
             <p class="sub-quiz">Inner lining & well Covered</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question9', 'subQuestion5')"
+                <input type="checkbox" id="q9s5" name="q9s5" [formControl]="getFormControl('question9', 'subQuestion5')"
                   class="custom-control-input" (change)="toggleCheckbox('question9', 'subQuestion5', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q9s5">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question9', 'subQuestion6')"
+                <input type="checkbox" id="q9s6" name="q9s6" [formControl]="getFormControl('question9', 'subQuestion6')"
                   class="custom-control-input" (change)="toggleCheckbox('question9', 'subQuestion6', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q9s6">No</label>
               </div>
             </div>
           </div>
@@ -487,14 +486,14 @@
             <p class="sub-quiz">Availability </p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question10', 'subQuestion1')"
+                <input type="checkbox" id="q10s1" name="q10s1" [formControl]="getFormControl('question10', 'subQuestion1')"
                   class="custom-control-input" (change)="toggleCheckbox('question10', 'subQuestion1', $event)">
-                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q10s1">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question10', 'subQuestion2')"
+                <input type="checkbox" id="q10s2" name="q10s2" [formControl]="getFormControl('question10', 'subQuestion2')"
                   class="custom-control-input" (change)="toggleCheckbox('question10', 'subQuestion2', $event)">
-                <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q10s2">No</label>
               </div>
             </div>
           </div>
@@ -502,14 +501,14 @@
             <p class="sub-quiz">Functionality</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question10', 'subQuestion3')"
+                <input type="checkbox" id="q10s3" name="q10s3" [formControl]="getFormControl('question10', 'subQuestion3')"
                   class="custom-control-input" (change)="toggleCheckbox('question10', 'subQuestion3', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q10s3">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question10', 'subQuestion4')"
+                <input type="checkbox" id="q10s4" name="q10s4" [formControl]="getFormControl('question10', 'subQuestion4')"
                   class="custom-control-input" (change)="toggleCheckbox('question10', 'subQuestion4', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q10s4">No</label>
               </div>
             </div>
           </div>
@@ -517,14 +516,14 @@
             <p class="sub-quiz">Certified if a septic tank in use </p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question10', 'subQuestion5')"
+                <input type="checkbox" id="q10s5" name="q1s1" [formControl]="getFormControl('question10', 'subQuestion5')"
                   class="custom-control-input" (change)="toggleCheckbox('question10', 'subQuestion5', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q10s5">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question10', 'subQuestion6')"
+                <input type="checkbox" id="q10s6" name="q10s6" [formControl]="getFormControl('question10', 'subQuestion6')"
                   class="custom-control-input" (change)="toggleCheckbox('question10', 'subQuestion6', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q10s6">No</label>
               </div>
             </div>
           </div>
@@ -540,14 +539,14 @@
             <p class="sub-quiz">Conforms to the relevant laws</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question11', 'subQuestion1')"
+                <input type="checkbox" id="q11s1" name="q11s1" [formControl]="getFormControl('question11', 'subQuestion1')"
                   class="custom-control-input" (change)="toggleCheckbox('question11', 'subQuestion1', $event)">
-                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q11s1">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question11', 'subQuestion2')"
+                <input type="checkbox" id="q11s2" name="q11s2" [formControl]="getFormControl('question11', 'subQuestion2')"
                   class="custom-control-input" (change)="toggleCheckbox('question11', 'subQuestion2', $event)">
-                <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q11s2">No</label>
               </div>
             </div>
           </div>
@@ -555,14 +554,14 @@
             <p class="sub-quiz">Certificates availability to evidence the service </p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question11', 'subQuestion3')"
+                <input type="checkbox" id="q11s3" name="q11s3" [formControl]="getFormControl('question11', 'subQuestion3')"
                   class="custom-control-input" (change)="toggleCheckbox('question11', 'subQuestion3', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q11s3">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question11', 'subQuestion4')"
+                <input type="checkbox" id="q11s4" name="q11s4" [formControl]="getFormControl('question11', 'subQuestion4')"
                   class="custom-control-input" (change)="toggleCheckbox('question11', 'subQuestion4', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q11s4">No</label>
               </div>
             </div>
           </div>
@@ -576,15 +575,15 @@
           <div class="d-flex justify-content-between">
             <p class="sub-quiz">Availability</p>
             <div class="d-flex justify-content-between">
-              <div class="form-group" style="margin-right: 18px;">
+              <div class="form-group" id="q12s1" name="q12s1" style="margin-right: 18px;">
                 <input type="checkbox" [formControl]="getFormControl('question12', 'subQuestion1')"
                   class="custom-control-input" (change)="toggleCheckbox('question12', 'subQuestion1', $event)">
-                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q12s1">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question12', 'subQuestion2')"
+                <input type="checkbox" id="q12s2" name="q12s2" [formControl]="getFormControl('question12', 'subQuestion2')"
                   class="custom-control-input" (change)="toggleCheckbox('question12', 'subQuestion2', $event)">
-                <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q12s2">No</label>
               </div>
             </div>
           </div>
@@ -592,14 +591,14 @@
             <p class="sub-quiz"> Water sources certified for use</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question12', 'subQuestion3')"
+                <input type="checkbox" id="q12s3" name="q12s3" [formControl]="getFormControl('question12', 'subQuestion3')"
                   class="custom-control-input" (change)="toggleCheckbox('question12', 'subQuestion3', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q12s3">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question12', 'subQuestion4')"
+                <input type="checkbox" id="q12s4" name="q12s4" [formControl]="getFormControl('question12', 'subQuestion4')"
                   class="custom-control-input" (change)="toggleCheckbox('question12', 'subQuestion4', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q12s4">No</label>
               </div>
             </div>
           </div>
@@ -607,14 +606,14 @@
             <p class="sub-quiz">Reservoir Adequate commensurate to capacity</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question12', 'subQuestion5')"
+                <input type="checkbox" id="q12s5" name="q12s5" [formControl]="getFormControl('question12', 'subQuestion5')"
                   class="custom-control-input" (change)="toggleCheckbox('question12', 'subQuestion5', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q12s5">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question12', 'subQuestion6')"
+                <input type="checkbox" id="q12s6" name="q12s6" [formControl]="getFormControl('question12', 'subQuestion6')"
                   class="custom-control-input" (change)="toggleCheckbox('question12', 'subQuestion6', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q12s6">No</label>
               </div>
             </div>
           </div>
@@ -630,14 +629,14 @@
             <p class="sub-quiz">Availability</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question13', 'subQuestion1')"
+                <input type="checkbox" id="q13s1" name="q13s1" [formControl]="getFormControl('question13', 'subQuestion1')"
                   class="custom-control-input" (change)="toggleCheckbox('question13', 'subQuestion1', $event)">
-                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q13s1">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question13', 'subQuestion2')"
+                <input type="checkbox" id="q13s2" name="q13s2" [formControl]="getFormControl('question13', 'subQuestion2')"
                   class="custom-control-input" (change)="toggleCheckbox('question13', 'subQuestion2', $event)">
-                <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q13s2">No</label>
               </div>
             </div>
           </div>
@@ -645,14 +644,14 @@
             <p class="sub-quiz"> Functionality</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question13', 'subQuestion3')"
+                <input type="checkbox" id="q13s3" name="q13s3" [formControl]="getFormControl('question13', 'subQuestion3')"
                   class="custom-control-input" (change)="toggleCheckbox('question13', 'subQuestion3', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q13s3">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question13', 'subQuestion4')"
+                <input type="checkbox" id="q13s4" name="q13s4" [formControl]="getFormControl('question13', 'subQuestion4')"
                   class="custom-control-input" (change)="toggleCheckbox('question13', 'subQuestion4', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q13s4">No</label>
               </div>
             </div>
           </div>
@@ -660,14 +659,14 @@
             <p class="sub-quiz">Good State of Repair /Maintenance </p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question13', 'subQuestion5')"
+                <input type="checkbox" id="q13s5" name="q13s5" [formControl]="getFormControl('question13', 'subQuestion5')"
                   class="custom-control-input" (change)="toggleCheckbox('question13', 'subQuestion5', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q13s5">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question13', 'subQuestion6')"
+                <input type="checkbox" id="q13s6" name="q13s6" [formControl]="getFormControl('question13', 'subQuestion6')"
                   class="custom-control-input" (change)="toggleCheckbox('question13', 'subQuestion6', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q13s6">No</label>
               </div>
             </div>
           </div>
@@ -683,14 +682,14 @@
             <p class="sub-quiz">Security measures Availability</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question14', 'subQuestion1')"
+                <input type="checkbox" id="q14s1" name="q14s1" [formControl]="getFormControl('question14', 'subQuestion1')"
                   class="custom-control-input" (change)="toggleCheckbox('question14', 'subQuestion1', $event)">
-                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q14s1">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question14', 'subQuestion2')"
+                <input type="checkbox" id="q14s2" name="q14s2" [formControl]="getFormControl('question14', 'subQuestion2')"
                   class="custom-control-input" (change)="toggleCheckbox('question14', 'subQuestion2', $event)">
-                <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q14s2">No</label>
               </div>
             </div>
           </div>
@@ -698,14 +697,14 @@
             <p class="sub-quiz">Security apparatus</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question14', 'subQuestion3')"
+                <input type="checkbox" id="q14s3" name="q14s3" [formControl]="getFormControl('question14', 'subQuestion3')"
                   class="custom-control-input" (change)="toggleCheckbox('question14', 'subQuestion3', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q14s3">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question14', 'subQuestion4')"
+                <input type="checkbox" id="q14s4" name="q14s4" [formControl]="getFormControl('question14', 'subQuestion4')"
                   class="custom-control-input" (change)="toggleCheckbox('question14', 'subQuestion4', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q14s4">No</label>
               </div>
             </div>
           </div>
@@ -713,14 +712,14 @@
             <p class="sub-quiz">Functionality</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question14', 'subQuestion5')"
+                <input type="checkbox" id="q14s5" name="q14s5" [formControl]="getFormControl('question14', 'subQuestion5')"
                   class="custom-control-input" (change)="toggleCheckbox('question14', 'subQuestion5', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q14s5">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question14', 'subQuestion6')"
+                <input type="checkbox" id="q14s6" name="q14s6" [formControl]="getFormControl('question14', 'subQuestion6')"
                   class="custom-control-input" (change)="toggleCheckbox('question14', 'subQuestion6', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q14s6">No</label>
               </div>
             </div>
           </div>
@@ -736,14 +735,14 @@
             <p class="sub-quiz">Availability </p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question15', 'subQuestion1')"
+                <input type="checkbox" id="q15s1" name="q15s1" [formControl]="getFormControl('question15', 'subQuestion1')"
                   class="custom-control-input" (change)="toggleCheckbox('question15', 'subQuestion1', $event)">
-                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q15s1">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question15', 'subQuestion2')"
+                <input type="checkbox" id="q15s2" name="q15s2" [formControl]="getFormControl('question15', 'subQuestion2')"
                   class="custom-control-input" (change)="toggleCheckbox('question15', 'subQuestion2', $event)">
-                <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q15s2">No</label>
               </div>
             </div>
           </div>
@@ -751,14 +750,14 @@
             <p class="sub-quiz"> Functionality</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question15', 'subQuestion3')"
+                <input type="checkbox" id="q15s3" name="q15s3" [formControl]="getFormControl('question15', 'subQuestion3')"
                   class="custom-control-input" (change)="toggleCheckbox('question15', 'subQuestion3', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q15s3">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question15', 'subQuestion4')"
+                <input type="checkbox" id="q15s4" name="q15s4" [formControl]="getFormControl('question15', 'subQuestion4')"
                   class="custom-control-input" (change)="toggleCheckbox('question15', 'subQuestion4', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q15s4">No</label>
               </div>
             </div>
           </div>
@@ -766,14 +765,14 @@
             <p class="sub-quiz">Good State of Repair /Maintenance</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question15', 'subQuestion5')"
+                <input type="checkbox" id="q15s5" name="q15s5" [formControl]="getFormControl('question15', 'subQuestion5')"
                   class="custom-control-input" (change)="toggleCheckbox('question15', 'subQuestion5', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q15s5">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question15', 'subQuestion6')"
+                <input type="checkbox" id="q15s6" name="q15s6" [formControl]="getFormControl('question15', 'subQuestion6')"
                   class="custom-control-input" (change)="toggleCheckbox('question15', 'subQuestion6', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q15s6">No</label>
               </div>
             </div>
           </div>
@@ -789,14 +788,14 @@
             <p class="sub-quiz">KPLC certificate Availability</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question16', 'subQuestion1')"
+                <input type="checkbox" id="q16s1" name="q16s1" [formControl]="getFormControl('question16', 'subQuestion1')"
                   class="custom-control-input" (change)="toggleCheckbox('question16', 'subQuestion1', $event)">
-                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q16s1">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question16', 'subQuestion2')"
+                <input type="checkbox" id="q16s2" name="q16s2" [formControl]="getFormControl('question16', 'subQuestion2')"
                   class="custom-control-input" (change)="toggleCheckbox('question16', 'subQuestion2', $event)">
-                <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q16s2">No</label>
               </div>
             </div>
           </div>
@@ -804,14 +803,14 @@
             <p class="sub-quiz"> Compliant with regular inspection requirement </p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question16', 'subQuestion3')"
+                <input type="checkbox" id="q16s3" name="q16s3" [formControl]="getFormControl('question16', 'subQuestion3')"
                   class="custom-control-input" (change)="toggleCheckbox('question16', 'subQuestion3', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q16s3">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question16', 'subQuestion4')"
+                <input type="checkbox" id="q16s4" name="q16s4" [formControl]="getFormControl('question16', 'subQuestion4')"
                   class="custom-control-input" (change)="toggleCheckbox('question16', 'subQuestion4', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q16s4">No</label>
               </div>
             </div>
           </div>
@@ -827,14 +826,14 @@
             <p class="sub-quiz"> Availability in key areas </p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question17', 'subQuestion1')"
+                <input type="checkbox" id="q17s1" name="q17s1" [formControl]="getFormControl('question17', 'subQuestion1')"
                   class="custom-control-input" (change)="toggleCheckbox('question17', 'subQuestion1', $event)">
-                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q17s1">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question17', 'subQuestion2')"
+                <input type="checkbox" id="q17s2" name="q17s2" [formControl]="getFormControl('question17', 'subQuestion2')"
                   class="custom-control-input" (change)="toggleCheckbox('question17', 'subQuestion2', $event)">
-                <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q17s2">No</label>
               </div>
             </div>
           </div>
@@ -842,14 +841,14 @@
             <p class="sub-quiz">Content expiry dates valid</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question17', 'subQuestion3')"
+                <input type="checkbox" id="q17s3" name="q17s3" [formControl]="getFormControl('question17', 'subQuestion3')"
                   class="custom-control-input" (change)="toggleCheckbox('question17', 'subQuestion3', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q17s3">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question17', 'subQuestion4')"
+                <input type="checkbox" id="q17s4" name="q17s4" [formControl]="getFormControl('question17', 'subQuestion4')"
                   class="custom-control-input" (change)="toggleCheckbox('question17', 'subQuestion4', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q17s4">No</label>
               </div>
             </div>
           </div>
@@ -857,14 +856,14 @@
             <p class="sub-quiz"> Staff capable of administering first aid</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question17', 'subQuestion5')"
+                <input type="checkbox" id="q17s5" name="q17s5" [formControl]="getFormControl('question17', 'subQuestion5')"
                   class="custom-control-input" (change)="toggleCheckbox('question17', 'subQuestion5', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q17s5">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question17', 'subQuestion6')"
+                <input type="checkbox" id="q17s6" name="q17s6" [formControl]="getFormControl('question17', 'subQuestion6')"
                   class="custom-control-input" (change)="toggleCheckbox('question17', 'subQuestion6', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q17s6">No</label>
               </div>
             </div>
           </div>
@@ -880,14 +879,14 @@
             <p class="sub-quiz">Manager Qualified</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question18', 'subQuestion1')"
+                <input type="checkbox" id="q18s1" name="q18s1" [formControl]="getFormControl('question18', 'subQuestion1')"
                   class="custom-control-input" (change)="toggleCheckbox('question18', 'subQuestion1', $event)">
-                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q18s1">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question18', 'subQuestion2')"
+                <input type="checkbox" id="q18s2" name="q18s2" [formControl]="getFormControl('question18', 'subQuestion2')"
                   class="custom-control-input" (change)="toggleCheckbox('question18', 'subQuestion2', $event)">
-                <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q18s2">No</label>
               </div>
             </div>
           </div>
@@ -895,14 +894,14 @@
             <p class="sub-quiz"> Certified by a recognized tourism training institution</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question18', 'subQuestion3')"
+                <input type="checkbox" id="q18s3" name="q18s3" [formControl]="getFormControl('question18', 'subQuestion3')"
                   class="custom-control-input" (change)="toggleCheckbox('question18', 'subQuestion3', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q18s3">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question18', 'subQuestion4')"
+                <input type="checkbox" id="q18s4" name="q18s4" [formControl]="getFormControl('question18', 'subQuestion4')"
                   class="custom-control-input" (change)="toggleCheckbox('question18', 'subQuestion4', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q18s4">No</label>
               </div>
             </div>
           </div>
@@ -910,14 +909,14 @@
             <p class="sub-quiz">Competence</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question18', 'subQuestion5')"
+                <input type="checkbox" id="q18s5" name="q18s5" [formControl]="getFormControl('question18', 'subQuestion5')"
                   class="custom-control-input" (change)="toggleCheckbox('question18', 'subQuestion5', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q18s5">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question18', 'subQuestion6')"
+                <input type="checkbox" id="q18s6" name="q18s6" [formControl]="getFormControl('question18', 'subQuestion6')"
                   class="custom-control-input" (change)="toggleCheckbox('question18', 'subQuestion6', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q18s6">No</label>
               </div>
             </div>
           </div>
@@ -934,12 +933,12 @@
             <p class="sub-quiz"> Key departments supervised by qualified person</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question19', 'subQuestion1')"
+                <input type="checkbox" id="q19s1" name="q19s1" [formControl]="getFormControl('question19', 'subQuestion1')"
                   class="custom-control-input" (change)="toggleCheckbox('question19', 'subQuestion1', $event)">
-                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q19s1">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question19', 'subQuestion2')"
+                <input type="checkbox" id="q19s2" name="q19s2" [formControl]="getFormControl('question19', 'subQuestion2')"
                   class="custom-control-input" (change)="toggleCheckbox('question19', 'subQuestion2', $event)">
                 <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
               </div>
@@ -949,14 +948,14 @@
             <p class="sub-quiz">Certified by a recognized tourism training institution</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question19', 'subQuestion3')"
+                <input type="checkbox" id="q19s3" name="q19s3" [formControl]="getFormControl('question19', 'subQuestion3')"
                   class="custom-control-input" (change)="toggleCheckbox('question19', 'subQuestion3', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q19s3">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question19', 'subQuestion4')"
+                <input type="checkbox" id="q19s4" name="q19s4" [formControl]="getFormControl('question19', 'subQuestion4')"
                   class="custom-control-input" (change)="toggleCheckbox('question19', 'subQuestion4', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q19s4">No</label>
               </div>
             </div>
           </div>
@@ -964,14 +963,14 @@
             <p class="sub-quiz">Competence</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question19', 'subQuestion5')"
+                <input type="checkbox" id="q19s5" name="q19s5" [formControl]="getFormControl('question19', 'subQuestion5')"
                   class="custom-control-input" (change)="toggleCheckbox('question19', 'subQuestion5', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q19s5">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question19', 'subQuestion6')"
+                <input type="checkbox" id="q19s6" name="q19s6" [formControl]="getFormControl('question19', 'subQuestion6')"
                   class="custom-control-input" (change)="toggleCheckbox('question19', 'subQuestion6', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q19s6">No</label>
               </div>
             </div>
           </div>
@@ -987,14 +986,14 @@
             <p class="sub-quiz">Food handlers examined</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question20', 'subQuestion1')"
+                <input type="checkbox" id="q20s1" name="q20s1" [formControl]="getFormControl('question20', 'subQuestion1')"
                   class="custom-control-input" (change)="toggleCheckbox('question20', 'subQuestion1', $event)">
-                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q20s1">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question20', 'subQuestion2')"
+                <input type="checkbox" id="q20s2" name="q20s2" [formControl]="getFormControl('question20', 'subQuestion2')"
                   class="custom-control-input" (change)="toggleCheckbox('question20', 'subQuestion2', $event)">
-                <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q20s2">No</label>
               </div>
             </div>
           </div>
@@ -1002,14 +1001,14 @@
             <p class="sub-quiz">Compliant with 6 months medical examination</p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question20', 'subQuestion3')"
+                <input type="checkbox" id="q20s3" name="q20s3" [formControl]="getFormControl('question20', 'subQuestion3')"
                   class="custom-control-input" (change)="toggleCheckbox('question20', 'subQuestion3', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q20s3">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question20', 'subQuestion4')"
+                <input type="checkbox" id="q20s4" name="q20s4" [formControl]="getFormControl('question20', 'subQuestion4')"
                   class="custom-control-input" (change)="toggleCheckbox('question20', 'subQuestion4', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q20s4">No</label>
               </div>
             </div>
           </div>
@@ -1017,14 +1016,14 @@
             <p class="sub-quiz">Medical certificates available </p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question20', 'subQuestion5')"
+                <input type="checkbox" id="q20s5" name="q20s5" [formControl]="getFormControl('question20', 'subQuestion5')"
                   class="custom-control-input" (change)="toggleCheckbox('question20', 'subQuestion5', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q20s5">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question20', 'subQuestion6')"
+                <input type="checkbox" id="q20s6" name="q20s6" [formControl]="getFormControl('question20', 'subQuestion6')"
                   class="custom-control-input" (change)="toggleCheckbox('question20', 'subQuestion6', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q20s6">No</label>
               </div>
             </div>
           </div>
@@ -1040,14 +1039,14 @@
             <p class="sub-quiz"> Property properly insured </p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question21', 'subQuestion1')"
+                <input type="checkbox" id="q21s1" name="q21s1" [formControl]="getFormControl('question21', 'subQuestion1')"
                   class="custom-control-input" (change)="toggleCheckbox('question21', 'subQuestion1', $event)">
-                <label class="custom-control-label quiz-check" for="yes-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q21s1">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question21', 'subQuestion2')"
+                <input type="checkbox" id="q21s2" name="q21s2" [formControl]="getFormControl('question21', 'subQuestion2')"
                   class="custom-control-input" (change)="toggleCheckbox('question21', 'subQuestion2', $event)">
-                <label class="custom-control-label quiz-check" for="no-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q21s2">No</label>
               </div>
             </div>
           </div>
@@ -1055,14 +1054,14 @@
             <p class="sub-quiz">Copy of insurance contract available </p>
             <div class="d-flex justify-content-between">
               <div class="form-group" style="margin-right: 18px;">
-                <input type="checkbox" [formControl]="getFormControl('question21', 'subQuestion3')"
+                <input type="checkbox" id="q21s3" name="q21s3" [formControl]="getFormControl('question21', 'subQuestion3')"
                   class="custom-control-input" (change)="toggleCheckbox('question21', 'subQuestion3', $event)">
-                <label class="custom-control-label quiz-check" for="yes3-checkbox">Yes</label>
+                <label class="custom-control-label quiz-check" for="q21s3">Yes</label>
               </div>
               <div class="form-group">
-                <input type="checkbox" [formControl]="getFormControl('question21', 'subQuestion4')"
+                <input type="checkbox" id="q21s4" name="q21s4" [formControl]="getFormControl('question21', 'subQuestion4')"
                   class="custom-control-input" (change)="toggleCheckbox('question21', 'subQuestion4', $event)">
-                <label class="custom-control-label quiz-check" for="no4-checkbox">No</label>
+                <label class="custom-control-label quiz-check" for="q21s4">No</label>
               </div>
             </div>
           </div>
@@ -1072,7 +1071,7 @@
           </div>
         </div>
         <div class="d-flex justify-content-end mt-4">
-          <button class="btn btn-md login-btn transition mt-1" type="submit">
+          <button class="btn btn-md login-btn transition mt-1" (click)="onSubmit()" type="submit">
             <a style="text-decoration: none" class="transition">
               <span style="color: #f8f8f8; font-weight: 700;letter-spacing: 0.08em;font-size: 12px;
             ">SUBMIT</span></a>
