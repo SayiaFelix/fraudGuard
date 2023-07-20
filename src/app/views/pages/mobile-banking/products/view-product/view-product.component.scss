@@ -1,16 +1,25 @@
-// .profile-pic {
-//   height: 100px;
-//   align-items: flex-start !important;
-//   width: 100px;
-//   border-radius: 100%;
-// }
-.image{
-  // width:350px;
-  // border-radius: 30px;
-  // height: 350px;
-  // align-items: flex-start !important;
-  // width: 290px;
-  // border-radius: 10%;
-  max-width:100%;
-  max-height: 100%;
+
+.title{
+  color: var(--dark-purple, #1E0F2E);
+  font-family: Mulish;
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  }
+  
+  .content{
+  overflow: hidden;
+  color: var(--dark-purple, #1E0F2E);
+  text-overflow: ellipsis;
+  font-family: Mulish;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  }
+.login-btn {
+  color: #FFF;
+  background-color: #F7941D;
+  border-radius: 8px;
 }

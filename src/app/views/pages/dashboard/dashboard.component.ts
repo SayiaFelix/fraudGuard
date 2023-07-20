@@ -4,6 +4,8 @@ import { Router } from '@angular/router';
 
 import { NgbDateStruct, NgbCalendar, NgbActiveModal, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { CustomValidators } from 'ngx-custom-validators';
+import { Observable, map,of } from 'rxjs';
+import { HttpService } from 'src/app/shared/services/http.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -18,6 +20,14 @@ export class DashboardComponent implements OnInit {
   isLoading: boolean = false;
   errorMessage: string;
   modalRef: NgbModalRef;
+  userData$: Observable<any>;
+  companyEmail: string | null;
+  licenceNumber: string | null;
+  profile:string | null;
+  companyRegistrationDate: string | null;
+  county: string | null;
+  contactPerson: string | null;
+  logo: string | null;
   /**
    * Apex chart
    */
@@ -51,6 +61,7 @@ export class DashboardComponent implements OnInit {
   currentDate: NgbDateStruct;
 
   constructor(private calendar: NgbCalendar,
+    private httpService: HttpService,
     fb: FormBuilder,
     private _router: Router,
     public modal: NgbModal,
@@ -77,6 +88,42 @@ export class DashboardComponent implements OnInit {
     // Some RTL fixes. (feel free to remove if you are using LTR))
     if (document.querySelector('html')?.getAttribute('dir') === 'rtl') {
       this.addRtlOptions();
+    }
+
+    let userDetails = {
+      companyEmail: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['businessEmail'] : "test@gmail.com",
+      licenceNumber: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['licenceNumber']  : "87654321",
+      profile: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['name']  : "Eka Hotel Nairobi",
+      companyRegistrationDate: "24-12-1999",
+      county: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['location']  : "Nairobi",
+      contactPerson: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['contactPerson']  : "Sayia Felix",
+    };
+    if (userDetails) {
+      this.companyEmail = userDetails['companyEmail'];
+      this.licenceNumber = userDetails['licenceNumber'];
+      this.profile = userDetails['profile'];
+      this.companyRegistrationDate = userDetails['companyRegistrationDate'];
+      this.county = userDetails['county'];
+      this.contactPerson = userDetails['contactPerson'];
+      this.logo =
+        'https://images.unsplash.com/photo-151740421573-15263e9f9178?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80';
+
+      this.userData$ = of(userDetails);
+    } else {
+      this.userData$ = this.httpService.customerUserDetails().pipe(
+        map((resp) => {
+          console.log(resp);
+          if (resp) {
+            this.companyEmail = resp[0]['email'];
+            this.licenceNumber = resp[0]['licenceNo'];
+            this.profile = resp[0]['enterpriseName'];
+            this.companyRegistrationDate = resp[0]['enterpriseName'];
+            this.county = resp[0]['country'];
+            this.contactPerson = resp[0]['contactPerson'];
+            return resp[0];
+          }
+        })
+      );
     }
 
   }

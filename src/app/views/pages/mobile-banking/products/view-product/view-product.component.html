@@ -5,250 +5,85 @@
     <li class="breadcrumb-item active" aria-current="page">View Request</li>
   </ol>
 </nav>
-
-<!-- <div class="row inbox-wrapper">
-  <div class="col-lg-12">
-    <div class="card">
-      <div class="card-body">
-        <div class="row">
-          <div class="col-lg-4 border-end-lg">
-            <div class="d-flex align-items-center justify-content-between">
-              <button (click)="openAddProductSubcategoryModal(verticalCenteredModal)" aria-controls="asideNav"
-                      class="navbar-toggle btn btn-icon border d-inline-flex d-lg-none" type="button">
-                <i appFeatherIcon class="btn-icon-prepend" data-feather="plus"></i> Button
-              </button>
-              <div class="order-first" >
-                <h4>{{productDetails?.name}} </h4>
-                <img class="image" [src]="domSanitizer.bypassSecurityTrustResourceUrl(productDetails?.productUrl?.trim())">
-              </div>
-              <br>
-            </div>
-
-            <h5>{{subcategoryTitle}}</h5>
-            <hr/>
-            <div class="media mb-4 mt-1">
-            </div>
-
-            <h6 class="text-left font-size-20 fw-bold mt-0 mb-2">Product Name</h6>
-            <p class="text-muted fw-normal mb-4">{{productDetails?.name}}</p>
-
-            <h6 class="text-left font-size-20 fw-bold mt-0 mb-2">Summary</h6>
-            <div class="text-muted">
-              <p class="text-muted fw-normal mb-4">{{productDetails?.shortDescription}}</p>
-            </div>
-
-            <h6 class="text-left font-size-20 fw-bold mt-0 mb-2">Long Description</h6>
-            <div class="text-muted">
-              <p class="text-muted fw-normal mb-4">{{productDetails?.detailedDescription}}</p>
-            </div>
-
-          </div>
-          <div class="col-lg-8">
-            <div class="mt-2">
-              <h5>{{subcategoryTitle}}</h5>
-              <hr/>
-
-
-
-              <div class="container-fluid d-flex justify-content-between mb-2">
-                <div class="col-lg-3 ps-0">
-                  <h5 class="text-left font-size-20 fw-bold mt-0 mb-2">Benefits</h5>
-                </div>
-                <div class="col-lg-3 pe-0">
-
-                  <div class="text-end">
-                    <button class="btn btn-sm btn-primary text-end" (click)="addBenefit()">Add Benefit</button>
-                  </div>
-                </div>
-              </div>
-              <div class="w-100">
-                <div class="card">
-                  <app-custom-ngx-table
-                    [columns]="benefitsColumn"
-                    [rows]="benefits"
-                    [actions]="actions"
-                    [loadingIndicator]="loading"
-                    [disableFilters]="true"
-                    (outputEvent)="triggerEventBenefit($event)"
-                  ></app-custom-ngx-table>
-                </div>
-
-                <hr>
-              </div>
-
-              <div class="container-fluid d-flex justify-content-between mb-2">
-                <div class="col-lg-3 ps-0">
-                  <h5 class="text-left font-size-20 fw-bold mt-0 mb-2">Requirements</h5>
-                </div>
-                <div class="col-lg-3 pe-0">
-
-                  <div class="text-end">
-                    <button class="btn btn-sm btn-primary text-end" (click)="addRequirement()">Add Requirement</button>
-                  </div>
-                </div>
-              </div>
-
-              <div class="w-100">
-                <div class="card">
-                  <app-custom-ngx-table
-                    [columns]="columns"
-                    [rows]="requirements"
-                    [actions]="actions"
-                    [disableFilters]="true"
-                    [loadingIndicator]="requirementsLoading"
-                    (outputEvent)="triggerEventRequirement($event)"
-                  ></app-custom-ngx-table>
-                </div>
-
-
-
-<!--                <div class="justify-content-evenly" *ngFor="let requirements of requirements">-->
-<!--                  <h6 class="text-body mb-2">Requirements: {{requirements?.requirement}}</h6>-->
-<!--                  <p class="text-muted tx-13 mb-2">Description: {{requirements?.requirementDescription}}</p>-->
-
-<!--                  <button (click)="removeRequirement(requirements?.id)"-->
-<!--                          class="btn btn-danger btn-xs pull-right mb-3"-->
-<!--                          type="button">Remove Requirement-->
-<!--                  </button>-->
-<!--                </div>--
-
-                <hr>
-              </div>
-
-
-<!--              <button (click)="addRequirement()"-->
-<!--                      class="btn btn-primary btn-xs pull-right"-->
-<!--                      type="button">Add Requirement-->
-<!--              </button>-->
-
-
-<!--              <hr/>--
-
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+<!-- <div class="d-flex justify-content-between align-items-center flex-wrap grid-margin mt-3">
+  <div>
+    <h4 class="mb-3 mb-md-0" style="color: var(--dark-purple, #1E0F2E);font-family: Muli;font-size: 20px;font-style: normal;font-weight: 700;line-height: 26px; ">Unlocking Efficiency with Customer Care Self Service</h4>
   </div>
 </div> -->
 
-<!-- Modal -->
-<!-- <ng-template #verticalCenteredModal let-modal>
-  <div class="modal-header">
-    <h5 class="modal-title" id="exampleModalLabel">Add Product</h5>
-    <button (click)="modal.close('by: close icon')" aria-label="Close" class="btn-close" type="button"></button>
-  </div>
-  <div class="modal-body">
-    <div class="row">
-      <div class="row">
-
-        <div class="col-sm-12">
-          <div class="mb-3">
-            <label class="form-label">Product Image</label>
-            <input #fileUpload (change)="onFileChange($event)"
-                   accept="image/*"
-                   class="form-control"
-                   id="file"
-                   type="file"
-            />
-          </div>
-        </div>
-        <div class="col-sm-6">
-          <div class="mb-3">
-            <label class="form-label">Product Name</label>
-            <input class="form-control" formControlName="name" maxlength="24" type="text">
-            <p *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')"
-               class="text-danger mt-1 mb-1 pt-0 small text-center">Required
-              Field</p>
-          </div>
-        </div>
-
-
-        <div class="col-sm-6">
-          <div class="mb-3">
-            <label class="form-label">Summary</label>
-            <input class="form-control" formControlName="description" maxlength="36" type="text">
-            <p *ngIf="form.get('description')?.touched && form.get('description')?.hasError('required')"
-               class="text-danger mt-1 mb-1 pt-0 small text-center">Required
-              Field</p>
-          </div>
-        </div>
-
-        <div class="col-sm-12">
-          <div class="mb-3">
-            <label class="form-label">Long Description (Narration)</label>
-            <textarea class="form-control" formControlName="longDescription" type="text"></textarea>
-            <p *ngIf="form.get('longDescription')?.touched && form.get('longDescription')?.hasError('required')"
-               class="text-danger mt-1 mb-1 pt-0 small text-center">Required
-              Field</p>
-          </div>
-        </div>
-
-        <div class="col-sm-6">
-          <div class="mb-3">
-            <div class="row">
-              <div class="col-10">
-                <label class="form-label">Features</label>
-                <input class="form-control" formControlName="feature" maxlength="36" type="text">
-                <p *ngIf="form.get('feature')?.touched && form.get('feature')?.hasError('required')"
-                   class="text-danger mt-1 mb-1 pt-0 small text-center">Required
-                  Field</p>
-              </div>
-              <div class="col-2 mt-1 pt-4">
-                <button (click)="addFeature()" class="btn  btn-md btn-primary" type="button">Add</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-sm-6">
-
-          <div class="mb-3">
-            <div class="row">
-              <div class="col-10">
-                <label class="form-label">Requirements</label>
-                <input class="form-control" formControlName="requirement" maxlength="36" type="text">
-                <p *ngIf="form.get('requirement')?.touched && form.get('requirement')?.hasError('required')"
-                   class="text-danger mt-1 mb-1 pt-0 small text-center">Required Field</p>
-              </div>
-              <div class="col-2 mt-1 pt-4">
-                <button (click)="addRequirement()" class="btn btn-md btn-primary" type="button">Add</button>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        <div class="col-12">
-          <div class="row">
-            <div class="col-6">
-              <h5 class="text-left">Features</h5>
-              <div>
-                <ul>
-                  <li *ngFor="let item of features">{{item}}</li>
-                </ul>
-              </div>
-            </div>
-            <div class="col-6">
-              <h5 class="text-left">Requirements</h5>
-              <div>
-                <ul>
-                  <li *ngFor="let item of requirements">{{item}}</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-
+<div class="card" style="position: relative;">
+  <div class="row">
+    <div class="col-md-12 col-lg-12 col-xl-12 col-sm-12">
+      <div class="card border-0 box-shadow">
+         <img class="card-img-top img-fluid" style="max-width:100% ; height: 350px ; border-radius: 16px;" src="assets/images/requests.png" />
       </div>
-
-
-    </div>
-    <div class="modal-footer">
-      <button (click)="modal.close('by: close button')" class="btn btn-secondary" type="button">Close</button>
-      <button (click)="modal.close('by: save button')" class="btn btn-primary" type="button">Save changes</button>
     </div>
   </div>
-</ng-template> -->
+
+  <div style=" position:absolute; padding: 16px 24px; align-items: center; border-radius: 16px; background: #FFF; width: 90%; margin-left: 5%; margin-top: 31%;">
+    <div class="d-flex justify-content-between" >
+      <!-- <div class="mt-2 p-2" style="border-right: 2px solid  rgba(182, 147, 220, 0.80);">
+        <div class="box-shadow" style="height: 95px ; width: 95px; border-radius: 50%;border: 2px solid #CCC; align-items: center;" >
+          <img class="card-img-top img-fluid" style="height: 63px; width: 75px; border-radius: 25%; margin-left: 8px; margin-top: 9px;" src="assets/images/ns.jpg" />
+       </div>
+      </div> -->
+      <div>
+        <p class="title">Enterprise Class</p>
+        <h2 class="content">{{requestDetails?.subClass?.enterprise?.class_name}}</h2>
+      </div>
+      <div>
+        <p class="title">Enterprise Category</p>
+        <h2 class="content">{{requestDetails?.subClass?.sub_class}}</h2>
+      </div>
+      <div>
+        <p class="title">Request Type</p>
+        <h2 class="content">{{requestDetails?.requestType}}</h2>
+      </div>
+      <div>
+        <p class="title">Request Number</p>
+        <h2 class="content">{{requestDetails?.ref_number}}</h2>
+      </div>
+      <div>
+        <p class="title">Status</p>
+        <h2 class="content">{{requestDetails?.status}}</h2>
+      </div>
+      <div style="margin-top: 3%;">
+        <button class="btn btn-md login-btn transition" (click)="raiseAppeal()"  type="submit">
+          <a  style="text-decoration: none" class="transition">
+            <span style="color: #f8f8f8; font-weight: 700;letter-spacing: 0.08em;font-size: 12px;
+            ">APPEAL</span></a>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div style="align-items: center; border-radius: 16px; background: #D0DDF0; width: 90%; margin-left: 5%; margin-top: 10%;">
+    <div class="d-flex justify-content-between" style="padding: 24px 24px;" >
+      <div>
+        <div class="card border-0 box-shadow" style="height: 100px ; width: 150px;" >
+          <img class="card-img-top img-fluid" style="height: 100px; width: 150px;" src="assets/images/certificate.png" />
+       </div>
+      </div>
+      <div style="font-family: Mulish;font-style: normal;font-weight: 600;line-height: normal;">
+        <p style="color: var(--dark-purple, #1E0F2E);font-size: 15px;">Cert No: 29BC4XYZ89</p>
+        <h2 style="color: var(--green-blue, #2268AA);font-size: 17px;">Tourism Regulatory Authority (TRA) <b>Accreditation Certificate Earned</b></h2>
+        <h4 style="color: var(--dark-purple, #1E0F2E);font-size: 17px;">Certificate expires | 24th September 2024 </h4>
+      </div>
+      <div style="margin-top: 3%;">
+        <button class="btn btn-md login-btn transition"  type="submit">
+          <a  style="text-decoration: none" class="transition">
+            <span style="color: #f8f8f8; font-weight: 700;letter-spacing: 0.08em;font-size: 12px;
+            ">DOWNLOAD</span></a>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<br>
+<footer class="footer d-flex flex-column flex-md-row align-items-center justify-content-between px-4 py-3 border-top small">
+  <p class="text-muted mb-1 mb-md-0">Copyright © 2023 <a href="https://www.tra.go.ke/" style="color: #6d36a8; font-family: 'Muli';" target="_blank">TRA</a></p>
+  <p class="" style="color: #6d36a8; font-family: 'Muli'; font-style: normal; font-weight: 700; font-size: 13px; letter-spacing: 0.08em;">Tourism Regulatory Authority</p>
+</footer>
+
 
 
