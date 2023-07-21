@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import {
   AbstractControl,
@@ -158,6 +158,8 @@ export class LandingComponent implements OnInit {
 
   selectedLanguage: any = 'English';
   selectedLanguageFlag: any = 'assets/images/flags/us.svg';
+  @ViewChild('leaveComment') leaveCommentModal: any;
+  showLeaveCommentForm = false; 
 
   constructor(
     private translate: TranslateService,
@@ -236,15 +238,35 @@ export class LandingComponent implements OnInit {
     //   );
   }
 
+  // openLeaveCommentModal() {
+  //   this.modalRef = this.modal.open(this.leaveCommentModal, { size: 'md' });
+  // }
+
+  
+
+  toggleLeaveCommentForm() {
+    this.showLeaveCommentForm = !this.showLeaveCommentForm;
+  }
+
+
+
+  closeModal() {
+    this.modalRef.dismiss();
+    this.showLeaveCommentForm = false;
+  }
+
   openModal(modalContent: any) {
-    this.modalRef = this.modal.open(modalContent, {centered: true, size:"md"});
+    this.modalRef = this.modal.open(modalContent, {
+      // windowClass: 'custom-modal',
+      size: 'md',
+    });
   }
   // closeModal() {
   //   this.activeModal.close();
   // }
-  public closeModal(): void {
-    this.activeModal.dismiss('Cross click');
-  }
+  // public closeModal(): void {
+  //   this.activeModal.dismiss('Cross click');
+  // }
   toggleShowPassword() {
     this.showingPassword = !this.showingPassword;
     if (this.showingPassword) {

@@ -58,10 +58,21 @@
 
   </a>
   <div class="d-flex justify-content-end">
-    <div style="position:absolute; border-radius: 50%;right:38px; width:60px; height: 60px;background-color: var(--lavender-web, #D0DDF0);      ;"
-      class="d-flex align-items-center border-0">
-      <p style="color: var(--green-blue, #2268AA); font-size: 30px; margin-left: -13px;
-      "> <i (click)='openModal(leaveComment)' class="mt-2 fa-solid fa-comments" title="Leave A Comment"></i></p>
+    <div style="position: fixed; bottom: 9%; right:3%;" class="d-flex justify-content-around">
+      <button class="btn btn-sm transition" style="border-radius: 64px;background: var(--green-blue, #2268AA); margin-right:10px;"
+        type="submit">
+        <a style="text-decoration: none" class="transition">
+          <span style="color: var(--seasalt, #F8F8F8);text-align: center;font-family: Mulish;font-size: 12px;font-style: normal;font-weight: 700;line-height: normal;letter-spacing: 1.12px;text-transform: uppercase;">customer inquiry</span></a>
+      </button>
+      <div
+        style="width: 50px; height: 50px; border-radius: 50%; background-color: #D0DDF0;;"
+        class="card-header d-flex align-items-center border-0">
+        <p style="color:#2268AA;  font-size: 30px; margin-left: -13px;">
+          <img class="img-fluid" (click)="openModal(leaveComment)" style="position: absolute; bottom: 19%"
+            src="assets/images/chats.png" width="30" height="20" alt="logo" />
+          <!-- <i (click)="openModal(leaveComment)" class="mt-2 fa-solid fa-comments" title="Leave A Comment"></i> -->
+        </p>
+      </div>
     </div>
   </div>
 </div>

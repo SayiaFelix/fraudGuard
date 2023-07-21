@@ -5341,7 +5341,7 @@ full-calendar.fc .btn-group-vertical > .btn-group:not(:first-child) > .fc-button
   word-wrap: break-word;
 }
 
-.modal {
+/* .modal {
   --bs-modal-zindex: 1055;
   --bs-modal-width: 500px;
   --bs-modal-padding: 1rem;
@@ -5373,14 +5373,13 @@ full-calendar.fc .btn-group-vertical > .btn-group:not(:first-child) > .fc-button
   overflow-x: hidden;
   overflow-y: auto;
   outline: 0;
-}
-
-.modal-dialog {
+} */
+/* .modal-dialog {
   position: relative;
   width: auto;
   margin: var(--bs-modal-margin);
   pointer-events: none;
-}
+} */
 .modal.fade .modal-dialog {
   transition: transform 0.4s ease;
   transform: scale(0.8);
@@ -19604,7 +19603,7 @@ body {
   padding: 0 25px;
   border-left: 1px solid #e9ecef;
   z-index: 999;
-  width: 240px;
+  width: 180px;
   -webkit-transition: width 0.1s ease;
   transition: width 0.1s ease;
 }
