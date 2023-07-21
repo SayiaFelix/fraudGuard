@@ -45,13 +45,15 @@ export class AddBenefitComponent implements OnInit {
         subQuestion1: new FormControl(false, Validators.required),
         subQuestion2: new FormControl(false, Validators.required),
         subQuestion3: new FormControl(false, Validators.required),
-        subQuestion4: new FormControl(false, Validators.required)
+        subQuestion4: new FormControl(false, Validators.required), 
+        comment: new FormControl('') 
       }),
       question2: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
         subQuestion2: new FormControl(false, Validators.required),
         subQuestion3: new FormControl(false, Validators.required),
-        subQuestion4: new FormControl(false, Validators.required)
+        subQuestion4: new FormControl(false, Validators.required),
+        comment: new FormControl('') 
       }),
       question3: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
@@ -59,13 +61,15 @@ export class AddBenefitComponent implements OnInit {
         subQuestion3: new FormControl(false, Validators.required),
         subQuestion4: new FormControl(false, Validators.required),
         subQuestion5: new FormControl(false, Validators.required),
-        subQuestion6: new FormControl(false, Validators.required)
+        subQuestion6: new FormControl(false, Validators.required),
+        comment: new FormControl('') 
       }),
       question4: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
         subQuestion2: new FormControl(false, Validators.required),
         subQuestion3: new FormControl(false, Validators.required),
-        subQuestion4: new FormControl(false, Validators.required)
+        subQuestion4: new FormControl(false, Validators.required),
+        comment: new FormControl('') 
       }),
       question5: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
@@ -73,7 +77,8 @@ export class AddBenefitComponent implements OnInit {
         subQuestion3: new FormControl(false, Validators.required),
         subQuestion4: new FormControl(false, Validators.required),
         subQuestion5: new FormControl(false, Validators.required),
-        subQuestion6: new FormControl(false, Validators.required)
+        subQuestion6: new FormControl(false, Validators.required),
+        comment: new FormControl('') 
       }),
       question6: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
@@ -81,7 +86,8 @@ export class AddBenefitComponent implements OnInit {
         subQuestion3: new FormControl(false, Validators.required),
         subQuestion4: new FormControl(false, Validators.required),
         subQuestion5: new FormControl(false, Validators.required),
-        subQuestion6: new FormControl(false, Validators.required)
+        subQuestion6: new FormControl(false, Validators.required),
+        comment: new FormControl('') 
       }),
       question7: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
@@ -89,7 +95,8 @@ export class AddBenefitComponent implements OnInit {
         subQuestion3: new FormControl(false, Validators.required),
         subQuestion4: new FormControl(false, Validators.required),
         subQuestion5: new FormControl(false, Validators.required),
-        subQuestion6: new FormControl(false, Validators.required)
+        subQuestion6: new FormControl(false, Validators.required),
+        comment: new FormControl('') 
       }),
       question8: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
@@ -97,7 +104,8 @@ export class AddBenefitComponent implements OnInit {
         subQuestion3: new FormControl(false, Validators.required),
         subQuestion4: new FormControl(false, Validators.required),
         subQuestion5: new FormControl(false, Validators.required),
-        subQuestion6: new FormControl(false, Validators.required)
+        subQuestion6: new FormControl(false, Validators.required),
+        comment: new FormControl('') 
       }),
       question9: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
@@ -105,7 +113,8 @@ export class AddBenefitComponent implements OnInit {
         subQuestion3: new FormControl(false, Validators.required),
         subQuestion4: new FormControl(false, Validators.required),
         subQuestion5: new FormControl(false, Validators.required),
-        subQuestion6: new FormControl(false, Validators.required)
+        subQuestion6: new FormControl(false, Validators.required),
+        comment: new FormControl('') 
       }),
       question10: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
@@ -113,13 +122,15 @@ export class AddBenefitComponent implements OnInit {
         subQuestion3: new FormControl(false, Validators.required),
         subQuestion4: new FormControl(false, Validators.required),
         subQuestion5: new FormControl(false, Validators.required),
-        subQuestion6: new FormControl(false, Validators.required)
+        subQuestion6: new FormControl(false, Validators.required),
+        comment: new FormControl('') 
       }),
       question11: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
         subQuestion2: new FormControl(false, Validators.required),
         subQuestion3: new FormControl(false, Validators.required),
-        subQuestion4: new FormControl(false, Validators.required)
+        subQuestion4: new FormControl(false, Validators.required),
+        comment: new FormControl('') 
       }),
       question12: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
@@ -127,7 +138,8 @@ export class AddBenefitComponent implements OnInit {
         subQuestion3: new FormControl(false, Validators.required),
         subQuestion4: new FormControl(false, Validators.required),
         subQuestion5: new FormControl(false, Validators.required),
-        subQuestion6: new FormControl(false, Validators.required)
+        subQuestion6: new FormControl(false, Validators.required),
+        comment: new FormControl('') 
       }),
       question13: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
@@ -135,7 +147,8 @@ export class AddBenefitComponent implements OnInit {
         subQuestion3: new FormControl(false, Validators.required),
         subQuestion4: new FormControl(false, Validators.required),
         subQuestion5: new FormControl(false, Validators.required),
-        subQuestion6: new FormControl(false, Validators.required)
+        subQuestion6: new FormControl(false, Validators.required),
+        comment: new FormControl('') 
       }),
       question14: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
@@ -143,7 +156,8 @@ export class AddBenefitComponent implements OnInit {
         subQuestion3: new FormControl(false, Validators.required),
         subQuestion4: new FormControl(false, Validators.required),
         subQuestion5: new FormControl(false, Validators.required),
-        subQuestion6: new FormControl(false, Validators.required)
+        subQuestion6: new FormControl(false, Validators.required),
+        comment: new FormControl('') 
       }),
       question15: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
@@ -151,13 +165,15 @@ export class AddBenefitComponent implements OnInit {
         subQuestion3: new FormControl(false, Validators.required),
         subQuestion4: new FormControl(false, Validators.required),
         subQuestion5: new FormControl(false, Validators.required),
-        subQuestion6: new FormControl(false, Validators.required)
+        subQuestion6: new FormControl(false, Validators.required),
+        comment: new FormControl('') 
       }),
       question16: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
         subQuestion2: new FormControl(false, Validators.required),
         subQuestion3: new FormControl(false, Validators.required),
         subQuestion4: new FormControl(false, Validators.required),
+        comment: new FormControl('') 
       }),
       question17: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
@@ -165,7 +181,8 @@ export class AddBenefitComponent implements OnInit {
         subQuestion3: new FormControl(false, Validators.required),
         subQuestion4: new FormControl(false, Validators.required),
         subQuestion5: new FormControl(false, Validators.required),
-        subQuestion6: new FormControl(false, Validators.required)
+        subQuestion6: new FormControl(false, Validators.required),
+        comment: new FormControl('')  
       }),
       question18: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
@@ -173,7 +190,8 @@ export class AddBenefitComponent implements OnInit {
         subQuestion3: new FormControl(false, Validators.required),
         subQuestion4: new FormControl(false, Validators.required),
         subQuestion5: new FormControl(false, Validators.required),
-        subQuestion6: new FormControl(false, Validators.required)
+        subQuestion6: new FormControl(false, Validators.required),
+        comment: new FormControl('') 
       }),
       question19: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
@@ -181,7 +199,8 @@ export class AddBenefitComponent implements OnInit {
         subQuestion3: new FormControl(false, Validators.required),
         subQuestion4: new FormControl(false, Validators.required),
         subQuestion5: new FormControl(false, Validators.required),
-        subQuestion6: new FormControl(false, Validators.required)
+        subQuestion6: new FormControl(false, Validators.required),
+        comment: new FormControl('') 
       }),
       question20: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
@@ -189,13 +208,15 @@ export class AddBenefitComponent implements OnInit {
         subQuestion3: new FormControl(false, Validators.required),
         subQuestion4: new FormControl(false, Validators.required),
         subQuestion5: new FormControl(false, Validators.required),
-        subQuestion6: new FormControl(false, Validators.required)
+        subQuestion6: new FormControl(false, Validators.required),
+        comment: new FormControl('') 
       }),
       question21: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
         subQuestion2: new FormControl(false, Validators.required),
         subQuestion3: new FormControl(false, Validators.required),
         subQuestion4: new FormControl(false, Validators.required),
+        comment: new FormControl('') 
       }),
     });
    
