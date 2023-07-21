@@ -3,15 +3,15 @@ import { MenuItem } from './menu.model';
 export const MENU: MenuItem[] = [
   {
     // profiles: ['CORPORATE_ADMIN'],
-    label: 'MAIN',
+    label: 'DASHBOARD',
     icon: 'home',
-    // link: '/dashboard',
-    subItems: [
-      {
-        profiles: ['CORPORATE_ADMIN'],
-        label: 'Dashboard',
-        link: '/dashboard'
-      },
+    link: '/dashboard',
+    // subItems: [
+    //   {
+    //     profiles: ['CORPORATE_ADMIN'],
+    //     label: 'Dashboard',
+    //     link: '/dashboard'
+    //   },
       // {
       //   profiles: ['CORPORATE_ADMIN'],
       //   label: 'Chat( Comments )',
@@ -27,59 +27,62 @@ export const MENU: MenuItem[] = [
       //   label: 'Mobile Banking APP',
       //   link: '/mobile-banking/channels/app-ussd-channel-dashboard'
       // },
-    ]
+    // ]
   },
   {
     // profiles: ['CORPORATE_ADMIN'],
     label: 'STANDARDS',
     icon: 'star',
-    subItems: [
-      {
-        profiles: ['CORPORATE_ADMIN'],
-        label: 'All Standards',
-        link: '/tra-client/standards/all-standards'
-      },
-    ]
+    link: '/tra-client/standards/all-standards'
+    // subItems: [
+    //   {
+    //     profiles: ['CORPORATE_ADMIN'],
+    //     label: 'All Standards',
+    //     link: '/tra-client/standards/all-standards'
+    //   },
+    // ]
   },
   {
     // profiles: ['CORPORATE_ADMIN'],
-    label: 'Requests',
+    label: 'My Requests',
     icon: 'award',
-    subItems: [
-      {
-        // profiles: ['CORPORATE_ADMIN'],
-        label: 'All Requests',
-        link: '/tra-client/requests/all'
-      },
+    link: '/tra-client/requests/all'
+    // subItems: [
+    //   {
+    //     // profiles: ['CORPORATE_ADMIN'],
+    //     label: 'All Requests',
+    //     link: '/tra-client/requests/all'
+    //   },
       // {
       //   // profiles: ['CORPORATE_ADMIN'],
       //   label: 'All Requests',
       //   link: '/tra-client/requests/all-accreditations'
       // },
-    ]
+    // ]
   },
 
   {
     // profiles: ['CORPORATE_ADMIN'],
     label: 'Notifications',
     icon: 'search',
-    subItems: [
-      // {
-      //   // profiles: ['CORPORATE_ADMIN'],
-      //   label: 'All Classifications',
-      //   link: '/tra-client/customers/list-requests'
-      // },
-      // {
-      //   profiles: ['CORPORATE_ADMIN'],
-      //   label: 'Classification Results',
-      //   link: '/tra-client/customers/list-failed-registrations'
-      // },
-      {
-        // profiles: ['CORPORATE_ADMIN'],
-        label: 'Notifications',
-        link: '/tra-client/customers/send-bulk-sms'
-      },
-    ]
+    link: '/tra-client/customers/send-bulk-sms'
+    // subItems: [
+    //   // {
+    //   //   // profiles: ['CORPORATE_ADMIN'],
+    //   //   label: 'All Classifications',
+    //   //   link: '/tra-client/customers/list-requests'
+    //   // },
+    //   // {
+    //   //   profiles: ['CORPORATE_ADMIN'],
+    //   //   label: 'Classification Results',
+    //   //   link: '/tra-client/customers/list-failed-registrations'
+    //   // },
+    //   {
+    //     // profiles: ['CORPORATE_ADMIN'],
+    //     label: 'Notifications',
+    //     link: '/tra-client/customers/send-bulk-sms'
+    //   },
+    // ]
   },
   // {
   //    profiles:['CORPORATE_ADMIN'],

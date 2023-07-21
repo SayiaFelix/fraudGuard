@@ -31,8 +31,8 @@
       -webkit-transition: opacity .5s ease;
       transition: opacity .5s ease;
       img {
-        height: 50px;
-        width:155px;
+        height: 38px;
+        width:100px;
       }
     }
     .sidebar-toggler {
@@ -291,7 +291,7 @@
       list-style: none;
       overflow-y: hidden;
       overflow-x: hidden;
-      padding: 30px 30px 25px 25px;
+      padding: 38px 40px 25px 25px;
       height: 100%;
       .nav-item {
         font-weight: 500;
@@ -301,7 +301,7 @@
           display: flex;
           align-items: center;
           padding: 0;
-          height: 35px;
+          height: 40px;
           white-space: nowrap;
           // color: $body-color;
           .link-icon {
@@ -315,9 +315,10 @@
             // margin-left: 28px;
             -webkit-transition: all .2s ease-in-out;
             transition: all .2s ease-in-out;
-            color: #F7941D;
+            color: #F8F8F8 !important; 
+            opacity: 0.6 !important;
             font-size: 16px;
-            height: 18px;
+            height: 30px;
             margin-bottom: 3px;
             text-transform: uppercase;
           }
@@ -361,11 +362,12 @@
             .linkTitle{ color: #F7941D; }
             .link-title {
               margin-left: 2px;
-              color: #F7941D !important; 
-              font-size: 18px;
+              color: #F8F8F8 !important; 
+              opacity: 1.0 !important;
+              font-size: 17px;
             }
             .link-icon {
-              color:#F7941D;
+              color: #F8F8F8 !important; 
               fill: #F7941D;
               font-size: 16px;
             }
@@ -374,10 +376,11 @@
         &.mm-active {
           > .nav-link {
             // color: #F8F8F8 !important;
-            .linkTitle{ color: #F8F8F8 !important; }
+            .linkTitle{ color: #F8F8F8 !important; opacity: 1.0 !important; }
             .link-title {
               // margin-left: 31px;
-              color: #F8F8F8 !important; 
+              color: #F8F8F8 !important;
+              opacity: 1.0 !important;
             }
             .link-arrow {
               -webkit-transform: rotate(90deg);

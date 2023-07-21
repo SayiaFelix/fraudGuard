@@ -134,13 +134,13 @@
         ACT 2011</a>
       <a routerLink="/" style="text-decoration: none; color: #1e0f2e" class="transition">Tourism Regulations 2014</a>
       <div class="d-flex justify-content-end">
-        <div
-          style="position:absolute; border-radius: 50%; bottom:45px; right:38px; width:60px; height: 60px;background-color: #2766BF;"
+        <div style="position: fixed; bottom: 9%; right:3%; width: 50px; height: 50px; border-radius: 50%; background-color: #2766BF;"
           class="card-header d-flex align-items-center border-0">
-          <!-- <img   (click)='openModal(leaveComment)' class="img-fluid"  style="height: 25px ;" src="assets/images/chat.png" alt="logo" /> -->
-          <p style="color: #F8F8F8; font-size: 30px; margin-left: -13px;
-          "> <i (click)='openModal(leaveComment)' class="mt-2 fa-solid fa-comments" title="Leave A Comment"></i></p>
-    
+          <p style="color: #F8F8F8; font-size: 30px; margin-left: -13px;">
+            <img class="img-fluid" (click)="openModal(leaveComment)" style="position: absolute; bottom: 27%" src="assets/images/chat.png" width="30"
+          height="20" alt="logo" />
+            <!-- <i (click)="openModal(leaveComment)" class="mt-2 fa-solid fa-comments" title="Leave A Comment"></i> -->
+          </p>
         </div>
       </div>
     </div>

@@ -51,8 +51,8 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
   pageSizes = [5, 10, 25, 50, 100,200];
   columns = [
     { name: 'ID', prop: 'id' },
-    { name: 'Request Type', prop: 'requestType' },
     { name: 'REQ NO:', prop: 'ref_number' },
+    { name: 'Request Type', prop: 'requestType' },
     { name: 'Status', prop: 'status' },
     { name: 'Created On', prop: 'createdOn' },
     { name: 'Actions', prop: 'actions' },
