@@ -8,15 +8,18 @@ import {
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { ColumnMode } from '@swimlane/ngx-datatable';
-
 import { GlobalService } from '../../../../../shared/services/global.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgxDatatableComponent } from '../../../tables/ngx-datatable/ngx-datatable.component';
 import { DatatableComponent } from '@swimlane/ngx-datatable/lib/components/datatable.component';
 import { DataExportationService } from 'src/app/shared/services/data-exportation.service';
 import { HttpService } from 'src/app/shared/services/http.service';
-import {AddCustomerComponent} from "../add-customer/add-customer.component";
+import { AddCustomerComponent } from "../add-customer/add-customer.component";
+import { CustomValidators } from 'ngx-custom-validators';
+import Swal from 'sweetalert2';
+import { ConfirmDialogComponent } from 'src/app/shared/components/confirm-dialog/confirm-dialog.component';
 // import {ChannelDetailsWrapper} from "../../../../../shared/services/channelDetailsWrapper";
 // import {AddAccountComponent} from "../../Accounts/AccountRegistration/add-account/add-account.component";
 
@@ -32,8 +35,17 @@ import {AddCustomerComponent} from "../add-customer/add-customer.component";
  */
 export class ListCustomersComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
-  actions=["View", "Edit"]
+  actions = ["View", "Edit"]
+  // URL of the brochure file you want to download
+  private brochureUrl = 'assets/images/certificate.png';
+  // Store the sanitized URL
+  public downloadLink: SafeUrl;
 
+  errorMsg: string;
+  hasError: boolean = false;
+  isLoading: boolean = false;
+  errorMessage: string;
+  modalRef: NgbModalRef;
   // bread crumb items
   breadCrumbItems: Array<{}>;
   rows: any = [];
@@ -45,11 +57,11 @@ export class ListCustomersComponent implements OnInit {
   columns = [
     { name: '#', prop: 'id' },
     { name: 'Customer Name', prop: 'name' },
-    {name:'Phone Number',prop:'phone_number'},
-    {name: 'Email',prop:'email'},
-    {name: 'Identification',prop:'identification'},
+    { name: 'Phone Number', prop: 'phone_number' },
+    { name: 'Email', prop: 'email' },
+    { name: 'Identification', prop: 'identification' },
     { name: 'Wallet Account', prop: 'wallet_account' },
-    {name: 'Status',prop:'active'},
+    { name: 'Status', prop: 'active' },
     { name: 'Actions', prop: 'id' },
   ];
 
@@ -59,10 +71,11 @@ export class ListCustomersComponent implements OnInit {
   public formData: { productName: any; remarks: any; image: any };
   ColumnMode = ColumnMode;
   public imageFile: File;
-  public modalRef: NgbModalRef;
+
 
   title: string = "New Customer";
   total: any;
+  results: any = [];
 
 
   constructor(
@@ -70,19 +83,26 @@ export class ListCustomersComponent implements OnInit {
     private modalService: NgbModal,
     public fb: FormBuilder,
     public router: Router,
+    private datePipe: DatePipe,
+    private sanitizer: DomSanitizer,
     private dataExploration: DataExportationService
-  ) {}
+  ) {
+    // Sanitize the brochure URL to make it safe for use in the anchor element
+    // this.downloadLink = this.sanitizer.bypassSecurityTrustUrl(this.brochureUrl);
+    this.downloadLink = '';
+    this.form = fb.group({
+      email: ['', Validators.compose([Validators.required, CustomValidators.email])],
+      subject: ['', Validators.compose([Validators.required])],
+      message: ["", Validators.compose([Validators.required])],
+      name: ["", Validators.compose([Validators.required])],
+      phoneNumber: ["", Validators.compose([Validators.required])],
+    });
+  }
 
   ngOnInit() {
-    this.breadCrumbItems = [
-      {
-        label: 'Mobile banking',
-        path: '/mobile-banking/products/all-customers',
-      },
-      { label: 'Pages', path: '/' },
-      { label: 'Customers', active: true },
-    ];
+
     this.getIndividualData(0);
+    this.loadData();
 
     this.form = this.fb.group({
       name: ['', [Validators.required]],
@@ -90,7 +110,10 @@ export class ListCustomersComponent implements OnInit {
       image: [''],
     });
   }
-
+  onleaveComment() { }
+  openModal(modalContent: any) {
+    this.modalRef = this.modalService.open(modalContent, { centered: true, size: "md" });
+  }
   getIndividualData(event: number): void {
 
     this.loading = true;
@@ -108,7 +131,8 @@ export class ListCustomersComponent implements OnInit {
           setTimeout(() => {
 
             let response = res['data'].filter((i: any) => i.walletAccount !== "").map((item: any, index: any) => {
-              let res = {...item,
+              let res = {
+                ...item,
                 frontendId: index + 1
               };
               return res;
@@ -125,9 +149,91 @@ export class ListCustomersComponent implements OnInit {
 
   }
 
-  openAddProductModal() {
+  private loadData(): any {
+    this.loading = true;
+    this.httpService.customerPortalPost(`api/v1/portal/getRequests`, {}).subscribe(
+      (res: any) => {
 
-    this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true,size:"lg"});
+        if (res.status == '00') {
+          this.results = res['data'];
+          console.log(this.results)
+          this.loading = false;
+        } else {
+          Swal.fire('Failed', "Unable to fetch results", 'error')
+        }
+      }, (error: any) => {
+        Swal.fire("Error", error.message, "error");
+      });
+  }
+
+  formatDate(date: string): string {
+    const formattedDate = this.datePipe.transform(date, 'dd MMM yyyy');
+    return formattedDate ? formattedDate.toUpperCase() : '';
+  }
+
+  getSanitizedStatusImage(status: string): any {
+    switch (status) {
+      case 'Appealed':
+        return this.sanitizer.bypassSecurityTrustResourceUrl('assets/images/approve.png');
+      case 'Pending':
+        return this.sanitizer.bypassSecurityTrustResourceUrl('assets/images/fail.png');
+      // Add more cases for other status if needed
+      default:
+        return this.sanitizer.bypassSecurityTrustResourceUrl('assets/images/time.png');
+    }
+  }
+
+  handleDownload(result: any) {
+    if (result.id === 1) {
+      this.downloadLink = this.sanitizer.bypassSecurityTrustUrl('assets/images/ns.jpg');
+    } else if (result.id === 2) {
+      this.downloadLink = this.sanitizer.bypassSecurityTrustUrl('assets/images/serena.jpeg');
+    } else {
+      this.downloadLink = this.sanitizer.bypassSecurityTrustUrl('assets/images/certificate.png');
+    }
+
+    // Rest of your raiseAppeal() function code...
+  }
+
+  // Define a helper function to get the appropriate text for the raiseAppeal button
+  getAppealButtonText(status: string, requestType: string): string {
+    if (requestType === 'CLASSIFICATION') {
+      return 'Create Appeal';
+    } else {
+      return status === 'Appealed' ? 'Appeal Accepted' : 'Create Appeal';
+    }
+  }
+  raiseAppeal(id: number, status: string, requestType: string): void {
+    console.log(id)
+    console.log(status)
+    console.log(requestType)
+    // this.modalRef = this.modalService.open(ConfirmDialogComponent, { centered: true });
+    // this.modalRef.componentInstance.title = 'RAISE AN APPEAL';
+    // this.modalRef.componentInstance.body = 'Do you want to APPEAL for this Request?';
+    // this.modalRef.result.then((result) => {
+    //   if (result === 'success') {
+    //     this.httpService
+    //       .customerPortalPost(`api/v1/portal/appeal/${id}`, {
+    //         id: id,
+    //         status: status,
+    //         requestType: requestType,
+    //       })
+    //       .subscribe((result: any) => {
+    //         if (result.status === '00') {
+    //           Swal.fire('Appealed', 'Request Appeal Raised Successfully.', 'success');
+    //           this.loadData();
+    //         } else {
+    //           // Handle the error if needed
+    //         }
+    //       });
+    //   } else {
+    //     console.log('Error occurred');
+    //   }
+    // });
+  }
+
+  openAddProductModal() {
+    this.modalRef = this.modalService.open(AddCustomerComponent, { centered: true, size: "lg" });
     this.modalRef.componentInstance.title = 'Add New Customer';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
@@ -204,8 +310,8 @@ export class ListCustomersComponent implements OnInit {
   updateColumns(updatedColumns: any) {
     this.columns = [...updatedColumns];
   }
-  openEditProductModal(data:any){
-    this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true});
+  openEditProductModal(data: any) {
+    this.modalRef = this.modalService.open(AddCustomerComponent, { centered: true });
     this.modalRef.componentInstance.title = 'Edit Customer';
     this.modalRef.componentInstance.formData = "";
     this.modalRef.result.then((result) => {
@@ -216,11 +322,11 @@ export class ListCustomersComponent implements OnInit {
       }
     });
   }
-  triggerEvent(data:any){
+  triggerEvent(data: any) {
     let eventData = JSON.parse(data)
 
     if (eventData.action == 'View') {
-      this. navigateToViewProduct(eventData.row);
+      this.navigateToViewProduct(eventData.row);
     }
     else if (eventData.action == 'Edit') {
       this.openEditProductModal(eventData.row);

@@ -24,7 +24,7 @@ const routes: Routes = [
           import('./requests/requests.module').then((m) => m.RequestsModule)
       },
       {
-        path: 'customers',
+        path: 'reports&results',
         loadChildren: () =>
           import('./customers/customers.module').then((m) => m.CustomersModule)
       },

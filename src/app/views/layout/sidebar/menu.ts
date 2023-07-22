@@ -63,9 +63,9 @@ export const MENU: MenuItem[] = [
 
   {
     // profiles: ['CORPORATE_ADMIN'],
-    label: 'Notifications',
+    label: 'Reports & Results',
     icon: 'search',
-    link: '/tra-client/customers/send-bulk-sms'
+    link: '/tra-client/reports&results/results'
     // subItems: [
     //   // {
     //   //   // profiles: ['CORPORATE_ADMIN'],
@@ -215,28 +215,29 @@ export const MENU: MenuItem[] = [
   //   ]
   // },
 
-  // {
-  //   profiles: ['CORPORATE_ADMIN'],
-  //   label: 'Chats',
-  //   icon: 'users',
-  //   subItems: [
-  //     {
-  //       profiles: ['CORPORATE_ADMIN'],
-  //       label: 'Inbox',
-  //       link: '/tra-client/Users/list-users'
-  //     },
-  //     // {
-  //     //   profiles: ['CORPORATE_ADMIN'],
-  //     //   label: 'Roles',
-  //     //   link: '/mobile-banking/rbac/all-roles'
-  //     // },
-  //     {
-  //       profiles: ['CORPORATE_ADMIN'],
-  //       label: 'Profiles',
-  //       link: '/tra-client/rbac/all-profiles'
-  //     }
-  //   ]
-  // },
+  {
+    // profiles: ['CORPORATE_ADMIN'],
+    label: 'Chats',
+    icon: 'users',
+    link: '/tra-client/Users/list-users'
+    // subItems: [
+    //   {
+    //     profiles: ['CORPORATE_ADMIN'],
+    //     label: 'Inbox',
+    //     link: '/tra-client/Users/list-users'
+    //   },
+    //   // {
+    //   //   profiles: ['CORPORATE_ADMIN'],
+    //   //   label: 'Roles',
+    //   //   link: '/mobile-banking/rbac/all-roles'
+    //   // },
+    //   {
+    //     profiles: ['CORPORATE_ADMIN'],
+    //     label: 'Profiles',
+    //     link: '/tra-client/rbac/all-profiles'
+    //   }
+    // ]
+  },
   // {
   //   profiles: ['CORPORATE_ADMIN'],
   //   label:'AUDIT TRAIL',

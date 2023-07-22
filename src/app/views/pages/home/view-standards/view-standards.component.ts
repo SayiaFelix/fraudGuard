@@ -128,7 +128,9 @@ export class ViewStandardsComponent implements OnInit {
 
   onSubmit(): any {
     this.isLoading = true;
+    let userId = JSON.parse(localStorage.getItem('data')!)['user']['id']
     const model = {
+      userId,
       comment: this.form.value.comment,
     };
     console.log(model)

@@ -11,7 +11,7 @@ import {ReasonsForFailureComponent} from "./reasons-for-failure/reasons-for-fail
 const routes: Routes = [
 
   {
-    path: 'list-requests',
+    path: 'results',
     component: ListCustomersComponent
   },
 
