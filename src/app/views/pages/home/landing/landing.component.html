@@ -82,18 +82,21 @@
             font-size: 18px;
           " routerLink="/standards/all-standards">View all Standards</a>
       </div>
-      <a href="" routerLink="/standards/Id">
         <div class="card-body p-1">
           <div class="border-0 box-shadow">
             <div class="grid-margin stretch-card">
               <div class="row" style="padding: 0px 30px">
                 <div class="col-md-3 col-lg-3 col-xl-3 col-sm-4 mt-3 pt-2" *ngFor="let std of standards">
-                  <div class="" [id]="std.id">
+                  <!-- `/mobile-banking/products/list-products/${data.id}` -->
+                  <div class="" [id]="std.id" (click)="viewStandard(std.id)">
+                    <a routerLink="/standards/Id"></a>
                     <div style="position: relative; display: inline-block;">
                       <div>
-                        <img class="img-fluid card-img-top"
+                        <!-- <img class="img-fluid card-img-top"
                           style="height: 95px; border-top-left-radius: 13px; border-top-right-radius: 13px;"
-                          [src]="std.icon" />
+                          [src]="std.icon" /> -->
+                          <img  class="img-fluid card-img-top"
+                          style="height: 95px; border-top-left-radius: 13px; border-top-right-radius: 13px;" src="assets/images/3.png"alt="">
                       </div>
                       <div
                         style="position: absolute; width: 60px; height: 60px; margin-left: 4%; margin-top: -11%; border-radius: 50%; background-color: #D0DDF0;"
@@ -122,7 +125,7 @@
                             font-size: 12px;
                             line-height: 21px;
                           " class="h3">
-                          {{ std.describe }}
+                          {{ std.description }}
                         </p>
                       </div>
                     </div>
@@ -132,7 +135,6 @@
             </div>
           </div>
         </div>
-      </a>
     </div>
   </div>
   <div class="row">
@@ -191,19 +193,19 @@
       <a routerLink="/" style="text-decoration: none; color: #1e0f2e" class="transition">Tourism Regulations 2014</a>
     </div>
     <div class="d-flex justify-content-end">
-      <div style="position: fixed; bottom: 9%; right:3%; width: 50px; height: 50px; border-radius: 50%; background-color: #2766BF;"
+      <div  (click)="toggleLeaveCommentForm()" style="position: fixed; bottom: 9%; right:3%; width: 50px; height: 50px; border-radius: 50%; background-color: #2766BF;"
         class="card-header d-flex align-items-center border-0">
-        <p style="color: #F8F8F8; font-size: 30px; margin-left: -13px;">
-          <img class="img-fluid" (click)="toggleLeaveCommentForm()" style="position: absolute; bottom: 27%" src="assets/images/chat.png" width="30"
+        <p style="color: #F8F8F8; font-size: 30px; margin-left: -13px;" >
+          <img class="img-fluid"  style="position: absolute; bottom: 27%" src="assets/images/chat.png" width="30"
         height="20" alt="logo" />
-          <!-- <i (click)="openModal(leaveComment)" class="mt-2 fa-solid fa-comments" title="Leave A Comment"></i> -->
+
         </p>
       </div>
     </div>
   </div>
 </div>
-<div *ngIf="showLeaveCommentForm">
-  <div class="modal-container" #leaveComment>
+<ng-container *ngIf="showLeaveCommentForm; else hiddenForm">
+  <div class="modal-container">
     <div class="modals">
       <div class="col-12">
         <div class="">
@@ -257,4 +259,9 @@
       </div>
     </div>
   </div>
-</div>
+
+</ng-container>
+<ng-template #hiddenForm>
+  <!-- This content will be shown when showForm is false -->
+  <p>Form is hidden. Click the button to show the form.</p>
+</ng-template>

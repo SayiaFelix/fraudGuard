@@ -55,8 +55,7 @@
         <div class="d-flex justify-content-between" style="width: 96%; border-bottom: 2px solid #6D36A8;">
           <h3 class="card-title"
             style="color: #6D36A8; font-family: 'Muli';font-weight: 700;font-size: 23px; text-transform: none;">
-            Standards
-            For Accommodation & Catering Establishment</h3>
+            {{standard?.name}}</h3>
           <div class="d-flex justify-content-between">
             <p style="font-weight: 600; font-size: 23px; color:#2268AA;">
               <!-- <i (click)='openModal(requestStandard)' class="fa-solid fa-file" title="Request Standard"></i> -->
@@ -89,12 +88,34 @@
                     Preliminary
                   </h3>
                 </div>
-                <div class="mt-3">
+                <div class="mt-1">
                   <p
                     style="color: #000000; font-family: Muli;font-size: 15px;font-weight: 400;line-height: 22px;letter-spacing: 0em;text-align: justified;">
-                    {{currentDescription}}
+                    {{standard?.description}}
                   </p>
                 </div>
+                <div>
+                  <form class="" [formGroup]="form" class="row">
+                    <div class="tab-content col-12" style="background-color: #F8F8F8;">
+                      <div style="border-radius: 8px;border: 2px solid var(--lavender-web, #D0DDF0);">
+                        <p class="p-2"
+                          style="color: var(--green-blue, #2268AA);font-family: Mulish;font-size: 15px;font-style: normal;font-weight: 700;line-height: 21px;">
+                          Comments</p>
+                        <div class="form-group" style="margin-top: -3%;">
+                          <input formControlName="comment" placeholder="Type Your Comment here..." type="text"
+                            class="form-control validation-field border-0" name="name" id="name">
+                        </div>
+                      </div>
+                      <div class="col-12 bg-white text-center py-1 mt-3 mb-2 d-flex justify-content-start">
+                        <button (click)="onSubmit()" style="border: none;"
+                          class="btn btn-block logi-btn transition" type="submit">
+                          <span style="color: var(--seasalt, #F8F8F8);text-align: center;font-family: Mulish;font-size: 14px;font-style: normal;font-weight: 700;line-height: normal; letter-spacing: 1.28px;text-transform: uppercase;">SUBMIT</span>
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+
               </div>
               <div class="col-md-3 border border-1 rounded"
                 style="padding: 10px; border: 1px #d0ddf0; border-radius: 8px;">
@@ -172,7 +193,14 @@
       <a routerLink="/" class="" style="text-decoration: none; margin: 20px; color: #1e0f2e" class="transition">Tourism
         ACT 2011</a>
       <a routerLink="/" style="text-decoration: none; color: #1e0f2e" class="transition">Tourism Regulations 2014</a>
-      <div class="d-flex justify-content-end">
+      <div class="d-flex justify-content-between">
+        <!-- <div style="position: fixed; bottom: 9%; right:3%; width: 50px; height: 50px; border-radius: 50%; background-color: #2766BF;">
+          <p style="color: #2766BF;; font-size: 30px; margin-left: -13px;">
+            <img class="img-fluid" (click)="openModal(Comment)" style="position: absolute; bottom: 27%"
+              src="assets/images/chat.png" width="30" height="20" alt="logo" />
+            <!-- <i (click)="openModal(leaveComment)" class="mt-2 fa-solid fa-comments" title="Leave A Comment"></i> --
+          </p>
+        </div> -->
         <div
           style="position: fixed; bottom: 9%; right:3%; width: 50px; height: 50px; border-radius: 50%; background-color: #2766BF;"
           class="card-header d-flex align-items-center border-0">
@@ -298,62 +326,6 @@
                   <button style="width: 100%; border: none;" class="btn btn-block bronchure-btn transition"
                     type="submit">
                     <span style="color: white;">SEND</span>
-                  </button>
-                </div>
-              </div>
-            </form>
-          </article>
-        </div>
-      </div>
-    </div>
-  </div>
-</ng-template>
-
-<ng-template #downloadBronchure>
-  <div>
-    <div class="row">
-      <div class="col-12">
-        <div class="">
-          <div class="card-header d-flex justify-content-between"
-            style="background-color: #d0ddf0; font-family: 'Mulish'; font-weight: 900; border-radius:4px;">
-            <h4 class=" text-start mt-3 p-2" style="color: #6D36A8; font-size: 23px;">One More Step</h4>
-            <div style="color: #6D36A8;">
-              <button type="button " class="mt-3 p-2 btn-close" (click)="closeModal()" data-bs-dismiss="modal"
-                aria-label="Close"></button>
-            </div>
-          </div>
-          <article class="">
-            <p *ngIf="errorMessage" class="text-danger">{{errorMessage}}</p>
-            <p class="form-control border-0"
-              style="color: #1E0F2E; font-family: 'Mulish'; font-weight: 400; padding-left: 24px;">Fill out
-              this form and the download will be sent to your email</p>
-            <form class="mt-1" [formGroup]="form" (ngSubmit)="onRequestStandards()" class="row px-3">
-              <div class="tab-content col-12 border-0">
-                <div class="form-group mt-2">
-                  <input formControlName="name" type="text" class="form-control validation-field border-0" id="name"
-                    placeholder="Your Name or Company*">
-                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
-                </div>
-                <div class="form-group mt-2">
-                  <input formControlName="email" type="email" class="form-control validation-field border-0" id="email"
-                    placeholder="Your email address*">
-                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
-                </div>
-                <div class="form-group mt-2">
-                  <input type="text" name="tel" formControlName="phoneNumber" id="phoneNumber"
-                    placeholder="Phone Number*" class="form-control validation-field border-0" ng2TelInput
-                    data-initial-country="ke">
-                  <!-- <ngx-mat-intl-tel-input formControlName="phoneNumber" [preferredCountries]="['us', 'gb']"
-                    [enablePlaceholder]="true" [enableSearch]="true" name="phone">
-                  </ngx-mat-intl-tel-input> -->
-                  <!-- <input formControlName="phoneNumber" id="phoneNumber" type="text"  placeholder="Phone Number*" class="form-control validation-field border-0"
-                    id="purpose" placeholder="Your Phone No,"> -->
-                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
-                </div>
-                <div class="col-12 bg-white text-center py-1 mt-3 mb-2">
-                  <button (click)="onSubmit($event)" style="width: 100%; border: none;"
-                    class="btn btn-block bronchure-btn transition" type="submit">
-                    <span style="color: white;">DOWNLOAD</span>
                   </button>
                 </div>
               </div>

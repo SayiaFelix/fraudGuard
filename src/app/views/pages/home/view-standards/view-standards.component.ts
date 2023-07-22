@@ -28,6 +28,8 @@ export class ViewStandardsComponent implements OnInit {
   modalRef: NgbModalRef;
   inputType = 'password';
   errorMessage: string;
+  loading: boolean;
+  standard:any;
   currentDescription = 'Tourism Regulatory Authority (TRA) is a corporate body established under section 4 of the Tourism Act No.28 of 2011 and is mandated to regulate the tourism sector in Kenya. This entails developing regulations, standards and guidelines that are necessary to ensure an all-round quality service delivery in the tourism sector.This standard was developed by a select team drawn from relevant institutions, including; Tourism Regulatory Authority (TRA), Kenya Utalii College (KUC), Kenya Association of Hotels and Caterers (KAHC), Kenya Association of Tour Operators (KATO), Ministry of Health (MoH), Architectural of Association of Kenya (AAK) and Kenya Bureau of Standards (KEBS). This standard will ensure that the service provided by all the hospitality establishments in the country is of quality and meet the minimum expectations of the tourist. It will form the basis for quality control in the sector as well act as the essential item for the rating of hotels and restaurants in the country.'
   standards: any = [
     {
@@ -61,12 +63,14 @@ export class ViewStandardsComponent implements OnInit {
   images: string[];
   currentIndex: number;
   changeIndex: (index: any) => void;
+  public standardId: number;
 
   constructor(
     private translate: TranslateService,
     private router: Router,
     private route: ActivatedRoute,
     private httpService: HttpService,
+    public activatedRoute: ActivatedRoute,
     public activeModal: NgbActiveModal,
     private _router: Router,
     private fb: FormBuilder,
@@ -74,16 +78,26 @@ export class ViewStandardsComponent implements OnInit {
 
   ) {
     this.form = fb.group({
-      email: ['',Validators.compose([Validators.required, CustomValidators.email])],
-      occupation: ['',Validators.compose([Validators.required])],
-      purpose: ["", Validators.compose([Validators.required])],
-      name: ["", Validators.compose([Validators.required])],
-      phoneNumber: ["", Validators.compose([Validators.required])],
+      // email: ['',Validators.compose([Validators.required, CustomValidators.email])],
+      // occupation: ['',Validators.compose([Validators.required])],
+      // purpose: ["", Validators.compose([Validators.required])],
+      comment: ["", Validators.compose([Validators.required])],
+      // phoneNumber: ["", Validators.compose([Validators.required])],
     });
   }
 
   ngOnInit(): void {
+    this.activatedRoute.params.subscribe(params => {
+      if (typeof params.id !== 'undefined') {
+        console.log('query-params');
+        console.log(params);
+        this.standardId = params.id;
+        console.log(this.standardId)
+        // this.categoryId = params.categoryId;
+      }
+    });
 
+    this.loadData()
     localStorage.clear();
     // get return url from route parameters or default to '/'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
@@ -92,51 +106,53 @@ export class ViewStandardsComponent implements OnInit {
   get f(): { [p: string]: AbstractControl } {
     return this.form.controls;
   }
-  onSubmit(e: Event) {
-    // this.hasError = false;
-    // this.isLoading = true;
-    // e.preventDefault();
 
-    // const model = new HttpParams()
-    //   // .set('grant_type', 'password')
-    //   .set('username', this.form.value.username.trim())
-    //   .set('password', this.form.value.password);
+  private loadData(): any {
+    this.loading = true;
+    this.httpService.customerPortalPost(`api/v1/portal/standard/${this.standardId}`,{}).subscribe(
+      (res: any) => {
 
-    // this.loginResponse$ = this.httpService
-    //   .channelManagerLogin('oauth/token', model)
-    //   .pipe(
-    //     catchError((error: any) => {
-    //       console.log(error);
-    //       this.hasError = error.message;
-    //       this.isLoading = false;
-    //       return throwError(error);
-    //     }),
-    //     map((result) => {
-    //       this.isLoading = false;
-    //       if (result['status'] != 200) {
-    //         this.hasError = true;
-    //         this.errorMsg = result['message'];
-    //         setTimeout(() => {
-    //           this.hasError = false;
-    //           this.errorMsg = '';
-    //           this.form.reset();
-    //         }, 4000);
-    //       } else {
-    //         setTimeout(() => {
+        if (res.status == '00') {
+          this.standard = res['data'];
+          console.log(this.standard)
+          this.loading = false;
+          this.loading = false;
 
-    //           this.saveUsernameAndRolesOnLogin();
+        } else {
+          Swal.fire('Failed', "Unable to fetch standards", 'error')
+        }
+      }, (error: any) => {
+        Swal.fire("Error", error.message, "error");
+      });
+  }
 
-    //           // if(result.firstTimeLogin) {
-    //           //   this.router.navigate(['/auth/first-time-login']);
-    //           // } else{
-    //           //   this.router.navigate(['/dashboard']);
-    //           // }
+  onSubmit(): any {
+    this.isLoading = true;
+    const model = {
+      comment: this.form.value.comment,
+    };
+    console.log(model)
+    this.httpService.customerPortalPost(`api/v1/portal/comment/${this.standardId}`, model).subscribe(
+      (result: any) => {
+        if (result.status === '00') {
+          this.isLoading = false;
+          this.activeModal.close('success');
+          Swal.fire('Comment Added Successfully',
+            'success').then(r => console.log(r))
+            this.form.reset()
+            this.loadData()
+        } else {
+          this.activeModal.close('error');
+          Swal.fire('Add Comment Failed, Try Again',
+            'error').then(r => console.log(r))
+        }
+      },
+      (error: any) => {
+        Swal.fire('Add Comment error',
+          'error')
+      }
+    );
 
-    //         }, 1000);
-    //         return result;
-    //       }
-    //     })
-    //   );
   }
 
   toggleShowPassword() {
