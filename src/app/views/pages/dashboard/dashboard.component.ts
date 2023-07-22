@@ -177,9 +177,7 @@ export class DashboardComponent implements OnInit {
   openModal(modalContent: any) {
     this.modalRef = this.modal.open(modalContent, {centered: true, size:"md"});
   }
-  // closeModal() {
-  //   this.activeModal.close();
-  // }
+
   public closeModal(): void {
     this.activeModal.dismiss('Cross click');
   }
