@@ -151,7 +151,7 @@ export class ListCustomersComponent implements OnInit {
 
   private loadData(): any {
     this.loading = true;
-    this.httpService.customerPortalPost(`api/v1/portal/getRequests`, {}).subscribe(
+    this.httpService.customerPortalPost(`api/v1/portal/getResults`, {}).subscribe(
       (res: any) => {
 
         if (res.status == '00') {
@@ -173,13 +173,15 @@ export class ListCustomersComponent implements OnInit {
 
   getSanitizedStatusImage(status: string): any {
     switch (status) {
-      case 'Appealed':
+      case 'Passed':
         return this.sanitizer.bypassSecurityTrustResourceUrl('assets/images/approve.png');
-      case 'Pending':
+      case 'Failed':
         return this.sanitizer.bypassSecurityTrustResourceUrl('assets/images/fail.png');
+      case 'Appealed':
+        return this.sanitizer.bypassSecurityTrustResourceUrl('assets/images/time.png');
       // Add more cases for other status if needed
       default:
-        return this.sanitizer.bypassSecurityTrustResourceUrl('assets/images/time.png');
+        return this.sanitizer.bypassSecurityTrustResourceUrl('assets/images/Vector.png');
     }
   }
 
@@ -207,29 +209,29 @@ export class ListCustomersComponent implements OnInit {
     console.log(id)
     console.log(status)
     console.log(requestType)
-    // this.modalRef = this.modalService.open(ConfirmDialogComponent, { centered: true });
-    // this.modalRef.componentInstance.title = 'RAISE AN APPEAL';
-    // this.modalRef.componentInstance.body = 'Do you want to APPEAL for this Request?';
-    // this.modalRef.result.then((result) => {
-    //   if (result === 'success') {
-    //     this.httpService
-    //       .customerPortalPost(`api/v1/portal/appeal/${id}`, {
-    //         id: id,
-    //         status: status,
-    //         requestType: requestType,
-    //       })
-    //       .subscribe((result: any) => {
-    //         if (result.status === '00') {
-    //           Swal.fire('Appealed', 'Request Appeal Raised Successfully.', 'success');
-    //           this.loadData();
-    //         } else {
-    //           // Handle the error if needed
-    //         }
-    //       });
-    //   } else {
-    //     console.log('Error occurred');
-    //   }
-    // });
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, { centered: true });
+    this.modalRef.componentInstance.title = 'RAISE AN APPEAL';
+    this.modalRef.componentInstance.body = 'Do you want to APPEAL for this Request?';
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        this.httpService
+          .customerPortalPost(`api/v1/portal/appeal/${id}`, {
+            id: id,
+            status: status,
+            requestType: requestType,
+          })
+          .subscribe((result: any) => {
+            if (result.status === '00') {
+              Swal.fire('Appealed', 'Request Appeal Raised Successfully.', 'success');
+              this.loadData();
+            } else {
+              // Handle the error if needed
+            }
+          });
+      } else {
+        console.log('Error occurred');
+      }
+    });
   }
 
   openAddProductModal() {
