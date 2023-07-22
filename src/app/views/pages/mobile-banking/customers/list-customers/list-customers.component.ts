@@ -202,7 +202,15 @@ export class ListCustomersComponent implements OnInit {
     if (requestType === 'CLASSIFICATION') {
       return 'Create Appeal';
     } else {
-      return status === 'Appealed' ? 'Appeal Accepted' : 'Create Appeal';
+      if (status === 'Passed') {
+        return 'Appeal Accepted';
+      } else if (status === 'Failed') {
+        return 'Create Appeal';
+      } else if (status === 'Appealed') {
+        return 'Already Appealed';
+      } else {
+        return 'Unknown Status'; // Handle other statuses if needed
+      }
     }
   }
   raiseAppeal(id: number, status: string, requestType: string): void {
@@ -234,6 +242,15 @@ export class ListCustomersComponent implements OnInit {
     });
   }
 
+  isButtonDisabled(status: string, requestType: string): boolean {
+    if (requestType === 'CLASSIFICATION') {
+      // For CLASSIFICATION request type, the button is always enabled
+      return false;
+    } else {
+      // For other request types, check the status
+      return status === 'Passed' || status === 'Appealed';
+    }
+  }
   openAddProductModal() {
     this.modalRef = this.modalService.open(AddCustomerComponent, { centered: true, size: "lg" });
     this.modalRef.componentInstance.title = 'Add New Customer';

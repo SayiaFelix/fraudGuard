@@ -82,7 +82,7 @@
       </div>
       <!-- Display the appropriate text for the raiseAppeal button -->
       <div class="mt-1">
-        <button  [disabled]="std.status === 'Appealed'" class="btn btn-md transition" (click)="raiseAppeal(std.id, std.status, std.requestType)"
+        <button  [disabled]="isButtonDisabled(std.status, std.requestType)" class="btn btn-md transition" (click)="raiseAppeal(std.id, std.status, std.requestType)"
           style="background-color: #D0DDF0; border-radius: 64px;" type="button">
           <a style="text-decoration: none" class="transition">
             <span style="

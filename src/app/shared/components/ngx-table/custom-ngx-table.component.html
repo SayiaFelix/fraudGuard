@@ -111,15 +111,16 @@
         <ng-template class="parent-item" let-row="row" let-value="value" ngx-datatable-cell-template>
           <span class="parent-item">
             <ng-template #buttons>
-              <ul  class="list-group list-group-flush">
+              <ul class="list-group list-group-flush">
                 <li (click)="sendEvent(row, action)" *ngFor="let action of actions; index as i"
-                    class="action-buttons list-group-item pt-1 pb-1 text-center">
+                  class="action-buttons list-group-item pt-1 pb-1 text-center">
                   {{ action }}
                 </li>
               </ul>
             </ng-template>
             <div class="example">
-              <button style="background-color: #F7941D;" [ngbPopover]="buttons" class="btn btn-primary btn-xs border-0" placement="left-top" type="button">
+              <button style="background-color: #F7941D;" [ngbPopover]="buttons" class="btn btn-primary btn-xs border-0"
+                placement="left-top" type="button">
                 <i class="feather icon-chevron-down"></i> {{'customTables.actions' | translate}}
               </button>
             </div>
@@ -135,8 +136,8 @@
             class="{{ (row.status || row.active || !row.blocked) === true ?  'badge bg-primary mr-1' : 'badge bg-danger mr-1'}}">
             {{(row.status || row.active || !row.blocked) === true ? 'Active' : 'Inactive'}}</span>
           <!--          <app-label-active-->
-          <!--            [value]="row.status || row.active || !row.blocked"-->
-          <!--          ></app-label-active>--
+      <!--            [value]="row.status || row.active || !row.blocked"-->
+      <!--          ></app-label-active>--
         </ng-template>
       </ngx-datatable-column> -->
 
@@ -146,11 +147,11 @@
 
 
           <span class="{{
-    (row.status) === 'Complete' ? 'badge bg-success mr-1'
+    (row.status) === 'Accepted' ? 'badge bg-success mr-1'
     : (row.status) === 'Pending' ? 'badge bg-warning mr-1'
     : (row.status) === 'Approved' ? 'badge bg-info mr-1'
-    : (row.status) === 'Appeal' ? 'badge bg-secondary mr-1'
-    : (row.status) === 'Rejected' ? 'badge bg-danger mr-1'
+    : (row.status) === 'Appealed' ? 'badge bg-secondary mr-1'
+    : (row.status) === 'Declined' ? 'badge bg-danger mr-1'
     : 'badge bg-secondary mr-1'
     }}">
             {{row.status}}</span>
