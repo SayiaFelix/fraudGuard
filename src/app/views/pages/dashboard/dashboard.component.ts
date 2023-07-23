@@ -28,6 +28,8 @@ export class DashboardComponent implements OnInit {
   county: string | null;
   contactPerson: string | null;
   logo: string | null;
+  showLeaveCommentForm: boolean = false;
+  showFormImage = 'assets/images/chats.png'
   /**
    * Apex chart
    */
@@ -127,12 +129,13 @@ export class DashboardComponent implements OnInit {
     }
 
   }
-  showLeaveCommentForm: boolean = false;
+
   toggleLeaveCommentForm() {
     if (this.showLeaveCommentForm) {
       this.hideLeaveCommentForm();
     } else {
       this.showLeaveCommentForm = true;
+      this.showFormImage = this.showLeaveCommentForm ? 'assets/images/chat.png' : 'assets/images/chats.png';
     }
   }
   hideLeaveCommentForm() {
