@@ -13,13 +13,16 @@ import {AddCustomerComponent} from "./add-customer/add-customer.component";
 import {ListFailedRegistrationsComponent} from "./list-failed-registrations/list-failed-registrations.component";
 import {SendSmsComponent} from "./send-sms-component/send-sms.component";
 import {ReasonsForFailureComponent} from "./reasons-for-failure/reasons-for-failure.component";
+import { Ng2TelInputModule } from 'ng2-tel-input';
 
 @NgModule({
     imports: [
         SharedModule,
+        Ng2TelInputModule,
         CustomersRoutingModule,
         FeatherIconModule,
         NgxDatatableModule,
+        Ng2TelInputModule,
         TranslateModule
     ],
   declarations: [

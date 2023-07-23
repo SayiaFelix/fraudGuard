@@ -7,6 +7,7 @@ import { SharedModule } from '../../../shared/shared.module';
 import { MobileBankingComponent } from './mobile-banking.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthGuard } from 'src/app/core/guard/auth.guard';
+import { Ng2TelInputModule } from 'ng2-tel-input';
 
 
 
@@ -86,6 +87,7 @@ const routes: Routes = [
     RouterModule.forChild(routes),
     SharedModule,
     ReactiveFormsModule,
+    Ng2TelInputModule,
     FeatherIconModule,
     TranslateModule,
   ],

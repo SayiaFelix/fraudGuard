@@ -97,7 +97,10 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
       image: [''],
     });
   }
-
+  showLeaveCommentForm: boolean = false;
+  toggleLeaveCommentForm() {
+    this.showLeaveCommentForm = !this.showLeaveCommentForm;
+  }
 
   getIndividualData(event: any): void {
     this.loading = true;

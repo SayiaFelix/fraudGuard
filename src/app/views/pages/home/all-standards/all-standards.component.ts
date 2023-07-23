@@ -11,7 +11,7 @@ import Swal from "sweetalert2";
   styleUrls: ['./all-standards.component.scss']
 })
 export class StandardsComponent implements OnInit {
-  standards :any = []
+  standards: any = []
   // standards: any = [
   //   {
   //     id: '1',
@@ -137,41 +137,45 @@ export class StandardsComponent implements OnInit {
   errorMsg: string;
   hasError: boolean = false;
   isLoading: boolean = false;
-  errorMessage: string; 
-  loading:boolean
-
+  errorMessage: string;
+  loading: boolean
+  showLeaveCommentForm: boolean = false;
+  selectedSubClassId: number | null = null;
   public form: FormGroup;
   modalRef: NgbModalRef;
-  constructor(private router: Router,  
-    private httpService: HttpService, 
-     public modal: NgbModal,
-    public activeModal: NgbActiveModal, fb: FormBuilder,) { 
-      this.form = fb.group({
-        email: ['',Validators.compose([Validators.required, CustomValidators.email])],
-        subject: ['',Validators.compose([Validators.required])],
-        message: ["", Validators.compose([Validators.required])],
-        name: ["", Validators.compose([Validators.required])],
-        phoneNumber: ["", Validators.compose([Validators.required])],
-      });
-    }
+  SubClassData: any;
+  filteredStandards: any;
+  constructor(private router: Router,
+    private httpService: HttpService,
+    public modal: NgbModal,
+    public activeModal: NgbActiveModal, fb: FormBuilder,) {
+    this.form = fb.group({
+      email: ['', Validators.compose([Validators.required, CustomValidators.email])],
+      subject: ['', Validators.compose([Validators.required])],
+      message: ["", Validators.compose([Validators.required])],
+      name: ["", Validators.compose([Validators.required])],
+      phoneNumber: ["", Validators.compose([Validators.required])],
+    });
+  }
 
   ngOnInit(): void {
-    this.loadData()
+    this.loadData(null);
+    this.getSubClassData(0);
   }
 
-  viewStandard(standardId: number) {
-    this.router.navigate(['/standards', standardId]);
-  }
-
-  private loadData(): any {
+  private loadData(subClass_Id: any | null): any {
     this.loading = true;
-    this.httpService.customerPortalPost(`api/v1/portal/getStandards`,{}).subscribe(
+    this.httpService.customerPortalPost(`api/v1/portal/getStandards`, {}).subscribe(
       (res: any) => {
-
         if (res.status == '00') {
           this.standards = res['data'];
           console.log(this.standards)
-          this.loading = false;
+          if (subClass_Id !== null) {
+            this.filteredStandards = this.standards.filter((standard: any) => standard.subClass_Id === subClass_Id);
+          } else {
+            this.filteredStandards = this.standards;
+          }
+          console.log(this.filteredStandards);
           this.loading = false;
 
         } else {
@@ -181,14 +185,58 @@ export class StandardsComponent implements OnInit {
         Swal.fire("Error", error.message, "error");
       });
   }
-
-  onleaveComment(){}
-  openModal(modalContent: any) {
-    this.modalRef = this.modal.open(modalContent, {centered: true, size:"md"});
+ 
+  onSubClassChange(event: Event): void {
+    const subclassId = (event.target as HTMLSelectElement).value;
+    const subClassIdOrNull = subclassId === "All" ? null : subclassId;
+    this.loadData(subClassIdOrNull);
   }
+  
+  getSubClassData(event: number): void {
+    this.loading = true;
+    this.httpService
+      .customerPortalPost('api/v1/portal/getSubClassesAndClasses', {})
+      .subscribe((res: any) => {
+        console.log(res)
+        if (res.status === '00') {
+          this.loading = false;
+          setTimeout(() => {
+            this.SubClassData = res.data
+            console.log(this.SubClassData)
+          }, 10);
+        } else {
+          this.loading = false;
+        }
+      });
+    this.loading = false;
+  }
+
+  viewStandard(standardId: number) {
+    this.router.navigate(['/standards', standardId]);
+  }
+
+  toggleLeaveCommentForm() {
+    if (this.showLeaveCommentForm) {
+      this.hideLeaveCommentForm();
+    } else {
+      this.showLeaveCommentForm = true;
+    }
+  }
+
+  hideLeaveCommentForm() {
+    this.showLeaveCommentForm = false;
+  }
+
+  onleaveComment() { }
+
+  openModal(modalContent: any) {
+    this.modalRef = this.modal.open(modalContent, { centered: true, size: "md" });
+  }
+
   closeModal() {
     this.activeModal.close();
   }
+
   onRegister(e: Event) {
     e.preventDefault();
     localStorage.setItem('isLoggedin', 'true');

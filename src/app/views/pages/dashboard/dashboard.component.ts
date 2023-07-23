@@ -127,6 +127,17 @@ export class DashboardComponent implements OnInit {
     }
 
   }
+  showLeaveCommentForm: boolean = false;
+  toggleLeaveCommentForm() {
+    if (this.showLeaveCommentForm) {
+      this.hideLeaveCommentForm();
+    } else {
+      this.showLeaveCommentForm = true;
+    }
+  }
+  hideLeaveCommentForm() {
+    this.showLeaveCommentForm = false;
+  }
   onleaveComment() {
     // this.hasError = false;
     // this.isLoading = true;
