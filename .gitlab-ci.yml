@@ -7,8 +7,7 @@ workflow:
  curl --insecure --header "X-Gitlab-Token: $AWX_WEBHOOK_KEY" -X POST $AWX_WEBHOOK_URL -H "Content-Type: application/json" -d '{"ci_commit_sha" : "'"$CI_COMMIT_SHA"'", "deploy_environment" : "'"$DEPLOY_ENVIRONMENT"'", "tag" : "false", "deploy_branch" : "'"$DEPLOY_BRANCH"'" }'
 
 .notify_teams: &notify_teams |
- curl --insecure -X POST -H "Content-Type: application/json" -d '{ "title": "TRA Deployment Notification Test ", "appName": "Customer Portal", "description": "'"$GITLAB_USER_NAME"' committed: '"$CI_COMMIT_TITLE"'" , "notificationUrl": "https://test-portal.ekenya.co.ke/tra-customer-portal", "targetGroupChatId":"19:5289d22e5e894a499db1f713ce1a980d@thread.v2"}' $TEAMS_NOTIFICATION_API
-
+ curl --insecure -X POST -H "Content-Type: application/json" -d '{ "title": "TRA Deployment Successful ", "appName": "Customer Portal", "description": "'"$GITLAB_USER_NAME"' committed: '"$CI_COMMIT_TITLE"'" , "notificationUrl": "https://test-portal.ekenya.co.ke/tra-customer-portal", "targetGroupChatId":"19:5289d22e5e894a499db1f713ce1a980d@thread.v2"}' $TEAMS_NOTIFICATION_API
 
 stages:
   - preBuild
