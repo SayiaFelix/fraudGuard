@@ -45,15 +45,15 @@ export class AddBenefitComponent implements OnInit {
         subQuestion1: new FormControl(false, Validators.required),
         subQuestion2: new FormControl(false, Validators.required),
         subQuestion3: new FormControl(false, Validators.required),
-        subQuestion4: new FormControl(false, Validators.required), 
-        comment: new FormControl('') 
+        subQuestion4: new FormControl(false, Validators.required),
+        comment: new FormControl('')
       }),
       question2: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
         subQuestion2: new FormControl(false, Validators.required),
         subQuestion3: new FormControl(false, Validators.required),
         subQuestion4: new FormControl(false, Validators.required),
-        comment: new FormControl('') 
+        comment: new FormControl('')
       }),
       question3: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
@@ -62,14 +62,14 @@ export class AddBenefitComponent implements OnInit {
         subQuestion4: new FormControl(false, Validators.required),
         subQuestion5: new FormControl(false, Validators.required),
         subQuestion6: new FormControl(false, Validators.required),
-        comment: new FormControl('') 
+        comment: new FormControl('')
       }),
       question4: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
         subQuestion2: new FormControl(false, Validators.required),
         subQuestion3: new FormControl(false, Validators.required),
         subQuestion4: new FormControl(false, Validators.required),
-        comment: new FormControl('') 
+        comment: new FormControl('')
       }),
       question5: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
@@ -78,7 +78,7 @@ export class AddBenefitComponent implements OnInit {
         subQuestion4: new FormControl(false, Validators.required),
         subQuestion5: new FormControl(false, Validators.required),
         subQuestion6: new FormControl(false, Validators.required),
-        comment: new FormControl('') 
+        comment: new FormControl('')
       }),
       question6: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
@@ -87,7 +87,7 @@ export class AddBenefitComponent implements OnInit {
         subQuestion4: new FormControl(false, Validators.required),
         subQuestion5: new FormControl(false, Validators.required),
         subQuestion6: new FormControl(false, Validators.required),
-        comment: new FormControl('') 
+        comment: new FormControl('')
       }),
       question7: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
@@ -96,7 +96,7 @@ export class AddBenefitComponent implements OnInit {
         subQuestion4: new FormControl(false, Validators.required),
         subQuestion5: new FormControl(false, Validators.required),
         subQuestion6: new FormControl(false, Validators.required),
-        comment: new FormControl('') 
+        comment: new FormControl('')
       }),
       question8: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
@@ -105,7 +105,7 @@ export class AddBenefitComponent implements OnInit {
         subQuestion4: new FormControl(false, Validators.required),
         subQuestion5: new FormControl(false, Validators.required),
         subQuestion6: new FormControl(false, Validators.required),
-        comment: new FormControl('') 
+        comment: new FormControl('')
       }),
       question9: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
@@ -114,7 +114,7 @@ export class AddBenefitComponent implements OnInit {
         subQuestion4: new FormControl(false, Validators.required),
         subQuestion5: new FormControl(false, Validators.required),
         subQuestion6: new FormControl(false, Validators.required),
-        comment: new FormControl('') 
+        comment: new FormControl('')
       }),
       question10: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
@@ -123,14 +123,14 @@ export class AddBenefitComponent implements OnInit {
         subQuestion4: new FormControl(false, Validators.required),
         subQuestion5: new FormControl(false, Validators.required),
         subQuestion6: new FormControl(false, Validators.required),
-        comment: new FormControl('') 
+        comment: new FormControl('')
       }),
       question11: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
         subQuestion2: new FormControl(false, Validators.required),
         subQuestion3: new FormControl(false, Validators.required),
         subQuestion4: new FormControl(false, Validators.required),
-        comment: new FormControl('') 
+        comment: new FormControl('')
       }),
       question12: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
@@ -139,7 +139,7 @@ export class AddBenefitComponent implements OnInit {
         subQuestion4: new FormControl(false, Validators.required),
         subQuestion5: new FormControl(false, Validators.required),
         subQuestion6: new FormControl(false, Validators.required),
-        comment: new FormControl('') 
+        comment: new FormControl('')
       }),
       question13: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
@@ -148,7 +148,7 @@ export class AddBenefitComponent implements OnInit {
         subQuestion4: new FormControl(false, Validators.required),
         subQuestion5: new FormControl(false, Validators.required),
         subQuestion6: new FormControl(false, Validators.required),
-        comment: new FormControl('') 
+        comment: new FormControl('')
       }),
       question14: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
@@ -157,7 +157,7 @@ export class AddBenefitComponent implements OnInit {
         subQuestion4: new FormControl(false, Validators.required),
         subQuestion5: new FormControl(false, Validators.required),
         subQuestion6: new FormControl(false, Validators.required),
-        comment: new FormControl('') 
+        comment: new FormControl('')
       }),
       question15: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
@@ -166,14 +166,14 @@ export class AddBenefitComponent implements OnInit {
         subQuestion4: new FormControl(false, Validators.required),
         subQuestion5: new FormControl(false, Validators.required),
         subQuestion6: new FormControl(false, Validators.required),
-        comment: new FormControl('') 
+        comment: new FormControl('')
       }),
       question16: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
         subQuestion2: new FormControl(false, Validators.required),
         subQuestion3: new FormControl(false, Validators.required),
         subQuestion4: new FormControl(false, Validators.required),
-        comment: new FormControl('') 
+        comment: new FormControl('')
       }),
       question17: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
@@ -182,7 +182,7 @@ export class AddBenefitComponent implements OnInit {
         subQuestion4: new FormControl(false, Validators.required),
         subQuestion5: new FormControl(false, Validators.required),
         subQuestion6: new FormControl(false, Validators.required),
-        comment: new FormControl('')  
+        comment: new FormControl('')
       }),
       question18: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
@@ -191,7 +191,7 @@ export class AddBenefitComponent implements OnInit {
         subQuestion4: new FormControl(false, Validators.required),
         subQuestion5: new FormControl(false, Validators.required),
         subQuestion6: new FormControl(false, Validators.required),
-        comment: new FormControl('') 
+        comment: new FormControl('')
       }),
       question19: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
@@ -200,7 +200,7 @@ export class AddBenefitComponent implements OnInit {
         subQuestion4: new FormControl(false, Validators.required),
         subQuestion5: new FormControl(false, Validators.required),
         subQuestion6: new FormControl(false, Validators.required),
-        comment: new FormControl('') 
+        comment: new FormControl('')
       }),
       question20: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
@@ -209,17 +209,17 @@ export class AddBenefitComponent implements OnInit {
         subQuestion4: new FormControl(false, Validators.required),
         subQuestion5: new FormControl(false, Validators.required),
         subQuestion6: new FormControl(false, Validators.required),
-        comment: new FormControl('') 
+        comment: new FormControl('')
       }),
       question21: this.fb.group({
         subQuestion1: new FormControl(false, Validators.required),
         subQuestion2: new FormControl(false, Validators.required),
         subQuestion3: new FormControl(false, Validators.required),
         subQuestion4: new FormControl(false, Validators.required),
-        comment: new FormControl('') 
+        comment: new FormControl('')
       }),
     });
-   
+
     this.getClassData(0);
     this.getSubClassData(0);
   }
@@ -255,7 +255,7 @@ export class AddBenefitComponent implements OnInit {
         if (noFormControl) {
           noFormControl.setValue(false);
         }
-      }else if (isChecked && subQuestion === 'subQuestion5') {
+      } else if (isChecked && subQuestion === 'subQuestion5') {
         // If it's a "Yes" checkbox, uncheck the corresponding "No" checkbox
         const noFormControl = this.form.get(mainQuestion)?.get('subQuestion6') as FormControl;
         if (noFormControl) {
@@ -270,7 +270,7 @@ export class AddBenefitComponent implements OnInit {
       }
     }
   }
-  
+
   getFormControl(mainQuestion: string, subQuestion: string): FormControl {
     const formControl = this.form.get(mainQuestion)?.get(subQuestion) as FormControl;
     if (formControl) {
@@ -279,7 +279,7 @@ export class AddBenefitComponent implements OnInit {
     // If the form control is not found, return a new FormControl
     return new FormControl(false, Validators.required);
   }
-  
+
   getClassData(event: number): void {
     this.loading = true;
     this._httpService
@@ -318,31 +318,25 @@ export class AddBenefitComponent implements OnInit {
     this.loading = false;
   }
 
-  nextPage() {
-    this.currentPage++;
-  }
 
-  prevPage() {
-    this.currentPage--;
-  }
+  // onSubmit() {
+  //   if (this.form.valid) {
+  //     // Access the form data using the `value` property of the FormGroup
+  //     const formData = this.form.value;
+  //     console.log(formData);
 
-  onSubmit() {
-    if (this.form.valid) {
-      // Access the form data using the `value` property of the FormGroup
-      const formData = this.form.value;
-      console.log(formData);
+  //     // You can now send `formData` to the backend using Angular's HttpClient
+  //     // For example:
+  //     // this.http.post('your_backend_url', formData).subscribe(response => {
+  //     //   console.log('Data submitted successfully!');
+  //     // }, error => {
+  //     //   console.error('Error while submitting data:', error);
+  //     // });
+  //   } else {
+  //     console.log("Please answer all questions.");
+  //   }
+  // }
 
-      // You can now send `formData` to the backend using Angular's HttpClient
-      // For example:
-      // this.http.post('your_backend_url', formData).subscribe(response => {
-      //   console.log('Data submitted successfully!');
-      // }, error => {
-      //   console.error('Error while submitting data:', error);
-      // });
-    } else {
-      console.log("Please answer all questions.");
-    }
-  }
 
   public submitData(): void {
     if (this.formData) {
@@ -355,14 +349,37 @@ export class AddBenefitComponent implements OnInit {
 
   private createRecord(): any {
     this.isLoading = true;
-    let userId = JSON.parse(localStorage.getItem('data')!)['user']['id']
+    let userId = JSON.parse(localStorage.getItem('data')!)['id']
+    const formData = this.form.value;
+    console.log(formData);
     const model = {
       userId,
       requestType: this.form.value.requestType,
       subClass_Id: this.form.value.subClass_Id,
+      question1: this.form.value.question1,
+      question2: this.form.value.question2,
+      question3: this.form.value.question3,
+      question4: this.form.value.question4,
+      question5: this.form.value.question5,
+      question6: this.form.value.question6,
+      question7: this.form.value.question7,
+      question8: this.form.value.question8,
+      question9: this.form.value.question9,
+      question10: this.form.value.question10,
+      question11: this.form.value.question11,
+      question12: this.form.value.question12,
+      question13: this.form.value.question13,
+      question14: this.form.value.question14,
+      question15: this.form.value.question15,
+      question16: this.form.value.question16,
+      question17: this.form.value.question17,
+      question18: this.form.value.question18,
+      question19: this.form.value.question19,
+      question20: this.form.value.question20,
+      question21: this.form.value.question21,
     };
     console.log(model)
-    this._httpService.customerPortalPost('api/v1/portal/requestAccreditation', model).subscribe(
+    this._httpService.customerPortalPost('api/v1/portal/makeRequest', model).subscribe(
       (result: any) => {
         if (result.status === '00') {
           this.isLoading = false;

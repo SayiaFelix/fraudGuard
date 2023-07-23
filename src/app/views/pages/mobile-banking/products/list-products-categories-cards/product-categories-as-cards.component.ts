@@ -15,6 +15,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { HttpClient } from "@angular/common/http";
 import { map } from "rxjs";
 import { log10 } from "chart.js/helpers";
+import { CustomValidators } from 'ngx-custom-validators';
 
 @Component({
   selector: 'app-product-categories',
@@ -42,6 +43,10 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
 
   // bread crumb items
   breadCrumbItems: Array<{}>;
+  errorMsg: string;
+  hasError: boolean = false;
+  isLoading: boolean = false;
+  errorMessage: string;
   rows: any = [];
   temp: any = [];
   loading = true;
@@ -78,6 +83,13 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
     public router: Router,
     private dataExploration: DataExportationService
   ) {
+    this.form = fb.group({
+      email: ['',Validators.compose([Validators.required, CustomValidators.email])],
+      subject: ['',Validators.compose([Validators.required])],
+      message: ["", Validators.compose([Validators.required])],
+      name: ["", Validators.compose([Validators.required])],
+      phoneNumber: ["", Validators.compose([Validators.required])],
+    });
   }
 
   ngOnInit() {
@@ -99,8 +111,16 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
   }
   showLeaveCommentForm: boolean = false;
   toggleLeaveCommentForm() {
-    this.showLeaveCommentForm = !this.showLeaveCommentForm;
+    if (this.showLeaveCommentForm) {
+      this.hideLeaveCommentForm();
+    } else {
+      this.showLeaveCommentForm = true;
+    }
   }
+  hideLeaveCommentForm() {
+    this.showLeaveCommentForm = false;
+  }
+
 
   getIndividualData(event: any): void {
     this.loading = true;
@@ -140,6 +160,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
       });
     this.loading = false;
   }
+  onleaveComment(){}
 
   openAddRequestModal() {
     this.modalRef = this.modalService.open(AddProductComponent, { centered: true, size: "md" });
