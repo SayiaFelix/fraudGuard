@@ -25,21 +25,34 @@ owl-carousel-o  img {
   width: 100% !important;
   height: 300px !important;
 }
+
+.carousel-form-container {
+  position: relative;
+  max-width: 100%;
+  height: auto;
+}
+
+.carousel-container {
+  position: relative;
+  max-width: 100%;
+  height: auto;
+}
+
 .modal-container {
   display: flex-end;
   align-items: flex-end;
   justify-content: flex-end;
   position: fixed;
-  width: 400px;
+  z-index: 10;
+  width: 350px;
   height: 700px;
-  top: 11%;
+  top: 12%;
   right: 3%;
   padding: 10px;
-  border-radius: 8px 8px 0px 0px;
+  border-radius: 8px 8px 8px 8px;
 }
-.modal-content{display: none !important;}
 .modals {
-  border-radius: 8px 8px 0px 0px;
+  border-radius: 8px 8px 8px 8px;
   background: var(--seasalt, #F8F8F8);
   // padding: 20px;
   // border-radius: 10px;

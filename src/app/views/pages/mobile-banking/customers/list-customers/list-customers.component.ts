@@ -71,7 +71,7 @@ export class ListCustomersComponent implements OnInit {
   public formData: { productName: any; remarks: any; image: any };
   ColumnMode = ColumnMode;
   public imageFile: File;
-
+  showLeaveCommentForm: boolean = false;
 
   title: string = "New Customer";
   total: any;
@@ -105,9 +105,11 @@ export class ListCustomersComponent implements OnInit {
     this.loadData();
 
     this.form = this.fb.group({
-      name: ['', [Validators.required]],
-      description: ['', [Validators.required]],
-      image: [''],
+      email: ['',Validators.compose([Validators.required, CustomValidators.email])],
+      subject: ['',Validators.compose([Validators.required])],
+      message: ["", Validators.compose([Validators.required])],
+      name: ["", Validators.compose([Validators.required])],
+      phoneNumber: ["", Validators.compose([Validators.required])],
     });
   }
   onleaveComment() { }
@@ -147,6 +149,18 @@ export class ListCustomersComponent implements OnInit {
 
     this.loading = false;
 
+  }
+
+
+  toggleLeaveCommentForm() {
+    if (this.showLeaveCommentForm) {
+      this.hideLeaveCommentForm();
+    } else {
+      this.showLeaveCommentForm = true;
+    }
+  }
+  hideLeaveCommentForm() {
+    this.showLeaveCommentForm = false;
   }
 
   private loadData(): any {

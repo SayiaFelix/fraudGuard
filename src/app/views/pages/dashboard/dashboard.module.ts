@@ -11,6 +11,7 @@ import { NgApexchartsModule } from "ng-apexcharts";
 
 import { DashboardComponent } from './dashboard.component';
 import {TranslateModule} from "@ngx-translate/core";
+import { Ng2TelInputModule } from 'ng2-tel-input';
 
 const routes: Routes = [
   {
@@ -26,6 +27,7 @@ const routes: Routes = [
         RouterModule.forChild(routes),
         FormsModule,
         FeatherIconModule,
+        Ng2TelInputModule,
         ReactiveFormsModule,
         NgbDropdownModule,
         NgbDatepickerModule,

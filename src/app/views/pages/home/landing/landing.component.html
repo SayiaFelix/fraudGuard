@@ -1,6 +1,6 @@
 <div class="body w-100" style="position: relative; background-color: #efefef">
   <div class="d-flex justify-content-between" style="max-width: 100%; max-height: 70px">
-    <div class="d-flex justify-content-around" style="margin-left: 40px">
+    <div class="d-flex justify-content-around" style="margin-left: 4%">
       <div class="p-2">
         <button class="btn btn-md" style="background-color: #6d36a8; color: #f8f8f8; border-radius: 4px">
           <a href="https://www.tra.go.ke/" style="text-decoration: none; text-transform: none" target="_blank"
@@ -14,7 +14,7 @@
       </div>
     </div>
 
-    <div style="margin-right: 10px">
+    <div style="margin-right: 2%">
       <div class="d-flex p-2 justify-content-between">
         <button class="btn btn-md btn-light transition ml-1" type="submit">
           <a routerLink="/auth/activate" style="
@@ -45,24 +45,81 @@
   <div class="card">
     <div class="row">
       <div class="col-md-12 col-lg-12 col-xl-12 col-sm-12">
-        <div class="card border-0 box-shadow" style="max-width:100% ; height: auto;">
-          <div class="">
+        <div class="carousel-form-container">
+          <div class="carousel-container">
             <owl-carousel-o [options]="autoPlayOptions">
-              <ng-template carouselSlide [width]="629"  *ngFor="let slide of slidesStore" [id]="slide.id">
+              <ng-template carouselSlide *ngFor="let slide of slidesStore" [id]="slide.id">
                 <div class="w-100">
-                  <img class="card-img-top img-fluid" style="width: 100%;" [src]="slide.src"
-                    [title]="slide.title">
+                  <img class="card-img-top img-fluid" style="width: 100%;" [src]="slide.src" [title]="slide.title">
                 </div>
               </ng-template>
             </owl-carousel-o>
           </div>
+          <ng-container *ngIf="showLeaveCommentForm">
+            <div class="modal-container">
+              <div class="modals">
+                <div class="d-flex justify-content-between"
+                  style="background-color: #d0ddf0; font-family: 'Mulish'; font-weight: 900; border-radius:4px;">
+                  <h4 class="text-start p-2 mt-2" style="color: #6D36A8; font-size: 23px;">Customer Inquiry</h4>
+                  <div>
+                    <button type="button" class="btn fs-2" (click)="hideLeaveCommentForm()"
+                      style="color: #6D36A8; font-size: 20px; margin-top: -5%;">
+                      &times;
+                    </button>
+                  </div>
+
+                </div>
+                <article class="">
+                  <p *ngIf="errorMessage" class="text-danger">{{errorMessage}}</p>
+                  <form class="mt-1" [formGroup]="form" (ngSubmit)="onleaveComment()" class="row px-3">
+                    <div class="tab-content col-12 border-0">
+                      <div class="form-group mt-2">
+                        <input formControlName="name" type="text" class="form-control validation-field border-0"
+                          id="name" placeholder="Your Name or Company*">
+                        <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+                      </div>
+                      <div class="form-group mt-2">
+                        <input formControlName="email" type="email" class="form-control validation-field border-0"
+                          id="email" placeholder="Your email address*">
+                        <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+                      </div>
+                      <div class="form-group mt-2">
+                        <input type="text" name="tel" formControlName="phoneNumber" id="phoneNumber"
+                          placeholder="Phone Number*" class="form-control validation-field border-0" ng2TelInput
+                          data-initial-country="ke">
+                        <!-- <input formControlName="phoneNumber" id="phoneNumber" type="text"  placeholder="Phone Number*" class="form-control validation-field border-0"
+                                    id="purpose" placeholder="Your Phone No,"> -->
+                        <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+                      </div>
+                      <div class="form-group mt-2">
+                        <input formControlName="subject" type="text" class="form-control validation-field border-0"
+                          id="subject" placeholder="Subject">
+                        <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+                      </div>
+                      <div class="form-group mt-2">
+                        <textarea formControlName="message" type="text" id="message" cols="15" rows="3"
+                          placeholder="Message" class="form-control validation-field border-0"></textarea>
+                        <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+                      </div>
+                      <div class="col-12 bg-white text-center py-1 mt-3 mb-2">
+                        <button style="width: 100%; border: none;" class="btn btn-block bronchure-btn transition"
+                          type="submit">
+                          <span style="color: white;">SEND</span>
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                </article>
+              </div>
+            </div>
+          </ng-container>
         </div>
       </div>
     </div>
     <div class="card border-0 box-shadow">
-      <div class="mt-3 card-header d-flex justify-content-between" style="padding: 0px 30px">
+      <div class="mt-3 card-header d-flex justify-content-between" style="padding: 0% 6%">
         <div class="card-title">
-          <h3  class="mt-2" style="
+          <h3 class="mt-2" style="
               color: #6D36A8;
               font-family: 'Muli';
               font-weight: 600;
@@ -82,52 +139,50 @@
             font-size: 18px;
           " routerLink="/standards/all-standards">View all Standards</a>
       </div>
-        <div class="card-body p-1">
-          <div class="border-0 box-shadow">
-            <div class="grid-margin stretch-card">
-              <div class="row" style="padding: 0px 30px">
-                <div class="col-md-3 col-lg-3 col-xl-3 col-sm-4 mt-3 pt-2" *ngFor="let std of standards">
-                  <!-- `/mobile-banking/products/list-products/${data.id}` -->
-                  <div class="" [id]="std.id" (click)="viewStandard(std.id)">
-                    <a routerLink="/standards/Id"></a>
-                    <div style="position: relative; display: inline-block;">
-                      <div>
-                        <!-- <img class="img-fluid card-img-top"
+      <div class="card-body" style="padding: 0% 6%">
+        <div class="border-0 box-shadow">
+          <div class="grid-margin stretch-card">
+            <div class="row">
+              <div class="col-md-3 col-lg-3 col-xl-3 col-sm-4 mt-3 pt-2" *ngFor="let std of standards">
+                <div class="" [id]="std.id" (click)="viewStandard(std.id)">
+                  <div style="position: relative; display: inline-block;">
+                    <div class="w-100">
+                      <!-- <img class="img-fluid card-img-top"
                           style="height: 95px; border-top-left-radius: 13px; border-top-right-radius: 13px;"
                           [src]="std.icon" /> -->
-                          <img  class="img-fluid card-img-top"
-                          style="height: 95px; border-top-left-radius: 13px; border-top-right-radius: 13px;" src="assets/images/3.png"alt="">
-                      </div>
-                      <div
-                        style="position: absolute; width: 60px; height: 60px; margin-left: 4%; margin-top: -11%; border-radius: 50%; background-color: #D0DDF0;"
-                        class="card-header d-flex justify-content-center align-items-center border-0 box-shadow">
-                      </div>
+                      <img class="img-fluid card-img-top"
+                        style="min-height: 95px; max-width: 100%; border-top-left-radius: 13px; border-top-right-radius: 13px;"
+                        src="assets/images/3.png" alt="">
                     </div>
-                    <br><br>
-                    <div style="position: relative;">
-                      <div class="mt-3">
-                        <p style="
+                    <div
+                      style="position: absolute; width: 60px; height: 60px; margin-left: 4%; margin-top: -11%; border-radius: 50%; background-color: #D0DDF0;"
+                      class="card-header d-flex justify-content-center align-items-center border-0 box-shadow">
+                    </div>
+                  </div>
+                  <br><br>
+                  <div style="position: relative;">
+                    <div class="mt-3">
+                      <p style="
                             color: #2268aa;
                             font-family: 'Muli';
                             font-weight: 600;
                             font-size: 16px;
                             line-height: 21px;
                           " class="h2">
-                          {{ std.name }}
-                        </p>
-                        <!-- <p style="color: #2268AA; font-family: 'Muli';font-weight: 600;font-size: 15px;" class="h2"> <a href="" routerLink="/standards/Id">{{std.name}}</a></p> -->
-                      </div>
-                      <div class="">
-                        <p style="
+                        {{ std.name }}
+                      </p>
+                      <!-- <p style="color: #2268AA; font-family: 'Muli';font-weight: 600;font-size: 15px;" class="h2"> <a href="" routerLink="/standards/Id">{{std.name}}</a></p> -->
+                    </div>
+                    <div class="">
+                      <p style="
                             color: #1e0f2e;
                             font-family: 'Muli';
                             font-weight: 400;
                             font-size: 12px;
                             line-height: 21px;
                           " class="h3">
-                          {{ std.description }}
-                        </p>
-                      </div>
+                        {{ std.description }}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -135,31 +190,17 @@
             </div>
           </div>
         </div>
+      </div>
     </div>
   </div>
   <div class="row">
-    <div class="card col-md-12 col-lg-12 col-xl-12 col-sm-12" style="
-        background-image: url('assets/images/headerl.png');
-        background-repeat: repeat-x;
-        background-repeat: repeat-y;
-        padding: 40px 50px;
+    <div class="card col-md-12 col-lg-12 col-xl-12 col-sm-12" style="background-image: url('assets/images/headerl.png');background-repeat: repeat-x;background-repeat: repeat-y;padding: 2% 6%;
         color: #f8f8f8;
       ">
-      <h2 style="
-          font-family: 'Mulish';
-          line-height: 25px;
-          font-weight: 600;
-          font-size: 25px;
-        ">
+      <h2 style="font-family: 'Mulish';line-height: 25px;font-weight: 600;font-size: 25px;">
         Ignite Success in Tourism: Align with Our Benchmark Minimum Standards.
       </h2>
-      <p style="
-          font-family: 'Mulish';
-          font-weight: 400;
-          font-size: 15px;
-          line-height: 20px;
-          margin-top: 15px;
-        ">
+      <p style="font-family: 'Mulish';font-weight: 400;font-size: 15px;line-height: 20px;margin-top: 10px;">
         Access all develop Minimum Standards for regulated tourism enterprises
         in collaboration with stakeholders and relevant agencies. Align with our
         benchmarks to gain a competitive edge, enhance customer satisfaction,
@@ -193,75 +234,14 @@
       <a routerLink="/" style="text-decoration: none; color: #1e0f2e" class="transition">Tourism Regulations 2014</a>
     </div>
     <div class="d-flex justify-content-end">
-      <div  (click)="toggleLeaveCommentForm()" style="position: fixed; bottom: 9%; right:3%; width: 50px; height: 50px; border-radius: 50%; background-color: #2766BF;"
+      <div (click)="toggleLeaveCommentForm()"
+        style="position: fixed; bottom: 9%; right:3%; width: 50px; height: 50px; border-radius: 50%; background-color: #2766BF;"
         class="card-header d-flex align-items-center border-0">
-        <p style="color: #F8F8F8; font-size: 30px; margin-left: -13px;" >
-          <img class="img-fluid"  style="position: absolute; bottom: 27%" src="assets/images/chat.png" width="30"
-        height="20" alt="logo" />
-
+        <p style="color: #F8F8F8; font-size: 30px; margin-left: -13px;">
+          <img class="img-fluid" style="position: absolute; bottom: 27%" src="assets/images/chat.png" width="30"
+            height="20" alt="logo" />
         </p>
       </div>
     </div>
   </div>
 </div>
-<ng-container *ngIf="showLeaveCommentForm; else hiddenForm">
-  <div class="modal-container">
-    <div class="modals">
-      <div class="col-12">
-        <div class="">
-          <div class="card-header d-flex justify-content-between" style="background-color: #d0ddf0; font-family: 'Mulish'; font-weight: 900; border-radius:4px;">
-            <h4 class="text-start p-2 mt-2" style="color: #6D36A8; font-size: 23px;">Customer Inquiry</h4>
-            <div style="color: #6D36A8;">
-              <button type="button "  class="mt-3 p-2 btn-close"  data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-          </div>
-          <article class="">
-            <p *ngIf="errorMessage" class="text-danger">{{errorMessage}}</p>
-            <form class="mt-1" [formGroup]="form" (ngSubmit)="onleaveComment()" class="row px-3">
-              <div class="tab-content col-12 border-0">
-                <div class="form-group mt-2">
-                  <input formControlName="name" type="text" class="form-control validation-field border-0" id="name"
-                    placeholder="Your Name or Company*">
-                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
-                </div>
-                <div class="form-group mt-2">
-                  <input formControlName="email" type="email" class="form-control validation-field border-0" id="email"
-                    placeholder="Your email address*">
-                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
-                </div>
-                <div class="form-group mt-2">
-                  <input type="text" name="tel" formControlName="phoneNumber" id="phoneNumber"
-                    placeholder="Phone Number*" class="form-control validation-field border-0" ng2TelInput
-                    data-initial-country="ke">
-                  <!-- <input formControlName="phoneNumber" id="phoneNumber" type="text"  placeholder="Phone Number*" class="form-control validation-field border-0"
-                    id="purpose" placeholder="Your Phone No,"> -->
-                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
-                </div>
-                <div class="form-group mt-2">
-                  <input formControlName="subject" type="text" class="form-control validation-field border-0" id="subject"
-                    placeholder="Subject">
-                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
-                </div>
-                <div class="form-group mt-2">
-                  <textarea formControlName="message"  type="text" id="message" cols="15" rows="3"  placeholder="Message" class="form-control validation-field border-0"></textarea>
-                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
-                </div>
-                <div class="col-12 bg-white text-center py-1 mt-3 mb-2">
-                  <button style="width: 100%; border: none;"
-                    class="btn btn-block bronchure-btn transition" type="submit">
-                    <span style="color: white;">SEND</span>
-                  </button>
-                </div>
-              </div>
-            </form>
-          </article>
-        </div>
-      </div>
-    </div>
-  </div>
-
-</ng-container>
-<ng-template #hiddenForm>
-  <!-- This content will be shown when showForm is false -->
-  <p>Form is hidden. Click the button to show the form.</p>
-</ng-template>

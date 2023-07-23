@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import {
   AbstractControl,
@@ -9,7 +9,7 @@ import {
 import { CustomValidators } from 'ngx-custom-validators';
 import { HttpParams } from '@angular/common/http';
 
-import {catchError, concat, Observable, of, throwError} from 'rxjs';
+import { catchError, concat, Observable, of, throwError } from 'rxjs';
 import { delay, map } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 import { HttpService } from 'src/app/shared/services/http.service';
@@ -26,10 +26,10 @@ export class LandingComponent implements OnInit {
   returnUrl: any;
   public form: FormGroup;
   public showingPassword = false;
-  showLeaveCommentForm = false; 
+  showLeaveCommentForm: boolean = false;
   inputType = 'password';
   modalRef: NgbModalRef;
-  standards: any =[];
+  standards: any = [];
   // standards: any = [
   //   {
   //     id: '1',
@@ -88,64 +88,64 @@ export class LandingComponent implements OnInit {
   // ]
 
   autoPlayOptions: OwlOptions = {
-    items:4,
-    loop:true,
-    margin:5,
-    autoplay:true,
-    autoWidth:true,
+    items: 2,
+    loop: true,
+    margin: 5,
+    autoplay: true,
+    autoWidth: true,
     mouseDrag: false,
     touchDrag: false,
     dots: true,
-    autoplayTimeout:2000,
-    autoplayHoverPause:true,
-    responsive:{
-      0:{
-          items:2
+    autoplayTimeout: 2000,
+    autoplayHoverPause: true,
+    responsive: {
+      0: {
+        items: 2
       },
-      600:{
-          items:3
+      600: {
+        items: 2
       },
-      1000:{
-          items:4
+      1000: {
+        items: 2
       }
     }
   }
 
   slidesStore = [
     {
-      id:'1',
-      src:'assets/images/5.jpg',
-      title:'Halal Compliance Standard For Accommodation And Catering Establishments'
+      id: '1',
+      src: 'assets/images/5.jpg',
+      title: 'Halal Compliance Standard For Accommodation And Catering Establishments'
     },
     {
-      id:'2',
-      src:'assets/images/1.jpg',
-      title:'Standards For Tourism Tours & Travel Enterprises'
+      id: '2',
+      src: 'assets/images/1.jpg',
+      title: 'Standards For Tourism Tours & Travel Enterprises'
     },
     {
-      id:'3',
-      src:'assets/images/3.png',
-      title:'Standards For Spa And Wellness Facilities',
+      id: '3',
+      src: 'assets/images/3.png',
+      title: 'Standards For Spa And Wellness Facilities',
     },
     {
-      id:'4',
-      src:'assets/images/7.jpg',
-      title:'Tour Guides And Hotel Employees Accommodation Standard'
+      id: '4',
+      src: 'assets/images/7.jpg',
+      title: 'Tour Guides And Hotel Employees Accommodation Standard'
     },
     {
-      id:'5',
-      src:'assets/images/2.png',
-      title:'Meetings, Incentives, Conferences & Exhibitions Facilities And Services'
+      id: '5',
+      src: 'assets/images/2.png',
+      title: 'Meetings, Incentives, Conferences & Exhibitions Facilities And Services'
     },
     {
-      id:'6',
-      src:'assets/images/4.jpg',
-      title:'Accommodation And Catering Establishment',
+      id: '6',
+      src: 'assets/images/4.jpg',
+      title: 'Accommodation And Catering Establishment',
     },
     {
-      id:'7',
-      src:'assets/images/6.jpg',
-      title:'Standards For Safety And Security Standards'
+      id: '7',
+      src: 'assets/images/6.jpg',
+      title: 'Standards For Safety And Security Standards'
     },
   ]
   loginResponse$: Observable<any>;
@@ -161,7 +161,7 @@ export class LandingComponent implements OnInit {
   selectedLanguage: any = 'English';
   selectedLanguageFlag: any = 'assets/images/flags/us.svg';
   loading: boolean;
- 
+
 
   constructor(
     private translate: TranslateService,
@@ -175,8 +175,8 @@ export class LandingComponent implements OnInit {
 
   ) {
     this.form = fb.group({
-      email: ['',Validators.compose([Validators.required, CustomValidators.email])],
-      subject: ['',Validators.compose([Validators.required])],
+      email: ['', Validators.compose([Validators.required, CustomValidators.email])],
+      subject: ['', Validators.compose([Validators.required])],
       message: ["", Validators.compose([Validators.required])],
       name: ["", Validators.compose([Validators.required])],
       phoneNumber: ["", Validators.compose([Validators.required])],
@@ -189,18 +189,19 @@ export class LandingComponent implements OnInit {
     // get return url from route parameters or default to '/'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
-  
+
   // viewStandard(id: number) {
   //   this.router.navigate([`standards/${id}`]);
   // }
-  
+
   viewStandard(standardId: number) {
     this.router.navigate(['/standards', standardId]);
   }
 
+
   private loadData(): any {
     this.loading = true;
-    this.httpService.customerPortalPost(`api/v1/portal/getStandards`,{}).subscribe(
+    this.httpService.customerPortalPost(`api/v1/portal/getStandards`, {}).subscribe(
       (res: any) => {
 
         if (res.status == '00') {
@@ -264,16 +265,28 @@ export class LandingComponent implements OnInit {
     //   );
   }
 
-  // openLeaveCommentModal() {
-  //   this.modalRef = this.modal.open(this.leaveCommentModal, { size: 'md' });
-  // }
-
-  
 
   toggleLeaveCommentForm() {
-    console.log('Toggling form visibility');
-    this.showLeaveCommentForm = !this.showLeaveCommentForm;
+    if (this.showLeaveCommentForm) {
+      this.hideLeaveCommentForm();
+    } else {
+      this.showLeaveCommentForm = true;
+    }
   }
+  hideLeaveCommentForm() {
+    this.showLeaveCommentForm = false;
+  }
+
+  // Function to hide the form when clicking outside of it
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const formElement = document.getElementById('leave-comment-form');
+
+    if (formElement && !formElement.contains(event.target as Node)) {
+      this.hideLeaveCommentForm();
+    }
+  }
+
 
 
 
@@ -320,7 +333,7 @@ export class LandingComponent implements OnInit {
         localStorage.setItem('roles', res.data.roles);
 
       } else {
-        Swal.fire('Error',  'Unable to fetch user details.',  'error');
+        Swal.fire('Error', 'Unable to fetch user details.', 'error');
       }
     })
 

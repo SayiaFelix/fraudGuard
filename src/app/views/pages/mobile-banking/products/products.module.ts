@@ -29,11 +29,13 @@ import {
 } from "./list-products-subcategories-cards/product-sub-categories-as-cards.component";
 import { AddBenefitComponent } from './add-benefit/add-benefit.component';
 import {NgxPaginationModule} from "ngx-pagination";
+import { Ng2TelInputModule } from 'ng2-tel-input';
 
 
 @NgModule({
     imports: [
         SharedModule,
+        Ng2TelInputModule,
         ProductsRoutingModule,
         FeatherIconModule,
         NgxDatatableModule,

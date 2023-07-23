@@ -15,6 +15,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { HttpService } from 'src/app/shared/services/http.service';
 import Swal from "sweetalert2";
 import { NgbActiveModal, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-view-standards',
@@ -30,6 +31,9 @@ export class ViewStandardsComponent implements OnInit {
   errorMessage: string;
   loading: boolean;
   standard:any;
+  private brochureUrl = 'assets/images/certificate.png';
+  // Store the sanitized URL
+  public downloadLink: SafeUrl;
   currentDescription = 'Tourism Regulatory Authority (TRA) is a corporate body established under section 4 of the Tourism Act No.28 of 2011 and is mandated to regulate the tourism sector in Kenya. This entails developing regulations, standards and guidelines that are necessary to ensure an all-round quality service delivery in the tourism sector.This standard was developed by a select team drawn from relevant institutions, including; Tourism Regulatory Authority (TRA), Kenya Utalii College (KUC), Kenya Association of Hotels and Caterers (KAHC), Kenya Association of Tour Operators (KATO), Ministry of Health (MoH), Architectural of Association of Kenya (AAK) and Kenya Bureau of Standards (KEBS). This standard will ensure that the service provided by all the hospitality establishments in the country is of quality and meet the minimum expectations of the tourist. It will form the basis for quality control in the sector as well act as the essential item for the rating of hotels and restaurants in the country.'
   standards: any = [
     {
@@ -75,8 +79,10 @@ export class ViewStandardsComponent implements OnInit {
     private _router: Router,
     private fb: FormBuilder,
     public modal: NgbModal,
+    private sanitizer: DomSanitizer,
 
   ) {
+     this.downloadLink = this.sanitizer.bypassSecurityTrustUrl(this.brochureUrl);
     this.form = fb.group({
       // email: ['',Validators.compose([Validators.required, CustomValidators.email])],
       // occupation: ['',Validators.compose([Validators.required])],
@@ -126,6 +132,17 @@ export class ViewStandardsComponent implements OnInit {
       });
   }
 
+  showLeaveCommentForm: boolean = false;
+  toggleLeaveCommentForm() {
+    if (this.showLeaveCommentForm) {
+      this.hideLeaveCommentForm();
+    } else {
+      this.showLeaveCommentForm = true;
+    }
+  }
+  hideLeaveCommentForm() {
+    this.showLeaveCommentForm = false;
+  }
   onSubmit(): any {
     this.isLoading = true;
     let userId = JSON.parse(localStorage.getItem('data')!)['user']['id']

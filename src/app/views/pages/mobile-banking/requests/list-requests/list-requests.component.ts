@@ -169,7 +169,26 @@ export class ListRequestsComponent implements OnInit {
   ngOnInit(): void {
     this.loadData()
   }
+  showLeaveCommentForm: boolean = false;
+  toggleLeaveCommentForm() {
+    if (this.showLeaveCommentForm) {
+      this.hideLeaveCommentForm();
+    } else {
+      this.showLeaveCommentForm = true;
+    }
+  }
+  hideLeaveCommentForm() {
+    this.showLeaveCommentForm = false;
+  }
 
+  openStandardInNewTab(standardId: number) {
+    const urlTree = this.router.createUrlTree(['/standards', standardId]);
+    const url = this.router.serializeUrl(urlTree);
+    window.open(url, '_blank');
+  }
+  // viewStandard(standardId: number) {
+  //   this.router.navigate(['/standards', standardId]);
+  // }
   private loadData(): any {
     this.loading = true;
     this.httpService.customerPortalPost(`api/v1/portal/getStandards`,{}).subscribe(
