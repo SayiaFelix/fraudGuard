@@ -28,6 +28,10 @@ export class DashboardComponent implements OnInit {
   county: string | null;
   contactPerson: string | null;
   logo: string | null;
+  facilityType: string | null;
+  facilityCategory: string | null;
+  businessPhone:string | null;
+ 
   showLeaveCommentForm: boolean = false;
   showFormImage = 'assets/images/chats.png'
   /**
@@ -91,11 +95,17 @@ export class DashboardComponent implements OnInit {
     if (document.querySelector('html')?.getAttribute('dir') === 'rtl') {
       this.addRtlOptions();
     }
-
+    // facilityType
+    // facilityCategory
+    // businessEmail
+    // businessPhone
     let userDetails = {
       companyEmail: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['businessEmail'] : "test@gmail.com",
       licenceNumber: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['licenceNumber']  : "87654321",
       profile: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['name']  : "Eka Hotel Nairobi",
+      facilityType: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['facilityType'] : "Class A",
+      facilityCategory: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['facilityCategory']  : "Hotel",
+      businessPhone: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['businessPhone']  : "Eka Hotel Nairobi",
       companyRegistrationDate: "24-12-1999",
       county: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['location']  : "Nairobi",
       contactPerson: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['contactPerson']  : "Sayia Felix",
@@ -107,6 +117,9 @@ export class DashboardComponent implements OnInit {
       this.companyRegistrationDate = userDetails['companyRegistrationDate'];
       this.county = userDetails['county'];
       this.contactPerson = userDetails['contactPerson'];
+      this.facilityType = userDetails['facilityType'];
+      this.facilityCategory = userDetails['facilityCategory'];
+      this.businessPhone = userDetails['businessPhone'];
       this.logo =
         'https://images.unsplash.com/photo-151740421573-15263e9f9178?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80';
 
@@ -122,6 +135,9 @@ export class DashboardComponent implements OnInit {
             this.companyRegistrationDate = resp[0]['enterpriseName'];
             this.county = resp[0]['country'];
             this.contactPerson = resp[0]['contactPerson'];
+            this.facilityType = resp[0]['facilityType'];
+            this.facilityCategory = resp[0]['facilityCategory'];
+            this.businessPhone = resp[0]['businessPhone'];
             return resp[0];
           }
         })

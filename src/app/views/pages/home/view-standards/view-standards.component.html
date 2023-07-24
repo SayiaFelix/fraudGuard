@@ -67,7 +67,7 @@
       </div>
       <div class="card-body" style="padding: 0% 4%;">
         <div class="border-0 box-shadow">
-          <div class="grid-margin stretch-card ">
+          <div class="grid-margin stretch-card " *ngFor="let part of standardParts">
             <div class="row mt-3">
               <div class="col-md-2">
                 <div class="mt-2">
@@ -144,22 +144,12 @@
                       definitions shall apply:</p>
                   </div>
                 </div>
-                <div class="p-1" style="color: #50287B;">
+                <div class="p-1" style="color: #50287B;" *ngFor="let term of standardTerm">
                   <h5 style="font-family: Muli;font-weight: 700;">A-la-carte:</h5>
                   <p style="font-family: Muli;font-weight: 400">For the purpose of this standard the following
                     definitions shall apply: means a menu in a restaurant that offers individual priced</p>
-                  <h5 class="mt-1" style="font-family: Muli;font-weight: 700;">Beverages:</h5>
-                  <p style="font-family: Muli;font-weight: 400;">For the purpose of this standard the following
-                    definitions shall apply: means a menu in a restaurant that offers individual priced</p>
-                  <h5 class="mt-1" style="font-family: Muli;font-weight: 700;">Catering Establishments:</h5>
-                  <p style="font-family: Muli;font-weight: 400;">For the purpose of this standard the following
-                    definitions shall apply: means a menu in a restaurant that offers individual priced</p>
-                  <h5 class="mt-1" style="font-family: Muli;font-weight: 700;">Beverages:</h5>
-                  <p style="font-family: Muli;font-weight: 400;">For the purpose of this standard the following
-                    definitions shall apply: means a menu in a restaurant that offers individual priced</p>
-                  <h5 class="mt-1" style="font-family: Muli;font-weight: 700;">Catering Establishments:</h5>
-                  <p style="font-family: Muli;font-weight: 400;">For the purpose of this standard the following
-                    definitions shall apply: means a menu in a restaurant that offers individual priced</p>
+                  <h5 class="mt-1" style="font-family: Muli;font-weight: 700;">{{term?.term_title}}</h5>
+                  <p style="font-family: Muli;font-weight: 400;">{{term?.term_definition}}</p> 
                 </div>
               </div>
             </div>

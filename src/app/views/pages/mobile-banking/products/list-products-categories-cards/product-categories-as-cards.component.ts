@@ -34,7 +34,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
   tempProductData = [
     {
       'Id': "1",
-      'requestType': "ACCREDITATION",
+      'request_type': "ACCREDITATION",
       'ref_number': 'REQ0000',
       'createdOn': "2023-02-12",
       'status': "Pending",
@@ -57,7 +57,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
   columns = [
     { name: 'ID', prop: 'id' },
     { name: 'REQ NO:', prop: 'ref_number' },
-    { name: 'Request Type', prop: 'requestType' },
+    { name: 'Request Type', prop: 'request_type' },
     { name: 'Status', prop: 'status' },
     { name: 'Created On', prop: 'createdOn' },
     { name: 'Actions', prop: 'actions' },
@@ -140,6 +140,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
           
           setTimeout(() => {
             let response = res.data;
+            console.log(response)
             this.rows = response.map((item: any, index: any) => {
               const myDate = item['createdOn'].replace(' ', 'T');
               const dateObj = new Date(myDate).toString().split('GMT')[0];
