@@ -147,12 +147,12 @@
                 <div class="" [id]="std.id" (click)="viewStandard(std.id)">
                   <div style="position: relative; display: inline-block;">
                     <div class="w-100">
-                      <!-- <img class="img-fluid card-img-top"
-                          style="height: 95px; border-top-left-radius: 13px; border-top-right-radius: 13px;"
-                          [src]="std.icon" /> -->
                       <img class="img-fluid card-img-top"
+                          style="height: 95px; border-top-left-radius: 13px; border-top-right-radius: 13px;"
+                          [src]="std.icon" />
+                      <!-- <img class="img-fluid card-img-top"
                         style="min-height: 95px; max-width: 100%; border-top-left-radius: 13px; border-top-right-radius: 13px;"
-                        src="assets/images/3.png" alt="">
+                        src="assets/images/3.png" alt=""> -->
                     </div>
                     <div
                       style="position: absolute; width: 60px; height: 60px; margin-left: 4%; margin-top: -11%; border-radius: 50%; background-color: #D0DDF0;"
@@ -169,7 +169,7 @@
                             font-size: 16px;
                             line-height: 21px;
                           " class="h2">
-                        {{ std.title }}
+                        {{ std.name }}
                       </p>
                       <!-- <p style="color: #2268AA; font-family: 'Muli';font-weight: 600;font-size: 15px;" class="h2"> <a href="" routerLink="/standards/Id">{{std.name}}</a></p> -->
                     </div>
@@ -181,7 +181,7 @@
                             font-size: 12px;
                             line-height: 21px;
                           " class="h3">
-                        {{ std.description }}
+                        {{ std.describe }}
                       </p>
                     </div>
                   </div>

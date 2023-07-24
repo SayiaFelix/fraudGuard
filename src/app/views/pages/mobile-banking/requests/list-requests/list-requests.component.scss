@@ -161,19 +161,7 @@
   background-color: #f7941d;
   border-radius: 8px;
 }
-.modal-container {
-  display: flex-end;
-  align-items: flex-end;
-  justify-content: flex-end;
-  position: fixed;
-  width: 350px;
-  height: 700px;
-  top: 11%;
-  right: 3%;
-  padding: 10px;
-  border-radius: 8px 8px 0px 0px;
-}
-.modal-content{display: none !important;}
+
 .modals {
   border-radius: 8px 8px 0px 0px;
   background: var(--seasalt, #F8F8F8);

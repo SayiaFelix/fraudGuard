@@ -120,6 +120,151 @@
 //  url('./assets/fonts/nunito-v24-latin-700.svg#Nunito') format('svg'); /* Legacy iOS */
 //}
 
+.landing {
+  position: absolute;
+  padding: 16px 24px;
+  align-items: center;
+  border-radius: 16px;
+  background: #fff;
+  width: 90%;
+  margin-left: 5%;
+  margin-top: 30%;
+}
+.modal-container {
+  display: flex-end;
+  align-items: flex-end;
+  justify-content: flex-end;
+  position: fixed;
+  z-index: 10;
+  width: 350px;
+  height: 700px;
+  position: fixed;
+  left: 72%;
+  top: 20%;
+  // transform: translate(-50%, -50%);
+  padding: 10px;
+  border-radius: 8px 8px 8px 8px;
+}
+@media (max-width: 1280px) {
+  .modal-container {
+    margin-top: 14%;
+    left: 71%;
+    height: 600px;
+    width: 300px;
+  }
+}
+@media (max-width: 1024px) {
+  .landing {
+    margin-top: 90%;
+  }
+
+  .modal-container {
+    margin-top: 2%;
+    left: 63%;
+    height: 600px;
+    width: 300px;
+  }
+}
+
+/* ---- Start of max-width 992px CSS ---- */
+
+@media (max-width: 992px) {
+  .landing {
+    margin-top: 90%;
+  }
+
+  .modal-container {
+    margin-top: 70%;
+    left: 60%;
+    height: 600px;
+    width: 300px;
+  }
+}
+
+/* ---- End of max-width 992px CSS ---- */
+@media all and (min-width: 768px) and (max-width: 830px) {
+  .landing {
+    bottom: 34%;
+  }
+
+  .modal-container {
+    margin-top: 48%;
+    left: 61%;
+    height: 600px;
+    width: 300px;
+  }
+}
+/* ---- Start of min-width 480px and max-width 768px CSS ---- */
+
+@media all and (min-width: 480px) and (max-width: 768px) {
+  .landing {
+    margin-top: 90%;
+  }
+
+  .modal-container {
+    margin-top: 48%;
+    left: 52%;
+    height: 600px;
+    width: 300px;
+  }
+}
+
+/* ---- End of min-width 480px and max-width 768px CSS ---- */
+
+/* ---- Start of max-width 767px CSS ---- */
+
+@media all and (max-width: 767px) {
+  .modal-container {
+    margin-top: 23%;
+    left: 36%;
+    height: 400px;
+    width: 100px;
+  }
+
+}
+
+/* ---- End of max-width 767px CSS ---- */
+
+/* ---- Start of max-width 480px CSS ---- */
+
+@media all and (max-width: 480px) {
+  .landing {
+    margin-top: 95%;
+  }
+
+  .modal-container {
+    display: none;
+  }
+}
+
+/* ---- End of max-width 480px CSS ---- */
+
+
+/* ---- Start of max-width 380px CSS ---- */
+
+@media all and (max-width: 380px) {
+  .landing {
+    margin-top: 95%;
+  }
+
+  .modal-container {
+    display: none;
+  }
+}
+
+/* ---- End of max-width 380px CSS ----
+
+
+
+
+
+
+
+
+
+
+
+
 body{
   font-family: 'Muli';
 }
@@ -188,7 +333,7 @@ body{
     line-height: 22px;
     letter-spacing: 0em;
   }
-  
+
   :-ms-input-placeholder  {
     color: #1e0f2e73;
     font-family: Mulish;
