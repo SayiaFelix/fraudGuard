@@ -9,7 +9,12 @@
   border-radius: 8px;
 }
 
-.modals {
-  border-radius: 8px 8px 0px 0px;
-  background: var(--seasalt, #F8F8F8);
+.modal-container {
+  padding: 10px;
+  width: 350px;
+  z-index: 10;
+  position: fixed;
+  margin-top: 70px;
+  border-radius: 8px 8px 8px 8px;
 }
+

@@ -1,4 +1,65 @@
 <div class="body w-100" style="position: relative; background-color: #EFEFEF;">
+  <ng-container *ngIf="showLeaveCommentForm">
+    <div class="modal-container d-flex justify-content-end">
+      <div>
+        <div class="modals">
+          <div style="background: var(--seasalt, #F8F8F8); border-radius: 8px 8px 8px 8px;">
+            <div class="d-flex justify-content-between"
+              style="background-color: #d0ddf0;  font-family: 'Mulish'; font-weight: 900; border-radius:4px;">
+              <h4 class="text-start p-2 mt-2" style="color: #6D36A8; font-size: 23px;">Customer Inquiry</h4>
+              <div>
+                <button type="button" class="btn fs-2" (click)="hideLeaveCommentForm()"
+                  style="color: #6D36A8; font-size: 20px; margin-top: -5%;">
+                  &times;
+                </button>
+              </div>
+            </div>
+            <article class="">
+              <p *ngIf="errorMessage" class="text-danger">{{errorMessage}}</p>
+              <form class="mt-1" [formGroup]="form" (ngSubmit)="onleaveComment()" class="row px-3">
+                <div class="tab-content col-12 border-0">
+                  <div class="form-group mt-2">
+                    <input formControlName="name" type="text" class="form-control validation-field border-0" id="name"
+                      placeholder="Your Name or Company*">
+                    <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+                  </div>
+                  <div class="form-group mt-2">
+                    <input formControlName="email" type="email" class="form-control validation-field border-0"
+                      id="email" placeholder="Your email address*">
+                    <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+                  </div>
+                  <div class="form-group mt-2">
+                    <input type="text" name="tel" formControlName="phoneNumber" id="phoneNumber"
+                      placeholder="Phone Number*" class="form-control validation-field border-0" ng2TelInput
+                      data-initial-country="ke">
+                    <!-- <input formControlName="phoneNumber" id="phoneNumber" type="text"  placeholder="Phone Number*" class="form-control validation-field border-0"
+                                id="purpose" placeholder="Your Phone No,"> -->
+                    <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+                  </div>
+                  <div class="form-group mt-2">
+                    <input formControlName="subject" type="text" class="form-control validation-field border-0"
+                      id="subject" placeholder="Subject">
+                    <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+                  </div>
+                  <div class="form-group mt-2">
+                    <textarea formControlName="message" type="text" id="message" cols="15" rows="3"
+                      placeholder="Message" class="form-control validation-field border-0"></textarea>
+                    <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
+                  </div>
+                  <div class="col-12 bg-white text-center py-1 mt-3 mb-2">
+                    <button style="width: 100%; border: none;" class="btn btn-block bronchure-btn transition"
+                      type="submit">
+                      <span style="color: white;">SEND</span>
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
   <div class="d-flex justify-content-between" style="max-width: 100%; max-height: 70px">
     <div class="d-flex justify-content-around" style="margin-left: 4%">
       <div class="p-2">
@@ -142,68 +203,6 @@
     </div>
   </div>
 </div>
-<ng-container *ngIf="showLeaveCommentForm">
-  <div class="modal-container">
-    <div class="modals">
-      <div class="col-12">
-        <div class="">
-          <div class="card-header d-flex justify-content-between"
-            style="background-color: #d0ddf0; font-family: 'Mulish'; font-weight: 900; border-radius:4px;">
-            <h4 class="text-start p-2 mt-2" style="color: #6D36A8; font-size: 23px;">Customer Inquiry</h4>
-            <div>
-              <button type="button" class="btn fs-2" (click)="hideLeaveCommentForm()"
-                style="color: #6D36A8; font-size: 20px; margin-top: -5%;">
-                &times;
-              </button>
-            </div>
-
-          </div>
-          <article class="">
-            <p *ngIf="errorMessage" class="text-danger">{{errorMessage}}</p>
-            <form class="mt-1" [formGroup]="form" (ngSubmit)="onleaveComment()" class="row px-3">
-              <div class="tab-content col-12 border-0">
-                <div class="form-group mt-2">
-                  <input formControlName="name" type="text" class="form-control validation-field border-0" id="name"
-                    placeholder="Your Name or Company*">
-                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
-                </div>
-                <div class="form-group mt-2">
-                  <input formControlName="email" type="email" class="form-control validation-field border-0" id="email"
-                    placeholder="Your email address*">
-                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
-                </div>
-                <div class="form-group mt-2">
-                  <input type="text" name="tel" formControlName="phoneNumber" id="phoneNumber"
-                    placeholder="Phone Number*" class="form-control validation-field border-0" ng2TelInput
-                    data-initial-country="ke">
-                  <!-- <input formControlName="phoneNumber" id="phoneNumber" type="text"  placeholder="Phone Number*" class="form-control validation-field border-0"
-                    id="purpose" placeholder="Your Phone No,"> -->
-                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
-                </div>
-                <div class="form-group mt-2">
-                  <input formControlName="subject" type="text" class="form-control validation-field border-0"
-                    id="subject" placeholder="Subject">
-                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
-                </div>
-                <div class="form-group mt-2">
-                  <textarea formControlName="message" type="text" id="message" cols="15" rows="3" placeholder="Message"
-                    class="form-control validation-field border-0"></textarea>
-                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->
-                </div>
-                <div class="col-12 bg-white text-center py-1 mt-3 mb-2">
-                  <button style="width: 100%; border: none;" class="btn btn-block bronchure-btn transition"
-                    type="submit">
-                    <span style="color: white;">SEND</span>
-                  </button>
-                </div>
-              </div>
-            </form>
-          </article>
-        </div>
-      </div>
-    </div>
-  </div>
-</ng-container>
 <ng-template #noStandardsMessage>
   <p></p>
   <h5 class="d-flex justify-content-end" style="color: #a90202; font-family: 'Mulish';font-weight: 600;font-size: 15px; text-transform: none;">No standards for this Sub Class Enterprise</h5>

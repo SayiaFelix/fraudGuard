@@ -130,21 +130,8 @@
   margin-left: 5%;
   margin-top: 30%;
 }
-.modal-container {
-  display: flex-end;
-  align-items: flex-end;
-  justify-content: flex-end;
-  position: fixed;
-  z-index: 10;
-  width: 350px;
-  height: 700px;
-  position: fixed;
-  left: 72%;
-  top: 20%;
-  // transform: translate(-50%, -50%);
-  padding: 10px;
-  border-radius: 8px 8px 8px 8px;
-}
+
+
 @media (max-width: 1280px) {
   .modal-container {
     margin-top: 14%;
