@@ -165,7 +165,7 @@ export class ListCustomersComponent implements OnInit {
 
   private loadData(): any {
     this.loading = true;
-    this.httpService.customerPortalPost(`api/v1/portal/getResults`, {}).subscribe(
+    this.httpService.customerPortalPost(`api/v1/portal/getRequests`, {}).subscribe(
       (res: any) => {
 
         if (res.status == '00') {

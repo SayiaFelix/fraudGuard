@@ -68,6 +68,11 @@ export class ViewStandardsComponent implements OnInit {
   currentIndex: number;
   changeIndex: (index: any) => void;
   public standardId: number;
+  standardParts: any;
+  showLeaveCommentForm: boolean = false;
+  standardTerms: any;
+  standardPart: any;
+  standardTerm: any;
 
   constructor(
     private translate: TranslateService,
@@ -103,7 +108,11 @@ export class ViewStandardsComponent implements OnInit {
       }
     });
 
-    this.loadData()
+    this.loadData();
+    this.loadParts();
+    this.loadTerms();
+    this.loadPartsId();
+    this.loadTermsId();
     localStorage.clear();
     // get return url from route parameters or default to '/'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
@@ -132,7 +141,80 @@ export class ViewStandardsComponent implements OnInit {
       });
   }
 
-  showLeaveCommentForm: boolean = false;
+  private loadParts(): any {
+    this.loading = true;
+    this.httpService.customerPortalPost(`api/v1/portal/getStandards`, {}).subscribe(
+      (res: any) => {
+
+        if (res.status == '00') {
+          this.standardParts = res['data'];
+          console.log(this.standardParts)
+          this.loading = false;
+          this.loading = false;
+
+        } else {
+          Swal.fire('Failed', "Unable to fetch standards", 'error')
+        }
+      }, (error: any) => {
+        Swal.fire("Error", error.message, "error");
+      });
+  }
+
+  private loadPartsId(): any {
+    this.loading = true;
+    this.httpService.customerPortalPost(`api/v1/portal/standard/${this.standardId}`,{}).subscribe(
+      (res: any) => {
+
+        if (res.status == '00') {
+          this.standardPart = res['data'];
+          console.log(this.standardPart)
+          this.loading = false;
+
+        } else {
+          Swal.fire('Failed', "Unable to fetch standards Part", 'error')
+        }
+      }, (error: any) => {
+        Swal.fire("Error", error.message, "error");
+      });
+  }
+
+  private loadTerms(): any {
+    this.loading = true;
+    this.httpService.customerPortalPost(`api/v1/portal/getStandards`, {}).subscribe(
+      (res: any) => {
+
+        if (res.status == '00') {
+          this.standardTerms = res['data'];
+          console.log(this.standardTerms)
+          this.loading = false;
+
+        } else {
+          Swal.fire('Failed', "Unable to fetch standards Term", 'error')
+        }
+      }, (error: any) => {
+        Swal.fire("Error", error.message, "error");
+      });
+  }
+
+  private loadTermsId(): any {
+    this.loading = true;
+    this.httpService.customerPortalPost(`api/v1/portal/standard/${this.standardId}`,{}).subscribe(
+      (res: any) => {
+
+        if (res.status == '00') {
+          this.standardTerm = res['data'];
+          console.log(this.standardTerm)
+          this.loading = false;
+
+        } else {
+          Swal.fire('Failed', "Unable to fetch standards Term", 'error')
+        }
+      }, (error: any) => {
+        Swal.fire("Error", error.message, "error");
+      });
+  }
+
+
   toggleLeaveCommentForm() {
     if (this.showLeaveCommentForm) {
       this.hideLeaveCommentForm();
