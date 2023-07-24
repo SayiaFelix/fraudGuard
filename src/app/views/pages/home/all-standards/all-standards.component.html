@@ -56,8 +56,8 @@
           <h3 style="color: #1E0F2E; font-family: 'Mulish';font-weight: 600;font-size: 20px; text-transform: none;">All
             Standards</h3>
         </div>
-        <div style="margin-right: 6%;">
-          <select class="form-select" id="request_category" name="request_category" (change)="onSubClassChange($event)">
+        <div class="" style="margin-right: 6%;">
+          <select class="form-select p-1" id="request_category" name="request_category" (change)="onSubClassChange($event)">
             <option value="All">All</option>
             <option *ngFor="let data of SubClassData" [value]="data.id">
               {{data.sub_class}}
@@ -66,7 +66,7 @@
         </div>
       </div>
       <div class="card-body" style="padding: 0% 6%">
-        <div class="border-0 box-shadow" *ngIf="filteredStandards.length > 0; else noStandardsMessage">
+        <!-- <div class="border-0 box-shadow" *ngIf="filteredStandards.length > 0; else noStandardsMessage">
           <div class="grid-margin stretch-card">
             <div class="row">
               <div  class="col-md-3 col-lg-3 col-xl-3 col-sm-4 mt-3 pt-2" *ngFor="let std of filteredStandards">
@@ -75,7 +75,7 @@
                     <div class="w-100">
                       <!-- <img class="img-fluid card-img-top"
                           style="height: 95px; border-top-left-radius: 13px; border-top-right-radius: 13px;"
-                          [src]="std.icon" /> -->
+                          [src]="std.icon" /> --
                       <img class="img-fluid card-img-top"
                         style="min-height: 95px; max-width: 100%; border-top-left-radius: 13px; border-top-right-radius: 13px;"
                         src="assets/images/3.png" alt="">
@@ -97,7 +97,7 @@
                           " class="h2">
                         {{ std.title }}
                       </p>
-                      <!-- <p style="color: #2268AA; font-family: 'Muli';font-weight: 600;font-size: 15px;" class="h2"> <a href="" routerLink="/standards/Id">{{std.name}}</a></p> -->
+                      <!-- <p style="color: #2268AA; font-family: 'Muli';font-weight: 600;font-size: 15px;" class="h2"> <a href="" routerLink="/standards/Id">{{std.name}}</a></p> --
                     </div>
                     <div class="">
                       <p style="
@@ -115,7 +115,7 @@
               </div>
             </div>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>

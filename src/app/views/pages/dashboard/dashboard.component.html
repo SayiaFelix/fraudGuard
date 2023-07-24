@@ -10,56 +10,56 @@
   <div class="row">
     <div class="col-md-12 col-lg-12 col-xl-12 col-sm-12">
       <div class="card border-0 box-shadow">
-        <img class="card-img-top img-fluid" style="max-width:100% ; height: 350px ; border-radius: 16px;"
+        <img class="card-img-top img-fluid" style="max-width:100% ; max-height: 400px ; border-radius: 16px;"
           src="assets/images/serena.jpeg" />
       </div>
     </div>
   </div>
-  <div
-    style=" position:absolute; padding: 16px 24px; align-items: center; border-radius: 16px; background: #FFF; width: 90%; margin-left: 5%; margin-top: 30%;">
-    <div class="d-flex justify-content-between">
-      <div class="mt-2 p-2" style="border-right: 2px solid  rgba(182, 147, 220, 0.80);">
+  <div class="landing">
+    <div class="row d-flex justify-content-between">
+      <div class="col mt-2 p-2" style="border-right: 2px solid  rgba(182, 147, 220, 0.80);">
         <div class="box-shadow"
-          style="height: 95px ; width: 95px; border-radius: 50%;border: 2px solid #CCC; align-items: center;">
+          style="height: 97px ; width: 97px; border-radius: 50%;border: 2px solid #CCC; align-items: center;">
           <img class="card-img-top img-fluid"
-            style="height: 63px; width: 75px; border-radius: 25%; margin-left: 8px; margin-top: 9px;"
+            style="max-height: 80px; max-width: 75px; border-radius: 20%; margin-left: 6%; margin-top: 20%;"
             src="assets/images/ns.jpg" />
         </div>
       </div>
-      <div>
+      <div class="col">
         <p class="title">Enterprise</p>
         <h2 class="content">{{facilityType}}</h2>
       </div>
-      <div>
+      <div class="col">
         <p class="title">Facility</p>
         <h2 class="content">{{facilityCategory}}</h2>
       </div>
-      <div>
+      <div class="col">
         <p class="title">Email</p>
         <h2 class="content">{{companyEmail}}</h2>
       </div>
-      <div>
+      <div class="col">
         <p class="title">Phone</p>
         <h2 class="content">{{businessPhone}}</h2>
       </div>
     </div>
   </div>
   <div
-    style="align-items: center; border-radius: 16px; background: #D0DDF0; width: 90%; margin-left: 5%; margin-top: 10%;">
-    <div class="d-flex justify-content-between" style="padding: 24px 24px;">
-      <div>
+    style="align-items: center; border-radius: 16px; background: #D0DDF0; width: 90%; margin-left: 5%; margin-top: 7%;">
+    <div class="row d-flex justify-content-between mt-2" style="padding: 24px 24px;">
+
+      <div class="col">
         <div class="card border-0 box-shadow" style="height: 100px ; width: 150px;">
           <img class="card-img-top img-fluid" style="height: 100px; width: 150px;"
             src="assets/images/certificate.png" />
         </div>
       </div>
-      <div style="font-family: Mulish;font-style: normal;font-weight: 600;line-height: normal;">
+      <div class="col" style="font-family: Mulish;font-style: normal;font-weight: 600;line-height: normal;">
         <p style="color: var(--dark-purple, #1E0F2E);font-size: 15px;">LIC.NO {{licenceNumber}}</p>
         <h2 style="color: var(--green-blue, #2268AA);font-size: 17px;">Tourism Regulatory Authority (TRA) Licence
           Certificate Earned</h2>
         <h4 style="color: var(--dark-purple, #1E0F2E);font-size: 17px;">Certificate expires | 24th September 2024 </h4>
       </div>
-      <div style="margin-top: 3%;">
+      <div class="col" style="margin-top: 3%;">
         <button class="btn btn-md login-btn transition" type="submit">
           <a style="text-decoration: none" class="transition">
             <span style="color: #f8f8f8; font-weight: 700;letter-spacing: 0.08em;font-size: 12px;
@@ -98,10 +98,10 @@
             <div>
               <button type="button" class="btn fs-2" (click)="hideLeaveCommentForm()"
                 style="color: #6D36A8; font-size: 20px; margin-top: -5%;">
-                &times; 
+                &times;
               </button>
             </div>
-            
+
           </div>
           <article class="">
             <p *ngIf="errorMessage" class="text-danger">{{errorMessage}}</p>

@@ -185,13 +185,13 @@ export class StandardsComponent implements OnInit {
         Swal.fire("Error", error.message, "error");
       });
   }
- 
+
   onSubClassChange(event: Event): void {
     const subclassId = (event.target as HTMLSelectElement).value;
     const subClassIdOrNull = subclassId === "All" ? null : subclassId;
     this.loadData(subClassIdOrNull);
   }
-  
+
   getSubClassData(event: number): void {
     this.loading = true;
     this.httpService
@@ -222,7 +222,6 @@ export class StandardsComponent implements OnInit {
       this.showLeaveCommentForm = true;
     }
   }
-
   hideLeaveCommentForm() {
     this.showLeaveCommentForm = false;
   }
