@@ -30,6 +30,8 @@ export class ListRequestsComponent implements OnInit {
   modalRef: NgbModalRef;
   loading:boolean;
   standards: any = []
+  perPage = 5;
+  page = 1
   // standards: any = [
   //   {
   //     id: '1',
@@ -152,11 +154,11 @@ export class ListRequestsComponent implements OnInit {
   //     describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
   //   },
   // ]
-  constructor(private router: Router, 
+  constructor(private router: Router,
     fb: FormBuilder,
     public modal: NgbModal,
     private httpService: HttpService,
-    public activeModal: NgbActiveModal,) { 
+    public activeModal: NgbActiveModal,) {
       this.form = fb.group({
         email: ['',Validators.compose([Validators.required, CustomValidators.email])],
         subject: ['',Validators.compose([Validators.required])],
@@ -191,13 +193,16 @@ export class ListRequestsComponent implements OnInit {
   // }
   private loadData(): any {
     this.loading = true;
-    this.httpService.customerPortalPost(`api/v1/portal/getStandards`,{}).subscribe(
+    let model ={
+        page: this.page-1,
+        size: this.perPage
+    }
+    this.httpService.customerPortalPosts(`getall`, model).subscribe(
       (res: any) => {
 
-        if (res.status == '00') {
-          this.standards = res['data'];
+        if (res.status == 200) {
+          this.standards = res['data']['standards'];
           console.log(this.standards)
-          this.loading = false;
           this.loading = false;
 
         } else {
@@ -212,12 +217,12 @@ export class ListRequestsComponent implements OnInit {
     // this.hasError = false;
     // this.isLoading = true;
     // e.preventDefault();
-  
+
     // const model = new HttpParams()
     //   // .set('grant_type', 'password')
     //   .set('username', this.form.value.username.trim())
     //   .set('password', this.form.value.password);
-  
+
     // this.loginResponse$ = this.httpService
     //   .channelManagerLogin('oauth/token', model)
     //   .pipe(
@@ -239,22 +244,22 @@ export class ListRequestsComponent implements OnInit {
     //         }, 4000);
     //       } else {
     //         setTimeout(() => {
-  
+
     //           this.saveUsernameAndRolesOnLogin();
-  
+
     //           if(result.firstTimeLogin) {
     //             this.router.navigate(['/auth/first-time-login']);
     //           } else{
     //             this.router.navigate(['/dashboard']);
     //           }
-  
+
     //         }, 1000);
     //         return result;
     //       }
     //     })
     //   );
   }
-  
+
   openModal(modalContent: any) {
     this.modalRef = this.modal.open(modalContent, {centered: true, size:"md"});
   }

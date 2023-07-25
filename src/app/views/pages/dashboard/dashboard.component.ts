@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 
 import { NgbDateStruct, NgbCalendar, NgbActiveModal, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -17,6 +18,9 @@ export class DashboardComponent implements OnInit {
   public form: FormGroup;
   errorMsg: string;
   hasError: boolean = false;
+  private brochureUrl = 'assets/images/certificate.png';
+  // Store the sanitized URL
+  public downloadLink: SafeUrl;
   isLoading: boolean = false;
   errorMessage: string;
   modalRef: NgbModalRef;
@@ -31,7 +35,7 @@ export class DashboardComponent implements OnInit {
   facilityType: string | null;
   facilityCategory: string | null;
   businessPhone:string | null;
- 
+
   showLeaveCommentForm: boolean = false;
   showFormImage = 'assets/images/chats.png'
   /**
@@ -70,8 +74,10 @@ export class DashboardComponent implements OnInit {
     private httpService: HttpService,
     fb: FormBuilder,
     private _router: Router,
+    private sanitizer: DomSanitizer,
     public modal: NgbModal,
     public activeModal: NgbActiveModal,) {
+      this.downloadLink = this.sanitizer.bypassSecurityTrustUrl(this.brochureUrl);
       this.form = fb.group({
         email: ['',Validators.compose([Validators.required, CustomValidators.email])],
         subject: ['',Validators.compose([Validators.required])],
@@ -161,12 +167,12 @@ export class DashboardComponent implements OnInit {
     // this.hasError = false;
     // this.isLoading = true;
     // e.preventDefault();
-  
+
     // const model = new HttpParams()
     //   // .set('grant_type', 'password')
     //   .set('username', this.form.value.username.trim())
     //   .set('password', this.form.value.password);
-  
+
     // this.loginResponse$ = this.httpService
     //   .channelManagerLogin('oauth/token', model)
     //   .pipe(
@@ -188,22 +194,22 @@ export class DashboardComponent implements OnInit {
     //         }, 4000);
     //       } else {
     //         setTimeout(() => {
-  
+
     //           this.saveUsernameAndRolesOnLogin();
-  
+
     //           if(result.firstTimeLogin) {
     //             this.router.navigate(['/auth/first-time-login']);
     //           } else{
     //             this.router.navigate(['/dashboard']);
     //           }
-  
+
     //         }, 1000);
     //         return result;
     //       }
     //     })
     //   );
   }
-  
+
   openModal(modalContent: any) {
     this.modalRef = this.modal.open(modalContent, {centered: true, size:"md"});
   }
@@ -211,7 +217,7 @@ export class DashboardComponent implements OnInit {
   public closeModal(): void {
     this.activeModal.dismiss('Cross click');
   }
-  
+
 
   /**
    * Only for RTL (feel free to remove if you are using LTR)

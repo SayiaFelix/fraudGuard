@@ -131,13 +131,17 @@
   margin-top: 30%;
 }
 
+.modal-container {
+  top: 3%;
+  right: 3%;
+}
 
 @media (max-width: 1280px) {
   .modal-container {
-    margin-top: 14%;
-    left: 71%;
-    height: 600px;
-    width: 300px;
+    // margin-top: 14%;
+    // left: 71%;
+    // height: 600px;
+    // width: 300px;
   }
 }
 @media (max-width: 1024px) {
@@ -146,10 +150,10 @@
   }
 
   .modal-container {
-    margin-top: 2%;
-    left: 63%;
-    height: 600px;
-    width: 300px;
+    // margin-top: 2%;
+    // left: 63%;
+    // height: 600px;
+    // width: 300px;
   }
 }
 
@@ -161,10 +165,10 @@
   }
 
   .modal-container {
-    margin-top: 70%;
-    left: 60%;
-    height: 600px;
-    width: 300px;
+    // margin-top: 70%;
+    // left: 60%;
+    // height: 600px;
+    // width: 300px;
   }
 }
 
@@ -175,10 +179,10 @@
   }
 
   .modal-container {
-    margin-top: 48%;
-    left: 61%;
-    height: 600px;
-    width: 300px;
+    // margin-top: 48%;
+    // left: 61%;
+    // height: 600px;
+    // width: 300px;
   }
 }
 /* ---- Start of min-width 480px and max-width 768px CSS ---- */
@@ -202,10 +206,10 @@
 
 @media all and (max-width: 767px) {
   .modal-container {
-    margin-top: 23%;
-    left: 36%;
-    height: 400px;
-    width: 100px;
+    // margin-top: 23%;
+    // left: 36%;
+    // height: 400px;
+    // width: 100px;
   }
 
 }
