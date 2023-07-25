@@ -187,37 +187,11 @@ export const MENU: MenuItem[] = [
   // },
 
 
-  // {
-  //   profiles: ['CORPORATE_ADMIN'],
-  //   label: 'Setup',
-  //   icon: 'settings',
-  //   subItems: [
-  //     {
-  //       profiles: ['CORPORATE_ADMIN'],
-  //       label: 'Regions',
-  //       link: '/mobile-banking/setups/list-Regions'
-  //     },
-  //     {
-  //       profiles: ['CORPORATE_ADMIN'],
-  //       label: 'Branches',
-  //       link: '/mobile-banking/setups/list-branches'
-  //     },
-  //     {
-  //       profiles: ['CORPORATE_ADMIN'],
-  //       label: 'ATMs',
-  //       link: '/mobile-banking/setups/list-services'
-  //     },
-  //     {
-  //       profiles: ['CORPORATE_ADMIN'],
-  //       label: 'Services',
-  //       link: '/mobile-banking/setups/list-services'
-  //     },
-  //   ]
-  // },
+
 
   {
     // profiles: ['CORPORATE_ADMIN'],
-    label: 'Chats',
+    label: 'OUR TEAM',
     icon: 'users',
     link: '/tra-client/Users/list-users'
     // subItems: [
@@ -236,6 +210,34 @@ export const MENU: MenuItem[] = [
     //     label: 'Profiles',
     //     link: '/tra-client/rbac/all-profiles'
     //   }
+    // ]
+  },
+    {
+    // profiles: ['CORPORATE_ADMIN'],
+    label: 'CHATS',
+    icon: 'settings',
+    link: '/mobile-banking/setups/list-Regions'
+    // subItems: [
+    //   {
+    //     profiles: ['CORPORATE_ADMIN'],
+    //     label: 'Regions',
+    //     link: '/mobile-banking/setups/list-Regions'
+    //   },
+    //   {
+    //     profiles: ['CORPORATE_ADMIN'],
+    //     label: 'Branches',
+    //     link: '/mobile-banking/setups/list-branches'
+    //   },
+    //   {
+    //     profiles: ['CORPORATE_ADMIN'],
+    //     label: 'ATMs',
+    //     link: '/mobile-banking/setups/list-services'
+    //   },
+    //   {
+    //     profiles: ['CORPORATE_ADMIN'],
+    //     label: 'Services',
+    //     link: '/mobile-banking/setups/list-services'
+    //   },
     // ]
   },
   // {

@@ -24,7 +24,66 @@ export class ListUsersComponent implements OnInit {
   breadCrumbItems: Array<{}>;
   rows: any = [];
   filteredRows: any = [];
-
+  showLeaveCommentForm: boolean = false;
+  showFormImage = 'assets/images/chats.png'
+  standards: any = [
+    {
+      id: '1',
+      icon: "assets/images/p1.png",
+      title:"Assessor",
+      name: 'Jane Akinyi',
+      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    },
+    {
+      id: '2',
+      icon: "assets/images/p2.png",
+      title:"Assessor",
+      name: 'Jane Akinyi',
+      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    },
+    {
+      id: '3',
+      icon: "assets/images/p3.png",
+      title:"Assessor",
+      name: 'Jane Akinyi',
+      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    },
+    {
+      id: '4',
+      icon: "assets/images/p4.png",
+      title:"Assessor",
+      name: 'Jane Akinyi',
+      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    },
+    {
+      id: '5',
+      icon: "assets/images/p5.png",
+      title:"Assessor",
+      name: ' Jane Akinyi',
+      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    },
+    {
+      id: '6',
+      icon: "assets/images/p6.png",
+      title:"Assessor",
+      name: 'Jane Akinyi',
+      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    },
+    {
+      id: '7',
+      icon: "assets/images/p7.png",
+      title:"Assessor",
+      name: 'Jane Akinyi',
+      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    },
+    {
+      id: '8',
+      icon: "assets/images/p8.png",
+      title:"Assessor",
+      name: 'Jane Akinyi',
+      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    },
+  ]
   columns = [
     { name: 'ID', prop: 'frontendId' },
     { name: 'First Name', prop:'firstName' },
@@ -63,7 +122,7 @@ export class ListUsersComponent implements OnInit {
     this.breadCrumbItems = [{ label: 'Mobile banking', path: '/mobile-banking/products/all-products' },
       { label: 'Pages', path: '/' }, { label: 'Products', active: true }];
     this.getIndividualData(0);
-
+    this.loadData();
     this.form = this.fb.group({
       name: [this.formData ? this.formData.name : '', [Validators.required]],
       description: [this.formData ? this.formData.description : '', [Validators.required]],
@@ -82,7 +141,7 @@ export class ListUsersComponent implements OnInit {
       console.log(reason);
     });
   }
-
+  onleaveComment(){}
   public editUser(formData: any) {
     this.modalRef = this.modalService.open(AddUserComponent, {centered: true});
     this.modalRef.componentInstance.formData = formData;
@@ -95,7 +154,40 @@ export class ListUsersComponent implements OnInit {
     });
   }
 
+ 
+  toggleLeaveCommentForm() {
+    if (this.showLeaveCommentForm) {
+      this.hideLeaveCommentForm();
+    } else {
+      this.showLeaveCommentForm = true;
+      this.showFormImage = this.showLeaveCommentForm ? 'assets/images/chat.png' : 'assets/images/chats.png';
+    }
+  }
+  hideLeaveCommentForm() {
+    this.showLeaveCommentForm = false;
+  }
 
+  private loadData(): any {
+    this.loading = true;
+    // let model ={
+    //     page: this.page-1,
+    //     size: this.perPage
+    // }
+    this.httpService.customerPortalPosts(`getall`, {}).subscribe(
+      (res: any) => {
+
+        if (res.status == 200) {
+          this.standards = res['data']['standards'];
+          console.log(this.standards)
+          this.loading = false;
+
+        } else {
+          Swal.fire('Failed', "Unable to fetch Accessor", 'error')
+        }
+      }, (error: any) => {
+        Swal.fire("Error", error.message, "error");
+      });
+  }
   getIndividualData(event: number): void {
 
     this.loading  = true;

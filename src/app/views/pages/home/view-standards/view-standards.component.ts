@@ -26,6 +26,7 @@ export class ViewStandardsComponent implements OnInit {
   returnUrl: any;
   public form: FormGroup;
   public showingPassword = false;
+  
   modalRef: NgbModalRef;
   inputType = 'password';
   errorMessage: string;
@@ -58,6 +59,8 @@ export class ViewStandardsComponent implements OnInit {
   // profileResp$: Observable<any>;
   // combinedLoginResult$: Observable<any>;
 
+  // certificateId: number = this.standardId
+  previewImageUrl: string = ''; 
   errorMsg: string;
   hasError: boolean = false;
   isLoading: boolean = false;
@@ -73,6 +76,10 @@ export class ViewStandardsComponent implements OnInit {
   standardTerms: any;
   standardPart: any;
   standardTerm: any;
+  part: any;
+  term: any;
+  file: any;
+  certificateData: any; 
 
   constructor(
     private translate: TranslateService,
@@ -109,10 +116,10 @@ export class ViewStandardsComponent implements OnInit {
     });
 
     this.loadData();
-    this.loadParts();
-    this.loadTerms();
-    this.loadPartsId();
-    this.loadTermsId();
+    // this.loadParts();
+    // this.loadTerms();
+    // this.loadPartsId();
+    // this.loadTermsId();
     localStorage.clear();
     // get return url from route parameters or default to '/'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
@@ -124,13 +131,22 @@ export class ViewStandardsComponent implements OnInit {
 
   private loadData(): any {
     this.loading = true;
-    this.httpService.customerPortalPost(`api/v1/portal/standard/${this.standardId}`,{}).subscribe(
+    let model ={
+      id:this.standardId
+    }
+    this.httpService.customerPortalPosts(`getById`, model).subscribe(
       (res: any) => {
 
-        if (res.status == '00') {
-          this.standard = res['data'];
-          console.log(this.standard)
-          this.loading = false;
+        if (res.status == 200) {
+          this.standard = res['data']['standard']['standard'];
+          this.previewImageUrl = res.data.standard.standard.previewImageUrl;
+          this.part = res['data']['standard']['parts'];
+          this.term = res['data']['standard']['terms'];
+          this.file = res['data']['standard']['files'];
+          console.log(this.standard);
+          console.log(this.part);
+          console.log(this.term);
+          console.log(this.file)
           this.loading = false;
 
         } else {
@@ -141,79 +157,43 @@ export class ViewStandardsComponent implements OnInit {
       });
   }
 
-  private loadParts(): any {
-    this.loading = true;
-    this.httpService.customerPortalPost(`api/v1/portal/getStandards`, {}).subscribe(
-      (res: any) => {
+  // downloadCertificate(): void {
+  //   if (this.previewImageUrl) {
+  //     // Create an anchor element and initiate the download
+  //     const link = document.createElement('a');
+  //     link.href = this.previewImageUrl;
+  //     link.download = 'assets/images/certificate.png'; 
+  //     link.click();
+  //   } else {
+  //     console.error('Preview image URL not available.');
+  //   }
+  // }
+ 
+ 
+  // Function to initiate the download of the certificate
+  downloadCertificate(): void {
+    if (this.previewImageUrl && this.standard.standard.previewImageUrl) {
+  
+      const certificateUrl = this.standard.standard.previewImageUrl;
+      const certificateFileName = 'assets/images/certificate.png';
 
-        if (res.status == '00') {
-          this.standardParts = res['data'];
-          console.log(this.standardParts)
-          this.loading = false;
-          this.loading = false;
-
-        } else {
-          Swal.fire('Failed', "Unable to fetch standards", 'error')
-        }
-      }, (error: any) => {
-        Swal.fire("Error", error.message, "error");
-      });
+      // Create a Blob from the fetched certificate data and initiate the download
+      fetch(certificateUrl)
+        .then((response) => response.blob())
+        .then((blob) => {
+          const blobUrl = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = blobUrl;
+          link.download = certificateFileName;
+          link.click();
+        })
+        .catch((error) => {
+          console.error('Error fetching the certificate data:', error);
+        });
+    } else {
+      console.error('Certificate data is not available.');
+    }
   }
-
-  private loadPartsId(): any {
-    this.loading = true;
-    this.httpService.customerPortalPost(`api/v1/portal/standard/${this.standardId}`,{}).subscribe(
-      (res: any) => {
-
-        if (res.status == '00') {
-          this.standardPart = res['data'];
-          console.log(this.standardPart)
-          this.loading = false;
-
-        } else {
-          Swal.fire('Failed', "Unable to fetch standards Part", 'error')
-        }
-      }, (error: any) => {
-        Swal.fire("Error", error.message, "error");
-      });
-  }
-
-  private loadTerms(): any {
-    this.loading = true;
-    this.httpService.customerPortalPost(`api/v1/portal/getStandards`, {}).subscribe(
-      (res: any) => {
-
-        if (res.status == '00') {
-          this.standardTerms = res['data'];
-          console.log(this.standardTerms)
-          this.loading = false;
-
-        } else {
-          Swal.fire('Failed', "Unable to fetch standards Term", 'error')
-        }
-      }, (error: any) => {
-        Swal.fire("Error", error.message, "error");
-      });
-  }
-
-  private loadTermsId(): any {
-    this.loading = true;
-    this.httpService.customerPortalPost(`api/v1/portal/standard/${this.standardId}`,{}).subscribe(
-      (res: any) => {
-
-        if (res.status == '00') {
-          this.standardTerm = res['data'];
-          console.log(this.standardTerm)
-          this.loading = false;
-
-        } else {
-          Swal.fire('Failed', "Unable to fetch standards Term", 'error')
-        }
-      }, (error: any) => {
-        Swal.fire("Error", error.message, "error");
-      });
-  }
-
 
   toggleLeaveCommentForm() {
     if (this.showLeaveCommentForm) {
