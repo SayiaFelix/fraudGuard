@@ -134,6 +134,8 @@ export class StandardsComponent implements OnInit {
   //     describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
   //   },
   // ]
+  perPage = 10;
+  page = 1
   errorMsg: string;
   hasError: boolean = false;
   isLoading: boolean = false;

@@ -131,6 +131,22 @@ export class HttpService {
         })
       );
   }
+
+  
+  public customerPortalPosts(endpoint: string, model: any): any {
+    return this.http
+      .post(
+        this.globalService.standardApi + endpoint,
+        model,
+      
+      )
+      .pipe(
+        map((response) => {
+          response = response;
+          return response;
+        })
+      );
+  }
   public mobileBankingGetUserDetailsAndPermissions(): Observable<any> {
     const userDetails$ = this.http
       .post(
@@ -227,8 +243,6 @@ export class HttpService {
 
   // endpoint for submitting form Data
   public mobileBankingFormRequestPost(endpoint: string, model: any): any {
-
-
     return this.http
       .post(
         this.globalService.channelManagerHost + endpoint,

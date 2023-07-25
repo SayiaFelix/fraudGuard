@@ -152,7 +152,8 @@ export class LandingComponent implements OnInit {
   // userDataResp$: Observable<any>;
   // profileResp$: Observable<any>;
   // combinedLoginResult$: Observable<any>;
-
+  perPage = 5;
+  page = 1
   errorMsg: string;
   hasError: boolean = false;
   isLoading: boolean = false;
@@ -201,13 +202,16 @@ export class LandingComponent implements OnInit {
 
   private loadData(): any {
     this.loading = true;
-    this.httpService.customerPortalPost(`api/v1/portal/getStandards`, {}).subscribe(
+    let model ={
+        page: this.page-1,
+        size: this.perPage
+    }
+    this.httpService.customerPortalPosts(`getall`, model).subscribe(
       (res: any) => {
 
-        if (res.status == '00') {
-          this.standards = res['data'];
+        if (res.status == 200) {
+          this.standards = res['data']['standards'];
           console.log(this.standards)
-          this.loading = false;
           this.loading = false;
 
         } else {
