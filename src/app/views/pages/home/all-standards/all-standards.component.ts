@@ -161,10 +161,32 @@ export class StandardsComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loadDatas()
     this.loadData(null);
     this.getSubClassData(0);
   }
 
+  private loadDatas(): any {
+    this.loading = true;
+    let model ={
+        page: this.page-1,
+        size: this.perPage
+    }
+    this.httpService.customerPortalPosts(`getall`, model).subscribe(
+      (res: any) => {
+
+        if (res.status == 200) {
+          this.standards = res['data']['standards'];
+          console.log(this.standards)
+          this.loading = false;
+
+        } else {
+          Swal.fire('Failed', "Unable to fetch standards", 'error')
+        }
+      }, (error: any) => {
+        Swal.fire("Error", error.message, "error");
+      });
+  }
   private loadData(subClass_Id: any | null): any {
     this.loading = true;
     this.httpService.customerPortalPost(`api/v1/portal/getStandards`, {}).subscribe(

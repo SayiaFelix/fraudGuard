@@ -1,106 +1,136 @@
-<div class="d-flex justify-content-between align-items-center flex-wrap grid-margin">
+<div class="d-flex justify-content-between align-items-center flex-wrap grid-margin" style="padding: 0% 3% ">
+  <div>
+    <h4 class="mb-3 mb-md-0"
+      style="color: var(--dark-purple, #1E0F2E);font-family: Mulish;font-size: 18px;font-style: normal;font-weight: 600;line-height: 24px;">
+      Our Auditors & Assessors Team</h4>
+    <p class="mt-2"
+      style="color: #000;text-align: justify;font-family: Mulish;font-size: 15px;font-style: normal;font-weight: 400;line-height: 21px;">
+      At Tourism Regulatory Authority (TRA), our Auditors & Assessors Team stands as a cornerstone of excellence in the
+      tourism sector. With a group of highly skilled professionals who are passionate about upholding the highest
+      standards, we are committed to delivering exceptional service and adhering to sustainable tourism practices. Our
+      team conducts comprehensive assessments and audits to ensure alignment with the regulations and guidelines set
+      forth by the national tourism strategy. By collaborating closely with stakeholders and the relevant Ministry, we
+      continuously strive to improve our services and contribute to the growth of the tourism industry in Kenya.
+      Transparent, ethical, and dedicated to responsible tourism, our Auditors & Assessors Team ensures unforgettable
+      experiences while preserving the beauty and integrity of our destinations.</p>
+  </div>
+  <br>
+  <div class="card-body">
+    <div class="border-0 box-shadow">
+      <div class="grid-margin stretch-card">
+        <div class="row">
+          <div class="col-md-3 col-lg-3 col-xl-3 col-sm-4 mt-3 pt-2" *ngFor="let std of standards">
+            <div style="border-radius: 32px;border: 1px solid var(--lavender-web, #D0DDF0);" class="text-center" [id]="std.id">
+              <div style="position: relative; display: inline-block;">
+                <div class="w-100 mt-2">
+                  <img class="img-fluid card-img-top"
+                    style="height: 95px; border-top-left-radius: 13px; border-top-right-radius: 13px;"
+                    [src]="std.icon" />
+                  <!-- <img class="img-fluid card-img-top"
+                    style="min-height: 95px; max-width: 100%; border-top-left-radius: 13px; border-top-right-radius: 13px;"
+                    src="assets/images/3.png" alt=""> -->
+                </div>
+              </div>
+              <br><br>
+              <div style="position: relative;">
+                <div class="mt-1">
+                  <p style="
+                       color: #000;text-align: center;font-family: Mulish;font-size: 15px;font-style: normal;font-weight: 600;line-height: 21px;
+                      " class="h2">
+                    {{ std.name }}
+                  </p>
+                </div>
+                <div class="">
+                  <p style="color: #000;text-align: center;font-family: Mulish;font-size: 15px;font-style: normal;font-weight: 400;line-height: 18px;
+                      " class="h2">
+                    {{ std.title }}
+                  </p>
+                </div>
+                <div class="">
+                  <p style="color: #000;text-align: center;font-family: Mulish;font-size: 13px;font-style: normal;font-weight: 400;line-height: 19px;
+                      " class="h3">
+                    {{ std.describe }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="d-flex justify-content-end">
+    <div style="position: fixed; bottom: 9%; right:3%;" class="d-flex justify-content-around">
+      <button *ngIf="!showLeaveCommentForm" class="btn btn-sm transition"
+        style="border-radius: 64px;background: var(--green-blue, #2268AA); margin-right:10px;" type="submit">
+        <a style="text-decoration: none" class="transition">
+          <span
+            style="color: var(--seasalt, #F8F8F8);text-align: center;font-family: Mulish;font-size: 12px;font-style: normal;font-weight: 700;line-height: normal;letter-spacing: 1.12px;text-transform: uppercase;">customer
+            inquiry</span></a>
+      </button>
+      <div (click)="toggleLeaveCommentForm()"  style="width: 50px; height: 50px; border-radius: 50%; background-color: #D0DDF0;;"
+        class="card-header d-flex align-items-center border-0">
+        <p style="color:#2268AA;  font-size: 30px; margin-left: 10px;">
+          <img class="img-fluid" style="position: absolute; bottom: 19%"
+            src="assets/images/chats.png" width="30" height="20" alt="logo" />
+        </p>
+      </div>
+    </div>
+  </div>
+  <hr>
+</div>
+<hr>
+<ng-container *ngIf="showLeaveCommentForm">
+  <div class="modal-container" style="display: flex;justify-content: end;align-items: center;position: fixed;width: 100%;height: 100%; z-index: 10;  border-radius: 8px 8px 8px 8px;">
     <div>
-      <h4 class="mb-3 mb-md-0">All Chats</h4>
-    </div>
-  <!-- <app-table-header
-    [allColumns]="allColumns"
-    [rows]="filteredRows.length > 0 ? filteredRows : rows"
-    [title]="title"
-    [showAddButton]="true"
-    (changeColumnsEvent)="updateColumns($event)"
-    (openAddModalEvent)="addUser()"
-  ></app-table-header> -->
-  </div>
-
-  <div class="row">
-    <div class="col-md-12 stretch-card">
-<!--      <div class="card" *ngIf="usersList$ | async">-->
-      <div class="card" *ngIf="rows.length > 0">
-          <app-custom-ngx-table
-            [columns]="columns"
-            [rows]="rows"
-            [actions]="actions"
-            [loadingIndicator]="loading"
-            [totalItems]="totalRecords"
-            (outputEvent)="triggerEvent($event)"
-            (updateFilteredRows)="updateFilteredRowsEvent($event)"
-          ></app-custom-ngx-table>
-      </div>
-
-      <div class="card" *ngIf="!(usersList$ | async)">
-        <div class="spinner-border text-success" role="status">
-          <span class="visually-hidden">Loading...</span>
+      <div class="modals " style="border-radius: 8px 8px 8px 8px;">
+        <div style="background: var(--seasalt, #F8F8F8); border-radius: 8px 8px 8px 8px;">
+          <div class="d-flex justify-content-between"
+            style="background-color: #d0ddf0;  font-family: 'Mulish'; font-weight: 900; border-radius:4px;">
+            <h4 class="text-start p-2 mt-2" style="color: #6D36A8; font-size: 23px;">Customer Inquiry</h4>
+            <div>
+              <button type="button" class="btn fs-2" (click)="hideLeaveCommentForm()"
+                style="color: #6D36A8; font-size: 20px; margin-top: -5%;">
+                &times;
+              </button>
+            </div>
+          </div>
+          <article class="">
+            <form class="mt-1" [formGroup]="form" (ngSubmit)="onleaveComment()" class="row px-3">
+              <div class="tab-content col-12 border-0">
+                <div class="form-group mt-2">
+                  <input formControlName="name" type="text" class="form-control validation-field border-0" id="name"
+                    placeholder="Your Name or Company*">
+                </div>
+                <div class="form-group mt-2">
+                  <input formControlName="email" type="email" class="form-control validation-field border-0"
+                    id="email" placeholder="Your email address*">
+                </div>
+                <div class="form-group mt-2">
+                  <input type="text" name="tel" formControlName="phoneNumber" id="phoneNumber"
+                    placeholder="Phone Number*" class="form-control validation-field border-0" ng2TelInput
+                    data-initial-country="ke">
+                </div>
+                <div class="form-group mt-2">
+                  <input formControlName="subject" type="text" class="form-control validation-field border-0"
+                    id="subject" placeholder="Subject">
+                </div>
+                <div class="form-group mt-2">
+                  <textarea formControlName="message" type="text" id="message" cols="15" rows="3"
+                    placeholder="Message" class="form-control validation-field border-0"></textarea>
+                </div>
+                <div class="col-12 bg-white text-center py-1 mt-3 mb-2">
+                  <button style="width: 100%; border: none;" class="btn btn-block login-btn transition"
+                    type="submit">
+                    <span style="color: white;">SEND</span>
+                  </button>
+                </div>
+                <br>
+              </div>
+            </form>
+          </article>
         </div>
       </div>
     </div>
   </div>
-
-  <!-- Modal -->
-  <!-- <ng-template #verticalCenteredModal let-modal>
-    <div class="modal-header">
-      <h5 class="modal-title" id="exampleModalLabel">Add User</h5>
-      <button (click)="modal.close('by: close icon')" aria-label="Close" class="btn-close" type="button"></button>
-    </div>
-    <div class="modal-body" [formGroup]="form">
-      <div class="row g-3">
-        <div class="col-md-6">
-            <label class="form-label">First Name</label>
-            <input class="form-control" formControlName="name" type="text">
-            <small *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')" class="text-danger">Required
-              Field</small>
-          </div>
-
-          <div class="col-md-6">
-            <label class="form-label">Middle Name</label>
-            <input class="form-control" formControlName="name" type="text">
-            <small *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')" class="text-danger">Required
-              Field</small>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Last Name</label>
-            <input class="form-control" formControlName="name" type="text">
-            <small *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')" class="text-danger">Required
-              Field</small>
-          </div>
-
-        <div class="col-md-6">
-
-
-            <label class="text-gray">Phone Number</label>
-            <input class="form-control" formControlName="description" type="text">
-            <small *ngIf="form.get('description')?.touched &&
-            form.get('description')?.hasError('required')" class="text-danger">Required
-              Field</small>
-          </div>
-          <div class="col-md-6">
-            <label class="text-gray">Email Address</label>
-            <input class="form-control" formControlName="description" type="text">
-            <small *ngIf="form.get('description')?.touched &&
-            form.get('description')?.hasError('required')" class="text-danger">Required
-              Field</small>
-          </div>
-          <div class="col-md-6">
-
-
-                <label class="text-gray">Select User Profile</label>
-
-                <select
-                        class="form-select"
-                        formControlName="branch"
-                        id="branch"
-                        name="branch"
-                >
-
-                  <option>Super Admin</option>
-                  <option>Admin</option>
-                </select>
-             </div>
-
-        </div>
-
-      </div>
-    <div class="modal-footer">
-      <button (click)="modal.close('by: close button')" class="btn btn-secondary" type="button">Close</button>
-      <button (click)="modal.close('by: save button')" class="btn btn-primary" type="button">Save changes</button>
-    </div>
-  </ng-template> -->
+</ng-container> 
