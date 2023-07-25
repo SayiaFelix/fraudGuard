@@ -132,17 +132,14 @@
 }
 
 .modal-container {
-  top: 1%;
-  right: 2%;
+  top: 3%;
+  right: 3%;
   padding: 10px;
 }
 
 @media (max-width: 1280px) {
   .modal-container {
-    // margin-top: 14%;
-    // left: 71%;
-    // height: 600px;
-    // width: 300px;
+    top: 8%;
   }
 }
 @media (max-width: 1024px) {
@@ -151,10 +148,7 @@
   }
 
   .modal-container {
-    // margin-top: 2%;
-    // left: 63%;
-    // height: 600px;
-    // width: 300px;
+    top: 1px;
   }
 }
 
@@ -166,10 +160,7 @@
   }
 
   .modal-container {
-    // margin-top: 70%;
-    // left: 60%;
-    // height: 600px;
-    // width: 300px;
+    top: 1px;
   }
 }
 
@@ -180,7 +171,7 @@
   }
 
   .modal-container {
-    // margin-top: 48%;
+    // bottom: 1%;
     // left: 61%;
     // height: 600px;
     // width: 300px;
@@ -194,10 +185,7 @@
   }
 
   .modal-container {
-    margin-top: 48%;
-    left: 52%;
-    height: 600px;
-    width: 300px;
+    top: 10px;
   }
 }
 
@@ -206,12 +194,12 @@
 /* ---- Start of max-width 767px CSS ---- */
 
 @media all and (max-width: 767px) {
-  .modal-container {
-    // margin-top: 23%;
-    // left: 36%;
-    // height: 400px;
-    // width: 100px;
+  .landing {
+    margin-top: 35%;
   }
+  // .modal-container {
+  //   top: 10px;
+  // }
 
 }
 
@@ -221,11 +209,11 @@
 
 @media all and (max-width: 480px) {
   .landing {
-    margin-top: 95%;
+    margin-top: 10%;
   }
 
   .modal-container {
-    display: none;
+    top: 15%;
   }
 }
 
@@ -236,11 +224,13 @@
 
 @media all and (max-width: 380px) {
   .landing {
-    margin-top: 95%;
+    display: none !important;
+    // margin-top: 10%;
+    // height: 20px;
   }
 
   .modal-container {
-    display: none;
+    display: none !important;
   }
 }
 
