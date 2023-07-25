@@ -10,6 +10,7 @@ export class GlobalService {
   public channelManagerHost: string;
   public mobileBankingHost: string;
   public customerPortalNest: string;
+  public standardApi: string;
 
   public setting: any = {};
 
@@ -17,6 +18,8 @@ export class GlobalService {
     this.channelManagerHost = environment.channelManager;
     this.mobileBankingHost = environment.mobileBanking;
     this.customerPortalNest = environment.customerPortalNest;
+    this.standardApi = environment.standardsApi;
+
   }
 
   loadGlobalSettingsFromLocalStorage(): void {
