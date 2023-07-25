@@ -96,21 +96,35 @@
     <br>
     <div class="row d-flex justify-content-between mt-2" *ngFor="let std of results">
       <div class="col">
-        <p class="title">REQ Number</p>
-        <h2 class="content">{{std.ref_number}}</h2>
+        <p class="title">Result No:</p>
+        <h2 class="content">{{std.result_ref}}</h2>
+      </div>
+      <div class="col">
+        <p class="title">Task No:</p>
+        <h2 class="content">{{std.task_ref}}</h2>
       </div>
       <div class="col">
         <p class="title">Request Type</p>
-        <h2 class="content">{{std.request_type}}</h2>
+        <h2 class="content">{{std.task_name}}</h2>
+      </div>
+      <div class="col">
+        <p class="title">{{ std.task_name === 'CLASSIFICATION' ? 'Rating' : 'Score' }}</p>
+        <h2 class="content" *ngIf="std.task_name === 'CLASSIFICATION'; else accreditationsScore">{{ std.rating }}</h2>
+        <ng-template #accreditationsScore>
+          <h2 class="content">{{ std.score }}</h2>
+        </ng-template>
+      </div>
+      <div class="col">
+        <p class="title">Score</p>
+        <h2 class="content">{{std.rating}} stars</h2>
       </div>
       <div class="col">
         <p class="title">Date Created</p>
-        <h2 class="content">{{ formatDate(std.createdOn) }}</h2>
+        <h2 class="content">{{ formatDate(std.created_on) }}</h2>
       </div>
       <div class="col">
         <p class="title">Status</p>
-        <ng-container *ngIf="std.requestType === 'CLASSIFICATION'; else accreditationsStatus">
-          <!-- Show 3 stars icon for CLASSIFICATION requestType -->
+        <ng-container *ngIf="std.task_name === 'CLASSIFICATION'; else accreditationsStatus">
           <h2 class="content">
             <img class="card-img-top img-fluid mr-1" style="width: 13px; height: 16px;"
               src="assets/images/Vector.png" />

@@ -147,6 +147,7 @@ export class ViewStandardsComponent implements OnInit {
           console.log(this.part);
           console.log(this.term);
           console.log(this.file)
+          console.log(this.previewImageUrl)
           this.loading = false;
 
         } else {
@@ -171,14 +172,44 @@ export class ViewStandardsComponent implements OnInit {
  
  
   // Function to initiate the download of the certificate
-  downloadCertificate(): void {
-    if (this.previewImageUrl && this.standard.standard.previewImageUrl) {
-  
-      const certificateUrl = this.standard.standard.previewImageUrl;
-      const certificateFileName = 'assets/images/certificate.png';
+  // downloadCertificate(): void {
+  //   if (this.previewImageUrl) {
+  //     const certificateUrl = this.previewImageUrl;
+  //     const certificateFileName = 'certificate.png';
 
+  //     // Create a Blob from the fetched certificate data and initiate the download
+  //     fetch(certificateUrl)
+  //       .then((response) => response.blob())
+  //       .then((blob) => {
+  //         const blobUrl = URL.createObjectURL(blob);
+  //         const link = document.createElement('a');
+  //         link.href = blobUrl;
+  //         link.download = certificateFileName;
+  //         link.click();
+  //       })
+  //       .catch((error) => {
+  //         console.error('Error fetching the certificate data:', error);
+  //       });
+  //   } else {
+  //     console.error('Certificate data is not available.');
+  //   }
+  // }
+  downloadCertificate(): void {
+    if (this.previewImageUrl) {
+      const certificateUrl = this.previewImageUrl;
+      const certificateFileName = 'certificate.png';
+  
+      // Extract the relative path from the certificate URL
+      const relativePathRegex = /\/\/[^/]+(\/.+)/;
+      const matches = certificateUrl.match(relativePathRegex);
+      if (!matches || matches.length < 2) {
+        console.error('Invalid certificate URL:', certificateUrl);
+        return;
+      }
+      const relativePath = matches[1];
+  
       // Create a Blob from the fetched certificate data and initiate the download
-      fetch(certificateUrl)
+      fetch(relativePath)
         .then((response) => response.blob())
         .then((blob) => {
           const blobUrl = URL.createObjectURL(blob);
@@ -193,7 +224,7 @@ export class ViewStandardsComponent implements OnInit {
     } else {
       console.error('Certificate data is not available.');
     }
-  }
+}
 
   toggleLeaveCommentForm() {
     if (this.showLeaveCommentForm) {
@@ -235,6 +266,35 @@ export class ViewStandardsComponent implements OnInit {
     );
 
   }
+
+  // onSubmit(): any {
+  //   this.isLoading = true;
+  //   const model = {
+  //     comment: this.form.value.comment,
+  //   };
+  //   console.log(model)
+  //   this.httpService.customerPortalPosts(`comment`, model).subscribe(
+  //     (result: any) => {
+  //       if (result.status === 200) {
+  //         this.isLoading = false;
+  //         this.activeModal.close('success');
+  //         Swal.fire('Comment Added Successfully',
+  //           'success').then(r => console.log(r))
+  //           this.form.reset()
+  //           this.loadData()
+  //       } else {
+  //         this.activeModal.close('error');
+  //         Swal.fire('Add Comment Failed, Try Again',
+  //           'error').then(r => console.log(r))
+  //       }
+  //     },
+  //     (error: any) => {
+  //       Swal.fire('Add Comment error',
+  //         'error')
+  //     }
+  //   );
+
+  // }
 
   toggleShowPassword() {
     this.showingPassword = !this.showingPassword;

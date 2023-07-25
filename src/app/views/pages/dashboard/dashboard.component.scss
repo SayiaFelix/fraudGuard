@@ -28,6 +28,37 @@
   border-radius: 8px;
 }
 
+.input-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 10px;
+}
+
+.input-container input {
+  width: 200px;
+  height: 30px;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  padding: 5px;
+}
+
+.input-container span {
+  display: block;
+  text-align: center;
+  color: var(--dark-purple, #1E0F2E);
+  font-family: Mulish;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+}
+
+.input-container input[type="file"] {
+  display: none; /* Hide the default file input */
+}
 
 
 

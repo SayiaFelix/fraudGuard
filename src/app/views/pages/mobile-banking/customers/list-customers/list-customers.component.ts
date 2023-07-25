@@ -72,7 +72,7 @@ export class ListCustomersComponent implements OnInit {
   ColumnMode = ColumnMode;
   public imageFile: File;
   showLeaveCommentForm: boolean = false;
-
+  previewImageUrl: string = ''; 
   title: string = "New Customer";
   total: any;
   results: any = [];
@@ -165,7 +165,7 @@ export class ListCustomersComponent implements OnInit {
 
   private loadData(): any {
     this.loading = true;
-    this.httpService.customerPortalPost(`api/v1/portal/getRequests`, {}).subscribe(
+    this.httpService.customerPortalPost(`api/v1/portal/getResults`, {}).subscribe(
       (res: any) => {
 
         if (res.status == '00') {
@@ -187,11 +187,11 @@ export class ListCustomersComponent implements OnInit {
 
   getSanitizedStatusImage(status: string): any {
     switch (status) {
-      case 'Passed':
+      case 'Approved':
         return this.sanitizer.bypassSecurityTrustResourceUrl('assets/images/approve.png');
-      case 'Failed':
+      case 'Rejected':
         return this.sanitizer.bypassSecurityTrustResourceUrl('assets/images/fail.png');
-      case 'Appealed':
+      case 'Pending':
         return this.sanitizer.bypassSecurityTrustResourceUrl('assets/images/time.png');
       // Add more cases for other status if needed
       default:
