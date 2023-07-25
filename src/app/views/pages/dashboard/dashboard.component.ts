@@ -19,6 +19,9 @@ export class DashboardComponent implements OnInit {
   errorMsg: string;
   hasError: boolean = false;
   private brochureUrl = 'assets/images/certificate.png';
+  uploadedImageUrl: string | undefined;
+  imageUploaded = false;
+  selectedFile: File | null = null;
   // Store the sanitized URL
   public downloadLink: SafeUrl;
   isLoading: boolean = false;
@@ -152,6 +155,57 @@ export class DashboardComponent implements OnInit {
 
   }
 
+  // handleImageUpload(event: Event): void {
+  //   // Handle the image upload logic here
+  //   const inputElement = event.target as HTMLInputElement;
+  //   if (inputElement.files && inputElement.files.length > 0) {
+  //     const file = inputElement.files[0];
+  //     // You can now use the 'file' variable to access the uploaded image
+  //     // For example, you can display the image preview:
+  //     const reader = new FileReader();
+  //     reader.onload = (e) => {
+  //       const imagePreviewUrl = e.target?.result as string;
+  //       // Update the image preview URL in your component's property if needed
+  //     };
+  //     reader.readAsDataURL(file);
+  //   }
+  // }
+
+  handleImageUpload(event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    if (inputElement.files && inputElement.files.length > 0) {
+      const file = inputElement.files[0];
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.uploadedImageUrl = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
+    this.imageUploaded = true;
+  }
+
+  onFileSelected(event: any) {
+    this.selectedFile = event.target.files[0] as File;
+  }
+
+  onUpload() {
+    if (this.selectedFile) {
+      const formData = new FormData();
+      formData.append('image', this.selectedFile);
+
+      // this.http.post<any>('your_file_upload_api_url', formData).subscribe(
+      //   (response) => {
+      //     console.log('Image uploaded successfully!', response);
+      //     // Optionally, you can handle the response from the server here
+      //   },
+      //   (error) => {
+      //     console.error('Error uploading image:', error);
+      //   }
+      // );
+    } else {
+      console.warn('No image selected.');
+    }
+  }
   toggleLeaveCommentForm() {
     if (this.showLeaveCommentForm) {
       this.hideLeaveCommentForm();
