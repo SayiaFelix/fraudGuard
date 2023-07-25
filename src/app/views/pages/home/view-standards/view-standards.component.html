@@ -1,8 +1,8 @@
 <div class="body w-100" style="position: relative; background-color: #EFEFEF;">
   <ng-container *ngIf="showLeaveCommentForm">
-    <div class="modal-container d-flex justify-content-end">
+    <div class="modal-container" style="display: flex;justify-content: end;align-items: center;position: fixed;width: 100%;height: 100%; z-index: 10;  border-radius: 8px 8px 8px 8px;">
       <div>
-        <div class="modals">
+        <div class="modals " style="border-radius: 8px 8px 8px 8px;">
           <div style="background: var(--seasalt, #F8F8F8); border-radius: 8px 8px 8px 8px;">
             <div class="d-flex justify-content-between"
               style="background-color: #d0ddf0;  font-family: 'Mulish'; font-weight: 900; border-radius:4px;">
@@ -210,7 +210,7 @@
                   <p style="font-family: Muli;font-weight: 400">For the purpose of this standard the following
                     definitions shall apply: means a menu in a restaurant that offers individual priced</p>
                   <h5 class="mt-1" style="font-family: Muli;font-weight: 700;">{{term?.term_title}}</h5>
-                  <p style="font-family: Muli;font-weight: 400;">{{term?.term_definition}}</p> 
+                  <p style="font-family: Muli;font-weight: 400;">{{term?.term_definition}}</p>
                 </div>
               </div>
             </div>
@@ -253,7 +253,7 @@
           <p style="color: #F8F8F8; font-size: 30px; margin-left: -13px;" >
             <img class="img-fluid"  style="position: absolute; bottom: 27%" src="assets/images/chat.png" width="30"
           height="20" alt="logo" />
-  
+
           </p>
         </div>
       </div>
@@ -272,7 +272,7 @@
             <div style="color: #6D36A8;">
               <button type="button" class="btn fs-2"
               style="color: #6D36A8; font-size: 20px; margin-top: -5%;">
-              &times; 
+              &times;
             </button>
             </div>
           </div>
