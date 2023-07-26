@@ -216,7 +216,7 @@ export const MENU: MenuItem[] = [
     // profiles: ['CORPORATE_ADMIN'],
     label: 'CHATS',
     icon: 'settings',
-    link: '/mobile-banking/setups/list-Regions'
+    link: '/tra-client/setups/list-Regions'
     // subItems: [
     //   {
     //     profiles: ['CORPORATE_ADMIN'],

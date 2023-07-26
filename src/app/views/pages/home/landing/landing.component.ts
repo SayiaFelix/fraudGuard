@@ -33,51 +33,51 @@ export class LandingComponent implements OnInit {
   standards: any = [
     {
       id: '1',
-      icon: "assets/images/3.png",
+      previewImageUrl: "assets/images/3.png",
       title: 'Accommodation And Catering Establishment',
-      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '2',
-      icon: "assets/images/2.png",
+      previewImageUrl: "assets/images/2.png",
       title: 'Meetings, Incentives, Conferences & Exhibitions Facilities And Services',
-      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '3',
-      icon: "assets/images/6.jpg",
+      previewImageUrl: "assets/images/6.jpg",
       title: 'Standards For Food Safety And Hygiene Standards',
-      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '4',
-      icon: "assets/images/4.jpg",
+      previewImageUrl: "assets/images/4.jpg",
       title: 'Standards For Safety And Security Standards',
-      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '5',
-      icon: "assets/images/5.jpg",
+      previewImageUrl: "assets/images/5.jpg",
       title: ' Tour Guides And Hotel Employees Accommodation Standard',
-      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '6',
-      icon: "assets/images/3.png",
+      previewImageUrl: "assets/images/3.png",
       title: 'Halal Compliance Standard For Accommodation And Catering Establishments',
-      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '7',
-      icon: "assets/images/7.jpg",
+      previewImageUrl: "assets/images/7.jpg",
       title: 'Standards For Spa And Wellness Facilities',
-      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '8',
-      icon: "assets/images/1.jpg",
+      previewImageUrl: "assets/images/1.jpg",
       title: 'Standards For Tourism Tours & Travel Enterprises',
-      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
   ]
 
@@ -153,9 +153,16 @@ export class LandingComponent implements OnInit {
   isLoading: boolean = false;
   errorMessage: string;
 
+  userData$: Observable<any>;
+  profile:string | null;
+  logo: string | null;
+  showMenuItems: boolean = true;
+  showDashbord: boolean = false;
+
   selectedLanguage: any = 'English';
   selectedLanguageFlag: any = 'assets/images/flags/us.svg';
   loading: boolean;
+
 
 
   constructor(
@@ -179,10 +186,31 @@ export class LandingComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadData()
-    localStorage.clear();
-    // get return url from route parameters or default to '/'
+    this.loadData();
+    this.checkForToken();
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+
+    let userDetails = {
+      profile: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['name']  : "Eka Hotel Nairobi",
+
+    };
+    if (userDetails) {
+      this.profile = userDetails['profile'];
+      this.logo =
+        'https://images.unsplash.com/photo-151740421573-15263e9f9178?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80';
+
+      this.userData$ = of(userDetails);
+    } else {
+      this.userData$ = this.httpService.customerUserDetails().pipe(
+        map((resp) => {
+          console.log(resp);
+          if (resp) {
+            this.profile = resp[0]['enterpriseName'];
+            return resp[0];
+          }
+        })
+      );
+    }
   }
 
   // viewStandard(id: number) {
@@ -285,8 +313,17 @@ export class LandingComponent implements OnInit {
     }
   }
 
-
-
+  checkForToken() {
+    if (!!localStorage.getItem('access_token')) {
+      // Token exists, hide the first div and show the second div
+      this.showMenuItems = false;
+      this.showDashbord = true;
+    } else {
+      // Token doesn't exist, show the first div and hide the second div
+      this.showMenuItems = true;
+      this.showDashbord = false;
+    }
+  }
 
   closeModal() {
     this.modalRef.dismiss();

@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgbActiveModal, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { CustomValidators } from 'ngx-custom-validators';
+import { Observable, map, of } from 'rxjs';
 import { HttpService } from 'src/app/shared/services/http.service';
 import Swal from "sweetalert2";
 @Component({
@@ -145,6 +146,11 @@ export class StandardsComponent implements OnInit {
   selectedSubClassId: number | null = null;
   public form: FormGroup;
   modalRef: NgbModalRef;
+  userData$: Observable<any>;
+  profile:string | null;
+  logo: string | null;
+  showMenuItems: boolean = true;
+  showDashbord: boolean = false;
   SubClassData: any;
   filteredStandards: any;
   constructor(private router: Router,
@@ -162,8 +168,30 @@ export class StandardsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadDatas()
-    this.loadData(null);
+    // this.loadData(null);
     this.getSubClassData(0);
+    this.checkForToken();
+    let userDetails = {
+      profile: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['name']  : "Eka Hotel Nairobi",
+
+    };
+    if (userDetails) {
+      this.profile = userDetails['profile'];
+      this.logo =
+        'https://images.unsplash.com/photo-151740421573-15263e9f9178?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80';
+
+      this.userData$ = of(userDetails);
+    } else {
+      this.userData$ = this.httpService.customerUserDetails().pipe(
+        map((resp) => {
+          console.log(resp);
+          if (resp) {
+            this.profile = resp[0]['enterpriseName'];
+            return resp[0];
+          }
+        })
+      );
+    }
   }
 
   private loadDatas(): any {
@@ -187,33 +215,45 @@ export class StandardsComponent implements OnInit {
         Swal.fire("Error", error.message, "error");
       });
   }
-  private loadData(subClass_Id: any | null): any {
-    this.loading = true;
-    this.httpService.customerPortalPost(`api/v1/portal/getStandards`, {}).subscribe(
-      (res: any) => {
-        if (res.status == '00') {
-          this.standards = res['data'];
-          console.log(this.standards)
-          if (subClass_Id !== null) {
-            this.filteredStandards = this.standards.filter((standard: any) => standard.subClass_Id === subClass_Id);
-          } else {
-            this.filteredStandards = this.standards;
-          }
-          console.log(this.filteredStandards);
-          this.loading = false;
 
-        } else {
-          Swal.fire('Failed', "Unable to fetch standards", 'error')
-        }
-      }, (error: any) => {
-        Swal.fire("Error", error.message, "error");
-      });
+  checkForToken() {
+    if (!!localStorage.getItem('access_token')) {
+      // Token exists, hide the first div and show the second div
+      this.showMenuItems = false;
+      this.showDashbord = true;
+    } else {
+      // Token doesn't exist, show the first div and hide the second div
+      this.showMenuItems = true;
+      this.showDashbord = false;
+    }
   }
+  // private loadData(subClass_Id: any | null): any {
+  //   this.loading = true;
+  //   this.httpService.customerPortalPost(`api/v1/portal/getStandards`, {}).subscribe(
+  //     (res: any) => {
+  //       if (res.status == '00') {
+  //         this.standards = res['data'];
+  //         console.log(this.standards)
+  //         if (subClass_Id !== null) {
+  //           this.filteredStandards = this.standards.filter((standard: any) => standard.subClass_Id === subClass_Id);
+  //         } else {
+  //           this.filteredStandards = this.standards;
+  //         }
+  //         console.log(this.filteredStandards);
+  //         this.loading = false;
+
+  //       } else {
+  //         Swal.fire('Failed', "Unable to fetch standards", 'error')
+  //       }
+  //     }, (error: any) => {
+  //       Swal.fire("Error", error.message, "error");
+  //     });
+  // }
 
   onSubClassChange(event: Event): void {
     const subclassId = (event.target as HTMLSelectElement).value;
     const subClassIdOrNull = subclassId === "All" ? null : subclassId;
-    this.loadData(subClassIdOrNull);
+    // this.loadData(subClassIdOrNull);
   }
 
   getSubClassData(event: number): void {
