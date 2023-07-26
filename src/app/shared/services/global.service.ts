@@ -11,6 +11,7 @@ export class GlobalService {
   public mobileBankingHost: string;
   public customerPortalNest: string;
   public standardApi: string;
+  public standardComments: string;
 
   public setting: any = {};
 
@@ -19,6 +20,7 @@ export class GlobalService {
     this.mobileBankingHost = environment.mobileBanking;
     this.customerPortalNest = environment.customerPortalNest;
     this.standardApi = environment.standardsApi;
+    this.standardComments = environment.standardsComment;
 
   }
 

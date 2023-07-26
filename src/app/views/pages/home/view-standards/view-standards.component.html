@@ -1,6 +1,7 @@
 <div class="body w-100" style="position: relative; background-color: #EFEFEF;">
   <ng-container *ngIf="showLeaveCommentForm">
-    <div class="modal-container" style="display: flex;justify-content: end;align-items: center;position: fixed;width: 100%;height: 100%; z-index: 10;  border-radius: 8px 8px 8px 8px;">
+    <div class="modal-container"
+      style="display: flex;justify-content: end;align-items: center;position: fixed;width: 100%;height: 100%; z-index: 10;  border-radius: 8px 8px 8px 8px;">
       <div>
         <div class="modals " style="border-radius: 8px 8px 8px 8px;">
           <div style="background: var(--seasalt, #F8F8F8); border-radius: 8px 8px 8px 8px;">
@@ -76,7 +77,7 @@
     </div>
 
     <div style="margin-right: 2%">
-      <div class="d-flex p-2 justify-content-between">
+      <div class="d-flex p-2 justify-content-between" *ngIf="showMenuItems">
         <button class="btn btn-md btn-light transition ml-1" type="submit">
           <a routerLink="/auth/activate" style="
               text-decoration: none;
@@ -98,6 +99,23 @@
                 letter-spacing: 0.08em;
                 font-size: 12px;
               ">SIGN IN</span></a>
+        </button>
+      </div>
+      <div class="d-flex p-2 justify-content-between" *ngIf="showDashbord">
+        <div style="margin-top: 5%;">
+          <h3 class="header"
+            style="color: var(--dark-purple, #1E0F2E);text-align: center;font-family: Muli;font-size: 11px;font-style: normal;font-weight: 700;line-height: normal;text-transform: uppercase;">
+            <span>{{profile}}</span>
+          </h3>
+        </div>
+        <div style="margin-top: 2%; margin-left: 5px;">
+          <img class="wd-30 ht-30 rounded-circle" src="./assets/images/user.png" alt="profile">
+        </div>
+        <button style="margin-top: 1%; margin-left: 5px;" class="btn btn-sm login-btn transition" type="submit">
+          <a routerLink="/dashboard" style="text-decoration: none" class="transition">
+            <span style="
+               color: var(--dark-purple, #1E0F2E);text-align: center;font-family: Muli;font-size: 11px;font-style: normal;font-weight: 700;line-height: normal;
+              ">DASHBOARD</span></a>
         </button>
       </div>
     </div>
@@ -131,28 +149,21 @@
           <div class="grid-margin stretch-card">
             <div class="row mt-3">
               <div class="col-md-2">
-                <div class="mt-2">
-                  <h5 class="card-title stadards-title" style="color: #2268AA;"> Part I - PRELIMINARY</h5>
-                  <!-- <h5 class="card-title stadards-title" style="color: #2268AA;"(click)="updateCurrentDescription(std.describe)" > {{std.name}} </h5> -->
-                </div>
-                <div class="mt-5">
-                  <h5 class="card-title stadards-title" style="color: #76AFE5;"> Part II - Statutory Obligations </h5>
-                </div>
-                <div class="mt-5">
-                  <h5 class="card-title stadards-title" style="color: #76AFE5;"> Part III - Facility Requirements</h5>
+                <div class="mt-2" *ngFor="let part of parts" (click)="showDescription(part)">
+                  <h5 class="card-title stadards-title" style="color: #2268AA;">
+                    Part {{part?.partOrder}} - {{part?.partTitle}}
+                  </h5>
                 </div>
               </div>
               <div class="col-md-7">
-                <div style="width: 25%; border-bottom: 2px solid #2268AA; ">
-                  <h3
-                    style="color: #2268AA; font-size: 20px; font-family: Muli; font-weight: 800; line-height: 24px;letter-spacing: 0em;">
-                    Preliminary
+                <div style="width: 25%; border-bottom: 2px solid #2268AA;">
+                  <h3 style="color: #2268AA; font-size: 20px; font-family: Muli; font-weight: 800; line-height: 24px; letter-spacing: 0em;">
+                    {{ selectedPart?.partTitle }}
                   </h3>
                 </div>
                 <div class="mt-1">
-                  <p
-                    style="color: #000000; font-family: Muli;font-size: 15px;font-weight: 400;line-height: 22px;letter-spacing: 0em;text-align: justified;">
-                    {{standard?.description}}
+                  <p style="color: #000000; font-family: Muli; font-size: 15px; font-weight: 400; line-height: 22px; letter-spacing: 0em; text-align: justified;">
+                    {{ selectedPart?.partDescription }}
                   </p>
                 </div>
                 <div>
@@ -168,29 +179,31 @@
                         </div>
                       </div>
                       <div class="col-12 bg-white text-center py-1 mt-3 mb-2 d-flex justify-content-start">
-                        <button (click)="onSubmit()" style="border: none;"
-                          class="btn btn-block logi-btn transition" type="submit">
-                          <span style="color: var(--seasalt, #F8F8F8);text-align: center;font-family: Mulish;font-size: 14px;font-style: normal;font-weight: 700;line-height: normal; letter-spacing: 1.28px;text-transform: uppercase;">SUBMIT</span>
+                        <button (click)="onSubmit()" style="border: none;" class="btn btn-block logi-btn transition"
+                          type="submit">
+                          <span
+                            style="color: var(--seasalt, #F8F8F8);text-align: center;font-family: Mulish;font-size: 14px;font-style: normal;font-weight: 700;line-height: normal; letter-spacing: 1.28px;text-transform: uppercase;">SUBMIT</span>
                         </button>
                       </div>
                     </div>
                   </form>
                 </div>
-
               </div>
               <div class="col-md-3 border border-1 rounded"
                 style="padding: 10px; border: 1px #d0ddf0; border-radius: 8px;">
                 <div class="p-1 m-1">
-                  
-                    <button (click)="downloadCertificate()" class="btn btn-md login-btn transition"  style="background-color: #6d36a8; font-family:Muli; align-items: center; color: #f8f8f8; font-weight: 700; border-radius: 4px; font-size:15px;" type="submit">
-                      <a style="text-decoration: none ;color: #f8f8f8;"  class="transition">
-                        DOWNLOAD BRONCHURE
-                        </a>
-                    </button>
-              
+
+                  <button (click)="downloadCertificate()" class="btn btn-md login-btn transition"
+                    style="background-color: #6d36a8; font-family:Muli; align-items: center; color: #f8f8f8; font-weight: 700; border-radius: 4px; font-size:15px;"
+                    type="submit">
+                    <a style="text-decoration: none ;color: #f8f8f8;" class="transition">
+                      DOWNLOAD BRONCHURE
+                    </a>
+                  </button>
+
                 </div>
-                <div class="p-1 m-1">
-                  <button class="btn btn-lg " 
+                <div class="p-1 m-1" *ngIf="showDashbord">
+                  <button class="btn btn-lg "
                     style="background-color: #2268AA; font-family:Muli; align-items: center; color: #f8f8f8; font-weight: 700; border-radius: 4px; font-size:15px;"
                     (click)='openModal(requestStandard)'>
                     DOWNLOAD STANDARD
@@ -209,8 +222,8 @@
                   <h5 style="font-family: Muli;font-weight: 700;">A-la-carte:</h5>
                   <p style="font-family: Muli;font-weight: 400">For the purpose of this standard the following
                     definitions shall apply: means a menu in a restaurant that offers individual priced</p>
-                  <h5 class="mt-1" style="font-family: Muli;font-weight: 700;">{{term?.term_title}}</h5>
-                  <p style="font-family: Muli;font-weight: 400;">{{term?.term_definition}}</p>
+                  <h5 class="mt-1" style="font-family: Muli;font-weight: 700;">{{term?.termTitle}}</h5>
+                  <p style="font-family: Muli;font-weight: 400;">{{term?.termDefinition}}</p>
                 </div>
               </div>
             </div>
@@ -248,11 +261,12 @@
         ACT 2011</a>
       <a routerLink="/" style="text-decoration: none; color: #1e0f2e" class="transition">Tourism Regulations 2014</a>
       <div class="d-flex justify-content-end">
-        <div (click)="toggleLeaveCommentForm()" style="position: fixed; bottom: 9%; right:3%; width: 50px; height: 50px; border-radius: 50%; background-color: #2766BF;"
+        <div (click)="toggleLeaveCommentForm()"
+          style="position: fixed; bottom: 9%; right:3%; width: 50px; height: 50px; border-radius: 50%; background-color: #2766BF;"
           class="card-header d-flex align-items-center border-0">
-          <p style="color: #F8F8F8; font-size: 30px; margin-left: -13px;" >
-            <img class="img-fluid"  style="position: absolute; bottom: 27%" src="assets/images/chat.png" width="30"
-          height="20" alt="logo" />
+          <p style="color: #F8F8F8; font-size: 30px; margin-left: -13px;">
+            <img class="img-fluid" style="position: absolute; bottom: 27%" src="assets/images/chat.png" width="30"
+              height="20" alt="logo" />
 
           </p>
         </div>
@@ -270,10 +284,9 @@
             <h4 class=" text-start mt-3 p-2" style="color: #6D36A8; font-size: 23px;">Fill The Form Then Download
               Standard</h4>
             <div style="color: #6D36A8;">
-              <button type="button" class="btn fs-2"
-              style="color: #6D36A8; font-size: 20px; margin-top: -5%;">
-              &times;
-            </button>
+              <button type="button" class="btn fs-2" style="color: #6D36A8; font-size: 20px; margin-top: -5%;">
+                &times;
+              </button>
             </div>
           </div>
           <article class="">
@@ -324,4 +337,3 @@
     </div>
   </div>
 </ng-template>
-

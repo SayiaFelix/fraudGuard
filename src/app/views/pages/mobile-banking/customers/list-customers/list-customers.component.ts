@@ -40,7 +40,7 @@ export class ListCustomersComponent implements OnInit {
   private brochureUrl = 'assets/images/certificate.png';
   // Store the sanitized URL
   public downloadLink: SafeUrl;
-
+  previewImageUrl: string = ''; 
   errorMsg: string;
   hasError: boolean = false;
   isLoading: boolean = false;
@@ -72,7 +72,6 @@ export class ListCustomersComponent implements OnInit {
   ColumnMode = ColumnMode;
   public imageFile: File;
   showLeaveCommentForm: boolean = false;
-  previewImageUrl: string = ''; 
   title: string = "New Customer";
   total: any;
   results: any = [];
@@ -105,8 +104,8 @@ export class ListCustomersComponent implements OnInit {
     this.loadData();
 
     this.form = this.fb.group({
-      email: ['',Validators.compose([Validators.required, CustomValidators.email])],
-      subject: ['',Validators.compose([Validators.required])],
+      email: ['', Validators.compose([Validators.required, CustomValidators.email])],
+      subject: ['', Validators.compose([Validators.required])],
       message: ["", Validators.compose([Validators.required])],
       name: ["", Validators.compose([Validators.required])],
       phoneNumber: ["", Validators.compose([Validators.required])],
@@ -167,10 +166,12 @@ export class ListCustomersComponent implements OnInit {
     this.loading = true;
     this.httpService.customerPortalPost(`api/v1/portal/getResults`, {}).subscribe(
       (res: any) => {
-
         if (res.status == '00') {
-          this.results = res['data'];
-          console.log(this.results)
+          // this.results = res['data'];
+          // console.log(this.results);
+          const result = res.data.filter((request:any) => request.status === "PUBLISHED");
+          console.log(result)
+          this.results = result
           this.loading = false;
         } else {
           Swal.fire('Failed', "Unable to fetch results", 'error')
@@ -187,11 +188,9 @@ export class ListCustomersComponent implements OnInit {
 
   getSanitizedStatusImage(status: string): any {
     switch (status) {
-      case 'Approved':
+      case 'PUBLISHED':
         return this.sanitizer.bypassSecurityTrustResourceUrl('assets/images/approve.png');
-      case 'Rejected':
-        return this.sanitizer.bypassSecurityTrustResourceUrl('assets/images/fail.png');
-      case 'Pending':
+      case 'PENDING':
         return this.sanitizer.bypassSecurityTrustResourceUrl('assets/images/time.png');
       // Add more cases for other status if needed
       default:
@@ -212,18 +211,20 @@ export class ListCustomersComponent implements OnInit {
   }
 
   // Define a helper function to get the appropriate text for the raiseAppeal button
-  getAppealButtonText(status: string, requestType: string): string {
-    if (requestType === 'CLASSIFICATION') {
+  getAppealButtonText(status: string, task_type: string): string {
+    if (task_type === 'CLASSIFICATION') {
       return 'Create Appeal';
     } else {
-      if (status === 'Passed') {
+      if (status === 'APPROVED') {
         return 'Appeal Accepted';
-      } else if (status === 'Failed') {
+      } else if (status === 'PENDING') {
         return 'Create Appeal';
-      } else if (status === 'Appealed') {
+      } else if (status === 'PUBLISHED') {
+        return 'Create Appeal'
+      } else if (status === 'APPEALED') {
         return 'Already Appealed';
       } else {
-        return 'Unknown Status'; // Handle other statuses if needed
+        return 'Unknown Status';
       }
     }
   }
@@ -237,11 +238,7 @@ export class ListCustomersComponent implements OnInit {
     this.modalRef.result.then((result) => {
       if (result === 'success') {
         this.httpService
-          .customerPortalPost(`api/v1/portal/appeal/${id}`, {
-            id: id,
-            status: status,
-            requestType: requestType,
-          })
+          .customerPortalGet(`api/v1/portal/appeals/${id}`, {})
           .subscribe((result: any) => {
             if (result.status === '00') {
               Swal.fire('Appealed', 'Request Appeal Raised Successfully.', 'success');
@@ -256,12 +253,42 @@ export class ListCustomersComponent implements OnInit {
     });
   }
 
-  isButtonDisabled(status: string, requestType: string): boolean {
-    if (requestType === 'CLASSIFICATION') {
-      // For CLASSIFICATION request type, the button is always enabled
+  downloadCertificate(): void {
+    if (this.previewImageUrl) {
+      const certificateUrl = this.previewImageUrl;
+      const certificateFileName = 'certificate.png';
+  
+      // Extract the relative path from the certificate URL
+      const relativePathRegex = /\/\/[^/]+(\/.+)/;
+      const matches = certificateUrl.match(relativePathRegex);
+      if (!matches || matches.length < 2) {
+        console.error('Invalid certificate URL:', certificateUrl);
+        return;
+      }
+      const relativePath = matches[1];
+  
+      // Create a Blob from the fetched certificate data and initiate the download
+      fetch(relativePath)
+        .then((response) => response.blob())
+        .then((blob) => {
+          const blobUrl = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = blobUrl;
+          link.download = certificateFileName;
+          link.click();
+        })
+        .catch((error) => {
+          console.error('Error fetching the certificate data:', error);
+        });
+    } else {
+      console.error('Certificate data is not available.');
+    }
+}
+
+  isButtonDisabled(status: string, task_type: string): boolean {
+    if (task_type === 'CLASSIFICATION') {
       return false;
     } else {
-      // For other request types, check the status
       return status === 'Passed' || status === 'Appealed';
     }
   }

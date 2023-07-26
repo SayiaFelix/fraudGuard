@@ -1,6 +1,7 @@
 <div style="margin-left: 3%;" class="d-flex justify-content-between align-items-center flex-wrap grid-margin">
   <ng-container *ngIf="showLeaveCommentForm">
-    <div class="modal-container" style="display: flex;justify-content: end;align-items: center;position: fixed;width: 100%;height: 100%; z-index: 10;  border-radius: 8px 8px 8px 8px;">
+    <div class="modal-container"
+      style="display: flex;justify-content: end;align-items: center;position: fixed;width: 100%;height: 100%; z-index: 10;  border-radius: 8px 8px 8px 8px;">
       <div>
         <div class="modals " style="border-radius: 8px 8px 8px 8px;">
           <div style="background: var(--seasalt, #F8F8F8); border-radius: 8px 8px 8px 8px;">
@@ -99,24 +100,21 @@
         <p class="title">Result No:</p>
         <h2 class="content">{{std.result_ref}}</h2>
       </div>
-      <div class="col">
+      <!-- <div class="col">
         <p class="title">Task No:</p>
         <h2 class="content">{{std.task_ref}}</h2>
-      </div>
+      </div> -->
       <div class="col">
         <p class="title">Request Type</p>
-        <h2 class="content">{{std.task_name}}</h2>
+        <h2 class="content">{{std.task_type}}</h2>
       </div>
-      <div class="col">
-        <p class="title">{{ std.task_name === 'CLASSIFICATION' ? 'Rating' : 'Score' }}</p>
-        <h2 class="content" *ngIf="std.task_name === 'CLASSIFICATION'; else accreditationsScore">{{ std.rating }}</h2>
-        <ng-template #accreditationsScore>
-          <h2 class="content">{{ std.score }}</h2>
-        </ng-template>
-      </div>
-      <div class="col">
+      <div class="col" *ngIf="std.task_type === 'ACCREDITATION'">
         <p class="title">Score</p>
-        <h2 class="content">{{std.rating}} stars</h2>
+        <h2 class="content">{{ std.score }}</h2>
+      </div>
+      <div class="col" *ngIf="std.task_type === 'CLASSIFICATION'">
+        <p class="title">Rating</p>
+        <h2 class="content">{{ std.rating }} stars</h2>
       </div>
       <div class="col">
         <p class="title">Date Created</p>
@@ -124,29 +122,21 @@
       </div>
       <div class="col">
         <p class="title">Status</p>
-        <ng-container *ngIf="std.task_name === 'CLASSIFICATION'; else accreditationsStatus">
+        <ng-container *ngIf="std.task_type === 'CLASSIFICATION'; else accreditationsStatus">
           <h2 class="content">
-            <img class="card-img-top img-fluid mr-1" style="width: 13px; height: 16px;"
+            <img class="card-img-top img-fluid mr-1" style="width: 13px; height: 15px;"
               src="assets/images/Vector.png" />
-            3 stars
+            stars
           </h2>
         </ng-container>
         <ng-template #accreditationsStatus>
-          <!-- Show "pass" or "fail" status for ACCREDITATION requestType -->
           <h2 class="content">
             <img class="card-img-top img-fluid mr-1" style="width: 13px; height: 16px;"
               [src]="getSanitizedStatusImage(std.status)" />{{std.status}}
           </h2>
         </ng-template>
       </div>
-      <!-- <div>
-        <p class="title">Status</p>
-        <h2 class="content">
-          <img class="card-img-top img-fluid mr-1" style="width: 13px; height: 16px;"
-          [src]="getSanitizedStatusImage(std.status)"/>{{std.status}}
-        </h2>
-      </div> -->
-      <div class="mt-1 col">
+      <div class="mt-2 col">
         <a [href]="downloadLink" download>
           <button class="btn btn-md login-btn transition" (click)="handleDownload(std)" type="submit">
             <a style="text-decoration: none" class="transition">
@@ -156,7 +146,8 @@
         </a>
       </div>
       <div class="mt-1 col">
-        <button  [disabled]="isButtonDisabled(std.status, std.requestType)" class="btn btn-md transition" (click)="raiseAppeal(std.id, std.status, std.requestType)"
+        <button [disabled]="isButtonDisabled(std.status, std.task_type)" class="btn btn-md transition"
+          (click)="raiseAppeal(std.id, std.status, std.task_type)"
           style="background-color: #D0DDF0; border-radius: 64px;" type="button">
           <a style="text-decoration: none" class="transition">
             <span style="
@@ -170,7 +161,7 @@
             letter-spacing: 1.12px;
             text-transform: uppercase;
           ">
-              {{ getAppealButtonText(std.status, std.requestType) }}
+              {{ getAppealButtonText(std.status, std.task_type) }}
             </span>
           </a>
         </button>
@@ -185,11 +176,12 @@
               style="color: var(--seasalt, #F8F8F8);text-align: center;font-family: Mulish;font-size: 12px;font-style: normal;font-weight: 700;line-height: normal;letter-spacing: 1.12px;text-transform: uppercase;">customer
               inquiry</span></a>
         </button>
-        <div (click)="toggleLeaveCommentForm()"  style="width: 50px; height: 50px; border-radius: 50%; background-color: #D0DDF0;;"
+        <div (click)="toggleLeaveCommentForm()"
+          style="width: 50px; height: 50px; border-radius: 50%; background-color: #D0DDF0;;"
           class="card-header d-flex align-items-center border-0">
           <p style="color:#2268AA;  font-size: 30px; margin-left: -13px;">
-            <img class="img-fluid" style="position: absolute; bottom: 19%"
-              src="assets/images/chats.png" width="30" height="20" alt="logo" />
+            <img class="img-fluid" style="position: absolute; bottom: 19%" src="assets/images/chats.png" width="30"
+              height="20" alt="logo" />
             <!-- <i (click)="openModal(leaveComment)" class="mt-2 fa-solid fa-comments" title="Leave A Comment"></i> -->
           </p>
         </div>

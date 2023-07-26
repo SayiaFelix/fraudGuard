@@ -45,9 +45,9 @@ export class RegisterComponent implements OnInit {
     this.isLoading = true;
     e.preventDefault();
 
-    let selectedUser = this.enterpriseData.data.filter((user: any) => user.licenceNo === this.form.value.licenceNo)[0]
+    // let selectedUser = this.enterpriseData.data.filter((user: any) => user.licenceNo === this.form.value.licenceNo)[0]
 
-    console.log(selectedUser);
+    // console.log(selectedUser);
     
     let model = {
       licenceNumber:this.form.value.licenceNumber

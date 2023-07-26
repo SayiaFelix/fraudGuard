@@ -132,11 +132,39 @@ export class HttpService {
       );
   }
 
+  public customerPortalGet(endpoint: string, model: any): any {
+    return this.http
+      .get(
+        this.globalService.customerPortalNest + endpoint,
+        model,
+      )
+      .pipe(
+        map((response) => {
+          response = response;
+          return response;
+        })
+      );
+  }
+
   
   public customerPortalPosts(endpoint: string, model: any): any {
     return this.http
       .post(
         this.globalService.standardApi + endpoint,
+        model,
+      
+      )
+      .pipe(
+        map((response) => {
+          response = response;
+          return response;
+        })
+      );
+  }
+  public customerPortalComments(endpoint: string, model: any): any {
+    return this.http
+      .post(
+        this.globalService.standardComments + endpoint,
         model,
       
       )

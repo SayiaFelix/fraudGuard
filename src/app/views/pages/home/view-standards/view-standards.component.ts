@@ -80,7 +80,16 @@ export class ViewStandardsComponent implements OnInit {
   term: any;
   file: any;
   certificateData: any; 
+  selectedPart: any; 
 
+
+  userData$: Observable<any>;
+  profile:string | null;
+  logo: string | null;
+  showMenuItems: boolean = true;
+  showDashbord: boolean = false;
+  parts: any;
+  terms: any;
   constructor(
     private translate: TranslateService,
     private router: Router,
@@ -114,50 +123,77 @@ export class ViewStandardsComponent implements OnInit {
         // this.categoryId = params.categoryId;
       }
     });
-
+    this.checkForToken();
     this.loadData();
-    // this.loadParts();
-    // this.loadTerms();
-    // this.loadPartsId();
-    // this.loadTermsId();
-    localStorage.clear();
-    // get return url from route parameters or default to '/'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
-  
+    let userDetails = {
+      profile: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['name']  : "Eka Hotel Nairobi",
+
+    };
+    if (userDetails) {
+      this.profile = userDetails['profile'];
+      this.logo =
+        'https://images.unsplash.com/photo-151740421573-15263e9f9178?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80';
+
+      this.userData$ = of(userDetails);
+    } else {
+      this.userData$ = this.httpService.customerUserDetails().pipe(
+        map((resp) => {
+          console.log(resp);
+          if (resp) {
+            this.profile = resp[0]['enterpriseName'];
+            return resp[0];
+          }
+        })
+      );
+    }
+    // this.showDescription(this.selectedPart); 
+    // this.selectedPart = this.parts.filter((part: any) => part.partOrder === 1);
+    const data = this.route.snapshot.data;
+    this.parts = data && data.parts ? data.parts : [];
+    this.selectedPart = this.parts.find((part: any) => part.partOrder === 1);
   }
   get f(): { [p: string]: AbstractControl } {
     return this.form.controls;
   }
-
   private loadData(): any {
     this.loading = true;
-    let model ={
-      id:this.standardId
-    }
+    let model = {
+      id: this.standardId
+    };
     this.httpService.customerPortalPosts(`getById`, model).subscribe(
       (res: any) => {
-
-        if (res.status == 200) {
+        if (res.status === 200) {
           this.standard = res['data']['standard']['standard'];
           this.previewImageUrl = res.data.standard.standard.previewImageUrl;
-          this.part = res['data']['standard']['parts'];
-          this.term = res['data']['standard']['terms'];
+          this.parts = res['data']['standard']['parts'];
+          this.terms = res['data']['standard']['terms'];
           this.file = res['data']['standard']['files'];
           console.log(this.standard);
-          console.log(this.part);
-          console.log(this.term);
-          console.log(this.file)
-          console.log(this.previewImageUrl)
+          console.log('parts', this.parts); 
+          console.log('terms', this.terms);
+          // console.log(this.file);
+          // console.log(this.previewImageUrl);
           this.loading = false;
-
         } else {
-          Swal.fire('Failed', "Unable to fetch standards", 'error')
+          Swal.fire('Failed', "Unable to fetch standards", 'error');
         }
       }, (error: any) => {
         Swal.fire("Error", error.message, "error");
       });
   }
 
+  checkForToken() {
+    if (!!localStorage.getItem('access_token')) {
+      // Token exists, hide the first div and show the second div
+      this.showMenuItems = false;
+      this.showDashbord = true;
+    } else {
+      // Token doesn't exist, show the first div and hide the second div
+      this.showMenuItems = true;
+      this.showDashbord = false;
+    }
+  }
   // downloadCertificate(): void {
   //   if (this.previewImageUrl) {
   //     // Create an anchor element and initiate the download
@@ -236,17 +272,23 @@ export class ViewStandardsComponent implements OnInit {
   hideLeaveCommentForm() {
     this.showLeaveCommentForm = false;
   }
+
+  showDescription(part: any) {
+    this.selectedPart = part;
+  }
+  
   onSubmit(): any {
     this.isLoading = true;
-    let userId = JSON.parse(localStorage.getItem('data')!)['user']['id']
+    let email = JSON.parse(localStorage.getItem('data')!)['user']['businessEmail'];
     const model = {
-      userId,
+      email,
+      standardId:this.standardId,
       comment: this.form.value.comment,
     };
     console.log(model)
-    this.httpService.customerPortalPost(`api/v1/portal/comment/${this.standardId}`, model).subscribe(
+    this.httpService.customerPortalComments(`comments/add`, model).subscribe(
       (result: any) => {
-        if (result.status === '00') {
+        if (result.status === 200) {
           this.isLoading = false;
           this.activeModal.close('success');
           Swal.fire('Comment Added Successfully',
@@ -266,35 +308,6 @@ export class ViewStandardsComponent implements OnInit {
     );
 
   }
-
-  // onSubmit(): any {
-  //   this.isLoading = true;
-  //   const model = {
-  //     comment: this.form.value.comment,
-  //   };
-  //   console.log(model)
-  //   this.httpService.customerPortalPosts(`comment`, model).subscribe(
-  //     (result: any) => {
-  //       if (result.status === 200) {
-  //         this.isLoading = false;
-  //         this.activeModal.close('success');
-  //         Swal.fire('Comment Added Successfully',
-  //           'success').then(r => console.log(r))
-  //           this.form.reset()
-  //           this.loadData()
-  //       } else {
-  //         this.activeModal.close('error');
-  //         Swal.fire('Add Comment Failed, Try Again',
-  //           'error').then(r => console.log(r))
-  //       }
-  //     },
-  //     (error: any) => {
-  //       Swal.fire('Add Comment error',
-  //         'error')
-  //     }
-  //   );
-
-  // }
 
   toggleShowPassword() {
     this.showingPassword = !this.showingPassword;
