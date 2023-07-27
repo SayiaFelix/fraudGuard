@@ -88,7 +88,7 @@ export class ViewStandardsComponent implements OnInit {
   logo: string | null;
   showMenuItems: boolean = true;
   showDashbord: boolean = false;
-  parts: any;
+  parts: any[] = []; 
   terms: any;
   constructor(
     private translate: TranslateService,
@@ -149,9 +149,39 @@ export class ViewStandardsComponent implements OnInit {
     }
     // this.showDescription(this.selectedPart); 
     // this.selectedPart = this.parts.filter((part: any) => part.partOrder === 1);
-    const data = this.route.snapshot.data;
-    this.parts = data && data.parts ? data.parts : [];
-    this.selectedPart = this.parts.find((part: any) => part.partOrder === 1);
+    // const data = this.route.snapshot.data;
+    // this.parts = data && data.parts ? data.parts : [];
+    // this.selectedPart = this.parts.find((part: any) => part.partOrder === 1);
+
+    this.loadData(); {
+      this.loading = true;
+      let model = {
+        id: this.standardId
+      };
+      this.httpService.customerPortalPosts(`getById`, model).subscribe(
+        (res: any) => {
+          if (res.status === 200) {
+            this.parts = res['data']['standard']['parts'];
+            if (this.parts.length > 0) {
+              this.selectedPart = this.parts[0]; 
+            }
+          } else {
+            this.selectedPart = {
+              partOrder: 1,
+              partTitle: 'Preliminary',
+              partDescription: 'Preliminary description.',
+            };
+          }
+        }, (error: any) => {
+          Swal.fire("Error", error.message, "error");
+          console.error('Error fetching parts:', error);
+          Swal.fire('Failed', "Unable to fetch standards", 'error');
+        });
+    }
+    if (this.parts.length > 0) {
+      this.selectedPart = this.parts[0];
+    }
+    
   }
   get f(): { [p: string]: AbstractControl } {
     return this.form.controls;
