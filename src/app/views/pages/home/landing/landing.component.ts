@@ -36,49 +36,49 @@ export class LandingComponent implements OnInit {
   standards: any = [
     {
       id: '1',
-      previewImageUrl: "assets/images/3.png",
+      existingImage: "assets/images/3.png",
       title: 'Accommodation And Catering Establishment',
       description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '2',
-      previewImageUrl: "assets/images/2.png",
+      existingImage: "assets/images/2.png",
       title: 'Meetings, Incentives, Conferences & Exhibitions Facilities And Services',
       description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '3',
-      previewImageUrl: "assets/images/6.jpg",
+      existingImage: "assets/images/6.jpg",
       title: 'Standards For Food Safety And Hygiene Standards',
       description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '4',
-      previewImageUrl: "assets/images/4.jpg",
+      existingImage: "assets/images/4.jpg",
       title: 'Standards For Safety And Security Standards',
       description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '5',
-      previewImageUrl: "assets/images/5.jpg",
+      existingImage: "assets/images/5.jpg",
       title: ' Tour Guides And Hotel Employees Accommodation Standard',
       description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '6',
-      previewImageUrl: "assets/images/3.png",
+      existingImage: "assets/images/3.png",
       title: 'Halal Compliance Standard For Accommodation And Catering Establishments',
       description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '7',
-      previewImageUrl: "assets/images/7.jpg",
+      existingImage: "assets/images/7.jpg",
       title: 'Standards For Spa And Wellness Facilities',
       description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '8',
-      previewImageUrl: "assets/images/1.jpg",
+      existingImage: "assets/images/1.jpg",
       title: 'Standards For Tourism Tours & Travel Enterprises',
       description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
