@@ -181,38 +181,27 @@ export class ListUsersComponent implements OnInit {
       (res: any) => {
         if (res.status == '00') {
           this.assessors = res['data']
-
-          for (const assessor of this.assessors) {
+          this.assessors.forEach((assessor: any) => {
             if (assessor.profile_url) {
-              // Check if the URL already has a protocol (http:// or https://)
-              if (!assessor.profile_url.startsWith('http://') && !assessor.profile_url.startsWith('https://')) {
-                // If not, add the protocol to the URL
-                assessor.profile_url = 'http://' + assessor.profile_url;
-              }
+              assessor.profile_url = 'http://' + assessor.profile_url;
               assessor.existingImage = this.sanitizer.bypassSecurityTrustResourceUrl(assessor.profile_url);
             } else {
               assessor.existingImage = this.defaultProfileImage;
             }
-          }
-
-          if (this.assessors.profile_url) {
-            this.existingImage = this.sanitizer.bypassSecurityTrustResourceUrl("http://" + this.assessors.profile_url);
-          } else {
-            this.existingImage = this.defaultProfileImage;
-          }
-  
+          });
+ 
           console.log(this.assessors);
-          console.log(this.existingImage);
           this.loading = false;
-
         } else {
-          Swal.fire('Failed', "Unable to fetch Accessor", 'error')
+          Swal.fire('Failed', 'Unable to fetch standards', 'error');
         }
-      }, (error: any) => {
-        Swal.fire("Error", error.message, "error");
-      });
+      },
+      (error: any) => {
+        Swal.fire('Error', error.message, 'error');
+      }
+    );
   }
-
+  
   getIndividualData(event: number): void {
     this.loading  = true;
 
