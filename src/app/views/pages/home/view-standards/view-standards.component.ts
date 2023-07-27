@@ -9,13 +9,13 @@ import {
 import { CustomValidators } from 'ngx-custom-validators';
 import { HttpParams } from '@angular/common/http';
 
-import {catchError, concat, Observable, of, throwError} from 'rxjs';
+import { catchError, concat, Observable, of, throwError } from 'rxjs';
 import { delay, map } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 import { HttpService } from 'src/app/shared/services/http.service';
 import Swal from "sweetalert2";
 import { NgbActiveModal, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { DomSanitizer, SafeResourceUrl, SafeUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-view-standards',
@@ -26,12 +26,12 @@ export class ViewStandardsComponent implements OnInit {
   returnUrl: any;
   public form: FormGroup;
   public showingPassword = false;
-  
+
   modalRef: NgbModalRef;
   inputType = 'password';
   errorMessage: string;
   loading: boolean;
-  standard:any;
+  standard: any;
   private brochureUrl = 'assets/images/certificate.png';
   // Store the sanitized URL
   public downloadLink: SafeUrl;
@@ -60,10 +60,12 @@ export class ViewStandardsComponent implements OnInit {
   // combinedLoginResult$: Observable<any>;
 
   // certificateId: number = this.standardId
-  previewImageUrl: string = ''; 
+  previewImageUrl: string = '';
   errorMsg: string;
   hasError: boolean = false;
   isLoading: boolean = false;
+  defaultImage: SafeResourceUrl = "assets/images/4.png";
+  existingImage: SafeResourceUrl;
 
   selectedLanguage: any = 'English';
   selectedLanguageFlag: any = 'assets/images/flags/us.svg';
@@ -71,25 +73,18 @@ export class ViewStandardsComponent implements OnInit {
   currentIndex: number;
   changeIndex: (index: any) => void;
   public standardId: number;
-  standardParts: any;
   showLeaveCommentForm: boolean = false;
-  standardTerms: any;
-  standardPart: any;
-  standardTerm: any;
-  part: any;
-  term: any;
   file: any;
-  certificateData: any; 
-  selectedPart: any; 
-
-
+  certificateData: any;
+  selectedPart: any;
   userData$: Observable<any>;
-  profile:string | null;
+  profile: string | null;
   logo: string | null;
   showMenuItems: boolean = true;
   showDashbord: boolean = false;
-  parts: any[] = []; 
+  parts: any[] = [];
   terms: any;
+
   constructor(
     private translate: TranslateService,
     private router: Router,
@@ -103,7 +98,7 @@ export class ViewStandardsComponent implements OnInit {
     private sanitizer: DomSanitizer,
 
   ) {
-     this.downloadLink = this.sanitizer.bypassSecurityTrustUrl(this.brochureUrl);
+    this.downloadLink = this.sanitizer.bypassSecurityTrustUrl(this.brochureUrl);
     this.form = fb.group({
       // email: ['',Validators.compose([Validators.required, CustomValidators.email])],
       // occupation: ['',Validators.compose([Validators.required])],
@@ -127,7 +122,7 @@ export class ViewStandardsComponent implements OnInit {
     this.loadData();
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
     let userDetails = {
-      profile: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['name']  : "Eka Hotel Nairobi",
+      profile: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['name'] : "Eka Hotel Nairobi",
 
     };
     if (userDetails) {
@@ -147,11 +142,6 @@ export class ViewStandardsComponent implements OnInit {
         })
       );
     }
-    // this.showDescription(this.selectedPart); 
-    // this.selectedPart = this.parts.filter((part: any) => part.partOrder === 1);
-    // const data = this.route.snapshot.data;
-    // this.parts = data && data.parts ? data.parts : [];
-    // this.selectedPart = this.parts.find((part: any) => part.partOrder === 1);
 
     this.loadData(); {
       this.loading = true;
@@ -163,7 +153,7 @@ export class ViewStandardsComponent implements OnInit {
           if (res.status === 200) {
             this.parts = res['data']['standard']['parts'];
             if (this.parts.length > 0) {
-              this.selectedPart = this.parts[0]; 
+              this.selectedPart = this.parts[0];
             }
           } else {
             this.selectedPart = {
@@ -175,13 +165,12 @@ export class ViewStandardsComponent implements OnInit {
         }, (error: any) => {
           Swal.fire("Error", error.message, "error");
           console.error('Error fetching parts:', error);
-          Swal.fire('Failed', "Unable to fetch standards", 'error');
+          // Swal.fire('Failed', "Unable to fetch standards", 'error');
         });
     }
     if (this.parts.length > 0) {
       this.selectedPart = this.parts[0];
     }
-    
   }
   get f(): { [p: string]: AbstractControl } {
     return this.form.controls;
@@ -196,11 +185,22 @@ export class ViewStandardsComponent implements OnInit {
         if (res.status === 200) {
           this.standard = res['data']['standard']['standard'];
           this.previewImageUrl = res.data.standard.standard.previewImageUrl;
+          this.existingImage = "http://".concat(
+            this.standards['previewImageUrl']
+          );
+          if (this.standard.previewImageUrl) {
+            this.existingImage = this.sanitizer.bypassSecurityTrustResourceUrl("http://" + this.standard.previewImageUrl);
+          } else {
+            this.existingImage = this.defaultImage;
+          }
+          console.log(this.existingImage)
+          this.loading = false;
           this.parts = res['data']['standard']['parts'];
           this.terms = res['data']['standard']['terms'];
           this.file = res['data']['standard']['files'];
+
           console.log(this.standard);
-          console.log('parts', this.parts); 
+          console.log('parts', this.parts);
           console.log('terms', this.terms);
           // console.log(this.file);
           // console.log(this.previewImageUrl);
@@ -224,6 +224,7 @@ export class ViewStandardsComponent implements OnInit {
       this.showDashbord = false;
     }
   }
+
   // downloadCertificate(): void {
   //   if (this.previewImageUrl) {
   //     // Create an anchor element and initiate the download
@@ -235,8 +236,8 @@ export class ViewStandardsComponent implements OnInit {
   //     console.error('Preview image URL not available.');
   //   }
   // }
- 
- 
+
+
   // Function to initiate the download of the certificate
   // downloadCertificate(): void {
   //   if (this.previewImageUrl) {
@@ -260,11 +261,12 @@ export class ViewStandardsComponent implements OnInit {
   //     console.error('Certificate data is not available.');
   //   }
   // }
+
   downloadCertificate(): void {
     if (this.previewImageUrl) {
       const certificateUrl = this.previewImageUrl;
       const certificateFileName = 'certificate.png';
-  
+
       // Extract the relative path from the certificate URL
       const relativePathRegex = /\/\/[^/]+(\/.+)/;
       const matches = certificateUrl.match(relativePathRegex);
@@ -273,7 +275,7 @@ export class ViewStandardsComponent implements OnInit {
         return;
       }
       const relativePath = matches[1];
-  
+
       // Create a Blob from the fetched certificate data and initiate the download
       fetch(relativePath)
         .then((response) => response.blob())
@@ -290,7 +292,7 @@ export class ViewStandardsComponent implements OnInit {
     } else {
       console.error('Certificate data is not available.');
     }
-}
+  }
 
   toggleLeaveCommentForm() {
     if (this.showLeaveCommentForm) {
@@ -299,6 +301,7 @@ export class ViewStandardsComponent implements OnInit {
       this.showLeaveCommentForm = true;
     }
   }
+
   hideLeaveCommentForm() {
     this.showLeaveCommentForm = false;
   }
@@ -306,25 +309,25 @@ export class ViewStandardsComponent implements OnInit {
   showDescription(part: any) {
     this.selectedPart = part;
   }
-  
+
   onSubmit(): any {
     this.isLoading = true;
     let email = JSON.parse(localStorage.getItem('data')!)['user']['businessEmail'];
     const model = {
       email,
-      standardId:this.standardId,
+      standardId: this.standardId,
       comment: this.form.value.comment,
     };
     console.log(model)
-    this.httpService.customerPortalComments(`comments/add`, model).subscribe(
+    this.httpService.customerPortalPosts(`comments/add`, model).subscribe(
       (result: any) => {
         if (result.status === 200) {
           this.isLoading = false;
           this.activeModal.close('success');
           Swal.fire('Comment Added Successfully',
             'success').then(r => console.log(r))
-            this.form.reset()
-            this.loadData()
+          this.form.reset()
+          this.loadData()
         } else {
           this.activeModal.close('error');
           Swal.fire('Add Comment Failed, Try Again',
@@ -347,6 +350,7 @@ export class ViewStandardsComponent implements OnInit {
       this.inputType = 'password';
     }
   }
+
   onRequestStandards() {
     // let body = {
     //   concern: this.f.concern?.value,
@@ -367,7 +371,7 @@ export class ViewStandardsComponent implements OnInit {
     //     this.toastr.error('Something wrong happened. Try Again!!!')
     //   }
     // )
-}
+  }
 
   changeLanguage(lang: string) {
     this.translate.use(lang);
@@ -380,38 +384,13 @@ export class ViewStandardsComponent implements OnInit {
     }
   }
 
-  onleaveComment(){}
+  onleaveComment() { }
+
   openModal(modalContent: any) {
-    this.modalRef = this.modal.open(modalContent, {centered: true, size:"md"});
+    this.modalRef = this.modal.open(modalContent, { centered: true, size: "md" });
   }
+
   closeModal() {
     this.activeModal.close();
-  }
-  private saveUsernameAndRolesOnLogin() {
-
-    let accessToken = localStorage.getItem("access_token");
-
-    // decode token to get response
-    let model = {
-      token: accessToken,
-    };
-    // console.log("remove model: ", model);
-    this.httpService.mobileBankingPost('oauth/validate', model).subscribe((res: any) => {
-      if (res.status === 200) {
-
-        console.log(res.data);
-
-        localStorage.setItem('userName', res.data.username);
-        localStorage.setItem('roles', res.data.roles);
-
-      } else {
-        Swal.fire('Error',  'Unable to fetch user details.',  'error');
-      }
-    })
-
-
-  }
-  updateCurrentDescription(describe: string) {
-    this.currentDescription = describe;
   }
 }

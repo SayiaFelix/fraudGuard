@@ -15,7 +15,7 @@
       </div>
     </div>
 
-    <div style="margin-right: 2%" >
+    <div style="margin-right: 2%">
       <div class="d-flex p-2 justify-content-between" *ngIf="showMenuItems">
         <button class="btn btn-md btn-light transition ml-1" type="submit">
           <a routerLink="/auth/activate" style="
@@ -42,7 +42,9 @@
       </div>
       <div class="d-flex p-2 justify-content-between" *ngIf="showDashbord">
         <div style="margin-top: 5%;">
-          <h3 class="header" style="color: var(--dark-purple, #1E0F2E);text-align: center;font-family: Muli;font-size: 11px;font-style: normal;font-weight: 700;line-height: normal;text-transform: uppercase;"> <span>{{profile}}</span></h3>
+          <h3 class="header"
+            style="color: var(--dark-purple, #1E0F2E);text-align: center;font-family: Muli;font-size: 11px;font-style: normal;font-weight: 700;line-height: normal;text-transform: uppercase;">
+            <span>{{profile}}</span></h3>
         </div>
         <div style="margin-top: 2%; margin-left: 5px;">
           <img class="wd-30 ht-30 rounded-circle" src="./assets/images/user.png" alt="profile">
@@ -75,7 +77,8 @@
       </div>
     </div>
     <ng-container *ngIf="showLeaveCommentForm">
-      <div class="modal-container" style="display: flex;justify-content: end;align-items: center;position: fixed;width: 100%;height: 100%; z-index: 10;  border-radius: 8px 8px 8px 8px;">
+      <div class="modal-container"
+        style="display: flex;justify-content: end;align-items: center;position: fixed;width: 100%;height: 100%; z-index: 10;  border-radius: 8px 8px 8px 8px;">
         <div>
           <div class="modals " style="border-radius: 8px 8px 8px 8px;">
             <div style="background: var(--seasalt, #F8F8F8); border-radius: 8px 8px 8px 8px;">
@@ -167,12 +170,11 @@
                 <div class="" [id]="std.id" (click)="viewStandard(std.id)">
                   <div style="position: relative; display: inline-block;">
                     <div class="w-100">
+                      <img class="img-fluid card-img-top" [src]="std.existingImage"
+                        style="height: 95px; border-top-left-radius: 13px; border-top-right-radius: 13px;"/>
                       <!-- <img class="img-fluid card-img-top"
-                        style="height: 95px; border-top-left-radius: 13px; border-top-right-radius: 13px;"
-                        [src]="std.previewImageUrl" /> -->
-                      <img class="img-fluid card-img-top"
                         style="min-height: 95px; max-width: 100%; border-top-left-radius: 13px; border-top-right-radius: 13px;"
-                        src="assets/images/3.png" alt="">
+                        src="assets/images/3.png" alt=""> -->
                     </div>
                     <div
                       style="position: absolute; width: 60px; height: 60px; margin-left: 4%; margin-top: -11%; border-radius: 50%; background-color: #D0DDF0;"

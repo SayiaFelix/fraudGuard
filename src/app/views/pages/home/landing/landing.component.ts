@@ -16,6 +16,7 @@ import { HttpService } from 'src/app/shared/services/http.service';
 import Swal from "sweetalert2";
 import { OwlOptions } from 'ngx-owl-carousel-o';
 import { NgbActiveModal, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-landing',
@@ -29,6 +30,8 @@ export class LandingComponent implements OnInit {
   showLeaveCommentForm: boolean = false;
   inputType = 'password';
   modalRef: NgbModalRef;
+  defaultImage: SafeResourceUrl = "assets/images/3.png";
+  existingImage: SafeResourceUrl;
   // standards: any = [];
   standards: any = [
     {
@@ -174,6 +177,7 @@ export class LandingComponent implements OnInit {
     private _router: Router,
     public modal: NgbModal,
     public activeModal: NgbActiveModal,
+    private sanitizer: DomSanitizer
 
   ) {
     this.form = fb.group({
@@ -233,8 +237,34 @@ export class LandingComponent implements OnInit {
 
         if (res.status == 200) {
           this.standards = res['data']['standards'];
+          for (const standard of this.standards) {
+            if (standard.previewImageUrl) {
+              // Check if the URL already has a protocol (http:// or https://)
+              if (!standard.previewImageUrl.startsWith('http://') && !standard.previewImageUrl.startsWith('https://')) {
+                // If not, add the protocol to the URL
+                standard.previewImageUrl = 'http://' + standard.previewImageUrl;
+              }
+              standard.existingImage = this.sanitizer.bypassSecurityTrustResourceUrl(standard.previewImageUrl);
+            } else {
+              standard.existingImage = this.defaultImage;
+            }
+          }
           console.log(this.standards)
-          this.loading = false;
+          console.log(this.standards[0].previewImageUrl)
+
+          // if (this.standards.previewImageUrl) {
+          //   this.existingImage = this.sanitizer.bypassSecurityTrustResourceUrl("http://" + this.standards.previewImageUrl);
+          // }
+          //  else {
+          //   this.existingImage = this.defaultImage;
+          // }
+
+        //   this.existingImage = "http://".concat(
+        //   this.standards['previewImageUrl']
+        // );
+        
+        console.log(this.existingImage)
+        this.loading = false;
 
         } else {
           Swal.fire('Failed', "Unable to fetch standards", 'error')

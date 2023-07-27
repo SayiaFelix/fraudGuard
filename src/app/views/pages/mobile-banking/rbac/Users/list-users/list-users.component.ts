@@ -8,6 +8,7 @@ import { active } from 'sortablejs';
 import { HttpService } from 'src/app/shared/services/http.service';
 import {AddUserComponent} from "../add-user/add-user.component";
 import Swal from "sweetalert2";
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-list-users',
@@ -19,6 +20,9 @@ export class ListUsersComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
 
   loading: boolean = true;
+  defaultProfileImage: SafeResourceUrl = "assets/images/p1.png";
+  existingImage: SafeResourceUrl;
+
 
   // bread crumb items
   breadCrumbItems: Array<{}>;
@@ -26,62 +30,63 @@ export class ListUsersComponent implements OnInit {
   filteredRows: any = [];
   showLeaveCommentForm: boolean = false;
   showFormImage = 'assets/images/chats.png'
-  standards: any = [
+  // assessors: any =[];
+  assessors: any = [
     {
       id: '1',
-      icon: "assets/images/p1.png",
+      profile_url: "assets/images/p1.png",
       title:"Assessor",
-      name: 'Jane Akinyi',
-      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+      first_name: 'Jane Akinyi',
+      bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '2',
-      icon: "assets/images/p2.png",
+      profile_url: "assets/images/p2.png",
       title:"Assessor",
-      name: 'Jane Akinyi',
-      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+      first_name: 'Jane Akinyi',
+      bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '3',
-      icon: "assets/images/p3.png",
+      profile_url: "assets/images/p3.png",
       title:"Assessor",
-      name: 'Jane Akinyi',
-      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+      first_name: 'Jane Akinyi',
+      bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '4',
-      icon: "assets/images/p4.png",
+      profile_url: "assets/images/p4.png",
       title:"Assessor",
-      name: 'Jane Akinyi',
-      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+      first_name: 'Jane Akinyi',
+      bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '5',
-      icon: "assets/images/p5.png",
+      profile_url: "assets/images/p5.png",
       title:"Assessor",
-      name: ' Jane Akinyi',
-      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+      first_name: ' Jane Akinyi',
+      bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '6',
-      icon: "assets/images/p6.png",
+      profile_url: "assets/images/p6.png",
       title:"Assessor",
-      name: 'Jane Akinyi',
-      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+      first_name: 'Jane Akinyi',
+      bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '7',
-      icon: "assets/images/p7.png",
+      profile_url: "assets/images/p7.png",
       title:"Assessor",
-      name: 'Jane Akinyi',
-      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+      first_name: 'Jane Akinyi',
+      bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '8',
-      icon: "assets/images/p8.png",
+      profile_url: "assets/images/p8.png",
       title:"Assessor",
-      name: 'Jane Akinyi',
-      describe: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+      first_name: 'Jane Akinyi',
+      bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
   ]
   columns = [
@@ -109,10 +114,13 @@ export class ListUsersComponent implements OnInit {
   title: string = "Users";
   actions = ["View", "Edit"];
   totalRecords: number;
+
+ 
   constructor(private httpService: HttpService,
               private modalService: NgbModal,
               public fb: FormBuilder,
               public router: Router,
+              private sanitizer: DomSanitizer
   ) {
 
 
@@ -169,16 +177,32 @@ export class ListUsersComponent implements OnInit {
 
   private loadData(): any {
     this.loading = true;
-    // let model ={
-    //     page: this.page-1,
-    //     size: this.perPage
-    // }
-    this.httpService.customerPortalPosts(`getall`, {}).subscribe(
+    this.httpService.customerPortalPost(`api/v1/auth/getAllAssessors`, {}).subscribe(
       (res: any) => {
+        if (res.status == '00') {
+          this.assessors = res['data']
 
-        if (res.status == 200) {
-          this.standards = res['data']['standards'];
-          console.log(this.standards)
+          for (const assessor of this.assessors) {
+            if (assessor.profile_url) {
+              // Check if the URL already has a protocol (http:// or https://)
+              if (!assessor.profile_url.startsWith('http://') && !assessor.profile_url.startsWith('https://')) {
+                // If not, add the protocol to the URL
+                assessor.profile_url = 'http://' + assessor.profile_url;
+              }
+              assessor.existingImage = this.sanitizer.bypassSecurityTrustResourceUrl(assessor.profile_url);
+            } else {
+              assessor.existingImage = this.defaultProfileImage;
+            }
+          }
+
+          if (this.assessors.profile_url) {
+            this.existingImage = this.sanitizer.bypassSecurityTrustResourceUrl("http://" + this.assessors.profile_url);
+          } else {
+            this.existingImage = this.defaultProfileImage;
+          }
+  
+          console.log(this.assessors);
+          console.log(this.existingImage);
           this.loading = false;
 
         } else {
@@ -188,8 +212,8 @@ export class ListUsersComponent implements OnInit {
         Swal.fire("Error", error.message, "error");
       });
   }
-  getIndividualData(event: number): void {
 
+  getIndividualData(event: number): void {
     this.loading  = true;
 
     const model = {

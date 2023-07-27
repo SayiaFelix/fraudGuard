@@ -9,6 +9,7 @@ import {DataExportationService} from 'src/app/shared/services/data-exportation.s
 import {HttpService} from 'src/app/shared/services/http.service';
 import { CustomValidators } from 'ngx-custom-validators';
 import Swal from 'sweetalert2';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-list-requests',
@@ -24,6 +25,8 @@ import Swal from 'sweetalert2';
 export class ListRequestsComponent implements OnInit {
   public form: FormGroup;
   errorMsg: string;
+  defaultProfileImage: SafeResourceUrl = "assets/images/5.jpg";
+  existingImage: SafeResourceUrl;
   hasError: boolean = false;
   isLoading: boolean = false;
   errorMessage: string;
@@ -158,6 +161,7 @@ export class ListRequestsComponent implements OnInit {
     fb: FormBuilder,
     public modal: NgbModal,
     private httpService: HttpService,
+    private sanitizer: DomSanitizer,
     public activeModal: NgbActiveModal,) {
       this.form = fb.group({
         email: ['',Validators.compose([Validators.required, CustomValidators.email])],
@@ -202,6 +206,19 @@ export class ListRequestsComponent implements OnInit {
 
         if (res.status == 200) {
           this.standards = res['data']['standards'];
+          for (const standard of this.standards) {
+            if (standard.previewImageUrl) {
+              // Check if the URL already has a protocol (http:// or https://)
+              if (!standard.previewImageUrl.startsWith('http://') && !standard.previewImageUrl.startsWith('https://')) {
+                // If not, add the protocol to the URL
+                standard.previewImageUrl = 'http://' + standard.previewImageUrl;
+              }
+              standard.existingImage = this.sanitizer.bypassSecurityTrustResourceUrl(standard.previewImageUrl);
+            } else {
+              standard.existingImage = this.defaultProfileImage;
+            }
+          }
+          this.loading = false;
           console.log(this.standards)
           this.loading = false;
 
