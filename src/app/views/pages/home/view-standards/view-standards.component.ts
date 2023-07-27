@@ -148,10 +148,10 @@ export class ViewStandardsComponent implements OnInit {
       let model = {
         id: this.standardId
       };
-      this.httpService.customerPortalPosts(`getById`, model).subscribe(
+      this.httpService.customerPortalPost(`api/v1/portal/standard/${this.standardId}`, {}).subscribe(
         (res: any) => {
-          if (res.status === 200) {
-            this.parts = res['data']['standard']['parts'];
+          if (res.status === '00') {
+            this.parts = res['data']['parts'];
             if (this.parts.length > 0) {
               this.selectedPart = this.parts[0];
             }
@@ -180,24 +180,24 @@ export class ViewStandardsComponent implements OnInit {
     let model = {
       id: this.standardId
     };
-    this.httpService.customerPortalPosts(`getById`, model).subscribe(
+    this.httpService.customerPortalPost(`api/v1/portal/standard/${this.standardId}`, {}).subscribe(
       (res: any) => {
-        if (res.status === 200) {
-          this.standard = res['data']['standard']['standard'];
-          this.previewImageUrl = res.data.standard.standard.previewImageUrl;
+        if (res.status === '00') {
+          this.standard = res['data'];
+          this.previewImageUrl = res.data.preview_image_url;
           this.existingImage = "http://".concat(
             this.standards['previewImageUrl']
           );
-          if (this.standard.previewImageUrl) {
-            this.existingImage = this.sanitizer.bypassSecurityTrustResourceUrl("http://" + this.standard.previewImageUrl);
+          if (this.standard.preview_image_url) {
+            this.existingImage = this.sanitizer.bypassSecurityTrustResourceUrl("http://" + this.standard.preview_image_url);
           } else {
             this.existingImage = this.defaultImage;
           }
           console.log(this.existingImage)
           this.loading = false;
-          this.parts = res['data']['standard']['parts'];
-          this.terms = res['data']['standard']['terms'];
-          this.file = res['data']['standard']['files'];
+          this.parts = res['data']['parts'];
+          this.terms = res['data']['terms'];
+          // this.file = res['data']['standard']['files'];
 
           console.log(this.standard);
           console.log('parts', this.parts);
@@ -319,9 +319,9 @@ export class ViewStandardsComponent implements OnInit {
       comment: this.form.value.comment,
     };
     console.log(model)
-    this.httpService.customerPortalPosts(`comments/add`, model).subscribe(
+    this.httpService.customerPortalPost(`api/v1/portal/comment`, model).subscribe(
       (result: any) => {
-        if (result.status === 200) {
+        if (result.status === '00') {
           this.isLoading = false;
           this.activeModal.close('success');
           Swal.fire('Comment Added Successfully',

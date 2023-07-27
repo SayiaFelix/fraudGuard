@@ -157,7 +157,7 @@ export class LandingComponent implements OnInit {
   errorMessage: string;
 
   userData$: Observable<any>;
-  profile:string | null;
+  profile: string | null;
   logo: string | null;
   showMenuItems: boolean = true;
   showDashbord: boolean = false;
@@ -195,7 +195,7 @@ export class LandingComponent implements OnInit {
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
 
     let userDetails = {
-      profile: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['name']  : "Eka Hotel Nairobi",
+      profile: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['name'] : "Eka Hotel Nairobi",
 
     };
     if (userDetails) {
@@ -225,55 +225,36 @@ export class LandingComponent implements OnInit {
     this.router.navigate(['/standards', standardId]);
   }
 
-
   private loadData(): any {
     this.loading = true;
-    let model ={
-        page: this.page-1,
-        size: this.perPage
-    }
-    this.httpService.customerPortalPosts(`getall`, model).subscribe(
+    let model = {
+      page: this.page - 1,
+      size: this.perPage
+    };
+    this.httpService.customerPortalPost(`api/v1/portal/getStandards`, {}).subscribe(
       (res: any) => {
-
-        if (res.status == 200) {
-          this.standards = res['data']['standards'];
-          for (const standard of this.standards) {
-            if (standard.previewImageUrl) {
-              // Check if the URL already has a protocol (http:// or https://)
-              if (!standard.previewImageUrl.startsWith('http://') && !standard.previewImageUrl.startsWith('https://')) {
-                // If not, add the protocol to the URL
-                standard.previewImageUrl = 'http://' + standard.previewImageUrl;
-              }
-              standard.existingImage = this.sanitizer.bypassSecurityTrustResourceUrl(standard.previewImageUrl);
+        if (res.status == '00') {
+          this.standards = res['data'];
+          this.standards.forEach((standard: any) => {
+            if (standard.preview_image_url) {
+              standard.preview_image_url = 'http://' + standard.preview_image_url;
+              standard.existingImage = this.sanitizer.bypassSecurityTrustResourceUrl(standard.preview_image_url);
             } else {
               standard.existingImage = this.defaultImage;
             }
-          }
-          console.log(this.standards)
-          console.log(this.standards[0].previewImageUrl)
-
-          // if (this.standards.previewImageUrl) {
-          //   this.existingImage = this.sanitizer.bypassSecurityTrustResourceUrl("http://" + this.standards.previewImageUrl);
-          // }
-          //  else {
-          //   this.existingImage = this.defaultImage;
-          // }
-
-        //   this.existingImage = "http://".concat(
-        //   this.standards['previewImageUrl']
-        // );
-        
-        console.log(this.existingImage)
-        this.loading = false;
-
+          });
+ 
+          console.log(this.standards);
+          this.loading = false;
         } else {
-          Swal.fire('Failed', "Unable to fetch standards", 'error')
+          Swal.fire('Failed', 'Unable to fetch standards', 'error');
         }
-      }, (error: any) => {
-        Swal.fire("Error", error.message, "error");
-      });
+      },
+      (error: any) => {
+        Swal.fire('Error', error.message, 'error');
+      }
+    );
   }
-
   onleaveComment() {
     // this.hasError = false;
     // this.isLoading = true;
