@@ -20,7 +20,7 @@ export class GlobalService {
     this.mobileBankingHost = environment.mobileBanking;
     this.customerPortalNest = environment.customerPortalNest;
     this.standardApi = environment.standardsApi;
-    this.standardComments = environment.standardsComment;
+    // this.standardComments = environment.standardsComment;
 
   }
 

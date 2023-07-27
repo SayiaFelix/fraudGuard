@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { NgbActiveModal, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { CustomValidators } from 'ngx-custom-validators';
@@ -12,6 +13,8 @@ import Swal from "sweetalert2";
   styleUrls: ['./all-standards.component.scss']
 })
 export class StandardsComponent implements OnInit {
+  defaultImage: SafeResourceUrl = "assets/images/6.jpg";
+  existingImage: SafeResourceUrl;
   standards: any = []
   // standards: any = [
   //   {
@@ -155,6 +158,7 @@ export class StandardsComponent implements OnInit {
   filteredStandards: any;
   constructor(private router: Router,
     private httpService: HttpService,
+    private sanitizer: DomSanitizer,
     public modal: NgbModal,
     public activeModal: NgbActiveModal, fb: FormBuilder,) {
     this.form = fb.group({
@@ -205,7 +209,20 @@ export class StandardsComponent implements OnInit {
 
         if (res.status == 200) {
           this.standards = res['data']['standards'];
+          for (const standard of this.standards) {
+            if (standard.previewImageUrl) {
+              // Check if the URL already has a protocol (http:// or https://)
+              if (!standard.previewImageUrl.startsWith('http://') && !standard.previewImageUrl.startsWith('https://')) {
+                // If not, add the protocol to the URL
+                standard.previewImageUrl = 'http://' + standard.previewImageUrl;
+              }
+              standard.existingImage = this.sanitizer.bypassSecurityTrustResourceUrl(standard.previewImageUrl);
+            } else {
+              standard.existingImage = this.defaultImage;
+            }
+          }
           console.log(this.standards)
+          console.log(this.existingImage)
           this.loading = false;
 
         } else {
