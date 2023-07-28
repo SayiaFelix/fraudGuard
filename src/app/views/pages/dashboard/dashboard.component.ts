@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
@@ -7,6 +8,7 @@ import { NgbDateStruct, NgbCalendar, NgbActiveModal, NgbModal, NgbModalRef } fro
 import { CustomValidators } from 'ngx-custom-validators';
 import { Observable, map,of } from 'rxjs';
 import { HttpService } from 'src/app/shared/services/http.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-dashboard',
@@ -22,6 +24,7 @@ export class DashboardComponent implements OnInit {
   uploadedImageUrl: string | undefined;
   imageUploaded = false;
   selectedFile: File | null = null;
+
   // Store the sanitized URL
   public downloadLink: SafeUrl;
   isLoading: boolean = false;
@@ -77,6 +80,7 @@ export class DashboardComponent implements OnInit {
     private httpService: HttpService,
     fb: FormBuilder,
     private _router: Router,
+    private http: HttpClient,
     private sanitizer: DomSanitizer,
     public modal: NgbModal,
     public activeModal: NgbActiveModal,) {
@@ -155,22 +159,6 @@ export class DashboardComponent implements OnInit {
 
   }
 
-  // handleImageUpload(event: Event): void {
-  //   // Handle the image upload logic here
-  //   const inputElement = event.target as HTMLInputElement;
-  //   if (inputElement.files && inputElement.files.length > 0) {
-  //     const file = inputElement.files[0];
-  //     // You can now use the 'file' variable to access the uploaded image
-  //     // For example, you can display the image preview:
-  //     const reader = new FileReader();
-  //     reader.onload = (e) => {
-  //       const imagePreviewUrl = e.target?.result as string;
-  //       // Update the image preview URL in your component's property if needed
-  //     };
-  //     reader.readAsDataURL(file);
-  //   }
-  // }
-
   handleImageUpload(event: Event): void {
     const inputElement = event.target as HTMLInputElement;
     if (inputElement.files && inputElement.files.length > 0) {
@@ -178,10 +166,33 @@ export class DashboardComponent implements OnInit {
       const reader = new FileReader();
       reader.onload = (e) => {
         this.uploadedImageUrl = e.target?.result as string;
+        this.imageUploaded = true; // Set imageUploaded to true to hide the "Click here to upload" text
+
+        const formData = new FormData();
+        formData.append('image', file);
+        // this.httpService.customerPortalPost(`api/v1/auth/uploadLandingPhoto`, formData).subscribe(
+        //   (result: any) => {
+        //     if (result.status === '00') {
+        //       console.log('Image uploaded successfully!', result);
+        //       this.isLoading = false;
+        //       this.activeModal.close('success');
+        //       Swal.fire('Image uploaded Successfully!',
+        //         'success').then(r => console.log(r))
+        //       this.form.reset()
+        //     } else {
+        //       this.activeModal.close('error');
+        //       Swal.fire('Image Uploaded Failed, Try Again',
+        //         'error').then(r => console.log(r))
+        //     }
+        //   },
+        //   (error: any) => {
+        //     Swal.fire('Image Uploaded error',
+        //       'error')
+        //   }
+        // );
       };
       reader.readAsDataURL(file);
     }
-    this.imageUploaded = true;
   }
 
   onFileSelected(event: any) {

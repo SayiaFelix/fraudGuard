@@ -7,7 +7,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { CustomValidators } from 'ngx-custom-validators';
-import { HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 
 import { catchError, concat, Observable, of, throwError } from 'rxjs';
 import { delay, map } from 'rxjs/operators';
@@ -78,7 +78,7 @@ export class ViewStandardsComponent implements OnInit {
     { partOrder: 2, part_title: 'Statutory Obligations' },
     { partOrder: 3, part_title: 'Facility Requirements' }
   ];
-  
+
   selectedLanguage: any = 'English';
   selectedLanguageFlag: any = 'assets/images/flags/us.svg';
   images: string[];
@@ -97,6 +97,7 @@ export class ViewStandardsComponent implements OnInit {
   parts: any[] = [];
   terms: any;
   isOffline: any;
+  files: any;
   // selectedPart: StandardPart | null;
 
   constructor(
@@ -110,6 +111,7 @@ export class ViewStandardsComponent implements OnInit {
     private fb: FormBuilder,
     public modal: NgbModal,
     private sanitizer: DomSanitizer,
+    private http: HttpClient,
 
   ) {
     this.downloadLink = this.sanitizer.bypassSecurityTrustUrl(this.brochureUrl);
@@ -167,6 +169,7 @@ export class ViewStandardsComponent implements OnInit {
           if (res.status === '00') {
             this.parts = res['data']['parts'];
             this.terms = res['data']['terms'];
+
             if (this.parts.length > 0) {
               this.selectedPart = this.parts[0];
             }
@@ -224,13 +227,12 @@ export class ViewStandardsComponent implements OnInit {
           this.loading = false;
           this.parts = res['data']['parts'];
           this.terms = res['data']['terms'];
-          // this.file = res['data']['standard']['files'];
+          this.files = res['data']['files'];
 
           console.log(this.standard);
           console.log('parts', this.parts);
           console.log('terms', this.terms);
-          // console.log(this.file);
-          // console.log(this.previewImageUrl);
+          console.log('files', this.files);
           this.loading = false;
         } else {
           Swal.fire('Failed', "Unable to fetch standards", 'error');
@@ -252,73 +254,13 @@ export class ViewStandardsComponent implements OnInit {
     }
   }
 
-  // downloadCertificate(): void {
-  //   if (this.previewImageUrl) {
-  //     // Create an anchor element and initiate the download
-  //     const link = document.createElement('a');
-  //     link.href = this.previewImageUrl;
-  //     link.download = 'assets/images/certificate.png'; 
-  //     link.click();
-  //   } else {
-  //     console.error('Preview image URL not available.');
-  //   }
-  // }
 
-
-  // Function to initiate the download of the certificate
-  // downloadCertificate(): void {
-  //   if (this.previewImageUrl) {
-  //     const certificateUrl = this.previewImageUrl;
-  //     const certificateFileName = 'certificate.png';
-
-  //     // Create a Blob from the fetched certificate data and initiate the download
-  //     fetch(certificateUrl)
-  //       .then((response) => response.blob())
-  //       .then((blob) => {
-  //         const blobUrl = URL.createObjectURL(blob);
-  //         const link = document.createElement('a');
-  //         link.href = blobUrl;
-  //         link.download = certificateFileName;
-  //         link.click();
-  //       })
-  //       .catch((error) => {
-  //         console.error('Error fetching the certificate data:', error);
-  //       });
-  //   } else {
-  //     console.error('Certificate data is not available.');
-  //   }
-  // }
-
-  downloadCertificate(): void {
-    if (this.previewImageUrl) {
-      const certificateUrl = this.previewImageUrl;
-      const certificateFileName = 'certificate.png';
-
-      // Extract the relative path from the certificate URL
-      const relativePathRegex = /\/\/[^/]+(\/.+)/;
-      const matches = certificateUrl.match(relativePathRegex);
-      if (!matches || matches.length < 2) {
-        console.error('Invalid certificate URL:', certificateUrl);
-        return;
-      }
-      const relativePath = matches[1];
-
-      // Create a Blob from the fetched certificate data and initiate the download
-      fetch(relativePath)
-        .then((response) => response.blob())
-        .then((blob) => {
-          const blobUrl = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = blobUrl;
-          link.download = certificateFileName;
-          link.click();
-        })
-        .catch((error) => {
-          console.error('Error fetching the certificate data:', error);
-        });
-    } else {
-      console.error('Certificate data is not available.');
-    }
+  downloadCertificate(fileUrl: string) {
+    const normalizedFileUrl = fileUrl.startsWith('http://') ? fileUrl : 'http://' + fileUrl;
+    const link = document.createElement('a');
+    link.href = normalizedFileUrl;
+    link.target = '_blank';
+    link.click();
   }
 
   toggleLeaveCommentForm() {

@@ -149,43 +149,6 @@
         <div class="border-0 box-shadow">
           <div class="grid-margin stretch-card">
             <div class="row mt-4">
-              <!-- <div class="col-md-2 col-sm-2 col-lg-2 col-xl-2">
-                <div class="mt-2" *ngFor="let part of parts" (click)="showDescription(part)">
-                  <h5 class="card-title stadards-title" style="color: #2268AA;">
-                    Part {{part?.partOrder || 'Part 1'}} - {{part?.part_title || 'Preliminary'}}
-                  </h5>
-                </div>
-              </div> -->
-              <!-- <div class="col-md-2 col-sm-2 col-lg-2 col-xl-2">
-                <div *ngIf="parts && parts.length > 0">
-                  <div class="mt-2" *ngFor="let part of parts" (click)="showDescription(part)">
-                    <h5 class="card-title stadards-title" style="color: #2268AA;">
-                      Part {{ part?.partOrder || 'Part 1' }} - {{ part?.part_title || 'Preliminary' }}
-                    </h5>
-                  </div>
-                </div>
-                <div *ngIf="!parts || parts.length === 0">
-                  <h5 class="card-title stadards-title" style="color: #2268AA;">
-                    Part 1 - Preliminary
-                  </h5>
-                </div>
-              </div> -->
-              <!-- <div class="col-md-3 col-sm-3 col-lg-3 col-xl-3">
-                <div *ngIf="parts && parts.length > 0; else noParts">
-                  <div class="mt-2" *ngFor="let part of parts" (click)="showDescription(part)">
-                    <h5 class="card-title stadards-title" style="color: #2268AA;">
-                      Part {{ part.partOrder }} - {{ part.part_title }}
-                    </h5>
-                  </div>
-                </div>
-                <ng-template #noParts>
-                  <div *ngFor="let defaultPart of defaultParts">
-                    <h5 class="card-title stadards-title" style="color: #2268AA;">
-                      Part {{ defaultPart.partOrder }} - {{ defaultPart.part_title }}
-                    </h5>
-                  </div>
-                </ng-template>
-              </div> -->
               <div class="col-md-2 col-sm-2 col-lg-2 col-xl-2">
                 <ng-container *ngIf="parts && parts.length > 0; else noParts">
                   <div class="mt-2" *ngFor="let part of parts" (click)="showDescription(part)"
@@ -216,7 +179,7 @@
                     {{ selectedPart?.part_description || 'Tourism Regulatory Authority (TRA) is a corporate body established under section 4 of the Tourism Act No.28 of 2011 and is mandated to regulate the tourism sector in Kenya. This entails developing regulations, standards and guidelines that are necessary to ensure an all-round quality service delivery in the tourism sector. This standard was developed by a select team drawn from relevant institutions, including; Tourism Regulatory Authority (TRA), Kenya Utalii College (KUC), Kenya Association of Hotels and Caterers (KAHC), Kenya Association of Tour Operators (KATO), Ministry of Health (MoH), Architectural of Association of Kenya (AAK) and Kenya Bureau of Standards (KEBS).' }}
                   </p>
                 </div>
-                <div>
+                <div *ngIf="showDashbord">
                   <form class="" [formGroup]="form" class="row">
                     <div class="tab-content col-12" style="background-color: #fff;">
                       <div style="border-radius: 8px;border: 2px solid var(--lavender-web, #D0DDF0);">
@@ -241,16 +204,14 @@
               </div>
               <div class="col-md-3 col-lg-3 col-sm-3 col-xl-3 border border-1 rounded"
                 style="padding: 10px; border: 1px #d0ddf0; border-radius: 8px;">
-                <div class="p-1 m-1">
-
-                  <button (click)="downloadCertificate()" class="btn btn-md login-btn transition"
+                <div class="p-1 m-1" *ngFor="let file of files">
+                  <button (click)="downloadCertificate(file.file_path)" class="btn btn-md login-btn transition"
                     style="background-color: #6d36a8; font-family:Muli; align-items: center; color: #f8f8f8; font-weight: 700; border-radius: 4px; font-size:15px;"
                     type="submit">
                     <a style="text-decoration: none ;color: #f8f8f8;" class="transition">
                       DOWNLOAD BRONCHURE
                     </a>
                   </button>
-
                 </div>
                 <div class="p-1 m-1" *ngIf="showDashbord">
                   <button class="btn btn-lg "
@@ -282,6 +243,7 @@
         </div>
       </div>
     </div>
+    <hr>
   </div>
   <div class="d-flex justify-content-center">
     <div class="m-3">
@@ -325,6 +287,7 @@
     </div>
   </div>
 </div>
+
 <ng-template #requestStandard>
   <div class="">
     <div class="row">
