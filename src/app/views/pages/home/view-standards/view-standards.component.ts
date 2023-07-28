@@ -116,11 +116,11 @@ export class ViewStandardsComponent implements OnInit {
   ) {
     this.downloadLink = this.sanitizer.bypassSecurityTrustUrl(this.brochureUrl);
     this.form = fb.group({
-      // email: ['',Validators.compose([Validators.required, CustomValidators.email])],
-      // occupation: ['',Validators.compose([Validators.required])],
-      // purpose: ["", Validators.compose([Validators.required])],
-      comment: ["", Validators.compose([Validators.required])],
-      // phoneNumber: ["", Validators.compose([Validators.required])],
+      name: ["", Validators.compose([Validators.required])],
+      email: ['',Validators.compose([Validators.required, CustomValidators.email])],
+      occupation: ['',Validators.compose([Validators.required])],
+      purpose: ["", Validators.compose([Validators.required])],
+      phone_number: ["", Validators.compose([Validators.required])],
     });
   }
 
@@ -319,25 +319,36 @@ export class ViewStandardsComponent implements OnInit {
   }
 
   onRequestStandards() {
-    // let body = {
-    //   concern: this.f.concern?.value,
-    //   groupId: this.param
-    // }
-    // this.subs.sink = this.memberService.raiseConcern(body).subscribe(
-    //   res => {
-    //     if (res["status"] == "success") {
-    //       console.log(res);
-    //       this.toastr.success('Concern Raised Successfully. Awaiting Approval!');
-    //       this.closeModal();
-    //       this.getGroup();
-    //     } else {
-    //       this.errorMessage = res["message"];
-    //     }
-    //   },
-    //   err => {
-    //     this.toastr.error('Something wrong happened. Try Again!!!')
-    //   }
-    // )
+    this.isLoading = true;
+    const model = {
+      stardard_id: this.standardId,
+      name: this.form.value.name,
+      phone_number: this.form.value.phone_number, 
+      occupation: this.form.value.occupation, 
+      purpose: this.form.value.purpose,
+      email: this.form.value.email,
+    };
+    console.log(model)
+    this.httpService.customerPortalPost(`api/v1/portal/requestStandard`, model).subscribe(
+      (result: any) => {
+        if (result.status === '00') {
+          this.isLoading = false;
+          this.activeModal.close('success');
+          Swal.fire('Standard Request Made Successfully',
+            'success').then(r => console.log(r))
+          this.form.reset()
+          this.loadData()
+        } else {
+          this.activeModal.close('error');
+          Swal.fire('Standard Request Failed, Try Again',
+            'error').then(r => console.log(r))
+        }
+      },
+      (error: any) => {
+        Swal.fire('Request Standard error',
+          'error')
+      }
+    );
   }
 
   changeLanguage(lang: string) {

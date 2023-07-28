@@ -38,6 +38,9 @@ input[formControlName="comment"]::placeholder {
   margin-left: -7%;
 }
 
+input{
+  max-width: 100%;
+}
 
 
 .selected-part {
