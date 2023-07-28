@@ -200,17 +200,19 @@
                 <div class="" [id]="std.id" (click)="viewStandard(std.id)">
                   <div style="position: relative; display: inline-block;">
                     <div class="w-100">
-                      <img class="img-fluid card-img-top"
+                      <!-- <img class="img-fluid card-img-top"
                         style="height: 95px; border-top-left-radius: 13px; border-top-right-radius: 13px;"
-                        [src]="std.existingImage" />
-                   
+                        [src]="std.preview_image_url"/> -->
+                        <img class="img-fluid card-img-top"
+                        style="min-height: 95px; max-width: 100%; border-top-left-radius: 13px; border-top-right-radius: 13px;"
+                        src="assets/images/2.png" alt="">
                     </div>
                     <div
                       style="position: absolute; width: 60px; height: 60px; margin-left: 4%; margin-top: -11%; border-radius: 50%; background-color: #D0DDF0;"
                       class="card-header d-flex justify-content-center align-items-center border-0 box-shadow">
                     </div>
                   </div>
-                  <br><br>
+                  <br><br><br>
                   <div style="position: relative;">
                     <div class="mt-3">
                       <p style="

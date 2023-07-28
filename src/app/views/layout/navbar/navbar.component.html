@@ -30,7 +30,7 @@
             <div class="circle"></div>
           </div>
         </a>
-        <div ngbDropdownMenu class="px-0" aria-labelledby="notificationDropdown">
+        <!-- <div ngbDropdownMenu class="px-0" aria-labelledby="notificationDropdown">
           <div class="px-3 py-2 d-flex align-items-center justify-content-between border-bottom">
             <p>{{notifications.length}} New Notifications</p>
             <a  (click)="false" class="text-muted">Clear all</a>
@@ -52,7 +52,7 @@
           <div class="px-3 py-2 d-flex align-items-center justify-content-center border-top">
             <a  (click)="false">View all</a>
           </div>
-        </div>
+        </div> -->
       </li>
       <li class="nav-item nav-profile" *ngIf="userData$ | async" ngbDropdown>
         <a class="nav-link" ngbDropdownToggle id="profileDropdown">
