@@ -122,11 +122,15 @@
   </div>
   <div class="card">
     <div class="row">
-      <div class="card col-md-12 col-lg-12 col-xl-12 col-sm-12"
-        style="background-image: url('assets/images/landing2.png'); background-size: cover; background-repeat: no-repeat; padding: 60px 4%; color:#F8F8F8;height: 150px;">
-        <h2 style="font-family: 'Mulish';line-height: 25px;font-weight: 600;font-size: 25px; color:#F8F8F8;">
-          Ignite Success in Tourism: Align with Our Benchmark Minimum Standards.
-        </h2>
+      <div class="card col-md-12 col-lg-12 col-xl-12 col-sm-12">
+        <div class="image-container" style="position: relative;">
+          <img class="card-img-top img-fluid" style="max-width: 100%; max-height: 350px;"
+            src="assets/images/landing2.png" />
+          <h2 class="image-text"
+            style="position: absolute;  top: 45%; left: 4%; font-family: 'Mulish'; line-height: 25px; font-weight: 600; font-size: 25px; color: #F8F8F8;">
+            Ignite Success in Tourism: Align with Our Benchmark Minimum Standards.
+          </h2>
+        </div>
       </div>
     </div>
     <div class="card border-0 box-shadow">
@@ -134,7 +138,7 @@
         <div class="d-flex justify-content-between" style="width: 96%; border-bottom: 2px solid #6D36A8;">
           <h3 class="card-title"
             style="color: #6D36A8; font-family: 'Muli';font-weight: 700;font-size: 23px; text-transform: none;">
-            {{standard?.title}}</h3>
+            {{standard?.title || 'Accommodation And Catering Establishment'}}</h3>
           <div class="d-flex justify-content-between">
             <p style="font-weight: 600; font-size: 23px; color:#2268AA;">
             </p>
@@ -144,29 +148,77 @@
       <div class="card-body" style="padding: 0% 4%;">
         <div class="border-0 box-shadow">
           <div class="grid-margin stretch-card">
-            <div class="row mt-3">
-              <div class="col-md-2">
+            <div class="row mt-4">
+              <!-- <div class="col-md-2 col-sm-2 col-lg-2 col-xl-2">
                 <div class="mt-2" *ngFor="let part of parts" (click)="showDescription(part)">
                   <h5 class="card-title stadards-title" style="color: #2268AA;">
                     Part {{part?.partOrder || 'Part 1'}} - {{part?.part_title || 'Preliminary'}}
                   </h5>
                 </div>
+              </div> -->
+              <!-- <div class="col-md-2 col-sm-2 col-lg-2 col-xl-2">
+                <div *ngIf="parts && parts.length > 0">
+                  <div class="mt-2" *ngFor="let part of parts" (click)="showDescription(part)">
+                    <h5 class="card-title stadards-title" style="color: #2268AA;">
+                      Part {{ part?.partOrder || 'Part 1' }} - {{ part?.part_title || 'Preliminary' }}
+                    </h5>
+                  </div>
+                </div>
+                <div *ngIf="!parts || parts.length === 0">
+                  <h5 class="card-title stadards-title" style="color: #2268AA;">
+                    Part 1 - Preliminary
+                  </h5>
+                </div>
+              </div> -->
+              <!-- <div class="col-md-3 col-sm-3 col-lg-3 col-xl-3">
+                <div *ngIf="parts && parts.length > 0; else noParts">
+                  <div class="mt-2" *ngFor="let part of parts" (click)="showDescription(part)">
+                    <h5 class="card-title stadards-title" style="color: #2268AA;">
+                      Part {{ part.partOrder }} - {{ part.part_title }}
+                    </h5>
+                  </div>
+                </div>
+                <ng-template #noParts>
+                  <div *ngFor="let defaultPart of defaultParts">
+                    <h5 class="card-title stadards-title" style="color: #2268AA;">
+                      Part {{ defaultPart.partOrder }} - {{ defaultPart.part_title }}
+                    </h5>
+                  </div>
+                </ng-template>
+              </div> -->
+              <div class="col-md-2 col-sm-2 col-lg-2 col-xl-2">
+                <ng-container *ngIf="parts && parts.length > 0; else noParts">
+                  <div class="mt-2" *ngFor="let part of parts" (click)="showDescription(part)"
+                    [ngClass]="{ 'selected-part': isPartSelected(part.id) }">
+                    <h5 class="card-title stadards-title" style="color: #2268AA;">
+                      Part {{ part.partOrder }} - {{ part.part_title }}
+                    </h5>
+                  </div>
+                </ng-container>
+                <ng-template #noParts>
+                  <div *ngFor="let defaultPart of defaultParts">
+                    <h5 class="card-title stadards-title" style="color: #2268AA;">
+                      Part {{ defaultPart.partOrder }} - {{ defaultPart.part_title }}
+                    </h5>
+                  </div>
+                </ng-template>
               </div>
-              <div class="col-md-7">
+              <div class="col-md-7 col-sm-7 col-lg-7 col-xl-7">
                 <div style="width: 25%; border-bottom: 2px solid #2268AA;">
-                  <h3 style="color: #2268AA; font-size: 20px; font-family: Muli; font-weight: 800; line-height: 24px; letter-spacing: 0em;">
+                  <h3
+                    style="color: #2268AA; font-size: 20px; font-family: Muli; font-weight: 800; line-height: 24px; letter-spacing: 0em;">
                     {{ selectedPart?.part_title || 'Preliminary' }}
                   </h3>
                 </div>
-                <div class="mt-1">
+                <div class="mt-2">
                   <p
                     style="color: #000000; font-family: Muli; font-size: 15px; font-weight: 400; line-height: 22px; letter-spacing: 0em; text-align: justified;">
-                    {{ selectedPart?.part_description || 'Default Preliminary Description' }}
+                    {{ selectedPart?.part_description || 'Tourism Regulatory Authority (TRA) is a corporate body established under section 4 of the Tourism Act No.28 of 2011 and is mandated to regulate the tourism sector in Kenya. This entails developing regulations, standards and guidelines that are necessary to ensure an all-round quality service delivery in the tourism sector. This standard was developed by a select team drawn from relevant institutions, including; Tourism Regulatory Authority (TRA), Kenya Utalii College (KUC), Kenya Association of Hotels and Caterers (KAHC), Kenya Association of Tour Operators (KATO), Ministry of Health (MoH), Architectural of Association of Kenya (AAK) and Kenya Bureau of Standards (KEBS).' }}
                   </p>
                 </div>
                 <div>
                   <form class="" [formGroup]="form" class="row">
-                    <div class="tab-content col-12" style="background-color: #F8F8F8;">
+                    <div class="tab-content col-12" style="background-color: #fff;">
                       <div style="border-radius: 8px;border: 2px solid var(--lavender-web, #D0DDF0);">
                         <p class="p-2"
                           style="color: var(--green-blue, #2268AA);font-family: Mulish;font-size: 15px;font-style: normal;font-weight: 700;line-height: 21px;">
@@ -187,7 +239,7 @@
                   </form>
                 </div>
               </div>
-              <div class="col-md-3 border border-1 rounded"
+              <div class="col-md-3 col-lg-3 col-sm-3 col-xl-3 border border-1 rounded"
                 style="padding: 10px; border: 1px #d0ddf0; border-radius: 8px;">
                 <div class="p-1 m-1">
 
@@ -216,12 +268,13 @@
                       definitions shall apply:</p>
                   </div>
                 </div>
-                <div class="p-1" style="color: #50287B;" *ngFor="let term of terms" >
+                <div class="p-1" style="color: #50287B;" *ngFor="let term of terms">
                   <h5 style="font-family: Muli;font-weight: 700;">A-la-carte:</h5>
                   <p style="font-family: Muli;font-weight: 400">For the purpose of this standard the following
                     definitions shall apply: means a menu in a restaurant that offers individual priced</p>
-                  <h5 class="mt-1" style="font-family: Muli;font-weight: 700;">{{term?.term_title}}</h5>
-                  <p style="font-family: Muli;font-weight: 400;">{{term?.term_definition}}</p>
+                  <h5 class="mt-1" style="font-family: Muli;font-weight: 700;">{{term?.term_title || 'A-la-carte:'}}
+                  </h5>
+                  <p style="font-family: Muli;font-weight: 400;">{{term?.term_definition || 'means a menu in a restaurant that offers individual priced'}}</p>
                 </div>
               </div>
             </div>
@@ -234,7 +287,7 @@
     <div class="m-3">
       <h5
         style="color: #000000; font-family: Muli;font-size: 16px;font-weight: 600;line-height: 19px;letter-spacing: 0em;text-align: justified;">
-        Do you have a Hotel and you would like to request for Accreditation? <a href="" routerLink=""> Click Here</a>
+        Do you have a Hotel and you would like to request for Accreditation? <a routerLink=""> Click Here</a>
       </h5>
     </div>
   </div>
