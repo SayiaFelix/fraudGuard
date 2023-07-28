@@ -67,6 +67,18 @@ export class ViewStandardsComponent implements OnInit {
   defaultImage: SafeResourceUrl = "assets/images/4.png";
   existingImage: SafeResourceUrl;
 
+  defaultParts: any[] = [
+    { partOrder: 'I', part_title: 'Preliminary' },
+    { partOrder: 'II', part_title: 'Statutory Obligations' },
+    { partOrder: 'III', part_title: 'Facility Requirements' }
+  ];
+
+  defaultTerms: any[] = [
+    { term_title: 'A-la-carte:', term_definition: 'means a menu in a restaurant that offers individual priced' },
+    { partOrder: 2, part_title: 'Statutory Obligations' },
+    { partOrder: 3, part_title: 'Facility Requirements' }
+  ];
+  
   selectedLanguage: any = 'English';
   selectedLanguageFlag: any = 'assets/images/flags/us.svg';
   images: string[];
@@ -84,6 +96,8 @@ export class ViewStandardsComponent implements OnInit {
   showDashbord: boolean = false;
   parts: any[] = [];
   terms: any;
+  isOffline: any;
+  // selectedPart: StandardPart | null;
 
   constructor(
     private translate: TranslateService,
@@ -152,10 +166,13 @@ export class ViewStandardsComponent implements OnInit {
         (res: any) => {
           if (res.status === '00') {
             this.parts = res['data']['parts'];
+            this.terms = res['data']['terms'];
             if (this.parts.length > 0) {
               this.selectedPart = this.parts[0];
             }
           } else {
+            this.parts = res.length > 0 ? res : this.defaultParts;
+            this.terms = res.length > 0 ? res : this.defaultTerms;
             this.selectedPart = {
               partOrder: 1,
               partTitle: 'Preliminary',
@@ -171,10 +188,20 @@ export class ViewStandardsComponent implements OnInit {
     if (this.parts.length > 0) {
       this.selectedPart = this.parts[0];
     }
+    // this.parts = this.isOffline ? this.defaultParts : this.parts ;
   }
   get f(): { [p: string]: AbstractControl } {
     return this.form.controls;
   }
+
+  isPartSelected(part: any): boolean {
+    return this.selectedPart === part;
+  }
+
+  showDescription(part: any) {
+    this.selectedPart = part;
+  }
+
   private loadData(): any {
     this.loading = true;
     let model = {
@@ -306,9 +333,7 @@ export class ViewStandardsComponent implements OnInit {
     this.showLeaveCommentForm = false;
   }
 
-  showDescription(part: any) {
-    this.selectedPart = part;
-  }
+
 
   onSubmit(): any {
     this.isLoading = true;
