@@ -134,10 +134,17 @@
         <div class="" style="margin-right: 6%;">
           <select class="form-select p-1" id="request_category" name="request_category" (change)="onSubClassChange($event)">
             <option value="All">All</option>
+            <ng-container *ngFor="let data of SubClassData">
+              <option *ngFor="let subclass of data.subclasses" [value]="subclass.subClassName">{{ subclass.subClassName }}</option>
+            </ng-container>
+          </select>
+          
+          <!-- <select class="form-select p-1" id="request_category" name="request_category" (change)="onSubClassChange($event)">
+            <option value="All">All</option>
             <option *ngFor="let data of SubClassData" [value]="data.id">
               {{data.sub_class}}
             </option>
-          </select>
+          </select> -->
         </div>
       </div>
       <!-- <div class="card-body" style="padding: 0% 6%">
@@ -192,11 +199,11 @@
           </div>
         </div> --
       </div> -->
-      <div class="card-body" style="padding: 0% 6%">
+      <div class="card-body" style="padding: 0% 6%"  *ngIf="filteredStandards.length > 0; else noStandardsMessage">
         <div class="border-0 box-shadow">
           <div class="grid-margin stretch-card">
             <div class="row">
-              <div class="col-md-3 col-lg-3 col-xl-3 col-sm-4 mt-3 pt-2" *ngFor="let std of standards">
+              <div class="col-md-3 col-lg-3 col-xl-3 col-sm-4 mt-3 pt-2" *ngFor="let std of filteredStandards">
                 <div class="" [id]="std.id" (click)="viewStandard(std.id)">
                   <div style="position: relative; display: inline-block;">
                     <div class="w-100">

@@ -27,27 +27,28 @@
       <form [formGroup]="form">
         <div class="mt-3">
           <h3 class="form-label quiz">Class Enterprise</h3>
-          <select class="form-select" id="class_name" (change)="checkFormValue($event)" name="class_name"
-            formControlName="class_name">
-            <option *ngFor="let data of ClassData" [value]="data.id">
-              {{data.class_name}}</option>
+          <select class="form-select" id="class_name" (change)="onClassChange($event)" name="class_name" formControlName="class_name">
+            <option *ngFor="let classItem of ClassData?.classes" [value]="classItem.classId">
+              {{ classItem.className }}
+            </option>
           </select>
         </div>
         <div class="mt-4">
           <h3 class="form-label quiz">Enterprise Category</h3>
-          <select class="form-select" id="subClass_Id" name="subClass_Id" formControlName="subClass_Id">
-            <option *ngFor="let data of SubClassData" [value]="data.id">
-              {{data.sub_class}}
+          <select class="form-select" id="subClass" name="subClass" formControlName="subClassName">
+            <option *ngFor="let data of SubClassData" [value]="data.subClassName">
+              {{ data.subClassName }}
             </option>
           </select>
         </div>
         <div class="mt-4">
           <h3 class="form-label quiz">Type of Request</h3>
-          <select class="form-select" id="requestType" name="requestType" formControlName="requestType">
+          <select class="form-select" id="requestType" name="requestType" formControlName="request_type">
             <option value="ACCREDITATION">ACCREDITATION</option>
             <option value="CLASSIFICATION">CLASSIFICATION</option>
           </select>
         </div>
+
         <div class="mt-4">
           <h3 class="quiz">01. Occupational Permit: Does the hotel have approved (a) Building Plan?</h3>
           <div class="d-flex justify-content-between">
@@ -57,6 +58,7 @@
                 <input type="checkbox"  id="q1s1" name="q1s1" [formControl]="getFormControl('question1', 'subQuestion1')"
                   class="custom-control-input" (change)="toggleCheckbox('question1', 'subQuestion1', $event)">
                 <label class="custom-control-label quiz-check" for="q1s1">Yes</label>
+                <!-- <small class="text-danger" *ngIf="f.name.touched && f.name.errors?.required">Field Required</small> -->
               </div>
               <div class="form-group">
                 <input type="checkbox" id="q1s2" name="q1s2" [formControl]="getFormControl('question1', 'subQuestion2')"

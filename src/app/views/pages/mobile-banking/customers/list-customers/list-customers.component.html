@@ -17,7 +17,7 @@
             </div>
             <article class="">
               <p *ngIf="errorMessage" class="text-danger">{{errorMessage}}</p>
-              <form class="mt-1" [formGroup]="form" (ngSubmit)="onleaveComment()" class="row px-3">
+              <form class="mt-1" [formGroup]="forms" (ngSubmit)="onleaveComment()" class="row px-3">
                 <div class="tab-content col-12 border-0">
                   <div class="form-group mt-2">
                     <input formControlName="name" type="text" class="form-control validation-field border-0" id="name"
@@ -108,25 +108,25 @@
         <p class="title">Request Type</p>
         <h2 class="content">{{std.task_type}}</h2>
       </div>
+      <div class="col">
+        <p class="title">Date Created</p>
+        <h2 class="content">{{ formatDate(std.created_on) }}</h2>
+      </div>
       <div class="col" *ngIf="std.task_type === 'ACCREDITATION'">
         <p class="title">Score</p>
         <h2 class="content">{{ std.score }}</h2>
       </div>
       <div class="col" *ngIf="std.task_type === 'CLASSIFICATION'">
         <p class="title">Rating</p>
-        <h2 class="content">{{ std.rating }} stars</h2>
+        <h2 class="content">{{ std.rating }} <img class="card-img-top img-fluid mr-1 mb-1"
+            style="width: 13px; height: 15px;" src="assets/images/star.jpg" /></h2>
       </div>
       <div class="col">
-        <p class="title">Date Created</p>
-        <h2 class="content">{{ formatDate(std.created_on) }}</h2>
-      </div>
-      <div class="col">
-        <p class="title">Status</p>
+        <p class="title">Results</p>
         <ng-container *ngIf="std.task_type === 'CLASSIFICATION'; else accreditationsStatus">
           <h2 class="content">
-            <img class="card-img-top img-fluid mr-1" style="width: 13px; height: 15px;"
-              src="assets/images/Vector.png" />
-            stars
+            <img class="card-img-top img-fluid mr-1" style="width: 13px; height: 16px;"
+              [src]="getSanitizedStatusImage(std.status)" />{{std.status}}
           </h2>
         </ng-container>
         <ng-template #accreditationsStatus>
@@ -145,27 +145,51 @@
           </button>
         </a>
       </div>
-      <div class="mt-1 col">
-        <button [disabled]="isButtonDisabled(std.status, std.task_type)" class="btn btn-md transition"
-          (click)="raiseAppeal(std.id, std.status, std.task_type)"
-          style="background-color: #D0DDF0; border-radius: 64px;" type="button">
-          <a style="text-decoration: none" class="transition">
-            <span style="
-            color: var(--violet-blue, #2766BF);
-            text-align: center;
-            font-family: Mulish;
-            font-size: 12px;
-            font-style: normal;
-            font-weight: 700;
-            line-height: normal;
-            letter-spacing: 1.12px;
-            text-transform: uppercase;
-          ">
-              {{ getAppealButtonText(std.status, std.task_type) }}
-            </span>
-          </a>
-        </button>
-      </div>
+      <ng-container>
+        <div class="mt-1 col" *ngIf="isAppealButtonVisible">
+          <button class="btn btn-md transition" *ngIf="calculateAppealButtonVisibility(std)"
+            (click)="toggleAppealForm(std.id)"
+            style="background-color: #F8F8F8;border: 2px solid var(--green-blue, #2268AA); border-radius: 64px;"
+            type="button">
+            <a style="text-decoration: none" class="transition">
+              <span style="
+        color: var(--violet-blue, #2766BF);
+        text-align: center;
+        font-family: Mulish;
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: normal;
+        letter-spacing: 1.12px;
+        text-transform: uppercase;
+      ">
+                {{ getAppealButtonText(std.status, std.task_type) }}
+              </span>
+            </a>
+          </button>
+        </div>
+        <div class="mt-1 col" *ngIf="isViewTrackButtonVisible">
+          <button class="btn btn-md transition" (click)="viewAppeal()"
+            style="background-color: #F8F8F8;border: 2px solid var(--green-blue, #2268AA); border-radius: 64px;"
+            type="button">
+            <a style="text-decoration: none" class="transition">
+              <span style="
+        color: var(--violet-blue, #2766BF);
+        text-align: center;
+        font-family: Mulish;
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: normal;
+        letter-spacing: 1.12px;
+        text-transform: uppercase;
+      ">
+                View
+              </span>
+            </a>
+          </button>
+        </div>
+      </ng-container>
     </div>
     <div class="d-flex justify-content-end">
       <div style="position: fixed; bottom: 9%; right:3%;" class="d-flex justify-content-around">
@@ -190,3 +214,39 @@
     <hr>
   </div>
 </div>
+<ng-container *ngIf="showAppealForm">
+  <div class="appealForm">
+    <div class="appeal">
+      <div style="background: var(--seasalt, #F8F8F8); border-radius: 8px 8px 8px 8px;">
+        <div class="d-flex justify-content-between align-items-center"
+          style="background-color: #d0ddf0;  font-family: 'Mulish'; font-weight: 900; border-radius:4px; height: 50px;">
+          <h4 class=" text-start mt-3 p-2" style="color: #6D36A8; font-size: 17px;">Reason For Appealing</h4>
+          <div>
+            <button type="button" class="btn fs-2" (click)="hideAppealForm()"
+              style="color: #6D36A8; font-size: 20px; margin-top: -5%;">
+              &times;
+            </button>
+          </div>
+        </div>
+        <article class="">
+          <form class="mt-1" [formGroup]="form" (ngSubmit)="raiseAppeal(appealId)" class="row px-3">
+            <div class="tab-content col-12 border-0">
+              <div class="form-group mt-2">
+                <input formControlName="reason" type="text" class="form-control validation-field border-0" id="reason"
+                  placeholder="Your Reason*">
+                <small class="text-danger" *ngIf="f.reason.touched && f.reason.errors?.required">Field
+                  Required</small>
+              </div>
+              <div class="col-12 bg-white text-center py-1 mt-3 mb-2">
+                <button [disabled]="!form.valid" style="width: 100%; border: none;"
+                  class="btn btn-block login-btn transition" type="submit">
+                  <span style="color: white;">SEND</span>
+                </button>
+              </div>
+            </div>
+          </form>
+        </article>
+      </div>
+    </div>
+  </div>
+</ng-container>
