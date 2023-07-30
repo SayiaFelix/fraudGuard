@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
   providedIn: 'root',
 })
 export class HttpService {
+  private subclassDataUrl = 'assets/subclass-data.json';
   userId: any;
   post(arg0: string, model: { profileId: any; roleIds: any; active: string; remarks: any; }) {
     throw new Error('Method not implemented.');
@@ -43,6 +44,11 @@ export class HttpService {
           return result;
         })
       );
+  }
+
+
+  getClassAndSubclassData(): Observable<any> {
+    return this.http.get<any>(this.subclassDataUrl);
   }
 
   public customerPortalAuth(endpoint: string, model: any): Observable<any> {

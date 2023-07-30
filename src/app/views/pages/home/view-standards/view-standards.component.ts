@@ -4,6 +4,7 @@ import {
   AbstractControl,
   FormBuilder,
   FormGroup,
+  ValidatorFn,
   Validators,
 } from '@angular/forms';
 import { CustomValidators } from 'ngx-custom-validators';
@@ -16,15 +17,16 @@ import { HttpService } from 'src/app/shared/services/http.service';
 import Swal from "sweetalert2";
 import { NgbActiveModal, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { DomSanitizer, SafeResourceUrl, SafeUrl } from '@angular/platform-browser';
-
 @Component({
   selector: 'app-view-standards',
   templateUrl: './view-standards.component.html',
   styleUrls: ['./view-standards.component.scss'],
 })
 export class ViewStandardsComponent implements OnInit {
+  
   returnUrl: any;
   public form: FormGroup;
+  public forms: FormGroup;
   public showingPassword = false;
 
   modalRef: NgbModalRef;
@@ -86,6 +88,7 @@ export class ViewStandardsComponent implements OnInit {
   changeIndex: (index: any) => void;
   public standardId: number;
   showLeaveCommentForm: boolean = false;
+  showRequestForm : boolean  = false;
   file: any;
   certificateData: any;
   selectedPart: any;
@@ -120,7 +123,10 @@ export class ViewStandardsComponent implements OnInit {
       email: ['',Validators.compose([Validators.required, CustomValidators.email])],
       occupation: ['',Validators.compose([Validators.required])],
       purpose: ["", Validators.compose([Validators.required])],
-      phone_number: ["", Validators.compose([Validators.required])],
+      phone_number: ["", Validators.compose([Validators.required, this.phoneNumberValidator])],
+    });
+    this.forms = fb.group({
+      comment: ["", Validators.compose([Validators.required])],
     });
   }
 
@@ -197,6 +203,25 @@ export class ViewStandardsComponent implements OnInit {
     return this.form.controls;
   }
 
+  phoneNumberValidator(control: AbstractControl): { [key: string]: any } | null {
+    const phoneNumber = control.value;
+    // Regular expression to check if the phone number starts with "254" and is followed by 9 digits.
+    const phonePattern = /^254\d{9}$/;
+  
+    return phonePattern.test(phoneNumber) ? null : { invalidPhoneNumber: true };
+  }
+//  phoneNumberValidator(): ValidatorFn {
+//     return (control: AbstractControl): { [key: string]: any } | null => {
+//       const phoneNumber = control.value;
+//       const kenyaCountryCode = '254';
+
+//       if (!phoneNumber.startsWith(kenyaCountryCode) || phoneNumber.length !== 12) {
+//         return { invalidPhoneNumber: true };
+//       }
+//       return null;
+//     };
+//   }
+  
   isPartSelected(part: any): boolean {
     return this.selectedPart === part;
   }
@@ -271,11 +296,11 @@ export class ViewStandardsComponent implements OnInit {
     }
   }
 
+
   hideLeaveCommentForm() {
     this.showLeaveCommentForm = false;
+    this.showRequestForm = false
   }
-
-
 
   onSubmit(): any {
     this.isLoading = true;
@@ -283,7 +308,7 @@ export class ViewStandardsComponent implements OnInit {
     const model = {
       email,
       standardId: this.standardId,
-      comment: this.form.value.comment,
+      comment: this.forms.value.comment,
     };
     console.log(model)
     this.httpService.customerPortalPost(`api/v1/portal/comment`, model).subscribe(
@@ -318,10 +343,22 @@ export class ViewStandardsComponent implements OnInit {
     }
   }
 
+  hideRequestForm() {
+    this.showRequestForm = false;
+    this.form.reset();
+  }
+  openRequestForm() {
+    if (this.showRequestForm) {
+      this.hideLeaveCommentForm();
+    } else {
+      this.showRequestForm = true;
+    }
+  }
+
   onRequestStandards() {
     this.isLoading = true;
     const model = {
-      stardard_id: this.standardId,
+      standard_id: this.standardId,
       name: this.form.value.name,
       phone_number: this.form.value.phone_number, 
       occupation: this.form.value.occupation, 
@@ -333,18 +370,18 @@ export class ViewStandardsComponent implements OnInit {
       (result: any) => {
         if (result.status === '00') {
           this.isLoading = false;
-          this.activeModal.close('success');
+          this.hideRequestForm()
+          this.loadData()
           Swal.fire('Standard Request Made Successfully',
             'success').then(r => console.log(r))
-          this.form.reset()
-          this.loadData()
         } else {
-          this.activeModal.close('error');
+          this.hideRequestForm()
           Swal.fire('Standard Request Failed, Try Again',
             'error').then(r => console.log(r))
         }
       },
       (error: any) => {
+        this.hideRequestForm()
         Swal.fire('Request Standard error',
           'error')
       }

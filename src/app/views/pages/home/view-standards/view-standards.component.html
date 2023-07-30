@@ -180,7 +180,7 @@
                   </p>
                 </div>
                 <div *ngIf="showDashbord">
-                  <form class="" [formGroup]="form" class="row">
+                  <form class="" [formGroup]="forms" class="row">
                     <div class="tab-content col-12" style="background-color: #fff;">
                       <div style="border-radius: 8px;border: 2px solid var(--lavender-web, #D0DDF0);">
                         <p class="p-2"
@@ -226,7 +226,7 @@
                   <button *ngIf="showDashbord" class="btn btn-lg" style="background-color: #2268AA; font-family:Muli; align-items: center; color: #f8f8f8; font-weight: 700; border-radius: 4px; font-size:15px;" (click)="downloadCertificate(file.file_path)">
                     DOWNLOAD STANDARD
                   </button>
-                  <button *ngIf="!showDashbord" class="btn btn-lg" style="background-color: #2268AA; font-family:Muli; align-items: center; color: #f8f8f8; font-weight: 700; border-radius: 4px; font-size:15px;" (click)="openModal(requestStandard)">
+                  <button *ngIf="!showDashbord" (click)="openRequestForm()" class="btn btn-lg" style="background-color: #2268AA; font-family:Muli; align-items: center; color: #f8f8f8; font-weight: 700; border-radius: 4px; font-size:15px;" >
                     REQUEST STANDARD
                   </button>
                 </div>
@@ -297,24 +297,22 @@
     </div>
   </div>
 </div>
-
-<ng-template #requestStandard>
-  <div class="">
+<ng-container *ngIf="showRequestForm">
+  <div class="Request-Container">
     <div class="row">
       <div class="col-12">
-        <div class="">
-          <div class="d-flex justify-content-between"
-            style="background-color: #d0ddf0; font-family: 'Mulish'; font-weight: 900; border-radius:4px;">
-            <h4 class=" text-start mt-3 p-2" style="color: #6D36A8; font-size: 23px;">Fill The Form Then Download
+        <div class="request" style="background: var(--seasalt, #F8F8F8); border-radius: 8px 8px 8px 8px;">
+          <div class="d-flex justify-content-between align-items-center"
+            style="background-color: #d0ddf0; font-family: 'Mulish'; height:52px; font-weight: 900; border-radius:4px;">
+            <h4 class=" text-start mt-3 p-2" style="color: #6D36A8; font-size: 17px;">Fill The Form Then Download
               Standard</h4>
             <div style="color: #6D36A8;">
-              <button type="button" class="btn fs-2" style="color: #6D36A8; font-size: 20px; margin-top: -5%;">
+              <button (click)="hideRequestForm()" type="button" class="btn fs-2" style="color: #6D36A8; font-size: 20px; margin-top: -5%;">
                 &times;
               </button>
             </div>
           </div>
           <article class="">
-            <p *ngIf="errorMessage" class="text-danger">{{errorMessage}}</p>
             <form class="mt-1" [formGroup]="form" (ngSubmit)="onRequestStandards()" class="row px-3">
               <div class="tab-content col-12 border-0">
                 <div class="form-group mt-2">
@@ -332,9 +330,11 @@
                   <input type="text" name="tel" formControlName="phone_number" id="phoneNumber"
                     placeholder="Phone Number*" class="form-control validation-field border-0 w-100" ng2TelInput
                     data-initial-country="ke">
-                  <!-- <input formControlName="phoneNumber" id="phoneNumber" type="text"  placeholder="Phone Number*" class="form-control validation-field border-0"
-                    id="purpose" placeholder="Your Phone No,"> -->
-                  <small class="text-danger" *ngIf="f.phone_number.touched && f.phone_number.errors?.required">Field Required</small>
+                  <small class="text-danger" *ngIf="f.phone_number.touched && f.phone_number.errors?.required">Field Required</small> <br>
+                  <small class="text-danger" *ngIf="f.phone_number.touched && f.phone_number.errors?.invalidPhoneNumber">Phone Number: +254 *** *** ***</small>
+                  <!-- <small class="text-danger" *ngIf="f.phone_number.errors?.invalidPhoneNumber">
+                    Invalid Phone Number Format. It should start with '254' and have 12 digits.
+                  </small> -->
                 </div>
                 <div class="form-group mt-2">
                   <input formControlName="occupation" type="text" class="form-control validation-field border-0"
@@ -359,4 +359,4 @@
       </div>
     </div>
   </div>
-</ng-template>
+</ng-container>

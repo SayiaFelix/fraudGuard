@@ -5,13 +5,13 @@ import {
   TemplateRef,
   ViewChild,
 } from '@angular/core';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { ColumnMode } from '@swimlane/ngx-datatable';
 import { GlobalService } from '../../../../../shared/services/global.service';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgxDatatableComponent } from '../../../tables/ngx-datatable/ngx-datatable.component';
 import { DatatableComponent } from '@swimlane/ngx-datatable/lib/components/datatable.component';
 import { DataExportationService } from 'src/app/shared/services/data-exportation.service';
@@ -34,13 +34,19 @@ import { ConfirmDialogComponent } from 'src/app/shared/components/confirm-dialog
  * Starter-component
  */
 export class ListCustomersComponent implements OnInit {
+  isAppealButtonVisible = true;
+  isViewTrackButtonVisible = false;
+
   @ViewChild('table') table: DatatableComponent;
   actions = ["View", "Edit"]
   // URL of the brochure file you want to download
   private brochureUrl = 'assets/images/certificate.png';
   // Store the sanitized URL
   public downloadLink: SafeUrl;
-  previewImageUrl: string = ''; 
+  previewImageUrl: string = '';
+  isAppealMade: boolean = false;
+  isAppealSubmitted: boolean = false;
+  appealDate: Date
   errorMsg: string;
   hasError: boolean = false;
   isLoading: boolean = false;
@@ -53,6 +59,7 @@ export class ListCustomersComponent implements OnInit {
   temp: any = [];
   loading = true;
   reorderable = true;
+  showAppealForm: boolean = false;
 
   columns = [
     { name: '#', prop: 'id' },
@@ -68,6 +75,7 @@ export class ListCustomersComponent implements OnInit {
   allColumns = [...this.columns];
 
   public form: FormGroup;
+  public forms: FormGroup;
   public formData: { productName: any; remarks: any; image: any };
   ColumnMode = ColumnMode;
   public imageFile: File;
@@ -75,6 +83,7 @@ export class ListCustomersComponent implements OnInit {
   title: string = "New Customer";
   total: any;
   results: any = [];
+  appealId: number;
 
 
   constructor(
@@ -84,37 +93,86 @@ export class ListCustomersComponent implements OnInit {
     public router: Router,
     private datePipe: DatePipe,
     private sanitizer: DomSanitizer,
+    public activeModal: NgbActiveModal,
     private dataExploration: DataExportationService
   ) {
-    // Sanitize the brochure URL to make it safe for use in the anchor element
     // this.downloadLink = this.sanitizer.bypassSecurityTrustUrl(this.brochureUrl);
     this.downloadLink = '';
+    // this.forms = fb.group({
+    //   reason: ["", Validators.compose([Validators.required])]
+    // });
+
     this.form = fb.group({
-      email: ['', Validators.compose([Validators.required, CustomValidators.email])],
-      subject: ['', Validators.compose([Validators.required])],
-      message: ["", Validators.compose([Validators.required])],
-      name: ["", Validators.compose([Validators.required])],
-      phoneNumber: ["", Validators.compose([Validators.required])],
+      reason: ['', Validators.required],
+      // reason: ["", Validators.compose([Validators.required])],
     });
   }
 
   ngOnInit() {
-
     this.getIndividualData(0);
     this.loadData();
+    this.loadAppealsData()
 
-    this.form = this.fb.group({
-      email: ['', Validators.compose([Validators.required, CustomValidators.email])],
-      subject: ['', Validators.compose([Validators.required])],
-      message: ["", Validators.compose([Validators.required])],
-      name: ["", Validators.compose([Validators.required])],
-      phoneNumber: ["", Validators.compose([Validators.required])],
-    });
+    this.appealDate = new Date();
+    // this.isAppealButtonVisible = this.calculateAppealButtonVisibility();
   }
+  get f(): { [p: string]: AbstractControl } {
+    return this.form.controls;
+  }
+  // get fs(): { [p: string]: AbstractControl } {
+  //   return this.forms.controls;
+  // }
   onleaveComment() { }
   openModal(modalContent: any) {
     this.modalRef = this.modalService.open(modalContent, { centered: true, size: "md" });
   }
+
+
+  calculateAppealButtonVisibility(result: any): boolean {
+    const timeLimitInDays = 14;
+    const currentTime = new Date();
+    const daysElapsed = Math.floor((currentTime.getTime() - new Date(result.created_on).getTime()) / (1000 * 60 * 60 * 24));
+  
+    if (result.hasAppeal) {
+      return false; // If there is an appeal for this result, hide the "Appeal" button for this result
+    }
+  
+    return daysElapsed <= timeLimitInDays; // Show the "Appeal" button only if no appeal for this result within the time limit
+  }
+  
+
+  // calculateAppealButtonVisibility(result: any): boolean {
+  //   const timeLimitInDays = 14;
+  //   const currentTime = new Date();
+  //   const daysElapsed = Math.floor((currentTime.getTime() - new Date(result.created_on).getTime()) / (1000 * 60 * 60 * 24));
+  
+  //   if (result.hasAppeal) {
+  //     return false; // If there is an appeal for this result, hide the "Appeal" button for this result
+  //   }
+  
+  //   return daysElapsed <= timeLimitInDays; // Show the "Appeal" button only if no appeal for this result within the time limit
+  // }
+  
+
+  // calculateAppealButtonVisibility(): boolean {
+  //   const timeLimitInDays = 14;
+  //   const currentTime = new Date();
+
+  //   // Check if any result has an appeal and if the appeal is within the time limit
+  //   for (const result of this.results) {
+  //     if (result.hasAppeal) {
+  //       return false; // If there is an appeal for this result, hide the "Appeal" button for this result
+  //     }
+  //     const daysElapsed = Math.floor((currentTime.getTime() - new Date(result.created_on).getTime()) / (1000 * 60 * 60 * 24));
+  //     if (daysElapsed <= timeLimitInDays) {
+  //       return true; // If no appeal for this result is found within the time limit, show the "Appeal" button for this result
+  //     }
+  //   }
+
+  //   return false; // If no appeal for any result is found and time limit is exceeded, hide the "Appeal" button for all results
+  // }
+
+
   getIndividualData(event: number): void {
 
     this.loading = true;
@@ -150,7 +208,6 @@ export class ListCustomersComponent implements OnInit {
 
   }
 
-
   toggleLeaveCommentForm() {
     if (this.showLeaveCommentForm) {
       this.hideLeaveCommentForm();
@@ -158,8 +215,19 @@ export class ListCustomersComponent implements OnInit {
       this.showLeaveCommentForm = true;
     }
   }
+
+  toggleAppealForm(id: number) {
+    if (this.showAppealForm) {
+      this.hideLeaveCommentForm();
+    } else {
+      this.showAppealForm = true;
+      this.appealId = id;
+    }
+  }
+
   hideLeaveCommentForm() {
     this.showLeaveCommentForm = false;
+    this.showAppealForm = false;
   }
 
   private loadData(): any {
@@ -169,12 +237,47 @@ export class ListCustomersComponent implements OnInit {
         if (res.status == '00') {
           // this.results = res['data'];
           // console.log(this.results);
-          const result = res.data.filter((request:any) => request.status === "PUBLISHED");
+          const result = res.data.filter((request: any) => request.status === "PUBLISHED");
           console.log(result)
           this.results = result
           this.loading = false;
         } else {
           Swal.fire('Failed', "Unable to fetch results", 'error')
+        }
+      }, (error: any) => {
+        Swal.fire("Error", error.message, "error");
+      });
+  }
+
+  private loadAppealsData(): void {
+    let model = {
+      licence_number: "L989077"
+    }
+    this.httpService.customerPortalPost(`api/v1/portal/getAppeals`, model).subscribe(
+      (res: any) => {
+        if (res.status === '00') {
+          const appealData = res.data;
+          console.log(appealData)
+
+          // Check if the user has made an appeal
+          // this.isAppealMade = appealData.length > 0;
+
+          // // Check if the appeal has been successfully submitted (you may use a specific field from the backend response)
+          // this.isAppealSubmitted = appealData.some((request: any) => request.appealStatus === "PENDING");
+
+          // // Check if 14 days have passed since the user's appeal (assuming appealDate is the field representing the appeal date)
+          // const today = new Date();
+          // const fourteenDaysAgo = new Date(today.getTime() - 14 * 24 * 60 * 60 * 1000); // Subtract 14 days in milliseconds
+          // const isWithin14Days = appealData.some((request: any) => new Date(request.appealDate) >= fourteenDaysAgo);
+
+          // // Update the state of the "Make Appeal" button
+          // this.isAppealButtonVisible = !this.isAppealMade || this.isAppealSubmitted || isWithin14Days;
+
+          // Handle the loading of appeals data as required
+          // ...
+
+        } else {
+          Swal.fire('Failed', "Unable to fetch appeals data", 'error');
         }
       }, (error: any) => {
         Swal.fire("Error", error.message, "error");
@@ -194,7 +297,7 @@ export class ListCustomersComponent implements OnInit {
         return this.sanitizer.bypassSecurityTrustResourceUrl('assets/images/time.png');
       // Add more cases for other status if needed
       default:
-        return this.sanitizer.bypassSecurityTrustResourceUrl('assets/images/Vector.png');
+        return this.sanitizer.bypassSecurityTrustResourceUrl('assets/images/star.jpg');
     }
   }
 
@@ -213,14 +316,14 @@ export class ListCustomersComponent implements OnInit {
   // Define a helper function to get the appropriate text for the raiseAppeal button
   getAppealButtonText(status: string, task_type: string): string {
     if (task_type === 'CLASSIFICATION') {
-      return 'Create Appeal';
+      return 'Appeal';
     } else {
       if (status === 'APPROVED') {
         return 'Appeal Accepted';
       } else if (status === 'PENDING') {
         return 'Create Appeal';
       } else if (status === 'PUBLISHED') {
-        return 'Create Appeal'
+        return 'Appeal'
       } else if (status === 'APPEALED') {
         return 'Already Appealed';
       } else {
@@ -228,36 +331,59 @@ export class ListCustomersComponent implements OnInit {
       }
     }
   }
-  raiseAppeal(id: number, status: string, requestType: string): void {
-    console.log(id)
-    console.log(status)
-    console.log(requestType)
-    this.modalRef = this.modalService.open(ConfirmDialogComponent, { centered: true });
-    this.modalRef.componentInstance.title = 'RAISE AN APPEAL';
-    this.modalRef.componentInstance.body = 'Do you want to APPEAL for this Request?';
-    this.modalRef.result.then((result) => {
-      if (result === 'success') {
-        this.httpService
-          .customerPortalGet(`api/v1/portal/appeals/${id}`, {})
-          .subscribe((result: any) => {
-            if (result.status === '00') {
-              Swal.fire('Appealed', 'Request Appeal Raised Successfully.', 'success');
-              this.loadData();
-            } else {
-              // Handle the error if needed
-            }
-          });
+  hideAppealForm() {
+    this.showAppealForm = false;
+    this.form.reset();
+  }
+  viewAppeal() { }
+  raiseAppeal(id: number): void {
+    if (this.form.invalid) {
+      return;
+    }
+    const model = {
+      id,
+      reason: this.form.value.reason,
+    }
+    console.log(model)
+    this.httpService.customerPortalPost(`api/v1/portal/appeals`, model).subscribe((result: any) => {
+      if (result.status === '00') {
+        this.isLoading = false;
+
+        Swal.fire('Appeal Raised Successfully',
+          'success').then(r => console.log(r))
+        this.loadData()
+        this.hideAppealForm();
+
+        console.log(this.results)
+        const resultToUpdate = this.results.find((result: any) => result.id === id);
+        if (resultToUpdate) {
+          // Update the hasAppeal property for the specific result to true
+          resultToUpdate.hasAppeal = true;
+        }
+
+
+        this.appealDate = new Date();
+        this.isAppealButtonVisible = false;
+        this.isViewTrackButtonVisible = true;
       } else {
-        console.log('Error occurred');
+        this.activeModal.close('error');
+        Swal.fire('Raised Apeal Failed, Try Again',
+          'error').then(r => console.log(r))
+        this.hideAppealForm();
       }
-    });
+    },
+      (error: any) => {
+        Swal.fire('Raised Appeal error',
+          'error')
+        this.hideAppealForm();
+      });
   }
 
   downloadCertificate(): void {
     if (this.previewImageUrl) {
       const certificateUrl = this.previewImageUrl;
       const certificateFileName = 'certificate.png';
-  
+
       // Extract the relative path from the certificate URL
       const relativePathRegex = /\/\/[^/]+(\/.+)/;
       const matches = certificateUrl.match(relativePathRegex);
@@ -266,7 +392,7 @@ export class ListCustomersComponent implements OnInit {
         return;
       }
       const relativePath = matches[1];
-  
+
       // Create a Blob from the fetched certificate data and initiate the download
       fetch(relativePath)
         .then((response) => response.blob())
@@ -283,7 +409,7 @@ export class ListCustomersComponent implements OnInit {
     } else {
       console.error('Certificate data is not available.');
     }
-}
+  }
 
   isButtonDisabled(status: string, task_type: string): boolean {
     if (task_type === 'CLASSIFICATION') {

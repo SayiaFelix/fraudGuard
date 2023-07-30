@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -13,6 +14,8 @@ import Swal from "sweetalert2";
   styleUrls: ['./all-standards.component.scss']
 })
 export class StandardsComponent implements OnInit {
+
+
   defaultImage: SafeResourceUrl = "assets/images/6.jpg";
   existingImage: SafeResourceUrl;
   // standards: any = []
@@ -66,6 +69,83 @@ export class StandardsComponent implements OnInit {
       description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
   ]
+  SubClassData: any = [];
+  // standards: Standard[] = [];
+  filteredStandards: any = [];
+
+  // SubClassData: any = [
+  //   {
+
+  //     "classId": 1,
+
+  //     "className": "A",
+
+  //     "subclasses": [
+
+  //       {
+
+  //         "subClassId": 1,
+
+  //         "subClassName": "Hotels"
+
+  //       },
+
+  //       {
+
+  //         "subClassId": 2,
+
+  //         "subClassName": "Villas"
+
+  //       },
+
+  //       {
+
+  //         "subClassId": 3,
+
+  //         "subClassName": "Game lodges"
+
+  //       },
+
+  //       {
+
+  //         "subClassId": 4,
+
+  //         "subClassName": "Service apartments"
+
+  //       }
+
+  //     ]
+
+  //   },
+  //   {
+
+  //     "classId": 2,
+
+  //     "className": "B",
+
+  //     "subclasses": [
+
+  //       {
+
+  //         "subClassId": 1,
+
+  //         "subClassName": "Restaurants"
+
+  //       },
+
+  //       {
+
+  //         "subClassId": 2,
+
+  //         "subClassName": "Other foods and bevarages service"
+
+  //       }
+
+  //     ]
+
+  //   },
+  // ]
+  selectedSubclassId: number | null = null;
 
   perPage = 10;
   page = 1
@@ -79,14 +159,14 @@ export class StandardsComponent implements OnInit {
   public form: FormGroup;
   modalRef: NgbModalRef;
   userData$: Observable<any>;
-  profile:string | null;
+  profile: string | null;
   logo: string | null;
   showMenuItems: boolean = true;
   showDashbord: boolean = false;
-  SubClassData: any;
-  filteredStandards: any;
+  // filteredStandards: any;
   constructor(private router: Router,
     private httpService: HttpService,
+    private http: HttpClient,
     private sanitizer: DomSanitizer,
     public modal: NgbModal,
     public activeModal: NgbActiveModal, fb: FormBuilder,) {
@@ -100,12 +180,12 @@ export class StandardsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadDatas()
+    this.loadDatas(null)
     // this.loadData(null);
-    this.getSubClassData(0);
+    this.getSubClassData();
     this.checkForToken();
     let userDetails = {
-      profile: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['name']  : "Eka Hotel Nairobi",
+      profile: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['name'] : "Eka Hotel Nairobi",
 
     };
     if (userDetails) {
@@ -127,7 +207,7 @@ export class StandardsComponent implements OnInit {
     }
   }
 
-  private loadDatas(): any {
+  private loadDatas(subClass: any | null): any {
     this.loading = true;
     let model = {
       page: this.page - 1,
@@ -145,7 +225,14 @@ export class StandardsComponent implements OnInit {
               standard.existingImage = this.defaultImage;
             }
           });
- 
+
+          if (subClass !== null) {
+            this.filteredStandards = this.standards.filter((standard: any) => standard.enterprise_sub_class === subClass);
+          } else {
+            this.filteredStandards = this.standards;
+          }
+
+          console.log(this.filteredStandards);
           console.log(this.standards);
           this.loading = false;
         } else {
@@ -156,6 +243,32 @@ export class StandardsComponent implements OnInit {
         Swal.fire('Error', error.message, 'error');
       }
     );
+  }
+
+  getSubClassData(): void {
+    this.loading = true;
+    this.httpService.getClassAndSubclassData().subscribe((res: any) => {
+      console.log(res);
+      if (res.data && res.data.classes) {
+        this.loading = false;
+        this.SubClassData = res.data.classes;
+        console.log(this.SubClassData);
+      } else {
+        this.loading = false;
+      }
+    });
+  }
+
+  onSubClassChange(event: any): void {
+    const selectedSubClass = event.target.value;
+    console.log(selectedSubClass);
+    if (selectedSubClass === 'All') {
+      this.filteredStandards = this.standards;
+    } else {
+      this.filteredStandards = this.standards.filter((std: any) => std.enterprise_sub_class === selectedSubClass);
+    }
+
+    console.log(this.filteredStandards); 
   }
 
   checkForToken() {
@@ -169,53 +282,25 @@ export class StandardsComponent implements OnInit {
       this.showDashbord = false;
     }
   }
-  // private loadData(subClass_Id: any | null): any {
+
+  // getSubClassData(event: number): void {
   //   this.loading = true;
-  //   this.httpService.customerPortalPost(`api/v1/portal/getStandards`, {}).subscribe(
-  //     (res: any) => {
-  //       if (res.status == '00') {
-  //         this.standards = res['data'];
-  //         console.log(this.standards)
-  //         if (subClass_Id !== null) {
-  //           this.filteredStandards = this.standards.filter((standard: any) => standard.subClass_Id === subClass_Id);
-  //         } else {
-  //           this.filteredStandards = this.standards;
-  //         }
-  //         console.log(this.filteredStandards);
+  //   this.httpService
+  //     .customerPortalPost('api/v1/portal/getSubClassesAndClasses', {})
+  //     .subscribe((res: any) => {
+  //       console.log(res)
+  //       if (res.status === '00') {
   //         this.loading = false;
-
+  //         setTimeout(() => {
+  //           this.SubClassData = res.data
+  //           console.log(this.SubClassData)
+  //         }, 10);
   //       } else {
-  //         Swal.fire('Failed', "Unable to fetch standards", 'error')
+  //         this.loading = false;
   //       }
-  //     }, (error: any) => {
-  //       Swal.fire("Error", error.message, "error");
   //     });
+  //   this.loading = false;
   // }
-
-  onSubClassChange(event: Event): void {
-    const subclassId = (event.target as HTMLSelectElement).value;
-    const subClassIdOrNull = subclassId === "All" ? null : subclassId;
-    // this.loadData(subClassIdOrNull);
-  }
-
-  getSubClassData(event: number): void {
-    this.loading = true;
-    this.httpService
-      .customerPortalPost('api/v1/portal/getSubClassesAndClasses', {})
-      .subscribe((res: any) => {
-        console.log(res)
-        if (res.status === '00') {
-          this.loading = false;
-          setTimeout(() => {
-            this.SubClassData = res.data
-            console.log(this.SubClassData)
-          }, 10);
-        } else {
-          this.loading = false;
-        }
-      });
-    this.loading = false;
-  }
 
   viewStandard(standardId: number) {
     this.router.navigate(['/standards', standardId]);
@@ -228,6 +313,7 @@ export class StandardsComponent implements OnInit {
       this.showLeaveCommentForm = true;
     }
   }
+
   hideLeaveCommentForm() {
     this.showLeaveCommentForm = false;
   }
