@@ -40,7 +40,7 @@ export class AddBenefitComponent implements OnInit {
     this.form = this.fb.group({
       class_name: [this.formData ? this.formData.class_name : '', [Validators.required]],
       request_type: [this.formData ? this.formData.request_type : '', [Validators.required]],
-      subClassName: [this.formData ? this.formData.subClassName : '', [Validators.required]],
+      subClassName: [{ value: '', disabled: true }, Validators.required]
       // subClassName: [{ value: this.formData ? this.formData.subClassName : '', disabled: true }, [Validators.required]],
       // question1: this.fb.group({
       //   subQuestion1: new FormControl(false, Validators.required),
@@ -220,7 +220,13 @@ export class AddBenefitComponent implements OnInit {
       //   comment: new FormControl('')
       // }),
     });
-
+      this.form.get('class_name')!.valueChanges.subscribe((selectedClass) => {
+        if (selectedClass) {
+          this.form.get('subClassName')!.enable();
+        } else {
+          this.form.get('subClassName')!.disable();
+        }
+      });
     // this.getClassData(0);
     this.getSubClassData();
   }
