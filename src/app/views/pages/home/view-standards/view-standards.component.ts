@@ -318,10 +318,11 @@ export class ViewStandardsComponent implements OnInit {
           this.activeModal.close('success');
           Swal.fire('Comment Added Successfully',
             'success').then(r => console.log(r))
-          this.form.reset()
+            this.forms.reset()
           this.loadData()
         } else {
           this.activeModal.close('error');
+          this.forms.reset()
           Swal.fire('Add Comment Failed, Try Again',
             'error').then(r => console.log(r))
         }
