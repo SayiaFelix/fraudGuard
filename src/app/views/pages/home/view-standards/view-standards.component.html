@@ -216,16 +216,21 @@
                   </div>
                 </div>
               -->
-        
-                <!-- <div class="p-1 m-1"  *ngFor="let file of files">
-                  <button class="btn btn-lg" style="background-color: #2268AA; font-family:Muli; align-items: center; color: #f8f8f8; font-weight: 700; border-radius: 4px; font-size:15px;" (click)="showDashbord ? downloadCertificate(file.file_path) : openModal(requestStandard)">
-                    {{ showDashbord ? 'DOWNLOAD STANDARD' : 'REQUEST STANDARD'}}
-                  </button>
-                </div> -->
                 <div class="p-1 m-1">
-                  <button *ngIf="showDashbord" class="btn btn-lg" style="background-color: #2268AA; font-family:Muli; align-items: center; color: #f8f8f8; font-weight: 700; border-radius: 4px; font-size:15px;" (click)="downloadCertificate(file.file_path)">
-                    DOWNLOAD STANDARD
-                  </button>
+                  <div *ngFor="let file of files; let i = index">
+                    <ng-container *ngIf="showDashbord && i === 0">
+                      <button class="btn btn-lg" style="background-color: #2268AA; font-family: Muli; align-items: center; color: #f8f8f8; font-weight: 700; border-radius: 4px; font-size: 15px;" (click)="downloadCertificate(file.file_path)">
+                        DOWNLOAD STANDARD
+                      </button>
+                    </ng-container>
+                  </div>
+                  <!-- <div *ngFor="let file of files; let last = last">
+                    <ng-container *ngIf="showDashbord && last">
+                      <button class="btn btn-lg" style="background-color: #2268AA; font-family: Muli; align-items: center; color: #f8f8f8; font-weight: 700; border-radius: 4px; font-size: 15px;" (click)="downloadCertificate(file.file_path)">
+                        DOWNLOAD STANDARD
+                      </button>
+                    </ng-container>
+                  </div> -->
                   <button *ngIf="!showDashbord" (click)="openRequestForm()" class="btn btn-lg" style="background-color: #2268AA; font-family:Muli; align-items: center; color: #f8f8f8; font-weight: 700; border-radius: 4px; font-size:15px;" >
                     REQUEST STANDARD
                   </button>
