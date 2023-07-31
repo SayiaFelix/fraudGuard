@@ -52,7 +52,7 @@ const routes: Routes = [
   },
 
   {
-    path: 'view/:id',
+    path: ':id',
     component: ViewProductComponent
   },
 ];

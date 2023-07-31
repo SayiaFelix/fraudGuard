@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import { ColumnMode, DatatableComponent } from '@swimlane/ngx-datatable';
@@ -9,6 +9,7 @@ import { HttpService } from 'src/app/shared/services/http.service';
 import {AddUserComponent} from "../add-user/add-user.component";
 import Swal from "sweetalert2";
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { CustomValidators } from 'ngx-custom-validators';
 
 @Component({
   selector: 'app-list-users',
@@ -122,20 +123,62 @@ export class ListUsersComponent implements OnInit {
               public router: Router,
               private sanitizer: DomSanitizer
   ) {
-
+    this.form = fb.group({
+      name: ["", Validators.compose([Validators.required])],
+      email: ['',Validators.compose([Validators.required, CustomValidators.email])],
+      subject: ['',Validators.compose([Validators.required])],
+      message: ["", Validators.compose([Validators.required])],
+      phone_number: ["", Validators.compose([Validators.required, this.phoneNumberValidator])],
+    });
 
   }
 
   ngOnInit() {
     this.breadCrumbItems = [{ label: 'Mobile banking', path: '/mobile-banking/products/all-products' },
       { label: 'Pages', path: '/' }, { label: 'Products', active: true }];
-    this.getIndividualData(0);
     this.loadData();
-    this.form = this.fb.group({
-      name: [this.formData ? this.formData.name : '', [Validators.required]],
-      description: [this.formData ? this.formData.description : '', [Validators.required]],
-      is_active: [this.formData ? this.formData.is_active : '', [Validators.nullValidator]]
-    });
+
+  }
+  get f(): { [p: string]: AbstractControl } {
+    return this.form.controls;
+  }
+  phoneNumberValidator(control: AbstractControl): { [key: string]: any } | null {
+    const phoneNumber = control.value;
+    // Regular expression to check if the phone number starts with "254" and is followed by 9 digits.
+    const phonePattern = /^254\d{9}$/;
+  
+    return phonePattern.test(phoneNumber) ? null : { invalidPhoneNumber: true };
+  }
+  onleaveComment() {
+    // this.isLoading = true;
+    const model = {
+      name: this.form.value.name,
+      phone_number: this.form.value.phone_number, 
+      subject: this.form.value.subject, 
+      message: this.form.value.message,
+      email: this.form.value.email,
+    };
+    console.log(model)
+    this.httpService.customerPortalPost(`api/v1/auth/customerEnquirer`, model).subscribe(
+      (result: any) => {
+        if (result.status === '00') {
+          // this.isLoading = false;
+          this.hideLeaveCommentForm();
+          // this.loadData()
+          Swal.fire('Customer Enquire Successfully',
+            'success').then(r => console.log(r))
+        } else {
+          this.hideLeaveCommentForm();
+          Swal.fire('Customer Enquire  Failed, Try Again',
+            'error').then(r => console.log(r))
+        }
+      },
+      (error: any) => {
+        this.hideLeaveCommentForm();
+        Swal.fire('Customer Enquire error',
+          'error')
+      }
+    );
   }
 
   public addUser() {
@@ -149,7 +192,6 @@ export class ListUsersComponent implements OnInit {
       console.log(reason);
     });
   }
-  onleaveComment(){}
   public editUser(formData: any) {
     this.modalRef = this.modalService.open(AddUserComponent, {centered: true});
     this.modalRef.componentInstance.formData = formData;
@@ -193,11 +235,11 @@ export class ListUsersComponent implements OnInit {
           console.log(this.assessors);
           this.loading = false;
         } else {
-          Swal.fire('Failed', 'Unable to fetch standards', 'error');
+          console.log('Failed', 'Unable to fetch standards', 'error');
         }
       },
       (error: any) => {
-        Swal.fire('Error', error.message, 'error');
+        console.log('Error', error.message, 'error');
       }
     );
   }

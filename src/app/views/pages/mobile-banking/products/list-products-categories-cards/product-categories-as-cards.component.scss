@@ -9,4 +9,21 @@
   border-radius: 8px;
 }
 
+.title {
+  color: var(--dark-purple, #1e0f2e);
+  font-family: Mulish;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
 
+.content {
+  overflow: hidden;
+  color: var(--green-blue, #2268aa);
+  font-family: Mulish;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+}

@@ -60,6 +60,7 @@ export class ListCustomersComponent implements OnInit {
   loading = true;
   reorderable = true;
   showAppealForm: boolean = false;
+  showAppeals : boolean = false;
 
   columns = [
     { name: '#', prop: 'id' },
@@ -75,7 +76,7 @@ export class ListCustomersComponent implements OnInit {
   allColumns = [...this.columns];
 
   public form: FormGroup;
-  public forms: FormGroup;
+  public formR: FormGroup;
   public formData: { productName: any; remarks: any; image: any };
   ColumnMode = ColumnMode;
   public imageFile: File;
@@ -84,6 +85,7 @@ export class ListCustomersComponent implements OnInit {
   total: any;
   results: any = [];
   appealId: number;
+  appealData: any;
 
 
   constructor(
@@ -98,20 +100,23 @@ export class ListCustomersComponent implements OnInit {
   ) {
     // this.downloadLink = this.sanitizer.bypassSecurityTrustUrl(this.brochureUrl);
     this.downloadLink = '';
-    // this.forms = fb.group({
-    //   reason: ["", Validators.compose([Validators.required])]
-    // });
-
     this.form = fb.group({
+      name: ["", Validators.compose([Validators.required])],
+      email: ['',Validators.compose([Validators.required, CustomValidators.email])],
+      subject: ['',Validators.compose([Validators.required])],
+      message: ["", Validators.compose([Validators.required])],
+      phone_number: ["", Validators.compose([Validators.required, this.phoneNumberValidator])],
+    });
+
+    this.formR = fb.group({
       reason: ['', Validators.required],
       // reason: ["", Validators.compose([Validators.required])],
     });
   }
 
   ngOnInit() {
-    this.getIndividualData(0);
     this.loadData();
-    this.loadAppealsData()
+   
 
     this.appealDate = new Date();
     // this.isAppealButtonVisible = this.calculateAppealButtonVisibility();
@@ -119,94 +124,69 @@ export class ListCustomersComponent implements OnInit {
   get f(): { [p: string]: AbstractControl } {
     return this.form.controls;
   }
+  phoneNumberValidator(control: AbstractControl): { [key: string]: any } | null {
+    const phoneNumber = control.value;
+    // Regular expression to check if the phone number starts with "254" and is followed by 9 digits.
+    const phonePattern = /^254\d{9}$/;
+  
+    return phonePattern.test(phoneNumber) ? null : { invalidPhoneNumber: true };
+  }
   // get fs(): { [p: string]: AbstractControl } {
   //   return this.forms.controls;
   // }
-  onleaveComment() { }
+  onleaveComment() {
+    this.isLoading = true;
+    const model = {
+      name: this.form.value.name,
+      phone_number: this.form.value.phone_number, 
+      subject: this.form.value.subject, 
+      message: this.form.value.message,
+      email: this.form.value.email,
+    };
+    console.log(model)
+    this.httpService.customerPortalPost(`api/v1/auth/customerEnquirer`, model).subscribe(
+      (result: any) => {
+        if (result.status === '00') {
+          this.isLoading = false;
+          this.hideLeaveCommentForm();
+          this.loadData()
+          Swal.fire('Customer Enquire Successfully',
+            'success').then(r => console.log(r))
+        } else {
+          this.hideLeaveCommentForm();
+          Swal.fire('Customer Enquire  Failed, Try Again',
+            'error').then(r => console.log(r))
+        }
+      },
+      (error: any) => {
+        this.hideLeaveCommentForm();
+        Swal.fire('Customer Enquire error',
+          'error')
+      }
+    );
+  }
   openModal(modalContent: any) {
     this.modalRef = this.modalService.open(modalContent, { centered: true, size: "md" });
   }
-
 
   calculateAppealButtonVisibility(result: any): boolean {
     const timeLimitInDays = 14;
     const currentTime = new Date();
     const daysElapsed = Math.floor((currentTime.getTime() - new Date(result.created_on).getTime()) / (1000 * 60 * 60 * 24));
   
-    if (result.hasAppeal) {
-      return false; // If there is an appeal for this result, hide the "Appeal" button for this result
+    if (result.hasAppeal || result.appealStatus === 'PENDING') {
+      result.isButtonDeactivated = true; // Deactivate the button if there is an appeal or if the appeal status is 'PENDING'
+    } else {
+      result.isButtonDeactivated = daysElapsed > timeLimitInDays; // Deactivate the button only if no appeal for this result within the time limit
     }
   
-    return daysElapsed <= timeLimitInDays; // Show the "Appeal" button only if no appeal for this result within the time limit
+    return true; // Always return true to make the button visible
   }
   
-
-  // calculateAppealButtonVisibility(result: any): boolean {
-  //   const timeLimitInDays = 14;
-  //   const currentTime = new Date();
-  //   const daysElapsed = Math.floor((currentTime.getTime() - new Date(result.created_on).getTime()) / (1000 * 60 * 60 * 24));
   
-  //   if (result.hasAppeal) {
-  //     return false; // If there is an appeal for this result, hide the "Appeal" button for this result
-  //   }
   
-  //   return daysElapsed <= timeLimitInDays; // Show the "Appeal" button only if no appeal for this result within the time limit
-  // }
   
 
-  // calculateAppealButtonVisibility(): boolean {
-  //   const timeLimitInDays = 14;
-  //   const currentTime = new Date();
-
-  //   // Check if any result has an appeal and if the appeal is within the time limit
-  //   for (const result of this.results) {
-  //     if (result.hasAppeal) {
-  //       return false; // If there is an appeal for this result, hide the "Appeal" button for this result
-  //     }
-  //     const daysElapsed = Math.floor((currentTime.getTime() - new Date(result.created_on).getTime()) / (1000 * 60 * 60 * 24));
-  //     if (daysElapsed <= timeLimitInDays) {
-  //       return true; // If no appeal for this result is found within the time limit, show the "Appeal" button for this result
-  //     }
-  //   }
-
-  //   return false; // If no appeal for any result is found and time limit is exceeded, hide the "Appeal" button for all results
-  // }
-
-
-  getIndividualData(event: number): void {
-
-    this.loading = true;
-
-
-    let payload = {
-      page: 0,
-      size: 1000
-    }
-
-    this.httpService
-      .mobileBankingPostNest('customers/getAllCustomers?walletAccountAvailable=true', payload)
-      .subscribe((res: any) => {
-        if (res.status === 201) {
-          setTimeout(() => {
-
-            let response = res['data'].filter((i: any) => i.walletAccount !== "").map((item: any, index: any) => {
-              let res = {
-                ...item,
-                frontendId: index + 1
-              };
-              return res;
-            })
-            this.rows = response;
-
-            this.total = res.metadata.numofrecords;
-          }, 10);
-        } else {
-        }
-      });
-
-    this.loading = false;
-
-  }
 
   toggleLeaveCommentForm() {
     if (this.showLeaveCommentForm) {
@@ -242,10 +222,10 @@ export class ListCustomersComponent implements OnInit {
           this.results = result
           this.loading = false;
         } else {
-          Swal.fire('Failed', "Unable to fetch results", 'error')
+          console.log('Failed', "Unable to fetch results", 'error')
         }
       }, (error: any) => {
-        Swal.fire("Error", error.message, "error");
+        console.log("Error", error.message, "error");
       });
   }
 
@@ -256,8 +236,8 @@ export class ListCustomersComponent implements OnInit {
     this.httpService.customerPortalPost(`api/v1/portal/getAppeals`, model).subscribe(
       (res: any) => {
         if (res.status === '00') {
-          const appealData = res.data;
-          console.log(appealData)
+          this.appealData = res.data;
+          console.log(this.appealData)
 
           // Check if the user has made an appeal
           // this.isAppealMade = appealData.length > 0;
@@ -277,10 +257,10 @@ export class ListCustomersComponent implements OnInit {
           // ...
 
         } else {
-          Swal.fire('Failed', "Unable to fetch appeals data", 'error');
+          console.log('Failed', "Unable to fetch appeals data", 'error');
         }
       }, (error: any) => {
-        Swal.fire("Error", error.message, "error");
+        console.log("Error", error.message, "error");
       });
   }
 
@@ -302,47 +282,54 @@ export class ListCustomersComponent implements OnInit {
   }
 
   handleDownload(result: any) {
-    if (result.id === 1) {
-      this.downloadLink = this.sanitizer.bypassSecurityTrustUrl('assets/images/ns.jpg');
-    } else if (result.id === 2) {
-      this.downloadLink = this.sanitizer.bypassSecurityTrustUrl('assets/images/serena.jpeg');
-    } else {
-      this.downloadLink = this.sanitizer.bypassSecurityTrustUrl('assets/images/certificate.png');
-    }
-
-    // Rest of your raiseAppeal() function code...
+    const downloadUrl = result.download_url;
+    
+    this.downloadLink = this.sanitizer.bypassSecurityTrustUrl(result.download_url);
+    // if (downloadUrl && !downloadUrl.startsWith('http://')) {
+    //   this.downloadLink = this.sanitizer.bypassSecurityTrustUrl('http://' + downloadUrl);
+    // } else {
+    //   this.downloadLink = this.sanitizer.bypassSecurityTrustUrl(downloadUrl);
+    // }
   }
 
-  // Define a helper function to get the appropriate text for the raiseAppeal button
-  getAppealButtonText(status: string, task_type: string): string {
-    if (task_type === 'CLASSIFICATION') {
+  getAppealButtonText(status: string, appealStatus: string | null): string {
+    if (appealStatus === 'PENDING') {
+      return 'Appealled'; // If appealStatus is 'PENDING', show 'Appealed'
+    } else if (appealStatus === 'APPROVED') {
+      return 'Appeal Accepted';
+    } else if (status === 'PENDING') {
+      return 'Create Appeal';
+    } else if (status === 'PUBLISHED') {
       return 'Appeal';
+    } else if (status === 'APPEALED') {
+      return 'Already Appealed';
     } else {
-      if (status === 'APPROVED') {
-        return 'Appeal Accepted';
-      } else if (status === 'PENDING') {
-        return 'Create Appeal';
-      } else if (status === 'PUBLISHED') {
-        return 'Appeal'
-      } else if (status === 'APPEALED') {
-        return 'Already Appealed';
-      } else {
-        return 'Unknown Status';
-      }
+      return 'Unknown Status';
     }
   }
+
   hideAppealForm() {
     this.showAppealForm = false;
     this.form.reset();
   }
-  viewAppeal() { }
+  hideAppeals() {
+    this.showAppeals = false;
+  }
+  viewAppeal() {
+    if (this.showAppeals) {
+      this.hideAppeals();
+    } else {
+      this.showAppeals = true;
+      // this.appealId = id;
+    }
+   }
   raiseAppeal(id: number): void {
-    if (this.form.invalid) {
+    if (this.formR.invalid) {
       return;
     }
     const model = {
       id,
-      reason: this.form.value.reason,
+      reason: this.formR.value.reason,
     }
     console.log(model)
     this.httpService.customerPortalPost(`api/v1/portal/appeals`, model).subscribe((result: any) => {
@@ -423,7 +410,7 @@ export class ListCustomersComponent implements OnInit {
     this.modalRef.componentInstance.title = 'Add New Customer';
     this.modalRef.result.then((result) => {
       if (result === 'success') {
-        this.getIndividualData(0);
+        // this.getIndividualData(0);
       } else {
         console.log("Error occurred")
       }
@@ -502,7 +489,7 @@ export class ListCustomersComponent implements OnInit {
     this.modalRef.componentInstance.formData = "";
     this.modalRef.result.then((result) => {
       if (result === 'success') {
-        this.getIndividualData(0);
+        // this.getIndividualData(0);
       } else {
         console.log("Error occurred")
       }

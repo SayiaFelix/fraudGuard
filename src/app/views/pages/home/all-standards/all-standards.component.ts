@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { NgbActiveModal, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -170,19 +170,19 @@ export class StandardsComponent implements OnInit {
     private sanitizer: DomSanitizer,
     public modal: NgbModal,
     public activeModal: NgbActiveModal, fb: FormBuilder,) {
-    this.form = fb.group({
-      email: ['', Validators.compose([Validators.required, CustomValidators.email])],
-      subject: ['', Validators.compose([Validators.required])],
-      message: ["", Validators.compose([Validators.required])],
-      name: ["", Validators.compose([Validators.required])],
-      phoneNumber: ["", Validators.compose([Validators.required])],
-    });
+      this.form = fb.group({
+        name: ["", Validators.compose([Validators.required])],
+        email: ['',Validators.compose([Validators.required, CustomValidators.email])],
+        subject: ['',Validators.compose([Validators.required])],
+        message: ["", Validators.compose([Validators.required])],
+        phone_number: ["", Validators.compose([Validators.required, this.phoneNumberValidator])],
+      });
   }
 
   ngOnInit(): void {
     this.loadDatas(null)
     // this.loadData(null);
-    this.getSubClassData();
+    this.getSubClassData(0);
     this.checkForToken();
     let userDetails = {
       profile: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['name'] : "Eka Hotel Nairobi",
@@ -207,6 +207,13 @@ export class StandardsComponent implements OnInit {
     }
   }
 
+  phoneNumberValidator(control: AbstractControl): { [key: string]: any } | null {
+    const phoneNumber = control.value;
+    // Regular expression to check if the phone number starts with "254" and is followed by 9 digits.
+    const phonePattern = /^254\d{9}$/;
+  
+    return phonePattern.test(phoneNumber) ? null : { invalidPhoneNumber: true };
+  }
   private loadDatas(subClass: any | null): any {
     this.loading = true;
     let model = {
@@ -236,28 +243,30 @@ export class StandardsComponent implements OnInit {
           console.log(this.standards);
           this.loading = false;
         } else {
-          Swal.fire('Failed', 'Unable to fetch standards', 'error');
+          console.log('Failed', 'Unable to fetch standards', 'error');
         }
       },
       (error: any) => {
-        Swal.fire('Error', error.message, 'error');
+        console.log('Error', error.message, 'error');
       }
     );
   }
-
-  getSubClassData(): void {
-    this.loading = true;
-    this.httpService.getClassAndSubclassData().subscribe((res: any) => {
-      console.log(res);
-      if (res.data && res.data.classes) {
-        this.loading = false;
-        this.SubClassData = res.data.classes;
-        console.log(this.SubClassData);
-      } else {
-        this.loading = false;
-      }
-    });
+  get f(): { [p: string]: AbstractControl } {
+    return this.form.controls;
   }
+  // getSubClassData(): void {
+  //   this.loading = true;
+  //   this.httpService.getClassAndSubclassData().subscribe((res: any) => {
+  //     console.log(res);
+  //     if (res.data && res.data.classes) {
+  //       this.loading = false;
+  //       this.SubClassData = res.data.classes;
+  //       console.log(this.SubClassData);
+  //     } else {
+  //       this.loading = false;
+  //     }
+  //   });
+  // }
 
   onSubClassChange(event: any): void {
     const selectedSubClass = event.target.value;
@@ -283,24 +292,26 @@ export class StandardsComponent implements OnInit {
     }
   }
 
-  // getSubClassData(event: number): void {
-  //   this.loading = true;
-  //   this.httpService
-  //     .customerPortalPost('api/v1/portal/getSubClassesAndClasses', {})
-  //     .subscribe((res: any) => {
-  //       console.log(res)
-  //       if (res.status === '00') {
-  //         this.loading = false;
-  //         setTimeout(() => {
-  //           this.SubClassData = res.data
-  //           console.log(this.SubClassData)
-  //         }, 10);
-  //       } else {
-  //         this.loading = false;
-  //       }
-  //     });
-  //   this.loading = false;
-  // }
+  getSubClassData(event: number): void {
+    this.loading = true;
+    this.httpService
+      .customerPortalPosts('class/getall', {})
+      .subscribe((res: any) => {
+        console.log(res)
+        if (res.status === 200 ) {
+          if (res.data && res.data.classes) {
+            this.loading = false;
+            this.SubClassData = res.data.classes;
+            console.log(this.SubClassData);
+          } else {
+            this.loading = false;
+          }
+        } else {
+          this.loading = false;
+        }
+      });
+    this.loading = false;
+  }
 
   viewStandard(standardId: number) {
     this.router.navigate(['/standards', standardId]);
@@ -318,7 +329,37 @@ export class StandardsComponent implements OnInit {
     this.showLeaveCommentForm = false;
   }
 
-  onleaveComment() { }
+  onleaveComment() {
+    this.isLoading = true;
+    const model = {
+      name: this.form.value.name,
+      phone_number: this.form.value.phone_number, 
+      subject: this.form.value.subject, 
+      message: this.form.value.message,
+      email: this.form.value.email,
+    };
+    console.log(model)
+    this.httpService.customerPortalPost(`api/v1/auth/customerEnquirer`, model).subscribe(
+      (result: any) => {
+        if (result.status === '00') {
+          this.isLoading = false;
+          this.hideLeaveCommentForm();
+          // this.loadData()
+          Swal.fire('Customer Enquire Successfully',
+            'success').then(r => console.log(r))
+        } else {
+          this.hideLeaveCommentForm();
+          Swal.fire('Customer Enquire  Failed, Try Again',
+            'error').then(r => console.log(r))
+        }
+      },
+      (error: any) => {
+        this.hideLeaveCommentForm();
+        Swal.fire('Customer Enquire error',
+          'error')
+      }
+    );
+  }
 
   openModal(modalContent: any) {
     this.modalRef = this.modal.open(modalContent, { centered: true, size: "md" });

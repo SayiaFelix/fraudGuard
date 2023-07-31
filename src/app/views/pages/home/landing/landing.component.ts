@@ -181,11 +181,11 @@ export class LandingComponent implements OnInit {
 
   ) {
     this.form = fb.group({
-      email: ['', Validators.compose([Validators.required, CustomValidators.email])],
-      subject: ['', Validators.compose([Validators.required])],
-      message: ["", Validators.compose([Validators.required])],
       name: ["", Validators.compose([Validators.required])],
-      phoneNumber: ["", Validators.compose([Validators.required])],
+      email: ['',Validators.compose([Validators.required, CustomValidators.email])],
+      subject: ['',Validators.compose([Validators.required])],
+      message: ["", Validators.compose([Validators.required])],
+      phone_number: ["", Validators.compose([Validators.required, this.phoneNumberValidator])],
     });
   }
 
@@ -225,6 +225,50 @@ export class LandingComponent implements OnInit {
     this.router.navigate(['/standards', standardId]);
   }
 
+  get f(): { [p: string]: AbstractControl } {
+    return this.form.controls;
+  }
+
+  phoneNumberValidator(control: AbstractControl): { [key: string]: any } | null {
+    const phoneNumber = control.value;
+    // Regular expression to check if the phone number starts with "254" and is followed by 9 digits.
+    const phonePattern = /^254\d{9}$/;
+  
+    return phonePattern.test(phoneNumber) ? null : { invalidPhoneNumber: true };
+  }
+
+  onleaveComment() {
+    this.isLoading = true;
+    const model = {
+      name: this.form.value.name,
+      phone_number: this.form.value.phone_number, 
+      subject: this.form.value.subject, 
+      message: this.form.value.message,
+      email: this.form.value.email,
+    };
+    console.log(model)
+    this.httpService.customerPortalPost(`api/v1/auth/customerEnquirer`, model).subscribe(
+      (result: any) => {
+        if (result.status === '00') {
+          this.isLoading = false;
+          this.hideLeaveCommentForm();
+          this.loadData()
+          Swal.fire('Customer Enquire Successfully',
+            'success').then(r => console.log(r))
+        } else {
+          this.hideLeaveCommentForm();
+          Swal.fire('Customer Enquire  Failed, Try Again',
+            'error').then(r => console.log(r))
+        }
+      },
+      (error: any) => {
+        this.hideLeaveCommentForm();
+        Swal.fire('Customer Enquire error',
+          'error')
+      }
+    );
+  }
+
   private loadData(): any {
     this.loading = true;
     let model = {
@@ -247,61 +291,14 @@ export class LandingComponent implements OnInit {
           console.log(this.standards);
           this.loading = false;
         } else {
-          Swal.fire('Failed', 'Unable to fetch standards', 'error');
+          console.log('Failed', 'Unable to fetch standards', 'error');
         }
       },
       (error: any) => {
-        Swal.fire('Error', error.message, 'error');
+        console.log('Error', error.message, 'error');
       }
     );
   }
-  onleaveComment() {
-    // this.hasError = false;
-    // this.isLoading = true;
-    // e.preventDefault();
-
-    // const model = new HttpParams()
-    //   // .set('grant_type', 'password')
-    //   .set('username', this.form.value.username.trim())
-    //   .set('password', this.form.value.password);
-
-    // this.loginResponse$ = this.httpService
-    //   .channelManagerLogin('oauth/token', model)
-    //   .pipe(
-    //     catchError((error: any) => {
-    //       console.log(error);
-    //       this.hasError = error.message;
-    //       this.isLoading = false;
-    //       return throwError(error);
-    //     }),
-    //     map((result) => {
-    //       this.isLoading = false;
-    //       if (result['status'] != 200) {
-    //         this.hasError = true;
-    //         this.errorMsg = result['message'];
-    //         setTimeout(() => {
-    //           this.hasError = false;
-    //           this.errorMsg = '';
-    //           this.form.reset();
-    //         }, 4000);
-    //       } else {
-    //         setTimeout(() => {
-
-    //           this.saveUsernameAndRolesOnLogin();
-
-    //           if(result.firstTimeLogin) {
-    //             this.router.navigate(['/auth/first-time-login']);
-    //           } else{
-    //             this.router.navigate(['/dashboard']);
-    //           }
-
-    //         }, 1000);
-    //         return result;
-    //       }
-    //     })
-    //   );
-  }
-
 
   toggleLeaveCommentForm() {
     if (this.showLeaveCommentForm) {
@@ -312,6 +309,7 @@ export class LandingComponent implements OnInit {
   }
   hideLeaveCommentForm() {
     this.showLeaveCommentForm = false;
+    this.form.reset()
   }
 
   // Function to hide the form when clicking outside of it
@@ -349,6 +347,7 @@ export class LandingComponent implements OnInit {
       this.inputType = 'password';
     }
   }
+
 
   changeLanguage(lang: string) {
     this.translate.use(lang);

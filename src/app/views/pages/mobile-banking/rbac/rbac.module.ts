@@ -16,6 +16,7 @@ import {ViewProfileComponent} from "./profiles/view-profile/view-profile.compone
 import { ChangeProfileModalComponent } from './Users/change-profile-modal/change-profile-modal.component';
 import {DeleteRoleModalComponent} from "./roles/delete-role-modal/delete-role-modal.component";
 import {NgSelectModule} from "@ng-select/ng-select";
+import { Ng2TelInputModule } from 'ng2-tel-input';
 
 
 @NgModule({
@@ -24,6 +25,7 @@ import {NgSelectModule} from "@ng-select/ng-select";
         RbacRoutingModule,
         FeatherIconModule,
         NgxDatatableModule,
+        Ng2TelInputModule,
         TranslateModule,
         NgSelectModule
     ],

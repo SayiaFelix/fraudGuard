@@ -37,6 +37,10 @@
   border-radius: 8px 8px 8px 8px;
   width: 400px !important;
 }
+button.deactivated {
+  pointer-events: none; /* Disable pointer events to make the button non-clickable */
+  opacity: 0.5; /* Reduce opacity to visually indicate that the button is inactive */
+}
 .appeal {
   border-radius: 8px 8px 8px 8px;
   width: 400px !important;

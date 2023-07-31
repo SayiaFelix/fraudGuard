@@ -3,7 +3,7 @@ import {NgbActiveModal, NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap'
 import {DatePipe} from '@angular/common';
 import {Router} from '@angular/router';
 import {ColumnMode} from '@swimlane/ngx-datatable';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {AbstractControl, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {DatatableComponent} from '@swimlane/ngx-datatable/lib/components/datatable.component';
 import {DataExportationService} from 'src/app/shared/services/data-exportation.service';
 import {HttpService} from 'src/app/shared/services/http.service';
@@ -92,16 +92,24 @@ export class ListRequestsComponent implements OnInit {
     private sanitizer: DomSanitizer,
     public activeModal: NgbActiveModal,) {
       this.form = fb.group({
+        name: ["", Validators.compose([Validators.required])],
         email: ['',Validators.compose([Validators.required, CustomValidators.email])],
         subject: ['',Validators.compose([Validators.required])],
         message: ["", Validators.compose([Validators.required])],
-        name: ["", Validators.compose([Validators.required])],
-        phoneNumber: ["", Validators.compose([Validators.required])],
+        phone_number: ["", Validators.compose([Validators.required, this.phoneNumberValidator])],
       });
     }
 
   ngOnInit(): void {
     this.loadData()
+  }
+
+  phoneNumberValidator(control: AbstractControl): { [key: string]: any } | null {
+    const phoneNumber = control.value;
+    // Regular expression to check if the phone number starts with "254" and is followed by 9 digits.
+    const phonePattern = /^254\d{9}$/;
+  
+    return phonePattern.test(phoneNumber) ? null : { invalidPhoneNumber: true };
   }
   showLeaveCommentForm: boolean = false;
   toggleLeaveCommentForm() {
@@ -113,6 +121,9 @@ export class ListRequestsComponent implements OnInit {
   }
   hideLeaveCommentForm() {
     this.showLeaveCommentForm = false;
+  }
+  get f(): { [p: string]: AbstractControl } {
+    return this.form.controls;
   }
 
   openStandardInNewTab(standardId: number) {
@@ -145,60 +156,45 @@ export class ListRequestsComponent implements OnInit {
           console.log(this.standards);
           this.loading = false;
         } else {
-          Swal.fire('Failed', 'Unable to fetch standards', 'error');
+         console.log('Failed', 'Unable to fetch standards', 'error');
         }
       },
       (error: any) => {
-        Swal.fire('Error', error.message, 'error');
+        console.log('Error', error.message, 'error');
       }
     );
   }
 
   onleaveComment() {
-    // this.hasError = false;
-    // this.isLoading = true;
-    // e.preventDefault();
-
-    // const model = new HttpParams()
-    //   // .set('grant_type', 'password')
-    //   .set('username', this.form.value.username.trim())
-    //   .set('password', this.form.value.password);
-
-    // this.loginResponse$ = this.httpService
-    //   .channelManagerLogin('oauth/token', model)
-    //   .pipe(
-    //     catchError((error: any) => {
-    //       console.log(error);
-    //       this.hasError = error.message;
-    //       this.isLoading = false;
-    //       return throwError(error);
-    //     }),
-    //     map((result) => {
-    //       this.isLoading = false;
-    //       if (result['status'] != 200) {
-    //         this.hasError = true;
-    //         this.errorMsg = result['message'];
-    //         setTimeout(() => {
-    //           this.hasError = false;
-    //           this.errorMsg = '';
-    //           this.form.reset();
-    //         }, 4000);
-    //       } else {
-    //         setTimeout(() => {
-
-    //           this.saveUsernameAndRolesOnLogin();
-
-    //           if(result.firstTimeLogin) {
-    //             this.router.navigate(['/auth/first-time-login']);
-    //           } else{
-    //             this.router.navigate(['/dashboard']);
-    //           }
-
-    //         }, 1000);
-    //         return result;
-    //       }
-    //     })
-    //   );
+    this.isLoading = true;
+    const model = {
+      name: this.form.value.name,
+      phone_number: this.form.value.phone_number, 
+      subject: this.form.value.subject, 
+      message: this.form.value.message,
+      email: this.form.value.email,
+    };
+    console.log(model)
+    this.httpService.customerPortalPost(`api/v1/auth/customerEnquirer`, model).subscribe(
+      (result: any) => {
+        if (result.status === '00') {
+          this.isLoading = false;
+          this.hideLeaveCommentForm();
+          this.loadData()
+          Swal.fire('Customer Enquire Successfully',
+            'success').then(r => console.log(r))
+        } else {
+          this.hideLeaveCommentForm();
+          Swal.fire('Customer Enquire  Failed, Try Again',
+            'error').then(r => console.log(r))
+        }
+      },
+      (error: any) => {
+        this.hideLeaveCommentForm();
+        Swal.fire('Customer Enquire error',
+          'error')
+      }
+    );
   }
 
   openModal(modalContent: any) {

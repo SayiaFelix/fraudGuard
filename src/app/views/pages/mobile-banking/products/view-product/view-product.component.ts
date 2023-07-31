@@ -60,13 +60,14 @@ export class ViewProductComponent implements OnInit {
     });
 
     this.loadData();
-//     this.loadRequirements();
-//     this.loadBenefits();
   }
 
   private loadData(): any {
     this.loading = true;
-    this.httpService.customerPortalPost(`api/v1/portal/getRequest/${this.productId}`,{}).subscribe(
+    let model ={
+      requestId: this.productId
+    }
+    this.httpService.customerPortalPost(`api/v1/portal/getRequest`,model).subscribe(
       (res: any) => {
 
         if (res.status == '00') {
@@ -79,10 +80,10 @@ export class ViewProductComponent implements OnInit {
           this.loading = false;
 
         } else {
-          Swal.fire('Failed', "Unable to fetch request details", 'error')
+          console.log('Failed', "Unable to fetch request details", 'error')
         }
       }, (error: any) => {
-        Swal.fire("Error", error.message, "error");
+        console.log("Error", error.message, "error");
       });
   }
 

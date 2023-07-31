@@ -212,34 +212,34 @@ export const MENU: MenuItem[] = [
     //   }
     // ]
   },
-    {
-    // profiles: ['CORPORATE_ADMIN'],
-    label: 'CHATS',
-    icon: 'settings',
-    link: '/tra-client/setups/list-Regions'
-    // subItems: [
-    //   {
-    //     profiles: ['CORPORATE_ADMIN'],
-    //     label: 'Regions',
-    //     link: '/mobile-banking/setups/list-Regions'
-    //   },
-    //   {
-    //     profiles: ['CORPORATE_ADMIN'],
-    //     label: 'Branches',
-    //     link: '/mobile-banking/setups/list-branches'
-    //   },
-    //   {
-    //     profiles: ['CORPORATE_ADMIN'],
-    //     label: 'ATMs',
-    //     link: '/mobile-banking/setups/list-services'
-    //   },
-    //   {
-    //     profiles: ['CORPORATE_ADMIN'],
-    //     label: 'Services',
-    //     link: '/mobile-banking/setups/list-services'
-    //   },
-    // ]
-  },
+  //   {
+  //   // profiles: ['CORPORATE_ADMIN'],
+  //   label: 'CHATS',
+  //   icon: 'settings',
+  //   link: '/tra-client/setups/list-Regions'
+  //   // subItems: [
+  //   //   {
+  //   //     profiles: ['CORPORATE_ADMIN'],
+  //   //     label: 'Regions',
+  //   //     link: '/mobile-banking/setups/list-Regions'
+  //   //   },
+  //   //   {
+  //   //     profiles: ['CORPORATE_ADMIN'],
+  //   //     label: 'Branches',
+  //   //     link: '/mobile-banking/setups/list-branches'
+  //   //   },
+  //   //   {
+  //   //     profiles: ['CORPORATE_ADMIN'],
+  //   //     label: 'ATMs',
+  //   //     link: '/mobile-banking/setups/list-services'
+  //   //   },
+  //   //   {
+  //   //     profiles: ['CORPORATE_ADMIN'],
+  //   //     label: 'Services',
+  //   //     link: '/mobile-banking/setups/list-services'
+  //   //   },
+  //   // ]
+  // },
   // {
   //   profiles: ['CORPORATE_ADMIN'],
   //   label:'AUDIT TRAIL',
