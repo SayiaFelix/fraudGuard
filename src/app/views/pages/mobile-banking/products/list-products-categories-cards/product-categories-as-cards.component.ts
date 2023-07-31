@@ -3,7 +3,7 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { ColumnMode } from '@swimlane/ngx-datatable';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DatatableComponent } from '@swimlane/ngx-datatable/lib/components/datatable.component';
 import { DataExportationService } from 'src/app/shared/services/data-exportation.service';
 import { HttpService } from 'src/app/shared/services/http.service';
@@ -74,21 +74,25 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
   title: string = "Make Request";
   ClassData: any;
   SubClassData: any;
+  accreditations: any;
+  requests: any;
 
 
   constructor(
     private httpService: HttpService,
     private modalService: NgbModal,
     public fb: FormBuilder,
+    private datePipe: DatePipe,
+    private sanitizer: DomSanitizer,
     public router: Router,
     private dataExploration: DataExportationService
   ) {
     this.form = fb.group({
+      name: ["", Validators.compose([Validators.required])],
       email: ['',Validators.compose([Validators.required, CustomValidators.email])],
       subject: ['',Validators.compose([Validators.required])],
       message: ["", Validators.compose([Validators.required])],
-      name: ["", Validators.compose([Validators.required])],
-      phoneNumber: ["", Validators.compose([Validators.required])],
+      phone_number: ["", Validators.compose([Validators.required, this.phoneNumberValidator])],
     });
   }
 
@@ -103,11 +107,22 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
     ];
     this.getIndividualData(0);
 
-    this.form = this.fb.group({
-      name: ['', [Validators.required]],
-      description: ['', [Validators.required]],
-      image: [''],
-    });
+    // this.form = this.fb.group({
+    //   name: ['', [Validators.required]],
+    //   description: ['', [Validators.required]],
+    //   image: [''],
+    // });
+  }
+
+  phoneNumberValidator(control: AbstractControl): { [key: string]: any } | null {
+    const phoneNumber = control.value;
+    // Regular expression to check if the phone number starts with "254" and is followed by 9 digits.
+    const phonePattern = /^254\d{9}$/;
+  
+    return phonePattern.test(phoneNumber) ? null : { invalidPhoneNumber: true };
+  }
+  get f(): { [p: string]: AbstractControl } {
+    return this.form.controls;
   }
   showLeaveCommentForm: boolean = false;
   toggleLeaveCommentForm() {
@@ -121,6 +136,26 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
     this.showLeaveCommentForm = false;
   }
 
+  
+  viewRequest(id: number) {
+    this.router.navigate(['tra-client/requests', id]);
+  }
+  formatDate(date: string): string {
+    const formattedDate = this.datePipe.transform(date, 'dd MMM yyyy');
+    return formattedDate ? formattedDate.toUpperCase() : '';
+  }
+
+  getSanitizedStatusImage(status: string): any {
+    switch (status) {
+      case 'Approved':
+        return this.sanitizer.bypassSecurityTrustResourceUrl('assets/images/approve.png');
+      case 'Pending':
+        return this.sanitizer.bypassSecurityTrustResourceUrl('assets/images/time.png');
+      // Add more cases for other status if needed
+      default:
+        return this.sanitizer.bypassSecurityTrustResourceUrl('assets/images/fail.png');
+    }
+  }
 
   getIndividualData(event: any): void {
     this.loading = true;
@@ -134,34 +169,71 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
       .customerPortalPostData('api/v1/portal/getRequests',model)
       .subscribe((res: any) => {
         if (res.status === '00') {
+          this.requests = res.data
           this.loading = false;
-          const accreditations = res.data.filter((request:any) => request.request_category === "ACCREDITATION");
-          console.log(accreditations)
+          console.log(res.data);
+
+          //  const accreditations = res.data.filter((request:any) => request.request_category === "ACCREDITATION");
+          // console.log(accreditations)
+          // this.requests = accreditations
+
+
           
-          setTimeout(() => {
-            let response = res.data;
-            console.log(response)
-            this.rows = response.map((item: any, index: any) => {
-              const myDate = item['createdOn'].replace(' ', 'T');
-              const dateObj = new Date(myDate).toString().split('GMT')[0];
-              const res = {
-                ...item,
-                frontendId: index + 1,
-                createdOn: dateObj,
-              };
-              return res 
-            });
-            // let data = this.tempProductData;
-            console.log(this.rows)
-            // let total = res.totalItems;
-          }, 10);
+          // setTimeout(() => {
+          //   let response = res.data;
+          //   console.log(response)
+          //   this.rows = response.map((item: any, index: any) => {
+          //     const myDate = item['createdOn'].replace(' ', 'T');
+          //     const dateObj = new Date(myDate).toString().split('GMT')[0];
+          //     const res = {
+          //       ...item,
+          //       frontendId: index + 1,
+          //       createdOn: dateObj,
+          //     };
+          //     return res 
+          //   });
+          //   // let data = this.tempProductData;
+          //   console.log(this.rows)
+          //   // let total = res.totalItems;
+          // }, 10);
         } else {
           this.loading = false;
         }
       });
     this.loading = false;
   }
-  onleaveComment(){}
+
+  onleaveComment() {
+    this.isLoading = true;
+    const model = {
+      name: this.form.value.name,
+      phone_number: this.form.value.phone_number, 
+      subject: this.form.value.subject, 
+      message: this.form.value.message,
+      email: this.form.value.email,
+    };
+    console.log(model)
+    this.httpService.customerPortalPost(`api/v1/auth/customerEnquirer`, model).subscribe(
+      (result: any) => {
+        if (result.status === '00') {
+          this.isLoading = false;
+          this.hideLeaveCommentForm();
+          // this.loadData()
+          Swal.fire('Customer Enquire Successfully',
+            'success').then(r => console.log(r))
+        } else {
+          this.hideLeaveCommentForm();
+          Swal.fire('Customer Enquire  Failed, Try Again',
+            'error').then(r => console.log(r))
+        }
+      },
+      (error: any) => {
+        this.hideLeaveCommentForm();
+        Swal.fire('Customer Enquire error',
+          'error')
+      }
+    );
+  }
 
   openAddRequestModal() {
     this.modalRef = this.modalService.open(AddProductComponent, { centered: true, size: "md" });

@@ -3,7 +3,7 @@
     <h4 class="mb-3 mb-md-0"
       style="color: var(--dark-purple, #1E0F2E);font-family: Mulish;font-size: 18px;font-style: normal;font-weight: 600;line-height: 24px;">
       Our Auditors & Assessors Team</h4>
-    <p class="mt-2"
+    <p class="mt-2 mb-3"
       style="color: #000;text-align: justify;font-family: Mulish;font-size: 15px;font-style: normal;font-weight: 400;line-height: 21px;">
       At Tourism Regulatory Authority (TRA), our Auditors & Assessors Team stands as a cornerstone of excellence in the
       tourism sector. With a group of highly skilled professionals who are passionate about upholding the highest
@@ -19,12 +19,12 @@
     <div class="border-0 box-shadow">
       <div class="grid-margin stretch-card">
         <div class="row">
-          <div class="col-md-3 col-lg-3 col-xl-3 col-sm-4 mt-3 pt-2" *ngFor="let std of assessors">
-            <div style="border-radius: 32px;border: 1px solid var(--lavender-web, #D0DDF0);" class="text-center" [id]="std.id">
+          <div class="col-md-3 col-lg-3 col-xl-3 col-sm-4" style="padding: 8px;" *ngFor="let std of assessors">
+            <div style="border-radius: 32px; border: 1px solid var(--lavender-web, #D0DDF0); " class="text-center" [id]="std.id">
               <div style="position: relative; display: inline-block;">
                 <div class="w-100 mt-2">
                   <img class="img-fluid card-img-top"
-                    style="height: 95px; border-top-left-radius: 13px; border-top-right-radius: 13px;"
+                    style="height: 95px; width: 100px; border-radius: 50%;"
                     [src]="std.existingImage" />
                   <!-- <img class="img-fluid card-img-top"
                     style="min-height: 95px; max-width: 100%; border-top-left-radius: 13px; border-top-right-radius: 13px;"
@@ -101,31 +101,37 @@
                 <div class="form-group mt-2">
                   <input formControlName="name" type="text" class="form-control validation-field border-0" id="name"
                     placeholder="Your Name or Company*">
+                  <small class="text-danger" *ngIf="f.name.touched && f.name.errors?.required">Field Required</small>
                 </div>
                 <div class="form-group mt-2">
-                  <input formControlName="email" type="email" class="form-control validation-field border-0"
-                    id="email" placeholder="Your email address*">
+                  <input formControlName="email" type="email" class="form-control validation-field border-0" id="email"
+                    placeholder="Your email address*">
+                  <small class="text-danger" *ngIf="f.email.touched && f.email.errors?.required">Field Required</small>
+                  <small class="text-danger" *ngIf="f.email.touched && f.email.errors?.email">Email Format Required</small>
                 </div>
                 <div class="form-group mt-2">
-                  <input type="text" name="tel" formControlName="phoneNumber" id="phoneNumber"
-                    placeholder="Phone Number*" class="form-control validation-field border-0" ng2TelInput
+                  <input type="text" name="tel" formControlName="phone_number" id="phoneNumber"
+                    placeholder="Phone Number*" class="form-control validation-field border-0 w-100" ng2TelInput
                     data-initial-country="ke">
+                  <small class="text-danger" *ngIf="f.phone_number.touched && f.phone_number.errors?.required">Field Required</small> <br>
+                  <small class="text-danger" *ngIf="f.phone_number.touched && f.phone_number.errors?.invalidPhoneNumber">Phone Number: +254 *** *** ***</small>
                 </div>
                 <div class="form-group mt-2">
                   <input formControlName="subject" type="text" class="form-control validation-field border-0"
-                    id="subject" placeholder="Subject">
+                    id="occupation" placeholder="Subject">
+                  <small class="text-danger" *ngIf="f.subject.touched && f.subject.errors?.required">Field Required</small>
                 </div>
                 <div class="form-group mt-2">
-                  <textarea formControlName="message" type="text" id="message" cols="15" rows="3"
-                    placeholder="Message" class="form-control validation-field border-0"></textarea>
+                  <textarea formControlName="message" type="text" id="message" cols="15" rows="3" 
+                  placeholder="Message" class="form-control validation-field border-0"></textarea>
+                  <small class="text-danger" *ngIf="f.message.touched && f.message.errors?.required">Field Required</small>
                 </div>
                 <div class="col-12 bg-white text-center py-1 mt-3 mb-2">
-                  <button style="width: 100%; border: none;" class="btn btn-block login-btn transition"
+                  <button [disabled]="!form.valid" style="width: 100%; border: none;" class="btn btn-block login-btn transition"
                     type="submit">
                     <span style="color: white;">SEND</span>
                   </button>
                 </div>
-                <br>
               </div>
             </form>
           </article>

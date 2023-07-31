@@ -21,23 +21,18 @@
   </div>
 
   <div style=" position:absolute; padding: 16px 24px; align-items: center; border-radius: 16px; background: #FFF; width: 90%; margin-left: 5%; margin-top: 31%;">
-    <div class="d-flex justify-content-between" >
-      <!-- <div class="mt-2 p-2" style="border-right: 2px solid  rgba(182, 147, 220, 0.80);">
-        <div class="box-shadow" style="height: 95px ; width: 95px; border-radius: 50%;border: 2px solid #CCC; align-items: center;" >
-          <img class="card-img-top img-fluid" style="height: 63px; width: 75px; border-radius: 25%; margin-left: 8px; margin-top: 9px;" src="assets/images/ns.jpg" />
-       </div>
-      </div> -->
-      <div>
+    <div class="d-flex justify-content-around" >
+      <!-- <div>
         <p class="title">Enterprise Class</p>
         <h2 class="content">{{requestDetails?.subClass?.enterprise?.class_name}}</h2>
       </div>
       <div>
         <p class="title">Enterprise Category</p>
         <h2 class="content">{{requestDetails?.subClass?.sub_class}}</h2>
-      </div>
+      </div> -->
       <div>
         <p class="title">Request Type</p>
-        <h2 class="content">{{requestDetails?.requestType}}</h2>
+        <h2 class="content">{{requestDetails?.request_type}}</h2>
       </div>
       <div>
         <p class="title">Request Number</p>
@@ -47,13 +42,13 @@
         <p class="title">Status</p>
         <h2 class="content">{{requestDetails?.status}}</h2>
       </div>
-      <div style="margin-top: 3%;">
+      <!-- <div style="margin-top: 3%;">
         <button class="btn btn-md login-btn transition" (click)="raiseAppeal()"  type="submit">
           <a  style="text-decoration: none" class="transition">
             <span style="color: #f8f8f8; font-weight: 700;letter-spacing: 0.08em;font-size: 12px;
             ">APPEAL</span></a>
         </button>
-      </div>
+      </div> -->
     </div>
   </div>
 

@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 
@@ -86,11 +86,11 @@ export class DashboardComponent implements OnInit {
     public activeModal: NgbActiveModal,) {
       this.downloadLink = this.sanitizer.bypassSecurityTrustUrl(this.brochureUrl);
       this.form = fb.group({
+        name: ["", Validators.compose([Validators.required])],
         email: ['',Validators.compose([Validators.required, CustomValidators.email])],
         subject: ['',Validators.compose([Validators.required])],
         message: ["", Validators.compose([Validators.required])],
-        name: ["", Validators.compose([Validators.required])],
-        phoneNumber: ["", Validators.compose([Validators.required])],
+        phone_number: ["", Validators.compose([Validators.required, this.phoneNumberValidator])],
       });
     }
 
@@ -158,6 +158,18 @@ export class DashboardComponent implements OnInit {
     }
 
   }
+  get f(): { [p: string]: AbstractControl } {
+    return this.form.controls;
+  }
+
+  phoneNumberValidator(control: AbstractControl): { [key: string]: any } | null {
+    const phoneNumber = control.value;
+    // Regular expression to check if the phone number starts with "254" and is followed by 9 digits.
+    const phonePattern = /^254\d{9}$/;
+  
+    return phonePattern.test(phoneNumber) ? null : { invalidPhoneNumber: true };
+  }
+
 
   handleImageUpload(event: Event): void {
     const inputElement = event.target as HTMLInputElement;
@@ -228,52 +240,38 @@ export class DashboardComponent implements OnInit {
   hideLeaveCommentForm() {
     this.showLeaveCommentForm = false;
   }
-  onleaveComment() {
-    // this.hasError = false;
-    // this.isLoading = true;
-    // e.preventDefault();
-
-    // const model = new HttpParams()
-    //   // .set('grant_type', 'password')
-    //   .set('username', this.form.value.username.trim())
-    //   .set('password', this.form.value.password);
-
-    // this.loginResponse$ = this.httpService
-    //   .channelManagerLogin('oauth/token', model)
-    //   .pipe(
-    //     catchError((error: any) => {
-    //       console.log(error);
-    //       this.hasError = error.message;
-    //       this.isLoading = false;
-    //       return throwError(error);
-    //     }),
-    //     map((result) => {
-    //       this.isLoading = false;
-    //       if (result['status'] != 200) {
-    //         this.hasError = true;
-    //         this.errorMsg = result['message'];
-    //         setTimeout(() => {
-    //           this.hasError = false;
-    //           this.errorMsg = '';
-    //           this.form.reset();
-    //         }, 4000);
-    //       } else {
-    //         setTimeout(() => {
-
-    //           this.saveUsernameAndRolesOnLogin();
-
-    //           if(result.firstTimeLogin) {
-    //             this.router.navigate(['/auth/first-time-login']);
-    //           } else{
-    //             this.router.navigate(['/dashboard']);
-    //           }
-
-    //         }, 1000);
-    //         return result;
-    //       }
-    //     })
-    //   );
+   onleaveComment() {
+    this.isLoading = true;
+    const model = {
+      name: this.form.value.name,
+      phone_number: this.form.value.phone_number, 
+      subject: this.form.value.subject, 
+      message: this.form.value.message,
+      email: this.form.value.email,
+    };
+    console.log(model)
+    this.httpService.customerPortalPost(`api/v1/auth/customerEnquirer`, model).subscribe(
+      (result: any) => {
+        if (result.status === '00') {
+          this.isLoading = false;
+          this.hideLeaveCommentForm();
+          // this.loadData()
+          Swal.fire('Customer Enquire Successfully',
+            'success').then(r => console.log(r))
+        } else {
+          this.hideLeaveCommentForm();
+          Swal.fire('Customer Enquire  Failed, Try Again',
+            'error').then(r => console.log(r))
+        }
+      },
+      (error: any) => {
+        this.hideLeaveCommentForm();
+        Swal.fire('Customer Enquire error',
+          'error')
+      }
+    );
   }
+
 
   openModal(modalContent: any) {
     this.modalRef = this.modal.open(modalContent, {centered: true, size:"md"});

@@ -27,6 +27,7 @@ export class ViewStandardsComponent implements OnInit {
   returnUrl: any;
   public form: FormGroup;
   public forms: FormGroup;
+  public formC: FormGroup;
   public showingPassword = false;
 
   modalRef: NgbModalRef;
@@ -118,6 +119,13 @@ export class ViewStandardsComponent implements OnInit {
 
   ) {
     this.downloadLink = this.sanitizer.bypassSecurityTrustUrl(this.brochureUrl);
+    this.formC = fb.group({
+      name: ["", Validators.compose([Validators.required])],
+      email: ['',Validators.compose([Validators.required, CustomValidators.email])],
+      subject: ['',Validators.compose([Validators.required])],
+      message: ["", Validators.compose([Validators.required])],
+      phone_number: ["", Validators.compose([Validators.required, this.phoneNumberValidator])],
+    });
     this.form = fb.group({
       name: ["", Validators.compose([Validators.required])],
       email: ['',Validators.compose([Validators.required, CustomValidators.email])],
@@ -189,18 +197,20 @@ export class ViewStandardsComponent implements OnInit {
             };
           }
         }, (error: any) => {
-          Swal.fire("Error", error.message, "error");
+          // Swal.fire("Error", error.message, "error");
           console.error('Error fetching parts:', error);
-          // Swal.fire('Failed', "Unable to fetch standards", 'error');
         });
     }
     if (this.parts.length > 0) {
       this.selectedPart = this.parts[0];
     }
-    // this.parts = this.isOffline ? this.defaultParts : this.parts ;
   }
+
   get f(): { [p: string]: AbstractControl } {
     return this.form.controls;
+  }
+  get fs(): { [p: string]: AbstractControl } {
+    return this.formC.controls;
   }
 
   phoneNumberValidator(control: AbstractControl): { [key: string]: any } | null {
@@ -210,18 +220,7 @@ export class ViewStandardsComponent implements OnInit {
   
     return phonePattern.test(phoneNumber) ? null : { invalidPhoneNumber: true };
   }
-//  phoneNumberValidator(): ValidatorFn {
-//     return (control: AbstractControl): { [key: string]: any } | null => {
-//       const phoneNumber = control.value;
-//       const kenyaCountryCode = '254';
 
-//       if (!phoneNumber.startsWith(kenyaCountryCode) || phoneNumber.length !== 12) {
-//         return { invalidPhoneNumber: true };
-//       }
-//       return null;
-//     };
-//   }
-  
   isPartSelected(part: any): boolean {
     return this.selectedPart === part;
   }
@@ -400,7 +399,37 @@ export class ViewStandardsComponent implements OnInit {
     }
   }
 
-  onleaveComment() { }
+  onleaveComment() {
+    this.isLoading = true;
+    const model = {
+      name: this.formC.value.name,
+      phone_number: this.formC.value.phone_number, 
+      subject: this.formC.value.subject, 
+      message: this.formC.value.message,
+      email: this.formC.value.email,
+    };
+    console.log(model)
+    this.httpService.customerPortalPost(`api/v1/auth/customerEnquirer`, model).subscribe(
+      (result: any) => {
+        if (result.status === '00') {
+          this.isLoading = false;
+          this.hideLeaveCommentForm();
+          this.loadData()
+          Swal.fire('Customer Enquire Successfully',
+            'success').then(r => console.log(r))
+        } else {
+          this.hideLeaveCommentForm();
+          Swal.fire('Customer Enquire  Failed, Try Again',
+            'error').then(r => console.log(r))
+        }
+      },
+      (error: any) => {
+        this.hideLeaveCommentForm();
+        Swal.fire('Customer Enquire error',
+          'error')
+      }
+    );
+  }
 
   openModal(modalContent: any) {
     this.modalRef = this.modal.open(modalContent, { centered: true, size: "md" });
