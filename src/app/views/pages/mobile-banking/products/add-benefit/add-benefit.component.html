@@ -55,30 +55,30 @@
           <ng-container *ngFor="let option of question.options; let j = index">
             <div class="d-flex justify-content-between">
               <p class="sub-quiz">{{ option.optionText }}</p>
-              <div class="form-group custom-control" style="margin-right: 18px;">
-                <input
-                  type="checkbox"
-                  class="custom-control-input quiz-check"
-                  [id]="'q' + i + 's' + j + 'Yes'"
-                  [name]="'q' + i + 's' + j"
-                  [checked]="option.selected === 'Yes'"
-                  (change)="toggleCheckbox(i, j, 'Yes')"
-                />
-                <label [for]="'q' + i + 's' + j + 'Yes'" class="custom-control-label quiz-check">Yes</label>
+              <div class="d-flex justify-content-between">
+                <div class="form-group custom-control" style="margin-right: 18px;">
+                  <input
+                    type="checkbox"
+                    class="custom-control-input quiz-check"
+                    [id]="'q' + i + 's' + j + 'Yes'"
+                    [name]="'q' + i + 's' + j"
+                    [checked]="option.selected === 'Yes'"
+                    (change)="toggleCheckbox(i, j, 'Yes')"
+                  />
+                  <label [for]="'q' + i + 's' + j + 'Yes'" class="custom-control-label quiz-check">Yes</label>
+                </div>
+                <div class="form-group custom-control">
+                  <input
+                    type="checkbox"
+                    class="custom-control-input quiz-check"
+                    [id]="'q' + i + 's' + j + 'No'"
+                    [name]="'q' + i + 's' + j"
+                    [checked]="option.selected === 'No'"
+                    (change)="toggleCheckbox(i, j, 'No')"
+                  />
+                  <label [for]="'q' + i + 's' + j + 'No'" class="custom-control-label quiz-check">No</label>
+                </div>
               </div>
-              
-              <div class="form-group custom-control">
-                <input
-                  type="checkbox"
-                  class="custom-control-input quiz-check"
-                  [id]="'q' + i + 's' + j + 'No'"
-                  [name]="'q' + i + 's' + j"
-                  [checked]="option.selected === 'No'"
-                  (change)="toggleCheckbox(i, j, 'No')"
-                />
-                <label [for]="'q' + i + 's' + j + 'No'" class="custom-control-label quiz-check">No</label>
-              </div>
-              
             </div>
           </ng-container>
           <div class="form-group mt-2">
