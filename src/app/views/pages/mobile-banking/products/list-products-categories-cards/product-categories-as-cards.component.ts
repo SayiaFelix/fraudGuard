@@ -134,6 +134,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
   }
   hideLeaveCommentForm() {
     this.showLeaveCommentForm = false;
+    this.form.reset()
   }
 
   

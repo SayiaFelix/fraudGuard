@@ -31,6 +31,7 @@ export class LandingComponent implements OnInit {
   inputType = 'password';
   modalRef: NgbModalRef;
   defaultImage: SafeResourceUrl = "assets/images/3.png";
+  defaultIcon: SafeResourceUrl = "assets/images/icon.png";
   existingImage: SafeResourceUrl;
   // standards: any = [];
   standards: any = [
@@ -285,6 +286,13 @@ export class LandingComponent implements OnInit {
               standard.existingImage = this.sanitizer.bypassSecurityTrustResourceUrl(standard.preview_image_url);
             } else {
               standard.existingImage = this.defaultImage;
+            }
+
+            if (standard.preview_icon_url) {
+              standard.preview_icon_url = 'http://' + standard.preview_icon_url;
+              standard.existingIcon = this.sanitizer.bypassSecurityTrustResourceUrl(standard.preview_icon_url);
+            } else {
+              standard.existingIcon = this.defaultIcon;
             }
           });
  

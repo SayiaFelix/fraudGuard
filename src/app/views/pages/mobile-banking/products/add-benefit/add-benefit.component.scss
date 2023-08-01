@@ -27,6 +27,26 @@
   font-weight: 600;
 }
 
+.NexpP {
+  color: var(--dark-purple, #1e0f2e);
+  font-family: Open Sans;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 900;
+  line-height: normal;
+}
+
+.submitB {
+  border-radius: 8px;
+  border: 1px solid var(--lavender-web, #d0ddf0);
+  background: var(--lavender-web, #d0ddf0);
+}
+
+.active-page-button {
+  background-color: #F7941D;
+  color: #ffffff;
+}
+
 input {
   color: var(--green-blue, #2268aa);
   font-family: Mulish;

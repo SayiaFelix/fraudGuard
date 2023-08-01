@@ -17,6 +17,7 @@ export class StandardsComponent implements OnInit {
 
 
   defaultImage: SafeResourceUrl = "assets/images/6.jpg";
+  defaultIcon: SafeResourceUrl = "assets/images/icon.png";
   existingImage: SafeResourceUrl;
   // standards: any = []
   standards: any = [
@@ -231,6 +232,12 @@ export class StandardsComponent implements OnInit {
             } else {
               standard.existingImage = this.defaultImage;
             }
+            if (standard.preview_icon_url) {
+              standard.preview_icon_url = 'http://' + standard.preview_icon_url;
+              standard.existingIcon = this.sanitizer.bypassSecurityTrustResourceUrl(standard.preview_icon_url);
+            } else {
+              standard.existingIcon = this.defaultIcon;
+            }
           });
 
           if (subClass !== null) {
@@ -295,7 +302,7 @@ export class StandardsComponent implements OnInit {
   getSubClassData(event: number): void {
     this.loading = true;
     this.httpService
-      .customerPortalPosts('class/getall', {})
+      .customerPortalPosts('standard/portal/class/getall', {})
       .subscribe((res: any) => {
         console.log(res)
         if (res.status === 200 ) {

@@ -215,6 +215,7 @@ export class ListUsersComponent implements OnInit {
   }
   hideLeaveCommentForm() {
     this.showLeaveCommentForm = false;
+    this.form.reset();
   }
 
   private loadData(): any {

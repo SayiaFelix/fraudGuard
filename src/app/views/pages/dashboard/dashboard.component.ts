@@ -182,26 +182,26 @@ export class DashboardComponent implements OnInit {
 
         const formData = new FormData();
         formData.append('image', file);
-        // this.httpService.customerPortalPost(`api/v1/auth/uploadLandingPhoto`, formData).subscribe(
-        //   (result: any) => {
-        //     if (result.status === '00') {
-        //       console.log('Image uploaded successfully!', result);
-        //       this.isLoading = false;
-        //       this.activeModal.close('success');
-        //       Swal.fire('Image uploaded Successfully!',
-        //         'success').then(r => console.log(r))
-        //       this.form.reset()
-        //     } else {
-        //       this.activeModal.close('error');
-        //       Swal.fire('Image Uploaded Failed, Try Again',
-        //         'error').then(r => console.log(r))
-        //     }
-        //   },
-        //   (error: any) => {
-        //     Swal.fire('Image Uploaded error',
-        //       'error')
-        //   }
-        // );
+        this.httpService.customerPortalPost(`api/v1/auth/uploadLandingPhoto`, formData).subscribe(
+          (result: any) => {
+            if (result.status === '00') {
+              console.log('Image uploaded successfully!', result);
+              this.isLoading = false;
+              this.activeModal.close('success');
+              Swal.fire('Image uploaded Successfully!',
+                'success').then(r => console.log(r))
+              this.form.reset()
+            } else {
+              this.activeModal.close('error');
+              Swal.fire('Image Uploaded Failed, Try Again',
+                'error').then(r => console.log(r))
+            }
+          },
+          (error: any) => {
+            Swal.fire('Image Uploaded error',
+              'error')
+          }
+        );
       };
       reader.readAsDataURL(file);
     }
