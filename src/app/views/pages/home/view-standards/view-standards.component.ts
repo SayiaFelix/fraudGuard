@@ -309,6 +309,7 @@ export class ViewStandardsComponent implements OnInit {
   hideLeaveCommentForm() {
     this.showLeaveCommentForm = false;
     this.showRequestForm = false
+    this.formC.reset()
   }
 
   onSubmit(): any {

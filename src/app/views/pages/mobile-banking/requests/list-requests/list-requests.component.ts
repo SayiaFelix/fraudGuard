@@ -27,6 +27,7 @@ export class ListRequestsComponent implements OnInit {
   public form: FormGroup;
   errorMsg: string;
   defaultProfileImage: SafeResourceUrl = "assets/images/5.jpg";
+  defaultIcon: SafeResourceUrl = "assets/images/icon.png";
   existingImage: SafeResourceUrl;
   hasError: boolean = false;
   isLoading: boolean = false;
@@ -123,6 +124,7 @@ export class ListRequestsComponent implements OnInit {
   }
   hideLeaveCommentForm() {
     this.showLeaveCommentForm = false;
+    this.form.reset()
   }
   get f(): { [p: string]: AbstractControl } {
     return this.form.controls;
@@ -175,6 +177,12 @@ export class ListRequestsComponent implements OnInit {
               standard.existingImage = this.sanitizer.bypassSecurityTrustResourceUrl(standard.preview_image_url);
             } else {
               standard.existingImage = this.defaultProfileImage;
+            }
+            if (standard.preview_icon_url) {
+              standard.preview_icon_url = 'http://' + standard.preview_icon_url;
+              standard.existingIcon = this.sanitizer.bypassSecurityTrustResourceUrl(standard.preview_icon_url);
+            } else {
+              standard.existingIcon = this.defaultIcon;
             }
           });
  

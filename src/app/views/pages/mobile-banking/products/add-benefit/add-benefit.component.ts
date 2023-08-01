@@ -20,7 +20,7 @@ export class AddBenefitComponent implements OnInit {
   public form: FormGroup;
   totalPages: number;
   currentPage = 1;
-  questionsPerPage = 7;
+  questionsPerPage = 2;
 
   public allProductCategories: any;
   isLoading: boolean;
@@ -242,7 +242,7 @@ export class AddBenefitComponent implements OnInit {
     let model = {
       id:2
     }
-    this._httpService.customerPortalPosts(`customer/questionnaire1/get`, model).subscribe(
+    this._httpService.customerPortalPosts(`admin/customer/questionnaire1/get`, model).subscribe(
       (res: any) => {
         if (res.status == 200) {
           this.questionnaireData = res['data'];
@@ -457,26 +457,34 @@ export class AddBenefitComponent implements OnInit {
 
   }
 
+  get totalNumberOfPages(): number {
+    return Math.ceil(this.questionnaireData?.questions.length / this.questionsPerPage);
+  }
+
+  // Function to set the current page
+  // setCurrentPage(page: number): void {
+  //   if (page >= 1 && page <= this.totalNumberOfPages) {
+  //     this.currentPage = page;
+  //   }
+  // }
+
+  setCurrentPage(page: number) {
+    this.currentPage = page;
+  }
+  // Function to navigate to the previous page
+  prevPage(): void {
+    this.setCurrentPage(this.currentPage - 1);
+  }
+  // Function to navigate to the next page
+  nextPage(): void {
+    this.setCurrentPage(this.currentPage + 1);
+  }
   getQuestionsForCurrentPage(): any[] {
     const startIndex = (this.currentPage - 1) * this.questionsPerPage;
     return this.questionnaireData?.questions.slice(startIndex, startIndex + this.questionsPerPage);
   }
-  
-  
-  prevPage() {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-    }
-  }
-  
-  nextPage() {
-    const totalPages = Math.ceil(this.questionnaireData.questions.length / this.questionsPerPage);
-    if (this.currentPage < totalPages) {
-      this.currentPage++;
-    }
-  }
-  get totalNumberOfPages(): number {
-    return Math.ceil(this.questionnaireData?.questions.length / this.questionsPerPage);
+  get totalNumberOfPagesArray(): number[] {
+    return Array.from({ length: this.totalNumberOfPages }, (_, i) => i + 1);
   }
 
   private editRecord(): any {

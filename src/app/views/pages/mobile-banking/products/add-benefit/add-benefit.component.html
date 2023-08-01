@@ -51,7 +51,7 @@
         </div>
 
         <div *ngFor="let question of getQuestionsForCurrentPage(); let i = index" class="mt-4">
-          <h3 class="quiz"> {{ ((currentPage - 1) * questionsPerPage + i + 1) + ': ' + question.question }} {{ (i + 1) + '. ' + question.question }}</h3>
+          <h3 class="quiz"> {{ ((currentPage - 1) * questionsPerPage + i + 1) + ': ' + question.question }}</h3>
           <ng-container *ngFor="let option of question.options; let j = index">
             <div class="d-flex justify-content-between">
               <p class="sub-quiz">{{ option.optionText }}</p>
@@ -77,13 +77,16 @@
         </div>
 
         <div class="d-flex justify-content-start mt-4">
-          <button class="btn btn-md login-btn transition mt-1" [disabled]="currentPage === 1" (click)="prevPage()">Previous</button>
-          <span class="quiz-check m-1"style="margin-top:10px;" >{{ currentPage }} / {{ totalNumberOfPages }}</span>
-          <button class="btn btn-md login-btn transition mt-1" [disabled]="currentPage * questionsPerPage >= questionnaireData?.questions.length" (click)="nextPage()">Next</button>
-          <!-- <button class="btn btn-md login-btn transition mt-1" [disabled]="currentPage === 1" (click)="prevPage()">Previous</button>
-          <button class="btn btn-md login-btn transition mt-1" [disabled]="currentPage * questionsPerPage >= questionnaireData?.questions.length" (click)="nextPage()">Next</button> -->
+          <button style="margin-right: 5px;" class="btn btn-sm submitB transition mt-1" [disabled]="currentPage === 1" (click)="prevPage()"><span class="NexpP">Prev</span> </button>
+        
+          <ng-container *ngFor="let page of totalNumberOfPagesArray">
+            <button style="margin: 3px;" class="btn btn-sm submitB transition mt-1" [ngClass]="{'active-page-button': currentPage === page}" (click)="setCurrentPage(page)">{{ page }}</button>
+          </ng-container>
+        
+          <button style="margin-left: 5px;" class="btn btn-sm submitB transition mt-1" [disabled]="currentPage * questionsPerPage >= questionnaireData?.questions.length" (click)="nextPage()"><span class="NexpP"></span>  Next</button>
         </div>
-        <div class="d-flex justify-content-end mt-4">
+        
+        <div class="d-flex justify-content-end mt-3">
           <button class="btn btn-md login-btn transition mt-1" (click)="submitData()" type="submit">
             <a style="text-decoration: none" class="transition">
               <span style="color: #f8f8f8; font-weight: 700;letter-spacing: 0.08em;font-size: 12px;
