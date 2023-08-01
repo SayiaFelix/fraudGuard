@@ -269,7 +269,6 @@ export class AddBenefitComponent implements OnInit {
   
   
   
-  
 
   // toggleCheckbox(mainQuestion: string, subQuestion: string, event: Event) {
   //   const formControl = this.form.get(mainQuestion)?.get(subQuestion) as FormControl;
