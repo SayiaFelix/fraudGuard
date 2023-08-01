@@ -18,9 +18,10 @@ export class AddBenefitComponent implements OnInit {
   public hasErrors = false;
   public errorMessages: any;
   public form: FormGroup;
-  questionsPerPage = 1; // Display 1 question per page for this example
-  currentPage = 1;
   totalPages: number;
+  currentPage = 1;
+  questionsPerPage = 7;
+
   public allProductCategories: any;
   isLoading: boolean;
   SubClassData: any;
@@ -454,6 +455,28 @@ export class AddBenefitComponent implements OnInit {
       }
     );
 
+  }
+
+  getQuestionsForCurrentPage(): any[] {
+    const startIndex = (this.currentPage - 1) * this.questionsPerPage;
+    return this.questionnaireData?.questions.slice(startIndex, startIndex + this.questionsPerPage);
+  }
+  
+  
+  prevPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+  
+  nextPage() {
+    const totalPages = Math.ceil(this.questionnaireData.questions.length / this.questionsPerPage);
+    if (this.currentPage < totalPages) {
+      this.currentPage++;
+    }
+  }
+  get totalNumberOfPages(): number {
+    return Math.ceil(this.questionnaireData?.questions.length / this.questionsPerPage);
   }
 
   private editRecord(): any {
