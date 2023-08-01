@@ -20,6 +20,7 @@ import { AddCustomerComponent } from "../add-customer/add-customer.component";
 import { CustomValidators } from 'ngx-custom-validators';
 import Swal from 'sweetalert2';
 import { ConfirmDialogComponent } from 'src/app/shared/components/confirm-dialog/confirm-dialog.component';
+import { HttpClient } from '@angular/common/http';
 // import {ChannelDetailsWrapper} from "../../../../../shared/services/channelDetailsWrapper";
 // import {AddAccountComponent} from "../../Accounts/AccountRegistration/add-account/add-account.component";
 
@@ -92,6 +93,7 @@ export class ListCustomersComponent implements OnInit {
     private httpService: HttpService,
     private modalService: NgbModal,
     public fb: FormBuilder,
+    private http: HttpClient,
     public router: Router,
     private datePipe: DatePipe,
     private sanitizer: DomSanitizer,
@@ -110,7 +112,6 @@ export class ListCustomersComponent implements OnInit {
 
     this.formR = fb.group({
       reason: ['', Validators.required],
-      // reason: ["", Validators.compose([Validators.required])],
     });
   }
 
@@ -123,6 +124,9 @@ export class ListCustomersComponent implements OnInit {
   }
   get f(): { [p: string]: AbstractControl } {
     return this.form.controls;
+  }
+  get fs(): { [p: string]: AbstractControl } {
+    return this.formR.controls;
   }
   phoneNumberValidator(control: AbstractControl): { [key: string]: any } | null {
     const phoneNumber = control.value;
@@ -174,7 +178,7 @@ export class ListCustomersComponent implements OnInit {
     const currentTime = new Date();
     const daysElapsed = Math.floor((currentTime.getTime() - new Date(result.created_on).getTime()) / (1000 * 60 * 60 * 24));
   
-    if (result.hasAppeal || result.appealStatus === 'PENDING') {
+    if (result.hasAppeal || result.appealStatus === 'PENDING'|| result.appealStatus === 'APPROVED' || result.appealStatus === 'REJECTED') {
       result.isButtonDeactivated = true; // Deactivate the button if there is an appeal or if the appeal status is 'PENDING'
     } else {
       result.isButtonDeactivated = daysElapsed > timeLimitInDays; // Deactivate the button only if no appeal for this result within the time limit
@@ -229,40 +233,40 @@ export class ListCustomersComponent implements OnInit {
       });
   }
 
-  private loadAppealsData(): void {
-    let model = {
-      licence_number: "L989077"
-    }
-    this.httpService.customerPortalPost(`api/v1/portal/getAppeals`, model).subscribe(
-      (res: any) => {
-        if (res.status === '00') {
-          this.appealData = res.data;
-          console.log(this.appealData)
+  // private loadAppealsData(): void {
+  //   let model = {
+  //     licence_number: "L989077"
+  //   }
+  //   this.httpService.customerPortalPost(`api/v1/portal/getAppeals`, model).subscribe(
+  //     (res: any) => {
+  //       if (res.status === '00') {
+  //         this.appealData = res.data;
+  //         console.log(this.appealData)
 
-          // Check if the user has made an appeal
-          // this.isAppealMade = appealData.length > 0;
+  //         // Check if the user has made an appeal
+  //         // this.isAppealMade = appealData.length > 0;
 
-          // // Check if the appeal has been successfully submitted (you may use a specific field from the backend response)
-          // this.isAppealSubmitted = appealData.some((request: any) => request.appealStatus === "PENDING");
+  //         // // Check if the appeal has been successfully submitted (you may use a specific field from the backend response)
+  //         // this.isAppealSubmitted = appealData.some((request: any) => request.appealStatus === "PENDING");
 
-          // // Check if 14 days have passed since the user's appeal (assuming appealDate is the field representing the appeal date)
-          // const today = new Date();
-          // const fourteenDaysAgo = new Date(today.getTime() - 14 * 24 * 60 * 60 * 1000); // Subtract 14 days in milliseconds
-          // const isWithin14Days = appealData.some((request: any) => new Date(request.appealDate) >= fourteenDaysAgo);
+  //         // // Check if 14 days have passed since the user's appeal (assuming appealDate is the field representing the appeal date)
+  //         // const today = new Date();
+  //         // const fourteenDaysAgo = new Date(today.getTime() - 14 * 24 * 60 * 60 * 1000); // Subtract 14 days in milliseconds
+  //         // const isWithin14Days = appealData.some((request: any) => new Date(request.appealDate) >= fourteenDaysAgo);
 
-          // // Update the state of the "Make Appeal" button
-          // this.isAppealButtonVisible = !this.isAppealMade || this.isAppealSubmitted || isWithin14Days;
+  //         // // Update the state of the "Make Appeal" button
+  //         // this.isAppealButtonVisible = !this.isAppealMade || this.isAppealSubmitted || isWithin14Days;
 
-          // Handle the loading of appeals data as required
-          // ...
+  //         // Handle the loading of appeals data as required
+  //         // ...
 
-        } else {
-          console.log('Failed', "Unable to fetch appeals data", 'error');
-        }
-      }, (error: any) => {
-        console.log("Error", error.message, "error");
-      });
-  }
+  //       } else {
+  //         console.log('Failed', "Unable to fetch appeals data", 'error');
+  //       }
+  //     }, (error: any) => {
+  //       console.log("Error", error.message, "error");
+  //     });
+  // }
 
   formatDate(date: string): string {
     const formattedDate = this.datePipe.transform(date, 'dd MMM yyyy');
@@ -281,24 +285,55 @@ export class ListCustomersComponent implements OnInit {
     }
   }
 
+
   handleDownload(result: any) {
-    const downloadUrl = result.download_url;
-    
-    this.downloadLink = this.sanitizer.bypassSecurityTrustUrl(result.download_url);
-    // if (downloadUrl && !downloadUrl.startsWith('http://')) {
-    //   this.downloadLink = this.sanitizer.bypassSecurityTrustUrl('http://' + downloadUrl);
-    // } else {
-    //   this.downloadLink = this.sanitizer.bypassSecurityTrustUrl(downloadUrl);
-    // }
+    if (result && result.download_url) {
+      const downloadUrl = result.download_url;
+      const absoluteDownloadUrl = downloadUrl.startsWith('http') ? downloadUrl : `http://${downloadUrl}`;
+  
+      // Trigger the file download using HttpClient
+      this.http.get(absoluteDownloadUrl, { responseType: 'blob' }).subscribe(
+        (blob: Blob) => {
+          // Create a new anchor element
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+  
+          // Set the 'download' attribute to force the download instead of navigation
+          link.setAttribute('download', 'downloaded_file');
+  
+          // Append the link to the DOM and trigger a click event to initiate the download
+          document.body.appendChild(link);
+          link.click();
+  
+          // Remove the link from the DOM after the download is complete
+          document.body.removeChild(link);
+        },
+        (error) => {
+          console.error('Error downloading the file:', error);
+        }
+      );
+    } else {
+      console.error('Download URL is not available in the result object.');
+    }
   }
+  
+  
+  downloadCertificate(fileUrl: string) {
+    const normalizedFileUrl = fileUrl.startsWith('http://') ? fileUrl : 'http://' + fileUrl;
+    const link = document.createElement('a');
+    link.href = normalizedFileUrl;
+    link.target = '_blank';
+    link.click();
+  }
+  
 
   getAppealButtonText(status: string, appealStatus: string | null): string {
     if (appealStatus === 'PENDING') {
       return 'Appealled'; // If appealStatus is 'PENDING', show 'Appealed'
     } else if (appealStatus === 'APPROVED') {
-      return 'Appeal Accepted';
-    } else if (status === 'PENDING') {
-      return 'Create Appeal';
+      return 'Accepted';
+    } else if (appealStatus === 'REJECTED') {
+      return 'Failed';
     } else if (status === 'PUBLISHED') {
       return 'Appeal';
     } else if (status === 'APPEALED') {
@@ -366,37 +401,37 @@ export class ListCustomersComponent implements OnInit {
       });
   }
 
-  downloadCertificate(): void {
-    if (this.previewImageUrl) {
-      const certificateUrl = this.previewImageUrl;
-      const certificateFileName = 'certificate.png';
+  // downloadCertificate(): void {
+  //   if (this.previewImageUrl) {
+  //     const certificateUrl = this.previewImageUrl;
+  //     const certificateFileName = 'certificate.png';
 
-      // Extract the relative path from the certificate URL
-      const relativePathRegex = /\/\/[^/]+(\/.+)/;
-      const matches = certificateUrl.match(relativePathRegex);
-      if (!matches || matches.length < 2) {
-        console.error('Invalid certificate URL:', certificateUrl);
-        return;
-      }
-      const relativePath = matches[1];
+  //     // Extract the relative path from the certificate URL
+  //     const relativePathRegex = /\/\/[^/]+(\/.+)/;
+  //     const matches = certificateUrl.match(relativePathRegex);
+  //     if (!matches || matches.length < 2) {
+  //       console.error('Invalid certificate URL:', certificateUrl);
+  //       return;
+  //     }
+  //     const relativePath = matches[1];
 
-      // Create a Blob from the fetched certificate data and initiate the download
-      fetch(relativePath)
-        .then((response) => response.blob())
-        .then((blob) => {
-          const blobUrl = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = blobUrl;
-          link.download = certificateFileName;
-          link.click();
-        })
-        .catch((error) => {
-          console.error('Error fetching the certificate data:', error);
-        });
-    } else {
-      console.error('Certificate data is not available.');
-    }
-  }
+  //     // Create a Blob from the fetched certificate data and initiate the download
+  //     fetch(relativePath)
+  //       .then((response) => response.blob())
+  //       .then((blob) => {
+  //         const blobUrl = URL.createObjectURL(blob);
+  //         const link = document.createElement('a');
+  //         link.href = blobUrl;
+  //         link.download = certificateFileName;
+  //         link.click();
+  //       })
+  //       .catch((error) => {
+  //         console.error('Error fetching the certificate data:', error);
+  //       });
+  //   } else {
+  //     console.error('Certificate data is not available.');
+  //   }
+  // }
 
   isButtonDisabled(status: string, task_type: string): boolean {
     if (task_type === 'CLASSIFICATION') {

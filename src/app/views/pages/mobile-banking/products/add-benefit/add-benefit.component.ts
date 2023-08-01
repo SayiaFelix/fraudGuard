@@ -27,7 +27,8 @@ export class AddBenefitComponent implements OnInit {
   ClassData: any;
   selectedClass: any;
   enterpriseItems: any;
-
+  questionnaireData: any; 
+  selectedOptions: any[] = [];
 
   constructor(
     public activeModal: NgbActiveModal,
@@ -228,58 +229,94 @@ export class AddBenefitComponent implements OnInit {
         }
       });
     // this.getClassData(0);
+    this.loadData()
     this.getSubClassData();
   }
   get f(): { [p: string]: AbstractControl } {
     return this.form.controls;
   }
 
-  toggleCheckbox(mainQuestion: string, subQuestion: string, event: Event) {
-    const formControl = this.form.get(mainQuestion)?.get(subQuestion) as FormControl;
-    if (event.target instanceof HTMLInputElement) {
-      // Get the checked property of the checkbox
-      const isChecked = event.target.checked;
-      // Update the form control value based on the checkbox state
-      formControl.setValue(isChecked);
-      // If it's a "Yes" checkbox, uncheck the corresponding "No" checkbox
-      if (isChecked && subQuestion === 'subQuestion1') {
-        const noFormControl = this.form.get(mainQuestion)?.get('subQuestion2') as FormControl;
-        if (noFormControl) {
-          noFormControl.setValue(false);
+  private loadData(): any {
+    this.loading = true;
+    let model = {
+      id:2
+    }
+    this._httpService.customerPortalPosts(`customer/questionnaire1/get`, model).subscribe(
+      (res: any) => {
+        if (res.status == 200) {
+          this.questionnaireData = res['data'];
+          console.log(this.questionnaireData)
+          this.loading = false;
+        } else {
+          console.log('Failed', "Unable to fetch questions", 'error')
         }
-      } else if (isChecked && subQuestion === 'subQuestion2') {
-        // If it's a "Yes" checkbox, uncheck the corresponding "No" checkbox
-        const noFormControl = this.form.get(mainQuestion)?.get('subQuestion1') as FormControl;
-        if (noFormControl) {
-          noFormControl.setValue(false);
-        }
-      } else if (isChecked && subQuestion === 'subQuestion3') {
-        // If it's a "Yes" checkbox, uncheck the corresponding "No" checkbox
-        const noFormControl = this.form.get(mainQuestion)?.get('subQuestion4') as FormControl;
-        if (noFormControl) {
-          noFormControl.setValue(false);
-        }
-      } else if (isChecked && subQuestion === 'subQuestion4') {
-        // If it's a "Yes" checkbox, uncheck the corresponding "No" checkbox
-        const noFormControl = this.form.get(mainQuestion)?.get('subQuestion3') as FormControl;
-        if (noFormControl) {
-          noFormControl.setValue(false);
-        }
-      } else if (isChecked && subQuestion === 'subQuestion5') {
-        // If it's a "Yes" checkbox, uncheck the corresponding "No" checkbox
-        const noFormControl = this.form.get(mainQuestion)?.get('subQuestion6') as FormControl;
-        if (noFormControl) {
-          noFormControl.setValue(false);
-        }
-      } else if (isChecked && subQuestion === 'subQuestion6') {
-        // If it's a "Yes" checkbox, uncheck the corresponding "No" checkbox
-        const noFormControl = this.form.get(mainQuestion)?.get('subQuestion5') as FormControl;
-        if (noFormControl) {
-          noFormControl.setValue(false);
-        }
-      }
+      }, (error: any) => {
+        console.log("Error", error.message, "error");
+      });
+  }
+
+  toggleCheckbox(mainQuestionIndex: number, optionIndex: number, selectedOption: string) {
+    const mainQuestion = this.questionnaireData.questions[mainQuestionIndex];
+    const option = mainQuestion.options[optionIndex];
+  
+    // If the selected option is already checked, uncheck it
+    if (option.selected === selectedOption) {
+      option.selected = '';
+    } else {
+      option.selected = selectedOption;
     }
   }
+  
+  
+  
+  
+
+  // toggleCheckbox(mainQuestion: string, subQuestion: string, event: Event) {
+  //   const formControl = this.form.get(mainQuestion)?.get(subQuestion) as FormControl;
+  //   if (event.target instanceof HTMLInputElement) {
+  //     // Get the checked property of the checkbox
+  //     const isChecked = event.target.checked;
+  //     // Update the form control value based on the checkbox state
+  //     formControl.setValue(isChecked);
+  //     // If it's a "Yes" checkbox, uncheck the corresponding "No" checkbox
+  //     if (isChecked && subQuestion === 'subQuestion1') {
+  //       const noFormControl = this.form.get(mainQuestion)?.get('subQuestion2') as FormControl;
+  //       if (noFormControl) {
+  //         noFormControl.setValue(false);
+  //       }
+  //     } else if (isChecked && subQuestion === 'subQuestion2') {
+  //       // If it's a "Yes" checkbox, uncheck the corresponding "No" checkbox
+  //       const noFormControl = this.form.get(mainQuestion)?.get('subQuestion1') as FormControl;
+  //       if (noFormControl) {
+  //         noFormControl.setValue(false);
+  //       }
+  //     } else if (isChecked && subQuestion === 'subQuestion3') {
+  //       // If it's a "Yes" checkbox, uncheck the corresponding "No" checkbox
+  //       const noFormControl = this.form.get(mainQuestion)?.get('subQuestion4') as FormControl;
+  //       if (noFormControl) {
+  //         noFormControl.setValue(false);
+  //       }
+  //     } else if (isChecked && subQuestion === 'subQuestion4') {
+  //       // If it's a "Yes" checkbox, uncheck the corresponding "No" checkbox
+  //       const noFormControl = this.form.get(mainQuestion)?.get('subQuestion3') as FormControl;
+  //       if (noFormControl) {
+  //         noFormControl.setValue(false);
+  //       }
+  //     } else if (isChecked && subQuestion === 'subQuestion5') {
+  //       // If it's a "Yes" checkbox, uncheck the corresponding "No" checkbox
+  //       const noFormControl = this.form.get(mainQuestion)?.get('subQuestion6') as FormControl;
+  //       if (noFormControl) {
+  //         noFormControl.setValue(false);
+  //       }
+  //     } else if (isChecked && subQuestion === 'subQuestion6') {
+  //       // If it's a "Yes" checkbox, uncheck the corresponding "No" checkbox
+  //       const noFormControl = this.form.get(mainQuestion)?.get('subQuestion5') as FormControl;
+  //       if (noFormControl) {
+  //         noFormControl.setValue(false);
+  //       }
+  //     }
+  //   }
+  // }
 
   getFormControl(mainQuestion: string, subQuestion: string): FormControl {
     const formControl = this.form.get(mainQuestion)?.get(subQuestion) as FormControl;

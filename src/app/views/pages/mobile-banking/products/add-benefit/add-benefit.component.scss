@@ -26,6 +26,14 @@
   font-style: normal;
   font-weight: 600;
 }
+
+input {
+  color: var(--green-blue, #2268aa);
+  font-family: Mulish;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 600;
+}
 .custom-control-input {
   border-radius: 4px;
   margin-right: 8px;
@@ -40,7 +48,7 @@
 }
 
 .login-btn {
-  color: #FFF;
-  background-color: #F7941D;
+  color: #fff;
+  background-color: #f7941d;
   border-radius: 8px;
 }
