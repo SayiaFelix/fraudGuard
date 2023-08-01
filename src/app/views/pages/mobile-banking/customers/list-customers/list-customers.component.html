@@ -143,13 +143,11 @@
         </ng-template>
       </div>
       <div class="mt-2 col">
-        <a [href]="downloadLink" download>
-          <button class="btn btn-md login-btn transition" (click)="handleDownload(std)" type="submit">
+    <button class="btn btn-md login-btn transition" (click)="downloadCertificate(std.download_url)" type="submit">
             <a style="text-decoration: none" class="transition">
               <span style="color: var(--white, #FFF);text-align: center;font-family: Mulish;font-size: 13px;font-style: normal;font-weight: 700;line-height: normal;letter-spacing: 1.12px;text-transform: uppercase;
                   ">DOWNLOAD</span></a>
           </button>
-        </a>
       </div>
       <ng-container>
         <div class="mt-1 col">
@@ -241,7 +239,7 @@
               <div class="form-group mt-2">
                 <input formControlName="reason" type="text" class="form-control validation-field border-0" id="reason"
                   placeholder="Your Reason*">
-                <small class="text-danger" *ngIf="f.reason.touched && f.reason.errors?.required">Field
+                <small class="text-danger" *ngIf="fs.reason.touched && fs.reason.errors?.required">Field
                   Required</small>
               </div>
               <div class="col-12 bg-white text-center py-1 mt-3 mb-2">

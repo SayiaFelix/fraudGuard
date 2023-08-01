@@ -147,7 +147,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
 
   getSanitizedStatusImage(status: string): any {
     switch (status) {
-      case 'Approved':
+      case 'APPROVED':
         return this.sanitizer.bypassSecurityTrustResourceUrl('assets/images/approve.png');
       case 'Pending':
         return this.sanitizer.bypassSecurityTrustResourceUrl('assets/images/time.png');
