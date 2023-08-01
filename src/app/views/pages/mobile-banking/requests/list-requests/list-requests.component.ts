@@ -1,6 +1,6 @@
 import {Component, OnInit, ViewChild,} from '@angular/core';
 import {NgbActiveModal, NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
-import {DatePipe} from '@angular/common';
+import { APP_BASE_HREF, DatePipe} from '@angular/common';
 import {Router} from '@angular/router';
 import {ColumnMode} from '@swimlane/ngx-datatable';
 import {AbstractControl, FormBuilder, FormGroup, Validators} from '@angular/forms';
@@ -10,7 +10,8 @@ import {HttpService} from 'src/app/shared/services/http.service';
 import { CustomValidators } from 'ngx-custom-validators';
 import Swal from 'sweetalert2';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-
+import { Inject } from '@angular/core';
+import { APP_BASE_HREF_TOKEN } from '../constants';
 @Component({
   selector: 'app-list-requests',
   templateUrl: './list-requests.component.html',
@@ -86,6 +87,7 @@ export class ListRequestsComponent implements OnInit {
   ]
 
   constructor(private router: Router,
+    @Inject(APP_BASE_HREF_TOKEN) private appBaseHref: string,
     fb: FormBuilder,
     public modal: NgbModal,
     private httpService: HttpService,
@@ -127,10 +129,17 @@ export class ListRequestsComponent implements OnInit {
   }
 
   openStandardInNewTab(standardId: number) {
-    const urlTree = this.router.createUrlTree(['/standards', standardId]);
+    const baseUrl = this.appBaseHref || 'tra-customer-portal';
+    const urlTree = this.router.createUrlTree([baseUrl, 'standards', standardId]);
     const url = this.router.serializeUrl(urlTree);
     window.open(url, '_blank');
   }
+
+  // openStandardInNewTab(standardId: number) {
+  //   const urlTree = this.router.createUrlTree(['/standards', standardId]);
+  //   const url = this.router.serializeUrl(urlTree);
+  //   window.open(url, '_blank');
+  // }
   // viewStandard(standardId: number) {
   //   this.router.navigate(['/standards', standardId]);
   // }
