@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { Inject, NgModule } from '@angular/core';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -18,6 +18,8 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import {CheckTokenValidityInterceptor} from "./shared/services/checkTokenValidity.interceptor";
 import { CarouselModule } from 'ngx-owl-carousel-o';
 import { Ng2TelInputModule } from 'ng2-tel-input';
+import { APP_BASE_HREF_TOKEN } from './views/pages/mobile-banking/requests/constants';
+import { APP_BASE_HREF } from '@angular/common';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
@@ -49,6 +51,8 @@ export function HttpLoaderFactory(http: HttpClient) {
       libraries: ["places", "drawing", "geometry"]}),
   ],
   providers: [
+    
+    { provide: APP_BASE_HREF_TOKEN, useValue: '/tra-customer-portal' }, 
     // {
     //   provide: HTTP_INTERCEPTORS,
     //   useClass: CheckTokenValidityInterceptor,

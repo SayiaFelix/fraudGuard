@@ -67,7 +67,7 @@ export class ViewStandardsComponent implements OnInit {
   errorMsg: string;
   hasError: boolean = false;
   isLoading: boolean = false;
-  defaultImage: SafeResourceUrl = "assets/images/4.png";
+  defaultImage: SafeResourceUrl = "assets/images/landing2.png";
   existingImage: SafeResourceUrl;
 
   defaultParts: any[] = [
@@ -101,6 +101,7 @@ export class ViewStandardsComponent implements OnInit {
   parts: any[] = [];
   terms: any;
   isOffline: any;
+  // defaultProfileImage: SafeResourceUrl = "assets/images/landing2.png";
   files: any;
   // selectedPart: StandardPart | null;
 
@@ -213,6 +214,13 @@ export class ViewStandardsComponent implements OnInit {
     return this.formC.controls;
   }
 
+  // if (assessor.profile_url) {
+  //   assessor.profile_url = 'http://' + assessor.profile_url;
+  //   assessor.existingImage = this.sanitizer.bypassSecurityTrustResourceUrl(assessor.profile_url);
+  // } else {
+  //   assessor.existingImage = this.defaultProfileImage;
+  // }
+
   phoneNumberValidator(control: AbstractControl): { [key: string]: any } | null {
     const phoneNumber = control.value;
     // Regular expression to check if the phone number starts with "254" and is followed by 9 digits.
@@ -240,14 +248,16 @@ export class ViewStandardsComponent implements OnInit {
           this.standard = res['data'];
           this.previewImageUrl = res.data.preview_image_url;
           this.existingImage = "http://".concat(
-            this.standards['previewImageUrl']
+            this.standard['preview_image_url']
           );
+
           if (this.standard.preview_image_url) {
             this.existingImage = this.sanitizer.bypassSecurityTrustResourceUrl("http://" + this.standard.preview_image_url);
           } else {
             this.existingImage = this.defaultImage;
           }
           console.log(this.existingImage)
+
           this.loading = false;
           this.parts = res['data']['parts'];
           this.terms = res['data']['terms'];
@@ -259,10 +269,10 @@ export class ViewStandardsComponent implements OnInit {
           console.log('files', this.files);
           this.loading = false;
         } else {
-          Swal.fire('Failed', "Unable to fetch standards", 'error');
+          console.log('Failed', "Unable to fetch standards", 'error');
         }
       }, (error: any) => {
-        Swal.fire("Error", error.message, "error");
+        console.log("Error", error.message, "error");
       });
   }
 
