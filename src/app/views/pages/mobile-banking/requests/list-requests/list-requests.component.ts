@@ -128,11 +128,27 @@ export class ListRequestsComponent implements OnInit {
     return this.form.controls;
   }
 
+  // openStandardInNewTab(standardId: number) {
+  //   const baseUrl = this.appBaseHref || 'tra-customer-portal';
+  //   const urlTree = this.router.createUrlTree([baseUrl, 'standards', standardId]);
+  //   const url = this.router.serializeUrl(urlTree);
+  //   window.open(url, '_blank');
+  // }
+
   openStandardInNewTab(standardId: number) {
     const baseUrl = this.appBaseHref || 'tra-customer-portal';
     const urlTree = this.router.createUrlTree([baseUrl, 'standards', standardId]);
     const url = this.router.serializeUrl(urlTree);
-    window.open(url, '_blank');
+  
+    if (document.getElementsByTagName('base')[0].hasAttribute('href')) {
+      const win = window.open();
+      if (win) {
+        win.opener = null;
+        win.location.href = url;
+      }
+    } else {
+      window.open(url, '_blank');
+    }
   }
 
   // openStandardInNewTab(standardId: number) {
