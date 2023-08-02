@@ -86,22 +86,22 @@ export class AddBenefitComponent implements OnInit {
     this.formRequest.addControl(commentControlName, new FormControl());
   }
 
-  populateFormControls() {
-    const questions = this.getQuestionsForCurrentPage();
+  // populateFormControls() {
+  //   const questions = this.getQuestionsForCurrentPage();
 
-    questions.forEach((question, i) => {
-      // Create an array of form controls for the options of each question
-      const optionControls = question.options.map((option: { selected: any; }, j: any) => {
-        return this.fb.control(option.selected, Validators.required);
-      });
+  //   questions.forEach((question, i) => {
+  //     // Create an array of form controls for the options of each question
+  //     const optionControls = question.options.map((option: { selected: any; }, j: any) => {
+  //       return this.fb.control(option.selected, Validators.required);
+  //     });
 
-      // Add the array of form controls as a form array to the form group
-      this.formRequest.addControl('q' + i, this.fb.array(optionControls));
+  //     // Add the array of form controls as a form array to the form group
+  //     this.formRequest.addControl('q' + i, this.fb.array(optionControls));
 
-      // Add the textarea control to the form group
-      this.formRequest.addControl('comment' + i, this.fb.control(''));
-    });
-  }
+  //     // Add the textarea control to the form group
+  //     this.formRequest.addControl('comment' + i, this.fb.control(''));
+  //   });
+  // }
 
   getCommentControl(i: number): FormControl<any> {
     return this.formRequest.get('comment' + i) as FormControl<any>;
