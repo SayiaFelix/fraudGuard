@@ -281,13 +281,14 @@ export class ViewStandardsComponent implements OnInit {
 
 
   downloadCertificate(fileUrl: string) {
-    const normalizedFileUrl = fileUrl.startsWith('http://') ? fileUrl : 'http://' + fileUrl;
+    const normalizedFileUrl = fileUrl.replace("10.20.2.19:7600", "https://test-api.ekenya.co.ke/tra-backend");
+    console.log(normalizedFileUrl);
     const link = document.createElement('a');
     link.href = normalizedFileUrl;
     link.target = '_blank';
     link.click();
   }
-
+  
   toggleLeaveCommentForm() {
     if (this.showLeaveCommentForm) {
       this.hideLeaveCommentForm();

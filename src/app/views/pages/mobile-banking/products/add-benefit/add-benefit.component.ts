@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, FormControl } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { log } from 'console';
 import { HttpService } from 'src/app/shared/services/http.service';
 import Swal from 'sweetalert2';
 
@@ -47,8 +48,11 @@ export class AddBenefitComponent implements OnInit {
       request_type: [this.formData ? this.formData.request_type : '', [Validators.required]],
       subClassName: [{ value: '', disabled: true }, Validators.required]
     });
-    this.formRequest = this.fb.group({});
-    this.questionnaireData = { questions: [] }; 
+
+
+
+    // this.formRequest = this.fb.group({formDetails});
+    this.questionnaireData = { questions: [] };
 
     const questions = this.getQuestionsForCurrentPage();
     if (questions && questions.length > 0) {
@@ -71,7 +75,7 @@ export class AddBenefitComponent implements OnInit {
   get f(): { [p: string]: AbstractControl } {
     return this.form.controls;
   }
- 
+
   addQuestionControls(questionIndex: number) {
     const question = this.getQuestionsForCurrentPage()[questionIndex];
     for (let j = 0; j < question.options.length; j++) {
@@ -120,6 +124,10 @@ export class AddBenefitComponent implements OnInit {
         if (res.status == 200) {
           this.questionnaireData = res['data'];
           console.log(this.questionnaireData)
+
+          this.createFormBuilder(this.questionnaireData)
+
+
           this.loading = false;
         } else {
           console.log('Failed', "Unable to fetch questions", 'error')
@@ -127,6 +135,31 @@ export class AddBenefitComponent implements OnInit {
       }, (error: any) => {
         console.log("Error", error.message, "error");
       });
+  }
+  createFormBuilder(questionnaireData: any) {
+
+    let items: any[] = [];
+
+    for (const question of this.questionnaireData.questions) {
+      let item =  question.options[0].id
+      items.push(`item-${item}`);
+    }
+
+    console.log('formDetails')
+    console.log(items)
+  
+    let formObject: any = {};
+
+    for (const item of items) {
+      formObject[item] = '';
+    }
+
+    this.formRequest = this.fb.group({
+      formObject
+    }); 
+    
+    console.log(formObject);
+
   }
 
   toggleCheckbox(mainQuestionIndex: number, optionIndex: number, selectedOption: string) {
@@ -307,7 +340,7 @@ export class AddBenefitComponent implements OnInit {
     );
 
   }
-  
+
 
   submitDataForm(): any {
     this.isLoading = true;
