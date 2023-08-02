@@ -69,7 +69,7 @@
 
 <div class="card border-0" style="position: relative;">
   <div class="row">
-    <div class="col-md-12 col-lg-12 col-xl-12 col-sm-12">
+    <!-- <div class="col-md-12 col-lg-12 col-xl-12 col-sm-12">
       <div class="image-container card border-0 box-shadow">
         <img class="card-img-top img-fluid" style="max-width: 100%; max-height: 300px; border-radius: 16px;"
           [src]="uploadedImageUrl ? uploadedImageUrl : 'assets/images/sd.png'" />
@@ -85,8 +85,24 @@
       <!-- <div>
         <input type="file" (change)="onFileSelected($event)" accept="image/*">
         <button (click)="onUpload()">Upload Image</button>
-      </div> -->
+      </div> --
+    </div> -->
+
+    <div class="col-md-12 col-lg-12 col-xl-12 col-sm-12">
+      <div class="image-container card border-0 box-shadow">
+        <img class="card-img-top img-fluid" style="max-width: 100%; max-height: 300px; border-radius: 16px;"
+          [src]="uploadedImageUrl ? uploadedImageUrl : 'assets/images/sd.png'" />
+        <label for="imageUpload" class="input-container" *ngIf="!imageUploaded">
+          <img class="card-img-top img-fluid" style="width: 50px; margin-left: 35%; max-height: 50px;"
+            src="assets/images/sdb.png" /><br>
+          <span class="mt-1">Click here to upload an image</span>
+          <!-- Input element for selecting the image -->
+          <input type="file" id="imageUpload" (change)="handleImageUpload($event)" accept="image/*" />
+        </label>
+      </div>
     </div>
+    
+    
   </div>
   <div class="land">
     <div class="row d-flex justify-content-between">

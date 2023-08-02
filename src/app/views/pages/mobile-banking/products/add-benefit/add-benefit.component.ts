@@ -18,9 +18,12 @@ export class AddBenefitComponent implements OnInit {
   public hasErrors = false;
   public errorMessages: any;
   public form: FormGroup;
+  public formRequest: FormGroup;
   totalPages: number;
   currentPage = 1;
   questionsPerPage = 2;
+
+  isFirstFormSubmitted = false;
 
   public allProductCategories: any;
   isLoading: boolean;
@@ -28,7 +31,7 @@ export class AddBenefitComponent implements OnInit {
   ClassData: any;
   selectedClass: any;
   enterpriseItems: any;
-  questionnaireData: any; 
+  questionnaireData: any;
   selectedOptions: any[] = [];
 
   constructor(
@@ -43,204 +46,74 @@ export class AddBenefitComponent implements OnInit {
       class_name: [this.formData ? this.formData.class_name : '', [Validators.required]],
       request_type: [this.formData ? this.formData.request_type : '', [Validators.required]],
       subClassName: [{ value: '', disabled: true }, Validators.required]
-      // subClassName: [{ value: this.formData ? this.formData.subClassName : '', disabled: true }, [Validators.required]],
-      // question1: this.fb.group({
-      //   subQuestion1: new FormControl(false, Validators.required),
-      //   subQuestion2: new FormControl(false, Validators.required),
-      //   subQuestion3: new FormControl(false, Validators.required),
-      //   subQuestion4: new FormControl(false, Validators.required),
-      //   comment: new FormControl('')
-      // }),
-      // question2: this.fb.group({
-      //   subQuestion1: new FormControl(false, Validators.required),
-      //   subQuestion2: new FormControl(false, Validators.required),
-      //   subQuestion3: new FormControl(false, Validators.required),
-      //   subQuestion4: new FormControl(false, Validators.required),
-      //   comment: new FormControl('')
-      // }),
-      // question3: this.fb.group({
-      //   subQuestion1: new FormControl(false, Validators.required),
-      //   subQuestion2: new FormControl(false, Validators.required),
-      //   subQuestion3: new FormControl(false, Validators.required),
-      //   subQuestion4: new FormControl(false, Validators.required),
-      //   subQuestion5: new FormControl(false, Validators.required),
-      //   subQuestion6: new FormControl(false, Validators.required),
-      //   comment: new FormControl('')
-      // }),
-      // question4: this.fb.group({
-      //   subQuestion1: new FormControl(false, Validators.required),
-      //   subQuestion2: new FormControl(false, Validators.required),
-      //   subQuestion3: new FormControl(false, Validators.required),
-      //   subQuestion4: new FormControl(false, Validators.required),
-      //   comment: new FormControl('')
-      // }),
-      // question5: this.fb.group({
-      //   subQuestion1: new FormControl(false, Validators.required),
-      //   subQuestion2: new FormControl(false, Validators.required),
-      //   subQuestion3: new FormControl(false, Validators.required),
-      //   subQuestion4: new FormControl(false, Validators.required),
-      //   subQuestion5: new FormControl(false, Validators.required),
-      //   subQuestion6: new FormControl(false, Validators.required),
-      //   comment: new FormControl('')
-      // }),
-      // question6: this.fb.group({
-      //   subQuestion1: new FormControl(false, Validators.required),
-      //   subQuestion2: new FormControl(false, Validators.required),
-      //   subQuestion3: new FormControl(false, Validators.required),
-      //   subQuestion4: new FormControl(false, Validators.required),
-      //   subQuestion5: new FormControl(false, Validators.required),
-      //   subQuestion6: new FormControl(false, Validators.required),
-      //   comment: new FormControl('')
-      // }),
-      // question7: this.fb.group({
-      //   subQuestion1: new FormControl(false, Validators.required),
-      //   subQuestion2: new FormControl(false, Validators.required),
-      //   subQuestion3: new FormControl(false, Validators.required),
-      //   subQuestion4: new FormControl(false, Validators.required),
-      //   subQuestion5: new FormControl(false, Validators.required),
-      //   subQuestion6: new FormControl(false, Validators.required),
-      //   comment: new FormControl('')
-      // }),
-      // question8: this.fb.group({
-      //   subQuestion1: new FormControl(false, Validators.required),
-      //   subQuestion2: new FormControl(false, Validators.required),
-      //   subQuestion3: new FormControl(false, Validators.required),
-      //   subQuestion4: new FormControl(false, Validators.required),
-      //   subQuestion5: new FormControl(false, Validators.required),
-      //   subQuestion6: new FormControl(false, Validators.required),
-      //   comment: new FormControl('')
-      // }),
-      // question9: this.fb.group({
-      //   subQuestion1: new FormControl(false, Validators.required),
-      //   subQuestion2: new FormControl(false, Validators.required),
-      //   subQuestion3: new FormControl(false, Validators.required),
-      //   subQuestion4: new FormControl(false, Validators.required),
-      //   subQuestion5: new FormControl(false, Validators.required),
-      //   subQuestion6: new FormControl(false, Validators.required),
-      //   comment: new FormControl('')
-      // }),
-      // question10: this.fb.group({
-      //   subQuestion1: new FormControl(false, Validators.required),
-      //   subQuestion2: new FormControl(false, Validators.required),
-      //   subQuestion3: new FormControl(false, Validators.required),
-      //   subQuestion4: new FormControl(false, Validators.required),
-      //   subQuestion5: new FormControl(false, Validators.required),
-      //   subQuestion6: new FormControl(false, Validators.required),
-      //   comment: new FormControl('')
-      // }),
-      // question11: this.fb.group({
-      //   subQuestion1: new FormControl(false, Validators.required),
-      //   subQuestion2: new FormControl(false, Validators.required),
-      //   subQuestion3: new FormControl(false, Validators.required),
-      //   subQuestion4: new FormControl(false, Validators.required),
-      //   comment: new FormControl('')
-      // }),
-      // question12: this.fb.group({
-      //   subQuestion1: new FormControl(false, Validators.required),
-      //   subQuestion2: new FormControl(false, Validators.required),
-      //   subQuestion3: new FormControl(false, Validators.required),
-      //   subQuestion4: new FormControl(false, Validators.required),
-      //   subQuestion5: new FormControl(false, Validators.required),
-      //   subQuestion6: new FormControl(false, Validators.required),
-      //   comment: new FormControl('')
-      // }),
-      // question13: this.fb.group({
-      //   subQuestion1: new FormControl(false, Validators.required),
-      //   subQuestion2: new FormControl(false, Validators.required),
-      //   subQuestion3: new FormControl(false, Validators.required),
-      //   subQuestion4: new FormControl(false, Validators.required),
-      //   subQuestion5: new FormControl(false, Validators.required),
-      //   subQuestion6: new FormControl(false, Validators.required),
-      //   comment: new FormControl('')
-      // }),
-      // question14: this.fb.group({
-      //   subQuestion1: new FormControl(false, Validators.required),
-      //   subQuestion2: new FormControl(false, Validators.required),
-      //   subQuestion3: new FormControl(false, Validators.required),
-      //   subQuestion4: new FormControl(false, Validators.required),
-      //   subQuestion5: new FormControl(false, Validators.required),
-      //   subQuestion6: new FormControl(false, Validators.required),
-      //   comment: new FormControl('')
-      // }),
-      // question15: this.fb.group({
-      //   subQuestion1: new FormControl(false, Validators.required),
-      //   subQuestion2: new FormControl(false, Validators.required),
-      //   subQuestion3: new FormControl(false, Validators.required),
-      //   subQuestion4: new FormControl(false, Validators.required),
-      //   subQuestion5: new FormControl(false, Validators.required),
-      //   subQuestion6: new FormControl(false, Validators.required),
-      //   comment: new FormControl('')
-      // }),
-      // question16: this.fb.group({
-      //   subQuestion1: new FormControl(false, Validators.required),
-      //   subQuestion2: new FormControl(false, Validators.required),
-      //   subQuestion3: new FormControl(false, Validators.required),
-      //   subQuestion4: new FormControl(false, Validators.required),
-      //   comment: new FormControl('')
-      // }),
-      // question17: this.fb.group({
-      //   subQuestion1: new FormControl(false, Validators.required),
-      //   subQuestion2: new FormControl(false, Validators.required),
-      //   subQuestion3: new FormControl(false, Validators.required),
-      //   subQuestion4: new FormControl(false, Validators.required),
-      //   subQuestion5: new FormControl(false, Validators.required),
-      //   subQuestion6: new FormControl(false, Validators.required),
-      //   comment: new FormControl('')
-      // }),
-      // question18: this.fb.group({
-      //   subQuestion1: new FormControl(false, Validators.required),
-      //   subQuestion2: new FormControl(false, Validators.required),
-      //   subQuestion3: new FormControl(false, Validators.required),
-      //   subQuestion4: new FormControl(false, Validators.required),
-      //   subQuestion5: new FormControl(false, Validators.required),
-      //   subQuestion6: new FormControl(false, Validators.required),
-      //   comment: new FormControl('')
-      // }),
-      // question19: this.fb.group({
-      //   subQuestion1: new FormControl(false, Validators.required),
-      //   subQuestion2: new FormControl(false, Validators.required),
-      //   subQuestion3: new FormControl(false, Validators.required),
-      //   subQuestion4: new FormControl(false, Validators.required),
-      //   subQuestion5: new FormControl(false, Validators.required),
-      //   subQuestion6: new FormControl(false, Validators.required),
-      //   comment: new FormControl('')
-      // }),
-      // question20: this.fb.group({
-      //   subQuestion1: new FormControl(false, Validators.required),
-      //   subQuestion2: new FormControl(false, Validators.required),
-      //   subQuestion3: new FormControl(false, Validators.required),
-      //   subQuestion4: new FormControl(false, Validators.required),
-      //   subQuestion5: new FormControl(false, Validators.required),
-      //   subQuestion6: new FormControl(false, Validators.required),
-      //   comment: new FormControl('')
-      // }),
-      // question21: this.fb.group({
-      //   subQuestion1: new FormControl(false, Validators.required),
-      //   subQuestion2: new FormControl(false, Validators.required),
-      //   subQuestion3: new FormControl(false, Validators.required),
-      //   subQuestion4: new FormControl(false, Validators.required),
-      //   comment: new FormControl('')
-      // }),
     });
-      this.form.get('class_name')!.valueChanges.subscribe((selectedClass) => {
-        if (selectedClass) {
-          this.form.get('subClassName')!.enable();
-        } else {
-          this.form.get('subClassName')!.disable();
-        }
-      });
+    this.formRequest = this.fb.group({});
+    this.questionnaireData = { questions: [] }; 
+
+    const questions = this.getQuestionsForCurrentPage();
+    if (questions && questions.length > 0) {
+      for (let i = 0; i < questions.length; i++) {
+        this.addQuestionControls(i);
+      }
+    }
+    this.form.get('class_name')!.valueChanges.subscribe((selectedClass) => {
+      if (selectedClass) {
+        this.form.get('subClassName')!.enable();
+      } else {
+        this.form.get('subClassName')!.disable();
+      }
+    });
     // this.getClassData(0);
+    // this.populateFormControls()
     this.loadData()
     this.getSubClassData();
   }
   get f(): { [p: string]: AbstractControl } {
     return this.form.controls;
   }
+ 
+  addQuestionControls(questionIndex: number) {
+    const question = this.getQuestionsForCurrentPage()[questionIndex];
+    for (let j = 0; j < question.options.length; j++) {
+      const controlName = `q${questionIndex}s${j}`;
+      this.formRequest.addControl(controlName, new FormControl());
+    }
+    const commentControlName = `comment${questionIndex}`;
+    this.formRequest.addControl(commentControlName, new FormControl());
+  }
+
+  populateFormControls() {
+    const questions = this.getQuestionsForCurrentPage();
+
+    questions.forEach((question, i) => {
+      // Create an array of form controls for the options of each question
+      const optionControls = question.options.map((option: { selected: any; }, j: any) => {
+        return this.fb.control(option.selected, Validators.required);
+      });
+
+      // Add the array of form controls as a form array to the form group
+      this.formRequest.addControl('q' + i, this.fb.array(optionControls));
+
+      // Add the textarea control to the form group
+      this.formRequest.addControl('comment' + i, this.fb.control(''));
+    });
+  }
+
+  getCommentControl(i: number): FormControl<any> {
+    return this.formRequest.get('comment' + i) as FormControl<any>;
+  }
+
+
+  getOptionControl(i: number, j: number, option: string): FormControl<any> {
+    const questionControl = this.formRequest.get('q' + i) as FormGroup;
+    return questionControl.get('q' + i + 's' + j) as FormControl<any>;
+  }
+
 
   private loadData(): any {
     this.loading = true;
     let model = {
-      id:2
+      id: 2
     }
     this._httpService.customerPortalPosts(`admin/customer/questionnaire1/get`, model).subscribe(
       (res: any) => {
@@ -259,17 +132,15 @@ export class AddBenefitComponent implements OnInit {
   toggleCheckbox(mainQuestionIndex: number, optionIndex: number, selectedOption: string) {
     const mainQuestion = this.questionnaireData.questions[mainQuestionIndex];
     const option = mainQuestion.options[optionIndex];
-  
-    // If the selected option is already checked, uncheck it
     if (option.selected === selectedOption) {
       option.selected = '';
     } else {
       option.selected = selectedOption;
     }
   }
-  
-  
-  
+
+
+
 
   // toggleCheckbox(mainQuestion: string, subQuestion: string, event: Event) {
   //   const formControl = this.form.get(mainQuestion)?.get(subQuestion) as FormControl;
@@ -402,6 +273,7 @@ export class AddBenefitComponent implements OnInit {
     this.loading = true;
   }
 
+
   private createRecord(): any {
     this.isLoading = true;
     let userId = JSON.parse(localStorage.getItem('data')!)['id']
@@ -411,27 +283,6 @@ export class AddBenefitComponent implements OnInit {
       userId,
       request_type: this.form.value.request_type,
       subClassName: this.form.value.subClassName,
-      // question1: this.form.value.question1,
-      // question2: this.form.value.question2,
-      // question3: this.form.value.question3,
-      // question4: this.form.value.question4,
-      // question5: this.form.value.question5,
-      // question6: this.form.value.question6,
-      // question7: this.form.value.question7,
-      // question8: this.form.value.question8,
-      // question9: this.form.value.question9,
-      // question10: this.form.value.question10,
-      // question11: this.form.value.question11,
-      // question12: this.form.value.question12,
-      // question13: this.form.value.question13,
-      // question14: this.form.value.question14,
-      // question15: this.form.value.question15,
-      // question16: this.form.value.question16,
-      // question17: this.form.value.question17,
-      // question18: this.form.value.question18,
-      // question19: this.form.value.question19,
-      // question20: this.form.value.question20,
-      // question21: this.form.value.question21,
     };
     console.log(model)
     this._httpService.customerPortalPost('api/v1/portal/requestAccreditation', model).subscribe(
@@ -454,6 +305,50 @@ export class AddBenefitComponent implements OnInit {
           'error')
       }
     );
+
+  }
+  
+
+  submitDataForm(): any {
+    this.isLoading = true;
+    let licenceNumber = JSON.parse(localStorage.getItem('data')!)['licenceNumber'];
+    const formData = this.formRequest.value;
+    console.log(formData);
+    const model = {
+      questionnaireId: 2,
+      requestId: 0,
+      licenseNumber: String(licenceNumber),
+      answers: [
+        {
+          answer: "no",
+          questionId: 0,
+          optionId: 0
+        }
+      ]
+    };
+    console.log(formData)
+    console.log(model)
+    this.isFirstFormSubmitted = true;
+    // this._httpService.customerPortalPost('api/v1/portal/requestAccreditation', model).subscribe(
+    //   (result: any) => {
+    //     if (result.status === 200) {
+    //       this.isLoading = false;
+    //       this.form.reset()
+    //       Swal.fire('Request Recieved Successfully',
+    //         'success').then(r => console.log(r))
+    //     } else {
+
+    //       this.form.reset()
+    //       Swal.fire('Request Failed, Try Again',
+    //         'error').then(r => console.log(r))
+    //     }
+    //   },
+    //   (error: any) => {
+    //     this.form.reset()
+    //     Swal.fire('Request error',
+    //       'error')
+    //   }
+    // );
 
   }
 
