@@ -25,6 +25,7 @@ export class DashboardComponent implements OnInit {
   imageUploaded = false;
   selectedFile: File | null = null;
 
+  uploadedImage: File | null = null;
   // Store the sanitized URL
   public downloadLink: SafeUrl;
   isLoading: boolean = false;
@@ -41,6 +42,7 @@ export class DashboardComponent implements OnInit {
   facilityType: string | null;
   facilityCategory: string | null;
   businessPhone:string | null;
+  selectedImageFile: File | null = null;
 
   showLeaveCommentForm: boolean = false;
   showFormImage = 'assets/images/chats.png'
@@ -171,6 +173,103 @@ export class DashboardComponent implements OnInit {
   }
 
 
+  
+  // handleImageUpload(event: Event): void {
+  //   const inputElement = event.target as HTMLInputElement;
+  //   if (inputElement.files && inputElement.files.length > 0) {
+  //     this.uploadedImage = inputElement.files[0];
+  //   }
+  //   if (this.uploadedImage) {
+  //     const formData = new FormData();
+  //     formData.append('image', this.uploadedImage);
+
+  //     this.httpService.customerPortalPost(`api/v1/auth/uploadLandingPhoto`, formData).subscribe(
+  //       (result: any) => {
+  //         if (result.status === '00') {
+  //           console.log('Image uploaded successfully!', result);
+  //           this.isLoading = false;
+  //           this.activeModal.close('success');
+  //           Swal.fire('Image uploaded Successfully!',
+  //             'success').then(r => console.log(r))
+  //           this.form.reset()
+  //         } else {
+  //           Swal.fire('Image Uploaded Failed, Try Again',
+  //             'error').then(r => console.log(r))
+  //         }
+  //       },
+  //       (error: any) => {
+  //         Swal.fire('Image Uploaded error',
+  //           'error')
+  //       }
+  //     );
+  //   }
+  // }
+
+  // handleImageUpload(event: Event): void {
+  //   const inputElement = event.target as HTMLInputElement;
+  //   if (inputElement.files && inputElement.files.length > 0) {
+  //     this.selectedImageFile = inputElement.files[0]; 
+  //     const reader = new FileReader();
+  //     reader.onload = (e) => {
+  //       this.uploadedImageUrl = e.target?.result as string;
+  //       this.imageUploaded = true; 
+  //     };
+  //     reader.readAsDataURL(this.selectedImageFile);
+  //   }
+  //   if (this.imageUploaded && this.selectedImageFile) {
+  //     const formData = new FormData();
+  //     formData.append('image', this.selectedImageFile);
+
+  //     this.httpService.customerPortalPost(`api/v1/auth/uploadLandingPhoto`, formData).subscribe(
+  //       (result: any) => {
+  //         if (result.status === '00') {
+  //           console.log('Image uploaded successfully!', result);
+  //           this.isLoading = false;
+  //           this.activeModal.close('success');
+  //           Swal.fire('Image uploaded Successfully!',
+  //             'success').then(r => console.log(r))
+  //           this.form.reset()
+  //         } else {
+  //           Swal.fire('Image Uploaded Failed, Try Again',
+  //             'error').then(r => console.log(r))
+  //         }
+  //       },
+  //       (error: any) => {
+  //         Swal.fire('Image Uploaded error',
+  //           'error')
+  //       }
+  //     );
+  //   }
+  // }
+
+  // uploadImage(): void {
+
+  //   if (this.imageUploaded && this.selectedImageFile) {
+  //     const formData = new FormData();
+  //     formData.append('image', this.selectedImageFile);
+
+  //     this.httpService.customerPortalPost(`api/v1/auth/uploadLandingPhoto`, formData).subscribe(
+  //       (result: any) => {
+  //         if (result.status === '00') {
+  //           console.log('Image uploaded successfully!', result);
+  //           this.isLoading = false;
+  //           this.activeModal.close('success');
+  //           Swal.fire('Image uploaded Successfully!',
+  //             'success').then(r => console.log(r))
+  //           this.form.reset()
+  //         } else {
+  //           Swal.fire('Image Uploaded Failed, Try Again',
+  //             'error').then(r => console.log(r))
+  //         }
+  //       },
+  //       (error: any) => {
+  //         Swal.fire('Image Uploaded error',
+  //           'error')
+  //       }
+  //     );
+  //   }
+  // }
+
   handleImageUpload(event: Event): void {
     const inputElement = event.target as HTMLInputElement;
     if (inputElement.files && inputElement.files.length > 0) {
@@ -181,8 +280,9 @@ export class DashboardComponent implements OnInit {
         this.imageUploaded = true; // Set imageUploaded to true to hide the "Click here to upload" text
 
         const formData = new FormData();
+        console.log(formData)
         formData.append('image', file);
-        this.httpService.customerPortalPost(`api/v1/auth/uploadLandingPhoto`, formData).subscribe(
+        this.httpService.customerPortalPostFile(`api/v1/auth/uploadLandingPhoto`, formData).subscribe(
           (result: any) => {
             if (result.status === '00') {
               console.log('Image uploaded successfully!', result);
@@ -192,7 +292,6 @@ export class DashboardComponent implements OnInit {
                 'success').then(r => console.log(r))
               this.form.reset()
             } else {
-              this.activeModal.close('error');
               Swal.fire('Image Uploaded Failed, Try Again',
                 'error').then(r => console.log(r))
             }
@@ -229,6 +328,7 @@ export class DashboardComponent implements OnInit {
       console.warn('No image selected.');
     }
   }
+
   toggleLeaveCommentForm() {
     if (this.showLeaveCommentForm) {
       this.hideLeaveCommentForm();
@@ -237,9 +337,11 @@ export class DashboardComponent implements OnInit {
       this.showFormImage = this.showLeaveCommentForm ? 'assets/images/chat.png' : 'assets/images/chats.png';
     }
   }
+
   hideLeaveCommentForm() {
     this.showLeaveCommentForm = false;
   }
+
    onleaveComment() {
     this.isLoading = true;
     const model = {
@@ -271,7 +373,6 @@ export class DashboardComponent implements OnInit {
       }
     );
   }
-
 
   openModal(modalContent: any) {
     this.modalRef = this.modal.open(modalContent, {centered: true, size:"md"});

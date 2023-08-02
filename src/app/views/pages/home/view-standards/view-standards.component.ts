@@ -23,7 +23,7 @@ import { DomSanitizer, SafeResourceUrl, SafeUrl } from '@angular/platform-browse
   styleUrls: ['./view-standards.component.scss'],
 })
 export class ViewStandardsComponent implements OnInit {
-  
+
   returnUrl: any;
   public form: FormGroup;
   public forms: FormGroup;
@@ -89,7 +89,7 @@ export class ViewStandardsComponent implements OnInit {
   changeIndex: (index: any) => void;
   public standardId: number;
   showLeaveCommentForm: boolean = false;
-  showRequestForm : boolean  = false;
+  showRequestForm: boolean = false;
   file: any;
   certificateData: any;
   selectedPart: any;
@@ -122,15 +122,15 @@ export class ViewStandardsComponent implements OnInit {
     this.downloadLink = this.sanitizer.bypassSecurityTrustUrl(this.brochureUrl);
     this.formC = fb.group({
       name: ["", Validators.compose([Validators.required])],
-      email: ['',Validators.compose([Validators.required, CustomValidators.email])],
-      subject: ['',Validators.compose([Validators.required])],
+      email: ['', Validators.compose([Validators.required, CustomValidators.email])],
+      subject: ['', Validators.compose([Validators.required])],
       message: ["", Validators.compose([Validators.required])],
       phone_number: ["", Validators.compose([Validators.required, this.phoneNumberValidator])],
     });
     this.form = fb.group({
       name: ["", Validators.compose([Validators.required])],
-      email: ['',Validators.compose([Validators.required, CustomValidators.email])],
-      occupation: ['',Validators.compose([Validators.required])],
+      email: ['', Validators.compose([Validators.required, CustomValidators.email])],
+      occupation: ['', Validators.compose([Validators.required])],
       purpose: ["", Validators.compose([Validators.required])],
       phone_number: ["", Validators.compose([Validators.required, this.phoneNumberValidator])],
     });
@@ -225,7 +225,7 @@ export class ViewStandardsComponent implements OnInit {
     const phoneNumber = control.value;
     // Regular expression to check if the phone number starts with "254" and is followed by 9 digits.
     const phonePattern = /^254\d{9}$/;
-  
+
     return phonePattern.test(phoneNumber) ? null : { invalidPhoneNumber: true };
   }
 
@@ -247,18 +247,9 @@ export class ViewStandardsComponent implements OnInit {
         if (res.status === '00') {
           this.standard = res['data'];
           this.previewImageUrl = res.data.preview_image_url;
-          this.existingImage = "http://".concat(
-            this.standard['preview_image_url']
-          );
-
-          if (this.standard.preview_image_url) {
-            this.existingImage = this.sanitizer.bypassSecurityTrustResourceUrl("http://" + this.standard.preview_image_url);
-          } else {
-            this.existingImage = this.defaultImage;
-          }
-          console.log(this.existingImage)
-
+          this.existingImage = this.standard["preview_image_url"].replace("10.20.2.19:7600", "https://test-api.ekenya.co.ke/tra-backend");
           this.loading = false;
+          // console.log(this.existingImage)
           this.parts = res['data']['parts'];
           this.terms = res['data']['terms'];
           this.files = res['data']['files'];
@@ -328,7 +319,7 @@ export class ViewStandardsComponent implements OnInit {
           this.activeModal.close('success');
           Swal.fire('Comment Added Successfully',
             'success').then(r => console.log(r))
-            this.forms.reset()
+          this.forms.reset()
           this.loadData()
         } else {
           this.activeModal.close('error');
@@ -371,8 +362,8 @@ export class ViewStandardsComponent implements OnInit {
     const model = {
       standard_id: this.standardId,
       name: this.form.value.name,
-      phone_number: this.form.value.phone_number, 
-      occupation: this.form.value.occupation, 
+      phone_number: this.form.value.phone_number,
+      occupation: this.form.value.occupation,
       purpose: this.form.value.purpose,
       email: this.form.value.email,
     };
@@ -414,8 +405,8 @@ export class ViewStandardsComponent implements OnInit {
     this.isLoading = true;
     const model = {
       name: this.formC.value.name,
-      phone_number: this.formC.value.phone_number, 
-      subject: this.formC.value.subject, 
+      phone_number: this.formC.value.phone_number,
+      subject: this.formC.value.subject,
       message: this.formC.value.message,
       email: this.formC.value.email,
     };

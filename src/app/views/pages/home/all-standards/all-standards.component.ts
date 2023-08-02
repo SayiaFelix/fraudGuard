@@ -171,13 +171,13 @@ export class StandardsComponent implements OnInit {
     private sanitizer: DomSanitizer,
     public modal: NgbModal,
     public activeModal: NgbActiveModal, fb: FormBuilder,) {
-      this.form = fb.group({
-        name: ["", Validators.compose([Validators.required])],
-        email: ['',Validators.compose([Validators.required, CustomValidators.email])],
-        subject: ['',Validators.compose([Validators.required])],
-        message: ["", Validators.compose([Validators.required])],
-        phone_number: ["", Validators.compose([Validators.required, this.phoneNumberValidator])],
-      });
+    this.form = fb.group({
+      name: ["", Validators.compose([Validators.required])],
+      email: ['', Validators.compose([Validators.required, CustomValidators.email])],
+      subject: ['', Validators.compose([Validators.required])],
+      message: ["", Validators.compose([Validators.required])],
+      phone_number: ["", Validators.compose([Validators.required, this.phoneNumberValidator])],
+    });
   }
 
   ngOnInit(): void {
@@ -207,12 +207,13 @@ export class StandardsComponent implements OnInit {
       );
     }
   }
+  // subClass: any | null
 
   phoneNumberValidator(control: AbstractControl): { [key: string]: any } | null {
     const phoneNumber = control.value;
     // Regular expression to check if the phone number starts with "254" and is followed by 9 digits.
     const phonePattern = /^254\d{9}$/;
-  
+
     return phonePattern.test(phoneNumber) ? null : { invalidPhoneNumber: true };
   }
   private loadDatas(subClass: any | null): any {
@@ -226,14 +227,19 @@ export class StandardsComponent implements OnInit {
         if (res.status == '00') {
           this.standards = res['data'];
           this.standards.forEach((standard: any) => {
+            // Modify preview_image_url
             if (standard.preview_image_url) {
-              standard.preview_image_url = 'http://' + standard.preview_image_url;
+              const filename = standard.preview_image_url.split('?filename=')[1];
+              standard.preview_image_url = 'https://test-api.ekenya.co.ke/tra-backend/api/v1/standard/files/download?filename=' + encodeURIComponent(filename);
               standard.existingImage = this.sanitizer.bypassSecurityTrustResourceUrl(standard.preview_image_url);
             } else {
               standard.existingImage = this.defaultImage;
             }
+
+            // Modify preview_icon_url
             if (standard.preview_icon_url) {
-              standard.preview_icon_url = 'http://' + standard.preview_icon_url;
+              const filename = standard.preview_icon_url.split('?filename=')[1];
+              standard.preview_icon_url = 'https://test-api.ekenya.co.ke/tra-backend/api/v1/standard/files/download?filename=' + encodeURIComponent(filename);
               standard.existingIcon = this.sanitizer.bypassSecurityTrustResourceUrl(standard.preview_icon_url);
             } else {
               standard.existingIcon = this.defaultIcon;
@@ -284,7 +290,7 @@ export class StandardsComponent implements OnInit {
       this.filteredStandards = this.standards.filter((std: any) => std.enterprise_sub_class === selectedSubClass);
     }
 
-    console.log(this.filteredStandards); 
+    console.log(this.filteredStandards);
   }
 
   checkForToken() {
@@ -305,7 +311,7 @@ export class StandardsComponent implements OnInit {
       .customerPortalPosts('standard/portal/class/getall', {})
       .subscribe((res: any) => {
         console.log(res)
-        if (res.status === 200 ) {
+        if (res.status === 200) {
           if (res.data && res.data.classes) {
             this.loading = false;
             this.SubClassData = res.data.classes;
@@ -340,8 +346,8 @@ export class StandardsComponent implements OnInit {
     this.isLoading = true;
     const model = {
       name: this.form.value.name,
-      phone_number: this.form.value.phone_number, 
-      subject: this.form.value.subject, 
+      phone_number: this.form.value.phone_number,
+      subject: this.form.value.subject,
       message: this.form.value.message,
       email: this.form.value.email,
     };

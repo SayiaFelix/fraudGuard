@@ -138,6 +138,20 @@ export class HttpService {
       );
   }
 
+  public customerPortalPostFile(endpoint: string, model: any): any {
+    return this.http
+      .post(
+        this.globalService.customerPortalNest + endpoint,
+        model,
+        this.getHeadersFile()
+      )
+      .pipe(
+        map((response) => {
+          response = response;
+          return response;
+        })
+      );
+  }
   public customerPortalGet(endpoint: string, model: any): any {
     return this.http
       .get(
@@ -158,7 +172,6 @@ export class HttpService {
       .post(
         this.globalService.standardApi + endpoint,
         model,
-      
       )
       .pipe(
         map((response) => {
@@ -298,6 +311,14 @@ export class HttpService {
         return response;
       })
     );
+  }
+
+  private getHeadersFile(): any {
+    return {
+      headers: new HttpHeaders({
+        Authorization: 'Bearer ' + this.globalService.getToken(),
+      }),
+    };
   }
 
   private getHeaders(): any {

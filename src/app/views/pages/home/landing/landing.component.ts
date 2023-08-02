@@ -281,22 +281,27 @@ export class LandingComponent implements OnInit {
         if (res.status == '00') {
           this.standards = res['data'];
           this.standards.forEach((standard: any) => {
+            // Modify preview_image_url
             if (standard.preview_image_url) {
-              standard.preview_image_url = 'http://' + standard.preview_image_url;
+              const filename = standard.preview_image_url.split('?filename=')[1];
+              standard.preview_image_url = 'https://test-api.ekenya.co.ke/tra-backend/api/v1/standard/files/download?filename=' + encodeURIComponent(filename);
               standard.existingImage = this.sanitizer.bypassSecurityTrustResourceUrl(standard.preview_image_url);
             } else {
               standard.existingImage = this.defaultImage;
             }
-
+  
+            // Modify preview_icon_url
             if (standard.preview_icon_url) {
-              standard.preview_icon_url = 'http://' + standard.preview_icon_url;
+              const filename = standard.preview_icon_url.split('?filename=')[1];
+              standard.preview_icon_url = 'https://test-api.ekenya.co.ke/tra-backend/api/v1/standard/files/download?filename=' + encodeURIComponent(filename);
               standard.existingIcon = this.sanitizer.bypassSecurityTrustResourceUrl(standard.preview_icon_url);
             } else {
               standard.existingIcon = this.defaultIcon;
             }
           });
- 
+  
           console.log(this.standards);
+          console.log(this.existingImage);
           this.loading = false;
         } else {
           console.log('Failed', 'Unable to fetch standards', 'error');
@@ -307,6 +312,10 @@ export class LandingComponent implements OnInit {
       }
     );
   }
+  
+  
+  
+  
 
   toggleLeaveCommentForm() {
     if (this.showLeaveCommentForm) {
