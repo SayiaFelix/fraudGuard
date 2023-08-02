@@ -224,6 +224,11 @@ export class ListUsersComponent implements OnInit {
       (res: any) => {
         if (res.status == '00') {
           this.assessors = res['data']
+          
+        // this.assessors = res.data.filter((assessor: any) => assessor.soft_delete === true);
+          // const assessor = res.data.filter((assess: any) => assess.soft_delete === false);
+          // console.log(this.assessors)
+          // this.assessors = assessor
           this.assessors.forEach((assessor: any) => {
             if (assessor.profile_url) {
               assessor.profile_url = 'http://' + assessor.profile_url;

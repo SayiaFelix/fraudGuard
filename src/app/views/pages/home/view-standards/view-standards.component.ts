@@ -140,6 +140,9 @@ export class ViewStandardsComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    for (const standard of this.standards) {
+      standard.describe = this.sanitizeHtml(standard.part_description);
+    }
     this.activatedRoute.params.subscribe(params => {
       if (typeof params.id !== 'undefined') {
         console.log('query-params');
@@ -205,6 +208,10 @@ export class ViewStandardsComponent implements OnInit {
     if (this.parts.length > 0) {
       this.selectedPart = this.parts[0];
     }
+    // for (const part of this.parts) {
+    //   console.log(part.part_description)
+    //   part.part_description = this.sanitizeHtml(part.part_description);
+    // }
   }
 
   get f(): { [p: string]: AbstractControl } {
@@ -214,12 +221,12 @@ export class ViewStandardsComponent implements OnInit {
     return this.formC.controls;
   }
 
-  // if (assessor.profile_url) {
-  //   assessor.profile_url = 'http://' + assessor.profile_url;
-  //   assessor.existingImage = this.sanitizer.bypassSecurityTrustResourceUrl(assessor.profile_url);
-  // } else {
-  //   assessor.existingImage = this.defaultProfileImage;
-  // }
+  sanitizeHtml(html: string): string {
+    const element = document.createElement('div');
+    element.innerHTML = html;
+    return element.textContent || element.innerText || '';
+  }
+  
 
   phoneNumberValidator(control: AbstractControl): { [key: string]: any } | null {
     const phoneNumber = control.value;

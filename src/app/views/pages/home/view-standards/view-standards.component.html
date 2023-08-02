@@ -176,9 +176,9 @@
                   </h3>
                 </div>
                 <div class="mt-2">
-                  <p
+                  <p [innerHTML]="selectedPart?.part_description"
                     style="color: #000000; font-family: Muli; font-size: 15px; font-weight: 400; line-height: 22px; letter-spacing: 0em; text-align: justified;">
-                    {{ selectedPart?.part_description || 'Tourism Regulatory Authority (TRA) is a corporate body established under section 4 of the Tourism Act No.28 of 2011 and is mandated to regulate the tourism sector in Kenya. This entails developing regulations, standards and guidelines that are necessary to ensure an all-round quality service delivery in the tourism sector. This standard was developed by a select team drawn from relevant institutions, including; Tourism Regulatory Authority (TRA), Kenya Utalii College (KUC), Kenya Association of Hotels and Caterers (KAHC), Kenya Association of Tour Operators (KATO), Ministry of Health (MoH), Architectural of Association of Kenya (AAK) and Kenya Bureau of Standards (KEBS).' }}
+                    <!-- {{ selectedPart?.part_description || 'Tourism Regulatory Authority (TRA) is a corporate body established under section 4 of the Tourism Act No.28 of 2011 and is mandated to regulate the tourism sector in Kenya. This entails developing regulations, standards and guidelines that are necessary to ensure an all-round quality service delivery in the tourism sector. This standard was developed by a select team drawn from relevant institutions, including; Tourism Regulatory Authority (TRA), Kenya Utalii College (KUC), Kenya Association of Hotels and Caterers (KAHC), Kenya Association of Tour Operators (KATO), Ministry of Health (MoH), Architectural of Association of Kenya (AAK) and Kenya Bureau of Standards (KEBS).' }} -->
                   </p>
                 </div>
                 <div *ngIf="showDashbord">
