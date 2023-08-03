@@ -231,13 +231,21 @@ export class ListUsersComponent implements OnInit {
           // this.assessors = assessor
           this.assessors.forEach((assessor: any) => {
             if (assessor.profile_url) {
-              assessor.profile_url = 'http://' + assessor.profile_url;
-              assessor.existingImage = this.sanitizer.bypassSecurityTrustResourceUrl(assessor.profile_url);
+              const filename = assessor.profile_ur.split('?filename=')[1];
+              assessor.profile_ur = 'https://test-api.ekenya.co.ke/tra-backend/api/v1/standard/files/download?filename=' + encodeURIComponent(filename);
+              assessor.existingImage = this.sanitizer.bypassSecurityTrustResourceUrl(assessor.profile_ur);
             } else {
               assessor.existingImage = this.defaultProfileImage;
             }
+
+            // if (assessor.profile_url) {
+            //   assessor.profile_url = 'http://' + assessor.profile_url;
+            //   assessor.existingImage = this.sanitizer.bypassSecurityTrustResourceUrl(assessor.profile_url);
+            // } else {
+            //   assessor.existingImage = this.defaultProfileImage;
+            // }
+   
           });
- 
           console.log(this.assessors);
           this.loading = false;
         } else {

@@ -7,7 +7,7 @@
           <div style="background: var(--seasalt, #F8F8F8); border-radius: 8px 8px 8px 8px;">
             <div class="d-flex justify-content-between"
               style="background-color: #d0ddf0;  font-family: 'Mulish'; font-weight: 900; border-radius:4px;">
-              <h4 class="text-start p-2 mt-2" style="color: #6D36A8; font-size: 23px;">Customer Inquiry</h4>
+              <h4 class="text-start p-2 mt-2" style="color: #6D36A8; font-size: 19px;">Customer Inquiry</h4>
               <div>
                 <button type="button" class="btn fs-2" (click)="hideLeaveCommentForm()"
                   style="color: #6D36A8; font-size: 20px; margin-top: -5%;">
@@ -71,7 +71,9 @@
         </button>
       </div>
       <div class="mt-2">
-        <img class="img-fluid" src="assets/images/TRA_Logo.png" width="110" height="50" alt="" />
+        <a routerLink="">
+          <img class="img-fluid" src="assets/images/TRA_Logo.png" width="110" height="50" alt="" />
+        </a> 
       </div>
     </div>
 
@@ -176,7 +178,7 @@
                   </h3>
                 </div>
                 <div class="mt-2">
-                  <p [innerHTML]="selectedPart?.part_description"
+                  <p [innerHTML]="selectedPart?.part_description || 'Tourism Regulatory Authority (TRA) is a corporate body established under section 4 of the Tourism Act No.28 of 2011 and is mandated to regulate the tourism sector in Kenya. This entails developing regulations, standards and guidelines that are necessary to ensure an all-round quality service delivery in the tourism sector. This standard was developed by a select team drawn from relevant institutions, including; Tourism Regulatory Authority (TRA), Kenya Utalii College (KUC), Kenya Association of Hotels and Caterers (KAHC), Kenya Association of Tour Operators (KATO), Ministry of Health (MoH), Architectural of Association of Kenya (AAK) and Kenya Bureau of Standards (KEBS).' "
                     style="color: #000000; font-family: Muli; font-size: 15px; font-weight: 400; line-height: 22px; letter-spacing: 0em; text-align: justified;">
                     <!-- {{ selectedPart?.part_description || 'Tourism Regulatory Authority (TRA) is a corporate body established under section 4 of the Tourism Act No.28 of 2011 and is mandated to regulate the tourism sector in Kenya. This entails developing regulations, standards and guidelines that are necessary to ensure an all-round quality service delivery in the tourism sector. This standard was developed by a select team drawn from relevant institutions, including; Tourism Regulatory Authority (TRA), Kenya Utalii College (KUC), Kenya Association of Hotels and Caterers (KAHC), Kenya Association of Tour Operators (KATO), Ministry of Health (MoH), Architectural of Association of Kenya (AAK) and Kenya Bureau of Standards (KEBS).' }} -->
                   </p>
@@ -266,7 +268,7 @@
     <div class="m-3">
       <h5
         style="color: #000000; font-family: Muli;font-size: 16px;font-weight: 600;line-height: 19px;letter-spacing: 0em;text-align: justified;">
-        Do you have a Hotel and you would like to request for Accreditation? <a routerLink=""> Click Here</a>
+        Do you have a Hotel and you would like to request for Accreditation? <a routerLink="/tra-client/requests/addRequest"> Click Here</a>
       </h5>
     </div>
   </div>
@@ -286,7 +288,7 @@
         letter-spacing: 0.08em;
         margin-left: 50%;
       ">
-      <a routerLink="/" style="text-decoration: none; color: #1e0f2e" class="transition">Home</a>
+      <a routerLink="" style="text-decoration: none; color: #1e0f2e" class="transition">Home</a>
       <a routerLink="/" class="" style="text-decoration: none; margin: 20px; color: #1e0f2e" class="transition">Tourism
         ACT 2011</a>
       <a routerLink="/" style="text-decoration: none; color: #1e0f2e" class="transition">Tourism Regulations 2014</a>

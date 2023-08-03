@@ -1,5 +1,4 @@
 <div class="body w-100" style="position: relative; background-color: #efefef">
-
   <div class="d-flex justify-content-between" style="max-width: 100%; max-height: 70px">
     <div class="d-flex justify-content-around" style="margin-left: 4%">
       <div class="p-2">
@@ -11,7 +10,9 @@
         </button>
       </div>
       <div class="mt-2">
-        <img class="img-fluid" src="assets/images/TRA_Logo.png" width="110" height="50" alt="" />
+        <a routerLink="">
+          <img class="img-fluid" src="assets/images/TRA_Logo.png" width="110" height="50" alt="" />
+        </a>
       </div>
     </div>
 
@@ -44,7 +45,8 @@
         <div style="margin-top: 5%;">
           <h3 class="header"
             style="color: var(--dark-purple, #1E0F2E);text-align: center;font-family: Muli;font-size: 11px;font-style: normal;font-weight: 700;line-height: normal;text-transform: uppercase;">
-            <span>{{profile}}</span></h3>
+            <span>{{profile}}</span>
+          </h3>
         </div>
         <div style="margin-top: 2%; margin-left: 5px;">
           <img class="wd-30 ht-30 rounded-circle" src="./assets/images/user.png" alt="profile">
@@ -98,34 +100,42 @@
                     <div class="form-group mt-2">
                       <input formControlName="name" type="text" class="form-control validation-field border-0" id="name"
                         placeholder="Your Name or Company*">
-                      <small class="text-danger" *ngIf="f.name.touched && f.name.errors?.required">Field Required</small>
+                      <small class="text-danger" *ngIf="f.name.touched && f.name.errors?.required">Field
+                        Required</small>
                     </div>
                     <div class="form-group mt-2">
-                      <input formControlName="email" type="email" class="form-control validation-field border-0" id="email"
-                        placeholder="Your email address*">
-                      <small class="text-danger" *ngIf="f.email.touched && f.email.errors?.required">Field Required</small>
-                      <small class="text-danger" *ngIf="f.email.touched && f.email.errors?.email">Email Format Required</small>
+                      <input formControlName="email" type="email" class="form-control validation-field border-0"
+                        id="email" placeholder="Your email address*">
+                      <small class="text-danger" *ngIf="f.email.touched && f.email.errors?.required">Field
+                        Required</small>
+                      <small class="text-danger" *ngIf="f.email.touched && f.email.errors?.email">Email Format
+                        Required</small>
                     </div>
                     <div class="form-group mt-2">
                       <input type="text" name="tel" formControlName="phone_number" id="phoneNumber"
                         placeholder="Phone Number*" class="form-control validation-field border-0 w-100" ng2TelInput
                         data-initial-country="ke">
-                      <small class="text-danger" *ngIf="f.phone_number.touched && f.phone_number.errors?.required">Field Required</small> <br>
-                      <small class="text-danger" *ngIf="f.phone_number.touched && f.phone_number.errors?.invalidPhoneNumber">Phone Number: 254 *** *** ***</small>
+                      <small class="text-danger" *ngIf="f.phone_number.touched && f.phone_number.errors?.required">Field
+                        Required</small> <br>
+                      <small class="text-danger"
+                        *ngIf="f.phone_number.touched && f.phone_number.errors?.invalidPhoneNumber">Phone Number: 254
+                        *** *** ***</small>
                     </div>
                     <div class="form-group mt-2">
                       <input formControlName="subject" type="text" class="form-control validation-field border-0"
                         id="occupation" placeholder="Subject">
-                      <small class="text-danger" *ngIf="f.subject.touched && f.subject.errors?.required">Field Required</small>
+                      <small class="text-danger" *ngIf="f.subject.touched && f.subject.errors?.required">Field
+                        Required</small>
                     </div>
                     <div class="form-group mt-2">
-                      <textarea formControlName="message" type="text" id="message" cols="15" rows="3" 
-                      placeholder="Message" class="form-control validation-field border-0"></textarea>
-                      <small class="text-danger" *ngIf="f.message.touched && f.message.errors?.required">Field Required</small>
+                      <textarea formControlName="message" type="text" id="message" cols="15" rows="3"
+                        placeholder="Message" class="form-control validation-field border-0"></textarea>
+                      <small class="text-danger" *ngIf="f.message.touched && f.message.errors?.required">Field
+                        Required</small>
                     </div>
                     <div class="col-12 bg-white text-center py-1 mt-3 mb-2">
-                      <button [disabled]="!form.valid" style="width: 100%; border: none;" class="btn btn-block bronchure-btn transition"
-                        type="submit">
+                      <button [disabled]="!form.valid" style="width: 100%; border: none;"
+                        class="btn btn-block bronchure-btn transition" type="submit">
                         <span style="color: white;">SEND</span>
                       </button>
                     </div>
@@ -169,15 +179,15 @@
                   <div style="position: relative; display: inline-block;">
                     <div class="w-100">
                       <img class="img-fluid card-img-top" [src]="std.existingImage"
-                        style="height: 90px; width: 600px; border-top-left-radius: 13px; border-top-right-radius: 13px;"/>
+                        style="height: 90px; width: 600px; border-top-left-radius: 13px; border-top-right-radius: 13px;" />
                       <!-- <img class="img-fluid card-img-top"
                         style="min-height: 95px; max-width: 100%; border-top-left-radius: 13px; border-top-right-radius: 13px;"
                         src="assets/images/3.png" alt=""> -->
                     </div>
                     <div
                       style="position: absolute; width: 60px; height: 60px; margin-left: 4%; margin-top: -11%; border-radius: 50%; background-color: #D0DDF0;"
-                      class="card-header d-flex justify-content-center align-items-center border-0 box-shadow">
-                      <img class="img-fluid card-img-top iconI" [src]="std.existingIcon"/>
+                      class="d-flex justify-content-center align-items-center border-0 box-shadow">
+                      <img class="img-fluid" style="width: 40px; height: 30px;" [src]="std.existingIcon" />
                     </div>
                   </div>
                   <br><br><br>
@@ -216,7 +226,7 @@
   </div>
   <div class="row">
     <div class="card col-md-12 col-lg-12 col-xl-12 col-sm-12" style="background-image: url('assets/images/headerl.png');background-repeat: repeat-x;background-repeat: repeat-y;padding: 2% 6%;
-        color: #f8f8f8;
+        color: #f8f8f8; max-width: 100% !important;
       ">
       <h2 style="font-family: 'Mulish';line-height: 25px;font-weight: 600;font-size: 25px;">
         Ignite Success in Tourism: Align with Our Benchmark Minimum Standards.
@@ -249,7 +259,7 @@
         letter-spacing: 0.08em;
         margin-left: 50%;
       ">
-      <a routerLink="/" style="text-decoration: none; color: #1e0f2e" class="transition">Home</a>
+      <a routerLink="" style="text-decoration: none; color: #1e0f2e" class="transition">Home</a>
       <a routerLink="/" class="" style="text-decoration: none; margin: 20px; color: #1e0f2e" class="transition">Tourism
         ACT 2011</a>
       <a routerLink="/" style="text-decoration: none; color: #1e0f2e" class="transition">Tourism Regulations 2014</a>

@@ -22,7 +22,7 @@ export class AddBenefitComponent implements OnInit {
   public formRequest: FormGroup;
   totalPages: number;
   currentPage = 1;
-  questionsPerPage = 2;
+  questionsPerPage = 7;
 
   isFirstFormSubmitted = false;
 
@@ -86,23 +86,6 @@ export class AddBenefitComponent implements OnInit {
     this.formRequest.addControl(commentControlName, new FormControl());
   }
 
-  // populateFormControls() {
-  //   const questions = this.getQuestionsForCurrentPage();
-
-  //   questions.forEach((question, i) => {
-  //     // Create an array of form controls for the options of each question
-  //     const optionControls = question.options.map((option: { selected: any; }, j: any) => {
-  //       return this.fb.control(option.selected, Validators.required);
-  //     });
-
-  //     // Add the array of form controls as a form array to the form group
-  //     this.formRequest.addControl('q' + i, this.fb.array(optionControls));
-
-  //     // Add the textarea control to the form group
-  //     this.formRequest.addControl('comment' + i, this.fb.control(''));
-  //   });
-  // }
-
   getCommentControl(i: number): FormControl<any> {
     return this.formRequest.get('comment' + i) as FormControl<any>;
   }
@@ -141,13 +124,13 @@ export class AddBenefitComponent implements OnInit {
     let items: any[] = [];
 
     for (const question of this.questionnaireData.questions) {
-      let item =  question.options[0].id
+      let item = question.options[0].id
       items.push(`item-${item}`);
     }
 
     console.log('formDetails')
     console.log(items)
-  
+
     let formObject: any = {};
 
     for (const item of items) {
@@ -156,8 +139,8 @@ export class AddBenefitComponent implements OnInit {
 
     this.formRequest = this.fb.group({
       formObject
-    }); 
-    
+    });
+
     console.log(formObject);
 
   }
@@ -174,54 +157,6 @@ export class AddBenefitComponent implements OnInit {
 
 
 
-
-  // toggleCheckbox(mainQuestion: string, subQuestion: string, event: Event) {
-  //   const formControl = this.form.get(mainQuestion)?.get(subQuestion) as FormControl;
-  //   if (event.target instanceof HTMLInputElement) {
-  //     // Get the checked property of the checkbox
-  //     const isChecked = event.target.checked;
-  //     // Update the form control value based on the checkbox state
-  //     formControl.setValue(isChecked);
-  //     // If it's a "Yes" checkbox, uncheck the corresponding "No" checkbox
-  //     if (isChecked && subQuestion === 'subQuestion1') {
-  //       const noFormControl = this.form.get(mainQuestion)?.get('subQuestion2') as FormControl;
-  //       if (noFormControl) {
-  //         noFormControl.setValue(false);
-  //       }
-  //     } else if (isChecked && subQuestion === 'subQuestion2') {
-  //       // If it's a "Yes" checkbox, uncheck the corresponding "No" checkbox
-  //       const noFormControl = this.form.get(mainQuestion)?.get('subQuestion1') as FormControl;
-  //       if (noFormControl) {
-  //         noFormControl.setValue(false);
-  //       }
-  //     } else if (isChecked && subQuestion === 'subQuestion3') {
-  //       // If it's a "Yes" checkbox, uncheck the corresponding "No" checkbox
-  //       const noFormControl = this.form.get(mainQuestion)?.get('subQuestion4') as FormControl;
-  //       if (noFormControl) {
-  //         noFormControl.setValue(false);
-  //       }
-  //     } else if (isChecked && subQuestion === 'subQuestion4') {
-  //       // If it's a "Yes" checkbox, uncheck the corresponding "No" checkbox
-  //       const noFormControl = this.form.get(mainQuestion)?.get('subQuestion3') as FormControl;
-  //       if (noFormControl) {
-  //         noFormControl.setValue(false);
-  //       }
-  //     } else if (isChecked && subQuestion === 'subQuestion5') {
-  //       // If it's a "Yes" checkbox, uncheck the corresponding "No" checkbox
-  //       const noFormControl = this.form.get(mainQuestion)?.get('subQuestion6') as FormControl;
-  //       if (noFormControl) {
-  //         noFormControl.setValue(false);
-  //       }
-  //     } else if (isChecked && subQuestion === 'subQuestion6') {
-  //       // If it's a "Yes" checkbox, uncheck the corresponding "No" checkbox
-  //       const noFormControl = this.form.get(mainQuestion)?.get('subQuestion5') as FormControl;
-  //       if (noFormControl) {
-  //         noFormControl.setValue(false);
-  //       }
-  //     }
-  //   }
-  // }
-
   getFormControl(mainQuestion: string, subQuestion: string): FormControl {
     const formControl = this.form.get(mainQuestion)?.get(subQuestion) as FormControl;
     if (formControl) {
@@ -231,22 +166,45 @@ export class AddBenefitComponent implements OnInit {
     return new FormControl(false, Validators.required);
   }
 
-
   getSubClassData(): void {
     this.loading = true;
-    this._httpService.getClassAndSubclassData().subscribe((res: any) => {
-      console.log(res);
-      if (res.data && res.data.classes) {
-        this.loading = false;
-        this.SubClassData = res.data.classes;
-        this.ClassData = res.data
-        console.log(this.SubClassData);
-        console.log(this.ClassData);
-      } else {
-        this.loading = false;
-      }
-    });
+    this._httpService
+      .customerPortalPosts('standard/portal/class/getall', {})
+      .subscribe((res: any) => {
+        console.log(res)
+        if (res.status === 200) {
+          console.log(res);
+          if (res.data && res.data.classes) {
+            this.loading = false;
+            this.SubClassData = res.data.classes;
+            this.ClassData = res.data
+            console.log(this.SubClassData);
+            console.log(this.ClassData);
+          } else {
+            this.loading = false;
+          }
+        } else {
+          this.loading = false;
+        }
+      });
+    this.loading = false;
   }
+
+  // getSubClassData(): void {
+  //   this.loading = true;
+  //   this._httpService.getClassAndSubclassData().subscribe((res: any) => {
+  //     console.log(res);
+  //     if (res.data && res.data.classes) {
+  //       this.loading = false;
+  //       this.SubClassData = res.data.classes;
+  //       this.ClassData = res.data
+  //       console.log(this.SubClassData);
+  //       console.log(this.ClassData);
+  //     } else {
+  //       this.loading = false;
+  //     }
+  //   });
+  // }
 
   // getClassData(event: number): void {
   //   this.loading = true;
@@ -325,8 +283,8 @@ export class AddBenefitComponent implements OnInit {
           this.form.reset()
           Swal.fire('Request Recieved Successfully',
             'success').then(r => console.log(r))
+            this.isFirstFormSubmitted = true;
         } else {
-
           this.form.reset()
           Swal.fire('Request Failed, Try Again',
             'error').then(r => console.log(r))
@@ -361,7 +319,7 @@ export class AddBenefitComponent implements OnInit {
     };
     console.log(formData)
     console.log(model)
-    this.isFirstFormSubmitted = true;
+    
     // this._httpService.customerPortalPost('api/v1/portal/requestAccreditation', model).subscribe(
     //   (result: any) => {
     //     if (result.status === 200) {

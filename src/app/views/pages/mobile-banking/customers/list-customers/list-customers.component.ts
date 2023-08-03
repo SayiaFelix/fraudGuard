@@ -319,13 +319,13 @@ export class ListCustomersComponent implements OnInit {
   
   
   downloadCertificate(fileUrl: string) {
-    const normalizedFileUrl = fileUrl.startsWith('http://') ? fileUrl : 'http://' + fileUrl;
+    const normalizedFileUrl = fileUrl.replace("10.20.2.19:7600", "https://test-api.ekenya.co.ke/tra-backend");
+    console.log(normalizedFileUrl);
     const link = document.createElement('a');
     link.href = normalizedFileUrl;
     link.target = '_blank';
     link.click();
   }
-  
 
   getAppealButtonText(status: string, appealStatus: string | null): string {
     if (appealStatus === 'PENDING') {

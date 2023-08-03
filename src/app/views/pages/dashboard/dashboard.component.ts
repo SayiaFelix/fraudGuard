@@ -277,7 +277,7 @@ export class DashboardComponent implements OnInit {
       const reader = new FileReader();
       reader.onload = (e) => {
         this.uploadedImageUrl = e.target?.result as string;
-        this.imageUploaded = true; // Set imageUploaded to true to hide the "Click here to upload" text
+        // this.imageUploaded = true;
 
         const formData = new FormData();
         console.log(formData)
@@ -340,6 +340,7 @@ export class DashboardComponent implements OnInit {
 
   hideLeaveCommentForm() {
     this.showLeaveCommentForm = false;
+    this.form.reset()
   }
 
    onleaveComment() {
