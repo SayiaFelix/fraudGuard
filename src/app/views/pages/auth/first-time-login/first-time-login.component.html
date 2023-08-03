@@ -22,7 +22,7 @@
         <div class="card-login text-start pb-1 mt-4">
           <form class="forms-sample" [formGroup]="form">
             <div class="mb-3">
-              <input type="password" class="form-control" formControlName="lookUpToken"
+              <input type="password" id="pass" class="form-control" formControlName="lookUpToken"
                 placeholder="Enter the password that was sent to your email">
               <small class="text-danger"
                 *ngIf="form.get('lookUpToken')?.touched && form.get('lookUpToken')?.hasError('required')"> Old Password
