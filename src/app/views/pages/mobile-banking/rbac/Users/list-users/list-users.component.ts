@@ -225,26 +225,17 @@ export class ListUsersComponent implements OnInit {
         if (res.status == '00') {
           this.assessors = res['data']
           
-        // this.assessors = res.data.filter((assessor: any) => assessor.soft_delete === true);
-          // const assessor = res.data.filter((assess: any) => assess.soft_delete === false);
-          // console.log(this.assessors)
-          // this.assessors = assessor
           this.assessors.forEach((assessor: any) => {
             if (assessor.profile_url) {
-              const filename = assessor.profile_ur.split('?filename=')[1];
-              assessor.profile_ur = 'https://test-api.ekenya.co.ke/tra-backend/api/v1/standard/files/download?filename=' + encodeURIComponent(filename);
-              assessor.existingImage = this.sanitizer.bypassSecurityTrustResourceUrl(assessor.profile_ur);
+          
+              assessor.profile_url = assessor.profile_url.replace('10.20.2.19:7600', '');
+              assessor.profile_url = 'https://test-api.ekenya.co.ke/tra-backend' + assessor.profile_url;
+              console.log(assessor.profile_url)
+              // Now, the profile_url should be in the format "https://tra/api/v1/admin/task/files/download?filename=a775e169-66aa-4bd8-85e0-acac295fafd4.png"
+              assessor.existingImage = this.sanitizer.bypassSecurityTrustResourceUrl(assessor.profile_url);
             } else {
               assessor.existingImage = this.defaultProfileImage;
             }
-
-            // if (assessor.profile_url) {
-            //   assessor.profile_url = 'http://' + assessor.profile_url;
-            //   assessor.existingImage = this.sanitizer.bypassSecurityTrustResourceUrl(assessor.profile_url);
-            // } else {
-            //   assessor.existingImage = this.defaultProfileImage;
-            // }
-   
           });
           console.log(this.assessors);
           this.loading = false;
