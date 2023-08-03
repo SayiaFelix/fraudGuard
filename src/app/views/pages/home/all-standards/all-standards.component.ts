@@ -340,6 +340,7 @@ export class StandardsComponent implements OnInit {
 
   hideLeaveCommentForm() {
     this.showLeaveCommentForm = false;
+    this.form.reset()
   }
 
   onleaveComment() {

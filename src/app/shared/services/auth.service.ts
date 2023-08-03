@@ -11,18 +11,38 @@ export class AuthService {
     private loggedIn = false;
     private helper = new JwtHelperService();
     public redirectURL = '';
-
+    private tokenExpirationTime: Date;
     constructor(
         private _router: Router
         ) {}
 
     public logout(): void {
-        localStorage.removeItem('ussd-token');
+        localStorage.removeItem('access_token');
         localStorage.clear();
         this._router.navigate(['login']);
         this.loggedIn = false;
     }
+   
 
+    // setTokenExpiration(expirationTime: Date) {
+    //   this.tokenExpirationTime = expirationTime;
+    // }
+  
+    // checkTokenExpiration() {
+    //   const currentTime = new Date();
+    //   if (currentTime >= this.tokenExpirationTime) {
+    //     this.logout();
+    //   } else {
+    //     const timeUntilExpiration = this.tokenExpirationTime.getTime() - currentTime.getTime();
+    //     setTimeout(() => this.checkTokenExpiration(), timeUntilExpiration);
+    //   }
+    // }
+  
+    // // logoutUser() {
+    
+    // //   localStorage.removeItem('access_token'); 
+    // //   window.location.href = '/login'; 
+    // // }
     public getRoles(): any {
       const user_details = localStorage.getItem('user_details');
       const userDetails = JSON.parse(user_details ? user_details : "");

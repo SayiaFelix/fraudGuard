@@ -14,6 +14,7 @@ import { delay, map } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 import { HttpService } from 'src/app/shared/services/http.service';
 import Swal from "sweetalert2";
+import { AuthService } from 'src/app/shared/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -41,7 +42,8 @@ export class LoginComponent implements OnInit {
   constructor(
     private translate: TranslateService,
     private router: Router,
-    private route: ActivatedRoute,
+    private route: ActivatedRoute, 
+    private authservice: AuthService,
     private httpService: HttpService,
     fb: FormBuilder,
     private _router: Router,
@@ -150,4 +152,6 @@ export class LoginComponent implements OnInit {
 
 
   }
+//   const tokenExpirationTime: Date =  // Get the token's expiration time from the token itself or the server response
+// this.authservice.setTokenExpiration(this.tokenExpirationTime);
 }
