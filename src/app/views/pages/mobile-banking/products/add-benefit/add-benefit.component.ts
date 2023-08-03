@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, AbstractControl, FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, AbstractControl, FormControl, FormArray } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { log } from 'console';
@@ -49,9 +49,6 @@ export class AddBenefitComponent implements OnInit {
       subClassName: [{ value: '', disabled: true }, Validators.required]
     });
 
-
-
-    // this.formRequest = this.fb.group({formDetails});
     this.questionnaireData = { questions: [] };
 
     const questions = this.getQuestionsForCurrentPage();
@@ -71,6 +68,8 @@ export class AddBenefitComponent implements OnInit {
     // this.populateFormControls()
     this.loadData()
     this.getSubClassData();
+
+    this.createFormBuilder(this.questionnaireData);
   }
   get f(): { [p: string]: AbstractControl } {
     return this.form.controls;
@@ -90,60 +89,90 @@ export class AddBenefitComponent implements OnInit {
     return this.formRequest.get('comment' + i) as FormControl<any>;
   }
 
-
   getOptionControl(i: number, j: number, option: string): FormControl<any> {
     const questionControl = this.formRequest.get('q' + i) as FormGroup;
     return questionControl.get('q' + i + 's' + j) as FormControl<any>;
   }
 
+  // private loadData(): any {
+  //   this.loading = true;
+  //   let model = {
+  //     id: 2
+  //   }
+  //   this._httpService.customerPortalPosts(`admin/customer/questionnaire1/get`, model).subscribe(
+  //     (res: any) => {
+  //       if (res.status == 200) {
+  //         this.questionnaireData = res['data'];
+  //         console.log(this.questionnaireData)
+  //         this.createFormBuilder(this.questionnaireData)
+  //         this.loading = false;
+  //       } else {
+  //         console.log('Failed', "Unable to fetch questions", 'error')
+  //       }
+  //     }, (error: any) => {
+  //       console.log("Error", error.message, "error");
+  //     });
+  // }
 
-  private loadData(): any {
+  private loadData(): void {
     this.loading = true;
-    let model = {
-      id: 2
-    }
+    const model = { id: 2 };
+
     this._httpService.customerPortalPosts(`admin/customer/questionnaire1/get`, model).subscribe(
       (res: any) => {
-        if (res.status == 200) {
-          this.questionnaireData = res['data'];
-          console.log(this.questionnaireData)
-
-          this.createFormBuilder(this.questionnaireData)
-
-
+        if (res.status === 200 && res.data && res.data.questions && Array.isArray(res.data.questions)) {
+          this.questionnaireData = res.data;
+          console.log(this.questionnaireData);
+          this.createFormBuilder(this.questionnaireData.questions);
           this.loading = false;
         } else {
-          console.log('Failed', "Unable to fetch questions", 'error')
+          console.log('Failed', "Invalid response data or missing 'questions' array", 'error');
         }
-      }, (error: any) => {
+      },
+      (error: any) => {
         console.log("Error", error.message, "error");
-      });
+      }
+    );
   }
-  createFormBuilder(questionnaireData: any) {
 
-    let items: any[] = [];
+  getOptionsForCurrentQuestion(question: AbstractControl): AbstractControl[] {
+    return (question.get('options') as FormArray).controls;
+  }
 
-    for (const question of this.questionnaireData.questions) {
-      let item = question.options[0].id
-      items.push(`item-${item}`);
-    }
-
-    console.log('formDetails')
-    console.log(items)
-
-    let formObject: any = {};
-
-    for (const item of items) {
-      formObject[item] = '';
-    }
-
+  createFormBuilder(questions: any[]): void {
     this.formRequest = this.fb.group({
-      formObject
+      questions: this.fb.array([]),
     });
 
-    console.log(formObject);
+    const questionsFormArray = this.formRequest.get('questions') as FormArray;
 
+    questions.forEach((question: any) => {
+      const optionsIds = question.options.map((option: any) => option.id);
+      const optionsFormArray = this.createOptionsFormArray(optionsIds);
+
+      const questionFormGroup = this.fb.group({
+        options: optionsFormArray,
+        comment: [''], // Add the 'comment' form control here with an initial value of ''
+      });
+
+      questionsFormArray.push(questionFormGroup);
+    });
   }
+
+
+  createOptionsFormArray(options: any[]): FormArray {
+    const optionsFormArray = this.fb.array([]);
+
+    options.forEach((optionId: any) => {
+      const optionFormControl = this.fb.control(optionId);
+      optionsFormArray.push(optionFormControl);
+    });
+
+    return optionsFormArray;
+  }
+
+
+
 
   toggleCheckbox(mainQuestionIndex: number, optionIndex: number, selectedOption: string) {
     const mainQuestion = this.questionnaireData.questions[mainQuestionIndex];
@@ -154,8 +183,6 @@ export class AddBenefitComponent implements OnInit {
       option.selected = selectedOption;
     }
   }
-
-
 
   getFormControl(mainQuestion: string, subQuestion: string): FormControl {
     const formControl = this.form.get(mainQuestion)?.get(subQuestion) as FormControl;
@@ -283,7 +310,7 @@ export class AddBenefitComponent implements OnInit {
           this.form.reset()
           Swal.fire('Request Recieved Successfully',
             'success').then(r => console.log(r))
-            this.isFirstFormSubmitted = true;
+          // this.isFirstFormSubmitted = true;
         } else {
           this.form.reset()
           Swal.fire('Request Failed, Try Again',
@@ -299,49 +326,63 @@ export class AddBenefitComponent implements OnInit {
 
   }
 
-
-  submitDataForm(): any {
-    this.isLoading = true;
-    let licenceNumber = JSON.parse(localStorage.getItem('data')!)['licenceNumber'];
-    const formData = this.formRequest.value;
-    console.log(formData);
-    const model = {
-      questionnaireId: 2,
-      requestId: 0,
-      licenseNumber: String(licenceNumber),
-      answers: [
-        {
-          answer: "no",
-          questionId: 0,
-          optionId: 0
-        }
-      ]
-    };
-    console.log(formData)
-    console.log(model)
-    
-    // this._httpService.customerPortalPost('api/v1/portal/requestAccreditation', model).subscribe(
-    //   (result: any) => {
-    //     if (result.status === 200) {
-    //       this.isLoading = false;
-    //       this.form.reset()
-    //       Swal.fire('Request Recieved Successfully',
-    //         'success').then(r => console.log(r))
-    //     } else {
-
-    //       this.form.reset()
-    //       Swal.fire('Request Failed, Try Again',
-    //         'error').then(r => console.log(r))
-    //     }
-    //   },
-    //   (error: any) => {
-    //     this.form.reset()
-    //     Swal.fire('Request error',
-    //       'error')
-    //   }
-    // );
-
+  submitDataForm() {
+    if (this.formRequest.valid) {
+      console.log('Form values:', this.formRequest.value);
+      const selectedOptions = this.formRequest.value.questions.map((question: any) => {
+        return question.options.filter((option: any) => option === 'Yes' || option === 'No');
+      });
+      console.log('Selected options:', selectedOptions);
+      // You can also access the comments like this:
+      const comments = this.formRequest.value.questions.map((question: any) => question.comment);
+      console.log('Comments:', comments);
+    } else {
+      // Handle invalid form submission if needed
+    }
   }
+
+  // submitDataForm(): any {
+  //   this.isLoading = true;
+  //   let licenceNumber = JSON.parse(localStorage.getItem('data')!)['licenceNumber'];
+  //   const formData = this.formRequest.value;
+  //   console.log(formData);
+  //   const model = {
+  //     questionnaireId: 2,
+  //     requestId: 0,
+  //     licenseNumber: String(licenceNumber),
+  //     answers: [
+  //       {
+  //         answer: "no",
+  //         questionId: 0,
+  //         optionId: 0
+  //       }
+  //     ]
+  //   };
+  //   console.log(formData)
+  //   console.log(model)
+  //   this.isFirstFormSubmitted = true;
+  //   // this._httpService.customerPortalPost('api/v1/portal/requestAccreditation', model).subscribe(
+  //   //   (result: any) => {
+  //   //     if (result.status === 200) {
+  //   //       this.isLoading = false;
+  //   //       this.form.reset()
+  //   //       Swal.fire('Request Recieved Successfully',
+  //   //         'success').then(r => console.log(r))
+  //   //     } else {
+
+  //   //       this.form.reset()
+  //   //       Swal.fire('Request Failed, Try Again',
+  //   //         'error').then(r => console.log(r))
+  //   //     }
+  //   //   },
+  //   //   (error: any) => {
+  //   //     this.form.reset()
+  //   //     Swal.fire('Request error',
+  //   //       'error')
+  //   //   }
+  //   // );
+
+  // }
 
   get totalNumberOfPages(): number {
     return Math.ceil(this.questionnaireData?.questions.length / this.questionsPerPage);

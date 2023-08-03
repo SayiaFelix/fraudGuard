@@ -77,7 +77,9 @@ export class DashboardComponent implements OnInit {
    * NgbDatepicker
    */
   currentDate: NgbDateStruct;
-
+  standards: any;
+  loading: boolean
+  profileDetails: any;
   constructor(private calendar: NgbCalendar,
     private httpService: HttpService,
     fb: FormBuilder,
@@ -159,6 +161,8 @@ export class DashboardComponent implements OnInit {
       );
     }
 
+    this.loadData()
+
   }
   get f(): { [p: string]: AbstractControl } {
     return this.form.controls;
@@ -172,103 +176,6 @@ export class DashboardComponent implements OnInit {
     return phonePattern.test(phoneNumber) ? null : { invalidPhoneNumber: true };
   }
 
-
-  
-  // handleImageUpload(event: Event): void {
-  //   const inputElement = event.target as HTMLInputElement;
-  //   if (inputElement.files && inputElement.files.length > 0) {
-  //     this.uploadedImage = inputElement.files[0];
-  //   }
-  //   if (this.uploadedImage) {
-  //     const formData = new FormData();
-  //     formData.append('image', this.uploadedImage);
-
-  //     this.httpService.customerPortalPost(`api/v1/auth/uploadLandingPhoto`, formData).subscribe(
-  //       (result: any) => {
-  //         if (result.status === '00') {
-  //           console.log('Image uploaded successfully!', result);
-  //           this.isLoading = false;
-  //           this.activeModal.close('success');
-  //           Swal.fire('Image uploaded Successfully!',
-  //             'success').then(r => console.log(r))
-  //           this.form.reset()
-  //         } else {
-  //           Swal.fire('Image Uploaded Failed, Try Again',
-  //             'error').then(r => console.log(r))
-  //         }
-  //       },
-  //       (error: any) => {
-  //         Swal.fire('Image Uploaded error',
-  //           'error')
-  //       }
-  //     );
-  //   }
-  // }
-
-  // handleImageUpload(event: Event): void {
-  //   const inputElement = event.target as HTMLInputElement;
-  //   if (inputElement.files && inputElement.files.length > 0) {
-  //     this.selectedImageFile = inputElement.files[0]; 
-  //     const reader = new FileReader();
-  //     reader.onload = (e) => {
-  //       this.uploadedImageUrl = e.target?.result as string;
-  //       this.imageUploaded = true; 
-  //     };
-  //     reader.readAsDataURL(this.selectedImageFile);
-  //   }
-  //   if (this.imageUploaded && this.selectedImageFile) {
-  //     const formData = new FormData();
-  //     formData.append('image', this.selectedImageFile);
-
-  //     this.httpService.customerPortalPost(`api/v1/auth/uploadLandingPhoto`, formData).subscribe(
-  //       (result: any) => {
-  //         if (result.status === '00') {
-  //           console.log('Image uploaded successfully!', result);
-  //           this.isLoading = false;
-  //           this.activeModal.close('success');
-  //           Swal.fire('Image uploaded Successfully!',
-  //             'success').then(r => console.log(r))
-  //           this.form.reset()
-  //         } else {
-  //           Swal.fire('Image Uploaded Failed, Try Again',
-  //             'error').then(r => console.log(r))
-  //         }
-  //       },
-  //       (error: any) => {
-  //         Swal.fire('Image Uploaded error',
-  //           'error')
-  //       }
-  //     );
-  //   }
-  // }
-
-  // uploadImage(): void {
-
-  //   if (this.imageUploaded && this.selectedImageFile) {
-  //     const formData = new FormData();
-  //     formData.append('image', this.selectedImageFile);
-
-  //     this.httpService.customerPortalPost(`api/v1/auth/uploadLandingPhoto`, formData).subscribe(
-  //       (result: any) => {
-  //         if (result.status === '00') {
-  //           console.log('Image uploaded successfully!', result);
-  //           this.isLoading = false;
-  //           this.activeModal.close('success');
-  //           Swal.fire('Image uploaded Successfully!',
-  //             'success').then(r => console.log(r))
-  //           this.form.reset()
-  //         } else {
-  //           Swal.fire('Image Uploaded Failed, Try Again',
-  //             'error').then(r => console.log(r))
-  //         }
-  //       },
-  //       (error: any) => {
-  //         Swal.fire('Image Uploaded error',
-  //           'error')
-  //       }
-  //     );
-  //   }
-  // }
 
   handleImageUpload(event: Event): void {
     const inputElement = event.target as HTMLInputElement;
@@ -304,6 +211,44 @@ export class DashboardComponent implements OnInit {
       };
       reader.readAsDataURL(file);
     }
+  }
+
+  private loadData(): any {
+    this.loading = true;
+    let userId = JSON.parse(localStorage.getItem('data')!)['user']['id'];
+    let model = {
+       id: userId
+    };
+    console.log(model)
+    this.httpService.customerPortalPost(`api/v1/auth/getProfile`,model).subscribe(
+      (res: any) => {
+        if (res.status == '00') {
+          this.profileDetails = res['data'];
+          console.log(this.profileDetails);
+          // this.uploadedImageUrl = res.data.PhotoPath
+        
+        // if (!this.profileDetails.PhotoPath.startsWith('http://') && !this.profileDetails.PhotoPath.startsWith('https://')) {
+        //   this.uploadedImageUrl = 'https://' + this.profileDetails.PhotoPath;
+        // } else {
+        //   this.uploadedImageUrl = this.profileDetails.PhotoPath;
+        // }
+
+        if (this.profileDetails.PhotoPath && !this.profileDetails.PhotoPath.startsWith('http://') && !this.profileDetails.PhotoPath.startsWith('https://')) {
+          this.uploadedImageUrl = 'https://' + this.profileDetails.PhotoPath;
+        } else {
+          this.uploadedImageUrl = this.profileDetails.PhotoPath || 'assets/images/sd.png'; // Use the default image if PhotoPath is empty
+        }
+
+          console.log(this.uploadedImageUrl)
+          this.loading = false;
+        } else {
+          console.log('Failed', 'Unable to fetch profile', 'error');
+        }
+      },
+      (error: any) => {
+        console.log('Error', error.message, 'error');
+      }
+    );
   }
 
   onFileSelected(event: any) {
