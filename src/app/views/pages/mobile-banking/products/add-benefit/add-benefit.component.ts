@@ -155,25 +155,26 @@ export class AddBenefitComponent implements OnInit {
       // console.log(answerArray)
       let temp = []
       answerArray.forEach((answer: any) => {
-        const inputString = 'item-1-option7';
+        const inputString = answer;
         const regex = /item-(\d+)-option(\d+)/;
         const matches = inputString.match(regex);
-        
         if (matches) {
           const itemNumber = Number(matches[1]);
           const optionNumber = Number(matches[2]);
-        
-          console.log(itemNumber); // Output: 1
-          console.log(optionNumber); // Output: 7
+          let tempObj = {
+            answer: this.formRequest.value[`${answer}`],
+            questionId: itemNumber,
+            optionId: optionNumber
+          }
+
+          console.log(itemNumber); 
+          console.log(optionNumber); 
         } else {
           console.log('Input string format is incorrect.');
         }
         
 
-        let tempObj = {
-          answer: this.formRequest.value[`${answer}`],
-          questionId: this.formRequest.value
-        }
+     
         console.log(answer)
       })
 
@@ -185,7 +186,7 @@ export class AddBenefitComponent implements OnInit {
         answers: [
           {
             answer: "no",
-            questionId: 0,
+            questionId: 'itemNumber',
             optionId: 0
           }
           // {
