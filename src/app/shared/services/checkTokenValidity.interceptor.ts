@@ -4,6 +4,7 @@ import {Observable} from 'rxjs/internal/Observable';
 import {Injectable} from '@angular/core';
 import {GlobalService} from './global.service';
 import {JwtHelperService} from '@auth0/angular-jwt';
+// import { ToastrService } from 'ngx-toastr';
 
 @Injectable(
     {
@@ -12,12 +13,13 @@ import {JwtHelperService} from '@auth0/angular-jwt';
 )
 export class CheckTokenValidityInterceptor implements HttpInterceptor {
     constructor(private router: Router,
+              //  private toastrService: ToastrService,
                 private globalService: GlobalService) {
     }
 
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
       if (!this.isTokenValid()) {
-            // this.toastrService.warning('Logging you out', 'Your Token is expired');
+            // this.toastrService.warning('Logging Out', 'Session Expired Login Again');
             // here remove the auth token
             localStorage.clear();
             this.router.navigate(['/auth/login']);

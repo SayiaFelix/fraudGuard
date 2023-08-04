@@ -79,6 +79,7 @@
     "simple-datatables": "^4.0.8",
     "sortablejs": "^1.15.0",
     "sweetalert2": "^11.6.14",
+    "toastr": "^2.1.4",
     "tslib": "^2.3.0",
     "xlsx": "^0.18.5",
     "zone.js": "~0.11.4"
