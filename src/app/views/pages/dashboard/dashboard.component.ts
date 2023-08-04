@@ -280,6 +280,11 @@ export class DashboardComponent implements OnInit {
     this.form.reset()
   }
 
+  
+  handleImageError() {
+    this.uploadedImageUrl = 'assets/images/sd.png';
+  }
+
   onleaveComment() {
     this.isLoading = true;
     const model = {

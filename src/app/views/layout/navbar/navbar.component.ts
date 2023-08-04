@@ -32,6 +32,7 @@ export class NavbarComponent implements OnInit {
   county: string | null;
   contactPerson: string | null;
   logo: string | null;
+  ChangePassword: boolean = false;
 
   public modalRef: NgbModalRef;
   public form: FormGroup;
@@ -134,6 +135,19 @@ export class NavbarComponent implements OnInit {
     }
   }
 
+  openChangePassword(){
+    if (this.ChangePassword) {
+      this.hideChangePassForm();
+    } else {
+      this.ChangePassword = true;
+    }
+  }
+
+  hideChangePassForm() {
+    this.ChangePassword = false;
+    this.form.reset()
+  }
+
   updateNotificationList() {
     console.log("Nmechapa toggle")
     this.pullNotificationsList();
@@ -187,7 +201,6 @@ export class NavbarComponent implements OnInit {
   onSubmit(e: Event) {
     console.log("On button click")
     e.preventDefault();
-
     this.setPassword();
   }
 
@@ -209,9 +222,7 @@ export class NavbarComponent implements OnInit {
           (result: any) => {
             if (result.status === '00') { 
               Swal.fire('Password Set',  'Password Changed Successfully.',  'success')
-              this.activeModal.close();
-              // Navigate back to login screen.
-              this.form.reset()
+              this.hideChangePassForm()
               this.router.navigate(["/auth/login"]);
             } else {
               Swal.fire('Error',  'You have entered an incorrect password',  'error')
