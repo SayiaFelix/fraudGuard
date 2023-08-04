@@ -1,4 +1,4 @@
-import {ResolveStart, Router, RouterStateSnapshot} from '@angular/router';
+import {Router} from '@angular/router';
 import {HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from '@angular/common/http';
 import {Observable} from 'rxjs/internal/Observable';
 import {Injectable} from '@angular/core';
@@ -12,13 +12,10 @@ import {JwtHelperService} from '@auth0/angular-jwt';
 )
 export class CheckTokenValidityInterceptor implements HttpInterceptor {
     constructor(private router: Router,
-                private globalService: GlobalService,
-                public state: RouterStateSnapshot) {
+                private globalService: GlobalService) {
     }
 
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-
-
       if (!this.isTokenValid()) {
             // this.toastrService.warning('Logging you out', 'Your Token is expired');
             // here remove the auth token

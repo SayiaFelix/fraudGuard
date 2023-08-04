@@ -15,7 +15,7 @@ import {NotificationModalComponent} from "../../../shared/components/notificatio
 import {NotificationService} from "../../../shared/services/NotificationService";
 import {Notification} from "../../../shared/services/Notification";
 import {compareSegments} from "@angular/compiler-cli/src/ngtsc/sourcemaps/src/segment_marker";
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { ConfirmDialogComponent } from 'src/app/shared/components/confirm-dialog/confirm-dialog.component';
 import Swal from "sweetalert2";
 @Component({
@@ -80,9 +80,9 @@ export class NavbarComponent implements OnInit {
     private notificationService: NotificationService
   ) {
     this.form = fb.group({
-      password: ['',Validators.compose([Validators.required, Validators.minLength(6)])],
-      newPassword: ['',Validators.compose([Validators.required, Validators.minLength(6)])],
-      confirmPassword: ['',Validators.compose([Validators.required, Validators.minLength(6)])],
+      password: ['',Validators.compose([Validators.required, Validators.minLength(8)])],
+      newPassword: ['',Validators.compose([Validators.required, Validators.minLength(8),this.complexPasswordValidator()])],
+      confirmPassword: ['',Validators.compose([Validators.required, Validators.minLength(8)])],
     },
     {
       validators: this.MatchPassword('newPassword', 'confirmPassword')
@@ -135,6 +135,21 @@ export class NavbarComponent implements OnInit {
     }
   }
 
+  complexPasswordValidator(): ValidatorFn {
+    return (control: AbstractControl): { [key: string]: any } | null => {
+      const value = control.value;
+  
+      // Define the password complexity rules here
+      const hasUpperCase = /[A-Z]/.test(value);
+      const hasLowerCase = /[a-z]/.test(value);
+      const hasNumbers = /\d/.test(value);
+      const hasSpecialChars = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(value);
+      const isComplex = hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChars;
+  
+      // Return the validation result
+      return isComplex ? null : { complexPassword: true };
+    };
+  }
   openChangePassword(){
     if (this.ChangePassword) {
       this.hideChangePassForm();
@@ -278,5 +293,9 @@ export class NavbarComponent implements OnInit {
       }
     );
 
+  }
+
+  showForm(){
+    console.log(this.form);
   }
 }

@@ -35,6 +35,7 @@ export class AddBenefitComponent implements OnInit {
   enterpriseItems: any;
   questionnaireData: any;
   selectedOptions: any[] = [];
+  requestId: number;
 
   constructor(
     public activeModal: NgbActiveModal,
@@ -68,7 +69,6 @@ export class AddBenefitComponent implements OnInit {
 
     this.loadData()
     this.getSubClassData();
-
     this.createFormBuilder(this.questionnaireData);
   }
   get f(): { [p: string]: AbstractControl } {
@@ -85,14 +85,11 @@ export class AddBenefitComponent implements OnInit {
     this.formRequest.addControl(commentControlName, new FormControl());
   }
 
-  getCommentControl(i: number): FormControl<any> {
-    return this.formRequest.get('comment' + i) as FormControl<any>;
-  }
+  // getCommentControl(i: number): FormControl<any> {
+  //   return this.formRequest.get('comment' + i) as FormControl<any>;
+  // }
 
-  getOptionControl(i: number, j: number, option: string): FormControl<any> {
-    const questionControl = this.formRequest.get('q' + i) as FormGroup;
-    return questionControl.get('q' + i + 's' + j) as FormControl<any>;
-  }
+
 
   private loadData(): void {
     this.loading = true;
@@ -115,8 +112,58 @@ export class AddBenefitComponent implements OnInit {
     );
   }
 
+  public submitData(): void {
+    if (this.formData) {
+      this.saveChanges();
+    } else {
+      this.createRecord();
+    }
+    this.loading = true;
+  }
+
+  private createRecord(): any {
+    this.isLoading = true;
+    let userId = JSON.parse(localStorage.getItem('data')!)['id']
+    const formData = this.form.value;
+    console.log(formData);
+    const model = {
+      userId,
+      request_type: this.form.value.request_type,
+      subClassName: this.form.value.subClassName,
+    };
+    console.log(model)
+    this._httpService.customerPortalPost('api/v1/portal/requestAccreditation', model).subscribe(
+      (result: any) => {
+        if (result.status === '00') {
+          this.isLoading = false;
+          this.requestId = result.data.id;
+          this.isFirstFormSubmitted = true;
+          this.form.reset()
+          Swal.fire('Request Recieved Successfully',
+            'success').then(r => console.log(r))
+          // this.isFirstFormSubmitted = true;
+        } else {
+          this.form.reset()
+          Swal.fire('Request Failed, Try Again',
+            'error').then(r => console.log(r))
+        }
+      },
+      (error: any) => {
+        this.form.reset()
+        Swal.fire('Request error',
+          'error')
+      }
+    );
+
+  }
+
   getOptionsForCurrentQuestion(question: AbstractControl): AbstractControl[] {
     return (question.get('options') as FormArray).controls;
+  }
+
+  getOptionControl(i: number, j: number, option: string): FormControl<any> {
+    const questionControl = this.formRequest.get('q' + i) as FormGroup;
+    return questionControl.get('q' + i + 's' + j) as FormControl<any>;
   }
 
   createFormBuilder(questions: any[]): void {
@@ -130,7 +177,7 @@ export class AddBenefitComponent implements OnInit {
         console.log(option)
       });
     })
-    console.log(this.formRequest.value)
+    // console.log(this.formRequest.value)
   }
 
   toggleCheckbox(mainQuestionIndex: number, optionIndex: number, selectedOption: string) {
@@ -153,7 +200,7 @@ export class AddBenefitComponent implements OnInit {
       const answers = this.formRequest.value
       let answerArray = Object.keys(answers)
       // console.log(answerArray)
-      let temp = []
+      let temp: { answer: any; questionId: number; optionId: number; }[] = []
       answerArray.forEach((answer: any) => {
         const inputString = answer;
         const regex = /item-(\d+)-option(\d+)/;
@@ -166,66 +213,46 @@ export class AddBenefitComponent implements OnInit {
             questionId: itemNumber,
             optionId: optionNumber
           }
-
+          
+          temp.push(tempObj);
           console.log(itemNumber); 
           console.log(optionNumber); 
+          console.log(tempObj)
         } else {
           console.log('Input string format is incorrect.');
         }
-        
-
-     
         console.log(answer)
       })
-
-
       let model = {
         questionnaireId: 2,
-        requestId: 2,
+        requestId: this.requestId,
         licenseNumber: licence_number,
-        answers: [
-          {
-            answer: "no",
-            questionId: 'itemNumber',
-            optionId: 0
-          }
-          // {
-          //   comment: "xyz",
-          //   questionId: 0,
-          //   options: [
-          //     {
-          //       answer: "no",
-          //       optionId: 1
-          //     }
-          //   ]
-          // },
-
-        ]
-
+        answers:temp
       }
       console.log('Form values:', this.formRequest.value);
       console.log('Our Model', model)
-      // this._httpService.customerPortalPosts('admin/customer/portal/answer', model).subscribe(
-      //   (result: any) => {
-      //     if (result.status === 200) {
-      //   // this.isFirstFormSubmitted = true;
-      //       this.isLoading = false;
-      //       this.formRequest.reset()
-      //       Swal.fire('Questions Recieved Successfully',
-      //         'success').then(r => console.log(r))
-      //     } else {
+      // this.isFirstFormSubmitted = true;
+      this._httpService.customerPortalPosts('admin/customer/portal/answer', model).subscribe(
+        (result: any) => {
+          if (result.status === 200) {
+        // this.isFirstFormSubmitted = true;
+            this.isLoading = false;
+            this.formRequest.reset()
+            Swal.fire('Questions Recieved Successfully',
+              'success').then(r => console.log(r))
+          } else {
 
-      //       this.form.reset()
-      //       Swal.fire('Questions Failed, Try Again',
-      //         'error').then(r => console.log(r))
-      //     }
-      //   },
-      //   (error: any) => {
-      //     this.form.reset()
-      //     Swal.fire('Questions error',
-      //       'error')
-      //   }
-      // );
+            this.form.reset()
+            Swal.fire('Questions Failed, Try Again',
+              'error').then(r => console.log(r))
+          }
+        },
+        (error: any) => {
+          this.form.reset()
+          Swal.fire('Questions error',
+            'error')
+        }
+      );
 
     } else {
       // Handle invalid form submission if needed
@@ -283,44 +310,6 @@ export class AddBenefitComponent implements OnInit {
   //   });
   // }
 
-  // getClassData(event: number): void {
-  //   this.loading = true;
-  //   this._httpService
-  //     .customerPortalPost('api/v1/portal/getClassAndSubclasses', {})
-  //     .subscribe((res: any) => {
-  //       console.log(res)
-  //       if (res.status === '00') {
-  //         this.loading = false;
-  //         setTimeout(() => {
-  //           this.ClassData = res.data
-  //           console.log(this.ClassData)
-  //         }, 10);
-  //       } else {
-  //         this.loading = false;
-  //       }
-  //     });
-  //   this.loading = false;
-  // }
-
-  // getSubClassData(event: number): void {
-  //   this.loading = true;
-  //   this._httpService
-  //     .customerPortalPost('api/v1/portal/getSubClassesAndClasses', {})
-  //     .subscribe((res: any) => {
-  //       console.log(res)
-  //       if (res.status === '00') {
-  //         this.loading = false;
-  //         setTimeout(() => {
-  //           this.SubClassData = res.data
-  //           console.log(this.SubClassData)
-  //         }, 10);
-  //       } else {
-  //         this.loading = false;
-  //       }
-  //     });
-  //   this.loading = false;
-  // }
-
   onClassChange(event: any): void {
     const selectedClassId = event.target.value;
     const selectedClass = this.ClassData.classes.find((classItem: any) => classItem.classId === Number(selectedClassId));
@@ -331,52 +320,6 @@ export class AddBenefitComponent implements OnInit {
       this.SubClassData = [];
     }
   }
-
-  public submitData(): void {
-    if (this.formData) {
-      this.saveChanges();
-    } else {
-      this.createRecord();
-    }
-    this.loading = true;
-  }
-
-
-  private createRecord(): any {
-    this.isLoading = true;
-    let userId = JSON.parse(localStorage.getItem('data')!)['id']
-    const formData = this.form.value;
-    console.log(formData);
-    const model = {
-      userId,
-      request_type: this.form.value.request_type,
-      subClassName: this.form.value.subClassName,
-    };
-    console.log(model)
-    this._httpService.customerPortalPost('api/v1/portal/requestAccreditation', model).subscribe(
-      (result: any) => {
-        if (result.status === '00') {
-          this.isLoading = false;
-          this.form.reset()
-          Swal.fire('Request Recieved Successfully',
-            'success').then(r => console.log(r))
-          // this.isFirstFormSubmitted = true;
-        } else {
-          this.form.reset()
-          Swal.fire('Request Failed, Try Again',
-            'error').then(r => console.log(r))
-        }
-      },
-      (error: any) => {
-        this.form.reset()
-        Swal.fire('Request error',
-          'error')
-      }
-    );
-
-  }
-
-
 
   get totalNumberOfPages(): number {
     return Math.ceil(this.questionnaireData?.questions.length / this.questionsPerPage);

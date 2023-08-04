@@ -23,7 +23,7 @@
         style="color: var(--grape-tra, #6D36A8);font-family: Mulish;font-size: 20px;font-style: normal;font-weight: 700;line-height: 24px;">
         New Pre- Qualification Assessment Checklist
       </h1>
-      <div *ngIf="isFirstFormSubmitted">
+      <div *ngIf="!isFirstFormSubmitted">
         <form [formGroup]="form">
           <div class="mt-3">
             <h3 class="form-label quiz">Class Enterprise</h3>
@@ -59,7 +59,7 @@
           </div>
         </form>
       </div>
-      <div *ngIf="!isFirstFormSubmitted">
+      <div *ngIf="isFirstFormSubmitted">
         <form [formGroup]="formRequest">
           <div *ngFor="let question of getQuestionsForCurrentPage(); let i = index" class="mt-4">
             <h3 class="quiz"> {{ ((currentPage - 1) * questionsPerPage + i + 1) + ': ' + question.question }}</h3>
