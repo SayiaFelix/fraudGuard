@@ -23,6 +23,7 @@ export class AddBenefitComponent implements OnInit {
   totalPages: number;
   currentPage = 1;
   questionsPerPage = 7;
+  answers: any[] = [];
 
   isFirstFormSubmitted = false;
 
@@ -48,9 +49,9 @@ export class AddBenefitComponent implements OnInit {
       request_type: [this.formData ? this.formData.request_type : '', [Validators.required]],
       subClassName: [{ value: '', disabled: true }, Validators.required]
     });
+    this.formRequest = this.fb.group({})
 
     this.questionnaireData = { questions: [] };
-
     const questions = this.getQuestionsForCurrentPage();
     if (questions && questions.length > 0) {
       for (let i = 0; i < questions.length; i++) {
@@ -119,45 +120,114 @@ export class AddBenefitComponent implements OnInit {
   }
 
   createFormBuilder(questions: any[]): void {
-    this.formRequest = this.fb.group({
-      questions: this.fb.array([]),
-    });
-
-    const questionsFormArray = this.formRequest.get('questions') as FormArray;
-
+    console.log(questions)
     questions.forEach((question: any) => {
-      const optionsIds = question.options.map((option: any) => option.id);
-      const optionsFormArray = this.createOptionsFormArray(optionsIds);
-
-      const questionFormGroup = this.fb.group({
-        options: optionsFormArray,
-        comment: [''], 
+      this.formRequest.addControl(`item-${question.id}-comment`, new FormControl(''))
+      question.comment = `item-${question.id}-comment`
+      question.options.forEach((option: any) => {
+        this.formRequest.addControl(`item-${question.id}-option${option.id}`, new FormControl(''))
+        option.cName = `item-${question.id}-option${option.id}`
+        console.log(option)
       });
-
-      questionsFormArray.push(questionFormGroup);
-    });
+    })
+    console.log(this.formRequest.value)
   }
-
-
-  createOptionsFormArray(options: any[]): FormArray {
-    const optionsFormArray = this.fb.array([]);
-
-    options.forEach((optionId: any) => {
-      const optionFormControl = this.fb.control(optionId);
-      optionsFormArray.push(optionFormControl);
-    });
-
-    return optionsFormArray;
-  }
-
 
   toggleCheckbox(mainQuestionIndex: number, optionIndex: number, selectedOption: string) {
     const mainQuestion = this.questionnaireData.questions[mainQuestionIndex];
     const option = mainQuestion.options[optionIndex];
+
     if (option.selected === selectedOption) {
       option.selected = '';
     } else {
       option.selected = selectedOption;
+    }
+    console.log(option);
+    this.formRequest.controls[`${option.cName}`].setValue(option.selected)
+  }
+
+  submitDataForm(): any {
+    if (this.formRequest.valid) {
+      let licence_number = JSON.parse(localStorage.getItem('data')!)['licenceNumber'];
+      // console.log(this.formRequest.value)
+      const answers = this.formRequest.value
+      let answerArray = Object.keys(answers)
+      // console.log(answerArray)
+      let temp = []
+      answerArray.forEach((answer: any) => {
+        const inputString = 'item-1-option7';
+        const regex = /item-(\d+)-option(\d+)/;
+        const matches = inputString.match(regex);
+        
+        if (matches) {
+          const itemNumber = Number(matches[1]);
+          const optionNumber = Number(matches[2]);
+        
+          console.log(itemNumber); // Output: 1
+          console.log(optionNumber); // Output: 7
+        } else {
+          console.log('Input string format is incorrect.');
+        }
+        
+
+        let tempObj = {
+          answer: this.formRequest.value[`${answer}`],
+          questionId: this.formRequest.value
+        }
+        console.log(answer)
+      })
+
+
+      let model = {
+        questionnaireId: 2,
+        requestId: 2,
+        licenseNumber: licence_number,
+        answers: [
+          {
+            answer: "no",
+            questionId: 0,
+            optionId: 0
+          }
+          // {
+          //   comment: "xyz",
+          //   questionId: 0,
+          //   options: [
+          //     {
+          //       answer: "no",
+          //       optionId: 1
+          //     }
+          //   ]
+          // },
+
+        ]
+
+      }
+      console.log('Form values:', this.formRequest.value);
+      console.log('Our Model', model)
+      // this._httpService.customerPortalPosts('admin/customer/portal/answer', model).subscribe(
+      //   (result: any) => {
+      //     if (result.status === 200) {
+      //   // this.isFirstFormSubmitted = true;
+      //       this.isLoading = false;
+      //       this.formRequest.reset()
+      //       Swal.fire('Questions Recieved Successfully',
+      //         'success').then(r => console.log(r))
+      //     } else {
+
+      //       this.form.reset()
+      //       Swal.fire('Questions Failed, Try Again',
+      //         'error').then(r => console.log(r))
+      //     }
+      //   },
+      //   (error: any) => {
+      //     this.form.reset()
+      //     Swal.fire('Questions error',
+      //       'error')
+      //   }
+      // );
+
+    } else {
+      // Handle invalid form submission if needed
     }
   }
 
@@ -193,6 +263,8 @@ export class AddBenefitComponent implements OnInit {
       });
     this.loading = false;
   }
+
+
 
   // getSubClassData(): void {
   //   this.loading = true;
@@ -303,84 +375,7 @@ export class AddBenefitComponent implements OnInit {
 
   }
 
-  submitDataForm() {
-    if (this.formRequest.valid) {
-      console.log('Form values:', this.formRequest.value);
-      const selectedOptions = this.formRequest.value.questions.map((question: any) => {
-        return question.options.filter((option: any) => option === 'Yes' || option === 'No');
-      });
-      console.log('Selected options:', selectedOptions);
-      
-      // Access and log comments for each question
-      const comments = [];
-      for (let i = 0; i < this.totalNumberOfPages; i++) {
-        const commentControl = this.getCommentControl(i);
-        if (commentControl) {
-          comments.push(commentControl.value);
-        }
-      }
-      console.log('Comments:', comments);
-    } else {
-      // Handle invalid form submission if needed
-    }
-  }
-  // submitDataForm() {
-  //   if (this.formRequest.valid) {
-  //     console.log('Form values:', this.formRequest.value);
-  //     const selectedOptions = this.formRequest.value.questions.map((question: any) => {
-  //       return question.options.filter((option: any) => option === 'Yes' || option === 'No');
-  //     });
-  //     console.log('Selected options:', selectedOptions);
-  //     // You can also access the comments like this:
-  //     const comments = this.formRequest.value.questions.map((question: any) => question.comment);
-  //     console.log('Comments:', comments);
-  //   } else {
-  //     // Handle invalid form submission if needed
-  //   }
-  // }
 
-  // submitDataForm(): any {
-  //   this.isLoading = true;
-  //   let licenceNumber = JSON.parse(localStorage.getItem('data')!)['licenceNumber'];
-  //   const formData = this.formRequest.value;
-  //   console.log(formData);
-  //   const model = {
-  //     questionnaireId: 2,
-  //     requestId: 0,
-  //     licenseNumber: String(licenceNumber),
-  //     answers: [
-  //       {
-  //         answer: "no",
-  //         questionId: 0,
-  //         optionId: 0
-  //       }
-  //     ]
-  //   };
-  //   console.log(formData)
-  //   console.log(model)
-  //   this.isFirstFormSubmitted = true;
-  //   // this._httpService.customerPortalPost('api/v1/portal/requestAccreditation', model).subscribe(
-  //   //   (result: any) => {
-  //   //     if (result.status === 200) {
-  //   //       this.isLoading = false;
-  //   //       this.form.reset()
-  //   //       Swal.fire('Request Recieved Successfully',
-  //   //         'success').then(r => console.log(r))
-  //   //     } else {
-
-  //   //       this.form.reset()
-  //   //       Swal.fire('Request Failed, Try Again',
-  //   //         'error').then(r => console.log(r))
-  //   //     }
-  //   //   },
-  //   //   (error: any) => {
-  //   //     this.form.reset()
-  //   //     Swal.fire('Request error',
-  //   //       'error')
-  //   //   }
-  //   // );
-
-  // }
 
   get totalNumberOfPages(): number {
     return Math.ceil(this.questionnaireData?.questions.length / this.questionsPerPage);
@@ -389,7 +384,7 @@ export class AddBenefitComponent implements OnInit {
   setCurrentPage(page: number) {
     this.currentPage = page;
   }
- 
+
   prevPage(): void {
     this.setCurrentPage(this.currentPage - 1);
   }

@@ -59,168 +59,58 @@
           </div>
         </form>
       </div>
-      <!-- 
-      <div *ngIf="formRequest">
-        <div *ngIf="!isFirstFormSubmitted">
-          <form [formGroup]="formRequest">
-            <div *ngFor="let question of getQuestionsForCurrentPage(); let i = index" class="mt-4">
-              <h3 class="quiz">{{ ((currentPage - 1) * questionsPerPage + i + 1) + ': ' + question.question }}</h3>
-              <div [formGroupName]="i">
-                <ng-container formArrayName="options">
-                  <div *ngFor="let option of question.options.controls; let j = index">
-                    <div class="d-flex justify-content-between">
-                      <p class="sub-quiz">{{ option.get('optionText').value }}</p>
-                      <div class="d-flex justify-content-between">
-                        <div class="form-group custom-control" style="margin-right: 18px;">
-                          <input type="checkbox" class="custom-control-input quiz-check"
-                            [id]="'q' + i + 's' + j + 'Yes'" [formControl]="option" [value]="'Yes'" />
-                          <label [for]="'q' + i + 's' + j + 'Yes'" class="custom-control-label quiz-check">Yes</label>
-                        </div>
-                        <div class="form-group custom-control">
-                          <input type="checkbox" class="custom-control-input quiz-check" [id]="'q' + i + 's' + j + 'No'"
-                            [formControl]="option" [value]="'No'" />
-                          <label [for]="'q' + i + 's' + j + 'No'" class="custom-control-label quiz-check">No</label>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </ng-container>
-                <div class="form-group mt-2">
-                  <textarea [id]="'comment' + i" cols="13" rows="2" formControlName="comment"
-                    class="form-control validation-field text"></textarea>
-                </div>
-              </div>
-            </div>
-
-            <div class="d-flex justify-content-start mt-4">
-              <button style="margin-right: 5px;" class="btn btn-sm submitB transition mt-1"
-                [disabled]="currentPage === 1" (click)="prevPage()"><span class="NexpP">Prev</span></button>
-              <ng-container *ngFor="let page of totalNumberOfPagesArray">
-                <button style="margin: 3px;" class="btn btn-sm submitB transition mt-1"
-                  [ngClass]="{'active-page-button': currentPage === page}" (click)="setCurrentPage(page)">{{ page
-                  }}</button>
-              </ng-container>
-              <button style="margin-left: 5px;" class="btn btn-sm submitB transition mt-1"
-                [disabled]="currentPage * questionsPerPage >= questionnaireData?.questions.length"
-                (click)="nextPage()"><span class="NexpP">Next</span></button>
-            </div>
-            <div class="d-flex justify-content-end mt-3">
-              <button class="btn btn-md login-btn transition mt-1" (click)="submitDataForm()" type="submit">
-                <a style="text-decoration: none" class="transition">
-                  <span style="color: #f8f8f8; font-weight: 700;letter-spacing: 0.08em;font-size: 12px;">SUBMIT</span>
-                </a>
-              </button>
-            </div>
-          </form>
-        </div>
-      </div> -->
-
-      <!-- <div *ngIf="formRequest">
-        <div *ngIf="!isFirstFormSubmitted">
-          <form [formGroup]="formRequest">
-            <div *ngFor="let question of getQuestionsForCurrentPage(); let i = index" class="mt-4">
-              <h3 class="quiz">{{ ((currentPage - 1) * questionsPerPage + i + 1) + ': ' + question.question }}</h3>
-              <ng-container *ngFor="let option of question.options.controls; let j = index">
+      <div *ngIf="!isFirstFormSubmitted">
+        <form [formGroup]="formRequest">
+          <div *ngFor="let question of getQuestionsForCurrentPage(); let i = index" class="mt-4">
+            <h3 class="quiz"> {{ ((currentPage - 1) * questionsPerPage + i + 1) + ': ' + question.question }}</h3>
+            <ng-container *ngFor="let option of question.options; let j = index">
+              <div class="d-flex justify-content-between">
+                <p class="sub-quiz">{{ option.optionText }}</p>
                 <div class="d-flex justify-content-between">
-                  <p class="sub-quiz">{{ questionnaireData.questions[(currentPage - 1) * questionsPerPage +
-                    i].options[j].optionText }}</p>
-                  <div class="d-flex justify-content-between">
-                    <div class="form-group custom-control" style="margin-right: 18px;">
-                      <input type="checkbox" class="custom-control-input quiz-check" [id]="'q' + i + 's' + j + 'Yes'"
-                        [formControl]="option" [value]="'Yes'" />
-                      <label [for]="'q' + i + 's' + j + 'Yes'" class="custom-control-label quiz-check">Yes</label>
-                    </div>
-                    <div class="form-group custom-control">
-                      <input type="checkbox" class="custom-control-input quiz-check" [id]="'q' + i + 's' + j + 'No'"
-                        [formControl]="option" [value]="'No'" />
-                      <label [for]="'q' + i + 's' + j + 'No'" class="custom-control-label quiz-check">No</label>
-                    </div>
+                  <div class="form-group custom-control" style="margin-right: 18px;">
+                    <input type="checkbox" class="custom-control-input quiz-check" [id]="'q' + i + 's' + j + 'Yes'"
+                      [name]="'q' + i + 's' + j" [checked]="option.selected === 'Yes'"
+                      (change)="toggleCheckbox(i, j, 'Yes')" [value]="option.selected" />
+                    <label [for]="'q' + i + 's' + j + 'Yes'" class="custom-control-label quiz-check">Yes</label>
+                  </div>
+                  <div class="form-group custom-control">
+                    <input type="checkbox" class="custom-control-input quiz-check" [id]="'q' + i + 's' + j + 'No'"
+                      [name]="'q' + i + 's' + j" [checked]="option.selected === 'No'"
+                      (change)="toggleCheckbox(i, j, 'No')" [value]="option.selected" />
+                    <label [for]="'q' + i + 's' + j + 'No'" class="custom-control-label quiz-check">No</label>
                   </div>
                 </div>
-              </ng-container>
-              <div class="form-group mt-2">
-                <textarea [id]="'comment' + i" cols="13" rows="2" formControlName="comment"
-                  class="form-control validation-field text"></textarea>
               </div>
+            </ng-container>
+            <div class="form-group mt-2">
+              <textarea [id]="'comment' + i" [formControlName]="question.comment" cols="13" rows="3"
+                class="form-control validation-field text"></textarea>
             </div>
+          </div>
 
-            <div class="d-flex justify-content-start mt-4">
-              <button style="margin-right: 5px;" class="btn btn-sm submitB transition mt-1"
-                [disabled]="currentPage === 1" (click)="prevPage()"><span class="NexpP">Prev</span></button>
-              <ng-container *ngFor="let page of totalNumberOfPagesArray">
-                <button style="margin: 3px;" class="btn btn-sm submitB transition mt-1"
-                  [ngClass]="{'active-page-button': currentPage === page}" (click)="setCurrentPage(page)">{{ page
-                  }}</button>
-              </ng-container>
-              <button style="margin-left: 5px;" class="btn btn-sm submitB transition mt-1"
-                [disabled]="currentPage * questionsPerPage >= questionnaireData?.questions.length"
-                (click)="nextPage()"><span class="NexpP">Next</span></button>
-            </div>
-            <div class="d-flex justify-content-end mt-3">
-              <button class="btn btn-md login-btn transition mt-1" (click)="submitDataForm()" type="submit">
-                <a style="text-decoration: none" class="transition">
-                  <span style="color: #f8f8f8; font-weight: 700;letter-spacing: 0.08em;font-size: 12px;">SUBMIT</span>
-                </a>
-              </button>
-            </div>
-          </form>
-        </div>
-      </div> -->
-      <div *ngIf="formRequest">
-        <div *ngIf="!isFirstFormSubmitted">
-          <form [formGroup]="formRequest">
-            <div *ngFor="let question of getQuestionsForCurrentPage(); let i = index" class="mt-4">
-              <h3 class="quiz"> {{ ((currentPage - 1) * questionsPerPage + i + 1) + ': ' + question.question }}</h3>
-              <ng-container *ngFor="let option of question.options; let j = index">
-                <div class="d-flex justify-content-between">
-                  <p class="sub-quiz">{{ option.optionText }}</p>
-                  <div class="d-flex justify-content-between">
-                    <div class="form-group custom-control" style="margin-right: 18px;">
-                      <input type="checkbox" class="custom-control-input quiz-check" [id]="'q' + i + 's' + j + 'Yes'"
-                        [name]="'q' + i + 's' + j" [checked]="option.selected === 'Yes'"
-                        (change)="toggleCheckbox(i, j, 'Yes')" />
-                      <label [for]="'q' + i + 's' + j + 'Yes'" class="custom-control-label quiz-check">Yes</label>
-                    </div>
-                    <div class="form-group custom-control">
-                      <input type="checkbox" class="custom-control-input quiz-check" [id]="'q' + i + 's' + j + 'No'"
-                        [name]="'q' + i + 's' + j" [checked]="option.selected === 'No'"
-                        (change)="toggleCheckbox(i, j, 'No')" />
-                      <label [for]="'q' + i + 's' + j + 'No'" class="custom-control-label quiz-check">No</label>
-                    </div>
-                  </div>
-                </div>
-              </ng-container>
-              <div class="form-group mt-2">
-                <textarea [id]="'comment' + i" cols="13" rows="2" class="form-control validation-field text"></textarea>
-              </div>
-            </div>
+          <div class="d-flex justify-content-start mt-4">
+            <button style="margin-right: 5px;" class="btn btn-sm submitB transition mt-1" [disabled]="currentPage === 1"
+              (click)="prevPage()"><span class="NexpP">Prev</span> </button>
 
-            <div class="d-flex justify-content-start mt-4">
-              <button style="margin-right: 5px;" class="btn btn-sm submitB transition mt-1"
-                [disabled]="currentPage === 1" (click)="prevPage()"><span class="NexpP">Prev</span> </button>
+            <ng-container *ngFor="let page of totalNumberOfPagesArray">
+              <button style="margin: 3px;" class="btn btn-sm submitB transition mt-1"
+                [ngClass]="{'active-page-button': currentPage === page}" (click)="setCurrentPage(page)">{{ page
+                }}</button>
+            </ng-container>
 
-              <ng-container *ngFor="let page of totalNumberOfPagesArray">
-                <button style="margin: 3px;" class="btn btn-sm submitB transition mt-1"
-                  [ngClass]="{'active-page-button': currentPage === page}" (click)="setCurrentPage(page)">{{ page
-                  }}</button>
-              </ng-container>
-
-              <button style="margin-left: 5px;" class="btn btn-sm submitB transition mt-1"
-                [disabled]="currentPage * questionsPerPage >= questionnaireData?.questions.length"
-                (click)="nextPage()"><span class="NexpP"></span> Next</button>
-            </div>
-            <div class="d-flex justify-content-end mt-3">
-              <button class="btn btn-md login-btn transition mt-1" (click)="submitDataForm()" type="submit">
-                <a style="text-decoration: none" class="transition">
-                  <span style="color: #f8f8f8; font-weight: 700;letter-spacing: 0.08em;font-size: 12px;
-          ">SUBMIT</span></a>
-              </button>
-            </div>
-          </form>
-        </div>
-
+            <button style="margin-left: 5px;" class="btn btn-sm submitB transition mt-1"
+              [disabled]="currentPage * questionsPerPage >= questionnaireData?.questions.length"
+              (click)="nextPage()"><span class="NexpP"></span> Next</button>
+          </div>
+          <div class="d-flex justify-content-end mt-3">
+            <button class="btn btn-md login-btn transition mt-1" (click)="submitDataForm()" type="submit">
+              <a style="text-decoration: none" class="transition">
+                <span style="color: #f8f8f8; font-weight: 700;letter-spacing: 0.08em;font-size: 12px;
+        ">SUBMIT</span></a>
+            </button>
+          </div>
+        </form>
       </div>
-
     </div>
   </div>
 </div>
