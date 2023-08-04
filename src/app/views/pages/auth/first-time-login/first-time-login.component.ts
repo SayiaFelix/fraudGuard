@@ -4,7 +4,7 @@ import {ConfirmDialogComponent} from "../../../../shared/components/confirm-dial
 import Swal from "sweetalert2";
 import {NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {HttpService} from "../../../../shared/services/http.service";
-import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {AbstractControl, FormBuilder, FormGroup, ValidatorFn, Validators} from "@angular/forms";
 import {CustomValidators} from "ngx-custom-validators";
 
 @Component({
@@ -49,8 +49,8 @@ export class FirstTimeLoginComponent implements OnInit {
   ) {
     this.form = fb.group({
       lookUpToken: ['',Validators.compose([Validators.required])],
-      password: ['',Validators.compose([Validators.required, Validators.minLength(6)])],
-      confirmPassword: ['',Validators.compose([Validators.required, Validators.minLength(6)])],
+      password: ['',Validators.compose([Validators.required, Validators.minLength(8), this.complexPasswordValidator()])],
+      confirmPassword: ['',Validators.compose([Validators.required, Validators.minLength(8)])],
     }
     ,{
       validators: this.MatchPassword('password', 'confirmPassword')
@@ -62,6 +62,22 @@ export class FirstTimeLoginComponent implements OnInit {
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
 
+  complexPasswordValidator(): ValidatorFn {
+    return (control: AbstractControl): { [key: string]: any } | null => {
+      const value = control.value;
+  
+      // Define the password complexity rules here
+      const hasUpperCase = /[A-Z]/.test(value);
+      const hasLowerCase = /[a-z]/.test(value);
+      const hasNumbers = /\d/.test(value);
+      const hasSpecialChars = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(value);
+      const isComplex = hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChars;
+  
+      // Return the validation result
+      return isComplex ? null : { complexPassword: true };
+    };
+  }
+  
   onSubmit(e: Event) {
     console.log("On button click")
     e.preventDefault();
@@ -71,7 +87,6 @@ export class FirstTimeLoginComponent implements OnInit {
   setPassword(){
     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Set Password';
-
     this.modalRef.componentInstance.body= "Do you want to Set this as your new password?";
     this.modalRef.result.then((result) => {
       if (result === 'success') {
@@ -96,6 +111,7 @@ export class FirstTimeLoginComponent implements OnInit {
       }
     });
   }
+
   toggleShowPassword() {
     this.showingPassword = !this.showingPassword;
     if (this.showingPassword) {

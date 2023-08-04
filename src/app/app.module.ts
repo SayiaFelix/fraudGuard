@@ -53,11 +53,11 @@ export function HttpLoaderFactory(http: HttpClient) {
   providers: [
     
     { provide: APP_BASE_HREF_TOKEN, useValue: '/tra-customer-portal' }, 
-    // {
-    //   provide: HTTP_INTERCEPTORS,
-    //   useClass: CheckTokenValidityInterceptor,
-    //   multi: true
-    // },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: CheckTokenValidityInterceptor,
+      multi: true
+    },
     AuthGuard,
     {
       provide: HIGHLIGHT_OPTIONS, // https://www.npmjs.com/package/ngx-highlightjs
