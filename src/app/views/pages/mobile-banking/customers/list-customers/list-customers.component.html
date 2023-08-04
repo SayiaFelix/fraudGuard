@@ -120,7 +120,7 @@
         <h2 class="content">{{ std.rating }} <img class="card-img-top img-fluid mr-1 mb-1"
             style="width: 13px; height: 15px;" src="assets/images/star.jpg" /></h2>
       </div>
-      <div class="col">
+      <!-- <div class="col">
         <p class="title">Results</p>
         <ng-container *ngIf="std.task_type === 'CLASSIFICATION'; else accreditationsStatus">
           <h2 class="content">
@@ -134,7 +134,7 @@
               [src]="getSanitizedStatusImage(std.status)" />{{std.status}}
           </h2>
         </ng-template>
-      </div>
+      </div> -->
       <div class="col">
         <p class="title">Appeal Status</p>
         <h2 class="content" *ngIf="std.appealStatus; else noAppealText">{{ std.appealStatus }}</h2>
@@ -146,7 +146,7 @@
     <button class="btn btn-md login-btn transition" (click)="downloadCertificate(std.download_url)" type="submit">
             <a style="text-decoration: none" class="transition">
               <span style="color: var(--white, #FFF);text-align: center;font-family: Mulish;font-size: 13px;font-style: normal;font-weight: 700;line-height: normal;letter-spacing: 1.12px;text-transform: uppercase;
-                  ">DOWNLOAD</span></a>
+                  ">DOWNLOAD REPORT</span></a>
           </button>
       </div>
       <ng-container>
@@ -237,8 +237,9 @@
           <form class="mt-1" [formGroup]="formR" (ngSubmit)="raiseAppeal(appealId)" class="row px-3">
             <div class="tab-content col-12 border-0">
               <div class="form-group mt-2">
-                <input formControlName="reason" type="text" class="form-control validation-field border-0" id="reason"
-                  placeholder="Your Reason*">
+                <textarea placeholder="Your Reason*" formControlName="reason" id="reason" cols="15" rows="3" class="form-control border-0 validation-field text"></textarea>
+                <!-- <input formControlName="reason" type="text" class="form-control validation-field border-0" id="reason"
+                  placeholder="Your Reason*"> -->
                 <small class="text-danger" *ngIf="fs.reason.touched && fs.reason.errors?.required">Field
                   Required</small>
               </div>

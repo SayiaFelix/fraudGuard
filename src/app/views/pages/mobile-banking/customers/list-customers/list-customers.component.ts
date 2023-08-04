@@ -117,7 +117,7 @@ export class ListCustomersComponent implements OnInit {
 
   ngOnInit() {
     this.loadData();
-   
+   this.loadAppealsData()
 
     this.appealDate = new Date();
     // this.isAppealButtonVisible = this.calculateAppealButtonVisibility();
@@ -189,9 +189,6 @@ export class ListCustomersComponent implements OnInit {
   
   
   
-  
-
-
   toggleLeaveCommentForm() {
     if (this.showLeaveCommentForm) {
       this.hideLeaveCommentForm();
@@ -216,13 +213,23 @@ export class ListCustomersComponent implements OnInit {
 
   private loadData(): any {
     this.loading = true;
-    this.httpService.customerPortalPost(`api/v1/portal/getResults`, {}).subscribe(
+    let licenceNumber = JSON.parse(localStorage.getItem('data')!)['licenceNumber'];
+    let model = {
+      licenceNumber
+    };
+    this.httpService.customerPortalPost(`api/v1/portal/getResultsByLicence`, model).subscribe(
       (res: any) => {
         if (res.status == '00') {
           // this.results = res['data'];
           // console.log(this.results);
           const result = res.data.filter((request: any) => request.status === "PUBLISHED");
+          const appealData = this.appealData || []; // If appealData is not available, use an empty array
+          result.forEach((request: any) => {
+            const appealStatus = appealData.find((appeal: any) => appeal.result_ref === request.result_ref)?.status;
+            request.appealStatus = appealStatus || null;
+          });
           console.log(result)
+          console.log(appealData)
           this.results = result
           this.loading = false;
         } else {
@@ -233,40 +240,42 @@ export class ListCustomersComponent implements OnInit {
       });
   }
 
-  // private loadAppealsData(): void {
-  //   let model = {
-  //     licence_number: "L989077"
-  //   }
-  //   this.httpService.customerPortalPost(`api/v1/portal/getAppeals`, model).subscribe(
-  //     (res: any) => {
-  //       if (res.status === '00') {
-  //         this.appealData = res.data;
-  //         console.log(this.appealData)
+  private loadAppealsData(): void {
+    let licence_number = JSON.parse(localStorage.getItem('data')!)['licenceNumber'];
+    let model = {
+      licence_number
+    }
+    this.httpService.customerPortalPost(`api/v1/portal/getAppeals`, model).subscribe(
+      (res: any) => {
+        if (res.status === '00') {
+          this.appealData= res.data;
+          console.log(this.appealData)
 
-  //         // Check if the user has made an appeal
-  //         // this.isAppealMade = appealData.length > 0;
+          this.loadData();
+          // Check if the user has made an appeal
+          // this.isAppealMade = appealData.length > 0;
 
-  //         // // Check if the appeal has been successfully submitted (you may use a specific field from the backend response)
-  //         // this.isAppealSubmitted = appealData.some((request: any) => request.appealStatus === "PENDING");
+          // // Check if the appeal has been successfully submitted (you may use a specific field from the backend response)
+          // this.isAppealSubmitted = appealData.some((request: any) => request.appealStatus === "PENDING");
 
-  //         // // Check if 14 days have passed since the user's appeal (assuming appealDate is the field representing the appeal date)
-  //         // const today = new Date();
-  //         // const fourteenDaysAgo = new Date(today.getTime() - 14 * 24 * 60 * 60 * 1000); // Subtract 14 days in milliseconds
-  //         // const isWithin14Days = appealData.some((request: any) => new Date(request.appealDate) >= fourteenDaysAgo);
+          // // Check if 14 days have passed since the user's appeal (assuming appealDate is the field representing the appeal date)
+          // const today = new Date();
+          // const fourteenDaysAgo = new Date(today.getTime() - 14 * 24 * 60 * 60 * 1000); // Subtract 14 days in milliseconds
+          // const isWithin14Days = appealData.some((request: any) => new Date(request.appealDate) >= fourteenDaysAgo);
 
-  //         // // Update the state of the "Make Appeal" button
-  //         // this.isAppealButtonVisible = !this.isAppealMade || this.isAppealSubmitted || isWithin14Days;
+          // // Update the state of the "Make Appeal" button
+          // this.isAppealButtonVisible = !this.isAppealMade || this.isAppealSubmitted || isWithin14Days;
 
-  //         // Handle the loading of appeals data as required
-  //         // ...
+          // Handle the loading of appeals data as required
+          // ...
 
-  //       } else {
-  //         console.log('Failed', "Unable to fetch appeals data", 'error');
-  //       }
-  //     }, (error: any) => {
-  //       console.log("Error", error.message, "error");
-  //     });
-  // }
+        } else {
+          console.log('Failed', "Unable to fetch appeals data", 'error');
+        }
+      }, (error: any) => {
+        console.log("Error", error.message, "error");
+      });
+  }
 
   formatDate(date: string): string {
     const formattedDate = this.datePipe.transform(date, 'dd MMM yyyy');
@@ -345,11 +354,12 @@ export class ListCustomersComponent implements OnInit {
 
   hideAppealForm() {
     this.showAppealForm = false;
-    this.form.reset();
+    this.formR.reset();
   }
   hideAppeals() {
     this.showAppeals = false;
   }
+
   viewAppeal() {
     if (this.showAppeals) {
       this.hideAppeals();
@@ -374,6 +384,7 @@ export class ListCustomersComponent implements OnInit {
         Swal.fire('Appeal Raised Successfully',
           'success').then(r => console.log(r))
         this.loadData()
+        this.loadAppealsData()
         this.hideAppealForm();
 
         console.log(this.results)

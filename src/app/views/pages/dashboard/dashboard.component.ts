@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 
 import { NgbDateStruct, NgbCalendar, NgbActiveModal, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { CustomValidators } from 'ngx-custom-validators';
-import { Observable, map,of } from 'rxjs';
+import { Observable, map, of } from 'rxjs';
 import { HttpService } from 'src/app/shared/services/http.service';
 import Swal from 'sweetalert2';
 
@@ -34,14 +34,14 @@ export class DashboardComponent implements OnInit {
   userData$: Observable<any>;
   companyEmail: string | null;
   licenceNumber: string | null;
-  profile:string | null;
+  profile: string | null;
   companyRegistrationDate: string | null;
   county: string | null;
   contactPerson: string | null;
   logo: string | null;
   facilityType: string | null;
   facilityCategory: string | null;
-  businessPhone:string | null;
+  businessPhone: string | null;
   selectedImageFile: File | null = null;
 
   showLeaveCommentForm: boolean = false;
@@ -58,19 +58,19 @@ export class DashboardComponent implements OnInit {
 
   // colors and font variables for apex chart
   obj = {
-    primary        : "#6571ff",
-    secondary      : "#7987a1",
-    success        : "#05a34a",
-    info           : "#66d1d1",
-    warning        : "#F69414",
-    danger         : "#ff3366",
-    light          : "#e9ecef",
-    dark           : "#060c17",
-    muted          : "#7987a1",
-    gridBorder     : "rgba(77, 138, 240, .15)",
-    bodyColor      : "#000",
-    cardBg         : "#fff",
-    fontFamily     : "'Roboto', Helvetica, sans-serif"
+    primary: "#6571ff",
+    secondary: "#7987a1",
+    success: "#05a34a",
+    info: "#66d1d1",
+    warning: "#F69414",
+    danger: "#ff3366",
+    light: "#e9ecef",
+    dark: "#060c17",
+    muted: "#7987a1",
+    gridBorder: "rgba(77, 138, 240, .15)",
+    bodyColor: "#000",
+    cardBg: "#fff",
+    fontFamily: "'Roboto', Helvetica, sans-serif"
   }
 
   /**
@@ -88,15 +88,15 @@ export class DashboardComponent implements OnInit {
     private sanitizer: DomSanitizer,
     public modal: NgbModal,
     public activeModal: NgbActiveModal,) {
-      this.downloadLink = this.sanitizer.bypassSecurityTrustUrl(this.brochureUrl);
-      this.form = fb.group({
-        name: ["", Validators.compose([Validators.required])],
-        email: ['',Validators.compose([Validators.required, CustomValidators.email])],
-        subject: ['',Validators.compose([Validators.required])],
-        message: ["", Validators.compose([Validators.required])],
-        phone_number: ["", Validators.compose([Validators.required, this.phoneNumberValidator])],
-      });
-    }
+    this.downloadLink = this.sanitizer.bypassSecurityTrustUrl(this.brochureUrl);
+    this.form = fb.group({
+      name: ["", Validators.compose([Validators.required])],
+      email: ['', Validators.compose([Validators.required, CustomValidators.email])],
+      subject: ['', Validators.compose([Validators.required])],
+      message: ["", Validators.compose([Validators.required])],
+      phone_number: ["", Validators.compose([Validators.required, this.phoneNumberValidator])],
+    });
+  }
 
   ngOnInit(): void {
     this.currentDate = this.calendar.getToday();
@@ -118,14 +118,14 @@ export class DashboardComponent implements OnInit {
     // businessPhone
     let userDetails = {
       companyEmail: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['businessEmail'] : "test@gmail.com",
-      licenceNumber: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['licenceNumber']  : "87654321",
-      profile: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['name']  : "Eka Hotel Nairobi",
+      licenceNumber: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['licenceNumber'] : "87654321",
+      profile: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['name'] : "Eka Hotel Nairobi",
       facilityType: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['facilityType'] : "Class A",
-      facilityCategory: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['facilityCategory']  : "Hotel",
-      businessPhone: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['businessPhone']  : "Eka Hotel Nairobi",
+      facilityCategory: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['facilityCategory'] : "Hotel",
+      businessPhone: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['businessPhone'] : "Eka Hotel Nairobi",
       companyRegistrationDate: "24-12-1999",
-      county: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['location']  : "Nairobi",
-      contactPerson: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['contactPerson']  : "Sayia Felix",
+      county: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['location'] : "Nairobi",
+      contactPerson: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['contactPerson'] : "Sayia Felix",
     };
     if (userDetails) {
       this.companyEmail = userDetails['companyEmail'];
@@ -172,7 +172,7 @@ export class DashboardComponent implements OnInit {
     const phoneNumber = control.value;
     // Regular expression to check if the phone number starts with "254" and is followed by 9 digits.
     const phonePattern = /^254\d{9}$/;
-  
+
     return phonePattern.test(phoneNumber) ? null : { invalidPhoneNumber: true };
   }
 
@@ -217,28 +217,20 @@ export class DashboardComponent implements OnInit {
     this.loading = true;
     let userId = JSON.parse(localStorage.getItem('data')!)['user']['id'];
     let model = {
-       id: userId
+      id: userId
     };
     console.log(model)
-    this.httpService.customerPortalPost(`api/v1/auth/getProfile`,model).subscribe(
+    this.httpService.customerPortalPost(`api/v1/auth/getProfile`, model).subscribe(
       (res: any) => {
         if (res.status == '00') {
           this.profileDetails = res['data'];
           console.log(this.profileDetails);
-          // this.uploadedImageUrl = res.data.PhotoPath
-        
-        // if (!this.profileDetails.PhotoPath.startsWith('http://') && !this.profileDetails.PhotoPath.startsWith('https://')) {
-        //   this.uploadedImageUrl = 'https://' + this.profileDetails.PhotoPath;
-        // } else {
-        //   this.uploadedImageUrl = this.profileDetails.PhotoPath;
-        // }
 
-        if (this.profileDetails.PhotoPath && !this.profileDetails.PhotoPath.startsWith('http://') && !this.profileDetails.PhotoPath.startsWith('https://')) {
-          this.uploadedImageUrl = 'https://' + this.profileDetails.PhotoPath;
-        } else {
-          this.uploadedImageUrl = this.profileDetails.PhotoPath || 'assets/images/sd.png'; // Use the default image if PhotoPath is empty
-        }
-
+          if (this.profileDetails.PhotoPath && !this.profileDetails.PhotoPath.startsWith('http://') && !this.profileDetails.PhotoPath.startsWith('https://')) {
+            this.uploadedImageUrl = 'https://' + this.profileDetails.PhotoPath;
+          } else {
+            this.uploadedImageUrl = this.profileDetails.PhotoPath || 'assets/images/sd.png'; // Use the default image if PhotoPath is empty
+          }
           console.log(this.uploadedImageUrl)
           this.loading = false;
         } else {
@@ -288,12 +280,12 @@ export class DashboardComponent implements OnInit {
     this.form.reset()
   }
 
-   onleaveComment() {
+  onleaveComment() {
     this.isLoading = true;
     const model = {
       name: this.form.value.name,
-      phone_number: this.form.value.phone_number, 
-      subject: this.form.value.subject, 
+      phone_number: this.form.value.phone_number,
+      subject: this.form.value.subject,
       message: this.form.value.message,
       email: this.form.value.email,
     };
@@ -321,7 +313,7 @@ export class DashboardComponent implements OnInit {
   }
 
   openModal(modalContent: any) {
-    this.modalRef = this.modal.open(modalContent, {centered: true, size:"md"});
+    this.modalRef = this.modal.open(modalContent, { centered: true, size: "md" });
   }
 
   public closeModal(): void {
@@ -626,11 +618,11 @@ function getRevenueChartOptions(obj: any) {
     xaxis: {
       type: "datetime",
       categories: [
-        "Jan 01 2022", "Jan 02 2022", "jan 03 2022", "Jan 04 2022", "Jan 05 2022", "Jan 06 2022", "Jan 07 2022", "Jan 08 2022", "Jan 09 2022", "Jan 10 2022", "Jan 11 2022", "Jan 12 2022", "Jan 13 2022", "Jan 14 2022", "Jan 15 2022", "Jan 16 2022", "Jan 17 2022", "Jan 18 2022", "Jan 19 2022", "Jan 20 2022","Jan 21 2022", "Jan 22 2022", "Jan 23 2022", "Jan 24 2022", "Jan 25 2022", "Jan 26 2022", "Jan 27 2022", "Jan 28 2022", "Jan 29 2022", "Jan 30 2022", "Jan 31 2022",
-        "Feb 01 2022", "Feb 02 2022", "Feb 03 2022", "Feb 04 2022", "Feb 05 2022", "Feb 06 2022", "Feb 07 2022", "Feb 08 2022", "Feb 09 2022", "Feb 10 2022", "Feb 11 2022", "Feb 12 2022", "Feb 13 2022", "Feb 14 2022", "Feb 15 2022", "Feb 16 2022", "Feb 17 2022", "Feb 18 2022", "Feb 19 2022", "Feb 20 2022","Feb 21 2022", "Feb 22 2022", "Feb 23 2022", "Feb 24 2022", "Feb 25 2022", "Feb 26 2022", "Feb 27 2022", "Feb 28 2022",
-        "Mar 01 2022", "Mar 02 2022", "Mar 03 2022", "Mar 04 2022", "Mar 05 2022", "Mar 06 2022", "Mar 07 2022", "Mar 08 2022", "Mar 09 2022", "Mar 10 2022", "Mar 11 2022", "Mar 12 2022", "Mar 13 2022", "Mar 14 2022", "Mar 15 2022", "Mar 16 2022", "Mar 17 2022", "Mar 18 2022", "Mar 19 2022", "Mar 20 2022","Mar 21 2022", "Mar 22 2022", "Mar 23 2022", "Mar 24 2022", "Mar 25 2022", "Mar 26 2022", "Mar 27 2022", "Mar 28 2022", "Mar 29 2022", "Mar 30 2022", "Mar 31 2022",
-        "Apr 01 2022", "Apr 02 2022", "Apr 03 2022", "Apr 04 2022", "Apr 05 2022", "Apr 06 2022", "Apr 07 2022", "Apr 08 2022", "Apr 09 2022", "Apr 10 2022", "Apr 11 2022", "Apr 12 2022", "Apr 13 2022", "Apr 14 2022", "Apr 15 2022", "Apr 16 2022", "Apr 17 2022", "Apr 18 2022", "Apr 19 2022", "Apr 20 2022","Apr 21 2022", "Apr 22 2022", "Apr 23 2022", "Apr 24 2022", "Apr 25 2022", "Apr 26 2022", "Apr 27 2022", "Apr 28 2022", "Apr 29 2022", "Apr 30 2022",
-        "May 01 2022", "May 02 2022", "May 03 2022", "May 04 2022", "May 05 2022", "May 06 2022", "May 07 2022", "May 08 2022", "May 09 2022", "May 10 2022", "May 11 2022", "May 12 2022", "May 13 2022", "May 14 2022", "May 15 2022", "May 16 2022", "May 17 2022", "May 18 2022", "May 19 2022", "May 20 2022","May 21 2022", "May 22 2022", "May 23 2022", "May 24 2022", "May 25 2022", "May 26 2022", "May 27 2022", "May 28 2022", "May 29 2022", "May 30 2022",
+        "Jan 01 2022", "Jan 02 2022", "jan 03 2022", "Jan 04 2022", "Jan 05 2022", "Jan 06 2022", "Jan 07 2022", "Jan 08 2022", "Jan 09 2022", "Jan 10 2022", "Jan 11 2022", "Jan 12 2022", "Jan 13 2022", "Jan 14 2022", "Jan 15 2022", "Jan 16 2022", "Jan 17 2022", "Jan 18 2022", "Jan 19 2022", "Jan 20 2022", "Jan 21 2022", "Jan 22 2022", "Jan 23 2022", "Jan 24 2022", "Jan 25 2022", "Jan 26 2022", "Jan 27 2022", "Jan 28 2022", "Jan 29 2022", "Jan 30 2022", "Jan 31 2022",
+        "Feb 01 2022", "Feb 02 2022", "Feb 03 2022", "Feb 04 2022", "Feb 05 2022", "Feb 06 2022", "Feb 07 2022", "Feb 08 2022", "Feb 09 2022", "Feb 10 2022", "Feb 11 2022", "Feb 12 2022", "Feb 13 2022", "Feb 14 2022", "Feb 15 2022", "Feb 16 2022", "Feb 17 2022", "Feb 18 2022", "Feb 19 2022", "Feb 20 2022", "Feb 21 2022", "Feb 22 2022", "Feb 23 2022", "Feb 24 2022", "Feb 25 2022", "Feb 26 2022", "Feb 27 2022", "Feb 28 2022",
+        "Mar 01 2022", "Mar 02 2022", "Mar 03 2022", "Mar 04 2022", "Mar 05 2022", "Mar 06 2022", "Mar 07 2022", "Mar 08 2022", "Mar 09 2022", "Mar 10 2022", "Mar 11 2022", "Mar 12 2022", "Mar 13 2022", "Mar 14 2022", "Mar 15 2022", "Mar 16 2022", "Mar 17 2022", "Mar 18 2022", "Mar 19 2022", "Mar 20 2022", "Mar 21 2022", "Mar 22 2022", "Mar 23 2022", "Mar 24 2022", "Mar 25 2022", "Mar 26 2022", "Mar 27 2022", "Mar 28 2022", "Mar 29 2022", "Mar 30 2022", "Mar 31 2022",
+        "Apr 01 2022", "Apr 02 2022", "Apr 03 2022", "Apr 04 2022", "Apr 05 2022", "Apr 06 2022", "Apr 07 2022", "Apr 08 2022", "Apr 09 2022", "Apr 10 2022", "Apr 11 2022", "Apr 12 2022", "Apr 13 2022", "Apr 14 2022", "Apr 15 2022", "Apr 16 2022", "Apr 17 2022", "Apr 18 2022", "Apr 19 2022", "Apr 20 2022", "Apr 21 2022", "Apr 22 2022", "Apr 23 2022", "Apr 24 2022", "Apr 25 2022", "Apr 26 2022", "Apr 27 2022", "Apr 28 2022", "Apr 29 2022", "Apr 30 2022",
+        "May 01 2022", "May 02 2022", "May 03 2022", "May 04 2022", "May 05 2022", "May 06 2022", "May 07 2022", "May 08 2022", "May 09 2022", "May 10 2022", "May 11 2022", "May 12 2022", "May 13 2022", "May 14 2022", "May 15 2022", "May 16 2022", "May 17 2022", "May 18 2022", "May 19 2022", "May 20 2022", "May 21 2022", "May 22 2022", "May 23 2022", "May 24 2022", "May 25 2022", "May 26 2022", "May 27 2022", "May 28 2022", "May 29 2022", "May 30 2022",
       ],
       lines: {
         show: true
@@ -650,7 +642,7 @@ function getRevenueChartOptions(obj: any) {
     yaxis: {
       title: {
         text: 'Revenue ( $1000 x )',
-        style:{
+        style: {
           size: 9,
           color: obj.muted
         }
@@ -687,7 +679,7 @@ function getMonthlySalesChartOptions(obj: any) {
   return {
     series: [{
       name: 'Sales',
-      data: [152,109,93,113,126,161,188,143,102,113,116,124]
+      data: [152, 109, 93, 113, 126, 161, 188, 143, 102, 113, 116, 124]
     }],
     chart: {
       type: 'bar',
@@ -702,7 +694,7 @@ function getMonthlySalesChartOptions(obj: any) {
     colors: [obj.primary],
     fill: {
       opacity: .9
-    } ,
+    },
     grid: {
       padding: {
         bottom: -4
@@ -716,7 +708,7 @@ function getMonthlySalesChartOptions(obj: any) {
     },
     xaxis: {
       type: 'datetime',
-      categories: ['01/01/2022','02/01/2022','03/01/2022','04/01/2022','05/01/2022','06/01/2022','07/01/2022', '08/01/2022','09/01/2022','10/01/2022', '11/01/2022', '12/01/2022'],
+      categories: ['01/01/2022', '02/01/2022', '03/01/2022', '04/01/2022', '05/01/2022', '06/01/2022', '07/01/2022', '08/01/2022', '09/01/2022', '10/01/2022', '11/01/2022', '12/01/2022'],
       axisBorder: {
         color: obj.gridBorder,
       },
@@ -727,7 +719,7 @@ function getMonthlySalesChartOptions(obj: any) {
     yaxis: {
       title: {
         text: 'Number of Sales',
-        style:{
+        style: {
           size: 9,
           color: obj.muted
         }
@@ -775,7 +767,7 @@ function getMonthlySalesChartOptions(obj: any) {
 /**
  * Cloud storage chart options
  */
- function getCloudStorageChartOptions(obj: any) {
+function getCloudStorageChartOptions(obj: any) {
   return {
     series: [67],
     chart: {

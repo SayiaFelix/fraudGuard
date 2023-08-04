@@ -286,15 +286,34 @@ export class ViewStandardsComponent implements OnInit {
     }
   }
 
-
-  downloadCertificate(fileUrl: string) {
-    const normalizedFileUrl = fileUrl.replace("10.20.2.19:7600", "https://test-api.ekenya.co.ke/tra-backend");
-    console.log(normalizedFileUrl);
-    const link = document.createElement('a');
-    link.href = normalizedFileUrl;
-    link.target = '_blank';
-    link.click();
+ 
+  downloadCertificate(fileUrl: string, fileType: string) {
+    if (fileType === 'PDF') {
+      const traServerBaseUrl = 'https://test-api.ekenya.co.ke/tra-backend';
+      const normalizedFileUrl = fileUrl.replace("10.20.2.19:7600", traServerBaseUrl);
+      
+      console.log(normalizedFileUrl);
+      const link = document.createElement('a');
+      link.href = normalizedFileUrl;
+      link.target = '_blank';
+      link.click();
+    }
+  
+    // Replace the IP address and port with the "tra" server URL
+ 
   }
+  
+
+  
+
+  // downloadCertificate(fileUrl: string) {
+  //   const normalizedFileUrl = fileUrl.replace("10.20.2.19:7600", "https://test-api.ekenya.co.ke/tra-backend");
+  //   console.log(normalizedFileUrl);
+  //   const link = document.createElement('a');
+  //   link.href = normalizedFileUrl;
+  //   link.target = '_blank';
+  //   link.click();
+  // }
   
   toggleLeaveCommentForm() {
     if (this.showLeaveCommentForm) {

@@ -154,14 +154,12 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
 
   getIndividualData(event: any): void {
     this.loading = true;
-    this.rows = this.tempProductData;
-    this.temp = [...this.tempProductData];
-    const model = {
-      page: 0,
-      size: 10,
+    let userId = JSON.parse(localStorage.getItem('data')!)['user']['id'];
+    let model = {
+      userId
     };
     this.httpService
-      .customerPortalPostData('api/v1/portal/getRequests', model)
+      .customerPortalPost('api/v1/portal/getFacilityRequests', model)
       .subscribe((res: any) => {
         if (res.status === '00') {
           this.requests = res.data
