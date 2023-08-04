@@ -64,8 +64,7 @@ export class AddBenefitComponent implements OnInit {
         this.form.get('subClassName')!.disable();
       }
     });
-    // this.getClassData(0);
-    // this.populateFormControls()
+
     this.loadData()
     this.getSubClassData();
 
@@ -94,31 +93,11 @@ export class AddBenefitComponent implements OnInit {
     return questionControl.get('q' + i + 's' + j) as FormControl<any>;
   }
 
-  // private loadData(): any {
-  //   this.loading = true;
-  //   let model = {
-  //     id: 2
-  //   }
-  //   this._httpService.customerPortalPosts(`admin/customer/questionnaire1/get`, model).subscribe(
-  //     (res: any) => {
-  //       if (res.status == 200) {
-  //         this.questionnaireData = res['data'];
-  //         console.log(this.questionnaireData)
-  //         this.createFormBuilder(this.questionnaireData)
-  //         this.loading = false;
-  //       } else {
-  //         console.log('Failed', "Unable to fetch questions", 'error')
-  //       }
-  //     }, (error: any) => {
-  //       console.log("Error", error.message, "error");
-  //     });
-  // }
-
   private loadData(): void {
     this.loading = true;
     const model = { id: 2 };
 
-    this._httpService.customerPortalPosts(`admin/customer/questionnaire1/get`, model).subscribe(
+    this._httpService.customerPortalPosts(`admin/customer/portal/get`, model).subscribe(
       (res: any) => {
         if (res.status === 200 && res.data && res.data.questions && Array.isArray(res.data.questions)) {
           this.questionnaireData = res.data;
@@ -152,7 +131,7 @@ export class AddBenefitComponent implements OnInit {
 
       const questionFormGroup = this.fb.group({
         options: optionsFormArray,
-        comment: [''], // Add the 'comment' form control here with an initial value of ''
+        comment: [''], 
       });
 
       questionsFormArray.push(questionFormGroup);
@@ -170,8 +149,6 @@ export class AddBenefitComponent implements OnInit {
 
     return optionsFormArray;
   }
-
-
 
 
   toggleCheckbox(mainQuestionIndex: number, optionIndex: number, selectedOption: string) {
@@ -333,13 +310,34 @@ export class AddBenefitComponent implements OnInit {
         return question.options.filter((option: any) => option === 'Yes' || option === 'No');
       });
       console.log('Selected options:', selectedOptions);
-      // You can also access the comments like this:
-      const comments = this.formRequest.value.questions.map((question: any) => question.comment);
+      
+      // Access and log comments for each question
+      const comments = [];
+      for (let i = 0; i < this.totalNumberOfPages; i++) {
+        const commentControl = this.getCommentControl(i);
+        if (commentControl) {
+          comments.push(commentControl.value);
+        }
+      }
       console.log('Comments:', comments);
     } else {
       // Handle invalid form submission if needed
     }
   }
+  // submitDataForm() {
+  //   if (this.formRequest.valid) {
+  //     console.log('Form values:', this.formRequest.value);
+  //     const selectedOptions = this.formRequest.value.questions.map((question: any) => {
+  //       return question.options.filter((option: any) => option === 'Yes' || option === 'No');
+  //     });
+  //     console.log('Selected options:', selectedOptions);
+  //     // You can also access the comments like this:
+  //     const comments = this.formRequest.value.questions.map((question: any) => question.comment);
+  //     console.log('Comments:', comments);
+  //   } else {
+  //     // Handle invalid form submission if needed
+  //   }
+  // }
 
   // submitDataForm(): any {
   //   this.isLoading = true;
@@ -388,28 +386,23 @@ export class AddBenefitComponent implements OnInit {
     return Math.ceil(this.questionnaireData?.questions.length / this.questionsPerPage);
   }
 
-  // Function to set the current page
-  // setCurrentPage(page: number): void {
-  //   if (page >= 1 && page <= this.totalNumberOfPages) {
-  //     this.currentPage = page;
-  //   }
-  // }
-
   setCurrentPage(page: number) {
     this.currentPage = page;
   }
-  // Function to navigate to the previous page
+ 
   prevPage(): void {
     this.setCurrentPage(this.currentPage - 1);
   }
-  // Function to navigate to the next page
+
   nextPage(): void {
     this.setCurrentPage(this.currentPage + 1);
   }
+
   getQuestionsForCurrentPage(): any[] {
     const startIndex = (this.currentPage - 1) * this.questionsPerPage;
     return this.questionnaireData?.questions.slice(startIndex, startIndex + this.questionsPerPage);
   }
+
   get totalNumberOfPagesArray(): number[] {
     return Array.from({ length: this.totalNumberOfPages }, (_, i) => i + 1);
   }
@@ -457,41 +450,6 @@ export class AddBenefitComponent implements OnInit {
   public closeModal(): void {
     this.activeModal.dismiss('Cross click');
   }
-
-  // private createRecord(): any {
-  //   this.isLoading =true;
-  //   const model = {
-  //     productId: this.productDetails.id,
-  //     // productCode: this.formData.productCode,
-  //     benefitCode: this.form.value.benefitCode,
-  //     benefit: this.form.value.benefit,
-  //     description: this.form.value.description,
-  //     // approvalId: 1
-  //   };
-  //     console.log(this.productDetails)
-  //   this._httpService.mobileBankingPost('product/portal/benefits/add', model).subscribe(
-  //     (result: any) => {
-  //       if (result.status === 200) {
-  //         this.isLoading =false;
-  //         this.activeModal.close('success');
-  //         Swal.fire('Benefit created',
-  //           'Benefit has been created successfully.',
-  //           'success').then(r => console.log(r))
-  //       } else {
-  //         this.activeModal.close('error');
-  //         Swal.fire('Record creation error',
-  //           'Benefit could not be created.',
-  //           'error').then(r => console.log(r))
-  //       }
-  //     },
-  //     (error: any) => {
-  //       Swal.fire('Record creation error',
-  //         `Record creation error`,
-  //         'error')
-  //     }
-  //   );
-
-  // }
 
   private saveChanges() {
     this.isLoading = true;

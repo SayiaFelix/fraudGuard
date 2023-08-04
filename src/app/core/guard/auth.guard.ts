@@ -25,17 +25,17 @@ export class AuthGuard implements CanActivate {
 
   checkUserLogin(route: ActivatedRouteSnapshot, url: any): boolean {
 
-    console.log(this.currState.url);
+    // console.log(this.currState.url);
 
     if (!!this.globalService.getToken()) {
       // let userRole = this.httpService.getRoles;
       let userRole = "CORPORATE_ADMIN";
 
-      console.log("route details:::");
-      console.log(route);
+      // console.log("route details:::");
+      // console.log(route);
 
-      console.log("user role details:::");
-      console.log(userRole);
+      // console.log("user role details:::");
+      // console.log(userRole);
 
       if (route.data.role && !route.data.role.includes(userRole)) {
         this.router.navigate(['/auth/login']);
