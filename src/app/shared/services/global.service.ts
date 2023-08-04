@@ -89,7 +89,7 @@ export class GlobalService {
     const permissions = localStorage.getItem('permissions');
     return JSON.parse(permissions ? permissions : "");
   }
-
+ 
   public getToken(): any {
     return localStorage.getItem('access_token');
   }
