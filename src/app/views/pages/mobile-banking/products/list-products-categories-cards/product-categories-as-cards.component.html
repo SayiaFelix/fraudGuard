@@ -98,33 +98,50 @@
           ">NEW REQUEST</span></a>
       </button>
     </div>
-    <div class="row d-flex justify-content-between mt-3" *ngFor="let std of requests">
-      <div class="col">
-        <p class="title">Ref No:</p>
-        <h2 class="content">{{std.ref_number}}</h2>
+    <!-- <div *ngIf="requests.length > 0">
+      <div class="row d-flex justify-content-between mt-3" *ngFor="let std of requests">
       </div>
-      <div class="col">
-        <p class="title">Request Type</p>
-        <h2 class="content">{{std.request_type}}</h2>
+    </div>
+    
+    <div *ngIf="requests.length === 0">
+      <p>No Requests Made</p>
+    </div> -->
+    
+   
+    <div *ngIf="requests.length > 0">
+      <div class="row d-flex justify-content-between mt-3" *ngFor="let std of requests">
+        <div class="col">
+          <p class="title">Ref No:</p>
+          <h2 class="content">{{std.ref_number}}</h2>
+        </div>
+        <div class="col">
+          <p class="title">Request Type</p>
+          <h2 class="content">{{std.request_type}}</h2>
+        </div>
+        <div class="col">
+          <p class="title">Date Created</p>
+          <h2 class="content">{{ formatDate(std.createdOn) }}</h2>
+        </div>
+        <div class="col">
+          <p class="title">Status</p>
+          <h2 class="content">
+            <img class="card-img-top img-fluid mr-1" style="width: 13px; height: 16px;"
+              [src]="getSanitizedStatusImage(std.status)" />{{std.status}}
+          </h2>
+        </div>
+        <div class="mt-2 col">
+            <button class="btn btn-md login-btn transition" (click)="viewRequest(std.id)" type="submit">
+              <a style="text-decoration: none" class="transition">
+                <span style="color: var(--white, #FFF);text-align: center;font-family: Mulish;font-size: 13px;font-style: normal;font-weight: 700;line-height: normal;letter-spacing: 1.12px;text-transform: uppercase;
+                    ">VIEW</span></a>
+            </button>
+        </div>
       </div>
-      <div class="col">
-        <p class="title">Date Created</p>
-        <h2 class="content">{{ formatDate(std.createdOn) }}</h2>
-      </div>
-      <div class="col">
-        <p class="title">Status</p>
-        <h2 class="content">
-          <img class="card-img-top img-fluid mr-1" style="width: 13px; height: 16px;"
-            [src]="getSanitizedStatusImage(std.status)" />{{std.status}}
-        </h2>
-      </div>
-      <div class="mt-2 col">
-          <button class="btn btn-md login-btn transition" (click)="viewRequest(std.id)" type="submit">
-            <a style="text-decoration: none" class="transition">
-              <span style="color: var(--white, #FFF);text-align: center;font-family: Mulish;font-size: 13px;font-style: normal;font-weight: 700;line-height: normal;letter-spacing: 1.12px;text-transform: uppercase;
-                  ">VIEW</span></a>
-          </button>
-      </div>
+    </div>
+    
+    <div *ngIf="requests.length === 0">
+      <h5 class="d-flex justify-content-end"
+      style="color: #a90202; font-family: 'Mulish';font-weight: 600;font-size: 15px; text-transform: none;">No REQUESTS Made.</h5>
     </div>
     <div class="d-flex justify-content-end">
       <div style="position: fixed; bottom: 9%; right:3%;"  (click)="toggleLeaveCommentForm()" class="d-flex justify-content-around">

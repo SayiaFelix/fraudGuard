@@ -84,7 +84,7 @@ export class ListCustomersComponent implements OnInit {
   showLeaveCommentForm: boolean = false;
   title: string = "New Customer";
   total: any;
-  results: any = [];
+  results: any[] = [];
   appealId: number;
   appealData: any;
 

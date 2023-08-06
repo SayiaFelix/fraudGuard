@@ -77,7 +77,6 @@ export class ChangePasswordComponent implements OnInit {
     this.modalRef.componentInstance.body= "Do you want to Set this as your new password?";
     this.modalRef.result.then((result) => {
       if (result === 'success') {
-
         const model = {
           resetToken: this.form.value.resetToken,
           password: this.form.value.password,
