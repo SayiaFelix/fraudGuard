@@ -59,6 +59,7 @@
           </div>
         </form>
       </div>
+      <hr>
       <div *ngIf="isFirstFormSubmitted">
         <form [formGroup]="formRequest">
           <div *ngFor="let question of getQuestionsForCurrentPage(); let i = index" class="mt-4">

@@ -35,56 +35,56 @@ export class ListUsersComponent implements OnInit {
   assessors: any = [
     {
       id: '1',
-      profile_url: "assets/images/p1.png",
+      existingImage: "assets/images/p1.png",
       title:"Assessor",
       first_name: 'Jane Akinyi',
       bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '2',
-      profile_url: "assets/images/p2.png",
+      existingImage: "assets/images/p2.png",
       title:"Assessor",
       first_name: 'Jane Akinyi',
       bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '3',
-      profile_url: "assets/images/p3.png",
+      existingImage: "assets/images/p3.png",
       title:"Assessor",
       first_name: 'Jane Akinyi',
       bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '4',
-      profile_url: "assets/images/p4.png",
+      existingImage: "assets/images/p4.png",
       title:"Assessor",
       first_name: 'Jane Akinyi',
       bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '5',
-      profile_url: "assets/images/p5.png",
+      existingImage: "assets/images/p5.png",
       title:"Assessor",
       first_name: ' Jane Akinyi',
       bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '6',
-      profile_url: "assets/images/p6.png",
+      existingImage: "assets/images/p6.png",
       title:"Assessor",
       first_name: 'Jane Akinyi',
       bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '7',
-      profile_url: "assets/images/p7.png",
+      existingImage: "assets/images/p7.png",
       title:"Assessor",
       first_name: 'Jane Akinyi',
       bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
     {
       id: '8',
-      profile_url: "assets/images/p8.png",
+      existingImage: "assets/images/p8.png",
       title:"Assessor",
       first_name: 'Jane Akinyi',
       bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."

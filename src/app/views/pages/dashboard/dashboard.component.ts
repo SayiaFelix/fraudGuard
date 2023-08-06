@@ -80,6 +80,7 @@ export class DashboardComponent implements OnInit {
   standards: any;
   loading: boolean
   profileDetails: any;
+  showUploadText = false;
   constructor(private calendar: NgbCalendar,
     private httpService: HttpService,
     fb: FormBuilder,
@@ -185,6 +186,7 @@ export class DashboardComponent implements OnInit {
       reader.onload = (e) => {
         this.uploadedImageUrl = e.target?.result as string;
         // this.imageUploaded = true;
+        this.showUploadText = true;
 
         const formData = new FormData();
         console.log(formData)

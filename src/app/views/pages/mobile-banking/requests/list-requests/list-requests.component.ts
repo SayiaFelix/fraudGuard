@@ -61,30 +61,30 @@ export class ListRequestsComponent implements OnInit {
       title: 'Standards For Safety And Security Standards',
       description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
-    {
-      id: '5',
-      existingImage: "assets/images/5.jpg",
-      title: ' Tour Guides And Hotel Employees Accommodation Standard',
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    },
-    {
-      id: '6',
-      existingImage: "assets/images/3.png",
-      title: 'Halal Compliance Standard For Accommodation And Catering Establishments',
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    },
-    {
-      id: '7',
-      existingImage: "assets/images/7.jpg",
-      title: 'Standards For Spa And Wellness Facilities',
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    },
-    {
-      id: '8',
-      existingImage: "assets/images/1.jpg",
-      title: 'Standards For Tourism Tours & Travel Enterprises',
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    },
+    // {
+    //   id: '5',
+    //   existingImage: "assets/images/5.jpg",
+    //   title: ' Tour Guides And Hotel Employees Accommodation Standard',
+    //   description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    // },
+    // {
+    //   id: '6',
+    //   existingImage: "assets/images/3.png",
+    //   title: 'Halal Compliance Standard For Accommodation And Catering Establishments',
+    //   description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    // },
+    // {
+    //   id: '7',
+    //   existingImage: "assets/images/7.jpg",
+    //   title: 'Standards For Spa And Wellness Facilities',
+    //   description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    // },
+    // {
+    //   id: '8',
+    //   existingImage: "assets/images/1.jpg",
+    //   title: 'Standards For Tourism Tours & Travel Enterprises',
+    //   description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    // },
   ]
 
   constructor(private router: Router,
@@ -178,7 +178,7 @@ export class ListRequestsComponent implements OnInit {
               standard.preview_image_url = 'https://test-api.ekenya.co.ke/tra-backend/api/v1/standard/files/download?filename=' + encodeURIComponent(filename);
               standard.existingImage = this.sanitizer.bypassSecurityTrustResourceUrl(standard.preview_image_url);
             } else {
-              standard.existingImage = this.defaultProfileImage;
+              standard.existingImage = this.defaultProfileImage; 
             }
   
             // Modify preview_icon_url
@@ -186,8 +186,12 @@ export class ListRequestsComponent implements OnInit {
               const filename = standard.preview_icon_url.split('?filename=')[1];
               standard.preview_icon_url = 'https://test-api.ekenya.co.ke/tra-backend/api/v1/standard/files/download?filename=' + encodeURIComponent(filename);
               standard.existingIcon = this.sanitizer.bypassSecurityTrustResourceUrl(standard.preview_icon_url);
+              standard.iconWidth = '55px'; 
+              standard.iconHeight = '45px'; 
             } else {
               standard.existingIcon = this.defaultIcon;
+              standard.iconWidth = '40px';
+              standard.iconHeight = '30px'; 
             }
           });
   
@@ -236,6 +240,14 @@ export class ListRequestsComponent implements OnInit {
     );
   }
 
+  
+  getColumnClass(numItems: number): string {
+    if (numItems === 1) {
+      return 'col-md-4 col-sm-6 col-lg-3 col-xl-3';
+    } else {
+      return 'col-md-4 col-sm-6 col-lg-3 col-xl-3';
+    }
+  }
   openModal(modalContent: any) {
     this.modalRef = this.modal.open(modalContent, {centered: true, size:"md"});
   }

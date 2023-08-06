@@ -69,7 +69,7 @@
 
 <div class="card border-0" style="position: relative;">
   <div class="row">
-    <div class="col-md-12 col-lg-12 col-xl-12 col-sm-12">
+    <!-- <div class="col-md-12 col-lg-12 col-xl-12 col-sm-12">
       <div class="image-container card border-0 box-shadow">
         <img class="card-img-top img-fluid" style="max-width: 100%; max-height: 300px; border-radius: 16px;"
           [src]="uploadedImageUrl || 'assets/images/sd.png'" 
@@ -81,8 +81,31 @@
           <input type="file" id="imageUpload" (change)="handleImageUpload($event)" accept="image/*" />
         </label>
       </div>
-    </div>
-
+    </div> -->
+    <div class="col-md-12 col-lg-12 col-xl-12 col-sm-12">
+      <div class="image-container card border-0 box-shadow">
+        <img class="card-img-top img-fluid" style="max-width: 100%; max-height: 300px; border-radius: 16px;"
+          [src]="uploadedImageUrl || 'assets/images/sd.png'" 
+          (error)="handleImageError()" 
+          [ngClass]="{'uploaded': uploadedImageUrl, 'centered': !uploadedImageUrl}" 
+        /> 
+        <div *ngIf="uploadedImageUrl">
+          <div class="label-container">
+            <label for="imageUpload" class="input-container active">
+              <img class="card-img-top img-fluid" style="width: 80px; max-height: 80px;" src="assets/images/sdb.png" />
+              <input type="file" id="imageUpload" (change)="handleImageUpload($event)" accept="image/*" style="display: none;" />
+            </label>
+          </div>
+        </div>
+        <div *ngIf="!uploadedImageUrl">
+          <label for="imageUpload" class="input-container">
+            <img class="card-img-top img-fluid" style="width: 40px; max-height: 40px;" src="assets/images/sdb.png" /><br>
+            <span class="mt-1">Click here to upload an image</span>
+            <input type="file" id="imageUpload" (change)="handleImageUpload($event)" accept="image/*" />
+          </label>
+        </div>
+      </div>
+    </div>    
   </div>
   <div class="land">
     <div class="row d-flex justify-content-between">
@@ -112,23 +135,25 @@
       </div>
     </div>
   </div>
+  <div class="d-flex justify-content-start">
+    <h2 style="color: var(--green-blue, #2268AA);font-family: Mulish;font-size: 17px;font-style: normal;font-weight: 600;line-height: normal; width: 90%; margin-left: 5%; margin-top: 11%;">Download Certificate Earned</h2>
+  </div>
   <div
-    style="align-items: center; border-radius: 16px; background: #D0DDF0; width: 90%; margin-left: 5%; margin-top: 9%;">
+    style="align-items: center; border-radius: 16px; background: #D0DDF0; width: 90%; margin-left: 5%;">
     <div class="row d-flex justify-content-between mt-2" style="padding: 24px 24px;">
-
-      <div class="col">
+      <div class="col-md-3 col-sm-3 col-lg-3 col-xl-3" style="padding:18px 0px;">
         <div class="card border-0 box-shadow" style="height: 100px ; width: 150px;">
           <img class="card-img-top img-fluid" style="height: 100px; width: 150px;"
             src="assets/images/certificate.png" />
         </div>
       </div>
-      <div class="col" style="font-family: Mulish;font-style: normal;font-weight: 600;line-height: normal;">
+      <div class="col-md-6 col-sm-6 col-lg-6 col-xl-6" style="font-family: Mulish;font-style: normal;font-weight: 600;line-height: normal;">
         <p style="color: var(--dark-purple, #1E0F2E);font-size: 15px;">LIC.NO {{licenceNumber}}</p>
         <h2 style="color: var(--green-blue, #2268AA);font-size: 17px;">Tourism Regulatory Authority (TRA) Licence
           Certificate Earned</h2>
         <h4 style="color: var(--dark-purple, #1E0F2E);font-size: 17px;">Certificate expires | 24th September 2024 </h4>
       </div>
-      <div class="col" style="margin-top: 3%;">
+      <div class="col-md-3 col-sm-3 col-lg-3 col-xl-3  d-flex justify-content-end" style="padding:50px 0px;">
         <a [href]="downloadLink" download>
           <button class="btn btn-md login-btn transition" type="submit">
             <a style="text-decoration: none" class="transition">
@@ -140,7 +165,7 @@
     </div>
   </div>
   <div class="d-flex justify-content-end">
-    <div style="position: fixed; bottom: 9%; right:3%;" class="d-flex justify-content-around">
+    <div style="position: fixed; bottom: 9%; right:3%;" (click)="toggleLeaveCommentForm()" class="d-flex justify-content-around">
       <button *ngIf="!showLeaveCommentForm" class="btn btn-sm transition"
         style="border-radius: 64px;background: var(--green-blue, #2268AA); margin-right:10px;" type="submit">
         <a style="text-decoration: none" class="transition">
@@ -148,7 +173,7 @@
             style="color: var(--seasalt, #F8F8F8);text-align: center;font-family: Mulish;font-size: 12px;font-style: normal;font-weight: 700;line-height: normal;letter-spacing: 1.12px;text-transform: uppercase;">customer
             inquiry</span></a>
       </button>
-      <div (click)="toggleLeaveCommentForm()"
+      <div
         style="width: 50px; height: 50px; border-radius: 50%; background-color: #D0DDF0;;"
         class="card-header d-flex align-items-center border-0">
         <p style="color:#2268AA;  font-size: 30px; margin-left: -13px;">

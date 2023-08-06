@@ -241,8 +241,12 @@ export class StandardsComponent implements OnInit {
               const filename = standard.preview_icon_url.split('?filename=')[1];
               standard.preview_icon_url = 'https://test-api.ekenya.co.ke/tra-backend/api/v1/standard/files/download?filename=' + encodeURIComponent(filename);
               standard.existingIcon = this.sanitizer.bypassSecurityTrustResourceUrl(standard.preview_icon_url);
+              standard.iconWidth = '40px'; 
+              standard.iconHeight = '30px'; 
             } else {
               standard.existingIcon = this.defaultIcon;
+              standard.iconWidth = '35px';
+              standard.iconHeight = '30px'; 
             }
           });
 
@@ -266,6 +270,14 @@ export class StandardsComponent implements OnInit {
   }
   get f(): { [p: string]: AbstractControl } {
     return this.form.controls;
+  }
+
+  getColumnClass(numItems: number): string {
+    if (numItems === 1) {
+      return 'col-md-4 col-sm-6 col-lg-3 col-xl-3';
+    } else {
+      return 'col-md-4 col-sm-6 col-lg-3 col-xl-3';
+    }
   }
   // getSubClassData(): void {
   //   this.loading = true;

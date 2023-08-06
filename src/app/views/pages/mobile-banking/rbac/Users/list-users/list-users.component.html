@@ -60,7 +60,7 @@
     </div>
   </div>
   <div class="d-flex justify-content-end">
-    <div style="position: fixed; bottom: 9%; right:3%;" class="d-flex justify-content-around">
+    <div style="position: fixed; bottom: 9%; right:3%;"  (click)="toggleLeaveCommentForm()" class="d-flex justify-content-around">
       <button *ngIf="!showLeaveCommentForm" class="btn btn-sm transition"
         style="border-radius: 64px;background: var(--green-blue, #2268AA); margin-right:10px;" type="submit">
         <a style="text-decoration: none" class="transition">
@@ -68,7 +68,7 @@
             style="color: var(--seasalt, #F8F8F8);text-align: center;font-family: Mulish;font-size: 12px;font-style: normal;font-weight: 700;line-height: normal;letter-spacing: 1.12px;text-transform: uppercase;">customer
             inquiry</span></a>
       </button>
-      <div (click)="toggleLeaveCommentForm()"  style="width: 50px; height: 50px; border-radius: 50%; background-color: #D0DDF0;;"
+      <div  style="width: 50px; height: 50px; border-radius: 50%; background-color: #D0DDF0;;"
         class="card-header d-flex align-items-center border-0">
         <p style="color:#2268AA;  font-size: 30px; margin-left: 10px;">
           <img class="img-fluid" style="position: absolute; bottom: 19%"
