@@ -59,30 +59,30 @@ export class LandingComponent implements OnInit {
       title: 'Standards For Safety And Security Standards',
       description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     },
-    {
-      id: '5',
-      existingImage: "assets/images/5.jpg",
-      title: ' Tour Guides And Hotel Employees Accommodation Standard',
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    },
-    {
-      id: '6',
-      existingImage: "assets/images/3.png",
-      title: 'Halal Compliance Standard For Accommodation And Catering Establishments',
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    },
-    {
-      id: '7',
-      existingImage: "assets/images/7.jpg",
-      title: 'Standards For Spa And Wellness Facilities',
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    },
-    {
-      id: '8',
-      existingImage: "assets/images/1.jpg",
-      title: 'Standards For Tourism Tours & Travel Enterprises',
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    },
+    // {
+    //   id: '5',
+    //   existingImage: "assets/images/5.jpg",
+    //   title: ' Tour Guides And Hotel Employees Accommodation Standard',
+    //   description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    // },
+    // {
+    //   id: '6',
+    //   existingImage: "assets/images/3.png",
+    //   title: 'Halal Compliance Standard For Accommodation And Catering Establishments',
+    //   description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    // },
+    // {
+    //   id: '7',
+    //   existingImage: "assets/images/7.jpg",
+    //   title: 'Standards For Spa And Wellness Facilities',
+    //   description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    // },
+    // {
+    //   id: '8',
+    //   existingImage: "assets/images/1.jpg",
+    //   title: 'Standards For Tourism Tours & Travel Enterprises',
+    //   description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    // },
   ]
 
   autoPlayOptions: OwlOptions = {
@@ -183,8 +183,8 @@ export class LandingComponent implements OnInit {
   ) {
     this.form = fb.group({
       name: ["", Validators.compose([Validators.required])],
-      email: ['',Validators.compose([Validators.required, CustomValidators.email])],
-      subject: ['',Validators.compose([Validators.required])],
+      email: ['', Validators.compose([Validators.required, CustomValidators.email])],
+      subject: ['', Validators.compose([Validators.required])],
       message: ["", Validators.compose([Validators.required])],
       phone_number: ["", Validators.compose([Validators.required, this.phoneNumberValidator])],
     });
@@ -234,7 +234,7 @@ export class LandingComponent implements OnInit {
     const phoneNumber = control.value;
     // Regular expression to check if the phone number starts with "254" and is followed by 9 digits.
     const phonePattern = /^254\d{9}$/;
-  
+
     return phonePattern.test(phoneNumber) ? null : { invalidPhoneNumber: true };
   }
 
@@ -242,8 +242,8 @@ export class LandingComponent implements OnInit {
     this.isLoading = true;
     const model = {
       name: this.form.value.name,
-      phone_number: this.form.value.phone_number, 
-      subject: this.form.value.subject, 
+      phone_number: this.form.value.phone_number,
+      subject: this.form.value.subject,
       message: this.form.value.message,
       email: this.form.value.email,
     };
@@ -269,6 +269,13 @@ export class LandingComponent implements OnInit {
       }
     );
   }
+  getColumnClass(numItems: number): string {
+    if (numItems === 1) {
+      return 'col-md-4 col-sm-6 col-lg-3 col-xl-3';
+    } else {
+      return 'col-md-4 col-sm-6 col-lg-3 col-xl-3';
+    }
+  }
 
   private loadData(): any {
     this.loading = true;
@@ -289,17 +296,21 @@ export class LandingComponent implements OnInit {
             } else {
               standard.existingImage = this.defaultImage;
             }
-  
+
             // Modify preview_icon_url
             if (standard.preview_icon_url) {
               const filename = standard.preview_icon_url.split('?filename=')[1];
               standard.preview_icon_url = 'https://test-api.ekenya.co.ke/tra-backend/api/v1/standard/files/download?filename=' + encodeURIComponent(filename);
               standard.existingIcon = this.sanitizer.bypassSecurityTrustResourceUrl(standard.preview_icon_url);
+              standard.iconWidth = '60px'; 
+              standard.iconHeight = '50px'; 
             } else {
               standard.existingIcon = this.defaultIcon;
+              standard.iconWidth = '40px';
+              standard.iconHeight = '30px'; 
             }
           });
-  
+
           console.log(this.standards);
           console.log(this.existingImage);
           this.loading = false;
@@ -312,10 +323,10 @@ export class LandingComponent implements OnInit {
       }
     );
   }
-  
-  
-  
-  
+
+
+
+
 
   toggleLeaveCommentForm() {
     if (this.showLeaveCommentForm) {

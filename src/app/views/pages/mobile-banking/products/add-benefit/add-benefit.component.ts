@@ -136,6 +136,7 @@ export class AddBenefitComponent implements OnInit {
       (result: any) => {
         if (result.status === '00') {
           this.isLoading = false;
+          console.log(result)
           this.requestId = result.data.id;
           this.isFirstFormSubmitted = true;
           this.form.reset()
@@ -235,7 +236,7 @@ export class AddBenefitComponent implements OnInit {
       this._httpService.customerPortalPosts('admin/customer/portal/answer', model).subscribe(
         (result: any) => {
           if (result.status === 200) {
-        // this.isFirstFormSubmitted = true;
+        this.isFirstFormSubmitted = false;
             this.isLoading = false;
             this.formRequest.reset()
             Swal.fire('Questions Recieved Successfully',
