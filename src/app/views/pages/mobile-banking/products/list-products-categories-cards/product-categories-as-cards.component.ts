@@ -75,7 +75,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
   ClassData: any;
   SubClassData: any;
   accreditations: any;
-  requests: any;
+  requests: any[] = [];
 
 
   constructor(
