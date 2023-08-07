@@ -268,6 +268,27 @@ export class DashboardComponent implements OnInit {
     this.loading = false;
   }
 
+  // getCertificate(): void {
+  //   this.loading = true;
+  //   this.httpService
+  //     .customerPortalPosts('admin/customer/portal/get-certificate', {})
+  //     .subscribe((res: any) => {
+  //       if (res.status === 200) {
+  //         this.certificate = res.data.downloadUrl;
+  //         this.loading = false;
+  
+  //         const normalizedFileUrl = this.certificate.replace("http://10.20.2.19:7600", "https://test-api.ekenya.co.ke/tra-backend");
+  
+  //         const link = document.createElement('a');
+  //         link.href = normalizedFileUrl;
+  //         link.download = 'certificate.pdf'; // Set the suggested filename here
+  //         link.click();
+  //       } else {
+  //         this.loading = false;
+  //       }
+  //     });
+  // }
+  
 
   onFileSelected(event: any) {
     this.selectedFile = event.target.files[0] as File;
