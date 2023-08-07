@@ -144,9 +144,8 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
     switch (status) {
       case 'APPROVED':
         return this.sanitizer.bypassSecurityTrustResourceUrl('assets/images/approve.png');
-      case 'Pending':
+      case 'PENDING':
         return this.sanitizer.bypassSecurityTrustResourceUrl('assets/images/time.png');
-      // Add more cases for other status if needed
       default:
         return this.sanitizer.bypassSecurityTrustResourceUrl('assets/images/fail.png');
     }
