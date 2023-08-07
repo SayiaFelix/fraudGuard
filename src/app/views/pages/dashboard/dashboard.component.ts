@@ -256,7 +256,7 @@ export class DashboardComponent implements OnInit {
           // console.log(this.certificate)
 
           const normalizedFileUrl = this.certificate.replace("http://10.20.2.19:7600", "https://test-api.ekenya.co.ke/tra-backend");
-          console.log(normalizedFileUrl);
+          // console.log(normalizedFileUrl);
           const link = document.createElement('a');
           link.href = normalizedFileUrl;
           link.target = '_blank';
