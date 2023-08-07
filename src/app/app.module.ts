@@ -20,6 +20,7 @@ import { CarouselModule } from 'ngx-owl-carousel-o';
 import { Ng2TelInputModule } from 'ng2-tel-input';
 import { APP_BASE_HREF_TOKEN } from './views/pages/mobile-banking/requests/constants';
 import { APP_BASE_HREF } from '@angular/common';
+import { ToastrModule,ToastrConfig, ToastrService } from 'ngx-toastr';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
@@ -38,6 +39,11 @@ export function HttpLoaderFactory(http: HttpClient) {
     HttpClientModule,
     BrowserAnimationsModule,
     CarouselModule ,
+    ToastrModule.forRoot({
+      timeOut: 4000,
+      positionClass: 'toast-bottom-center',
+      preventDuplicates: true,
+    }),
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
@@ -51,7 +57,6 @@ export function HttpLoaderFactory(http: HttpClient) {
       libraries: ["places", "drawing", "geometry"]}),
   ],
   providers: [
-    
     { provide: APP_BASE_HREF_TOKEN, useValue: '/tra-customer-portal' }, 
     // {
     //   provide: HTTP_INTERCEPTORS,
