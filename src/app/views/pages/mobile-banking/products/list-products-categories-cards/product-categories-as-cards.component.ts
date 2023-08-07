@@ -51,7 +51,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
   temp: any = [];
   loading = true;
   reorderable = true;
-  perPage = 10;
+  perPage = 100;
   page = 1
   pageSizes = [5, 10, 25, 50, 100, 200];
   columns = [
@@ -155,13 +155,16 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
   getIndividualData(event: any): void {
     this.loading = true;
     let userId = JSON.parse(localStorage.getItem('data')!)['user']['id'];
+   let licenceNumber = JSON.parse(localStorage.getItem('data')!)['licenceNumber']
     let model = {
-      userId
+      licenceNumber,
+      page: this.page - 1,
+      size: this.perPage
     };
     this.httpService
-      .customerPortalPost('api/v1/portal/getFacilityRequests', model)
+      .customerPortalPosts('admin/customer/portal/get-request-by-licence-number', model)
       .subscribe((res: any) => {
-        if (res.status === '00') {
+        if (res.status === 200) {
           this.requests = res.data
           this.loading = false;
           console.log(res.data);

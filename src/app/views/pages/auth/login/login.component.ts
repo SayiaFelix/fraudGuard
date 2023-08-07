@@ -15,7 +15,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { HttpService } from 'src/app/shared/services/http.service';
 import Swal from "sweetalert2";
 import { AuthService } from 'src/app/shared/services/auth.service';
-// import { ToastrService } from 'ngx-toastr';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-login',
@@ -48,7 +48,7 @@ export class LoginComponent implements OnInit {
     private httpService: HttpService,
     fb: FormBuilder,
     private _router: Router,
-    // private toastr: ToastrService
+    private toastr: ToastrService
 
   ) {
     this.form = fb.group({
@@ -94,6 +94,7 @@ export class LoginComponent implements OnInit {
           this.isLoading = false;
           if (result['status'] != '00') {
             this.hasError = true;
+            this.toastr.success(result.message, 'Success!');  
             this.errorMsg = result['message'];
             setTimeout(() => {
               this.hasError = false;

@@ -87,6 +87,7 @@ export class ListCustomersComponent implements OnInit {
   results: any[] = [];
   appealId: number;
   appealData: any;
+  resultRef: string | null = null;
 
 
   constructor(
@@ -217,12 +218,15 @@ export class ListCustomersComponent implements OnInit {
     let model = {
       licenceNumber
     };
+    // admin/customer/portal/fetch-result-by-licence-number
     this.httpService.customerPortalPost(`api/v1/portal/getResultsByLicence`, model).subscribe(
       (res: any) => {
         if (res.status == '00') {
           // this.results = res['data'];
           // console.log(this.results);
-          const result = res.data.filter((request: any) => request.status === "PUBLISHED");
+          const result = res.data.filter((request: any) => request.status === "PUBLISHED" || request.status === "APPEALED" );
+          this.resultRef = res.data[0].result_ref;;
+          console.log(this.resultRef)
           const appealData = this.appealData || []; // If appealData is not available, use an empty array
           result.forEach((request: any) => {
             const appealStatus = appealData.find((appeal: any) => appeal.result_ref === request.result_ref)?.status;
@@ -372,13 +376,15 @@ export class ListCustomersComponent implements OnInit {
     if (this.formR.invalid) {
       return;
     }
+  let licenceNumber = JSON.parse(localStorage.getItem('data')!)['licenceNumber']
     const model = {
-      id,
+      licenceNumber,
+      resultRef: this.resultRef,
       reason: this.formR.value.reason,
     }
     console.log(model)
-    this.httpService.customerPortalPost(`api/v1/portal/appeals`, model).subscribe((result: any) => {
-      if (result.status === '00') {
+    this.httpService.customerPortalPosts(`/admin/customer/portal/create-appeal`, model).subscribe((result: any) => {
+      if (result.status === 200) {
         this.isLoading = false;
 
         Swal.fire('Appeal Raised Successfully',

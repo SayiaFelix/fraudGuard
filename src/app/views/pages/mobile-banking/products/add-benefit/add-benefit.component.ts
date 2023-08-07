@@ -47,7 +47,7 @@ export class AddBenefitComponent implements OnInit {
   ngOnInit() {
     this.form = this.fb.group({
       class_name: [this.formData ? this.formData.class_name : '', [Validators.required]],
-      request_type: [this.formData ? this.formData.request_type : '', [Validators.required]],
+      requestType: [this.formData ? this.formData.requestType : '', [Validators.required]],
       subClassName: [{ value: '', disabled: true }, Validators.required]
     });
     this.formRequest = this.fb.group({})
@@ -125,16 +125,24 @@ export class AddBenefitComponent implements OnInit {
     this.isLoading = true;
     let userId = JSON.parse(localStorage.getItem('data')!)['id']
     const formData = this.form.value;
+    let licenseNumber = JSON.parse(localStorage.getItem('data')!)['licenceNumber']
     console.log(formData);
     const model = {
-      userId,
-      request_type: this.form.value.request_type,
+      licenseNumber,
+      requestType: this.form.value.requestType,
       subClassName: this.form.value.subClassName,
     };
+
+  //   {
+
+  //     "subClassName": "Hotel Test",
+  //     "requestType": "ACCREDITATION",
+  //     "licenseNumber": "LC56435"
+  // }
     console.log(model)
-    this._httpService.customerPortalPost('api/v1/portal/requestAccreditation', model).subscribe(
+    this._httpService.customerPortalPosts('admin/customer/portal/create-customer-request', model).subscribe(
       (result: any) => {
-        if (result.status === '00') {
+        if (result.status === 200) {
           this.isLoading = false;
           console.log(result)
           this.requestId = result.data.id;
@@ -242,14 +250,13 @@ export class AddBenefitComponent implements OnInit {
             Swal.fire('Questions Recieved Successfully',
               'success').then(r => console.log(r))
           } else {
-
-            this.form.reset()
+            this.formRequest.reset()
             Swal.fire('Questions Failed, Try Again',
               'error').then(r => console.log(r))
           }
         },
         (error: any) => {
-          this.form.reset()
+          this.formRequest.reset()
           Swal.fire('Questions error',
             'error')
         }
