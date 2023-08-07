@@ -81,6 +81,7 @@ export class DashboardComponent implements OnInit {
   loading: boolean
   profileDetails: any;
   showUploadText = false;
+  certificate: any;
   constructor(private calendar: NgbCalendar,
     private httpService: HttpService,
     fb: FormBuilder,
@@ -214,7 +215,7 @@ export class DashboardComponent implements OnInit {
       reader.readAsDataURL(file);
     }
   }
-
+// admin/customer/portal/get-certificate
   private loadData(): any {
     this.loading = true;
     let userId = JSON.parse(localStorage.getItem('data')!)['user']['id'];
@@ -245,27 +246,34 @@ export class DashboardComponent implements OnInit {
     );
   }
 
-  onFileSelected(event: any) {
-    this.selectedFile = event.target.files[0] as File;
+  getCertificate(): void {
+    this.loading = true;
+    this.httpService
+      .customerPortalPosts('admin/customer/portal/get-certificate', {})
+      .subscribe((res: any) => {
+        if (res.status === 200) {
+          this.certificate = res.data.downloadUrl
+          this.loading = false;
+          
+          // console.log(res.data);
+          // console.log(this.certificate)
+
+          const normalizedFileUrl = this.certificate.replace("http://10.20.2.19:7600", "https://test-api.ekenya.co.ke/tra-backend");
+          console.log(normalizedFileUrl);
+          const link = document.createElement('a');
+          link.href = normalizedFileUrl;
+          link.target = '_blank';
+          link.click();
+        } else {
+          this.loading = false;
+        }
+      });
+    this.loading = false;
   }
 
-  onUpload() {
-    if (this.selectedFile) {
-      const formData = new FormData();
-      formData.append('image', this.selectedFile);
 
-      // this.http.post<any>('your_file_upload_api_url', formData).subscribe(
-      //   (response) => {
-      //     console.log('Image uploaded successfully!', response);
-      //     // Optionally, you can handle the response from the server here
-      //   },
-      //   (error) => {
-      //     console.error('Error uploading image:', error);
-      //   }
-      // );
-    } else {
-      console.warn('No image selected.');
-    }
+  onFileSelected(event: any) {
+    this.selectedFile = event.target.files[0] as File;
   }
 
   toggleLeaveCommentForm() {
