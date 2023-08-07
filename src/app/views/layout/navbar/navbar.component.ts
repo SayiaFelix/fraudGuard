@@ -270,28 +270,28 @@ export class NavbarComponent implements OnInit {
       userName: "maina.alex@eclectics.io"
     }
 
-    this.httpService.mobileBankingPost('workflow/staged', model).subscribe(
-      (result: any) => {
-        if (result.status === 200) {
-          console.log("workflow result");
-          console.log(result);
+    // this.httpService.mobileBankingPost('workflow/staged', model).subscribe(
+    //   (result: any) => {
+    //     if (result.status === 200) {
+    //       console.log("workflow result");
+    //       console.log(result);
 
-          let response = result['data'].map((item: any, index: any) => {
-            let res = {...item,
-              stagerDetails: JSON.parse(item.stagingUserDetails)
-            };
-            return res;
-          })
+    //       let response = result['data'].map((item: any, index: any) => {
+    //         let res = {...item,
+    //           stagerDetails: JSON.parse(item.stagingUserDetails)
+    //         };
+    //         return res;
+    //       })
 
-          let updatedResult = response;
+    //       let updatedResult = response;
 
 
-          this.notificationService.updateNotifications(updatedResult);
-        } else {
+    //       this.notificationService.updateNotifications(updatedResult);
+    //     } else {
 
-        }
-      }
-    );
+    //     }
+    //   }
+    // );
 
   }
 
