@@ -170,7 +170,9 @@ export class ListRequestsComponent implements OnInit {
     this.httpService.customerPortalPost(`api/v1/portal/getStandards`, {}).subscribe(
       (res: any) => {
         if (res.status == '00') {
-          this.standards = res['data'];
+          // this.standards = res['data'];
+          const standard = res.data.filter((request: any) => request.status === "PUBLISHED");
+          this.standards = standard
           this.standards.forEach((standard: any) => {
             // Modify preview_image_url
             if (standard.preview_image_url) {
@@ -243,11 +245,12 @@ export class ListRequestsComponent implements OnInit {
   
   getColumnClass(numItems: number): string {
     if (numItems === 1) {
-      return 'col-md-4 col-sm-6 col-lg-3 col-xl-3';
+      return 'col-md-4 col-sm-6 col-lg-4 col-xl-4';
     } else {
       return 'col-md-4 col-sm-6 col-lg-3 col-xl-3';
     }
   }
+  
   openModal(modalContent: any) {
     this.modalRef = this.modal.open(modalContent, {centered: true, size:"md"});
   }
