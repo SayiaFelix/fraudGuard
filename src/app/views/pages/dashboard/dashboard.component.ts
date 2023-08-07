@@ -114,10 +114,7 @@ export class DashboardComponent implements OnInit {
     if (document.querySelector('html')?.getAttribute('dir') === 'rtl') {
       this.addRtlOptions();
     }
-    // facilityType
-    // facilityCategory
-    // businessEmail
-    // businessPhone
+
     let userDetails = {
       companyEmail: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['businessEmail'] : "test@gmail.com",
       licenceNumber: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['licenceNumber'] : "87654321",
@@ -146,7 +143,7 @@ export class DashboardComponent implements OnInit {
     } else {
       this.userData$ = this.httpService.customerUserDetails().pipe(
         map((resp) => {
-          console.log(resp);
+          // console.log(resp);
           if (resp) {
             this.companyEmail = resp[0]['email'];
             this.licenceNumber = resp[0]['licenceNo'];
@@ -190,7 +187,7 @@ export class DashboardComponent implements OnInit {
         this.showUploadText = true;
 
         const formData = new FormData();
-        console.log(formData)
+        // console.log(formData)
         formData.append('image', file);
         this.httpService.customerPortalPostFile(`api/v1/auth/uploadLandingPhoto`, formData).subscribe(
           (result: any) => {
@@ -215,26 +212,26 @@ export class DashboardComponent implements OnInit {
       reader.readAsDataURL(file);
     }
   }
-// admin/customer/portal/get-certificate
+
   private loadData(): any {
     this.loading = true;
     let userId = JSON.parse(localStorage.getItem('data')!)['user']['id'];
     let model = {
       id: userId
     };
-    console.log(model)
+    // console.log(model)
     this.httpService.customerPortalPost(`api/v1/auth/getProfile`, model).subscribe(
       (res: any) => {
         if (res.status == '00') {
           this.profileDetails = res['data'];
-          console.log(this.profileDetails);
+          // console.log(this.profileDetails);
 
           if (this.profileDetails.PhotoPath && !this.profileDetails.PhotoPath.startsWith('http://') && !this.profileDetails.PhotoPath.startsWith('https://')) {
             this.uploadedImageUrl = 'https://' + this.profileDetails.PhotoPath;
           } else {
             this.uploadedImageUrl = this.profileDetails.PhotoPath || 'assets/images/sd.png'; // Use the default image if PhotoPath is empty
           }
-          console.log(this.uploadedImageUrl)
+          // console.log(this.uploadedImageUrl)
           this.loading = false;
         } else {
           console.log('Failed', 'Unable to fetch profile', 'error');
@@ -304,7 +301,7 @@ export class DashboardComponent implements OnInit {
       message: this.form.value.message,
       email: this.form.value.email,
     };
-    console.log(model)
+    // console.log(model)
     this.httpService.customerPortalPost(`api/v1/auth/customerEnquirer`, model).subscribe(
       (result: any) => {
         if (result.status === '00') {
