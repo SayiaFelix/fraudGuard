@@ -34,7 +34,7 @@ export class ListRequestsComponent implements OnInit {
   errorMessage: string;
   modalRef: NgbModalRef;
   loading:boolean;
-  perPage = 5;
+  perPage = 100;
   page = 1
   standards: any = [
     {
@@ -167,32 +167,32 @@ export class ListRequestsComponent implements OnInit {
       page: this.page - 1,
       size: this.perPage
     };
-    this.httpService.customerPortalPost(`api/v1/portal/getStandards`, {}).subscribe(
+    this.httpService.customerPortalPosts(`standard/portal/getall`, model).subscribe(
       (res: any) => {
-        if (res.status == '00') {
+        if (res.status == 200) {
           // this.standards = res['data'];
-          const standard = res.data.filter((request: any) => request.status === "PUBLISHED");
+          const standard = res.data.standards.filter((request: any) => request.status === "PUBLISHED");
           this.standards = standard
           this.standards.forEach((standard: any) => {
             // Modify preview_image_url
-            if (standard.preview_image_url) {
-              const filename = standard.preview_image_url.split('?filename=')[1];
-              standard.preview_image_url = 'https://test-api.ekenya.co.ke/tra-backend/api/v1/standard/files/download?filename=' + encodeURIComponent(filename);
-              standard.existingImage = this.sanitizer.bypassSecurityTrustResourceUrl(standard.preview_image_url);
+            if (standard.previewImageUrl) {
+              const filename = standard.previewImageUrl.split('?filename=')[1];
+              standard.previewImageUrl = 'https://test-api.ekenya.co.ke/tra-backend/api/v1/standard/files/download?filename=' + encodeURIComponent(filename);
+              standard.existingImage = this.sanitizer.bypassSecurityTrustResourceUrl(standard.previewImageUrl);
             } else {
               standard.existingImage = this.defaultProfileImage; 
             }
   
             // Modify preview_icon_url
-            if (standard.preview_icon_url) {
-              const filename = standard.preview_icon_url.split('?filename=')[1];
-              standard.preview_icon_url = 'https://test-api.ekenya.co.ke/tra-backend/api/v1/standard/files/download?filename=' + encodeURIComponent(filename);
-              standard.existingIcon = this.sanitizer.bypassSecurityTrustResourceUrl(standard.preview_icon_url);
+            if (standard.previewIconUrl) {
+              const filename = standard.previewIconUrl.split('?filename=')[1];
+              standard.previewIconUrl = 'https://test-api.ekenya.co.ke/tra-backend/api/v1/standard/files/download?filename=' + encodeURIComponent(filename);
+              standard.existingIcon = this.sanitizer.bypassSecurityTrustResourceUrl(standard.previewIconUrl);
               standard.iconWidth = '55px'; 
               standard.iconHeight = '45px'; 
             } else {
               standard.existingIcon = this.defaultIcon;
-              standard.iconWidth = '40px';
+              standard.iconWidth = '35px';
               standard.iconHeight = '30px'; 
             }
           });
