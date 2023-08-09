@@ -68,7 +68,9 @@ export class ViewStandardsComponent implements OnInit {
   hasError: boolean = false;
   isLoading: boolean = false;
   defaultImage: SafeResourceUrl = "assets/images/landing2.png";
+  defaultProfileImage: SafeResourceUrl = "assets/images/p7.png";
   existingImage: SafeResourceUrl;
+  existingProfileImage: SafeResourceUrl;
 
   defaultParts: any[] = [
     { partOrder: 'I', part_title: 'Preliminary' },
@@ -81,9 +83,69 @@ export class ViewStandardsComponent implements OnInit {
     { partOrder: 2, part_title: 'Statutory Obligations' },
     { partOrder: 3, part_title: 'Facility Requirements' }
   ];
+  showAssessors: boolean = false;
 
+  assessors: any = [
+    // {
+    //   id: '1',
+    //   existingProfileImage: "assets/images/p7.png",
+    //   title:"Assessor",
+    //   firstName: 'Jane Akinyi',
+    //   bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    // },
+    // {
+    //   id: '2',
+    //   existingProfileImage: "assets/images/p7.png",
+    //   title:"Assessor",
+    //   firstName: 'Jane Akinyi',
+    //   bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    // },
+    // {
+    //   id: '3',
+    //   existingImage: "assets/images/p3.png",
+    //   title:"Assessor",
+    //   first_name: 'Jane Akinyi',
+    //   bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    // },
+    // {
+    //   id: '4',
+    //   existingImage: "assets/images/p4.png",
+    //   title:"Assessor",
+    //   first_name: 'Jane Akinyi',
+    //   bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    // },
+    // {
+    //   id: '5',
+    //   existingImage: "assets/images/p5.png",
+    //   title:"Assessor",
+    //   first_name: ' Jane Akinyi',
+    //   bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    // },
+    // {
+    //   id: '6',
+    //   existingImage: "assets/images/p6.png",
+    //   title:"Assessor",
+    //   first_name: 'Jane Akinyi',
+    //   bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    // },
+    // {
+    //   id: '7',
+    //   existingImage: "assets/images/p7.png",
+    //   title:"Assessor",
+    //   first_name: 'Jane Akinyi',
+    //   bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    // },
+    // {
+    //   id: '8',
+    //   existingImage: "assets/images/p8.png",
+    //   title:"Assessor",
+    //   first_name: 'Jane Akinyi',
+    //   bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    // },
+  ]
   selectedLanguage: any = 'English';
   selectedLanguageFlag: any = 'assets/images/flags/us.svg';
+  selectedAssessor: any;
   images: string[];
   currentIndex: number;
   changeIndex: (index: any) => void;
@@ -140,9 +202,6 @@ export class ViewStandardsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    for (const standard of this.standards) {
-      standard.describe = this.sanitizeHtml(standard.part_description);
-    }
     this.activatedRoute.params.subscribe(params => {
       if (typeof params.id !== 'undefined') {
         console.log('query-params');
@@ -182,11 +241,11 @@ export class ViewStandardsComponent implements OnInit {
       let model = {
         id: this.standardId
       };
-      this.httpService.customerPortalPost(`api/v1/portal/standard/${this.standardId}`, {}).subscribe(
+      this.httpService.customerPortalPosts(`standard/portal/getById`, model).subscribe(
         (res: any) => {
-          if (res.status === '00') {
-            this.parts = res['data']['parts'];
-            this.terms = res['data']['terms'];
+          if (res.status === 200) {
+            this.parts = res['data']['standard']['parts'];
+            this.terms = res['data']['standard']['terms'];
 
             if (this.parts.length > 0) {
               this.selectedPart = this.parts[0];
@@ -201,17 +260,13 @@ export class ViewStandardsComponent implements OnInit {
             };
           }
         }, (error: any) => {
-          // Swal.fire("Error", error.message, "error");
           console.error('Error fetching parts:', error);
         });
     }
     if (this.parts.length > 0) {
       this.selectedPart = this.parts[0];
     }
-    // for (const part of this.parts) {
-    //   console.log(part.part_description)
-    //   part.part_description = this.sanitizeHtml(part.part_description);
-    // }
+
   }
 
   get f(): { [p: string]: AbstractControl } {
@@ -221,13 +276,8 @@ export class ViewStandardsComponent implements OnInit {
     return this.formC.controls;
   }
 
-  sanitizeHtml(html: string): string {
-    const element = document.createElement('div');
-    element.innerHTML = html;
-    return element.textContent || element.innerText || '';
-  }
-  
 
+  
   phoneNumberValidator(control: AbstractControl): { [key: string]: any } | null {
     const phoneNumber = control.value;
     // Regular expression to check if the phone number starts with "254" and is followed by 9 digits.
@@ -242,29 +292,46 @@ export class ViewStandardsComponent implements OnInit {
 
   showDescription(part: any) {
     this.selectedPart = part;
+    this.showAssessors = false;
   }
+
+
 
   private loadData(): any {
     this.loading = true;
     let model = {
       id: this.standardId
     };
-    this.httpService.customerPortalPost(`api/v1/portal/standard/${this.standardId}`, {}).subscribe(
+    this.httpService.customerPortalPosts(`standard/portal/getById`, model).subscribe(
       (res: any) => {
-        if (res.status === '00') {
-          this.standard = res['data'];
-          this.previewImageUrl = res.data.preview_image_url;
-          this.existingImage = this.standard["preview_image_url"].replace("10.20.2.19:7600", "https://test-api.ekenya.co.ke/tra-backend");
+        if (res.status === 200) {
+          this.standard = res['data']['standard']['standard'];
+          this.previewImageUrl = res.data.standard.standard.previewImageUrl;
+          this.existingImage = this.standard["previewImageUrl"].replace("10.20.2.19:7600", "https://test-api.ekenya.co.ke/tra-backend");
           this.loading = false;
           // console.log(this.existingImage)
-          this.parts = res['data']['parts'];
-          this.terms = res['data']['terms'];
-          this.files = res['data']['files'];
+          this.parts = res['data']['standard']['parts'];
+          this.terms = res['data']['standard']['terms'];
+          this.files = res['data']['standard']['files'];
+          this.assessors = res['data']['standard']['assessorList'];
 
-          console.log(this.standard);
+          this.assessors.forEach((assessor: any) => {
+            if (assessor.profileImg) {
+
+              assessor.profileImg = assessor.profileUrl.replace('10.20.2.19:7600', '');
+              assessor.profileImg = 'https://test-api.ekenya.co.ke/tra-backend' + assessor.profileImg;
+              console.log(assessor.profile_url)
+              assessor.existingProfileImage = this.sanitizer.bypassSecurityTrustResourceUrl(assessor.profileImg);
+            } else {
+              assessor.existingProfileImage = this.defaultProfileImage;
+            }
+          });
+
+          // console.log(this.standard);
           console.log('parts', this.parts);
           console.log('terms', this.terms);
           console.log('files', this.files);
+           console.log('assessors', this.assessors);
           this.loading = false;
         } else {
           console.log('Failed', "Unable to fetch standards", 'error');
@@ -273,6 +340,11 @@ export class ViewStandardsComponent implements OnInit {
         console.log("Error", error.message, "error");
       });
   }
+
+  showAssessorsList() {
+    this.showAssessors = !this.showAssessors;
+  }
+  
 
   checkForToken() {
     if (!!localStorage.getItem('access_token')) {
@@ -287,33 +359,37 @@ export class ViewStandardsComponent implements OnInit {
   }
 
  
+  // downloadCertificate(fileUrl: string, fileType: string) {
+  //   if (fileType === 'PDF') {
+  //     const traServerBaseUrl = 'https://test-api.ekenya.co.ke/tra-backend';
+  //     const normalizedFileUrl = fileUrl.replace("10.20.2.19:7600", traServerBaseUrl);
+      
+  //     console.log(normalizedFileUrl);
+  //     const link = document.createElement('a');
+  //     link.href = normalizedFileUrl;
+  //     link.target = '_blank';
+  //     link.click();
+  //   }
+ 
+  // }
+  
+  
   downloadCertificate(fileUrl: string, fileType: string) {
     if (fileType === 'PDF') {
       const traServerBaseUrl = 'https://test-api.ekenya.co.ke/tra-backend';
       const normalizedFileUrl = fileUrl.replace("10.20.2.19:7600", traServerBaseUrl);
-      
-      console.log(normalizedFileUrl);
+  
+      // Initiating the download
       const link = document.createElement('a');
       link.href = normalizedFileUrl;
       link.target = '_blank';
       link.click();
+
+      this.standard.downloadCount += 1;
+      // console.log(this.standard.downloadCount)
     }
-  
-    // Replace the IP address and port with the "tra" server URL
- 
   }
-  
 
-  
-
-  // downloadCertificate(fileUrl: string) {
-  //   const normalizedFileUrl = fileUrl.replace("10.20.2.19:7600", "https://test-api.ekenya.co.ke/tra-backend");
-  //   console.log(normalizedFileUrl);
-  //   const link = document.createElement('a');
-  //   link.href = normalizedFileUrl;
-  //   link.target = '_blank';
-  //   link.click();
-  // }
   
   toggleLeaveCommentForm() {
     if (this.showLeaveCommentForm) {
