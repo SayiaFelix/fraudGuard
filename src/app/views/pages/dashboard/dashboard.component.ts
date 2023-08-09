@@ -1,7 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 
 import { NgbDateStruct, NgbCalendar, NgbActiveModal, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -9,7 +8,7 @@ import { CustomValidators } from 'ngx-custom-validators';
 import { Observable, map, of } from 'rxjs';
 import { HttpService } from 'src/app/shared/services/http.service';
 import Swal from 'sweetalert2';
-
+import { DomSanitizer, SafeResourceUrl, SafeUrl } from '@angular/platform-browser';
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -72,6 +71,7 @@ export class DashboardComponent implements OnInit {
     cardBg: "#fff",
     fontFamily: "'Roboto', Helvetica, sans-serif"
   }
+  existingImage: SafeResourceUrl;
 
   /**
    * NgbDatepicker
@@ -161,6 +161,7 @@ export class DashboardComponent implements OnInit {
     }
 
     this.loadData()
+    this.loadCertificate()
 
   }
   get f(): { [p: string]: AbstractControl } {
@@ -243,6 +244,25 @@ export class DashboardComponent implements OnInit {
     );
   }
 
+  loadCertificate(): void {
+    this.loading = true;
+    this.httpService
+      .customerPortalPosts('admin/customer/portal/get-certificate', {})
+      .subscribe((res: any) => {
+        if (res.status === 200) {
+          this.certificate = res.data.downloadUrl
+          if(this.certificate){
+            this.existingImage =  this.certificate.replace("http://10.20.2.19:7600", "https://test-api.ekenya.co.ke/tra-backend")
+          }else{
+            this.existingImage =  'assets/images/certificate.png'
+          }
+        } else {
+          this.loading = false;
+        }
+      });
+    this.loading = false;
+  }
+
   getCertificate(): void {
     this.loading = true;
     this.httpService
@@ -251,7 +271,7 @@ export class DashboardComponent implements OnInit {
         if (res.status === 200) {
           this.certificate = res.data.downloadUrl
           this.loading = false;
-          
+
           // console.log(res.data);
           // console.log(this.certificate)
 
@@ -267,27 +287,6 @@ export class DashboardComponent implements OnInit {
       });
     this.loading = false;
   }
-
-  // getCertificate(): void {
-  //   this.loading = true;
-  //   this.httpService
-  //     .customerPortalPosts('admin/customer/portal/get-certificate', {})
-  //     .subscribe((res: any) => {
-  //       if (res.status === 200) {
-  //         this.certificate = res.data.downloadUrl;
-  //         this.loading = false;
-  
-  //         const normalizedFileUrl = this.certificate.replace("http://10.20.2.19:7600", "https://test-api.ekenya.co.ke/tra-backend");
-  
-  //         const link = document.createElement('a');
-  //         link.href = normalizedFileUrl;
-  //         link.download = 'certificate.pdf'; // Set the suggested filename here
-  //         link.click();
-  //       } else {
-  //         this.loading = false;
-  //       }
-  //     });
-  // }
   
 
   onFileSelected(event: any) {
