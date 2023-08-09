@@ -148,7 +148,7 @@ export class ListCustomersComponent implements OnInit {
       message: this.form.value.message,
       email: this.form.value.email,
     };
-    console.log(model)
+    // console.log(model)
     this.httpService.customerPortalPost(`api/v1/auth/customerEnquirer`, model).subscribe(
       (result: any) => {
         if (result.status === '00') {
@@ -226,14 +226,14 @@ export class ListCustomersComponent implements OnInit {
           // console.log(this.results);
           const result = res.data.filter((request: any) => request.status === "PUBLISHED" || request.status === "APPEALED" );
           this.resultRef = res.data[0].result_ref;;
-          console.log(this.resultRef)
+          // console.log(this.resultRef)
           const appealData = this.appealData || []; // If appealData is not available, use an empty array
           result.forEach((request: any) => {
             const appealStatus = appealData.find((appeal: any) => appeal.result_ref === request.result_ref)?.status;
             request.appealStatus = appealStatus || null;
           });
-          console.log(result)
-          console.log(appealData)
+          // console.log(result)
+          // console.log(appealData)
           this.results = result
           this.loading = false;
         } else {
@@ -253,25 +253,9 @@ export class ListCustomersComponent implements OnInit {
       (res: any) => {
         if (res.status === '00') {
           this.appealData= res.data;
-          console.log(this.appealData)
+          // console.log(this.appealData)
 
           this.loadData();
-          // Check if the user has made an appeal
-          // this.isAppealMade = appealData.length > 0;
-
-          // // Check if the appeal has been successfully submitted (you may use a specific field from the backend response)
-          // this.isAppealSubmitted = appealData.some((request: any) => request.appealStatus === "PENDING");
-
-          // // Check if 14 days have passed since the user's appeal (assuming appealDate is the field representing the appeal date)
-          // const today = new Date();
-          // const fourteenDaysAgo = new Date(today.getTime() - 14 * 24 * 60 * 60 * 1000); // Subtract 14 days in milliseconds
-          // const isWithin14Days = appealData.some((request: any) => new Date(request.appealDate) >= fourteenDaysAgo);
-
-          // // Update the state of the "Make Appeal" button
-          // this.isAppealButtonVisible = !this.isAppealMade || this.isAppealSubmitted || isWithin14Days;
-
-          // Handle the loading of appeals data as required
-          // ...
 
         } else {
           console.log('Failed', "Unable to fetch appeals data", 'error');
@@ -333,7 +317,7 @@ export class ListCustomersComponent implements OnInit {
   
   downloadCertificate(fileUrl: string) {
     const normalizedFileUrl = fileUrl.replace("10.20.2.19:7600", "https://test-api.ekenya.co.ke/tra-backend");
-    console.log(normalizedFileUrl);
+    // console.log(normalizedFileUrl);
     const link = document.createElement('a');
     link.href = normalizedFileUrl;
     link.target = '_blank';
@@ -382,7 +366,7 @@ export class ListCustomersComponent implements OnInit {
       resultRef: this.resultRef,
       reason: this.formR.value.reason,
     }
-    console.log(model)
+    // console.log(model)
     this.httpService.customerPortalPosts(`/admin/customer/portal/create-appeal`, model).subscribe((result: any) => {
       if (result.status === 200) {
         this.isLoading = false;
@@ -393,7 +377,7 @@ export class ListCustomersComponent implements OnInit {
         this.loadAppealsData()
         this.hideAppealForm();
 
-        console.log(this.results)
+        // console.log(this.results)
         const resultToUpdate = this.results.find((result: any) => result.id === id);
         if (resultToUpdate) {
           // Update the hasAppeal property for the specific result to true
@@ -417,38 +401,6 @@ export class ListCustomersComponent implements OnInit {
         this.hideAppealForm();
       });
   }
-
-  // downloadCertificate(): void {
-  //   if (this.previewImageUrl) {
-  //     const certificateUrl = this.previewImageUrl;
-  //     const certificateFileName = 'certificate.png';
-
-  //     // Extract the relative path from the certificate URL
-  //     const relativePathRegex = /\/\/[^/]+(\/.+)/;
-  //     const matches = certificateUrl.match(relativePathRegex);
-  //     if (!matches || matches.length < 2) {
-  //       console.error('Invalid certificate URL:', certificateUrl);
-  //       return;
-  //     }
-  //     const relativePath = matches[1];
-
-  //     // Create a Blob from the fetched certificate data and initiate the download
-  //     fetch(relativePath)
-  //       .then((response) => response.blob())
-  //       .then((blob) => {
-  //         const blobUrl = URL.createObjectURL(blob);
-  //         const link = document.createElement('a');
-  //         link.href = blobUrl;
-  //         link.download = certificateFileName;
-  //         link.click();
-  //       })
-  //       .catch((error) => {
-  //         console.error('Error fetching the certificate data:', error);
-  //       });
-  //   } else {
-  //     console.error('Certificate data is not available.');
-  //   }
-  // }
 
   isButtonDisabled(status: string, task_type: string): boolean {
     if (task_type === 'CLASSIFICATION') {

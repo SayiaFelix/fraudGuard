@@ -17,7 +17,8 @@ import { AddBenefitComponent } from '../add-benefit/add-benefit.component';
   styleUrls: ['./view-product.component.scss']
 })
 export class ViewProductComponent implements OnInit {
-
+  perPage = 100;
+  page = 1
   public productDetails: any;
   public requestDetails: any;
   public mainProduct: any;
@@ -62,29 +63,47 @@ export class ViewProductComponent implements OnInit {
     this.loadData();
   }
 
-  private loadData(): any {
+  // private loadData(): any {
+  //   this.loading = true;
+  //   let model ={
+  //     requestId: this.productId
+  //   }
+  //   this.httpService.customerPortalPost(`api/v1/portal/getRequest`,model).subscribe(
+  //     (res: any) => {
+
+  //       if (res.status == '00') {
+  //         this.requestDetails = res['data'];
+  //         console.log(this.requestDetails)
+  //         this.loading = false;
+
+  //         // this.requirements = this.productDetails.requirementList;
+  //         // this.rows = this.productDetails.requirementList;
+  //         this.loading = false;
+
+  //       } else {
+  //         console.log('Failed', "Unable to fetch request details", 'error')
+  //       }
+  //     }, (error: any) => {
+  //       console.log("Error", error.message, "error");
+  //     });
+  // }
+  loadData(): void {
     this.loading = true;
-    let model ={
-      requestId: this.productId
+      let model ={
+        id: this.productId
     }
-    this.httpService.customerPortalPost(`api/v1/portal/getRequest`,model).subscribe(
-      (res: any) => {
-
-        if (res.status == '00') {
-          this.requestDetails = res['data'];
-          console.log(this.requestDetails)
+    this.httpService
+      .customerPortalPosts('admin/customer/portal/view-customer-request', model)
+      .subscribe((res: any) => {
+        if (res.status === 200) {
+          this.requestDetails = res.data
           this.loading = false;
-
-          // this.requirements = this.productDetails.requirementList;
-          // this.rows = this.productDetails.requirementList;
-          this.loading = false;
-
+          console.log(res.data);
         } else {
-          console.log('Failed', "Unable to fetch request details", 'error')
+          this.loading = false;
         }
-      }, (error: any) => {
-        console.log("Error", error.message, "error");
       });
+    this.loading = false;
   }
 
   raiseAppeal(){
@@ -109,63 +128,6 @@ export class ViewProductComponent implements OnInit {
       }
     });
   }
-
-//   private loadRequirements():any {
-//     this.requirementsLoading = true;
-//      const model ={
-//       id: this.productId
-//      }
-//      this.httpService.mobileBankingPost('product/portal/fetch/requirement',model).subscribe(
-//       (result:any)=>{
-//         if (result.status===200){
-
-//           let response = result['data'].map((item: any, index: any) => {
-//             let res = {...item,
-//               frontendId: index + 1
-//             };
-//             return res;
-//           })
-//           this.requirements = response;
-
-//           this.requirementsLoading = false;
-//         }
-//         else{
-//           Swal.fire('Failed','unable to fetch requirements','error')
-//         }
-
-//       },
-//       (error:any)=>{
-//         Swal.fire("Error",error.message,"error")
-//       }
-//      );
-//   }
-//   private loadBenefits():any {
-//     const model ={
-//      id:this.productId
-//     }
-//     this.httpService.mobileBankingPost('product/portal/fetch/benefits',model).subscribe(
-//      (result:any)=>{
-//        if (result.status===200){
-
-//          let response = result['data'].map((item: any, index: any) => {
-//            let res = {...item,
-//              frontendId: index + 1
-//            };
-//            return res;
-//          })
-//          this.benefits = response;
-
-//        }
-//        else{
-//          Swal.fire('Failed','unable to fetch requirements','error')
-//        }
-
-//      },
-//      (error:any)=>{
-//        Swal.fire("Error",error.message,"error")
-//      }
-//     );
-//  }
 
   isAsideNavCollapsed: any;
   columns = [

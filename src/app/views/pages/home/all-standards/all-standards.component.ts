@@ -253,7 +253,7 @@ export class StandardsComponent implements OnInit {
           });
 
           if (subClass !== null) {
-            this.filteredStandards = this.standards.filter((standard: any) => standard.enterprise_sub_class === subClass);
+            this.filteredStandards = this.standards.filter((standard: any) => standard.enterpriseSubClass === subClass);
           } else {
             this.filteredStandards = this.standards;
           }
@@ -301,7 +301,7 @@ export class StandardsComponent implements OnInit {
     if (selectedSubClass === 'All') {
       this.filteredStandards = this.standards;
     } else {
-      this.filteredStandards = this.standards.filter((std: any) => std.enterprise_sub_class === selectedSubClass);
+      this.filteredStandards = this.standards.filter((std: any) => std.enterpriseSubClass === selectedSubClass);
     }
 
     console.log(this.filteredStandards);

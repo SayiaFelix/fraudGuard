@@ -295,8 +295,6 @@ export class ViewStandardsComponent implements OnInit {
     this.showAssessors = false;
   }
 
-
-
   private loadData(): any {
     this.loading = true;
     let model = {
