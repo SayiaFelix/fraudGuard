@@ -170,10 +170,10 @@
         </div>
       </div>
       <div class="col-md-6 col-sm-6 col-lg-6 col-xl-6" style="font-family: Mulish;font-style: normal;font-weight: 600;line-height: normal;">
-        <p style="color: var(--dark-purple, #1E0F2E);font-size: 15px;">RESULT NO. <b> {{std.result_ref}}</b> </p>
-        <h2 style="color: var(--green-blue, #2268AA);font-size: 17px;">Tourism Regulatory Authority (TRA) {{std.task_type}}
+        <p style="color: var(--dark-purple, #1E0F2E);font-size: 15px;">RESULT NO. <b> {{std.resultRef}}</b> </p>
+        <h2 style="color: var(--green-blue, #2268AA);font-size: 17px;">Tourism Regulatory Authority (TRA) {{std.taskType}}
           Certificate Earned</h2>
-        <h4 style="color: var(--dark-purple, #1E0F2E);font-size: 17px;">Certificate expires | {{ formatDate(std.created_on) }} </h4>
+        <h4 style="color: var(--dark-purple, #1E0F2E);font-size: 17px;">Certificate expires | {{ formatDate(std.createdOn) }} </h4>
       </div>
       <div class="col-md-3 col-sm-3 col-lg-3 col-xl-3  d-flex justify-content-end" style="padding:50px 0px;">
         <!-- <a (click)=getCertificate() style="text-decoration: none">
@@ -185,7 +185,7 @@
         </a> -->
         <button class="btn btn-md login-btn transition" (click)="getCertificate()">
           <span style="color: #f8f8f8; font-weight: 700; letter-spacing: 0.08em; font-size: 12px;">
-            DOWNLOAD {{std.task_type}} CERTIFICATE
+            DOWNLOAD {{std.taskType}} CERTIFICATE
           </span>
         </button>
       </div>

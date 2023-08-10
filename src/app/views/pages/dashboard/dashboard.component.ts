@@ -73,7 +73,8 @@ export class DashboardComponent implements OnInit {
     fontFamily: "'Roboto', Helvetica, sans-serif"
   }
   existingImage: SafeResourceUrl;
-
+  perPage = 100;
+  page = 1
   /**
    * NgbDatepicker
    */
@@ -252,16 +253,18 @@ export class DashboardComponent implements OnInit {
     this.loading = true;
     let licenceNumber = JSON.parse(localStorage.getItem('data')!)['licenceNumber'];
     let model = {
-      licenceNumber
+      licenceNumber,
+      page: this.page - 1,
+      size: this.perPage
     };
-    // admin/customer/portal/fetch-result-by-licence-number
-    this.httpService.customerPortalPost(`api/v1/portal/getResultsByLicence`, model).subscribe(
+    // 
+    this.httpService.customerPortalPosts(`admin/customer/portal/fetch-result-by-licence-number`, model).subscribe(
       (res: any) => {
-        if (res.status == '00') {
+        if (res.status == 200) {
           // this.results = res['data'];
           // console.log(this.results);
           const result = res.data.filter((request: any) => request.status === "PUBLISHED" || request.status === "APPEALED" );
-          this.resultRef = res.data[0].result_ref;
+          this.resultRef = res.data[0].resultRef;
           console.log(this.resultRef)
     
           this.results = result
