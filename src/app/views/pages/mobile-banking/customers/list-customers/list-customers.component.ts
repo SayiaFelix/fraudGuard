@@ -61,7 +61,7 @@ export class ListCustomersComponent implements OnInit {
   loading = true;
   reorderable = true;
   showAppealForm: boolean = false;
-  showAppeals : boolean = false;
+  showAppeals: boolean = false;
 
   columns = [
     { name: '#', prop: 'id' },
@@ -105,8 +105,8 @@ export class ListCustomersComponent implements OnInit {
     this.downloadLink = '';
     this.form = fb.group({
       name: ["", Validators.compose([Validators.required])],
-      email: ['',Validators.compose([Validators.required, CustomValidators.email])],
-      subject: ['',Validators.compose([Validators.required])],
+      email: ['', Validators.compose([Validators.required, CustomValidators.email])],
+      subject: ['', Validators.compose([Validators.required])],
       message: ["", Validators.compose([Validators.required])],
       phone_number: ["", Validators.compose([Validators.required, this.phoneNumberValidator])],
     });
@@ -118,7 +118,7 @@ export class ListCustomersComponent implements OnInit {
 
   ngOnInit() {
     this.loadData();
-   this.loadAppealsData()
+    this.loadAppealsData()
 
     this.appealDate = new Date();
     // this.isAppealButtonVisible = this.calculateAppealButtonVisibility();
@@ -133,7 +133,7 @@ export class ListCustomersComponent implements OnInit {
     const phoneNumber = control.value;
     // Regular expression to check if the phone number starts with "254" and is followed by 9 digits.
     const phonePattern = /^254\d{9}$/;
-  
+
     return phonePattern.test(phoneNumber) ? null : { invalidPhoneNumber: true };
   }
   // get fs(): { [p: string]: AbstractControl } {
@@ -143,8 +143,8 @@ export class ListCustomersComponent implements OnInit {
     this.isLoading = true;
     const model = {
       name: this.form.value.name,
-      phone_number: this.form.value.phone_number, 
-      subject: this.form.value.subject, 
+      phone_number: this.form.value.phone_number,
+      subject: this.form.value.subject,
       message: this.form.value.message,
       email: this.form.value.email,
     };
@@ -178,18 +178,18 @@ export class ListCustomersComponent implements OnInit {
     const timeLimitInDays = 14;
     const currentTime = new Date();
     const daysElapsed = Math.floor((currentTime.getTime() - new Date(result.created_on).getTime()) / (1000 * 60 * 60 * 24));
-  
-    if (result.hasAppeal || result.appealStatus === 'PENDING'|| result.appealStatus === 'APPROVED' || result.appealStatus === 'REJECTED') {
+
+    if (result.hasAppeal || result.appealStatus === 'PENDING' || result.appealStatus === 'APPROVED' || result.appealStatus === 'REJECTED') {
       result.isButtonDeactivated = true; // Deactivate the button if there is an appeal or if the appeal status is 'PENDING'
     } else {
       result.isButtonDeactivated = daysElapsed > timeLimitInDays; // Deactivate the button only if no appeal for this result within the time limit
     }
-  
+
     return true; // Always return true to make the button visible
   }
-  
-  
-  
+
+
+
   toggleLeaveCommentForm() {
     if (this.showLeaveCommentForm) {
       this.hideLeaveCommentForm();
@@ -212,38 +212,6 @@ export class ListCustomersComponent implements OnInit {
     this.showAppealForm = false;
   }
 
-  private loadData(): any {
-    this.loading = true;
-    let licenceNumber = JSON.parse(localStorage.getItem('data')!)['licenceNumber'];
-    let model = {
-      licenceNumber
-    };
-    // admin/customer/portal/fetch-result-by-licence-number
-    this.httpService.customerPortalPost(`api/v1/portal/getResultsByLicence`, model).subscribe(
-      (res: any) => {
-        if (res.status == '00') {
-          // this.results = res['data'];
-          // console.log(this.results);
-          const result = res.data.filter((request: any) => request.status === "PUBLISHED" || request.status === "APPEALED" );
-          this.resultRef = res.data[0].result_ref;;
-          // console.log(this.resultRef)
-          const appealData = this.appealData || []; // If appealData is not available, use an empty array
-          result.forEach((request: any) => {
-            const appealStatus = appealData.find((appeal: any) => appeal.result_ref === request.result_ref)?.status;
-            request.appealStatus = appealStatus || null;
-          });
-          // console.log(result)
-          // console.log(appealData)
-          this.results = result
-          this.loading = false;
-        } else {
-          console.log('Failed', "Unable to fetch results", 'error')
-        }
-      }, (error: any) => {
-        console.log("Error", error.message, "error");
-      });
-  }
-
   private loadAppealsData(): void {
     let licence_number = JSON.parse(localStorage.getItem('data')!)['licenceNumber'];
     let model = {
@@ -252,7 +220,7 @@ export class ListCustomersComponent implements OnInit {
     this.httpService.customerPortalPost(`api/v1/portal/getAppeals`, model).subscribe(
       (res: any) => {
         if (res.status === '00') {
-          this.appealData= res.data;
+          this.appealData = res.data;
           // console.log(this.appealData)
 
           this.loadData();
@@ -264,6 +232,54 @@ export class ListCustomersComponent implements OnInit {
         console.log("Error", error.message, "error");
       });
   }
+  private loadData(): any {
+    this.loading = true;
+    let licenceNumber = JSON.parse(localStorage.getItem('data')!)['licenceNumber'];
+    let model = {
+      licenceNumber
+    };
+  
+    this.httpService.customerPortalPost(`api/v1/portal/getResultsByLicence`, model).subscribe(
+      (res: any) => {
+        if (res.status == '00') {
+          const result = res.data.filter((request: any) => request.status === "PUBLISHED" || request.status === "APPEALED");
+  
+          // Collect result_ref values into an array
+          const resultRefs = result.map((request: any) => request.result_ref);
+  
+          // Assign the array of result_ref values to this.resultRef
+          this.resultRef = resultRefs.join(', '); // Join the array into a string with commas
+  
+          const appealData = this.appealData || [];
+  
+          result.forEach((request: any) => {
+            const appealStatus = appealData.find((appeal: any) => appeal.result_ref === request.result_ref)?.status;
+            request.appealStatus = appealStatus || null;
+            console.log('Appeal Status',appealStatus)
+            console.log('Results Ref', request.result_ref)
+          });
+  
+          this.results = result;
+          this.loading = false;
+  
+          // Split the resultRef string into an array
+          const resultRefArray = this.resultRef?.split(', ');
+          resultRefArray?.forEach((resultRef: string) => {
+            // Perform actions for each individual result reference
+            // For example, you can console.log or use it in other ways
+            console.log(resultRef);
+          });
+        } else {
+          console.log('Failed', "Unable to fetch results", 'error');
+        }
+      },
+      (error: any) => {
+        console.log("Error", error.message, "error");
+      }
+    );
+  }
+  
+  
 
   formatDate(date: string): string {
     const formattedDate = this.datePipe.transform(date, 'dd MMM yyyy');
@@ -287,21 +303,21 @@ export class ListCustomersComponent implements OnInit {
     if (result && result.download_url) {
       const downloadUrl = result.download_url;
       const absoluteDownloadUrl = downloadUrl.startsWith('http') ? downloadUrl : `http://${downloadUrl}`;
-  
+
       // Trigger the file download using HttpClient
       this.http.get(absoluteDownloadUrl, { responseType: 'blob' }).subscribe(
         (blob: Blob) => {
           // Create a new anchor element
           const link = document.createElement('a');
           link.href = URL.createObjectURL(blob);
-  
+
           // Set the 'download' attribute to force the download instead of navigation
           link.setAttribute('download', 'downloaded_file');
-  
+
           // Append the link to the DOM and trigger a click event to initiate the download
           document.body.appendChild(link);
           link.click();
-  
+
           // Remove the link from the DOM after the download is complete
           document.body.removeChild(link);
         },
@@ -313,8 +329,8 @@ export class ListCustomersComponent implements OnInit {
       console.error('Download URL is not available in the result object.');
     }
   }
-  
-  
+
+
   downloadCertificate(fileUrl: string) {
     const normalizedFileUrl = fileUrl.replace("10.20.2.19:7600", "https://test-api.ekenya.co.ke/tra-backend");
     // console.log(normalizedFileUrl);
@@ -355,18 +371,26 @@ export class ListCustomersComponent implements OnInit {
       this.showAppeals = true;
       // this.appealId = id;
     }
-   }
-  raiseAppeal(id: number): void {
+  }
+
+  raiseAppeal(id:number): void {
     if (this.formR.invalid) {
       return;
     }
-  let licenceNumber = JSON.parse(localStorage.getItem('data')!)['licenceNumber']
-    const model = {
-      licenceNumber,
-      resultRef: this.resultRef,
-      reason: this.formR.value.reason,
-    }
-    // console.log(model)
+
+  const licenceNumber = JSON.parse(localStorage.getItem('data')!)['licenceNumber']
+  const resultRef = this.results.find((result: any) => result.id === id)?.result_ref;
+
+  if (!resultRef) {
+    console.log('Unable to find result_ref for the specified id');
+    return;
+  }
+  const model = {
+    licenceNumber,
+    resultRef,
+    reason: this.formR.value.reason,
+  };
+    console.log(model)
     this.httpService.customerPortalPosts(`/admin/customer/portal/create-appeal`, model).subscribe((result: any) => {
       if (result.status === 200) {
         this.isLoading = false;
@@ -376,14 +400,6 @@ export class ListCustomersComponent implements OnInit {
         this.loadData()
         this.loadAppealsData()
         this.hideAppealForm();
-
-        // console.log(this.results)
-        const resultToUpdate = this.results.find((result: any) => result.id === id);
-        if (resultToUpdate) {
-          // Update the hasAppeal property for the specific result to true
-          resultToUpdate.hasAppeal = true;
-        }
-
 
         this.appealDate = new Date();
         this.isAppealButtonVisible = false;
