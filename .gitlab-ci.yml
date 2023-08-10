@@ -1,6 +1,6 @@
 workflow:
   rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'developer' || $CI_COMMIT_BRANCH == 'cicd-testing' || $CI_COMMIT_BRANCH == 'developer'
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'developer' || $CI_COMMIT_BRANCH == 'cicd-testing' || $CI_COMMIT_BRANCH == 'developer' || $CI_COMMIT_BRANCH == 'uat'
       when: always
 
 .curl_template: &trigger_awx_deploy_to_testing |
@@ -37,9 +37,16 @@ buildImage:
   needs:
     - job: buildBaseImage
       artifacts: true
-  image: 
+  image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
+  rules:
+    - if: ($CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'development' || $CI_COMMIT_BRANCH == 'development')
+      variables:          
+        IMAGE_TAG: "latest"
+    - if: ($CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'uat' || $CI_COMMIT_BRANCH == 'uat')
+      variables:
+        IMAGE_TAG: "uat"
   script:
     - /kaniko/executor
       --context "$PWD"
@@ -58,7 +65,9 @@ deploy-application:
         DEPLOY_BRANCH: $CI_COMMIT_BRANCH
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
       variables:
-        DEPLOY_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME          
+        DEPLOY_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+    - if: $CI_COMMIT_BRANCH == 'uat'
+      when: never        
   script:
     - *trigger_awx_deploy_to_testing
 
