@@ -9,6 +9,7 @@ import { Observable, map, of } from 'rxjs';
 import { HttpService } from 'src/app/shared/services/http.service';
 import Swal from 'sweetalert2';
 import { DomSanitizer, SafeResourceUrl, SafeUrl } from '@angular/platform-browser';
+import { formatDate } from '@angular/common';
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -82,6 +83,8 @@ export class DashboardComponent implements OnInit {
   profileDetails: any;
   showUploadText = false;
   certificate: any;
+  resultRef: any;
+  results: any;
   constructor(private calendar: NgbCalendar,
     private httpService: HttpService,
     fb: FormBuilder,
@@ -162,6 +165,7 @@ export class DashboardComponent implements OnInit {
 
     this.loadData()
     this.loadCertificate()
+    this.loadResults()
 
   }
   get f(): { [p: string]: AbstractControl } {
@@ -244,12 +248,47 @@ export class DashboardComponent implements OnInit {
     );
   }
 
+  private loadResults(): any {
+    this.loading = true;
+    let licenceNumber = JSON.parse(localStorage.getItem('data')!)['licenceNumber'];
+    let model = {
+      licenceNumber
+    };
+    // admin/customer/portal/fetch-result-by-licence-number
+    this.httpService.customerPortalPost(`api/v1/portal/getResultsByLicence`, model).subscribe(
+      (res: any) => {
+        if (res.status == '00') {
+          // this.results = res['data'];
+          // console.log(this.results);
+          const result = res.data.filter((request: any) => request.status === "PUBLISHED" || request.status === "APPEALED" );
+          this.resultRef = res.data[0].result_ref;
+          console.log(this.resultRef)
+    
+          this.results = result
+          this.loading = false;
+        } else {
+          console.log('Failed', "Unable to fetch results", 'error')
+        }
+      }, (error: any) => {
+        console.log("Error", error.message, "error");
+      });
+  }
+
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    const options = { day: 'numeric', month: 'long', year: 'numeric' };
+    return formatDate(date, 'd MMMM yyyy', 'en-US', '+0530');
+  }
   loadCertificate(): void {
     this.loading = true;
+   let model =  {
+      resultRef:"RSTDAXOYO"
+  }
     this.httpService
-      .customerPortalPosts('admin/customer/portal/get-certificate', {})
+      .customerPortalPosts('admin/customer/portal/get-certificate',model)
       .subscribe((res: any) => {
         if (res.status === 200) {
+          // console.log(res.data);
           this.certificate = res.data.downloadUrl
           if(this.certificate){
             this.existingImage =  this.certificate.replace("http://10.20.2.19:7600", "https://test-api.ekenya.co.ke/tra-backend")
@@ -263,31 +302,88 @@ export class DashboardComponent implements OnInit {
     this.loading = false;
   }
 
+  // getCertificate(): void {
+  //   this.loading = true;
+  //   let model =  {
+  //     resultRef: this.resultRef
+  // }
+  // console.log(model);
+  //   this.httpService
+  //     .customerPortalPosts('admin/customer/portal/get-certificate', model)
+  //     .subscribe((response: Blob) => {
+  //       const downloadLink = document.createElement('a');
+  //       downloadLink.href = URL.createObjectURL(response);
+  //       downloadLink.download = 'certificate.png'; 
+  //       downloadLink.target = '_blank';
+  //       document.body.appendChild(downloadLink);
+  //       downloadLink.click();
+  //       document.body.removeChild(downloadLink);
+  //     });
+
+  //     // .subscribe((res: any) => {
+  //     //   if (res.status === 200) {
+  //     //     this.certificate = res.data.downloadUrl
+  //     //     this.loading = false;
+
+  //     //     console.log(res.data);
+  //     //     console.log(this.certificate)
+
+  //     //     const normalizedFileUrl = this.certificate.replace("http://10.20.2.19:7600", "https://test-api.ekenya.co.ke/tra-backend");
+  //     //     // console.log(normalizedFileUrl);
+  //     //     const link = document.createElement('a');
+  //     //     link.href = normalizedFileUrl;
+  //     //     link.target = '_blank';
+  //     //     link.click();
+  //     //   } else {
+  //     //     this.loading = false;
+  //     //   }
+  //     // });
+  //   this.loading = false;
+  // }
+
   getCertificate(): void {
     this.loading = true;
-    this.httpService
-      .customerPortalPosts('admin/customer/portal/get-certificate', {})
-      .subscribe((res: any) => {
-        if (res.status === 200) {
-          this.certificate = res.data.downloadUrl
-          this.loading = false;
-
-          // console.log(res.data);
-          // console.log(this.certificate)
-
-          const normalizedFileUrl = this.certificate.replace("http://10.20.2.19:7600", "https://test-api.ekenya.co.ke/tra-backend");
-          // console.log(normalizedFileUrl);
-          const link = document.createElement('a');
-          link.href = normalizedFileUrl;
-          link.target = '_blank';
-          link.click();
-        } else {
-          this.loading = false;
-        }
+    let model = {
+      resultRef: this.resultRef
+    };
+    this.http.post('https://test-api.ekenya.co.ke/tra-backend/api/v1/admin/customer/portal/generate-certificate', model, { responseType: 'blob' })
+      .subscribe((response: Blob) => {
+        const downloadLink = document.createElement('a');
+        const imageUrl = URL.createObjectURL(response);
+  
+        downloadLink.href = imageUrl;
+        downloadLink.download = 'certificate.pdf'; 
+        downloadLink.target = '_blank';
+       
+        downloadLink.click();
+  
+        // Clean up
+        URL.revokeObjectURL(imageUrl);
+  
+        this.loading = false;
+      },
+       (error:any) => {
+        console.error('Error fetching certificate:', error);
+        this.loading = false;
       });
-    this.loading = false;
   }
   
+  
+  downloadCertificate() {
+    const refNo = 'your_reference_number'; // Replace with the actual reference number
+    
+    // Make the API request
+    this.http.post('https://test-api.ekenya.co.ke/tra-backend/api/v1/admin/customer/portal/generate-certificate', { refNo }, { responseType: 'blob' })
+      .subscribe((response: Blob) => {
+        // Create a downloadable link
+        const downloadLink = document.createElement('a');
+        downloadLink.href = URL.createObjectURL(response);
+        downloadLink.download = 'certificate.png'; // Change the filename if needed
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+      });
+  }
 
   onFileSelected(event: any) {
     this.selectedFile = event.target.files[0] as File;
