@@ -279,6 +279,7 @@ export class DashboardComponent implements OnInit {
     const options = { day: 'numeric', month: 'long', year: 'numeric' };
     return formatDate(date, 'd MMMM yyyy', 'en-US', '+0530');
   }
+
   loadCertificate(): void {
     this.loading = true;
    let model =  {
@@ -352,7 +353,7 @@ export class DashboardComponent implements OnInit {
         const imageUrl = URL.createObjectURL(response);
   
         downloadLink.href = imageUrl;
-        downloadLink.download = 'certificate.pdf'; 
+        downloadLink.download = 'Certificate.pdf'; 
         downloadLink.target = '_blank';
        
         downloadLink.click();
