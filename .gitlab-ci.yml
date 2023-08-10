@@ -51,7 +51,7 @@ buildImage:
     - /kaniko/executor
       --context "$PWD"
       --dockerfile "Dockerfile"
-      --destination "devops-registry.ekenya.co.ke/tra-project/customer-portal:latest"
+      --destination devops-registry.ekenya.co.ke/tra-project/customer-portal:"$IMAGE_TAG"
 
 deploy-application:
   stage: deploy
