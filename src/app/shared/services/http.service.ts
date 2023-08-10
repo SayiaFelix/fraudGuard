@@ -180,6 +180,20 @@ export class HttpService {
         })
       );
   }
+  public customerPortalPostsImage(endpoint: string, model: any): any {
+    return this.http
+      .post(
+        this.globalService.standardApi + endpoint,
+        model,
+        {}
+      )
+      .pipe(
+        map((response) => {
+          response = response;
+          return response;
+        })
+      );
+  }
   public customerPortalComments(endpoint: string, model: any): any {
     return this.http
       .post(
