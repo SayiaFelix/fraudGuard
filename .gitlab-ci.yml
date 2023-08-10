@@ -77,6 +77,9 @@ notify-teams:
   needs:
     - job: deploy-application
       artifacts: true
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'uat'
+      when: never     
   script:
     - sleep 600
     - *notify_teams
