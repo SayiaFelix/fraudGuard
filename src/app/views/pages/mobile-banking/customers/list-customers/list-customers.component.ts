@@ -247,9 +247,7 @@ export class ListCustomersComponent implements OnInit {
           // Collect result_ref values into an array
           const resultRefs = result.map((request: any) => request.result_ref);
   
-          // Assign the array of result_ref values to this.resultRef
           this.resultRef = resultRefs.join(', '); // Join the array into a string with commas
-  
           const appealData = this.appealData || [];
   
           result.forEach((request: any) => {
@@ -265,8 +263,6 @@ export class ListCustomersComponent implements OnInit {
           // Split the resultRef string into an array
           const resultRefArray = this.resultRef?.split(', ');
           resultRefArray?.forEach((resultRef: string) => {
-            // Perform actions for each individual result reference
-            // For example, you can console.log or use it in other ways
             console.log(resultRef);
           });
         } else {
