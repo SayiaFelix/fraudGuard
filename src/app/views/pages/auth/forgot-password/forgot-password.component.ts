@@ -63,16 +63,13 @@ export class ForgotPasswordComponent implements OnInit {
 
               // Navigate back to login screen.
               localStorage.setItem('isLoggedin', 'true');
-
-              // if (localStorage.getItem('isLoggedin')) {
-              //   this.router.navigate([this.returnUrl]);
-              // }
             } else {
+              Swal.fire('Password Reset',  'Fail to Sent to Password.',  'error')
 
             }
           }
         );
-        Swal.fire('Password Reset',  'Password Sent to Email.',  'success')
+        // Swal.fire('Password Reset',  'Failed To Sent Password ,Try Again.',  'error')
       } else {
         console.log("Error occurred")
       }
