@@ -7,6 +7,9 @@ import jwt_decode from 'jwt-decode';
     providedIn: 'root',
 })
 export class AuthService {
+  refreshToken() {
+    throw new Error('Method not implemented.');
+  }
 
     private loggedIn = false;
     private helper = new JwtHelperService();

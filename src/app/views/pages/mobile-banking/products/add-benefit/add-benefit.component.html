@@ -34,21 +34,29 @@
                   <div class="form-group custom-control" style="margin-right: 18px;">
                     <input type="checkbox" class="custom-control-input quiz-check" [id]="'q' + i + 's' + j + 'Yes'"
                       [name]="'q' + i + 's' + j" [checked]="option.selected === 'Yes'"
-                      (change)="toggleCheckbox(i, j, 'Yes')" [value]="option.selected" />
+                      (change)="toggleCheckbox(i, j, 'Yes')" [value]="option.selected" required />
                     <label [for]="'q' + i + 's' + j + 'Yes'" class="custom-control-label quiz-check">Yes</label>
                   </div>
                   <div class="form-group custom-control">
                     <input type="checkbox" class="custom-control-input quiz-check" [id]="'q' + i + 's' + j + 'No'"
                       [name]="'q' + i + 's' + j" [checked]="option.selected === 'No'"
-                      (change)="toggleCheckbox(i, j, 'No')" [value]="option.selected" />
+                      (change)="toggleCheckbox(i, j, 'No')" [value]="option.selected" required />
                     <label [for]="'q' + i + 's' + j + 'No'" class="custom-control-label quiz-check">No</label>
                   </div>
+                </div>
+                <div
+                  *ngIf="formRequest.get('q' + i + 's' + j)?.invalid && (formRequest.get('q' + i + 's' + j)?.dirty || formRequest.get('q' + i + 's' + j)?.touched)"
+                  class="text-danger">Please select an option.
                 </div>
               </div>
             </ng-container>
             <div class="form-group mt-2">
               <textarea [id]="'comment' + i" [formControlName]="question.comment" cols="13" rows="3"
                 class="form-control validation-field text"></textarea>
+              <div
+                *ngIf="formRequest.get(question.comment)?.invalid && (formRequest.get(question.comment)?.dirty || formRequest.get(question.comment)?.touched)"
+                class="text-danger">Comment is required.
+              </div>
             </div>
           </div>
 
@@ -67,7 +75,8 @@
               (click)="nextPage()"><span class="NexpP"></span> Next</button>
           </div>
           <div class="d-flex justify-content-end mt-3">
-            <button class="btn btn-md login-btn transition mt-1" (click)="submitDataForm()" type="submit">
+            <button class="btn btn-md login-btn transition mt-1" [disabled]="!formRequest.valid"
+              (click)="submitDataForm()" type="submit">
               <a style="text-decoration: none" class="transition">
                 <span style="color: #f8f8f8; font-weight: 700;letter-spacing: 0.08em;font-size: 12px;
         ">SUBMIT</span></a>
@@ -93,6 +102,10 @@
                 {{ data.subClassName }}
               </option>
             </select>
+            <small class="text-danger"
+              *ngIf="form.get('subClassName')?.touched && form.get('subClassName')?.hasError('required')">Enterprise
+              Category is
+              required</small>
           </div>
           <div class="mt-5">
             <h3 class="form-label quiz">Type of Request</h3>
@@ -100,9 +113,13 @@
               <option value="ACCREDITATION">ACCREDITATION</option>
               <option value="CLASSIFICATION">CLASSIFICATION</option>
             </select>
+            <small class="text-danger"
+              *ngIf="form.get('requestType')?.touched && form.get('requestType')?.hasError('required')">Request Type is
+              required</small>
           </div>
           <div class="d-flex justify-content-end mt-3">
-            <button class="btn btn-md login-btn transition mt-1" (click)="submitData()" type="submit">
+            <button class="btn btn-md login-btn transition mt-1" [disabled]="!form.valid" (click)="submitData()"
+              type="submit">
               <a style="text-decoration: none" class="transition">
                 <span style="color: #f8f8f8; font-weight: 700;letter-spacing: 0.08em;font-size: 12px;
               ">SUBMIT</span></a>
