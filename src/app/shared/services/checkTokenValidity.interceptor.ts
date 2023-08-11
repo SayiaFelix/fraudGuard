@@ -19,11 +19,10 @@ export class CheckTokenValidityInterceptor implements HttpInterceptor {
 
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
       if (!this.isTokenValid()) {
-            // this.toastrService.warning('Logging Out', 'Session Expired Login Again');
-            // here remove the auth token
             localStorage.clear();
-            this.router.navigate(['/auth/login']);
+            this.router.navigate(['/standards']);
         } else {
+        
       }
       return next.handle(req);
     }
