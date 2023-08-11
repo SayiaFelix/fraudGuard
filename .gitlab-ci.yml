@@ -24,7 +24,7 @@ buildBaseImage:
   script:
     - npm install -g @angular/cli@14.2.9
     - yarn install
-    - ng build --configuration production --base-href /tra-customer-portal/ --deploy-url /tra-customer-portal/
+    - ng build --configuration production --base-href /tra-customer-portal-uat/ --deploy-url /tra-customer-portal-uat/
   artifacts:
     paths:
       - dist/
