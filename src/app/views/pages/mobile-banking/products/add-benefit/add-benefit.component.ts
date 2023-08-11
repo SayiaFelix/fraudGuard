@@ -175,20 +175,29 @@ export class AddBenefitComponent implements OnInit {
     return questionControl.get('q' + i + 's' + j) as FormControl<any>;
   }
 
+  // createFormBuilder(questions: any[]): void {
+  //   console.log(questions)
+  //   questions.forEach((question: any) => {
+  //     this.formRequest.addControl(`item-${question.id}-comment`, new FormControl(''))
+  //     question.comment = `item-${question.id}-comment`
+  //     question.options.forEach((option: any) => {
+  //       this.formRequest.addControl(`item-${question.id}-option${option.id}`, new FormControl(''))
+  //       option.cName = `item-${question.id}-option${option.id}`
+  //       console.log(option)
+  //     });
+  //   })
+  //   // console.log(this.formRequest.value)
+  // }
   createFormBuilder(questions: any[]): void {
-    console.log(questions)
     questions.forEach((question: any) => {
-      this.formRequest.addControl(`item-${question.id}-comment`, new FormControl(''))
-      question.comment = `item-${question.id}-comment`
+      this.formRequest.addControl(`item-${question.id}-comment`, new FormControl('', Validators.required));
+      question.comment = `item-${question.id}-comment`;
       question.options.forEach((option: any) => {
-        this.formRequest.addControl(`item-${question.id}-option${option.id}`, new FormControl(''))
-        option.cName = `item-${question.id}-option${option.id}`
-        console.log(option)
+        this.formRequest.addControl(`item-${question.id}-option${option.id}`, new FormControl('', Validators.required));
+        option.cName = `item-${question.id}-option${option.id}`;
       });
-    })
-    // console.log(this.formRequest.value)
+    });
   }
-
   toggleCheckbox(mainQuestionIndex: number, optionIndex: number, selectedOption: string) {
     const mainQuestion = this.questionnaireData.questions[mainQuestionIndex];
     const option = mainQuestion.options[optionIndex];
