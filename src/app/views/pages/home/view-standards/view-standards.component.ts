@@ -326,10 +326,10 @@ export class ViewStandardsComponent implements OnInit {
           });
 
           // console.log(this.standard);
-          console.log('parts', this.parts);
-          console.log('terms', this.terms);
-          console.log('files', this.files);
-           console.log('assessors', this.assessors);
+          // console.log('parts', this.parts);
+          // console.log('terms', this.terms);
+          // console.log('files', this.files);
+          //  console.log('assessors', this.assessors);
           this.loading = false;
         } else {
           console.log('Failed', "Unable to fetch standards", 'error');
@@ -338,6 +338,15 @@ export class ViewStandardsComponent implements OnInit {
         console.log("Error", error.message, "error");
       });
   }
+
+  getColumnClass(numItems: number): string {
+    if (numItems === 1) {
+      return 'col-md-6 col-sm-6 col-lg-4 col-xl-4';
+    } else {
+      return 'col-md-6 col-sm-6 col-lg-6 col-xl-6';
+    }
+  }
+
 
   showAssessorsList() {
     this.showAssessors = !this.showAssessors;
