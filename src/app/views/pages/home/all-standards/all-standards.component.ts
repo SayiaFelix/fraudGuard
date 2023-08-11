@@ -234,6 +234,7 @@ export class StandardsComponent implements OnInit {
               const filename = standard.previewImageUrl.split('?filename=')[1];
               standard.previewImageUrl = 'https://test-api.ekenya.co.ke/tra-backend/api/v1/standard/files/download?filename=' + encodeURIComponent(filename);
               standard.existingImage = this.sanitizer.bypassSecurityTrustResourceUrl(standard.previewImageUrl);
+              console.log(standard.previewImageUrl);
             } else {
               standard.existingImage = this.defaultImage;
             }
@@ -245,6 +246,7 @@ export class StandardsComponent implements OnInit {
               standard.existingIcon = this.sanitizer.bypassSecurityTrustResourceUrl(standard.previewIconUrl);
               standard.iconWidth = '50px'; 
               standard.iconHeight = '40px'; 
+              console.log(standard.existingIcon)
             } else {
               standard.existingIcon = this.defaultIcon;
               standard.iconWidth = '35px';

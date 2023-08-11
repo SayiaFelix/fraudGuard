@@ -299,7 +299,7 @@ export class LandingComponent implements OnInit {
             } else {
               standard.existingImage = this.defaultImage;
             }
-
+          
             // Modify preview_icon_url
             if (standard.previewIconUrl) {
               const filename = standard.previewIconUrl.split('?filename=')[1];
@@ -307,14 +307,16 @@ export class LandingComponent implements OnInit {
               standard.existingIcon = this.sanitizer.bypassSecurityTrustResourceUrl(standard.previewIconUrl);
               standard.iconWidth = '55px'; 
               standard.iconHeight = '45px'; 
+              // console.log(standard.previewIconUrl)
             } else {
               standard.existingIcon = this.defaultIcon;
               standard.iconWidth = '35px';
               standard.iconHeight = '30px';  
             }
+            // console.log(standard.existingIcon)
           });
 
-          console.log(this.standards);
+          // console.log(this.standards);
           // console.log(this.existingImage);
           this.loading = false;
         } else {
