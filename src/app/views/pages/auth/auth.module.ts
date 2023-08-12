@@ -12,7 +12,6 @@ import {TranslateModule} from "@ngx-translate/core";
 import {FirstTimeLoginComponent} from "./first-time-login/first-time-login.component";
 import {ChangePasswordComponent} from "./change-password/change-password.component";
 import { ChangeAuthPasswordComponent } from './changePassword/changePassword.component';
-import { ToastrModule } from 'ngx-toastr';
 
 const routes: Routes = [
   {
@@ -71,7 +70,6 @@ const routes: Routes = [
         CommonModule,
         RouterModule.forChild(routes),
         SharedModule,
-        ToastrModule,
         ReactiveFormsModule,
         FeatherIconModule,
         TranslateModule,
