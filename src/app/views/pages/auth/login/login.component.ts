@@ -100,11 +100,11 @@ export class LoginComponent implements OnInit {
               this.hasError = false;
               this.errorMsg = '';
               this.form.reset();
-            }, 3000);
+            }, 2000);
           } else {
             setTimeout(() => {
               this.router.navigate(['/dashboard']);
-            }, 1000);
+            }, 2000);
             return result;
           }
         })
