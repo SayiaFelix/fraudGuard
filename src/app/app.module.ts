@@ -9,7 +9,6 @@ import { AuthGuard } from './core/guard/auth.guard';
 
 import { AppComponent } from './app.component';
 import { ErrorPageComponent } from './views/pages/error-page/error-page.component';
-
 import { HIGHLIGHT_OPTIONS } from 'ngx-highlightjs';
 import {HTTP_INTERCEPTORS, HttpClient, HttpClientModule} from "@angular/common/http";
 import {AgmCoreModule} from "@agm/core";
@@ -21,6 +20,7 @@ import { Ng2TelInputModule } from 'ng2-tel-input';
 import { APP_BASE_HREF_TOKEN } from './views/pages/mobile-banking/requests/constants';
 import { APP_BASE_HREF } from '@angular/common';
 import { ToastrModule,ToastrConfig, ToastrService } from 'ngx-toastr';
+
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
@@ -39,11 +39,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     HttpClientModule,
     BrowserAnimationsModule,
     CarouselModule ,
-    ToastrModule.forRoot({
-      timeOut: 4000,
-      positionClass: 'toast-bottom-center',
-      preventDuplicates: true,
-    }),
+    ToastrModule.forRoot(),
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
@@ -58,11 +54,11 @@ export function HttpLoaderFactory(http: HttpClient) {
   ],
   providers: [
     { provide: APP_BASE_HREF_TOKEN, useValue: '/tra-customer-portal' }, 
-    // {
-    //   provide: HTTP_INTERCEPTORS,
-    //   useClass: CheckTokenValidityInterceptor,
-    //   multi: true
-    // },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: CheckTokenValidityInterceptor,
+      multi: true
+    },
     AuthGuard,
     {
       provide: HIGHLIGHT_OPTIONS, // https://www.npmjs.com/package/ngx-highlightjs
