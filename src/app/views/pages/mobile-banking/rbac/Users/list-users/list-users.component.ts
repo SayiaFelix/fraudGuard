@@ -230,14 +230,14 @@ export class ListUsersComponent implements OnInit {
           
               assessor.profile_url = assessor.profile_url.replace('10.20.2.19:7600', '');
               assessor.profile_url = 'https://test-api.ekenya.co.ke/tra-backend' + assessor.profile_url;
-              console.log(assessor.profile_url)
+              // console.log(assessor.profile_url)
               // Now, the profile_url should be in the format "https://tra/api/v1/admin/task/files/download?filename=a775e169-66aa-4bd8-85e0-acac295fafd4.png"
               assessor.existingImage = this.sanitizer.bypassSecurityTrustResourceUrl(assessor.profile_url);
             } else {
               assessor.existingImage = this.defaultProfileImage;
             }
           });
-          console.log(this.assessors);
+          // console.log(this.assessors);
           this.loading = false;
         } else {
           console.log('Failed', 'Unable to fetch standards', 'error');

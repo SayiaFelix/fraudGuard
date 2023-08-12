@@ -253,8 +253,8 @@ export class ListCustomersComponent implements OnInit {
           result.forEach((request: any) => {
             const appealStatus = appealData.find((appeal: any) => appeal.result_ref === request.result_ref)?.status;
             request.appealStatus = appealStatus || null;
-            console.log('Appeal Status',appealStatus)
-            console.log('Results Ref', request.result_ref)
+            // console.log('Appeal Status',appealStatus)
+            // console.log('Results Ref', request.result_ref)
           });
   
           this.results = result;
