@@ -60,8 +60,8 @@
                 enough, minimum of 6 characters</small>
             </div>
             <div class="mb-1" *ngIf="loginResponse$ | async">
-              <ngb-alert [type]="'success'" (close)="false">
-                <strong>Login Success!</strong>
+              <ngb-alert [type]="'success'" (close)="false" class="my-custom-success-alert">
+                <strong>Login Successfully!!</strong>
               </ngb-alert>
             </div>
             <div>
@@ -70,8 +70,8 @@
                 <span style="color: white;">SIGN IN</span>
               </button>
             </div>
-            <ngb-alert [type]="'danger'" *ngIf="hasError" (close)="false" class="mt-2">
-              <strong>Login Error!</strong> 
+            <ngb-alert [type]="'danger'" *ngIf="hasError" (close)="false" class="error-alert mt-2">
+              <strong>Login Error!!!</strong> 
               {{errorMsg}}
             </ngb-alert>
             <hr>
