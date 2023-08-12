@@ -204,10 +204,10 @@ export class ViewStandardsComponent implements OnInit {
   ngOnInit(): void {
     this.activatedRoute.params.subscribe(params => {
       if (typeof params.id !== 'undefined') {
-        console.log('query-params');
-        console.log(params);
+        // console.log('query-params');
+        // console.log(params);
         this.standardId = params.id;
-        console.log(this.standardId)
+        // console.log(this.standardId)
         // this.categoryId = params.categoryId;
       }
     });

@@ -95,7 +95,7 @@ export class LoginComponent implements OnInit {
           if (result['status'] != '00') {
             this.hasError = true;
             this.toastr.success(result.message, 'Success!');  
-            this.errorMsg = result['message'];
+            this.errorMsg = result['error'];
             setTimeout(() => {
               this.hasError = false;
               this.errorMsg = '';
