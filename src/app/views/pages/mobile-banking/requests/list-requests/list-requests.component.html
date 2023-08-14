@@ -77,7 +77,7 @@
     <div class="border-0 box-shadow">
       <div class="grid-margin stretch-card">
         <div class="row" style="padding: 0px 2%">
-          <ng-container *ngIf="standards.length > 0; else noStandards">
+          <ng-container *ngIf="standards.length > 0;">
             <div [ngClass]="getColumnClass(standards.length)" class="mt-3 pt-2" *ngFor="let std of standards">
               <div [id]="std.id" (click)="openStandardInNewTab(std.id)">
                 <div style="position: relative; display: inline-block;">
@@ -120,13 +120,13 @@
               </div>
             </div>
           </ng-container>
-          <ng-template #noStandards>
+          <!-- <ng-template #noStandards>
             <div class="col-md-12 mt-2">
               <h5 class="d-flex justify-content-start"
                 style="color: #a90202; font-family: 'Mulish';font-weight: 600;font-size: 15px; text-transform: none;">No
                 Standards </h5>
             </div>
-          </ng-template>
+          </ng-template> -->
         </div>
       </div>
     </div>
