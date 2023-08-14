@@ -5,7 +5,6 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { log } from 'console';
 import { HttpService } from 'src/app/shared/services/http.service';
 import Swal from 'sweetalert2';
-import { FormService } from '../form.service';
 
 @Component({
   selector: 'app-add-benefit',
@@ -44,7 +43,6 @@ export class AddBenefitComponent implements OnInit {
     public activeModal: NgbActiveModal,
     private activatedRoute: ActivatedRoute,
     public fb: FormBuilder,
-    private formService: FormService,
     private _httpService: HttpService) {
   }
 
