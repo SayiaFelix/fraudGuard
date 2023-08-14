@@ -131,14 +131,10 @@ export class ListCustomersComponent implements OnInit {
   }
   phoneNumberValidator(control: AbstractControl): { [key: string]: any } | null {
     const phoneNumber = control.value;
-    // Regular expression to check if the phone number starts with "254" and is followed by 9 digits.
-    const phonePattern = /^254\d{9}$/;
-
+    const phonePattern = /^(254\d{9}|0\d{9})$/;
     return phonePattern.test(phoneNumber) ? null : { invalidPhoneNumber: true };
   }
-  // get fs(): { [p: string]: AbstractControl } {
-  //   return this.forms.controls;
-  // }
+  
   onleaveComment() {
     this.isLoading = true;
     const model = {
@@ -210,6 +206,7 @@ export class ListCustomersComponent implements OnInit {
   hideLeaveCommentForm() {
     this.showLeaveCommentForm = false;
     this.showAppealForm = false;
+    this.form.reset()
   }
 
   private loadAppealsData(): void {
@@ -397,9 +394,9 @@ export class ListCustomersComponent implements OnInit {
         this.loadAppealsData()
         this.hideAppealForm();
 
-        this.appealDate = new Date();
-        this.isAppealButtonVisible = false;
-        this.isViewTrackButtonVisible = true;
+        // this.appealDate = new Date();
+        // this.isAppealButtonVisible = false;
+        // this.isViewTrackButtonVisible = true;
       } else {
         this.activeModal.close('error');
         Swal.fire('Raised Apeal Failed, Try Again',
