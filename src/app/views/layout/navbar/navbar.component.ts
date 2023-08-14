@@ -189,7 +189,6 @@ export class NavbarComponent implements OnInit {
 
   changeLanguage(lang: string) {
     this.translate.use(lang);
-
     if (lang === 'en') {
       this.selectedLanguage = 'English';
       this.selectedLanguageFlag = 'assets/images/flags/us.svg';

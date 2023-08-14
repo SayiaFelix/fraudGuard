@@ -31,7 +31,7 @@
               enough, minimum of 6 characters</small>
             </div>
             <div class="mb-1" *ngIf="registerResponse$ | async">
-              <ngb-alert [type]="'success'" (close)="false">
+              <ngb-alert [type]="'success'" class="my-custom-success-alert" (close)="false">
                 <strong>Activation success!</strong>
               </ngb-alert>
             </div>
@@ -46,7 +46,7 @@
           </form>
           <p *ngIf="isLoading"><ngb-progressbar type="success" [value]="95" [striped]="true"
             [animated]="true"></ngb-progressbar></p>
-        <ngb-alert [type]="'danger'" *ngIf="hasError" (close)="false" class="mt-2">
+        <ngb-alert [type]="'danger'" class="" *ngIf="hasError" (close)="false" class="error-alert mt-2">
           <strong>Activation Error!</strong>
            {{errorMsg}}
         </ngb-alert>
