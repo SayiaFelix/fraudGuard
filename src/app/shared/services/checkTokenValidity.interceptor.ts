@@ -4,7 +4,7 @@ import { Observable } from 'rxjs/internal/Observable';
 import { Injectable } from '@angular/core';
 import { GlobalService } from './global.service';
 import { JwtHelperService } from '@auth0/angular-jwt';
-import { EMPTY } from 'rxjs';
+import { EMPTY, catchError } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { AuthService } from './auth.service';
 
@@ -23,8 +23,7 @@ export class CheckTokenValidityInterceptor implements HttpInterceptor {
     private authService: AuthService,
     private globalService: GlobalService) {;
     }
-
-
+  
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
       const isAuthRoute = req.url.includes('/auth');
       const isStandardsRoute = req.url.includes('/standards/all-standards');
@@ -33,28 +32,24 @@ export class CheckTokenValidityInterceptor implements HttpInterceptor {
         return next.handle(req);
       }
   
-    if (!isStandardsRoute) {
-      // For other routes, perform token validation
-      if (!this.isTokenValid()) {
-        // Redirect to standards route when no token is available
-        // this.router.navigate(['/standards']);
+      const token = this.globalService.getToken();
+      if (!token) {
         localStorage.clear();
       } else {
         const helper = new JwtHelperService();
-        if (helper.isTokenExpired(this.globalService.getToken())) {
+        if (helper.isTokenExpired(token)) {
           this.toastr.warning('Logged Out! Session Expired');
           this.authService.logout();
           this.router.navigate(['/auth/login']);
-          return EMPTY;
-        } else {
-          // Allow requests with valid token
-          return next.handle(req);
         }
       }
-    } else {
-      return next.handle(req);
-    }
-      return next.handle(req);
+      
+      return next.handle(req).pipe(
+        catchError(error => {
+          console.log(error);
+          return EMPTY; 
+        })
+      );
     }
   
     isTokenValid() {
