@@ -21,10 +21,17 @@ buildBaseImage:
     - angular
   image:
     name: node:16.16.0
+  rules:
+    - if: ($CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'developer' || $CI_COMMIT_BRANCH == 'developer')
+      variables:
+        BASE_HREF: "/tra-customer-portal/"
+    - if: ($CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'uat' || $CI_COMMIT_BRANCH == 'uat')
+      variables:
+        BASE_HREF: "/tra-customer-portal-uat/"
   script:
     - npm install -g @angular/cli@14.2.9
     - yarn install
-    - ng build --configuration production --base-href /tra-customer-portal/ --deploy-url /tra-customer-portal/
+    - ng build --configuration production --base-href "$BASE_HREF" --deploy-url "$BASE_HREF"
   artifacts:
     paths:
       - dist/
@@ -41,7 +48,7 @@ buildImage:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
   rules:
-    - if: ($CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'development' || $CI_COMMIT_BRANCH == 'development')
+    - if: ($CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'developer' || $CI_COMMIT_BRANCH == 'developer')
       variables:          
         IMAGE_TAG: "latest"
     - if: ($CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'uat' || $CI_COMMIT_BRANCH == 'uat')
@@ -67,7 +74,7 @@ deploy-application:
       variables:
         DEPLOY_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
     - if: $CI_COMMIT_BRANCH == 'uat'
-      when: never        
+      when: never
   script:
     - *trigger_awx_deploy_to_testing
 
@@ -79,7 +86,7 @@ notify-teams:
       artifacts: true
   rules:
     - if: $CI_COMMIT_BRANCH == 'uat'
-      when: never     
+      when: never
   script:
     - sleep 600
     - *notify_teams
