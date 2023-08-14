@@ -406,17 +406,15 @@
                     Required</small>
                 </div>
                 <div class="form-group mt-2">
-                  <input type="text" name="tel" formControlName="phone_number" id="phoneNumber"
+                  <input type="text" name="tel" formControlName="phoneNumber" id="phoneNumber"
                     placeholder="Phone Number*" class="form-control validation-field border-0 w-100" ng2TelInput
                     data-initial-country="ke">
-                  <small class="text-danger" *ngIf="f.phone_number.touched && f.phone_number.errors?.required">Field
+                  <small class="text-danger" *ngIf="f.phoneNumber.touched && f.phoneNumber.errors?.required">Field
                     Required</small> <br>
                   <small class="text-danger"
-                    *ngIf="f.phone_number.touched && f.phone_number.errors?.invalidPhoneNumber">Phone Number: 254 ***
-                    *** ***</small>
-                  <!-- <small class="text-danger" *ngIf="f.phone_number.errors?.invalidPhoneNumber">
-                    Invalid Phone Number Format. It should start with '254' and have 12 digits.
-                  </small> -->
+                    *ngIf="f.phoneNumber.touched && f.phoneNumber.errors?.invalidPhoneNumber">Phone Number: 254 ***
+                    *** *** or 07 **** ****</small>
+
                 </div>
                 <div class="form-group mt-2">
                   <input formControlName="occupation" type="text" class="form-control validation-field border-0"

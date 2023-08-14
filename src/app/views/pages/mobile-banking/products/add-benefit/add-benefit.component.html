@@ -51,7 +51,7 @@
               </div>
             </ng-container>
             <div class="form-group mt-2">
-              <textarea [id]="'comment' + i" [formControlName]="question.comment" cols="13" rows="3"
+              <textarea [id]="'comment' + i" [formControlName]="question.comment" cols="13" rows=""
                 class="form-control validation-field text"></textarea>
               <div
                 *ngIf="formRequest.get(question.comment)?.invalid && (formRequest.get(question.comment)?.dirty || formRequest.get(question.comment)?.touched)"
