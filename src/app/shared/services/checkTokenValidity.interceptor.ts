@@ -24,48 +24,53 @@ export class CheckTokenValidityInterceptor implements HttpInterceptor {
     private globalService: GlobalService) {;
     }
 
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    const isAuthRoute = req.url.includes('/auth');
-    const isStandardsRoute = req.url.includes('/standards') || req.url.includes('/standards/all-standards');
 
-    if (isAuthRoute || isStandardsRoute) {
-      // console.log('Allowing request without token validation:', req.url);
-      return next.handle(req);
-    }
-
-    if (!this.globalService.getToken()) {
-      // console.log('Navigating to /standards due to missing token:', req.url);
-      // this.router.navigate(['/standards']);
-      return EMPTY;
-    } else {
-      const helper = new JwtHelperService();
-      if (helper.isTokenExpired(this.globalService.getToken())) {
-        this.toastr.warning('Logged Out! Session Expired');
-        this.authService.logout();
-        this.router.navigate(['/standards']);
-        return EMPTY;
-      } else {
-        // console.log('Allowing request with valid token:', req.url);
+    intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+      const isAuthRoute = req.url.includes('/auth');
+      const isStandardsRoute = req.url.includes('/standards/all-standards');
+  
+      if (isAuthRoute || isStandardsRoute) {
         return next.handle(req);
       }
-    }
-  }
-
-  isTokenValid() {
-    const helper = new JwtHelperService();
-    if (!this.globalService.getToken()) {
-      console.log("No token available");
-      return false;
-    } else if (this.globalService.getToken() && helper.isTokenExpired(this.globalService.getToken())) {
-
-      // send refresh to backend
-      // receive new access
-      // update local storage
-      // this.isTokenValid();
-
-      return false;
+  
+    if (!isStandardsRoute) {
+      // For other routes, perform token validation
+      if (!this.isTokenValid()) {
+        // Redirect to standards route when no token is available
+        // this.router.navigate(['/standards']);
+        localStorage.clear();
+      } else {
+        const helper = new JwtHelperService();
+        if (helper.isTokenExpired(this.globalService.getToken())) {
+          this.toastr.warning('Logged Out! Session Expired');
+          this.authService.logout();
+          this.router.navigate(['/auth/login']);
+          return EMPTY;
+        } else {
+          // Allow requests with valid token
+          return next.handle(req);
+        }
+      }
     } else {
-      return true;
+      return next.handle(req);
     }
-  }
+      return next.handle(req);
+    }
+  
+    isTokenValid() {
+      const helper = new JwtHelperService();
+      const token = this.globalService.getToken();
+      
+      if (!token) {
+        console.log("No token available");
+        return false;
+      } else if (helper.isTokenExpired(token)) {
+        // You might want to put some refresh logic here
+        console.log("Token expired");
+        return false;
+      } else {
+        return true;
+      }
+    }
+
 }
