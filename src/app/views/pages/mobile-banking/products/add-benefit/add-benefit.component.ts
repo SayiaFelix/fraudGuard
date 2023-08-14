@@ -23,7 +23,7 @@ export class AddBenefitComponent implements OnInit {
   public formRequest: FormGroup;
   totalPages: number;
   currentPage = 1;
-  questionsPerPage = 2;
+  questionsPerPage = 25;
   answers: any[] = [];
 
   isFirstFormSubmitted = false;
