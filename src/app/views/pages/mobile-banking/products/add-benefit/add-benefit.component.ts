@@ -5,6 +5,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { log } from 'console';
 import { HttpService } from 'src/app/shared/services/http.service';
 import Swal from 'sweetalert2';
+import { FormService } from '../form.service';
 
 @Component({
   selector: 'app-add-benefit',
@@ -22,7 +23,7 @@ export class AddBenefitComponent implements OnInit {
   public formRequest: FormGroup;
   totalPages: number;
   currentPage = 1;
-  questionsPerPage = 7;
+  questionsPerPage = 25;
   answers: any[] = [];
 
   isFirstFormSubmitted = false;
@@ -36,11 +37,14 @@ export class AddBenefitComponent implements OnInit {
   questionnaireData: any;
   selectedOptions: any[] = [];
   requestId: number;
+  questionResponses: { [key: string]: { selected: string; comment: string } } = {};
+  selectedCheckboxValues: { [key: string]: string } = {};
 
   constructor(
     public activeModal: NgbActiveModal,
     private activatedRoute: ActivatedRoute,
     public fb: FormBuilder,
+    private formService: FormService,
     private _httpService: HttpService) {
   }
 
@@ -69,8 +73,11 @@ export class AddBenefitComponent implements OnInit {
 
     this.loadData()
     this.getSubClassData();
-    this.createFormBuilder(this.questionnaireData);
+    // this.createFormBuilder(this.questionnaireData);
+    this.initializeSelectedCheckboxValues(this.questionnaireData.questions);
+    this.createFormBuilder(this.questionnaireData.questions);
   }
+
   get f(): { [p: string]: AbstractControl } {
     return this.form.controls;
   }
@@ -85,16 +92,11 @@ export class AddBenefitComponent implements OnInit {
     this.formRequest.addControl(commentControlName, new FormControl());
   }
 
-  // getCommentControl(i: number): FormControl<any> {
-  //   return this.formRequest.get('comment' + i) as FormControl<any>;
-  // }
-
 
 
   private loadData(): void {
     this.loading = true;
-    const model = { id: 2 };
-
+    const model = { id: 1 };
     this._httpService.customerPortalPosts(`admin/customer/portal/get`, model).subscribe(
       (res: any) => {
         if (res.status === 200 && res.data && res.data.questions && Array.isArray(res.data.questions)) {
@@ -132,13 +134,6 @@ export class AddBenefitComponent implements OnInit {
       requestType: this.form.value.requestType,
       subClassName: this.form.value.subClassName,
     };
-
-  //   {
-
-  //     "subClassName": "Hotel Test",
-  //     "requestType": "ACCREDITATION",
-  //     "licenseNumber": "LC56435"
-  // }
     console.log(model)
     this._httpService.customerPortalPosts('admin/customer/portal/create-customer-request', model).subscribe(
       (result: any) => {
@@ -175,19 +170,14 @@ export class AddBenefitComponent implements OnInit {
     return questionControl.get('q' + i + 's' + j) as FormControl<any>;
   }
 
-  // createFormBuilder(questions: any[]): void {
-  //   console.log(questions)
-  //   questions.forEach((question: any) => {
-  //     this.formRequest.addControl(`item-${question.id}-comment`, new FormControl(''))
-  //     question.comment = `item-${question.id}-comment`
-  //     question.options.forEach((option: any) => {
-  //       this.formRequest.addControl(`item-${question.id}-option${option.id}`, new FormControl(''))
-  //       option.cName = `item-${question.id}-option${option.id}`
-  //       console.log(option)
-  //     });
-  //   })
-  //   // console.log(this.formRequest.value)
-  // }
+  initializeSelectedCheckboxValues(questions: any[]): void {
+    questions.forEach((question) => {
+      question.options.forEach((option: any) => {
+        this.selectedCheckboxValues[option.cName] = '';
+      });
+    });
+  }
+
   createFormBuilder(questions: any[]): void {
     questions.forEach((question: any) => {
       this.formRequest.addControl(`item-${question.id}-comment`, new FormControl('', Validators.required));
@@ -197,7 +187,9 @@ export class AddBenefitComponent implements OnInit {
         option.cName = `item-${question.id}-option${option.id}`;
       });
     });
+    this.initializeSelectedCheckboxValues(questions);
   }
+
   toggleCheckbox(mainQuestionIndex: number, optionIndex: number, selectedOption: string) {
     const mainQuestion = this.questionnaireData.questions[mainQuestionIndex];
     const option = mainQuestion.options[optionIndex];
@@ -207,8 +199,70 @@ export class AddBenefitComponent implements OnInit {
     } else {
       option.selected = selectedOption;
     }
-    console.log(option);
-    this.formRequest.controls[`${option.cName}`].setValue(option.selected)
+    let selectValue=  this.selectedCheckboxValues[option.cName] = option.selected;
+    console.log(selectValue)
+    this.formRequest.controls[`${option.cName}`].setValue(option.selected);
+  }
+
+
+  //   toggleCheckbox(mainQuestionIndex: number, optionIndex: number, selectedOption: string) {
+  //   const mainQuestion = this.questionnaireData.questions[mainQuestionIndex];
+  //   const option = mainQuestion.options[optionIndex];
+
+  //   if (option.selected === selectedOption) {
+  //     option.selected = '';
+  //   } else {
+  //     option.selected = selectedOption;
+  //   }
+  //   console.log(option);
+  //   this.formRequest.controls[`${option.cName}`].setValue(option.selected)
+  // }
+
+  // toggleCheckbox(mainQuestionIndex: number, optionIndex: number, selectedOption: string) {
+  //   const mainQuestion = this.questionnaireData.questions[mainQuestionIndex];
+  //   const option = mainQuestion.options[optionIndex];
+
+  //   option.selected = (option.selected === selectedOption) ? '' : selectedOption;
+  //   this.formRequest.controls[`${option.cName}`].setValue(option.selected);
+  // }
+
+
+  updateCheckboxStateForPage(page: number): void {
+    console.log(`Updating checkbox state for page: ${page}`);
+    const questionsForPage = this.getQuestionsForPage(page);
+    questionsForPage.forEach((question) => {
+      question.options.forEach((option: any) => {
+        const selectedValue = this.selectedCheckboxValues[option.cName]
+        console.log(`Option: ${option.cName}, Selected Value: ${selectedValue}`);
+        if (selectedValue !== undefined) {
+          option.selected = selectedValue;
+          this.formRequest.controls[`${option.cName}`].setValue(selectedValue);
+        }
+      });
+    });
+  }
+
+  // toggleCheckbox(mainQuestionIndex: number, optionIndex: number, selectedOption: string) {
+  //   const mainQuestion = this.questionnaireData.questions[mainQuestionIndex];
+  //   const option = mainQuestion.options[optionIndex];
+
+  //   // Deselect all options within the same question
+  //   mainQuestion.options.forEach((opt: { selected: string; cName: any; }) => {
+  //     if (opt !== option) {
+  //       opt.selected = '';
+  //       this.formRequest.controls[`${opt.cName}`].setValue('');
+  //     }
+  //   });
+
+  //   option.selected = (option.selected === selectedOption) ? '' : selectedOption;
+
+  //   // Update the form control value for the selected option
+  //   this.formRequest.controls[`${option.cName}`].setValue(option.selected);
+  // }
+
+  updateComment(questionIndex: number, value: string): void {
+    const question = this.getQuestionsForCurrentPage()[questionIndex];
+    this.questionResponses[question.comment].comment = value;
   }
 
   submitDataForm(): any {
@@ -231,10 +285,10 @@ export class AddBenefitComponent implements OnInit {
             questionId: itemNumber,
             optionId: optionNumber
           }
-          
+
           temp.push(tempObj);
-          console.log(itemNumber); 
-          console.log(optionNumber); 
+          console.log(itemNumber);
+          console.log(optionNumber);
           console.log(tempObj)
         } else {
           console.log('Input string format is incorrect.');
@@ -242,10 +296,10 @@ export class AddBenefitComponent implements OnInit {
         console.log(answer)
       })
       let model = {
-        questionnaireId: 2,
+        questionnaireId: 1,
         requestId: this.requestId,
         licenseNumber: licence_number,
-        answers:temp
+        answers: temp
       }
       console.log('Form values:', this.formRequest.value);
       console.log('Our Model', model)
@@ -253,7 +307,7 @@ export class AddBenefitComponent implements OnInit {
       this._httpService.customerPortalPosts('admin/customer/portal/answer', model).subscribe(
         (result: any) => {
           if (result.status === 200) {
-        this.isFirstFormSubmitted = false;
+            this.isFirstFormSubmitted = false;
             this.isLoading = false;
             this.formRequest.reset()
             Swal.fire('Questions Recieved Successfully',
@@ -276,29 +330,20 @@ export class AddBenefitComponent implements OnInit {
     }
   }
 
-  getFormControl(mainQuestion: string, subQuestion: string): FormControl {
-    const formControl = this.form.get(mainQuestion)?.get(subQuestion) as FormControl;
-    if (formControl) {
-      return formControl;
-    }
-    // If the form control is not found, return a new FormControl
-    return new FormControl(false, Validators.required);
-  }
-
   getSubClassData(): void {
     this.loading = true;
     this._httpService
       .customerPortalPosts('standard/portal/class/getall', {})
       .subscribe((res: any) => {
-        console.log(res)
+        // console.log(res)
         if (res.status === 200) {
-          console.log(res);
+          // console.log(res);
           if (res.data && res.data.classes) {
             this.loading = false;
             this.SubClassData = res.data.classes;
             this.ClassData = res.data
-            console.log(this.SubClassData);
-            console.log(this.ClassData);
+            // console.log(this.SubClassData);
+            // console.log(this.ClassData);
           } else {
             this.loading = false;
           }
@@ -309,9 +354,7 @@ export class AddBenefitComponent implements OnInit {
     this.loading = false;
   }
 
-
-
-  // getSubClassData(): void {
+// getSubClassData(): void {
   //   this.loading = true;
   //   this._httpService.getClassAndSubclassData().subscribe((res: any) => {
   //     console.log(res);
@@ -325,7 +368,7 @@ export class AddBenefitComponent implements OnInit {
   //       this.loading = false;
   //     }
   //   });
-  // }
+// }
 
   onClassChange(event: any): void {
     const selectedClassId = event.target.value;
@@ -344,6 +387,7 @@ export class AddBenefitComponent implements OnInit {
 
   setCurrentPage(page: number) {
     this.currentPage = page;
+    this.updateCheckboxStateForPage(page);
   }
 
   prevPage(): void {
@@ -359,49 +403,16 @@ export class AddBenefitComponent implements OnInit {
     return this.questionnaireData?.questions.slice(startIndex, startIndex + this.questionsPerPage);
   }
 
+  getQuestionsForPage(page: number): any[] {
+    const startIndex = (page - 1) * this.questionsPerPage;
+    return this.questionnaireData?.questions.slice(startIndex, startIndex + this.questionsPerPage);
+  }
+
+
   get totalNumberOfPagesArray(): number[] {
     return Array.from({ length: this.totalNumberOfPages }, (_, i) => i + 1);
   }
 
-  private editRecord(): any {
-
-    // this.isLoading = true;
-    // const model = {
-    //   id: this.formData.id,
-    //   name: this.form.value.name,
-    //   description: this.form.value.description,
-    //   parentCategoryId: this.form.value.parentId,
-    // };
-
-    // let formData=new FormData;
-    // formData.append('category',
-    //   new Blob([JSON.stringify(model)], {type: "application/json"} ));
-    // formData.append('file', this.imageFile);
-    // console.log(formData)
-
-    // this._httpService.mobileBankingPostFormData('product/portal/category/update', formData).subscribe(
-    //   (result: any) => {
-    //     if (result.status === 200) {
-    //       this.activeModal.close('success');
-    //       this.isLoading = false;
-
-    //       Swal.fire('Product Category Edited',
-    //         'Product Category has been edited successfully.',
-    //         'success').then(r => console.log(r))
-    //     } else {
-    //       this.activeModal.close('error');
-    //       Swal.fire('Record editing error',
-    //         'Product Category could not be edited.',
-    //         'error').then(r => console.log(r))
-    //     }
-    //   },
-    //   (error: any) => {
-    //     Swal.fire('Record editing error',
-    //       `Record deletion error`,
-    //       'error')
-    //   }
-    // );
-  }
 
   public closeModal(): void {
     this.activeModal.dismiss('Cross click');

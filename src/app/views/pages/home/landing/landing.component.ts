@@ -284,9 +284,10 @@ export class LandingComponent implements OnInit {
       (res: any) => {
         if (res.status == 200) {
           // this.standards = res['data'];
-          // console.log(this.standards)
+         
           const standard = res.data.standards.filter((request: any) => request.status === "PUBLISHED");
           this.standards = standard
+           console.log(this.standards)
           this.standards.forEach((standard: any) => {
             // Modify preview_image_url
             if (standard.previewImageUrl) {
