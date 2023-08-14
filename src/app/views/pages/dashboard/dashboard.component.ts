@@ -231,7 +231,6 @@ export class DashboardComponent implements OnInit {
         if (res.status == '00') {
           this.profileDetails = res['data'];
           // console.log(this.profileDetails);
-
           if (this.profileDetails.PhotoPath && !this.profileDetails.PhotoPath.startsWith('http://') && !this.profileDetails.PhotoPath.startsWith('https://')) {
             this.uploadedImageUrl = 'https://' + this.profileDetails.PhotoPath;
           } else {
