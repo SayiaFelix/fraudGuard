@@ -6,6 +6,7 @@ import { GlobalService } from './global.service';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { EMPTY } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
+import { AuthService } from './auth.service';
 
 
 
@@ -15,9 +16,11 @@ import { ToastrService } from 'ngx-toastr';
   }
 )
 export class CheckTokenValidityInterceptor implements HttpInterceptor {
-  constructor(private router: Router,
+  constructor(
+    private router: Router,
      private toastr: ToastrService,
     //  private toast: NgToastService,
+    private authService: AuthService,
     private globalService: GlobalService) {;
     }
 
@@ -37,9 +40,9 @@ export class CheckTokenValidityInterceptor implements HttpInterceptor {
     } else {
       const helper = new JwtHelperService();
       if (helper.isTokenExpired(this.globalService.getToken())) {
-        this.toastr.warning( 'Login Out!!!');  
-        // this.toast.warning({detail:"WARN",summary:'Login Out !!!',duration:5000});
-        this.router.navigate(['/auth/login']);
+        this.toastr.warning('Logged Out! Session Expired');
+        this.authService.logout();
+        this.router.navigate(['/standards']);
         return EMPTY;
       } else {
         // console.log('Allowing request with valid token:', req.url);
