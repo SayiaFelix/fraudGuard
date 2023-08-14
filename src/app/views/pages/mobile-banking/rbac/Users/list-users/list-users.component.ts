@@ -227,7 +227,6 @@ export class ListUsersComponent implements OnInit {
           
           this.assessors.forEach((assessor: any) => {
             if (assessor.profile_url) {
-          
               assessor.profile_url = assessor.profile_url.replace('10.20.2.19:7600', '');
               assessor.profile_url = 'https://test-api.ekenya.co.ke/tra-backend' + assessor.profile_url;
               // console.log(assessor.profile_url)
