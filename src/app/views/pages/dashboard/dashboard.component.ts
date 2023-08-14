@@ -24,7 +24,7 @@ export class DashboardComponent implements OnInit {
   uploadedImageUrl: string | undefined;
   imageUploaded = false;
   selectedFile: File | null = null;
-
+  selectedImage: any = 'assets/images/ns.jpg'; 
   uploadedImage: File | null = null;
   // Store the sanitized URL
   public downloadLink: SafeUrl;
@@ -175,12 +175,21 @@ export class DashboardComponent implements OnInit {
 
   phoneNumberValidator(control: AbstractControl): { [key: string]: any } | null {
     const phoneNumber = control.value;
-    // Regular expression to check if the phone number starts with "254" and is followed by 9 digits.
-    const phonePattern = /^254\d{9}$/;
-
+    const phonePattern = /^(254\d{9}|0\d{9})$/;
     return phonePattern.test(phoneNumber) ? null : { invalidPhoneNumber: true };
   }
 
+  onImageChange(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.selectedImage = e.target.result;
+        // Here you can implement logic to upload the image to your server if needed
+      };
+      reader.readAsDataURL(file);
+    }
+  }
 
   handleImageUpload(event: Event): void {
     const inputElement = event.target as HTMLInputElement;

@@ -34,7 +34,7 @@
                       placeholder="Phone Number*" class="form-control validation-field border-0 w-100" ng2TelInput
                       data-initial-country="ke">
                     <small class="text-danger" *ngIf="f.phone_number.touched && f.phone_number.errors?.required">Field Required</small> <br>
-                    <small class="text-danger" *ngIf="f.phone_number.touched && f.phone_number.errors?.invalidPhoneNumber">Phone Number: 254 *** *** ***</small>
+                    <small class="text-danger" *ngIf="f.phone_number.touched && f.phone_number.errors?.invalidPhoneNumber">Phone Number: 254 *** *** *** or 07 **** ****</small>
                   </div>
                   <div class="form-group mt-2">
                     <input formControlName="subject" type="text" class="form-control validation-field border-0"
@@ -104,6 +104,15 @@
             src="assets/images/ns.jpg" />
         </div>
       </div>
+      <!-- <div class="col mt-2 p-2" style="border-right: 2px solid rgba(182, 147, 220, 0.80); height: 100px;">
+        <label class="box-shadow" for="imageUpload"
+          style="height: 97px ; width: 97px; border-radius: 50%;border: 2px solid #CCC; align-items: center; cursor: pointer;">
+          <img class="card-img-top img-fluid"
+            style="max-height: 80px; max-width: 75px; border-radius: 20%; margin-left: 6%; margin-top: 20%;"
+            [src]="selectedImage" />
+          <input type="file" id="imageUpload" style="display: none" (change)="onImageChange($event)">
+        </label>
+      </div> -->
       <div class="col">
         <p class="title">Enterprise</p>
         <h2 class="content">{{facilityType}}</h2>

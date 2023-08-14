@@ -42,13 +42,13 @@
         </button>
       </div>
       <div class="d-flex p-2 justify-content-between" *ngIf="showDashbord">
-        <div style="margin-top: 5%;">
+        <div style="margin-top: 6%;">
           <h3 class="header"
             style="color: var(--dark-purple, #1E0F2E);text-align: center;font-family: Muli;font-size: 11px;font-style: normal;font-weight: 700;line-height: normal;text-transform: uppercase;">
             <span>{{profile}}</span>
           </h3>
         </div>
-        <div style="margin-top: 2%; margin-left: 5px;">
+        <div style="margin-top: 3%; margin-left: 5px;">
           <img class="wd-30 ht-30 rounded-circle" src="./assets/images/user.png" alt="profile">
         </div>
         <button style="margin-top: 1%; margin-left: 5px;" class="btn btn-sm login-btn transition" type="submit">
@@ -118,8 +118,7 @@
                       <small class="text-danger" *ngIf="f.phone_number.touched && f.phone_number.errors?.required">Field
                         Required</small> <br>
                       <small class="text-danger"
-                        *ngIf="f.phone_number.touched && f.phone_number.errors?.invalidPhoneNumber">Phone Number: 254
-                        *** *** ***</small>
+                        *ngIf="f.phone_number.touched && f.phone_number.errors?.invalidPhoneNumber">Phone Number: 254 *** *** *** or 07 **** ****</small>
                     </div>
                     <div class="form-group mt-2">
                       <input formControlName="subject" type="text" class="form-control validation-field border-0"
