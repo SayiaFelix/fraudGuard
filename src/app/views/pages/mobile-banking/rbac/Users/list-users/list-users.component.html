@@ -19,48 +19,55 @@
     <div class="border-0 box-shadow">
       <div class="grid-margin stretch-card">
         <div class="row">
-          <div class="col-md-3 col-lg-3 col-xl-3 col-sm-4" style="padding: 8px;" *ngFor="let std of assessors">
-            <div style="border-radius: 32px; border: 1px solid var(--lavender-web, #D0DDF0); " class="text-center" [id]="std.id">
-              <div style="position: relative; display: inline-block;">
-                <div class="w-100 mt-2">
-                  <img class="img-fluid card-img-top"
-                    style="height: 95px; width: 100px; border-radius: 50%;"
-                    [src]="std.existingImage" />
-                  <!-- <img class="img-fluid card-img-top"
-                    style="min-height: 95px; max-width: 100%; border-top-left-radius: 13px; border-top-right-radius: 13px;"
-                    src="assets/images/3.png" alt=""> -->
+          <ng-container *ngIf="assessors.length > 0; else noAssessors">
+            <div class="col-md-3 col-lg-3 col-xl-3 col-sm-4" style="padding: 8px;" *ngFor="let std of assessors">
+              <div style="border-radius: 32px; border: 1px solid var(--lavender-web, #D0DDF0); " class="text-center"
+                [id]="std.id">
+                <div style="position: relative; display: inline-block;">
+                  <div class="w-100 mt-2">
+                    <img class="img-fluid card-img-top" style="height: 95px; width: 100px; border-radius: 50%;"
+                      [src]="std.existingImage" />
+                  </div>
                 </div>
-              </div>
-              <br><br>
-              <div style="position: relative;">
-                <div class="mt-1">
-                  <p style="
-                       color: #000;text-align: center;font-family: Mulish;font-size: 15px;font-style: normal;font-weight: 600;line-height: 21px;
-                      " class="h2">
-                    {{ std.first_name }} {{std.last_name}}
-                  </p>
-                </div>
-                <div class="">
-                  <p style="color: #000;text-align: center;font-family: Mulish;font-size: 15px;font-style: normal;font-weight: 400;line-height: 18px;
-                      " class="h2">
-                  Assessors
-                  </p>
-                </div>
-                <div class="">
-                  <p style="color: #000;text-align: center;font-family: Mulish;font-size: 13px;font-style: normal;font-weight: 400;line-height: 19px;
-                      " class="h3">
-                    {{ std.bio }}
-                  </p>
+                <br><br>
+                <div style="position: relative;">
+                  <div class="mt-1">
+                    <p style="
+                         color: #000;text-align: center;font-family: Mulish;font-size: 15px;font-style: normal;font-weight: 600;line-height: 21px;
+                        " class="h2">
+                      {{ std.first_name }} {{std.last_name}}
+                    </p>
+                  </div>
+                  <div class="">
+                    <p style="color: #000;text-align: center;font-family: Mulish;font-size: 15px;font-style: normal;font-weight: 400;line-height: 18px;
+                        " class="h2">
+                      Assessors
+                    </p>
+                  </div>
+                  <div class="">
+                    <p style="color: #000;text-align: center;font-family: Mulish;font-size: 13px;font-style: normal;font-weight: 400;line-height: 19px;
+                        " class="h3">
+                      {{ std.bio }}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </ng-container>
+          <ng-template #noAssessors>
+            <div class="col-md-12 mt-2">
+              <h5 class="d-flex justify-content-start"
+                style="color: #a90202; font-family: 'Mulish';font-weight: 600;font-size: 15px; text-transform: none;">No
+                ASSESSORS Yet.</h5>
+            </div>
+          </ng-template>
         </div>
       </div>
     </div>
   </div>
   <div class="d-flex justify-content-end">
-    <div style="position: fixed; bottom: 9%; right:3%;"  (click)="toggleLeaveCommentForm()" class="d-flex justify-content-around">
+    <div style="position: fixed; bottom: 9%; right:3%;" (click)="toggleLeaveCommentForm()"
+      class="d-flex justify-content-around">
       <button *ngIf="!showLeaveCommentForm" class="btn btn-sm transition"
         style="border-radius: 64px;background: var(--green-blue, #2268AA); margin-right:10px;" type="submit">
         <a style="text-decoration: none" class="transition">
@@ -68,11 +75,11 @@
             style="color: var(--seasalt, #F8F8F8);text-align: center;font-family: Mulish;font-size: 12px;font-style: normal;font-weight: 700;line-height: normal;letter-spacing: 1.12px;text-transform: uppercase;">customer
             inquiry</span></a>
       </button>
-      <div  style="width: 50px; height: 50px; border-radius: 50%; background-color: #D0DDF0;;"
+      <div style="width: 50px; height: 50px; border-radius: 50%; background-color: #D0DDF0;;"
         class="card-header d-flex align-items-center border-0">
         <p style="color:#2268AA;  font-size: 30px; margin-left: 10px;">
-          <img class="img-fluid" style="position: absolute; bottom: 19%"
-            src="assets/images/chats.png" width="30" height="20" alt="logo" />
+          <img class="img-fluid" style="position: absolute; bottom: 19%" src="assets/images/chats.png" width="30"
+            height="20" alt="logo" />
         </p>
       </div>
     </div>
@@ -81,7 +88,8 @@
 </div>
 <hr>
 <ng-container *ngIf="showLeaveCommentForm">
-  <div class="modal-container" style="display: flex;justify-content: end;align-items: center;position: fixed;width: 100%;height: 100%; z-index: 10;  border-radius: 8px 8px 8px 8px;">
+  <div class="modal-container"
+    style="display: flex;justify-content: end;align-items: center;position: fixed;width: 100%;height: 100%; z-index: 10;  border-radius: 8px 8px 8px 8px;">
     <div>
       <div class="modals " style="border-radius: 8px 8px 8px 8px;">
         <div style="background: var(--seasalt, #F8F8F8); border-radius: 8px 8px 8px 8px;">
@@ -107,28 +115,34 @@
                   <input formControlName="email" type="email" class="form-control validation-field border-0" id="email"
                     placeholder="Your email address*">
                   <small class="text-danger" *ngIf="f.email.touched && f.email.errors?.required">Field Required</small>
-                  <small class="text-danger" *ngIf="f.email.touched && f.email.errors?.email">Email Format Required</small>
+                  <small class="text-danger" *ngIf="f.email.touched && f.email.errors?.email">Email Format
+                    Required</small>
                 </div>
                 <div class="form-group mt-2">
                   <input type="text" name="tel" formControlName="phone_number" id="phoneNumber"
                     placeholder="Phone Number*" class="form-control validation-field border-0 w-100" ng2TelInput
                     data-initial-country="ke">
-                  <small class="text-danger" *ngIf="f.phone_number.touched && f.phone_number.errors?.required">Field Required</small> <br>
-                  <small class="text-danger" *ngIf="f.phone_number.touched && f.phone_number.errors?.invalidPhoneNumber">Phone Number: 254 *** *** ***</small>
+                  <small class="text-danger" *ngIf="f.phone_number.touched && f.phone_number.errors?.required">Field
+                    Required</small> <br>
+                  <small class="text-danger"
+                    *ngIf="f.phone_number.touched && f.phone_number.errors?.invalidPhoneNumber">Phone Number: 254 ***
+                    *** *** or 07 **** ****</small>
                 </div>
                 <div class="form-group mt-2">
                   <input formControlName="subject" type="text" class="form-control validation-field border-0"
                     id="occupation" placeholder="Subject">
-                  <small class="text-danger" *ngIf="f.subject.touched && f.subject.errors?.required">Field Required</small>
+                  <small class="text-danger" *ngIf="f.subject.touched && f.subject.errors?.required">Field
+                    Required</small>
                 </div>
                 <div class="form-group mt-2">
-                  <textarea formControlName="message" type="text" id="message" cols="15" rows="3" 
-                  placeholder="Message" class="form-control validation-field border-0"></textarea>
-                  <small class="text-danger" *ngIf="f.message.touched && f.message.errors?.required">Field Required</small>
+                  <textarea formControlName="message" type="text" id="message" cols="15" rows="3" placeholder="Message"
+                    class="form-control validation-field border-0"></textarea>
+                  <small class="text-danger" *ngIf="f.message.touched && f.message.errors?.required">Field
+                    Required</small>
                 </div>
                 <div class="col-12 bg-white text-center py-1 mt-3 mb-2">
-                  <button [disabled]="!form.valid" style="width: 100%; border: none;" class="btn btn-block login-btn transition"
-                    type="submit">
+                  <button [disabled]="!form.valid" style="width: 100%; border: none;"
+                    class="btn btn-block login-btn transition" type="submit">
                     <span style="color: white;">SEND</span>
                   </button>
                 </div>
@@ -139,4 +153,4 @@
       </div>
     </div>
   </div>
-</ng-container> 
+</ng-container>
