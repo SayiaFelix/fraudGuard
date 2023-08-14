@@ -8,4 +8,4 @@ FROM nginx:1.17.1-alpine
 COPY default.conf /etc/nginx/conf.d/
 COPY dist/ /usr/share/nginx/html
 EXPOSE 80
-CMD [ "nginx", "-g", "daemon off;" ]
+CMD sed -i s#CUSTOMER_API_URL#$CUSTOMER_API_URL#g /usr/share/nginx/html/main.*.js && sed -i s#STANDARDS_API_URL#$STANDARDS_API_URL#g /usr/share/nginx/html/main.*.js && nginx -g 'daemon off;'
