@@ -194,7 +194,7 @@ export class ViewStandardsComponent implements OnInit {
       email: ['', Validators.compose([Validators.required, CustomValidators.email])],
       occupation: ['', Validators.compose([Validators.required])],
       purpose: ["", Validators.compose([Validators.required])],
-      phone_number: ["", Validators.compose([Validators.required, this.phoneNumberValidator])],
+      phoneNumber: ["", Validators.compose([Validators.required, this.phoneNumberValidator])],
     });
     this.forms = fb.group({
       comment: ["", Validators.compose([Validators.required])],
@@ -420,9 +420,9 @@ export class ViewStandardsComponent implements OnInit {
       comment: this.forms.value.comment,
     };
     console.log(model)
-    this.httpService.customerPortalPost(`api/v1/portal/comment`, model).subscribe(
+    this.httpService.customerPortalPosts(`standard/portal/comments/add`, model).subscribe(
       (result: any) => {
-        if (result.status === '00') {
+        if (result.status === 200) {
           this.isLoading = false;
           this.activeModal.close('success');
           Swal.fire('Comment Added Successfully',
@@ -468,17 +468,18 @@ export class ViewStandardsComponent implements OnInit {
   onRequestStandards() {
     this.isLoading = true;
     const model = {
-      standard_id: this.standardId,
+      standardId: this.standardId,
       name: this.form.value.name,
-      phone_number: this.form.value.phone_number,
+      phoneNumber: this.form.value.phoneNumber,
       occupation: this.form.value.occupation,
       purpose: this.form.value.purpose,
       email: this.form.value.email,
     };
+
     console.log(model)
-    this.httpService.customerPortalPost(`api/v1/portal/requestStandard`, model).subscribe(
+    this.httpService.customerPortalPosts(`standard/request`, model).subscribe(
       (result: any) => {
-        if (result.status === '00') {
+        if (result.status === 200) {
           this.isLoading = false;
           this.hideRequestForm()
           this.loadData()
