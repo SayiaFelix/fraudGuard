@@ -34,7 +34,7 @@
                       placeholder="Phone Number*" class="form-control validation-field border-0 w-100" ng2TelInput
                       data-initial-country="ke">
                     <small class="text-danger" *ngIf="f.phone_number.touched && f.phone_number.errors?.required">Field Required</small> <br>
-                    <small class="text-danger" *ngIf="f.phone_number.touched && f.phone_number.errors?.invalidPhoneNumber">Phone Number: 254 *** *** ***</small>
+                    <small class="text-danger" *ngIf="f.phone_number.touched && f.phone_number.errors?.invalidPhoneNumber">Phone Number: 254 *** *** *** or 07 **** ****</small>
                   </div>
                   <div class="form-group mt-2">
                     <input formControlName="subject" type="text" class="form-control validation-field border-0"
@@ -199,7 +199,7 @@
       </div>
     </div>
     <div *ngIf="results.length === 0">
-      <h5 class="d-flex justify-content-center"
+      <h5 class="d-flex justify-content-start"
       style="color: #a90202; font-family: 'Mulish';font-weight: 600;font-size: 15px; text-transform: none;">No REPORTS & RESULTS Yet.</h5>
     </div>
     <div class="d-flex justify-content-end">

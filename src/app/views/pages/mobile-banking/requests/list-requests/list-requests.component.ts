@@ -34,6 +34,7 @@ export class ListRequestsComponent implements OnInit {
   errorMessage: string;
   modalRef: NgbModalRef;
   loading:boolean;
+  showLeaveCommentForm: boolean = false;
   perPage = 100;
   page = 1
   standards: any = [
@@ -109,12 +110,11 @@ export class ListRequestsComponent implements OnInit {
 
   phoneNumberValidator(control: AbstractControl): { [key: string]: any } | null {
     const phoneNumber = control.value;
-    // Regular expression to check if the phone number starts with "254" and is followed by 9 digits.
-    const phonePattern = /^254\d{9}$/;
-  
+    const phonePattern = /^(254\d{9}|0\d{9})$/;
     return phonePattern.test(phoneNumber) ? null : { invalidPhoneNumber: true };
   }
-  showLeaveCommentForm: boolean = false;
+
+
   toggleLeaveCommentForm() {
     if (this.showLeaveCommentForm) {
       this.hideLeaveCommentForm();
@@ -130,12 +130,6 @@ export class ListRequestsComponent implements OnInit {
     return this.form.controls;
   }
 
-  // openStandardInNewTab(standardId: number) {
-  //   const baseUrl = this.appBaseHref || 'tra-customer-portal';
-  //   const urlTree = this.router.createUrlTree([baseUrl, 'standards', standardId]);
-  //   const url = this.router.serializeUrl(urlTree);
-  //   window.open(url, '_blank');
-  // }
 
   openStandardInNewTab(standardId: number) {
     const baseUrl = this.appBaseHref || 'tra-customer-portal';

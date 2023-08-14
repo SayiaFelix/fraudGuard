@@ -110,11 +110,10 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
 
   phoneNumberValidator(control: AbstractControl): { [key: string]: any } | null {
     const phoneNumber = control.value;
-    // Regular expression to check if the phone number starts with "254" and is followed by 9 digits.
-    const phonePattern = /^254\d{9}$/;
-
+    const phonePattern = /^(254\d{9}|0\d{9})$/;
     return phonePattern.test(phoneNumber) ? null : { invalidPhoneNumber: true };
   }
+  
   get f(): { [p: string]: AbstractControl } {
     return this.form.controls;
   }

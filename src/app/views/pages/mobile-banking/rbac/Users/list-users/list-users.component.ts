@@ -33,62 +33,62 @@ export class ListUsersComponent implements OnInit {
   showFormImage = 'assets/images/chats.png'
   // assessors: any =[];
   assessors: any = [
-    {
-      id: '1',
-      existingImage: "assets/images/p1.png",
-      title:"Assessor",
-      first_name: 'Jane Akinyi',
-      bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    },
-    {
-      id: '2',
-      existingImage: "assets/images/p2.png",
-      title:"Assessor",
-      first_name: 'Jane Akinyi',
-      bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    },
-    {
-      id: '3',
-      existingImage: "assets/images/p3.png",
-      title:"Assessor",
-      first_name: 'Jane Akinyi',
-      bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    },
-    {
-      id: '4',
-      existingImage: "assets/images/p4.png",
-      title:"Assessor",
-      first_name: 'Jane Akinyi',
-      bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    },
-    {
-      id: '5',
-      existingImage: "assets/images/p5.png",
-      title:"Assessor",
-      first_name: ' Jane Akinyi',
-      bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    },
-    {
-      id: '6',
-      existingImage: "assets/images/p6.png",
-      title:"Assessor",
-      first_name: 'Jane Akinyi',
-      bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    },
-    {
-      id: '7',
-      existingImage: "assets/images/p7.png",
-      title:"Assessor",
-      first_name: 'Jane Akinyi',
-      bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    },
-    {
-      id: '8',
-      existingImage: "assets/images/p8.png",
-      title:"Assessor",
-      first_name: 'Jane Akinyi',
-      bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    },
+    // {
+    //   id: '1',
+    //   existingImage: "assets/images/p1.png",
+    //   title:"Assessor",
+    //   first_name: 'Jane Akinyi',
+    //   bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    // },
+    // {
+    //   id: '2',
+    //   existingImage: "assets/images/p2.png",
+    //   title:"Assessor",
+    //   first_name: 'Jane Akinyi',
+    //   bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    // },
+    // {
+    //   id: '3',
+    //   existingImage: "assets/images/p3.png",
+    //   title:"Assessor",
+    //   first_name: 'Jane Akinyi',
+    //   bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    // },
+    // {
+    //   id: '4',
+    //   existingImage: "assets/images/p4.png",
+    //   title:"Assessor",
+    //   first_name: 'Jane Akinyi',
+    //   bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    // },
+    // {
+    //   id: '5',
+    //   existingImage: "assets/images/p5.png",
+    //   title:"Assessor",
+    //   first_name: ' Jane Akinyi',
+    //   bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    // },
+    // {
+    //   id: '6',
+    //   existingImage: "assets/images/p6.png",
+    //   title:"Assessor",
+    //   first_name: 'Jane Akinyi',
+    //   bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    // },
+    // {
+    //   id: '7',
+    //   existingImage: "assets/images/p7.png",
+    //   title:"Assessor",
+    //   first_name: 'Jane Akinyi',
+    //   bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    // },
+    // {
+    //   id: '8',
+    //   existingImage: "assets/images/p8.png",
+    //   title:"Assessor",
+    //   first_name: 'Jane Akinyi',
+    //   bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    // },
   ]
   columns = [
     { name: 'ID', prop: 'frontendId' },
@@ -142,13 +142,13 @@ export class ListUsersComponent implements OnInit {
   get f(): { [p: string]: AbstractControl } {
     return this.form.controls;
   }
+
   phoneNumberValidator(control: AbstractControl): { [key: string]: any } | null {
     const phoneNumber = control.value;
-    // Regular expression to check if the phone number starts with "254" and is followed by 9 digits.
-    const phonePattern = /^254\d{9}$/;
-  
+    const phonePattern = /^(254\d{9}|0\d{9})$/;
     return phonePattern.test(phoneNumber) ? null : { invalidPhoneNumber: true };
   }
+
   onleaveComment() {
     // this.isLoading = true;
     const model = {
