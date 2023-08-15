@@ -11,6 +11,7 @@
 }
 .login-row {
   overflow-x: hidden;
+  overflow-y: hidden;
   height:100vh;
 }
 .body {
@@ -36,14 +37,14 @@
 
 .my-custom-success-alert {
   border: none;
-  color: green;    
-  background-color: white; 
+  color: green;
+  background-color: white;
   font-size: 16px;
 }
 
 .error-alert{
   border: none;
-  color: red;    
-  background-color: white; 
+  color: red;
+  background-color: white;
   font-size: 16px;
 }
