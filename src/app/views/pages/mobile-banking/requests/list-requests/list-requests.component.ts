@@ -38,30 +38,30 @@ export class ListRequestsComponent implements OnInit {
   perPage = 100;
   page = 1
   standards: any = [
-    {
-      id: '1',
-      existingImage: "assets/images/3.png",
-      title: 'Accommodation And Catering Establishment',
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    },
-    {
-      id: '2',
-      existingImage: "assets/images/2.png",
-      title: 'Meetings, Incentives, Conferences & Exhibitions Facilities And Services',
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    },
-    {
-      id: '3',
-      existingImage: "assets/images/6.jpg",
-      title: 'Standards For Food Safety And Hygiene Standards',
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    },
-    {
-      id: '4',
-      existingImage: "assets/images/4.jpg",
-      title: 'Standards For Safety And Security Standards',
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    },
+    // {
+    //   id: '1',
+    //   existingImage: "assets/images/3.png",
+    //   title: 'Accommodation And Catering Establishment',
+    //   description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    // },
+    // {
+    //   id: '2',
+    //   existingImage: "assets/images/2.png",
+    //   title: 'Meetings, Incentives, Conferences & Exhibitions Facilities And Services',
+    //   description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    // },
+    // {
+    //   id: '3',
+    //   existingImage: "assets/images/6.jpg",
+    //   title: 'Standards For Food Safety And Hygiene Standards',
+    //   description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    // },
+    // {
+    //   id: '4',
+    //   existingImage: "assets/images/4.jpg",
+    //   title: 'Standards For Safety And Security Standards',
+    //   description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
+    // },
     // {
     //   id: '5',
     //   existingImage: "assets/images/5.jpg",

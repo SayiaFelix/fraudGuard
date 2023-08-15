@@ -24,31 +24,38 @@
                     <small class="text-danger" *ngIf="f.name.touched && f.name.errors?.required">Field Required</small>
                   </div>
                   <div class="form-group mt-2">
-                    <input formControlName="email" type="email" class="form-control validation-field border-0" id="email"
-                      placeholder="Your email address*">
-                    <small class="text-danger" *ngIf="f.email.touched && f.email.errors?.required">Field Required</small>
-                    <small class="text-danger" *ngIf="f.email.touched && f.email.errors?.email">Email Format Required</small>
+                    <input formControlName="email" type="email" class="form-control validation-field border-0"
+                      id="email" placeholder="Your email address*">
+                    <small class="text-danger" *ngIf="f.email.touched && f.email.errors?.required">Field
+                      Required</small>
+                    <small class="text-danger" *ngIf="f.email.touched && f.email.errors?.email">Email Format
+                      Required</small>
                   </div>
                   <div class="form-group mt-2">
                     <input type="text" name="tel" formControlName="phone_number" id="phoneNumber"
                       placeholder="Phone Number*" class="form-control validation-field border-0 w-100" ng2TelInput
                       data-initial-country="ke">
-                    <small class="text-danger" *ngIf="f.phone_number.touched && f.phone_number.errors?.required">Field Required</small> <br>
-                    <small class="text-danger" *ngIf="f.phone_number.touched && f.phone_number.errors?.invalidPhoneNumber">Phone Number: 254 *** *** *** or 07 **** ****</small>
+                    <small class="text-danger" *ngIf="f.phone_number.touched && f.phone_number.errors?.required">Field
+                      Required</small> <br>
+                    <small class="text-danger"
+                      *ngIf="f.phone_number.touched && f.phone_number.errors?.invalidPhoneNumber">Phone Number: 254 ***
+                      *** *** or 07 **** ****</small>
                   </div>
                   <div class="form-group mt-2">
                     <input formControlName="subject" type="text" class="form-control validation-field border-0"
                       id="occupation" placeholder="Subject">
-                    <small class="text-danger" *ngIf="f.subject.touched && f.subject.errors?.required">Field Required</small>
+                    <small class="text-danger" *ngIf="f.subject.touched && f.subject.errors?.required">Field
+                      Required</small>
                   </div>
                   <div class="form-group mt-2">
-                    <textarea formControlName="message" type="text" id="message" cols="15" rows="3" 
-                    placeholder="Message" class="form-control validation-field border-0"></textarea>
-                    <small class="text-danger" *ngIf="f.message.touched && f.message.errors?.required">Field Required</small>
+                    <textarea formControlName="message" type="text" id="message" cols="15" rows="3"
+                      placeholder="Message" class="form-control validation-field border-0"></textarea>
+                    <small class="text-danger" *ngIf="f.message.touched && f.message.errors?.required">Field
+                      Required</small>
                   </div>
                   <div class="col-12 bg-white text-center py-1 mt-3 mb-2">
-                    <button [disabled]="!form.valid" style="width: 100%; border: none;" class="btn btn-block bronchure-btn transition"
-                      type="submit">
+                    <button [disabled]="!form.valid" style="width: 100%; border: none;"
+                      class="btn btn-block bronchure-btn transition" type="submit">
                       <span style="color: white;">SEND</span>
                     </button>
                   </div>
@@ -72,30 +79,30 @@
     <div class="col-md-12 col-lg-12 col-xl-12 col-sm-12">
       <div class="image-container card border-0 box-shadow">
         <img class="card-img-top img-fluid" style="max-width: 100%; max-height: 300px; border-radius: 16px;"
-          [src]="uploadedImageUrl || 'assets/images/sd.png'" 
-          (error)="handleImageError()" 
-          [ngClass]="{'uploaded': uploadedImageUrl, 'centered': !uploadedImageUrl}" 
-        /> 
+          [src]="uploadedImageUrl || 'assets/images/sd.png'" (error)="handleImageError()"
+          [ngClass]="{'uploaded': uploadedImageUrl, 'centered': !uploadedImageUrl}" />
         <div *ngIf="uploadedImageUrl">
           <div class="label-container">
             <label for="imageUpload" class="input-container active">
               <img class="card-img-top img-fluid" style="width: 80px; max-height: 80px;" src="assets/images/sdb.png" />
-              <input type="file" id="imageUpload" (change)="handleImageUpload($event)" accept="image/*" style="display: none;" />
+              <input type="file" id="imageUpload" (change)="handleImageUpload($event)" accept="image/*"
+                style="display: none;" />
             </label>
           </div>
         </div>
         <div *ngIf="!uploadedImageUrl">
           <label for="imageUpload" class="input-container">
-            <img class="card-img-top img-fluid" style="width: 40px; max-height: 40px;" src="assets/images/sdb.png" /><br>
+            <img class="card-img-top img-fluid" style="width: 40px; max-height: 40px;"
+              src="assets/images/sdb.png" /><br>
             <span class="mt-1">Click here to upload an image</span>
             <input type="file" id="imageUpload" (change)="handleImageUpload($event)" accept="image/*" />
           </label>
         </div>
       </div>
-    </div>    
+    </div>
   </div>
-  <div class="land">
-    <div class="row d-flex justify-content-between">
+  <div class="land  d-flex justify-content-around flex-column">
+    <div class="row" style="padding: 16px 24px; align-items: center;">
       <div class="col mt-2 p-2" style="border-right: 2px solid  rgba(182, 147, 220, 0.80); height: 100px;">
         <div class="box-shadow"
           style="height: 97px ; width: 97px; border-radius: 50%;border: 2px solid #CCC; align-items: center;">
@@ -130,79 +137,93 @@
         <h2 class="content">{{businessPhone}}</h2>
       </div>
     </div>
-  </div>
-  <div class="d-flex justify-content-start">
-    <h2 style="color: var(--green-blue, #2268AA);font-family: Mulish;font-size: 17px;font-style: normal;font-weight: 600;line-height: normal; width: 90%; margin-left: 5%; margin-top: 6%;">Download Certificate Earned</h2>
-  </div>
-  <div
-    style="align-items: center; border-radius: 16px; background: #D0DDF0; width: 90%; margin-left: 5%;">
-    <div class="row d-flex justify-content-between mt-2" style="padding: 24px 24px;">
-      <div class="col-md-3 col-sm-3 col-lg-3 col-xl-3" style="padding:18px 0px;">
-        <div class="card border-0 box-shadow" style="height: 100px ; width: 150px;">
-          <img class="card-img-top img-fluid" style="height: 100px; width: 150px;"
-            src="assets/images/certificate.png" />
+    <div class="d-flex justify-content-start mt-3">
+      <h2
+        style="color: var(--green-blue, #2268AA);font-family: Mulish;font-size: 17px;font-style: normal;font-weight: 600;line-height: normal;">
+        Download Certificate Earned</h2>
+    </div>
+    <div class="mt-4" style="align-items: center; border-radius: 16px; background: #D0DDF0;">
+      <div class="row d-flex justify-content-between mt-2" style="padding: 24px 24px;">
+        <div class="col-md-3 col-sm-3 col-lg-3 col-xl-3" style="padding:18px 0px;">
+          <div class="card border-0 box-shadow" style="height: 100px ; width: 150px;">
+            <img class="card-img-top img-fluid" style="height: 100px; width: 150px;"
+              src="assets/images/certificate.png" />
+          </div>
         </div>
-      </div>
-      <div class="col-md-6 col-sm-6 col-lg-6 col-xl-6" style="font-family: Mulish;font-style: normal;font-weight: 600;line-height: normal;">
-        <p style="color: var(--dark-purple, #1E0F2E);font-size: 15px;">LICENCE NO. {{licenceNumber}}</p>
-        <h2 style="color: var(--green-blue, #2268AA);font-size: 17px;">Tourism Regulatory Authority (TRA) LICENCE
-          Certificate Earned</h2>
-        <h4 style="color: var(--dark-purple, #1E0F2E);font-size: 17px;">Certificate expires | 24 September 2023 </h4>
-      </div>
-      <div class="col-md-3 col-sm-3 col-lg-3 col-xl-3  d-flex justify-content-end" style="padding:50px 0px;">
-        <a [href]="downloadLink" download>
-          <button  class="btn btn-md login-btn transition" type="submit">
-            <a style="text-decoration: none" class="transition">
-              <span style="color: #f8f8f8; font-weight: 700;letter-spacing: 0.08em;font-size: 12px;
-                      ">DOWNLOAD LICENCE CERTIFICATE</span></a>
-          </button>
-        </a>
-        <!-- <a (click)=getCertificate() style="text-decoration: none">
-          <button class="btn btn-md login-btn transition" type="submit">
-            <a style="text-decoration: none" class="transition">
-              <span style="color: #f8f8f8; font-weight: 700;letter-spacing: 0.08em;font-size: 12px;
-                      ">DOWNLOAD LICENCE CERTIFICATE</span></a>
-          </button>
-        </a> -->
-     
+        <div class="col-md-6 col-sm-6 col-lg-6 col-xl-6"
+          style="font-family: Mulish;font-style: normal;font-weight: 600;line-height: normal;">
+          <p style="color: var(--dark-purple, #1E0F2E);font-size: 15px;">LICENCE NO. {{licenceNumber}}</p>
+          <h2 style="color: var(--green-blue, #2268AA);font-size: 17px;">Tourism Regulatory Authority (TRA) LICENCE
+            Certificate Earned</h2>
+          <h4 style="color: var(--dark-purple, #1E0F2E);font-size: 17px;">Certificate expires | 24 September 2023 </h4>
+        </div>
+        <div class="col-md-3 col-sm-3 col-lg-3 col-xl-3  d-flex justify-content-end" style="padding:50px 0px;">
+          <a [href]="downloadLink" download>
+            <button class="btn btn-md login-btn transition" type="submit">
+              <a style="text-decoration: none" class="transition">
+                <span style="color: #f8f8f8; font-weight: 700;letter-spacing: 0.08em;font-size: 12px;
+                        ">DOWNLOAD LICENCE CERTIFICATE</span></a>
+            </button>
+          </a>
+          <!-- <a (click)=getCertificate() style="text-decoration: none">
+            <button class="btn btn-md login-btn transition" type="submit">
+              <a style="text-decoration: none" class="transition">
+                <span style="color: #f8f8f8; font-weight: 700;letter-spacing: 0.08em;font-size: 12px;
+                        ">DOWNLOAD LICENCE CERTIFICATE</span></a>
+            </button>
+          </a> -->
+
+        </div>
       </div>
     </div>
-  </div>
-  <div *ngFor="let std of results"  class="mt-2"
-    style="align-items: center; border-radius: 16px; background: #D0DDF0; width: 90%; margin-left: 5%;">
-    <div class="row d-flex justify-content-between mt-2" style="padding: 24px 24px;">
-      <div class="col-md-3 col-sm-3 col-lg-3 col-xl-3" style="padding:18px 0px;">
-        <div class="card border-0 box-shadow" style="height: 100px ; width: 150px;">
-          <img class="card-img-top img-fluid" style="height: 100px; width: 150px;"
-            src="assets/images/certificate.png" />
+    <div *ngFor="let std of results" class="mt-2"
+      style="align-items: center; border-radius: 16px; background: #D0DDF0; width: 90%; margin-left: 5%;">
+      <div class="row d-flex justify-content-between mt-2" style="padding: 24px 24px;">
+        <div class="col-md-3 col-sm-3 col-lg-3 col-xl-3" style="padding:18px 0px;">
+          <div class="card border-0 box-shadow" style="height: 100px ; width: 150px;">
+            <img class="card-img-top img-fluid" style="height: 100px; width: 150px;"
+              src="assets/images/certificate.png" />
             <!-- <img class="img-fluid card-img-top" [src]="existingImage" style="height: 100px; width: 150px;" /> -->
+          </div>
         </div>
-      </div>
-      <div class="col-md-6 col-sm-6 col-lg-6 col-xl-6" style="font-family: Mulish;font-style: normal;font-weight: 600;line-height: normal;">
-        <p style="color: var(--dark-purple, #1E0F2E);font-size: 15px;">RESULT NO. <b> {{std.resultRef}}</b> </p>
-        <h2 style="color: var(--green-blue, #2268AA);font-size: 17px;">Tourism Regulatory Authority (TRA) {{std.taskType}}
-          Certificate Earned</h2>
-        <h4 style="color: var(--dark-purple, #1E0F2E);font-size: 17px;">Certificate expires | {{ formatDate(std.createdOn) }} </h4>
-      </div>
-      <div class="col-md-3 col-sm-3 col-lg-3 col-xl-3  d-flex justify-content-end" style="padding:50px 0px;">
-        <!-- <a (click)=getCertificate() style="text-decoration: none">
+        <div class="col-md-6 col-sm-6 col-lg-6 col-xl-6"
+          style="font-family: Mulish;font-style: normal;font-weight: 600;line-height: normal;">
+          <p style="color: var(--dark-purple, #1E0F2E);font-size: 15px;">RESULT NO. <b> {{std.resultRef}}</b> </p>
+          <h2 style="color: var(--green-blue, #2268AA);font-size: 17px;">Tourism Regulatory Authority (TRA)
+            {{std.taskType}}
+            Certificate Earned</h2>
+          <h4 style="color: var(--dark-purple, #1E0F2E);font-size: 17px;">Certificate expires | {{
+            formatDate(std.createdOn) }} </h4>
+        </div>
+        <div class="col-md-3 col-sm-3 col-lg-3 col-xl-3  d-flex justify-content-end" style="padding:50px 0px;">
+          <!-- <a (click)=getCertificate() style="text-decoration: none">
           <button class="btn btn-md login-btn transition" type="submit">
             <a style="text-decoration: none" class="transition">
               <span style="color: #f8f8f8; font-weight: 700;letter-spacing: 0.08em;font-size: 12px;
                       ">DOWNLOAD ACCREDITATION CERTIFICATE</span></a>
           </button>
         </a> -->
-        <button class="btn btn-md login-btn transition" (click)="getCertificate()">
-          <span style="color: #f8f8f8; font-weight: 700; letter-spacing: 0.08em; font-size: 12px;">
-            DOWNLOAD {{std.taskType}} CERTIFICATE
-          </span>
-        </button>
+          <button class="btn btn-md login-btn transition" (click)="getCertificate()">
+            <span style="color: #f8f8f8; font-weight: 700; letter-spacing: 0.08em; font-size: 12px;">
+              DOWNLOAD {{std.taskType}} CERTIFICATE
+            </span>
+          </button>
+        </div>
       </div>
     </div>
+    <br><br>
+    <footer
+      class="footer d-flex flex-column flex-md-row align-items-center justify-content-between px-4 py-3 border-top small">
+      <p class="text-muted mb-1 mb-md-0">Copyright © 2023 <a href="https://www.tra.go.ke/"
+          style="color: #6d36a8; font-family: 'Muli';" target="_blank">TRA</a></p>
+      <p class=""
+        style="color: #6d36a8; font-family: 'Muli'; font-style: normal; font-weight: 700; font-size: 13px; letter-spacing: 0.08em;">
+        Tourism Regulatory Authority</p>
+    </footer>
   </div>
-
   <div class="d-flex justify-content-end">
-    <div style="position: fixed; bottom: 9%; right:3%;" (click)="toggleLeaveCommentForm()" class="d-flex justify-content-around">
+    <div style="position: fixed; bottom: 9%; right:3%;" (click)="toggleLeaveCommentForm()"
+      class="d-flex justify-content-around">
       <button *ngIf="!showLeaveCommentForm" class="btn btn-sm transition"
         style="border-radius: 64px;background: var(--green-blue, #2268AA); margin-right:10px;" type="submit">
         <a style="text-decoration: none" class="transition">
@@ -210,8 +231,7 @@
             style="color: var(--seasalt, #F8F8F8);text-align: center;font-family: Mulish;font-size: 12px;font-style: normal;font-weight: 700;line-height: normal;letter-spacing: 1.12px;text-transform: uppercase;">customer
             inquiry</span></a>
       </button>
-      <div
-        style="width: 50px; height: 50px; border-radius: 50%; background-color: #D0DDF0;;"
+      <div style="width: 50px; height: 50px; border-radius: 50%; background-color: #D0DDF0;;"
         class="card-header d-flex align-items-center border-0">
         <p style="color:#2268AA;  font-size: 30px; margin-left: -13px;">
           <img class="img-fluid" style="position: absolute; bottom: 19%" src="assets/images/chats.png" width="30"
@@ -220,13 +240,5 @@
       </div>
     </div>
   </div>
+
 </div>
-<br><br>
-<footer
-  class="footer d-flex flex-column flex-md-row align-items-center justify-content-between px-4 py-3 border-top small">
-  <p class="text-muted mb-1 mb-md-0">Copyright © 2023 <a href="https://www.tra.go.ke/"
-      style="color: #6d36a8; font-family: 'Muli';" target="_blank">TRA</a></p>
-  <p class=""
-    style="color: #6d36a8; font-family: 'Muli'; font-style: normal; font-weight: 700; font-size: 13px; letter-spacing: 0.08em;">
-    Tourism Regulatory Authority</p>
-</footer>

@@ -1,8 +1,8 @@
 <div class="card border-0 box-shadow">
   <div class="d-flex justify-content-start mt-3" style="margin-bottom: -40px; padding-left: 3%;">
     <div class="card-title">
-      <h3 style="color: #1E0F2E; font-family: 'Mulish';font-weight: 600;font-size: 20px; text-transform: none;">All
-        Standards</h3>
+      <h5 style="color: #1E0F2E; font-family: 'Mulish';font-weight: 600;font-size: 20px; text-transform: none;">All
+        Standards</h5>
     </div>
   </div>
   <ng-container *ngIf="showLeaveCommentForm">
@@ -92,7 +92,7 @@
                     <img class="img-fluid" [src]="std.existingIcon" [style.width]="std.iconWidth" [style.height]="std.iconHeight" />
                   </div>
                 </div>
-                <br><br><br>
+                <br><br>
                 <div style="position: relative;">
                   <div class="mt-3">
                     <p style="
@@ -120,13 +120,12 @@
               </div>
             </div>
           </ng-container>
-          <!-- <ng-template #noStandards>
-            <div class="col-md-12 mt-2">
-              <h5 class="d-flex justify-content-start"
-                style="color: #a90202; font-family: 'Mulish';font-weight: 600;font-size: 15px; text-transform: none;">No
-                Standards </h5>
+            <div *ngIf="standards.length === 0;">
+              <h5 class="d-flex justify-content-start mt-4"
+              style="color: #a90202; font-family: 'Mulish';font-weight: 600;font-size: 16px; text-transform: none;">No
+              Standards</h5>
+          
             </div>
-          </ng-template> -->
         </div>
       </div>
     </div>
