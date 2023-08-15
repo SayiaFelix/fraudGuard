@@ -19,7 +19,6 @@ export class CheckTokenValidityInterceptor implements HttpInterceptor {
   constructor(
     private router: Router,
      private toastr: ToastrService,
-    //  private toast: NgToastService,
     private authService: AuthService,
     private globalService: GlobalService) {;
     }
@@ -40,7 +39,7 @@ export class CheckTokenValidityInterceptor implements HttpInterceptor {
         if (helper.isTokenExpired(token)) {
           // this.toastr.warning('Logged Out! Session Expired');
           // this.authService.logout();
-          this.router.navigate(['/auth/login']);
+          // this.router.navigate(['/auth/login']);
         }else{
           
         }
@@ -53,6 +52,8 @@ export class CheckTokenValidityInterceptor implements HttpInterceptor {
         })
       );
     }
+
+    
 
     // intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     //      //   const isAuthRoute = req.url.includes('/auth');

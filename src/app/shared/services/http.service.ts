@@ -327,7 +327,7 @@ export class HttpService {
     );
   }
 
-  private getHeadersFile(): any {
+ getHeadersFile(): any {
     return {
       headers: new HttpHeaders({
         Authorization: 'Bearer ' + this.globalService.getToken(),
@@ -335,7 +335,7 @@ export class HttpService {
     };
   }
 
-  private getHeaders(): any {
+getHeaders(): any {
     return {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
@@ -344,7 +344,7 @@ export class HttpService {
     };
   }
 
-  private getFormHeaders(): any {
+getFormHeaders(): any {
     return {
       headers: new HttpHeaders({
         // 'Content-Type': 'multipart/form-data',
