@@ -19,6 +19,7 @@ export class CheckTokenValidityInterceptor implements HttpInterceptor {
   constructor(
     private router: Router,
      private toastr: ToastrService,
+    //  private toast: NgToastService,
     private authService: AuthService,
     private globalService: GlobalService) {;
     }
@@ -37,11 +38,9 @@ export class CheckTokenValidityInterceptor implements HttpInterceptor {
       } else {
         const helper = new JwtHelperService();
         if (helper.isTokenExpired(token)) {
-          // this.toastr.warning('Logged Out! Session Expired');
-          // this.authService.logout();
-          // this.router.navigate(['/auth/login']);
-        }else{
-          
+          this.toastr.warning('Logged Out! Session Expired');
+          this.authService.logout();
+          this.router.navigate(['/auth/login']);
         }
       }
       
@@ -52,29 +51,11 @@ export class CheckTokenValidityInterceptor implements HttpInterceptor {
         })
       );
     }
-
-    
-
-    // intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    //      //   const isAuthRoute = req.url.includes('/auth');
-    // //   const isStandardsRoute = req.url.includes('/standards/all-standards');
-  
-    // //   if (isAuthRoute || isStandardsRoute) {
-    // //     return next.handle(req);
-    // //   }
-    //   if (!this.isTokenValid()) {
-    //         // this.toastrService.warning('Logging you out', 'Your Token is expired');
-    //         // here remove the auth token
-    //         localStorage.clear();
-    //         this.router.navigate(['/auth/login']);
-    //     } else {
-    //   }
-    //   return next.handle(req);
-    // }
   
     isTokenValid() {
       const helper = new JwtHelperService();
       const token = this.globalService.getToken();
+      
       if (!token) {
         console.log("No token available");
         return false;

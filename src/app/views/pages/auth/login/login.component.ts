@@ -9,7 +9,7 @@ import {
 import { CustomValidators } from 'ngx-custom-validators';
 import { HttpParams } from '@angular/common/http';
 
-import {catchError, concat, Observable, of, throwError} from 'rxjs';
+import { catchError, concat, Observable, of, throwError } from 'rxjs';
 import { delay, map } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 import { HttpService } from 'src/app/shared/services/http.service';
@@ -43,7 +43,7 @@ export class LoginComponent implements OnInit {
   constructor(
     private translate: TranslateService,
     private router: Router,
-    private route: ActivatedRoute, 
+    private route: ActivatedRoute,
     private authservice: AuthService,
     private httpService: HttpService,
     fb: FormBuilder,
@@ -71,6 +71,46 @@ export class LoginComponent implements OnInit {
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
 
+  // onSubmit(e: Event) {
+  //   this.hasError = false;
+  //   this.isLoading = true;
+  //   e.preventDefault();
+
+  //   const model = {
+  //     email: this.form.value.email,
+  //     password:this.form.value.password
+  //   }
+  //   this.loginResponse$ = this.httpService
+  //     .customerPortalAuth('api/v1/auth/login', model)
+  //     .pipe(
+  //       catchError((error: any) => {
+  //         console.log(error);
+  //         this.hasError = error.message;
+  //         this.isLoading = false;
+  //         return throwError(error);
+  //       }),
+  //       map((result) => {
+  //         console.log(result)
+  //         this.isLoading = false;
+  //         if (result['status'] != '00') {
+  //           this.hasError = true;
+  //           this.toastr.success(result.message, 'Success!');  
+  //           this.errorMsg = result['error'];
+  //           setTimeout(() => {
+  //             this.hasError = false;
+  //             this.errorMsg = '';
+  //             this.form.reset();
+  //           }, 2000);
+  //         } else {
+  //           setTimeout(() => {
+  //             this.router.navigate(['/dashboard']);
+  //           }, 2000);
+  //           return result;
+  //         }
+  //       })
+  //     );
+  // }
+
   onSubmit(e: Event) {
     this.hasError = false;
     this.isLoading = true;
@@ -78,7 +118,7 @@ export class LoginComponent implements OnInit {
 
     const model = {
       email: this.form.value.email,
-      password:this.form.value.password
+      password: this.form.value.password
     }
     this.loginResponse$ = this.httpService
       .customerPortalAuth('api/v1/auth/login', model)
@@ -94,23 +134,54 @@ export class LoginComponent implements OnInit {
           this.isLoading = false;
           if (result['status'] != '00') {
             this.hasError = true;
-            this.toastr.success(result.message, 'Success!');  
+            this.toastr.success(result.message, 'Success!');
             this.errorMsg = result['error'];
             setTimeout(() => {
               this.hasError = false;
               this.errorMsg = '';
               this.form.reset();
-            }, 2000);
-          } else {
-            setTimeout(() => {
-              this.router.navigate(['/dashboard']);
-            }, 2000);
-            return result;
+            }, 3000);
+          }else {
+            if (result['data']['blocked'] == true) {
+              this.hasError = true;
+              this.errorMsg = result['error'];
+              setTimeout(() => {
+                this.hasError = false;
+                this.errorMsg = '';
+                this.form.reset();
+              }, 2000);
+            } else {
+              if (result['data']['firstTimeLogin'] == true) {
+                setTimeout(() => {
+                  this.router.navigate(['/auth/change-password']);
+                }, 2000);
+              } else {
+                setTimeout(() => {
+                  this.router.navigate(['/dashboard']);
+                }, 2000);
+                return result;
+              }
+            }
+
           }
+      
+          // if (result['status'] != '00') {
+          //   this.hasError = true;
+          //   this.errorMsg = result['error'];
+          //   setTimeout(() => {
+          //     this.hasError = false;
+          //     this.errorMsg = '';
+          //     this.form.reset();
+          //   }, 2000);
+          // } else {
+          //   setTimeout(() => {
+          //     this.router.navigate(['/dashboard']);
+          //   }, 2000);
+          //   return result;
+          // }
         })
       );
   }
-
   toggleShowPassword() {
     this.showingPassword = !this.showingPassword;
     if (this.showingPassword) {
@@ -149,12 +220,12 @@ export class LoginComponent implements OnInit {
         localStorage.setItem('roles', res.data.roles);
 
       } else {
-        Swal.fire('Error',  'Unable to fetch user details.',  'error');
+        Swal.fire('Error', 'Unable to fetch user details.', 'error');
       }
     })
 
 
   }
-//   const tokenExpirationTime: Date =  // Get the token's expiration time from the token itself or the server response
-// this.authservice.setTokenExpiration(this.tokenExpirationTime);
+  //   const tokenExpirationTime: Date =  // Get the token's expiration time from the token itself or the server response
+  // this.authservice.setTokenExpiration(this.tokenExpirationTime);
 }
