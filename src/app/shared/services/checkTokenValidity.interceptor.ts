@@ -38,9 +38,11 @@ export class CheckTokenValidityInterceptor implements HttpInterceptor {
       } else {
         const helper = new JwtHelperService();
         if (helper.isTokenExpired(token)) {
-          this.toastr.warning('Logged Out! Session Expired');
-          this.authService.logout();
+          // this.toastr.warning('Logged Out! Session Expired');
+          // this.authService.logout();
           this.router.navigate(['/auth/login']);
+        }else{
+          
         }
       }
       
@@ -51,6 +53,23 @@ export class CheckTokenValidityInterceptor implements HttpInterceptor {
         })
       );
     }
+
+    // intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    //      //   const isAuthRoute = req.url.includes('/auth');
+    // //   const isStandardsRoute = req.url.includes('/standards/all-standards');
+  
+    // //   if (isAuthRoute || isStandardsRoute) {
+    // //     return next.handle(req);
+    // //   }
+    //   if (!this.isTokenValid()) {
+    //         // this.toastrService.warning('Logging you out', 'Your Token is expired');
+    //         // here remove the auth token
+    //         localStorage.clear();
+    //         this.router.navigate(['/auth/login']);
+    //     } else {
+    //   }
+    //   return next.handle(req);
+    // }
   
     isTokenValid() {
       const helper = new JwtHelperService();
