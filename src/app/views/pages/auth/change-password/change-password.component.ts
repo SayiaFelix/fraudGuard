@@ -92,6 +92,8 @@ export class ChangePasswordComponent implements OnInit {
     this.modalRef.componentInstance.body= "Do you want to Set this as your new password?";
     this.modalRef.result.then((result) => {
       if (result === 'success') {
+        this.hasError = false;
+        this.isLoading = true;
         const model = {
           resetToken: this.form.value.resetToken,
           password: this.form.value.password,
@@ -99,13 +101,24 @@ export class ChangePasswordComponent implements OnInit {
         };
         this.httpService.customerPortalAuth('api/v1/auth/reset-password', model).subscribe(
           (result: any) => {
-            if (result.status === '00') {
-              Swal.fire('Password Set',  'Password Set Successfully.',  'success')
-              // Navigate back to login screen.
-              this.router.navigate(["/auth/login"]);
+            if (result.status != '00') {
+              setTimeout(() => {
+                Swal.fire('Error',  'You have entered an incorrect password',  'error')
+                this.hasError = true;
+                this.errorMsg = result['error'];
+                this.form.reset()
+                this.isLoading = false;
+              }, 2000);
             } else {
-              Swal.fire('Error',  'You have entered an incorrect password',  'error')
+              setTimeout(() => {
+                Swal.fire('Password Set',  'Password Set Successfully.',  'success')
+                this.router.navigate(["/auth/login"]);
+                localStorage.setItem('isLoggedin', 'true');
+                this.isLoading = false;
+                this.form.reset()
+              }, 1000);
             }
+            this.isLoading = false;
           }
         );
       } else {
