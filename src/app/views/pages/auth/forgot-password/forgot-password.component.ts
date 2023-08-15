@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import {ConfirmDialogComponent} from "../../../../shared/components/confirm-dialog/confirm-dialog.component";
+import { ConfirmDialogComponent } from "../../../../shared/components/confirm-dialog/confirm-dialog.component";
 import Swal from "sweetalert2";
-import {NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
-import {HttpService} from "../../../../shared/services/http.service";
+import { NgbModal, NgbModalRef } from "@ng-bootstrap/ng-bootstrap";
+import { HttpService } from "../../../../shared/services/http.service";
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CustomValidators } from 'ngx-custom-validators';
 
@@ -16,20 +16,24 @@ export class ForgotPasswordComponent implements OnInit {
   public form: FormGroup;
   returnUrl: any;
   public modalRef: NgbModalRef;
+  errorMsg: string;
+  hasError: boolean = false;
+  hasSuccess: boolean = false;
+  isLoading: boolean = false;
 
   constructor(private router: Router,
-              private route: ActivatedRoute,
-              private httpService: HttpService,
-              private modalService: NgbModal,
-              fb: FormBuilder,
-              ) {
-                this.form = fb.group({
-                  email: [
-                    '',
-                    Validators.compose([Validators.required, CustomValidators.email]),
-                  ]
-                });
-               }
+    private route: ActivatedRoute,
+    private httpService: HttpService,
+    private modalService: NgbModal,
+    fb: FormBuilder,
+  ) {
+    this.form = fb.group({
+      email: [
+        '',
+        Validators.compose([Validators.required, CustomValidators.email]),
+      ]
+    });
+  }
 
   ngOnInit(): void {
     // get return url from route parameters or default to '/'
@@ -44,29 +48,41 @@ export class ForgotPasswordComponent implements OnInit {
 
   }
 
-  resetPassword(){
-    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+  resetPassword() {
+
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, { centered: true });
     this.modalRef.componentInstance.title = 'Reset Password';
 
-    this.modalRef.componentInstance.body= "Do you want to Reset password for this email address?";
+    this.modalRef.componentInstance.body = "Do you want to Reset password for this email address?";
     this.modalRef.result.then((result) => {
       if (result === 'success') {
+        this.hasError = false;
+        this.hasSuccess = false
+        this.isLoading = true;
         const model = {
           email: this.form.value.email,
         };
-
         this.httpService.customerPortalAuth('api/v1/auth/forget-passsword', model).subscribe(
           (result: any) => {
-            if (result.status === "00") {
-              Swal.fire('Password Reset',  'Password Sent to Email.',  'success')
-              this.router.navigate(['/auth/change-password']);
-
-              // Navigate back to login screen.
-              localStorage.setItem('isLoggedin', 'true');
+            if (result.status != "00") {
+              setTimeout(() => {
+                Swal.fire('Password Reset', 'Fail to Sent to Password.', 'error')
+                this.hasError = true;
+                this.errorMsg = result['error'];
+                this.form.reset()
+                this.isLoading = false;
+              }, 2000);
             } else {
-              Swal.fire('Password Reset',  'Fail to Sent to Password.',  'error')
-
+              setTimeout(() => {
+                Swal.fire('Password Reset', 'Password Sent to Email.', 'success')
+                this.router.navigate(['/auth/change-password']);
+                localStorage.setItem('isLoggedin', 'true');
+                this.hasSuccess = true
+                this.isLoading = false;
+                this.form.reset()
+              }, 1000);
             }
+            this.isLoading = false;
           }
         );
         // Swal.fire('Password Reset',  'Failed To Sent Password ,Try Again.',  'error')
