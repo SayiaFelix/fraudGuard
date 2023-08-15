@@ -67,7 +67,6 @@ export class RegisterComponent implements OnInit {
           if (result['status'] != '00') {
             this.hasError = true;
             this.errorMsg = result['message'];
-            // this.toastr.error('Activation Failed');
             setTimeout(() => {
               this.hasError = false;
               this.errorMsg = '';
@@ -75,7 +74,6 @@ export class RegisterComponent implements OnInit {
             }, 2000);
           } else {
             setTimeout(() => {
-              // this.toastr.success('Activation successfully');
               this.router.navigate(['/auth/first-time-password']);
             }, 1000);
             return result;
