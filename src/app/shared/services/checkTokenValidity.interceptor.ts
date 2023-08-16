@@ -44,7 +44,7 @@ export class CheckTokenValidityInterceptor implements HttpInterceptor {
       }
       return next.handle(req).pipe(
         catchError(error => {
-          console.log(error);
+          // console.log(error);
           return EMPTY; 
         })
       );

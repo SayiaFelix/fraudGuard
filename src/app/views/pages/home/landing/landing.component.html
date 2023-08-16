@@ -51,11 +51,11 @@
         <div style="margin-top: 3%; margin-left: 5px;">
           <img class="wd-30 ht-30 rounded-circle" src="./assets/images/user.png" alt="profile">
         </div>
-        <button style="margin-top: 1%; margin-left: 5px;" class="btn btn-sm login-btn transition" type="submit">
+        <button style="margin-top: 1%; margin-left: 5px;" class="btn btn-sm login-btn transition" type="submit" id="dashboardButton">
           <a routerLink="/dashboard" style="text-decoration: none" class="transition">
             <span style="
                color: var(--dark-purple, #1E0F2E);text-align: center;font-family: Muli;font-size: 11px;font-style: normal;font-weight: 700;line-height: normal;
-              ">DASHBOARD</span></a>
+              ">DASHBOARD</span></a><img id="loader" style="display: none;" class="pl-2" src="assets/images/loading.gif" alt="loading-gif">
         </button>
       </div>
     </div>
@@ -177,7 +177,7 @@
             <div class="row">
               <ng-container *ngFor="let std of standards">
                 <div [ngClass]="getColumnClass(standards.length)" class="mt-3 pt-2">
-                  <div [id]="std.id" (click)="viewStandard(std.id)">
+                  <div style="height:25%;" [id]="std.id" (click)="viewStandard(std.id)">
                     <div style="position: relative; display: inline-block;">
                       <div class="w-100">
                         <img class="img-fluid card-img-top" [src]="std.existingImage"
@@ -283,3 +283,19 @@
     </div>
   </div>
 </div>
+
+
+<script>
+  $(document).ready(function() {
+    $('#dashboardButton').click(function(e) {
+      e.preventDefault(); 
+
+      var $loader = $('#loader');
+      $loader.show(); 
+      setTimeout(function() {
+        $loader.hide();
+        window.location.href = $('#dashboardButton a').attr('routerLink');
+      }, 3000);
+    });
+  });
+</script>
