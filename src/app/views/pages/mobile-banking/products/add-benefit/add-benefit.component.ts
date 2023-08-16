@@ -180,7 +180,7 @@ export class AddBenefitComponent implements OnInit {
 
   createFormBuilder(questions: any[]): void {
     questions.forEach((question: any) => {
-      this.formRequest.addControl(`item-${question.id}-comment`, new FormControl('', Validators.required));
+      this.formRequest.addControl(`item-${question.id}-comment`, new FormControl(''));
       question.comment = `item-${question.id}-comment`;
       question.options.forEach((option: any) => {
         this.formRequest.addControl(`item-${question.id}-option${option.id}`, new FormControl('', Validators.required));
@@ -204,29 +204,6 @@ export class AddBenefitComponent implements OnInit {
     this.formRequest.controls[`${option.cName}`].setValue(option.selected);
   }
 
-
-  //   toggleCheckbox(mainQuestionIndex: number, optionIndex: number, selectedOption: string) {
-  //   const mainQuestion = this.questionnaireData.questions[mainQuestionIndex];
-  //   const option = mainQuestion.options[optionIndex];
-
-  //   if (option.selected === selectedOption) {
-  //     option.selected = '';
-  //   } else {
-  //     option.selected = selectedOption;
-  //   }
-  //   console.log(option);
-  //   this.formRequest.controls[`${option.cName}`].setValue(option.selected)
-  // }
-
-  // toggleCheckbox(mainQuestionIndex: number, optionIndex: number, selectedOption: string) {
-  //   const mainQuestion = this.questionnaireData.questions[mainQuestionIndex];
-  //   const option = mainQuestion.options[optionIndex];
-
-  //   option.selected = (option.selected === selectedOption) ? '' : selectedOption;
-  //   this.formRequest.controls[`${option.cName}`].setValue(option.selected);
-  // }
-
-
   updateCheckboxStateForPage(page: number): void {
     console.log(`Updating checkbox state for page: ${page}`);
     const questionsForPage = this.getQuestionsForPage(page);
@@ -241,24 +218,6 @@ export class AddBenefitComponent implements OnInit {
       });
     });
   }
-
-  // toggleCheckbox(mainQuestionIndex: number, optionIndex: number, selectedOption: string) {
-  //   const mainQuestion = this.questionnaireData.questions[mainQuestionIndex];
-  //   const option = mainQuestion.options[optionIndex];
-
-  //   // Deselect all options within the same question
-  //   mainQuestion.options.forEach((opt: { selected: string; cName: any; }) => {
-  //     if (opt !== option) {
-  //       opt.selected = '';
-  //       this.formRequest.controls[`${opt.cName}`].setValue('');
-  //     }
-  //   });
-
-  //   option.selected = (option.selected === selectedOption) ? '' : selectedOption;
-
-  //   // Update the form control value for the selected option
-  //   this.formRequest.controls[`${option.cName}`].setValue(option.selected);
-  // }
 
   updateComment(questionIndex: number, value: string): void {
     const question = this.getQuestionsForCurrentPage()[questionIndex];
@@ -294,7 +253,7 @@ export class AddBenefitComponent implements OnInit {
         } else {
           console.log('Input string format is incorrect.');
         }
-        console.log(answer)
+        // console.log(answer)
       })
       let model = {
         questionnaireId: 1,

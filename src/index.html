@@ -26,7 +26,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"><!-- To be Added  -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
 
 </head>
 <body class="sidebar-dark navbar-dark mat-typography">
@@ -34,6 +35,21 @@
     <div class="spinner-wrapper full-screen">
       <div class="spinner"></div>
     </div>
+    <!-- <script>
+      $(document).ready(function() {
+        $('#requestLink').click(function(e) {
+          e.preventDefault(); 
+    
+          var $loader = $('#loader'); 
+          $loader.show(); 
+          setTimeout(function() {
+            $loader.hide();
+            window.location.href = $('#requestLink').attr('href');
+          }, 2000);
+        });
+      });
+    </script> -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
   </app-root>
 </body>
