@@ -31,7 +31,6 @@ export class CheckTokenValidityInterceptor implements HttpInterceptor {
       if (isAuthRoute || isStandardsRoute) {
         return next.handle(req);
       }
-  
       const token = this.globalService.getToken();
       if (!token) {
         localStorage.clear();
@@ -43,7 +42,6 @@ export class CheckTokenValidityInterceptor implements HttpInterceptor {
           this.router.navigate(['/auth/login']);
         }
       }
-      
       return next.handle(req).pipe(
         catchError(error => {
           console.log(error);
