@@ -157,12 +157,14 @@ export class ListCustomersComponent implements OnInit {
           this.hideLeaveCommentForm();
           Swal.fire('Customer Enquire  Failed, Try Again',
             'error').then(r => console.log(r))
+            this.isLoading = false;
         }
       },
       (error: any) => {
         this.hideLeaveCommentForm();
         Swal.fire('Customer Enquire error',
           'error')
+          this.isLoading = false;
       }
     );
   }
@@ -367,13 +369,12 @@ export class ListCustomersComponent implements OnInit {
   }
 
   raiseAppeal(id:number): void {
+ 
     if (this.formR.invalid) {
       return;
     }
-
   const licenceNumber = JSON.parse(localStorage.getItem('data')!)['licenceNumber']
   const resultRef = this.results.find((result: any) => result.id === id)?.result_ref;
-
   if (!resultRef) {
     console.log('Unable to find result_ref for the specified id');
     return;
@@ -383,6 +384,7 @@ export class ListCustomersComponent implements OnInit {
     resultRef,
     reason: this.formR.value.reason,
   };
+  this.isLoading = true;
     console.log(model)
     this.httpService.customerPortalPosts(`/admin/customer/portal/create-appeal`, model).subscribe((result: any) => {
       if (result.status === 200) {
@@ -402,12 +404,14 @@ export class ListCustomersComponent implements OnInit {
         Swal.fire('Raised Apeal Failed, Try Again',
           'error').then(r => console.log(r))
         this.hideAppealForm();
+        this.isLoading = true;
       }
     },
       (error: any) => {
         Swal.fire('Raised Appeal error',
           'error')
         this.hideAppealForm();
+        this.isLoading = true;
       });
   }
 

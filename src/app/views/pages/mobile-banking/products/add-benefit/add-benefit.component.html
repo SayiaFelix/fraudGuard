@@ -79,7 +79,7 @@
               (click)="submitDataForm()" type="submit">
               <a style="text-decoration: none" class="transition">
                 <span style="color: #f8f8f8; font-weight: 700;letter-spacing: 0.08em;font-size: 12px;
-        ">SUBMIT</span></a>
+        ">SUBMIT</span></a><img *ngIf="isLoading" class="pl-2" src="assets/images/loading.gif" alt="loading-gif">
             </button>
           </div>
         </form>
@@ -122,7 +122,7 @@
               type="submit">
               <a style="text-decoration: none" class="transition">
                 <span style="color: #f8f8f8; font-weight: 700;letter-spacing: 0.08em;font-size: 12px;
-              ">SUBMIT</span></a>
+              ">SUBMIT</span></a><img *ngIf="isLoading" class="pl-2" src="assets/images/loading.gif" alt="loading-gif">
             </button>
           </div>
         </form>

@@ -207,12 +207,14 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
           this.hideLeaveCommentForm();
           Swal.fire('Customer Enquire  Failed, Try Again',
             'error').then(r => console.log(r))
+            this.isLoading = false;
         }
       },
       (error: any) => {
         this.hideLeaveCommentForm();
         Swal.fire('Customer Enquire error',
           'error')
+          this.isLoading = false;
       }
     );
   }

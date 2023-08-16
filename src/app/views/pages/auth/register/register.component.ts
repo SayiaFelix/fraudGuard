@@ -71,11 +71,11 @@ export class RegisterComponent implements OnInit {
               this.hasError = false;
               this.errorMsg = '';
               this.form.reset();
-            }, 2000);
+            }, 3000);
           } else {
             setTimeout(() => {
               this.router.navigate(['/auth/first-time-password']);
-            }, 1000);
+            }, 2000);
             return result;
           }
         })
