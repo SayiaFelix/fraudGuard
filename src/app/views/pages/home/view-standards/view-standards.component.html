@@ -56,7 +56,7 @@
                   <div class="col-12 bg-white text-center py-1 mt-3 mb-2">
                     <button [disabled]="!formC.valid" style="width: 100%; border: none;"
                       class="btn btn-block bronchure-btn transition" type="submit">
-                      <span style="color: white;">SEND</span>
+                      <span style="color: white;">SEND</span><img *ngIf="isLoading" class="pl-2" src="assets/images/loading.gif" alt="loading-gif">
                     </button>
                   </div>
                 </div>
@@ -260,7 +260,7 @@
                         <button (click)="onSubmit()" style="border: none;" class="btn btn-block logi-btn transition"
                           type="submit">
                           <span
-                            style="color: var(--seasalt, #F8F8F8);text-align: center;font-family: Mulish;font-size: 14px;font-style: normal;font-weight: 700;line-height: normal; letter-spacing: 1.28px;text-transform: uppercase;">SUBMIT</span>
+                            style="color: var(--seasalt, #F8F8F8);text-align: center;font-family: Mulish;font-size: 14px;font-style: normal;font-weight: 700;line-height: normal; letter-spacing: 1.28px;text-transform: uppercase;">SUBMIT</span><img *ngIf="isLoading" class="pl-2" src="assets/images/loading.gif" alt="loading-gif">
                         </button>
                       </div>
                     </div>
@@ -431,7 +431,7 @@
                 <div class="col-12 bg-white text-center py-1 mt-3 mb-2">
                   <button [disabled]="!form.valid" style="width: 100%; border: none;"
                     class="btn btn-block bronchure-btn transition" type="submit">
-                    <span style="color: white;">REQUEST</span>
+                    <span style="color: white;">REQUEST</span><img *ngIf="isLoading" class="pl-2" src="assets/images/loading.gif" alt="loading-gif">
                   </button>
                 </div>
               </div>

@@ -429,11 +429,13 @@ export class ViewStandardsComponent implements OnInit {
             'success').then(r => console.log(r))
           this.forms.reset()
           this.loadData()
+          this.isLoading = false;
         } else {
           this.activeModal.close('error');
           this.forms.reset()
           Swal.fire('Add Comment Failed, Try Again',
             'error').then(r => console.log(r))
+            this.isLoading = false;
         }
       },
       (error: any) => {
@@ -489,12 +491,14 @@ export class ViewStandardsComponent implements OnInit {
           this.hideRequestForm()
           Swal.fire('Standard Request Failed, Try Again',
             'error').then(r => console.log(r))
+            this.isLoading = false;
         }
       },
       (error: any) => {
         this.hideRequestForm()
         Swal.fire('Request Standard error',
           'error')
+          this.isLoading = false;
       }
     );
   }
@@ -532,12 +536,14 @@ export class ViewStandardsComponent implements OnInit {
           this.hideLeaveCommentForm();
           Swal.fire('Customer Enquire  Failed, Try Again',
             'error').then(r => console.log(r))
+            this.isLoading = false;
         }
       },
       (error: any) => {
         this.hideLeaveCommentForm();
         Swal.fire('Customer Enquire error',
           'error')
+          this.isLoading = false;
       }
     );
   }

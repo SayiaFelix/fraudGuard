@@ -55,7 +55,7 @@
                   <div class="col-12 bg-white text-center py-1 mt-3 mb-2">
                     <button [disabled]="!form.valid" style="width: 100%; border: none;"
                       class="btn btn-block bronchure-btn transition" type="submit">
-                      <span style="color: white;">SEND</span>
+                      <span style="color: white;">SEND</span><img *ngIf="isLoading" class="pl-2" src="assets/images/loading.gif" alt="loading-gif">
                     </button>
                   </div>
                 </div>

@@ -23,7 +23,7 @@ export class ListUsersComponent implements OnInit {
   loading: boolean = true;
   defaultProfileImage: SafeResourceUrl = "assets/images/p1.png";
   existingImage: SafeResourceUrl;
-
+  isLoading: boolean = false;
 
   // bread crumb items
   breadCrumbItems: Array<{}>;
@@ -150,7 +150,7 @@ export class ListUsersComponent implements OnInit {
   }
 
   onleaveComment() {
-    // this.isLoading = true;
+    this.isLoading = true;
     const model = {
       name: this.form.value.name,
       phone_number: this.form.value.phone_number, 
@@ -162,7 +162,7 @@ export class ListUsersComponent implements OnInit {
     this.httpService.customerPortalPost(`api/v1/auth/customerEnquirer`, model).subscribe(
       (result: any) => {
         if (result.status === '00') {
-          // this.isLoading = false;
+          this.isLoading = false;
           this.hideLeaveCommentForm();
           // this.loadData()
           Swal.fire('Customer Enquire Successfully',
@@ -171,12 +171,14 @@ export class ListUsersComponent implements OnInit {
           this.hideLeaveCommentForm();
           Swal.fire('Customer Enquire  Failed, Try Again',
             'error').then(r => console.log(r))
+            this.isLoading = false;
         }
       },
       (error: any) => {
         this.hideLeaveCommentForm();
         Swal.fire('Customer Enquire error',
           'error')
+          this.isLoading = false;
       }
     );
   }

@@ -148,12 +148,14 @@ export class AddBenefitComponent implements OnInit {
           this.form.reset()
           Swal.fire('Request Failed, Try Again',
             'error').then(r => console.log(r))
+            this.isLoading = false;
         }
       },
       (error: any) => {
         this.form.reset()
         Swal.fire('Request error',
           'error')
+          this.isLoading = false;
       }
     );
 
@@ -264,6 +266,7 @@ export class AddBenefitComponent implements OnInit {
   }
 
   submitDataForm(): any {
+    this.isLoading = true;
     if (this.formRequest.valid) {
       let licence_number = JSON.parse(localStorage.getItem('data')!)['licenceNumber'];
       // console.log(this.formRequest.value)
@@ -314,18 +317,18 @@ export class AddBenefitComponent implements OnInit {
             this.formRequest.reset()
             Swal.fire('Questions Failed, Try Again',
               'error').then(r => console.log(r))
+              this.isLoading = false;
           }
         },
         (error: any) => {
           this.formRequest.reset()
           Swal.fire('Questions error',
             'error')
+            this.isLoading = false;
         }
       );
 
-    } else {
-      // Handle invalid form submission if needed
-    }
+    } 
   }
 
   getSubClassData(): void {
