@@ -151,7 +151,20 @@
                                 <a href="#actions" >actions</a>
                             </li>
                             <li>
+                                    <span class="modifier">Public</span>
+                                <a href="#activeModal" >activeModal</a>
+                            </li>
+                            <li>
                                 <a href="#allColumns" >allColumns</a>
+                            </li>
+                            <li>
+                                <a href="#appealData" >appealData</a>
+                            </li>
+                            <li>
+                                <a href="#appealDate" >appealDate</a>
+                            </li>
+                            <li>
+                                <a href="#appealId" >appealId</a>
                             </li>
                             <li>
                                 <a href="#breadCrumbItems" >breadCrumbItems</a>
@@ -192,6 +205,10 @@
                                 <a href="#formData" >formData</a>
                             </li>
                             <li>
+                                    <span class="modifier">Public</span>
+                                <a href="#formR" >formR</a>
+                            </li>
+                            <li>
                                 <a href="#hasError" >hasError</a>
                             </li>
                             <li>
@@ -199,7 +216,19 @@
                                 <a href="#imageFile" >imageFile</a>
                             </li>
                             <li>
+                                <a href="#isAppealButtonVisible" >isAppealButtonVisible</a>
+                            </li>
+                            <li>
+                                <a href="#isAppealMade" >isAppealMade</a>
+                            </li>
+                            <li>
+                                <a href="#isAppealSubmitted" >isAppealSubmitted</a>
+                            </li>
+                            <li>
                                 <a href="#isLoading" >isLoading</a>
+                            </li>
+                            <li>
+                                <a href="#isViewTrackButtonVisible" >isViewTrackButtonVisible</a>
                             </li>
                             <li>
                                 <a href="#loading" >loading</a>
@@ -214,6 +243,9 @@
                                 <a href="#reorderable" >reorderable</a>
                             </li>
                             <li>
+                                <a href="#resultRef" >resultRef</a>
+                            </li>
+                            <li>
                                 <a href="#results" >results</a>
                             </li>
                             <li>
@@ -222,6 +254,12 @@
                             </li>
                             <li>
                                 <a href="#rows" >rows</a>
+                            </li>
+                            <li>
+                                <a href="#showAppealForm" >showAppealForm</a>
+                            </li>
+                            <li>
+                                <a href="#showAppeals" >showAppeals</a>
                             </li>
                             <li>
                                 <a href="#showLeaveCommentForm" >showLeaveCommentForm</a>
@@ -252,6 +290,9 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
+                                <a href="#calculateAppealButtonVisibility" >calculateAppealButtonVisibility</a>
+                            </li>
+                            <li>
                                 <a href="#downloadCertificate" >downloadCertificate</a>
                             </li>
                             <li>
@@ -261,13 +302,16 @@
                                 <a href="#getAppealButtonText" >getAppealButtonText</a>
                             </li>
                             <li>
-                                <a href="#getIndividualData" >getIndividualData</a>
-                            </li>
-                            <li>
                                 <a href="#getSanitizedStatusImage" >getSanitizedStatusImage</a>
                             </li>
                             <li>
                                 <a href="#handleDownload" >handleDownload</a>
+                            </li>
+                            <li>
+                                <a href="#hideAppealForm" >hideAppealForm</a>
+                            </li>
+                            <li>
+                                <a href="#hideAppeals" >hideAppeals</a>
                             </li>
                             <li>
                                 <a href="#hideLeaveCommentForm" >hideLeaveCommentForm</a>
@@ -277,6 +321,10 @@
                             </li>
                             <li>
                                 <a href="#isChecked" >isChecked</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#loadAppealsData" >loadAppealsData</a>
                             </li>
                             <li>
                                     <span class="modifier">Private</span>
@@ -307,10 +355,16 @@
                                 <a href="#openModal" >openModal</a>
                             </li>
                             <li>
+                                <a href="#phoneNumberValidator" >phoneNumberValidator</a>
+                            </li>
+                            <li>
                                 <a href="#raiseAppeal" >raiseAppeal</a>
                             </li>
                             <li>
                                 <a href="#toggle" >toggle</a>
+                            </li>
+                            <li>
+                                <a href="#toggleAppealForm" >toggleAppealForm</a>
                             </li>
                             <li>
                                 <a href="#toggleDrop" >toggleDrop</a>
@@ -333,6 +387,9 @@
                             <li>
                                 <a href="#updateFilteredRowsEvent" >updateFilteredRowsEvent</a>
                             </li>
+                            <li>
+                                <a href="#viewAppeal" >viewAppeal</a>
+                            </li>
                         </ul>
                     </td>
                 </tr>
@@ -341,6 +398,23 @@
 
 
 
+                    <tr>
+                        <td class="col-md-4">
+                            <h6><b>Accessors</b></h6>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <ul class="index-list">
+                                <li>
+                                    <a href="#f" >f</a>
+                                </li>
+                                <li>
+                                    <a href="#fs" >fs</a>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
         </tbody>
     </table>
 </section>
@@ -351,12 +425,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(httpService: <a href="../injectables/HttpService.html" target="_self">HttpService</a>, modalService: NgbModal, fb: FormBuilder, router: Router, datePipe: DatePipe, sanitizer: DomSanitizer, dataExploration: <a href="../injectables/DataExportationService.html" target="_self">DataExportationService</a>)</code>
+<code>constructor(httpService: <a href="../injectables/HttpService.html" target="_self">HttpService</a>, modalService: NgbModal, fb: FormBuilder, http: HttpClient, router: Router, datePipe: DatePipe, sanitizer: DomSanitizer, activeModal: NgbActiveModal, dataExploration: <a href="../injectables/DataExportationService.html" target="_self">DataExportationService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="77" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:77</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="90" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:90</a></div>
                             </td>
                         </tr>
 
@@ -410,6 +484,18 @@
                                                     
                                                 </tr>
                                                 <tr>
+                                                        <td>http</td>
+                                                  
+                                                        <td>
+                                                                    <code>HttpClient</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
                                                         <td>router</td>
                                                   
                                                         <td>
@@ -438,6 +524,18 @@
                                                   
                                                         <td>
                                                                     <code>DomSanitizer</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>activeModal</td>
+                                                  
+                                                        <td>
+                                                                    <code>NgbActiveModal</code>
                                                         </td>
                                                   
                                                     <td>
@@ -479,6 +577,75 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="calculateAppealButtonVisibility"></a>
+                    <span class="name">
+                        <span ><b>calculateAppealButtonVisibility</b></span>
+                        <a href="#calculateAppealButtonVisibility"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>calculateAppealButtonVisibility(result: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="175"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:175</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>result</td>
+                                    <td>
+                                                <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="downloadCertificate"></a>
                     <span class="name">
                         <span ><b>downloadCertificate</b></span>
@@ -488,15 +655,15 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>downloadCertificate()</code>
+<code>downloadCertificate(fileUrl: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="256"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:256</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="329"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:329</a></div>
                 </td>
             </tr>
 
@@ -505,8 +672,40 @@
                 <td class="col-md-4">
 
                     <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>fileUrl</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
                         <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
 
+                    </div>
+                    <div class="io-description">
+                        
                     </div>
                 </td>
             </tr>
@@ -532,8 +731,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="184"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:184</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="279"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:279</a></div>
                 </td>
             </tr>
 
@@ -594,15 +793,15 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>getAppealButtonText(status: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, task_type: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+<code>getAppealButtonText(status: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, appealStatus: string | null)</code>
                 </td>
             </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="214"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:214</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="338"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:338</a></div>
                 </td>
             </tr>
 
@@ -635,9 +834,9 @@
 
                                 </tr>
                                 <tr>
-                                    <td>task_type</td>
+                                    <td>appealStatus</td>
                                     <td>
-                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            <code>string | null</code>
                                     </td>
 
                                     <td>
@@ -653,75 +852,6 @@
                     </div>
                     <div class="io-description">
                         <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-
-                    </div>
-                    <div class="io-description">
-                        
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="getIndividualData"></a>
-                    <span class="name">
-                        <span ><b>getIndividualData</b></span>
-                        <a href="#getIndividualData"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>getIndividualData(event: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="118"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:118</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Parameters :</b>
-                        
-                        <table class="params">
-                            <thead>
-                                <tr>
-                                    <td>Name</td>
-                                    <td>Type</td>
-                                    <td>Optional</td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>event</td>
-                                    <td>
-                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
-                                    </td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div>
-                    </div>
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
 
                     </div>
                     <div class="io-description">
@@ -751,8 +881,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="189"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:189</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="284"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:284</a></div>
                 </td>
             </tr>
 
@@ -820,8 +950,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="201"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:201</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="297"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:297</a></div>
                 </td>
             </tr>
 
@@ -873,6 +1003,80 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="hideAppealForm"></a>
+                    <span class="name">
+                        <span ><b>hideAppealForm</b></span>
+                        <a href="#hideAppealForm"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>hideAppealForm()</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="354"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:354</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="hideAppeals"></a>
+                    <span class="name">
+                        <span ><b>hideAppeals</b></span>
+                        <a href="#hideAppeals"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>hideAppeals()</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="358"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:358</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="hideLeaveCommentForm"></a>
                     <span class="name">
                         <span ><b>hideLeaveCommentForm</b></span>
@@ -889,8 +1093,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="161"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:161</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="208"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:208</a></div>
                 </td>
             </tr>
 
@@ -926,8 +1130,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="288"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:288</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="418"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:418</a></div>
                 </td>
             </tr>
 
@@ -1007,8 +1211,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="354"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:354</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="484"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:484</a></div>
                 </td>
             </tr>
 
@@ -1060,6 +1264,45 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="loadAppealsData"></a>
+                    <span class="name">
+                        <span class="modifier">Private</span>
+                        <span ><b>loadAppealsData</b></span>
+                        <a href="#loadAppealsData"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>loadAppealsData()</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="214"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:214</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="loadData"></a>
                     <span class="name">
                         <span class="modifier">Private</span>
@@ -1078,8 +1321,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="165"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:165</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="234"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:234</a></div>
                 </td>
             </tr>
 
@@ -1115,8 +1358,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="313"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:313</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="443"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:443</a></div>
                 </td>
             </tr>
 
@@ -1184,8 +1427,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="101"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:101</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="119"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:119</a></div>
                 </td>
             </tr>
 
@@ -1221,8 +1464,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="324"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:324</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="454"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:454</a></div>
                 </td>
             </tr>
 
@@ -1290,8 +1533,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="307"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:307</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="437"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:437</a></div>
                 </td>
             </tr>
 
@@ -1359,8 +1602,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="114"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:114</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="138"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:138</a></div>
                 </td>
             </tr>
 
@@ -1396,8 +1639,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="295"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:295</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="425"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:425</a></div>
                 </td>
             </tr>
 
@@ -1433,8 +1676,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="373"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:373</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="503"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:503</a></div>
                 </td>
             </tr>
 
@@ -1502,8 +1745,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="115"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:115</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="171"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:171</a></div>
                 </td>
             </tr>
 
@@ -1555,6 +1798,75 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="phoneNumberValidator"></a>
+                    <span class="name">
+                        <span ><b>phoneNumberValidator</b></span>
+                        <a href="#phoneNumberValidator"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>phoneNumberValidator(control: AbstractControl)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="132"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:132</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>control</td>
+                                    <td>
+                                            <code>AbstractControl</code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>    <code>literal type | null</code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="raiseAppeal"></a>
                     <span class="name">
                         <span ><b>raiseAppeal</b></span>
@@ -1564,15 +1876,15 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>raiseAppeal(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, status: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, requestType: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+<code>raiseAppeal(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
                 </td>
             </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="231"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:231</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="371"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:371</a></div>
                 </td>
             </tr>
 
@@ -1596,30 +1908,6 @@
                                     <td>id</td>
                                     <td>
                                                 <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
-                                    </td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                </tr>
-                                <tr>
-                                    <td>status</td>
-                                    <td>
-                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                    </td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                </tr>
-                                <tr>
-                                    <td>requestType</td>
-                                    <td>
-                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                     </td>
 
                                     <td>
@@ -1664,8 +1952,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="342"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:342</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="472"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:472</a></div>
                 </td>
             </tr>
 
@@ -1717,6 +2005,75 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="toggleAppealForm"></a>
+                    <span class="name">
+                        <span ><b>toggleAppealForm</b></span>
+                        <a href="#toggleAppealForm"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>toggleAppealForm(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="199"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:199</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>id</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="toggleDrop"></a>
                     <span class="name">
                         <span ><b>toggleDrop</b></span>
@@ -1733,8 +2090,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="362"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:362</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="492"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:492</a></div>
                 </td>
             </tr>
 
@@ -1770,8 +2127,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="317"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:317</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="447"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:447</a></div>
                 </td>
             </tr>
 
@@ -1839,8 +2196,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="154"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:154</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="191"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:191</a></div>
                 </td>
             </tr>
 
@@ -1876,8 +2233,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="385"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:385</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="515"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:515</a></div>
                 </td>
             </tr>
 
@@ -1945,8 +2302,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="370"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:370</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="500"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:500</a></div>
                 </td>
             </tr>
 
@@ -2014,8 +2371,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="328"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:328</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="458"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:458</a></div>
                 </td>
             </tr>
 
@@ -2095,8 +2452,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="396"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:396</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="526"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:526</a></div>
                 </td>
             </tr>
 
@@ -2144,6 +2501,43 @@
             </tr>
         </tbody>
     </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="viewAppeal"></a>
+                    <span class="name">
+                        <span ><b>viewAppeal</b></span>
+                        <a href="#viewAppeal"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>viewAppeal()</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="362"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:362</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </section>
     <section data-compodoc="block-properties">
     
@@ -2174,7 +2568,34 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="38" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:38</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="42" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:42</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="activeModal"></a>
+                    <span class="name">
+                            <span class="modifier">Public</span>
+                        <span ><b>activeModal</b></span>
+                        <a href="#activeModal"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>NgbActiveModal</code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="101" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:101</a></div>
                         </td>
                     </tr>
 
@@ -2205,7 +2626,85 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="68" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:68</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="77" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:77</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="appealData"></a>
+                    <span class="name">
+                        <span ><b>appealData</b></span>
+                        <a href="#appealData"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="89" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:89</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="appealDate"></a>
+                    <span class="name">
+                        <span ><b>appealDate</b></span>
+                        <a href="#appealDate"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date" target="_blank" >Date</a></code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="50" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:50</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="appealId"></a>
+                    <span class="name">
+                        <span ><b>appealId</b></span>
+                        <a href="#appealId"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="88" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:88</a></div>
                         </td>
                     </tr>
 
@@ -2231,7 +2730,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="50" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:50</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="57" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:57</a></div>
                         </td>
                     </tr>
 
@@ -2263,7 +2762,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="40" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:40</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="44" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:44</a></div>
                         </td>
                     </tr>
 
@@ -2288,7 +2787,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="72" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:72</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="82" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:82</a></div>
                         </td>
                     </tr>
 
@@ -2328,7 +2827,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="57" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:57</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="66" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:66</a></div>
                         </td>
                     </tr>
 
@@ -2355,7 +2854,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="42" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:42</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="46" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:46</a></div>
                         </td>
                     </tr>
 
@@ -2381,7 +2880,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="47" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:47</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="54" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:54</a></div>
                         </td>
                     </tr>
 
@@ -2407,7 +2906,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="44" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:44</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="51" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:51</a></div>
                         </td>
                     </tr>
 
@@ -2434,7 +2933,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="83" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:83</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="96" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:96</a></div>
                         </td>
                     </tr>
 
@@ -2465,7 +2964,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="52" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:52</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="59" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:59</a></div>
                         </td>
                     </tr>
 
@@ -2492,7 +2991,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="70" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:70</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="79" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:79</a></div>
                         </td>
                     </tr>
 
@@ -2519,7 +3018,34 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="71" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:71</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="81" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:81</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="formR"></a>
+                    <span class="name">
+                            <span class="modifier">Public</span>
+                        <span ><b>formR</b></span>
+                        <a href="#formR"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>FormGroup</code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="80" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:80</a></div>
                         </td>
                     </tr>
 
@@ -2550,7 +3076,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="45" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:45</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="52" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:52</a></div>
                         </td>
                     </tr>
 
@@ -2577,7 +3103,94 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="73" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:73</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="83" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:83</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="isAppealButtonVisible"></a>
+                    <span class="name">
+                        <span ><b>isAppealButtonVisible</b></span>
+                        <a href="#isAppealButtonVisible"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>true</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="38" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:38</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="isAppealMade"></a>
+                    <span class="name">
+                        <span ><b>isAppealMade</b></span>
+                        <a href="#isAppealMade"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="48" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:48</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="isAppealSubmitted"></a>
+                    <span class="name">
+                        <span ><b>isAppealSubmitted</b></span>
+                        <a href="#isAppealSubmitted"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="49" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:49</a></div>
                         </td>
                     </tr>
 
@@ -2608,7 +3221,32 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="46" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:46</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="53" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:53</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="isViewTrackButtonVisible"></a>
+                    <span class="name">
+                        <span ><b>isViewTrackButtonVisible</b></span>
+                        <a href="#isViewTrackButtonVisible"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="39" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:39</a></div>
                         </td>
                     </tr>
 
@@ -2633,7 +3271,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="54" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:54</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="61" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:61</a></div>
                         </td>
                     </tr>
 
@@ -2659,7 +3297,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="48" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:48</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="55" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:55</a></div>
                         </td>
                     </tr>
 
@@ -2690,7 +3328,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="43" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:43</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="47" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:47</a></div>
                         </td>
                     </tr>
 
@@ -2715,7 +3353,38 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="55" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:55</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="62" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:62</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="resultRef"></a>
+                    <span class="name">
+                        <span ><b>resultRef</b></span>
+                        <a href="#resultRef"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>string | null</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>null</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="90" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:90</a></div>
                         </td>
                     </tr>
 
@@ -2735,7 +3404,7 @@
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                        <i>Type : </i>    <code>any[]</code>
 
                     </td>
                 </tr>
@@ -2746,7 +3415,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="77" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:77</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="87" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:87</a></div>
                         </td>
                     </tr>
 
@@ -2773,7 +3442,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="84" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:84</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="98" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:98</a></div>
                         </td>
                     </tr>
 
@@ -2804,7 +3473,69 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="51" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:51</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="58" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:58</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="showAppealForm"></a>
+                    <span class="name">
+                        <span ><b>showAppealForm</b></span>
+                        <a href="#showAppealForm"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="63" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:63</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="showAppeals"></a>
+                    <span class="name">
+                        <span ><b>showAppeals</b></span>
+                        <a href="#showAppeals"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="64" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:64</a></div>
                         </td>
                     </tr>
 
@@ -2835,7 +3566,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="74" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:74</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="84" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:84</a></div>
                         </td>
                     </tr>
 
@@ -2871,7 +3602,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="37" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:37</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="41" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:41</a></div>
                         </td>
                     </tr>
 
@@ -2902,7 +3633,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="53" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:53</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="60" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:60</a></div>
                         </td>
                     </tr>
 
@@ -2933,7 +3664,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="75" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:75</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="85" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:85</a></div>
                         </td>
                     </tr>
 
@@ -2959,7 +3690,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="76" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:76</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="86" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:86</a></div>
                         </td>
                     </tr>
 
@@ -2968,6 +3699,55 @@
     </table>
 </section>
 
+    <section data-compodoc="block-accessors">
+    <h3 id="accessors">
+        Accessors
+    </h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="f"></a>
+                        <span class="name"><b>f</b><a href="#f"><span class="icon ion-ios-link"></span></a></span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <span class="accessor"><b>get</b><code>f()</code></span>
+                    </td>
+                </tr>
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="126" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:126</a></div>
+                                </td>
+                            </tr>
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="fs"></a>
+                        <span class="name"><b>fs</b><a href="#fs"><span class="icon ion-ios-link"></span></a></span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <span class="accessor"><b>get</b><code>fs()</code></span>
+                    </td>
+                </tr>
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="129" class="link-to-prism">src/app/views/pages/mobile-banking/customers/list-customers/list-customers.component.ts:129</a></div>
+                                </td>
+                            </tr>
+
+            </tbody>
+        </table>
+</section>
 </div>
 
 
@@ -2979,13 +3759,13 @@
   TemplateRef,
   ViewChild,
 } from &#x27;@angular/core&#x27;;
-import { NgbModal, NgbModalRef } from &#x27;@ng-bootstrap/ng-bootstrap&#x27;;
+import { NgbActiveModal, NgbModal, NgbModalRef } from &#x27;@ng-bootstrap/ng-bootstrap&#x27;;
 import { DatePipe } from &#x27;@angular/common&#x27;;
 import { ActivatedRoute, Router } from &#x27;@angular/router&#x27;;
 import { DomSanitizer, SafeUrl } from &#x27;@angular/platform-browser&#x27;;
 import { ColumnMode } from &#x27;@swimlane/ngx-datatable&#x27;;
 import { GlobalService } from &#x27;../../../../../shared/services/global.service&#x27;;
-import { FormBuilder, FormGroup, Validators } from &#x27;@angular/forms&#x27;;
+import { AbstractControl, FormBuilder, FormGroup, Validators } from &#x27;@angular/forms&#x27;;
 import { NgxDatatableComponent } from &#x27;../../../tables/ngx-datatable/ngx-datatable.component&#x27;;
 import { DatatableComponent } from &#x27;@swimlane/ngx-datatable/lib/components/datatable.component&#x27;;
 import { DataExportationService } from &#x27;src/app/shared/services/data-exportation.service&#x27;;
@@ -2994,6 +3774,7 @@ import { AddCustomerComponent } from &quot;../add-customer/add-customer.componen
 import { CustomValidators } from &#x27;ngx-custom-validators&#x27;;
 import Swal from &#x27;sweetalert2&#x27;;
 import { ConfirmDialogComponent } from &#x27;src/app/shared/components/confirm-dialog/confirm-dialog.component&#x27;;
+import { HttpClient } from &#x27;@angular/common/http&#x27;;
 // import {ChannelDetailsWrapper} from &quot;../../../../../shared/services/channelDetailsWrapper&quot;;
 // import {AddAccountComponent} from &quot;../../Accounts/AccountRegistration/add-account/add-account.component&quot;;
 
@@ -3008,13 +3789,19 @@ import { ConfirmDialogComponent } from &#x27;src/app/shared/components/confirm-d
  * Starter-component
  */
 export class ListCustomersComponent implements OnInit {
+  isAppealButtonVisible &#x3D; true;
+  isViewTrackButtonVisible &#x3D; false;
+
   @ViewChild(&#x27;table&#x27;) table: DatatableComponent;
   actions &#x3D; [&quot;View&quot;, &quot;Edit&quot;]
   // URL of the brochure file you want to download
   private brochureUrl &#x3D; &#x27;assets/images/certificate.png&#x27;;
   // Store the sanitized URL
   public downloadLink: SafeUrl;
-  previewImageUrl: string &#x3D; &#x27;&#x27;; 
+  previewImageUrl: string &#x3D; &#x27;&#x27;;
+  isAppealMade: boolean &#x3D; false;
+  isAppealSubmitted: boolean &#x3D; false;
+  appealDate: Date
   errorMsg: string;
   hasError: boolean &#x3D; false;
   isLoading: boolean &#x3D; false;
@@ -3027,6 +3814,8 @@ export class ListCustomersComponent implements OnInit {
   temp: any &#x3D; [];
   loading &#x3D; true;
   reorderable &#x3D; true;
+  showAppealForm: boolean &#x3D; false;
+  showAppeals: boolean &#x3D; false;
 
   columns &#x3D; [
     { name: &#x27;#&#x27;, prop: &#x27;id&#x27; },
@@ -3042,87 +3831,115 @@ export class ListCustomersComponent implements OnInit {
   allColumns &#x3D; [...this.columns];
 
   public form: FormGroup;
+  public formR: FormGroup;
   public formData: { productName: any; remarks: any; image: any };
   ColumnMode &#x3D; ColumnMode;
   public imageFile: File;
   showLeaveCommentForm: boolean &#x3D; false;
   title: string &#x3D; &quot;New Customer&quot;;
   total: any;
-  results: any &#x3D; [];
+  results: any[] &#x3D; [];
+  appealId: number;
+  appealData: any;
+  resultRef: string | null &#x3D; null;
 
 
   constructor(
     private httpService: HttpService,
     private modalService: NgbModal,
     public fb: FormBuilder,
+    private http: HttpClient,
     public router: Router,
     private datePipe: DatePipe,
     private sanitizer: DomSanitizer,
+    public activeModal: NgbActiveModal,
     private dataExploration: DataExportationService
   ) {
-    // Sanitize the brochure URL to make it safe for use in the anchor element
     // this.downloadLink &#x3D; this.sanitizer.bypassSecurityTrustUrl(this.brochureUrl);
     this.downloadLink &#x3D; &#x27;&#x27;;
     this.form &#x3D; fb.group({
+      name: [&quot;&quot;, Validators.compose([Validators.required])],
       email: [&#x27;&#x27;, Validators.compose([Validators.required, CustomValidators.email])],
       subject: [&#x27;&#x27;, Validators.compose([Validators.required])],
       message: [&quot;&quot;, Validators.compose([Validators.required])],
-      name: [&quot;&quot;, Validators.compose([Validators.required])],
-      phoneNumber: [&quot;&quot;, Validators.compose([Validators.required])],
+      phone_number: [&quot;&quot;, Validators.compose([Validators.required, this.phoneNumberValidator])],
+    });
+
+    this.formR &#x3D; fb.group({
+      reason: [&#x27;&#x27;, Validators.required],
     });
   }
 
   ngOnInit() {
-
-    this.getIndividualData(0);
     this.loadData();
+    this.loadAppealsData()
 
-    this.form &#x3D; this.fb.group({
-      email: [&#x27;&#x27;, Validators.compose([Validators.required, CustomValidators.email])],
-      subject: [&#x27;&#x27;, Validators.compose([Validators.required])],
-      message: [&quot;&quot;, Validators.compose([Validators.required])],
-      name: [&quot;&quot;, Validators.compose([Validators.required])],
-      phoneNumber: [&quot;&quot;, Validators.compose([Validators.required])],
-    });
+    this.appealDate &#x3D; new Date();
+    // this.isAppealButtonVisible &#x3D; this.calculateAppealButtonVisibility();
   }
-  onleaveComment() { }
+  get f(): { [p: string]: AbstractControl } {
+    return this.form.controls;
+  }
+  get fs(): { [p: string]: AbstractControl } {
+    return this.formR.controls;
+  }
+  phoneNumberValidator(control: AbstractControl): { [key: string]: any } | null {
+    const phoneNumber &#x3D; control.value;
+    const phonePattern &#x3D; /^(254\d{9}|0\d{9})$/;
+    return phonePattern.test(phoneNumber) ? null : { invalidPhoneNumber: true };
+  }
+  
+  onleaveComment() {
+    this.isLoading &#x3D; true;
+    const model &#x3D; {
+      name: this.form.value.name,
+      phone_number: this.form.value.phone_number,
+      subject: this.form.value.subject,
+      message: this.form.value.message,
+      email: this.form.value.email,
+    };
+    // console.log(model)
+    this.httpService.customerPortalPost(&#x60;api/v1/auth/customerEnquirer&#x60;, model).subscribe(
+      (result: any) &#x3D;&gt; {
+        if (result.status &#x3D;&#x3D;&#x3D; &#x27;00&#x27;) {
+          this.isLoading &#x3D; false;
+          this.hideLeaveCommentForm();
+          this.loadData()
+          Swal.fire(&#x27;Customer Enquire Successfully&#x27;,
+            &#x27;success&#x27;).then(r &#x3D;&gt; console.log(r))
+        } else {
+          this.hideLeaveCommentForm();
+          Swal.fire(&#x27;Customer Enquire  Failed, Try Again&#x27;,
+            &#x27;error&#x27;).then(r &#x3D;&gt; console.log(r))
+            this.isLoading &#x3D; false;
+        }
+      },
+      (error: any) &#x3D;&gt; {
+        this.hideLeaveCommentForm();
+        Swal.fire(&#x27;Customer Enquire error&#x27;,
+          &#x27;error&#x27;)
+          this.isLoading &#x3D; false;
+      }
+    );
+  }
   openModal(modalContent: any) {
     this.modalRef &#x3D; this.modalService.open(modalContent, { centered: true, size: &quot;md&quot; });
   }
-  getIndividualData(event: number): void {
 
-    this.loading &#x3D; true;
+  calculateAppealButtonVisibility(result: any): boolean {
+    const timeLimitInDays &#x3D; 14;
+    const currentTime &#x3D; new Date();
+    const daysElapsed &#x3D; Math.floor((currentTime.getTime() - new Date(result.created_on).getTime()) / (1000 * 60 * 60 * 24));
 
-
-    let payload &#x3D; {
-      page: 0,
-      size: 1000
+    if (result.hasAppeal || result.appealStatus &#x3D;&#x3D;&#x3D; &#x27;PENDING&#x27; || result.appealStatus &#x3D;&#x3D;&#x3D; &#x27;APPROVED&#x27; || result.appealStatus &#x3D;&#x3D;&#x3D; &#x27;REJECTED&#x27;) {
+      result.isButtonDeactivated &#x3D; true; // Deactivate the button if there is an appeal or if the appeal status is &#x27;PENDING&#x27;
+    } else {
+      result.isButtonDeactivated &#x3D; daysElapsed &gt; timeLimitInDays; // Deactivate the button only if no appeal for this result within the time limit
     }
 
-    this.httpService
-      .mobileBankingPostNest(&#x27;customers/getAllCustomers?walletAccountAvailable&#x3D;true&#x27;, payload)
-      .subscribe((res: any) &#x3D;&gt; {
-        if (res.status &#x3D;&#x3D;&#x3D; 201) {
-          setTimeout(() &#x3D;&gt; {
-
-            let response &#x3D; res[&#x27;data&#x27;].filter((i: any) &#x3D;&gt; i.walletAccount !&#x3D;&#x3D; &quot;&quot;).map((item: any, index: any) &#x3D;&gt; {
-              let res &#x3D; {
-                ...item,
-                frontendId: index + 1
-              };
-              return res;
-            })
-            this.rows &#x3D; response;
-
-            this.total &#x3D; res.metadata.numofrecords;
-          }, 10);
-        } else {
-        }
-      });
-
-    this.loading &#x3D; false;
-
+    return true; // Always return true to make the button visible
   }
+
 
 
   toggleLeaveCommentForm() {
@@ -3132,28 +3949,86 @@ export class ListCustomersComponent implements OnInit {
       this.showLeaveCommentForm &#x3D; true;
     }
   }
-  hideLeaveCommentForm() {
-    this.showLeaveCommentForm &#x3D; false;
+
+  toggleAppealForm(id: number) {
+    if (this.showAppealForm) {
+      this.hideLeaveCommentForm();
+    } else {
+      this.showAppealForm &#x3D; true;
+      this.appealId &#x3D; id;
+    }
   }
 
-  private loadData(): any {
-    this.loading &#x3D; true;
-    this.httpService.customerPortalPost(&#x60;api/v1/portal/getResults&#x60;, {}).subscribe(
+  hideLeaveCommentForm() {
+    this.showLeaveCommentForm &#x3D; false;
+    this.showAppealForm &#x3D; false;
+    this.form.reset()
+  }
+
+  private loadAppealsData(): void {
+    let licence_number &#x3D; JSON.parse(localStorage.getItem(&#x27;data&#x27;)!)[&#x27;licenceNumber&#x27;];
+    let model &#x3D; {
+      licence_number
+    }
+    this.httpService.customerPortalPost(&#x60;api/v1/portal/getAppeals&#x60;, model).subscribe(
       (res: any) &#x3D;&gt; {
-        if (res.status &#x3D;&#x3D; &#x27;00&#x27;) {
-          // this.results &#x3D; res[&#x27;data&#x27;];
-          // console.log(this.results);
-          const result &#x3D; res.data.filter((request:any) &#x3D;&gt; request.status &#x3D;&#x3D;&#x3D; &quot;PUBLISHED&quot;);
-          console.log(result)
-          this.results &#x3D; result
-          this.loading &#x3D; false;
+        if (res.status &#x3D;&#x3D;&#x3D; &#x27;00&#x27;) {
+          this.appealData &#x3D; res.data;
+          // console.log(this.appealData)
+
+          this.loadData();
+
         } else {
-          Swal.fire(&#x27;Failed&#x27;, &quot;Unable to fetch results&quot;, &#x27;error&#x27;)
+          console.log(&#x27;Failed&#x27;, &quot;Unable to fetch appeals data&quot;, &#x27;error&#x27;);
         }
       }, (error: any) &#x3D;&gt; {
-        Swal.fire(&quot;Error&quot;, error.message, &quot;error&quot;);
+        console.log(&quot;Error&quot;, error.message, &quot;error&quot;);
       });
   }
+  private loadData(): any {
+    this.loading &#x3D; true;
+    let licenceNumber &#x3D; JSON.parse(localStorage.getItem(&#x27;data&#x27;)!)[&#x27;licenceNumber&#x27;];
+    let model &#x3D; {
+      licenceNumber
+    };
+  
+    this.httpService.customerPortalPost(&#x60;api/v1/portal/getResultsByLicence&#x60;, model).subscribe(
+      (res: any) &#x3D;&gt; {
+        if (res.status &#x3D;&#x3D; &#x27;00&#x27;) {
+          const result &#x3D; res.data.filter((request: any) &#x3D;&gt; request.status &#x3D;&#x3D;&#x3D; &quot;PUBLISHED&quot; || request.status &#x3D;&#x3D;&#x3D; &quot;APPEALED&quot;);
+  
+          // Collect result_ref values into an array
+          const resultRefs &#x3D; result.map((request: any) &#x3D;&gt; request.result_ref);
+  
+          this.resultRef &#x3D; resultRefs.join(&#x27;, &#x27;); // Join the array into a string with commas
+          const appealData &#x3D; this.appealData || [];
+  
+          result.forEach((request: any) &#x3D;&gt; {
+            const appealStatus &#x3D; appealData.find((appeal: any) &#x3D;&gt; appeal.result_ref &#x3D;&#x3D;&#x3D; request.result_ref)?.status;
+            request.appealStatus &#x3D; appealStatus || null;
+            // console.log(&#x27;Appeal Status&#x27;,appealStatus)
+            // console.log(&#x27;Results Ref&#x27;, request.result_ref)
+          });
+  
+          this.results &#x3D; result;
+          this.loading &#x3D; false;
+  
+          // Split the resultRef string into an array
+          const resultRefArray &#x3D; this.resultRef?.split(&#x27;, &#x27;);
+          resultRefArray?.forEach((resultRef: string) &#x3D;&gt; {
+            console.log(resultRef);
+          });
+        } else {
+          console.log(&#x27;Failed&#x27;, &quot;Unable to fetch results&quot;, &#x27;error&#x27;);
+        }
+      },
+      (error: any) &#x3D;&gt; {
+        console.log(&quot;Error&quot;, error.message, &quot;error&quot;);
+      }
+    );
+  }
+  
+  
 
   formatDate(date: string): string {
     const formattedDate &#x3D; this.datePipe.transform(date, &#x27;dd MMM yyyy&#x27;);
@@ -3168,96 +4043,131 @@ export class ListCustomersComponent implements OnInit {
         return this.sanitizer.bypassSecurityTrustResourceUrl(&#x27;assets/images/time.png&#x27;);
       // Add more cases for other status if needed
       default:
-        return this.sanitizer.bypassSecurityTrustResourceUrl(&#x27;assets/images/Vector.png&#x27;);
+        return this.sanitizer.bypassSecurityTrustResourceUrl(&#x27;assets/images/star.jpg&#x27;);
     }
   }
+
 
   handleDownload(result: any) {
-    if (result.id &#x3D;&#x3D;&#x3D; 1) {
-      this.downloadLink &#x3D; this.sanitizer.bypassSecurityTrustUrl(&#x27;assets/images/ns.jpg&#x27;);
-    } else if (result.id &#x3D;&#x3D;&#x3D; 2) {
-      this.downloadLink &#x3D; this.sanitizer.bypassSecurityTrustUrl(&#x27;assets/images/serena.jpeg&#x27;);
-    } else {
-      this.downloadLink &#x3D; this.sanitizer.bypassSecurityTrustUrl(&#x27;assets/images/certificate.png&#x27;);
-    }
+    if (result &amp;&amp; result.download_url) {
+      const downloadUrl &#x3D; result.download_url;
+      const absoluteDownloadUrl &#x3D; downloadUrl.startsWith(&#x27;http&#x27;) ? downloadUrl : &#x60;http://${downloadUrl}&#x60;;
 
-    // Rest of your raiseAppeal() function code...
-  }
-
-  // Define a helper function to get the appropriate text for the raiseAppeal button
-  getAppealButtonText(status: string, task_type: string): string {
-    if (task_type &#x3D;&#x3D;&#x3D; &#x27;CLASSIFICATION&#x27;) {
-      return &#x27;Create Appeal&#x27;;
-    } else {
-      if (status &#x3D;&#x3D;&#x3D; &#x27;APPROVED&#x27;) {
-        return &#x27;Appeal Accepted&#x27;;
-      } else if (status &#x3D;&#x3D;&#x3D; &#x27;PENDING&#x27;) {
-        return &#x27;Create Appeal&#x27;;
-      } else if (status &#x3D;&#x3D;&#x3D; &#x27;PUBLISHED&#x27;) {
-        return &#x27;Create Appeal&#x27;
-      } else if (status &#x3D;&#x3D;&#x3D; &#x27;APPEALED&#x27;) {
-        return &#x27;Already Appealed&#x27;;
-      } else {
-        return &#x27;Unknown Status&#x27;;
-      }
-    }
-  }
-  raiseAppeal(id: number, status: string, requestType: string): void {
-    console.log(id)
-    console.log(status)
-    console.log(requestType)
-    this.modalRef &#x3D; this.modalService.open(ConfirmDialogComponent, { centered: true });
-    this.modalRef.componentInstance.title &#x3D; &#x27;RAISE AN APPEAL&#x27;;
-    this.modalRef.componentInstance.body &#x3D; &#x27;Do you want to APPEAL for this Request?&#x27;;
-    this.modalRef.result.then((result) &#x3D;&gt; {
-      if (result &#x3D;&#x3D;&#x3D; &#x27;success&#x27;) {
-        this.httpService
-          .customerPortalGet(&#x60;api/v1/portal/appeals/${id}&#x60;, {})
-          .subscribe((result: any) &#x3D;&gt; {
-            if (result.status &#x3D;&#x3D;&#x3D; &#x27;00&#x27;) {
-              Swal.fire(&#x27;Appealed&#x27;, &#x27;Request Appeal Raised Successfully.&#x27;, &#x27;success&#x27;);
-              this.loadData();
-            } else {
-              // Handle the error if needed
-            }
-          });
-      } else {
-        console.log(&#x27;Error occurred&#x27;);
-      }
-    });
-  }
-
-  downloadCertificate(): void {
-    if (this.previewImageUrl) {
-      const certificateUrl &#x3D; this.previewImageUrl;
-      const certificateFileName &#x3D; &#x27;certificate.png&#x27;;
-  
-      // Extract the relative path from the certificate URL
-      const relativePathRegex &#x3D; /\/\/[^/]+(\/.+)/;
-      const matches &#x3D; certificateUrl.match(relativePathRegex);
-      if (!matches || matches.length &lt; 2) {
-        console.error(&#x27;Invalid certificate URL:&#x27;, certificateUrl);
-        return;
-      }
-      const relativePath &#x3D; matches[1];
-  
-      // Create a Blob from the fetched certificate data and initiate the download
-      fetch(relativePath)
-        .then((response) &#x3D;&gt; response.blob())
-        .then((blob) &#x3D;&gt; {
-          const blobUrl &#x3D; URL.createObjectURL(blob);
+      // Trigger the file download using HttpClient
+      this.http.get(absoluteDownloadUrl, { responseType: &#x27;blob&#x27; }).subscribe(
+        (blob: Blob) &#x3D;&gt; {
+          // Create a new anchor element
           const link &#x3D; document.createElement(&#x27;a&#x27;);
-          link.href &#x3D; blobUrl;
-          link.download &#x3D; certificateFileName;
+          link.href &#x3D; URL.createObjectURL(blob);
+
+          // Set the &#x27;download&#x27; attribute to force the download instead of navigation
+          link.setAttribute(&#x27;download&#x27;, &#x27;downloaded_file&#x27;);
+
+          // Append the link to the DOM and trigger a click event to initiate the download
+          document.body.appendChild(link);
           link.click();
-        })
-        .catch((error) &#x3D;&gt; {
-          console.error(&#x27;Error fetching the certificate data:&#x27;, error);
-        });
+
+          // Remove the link from the DOM after the download is complete
+          document.body.removeChild(link);
+        },
+        (error) &#x3D;&gt; {
+          console.error(&#x27;Error downloading the file:&#x27;, error);
+        }
+      );
     } else {
-      console.error(&#x27;Certificate data is not available.&#x27;);
+      console.error(&#x27;Download URL is not available in the result object.&#x27;);
     }
-}
+  }
+
+
+  downloadCertificate(fileUrl: string) {
+    const normalizedFileUrl &#x3D; fileUrl.replace(&quot;10.20.2.19:7600&quot;, &quot;https://test-api.ekenya.co.ke/tra-backend&quot;);
+    // console.log(normalizedFileUrl);
+    const link &#x3D; document.createElement(&#x27;a&#x27;);
+    link.href &#x3D; normalizedFileUrl;
+    link.target &#x3D; &#x27;_blank&#x27;;
+    link.click();
+  }
+
+  getAppealButtonText(status: string, appealStatus: string | null): string {
+    if (appealStatus &#x3D;&#x3D;&#x3D; &#x27;PENDING&#x27;) {
+      return &#x27;Appealled&#x27;; // If appealStatus is &#x27;PENDING&#x27;, show &#x27;Appealed&#x27;
+    } else if (appealStatus &#x3D;&#x3D;&#x3D; &#x27;APPROVED&#x27;) {
+      return &#x27;Accepted&#x27;;
+    } else if (appealStatus &#x3D;&#x3D;&#x3D; &#x27;REJECTED&#x27;) {
+      return &#x27;Failed&#x27;;
+    } else if (status &#x3D;&#x3D;&#x3D; &#x27;PUBLISHED&#x27;) {
+      return &#x27;Appeal&#x27;;
+    } else if (status &#x3D;&#x3D;&#x3D; &#x27;APPEALED&#x27;) {
+      return &#x27;Already Appealed&#x27;;
+    } else {
+      return &#x27;Unknown Status&#x27;;
+    }
+  }
+
+  hideAppealForm() {
+    this.showAppealForm &#x3D; false;
+    this.formR.reset();
+  }
+  hideAppeals() {
+    this.showAppeals &#x3D; false;
+  }
+
+  viewAppeal() {
+    if (this.showAppeals) {
+      this.hideAppeals();
+    } else {
+      this.showAppeals &#x3D; true;
+      // this.appealId &#x3D; id;
+    }
+  }
+
+  raiseAppeal(id:number): void {
+ 
+    if (this.formR.invalid) {
+      return;
+    }
+  const licenceNumber &#x3D; JSON.parse(localStorage.getItem(&#x27;data&#x27;)!)[&#x27;licenceNumber&#x27;]
+  const resultRef &#x3D; this.results.find((result: any) &#x3D;&gt; result.id &#x3D;&#x3D;&#x3D; id)?.result_ref;
+  if (!resultRef) {
+    console.log(&#x27;Unable to find result_ref for the specified id&#x27;);
+    return;
+  }
+  const model &#x3D; {
+    licenceNumber,
+    resultRef,
+    reason: this.formR.value.reason,
+  };
+  this.isLoading &#x3D; true;
+    console.log(model)
+    this.httpService.customerPortalPosts(&#x60;/admin/customer/portal/create-appeal&#x60;, model).subscribe((result: any) &#x3D;&gt; {
+      if (result.status &#x3D;&#x3D;&#x3D; 200) {
+        this.isLoading &#x3D; false;
+
+        Swal.fire(&#x27;Appeal Raised Successfully&#x27;,
+          &#x27;success&#x27;).then(r &#x3D;&gt; console.log(r))
+        this.loadData()
+        this.loadAppealsData()
+        this.hideAppealForm();
+
+        // this.appealDate &#x3D; new Date();
+        // this.isAppealButtonVisible &#x3D; false;
+        // this.isViewTrackButtonVisible &#x3D; true;
+      } else {
+        this.activeModal.close(&#x27;error&#x27;);
+        Swal.fire(&#x27;Raised Apeal Failed, Try Again&#x27;,
+          &#x27;error&#x27;).then(r &#x3D;&gt; console.log(r))
+        this.hideAppealForm();
+        this.isLoading &#x3D; true;
+      }
+    },
+      (error: any) &#x3D;&gt; {
+        Swal.fire(&#x27;Raised Appeal error&#x27;,
+          &#x27;error&#x27;)
+        this.hideAppealForm();
+        this.isLoading &#x3D; true;
+      });
+  }
 
   isButtonDisabled(status: string, task_type: string): boolean {
     if (task_type &#x3D;&#x3D;&#x3D; &#x27;CLASSIFICATION&#x27;) {
@@ -3271,7 +4181,7 @@ export class ListCustomersComponent implements OnInit {
     this.modalRef.componentInstance.title &#x3D; &#x27;Add New Customer&#x27;;
     this.modalRef.result.then((result) &#x3D;&gt; {
       if (result &#x3D;&#x3D;&#x3D; &#x27;success&#x27;) {
-        this.getIndividualData(0);
+        // this.getIndividualData(0);
       } else {
         console.log(&quot;Error occurred&quot;)
       }
@@ -3350,7 +4260,7 @@ export class ListCustomersComponent implements OnInit {
     this.modalRef.componentInstance.formData &#x3D; &quot;&quot;;
     this.modalRef.result.then((result) &#x3D;&gt; {
       if (result &#x3D;&#x3D;&#x3D; &#x27;success&#x27;) {
-        this.getIndividualData(0);
+        // this.getIndividualData(0);
       } else {
         console.log(&quot;Error occurred&quot;)
       }
@@ -3386,7 +4296,7 @@ export class ListCustomersComponent implements OnInit {
           &lt;div style&#x3D;&quot;background: var(--seasalt, #F8F8F8); border-radius: 8px 8px 8px 8px;&quot;&gt;
             &lt;div class&#x3D;&quot;d-flex justify-content-between&quot;
               style&#x3D;&quot;background-color: #d0ddf0;  font-family: &#x27;Mulish&#x27;; font-weight: 900; border-radius:4px;&quot;&gt;
-              &lt;h4 class&#x3D;&quot;text-start p-2 mt-2&quot; style&#x3D;&quot;color: #6D36A8; font-size: 23px;&quot;&gt;Customer Inquiry&lt;/h4&gt;
+              &lt;h4 class&#x3D;&quot;text-start p-2 mt-2&quot; style&#x3D;&quot;color: #6D36A8; font-size: 19px;&quot;&gt;Customer Inquiry&lt;/h4&gt;
               &lt;div&gt;
                 &lt;button type&#x3D;&quot;button&quot; class&#x3D;&quot;btn fs-2&quot; (click)&#x3D;&quot;hideLeaveCommentForm()&quot;
                   style&#x3D;&quot;color: #6D36A8; font-size: 20px; margin-top: -5%;&quot;&gt;
@@ -3395,41 +4305,40 @@ export class ListCustomersComponent implements OnInit {
               &lt;/div&gt;
             &lt;/div&gt;
             &lt;article class&#x3D;&quot;&quot;&gt;
-              &lt;p *ngIf&#x3D;&quot;errorMessage&quot; class&#x3D;&quot;text-danger&quot;&gt;{{errorMessage}}&lt;/p&gt;
               &lt;form class&#x3D;&quot;mt-1&quot; [formGroup]&#x3D;&quot;form&quot; (ngSubmit)&#x3D;&quot;onleaveComment()&quot; class&#x3D;&quot;row px-3&quot;&gt;
                 &lt;div class&#x3D;&quot;tab-content col-12 border-0&quot;&gt;
                   &lt;div class&#x3D;&quot;form-group mt-2&quot;&gt;
                     &lt;input formControlName&#x3D;&quot;name&quot; type&#x3D;&quot;text&quot; class&#x3D;&quot;form-control validation-field border-0&quot; id&#x3D;&quot;name&quot;
                       placeholder&#x3D;&quot;Your Name or Company*&quot;&gt;
-                    &lt;!-- &lt;small class&#x3D;&quot;text-danger&quot; *ngIf&#x3D;&quot;f.concern.touched &amp;&amp; f.concern.errors?.required&quot;&gt;Field Required&lt;/small&gt; --&gt;
+                    &lt;small class&#x3D;&quot;text-danger&quot; *ngIf&#x3D;&quot;f.name.touched &amp;&amp; f.name.errors?.required&quot;&gt;Field Required&lt;/small&gt;
                   &lt;/div&gt;
                   &lt;div class&#x3D;&quot;form-group mt-2&quot;&gt;
-                    &lt;input formControlName&#x3D;&quot;email&quot; type&#x3D;&quot;email&quot; class&#x3D;&quot;form-control validation-field border-0&quot;
-                      id&#x3D;&quot;email&quot; placeholder&#x3D;&quot;Your email address*&quot;&gt;
-                    &lt;!-- &lt;small class&#x3D;&quot;text-danger&quot; *ngIf&#x3D;&quot;f.concern.touched &amp;&amp; f.concern.errors?.required&quot;&gt;Field Required&lt;/small&gt; --&gt;
+                    &lt;input formControlName&#x3D;&quot;email&quot; type&#x3D;&quot;email&quot; class&#x3D;&quot;form-control validation-field border-0&quot; id&#x3D;&quot;email&quot;
+                      placeholder&#x3D;&quot;Your email address*&quot;&gt;
+                    &lt;small class&#x3D;&quot;text-danger&quot; *ngIf&#x3D;&quot;f.email.touched &amp;&amp; f.email.errors?.required&quot;&gt;Field Required&lt;/small&gt;
+                    &lt;small class&#x3D;&quot;text-danger&quot; *ngIf&#x3D;&quot;f.email.touched &amp;&amp; f.email.errors?.email&quot;&gt;Email Format Required&lt;/small&gt;
                   &lt;/div&gt;
                   &lt;div class&#x3D;&quot;form-group mt-2&quot;&gt;
-                    &lt;input type&#x3D;&quot;text&quot; name&#x3D;&quot;tel&quot; formControlName&#x3D;&quot;phoneNumber&quot; id&#x3D;&quot;phoneNumber&quot;
-                      placeholder&#x3D;&quot;Phone Number*&quot; class&#x3D;&quot;form-control validation-field border-0&quot; ng2TelInput
+                    &lt;input type&#x3D;&quot;text&quot; name&#x3D;&quot;tel&quot; formControlName&#x3D;&quot;phone_number&quot; id&#x3D;&quot;phoneNumber&quot;
+                      placeholder&#x3D;&quot;Phone Number*&quot; class&#x3D;&quot;form-control validation-field border-0 w-100&quot; ng2TelInput
                       data-initial-country&#x3D;&quot;ke&quot;&gt;
-                    &lt;!-- &lt;input formControlName&#x3D;&quot;phoneNumber&quot; id&#x3D;&quot;phoneNumber&quot; type&#x3D;&quot;text&quot;  placeholder&#x3D;&quot;Phone Number*&quot; class&#x3D;&quot;form-control validation-field border-0&quot;
-                                id&#x3D;&quot;purpose&quot; placeholder&#x3D;&quot;Your Phone No,&quot;&gt; --&gt;
-                    &lt;!-- &lt;small class&#x3D;&quot;text-danger&quot; *ngIf&#x3D;&quot;f.concern.touched &amp;&amp; f.concern.errors?.required&quot;&gt;Field Required&lt;/small&gt; --&gt;
+                    &lt;small class&#x3D;&quot;text-danger&quot; *ngIf&#x3D;&quot;f.phone_number.touched &amp;&amp; f.phone_number.errors?.required&quot;&gt;Field Required&lt;/small&gt; &lt;br&gt;
+                    &lt;small class&#x3D;&quot;text-danger&quot; *ngIf&#x3D;&quot;f.phone_number.touched &amp;&amp; f.phone_number.errors?.invalidPhoneNumber&quot;&gt;Phone Number: 254 *** *** *** or 07 **** ****&lt;/small&gt;
                   &lt;/div&gt;
                   &lt;div class&#x3D;&quot;form-group mt-2&quot;&gt;
                     &lt;input formControlName&#x3D;&quot;subject&quot; type&#x3D;&quot;text&quot; class&#x3D;&quot;form-control validation-field border-0&quot;
-                      id&#x3D;&quot;subject&quot; placeholder&#x3D;&quot;Subject&quot;&gt;
-                    &lt;!-- &lt;small class&#x3D;&quot;text-danger&quot; *ngIf&#x3D;&quot;f.concern.touched &amp;&amp; f.concern.errors?.required&quot;&gt;Field Required&lt;/small&gt; --&gt;
+                      id&#x3D;&quot;occupation&quot; placeholder&#x3D;&quot;Subject&quot;&gt;
+                    &lt;small class&#x3D;&quot;text-danger&quot; *ngIf&#x3D;&quot;f.subject.touched &amp;&amp; f.subject.errors?.required&quot;&gt;Field Required&lt;/small&gt;
                   &lt;/div&gt;
                   &lt;div class&#x3D;&quot;form-group mt-2&quot;&gt;
-                    &lt;textarea formControlName&#x3D;&quot;message&quot; type&#x3D;&quot;text&quot; id&#x3D;&quot;message&quot; cols&#x3D;&quot;15&quot; rows&#x3D;&quot;3&quot;
-                      placeholder&#x3D;&quot;Message&quot; class&#x3D;&quot;form-control validation-field border-0&quot;&gt;&lt;/textarea&gt;
-                    &lt;!-- &lt;small class&#x3D;&quot;text-danger&quot; *ngIf&#x3D;&quot;f.concern.touched &amp;&amp; f.concern.errors?.required&quot;&gt;Field Required&lt;/small&gt; --&gt;
+                    &lt;textarea formControlName&#x3D;&quot;message&quot; type&#x3D;&quot;text&quot; id&#x3D;&quot;message&quot; cols&#x3D;&quot;15&quot; rows&#x3D;&quot;3&quot; 
+                    placeholder&#x3D;&quot;Message&quot; class&#x3D;&quot;form-control validation-field border-0&quot;&gt;&lt;/textarea&gt;
+                    &lt;small class&#x3D;&quot;text-danger&quot; *ngIf&#x3D;&quot;f.message.touched &amp;&amp; f.message.errors?.required&quot;&gt;Field Required&lt;/small&gt;
                   &lt;/div&gt;
                   &lt;div class&#x3D;&quot;col-12 bg-white text-center py-1 mt-3 mb-2&quot;&gt;
-                    &lt;button style&#x3D;&quot;width: 100%; border: none;&quot; class&#x3D;&quot;btn btn-block bronchure-btn transition&quot;
+                    &lt;button [disabled]&#x3D;&quot;!form.valid&quot; style&#x3D;&quot;width: 100%; border: none;&quot; class&#x3D;&quot;btn btn-block login-btn transition&quot;
                       type&#x3D;&quot;submit&quot;&gt;
-                      &lt;span style&#x3D;&quot;color: white;&quot;&gt;SEND&lt;/span&gt;
+                      &lt;span style&#x3D;&quot;color: white;&quot;&gt;SEND&lt;/span&gt;&lt;img *ngIf&#x3D;&quot;isLoading&quot; class&#x3D;&quot;pl-2&quot; src&#x3D;&quot;assets/images/loading.gif&quot; alt&#x3D;&quot;loading-gif&quot;&gt;
                     &lt;/button&gt;
                   &lt;/div&gt;
                 &lt;/div&gt;
@@ -3457,7 +4366,7 @@ export class ListCustomersComponent implements OnInit {
     &lt;/div&gt;
   &lt;/div&gt;
   &lt;div class&#x3D;&quot;landing&quot;
-    style&#x3D;&quot;position:absolute; padding: 16px 24px; align-items: center; border-radius: 16px; background: #FFF; width: 92%; margin-left: 4%; margin-top: 20%;&quot;&gt;
+    style&#x3D;&quot;position:absolute; padding: 16px 24px; align-items: center; border-radius: 16px; background: #FFF; width: 92%; margin-left: 4%; margin-top: 17%;&quot;&gt;
     &lt;div&gt;
       &lt;div&gt;
         &lt;h1
@@ -3474,88 +4383,124 @@ export class ListCustomersComponent implements OnInit {
       &lt;/div&gt;
     &lt;/div&gt;
     &lt;br&gt;
-    &lt;div class&#x3D;&quot;row d-flex justify-content-between mt-2&quot; *ngFor&#x3D;&quot;let std of results&quot;&gt;
-      &lt;div class&#x3D;&quot;col&quot;&gt;
-        &lt;p class&#x3D;&quot;title&quot;&gt;Result No:&lt;/p&gt;
-        &lt;h2 class&#x3D;&quot;content&quot;&gt;{{std.result_ref}}&lt;/h2&gt;
-      &lt;/div&gt;
-      &lt;!-- &lt;div class&#x3D;&quot;col&quot;&gt;
-        &lt;p class&#x3D;&quot;title&quot;&gt;Task No:&lt;/p&gt;
-        &lt;h2 class&#x3D;&quot;content&quot;&gt;{{std.task_ref}}&lt;/h2&gt;
-      &lt;/div&gt; --&gt;
-      &lt;div class&#x3D;&quot;col&quot;&gt;
-        &lt;p class&#x3D;&quot;title&quot;&gt;Request Type&lt;/p&gt;
-        &lt;h2 class&#x3D;&quot;content&quot;&gt;{{std.task_type}}&lt;/h2&gt;
-      &lt;/div&gt;
-      &lt;div class&#x3D;&quot;col&quot; *ngIf&#x3D;&quot;std.task_type &#x3D;&#x3D;&#x3D; &#x27;ACCREDITATION&#x27;&quot;&gt;
-        &lt;p class&#x3D;&quot;title&quot;&gt;Score&lt;/p&gt;
-        &lt;h2 class&#x3D;&quot;content&quot;&gt;{{ std.score }}&lt;/h2&gt;
-      &lt;/div&gt;
-      &lt;div class&#x3D;&quot;col&quot; *ngIf&#x3D;&quot;std.task_type &#x3D;&#x3D;&#x3D; &#x27;CLASSIFICATION&#x27;&quot;&gt;
-        &lt;p class&#x3D;&quot;title&quot;&gt;Rating&lt;/p&gt;
-        &lt;h2 class&#x3D;&quot;content&quot;&gt;{{ std.rating }} stars&lt;/h2&gt;
-      &lt;/div&gt;
-      &lt;div class&#x3D;&quot;col&quot;&gt;
-        &lt;p class&#x3D;&quot;title&quot;&gt;Date Created&lt;/p&gt;
-        &lt;h2 class&#x3D;&quot;content&quot;&gt;{{ formatDate(std.created_on) }}&lt;/h2&gt;
-      &lt;/div&gt;
-      &lt;div class&#x3D;&quot;col&quot;&gt;
-        &lt;p class&#x3D;&quot;title&quot;&gt;Status&lt;/p&gt;
-        &lt;ng-container *ngIf&#x3D;&quot;std.task_type &#x3D;&#x3D;&#x3D; &#x27;CLASSIFICATION&#x27;; else accreditationsStatus&quot;&gt;
-          &lt;h2 class&#x3D;&quot;content&quot;&gt;
-            &lt;img class&#x3D;&quot;card-img-top img-fluid mr-1&quot; style&#x3D;&quot;width: 13px; height: 15px;&quot;
-              src&#x3D;&quot;assets/images/Vector.png&quot; /&gt;
-            stars
-          &lt;/h2&gt;
+    &lt;div *ngIf&#x3D;&quot;results.length &gt; 0&quot;&gt;
+      &lt;div class&#x3D;&quot;row d-flex justify-content-between mt-2&quot; *ngFor&#x3D;&quot;let std of results&quot;&gt;
+        &lt;div class&#x3D;&quot;col&quot;&gt;
+          &lt;p class&#x3D;&quot;title&quot;&gt;Result No:&lt;/p&gt;
+          &lt;h2 class&#x3D;&quot;content&quot;&gt;{{std.result_ref}}&lt;/h2&gt;
+        &lt;/div&gt;
+        &lt;!-- &lt;div class&#x3D;&quot;col&quot;&gt;
+          &lt;p class&#x3D;&quot;title&quot;&gt;Task No:&lt;/p&gt;
+          &lt;h2 class&#x3D;&quot;content&quot;&gt;{{std.task_ref}}&lt;/h2&gt;
+        &lt;/div&gt; --&gt;
+        &lt;div class&#x3D;&quot;col&quot;&gt;
+          &lt;p class&#x3D;&quot;title&quot;&gt;Request Type&lt;/p&gt;
+          &lt;h2 class&#x3D;&quot;content&quot;&gt;{{std.task_type}}&lt;/h2&gt;
+        &lt;/div&gt;
+        &lt;div class&#x3D;&quot;col&quot;&gt;
+          &lt;p class&#x3D;&quot;title&quot;&gt;Date Created&lt;/p&gt;
+          &lt;h2 class&#x3D;&quot;content&quot;&gt;{{ formatDate(std.created_on) }}&lt;/h2&gt;
+        &lt;/div&gt;
+        &lt;div class&#x3D;&quot;col&quot; *ngIf&#x3D;&quot;std.task_type &#x3D;&#x3D;&#x3D; &#x27;ACCREDITATION&#x27;&quot;&gt;
+          &lt;p class&#x3D;&quot;title&quot;&gt;Score&lt;/p&gt;
+          &lt;h2 class&#x3D;&quot;content&quot;&gt;{{ std.score }}&lt;/h2&gt;
+        &lt;/div&gt;
+        &lt;div class&#x3D;&quot;col&quot; *ngIf&#x3D;&quot;std.task_type &#x3D;&#x3D;&#x3D; &#x27;CLASSIFICATION&#x27;&quot;&gt;
+          &lt;p class&#x3D;&quot;title&quot;&gt;Rating&lt;/p&gt;
+          &lt;h2 class&#x3D;&quot;content&quot;&gt;{{ std.rating }} &lt;img class&#x3D;&quot;card-img-top img-fluid mr-1 mb-1&quot;
+              style&#x3D;&quot;width: 13px; height: 15px;&quot; src&#x3D;&quot;assets/images/star.jpg&quot; /&gt;&lt;/h2&gt;
+        &lt;/div&gt;
+        &lt;!-- &lt;div class&#x3D;&quot;col&quot;&gt;
+          &lt;p class&#x3D;&quot;title&quot;&gt;Results&lt;/p&gt;
+          &lt;ng-container *ngIf&#x3D;&quot;std.task_type &#x3D;&#x3D;&#x3D; &#x27;CLASSIFICATION&#x27;; else accreditationsStatus&quot;&gt;
+            &lt;h2 class&#x3D;&quot;content&quot;&gt;
+              &lt;img class&#x3D;&quot;card-img-top img-fluid mr-1&quot; style&#x3D;&quot;width: 13px; height: 16px;&quot;
+                [src]&#x3D;&quot;getSanitizedStatusImage(std.status)&quot; /&gt;{{std.status}}
+            &lt;/h2&gt;
+          &lt;/ng-container&gt;
+          &lt;ng-template #accreditationsStatus&gt;
+            &lt;h2 class&#x3D;&quot;content&quot;&gt;
+              &lt;img class&#x3D;&quot;card-img-top img-fluid mr-1&quot; style&#x3D;&quot;width: 13px; height: 16px;&quot;
+                [src]&#x3D;&quot;getSanitizedStatusImage(std.status)&quot; /&gt;{{std.status}}
+            &lt;/h2&gt;
+          &lt;/ng-template&gt;
+        &lt;/div&gt; --&gt;
+        &lt;div class&#x3D;&quot;col&quot;&gt;
+          &lt;p class&#x3D;&quot;title&quot;&gt;Appeal Status&lt;/p&gt;
+          &lt;h2 class&#x3D;&quot;content&quot; *ngIf&#x3D;&quot;std.appealStatus; else noAppealText&quot;&gt;{{ std.appealStatus }}&lt;/h2&gt;
+          &lt;ng-template #noAppealText&gt;
+            &lt;span class&#x3D;&quot;content &quot;&gt;&lt;b&gt;No Appeal&lt;/b&gt;&lt;/span&gt;
+          &lt;/ng-template&gt;
+        &lt;/div&gt;
+        &lt;div class&#x3D;&quot;mt-2 col&quot;&gt;
+      &lt;button class&#x3D;&quot;btn btn-md login-btn transition&quot; (click)&#x3D;&quot;downloadCertificate(std.download_url)&quot; type&#x3D;&quot;submit&quot;&gt;
+              &lt;a style&#x3D;&quot;text-decoration: none&quot; class&#x3D;&quot;transition&quot;&gt;
+                &lt;span style&#x3D;&quot;color: var(--white, #FFF);text-align: center;font-family: Mulish;font-size: 13px;font-style: normal;font-weight: 700;line-height: normal;letter-spacing: 1.12px;text-transform: uppercase;
+                    &quot;&gt;DOWNLOAD REPORT&lt;/span&gt;&lt;/a&gt;
+            &lt;/button&gt;
+        &lt;/div&gt;
+        &lt;ng-container&gt;
+          &lt;div class&#x3D;&quot;mt-1 col&quot;&gt;
+            &lt;button class&#x3D;&quot;btn btn-md transition&quot; *ngIf&#x3D;&quot;calculateAppealButtonVisibility(std)&quot;
+              (click)&#x3D;&quot;toggleAppealForm(std.id)&quot;
+              [class.deactivated]&#x3D;&quot;std.isButtonDeactivated&quot;
+              style&#x3D;&quot;background-color: #F8F8F8;border: 2px solid var(--green-blue, #2268AA); border-radius: 64px;&quot;
+              type&#x3D;&quot;button&quot;&gt;
+              &lt;a style&#x3D;&quot;text-decoration: none&quot; class&#x3D;&quot;transition&quot;&gt;
+                &lt;span style&#x3D;&quot;
+          color: var(--violet-blue, #2766BF);
+          text-align: center;
+          font-family: Mulish;
+          font-size: 12px;
+          font-style: normal;
+          font-weight: 700;
+          line-height: normal;
+          letter-spacing: 1.12px;
+          text-transform: uppercase;
+        &quot;&gt;
+                  {{ getAppealButtonText(std.status, std.appealStatus) }}
+                &lt;/span&gt;
+              &lt;/a&gt;
+            &lt;/button&gt;
+          &lt;/div&gt;
+          &lt;!-- &lt;div class&#x3D;&quot;mt-1 col&quot; *ngIf&#x3D;&quot;isViewTrackButtonVisible&quot;&gt;
+            &lt;button class&#x3D;&quot;btn btn-md transition&quot; (click)&#x3D;&quot;viewAppeal()&quot;
+              style&#x3D;&quot;background-color: #F8F8F8;border: 2px solid var(--green-blue, #2268AA); border-radius: 64px;&quot;
+              type&#x3D;&quot;button&quot;&gt;
+              &lt;a style&#x3D;&quot;text-decoration: none&quot; class&#x3D;&quot;transition&quot;&gt;
+                &lt;span style&#x3D;&quot;
+          color: var(--violet-blue, #2766BF);
+          text-align: center;
+          font-family: Mulish;
+          font-size: 12px;
+          font-style: normal;
+          font-weight: 700;
+          line-height: normal;
+          letter-spacing: 1.12px;
+          text-transform: uppercase;
+        &quot;&gt;
+                  View
+                &lt;/span&gt;
+              &lt;/a&gt;
+            &lt;/button&gt;
+          &lt;/div&gt; --&gt;
         &lt;/ng-container&gt;
-        &lt;ng-template #accreditationsStatus&gt;
-          &lt;h2 class&#x3D;&quot;content&quot;&gt;
-            &lt;img class&#x3D;&quot;card-img-top img-fluid mr-1&quot; style&#x3D;&quot;width: 13px; height: 16px;&quot;
-              [src]&#x3D;&quot;getSanitizedStatusImage(std.status)&quot; /&gt;{{std.status}}
-          &lt;/h2&gt;
-        &lt;/ng-template&gt;
-      &lt;/div&gt;
-      &lt;div class&#x3D;&quot;mt-2 col&quot;&gt;
-        &lt;a [href]&#x3D;&quot;downloadLink&quot; download&gt;
-          &lt;button class&#x3D;&quot;btn btn-md login-btn transition&quot; (click)&#x3D;&quot;handleDownload(std)&quot; type&#x3D;&quot;submit&quot;&gt;
-            &lt;a style&#x3D;&quot;text-decoration: none&quot; class&#x3D;&quot;transition&quot;&gt;
-              &lt;span style&#x3D;&quot;color: var(--white, #FFF);text-align: center;font-family: Mulish;font-size: 13px;font-style: normal;font-weight: 700;line-height: normal;letter-spacing: 1.12px;text-transform: uppercase;
-                  &quot;&gt;DOWNLOAD&lt;/span&gt;&lt;/a&gt;
-          &lt;/button&gt;
-        &lt;/a&gt;
-      &lt;/div&gt;
-      &lt;div class&#x3D;&quot;mt-1 col&quot;&gt;
-        &lt;button [disabled]&#x3D;&quot;isButtonDisabled(std.status, std.task_type)&quot; class&#x3D;&quot;btn btn-md transition&quot;
-          (click)&#x3D;&quot;raiseAppeal(std.id, std.status, std.task_type)&quot;
-          style&#x3D;&quot;background-color: #D0DDF0; border-radius: 64px;&quot; type&#x3D;&quot;button&quot;&gt;
-          &lt;a style&#x3D;&quot;text-decoration: none&quot; class&#x3D;&quot;transition&quot;&gt;
-            &lt;span style&#x3D;&quot;
-            color: var(--violet-blue, #2766BF);
-            text-align: center;
-            font-family: Mulish;
-            font-size: 12px;
-            font-style: normal;
-            font-weight: 700;
-            line-height: normal;
-            letter-spacing: 1.12px;
-            text-transform: uppercase;
-          &quot;&gt;
-              {{ getAppealButtonText(std.status, std.task_type) }}
-            &lt;/span&gt;
-          &lt;/a&gt;
-        &lt;/button&gt;
       &lt;/div&gt;
     &lt;/div&gt;
+    &lt;div *ngIf&#x3D;&quot;results.length &#x3D;&#x3D;&#x3D; 0&quot;&gt;
+      &lt;h5 class&#x3D;&quot;d-flex justify-content-start&quot;
+      style&#x3D;&quot;color: #a90202; font-family: &#x27;Mulish&#x27;;font-weight: 600;font-size: 15px; text-transform: none;&quot;&gt;No REPORTS &amp; RESULTS Yet.&lt;/h5&gt;
+    &lt;/div&gt;
     &lt;div class&#x3D;&quot;d-flex justify-content-end&quot;&gt;
-      &lt;div style&#x3D;&quot;position: fixed; bottom: 9%; right:3%;&quot; class&#x3D;&quot;d-flex justify-content-around&quot;&gt;
-        &lt;button *ngIf&#x3D;&quot;!showLeaveCommentForm&quot; class&#x3D;&quot;btn btn-sm transition&quot;
+      &lt;div style&#x3D;&quot;position: fixed; bottom: 9%; right:3%;&quot;  (click)&#x3D;&quot;toggleLeaveCommentForm()&quot; class&#x3D;&quot;d-flex justify-content-around&quot;&gt;
+        &lt;!-- &lt;button *ngIf&#x3D;&quot;!showLeaveCommentForm&quot; class&#x3D;&quot;btn btn-sm transition&quot;
           style&#x3D;&quot;border-radius: 64px;background: var(--green-blue, #2268AA); margin-right:10px;&quot; type&#x3D;&quot;submit&quot;&gt;
           &lt;a style&#x3D;&quot;text-decoration: none&quot; class&#x3D;&quot;transition&quot;&gt;
             &lt;span
               style&#x3D;&quot;color: var(--seasalt, #F8F8F8);text-align: center;font-family: Mulish;font-size: 12px;font-style: normal;font-weight: 700;line-height: normal;letter-spacing: 1.12px;text-transform: uppercase;&quot;&gt;customer
               inquiry&lt;/span&gt;&lt;/a&gt;
-        &lt;/button&gt;
-        &lt;div (click)&#x3D;&quot;toggleLeaveCommentForm()&quot;
+        &lt;/button&gt; --&gt;
+        &lt;div 
           style&#x3D;&quot;width: 50px; height: 50px; border-radius: 50%; background-color: #D0DDF0;;&quot;
           class&#x3D;&quot;card-header d-flex align-items-center border-0&quot;&gt;
           &lt;p style&#x3D;&quot;color:#2268AA;  font-size: 30px; margin-left: -13px;&quot;&gt;
@@ -3568,7 +4513,45 @@ export class ListCustomersComponent implements OnInit {
     &lt;/div&gt;
     &lt;hr&gt;
   &lt;/div&gt;
-&lt;/div&gt;</code></pre>
+&lt;/div&gt;
+&lt;ng-container *ngIf&#x3D;&quot;showAppealForm&quot;&gt;
+  &lt;div class&#x3D;&quot;appealForm&quot;&gt;
+    &lt;div class&#x3D;&quot;appeal&quot;&gt;
+      &lt;div style&#x3D;&quot;background: var(--seasalt, #F8F8F8); border-radius: 8px 8px 8px 8px;&quot;&gt;
+        &lt;div class&#x3D;&quot;d-flex justify-content-between align-items-center&quot;
+          style&#x3D;&quot;background-color: #d0ddf0;  font-family: &#x27;Mulish&#x27;; font-weight: 900; border-radius:4px; height: 50px;&quot;&gt;
+          &lt;h4 class&#x3D;&quot; text-start mt-3 p-2&quot; style&#x3D;&quot;color: #6D36A8; font-size: 17px;&quot;&gt;Reason For Appealing&lt;/h4&gt;
+          &lt;div&gt;
+            &lt;button type&#x3D;&quot;button&quot; class&#x3D;&quot;btn fs-2&quot; (click)&#x3D;&quot;hideAppealForm()&quot;
+              style&#x3D;&quot;color: #6D36A8; font-size: 20px; margin-top: -5%;&quot;&gt;
+              &amp;times;
+            &lt;/button&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;article class&#x3D;&quot;&quot;&gt;
+          &lt;form class&#x3D;&quot;mt-1&quot; [formGroup]&#x3D;&quot;formR&quot; (ngSubmit)&#x3D;&quot;raiseAppeal(appealId)&quot; class&#x3D;&quot;row px-3&quot;&gt;
+            &lt;div class&#x3D;&quot;tab-content col-12 border-0&quot;&gt;
+              &lt;div class&#x3D;&quot;form-group mt-2&quot;&gt;
+                &lt;textarea placeholder&#x3D;&quot;Your Reason*&quot; formControlName&#x3D;&quot;reason&quot; id&#x3D;&quot;reason&quot; cols&#x3D;&quot;15&quot; rows&#x3D;&quot;3&quot; class&#x3D;&quot;form-control border-0 validation-field text&quot;&gt;&lt;/textarea&gt;
+                &lt;!-- &lt;input formControlName&#x3D;&quot;reason&quot; type&#x3D;&quot;text&quot; class&#x3D;&quot;form-control validation-field border-0&quot; id&#x3D;&quot;reason&quot;
+                  placeholder&#x3D;&quot;Your Reason*&quot;&gt; --&gt;
+                &lt;small class&#x3D;&quot;text-danger&quot; *ngIf&#x3D;&quot;fs.reason.touched &amp;&amp; fs.reason.errors?.required&quot;&gt;Field
+                  Required&lt;/small&gt;
+              &lt;/div&gt;
+              &lt;div class&#x3D;&quot;col-12 bg-white text-center py-1 mt-3 mb-2&quot;&gt;
+                &lt;button [disabled]&#x3D;&quot;!formR.valid&quot; style&#x3D;&quot;width: 100%; border: none;&quot;
+                  class&#x3D;&quot;btn btn-block login-btn transition&quot; type&#x3D;&quot;submit&quot;&gt;
+                  &lt;span style&#x3D;&quot;color: white;&quot;&gt;SEND&lt;/span&gt;&lt;img *ngIf&#x3D;&quot;isLoading&quot; class&#x3D;&quot;pl-2&quot; src&#x3D;&quot;assets/images/loading.gif&quot; alt&#x3D;&quot;loading-gif&quot;&gt;
+                &lt;/button&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/form&gt;
+        &lt;/article&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/ng-container&gt;
+</code></pre>
     </div>
 
     <div class="tab-pane fade " id="styleData">
@@ -3597,6 +4580,30 @@ export class ListCustomersComponent implements OnInit {
   color: #ffffff;
   background-color: #f7941d;
   border-radius: 8px;
+}
+
+/* CSS to center the appeal form */
+.appealForm {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  border-radius: 8px 8px 8px 8px;
+  width: 400px !important;
+}
+button.deactivated {
+  pointer-events: none; /* Disable pointer events to make the button non-clickable */
+  opacity: 0.5; /* Reduce opacity to visually indicate that the button is inactive */
+}
+.appeal {
+  border-radius: 8px 8px 8px 8px;
+  width: 400px !important;
 }
 
 
@@ -3629,7 +4636,7 @@ export class ListCustomersComponent implements OnInit {
 <script src="../js/libs/htmlparser.js"></script>
 <script src="../js/libs/deep-iterator.js"></script>
 <script>
-        var COMPONENT_TEMPLATE = '<div><div style="margin-left: 3%;" class="d-flex justify-content-between align-items-center flex-wrap grid-margin">  <ng-container *ngIf="showLeaveCommentForm">    <div class="modal-container"      style="display: flex;justify-content: end;align-items: center;position: fixed;width: 100%;height: 100%; z-index: 10;  border-radius: 8px 8px 8px 8px;">      <div>        <div class="modals " style="border-radius: 8px 8px 8px 8px;">          <div style="background: var(--seasalt, #F8F8F8); border-radius: 8px 8px 8px 8px;">            <div class="d-flex justify-content-between"              style="background-color: #d0ddf0;  font-family: \'Mulish\'; font-weight: 900; border-radius:4px;">              <h4 class="text-start p-2 mt-2" style="color: #6D36A8; font-size: 23px;">Customer Inquiry</h4>              <div>                <button type="button" class="btn fs-2" (click)="hideLeaveCommentForm()"                  style="color: #6D36A8; font-size: 20px; margin-top: -5%;">                  &times;                </button>              </div>            </div>            <article class="">              <p *ngIf="errorMessage" class="text-danger">{{errorMessage}}</p>              <form class="mt-1" [formGroup]="form" (ngSubmit)="onleaveComment()" class="row px-3">                <div class="tab-content col-12 border-0">                  <div class="form-group mt-2">                    <input formControlName="name" type="text" class="form-control validation-field border-0" id="name"                      placeholder="Your Name or Company*">                    <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->                  </div>                  <div class="form-group mt-2">                    <input formControlName="email" type="email" class="form-control validation-field border-0"                      id="email" placeholder="Your email address*">                    <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->                  </div>                  <div class="form-group mt-2">                    <input type="text" name="tel" formControlName="phoneNumber" id="phoneNumber"                      placeholder="Phone Number*" class="form-control validation-field border-0" ng2TelInput                      data-initial-country="ke">                    <!-- <input formControlName="phoneNumber" id="phoneNumber" type="text"  placeholder="Phone Number*" class="form-control validation-field border-0"                                id="purpose" placeholder="Your Phone No,"> -->                    <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->                  </div>                  <div class="form-group mt-2">                    <input formControlName="subject" type="text" class="form-control validation-field border-0"                      id="subject" placeholder="Subject">                    <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->                  </div>                  <div class="form-group mt-2">                    <textarea formControlName="message" type="text" id="message" cols="15" rows="3"                      placeholder="Message" class="form-control validation-field border-0"></textarea>                    <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->                  </div>                  <div class="col-12 bg-white text-center py-1 mt-3 mb-2">                    <button style="width: 100%; border: none;" class="btn btn-block bronchure-btn transition"                      type="submit">                      <span style="color: white;">SEND</span>                    </button>                  </div>                </div>              </form>            </article>          </div>        </div>      </div>    </div>  </ng-container>  <div>    <h4 class="mb-md-0"      style="color: var(--dark-purple, #1E0F2E);font-family: Muli;font-size: 20px;font-style: normal;font-weight: 700;line-height: 26px; ">      Reports & Results</h4>  </div></div><div class="card" style="position: relative;">  <div class="row">    <div class="col-md-12 col-lg-12 col-xl-12 col-sm-12">      <div class="card border-0 box-shadow">        <img class="card-img-top img-fluid" style="max-width:100% ; height: 260px ; border-radius: 16px;"          src="assets/images/results.png" />      </div>    </div>  </div>  <div class="landing"    style="position:absolute; padding: 16px 24px; align-items: center; border-radius: 16px; background: #FFF; width: 92%; margin-left: 4%; margin-top: 20%;">    <div>      <div>        <h1          style="color: var(--grape-tra, #6D36A8);font-family: Mulish;font-size: 18px;font-style: normal;font-weight: 700;line-height: 24px;">          Elevate Your Business: Proven Excellence with Our Certifications, Accreditations, & Classifications.</h1>        <p          style="color: #000;text-align: justify;font-family: Mulish;font-size: 15px;font-style: normal;font-weight: 400;line-height: 21px;">          The Authority conducts certification and accreditation processes to assess tourism enterprises, ensuring          conformity to set standards. The marks of conformity signify consistent delivery of quality products and          services, fostering growth, sustainability, and competitiveness in the tourism market. They classify and grade          tourism businesses in line with the EAC Classification System, aiming to promote product and service quality          for sustainable development. The programs encourage stakeholder involvement and transparent evaluation          processes, benefiting businesses with increased tourist arrivals and spending.</p>      </div>    </div>    <br>    <div class="row d-flex justify-content-between mt-2" *ngFor="let std of results">      <div class="col">        <p class="title">Result No:</p>        <h2 class="content">{{std.result_ref}}</h2>      </div>      <!-- <div class="col">        <p class="title">Task No:</p>        <h2 class="content">{{std.task_ref}}</h2>      </div> -->      <div class="col">        <p class="title">Request Type</p>        <h2 class="content">{{std.task_type}}</h2>      </div>      <div class="col" *ngIf="std.task_type === \'ACCREDITATION\'">        <p class="title">Score</p>        <h2 class="content">{{ std.score }}</h2>      </div>      <div class="col" *ngIf="std.task_type === \'CLASSIFICATION\'">        <p class="title">Rating</p>        <h2 class="content">{{ std.rating }} stars</h2>      </div>      <div class="col">        <p class="title">Date Created</p>        <h2 class="content">{{ formatDate(std.created_on) }}</h2>      </div>      <div class="col">        <p class="title">Status</p>        <ng-container *ngIf="std.task_type === \'CLASSIFICATION\'; else accreditationsStatus">          <h2 class="content">            <img class="card-img-top img-fluid mr-1" style="width: 13px; height: 15px;"              src="assets/images/Vector.png" />            stars          </h2>        </ng-container>        <ng-template #accreditationsStatus>          <h2 class="content">            <img class="card-img-top img-fluid mr-1" style="width: 13px; height: 16px;"              [src]="getSanitizedStatusImage(std.status)" />{{std.status}}          </h2>        </ng-template>      </div>      <div class="mt-2 col">        <a [href]="downloadLink" download>          <button class="btn btn-md login-btn transition" (click)="handleDownload(std)" type="submit">            <a style="text-decoration: none" class="transition">              <span style="color: var(--white, #FFF);text-align: center;font-family: Mulish;font-size: 13px;font-style: normal;font-weight: 700;line-height: normal;letter-spacing: 1.12px;text-transform: uppercase;                  ">DOWNLOAD</span></a>          </button>        </a>      </div>      <div class="mt-1 col">        <button [disabled]="isButtonDisabled(std.status, std.task_type)" class="btn btn-md transition"          (click)="raiseAppeal(std.id, std.status, std.task_type)"          style="background-color: #D0DDF0; border-radius: 64px;" type="button">          <a style="text-decoration: none" class="transition">            <span style="            color: var(--violet-blue, #2766BF);            text-align: center;            font-family: Mulish;            font-size: 12px;            font-style: normal;            font-weight: 700;            line-height: normal;            letter-spacing: 1.12px;            text-transform: uppercase;          ">              {{ getAppealButtonText(std.status, std.task_type) }}            </span>          </a>        </button>      </div>    </div>    <div class="d-flex justify-content-end">      <div style="position: fixed; bottom: 9%; right:3%;" class="d-flex justify-content-around">        <button *ngIf="!showLeaveCommentForm" class="btn btn-sm transition"          style="border-radius: 64px;background: var(--green-blue, #2268AA); margin-right:10px;" type="submit">          <a style="text-decoration: none" class="transition">            <span              style="color: var(--seasalt, #F8F8F8);text-align: center;font-family: Mulish;font-size: 12px;font-style: normal;font-weight: 700;line-height: normal;letter-spacing: 1.12px;text-transform: uppercase;">customer              inquiry</span></a>        </button>        <div (click)="toggleLeaveCommentForm()"          style="width: 50px; height: 50px; border-radius: 50%; background-color: #D0DDF0;;"          class="card-header d-flex align-items-center border-0">          <p style="color:#2268AA;  font-size: 30px; margin-left: -13px;">            <img class="img-fluid" style="position: absolute; bottom: 19%" src="assets/images/chats.png" width="30"              height="20" alt="logo" />            <!-- <i (click)="openModal(leaveComment)" class="mt-2 fa-solid fa-comments" title="Leave A Comment"></i> -->          </p>        </div>      </div>    </div>    <hr>  </div></div></div>'
+        var COMPONENT_TEMPLATE = '<div><div style="margin-left: 3%;" class="d-flex justify-content-between align-items-center flex-wrap grid-margin">  <ng-container *ngIf="showLeaveCommentForm">    <div class="modal-container"      style="display: flex;justify-content: end;align-items: center;position: fixed;width: 100%;height: 100%; z-index: 10;  border-radius: 8px 8px 8px 8px;">      <div>        <div class="modals " style="border-radius: 8px 8px 8px 8px;">          <div style="background: var(--seasalt, #F8F8F8); border-radius: 8px 8px 8px 8px;">            <div class="d-flex justify-content-between"              style="background-color: #d0ddf0;  font-family: \'Mulish\'; font-weight: 900; border-radius:4px;">              <h4 class="text-start p-2 mt-2" style="color: #6D36A8; font-size: 19px;">Customer Inquiry</h4>              <div>                <button type="button" class="btn fs-2" (click)="hideLeaveCommentForm()"                  style="color: #6D36A8; font-size: 20px; margin-top: -5%;">                  &times;                </button>              </div>            </div>            <article class="">              <form class="mt-1" [formGroup]="form" (ngSubmit)="onleaveComment()" class="row px-3">                <div class="tab-content col-12 border-0">                  <div class="form-group mt-2">                    <input formControlName="name" type="text" class="form-control validation-field border-0" id="name"                      placeholder="Your Name or Company*">                    <small class="text-danger" *ngIf="f.name.touched && f.name.errors?.required">Field Required</small>                  </div>                  <div class="form-group mt-2">                    <input formControlName="email" type="email" class="form-control validation-field border-0" id="email"                      placeholder="Your email address*">                    <small class="text-danger" *ngIf="f.email.touched && f.email.errors?.required">Field Required</small>                    <small class="text-danger" *ngIf="f.email.touched && f.email.errors?.email">Email Format Required</small>                  </div>                  <div class="form-group mt-2">                    <input type="text" name="tel" formControlName="phone_number" id="phoneNumber"                      placeholder="Phone Number*" class="form-control validation-field border-0 w-100" ng2TelInput                      data-initial-country="ke">                    <small class="text-danger" *ngIf="f.phone_number.touched && f.phone_number.errors?.required">Field Required</small> <br>                    <small class="text-danger" *ngIf="f.phone_number.touched && f.phone_number.errors?.invalidPhoneNumber">Phone Number: 254 *** *** *** or 07 **** ****</small>                  </div>                  <div class="form-group mt-2">                    <input formControlName="subject" type="text" class="form-control validation-field border-0"                      id="occupation" placeholder="Subject">                    <small class="text-danger" *ngIf="f.subject.touched && f.subject.errors?.required">Field Required</small>                  </div>                  <div class="form-group mt-2">                    <textarea formControlName="message" type="text" id="message" cols="15" rows="3"                     placeholder="Message" class="form-control validation-field border-0"></textarea>                    <small class="text-danger" *ngIf="f.message.touched && f.message.errors?.required">Field Required</small>                  </div>                  <div class="col-12 bg-white text-center py-1 mt-3 mb-2">                    <button [disabled]="!form.valid" style="width: 100%; border: none;" class="btn btn-block login-btn transition"                      type="submit">                      <span style="color: white;">SEND</span><img *ngIf="isLoading" class="pl-2" src="assets/images/loading.gif" alt="loading-gif">                    </button>                  </div>                </div>              </form>            </article>          </div>        </div>      </div>    </div>  </ng-container>  <div>    <h4 class="mb-md-0"      style="color: var(--dark-purple, #1E0F2E);font-family: Muli;font-size: 20px;font-style: normal;font-weight: 700;line-height: 26px; ">      Reports & Results</h4>  </div></div><div class="card" style="position: relative;">  <div class="row">    <div class="col-md-12 col-lg-12 col-xl-12 col-sm-12">      <div class="card border-0 box-shadow">        <img class="card-img-top img-fluid" style="max-width:100% ; height: 260px ; border-radius: 16px;"          src="assets/images/results.png" />      </div>    </div>  </div>  <div class="landing"    style="position:absolute; padding: 16px 24px; align-items: center; border-radius: 16px; background: #FFF; width: 92%; margin-left: 4%; margin-top: 17%;">    <div>      <div>        <h1          style="color: var(--grape-tra, #6D36A8);font-family: Mulish;font-size: 18px;font-style: normal;font-weight: 700;line-height: 24px;">          Elevate Your Business: Proven Excellence with Our Certifications, Accreditations, & Classifications.</h1>        <p          style="color: #000;text-align: justify;font-family: Mulish;font-size: 15px;font-style: normal;font-weight: 400;line-height: 21px;">          The Authority conducts certification and accreditation processes to assess tourism enterprises, ensuring          conformity to set standards. The marks of conformity signify consistent delivery of quality products and          services, fostering growth, sustainability, and competitiveness in the tourism market. They classify and grade          tourism businesses in line with the EAC Classification System, aiming to promote product and service quality          for sustainable development. The programs encourage stakeholder involvement and transparent evaluation          processes, benefiting businesses with increased tourist arrivals and spending.</p>      </div>    </div>    <br>    <div *ngIf="results.length > 0">      <div class="row d-flex justify-content-between mt-2" *ngFor="let std of results">        <div class="col">          <p class="title">Result No:</p>          <h2 class="content">{{std.result_ref}}</h2>        </div>        <!-- <div class="col">          <p class="title">Task No:</p>          <h2 class="content">{{std.task_ref}}</h2>        </div> -->        <div class="col">          <p class="title">Request Type</p>          <h2 class="content">{{std.task_type}}</h2>        </div>        <div class="col">          <p class="title">Date Created</p>          <h2 class="content">{{ formatDate(std.created_on) }}</h2>        </div>        <div class="col" *ngIf="std.task_type === \'ACCREDITATION\'">          <p class="title">Score</p>          <h2 class="content">{{ std.score }}</h2>        </div>        <div class="col" *ngIf="std.task_type === \'CLASSIFICATION\'">          <p class="title">Rating</p>          <h2 class="content">{{ std.rating }} <img class="card-img-top img-fluid mr-1 mb-1"              style="width: 13px; height: 15px;" src="assets/images/star.jpg" /></h2>        </div>        <!-- <div class="col">          <p class="title">Results</p>          <ng-container *ngIf="std.task_type === \'CLASSIFICATION\'; else accreditationsStatus">            <h2 class="content">              <img class="card-img-top img-fluid mr-1" style="width: 13px; height: 16px;"                [src]="getSanitizedStatusImage(std.status)" />{{std.status}}            </h2>          </ng-container>          <ng-template #accreditationsStatus>            <h2 class="content">              <img class="card-img-top img-fluid mr-1" style="width: 13px; height: 16px;"                [src]="getSanitizedStatusImage(std.status)" />{{std.status}}            </h2>          </ng-template>        </div> -->        <div class="col">          <p class="title">Appeal Status</p>          <h2 class="content" *ngIf="std.appealStatus; else noAppealText">{{ std.appealStatus }}</h2>          <ng-template #noAppealText>            <span class="content "><b>No Appeal</b></span>          </ng-template>        </div>        <div class="mt-2 col">      <button class="btn btn-md login-btn transition" (click)="downloadCertificate(std.download_url)" type="submit">              <a style="text-decoration: none" class="transition">                <span style="color: var(--white, #FFF);text-align: center;font-family: Mulish;font-size: 13px;font-style: normal;font-weight: 700;line-height: normal;letter-spacing: 1.12px;text-transform: uppercase;                    ">DOWNLOAD REPORT</span></a>            </button>        </div>        <ng-container>          <div class="mt-1 col">            <button class="btn btn-md transition" *ngIf="calculateAppealButtonVisibility(std)"              (click)="toggleAppealForm(std.id)"              [class.deactivated]="std.isButtonDeactivated"              style="background-color: #F8F8F8;border: 2px solid var(--green-blue, #2268AA); border-radius: 64px;"              type="button">              <a style="text-decoration: none" class="transition">                <span style="          color: var(--violet-blue, #2766BF);          text-align: center;          font-family: Mulish;          font-size: 12px;          font-style: normal;          font-weight: 700;          line-height: normal;          letter-spacing: 1.12px;          text-transform: uppercase;        ">                  {{ getAppealButtonText(std.status, std.appealStatus) }}                </span>              </a>            </button>          </div>          <!-- <div class="mt-1 col" *ngIf="isViewTrackButtonVisible">            <button class="btn btn-md transition" (click)="viewAppeal()"              style="background-color: #F8F8F8;border: 2px solid var(--green-blue, #2268AA); border-radius: 64px;"              type="button">              <a style="text-decoration: none" class="transition">                <span style="          color: var(--violet-blue, #2766BF);          text-align: center;          font-family: Mulish;          font-size: 12px;          font-style: normal;          font-weight: 700;          line-height: normal;          letter-spacing: 1.12px;          text-transform: uppercase;        ">                  View                </span>              </a>            </button>          </div> -->        </ng-container>      </div>    </div>    <div *ngIf="results.length === 0">      <h5 class="d-flex justify-content-start"      style="color: #a90202; font-family: \'Mulish\';font-weight: 600;font-size: 15px; text-transform: none;">No REPORTS & RESULTS Yet.</h5>    </div>    <div class="d-flex justify-content-end">      <div style="position: fixed; bottom: 9%; right:3%;"  (click)="toggleLeaveCommentForm()" class="d-flex justify-content-around">        <!-- <button *ngIf="!showLeaveCommentForm" class="btn btn-sm transition"          style="border-radius: 64px;background: var(--green-blue, #2268AA); margin-right:10px;" type="submit">          <a style="text-decoration: none" class="transition">            <span              style="color: var(--seasalt, #F8F8F8);text-align: center;font-family: Mulish;font-size: 12px;font-style: normal;font-weight: 700;line-height: normal;letter-spacing: 1.12px;text-transform: uppercase;">customer              inquiry</span></a>        </button> -->        <div           style="width: 50px; height: 50px; border-radius: 50%; background-color: #D0DDF0;;"          class="card-header d-flex align-items-center border-0">          <p style="color:#2268AA;  font-size: 30px; margin-left: -13px;">            <img class="img-fluid" style="position: absolute; bottom: 19%" src="assets/images/chats.png" width="30"              height="20" alt="logo" />            <!-- <i (click)="openModal(leaveComment)" class="mt-2 fa-solid fa-comments" title="Leave A Comment"></i> -->          </p>        </div>      </div>    </div>    <hr>  </div></div><ng-container *ngIf="showAppealForm">  <div class="appealForm">    <div class="appeal">      <div style="background: var(--seasalt, #F8F8F8); border-radius: 8px 8px 8px 8px;">        <div class="d-flex justify-content-between align-items-center"          style="background-color: #d0ddf0;  font-family: \'Mulish\'; font-weight: 900; border-radius:4px; height: 50px;">          <h4 class=" text-start mt-3 p-2" style="color: #6D36A8; font-size: 17px;">Reason For Appealing</h4>          <div>            <button type="button" class="btn fs-2" (click)="hideAppealForm()"              style="color: #6D36A8; font-size: 20px; margin-top: -5%;">              &times;            </button>          </div>        </div>        <article class="">          <form class="mt-1" [formGroup]="formR" (ngSubmit)="raiseAppeal(appealId)" class="row px-3">            <div class="tab-content col-12 border-0">              <div class="form-group mt-2">                <textarea placeholder="Your Reason*" formControlName="reason" id="reason" cols="15" rows="3" class="form-control border-0 validation-field text"></textarea>                <!-- <input formControlName="reason" type="text" class="form-control validation-field border-0" id="reason"                  placeholder="Your Reason*"> -->                <small class="text-danger" *ngIf="fs.reason.touched && fs.reason.errors?.required">Field                  Required</small>              </div>              <div class="col-12 bg-white text-center py-1 mt-3 mb-2">                <button [disabled]="!formR.valid" style="width: 100%; border: none;"                  class="btn btn-block login-btn transition" type="submit">                  <span style="color: white;">SEND</span><img *ngIf="isLoading" class="pl-2" src="assets/images/loading.gif" alt="loading-gif">                </button>              </div>            </div>          </form>        </article>      </div>    </div>  </div></ng-container></div>'
     var COMPONENTS = [{'name': 'AccordionComponent', 'selector': 'app-accordion'},{'name': 'AddAtmComponent', 'selector': 'app-add-branch'},{'name': 'AddBenefitComponent', 'selector': 'app-add-benefit'},{'name': 'AddBranchComponent', 'selector': 'app-add-branch'},{'name': 'AddCustomerComponent', 'selector': 'app-add-workflow-step'},{'name': 'AddProductComponent', 'selector': 'app-add-workflow-step'},{'name': 'AddProductSubItemComponent', 'selector': 'app-product-sub-item'},{'name': 'AddProfileComponent', 'selector': 'app-add-role'},{'name': 'AddRequirementComponent', 'selector': 'app-add-requirement'},{'name': 'AddRoleComponent', 'selector': 'app-add-role'},{'name': 'AddServiceComponent', 'selector': 'app-service'},{'name': 'AddUserComponent', 'selector': 'app-add-user'},{'name': 'AdvancedFormElementsComponent', 'selector': 'app-advanced-form-elements'},{'name': 'AdvancedUiComponent', 'selector': 'app-advanced-ui'},{'name': 'AlertsComponent', 'selector': 'app-alerts'},{'name': 'ApexchartsComponent', 'selector': 'app-apexcharts'},{'name': 'AppComponent', 'selector': 'app-root'},{'name': 'ApproveProfileComponent', 'selector': 'app-approve-profile'},{'name': 'AppsComponent', 'selector': 'app-apps'},{'name': 'AuthComponent', 'selector': 'app-auth'},{'name': 'BadgesComponent', 'selector': 'app-badges'},{'name': 'BaseComponent', 'selector': 'app-base'},{'name': 'BasicElementsComponent', 'selector': 'app-basic-elements'},{'name': 'BasicTableComponent', 'selector': 'app-basic-table'},{'name': 'BlankComponent', 'selector': 'app-blank'},{'name': 'BreadcrumbsComponent', 'selector': 'app-breadcrumbs'},{'name': 'ButtonGroupComponent', 'selector': 'app-button-group'},{'name': 'ButtonsComponent', 'selector': 'app-buttons'},{'name': 'CalendarComponent', 'selector': 'app-calendar'},{'name': 'CardsComponent', 'selector': 'app-cards'},{'name': 'CarouselComponent', 'selector': 'app-carousel'},{'name': 'ChangeAuthPasswordComponent', 'selector': 'app-changePassword'},{'name': 'ChangePasswordComponent', 'selector': 'app-change-password'},{'name': 'ChangePasswordComponent', 'selector': 'app-change-password'},{'name': 'ChangeProfileModalComponent', 'selector': 'app-change-profile-modal'},{'name': 'ChartjsComponent', 'selector': 'app-chartjs'},{'name': 'ChartsGraphsComponent', 'selector': 'app-charts-graphs'},{'name': 'ChatComponent', 'selector': 'app-chat'},{'name': 'CodePreviewComponent', 'selector': 'app-code-preview'},{'name': 'CollapseComponent', 'selector': 'app-collapse'},{'name': 'CompareImageComponent', 'selector': 'app-compare-image'},{'name': 'ComposeComponent', 'selector': 'app-sample-table'},{'name': 'ConfirmDialogComponent', 'selector': 'app-open-doc-dialog'},{'name': 'CustomNgxTable', 'selector': 'app-custom-ngx-table'},{'name': 'DashboardComponent', 'selector': 'app-dashboard'},{'name': 'DataTableComponent', 'selector': 'app-data-table'},{'name': 'DatepickerComponent', 'selector': 'app-datepicker'},{'name': 'DefineRegionComponent', 'selector': 'define-region'},{'name': 'DeleteRoleModalComponent', 'selector': 'app-delete-role-modal'},{'name': 'DropdownsComponent', 'selector': 'app-dropdowns'},{'name': 'EditorsComponent', 'selector': 'app-editors'},{'name': 'EmailComponent', 'selector': 'app-email'},{'name': 'ErrorPageComponent', 'selector': 'app-error-page'},{'name': 'FaqComponent', 'selector': 'app-faq'},{'name': 'FeatherComponent', 'selector': 'app-feather'},{'name': 'FirstTimeLoginComponent', 'selector': 'app-first-time-login'},{'name': 'FirstTimeLoginComponent', 'selector': 'app-first-time-login'},{'name': 'FooterComponent', 'selector': 'app-footer'},{'name': 'ForgotPasswordComponent', 'selector': 'app-forgot-password'},{'name': 'ForgotPasswordComponent', 'selector': 'app-forgot-password'},{'name': 'FormElementsComponent', 'selector': 'app-form-elements'},{'name': 'FormValidationComponent', 'selector': 'app-form-validation'},{'name': 'GeneralComponent', 'selector': 'app-general'},{'name': 'HomeComponent', 'selector': 'app-home'},{'name': 'IconsComponent', 'selector': 'app-icons'},{'name': 'ImageCropperComponent', 'selector': 'app-cropper'},{'name': 'InboxComponent', 'selector': 'app-inbox'},{'name': 'InputMaskComponent', 'selector': 'app-input-mask'},{'name': 'InvoiceComponent', 'selector': 'app-invoice'},{'name': 'LabelActiveComponent', 'selector': 'app-label-active'},{'name': 'LabelBooleanComponent', 'selector': 'app-label-boolean'},{'name': 'LabelCompletedComponent', 'selector': 'app-label-completed'},{'name': 'LabelOnlineComponent', 'selector': 'app-label-online'},{'name': 'LabelPassedComponent', 'selector': 'app-label-passed'},{'name': 'LabelSystemCustomRoleComponent', 'selector': 'app-label-system-custom-role'},{'name': 'LabelTaskStatusComponent', 'selector': 'app-label-task-status'},{'name': 'LandingComponent', 'selector': 'app-landing'},{'name': 'ListAllProductsAsCardsComponent', 'selector': 'app-list-all-products-as-cards'},{'name': 'ListAtmsComponent', 'selector': 'app-list-services'},{'name': 'ListBranchesComponent', 'selector': 'app-list-branches'},{'name': 'ListCustomersComponent', 'selector': 'app-list-requests'},{'name': 'ListFailedRegistrationsComponent', 'selector': 'app-list-internet-banking'},{'name': 'ListGroupComponent', 'selector': 'app-list-group'},{'name': 'ListProductsComponent', 'selector': 'app-list-products'},{'name': 'ListRequestsComponent', 'selector': 'app-list-requests'},{'name': 'ListServicesComponent', 'selector': 'app-list-services'},{'name': 'ListUsersComponent', 'selector': 'app-list-users'},{'name': 'LoginComponent', 'selector': 'app-login'},{'name': 'MdiComponent', 'selector': 'app-mdi'},{'name': 'MediaObjectComponent', 'selector': 'app-media-object'},{'name': 'MobileBankingComponent', 'selector': 'app-root'},{'name': 'ModalComponent', 'selector': 'app-modal'},{'name': 'NavbarComponent', 'selector': 'app-navbar'},{'name': 'NavbarComponent', 'selector': 'app-navbar'},{'name': 'NavsComponent', 'selector': 'app-navs'},{'name': 'NgSelectComponent', 'selector': 'app-ng-select'},{'name': 'NgxChipsComponent', 'selector': 'app-ngx-chips'},{'name': 'NgxColorPickerComponent', 'selector': 'app-ngx-color-picker'},{'name': 'NgxDatatableComponent', 'selector': 'app-ngx-datatable'},{'name': 'NgxDropzoneWrapperComponent', 'selector': 'app-ngx-dropzone-wrapper'},{'name': 'NotificationModalComponent', 'selector': 'app-notification-modal'},{'name': 'OwlCarouselComponent', 'selector': 'app-owl-carousel'},{'name': 'PaginationComponent', 'selector': 'app-pagination'},{'name': 'PopoversComponent', 'selector': 'app-popovers'},{'name': 'PricingComponent', 'selector': 'app-pricing'},{'name': 'ProductAsCardsComponent', 'selector': 'app-product-as-cards'},{'name': 'ProductCategoriesAsCardsComponent', 'selector': 'app-product-categories'},{'name': 'ProductCategoriesComponent', 'selector': 'app-product-categories'},{'name': 'ProductCategoriesComponentSubItem', 'selector': 'app-product-categories-subitem'},{'name': 'ProductSubCategoriesAsCardsComponent', 'selector': 'app-product-sub-categories'},{'name': 'ProfileComponent', 'selector': 'app-profile'},{'name': 'ProfileRolesComponent', 'selector': 'app-profile-roles'},{'name': 'ProfilesComponent', 'selector': 'app-profiles'},{'name': 'ProgressComponent', 'selector': 'app-progress'},{'name': 'RatingComponent', 'selector': 'app-rating'},{'name': 'ReadComponent', 'selector': 'app-read'},{'name': 'ReasonsForFailureComponent', 'selector': 'app-reasons-for-failure'},{'name': 'RegionsListComponent', 'selector': 'app-Regions-list'},{'name': 'RegisterComponent', 'selector': 'app-register'},{'name': 'RolesComponent', 'selector': 'app-roles'},{'name': 'ScrollbarComponent', 'selector': 'app-scrollbar'},{'name': 'SendSmsComponent', 'selector': 'app-list-mobile-app'},{'name': 'SidebarComponent', 'selector': 'app-sidebar'},{'name': 'SortablejsComponent', 'selector': 'app-sortablejs'},{'name': 'SpinnersComponent', 'selector': 'app-spinners'},{'name': 'StandardsComponent', 'selector': 'app-all-standards'},{'name': 'SweetAlertComponent', 'selector': 'app-sweet-alert'},{'name': 'TableFiltersComponent', 'selector': 'app-table-filters'},{'name': 'TableHeaderComponent', 'selector': 'app-table-header'},{'name': 'TablesComponent', 'selector': 'app-tables'},{'name': 'TimelineComponent', 'selector': 'app-timeline'},{'name': 'TimepickerComponent', 'selector': 'app-timepicker'},{'name': 'TooltipsComponent', 'selector': 'app-tooltips'},{'name': 'TypeaheadComponent', 'selector': 'app-typeahead'},{'name': 'UiComponentsComponent', 'selector': 'app-ui-components'},{'name': 'ViewCategoriesComponent', 'selector': 'app-view-categories'},{'name': 'ViewCustomerComponent', 'selector': 'app-view-customer'},{'name': 'ViewProductComponent', 'selector': 'app-view-customer'},{'name': 'ViewProfileComponent', 'selector': 'app-view-profile'},{'name': 'ViewStandardsComponent', 'selector': 'app-view-standards'},{'name': 'ViewUserComponent', 'selector': 'app-view-user'},{'name': 'WizardComponent', 'selector': 'app-wizard'}];
     var DIRECTIVES = [{'name': 'ContentAnimateDirective', 'selector': '[contentAnimate]'},{'name': 'FeatherIconDirective', 'selector': '[appFeatherIcon]'}];
     var ACTUAL_COMPONENT = {'name': 'ListCustomersComponent'};

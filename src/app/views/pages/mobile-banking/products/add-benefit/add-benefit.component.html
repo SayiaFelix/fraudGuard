@@ -23,6 +23,50 @@
         style="color: var(--grape-tra, #6D36A8);font-family: Mulish;font-size: 20px;font-style: normal;font-weight: 700;line-height: 24px;">
         New Pre- Qualification Assessment Checklist
       </h1>
+      <div *ngIf="!isFirstFormSubmitted">
+        <form [formGroup]="form">
+          <div class="mt-5">
+            <h3 class="form-label quiz">Class Enterprise</h3>
+            <select class="form-select" id="class_name" (change)="onClassChange($event)" name="class_name"
+              formControlName="class_name">
+              <option *ngFor="let classItem of ClassData?.classes" [value]="classItem.classId">
+                {{ classItem.className }}
+              </option>
+            </select>
+          </div>
+          <div class="mt-5">
+            <h3 class="form-label quiz">Enterprise Category</h3>
+            <select class="form-select" id="subClass" name="subClass" formControlName="subClassName">
+              <option  value="-"></option>
+              <option *ngFor="let data of SubClassData" [value]="data.subClassName">
+                {{ data.subClassName }}
+              </option>
+            </select>
+            <small class="text-danger"
+              *ngIf="form.get('subClassName')?.touched && form.get('subClassName')?.hasError('required')">Enterprise
+              Category is
+              required</small>
+          </div>
+          <div class="mt-5">
+            <h3 class="form-label quiz">Type of Request</h3>
+            <select class="form-select" id="requestType" name="requestType" formControlName="requestType">
+              <option value="ACCREDITATION">ACCREDITATION</option>
+              <option value="CLASSIFICATION">CLASSIFICATION</option>
+            </select>
+            <small class="text-danger"
+              *ngIf="form.get('requestType')?.touched && form.get('requestType')?.hasError('required')">Request Type is
+              required</small>
+          </div>
+          <div class="d-flex justify-content-end mt-3">
+            <button class="btn btn-md login-btn transition mt-1" [disabled]="!form.valid" (click)="submitData()"
+              type="submit">
+              <a style="text-decoration: none" class="transition">
+                <span style="color: #f8f8f8; font-weight: 700;letter-spacing: 0.08em;font-size: 12px;
+              ">SUBMIT</span></a><img *ngIf="isLoading" class="pl-2" src="assets/images/loading.gif" alt="loading-gif">
+            </button>
+          </div>
+        </form>
+      </div>
       <div *ngIf="isFirstFormSubmitted">
         <form [formGroup]="formRequest">
           <div *ngFor="let question of getQuestionsForCurrentPage(); let i = index" class="mt-4">
@@ -80,49 +124,6 @@
               <a style="text-decoration: none" class="transition">
                 <span style="color: #f8f8f8; font-weight: 700;letter-spacing: 0.08em;font-size: 12px;
         ">SUBMIT</span></a><img *ngIf="isLoading" class="pl-2" src="assets/images/loading.gif" alt="loading-gif">
-            </button>
-          </div>
-        </form>
-      </div>
-      <div *ngIf="!isFirstFormSubmitted">
-        <form [formGroup]="form">
-          <div class="mt-5">
-            <h3 class="form-label quiz">Class Enterprise</h3>
-            <select class="form-select" id="class_name" (change)="onClassChange($event)" name="class_name"
-              formControlName="class_name">
-              <option *ngFor="let classItem of ClassData?.classes" [value]="classItem.classId">
-                {{ classItem.className }}
-              </option>
-            </select>
-          </div>
-          <div class="mt-5">
-            <h3 class="form-label quiz">Enterprise Category</h3>
-            <select class="form-select" id="subClass" name="subClass" formControlName="subClassName">
-              <option *ngFor="let data of SubClassData" [value]="data.subClassName">
-                {{ data.subClassName }}
-              </option>
-            </select>
-            <small class="text-danger"
-              *ngIf="form.get('subClassName')?.touched && form.get('subClassName')?.hasError('required')">Enterprise
-              Category is
-              required</small>
-          </div>
-          <div class="mt-5">
-            <h3 class="form-label quiz">Type of Request</h3>
-            <select class="form-select" id="requestType" name="requestType" formControlName="requestType">
-              <option value="ACCREDITATION">ACCREDITATION</option>
-              <option value="CLASSIFICATION">CLASSIFICATION</option>
-            </select>
-            <small class="text-danger"
-              *ngIf="form.get('requestType')?.touched && form.get('requestType')?.hasError('required')">Request Type is
-              required</small>
-          </div>
-          <div class="d-flex justify-content-end mt-3">
-            <button class="btn btn-md login-btn transition mt-1" [disabled]="!form.valid" (click)="submitData()"
-              type="submit">
-              <a style="text-decoration: none" class="transition">
-                <span style="color: #f8f8f8; font-weight: 700;letter-spacing: 0.08em;font-size: 12px;
-              ">SUBMIT</span></a><img *ngIf="isLoading" class="pl-2" src="assets/images/loading.gif" alt="loading-gif">
             </button>
           </div>
         </form>

@@ -70,6 +70,9 @@
                             <a href="#advancedPagination" title="src/app/views/pages/ui-components/pagination/pagination.component.ts" ><b>advancedPagination</b>&nbsp;&nbsp;&nbsp;(src/.../pagination.component.ts)</a>
                         </li>
                         <li>
+                            <a href="#APP_BASE_HREF_TOKEN" title="src/app/views/pages/mobile-banking/requests/constants.ts" ><b>APP_BASE_HREF_TOKEN</b>&nbsp;&nbsp;&nbsp;(src/.../constants.ts)</a>
+                        </li>
+                        <li>
                             <a href="#basicModal" title="src/app/views/pages/ui-components/modal/modal.component.ts" ><b>basicModal</b>&nbsp;&nbsp;&nbsp;(src/.../modal.component.ts)</a>
                         </li>
                         <li>
@@ -1664,6 +1667,29 @@ export class PaginationComponent {
   currentPage &#x3D; 4;
 }&#x60;
 }</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/app/views/pages/mobile-banking/requests/constants.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="APP_BASE_HREF_TOKEN"></a>
+                    <span class="name">
+                        <span ><b>APP_BASE_HREF_TOKEN</b></span>
+                        <a href="#APP_BASE_HREF_TOKEN"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>new InjectionToken&lt;string&gt;(&#x27;appBaseHref&#x27;)</code>
                     </td>
                 </tr>
 
@@ -8868,10 +8894,10 @@ export class TypeaheadComponent {
   production: true,
   mobileBanking: &#x27;https://test-api.ekenya.co.ke/mobile-banking/&#x27;,
   channelManager: &#x27;https://test-api.ekenya.co.ke/channel/&#x27;,
-  // customerPortalNest: &#x27;http://10.20.2.19:7782/&#x27;
-  customerPortalNest: &#x27;https://test-api.ekenya.co.ke/tra-customer-backend/&#x27;,
-  standardsApi: &#x27;http://10.20.2.19:7604/api/v1/standard/portal/&#x27;,
-  standardsComment: &#x27;http://10.20.2.19:7604/api/v1/standard/&#x27;,
+  customerPortalNest: &#x27;CUSTOMER_API_URL&#x27;,
+  standardsApi: &#x27;STANDARDS_API_URL&#x27;,
+  //customerPortalNest: &#x27;https://test-api.ekenya.co.ke/tra-customer-backend/&#x27;,
+  //standardsApi: &#x27;https://test-api.ekenya.co.ke/tra-backend/api/v1/&#x27;,
 }</code>
                     </td>
                 </tr>
@@ -8908,7 +8934,7 @@ export class TypeaheadComponent {
   customerPortalNest: &#x27;http://localhost:8000/&#x27;,
   // customerPortalNest: &#x27;http://10.20.2.19:7782/&#x27;,
   // customerPortalNest: &#x27;https://test-api.ekenya.co.ke/tra-customer-backend/&#x27;,
-  standardsApi: &#x27;http://10.20.2.19:7604/api/v1/standard/portal/&#x27;,
+  standardsApi: &#x27;https://test-api.ekenya.co.ke/tra-backend/api/v1/&#x27;,
   // standardsComment: &#x27;http://10.20.2.19:7604/api/v1/standard/&#x27;,
 }</code>
                     </td>
@@ -9247,34 +9273,34 @@ export class TypeaheadComponent {
     //   }
     // ]
   },
-    {
-    // profiles: [&#x27;CORPORATE_ADMIN&#x27;],
-    label: &#x27;CHATS&#x27;,
-    icon: &#x27;settings&#x27;,
-    link: &#x27;/tra-client/setups/list-Regions&#x27;
-    // subItems: [
-    //   {
-    //     profiles: [&#x27;CORPORATE_ADMIN&#x27;],
-    //     label: &#x27;Regions&#x27;,
-    //     link: &#x27;/mobile-banking/setups/list-Regions&#x27;
-    //   },
-    //   {
-    //     profiles: [&#x27;CORPORATE_ADMIN&#x27;],
-    //     label: &#x27;Branches&#x27;,
-    //     link: &#x27;/mobile-banking/setups/list-branches&#x27;
-    //   },
-    //   {
-    //     profiles: [&#x27;CORPORATE_ADMIN&#x27;],
-    //     label: &#x27;ATMs&#x27;,
-    //     link: &#x27;/mobile-banking/setups/list-services&#x27;
-    //   },
-    //   {
-    //     profiles: [&#x27;CORPORATE_ADMIN&#x27;],
-    //     label: &#x27;Services&#x27;,
-    //     link: &#x27;/mobile-banking/setups/list-services&#x27;
-    //   },
-    // ]
-  },
+  //   {
+  //   // profiles: [&#x27;CORPORATE_ADMIN&#x27;],
+  //   label: &#x27;CHATS&#x27;,
+  //   icon: &#x27;settings&#x27;,
+  //   link: &#x27;/tra-client/setups/list-Regions&#x27;
+  //   // subItems: [
+  //   //   {
+  //   //     profiles: [&#x27;CORPORATE_ADMIN&#x27;],
+  //   //     label: &#x27;Regions&#x27;,
+  //   //     link: &#x27;/mobile-banking/setups/list-Regions&#x27;
+  //   //   },
+  //   //   {
+  //   //     profiles: [&#x27;CORPORATE_ADMIN&#x27;],
+  //   //     label: &#x27;Branches&#x27;,
+  //   //     link: &#x27;/mobile-banking/setups/list-branches&#x27;
+  //   //   },
+  //   //   {
+  //   //     profiles: [&#x27;CORPORATE_ADMIN&#x27;],
+  //   //     label: &#x27;ATMs&#x27;,
+  //   //     link: &#x27;/mobile-banking/setups/list-services&#x27;
+  //   //   },
+  //   //   {
+  //   //     profiles: [&#x27;CORPORATE_ADMIN&#x27;],
+  //   //     label: &#x27;Services&#x27;,
+  //   //     link: &#x27;/mobile-banking/setups/list-services&#x27;
+  //   //   },
+  //   // ]
+  // },
   // {
   //   profiles: [&#x27;CORPORATE_ADMIN&#x27;],
   //   label:&#x27;AUDIT TRAIL&#x27;,

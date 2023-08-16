@@ -148,6 +148,9 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
+                                <a href="#accreditations" >accreditations</a>
+                            </li>
+                            <li>
                                 <a href="#actions" >actions</a>
                             </li>
                             <li>
@@ -213,6 +216,9 @@
                                 <a href="#reorderable" >reorderable</a>
                             </li>
                             <li>
+                                <a href="#requests" >requests</a>
+                            </li>
+                            <li>
                                     <span class="modifier">Public</span>
                                 <a href="#router" >router</a>
                             </li>
@@ -260,7 +266,13 @@
                                 <a href="#exportXLSX" >exportXLSX</a>
                             </li>
                             <li>
+                                <a href="#formatDate" >formatDate</a>
+                            </li>
+                            <li>
                                 <a href="#getIndividualData" >getIndividualData</a>
+                            </li>
+                            <li>
+                                <a href="#getSanitizedStatusImage" >getSanitizedStatusImage</a>
                             </li>
                             <li>
                                 <a href="#hideLeaveCommentForm" >hideLeaveCommentForm</a>
@@ -287,6 +299,9 @@
                                 <a href="#openAddRequestModal" >openAddRequestModal</a>
                             </li>
                             <li>
+                                <a href="#phoneNumberValidator" >phoneNumberValidator</a>
+                            </li>
+                            <li>
                                 <a href="#toggle" >toggle</a>
                             </li>
                             <li>
@@ -307,6 +322,9 @@
                             <li>
                                 <a href="#updateFilter" >updateFilter</a>
                             </li>
+                            <li>
+                                <a href="#viewRequest" >viewRequest</a>
+                            </li>
                         </ul>
                     </td>
                 </tr>
@@ -315,6 +333,20 @@
 
 
 
+                    <tr>
+                        <td class="col-md-4">
+                            <h6><b>Accessors</b></h6>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <ul class="index-list">
+                                <li>
+                                    <a href="#f" >f</a>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
         </tbody>
     </table>
 </section>
@@ -325,12 +357,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(httpService: <a href="../injectables/HttpService.html" target="_self">HttpService</a>, modalService: NgbModal, fb: FormBuilder, router: Router, dataExploration: <a href="../injectables/DataExportationService.html" target="_self">DataExportationService</a>)</code>
+<code>constructor(httpService: <a href="../injectables/HttpService.html" target="_self">HttpService</a>, modalService: NgbModal, fb: FormBuilder, datePipe: DatePipe, sanitizer: DomSanitizer, router: Router, dataExploration: <a href="../injectables/DataExportationService.html" target="_self">DataExportationService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="76" class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:76</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="78" class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:78</a></div>
                             </td>
                         </tr>
 
@@ -376,6 +408,30 @@
                                                   
                                                         <td>
                                                                     <code>FormBuilder</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>datePipe</td>
+                                                  
+                                                        <td>
+                                                                    <code>DatePipe</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>sanitizer</td>
+                                                  
+                                                        <td>
+                                                                    <code>DomSanitizer</code>
                                                         </td>
                                                   
                                                     <td>
@@ -445,8 +501,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="241"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:241</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="297"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:297</a></div>
                 </td>
             </tr>
 
@@ -482,8 +538,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="284"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:284</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="340"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:340</a></div>
                 </td>
             </tr>
 
@@ -519,8 +575,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="262"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:262</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="318"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:318</a></div>
                 </td>
             </tr>
 
@@ -531,6 +587,75 @@
                     <div class="io-description">
                         <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
 
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="formatDate"></a>
+                    <span class="name">
+                        <span ><b>formatDate</b></span>
+                        <a href="#formatDate"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>formatDate(date: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="137"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:137</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>date</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
                     </div>
                 </td>
             </tr>
@@ -556,8 +681,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="125"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:125</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="153"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:153</a></div>
                 </td>
             </tr>
 
@@ -609,6 +734,75 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="getSanitizedStatusImage"></a>
+                    <span class="name">
+                        <span ><b>getSanitizedStatusImage</b></span>
+                        <a href="#getSanitizedStatusImage"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>getSanitizedStatusImage(status: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="142"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:142</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>status</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="hideLeaveCommentForm"></a>
                     <span class="name">
                         <span ><b>hideLeaveCommentForm</b></span>
@@ -625,8 +819,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="120"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:120</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="128"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:128</a></div>
                 </td>
             </tr>
 
@@ -662,8 +856,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="225"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:225</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="281"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:281</a></div>
                 </td>
             </tr>
 
@@ -731,8 +925,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="184"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:184</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="240"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:240</a></div>
                 </td>
             </tr>
 
@@ -800,8 +994,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="95"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:95</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="99"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:99</a></div>
                 </td>
             </tr>
 
@@ -837,8 +1031,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="195"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:195</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="251"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:251</a></div>
                 </td>
             </tr>
 
@@ -906,8 +1100,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="178"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:178</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="234"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:234</a></div>
                 </td>
             </tr>
 
@@ -975,8 +1169,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="164"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:164</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="188"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:188</a></div>
                 </td>
             </tr>
 
@@ -1012,8 +1206,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="166"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:166</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="222"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:222</a></div>
                 </td>
             </tr>
 
@@ -1024,6 +1218,75 @@
                     <div class="io-description">
                         <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
 
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="phoneNumberValidator"></a>
+                    <span class="name">
+                        <span ><b>phoneNumberValidator</b></span>
+                        <a href="#phoneNumberValidator"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>phoneNumberValidator(control: AbstractControl)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="111"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:111</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>control</td>
+                                    <td>
+                                            <code>AbstractControl</code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>    <code>literal type | null</code>
+
+                    </div>
+                    <div class="io-description">
+                        
                     </div>
                 </td>
             </tr>
@@ -1049,8 +1312,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="213"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:213</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="269"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:269</a></div>
                 </td>
             </tr>
 
@@ -1118,8 +1381,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="233"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:233</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="289"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:289</a></div>
                 </td>
             </tr>
 
@@ -1155,8 +1418,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="188"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:188</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="244"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:244</a></div>
                 </td>
             </tr>
 
@@ -1224,8 +1487,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="113"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:113</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="121"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:121</a></div>
                 </td>
             </tr>
 
@@ -1261,8 +1524,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="310"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:310</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="366"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:366</a></div>
                 </td>
             </tr>
 
@@ -1330,8 +1593,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="306"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:306</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="362"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:362</a></div>
                 </td>
             </tr>
 
@@ -1399,8 +1662,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="199"
-                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:199</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="255"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:255</a></div>
                 </td>
             </tr>
 
@@ -1460,12 +1723,107 @@
             </tr>
         </tbody>
     </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="viewRequest"></a>
+                    <span class="name">
+                        <span ><b>viewRequest</b></span>
+                        <a href="#viewRequest"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>viewRequest(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="134"
+                            class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:134</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>id</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </section>
     <section data-compodoc="block-properties">
     
     <h3 id="inputs">
         Properties
     </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="accreditations"></a>
+                    <span class="name">
+                        <span ><b>accreditations</b></span>
+                        <a href="#accreditations"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="77" class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:77</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
     <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -1715,7 +2073,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="82" class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:82</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="84" class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:84</a></div>
                         </td>
                     </tr>
 
@@ -1967,7 +2325,7 @@
                 </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Default value : </i><code>[5, 10, 25, 50, 100,200]</code>
+                        <i>Default value : </i><code>[5, 10, 25, 50, 100, 200]</code>
                     </td>
                 </tr>
                     <tr>
@@ -1998,7 +2356,7 @@
                 </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Default value : </i><code>10</code>
+                        <i>Default value : </i><code>100</code>
                     </td>
                 </tr>
                     <tr>
@@ -2039,6 +2397,37 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="requests"></a>
+                    <span class="name">
+                        <span ><b>requests</b></span>
+                        <a href="#requests"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>any[]</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>[]</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="78" class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:78</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="router"></a>
                     <span class="name">
                             <span class="modifier">Public</span>
@@ -2055,7 +2444,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="83" class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:83</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="87" class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:87</a></div>
                         </td>
                     </tr>
 
@@ -2117,7 +2506,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="112" class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:112</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="120" class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:120</a></div>
                         </td>
                     </tr>
 
@@ -2289,6 +2678,33 @@
     </table>
 </section>
 
+    <section data-compodoc="block-accessors">
+    <h3 id="accessors">
+        Accessors
+    </h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="f"></a>
+                        <span class="name"><b>f</b><a href="#f"><span class="icon ion-ios-link"></span></a></span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <span class="accessor"><b>get</b><code>f()</code></span>
+                    </td>
+                </tr>
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="117" class="link-to-prism">src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component.ts:117</a></div>
+                                </td>
+                            </tr>
+
+            </tbody>
+        </table>
+</section>
 </div>
 
 
@@ -2298,7 +2714,7 @@ import { NgbModal, NgbModalRef } from &#x27;@ng-bootstrap/ng-bootstrap&#x27;;
 import { DatePipe } from &#x27;@angular/common&#x27;;
 import { Router } from &#x27;@angular/router&#x27;;
 import { ColumnMode } from &#x27;@swimlane/ngx-datatable&#x27;;
-import { FormBuilder, FormGroup, Validators } from &#x27;@angular/forms&#x27;;
+import { AbstractControl, FormBuilder, FormGroup, Validators } from &#x27;@angular/forms&#x27;;
 import { DatatableComponent } from &#x27;@swimlane/ngx-datatable/lib/components/datatable.component&#x27;;
 import { DataExportationService } from &#x27;src/app/shared/services/data-exportation.service&#x27;;
 import { HttpService } from &#x27;src/app/shared/services/http.service&#x27;;
@@ -2346,9 +2762,9 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
   temp: any &#x3D; [];
   loading &#x3D; true;
   reorderable &#x3D; true;
-  perPage &#x3D; 10;
+  perPage &#x3D; 100;
   page &#x3D; 1
-  pageSizes &#x3D; [5, 10, 25, 50, 100,200];
+  pageSizes &#x3D; [5, 10, 25, 50, 100, 200];
   columns &#x3D; [
     { name: &#x27;ID&#x27;, prop: &#x27;id&#x27; },
     { name: &#x27;REQ NO:&#x27;, prop: &#x27;ref_number&#x27; },
@@ -2369,21 +2785,25 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
   title: string &#x3D; &quot;Make Request&quot;;
   ClassData: any;
   SubClassData: any;
+  accreditations: any;
+  requests: any[] &#x3D; [];
 
 
   constructor(
     private httpService: HttpService,
     private modalService: NgbModal,
     public fb: FormBuilder,
+    private datePipe: DatePipe,
+    private sanitizer: DomSanitizer,
     public router: Router,
     private dataExploration: DataExportationService
   ) {
     this.form &#x3D; fb.group({
-      email: [&#x27;&#x27;,Validators.compose([Validators.required, CustomValidators.email])],
-      subject: [&#x27;&#x27;,Validators.compose([Validators.required])],
-      message: [&quot;&quot;, Validators.compose([Validators.required])],
       name: [&quot;&quot;, Validators.compose([Validators.required])],
-      phoneNumber: [&quot;&quot;, Validators.compose([Validators.required])],
+      email: [&#x27;&#x27;, Validators.compose([Validators.required, CustomValidators.email])],
+      subject: [&#x27;&#x27;, Validators.compose([Validators.required])],
+      message: [&quot;&quot;, Validators.compose([Validators.required])],
+      phone_number: [&quot;&quot;, Validators.compose([Validators.required, this.phoneNumberValidator])],
     });
   }
 
@@ -2397,12 +2817,16 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
       { label: &#x27;Customers&#x27;, active: true },
     ];
     this.getIndividualData(0);
+  }
 
-    this.form &#x3D; this.fb.group({
-      name: [&#x27;&#x27;, [Validators.required]],
-      description: [&#x27;&#x27;, [Validators.required]],
-      image: [&#x27;&#x27;],
-    });
+  phoneNumberValidator(control: AbstractControl): { [key: string]: any } | null {
+    const phoneNumber &#x3D; control.value;
+    const phonePattern &#x3D; /^(254\d{9}|0\d{9})$/;
+    return phonePattern.test(phoneNumber) ? null : { invalidPhoneNumber: true };
+  }
+  
+  get f(): { [p: string]: AbstractControl } {
+    return this.form.controls;
   }
   showLeaveCommentForm: boolean &#x3D; false;
   toggleLeaveCommentForm() {
@@ -2414,49 +2838,97 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
   }
   hideLeaveCommentForm() {
     this.showLeaveCommentForm &#x3D; false;
+    this.form.reset()
   }
 
 
+  viewRequest(id: number) {
+    this.router.navigate([&#x27;tra-client/requests&#x27;, id]);
+  }
+  formatDate(date: string): string {
+    const formattedDate &#x3D; this.datePipe.transform(date, &#x27;dd MMM yyyy&#x27;);
+    return formattedDate ? formattedDate.toUpperCase() : &#x27;&#x27;;
+  }
+
+  getSanitizedStatusImage(status: string): any {
+    switch (status) {
+      case &#x27;APPROVED&#x27;:
+        return this.sanitizer.bypassSecurityTrustResourceUrl(&#x27;assets/images/approve.png&#x27;);
+      case &#x27;PENDING&#x27;:
+        return this.sanitizer.bypassSecurityTrustResourceUrl(&#x27;assets/images/time.png&#x27;);
+      default:
+        return this.sanitizer.bypassSecurityTrustResourceUrl(&#x27;assets/images/fail.png&#x27;);
+    }
+  }
+
   getIndividualData(event: any): void {
     this.loading &#x3D; true;
-    this.rows &#x3D; this.tempProductData;
-    this.temp &#x3D; [...this.tempProductData];
-    const model &#x3D; {
-      page: 0,
-      size: 10,
+    let userId &#x3D; JSON.parse(localStorage.getItem(&#x27;data&#x27;)!)[&#x27;user&#x27;][&#x27;id&#x27;];
+   let licenceNumber &#x3D; JSON.parse(localStorage.getItem(&#x27;data&#x27;)!)[&#x27;licenceNumber&#x27;]
+    let model &#x3D; {
+      licenceNumber,
+      page: this.page - 1,
+      size: this.perPage
     };
     this.httpService
-      .customerPortalPostData(&#x27;api/v1/portal/getRequests&#x27;,model)
+      .customerPortalPosts(&#x27;admin/customer/portal/get-request-by-licence-number&#x27;, model)
       .subscribe((res: any) &#x3D;&gt; {
-        if (res.status &#x3D;&#x3D;&#x3D; &#x27;00&#x27;) {
+        if (res.status &#x3D;&#x3D;&#x3D; 200) {
+          this.requests &#x3D; res.data
           this.loading &#x3D; false;
-          const accreditations &#x3D; res.data.filter((request:any) &#x3D;&gt; request.request_category &#x3D;&#x3D;&#x3D; &quot;ACCREDITATION&quot;);
-          console.log(accreditations)
-          
-          setTimeout(() &#x3D;&gt; {
-            let response &#x3D; res.data;
-            console.log(response)
-            this.rows &#x3D; response.map((item: any, index: any) &#x3D;&gt; {
-              const myDate &#x3D; item[&#x27;createdOn&#x27;].replace(&#x27; &#x27;, &#x27;T&#x27;);
-              const dateObj &#x3D; new Date(myDate).toString().split(&#x27;GMT&#x27;)[0];
-              const res &#x3D; {
-                ...item,
-                frontendId: index + 1,
-                createdOn: dateObj,
-              };
-              return res 
-            });
-            // let data &#x3D; this.tempProductData;
-            console.log(this.rows)
-            // let total &#x3D; res.totalItems;
-          }, 10);
+          console.log(res.data);
+
+
+          // Sort the requests array by &#x27;createdOn&#x27; date in descending order (latest request first)
+          this.requests.sort((a: any, b: any) &#x3D;&gt; {
+            const dateA &#x3D; new Date(a.createdOn).getTime();
+            const dateB &#x3D; new Date(b.createdOn).getTime();
+            return dateB - dateA;
+          });
+
+          //  const accreditations &#x3D; res.data.filter((request:any) &#x3D;&gt; request.request_category &#x3D;&#x3D;&#x3D; &quot;ACCREDITATION&quot;);
+          // console.log(accreditations)
+          // this.requests &#x3D; accreditations
         } else {
           this.loading &#x3D; false;
         }
       });
     this.loading &#x3D; false;
   }
-  onleaveComment(){}
+
+  onleaveComment() {
+    this.isLoading &#x3D; true;
+    const model &#x3D; {
+      name: this.form.value.name,
+      phone_number: this.form.value.phone_number,
+      subject: this.form.value.subject,
+      message: this.form.value.message,
+      email: this.form.value.email,
+    };
+    console.log(model)
+    this.httpService.customerPortalPost(&#x60;api/v1/auth/customerEnquirer&#x60;, model).subscribe(
+      (result: any) &#x3D;&gt; {
+        if (result.status &#x3D;&#x3D;&#x3D; &#x27;00&#x27;) {
+          this.isLoading &#x3D; false;
+          this.hideLeaveCommentForm();
+          // this.loadData()
+          Swal.fire(&#x27;Customer Enquire Successfully&#x27;,
+            &#x27;success&#x27;).then(r &#x3D;&gt; console.log(r))
+        } else {
+          this.hideLeaveCommentForm();
+          Swal.fire(&#x27;Customer Enquire  Failed, Try Again&#x27;,
+            &#x27;error&#x27;).then(r &#x3D;&gt; console.log(r))
+            this.isLoading &#x3D; false;
+        }
+      },
+      (error: any) &#x3D;&gt; {
+        this.hideLeaveCommentForm();
+        Swal.fire(&#x27;Customer Enquire error&#x27;,
+          &#x27;error&#x27;)
+          this.isLoading &#x3D; false;
+      }
+    );
+  }
 
   openAddRequestModal() {
     this.modalRef &#x3D; this.modalService.open(AddProductComponent, { centered: true, size: &quot;md&quot; });
@@ -2631,7 +3103,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
         &lt;div style&#x3D;&quot;background: var(--seasalt, #F8F8F8); border-radius: 8px 8px 8px 8px;&quot;&gt;
           &lt;div class&#x3D;&quot;d-flex justify-content-between&quot;
             style&#x3D;&quot;background-color: #d0ddf0;  font-family: &#x27;Mulish&#x27;; font-weight: 900; border-radius:4px;&quot;&gt;
-            &lt;h4 class&#x3D;&quot;text-start p-2 mt-2&quot; style&#x3D;&quot;color: #6D36A8; font-size: 23px;&quot;&gt;Customer Inquiry&lt;/h4&gt;
+            &lt;h4 class&#x3D;&quot;text-start p-2 mt-2&quot; style&#x3D;&quot;color: #6D36A8; font-size: 19px;&quot;&gt;Customer Inquiry&lt;/h4&gt;
             &lt;div&gt;
               &lt;button type&#x3D;&quot;button&quot; class&#x3D;&quot;btn fs-2&quot; (click)&#x3D;&quot;hideLeaveCommentForm()&quot;
                 style&#x3D;&quot;color: #6D36A8; font-size: 20px; margin-top: -5%;&quot;&gt;
@@ -2640,41 +3112,40 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
             &lt;/div&gt;
           &lt;/div&gt;
           &lt;article class&#x3D;&quot;&quot;&gt;
-            &lt;p *ngIf&#x3D;&quot;errorMessage&quot; class&#x3D;&quot;text-danger&quot;&gt;{{errorMessage}}&lt;/p&gt;
             &lt;form class&#x3D;&quot;mt-1&quot; [formGroup]&#x3D;&quot;form&quot; (ngSubmit)&#x3D;&quot;onleaveComment()&quot; class&#x3D;&quot;row px-3&quot;&gt;
               &lt;div class&#x3D;&quot;tab-content col-12 border-0&quot;&gt;
                 &lt;div class&#x3D;&quot;form-group mt-2&quot;&gt;
                   &lt;input formControlName&#x3D;&quot;name&quot; type&#x3D;&quot;text&quot; class&#x3D;&quot;form-control validation-field border-0&quot; id&#x3D;&quot;name&quot;
                     placeholder&#x3D;&quot;Your Name or Company*&quot;&gt;
-                  &lt;!-- &lt;small class&#x3D;&quot;text-danger&quot; *ngIf&#x3D;&quot;f.concern.touched &amp;&amp; f.concern.errors?.required&quot;&gt;Field Required&lt;/small&gt; --&gt;
+                  &lt;small class&#x3D;&quot;text-danger&quot; *ngIf&#x3D;&quot;f.name.touched &amp;&amp; f.name.errors?.required&quot;&gt;Field Required&lt;/small&gt;
                 &lt;/div&gt;
                 &lt;div class&#x3D;&quot;form-group mt-2&quot;&gt;
-                  &lt;input formControlName&#x3D;&quot;email&quot; type&#x3D;&quot;email&quot; class&#x3D;&quot;form-control validation-field border-0&quot;
-                    id&#x3D;&quot;email&quot; placeholder&#x3D;&quot;Your email address*&quot;&gt;
-                  &lt;!-- &lt;small class&#x3D;&quot;text-danger&quot; *ngIf&#x3D;&quot;f.concern.touched &amp;&amp; f.concern.errors?.required&quot;&gt;Field Required&lt;/small&gt; --&gt;
+                  &lt;input formControlName&#x3D;&quot;email&quot; type&#x3D;&quot;email&quot; class&#x3D;&quot;form-control validation-field border-0&quot; id&#x3D;&quot;email&quot;
+                    placeholder&#x3D;&quot;Your email address*&quot;&gt;
+                  &lt;small class&#x3D;&quot;text-danger&quot; *ngIf&#x3D;&quot;f.email.touched &amp;&amp; f.email.errors?.required&quot;&gt;Field Required&lt;/small&gt;
+                  &lt;small class&#x3D;&quot;text-danger&quot; *ngIf&#x3D;&quot;f.email.touched &amp;&amp; f.email.errors?.email&quot;&gt;Email Format Required&lt;/small&gt;
                 &lt;/div&gt;
                 &lt;div class&#x3D;&quot;form-group mt-2&quot;&gt;
-                  &lt;input type&#x3D;&quot;text&quot; name&#x3D;&quot;tel&quot; formControlName&#x3D;&quot;phoneNumber&quot; id&#x3D;&quot;phoneNumber&quot;
-                    placeholder&#x3D;&quot;Phone Number*&quot; class&#x3D;&quot;form-control validation-field border-0&quot; ng2TelInput
+                  &lt;input type&#x3D;&quot;text&quot; name&#x3D;&quot;tel&quot; formControlName&#x3D;&quot;phone_number&quot; id&#x3D;&quot;phoneNumber&quot;
+                    placeholder&#x3D;&quot;Phone Number*&quot; class&#x3D;&quot;form-control validation-field border-0 w-100&quot; ng2TelInput
                     data-initial-country&#x3D;&quot;ke&quot;&gt;
-                  &lt;!-- &lt;input formControlName&#x3D;&quot;phoneNumber&quot; id&#x3D;&quot;phoneNumber&quot; type&#x3D;&quot;text&quot;  placeholder&#x3D;&quot;Phone Number*&quot; class&#x3D;&quot;form-control validation-field border-0&quot;
-                              id&#x3D;&quot;purpose&quot; placeholder&#x3D;&quot;Your Phone No,&quot;&gt; --&gt;
-                  &lt;!-- &lt;small class&#x3D;&quot;text-danger&quot; *ngIf&#x3D;&quot;f.concern.touched &amp;&amp; f.concern.errors?.required&quot;&gt;Field Required&lt;/small&gt; --&gt;
+                  &lt;small class&#x3D;&quot;text-danger&quot; *ngIf&#x3D;&quot;f.phone_number.touched &amp;&amp; f.phone_number.errors?.required&quot;&gt;Field Required&lt;/small&gt; &lt;br&gt;
+                  &lt;small class&#x3D;&quot;text-danger&quot; *ngIf&#x3D;&quot;f.phone_number.touched &amp;&amp; f.phone_number.errors?.invalidPhoneNumber&quot;&gt;Phone Number: 254 *** *** *** or 07 **** ****&lt;/small&gt;
                 &lt;/div&gt;
                 &lt;div class&#x3D;&quot;form-group mt-2&quot;&gt;
                   &lt;input formControlName&#x3D;&quot;subject&quot; type&#x3D;&quot;text&quot; class&#x3D;&quot;form-control validation-field border-0&quot;
-                    id&#x3D;&quot;subject&quot; placeholder&#x3D;&quot;Subject&quot;&gt;
-                  &lt;!-- &lt;small class&#x3D;&quot;text-danger&quot; *ngIf&#x3D;&quot;f.concern.touched &amp;&amp; f.concern.errors?.required&quot;&gt;Field Required&lt;/small&gt; --&gt;
+                    id&#x3D;&quot;occupation&quot; placeholder&#x3D;&quot;Subject&quot;&gt;
+                  &lt;small class&#x3D;&quot;text-danger&quot; *ngIf&#x3D;&quot;f.subject.touched &amp;&amp; f.subject.errors?.required&quot;&gt;Field Required&lt;/small&gt;
                 &lt;/div&gt;
                 &lt;div class&#x3D;&quot;form-group mt-2&quot;&gt;
-                  &lt;textarea formControlName&#x3D;&quot;message&quot; type&#x3D;&quot;text&quot; id&#x3D;&quot;message&quot; cols&#x3D;&quot;15&quot; rows&#x3D;&quot;3&quot;
-                    placeholder&#x3D;&quot;Message&quot; class&#x3D;&quot;form-control validation-field border-0&quot;&gt;&lt;/textarea&gt;
-                  &lt;!-- &lt;small class&#x3D;&quot;text-danger&quot; *ngIf&#x3D;&quot;f.concern.touched &amp;&amp; f.concern.errors?.required&quot;&gt;Field Required&lt;/small&gt; --&gt;
+                  &lt;textarea formControlName&#x3D;&quot;message&quot; type&#x3D;&quot;text&quot; id&#x3D;&quot;message&quot; cols&#x3D;&quot;15&quot; rows&#x3D;&quot;3&quot; 
+                  placeholder&#x3D;&quot;Message&quot; class&#x3D;&quot;form-control validation-field border-0&quot;&gt;&lt;/textarea&gt;
+                  &lt;small class&#x3D;&quot;text-danger&quot; *ngIf&#x3D;&quot;f.message.touched &amp;&amp; f.message.errors?.required&quot;&gt;Field Required&lt;/small&gt;
                 &lt;/div&gt;
                 &lt;div class&#x3D;&quot;col-12 bg-white text-center py-1 mt-3 mb-2&quot;&gt;
-                  &lt;button style&#x3D;&quot;width: 100%; border: none;&quot; class&#x3D;&quot;btn btn-block bronchure-btn transition&quot;
+                  &lt;button [disabled]&#x3D;&quot;!form.valid&quot; style&#x3D;&quot;width: 100%; border: none;&quot; class&#x3D;&quot;btn btn-block bronchure-btn transition&quot;
                     type&#x3D;&quot;submit&quot;&gt;
-                    &lt;span style&#x3D;&quot;color: white;&quot;&gt;SEND&lt;/span&gt;
+                    &lt;span style&#x3D;&quot;color: white;&quot;&gt;SEND&lt;/span&gt;&lt;img *ngIf&#x3D;&quot;isLoading&quot; class&#x3D;&quot;pl-2&quot; src&#x3D;&quot;assets/images/loading.gif&quot; alt&#x3D;&quot;loading-gif&quot;&gt;
                   &lt;/button&gt;
                 &lt;/div&gt;
               &lt;/div&gt;
@@ -2712,22 +3183,49 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
         staff and the property. Due to their significance, an establishment must score 100% overall in all of the
         listed Essential Items to qualify for Classification and Grading Process.
       &lt;/p&gt;
-      &lt;button class&#x3D;&quot;btn btn-md login-btn transition mt-1&quot; type&#x3D;&quot;submit&quot;&gt;
+      &lt;button class&#x3D;&quot;btn btn-md login-btn transition mt-1 mb-2&quot; type&#x3D;&quot;submit&quot;&gt;
         &lt;a  style&#x3D;&quot;text-decoration: none&quot; routerLink&#x3D;&quot;/tra-client/requests/addRequest&quot; class&#x3D;&quot;transition&quot;&gt;
           &lt;span style&#x3D;&quot;color: #f8f8f8; font-weight: 700;letter-spacing: 0.08em;font-size: 12px;
           &quot;&gt;NEW REQUEST&lt;/span&gt;&lt;/a&gt;
       &lt;/button&gt;
     &lt;/div&gt;
-    &lt;div class&#x3D;&quot;row mt-4&quot;&gt;
-        &lt;div class&#x3D;&quot;col-md-12 stretch-card&quot;&gt;
-          &lt;div class&#x3D;&quot;card&quot; *ngIf&#x3D;&quot;rows.length &gt; 0&quot;&gt;
-            &lt;app-custom-ngx-table [columns]&#x3D;&quot;columns&quot; [rows]&#x3D;&quot;rows&quot; [actions]&#x3D;&quot;actions&quot; [hasViewAndEdit]&#x3D;&quot;true&quot;
-              [loadingIndicator]&#x3D;&quot;loading&quot; (outputEvent)&#x3D;&quot;triggerEvent($event)&quot;&gt;&lt;/app-custom-ngx-table&gt;
-          &lt;/div&gt;
+    &lt;div *ngIf&#x3D;&quot;requests.length &gt; 0&quot;&gt;
+      &lt;div class&#x3D;&quot;row d-flex justify-content-between mt-3&quot; *ngFor&#x3D;&quot;let std of requests&quot;&gt;
+        &lt;div class&#x3D;&quot;col&quot;&gt;
+          &lt;p class&#x3D;&quot;title&quot;&gt;Ref No:&lt;/p&gt;
+          &lt;h2 class&#x3D;&quot;content&quot;&gt;{{std.requestRef}}&lt;/h2&gt;
         &lt;/div&gt;
+        &lt;div class&#x3D;&quot;col&quot;&gt;
+          &lt;p class&#x3D;&quot;title&quot;&gt;Request Type&lt;/p&gt;
+          &lt;h2 class&#x3D;&quot;content&quot;&gt;{{std.requestType}}&lt;/h2&gt;
+        &lt;/div&gt;
+        &lt;div class&#x3D;&quot;col&quot;&gt;
+          &lt;p class&#x3D;&quot;title&quot;&gt;Date Created&lt;/p&gt;
+          &lt;h2 class&#x3D;&quot;content&quot;&gt;{{ formatDate(std.createdOn) }}&lt;/h2&gt;
+        &lt;/div&gt;
+        &lt;div class&#x3D;&quot;col&quot;&gt;
+          &lt;p class&#x3D;&quot;title&quot;&gt;Status&lt;/p&gt;
+          &lt;h2 class&#x3D;&quot;content&quot;&gt;
+            &lt;img class&#x3D;&quot;card-img-top img-fluid mr-1&quot; style&#x3D;&quot;width: 13px; height: 16px;&quot;
+              [src]&#x3D;&quot;getSanitizedStatusImage(std.status)&quot; /&gt;{{std.status}}
+          &lt;/h2&gt;
+        &lt;/div&gt;
+        &lt;div class&#x3D;&quot;mt-2 col&quot;&gt;
+            &lt;button class&#x3D;&quot;btn btn-md login-btn transition&quot; (click)&#x3D;&quot;viewRequest(std.id)&quot; type&#x3D;&quot;submit&quot;&gt;
+              &lt;a style&#x3D;&quot;text-decoration: none&quot; class&#x3D;&quot;transition&quot;&gt;
+                &lt;span style&#x3D;&quot;color: var(--white, #FFF);text-align: center;font-family: Mulish;font-size: 13px;font-style: normal;font-weight: 700;line-height: normal;letter-spacing: 1.12px;text-transform: uppercase;
+                    &quot;&gt;VIEW&lt;/span&gt;&lt;/a&gt;
+            &lt;/button&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    
+    &lt;div *ngIf&#x3D;&quot;requests.length &#x3D;&#x3D;&#x3D; 0&quot;&gt;
+      &lt;h5 class&#x3D;&quot;d-flex justify-content-start mt-2&quot;
+      style&#x3D;&quot;color: #a90202; font-family: &#x27;Mulish&#x27;;font-weight: 600;font-size: 15px; text-transform: none;&quot;&gt;No REQUESTS Made.&lt;/h5&gt;
     &lt;/div&gt;
     &lt;div class&#x3D;&quot;d-flex justify-content-end&quot;&gt;
-      &lt;div style&#x3D;&quot;position: fixed; bottom: 9%; right:3%;&quot; class&#x3D;&quot;d-flex justify-content-around&quot;&gt;
+      &lt;div style&#x3D;&quot;position: fixed; bottom: 9%; right:3%;&quot;  (click)&#x3D;&quot;toggleLeaveCommentForm()&quot; class&#x3D;&quot;d-flex justify-content-around&quot;&gt;
         &lt;button *ngIf&#x3D;&quot;!showLeaveCommentForm&quot; class&#x3D;&quot;btn btn-sm transition&quot;
           style&#x3D;&quot;border-radius: 64px;background: var(--green-blue, #2268AA); margin-right:10px;&quot; type&#x3D;&quot;submit&quot;&gt;
           &lt;a style&#x3D;&quot;text-decoration: none&quot; class&#x3D;&quot;transition&quot;&gt;
@@ -2735,7 +3233,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
               style&#x3D;&quot;color: var(--seasalt, #F8F8F8);text-align: center;font-family: Mulish;font-size: 12px;font-style: normal;font-weight: 700;line-height: normal;letter-spacing: 1.12px;text-transform: uppercase;&quot;&gt;customer
               inquiry&lt;/span&gt;&lt;/a&gt;
         &lt;/button&gt;
-        &lt;div (click)&#x3D;&quot;toggleLeaveCommentForm()&quot;  style&#x3D;&quot;width: 50px; height: 50px; border-radius: 50%; background-color: #D0DDF0;;&quot;
+        &lt;div style&#x3D;&quot;width: 50px; height: 50px; border-radius: 50%; background-color: #D0DDF0;;&quot;
           class&#x3D;&quot;card-header d-flex align-items-center border-0&quot;&gt;
           &lt;p style&#x3D;&quot;color:#2268AA;  font-size: 30px; margin-left: -13px;&quot;&gt;
             &lt;img class&#x3D;&quot;img-fluid&quot; style&#x3D;&quot;position: absolute; bottom: 19%&quot;
@@ -2770,7 +3268,24 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
   border-radius: 8px;
 }
 
+.title {
+  color: var(--dark-purple, #1e0f2e);
+  font-family: Mulish;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
 
+.content {
+  overflow: hidden;
+  color: var(--green-blue, #2268aa);
+  font-family: Mulish;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+}
 </code></pre>
     </div>
 
@@ -2799,7 +3314,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
 <script src="../js/libs/htmlparser.js"></script>
 <script src="../js/libs/deep-iterator.js"></script>
 <script>
-        var COMPONENT_TEMPLATE = '<div><div class="d-flex justify-content-between align-items-center flex-wrap grid-margin p-2">  <div>    <h4 class="mb-3 mb-md-0"      style="color: var(--dark-purple, #1E0F2E);font-family: Muli;font-size: 20px;font-style: normal;font-weight: 700;line-height: 26px; ">      All Requests</h4>  </div></div><ng-container *ngIf="showLeaveCommentForm">  <div class="modal-container" style="display: flex;justify-content: end;align-items: center;position: fixed;width: 100%;height: 100%; z-index: 10;  border-radius: 8px 8px 8px 8px;">    <div>      <div class="modals " style="border-radius: 8px 8px 8px 8px;">        <div style="background: var(--seasalt, #F8F8F8); border-radius: 8px 8px 8px 8px;">          <div class="d-flex justify-content-between"            style="background-color: #d0ddf0;  font-family: \'Mulish\'; font-weight: 900; border-radius:4px;">            <h4 class="text-start p-2 mt-2" style="color: #6D36A8; font-size: 23px;">Customer Inquiry</h4>            <div>              <button type="button" class="btn fs-2" (click)="hideLeaveCommentForm()"                style="color: #6D36A8; font-size: 20px; margin-top: -5%;">                &times;              </button>            </div>          </div>          <article class="">            <p *ngIf="errorMessage" class="text-danger">{{errorMessage}}</p>            <form class="mt-1" [formGroup]="form" (ngSubmit)="onleaveComment()" class="row px-3">              <div class="tab-content col-12 border-0">                <div class="form-group mt-2">                  <input formControlName="name" type="text" class="form-control validation-field border-0" id="name"                    placeholder="Your Name or Company*">                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->                </div>                <div class="form-group mt-2">                  <input formControlName="email" type="email" class="form-control validation-field border-0"                    id="email" placeholder="Your email address*">                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->                </div>                <div class="form-group mt-2">                  <input type="text" name="tel" formControlName="phoneNumber" id="phoneNumber"                    placeholder="Phone Number*" class="form-control validation-field border-0" ng2TelInput                    data-initial-country="ke">                  <!-- <input formControlName="phoneNumber" id="phoneNumber" type="text"  placeholder="Phone Number*" class="form-control validation-field border-0"                              id="purpose" placeholder="Your Phone No,"> -->                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->                </div>                <div class="form-group mt-2">                  <input formControlName="subject" type="text" class="form-control validation-field border-0"                    id="subject" placeholder="Subject">                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->                </div>                <div class="form-group mt-2">                  <textarea formControlName="message" type="text" id="message" cols="15" rows="3"                    placeholder="Message" class="form-control validation-field border-0"></textarea>                  <!-- <small class="text-danger" *ngIf="f.concern.touched && f.concern.errors?.required">Field Required</small> -->                </div>                <div class="col-12 bg-white text-center py-1 mt-3 mb-2">                  <button style="width: 100%; border: none;" class="btn btn-block bronchure-btn transition"                    type="submit">                    <span style="color: white;">SEND</span>                  </button>                </div>              </div>            </form>          </article>        </div>      </div>    </div>  </div></ng-container><div class="card" style="position: relative; margin-top:-1%;">  <div class="row">    <div class="col-md-12 col-lg-12 col-xl-12 col-sm-12">      <div class="box-shadow">        <img class="card-img-top img-fluid" style="max-width:100% ; height: 310px ; border-radius: 16px;"          src="assets/images/requests.png" />      </div>    </div>  </div>  <div class="landing" style="position:absolute; padding: 16px 24px; border-radius: 16px; background: #FFF; width: 90%; margin-left: 5%; margin-top: 21%;">    <div>      <h1        style="color: var(--grape-tra, #6D36A8);font-family: Mulish;font-size: 18px;font-style: normal;font-weight: 700;line-height: 24px;">        Pre- Qualification Assessment Checklist      </h1>      <p        style="color: #000;text-align: justify;font-family: Mulish;font-size: 15px;font-style: normal;font-weight: 400;line-height: 21px;">        Pre-qualification Assessment; is a prerequisite procedure under the EAC Standards Criteria for Classification        of Hotels and Restaurants. Hotels Owners/property managers must carry out self-assessment based on each of the        identified Essential Items listed on the checklist to ensure they attain the prerequisite 100% to qualify for        classification and star rating. Essential Items; refers to both statutory requirements and basic operational        standard practices that guarantees safety and comfort of both local and international guests in any        hospitality establishment. The Items are crucial in the protection and promotion of the well- being of guests,        staff and the property. Due to their significance, an establishment must score 100% overall in all of the        listed Essential Items to qualify for Classification and Grading Process.      </p>      <button class="btn btn-md login-btn transition mt-1" type="submit">        <a  style="text-decoration: none" routerLink="/tra-client/requests/addRequest" class="transition">          <span style="color: #f8f8f8; font-weight: 700;letter-spacing: 0.08em;font-size: 12px;          ">NEW REQUEST</span></a>      </button>    </div>    <div class="row mt-4">        <div class="col-md-12 stretch-card">          <div class="card" *ngIf="rows.length > 0">            <app-custom-ngx-table [columns]="columns" [rows]="rows" [actions]="actions" [hasViewAndEdit]="true"              [loadingIndicator]="loading" (outputEvent)="triggerEvent($event)"></app-custom-ngx-table>          </div>        </div>    </div>    <div class="d-flex justify-content-end">      <div style="position: fixed; bottom: 9%; right:3%;" class="d-flex justify-content-around">        <button *ngIf="!showLeaveCommentForm" class="btn btn-sm transition"          style="border-radius: 64px;background: var(--green-blue, #2268AA); margin-right:10px;" type="submit">          <a style="text-decoration: none" class="transition">            <span              style="color: var(--seasalt, #F8F8F8);text-align: center;font-family: Mulish;font-size: 12px;font-style: normal;font-weight: 700;line-height: normal;letter-spacing: 1.12px;text-transform: uppercase;">customer              inquiry</span></a>        </button>        <div (click)="toggleLeaveCommentForm()"  style="width: 50px; height: 50px; border-radius: 50%; background-color: #D0DDF0;;"          class="card-header d-flex align-items-center border-0">          <p style="color:#2268AA;  font-size: 30px; margin-left: -13px;">            <img class="img-fluid" style="position: absolute; bottom: 19%"              src="assets/images/chats.png" width="30" height="20" alt="logo" />            <!-- <i (click)="openModal(leaveComment)" class="mt-2 fa-solid fa-comments" title="Leave A Comment"></i> -->          </p>        </div>      </div>    </div>    <footer class="footer mt-3 d-flex flex-column flex-md-row align-items-center justify-content-between px-4 border-top small">      <p class="text-muted">Copyright © 2023 <a href="https://www.tra.go.ke/" style="color: #6d36a8; font-family: \'Muli\';" target="_blank">TRA</a></p>      <p class="" style="color: #6d36a8; font-family: \'Muli\'; font-style: normal; font-weight: 700; font-size: 13px; letter-spacing: 0.08em;">Tourism Regulatory Authority</p>    </footer>  </div></div></div>'
+        var COMPONENT_TEMPLATE = '<div><div class="d-flex justify-content-between align-items-center flex-wrap grid-margin p-2">  <div>    <h4 class="mb-3 mb-md-0"      style="color: var(--dark-purple, #1E0F2E);font-family: Muli;font-size: 20px;font-style: normal;font-weight: 700;line-height: 26px; ">      All Requests</h4>  </div></div><ng-container *ngIf="showLeaveCommentForm">  <div class="modal-container" style="display: flex;justify-content: end;align-items: center;position: fixed;width: 100%;height: 100%; z-index: 10;  border-radius: 8px 8px 8px 8px;">    <div>      <div class="modals " style="border-radius: 8px 8px 8px 8px;">        <div style="background: var(--seasalt, #F8F8F8); border-radius: 8px 8px 8px 8px;">          <div class="d-flex justify-content-between"            style="background-color: #d0ddf0;  font-family: \'Mulish\'; font-weight: 900; border-radius:4px;">            <h4 class="text-start p-2 mt-2" style="color: #6D36A8; font-size: 19px;">Customer Inquiry</h4>            <div>              <button type="button" class="btn fs-2" (click)="hideLeaveCommentForm()"                style="color: #6D36A8; font-size: 20px; margin-top: -5%;">                &times;              </button>            </div>          </div>          <article class="">            <form class="mt-1" [formGroup]="form" (ngSubmit)="onleaveComment()" class="row px-3">              <div class="tab-content col-12 border-0">                <div class="form-group mt-2">                  <input formControlName="name" type="text" class="form-control validation-field border-0" id="name"                    placeholder="Your Name or Company*">                  <small class="text-danger" *ngIf="f.name.touched && f.name.errors?.required">Field Required</small>                </div>                <div class="form-group mt-2">                  <input formControlName="email" type="email" class="form-control validation-field border-0" id="email"                    placeholder="Your email address*">                  <small class="text-danger" *ngIf="f.email.touched && f.email.errors?.required">Field Required</small>                  <small class="text-danger" *ngIf="f.email.touched && f.email.errors?.email">Email Format Required</small>                </div>                <div class="form-group mt-2">                  <input type="text" name="tel" formControlName="phone_number" id="phoneNumber"                    placeholder="Phone Number*" class="form-control validation-field border-0 w-100" ng2TelInput                    data-initial-country="ke">                  <small class="text-danger" *ngIf="f.phone_number.touched && f.phone_number.errors?.required">Field Required</small> <br>                  <small class="text-danger" *ngIf="f.phone_number.touched && f.phone_number.errors?.invalidPhoneNumber">Phone Number: 254 *** *** *** or 07 **** ****</small>                </div>                <div class="form-group mt-2">                  <input formControlName="subject" type="text" class="form-control validation-field border-0"                    id="occupation" placeholder="Subject">                  <small class="text-danger" *ngIf="f.subject.touched && f.subject.errors?.required">Field Required</small>                </div>                <div class="form-group mt-2">                  <textarea formControlName="message" type="text" id="message" cols="15" rows="3"                   placeholder="Message" class="form-control validation-field border-0"></textarea>                  <small class="text-danger" *ngIf="f.message.touched && f.message.errors?.required">Field Required</small>                </div>                <div class="col-12 bg-white text-center py-1 mt-3 mb-2">                  <button [disabled]="!form.valid" style="width: 100%; border: none;" class="btn btn-block bronchure-btn transition"                    type="submit">                    <span style="color: white;">SEND</span><img *ngIf="isLoading" class="pl-2" src="assets/images/loading.gif" alt="loading-gif">                  </button>                </div>              </div>            </form>          </article>        </div>      </div>    </div>  </div></ng-container><div class="card" style="position: relative; margin-top:-1%;">  <div class="row">    <div class="col-md-12 col-lg-12 col-xl-12 col-sm-12">      <div class="box-shadow">        <img class="card-img-top img-fluid" style="max-width:100% ; height: 310px ; border-radius: 16px;"          src="assets/images/requests.png" />      </div>    </div>  </div>  <div class="landing" style="position:absolute; padding: 16px 24px; border-radius: 16px; background: #FFF; width: 90%; margin-left: 5%; margin-top: 21%;">    <div>      <h1        style="color: var(--grape-tra, #6D36A8);font-family: Mulish;font-size: 18px;font-style: normal;font-weight: 700;line-height: 24px;">        Pre- Qualification Assessment Checklist      </h1>      <p        style="color: #000;text-align: justify;font-family: Mulish;font-size: 15px;font-style: normal;font-weight: 400;line-height: 21px;">        Pre-qualification Assessment; is a prerequisite procedure under the EAC Standards Criteria for Classification        of Hotels and Restaurants. Hotels Owners/property managers must carry out self-assessment based on each of the        identified Essential Items listed on the checklist to ensure they attain the prerequisite 100% to qualify for        classification and star rating. Essential Items; refers to both statutory requirements and basic operational        standard practices that guarantees safety and comfort of both local and international guests in any        hospitality establishment. The Items are crucial in the protection and promotion of the well- being of guests,        staff and the property. Due to their significance, an establishment must score 100% overall in all of the        listed Essential Items to qualify for Classification and Grading Process.      </p>      <button class="btn btn-md login-btn transition mt-1 mb-2" type="submit">        <a  style="text-decoration: none" routerLink="/tra-client/requests/addRequest" class="transition">          <span style="color: #f8f8f8; font-weight: 700;letter-spacing: 0.08em;font-size: 12px;          ">NEW REQUEST</span></a>      </button>    </div>    <div *ngIf="requests.length > 0">      <div class="row d-flex justify-content-between mt-3" *ngFor="let std of requests">        <div class="col">          <p class="title">Ref No:</p>          <h2 class="content">{{std.requestRef}}</h2>        </div>        <div class="col">          <p class="title">Request Type</p>          <h2 class="content">{{std.requestType}}</h2>        </div>        <div class="col">          <p class="title">Date Created</p>          <h2 class="content">{{ formatDate(std.createdOn) }}</h2>        </div>        <div class="col">          <p class="title">Status</p>          <h2 class="content">            <img class="card-img-top img-fluid mr-1" style="width: 13px; height: 16px;"              [src]="getSanitizedStatusImage(std.status)" />{{std.status}}          </h2>        </div>        <div class="mt-2 col">            <button class="btn btn-md login-btn transition" (click)="viewRequest(std.id)" type="submit">              <a style="text-decoration: none" class="transition">                <span style="color: var(--white, #FFF);text-align: center;font-family: Mulish;font-size: 13px;font-style: normal;font-weight: 700;line-height: normal;letter-spacing: 1.12px;text-transform: uppercase;                    ">VIEW</span></a>            </button>        </div>      </div>    </div>        <div *ngIf="requests.length === 0">      <h5 class="d-flex justify-content-start mt-2"      style="color: #a90202; font-family: \'Mulish\';font-weight: 600;font-size: 15px; text-transform: none;">No REQUESTS Made.</h5>    </div>    <div class="d-flex justify-content-end">      <div style="position: fixed; bottom: 9%; right:3%;"  (click)="toggleLeaveCommentForm()" class="d-flex justify-content-around">        <button *ngIf="!showLeaveCommentForm" class="btn btn-sm transition"          style="border-radius: 64px;background: var(--green-blue, #2268AA); margin-right:10px;" type="submit">          <a style="text-decoration: none" class="transition">            <span              style="color: var(--seasalt, #F8F8F8);text-align: center;font-family: Mulish;font-size: 12px;font-style: normal;font-weight: 700;line-height: normal;letter-spacing: 1.12px;text-transform: uppercase;">customer              inquiry</span></a>        </button>        <div style="width: 50px; height: 50px; border-radius: 50%; background-color: #D0DDF0;;"          class="card-header d-flex align-items-center border-0">          <p style="color:#2268AA;  font-size: 30px; margin-left: -13px;">            <img class="img-fluid" style="position: absolute; bottom: 19%"              src="assets/images/chats.png" width="30" height="20" alt="logo" />            <!-- <i (click)="openModal(leaveComment)" class="mt-2 fa-solid fa-comments" title="Leave A Comment"></i> -->          </p>        </div>      </div>    </div>    <footer class="footer mt-3 d-flex flex-column flex-md-row align-items-center justify-content-between px-4 border-top small">      <p class="text-muted">Copyright © 2023 <a href="https://www.tra.go.ke/" style="color: #6d36a8; font-family: \'Muli\';" target="_blank">TRA</a></p>      <p class="" style="color: #6d36a8; font-family: \'Muli\'; font-style: normal; font-weight: 700; font-size: 13px; letter-spacing: 0.08em;">Tourism Regulatory Authority</p>    </footer>  </div></div></div>'
     var COMPONENTS = [{'name': 'AccordionComponent', 'selector': 'app-accordion'},{'name': 'AddAtmComponent', 'selector': 'app-add-branch'},{'name': 'AddBenefitComponent', 'selector': 'app-add-benefit'},{'name': 'AddBranchComponent', 'selector': 'app-add-branch'},{'name': 'AddCustomerComponent', 'selector': 'app-add-workflow-step'},{'name': 'AddProductComponent', 'selector': 'app-add-workflow-step'},{'name': 'AddProductSubItemComponent', 'selector': 'app-product-sub-item'},{'name': 'AddProfileComponent', 'selector': 'app-add-role'},{'name': 'AddRequirementComponent', 'selector': 'app-add-requirement'},{'name': 'AddRoleComponent', 'selector': 'app-add-role'},{'name': 'AddServiceComponent', 'selector': 'app-service'},{'name': 'AddUserComponent', 'selector': 'app-add-user'},{'name': 'AdvancedFormElementsComponent', 'selector': 'app-advanced-form-elements'},{'name': 'AdvancedUiComponent', 'selector': 'app-advanced-ui'},{'name': 'AlertsComponent', 'selector': 'app-alerts'},{'name': 'ApexchartsComponent', 'selector': 'app-apexcharts'},{'name': 'AppComponent', 'selector': 'app-root'},{'name': 'ApproveProfileComponent', 'selector': 'app-approve-profile'},{'name': 'AppsComponent', 'selector': 'app-apps'},{'name': 'AuthComponent', 'selector': 'app-auth'},{'name': 'BadgesComponent', 'selector': 'app-badges'},{'name': 'BaseComponent', 'selector': 'app-base'},{'name': 'BasicElementsComponent', 'selector': 'app-basic-elements'},{'name': 'BasicTableComponent', 'selector': 'app-basic-table'},{'name': 'BlankComponent', 'selector': 'app-blank'},{'name': 'BreadcrumbsComponent', 'selector': 'app-breadcrumbs'},{'name': 'ButtonGroupComponent', 'selector': 'app-button-group'},{'name': 'ButtonsComponent', 'selector': 'app-buttons'},{'name': 'CalendarComponent', 'selector': 'app-calendar'},{'name': 'CardsComponent', 'selector': 'app-cards'},{'name': 'CarouselComponent', 'selector': 'app-carousel'},{'name': 'ChangeAuthPasswordComponent', 'selector': 'app-changePassword'},{'name': 'ChangePasswordComponent', 'selector': 'app-change-password'},{'name': 'ChangePasswordComponent', 'selector': 'app-change-password'},{'name': 'ChangeProfileModalComponent', 'selector': 'app-change-profile-modal'},{'name': 'ChartjsComponent', 'selector': 'app-chartjs'},{'name': 'ChartsGraphsComponent', 'selector': 'app-charts-graphs'},{'name': 'ChatComponent', 'selector': 'app-chat'},{'name': 'CodePreviewComponent', 'selector': 'app-code-preview'},{'name': 'CollapseComponent', 'selector': 'app-collapse'},{'name': 'CompareImageComponent', 'selector': 'app-compare-image'},{'name': 'ComposeComponent', 'selector': 'app-sample-table'},{'name': 'ConfirmDialogComponent', 'selector': 'app-open-doc-dialog'},{'name': 'CustomNgxTable', 'selector': 'app-custom-ngx-table'},{'name': 'DashboardComponent', 'selector': 'app-dashboard'},{'name': 'DataTableComponent', 'selector': 'app-data-table'},{'name': 'DatepickerComponent', 'selector': 'app-datepicker'},{'name': 'DefineRegionComponent', 'selector': 'define-region'},{'name': 'DeleteRoleModalComponent', 'selector': 'app-delete-role-modal'},{'name': 'DropdownsComponent', 'selector': 'app-dropdowns'},{'name': 'EditorsComponent', 'selector': 'app-editors'},{'name': 'EmailComponent', 'selector': 'app-email'},{'name': 'ErrorPageComponent', 'selector': 'app-error-page'},{'name': 'FaqComponent', 'selector': 'app-faq'},{'name': 'FeatherComponent', 'selector': 'app-feather'},{'name': 'FirstTimeLoginComponent', 'selector': 'app-first-time-login'},{'name': 'FirstTimeLoginComponent', 'selector': 'app-first-time-login'},{'name': 'FooterComponent', 'selector': 'app-footer'},{'name': 'ForgotPasswordComponent', 'selector': 'app-forgot-password'},{'name': 'ForgotPasswordComponent', 'selector': 'app-forgot-password'},{'name': 'FormElementsComponent', 'selector': 'app-form-elements'},{'name': 'FormValidationComponent', 'selector': 'app-form-validation'},{'name': 'GeneralComponent', 'selector': 'app-general'},{'name': 'HomeComponent', 'selector': 'app-home'},{'name': 'IconsComponent', 'selector': 'app-icons'},{'name': 'ImageCropperComponent', 'selector': 'app-cropper'},{'name': 'InboxComponent', 'selector': 'app-inbox'},{'name': 'InputMaskComponent', 'selector': 'app-input-mask'},{'name': 'InvoiceComponent', 'selector': 'app-invoice'},{'name': 'LabelActiveComponent', 'selector': 'app-label-active'},{'name': 'LabelBooleanComponent', 'selector': 'app-label-boolean'},{'name': 'LabelCompletedComponent', 'selector': 'app-label-completed'},{'name': 'LabelOnlineComponent', 'selector': 'app-label-online'},{'name': 'LabelPassedComponent', 'selector': 'app-label-passed'},{'name': 'LabelSystemCustomRoleComponent', 'selector': 'app-label-system-custom-role'},{'name': 'LabelTaskStatusComponent', 'selector': 'app-label-task-status'},{'name': 'LandingComponent', 'selector': 'app-landing'},{'name': 'ListAllProductsAsCardsComponent', 'selector': 'app-list-all-products-as-cards'},{'name': 'ListAtmsComponent', 'selector': 'app-list-services'},{'name': 'ListBranchesComponent', 'selector': 'app-list-branches'},{'name': 'ListCustomersComponent', 'selector': 'app-list-requests'},{'name': 'ListFailedRegistrationsComponent', 'selector': 'app-list-internet-banking'},{'name': 'ListGroupComponent', 'selector': 'app-list-group'},{'name': 'ListProductsComponent', 'selector': 'app-list-products'},{'name': 'ListRequestsComponent', 'selector': 'app-list-requests'},{'name': 'ListServicesComponent', 'selector': 'app-list-services'},{'name': 'ListUsersComponent', 'selector': 'app-list-users'},{'name': 'LoginComponent', 'selector': 'app-login'},{'name': 'MdiComponent', 'selector': 'app-mdi'},{'name': 'MediaObjectComponent', 'selector': 'app-media-object'},{'name': 'MobileBankingComponent', 'selector': 'app-root'},{'name': 'ModalComponent', 'selector': 'app-modal'},{'name': 'NavbarComponent', 'selector': 'app-navbar'},{'name': 'NavbarComponent', 'selector': 'app-navbar'},{'name': 'NavsComponent', 'selector': 'app-navs'},{'name': 'NgSelectComponent', 'selector': 'app-ng-select'},{'name': 'NgxChipsComponent', 'selector': 'app-ngx-chips'},{'name': 'NgxColorPickerComponent', 'selector': 'app-ngx-color-picker'},{'name': 'NgxDatatableComponent', 'selector': 'app-ngx-datatable'},{'name': 'NgxDropzoneWrapperComponent', 'selector': 'app-ngx-dropzone-wrapper'},{'name': 'NotificationModalComponent', 'selector': 'app-notification-modal'},{'name': 'OwlCarouselComponent', 'selector': 'app-owl-carousel'},{'name': 'PaginationComponent', 'selector': 'app-pagination'},{'name': 'PopoversComponent', 'selector': 'app-popovers'},{'name': 'PricingComponent', 'selector': 'app-pricing'},{'name': 'ProductAsCardsComponent', 'selector': 'app-product-as-cards'},{'name': 'ProductCategoriesAsCardsComponent', 'selector': 'app-product-categories'},{'name': 'ProductCategoriesComponent', 'selector': 'app-product-categories'},{'name': 'ProductCategoriesComponentSubItem', 'selector': 'app-product-categories-subitem'},{'name': 'ProductSubCategoriesAsCardsComponent', 'selector': 'app-product-sub-categories'},{'name': 'ProfileComponent', 'selector': 'app-profile'},{'name': 'ProfileRolesComponent', 'selector': 'app-profile-roles'},{'name': 'ProfilesComponent', 'selector': 'app-profiles'},{'name': 'ProgressComponent', 'selector': 'app-progress'},{'name': 'RatingComponent', 'selector': 'app-rating'},{'name': 'ReadComponent', 'selector': 'app-read'},{'name': 'ReasonsForFailureComponent', 'selector': 'app-reasons-for-failure'},{'name': 'RegionsListComponent', 'selector': 'app-Regions-list'},{'name': 'RegisterComponent', 'selector': 'app-register'},{'name': 'RolesComponent', 'selector': 'app-roles'},{'name': 'ScrollbarComponent', 'selector': 'app-scrollbar'},{'name': 'SendSmsComponent', 'selector': 'app-list-mobile-app'},{'name': 'SidebarComponent', 'selector': 'app-sidebar'},{'name': 'SortablejsComponent', 'selector': 'app-sortablejs'},{'name': 'SpinnersComponent', 'selector': 'app-spinners'},{'name': 'StandardsComponent', 'selector': 'app-all-standards'},{'name': 'SweetAlertComponent', 'selector': 'app-sweet-alert'},{'name': 'TableFiltersComponent', 'selector': 'app-table-filters'},{'name': 'TableHeaderComponent', 'selector': 'app-table-header'},{'name': 'TablesComponent', 'selector': 'app-tables'},{'name': 'TimelineComponent', 'selector': 'app-timeline'},{'name': 'TimepickerComponent', 'selector': 'app-timepicker'},{'name': 'TooltipsComponent', 'selector': 'app-tooltips'},{'name': 'TypeaheadComponent', 'selector': 'app-typeahead'},{'name': 'UiComponentsComponent', 'selector': 'app-ui-components'},{'name': 'ViewCategoriesComponent', 'selector': 'app-view-categories'},{'name': 'ViewCustomerComponent', 'selector': 'app-view-customer'},{'name': 'ViewProductComponent', 'selector': 'app-view-customer'},{'name': 'ViewProfileComponent', 'selector': 'app-view-profile'},{'name': 'ViewStandardsComponent', 'selector': 'app-view-standards'},{'name': 'ViewUserComponent', 'selector': 'app-view-user'},{'name': 'WizardComponent', 'selector': 'app-wizard'}];
     var DIRECTIVES = [{'name': 'ContentAnimateDirective', 'selector': '[contentAnimate]'},{'name': 'FeatherIconDirective', 'selector': '[appFeatherIcon]'}];
     var ACTUAL_COMPONENT = {'name': 'ProductCategoriesAsCardsComponent'};
