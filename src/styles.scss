@@ -148,9 +148,9 @@
   }
 }
 @media (max-width: 1024px) {
-  .landing {
-    margin-top: 90%;
-  }
+  // .landing {
+  //   margin-top: 90%;
+  // }
 
   .modal-container {
     top: 1px;
@@ -160,9 +160,9 @@
 /* ---- Start of max-width 992px CSS ---- */
 
 @media (max-width: 992px) {
-  .landing {
-    margin-top: 90%;
-  }
+  // .landing {
+  //   margin-top: 90%;
+  // }
 
   .modal-container {
     top: 1px;
@@ -171,16 +171,16 @@
 
 /* ---- End of max-width 992px CSS ---- */
 @media all and (min-width: 768px) and (max-width: 830px) {
-  .landing {
-    // bottom: 34%;
-  }
+  // .landing {
+  //   // bottom: 34%;
+  // }
 }
 /* ---- Start of min-width 480px and max-width 768px CSS ---- */
 
 @media all and (min-width: 480px) and (max-width: 768px) {
-  .landing {
-    margin-top: 90%;
-  }
+  // .landing {
+  //   margin-top: 90%;
+  // }
 
   .modal-container {
     top: 10px;
@@ -192,9 +192,9 @@
 /* ---- Start of max-width 767px CSS ---- */
 
 @media all and (max-width: 767px) {
-  .landing {
-    margin-top: 35%;
-  }
+  // .landing {
+  //   margin-top: 35%;
+  // }
   // .modal-container {
   //   top: 10px;
   // }
@@ -206,9 +206,9 @@
 /* ---- Start of max-width 480px CSS ---- */
 
 @media all and (max-width: 480px) {
-  .landing {
-    margin-top: 10%;
-  }
+  // .landing {
+  //   margin-top: 10%;
+  // }
 
   .modal-container {
     top: 15%;
@@ -221,11 +221,11 @@
 /* ---- Start of max-width 380px CSS ---- */
 
 @media all and (max-width: 380px) {
-  .landing {
-    display: none !important;
-    // margin-top: 10%;
-    // height: 20px;
-  }
+  // .landing {
+  //   display: none !important;
+  //   // margin-top: 10%;
+  //   // height: 20px;
+  // }
 
   .modal-container {
     display: none !important;
