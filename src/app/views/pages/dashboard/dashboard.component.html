@@ -101,126 +101,131 @@
       </div>
     </div>
   </div>
-  <div class="land  d-flex justify-content-around flex-column">
-    <div class="row" style="padding: 16px 24px; align-items: center;">
-      <div class="col mt-2 p-2" style="border-right: 2px solid  rgba(182, 147, 220, 0.80); height: 100px;">
-        <div class="box-shadow"
-          style="height: 97px ; width: 97px; border-radius: 50%;border: 2px solid #CCC; align-items: center;">
-          <img class="card-img-top img-fluid"
-            style="max-height: 80px; max-width: 75px; border-radius: 20%; margin-left: 6%; margin-top: 20%;"
-            src="assets/images/ns.jpg" />
-        </div>
-      </div>
-      <!-- <div class="col mt-2 p-2" style="border-right: 2px solid rgba(182, 147, 220, 0.80); height: 100px;">
-        <label class="box-shadow" for="imageUpload"
-          style="height: 97px ; width: 97px; border-radius: 50%;border: 2px solid #CCC; align-items: center; cursor: pointer;">
-          <img class="card-img-top img-fluid"
-            style="max-height: 80px; max-width: 75px; border-radius: 20%; margin-left: 6%; margin-top: 20%;"
-            [src]="selectedImage" />
-          <input type="file" id="imageUpload" style="display: none" (change)="onImageChange($event)">
-        </label>
-      </div> -->
-      <div class="col">
-        <p class="title">Enterprise</p>
-        <h2 class="content">{{facilityType}}</h2>
-      </div>
-      <div class="col">
-        <p class="title">Facility</p>
-        <h2 class="content">{{facilityCategory}}</h2>
-      </div>
-      <div class="col">
-        <p class="title">Email</p>
-        <h2 class="content">{{companyEmail}}</h2>
-      </div>
-      <div class="col">
-        <p class="title">Phone</p>
-        <h2 class="content">{{businessPhone}}</h2>
-      </div>
-    </div>
-    <div class="d-flex justify-content-start mt-3">
-      <h2
-        style="color: var(--green-blue, #2268AA);font-family: Mulish;font-size: 17px;font-style: normal;font-weight: 600;line-height: normal;">
-        Download Certificate Earned</h2>
-    </div>
-    <div class="mt-4" style="align-items: center; border-radius: 16px; background: #D0DDF0;">
-      <div class="row d-flex justify-content-between mt-2" style="padding: 24px 24px;">
-        <div class="col-md-3 col-sm-3 col-lg-3 col-xl-3" style="padding:18px 0px;">
-          <div class="card border-0 box-shadow" style="height: 100px ; width: 150px;">
-            <img class="card-img-top img-fluid" style="height: 100px; width: 150px;"
-              src="assets/images/certificate.png" />
+  <div style="margin-top:-8%;">
+    <div class="land  d-flex justify-content-around flex-column ">
+      <div class="row" style="padding: 16px 24px; align-items: center;">
+        <div class="col mt-2 p-2" style="border-right: 2px solid  rgba(182, 147, 220, 0.80); height: 100px;">
+          <div class="box-shadow"
+            style="height: 97px ; width: 97px; border-radius: 50%;border: 2px solid #CCC; align-items: center;">
+            <img class="card-img-top img-fluid"
+              style="max-height: 80px; max-width: 75px; border-radius: 20%; margin-left: 6%; margin-top: 20%;"
+              src="assets/images/ns.jpg" />
           </div>
         </div>
-        <div class="col-md-6 col-sm-6 col-lg-6 col-xl-6"
-          style="font-family: Mulish;font-style: normal;font-weight: 600;line-height: normal;">
-          <p style="color: var(--dark-purple, #1E0F2E);font-size: 15px;">LICENCE NO. {{licenceNumber}}</p>
-          <h2 style="color: var(--green-blue, #2268AA);font-size: 17px;">Tourism Regulatory Authority (TRA) LICENCE
-            Certificate Earned</h2>
-          <h4 style="color: var(--dark-purple, #1E0F2E);font-size: 17px;">Certificate expires | 24 September 2023 </h4>
+        <!-- <div class="col mt-2 p-2" style="border-right: 2px solid rgba(182, 147, 220, 0.80); height: 100px;">
+          <label class="box-shadow" for="imageUpload"
+            style="height: 97px ; width: 97px; border-radius: 50%;border: 2px solid #CCC; align-items: center; cursor: pointer;">
+            <img class="card-img-top img-fluid"
+              style="max-height: 80px; max-width: 75px; border-radius: 20%; margin-left: 6%; margin-top: 20%;"
+              [src]="selectedImage" />
+            <input type="file" id="imageUpload" style="display: none" (change)="onImageChange($event)">
+          </label>
+        </div> -->
+        <div class="col">
+          <p class="title">Enterprise</p>
+          <h2 class="content">{{facilityType}}</h2>
         </div>
-        <div class="col-md-3 col-sm-3 col-lg-3 col-xl-3  d-flex justify-content-end" style="padding:50px 0px;">
-          <a [href]="downloadLink" download>
+        <div class="col">
+          <p class="title">Facility</p>
+          <h2 class="content">{{facilityCategory}}</h2>
+        </div>
+        <div class="col">
+          <p class="title">Email</p>
+          <h2 class="content">{{companyEmail}}</h2>
+        </div>
+        <div class="col">
+          <p class="title">Phone</p>
+          <h2 class="content">{{businessPhone}}</h2>
+        </div>
+      </div>
+      <div class="d-flex justify-content-start mt-3">
+        <h2
+          style="color: var(--green-blue, #2268AA);font-family: Mulish;font-size: 17px;font-style: normal;font-weight: 600;line-height: normal;">
+          Download Certificate Earned</h2>
+      </div>
+      <div class="mt-4" style="align-items: center; border-radius: 16px; background: #D0DDF0;">
+        <div class="row d-flex justify-content-between mt-2" style="padding: 24px 24px;">
+          <div class="col-md-3 col-sm-3 col-lg-3 col-xl-3" style="padding:18px 0px;">
+            <div class="card border-0 box-shadow" style="height: 100px ; width: 150px;">
+              <img class="card-img-top img-fluid" style="height: 100px; width: 150px;"
+                src="assets/images/certificate.png" />
+            </div>
+          </div>
+          <div class="col-md-6 col-sm-6 col-lg-6 col-xl-6"
+            style="font-family: Mulish;font-style: normal;font-weight: 600;line-height: normal;">
+            <p style="color: var(--dark-purple, #1E0F2E);font-size: 15px;">LICENCE NO. {{licenceNumber}}</p>
+            <h2 style="color: var(--green-blue, #2268AA);font-size: 17px;">Tourism Regulatory Authority (TRA) LICENCE
+              Certificate Earned</h2>
+            <h4 style="color: var(--dark-purple, #1E0F2E);font-size: 17px;">Certificate expires | 24 September 2023 </h4>
+          </div>
+          <div class="col-md-3 col-sm-3 col-lg-3 col-xl-3  d-flex justify-content-end" style="padding:50px 0px;">
+            <a [href]="downloadLink" download>
+              <button class="btn btn-md login-btn transition" type="submit">
+                <a style="text-decoration: none" class="transition">
+                  <span style="color: #f8f8f8; font-weight: 700;letter-spacing: 0.08em;font-size: 12px;
+                          ">DOWNLOAD LICENCE CERTIFICATE</span></a>
+              </button>
+            </a>
+            <!-- <a (click)=getCertificate() style="text-decoration: none">
+              <button class="btn btn-md login-btn transition" type="submit">
+                <a style="text-decoration: none" class="transition">
+                  <span style="color: #f8f8f8; font-weight: 700;letter-spacing: 0.08em;font-size: 12px;
+                          ">DOWNLOAD LICENCE CERTIFICATE</span></a>
+              </button>
+            </a> -->
+  
+          </div>
+        </div>
+      </div>
+      <div *ngFor="let std of results" class="mt-2"
+        style="align-items: center; border-radius: 16px; background: #D0DDF0;">
+        <div class="row d-flex justify-content-between mt-2" style="padding: 24px 24px;">
+          <div class="col-md-3 col-sm-3 col-lg-3 col-xl-3" style="padding:18px 0px;">
+            <div class="card border-0 box-shadow" style="height: 100px ; width: 150px;">
+              <img class="card-img-top img-fluid" style="height: 100px; width: 150px;"
+                src="assets/images/certificate.png" />
+              <!-- <img class="img-fluid card-img-top" [src]="existingImage" style="height: 100px; width: 150px;" /> -->
+            </div>
+          </div>
+          <div class="col-md-6 col-sm-6 col-lg-6 col-xl-6"
+            style="font-family: Mulish;font-style: normal;font-weight: 600;line-height: normal;">
+            <p style="color: var(--dark-purple, #1E0F2E);font-size: 15px;">RESULT NO. <b> {{std.resultRef}}</b> </p>
+            <h2 style="color: var(--green-blue, #2268AA);font-size: 17px;">Tourism Regulatory Authority (TRA)
+              {{std.taskType}}
+              Certificate Earned</h2>
+            <h4 style="color: var(--dark-purple, #1E0F2E);font-size: 17px;">Certificate expires | {{
+              formatDate(std.createdOn) }} </h4>
+          </div>
+          <div class="col-md-3 col-sm-3 col-lg-3 col-xl-3  d-flex justify-content-end" style="padding:50px 0px;">
+            <!-- <a (click)=getCertificate() style="text-decoration: none">
             <button class="btn btn-md login-btn transition" type="submit">
               <a style="text-decoration: none" class="transition">
                 <span style="color: #f8f8f8; font-weight: 700;letter-spacing: 0.08em;font-size: 12px;
-                        ">DOWNLOAD LICENCE CERTIFICATE</span></a>
-            </button>
-          </a>
-          <!-- <a (click)=getCertificate() style="text-decoration: none">
-            <button class="btn btn-md login-btn transition" type="submit">
-              <a style="text-decoration: none" class="transition">
-                <span style="color: #f8f8f8; font-weight: 700;letter-spacing: 0.08em;font-size: 12px;
-                        ">DOWNLOAD LICENCE CERTIFICATE</span></a>
+                        ">DOWNLOAD ACCREDITATION CERTIFICATE</span></a>
             </button>
           </a> -->
-
-        </div>
-      </div>
-    </div>
-    <div *ngFor="let std of results" class="mt-2"
-      style="align-items: center; border-radius: 16px; background: #D0DDF0;">
-      <div class="row d-flex justify-content-between mt-2" style="padding: 24px 24px;">
-        <div class="col-md-3 col-sm-3 col-lg-3 col-xl-3" style="padding:18px 0px;">
-          <div class="card border-0 box-shadow" style="height: 100px ; width: 150px;">
-            <img class="card-img-top img-fluid" style="height: 100px; width: 150px;"
-              src="assets/images/certificate.png" />
-            <!-- <img class="img-fluid card-img-top" [src]="existingImage" style="height: 100px; width: 150px;" /> -->
+            <button class="btn btn-md login-btn transition" (click)="getCertificate()">
+              <span style="color: #f8f8f8; font-weight: 700; letter-spacing: 0.08em; font-size: 12px;">
+                DOWNLOAD {{std.taskType}} CERTIFICATE
+              </span>
+            </button>
           </div>
         </div>
-        <div class="col-md-6 col-sm-6 col-lg-6 col-xl-6"
-          style="font-family: Mulish;font-style: normal;font-weight: 600;line-height: normal;">
-          <p style="color: var(--dark-purple, #1E0F2E);font-size: 15px;">RESULT NO. <b> {{std.resultRef}}</b> </p>
-          <h2 style="color: var(--green-blue, #2268AA);font-size: 17px;">Tourism Regulatory Authority (TRA)
-            {{std.taskType}}
-            Certificate Earned</h2>
-          <h4 style="color: var(--dark-purple, #1E0F2E);font-size: 17px;">Certificate expires | {{
-            formatDate(std.createdOn) }} </h4>
-        </div>
-        <div class="col-md-3 col-sm-3 col-lg-3 col-xl-3  d-flex justify-content-end" style="padding:50px 0px;">
-          <!-- <a (click)=getCertificate() style="text-decoration: none">
-          <button class="btn btn-md login-btn transition" type="submit">
-            <a style="text-decoration: none" class="transition">
-              <span style="color: #f8f8f8; font-weight: 700;letter-spacing: 0.08em;font-size: 12px;
-                      ">DOWNLOAD ACCREDITATION CERTIFICATE</span></a>
-          </button>
-        </a> -->
-          <button class="btn btn-md login-btn transition" (click)="getCertificate()">
-            <span style="color: #f8f8f8; font-weight: 700; letter-spacing: 0.08em; font-size: 12px;">
-              DOWNLOAD {{std.taskType}} CERTIFICATE
-            </span>
-          </button>
-        </div>
       </div>
+      <br><br>
+      <footer
+        class="footer d-flex flex-column flex-md-row align-items-center justify-content-between px-4 py-3 border-top small">
+        <p class="text-muted mb-1 mb-md-0">Copyright © 2023 <a href="https://www.tra.go.ke/"
+            style="color: #6d36a8; font-family: 'Muli';" target="_blank">TRA</a></p>
+        <p class=""
+          style="color: #6d36a8; font-family: 'Muli'; font-style: normal; font-weight: 700; font-size: 13px; letter-spacing: 0.08em;">
+          Tourism Regulatory Authority</p>
+      </footer>
     </div>
-    <br><br>
-    <footer
-      class="footer d-flex flex-column flex-md-row align-items-center justify-content-between px-4 py-3 border-top small">
-      <p class="text-muted mb-1 mb-md-0">Copyright © 2023 <a href="https://www.tra.go.ke/"
-          style="color: #6d36a8; font-family: 'Muli';" target="_blank">TRA</a></p>
-      <p class=""
-        style="color: #6d36a8; font-family: 'Muli'; font-style: normal; font-weight: 700; font-size: 13px; letter-spacing: 0.08em;">
-        Tourism Regulatory Authority</p>
-    </footer>
+   
   </div>
+
+ 
   <div class="d-flex justify-content-end">
     <div style="position: fixed; bottom: 9%; right:3%;" (click)="toggleLeaveCommentForm()"
       class="d-flex justify-content-around">

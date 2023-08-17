@@ -16,32 +16,33 @@
     </div>
   </div>
 
-  <div style=" position:absolute; padding: 16px 24px; align-items: center; border-radius: 16px; background: #FFF; width: 90%; margin-left: 5%; margin-top: 25%;">
-    <div class="d-flex justify-content-around row" >
-      <div class="col">
-        <p class="title">Request Number</p>
-        <h2 class="content">{{requestDetails?.requestRef}}</h2>
+  <div style="margin-top: -6%;">
+    <div style=" position:absolute; padding: 16px 24px; align-items: center; border-radius: 16px; background: #FFF; width: 90%; margin-left: 5%;">
+      <div class="d-flex justify-content-around row" >
+        <div class="col">
+          <p class="title">Request Number</p>
+          <h2 class="content">{{requestDetails?.requestRef}}</h2>
+        </div>
+        <div class="col">
+          <p class="title">Enterprise Category</p>
+          <h2 class="content">{{requestDetails?.subClassName}}</h2>
+        </div>
+     
+        <div class="col">
+          <p class="title">Request Type</p>
+          <h2 class="content">{{requestDetails?.requestType}}</h2>
+        </div>
+        <div class="col">
+          <p class="title">Status</p>
+          <h2 class="content">{{requestDetails?.status}}</h2>
+        </div>
       </div>
-      <div class="col">
-        <p class="title">Enterprise Category</p>
-        <h2 class="content">{{requestDetails?.subClassName}}</h2>
-      </div>
-   
-      <div class="col">
-        <p class="title">Request Type</p>
-        <h2 class="content">{{requestDetails?.requestType}}</h2>
-      </div>
-      <div class="col">
-        <p class="title">Status</p>
-        <h2 class="content">{{requestDetails?.status}}</h2>
-      </div>
+      <footer class="footer mt-3 d-flex flex-column flex-md-row align-items-center justify-content-between px-4 border-top small">
+        <p class="text-muted">Copyright © 2023 <a href="https://www.tra.go.ke/" style="color: #6d36a8; font-family: 'Muli';" target="_blank">TRA</a></p>
+        <p class="" style="color: #6d36a8; font-family: 'Muli'; font-style: normal; font-weight: 700; font-size: 13px; letter-spacing: 0.08em;">Tourism Regulatory Authority</p>
+      </footer>
     </div>
-    <footer class="footer mt-3 d-flex flex-column flex-md-row align-items-center justify-content-between px-4 border-top small">
-      <p class="text-muted">Copyright © 2023 <a href="https://www.tra.go.ke/" style="color: #6d36a8; font-family: 'Muli';" target="_blank">TRA</a></p>
-      <p class="" style="color: #6d36a8; font-family: 'Muli'; font-style: normal; font-weight: 700; font-size: 13px; letter-spacing: 0.08em;">Tourism Regulatory Authority</p>
-    </footer>
   </div>
-
 </div>
 
 
