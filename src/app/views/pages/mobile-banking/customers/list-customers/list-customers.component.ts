@@ -385,7 +385,7 @@ export class ListCustomersComponent implements OnInit {
     reason: this.formR.value.reason,
   };
   this.isLoading = true;
-    console.log(model)
+    // console.log(model)
     this.httpService.customerPortalPosts(`/admin/customer/portal/create-appeal`, model).subscribe((result: any) => {
       if (result.status === 200) {
         this.isLoading = false;

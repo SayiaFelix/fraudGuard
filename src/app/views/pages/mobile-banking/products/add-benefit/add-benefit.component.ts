@@ -2,7 +2,6 @@ import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, FormControl, FormArray } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { log } from 'console';
 import { HttpService } from 'src/app/shared/services/http.service';
 import Swal from 'sweetalert2';
 
@@ -386,7 +385,7 @@ export class AddBenefitComponent implements OnInit {
       code: this.form.value.benefitCode,
       description: this.form.value.description,
     };
-    console.log(this.productDetails)
+    // console.log(this.productDetails)
     this._httpService.mobileBankingPost('product/portal/benefit/update', model).subscribe(
       (result: any) => {
         if (result.status === 200) {
