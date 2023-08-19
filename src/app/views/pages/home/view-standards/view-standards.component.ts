@@ -227,7 +227,7 @@ export class ViewStandardsComponent implements OnInit {
     } else {
       this.userData$ = this.httpService.customerUserDetails().pipe(
         map((resp) => {
-          console.log(resp);
+          // console.log(resp);
           if (resp) {
             this.profile = resp[0]['enterpriseName'];
             return resp[0];
@@ -316,7 +316,7 @@ export class ViewStandardsComponent implements OnInit {
 
               assessor.profileImg = assessor.profileUrl.replace('10.20.2.19:7600', '');
               assessor.profileImg = 'https://test-api.ekenya.co.ke/tra-backend' + assessor.profileImg;
-              console.log(assessor.profile_url)
+              // console.log(assessor.profile_url)
               assessor.existingProfileImage = this.sanitizer.bypassSecurityTrustResourceUrl(assessor.profileImg);
             } else {
               assessor.existingProfileImage = this.defaultProfileImage;
@@ -419,7 +419,7 @@ export class ViewStandardsComponent implements OnInit {
       standardId: this.standardId,
       comment: this.forms.value.comment,
     };
-    console.log(model)
+    // console.log(model)
     this.httpService.customerPortalPosts(`standard/portal/comments/add`, model).subscribe(
       (result: any) => {
         if (result.status === 200) {
@@ -478,7 +478,7 @@ export class ViewStandardsComponent implements OnInit {
       email: this.form.value.email,
     };
 
-    console.log(model)
+    // console.log(model)
     this.httpService.customerPortalPosts(`standard/request`, model).subscribe(
       (result: any) => {
         if (result.status === 200) {
@@ -523,7 +523,7 @@ export class ViewStandardsComponent implements OnInit {
       message: this.formC.value.message,
       email: this.formC.value.email,
     };
-    console.log(model)
+    // console.log(model)
     this.httpService.customerPortalPost(`api/v1/auth/customerEnquirer`, model).subscribe(
       (result: any) => {
         if (result.status === '00') {

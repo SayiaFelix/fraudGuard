@@ -191,7 +191,7 @@ export class ListUsersComponent implements OnInit {
         this.getIndividualData(0);
       }
     }, (reason) => {
-      console.log(reason);
+      // console.log(reason);
     });
   }
   public editUser(formData: any) {
@@ -268,8 +268,8 @@ export class ListUsersComponent implements OnInit {
         map((result: any) => {
 
 
-          console.log("result");
-          console.log(result);
+          // console.log("result");
+          // console.log(result);
 
           if(result['status'] === 200){
             let response = result['data'];
@@ -330,7 +330,7 @@ export class ListUsersComponent implements OnInit {
   }
 
   updateFilteredRowsEvent(data: string) {
-    console.log(data);
+    // console.log(data);
 
     this.filteredRows = data
   }

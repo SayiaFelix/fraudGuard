@@ -191,8 +191,8 @@ export class ListRequestsComponent implements OnInit {
             }
           });
   
-          console.log(this.standards);
-          console.log(this.existingImage);
+          // console.log(this.standards);
+          // console.log(this.existingImage);
           this.loading = false;
         } else {
           console.log('Failed', 'Unable to fetch standards', 'error');
@@ -213,7 +213,7 @@ export class ListRequestsComponent implements OnInit {
       message: this.form.value.message,
       email: this.form.value.email,
     };
-    console.log(model)
+    // console.log(model)
     this.httpService.customerPortalPost(`api/v1/auth/customerEnquirer`, model).subscribe(
       (result: any) => {
         if (result.status === '00') {

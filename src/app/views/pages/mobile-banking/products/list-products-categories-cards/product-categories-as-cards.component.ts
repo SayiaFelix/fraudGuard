@@ -165,7 +165,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
         if (res.status === 200) {
           this.requests = res.data
           this.loading = false;
-          console.log(res.data);
+          // console.log(res.data);
 
 
           // Sort the requests array by 'createdOn' date in descending order (latest request first)
@@ -194,7 +194,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
       message: this.form.value.message,
       email: this.form.value.email,
     };
-    console.log(model)
+    // console.log(model)
     this.httpService.customerPortalPost(`api/v1/auth/customerEnquirer`, model).subscribe(
       (result: any) => {
         if (result.status === '00') {

@@ -207,7 +207,7 @@ export class DashboardComponent implements OnInit {
         this.httpService.customerPortalPostFile(`api/v1/auth/uploadLandingPhoto`, formData).subscribe(
           (result: any) => {
             if (result.status === '00') {
-              console.log('Image uploaded successfully!', result);
+              // console.log('Image uploaded successfully!', result);
               this.isLoading = false;
               this.activeModal.close('success');
               Swal.fire('Image uploaded Successfully!',
@@ -273,7 +273,7 @@ export class DashboardComponent implements OnInit {
           // console.log(this.results);
           const result = res.data.filter((request: any) => request.status === "PUBLISHED" || request.status === "APPEALED" );
           this.resultRef = res.data[0].resultRef;
-          console.log(this.resultRef)
+          // console.log(this.resultRef)
     
           this.results = result
           this.loading = false;

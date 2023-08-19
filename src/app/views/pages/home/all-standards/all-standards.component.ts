@@ -198,7 +198,7 @@ export class StandardsComponent implements OnInit {
     } else {
       this.userData$ = this.httpService.customerUserDetails().pipe(
         map((resp) => {
-          console.log(resp);
+          // console.log(resp);
           if (resp) {
             this.profile = resp[0]['enterpriseName'];
             return resp[0];
@@ -233,7 +233,7 @@ export class StandardsComponent implements OnInit {
               const filename = standard.previewImageUrl.split('?filename=')[1];
               standard.previewImageUrl = 'https://test-api.ekenya.co.ke/tra-backend/api/v1/standard/files/download?filename=' + encodeURIComponent(filename);
               standard.existingImage = this.sanitizer.bypassSecurityTrustResourceUrl(standard.previewImageUrl);
-              console.log(standard.previewImageUrl);
+              // console.log(standard.previewImageUrl);
             } else {
               standard.existingImage = this.defaultImage;
             }
@@ -245,7 +245,7 @@ export class StandardsComponent implements OnInit {
               standard.existingIcon = this.sanitizer.bypassSecurityTrustResourceUrl(standard.previewIconUrl);
               standard.iconWidth = '50px'; 
               standard.iconHeight = '40px'; 
-              console.log(standard.existingIcon)
+              // console.log(standard.existingIcon)
             } else {
               standard.existingIcon = this.defaultIcon;
               standard.iconWidth = '35px';
@@ -259,8 +259,8 @@ export class StandardsComponent implements OnInit {
             this.filteredStandards = this.standards;
           }
 
-          console.log(this.filteredStandards);
-          console.log(this.standards);
+          // console.log(this.filteredStandards);
+          // console.log(this.standards);
           this.loading = false;
         } else {
           console.log('Failed', 'Unable to fetch standards', 'error');
@@ -298,14 +298,14 @@ export class StandardsComponent implements OnInit {
 
   onSubClassChange(event: any): void {
     const selectedSubClass = event.target.value;
-    console.log(selectedSubClass);
+    // console.log(selectedSubClass);
     if (selectedSubClass === 'All') {
       this.filteredStandards = this.standards;
     } else {
       this.filteredStandards = this.standards.filter((std: any) => std.enterpriseSubClass === selectedSubClass);
     }
 
-    console.log(this.filteredStandards);
+    // console.log(this.filteredStandards);
   }
 
   checkForToken() {
@@ -325,12 +325,12 @@ export class StandardsComponent implements OnInit {
     this.httpService
       .customerPortalPosts('standard/portal/class/getall', {})
       .subscribe((res: any) => {
-        console.log(res)
+        // console.log(res)
         if (res.status === 200) {
           if (res.data && res.data.classes) {
             this.loading = false;
             this.SubClassData = res.data.classes;
-            console.log(this.SubClassData);
+            // console.log(this.SubClassData);
           } else {
             this.loading = false;
           }
@@ -367,7 +367,7 @@ export class StandardsComponent implements OnInit {
       message: this.form.value.message,
       email: this.form.value.email,
     };
-    console.log(model)
+    // console.log(model)
     this.httpService.customerPortalPost(`api/v1/auth/customerEnquirer`, model).subscribe(
       (result: any) => {
         if (result.status === '00') {

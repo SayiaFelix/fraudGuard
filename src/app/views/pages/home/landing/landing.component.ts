@@ -244,7 +244,7 @@ export class LandingComponent implements OnInit {
       message: this.form.value.message,
       email: this.form.value.email,
     };
-    console.log(model)
+    // console.log(model)
     this.httpService.customerPortalPost(`api/v1/auth/customerEnquirer`, model).subscribe(
       (result: any) => {
         if (result.status === '00') {
@@ -289,7 +289,7 @@ export class LandingComponent implements OnInit {
          
           const standard = res.data.standards.filter((request: any) => request.status === "PUBLISHED");
           this.standards = standard
-           console.log(this.standards)
+          //  console.log(this.standards)
           this.standards.forEach((standard: any) => {
             // Modify preview_image_url
             if (standard.previewImageUrl) {
@@ -401,7 +401,7 @@ export class LandingComponent implements OnInit {
     this.httpService.mobileBankingPost('oauth/validate', model).subscribe((res: any) => {
       if (res.status === 200) {
 
-        console.log(res.data);
+        // console.log(res.data);
 
         localStorage.setItem('userName', res.data.username);
         localStorage.setItem('roles', res.data.roles);
