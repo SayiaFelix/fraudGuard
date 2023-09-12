@@ -163,6 +163,7 @@ export class ViewStandardsComponent implements OnInit {
   parts: any[] = [];
   terms: any;
   isOffline: any;
+  isImageFromServer: boolean;
   // defaultProfileImage: SafeResourceUrl = "assets/images/landing2.png";
   files: any;
   // selectedPart: StandardPart | null;
@@ -305,6 +306,7 @@ export class ViewStandardsComponent implements OnInit {
           this.previewImageUrl = res.data.standard.standard.previewImageUrl;
           this.existingImage = this.standard["previewImageUrl"].replace("10.20.2.19:7600", "https://test-api.ekenya.co.ke/tra-backend");
           this.loading = false;
+          this.isImageFromServer = this.existingImage !== this.defaultImage;
           // console.log(this.existingImage)
           this.parts = res['data']['standard']['parts'];
           this.terms = res['data']['standard']['terms'];
@@ -320,6 +322,7 @@ export class ViewStandardsComponent implements OnInit {
               assessor.existingProfileImage = this.sanitizer.bypassSecurityTrustResourceUrl(assessor.profileImg);
             } else {
               assessor.existingProfileImage = this.defaultProfileImage;
+
             }
           });
 

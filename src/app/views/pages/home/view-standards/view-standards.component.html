@@ -131,11 +131,11 @@
     </div>
   </div>
   <div class="card">
-    <div class="row">
+    <!-- <div class="row">
       <div class="card col-md-12 col-lg-12 col-xl-12 col-sm-12">
         <div class="image-container" style="position: relative;">
           <!-- <img class="card-img-top img-fluid" style="max-width: 100%; max-height: 350px;"
-            src="assets/images/landing2.png" /> -->
+            src="assets/images/landing2.png" /> --
           <img class="img-fluid card-img-top" [src]="existingImage" style=" max-width: 100%; max-height: 300px;" />
 
           <h2 class="image-text"
@@ -144,7 +144,21 @@
           </h2>
         </div>
       </div>
+    </div> -->
+    <div class="row">
+      <div class="card col-md-12 col-lg-12 col-xl-12 col-sm-12">
+        <div class="image-container" style="position: relative;">
+          <img class="img-fluid card-img-top" [src]="existingImage" style="max-width: 100%; max-height: 300px;" />
+          <h2 class="image-text"
+            style="position: absolute; top: 40%; left: 4%; font-family: 'Mulish'; line-height: 25px; font-weight: 600; font-size: 25px; color: #F8F8F8;"
+            *ngIf="isImageFromServer">
+            Ignite Success in Tourism: Align with Our Benchmark Minimum Standards.
+          </h2>
+        </div>
+      </div>
     </div>
+    
+    
     <div class="card border-0 box-shadow">
       <div class="d-flex justify-content-start mt-4" style="padding-left: 4%;">
         <div class="d-flex justify-content-between" style="width: 96%; border-bottom: 2px solid #6D36A8;">
