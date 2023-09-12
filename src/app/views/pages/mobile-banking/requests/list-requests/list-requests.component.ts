@@ -132,7 +132,7 @@ export class ListRequestsComponent implements OnInit {
 
 
   openStandardInNewTab(standardId: number) {
-    const baseUrl = this.appBaseHref || 'tra-customer-portal';
+    const baseUrl = this.appBaseHref || 'tra-customer-portal' || 'tra-customer-portal-uat';
     const urlTree = this.router.createUrlTree([baseUrl, 'standards', standardId]);
     const url = this.router.serializeUrl(urlTree);
   
