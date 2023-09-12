@@ -20,6 +20,7 @@ export class DashboardComponent implements OnInit {
   public form: FormGroup;
   errorMsg: string;
   hasError: boolean = false;
+  certificateAvailable = false;
   private brochureUrl = 'assets/images/certificate.png';
   uploadedImageUrl: string | undefined;
   imageUploaded = false;
@@ -86,6 +87,7 @@ export class DashboardComponent implements OnInit {
   certificate: any;
   resultRef: any;
   results: any;
+  message: string;
   constructor(private calendar: NgbCalendar,
     private httpService: HttpService,
     fb: FormBuilder,
@@ -189,6 +191,18 @@ export class DashboardComponent implements OnInit {
       };
       reader.readAsDataURL(file);
     }
+  }
+  showCertificateMessage: boolean = false;
+
+  onDownloadClick() {
+    this.showCertificateMessage = true
+    setTimeout(() => {
+      this.hideCertificateMessage();
+    }, 3000);
+  }
+
+  hideCertificateMessage() {
+    this.showCertificateMessage = false;
   }
 
   handleImageUpload(event: Event): void {
@@ -314,44 +328,6 @@ export class DashboardComponent implements OnInit {
     this.loading = false;
   }
 
-  // getCertificate(): void {
-  //   this.loading = true;
-  //   let model =  {
-  //     resultRef: this.resultRef
-  // }
-  // console.log(model);
-  //   this.httpService
-  //     .customerPortalPosts('admin/customer/portal/get-certificate', model)
-  //     .subscribe((response: Blob) => {
-  //       const downloadLink = document.createElement('a');
-  //       downloadLink.href = URL.createObjectURL(response);
-  //       downloadLink.download = 'certificate.png'; 
-  //       downloadLink.target = '_blank';
-  //       document.body.appendChild(downloadLink);
-  //       downloadLink.click();
-  //       document.body.removeChild(downloadLink);
-  //     });
-
-  //     // .subscribe((res: any) => {
-  //     //   if (res.status === 200) {
-  //     //     this.certificate = res.data.downloadUrl
-  //     //     this.loading = false;
-
-  //     //     console.log(res.data);
-  //     //     console.log(this.certificate)
-
-  //     //     const normalizedFileUrl = this.certificate.replace("http://10.20.2.19:7600", "https://test-api.ekenya.co.ke/tra-backend");
-  //     //     // console.log(normalizedFileUrl);
-  //     //     const link = document.createElement('a');
-  //     //     link.href = normalizedFileUrl;
-  //     //     link.target = '_blank';
-  //     //     link.click();
-  //     //   } else {
-  //     //     this.loading = false;
-  //     //   }
-  //     // });
-  //   this.loading = false;
-  // }
 
   getCertificate(): void {
     this.loading = true;
@@ -381,21 +357,21 @@ export class DashboardComponent implements OnInit {
   }
   
   
-  downloadCertificate() {
-    const refNo = 'your_reference_number'; // Replace with the actual reference number
+  // downloadCertificate() {
+  //   const refNo = 'your_reference_number'; // Replace with the actual reference number
     
-    // Make the API request
-    this.http.post('https://test-api.ekenya.co.ke/tra-backend/api/v1/admin/customer/portal/generate-certificate', { refNo }, { responseType: 'blob' })
-      .subscribe((response: Blob) => {
-        // Create a downloadable link
-        const downloadLink = document.createElement('a');
-        downloadLink.href = URL.createObjectURL(response);
-        downloadLink.download = 'certificate.png'; // Change the filename if needed
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-      });
-  }
+  //   // Make the API request
+  //   this.http.post('https://test-api.ekenya.co.ke/tra-backend/api/v1/admin/customer/portal/generate-certificate', { refNo }, { responseType: 'blob' })
+  //     .subscribe((response: Blob) => {
+  //       // Create a downloadable link
+  //       const downloadLink = document.createElement('a');
+  //       downloadLink.href = URL.createObjectURL(response);
+  //       downloadLink.download = 'certificate.png'; // Change the filename if needed
+  //       document.body.appendChild(downloadLink);
+  //       downloadLink.click();
+  //       document.body.removeChild(downloadLink);
+  //     });
+  // }
 
   onFileSelected(event: any) {
     this.selectedFile = event.target.files[0] as File;
