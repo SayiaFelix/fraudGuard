@@ -73,15 +73,15 @@ export class ViewStandardsComponent implements OnInit {
   existingProfileImage: SafeResourceUrl;
 
   defaultParts: any[] = [
-    { partOrder: 'I', part_title: 'Preliminary' },
-    { partOrder: 'II', part_title: 'Statutory Obligations' },
-    { partOrder: 'III', part_title: 'Facility Requirements' }
+    { partOrder: 'I', partTitle: 'Preliminary' },
+    { partOrder: 'II', partTitle: 'Statutory Obligations' },
+    { partOrder: 'III', partTitle: 'Facility Requirements' }
   ];
 
   defaultTerms: any[] = [
-    { term_title: 'A-la-carte:', term_definition: 'means a menu in a restaurant that offers individual priced' },
-    { partOrder: 2, part_title: 'Statutory Obligations' },
-    { partOrder: 3, part_title: 'Facility Requirements' }
+    { termTitle: 'A-la-carte:', termDefinition: 'means a menu in a restaurant that offers individual priced' },
+    { partOrder: 2, partTitle: 'Statutory Obligations' },
+    { partOrder: 3, partTitle: 'Facility Requirements' }
   ];
   showAssessors: boolean = false;
 
