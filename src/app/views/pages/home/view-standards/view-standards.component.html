@@ -162,11 +162,13 @@
               <div class="col-md-2 col-sm-2 col-lg-2 col-xl-2">
                 <ng-container *ngIf="parts && parts.length > 0; else noParts">
                   <div class="mt-2" *ngFor="let part of parts" (click)="showDescription(part)"
+                  
                     [ngClass]="{ 'selected-part': isPartSelected(part.id) }">
                     <h5 class="card-title stadards-title" style="color: #2268AA;">
                       Part {{ part.partOrder }} - {{ part.partTitle }}
                     </h5>
                   </div>
+                  <!-- [ngClass]="{ 'selected-part': isPartSelected(part.id), 'flex-sm-fill text-sm-center nav-link': true, 'active': isPartSelected(part.id) }" -->
                 </ng-container>
                 <ng-template #noParts>
                   <div *ngFor="let defaultPart of defaultParts">
