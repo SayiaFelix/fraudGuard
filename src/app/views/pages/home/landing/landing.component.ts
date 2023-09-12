@@ -30,7 +30,7 @@ export class LandingComponent implements OnInit {
   showLeaveCommentForm: boolean = false;
   inputType = 'password';
   modalRef: NgbModalRef;
-  defaultImage: SafeResourceUrl = "assets/images/3.png";
+  defaultImage: SafeResourceUrl = "assets/images/no_I.png";
   defaultIcon: SafeResourceUrl = "assets/images/icon.png";
   existingImage: SafeResourceUrl;
   standards: any = [

@@ -26,7 +26,7 @@ import { APP_BASE_HREF_TOKEN } from '../constants';
 export class ListRequestsComponent implements OnInit {
   public form: FormGroup;
   errorMsg: string;
-  defaultProfileImage: SafeResourceUrl = "assets/images/5.jpg";
+  defaultProfileImage: SafeResourceUrl = "assets/images/no_I.png";
   defaultIcon: SafeResourceUrl = "assets/images/icon.png";
   existingImage: SafeResourceUrl;
   hasError: boolean = false;
