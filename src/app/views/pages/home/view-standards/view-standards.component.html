@@ -39,7 +39,8 @@
                     <small class="text-danger" *ngIf="fs.phone_number.touched && fs.phone_number.errors?.required">Field
                       Required</small> <br>
                     <small class="text-danger"
-                      *ngIf="fs.phone_number.touched && fs.phone_number.errors?.invalidPhoneNumber">Phone Number: 254 *** *** *** or 07 **** ****</small>
+                      *ngIf="fs.phone_number.touched && fs.phone_number.errors?.invalidPhoneNumber">Phone Number: 254
+                      *** *** *** or 07 **** ****</small>
                   </div>
                   <div class="form-group mt-2">
                     <input formControlName="subject" type="text" class="form-control validation-field border-0"
@@ -56,7 +57,8 @@
                   <div class="col-12 bg-white text-center py-1 mt-3 mb-2">
                     <button [disabled]="!formC.valid" style="width: 100%; border: none;"
                       class="btn btn-block bronchure-btn transition" type="submit">
-                      <span style="color: white;">SEND</span><img *ngIf="isLoading" class="pl-2" src="assets/images/loading.gif" alt="loading-gif">
+                      <span style="color: white;">SEND</span><img *ngIf="isLoading" class="pl-2"
+                        src="assets/images/loading.gif" alt="loading-gif">
                     </button>
                   </div>
                 </div>
@@ -129,20 +131,34 @@
     </div>
   </div>
   <div class="card">
-    <div class="row">
+    <!-- <div class="row">
       <div class="card col-md-12 col-lg-12 col-xl-12 col-sm-12">
         <div class="image-container" style="position: relative;">
           <!-- <img class="card-img-top img-fluid" style="max-width: 100%; max-height: 350px;"
-            src="assets/images/landing2.png" /> -->
+            src="assets/images/landing2.png" /> --
           <img class="img-fluid card-img-top" [src]="existingImage" style=" max-width: 100%; max-height: 300px;" />
 
           <h2 class="image-text"
-            style="position: absolute;  top: 41%; left: 4%; font-family: 'Mulish'; line-height: 25px; font-weight: 600; font-size: 25px; color: #F8F8F8;">
+            style="position: absolute;  top: 40%; left: 4%; font-family: 'Mulish'; line-height: 25px; font-weight: 600; font-size: 25px; color: #F8F8F8;">
+            Ignite Success in Tourism: Align with Our Benchmark Minimum Standards.
+          </h2>
+        </div>
+      </div>
+    </div> -->
+    <div class="row">
+      <div class="card col-md-12 col-lg-12 col-xl-12 col-sm-12">
+        <div class="image-container" style="position: relative;">
+          <img class="img-fluid card-img-top" [src]="existingImage" style="max-width: 100%; max-height: 300px;" />
+          <h2 class="image-text"
+            style="position: absolute; top: 40%; left: 4%; font-family: 'Mulish'; line-height: 25px; font-weight: 600; font-size: 25px; color: #F8F8F8;"
+            *ngIf="isImageFromServer">
             Ignite Success in Tourism: Align with Our Benchmark Minimum Standards.
           </h2>
         </div>
       </div>
     </div>
+    
+    
     <div class="card border-0 box-shadow">
       <div class="d-flex justify-content-start mt-4" style="padding-left: 4%;">
         <div class="d-flex justify-content-between" style="width: 96%; border-bottom: 2px solid #6D36A8;">
@@ -160,23 +176,34 @@
           <div class="grid-margin stretch-card">
             <div class="row mt-4">
               <div class="col-md-2 col-sm-2 col-lg-2 col-xl-2">
-                <ng-container *ngIf="parts && parts.length > 0; else noParts">
+                <!-- <ng-container *ngIf="parts && parts.length > 0; else noParts">
                   <div class="mt-2" *ngFor="let part of parts" (click)="showDescription(part)"
                   [ngClass]="{ 'selected-part': isPartSelected(part.id), 'flex-sm-fill nav-link': true, 'active': isPartSelected(part.id) }">
                     <h5 class="card-title stadards-title" style="color: #2268AA;">
                       Part {{ part.partOrder }} - {{ part.partTitle }}
                     </h5>
                   </div>
-                  <!-- [ngClass]="{ 'selected-part': isPartSelected(part.id), 'flex-sm-fill text-sm-center nav-link': true, 'active': isPartSelected(part.id) }" -->
-                </ng-container>
-                <!-- <ng-container *ngIf="parts && parts.length > 0; else noParts">
-                  <div class="mt-2" *ngFor="let part of parts" (click)="showDescription(part)"
-                    [ngClass]="{ 'selected-part': isPartSelected(part.id), 'flex-sm-fill nav-link': true, 'active': isPartSelected(part.id) }">
-                    <h5 class="card-title stadards-title" style="color: #2268AA;">
+                  [ngClass]="{ 'selected-part': isPartSelected(part.id), 'flex-sm-fill text-sm-center nav-link': true, 'active': isPartSelected(part.id) }"
+                </ng-container> -->
+
+                <ng-container *ngIf="parts && parts.length > 0; else noParts">
+                  <div class="mt-2" *ngFor="let part of parts" (click)="showDescription(part)">
+                    <h5 class="card-title stadards-title"
+                      [ngClass]="{
+                        'selected-part': isPartSelected(part.id),
+                        'active': isPartSelected(part.id)
+                      }"
+                      [class.flex-sm-fill]="isPartSelected(part.id)"
+                      [class.text-sm-center]="isPartSelected(part.id)"
+                      [class.nav-link]="isPartSelected(part.id)"
+                      [class.active]="isPartSelected(part.id)"
+                      aria-current="page"
+                      style="color: #2268AA;">
                       Part {{ part.partOrder }} - {{ part.partTitle }}
                     </h5>
                   </div>
-                </ng-container> -->
+                </ng-container>
+              
                 <ng-template #noParts>
                   <div *ngFor="let defaultPart of defaultParts">
                     <h5 class="card-title stadards-title" style="color: #2268AA;">
@@ -269,7 +296,8 @@
                         <button (click)="onSubmit()" style="border: none;" class="btn btn-block logi-btn transition"
                           type="submit">
                           <span
-                            style="color: var(--seasalt, #F8F8F8);text-align: center;font-family: Mulish;font-size: 14px;font-style: normal;font-weight: 700;line-height: normal; letter-spacing: 1.28px;text-transform: uppercase;">SUBMIT</span><img *ngIf="isLoading" class="pl-2" src="assets/images/loading.gif" alt="loading-gif">
+                            style="color: var(--seasalt, #F8F8F8);text-align: center;font-family: Mulish;font-size: 14px;font-style: normal;font-weight: 700;line-height: normal; letter-spacing: 1.28px;text-transform: uppercase;">SUBMIT</span><img
+                            *ngIf="isLoading" class="pl-2" src="assets/images/loading.gif" alt="loading-gif">
                         </button>
                       </div>
                     </div>
@@ -442,7 +470,8 @@
                 <div class="col-12 bg-white text-center py-1 mt-3 mb-2">
                   <button [disabled]="!form.valid" style="width: 100%; border: none;"
                     class="btn btn-block bronchure-btn transition" type="submit">
-                    <span style="color: white;">REQUEST</span><img *ngIf="isLoading" class="pl-2" src="assets/images/loading.gif" alt="loading-gif">
+                    <span style="color: white;">REQUEST</span><img *ngIf="isLoading" class="pl-2"
+                      src="assets/images/loading.gif" alt="loading-gif">
                   </button>
                 </div>
               </div>

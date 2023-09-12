@@ -3,8 +3,8 @@
 // The list of file replacements can be found in `angular.json`.
 export const environment = {
   production: false,
-  channelManager: 'https://test-api.ekenya.co.ke/channel/',
-  mobileBanking: 'https://test-api.ekenya.co.ke/mobile-banking/',
+  // channelManager: 'https://test-api.ekenya.co.ke/channel/',
+  // mobileBanking: 'https://test-api.ekenya.co.ke/mobile-banking/',
   // customerPortalNest: 'http://localhost:8000/',
   // customerPortalNest: 'http://10.20.2.19:7782/',
   customerPortalNest: 'https://test-api.ekenya.co.ke/tra-customer-backend/',
