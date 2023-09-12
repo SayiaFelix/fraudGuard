@@ -67,21 +67,21 @@ export class ViewStandardsComponent implements OnInit {
   errorMsg: string;
   hasError: boolean = false;
   isLoading: boolean = false;
-  defaultImage: SafeResourceUrl = "assets/images/noImg.jpeg";
+  defaultImage: SafeResourceUrl = "assets/images/no_I.png";
   defaultProfileImage: SafeResourceUrl = "assets/images/p7.png";
-  existingImage: SafeResourceUrl =  "assets/images/no_I.png";;
+  existingImage: SafeResourceUrl = "assets/images/no_I.png";;
   existingProfileImage: SafeResourceUrl;
 
   defaultParts: any[] = [
-    { partOrder: 'I', part_title: 'Preliminary' },
-    { partOrder: 'II', part_title: 'Statutory Obligations' },
-    { partOrder: 'III', part_title: 'Facility Requirements' }
+    { partOrder: 'I', partTitle: 'Preliminary' },
+    { partOrder: 'II', partTitle: 'Statutory Obligations' },
+    { partOrder: 'III', partTitle: 'Facility Requirements' }
   ];
 
   defaultTerms: any[] = [
-    { term_title: 'A-la-carte:', term_definition: 'means a menu in a restaurant that offers individual priced' },
-    { partOrder: 2, part_title: 'Statutory Obligations' },
-    { partOrder: 3, part_title: 'Facility Requirements' }
+    { termTitle: 'A-la-carte:', termDefinition: 'means a menu in a restaurant that offers individual priced' },
+    { partOrder: 2, partTitle: 'Statutory Obligations' },
+    { partOrder: 3, partTitle: 'Facility Requirements' }
   ];
   showAssessors: boolean = false;
 
@@ -163,6 +163,7 @@ export class ViewStandardsComponent implements OnInit {
   parts: any[] = [];
   terms: any;
   isOffline: any;
+  isImageFromServer: boolean;
   // defaultProfileImage: SafeResourceUrl = "assets/images/landing2.png";
   files: any;
   // selectedPart: StandardPart | null;
@@ -277,7 +278,7 @@ export class ViewStandardsComponent implements OnInit {
   }
 
 
-  
+
   phoneNumberValidator(control: AbstractControl): { [key: string]: any } | null {
     const phoneNumber = control.value;
     const phonePattern = /^(254\d{9}|0\d{9})$/;
@@ -303,8 +304,18 @@ export class ViewStandardsComponent implements OnInit {
         if (res.status === 200) {
           this.standard = res['data']['standard']['standard'];
           this.previewImageUrl = res.data.standard.standard.previewImageUrl;
-          this.existingImage = this.standard["previewImageUrl"].replace("10.20.2.19:7600", "https://test-api.ekenya.co.ke/tra-backend");
+       
+          if (!/^https?:\/\//i.test(this.previewImageUrl)) {
+            this.existingImage = 'https://' + this.previewImageUrl;
+          }
+
+     
+          if (!this.previewImageUrl) {
+            this.existingImage = this.defaultImage;
+          }
+          // this.existingImage = this.standard["previewImageUrl"].replace("10.20.2.19:7600", "https://test-api.ekenya.co.ke/tra-backend");
           this.loading = false;
+          this.isImageFromServer = this.existingImage !== this.defaultImage;
           // console.log(this.existingImage)
           this.parts = res['data']['standard']['parts'];
           this.terms = res['data']['standard']['terms'];
@@ -320,6 +331,7 @@ export class ViewStandardsComponent implements OnInit {
               assessor.existingProfileImage = this.sanitizer.bypassSecurityTrustResourceUrl(assessor.profileImg);
             } else {
               assessor.existingProfileImage = this.defaultProfileImage;
+
             }
           });
 
@@ -336,6 +348,42 @@ export class ViewStandardsComponent implements OnInit {
         console.log("Error", error.message, "error");
       });
   }
+  // private loadData(): any {
+  //   this.loading = true;
+  //   let model = {
+  //     id: this.standardId
+  //   };
+  //   this.httpService.customerPortalPosts(`standard/portal/getById`, model).subscribe(
+  //     (res: any) => {
+  //       if (res.status === 200) {
+  //         this.standard = res['data']['standard']['standard'];
+  //         this.previewImageUrl = res.data.standard.standard.previewImageUrl;
+
+  //         // Check if previewImageUrl starts with "https://" or "http://"
+  //         if (!/^https?:\/\//i.test(this.previewImageUrl)) {
+  //           this.previewImageUrl = 'https://' + this.previewImageUrl;
+  //           this.existingImage = this.previewImageUrl
+  //         }
+
+  //         // Check if the previewImageUrl is empty or undefined
+  //         if (!this.previewImageUrl) {
+  //           this.existingImage= this.defaultImage;
+  //         }
+
+  //         this.existingImage = this.previewImageUrl; // Use the modified URL
+
+  //         this.loading = false;
+  //         this.isImageFromServer = this.existingImage !== this.defaultImage;
+  //         // Rest of your code...
+  //       } else {
+  //         console.log('Failed', "Unable to fetch standards", 'error');
+  //       }
+  //     },
+  //     (error: any) => {
+  //       console.log("Error", error.message, "error");
+  //     }
+  //   );
+  // }
 
   getColumnClass(numItems: number): string {
     if (numItems === 1) {
@@ -349,7 +397,7 @@ export class ViewStandardsComponent implements OnInit {
   showAssessorsList() {
     this.showAssessors = !this.showAssessors;
   }
-  
+
 
   checkForToken() {
     if (!!localStorage.getItem('access_token')) {
@@ -363,27 +411,27 @@ export class ViewStandardsComponent implements OnInit {
     }
   }
 
- 
+
   // downloadCertificate(fileUrl: string, fileType: string) {
   //   if (fileType === 'PDF') {
   //     const traServerBaseUrl = 'https://test-api.ekenya.co.ke/tra-backend';
   //     const normalizedFileUrl = fileUrl.replace("10.20.2.19:7600", traServerBaseUrl);
-      
+
   //     console.log(normalizedFileUrl);
   //     const link = document.createElement('a');
   //     link.href = normalizedFileUrl;
   //     link.target = '_blank';
   //     link.click();
   //   }
- 
+
   // }
-  
-  
+
+
   downloadCertificate(fileUrl: string, fileType: string) {
     if (fileType === 'PDF') {
       const traServerBaseUrl = 'https://test-api.ekenya.co.ke/tra-backend';
       const normalizedFileUrl = fileUrl.replace("10.20.2.19:7600", traServerBaseUrl);
-  
+
       // Initiating the download
       const link = document.createElement('a');
       link.href = normalizedFileUrl;
@@ -395,7 +443,7 @@ export class ViewStandardsComponent implements OnInit {
     }
   }
 
-  
+
   toggleLeaveCommentForm() {
     if (this.showLeaveCommentForm) {
       this.hideLeaveCommentForm();
@@ -435,7 +483,7 @@ export class ViewStandardsComponent implements OnInit {
           this.forms.reset()
           Swal.fire('Add Comment Failed, Try Again',
             'error').then(r => console.log(r))
-            this.isLoading = false;
+          this.isLoading = false;
         }
       },
       (error: any) => {
@@ -491,14 +539,14 @@ export class ViewStandardsComponent implements OnInit {
           this.hideRequestForm()
           Swal.fire('Standard Request Failed, Try Again',
             'error').then(r => console.log(r))
-            this.isLoading = false;
+          this.isLoading = false;
         }
       },
       (error: any) => {
         this.hideRequestForm()
         Swal.fire('Request Standard error',
           'error')
-          this.isLoading = false;
+        this.isLoading = false;
       }
     );
   }
@@ -536,14 +584,14 @@ export class ViewStandardsComponent implements OnInit {
           this.hideLeaveCommentForm();
           Swal.fire('Customer Enquire  Failed, Try Again',
             'error').then(r => console.log(r))
-            this.isLoading = false;
+          this.isLoading = false;
         }
       },
       (error: any) => {
         this.hideLeaveCommentForm();
         Swal.fire('Customer Enquire error',
           'error')
-          this.isLoading = false;
+        this.isLoading = false;
       }
     );
   }
