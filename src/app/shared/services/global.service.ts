@@ -16,8 +16,8 @@ export class GlobalService {
   public setting: any = {};
 
   constructor() {
-    this.channelManagerHost = environment.channelManager;
-    this.mobileBankingHost = environment.mobileBanking;
+    this.channelManagerHost = environment.customerPortalNest;
+    this.mobileBankingHost = environment.customerPortalNest;
     this.customerPortalNest = environment.customerPortalNest;
     this.standardApi = environment.standardsApi;
     // this.standardComments = environment.standardsComment;
