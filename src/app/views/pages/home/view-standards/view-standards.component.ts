@@ -67,9 +67,9 @@ export class ViewStandardsComponent implements OnInit {
   errorMsg: string;
   hasError: boolean = false;
   isLoading: boolean = false;
-  defaultImage: SafeResourceUrl = "assets/images/landing2.png";
+  defaultImage: SafeResourceUrl = "assets/images/noImg.jpeg";
   defaultProfileImage: SafeResourceUrl = "assets/images/p7.png";
-  existingImage: SafeResourceUrl;
+  existingImage: SafeResourceUrl =  "assets/images/no_I.png";;
   existingProfileImage: SafeResourceUrl;
 
   defaultParts: any[] = [
