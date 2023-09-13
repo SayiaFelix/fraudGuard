@@ -56,8 +56,6 @@ sonarqube-scan:
   variables:
     SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
     SONAR_SCANNER_OPTS: "-Dsonar.projectKey=rnd_tra-project_customer-portal_AYoIo9-V8rmPqdA_Sl_S"
-  rules:
-    - if: ($CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'developer') || ($CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'uat') 
   script:
     - sonar-scanner
 
@@ -77,10 +75,10 @@ buildBaseImage:
   image:
     name: node:16.16.0
   rules:
-    - if: ($CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'developer' || $CI_COMMIT_BRANCH == 'developer')
+    - if: $CI_COMMIT_BRANCH == 'developer'
       variables:
         BASE_HREF: "/tra-customer-portal/"
-    - if: ($CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'uat' || $CI_COMMIT_BRANCH == 'uat')
+    - if: $CI_COMMIT_BRANCH == 'uat'
       variables:
         BASE_HREF: "/tra-customer-portal-uat/"
   script:
@@ -103,10 +101,10 @@ buildImage:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
   rules:
-    - if: ($CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'developer' || $CI_COMMIT_BRANCH == 'developer')
+    - if: $CI_COMMIT_BRANCH == 'developer'
       variables:          
         IMAGE_TAG: "latest"
-    - if: ($CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'uat' || $CI_COMMIT_BRANCH == 'uat')
+    - if: $CI_COMMIT_BRANCH == 'uat'
       variables:
         IMAGE_TAG: "uat"
   script:
@@ -125,9 +123,6 @@ deploy-application:
     - if: $CI_COMMIT_BRANCH == 'cicd-testing' || $CI_COMMIT_BRANCH == 'developer'
       variables:                            
         DEPLOY_BRANCH: $CI_COMMIT_BRANCH
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-      variables:
-        DEPLOY_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
     - if: $CI_COMMIT_BRANCH == 'uat'
       when: never
   script:
