@@ -60,8 +60,6 @@ sonarqube-scan:
 
 kiuwan-scan:
   stage: scan
-  tags:
-    - scan
   image: devops-registry.ekenya.co.ke/library/kiuwan-cli:latest
   rules:
     - if: $CI_COMMIT_BRANCH == 'developer' || $CI_COMMIT_BRANCH == 'uat'
