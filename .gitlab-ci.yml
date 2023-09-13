@@ -1,8 +1,8 @@
 .curl_template: &trigger_awx_deploy_to_testing |
- curl --insecure --header "X-Gitlab-Token: $AWX_WEBHOOK_KEY" -X POST $AWX_WEBHOOK_URL -H "Content-Type: application/json" -d '{"ci_commit_sha" : "'"$CI_COMMIT_SHA"'", "deploy_environment" : "'"$DEPLOY_ENVIRONMENT"'", "tag" : "false", "deploy_branch" : "'"$DEPLOY_BRANCH"'" }'
+ curl --insecure --header "X-Gitlab-Token: $AWX_WEBHOOK_KEY" -X POST $AWX_WEBHOOK_URL -H "Content-Type: application/json" -d '{"ci_commit_sha" : "'"$CI_COMMIT_SHA"'", "deploy_environment" : "'"$DEPLOY_ENVIRONMENT"'", "tag" : "false", "deploy_branch" : "'"$DEPLOY_BRANCH"'", "title": "TRA Deployment Successful ", "appName": "Customer Portal", "description": "'"$(echo $CI_COMMIT_AUTHOR | cut -d '<' -f 1)"' committed: '"$CI_COMMIT_TITLE"'" , "notificationUrl": "https://test-portal.ekenya.co.ke/tra-customer-portal", "targetGroupChatId":"19:5289d22e5e894a499db1f713ce1a980d@thread.v2" }'
 
-.notify_teams: &notify_teams |
- curl --insecure -X POST -H "Content-Type: application/json" -d '{ "title": "TRA Deployment Successful ", "appName": "Customer Portal", "description": "'"$GITLAB_USER_NAME"' committed: '"$CI_COMMIT_TITLE"'" , "notificationUrl": "https://test-portal.ekenya.co.ke/tra-customer-portal", "targetGroupChatId":"19:5289d22e5e894a499db1f713ce1a980d@thread.v2"}' $TEAMS_NOTIFICATION_API
+# .notify_teams: &notify_teams |
+#  curl --insecure -X POST -H "Content-Type: application/json" -d '{ "title": "TRA Deployment Successful ", "appName": "Customer Portal", "description": "'"$GITLAB_USER_NAME"' committed: '"$CI_COMMIT_TITLE"'" , "notificationUrl": "https://test-portal.ekenya.co.ke/tra-customer-portal", "targetGroupChatId":"19:5289d22e5e894a499db1f713ce1a980d@thread.v2"}' $TEAMS_NOTIFICATION_API
 
 stages:
   - scan
@@ -56,8 +56,6 @@ sonarqube-scan:
   variables:
     SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
     SONAR_SCANNER_OPTS: "-Dsonar.projectKey=rnd_tra-project_customer-portal_AYoIo9-V8rmPqdA_Sl_S"
-  rules:
-    - if: ($CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'developer') || ($CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'uat') 
   script:
     - sonar-scanner
 
@@ -77,10 +75,10 @@ buildBaseImage:
   image:
     name: node:16.16.0
   rules:
-    - if: ($CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'developer' || $CI_COMMIT_BRANCH == 'developer')
+    - if: $CI_COMMIT_BRANCH == 'developer'
       variables:
         BASE_HREF: "/tra-customer-portal/"
-    - if: ($CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'uat' || $CI_COMMIT_BRANCH == 'uat')
+    - if: $CI_COMMIT_BRANCH == 'uat'
       variables:
         BASE_HREF: "/tra-customer-portal-uat/"
   script:
@@ -103,10 +101,10 @@ buildImage:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
   rules:
-    - if: ($CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'developer' || $CI_COMMIT_BRANCH == 'developer')
+    - if: $CI_COMMIT_BRANCH == 'developer'
       variables:          
         IMAGE_TAG: "latest"
-    - if: ($CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'uat' || $CI_COMMIT_BRANCH == 'uat')
+    - if: $CI_COMMIT_BRANCH == 'uat'
       variables:
         IMAGE_TAG: "uat"
   script:
@@ -125,23 +123,21 @@ deploy-application:
     - if: $CI_COMMIT_BRANCH == 'cicd-testing' || $CI_COMMIT_BRANCH == 'developer'
       variables:                            
         DEPLOY_BRANCH: $CI_COMMIT_BRANCH
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-      variables:
-        DEPLOY_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
     - if: $CI_COMMIT_BRANCH == 'uat'
       when: never
   script:
     - *trigger_awx_deploy_to_testing
 
-notify-teams:
-  stage: notify
-  image: curlimages/curl:latest
-  needs:
-    - job: deploy-application
-      artifacts: false
-  rules:
-    - if: $CI_COMMIT_BRANCH == 'uat'
-      when: never
-  script:
-    - sleep 600
-    - *notify_teams
+# notify-teams:
+#   stage: notify
+#   image: curlimages/curl:latest
+#   needs:
+#     - job: deploy-application
+#       artifacts: false
+#   rules:
+#     - if: $CI_COMMIT_BRANCH == 'developer'
+#     - if: $CI_COMMIT_BRANCH == 'uat'
+#       when: never
+#   script:
+#     - sleep 600
+#     - *notify_teams
