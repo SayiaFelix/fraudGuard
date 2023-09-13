@@ -131,8 +131,23 @@ export class ListRequestsComponent implements OnInit {
   }
 
 
+  // openStandardInNewTab(standardId: number) {
+  //   const baseUrl = this.appBaseHref || 'tra-customer-portal' || 'tra-customer-portal-uat';
+  //   const urlTree = this.router.createUrlTree([baseUrl, 'standards', standardId]);
+  //   const url = this.router.serializeUrl(urlTree);
+  
+  //   if (document.getElementsByTagName('base')[0].hasAttribute('href')) {
+  //     const win = window.open();
+  //     if (win) {
+  //       win.opener = null;
+  //       win.location.href = url;
+  //     }
+  //   } else {
+  //     window.open(url, '_blank');
+  //   }
+  // }
   openStandardInNewTab(standardId: number) {
-    const baseUrl = this.appBaseHref || 'tra-customer-portal' || 'tra-customer-portal-uat';
+    const baseUrl = this.appBaseHref || 'tra-customer-portal-uat';
     const urlTree = this.router.createUrlTree([baseUrl, 'standards', standardId]);
     const url = this.router.serializeUrl(urlTree);
   
@@ -146,7 +161,6 @@ export class ListRequestsComponent implements OnInit {
       window.open(url, '_blank');
     }
   }
-
   // openStandardInNewTab(standardId: number) {
   //   const urlTree = this.router.createUrlTree(['/standards', standardId]);
   //   const url = this.router.serializeUrl(urlTree);
