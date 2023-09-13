@@ -1,9 +1,6 @@
 .curl_template: &trigger_awx_deploy_to_testing |
  curl --insecure --header "X-Gitlab-Token: $AWX_WEBHOOK_KEY" -X POST $AWX_WEBHOOK_URL -H "Content-Type: application/json" -d '{"ci_commit_sha" : "'"$CI_COMMIT_SHA"'", "deploy_environment" : "'"$DEPLOY_ENVIRONMENT"'", "tag" : "false", "deploy_branch" : "'"$DEPLOY_BRANCH"'", "title": "TRA Deployment Successful ", "appName": "Customer Portal", "description": "'"$(echo $CI_COMMIT_AUTHOR | cut -d '<' -f 1)"' committed: '"$CI_COMMIT_TITLE"'" , "notificationUrl": "https://test-portal.ekenya.co.ke/tra-customer-portal", "targetGroupChatId":"19:5289d22e5e894a499db1f713ce1a980d@thread.v2" }'
 
-# .notify_teams: &notify_teams |
-#  curl --insecure -X POST -H "Content-Type: application/json" -d '{ "title": "TRA Deployment Successful ", "appName": "Customer Portal", "description": "'"$GITLAB_USER_NAME"' committed: '"$CI_COMMIT_TITLE"'" , "notificationUrl": "https://test-portal.ekenya.co.ke/tra-customer-portal", "targetGroupChatId":"19:5289d22e5e894a499db1f713ce1a980d@thread.v2"}' $TEAMS_NOTIFICATION_API
-
 stages:
   - scan
   - preBuild
@@ -128,16 +125,3 @@ deploy-application:
   script:
     - *trigger_awx_deploy_to_testing
 
-# notify-teams:
-#   stage: notify
-#   image: curlimages/curl:latest
-#   needs:
-#     - job: deploy-application
-#       artifacts: false
-#   rules:
-#     - if: $CI_COMMIT_BRANCH == 'developer'
-#     - if: $CI_COMMIT_BRANCH == 'uat'
-#       when: never
-#   script:
-#     - sleep 600
-#     - *notify_teams
