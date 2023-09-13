@@ -53,7 +53,7 @@ export function HttpLoaderFactory(http: HttpClient) {
       libraries: ["places", "drawing", "geometry"]}),
   ],
   providers: [
-    { provide: APP_BASE_HREF_TOKEN, useValue: '/tra-customer-portal' }, 
+    { provide: APP_BASE_HREF_TOKEN, useValue: '/tra-customer-portal-uat' }, 
     {
       provide: HTTP_INTERCEPTORS,
       useClass: CheckTokenValidityInterceptor,
