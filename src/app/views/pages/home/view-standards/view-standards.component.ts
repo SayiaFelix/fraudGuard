@@ -425,23 +425,38 @@ export class ViewStandardsComponent implements OnInit {
   //   }
 
   // }
-
-
   downloadCertificate(fileUrl: string, fileType: string) {
     if (fileType === 'PDF') {
       const traServerBaseUrl = 'https://test-api.ekenya.co.ke/tra-backend';
-      const normalizedFileUrl = fileUrl.replace("10.20.2.19:7600", traServerBaseUrl);
-
+      const normalizedFileUrl = 'https://' + fileUrl;
+  
       // Initiating the download
       const link = document.createElement('a');
       link.href = normalizedFileUrl;
       link.target = '_blank';
       link.click();
-
+  
       this.standard.downloadCount += 1;
       // console.log(this.standard.downloadCount)
     }
   }
+  
+
+  // downloadCertificate(fileUrl: string, fileType: string) {
+  //   if (fileType === 'PDF') {
+  //     const traServerBaseUrl = 'https://test-api.ekenya.co.ke/tra-backend';
+  //     const normalizedFileUrl = fileUrl.replace("10.20.2.19:7600", traServerBaseUrl);
+
+  //     // Initiating the download
+  //     const link = document.createElement('a');
+  //     link.href = normalizedFileUrl;
+  //     link.target = '_blank';
+  //     link.click();
+
+  //     this.standard.downloadCount += 1;
+  //     // console.log(this.standard.downloadCount)
+  //   }
+  // }
 
 
   toggleLeaveCommentForm() {
