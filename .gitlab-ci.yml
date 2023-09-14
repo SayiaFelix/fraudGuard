@@ -58,17 +58,6 @@ sonarqube-scan:
   script:
     - sonar-scanner
 
-kiuwan-scan:
-  stage: scan
-  tags:
-    - scan
-  image: devops-registry.ekenya.co.ke/library/kiuwan-cli:latest
-  rules:
-    - if: $CI_COMMIT_BRANCH == 'developer' || $CI_COMMIT_BRANCH == 'uat'
-  script:
-    - agent -n "Angular Portal" -s "$CI_PROJECT_DIR/src" -l "TRA - Customer Portal" --user $KIUWAN_USER --pass $KIUWAN_PASSWORD
-
-
 buildBaseImage:
   stage: preBuild
   tags:
