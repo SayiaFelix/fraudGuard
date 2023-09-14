@@ -253,7 +253,6 @@ export class DashboardComponent implements OnInit {
       (res: any) => {
         if (res.status == '00') {
           this.profileDetails = res['data'];
-          // console.log(this.profileDetails);
           if (this.profileDetails.PhotoPath && !this.profileDetails.PhotoPath.startsWith('http://') && !this.profileDetails.PhotoPath.startsWith('https://')) {
             this.uploadedImageUrl = 'https://' + this.profileDetails.PhotoPath;
           } else {
@@ -283,13 +282,20 @@ export class DashboardComponent implements OnInit {
     this.httpService.customerPortalPosts(`admin/customer/portal/fetch-result-by-licence-number`, model).subscribe(
       (res: any) => {
         if (res.status == 200) {
-          // this.results = res['data'];
+          this.results = res['data'];
           // console.log(this.results);
-          const result = res.data.filter((request: any) => request.status === "PUBLISHED" || request.status === "APPEALED" );
-          this.resultRef = res.data[0].resultRef;
-          // console.log(this.resultRef)
-    
-          this.results = result
+
+          if(this.results !== undefined){
+
+            const result = res.data.filter((request: any) => request.status === "PUBLISHED" || request.status === "APPEALED" );
+            this.resultRef = res.data[0].resultRef;
+            // console.log(this.resultRef)
+            
+            this.results = result
+          } else {
+            this.results = []
+          } 
+
           this.loading = false;
         } else {
           console.log('Failed', "Unable to fetch results", 'error')
