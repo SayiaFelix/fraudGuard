@@ -8,7 +8,6 @@ import { NgbDropdownModule, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstr
 
 // Ng-ApexCharts
 import { NgApexchartsModule } from "ng-apexcharts";
-
 import { DashboardComponent } from './dashboard.component';
 import {TranslateModule} from "@ngx-translate/core";
 import { Ng2TelInputModule } from 'ng2-tel-input';
@@ -28,6 +27,7 @@ const routes: Routes = [
         FormsModule,
         FeatherIconModule,
         Ng2TelInputModule,
+
         ReactiveFormsModule,
         NgbDropdownModule,
         NgbDatepickerModule,
