@@ -1,4 +1,4 @@
-import {NgModule} from '@angular/core';
+import {NgModule, CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
 import {CustomersRoutingModule} from './customers-routing';
 
 
@@ -34,12 +34,12 @@ import { Ng2TelInputModule } from 'ng2-tel-input';
     ReasonsForFailureComponent
 
     // CreateProductComponent
-  ]
-  ,
+  ],
   entryComponents: [
     AddCustomerComponent,
     // CreateProductComponent
   ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class CustomersModule {
 }

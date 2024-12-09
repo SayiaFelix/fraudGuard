@@ -8,7 +8,6 @@ import {
 } from '@angular/forms';
 import { CustomValidators } from 'ngx-custom-validators';
 import { HttpParams } from '@angular/common/http';
-
 import { catchError, concat, Observable, of, throwError } from 'rxjs';
 import { delay, map } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
@@ -17,12 +16,16 @@ import Swal from "sweetalert2";
 import { OwlOptions } from 'ngx-owl-carousel-o';
 import { NgbActiveModal, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { Pipe, PipeTransform } from '@angular/core';
+
+
 
 @Component({
   selector: 'app-landing',
   templateUrl: './landing.component.html',
   styleUrls: ['./landing.component.scss'],
 })
+
 export class LandingComponent implements OnInit {
   returnUrl: any;
   public form: FormGroup;
@@ -33,6 +36,9 @@ export class LandingComponent implements OnInit {
   defaultImage: SafeResourceUrl = "assets/images/no_I.png";
   defaultIcon: SafeResourceUrl = "assets/images/icon.png";
   existingImage: SafeResourceUrl;
+    // Sanitized URLs for iframe
+  safeUrls: SafeResourceUrl[] = [];
+
   standards: any = [
     // {
     //   id: '1',
@@ -167,7 +173,7 @@ export class LandingComponent implements OnInit {
   loading: boolean;
 
 
-
+ 
   constructor(
     private translate: TranslateService,
     private router: Router,
@@ -193,9 +199,9 @@ export class LandingComponent implements OnInit {
     this.loadData();
     this.checkForToken();
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
-
+    this.safeUrls = this.dashboardUrls.map(url => this.sanitizer.bypassSecurityTrustResourceUrl(url));
     let userDetails = {
-      profile: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['name'] : "Eka Hotel Nairobi",
+      profile: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['name'] : "Faulu Real Time Analytics",
 
     };
     if (userDetails) {
@@ -220,6 +226,14 @@ export class LandingComponent implements OnInit {
   // viewStandard(id: number) {
   //   this.router.navigate([`standards/${id}`]);
   // }
+
+  dashboardUrls: string[] = [
+    // 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Dashboard1',
+    // 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Dashboard2',
+    // 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Dashboard3'
+  ];
+
+
 
   viewStandard(standardId: number) {
     this.router.navigate(['/standards', standardId]);

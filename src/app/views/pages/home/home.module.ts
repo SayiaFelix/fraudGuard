@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Routes, RouterModule } from '@angular/router';
 import {ForgotPasswordComponent} from "./forgot-password/forgot-password.component";
@@ -73,6 +73,7 @@ const routes: Routes = [
     ],
     providers: [
       NgbActiveModal,
-    ]
+    ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class HomeModule { }

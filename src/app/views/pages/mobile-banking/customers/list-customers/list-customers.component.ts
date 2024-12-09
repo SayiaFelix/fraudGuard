@@ -63,6 +63,24 @@ export class ListCustomersComponent implements OnInit {
   showAppealForm: boolean = false;
   showAppeals: boolean = false;
 
+  dashboards: { id: string; src: string }[] = [
+    {
+      id: 'dashboard1',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet16',
+    },
+    {
+      id: 'dashboard2',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet17',
+    },
+  ];
+  
+
+
+
+  paginatedDashboards: { id: string; src: string }[] = [];
+  currentPage = 0;
+  itemsPerPage = 4;
+
   columns = [
     { name: '#', prop: 'id' },
     { name: 'Customer Name', prop: 'name' },
@@ -117,12 +135,31 @@ export class ListCustomersComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.updatePagination()
     this.loadData();
     this.loadAppealsData()
 
     this.appealDate = new Date();
     // this.isAppealButtonVisible = this.calculateAppealButtonVisibility();
   }
+  updatePagination() {
+    const startIndex = this.currentPage * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.paginatedDashboards = this.dashboards.slice(startIndex, endIndex);
+  }
+  
+  nextPage() {
+    if ((this.currentPage + 1) * this.itemsPerPage < this.dashboards.length) {
+      this.currentPage++;
+      this.updatePagination();
+    }
+  }
+  
+  prevPage() {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      this.updatePagination();
+    }}
   get f(): { [p: string]: AbstractControl } {
     return this.form.controls;
   }

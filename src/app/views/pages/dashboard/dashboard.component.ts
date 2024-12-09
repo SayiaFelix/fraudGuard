@@ -88,6 +88,90 @@ export class DashboardComponent implements OnInit {
   resultRef: any;
   results: any;
   message: string;
+
+ 
+  dashboards: { id: string; src: string }[] = [
+    // Processed Transactions
+    {
+      id: 'dashboard1',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet1/2d8810c0-8556-41a6-807f-c9d67b95e8f6/cc4b8a6c-39fe-4cfa-9e12-19b2d87319c9',
+    },
+    {
+      id: 'dashboard2',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet2',
+    },
+    {
+      id: 'dashboard3',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet3',
+    },
+    {
+      id: 'dashboard4',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet4',
+    },
+    {
+      id: 'dashboard5',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet5',
+    },
+    {
+      id: 'dashboard6',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet6',
+    },
+    // Bill
+    {
+      id: 'dashboard7',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet7',
+    },
+    {
+      id: 'dashboard8',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet8',
+    },
+    {
+      id: 'dashboard9',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet9',
+    },
+    // New Customers
+    {
+      id: 'dashboard10',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet10',
+    },
+    {
+      id: 'dashboard11',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet11',
+    },
+    {
+      id: 'dashboard12',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet12',
+    },
+    {
+      id: 'dashboard13',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet13',
+    },
+    {
+      id: 'dashboard14',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet14',
+    },
+    {
+      id: 'dashboard15',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet15',
+    },
+    // SMS Status
+    {
+      id: 'dashboard16',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet16',
+    },
+    {
+      id: 'dashboard17',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet17',
+    },
+  ];
+  
+
+
+  paginatedDashboards: { id: string; src: string }[] = [];
+  currentPage = 0;
+  itemsPerPage = 6;
+  totalPages: number = Math.ceil(this.dashboards.length / this.itemsPerPage);
+
   constructor(private calendar: NgbCalendar,
     private httpService: HttpService,
     fb: FormBuilder,
@@ -107,6 +191,7 @@ export class DashboardComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.updatePagination();
     this.currentDate = this.calendar.getToday();
 
     this.customersChartOptions = getCustomerseChartOptions(this.obj);
@@ -121,50 +206,50 @@ export class DashboardComponent implements OnInit {
       this.addRtlOptions();
     }
 
-    let userDetails = {
-      companyEmail: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['businessEmail'] : "test@gmail.com",
-      licenceNumber: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['licenceNumber'] : "87654321",
-      profile: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['name'] : "Eka Hotel Nairobi",
-      facilityType: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['facilityType'] : "Class A",
-      facilityCategory: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['facilityCategory'] : "Hotel",
-      businessPhone: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['businessPhone'] : "Eka Hotel Nairobi",
-      companyRegistrationDate: "24-12-1999",
-      county: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['location'] : "Nairobi",
-      contactPerson: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['contactPerson'] : "Sayia Felix",
-    };
-    if (userDetails) {
-      this.companyEmail = userDetails['companyEmail'];
-      this.licenceNumber = userDetails['licenceNumber'];
-      this.profile = userDetails['profile'];
-      this.companyRegistrationDate = userDetails['companyRegistrationDate'];
-      this.county = userDetails['county'];
-      this.contactPerson = userDetails['contactPerson'];
-      this.facilityType = userDetails['facilityType'];
-      this.facilityCategory = userDetails['facilityCategory'];
-      this.businessPhone = userDetails['businessPhone'];
-      this.logo =
-        'https://images.unsplash.com/photo-151740421573-15263e9f9178?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80';
+    // let userDetails = {
+    //   companyEmail: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['businessEmail'] : "test@gmail.com",
+    //   licenceNumber: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['licenceNumber'] : "87654321",
+    //   profile: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['name'] : "Eka Hotel Nairobi",
+    //   facilityType: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['facilityType'] : "Class A",
+    //   facilityCategory: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['facilityCategory'] : "Hotel",
+    //   businessPhone: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['businessPhone'] : "Eka Hotel Nairobi",
+    //   companyRegistrationDate: "24-12-1999",
+    //   county: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['location'] : "Nairobi",
+    //   contactPerson: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['contactPerson'] : "Sayia Felix",
+    // };
+    // if (userDetails) {
+    //   this.companyEmail = userDetails['companyEmail'];
+    //   this.licenceNumber = userDetails['licenceNumber'];
+    //   this.profile = userDetails['profile'];
+    //   this.companyRegistrationDate = userDetails['companyRegistrationDate'];
+    //   this.county = userDetails['county'];
+    //   this.contactPerson = userDetails['contactPerson'];
+    //   this.facilityType = userDetails['facilityType'];
+    //   this.facilityCategory = userDetails['facilityCategory'];
+    //   this.businessPhone = userDetails['businessPhone'];
+    //   this.logo =
+    //     'https://images.unsplash.com/photo-151740421573-15263e9f9178?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80';
 
-      this.userData$ = of(userDetails);
-    } else {
-      this.userData$ = this.httpService.customerUserDetails().pipe(
-        map((resp) => {
-          // console.log(resp);
-          if (resp) {
-            this.companyEmail = resp[0]['email'];
-            this.licenceNumber = resp[0]['licenceNo'];
-            this.profile = resp[0]['enterpriseName'];
-            this.companyRegistrationDate = resp[0]['enterpriseName'];
-            this.county = resp[0]['country'];
-            this.contactPerson = resp[0]['contactPerson'];
-            this.facilityType = resp[0]['facilityType'];
-            this.facilityCategory = resp[0]['facilityCategory'];
-            this.businessPhone = resp[0]['businessPhone'];
-            return resp[0];
-          }
-        })
-      );
-    }
+    //   this.userData$ = of(userDetails);
+    // } else {
+    //   this.userData$ = this.httpService.customerUserDetails().pipe(
+    //     map((resp) => {
+    //       // console.log(resp);
+    //       if (resp) {
+    //         this.companyEmail = resp[0]['email'];
+    //         this.licenceNumber = resp[0]['licenceNo'];
+    //         this.profile = resp[0]['enterpriseName'];
+    //         this.companyRegistrationDate = resp[0]['enterpriseName'];
+    //         this.county = resp[0]['country'];
+    //         this.contactPerson = resp[0]['contactPerson'];
+    //         this.facilityType = resp[0]['facilityType'];
+    //         this.facilityCategory = resp[0]['facilityCategory'];
+    //         this.businessPhone = resp[0]['businessPhone'];
+    //         return resp[0];
+    //       }
+    //     })
+    //   );
+    // }
 
     this.loadData()
     this.loadCertificate()
@@ -242,39 +327,57 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+  updatePagination() {
+    const startIndex = this.currentPage * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.paginatedDashboards = this.dashboards.slice(startIndex, endIndex);
+  }
+  
+  nextPage() {
+    if ((this.currentPage + 1) * this.itemsPerPage < this.dashboards.length) {
+      this.currentPage++;
+      this.updatePagination();
+    }
+  }
+  
+  prevPage() {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      this.updatePagination();
+    }}
   private loadData(): any {
-    this.loading = true;
-    let userId = JSON.parse(localStorage.getItem('data')!)['user']['id'];
-    let model = {
-      id: userId
-    };
-    // console.log(model)
-    this.httpService.customerPortalPost(`api/v1/auth/getProfile`, model).subscribe(
-      (res: any) => {
-        if (res.status == '00') {
-          this.profileDetails = res['data'];
-          if (this.profileDetails.PhotoPath && !this.profileDetails.PhotoPath.startsWith('http://') && !this.profileDetails.PhotoPath.startsWith('https://')) {
-            this.uploadedImageUrl = 'https://' + this.profileDetails.PhotoPath;
-          } else {
-            this.uploadedImageUrl = this.profileDetails.PhotoPath || 'assets/images/sd.png'; // Use the default image if PhotoPath is empty
-          }
-          // console.log(this.uploadedImageUrl)
-          this.loading = false;
-        } else {
-          console.log('Failed', 'Unable to fetch profile', 'error');
-        }
-      },
-      (error: any) => {
-        console.log('Error', error.message, 'error');
-      }
-    );
+    // this.loading = true;
+    // let userId = JSON.parse(localStorage.getItem('data')!)['user']['id'];
+    // let model = {
+    //   id: userId
+    // };
+    // // console.log(model)
+    // this.httpService.customerPortalPost(`api/v1/auth/getProfile`, model).subscribe(
+    //   (res: any) => {
+    //     if (res.status == '00') {
+    //       this.profileDetails = res['data'];
+    //       if (this.profileDetails.PhotoPath && !this.profileDetails.PhotoPath.startsWith('http://') && !this.profileDetails.PhotoPath.startsWith('https://')) {
+    //         this.uploadedImageUrl = 'https://' + this.profileDetails.PhotoPath;
+    //       } else {
+    //         this.uploadedImageUrl = this.profileDetails.PhotoPath || 'assets/images/sd.png'; // Use the default image if PhotoPath is empty
+    //       }
+    //       // console.log(this.uploadedImageUrl)
+    //       this.loading = false;
+    //     } else {
+    //       console.log('Failed', 'Unable to fetch profile', 'error');
+    //     }
+    //   },
+    //   (error: any) => {
+    //     console.log('Error', error.message, 'error');
+    //   }
+    // );
   }
 
   private loadResults(): any {
     this.loading = true;
-    let licenceNumber = JSON.parse(localStorage.getItem('data')!)['licenceNumber'];
+    // let licenceNumber = JSON.parse(localStorage.getItem('data')!)['licenceNumber'];
     let model = {
-      licenceNumber,
+      // licenceNumber,
       page: this.page - 1,
       size: this.perPage
     };

@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { Inject, NgModule } from '@angular/core';
+import { Inject, NgModule,  CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -72,6 +72,7 @@ export function HttpLoaderFactory(http: HttpClient) {
       }
     }
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class AppModule { }

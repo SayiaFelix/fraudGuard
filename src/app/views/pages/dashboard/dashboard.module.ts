@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Routes, RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -27,12 +27,12 @@ const routes: Routes = [
         FormsModule,
         FeatherIconModule,
         Ng2TelInputModule,
-
         ReactiveFormsModule,
         NgbDropdownModule,
         NgbDatepickerModule,
         NgApexchartsModule,
         TranslateModule
-    ]
+    ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class DashboardModule { }

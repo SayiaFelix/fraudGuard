@@ -77,6 +77,24 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
   accreditations: any;
   requests: any[] = [];
 
+  dashboards: { id: string; src: string }[] = [
+    {
+      id: 'dashboard1',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet7',
+    },
+    {
+      id: 'dashboard2',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet8',
+    },
+    {
+      id: 'dashboard3',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet9',
+    },
+  ];
+  
+  paginatedDashboards: { id: string; src: string }[] = [];
+  currentPage = 0;
+  itemsPerPage = 4;
 
   constructor(
     private httpService: HttpService,
@@ -97,6 +115,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.updatePagination()
     this.breadCrumbItems = [
       {
         label: 'Mobile banking',
@@ -108,6 +127,24 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
     this.getIndividualData(0);
   }
 
+  updatePagination() {
+    const startIndex = this.currentPage * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.paginatedDashboards = this.dashboards.slice(startIndex, endIndex);
+  }
+  
+  nextPage() {
+    if ((this.currentPage + 1) * this.itemsPerPage < this.dashboards.length) {
+      this.currentPage++;
+      this.updatePagination();
+    }
+  }
+  
+  prevPage() {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      this.updatePagination();
+    }}
   phoneNumberValidator(control: AbstractControl): { [key: string]: any } | null {
     const phoneNumber = control.value;
     const phonePattern = /^(254\d{9}|0\d{9})$/;

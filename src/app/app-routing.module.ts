@@ -8,7 +8,7 @@ import { CheckTokenValidityInterceptor } from './shared/services/checkTokenValid
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'standards',
+    redirectTo: 'dashboard',
     pathMatch: 'full'
   },
   {
@@ -24,7 +24,7 @@ const routes: Routes = [
   {
     path: '',
     component: BaseComponent,
-    canActivateChild: [AuthGuard],
+    // canActivateChild: [AuthGuard],
     children: [
       
       {
@@ -43,7 +43,7 @@ const routes: Routes = [
           import('./views/pages/apps/apps.module').then((m) => m.AppsModule),
       },
       {
-        path: 'tra-client',
+        path: 'faulu',
         loadChildren: () =>
           import('./views/pages/mobile-banking/mobile-banking.module').then(
             (m) => m.MobileBankingModule

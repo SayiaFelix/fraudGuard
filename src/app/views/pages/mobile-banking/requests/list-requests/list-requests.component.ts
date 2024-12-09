@@ -87,7 +87,36 @@ export class ListRequestsComponent implements OnInit {
     //   description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
     // },
   ]
-
+  dashboards: { id: string; src: string }[] = [
+    {
+      id: 'dashboard1',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet1/2d8810c0-8556-41a6-807f-c9d67b95e8f6/cc4b8a6c-39fe-4cfa-9e12-19b2d87319c9',
+    },
+    {
+      id: 'dashboard2',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet2',
+    },
+    {
+      id: 'dashboard3',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet3',
+    },
+    {
+      id: 'dashboard4',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet4',
+    },
+    {
+      id: 'dashboard5',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet5',
+    },
+    {
+      id: 'dashboard6',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet6',
+    },
+  ];
+  
+  paginatedDashboards: { id: string; src: string }[] = [];
+  currentPage = 0;
+  itemsPerPage = 4;
   constructor(private router: Router,
     @Inject(APP_BASE_HREF_TOKEN) private appBaseHref: string,
     fb: FormBuilder,
@@ -106,8 +135,26 @@ export class ListRequestsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadData()
+    this.updatePagination()
   }
-
+  updatePagination() {
+    const startIndex = this.currentPage * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.paginatedDashboards = this.dashboards.slice(startIndex, endIndex);
+  }
+  
+  nextPage() {
+    if ((this.currentPage + 1) * this.itemsPerPage < this.dashboards.length) {
+      this.currentPage++;
+      this.updatePagination();
+    }
+  }
+  
+  prevPage() {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      this.updatePagination();
+    }}
   phoneNumberValidator(control: AbstractControl): { [key: string]: any } | null {
     const phoneNumber = control.value;
     const phonePattern = /^(254\d{9}|0\d{9})$/;

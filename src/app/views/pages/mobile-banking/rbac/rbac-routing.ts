@@ -22,7 +22,7 @@ const routes: Routes = [
     },
 
   {
-    path: 'list-users',
+    path: 'new_customers',
     component: ListUsersComponent
   },
 

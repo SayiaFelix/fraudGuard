@@ -83,7 +83,7 @@
         style="display: flex;justify-content: end;align-items: center;position: fixed;width: 100%;height: 100%; z-index: 10;  border-radius: 8px 8px 8px 8px;">
         <div>
           <div class="modals " style="border-radius: 8px 8px 8px 8px;">
-            <div style="background: var(--seasalt, #F8F8F8); border-radius: 8px 8px 8px 8px;">
+            <div style="background: var(--seasalt, #2b2121); border-radius: 8px 8px 8px 8px;">
               <div class="d-flex justify-content-between"
                 style="background-color: #d0ddf0;  font-family: 'Mulish'; font-weight: 900; border-radius:4px;">
                 <h4 class="text-start p-2 mt-2" style="color: #6D36A8; font-size: 19px;">Customer Inquiry</h4>
@@ -170,7 +170,21 @@
             font-size: 18px;
           " routerLink="/standards/all-standards">View all Standards</a>
       </div>
+      <div>
+        <div id="vizContainer" style="width: 800px; height: 600px;">
+          <div class="dashboard-embed">
+            <!-- <h2>Tableau Dashboards</h2> -->
+            <div *ngFor="let url of safeUrls">
+              <iframe [src]="url" width="800" height="600" frameborder="0"></iframe>
+            </div>
+          </div>
 
+        </div>
+
+       
+        
+        
+      </div>
       <div class="card-body" style="padding: 0% 6%">
         <div class="border-0 box-shadow">
           <div class="grid-margin stretch-card">

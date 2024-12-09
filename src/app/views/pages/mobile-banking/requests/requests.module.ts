@@ -1,4 +1,4 @@
-import {NgModule} from '@angular/core';
+import {NgModule,CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
 import {RequestsRoutingModule} from './requests-routing';
 
 
@@ -26,6 +26,7 @@ import { Ng2TelInputModule } from 'ng2-tel-input';
   ,
   entryComponents: [
   ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class RequestsModule {
 }
