@@ -101,10 +101,10 @@ export class NavbarComponent implements OnInit {
     let userDetails = {
       companyEmail: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['businessEmail'] : "test@gmail.com",
       licenceNumber: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['licenceNumber']  : "87654321",
-      profile: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['name']  : "Eka Hotel Nairobi",
+      profile: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['name']  : "Real Time Analytics",
       companyRegistrationDate: "24-12-1999",
       county: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['location']  : "Nairobi",
-      contactPerson: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['contactPerson']  : "Sayia Felix",
+      contactPerson: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['contactPerson']  : "Faulu",
     };
     if (userDetails) {
       this.companyEmail = userDetails['companyEmail'];

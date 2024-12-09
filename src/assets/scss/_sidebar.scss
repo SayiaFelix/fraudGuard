@@ -14,7 +14,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 25px;
+    padding: 0 15px;
     border-right: 1px solid $border-color;
     z-index: 999;
     width: $sidebar-width-lg;
@@ -31,8 +31,8 @@
       -webkit-transition: opacity .5s ease;
       transition: opacity .5s ease;
       img {
-        height: 38px;
-        width:100px;
+        height: 110px;
+        width:135px;
       }
     }
     .sidebar-toggler {
@@ -294,9 +294,10 @@
       padding: 38px 40px 25px 25px;
       height: 100%;
       .nav-item {
-        font-weight: 500;
+        font-weight: 700;
         font-family: Mulish;
         position: relative;
+        // margin-left: 10px;
         > .nav-link {
           display: flex;
           align-items: center;
@@ -305,20 +306,21 @@
           white-space: nowrap;
           // color: $body-color;
           .link-icon {
-            width: 21px;
-            fill: #F7941D;
+            width: 20px;
+            fill: #f5951f;
             position: absolute;
-            color: #F7941D;
-            margin-bottom: 5px;
+            color: #f5951f;
+            margin-bottom: 10px;
+            // margin-left: -1px;
           }
           .link-title {
-            // margin-left: 28px;
+            margin-left: 23px;
             -webkit-transition: all .2s ease-in-out;
             transition: all .2s ease-in-out;
-            color: #F8F8F8 !important; 
+            color: #ffffff !important; 
             opacity: 0.6 !important;
             font-size: 14px;
-            height: 28px;
+            height: 23px;
             margin-bottom: 3px;
             text-transform: uppercase;
           }
@@ -361,26 +363,28 @@
             font-size: 13px;
             .linkTitle{ color: #F7941D; }
             .link-title {
-              margin-left: 2px;
-              color: #F8F8F8 !important; 
+              margin-right: 1px;
+              color: #ffffff !important; 
               opacity: 1.0 !important;
               font-size: 15px;
             }
             .link-icon {
               color: #F8F8F8 !important; 
               fill: #F7941D;
-              font-size: 16px;
+              font-size: 15px;
+              
             }
           }
         }
         &.mm-active {
           > .nav-link {
             // color: #F8F8F8 !important;
-            .linkTitle{ color: #F8F8F8 !important; opacity: 1.0 !important; }
+            .linkTitle{ color: #ffffff !important; opacity: 1.0 !important; }
             .link-title {
-              // margin-left: 31px;
-              color: #F8F8F8 !important;
+              margin-left: 25px;
+              color: #ffffff !important;
               opacity: 1.0 !important;
+              font-size: 15px;
             }
             .link-arrow {
               -webkit-transform: rotate(90deg);

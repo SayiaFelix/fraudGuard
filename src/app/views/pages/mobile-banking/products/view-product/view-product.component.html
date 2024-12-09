@@ -5,44 +5,35 @@
     <li class="breadcrumb-item active" aria-current="page">View Request</li>
   </ol>
 </nav>
-
-
-<div class="card" style="position: relative;">
-  <div class="row">
-    <div class="col-md-12 col-lg-12 col-xl-12 col-sm-12">
-      <div class="card border-0 box-shadow">
-         <img class="card-img-top img-fluid" style="max-width:100% ; height: 350px ; border-radius: 16px;" src="assets/images/requests.png" />
+<div class="container mt-4">
+  <div class="row g-4">
+    <div class="col-12 col-md-6 col-lg-6 col-sm-12" *ngFor="let dashboard of paginatedDashboards">
+      <div class="dashboard-item p-3" style="height: 400px;"> <!-- Fixed parent height -->
+        <tableau-viz
+          id="{{dashboard.id}}"
+          [attr.src]="dashboard.src"  
+          class="w-100 h-100" 
+          hide-tabs
+          toolbar="bottom">
+        </tableau-viz>
       </div>
     </div>
   </div>
-
-  <div style="margin-top: -6%;">
-    <div style=" position:absolute; padding: 16px 24px; align-items: center; border-radius: 16px; background: #FFF; width: 90%; margin-left: 5%;">
-      <div class="d-flex justify-content-around row" >
-        <div class="col">
-          <p class="title">Request Number</p>
-          <h2 class="content">{{requestDetails?.requestRef}}</h2>
-        </div>
-        <div class="col">
-          <p class="title">Enterprise Category</p>
-          <h2 class="content">{{requestDetails?.subClassName}}</h2>
-        </div>
-     
-        <div class="col">
-          <p class="title">Request Type</p>
-          <h2 class="content">{{requestDetails?.requestType}}</h2>
-        </div>
-        <div class="col">
-          <p class="title">Status</p>
-          <h2 class="content">{{requestDetails?.status}}</h2>
-        </div>
-      </div>
-      <footer class="footer mt-3 d-flex flex-column flex-md-row align-items-center justify-content-between px-4 border-top small">
-        <p class="text-muted">Copyright © 2023 <a href="https://www.tra.go.ke/" style="color: #6d36a8; font-family: 'Muli';" target="_blank">TRA</a></p>
-        <p class="" style="color: #6d36a8; font-family: 'Muli'; font-style: normal; font-weight: 700; font-size: 13px; letter-spacing: 0.08em;">Tourism Regulatory Authority</p>
-      </footer>
-    </div>
+  <div class="pagination mt-3 d-flex justify-content-end">
+    <button class="btn btn-primary me-2" (click)="prevPage()" [disabled]="currentPage === 0">
+      Previous
+    </button>
+    <button class="btn btn-success" (click)="nextPage()" [disabled]="(currentPage + 1) * itemsPerPage >= dashboards.length">
+      Next
+    </button>
   </div>
+</div>
+
+<div>
+  <footer class="footer mt-3 d-flex flex-column flex-md-row align-items-center justify-content-between px-4 border-top small">
+    <p class="text-muted">Copyright © 2024 <a href="" style="color: #6d36a8; font-family: 'Muli';" target="_blank">Analytics</a></p>
+    <p class="" style="color: #6d36a8; font-family: 'Muli'; font-style: normal; font-weight: 700; font-size: 13px; letter-spacing: 0.08em;">Faulu Bank Kenya</p>
+  </footer>
 </div>
 
 

@@ -1,12 +1,15 @@
 <nav class="sidebar">
-  <div class="sidebar-header" style="background-color: #EFEFEF!important; ">
+  <div class="sidebar-header" style="background-color: #ffffff!important; ">
     <!--- Logo -->
-    <a routerLink="standards" class="sidebar-brand nobleui-logo">
-      <img class="" src="assets/images/TRA_Logo.png" alt="Portal">
+    <a routerLink="dashboard" class="sidebar-brand nobleui-logo">
+      <img class="" src="assets/images/faulu.jpg" alt="Portal">
     </a>
-
-    <!-- <a routerLink="/" class="sidebar-brand nobleui-logo">
-      <img src="assets/images/logo.png" alt="logo">
+    <!-- Logo -->
+    <!-- <a routerLink="analytics" class="sidebar-brand nobleui-logo">
+      <img 
+        class="" 
+        src="https://1.bp.blogspot.com/-KgsP4Og3IYI/Vz8evxfiubI/AAAAAAAAAdU/MIuDmmwlMZceoczu8HoCfa9Icj5j1vLQwCLcB/s320/faulu.jpg" 
+        alt="Portal">
     </a> -->
 
     <!--- Toggler -->
@@ -44,7 +47,7 @@
 
           <a class="nav-link nav-link-ref nav-sub-items" [routerLink]="item.link" *ngIf="!hasItems(item)"
             [attr.data-parent]="item.parentId">
-            <!-- <i class="link-icon" [attr.data-feather]="item.icon" appFeatherIcon *ngIf="item.icon"></i> -->
+            <i class="link-icon" [attr.data-feather]="item.icon" appFeatherIcon *ngIf="item.icon"></i>
             <span class="link-title"> {{ item.label }}</span>
             <span class="badge bg-{{item.badge.variant}}" *ngIf="item.badge">{{item.badge.text}}</span>
           </a>

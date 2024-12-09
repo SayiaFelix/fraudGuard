@@ -31,9 +31,9 @@ export const MENU: MenuItem[] = [
   },
   {
     // profiles: ['CORPORATE_ADMIN'],
-    label: 'STANDARDS',
-    icon: 'star',
-    link: '/tra-client/standards/all-standards'
+    label: 'TRANSACTIONS',
+    icon: 'bar-chart',
+    link: '/faulu/analytics/all-analytics'
     // subItems: [
     //   {
     //     profiles: ['CORPORATE_ADMIN'],
@@ -42,30 +42,12 @@ export const MENU: MenuItem[] = [
     //   },
     // ]
   },
-  {
-    // profiles: ['CORPORATE_ADMIN'],
-    label: 'My Requests',
-    icon: 'award',
-    link: '/tra-client/requests/all'
-    // subItems: [
-    //   {
-    //     // profiles: ['CORPORATE_ADMIN'],
-    //     label: 'All Requests',
-    //     link: '/tra-client/requests/all'
-    //   },
-      // {
-      //   // profiles: ['CORPORATE_ADMIN'],
-      //   label: 'All Requests',
-      //   link: '/tra-client/requests/all-accreditations'
-      // },
-    // ]
-  },
 
-  {
+   {
     // profiles: ['CORPORATE_ADMIN'],
-    label: 'Reports & Results',
-    icon: 'search',
-    link: '/tra-client/reports&results/results'
+    label: 'NOTIFICATIONS',
+    icon: 'message-circle',
+    link: '/faulu/sms_analytics/sms'
     // subItems: [
     //   // {
     //   //   // profiles: ['CORPORATE_ADMIN'],
@@ -84,6 +66,53 @@ export const MENU: MenuItem[] = [
     //   },
     // ]
   },
+
+  {
+    // profiles: ['CORPORATE_ADMIN'],
+    label: 'CUSTOMERS',
+    icon: 'users',
+    link: '/faulu/new_customer_analytics/new_customers'
+    // subItems: [
+    //   {
+    //     profiles: ['CORPORATE_ADMIN'],
+    //     label: 'Inbox',
+    //     link: '/tra-client/Users/list-users'
+    //   },
+    //   // {
+    //   //   profiles: ['CORPORATE_ADMIN'],
+    //   //   label: 'Roles',
+    //   //   link: '/mobile-banking/rbac/all-roles'
+    //   // },
+    //   {
+    //     profiles: ['CORPORATE_ADMIN'],
+    //     label: 'Profiles',
+    //     link: '/tra-client/rbac/all-profiles'
+    //   }
+    // ]
+  },
+  
+ 
+ 
+  
+  {
+    // profiles: ['CORPORATE_ADMIN'],
+    label: 'BILLED',
+    icon: 'file-text',
+    link: '/faulu/analytic/all'
+    // subItems: [
+    //   {
+    //     // profiles: ['CORPORATE_ADMIN'],
+    //     label: 'All Requests',
+    //     link: '/tra-client/requests/all'
+    //   },
+      // {
+      //   // profiles: ['CORPORATE_ADMIN'],
+      //   label: 'All Requests',
+      //   link: '/tra-client/requests/all-accreditations'
+      // },
+    // ]
+  },
+
   // {
   //    profiles:['CORPORATE_ADMIN'],
   //    label:'Accounts',
@@ -185,33 +214,6 @@ export const MENU: MenuItem[] = [
   //     // },
   //   ]
   // },
-
-
-
-
-  {
-    // profiles: ['CORPORATE_ADMIN'],
-    label: 'OUR TEAM',
-    icon: 'users',
-    link: '/tra-client/Users/list-users'
-    // subItems: [
-    //   {
-    //     profiles: ['CORPORATE_ADMIN'],
-    //     label: 'Inbox',
-    //     link: '/tra-client/Users/list-users'
-    //   },
-    //   // {
-    //   //   profiles: ['CORPORATE_ADMIN'],
-    //   //   label: 'Roles',
-    //   //   link: '/mobile-banking/rbac/all-roles'
-    //   // },
-    //   {
-    //     profiles: ['CORPORATE_ADMIN'],
-    //     label: 'Profiles',
-    //     link: '/tra-client/rbac/all-profiles'
-    //   }
-    // ]
-  },
   //   {
   //   // profiles: ['CORPORATE_ADMIN'],
   //   label: 'CHATS',

@@ -1,156 +1,43 @@
-<div class="d-flex justify-content-between align-items-center flex-wrap grid-margin" style="padding: 0% 3% ">
-  <div>
-    <h4 class="mb-3 mb-md-0"
-      style="color: var(--dark-purple, #1E0F2E);font-family: Mulish;font-size: 18px;font-style: normal;font-weight: 600;line-height: 24px;">
-      Our Auditors & Assessors Team</h4>
-    <p class="mt-2 mb-3"
-      style="color: #000;text-align: justify;font-family: Mulish;font-size: 15px;font-style: normal;font-weight: 400;line-height: 21px;">
-      At Tourism Regulatory Authority (TRA), our Auditors & Assessors Team stands as a cornerstone of excellence in the
-      tourism sector. With a group of highly skilled professionals who are passionate about upholding the highest
-      standards, we are committed to delivering exceptional service and adhering to sustainable tourism practices. Our
-      team conducts comprehensive assessments and audits to ensure alignment with the regulations and guidelines set
-      forth by the national tourism strategy. By collaborating closely with stakeholders and the relevant Ministry, we
-      continuously strive to improve our services and contribute to the growth of the tourism industry in Kenya.
-      Transparent, ethical, and dedicated to responsible tourism, our Auditors & Assessors Team ensures unforgettable
-      experiences while preserving the beauty and integrity of our destinations.</p>
-  </div>
-  <br>
-  <div class="card-body">
-    <div class="border-0 box-shadow">
-      <div class="grid-margin stretch-card">
-        <div class="row">
-          <ng-container *ngIf="assessors.length > 0; else noAssessors">
-            <div class="col-md-3 col-lg-3 col-xl-3 col-sm-4" style="padding: 8px;" *ngFor="let std of assessors">
-              <div style="border-radius: 32px; border: 1px solid var(--lavender-web, #D0DDF0); " class="text-center"
-                [id]="std.id">
-                <div style="position: relative; display: inline-block;">
-                  <div class="w-100 mt-2">
-                    <img class="img-fluid card-img-top" style="height: 95px; width: 100px; border-radius: 50%;"
-                      [src]="std.existingImage" />
-                  </div>
-                </div>
-                <br><br>
-                <div style="position: relative;">
-                  <div class="mt-1">
-                    <p style="
-                         color: #000;text-align: center;font-family: Mulish;font-size: 15px;font-style: normal;font-weight: 600;line-height: 21px;
-                        " class="h2">
-                      {{ std.first_name }} {{std.last_name}}
-                    </p>
-                  </div>
-                  <div class="">
-                    <p style="color: #000;text-align: center;font-family: Mulish;font-size: 15px;font-style: normal;font-weight: 400;line-height: 18px;
-                        " class="h2">
-                      Assessors
-                    </p>
-                  </div>
-                  <div class="">
-                    <p style="color: #000;text-align: center;font-family: Mulish;font-size: 13px;font-style: normal;font-weight: 400;line-height: 19px;
-                        " class="h3">
-                      {{ std.bio }}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </ng-container>
-          <ng-template #noAssessors>
-            <div class="col-md-12 mt-2">
-              <h5 class="d-flex justify-content-start"
-                style="color: #a90202; font-family: 'Mulish';font-weight: 600;font-size: 15px; text-transform: none;">No
-                ASSESSORS Yet.</h5>
-            </div>
-          </ng-template>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="d-flex justify-content-end">
-    <div style="position: fixed; bottom: 9%; right:3%;" (click)="toggleLeaveCommentForm()"
-      class="d-flex justify-content-around">
-      <button *ngIf="!showLeaveCommentForm" class="btn btn-sm transition"
-        style="border-radius: 64px;background: var(--green-blue, #2268AA); margin-right:10px;" type="submit">
-        <a style="text-decoration: none" class="transition">
-          <span
-            style="color: var(--seasalt, #F8F8F8);text-align: center;font-family: Mulish;font-size: 12px;font-style: normal;font-weight: 700;line-height: normal;letter-spacing: 1.12px;text-transform: uppercase;">customer
-            inquiry</span></a>
-      </button>
-      <div style="width: 50px; height: 50px; border-radius: 50%; background-color: #D0DDF0;;"
-        class="card-header d-flex align-items-center border-0">
-        <p style="color:#2268AA;  font-size: 30px; margin-left: 10px;">
-          <img class="img-fluid" style="position: absolute; bottom: 19%" src="assets/images/chats.png" width="30"
-            height="20" alt="logo" />
-        </p>
-      </div>
-    </div>
-  </div>
-  <hr>
+
+<div class="d-flex justify-content-between align-items-center flex-wrap grid-margin mt-1"
+style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 5px; padding: 10px;">
+<div>
+  <h4 class="mb-3 mb-md-0"
+    style="color: var(--dark-purple, #1e0f2e); font-family: Muli; font-size: 20px; font-style: normal; font-weight: 700; line-height: 26px;">
+    Customer Analytics
+  </h4>
+</div>
 </div>
 <hr>
-<ng-container *ngIf="showLeaveCommentForm">
-  <div class="modal-container"
-    style="display: flex;justify-content: end;align-items: center;position: fixed;width: 100%;height: 100%; z-index: 10;  border-radius: 8px 8px 8px 8px;">
-    <div>
-      <div class="modals " style="border-radius: 8px 8px 8px 8px;">
-        <div style="background: var(--seasalt, #F8F8F8); border-radius: 8px 8px 8px 8px;">
-          <div class="d-flex justify-content-between"
-            style="background-color: #d0ddf0;  font-family: 'Mulish'; font-weight: 900; border-radius:4px;">
-            <h4 class="text-start p-2 mt-2" style="color: #6D36A8; font-size: 19px;">Customer Inquiry</h4>
-            <div>
-              <button type="button" class="btn fs-2" (click)="hideLeaveCommentForm()"
-                style="color: #6D36A8; font-size: 20px; margin-top: -5%;">
-                &times;
-              </button>
-            </div>
-          </div>
-          <article class="">
-            <form class="mt-1" [formGroup]="form" (ngSubmit)="onleaveComment()" class="row px-3">
-              <div class="tab-content col-12 border-0">
-                <div class="form-group mt-2">
-                  <input formControlName="name" type="text" class="form-control validation-field border-0" id="name"
-                    placeholder="Your Name or Company*">
-                  <small class="text-danger" *ngIf="f.name.touched && f.name.errors?.required">Field Required</small>
-                </div>
-                <div class="form-group mt-2">
-                  <input formControlName="email" type="email" class="form-control validation-field border-0" id="email"
-                    placeholder="Your email address*">
-                  <small class="text-danger" *ngIf="f.email.touched && f.email.errors?.required">Field Required</small>
-                  <small class="text-danger" *ngIf="f.email.touched && f.email.errors?.email">Email Format
-                    Required</small>
-                </div>
-                <div class="form-group mt-2">
-                  <input type="text" name="tel" formControlName="phone_number" id="phoneNumber"
-                    placeholder="Phone Number*" class="form-control validation-field border-0 w-100" ng2TelInput
-                    data-initial-country="ke">
-                  <small class="text-danger" *ngIf="f.phone_number.touched && f.phone_number.errors?.required">Field
-                    Required</small> <br>
-                  <small class="text-danger"
-                    *ngIf="f.phone_number.touched && f.phone_number.errors?.invalidPhoneNumber">Phone Number: 254 ***
-                    *** *** or 07 **** ****</small>
-                </div>
-                <div class="form-group mt-2">
-                  <input formControlName="subject" type="text" class="form-control validation-field border-0"
-                    id="occupation" placeholder="Subject">
-                  <small class="text-danger" *ngIf="f.subject.touched && f.subject.errors?.required">Field
-                    Required</small>
-                </div>
-                <div class="form-group mt-2">
-                  <textarea formControlName="message" type="text" id="message" cols="15" rows="3" placeholder="Message"
-                    class="form-control validation-field border-0"></textarea>
-                  <small class="text-danger" *ngIf="f.message.touched && f.message.errors?.required">Field
-                    Required</small>
-                </div>
-                <div class="col-12 bg-white text-center py-1 mt-3 mb-2">
-                  <button [disabled]="!form.valid" style="width: 100%; border: none;"
-                    class="btn btn-block login-btn transition" type="submit">
-                    <span style="color: white;">SEND</span><img *ngIf="isLoading" class="pl-2" src="assets/images/loading.gif" alt="loading-gif">
-                  </button>
-                </div>
-              </div>
-            </form>
-          </article>
+<div class="d-flex justify-content-between align-items-center flex-wrap grid-margin">
+  <div class="container mt-2">
+    <div class="row g-4">
+      <div class="col-12 col-md-6 col-lg-6 col-sm-12" *ngFor="let dashboard of paginatedDashboards">
+        <div class="dashboard-item p-3" style="height: 100%;">
+          <tableau-viz
+            id="{{dashboard.id}}"
+            [attr.src]="dashboard.src"  
+            class="w-100 h-100" 
+            hide-tabs
+            toolbar="bottom">
+          </tableau-viz>
         </div>
       </div>
     </div>
+    <div class="pagination mt-3 d-flex justify-content-end">
+      <button class="btn btn-primary me-2" (click)="prevPage()" [disabled]="currentPage === 0">
+        Previous
+      </button>
+      <button class="btn btn-success" (click)="nextPage()" [disabled]="(currentPage + 1) * itemsPerPage >= dashboards.length">
+        Next
+      </button>
+    </div>
   </div>
-</ng-container>
+</div>
+<hr>
+<div>
+  <footer class="footer mt-3 d-flex flex-column flex-md-row align-items-center justify-content-between px-4 border-top small">
+    <p class="text-muted">Copyright © 2024 <a href="" style="color: #6d36a8; font-family: 'Muli';" target="_blank">Analytics</a></p>
+    <p class="" style="color: #6d36a8; font-family: 'Muli'; font-style: normal; font-weight: 700; font-size: 13px; letter-spacing: 0.08em;">Faulu Bank Kenya</p>
+  </footer>
+</div>

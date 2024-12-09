@@ -164,6 +164,45 @@ export class StandardsComponent implements OnInit {
   logo: string | null;
   showMenuItems: boolean = true;
   showDashbord: boolean = false;
+
+  dashboards: { id: string; src: string }[] = [
+    {
+      id: 'dashboard1',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Dashboard1',
+    },
+    {
+      id: 'dashboard2',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Dashboard2',
+    },
+    {
+      id: 'dashboard3',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Dashboard3',
+    },
+    {
+      id: 'dashboard4',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Dashboard4',
+    },
+    {
+      id: 'dashboard5',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Dashboard5',
+    },
+    {
+      id: 'dashboard6',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Dashboard6',
+    },
+    {
+      id: 'dashboard7',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Dashboard7',
+    },
+    {
+      id: 'dashboard8',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Dashboard8',
+    },
+  ];
+  paginatedDashboards: { id: string; src: string }[] = [];
+  currentPage = 0;
+  itemsPerPage = 4;
+
   // filteredStandards: any;
   constructor(private router: Router,
     private httpService: HttpService,
@@ -181,6 +220,7 @@ export class StandardsComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.updatePagination()
     this.loadDatas(null)
     // this.loadData(null);
     this.getSubClassData(0);
@@ -208,7 +248,24 @@ export class StandardsComponent implements OnInit {
     }
   }
   // subClass: any | null
-
+  updatePagination() {
+    const startIndex = this.currentPage * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.paginatedDashboards = this.dashboards.slice(startIndex, endIndex);
+  }
+  
+  nextPage() {
+    if ((this.currentPage + 1) * this.itemsPerPage < this.dashboards.length) {
+      this.currentPage++;
+      this.updatePagination();
+    }
+  }
+  
+  prevPage() {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      this.updatePagination();
+    }}
   phoneNumberValidator(control: AbstractControl): { [key: string]: any } | null {
     const phoneNumber = control.value;
     const phonePattern = /^(254\d{9}|0\d{9})$/;

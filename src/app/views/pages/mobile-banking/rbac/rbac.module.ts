@@ -1,4 +1,4 @@
-import {NgModule} from '@angular/core';
+import {NgModule, CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
 import {RbacRoutingModule} from './rbac-routing';
 import {RolesComponent} from './roles/list-roles/roles.component';
 import {AddRoleComponent} from './roles/add-role/add-role.component';
@@ -50,6 +50,7 @@ import { Ng2TelInputModule } from 'ng2-tel-input';
       ChangeProfileModalComponent,
       DeleteRoleModalComponent
     ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class RbacModule {
 }

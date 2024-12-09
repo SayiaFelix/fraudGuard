@@ -101,6 +101,40 @@ export class ListUsersComponent implements OnInit {
     { name: 'Actions', prop: 'id' }
   ];
 
+
+ dashboards: { id: string; src: string }[] = [
+  {
+    id: 'dashboard1',
+    src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet10',
+  },
+  {
+    id: 'dashboard3',
+    src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet12',
+  },
+
+  {
+    id: 'dashboard4',
+    src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet13',
+  },
+  {
+    id: 'dashboard5',
+    src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet14',
+  },
+  {
+    id: 'dashboard6',
+    src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet15',
+  },
+  {
+    id: 'dashboard2',
+    src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet11',
+  },
+];
+
+
+  paginatedDashboards: { id: string; src: string }[] = [];
+  currentPage = 0;
+  itemsPerPage = 4;
+
   allColumns = [...this.columns];
   usersList$: Observable<any>
 
@@ -137,8 +171,27 @@ export class ListUsersComponent implements OnInit {
     this.breadCrumbItems = [{ label: 'Mobile banking', path: '/mobile-banking/products/all-products' },
       { label: 'Pages', path: '/' }, { label: 'Products', active: true }];
     this.loadData();
+    this.updatePagination()
 
   }
+  updatePagination() {
+    const startIndex = this.currentPage * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.paginatedDashboards = this.dashboards.slice(startIndex, endIndex);
+  }
+  
+  nextPage() {
+    if ((this.currentPage + 1) * this.itemsPerPage < this.dashboards.length) {
+      this.currentPage++;
+      this.updatePagination();
+    }
+  }
+  
+  prevPage() {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      this.updatePagination();
+    }}
   get f(): { [p: string]: AbstractControl } {
     return this.form.controls;
   }

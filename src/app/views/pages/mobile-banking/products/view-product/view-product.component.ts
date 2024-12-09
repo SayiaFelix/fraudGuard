@@ -36,7 +36,43 @@ export class ViewProductComponent implements OnInit {
   public productId: number;
   public categoryId: number;
   public modalRef: NgbModalRef;
-
+  dashboards: { id: string; src: string }[] = [
+    {
+      id: 'dashboard1',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Dashboard1',
+    },
+    {
+      id: 'dashboard2',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Dashboard2',
+    },
+    {
+      id: 'dashboard3',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Dashboard3',
+    },
+    {
+      id: 'dashboard4',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Dashboard4',
+    },
+    {
+      id: 'dashboard5',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Dashboard5',
+    },
+    {
+      id: 'dashboard6',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Dashboard6',
+    },
+    {
+      id: 'dashboard7',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Dashboard7',
+    },
+    {
+      id: 'dashboard8',
+      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Dashboard8',
+    },
+  ];
+  paginatedDashboards: { id: string; src: string }[] = [];
+  currentPage = 0;
+  itemsPerPage = 4;
   public requirementsLoading = true;
   constructor(private httpService: HttpService,
               public globalService: GlobalService,
@@ -61,8 +97,26 @@ export class ViewProductComponent implements OnInit {
     });
 
     this.loadData();
+    this.updatePagination()
   }
-
+  updatePagination() {
+    const startIndex = this.currentPage * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.paginatedDashboards = this.dashboards.slice(startIndex, endIndex);
+  }
+  
+  nextPage() {
+    if ((this.currentPage + 1) * this.itemsPerPage < this.dashboards.length) {
+      this.currentPage++;
+      this.updatePagination();
+    }
+  }
+  
+  prevPage() {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      this.updatePagination();
+    }}
   // private loadData(): any {
   //   this.loading = true;
   //   let model ={
