@@ -11,12 +11,10 @@
     </h4>
   </div>
   
-  <div class="page-number" aria-label="Current page" style="font-size: 16px; color: var(--dark-purple, #1e0f2e); font-weight: 700;">
+  <div class="page-number" aria-label="Current page">
     Page {{ currentPage + 1 }} of {{ totalPages }}
   </div>
 </header>
-
-
 <hr>
 
 
@@ -60,8 +58,8 @@
     [ngClass]="{ 'slide-enter': isEntering, 'slide-exit': isExiting }"
     *ngIf="currentVisuals"
   >
-    <div class="col-12 col-md-6" *ngFor="let dashboard of currentVisuals">
-      <div class="dashboard-item p-3" style="height: 100%;">
+    <div class="col-12 col-md-6 col-sm-6" *ngFor="let dashboard of currentVisuals">
+      <div class="dashboard-item p-3" >
         <tableau-viz
           id="{{ dashboard.id }}"
           [attr.src]="dashboard.src"
@@ -73,7 +71,6 @@
     </div>
   </div>
 </div>
-
 
 <div>
   <footer class="footer mt-3 d-flex flex-column flex-md-row align-items-center justify-content-between px-4 border-top small">

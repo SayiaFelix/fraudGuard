@@ -66,11 +66,11 @@ export class ListCustomersComponent implements OnInit {
   dashboards: { id: string; src: string }[] = [
     {
       id: 'dashboard1',
-      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet16',
+      src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet16',
     },
     {
       id: 'dashboard2',
-      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet17',
+      src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet17',
     },
   ];
   

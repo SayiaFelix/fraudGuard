@@ -52,6 +52,22 @@ export class ListBranchesComponent implements OnInit {
   loading: boolean;
 
   totalRecords: number;
+
+  dashboards: { id: string; src: string }[] = [
+    {
+      id: 'dashboard1',
+      src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet16',
+    },
+    {
+      id: 'dashboard2',
+      src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet17',
+    },
+  ];
+
+  paginatedDashboards: { id: string; src: string }[] = [];
+  currentPage = 0;
+  itemsPerPage = 4;
+
   constructor(private httpService: HttpService,
               private modalService: NgbModal,
               public fb: FormBuilder,
@@ -60,7 +76,7 @@ export class ListBranchesComponent implements OnInit {
   }
 
   ngOnInit() {
-
+    this.updatePagination()
     this.breadCrumbItems = [{ label: 'Mobile banking', path: '/mobile-banking/branches/all-branches' },
       { label: 'Pages', path: '/' }, { label: 'Branches', active: true }];
     this.getIndividualData(0);
@@ -72,6 +88,25 @@ export class ListBranchesComponent implements OnInit {
     });
   }
 
+  updatePagination() {
+    const startIndex = this.currentPage * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.paginatedDashboards = this.dashboards.slice(startIndex, endIndex);
+  }
+  
+  nextPage() {
+    if ((this.currentPage + 1) * this.itemsPerPage < this.dashboards.length) {
+      this.currentPage++;
+      this.updatePagination();
+    }
+  }
+  
+  prevPage() {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      this.updatePagination();
+    }}
+    
   public addBranch() {
     this.modalRef = this.modalService.open(AddBranchComponent, {centered: true, size: "xl"});
     this.modalRef.componentInstance.title = 'Add Branch';

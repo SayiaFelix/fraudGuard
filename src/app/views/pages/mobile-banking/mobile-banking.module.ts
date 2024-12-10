@@ -37,22 +37,22 @@ const routes: Routes = [
       },
 
       {
-        path: 'setups',
+        path: 'analytics_logs',
         loadChildren: () =>
           import('./setups/setups.module').then((m) => m.SetupsModule),
       },
-
-      {
-        path: 'rbac',
-        loadChildren: () =>
-          import('./rbac/rbac.module').then((m) => m.RbacModule),
-      },
-
       {
         path: 'new_customer_analytics',
         loadChildren: () =>
           import('./rbac/rbac.module').then((m) => m.RbacModule),
       },
+
+      // {
+      //   path: 'rbac',
+      //   loadChildren: () =>
+      //     import('./rbac/rbac.module').then((m) => m.RbacModule),
+      // },
+  
       // {
       //   path: 'accounts',
       //   loadChildren: () =>

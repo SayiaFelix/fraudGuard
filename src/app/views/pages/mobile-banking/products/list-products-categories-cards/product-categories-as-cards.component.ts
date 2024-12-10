@@ -80,15 +80,15 @@ export class ProductCategoriesAsCardsComponent implements OnInit {
   dashboards: { id: string; src: string }[] = [
     {
       id: 'dashboard1',
-      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet7',
+      src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet7',
     },
     {
       id: 'dashboard2',
-      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet8',
+      src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet8',
     },
     {
       id: 'dashboard3',
-      src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet9',
+      src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet9',
     },
   ];
   

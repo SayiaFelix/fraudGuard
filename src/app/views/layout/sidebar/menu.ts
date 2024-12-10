@@ -42,8 +42,7 @@ export const MENU: MenuItem[] = [
     //   },
     // ]
   },
-
-   {
+  {
     // profiles: ['CORPORATE_ADMIN'],
     label: 'NOTIFICATIONS',
     icon: 'message-circle',
@@ -66,7 +65,6 @@ export const MENU: MenuItem[] = [
     //   },
     // ]
   },
-
   {
     // profiles: ['CORPORATE_ADMIN'],
     label: 'CUSTOMERS',
@@ -90,10 +88,6 @@ export const MENU: MenuItem[] = [
     //   }
     // ]
   },
-  
- 
- 
-  
   {
     // profiles: ['CORPORATE_ADMIN'],
     label: 'BILLED',
@@ -113,33 +107,35 @@ export const MENU: MenuItem[] = [
     // ]
   },
 
-  // {
-  //    profiles:['CORPORATE_ADMIN'],
-  //    label:'Accounts',
-  //    icon:'home',
-  //    subItems: [
-  //     {
-  //       profiles: ['CORPORATE_ADMIN'],
-  //       label: 'Account Registration',
-  //       subItems: [
-  //         {
-  //           profiles: ['CORPORATE_ADMIN'],
-  //           label:'All Accounts',
-  //           link:'/mobile-banking/accounts/list-accounts'
-  //         },
-  //         {
-  //           profiles: ['CORPORATE_ADMIN'],
-  //           label:'Pending Account Openings',
-  //           link:'/mobile-banking/accounts/list-pending'
-  //         },
-  //         {
-  //           profiles: ['CORPORATE_ADMIN'],
-  //           label:'Failed Account Openings',
-  //           link:'/mobile-banking/accounts/list-failed'
-  //         },
+  {
+    //  profiles:['CORPORATE_ADMIN'],
+     label:'LOGS',
+     icon:'activity',
+     link: '/faulu/analytics_logs/logs',
+    //  subItems: [
+    //   {
+    //     profiles: ['CORPORATE_ADMIN'],
+    //     label: 'Account Registration',
+    //     subItems: [
+    //       {
+    //         profiles: ['CORPORATE_ADMIN'],
+    //         label:'All Accounts',
+    //         link:'/mobile-banking/accounts/list-accounts'
+    //       },
+    //       {
+    //         profiles: ['CORPORATE_ADMIN'],
+    //         label:'Pending Account Openings',
+    //         link:'/mobile-banking/accounts/list-pending'
+    //       },
+    //       {
+    //         profiles: ['CORPORATE_ADMIN'],
+    //         label:'Failed Account Openings',
+    //         link:'/mobile-banking/accounts/list-failed'
+    //       },
 
-  //       ]
-  //     },
+    //     ]
+    //   },]
+    },
   //     // {
   //     //   profiles: ['CORPORATE_ADMIN'],
   //     //   label: 'Account Linking',
