@@ -89,6 +89,10 @@ export class DashboardComponent implements OnInit {
   results: any;
   message: string;
 
+  currentVisuals: { id: string; src: string }[] = [];
+  currentBatchIndex: number = 0;
+  itemsPerBatch: number = 6;
+  intervalId: any;
  
   dashboards: { id: string; src: string }[] = [
     // Processed Transactions
@@ -191,6 +195,15 @@ export class DashboardComponent implements OnInit {
   }
 
   ngOnInit(): void {
+
+    // Initialize the first batch
+    this.updateCurrentVisuals();
+
+    // Set up automatic sliding every 5 seconds
+    this.intervalId = setInterval(() => {
+         this.nextBatch();
+       }, 5000);
+    
     this.updatePagination();
     this.currentDate = this.calendar.getToday();
 
@@ -258,6 +271,32 @@ export class DashboardComponent implements OnInit {
   }
   get f(): { [p: string]: AbstractControl } {
     return this.form.controls;
+  }
+
+  ngOnDestroy() {
+    // Clear interval when the component is destroyed
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
+  }
+
+  updateCurrentVisuals() {
+    const start = this.currentBatchIndex * this.itemsPerBatch;
+    const end = start + this.itemsPerBatch;
+
+    // Handle looping
+    if (start >= this.dashboards.length) {
+      this.currentBatchIndex = 0;
+      this.updateCurrentVisuals();
+      return;
+    }
+
+    this.currentVisuals = this.dashboards.slice(start, end);
+  }
+
+  nextBatch() {
+    this.currentBatchIndex++;
+    this.updateCurrentVisuals();
   }
 
   phoneNumberValidator(control: AbstractControl): { [key: string]: any } | null {

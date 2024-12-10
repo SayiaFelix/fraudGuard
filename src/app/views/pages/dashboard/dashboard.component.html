@@ -9,7 +9,7 @@
 <hr>
 
 
-<div>
+<!-- <div>
   <div class="container mt-2">
     <div class="row g-4">
       <div class="col-12 col-md-6 col-lg-6 col-sm-12" *ngFor="let dashboard of paginatedDashboards">
@@ -25,7 +25,7 @@
       </div>
     </div>
     
-    <!-- Pagination with page number on the left and buttons on the right -->
+    <!-- Pagination with page number on the left and buttons on the right --
     <div class="pagination mt-5 d-flex justify-content-between align-items-center" style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 5px; padding: 10px;">
       <div class="page-number" style="font-size: 13px; font-weight: 700; color: #6d36a8;">
         Page {{currentPage + 1}} of {{totalPages}}
@@ -40,12 +40,29 @@
       </div>
     </div>
   </div>
-  
-  
-  
-  
-  
+</div> -->
+
+
+<div class="container mt-2">
+  <div class="row g-4">
+    <div
+      class="col-12 col-md-6 col-lg-6 col-sm-12"
+      *ngFor="let dashboard of currentVisuals"
+    >
+      <div class="dashboard-item p-3" style="height: 100%;">
+        <tableau-viz
+          id="{{dashboard.id}}"
+          [attr.src]="dashboard.src"
+          class="w-100 h-100"
+          hide-tabs
+          toolbar="bottom"
+        >
+        </tableau-viz>
+      </div>
+    </div>
+  </div>
 </div>
+
 
 <div>
   <footer class="footer mt-3 d-flex flex-column flex-md-row align-items-center justify-content-between px-4 border-top small">
