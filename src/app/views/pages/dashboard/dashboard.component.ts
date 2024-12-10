@@ -93,6 +93,12 @@ export class DashboardComponent implements OnInit {
   currentBatchIndex: number = 0;
   itemsPerBatch: number = 6;
   intervalId: any;
+
+  currentPage = 0;
+  itemsPerPage = 4;
+  isEntering = true;
+  isExiting = false;
+
  
   dashboards: { id: string; src: string }[] = [
     // Processed Transactions
@@ -172,8 +178,6 @@ export class DashboardComponent implements OnInit {
 
 
   paginatedDashboards: { id: string; src: string }[] = [];
-  currentPage = 0;
-  itemsPerPage = 6;
   totalPages: number = Math.ceil(this.dashboards.length / this.itemsPerPage);
 
   constructor(private calendar: NgbCalendar,
@@ -202,7 +206,7 @@ export class DashboardComponent implements OnInit {
     // Set up automatic sliding every 5 seconds
     this.intervalId = setInterval(() => {
          this.nextBatch();
-       }, 5000);
+       }, 30000);
     
     this.updatePagination();
     this.currentDate = this.calendar.getToday();
@@ -281,22 +285,28 @@ export class DashboardComponent implements OnInit {
   }
 
   updateCurrentVisuals() {
-    const start = this.currentBatchIndex * this.itemsPerBatch;
-    const end = start + this.itemsPerBatch;
-
-    // Handle looping
-    if (start >= this.dashboards.length) {
-      this.currentBatchIndex = 0;
-      this.updateCurrentVisuals();
-      return;
-    }
-
+    const start = this.currentPage * this.itemsPerPage;
+    const end = start + this.itemsPerPage;
     this.currentVisuals = this.dashboards.slice(start, end);
   }
 
+
   nextBatch() {
-    this.currentBatchIndex++;
-    this.updateCurrentVisuals();
+    this.isExiting = true;
+
+    // Wait for exit animation before updating visuals
+    setTimeout(() => {
+      this.isExiting = false;
+   
+      this.currentPage = (this.currentPage + 1) % Math.ceil(this.dashboards.length / this.itemsPerPage);
+      this.updateCurrentVisuals();
+      this.isEntering = true;
+
+      // Reset entering animation
+      setTimeout(() => {
+        this.isEntering = false;
+      }, 1000); // Match animation duration
+    }, 1000); // Match animation duration
   }
 
   phoneNumberValidator(control: AbstractControl): { [key: string]: any } | null {

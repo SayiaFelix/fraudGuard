@@ -1,11 +1,22 @@
-<div class="d-flex justify-content-between align-items-center flex-wrap grid-margin mt-1" style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 5px; padding: 10px;">
+<header  
+  class="d-flex justify-content-between align-items-center flex-wrap grid-margin mt-1" 
+  style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 5px; padding: 10px;"
+>
   <div>
-    <h4 class="mb-3 mb-md-0"
-      style="color: var(--dark-purple, #1e0f2e); font-family: Muli; font-size: 20px; font-style: normal; font-weight: 700; line-height: 26px;">
+    <h4 
+      class="mb-3 mb-md-0" 
+      style="color: var(--dark-purple, #1e0f2e); font-family: Muli, sans-serif; font-size: 20px; font-weight: 700; line-height: 26px;"
+    >
       Main Dashboard Overview
     </h4>
   </div>
-</div>
+  
+  <div class="page-number" aria-label="Current page" style="font-size: 16px; color: var(--dark-purple, #1e0f2e); font-weight: 700;">
+    Page {{ currentPage + 1 }} of {{ totalPages }}
+  </div>
+</header>
+
+
 <hr>
 
 
@@ -43,21 +54,21 @@
 </div> -->
 
 
-<div class="container mt-2">
-  <div class="row g-4">
-    <div
-      class="col-12 col-md-6 col-lg-6 col-sm-12"
-      *ngFor="let dashboard of currentVisuals"
-    >
+<div class="dashboard-container">
+  <div
+    class="row g-4"
+    [ngClass]="{ 'slide-enter': isEntering, 'slide-exit': isExiting }"
+    *ngIf="currentVisuals"
+  >
+    <div class="col-12 col-md-6" *ngFor="let dashboard of currentVisuals">
       <div class="dashboard-item p-3" style="height: 100%;">
         <tableau-viz
-          id="{{dashboard.id}}"
+          id="{{ dashboard.id }}"
           [attr.src]="dashboard.src"
           class="w-100 h-100"
           hide-tabs
           toolbar="bottom"
-        >
-        </tableau-viz>
+        ></tableau-viz>
       </div>
     </div>
   </div>
