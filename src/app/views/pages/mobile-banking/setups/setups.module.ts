@@ -1,4 +1,4 @@
-import {NgModule} from '@angular/core';
+import {NgModule, CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
 import {SetupsRoutingModule} from './setups-routing';
 
 
@@ -43,6 +43,7 @@ import {AddServiceComponent} from "./Services/add-service/add-service.component"
     AddAtmComponent
     // CreateBranchComponent
   ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class SetupsModule {
 }

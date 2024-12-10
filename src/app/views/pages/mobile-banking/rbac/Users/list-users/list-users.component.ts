@@ -105,28 +105,27 @@ export class ListUsersComponent implements OnInit {
  dashboards: { id: string; src: string }[] = [
   {
     id: 'dashboard1',
-    src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet10',
-  },
-  {
-    id: 'dashboard3',
-    src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet12',
-  },
-
-  {
-    id: 'dashboard4',
-    src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet13',
-  },
-  {
-    id: 'dashboard5',
-    src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet14',
-  },
-  {
-    id: 'dashboard6',
-    src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet15',
+    src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet10',
   },
   {
     id: 'dashboard2',
-    src: 'https://dub01.online.tableau.com/t/teclakyalo2-63ea10b024/views/Book1/Sheet11',
+    src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet11',
+  },
+  {
+    id: 'dashboard3',
+    src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet12',
+  },
+  {
+    id: 'dashboard4',
+    src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet13',
+  },
+  {
+    id: 'dashboard5',
+    src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet14',
+  },
+  {
+    id: 'dashboard6',
+    src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet15',
   },
 ];
 
