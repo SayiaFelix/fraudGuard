@@ -173,6 +173,10 @@ export class DashboardComponent implements OnInit {
       id: 'dashboard17',
       src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet17',
     },
+    {
+      id: 'dashboard18',
+      src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet20',
+    }
   ];
   
 

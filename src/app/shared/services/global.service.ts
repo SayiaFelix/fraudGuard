@@ -1,4 +1,6 @@
+import { HttpClient } from '@angular/common/http';
 import {Injectable} from '@angular/core';
+import { Observable } from 'rxjs';
 import {environment} from 'src/environments/environment';
 
 @Injectable(
@@ -15,7 +17,10 @@ export class GlobalService {
 
   public setting: any = {};
 
-  constructor() {
+  private apiUrl = 'http://127.0.0.1:5010/api/chat'; 
+
+  constructor(private http: HttpClient) {
+    
     this.channelManagerHost = environment.customerPortalNest;
     this.mobileBankingHost = environment.customerPortalNest;
     this.customerPortalNest = environment.customerPortalNest;
@@ -31,6 +36,13 @@ export class GlobalService {
     }
 
   }
+
+
+
+  sendMessageToBot(userMessage: string): Observable<any> {
+    return this.http.post<any>(this.apiUrl, { message: userMessage });
+  }
+  
 
   public handleServerErrors(result: any): any {
     //   let isValidationError = false;
