@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, TemplateRef, ViewChild , ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import {NgbActiveModal, NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
@@ -56,20 +56,29 @@ export class ListBranchesComponent implements OnInit {
   dashboards: { id: string; src: string }[] = [
     {
       id: 'dashboard1',
-      src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet16',
+      src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet20',
     },
-    {
-      id: 'dashboard2',
-      src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet17',
-    },
+    // {
+    //   id: 'dashboard2',
+    //   src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet17',
+    // },
   ];
 
   paginatedDashboards: { id: string; src: string }[] = [];
   currentPage = 0;
   itemsPerPage = 4;
 
+
+  // Array to hold chat messages
+  messages: { sender: string; text: string }[] = [];
+
+  // Variable to hold user input
+  userInput: string = '';
+  isChatVisible: boolean = false; 
+
   constructor(private httpService: HttpService,
               private modalService: NgbModal,
+              private cdr: ChangeDetectorRef,
               public fb: FormBuilder,
               public router: Router,
               public globalService: GlobalService) {
@@ -234,5 +243,35 @@ export class ListBranchesComponent implements OnInit {
     console.log(data);
 
     this.filteredRows = data
+  }
+
+
+  toggleChat() {
+    this.isChatVisible = !this.isChatVisible;
+    console.log('Chat visibility:', this.isChatVisible);
+    this.cdr.detectChanges(); // Ensure the DOM updates
+  }
+   
+
+
+
+  sendMessage(): void {
+    if (this.userInput.trim() === '') {
+      return; // Do not send empty messages
+    }
+
+    this.messages.push({ sender: 'user', text: this.userInput });
+    const userMessage = this.userInput;
+    this.userInput = '';
+
+    // Call the Flask backend to get the bot's response
+    this.globalService.sendMessageToBot(userMessage).subscribe(response => {
+      this.messages.push({ sender: 'bot', text: response.reply });
+    });
+  }
+
+  closeChat() {
+    this.messages = [];
+    this.userInput = '';
   }
 }
