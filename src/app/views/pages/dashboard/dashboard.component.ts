@@ -104,78 +104,78 @@ export class DashboardComponent implements OnInit {
     // Processed Transactions
     {
       id: 'dashboard1',
-      src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet1',
+      src: 'https://dub01.online.tableau.com/#/site/peternjosh7365-adf6ffe291/views/Book1/Sheet1',
     },
     {
       id: 'dashboard2',
-      src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet2',
+      src: 'https://dub01.online.tableau.com/#/site/peternjosh7365-adf6ffe291/views/Book1/Sheet2',
     },
     {
       id: 'dashboard3',
-      src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet3',
+      src: 'https://dub01.online.tableau.com/#/site/peternjosh7365-adf6ffe291/views/Book1/Sheet3',
     },
     {
       id: 'dashboard4',
-      src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet4',
+      src: 'https://dub01.online.tableau.com/#/site/peternjosh7365-adf6ffe291/views/Book1/Sheet4',
     },
     {
       id: 'dashboard5',
-      src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet5',
+      src: 'https://dub01.online.tableau.com/#/site/peternjosh7365-adf6ffe291/views/Book1/Sheet5',
     },
     {
       id: 'dashboard6',
-      src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet6',
+      src: 'https://dub01.online.tableau.com/#/site/peternjosh7365-adf6ffe291/views/Book1/Sheet6',
     },
     // Bill
     {
       id: 'dashboard7',
-      src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet7',
+      src: 'https://dub01.online.tableau.com/#/site/peternjosh7365-adf6ffe291/views/Book1/Sheet7',
     },
     {
       id: 'dashboard8',
-      src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet8',
+      src: 'https://dub01.online.tableau.com/#/site/peternjosh7365-adf6ffe291/views/Book1/Sheet8',
     },
     {
       id: 'dashboard9',
-      src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet9',
+      src: 'https://dub01.online.tableau.com/#/site/peternjosh7365-adf6ffe291/views/Book1/Sheet9',
     },
     // New Customers
     {
       id: 'dashboard10',
-      src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet10',
+      src: 'https://dub01.online.tableau.com/#/site/peternjosh7365-adf6ffe291/views/Book1/Sheet10',
     },
     {
       id: 'dashboard11',
-      src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet11',
+      src: 'https://dub01.online.tableau.com/#/site/peternjosh7365-adf6ffe291/views/Book1/Sheet11',
     },
     {
       id: 'dashboard12',
-      src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet12',
+      src: 'https://dub01.online.tableau.com/#/site/peternjosh7365-adf6ffe291/views/Book1/Sheet12',
     },
     {
       id: 'dashboard13',
-      src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet13',
+      src: 'https://dub01.online.tableau.com/#/site/peternjosh7365-adf6ffe291/views/Book1/Sheet13',
     },
     {
       id: 'dashboard14',
-      src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet14',
+      src: 'https://dub01.online.tableau.com/#/site/peternjosh7365-adf6ffe291/views/Book1/Sheet14',
     },
     {
       id: 'dashboard15',
-      src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet15',
+      src: 'https://dub01.online.tableau.com/#/site/peternjosh7365-adf6ffe291/views/Book1/Sheet15',
     },
     // SMS Status
     {
       id: 'dashboard16',
-      src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet16',
+      src: 'https://dub01.online.tableau.com/#/site/peternjosh7365-adf6ffe291/views/Book1/Sheet16',
     },
     {
       id: 'dashboard17',
-      src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet17',
+      src: 'https://dub01.online.tableau.com/#/site/peternjosh7365-adf6ffe291/views/Book1/Sheet17',
     },
     {
       id: 'dashboard18',
-      src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet20',
+      src: 'https://dub01.online.tableau.com/#/site/peternjosh7365-adf6ffe291/views/Book1/Sheet20',
     }
   ];
   
