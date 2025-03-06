@@ -43,7 +43,7 @@ const routes: Routes = [
           import('./views/pages/apps/apps.module').then((m) => m.AppsModule),
       },
       {
-        path: 'faulu',
+        path: 'eclectics',
         loadChildren: () =>
           import('./views/pages/mobile-banking/mobile-banking.module').then(
             (m) => m.MobileBankingModule
