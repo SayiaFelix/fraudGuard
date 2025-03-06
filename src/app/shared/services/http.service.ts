@@ -22,6 +22,30 @@ export class HttpService {
     private router: Router
   ) {}
 
+  private cytonUrl = 'http://130.61.111.65:5005/api/get_all_charts_kpis'; 
+  private apiUrl = 'http://127.0.0.1:5020/api/chat'; 
+
+  // private baseUrl = "http://130.61.111.65:5005"; 
+  private baseUrl = "http://127.0.0.1:5005";
+  getDashboardData(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/api/get_all_charts_kpis`);
+  }
+
+  getForecastData(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/api/generate_forecasts`);
+  }
+
+  sendMessage(userMessage: string): Observable<{ reply: string }> {
+    return this.http.post<{ reply: string }>(this.apiUrl, { message: userMessage });
+  }
+  
+  getCytonData(page: number, page_size: number): Observable<any> {
+    const model = { page, page_size };
+    return this.http.post(`${this.baseUrl}/api/clustered_data`, model);
+  }
+  
+  
+
   public getEnterpriseUsers(endpoint: string):Observable<any> {
     return this.http.get(this.globalService.customerPortalNest + endpoint)
   }
@@ -166,6 +190,7 @@ export class HttpService {
       );
   }
 
+ 
   
   public customerPortalPosts(endpoint: string, model: any): any {
     return this.http

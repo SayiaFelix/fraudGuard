@@ -30,10 +30,10 @@ export const MENU: MenuItem[] = [
     // ]
   },
   {
-    // profiles: ['CORPORATE_ADMIN'],
-    label: 'TRANSACTIONS',
+    profiles: ['CORPORATE_ADMIN'],
+    label: 'PROFILES',
     icon: 'bar-chart',
-    link: '/faulu/analytics/all-analytics'
+    link: '/eclectics/analytics/all-analytics'
     // subItems: [
     //   {
     //     profiles: ['CORPORATE_ADMIN'],
@@ -42,100 +42,100 @@ export const MENU: MenuItem[] = [
     //   },
     // ]
   },
-  {
-    // profiles: ['CORPORATE_ADMIN'],
-    label: 'NOTIFICATIONS',
-    icon: 'message-circle',
-    link: '/faulu/sms_analytics/sms'
-    // subItems: [
-    //   // {
-    //   //   // profiles: ['CORPORATE_ADMIN'],
-    //   //   label: 'All Classifications',
-    //   //   link: '/tra-client/customers/list-requests'
-    //   // },
-    //   // {
-    //   //   profiles: ['CORPORATE_ADMIN'],
-    //   //   label: 'Classification Results',
-    //   //   link: '/tra-client/customers/list-failed-registrations'
-    //   // },
-    //   {
-    //     // profiles: ['CORPORATE_ADMIN'],
-    //     label: 'Notifications',
-    //     link: '/tra-client/customers/send-bulk-sms'
-    //   },
-    // ]
-  },
-  {
-    // profiles: ['CORPORATE_ADMIN'],
-    label: 'CUSTOMERS',
-    icon: 'users',
-    link: '/faulu/new_customer_analytics/new_customers'
-    // subItems: [
-    //   {
-    //     profiles: ['CORPORATE_ADMIN'],
-    //     label: 'Inbox',
-    //     link: '/tra-client/Users/list-users'
-    //   },
-    //   // {
-    //   //   profiles: ['CORPORATE_ADMIN'],
-    //   //   label: 'Roles',
-    //   //   link: '/mobile-banking/rbac/all-roles'
-    //   // },
-    //   {
-    //     profiles: ['CORPORATE_ADMIN'],
-    //     label: 'Profiles',
-    //     link: '/tra-client/rbac/all-profiles'
-    //   }
-    // ]
-  },
-  {
-    // profiles: ['CORPORATE_ADMIN'],
-    label: 'BILLED',
-    icon: 'file-text',
-    link: '/faulu/analytic/all'
-    // subItems: [
-    //   {
-    //     // profiles: ['CORPORATE_ADMIN'],
-    //     label: 'All Requests',
-    //     link: '/tra-client/requests/all'
-    //   },
-      // {
-      //   // profiles: ['CORPORATE_ADMIN'],
-      //   label: 'All Requests',
-      //   link: '/tra-client/requests/all-accreditations'
-      // },
-    // ]
-  },
+  // {
+  //   // profiles: ['CORPORATE_ADMIN'],
+  //   label: 'NOTIFICATIONS',
+  //   icon: 'message-circle',
+  //   link: '/cyton/sms_analytics/sms'
+  //   // subItems: [
+  //   //   // {
+  //   //   //   // profiles: ['CORPORATE_ADMIN'],
+  //   //   //   label: 'All Classifications',
+  //   //   //   link: '/tra-client/customers/list-requests'
+  //   //   // },
+  //   //   // {
+  //   //   //   profiles: ['CORPORATE_ADMIN'],
+  //   //   //   label: 'Classification Results',
+  //   //   //   link: '/tra-client/customers/list-failed-registrations'
+  //   //   // },
+  //   //   {
+  //   //     // profiles: ['CORPORATE_ADMIN'],
+  //   //     label: 'Notifications',
+  //   //     link: '/tra-client/customers/send-bulk-sms'
+  //   //   },
+  //   // ]
+  // },
+  // {
+  //   // profiles: ['CORPORATE_ADMIN'],
+  //   label: 'CUSTOMERS',
+  //   icon: 'users',
+  //   link: '/cyton/new_customer_analytics/new_customers'
+  //   // subItems: [
+  //   //   {
+  //   //     profiles: ['CORPORATE_ADMIN'],
+  //   //     label: 'Inbox',
+  //   //     link: '/tra-client/Users/list-users'
+  //   //   },
+  //   //   // {
+  //   //   //   profiles: ['CORPORATE_ADMIN'],
+  //   //   //   label: 'Roles',
+  //   //   //   link: '/mobile-banking/rbac/all-roles'
+  //   //   // },
+  //   //   {
+  //   //     profiles: ['CORPORATE_ADMIN'],
+  //   //     label: 'Profiles',
+  //   //     link: '/tra-client/rbac/all-profiles'
+  //   //   }
+  //   // ]
+  // },
+  // {
+  //   // profiles: ['CORPORATE_ADMIN'],
+  //   label: 'BILLED',
+  //   icon: 'file-text',
+  //   link: '/cyton/analytic/all'
+  //   // subItems: [
+  //   //   {
+  //   //     // profiles: ['CORPORATE_ADMIN'],
+  //   //     label: 'All Requests',
+  //   //     link: '/tra-client/requests/all'
+  //   //   },
+  //     // {
+  //     //   // profiles: ['CORPORATE_ADMIN'],
+  //     //   label: 'All Requests',
+  //     //   link: '/tra-client/requests/all-accreditations'
+  //     // },
+  //   // ]
+  // },
 
-  {
-    //  profiles:['CORPORATE_ADMIN'],
-     label:'LOGS',
-     icon:'activity',
-     link: '/faulu/analytics_logs/logs',
-    //  subItems: [
-    //   {
-    //     profiles: ['CORPORATE_ADMIN'],
-    //     label: 'Account Registration',
-    //     subItems: [
-    //       {
-    //         profiles: ['CORPORATE_ADMIN'],
-    //         label:'All Accounts',
-    //         link:'/mobile-banking/accounts/list-accounts'
-    //       },
-    //       {
-    //         profiles: ['CORPORATE_ADMIN'],
-    //         label:'Pending Account Openings',
-    //         link:'/mobile-banking/accounts/list-pending'
-    //       },
-    //       {
-    //         profiles: ['CORPORATE_ADMIN'],
-    //         label:'Failed Account Openings',
-    //         link:'/mobile-banking/accounts/list-failed'
-    //       },
+  // {
+  //   //  profiles:['CORPORATE_ADMIN'],
+  //    label:'LOGS',
+  //    icon:'activity',
+  //    link: '/cyton/analytics_logs/logs',
+  //   //  subItems: [
+  //   //   {
+  //   //     profiles: ['CORPORATE_ADMIN'],
+  //   //     label: 'Account Registration',
+  //   //     subItems: [
+  //   //       {
+  //   //         profiles: ['CORPORATE_ADMIN'],
+  //   //         label:'All Accounts',
+  //   //         link:'/mobile-banking/accounts/list-accounts'
+  //   //       },
+  //   //       {
+  //   //         profiles: ['CORPORATE_ADMIN'],
+  //   //         label:'Pending Account Openings',
+  //   //         link:'/mobile-banking/accounts/list-pending'
+  //   //       },
+  //   //       {
+  //   //         profiles: ['CORPORATE_ADMIN'],
+  //   //         label:'Failed Account Openings',
+  //   //         link:'/mobile-banking/accounts/list-failed'
+  //   //       },
 
-    //     ]
-    //   },]
-    },
+  //   //     ]
+  //   //   },]
+  //   },
   //     // {
   //     //   profiles: ['CORPORATE_ADMIN'],
   //     //   label: 'Account Linking',

@@ -251,24 +251,97 @@ export class ListBranchesComponent implements OnInit {
     console.log('Chat visibility:', this.isChatVisible);
     this.cdr.detectChanges(); // Ensure the DOM updates
   }
-   
-
-
-
+  
   sendMessage(): void {
     if (this.userInput.trim() === '') {
       return; // Do not send empty messages
     }
-
-    this.messages.push({ sender: 'user', text: this.userInput });
-    const userMessage = this.userInput;
-    this.userInput = '';
-
+  
+    // user's message to the messages array
+    const userMessage = this.userInput.trim();
+    this.messages.push({ sender: 'user', text: userMessage });
+    this.userInput = ''; // Clear the input field
+  
+    // Show a 'Typing...' loading indicator for the bot
+    this.messages.push({ sender: 'bot', text: 'Typing...' });
+  
+    // User ID - replace with a dynamic value if needed
+    const userId = '12345';
+  
     // Call the Flask backend to get the bot's response
-    this.globalService.sendMessageToBot(userMessage).subscribe(response => {
-      this.messages.push({ sender: 'bot', text: response.reply });
+    this.globalService.sendMessageToBot(userMessage, userId).subscribe({
+      next: (response) => {
+        // Replace the 'Typing...' message with the actual bot response
+        this.messages.pop(); // Remove 'Typing...' indicator
+        this.messages.push({ sender: 'bot', text: response.response || 'Sorry, no response received.' });
+      },
+      error: (error) => {
+        console.error('Error communicating with the bot:', error);
+        this.messages.pop(); // Remove 'Typing...' indicator
+        this.messages.push({ sender: 'bot', text: 'Sorry, something went wrong. Please try again later.' });
+      },
+      complete: () => {
+        setTimeout(() => this.scrollToBottom(), 100);
+      },
     });
   }
+  
+
+  // sendMessage(): void {
+  //   if (this.userInput.trim() === '') {
+  //     return; // Do not send empty messages
+  //   }
+  
+  //   // Add user's message to the messages array
+  //   this.messages.push({ sender: 'user', text: this.userInput });
+  //   const userMessage = this.userInput;
+  //   this.userInput = ''; // Clear input field
+  
+  //   // Show a loading indicator for the bot
+  //   this.messages.push({ sender: 'bot', text: 'Typing...' });
+  
+  //   // User ID (replace '12345' with dynamic value if needed)
+  //   const userId = '12345';
+  
+  //   // Call the Flask backend to get the bot's response
+  //   this.globalService.sendMessageToBot(userMessage, userId).subscribe(
+  //     response => {
+  //       // Replace the loading indicator with the actual bot reply
+  //       this.messages.pop(); // Remove the 'Typing...' message
+  //       this.messages.push({ sender: 'bot', text: response.response }); // Use response.response
+  //     },
+  //     error => {
+  //       // Replace the loading indicator with an error message
+  //       this.messages.pop(); // Remove the 'Typing...' message
+  //       this.messages.push({ sender: 'bot', text: 'Sorry, something went wrong. Please try again later.' });
+  //     }
+  //   );
+  //   setTimeout(() => this.scrollToBottom(), 100);
+  // }
+
+  
+  // Helper method to scroll the chat to the bottom
+  scrollToBottom(): void {
+    const chatContainer = document.getElementById('chat-container');
+    if (chatContainer) {
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+  }
+  
+  // sendMessage(): void {
+  //   if (this.userInput.trim() === '') {
+  //     return; // Do not send empty messages
+  //   }
+
+  //   this.messages.push({ sender: 'user', text: this.userInput });
+  //   const userMessage = this.userInput;
+  //   this.userInput = '';
+
+  //   // Call the Flask backend to get the bot's response
+  //   this.globalService.sendMessageToBot(userMessage).subscribe(response => {
+  //     this.messages.push({ sender: 'bot', text: response.reply });
+  //   });
+  // }
 
   closeChat() {
     this.messages = [];

@@ -9,6 +9,7 @@ import {TranslateModule} from "@ngx-translate/core";
 import {ListRequestsComponent} from "./list-requests/list-requests.component";
 import {NgSelectModule} from "@ng-select/ng-select";
 import { Ng2TelInputModule } from 'ng2-tel-input';
+import { ViewRequestsComponent } from './view-requests/view-requests.component';
 
 @NgModule({
   imports: [
@@ -22,6 +23,7 @@ import { Ng2TelInputModule } from 'ng2-tel-input';
   ],
   declarations: [
     ListRequestsComponent,
+    ViewRequestsComponent
   ]
   ,
   entryComponents: [

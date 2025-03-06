@@ -11,6 +11,56 @@
 
 }
 
+.badge {
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.card {
+  background: #fff;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  transition: transform 0.2s ease-in-out;
+}
+
+.table-dark th {
+  color: white !important;
+}
+
+.card:hover {
+  transform: scale(1.02);
+}
+
+h3, h5 {
+  color: var(--dark-purple, #1e0f2e) ;
+  font-size: 17px;
+  font-weight: 700;
+  font-family: Muli, sans-serif; 
+
+}
+
+.list-group-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn {
+  width: 100%;
+}
+
+
+
+
+
+
+
+
+
+
+
+
 .items {
   position: absolute;
   z-index: 2;
