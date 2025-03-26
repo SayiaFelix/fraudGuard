@@ -81,24 +81,118 @@
       <i *ngIf="messageItem.sender === 'bot'" class="fas fa-robot"></i>
       <i *ngIf="messageItem.sender === 'user'" class="fas fa-user"></i>
     </div>
+
+    
+
     <div class="message-content">
       <div class="message-text">
         {{ messageItem.text }}
-        
-        <!-- File response display -->
+
         <div *ngIf="messageItem.isFileResponse && messageItem.fileData" class="file-summary">
-          <p><i class="fas fa-file-alt"></i> {{messageItem.fileData.filename}} 
-            ({{formatFileSize(messageItem.fileData.size)}})</p>
-          
-          <div *ngIf="messageItem.fileData.summary" class="summary-container">
-            <h6>Data Summary:</h6>
-            <div class="summary-grid">
-              <div *ngFor="let column of getSummaryColumns(messageItem.fileData.summary)" class="summary-item">
-                <div class="column-header">{{column.key}}</div>
-                <div *ngFor="let stat of getSummaryStats(column.value)" class="stat-item">
-                  <span class="stat-name">{{stat.key}}:</span>
-                  <span class="stat-value">{{formatNumber(stat.value)}}</span>
+          <!-- File header -->
+          <div class="file-header">
+            <i class="fas fa-file-excel"></i>
+            <div class="file-info">
+              <h4>{{messageItem.fileData.filename}}</h4>
+              <span class="file-size">{{formatFileSize(messageItem.fileData.size)}}</span>
+              <span class="file-message" *ngIf="messageItem.fileData.message">
+                {{messageItem.fileData.message}}
+              </span>
+            </div>
+          </div>
+        
+          <!-- Data Profile -->
+          <div *ngIf="messageItem.fileData.profile" class="data-profile">
+            <!-- Overview Section -->
+            <div class="profile-section">
+              <h5>Overview</h5>
+              <div class="stats-grid">
+                <div class="stat-item">
+                  <span class="stat-name">Rows:</span>
+                  <span class="stat-value">{{messageItem.fileData.profile.overview.num_rows}}</span>
                 </div>
+                <div class="stat-item">
+                  <span class="stat-name">Columns:</span>
+                  <span class="stat-value">{{messageItem.fileData.profile.overview.num_columns}}</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-name">Total Cells:</span>
+                  <span class="stat-value">{{messageItem.fileData.profile.overview.total_cells}}</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-name">Duplicate Rows:</span>
+                  <span class="stat-value">{{messageItem.fileData.profile.overview.duplicate_rows}}</span>
+                </div>
+              </div>
+            </div>
+        
+            <!-- Column Types Section -->
+            <div class="profile-section">
+              <h5>Column Types</h5>
+              <div class="stats-grid">
+                <div class="stat-item">
+                  <span class="stat-name">Numeric:</span>
+                  <span class="stat-value">{{messageItem.fileData.profile.column_types.numeric}}</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-name">Text:</span>
+                  <span class="stat-value">{{messageItem.fileData.profile.column_types.text}}</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-name">Datetime:</span>
+                  <span class="stat-value">{{messageItem.fileData.profile.column_types.datetime}}</span>
+                </div>
+              </div>
+            </div>
+        
+            <!-- Missing Data Section -->
+            <div class="profile-section">
+              <h5>Missing Data</h5>
+              <div class="stats-grid">
+                <div class="stat-item">
+                  <span class="stat-name">Total Missing:</span>
+                  <span class="stat-value">{{messageItem.fileData.profile.missing_data.total_missing}}</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-name">Percentage Missing:</span>
+                  <span class="stat-value">{{messageItem.fileData.profile.missing_data.pct_missing | number:'1.2-2'}}%</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-name">Columns With Missing:</span>
+                  <span class="stat-value">{{messageItem.fileData.profile.missing_data.columns_with_missing}}</span>
+                </div>
+              </div>
+        
+              <!-- Top Missing Columns -->
+              <div class="missing-columns">
+                <h6>Top Columns With Missing Values:</h6>
+                <div class="missing-column" *ngFor="let column of getMissingColumns(messageItem.fileData.profile.missing_data.missing_value_distribution.top_5_columns_with_most_missing)">
+                  <span class="column-name">{{column.key}}:</span>
+                  <span class="missing-count">{{column.value}} missing</span>
+                </div>
+              </div>
+            </div>
+        
+            <!-- Sample Data Section -->
+            <div class="profile-section">
+              <h5>Sample Data (First 5 Rows)</h5>
+              <div class="sample-data-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th *ngFor="let column of getSampleDataColumns(messageItem.fileData.profile.sample_data)">
+                        {{column}}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let row of messageItem.fileData.profile.sample_data">
+                      <td *ngFor="let column of getSampleDataColumns(messageItem.fileData.profile.sample_data)">
+                        {{row[column] === null ? 'NULL' : row[column]}}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -106,6 +200,10 @@
       </div>
       <div class="message-time">{{ messageItem.time }}</div>
     </div>
+
+
+
+    
     </div>
     </div>
 
@@ -187,5 +285,3 @@
     AI Analytics Solutions</p>
 </footer>
 </div>
-
-
