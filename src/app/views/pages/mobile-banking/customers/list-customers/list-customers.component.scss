@@ -38,8 +38,8 @@
   width: 400px !important;
 }
 button.deactivated {
-  pointer-events: none; /* Disable pointer events to make the button non-clickable */
-  opacity: 0.5; /* Reduce opacity to visually indicate that the button is inactive */
+  pointer-events: none;
+  opacity: 0.5; 
 }
 .appeal {
   border-radius: 8px 8px 8px 8px;
@@ -47,15 +47,13 @@ button.deactivated {
 }
 
 .dashboard-item {
-  background-color: #f8f9fa; /* Light background (optional) */
-  border-radius: 8px; /* Rounded corners */
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-  overflow: hidden; /* Ensures content stays inside the container */
+  background-color: #f8f9fa; 
+  border-radius: 8px; 
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); 
+  overflow: hidden; 
 }
 
 
-
-/* Add to your component's CSS file */
 .message {
   display: flex;
   margin-bottom: 15px;
@@ -91,24 +89,30 @@ button.deactivated {
 }
 
 .message-text {
-  padding: 12px 15px;
-  border-radius: 18px;
-  background-color: #f0e6ff;
+  padding: 10px 13px;
+  border-radius: 15px;
   color: #1e0f2e;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
   word-break: break-word;
-}
 
+  text-align: left;
+  margin: 8px 0;
+  background-color: #e3f2fd;
+  border-radius: 8px;
+  align-self: flex-start;
+  border-left: 4px solid #29133f;
+}
 .user-message .message-text {
   background-color: #3a1b5a;
   color: white;
   border-radius: 18px 18px 0 18px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-left: 4px solid #e3f2fd;
 }
 
 .message-time {
   font-size: 11px;
-  color: #888;
+  color: #3a1b5a;
   margin-top: 4px;
 }
 
@@ -317,5 +321,39 @@ button.deactivated {
 .sample-data-table th {
   background-color: #f5f5f5;
   font-weight: 500;
+}
+
+
+.inline-loader {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8px;
+}
+
+.loading-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #999;
+  margin: 0 2px;
+  animation: bounce 1.4s infinite ease-in-out both;
+}
+
+.loading-dot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.loading-dot:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes bounce {
+  0%, 80%, 100% { 
+    transform: scale(0.5);
+  } 
+  40% { 
+    transform: scale(1);
+  }
 }
 

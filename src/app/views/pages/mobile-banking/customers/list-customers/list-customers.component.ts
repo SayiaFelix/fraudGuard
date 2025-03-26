@@ -32,6 +32,7 @@ interface ConversationMessage {
   text: string;
   time: string;
   isFileResponse?: boolean;
+  isWelcomeMessage?: boolean; 
   fileData?: {
     filename: string;
     size: number;
@@ -80,6 +81,7 @@ export class FilesizePipe implements PipeTransform {
  */
 export class ListCustomersComponent implements OnInit {
   @ViewChild('chatArea') private chatArea!: ElementRef;
+
   isAppealButtonVisible = true;
   isViewTrackButtonVisible = false;
 
@@ -155,7 +157,8 @@ export class ListCustomersComponent implements OnInit {
 conversation: ConversationMessage[] = [
   {
     sender: 'bot',
-    text: 'Hello! I\'m your AI-powered financial assistant. I can help analyze your financial data, answer questions about loans, investments, and more. You can also upload documents for me to analyze.',
+    text: 'Welcome to AI Powered Financial Assistant. You can Upload data or ask questions about loans, investments, and banking services.',
+    isWelcomeMessage: true,
     time: this.getCurrentTime()
   }
 ];
@@ -223,9 +226,10 @@ conversation: ConversationMessage[] = [
   }
 
   sendMessage() {
+    this.isLoading = true;
     if (this.userQuery.trim() === '') return;
 
-    // Add user message
+    // user message
     this.conversation.push({
       sender: 'user',
       text: this.userQuery,
@@ -233,9 +237,9 @@ conversation: ConversationMessage[] = [
     });
     this.shouldScroll = true;
 
-    // Call your HTTP service
     this.http.post<any>('http://localhost:5015/api/chat', { query: this.userQuery }).subscribe({
       next: (response) => {
+        this.isLoading = false;
         this.conversation.push({
           sender: 'bot',
           text: response.response,
@@ -244,6 +248,7 @@ conversation: ConversationMessage[] = [
         this.shouldScroll = true;
       },
       error: (error) => {
+        this.isLoading = false;
         this.conversation.push({
           sender: 'bot',
           text: 'Sorry, I encountered an error processing your request.',
@@ -262,6 +267,10 @@ conversation: ConversationMessage[] = [
       setTimeout(() => {
         this.chatArea.nativeElement.scrollTop = this.chatArea.nativeElement.scrollHeight;
       }, 100);
+      const chatContainer = document.getElementById('chat-container');
+      if (chatContainer) {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
     } catch(err) {
       console.error('Scroll error:', err);
     }
@@ -297,6 +306,7 @@ conversation: ConversationMessage[] = [
   }
 
   uploadFile() {
+    this.isLoading = true;
     if (!this.selectedFile) {
       this.uploadMessage = 'Please select a file first';
       return;
@@ -315,21 +325,13 @@ conversation: ConversationMessage[] = [
 
     this.http.post<any>('http://localhost:5015/api/upload', formData).subscribe({
       next: (response) => {
+        this.isLoading = false;
         clearInterval(progressInterval);
         this.uploadProgress = 100;
         this.uploadMessage = response.message;
         this.isUploading = false;
         this.showUpload = false;
         
-        // // Add file response to conversation
-        // this.conversation.push({
-        //   sender: 'bot',
-        //   text: `I've processed your file: ${response.filename}`,
-        //   time: this.getCurrentTime(),
-        //   isFileResponse: true,
-        //   fileData: response
-        // });
-
         this.conversation.push({
           sender: 'bot',
           text: `I've analyzed your file: ${response.filename}`,
@@ -352,6 +354,7 @@ conversation: ConversationMessage[] = [
         if (fileInput) fileInput.value = '';
       },
       error: (error) => {
+        this.isLoading = false;
         clearInterval(progressInterval);
         this.uploadMessage = 'Upload failed. Please try again.';
         this.isUploading = false;
@@ -370,7 +373,7 @@ conversation: ConversationMessage[] = [
   clearConversation() {
     this.conversation = [{
       sender: 'bot',
-      text: 'Hello! I\'m your AI-powered financial assistant. How can I help you today?',
+      text: 'Welcome to AI Powered Financial Assistant. You Upload data or ask questions about loans, investments, and banking services',
       time: this.getCurrentTime()
     }];
     this.uploadMessage = '';
@@ -382,7 +385,6 @@ conversation: ConversationMessage[] = [
   }
 
 
-  // Add these methods to your ListCustomersComponent class
 getSummaryColumns(summary: string): any[] {
   try {
     const data = JSON.parse(summary);
@@ -420,8 +422,6 @@ formatFileSize(bytes: number): string {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
-
-// Add these new methods to your component
 getMissingValueColumns(missingData: any): {key: string, value: number}[] {
   if (!missingData) return [];
   return Object.entries(missingData).map(([key, value]) => ({
@@ -442,6 +442,10 @@ getMissingColumns(missingData: any): {key: string, value: number}[] {
 getSampleDataColumns(sampleData: any[]): string[] {
   if (!sampleData || sampleData.length === 0) return [];
   return Object.keys(sampleData[0]);
+}
+
+isLastMessage(messageItem: any): boolean {
+  return this.conversation[this.conversation.length - 1] === messageItem;
 }
 
 
