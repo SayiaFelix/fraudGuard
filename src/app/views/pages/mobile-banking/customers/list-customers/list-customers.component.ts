@@ -26,6 +26,7 @@ import { HttpClient } from '@angular/common/http';
 // import {AddAccountComponent} from "../../Accounts/AccountRegistration/add-account/add-account.component";
 
 
+// Update the interface to match the API response
 interface ConversationMessage {
   sender: string;
   text: string;
@@ -34,7 +35,20 @@ interface ConversationMessage {
   fileData?: {
     filename: string;
     size: number;
-    summary: string;
+    profile?: {
+      overview: any;
+      column_types: any;
+      missing_data: {
+        total_missing: number;
+        pct_missing: number;
+        columns_with_missing: number;
+        missing_value_distribution: {
+          columns: {[key: string]: number};
+          top_5_columns_with_most_missing: {[key: string]: number};
+        }
+      };
+      sample_data: any[];
+    };
     message?: string;
   };
 }
@@ -307,13 +321,26 @@ conversation: ConversationMessage[] = [
         this.isUploading = false;
         this.showUpload = false;
         
-        // Add file response to conversation
+        // // Add file response to conversation
+        // this.conversation.push({
+        //   sender: 'bot',
+        //   text: `I've processed your file: ${response.filename}`,
+        //   time: this.getCurrentTime(),
+        //   isFileResponse: true,
+        //   fileData: response
+        // });
+
         this.conversation.push({
           sender: 'bot',
-          text: `I've processed your file: ${response.filename}`,
+          text: `I've analyzed your file: ${response.filename}`,
           time: this.getCurrentTime(),
           isFileResponse: true,
-          fileData: response
+          fileData: {
+            filename: response.filename,
+            size: response.size,
+            profile: response.profile,
+            message: 'Data analysis complete'
+          }
         });
         
         this.shouldScroll = true;
@@ -355,13 +382,6 @@ conversation: ConversationMessage[] = [
   }
 
 
-
-  someMethod() {
-    const sizeInBytes = 1024;
-    const formattedSize = this.filesizePipe.transform(sizeInBytes);
-    console.log(formattedSize); // "1.00 KB"
-  }
-
   // Add these methods to your ListCustomersComponent class
 getSummaryColumns(summary: string): any[] {
   try {
@@ -401,8 +421,28 @@ formatFileSize(bytes: number): string {
 }
 
 
+// Add these new methods to your component
+getMissingValueColumns(missingData: any): {key: string, value: number}[] {
+  if (!missingData) return [];
+  return Object.entries(missingData).map(([key, value]) => ({
+    key: key,
+    value: Number(value)
+  }));
+}
 
+// Helper to extract missing columns
+getMissingColumns(missingData: any): {key: string, value: number}[] {
+  return Object.keys(missingData).map(key => ({
+    key: key,
+    value: missingData[key]
+  }));
+}
 
+// Helper to get column names from sample data
+getSampleDataColumns(sampleData: any[]): string[] {
+  if (!sampleData || sampleData.length === 0) return [];
+  return Object.keys(sampleData[0]);
+}
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
