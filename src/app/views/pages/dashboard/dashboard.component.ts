@@ -650,63 +650,213 @@ resetView() {
     FileSaver.saveAs(blob, "customer_data.csv");
   }
 
-  exportToPDF() {
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth();
-  
-    // **Company Logo (Positioned Above Title)**
-    const logo = "assets/images/eclectics.png"; 
-    const logoWidth = 35; 
-    const logoHeight = 15;
-    const logoX = (pageWidth - logoWidth) / 2; // Center logo
-    doc.addImage(logo, "PNG", logoX, 10, logoWidth, logoHeight);
-  
-    // **Title (Below Logo)**
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(18);
-    doc.setTextColor(40, 40, 40);
-    doc.text("Customer Data Report", pageWidth / 2, 40, { align: "center" });
-  
-    // **Date and Time**
-    const now = new Date();
-    const dateStr = now.toLocaleDateString();
-    const timeStr = now.toLocaleTimeString();
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(80, 80, 80);
-    doc.text(`Date: ${dateStr} | Time: ${timeStr}`, pageWidth / 2, 50, { align: "center" });
-  
-    // **Table Headers**
-    const headers = [
-      ["Account", "Monthly Cash Flow (KES)", "CRB Score", "Risk Category", "Status", "Default Probability"]
-    ];
-  
-    // **Prepare Data for Table**
-    const data = this.customers.map(customer => [
-      customer.Account,
-      `KES ${customer.avg_monthly_cash_flow.toLocaleString()}`,
-      customer["CRB Score"],
-      customer["Risk Category"],
-      customer.Status,
-      `${(customer.default_probability * 100).toFixed(2)}%`
-    ]);
-  
-    // **Styled Table**
-    autoTable(doc, {
-      head: headers,
-      body: data,
-      startY: 60, // Adjusted to prevent overlapping
-      theme: "striped",
-      styles: { fontSize: 10, cellPadding: 4 },
-      headStyles: { fillColor: [30, 30, 30], textColor: 255, fontStyle: "bold" },
-      alternateRowStyles: { fillColor: [240, 240, 240] },
-      margin: { top: 50 },
-    });
-  
-    // **Save PDF**
-    doc.save("customer_data.pdf");
-  }
+//   exportToPDF() {
+//     const doc = new jsPDF();
 
+//     // **Company Logo**
+//     const logo = "assets/images/eclectics.png"; 
+//     const logoWidth = 35; 
+//     const logoHeight = 15;
+//     const logoX = (doc.internal.pageSize.getWidth() - logoWidth) / 2; // Center logo
+//     doc.addImage(logo, "PNG", logoX, 10, logoWidth, logoHeight);
+
+//     // **Title (Below Logo)**
+//     doc.setFont("helvetica", "bold");
+//     doc.setFontSize(18);
+//     doc.setTextColor(40, 40, 40);
+//     doc.text("Customer Data Report", doc.internal.pageSize.getWidth() / 2, 40, { align: "center" });
+
+//     // **Date and Time**
+//     const now = new Date();
+//     const dateStr = now.toLocaleDateString();
+//     const timeStr = now.toLocaleTimeString();
+//     doc.setFontSize(12);
+//     doc.setFont("helvetica", "normal");
+//     doc.setTextColor(80, 80, 80);
+//     doc.text(`Date: ${dateStr} | Time: ${timeStr}`, doc.internal.pageSize.getWidth() / 2, 50, { align: "center" });
+
+//     // **Table Headers**
+//     const headers = [
+//       ["Account", "Monthly Cash Flow (KES)", "CRB Score", "Risk Category", "Status", "Default Probability"]
+//     ];
+
+//     // **Prepare Data for Table**
+//     const data = this.customers.map(customer => [
+//       customer.Account,
+//       `KES ${customer.avg_monthly_cash_flow.toLocaleString()}`,
+//       customer["CRB Score"],
+//       customer["Risk Category"],
+//       customer.Status,
+//       `${(customer.default_probability * 100).toFixed(2)}%`
+//     ]);
+
+//     // **Styled Table**
+//     (doc as any).autoTable({
+//       head: headers,
+//       body: data,
+//       startY: 60, // Adjusted to prevent overlapping
+//       theme: "striped",
+//       styles: { fontSize: 10, cellPadding: 4 },
+//       headStyles: { fillColor: [30, 30, 30], textColor: 255, fontStyle: "bold" },
+//       alternateRowStyles: { fillColor: [240, 240, 240] },
+//       margin: { top: 50 },
+//     });
+
+//     // **Charts Section**
+//     const chartWidth = 80; // Width of each chart
+//     const chartHeight = 60; // Height of each chart
+//     const margin = 10; // Margin between charts
+//     const startY = (doc as any).autoTable.previous.finalY + 20; // Start below the table
+
+//     // **First Two Charts (Stay on the Same Page)**
+//     doc.addImage(this.riskCategoryChart, "PNG", margin, startY, chartWidth, chartHeight);
+//     doc.setFontSize(12);
+//     doc.setFont("helvetica", "bold");
+//     doc.text("Risk Category Distribution", margin + 10, startY + chartHeight + 5);
+//     doc.setFontSize(10);
+//     doc.setFont("helvetica", "normal");
+//     doc.text("Distribution of customers by risk category.", margin + 10, startY + chartHeight + 10);
+
+//     doc.addImage(this.defaultProbabilityChart, "PNG", margin + chartWidth + margin, startY, chartWidth, chartHeight);
+//     doc.setFontSize(12);
+//     doc.setFont("helvetica", "bold");
+//     doc.text("Loan vs Default Probability", margin + chartWidth + margin + 10, startY + chartHeight + 5);
+//     doc.setFontSize(10);
+//     doc.setFont("helvetica", "normal");
+//     doc.text("Relationship between loan amount and default probability.", margin + chartWidth + margin + 10, startY + chartHeight + 10);
+
+//     // **NEW PAGE for the Remaining Charts**
+//     doc.addPage();
+//     const newStartY = 20; // Reset Y position for new page
+
+//     // **Investor Trends Chart**
+//     doc.addImage(this.investortrendsChart, "PNG", margin, newStartY, chartWidth, chartHeight);
+//     doc.setFontSize(12);
+//     doc.setFont("helvetica", "bold");
+//     doc.text("Investor Trends", margin + 10, newStartY + chartHeight + 5);
+//     doc.setFontSize(10);
+//     doc.setFont("helvetica", "normal");
+//     doc.text("Trends in investor behavior over time.", margin + 10, newStartY + chartHeight + 10);
+
+//     // **Max Days in Arrears Chart**
+//     doc.addImage(this.max_days_arearsChart, "PNG", margin + chartWidth + margin, newStartY, chartWidth, chartHeight);
+//     doc.setFontSize(12);
+//     doc.setFont("helvetica", "bold");
+//     doc.text("Max Days in Arrears", margin + chartWidth + margin + 10, newStartY + chartHeight + 5);
+//     doc.setFontSize(10);
+//     doc.setFont("helvetica", "normal");
+//     doc.text("Maximum days customers are in arrears.", margin + chartWidth + margin + 10, newStartY + chartHeight + 10);
+
+//     // **Save PDF**
+//     doc.save("Analytic_summary.pdf");
+// }
+
+exportToPDF() {
+  const doc = new jsPDF();
+
+  // **Company Logo**
+  const logo = "assets/images/eclectics.png"; 
+  const logoWidth = 35; 
+  const logoHeight = 15;
+  const logoX = (doc.internal.pageSize.getWidth() - logoWidth) / 2; // Center logo
+  doc.addImage(logo, "PNG", logoX, 10, logoWidth, logoHeight);
+
+  // **Title (Below Logo)**
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(18);
+  doc.setTextColor(40, 40, 40);
+  doc.text("Customer Data Report", doc.internal.pageSize.getWidth() / 2, 40, { align: "center" });
+
+  // **Date and Time**
+  const now = new Date();
+  const dateStr = now.toLocaleDateString();
+  const timeStr = now.toLocaleTimeString();
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(80, 80, 80);
+  doc.text(`Date: ${dateStr} | Time: ${timeStr}`, doc.internal.pageSize.getWidth() / 2, 50, { align: "center" });
+
+  // **Table Headers**
+  const headers = [
+    ["Account", "Monthly Cash Flow (KES)", "CRB Score", "Risk Category", "Status", "Default Probability"]
+  ];
+
+  // **Prepare Data for Table**
+  const data = this.customers.map(customer => [
+    customer.Account,
+    `KES ${customer.avg_monthly_cash_flow.toLocaleString()}`,
+    customer["CRB Score"],
+    customer["Risk Category"],
+    customer.Status,
+    `${(customer.default_probability * 100).toFixed(2)}%`
+  ]);
+
+  // **Styled Table**
+  (doc as any).autoTable({
+    head: headers,
+    body: data,
+    startY: 60, // Adjusted to prevent overlapping
+    theme: "striped",
+    styles: { fontSize: 10, cellPadding: 4 },
+    headStyles: { fillColor: [30, 30, 30], textColor: 255, fontStyle: "bold" },
+    alternateRowStyles: { fillColor: [240, 240, 240] },
+    margin: { top: 50 },
+  });
+
+  // **Charts Section**
+  const chartWidth = 80; // Width of each chart
+  const chartHeight = 60; // Height of each chart
+  const margin = 10; // Margin between charts
+  const startY = (doc as any).autoTable.previous.finalY + 20; // Start below the table
+
+  // **First Two Charts (Stay on the Same Page)**
+  
+  // **Risk Category Distribution**
+  let chartY = startY;
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.text("Risk Category Distribution", margin, chartY);
+  doc.addImage(this.riskCategoryChart, "PNG", margin, chartY + 5, chartWidth, chartHeight);
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.text("Distribution of customers by risk category.", margin, chartY + chartHeight + 10);
+
+  // **Loan vs Default Probability**
+  let chartX = margin + chartWidth + margin;
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.text("Loan vs Default Probability", chartX, chartY);
+  doc.addImage(this.defaultProbabilityChart, "PNG", chartX, chartY + 5, chartWidth, chartHeight);
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.text("Relationship between loan amount and default probability.", chartX, chartY + chartHeight + 10);
+
+  // **NEW PAGE for the Remaining Charts**
+  doc.addPage();
+  const newStartY = 20; // Reset Y position for new page
+
+  // **Investor Trends Chart**
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.text("Investor Trends", margin, newStartY);
+  doc.addImage(this.investortrendsChart, "PNG", margin, newStartY + 5, chartWidth, chartHeight);
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.text("Trends in investor behavior over time.", margin, newStartY + chartHeight + 10);
+
+  // **Max Days in Arrears Chart**
+  chartX = margin + chartWidth + margin;
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.text("Max Days in Arrears", chartX, newStartY);
+  doc.addImage(this.max_days_arearsChart, "PNG", chartX, newStartY + 5, chartWidth, chartHeight);
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.text("Maximum days customers are in arrears.", chartX, newStartY + chartHeight + 10);
+
+  // **Save PDF**
+  doc.save("Analytic_summary.pdf");
+}
 
   getRiskCategory(defaultProbability: number): string {
     if (defaultProbability <= 0.2) {
