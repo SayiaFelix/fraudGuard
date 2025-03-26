@@ -22,11 +22,12 @@
 <hr style="border-top: 2px dashed #d3c0ff; margin: 20px 0;">
 
 <div class="chatbot-container" 
-     style="max-width: 800px; 
+     style="max-width: 1000px; 
             margin: 0 auto; 
             font-family: 'Muli', sans-serif;
             border: 2px solid #e0d0ff;
             border-radius: 12px;
+            padding:5px;
             box-shadow: 0 6px 18px rgba(0,0,0,0.1);">
   
   <!-- Header -->
@@ -63,12 +64,11 @@
               border-right: 1px solid #e8e0ff;
               scroll-behavior: smooth;">
     
-    <!-- Update your chat area section to this: -->
     <div class="chat-area" 
     #chatArea
-    style="height: 500px; 
+    style="height: 350px; 
           overflow-y: auto; 
-          padding: 20px; 
+          padding: 15px; 
           background-color: #f9f9ff; 
           border-left: 1px solid #e8e0ff; 
           border-right: 1px solid #e8e0ff;
@@ -84,9 +84,17 @@
 
     
 
-    <div class="message-content">
+    <div class="message-content chat-messages"  id="chat-container">
       <div class="message-text">
-        {{ messageItem.text }}
+        <span>{{ messageItem.text }}</span>
+  
+        <span *ngIf="isLoading && isLastMessage(messageItem)" class="inline-loader">
+          <span class="loading-dot"></span>
+          <span class="loading-dot"></span>
+          <span class="loading-dot"></span>
+        </span>
+
+        
 
         <div *ngIf="messageItem.isFileResponse && messageItem.fileData" class="file-summary">
           <!-- File header -->
