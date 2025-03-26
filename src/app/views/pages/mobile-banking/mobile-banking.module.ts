@@ -25,7 +25,7 @@ const routes: Routes = [
           import('./requests/requests.module').then((m) => m.RequestsModule)
       },
       {
-        path: 'sms_analytics',
+        path: 'ai_analytics',
         loadChildren: () =>
           import('./customers/customers.module').then((m) => m.CustomersModule)
       },
