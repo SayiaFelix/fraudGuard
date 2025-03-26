@@ -42,11 +42,11 @@ export const MENU: MenuItem[] = [
     //   },
     // ]
   },
-  // {
+  {
   //   // profiles: ['CORPORATE_ADMIN'],
-  //   label: 'NOTIFICATIONS',
-  //   icon: 'message-circle',
-  //   link: '/cyton/sms_analytics/sms'
+    label: 'Analytics AI',
+    icon: 'message-circle',
+    link: '/eclectics/ai_analytics/ai_chat'
   //   // subItems: [
   //   //   // {
   //   //   //   // profiles: ['CORPORATE_ADMIN'],
@@ -64,7 +64,7 @@ export const MENU: MenuItem[] = [
   //   //     link: '/tra-client/customers/send-bulk-sms'
   //   //   },
   //   // ]
-  // },
+  },
   // {
   //   // profiles: ['CORPORATE_ADMIN'],
   //   label: 'CUSTOMERS',

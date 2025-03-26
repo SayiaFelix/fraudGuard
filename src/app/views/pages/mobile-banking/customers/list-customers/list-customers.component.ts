@@ -3,8 +3,9 @@ import {
   Input,
   OnInit,
   TemplateRef,
-  ViewChild,
+  ViewChild,ElementRef, AfterViewChecked,Pipe, PipeTransform
 } from '@angular/core';
+
 import { NgbActiveModal, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -24,17 +25,47 @@ import { HttpClient } from '@angular/common/http';
 // import {ChannelDetailsWrapper} from "../../../../../shared/services/channelDetailsWrapper";
 // import {AddAccountComponent} from "../../Accounts/AccountRegistration/add-account/add-account.component";
 
+
+interface ConversationMessage {
+  sender: string;
+  text: string;
+  time: string;
+  isFileResponse?: boolean;
+  fileData?: {
+    filename: string;
+    size: number;
+    summary: string;
+    message?: string;
+  };
+}
+
+@Pipe({
+  name: 'filesize'
+})
+
+export class FilesizePipe implements PipeTransform {
+  transform(bytes: number, decimals: number = 2): string {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(decimals)) + ' ' + sizes[i];
+  }
+}
+
+
 @Component({
   selector: 'app-list-requests',
   templateUrl: './list-customers.component.html',
   styleUrls: ['./list-customers.component.scss'],
-  providers: [DatePipe],
+  providers: [FilesizePipe,DatePipe],
 })
 
 /**
  * Starter-component
  */
 export class ListCustomersComponent implements OnInit {
+  @ViewChild('chatArea') private chatArea!: ElementRef;
   isAppealButtonVisible = true;
   isViewTrackButtonVisible = false;
 
@@ -76,7 +107,6 @@ export class ListCustomersComponent implements OnInit {
   
 
 
-
   paginatedDashboards: { id: string; src: string }[] = [];
   currentPage = 0;
   itemsPerPage = 4;
@@ -107,6 +137,33 @@ export class ListCustomersComponent implements OnInit {
   appealData: any;
   resultRef: string | null = null;
 
+  // Then update your component property:
+conversation: ConversationMessage[] = [
+  {
+    sender: 'bot',
+    text: 'Hello! I\'m your AI-powered financial assistant. I can help analyze your financial data, answer questions about loans, investments, and more. You can also upload documents for me to analyze.',
+    time: this.getCurrentTime()
+  }
+];
+
+  userQuery: string = '';
+  private shouldScroll = true;
+  botResponse: string = '';
+
+  // File upload properties
+  showUpload: boolean = false;
+  uploadMessage: string = '';
+  selectedFile: File | null = null;
+  readonly allowedFileTypes = [
+    'application/pdf',
+    'text/csv',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  ];
+  readonly maxFileSize = 1024 * 1024 * 1024; // 1GB
+  uploadProgress: number = 0;
+  isUploading: boolean = false;
+
 
   constructor(
     private httpService: HttpService,
@@ -117,7 +174,8 @@ export class ListCustomersComponent implements OnInit {
     private datePipe: DatePipe,
     private sanitizer: DomSanitizer,
     public activeModal: NgbActiveModal,
-    private dataExploration: DataExportationService
+    private dataExploration: DataExportationService,
+    private filesizePipe: FilesizePipe,
   ) {
     // this.downloadLink = this.sanitizer.bypassSecurityTrustUrl(this.brochureUrl);
     this.downloadLink = '';
@@ -142,6 +200,230 @@ export class ListCustomersComponent implements OnInit {
     this.appealDate = new Date();
     // this.isAppealButtonVisible = this.calculateAppealButtonVisibility();
   }
+
+  ngAfterViewChecked() {
+    if (this.shouldScroll) {
+      this.scrollToBottom();
+      this.shouldScroll = false;
+    }
+  }
+
+  sendMessage() {
+    if (this.userQuery.trim() === '') return;
+
+    // Add user message
+    this.conversation.push({
+      sender: 'user',
+      text: this.userQuery,
+      time: this.getCurrentTime()
+    });
+    this.shouldScroll = true;
+
+    // Call your HTTP service
+    this.http.post<any>('http://localhost:5015/api/chat', { query: this.userQuery }).subscribe({
+      next: (response) => {
+        this.conversation.push({
+          sender: 'bot',
+          text: response.response,
+          time: this.getCurrentTime()
+        });
+        this.shouldScroll = true;
+      },
+      error: (error) => {
+        this.conversation.push({
+          sender: 'bot',
+          text: 'Sorry, I encountered an error processing your request.',
+          time: this.getCurrentTime()
+        });
+        this.shouldScroll = true;
+        console.error('Chat error:', error);
+      }
+    });
+
+    this.userQuery = '';
+  }
+
+  private scrollToBottom(): void {
+    try {
+      setTimeout(() => {
+        this.chatArea.nativeElement.scrollTop = this.chatArea.nativeElement.scrollHeight;
+      }, 100);
+    } catch(err) {
+      console.error('Scroll error:', err);
+    }
+  }
+
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) {
+      this.uploadMessage = 'No file selected';
+      this.selectedFile = null;
+      return;
+    }
+
+    const file = input.files[0];
+    
+    // Validate file type
+    if (!this.allowedFileTypes.includes(file.type)) {
+      this.uploadMessage = 'Invalid file type. Please upload PDF, CSV, or Excel files.';
+      this.selectedFile = null;
+      return;
+    }
+
+    // Validate file size
+    if (file.size > this.maxFileSize) {
+      this.uploadMessage = `File too large. Maximum size is ${this.formatFileSize(this.maxFileSize)}.`;
+      this.selectedFile = null;
+      return;
+    }
+
+    this.selectedFile = file;
+    this.uploadMessage = `Selected: ${file.name} (${this.formatFileSize(file.size)})`;
+    this.uploadProgress = 0;
+  }
+
+  uploadFile() {
+    if (!this.selectedFile) {
+      this.uploadMessage = 'Please select a file first';
+      return;
+    }
+
+    this.isUploading = true;
+    this.uploadMessage = `Uploading ${this.selectedFile.name} (${this.formatFileSize(this.selectedFile.size)})...`;
+    
+    // Simulate progress for demonstration
+    const progressInterval = setInterval(() => {
+      this.uploadProgress = Math.min(this.uploadProgress + 5, 95);
+    }, 300);
+
+    const formData = new FormData();
+    formData.append('file', this.selectedFile);
+
+    this.http.post<any>('http://localhost:5015/api/upload', formData).subscribe({
+      next: (response) => {
+        clearInterval(progressInterval);
+        this.uploadProgress = 100;
+        this.uploadMessage = response.message;
+        this.isUploading = false;
+        this.showUpload = false;
+        
+        // Add file response to conversation
+        this.conversation.push({
+          sender: 'bot',
+          text: `I've processed your file: ${response.filename}`,
+          time: this.getCurrentTime(),
+          isFileResponse: true,
+          fileData: response
+        });
+        
+        this.shouldScroll = true;
+        this.selectedFile = null;
+        this.uploadProgress = 0;
+        
+        // Clear file input
+        const fileInput = document.getElementById('fileInput') as HTMLInputElement;
+        if (fileInput) fileInput.value = '';
+      },
+      error: (error) => {
+        clearInterval(progressInterval);
+        this.uploadMessage = 'Upload failed. Please try again.';
+        this.isUploading = false;
+        this.uploadProgress = 0;
+        console.error('Upload error:', error);
+      }
+    });
+  }
+
+  // UI helpers
+  toggleUpload() {
+    this.showUpload = !this.showUpload;
+    this.uploadMessage = '';
+  }
+
+  clearConversation() {
+    this.conversation = [{
+      sender: 'bot',
+      text: 'Hello! I\'m your AI-powered financial assistant. How can I help you today?',
+      time: this.getCurrentTime()
+    }];
+    this.uploadMessage = '';
+    this.shouldScroll = true;
+  }
+
+  private getCurrentTime(): string {
+    return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+
+
+  someMethod() {
+    const sizeInBytes = 1024;
+    const formattedSize = this.filesizePipe.transform(sizeInBytes);
+    console.log(formattedSize); // "1.00 KB"
+  }
+
+  // Add these methods to your ListCustomersComponent class
+getSummaryColumns(summary: string): any[] {
+  try {
+    const data = JSON.parse(summary);
+    return Object.keys(data).map(key => ({
+      key: key,
+      value: data[key]
+    }));
+  } catch (e) {
+    console.error('Error parsing summary:', e);
+    return [];
+  }
+}
+
+getSummaryStats(value: any): {key: string, value: any}[] {
+  if (!value) return [];
+  return Object.entries(value).map(([key, val]) => ({
+    key: key,
+    value: val
+  }));
+}
+
+formatNumber(value: any): string {
+  if (value === null || value === undefined) return 'N/A';
+  if (typeof value === 'number') {
+    return value.toFixed(2);
+  }
+  return String(value);
+}
+
+formatFileSize(bytes: number): string {
+  if (!bytes) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   updatePagination() {
     const startIndex = this.currentPage * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;

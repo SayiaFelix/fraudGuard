@@ -27,6 +27,9 @@ export class HttpService {
 
   // private baseUrl = "http://130.61.111.65:5005"; 
   private baseUrl = "http://127.0.0.1:5005";
+
+  private baseUrls = 'http://localhost:5015/api'; // Flask API Base URL
+
   getDashboardData(): Observable<any> {
     return this.http.get(`${this.baseUrl}/api/get_all_charts_kpis`);
   }
@@ -44,6 +47,26 @@ export class HttpService {
     return this.http.post(`${this.baseUrl}/api/clustered_data`, model);
   }
   
+
+
+  // Upload File API
+  uploadFile(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post(`${this.baseUrls}/upload`, formData);
+  }
+
+  // AI Chatbot API
+  chatWithBot(query: string): Observable<any> {
+    return this.http.post(`${this.baseUrls}/chat`, { query });
+  }
+
+
+
+
+
+
+
   
 
   public getEnterpriseUsers(endpoint: string):Observable<any> {
