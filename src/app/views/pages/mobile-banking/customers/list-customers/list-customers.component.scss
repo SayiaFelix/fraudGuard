@@ -415,14 +415,7 @@ button.deactivated {
   color: #2e7d32;
 }
 
-.table-footer {
-  font-size: 12px;
-  color: #666;
-  text-align: right;
-  margin-top: 8px;
-  padding-right: 8px;
-  font-style: italic;
-}
+
 
 /* Scrollbar styling */
 .sample-data-table::-webkit-scrollbar {
@@ -563,3 +556,32 @@ button.deactivated {
   margin: 2px;
 }
 
+.table-footer {
+  font-size: 0.85rem;
+  color: #5a3d8a;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-style: italic;
+  text-align: right;
+}
+
+.table-footer span.text-muted {
+  color: #6c757d;
+  font-size: 0.8rem;
+}
+
+.column-navigation {
+  display: flex;
+  align-items: center;
+}
+
+.extra-columns-indicator {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  font-style: italic;
+}
