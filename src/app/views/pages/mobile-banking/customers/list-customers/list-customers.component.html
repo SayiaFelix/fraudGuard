@@ -62,7 +62,7 @@
           border-left: 1px solid #e8e0ff; 
           border-right: 1px solid #e8e0ff;
           scroll-behavior: smooth;">
-      <!-- Messages will appear here -->
+
       <div *ngFor="let messageItem of conversation">
         <div class="message" [ngClass]="{'user-message': messageItem.sender === 'user', 
                                   'bot-message': messageItem.sender === 'bot'}">
@@ -180,58 +180,64 @@
                       <table>
                         <thead>
                           <tr>
-                            <th *ngFor="let column of getSampleDataColumns() | slice:0:6">
+                            <th *ngFor="let column of visibleColumns">
                               {{column}}
                             </th>
-                  
-                            <th *ngIf="getSampleDataColumns().length > 6" class="extra-columns-indicator">
-                              +{{getSampleDataColumns().length - 6}} more
+
+                            <th *ngIf="totalColumns > columnsPerPage && hasNextColumns()"
+                              class="extra-columns-indicator">
+                              +{{totalColumns - (currentColumnStart + columnsPerPage)}} more
                             </th>
                           </tr>
                         </thead>
                         <tbody>
                           <tr *ngFor="let row of currentFileData?.profile?.sample_data || []">
-                            <td *ngFor="let column of getSampleDataColumns() | slice:0:6"
-                                [ngClass]="getCellClasses(column, row[column])">
+                            <td *ngFor="let column of visibleColumns" [ngClass]="getCellClasses(column, row[column])">
                               {{row[column] === null ? 'NULL' : formatCellValue(row[column])}}
                             </td>
-                            <td *ngIf="getSampleDataColumns().length > 6" class="extra-columns-indicator"></td>
+                            <td *ngIf="totalColumns > columnsPerPage && hasNextColumns()"
+                              class="extra-columns-indicator"></td>
                           </tr>
                         </tbody>
                       </table>
                     </div>
-                  
-                    <div *ngIf="getSampleDataColumns().length > 6" class="additional-columns-section mt-3">
-                      <div class="alert alert-info p-2">
-                        <div class="fw-bold small mb-1">Additional Columns:</div>
-                        <div class="d-flex flex-wrap gap-2">
-                          <span *ngFor="let column of getSampleDataColumns() | slice:7" 
-                                class="badge bg-light text-dark border">
-                            {{column}}
-                          </span>
-                        </div>
-                      </div>
+
+                    <!-- Navigation Buttons -->
+                    <div *ngIf="totalColumns > columnsPerPage" class="column-navigation mt-2">
+                      <button class="btn btn-sm btn-outline-primary me-2" (click)="showPreviousColumns()"
+                        [disabled]="!hasPreviousColumns()">
+                        Previous
+                      </button>
+                      <button class="btn btn-sm btn-outline-success" (click)="showNextColumns()"
+                        [disabled]="!hasNextColumns()">
+                        Next
+                      </button>
+                      <span class="ms-2 text-muted small">
+                        Showing columns {{currentColumnStart + 1}}-{{getMin(currentColumnStart + columnsPerPage,
+                        totalColumns)}} of {{totalColumns}}
+                      </span>
                     </div>
-                  
-                    <div *ngIf="getHiddenColumnsCount() > 0" class="hidden-columns-alert mt-3">
-                      <div class="alert alert-warning p-2 mb-0">
-                        <div class="fw-bold small mb-1">Columns Hidden Due to High Missing Values (>80%):</div>
-                        <div class="d-flex flex-wrap gap-2">
-                          <span *ngFor="let column of getHiddenColumns()" class="badge bg-light text-dark border">
-                            {{column}}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                   
+
                     <div class="table-footer">
                       Showing {{currentFileData?.profile?.sample_data?.length || 0}} of
-                      {{currentFileData?.profile?.overview?.num_rows || 0}} rows •
-                      Showing {{getSampleDataColumns().length}} of {{currentFileData?.profile?.overview?.num_columns || 0}} columns
+                      {{currentFileData?.profile?.overview?.num_rows || 0}} rows
+
+                      <span *ngIf="totalColumns <= 10">
+                        with {{totalColumns}} columns.
+                      </span>
+                      <span *ngIf="totalColumns > 10">
+                        with columns {{currentColumnStart + 1}}-{{getMin(currentColumnStart + columnsPerPage,
+                        totalColumns)}} of {{totalColumns}}.
+                        <span *ngIf="currentFileData?.profile?.overview?.num_columns !== totalColumns">
+                          ({{currentFileData?.profile?.overview?.num_columns || 0}} total)
+                        </span>
+                      </span>
+
+                      <span *ngIf="getHiddenColumnsCount() > 0" class="text-muted">
+                        ==> {{getHiddenColumnsCount()}} columns hidden (> 80% missing)
+                      </span>
                     </div>
                   </div>
-
-
                 </div>
               </div>
             </div>
@@ -270,11 +276,13 @@
           <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated" role="progressbar"
             [style.width.%]="uploadProgress" [attr.aria-valuenow]="uploadProgress" aria-valuemin="0"
             aria-valuemax="100">
-            {{ uploadProgress }}%
+
+            <span class="text-light">
+              {{ uploadProgress > 95 ? 'Processing data...' : 'Uploading...' }} {{ uploadProgress }}%
+            </span>
+
           </div>
         </div>
-
-        <!-- Status message -->
         <div *ngIf="uploadMessage" class="mt-3 alert" [ngClass]="{
               'alert-info': !isErrorState,
               'alert-danger': isErrorState,
