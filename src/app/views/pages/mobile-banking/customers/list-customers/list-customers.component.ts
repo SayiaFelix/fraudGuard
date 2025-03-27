@@ -440,11 +440,21 @@ getMissingColumns(missingData: any): {key: string, value: number}[] {
   }));
 }
 
-// // Helper to get column names from sample data
-// getSampleDataColumns(sampleData: any[]): string[] {
-//   if (!sampleData || sampleData.length === 0) return [];
-//   return Object.keys(sampleData[0]);
-// }
+getSampleDataColumns(): string[] {
+  if (!this.currentFileData?.profile?.sample_data || 
+      !this.currentFileData?.profile?.missing_data) return [];
+  
+  const sampleData = this.currentFileData.profile.sample_data;
+  const missingValues = this.currentFileData.profile.missing_data.missing_value_distribution.columns;
+  const totalRows = this.currentFileData.profile.overview.num_rows;
+  const threshold = 0.8 * totalRows;
+  
+  return Object.keys(sampleData[0]).filter(column => {
+    const missingCount = missingValues[column] || 0;
+    return missingCount <= threshold;
+  });
+}
+
 
 isLastMessage(messageItem: any): boolean {
   return this.conversation[this.conversation.length - 1] === messageItem;
@@ -473,20 +483,6 @@ formatCellValue(value: any): string {
   return value.toString();
 }
 
-getSampleDataColumns(): string[] {
-  if (!this.currentFileData?.profile?.sample_data || 
-      !this.currentFileData?.profile?.missing_data) return [];
-  
-  const sampleData = this.currentFileData.profile.sample_data;
-  const missingValues = this.currentFileData.profile.missing_data.missing_value_distribution.columns;
-  const totalRows = this.currentFileData.profile.overview.num_rows;
-  const threshold = 0.8 * totalRows;
-  
-  return Object.keys(sampleData[0]).filter(column => {
-    const missingCount = missingValues[column] || 0;
-    return missingCount <= threshold;
-  });
-}
 
 getHiddenColumnsCount(): number {
   if (!this.currentFileData?.profile?.sample_data || 
@@ -517,6 +513,36 @@ getHiddenColumns(): string[] {
     return missingCount > threshold;
   });
 }
+
+
+// Add these to your component
+isDragover = false;
+isErrorState = false;
+
+handleDragOver(event: DragEvent) {
+  event.preventDefault();
+  event.stopPropagation();
+  this.isDragover = true;
+}
+
+handleDrop(event: DragEvent) {
+  event.preventDefault();
+  event.stopPropagation();
+  this.isDragover = false;
+  
+  if (event.dataTransfer?.files) {
+    const input = document.getElementById('fileInput') as HTMLInputElement;
+    input.files = event.dataTransfer.files;
+    this.onFileSelected({ target: input } as unknown as Event);
+  }
+}
+
+
+
+
+
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 

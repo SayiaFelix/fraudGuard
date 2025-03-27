@@ -1,13 +1,10 @@
-
-<div class="flex-wrap grid-margin mt-1" 
-     style="box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); 
+<div class="flex-wrap grid-margin mt-1" style="box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); 
             border-radius: 8px; 
             padding: 15px;
             border: 2px solid #e0d0ff;
             background: linear-gradient(to right, #f9f5ff, #ffffff);">
   <div>
-    <h4 class="mb-3 mb-md-0 text-center"
-        style="color: var(--dark-purple, #1e0f2e); 
+    <h4 class="mb-3 mb-md-0 text-center" style="color: var(--dark-purple, #1e0f2e); 
                font-family: Muli; 
                font-size: 22px; 
                font-style: normal; 
@@ -21,17 +18,15 @@
 
 <hr style="border-top: 2px dashed #d3c0ff; margin: 20px 0;">
 
-<div class="chatbot-container" 
-     style="max-width: 1000px; 
+<div class="chatbot-container" style="max-width: 1000px; 
             margin: 0 auto; 
             font-family: 'Muli', sans-serif;
             border: 2px solid #e0d0ff;
             border-radius: 12px;
             padding:5px;
             box-shadow: 0 6px 18px rgba(0,0,0,0.1);">
-  
-  <div class="d-flex justify-content-between align-items-center p-3" 
-       style="background: linear-gradient(135deg, #1e0f2e 0%, #3a1b5a 100%); 
+
+  <div class="d-flex justify-content-between align-items-center p-3" style="background: linear-gradient(135deg, #1e0f2e 0%, #3a1b5a 100%); 
               color: white; 
               border-radius: 10px 10px 0 0; 
               box-shadow: 0 2px 8px rgba(0,0,0,0.1);
@@ -45,273 +40,297 @@
       <h4 style="margin: 0; font-weight: 700;">AI Financial Assistant</h4>
     </div>
     <div>
-      <button class="btn btn-sm btn-light" (click)="toggleUpload()" 
-              style="box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+      <button class="btn btn-sm btn-light" (click)="toggleUpload()" style="box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
         <i class="fas fa-file-upload"></i> Upload
       </button>
     </div>
   </div>
 
   <!-- Chat Area -->
-  <div class="chat-area" 
-       #chatArea
-       style="height: 500px; 
+  <div class="chat-area" #chatArea style="height: 500px; 
               overflow-y: auto; 
               padding: 20px; 
               background-color: #f9f9ff; 
               border-left: 1px solid #e8e0ff; 
               border-right: 1px solid #e8e0ff;
               scroll-behavior: smooth;">
-    
-    <div class="chat-area" 
-    #chatArea
-    style="height: 350px; 
+
+    <div class="chat-area" #chatArea style="height: 350px; 
           overflow-y: auto; 
           padding: 15px; 
           background-color: #f9f9ff; 
           border-left: 1px solid #e8e0ff; 
           border-right: 1px solid #e8e0ff;
           scroll-behavior: smooth;">
-    <!-- Messages will appear here -->
-    <div *ngFor="let messageItem of conversation">
-    <div class="message" [ngClass]="{'user-message': messageItem.sender === 'user', 
+      <!-- Messages will appear here -->
+      <div *ngFor="let messageItem of conversation">
+        <div class="message" [ngClass]="{'user-message': messageItem.sender === 'user', 
                                   'bot-message': messageItem.sender === 'bot'}">
-    <div class="message-avatar">
-      <i *ngIf="messageItem.sender === 'bot'" class="fas fa-robot"></i>
-      <i *ngIf="messageItem.sender === 'user'" class="fas fa-user"></i>
-    </div>
-
-    
-
-    <div class="message-content chat-messages"  id="chat-container">
-      <div class="message-text">
-        <span>{{ messageItem.text }}</span>
-  
-        <span *ngIf="isLoading && isLastMessage(messageItem)" class="inline-loader">
-          <span class="loading-dot"></span>
-          <span class="loading-dot"></span>
-          <span class="loading-dot"></span>
-        </span>
-
-      
-        <div *ngIf="messageItem.isFileResponse && messageItem.fileData" class="file-summary">
-          <!-- File header -->
-          <div class="file-header">
-            <i class="fas fa-file-excel"></i>
-            <div class="file-info">
-              <h4>{{messageItem.fileData.filename}}</h4>
-              <span class="file-size">{{formatFileSize(messageItem.fileData.size)}}</span>
-              <span class="file-message" *ngIf="messageItem.fileData.message">
-                {{messageItem.fileData.message}}
-              </span>
-            </div>
+          <div class="message-avatar">
+            <i *ngIf="messageItem.sender === 'bot'" class="fas fa-robot"></i>
+            <i *ngIf="messageItem.sender === 'user'" class="fas fa-user"></i>
           </div>
-        
-          <!-- Data Profile -->
-          <div *ngIf="messageItem.fileData.profile" class="data-profile">
-            <!-- Overview Section -->
-            <div class="profile-section">
-              <h5>Overview</h5>
-              <div class="stats-grid">
-                <div class="stat-item">
-                  <span class="stat-name">Rows:</span>
-                  <span class="stat-value">{{messageItem.fileData.profile.overview.num_rows}}</span>
-                </div>
-                <div class="stat-item">
-                  <span class="stat-name">Columns:</span>
-                  <span class="stat-value">{{messageItem.fileData.profile.overview.num_columns}}</span>
-                </div>
-                <div class="stat-item">
-                  <span class="stat-name">Total Cells:</span>
-                  <span class="stat-value">{{messageItem.fileData.profile.overview.total_cells}}</span>
-                </div>
-                <div class="stat-item">
-                  <span class="stat-name">Duplicate Rows:</span>
-                  <span class="stat-value">{{messageItem.fileData.profile.overview.duplicate_rows}}</span>
-                </div>
-              </div>
-            </div>
-        
-            <!-- Column Types Section -->
-            <div class="profile-section ">
-              <h5>Column Types</h5>
-              <div class="stats-grid">
-                <div class="stat-item">
-                  <span class="stat-name">Numeric:</span>
-                  <span class="stat-value">{{messageItem.fileData.profile.column_types.numeric}}</span>
-                </div>
-                <div class="stat-item">
-                  <span class="stat-name">Text:</span>
-                  <span class="stat-value">{{messageItem.fileData.profile.column_types.text}}</span>
-                </div>
-                <div class="stat-item">
-                  <span class="stat-name">Datetime:</span>
-                  <span class="stat-value">{{messageItem.fileData.profile.column_types.datetime}}</span>
-                </div>
-              </div>
-            </div>
-        
-            <!-- Missing Data Section -->
-            <div class="profile-section missing-data-section">
-              <h5>Missing Data</h5>
-              <div class="stats-grid">
-                <div class="stat-item">
-                  <span class="stat-name">Total Missing:</span>
-                  <span class="stat-value">{{messageItem.fileData.profile.missing_data.total_missing}}</span>
-                </div>
-                <div class="stat-item">
-                  <span class="stat-name">Percentage Missing:</span>
-                  <span class="stat-value">{{messageItem.fileData.profile.missing_data.pct_missing | number:'1.2-2'}}%</span>
-                </div>
-                <div class="stat-item">
-                  <span class="stat-name">Columns With Missing:</span>
-                  <span class="stat-value">{{messageItem.fileData.profile.missing_data.columns_with_missing}}</span>
-                </div>
-              </div>
-        
-              <!-- Top Missing Columns -->
-              <div class="profile-section missing-columns">
-                <h5>Top Columns With Missing Values:</h5>
-                <div class="missing-column" *ngFor="let column of getMissingColumns(messageItem.fileData.profile.missing_data.missing_value_distribution.top_5_columns_with_most_missing)">
-                  <span class="column-name">{{column.key}}:</span>
-                  <span class="missing-count">{{column.value}} missing</span>
-                </div>
-              </div>
-            </div>
-            
-            <div class="profile-section has-scrollable-table">
-              <h5>Sample Data (First 5 Rows)</h5>
-              <div class="sample-data-table">
-                <table>
-                  <thead>
-                    <tr>
-                      <th *ngFor="let column of getSampleDataColumns()">
-                        {{column}}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let row of currentFileData?.profile?.sample_data || []">
-                      <td *ngFor="let column of getSampleDataColumns()"
-                          [ngClass]="getCellClasses(column, row[column])">
-                        {{row[column] === null ? 'NULL' : formatCellValue(row[column])}}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              
-              <div class="table-footer">
-                Showing {{currentFileData?.profile?.sample_data?.length || 0}} of 
-                {{currentFileData?.profile?.overview?.num_rows || 0}} rows • 
-                {{currentFileData?.profile?.overview?.num_columns || 0}} columns
-                <span *ngIf="getHiddenColumnsCount() > 0" class="text-muted">
-                  ({{getHiddenColumnsCount()}} columns hidden due to high missing values)
-                </span>
-              </div>
-            
-              <!-- Hidden Columns List -->
-              <div *ngIf="getHiddenColumnsCount() > 0" class="hidden-columns-alert mt-3">
-                <div class="alert alert-warning p-2 mb-0">
-                  <div class="fw-bold small mb-1">Other Columns with (>80% missing values):</div>
-                  <div class="d-flex flex-wrap gap-2">
-                    <span *ngFor="let column of getHiddenColumns()" class="badge bg-light text-dark border">
-                      {{column}}
+
+          <div class="message-content chat-messages" id="chat-container">
+            <div class="message-text">
+              <span>{{ messageItem.text }}</span>
+
+              <span *ngIf="isLoading && isLastMessage(messageItem)" class="inline-loader">
+                <span class="loading-dot"></span>
+                <span class="loading-dot"></span>
+                <span class="loading-dot"></span>
+              </span>
+
+
+              <div *ngIf="messageItem.isFileResponse && messageItem.fileData" class="file-summary">
+                <!-- File header -->
+                <div class="file-header">
+                  <i class="fas fa-file-excel"></i>
+                  <div class="file-info">
+                    <h4>{{messageItem.fileData.filename}}</h4>
+                    <span class="file-size">{{formatFileSize(messageItem.fileData.size)}}</span>
+                    <span class="file-message" *ngIf="messageItem.fileData.message">
+                      {{messageItem.fileData.message}}
                     </span>
                   </div>
                 </div>
+
+                <!-- Data Profile -->
+                <div *ngIf="messageItem.fileData.profile" class="data-profile">
+                  <!-- Overview Section -->
+                  <div class="profile-section">
+                    <h5>Overview</h5>
+                    <div class="stats-grid">
+                      <div class="stat-item">
+                        <span class="stat-name">Rows:</span>
+                        <span class="stat-value">{{messageItem.fileData.profile.overview.num_rows}}</span>
+                      </div>
+                      <div class="stat-item">
+                        <span class="stat-name">Columns:</span>
+                        <span class="stat-value">{{messageItem.fileData.profile.overview.num_columns}}</span>
+                      </div>
+                      <div class="stat-item">
+                        <span class="stat-name">Total Cells:</span>
+                        <span class="stat-value">{{messageItem.fileData.profile.overview.total_cells}}</span>
+                      </div>
+                      <div class="stat-item">
+                        <span class="stat-name">Duplicate Rows:</span>
+                        <span class="stat-value">{{messageItem.fileData.profile.overview.duplicate_rows}}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Column Types Section -->
+                  <div class="profile-section ">
+                    <h5>Column Types</h5>
+                    <div class="stats-grid">
+                      <div class="stat-item">
+                        <span class="stat-name">Numeric:</span>
+                        <span class="stat-value">{{messageItem.fileData.profile.column_types.numeric}}</span>
+                      </div>
+                      <div class="stat-item">
+                        <span class="stat-name">Text:</span>
+                        <span class="stat-value">{{messageItem.fileData.profile.column_types.text}}</span>
+                      </div>
+                      <div class="stat-item">
+                        <span class="stat-name">Datetime:</span>
+                        <span class="stat-value">{{messageItem.fileData.profile.column_types.datetime}}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="profile-section">
+                    <h5>Missing Data Analysis</h5>
+
+                    <!-- Summary Stats -->
+                    <div class="stats-grid">
+                      <div class="stat-item">
+                        <span class="stat-name">Total Missing:</span>
+                        <span class="stat-value">{{messageItem.fileData.profile.missing_data.total_missing}}</span>
+                      </div>
+                      <div class="stat-item">
+                        <span class="stat-name">% Missing:</span>
+                        <span class="stat-value">{{messageItem.fileData.profile.missing_data.pct_missing |
+                          number:'1.2-2'}}%</span>
+                      </div>
+                      <div class="stat-item">
+                        <span class="stat-name">Columns Affected:</span>
+                        <span
+                          class="stat-value">{{messageItem.fileData.profile.missing_data.columns_with_missing}}</span>
+                      </div>
+                    </div>
+
+                    <div class="profile-section mt-3">
+                      <h5>Top 5 Columns With Missing Values</h5>
+                      <div class="missing-columns-list">
+                        <div class="missing-column-item"
+                          *ngFor="let column of getMissingColumns(messageItem.fileData.profile.missing_data.missing_value_distribution.top_5_columns_with_most_missing)">
+                          <div class="missing-column-name">{{column.key}}</div>
+                          <div class="missing-column-value">
+                            {{column.value}} missing values
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="profile-section has-scrollable-table">
+                    <h5>Sample Data (First 5 Rows)</h5>
+                    <div class="sample-data-table">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th *ngFor="let column of getSampleDataColumns() | slice:0:6">
+                              {{column}}
+                            </th>
+                  
+                            <th *ngIf="getSampleDataColumns().length > 6" class="extra-columns-indicator">
+                              +{{getSampleDataColumns().length - 6}} more
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let row of currentFileData?.profile?.sample_data || []">
+                            <td *ngFor="let column of getSampleDataColumns() | slice:0:6"
+                                [ngClass]="getCellClasses(column, row[column])">
+                              {{row[column] === null ? 'NULL' : formatCellValue(row[column])}}
+                            </td>
+                            <td *ngIf="getSampleDataColumns().length > 6" class="extra-columns-indicator"></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  
+                    <div *ngIf="getSampleDataColumns().length > 6" class="additional-columns-section mt-3">
+                      <div class="alert alert-info p-2">
+                        <div class="fw-bold small mb-1">Additional Columns:</div>
+                        <div class="d-flex flex-wrap gap-2">
+                          <span *ngFor="let column of getSampleDataColumns() | slice:7" 
+                                class="badge bg-light text-dark border">
+                            {{column}}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  
+                    <div *ngIf="getHiddenColumnsCount() > 0" class="hidden-columns-alert mt-3">
+                      <div class="alert alert-warning p-2 mb-0">
+                        <div class="fw-bold small mb-1">Columns Hidden Due to High Missing Values (>80%):</div>
+                        <div class="d-flex flex-wrap gap-2">
+                          <span *ngFor="let column of getHiddenColumns()" class="badge bg-light text-dark border">
+                            {{column}}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                   
+                    <div class="table-footer">
+                      Showing {{currentFileData?.profile?.sample_data?.length || 0}} of
+                      {{currentFileData?.profile?.overview?.num_rows || 0}} rows •
+                      Showing {{getSampleDataColumns().length}} of {{currentFileData?.profile?.overview?.num_columns || 0}} columns
+                    </div>
+                  </div>
+
+
+                </div>
               </div>
             </div>
-            
-            
-         
+            <div class="message-time">{{ messageItem.time }}</div>
           </div>
         </div>
       </div>
-      <div class="message-time">{{ messageItem.time }}</div>
-    </div>
 
+      <!-- File upload area -->
+      <div class="file-upload-area p-3" *ngIf="showUpload" [ngClass]="{'is-dragover': isDragover}"
+        (dragover)="handleDragOver($event)" (dragleave)="isDragover = false" (drop)="handleDrop($event)" [style]="{
+      'background-color': isDragover ? '#e8d6ff' : '#f0e6ff',
+      'border-radius': '8px',
+      'margin-top': '15px',
+      'border': isDragover ? '2px dashed #8a2be2' : '1px dashed #c0a0ff',
+      'transition': 'all 0.3s ease'}">
 
+        <h5 class="upload-title"
+          style="display: flex; align-items: center; margin-bottom: 0.8rem; color: #083273; font-weight: 600;">
+          <i class="fas fa-file-alt" style="font-size: 1.2em; margin-right: 10px; color: #083273;"></i>
+          Upload Financial Documents
+        </h5>
+        <p class="text-muted small ml-2">Supported formats: CSV, Excel (max 1GB)</p>
+        <div class="d-flex">
+          <input type="file" id="fileInput" (change)="onFileSelected($event)" class="form-control"
+            style="border-radius: 20px 0 0 20px; border: 1px solid #d0c0ff;" accept=".csv,.xls,.xlsx">
+          <button class="btn btn-primary" (click)="uploadFile()" [disabled]="!selectedFile || isUploading"
+            style="border-radius: 0 20px 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <i *ngIf="!isUploading" class="fas fa-cloud-upload-alt"></i>
+            <i *ngIf="isUploading" class="fas fa-spinner fa-spin"></i>
+          </button>
+        </div>
 
-    
-    </div>
-    </div>
+        <!-- Progress bar -->
+        <div *ngIf="isUploading" class="progress mt-2" style="height: 12px;">
+          <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated" role="progressbar"
+            [style.width.%]="uploadProgress" [attr.aria-valuenow]="uploadProgress" aria-valuemin="0"
+            aria-valuemax="100">
+            {{ uploadProgress }}%
+          </div>
+        </div>
 
-    <!-- File upload area -->
-    <div class="file-upload-area p-3" *ngIf="showUpload" 
-         style="background-color: #f0e6ff; 
-                border-radius: 8px; 
-                margin-top: 15px;
-                border: 1px dashed #c0a0ff;">
-      <h5><i class="fas fa-file-alt mr-2"></i>Upload Financial Documents</h5>
-      <p class="text-muted small ml-2">Supported formats: CSV, Excel (max 1GB)</p>
-      <div class="d-flex">
-        <input type="file" id="fileInput" (change)="onFileSelected($event)" class="form-control" 
-               style="border-radius: 20px 0 0 20px; border: 1px solid #d0c0ff;" 
-               accept=".csv,.xls,.xlsx">
-        <button class="btn btn-primary" (click)="uploadFile()" [disabled]="!selectedFile || isUploading"
-                style="border-radius: 0 20px 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-          <i *ngIf="!isUploading" class="fas fa-cloud-upload-alt"></i>
-          <i *ngIf="isUploading" class="fas fa-spinner fa-spin"></i>
-        </button>
+        <!-- Status message -->
+        <div *ngIf="uploadMessage" class="mt-3 alert" [ngClass]="{
+              'alert-info': !isErrorState,
+              'alert-danger': isErrorState,
+              'alert-success': uploadProgress === 100
+            }" role="alert">
+          <i class="fas mr-2" [ngClass]="{
+              'fa-check-circle': uploadProgress === 100,
+              'fa-info-circle': !isErrorState && uploadProgress !== 100,
+              'fa-exclamation-triangle': isErrorState
+            }"></i>
+          {{ uploadMessage }}
+        </div>
       </div>
-      <div *ngIf="uploadMessage" class="mt-2 alert" 
-           [ngClass]="{'alert-info': !uploadMessage.includes('failed'), 
-                      'alert-danger': uploadMessage.includes('failed')}">
-        <i class="fas" 
-           [ngClass]="{'fa-info-circle': !uploadMessage.includes('failed'), 
-                      'fa-exclamation-circle': uploadMessage.includes('failed')}"></i> 
-        {{ uploadMessage }}
-      </div>
-    </div>
-  </div>
 
-  <!-- Input Area -->
-  <div class="input-area p-3" 
-       style="background-color: white; 
+    </div>
+
+    <!-- Input Area -->
+    <div class="input-area p-3" style="background-color: white; 
               border-radius: 0 0 10px 10px; 
               border: 1px solid #e8e0ff; 
               border-top: none;
               box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);">
-    <div class="d-flex">
-      <input type="text" [(ngModel)]="userQuery" class="form-control" 
-             placeholder="Ask about loan eligibility, investments..." 
-             style="border-radius: 20px 0 0 20px; 
+      <div class="d-flex">
+        <input type="text" [(ngModel)]="userQuery" class="form-control"
+          placeholder="Ask about loan eligibility, investments..." style="border-radius: 20px 0 0 20px; 
                     border-right: none;
                     border: 1px solid #d0c0ff;
-                    padding: 10px 15px;" 
-             (keyup.enter)="sendMessage()">
-      <button class="btn btn-outline-success" (click)="sendMessage()" 
-              style="border-radius: 0 20px 20px 0; 
+                    padding: 10px 15px;" (keyup.enter)="sendMessage()">
+        <button class="btn btn-outline-success" (click)="sendMessage()" style="border-radius: 0 20px 20px 0; 
                      padding: 0 20px;
                      box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-        <i class="fas fa-paper-plane"></i>
-      </button>
-    </div>
-    <div class="d-flex justify-content-between mt-2">
-      <button class="btn btn-sm btn-outline-secondary" (click)="toggleUpload()"
-              style="border: 1px solid #d0c0ff;
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+      <div class="d-flex justify-content-between mt-2">
+        <button class="btn btn-sm btn-outline-secondary" (click)="toggleUpload()" style="border: 1px solid #d0c0ff;
                      border-radius: 20px;
                      padding: 5px 15px;">
-        <i class="fas fa-paperclip"></i> Attach File
-      </button>
-      <button class="btn btn-sm btn-outline-danger" (click)="clearConversation()"
-              style="border-radius: 20px;
+          <i class="fas fa-paperclip"></i> Attach File
+        </button>
+        <button class="btn btn-sm btn-outline-danger" (click)="clearConversation()" style="border-radius: 20px;
                      padding: 5px 15px;">
-        <i class="fas fa-trash-alt"></i> Clear
-      </button>
+          <i class="fas fa-trash-alt"></i> Clear
+        </button>
+      </div>
     </div>
   </div>
-</div>
 </div>
 
 <div>
   <footer
-  class="footer mt-3 d-flex flex-column flex-md-row align-items-center justify-content-between px-4 border-top small">
-  <p class="text-muted">Copyright © 2025 <a href="" style="color:#46bfe9; font-family: 'Muli';"
-      target="_blank">Eclectics International Limited</a></p>
-  <p class=""
-    style="color: #083273; font-family: 'Muli'; font-style: normal; font-weight: 700; font-size: 13px; letter-spacing: 0.08em;">
-    AI Analytics Solutions</p>
-</footer>
+    class="footer mt-3 d-flex flex-column flex-md-row align-items-center justify-content-between px-4 border-top small">
+    <p class="text-muted">Copyright © 2025 <a href="" style="color:#46bfe9; font-family: 'Muli';"
+        target="_blank">Eclectics International Limited</a></p>
+    <p class=""
+      style="color: #083273; font-family: 'Muli'; font-style: normal; font-weight: 700; font-size: 13px; letter-spacing: 0.08em;">
+      AI Analytics Solutions</p>
+  </footer>
 </div>
