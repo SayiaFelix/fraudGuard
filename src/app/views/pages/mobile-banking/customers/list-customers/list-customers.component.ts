@@ -180,7 +180,7 @@ conversation: ConversationMessage[] = [
   readonly maxFileSize = 1024 * 1024 * 1024; // 1GB
   uploadProgress: number = 0;
   isUploading: boolean = false;
-
+  currentFileData: any;
 
   constructor(
     private httpService: HttpService,
@@ -326,6 +326,8 @@ conversation: ConversationMessage[] = [
     this.http.post<any>('http://localhost:5015/api/upload', formData).subscribe({
       next: (response) => {
         this.isLoading = false;
+        this.currentFileData = response;
+
         clearInterval(progressInterval);
         this.uploadProgress = 100;
         this.uploadMessage = response.message;
@@ -438,17 +440,83 @@ getMissingColumns(missingData: any): {key: string, value: number}[] {
   }));
 }
 
-// Helper to get column names from sample data
-getSampleDataColumns(sampleData: any[]): string[] {
-  if (!sampleData || sampleData.length === 0) return [];
-  return Object.keys(sampleData[0]);
-}
+// // Helper to get column names from sample data
+// getSampleDataColumns(sampleData: any[]): string[] {
+//   if (!sampleData || sampleData.length === 0) return [];
+//   return Object.keys(sampleData[0]);
+// }
 
 isLastMessage(messageItem: any): boolean {
   return this.conversation[this.conversation.length - 1] === messageItem;
 }
 
+formatColumnHeader(header: string): string {
+  return header.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').trim();
+}
 
+getCellClasses(column: string, value: any): any {
+  return {
+    'numeric': typeof value === 'number',
+    'null-value': value === null,
+    'status': column.toLowerCase().includes('status'),
+    'status-active': column.toLowerCase().includes('status') && value?.toString().toLowerCase() === 'active',
+    'status-closed': column.toLowerCase().includes('status') && value?.toString().toLowerCase() === 'closed',
+    'status-performing': column.toLowerCase().includes('status') && value?.toString().toLowerCase() === 'performing'
+  };
+}
+
+formatCellValue(value: any): string {
+  if (value === null || value === undefined) return 'NULL';
+  if (typeof value === 'number') {
+    return value.toLocaleString();
+  }
+  return value.toString();
+}
+
+getSampleDataColumns(): string[] {
+  if (!this.currentFileData?.profile?.sample_data || 
+      !this.currentFileData?.profile?.missing_data) return [];
+  
+  const sampleData = this.currentFileData.profile.sample_data;
+  const missingValues = this.currentFileData.profile.missing_data.missing_value_distribution.columns;
+  const totalRows = this.currentFileData.profile.overview.num_rows;
+  const threshold = 0.8 * totalRows;
+  
+  return Object.keys(sampleData[0]).filter(column => {
+    const missingCount = missingValues[column] || 0;
+    return missingCount <= threshold;
+  });
+}
+
+getHiddenColumnsCount(): number {
+  if (!this.currentFileData?.profile?.sample_data || 
+      !this.currentFileData?.profile?.missing_data) return 0;
+  
+  const sampleData = this.currentFileData.profile.sample_data;
+  const missingValues = this.currentFileData.profile.missing_data.missing_value_distribution.columns;
+  const totalRows = this.currentFileData.profile.overview.num_rows;
+  const threshold = 0.8 * totalRows;
+  
+  return Object.keys(sampleData[0]).filter(column => {
+    const missingCount = missingValues[column] || 0;
+    return missingCount > threshold;
+  }).length;
+}
+
+getHiddenColumns(): string[] {
+  if (!this.currentFileData?.profile?.sample_data || 
+      !this.currentFileData?.profile?.missing_data) return [];
+  
+  const sampleData = this.currentFileData.profile.sample_data;
+  const missingValues = this.currentFileData.profile.missing_data.missing_value_distribution.columns;
+  const totalRows = this.currentFileData.profile.overview.num_rows;
+  const threshold = 0.8 * totalRows;
+  
+  return Object.keys(sampleData[0]).filter(column => {
+    const missingCount = missingValues[column] || 0;
+    return missingCount > threshold;
+  });
+}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 

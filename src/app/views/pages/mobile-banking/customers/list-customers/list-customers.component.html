@@ -30,7 +30,6 @@
             padding:5px;
             box-shadow: 0 6px 18px rgba(0,0,0,0.1);">
   
-  <!-- Header -->
   <div class="d-flex justify-content-between align-items-center p-3" 
        style="background: linear-gradient(135deg, #1e0f2e 0%, #3a1b5a 100%); 
               color: white; 
@@ -94,8 +93,7 @@
           <span class="loading-dot"></span>
         </span>
 
-        
-
+      
         <div *ngIf="messageItem.isFileResponse && messageItem.fileData" class="file-summary">
           <!-- File header -->
           <div class="file-header">
@@ -135,7 +133,7 @@
             </div>
         
             <!-- Column Types Section -->
-            <div class="profile-section">
+            <div class="profile-section ">
               <h5>Column Types</h5>
               <div class="stats-grid">
                 <div class="stat-item">
@@ -154,7 +152,7 @@
             </div>
         
             <!-- Missing Data Section -->
-            <div class="profile-section">
+            <div class="profile-section missing-data-section">
               <h5>Missing Data</h5>
               <div class="stats-grid">
                 <div class="stat-item">
@@ -172,37 +170,61 @@
               </div>
         
               <!-- Top Missing Columns -->
-              <div class="missing-columns">
-                <h6>Top Columns With Missing Values:</h6>
+              <div class="profile-section missing-columns">
+                <h5>Top Columns With Missing Values:</h5>
                 <div class="missing-column" *ngFor="let column of getMissingColumns(messageItem.fileData.profile.missing_data.missing_value_distribution.top_5_columns_with_most_missing)">
                   <span class="column-name">{{column.key}}:</span>
                   <span class="missing-count">{{column.value}} missing</span>
                 </div>
               </div>
             </div>
-        
-            <!-- Sample Data Section -->
-            <div class="profile-section">
+            
+            <div class="profile-section has-scrollable-table">
               <h5>Sample Data (First 5 Rows)</h5>
               <div class="sample-data-table">
                 <table>
                   <thead>
                     <tr>
-                      <th *ngFor="let column of getSampleDataColumns(messageItem.fileData.profile.sample_data)">
+                      <th *ngFor="let column of getSampleDataColumns()">
                         {{column}}
                       </th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr *ngFor="let row of messageItem.fileData.profile.sample_data">
-                      <td *ngFor="let column of getSampleDataColumns(messageItem.fileData.profile.sample_data)">
-                        {{row[column] === null ? 'NULL' : row[column]}}
+                    <tr *ngFor="let row of currentFileData?.profile?.sample_data || []">
+                      <td *ngFor="let column of getSampleDataColumns()"
+                          [ngClass]="getCellClasses(column, row[column])">
+                        {{row[column] === null ? 'NULL' : formatCellValue(row[column])}}
                       </td>
                     </tr>
                   </tbody>
                 </table>
               </div>
+              
+              <div class="table-footer">
+                Showing {{currentFileData?.profile?.sample_data?.length || 0}} of 
+                {{currentFileData?.profile?.overview?.num_rows || 0}} rows • 
+                {{currentFileData?.profile?.overview?.num_columns || 0}} columns
+                <span *ngIf="getHiddenColumnsCount() > 0" class="text-muted">
+                  ({{getHiddenColumnsCount()}} columns hidden due to high missing values)
+                </span>
+              </div>
+            
+              <!-- Hidden Columns List -->
+              <div *ngIf="getHiddenColumnsCount() > 0" class="hidden-columns-alert mt-3">
+                <div class="alert alert-warning p-2 mb-0">
+                  <div class="fw-bold small mb-1">Other Columns with (>80% missing values):</div>
+                  <div class="d-flex flex-wrap gap-2">
+                    <span *ngFor="let column of getHiddenColumns()" class="badge bg-light text-dark border">
+                      {{column}}
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
+            
+            
+         
           </div>
         </div>
       </div>
@@ -222,7 +244,7 @@
                 margin-top: 15px;
                 border: 1px dashed #c0a0ff;">
       <h5><i class="fas fa-file-alt mr-2"></i>Upload Financial Documents</h5>
-      <p class="text-muted small">Supported formats: CSV, Excel (max 1GB)</p>
+      <p class="text-muted small ml-2">Supported formats: CSV, Excel (max 1GB)</p>
       <div class="d-flex">
         <input type="file" id="fileInput" (change)="onFileSelected($event)" class="form-control" 
                style="border-radius: 20px 0 0 20px; border: 1px solid #d0c0ff;" 
@@ -259,7 +281,7 @@
                     border: 1px solid #d0c0ff;
                     padding: 10px 15px;" 
              (keyup.enter)="sendMessage()">
-      <button class="btn btn-primary" (click)="sendMessage()" 
+      <button class="btn btn-outline-success" (click)="sendMessage()" 
               style="border-radius: 0 20px 20px 0; 
                      padding: 0 20px;
                      box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
