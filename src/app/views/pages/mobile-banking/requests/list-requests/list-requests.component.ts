@@ -28,22 +28,22 @@ export interface InvestmentDetail {
 export interface Investor {
 
 
-  investorID: number; // "Investor ID"
+  investorID: number; // 
   name: string;
-  incomeLevel: string; // "Income Level"
-  investmentType: string; // "Investment Type"
-  amountInvested: number; // "Amount Invested (KES)"
-  investmentExperience: number; // "Investment Experience (Years)"
-  riskScore: number; // "Risk Score"
-  riskCategory: string; // "Risk Category"
-  anomalyFlag: string; // "Anomaly Flag"
-  investmentRecommendation: string; // "Investment Recommendation"
-  recommendedInvestments: string[]; // "Recommended Investments"
-  cluster: number; // Cluster ID
-  clusterDescription: string; // Cluster Mapped Description
-  roi: number; // "ROI (%)"
-  totalInvestments: number; // Count of investments
-  investments: InvestmentDetail[]; // Investment details array
+  incomeLevel: string; 
+  investmentType: string; 
+  amountInvested: number; 
+  investmentExperience: number;
+  riskScore: number;
+  riskCategory: string; 
+  anomalyFlag: string; 
+  investmentRecommendation: string;
+  recommendedInvestments: string[]; 
+  cluster: number; 
+  clusterDescription: string; 
+  roi: number;
+  totalInvestments: number; 
+  investments: InvestmentDetail[];
 }
 
 
@@ -58,10 +58,6 @@ export interface Investor {
   providers: [DatePipe],
 })
 
-
-/**
- * Starter-component
- */
 export class ListRequestsComponent implements OnInit {
   public form: FormGroup;
   errorMsg: string;
@@ -79,54 +75,6 @@ export class ListRequestsComponent implements OnInit {
   
 
   standards: any = [
-    // {
-    //   id: '1',
-    //   existingImage: "assets/images/3.png",
-    //   title: 'Accommodation And Catering Establishment',
-    //   description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    // },
-    // {
-    //   id: '2',
-    //   existingImage: "assets/images/2.png",
-    //   title: 'Meetings, Incentives, Conferences & Exhibitions Facilities And Services',
-    //   description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    // },
-    // {
-    //   id: '3',
-    //   existingImage: "assets/images/6.jpg",
-    //   title: 'Standards For Food Safety And Hygiene Standards',
-    //   description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    // },
-    // {
-    //   id: '4',
-    //   existingImage: "assets/images/4.jpg",
-    //   title: 'Standards For Safety And Security Standards',
-    //   description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    // },
-    // {
-    //   id: '5',
-    //   existingImage: "assets/images/5.jpg",
-    //   title: ' Tour Guides And Hotel Employees Accommodation Standard',
-    //   description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    // },
-    // {
-    //   id: '6',
-    //   existingImage: "assets/images/3.png",
-    //   title: 'Halal Compliance Standard For Accommodation And Catering Establishments',
-    //   description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    // },
-    // {
-    //   id: '7',
-    //   existingImage: "assets/images/7.jpg",
-    //   title: 'Standards For Spa And Wellness Facilities',
-    //   description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    // },
-    // {
-    //   id: '8',
-    //   existingImage: "assets/images/1.jpg",
-    //   title: 'Standards For Tourism Tours & Travel Enterprises',
-    //   description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut enim finibus, porta lorem sed, tincidunt purus. Nullam eget pellentesque erat. Phasellus eget lectus cursus, gravida eros eget, aliquet odio."
-    // },
   ]
   dashboards: { id: string; src: string }[] = [
       // Processed Transactions
@@ -173,17 +121,16 @@ export class ListRequestsComponent implements OnInit {
   selectedTimeline: number | null = null;
 
 
-
   investorID: string = '';
   customer: any = null;
-  investor: Investor[] = [];  // 
+  investor: Investor[] = [];  
   kpis: any = {};
   images: any = {};
 
 
 simulatedInvestment: number = 0; // User input
 simulatedReturn: number = 0; // Calculated value
-portfolio = { roi: 10 }; // Example ROI, replace with actual data
+portfolio = { roi: 10 }; //
 
 
   searchQuery: string = "";
@@ -234,12 +181,6 @@ portfolio = { roi: 10 }; // Example ROI, replace with actual data
     this.updatePagination()
     this.fetchMarketUpdates();
     this.loadDashboardData()
-
-       // Mock Investor Data
-   
-  
-      // Mock Portfolio Data
-  
   
       // Mock AI Investment Recommendations
       this.recommendations = "Based on your risk profile, consider diversifying into emerging market ETFs and high-yield corporate bonds.";
@@ -252,26 +193,17 @@ portfolio = { roi: 10 }; // Example ROI, replace with actual data
         "You have a high-risk portfolio. Consider balancing with lower-risk assets." : 
         "Your portfolio has a balanced risk profile.";
       }
-  
-    // getRiskClass(risk: string) {
-    //   switch (risk) {
-    //     case "Low": return "badge bg-success";
-    //     case "Moderate": return "badge bg-warning";
-    //     case "High": return "badge bg-danger";
-    //     default: return "badge bg-secondary";
-    //   }
-    // }
 
     getRiskClass(risk: string) {
       switch (risk) {
         case "Low":
         case "Low Risk":
-          return "badge bg-success";
+          return "badge bg-danger";
         case "Medium":
         case "Moderate":
           return "badge bg-warning";
         case "High":
-          return "badge bg-danger";
+          return "badge bg-success";
         default:
           return "badge bg-secondary";
       }
@@ -281,13 +213,13 @@ portfolio = { roi: 10 }; // Example ROI, replace with actual data
     getClusterClass(cluster: number): string {
       switch (cluster) {
         case 0:
-          return 'badge bg-warning text-dark'; // Low investors, moderate risk, real estate preference
+          return 'badge bg-warning text-dark'; 
         case 1:
-          return 'badge bg-danger text-light'; // High investors, high risk, Private Equity & Money Market
+          return 'badge bg-danger text-light';
         case 2:
-          return 'badge bg-success text-light'; // Moderate investors, low risk, stocks preference
+          return 'badge bg-success text-light'; 
         default:
-          return 'badge bg-secondary text-light'; // Default styling for unknown clusters
+          return 'badge bg-secondary text-light'; 
       }
     }
     
@@ -428,19 +360,19 @@ portfolio = { roi: 10 }; // Example ROI, replace with actual data
                 name: item["Investor Name"] || "Unknown",
                 incomeLevel: item["Income Level"],
                 investmentType: item["Investment Type"],
-                amountInvested: investmentAmount, // Updated investment amount
+                amountInvested: investmentAmount, 
                 investmentExperience: item["Investment Experience (Years)"],
-                riskScore: Number(adjustedRiskScore.toFixed(2)), // Updated risk score
+                riskScore: Number(adjustedRiskScore.toFixed(2)), 
                 riskCategory: item["Risk Category"],
-                roi: Number(roiPercentage.toFixed(2)), // Updated realistic ROI %
+                roi: Number(roiPercentage.toFixed(2)), 
                 anomalyFlag: item["Anomaly Flag"] || "Normal",
                 investmentRecommendation: item["Investment Recommendation"] || "No Recommendation",
-                recommendedInvestments: item["Recommended Investments"], // No changes here!
+                recommendedInvestments: item["Recommended Investments"], 
                 cluster: item["Cluster"],
                 clusterDescription: clusterDescription,
-                roiPercentage: Number(roiPercentage.toFixed(2)), // ROI now reflects risk category
-                totalInvestments: investmentList.length, // Updated investment count
-                investments: investmentList // Store filtered investments
+                roiPercentage: Number(roiPercentage.toFixed(2)), 
+                totalInvestments: investmentList.length, 
+                investments: investmentList 
               };
             });
     
