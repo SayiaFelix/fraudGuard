@@ -33,6 +33,7 @@ interface ConversationMessage {
   time: string;
   isFileResponse?: boolean;
   isWelcomeMessage?: boolean;
+  formattedText?: string;  
   fileData?: {
     filename: string;
     size: number;
@@ -262,6 +263,7 @@ export class ListCustomersComponent implements OnInit {
         this.conversation.push({
           sender: 'bot',
           text: botMessage,
+          formattedText: this.formatResponse(botMessage), 
           time: this.getCurrentTime()
         });
         
@@ -284,6 +286,27 @@ export class ListCustomersComponent implements OnInit {
     });
     this.userQuery = '';
   }
+
+  formatResponse(text: string): string {
+    const escaped = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const formatted = escaped
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')             
+        .replace(/^\s*(\d+)\.\s+(.*)$/gm, '<li>$2</li>')   
+        .replace(/^\s*[-*]\s+(.*)$/gm, '<li>$1</li>')     
+        .replace(/\n/g, '<br>');          
+    const wrapped = formatted
+        .replace(/(<li>.*?<\/li>)+/g, (match) => {
+  
+            const listItems = match.replace(/<\/li><li>/g, '</li>\n<li>');
+            return match.includes('</li><li>') ? `<ul>\n${listItems}\n</ul>` : `<ol>\n${listItems}\n</ol>`;
+        });
+
+    return wrapped;
+}
+
+
+
   private scrollToBottom(): void {
     try {
       this.cdRef.detectChanges(); 
@@ -562,6 +585,7 @@ export class ListCustomersComponent implements OnInit {
       'status-performing': column.toLowerCase().includes('status') && value?.toString().toLowerCase() === 'performing'
     };
   }
+
 
   formatCellValue(value: any): string {
     if (value === null || value === undefined) return 'NULL';

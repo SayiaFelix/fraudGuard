@@ -73,13 +73,15 @@
 
           <div class="message-content chat-messages" id="chat-container">
             <div class="message-text">
-              <span>{{ messageItem.text }}</span>
+              <span [innerHTML]="formatResponse(messageItem.text)"></span>
 
               <span *ngIf="isLoading && isLastMessage(messageItem)" class="inline-loader">
                 <span class="loading-dot"></span>
                 <span class="loading-dot"></span>
                 <span class="loading-dot"></span>
               </span>
+
+              
 
 
               <div *ngIf="messageItem.isFileResponse && messageItem.fileData" class="file-summary">
