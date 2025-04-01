@@ -3,7 +3,7 @@ import {
   Input,
   OnInit,
   TemplateRef,
-  ViewChild, ElementRef, AfterViewChecked, Pipe, PipeTransform
+  ViewChild, ElementRef, AfterViewChecked, Pipe, PipeTransform,ChangeDetectorRef 
 } from '@angular/core';
 
 import { NgbActiveModal, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -189,6 +189,7 @@ export class ListCustomersComponent implements OnInit {
  
 
   constructor(
+    private cdRef: ChangeDetectorRef,
     private httpService: HttpService,
     private modalService: NgbModal,
     public fb: FormBuilder,
@@ -234,23 +235,39 @@ export class ListCustomersComponent implements OnInit {
   sendMessage() {
     this.isLoading = true;
     if (this.userQuery.trim() === '') return;
-
+  
     // user message
     this.conversation.push({
       sender: 'user',
       text: this.userQuery,
       time: this.getCurrentTime()
     });
+    
+    // Force UI update
+    this.cdRef.detectChanges();
+    this.scrollToBottom();
     this.shouldScroll = true;
 
+  
     this.http.post<any>('http://localhost:5015/api/chat', { query: this.userQuery }).subscribe({
       next: (response) => {
         this.isLoading = false;
+        console.log('Raw response:', response);
+        
+        // Properly extract the response from nested structure
+        const botMessage = response.data?.response || 
+                          response.response || 
+                          'I received your message but the response format was unexpected.';
+        
         this.conversation.push({
           sender: 'bot',
-          text: response.response,
+          text: botMessage,
           time: this.getCurrentTime()
         });
+        
+        // Force UI update and scroll
+        this.cdRef.detectChanges();
+        this.scrollToBottom();
         this.shouldScroll = true;
       },
       error: (error) => {
@@ -260,27 +277,28 @@ export class ListCustomersComponent implements OnInit {
           text: 'Sorry, I encountered an error processing your request.',
           time: this.getCurrentTime()
         });
-        this.shouldScroll = true;
+        this.cdRef.detectChanges();
+        this.scrollToBottom();
         console.error('Chat error:', error);
       }
     });
-
     this.userQuery = '';
   }
-
   private scrollToBottom(): void {
     try {
+      this.cdRef.detectChanges(); 
+      
       setTimeout(() => {
-        this.chatArea.nativeElement.scrollTop = this.chatArea.nativeElement.scrollHeight;
-      }, 100);
-      const chatContainer = document.getElementById('chat-container');
-      if (chatContainer) {
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-      }
+        const chatContainer = this.chatArea?.nativeElement;
+        if (chatContainer) {
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+      }, 100); 
     } catch (err) {
       console.error('Scroll error:', err);
     }
   }
+
 
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -656,7 +674,7 @@ export class ListCustomersComponent implements OnInit {
 
 
 
-  
+
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
