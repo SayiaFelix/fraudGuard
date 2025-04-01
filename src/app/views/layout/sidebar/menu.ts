@@ -30,7 +30,7 @@ export const MENU: MenuItem[] = [
     // ]
   },
   {
-    profiles: ['CORPORATE_ADMIN'],
+    // profiles: ['CORPORATE_ADMIN'],
     label: 'PROFILES',
     icon: 'bar-chart',
     link: '/eclectics/analytics/all-analytics'
