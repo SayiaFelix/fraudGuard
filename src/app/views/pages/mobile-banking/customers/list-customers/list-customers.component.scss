@@ -585,3 +585,44 @@ button.deactivated {
   color: #6c757d;
   font-style: italic;
 }
+
+.message-text {
+  p {
+    margin: 8px 0;
+    line-height: 1.5;
+  }
+
+  ol, ul {
+    margin: 12px 0;
+    padding-left: 24px;
+    
+    li {
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+  }
+
+  ol {
+    list-style-type: decimal;
+    
+    li.numbered {
+      list-style-type: inherit;
+    }
+  }
+
+  ul {
+    list-style-type: disc;
+    
+    li.bulleted {
+      list-style-type: inherit;
+    }
+  }
+
+  strong {
+    font-weight: 600;
+  }
+
+  em {
+    font-style: italic;
+  }
+}
