@@ -288,22 +288,42 @@ export class ListCustomersComponent implements OnInit {
   }
 
   formatResponse(text: string): string {
-    const escaped = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    const formatted = escaped
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
-        .replace(/\*(.*?)\*/g, '<em>$1</em>')             
-        .replace(/^\s*(\d+)\.\s+(.*)$/gm, '<li>$2</li>')   
-        .replace(/^\s*[-*]\s+(.*)$/gm, '<li>$1</li>')     
-        .replace(/\n/g, '<br>');          
-    const wrapped = formatted
-        .replace(/(<li>.*?<\/li>)+/g, (match) => {
+    if (!text) return '';
+    
+    // 1. Basic security sanitization
+    const escaped = text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
   
-            const listItems = match.replace(/<\/li><li>/g, '</li>\n<li>');
-            return match.includes('</li><li>') ? `<ul>\n${listItems}\n</ul>` : `<ol>\n${listItems}\n</ol>`;
-        });
-
-    return wrapped;
-}
+    // 2. Process numbered lists (1., 2., etc.)
+    let formatted = escaped.replace(/^(\d+)\.\s+(.*)$/gm, '<li class="numbered">$2</li>');
+    
+    // 3. Process bullet points (- or *)
+    formatted = formatted.replace(/^[-*]\s+(.*)$/gm, '<li class="bulleted">$1</li>');
+    
+    // 4. Markdown formatting
+    formatted = formatted
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>');
+  
+    // 5. Wrap consecutive list items
+    formatted = formatted.replace(
+      /(<li class="numbered">.*?<\/li>(?:\s*<li class="numbered">.*?<\/li>)+)/gs, 
+      match => `<ol>${match}</ol>`
+    );
+    
+    formatted = formatted.replace(
+      /(<li class="bulleted">.*?<\/li>(?:\s*<li class="bulleted">.*?<\/li>)+)/gs, 
+      match => `<ul>${match}</ul>`
+    );
+  
+    // 6. Convert line breaks and paragraphs
+    return formatted
+      .replace(/\n\n/g, '</p><p>')
+      .replace(/\n/g, '<br>')
+      .replace(/<p><\/p>/g, '');
+  }
 
 
 
