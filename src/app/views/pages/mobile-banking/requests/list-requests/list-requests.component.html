@@ -246,6 +246,93 @@ style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 5px; padding: 10
 
 
 
+
+<div class="container mt-4">
+  <div class="card p-4 shadow-sm">
+    <h4 class="fw-bold text-dark" style="font-family: Muli; font-size: 20px; line-height: 26px;">
+      Customer Churn Prediction
+    </h4>
+    <p class="text-muted">Enter a Customer ID to fetch churn prediction details or download the churn prediction report.</p>
+
+    <!-- Customer ID Input -->
+    <div class="mb-3">
+      <label for="customerId" class="form-label fw-bold">Customer ID</label>
+      <input 
+        type="number" 
+        id="customerId" 
+        class="form-control" 
+        [(ngModel)]="customerId" 
+        placeholder="Enter Customer ID"
+      />
+    </div>
+
+    <!-- Buttons for Churn Prediction -->
+    <div class="d-flex justify-content-between">
+      <button 
+        class="btn btn-primary" 
+        (click)="fetchChurnPrediction()" 
+        [disabled]="!customerId">
+        📄 Fetch Churn Prediction
+      </button>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="mt-3 text-danger">
+      <small>{{ errorMessage }}</small>
+    </div>
+
+    <!-- Success Message -->
+    <div *ngIf="successMessage" class="mt-3 text-success">
+      <small>{{ successMessage }}</small>
+    </div>
+
+    <!-- Churn Status and Customer ID -->
+    <div *ngIf="churnPredictionDetails" class="mt-4">
+      <h5 class="fw-bold">Prediction Summary</h5>
+      <div class="mb-3">
+        <strong>Churn Status:</strong>
+        <span [ngClass]="churnPredictionDetails.churn_status === 'not likely to churn' ? 'text-success' : 'text-danger'">
+          {{ churnPredictionDetails.churn_status }}
+        </span>
+      </div>
+      <div class="mb-3">
+        <strong>Customer ID:</strong> {{ churnPredictionDetails.customer_id }}
+      </div>
+    </div>
+
+    <!-- Prediction Graph -->
+    <div *ngIf="predictionGraphUrl" class="mt-4">
+      <h5 class="fw-bold">Prediction Graph</h5>
+      <img [src]="predictionGraphUrl" alt="Prediction Graph" class="img-fluid" />
+    </div>
+
+    <!-- Prediction Details -->
+    <div *ngIf="churnPredictionDetails" class="mt-4">
+      <h5 class="fw-bold">Prediction Details</h5>
+    
+      <!-- Lime Explanation -->
+      <div class="mb-3">
+        <strong>Understanding The Prediction:</strong>
+        <ul>
+          <li *ngFor="let explanation of churnPredictionDetails.lime_explanation">
+            {{ explanation }}
+          </li>
+        </ul>
+      </div>
+    
+      <!-- Retention Strategies -->
+      <div class="mb-3">
+        <strong>Retention Strategies:</strong>
+        <ol>
+          <li *ngFor="let strategy of churnPredictionDetails.retention_strategies">
+            {{ strategy }}
+          </li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- <div class="container">
 
   <div class="row mt-4">
