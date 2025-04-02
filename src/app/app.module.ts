@@ -6,7 +6,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 import { LayoutModule } from './views/layout/layout.module';
 import { AuthGuard } from './core/guard/auth.guard';
-
+import { MatTableModule } from '@angular/material/table';
 import { AppComponent } from './app.component';
 import { ErrorPageComponent } from './views/pages/error-page/error-page.component';
 import { HIGHLIGHT_OPTIONS } from 'ngx-highlightjs';
@@ -39,6 +39,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     HttpClientModule,
     BrowserAnimationsModule,
     CarouselModule ,
+    MatTableModule, 
     ToastrModule.forRoot(),
     TranslateModule.forRoot({
       loader: {

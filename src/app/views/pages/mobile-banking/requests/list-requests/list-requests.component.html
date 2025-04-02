@@ -3,42 +3,279 @@
 style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 5px; padding: 10px;">
 <div>
   <h4 class="mb-3 mb-md-0"
-    style="color: var(--dark-purple, #1e0f2e); font-family: Muli; font-size: 20px; font-style: normal; font-weight: 700; line-height: 26px;">
-    Processed Transaction Analytics
+    style="color: var(--dark-purple, #1e0f2e); font-family: Muli; font-size: 22px; font-style: normal; font-weight: 700; line-height: 26px;">
+    Customer Insights
   </h4>
 </div>
 </div>
 <hr>
+<div class="container mt-4">
 
-<div class="card border-0 box-shadow">
-  <div class="container mt-2">
-    <div class="row g-4">
-      <div class="col-12 col-md-6 col-lg-6 col-sm-12" *ngFor="let dashboard of paginatedDashboards">
-        <div class="dashboard-item p-3" style="height: 100%;"> <!-- Fixed parent height -->
-          <tableau-viz
-            id="{{dashboard.id}}"
-            [attr.src]="dashboard.src"  
-            class="w-100 h-100" 
-            hide-tabs
-            toolbar="bottom">
-          </tableau-viz>
+  <div class="row">
+    <!-- Total Investors -->
+   
+    <!-- Total Investments -->
+    <div class="col-md-4">
+        <div class="card p-3 text-center text-white bg-success">
+            <h5><i class="bi bi-cash-stack"></i> Total Investments</h5>
+            <h3> KSH. {{ kpis['Total Investments (KES)'] | number }}</h3>
+        </div> 
+    </div>
+
+    <div class="col-md-4">
+      <div class="card p-3 text-center text-white" style="background-color: #3cb7e9;">
+          <h5><i class="bi bi-people-fill"></i> Total Withdrawals </h5>
+          <h3> KSH. {{ kpis['Total Withdrawals (KES)'] | number }}</h3>
+          <!-- <h3>{{ investor.length }}</h3> -->
+      </div>
+  </div>
+
+    <!-- Average Balance -->
+    <div class="col-md-4">
+        <div class="card p-3 text-center text-dark bg-warning">
+            <h5><i class="bi bi-piggy-bank-fill"></i> Total Transactions </h5>
+            <h3> {{ kpis['Total Transactions'] | number }} Transactions</h3>
         </div>
+    </div>
+</div>
+
+    
+<div class="d-flex justify-content-between align-items-center flex-wrap grid-margin mt-2"
+style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 5px; padding: 10px;">
+<div>
+  <h4 class="mb-1 mb-md-0"
+    style="color: var(--dark-purple, #121113); font-family: Muli; font-size: 20px; font-style: normal; font-weight: 700; line-height: 26px;">
+    Investors Portfolio Overview
+  </h4>
+</div>
+</div>
+
+  <!-- Customer List Section -->
+  <div class="card p-3 mt-3">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <label style=" color: var(--dark-purple, #1e0f2e) ;font-size: 13px; font-weight: 700; font-family: Muli, sans-serif; " for="investmentFilter">Filter by Investment Type</label>
+        <select id="investmentFilter" class="form-control" [(ngModel)]="selectedInvestment">
+            <option value="">All</option>
+            <option *ngFor="let type of investmentTypes" [value]="type">{{ type }}</option>
+        </select>
+     </div>
+     <div>
+        <label  style=" color: var(--dark-purple, #1e0f2e) ;font-size: 13px; font-weight: 700; font-family: Muli, sans-serif; " for="riskFilter">Filter by Risk Profile</label>
+        <select id="riskFilter" class="form-control" [(ngModel)]="selectedRisk">
+            <option value="">All</option>
+            <option *ngFor="let risk of riskProfiles" [value]="risk">{{ risk }}</option>
+        </select>
+     </div>
+     <div>
+      <input [(ngModel)]="searchQuery" class="form-control" placeholder="Search by INVESTOR ID...">
+    </div>
+
+    <!-- <div class="d-flex align-items-center mb-3">
+        <label for="recordsPerPage"  style="color: var(--dark-purple, #1e0f2e); font-size: 13px; font-weight: 700; font-family: Muli, sans-serif;" class="me-2 fw-bold">Records per page</label>
+        <select id="recordsPerPage" class="form-select w-auto" [(ngModel)]="recordsPerPage" (change)="updatePagination()">
+          <option *ngFor="let num of [10, 20, 50, 100]" [value]="num">{{ num }}</option>
+        </select>
+      </div> -->
+      
+     <div class="text-end position-relative">
+      <label style="color: var(--dark-purple, #1e0f2e); font-size: 13px; font-weight: 700; font-family: Muli, sans-serif;" for="downloadOptions">
+          Download Live Report
+      </label>
+      <div class="dropdown">
+          <button class="btn btn-secondary dropdown-toggle" type="button" id="downloadOptions" data-bs-toggle="dropdown" aria-expanded="false">
+              📥 Export Data
+          </button>
+          <ul class="dropdown-menu" aria-labelledby="downloadOptions">
+              <li><button class="dropdown-item" (click)="exportToExcel()">📊 Export to Excel</button></li>
+              <li><button class="dropdown-item" (click)="exportToPDF()">📄 Export to PDF</button></li>
+          </ul>
+      </div>
+     </div>
+ </div>
+<hr>
+
+<div class="table-responsive mt-3">
+  <table class="table table-striped table-hover">
+    <thead class="table-dark">
+      <tr class="text-center text-light">
+        <th (click)="sortBy('investorID')" style="cursor: pointer;">
+          Investor ID <span *ngIf="sortField === 'investorID'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
+        </th>
+        <!-- <th>Cluster ID</th>  -->
+        <!-- <th>Investment Type</th> -->
+        <!-- <th>Amount Invested (KES)</th> -->
+        <th>Risk Score</th>
+        <th>Investor Profile</th>
+       
+        <th>Investment Details</th> 
+        <!-- <th>Investment Recommendation</th> -->
+        <th>Recommended Investments</th>
+        <th>Anomaly Flag</th> 
+        <th>ROI (%)</th> <!-- ROI Column Added -->
+     <!-- Dropdown Column -->
+      </tr>
+    </thead>
+    
+    <tbody>
+      <tr *ngFor="let investor of filteredInvestors(); let i = index">
+        <td>{{ investor.investorID }}</td>
+        <!-- <td>{{ investor.cluster }}</td> -->
+        <!-- <td>{{ investor.investmentType }}</td> -->
+        <!-- <td>{{ investor.amountInvested | currency:'KES ' }}</td> -->
+        <td>{{ investor.riskScore | number: '1.0-2' }}</td> 
+        <td>
+          <span [ngClass]="getRiskClass(investor.riskCategory)">
+            {{ investor.riskCategory }}
+          </span>
+        </td>
+
+        
+        <!-- Investment Dropdown -->
+        <td>
+          <details>
+            <summary class="text-primary" style="cursor: pointer;">View Investments</summary>
+            <ul *ngIf="investor.investments.length > 0; else noInvestment">
+              <li *ngFor="let invest of investor.investments">
+                <strong>Type:</strong> {{ invest.investmentType }} <br>
+                <strong>Amount:</strong> {{ invest.amountInvested | currency:'KES ' }} <br>
+                <!-- <strong>Risk:</strong> {{ invest.riskCategory }} ({{ invest.riskScore }}) <br>   -->
+              </li>
+            </ul>
+            <ng-template #noInvestment>
+              <span class="text-muted">No Investments</span>
+            </ng-template>
+          </details>
+        </td>
+       
+
+        <!-- <td>{{ investor.investmentRecommendation || "No Recommendation" }}</td>  -->
+
+        <td>{{ investor.recommendedInvestments ? investor.recommendedInvestments.join(", ") : "N/A" }}</td>
+        
+        <td>
+          <span [ngClass]="investor.anomalyFlag === 'Suspicious' ? 'text-danger' : 'text-success'">
+            {{ investor.anomalyFlag }}
+          </span>
+        </td>
+        <td>{{ investor.roi ? (investor.roi | number: '1.2-2') + '%' : 'N/A' }}</td> <!-- ROI Displayed -->
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+
+
+  
+
+
+ 
+</div>
+</div>
+
+<div class="container">
+  <!-- Investment Simulator -->
+  <div class="card p-4 mt-4 shadow-sm">
+    <h4 class="fw-bold text-dark" style="font-family: Muli; font-size: 20px; line-height: 26px;">
+      AI-Powered Investment Prediction Returns
+    </h4>
+    <p class="text-muted">Estimate potential returns based on your investment amount.</p>
+
+    <!-- Investor ID Input -->
+    <div class="mb-3">
+      <label for="investorId" class="form-label fw-bold">Investor ID</label>
+      <input 
+        type="text" 
+        id="investorId" 
+        class="form-control" 
+        [(ngModel)]="investorID" 
+        (ngModelChange)="onInvestorIDChange($event)" 
+        placeholder="Enter Investor ID"
+      />
+       <!-- Error message for invalid Investor ID -->
+       <div *ngIf="!isValidInvestorID && investorID" class="text-danger mt-2">
+        <small>Investor ID must start with 'INV' followed by numbers (e.g., 'INV12345').</small>
       </div>
     </div>
-    <div class="pagination mt-3 d-flex justify-content-end">
-      <button class="btn btn-primary me-2" (click)="prevPage()" [disabled]="currentPage === 0">
-        Previous
-      </button>
-      <button class="btn btn-success" (click)="nextPage()" [disabled]="(currentPage + 1) * itemsPerPage >= dashboards.length">
-        Next
-      </button>
+
+    <!-- Investment Amount Input -->
+    <div class="mb-3">
+      <label for="investmentAmount" class="form-label fw-bold">Investment Amount (KES)</label>
+      <input 
+        type="number" 
+        id="investmentAmount" 
+        class="form-control" 
+        [(ngModel)]="simulatedInvestment" 
+        placeholder="Enter Investment Amount"
+      />
+    </div>
+
+    <!-- Investment Period Selection -->
+    <div class="mb-3">
+      <label class="form-label fw-bold">Investment Period</label>
+      <select class="form-select" [(ngModel)]="selectedTimeline">
+        <option [value]="6">6 Months</option>
+        <option [value]="12">1 Year</option>
+        <option [value]="24">2 Years</option>
+      </select>
+    </div>
+
+    <!-- Predict Button -->
+    <button 
+      class="btn btn-success w-100" 
+      (click)="simulateReturns()" 
+      [disabled]="!isValidInvestorID || isProcessing">
+      {{ isProcessing ? 'Analyzing...' : 'Predict Returns' }}
+    </button>
+
+    <!-- AI Processing Effect -->
+    <div *ngIf="isProcessing" class="mt-2 text-warning">
+      <small>⏳ AI is analyzing market trends...</small>
+    </div>
+
+    <!-- Predicted Results -->
+    <div *ngIf="simulatedReturn && !isProcessing" class="mt-4 p-3 bg-light rounded shadow-sm">
+      <h5 class="text-success">Predicted Return for {{ selectedTimeline }} Months</h5>
+      <p class="fw-bold fs-5">KSh {{ simulatedReturn | number }}</p>
+      <small class="text-muted">AI Confidence: {{ confidenceScore }}%</small>
     </div>
   </div>
 </div>
+
+
+
+
+<!-- <div class="container">
+
+  <div class="row mt-4">
+  
+    <div class="row mt-2">
+      <div class="col-md-12">
+        <h5 class="fw-bold mb-3">Investor Profile Insights</h5>
+        <ul class="list-unstyled">
+          <li class="p-2 rounded bg-light text-success mb-2">
+            <strong>High Profile</strong> – Investors with large portfolios, a high risk appetite, and a preference for aggressive growth strategies like Private Equity.
+          </li>
+          <li class="p-2 rounded bg-light text-primary mb-2">
+            <strong>Moderate Profile</strong> – Investors with medium-sized portfolios, a low risk appetite, and a preference for safer investments like stocks.
+          </li>
+          <li class="p-2 rounded bg-light text-danger">
+            <strong>Low Profile</strong> – Investors with smaller portfolios, a moderate risk appetite, and a preference for stable assets like real estate.
+          </li>
+        </ul>
+      </div>
+
+</div>  
+</div> -->
 <hr>
 <div>
-  <footer class="footer mt-3 d-flex flex-column flex-md-row align-items-center justify-content-between px-4 border-top small">
-    <p class="text-muted">Copyright © 2024 <a href="" style="color: #6d36a8; font-family: 'Muli';" target="_blank">Analytics</a></p>
-    <p class="" style="color: #6d36a8; font-family: 'Muli'; font-style: normal; font-weight: 700; font-size: 13px; letter-spacing: 0.08em;">Faulu Bank Kenya</p>
-  </footer>
+  <footer
+  class="footer mt-3 d-flex flex-column flex-md-row align-items-center justify-content-between px-4 border-top small">
+  <p class="text-muted">Copyright © 2025 <a href="" style="color:#46bfe9; font-family: 'Muli';"
+      target="_blank">Eclectics International Limited</a></p>
+  <p class=""
+    style="color: #083273; font-family: 'Muli'; font-style: normal; font-weight: 700; font-size: 13px; letter-spacing: 0.08em;">
+    AI Analytics Solutions</p>
+</footer>
 </div>

@@ -2,10 +2,10 @@ import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Routes, RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-
+import { Chart } from 'chart.js/auto';
 import { FeatherIconModule } from 'src/app/core/feather-icon/feather-icon.module';
 import { NgbDropdownModule, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
-
+import { MatTableModule } from '@angular/material/table';
 // Ng-ApexCharts
 import { NgApexchartsModule } from "ng-apexcharts";
 import { DashboardComponent } from './dashboard.component';
@@ -27,6 +27,7 @@ const routes: Routes = [
         FormsModule,
         FeatherIconModule,
         Ng2TelInputModule,
+         MatTableModule, 
         ReactiveFormsModule,
         NgbDropdownModule,
         NgbDatepickerModule,

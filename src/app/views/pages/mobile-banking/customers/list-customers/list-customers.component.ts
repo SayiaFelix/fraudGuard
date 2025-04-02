@@ -3,8 +3,9 @@ import {
   Input,
   OnInit,
   TemplateRef,
-  ViewChild,
+  ViewChild, ElementRef, AfterViewChecked, Pipe, PipeTransform,ChangeDetectorRef 
 } from '@angular/core';
+
 import { NgbActiveModal, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -20,21 +21,68 @@ import { AddCustomerComponent } from "../add-customer/add-customer.component";
 import { CustomValidators } from 'ngx-custom-validators';
 import Swal from 'sweetalert2';
 import { ConfirmDialogComponent } from 'src/app/shared/components/confirm-dialog/confirm-dialog.component';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpEventType, HttpRequest, HttpEvent, HttpResponse } from '@angular/common/http';
 // import {ChannelDetailsWrapper} from "../../../../../shared/services/channelDetailsWrapper";
 // import {AddAccountComponent} from "../../Accounts/AccountRegistration/add-account/add-account.component";
+
+
+// Update the interface to match the API response
+interface ConversationMessage {
+  sender: string;
+  text: string;
+  time: string;
+  isFileResponse?: boolean;
+  isWelcomeMessage?: boolean;
+  formattedText?: string;  
+  fileData?: {
+    filename: string;
+    size: number;
+    profile?: {
+      overview: any;
+      column_types: any;
+      missing_data: {
+        total_missing: number;
+        pct_missing: number;
+        columns_with_missing: number;
+        missing_value_distribution: {
+          columns: { [key: string]: number };
+          top_5_columns_with_most_missing: { [key: string]: number };
+        }
+      };
+      sample_data: any[];
+    };
+    message?: string;
+  };
+}
+
+@Pipe({
+  name: 'filesize'
+})
+
+export class FilesizePipe implements PipeTransform {
+  transform(bytes: number, decimals: number = 2): string {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(decimals)) + ' ' + sizes[i];
+  }
+}
+
 
 @Component({
   selector: 'app-list-requests',
   templateUrl: './list-customers.component.html',
   styleUrls: ['./list-customers.component.scss'],
-  providers: [DatePipe],
+  providers: [FilesizePipe, DatePipe],
 })
 
 /**
  * Starter-component
  */
 export class ListCustomersComponent implements OnInit {
+  @ViewChild('chatArea') private chatArea!: ElementRef;
+
   isAppealButtonVisible = true;
   isViewTrackButtonVisible = false;
 
@@ -73,7 +121,6 @@ export class ListCustomersComponent implements OnInit {
       src: 'https://dub01.online.tableau.com/#/site/peternjosh7365-adf6ffe291/views/Book1/Sheet17',
     },
   ];
-  
 
 
 
@@ -107,8 +154,43 @@ export class ListCustomersComponent implements OnInit {
   appealData: any;
   resultRef: string | null = null;
 
+  // Then update your component property:
+  conversation: ConversationMessage[] = [
+    {
+      sender: 'bot',
+      text: 'Welcome to AI Powered Financial Assistant. You can Upload data or ask questions about loans, investments, and banking services.',
+      isWelcomeMessage: true,
+      time: this.getCurrentTime()
+    }
+  ];
+
+  userQuery: string = '';
+  private shouldScroll = true;
+  botResponse: string = '';
+
+  // File upload properties
+  showUpload: boolean = false;
+  uploadMessage: string = '';
+  selectedFile: File | null = null;
+  readonly allowedFileTypes = [
+    'application/pdf',
+    'text/csv',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  ];
+  readonly maxFileSize = 1024 * 1024 * 1024; // 1GB
+  uploadProgress: number = 0;
+  isUploading: boolean = false;
+  currentFileData: any;
+  isDragover = false;
+  isErrorState = false;
+  currentColumnStart = 0;
+  columnsPerPage = 6;
+  
+ 
 
   constructor(
+    private cdRef: ChangeDetectorRef,
     private httpService: HttpService,
     private modalService: NgbModal,
     public fb: FormBuilder,
@@ -117,7 +199,8 @@ export class ListCustomersComponent implements OnInit {
     private datePipe: DatePipe,
     private sanitizer: DomSanitizer,
     public activeModal: NgbActiveModal,
-    private dataExploration: DataExportationService
+    private dataExploration: DataExportationService,
+    private filesizePipe: FilesizePipe,
   ) {
     // this.downloadLink = this.sanitizer.bypassSecurityTrustUrl(this.brochureUrl);
     this.downloadLink = '';
@@ -142,24 +225,524 @@ export class ListCustomersComponent implements OnInit {
     this.appealDate = new Date();
     // this.isAppealButtonVisible = this.calculateAppealButtonVisibility();
   }
+
+  ngAfterViewChecked() {
+    if (this.shouldScroll) {
+      this.scrollToBottom();
+      this.shouldScroll = false;
+    }
+  }
+
+  sendMessage() {
+    this.isLoading = true;
+    if (this.userQuery.trim() === '') return;
+  
+    // user message
+    this.conversation.push({
+      sender: 'user',
+      text: this.userQuery,
+      time: this.getCurrentTime()
+    });
+    
+    // Force UI update
+    this.cdRef.detectChanges();
+    this.scrollToBottom();
+    this.shouldScroll = true;
+
+  
+    this.http.post<any>('http://localhost:5015/api/chat', { query: this.userQuery }).subscribe({
+      next: (response) => {
+        this.isLoading = false;
+        console.log('Raw response:', response);
+        
+        // Properly extract the response from nested structure
+        const botMessage = response.data?.response || 
+                          response.response || 
+                          'I received your message but the response format was unexpected.';
+        
+        this.conversation.push({
+          sender: 'bot',
+          text: botMessage,
+          formattedText: this.formatResponse(botMessage), 
+          time: this.getCurrentTime()
+        });
+        
+        // Force UI update and scroll
+        this.cdRef.detectChanges();
+        this.scrollToBottom();
+        this.shouldScroll = true;
+      },
+      error: (error) => {
+        this.isLoading = false;
+        this.conversation.push({
+          sender: 'bot',
+          text: 'Sorry, I encountered an error processing your request.',
+          time: this.getCurrentTime()
+        });
+        this.cdRef.detectChanges();
+        this.scrollToBottom();
+        console.error('Chat error:', error);
+      }
+    });
+    this.userQuery = '';
+  }
+
+  formatResponse(text: string): string {
+    if (!text) return '';
+    
+    // 1. Basic security sanitization
+    const escaped = text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  
+    // 2. Process numbered lists (1., 2., etc.)
+    let formatted = escaped.replace(/^(\d+)\.\s+(.*)$/gm, '<li class="numbered">$2</li>');
+    
+    // 3. Process bullet points (- or *)
+    formatted = formatted.replace(/^[-*]\s+(.*)$/gm, '<li class="bulleted">$1</li>');
+    
+    // 4. Markdown formatting
+    formatted = formatted
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>');
+  
+    // 5. Wrap consecutive list items
+    formatted = formatted.replace(
+      /(<li class="numbered">.*?<\/li>(?:\s*<li class="numbered">.*?<\/li>)+)/gs, 
+      match => `<ol>${match}</ol>`
+    );
+    
+    formatted = formatted.replace(
+      /(<li class="bulleted">.*?<\/li>(?:\s*<li class="bulleted">.*?<\/li>)+)/gs, 
+      match => `<ul>${match}</ul>`
+    );
+  
+    // 6. Convert line breaks and paragraphs
+    return formatted
+      .replace(/\n\n/g, '</p><p>')
+      .replace(/\n/g, '<br>')
+      .replace(/<p><\/p>/g, '');
+  }
+
+
+
+  private scrollToBottom(): void {
+    try {
+      this.cdRef.detectChanges(); 
+      
+      setTimeout(() => {
+        const chatContainer = this.chatArea?.nativeElement;
+        if (chatContainer) {
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+      }, 100); 
+    } catch (err) {
+      console.error('Scroll error:', err);
+    }
+  }
+
+
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) {
+      this.uploadMessage = 'No file selected';
+      this.selectedFile = null;
+      return;
+    }
+
+    const file = input.files[0];
+
+    // Validate file type
+    if (!this.allowedFileTypes.includes(file.type)) {
+      this.uploadMessage = 'Invalid file type. Please upload PDF, CSV, or Excel files.';
+      this.selectedFile = null;
+      return;
+    }
+
+    // Validate file size
+    if (file.size > this.maxFileSize) {
+      this.uploadMessage = `File too large. Maximum size is ${this.formatFileSize(this.maxFileSize)}.`;
+      this.selectedFile = null;
+      return;
+    }
+
+    this.selectedFile = file;
+    this.uploadMessage = `Selected: ${file.name} (${this.formatFileSize(file.size)})`;
+    this.uploadProgress = 0;
+  }
+
+  uploadFile() {
+    // this.isLoading = true;
+    if (!this.selectedFile) {
+      this.uploadMessage = 'Please select a file first';
+      this.isErrorState = true;
+      return;
+    }
+
+    this.isUploading = true;
+    this.isErrorState = false;
+    this.uploadMessage = `Uploading ${this.selectedFile.name} (${this.formatFileSize(this.selectedFile.size)})...`;
+
+    const formData = new FormData();
+    formData.append('file', this.selectedFile);
+
+    this.http.post('http://localhost:5015/api/upload', formData, {
+      reportProgress: true,
+      observe: 'events'
+    }).subscribe({
+      next: (event: HttpEvent<any>) => {
+        if (event.type === HttpEventType.UploadProgress) {
+          const progress = Math.round(100 * event.loaded / (event.total || 1));
+          this.uploadProgress = progress;
+        } else if (event.type === HttpEventType.Response) {
+          try {
+            // Process successful upload
+            const response = event.body as any;
+
+            // this.isLoading = false;
+            this.currentFileData = response.data;
+            this.uploadProgress = 100;
+            this.uploadMessage = response.message;
+            this.isUploading = false;
+            this.showUpload = false;
+
+            // Update conversation
+            this.conversation.push({
+              sender: 'bot',
+              text: `I've analyzed your file: ${response.data.filename}`,
+              time: this.getCurrentTime(),
+              isFileResponse: true,
+              fileData: {
+                filename: response.data.filename,
+                size: response.data.size,
+                profile: response.data.profile,
+                message: 'Data analysis complete !!!'
+              }
+            });
+
+            this.shouldScroll = true;
+            this.selectedFile = null;
+            this.uploadProgress = 0;
+
+            // Clear file input
+            const fileInput = document.getElementById('fileInput') as HTMLInputElement;
+            if (fileInput) fileInput.value = '';
+
+          } catch (e) {
+            console.error('Processing error:', e);
+            this.handleUploadError({
+              error: e,
+              message: 'Failed to process server response',
+              status: 200,
+              statusText: 'OK'
+            });
+          }
+        }
+      },
+      error: (error) => {
+        this.handleUploadError(error);
+      }
+    });
+  }
+
+
+  handleUploadSuccess(response: any) {
+    this.isLoading = false;
+    this.currentFileData = response;
+    this.uploadProgress = 100;
+    this.uploadMessage = response.message || 'File uploaded successfully';
+    this.isUploading = false;
+    this.showUpload = false;
+
+    this.conversation.push({
+      sender: 'bot',
+      text: `I've analyzed your file: ${response.filename}`,
+      time: this.getCurrentTime(),
+      isFileResponse: true,
+      fileData: {
+        filename: response.filename,
+        size: response.size,
+        profile: response.profile,
+        message: 'Data analysis complete'
+      }
+    });
+
+    this.shouldScroll = true;
+    this.selectedFile = null;
+    this.uploadProgress = 0;
+
+    // Clear file input
+    const fileInput = document.getElementById('fileInput') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
+  }
+
+  handleUploadError(error: any) {
+    this.isLoading = false;
+    this.isUploading = false;
+    this.isErrorState = true;
+
+    let errorMessage = 'Upload failed';
+
+    if (error.status === 200) {
+      errorMessage = 'Server returned invalid data format';
+      console.error('Parsing error details:', error.error);
+    } else if (error.status === 413) {
+      errorMessage = 'File too large (max 1GB)';
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+
+    this.uploadMessage = errorMessage;
+    this.uploadProgress = 0;
+  }
+
+  // UI helpers
+  toggleUpload() {
+    this.showUpload = !this.showUpload;
+    this.uploadMessage = '';
+  }
+
+  clearConversation() {
+    this.conversation = [{
+      sender: 'bot',
+      text: 'Welcome to AI Powered Financial Assistant. You Upload data or ask questions about loans, investments, and banking services',
+      time: this.getCurrentTime()
+    }];
+    this.uploadMessage = '';
+    this.shouldScroll = true;
+  }
+
+  private getCurrentTime(): string {
+    return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+
+  getSummaryColumns(summary: string): any[] {
+    try {
+      const data = JSON.parse(summary);
+      return Object.keys(data).map(key => ({
+        key: key,
+        value: data[key]
+      }));
+    } catch (e) {
+      console.error('Error parsing summary:', e);
+      return [];
+    }
+  }
+
+  getSummaryStats(value: any): { key: string, value: any }[] {
+    if (!value) return [];
+    return Object.entries(value).map(([key, val]) => ({
+      key: key,
+      value: val
+    }));
+  }
+
+  formatNumber(value: any): string {
+    if (value === null || value === undefined) return 'N/A';
+    if (typeof value === 'number') {
+      return value.toFixed(2);
+    }
+    return String(value);
+  }
+
+  formatFileSize(bytes: number): string {
+    if (!bytes) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
+  getMissingValueColumns(missingData: any): { key: string, value: number }[] {
+    if (!missingData) return [];
+    return Object.entries(missingData).map(([key, value]) => ({
+      key: key,
+      value: Number(value)
+    }));
+  }
+
+  // Helper to extract missing columns
+  getMissingColumns(missingData: any): { key: string, value: number }[] {
+    return Object.keys(missingData).map(key => ({
+      key: key,
+      value: missingData[key]
+    }));
+  }
+
+  getSampleDataColumns(): string[] {
+    if (!this.currentFileData?.profile?.sample_data ||
+      !this.currentFileData?.profile?.missing_data) return [];
+
+    const sampleData = this.currentFileData.profile.sample_data;
+    const missingValues = this.currentFileData.profile.missing_data.missing_value_distribution.columns;
+    const totalRows = this.currentFileData.profile.overview.num_rows;
+    const threshold = 0.8 * totalRows;
+
+    return Object.keys(sampleData[0]).filter(column => {
+      const missingCount = missingValues[column] || 0;
+      return missingCount <= threshold;
+    });
+  }
+
+
+  isLastMessage(messageItem: any): boolean {
+    return this.conversation[this.conversation.length - 1] === messageItem;
+  }
+
+  formatColumnHeader(header: string): string {
+    return header.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').trim();
+  }
+
+  getCellClasses(column: string, value: any): any {
+    return {
+      'numeric': typeof value === 'number',
+      'null-value': value === null,
+      'status': column.toLowerCase().includes('status'),
+      'status-active': column.toLowerCase().includes('status') && value?.toString().toLowerCase() === 'active',
+      'status-closed': column.toLowerCase().includes('status') && value?.toString().toLowerCase() === 'closed',
+      'status-performing': column.toLowerCase().includes('status') && value?.toString().toLowerCase() === 'performing'
+    };
+  }
+
+
+  formatCellValue(value: any): string {
+    if (value === null || value === undefined) return 'NULL';
+    if (typeof value === 'number') {
+      return value.toLocaleString();
+    }
+    return value.toString();
+  }
+
+
+  getHiddenColumnsCount(): number {
+    if (!this.currentFileData?.profile?.sample_data ||
+      !this.currentFileData?.profile?.missing_data) return 0;
+
+    const sampleData = this.currentFileData.profile.sample_data;
+    const missingValues = this.currentFileData.profile.missing_data.missing_value_distribution.columns;
+    const totalRows = this.currentFileData.profile.overview.num_rows;
+    const threshold = 0.8 * totalRows;
+
+    return Object.keys(sampleData[0]).filter(column => {
+      const missingCount = missingValues[column] || 0;
+      return missingCount > threshold;
+    }).length;
+  }
+
+  getHiddenColumns(): string[] {
+    if (!this.currentFileData?.profile?.sample_data ||
+      !this.currentFileData?.profile?.missing_data) return [];
+
+    const sampleData = this.currentFileData.profile.sample_data;
+    const missingValues = this.currentFileData.profile.missing_data.missing_value_distribution.columns;
+    const totalRows = this.currentFileData.profile.overview.num_rows;
+    const threshold = 0.8 * totalRows;
+
+    return Object.keys(sampleData[0]).filter(column => {
+      const missingCount = missingValues[column] || 0;
+      return missingCount > threshold;
+    });
+  }
+
+
+
+  handleDragOver(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragover = true;
+  }
+
+  handleDrop(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragover = false;
+
+    if (event.dataTransfer?.files) {
+      const input = document.getElementById('fileInput') as HTMLInputElement;
+      input.files = event.dataTransfer.files;
+      this.onFileSelected({ target: input } as unknown as Event);
+    }
+  }
+
+  get visibleColumns(): string[] {
+    return this.getSampleDataColumns().slice(this.currentColumnStart, this.currentColumnStart + this.columnsPerPage);
+  }
+  
+  get totalColumns(): number {
+    return this.getSampleDataColumns().length;
+  }
+  
+  showNextColumns(): void {
+    if (this.currentColumnStart + this.columnsPerPage < this.totalColumns) {
+      this.currentColumnStart += this.columnsPerPage;
+    }
+  }
+  
+  showPreviousColumns(): void {
+    this.currentColumnStart = Math.max(0, this.currentColumnStart - this.columnsPerPage);
+  }
+  
+  hasNextColumns(): boolean {
+    return this.currentColumnStart + this.columnsPerPage < this.totalColumns;
+  }
+  
+  hasPreviousColumns(): boolean {
+    return this.currentColumnStart > 0;
+  }
+  getMin(a: number, b: number): number {
+    return Math.min(a, b);
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
   updatePagination() {
     const startIndex = this.currentPage * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
     this.paginatedDashboards = this.dashboards.slice(startIndex, endIndex);
   }
-  
+
   nextPage() {
     if ((this.currentPage + 1) * this.itemsPerPage < this.dashboards.length) {
       this.currentPage++;
       this.updatePagination();
     }
   }
-  
+
   prevPage() {
     if (this.currentPage > 0) {
       this.currentPage--;
       this.updatePagination();
-    }}
+    }
+  }
   get f(): { [p: string]: AbstractControl } {
     return this.form.controls;
   }
@@ -171,7 +754,7 @@ export class ListCustomersComponent implements OnInit {
     const phonePattern = /^(254\d{9}|0\d{9})$/;
     return phonePattern.test(phoneNumber) ? null : { invalidPhoneNumber: true };
   }
-  
+
   onleaveComment() {
     this.isLoading = true;
     const model = {
@@ -194,14 +777,14 @@ export class ListCustomersComponent implements OnInit {
           this.hideLeaveCommentForm();
           Swal.fire('Customer Enquire  Failed, Try Again',
             'error').then(r => console.log(r))
-            this.isLoading = false;
+          this.isLoading = false;
         }
       },
       (error: any) => {
         this.hideLeaveCommentForm();
         Swal.fire('Customer Enquire error',
           'error')
-          this.isLoading = false;
+        this.isLoading = false;
       }
     );
   }
@@ -274,28 +857,28 @@ export class ListCustomersComponent implements OnInit {
     let model = {
       licenceNumber
     };
-  
+
     this.httpService.customerPortalPost(`api/v1/portal/getResultsByLicence`, model).subscribe(
       (res: any) => {
         if (res.status == '00') {
           const result = res.data.filter((request: any) => request.status === "PUBLISHED" || request.status === "APPEALED");
-  
+
           // Collect result_ref values into an array
           const resultRefs = result.map((request: any) => request.result_ref);
-  
+
           this.resultRef = resultRefs.join(', '); // Join the array into a string with commas
           const appealData = this.appealData || [];
-  
+
           result.forEach((request: any) => {
             const appealStatus = appealData.find((appeal: any) => appeal.result_ref === request.result_ref)?.status;
             request.appealStatus = appealStatus || null;
             // console.log('Appeal Status',appealStatus)
             // console.log('Results Ref', request.result_ref)
           });
-  
+
           this.results = result;
           this.loading = false;
-  
+
           // Split the resultRef string into an array
           const resultRefArray = this.resultRef?.split(', ');
           resultRefArray?.forEach((resultRef: string) => {
@@ -310,8 +893,8 @@ export class ListCustomersComponent implements OnInit {
       }
     );
   }
-  
-  
+
+
 
   formatDate(date: string): string {
     const formattedDate = this.datePipe.transform(date, 'dd MMM yyyy');
@@ -405,23 +988,23 @@ export class ListCustomersComponent implements OnInit {
     }
   }
 
-  raiseAppeal(id:number): void {
- 
+  raiseAppeal(id: number): void {
+
     if (this.formR.invalid) {
       return;
     }
-  const licenceNumber = JSON.parse(localStorage.getItem('data')!)['licenceNumber']
-  const resultRef = this.results.find((result: any) => result.id === id)?.result_ref;
-  if (!resultRef) {
-    console.log('Unable to find result_ref for the specified id');
-    return;
-  }
-  const model = {
-    licenceNumber,
-    resultRef,
-    reason: this.formR.value.reason,
-  };
-  this.isLoading = true;
+    const licenceNumber = JSON.parse(localStorage.getItem('data')!)['licenceNumber']
+    const resultRef = this.results.find((result: any) => result.id === id)?.result_ref;
+    if (!resultRef) {
+      console.log('Unable to find result_ref for the specified id');
+      return;
+    }
+    const model = {
+      licenceNumber,
+      resultRef,
+      reason: this.formR.value.reason,
+    };
+    this.isLoading = true;
     // console.log(model)
     this.httpService.customerPortalPosts(`/admin/customer/portal/create-appeal`, model).subscribe((result: any) => {
       if (result.status === 200) {

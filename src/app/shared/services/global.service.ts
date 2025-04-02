@@ -39,9 +39,14 @@ export class GlobalService {
 
 
 
-  sendMessageToBot(userMessage: string): Observable<any> {
-    return this.http.post<any>(this.apiUrl, { message: userMessage });
+  sendMessageToBot(userMessage: string, userId: string): Observable<any> {
+    const payload = { 
+      user_id: userId, 
+      message: userMessage 
+    };
+    return this.http.post<any>(this.apiUrl, payload);
   }
+  
   
 
   public handleServerErrors(result: any): any {
