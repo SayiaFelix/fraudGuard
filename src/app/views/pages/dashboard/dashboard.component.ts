@@ -1145,9 +1145,9 @@ handleChatResponse(response: string) {
 
     // Define mapping of prediction types to chart images
     const chartImageMap: { [key: string]: string } = {
-      'Loan Default Risk': 'loan_default_risk_chart.png',
-      'Interest Rate Movement': 'interest_rate_movement_chart.png',
-      'Banking Sector Index': 'banking_sector_index_chart.png',
+      'Total Transactions': 'Total_transactions.png',
+      'Loan Repayment Trends': 'Loan_repayment.png',
+      'Loan Default Rates': 'Default_rates.png',
       'Customer Deposits Growth': 'customer_deposits_growth_chart.png',
       'Fraud Risk Indicator': 'fraud_risk_indicator_chart.png'
     };
