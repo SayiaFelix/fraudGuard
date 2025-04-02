@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component,ViewChild,  ElementRef,OnInit,ChangeDetectorRef } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -10,6 +10,56 @@ import { HttpService } from 'src/app/shared/services/http.service';
 import Swal from 'sweetalert2';
 import { DomSanitizer, SafeResourceUrl, SafeUrl } from '@angular/platform-browser';
 import { formatDate } from '@angular/common';
+declare var bootstrap: any
+import { forkJoin } from 'rxjs';
+import * as FileSaver from 'file-saver';
+import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
+
+// interface Message {
+//   text: string;
+//   sender: "user" | "bot";
+//   isAttention?: boolean;  
+// }
+
+interface Message {
+  text: string;
+  sender: "bot" | "user";
+  isAttention?: boolean; 
+  isWelcomeMessage?: boolean;  // Allow optional welcome message flag
+}
+
+
+interface Customer {
+  Account: string;
+  "Account Balance": number;
+  "CRB Score": number;
+  "CUST TYPE": string;
+  "Date Created": string;
+  "Express_age": number;
+  "Has Q-Loan\nMobile Loan": number;
+  "ID Number": number;
+  "Loan_income": number;
+  "Location Details": string;
+  Phone: number;
+  "Risk Category": string;
+  "Risk Profile": number;
+  "Sidian Express Name": string;
+  "Sidian Express Number": number;
+  Status: string;
+  "avg_monthly_cash_flow": number;
+  "default_probability": number;
+  "discounted_loan_value": number;
+  "loan_limit": number;
+
+   // ✅ Allow `null` explicitly
+   alertMessage?: string | null;      
+   recommendation?: string; 
+ 
+}
+
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -27,7 +77,8 @@ export class DashboardComponent implements OnInit {
   selectedFile: File | null = null;
   selectedImage: any = 'assets/images/ns.jpg'; 
   uploadedImage: File | null = null;
-  // Store the sanitized URL
+  allCustomers: Customer[] = [];
+
   public downloadLink: SafeUrl;
   isLoading: boolean = false;
   errorMessage: string;
@@ -47,6 +98,11 @@ export class DashboardComponent implements OnInit {
 
   showLeaveCommentForm: boolean = false;
   showFormImage = 'assets/images/chats.png'
+
+  isChatOpen = false;
+  messages: Message[] = [{ text: "Welcome 😊 to Analytic AI !!", sender: "bot" ,isWelcomeMessage: true}];
+  userMessage = "";
+
   /**
    * Apex chart
    */
@@ -74,8 +130,7 @@ export class DashboardComponent implements OnInit {
     fontFamily: "'Roboto', Helvetica, sans-serif"
   }
   existingImage: SafeResourceUrl;
-  perPage = 100;
-  page = 1
+
   /**
    * NgbDatepicker
    */
@@ -88,18 +143,92 @@ export class DashboardComponent implements OnInit {
   resultRef: any;
   results: any;
   message: string;
+  // errorMessage: string = '';
+  // isLoading: boolean = false;
+  
+
+  accountNumber: string  = '';
+  loanLimitData: any = null;
+  riskAnalysisData: any = null;  // Store Risk API response
+  featureImportanceData: any = null; 
+  searchQuery: string = '';
+  selectedRiskCategory: string = '';
+  simulatedCashFlow: number = 1000;
+  simulatedLoanLimit: number = 0;
+  loanAmount: number = 0;
+  interestRate: number = 0;
+  loanTerm: number = 0;
+
+  loanPerformance: any = {
+    status: '',
+    default_probability: 0,
+    crb_score: 0
+  };
+
+  // simulatedCashFlow: number = 10000; // Default value
+  // simulatedLoanLimit: number = 0;
+
+  // loanPerformance = {
+  //   status: "Good Standing",
+  //   default_probability: 0.05, // 5%
+  //   crb_score: 750
+  // };
+
+  private inactivityTimer: any;
+
+  private inactivityTimeout: any;
+  private warningTimeout: any;
+  private blinkInterval: any;
+  private isWarningActive: boolean = false;
 
   currentVisuals: { id: string; src: string }[] = [];
   currentBatchIndex: number = 0;
   itemsPerBatch: number = 6;
   intervalId: any;
 
-  currentPage = 0;
+  currentPage = 1;
+  pageSize = 10;
+  perPage = 100;
+  page = 3
+
+
+  // currentPage = 0;
   itemsPerPage = 4;
   isEntering = true;
   isExiting = false;
+  @ViewChild('chatMessagesContainer') private chatMessagesContainer: ElementRef;
 
- 
+  user: any;
+  marketTrends: any[];
+  riskScore: number;
+  riskMessage: string;
+  recommendations: string;
+  portfolioChart: any;
+  // customers: any[] = [];
+  repaymentAmount: number | null = null;
+  closeTimeout: any;
+  dashboardData: any = null;
+  kpis: any = {};
+  images: any = {};
+  forecast: any = {};
+
+  customers: Customer[] = [];
+  riskCategoryChart = "assets/images/risk_category_Individual_distribution.png";
+  defaultProbabilityChart = "assets/images/loan_vs_default_probability.png";
+  investortrendsChart = "assets/images/investortrends.PNG";
+  max_days_arearsChart = "assets/images/max_days_arears.png";
+
+  
+
+  // apiUrl = 'http://130.61.111.65:5010/api/customer_data';
+  apiUrl = 'http://127.0.0.1:5050/api/customer_data';
+  loanUrl = 'http://127.0.0.1:5050/api/loan_amount'
+  riskUrl = 'http://127.0.0.1:5050/api/default_probability'
+  featureImportanceUrl = 'http://127.0.0.1:5050/api/feature_importance'
+
+  // currentPage: number = 1;  
+  totalPages: number = Math.ceil(this.customers.length / this.pageSize);
+
   dashboards: { id: string; src: string }[] = [
     // Processed Transactions
     {
@@ -182,9 +311,10 @@ export class DashboardComponent implements OnInit {
 
 
   paginatedDashboards: { id: string; src: string }[] = [];
-  totalPages: number = Math.ceil(this.dashboards.length / this.itemsPerPage);
+  // totalPages: number = Math.ceil(this.dashboards.length / this.itemsPerPage);
 
   constructor(private calendar: NgbCalendar,
+    private cdr: ChangeDetectorRef,
     private httpService: HttpService,
     fb: FormBuilder,
     private _router: Router,
@@ -202,8 +332,566 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
 
+  ngOnInit(): void {
+    this.simulateLoanLimit();
+    this.fetchCustomerData()
+    this.loadDashboardData();
+    this.loadForecastData();
+    this.kpis = {
+      totalInvestments: 1500000,
+      portfolioGrowth: 12.5,
+      roi: 7.2
+    };
+
+    // Mock AI Investment Insights
+    this.recommendations = "Investors need to focus into a high-growth tech stocks and bonds based on their risk profile.";
+
+    // Mock Market Trends Data (Next-Day Prediction)
+    this.marketTrends = [
+      { asset: 'NSE 20 Index', change: 1.8 },
+      { asset: 'Safaricom Stock', change: 3.1 },
+      { asset: 'KCB Bank Shares', change: -0.9 },
+      { asset: 'Real Estate Index', change: 2.7 }
+    ];
+
+    // Mock Risk Score
+    this.riskScore = 68;
+    this.riskMessage = this.riskScore > 80 ? 
+      "Investors have moderate risk profile. They need to consider diversifying to balance their investments." : 
+      "Their portfolio is balanced with low risk exposure.";
+
+    // Initialize Portfolio Performance Chart
+    this.initPortfolioChart();
+  }
+
+   // Function to determine risk level based on default probability
+   getRiskLabel(probability: number): { label: string; color: string } {
+    const riskPercentage = probability * 100; // Convert from 0-1 to 0-100
+  
+    if (riskPercentage < 20) {
+      return { label: "Very Low Risk", color: "green" };
+    } else if (riskPercentage < 40) {
+      return { label: "Low Risk", color: "orange" };
+    } else if (riskPercentage < 70) {
+      return { label: "Medium Risk", color: "blue" };
+    } else {
+      return { label: "High Risk", color: "red" };
+    }
+  }
+  
+
+  fetchCustomerData() {
+    this.isLoading = true;
+    const requestBody = {
+      page: this.currentPage,
+      size: this.pageSize,
+      filters: {
+        "CUST TYPE": "I",
+        ...(this.searchQuery ? { "Account": this.searchQuery } : {}),
+        ...(this.selectedRiskCategory ? { "Risk Category": this.selectedRiskCategory } : {})
+      }
+    };
+  
+    this.http.post<{ status: string; sidian_customer_data: Customer[] }>(this.apiUrl, requestBody)
+      .subscribe(response => {
+        if (response.status === '00' && response.sidian_customer_data) {
+          this.isLoading = false;
+  
+          this.allCustomers = response.sidian_customer_data.map(customer => {
+            // Get risk category
+            const riskCategory = this.getRiskCategory(customer.default_probability);
+  
+            // Generate AI-based loan recommendation
+            const recommendation = this.getLoanRecommendation(customer);
+  
+            // Generate real-time alert if high risk
+            const alertMessage = customer.default_probability > 0.9 
+              ? `🚨 ALERT: Default Probability is ${Math.round(customer.default_probability * 100)}% !!!` 
+              : null;
+  
+            return {
+              ...customer,
+              "Risk Category": riskCategory,
+              recommendation,
+              alertMessage
+            };
+          });
+  
+          // Apply filtering
+          this.filterCustomers();
+  
+          // Log real-time alerts & recommendations
+          this.allCustomers.forEach(customer => {
+            if (customer.alertMessage) console.warn(customer.alertMessage);
+            console.log(`AI Recommendation for ${customer.Account}: ${customer.recommendation}`);
+          });
+        }
+      }, error => {
+        this.isLoading = false;
+        console.error('Error fetching data', error);
+      });
+  }
+
+  getLoanRecommendation(customer: Customer): string {
+    const maxLoan = customer.loan_limit ?? 0;
+    const interestRate = this.calculateInterestRate(customer);
+  
+    if (maxLoan > 0) {
+      return `✅ Customer ${customer.Account} qualifies for a ${maxLoan.toFixed(2)}K loan at ${interestRate}% interest.`;
+    }
+    return `❌ Customer ${customer.Account} is not eligible for a loan.`;
+  }
+  
+  calculateInterestRate(customer: Customer): number {
+    // Example logic: Lower risk = lower interest
+    if (customer.default_probability < 0.1) return 10;
+    if (customer.default_probability < 0.3) return 12;
+    if (customer.default_probability < 0.5) return 15;
+    return 18; // High risk, higher interest
+  }
+  
+  
+  // **Separate function for filtering (called after fetching data)**
+  filterCustomers() {
+    if (!this.allCustomers) return;
+  
+    this.customers = this.allCustomers.filter(customer =>
+      (!this.searchQuery || customer.Account.includes(this.searchQuery)) &&
+      (!this.selectedRiskCategory || customer["Risk Category"] === this.selectedRiskCategory)
+    );
+  }
+  
+
+
+// prevPage() {
+//   if (this.currentPage > 1) {
+//     this.currentPage--;
+//     this.fetchCustomerData();
+//   }
+// }
+
+// nextPage() {
+//   if (this.currentPage < this.totalPages) {
+//     this.currentPage++;
+//     this.fetchCustomerData();
+//   }
+// }
+
+  
+resetView() {
+  this.loanLimitData = null;
+  this.riskAnalysisData = null;
+  this.featureImportanceData = null;
+  this.accountNumber = '';  // Clears the account number
+}
+
+
+  
+  nextPage() {
+    this.currentPage++;
+    this.fetchCustomerData();
+  }
+
+
+  prevPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.fetchCustomerData();
+    }
+  }
+  
+  getRiskClass(risk: string) {
+    if (risk.includes('Low')) return 'text-success';
+    if (risk.includes('Medium')) return 'text-warning';
+    return 'text-danger';
+  }
+
+  checkLoanLimit(): void {
+    if (!this.accountNumber) {
+      this.errorMessage = 'Please enter an account number.';
+      return;
+    }
+  
+    this.isLoading = true;
+    const requestBody = { Account: this.accountNumber };
+  
+    forkJoin([
+      this.http.post<{ body: any[], status: string }>(this.loanUrl, requestBody),
+      this.http.post<{ body: any[], status: string }>(this.riskUrl, requestBody),
+      this.http.post<{ body: any, status: string }>(this.featureImportanceUrl, requestBody)
+    ]).subscribe({
+      next: ([loanResponse, riskResponse, featureResponse]) => {
+        // ✅ Check if loan response has data
+        this.loanLimitData = (loanResponse.status === '00' && loanResponse.body.length > 0) 
+          ? loanResponse.body[0] 
+          : null;
+  
+        // ✅ Check if risk response has data
+        this.riskAnalysisData = (riskResponse.status === '00' && riskResponse.body.length > 0) 
+          ? riskResponse.body[0] 
+          : null;
+  
+        // ⚠️ Feature Importance API might fail, so handle it separately
+        if (featureResponse.status === '00' && featureResponse.body) {
+          this.featureImportanceData = featureResponse.body;
+        } else {
+          console.warn('Feature Importance API issue:', featureResponse);
+          this.featureImportanceData = null;
+        }
+        this.isLoading = false;
+  
+        // ❌ Show error only if BOTH Loan and Risk APIs fail
+        if (!this.loanLimitData && !this.riskAnalysisData) {
+          this.errorMessage = 'Account not found. Please check the account number and try again.';
+        } else {
+          this.errorMessage = ''; // Clear error if Loan or Risk API succeeds
+          this.closeModal(); // ✅ Close modal only if Loan or Risk API succeeds
+        }
+  
+        console.log('Loan Data:', this.loanLimitData);
+        console.log('Risk Data:', this.riskAnalysisData);
+        console.log('Feature Importance:', this.featureImportanceData);
+      },
+      error: (error: any) => {
+        this.isLoading = false;
+        console.error('Error fetching data:', error);
+        this.errorMessage = 'An error occurred while retrieving data. Please try again later.';
+      }
+    });
+  }
+  
+  
+
+  closeModal() {
+    const modalElement = document.getElementById('loanLimitModal');
+    const modalInstance = bootstrap.Modal.getInstance(modalElement);
+    if (modalInstance) {
+      modalInstance.hide();
+    }
+  }
+
+  filteredCustomers = [...this.customers];
+
+  // // Method to filter customers based on searchQuery and selectedRiskCategory
+  // filterCustomers() {
+  //   this.filteredCustomers = this.customers.filter(customer => {
+  //     const matchesQuery = customer.name.toLowerCase().includes(this.searchQuery.toLowerCase());
+  //     const matchesRisk = this.selectedRiskCategory ? customer.riskCategory === this.selectedRiskCategory : true;
+  //     return matchesQuery && matchesRisk;
+  //   });
+  // }
+
+
+  // Method to simulate loan limit based on cash flow
+
+  simulateLoanLimit() {
+    this.simulatedLoanLimit = this.simulatedCashFlow * 3;
+  
+    // Update loan performance based on the cash flow
+    if (this.simulatedCashFlow >= 1000000) {
+      this.loanPerformance.status = "Excellent Standing";
+      this.loanPerformance.default_probability = 0.01; // 1.0%
+      this.loanPerformance.crb_score = 850;
+    } else if (this.simulatedCashFlow >= 500000) {
+      this.loanPerformance.status = "Good Standing";
+      this.loanPerformance.default_probability = 0.05; // 5.0%
+      this.loanPerformance.crb_score = 750;
+    } else if (this.simulatedCashFlow >= 200000) {
+      this.loanPerformance.status = "Moderate Risk";
+      this.loanPerformance.default_probability = 0.12; // 12.0%
+      this.loanPerformance.crb_score = 650;
+    } else {
+      this.loanPerformance.status = "High Risk";
+      this.loanPerformance.default_probability = 0.25; // 25.0%
+      this.loanPerformance.crb_score = 500;
+    }
+  }
+  
+
+
+  // Method to calculate loan repayment details
+  calculateRepayment() {
+    const interestRate = 0.1; // 10% interest rate
+    this.repaymentAmount = this.simulatedLoanLimit + (this.simulatedLoanLimit * interestRate);
+  }
+
+  toggleDarkMode() {
+    const body = document.body;
+    body.classList.toggle('dark-mode'); // Toggle dark mode class on body
+    localStorage.setItem('darkMode', body.classList.contains('dark-mode') ? 'enabled' : 'disabled');
+  }
+
+  // Export data (dummy function)
+  exportData(format: string) {
+    alert(`Exporting data as ${format.toUpperCase()}`);
+    if (format === 'csv') {
+      this.exportToCSV();
+    } else if (format === 'pdf') {
+      this.exportToPDF();
+    }
+  }
+
+  // Export table data to CSV
+  exportToCSV() {
+    const headers = ["Account", "Monthly Cash Flow", "CRB Score", "Risk Category", "Status", "Default Probability"];
+    const data = this.customers.map(customer => [
+      // customer.Name,
+      customer.Account,
+      `KES ${customer.avg_monthly_cash_flow}`,
+      customer["CRB Score"],
+      customer["Risk Category"],
+      customer.Status,
+      `${(customer.default_probability * 100).toFixed(2)}%`
+    ]);
+
+    const csvContent = [headers, ...data].map(e => e.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    FileSaver.saveAs(blob, "customer_data.csv");
+  }
+
+//   exportToPDF() {
+//     const doc = new jsPDF();
+
+//     // **Company Logo**
+//     const logo = "assets/images/eclectics.png"; 
+//     const logoWidth = 35; 
+//     const logoHeight = 15;
+//     const logoX = (doc.internal.pageSize.getWidth() - logoWidth) / 2; // Center logo
+//     doc.addImage(logo, "PNG", logoX, 10, logoWidth, logoHeight);
+
+//     // **Title (Below Logo)**
+//     doc.setFont("helvetica", "bold");
+//     doc.setFontSize(18);
+//     doc.setTextColor(40, 40, 40);
+//     doc.text("Customer Data Report", doc.internal.pageSize.getWidth() / 2, 40, { align: "center" });
+
+//     // **Date and Time**
+//     const now = new Date();
+//     const dateStr = now.toLocaleDateString();
+//     const timeStr = now.toLocaleTimeString();
+//     doc.setFontSize(12);
+//     doc.setFont("helvetica", "normal");
+//     doc.setTextColor(80, 80, 80);
+//     doc.text(`Date: ${dateStr} | Time: ${timeStr}`, doc.internal.pageSize.getWidth() / 2, 50, { align: "center" });
+
+//     // **Table Headers**
+//     const headers = [
+//       ["Account", "Monthly Cash Flow (KES)", "CRB Score", "Risk Category", "Status", "Default Probability"]
+//     ];
+
+//     // **Prepare Data for Table**
+//     const data = this.customers.map(customer => [
+//       customer.Account,
+//       `KES ${customer.avg_monthly_cash_flow.toLocaleString()}`,
+//       customer["CRB Score"],
+//       customer["Risk Category"],
+//       customer.Status,
+//       `${(customer.default_probability * 100).toFixed(2)}%`
+//     ]);
+
+//     // **Styled Table**
+//     (doc as any).autoTable({
+//       head: headers,
+//       body: data,
+//       startY: 60, // Adjusted to prevent overlapping
+//       theme: "striped",
+//       styles: { fontSize: 10, cellPadding: 4 },
+//       headStyles: { fillColor: [30, 30, 30], textColor: 255, fontStyle: "bold" },
+//       alternateRowStyles: { fillColor: [240, 240, 240] },
+//       margin: { top: 50 },
+//     });
+
+//     // **Charts Section**
+//     const chartWidth = 80; // Width of each chart
+//     const chartHeight = 60; // Height of each chart
+//     const margin = 10; // Margin between charts
+//     const startY = (doc as any).autoTable.previous.finalY + 20; // Start below the table
+
+//     // **First Two Charts (Stay on the Same Page)**
+//     doc.addImage(this.riskCategoryChart, "PNG", margin, startY, chartWidth, chartHeight);
+//     doc.setFontSize(12);
+//     doc.setFont("helvetica", "bold");
+//     doc.text("Risk Category Distribution", margin + 10, startY + chartHeight + 5);
+//     doc.setFontSize(10);
+//     doc.setFont("helvetica", "normal");
+//     doc.text("Distribution of customers by risk category.", margin + 10, startY + chartHeight + 10);
+
+//     doc.addImage(this.defaultProbabilityChart, "PNG", margin + chartWidth + margin, startY, chartWidth, chartHeight);
+//     doc.setFontSize(12);
+//     doc.setFont("helvetica", "bold");
+//     doc.text("Loan vs Default Probability", margin + chartWidth + margin + 10, startY + chartHeight + 5);
+//     doc.setFontSize(10);
+//     doc.setFont("helvetica", "normal");
+//     doc.text("Relationship between loan amount and default probability.", margin + chartWidth + margin + 10, startY + chartHeight + 10);
+
+//     // **NEW PAGE for the Remaining Charts**
+//     doc.addPage();
+//     const newStartY = 20; // Reset Y position for new page
+
+//     // **Investor Trends Chart**
+//     doc.addImage(this.investortrendsChart, "PNG", margin, newStartY, chartWidth, chartHeight);
+//     doc.setFontSize(12);
+//     doc.setFont("helvetica", "bold");
+//     doc.text("Investor Trends", margin + 10, newStartY + chartHeight + 5);
+//     doc.setFontSize(10);
+//     doc.setFont("helvetica", "normal");
+//     doc.text("Trends in investor behavior over time.", margin + 10, newStartY + chartHeight + 10);
+
+//     // **Max Days in Arrears Chart**
+//     doc.addImage(this.max_days_arearsChart, "PNG", margin + chartWidth + margin, newStartY, chartWidth, chartHeight);
+//     doc.setFontSize(12);
+//     doc.setFont("helvetica", "bold");
+//     doc.text("Max Days in Arrears", margin + chartWidth + margin + 10, newStartY + chartHeight + 5);
+//     doc.setFontSize(10);
+//     doc.setFont("helvetica", "normal");
+//     doc.text("Maximum days customers are in arrears.", margin + chartWidth + margin + 10, newStartY + chartHeight + 10);
+
+//     // **Save PDF**
+//     doc.save("Analytic_summary.pdf");
+// }
+
+exportToPDF() {
+  const doc = new jsPDF();
+
+  // **Company Logo**
+  const logo = "assets/images/eclectics.png"; 
+  const logoWidth = 35; 
+  const logoHeight = 15;
+  const logoX = (doc.internal.pageSize.getWidth() - logoWidth) / 2; // Center logo
+  doc.addImage(logo, "PNG", logoX, 10, logoWidth, logoHeight);
+
+  // **Title (Below Logo)**
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(18);
+  doc.setTextColor(40, 40, 40);
+  doc.text("Customer Data Report", doc.internal.pageSize.getWidth() / 2, 40, { align: "center" });
+
+  // **Date and Time**
+  const now = new Date();
+  const dateStr = now.toLocaleDateString();
+  const timeStr = now.toLocaleTimeString();
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(80, 80, 80);
+  doc.text(`Date: ${dateStr} | Time: ${timeStr}`, doc.internal.pageSize.getWidth() / 2, 50, { align: "center" });
+
+  // **Table Headers**
+  const headers = [
+    ["Account", "Monthly Cash Flow (KES)", "CRB Score", "Risk Category", "Status", "Default Probability"]
+  ];
+
+  // **Prepare Data for Table**
+  const data = this.customers.map(customer => [
+    customer.Account,
+    `KES ${customer.avg_monthly_cash_flow.toLocaleString()}`,
+    customer["CRB Score"],
+    customer["Risk Category"],
+    customer.Status,
+    `${(customer.default_probability * 100).toFixed(2)}%`
+  ]);
+
+  // **Styled Table**
+  (doc as any).autoTable({
+    head: headers,
+    body: data,
+    startY: 60, // Adjusted to prevent overlapping
+    theme: "striped",
+    styles: { fontSize: 10, cellPadding: 4 },
+    headStyles: { fillColor: [30, 30, 30], textColor: 255, fontStyle: "bold" },
+    alternateRowStyles: { fillColor: [240, 240, 240] },
+    margin: { top: 50 },
+  });
+
+  // **Charts Section**
+  const chartWidth = 80; // Width of each chart
+  const chartHeight = 60; // Height of each chart
+  const margin = 10; // Margin between charts
+  const startY = (doc as any).autoTable.previous.finalY + 20; // Start below the table
+
+  // **First Two Charts (Stay on the Same Page)**
+  
+  // **Risk Category Distribution**
+  let chartY = startY;
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.text("Risk Category Distribution", margin, chartY);
+  doc.addImage(this.riskCategoryChart, "PNG", margin, chartY + 5, chartWidth, chartHeight);
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.text("Distribution of customers by risk category.", margin, chartY + chartHeight + 10);
+
+  // **Loan vs Default Probability**
+  let chartX = margin + chartWidth + margin;
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.text("Loan vs Default Probability", chartX, chartY);
+  doc.addImage(this.defaultProbabilityChart, "PNG", chartX, chartY + 5, chartWidth, chartHeight);
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.text("Relationship between loan amount and default probability.", chartX, chartY + chartHeight + 10);
+
+  // **NEW PAGE for the Remaining Charts**
+  doc.addPage();
+  const newStartY = 20; // Reset Y position for new page
+
+  // **Investor Trends Chart**
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.text("Investor Trends", margin, newStartY);
+  doc.addImage(this.investortrendsChart, "PNG", margin, newStartY + 5, chartWidth, chartHeight);
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.text("Trends in investor behavior over time.", margin, newStartY + chartHeight + 10);
+
+  // **Max Days in Arrears Chart**
+  chartX = margin + chartWidth + margin;
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.text("Max Days in Arrears", chartX, newStartY);
+  doc.addImage(this.max_days_arearsChart, "PNG", chartX, newStartY + 5, chartWidth, chartHeight);
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.text("Maximum days customers are in arrears.", chartX, newStartY + chartHeight + 10);
+
+  // **Save PDF**
+  doc.save("Analytic_summary.pdf");
+}
+
+  getRiskCategory(defaultProbability: number): string {
+    if (defaultProbability <= 0.2) {
+      return "Very Low Risk";
+    } else if (defaultProbability > 0.2 && defaultProbability <= 0.4) {
+      return "Low Risk";
+    } else if (defaultProbability > 0.4 && defaultProbability <= 0.7) {
+      return "Moderate Risk";
+    } else {
+      return "High Risk";
+    }
+  }
+
+  
+  initPortfolioChart() {
+    const ctx = document.getElementById('portfolioChart') as HTMLCanvasElement;
+    // this.portfolioChart = new Chart(ctx, {
+    //   type: 'line',
+    //   data: {
+    //     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    //     datasets: [{
+    //       label: 'Portfolio Performance (KSh)',
+    //       data: [1200000, 1250000, 1300000, 1380000, 1450000, 1500000],
+    //       borderColor: '#007BFF',
+    //       backgroundColor: 'rgba(0, 123, 255, 0.2)',
+    //       fill: true
+    //     }]
+    //   },
+    //   options: {
+    //     responsive: true,
+    //     plugins: {
+    //       legend: { display: false }
+    //     }
+    //   }
+    // });
     // Initialize the first batch
     this.updateCurrentVisuals();
 
@@ -228,60 +916,260 @@ export class DashboardComponent implements OnInit {
     }
 
 
-    // let userDetails = {
-    //   companyEmail: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['businessEmail'] : "test@gmail.com",
-    //   licenceNumber: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['licenceNumber'] : "87654321",
-    //   profile: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['name'] : "Eka Hotel Nairobi",
-    //   facilityType: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['facilityType'] : "Class A",
-    //   facilityCategory: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['facilityCategory'] : "Hotel",
-    //   businessPhone: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['businessPhone'] : "Eka Hotel Nairobi",
-    //   companyRegistrationDate: "24-12-1999",
-    //   county: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['location'] : "Nairobi",
-    //   contactPerson: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['contactPerson'] : "Sayia Felix",
-    // };
-    // if (userDetails) {
-    //   this.companyEmail = userDetails['companyEmail'];
-    //   this.licenceNumber = userDetails['licenceNumber'];
-    //   this.profile = userDetails['profile'];
-    //   this.companyRegistrationDate = userDetails['companyRegistrationDate'];
-    //   this.county = userDetails['county'];
-    //   this.contactPerson = userDetails['contactPerson'];
-    //   this.facilityType = userDetails['facilityType'];
-    //   this.facilityCategory = userDetails['facilityCategory'];
-    //   this.businessPhone = userDetails['businessPhone'];
-    //   this.logo =
-    //     'https://images.unsplash.com/photo-151740421573-15263e9f9178?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80';
-
-    //   this.userData$ = of(userDetails);
-    // } else {
-    //   this.userData$ = this.httpService.customerUserDetails().pipe(
-    //     map((resp) => {
-    //       // console.log(resp);
-    //       if (resp) {
-    //         this.companyEmail = resp[0]['email'];
-    //         this.licenceNumber = resp[0]['licenceNo'];
-    //         this.profile = resp[0]['enterpriseName'];
-    //         this.companyRegistrationDate = resp[0]['enterpriseName'];
-    //         this.county = resp[0]['country'];
-    //         this.contactPerson = resp[0]['contactPerson'];
-    //         this.facilityType = resp[0]['facilityType'];
-    //         this.facilityCategory = resp[0]['facilityCategory'];
-    //         this.businessPhone = resp[0]['businessPhone'];
-    //         return resp[0];
-    //       }
-    //     })
-    //   );
-    // }
-
     this.loadData()
     this.loadCertificate()
     this.loadResults()
 
   }
+
+
   get f(): { [p: string]: AbstractControl } {
     return this.form.controls;
   }
 
+  ngAfterViewInit(): void {
+    // Enable Bootstrap Tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+  }
+
+  loadDashboardData() {
+    this.isLoading = true;
+    this.httpService.getDashboardData().subscribe(
+      (response) => {
+        if (response.status === "00") {
+          this.isLoading = false;
+          this.kpis = response.data;
+
+          // Update image URLs
+          const baseUrl = "http://127.0.0.1:5005";
+          this.images = {
+            investment_trends: baseUrl + response.images.investment_trends,
+            investor_behavior: baseUrl + response.images.investor_behavior,
+            market_sentiment: baseUrl + response.images.market_sentiment
+          };
+          console.log('KPIS AND Images',this.kpis, this.images);
+        } else {
+          console.error("Failed to load KPIs:", response.message);
+        }
+      },
+      (error) => {
+        this.isLoading = false;
+        console.error("Error fetching KPIs:", error);
+      }
+    );
+  }
+
+  loadForecastData() {
+    this.httpService.getForecastData().subscribe(
+      (response) => {
+        if (response.status === "00") {
+          this.forecast = response.data;
+          console.log('Forecast Data',this.forecast);
+        } else {
+          console.error("Failed to load forecast data:", response.message);
+        }
+      },
+      (error) => {
+        console.error("Error fetching forecast data:", error);
+      }
+    );
+  }
+
+toggleChat(): void {
+  this.isChatOpen = !this.isChatOpen;
+
+  if (this.isChatOpen) {
+    setTimeout(() => {
+      this.scrollToBottom();
+    }, 10);
+    
+    this.startInactivityTimer();
+  } else {
+    this.clearTimers();
+  }
+}
+
+sendInactivityMessage() {
+  // Add a warning message and store its index for removal later
+  this.messages.push({ text: "Are you still there? 😊", sender: "bot", isAttention: true });
+  this.isWarningActive = true;
+
+  // Start blinking effect
+  let blinkCount = 0;
+  this.blinkInterval = setInterval(() => {
+    this.isWarningActive = !this.isWarningActive; // Toggle blinking state
+    blinkCount++;
+
+    if (blinkCount >= 10) { // Stop blinking after 30s
+      clearInterval(this.blinkInterval);
+    }
+  }, 3000);
+
+  this.scrollToBottom();
+  this.cdr.detectChanges();
+
+  // If no response within 30s, close chat
+  this.inactivityTimeout = setTimeout(() => {
+    if (this.isWarningActive) {
+      this.clearChat();
+    }
+  }, 30000);
+}
+
+clearTimers(): void {
+  clearTimeout(this.warningTimeout);
+  clearTimeout(this.inactivityTimeout);
+  clearInterval(this.blinkInterval);
+}
+
+handleKeyPress(event: KeyboardEvent) {
+  if (event.key === "Enter") {
+    this.sendMessage();
+  }
+}
+
+sendMessage() {
+  if (!this.userMessage.trim()) return;
+
+  // Append User Message
+  this.messages.push({ text: this.userMessage, sender: "user" });
+
+  // If user responds, remove "Are you still there?" message and stop blinking
+  if (this.isWarningActive) {
+    this.removeInactivityMessage();
+  }
+
+  // Reset inactivity timer
+  this.resetInactivityTimer();
+
+  // Send request to API
+  this.httpService.sendMessage(this.userMessage).subscribe(
+    response => {
+      const formattedResponse = this.formatBotResponse(response.reply);
+      this.messages.push({ text: formattedResponse, sender: "bot" });
+      this.afterMessageUpdate();
+    },
+    () => {
+      this.messages.push({ text: "⚠️ Sorry, I couldn't reach the server. Try again later.", sender: "bot" });
+      this.afterMessageUpdate();
+    }
+  );
+
+  // Clear Input
+  this.userMessage = "";
+}
+
+private afterMessageUpdate() {
+  this.scrollToBottom();
+  this.startInactivityTimer();
+  this.cdr.detectChanges();
+}
+
+// 🔥 Main Timer Logic 🔥
+startInactivityTimer() {
+  this.clearTimers();
+  this.isWarningActive = false;
+
+  // ⏳ After 3 minutes of inactivity, send warning
+  this.warningTimeout = setTimeout(() => {
+    this.sendInactivityMessage();
+  }, 90000); // 3 minutes (180000ms)
+}
+
+// 🔄 Remove "Are you still there?" message and stop blinking
+private removeInactivityMessage() {
+  this.messages = this.messages.filter(msg => msg.text !== "Are you still there? 😊");
+  this.isWarningActive = false;
+  clearInterval(this.blinkInterval);
+  this.cdr.detectChanges();
+}
+
+
+resetInactivityTimer() {
+  clearTimeout(this.warningTimeout);
+  clearTimeout(this.inactivityTimer);
+  
+  // Remove the "Are you still there?" message if it's still in the chat
+  this.messages = this.messages.filter(msg => msg.text !== "Are you still there? 😊");
+  
+  this.isWarningActive = false;
+  this.startInactivityTimer(); // Restart the inactivity timer
+}
+
+
+// clearChat() {
+//   this.isChatOpen = false;
+//   this.messages = [{ text: "Welcome 😊 to Analytic AI !!", sender: "bot" }]; // Preserve welcome message
+// }
+clearChat() {
+  this.isChatOpen = false;
+  this.messages = [{ text: "Welcome 😊 to Analytic AI !!", sender: "bot", isWelcomeMessage: true }]; // Add a flag
+}
+
+
+  formatBotResponse(response: string): string {
+    // Remove asterisks (*) used for bolding
+    response = response.replace(/\*\*/g, "");
+
+    // Remove unwanted 'x' (or any other character you want to remove)
+    // response = response.replace(/x/g, "");
+
+    // Convert numbered lists into HTML <ul> with <li>
+    response = response.replace(/(\d+)\.\s(.+)/g, "<li>🔹 <strong>$2</strong></li>");
+
+    // Wrap lists in <ul> tags if there are list items
+    if (response.includes("<li>")) {
+        response = response.replace(/(.*?)(<li>.+<\/li>)/s, "$1<ul>$2</ul>");
+    }
+
+    return response;
+}
+
+
+handleChatResponse(response: string) {
+  // Format the response before adding it to the messages array
+  const formattedResponse = this.formatBotResponse(response);
+  this.messages.push({ text: formattedResponse, sender: "bot" });
+}
+
+
+  selectedChartUrl: string | null = null;
+  selectedChartName: string = '';
+  
+  // Modify sendMessage() to reset the timer on user input
+  
+  showChart(type: string) {
+    // Define API base URL
+    const apiBaseUrl = 'assets/images';
+
+    // Define mapping of prediction types to chart images
+    const chartImageMap: { [key: string]: string } = {
+      'Loan Default Risk': 'loan_default_risk_chart.png',
+      'Interest Rate Movement': 'interest_rate_movement_chart.png',
+      'Banking Sector Index': 'banking_sector_index_chart.png',
+      'Customer Deposits Growth': 'customer_deposits_growth_chart.png',
+      'Fraud Risk Indicator': 'fraud_risk_indicator_chart.png'
+    };
+    
+    // Set the chart URL dynamically
+    this.selectedChartName = type;  
+
+    // Ensure the selected chart exists in the map
+    if (chartImageMap[type]) {
+        this.selectedChartUrl = `${apiBaseUrl}/${chartImageMap[type]}`;
+        console.log("Chart type clicked:", type);
+        console.log("Expected image path:", this.selectedChartUrl);
+    } else {
+        console.error("No image found for:", type);
+        this.selectedChartUrl = null;  // Show fallback text if no image
+    }
+
+    // Open the Bootstrap modal
+    const chartModal = new bootstrap.Modal(document.getElementById('chartModal')!);
+    chartModal.show();
+}
+  
   ngOnDestroy() {
     // Clear interval when the component is destroyed
     if (this.intervalId) {
@@ -318,6 +1206,20 @@ export class DashboardComponent implements OnInit {
     const phoneNumber = control.value;
     const phonePattern = /^(254\d{9}|0\d{9})$/;
     return phonePattern.test(phoneNumber) ? null : { invalidPhoneNumber: true };
+  }
+
+  ngAfterViewChecked() {
+    // Scroll to the bottom of the chat messages container
+    this.scrollToBottom();
+  }
+
+  // Function to scroll to the bottom
+  private scrollToBottom(): void {
+    try {
+      this.chatMessagesContainer.nativeElement.scrollTop = this.chatMessagesContainer.nativeElement.scrollHeight;
+    } catch (err) {
+      console.error('Error while scrolling to bottom', err);
+    }
   }
 
   onImageChange(event: any): void {
@@ -387,18 +1289,18 @@ export class DashboardComponent implements OnInit {
     this.paginatedDashboards = this.dashboards.slice(startIndex, endIndex);
   }
   
-  nextPage() {
-    if ((this.currentPage + 1) * this.itemsPerPage < this.dashboards.length) {
-      this.currentPage++;
-      this.updatePagination();
-    }
-  }
+  // nextPage() {
+  //   if ((this.currentPage + 1) * this.itemsPerPage < this.dashboards.length) {
+  //     this.currentPage++;
+  //     this.updatePagination();
+  //   }
+  // }
   
-  prevPage() {
-    if (this.currentPage > 0) {
-      this.currentPage--;
-      this.updatePagination();
-    }}
+  // prevPage() {
+  //   if (this.currentPage > 0) {
+  //     this.currentPage--;
+  //     this.updatePagination();
+  //   }}
   private loadData(): any {
     // this.loading = true;
     // let userId = JSON.parse(localStorage.getItem('data')!)['user']['id'];
@@ -597,9 +1499,9 @@ export class DashboardComponent implements OnInit {
     this.modalRef = this.modal.open(modalContent, { centered: true, size: "md" });
   }
 
-  public closeModal(): void {
-    this.activeModal.dismiss('Cross click');
-  }
+  // public closeModal(): void {
+  //   this.activeModal.dismiss('Cross click');
+  // }
 
 
   /**

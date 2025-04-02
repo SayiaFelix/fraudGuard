@@ -22,6 +22,53 @@ export class HttpService {
     private router: Router
   ) {}
 
+  private cytonUrl = 'http://130.61.111.65:5005/api/get_all_charts_kpis'; 
+  private apiUrl = 'http://127.0.0.1:5020/api/chat'; 
+
+  // private baseUrl = "http://130.61.111.65:5005"; 
+  private baseUrl = "http://127.0.0.1:5005";
+
+  private baseUrls = 'http://localhost:5015/api'; // Flask API Base URL
+
+  getDashboardData(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/api/get_all_charts_kpis`);
+  }
+
+  getForecastData(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/api/generate_forecasts`);
+  }
+
+  sendMessage(userMessage: string): Observable<{ reply: string }> {
+    return this.http.post<{ reply: string }>(this.apiUrl, { message: userMessage });
+  }
+  
+  getCytonData(page: number, page_size: number): Observable<any> {
+    const model = { page, page_size };
+    return this.http.post(`${this.baseUrl}/api/clustered_data`, model);
+  }
+  
+
+
+  // Upload File API
+  uploadFile(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post(`${this.baseUrls}/upload`, formData);
+  }
+
+  // AI Chatbot API
+  chatWithBot(query: string): Observable<any> {
+    return this.http.post(`${this.baseUrls}/chat`, { query });
+  }
+
+
+
+
+
+
+
+  
+
   public getEnterpriseUsers(endpoint: string):Observable<any> {
     return this.http.get(this.globalService.customerPortalNest + endpoint)
   }
@@ -166,6 +213,7 @@ export class HttpService {
       );
   }
 
+ 
   
   public customerPortalPosts(endpoint: string, model: any): any {
     return this.http

@@ -1,80 +1,506 @@
-<header  
-  class="d-flex justify-content-between align-items-center flex-wrap grid-margin mt-1" 
-  style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 5px; padding: 10px;"
->
-  <div>
-    <h4 
-      class="mb-3 mb-md-0" 
-      style="color: var(--dark-purple, #1e0f2e); font-family: Muli, sans-serif; font-size: 20px; font-weight: 700; line-height: 26px;"
-    >
-      Main Dashboard Overview
-    </h4>
-  </div>
+<header class="d-flex justify-content-between align-items-center flex-wrap grid-margin mt-1 px-3 py-2"
+  style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 5px; background: #fff;">
   
-  <div class="page-number" aria-label="Current page">
-    Page {{ currentPage + 1 }} of {{ totalPages }}
+  <!-- Title on the Left -->
+  <div>
+    <h3 class="mb-0"
+      style="color: var(--dark-purple, #1e0f2e); font-family: Muli, sans-serif; font-size: 20px; font-weight: 700;">
+      Real Time Analytics Dashboard
+    </h3>
   </div>
+
+  <!-- Buttons on the Right -->
+  <div class="d-flex gap-2">
+    <button type="button" class="btn shadow-lg px-3 py-2"
+      style="background-color:#083273; color:white; border-radius:8px;" data-bs-toggle="modal" data-bs-target="#loanLimitModal">
+      Loan Prediction
+    </button>
+    <button (click)="resetView()" class="btn btn-outline-secondary shadow-sm px-3 py-2" style="border-radius:9px;">
+      Back
+    </button>
+  </div>
+
 </header>
+
 <hr>
 
+<!-- KPI Summary Section (Top) -->
+<div class="container mt-2" *ngIf="!loanLimitData || !riskAnalysisData || !featureImportanceData">
+  <div class="row">
+         <!-- Loading State -->
+         <div *ngIf="isLoading" class="text-center my-4">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mt-2">Fetching data...</p>
+        </div>
+    <!-- Unique Investors -->
+    <div class="col-md-3" *ngIf="kpis">
+        <div class="card p-3 text-center"  style="border-color: #3cb7e9;">
+          <h3 style="color: #3cb7e9;"><i class="bi bi-people-fill"></i> Unique Investors </h3>
+          <h4 >{{ kpis['Unique Investors'] | number }} Investors</h4>
+       </div>
+    </div>
 
-<!-- <div>
-  <div class="container mt-2">
-    <div class="row g-4">
-      <div class="col-12 col-md-6 col-lg-6 col-sm-12" *ngFor="let dashboard of paginatedDashboards">
-        <div class="dashboard-item p-3" style="height: 100%;"> 
-          <tableau-viz
-            id="{{dashboard.id}}"
-            [attr.src]="dashboard.src"  
-            class="w-100 h-100" 
-            hide-tabs
-            toolbar="bottom">
-          </tableau-viz>
+    <!-- Total Investments -->
+    <div class="col-md-3" *ngIf="kpis">
+        <div class="card p-3 text-center border-success">
+            <h3 class="text-success"><i class="bi bi-cash-stack"></i> Total Investments (KES)</h3>
+            <h4> KSH. {{ kpis['Total Investments (KES)'] | number }}</h4>
+        </div>
+    </div>
+
+    <!-- Portfolio Growth -->
+      <div class="col-md-3" *ngIf="kpis">
+        <div class="card p-3 text-center border-danger">
+          <h3 class="text-danger"><i class="bi bi-graph-up"></i> Anomalous Transactions </h3>
+          <h4>{{ kpis['Anomalous Transactions'] | number }} Transactions</h4>
+        </div>
+      </div>
+
+         <!-- ROI -->
+      <div class="col-md-3" *ngIf="kpis">
+        <div class="card p-3 text-center border-warning">
+          <h3 class="text-warning"><i class="bi bi-bar-chart-fill"></i> Average ROI (%)</h3>
+          <h4> {{ kpis['Average ROI (%)'] | number }} %</h4>
+        </div>
+      </div>
+</div>
+
+<div id="imageCarousel" class="carousel slide mt-4" data-bs-ride="carousel">
+  <div class="carousel-inner">
+    <!-- Slide 1 -->
+    <div class="carousel-item active">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card shadow-sm">
+            <div class="card-header bg-warning text-white text-center" style="border-radius: 10px;">
+              <h4 class="m-0">Default Probability VS Loan Amount</h4>
+            </div>
+            <div class="card-body text-center">
+              <img 
+                [src]="defaultProbabilityChart" 
+                class="img-fluid rounded shadow-sm" 
+                alt="CRB Score vs Default Probability"
+                data-bs-toggle="tooltip" 
+                data-bs-placement="top" 
+                title="This scatter plot shows the relationship between Loan Amount and the Probability of default."
+                style="border: 2px solid #ddd;"
+              >
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card shadow-sm">
+            <div class="card-header bg-warning text-white text-center" style="border-radius: 10px;">
+              <h4 class="m-0">Trends of Investment Types</h4>
+            </div>
+            <div class="card-body text-center">
+              <img [src]="investortrendsChart" 
+                alt="Preferred Investment Types Over the Last 7 Days" 
+                class="img-fluid rounded shadow" 
+                data-bs-toggle="tooltip" 
+                data-bs-placement="top" 
+                title="📈 Trends of Investment Types Over the Last 7 Days"
+                style="border: 2px solid #ddd;">
+            </div>
+          </div>
         </div>
       </div>
     </div>
     
-    <!-- Pagination with page number on the left and buttons on the right --
-    <div class="pagination mt-5 d-flex justify-content-between align-items-center" style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 5px; padding: 10px;">
-      <div class="page-number" style="font-size: 13px; font-weight: 700; color: #6d36a8;">
-        Page {{currentPage + 1}} of {{totalPages}}
-      </div>
-      <div>
-        <button class="btn btn-primary me-2" (click)="prevPage()" [disabled]="currentPage === 0">
-          Previous
-        </button>
-        <button class="btn btn-success" (click)="nextPage()" [disabled]="(currentPage + 1) * itemsPerPage >= dashboards.length">
-          Next
-        </button>
+    <!-- Slide 2 -->
+    <div class="carousel-item">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card shadow-sm">
+            <div class="card-header bg-warning text-white text-center" style="border-radius: 10px;">
+              <h4 class="m-0">Risk Category Distribution</h4>
+            </div>
+            <div class="card-body text-center">
+              <img 
+                [src]="riskCategoryChart" 
+                class="img-fluid rounded shadow-sm" 
+                alt="Risk Category Distribution"
+                data-bs-toggle="tooltip" 
+                data-bs-placement="top" 
+                title="This chart shows the distribution of customers based on their risk categories."
+              >
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card shadow-sm">
+            <div class="card-header bg-warning text-white text-center" style="border-radius: 10px;">
+              <h4 class="m-0">Maximum Days Arrears of Account Types</h4>
+            </div>
+            <div class="card-body text-center">
+              <img [src]="max_days_arearsChart" 
+                alt="Maximum Days Arrears of Account Types" 
+                class="img-fluid rounded shadow" 
+                data-bs-toggle="tooltip" 
+                data-bs-placement="top" 
+                title="📈 Maximum Days arrears of Account Types"
+                style="border: 2px solid #ddd;">
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-</div> -->
+
+  <!-- Carousel Controls -->
+  <button class="carousel-control-prev" type="button" data-bs-target="#imageCarousel" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Previous</span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#imageCarousel" data-bs-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Next</span>
+  </button>
+</div>
+
+<div class="container mt-5 p-3 rounded shadow-lg bg-white" 
+     style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 10px;"
+     *ngIf="!loanLimitData || !riskAnalysisData || !featureImportanceData">
+
+  <!-- Table Displaying Customer Scoring Data -->
+  <div class="table-responsive mt-2">
+    <!-- Search & Export Buttons -->
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <input type="text" class="form-control shadow-sm p-2" 
+               placeholder="Search by Account Number" 
+               [(ngModel)]="searchQuery" (input)="filterCustomers()"
+               style="border-radius: 8px;">
+      </div>
+        <!-- Export Dropdown -->
+        <div class="col-md-6 text-md-end text-center mt-2 mt-md-0">
+          <button style="border-radius:10px;" class="btn btn-primary shadow-sm mx-1 px-3" (click)="exportData('csv')">
+            Export CSV
+          </button>
+          <button style="border-radius:10px;" class="btn btn-danger shadow-sm mx-1 px-3" (click)="exportData('pdf')">
+            Export PDF
+          </button>
+        </div>
+    </div>
+
+    <table class="table table-striped table-hover shadow-sm rounded overflow-hidden">
+      <thead class="table-dark">
+        <tr class="text-center">
+          <th>Account</th>
+          <th>Monthly Cash Flow</th>
+          <th>CRB Score</th>
+          <th>Risk Category</th>
+          <th>Default Probability</th>
+          <th>🚨 Alert</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let customer of customers" class="text-center">
+          <td>{{ customer.Account }}</td>
+          <td>{{ customer["avg_monthly_cash_flow"] | currency:'KES ' }}</td>
+          <td>{{ customer["CRB Score"] }}</td>
+          <td>
+            <span class="badge px-3 py-2" [ngClass]="{
+                    'bg-warning': customer['Risk Category'] === 'Very Low Risk',
+                    'bg-success': customer['Risk Category'] === 'Low Risk',
+                    'bg-primary': customer['Risk Category'] === 'Moderate Risk',
+                    'bg-danger': customer['Risk Category'] === 'High Risk'
+                  }">
+              {{ customer["Risk Category"] }}
+            </span>
+          </td>
+          <td>{{ (customer["default_probability"] * 100) | number:'1.1-2' }}%</td>
+    
+          <!-- 🚨 Alert Message -->
+          <td>
+            <span [ngClass]="customer.alertMessage ? 'text-danger fw-bold' : 'text-success fw-bold'">
+              {{ customer.alertMessage ? customer.alertMessage : 'No Alert Yet' }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="text-center my-4">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-2">Fetching data...</p>
+    </div>
+  </div>
+
+  <!-- Pagination Controls -->
+  <div class="d-flex justify-content-center mt-3">
+    <button class="btn btn-outline-primary rounded-pill px-4 mx-2 shadow-sm" 
+            (click)="prevPage()" [disabled]="currentPage === 1">
+      Previous
+    </button>
+    <span class="mx-3 fw-bold text-success mt-2">Page {{ currentPage }}</span>
+    <button class="btn btn-outline-primary rounded-pill px-4 mx-2 shadow-sm" (click)="nextPage()">
+      Next
+    </button>
+  </div> 
+</div>
+
+<!-- Live Predictive Trends (Next-Day Prediction) -->
+<div class="card p-3 mt-3">
+  <h3>📊 Live Predictive Trends (Next-Day Prediction)</h3>
+  <ul class="list-group">
+      <li class="list-group-item d-flex justify-content-between align-items-center" 
+          (click)="showChart('Loan Default Risk')" 
+          data-bs-toggle="tooltip" 
+          data-bs-placement="top" 
+          title="Probability of loan default (higher means riskier customers)">
+          Loan Default Risk  
+          <span class="text-danger">
+              82.3% 🔻
+          </span>
+      </li>
+      <li class="list-group-item d-flex justify-content-between align-items-center" 
+          (click)="showChart('Interest Rate Movement')" 
+          data-bs-toggle="tooltip" 
+          data-bs-placement="top" 
+          title="Predicted fluctuation in interest rates for loans and deposits">
+          Interest Rate Movement  
+          <span class="text-success">
+              +0.25% 📈
+          </span>
+      </li>
+      <li class="list-group-item d-flex justify-content-between align-items-center" 
+          (click)="showChart('Banking Sector Index')" 
+          data-bs-toggle="tooltip" 
+          data-bs-placement="top" 
+          title="Predicted movement in the banking stock index">
+          Banking Sector Index  
+          <span class="text-danger">
+              5,320.80 🔻
+          </span>
+      </li>
+      <li class="list-group-item d-flex justify-content-between align-items-center" 
+          (click)="showChart('Customer Deposits Growth')" 
+          data-bs-toggle="tooltip" 
+          data-bs-placement="top" 
+          title="Predicted increase in bank deposits from customers">
+          Customer Deposits Growth  
+          <span class="text-success">
+              +3.2% 🔺
+          </span>
+      </li>
+      <li class="list-group-item d-flex justify-content-between align-items-center" 
+          (click)="showChart('Fraud Risk Indicator')" 
+          data-bs-toggle="tooltip" 
+          data-bs-placement="top" 
+          title="Probability of increased fraud cases in banking transactions">
+          Fraud Risk Indicator  
+          <span class="text-danger">
+              67.5% ⚠️
+          </span>
+      </li>
+  </ul>
+</div>
+
+<!-- Chart Modal -->
+<div class="modal fade" id="chartModal" tabindex="-1" aria-labelledby="chartModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header d-flex justify-content-center w-100">
+        <h2 class="modal-title fw-bold text-center" id="chartModalLabel">
+          {{ selectedChartName || 'Prediction Chart' }} Forecasting Chart
+        </h2>
+        <button type="button" class="btn-close position-absolute end-0 me-3" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center">
+        <img *ngIf="selectedChartUrl" [src]="selectedChartUrl" class="img-fluid rounded shadow">
+        <p *ngIf="!selectedChartUrl" class="text-muted">Loading chart...</p>
+      </div>
+    </div>
+  </div>
+</div>
+<hr>
+
+<div class="chat-widget" [class.open]="isChatOpen">
+  <!-- Chat Header -->
+  <div class="chat-header" (click)="toggleChat()" role="button" tabindex="0" aria-label="Toggle chat">
+    <span>Chat with <strong>Analytic AI</strong></span>
+    <span class="toggle-icon" [ngClass]="{ 'open': isChatOpen, 'closed': !isChatOpen }">
+      {{ isChatOpen ? '✖' : '💬' }}
+    </span>
+  </div>
+  
+  <!-- Chat Body -->
+  <div class="chat-body" *ngIf="isChatOpen">
+    <div class="chat-messages" #chatMessagesContainer>
+      <div *ngFor="let msg of messages" class="chat-message" [ngClass]="msg.sender">
+        <div 
+          [innerHTML]="msg.text" 
+          [ngClass]="{ 
+            'attention-message': msg.isAttention, 
+            'welcome-message': msg.isWelcomeMessage 
+          }">
+        </div>
+      </div>
+    </div>
+    
+    <!-- Chat Input -->
+    <div class="chat-input">
+      <input type="text" [(ngModel)]="userMessage" placeholder="Type your message..." (keypress)="handleKeyPress($event)">
+      <button (click)="sendMessage()">➤</button>
+    </div>
+  </div>
+</div>
+</div>
 
 
-<div class="dashboard-container">
-  <div
-    class="row g-4"
-    [ngClass]="{ 'slide-enter': isEntering, 'slide-exit': isExiting }"
-    *ngIf="currentVisuals"
-  >
-    <div class="col-12 col-md-6 col-sm-6" *ngFor="let dashboard of currentVisuals">
-      <div class="dashboard-item p-3" >
-        <tableau-viz
-          id="{{ dashboard.id }}"
-          [attr.src]="dashboard.src"
-          class="w-100 h-100"
-          hide-tabs
-          toolbar="bottom"
-        ></tableau-viz>
+<div class="container mt-3">
+  <!-- Loan Limit Results -->
+  <div *ngIf="loanLimitData" class="alert alert-success text-center">
+    <h4>Smart Loan Limit & Credit Risk Details (AI-driven personalized loan offers) <br>Account: <strong>{{ accountNumber }}</strong></h4>
+  </div>
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="alert alert-danger text-center">
+    <strong>{{ errorMessage }}</strong>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="text-center">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p>Fetching data...</p>
+  </div>
+    <!-- Loan & Risk Analysis Section -->
+  <div class="row g-4" *ngIf="loanLimitData || riskAnalysisData || featureImportanceData">
+ 
+    <div class="col-md-5">
+      <!-- Loan & Risk Analysis -->
+      <div class="card shadow-sm border-0 rounded-lg">
+        <div class="card-header bg-warning text-white text-center">
+          <h4 class="m-0">Loan & Risk Analysis</h4>
+        </div>
+        <div class="card-body">
+          <p><strong> Eligible Loan Limit:</strong> 
+            {{ loanLimitData?.loan_limit | currency: 'KES ' }} 
+            <span class="text-muted" data-bs-toggle="tooltip" title="Based on cash flow & risk score">ℹ️</span>
+          </p>
+          <p><strong>CRB Score:</strong> {{ riskAnalysisData?.['CRB Score'] }}</p>
+          <p><strong>Default Probability:</strong> 
+            {{ (riskAnalysisData?.default_probability * 100) | number:'1.1-2' }}% 
+            <span 
+              [style.color]="getRiskLabel(riskAnalysisData?.default_probability).color">
+              ({{ getRiskLabel(riskAnalysisData?.default_probability).label }})
+            </span>
+          </p>          
+          <p><strong>Avg Monthly Cash Flow:</strong> 
+            {{ loanLimitData?.avg_monthly_cash_flow | currency: 'KES ' }}
+          </p>
+    
+          <p>
+            <strong>Explanation:</strong> 
+            <span class="text-success" data-bs-toggle="tooltip" 
+                  title="{{ riskAnalysisData?.default_probability_explanation }}">
+                  Hover for details
+              <i class="bi bi-info-circle-fill" style="color: #007bff; cursor: pointer;"></i>
+
+            </span>
+          </p>
+          
+        </div>
+      </div>
+    
+      <!-- Real-time Loan Performance -->
+      <div class="card shadow-sm border-0 rounded-lg mt-3">
+        <div class="card-header text-white text-center" style="background-color: #46bfe9;">
+          <h4 class="m-0">Real-time Loan Performance</h4>
+        </div>
+        <div class="card-body">
+          <label for="cashFlow">Adjust Monthly Cash Flow</label>
+          <input type="number" id="cashFlow" [(ngModel)]="simulatedCashFlow" 
+                 (change)="simulateLoanLimit()" class="form-control mb-2">
+          <input type="range" id="cashFlowSlider" min="1000" max="1000000" step="1000"
+                 [(ngModel)]="simulatedCashFlow" (input)="simulateLoanLimit()">
+          <p>Predicted Loan Limit: 
+            <strong>KES {{ simulatedLoanLimit | number:'1.0-2' }}</strong>
+          </p>
+          <hr>
+          <p><strong>Status:</strong> {{ loanPerformance.status }}</p>
+          <p><strong>Default Probability:</strong> 
+            {{ (loanPerformance.default_probability * 100) | number:'1.1-2' }}%
+          </p>
+          <p><strong>CRB Score:</strong> {{ loanPerformance.crb_score }}</p>
+        </div>
+      </div>
+    </div>
+    
+
+    <!-- Feature Contribution Chart -->
+
+    <div class="col-md-7">
+      <div class="card shadow-sm border-0 rounded-lg h-100">
+        <div class="card-header bg-warning text-white text-center" style="border-radius: 10px;">
+          <h4 class="m-0">How Features Contribute to the Limit</h4>
+        </div>
+        <div class="card-body p-0 d-flex align-items-center justify-content-center">
+          <img *ngIf="featureImportanceData?.chart_url"
+               [src]="'http://127.0.0.1:5050' + featureImportanceData.chart_url" 
+               alt="Feature Importance Chart"
+               class="img-fluid w-100 h-99 rounded" 
+               style="border: 2px solid #ddd;">
+        </div>
+      </div>
+     
+    </div>
+
+    <p class="mt-3"><strong>Summary:</strong> {{ riskAnalysisData?.narrative_summary }}</p>
+  </div>
+
+  <!-- Check Loan Limit Modal -->
+  <div class="modal fade mt-5" id="loanLimitModal" tabindex="-1" aria-labelledby="loanLimitModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header text-dark" style="background-color: #46bfe9;">
+          <h2>Loan Prediction & Credit Scoring</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+  
+        <div class="modal-body">
+          <form (ngSubmit)="checkLoanLimit()" #loanForm="ngForm">
+            <label for="accountNumber" class="form-label fw-bold">Enter Account Number</label>
+            <input type="text" id="accountNumber" [(ngModel)]="accountNumber" name="accountNumber" placeholder="Enter Account No...."
+                   class="form-control mb-2" required>
+  
+            <!-- Error Message Display -->
+            <div *ngIf="errorMessage" class="alert alert-danger p-2 text-center" role="alert">
+              {{ errorMessage }}
+            </div>
+  
+            <hr>
+            <button type="submit" class="btn btn-outline-primary w-100 py-2 mt-1" style="border-radius:9px;">Loan Prediction</button>
+          </form>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
+<script>
+  // Initialize Bootstrap tooltips
+  document.addEventListener("DOMContentLoaded", function () {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+  });
+</script>
 <div>
-  <footer class="footer mt-3 d-flex flex-column flex-md-row align-items-center justify-content-between px-4 border-top small">
-    <p class="text-muted">Copyright © 2024 <a href="" style="color: #6d36a8; font-family: 'Muli';" target="_blank">Analytics</a></p>
-    <p class="" style="color: #6d36a8; font-family: 'Muli'; font-style: normal; font-weight: 700; font-size: 13px; letter-spacing: 0.08em;">Faulu Bank Kenya</p>
-  </footer>
+  <footer
+  class="footer mt-3 d-flex flex-column flex-md-row align-items-center justify-content-between px-4 border-top small">
+  <p class="text-muted">Copyright © 2025 <a href="" style="color:#46bfe9; font-family: 'Muli';"
+      target="_blank">Eclectics International Limited</a></p>
+  <p class=""
+    style="color: #083273; font-family: 'Muli'; font-style: normal; font-weight: 700; font-size: 13px; letter-spacing: 0.08em;">
+    AI Analytics Solutions</p>
+</footer>
 </div>
