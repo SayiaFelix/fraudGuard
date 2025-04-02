@@ -1,4 +1,4 @@
-import {Component, OnInit,Injectable, ViewChild,} from '@angular/core';
+import {Component, OnInit,TemplateRef,Injectable, ViewChild,} from '@angular/core';
 import {NgbActiveModal, NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import { APP_BASE_HREF, DatePipe} from '@angular/common';
 import {Router} from '@angular/router';
@@ -103,9 +103,8 @@ export class ListRequestsComponent implements OnInit {
   perPage = 100;
 
   
-  fetchChurnPrediction(): void {
+  fetchChurnPrediction(modalContent: TemplateRef<any>): void {
     if (this.customerId) {
-      // Reset previous data
       this.errorMessage = null;
       this.successMessage = null;
       this.predictionGraphUrl = null;
@@ -116,7 +115,7 @@ export class ListRequestsComponent implements OnInit {
         (blob: Blob) => {
           const reader = new FileReader();
           reader.onload = (event: any) => {
-            this.predictionGraphUrl = event.target.result; // Store the graph URL
+            this.predictionGraphUrl = event.target.result;
             this.successMessage = 'Prediction retrieved successfully!';
           };
           reader.readAsDataURL(blob);
@@ -130,8 +129,10 @@ export class ListRequestsComponent implements OnInit {
       // Fetch churn prediction details
       this.churnService.getChurnPredictionDetails(this.customerId).subscribe(
         (data) => {
-          this.churnPredictionDetails = data; // Store the prediction details
+          this.churnPredictionDetails = data;
           this.successMessage = 'Prediction retrieved successfully!';
+          // Open the modal once data is fetched
+          this.modalService.open(modalContent, { size: 'lg', centered: true });
         },
         (error) => {
           this.errorMessage = 'Customer ID not found. Please try again.';
@@ -236,7 +237,8 @@ portfolio = { roi: 10 }; //
     private httpService: HttpService,
     private sanitizer: DomSanitizer,
     private churnService: CustomerChurnService,
-    public activeModal: NgbActiveModal,) {
+    public activeModal: NgbActiveModal,
+    private modalService: NgbModal) {
       this.form = fb.group({
         name: ["", Validators.compose([Validators.required])],
         email: ['',Validators.compose([Validators.required, CustomValidators.email])],
