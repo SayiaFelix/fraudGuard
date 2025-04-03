@@ -56,7 +56,7 @@ export class ListBranchesComponent implements OnInit {
   dashboards: { id: string; src: string }[] = [
     {
       id: 'dashboard1',
-      src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet20',
+      src: 'https://dub01.online.tableau.com/#/site/peternjosh7365-adf6ffe291/views/Book1/Sheet20',
     },
     // {
     //   id: 'dashboard2',
