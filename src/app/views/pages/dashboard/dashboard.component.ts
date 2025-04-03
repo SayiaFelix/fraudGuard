@@ -217,6 +217,8 @@ export class DashboardComponent implements OnInit {
   defaultProbabilityChart = "assets/images/loan_vs_default_probability.png";
   investortrendsChart = "assets/images/investortrends.PNG";
   max_days_arearsChart = "assets/images/max_days_arears.png";
+  investmentChart = "assets/images/investment.png";
+  newssourceChart = "assets/images/news_source.png";
 
   
 
@@ -800,6 +802,8 @@ exportToPDF() {
     styles: { fontSize: 10, cellPadding: 4 },
     headStyles: { fillColor: [30, 30, 30], textColor: 255, fontStyle: "bold" },
     alternateRowStyles: { fillColor: [240, 240, 240] },
+
+    
     margin: { top: 50 },
   });
 
@@ -1148,9 +1152,9 @@ handleChatResponse(response: string) {
       'Total Transactions': 'Total_transactions.png',
       'Loan Repayment Trends': 'Loan_repayment.png',
       'Loan Default Rates': 'Default_rates.png',
-      'NetCashflow': 'Net_cashflow.png',
+      'Net Cashflow': 'Net_cashflow.png',
       'Fraud Risk Indicator': 'fraud_risk_indicator_chart.png'
-    };
+    }; 
     
     // Set the chart URL dynamically
     this.selectedChartName = type;  
