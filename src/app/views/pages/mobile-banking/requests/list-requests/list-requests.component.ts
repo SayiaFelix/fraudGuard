@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild,} from '@angular/core';
+import {Component, OnInit,TemplateRef,Injectable, ViewChild,} from '@angular/core';
 import {NgbActiveModal, NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import { APP_BASE_HREF, DatePipe} from '@angular/common';
 import {Router} from '@angular/router';
@@ -16,6 +16,9 @@ import { ActivatedRoute } from '@angular/router';
 import * as XLSX from 'xlsx';
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
+import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+
 
 // Update the Investor interface
 export interface InvestmentDetail {
@@ -48,6 +51,29 @@ export interface Investor {
 
 
 
+// CustomerChurnService class
+@Injectable({
+  providedIn: 'root'
+})
+export class CustomerChurnService {
+  private churnPredictionUrl = 'http://130.61.111.65:5048/churn_prediction'; // New prediction endpoint
+  private predictUrl = 'http://130.61.111.65:5048/predict'; // New predict endpoint
+
+  constructor(private http: HttpClient) {}
+
+  getChurnPrediction(customerId: number): Observable<Blob> {
+    const body = { customer_id: customerId };
+    return this.http.post(this.churnPredictionUrl, body, { responseType: 'blob' });
+  }
+
+  getChurnPredictionDetails(customerId: number): Observable<any> {
+    const body = { customer_id: customerId };
+    return this.http.post<any>(this.predictUrl, body);
+  }
+}
+
+
+
 
 
 
@@ -61,18 +87,25 @@ export interface Investor {
 export class ListRequestsComponent implements OnInit {
   public form: FormGroup;
   errorMsg: string;
+  customerId: number | null = null;
+  errorMessage: string | null = null; // Allow null values
+  successMessage: string | null = null; // Define successMessage
+  predictionGraphUrl: string | null = null; // To hold the graph URL
+  churnPredictionDetails: any = null; // To hold the prediction details
   defaultProfileImage: SafeResourceUrl = "assets/images/no_I.png";
   defaultIcon: SafeResourceUrl = "assets/images/icon.png";
   existingImage: SafeResourceUrl;
   hasError: boolean = false;
   isLoading: boolean = false;
-  errorMessage: string;
   modalRef: NgbModalRef;
   loading:boolean;
   showLeaveCommentForm: boolean = false;
   perPage = 100;
 
   
+
+
+
 
   standards: any = [
   ]
@@ -165,7 +198,9 @@ portfolio = { roi: 10 }; //
     public modal: NgbModal,
     private httpService: HttpService,
     private sanitizer: DomSanitizer,
-    public activeModal: NgbActiveModal,) {
+    private churnService: CustomerChurnService,
+    public activeModal: NgbActiveModal,
+    private modalService: NgbModal) {
       this.form = fb.group({
         name: ["", Validators.compose([Validators.required])],
         email: ['',Validators.compose([Validators.required, CustomValidators.email])],
@@ -223,6 +258,50 @@ portfolio = { roi: 10 }; //
       }
     }
     
+  fetchChurnPrediction(modalContent: TemplateRef<any>): void {
+    this.isLoading = true;
+    if (this.customerId) {
+      this.errorMessage = null;
+      this.successMessage = null;
+      this.predictionGraphUrl = null;
+      this.churnPredictionDetails = null;
+
+      // Fetch churn prediction image
+      this.churnService.getChurnPrediction(this.customerId).subscribe(
+        (blob: Blob) => {
+          const reader = new FileReader();
+          reader.onload = (event: any) => {
+            this.isLoading = false;
+            this.predictionGraphUrl = event.target.result;
+            this.successMessage = 'Prediction retrieved successfully!';
+          
+          };
+          reader.readAsDataURL(blob);
+        },
+        (error) => {
+          this.isLoading = false;
+          this.errorMessage = 'Customer ID not found. Please try again.';
+          console.error('Error fetching churn prediction image:', error.message);
+        }
+      );
+
+      // Fetch churn prediction details
+      this.churnService.getChurnPredictionDetails(this.customerId).subscribe(
+        (data) => {
+          this.churnPredictionDetails = data;
+          
+          this.successMessage = 'Prediction retrieved successfully!';
+          // Open the modal once data is fetched
+          this.modalService.open(modalContent, { size: 'lg', centered: true });
+        },
+        (error) => {
+          this.errorMessage = 'Customer ID not found. Please try again.';
+          console.error('Error fetching churn prediction details:', error.message);
+        }
+      );
+    }
+  }
+
     
     get totalPages() {
       return Math.ceil(this.investor.length / this.recordsPerPage);

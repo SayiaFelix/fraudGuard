@@ -163,112 +163,180 @@ style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 5px; padding: 10
     </tbody>
   </table>
 </div>
-
-
-
-
-  
-
-
- 
 </div>
 </div>
 
 <div class="container">
-  <!-- Investment Simulator -->
-  <div class="card p-4 mt-4 shadow-sm">
-    <h4 class="fw-bold text-dark" style="font-family: Muli; font-size: 20px; line-height: 26px;">
-      AI-Powered Investment Prediction Returns
-    </h4>
-    <p class="text-muted">Estimate potential returns based on your investment amount.</p>
+  <div class="row">
+    <!-- Investment Simulator Card (Left Column) -->
+    <div class="col-md-6">
+      <div class="card p-4 mt-4 shadow-sm h-100">
+        <h4 class="fw-bold text-dark" style="font-family: Muli; font-size: 20px; line-height: 26px;">
+          AI-Powered Investment Prediction Returns
+        </h4>
+        <p class="text-muted">Estimate potential returns based on your investment amount.</p>
 
-    <!-- Investor ID Input -->
-    <div class="mb-3">
-      <label for="investorId" class="form-label fw-bold">Investor ID</label>
-      <input 
-        type="text" 
-        id="investorId" 
-        class="form-control" 
-        [(ngModel)]="investorID" 
-        (ngModelChange)="onInvestorIDChange($event)" 
-        placeholder="Enter Investor ID"
-      />
-       <!-- Error message for invalid Investor ID -->
-       <div *ngIf="!isValidInvestorID && investorID" class="text-danger mt-2">
-        <small>Investor ID must start with 'INV' followed by numbers (e.g., 'INV12345').</small>
+        <!-- Investor ID Input -->
+        <div class="mb-3">
+          <label for="investorId" class="form-label fw-bold">Investor ID</label>
+          <input 
+            type="text" 
+            id="investorId" 
+            class="form-control" 
+            [(ngModel)]="investorID" 
+            (ngModelChange)="onInvestorIDChange($event)" 
+            placeholder="Enter Investor ID"
+          />
+          <!-- Error message for invalid Investor ID -->
+          <div *ngIf="!isValidInvestorID && investorID" class="text-danger mt-2">
+            <small>Investor ID must start with 'INV' followed by numbers (e.g., 'INV12345').</small>
+          </div>
+        </div>
+
+        <!-- Investment Amount Input -->
+        <div class="mb-3">
+          <label for="investmentAmount" class="form-label fw-bold">Investment Amount (KES)</label>
+          <input 
+            type="number" 
+            id="investmentAmount" 
+            class="form-control" 
+            [(ngModel)]="simulatedInvestment" 
+            placeholder="Enter Investment Amount"
+          />
+        </div>
+
+        <!-- Investment Period Selection -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">Investment Period</label>
+          <select class="form-select" [(ngModel)]="selectedTimeline">
+            <option [value]="6">6 Months</option>
+            <option [value]="12">1 Year</option>
+            <option [value]="24">2 Years</option>
+          </select>
+        </div>
+
+        <!-- Predict Button -->
+        <button 
+          class="btn btn-success w-100" 
+          (click)="simulateReturns()" 
+          [disabled]="!isValidInvestorID || isProcessing">
+          {{ isProcessing ? 'Analyzing...' : 'Predict Returns' }}
+        </button>
+
+        <!-- AI Processing Effect -->
+        <div *ngIf="isProcessing" class="mt-2 text-warning">
+          <small>⏳ AI is analyzing market trends...</small>
+        </div>
+
+        <!-- Predicted Results -->
+        <div *ngIf="simulatedReturn && !isProcessing" class="mt-4 p-3 bg-light rounded shadow-sm">
+          <h5 class="text-success">Predicted Return for {{ selectedTimeline }} Months</h5>
+          <p class="fw-bold fs-5">KSh {{ simulatedReturn | number }}</p>
+          <small class="text-muted">AI Confidence: {{ confidenceScore }}%</small>
+        </div>
       </div>
     </div>
 
-    <!-- Investment Amount Input -->
-    <div class="mb-3">
-      <label for="investmentAmount" class="form-label fw-bold">Investment Amount (KES)</label>
-      <input 
-        type="number" 
-        id="investmentAmount" 
-        class="form-control" 
-        [(ngModel)]="simulatedInvestment" 
-        placeholder="Enter Investment Amount"
-      />
-    </div>
+    <!-- Customer Churn Prediction Card (Right Column) -->
+    <div class="col-md-6">
+      <div class="card p-4 mt-4 shadow-sm h-100">
+        <h4 class="fw-bold text-dark" style="font-family: Muli; font-size: 20px; line-height: 26px;">
+          Customer Churn Prediction
+        </h4>
+        <p class="text-muted">Enter a Customer ID to get churn prediction details or download the churn prediction report.</p>
 
-    <!-- Investment Period Selection -->
-    <div class="mb-3">
-      <label class="form-label fw-bold">Investment Period</label>
-      <select class="form-select" [(ngModel)]="selectedTimeline">
-        <option [value]="6">6 Months</option>
-        <option [value]="12">1 Year</option>
-        <option [value]="24">2 Years</option>
-      </select>
-    </div>
+        <!-- Customer ID Input -->
+        <div class="mb-3">
+          <label for="customerId" class="form-label fw-bold">Customer ID</label>
+          <input 
+            type="number" 
+            id="customerId" 
+            class="form-control" 
+            [(ngModel)]="customerId" 
+            placeholder="Enter Customer ID"
+          />
+        </div>
 
-    <!-- Predict Button -->
-    <button 
-      class="btn btn-success w-100" 
-      (click)="simulateReturns()" 
-      [disabled]="!isValidInvestorID || isProcessing">
-      {{ isProcessing ? 'Analyzing...' : 'Predict Returns' }}
-    </button>
+        <div class="d-flex justify-content-between">
+          <button 
+            class="btn btn-primary" 
+            (click)="fetchChurnPrediction(churnPredictionModal)" 
+            [disabled]="!customerId">
+               <span *ngIf="!isLoading">Churn Prediction </span> 
+               <!-- Loading State -->
+                
+            <div *ngIf="isLoading" class="text-center">
+              <p>Loading...</p>
+              <div class="spinner-border text-success" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              
+            </div>
+          </button>
+        
+        </div>
 
-    <!-- AI Processing Effect -->
-    <div *ngIf="isProcessing" class="mt-2 text-warning">
-      <small>⏳ AI is analyzing market trends...</small>
-    </div>
+        <!-- Error Message -->
+        <div *ngIf="errorMessage" class="mt-3 text-danger">
+          <small>{{ errorMessage }}</small>
+        </div>
 
-    <!-- Predicted Results -->
-    <div *ngIf="simulatedReturn && !isProcessing" class="mt-4 p-3 bg-light rounded shadow-sm">
-      <h5 class="text-success">Predicted Return for {{ selectedTimeline }} Months</h5>
-      <p class="fw-bold fs-5">KSh {{ simulatedReturn | number }}</p>
-      <small class="text-muted">AI Confidence: {{ confidenceScore }}%</small>
+        <!-- Success Message -->
+        <div *ngIf="successMessage" class="mt-3 text-success">
+          <small>{{ successMessage }}</small>
+        </div>
+           <!-- Modal Template -->
+        <ng-template #churnPredictionModal let-modal>
+          <div class="modal-header">
+            <h5 class="modal-title">Churn Prediction Details</h5>
+            <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+          </div>
+          <div class="modal-body">
+            <!-- Churn Status and Customer ID -->
+            <div>
+              <strong>Churn Status:</strong>
+              <span [ngClass]="churnPredictionDetails?.churn_status === 'not likely to churn' ? 'text-success' : 'text-danger'">
+                {{ churnPredictionDetails?.churn_status }}
+              </span>
+            </div>
+            <div>
+              <strong>Customer ID:</strong> {{ churnPredictionDetails?.customer_id }}
+            </div>
+            <!-- Prediction Graph -->
+        <div *ngIf="predictionGraphUrl" class="mt-4">
+          <h5 class="fw-bold">Prediction Graph</h5>
+          <img [src]="predictionGraphUrl" alt="Prediction Graph" class="img-fluid" />
+        </div>
+
+            <!-- Lime Explanation -->
+            <div class="mt-3">
+              <strong>Understanding The Prediction:</strong>
+              <ul>
+                <li *ngFor="let explanation of churnPredictionDetails?.lime_explanation">
+                  {{ explanation }}
+                </li>
+              </ul>
+            </div>
+
+            <!-- Retention Strategies -->
+            <div class="mt-3">
+              <strong>Retention Strategies:</strong>
+              <ol>
+                <li *ngFor="let strategy of churnPredictionDetails?.retention_strategies">
+                  {{ strategy }}
+                </li>
+              </ol>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="modal.dismiss('Close click')">Close</button>
+          </div>
+        </ng-template>
+      </div>
     </div>
   </div>
 </div>
 
-
-
-
-<!-- <div class="container">
-
-  <div class="row mt-4">
-  
-    <div class="row mt-2">
-      <div class="col-md-12">
-        <h5 class="fw-bold mb-3">Investor Profile Insights</h5>
-        <ul class="list-unstyled">
-          <li class="p-2 rounded bg-light text-success mb-2">
-            <strong>High Profile</strong> – Investors with large portfolios, a high risk appetite, and a preference for aggressive growth strategies like Private Equity.
-          </li>
-          <li class="p-2 rounded bg-light text-primary mb-2">
-            <strong>Moderate Profile</strong> – Investors with medium-sized portfolios, a low risk appetite, and a preference for safer investments like stocks.
-          </li>
-          <li class="p-2 rounded bg-light text-danger">
-            <strong>Low Profile</strong> – Investors with smaller portfolios, a moderate risk appetite, and a preference for stable assets like real estate.
-          </li>
-        </ul>
-      </div>
-
-</div>  
-</div> -->
-<hr>
 <div>
   <footer
   class="footer mt-3 d-flex flex-column flex-md-row align-items-center justify-content-between px-4 border-top small">
