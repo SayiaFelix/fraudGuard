@@ -1148,7 +1148,7 @@ handleChatResponse(response: string) {
       'Total Transactions': 'Total_transactions.png',
       'Loan Repayment Trends': 'Loan_repayment.png',
       'Loan Default Rates': 'Default_rates.png',
-      'Customer Deposits Growth': 'customer_deposits_growth_chart.png',
+      'NetCashflow': 'Net_cashflow.png',
       'Fraud Risk Indicator': 'fraud_risk_indicator_chart.png'
     };
     
