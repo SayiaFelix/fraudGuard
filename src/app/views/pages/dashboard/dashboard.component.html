@@ -148,7 +148,48 @@
         </div>
       </div>
     </div>
+  
 
+
+          <!-- Slide 3-->
+    <div class="carousel-item">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card shadow-sm">
+            <div class="card-header bg-warning text-white text-center" style="border-radius: 10px;">
+              <h4 class="m-0">Investment Preferences</h4>
+            </div>
+            <div class="card-body text-center">
+              <img 
+                [src]="investmentChart" 
+                class="img-fluid rounded shadow-sm" 
+                alt="Investment  Preferences Distribution"
+                data-bs-toggle="tooltip" 
+                data-bs-placement="top" 
+                title="This chart shows the Investment Preferences of customers based on their risk appetite to investment."
+              >
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card shadow-sm">
+            <div class="card-header bg-warning text-white text-center" style="border-radius: 10px;">
+              <h4 class="m-0">Market Impact Based on News Source</h4>
+            </div>
+            <div class="card-body text-center">
+              <img [src]="newssourceChart" 
+                alt="MarketImpact Based on News Source" 
+                class="img-fluid rounded shadow" 
+                data-bs-toggle="tooltip" 
+                data-bs-placement="top" 
+                title="📈 Market Impact Based on News Source"
+                style="border: 2px solid #ddd;">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
   </div>
 
   <!-- Carousel Controls -->
@@ -277,16 +318,16 @@
           data-bs-placement="top" 
           title="Loan Default Rates (higher means riskier customers)">
           Loan Default Rates 
-          <span class="text-danger">
+          <span class="text-success">
               78 % 
           </span>
       </li>
       <li class="list-group-item d-flex justify-content-between align-items-center" 
-          (click)="showChart('Net Casshflow')" 
+          (click)="showChart('Net Cashflow')" 
           data-bs-toggle="tooltip" 
           data-bs-placement="top" 
           title="Predicted increase in bank deposits from customers">
-          Net Cashflow 
+          Net Cashflow   
           <span class="text-success">
               52,000,000 
           </span>
