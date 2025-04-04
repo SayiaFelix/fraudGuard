@@ -258,49 +258,55 @@ portfolio = { roi: 10 }; //
       }
     }
     
-  fetchChurnPrediction(modalContent: TemplateRef<any>): void {
-    this.isLoading = true;
-    if (this.customerId) {
-      this.errorMessage = null;
-      this.successMessage = null;
-      this.predictionGraphUrl = null;
-      this.churnPredictionDetails = null;
-
-      // Fetch churn prediction image
-      this.churnService.getChurnPrediction(this.customerId).subscribe(
-        (blob: Blob) => {
-          const reader = new FileReader();
-          reader.onload = (event: any) => {
+    fetchChurnPrediction(modalContent: TemplateRef<any>): void {
+      this.isLoading = true;
+      if (this.customerId) {
+        this.errorMessage = null; // Clear previous error messages
+        this.successMessage = null; // Clear previous success messages
+        this.predictionGraphUrl = null;
+        this.churnPredictionDetails = null;
+    
+        // Fetch churn prediction image
+        this.churnService.getChurnPrediction(this.customerId).subscribe(
+          (blob: Blob) => {
+            const reader = new FileReader();
+            reader.onload = (event: any) => {
+              this.isLoading = false;
+              this.predictionGraphUrl = event.target.result;
+              this.successMessage = 'Prediction retrieved successfully!';
+            };
+            reader.readAsDataURL(blob);
+          },
+          (error) => {
             this.isLoading = false;
-            this.predictionGraphUrl = event.target.result;
+            this.errorMessage = error.error?.message || 'Customer ID not found. Please try again.';
+            console.error('Error fetching churn prediction image:', error.message);
+          }
+        );
+    
+        // Fetch churn prediction details
+        this.churnService.getChurnPredictionDetails(this.customerId).subscribe(
+          (data) => {
+            this.churnPredictionDetails = data;
             this.successMessage = 'Prediction retrieved successfully!';
-          
-          };
-          reader.readAsDataURL(blob);
-        },
-        (error) => {
-          this.isLoading = false;
-          this.errorMessage = 'Customer ID not found. Please try again.';
-          console.error('Error fetching churn prediction image:', error.message);
-        }
-      );
-
-      // Fetch churn prediction details
-      this.churnService.getChurnPredictionDetails(this.customerId).subscribe(
-        (data) => {
-          this.churnPredictionDetails = data;
-          
-          this.successMessage = 'Prediction retrieved successfully!';
-          // Open the modal once data is fetched
-          this.modalService.open(modalContent, { size: 'lg', centered: true });
-        },
-        (error) => {
-          this.errorMessage = 'Customer ID not found. Please try again.';
-          console.error('Error fetching churn prediction details:', error.message);
-        }
-      );
+            const modal = this.modalService.open(modalContent, { size: 'lg', centered: true });
+    
+            // Reset customerId when modal is dismissed
+            modal.result.finally(() => {
+              this.customerId = null;
+            });
+          },
+          (error) => {
+            this.isLoading = false;
+            this.errorMessage = error.error?.message || 'Customer ID not found. Please try again.';
+            console.error('Error fetching churn prediction details:', error.message);
+          }
+        );
+      } else {
+        this.isLoading = false; // Stop loading
+        this.errorMessage = 'Please enter a Customer ID.';
+      }
     }
-  }
 
     
     get totalPages() {
