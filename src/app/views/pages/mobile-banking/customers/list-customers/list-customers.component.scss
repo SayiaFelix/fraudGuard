@@ -258,7 +258,7 @@ button.deactivated {
 .profile-section h5 {
   margin: 0 0 10px 0;
   color: #1e88e5;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .profile-section:not(.has-scrollable-table) {
@@ -624,4 +624,23 @@ button.deactivated {
   em {
     font-style: italic;
   }
+}
+
+.analysis-summary {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #6f42c1;
+}
+
+.analysis-section h5 {
+  color: #6f42c1;
+  margin-top: 13px;
+  font-size: 12px;
+}
+
+.analysis-content {
+  line-height: 1.6;
+  color: #495057;
 }

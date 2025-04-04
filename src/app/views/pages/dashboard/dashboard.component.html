@@ -78,7 +78,7 @@
             <div class="card-header bg-warning text-white text-center" style="border-radius: 10px;">
               <h4 class="m-0">Default Probability VS Loan Amount</h4>
             </div>
-            <div class="card-body text-center">
+            <div class="card-body text-center ">
               <img 
                 [src]="defaultProbabilityChart" 
                 class="img-fluid rounded shadow-sm" 
@@ -355,7 +355,7 @@
         </h2>
         <button type="button" class="btn-close position-absolute end-0 me-3" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body text-center">
+      <div class="modal-body card-body text-center p-3 bg-light rounded">
         <img *ngIf="selectedChartUrl" [src]="selectedChartUrl" class="img-fluid rounded shadow">
         <p *ngIf="!selectedChartUrl" class="text-muted">Loading chart...</p>
       </div>

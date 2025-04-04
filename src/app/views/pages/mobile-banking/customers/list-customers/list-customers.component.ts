@@ -3,7 +3,7 @@ import {
   Input,
   OnInit,
   TemplateRef,
-  ViewChild, ElementRef, AfterViewChecked, Pipe, PipeTransform,ChangeDetectorRef 
+  ViewChild, ElementRef, AfterViewChecked, Pipe, PipeTransform, ChangeDetectorRef 
 } from '@angular/core';
 
 import { NgbActiveModal, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -26,7 +26,7 @@ import { HttpClient, HttpEventType, HttpRequest, HttpEvent, HttpResponse } from 
 // import {AddAccountComponent} from "../../Accounts/AccountRegistration/add-account/add-account.component";
 
 
-// Update the interface to match the API response
+// interface to match the API response
 interface ConversationMessage {
   sender: string;
   text: string;
@@ -51,6 +51,7 @@ interface ConversationMessage {
       };
       sample_data: any[];
     };
+    analysis?: string; 
     message?: string;
   };
 }
@@ -343,6 +344,23 @@ export class ListCustomersComponent implements OnInit {
   }
 
 
+formatAnalysisContent(content: string): string {
+    return content ? content.replace(/\n/g, '<br>') : '';
+  }
+
+parseAnalysis(analysis?: string): any[] {
+  if (!analysis) return [];
+  
+  const sections = analysis.split('\n\n');
+  return sections.map(section => {
+    const titleMatch = section.match(/^\d+\.\s+(.*?)\n/);
+    return {
+      title: titleMatch ? titleMatch[1] : 'Analysis',
+      content: titleMatch ? section.replace(titleMatch[0], '') : section
+    };
+  });
+}
+
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) {
@@ -417,6 +435,7 @@ export class ListCustomersComponent implements OnInit {
                 filename: response.data.filename,
                 size: response.data.size,
                 profile: response.data.profile,
+                analysis: response.data.analysis_summary,
                 message: 'Data analysis complete !!!'
               }
             });

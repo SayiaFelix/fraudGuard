@@ -237,6 +237,18 @@
                       </span>
                     </div>
                   </div>
+
+
+           
+
+                <div *ngIf="messageItem.fileData?.analysis" class="profile-section analysis-summary">
+                  <h5>AI Analysis Summary</h5>
+                  <div *ngFor="let section of parseAnalysis(messageItem.fileData.analysis)" class="analysis-section">
+                    <h5>{{section.title}}</h5>
+                    <div [innerHTML]="formatAnalysisContent(section.content)"></div>
+                  </div>
+                </div>
+
                 </div>
               </div>
             </div>

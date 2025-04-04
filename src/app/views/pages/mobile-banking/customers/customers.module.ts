@@ -31,7 +31,7 @@ import { Ng2TelInputModule } from 'ng2-tel-input';
     SendSmsComponent,
     ViewCustomerComponent,
     AddCustomerComponent,
-    ReasonsForFailureComponent
+    ReasonsForFailureComponent,
 
     // CreateProductComponent
   ],
