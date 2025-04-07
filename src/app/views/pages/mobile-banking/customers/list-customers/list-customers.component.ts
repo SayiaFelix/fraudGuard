@@ -51,7 +51,7 @@ interface ConversationMessage {
       };
       sample_data: any[];
     };
-    analysis?: string; 
+    analysis?: string;
     message?: string;
   };
 }
@@ -327,7 +327,6 @@ export class ListCustomersComponent implements OnInit {
   }
 
 
-
   private scrollToBottom(): void {
     try {
       this.cdRef.detectChanges(); 
@@ -397,6 +396,7 @@ parseAnalysis(analysis?: string): any[] {
       this.isErrorState = true;
       return;
     }
+    
 
     this.isUploading = true;
     this.isErrorState = false;
