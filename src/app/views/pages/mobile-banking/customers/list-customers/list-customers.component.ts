@@ -34,6 +34,7 @@ interface ConversationMessage {
   isFileResponse?: boolean;
   isWelcomeMessage?: boolean;
   formattedText?: string;  
+  datasetId?: string;
   fileData?: {
     filename: string;
     size: number;
@@ -183,6 +184,7 @@ export class ListCustomersComponent implements OnInit {
   uploadProgress: number = 0;
   isUploading: boolean = false;
   currentFileData: any;
+  currentDatasetId: any;
   isDragover = false;
   isErrorState = false;
   currentColumnStart = 0;
@@ -238,25 +240,31 @@ export class ListCustomersComponent implements OnInit {
     this.isLoading = true;
     if (this.userQuery.trim() === '') return;
   
-    // user message
+    // Add user message to conversation
     this.conversation.push({
       sender: 'user',
       text: this.userQuery,
-      time: this.getCurrentTime()
+      time: this.getCurrentTime(),
+      datasetId: this.currentDatasetId
     });
-    
-    // Force UI update
-    this.cdRef.detectChanges();
-    this.scrollToBottom();
-    this.shouldScroll = true;
-
   
-    this.http.post<any>('http://localhost:5015/api/chat', { query: this.userQuery }).subscribe({
+    // Prepare request payload
+    const payload = {
+      query: this.userQuery,
+      dataset_id: this.currentDatasetId 
+    };
+    console.log("Here is the body.....",payload)
+
+    //   // Force UI update
+    // this.cdRef.detectChanges();
+    // this.scrollToBottom();
+    // this.shouldScroll = true;
+  
+  
+    this.http.post<any>('http://localhost:5015/api/chat', payload).subscribe({
       next: (response) => {
         this.isLoading = false;
-        console.log('Raw response:', response);
         
-        // Properly extract the response from nested structure
         const botMessage = response.data?.response || 
                           response.response || 
                           'I received your message but the response format was unexpected.';
@@ -264,27 +272,28 @@ export class ListCustomersComponent implements OnInit {
         this.conversation.push({
           sender: 'bot',
           text: botMessage,
-          formattedText: this.formatResponse(botMessage), 
-          time: this.getCurrentTime()
+          formattedText: this.formatResponse(botMessage),
+          time: this.getCurrentTime(),
+          datasetId: this.currentDatasetId 
         });
         
-        // Force UI update and scroll
         this.cdRef.detectChanges();
         this.scrollToBottom();
-        this.shouldScroll = true;
       },
       error: (error) => {
         this.isLoading = false;
         this.conversation.push({
           sender: 'bot',
           text: 'Sorry, I encountered an error processing your request.',
-          time: this.getCurrentTime()
+          time: this.getCurrentTime(),
+          datasetId: this.currentDatasetId 
         });
         this.cdRef.detectChanges();
         this.scrollToBottom();
         console.error('Chat error:', error);
       }
     });
+    
     this.userQuery = '';
   }
 
@@ -396,7 +405,7 @@ parseAnalysis(analysis?: string): any[] {
       this.isErrorState = true;
       return;
     }
-    
+
 
     this.isUploading = true;
     this.isErrorState = false;
@@ -420,6 +429,7 @@ parseAnalysis(analysis?: string): any[] {
 
             // this.isLoading = false;
             this.currentFileData = response.data;
+            this.currentDatasetId = response.data.dataset_id;
             this.uploadProgress = 100;
             this.uploadMessage = response.message;
             this.isUploading = false;
@@ -431,6 +441,7 @@ parseAnalysis(analysis?: string): any[] {
               text: `I've analyzed your file: ${response.data.filename}`,
               time: this.getCurrentTime(),
               isFileResponse: true,
+              datasetId: this.currentDatasetId,
               fileData: {
                 filename: response.data.filename,
                 size: response.data.size,
@@ -529,6 +540,7 @@ parseAnalysis(analysis?: string): any[] {
       time: this.getCurrentTime()
     }];
     this.uploadMessage = '';
+    this.currentDatasetId = null;
     this.shouldScroll = true;
   }
 
