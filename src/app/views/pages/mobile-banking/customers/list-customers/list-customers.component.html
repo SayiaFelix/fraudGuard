@@ -94,6 +94,27 @@
                   </div>
                 </div>
 
+                <!-- Report Download Section
+                <div class="report-download">
+                  <div class="report-card">
+                    <div class="report-icon">
+                      <i [ngClass]="{
+                        'fas fa-file-pdf': messageItem.fileData.format === 'pdf',
+                        'fas fa-file-excel': messageItem.fileData.format === 'excel'
+                      }"></i>
+                    </div>
+                    <div class="report-info">
+                      <h5>Financial Report Ready</h5>
+                      <p>{{messageItem.fileData.filename}} ({{formatFileSize(messageItem.fileData.size)}})</p>
+                      <a [href]="messageItem.fileData.downloadUrl" 
+                        [download]="messageItem.fileData.filename"
+                        class="btn btn-sm btn-download">
+                        <i class="fas fa-download"></i> Download {{messageItem.fileData.format | uppercase}}
+                      </a>
+                    </div>
+                  </div>
+                </div> -->
+
                 <!-- Data Profile -->
                 <div *ngIf="messageItem.fileData.profile" class="data-profile">
                   <!-- Overview Section -->
