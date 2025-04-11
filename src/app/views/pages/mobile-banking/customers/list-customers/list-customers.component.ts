@@ -27,17 +27,54 @@ import { HttpClient, HttpEventType, HttpRequest, HttpEvent, HttpResponse } from 
 
 
 // interface to match the API response
+// interface ConversationMessage {
+//   sender: string;
+//   text: string;
+//   time: string;
+//   isFileResponse?: boolean;
+//   isWelcomeMessage?: boolean;
+//   formattedText?: string;  
+//   datasetId?: string;
+//   fileData?: {
+//     filename: string;
+//     size: number;
+//     profile?: {
+//       overview: any;
+//       column_types: any;
+//       missing_data: {
+//         total_missing: number;
+//         pct_missing: number;
+//         columns_with_missing: number;
+//         missing_value_distribution: {
+//           columns: { [key: string]: number };
+//           top_5_columns_with_most_missing: { [key: string]: number };
+//         }
+//       };
+//       sample_data: any[];
+//     };
+//     analysis?: string;
+//     message?: string;
+//   };
+// }
+
 interface ConversationMessage {
-  sender: string;
+  sender: 'user' | 'bot';
   text: string;
   time: string;
   isFileResponse?: boolean;
   isWelcomeMessage?: boolean;
-  formattedText?: string;  
+  isGeneratingReport?: boolean;
+  status?: 'sending' | 'delivered' | 'error' | 'received' | 'pending' | 'approved' | 'rejected' | 'loading';
+  isLoading?: boolean;
+  isError?: boolean;
+  formattedText?: string;
   datasetId?: string;
   fileData?: {
     filename: string;
     size: number;
+    format?: string;
+    downloadUrl?: string;
+    mimeType?: string;
     profile?: {
       overview: any;
       column_types: any;
@@ -48,7 +85,7 @@ interface ConversationMessage {
         missing_value_distribution: {
           columns: { [key: string]: number };
           top_5_columns_with_most_missing: { [key: string]: number };
-        }
+        };
       };
       sample_data: any[];
     };
@@ -189,6 +226,10 @@ export class ListCustomersComponent implements OnInit {
   isErrorState = false;
   currentColumnStart = 0;
   columnsPerPage = 6;
+ 
+  shouldGenerateReport = false;
+  reportFormat: 'pdf' | 'excel' = 'pdf';
+  reportDownloadUrl: string | null = null;
   
  
 
@@ -236,11 +277,12 @@ export class ListCustomersComponent implements OnInit {
     }
   }
 
+ 
+
   sendMessage() {
     this.isLoading = true;
     if (this.userQuery.trim() === '') return;
   
-    // Add user message to conversation
     this.conversation.push({
       sender: 'user',
       text: this.userQuery,
@@ -254,12 +296,6 @@ export class ListCustomersComponent implements OnInit {
       dataset_id: this.currentDatasetId 
     };
     console.log("Here is the body.....",payload)
-
-    //   // Force UI update
-    // this.cdRef.detectChanges();
-    // this.scrollToBottom();
-    // this.shouldScroll = true;
-  
   
     this.http.post<any>('http://localhost:5015/api/chat', payload).subscribe({
       next: (response) => {
