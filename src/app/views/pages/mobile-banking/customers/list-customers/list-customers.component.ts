@@ -3,7 +3,7 @@ import {
   Input,
   OnInit,
   TemplateRef,
-  ViewChild, ElementRef, AfterViewChecked, Pipe, PipeTransform, ChangeDetectorRef 
+  ViewChild, ElementRef, AfterViewChecked, Pipe, PipeTransform, ChangeDetectorRef
 } from '@angular/core';
 
 import { NgbActiveModal, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -198,12 +198,12 @@ export class ListCustomersComponent implements OnInit {
   isErrorState = false;
   currentColumnStart = 0;
   columnsPerPage = 6;
- 
+
   shouldGenerateReport = false;
   reportFormat: 'pdf' | 'excel' = 'pdf';
   reportDownloadUrl: string | null = null;
-  
- 
+
+
 
   constructor(
     private cdRef: ChangeDetectorRef,
@@ -249,85 +249,30 @@ export class ListCustomersComponent implements OnInit {
     }
   }
 
-  // sendMessage() {
-  //   this.isLoading = true;
-  //   if (this.userQuery.trim() === '') return;
-  
-  //   this.conversation.push({
-  //     sender: 'user',
-  //     text: this.userQuery,
-  //     time: this.getCurrentTime(),
-  //     datasetId: this.currentDatasetId
-  //   });
-  
-  //   // Prepare request payload
-  //   const payload = {
-  //     query: this.userQuery,
-  //     dataset_id: this.currentDatasetId 
-  //   };
-  //   console.log("Here is the body.....",payload)
-  
-  //   this.http.post<any>('http://localhost:5015/api/chat', payload).subscribe({
-  //     next: (response) => {
-  //       this.isLoading = false;
-        
-  //       const botMessage = response.data?.response || 
-  //                         response.response || 
-  //                         'I received your message but the response format was unexpected.';
-        
-  //       this.conversation.push({
-  //         sender: 'bot',
-  //         text: botMessage,
-  //         formattedText: this.formatResponse(botMessage),
-  //         time: this.getCurrentTime(),
-  //         datasetId: this.currentDatasetId 
-  //       });
-        
-  //       this.cdRef.detectChanges();
-  //       this.scrollToBottom();
-  //     },
-  //     error: (error) => {
-  //       this.isLoading = false;
-  //       this.conversation.push({
-  //         sender: 'bot',
-  //         text: 'Sorry, I encountered an error processing your request.',
-  //         time: this.getCurrentTime(),
-  //         datasetId: this.currentDatasetId 
-  //       });
-  //       this.cdRef.detectChanges();
-  //       this.scrollToBottom();
-  //       console.error('Chat error:', error);
-  //     }
-  //   });
-    
-  //   this.userQuery = '';
-  // }
-
   sendMessage() {
     this.isLoading = true;
     if (this.userQuery.trim() === '') return;
-  
+
     this.conversation.push({
       sender: 'user',
       text: this.userQuery,
       time: this.getCurrentTime(),
       datasetId: this.currentDatasetId
     });
-  
+
     const payload = {
       query: this.userQuery,
-      dataset_id: this.currentDatasetId 
+      dataset_id: this.currentDatasetId
     };
-  
+
     this.http.post<any>('http://localhost:5015/api/chat', payload).subscribe({
       next: (response) => {
         this.isLoading = false;
-        
-        // Check if response contains a report
+
         if (response.data?.report) {
           const report = response.data.report;
-          
-          // Create message with report download option
+
+          // message with report download option
           this.conversation.push({
             sender: 'bot',
             text: response.data.response,
@@ -336,28 +281,28 @@ export class ListCustomersComponent implements OnInit {
             isFileResponse: true,
             fileData: {
               filename: report.filename,
-              size: atob(report.content).length, // Approximate size
+              size: atob(report.content).length,
               format: report.format,
               downloadUrl: report.url,
               mimeType: report.mime_type,
-              content: report.content // Store base64 content for direct download
+              content: report.content
             }
           });
         } else {
           // Regular text response
-          const botMessage = response.data?.response || 
-                            response.response || 
-                            'I received your message but the response format was unexpected.';
-          
+          const botMessage = response.data?.response ||
+            response.response ||
+            'I received your message but the response format was unexpected.';
+
           this.conversation.push({
             sender: 'bot',
             text: botMessage,
             formattedText: this.formatResponse(botMessage),
             time: this.getCurrentTime(),
-            datasetId: this.currentDatasetId 
+            datasetId: this.currentDatasetId
           });
         }
-        
+
         this.cdRef.detectChanges();
         this.scrollToBottom();
       },
@@ -367,36 +312,16 @@ export class ListCustomersComponent implements OnInit {
           sender: 'bot',
           text: 'Sorry, I encountered an error processing your request.',
           time: this.getCurrentTime(),
-          datasetId: this.currentDatasetId 
+          datasetId: this.currentDatasetId
         });
         this.cdRef.detectChanges();
         this.scrollToBottom();
         console.error('Chat error:', error);
       }
     });
-    
-    this.userQuery = '';
-}
 
-  // downloadReport(content: string, filename: string) {
-  //   // Convert base64 to blob
-  //   const byteCharacters = atob(content);
-  //   const byteNumbers = new Array(byteCharacters.length);
-  //   for (let i = 0; i < byteCharacters.length; i++) {
-  //       byteNumbers[i] = byteCharacters.charCodeAt(i);
-  //   }
-  //   const byteArray = new Uint8Array(byteNumbers);
-  //   const blob = new Blob([byteArray], { type: 'application/pdf' });
-    
-  //   // Create download link
-  //   const url = window.URL.createObjectURL(blob);
-  //   const link = document.createElement('a');
-  //   link.href = url;
-  //   link.download = filename;
-  //   link.click();
-    
-  //   window.URL.revokeObjectURL(url);
-  // }
+    this.userQuery = '';
+  }
 
   getMimeType(filename: string): string {
     if (filename.endsWith('.pdf')) {
@@ -406,33 +331,32 @@ export class ListCustomersComponent implements OnInit {
     } else if (filename.endsWith('.xls')) {
       return 'application/vnd.ms-excel';
     }
-    return 'application/octet-stream'; // Default fallback
+    return 'application/octet-stream';
   }
-  
+
   downloadReport(content: string, filename: string) {
     const blob = this.base64ToBlob(content, this.getMimeType(filename));
     const url = window.URL.createObjectURL(blob);
-  
+
     const link = document.createElement('a');
     link.href = url;
     link.download = filename;
     link.click();
-  
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
-  
+
   viewReport(content: string, filename: string) {
     const blob = this.base64ToBlob(content, this.getMimeType(filename));
     const url = window.URL.createObjectURL(blob);
     window.open(url, '_blank');
-  
+
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
-  
+
   base64ToBlob(base64: string, mimeType: string): Blob {
     const byteCharacters = atob(base64);
     const byteArrays = [];
-  
+
     for (let offset = 0; offset < byteCharacters.length; offset += 512) {
       const slice = byteCharacters.slice(offset, offset + 512);
       const byteNumbers = new Array(slice.length);
@@ -442,42 +366,42 @@ export class ListCustomersComponent implements OnInit {
       const byteArray = new Uint8Array(byteNumbers);
       byteArrays.push(byteArray);
     }
-  
+
     return new Blob(byteArrays, { type: mimeType });
   }
 
-  
+
   formatResponse(text: string): string {
     if (!text) return '';
-    
+
     // 1. Basic security sanitization
     const escaped = text
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
-  
+
     // 2. Process numbered lists (1., 2., etc.)
     let formatted = escaped.replace(/^(\d+)\.\s+(.*)$/gm, '<li class="numbered">$2</li>');
-    
+
     // 3. Process bullet points (- or *)
     formatted = formatted.replace(/^[-*]\s+(.*)$/gm, '<li class="bulleted">$1</li>');
-    
+
     // 4. Markdown formatting
     formatted = formatted
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.*?)\*/g, '<em>$1</em>');
-  
+
     // 5. Wrap consecutive list items
     formatted = formatted.replace(
-      /(<li class="numbered">.*?<\/li>(?:\s*<li class="numbered">.*?<\/li>)+)/gs, 
+      /(<li class="numbered">.*?<\/li>(?:\s*<li class="numbered">.*?<\/li>)+)/gs,
       match => `<ol>${match}</ol>`
     );
-    
+
     formatted = formatted.replace(
-      /(<li class="bulleted">.*?<\/li>(?:\s*<li class="bulleted">.*?<\/li>)+)/gs, 
+      /(<li class="bulleted">.*?<\/li>(?:\s*<li class="bulleted">.*?<\/li>)+)/gs,
       match => `<ul>${match}</ul>`
     );
-  
+
     // 6. Convert line breaks and paragraphs
     return formatted
       .replace(/\n\n/g, '</p><p>')
@@ -488,36 +412,36 @@ export class ListCustomersComponent implements OnInit {
 
   private scrollToBottom(): void {
     try {
-      this.cdRef.detectChanges(); 
-      
+      this.cdRef.detectChanges();
+
       setTimeout(() => {
         const chatContainer = this.chatArea?.nativeElement;
         if (chatContainer) {
           chatContainer.scrollTop = chatContainer.scrollHeight;
         }
-      }, 100); 
+      }, 100);
     } catch (err) {
       console.error('Scroll error:', err);
     }
   }
 
 
-formatAnalysisContent(content: string): string {
+  formatAnalysisContent(content: string): string {
     return content ? content.replace(/\n/g, '<br>') : '';
   }
 
-parseAnalysis(analysis?: string): any[] {
-  if (!analysis) return [];
-  
-  const sections = analysis.split('\n\n');
-  return sections.map(section => {
-    const titleMatch = section.match(/^\d+\.\s+(.*?)\n/);
-    return {
-      title: titleMatch ? titleMatch[1] : 'Analysis',
-      content: titleMatch ? section.replace(titleMatch[0], '') : section
-    };
-  });
-}
+  parseAnalysis(analysis?: string): any[] {
+    if (!analysis) return [];
+
+    const sections = analysis.split('\n\n');
+    return sections.map(section => {
+      const titleMatch = section.match(/^\d+\.\s+(.*?)\n/);
+      return {
+        title: titleMatch ? titleMatch[1] : 'Analysis',
+        content: titleMatch ? section.replace(titleMatch[0], '') : section
+      };
+    });
+  }
 
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -850,25 +774,25 @@ parseAnalysis(analysis?: string): any[] {
   get visibleColumns(): string[] {
     return this.getSampleDataColumns().slice(this.currentColumnStart, this.currentColumnStart + this.columnsPerPage);
   }
-  
+
   get totalColumns(): number {
     return this.getSampleDataColumns().length;
   }
-  
+
   showNextColumns(): void {
     if (this.currentColumnStart + this.columnsPerPage < this.totalColumns) {
       this.currentColumnStart += this.columnsPerPage;
     }
   }
-  
+
   showPreviousColumns(): void {
     this.currentColumnStart = Math.max(0, this.currentColumnStart - this.columnsPerPage);
   }
-  
+
   hasNextColumns(): boolean {
     return this.currentColumnStart + this.columnsPerPage < this.totalColumns;
   }
-  
+
   hasPreviousColumns(): boolean {
     return this.currentColumnStart > 0;
   }

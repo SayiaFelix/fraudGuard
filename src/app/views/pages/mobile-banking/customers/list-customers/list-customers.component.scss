@@ -57,7 +57,7 @@ button.deactivated {
 .message {
   display: flex;
   margin-bottom: 15px;
-  max-width: 80%;
+  max-width: 85%;
 }
 
 .user-message {
@@ -94,7 +94,6 @@ button.deactivated {
   color: #1e0f2e;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
   word-break: break-word;
-
   text-align: left;
   margin: 8px 0;
   background-color: #e3f2fd;
@@ -299,8 +298,6 @@ button.deactivated {
   font-weight: 700;
   color: #3a1b5a;
   text-align: right;
-  // min-width: 200px;
-  
 }
 
 .sample-data-table {
@@ -504,7 +501,7 @@ button.deactivated {
 
 .missing-data-section {
   width: 100%;
-  overflow: hidden; /* Prevent horizontal scrolling */
+  overflow: hidden; 
 }
 
 
@@ -652,41 +649,27 @@ button.deactivated {
   padding-top: 15px;
 }
 
+
 .report-card {
   display: flex;
   align-items: center;
+  gap: 15px;
   background: #f8f9fa;
   border-radius: 8px;
   padding: 12px;
   border: 1px solid #dee2e6;
+  margin-top: 10px;
 }
 
 .report-icon {
   font-size: 2rem;
-  color: #d63384;
+  color: #d63384; /* PDF red color */
   margin-right: 15px;
 }
 
-// .report-info h5 {
-//   margin: 0 0 5px 0;
-//   font-size: 1rem;
-// }
 
-// .report-info p {
-//   margin: 0 0 10px 0;
-//   font-size: 0.85rem;
-//   color: #6c757d;
-// }
-
-.btn-download {
-  background-color: #0d6efd;
-  color: white;
-  border: none;
-}
-
-.btn-download:hover {
-  background-color: #0b5ed7;
-  color: white;
+.report-icon .fa-file-excel {
+  color: #217346; /* Excel green color */
 }
 
 .report-actions {
@@ -694,58 +677,21 @@ button.deactivated {
   gap: 10px;
 }
 
-// /* Report Controls */
-// .report-controls {
-//   border: 1px solid #d0e3ff;
-//   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-// }
 
-// /* Report Download Card */
-// .report-download {
-//   margin-top: 15px;
-// }
+.btn-download {
+  background: #2a7de1;
+  color: white;
+  border-radius: 20px;
+  padding: 5px 15px;
+  font-size: 0.8rem;
+  border: none;
+}
 
-// .report-card {
-//   display: flex;
-//   align-items: center;
-//   background: #f8fbff;
-//   border: 1px solid #d0e3ff;
-//   border-radius: 8px;
-//   padding: 12px;
-//   margin-bottom: 10px;
-// }
+.btn-download:hover {
+  background: #3b8ce9;
+  color: white;
+}
 
-// .report-icon {
-//   font-size: 2rem;
-//   color: #2a7de1;
-//   margin-right: 15px;
-// }
-
-// .report-info h5 {
-//   margin: 0 0 5px 0;
-//   color: #2a7de1;
-// }
-
-// .report-info p {
-//   margin: 0 0 10px 0;
-//   font-size: 0.9rem;
-//   color: #666;
-// }
-
-// .btn-download {
-//   background: #2a7de1;
-//   color: white;
-//   border-radius: 20px;
-//   padding: 5px 15px;
-//   font-size: 0.8rem;
-// }
-
-// .btn-download:hover {
-//   background: #1a6dcc;
-//   color: white;
-// }
-
-/* Loading Animation */
 .inline-loader {
   display: inline-block;
   margin-left: 10px;
