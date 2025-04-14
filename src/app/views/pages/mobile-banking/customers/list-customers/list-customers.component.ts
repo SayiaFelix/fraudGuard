@@ -277,8 +277,6 @@ export class ListCustomersComponent implements OnInit {
     }
   }
 
- 
-
   sendMessage() {
     this.isLoading = true;
     if (this.userQuery.trim() === '') return;
