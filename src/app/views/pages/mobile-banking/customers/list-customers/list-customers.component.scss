@@ -645,56 +645,105 @@ button.deactivated {
   color: #495057;
 }
 
-/* Report Controls */
-.report-controls {
-  border: 1px solid #d0e3ff;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-
 /* Report Download Card */
 .report-download {
   margin-top: 15px;
+  border-top: 1px solid #eee;
+  padding-top: 15px;
 }
 
 .report-card {
   display: flex;
   align-items: center;
-  background: #f8fbff;
-  border: 1px solid #d0e3ff;
+  background: #f8f9fa;
   border-radius: 8px;
   padding: 12px;
-  margin-bottom: 10px;
+  border: 1px solid #dee2e6;
 }
 
 .report-icon {
   font-size: 2rem;
-  color: #2a7de1;
+  color: #d63384;
   margin-right: 15px;
 }
 
-.report-info h5 {
-  margin: 0 0 5px 0;
-  color: #2a7de1;
-}
+// .report-info h5 {
+//   margin: 0 0 5px 0;
+//   font-size: 1rem;
+// }
 
-.report-info p {
-  margin: 0 0 10px 0;
-  font-size: 0.9rem;
-  color: #666;
-}
+// .report-info p {
+//   margin: 0 0 10px 0;
+//   font-size: 0.85rem;
+//   color: #6c757d;
+// }
 
 .btn-download {
-  background: #2a7de1;
+  background-color: #0d6efd;
   color: white;
-  border-radius: 20px;
-  padding: 5px 15px;
-  font-size: 0.8rem;
+  border: none;
 }
 
 .btn-download:hover {
-  background: #1a6dcc;
+  background-color: #0b5ed7;
   color: white;
 }
+
+.report-actions {
+  display: flex;
+  gap: 10px;
+}
+
+// /* Report Controls */
+// .report-controls {
+//   border: 1px solid #d0e3ff;
+//   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+// }
+
+// /* Report Download Card */
+// .report-download {
+//   margin-top: 15px;
+// }
+
+// .report-card {
+//   display: flex;
+//   align-items: center;
+//   background: #f8fbff;
+//   border: 1px solid #d0e3ff;
+//   border-radius: 8px;
+//   padding: 12px;
+//   margin-bottom: 10px;
+// }
+
+// .report-icon {
+//   font-size: 2rem;
+//   color: #2a7de1;
+//   margin-right: 15px;
+// }
+
+// .report-info h5 {
+//   margin: 0 0 5px 0;
+//   color: #2a7de1;
+// }
+
+// .report-info p {
+//   margin: 0 0 10px 0;
+//   font-size: 0.9rem;
+//   color: #666;
+// }
+
+// .btn-download {
+//   background: #2a7de1;
+//   color: white;
+//   border-radius: 20px;
+//   padding: 5px 15px;
+//   font-size: 0.8rem;
+// }
+
+// .btn-download:hover {
+//   background: #1a6dcc;
+//   color: white;
+// }
 
 /* Loading Animation */
 .inline-loader {

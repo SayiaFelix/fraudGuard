@@ -94,26 +94,44 @@
                   </div>
                 </div>
 
-                <!-- Report Download Section
-                <div class="report-download">
-                  <div class="report-card">
-                    <div class="report-icon">
-                      <i [ngClass]="{
-                        'fas fa-file-pdf': messageItem.fileData.format === 'pdf',
-                        'fas fa-file-excel': messageItem.fileData.format === 'excel'
-                      }"></i>
-                    </div>
-                    <div class="report-info">
-                      <h5>Financial Report Ready</h5>
-                      <p>{{messageItem.fileData.filename}} ({{formatFileSize(messageItem.fileData.size)}})</p>
-                      <a [href]="messageItem.fileData.downloadUrl" 
-                        [download]="messageItem.fileData.filename"
-                        class="btn btn-sm btn-download">
-                        <i class="fas fa-download"></i> Download {{messageItem.fileData.format | uppercase}}
-                      </a>
-                    </div>
-                  </div>
-                </div> -->
+                       <!-- Report Download Section -->
+                <div *ngIf="messageItem.isFileResponse && messageItem.fileData" class="report-download">
+                        <div class="report-card">
+                            <div class="report-icon">
+                                <i [ngClass]="{
+                                    'fas fa-file-pdf': messageItem.fileData.format === 'pdf',
+                                    'fas fa-file-excel': messageItem.fileData.format === 'excel'
+                                }"></i>
+                            </div>
+                            <div class="report-info">
+                                <!-- <h5>Financial Report Ready</h5>
+                                <p>{{messageItem.fileData.filename}}</p> -->
+                                <div class="report-actions">
+                                    <!-- <a *ngIf="messageItem.fileData.downloadUrl" 
+                                      [href]="messageItem.fileData.downloadUrl" 
+                                      target="_blank" 
+                                      rel="noopener"
+                                      class="btn btn-sm btn-download">
+                                      <i class="fas fa-download"></i> Download {{messageItem.fileData.format | uppercase}}
+                                 </a>
+                                  -->
+                               
+                                     <!-- Base64 Fallback -->
+                                <div *ngIf="messageItem.fileData.downloadUrl && messageItem.fileData.content">
+                                  <button (click)="viewReport(messageItem.fileData.content, messageItem.fileData.filename)"
+                                          class="btn btn-sm btn-outline-primary me-2">
+                                    <i class="fas fa-eye"></i> View {{ messageItem.fileData.format | uppercase }}
+                                  </button>
+
+                                  <button (click)="downloadReport(messageItem.fileData.content, messageItem.fileData.filename)"
+                                          class="btn btn-sm btn-download">
+                                    <i class="fas fa-download"></i> Download {{ messageItem.fileData.format | uppercase }}
+                                  </button>
+                                </div>
+                                </div>
+                            </div>
+                        </div>
+                </div>
 
                 <!-- Data Profile -->
                 <div *ngIf="messageItem.fileData.profile" class="data-profile">
@@ -277,6 +295,9 @@
           </div>
         </div>
       </div>
+
+
+      
 
       <!-- File upload area -->
       <div class="file-upload-area p-3" *ngIf="showUpload" [ngClass]="{'is-dragover': isDragover}"

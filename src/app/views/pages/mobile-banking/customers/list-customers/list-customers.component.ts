@@ -27,35 +27,6 @@ import { HttpClient, HttpEventType, HttpRequest, HttpEvent, HttpResponse } from 
 
 
 // interface to match the API response
-// interface ConversationMessage {
-//   sender: string;
-//   text: string;
-//   time: string;
-//   isFileResponse?: boolean;
-//   isWelcomeMessage?: boolean;
-//   formattedText?: string;  
-//   datasetId?: string;
-//   fileData?: {
-//     filename: string;
-//     size: number;
-//     profile?: {
-//       overview: any;
-//       column_types: any;
-//       missing_data: {
-//         total_missing: number;
-//         pct_missing: number;
-//         columns_with_missing: number;
-//         missing_value_distribution: {
-//           columns: { [key: string]: number };
-//           top_5_columns_with_most_missing: { [key: string]: number };
-//         }
-//       };
-//       sample_data: any[];
-//     };
-//     analysis?: string;
-//     message?: string;
-//   };
-// }
 
 interface ConversationMessage {
   sender: 'user' | 'bot';
@@ -75,6 +46,7 @@ interface ConversationMessage {
     format?: string;
     downloadUrl?: string;
     mimeType?: string;
+    content?: string;
     profile?: {
       overview: any;
       column_types: any;
@@ -277,6 +249,60 @@ export class ListCustomersComponent implements OnInit {
     }
   }
 
+  // sendMessage() {
+  //   this.isLoading = true;
+  //   if (this.userQuery.trim() === '') return;
+  
+  //   this.conversation.push({
+  //     sender: 'user',
+  //     text: this.userQuery,
+  //     time: this.getCurrentTime(),
+  //     datasetId: this.currentDatasetId
+  //   });
+  
+  //   // Prepare request payload
+  //   const payload = {
+  //     query: this.userQuery,
+  //     dataset_id: this.currentDatasetId 
+  //   };
+  //   console.log("Here is the body.....",payload)
+  
+  //   this.http.post<any>('http://localhost:5015/api/chat', payload).subscribe({
+  //     next: (response) => {
+  //       this.isLoading = false;
+        
+  //       const botMessage = response.data?.response || 
+  //                         response.response || 
+  //                         'I received your message but the response format was unexpected.';
+        
+  //       this.conversation.push({
+  //         sender: 'bot',
+  //         text: botMessage,
+  //         formattedText: this.formatResponse(botMessage),
+  //         time: this.getCurrentTime(),
+  //         datasetId: this.currentDatasetId 
+  //       });
+        
+  //       this.cdRef.detectChanges();
+  //       this.scrollToBottom();
+  //     },
+  //     error: (error) => {
+  //       this.isLoading = false;
+  //       this.conversation.push({
+  //         sender: 'bot',
+  //         text: 'Sorry, I encountered an error processing your request.',
+  //         time: this.getCurrentTime(),
+  //         datasetId: this.currentDatasetId 
+  //       });
+  //       this.cdRef.detectChanges();
+  //       this.scrollToBottom();
+  //       console.error('Chat error:', error);
+  //     }
+  //   });
+    
+  //   this.userQuery = '';
+  // }
+
   sendMessage() {
     this.isLoading = true;
     if (this.userQuery.trim() === '') return;
@@ -288,28 +314,49 @@ export class ListCustomersComponent implements OnInit {
       datasetId: this.currentDatasetId
     });
   
-    // Prepare request payload
     const payload = {
       query: this.userQuery,
       dataset_id: this.currentDatasetId 
     };
-    console.log("Here is the body.....",payload)
   
     this.http.post<any>('http://localhost:5015/api/chat', payload).subscribe({
       next: (response) => {
         this.isLoading = false;
         
-        const botMessage = response.data?.response || 
-                          response.response || 
-                          'I received your message but the response format was unexpected.';
-        
-        this.conversation.push({
-          sender: 'bot',
-          text: botMessage,
-          formattedText: this.formatResponse(botMessage),
-          time: this.getCurrentTime(),
-          datasetId: this.currentDatasetId 
-        });
+        // Check if response contains a report
+        if (response.data?.report) {
+          const report = response.data.report;
+          
+          // Create message with report download option
+          this.conversation.push({
+            sender: 'bot',
+            text: response.data.response,
+            time: this.getCurrentTime(),
+            datasetId: this.currentDatasetId,
+            isFileResponse: true,
+            fileData: {
+              filename: report.filename,
+              size: atob(report.content).length, // Approximate size
+              format: report.format,
+              downloadUrl: report.url,
+              mimeType: report.mime_type,
+              content: report.content // Store base64 content for direct download
+            }
+          });
+        } else {
+          // Regular text response
+          const botMessage = response.data?.response || 
+                            response.response || 
+                            'I received your message but the response format was unexpected.';
+          
+          this.conversation.push({
+            sender: 'bot',
+            text: botMessage,
+            formattedText: this.formatResponse(botMessage),
+            time: this.getCurrentTime(),
+            datasetId: this.currentDatasetId 
+          });
+        }
         
         this.cdRef.detectChanges();
         this.scrollToBottom();
@@ -329,8 +376,77 @@ export class ListCustomersComponent implements OnInit {
     });
     
     this.userQuery = '';
+}
+
+  // downloadReport(content: string, filename: string) {
+  //   // Convert base64 to blob
+  //   const byteCharacters = atob(content);
+  //   const byteNumbers = new Array(byteCharacters.length);
+  //   for (let i = 0; i < byteCharacters.length; i++) {
+  //       byteNumbers[i] = byteCharacters.charCodeAt(i);
+  //   }
+  //   const byteArray = new Uint8Array(byteNumbers);
+  //   const blob = new Blob([byteArray], { type: 'application/pdf' });
+    
+  //   // Create download link
+  //   const url = window.URL.createObjectURL(blob);
+  //   const link = document.createElement('a');
+  //   link.href = url;
+  //   link.download = filename;
+  //   link.click();
+    
+  //   window.URL.revokeObjectURL(url);
+  // }
+
+  getMimeType(filename: string): string {
+    if (filename.endsWith('.pdf')) {
+      return 'application/pdf';
+    } else if (filename.endsWith('.xlsx')) {
+      return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+    } else if (filename.endsWith('.xls')) {
+      return 'application/vnd.ms-excel';
+    }
+    return 'application/octet-stream'; // Default fallback
+  }
+  
+  downloadReport(content: string, filename: string) {
+    const blob = this.base64ToBlob(content, this.getMimeType(filename));
+    const url = window.URL.createObjectURL(blob);
+  
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.click();
+  
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+  
+  viewReport(content: string, filename: string) {
+    const blob = this.base64ToBlob(content, this.getMimeType(filename));
+    const url = window.URL.createObjectURL(blob);
+    window.open(url, '_blank');
+  
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+  
+  base64ToBlob(base64: string, mimeType: string): Blob {
+    const byteCharacters = atob(base64);
+    const byteArrays = [];
+  
+    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+      const slice = byteCharacters.slice(offset, offset + 512);
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+  
+    return new Blob(byteArrays, { type: mimeType });
   }
 
+  
   formatResponse(text: string): string {
     if (!text) return '';
     
