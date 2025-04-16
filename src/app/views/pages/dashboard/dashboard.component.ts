@@ -1153,7 +1153,7 @@ handleChatResponse(response: string) {
       'Loan Repayment Trends': 'Loan_repayment.png',
       'Loan Default Rates': 'Default_rates.png',
       'Net Cashflow': 'Net_cashflow.png',
-      'Fraud Risk Indicator': 'fraud_risk_indicator_chart.png'
+      'Total Sum Credit': 'sum_credit.png'
     }; 
     
     // Set the chart URL dynamically
