@@ -44,7 +44,7 @@ export const MENU: MenuItem[] = [
   },
   {
   //   // profiles: ['CORPORATE_ADMIN'],
-    label: 'Analytics AI',
+    label: 'QUANTRA AI',
     icon: 'message-circle',
     link: '/eclectics/ai_analytics/ai_chat'
   //   // subItems: [

@@ -169,7 +169,7 @@ export class ListCustomersComponent implements OnInit {
   conversation: ConversationMessage[] = [
     {
       sender: 'bot',
-      text: "Welcome to Quantra, the AI-powered solution for Financial insights. Upload your data or ask questions related to banking and your data.",
+      text: "Welcome to Quantra, the AI-powered solution for Financial insights. Upload your data for insights ...",
       isWelcomeMessage: true,
       time: this.getCurrentTime()
     }
@@ -610,7 +610,7 @@ export class ListCustomersComponent implements OnInit {
   clearConversation() {
     this.conversation = [{
       sender: 'bot',
-      text: 'Welcome to AI Powered Financial Assistant. You Upload data or ask questions about loans, investments, and banking services',
+      text: 'Welcome to Quantra, the AI-powered solution for Financial insights. Upload your data for insights ...',
       time: this.getCurrentTime()
     }];
     this.uploadMessage = '';
