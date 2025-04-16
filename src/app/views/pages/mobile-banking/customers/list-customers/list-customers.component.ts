@@ -169,7 +169,7 @@ export class ListCustomersComponent implements OnInit {
   conversation: ConversationMessage[] = [
     {
       sender: 'bot',
-      text: 'Welcome to AI Powered Financial Assistant. You can Upload data or ask questions about loans, investments, and banking services.',
+      text: "Welcome to Quantra, the AI-powered solution for Financial insights. Upload your data or ask questions related to banking and your data.",
       isWelcomeMessage: true,
       time: this.getCurrentTime()
     }
