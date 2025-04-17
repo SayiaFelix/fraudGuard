@@ -64,30 +64,33 @@
           scroll-behavior: smooth;">
 
       <div *ngFor="let messageItem of conversation">
-        <div class="message" [ngClass]="{'user-message': messageItem.sender === 'user', 
+        <div class="message" style="display: flex;margin-bottom: 15px;max-width: 85%;" [ngClass]="{'user-message': messageItem.sender === 'user', 
                                   'bot-message': messageItem.sender === 'bot'}">
-          <div class="message-avatar">
+          <div style="width: 36px;height: 36px;background-color: #f0e6ff;border-radius: 50%;display: flex;align-items: center;
+          justify-content: center;margin: 0 10px;flex-shrink: 0;box-shadow: 0 2px 4px rgba(0,0,0,0.1);" class="message-avatar">
             <i *ngIf="messageItem.sender === 'bot'" class="fas fa-robot"></i>
             <i *ngIf="messageItem.sender === 'user'" class="fas fa-user"></i>
           </div>
 
-          <div class="message-content chat-messages" id="chat-container">
-            <div class="message-text">
+          <div style="display: flex;flex-direction: column; max-width: calc(100% - 56px);" class="message-content chat-messages" id="chat-container">
+            <div style="padding: 10px 13px;border-radius: 15px;color: #1e0f2e;box-shadow: 0 2px 4px rgba(0,0,0,0.05);word-break: break-word;text-align: left;
+            margin: 8px 0;background-color: #e3f2fd;border-radius: 8px;align-self: flex-start;border-left: 4px solid #29133f;">
               <span [innerHTML]="formatResponse(messageItem.text)"></span>
 
-              <span *ngIf="isLoading && isLastMessage(messageItem)" class="inline-loader">
+              <span *ngIf="isLoading && isLastMessage(messageItem)" style="display: inline-block;margin-left: 10px;">
                 <span class="loading-dot"></span>
                 <span class="loading-dot"></span>
                 <span class="loading-dot"></span>
               </span>
 
-              <div *ngIf="messageItem.isFileResponse && messageItem.fileData" class="file-summary">
+              <div *ngIf="messageItem.isFileResponse && messageItem.fileData" style="background: #f8f5ff;border-radius: 8px;padding: 12px;margin: 8px 0;
+              border: 1px solid #e8e0ff;max-width: 100%;overflow: hidden;">
                 <!-- File header -->
-                <div class="file-header">
+                <div class="file-header" style="display: flex;align-items: center;margin-bottom: 16px;">
                   <i class="fas fa-file-excel"></i>
                   <div class="file-info">
                     <h4>{{messageItem.fileData.filename}}</h4>
-                    <span class="file-size">{{formatFileSize(messageItem.fileData.size)}}</span>
+                    <span style="font-size: 12px;color: #666;margin-right: 8px;" class="file-size">{{formatFileSize(messageItem.fileData.size)}}</span>
                     <span class="file-message" *ngIf="messageItem.fileData.message">
                       {{messageItem.fileData.message}}
                     </span>
@@ -95,23 +98,26 @@
                 </div>
 
                 <!-- Download Section -->
-                <div *ngIf="messageItem.isFileResponse && messageItem.fileData" class="report-download">
+                <div *ngIf="messageItem.isFileResponse && messageItem.fileData" style="margin-top: 15px;
+                border-top: 1px solid #eee;
+                padding-top: 15px;">
 
-                  <div class="report-actions" *ngIf="messageItem.fileData.downloadUrl && messageItem.fileData.content">
+                  <div style="display: flex;gap: 10px;" *ngIf="messageItem.fileData.downloadUrl && messageItem.fileData.content">
                     <button (click)="viewReport(messageItem.fileData.content, messageItem.fileData.filename)"
                       class="btn btn-sm btn-outline-primary me-2" style="border-radius: 10px;">
                       <i class="fas fa-eye"></i> View {{ messageItem.fileData.format | uppercase }}
                     </button>
 
                     <button (click)="downloadReport(messageItem.fileData.content, messageItem.fileData.filename)"
-                      class="btn btn-sm btn-download">
+                      class="btn btn-sm btn-download" style="background: #2a7de1;color: white;border-radius: 20px;padding: 5px 15px;
+                      font-size: 0.8rem;border: none;">
                       <i class="fas fa-download"></i> Download {{ messageItem.fileData.format | uppercase }}
                     </button>
                   </div>
                 </div>
 
                 <!-- Data Profile -->
-                <div *ngIf="messageItem.fileData.profile" class="data-profile">
+                <div *ngIf="messageItem.fileData.profile" style="width: 100%;" class="data-profile">
                   <!-- Overview Section -->
                   <div class="profile-section">
                     <h5>Overview</h5>
@@ -177,11 +183,12 @@
 
                     <div class="profile-section mt-3">
                       <h5>Top 5 Columns With Missing Values</h5>
-                      <div class="missing-columns-list">
-                        <div class="missing-column-item"
+                      <div style=" border-radius: 8px;padding: 12px;border-left: 3px solid #7e57c2;"  class="missing-columns-list">
+                        <div style="display: flex;justify-content: space-between;align-items: center;padding: 8px 12px;
+                        border-bottom: 1px solid #e8e0ff;"  class="missing-column-item"
                           *ngFor="let column of getMissingColumns(messageItem.fileData.profile.missing_data.missing_value_distribution.top_5_columns_with_most_missing)">
-                          <div class="missing-column-name">{{column.key}}</div>
-                          <div class="missing-column-value">
+                          <div style="font-weight: 500;flex: 1;">{{column.key}}</div>
+                          <div style="font-weight: 700;color: #3a1b5a;text-align: right;" class="missing-column-value">
                             {{column.value}} missing values
                           </div>
                         </div>
@@ -191,15 +198,17 @@
 
                   <div class="profile-section has-scrollable-table">
                     <h5>Sample Data (First 5 Rows)</h5>
-                    <div class="sample-data-table">
-                      <table>
+                    <div  style="  overflow-x: auto;margin-top: 15px;border-radius: 8px;box-shadow: 0 2px 8px rgba(0,0,0,0.1);background: white;
+                    border: 1px solid #e0d0ff;max-height: 400px;width: 100%;" class="sample-data-table">
+                      <table style="width: 100%;border-collapse: collapse;font-size: 13px;min-width: 100%; ">
                         <thead>
                           <tr>
-                            <th *ngFor="let column of visibleColumns">
+                            <th *ngFor="let column of visibleColumns" >
                               {{column}}
                             </th>
 
-                            <th *ngIf="totalColumns > columnsPerPage && hasNextColumns()"
+                            <th *ngIf="totalColumns > columnsPerPage && hasNextColumns()" style="background-color: #f3f0ff;color: #5a3d8a;font-weight: 500;
+                              font-size: 0.85em; text-align: center;"
                               class="extra-columns-indicator">
                               +{{totalColumns - (currentColumnStart + columnsPerPage)}} more
                             </th>
@@ -218,7 +227,7 @@
                     </div>
 
                     <!-- Navigation Buttons -->
-                    <div *ngIf="totalColumns > columnsPerPage" class="column-navigation mt-2">
+                    <div *ngIf="totalColumns > columnsPerPage" style="display: flex;align-items: center;" class="mt-2">
                       <button class="btn btn-sm btn-outline-primary me-2" (click)="showPreviousColumns()"
                         [disabled]="!hasPreviousColumns()">
                         Previous
@@ -233,7 +242,8 @@
                       </span>
                     </div>
 
-                    <div class="table-footer">
+                    <div class="table-footer" style="font-size: 0.85rem;color: #5a3d8a;margin-top: 8px;padding: 8px 12px;background-color: #f8f9fa;
+                    border-radius: 6px;display: flex;flex-wrap: wrap;gap: 0.5rem;font-style: italic;text-align: right;">
                       Showing {{currentFileData?.profile?.sample_data?.length || 0}} of
                       {{currentFileData?.profile?.overview?.num_rows || 0}} rows
 
@@ -259,8 +269,9 @@
 
                   <div *ngIf="messageItem.fileData?.analysis" class="profile-section analysis-summary">
                     <h5>AI Analysis Summary</h5>
-                    <div *ngFor="let section of parseAnalysis(messageItem.fileData.analysis)" class="analysis-section">
-                      <h5>{{section.title}}</h5>
+                    <div *ngFor="let section of parseAnalysis(messageItem.fileData.analysis)" style="margin-top: 20px;padding: 15px;background-color: #f8f9fa;
+                    border-radius: 8px;border-left: 4px solid #6f42c1;" class="analysis-section">
+                      <h5 style="  color: #6f42c1;margin-top: 13px;font-size: 12px;">{{section.title}}</h5>
                       <div [innerHTML]="formatAnalysisContent(section.content)"></div>
                     </div>
                   </div>
@@ -268,7 +279,7 @@
                 </div>
               </div>
             </div>
-            <div class="message-time">{{ messageItem.time }}</div>
+            <div style="font-size: 11px;color: #3a1b5a; margin-top: 4px;" class="message-time">{{ messageItem.time }}</div>
           </div>
         </div>
       </div>
