@@ -265,7 +265,7 @@ export class ListCustomersComponent implements OnInit {
       dataset_id: this.currentDatasetId
     };
 
-    this.http.post<any>('http://localhost:5015/api/chat', payload).subscribe({
+    this.http.post<any>('http://130.61.111.65:5015/api/chat', payload).subscribe({
       next: (response) => {
         this.isLoading = false;
 
@@ -488,7 +488,7 @@ export class ListCustomersComponent implements OnInit {
     const formData = new FormData();
     formData.append('file', this.selectedFile);
 
-    this.http.post('http://localhost:5015/api/upload', formData, {
+    this.http.post('http://130.61.111.65:5015/api/upload', formData, {
       reportProgress: true,
       observe: 'events'
     }).subscribe({
