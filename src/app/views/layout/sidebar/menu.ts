@@ -29,19 +29,19 @@ export const MENU: MenuItem[] = [
       // },
     // ]
   },
-  {
-    // profiles: ['CORPORATE_ADMIN'],
-    label: 'PROFILES',
-    icon: 'bar-chart',
-    link: '/eclectics/analytics/all-analytics'
-    // subItems: [
-    //   {
-    //     profiles: ['CORPORATE_ADMIN'],
-    //     label: 'All Standards',
-    //     link: '/tra-client/standards/all-standards'
-    //   },
-    // ]
-  },
+  // {
+  //   // profiles: ['CORPORATE_ADMIN'],
+  //   label: 'PROFILES',
+  //   icon: 'bar-chart',
+  //   link: '/eclectics/analytics/all-analytics'
+  //   // subItems: [
+  //   //   {
+  //   //     profiles: ['CORPORATE_ADMIN'],
+  //   //     label: 'All Standards',
+  //   //     link: '/tra-client/standards/all-standards'
+  //   //   },
+  //   // ]
+  // },
   {
   //   // profiles: ['CORPORATE_ADMIN'],
     label: 'QUANTRA AI',
