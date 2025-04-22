@@ -306,7 +306,10 @@
           <input type="file" id="fileInput" (change)="onFileSelected($event)" class="form-control"
             style="border-radius: 20px 0 0 20px; border: 1px solid #d0c0ff;" accept=".csv,.xls,.xlsx">
           <button class="btn btn-primary" (click)="uploadFile()" [disabled]="!selectedFile || isUploading"
-            style="border-radius: 0 20px 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            style="border-radius: 0 20px 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"
+            data-bs-toggle="tooltip"
+            data-bs-placement="top"
+            title="Upload your selected file">
             <i *ngIf="!isUploading" class="fas fa-cloud-upload-alt"></i>
             <i *ngIf="isUploading" class="fas fa-spinner fa-spin"></i>
           </button>
