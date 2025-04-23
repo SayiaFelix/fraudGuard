@@ -22,11 +22,11 @@ export class HttpService {
     private router: Router
   ) {}
 
-  private cytonUrl = 'http://130.61.111.65:5005/api/get_all_charts_kpis'; 
+  private cytonUrl = 'http://130.61.111.65:5016/api/get_all_charts_kpis'; 
   private apiUrl = 'http://127.0.0.1:5020/api/chat'; 
 
-  // private baseUrl = "http://130.61.111.65:5005"; 
-  private baseUrl = "http://127.0.0.1:5005";
+  // private baseUrl = "http://130.61.111.65:5016"; 
+  private baseUrl = "http://130.61.111.65:5016";
 
   private baseUrls = 'http://localhost:5015/api'; // Flask API Base URL
 

@@ -222,11 +222,12 @@ export class DashboardComponent implements OnInit {
 
   
 
-  // apiUrl = 'http://130.61.111.65:5010/api/customer_data';
-  apiUrl = 'http://127.0.0.1:5050/api/customer_data';
-  loanUrl = 'http://127.0.0.1:5050/api/loan_amount'
-  riskUrl = 'http://127.0.0.1:5050/api/default_probability'
-  featureImportanceUrl = 'http://127.0.0.1:5050/api/feature_importance'
+  // apiUrl = 'http://130.61.111.65:5010/v2/api/customer_data';
+  apiUrl = 'http://130.61.111.65:5050/v2/api/customer_data';
+  
+  loanUrl = 'http://130.61.111.65:5050/v2/api/loan_amount'
+  riskUrl = 'http://130.61.111.65:5050/v2/api/default_probability'
+  featureImportanceUrl = 'http://130.61.111.65:5050/v2/api/feature_importance'
 
   // currentPage: number = 1;  
   totalPages: number = Math.ceil(this.customers.length / this.pageSize);
@@ -946,7 +947,7 @@ exportToPDF() {
           this.kpis = response.data;
 
           // Update image URLs
-          const baseUrl = "http://127.0.0.1:5005";
+          const baseUrl = "http://130.61.111.65:5005";
           this.images = {
             investment_trends: baseUrl + response.images.investment_trends,
             investor_behavior: baseUrl + response.images.investor_behavior,
