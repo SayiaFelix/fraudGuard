@@ -43,11 +43,11 @@ export const MENU: MenuItem[] = [
     // ]
   },
   {
-  //   // profiles: ['CORPORATE_ADMIN'],
+  //// profiles: ['CORPORATE_ADMIN'],
     label: 'QUANTRA AI',
     icon: 'message-circle',
     link: '/eclectics/ai_analytics/ai_chat'
-  //   // subItems: [
+  //// subItems: [
   //   //   // {
   //   //   //   // profiles: ['CORPORATE_ADMIN'],
   //   //   //   label: 'All Classifications',
