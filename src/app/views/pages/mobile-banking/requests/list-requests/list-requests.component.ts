@@ -493,7 +493,7 @@ updatePagination() {
             this.kpis = response.data;
   
             // Update image URLs
-            const baseUrl = "http://130.61.111.65:5005";
+            const baseUrl = "http://130.61.111.65:5016";
             this.images = {
               investment_trends: baseUrl + response.images.investment_trends,
               investor_behavior: baseUrl + response.images.investor_behavior,

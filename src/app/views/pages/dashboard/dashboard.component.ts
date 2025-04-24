@@ -436,6 +436,18 @@ export class DashboardComponent implements OnInit {
       });
   }
 
+  maskAccount(accountNumber: string, visibleDigits: number = 5): string {
+    if (!accountNumber) return '';
+    
+    const length = accountNumber.length;
+    if (length <= visibleDigits) return accountNumber;
+    
+    const masked = '*'.repeat(length - visibleDigits);
+    const visiblePart = accountNumber.slice(-visibleDigits);
+    
+    return `${masked}${visiblePart}`;
+  }
+
   getLoanRecommendation(customer: Customer): string {
     const maxLoan = customer.loan_limit ?? 0;
     const interestRate = this.calculateInterestRate(customer);
