@@ -138,12 +138,10 @@ style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 5px; padding: 10
               <span class="text-muted">No Investments</span>
             </ng-template>
           </details>
+          
         </td>
        
-
-        <td>{{ investor.investmentRecommendation || "No Recommendation" }}</td> 
-
-        <!-- <td>{{ investor.recommendedInvestments ? investor.recommendedInvestments.join(", ") : "N/A" }}</td> -->
+        <td>{{ investor.recommendedInvestments ? investor.recommendedInvestments.join(", ") : "N/A" }}</td>
         
         <td>
           <span [ngClass]="investor.anomalyFlag === 'Suspicious' ? 'text-danger' : 'text-success'">
