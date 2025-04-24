@@ -241,7 +241,9 @@
       </thead>
       <tbody>
         <tr *ngFor="let customer of customers" class="text-center">
-          <td>{{ customer.Account }}</td>
+          <!-- <td>{{ customer.Account }}</td> -->
+          <td>{{ maskAccount(customer.Account, 5) }}</td>
+       
           <td>{{ customer["avg_monthly_cash_flow"] | currency:'KES ' }}</td>
           <td>{{ customer["CRB Score"] }}</td>
           <td>
@@ -537,7 +539,6 @@
     });
   });
 </script>
-<br> <br>
 <div>
   <footer
   class="footer mt-3 d-flex flex-column flex-md-row align-items-center justify-content-between px-4 border-top small">
