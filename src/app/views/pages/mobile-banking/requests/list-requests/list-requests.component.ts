@@ -474,7 +474,10 @@ portfolio = { roi: 10 }; //
         }
       );
     }
-    
+   
+    formatStrategyText(strategy: string): string {
+      return strategy.replace(/\*\*/g, '');
+    }
     
 getAnomalyClass(anomalyFlag: string): string {
   return anomalyFlag === "Anomalous" ? "text-danger fw-bold" : "text-success";
