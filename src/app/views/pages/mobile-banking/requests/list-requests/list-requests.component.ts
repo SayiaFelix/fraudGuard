@@ -428,11 +428,13 @@ portfolio = { roi: 10 }; //
               }
     
               // Ensure investments don't exceed the max limit
-              let investmentList = Array.isArray(item["investments"]) 
-                ? item["investments"].slice(0, maxInvestments) 
-                : [];
+                let investmentList = item["Investment Type"] ? [{
+                  investmentType: item["Investment Type"],
+                  amountInvested: item["Amount Invested (KES)"],
+                  riskCategory: item["Risk Category"],
+                  riskScore: item["Risk Score"]
+                }] : [];
     
-              // Assign realistic investment amounts
               let investmentAmount = Math.floor(
                 Math.random() * (maxInvestmentAmount - minInvestmentAmount) + minInvestmentAmount
               );
@@ -452,7 +454,7 @@ portfolio = { roi: 10 }; //
                 roi: Number(roiPercentage.toFixed(2)), 
                 anomalyFlag: item["Anomaly Flag"] || "Normal",
                 investmentRecommendation: item["Investment Recommendation"] || "No Recommendation",
-                recommendedInvestments: item["Recommended Investments"], 
+                recommendedInvestments: item["Investment Recommendation"] ? [item["Investment Recommendation"]] : ["N/A"],
                 cluster: item["Cluster"],
                 clusterDescription: clusterDescription,
                 roiPercentage: Number(roiPercentage.toFixed(2)), 
@@ -474,8 +476,6 @@ portfolio = { roi: 10 }; //
     }
     
     
-
-  
 getAnomalyClass(anomalyFlag: string): string {
   return anomalyFlag === "Anomalous" ? "text-danger fw-bold" : "text-success";
 }
