@@ -158,7 +158,7 @@ style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 5px; padding: 10
 
 <div class="container">
   <div class="row">
-    <!-- Investment Simulator Card (Left Column) -->
+    <!-- Investment Simulator Card-->
     <div class="col-md-6">
       <div class="card p-4 mt-4 shadow-sm h-100">
         <h4 class="fw-bold text-dark" style="font-family: Muli; font-size: 20px; line-height: 26px;">
@@ -227,7 +227,7 @@ style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 5px; padding: 10
       </div>
     </div>
 
-    <!-- Customer Churn Prediction Card (Right Column) -->
+    <!-- Customer Churn Prediction-->
 <div class="col-md-6">
   <div class="card p-4 mt-4 shadow-sm h-100">
     <h4 class="fw-bold text-dark" style="font-family: Muli; font-size: 20px; line-height: 26px;">
@@ -257,7 +257,7 @@ style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 5px; padding: 10
           
           <!-- Loading State -->
           <div *ngIf="isLoading" class="text-center">
-            <p>Loading...</p>
+            <!-- <p>Loading...</p> -->
             <div class="spinner-border text-success" role="status">
               <span class="visually-hidden">Loading...</span>
             </div>
@@ -270,15 +270,6 @@ style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 5px; padding: 10
   <small>{{ errorMessage }}</small>
 </div>
 
-<!-- Loading State -->
-<div *ngIf="isLoading" class="text-center">
-  <div class="spinner-border text-success" role="status">
-    <span class="visually-hidden">Loading...</span>
-  </div>
-</div>
-  
-       
-    
       <ng-template #churnPredictionModal let-modal>
         <div class="modal-header bg-light">
           <h5 class="modal-title fw-bold text-primary">
@@ -374,15 +365,17 @@ style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 5px; padding: 10
             </div>
             <hr>
             <div class="card-body">
-              <ol class="list-group list-group-numbered">
+              <ol class="list-group">
                 <li *ngFor="let strategy of churnPredictionDetails?.retention_strategies" 
-                    class="list-group-item d-flex align-items-start border-0">
-                  <div class="ms-1 me-auto">
-                    <div class="text-dark">{{ strategy.split(':')[0] }}</div>
-                    {{ strategy.split(':')[1] || strategy }}
+                    class="list-group-item border-0">
+                  <div class="d-flex">
+                    <div class="ms-1 me-auto">
+                      {{ formatStrategyText(strategy) }}
+                    </div>
                   </div>
-                
+                </li>
               </ol>
+            
             </div>
           </div>
         </div>
