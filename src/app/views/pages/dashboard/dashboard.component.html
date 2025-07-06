@@ -5,19 +5,8 @@
   <div>
     <h3 class="mb-0"
       style="color: var(--dark-purple, #1e0f2e); font-family: Muli, sans-serif; font-size: 20px; font-weight: 700;">
-      Real Time Analytics Dashboard
+      Eclectics’ AI-powered chatbot studio
     </h3>
-  </div>
-
-  <!-- Buttons on the Right -->
-  <div class="d-flex gap-2">
-    <button type="button" class="btn shadow-lg px-3 py-2"
-      style="background-color:#083273; color:white; border-radius:8px;" data-bs-toggle="modal" data-bs-target="#loanLimitModal">
-      Loan Prediction
-    </button>
-    <button (click)="resetView()" class="btn btn-outline-secondary shadow-sm px-3 py-2" style="border-radius:9px;">
-      Back
-    </button>
   </div>
 
 </header>
@@ -26,46 +15,6 @@
 
 <!-- KPI Summary Section (Top) -->
 <div class="container mt-2" *ngIf="!loanLimitData || !riskAnalysisData || !featureImportanceData">
-  <div class="row">
-         <!-- Loading State -->
-         <div *ngIf="isLoading" class="text-center my-4">
-          <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
-          <p class="mt-2">Fetching data...</p>
-        </div>
-    <!-- Unique Investors -->
-    <div class="col-md-3" *ngIf="kpis">
-        <div class="card p-3 text-center"  style="border-color: #3cb7e9;">
-          <h3 style="color: #3cb7e9;"><i class="bi bi-people-fill"></i> Unique Investors </h3>
-          <h4 >{{ kpis['Unique Investors'] | number }} Investors</h4>
-       </div>
-    </div>
-
-    <!-- Total Investments -->
-    <div class="col-md-3" *ngIf="kpis">
-        <div class="card p-3 text-center border-success">
-            <h3 class="text-success"><i class="bi bi-cash-stack"></i> Total Investments (KES)</h3>
-            <h4> KSH. {{ kpis['Total Investments (KES)'] | number }}</h4>
-        </div>
-    </div>
-
-    <!-- Portfolio Growth -->
-      <div class="col-md-3" *ngIf="kpis">
-        <div class="card p-3 text-center border-danger">
-          <h3 class="text-danger"><i class="bi bi-graph-up"></i> Anomalous Transactions </h3>
-          <h4>{{ kpis['Anomalous Transactions'] | number }} Transactions</h4>
-        </div>
-      </div>
-
-         <!-- ROI -->
-      <div class="col-md-3" *ngIf="kpis">
-        <div class="card p-3 text-center border-warning">
-          <h3 class="text-warning"><i class="bi bi-bar-chart-fill"></i> Average ROI (%)</h3>
-          <h4> {{ kpis['Average ROI (%)'] | number }} %</h4>
-        </div>
-      </div>
-</div>
 
 <div id="imageCarousel" class="carousel slide mt-4" data-bs-ride="carousel">
   <div class="carousel-inner">
@@ -546,6 +495,6 @@
       target="_blank">Eclectics International Limited</a></p>
   <p class=""
     style="color: #083273; font-family: 'Muli'; font-style: normal; font-weight: 700; font-size: 13px; letter-spacing: 0.08em;">
-    AI Analytics Solutions</p>
+    EBS AI</p>
 </footer>
 </div>

@@ -201,7 +201,7 @@ export class LandingComponent implements OnInit {
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
     this.safeUrls = this.dashboardUrls.map(url => this.sanitizer.bypassSecurityTrustResourceUrl(url));
     let userDetails = {
-      profile: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['name'] : "AI Driven Analytics",
+      profile: localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')!)['user']['name'] : "EcleBot AI Studio",
 
     };
     if (userDetails) {
