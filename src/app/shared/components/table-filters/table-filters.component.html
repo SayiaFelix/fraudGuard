@@ -1,0 +1,64 @@
+<div class="d-flex align-items-center flex-wrap text-nowrap grid-margin card mb-0">
+<!--  <h4 class="pt-2 text-center">Filters</h4>-->
+
+  <div class="p-3 border-bottom d-flex align-items-center justify-content-between flex-wrap">
+    <div class="d-none d-md-flex align-items-center flex-wrap">
+      <div class="form-check me-3">
+        <input type="checkbox" class="form-check-input" id="inboxCheckAll">
+      </div>
+      <div class="btn-group me-2" ngbDropdown>
+        <button class="btn btn-outline-primary" type="button" id="inboxDropdown1" ngbDropdownToggle> With selected</button>
+        <div aria-labelledby="inboxDropdown1" ngbDropdownMenu>
+          <a ngbDropdownItem href="" (click)="false">Mark as read</a>
+          <a ngbDropdownItem href="" (click)="false">Mark as unread</a>
+          <a ngbDropdownItem href="" (click)="false">Spam</a>
+          <div class="dropdown-divider"></div>
+          <a class="text-danger" ngbDropdownItem href="" (click)="false">Delete</a>
+        </div>
+      </div>
+      <div class="btn-group me-2">
+        <button class="btn btn-outline-primary" type="button">Archive</button>
+        <button class="btn btn-outline-primary" type="button">Span</button>
+        <button class="btn btn-outline-primary" type="button">Delete</button>
+      </div>
+      <div class="btn-group me-2 d-none d-xl-block" ngbDropdown>
+        <button class="btn btn-outline-primary" type="button" id="inboxDropdown2" ngbDropdownToggle>Order by</button>
+        <div aria-labelledby="inboxDropdown2" ngbDropdownMenu>
+          <a ngbDropdownItem href="" (click)="false">Date</a>
+          <a ngbDropdownItem href="" (click)="false">From</a>
+          <a ngbDropdownItem href="" (click)="false">Subject</a>
+          <div class="dropdown-divider"></div>
+          <a ngbDropdownItem href="" (click)="false">Size</a>
+        </div>
+      </div>
+    </div>
+    <div class="d-flex align-items-center justify-content-end flex-grow-1">
+      <span class="me-2">1-10 of 253</span>
+      <div class="btn-group">
+        <button class="btn btn-outline-secondary btn-icon" type="button"><i class="feather icon-chevron-left"></i></button>
+        <button class="btn btn-outline-secondary btn-icon" type="button"><i class="feather icon-chevron-right"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="row card-body p-2 d-flex justify-content-between">
+
+      <div class="" *ngFor="let column of allColumns">
+          <input type="text" class="form-control col"
+                 [placeholder]="column.name"
+                 *ngIf="column.name !== 'ID' && column.name !== 'Actions' && column.name !== 'CreatedOn'"
+                 (keyup)="updateFilter($event, column.name)">
+
+          <input type="date" class="form-control col"
+                 [placeholder]="column.name"
+                 *ngIf="column.name === 'CreatedOn'"
+                 (keyup)="updateFilter($event, column.name)">
+      </div>
+
+
+
+
+
+  </div>
+</div>
+

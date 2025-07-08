@@ -1,0 +1,91 @@
+<nav class="sidebar">
+  <div class="sidebar-header" style="background-color: #ffffff!important; ">
+    <!--- Logo -->
+    <a routerLink="dashboard" class="sidebar-brand nobleui-logo">
+      <img class="" src="assets/images/eclectics.png" alt="Portal">
+    </a>
+    <!-- Logo -->
+    <!-- <a routerLink="analytics" class="sidebar-brand nobleui-logo">
+      <img 
+        class="" 
+        src="https://1.bp.blogspot.com/-KgsP4Og3IYI/Vz8evxfiubI/AAAAAAAAAdU/MIuDmmwlMZceoczu8HoCfa9Icj5j1vLQwCLcB/s320/faulu.jpg" 
+        alt="Portal">
+    </a> -->
+
+    <!--- Toggler -->
+    <div class="sidebar-toggler not-active" #sidebarToggler (click)="toggleSidebar($event)">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
+  </div>
+
+  <div class="sidebar-body" style="background-color: #083273; background-repeat: repeat-y; color:#F8F8F8;" (mouseenter)="operSidebarFolded()" (mouseleave)="closeSidebarFolded()" [perfectScrollbar]>
+    <!--- Sidemenu start -->
+    <ul class="sidebar-nav metismenu"   id="sidebar-menu" #sidebarMenu>
+      <ng-container *ngFor="let item of menuItems">
+        <li class="nav-item nav-category showHand" *ngIf="item.isTitle">
+          <div class="row justify-content-around">
+            <div class="col-10">
+              {{ item.label }}
+            </div>
+            <div class="col-2">
+<!--              <i data-feather="chevron-down" appFeatherIcon class="icon-sm"></i>-->
+<!--              <i data-feather="chevron-right" appFeatherIcon class="icon-sm" *ngIf="!showSubItems"></i>-->
+            </div>
+          </div>
+        </li>
+
+<!--        <li class="nav-item " *ngIf="showMenuItem(item.profiles) && !item.isTitle">-->
+        <li class="nav-item" *ngIf="!item.isTitle">
+          <a class="nav-link" *ngIf="hasItems(item) && showSubItems" href="javascript:void(0);">
+            <!-- <i class="link-icon" [attr.data-feather]="item.icon" appFeatherIcon *ngIf="item.icon"></i> -->
+            <span class="link-title linkTitle"> {{ item.label }}</span>
+            <span class="link-arrow" data-feather="chevron-down" appFeatherIcon></span>
+          </a>
+
+          <a class="nav-link nav-link-ref nav-sub-items" [routerLink]="item.link" *ngIf="!hasItems(item)"
+            [attr.data-parent]="item.parentId">
+            <i class="link-icon" [attr.data-feather]="item.icon" appFeatherIcon *ngIf="item.icon"></i>
+            <span class="link-title"> {{ item.label }}</span>
+            <span class="badge bg-{{item.badge.variant}}" *ngIf="item.badge">{{item.badge.text}}</span>
+          </a>
+
+          <ul class="sidebar-nav sub-menu nav-second-level" *ngIf="hasItems(item)" aria-expanded="false">
+
+            <li class="nav-item" *ngFor="let subitem of item.subItems" [ngClass]="{'side-nav-item': hasItems(subitem)}">
+              <a class="nav-link side-nav-link-a-ref" *ngIf="hasItems(subitem)" href="javascript:void(0);">
+                <!-- <i class="link-icon" [attr.data-feather]="subitem.icon" appFeatherIcon *ngIf="subitem.icon"></i> -->
+                <span class="link-title"> {{ subitem.label }}</span>
+                <span class="link-arrow" data-feather="chevron-down" appFeatherIcon></span>
+              </a>
+
+              <a class="nav-link nav-link-ref nav-sub-items" [routerLink]="subitem.link" *ngIf="!hasItems(subitem)"
+                [attr.data-parent]="subitem.parentId">
+                <!-- <i class="link-icon" [attr.data-feather]="subitem.icon" appFeatherIcon *ngIf="subitem.icon"></i> -->
+                {{ subitem.label }}
+              </a>
+
+              <ul class="sidebar-nav sub-menu nav-third-level" *ngIf="hasItems(subitem)" aria-expanded="false">
+                <li class="nav-item" *ngFor="let subSubitem of subitem.subItems">
+                  <a class="nav-link nav-link-ref nav-sub-items" [routerLink]="subSubitem.link" [routerLinkActive]="['active']"
+                    [attr.data-parent]="subSubitem.parentId">
+                    <!-- <i class="link-icon" [attr.data-feather]="subitem.icon" appFeatherIcon *ngIf="subitem.icon"></i> -->
+                    {{ subSubitem.label }}
+                  </a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+
+        </li>
+
+      </ng-container>
+
+    </ul>
+
+    <!--- Sidemenu end -->
+
+  </div>
+</nav>

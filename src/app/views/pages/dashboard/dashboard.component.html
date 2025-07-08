@@ -1,0 +1,282 @@
+<header class="d-flex justify-content-between align-items-center flex-wrap grid-margin mt-1 px-3 py-2"
+  style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 5px; background: #fff;">
+  
+  <!-- Title on the Left -->
+  <div>
+    <h3 class="mb-0"
+      style="color: var(--dark-purple, #1e0f2e); font-family: Muli, sans-serif; font-size: 20px; font-weight: 700;">
+      Eclectics’ AI-powered chatbot studio
+    </h3>
+  </div>
+
+</header>
+
+<hr>
+
+<!-- KPI Summary Section (Top) -->
+<div class="container mt-2" *ngIf="!loanLimitData || !riskAnalysisData || !featureImportanceData">
+
+<div id="imageCarousel" class="carousel slide mt-4" data-bs-ride="carousel">
+  <div class="carousel-inner">
+
+    <!-- Slide 1 -->
+    <div class="carousel-item active">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card shadow-sm">
+            <div class="card-header bg-warning text-white text-center" style="border-radius: 10px;">
+              <h4 class="m-0">Default Probability VS Loan Amount</h4>
+            </div>
+            <div class="card-body text-center ">
+              <img 
+                [src]="defaultProbabilityChart" 
+                class="img-fluid rounded shadow-sm" 
+                alt="CRB Score vs Default Probability"
+                data-bs-toggle="tooltip" 
+                data-bs-placement="top" 
+                title="This scatter plot shows the relationship between Loan Amount and the Probability of default."
+                style="border: 2px solid #ddd;"
+              >
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card shadow-sm">
+            <div class="card-header bg-warning text-white text-center" style="border-radius: 10px;">
+              <h4 class="m-0">Trends of Investment Types</h4>
+            </div>
+            <div class="card-body text-center">
+              <img [src]="investortrendsChart" 
+                alt="Preferred Investment Types Over the Last 7 Days" 
+                class="img-fluid rounded shadow" 
+                data-bs-toggle="tooltip" 
+                data-bs-placement="top" 
+                title="📈 Trends of Investment Types Over the Last 7 Days"
+                style="border: 2px solid #ddd;">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Slide 2 -->
+    <div class="carousel-item">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card shadow-sm">
+            <div class="card-header bg-warning text-white text-center" style="border-radius: 10px;">
+              <h4 class="m-0">Risk Category Distribution</h4>
+            </div>
+            <div class="card-body text-center">
+              <img 
+                [src]="riskCategoryChart" 
+                class="img-fluid rounded shadow-sm" 
+                alt="Risk Category Distribution"
+                data-bs-toggle="tooltip" 
+                data-bs-placement="top" 
+                title="This chart shows the distribution of customers based on their risk categories."
+              >
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card shadow-sm">
+            <div class="card-header bg-warning text-white text-center" style="border-radius: 10px;">
+              <h4 class="m-0">Maximum Days Arrears of Account Types</h4>
+            </div>
+            <div class="card-body text-center">
+              <img [src]="max_days_arearsChart" 
+                alt="Maximum Days Arrears of Account Types" 
+                class="img-fluid rounded shadow" 
+                data-bs-toggle="tooltip" 
+                data-bs-placement="top" 
+                title="📈 Maximum Days arrears of Account Types"
+                style="border: 2px solid #ddd;">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+
+
+          <!-- Slide 3-->
+    <div class="carousel-item">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card shadow-sm">
+            <div class="card-header bg-warning text-white text-center" style="border-radius: 10px;">
+              <h4 class="m-0">Investment Preferences</h4>
+            </div>
+            <div class="card-body text-center">
+              <img 
+                [src]="investmentChart" 
+                class="img-fluid rounded shadow-sm" 
+                alt="Investment  Preferences Distribution"
+                data-bs-toggle="tooltip" 
+                data-bs-placement="top" 
+                title="This chart shows the Investment Preferences of customers based on their risk appetite to investment."
+              >
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card shadow-sm">
+            <div class="card-header bg-warning text-white text-center" style="border-radius: 10px;">
+              <h4 class="m-0">Market Impact Based on News Source</h4>
+            </div>
+            <div class="card-body text-center">
+              <img [src]="newssourceChart" 
+                alt="MarketImpact Based on News Source" 
+                class="img-fluid rounded shadow" 
+                data-bs-toggle="tooltip" 
+                data-bs-placement="top" 
+                title="📈 Market Impact Based on News Source"
+                style="border: 2px solid #ddd;">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+  </div>
+
+  <!-- Carousel Controls -->
+  <button class="carousel-control-prev" type="button" data-bs-target="#imageCarousel" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Previous</span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#imageCarousel" data-bs-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Next</span>
+  </button>
+</div>
+
+<!-- Live Predictive Trends (Next-Day Prediction) -->
+<div class="card p-3 mt-3">
+  <h3>📊 Live Predictive Trends (Next- 20 Days  Prediction)</h3>
+  <ul class="list-group">
+      <li class="list-group-item d-flex justify-content-between align-items-center" 
+          (click)="showChart('Total Transactions')" 
+          data-bs-toggle="tooltip" 
+          data-bs-placement="top" 
+          title="Total Transactions(higher means riskier customers)">
+          Total  Transactions
+          <span class="text-success">
+              9,000 
+          </span>
+      </li>
+      <li class="list-group-item d-flex justify-content-between align-items-center" 
+          (click)="showChart('Loan Repayment Trends')" 
+          data-bs-toggle="tooltip" 
+          data-bs-placement="top" 
+          title="Loan repayment trends (higher means riskier customers)">
+          Loan Repayment Trends
+          <span class="text-primary">
+              All loans will be repaid 
+          </span>
+      </li>
+      <li class="list-group-item d-flex justify-content-between align-items-center" 
+          (click)="showChart('Loan Default Rates')" 
+          data-bs-toggle="tooltip" 
+          data-bs-placement="top" 
+          title="Loan Default Rates (higher means riskier customers)">
+          Loan Default Rates 
+          <span class="text-success">
+              78 % 
+          </span>
+      </li>
+      <li class="list-group-item d-flex justify-content-between align-items-center" 
+          (click)="showChart('Net Cashflow')" 
+          data-bs-toggle="tooltip" 
+          data-bs-placement="top" 
+          title="Predicted increase in bank deposits from customers">
+          Net Cashflow  
+          <span class="text-success">
+              52,000,000 
+          </span>
+      </li>
+      <li class="list-group-item d-flex justify-content-between align-items-center" 
+          (click)="showChart('Total Sum Credit')" 
+          data-bs-toggle="tooltip" 
+          data-bs-placement="top" 
+          title="Total sum credit  trends in banking transactions">
+          Total Sum Credit  
+          <span class="text-success">
+             14,000,000
+          </span>
+      </li>
+  </ul>
+</div>
+
+<!-- Chart Modal -->
+<div class="modal fade" id="chartModal" tabindex="-1" aria-labelledby="chartModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header d-flex justify-content-center w-100">
+        <h2 class="modal-title fw-bold text-center" id="chartModalLabel">
+          {{ selectedChartName || 'Prediction Chart' }} Forecasting Chart
+        </h2>
+        <button type="button" class="btn-close position-absolute end-0 me-3" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body card-body text-center p-3 bg-light rounded">
+        <img *ngIf="selectedChartUrl" [src]="selectedChartUrl" class="img-fluid rounded shadow">
+        <p *ngIf="!selectedChartUrl" class="text-muted">Loading chart...</p>
+      </div>
+    </div>
+  </div>
+</div>
+<hr>
+
+<div class="chat-widget" [class.open]="isChatOpen">
+  <!-- Chat Header -->
+  <div class="chat-header" (click)="toggleChat()" role="button" tabindex="0" aria-label="Toggle chat">
+    <span>Chat with <strong>Analytic AI</strong></span>
+    <span class="toggle-icon" [ngClass]="{ 'open': isChatOpen, 'closed': !isChatOpen }">
+      {{ isChatOpen ? '✖' : '💬' }}
+    </span>
+  </div>
+  
+  <!-- Chat Body -->
+  <div class="chat-body" *ngIf="isChatOpen">
+    <div class="chat-messages" #chatMessagesContainer>
+      <div *ngFor="let msg of messages" class="chat-message" [ngClass]="msg.sender">
+        <div 
+          [innerHTML]="msg.text" 
+          [ngClass]="{ 
+            'attention-message': msg.isAttention, 
+            'welcome-message': msg.isWelcomeMessage 
+          }">
+        </div>
+      </div>
+    </div>
+    
+    <!-- Chat Input -->
+    <div class="chat-input">
+      <input type="text" [(ngModel)]="userMessage" placeholder="Type your message..." (keypress)="handleKeyPress($event)">
+      <button (click)="sendMessage()">➤</button>
+    </div>
+  </div>
+</div>
+</div>
+
+
+<script>
+  // Initialize Bootstrap tooltips
+  document.addEventListener("DOMContentLoaded", function () {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+  });
+</script>
+<div>
+  <footer
+  class="footer mt-3 d-flex flex-column flex-md-row align-items-center justify-content-between px-4 border-top small">
+  <p class="text-muted">Copyright © 2025 <a href="" style="color:#46bfe9; font-family: 'Muli';"
+      target="_blank">Eclectics International Limited</a></p>
+  <p class=""
+    style="color: #083273; font-family: 'Muli'; font-style: normal; font-weight: 700; font-size: 13px; letter-spacing: 0.08em;">
+    EBS AI</p>
+</footer>
+</div>

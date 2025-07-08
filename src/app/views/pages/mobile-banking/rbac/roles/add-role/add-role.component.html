@@ -1,0 +1,33 @@
+  <div>
+    <div class="modal-header">
+      <h5 class="modal-title" id="exampleModalLabel">{{title}}</h5>
+      <button (click)="closeModal()" aria-label="Close" class="btn-close" type="button"></button>
+    </div>
+    <div class="modal-body" [formGroup]="form">
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Role Name</label>
+            <input class="form-control" formControlName="roleName" type="text">
+            <small *ngIf="form.get('roleName')?.touched && form.get('roleName')?.hasError('required')" class="text-danger">Required
+              Field</small>
+          </div>
+        </div>
+        <div class="col-sm-12">
+          <div class="mb-3">
+            <label class="text-gray fw-bold">Description</label>
+            <textarea class="form-control" formControlName="description" type="text"></textarea>
+            <small *ngIf="form.get('description')?.touched &&
+          form.get('description')?.hasError('required')" class="text-danger">Required
+              Field</small>
+          </div>
+        </div>
+        <p *ngIf="isLoading"><ngb-progressbar type="primary" [value]="95" [striped]="true" [animated]="true"></ngb-progressbar></p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button (click)="closeModal()" class="btn btn-secondary" type="button">Close</button>
+      <button (click)="submitData()" class="btn btn-primary" *ngIf="!this.formData"  type="button" [disabled]="!form.valid || isLoading">Create Role</button>
+      <button (click)="submitData()" class="btn btn-primary" *ngIf="this.formData" type="button" [disabled]="!form.valid || isLoading">Save changes</button>
+    </div>
+  </div>

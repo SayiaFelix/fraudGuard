@@ -1,0 +1,176 @@
+<div class="body" style="position: relative; background-color: #EFEFEF;">
+  <ng-container *ngIf="showLeaveCommentForm">
+    <div class="modal-container"
+      style="display: flex;justify-content: end;align-items: center;position: fixed;width: 100%;height: 100%; z-index: 10;  border-radius: 8px 8px 8px 8px;">
+      <div>
+        <div class="modals " style="border-radius: 8px 8px 8px 8px;">
+          <div style="background: var(--seasalt, #F8F8F8); border-radius: 8px 8px 8px 8px;">
+            <div class="d-flex justify-content-between"
+              style="background-color: #d0ddf0;  font-family: 'Mulish'; font-weight: 900; border-radius:4px;">
+              <h4 class="text-start p-2 mt-2" style="color: #6D36A8; font-size: 19px;">Customer Inquiry</h4>
+              <div>
+                <button type="button" class="btn fs-2" (click)="hideLeaveCommentForm()"
+                  style="color: #6D36A8; font-size: 20px; margin-top: -5%;">
+                  &times;
+                </button>
+              </div>
+            </div>
+            <article class="">
+              <form class="mt-1" [formGroup]="form" (ngSubmit)="onleaveComment()" class="row px-3">
+                <div class="tab-content col-12 border-0">
+                  <div class="form-group mt-2">
+                    <input formControlName="name" type="text" class="form-control validation-field border-0" id="name"
+                      placeholder="Your Name or Company*">
+                    <small class="text-danger" *ngIf="f.name.touched && f.name.errors?.required">Field Required</small>
+                  </div>
+                  <div class="form-group mt-2">
+                    <input formControlName="email" type="email" class="form-control validation-field border-0"
+                      id="email" placeholder="Your email address*">
+                    <small class="text-danger" *ngIf="f.email.touched && f.email.errors?.required">Field
+                      Required</small>
+                    <small class="text-danger" *ngIf="f.email.touched && f.email.errors?.email">Email Format
+                      Required</small>
+                  </div>
+                  <div class="form-group mt-2">
+                    <input type="text" name="tel" formControlName="phone_number" id="phoneNumber"
+                      placeholder="Phone Number*" class="form-control validation-field border-0 w-100" ng2TelInput
+                      data-initial-country="ke">
+                    <small class="text-danger" *ngIf="f.phone_number.touched && f.phone_number.errors?.required">Field
+                      Required</small> <br>
+                    <small class="text-danger"
+                      *ngIf="f.phone_number.touched && f.phone_number.errors?.invalidPhoneNumber">Phone Number: 254 *** *** *** or 07 **** ****</small>
+                  </div>
+                  <div class="form-group mt-2">
+                    <input formControlName="subject" type="text" class="form-control validation-field border-0"
+                      id="occupation" placeholder="Subject">
+                    <small class="text-danger" *ngIf="f.subject.touched && f.subject.errors?.required">Field
+                      Required</small>
+                  </div>
+                  <div class="form-group mt-2">
+                    <textarea formControlName="message" type="text" id="message" cols="15" rows="3"
+                      placeholder="Message" class="form-control validation-field border-0"></textarea>
+                    <small class="text-danger" *ngIf="f.message.touched && f.message.errors?.required">Field
+                      Required</small>
+                  </div>
+                  <div class="col-12 bg-white text-center py-1 mt-3 mb-2">
+                    <button [disabled]="!form.valid" style="width: 100%; border: none;"
+                      class="btn btn-block bronchure-btn transition" type="submit">
+                      <span style="color: white;">SEND</span><img *ngIf="isLoading" class="pl-2" src="assets/images/loading.gif" alt="loading-gif">
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+  <div class="d-flex justify-content-between" style="max-width: 100%; max-height: 70px">
+    <div class="d-flex justify-content-around" style="margin-left: 5%">
+      <div class="p-2">
+        <button class="btn btn-md" style="background-color: #6d36a8; color: #f8f8f8; border-radius: 4px">
+          <a href="https://www.tra.go.ke/" style="text-decoration: none; text-transform: none" target="_blank"
+            class="transition text-light">
+            VISIT:WWW.TRA.GO.KE
+          </a>
+        </button>
+      </div>
+      <div class="mt-2">
+        <a routerLink="">
+          <img class="img-fluid" src="assets/images/TRA_Logo.png" width="110" height="50" alt="" />
+        </a>
+      </div>
+    </div>
+
+    <div style="margin-right: 3%">
+      <div class="d-flex p-2 justify-content-between" *ngIf="showMenuItems">
+        <button class="btn btn-md btn-light transition ml-1" type="submit">
+          <a routerLink="/auth/activate" style="
+              text-decoration: none;
+              color: #1e0f2e;
+              font-family: 'Muli';
+              font-style: normal;
+              font-weight: 700;
+              font-size: 12px;
+              letter-spacing: 0.08em;
+              border-radius: 8px;
+              text-transform: uppercase;
+            " class="transition m-1">Sign Up</a>
+        </button>
+        <button class="btn btn-md login-btn transition" type="submit">
+          <a routerLink="/auth/login" style="text-decoration: none" class="transition">
+            <span style="
+                color: #f8f8f8;
+                font-weight: 700;
+                letter-spacing: 0.08em;
+                font-size: 12px;
+              ">SIGN IN</span></a>
+        </button>
+      </div>
+      <div class="d-flex p-2 justify-content-between" *ngIf="showDashbord">
+        <div style="margin-top: 6%;">
+          <h3 class="header"
+            style="color: var(--dark-purple, #1E0F2E);text-align: center;font-family: Muli;font-size: 11px;font-style: normal;font-weight: 700;line-height: normal;text-transform: uppercase;">
+            <span>{{profile}}</span>
+          </h3>
+        </div>
+        <div style="margin-top: 3%; margin-left: 5px;">
+          <img class="wd-30 ht-30 rounded-circle" src="./assets/images/user.png" alt="profile">
+        </div>
+        <button style="margin-top: 1%; margin-left: 5px;" class="btn btn-sm login-btn transition" type="submit">
+          <a routerLink="/dashboard" style="text-decoration: none" class="transition">
+            <span style="
+               color: var(--dark-purple, #1E0F2E);text-align: center;font-family: Muli;font-size: 11px;font-style: normal;font-weight: 700;line-height: normal;
+              ">DASHBOARD</span></a>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="card bg-light">
+    <div class="row">
+      <div class="card col-md-12 col-lg-12 col-xl-12 col-sm-12"
+        style="background-image: url('assets/images/headerl.png'); background-repeat: repeat-y; background-size: 100% auto; padding: 40px 6%; color:#F8F8F8; max-width: 100% !important;">
+        <h2 style="font-family: 'Mulish';line-height: 25px;font-weight: 600;font-size: 25px;">
+          Ignite Success in Tourism: Align with Our Benchmark Minimum Standards.
+        </h2>
+      </div>
+      <!--
+      <div class="card col-md-12 col-lg-12 col-xl-12 col-sm-12"
+        style="background-image: url('assets/images/headerl.png');   background-repeat: repeat-x; background-repeat: repeat-y; ">
+
+      </div> -->
+    </div>
+
+    <div class="container mt-4">
+      <div class="row g-4">
+        <div class="col-12 col-md-6 col-lg-6 col-sm-12" *ngFor="let dashboard of paginatedDashboards">
+          <div class="dashboard-item p-3" style="height: 400px;"> <!-- Fixed parent height -->
+            <tableau-viz
+              id="{{dashboard.id}}"
+              [attr.src]="dashboard.src"  
+              class="w-100 h-100" 
+              hide-tabs
+              toolbar="bottom">
+            </tableau-viz>
+          </div>
+        </div>
+      </div>
+      <div class="pagination mt-3 d-flex justify-content-end">
+        <button class="btn btn-primary me-2" (click)="prevPage()" [disabled]="currentPage === 0">
+          Previous
+        </button>
+        <button class="btn btn-success" (click)="nextPage()" [disabled]="(currentPage + 1) * itemsPerPage >= dashboards.length">
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div>
+  <footer class="footer mt-3 d-flex flex-column flex-md-row align-items-center justify-content-between px-4 border-top small">
+    <p class="text-muted">Copyright © 2024 <a href="" style="color: #6d36a8; font-family: 'Muli';" target="_blank">Analytics</a></p>
+    <p class="" style="color: #6d36a8; font-family: 'Muli'; font-style: normal; font-weight: 700; font-size: 13px; letter-spacing: 0.08em;">Faulu Bank Kenya</p>
+  </footer>
+</div>
+

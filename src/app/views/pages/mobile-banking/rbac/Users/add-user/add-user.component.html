@@ -1,0 +1,105 @@
+
+<div>
+  <div class="modal-header">
+    <h5 class="modal-title" id="exampleModalLabel">{{title}}</h5>
+    <button (click)="closeModal()" aria-label="Close" class="btn-close" type="button"></button>
+  </div>
+  <div class="modal-body" [formGroup]="form">
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label fw-bold">First Name</label>
+        <input class="form-control" formControlName="firstName" type="text">
+        <small *ngIf="form.get('firstName')?.touched && form.get('firstName')?.hasError('required')" class="text-danger">Required
+          Field</small>
+          <small *ngIf="form.get('firstName')?.touched && form.get('firstName')?.hasError('pattern')" class="text-danger">Input text only</small>
+      </div>
+
+<!--      <div class="col-md-6">-->
+<!--        <label class="form-label">Middle Name</label>-->
+<!--        <input class="form-control" formControlName="middleName" type="text">-->
+<!--        <small *ngIf="form.get('middleName')?.touched && form.get('middleName')?.hasError('required')" class="text-danger">Required-->
+<!--          Field</small>-->
+<!--          <small *ngIf="form.get('middleName')?.touched && form.get('middleName')?.hasError('pattern')" class="text-danger">Input text only</small>-->
+<!--      </div>-->
+      <div class="col-md-6">
+        <label class="form-label fw-bold">Last Name</label>
+        <input class="form-control" formControlName="lastName" type="text">
+        <small *ngIf="form.get('lastName')?.touched && form.get('lastName')?.hasError('required')" class="text-danger">Required
+          Field</small>
+          <small *ngIf="form.get('lastName')?.touched && form.get('lastName')?.hasError('pattern')" class="text-danger">Input text only</small>
+      </div>
+
+      <div class="col-md-6">
+        <label class="text-gray fw-bold">Phone Number (start with 254)</label>
+        <input class="form-control" formControlName="phoneNumber" type="number" min="0" maxlength="12" (keyup)="logErrors()"
+        oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"/>
+        <small *ngIf="form.get('phone')?.touched &&
+            form.get('phone')?.hasError('required')" class="text-danger">Required
+          Field</small>
+          <small *ngIf="form.get('phone')?.touched &&
+          form.get('phone')?.hasError('mustStartWith254')" class="text-danger">Phone number must start with 254 & have 12 digits</small>
+      </div>
+      <div class="col-md-6">
+        <label class="text-gray fw-bold">Email Address</label>
+        <input class="form-control" formControlName="email" type="text" (keyup)="showFormErrors()">
+       <small *ngIf="form.get('email')?.touched &&
+            form.get('email')?.hasError('required')" class="text-danger">Required
+          Field</small>
+          <small *ngIf="form.get('email')?.touched &&
+            form.get('email')?.hasError('pattern')" class="text-danger">Enter a valid email</small>
+      </div>
+      <div class="col-md-6">
+        <label class="text-gray fw-bold">Employee Number</label>
+        <input class="form-control" formControlName="employeeNumber" type="number" (keyup)="showFormErrors()">
+       <small *ngIf="form.get('employeeNumber')?.touched &&
+            form.get('employeeNumber')?.hasError('required')" class="text-danger">Required
+          Field</small>
+      </div>
+
+      <div class="col-md-6">
+        <label class="text-gray fw-bold">Select User Profile</label>
+<!--        <ng-select-->
+<!--          [items]="allProfiles"-->
+<!--          [multiple]=true-->
+<!--          [closeOnSelect]="false"-->
+<!--          [searchable]="true"-->
+<!--          [dropdownPosition]="'bottom'"-->
+<!--          bindLabel="name"-->
+<!--          formControlName="profile"-->
+<!--          placeholder="Select Profiles">-->
+<!--        </ng-select>-->
+<!--        <div class="mt-2">-->
+<!--          <p class="text-muted">Selected profiles:</p>-->
+<!--          <ul>-->
+<!--            <li *ngFor="let item of allProfiles">{{item.name}}</li>-->
+<!--          </ul>-->
+<!--        </div>-->
+
+
+        <select
+          class="form-select"
+          formControlName="profile"
+          id="profile"
+          name="profile"
+        >
+          <option *ngFor="let profile of allProfiles" [value]="profile.id">
+            {{profile.name | titlecase}}
+          </option>
+        </select>
+      </div>
+
+      <p *ngIf="isLoading"><ngb-progressbar type="primary" [value]="95" [striped]="true" [animated]="true"></ngb-progressbar></p>
+
+    </div>
+  </div>
+  <div class="modal-footer">
+    <div class="mb-1 text-center" *ngIf="formData && editUser$ | async">
+      <ngb-alert [type]="'success'" (close)="false">
+        <strong>Edit Successful!</strong>
+      </ngb-alert>
+    </div>
+    <button (click)="closeModal()" class="btn btn-secondary" type="button">Close</button>
+    <button (click)="submitData()" *ngIf="!this.formData" class="btn btn-primary" type="button" [disabled]="!form.valid">Create Record</button>
+    <button (click)="submitData()" *ngIf="this.formData" class="btn btn-primary" type="button" [disabled]="!form.valid">Save Record</button>
+  </div>
+</div>

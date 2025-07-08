@@ -1,0 +1,175 @@
+<nav class="navbar" >
+  <a  class="sidebar-toggler" (click)="toggleSidebar($event)">
+    <i class="feather icon-menu"></i>
+  </a>
+  <div class="navbar-content">
+    <form class="search-form mt-3">
+      <h3 class="header" style="font-weight: 700; font-family: Mulish; "> <span style="color:#F8F8F8; font-style: normal; font-size:23px; font-weight: 700;">{{profile}}</span></h3>
+    </form>
+    <ul class="navbar-nav">
+      <!-- <li class="nav-item" ngbDropdown>
+        <a class="nav-link" ngbDropdownToggle id="languageDropdown" role="button">
+          <img [src]="selectedLanguageFlag" class="wd-20 me-1" title="us" alt="us">
+          <span class="fw-bold ms-1 me-1 d-none d-md-inline-block">{{selectedLanguage}}</span>
+        </a>
+         <div ngbDropdownMenu aria-labelledby="languageDropdown">
+          <a ngbDropdownItem class="py-2" (click)="changeLanguage('en')"> <img src="assets/images/flags/us.svg" class="wd-20 me-1" title="us" alt="us"> <span class="ms-1"> English </span></a>
+          <a ngbDropdownItem class="py-2" (click)="changeLanguage('kis')"> <img src="assets/images/flags/ke.svg" class="wd-20 me-1" title="es" alt="es"> <span class="ms-1"> Kiswahili </span></a>
+        </div>
+      </li> -->
+<!-- 
+      <li class="nav-item">
+        <P class="header"> <span style="color:#F8F8F8;
+          ; font-style: normal; font-weight: 700; font-family: Mulish; font-size:10p;">{{contactPerson}}</span></P>
+      </li> -->
+
+      <li class="nav-item text-light nav-notifications ml-4" ngbDropdown (click)="updateNotificationList()">
+        <a class="nav-link" ngbDropdownToggle id="notificationDropdown">
+          <i class="link-icon text-light feather icon-bell"></i>
+          <div class="indicator">
+            <div class="circle"></div>
+          </div>
+        </a>
+        <div ngbDropdownMenu class="px-0" aria-labelledby="notificationDropdown">
+          <div class="px-3 py-2 d-flex align-items-center justify-content-between border-bottom">
+            <p>No New Notifications</p>
+            <!-- <p>{{notifications.length}} New Notifications</p>
+            <a  (click)="false" class="text-muted">Clear all</a> -->
+          </div>
+          <!-- <div class="p-1">
+            <a (click)="openNotificationModal()" class="dropdown-item d-flex align-items-center py-2"
+               *ngFor="let notification of notifications">
+              <div class="wd-30 ht-30 d-flex align-items-center justify-content-center bg-primary rounded-circle me-3">
+                <i class="feather icon-alert-circle icon-sm text-white"></i>
+              </div>
+              <div class="flex-grow-1 me-2">
+                <p>{{notification?.process}}</p>
+                <p class="tx-12 text-muted">Created By: {{notification?.stagerDetails.userEmail}}</p>
+                <p class="tx-10 text-muted">{{notification?.createdOn}}</p>
+              </div>
+            </a>
+
+          </div> -->
+          <!-- <div class="px-3 py-2 d-flex align-items-center justify-content-center border-top">
+            <a  (click)="false">View all</a>
+          </div> -->
+        </div>
+      </li>
+      <li class="nav-item nav-profile" *ngIf="userData$ | async" ngbDropdown>
+        <a class="nav-link" ngbDropdownToggle id="profileDropdown">
+          <!-- <img class="wd-30 ht-30 rounded-circle" src="./assets/images/cytonn_logo.svg" alt="profile"> -->
+        </a>
+        <div ngbDropdownMenu class="px-0" aria-labelledby="profileDropdown">
+          <div class="d-flex flex-column align-items-center border-bottom px-5 py-3">
+            <div class="mb-3">
+
+              <img class="wd-30 ht-30 rounded-circle" src="./assets/images/cytonn_logo.svg" alt="profile">
+            </div>
+            <div class="text-center">
+              <p class="tx-16 fw-bolder mb-2">{{companyEmail}}</p>
+              <p class="tx-12 text-muted mb-2">Licence No: <b> {{licenceNumber}}</b> </p>
+              <p class="tx-12 text-muted">Location: <b> {{county}}</b></p>
+            </div>
+          </div>
+          <ul class="list-unstyled p-1">
+            <!-- <li class="dropdown-item py-2">
+              <a routerLink="/general/profile" class="d-flex text-body ms-0">
+                <i class="feather icon-user me-2 icon-md"></i>
+                <span>Profile</span>
+              </a>
+            </li> -->
+
+            <li class="dropdown-item py-2">
+              <a class="d-flex text-body ms-0" (click)='openChangePassword()'>
+                <i class="feather icon-log-out me-2 icon-md"></i>
+                <span>Change Password</span>
+              </a>
+            </li>
+
+            <li class="dropdown-item py-2">
+              <a  (click)="onLogout($event)" class="d-flex text-body ms-0">
+                <i class="feather icon-log-out me-2 icon-md"></i>
+                <span>Log Out</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </li>
+    </ul>
+  </div>
+</nav>
+<ng-container *ngIf="ChangePassword">
+  <div class="changePassword">
+    <div class="row">
+      <div class="col-12">
+        <div class="card card-login-container">
+          <div class="d-flex justify-content-between"
+          style="background-color: #d0ddf0;  font-family: 'Mulish'; font-weight: 900; border-radius:4px;">
+          <h4 class="text-start p-2 mt-2" style="color: #6D36A8; font-size: 21px;">Change Password</h4>
+          <div>
+            <button type="button" class="btn fs-2" (click)="hideChangePassForm()"
+              style="color: #6D36A8; font-size: 20px; margin-top: -5%;">
+              &times;
+            </button>
+          </div>
+        </div>
+          <article class="">
+            <form class="mt-2" [formGroup]="form" class="row px-3">
+              <div class="mb-3 mt-3">
+                <input type="password"  class="form-control validation-field" formControlName="password" placeholder="Enter Current Password">
+                <small class="text-danger"
+                  *ngIf="form.get('password')?.touched && form.get('password')?.hasError('required')"> Current Password is
+                  required</small>
+              </div>
+              <div class="mb-3">
+                <div class="input-group mb-3">
+                  <input [type]="inputType"  class="form-control validation-field" formControlName="newPassword"
+                    placeholder="Enter password" id="newPassword" aria-label="password">
+                  <div class="input-group-prepend" style="cursor: pointer;" (click)="toggleShowPassword()">
+                    <span class="input-group-text" *ngIf="!this.showingPassword"><i class="mdi mdi-eye"></i></span>
+                    <span class="input-group-text" *ngIf="this.showingPassword"><i class="mdi mdi-eye-off"></i></span>
+                  </div>
+                </div>
+                <small class="text-danger"
+                  *ngIf="form.get('newPassword')?.touched && form.get('newPassword')?.hasError('required')">Password is
+                  required</small>
+                <small class="text-danger"
+                  *ngIf="form.get('newPassword')?.touched && form.get('newPassword')?.hasError('minlength')">Password isn't long
+                  enough, minimum of 8 characters</small>
+                  <small class="text-danger"
+                  *ngIf="form.get('newPassword')?.touched && form.get('newPassword')?.hasError('complexPassword')">Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.</small>  
+              </div>
+              <div class="mb-3">
+                <div class="input-group mb-3">
+                  <input [type]="inputType" class="form-control validation-field" formControlName="confirmPassword" class="form-control" (change)="showForm()"
+                    placeholder="Confirm Password" id="confirmPassword" aria-label="confirmPassword">
+                  <div class="input-group-prepend" style="cursor: pointer;" (click)="toggleShowPassword()">
+                    <span class="input-group-text" *ngIf="!this.showingPassword"><i class="mdi mdi-eye"></i></span>
+                    <span class="input-group-text" *ngIf="this.showingPassword"><i class="mdi mdi-eye-off"></i></span>
+                  </div>
+                </div>
+                <small class="text-danger"
+                  *ngIf="form.get('confirmPassword')?.touched && form.get('confirmPassword')?.hasError('required')">Confirm
+                  Password is
+                  required</small>
+                <small class="text-danger"
+                  *ngIf="form.get('confirmPassword')?.touched && form.get('confirmPassword')?.hasError('minlength')">Confirm
+                  Password isn't long
+                  enough, minimum of 8 characters</small>
+                <small *ngIf="form.controls['confirmPassword'].dirty && 
+                    form.hasError('MatchPassword','confirmPassword')" class="text-danger">Passwords Do Not Match</small>
+              </div>
+              <div>
+                <button [disabled]="!form.valid" (click)="onSubmit($event)" style="width: 100%; border: none;"
+                  class="btn mb-4 btn-block login-btn transition" type="submit">
+                  <span style="color: white;">SET PASSWORD</span><img *ngIf="isLoading" class="pl-2" src="assets/images/loading.gif" alt="loading-gif">
+                </button>
+              </div>
+            </form>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>
