@@ -1,0 +1,63 @@
+  <div>
+    <div class="modal-header">
+      <h5 class="modal-title" style="font-family: 'Mulish'; font-weight: 900; color: #6D36A8; border-radius:4px; font-size:23px;" id="exampleModalLabel">Make Your Request</h5>
+      <button (click)="closeModal()" aria-label="Close" class="btn-close" type="button"></button>
+    </div>
+    <div class="modal-body" [formGroup]="form">
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Class Enterprise</label>
+            <select
+              class="form-select"
+              id="class_name"
+              name="class_name"
+              formControlName="class_name" (change)="checkFormValue($event)"
+            >
+              <option
+                *ngFor="let data of ClassData"
+                [value]="data.id">
+                {{data.class_name}}</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Enterprise Category</label>
+            <select
+            class="form-select"
+            id="subClass_Id"
+            name="subClass_Id"
+            formControlName="subClass_Id"
+          >
+            <option
+              *ngFor="let data of SubClassData"
+              [value]="data.id"> 
+              {{data.sub_class}}
+            </option>
+          </select>
+          </div>
+
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Type of Request</label>
+            <select
+            class="form-select"
+            id="request_category"
+            name="request_category"
+            formControlName="requestType"
+          >
+          <option  value="ACCREDITATION">ACCREDITATION</option>
+          <option  value="CLASSIFICATION">CLASSIFICATION</option>
+          </select>
+          </div>
+        </div>
+        <p *ngIf="isLoading"><ngb-progressbar type="primary" [value]="95" [striped]="true" [animated]="true"></ngb-progressbar></p>
+
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button (click)="closeModal()" class="btn btn-secondary" type="button">Close</button>
+      <button (click)="submitData()" *ngIf="!this.formData" class="btn btn-success" type="button" [disabled]="!form.valid || isLoading">Request</button>
+      <button (click)="submitData()" *ngIf="this.formData" class="btn btn-success" type="button" [disabled]="!form.valid || isLoading">Save changes</button>
+    </div>
+  </div>

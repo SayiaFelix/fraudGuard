@@ -1,0 +1,7 @@
+version: '3.7'
+services:
+  tra-project-customer:
+    image: devops-registry.ekenya.co.ke/tra-project/customer-portal:latest
+    container_name: tra-project-customer
+    ports:
+      - '9056:80'

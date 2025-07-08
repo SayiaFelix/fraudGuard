@@ -1,0 +1,138 @@
+<ngx-datatable
+  #table
+  [columnMode]="ColumnMode.force"
+  [columns]="columns"
+  [footerHeight]="50"
+  [limit]="2"
+  [loadingIndicator]="loading"
+  [rowHeight]="'auto'"
+  [rows]="rows"
+  class="bootstrap"
+>
+  <ng-container *ngFor="let column of columns">
+    <ngx-datatable-column
+      *ngIf="column.name === 'ID' || column.name === '#'"
+      [maxWidth]="45"
+      [minWidth]="35"
+      [draggable]="false"
+      [resizeable]="false"
+      name="#"
+      prop="frontendId"
+    >
+    </ngx-datatable-column>
+
+    <ngx-datatable-column
+      *ngIf="column.name === 'Actions' && actions.length > 0"
+      [maxWidth]="150"
+      [minWidth]="150"
+      [sortable]="false"
+      [draggable]="false"
+      [resizeable]="false"
+      class="parent-item"
+      name="Actions"
+      prop="actions"
+    >
+      <ng-template
+        class="parent-item"
+        let-row="row"
+        let-value="value"
+        ngx-datatable-cell-template
+      >
+          <span class="parent-item">
+            <ng-template #buttons>
+              <ul class="list-group list-group-flush">
+                <li
+                    *ngFor="let action of actions; index as i"
+                    class="action-buttons list-group-item pt-1 pb-1 text-center"
+                    (click)="sendEvent(row, action)"
+                  >
+                    {{ action }}
+                </li>
+              </ul>
+            </ng-template>
+            <div class="example">
+              <button
+                [ngbPopover]="buttons"
+                class="btn btn-primary btn-xs"
+                placement="left-top"
+                type="button"
+              >
+                <i class="feather icon-chevron-down"></i> Actions
+              </button>
+            </div>
+          </span>
+      </ng-template>
+    </ngx-datatable-column>
+
+    <ngx-datatable-column
+      *ngIf="column.name === 'Status' || column.name === 'Active'"
+      [maxWidth]="150"
+      [minWidth]="150"
+      [resizeable]="false"
+      name="Status"
+      prop="status"
+      [draggable]="false"
+    >
+      <ng-template
+        let-row="row"
+        let-value="value"
+        ngx-datatable-cell-template
+      >
+        <app-label-active
+          [value]="row.status || row.active || !row.blocked"
+        ></app-label-active>
+      </ng-template>
+    </ngx-datatable-column>
+
+    <ngx-datatable-column
+      *ngIf="column.name === 'CreatedOn'"
+      [draggable]="false"
+      [resizeable]="false"
+      [maxWidth]="150"
+      [minWidth]="150"
+      name="CreatedOn"
+      prop="createdOn"
+    >
+    </ngx-datatable-column>
+
+    <ngx-datatable-column
+      *ngIf="
+          column.name !== 'Actions' &&
+          column.name !== 'Status' &&
+          column.name !== 'Active' &&
+          column.name !== 'ID' &&
+          column.name !== '#' &&
+          column.name !== 'CreatedOn'
+        "
+      name="{{ column.name }}"
+      prop="{{ column.prop }}"
+      [draggable]="false"
+      [resizeable]="false"
+    >
+    </ngx-datatable-column>
+  </ng-container>
+
+  <ngx-datatable-footer>
+    <ng-template
+      let-curPage="curPage"
+      let-isVisible="isVisible"
+      let-offset="offset"
+      let-pageSize="pageSize"
+      let-rowCount="rowCount"
+      let-selectedCount="selectedCount"
+      ngx-datatable-footer-template
+    >
+      <datatable-pager
+        (change)="table.onFooterPage($event)"
+        [count]="rowCount"
+        [hidden]="!(rowCount / pageSize > 1)"
+        [page]="curPage"
+        [pagerLeftArrowIcon]="'datatable-icon-left'"
+        [pagerNextIcon]="'datatable-icon-skip'"
+        [pagerPreviousIcon]="'datatable-icon-prev'"
+        [pagerRightArrowIcon]="'datatable-icon-right'"
+        [size]="pageSize"
+      ></datatable-pager>
+    </ng-template>
+  </ngx-datatable-footer>
+</ngx-datatable>

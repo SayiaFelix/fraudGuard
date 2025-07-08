@@ -1,0 +1,135 @@
+<div class="d-flex justify-content-between align-items-center flex-wrap grid-margin p-2">
+  <div>
+    <h4 class="mb-3 mb-md-0"
+      style="color: var(--dark-purple, #1E0F2E);font-family: Muli;font-size: 20px;font-style: normal;font-weight: 700;line-height: 26px; ">
+      My Request | New Pre- Qualification Assessment Checklist</h4>
+  </div>
+</div>
+<div class="card" style="position: relative; margin-top:-1%; margin-bottom: 70%;">
+  <div class="row">
+    <div class="col-md-12 col-lg-12 col-xl-12 col-sm-12">
+      <div class="box-shadow">
+        <img class="card-img-top img-fluid" style="max-width:100% ; height: 300px ; border-radius: 16px;"
+          src="assets/images/requests.png" />
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:-6%;">
+    <div
+    style="position:absolute; padding: 16px 24px; border-radius: 16px; background: #FFF; width: 90%; margin-left: 5%;">
+    <div>
+      <h1 class="mt-1"
+        style="color: var(--grape-tra, #6D36A8);font-family: Mulish;font-size: 20px;font-style: normal;font-weight: 700;line-height: 24px;">
+        New Pre- Qualification Assessment Checklist
+      </h1>
+      <div *ngIf="!isFirstFormSubmitted">
+        <form [formGroup]="form">
+          <div class="mt-5">
+            <h3 class="form-label quiz">Class Enterprise</h3>
+            <select class="form-select" id="class_name" (change)="onClassChange($event)" name="class_name"
+              formControlName="class_name">
+              <option *ngFor="let classItem of ClassData?.classes" [value]="classItem.classId">
+                {{ classItem.className }}
+              </option>
+            </select>
+          </div>
+          <div class="mt-5">
+            <h3 class="form-label quiz">Enterprise Category</h3>
+            <select class="form-select" id="subClass" name="subClass" formControlName="subClassName">
+              <option  value="-"></option>
+              <option *ngFor="let data of SubClassData" [value]="data.subClassName">
+                {{ data.subClassName }}
+              </option>
+            </select>
+            <small class="text-danger"
+              *ngIf="form.get('subClassName')?.touched && form.get('subClassName')?.hasError('required')">Enterprise
+              Category is
+              required</small>
+          </div>
+          <div class="mt-5">
+            <h3 class="form-label quiz">Type of Request</h3>
+            <select class="form-select" id="requestType" name="requestType" formControlName="requestType">
+              <option value="ACCREDITATION">ACCREDITATION</option>
+              <option value="CLASSIFICATION">CLASSIFICATION</option>
+            </select>
+            <small class="text-danger"
+              *ngIf="form.get('requestType')?.touched && form.get('requestType')?.hasError('required')">Request Type is
+              required</small>
+          </div>
+          <div class="d-flex justify-content-end mt-3">
+            <button class="btn btn-md login-btn transition mt-1" [disabled]="!form.valid" (click)="submitData()"
+              type="submit">
+              <a style="text-decoration: none" class="transition">
+                <span style="color: #f8f8f8; font-weight: 700;letter-spacing: 0.08em;font-size: 12px;
+              ">SUBMIT</span></a><img *ngIf="isLoading" class="pl-2" src="assets/images/loading.gif" alt="loading-gif">
+            </button>
+          </div>
+        </form>
+      </div>
+      <div *ngIf="isFirstFormSubmitted">
+        <form [formGroup]="formRequest">
+          <div *ngFor="let question of getQuestionsForCurrentPage(); let i = index" class="mt-4">
+            <h3 class="quiz"> {{ ((currentPage - 1) * questionsPerPage + i + 1) + ': ' + question.question }}</h3>
+            <ng-container *ngFor="let option of question.options; let j = index">
+              <div class="d-flex justify-content-between">
+                <p class="sub-quiz">{{ option.optionText }}</p>
+                <div class="d-flex justify-content-between">
+                  <div class="form-group custom-control" style="margin-right: 18px;">
+                    <input type="checkbox" class="custom-control-input quiz-check" [id]="'q' + i + 's' + j + 'Yes'"
+                      [name]="'q' + i + 's' + j" [checked]="option.selected === 'Yes'"
+                      (change)="toggleCheckbox(i, j, 'Yes')" [value]="option.selected" required />
+                    <label [for]="'q' + i + 's' + j + 'Yes'" class="custom-control-label quiz-check">Yes</label>
+                  </div>
+                  <div class="form-group custom-control">
+                    <input type="checkbox" class="custom-control-input quiz-check" [id]="'q' + i + 's' + j + 'No'"
+                      [name]="'q' + i + 's' + j" [checked]="option.selected === 'No'"
+                      (change)="toggleCheckbox(i, j, 'No')" [value]="option.selected" required />
+                    <label [for]="'q' + i + 's' + j + 'No'" class="custom-control-label quiz-check">No</label>
+                  </div>
+                </div>
+                <div
+                  *ngIf="formRequest.get('q' + i + 's' + j)?.invalid && (formRequest.get('q' + i + 's' + j)?.dirty || formRequest.get('q' + i + 's' + j)?.touched)"
+                  class="text-danger">Please select an option.
+                </div>
+              </div>
+            </ng-container>
+            <div class="form-group mt-2">
+              <textarea [id]="'comment' + i" [formControlName]="question.comment" cols="13" rows=""
+                class="form-control validation-field text"></textarea>
+              <div
+                *ngIf="formRequest.get(question.comment)?.invalid && (formRequest.get(question.comment)?.dirty || formRequest.get(question.comment)?.touched)"
+                class="text-danger">Comment is required.
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-start mt-4">
+            <button style="margin-right: 5px;" class="btn btn-sm submitB transition mt-1" [disabled]="currentPage === 1"
+              (click)="prevPage()"><span class="NexpP">Prev</span> </button>
+
+            <ng-container *ngFor="let page of totalNumberOfPagesArray">
+              <button style="margin: 3px;" class="btn btn-sm submitB transition mt-1"
+                [ngClass]="{'active-page-button': currentPage === page}" (click)="setCurrentPage(page)">{{ page
+                }}</button>
+            </ng-container>
+
+            <button style="margin-left: 5px;" class="btn btn-sm submitB transition mt-1"
+              [disabled]="currentPage * questionsPerPage >= questionnaireData?.questions.length"
+              (click)="nextPage()"><span class="NexpP"></span> Next</button>
+          </div>
+          <div class="d-flex justify-content-end mt-3">
+            <button class="btn btn-md login-btn transition mt-1" [disabled]="!formRequest.valid"
+              (click)="submitDataForm()" type="submit">
+              <a style="text-decoration: none" class="transition">
+                <span style="color: #f8f8f8; font-weight: 700;letter-spacing: 0.08em;font-size: 12px;
+        ">SUBMIT</span></a><img *ngIf="isLoading" class="pl-2" src="assets/images/loading.gif" alt="loading-gif">
+            </button>
+          </div>
+        </form>
+      </div>
+      <hr>
+    </div>
+  </div>
+  </div>
+</div>

@@ -1,0 +1,47 @@
+<div class="d-flex justify-content-between align-items-center flex-wrap grid-margin mt-3">
+  <div>
+    <h4 class="mb-3 mb-md-0" style="color: var(--dark-purple, #1E0F2E);font-family: Muli;font-size: 20px;font-style: normal;font-weight: 700;line-height: 26px; ">All Requests</h4>
+  </div>
+</div>
+
+  <div class="card" style="position: relative;">
+    <div class="row">
+      <div class="col-md-12 col-lg-12 col-xl-12 col-sm-12">
+        <div class="card border-0 box-shadow">
+          <img class="card-img-top img-fluid" style="max-width:100% ; height: 350px ; border-radius: 16px;"
+            src="assets/images/serena.jpeg" />
+        </div>
+      </div>
+    </div>
+  
+    <div
+      style=" position:absolute; padding: 16px 24px; align-items: center; border-radius: 16px; background: #FFF; width: 90%; margin-left: 5%; margin-top: 30%;">
+      <div class="d-flex justify-content-between">
+        <div>
+          <h1
+            style="color: var(--grape-tra, #6D36A8);font-family: Mulish;font-size: 18px;font-style: normal;font-weight: 700;line-height: 24px;">
+            Pre- Qualification Assessment Checklist</h1>
+          <p
+            style="color: #000;text-align: justify;font-family: Mulish;font-size: 15px;font-style: normal;font-weight: 400;line-height: 21px;">
+            Pre-qualification Assessment; is a prerequisite procedure under the EAC Standards Criteria for Classification
+            of Hotels and Restaurants. Hotels Owners/property managers must carry out self-assessment based on each of the
+            identified Essential Items listed on the checklist to ensure they attain the prerequisite 100% to qualify for
+            classification and star rating. Essential Items; refers to both statutory requirements and basic operational
+            standard practices that guarantees safety and comfort of both local and international guests in any
+            hospitality establishment. The Items are crucial in the protection and promotion of the well- being of guests,
+            staff and the property. Due to their significance, an establishment must score 100% overall in all of the
+            listed Essential Items to qualify for Classification and Grading Process.</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12 stretch-card">
+          <div class="card" *ngIf="rows.length > 0">
+            <app-custom-ngx-table [columns]="columns" [rows]="rows" [actions]="actions" [hasViewAndEdit]="true"
+              [loadingIndicator]="loading" (outputEvent)="triggerEvent($event)"></app-custom-ngx-table>
+          </div>
+        </div>
+      </div>
+  
+    </div>
+  </div>
+

@@ -1,0 +1,130 @@
+<div class="d-flex justify-content-between align-items-center flex-wrap grid-margin mt-1"
+  style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 5px; padding: 10px;">
+  <div>
+    <h4 class="mb-3 mb-md-0"
+      style="color: var(--dark-purple, #1e0f2e); font-family: Muli; font-size: 20px; font-style: normal; font-weight: 700; line-height: 26px;">
+      Logs Analytics
+    </h4>
+  </div>
+</div>
+<hr>
+
+<!-- <div class="container mt-2">
+  <div class="row g-4">
+    <div class="col-12 col-md-6 col-lg-6 col-sm-12" *ngFor="let dashboard of paginatedDashboards">
+      <div class="dashboard-item p-3" style="height: 100%;">
+        <tableau-viz
+          id="{{dashboard.id}}"
+          [attr.src]="dashboard.src"  
+          class="w-100 h-100" 
+          hide-tabs
+          toolbar="bottom">
+        </tableau-viz>
+      </div>
+    </div>
+  </div>
+  <div class="pagination mt-3 d-flex justify-content-end">
+    <button class="btn btn-primary me-2" (click)="prevPage()" [disabled]="currentPage === 0">
+      Previous
+    </button>
+    <button class="btn btn-success" (click)="nextPage()" [disabled]="(currentPage + 1) * itemsPerPage >= dashboards.length">
+      Next
+    </button>
+  </div>
+</div> -->
+
+<div class="container mt-2">
+  <!-- Conditional to check if there are any dashboards -->
+  <div *ngIf="paginatedDashboards && paginatedDashboards.length > 0; else noData">
+    <div class="row g-4">
+      <div class="col-12 col-md-6 col-lg-6 col-sm-12" *ngFor="let dashboard of paginatedDashboards">
+        <div class="dashboard-item p-3" style="height: 100%;">
+          <tableau-viz
+            id="{{ dashboard.id }}"
+            [attr.src]="dashboard.src"
+            class="w-100 h-100"
+            hide-tabs
+            toolbar="bottom"
+          ></tableau-viz>
+        </div>
+      </div>
+    </div>
+    <!-- Pagination -->
+    <div class="pagination mt-3 d-flex justify-content-end">
+      <button
+        class="btn btn-primary me-2"
+        (click)="prevPage()"
+        [disabled]="currentPage === 0"
+      >
+        Previous
+      </button>
+      <button
+        class="btn btn-success"
+        (click)="nextPage()"
+        [disabled]="(currentPage + 1) * itemsPerPage >= dashboards.length"
+      >
+        Next
+      </button>
+    </div>
+  </div>
+
+  <!-- No data message -->
+  <ng-template #noData>
+    <div class="no-data-message text-center mt-5">
+      <h3 style="color:#6d36a8;">No LOG analytics visuals available now</h3>
+      <p class="text-muted">Please check back later when dashboards are available.</p>
+    </div>
+    <br>
+  </ng-template>
+</div>
+
+
+<div
+  id="chatbox"
+  class="chatbox-container"
+  style="position: fixed; bottom: 20px; right: 20px; width: 300px; z-index: 1000;"
+>
+  <div class="chat-header d-flex justify-content-between align-items-center">
+    <h5 class="mb-0" style="font-size: 14px; font-weight: 700;">
+      Banking Assistant Chatbot
+    </h5>
+    <button
+      class="close-btn btn btn-sm"
+      (click)="closeChat()"
+      style="font-size: 12px;"
+    >
+      X
+    </button>
+  </div>
+  
+  <div class="chat-body" style="overflow-y: auto; max-height: 300px; margin-top: 10px;">
+    <div *ngFor="let message of messages" class="chat-messages">
+      <div
+        [ngClass]="{'user-message': message.sender === 'user', 'bot-message': message.sender === 'bot'}"
+      >
+        <p style="margin: 5px 0;" [style.text-align]="message.sender === 'user' ? 'right' : 'left'">
+          <strong>{{ message.sender === 'user' ? 'You' : 'Bot' }}:</strong> {{ message.text }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-input d-flex mt-2">
+    <input
+      type="text"
+      class="form-control me-2"
+      [(ngModel)]="userInput"
+      placeholder="Chat with bot..."
+    />
+    <button class="btn btn-success" (click)="sendMessage()">Send</button>
+  </div>
+</div>
+
+
+
+<div>
+  <footer class="footer mt-3 d-flex flex-column flex-md-row align-items-center justify-content-between px-4 border-top small">
+    <p class="text-muted">Copyright © 2024 <a href="" style="color: #6d36a8; font-family: 'Muli';" target="_blank">Analytics</a></p>
+    <p class="" style="color: #6d36a8; font-family: 'Muli'; font-style: normal; font-weight: 700; font-size: 13px; letter-spacing: 0.08em;">Faulu Bank Kenya</p>
+  </footer>
+</div>

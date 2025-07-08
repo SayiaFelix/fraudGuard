@@ -1,0 +1,265 @@
+<!--<div class="row justify-content-around p-2">-->
+<!--  <div class="col">-->
+<!--    <label class="form-label" for="exampleInputUsername1">Username</label>-->
+<!--    <input autocomplete="off" class="form-control" id="exampleInputUsername1" placeholder="Username" type="text">-->
+<!--  </div>-->
+<!--  <div class="col">-->
+<!--    <label class="form-label" for="exampleInputEmail1">Email address</label>-->
+<!--    <input class="form-control" id="exampleInputEmail1" placeholder="Email" type="email">-->
+<!--  </div>-->
+<!--  <div class="col">-->
+<!--    <label class="form-label" for="exampleInputPassword1">Password</label>-->
+<!--    <input autocomplete="off" class="form-control" id="exampleInputPassword1" placeholder="Password" type="password">-->
+<!--  </div>-->
+<!--  <div class="col">-->
+<!--    <label class="form-label" for="exampleInputPassword1">Password</label>-->
+<!--    <input autocomplete="off" class="form-control" id="exampleInputPassword2" placeholder="Password" type="password">-->
+<!--  </div>-->
+<!--</div>-->
+
+<div class="table-responsive table-striped table-bordered" [perfectScrollbar]>
+  <!-- <div class="d-flex flex-wrap align-items-center" *ngIf="!disableFilters">
+    <input *ngFor="let col of filterColumns" class="form-control wd-150 border m-1 filterInputs form-control-sm"
+      type="text" [placeholder]="col.prop" (keyup)="updateFilter()" (keydown)="updateFilter()"
+      [ngbTooltip]="col.name" />
+
+    <select class="form-select m-1 wd-150 border filterSelect form-select-sm" *ngFor="let colm of toggleFilters"
+      (change)="updateFilter()" [ngbTooltip]="colm.name">
+      <option disabled selected [value]="colm['prop']">
+        {{ colm["name"] }}
+      </option>
+      <ng-container *ngIf="colm['prop'] == 'systemRole'">
+        <option [value]="true">System Role</option>
+        <option [value]="false">Custom Role</option>
+      </ng-container>
+      <ng-container *ngIf="colm['prop'] == 'active'">
+        <option [value]="true">Active</option>
+        <option [value]="false">Inactive</option>
+      </ng-container>
+      <ng-container *ngIf="colm['prop'] == 'blocked'">
+        <option [value]="false">Active</option>
+        <option [value]="true">Inactive</option>
+      </ng-container>
+      <ng-container *ngIf="colm['prop'] == 'status'">
+        <option [value]="false">PENDING</option>
+        <option [value]="true">COMPLETE</option>
+        <option [value]="true">APPEAL</option>
+        <option [value]="true">REJECTED</option>
+      </ng-container>
+      <ng-container *ngIf="colm['prop'] !== 'blocked' && colm['prop'] !== 'systemRole' && colm['prop'] !== 'active' && colm['prop'] !== 'status'">
+        <option [value]="true">True</option>
+        <option [value]="false">False</option>
+      </ng-container>
+    </select>
+
+    <input *ngFor="let col of dateFilters" class="form-control wd-200 border m-1 filterInputs form-control-sm"
+      bsDaterangepicker [(ngModel)]="selectedRange[col.prop]" [placeholder]="col.prop"
+      [bsConfig]="{ dateInputFormat: 'YYYY/MM/DD' }" (ngModelChange)="updateFilter()" [ngbTooltip]="col.name" />
+
+    <button (click)="clearFilters()" class="btn btn-icon-text m-1 btn-xs"
+      style="background-color: #F6950C!important; color: white!important;">
+      <i appFeatherIcon class="btn-icon-prepend" data-feather="x-square"></i>
+      {{'customTables.clearFilters' | translate}}
+    </button>
+  </div> -->
+
+  <ngx-datatable #table [columnMode]="ColumnMode.force" [columns]="columns" [footerHeight]="50" [limit]="pageSize"
+    [loadingIndicator]="loadingIndicator" [rowHeight]="'auto'" [rows]="rows"
+    class="bootstrap table-bordered table-striped striped">
+    <!-- Row Detail Template -->
+    <ngx-datatable-row-detail #myDetailRow (toggle)="onDetailToggle($event)" [rowHeight]="100">
+      <ng-template let-expanded="expanded" let-row="row" ngx-datatable-row-detail-template>
+        <div style="padding-left: 35px">
+          <div><strong>Address</strong></div>
+          <div>Child Details</div>
+        </div>
+      </ng-template>
+    </ngx-datatable-row-detail>
+
+    <!-- Column Templates -->
+    <!--    <ngx-datatable-column-->
+    <!--      [canAutoResize]="false"-->
+    <!--      [draggable]="false"-->
+    <!--      [resizeable]="false"-->
+    <!--      [sortable]="false"-->
+    <!--      [width]="5"-->
+    <!--    >-->
+    <!--      <ng-template-->
+    <!--        let-expanded="expanded"-->
+    <!--        let-row="row"-->
+    <!--        let-value="value"-->
+    <!--        ngx-datatable-cell-template-->
+    <!--      >-->
+    <!--        <a-->
+    <!--          (click)="toggleExpandRow(row)"-->
+    <!--          [class.datatable-icon-down]="expanded"-->
+    <!--          [class.datatable-icon-right]="!expanded"-->
+    <!--          href="javascript:void(0)"-->
+    <!--          title="Expand/Collapse Row"-->
+    <!--        >-->
+    <!--        </a>-->
+    <!--      </ng-template>-->
+    <!--    </ngx-datatable-column>-->
+
+    <ng-container *ngFor="let column of columns">
+      <ngx-datatable-column *ngIf="column.name === 'ID' || column.name === '#'" [maxWidth]="45" [minWidth]="35"
+        [draggable]="false" [resizeable]="false" name="#" prop="frontendId">
+      </ngx-datatable-column>
+
+      <ngx-datatable-column *ngIf="column.name === 'Actions' && actions.length > 0" [maxWidth]="150" [minWidth]="150"
+        [sortable]="false" [draggable]="false" [resizeable]="false" class="parent-item" name="Actions" prop="actions">
+        <ng-template class="parent-item" let-row="row" let-value="value" ngx-datatable-cell-template>
+          <span class="parent-item">
+            <ng-template #buttons>
+              <ul class="list-group list-group-flush">
+                <li (click)="sendEvent(row, action)" *ngFor="let action of actions; index as i"
+                  class="action-buttons list-group-item pt-1 pb-1 text-center">
+                  {{ action }}
+                </li>
+              </ul>
+            </ng-template>
+            <div class="example">
+              <button style="background-color: #F7941D;" [ngbPopover]="buttons" class="btn btn-primary btn-xs border-0"
+                placement="left-top" type="button">
+                <i class="feather icon-chevron-down"></i> {{'customTables.actions' | translate}}
+              </button>
+            </div>
+          </span>
+        </ng-template>
+      </ngx-datatable-column>
+
+      <!-- <ngx-datatable-column *ngIf="column.name === 'Status' || column.name === 'Active' || column.name === 'Blocked'"
+        [maxWidth]="150" [minWidth]="150" [resizeable]="false" [name]="column.name" [prop]="column.name.toLowerCase()"
+        [draggable]="false">
+        <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+          <span
+            class="{{ (row.status || row.active || !row.blocked) === true ?  'badge bg-primary mr-1' : 'badge bg-danger mr-1'}}">
+            {{(row.status || row.active || !row.blocked) === true ? 'Active' : 'Inactive'}}</span>
+          <!--          <app-label-active-->
+      <!--            [value]="row.status || row.active || !row.blocked"-->
+      <!--          ></app-label-active>--
+        </ng-template>
+      </ngx-datatable-column> -->
+
+      <ngx-datatable-column *ngIf="column.prop === 'status'" [draggable]="false" [maxWidth]="160" [minWidth]="160"
+        [name]="column.name" [prop]="column.name.toLowerCase()" [resizeable]="false">
+        <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+
+
+          <span class="{{
+    (row.status) === 'Accepted' ? 'badge bg-success mr-1'
+    : (row.status) === 'Pending' ? 'badge bg-warning mr-1'
+    : (row.status) === 'Approved' ? 'badge bg-info mr-1'
+    : (row.status) === 'Appealed' ? 'badge bg-secondary mr-1'
+    : (row.status) === 'Declined' ? 'badge bg-danger mr-1'
+    : 'badge bg-secondary mr-1'
+    }}">
+            {{row.status}}</span>
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column *ngIf="column.prop === 'firstTimeLogin'" [maxWidth]="160" [minWidth]="160"
+        [resizeable]="false" [name]="column.name" [prop]="column.prop.toLowerCase()" [draggable]="false">
+        <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+
+          <span class="{{ (row.firstTimeLogin) === true ?  'badge bg-primary mr-1' : 'badge bg-danger mr-1'}}">
+            {{(row.firstTimeLogin) === true ? 'Yes' : 'No'}}</span>
+
+          <!--          <app-label-boolean-->
+          <!--            [value]="row.firstTimeLogin"-->
+          <!--          ></app-label-boolean>-->
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column *ngIf="column.prop === 'accountStatus'" [maxWidth]="150" [minWidth]="150"
+        [resizeable]="false" [name]="column.name" [prop]="column.prop.toLowerCase()" [draggable]="false">
+        <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+
+          <span class="{{ (row.accountStatus) === 'SUCCESS' ?  'badge bg-primary mr-1' : 'badge bg-danger mr-1'}}">
+            {{(row.accountStatus).toUpperCase()}}</span>
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column *ngIf="column.name === 'TaskStatus'" [maxWidth]="150" [minWidth]="150" [resizeable]="false"
+        name="TaskStatus" prop="taskStatus" [draggable]="false">
+        <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+          <app-label-task-status [value]="row.TaskStatus"></app-label-task-status>
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column *ngIf="column.prop === 'systemRole'" [draggable]="false" [resizeable]="false"
+        [maxWidth]="150" [minWidth]="150" name="Role Type" [prop]="column.prop">
+        <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+          {{row.d}}
+          <span class="{{ (row.systemRole) === true ?  'badge bg-primary mr-1' : 'badge bg-success mr-1'}}">
+            {{(row.systemRole) === true ? 'System Role' : 'Custom Role'}}</span>
+          <!--          <app-label-system-custom-role *ngIf="!loadingIndicator"-->
+          <!--            [value]="row.systemRole"-->
+          <!--          ></app-label-system-custom-role>-->
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column
+        *ngIf="column.prop === 'createdOn' || column.prop === 'createdAt' || column.prop === 'updatedOn' || column.prop === 'updatedAt'"
+        [draggable]="false" [resizeable]="false" [maxWidth]="150" [minWidth]="150" [name]="column.name"
+        [prop]="column.prop">
+      </ngx-datatable-column>
+
+      <ngx-datatable-column *ngIf="
+          column.name !== 'Actions' &&
+          column.name !== 'Status' &&
+          column.name !== 'TaskStatus' &&
+          column.name !== 'Active' &&
+          column.name !== 'Account Status' &&
+          column.name !== 'ID' &&
+          column.name !== '#' &&
+          column.prop !== 'systemRole' &&
+          column.prop !== 'createdOn' &&
+          column.prop !== 'createdAt' &&
+          column.prop !== 'updatedAt' &&
+          column.prop !== 'firstTimeLogin' &&
+          column.prop !== 'updatedOn'
+        " name="{{ column.name }}" prop="{{ column.prop }}" [draggable]="false" [resizeable]="false">
+      </ngx-datatable-column>
+    </ng-container>
+
+    <ngx-datatable-footer>
+      <ng-template let-curPage="curPage" let-isVisible="isVisible" let-offset="offset" let-pageSize="pageSize"
+        let-rowCount="rowCount" let-selectedCount="selectedCount" ngx-datatable-footer-template>
+        <!-- <div ngbDropdown class="ms-4">
+            <button
+              class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0 btn-xs"
+              id="dropdownBasic1"
+              ngbDropdownToggle
+            >
+              {{ pageSize }}
+            </button>
+            <ul
+              ngbDropdownMenu
+              aria-labelledby="dropdownBasic1"
+            >
+              <li *ngFor="let size of pageSizes">
+                <label
+                  class="dropdown-item"
+                  [attr.for]="size"
+                  (click)="changePageSize(size)"
+                  >{{ size }}</label>
+              </li>
+            </ul>
+          </div> -->
+        <select (change)="changePageSize($event)" class="form-select ms-2 w-auto">
+          <option *ngFor="let size of pageSizes" [value]="size">
+            {{ size === 1000 ? ' All Items' : size + ' Items per page' }}
+          </option>
+
+
+        </select>
+        <!-- <h6 class="ml-4" style="margin-left: 20px">{{totalItems}} Total</h6> -->
+        <datatable-pager (change)="table.onFooterPage($event)" [count]="rowCount" [hidden]="!(rowCount / pageSize > 1)"
+          [page]="curPage" [pagerLeftArrowIcon]="'datatable-icon-left'" [pagerNextIcon]="'datatable-icon-skip'"
+          [pagerPreviousIcon]="'datatable-icon-prev'" [pagerRightArrowIcon]="'datatable-icon-right'"
+          [size]="pageSize"></datatable-pager>
+      </ng-template>
+    </ngx-datatable-footer>
+  </ngx-datatable>
+</div>

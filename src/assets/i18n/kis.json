@@ -1,0 +1,56 @@
+{
+  "welcomeMessage": "Asante kwa kujiunga nasi, {{ firstName }}! Tuna furaha",
+  "loginMessage":"Jisajili katika Akaunti yako.",
+  "welcomeDashboardMessage": "Karibu kwenye Dashibodi",
+  "downloadTextOnButton": "Hifadhi",
+  "login": {
+    "username": "Andika jina lako la mtumiaji",
+    "password": "Andika nenosiri lako"
+  },
+  "dashboard": {
+    "newCustomers": "Wateja Wapya",
+    "newDevices": "Vifaa Vipya",
+    "growth": "Ukuaji",
+    "revenue": "Mapato",
+    "revenueDesc": "Mapato ni mazao ambayo biashara inapata kutokana na shughuli zake za kawaida za biashara, kwa kawaida kutoka kwa mauzo ya bidhaa na huduma kwa wateja."
+  },
+  "channels": {
+    "ussd": {
+      "title": "Udhibiti wa USSD",
+      "btnSelect": "Chagua Mbinu",
+      "disableBtn": "Zima Mbinu",
+      "ussdCustomers": "Wateja wa USSD",
+      "ussdDevices": "Mitambo ya USSD",
+      "growth": "Ukuaji",
+      "locationsTitle": "MAENEO YA WATEJA WA USSD",
+      "locationsDesc": "Pata nafasi za wateja wote walioingia kwa kutumia USSD.",
+      "customersTable": "Wateja wote wa USSD"
+    },
+    "ib": {
+      "title": "Udhibiti wa IB",
+      "btnSelect": "Chagua Mbinu",
+      "disableBtn": "Zima Mbinu",
+      "ussdCustomers": "Wateja wa IB",
+      "ussdDevices": "Mitambo ya IB",
+      "growth": "Ukuaji",
+      "locationsTitle": "MAENEO YA WATEJA WA IB",
+      "locationsDesc": "Pata nafasi za wateja wote walioingia kwa kutumia IB.",
+      "customersTable": "Wateja wote wa IB"
+    },
+    "app": {
+      "title": "Udhibiti wa USSD",
+      "btnSelect": "Chagua Mbinu",
+      "disableBtn": "Zima Mbinu",
+      "ussdCustomers": "Wateja wa USSD",
+      "ussdDevices": "Mitambo ya USSD",
+      "growth": "Ukuaji",
+      "locationsTitle": "MAENEO YA WATEJA WA USSD",
+      "locationsDesc": "Pata nafasi za wateja wote walioingia kwa kutumia USSD.",
+      "customersTable": "Wateja wote wa USSD"
+    }
+  },
+  "customTables": {
+    "actions": "Vitendo",
+    "clearFilters": "Futa Vichujio"
+  }
+}

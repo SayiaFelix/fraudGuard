@@ -1,0 +1,66 @@
+<div>
+  <div class="modal-header">
+    <h5 class="modal-title" id="exampleModalLabel">{{title}}</h5>
+    <button aria-label="Close" class="btn-close" type="button" (click)="close()"></button>
+  </div>
+  <div class="modal-body">
+
+
+    <div class="row inbox-wrapper">
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body" [formGroup]="form">
+            <div class="row">
+
+              <div class="col-lg-12 border-end-lg">
+                <h4 class="text-center mx-auto tx-16 fw-bolder d-flex align-items-start">Service Details</h4>
+                <hr>
+                <div class="row justify-content-center mx-auto text-center">
+                  <div class="col-sm-12">
+                    <div class="mb-3">
+                      <label class="form-label d-flex align-items-start fw-bold">Service Name</label>
+                      <input class="form-control" formControlName="name" type="text">
+
+                    </div>
+                  </div>
+                  <div class="col-sm-12">
+                    <div class="mb-3">
+                      <label class="text-gray d-flex align-items-start fw-bold">ATM Code</label>
+                      <input class="form-control" formControlName="atmCode" type="text">
+
+                    </div>
+                  </div>
+                  <div class="col-sm-12">
+                    <div class="mb-3">
+                      <label class="text-gray d-flex align-items-start fw-bold">Select Branch</label>
+                      <select
+                        class="form-select"
+                        formControlName="branch"
+                        id="branch"
+                        name="branch"
+                      >
+                        <option *ngFor="let item of Branches"
+                                [value]="item.id">
+                          {{ item.name | titlecase}}
+
+                        </option>
+                      </select>
+                    </div>
+
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" type="button" (click)="close()">Close</button>
+      <button class="btn btn-primary" (click)="submitData()" *ngIf="this.formData" type="button">Edit ATM</button>
+      <button class="btn btn-primary" (click)="submitData()" *ngIf="!this.formData" type="button">Create ATM</button>
+    </div>
+  </div>
+</div>

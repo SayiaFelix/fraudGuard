@@ -1,0 +1,34 @@
+{
+  "welcomeMessage": "Thanks for joining, {{ firstName }}! It's great to have you!",
+  "loginMessage":"Log in to your account",
+  "welcomeDashboardMessage": "Welcome to your Dashboard",
+  "downloadTextOnButton": "Download",
+  "login": {
+    "username": "Username/ Email Address",
+    "password": "Password"
+  },
+  "dashboard": {
+    "newCustomers": "Staffs",
+    "newDevices": "Customers",
+    "growth": "Growth",
+    "revenue": "Location"
+  },
+  "channels": {
+    "ussd": {
+      "title": "USSD Channel Management",
+      "btnSelect": "Select Channel",
+      "disableBtn": "Disable Channel",
+      "ussdCustomers": "USSD Customers",
+      "ussdDevices": "USSD Devices",
+      "growth": "Growth",
+      "locationsTitle": "USSD CUSTOMER LOCATIONS",
+      "locationsDesc": "Get the positions of all onboarded customers using USSD.",
+      "customersTable": "ALL USSD CUSTOMERS"
+    }
+  },
+  "customTables": {
+    "actions": "Actions",
+    "clearFilters": "Clear Filters"
+
+  }
+}

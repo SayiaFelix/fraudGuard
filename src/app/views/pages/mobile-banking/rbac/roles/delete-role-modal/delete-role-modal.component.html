@@ -1,0 +1,27 @@
+<div>
+    <div class="modal-header">
+      <h5 class="modal-title" id="exampleModalLabel">{{title}}</h5>
+      <button (click)="closeModal()" aria-label="Close" class="btn-close" type="button"></button>
+    </div>
+    <div class="modal-body" [formGroup]="form">
+      <div class="row g-3">
+        <div class="col-md-12">
+          <label class="text-gray">Remark</label>
+          <textarea formControlName="remark" class="form-control" type="text" rows="1"></textarea>
+          <p *ngIf="form.get('remark')?.touched && form.get('remark')?.hasError('required')"
+             class="text-danger mt-1 mb-1 pt-0 small text-center">Required  Field</p>
+
+        </div>
+
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="mb-1 text-center" *ngIf="deleteRole$ | async">
+        <ngb-alert [type]="'success'" (close)="false">
+          <strong>Deletion Successful!</strong>
+        </ngb-alert>
+      </div>
+      <button (click)="closeModal()" class="btn btn-secondary btn-xs" type="button">Close</button>
+      <button (click)="submitData()" class="btn btn-primary btn-xs" type="button">Delete Record</button>
+    </div>
+  </div>

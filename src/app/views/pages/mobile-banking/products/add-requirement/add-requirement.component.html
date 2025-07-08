@@ -1,0 +1,61 @@
+  <div>
+    <div class="modal-header">
+      <h5 class="modal-title" id="exampleModalLabel">{{title}}</h5>
+      <button (click)="closeModal()" aria-label="Close" class="btn-close" type="button"></button>
+    </div>
+    <div class="modal-body" [formGroup]="form">
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Requirement</label>
+            <input class="form-control" formControlName="requirement" type="text" />
+            <small
+              *ngIf="
+              form.get('requirement')?.touched &&
+              form.get('requirement')?.hasError('required')
+            "
+              class="text-danger"
+            >Required Field</small
+            >
+          </div>
+        </div>
+        <div class="col-sm-12">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Requirement Code</label>
+            <input class="form-control" formControlName="requirementCode" type="number" />
+            <small
+              *ngIf="
+              form.get('requirementCode')?.touched &&
+              form.get('requirementCode')?.hasError('required')
+            "
+              class="text-danger"
+            >Required Field</small
+            >
+          </div>
+        </div>
+
+        <div class="col-sm-12">
+          <div class="mb-3">
+            <label class="form-label">Requirement Description</label>
+            <input class="form-control" formControlName="requirementDesc" type="text" />
+            <small
+              *ngIf="
+              form.get('requirementDesc')?.touched &&
+              form.get('requirementDesc')?.hasError('required')
+            "
+              class="text-danger"
+            >Required Field</small>
+          </div>
+
+
+          <p *ngIf="isLoading"><ngb-progressbar type="primary" [value]="95" [striped]="true" [animated]="true"></ngb-progressbar></p>
+
+        </div>
+
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button (click)="closeModal()" class="btn btn-secondary" type="button">Close</button>
+      <button (click)="submitData()" class="btn btn-primary" type="button" [disabled]="!form.valid || isLoading">Add requirement</button>
+    </div>
+  </div>

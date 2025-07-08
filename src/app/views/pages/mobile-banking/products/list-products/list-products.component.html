@@ -1,0 +1,39 @@
+<div
+  class="d-flex justify-content-between align-items-center flex-wrap grid-margin"
+>
+  <div>
+    <h4 class="mb-3 mb-md-0">All Products</h4>
+  </div>
+
+  <div ngbDropdown>
+    <button class="btn btn-primary btn-xs" id="dropdownBasic1" ngbDropdownToggle>Select View</button>
+    <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+      <button ngbDropdownItem routerLink="/mobile-banking/products/list-all-products-as-cards">Card View</button>
+      <button ngbDropdownItem routerLink="/mobile-banking/products/list-products">Table View</button>
+    </div>
+  </div>
+  
+  <app-table-header
+    [allColumns]="allColumns"
+    [rows]="filteredRows.length > 0 ? filteredRows : rows"
+    [title]="title"
+    [showAddButton]="true"
+    (changeColumnsEvent)="updateColumns($event)"
+  ></app-table-header>
+
+</div>
+
+<div class="row">
+  <div class="col-md-12 stretch-card">
+    <div class="card" *ngIf="rows.length > 0">
+        <app-custom-ngx-table
+          [columns]="columns"
+          [rows]="rows"
+          [actions]="actions"
+          [loadingIndicator]="loading"
+          (outputEvent)="triggerEvent($event)"
+          (updateFilteredRows)="updateFilteredRowsEvent($event)"
+        ></app-custom-ngx-table>
+    </div>
+  </div>
+</div>
