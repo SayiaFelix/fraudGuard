@@ -6,61 +6,92 @@
   <div class="row d-flex justify-content-center login-row">
     <div class="col-md-6 col-lg-5 col-xl-5 col-sm-7 d-flex justify-content-around flex-column">
       <div style="padding-top: 28px; padding-left: 30px;">
-        <a href="" routerLink="/standards"> <img class="img-fluid" style="position: absolute;" src="assets/images/TRA_Logo.png" width="150" height="50"
-          alt="" /></a>
+        <a href="" routerLink="/standards">
+          <img class="img-fluid" style="position: absolute;" src="assets/images/TRA_Logo.png" width="150" height="50" alt="" />
+        </a>
       </div>
       <div class="card card-login-container">
         <div class="mt-1">
-          <h3
-            style="font-family: Mulish; font-style: normal; font-weight: 700; font-size: 21px; line-height: 30px; color: #F8F8F8;">
-            Unlock the Potential of TRA License Numbers for Your Business.</h3>
-          <p class="mt-2"
-            style="font-family: Mulish; font-style: normal; font-weight: 400; font-size: 17px; line-height: 25px; color: #F8F8F8;">
-            Trustworthy. Reliable. Efficient. Get started now!</p>
+          <h3 style="font-family: Mulish; font-style: normal; font-weight: 700; font-size: 21px; line-height: 30px; color: #F8F8F8;">
+            Sign up to EcleBot AI Studio Portal!.
+          </h3>
+          <p class="mt-2" style="font-family: Mulish; font-style: normal; font-weight: 400; font-size: 17px; line-height: 25px; color: #F8F8F8;">
+            Register now. Get your First-Time Password via email!
+          </p>
         </div>
         <div class="card-login text-start pt-3">
-          <form class="forms-sample"  [formGroup]="form">
+          <form class="forms-sample" [formGroup]="form" (ngSubmit)="onRegister($event)">
             <div class="mb-3">
-              <!-- <input type="email" class="inputs" class="form-control" id="email" placeholder="Enter Email"> -->
-              <input type="text" class="form-control" id="licence" formControlName="licenceNumber"  autocomplete="Licence" placeholder="Licence Number For Account Activation">
+              <input type="text"
+                     class="form-control"
+                     id="username"
+                     formControlName="username"
+                     autocomplete="username"
+                     placeholder="Username">
               <small class="text-danger"
-              *ngIf="form.get('licenceNumber')?.touched && form.get('licenceNumber')?.hasError('required')">Licence Number is
-              required</small>
-            <small class="text-danger"
-              *ngIf="form.get('licenceNumber')?.touched && form.get('licenceNumber')?.hasError('minlength')">Licence Number isn't long
-              enough, minimum of 6 characters</small>
+                     *ngIf="form.get('username')?.touched && form.get('username')?.hasError('required')">
+                Username is required
+              </small>
             </div>
-            <div class="mb-1" *ngIf="registerResponse$ | async">
+            <div class="mb-3">
+              <input type="email"
+                     class="form-control"
+                     id="email"
+                     formControlName="email"
+                     autocomplete="email"
+                     placeholder="Email Address">
+              <small class="text-danger"
+                     *ngIf="form.get('email')?.touched && form.get('email')?.hasError('required')">
+                Email is required
+              </small>
+              <small class="text-danger"
+                     *ngIf="form.get('email')?.touched && form.get('email')?.hasError('email')">
+                Enter a valid email address
+              </small>
+            </div>
+
+            <div class="mb-1" *ngIf="registerResponse$ | async as regRes">
               <ngb-alert [type]="'success'" class="my-custom-success-alert" (close)="false">
-                <strong>Activation success!!!</strong>
+                <strong>Registration successful!</strong> Check your email for your First-Time Password.
               </ngb-alert>
             </div>
+
             <div class="mt-2">
-              <button type="submit" [disabled]="!form.valid"  style="width: 100%; border: none;" class="btn btn-block login-btn transition" (click)="onRegister($event)">ACTIVATE</button>
+              <button type="submit"
+                      [disabled]="!form.valid || isLoading"
+                      style="width: 100%; border: none;"
+                      class="btn btn-block login-btn transition">
+                {{ isLoading ? 'Signing Up...' : 'Sign Up' }}
+              </button>
             </div>
             <hr>
             <div class="mt-2 d-flex justify-content-center">
-              <p class="text-light"> <a routerLink="/auth/login" style="text-decoration: none;"
-                  class="transition text-light"> Back to Login! </a></p>
+              <p class="text-light">
+                <a routerLink="/auth/login" style="text-decoration: none;" class="transition text-light">Back to Login!</a>
+              </p>
             </div>
           </form>
-          <p *ngIf="isLoading"><ngb-progressbar type="success" [value]="95" [striped]="true"
-            [animated]="true"></ngb-progressbar></p>
-        <ngb-alert [type]="'danger'" class="" *ngIf="hasError" (close)="false" class="error-alert mt-2">
-          <strong>Activation Error!</strong>
-           {{errorMsg}}
-        </ngb-alert>
 
+          <p *ngIf="isLoading">
+            <ngb-progressbar type="success" [value]="95" [striped]="true" [animated]="true"></ngb-progressbar>
+          </p>
+
+          <ngb-alert [type]="'danger'" *ngIf="hasError" (close)="false" class="error-alert mt-2">
+            <strong>Sign Up Error!</strong>
+            {{ errorMsg }}
+          </ngb-alert>
         </div>
       </div>
-      <div class="" style=" padding-bottom: 15px; padding-left: 15px; justify-content: center; margin-top: -7%;">
-        <button class="btn btn-md" style="background-color: #6D36A8 ; color: #F8F8F8; border-radius: 8px; "> <a href="https://www.tra.go.ke/"
-            style="text-decoration: none; text-transform: none;" target="_blank" class="transition text-light"> VISIT:
-            WWW.TRA.GO.KE </a></button>
+      <div class="" style="padding-bottom: 15px; padding-left: 15px; justify-content: center; margin-top: -7%;">
+        <button class="btn btn-md" style="background-color: #6D36A8 ; color: #F8F8F8; border-radius: 8px;">
+          <a href="https://www.tra.go.ke/" style="text-decoration: none; text-transform: none;" target="_blank" class="transition text-light">
+            VISIT: WWW.TRA.GO.KE
+          </a>
+        </button>
       </div>
     </div>
     <div class="card col-md-6 col-lg-7 col-xl-7 col-sm-5"
-      style="background-image: url('assets/images/login_bg.png'); background-size: cover; background-repeat: no-repeat;">
+         style="background-image: url('assets/images/login_bg.png'); background-size: cover; background-repeat: no-repeat;">
     </div>
   </div>
 </div>
