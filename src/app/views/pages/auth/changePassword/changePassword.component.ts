@@ -1,11 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import {ConfirmDialogComponent} from "../../../../shared/components/confirm-dialog/confirm-dialog.component";
-import Swal from "sweetalert2";
-import {NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
-import {HttpService} from "../../../../shared/services/http.service";
-import {FormBuilder, FormGroup, Validators} from "@angular/forms";
-import {CustomValidators} from "ngx-custom-validators";
+import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import Swal from 'sweetalert2';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { HttpService } from '../../../../shared/services/http.service';
+import { FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
 
 @Component({
   selector: 'app-changePassword',
@@ -13,99 +12,118 @@ import {CustomValidators} from "ngx-custom-validators";
   styleUrls: ['./changePassword.component.scss']
 })
 export class ChangeAuthPasswordComponent implements OnInit {
-  errorMsg: string;
-  hasError: boolean = false;
-  isLoading: boolean = false;
-
-  returnUrl: any;
-  public modalRef: NgbModalRef;
-
-  public form: FormGroup;
-  public showingPassword = false;
+  form!: FormGroup;
   inputType = 'password';
+  showingPassword = false;
+  isLoading = false;
+  hasError = false;
+  errorMsg = '';
+  modalRef!: NgbModalRef;
+  returnUrl: string = '/';
 
-  MatchPassword(passName: string, confirmPassName: string) {
-    return (formGroup: FormGroup) => {
-      const control = formGroup.controls[passName];
-      const matchingControl = formGroup.controls[confirmPassName];
-      if (matchingControl.errors && !matchingControl.errors['MatchPass']) {
-        return
-      }
-      if (control.value !== matchingControl.value) {
-        matchingControl.setErrors({ MatchPassword: true });
-      }
-      else {
-        matchingControl.setErrors(null);
-      }
-    }
-
-  }
-  constructor(private router: Router,
-              private route: ActivatedRoute,
-              private httpService: HttpService,
-              private modalService: NgbModal,
-
-              fb: FormBuilder,
-
+  constructor(
+    private fb: FormBuilder,
+    private httpService: HttpService,
+    private modalService: NgbModal,
+    private router: Router,
+    private route: ActivatedRoute
   ) {
-    this.form = fb.group({
-      password: ['',Validators.compose([Validators.required, Validators.minLength(6)])],
-      newPassword: ['',Validators.compose([Validators.required, Validators.minLength(6)])],
-      confirmPassword: ['',Validators.compose([Validators.required, Validators.minLength(6)])],
-    },
-    {
-      validators: this.MatchPassword('newPassword', 'confirmPassword')
-    });
+    this.form = this.fb.group(
+      {
+        password: ['', [Validators.required, Validators.minLength(6)]],
+        newPassword: ['', [Validators.required, Validators.minLength(8), this.complexPasswordValidator()]],
+        confirmPassword: ['', [Validators.required, Validators.minLength(8)]]
+      },
+      {
+        validators: this.matchPassword('newPassword', 'confirmPassword')
+      }
+    );
   }
 
   ngOnInit(): void {
-    // get return url from route parameters or default to '/'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
 
-  onSubmit(e: Event) {
-    console.log("On button click")
-    e.preventDefault();
+  toggleShowPassword(): void {
+    this.showingPassword = !this.showingPassword;
+    this.inputType = this.showingPassword ? 'text' : 'password';
+  }
 
+  onSubmit(e: Event): void {
+    e.preventDefault();
     this.setPassword();
   }
 
-  setPassword(){
-    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+  setPassword(): void {
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, { centered: true });
     this.modalRef.componentInstance.title = 'Change Password';
+    this.modalRef.componentInstance.body = 'Do you want to set this as your new password?';
 
-    this.modalRef.componentInstance.body= "Do you want to Set this as your new password?";
     this.modalRef.result.then((result) => {
       if (result === 'success') {
-
         const model = {
           password: this.form.value.password,
           newPassword: this.form.value.newPassword,
           confirmPassword: this.form.value.confirmPassword
         };
 
+        this.isLoading = true;
         this.httpService.customerPortalAuth('api/v1/auth/change-password', model).subscribe(
-          (result: any) => {
-            if (result.status === '00') {
-              Swal.fire('Password Set',  'Password Changed Successfully.',  'success')
-              // Navigate back to login screen.
-              this.router.navigate(["/auth/login"]);
+          (res: any) => {
+            this.isLoading = false;
+            if (res.status === '00') {
+              Swal.fire('Success', 'Password changed successfully.', 'success');
+              localStorage.removeItem('authToken'); // optional logout
+              this.router.navigate(['/auth/login']);
             } else {
-              Swal.fire('Error',  'You have entered an incorrect password',  'error')
+              Swal.fire('Error', res.message || 'Incorrect password', 'error');
             }
+          },
+          (error) => {
+            this.isLoading = false;
+            Swal.fire('Server Error', 'Something went wrong. Please try again.', 'error');
           }
         );
-      } else {
-        console.log("Error occurred")
       }
+    }).catch(() => {
+      // Modal dismissed
     });
   }
-  toggleShowPassword() {
-    this.showingPassword = !this.showingPassword;
-    if (this.showingPassword) {
-      this.inputType = 'text';
-    } else {
-      this.inputType = 'password';
-    }
+
+  matchPassword(newPass: string, confirmPass: string) {
+    return (formGroup: FormGroup) => {
+      const newPassword = formGroup.controls[newPass];
+      const confirmPassword = formGroup.controls[confirmPass];
+
+      if (newPassword.value !== confirmPassword.value) {
+        confirmPassword.setErrors({ matchPassword: true });
+      } else {
+        confirmPassword.setErrors(null);
+      }
+    };
+  }
+
+  complexPasswordValidator() {
+    return (control: AbstractControl) => {
+      const value = control.value;
+      const hasUpper = /[A-Z]/.test(value);
+      const hasLower = /[a-z]/.test(value);
+      const hasNumber = /[0-9]/.test(value);
+      const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(value);
+      const valid = hasUpper && hasLower && hasNumber && hasSpecial;
+
+      if (valid) {
+        return null;
+      } else {
+        return {
+          complexPassword: {
+            requiresUpper: !hasUpper,
+            requiresLower: !hasLower,
+            requiresNumber: !hasNumber,
+            requiresSpecial: !hasSpecial
+          }
+        };
+      }
+    };
   }
 }

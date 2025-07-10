@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { GlobalService } from './global.service';
 import { AuthService } from './auth.service';
-import { map } from 'rxjs/operators';
+import { map, catchError } from 'rxjs/operators';
 import { forkJoin, Observable, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 
@@ -76,22 +76,26 @@ export class HttpService {
 
   }
   public customerPortalActivate(endpoint: string, model: any): Observable<any> {
-    return this.http
-      .post(
-        this.globalService.customerPortalNest + endpoint,
-        model
-      )
-      .pipe(
-        map((result: any) => {
-          if (result['status'] == '00') {
-            localStorage.setItem('isActivated', 'true');
-          } else {
-            throwError(() => new Error(result['message']));
-          }
-          return result;
-        })
-      );
-  }
+        // console.log('customerPortalActivate called with:', endpoint, model); // Debugging
+        return this.http
+            .post(this.globalService.customerPortalNest + endpoint, model) // Use the endpoint directly
+            .pipe(
+                map((result: any) => {
+                    // console.log('customerPortalActivate result:', result); // Debugging
+                    if (result['status'] == '00') {
+                      console.log('Activation successful:', result); // Debugging
+                        // localStorage.setItem('isActivated', 'true');
+                    } else {
+                        throw new Error(result['message']);
+                    }
+                    return result;
+                }),
+                catchError((err) => {
+                    console.error('customerPortalActivate error:', err); // Debugging
+                    return throwError(() => err); // Re-throw the error
+                })
+            );
+    }
 
 
   getClassAndSubclassData(): Observable<any> {
