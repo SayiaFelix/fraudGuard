@@ -32,7 +32,7 @@ const routes: Routes = [
         component: LoginComponent
       },
       {
-        path: 'activate',
+        path: 'signup',
         component: RegisterComponent
       },
       {
