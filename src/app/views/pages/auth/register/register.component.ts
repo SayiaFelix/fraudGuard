@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable, catchError, map, throwError } from 'rxjs';
 import { HttpService } from 'src/app/shared/services/http.service';
+import { environment } from 'src/environments/environment'; // Import environment
 
 @Component({
   selector: 'app-register',
@@ -19,54 +20,53 @@ export class RegisterComponent implements OnInit {
   enterpriseData: any;
 
   constructor(
-     private router: Router,
-     private httpService: HttpService,
-     private http: HttpClient,
-     fb: FormBuilder,) { 
-      this.form = fb.group({
-        licenceNumber: ['',Validators.compose([Validators.required,Validators.minLength(6)])],
-      });
-     }
+    private router: Router,
+    private httpService: HttpService,
+    private http: HttpClient,
+    fb: FormBuilder
+  ) {
+    this.form = fb.group({
+      name: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]]
+    });
+  }
 
   ngOnInit(): void {
     // this.getEnterpriseEmail(this.enterpriseData)
     // this.getUsers();
   }
 
-  // getUsers() {
-  //   this.httpService.getEnterpriseUsers('api/v1/auth/facilities').subscribe( res=>{
-  //     this.enterpriseData = res;
-  //     console.log(this.enterpriseData)
-  //   })
-  // }
-
   onRegister(e: Event) {
     this.hasError = false;
     this.isLoading = true;
     e.preventDefault();
 
-    // let selectedUser = this.enterpriseData.data.filter((user: any) => user.licenceNo === this.form.value.licenceNo)[0]
-
-    // console.log(selectedUser);
-    
-    let model = {
-      licenceNumber:this.form.value.licenceNumber
+    const model = {
+      name: this.form.value.name,
+      email: this.form.value.email
     };
-    console.log(model);
+
+    // Use customerPortalNest from environment
+    
+    console.log('Register Payload:', model);
+  
+
     this.registerResponse$ = this.httpService
-      .customerPortalActivate('api/v1/auth/lookUpFacility', model)
+      .customerPortalActivate('register', model)
       .pipe(
         catchError((error: any) => {
-          console.log(error);
-          this.hasError = error.message;
+          console.error('Registration error:', error);
+          this.hasError = true;
+          this.errorMsg = error?.error?.message || 'Something went wrong during registration.';
           this.isLoading = false;
-          return throwError(error);
+          return throwError(() => error);
         }),
-        map((result) => {
+        map((result: any) => {
           this.isLoading = false;
-          if (result['status'] != '00') {
+
+          if (result?.status !== '00') {
             this.hasError = true;
-            this.errorMsg = result['message'];
+            this.errorMsg = result?.message || 'Registration failed.';
             setTimeout(() => {
               this.hasError = false;
               this.errorMsg = '';
@@ -74,10 +74,15 @@ export class RegisterComponent implements OnInit {
             }, 3000);
           } else {
             setTimeout(() => {
+                //console.log('Register Payload:', model);
+                //console.log('Registration successful:', result);
+  
+  
               this.router.navigate(['/auth/first-time-password']);
-            }, 2000);
-            return result;
+            }, 1500);
           }
+
+          return result;
         })
       );
   }
