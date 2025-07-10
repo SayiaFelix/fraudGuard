@@ -74,17 +74,39 @@ export class HttpService {
   }
   public channelManagerLogin(){
 
-    
   }
+  public customerPortalLogin(endpoint: string, model: any): Observable<any> {
+    return this.http
+      .post(
+        this.globalService.customerPortalNest + endpoint,
+        model,
+        this.generateLoginHeaders()
+      )
+      .pipe(
+        map((result: any) => {
+          if (result['status'] == '00') {
+            localStorage.setItem('isLoggedin', 'true');
+            localStorage.setItem('access_token', result['access_token']);
+            localStorage.setItem('data', JSON.stringify(result['data']));
+          } else {
+            throwError(() => new Error(result['message']));
+          }
+          return result;
+        }),
+        catchError((err) => {
+          console.error('customerPortalLogin error:', err); 
+          return throwError(() => err); 
+        })
+      );
+  }
+  
   public customerPortalActivate(endpoint: string, model: any): Observable<any> {
-        // console.log('customerPortalActivate called with:', endpoint, model); // Debugging
         return this.http
-            .post(this.globalService.customerPortalNest + endpoint, model) // Use the endpoint directly
+            .post(this.globalService.customerPortalNest + endpoint, model) 
             .pipe(
                 map((result: any) => {
-                    // console.log('customerPortalActivate result:', result); // Debugging
                     if (result['status'] == '00') {
-                      console.log('Activation successful:', result); // Debugging
+                      console.log('Activation successful:', result); 
                         // localStorage.setItem('isActivated', 'true');
                     } else {
                         throw new Error(result['message']);
@@ -92,8 +114,8 @@ export class HttpService {
                     return result;
                 }),
                 catchError((err) => {
-                    console.error('customerPortalActivate error:', err); // Debugging
-                    return throwError(() => err); // Re-throw the error
+                    console.error('customerPortalActivate error:', err); 
+                    return throwError(() => err); 
                 })
             );
     }
