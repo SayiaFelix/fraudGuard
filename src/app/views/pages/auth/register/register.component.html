@@ -24,12 +24,12 @@
             <div class="mb-3">
               <input type="text"
                      class="form-control"
-                     id="username"
-                     formControlName="username"
-                     autocomplete="username"
+                     id="name"
+                     formControlName="name"
+                     autocomplete="name"
                      placeholder="Username">
               <small class="text-danger"
-                     *ngIf="form.get('username')?.touched && form.get('username')?.hasError('required')">
+                     *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')">
                 Username is required
               </small>
             </div>
