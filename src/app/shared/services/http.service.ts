@@ -130,14 +130,14 @@ export class HttpService {
       .post(
         this.globalService.customerPortalNest + endpoint,
         model,
-        // this.getHeaders()
+        this.getHeaders()
       )
       .pipe(
         map((result: any) => {
           if (result['status'] == '00') {
             // localStorage.setItem('isLoggedin', 'true');
-            // localStorage.setItem('access_token', result['access_token']);
-            // localStorage.setItem('data', JSON.stringify(result['data']));
+            localStorage.setItem('access_token', result['access_token']);
+            localStorage.setItem('data', JSON.stringify(result['data']));
             console.log('Reset successful:', result);
           } else {
             throwError(() => new Error(result['message']));

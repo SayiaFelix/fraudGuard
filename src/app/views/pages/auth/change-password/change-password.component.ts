@@ -118,7 +118,7 @@ export class ChangePasswordComponent implements OnInit {
               localStorage.setItem('isLoggedin', 'true');
             }
             this.isLoading = false;
-          },
+          },  
           error: () => {
             this.hasError = true;
             this.errorMsg = 'Network or server error';

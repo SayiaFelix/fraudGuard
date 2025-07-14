@@ -121,7 +121,7 @@ export class LoginComponent implements OnInit {
       password: this.form.value.password
     }
     this.loginResponse$ = this.httpService
-      .customerPortalAuth('api/v1/auth/login', model)
+      .customerPortalAuth('login', model)
       .pipe(
         catchError((error: any) => {
           console.log(error);
@@ -141,7 +141,7 @@ export class LoginComponent implements OnInit {
               this.form.reset();
             }, 3000);
           }else {
-            if (result['data']['blocked'] == true) {
+            if (result['data'] && result['data']['blocked'] == true) {
               this.hasError = true;
               this.errorMsg = result['error'];
               setTimeout(() => {
@@ -150,18 +150,18 @@ export class LoginComponent implements OnInit {
                 this.form.reset();
               }, 2000);
             } else {
-              if (result['data']['firstTimeLogin'] == true) {
-                setTimeout(() => {
+              // Use correct property from API response
+              setTimeout(() => {
+                if (result['first_time_login'] === true) {
+                  // Removed storing token here
                   this.router.navigate(['/auth/change-password']);
-                }, 2000);
-              } else {
-                setTimeout(() => {
+                } else {
+                  // Removed storing token here
                   this.router.navigate(['/dashboard']);
-                }, 2000);
-                return result;
-              }
+                }
+              }, 2000);
+              return result;
             }
-
           }
       
           // if (result['status'] != '00') {

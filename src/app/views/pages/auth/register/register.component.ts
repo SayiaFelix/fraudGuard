@@ -78,7 +78,7 @@ export class RegisterComponent implements OnInit {
                 //console.log('Registration successful:', result);
   
   
-              this.router.navigate(['/auth/first-time-password']);
+              this.router.navigate(['/auth/login']);
             }, 1500);
           }
 
