@@ -35,11 +35,11 @@ export class ChangePasswordComponent implements OnInit {
     fb: FormBuilder
   ) {
     this.form = fb.group({
-      resetToken: ['', Validators.required],
-      password: ['', [Validators.required, Validators.minLength(8), this.complexPasswordValidator()]],
-      confirmPassword: ['', [Validators.required, Validators.minLength(8)]]
+      code: ['', Validators.required], // changed from resetToken to code
+      new_password: ['', [Validators.required, Validators.minLength(8), this.complexPasswordValidator()]],
+      confirm_password: ['', [Validators.required, Validators.minLength(8)]]
     }, {
-      validators: this.matchPassword('password', 'confirmPassword')
+      validators: this.matchPassword('new_password', 'confirm_password')
     });
   }
 
@@ -61,14 +61,18 @@ export class ChangePasswordComponent implements OnInit {
   }
 
   complexPasswordValidator(): ValidatorFn {
+    const valueCheck = (value: string) => ({
+      hasUpperCase: /[A-Z]/.test(value),
+      hasLowerCase: /[a-z]/.test(value),
+      hasNumber: /\d/.test(value),
+      hasSpecial: /[!@#$%^&*(),.?":{}|<>]/.test(value),
+    });
+
     return (control: AbstractControl): { [key: string]: any } | null => {
       const value = control.value;
       if (!value) return null;
 
-      const hasUpperCase = /[A-Z]/.test(value);
-      const hasLowerCase = /[a-z]/.test(value);
-      const hasNumber = /\d/.test(value);
-      const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(value);
+      const { hasUpperCase, hasLowerCase, hasNumber, hasSpecial } = valueCheck(value);
       const isValid = hasUpperCase && hasLowerCase && hasNumber && hasSpecial;
 
       return isValid ? null : { complexPassword: true };
@@ -96,15 +100,15 @@ export class ChangePasswordComponent implements OnInit {
         this.isLoading = true;
 
         const model = {
-          resetToken: this.form.value.resetToken,
-          password: this.form.value.password,
-          confirmPassword: this.form.value.confirmPassword
+          code: this.form.value.code,
+          new_password: this.form.value.new_password,
+          confirm_password: this.form.value.confirm_password
         };
 
-        this.httpService.customerPortalAuth('api/v1/auth/reset-password', model).subscribe({
+        this.httpService.customerPortalAuth('reset-password', model).subscribe({
           next: (response: any) => {
             if (response.status !== '00') {
-              Swal.fire('Error', 'You have entered an incorrect password', 'error');
+              Swal.fire('Error', response.message || 'Reset failed', 'error');
               this.hasError = true;
               this.errorMsg = response.message || 'Unknown error';
               this.form.reset();

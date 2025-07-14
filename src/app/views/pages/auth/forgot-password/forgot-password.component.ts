@@ -62,11 +62,12 @@ export class ForgotPasswordComponent implements OnInit {
         const model = {
           email: this.form.value.email,
         };
-        this.httpService.customerPortalAuth('api/v1/auth/forget-passsword', model).subscribe(
+        this.httpService.customerPortalAuth('forgot-password', model).subscribe(
           (result: any) => {
             if (result.status != "00") {
               setTimeout(() => {
                 Swal.fire('Password Reset', 'Fail to Sent to Password.', 'error')
+                console.log('Reset failed:', result);
                 this.hasError = true;
                 this.errorMsg = result['error'];
                 this.form.reset()
@@ -76,7 +77,8 @@ export class ForgotPasswordComponent implements OnInit {
               setTimeout(() => {
                 Swal.fire('Password Reset', 'Password Sent to Email.', 'success')
                 this.router.navigate(['/auth/change-password']);
-                localStorage.setItem('isLoggedin', 'true');
+                // console.log('Reset successful:', result);
+                // localStorage.setItem('isLoggedin', 'true');
                 this.hasSuccess = true
                 this.isLoading = false;
                 this.form.reset()
