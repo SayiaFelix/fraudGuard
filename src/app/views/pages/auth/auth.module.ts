@@ -47,6 +47,10 @@ const routes: Routes = [
         path: 'change-password',
         component: ChangePasswordComponent
       },
+      { path: 'changePassword',
+        component: ChangeAuthPasswordComponent
+
+      },
       {
         path: 'change-auth-password',
         component: ChangeAuthPasswordComponent
