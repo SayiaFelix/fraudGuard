@@ -3,6 +3,9 @@ import {Injectable} from '@angular/core';
 import { Observable } from 'rxjs';
 import {environment} from 'src/environments/environment';
 
+// In: global.service.ts (or auth.service.ts)
+
+
 @Injectable(
   {
     providedIn: 'root',
@@ -14,6 +17,9 @@ export class GlobalService {
   public customerPortalNest: string;
   public standardApi: string;
   public standardComments: string;
+  public getToken(): any {
+    return localStorage.getItem('token');
+  }
 
   public setting: any = {};
 
@@ -78,6 +84,7 @@ export class GlobalService {
         return { errorMessage: errorMessage, isValidationError: isValidationError  };
         **/
   }
+  
 
   public validateOnClientSide(validateForm: any): boolean {
     let hasClientValidationError = false;
@@ -107,9 +114,7 @@ export class GlobalService {
     return JSON.parse(permissions ? permissions : "");
   }
  
-  public getToken(): any {
-    return localStorage.getItem('access_token');
-  }
+
 
   public getUserId(): any {
     const user_details = localStorage.getItem('user_details');
