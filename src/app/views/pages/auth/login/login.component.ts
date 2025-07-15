@@ -140,44 +140,20 @@ export class LoginComponent implements OnInit {
               this.errorMsg = '';
               this.form.reset();
             }, 3000);
-          }else {
-            if (result['data'] && result['data']['blocked'] == true) {
-              this.hasError = true;
-              this.errorMsg = result['error'];
-              setTimeout(() => {
-                this.hasError = false;
-                this.errorMsg = '';
-                this.form.reset();
-              }, 2000);
-            } else {
-              // Use correct property from API response
-              setTimeout(() => {
-                if (result['first_time_login'] === true) {
-                  // Removed storing token here
-                  this.router.navigate(['/auth/change-password']);
-                } else {
-                  // Removed storing token here
-                  this.router.navigate(['/dashboard']);
-                }
-              }, 2000);
-              return result;
+          } else {
+            // Store token from login response for global use BEFORE navigation
+            if (result['token']) {
+              localStorage.setItem('token', result['token']);
             }
+            setTimeout(() => {
+              if (result['first_time_login'] === true) {
+                this.router.navigate(['/auth/first-time-password']);
+              } else {
+                this.router.navigate(['/dashboard']);
+              }
+            }, 2000);
+            return result;
           }
-      
-          // if (result['status'] != '00') {
-          //   this.hasError = true;
-          //   this.errorMsg = result['error'];
-          //   setTimeout(() => {
-          //     this.hasError = false;
-          //     this.errorMsg = '';
-          //     this.form.reset();
-          //   }, 2000);
-          // } else {
-          //   setTimeout(() => {
-          //     this.router.navigate(['/dashboard']);
-          //   }, 2000);
-          //   return result;
-          // }
         })
       );
   }

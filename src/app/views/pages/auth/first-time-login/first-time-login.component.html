@@ -14,13 +14,13 @@
         <div class="mt-2">
           <h3
             style="font-family: Mulish; font-style: normal; font-weight: 700; font-size: 20px; line-height: 30px; color: #F8F8F8; text-transform: uppercase; text-align: center;">
-            First Time Password</h3>
+            Set your Password</h3>
         </div>
         <div class="card-login text-start pb-1 mt-4">
           <form class="forms-sample" [formGroup]="form">
             <div class="mb-3">
               <input type="password" id="pass" class="form-control" formControlName="lookUpToken"
-                placeholder="Enter the password that was sent to your email">
+                placeholder="Enter old password">
               <small class="text-danger"
                 *ngIf="form.get('lookUpToken')?.touched && form.get('lookUpToken')?.hasError('required')"> Old Password
                 is
@@ -47,7 +47,7 @@
             <div class="mb-3">
               <div class="input-group mb-3">
                 <input [type]="inputType" class="inputs" formControlName="confirmPassword" class="form-control"
-                  placeholder="Confirm Password" id="confirmPassword" aria-label="password">
+                  placeholder="Confirm New Password" id="confirmPassword" aria-label="password">
                 <div class="input-group-prepend" style="cursor: pointer;" (click)="toggleShowPassword()">
                   <span class="input-group-text" *ngIf="!this.showingPassword"><i class="mdi mdi-eye"></i></span>
                   <span class="input-group-text" *ngIf="this.showingPassword"><i class="mdi mdi-eye-off"></i></span>
