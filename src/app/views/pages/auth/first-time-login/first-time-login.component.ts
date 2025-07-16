@@ -40,19 +40,18 @@ export class FirstTimeLoginComponent implements OnInit {
 
   }
 
-  constructor(private router: Router,
-              private route: ActivatedRoute,
-              private httpService: HttpService,
-              private modalService: NgbModal,
-              fb: FormBuilder,
-
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private httpService: HttpService,
+    private modalService: NgbModal,
+    fb: FormBuilder,
   ) {
     this.form = fb.group({
-      lookUpToken: ['',Validators.compose([Validators.required])],
-      password: ['',Validators.compose([Validators.required, Validators.minLength(8), this.complexPasswordValidator()])],
-      confirmPassword: ['',Validators.compose([Validators.required, Validators.minLength(8)])],
-    }
-    ,{
+      lookUpToken: ['', Validators.required],
+      password: ['', [Validators.required, Validators.minLength(8), this.complexPasswordValidator()]],
+      confirmPassword: ['', [Validators.required, Validators.minLength(8)]]
+    }, {
       validators: this.MatchPassword('password', 'confirmPassword')
     });
   }
@@ -84,46 +83,61 @@ export class FirstTimeLoginComponent implements OnInit {
     this.setPassword();
   }
 
-  setPassword(){
-    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
+setPassword() {
+    this.modalRef = this.modalService.open(ConfirmDialogComponent, { centered: true });
     this.modalRef.componentInstance.title = 'Set Password';
-    this.modalRef.componentInstance.body= "Do you want to Set this as your new password?";
+    this.modalRef.componentInstance.body = "Do you want to set this as your new password?";
+
     this.modalRef.result.then((result) => {
       if (result === 'success') {
         this.hasError = false;
         this.isLoading = true;
+
+        // Make sure the token is present and valid
+        const token = localStorage.getItem('token');
+        if (!token) {
+          this.hasError = true;
+          this.errorMsg = 'No authentication token found. Please log in again.';
+          Swal.fire('Error', this.errorMsg, 'error');
+          this.isLoading = false;
+          return;
+        }
+
+        // Prepare payload according to backend requirements
         const model = {
-          lookUpToken: this.form.value.lookUpToken,
-          password: this.form.value.password,
-          confirmPassword: this.form.value.confirmPassword
+          old_password: this.form.value.lookUpToken,
+          new_password: this.form.value.password,
+          confirm_password: this.form.value.confirmPassword
         };
-        this.httpService.customerPortalAuth('api/v1/auth/first-time-password', model).subscribe(
-          (result: any) => {
-            if (result.status === '00') {
-              setTimeout(() => {
-                Swal.fire('Password Set', 'Password Set Successfully.', 'success')
-                this.router.navigate(["/auth/login"]);
-                localStorage.setItem('isLoggedin', 'true');
-                this.isLoading = false;
-                this.form.reset()
-              }, 1000);
+
+        const headers = { Authorization: `Bearer ${token}` };
+
+        this.httpService.customerPortalAuth('change-password', model, { headers }).subscribe({
+          next: (response: any) => {
+            if (response.status === '00') {
+              Swal.fire('Password Set', 'Password Set Successfully.', 'success');
+              this.router.navigate(["/auth/login"]);
+              localStorage.setItem('isLoggedin', 'true');
             } else {
-              setTimeout(() => {
-                Swal.fire('Error', 'You have entered an incorrect password', 'error')
-                this.hasError = true;
-                this.errorMsg = result['error'];
-                this.form.reset()
-                this.isLoading = false;
-              }, 2000);
+              Swal.fire('Error', response.error || 'You have entered an incorrect password', 'error');
+              this.hasError = true;
+              this.errorMsg = response.error || 'An unknown error occurred.';
+              this.form.reset();
             }
+            this.isLoading = false;
+          },
+          error: (err) => {
+            this.hasError = true;
+            this.errorMsg = 'A network error occurred or you are not authorized. Please check your token and try again.';
+            Swal.fire('Network Error', this.errorMsg, 'error');
+            this.isLoading = false;
           }
-        );
-      } else {
-        console.log("Error occurred")
+        });
       }
+    }).catch(() => {
+      console.log('Password set cancelled by user.');
     });
   }
-
   toggleShowPassword() {
     this.showingPassword = !this.showingPassword;
     if (this.showingPassword) {

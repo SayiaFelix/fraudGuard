@@ -75,30 +75,40 @@ export class HttpService {
   public channelManagerLogin(){
 
   }
-  public customerPortalLogin(endpoint: string, model: any): Observable<any> {
-    return this.http
-      .post(
-        this.globalService.customerPortalNest + endpoint,
-        model,
-        this.generateLoginHeaders()
-      )
-      .pipe(
-        map((result: any) => {
-          if (result['status'] == '00') {
-            localStorage.setItem('isLoggedin', 'true');
-            localStorage.setItem('access_token', result['access_token']);
-            localStorage.setItem('data', JSON.stringify(result['data']));
-          } else {
-            throwError(() => new Error(result['message']));
-          }
-          return result;
-        }),
-        catchError((err) => {
-          console.error('customerPortalLogin error:', err); 
-          return throwError(() => err); 
-        })
-      );
-  }
+  // In: http.service.ts
+
+// In: http.service.ts
+
+public customerPortalLogin(endpoint: string, model: any): Observable<any> {
+  return this.http
+    .post(
+      this.globalService.customerPortalNest + endpoint,
+      model,
+      this.generateLoginHeaders()
+    )
+    .pipe(
+      map((result: any) => {
+        // We check for the 'token' field from your login response
+        if (result.status === '00' && result.token) {
+          localStorage.setItem('isLoggedin', 'true');
+          
+          // *** CRITICAL FIX HERE: Save the token under the 'authToken' key ***
+          // This ensures that globalService.getToken() can find it later.
+          localStorage.setItem('authToken', result.token); 
+          
+          localStorage.setItem('data', JSON.stringify(result));
+        } else {
+          // If login is successful but there's no token, something is wrong.
+          throwError(() => new Error(result.message || 'Login failed.'));
+        }
+        return result;
+      }),
+      catchError((err) => {
+        // console.error('customerPortalLogin error:', err);
+        return throwError(() => err);
+      })
+    );
+}
   
   public customerPortalActivate(endpoint: string, model: any): Observable<any> {
         return this.http
@@ -125,18 +135,19 @@ export class HttpService {
     return this.http.get<any>(this.subclassDataUrl);
   }
 
-  public customerPortalAuth(endpoint: string, model: any): Observable<any> {
+  // Accepts optional options (e.g., headers) as third argument
+  public customerPortalAuth(endpoint: string, model: any, options?: any): Observable<any> {
     return this.http
       .post(
         this.globalService.customerPortalNest + endpoint,
         model,
-        // this.getHeaders()
+        options // Pass headers or other options if provided
       )
       .pipe(
         map((result: any) => {
           if (result['status'] == '00') {
             // localStorage.setItem('isLoggedin', 'true');
-            // localStorage.setItem('access_token', result['access_token']);
+            // localStorage.setItem('token', result['token']);
             // localStorage.setItem('data', JSON.stringify(result['data']));
             console.log('Reset successful:', result);
           } else {
