@@ -144,6 +144,7 @@ export class LoginComponent implements OnInit {
             // Store token from login response for global use BEFORE navigation
             if (result['token']) {
               localStorage.setItem('token', result['token']);
+              // console.log('Token saved:', result['token']);
             }
             setTimeout(() => {
               if (result['first_time_login'] === true) {

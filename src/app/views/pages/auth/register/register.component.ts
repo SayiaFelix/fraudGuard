@@ -77,11 +77,9 @@ export class RegisterComponent implements OnInit {
                 //console.log('Register Payload:', model);
                 //console.log('Registration successful:', result);
   
-  
               this.router.navigate(['/auth/login']);
-            }, 1500);
+            }, 3000);
           }
-
           return result;
         })
       );
