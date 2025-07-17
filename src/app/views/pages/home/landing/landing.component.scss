@@ -1,12 +1,92 @@
-.login-btn {
-  color: #ffffff;
-  background-color: #f7941d;
-  border-radius: 64px;
-}
+
 .body {
   overflow-y: hidden;
   overflow-x: hidden;
 }
+
+.home{
+  display: flex;
+  height: 72px;
+  padding: 5px 90px;
+  justify-content: space-between;
+  align-items: center;
+  align-self: stretch;
+}
+
+.hero{
+display: flex;
+padding: 50px 90px;
+align-items: center;
+gap: 50px;
+align-self: stretch;
+background: #02A7E1;;
+}
+.login-btn {
+  display: flex;
+  height: 36px;
+  padding: 8px 12px;
+  justify-content: center;
+  align-items: center;
+  background-color : #2C71F6;
+  border: 2px solid #02A7E1;
+  transition: all 0.3s ease;
+}
+
+.login-btn:hover {
+  background-color: #02A7E1;
+  color: #ffffff;
+  transform: scale(1.05);
+}
+
+
+.login-btn span {
+    color: var(--Light-Mode-Background-Default, #FFF);
+    font-family: Roboto;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 100%; /* 14px */
+}
+.banking-intro {
+  // padding: 16px 0px;
+  // margin-top: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  background: #02A7E1;
+  flex: 1 0 0;
+}
+.main-heading {
+color: #F0F5FB;
+font-family: Roboto;
+font-size: 40px;
+font-style: normal;
+font-weight: 600;
+line-height: 100%; /* 40px */
+letter-spacing: 2px;
+transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.main-heading:hover {
+  color: #ffffff;
+  transform: translateY(5px);
+}
+
+.sub-heading {
+  color: rgba(240, 245, 251, 0.70);
+}
+
+.description {
+  color: rgba(240, 245, 251, 0.70);
+  font-family: Roboto;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 125%;
+  letter-spacing: 1px;
+}
+
+
 
 .bronchure-btn {
   color: #ffffff;
