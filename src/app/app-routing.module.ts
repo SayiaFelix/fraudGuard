@@ -8,11 +8,11 @@ import { CheckTokenValidityInterceptor } from './shared/services/checkTokenValid
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'auth/login',
+    redirectTo: 'home',
     pathMatch: 'full'
   },
   {
-    path: 'standards', 
+    path: 'home', 
     loadChildren: () =>
       import('./views/pages/home/home.module').then((m) => m.HomeModule),
   },
