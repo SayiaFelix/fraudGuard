@@ -49,7 +49,6 @@ export class LoginComponent implements OnInit {
     fb: FormBuilder,
     private _router: Router,
     private toastr: ToastrService
-
   ) {
     this.form = fb.group({
       email: [
@@ -64,52 +63,10 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-
     localStorage.clear();
-
     // get return url from route parameters or default to '/'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
-
-  // onSubmit(e: Event) {
-  //   this.hasError = false;
-  //   this.isLoading = true;
-  //   e.preventDefault();
-
-  //   const model = {
-  //     email: this.form.value.email,
-  //     password:this.form.value.password
-  //   }
-  //   this.loginResponse$ = this.httpService
-  //     .customerPortalAuth('api/v1/auth/login', model)
-  //     .pipe(
-  //       catchError((error: any) => {
-  //         console.log(error);
-  //         this.hasError = error.message;
-  //         this.isLoading = false;
-  //         return throwError(error);
-  //       }),
-  //       map((result) => {
-  //         console.log(result)
-  //         this.isLoading = false;
-  //         if (result['status'] != '00') {
-  //           this.hasError = true;
-  //           this.toastr.success(result.message, 'Success!');  
-  //           this.errorMsg = result['error'];
-  //           setTimeout(() => {
-  //             this.hasError = false;
-  //             this.errorMsg = '';
-  //             this.form.reset();
-  //           }, 2000);
-  //         } else {
-  //           setTimeout(() => {
-  //             this.router.navigate(['/dashboard']);
-  //           }, 2000);
-  //           return result;
-  //         }
-  //       })
-  //     );
-  // }
 
   onSubmit(e: Event) {
     this.hasError = false;
@@ -158,6 +115,7 @@ export class LoginComponent implements OnInit {
         })
       );
   }
+
   toggleShowPassword() {
     this.showingPassword = !this.showingPassword;
     if (this.showingPassword) {
@@ -165,6 +123,10 @@ export class LoginComponent implements OnInit {
     } else {
       this.inputType = 'password';
     }
+  }
+
+  navigateToSignUp() {
+    this.router.navigate(['/auth/signup']);
   }
 
   changeLanguage(lang: string) {
@@ -179,7 +141,6 @@ export class LoginComponent implements OnInit {
   }
 
   private saveUsernameAndRolesOnLogin() {
-
     let accessToken = localStorage.getItem("access_token");
 
     // decode token to get response
@@ -189,19 +150,12 @@ export class LoginComponent implements OnInit {
     // console.log("remove model: ", model);
     this.httpService.mobileBankingPost('oauth/validate', model).subscribe((res: any) => {
       if (res.status === 200) {
-
         console.log(res.data);
-
         localStorage.setItem('userName', res.data.username);
         localStorage.setItem('roles', res.data.roles);
-
       } else {
         Swal.fire('Error', 'Unable to fetch user details.', 'error');
       }
     })
-
-
   }
-  //   const tokenExpirationTime: Date =  // Get the token's expiration time from the token itself or the server response
-  // this.authservice.setTokenExpiration(this.tokenExpirationTime);
 }
