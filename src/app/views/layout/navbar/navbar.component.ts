@@ -234,7 +234,7 @@ export class NavbarComponent implements OnInit {
           confirmPassword: this.form.value.confirmPassword
         };
 
-        this.httpService.customerPortalAuth('api/v1/auth/change-password', model).subscribe(
+        this.httpService.customerPortalAuth('change-password', model).subscribe(
           (result: any) => {
             if (result.status != '00') { 
               setTimeout(() => {
