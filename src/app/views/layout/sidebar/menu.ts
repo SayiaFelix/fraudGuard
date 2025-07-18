@@ -3,7 +3,7 @@ import { MenuItem } from './menu.model';
 export const MENU: MenuItem[] = [
   {
     // profiles: ['CORPORATE_ADMIN'],
-    label: 'DASHBOARD',
+    label: 'Dashboard',
     icon: 'home',
     link: '/dashboard',
     // subItems: [
@@ -31,8 +31,8 @@ export const MENU: MenuItem[] = [
   },
   {
     // profiles: ['CORPORATE_ADMIN'],
-    label: 'PROFILES',
-    icon: 'bar-chart',
+    label: 'Inbox',
+    icon: 'inbox',
     link: '/eclectics/analytics/all-analytics'
     // subItems: [
     //   {
@@ -44,8 +44,8 @@ export const MENU: MenuItem[] = [
   },
   {
   //// profiles: ['CORPORATE_ADMIN'],
-    label: 'QUANTRA AI',
-    icon: 'message-circle',
+    label: 'AI Agents',
+    icon: 'users',
     link: '/eclectics/ai_analytics/ai_chat'
   //// subItems: [
   //   //   // {
@@ -65,122 +65,124 @@ export const MENU: MenuItem[] = [
   //   //   },
   //   // ]
   },
-  // {
-  //   // profiles: ['CORPORATE_ADMIN'],
-  //   label: 'CUSTOMERS',
-  //   icon: 'users',
-  //   link: '/cyton/new_customer_analytics/new_customers'
-  //   // subItems: [
-  //   //   {
-  //   //     profiles: ['CORPORATE_ADMIN'],
-  //   //     label: 'Inbox',
-  //   //     link: '/tra-client/Users/list-users'
-  //   //   },
-  //   //   // {
-  //   //   //   profiles: ['CORPORATE_ADMIN'],
-  //   //   //   label: 'Roles',
-  //   //   //   link: '/mobile-banking/rbac/all-roles'
-  //   //   // },
-  //   //   {
-  //   //     profiles: ['CORPORATE_ADMIN'],
-  //   //     label: 'Profiles',
-  //   //     link: '/tra-client/rbac/all-profiles'
-  //   //   }
-  //   // ]
-  // },
-  // {
-  //   // profiles: ['CORPORATE_ADMIN'],
-  //   label: 'BILLED',
-  //   icon: 'file-text',
-  //   link: '/cyton/analytic/all'
-  //   // subItems: [
-  //   //   {
-  //   //     // profiles: ['CORPORATE_ADMIN'],
-  //   //     label: 'All Requests',
-  //   //     link: '/tra-client/requests/all'
-  //   //   },
-  //     // {
-  //     //   // profiles: ['CORPORATE_ADMIN'],
-  //     //   label: 'All Requests',
-  //     //   link: '/tra-client/requests/all-accreditations'
-  //     // },
-  //   // ]
-  // },
+  {
+    // profiles: ['CORPORATE_ADMIN'],
+    label: 'Livechats',
+    icon: 'message-circle',
+    link: '/eclectics/new_customer_analytics/new_customers'
+    // subItems: [
+    //   {
+    //     profiles: ['CORPORATE_ADMIN'],
+    //     label: 'Inbox',
+    //     link: '/tra-client/Users/list-users'
+    //   },
+    //   // {
+    //   //   profiles: ['CORPORATE_ADMIN'],
+    //   //   label: 'Roles',
+    //   //   link: '/mobile-banking/rbac/all-roles'
+    //   // },
+    //   {
+    //     profiles: ['CORPORATE_ADMIN'],
+    //     label: 'Profiles',
+    //     link: '/tra-client/rbac/all-profiles'
+    //   }
+    // ]
+  },
+  {
+    // profiles: ['CORPORATE_ADMIN'],
+    label: 'Tickets',
+    icon: 'tag',
+    link: '/eclectics/analytic/all'
+    // subItems: [
+    //   {
+    //     // profiles: ['CORPORATE_ADMIN'],
+    //     label: 'All Requests',
+    //     link: '/tra-client/requests/all'
+    //   },
+      // {
+      //   // profiles: ['CORPORATE_ADMIN'],
+      //   label: 'All Requests',
+      //   link: '/tra-client/requests/all-accreditations'
+      // },
+    // ]
+  },
 
-  // {
-  //   //  profiles:['CORPORATE_ADMIN'],
-  //    label:'LOGS',
-  //    icon:'activity',
-  //    link: '/cyton/analytics_logs/logs',
-  //   //  subItems: [
-  //   //   {
-  //   //     profiles: ['CORPORATE_ADMIN'],
-  //   //     label: 'Account Registration',
-  //   //     subItems: [
-  //   //       {
-  //   //         profiles: ['CORPORATE_ADMIN'],
-  //   //         label:'All Accounts',
-  //   //         link:'/mobile-banking/accounts/list-accounts'
-  //   //       },
-  //   //       {
-  //   //         profiles: ['CORPORATE_ADMIN'],
-  //   //         label:'Pending Account Openings',
-  //   //         link:'/mobile-banking/accounts/list-pending'
-  //   //       },
-  //   //       {
-  //   //         profiles: ['CORPORATE_ADMIN'],
-  //   //         label:'Failed Account Openings',
-  //   //         link:'/mobile-banking/accounts/list-failed'
-  //   //       },
+  {
+    //  profiles:['CORPORATE_ADMIN'],
+     label:'People',
+     icon:'user',
+     link: '/eclectics/analytics_logs/logs',
+    //  subItems: [
+    //   {
+    //     profiles: ['CORPORATE_ADMIN'],
+    //     label: 'Account Registration',
+    //     subItems: [
+    //       {
+    //         profiles: ['CORPORATE_ADMIN'],
+    //         label:'All Accounts',
+    //         link:'/mobile-banking/accounts/list-accounts'
+    //       },
+    //       {
+    //         profiles: ['CORPORATE_ADMIN'],
+    //         label:'Pending Account Openings',
+    //         link:'/mobile-banking/accounts/list-pending'
+    //       },
+    //       {
+    //         profiles: ['CORPORATE_ADMIN'],
+    //         label:'Failed Account Openings',
+    //         link:'/mobile-banking/accounts/list-failed'
+    //       },
 
-  //   //     ]
-  //   //   },]
-  //   },
-  //     // {
-  //     //   profiles: ['CORPORATE_ADMIN'],
-  //     //   label: 'Account Linking',
+    //     ]
+    //   },]
+    },
+    {
+      //   profiles: ['CORPORATE_ADMIN'],
+      label: 'Analytics',
+      icon:'bar-chart',
+      link: '/eclectics/accounts/linked-accounts',
 
-  //     //    subItems: [
-  //     //     {
-  //     //       profiles: ['CORPORATE_ADMIN'],
-  //     //       label:'New Account',
-  //     //       link:'/mobile-banking/accounts/linked-accounts'
-  //     //     },
-  //     //     // {
-  //     //     //   profiles: ['CORPORATE_ADMIN'],
-  //     //     //   label:'Approve Account',
-  //     //     //   link:'/mobile-banking/accounts/account-registration/account-opening'
-  //     //     // },
-  //     //     //    {
-  //     //     //   profiles: ['CORPORATE_ADMIN'],
-  //     //     //   label:'Rejected Accounts',
-  //     //     //   link:'/mobile-banking/accounts/account-registration/account-opening'
-  //     //     // },
-  //     //        {
-  //     //       profiles: ['CORPORATE_ADMIN'],
-  //     //       label:'Manage Accounts',
-  //     //       link:'/mobile-banking/accounts/manage-accounts'
-  //     //     },
-  //     //        {
-  //     //       profiles: ['CORPORATE_ADMIN'],
-  //     //       label:'Blocked Accounts',
-  //     //       link:'/mobile-banking/accounts/blocked-accounts'
-  //     //     },
-  //     //           {
-  //     //       profiles: ['CORPORATE_ADMIN'],
-  //     //       label:'Unblocked Accounts',
-  //     //       link:'/mobile-banking/accounts/unblocked-accounts'
-  //     //     },
-  //     //     {
-  //     //       profiles: ['CORPORATE_ADMIN'],
-  //     //       label:'Close Accounts',
-  //     //       link:'/mobile-banking/accounts/closed-accounts'
-  //     //     },
+      //    subItems: [
+      //     {
+      //       profiles: ['CORPORATE_ADMIN'],
+      //       label:'New Account',
+      //       link:'/mobile-banking/accounts/linked-accounts'
+      //     },
+      //     // {
+      //     //   profiles: ['CORPORATE_ADMIN'],
+      //     //   label:'Approve Account',
+      //     //   link:'/mobile-banking/accounts/account-registration/account-opening'
+      //     // },
+      //     //    {
+      //     //   profiles: ['CORPORATE_ADMIN'],
+      //     //   label:'Rejected Accounts',
+      //     //   link:'/mobile-banking/accounts/account-registration/account-opening'
+      //     // },
+      //        {
+      //       profiles: ['CORPORATE_ADMIN'],
+      //       label:'Manage Accounts',
+      //       link:'/mobile-banking/accounts/manage-accounts'
+      //     },
+      //        {
+      //       profiles: ['CORPORATE_ADMIN'],
+      //       label:'Blocked Accounts',
+      //       link:'/mobile-banking/accounts/blocked-accounts'
+      //     },
+      //           {
+      //       profiles: ['CORPORATE_ADMIN'],
+      //       label:'Unblocked Accounts',
+      //       link:'/mobile-banking/accounts/unblocked-accounts'
+      //     },
+      //     {
+      //       profiles: ['CORPORATE_ADMIN'],
+      //       label:'Close Accounts',
+      //       link:'/mobile-banking/accounts/closed-accounts'
+      //     },
 
-  //     //   ]
-  //     // }
+      //   ]
+      // }
   //    ]
-  // },
+  },
 
 
   // {

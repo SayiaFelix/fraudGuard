@@ -1,5 +1,5 @@
 <nav class="sidebar">
-  <div class="sidebar-header" style="background-color: #ffffff!important; ">
+  <div class="sidebar-header" style="background-color: #ffffff!important; border-bottom: 2px ; ">
     <!--- Logo -->
     <a routerLink="dashboard" class="sidebar-brand nobleui-logo">
       <img class="" src="assets/images/eclectics.png" alt="Portal">
@@ -11,19 +11,20 @@
         src="https://1.bp.blogspot.com/-KgsP4Og3IYI/Vz8evxfiubI/AAAAAAAAAdU/MIuDmmwlMZceoczu8HoCfa9Icj5j1vLQwCLcB/s320/faulu.jpg" 
         alt="Portal">
     </a> -->
-
+ 
     <!--- Toggler -->
     <div class="sidebar-toggler not-active" #sidebarToggler (click)="toggleSidebar($event)">
       <span></span>
       <span></span>
       <span></span>
     </div>
-
   </div>
 
-  <div class="sidebar-body" style="background-color: #083273; background-repeat: repeat-y; color:#F8F8F8;" (mouseenter)="operSidebarFolded()" (mouseleave)="closeSidebarFolded()" [perfectScrollbar]>
+  <div class="sidebar-body" style="background-color: #ffffff; background-repeat: repeat-y; color:#083273!important;" (mouseenter)="operSidebarFolded()" (mouseleave)="closeSidebarFolded()" [perfectScrollbar]>
+    <hr>
     <!--- Sidemenu start -->
     <ul class="sidebar-nav metismenu"   id="sidebar-menu" #sidebarMenu>
+    <p class="main-menu-label">MAIN MENU</p>
       <ng-container *ngFor="let item of menuItems">
         <li class="nav-item nav-category showHand" *ngIf="item.isTitle">
           <div class="row justify-content-around">
@@ -48,7 +49,7 @@
           <a class="nav-link nav-link-ref nav-sub-items" [routerLink]="item.link" *ngIf="!hasItems(item)"
             [attr.data-parent]="item.parentId">
             <i class="link-icon" [attr.data-feather]="item.icon" appFeatherIcon *ngIf="item.icon"></i>
-            <span class="link-title"> {{ item.label }}</span>
+            <span  class="link-title"> {{ item.label }}</span>
             <span class="badge bg-{{item.badge.variant}}" *ngIf="item.badge">{{item.badge.text}}</span>
           </a>
 
