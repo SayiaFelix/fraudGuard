@@ -30,9 +30,11 @@
       visibility: visible;
       -webkit-transition: opacity .5s ease;
       transition: opacity .5s ease;
+      margin-top: 10px;
+      margin-left: 10px;
       img {
-        height: 30px;
-        width:110px;
+        height: 25px;
+        width:100px;
       }
     }
     .sidebar-toggler {
@@ -302,14 +304,14 @@
           display: flex;
           align-items: center;
           padding: 0;
-          height: 40px;
+          height: 30px;
           white-space: nowrap;
           // color: $body-color;
           .link-icon {
-            width: 20px;
-            fill: #f5951f;
+            width: 18px;
+            fill: #394557;
             position: absolute;
-            color: #f5951f;
+            color: #394557;
             margin-bottom: 10px;
             // margin-left: -1px;
           }
@@ -317,12 +319,12 @@
             margin-left: 23px;
             -webkit-transition: all .2s ease-in-out;
             transition: all .2s ease-in-out;
-            color: #ffffff !important; 
-            opacity: 0.6 !important;
-            font-size: 14px;
+            color: #394557 !important; 
+            // opacity: 0.6 !important;
+            font-size: 13px;
             height: 23px;
-            margin-bottom: 3px;
-            text-transform: uppercase;
+            // margin-bottom: 1px;
+            text-transform: capitalize;
           }
           .link-arrow {
             width: 14px;
@@ -332,7 +334,7 @@
             -webkit-transition: all .3s ease;
             -webkit-transition: all .3s ease-in-out;
             transition: all .3s ease-in-out;
-            color: #F7941D;
+            color: #2259ad;
           }
           .badge {
             margin-left: auto;
@@ -350,7 +352,7 @@
           text-transform: uppercase;
           font-weight: 700;
           letter-spacing: .5px;
-          margin-bottom: 5px;
+          // margin-bottom: 5px;
           height: 15px;
           &:not(:first-child) {
             margin-top: 20px;
@@ -358,33 +360,38 @@
         }
         &:hover {
           .nav-link {
-            color: #F8F8F8 !important; 
+            color: #6E7B8F !important; 
             opacity: 1.0 !important;
             font-size: 13px;
             .linkTitle{ color: #F7941D; }
             .link-title {
               margin-right: 1px;
-              color: #ffffff !important; 
-              opacity: 1.0 !important;
-              font-size: 15px;
+              color: #2259ad !important; 
+              // opacity: 1.0 !important;
+              font-size: 14px;
             }
             .link-icon {
-              color: #F8F8F8 !important; 
-              fill: #F7941D;
-              font-size: 15px;
+              color: #2259ad  !important; 
+              fill: #ffffff !important;
+              font-size: 14px;
               
             }
           }
         }
         &.mm-active {
+        background-color: #eff6ff;
+        // padding: 10px 20px;
+        // border-radius: 4px; // optional, just for a nicer look
+        // margin-bottom: 5px; // optional, to separate items
+
           > .nav-link {
             // color: #F8F8F8 !important;
-            .linkTitle{ color: #ffffff !important; opacity: 1.0 !important; }
+            .linkTitle{ color: #2C71F6 !important; opacity: 1.0 !important; }
             .link-title {
               margin-left: 25px;
-              color: #ffffff !important;
-              opacity: 1.0 !important;
-              font-size: 15px;
+              color: #2C71F6 !important;
+              // opacity: 1.0 !important;
+              font-size: 14px;
             }
             .link-arrow {
               -webkit-transform: rotate(90deg);
@@ -401,7 +408,8 @@
             }
             .link-icon {
               fill: #F8F8F8;
-              color:#F8F8F8;
+              color: #2C71F6;
+              font-size: 14px;
             }
           }
         }
@@ -451,7 +459,7 @@
             }
             .linkTitle {
               margin-left: 0;
-              color: #F8F8F8;
+              color: red;
             }
             &:hover {
               color: #F8F8F8;

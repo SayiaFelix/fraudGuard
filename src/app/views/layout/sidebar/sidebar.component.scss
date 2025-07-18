@@ -1,7 +1,21 @@
 .showHand {
-  cursor: pointer!important;
+  cursor: pointer !important;
 }
 
 .metismenu .mm-collapse:not(.mm-show) {
-  display: contents!important;
+  display: contents !important;
 }
+
+.main-menu-label {
+  margin-top: -40px;
+  color: #6E7B8F;
+  font-size: 12px;
+  transition: all 0.3s ease;
+  opacity: 0.6;
+  height: 23px;
+  font-weight: 700;
+  // white-space: nowrap;
+  // overflow: hidden;
+  margin-bottom: 20px;
+}
+
