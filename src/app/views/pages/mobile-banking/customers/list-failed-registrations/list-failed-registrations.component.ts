@@ -11,12 +11,38 @@ import {AddCustomerComponent} from "../add-customer/add-customer.component";
 import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
 import {SwalComponent} from "@sweetalert2/ngx-sweetalert2";
 import Swal from "sweetalert2";
+import {
+  trigger,
+  state,
+  style,
+  animate,
+  transition
+} from '@angular/animations';
 
 @Component({
   selector: 'app-list-internet-banking',
   templateUrl: './list-failed-registrations.component.html',
   styleUrls: ['./list-failed-registrations.component.scss'],
   providers: [DatePipe],
+  animations: [
+    trigger('slideInOut', [
+      state('in', style({
+        transform: 'translateX(0%)',
+        opacity: 1,
+        display: 'block'
+      })),
+      state('out', style({
+        transform: 'translateX(100%)',
+        opacity: 0
+      })),
+      transition('in => out', [
+        animate('300ms ease-in-out')
+      ]),
+      transition('out => in', [
+        animate('300ms ease-in-out')
+      ]),
+    ])
+  ]
 })
 
 /**
@@ -25,6 +51,7 @@ import Swal from "sweetalert2";
 export class ListFailedRegistrationsComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
 
+isCollapsed: boolean = false;
   tempProductData = [
     {
       frontendId: 1,
@@ -150,6 +177,12 @@ export class ListFailedRegistrationsComponent implements OnInit {
     this.loading = false;
 
   }
+
+
+toggleConversationPanel() {
+  this.isCollapsed = !this.isCollapsed;
+}
+
 
   openAddProductModal() {
 
