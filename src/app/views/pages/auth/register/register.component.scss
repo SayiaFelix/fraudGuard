@@ -9,14 +9,14 @@
   display: flex;
   width: 100%;
   height: 100%;
-  background: white; // Right panel background
+  background: white;
   overflow: hidden;
 }
 
 // --- Styles for the left side (Banking theme) ---
 .signup-left {
   flex: 1;
-  background: #00A9E0; // Vibrant solid blue background
+  background: #00A9E0;
   padding: 40px;
   display: flex;
   flex-direction: column;
@@ -26,6 +26,7 @@
   color: white;
 
   h2 {
+    max-width: 440px;
     font-size: 32px;
     font-weight: 700;
     margin-top: 25px;
@@ -34,15 +35,18 @@
   }
 
   p {
+    max-width: 440px;
     font-size: 16px;
     font-weight: 400;
     line-height: 1.6;
     opacity: 0.9;
-    max-width: 320px;
   }
 }
 
 .illustration-wrapper {
+  width: 440px;
+  height: 241px;
+  box-sizing: border-box;
   background: white;
   border-radius: 16px;
   padding: 30px;
@@ -54,11 +58,11 @@
 }
 
 .illustration-image {
-  max-width: 180px;
+  max-width: 400px;
   height: auto;
 }
 
-// --- MODIFIED: Right side is now a flex container to center its content ---
+// --- Right side styles ---
 .signup-right {
   flex: 1;
   padding: 40px;
@@ -66,15 +70,14 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background: #f7f8fa; // subtle pale background for right side
+  background: #f7f8fa;
 
-  // Add a floating card for the form
   .signup-form-container {
     background: #fff;
     border-radius: 20px;
     box-shadow: 0 8px 32px rgba(44, 62, 80, 0.10);
     padding: 40px 32px 32px 32px;
-    max-width: 400px;
+    max-width: 480px;
     width: 100%;
     margin: auto;
     display: flex;
@@ -83,13 +86,10 @@
   }
 }
 
-// --- MODIFIED: Text alignment for Welcome heading ---
+// --- Form container content styles ---
 .signup-form-container {
-  max-width: 400px;
-  width: 100%;
-
   h3, .signup-subtitle {
-    text-align: center; // Center the Welcome text
+    text-align: center;
   }
 
   h3 {
@@ -102,7 +102,7 @@
   .signup-subtitle {
     color: #6c757d;
     font-size: 15px;
-    margin-bottom: 40px; // Increased margin
+    margin-bottom: 40px;
   }
 }
 
@@ -127,13 +127,19 @@
   border-radius: 6px;
 
   &.active {
-    color: #0d6efd; // Brighter blue for active text
+    color: #0d6efd;
     background-color: #ffffff;
     font-weight: 600;
     box-shadow: 0 2px 5px rgba(0,0,0,0.08);
   }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 }
 
+// --- Form styles ---
 .signup-form {
   .form-row {
     display: flex;
@@ -142,7 +148,8 @@
 
   .form-group {
     margin-bottom: 20px;
-    text-align: left; // Ensure labels are left-aligned
+    text-align: left;
+    flex: 1;
 
     label {
       display: block;
@@ -158,57 +165,205 @@
       border: 1px solid #ced4da;
       border-radius: 8px;
       font-size: 15px;
+      transition: all 0.3s ease;
+      
       &:focus {
         outline: none;
         border-color: #5b9dff;
         box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
       }
+
+      &:disabled {
+        background-color: #f8f9fa;
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
     }
+  }
+
+  .validation-error {
+    color: #e53935;
+    font-size: 12px;
+    margin-top: 4px;
+    display: block;
   }
 }
 
-// --- Button styles ---
+// --- Enhanced Button styles ---
 .submit-btn {
   width: 100%;
   padding: 14px 0;
-  background-color: #4A90E2; // Softer blue from image
+  background-color: #4A90E2;
   color: white;
   border: none;
   border-radius: 8px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
   margin-top: 10px;
   margin-bottom: 20px;
-
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  
   &:hover:not(:disabled) {
-    background-color: #357ABD; // Darker shade for hover
+    background-color: #357ABD;
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .loading-text {
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
 }
 
+// --- Spinner animation ---
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// --- Status container styles ---
+.status-container {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.status-message {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+
+  &.success {
+    background-color: #e8f5e8;
+    border: 1px solid #c8e6c8;
+  }
+
+  &.error {
+    background-color: #ffebee;
+    border: 1px solid #ffcdd2;
+  }
+}
+
+.status-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  flex-shrink: 0;
+
+  &.success-icon {
+    background-color: #4caf50;
+    color: white;
+  }
+
+  &.error-icon {
+    background-color: #f44336;
+    color: white;
+  }
+}
+
+.status-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.4;
+
+  &.success-text {
+    color: #2e7d32;
+    font-weight: 500;
+  }
+
+  &.error-text {
+    color: #c62828;
+    font-weight: 500;
+  }
+}
+
+// --- Security notice ---
 .security-notice {
   text-align: center;
   color: #6c757d;
   font-size: 13px;
-  margin-top: 10px;
+  margin-top: 15px;
+  line-height: 1.4;
 }
 
-// --- Responsive styles for full-screen layout ---
+// --- Responsive styles ---
 @media (max-width: 850px) {
   .signup-card {
     flex-direction: column;
   }
+  
   .signup-left {
-    flex: 0 0 auto; // Don't let it shrink/grow
-    min-height: 40vh; // Give it a minimum height
+    flex: 0 0 auto;
+    min-height: 40vh;
+    padding: 20px;
+
+    h2 {
+      font-size: 24px;
+    }
+
+    .illustration-wrapper {
+      width: 300px;
+      height: 180px;
+      padding: 20px;
+    }
   }
+  
   .signup-right {
-    flex: 1; // Let the form area take remaining space
-    padding: 40px 10px;
+    flex: 1;
+    padding: 20px 15px;
+    
     .signup-form-container {
-      border-radius: 14px;
-      padding: 32px 8px 24px 8px;
+      border-radius: 16px;
+      padding: 30px 20px 24px 20px;
+    }
+  }
+
+  .signup-form {
+    .form-row {
+      flex-direction: column;
+      gap: 0;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .signup-right {
+    padding: 15px 10px;
+    
+    .signup-form-container {
+      padding: 24px 16px 20px 16px;
+      
+      h3 {
+        font-size: 28px;
+      }
     }
   }
 }

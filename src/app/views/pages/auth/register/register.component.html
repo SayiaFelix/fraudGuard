@@ -1,51 +1,119 @@
 <div class="signup-container">
   <div class="signup-card">
+
     <!-- Left side with illustration -->
     <div class="signup-left">
       <div class="illustration-wrapper">
         <img src="assets/images/image1.png" alt="Secure Banking Illustration" class="illustration-image">
       </div>
       <h2>Banking Chatbot Platforms</h2>
-      <p>Experience next-generation banking with advanced security and AI-powered assistance</p>
+      <p>
+        Experience next-generation banking with advanced security and AI-powered assistance
+      </p>
     </div>
 
     <!-- Right side with form -->
     <div class="signup-right">
       <div class="signup-form-container">
         <h3>Welcome</h3>
-        <p class="signup-subtitle">Sign in to your account or create a new one</p>
-        
+        <p class="signup-subtitle">Sign in to your account or create a new one.</p>
+
+        <!-- Auth Tabs -->
         <div class="auth-tabs">
-          <button type="button" class="auth-tab">Sign In</button>
-          <button type="button" class="auth-tab active">Sign Up</button>
+          <button type="button" class="auth-tab" (click)="navigateToLogin()" [disabled]="isLoading">Sign In</button>
+          <button type="button" class="auth-tab active" disabled>Sign Up</button>
         </div>
 
-        <form class="signup-form" [formGroup]="form" (ngSubmit)="onRegister($event)">
+        <!-- Registration Form -->
+        <form class="signup-form" [formGroup]="form" (ngSubmit)="onRegister($event)" novalidate>
+
+          <!-- First & Last Name -->
           <div class="form-row">
             <div class="form-group">
               <label for="firstName">First Name</label>
-              <input type="text" id="firstName" class="form-control" formControlName="firstName" placeholder="Enter your first name">
+              <input
+                type="text"
+                id="firstName"
+                class="form-control"
+                formControlName="first_name"
+                [disabled]="isLoading"
+                placeholder="Enter your first name">
+              <small class="validation-error" *ngIf="form.get('first_name')?.touched && form.get('first_name')?.hasError('required')">
+                First name is required
+              </small>
             </div>
+
             <div class="form-group">
               <label for="lastName">Last Name</label>
-              <input type="text" id="lastName" class="form-control" formControlName="lastName" placeholder="Enter your last name">
+              <input
+                type="text"
+                id="lastName"
+                class="form-control"
+                formControlName="last_name"
+                [disabled]="isLoading"
+                placeholder="Enter your last name">
+              <small class="validation-error" *ngIf="form.get('last_name')?.touched && form.get('last_name')?.hasError('required')">
+                Last name is required
+              </small>
             </div>
           </div>
 
+          <!-- Email -->
           <div class="form-group">
             <label for="email">Email</label>
-            <input type="email" id="email" class="form-control" formControlName="email" placeholder="Enter your email">
+            <input
+              type="email"
+              id="email"
+              class="form-control"
+              formControlName="email"
+              [disabled]="isLoading"
+              placeholder="Enter your email">
+            <small class="validation-error" *ngIf="form.get('email')?.touched && form.get('email')?.hasError('required')">
+              Email is required
+            </small>
+            <small class="validation-error" *ngIf="form.get('email')?.touched && form.get('email')?.hasError('email')">
+              Enter a valid email address
+            </small>
           </div>
-          
-          <button type="submit" class="submit-btn" [disabled]="!form.valid || isLoading">
-            {{ isLoading ? 'Creating Account...' : 'Create Account' }}
+
+          <!-- Submit Button -->
+          <button
+            type="submit"
+            class="submit-btn"
+            [class.loading]="isLoading"
+            [disabled]="form.invalid || isLoading">
+            <span *ngIf="!isLoading">Create Account</span>
+            <span *ngIf="isLoading" class="loading-text">
+              <span class="spinner"></span>
+              Creating Account...
+            </span>
           </button>
 
+          <!-- Status Messages -->
+          <div *ngIf="hasError || hasSuccess" class="status-container">
+
+            <!-- Success -->
+            <div *ngIf="hasSuccess" class="status-message success">
+              <div class="status-icon success-icon">✓</div>
+              <p class="status-text success-text">{{ successMsg || 'Account created successfully!' }}</p>
+            </div>
+
+            <!-- Error -->
+            <div *ngIf="hasError" class="status-message error">
+              <div class="status-icon error-icon">⚠</div>
+              <p class="status-text error-text">{{ errorMsg }}</p>
+            </div>
+
+          </div>
+
+          <!-- Security Note -->
           <p class="security-notice">
             Your data is protected with bank-level encryption and security measures
           </p>
+
         </form>
       </div>
     </div>
+
   </div>
 </div>

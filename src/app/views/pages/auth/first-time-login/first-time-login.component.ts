@@ -94,8 +94,8 @@ setPassword() {
         this.isLoading = true;
 
         // Make sure the token is present and valid
-        const token = localStorage.getItem('token');
-        if (!token) {
+        const access_token = localStorage.getItem('access_token');
+        if (!access_token) {
           this.hasError = true;
           this.errorMsg = 'No authentication token found. Please log in again.';
           Swal.fire('Error', this.errorMsg, 'error');
@@ -110,7 +110,7 @@ setPassword() {
           confirm_password: this.form.value.confirmPassword
         };
 
-        const headers = { Authorization: `Bearer ${token}` };
+        const headers = { Authorization: `Bearer ${access_token}` };
 
         this.httpService.customerPortalAuth('change-password', model, { headers }).subscribe({
           next: (response: any) => {
