@@ -136,11 +136,12 @@ export const MENU: MenuItem[] = [
     //     ]
     //   },]
     },
+
     {
       //   profiles: ['CORPORATE_ADMIN'],
       label: 'Analytics',
       icon:'bar-chart',
-      link: '/eclectics/accounts/linked-accounts',
+      link: '/eclectics/rbac/all-profiles',
 
       //    subItems: [
       //     {
@@ -214,9 +215,9 @@ export const MENU: MenuItem[] = [
   // },
   //   {
   //   // profiles: ['CORPORATE_ADMIN'],
-  //   label: 'CHATS',
+  //   label: 'Chats',
   //   icon: 'settings',
-  //   link: '/tra-client/setups/list-Regions'
+  //   link: '/eclectics/setups/list-Regions'
   //   // subItems: [
   //   //   {
   //   //     profiles: ['CORPORATE_ADMIN'],

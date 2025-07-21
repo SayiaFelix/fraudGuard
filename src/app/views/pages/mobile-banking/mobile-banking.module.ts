@@ -47,8 +47,13 @@ const routes: Routes = [
           import('./rbac/rbac.module').then((m) => m.RbacModule),
       },
 
-      // {
-      //   path: 'rbac',
+      {
+        path: 'rbac',
+        loadChildren: () =>
+          import('./rbac/rbac.module').then((m) => m.RbacModule),
+      },
+      //  {
+      //   path: 'settings',
       //   loadChildren: () =>
       //     import('./rbac/rbac.module').then((m) => m.RbacModule),
       // },
