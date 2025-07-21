@@ -1,98 +1,86 @@
-<div class="body" style="position: relative; background-color: #EFEFEF; max-height: 1100px;">
-  <div class="row">
-    <div class="d-flex" style="max-width: 100%; height: 30px; background-image: url('assets/images/headerl.png'); background-repeat: repeat-x; background-size: 100% 100%;">
+<div class="signup-container">
+  <div class="signup-card">
+    <!-- Left side with illustration (You can customize this) -->
+    <div class="signup-left">
+      <div class="illustration-wrapper">
+        <img src="assets/images/image1.png" alt="Secure Banking Illustration" class="illustration-image">
+      </div>
+      <h2>Security First</h2>
+      <p>Your account's security is our top priority. Please choose a strong, new password.</p>
     </div>
-  </div>
-  <div class="row d-flex justify-content-center login-row">
-    <div class="col-md-6 col-lg-5 col-xl-5 col-sm-7 d-flex justify-content-around flex-column">
-      <div class="" style="padding-top: 30px; padding-left: 30px;">
-        <a href="" routerLink="/standards"> <img class="img-fluid" style="position: absolute;"
-            src="assets/images/TRA_Logo.png" width="150" height="50" alt="" /></a>
 
+    <!-- Right side with form -->
+    <div class="signup-right">
+      <div class="signup-form-container">
+        <h3>Set New Password</h3>
+        <p class="signup-subtitle">Please enter and confirm your new password below.</p>
+        
+        <form class="signup-form" [formGroup]="form" (ngSubmit)="onSubmit($event)">
+          
+          <!-- Old Password -->
+          <div class="form-group">
+            <label for="oldPassword">Old Password</label>
+            <input type="password" id="oldPassword" class="form-control" formControlName="lookUpToken" placeholder="Enter your old password">
+            <div class="error-message" *ngIf="form.get('lookUpToken')?.touched && form.get('lookUpToken')?.hasError('required')">
+              Old Password is required
+            </div>
+          </div>
+          
+          <!-- New Password -->
+          <div class="form-group password-group">
+            <label for="password">New Password</label>
+            <input [type]="inputType" id="password" class="form-control" formControlName="password" placeholder="Enter new password">
+            <span class="password-toggle-icon" (click)="toggleShowPassword()">
+              <i class="mdi" [ngClass]="showingPassword ? 'mdi-eye-off' : 'mdi-eye'"></i>
+            </span>
+            <div class="error-message" *ngIf="form.get('password')?.touched && form.get('password')?.hasError('required')">
+              Password is required
+            </div>
+            <div class="error-message" *ngIf="form.get('password')?.touched && form.get('password')?.hasError('minlength')">
+              Password must be at least 8 characters long
+            </div>
+            <div class="error-message" *ngIf="form.get('password')?.touched && form.get('password')?.hasError('complexPassword')">
+              Must contain uppercase, lowercase, number, and special character.
+            </div>
+          </div>
+
+          <!-- Confirm New Password -->
+          <div class="form-group password-group">
+            <label for="confirmPassword">Confirm New Password</label>
+            <input [type]="inputType" id="confirmPassword" class="form-control" formControlName="confirmPassword" placeholder="Confirm new password">
+            <span class="password-toggle-icon" (click)="toggleShowPassword()">
+              <i class="mdi" [ngClass]="showingPassword ? 'mdi-eye-off' : 'mdi-eye'"></i>
+            </span>
+            <div class="error-message" *ngIf="form.get('confirmPassword')?.touched && form.get('confirmPassword')?.hasError('required')">
+              Confirm Password is required
+            </div>
+            <div class="error-message" *ngIf="form.controls['confirmPassword'].dirty && form.hasError('MatchPassword','confirmPassword')">
+               Passwords do not match
+            </div>
+          </div>
+
+          <!-- Status Messages (Success/Error) -->
+          <div class="status-container" *ngIf="isLoading || hasError">
+            <!-- Loading Bar -->
+            <div class="progress-bar-wrapper" *ngIf="isLoading">
+              <div class="progress-bar-fill loading"></div>
+            </div>
+            <!-- Error Message -->
+            <p class="status-message error-text" *ngIf="hasError && !isLoading">
+              <strong>Error Occurred!</strong> {{ errorMsg }}
+            </p>
+          </div>
+
+          <button type="submit" class="submit-btn" [disabled]="!form.valid || isLoading" [class.loading]="isLoading">
+            <span>{{ isLoading ? 'Updating Password...' : 'Set Password' }}</span>
+          </button>
+
+          <div class="login-link">
+            <a routerLink="/auth/login">Back to Login</a>
+          </div>
+
+        </form>
       </div>
-      <div class="card card-login-container">
-        <div class="mt-2">
-          <h3
-            style="font-family: Mulish; font-style: normal; font-weight: 700; font-size: 20px; line-height: 30px; color: #F8F8F8; text-transform: uppercase; text-align: center;">
-            Set your Password</h3>
-        </div>
-        <div class="card-login text-start pb-1 mt-4">
-          <form class="forms-sample" [formGroup]="form">
-            <div class="mb-3">
-              <input type="password" id="pass" class="form-control" formControlName="lookUpToken"
-                placeholder="Enter old password">
-              <small class="text-danger"
-                *ngIf="form.get('lookUpToken')?.touched && form.get('lookUpToken')?.hasError('required')"> Old Password
-                is
-                required</small>
-            </div>
-            <div class="mb-3">
-              <div class="input-group mb-3">
-                <input [type]="inputType" class="inputs" formControlName="password" class="form-control"
-                  placeholder="Enter New password" id="password" aria-label="password">
-                <div class="input-group-prepend" style="cursor: pointer;" (click)="toggleShowPassword()">
-                  <span class="input-group-text" *ngIf="!this.showingPassword"><i class="mdi mdi-eye"></i></span>
-                  <span class="input-group-text" *ngIf="this.showingPassword"><i class="mdi mdi-eye-off"></i></span>
-                </div>
-              </div>
-              <small class="text-danger"
-                *ngIf="form.get('password')?.touched && form.get('password')?.hasError('required')">Password is
-                required</small>
-              <small class="text-danger"
-                *ngIf="form.get('password')?.touched && form.get('password')?.hasError('minlength')">Password isn't long
-                enough, minimum of 8 characters</small>
-                <small class="text-danger"
-                *ngIf="form.get('password')?.touched && form.get('password')?.hasError('complexPassword')">Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.</small>
-            </div>
-            <div class="mb-3">
-              <div class="input-group mb-3">
-                <input [type]="inputType" class="inputs" formControlName="confirmPassword" class="form-control"
-                  placeholder="Confirm New Password" id="confirmPassword" aria-label="password">
-                <div class="input-group-prepend" style="cursor: pointer;" (click)="toggleShowPassword()">
-                  <span class="input-group-text" *ngIf="!this.showingPassword"><i class="mdi mdi-eye"></i></span>
-                  <span class="input-group-text" *ngIf="this.showingPassword"><i class="mdi mdi-eye-off"></i></span>
-                </div>
-              </div>
-              <small class="text-danger"
-                *ngIf="form.get('confirmPassword')?.touched && form.get('confirmPassword')?.hasError('required')">Confirm
-                Password is
-                required
-              </small>
-              <small class="text-danger"
-                *ngIf="form.get('confirmPassword')?.touched && form.get('confirmPassword')?.hasError('minlength')">Confirm
-                Password isn't long enough, minimum of 6 characters
-              </small>
-             <small *ngIf="form.controls['confirmPassword'].dirty &&
-                form.hasError('MatchPassword','confirmPassword')" class="text-danger">Passwords Do Not Match</small>
-            </div>
-            <div>
-              <button [disabled]="!form.valid" (click)="onSubmit($event)" style="width: 100%; border: none;"
-                class="btn btn-block login-btn transition" type="submit">
-                <span style="color: white;">SET PASSWORD</span><img *ngIf="isLoading" class="pl-2" src="assets/images/loading.gif" alt="loading-gif">
-              </button>
-            </div>
-            <hr>
-            <div class="mt-2 mb-2 d-flex justify-content-center">
-              <a routerLink="/auth/login" style="text-decoration: none;" class="transition text-light">Back to
-                Login</a>
-            </div>
-          </form>
-          <p *ngIf="isLoading"><ngb-progressbar type="primary" [value]="95" [striped]="true"
-              [animated]="true"></ngb-progressbar></p>
-          <ngb-alert [type]="'danger'" *ngIf="hasError" (close)="false" class="mt-2">
-            <strong> Error Occured!</strong> {{errorMsg}}
-          </ngb-alert>
-        </div>
-      </div>
-      <div class="" style=" padding-bottom: 15px; padding-left: 15px; justify-content: center; margin-top: -7%;">
-        <button class="btn btn-md" style="background-color: #6D36A8 ; color: #F8F8F8; border-radius: 8px; "> <a
-            href="https://www.tra.go.ke/" style="text-decoration: none; text-transform: none;" target="_blank"
-            class="transition text-light"> VISIT:
-            WWW.TRA.GO.KE </a></button>
-      </div>
-    </div>
-    <div class="card col-md-6 col-lg-7 col-xl-7 col-sm-5"
-      style="background-image: url('assets/images/login_bg.png'); background-size: cover; background-repeat: no-repeat;">
     </div>
   </div>
 </div>
