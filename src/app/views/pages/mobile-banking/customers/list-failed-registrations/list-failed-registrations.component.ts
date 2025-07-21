@@ -18,6 +18,7 @@ import {
   animate,
   transition
 } from '@angular/animations';
+import { GlobalService } from 'src/app/shared/services/global.service';
 
 @Component({
   selector: 'app-list-internet-banking',
@@ -52,6 +53,7 @@ export class ListFailedRegistrationsComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
 
 isCollapsed: boolean = false;
+isDefaultRouteActive = false;
   tempProductData = [
     {
       frontendId: 1,
@@ -114,6 +116,7 @@ isCollapsed: boolean = false;
 
   constructor(
     private httpService: HttpService,
+    private globalService: GlobalService,
     private modalService: NgbModal,
     public fb: FormBuilder,
     public router: Router,
@@ -123,6 +126,20 @@ isCollapsed: boolean = false;
   }
 
   ngOnInit() {
+    this.router.events.subscribe(() => {
+      const currentUrl = this.router.url;
+      // Mark as active only if it redirected to general
+      this.isDefaultRouteActive = currentUrl.endsWith('/user_bot') || currentUrl.endsWith('/user_bot/general');
+    });
+
+      this.globalService.chatbotId$.subscribe(id => {
+        console.log('Chatbot ID:', id);
+      });
+
+      this.globalService.conversationId$.subscribe(id => {
+        console.log('Conversation ID:', id);
+      });
+    
     this.breadCrumbItems = [
       {
         label: 'Mobile banking',

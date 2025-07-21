@@ -8,6 +8,7 @@
         <a class="ai-tab-button" [routerLink]="['general']" routerLinkActive="active-tab" [routerLinkActiveOptions]="{ exact: true }">
           <i class="mdi mdi-plus"></i> General
         </a>
+
         <a class="ai-tab-button" [routerLink]="['action']" routerLinkActive="active-tab">
           <i class="mdi mdi-eye"></i> Action
         </a>
@@ -40,7 +41,7 @@
       <i class="mdi me-2"
         [ngClass]="{ 'mdi-chevron-left': isCollapsed, 'mdi-chevron-right': !isCollapsed }">
       </i>
-      <h2  *ngIf="!isCollapsed" class="mb-0">Conversation Tester</h2>
+      <h2  *ngIf="!isCollapsed" class="mb-0">Chatbot Tester</h2>
     </div>
 
     <!-- Panel Body -->
