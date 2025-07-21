@@ -1,32 +1,53 @@
-<div
-  class="d-flex justify-content-between align-items-center flex-wrap grid-margin"
->
-  <div>
-    <h4 class="mb-3 mb-md-0">Failed Customers Registration List</h4>
-  </div>
-  <app-table-header
-    [allColumns]="allColumns"
-    [rows]="rows"
-    [title]="title"
-    [showAddButton]="false"
-    (changeColumnsEvent)="updateColumns($event)"
-    (openAddModalEvent)="openAddProductModal()"
-  ></app-table-header>
+<div class="row" style="margin-top: -60px;">
+  <!-- Main Content Column -->
+  <div class="col content-column">
+    <div class="container-fluid">
+      <h2>AI Agents</h2>
 
-</div>
+      <div class="ai-tab-buttons">
+        <a class="ai-tab-button" [routerLink]="['general']" routerLinkActive="active-tab" [routerLinkActiveOptions]="{ exact: true }">
+          <i class="mdi mdi-plus"></i> General
+        </a>
+        <a class="ai-tab-button" [routerLink]="['action']" routerLinkActive="active-tab">
+          <i class="mdi mdi-eye"></i> Action
+        </a>
+        <a class="ai-tab-button" [routerLink]="['llm']" routerLinkActive="active-tab">
+          <i class="mdi mdi-chart-bar"></i> LLM
+        </a>
+        <a class="ai-tab-button" [routerLink]="['llm']" routerLinkActive="active-tab">
+          <i class="mdi mdi-account-multiple"></i> Voice
+        </a>
+        <a class="ai-tab-button" [routerLink]="['publish']" routerLinkActive="active-tab">
+          <i class="mdi mdi-upload"></i> Publish
+        </a>
+      </div>
 
-
-<div class="row">
-  <div class="col-md-12 stretch-card">
-    <div class="card" *ngIf="rows.length > 0">
-        <app-custom-ngx-table
-          [columns]="columns"
-          [rows]="rows"
-          [loadingIndicator]="loading"
-          [actions]="actions"
-          (editEvent)="openResetModal($event)"
-          (outputEvent)="triggerEvent($event)"
-        ></app-custom-ngx-table>
+      <div class="mt-4">
+        <router-outlet></router-outlet>
+      </div>
     </div>
   </div>
+
+  <!-- Toggleable Conversation Tester Panel -->
+  <div
+    class="conversation-panel"
+    [ngClass]="{ 'collapsed': isCollapsed }"
+  >
+    <!-- Header: Entire area clickable -->
+    <div class="panel-header d-flex align-items-center justify-content-start p-2"
+        (click)="isCollapsed = !isCollapsed" style="cursor: pointer;">
+      <!-- Toggle Icon -->
+      <i class="mdi me-2"
+        [ngClass]="{ 'mdi-chevron-left': isCollapsed, 'mdi-chevron-right': !isCollapsed }">
+      </i>
+      <h2  *ngIf="!isCollapsed" class="mb-0">Conversation Tester</h2>
+    </div>
+
+    <!-- Panel Body -->
+    <div *ngIf="!isCollapsed" class="panel-body p-3">
+      <p>This is the conversation tester panel content.</p>
+    </div>
+  </div>
+
+
 </div>

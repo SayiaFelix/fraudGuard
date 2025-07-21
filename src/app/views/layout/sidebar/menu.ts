@@ -8,25 +8,25 @@ export const MENU: MenuItem[] = [
     link: '/dashboard',
     // subItems: [
     //   {
-    //     profiles: ['CORPORATE_ADMIN'],
-    //     label: 'Dashboard',
+    //     // profiles: ['CORPORATE_ADMIN'],
+    //     label: 'EcleBot AICX',
     //     link: '/dashboard'
     //   },
-      // {
-      //   profiles: ['CORPORATE_ADMIN'],
-      //   label: 'Chat( Comments )',
-      //   link: '/mobile-banking/channels/ussd-ussd-channel-dashboard'
-      // },
-      // {
-      //   profiles: ['CORPORATE_ADMIN'],
-      //   label: 'Mobile Banking IB',
-      //   link: '/mobile-banking/channels/ib-ussd-channel-dashboard'
-      // },
-      // {
-      //   profiles: ['CORPORATE_ADMIN'],
-      //   label: 'Mobile Banking APP',
-      //   link: '/mobile-banking/channels/app-ussd-channel-dashboard'
-      // },
+    //   {
+    //     // profiles: ['CORPORATE_ADMIN'],
+    //     label: 'Quantra AI',
+    //     link: '/eclectics/ai_analytics/ai_chat'
+    //   },
+    //   // {
+    //   //   profiles: ['CORPORATE_ADMIN'],
+    //   //   label: 'Mobile Banking IB',
+    //   //   link: '/mobile-banking/channels/ib-ussd-channel-dashboard'
+    //   // },
+    //   // {
+    //   //   profiles: ['CORPORATE_ADMIN'],
+    //   //   label: 'Mobile Banking APP',
+    //   //   link: '/mobile-banking/channels/app-ussd-channel-dashboard'
+    //   // },
     // ]
   },
   {
@@ -46,6 +46,29 @@ export const MENU: MenuItem[] = [
   //// profiles: ['CORPORATE_ADMIN'],
     label: 'AI Agents',
     icon: 'users',
+    link: '/eclectics/chatbot/user_bot'
+  //// subItems: [
+  //   //   // {
+  //   //   //   // profiles: ['CORPORATE_ADMIN'],
+  //   //   //   label: 'All Classifications',
+  //   //   //   link: '/tra-client/customers/list-requests'
+  //   //   // },
+  //   //   // {
+  //   //   //   profiles: ['CORPORATE_ADMIN'],
+  //   //   //   label: 'Classification Results',
+  //   //   //   link: '/tra-client/customers/list-failed-registrations'
+  //   //   // },
+  //   //   {
+  //   //     // profiles: ['CORPORATE_ADMIN'],
+  //   //     label: 'Notifications',
+  //   //     link: '/tra-client/customers/send-bulk-sms'
+  //   //   },
+  //   // ]
+  },
+  {
+  //// profiles: ['CORPORATE_ADMIN'],
+    label: 'Quantra AI',
+    icon: 'cpu',
     link: '/eclectics/ai_analytics/ai_chat'
   //// subItems: [
   //   //   // {

@@ -15,25 +15,33 @@ const routes: Routes = [
     component: ListCustomersComponent
   },
 
-  {
-    path: 'list-failed-registrations',
-    component: ListFailedRegistrationsComponent
-  },
+{
+    path: 'user_bot',
+    component: ListFailedRegistrationsComponent,
+    children: [
+      { path: '', redirectTo: 'general', pathMatch: 'full' },
+      { path: 'general', component: ListCustomersComponent },
+      { path: 'action', component: SendSmsComponent },
+      { path: 'llm', component: ViewCustomerComponent },
+      { path: 'publish', component: ReasonsForFailureComponent },
+      // { path: 'voice', component: VoiceComponent },
+    ]
+  }
+,
+  // {
+  //   path: 'action',
+  //   component: SendSmsComponent
+  // },
 
-  {
-    path: 'send-bulk-sms',
-    component: SendSmsComponent
-  },
+  // {
+  //   path: 'llm',
+  //   component: ViewCustomerComponent
+  // },
 
-  {
-    path: 'customer/:id',
-    component: ViewCustomerComponent
-  },
-
-  {
-    path: 'reason/:id',
-    component: ReasonsForFailureComponent
-  },
+  // {
+  //   path: 'publish',
+  //   component: ReasonsForFailureComponent
+  // },
 ];
 
 @NgModule({

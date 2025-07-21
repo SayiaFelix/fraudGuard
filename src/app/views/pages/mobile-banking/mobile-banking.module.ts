@@ -29,6 +29,11 @@ const routes: Routes = [
         loadChildren: () =>
           import('./customers/customers.module').then((m) => m.CustomersModule)
       },
+      {
+        path: 'chatbot',
+        loadChildren: () =>
+          import('./customers/customers.module').then((m) => m.CustomersModule)
+      },
 
       {
         path: 'analytic',

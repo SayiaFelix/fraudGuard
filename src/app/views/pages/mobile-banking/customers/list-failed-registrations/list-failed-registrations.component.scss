@@ -1,159 +1,94 @@
-.profiles-container {
+.ai-tab-buttons {
+  gap: 5px;
+  margin-top: 10px;
+}
+
+.ai-tab-button {
+  padding: 6px 12px;
+  border: none;
+  background-color: #f1f1f1;
+  color: #333;
+  border-bottom: 3px solid transparent;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 4px;
+}
+
+.ai-tab-buttons {
+  display: flex;
+  gap: 5px;
+  margin-top: 10px;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.ai-tab-button:hover {
+  background-color: #e0e0e0;
+  color: #000;
+}
+
+.ai-tab-button.active-tab {
+  color: #007bff;
+  // color: #fff;
+  border-bottom: 3px solid #0056b3;
+}
+
+
+.toggle-tester-btn {
+  position: fixed;
+  top: 80px;
+  right: 0;
+  z-index: 1050;
   background-color: #ffffff;
-}
-
-.anchor {
-  border-radius: 6px;
-  height: 30px;
-  color: #6571ff;
-  border-color: #6571ff !important;
-  font-size: small;
-
-}
-
-.items {
-  position: absolute;
-  z-index: 2;
-  width: 90%;
-  background: #f9fafb;
-}
-
-.dropdown-check-list {
-  display: inline-block;
-}
-
-.dropdown-check-list .anchor {
-  position: relative;
+  border: none;
+  padding: 10px;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   cursor: pointer;
-  display: inline-block;
-  padding: 5px 50px 5px 10px;
-  border: 1px solid #ccc;
 }
 
-.dropdown-check-list .anchor:after {
-  position: absolute;
-  content: "";
-  border-left: 2px solid black;
-  border-top: 2px solid black;
-  padding: 5px;
-  right: 10px;
-  top: 20%;
-  -moz-transform: rotate(-135deg);
-  -ms-transform: rotate(-135deg);
-  -o-transform: rotate(-135deg);
-  -webkit-transform: rotate(-135deg);
-  transform: rotate(-135deg);
+
+
+.row {
+  display: flex;
+  flex-wrap: nowrap;
 }
 
-.dropdown-check-list .anchor:active:after {
-  right: 8px;
-  top: 21%;
+.content-column {
+  flex: 1;
+  min-width: 0;
 }
 
-.dropdown-check-list ul.items {
-  padding: 2px;
-  display: none;
-  margin: 0;
-  border: 1px solid #ccc;
-  border-top: none;
+.conversation-panel {
+  width: 350px;
+  max-width: 350px;
+  transition: all 0.3s ease;
+  background-color: #f8f9fa;
+  border-left: 1px solid #dee2e6;
+  display: flex;
+  flex-direction: column;
 }
 
-.dropdown-check-list ul.items li {
-  list-style: none;
+.conversation-panel.collapsed {
+  width: 50px;
+  overflow: hidden;
 }
 
-.dropdown-check-list.visible .anchor {
-  color: #0094ff;
+.panel-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
 }
 
-.dropdown-check-list.visible .items {
-  display: block;
+.toggle-btn {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 20px;
+  cursor: pointer;
 }
-
-//.ngx-datatable.bootstrap {
-//  box-shadow: none;
-//  font-size: 12px!important;;
-//  .datatable-header {
-//    height: unset !important;
-//    .datatable-header-cell {
-//      vertical-align: bottom;
-//      padding: 0.75rem;
-//      border-bottom: 1px solid #d1d4d7;
-//      .datatable-header-cell-label {
-//        line-height: 6px!important;
-//      }
-//    }
-//  }
-//  .datatable-body {
-//    .datatable-body-row {
-//      padding: 0.75rem;
-//      vertical-align: top;
-//      border-top: 1px solid #d1d4d7;
-//      line-height: 6px!important;
-//      &.datatable-row-odd {
-//        background-color: rgba(0, 0, 0, 0.05);
-//      }
-//      &.datatable-row-even {
-//        background-color: rgba(0, 0, 0, 0.05);
-//      }
-//      &.active {
-//        background-color: #1483ff;
-//        color: #FFF;
-//      }
-//      .datatable-body-cell {
-//        text-align: left;
-//        vertical-align: top;
-//      }
-//    }
-//  }
-//  .datatable-footer {
-//    background: #424242;
-//    color: #ededed;
-//    margin-top: -1px;
-//    .page-count {
-//      line-height: 12px;
-//      height: 12px;
-//      padding: 0 1.2rem;
-//    }
-//    .datatable-pager {
-//      margin: 0 10px;
-//      vertical-align: top;
-//      ul {
-//        li {
-//          margin: 10px 0px;
-//          &:not(.disabled) {
-//            &.active,
-//            &:hover {
-//              a {
-//                background-color: #545454;
-//                font-weight: bold;
-//              }
-//            }
-//          }
-//        }
-//      }
-//      a {
-//        height: 22px;
-//        min-width: 24px;
-//        line-height: 22px;
-//        padding: 0;
-//        border-radius: 3px;
-//        margin: 0 3px;
-//        text-align: center;
-//        vertical-align: top;
-//        text-decoration: none;
-//        vertical-align: bottom;
-//        color: #ededed;
-//      }
-//      .datatable-icon-left,
-//      .datatable-icon-skip,
-//      .datatable-icon-right,
-//      .datatable-icon-prev {
-//        font-size: 18px;
-//        line-height: 27px;
-//        padding: 0 3px;
-//      }
-//    }
-//  }
-//}
 
