@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import { Observable } from 'rxjs';
 import {environment} from 'src/environments/environment';
+import { BehaviorSubject } from 'rxjs';
 
 // In: global.service.ts (or auth.service.ts)
 
@@ -33,6 +34,28 @@ export class GlobalService {
     this.standardApi = environment.standardsApi;
     // this.standardComments = environment.standardsComment;
 
+  }
+
+   // Shared IDs
+  private chatbotIdSource = new BehaviorSubject<string | null>(null);
+  chatbotId$ = this.chatbotIdSource.asObservable();
+
+  private conversationIdSource = new BehaviorSubject<string | null>(null);
+  conversationId$ = this.conversationIdSource.asObservable();
+
+  // Setters
+  setChatbotId(id: string) {
+    this.chatbotIdSource.next(id);
+  }
+
+  setConversationId(id: string) {
+    this.conversationIdSource.next(id);
+  }
+
+  // Optional: Reset
+  resetAll() {
+    this.chatbotIdSource.next(null);
+    this.conversationIdSource.next(null);
   }
 
   loadGlobalSettingsFromLocalStorage(): void {

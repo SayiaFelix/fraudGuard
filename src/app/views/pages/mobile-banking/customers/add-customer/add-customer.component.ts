@@ -2,6 +2,7 @@ import {Component, Input, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {HttpService} from 'src/app/shared/services/http.service';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import { GlobalService } from 'src/app/shared/services/global.service';
 
 @Component({
     selector: 'app-add-workflow-step',
@@ -20,6 +21,7 @@ export class AddCustomerComponent implements OnInit {
 
     constructor(
         public activeModal: NgbActiveModal,
+        private globalService: GlobalService, 
         public fb: FormBuilder,
         private _httpService: HttpService) {
     }
@@ -28,7 +30,6 @@ export class AddCustomerComponent implements OnInit {
 
       console.log("this.formData");
       console.log(this.formData);
-
         this.form = this.fb.group({
             firstName: [this.formData ? this.formData.firstName : '', [Validators.required]],
             middleName: [this.formData ? this.formData.middleName : '', [Validators.required]],
@@ -48,7 +49,7 @@ export class AddCustomerComponent implements OnInit {
         if (this.formData) {
             this.saveChanges();
         } else {
-            this.createRecord();
+            // this.createRecord();
         }
         this.loading = true;
     }
@@ -57,7 +58,12 @@ export class AddCustomerComponent implements OnInit {
         this.activeModal.dismiss('Cross click');
     }
 
-    private createRecord(): any {
+    private createRecord(id: string): any {
+        this.globalService.setChatbotId(id);
+        // Maybe also set conversation id
+        this.globalService.setConversationId('xyz123');
+
+
     }
 
     private saveChanges(): any {
