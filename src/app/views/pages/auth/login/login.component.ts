@@ -69,51 +69,94 @@ export class LoginComponent implements OnInit {
   }
 
   onSubmit(e: Event) {
+    e.preventDefault();
+    
+    // Prevent multiple submissions
+    if (this.isLoading) {
+      return;
+    }
+    
     this.hasError = false;
     this.isLoading = true;
-    e.preventDefault();
 
     const model = {
       email: this.form.value.email,
       password: this.form.value.password
     }
-    this.loginResponse$ = this.httpService
+
+    // Subscribe to the Observable to actually execute the HTTP request
+    this.httpService
       .customerPortalAuth('login', model)
       .pipe(
         catchError((error: any) => {
           console.log(error);
-          this.hasError = error.message;
+          this.hasError = true;
+          this.errorMsg = error.message || 'Login failed';
           this.isLoading = false;
           return throwError(error);
-        }),
-        map((result) => {
-          console.log(result)
+        })
+      )
+      .subscribe({
+        next: (result) => {
+          console.log('Login result:', result);
           this.isLoading = false;
+          
           if (result['status'] != '00') {
+            // Handle login failure
             this.hasError = true;
-            this.errorMsg = result['error'];
+            this.errorMsg = result['error'] || result['message'] || 'Login failed';
             setTimeout(() => {
               this.hasError = false;
               this.errorMsg = '';
               this.form.reset();
             }, 3000);
           } else {
-            // Store token from login response for global use BEFORE navigation
-            if (result['token']) {
-              localStorage.setItem('token', result['token']);
-              // console.log('Token saved:', result['token']);
+            // Handle login success
+            this.hasError = false;
+            
+            // Store the correct token from the data object
+            if (result['data']?.['access_token']) {
+              localStorage.setItem('token', result['data']['access_token']);
+              localStorage.setItem('access_token', result['data']['access_token']);
+              console.log('Token saved successfully');
             }
-            setTimeout(() => {
-              if (result['first_time_login'] === true) {
-                this.router.navigate(['/auth/first-time-password']);
-              } else {
-                this.router.navigate(['/dashboard']);
-              }
-            }, 2000);
-            return result;
+            
+            // Store additional user data
+            if (result['data']) {
+              localStorage.setItem('user_name', result['data']['name'] || '');
+              localStorage.setItem('first_name', result['data']['first_name'] || '');
+              localStorage.setItem('last_name', result['data']['last_name'] || '');
+              console.log('User data saved:', result['data']);
+            }
+            
+            // Navigate based on first-time login status
+            const isFirstTimeLogin = result['first_time_login'] === true || result['data']?.['first_time_login'] === true;
+            
+            if (isFirstTimeLogin) {
+              console.log('Navigating to first-time password setup');
+              this.router.navigate(['/auth/first-time-password']);
+            } else {
+              console.log('Navigating to dashboard');
+              this.router.navigate(['/dashboard']).then(
+                (success) => {
+                  if (success) {
+                    console.log('Navigation to dashboard successful');
+                  } else {
+                    console.log('Navigation to dashboard failed');
+                  }
+                },
+                (error) => console.log('Navigation error:', error)
+              );
+            }
           }
-        })
-      );
+        },
+        error: (error) => {
+          console.error('Login error:', error);
+          this.hasError = true;
+          this.errorMsg = 'An unexpected error occurred. Please try again.';
+          this.isLoading = false;
+        }
+      });
   }
 
   toggleShowPassword() {
