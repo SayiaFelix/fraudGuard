@@ -8,7 +8,7 @@ import { CheckTokenValidityInterceptor } from './shared/services/checkTokenValid
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'dashboard',
+    redirectTo: 'home',
     pathMatch: 'full'
   },
   {
