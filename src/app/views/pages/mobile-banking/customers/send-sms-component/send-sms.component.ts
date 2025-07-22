@@ -1,328 +1,218 @@
 import {
   Component,
-  Input,
   OnInit,
-  TemplateRef,
   ViewChild,
+  ElementRef,
 } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { DatePipe } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ColumnMode } from '@swimlane/ngx-datatable';
-
-import { GlobalService } from '../../../../../shared/services/global.service';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { NgxDatatableComponent } from '../../../tables/ngx-datatable/ngx-datatable.component';
-import { DatatableComponent } from '@swimlane/ngx-datatable/lib/components/datatable.component';
-import { DataExportationService } from 'src/app/shared/services/data-exportation.service';
-import { ItemsList } from '@ng-select/ng-select/lib/items-list';
 import { HttpService } from 'src/app/shared/services/http.service';
-import {AddRoleComponent} from "../../rbac/roles/add-role/add-role.component";
-import {AddCustomerComponent} from "../add-customer/add-customer.component";
+import { AddCustomerComponent } from "../add-customer/add-customer.component"; // This modal will be used for adding/editing triggers
+
+// This interface defines the structure of a single trigger, based on your screenshot
+interface Trigger {
+  id: number; // Make sure this is present
+  name: string;
+  description?: string;
+  type?: string;
+  enabled: boolean;
+  lastUpdated: Date;
+}
 
 @Component({
   selector: 'app-list-mobile-app',
   templateUrl: './send-sms.component.html',
   styleUrls: ['./send-sms.component.scss'],
-  providers: [DatePipe],
 })
-
-/**
- * Starter-component
- */
 export class SendSmsComponent implements OnInit {
-  @ViewChild('table') table: DatatableComponent;
+  @ViewChild('fileInput') fileInput: ElementRef;
 
-  tempProductData = [
-    {
-      id: 1,
-      productCategory: 'Bank Accounts',
-      parentCategory:'-',
-      remarks: 'Bank Accounts Description',
-      status: true,
-      createdOn: '12-02-2023',
-    },
-    {
-      id: 2,
-      productCategory: 'Card Accounts',
-      parentCategory:'-',
-      remarks: 'Card Accounts Description',
-      status: true,
-      createdOn: '12-02-2023',
-    },
-    {
-      id: 3,
-      productCategory: 'Loan Accounts',
-      parentCategory:'-',
-      remarks: 'Loan Accounts Description',
-      status: true,
-      createdOn: '12-02-2023',
-    },
-    {
-      id: 4,
-      productCategory: 'Investment Accounts',
-      parentCategory:'-',
-      remarks: 'Investment Accounts Description',
-      status: true,
-      createdOn: '12-02-2023',
-    },
-    {
-      id: 5,
-      productCategory: 'Insurance Accounts',
-      parentCategory:'-',
-      remarks: 'Insurance Accounts Description',
-      status: false,
-      createdOn: '12-02-2023',
-    },
-  ];
-
-  // bread crumb items
-  breadCrumbItems: Array<{}>;
-  rows: any = [];
-  temp: any = [];
-  loadingIndicator = true;
-  reorderable = true;
-
-  columns = [
-    { name: 'ID', prop: 'id' },
-    { name: 'ProductCategory', prop: 'productCategory' },
-    {name:'ParentCategory',prop:'parentCategory'},
-    { name: 'Remarks', prop: 'remarks' },
-    { name: 'Status', prop: 'status' },
-    { name: 'CreatedOn', prop: 'createdOn' },
-    { name: 'Actions', prop: 'id' },
-  ];
-
-  allColumns = [...this.columns];
-
-  public form: FormGroup;
-  public formData: { productName: any; remarks: any; image: any };
-  ColumnMode = ColumnMode;
-  public imageFile: File;
   public modalRef: NgbModalRef;
-
-  title: string = "Products";
-
+  triggers: Trigger[] = [];
+  isLoading = true;
 
   constructor(
     private httpService: HttpService,
     private modalService: NgbModal,
-    public fb: FormBuilder,
-    public router: Router,
-    private globalService: GlobalService, 
-    private dataExploration: DataExportationService
   ) {}
 
   ngOnInit() {
-  const chatbotId = this.globalService.getChatbotId();
-    if (chatbotId) {
-      console.log('Using Chatbot ID:', chatbotId);
-      // You can now use this ID to fetch intents or create new ones
-    } else {
-      console.warn('No chatbot ID found');
-    }
-    this.breadCrumbItems = [
-      {
-        label: 'Mobile banking',
-        path: '/mobile-banking/products/all-products',
-      },
-      { label: 'Pages', path: '/' },
-      { label: 'Products', active: true },
-    ];
-    this.getIndividualData(0);
+    this.loadTriggers();
+  }
 
-    this.form = this.fb.group({
-      name: ['', [Validators.required]],
-      description: ['', [Validators.required]],
-      image: [''],
+  /**
+   * Fetches the list of triggers from the API to display in the table.
+   */
+  loadTriggers(): void {
+    this.isLoading = true;
+    const model = { page: 0, size: 100 }; // Fetch up to 100 triggers
+
+    // NOTE: This endpoint should list your triggers. Adjust if necessary.
+    this.httpService
+      .mobileBankingPost('api/v1/corporate/admin/list-triggers/all', model)
+      .subscribe({
+        next: (res: any) => {
+          if (res.status === 200) {
+            this.triggers = res.data || [];
+          } else {
+            this.showErrorMessage('Failed to load triggers.');
+            this.triggers = [];
+          }
+          this.isLoading = false;
+        },
+        error: (err: any) => {
+          console.error('Error loading triggers:', err);
+          this.showErrorMessage('An error occurred while loading triggers.');
+          this.triggers = []; // Default to empty on error
+          this.isLoading = false;
+        }
     });
   }
 
-  getIndividualData(event: number): void {
-    this.rows = this.tempProductData;
+  /**
+   * This is the function for your "Add Trigger" button.
+   * It opens a modal window to enter the trigger details.
+   * The API call to add the trigger will happen INSIDE the modal component.
+   */
 
-    this.temp = [...this.tempProductData];
+  onAddTriggerClick(): void {
+    this.modalRef = this.modalService.open(AddCustomerComponent, {
+      centered: true,
+      size: 'lg'
+    });
+    
+    // We tell the modal what it's being used for
+    this.modalRef.componentInstance.title = 'Add New Trigger';
+    this.modalRef.componentInstance.mode = 'add-trigger'; // This tells the modal to use the 'add-trigger' API
+    
+    // After the modal is closed, we check the result
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        this.loadTriggers(); // If successful, refresh the list of triggers
+        this.showSuccessMessage('Trigger added successfully!');
+      }
+    }).catch(() => { /* This is for when the modal is dismissed (e.g., clicking outside) */ });
+  }
 
-    const model = {
-      page: 0,
-      size: 50,
-    };
+  /**
+   * Opens the modal to edit an existing trigger.
+   */
+  editTrigger(trigger: Trigger): void {
+    this.modalRef = this.modalService.open(AddCustomerComponent, {
+      centered: true,
+      size: 'lg'
+    });
+    
+    this.modalRef.componentInstance.title = 'Edit Trigger';
+    this.modalRef.componentInstance.mode = 'edit-trigger';
+    this.modalRef.componentInstance.formData = trigger; // Pass existing data to the modal
+    
+    this.modalRef.result.then((result) => {
+      if (result === 'success') {
+        this.loadTriggers();
+        this.showSuccessMessage('Trigger updated successfully!');
+      }
+    }).catch(() => {});
+  }
+  
+  /**
+   * Deletes a trigger after user confirmation.
+   */
+  deleteTrigger(trigger: Trigger): void {
+    if (confirm(`Are you sure you want to delete the trigger "${trigger.name}"?`)) {
+      // Use POST to a delete endpoint, as your HttpService seems to require it.
+      // Adjust the endpoint as needed.
+      this.httpService
+        .mobileBankingPost(`api/v1/corporate/admin/triggers/delete/${trigger.id}`, {})
+        .subscribe({
+          next: (res: any) => {
+            if (res.status === 200) {
+              this.loadTriggers();
+              this.showSuccessMessage('Trigger deleted successfully!');
+            } else {
+              this.showErrorMessage('Failed to delete trigger.');
+            }
+          },
+          error: (err: any) => {
+            console.error('Error deleting trigger:', err);
+            this.showErrorMessage('Error deleting trigger.');
+          }
+        });
+    }
+  }
 
+  /**
+   * Toggles the enabled/disabled status of a trigger.
+   */
+  toggleTriggerStatus(trigger: Trigger, event: any): void {
+    const enabled = event.target.checked;
+    
     this.httpService
-      .mobileBankingPost('api/v1/corporate/admin/list-products/all', model)
-      .subscribe((res: any) => {
-        if (res.status === 200) {
-          setTimeout(() => {
-            // this.data = res.data;
-            this.rows = this.tempProductData;
-            // let data = this.tempProductData;
-
-            let total = res.totalItems;
-          }, 10);
-        } else {
+      .mobileBankingPost(`api/v1/corporate/admin/triggers/toggle/${trigger.id}`, { enabled })
+      .subscribe({
+        next: (res: any) => {
+          if (res.status === 200) {
+            trigger.enabled = enabled;
+            this.showSuccessMessage(`Trigger ${enabled ? 'enabled' : 'disabled'} successfully!`);
+          } else {
+            event.target.checked = !enabled; // Revert UI on failure
+            this.showErrorMessage('Failed to update trigger status.');
+          }
+        },
+        error: (err: any) => {
+          event.target.checked = !enabled; // Revert UI on failure
+          this.showErrorMessage('Error updating trigger status.');
         }
       });
   }
-
-  openAddProductModal() {
-
-    this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true});
-    this.modalRef.componentInstance.title = 'Add Categories';
-    this.modalRef.result.then((result) => {
-      if (result === 'success') {
-        this.getIndividualData(0);
-      } else {
-        console.log("Error occurred")
-      }
-    });
+  
+  // --- File Upload Methods ---
+  triggerFileUpload(): void {
+    this.fileInput.nativeElement.click();
   }
 
-  openEditProductModal(formData: any) {
-    this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true});
-    this.modalRef.componentInstance.title = 'Edit Product';
-    this.modalRef.componentInstance.formData = formData;
-    this.modalRef.result.then((result) => {
-      if (result === 'success') {
-        this.getIndividualData(0);
-      } else {
-        console.log("Error occurred")
-      }
+  onFileUpload(event: any): void {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    this.httpService
+      .mobileBankingPost('api/v1/corporate/admin/upload-file', formData) // Adjust endpoint
+      .subscribe({
+        next: (res: any) => {
+          this.showSuccessMessage('File uploaded successfully!');
+          this.loadTriggers();
+        },
+        error: (err: any) => {
+          this.showErrorMessage('Error uploading file.');
+        }
     });
+    event.target.value = '';
   }
 
-  onFileChange(event: any) {
-    if (event.target.files && event.target.files.length) {
-      this.imageFile = event.target.files[0];
+  // --- Utility Methods ---
+  private showSuccessMessage(message: string): void {
+    alert(message); // Replace with a proper notification/toast service
+  }
+
+  private showErrorMessage(message: string): void {
+    alert(message); // Replace with a proper notification/toast service
+  }
+
+  getTriggerIcon(triggerType: string): string {
+    const type = triggerType?.toLowerCase() || 'default';
+    switch (type) {
+      case 'chat started':
+        return 'message-square';
+      case 'chat closed':
+        return 'x-square';
+      case 'fallback':
+        return 'alert-triangle';
+      case 'message received':
+        return 'inbox';
+      default:
+        return 'git-commit';
     }
-  }
-
-  navigateToViewProduct(data: any) {
-    this.router.navigateByUrl(`/mobile-banking/products/list-products/${data.id}`);
-  }
-
-  toggleExpandRow(row: any) {
-    console.log(row);
-    console.log(this.table);
-
-    this.table.rowDetail.toggleExpandRow(row);
-  }
-
-  onDetailToggle(event: any) {
-    console.log('Detail Toggled', event);
-  }
-
-  updateFilter(event: any, columnName: any) {
-    const val = event.target.value.toLowerCase();
-
-    // filter our data
-    const temp = this.temp.filter(function (d: any) {
-      return d.productName.toLowerCase().indexOf(val) !== -1 || !val;
-    });
-
-    // update the rows
-    this.rows = temp;
-    // Whenever the filter changes, always go back to the first page
-    this.table.offset = 0;
-  }
-
-  toggle(col: any) {
-    const isChecked = this.isChecked(col);
-
-    if (isChecked) {
-      this.columns = this.columns.filter((c) => {
-        return c.name !== col.name;
-      });
-    } else {
-      this.columns = [...this.columns, col];
-    }
-  }
-
-  isChecked(col: any) {
-    return (
-      this.columns.find((c) => {
-        return c.name === col.name;
-      }) !== undefined
-    );
-  }
-
-  toggleDrop() {
-    let checkList: HTMLElement = document.getElementById('list1')!;
-
-    if (checkList.classList.contains('visible'))
-      checkList.classList.remove('visible');
-    else checkList.classList.add('visible');
-  }
-
-  exportCSV() {
-    let cols: string[] = this.columns.map(item => {
-      if(item['name'].toLowerCase() !== 'actions'){
-        return item['prop']
-      } else {
-        return ''
-      }
-    })
-    cols = cols.filter(item => item !== '')
-    let arr: Record<string, string>[]= []
-
-    this.rows.forEach((row: any) => {
-      let temp: Record<string, string> = {}
-      cols.forEach(key => {
-        temp = {...temp, [key]: row[key]}
-      })
-      arr.push(temp)
-    })
-    this.dataExploration.exportToCsv(arr, 'Products')
-  }
-
-  exportXLSX() {
-    let cols: string[] = this.columns.map(item => {
-      if(item['name'].toLowerCase() !== 'actions'){
-        return item['prop']
-      } else {
-        return ''
-      }
-    })
-    cols = cols.filter(item => item !== '')
-    let arr: Record<string, string>[]= []
-
-    this.rows.forEach((row: any) => {
-      let temp: Record<string, string> = {}
-      cols.forEach(key => {
-        temp = {...temp, [key]: row[key]}
-      })
-      arr.push(temp)
-    })
-
-    this.dataExploration.exportDataXlsx(arr, 'Products')
-  }
-
-  exportPDF() {
-    console.log(this.rows);
-    let cols: string[] = this.columns.map(item => {
-      if(item['name'].toLowerCase() !== 'actions'){
-        return item['name'].toUpperCase()
-      } else {
-        return ''
-      }
-    })
-    cols = cols.filter(item => item !== '')
-    let rowKeys: string[] = Object.keys(this.rows[0]);
-    let arr: string[][]= []
-    this.rows.forEach((row: any) => {
-      let temp: string[] = []
-      rowKeys.forEach(key => {
-        temp.push(row[key])
-      })
-      arr.push(temp)
-    })
-    this.dataExploration.exportToPdf(cols, arr, 'Products')
-  }
-
-  updateColumns(updatedColumns: any) {
-    this.columns = [...updatedColumns];
-  }
-
-  downloadTemplate() {
-
   }
 }

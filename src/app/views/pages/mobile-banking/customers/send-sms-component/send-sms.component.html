@@ -1,47 +1,91 @@
-<div
-  class="d-flex justify-content-between align-items-center flex-wrap grid-margin"
->
-  <div>
-    <h4 class="mb-3 mb-md-0">Bulk SMS Options</h4>
-  </div>
-</div>
+<!-- src/app/views/pages/mobile-banking/customers/send-sms/send-sms.component.html -->
 
+<div class="card">
+  <div class="card-body">
+    
+    <!-- Block 1: Title and Description -->
+    <div>
+      <h5 class="card-title text-uppercase fw-bold mb-1">Recent Agent List</h5>
+      <p class="text-muted mb-0">Add triggers and actions for a scripted chat flow. If an action is not triggered, then the enabled LLM will generate a response.</p>
+    </div>
 
-<div class="row">
-  <div class="col-md-6 stretch-card">
-    <div class="card">
-      <div class="d-grid my-3 mx-3">
-
-<!--        <a [href]="excelURL"-->
-<!--           [download]="specificVisitTitle"-->
-<!--           style="text-decoration: none;"-->
-<!--           target="_blank">-->
-<!--          <i class="fa fa-edit"></i> Download Visit Docs-->
-<!--        </a>-->
-
-        <button class="btn btn-outline-primary">
-          <i appFeatherIcon class="btn-icon-prepend icon-md" data-feather="download"></i>
-          Download SMS Template
+    <!-- 
+      Block 2: Buttons (CORRECTED - now aligned to the left)
+      By removing "d-flex" and "justify-content-end", the block will naturally align left.
+    -->
+    <div class="mt-4 mb-3">
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-primary" (click)="triggerFileUpload()">
+          <i class="feather icon-upload btn-icon-prepend"></i>
+          Upload File
         </button>
+        <button class="btn btn-primary" (click)="onAddTriggerClick()">
+          <i class="feather icon-plus btn-icon-prepend"></i>
+          Add Trigger
+        </button>
+        <!-- This is the actual file input, hidden from view -->
+        <input type="file" #fileInput (change)="onFileUpload($event)" style="display: none;" accept=".xlsx, .xls, .csv" />
       </div>
     </div>
-  </div>
 
-  <div class="col-md-6 stretch-card">
-    <div class="card">
-      <div class="d-grid my-3 mx-3">
-        <button class="btn btn-primary">
-          <i appFeatherIcon class="btn-icon-prepend icon-md" data-feather="upload"></i>
-          Upload Bulk SMS Excel Sheet
-        </button>
-      </div>
-      <h4 class="text-center">OR</h4>
-      <div class="d-grid my-3 mx-3">
-        <button class="btn btn-primary">
-          <i appFeatherIcon class="btn-icon-prepend icon-md" data-feather="send"></i>
-          Send Message to all Customers
-        </button>
-      </div>
+    <!-- Triggers Table (This part remains the same) -->
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th scope="col">TRIGGER</th>
+            <th scope="col">DESCRIPTION</th>
+            <th scope="col">LAST UPDATED</th>
+            <th scope="col">TYPE</th>
+            <th scope="col">ENABLED</th>
+            <th scope="col" class="text-center">ACTION</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Loading State -->
+          <tr *ngIf="isLoading">
+            <td colspan="6" class="text-center py-5">
+              <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Empty State -->
+          <tr *ngIf="!isLoading && triggers.length === 0">
+            <td colspan="6" class="text-center text-muted py-5">
+              No triggers found. Click "Add Trigger" to create one.
+            </td>
+          </tr>
+
+          <!-- Data Rows -->
+          <tr *ngFor="let trigger of triggers">
+            <td><strong>{{ trigger.name || 'N/A' }}</strong></td>
+            <td>{{ trigger.description || 'N/A' }}</td>
+            <td>{{ trigger.lastUpdated | date:'medium' }}</td>
+            <td><span class="badge bg-light text-dark">{{ trigger.type || 'Default' }}</span></td>
+            <td>
+              <div class="form-check form-switch">
+                <input 
+                  class="form-check-input" 
+                  type="checkbox" 
+                  role="switch"
+                  [id]="'switch-' + trigger.id" 
+                  [checked]="trigger.enabled"
+                  (change)="toggleTriggerStatus(trigger, $event)">
+              </div>
+            </td>
+            <td class="text-center">
+                <button class="btn btn-sm btn-icon btn-outline-secondary me-2" (click)="editTrigger(trigger)" title="Edit">
+                    <i class="feather icon-edit-2"></i>
+                </button>
+                <button class="btn btn-sm btn-icon btn-outline-danger" (click)="deleteTrigger(trigger)" title="Delete">
+                    <i class="feather icon-trash-2"></i>
+                </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>

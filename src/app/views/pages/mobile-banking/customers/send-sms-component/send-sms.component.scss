@@ -1,73 +1,33 @@
-.profiles-container {
-  background-color: #ffffff;
+// src/app/views/pages/mobile-banking/customers/send-sms/send-sms.component.scss
+
+// Ensure all table content is vertically aligned in the middle
+.table td, .table th {
+  vertical-align: middle;
 }
 
-.anchor {
-  border-radius: 6px;
-  height: 30px;
-  color: #6571ff;
-  border-color: #6571ff !important;
-  font-size: small;
-
+// Style for the on/off toggle switch
+.form-check.form-switch {
+  padding-left: 3.5em; // Give more space for the larger switch
+  .form-check-input {
+    width: 3em;
+    height: 1.5em;
+    cursor: pointer;
+  }
 }
 
-.items {
-  position: absolute;
-  z-index: 2;
-  width: 90%;
-  background: #f9fafb;
-}
+// Uniform styling for the small Edit/Delete icon buttons
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  height: 32px;
+  width: 32px;
+  border-radius: 50%; // Make them circular
 
-.dropdown-check-list {
-  display: inline-block;
-}
-
-.dropdown-check-list .anchor {
-  position: relative;
-  cursor: pointer;
-  display: inline-block;
-  padding: 5px 50px 5px 10px;
-  border: 1px solid #ccc;
-}
-
-.dropdown-check-list .anchor:after {
-  position: absolute;
-  content: "";
-  border-left: 2px solid black;
-  border-top: 2px solid black;
-  padding: 5px;
-  right: 10px;
-  top: 20%;
-  -moz-transform: rotate(-135deg);
-  -ms-transform: rotate(-135deg);
-  -o-transform: rotate(-135deg);
-  -webkit-transform: rotate(-135deg);
-  transform: rotate(-135deg);
-}
-
-.dropdown-check-list .anchor:active:after {
-  right: 8px;
-  top: 21%;
-}
-
-.dropdown-check-list ul.items {
-  padding: 2px;
-  display: none;
-  margin: 0;
-  border: 1px solid #ccc;
-  border-top: none;
-}
-
-.dropdown-check-list ul.items li {
-  list-style: none;
-}
-
-.dropdown-check-list.visible .anchor {
-  color: #0094ff;
-}
-
-.dropdown-check-list.visible .items {
-  display: block;
+  i {
+    font-size: 16px;
+  }
 }
 
 //.ngx-datatable.bootstrap {
