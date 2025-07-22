@@ -49,7 +49,6 @@ export class LoginComponent implements OnInit {
     fb: FormBuilder,
     private _router: Router,
     private toastr: ToastrService
-
   ) {
     this.form = fb.group({
       email: [
@@ -64,100 +63,102 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-
     localStorage.clear();
-
     // get return url from route parameters or default to '/'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
 
-  // onSubmit(e: Event) {
-  //   this.hasError = false;
-  //   this.isLoading = true;
-  //   e.preventDefault();
-
-  //   const model = {
-  //     email: this.form.value.email,
-  //     password:this.form.value.password
-  //   }
-  //   this.loginResponse$ = this.httpService
-  //     .customerPortalAuth('api/v1/auth/login', model)
-  //     .pipe(
-  //       catchError((error: any) => {
-  //         console.log(error);
-  //         this.hasError = error.message;
-  //         this.isLoading = false;
-  //         return throwError(error);
-  //       }),
-  //       map((result) => {
-  //         console.log(result)
-  //         this.isLoading = false;
-  //         if (result['status'] != '00') {
-  //           this.hasError = true;
-  //           this.toastr.success(result.message, 'Success!');  
-  //           this.errorMsg = result['error'];
-  //           setTimeout(() => {
-  //             this.hasError = false;
-  //             this.errorMsg = '';
-  //             this.form.reset();
-  //           }, 2000);
-  //         } else {
-  //           setTimeout(() => {
-  //             this.router.navigate(['/dashboard']);
-  //           }, 2000);
-  //           return result;
-  //         }
-  //       })
-  //     );
-  // }
-
   onSubmit(e: Event) {
+    e.preventDefault();
+    
+    // Prevent multiple submissions
+    if (this.isLoading) {
+      return;
+    }
+    
     this.hasError = false;
     this.isLoading = true;
-    e.preventDefault();
 
     const model = {
       email: this.form.value.email,
       password: this.form.value.password
     }
-    this.loginResponse$ = this.httpService
+
+    // Subscribe to the Observable to actually execute the HTTP request
+    this.httpService
       .customerPortalAuth('login', model)
       .pipe(
         catchError((error: any) => {
           console.log(error);
-          this.hasError = error.message;
+          this.hasError = true;
+          this.errorMsg = error.message || 'Login failed';
           this.isLoading = false;
           return throwError(error);
-        }),
-        map((result) => {
-          console.log(result)
+        })
+      )
+      .subscribe({
+        next: (result) => {
+          console.log('Login result:', result);
           this.isLoading = false;
+          
           if (result['status'] != '00') {
+            // Handle login failure
             this.hasError = true;
-            this.errorMsg = result['error'];
+            this.errorMsg = result['error'] || result['message'] || 'Login failed';
             setTimeout(() => {
               this.hasError = false;
               this.errorMsg = '';
               this.form.reset();
             }, 3000);
           } else {
-            // Store token from login response for global use BEFORE navigation
-            if (result['token']) {
-              localStorage.setItem('token', result['token']);
-              // console.log('Token saved:', result['token']);
+            // Handle login success
+            this.hasError = false;
+            
+            // Store the correct token from the data object
+            if (result['data']?.['access_token']) {
+              localStorage.setItem('token', result['data']['access_token']);
+              localStorage.setItem('access_token', result['data']['access_token']);
+              console.log('Token saved successfully');
             }
-            setTimeout(() => {
-              if (result['first_time_login'] === true) {
-                this.router.navigate(['/auth/first-time-password']);
-              } else {
-                this.router.navigate(['/dashboard']);
-              }
-            }, 2000);
-            return result;
+            
+            // Store additional user data
+            if (result['data']) {
+              localStorage.setItem('user_name', result['data']['name'] || '');
+              localStorage.setItem('first_name', result['data']['first_name'] || '');
+              localStorage.setItem('last_name', result['data']['last_name'] || '');
+              console.log('User data saved:', result['data']);
+            }
+            
+            // Navigate based on first-time login status
+            const isFirstTimeLogin = result['first_time_login'] === true || result['data']?.['first_time_login'] === true;
+            
+            if (isFirstTimeLogin) {
+              console.log('Navigating to first-time password setup');
+              this.router.navigate(['/auth/first-time-password']);
+            } else {
+              console.log('Navigating to dashboard');
+              this.router.navigate(['/dashboard']).then(
+                (success) => {
+                  if (success) {
+                    console.log('Navigation to dashboard successful');
+                  } else {
+                    console.log('Navigation to dashboard failed');
+                  }
+                },
+                (error) => console.log('Navigation error:', error)
+              );
+            }
           }
-        })
-      );
+        },
+        error: (error) => {
+          console.error('Login error:', error);
+          this.hasError = true;
+          this.errorMsg = 'An unexpected error occurred. Please try again.';
+          this.isLoading = false;
+        }
+      });
   }
+
   toggleShowPassword() {
     this.showingPassword = !this.showingPassword;
     if (this.showingPassword) {
@@ -165,6 +166,10 @@ export class LoginComponent implements OnInit {
     } else {
       this.inputType = 'password';
     }
+  }
+
+  navigateToSignUp() {
+    this.router.navigate(['/auth/signup']);
   }
 
   changeLanguage(lang: string) {
@@ -179,7 +184,6 @@ export class LoginComponent implements OnInit {
   }
 
   private saveUsernameAndRolesOnLogin() {
-
     let accessToken = localStorage.getItem("access_token");
 
     // decode token to get response
@@ -189,19 +193,12 @@ export class LoginComponent implements OnInit {
     // console.log("remove model: ", model);
     this.httpService.mobileBankingPost('oauth/validate', model).subscribe((res: any) => {
       if (res.status === 200) {
-
         console.log(res.data);
-
         localStorage.setItem('userName', res.data.username);
         localStorage.setItem('roles', res.data.roles);
-
       } else {
         Swal.fire('Error', 'Unable to fetch user details.', 'error');
       }
     })
-
-
   }
-  //   const tokenExpirationTime: Date =  // Get the token's expiration time from the token itself or the server response
-  // this.authservice.setTokenExpiration(this.tokenExpirationTime);
 }
