@@ -7,8 +7,10 @@ import {
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { HttpService } from 'src/app/shared/services/http.service';
 import { AddCustomerComponent } from "../add-customer/add-customer.component"; // This modal will be used for adding/editing triggers
+import { GlobalService } from 'src/app/shared/services/global.service';
+import { FormBuilder, FormGroup, FormArray, Validators, FormControl } from '@angular/forms';
+import Swal from "sweetalert2";
 
-// This interface defines the structure of a single trigger, based on your screenshot
 interface Trigger {
   id: number; // Make sure this is present
   name: string;
@@ -25,23 +27,136 @@ interface Trigger {
 })
 export class SendSmsComponent implements OnInit {
   @ViewChild('fileInput') fileInput: ElementRef;
+  @ViewChild('triggerModal') triggerModal: ElementRef;
 
+  triggerForm: FormGroup;
+  
   public modalRef: NgbModalRef;
   triggers: Trigger[] = [];
   isLoading = true;
+  result: any;
 
   constructor(
     private httpService: HttpService,
     private modalService: NgbModal,
-  ) {}
+    private globalService: GlobalService,
+    private fb: FormBuilder
+  ) {
+     this.initializeForm();
+  }
 
   ngOnInit() {
+    const chatbotId = this.globalService.getChatbotId();
+    if (chatbotId) {
+        console.log('Using Chatbot ID:', chatbotId);
+        // You can now use this ID to fetch intents or create new ones
+      } else {
+        console.warn('No chatbot ID found');
+      }
     this.loadTriggers();
   }
 
-  /**
-   * Fetches the list of triggers from the API to display in the table.
-   */
+    
+  initializeForm() {
+    this.triggerForm = this.fb.group({
+      name: ['', [Validators.required, Validators.required]],
+      description: ['', Validators.required],
+      training_phrases: this.fb.array([
+        this.fb.control('', Validators.required)
+      ])
+    });
+  }
+
+   get trainingPhrases() {
+    return this.triggerForm?.get('training_phrases') as FormArray;
+  }
+
+  addTrainingPhrase() {
+    this.trainingPhrases.push(this.fb.control('', Validators.required));
+  }
+
+  removeTrainingPhrase(index: number) {
+    if (this.trainingPhrases.length > 1) {
+      this.trainingPhrases.removeAt(index);
+    }
+  }
+
+onAddTriggerClick() {
+  this.initializeForm(); // Reinitialize form to clear previous values
+  this.triggerModal.nativeElement.classList.add('show');
+  this.triggerModal.nativeElement.style.display = 'block';
+  document.body.classList.add('modal-open');
+}
+
+closeModal() {
+  // Hide modal logic
+  this.triggerModal.nativeElement.classList.remove('show');
+  this.triggerModal.nativeElement.style.display = 'none';
+  document.body.classList.remove('modal-open');
+}
+
+onTriggerSubmit(): void {
+  if (this.triggerForm.valid) {
+    // Get chatbot ID from global service
+    const chatbotId = this.globalService.getChatbotId();
+    
+    if (!chatbotId) {
+      console.warn('No chatbot ID found');
+      Swal.fire('Error', 'No chatbot ID found', 'error');
+      return;
+    }
+
+    const model = {
+      ...this.triggerForm.value,
+      chatbot_id: chatbotId, 
+      is_root: true, 
+      order: 1        
+    };
+
+    console.log('Form data to submit:', model);
+
+    this.httpService
+      .mobileBankingPost('builder/nodes/intent', model)
+      .subscribe({
+        next: (result: any) => {
+          if (result.status === '00') {
+            setTimeout(() => {
+              this.result = result.data;
+              console.log(this.result);
+  
+              this.globalService.setIntentId(result.data.id);
+  
+              Swal.fire('ChatBot', 'Intent created successfully!', 'success');
+              this.triggerForm.reset();
+              this.closeModal(); // Close modal after successful submission
+            }, 10);
+          } else {
+            console.log(result.message);
+            Swal.fire('Error', result.message || 'Failed to create intent', 'error');
+          }
+        },
+        error: (err: any) => {
+          console.error('Bot creation failed:', err);
+          Swal.fire('Error', 'Failed to create intent', 'error');
+        }
+      });
+  } else {
+    // Mark all fields as touched to show validation errors
+    this.markFormGroupTouched(this.triggerForm);
+  }
+}
+
+// Helper method to mark all form controls as touched
+private markFormGroupTouched(formGroup: FormGroup) {
+  Object.values(formGroup.controls).forEach(control => {
+    control.markAsTouched();
+
+    if (control instanceof FormGroup) {
+      this.markFormGroupTouched(control);
+    }
+  });
+}
+
   loadTriggers(): void {
     this.isLoading = true;
     const model = { page: 0, size: 100 }; // Fetch up to 100 triggers
@@ -74,24 +189,24 @@ export class SendSmsComponent implements OnInit {
    * The API call to add the trigger will happen INSIDE the modal component.
    */
 
-  onAddTriggerClick(): void {
-    this.modalRef = this.modalService.open(AddCustomerComponent, {
-      centered: true,
-      size: 'lg'
-    });
+  // onAddTriggerClick(): void {
+  //   this.modalRef = this.modalService.open(AddCustomerComponent, {
+  //     centered: true,
+  //     size: 'lg'
+  //   });
     
-    // We tell the modal what it's being used for
-    this.modalRef.componentInstance.title = 'Add New Trigger';
-    this.modalRef.componentInstance.mode = 'add-trigger'; // This tells the modal to use the 'add-trigger' API
+  //   // We tell the modal what it's being used for
+  //   this.modalRef.componentInstance.title = 'Add New Trigger';
+  //   this.modalRef.componentInstance.mode = 'add-trigger'; // This tells the modal to use the 'add-trigger' API
     
-    // After the modal is closed, we check the result
-    this.modalRef.result.then((result) => {
-      if (result === 'success') {
-        this.loadTriggers(); // If successful, refresh the list of triggers
-        this.showSuccessMessage('Trigger added successfully!');
-      }
-    }).catch(() => { /* This is for when the modal is dismissed (e.g., clicking outside) */ });
-  }
+  //   // After the modal is closed, we check the result
+  //   this.modalRef.result.then((result) => {
+  //     if (result === 'success') {
+  //       this.loadTriggers(); // If successful, refresh the list of triggers
+  //       this.showSuccessMessage('Trigger added successfully!');
+  //     }
+  //   }).catch(() => { /* This is for when the modal is dismissed (e.g., clicking outside) */ });
+  // }
 
   /**
    * Opens the modal to edit an existing trigger.

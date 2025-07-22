@@ -1,18 +1,12 @@
-<!-- src/app/views/pages/mobile-banking/customers/send-sms/send-sms.component.html -->
-
 <div class="card">
   <div class="card-body">
-    
     <!-- Block 1: Title and Description -->
     <div>
       <h5 class="card-title text-uppercase fw-bold mb-1">Recent Agent List</h5>
       <p class="text-muted mb-0">Add triggers and actions for a scripted chat flow. If an action is not triggered, then the enabled LLM will generate a response.</p>
     </div>
-
-    <!-- 
-      Block 2: Buttons (CORRECTED - now aligned to the left)
-      By removing "d-flex" and "justify-content-end", the block will naturally align left.
-    -->
+    
+    <!-- Action Buttons -->
     <div class="mt-4 mb-3">
       <div class="d-flex gap-2">
         <button class="btn btn-outline-primary" (click)="triggerFileUpload()">
@@ -23,12 +17,61 @@
           <i class="feather icon-plus btn-icon-prepend"></i>
           Add Trigger
         </button>
-        <!-- This is the actual file input, hidden from view -->
         <input type="file" #fileInput (change)="onFileUpload($event)" style="display: none;" accept=".xlsx, .xls, .csv" />
       </div>
     </div>
 
-    <!-- Triggers Table (This part remains the same) -->
+    <!-- Modal Trigger Form -->
+    <div class="modal fade" #triggerModal tabindex="-1" role="dialog" aria-labelledby="triggerModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="triggerModalLabel">Add New Trigger</h5>
+            <button type="button" class="close" (click)="closeModal()" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form [formGroup]="triggerForm" (ngSubmit)="onTriggerSubmit()">
+                <!-- Name field -->
+                <div class="form-group">
+                  <label for="name">Intent Name</label>
+                  <input type="text" class="form-control" id="name" formControlName="name" required>
+                </div>
+                
+                <!-- Description field -->
+                <div class="form-group">
+                  <label for="description">Description</label>
+                  <textarea class="form-control" id="description" formControlName="description" rows="2" required></textarea>
+                </div>
+                
+                <!-- Training Phrases (FormArray) -->
+                <div class="form-group">
+                  <label>Training Phrases</label>
+                  <div formArrayName="training_phrases">
+                    <div *ngFor="let phrase of trainingPhrases.controls; let i = index" class="mb-2 d-flex align-items-center">
+                      <input type="text" class="form-control" [formControlName]="i">
+                      <button type="button" class="btn btn-sm btn-outline-danger ml-2" (click)="removeTrainingPhrase(i)">
+                        <i class="feather icon-trash-2"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <button type="button" class="btn btn-sm btn-outline-primary" (click)="addTrainingPhrase()">
+                    <i class="feather icon-plus"></i> Add Phrase
+                  </button>
+                </div>
+  
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary" [disabled]="!triggerForm.valid">Save Trigger</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Triggers Table -->
     <div class="table-responsive">
       <table class="table table-hover">
         <thead>
@@ -76,12 +119,12 @@
               </div>
             </td>
             <td class="text-center">
-                <button class="btn btn-sm btn-icon btn-outline-secondary me-2" (click)="editTrigger(trigger)" title="Edit">
-                    <i class="feather icon-edit-2"></i>
-                </button>
-                <button class="btn btn-sm btn-icon btn-outline-danger" (click)="deleteTrigger(trigger)" title="Delete">
-                    <i class="feather icon-trash-2"></i>
-                </button>
+              <button class="btn btn-sm btn-icon btn-outline-secondary me-2" (click)="editTrigger(trigger)" title="Edit">
+                <i class="feather icon-edit-2"></i>
+              </button>
+              <button class="btn btn-sm btn-icon btn-outline-danger" (click)="deleteTrigger(trigger)" title="Delete">
+                <i class="feather icon-trash-2"></i>
+              </button>
             </td>
           </tr>
         </tbody>
