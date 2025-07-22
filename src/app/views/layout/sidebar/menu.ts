@@ -29,7 +29,20 @@ export const MENU: MenuItem[] = [
     //   // },
     // ]
   },
-    {
+  {
+    // profiles: ['CORPORATE_ADMIN'],
+    label: 'Inbox',
+    icon: 'inbox',
+    link: '/eclectics/analytics/all-analytics'
+    // subItems: [
+    //   {
+    //     profiles: ['CORPORATE_ADMIN'],
+    //     label: 'All Standards',
+    //     link: '/tra-client/standards/all-standards'
+    //   },
+    // ]
+  },
+  {
   //// profiles: ['CORPORATE_ADMIN'],
     label: 'AI Agents',
     icon: 'users',
@@ -52,20 +65,6 @@ export const MENU: MenuItem[] = [
   //   //   },
   //   // ]
   },
-  {
-    // profiles: ['CORPORATE_ADMIN'],
-    label: 'Inbox',
-    icon: 'inbox',
-    link: '/eclectics/analytics/all-analytics'
-    // subItems: [
-    //   {
-    //     profiles: ['CORPORATE_ADMIN'],
-    //     label: 'All Standards',
-    //     link: '/tra-client/standards/all-standards'
-    //   },
-    // ]
-  },
-
   {
   //// profiles: ['CORPORATE_ADMIN'],
     label: 'Quantra AI',
