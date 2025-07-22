@@ -1,10 +1,10 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable, catchError, map, throwError } from 'rxjs';
 import { HttpService } from 'src/app/shared/services/http.service';
-import { environment } from 'src/environments/environment'; // Import environment
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-register',
@@ -25,31 +25,34 @@ export class RegisterComponent implements OnInit {
     private http: HttpClient,
     fb: FormBuilder
   ) {
+    // --- MODIFIED: Removed password, confirmPassword, and the custom validator ---
     this.form = fb.group({
-      name: ['', Validators.required],
+      firstName: ['', Validators.required],
+      lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]]
     });
   }
 
   ngOnInit(): void {
-    // this.getEnterpriseEmail(this.enterpriseData)
-    // this.getUsers();
+    // Implementation remains the same
   }
+
+  // --- REMOVED: The entire passwordMatchValidator function is no longer needed ---
 
   onRegister(e: Event) {
     this.hasError = false;
     this.isLoading = true;
     e.preventDefault();
 
+    // --- MODIFIED: Removed the 'password' property from the model ---
     const model = {
-      name: this.form.value.name,
+      firstName: this.form.value.firstName,
+      lastName: this.form.value.lastName,
+      name: `${this.form.value.firstName} ${this.form.value.lastName}`, // Keep for backward compatibility
       email: this.form.value.email
     };
 
-    // Use customerPortalNest from environment
-    
     console.log('Register Payload:', model);
-  
 
     this.registerResponse$ = this.httpService
       .customerPortalActivate('register', model)
@@ -73,10 +76,9 @@ export class RegisterComponent implements OnInit {
               this.form.reset();
             }, 3000);
           } else {
+            // The success message in the HTML already handles this flow
+            // You can keep this navigation if you want to redirect after a delay
             setTimeout(() => {
-                //console.log('Register Payload:', model);
-                //console.log('Registration successful:', result);
-  
               this.router.navigate(['/auth/login']);
             }, 3000);
           }
