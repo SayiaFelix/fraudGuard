@@ -86,6 +86,17 @@
   }
 }
 
+// --- Logo container styles ---
+.logo-container {
+  text-align: center;
+  margin-bottom: 30px;
+  
+  .eclectics-logo {
+    max-width: 280px;
+    height: auto;
+  }
+}
+
 // --- Form container content styles ---
 .signup-form-container {
   h3, .signup-subtitle {
@@ -352,6 +363,13 @@
       gap: 0;
     }
   }
+  
+  // Responsive logo styles
+  .logo-container {
+    .eclectics-logo {
+      max-width: 240px;
+    }
+  }
 }
 
 @media (max-width: 480px) {
@@ -364,6 +382,15 @@
       h3 {
         font-size: 28px;
       }
+    }
+  }
+  
+  // Mobile logo styles
+  .logo-container {
+    margin-bottom: 25px;
+    
+    .eclectics-logo {
+      max-width: 200px;
     }
   }
 }

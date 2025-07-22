@@ -84,7 +84,7 @@ html, body {
   justify-content: center;
   align-items: center;
   background: #f7f8fa;
-  overflow-y: auto;
+  // Removed overflow-y: auto to eliminate scroll bar
 
   // Floating card for the form
   .login-form-container {
@@ -98,16 +98,24 @@ html, body {
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    max-height: calc(100vh - 80px);
-    overflow-y: auto;
+    // Removed max-height and overflow-y to eliminate scroll bar
   }
 }
 
 // --- Form header styles ---
 .form-header {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 30px; // Match signup: 30px after logo, then 40px after subtitle, then 30px after tabs
   width: 100%;
+
+  .logo-header {
+    margin-bottom: 30px;
+    
+    .eclectics-logo {
+      max-width: 350px;
+      width: auto;
+    }
+  }
 
   .welcome-title {
     font-size: 32px;
@@ -119,7 +127,7 @@ html, body {
   .welcome-subtitle {
     color: #6c757d;
     font-size: 15px;
-    margin-bottom: 30px;
+    margin-bottom: 40px; // Match signup page exactly
   }
 }
 
