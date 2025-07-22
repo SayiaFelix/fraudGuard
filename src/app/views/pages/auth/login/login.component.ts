@@ -67,23 +67,22 @@ export class LoginComponent implements OnInit {
     // get return url from route parameters or default to '/'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
- 
+
   onSubmit(e: Event) {
     e.preventDefault();
-   
+    
     // Prevent multiple submissions
     if (this.isLoading) {
       return;
     }
-   
+    
     this.hasError = false;
     this.isLoading = true;
- 
+
     const model = {
       email: this.form.value.email,
       password: this.form.value.password
     }
- 
     // Subscribe to the Observable to actually execute the HTTP request
     this.httpService
       .customerPortalAuth('login', model)
@@ -100,7 +99,7 @@ export class LoginComponent implements OnInit {
         next: (result) => {
           console.log('Login result:', result);
           this.isLoading = false;
-         
+          
           if (result['status'] != '00') {
             // Handle login failure
             this.hasError = true;
@@ -113,14 +112,14 @@ export class LoginComponent implements OnInit {
           } else {
             // Handle login success
             this.hasError = false;
-           
+            
             // Store the correct token from the data object
             if (result['data']?.['access_token']) {
               localStorage.setItem('token', result['data']['access_token']);
               localStorage.setItem('access_token', result['data']['access_token']);
               console.log('Token saved successfully');
             }
-           
+            
             // Store additional user data
             if (result['data']) {
               localStorage.setItem('user_name', result['data']['name'] || '');
@@ -128,10 +127,10 @@ export class LoginComponent implements OnInit {
               localStorage.setItem('last_name', result['data']['last_name'] || '');
               console.log('User data saved:', result['data']);
             }
-           
+            
             // Navigate based on first-time login status
             const isFirstTimeLogin = result['first_time_login'] === true || result['data']?.['first_time_login'] === true;
-           
+            
             if (isFirstTimeLogin) {
               console.log('Navigating to first-time password setup');
               this.router.navigate(['/auth/first-time-password']);
@@ -158,7 +157,6 @@ export class LoginComponent implements OnInit {
         }
       });
   }
- 
   toggleShowPassword() {
     this.showingPassword = !this.showingPassword;
     if (this.showingPassword) {
@@ -167,16 +165,15 @@ export class LoginComponent implements OnInit {
       this.inputType = 'password';
     }
   }
- 
+
   navigateToSignUp() {
     this.router.navigate(['/auth/signup']);
   }
- 
+
   changeLanguage(lang: string) {
     this.translate.use(lang);
     if (lang === 'en') {
       this.selectedLanguage = 'English';
-      this.selectedLanguageFlag = 'assets/images/flags/us.svg';
     } else if (lang === 'kis') {
       this.selectedLanguage = 'Kiswahili';
       this.selectedLanguageFlag = 'assets/images/flags/ke.svg';
@@ -202,4 +199,3 @@ export class LoginComponent implements OnInit {
     })
   }
 }
- 
