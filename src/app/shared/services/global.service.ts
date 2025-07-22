@@ -37,6 +37,7 @@ export class GlobalService {
   }
 
  private chatbotId: string | null = null;
+ private intentId: string | null = null
 
   setChatbotId(id: string): void {
     this.chatbotId = id;
@@ -48,6 +49,18 @@ export class GlobalService {
 
   clearChatbotId(): void {
     this.chatbotId = null;
+  }
+
+  setIntentId(id: string): void {
+    this.intentId = id;
+  }
+
+  getIntentId(): string | null {
+    return this.intentId;
+  }
+
+  clearintentId(): void {
+    this.intentId = null;
   }
 
   loadGlobalSettingsFromLocalStorage(): void {
