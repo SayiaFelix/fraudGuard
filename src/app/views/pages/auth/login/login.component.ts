@@ -117,6 +117,7 @@ export class LoginComponent implements OnInit {
             if (result['data']?.['access_token']) {
               localStorage.setItem('token', result['data']['access_token']);
               localStorage.setItem('access_token', result['data']['access_token']);
+              console.log(result['data']['access_token']);     
               console.log('Token saved successfully');
             }
             
