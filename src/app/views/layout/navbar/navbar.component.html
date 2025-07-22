@@ -116,10 +116,10 @@
         <div class="card card-login-container">
           <div class="d-flex justify-content-between"
           style="background-color: #d0ddf0;  font-family: 'Mulish'; font-weight: 900; border-radius:4px;">
-          <h4 class="text-start p-2 mt-2" style="color: #6D36A8; font-size: 21px;">Change Password</h4>
+          <h4 class="text-start p-2 mt-2" style="color: #1509ec; font-size: 21px;">Change Password</h4>
           <div>
             <button type="button" class="btn fs-2" (click)="hideChangePassForm()"
-              style="color: #6D36A8; font-size: 20px; margin-top: -5%;">
+              style="color: #333fe9; font-size: 20px; margin-top: -5%;">
               &times;
             </button>
           </div>
@@ -135,7 +135,7 @@
               <div class="mb-3">
                 <div class="input-group mb-3">
                   <input [type]="inputType"  class="form-control validation-field" formControlName="newPassword"
-                    placeholder="Enter password" id="newPassword" aria-label="password">
+                    placeholder="Enter new password" id="newPassword" aria-label="password">
                   <div class="input-group-prepend" style="cursor: pointer;" (click)="toggleShowPassword()">
                     <span class="input-group-text" *ngIf="!this.showingPassword"><i class="mdi mdi-eye"></i></span>
                     <span class="input-group-text" *ngIf="this.showingPassword"><i class="mdi mdi-eye-off"></i></span>
