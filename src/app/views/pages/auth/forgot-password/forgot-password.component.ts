@@ -62,7 +62,7 @@ export class ForgotPasswordComponent implements OnInit {
         const model = {
           email: this.form.value.email,
         };
-        this.httpService.customerPortalAuth('forgot-password', model).subscribe(
+        this.httpService.customerPortalAuth('auth/forgot-password', model).subscribe(
           (result: any) => {
             if (result.status != "00") {
               setTimeout(() => {

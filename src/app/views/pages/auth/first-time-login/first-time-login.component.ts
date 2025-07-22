@@ -112,7 +112,7 @@ setPassword() {
 
         const headers = { Authorization: `Bearer ${access_token}` };
 
-        this.httpService.customerPortalAuth('change-password', model, { headers }).subscribe({
+        this.httpService.customerPortalAuth('auth/change-password', model, { headers }).subscribe({
           next: (response: any) => {
             if (response.status === '00') {
               Swal.fire('Password Set', 'Password Set Successfully.', 'success');

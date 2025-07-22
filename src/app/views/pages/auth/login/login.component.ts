@@ -85,7 +85,7 @@ export class LoginComponent implements OnInit {
     }
     // Subscribe to the Observable to actually execute the HTTP request
     this.httpService
-      .customerPortalAuth('login', model)
+      .customerPortalAuth('auth/login', model)
       .pipe(
         catchError((error: any) => {
           console.log(error);

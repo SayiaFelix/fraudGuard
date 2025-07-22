@@ -63,7 +63,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
 
     // Use subscription instead of storing observable
     const registerSub = this.httpService
-      .customerPortalActivate('register', model)
+      .customerPortalActivate('auth/register', model)
       .pipe(
         catchError((error: any) => {
           console.error('Registration error:', error);

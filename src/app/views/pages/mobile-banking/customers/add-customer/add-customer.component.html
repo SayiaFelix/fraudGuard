@@ -1,165 +1,129 @@
-<div>
-  <div class="modal-header">
-    <h5 class="modal-title" id="exampleModalLabel">{{title}}</h5>
-    <button (click)="closeModal()" aria-label="Close" class="btn-close" type="button"></button>
-  </div>
-  <div [formGroup]="form" class="modal-body">
-    <div class="row g-3">
+<div class="row">
+  <!-- LEFT SIDE: Form Panel (col-6) -->
+  <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
+    <div class="p-4 border rounded bg-white">
+      <div [formGroup]="form">
+            <!-- Image Upload Section (inline layout) -->
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <!-- Icon/Image -->
+          <label style="width: 64;height: 64;opacity: 1;gap: 10px;border-radius: 32px;border-width: 1px;border-style: dashed;dashes: 4, 4;
+padding: 10px; background: #F8F8F8;
 
-      <div class="col-4">
-        <label class="form-label fw-bold">First Name</label>
-        <input class="form-control" formControlName="firstName" type="text"/>
-        <small
-          *ngIf="
-            form.get('firstName')?.touched &&
-            form.get('firstName')?.hasError('required')
-          "
-          class="text-danger"
-        >Required Field</small
-        >
-      </div>
-      <div class="col-4">
-        <label class="form-label fw-bold">Middle Name</label>
-        <input class="form-control" formControlName="middleName" type="text"/>
-        <small
-          *ngIf="
-          form.get('middleName')?.touched &&
-          form.get('middleName')?.hasError('required')
-        "
-          class="text-danger"
-        >Required Field</small
-        >
-      </div>
+" for="file-input" style="cursor: pointer;">
+            <img src="./assets/images/T.png" alt="Upload Image" class="upload-icon" style="width: 15px; height: 20px;">
+          </label>
 
-      <div class="col-4">
-        <label class="form-label fw-bold">Last Name</label>
-        <input class="form-control" formControlName="lastName" type="text"/>
-        <small
-          *ngIf="
-          form.get('lastName')?.touched &&
-          form.get('lastName')?.hasError('required')
-        "
-          class="text-danger"
-        >Required Field</small
-        >
-      </div>
+          <!-- Upload Button -->
+          <button type="button" class="btn btn-primary btn-sm" (click)="uploadImageClick()">
+            Upload
+            <input id="file-input" type="file" accept="image/*" (change)="onFileSelected()" hidden />
+          </button>
 
-      <div class="col-md-4">
-        <label class="form-label fw-bold">Account Number</label>
-        <input class="form-control" formControlName="accountNumber" type="number" min="0" maxlength="14"
-        oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"/>
-        <small
-          *ngIf="
-              form.get('accountNumber')?.touched &&
-              form.get('accountNumber')?.hasError('required')
-            "
-          class="text-danger"
-        >Required Field</small
-        >
-      </div>
+          <!-- Remove Button -->
+          <button type="button" class="btn btn-sm"  style="border: 1px solid #D8D8DA; color: #202020;
+;" (click)="removeImage()">
+            Remove
+          </button>
+          <!-- <span style="color: #99A1AF;
+">PNG or JPEG up to 10 MB</span> -->
+        </div>
+    
 
-      <div class="col-md-4">
-        <label class="form-label fw-bold">Phone Number</label>
-        <input class="form-control" formControlName="phoneNumber" type="number" min="0" maxlength="12"
-        oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"/>
-        <small
-          *ngIf="
-      form.get('phoneNumber')?.touched &&
-      form.get('phoneNumber')?.hasError('required')
-    "
-          class="text-danger"
-        >Required Field</small
-        >
-      </div>
-      <div class="col-md-4">
-        <label class="form-label fw-bold">Device IMEI (optional)</label>
-        <input class="form-control" formControlName="imeiNumber" type="number" min="0" maxlength="12"
-        oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"/>
-        <small
-          *ngIf="form.get('imeiNumber')?.touched && form.get('imeiNumber')?.hasError('required')"
-          class="text-danger"
-        >Required Field</small
-        >
-      </div>
+        <!-- Name Field -->
+        <div class="mb-4">
+          <label class="form-label fw-bold">Name</label>
+          <input placeholder="Enter the Chatbot Name"  class="form-control" formControlName="name" type="text" />
+          <small *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')" class="text-danger">
+            Required Field
+          </small>
+        </div>
 
-      <div class="col-md-4">
-        <label class="form-label fw-bold">Email (optional)</label>
-        <input class="form-control" formControlName="email" type="email"/>
-        <small
-          *ngIf="
-        form.get('email')?.touched &&
-        form.get('email')?.hasError('required')
-      "
-          class="text-danger"
-        >Required Field</small
-        >
-      </div>
-
-      <div class="col-md-4">
-        <label class="form-label fw-bold">Date of Birth</label>
-        <input class="form-control" formControlName="name" placeholder="Select Date " type="date"/>
-        <small
-          *ngIf="
-    form.get('name')?.touched &&
-    form.get('name')?.hasError('required')
-  "
-          class="text-danger"
-        >Required Field</small
-        >
-      </div>
-      <div class="col-md-4">
-        <label class="form-label fw-bold">National ID/Passport No.</label>
-        <input class="form-control" formControlName="idNumber" type="number" min="0" maxlength="8"
-        oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"/>
-        <small
-          *ngIf="
-    form.get('idNumber')?.touched &&
-    form.get('idNumber')?.hasError('required')
-  "
-          class="text-danger"
-        >Required Field</small
-        >
-      </div>
-      <div class="col-sm-8">
         <div class="mb-3">
-          <label class="text-gray fw-bold">Remarks</label>
-          <textarea
-            class="form-control"
-            formControlName="description"
-            type="text"
-          ></textarea>
-          <small
-            *ngIf="
-              form.get('description')?.touched &&
-              form.get('description')?.hasError('required')
-            "
-            class="text-danger"
-          >Required Field</small
-          >
+          <label class="form-label fw-bold">Description</label>
+          <input placeholder="Enter Chatbot Description" class="form-control" formControlName="description" type="text" />
         </div>
-      </div>
-      <div class="col-md-4 mt-4">
-        <label class="form-label fw-bold">Gender</label>
-        <br>
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" id="inlineRadio1" name="inlineRadioOptions" type="radio" value="option1">
-          <label class="form-check-label fw-bold" for="inlineRadio1">Male</label>
-        </div>
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" id="inlineRadio2" name="inlineRadioOptions" type="radio" value="option2">
-          <label class="form-check-label fw-bold" for="inlineRadio2">Female</label>
-        </div>
-        <small
-          *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')"
-          class="text-danger"
-        >Required Field</small
-        >
+
+     <!-- Languages Input with Tags -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">Languages</label>
+          <div class="form-control d-flex flex-wrap align-items-center" style="min-height: 48px;">
+            
+            <!-- Tags inside the input -->
+          <span *ngFor="let lang of language" class="badge bg-primary me-2 mb-1 rounded-pill">
+              {{ lang }}
+              <i class="mdi mdi-close-circle ms-1" style="cursor: pointer;" (click)="removeLanguage(lang)"></i>
+          </span>
+
+    <!-- Dropdown at the end of the input box -->
+          <select
+              class="form-select border-0 shadow-none p-0 m-0 ms-auto"
+              style=" width: auto; min-width: 140px; background-color: #f8f9fa; font-size: 14px; border-radius: 4px; padding: 4px 8px;"
+              (change)="addLanguage($event)">
+              <option value="" disabled selected>Select language</option>
+              <option
+                *ngFor="let lang of availableLanguages"
+                [value]="lang"
+                [disabled]="language.includes(lang)">
+                {{ lang }}
+              </option>
+        </select>
+
+          
+  </div>
+</div>
+
+  
+   <!-- Default Language Field -->
+      <div class="mb-3">
+        <label class="form-label fw-bold">Default Language</label>
+        <input class="form-control" [value]="defaultLanguage" readonly />
       </div>
 
+
+
+        <!-- Footer Buttons -->
+        <div class="d-flex justify-content-end gap-2 mt-4">
+          <button (click)="closeModal()" type="button" class="btn btn-outline-secondary btn-sm px-4">
+            Delete
+          </button>
+          <button (click)="sendBot()" [disabled]="!form.valid" type="button" class="btn btn-primary btn-sm px-4">
+            Save
+          </button>
+        </div>
+
+      </div>
     </div>
   </div>
-  <div class="modal-footer">
-    <button (click)="closeModal()" class="btn btn-secondary" type="button">Close</button>
-    <button (click)="closeModal()" class="btn btn-primary" type="button"[disabled]="!form.valid">Save changes</button>
+
+   <!-- RIGHT SIDE: Bot Info Table -->
+<div style="background: #F8F8F8;
+" class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+  <div class="p-4 border rounded bg-white">
+    <h3 style="font-family: Roboto;font-weight: 500;font-style: Medium;font-size: 20px;line-height: 100%;letter-spacing: 0%;color: #364153;
+
+" class="mb-3">Recent Agent List</h3>
+    <table *ngIf="result" class="table table-striped text-center">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Language</th>
+          <th>Created At</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ result.id }}</td>
+          <td style="color: #364153;
+">{{ result.name }}</td>
+          <td>{{ result.language }}</td>
+          <td>{{ result.created_at | date:'medium' }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+
+    <p *ngIf="!result" class="text-muted">No bot has been created yet.</p>
   </div>
+</div>
 </div>

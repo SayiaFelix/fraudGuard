@@ -36,26 +36,18 @@ export class GlobalService {
 
   }
 
-   // Shared IDs
-  private chatbotIdSource = new BehaviorSubject<string | null>(null);
-  chatbotId$ = this.chatbotIdSource.asObservable();
+ private chatbotId: string | null = null;
 
-  private conversationIdSource = new BehaviorSubject<string | null>(null);
-  conversationId$ = this.conversationIdSource.asObservable();
-
-  // Setters
-  setChatbotId(id: string) {
-    this.chatbotIdSource.next(id);
+  setChatbotId(id: string): void {
+    this.chatbotId = id;
   }
 
-  setConversationId(id: string) {
-    this.conversationIdSource.next(id);
+  getChatbotId(): string | null {
+    return this.chatbotId;
   }
 
-  // Optional: Reset
-  resetAll() {
-    this.chatbotIdSource.next(null);
-    this.conversationIdSource.next(null);
+  clearChatbotId(): void {
+    this.chatbotId = null;
   }
 
   loadGlobalSettingsFromLocalStorage(): void {
