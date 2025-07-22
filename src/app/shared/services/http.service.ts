@@ -341,7 +341,7 @@ public customerPortalLogin(endpoint: string, model: any): Observable<any> {
     return this.http
       .post(
 
-        this.globalService.channelManagerHost + endpoint,
+        this.globalService.customerPortalNest + endpoint,
         model,
         this.getHeaders()
       )

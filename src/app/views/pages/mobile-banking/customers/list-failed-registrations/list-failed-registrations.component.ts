@@ -131,14 +131,6 @@ isDefaultRouteActive = false;
       // Mark as active only if it redirected to general
       this.isDefaultRouteActive = currentUrl.endsWith('/user_bot') || currentUrl.endsWith('/user_bot/general');
     });
-
-      this.globalService.chatbotId$.subscribe(id => {
-        console.log('Chatbot ID:', id);
-      });
-
-      this.globalService.conversationId$.subscribe(id => {
-        console.log('Conversation ID:', id);
-      });
     
     this.breadCrumbItems = [
       {
@@ -163,7 +155,6 @@ isDefaultRouteActive = false;
   getIndividualData(event: number): void {
 
     this.loading = true;
-
 
     let payload = {
       page: 0,
@@ -202,7 +193,6 @@ toggleConversationPanel() {
 
 
   openAddProductModal() {
-
     this.modalRef = this.modalService.open(AddCustomerComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Add Categories';
     this.modalRef.result.then((result) => {

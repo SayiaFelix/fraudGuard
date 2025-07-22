@@ -105,7 +105,7 @@ export class ChangePasswordComponent implements OnInit {
           confirm_password: this.form.value.confirm_password
         };
  
-        this.httpService.customerPortalAuth('reset-password', model).subscribe({
+        this.httpService.customerPortalAuth('auth/reset-password', model).subscribe({
           next: (response: any) => {
             if (response.status !== '00') {
               Swal.fire('Error', response.message || 'Reset failed', 'error');

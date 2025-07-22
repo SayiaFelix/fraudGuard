@@ -109,10 +109,18 @@ export class SendSmsComponent implements OnInit {
     private modalService: NgbModal,
     public fb: FormBuilder,
     public router: Router,
+    private globalService: GlobalService, 
     private dataExploration: DataExportationService
   ) {}
 
   ngOnInit() {
+  const chatbotId = this.globalService.getChatbotId();
+    if (chatbotId) {
+      console.log('Using Chatbot ID:', chatbotId);
+      // You can now use this ID to fetch intents or create new ones
+    } else {
+      console.warn('No chatbot ID found');
+    }
     this.breadCrumbItems = [
       {
         label: 'Mobile banking',
