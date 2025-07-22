@@ -110,7 +110,8 @@ onTriggerSubmit(): void {
       ...this.triggerForm.value,
       chatbot_id: chatbotId, 
       is_root: true, 
-      order: 1        
+      order: 1,
+      responses: ["Welcome! How can I assist you today?"]       
     };
 
     console.log('Form data to submit:', model);
