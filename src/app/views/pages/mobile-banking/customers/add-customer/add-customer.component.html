@@ -1,88 +1,68 @@
-<div class="row">
-  <!-- LEFT SIDE: Form Panel (col-6) -->
-  <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
-    <div class="p-4 border rounded bg-white">
+
+<div style="background-color: #f8f9fa;" class="p-4">
+
+  <div class="card border-0 shadow-sm mb-5">
+    <div class="card-body p-4">
       <div [formGroup]="form">
-            <!-- Image Upload Section (inline layout) -->
-        <div class="d-flex align-items-center gap-3 mb-4">
-          <!-- Icon/Image -->
-          <label style="width: 64;height: 64;opacity: 1;gap: 10px;border-radius: 32px;border-width: 1px;border-style: dashed;dashes: 4, 4;
-padding: 10px; background: #F8F8F8;
+        <div class="d-flex flex-wrap flex-lg-nowrap gap-5">
 
-" for="file-input" style="cursor: pointer;">
-            <img src="./assets/images/T.png" alt="Upload Image" class="upload-icon" style="width: 15px; height: 20px;">
-          </label>
+          <!-- Image Uploader -->
+          <div class="text-center" style="width: 120px; flex-shrink: 0;">
+            <label for="file-input" class="d-flex align-items-center justify-content-center mb-2" style="cursor: pointer; width: 100px; height: 100px; border: 2px dashed #e0e0e0; border-radius: 8px; background-color: #f8f9fa; margin-left: auto; margin-right: auto;">
+              <img src="./assets/images/T.png" alt="Upload Icon" style="width: 20px; height: 26px; opacity: 0.5;">
+            </label>
+            <div class="d-flex justify-content-center gap-2 mb-2">
+              <button type="button" class="btn btn-primary btn-sm" (click)="uploadImageClick()">Upload</button>
+              <input id="file-input" type="file" accept="image/*" (change)="onFileSelected()" hidden />
+              <button type="button" class="btn btn-light btn-sm border" (click)="removeImage()">Remove</button>
+            </div>
+            <small class="text-muted">PNG or JPEG up to 10MB</small>
+          </div>
 
-          <!-- Upload Button -->
-          <button type="button" class="btn btn-primary btn-sm" (click)="uploadImageClick()">
-            Upload
-            <input id="file-input" type="file" accept="image/*" (change)="onFileSelected()" hidden />
-          </button>
+          <!-- Form Fields -->
+          <div class="flex-grow-1">
+            <!-- Name Field -->
+            <div class="mb-3">
+              <label class="form-label fw-bold small">Name</label>
+              <input placeholder="Enter the Chatbot Name" class="form-control" formControlName="name" type="text" />
+              <small *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')" class="text-danger">Required Field</small>
+            </div>
 
-          <!-- Remove Button -->
-          <button type="button" class="btn btn-sm"  style="border: 1px solid #D8D8DA; color: #202020;
-;" (click)="removeImage()">
-            Remove
-          </button>
-          <!-- <span style="color: #99A1AF;
-">PNG or JPEG up to 10 MB</span> -->
+            <!-- Description Field  -->
+            <div class="mb-3">
+              <label class="form-label fw-bold small">Description</label>
+              <input placeholder="Enter Chatbot Description" class="form-control" formControlName="description" type="text" />
+            </div>
+
+            <!-- Language Field -->
+            <div class="mb-3">
+              <label class="form-label fw-bold small">Language</label>
+              <div class="form-control d-flex align-items-center flex-wrap" style="min-height: 38px; gap: 6px;">
+                <span *ngFor="let lang of language" class="badge rounded-pill" style="background-color: #e0e7ff; color: #3730a3; font-weight: 500; padding: 6px 10px; font-size: 0.85em;">
+                  {{ lang }}
+                  <i class="mdi mdi-close ms-1" style="cursor: pointer; vertical-align: middle;" (click)="removeLanguage(lang)"></i>
+                </span>
+                 
+                 <select class="form-select border-0 shadow-none p-0 m-0 ms-auto" style="width: auto; min-width: 140px; background-color: transparent; font-size: 14px;" (change)="addLanguage($event)">
+                    <option value="" disabled selected>Select language</option>
+                    <option *ngFor="let lang of availableLanguages" [value]="lang" [disabled]="language.includes(lang)">
+                      {{ lang }}
+                    </option>
+                  </select>
+              </div>
+            </div>
+
+            <!-- Default Language Field -->
+            <div class="mb-3">
+              <label class="form-label fw-bold small">Default Language</label>
+              
+              <input class="form-control" [value]="defaultLanguage" readonly />
+            </div>
+          </div>
         </div>
-    
 
-        <!-- Name Field -->
-        <div class="mb-4">
-          <label class="form-label fw-bold">Name</label>
-          <input placeholder="Enter the Chatbot Name"  class="form-control" formControlName="name" type="text" />
-          <small *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')" class="text-danger">
-            Required Field
-          </small>
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label fw-bold">Description</label>
-          <input placeholder="Enter Chatbot Description" class="form-control" formControlName="description" type="text" />
-        </div>
-
-     <!-- Languages Input with Tags -->
-        <div class="mb-3">
-          <label class="form-label fw-bold">Languages</label>
-          <div class="form-control d-flex flex-wrap align-items-center" style="min-height: 48px;">
-            
-            <!-- Tags inside the input -->
-          <span *ngFor="let lang of language" class="badge bg-primary me-2 mb-1 rounded-pill">
-              {{ lang }}
-              <i class="mdi mdi-close-circle ms-1" style="cursor: pointer;" (click)="removeLanguage(lang)"></i>
-          </span>
-
-    <!-- Dropdown at the end of the input box -->
-          <select
-              class="form-select border-0 shadow-none p-0 m-0 ms-auto"
-              style=" width: auto; min-width: 140px; background-color: #f8f9fa; font-size: 14px; border-radius: 4px; padding: 4px 8px;"
-              (change)="addLanguage($event)">
-              <option value="" disabled selected>Select language</option>
-              <option
-                *ngFor="let lang of availableLanguages"
-                [value]="lang"
-                [disabled]="language.includes(lang)">
-                {{ lang }}
-              </option>
-        </select>
-
-          
-  </div>
-</div>
-
-  
-   <!-- Default Language Field -->
-      <div class="mb-3">
-        <label class="form-label fw-bold">Default Language</label>
-        <input class="form-control" [value]="defaultLanguage" readonly />
-      </div>
-
-
-
-        <!-- Footer Buttons -->
-        <div class="d-flex justify-content-end gap-2 mt-4">
+        <!-- Footer Buttons-->
+        <div class="d-flex justify-content-end gap-2 mt-4 border-top pt-3">
           <button (click)="closeModal()" type="button" class="btn btn-outline-secondary btn-sm px-4">
             Delete
           </button>
@@ -90,40 +70,112 @@ padding: 10px; background: #F8F8F8;
             Save
           </button>
         </div>
-
       </div>
     </div>
   </div>
 
-   <!-- RIGHT SIDE: Bot Info Table -->
-<div style="background: #F8F8F8;
-" class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
-  <div class="p-4 border rounded bg-white">
-    <h3 style="font-family: Roboto;font-weight: 500;font-style: Medium;font-size: 20px;line-height: 100%;letter-spacing: 0%;color: #364153;
 
-" class="mb-3">Recent Agent List</h3>
-    <table *ngIf="result" class="table table-striped text-center">
-      <thead class="table-light">
-        <tr>
-          <th>ID</th>
-          <th>Name</th>
-          <th>Language</th>
-          <th>Created At</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>{{ result.id }}</td>
-          <td style="color: #364153;
-">{{ result.name }}</td>
-          <td>{{ result.language }}</td>
-          <td>{{ result.created_at | date:'medium' }}</td>
-        </tr>
-      </tbody>
-    </table>
+  <h3 class="fw-bold mb-3" style="font-size: 1.25rem; color: #364153;">Recent Agent List</h3>
 
+  <div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+      <div *ngIf="result; else noBotCreated" class="table-responsive">
+        
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col" class="ps-4 py-3 text-uppercase small">CHATBOT_ID</th>
+              <th scope="col" class="py-3 text-uppercase small">NAME</th>
+              <th scope="col" class="py-3 text-uppercase small">CHANNEL</th>
+              <th scope="col" class="py-3 text-uppercase small">LANGUAGES</th>
+              <th scope="col" class="py-3 text-uppercase small">LAST_UPDATED</th>
+              <th scope="col" class="py-3 text-uppercase small">ENABLED</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="ps-4">{{ result.id }}</td>
+              <td class="fw-medium" style="color: #364153;">{{ result.name }}</td>
+              <td></td>
+              <td>{{ result.language }}</td>
+              <td>{{ result.created_at | date:'medium' }}</td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-    <p *ngIf="!result" class="text-muted">No bot has been created yet.</p>
+      <ng-template #noBotCreated>
+        <div class="text-center p-5">
+            <p class="text-muted mb-0">No bot has been created yet.</p>
+        </div>
+      </ng-template>
+    </div>
   </div>
-</div>
+
+  <div class="mt-5">
+    <h3 class="fw-bold mb-3" style="font-size: 1.25rem; color: #364153;">Recent Published Cards</h3>
+
+    <!-- Cards Row -->
+    <div class="row g-3">
+
+      <!-- Card 1: Customer Support -->
+      <div class="col-lg-4 col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body d-flex align-items-center gap-3 p-3">
+            <!-- Icon -->
+            <div class="d-flex align-items-center justify-content-center fw-bold text-uppercase rounded-circle" style="width: 40px; height: 40px; background-color: #e0f2fe; color: #38bdf8; flex-shrink: 0; font-size: 0.9rem;">
+              CS
+            </div>
+            <!-- Text Content -->
+            <div class="flex-grow-1">
+              <div class="fw-semibold" style="color: #1f2937;">Customer Support</div>
+              <span class="badge fw-medium rounded-pill" style="background-color: #dcfce7; color: #166534; font-size: 0.75rem; padding: 4px 10px;">Published</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: Sales Assistant -->
+      <div class="col-lg-4 col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body d-flex align-items-center gap-3 p-3">
+            <!-- Icon -->
+            <div class="d-flex align-items-center justify-content-center fw-bold text-uppercase rounded-circle" style="width: 40px; height: 40px; background-color: #e0f2fe; color: #38bdf8; flex-shrink: 0; font-size: 0.9rem;">
+              SA
+            </div>
+            <!-- Text Content -->
+            <div class="flex-grow-1">
+              <div class="fw-semibold" style="color: #1f2937;">Sales Assistant</div>
+              <span class="badge fw-medium rounded-pill" style="background-color: #dcfce7; color: #166534; font-size: 0.75rem; padding: 4px 10px;">Published</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3: Product Recommender -->
+      <div class="col-lg-4 col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body d-flex align-items-center gap-3 p-3">
+            <!-- Icon -->
+            <div class="d-flex align-items-center justify-content-center fw-bold text-uppercase rounded-circle" style="width: 40px; height: 40px; background-color: #e0f2fe; color: #38bdf8; flex-shrink: 0; font-size: 0.9rem;">
+              PR
+            </div>
+            <!-- Text Content -->
+            <div class="flex-grow-1">
+              <div class="fw-semibold" style="color: #1f2937;">Product Recommender</div>
+              <span class="badge fw-medium rounded-pill" style="background-color: #fef9c3; color: #92400e; font-size: 0.75rem; padding: 4px 10px;">Draft</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="d-flex justify-content-end gap-2 mt-4">
+      <button type="button" class="btn btn-outline-danger">Delete</button>
+      <button type="button" class="btn btn-primary">Save</button>
+    </div>
+  </div>
+
 </div>
