@@ -94,36 +94,45 @@ padding: 10px; background: #F8F8F8;
       </div>
     </div>
   </div>
-
-   <!-- RIGHT SIDE: Bot Info Table -->
-<div style="background: #F8F8F8;
-" class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+  <div style="background: #F8F8F8;" class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
   <div class="p-4 border rounded bg-white">
-    <h3 style="font-family: Roboto;font-weight: 500;font-style: Medium;font-size: 20px;line-height: 100%;letter-spacing: 0%;color: #364153;
+    <h3 class="mb-3" style="font-family: Roboto; font-weight: 500; font-size: 20px; color: #364153;">
+      Recent Agent List
+    </h3>
 
-" class="mb-3">Recent Agent List</h3>
-    <table *ngIf="result" class="table table-striped text-center">
+    <table *ngIf="agentList?.length" class="table table-striped text-center">
       <thead class="table-light">
         <tr>
           <th>ID</th>
           <th>Name</th>
-          <th>Language</th>
           <th>Created At</th>
+          <th>Enabled</th>
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td>{{ result.id }}</td>
-          <td style="color: #364153;
-">{{ result.name }}</td>
-          <td>{{ result.language }}</td>
-          <td>{{ result.created_at | date:'medium' }}</td>
+        <tr *ngFor="let agent of agentList">
+          <td>{{ agent.id }}</td>
+          <td style="color: #364153;">{{ agent.name }}</td>
+          
+          <td>{{ agent.created_at | date:'medium' }}</td>
+          <td>
+            <span 
+              class="badge" 
+              [ngClass]="{
+                'bg-success': agent.is_active === true,
+                'bg-danger': agent.is_active === false
+              }">
+              {{ agent.is_active ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
         </tr>
       </tbody>
     </table>
 
-
-    <p *ngIf="!result" class="text-muted">No bot has been created yet.</p>
+    <p *ngIf="!agentList?.length" class="text-muted">No bot has been created yet.</p>
   </div>
 </div>
+
+
+
 </div>

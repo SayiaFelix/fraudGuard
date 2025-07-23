@@ -94,39 +94,56 @@
 
 .chat-window {
   background-color: #f9f9f9;
-  padding: 10px;
+  padding: 10px 0;
   border: 1px solid #ccc;
   border-radius: 6px;
 }
 
-
-
-
-.conversation-panel {
-  border-left: 1px solid #ddd;
-  width: 350px;
-  background-color: #fff;
-}
-
 .bubble {
-  max-width: 70%;
   padding: 10px 14px;
-  border-radius: 20px;
-  font-size: 14px;
+  border-radius: 18px;
+  max-width: 70%;
+  position: relative;
   word-wrap: break-word;
 }
 
-.bubble.bot {
-  background-color: #e5e5ea;
-  color: #000;
-  border-top-left-radius: 0;
-}
-
 .bubble.user {
-  background-color: #007bff;
+  background-color: #0056b3;
   color: #fff;
   border-top-right-radius: 0;
+  margin-right: 2px;
 }
 
+.bubble.bot {
+  background-color: #e2e3e5;
+  color: #001542;
+  border-top-left-radius: 0;
+  margin-left: 2px;
+}
 
+.loader-dots .dot {
+  height: 8px;
+  width: 8px;
+  margin: 0 2px;
+  background-color: #0056b3;
+  border-radius: 50%;
+  display: inline-block;
+  animation: blink 1.4s infinite both;
+}
+
+.loader-dots .dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.loader-dots .dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes blink {
+  0%, 80%, 100% {
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+}
 

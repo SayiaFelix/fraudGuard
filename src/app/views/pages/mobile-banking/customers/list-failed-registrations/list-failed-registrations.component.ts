@@ -58,7 +58,9 @@ isCollapsed: boolean = false;
 isDefaultRouteActive = false;
 
 userMessage = '';
-messages: { sender: 'user' | 'bot'; text: string }[] = [];
+// messages: { sender: 'user' | 'bot'; text: string }[] = [];
+messages: { sender: 'bot' | 'user'; text: string; time: Date }[] = [];
+
 chatbotData: any = null;
 sessionId = 'test-session-001';
 isTyping = false;
@@ -148,12 +150,14 @@ isTyping = false;
     if (this.chatbotData?.welcome_message) {
       this.messages.push({
         sender: 'bot',
-        text: this.chatbotData.welcome_message
+        text: this.chatbotData.welcome_message,
+        time: new Date()
       });
     } else {
       this.messages.push({
         sender: 'bot',
-        text: '⚠️ Please create a chatbot before starting a test.'
+        text: '⚠️ Please create a chatbot before starting a test.',
+        time: new Date()
       });
     }
 
@@ -198,11 +202,21 @@ scrollToBottom() {
   } catch (err) {}
 }
 
-  sendMessage(): void {
+
+sendMessage(): void {
+  // Prevent sending if input is empty or chatbot is not loaded
   if (!this.userMessage.trim() || !this.chatbotData) return;
 
   const userText = this.userMessage;
-  this.messages.push({ sender: 'user', text: userText });
+
+  // Push user's message with timestamp
+  this.messages.push({
+    sender: 'user',
+    text: userText,
+    time: new Date()
+  });
+
+  // Show typing indicator
   this.isTyping = true;
 
   const body = {
@@ -211,40 +225,49 @@ scrollToBottom() {
     session_id: this.sessionId,
   };
 
+  // Call backend API
   this.httpService.mobileBankingPost('chatbot/chat', body).subscribe({
     next: (result: any) => {
       this.isTyping = false;
 
       if (result?.status === '00' && result.data?.response) {
-        this.messages.push({ sender: 'bot', text: result.data.response });
-        console.log(result)
+        // Push bot response with timestamp
+        this.messages.push({
+          sender: 'bot',
+          text: result.data.response,
+          time: new Date()
+        });
 
-        // Optionally log or display intent & confidence
+        // Log intent and confidence if available
         const intent = result.data.metadata?.intent;
         const confidence = result.data.metadata?.confidence;
 
         console.log('Intent:', intent, 'Confidence:', confidence);
-        // You could also show this in UI optionally
       } else {
-        this.messages.push({ sender: 'bot', text: result.message || 'Unexpected error occurred.' });
+        // Push fallback bot message with timestamp
+        this.messages.push({
+          sender: 'bot',
+          text: result.message || 'Unexpected error occurred.',
+          time: new Date()
+        });
       }
     },
     error: (err: any) => {
       this.isTyping = false;
       console.error(err);
-      this.messages.push({ sender: 'bot', text: '⚠️ Error: Unable to reach chatbot.' });
+      this.messages.push({
+        sender: 'bot',
+        text: '⚠️ Error: Unable to reach chatbot.',
+        time: new Date()
+      });
       Swal.fire('Error', 'Chatbot service not reachable.', 'error');
     },
   });
 
+  // Clear the input field
   this.userMessage = '';
 }
 
-
-
-
-
-  
   getIndividualData(event: number): void {
 
     this.loading = true;
