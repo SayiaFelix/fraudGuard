@@ -87,7 +87,6 @@ removeLanguage(lang: string): void {
 }
 
 fetchAgentList(): void {
-
  const userId = localStorage.getItem('user_id');
 
   if (!userId) {
