@@ -15,6 +15,8 @@ import {SendSmsComponent} from "./send-sms-component/send-sms.component";
 import {ReasonsForFailureComponent} from "./reasons-for-failure/reasons-for-failure.component";
 import { Ng2TelInputModule } from 'ng2-tel-input';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { VoiceComponent } from './voice/voice.component';
+import { IntentComponent } from './intents/intent.component';
 
 @NgModule({
     imports: [
@@ -35,7 +37,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     ViewCustomerComponent,
     AddCustomerComponent,
     ReasonsForFailureComponent,
-
+    VoiceComponent,
+    IntentComponent
     // CreateProductComponent
   ],
   entryComponents: [

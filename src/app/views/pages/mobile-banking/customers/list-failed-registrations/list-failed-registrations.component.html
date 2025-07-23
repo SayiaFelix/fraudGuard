@@ -4,15 +4,12 @@
     <div class="container-fluid">
       <div class="d-flex align-items-center justify-content-between flex-wrap">
          <h2 class="mb-0 me-3">AI Agents</h2>
-
-      <!-- Bot Selector Dropdown -->
           <div *ngIf="agentList?.length" class="dropdown">
            <select class="form-select w-auto" [(ngModel)]="selectedBotId" (change)="onBotSelect($event)">
               <option *ngFor="let bot of agentList" [value]="bot.id">
                 {{ bot.name }} == {{ bot.is_active ? '🟢 Active' : '🔴 Inactive' }}
               </option>
             </select>
-
           </div>
     </div>
 
@@ -22,13 +19,13 @@
           <i class="mdi mdi-plus"></i> General
         </a>
 
-        <a class="ai-tab-button" [routerLink]="['action']" routerLinkActive="active-tab">
+        <a class="ai-tab-button" [routerLink]="['triggers']" routerLinkActive="active-tab">
           <i class="mdi mdi-eye"></i> Action
         </a>
         <a class="ai-tab-button" [routerLink]="['llm']" routerLinkActive="active-tab">
           <i class="mdi mdi-chart-bar"></i> LLM
         </a>
-        <a class="ai-tab-button" [routerLink]="['llm']" routerLinkActive="active-tab">
+        <a class="ai-tab-button" [routerLink]="['voice']" routerLinkActive="active-tab">
           <i class="mdi mdi-account-multiple"></i> Voice
         </a>
         <a class="ai-tab-button" [routerLink]="['publish']" routerLinkActive="active-tab">

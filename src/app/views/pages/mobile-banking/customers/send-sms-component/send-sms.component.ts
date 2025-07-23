@@ -112,7 +112,7 @@ onTriggerSubmit(): void {
     
     if (!chatbotId) {
       console.warn('No chatbot ID found');
-      Swal.fire('Error', 'No chatbot ID found', 'error');
+      Swal.fire('Error', 'No chatbot ID found,create Chatbot first', 'error');
       return;
     }
 
