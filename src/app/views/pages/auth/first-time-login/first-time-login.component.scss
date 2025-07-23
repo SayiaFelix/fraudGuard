@@ -87,6 +87,31 @@
   }
 }
 
+// --- Logo container styles ---
+.logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 30px;
+  
+  .eclectics-logo {
+    max-width: 350px;
+    height: auto;
+    width: auto;
+    
+    // Responsive adjustments
+    @media (max-width: 480px) {
+      max-width: 280px;
+      width: auto;
+    }
+    
+    @media (max-width: 380px) {
+      max-width: 240px;
+      width: auto;
+    }
+  }
+}
+
 // --- Form container content styles ---
 .signup-form-container {
   h3, .signup-subtitle {
