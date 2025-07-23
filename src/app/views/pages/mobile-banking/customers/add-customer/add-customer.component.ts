@@ -87,7 +87,17 @@ removeLanguage(lang: string): void {
 }
 
 fetchAgentList(): void {
-  const body = { user_id: 116 };
+
+ const userId = localStorage.getItem('user_id');
+
+  if (!userId) {
+    console.warn('User ID not found in local storage.');
+    this.agentList = [];
+    return;
+  }
+
+  const usersId = parseInt(userId, 10);
+  const body = { user_id: usersId };
 
   this._httpService.mobileBankingPost('builder/chatbots/list', body).subscribe({
     next: (res: any) => {

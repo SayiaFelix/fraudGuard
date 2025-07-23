@@ -69,6 +69,17 @@ chatbotData$ = this.chatbotDataSubject.asObservable();
     return this.intentId;
   }
 
+  private userId: string | null = null;
+
+  setUserId(id: string) {
+    this.userId = id;
+    localStorage.setItem('user_id', id);
+  }
+
+  getUserrId(): string | null {
+    return this.userId || localStorage.getItem('user_id');
+  }
+
   clearintentId(): void {
     this.intentId = null;
   }

@@ -129,6 +129,10 @@ isTyping = false;
   public customerId: any;
   result: any;
 
+ agentList: any[] = []; // List of bots
+selectedBotId: number | null = null;
+
+
   constructor(
     private httpService: HttpService,
     private globalService: GlobalService,
@@ -141,6 +145,9 @@ isTyping = false;
   }
 
   ngOnInit() {
+  const userId = localStorage.getItem('user_id');
+  console.log('Fetched user_id:', userId);
+    this.loadBots()
   this.globalService.chatbotData$.subscribe((data) => {
     this.chatbotData = data;
 
@@ -187,6 +194,46 @@ isTyping = false;
     name: ['', Validators.required],
     description: ['', Validators.required],
     image: [''],
+  });
+}
+
+onBotSelect(event: any) {
+  const botId = +event.target.value;
+  console.log('Selected Bot ID:', botId);
+  // Update chatbotData or load messages, etc.
+}
+
+loadBots(): void {
+ 
+  const userId = localStorage.getItem('user_id');
+  // console.log({ user_id: userId });
+
+
+
+  if (!userId) {
+    console.warn('User ID not found in local storage.');
+    this.agentList = [];
+    return;
+  }
+  const usersId = parseInt(userId, 10);
+  const body = { user_id: usersId };
+
+
+
+  this.httpService.mobileBankingPost('builder/chatbots/list', body).subscribe({
+    next: (res: any) => {
+      if (res.status === '00' && Array.isArray(res.data)) {
+        this.agentList = res.data;
+        this.selectedBotId = this.agentList[0]?.id ?? null;
+      } else {
+        this.agentList = [];
+        console.warn('Unexpected data format', res);
+      }
+    },
+    error: (err: any) => {
+      console.error('Error fetching agent list:', err);
+      this.agentList = [];
+    }
   });
 }
 

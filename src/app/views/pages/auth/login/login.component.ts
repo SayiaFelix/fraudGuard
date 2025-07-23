@@ -16,6 +16,7 @@ import { HttpService } from 'src/app/shared/services/http.service';
 import Swal from "sweetalert2";
 import { AuthService } from 'src/app/shared/services/auth.service';
 import { ToastrService } from 'ngx-toastr';
+import { GlobalService } from 'src/app/shared/services/global.service';
  
 @Component({
   selector: 'app-login',
@@ -48,7 +49,8 @@ export class LoginComponent implements OnInit {
     private httpService: HttpService,
     fb: FormBuilder,
     private _router: Router,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private globalService: GlobalService
   ) {
     this.form = fb.group({
       email: [
@@ -111,12 +113,13 @@ export class LoginComponent implements OnInit {
             }, 3000);
           } else {
             // Handle login success
-            this.hasError = false;
+            this.hasError = false; 
             
             // Store the correct token from the data object
             if (result['data']?.['access_token']) {
               localStorage.setItem('token', result['data']['access_token']);
               localStorage.setItem('access_token', result['data']['access_token']);
+              localStorage.setItem('user_id', result['data']['user_id']);
               console.log(result['data']['access_token']);     
               console.log('Token saved successfully');
             }
@@ -128,6 +131,9 @@ export class LoginComponent implements OnInit {
               localStorage.setItem('last_name', result['data']['last_name'] || '');
               console.log('User data saved:', result['data']);
             }
+
+            this.globalService.setUserId(result['data']['user_id']);
+
             
             // Navigate based on first-time login status
             const isFirstTimeLogin = result['first_time_login'] === true || result['data']?.['first_time_login'] === true;
