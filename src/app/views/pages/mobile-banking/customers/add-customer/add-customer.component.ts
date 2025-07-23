@@ -108,6 +108,8 @@ sendBot(): void {
             console.log(this.result);
 
             this.globalService.setChatbotId(result.data.id);
+            this.globalService.setChatbotData(result.data);
+
 
             // ✅ Success toast
             Swal.fire('ChatBot', 'Bot created successfully!', 'success');

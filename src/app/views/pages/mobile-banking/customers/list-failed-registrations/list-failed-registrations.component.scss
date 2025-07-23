@@ -92,4 +92,41 @@
   cursor: pointer;
 }
 
+.chat-window {
+  background-color: #f9f9f9;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+
+
+
+.conversation-panel {
+  border-left: 1px solid #ddd;
+  width: 350px;
+  background-color: #fff;
+}
+
+.bubble {
+  max-width: 70%;
+  padding: 10px 14px;
+  border-radius: 20px;
+  font-size: 14px;
+  word-wrap: break-word;
+}
+
+.bubble.bot {
+  background-color: #e5e5ea;
+  color: #000;
+  border-top-left-radius: 0;
+}
+
+.bubble.user {
+  background-color: #007bff;
+  color: #fff;
+  border-top-right-radius: 0;
+}
+
+
 

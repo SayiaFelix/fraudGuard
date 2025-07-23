@@ -30,7 +30,7 @@ export class SendSmsComponent implements OnInit {
   @ViewChild('triggerModal') triggerModal: ElementRef;
 
   triggerForm: FormGroup;
-  
+  chatbotData: any = null;
   public modalRef: NgbModalRef;
   triggers: Trigger[] = [];
   isLoading = true;
@@ -46,13 +46,23 @@ export class SendSmsComponent implements OnInit {
   }
 
   ngOnInit() {
-    const chatbotId = this.globalService.getChatbotId();
-    if (chatbotId) {
-        console.log('Using Chatbot ID:', chatbotId);
-        // You can now use this ID to fetch intents or create new ones
-      } else {
-        console.warn('No chatbot ID found');
-      }
+  this.chatbotData = this.globalService.getChatbotData();
+  const chatbotId = this.globalService.getChatbotId();
+  if (this.chatbotData?.welcome_message) {
+    // Push the welcome message only once
+    // this.messages.push({ sender: 'bot', text: this.chatbotData.welcome_message });
+    console.log(this.chatbotData)
+  } else {
+    // this.messages.push({ sender: 'bot', text: '⚠️ Please create a chatbot before starting a test.' });
+  }
+
+  if (chatbotId) {
+          console.log('Using Chatbot ID:', chatbotId);
+          // You can now use this ID to fetch intents or create new ones
+        } else {
+          console.warn('No chatbot ID found');
+        }
+
     this.loadTriggers();
   }
 
@@ -184,34 +194,6 @@ private markFormGroupTouched(formGroup: FormGroup) {
     });
   }
 
-  /**
-   * This is the function for your "Add Trigger" button.
-   * It opens a modal window to enter the trigger details.
-   * The API call to add the trigger will happen INSIDE the modal component.
-   */
-
-  // onAddTriggerClick(): void {
-  //   this.modalRef = this.modalService.open(AddCustomerComponent, {
-  //     centered: true,
-  //     size: 'lg'
-  //   });
-    
-  //   // We tell the modal what it's being used for
-  //   this.modalRef.componentInstance.title = 'Add New Trigger';
-  //   this.modalRef.componentInstance.mode = 'add-trigger'; // This tells the modal to use the 'add-trigger' API
-    
-  //   // After the modal is closed, we check the result
-  //   this.modalRef.result.then((result) => {
-  //     if (result === 'success') {
-  //       this.loadTriggers(); // If successful, refresh the list of triggers
-  //       this.showSuccessMessage('Trigger added successfully!');
-  //     }
-  //   }).catch(() => { /* This is for when the modal is dismissed (e.g., clicking outside) */ });
-  // }
-
-  /**
-   * Opens the modal to edit an existing trigger.
-   */
   editTrigger(trigger: Trigger): void {
     this.modalRef = this.modalService.open(AddCustomerComponent, {
       centered: true,
