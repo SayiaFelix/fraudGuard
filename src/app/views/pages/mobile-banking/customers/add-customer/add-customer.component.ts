@@ -28,6 +28,7 @@ export class AddCustomerComponent implements OnInit {
     data: any;
     chatbotdata: any;
     result: any;
+    agentList: any[] = [];
 
     constructor(
         public activeModal: NgbActiveModal,
@@ -38,9 +39,7 @@ export class AddCustomerComponent implements OnInit {
     }
 
     ngOnInit() {
-
-      console.log("form Data is");
-      console.log(this.formData);
+      this.fetchAgentList();
 
 
     this.form = this.fb.group({
@@ -87,6 +86,25 @@ removeLanguage(lang: string): void {
   }
 }
 
+fetchAgentList(): void {
+  const body = { user_id: 116 };
+
+  this._httpService.mobileBankingPost('builder/chatbots/list', body).subscribe({
+    next: (res: any) => {
+      if (res.status === '00' && Array.isArray(res.data)) {
+        this.agentList = res.data;
+      } else {
+        this.agentList = [];
+        console.warn('Unexpected data format', res);
+      }
+    },
+    error: (err: any) => {
+      console.error('Error fetching agent list:', err);
+      this.agentList = [];
+    }
+  });
+}
+
 sendBot(): void {
   const selectedLang = this.language.length > 0 ? this.language[0] : 'English';
 
@@ -109,6 +127,7 @@ sendBot(): void {
 
             this.globalService.setChatbotId(result.data.id);
             this.globalService.setChatbotData(result.data);
+            this.fetchAgentList()
 
 
             // ✅ Success toast

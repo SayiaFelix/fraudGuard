@@ -35,25 +35,31 @@
 
           <div class="modal-body">
             <form [formGroup]="triggerForm" (ngSubmit)="onTriggerSubmit()">
+
                 <!-- Name field -->
-                <div class="form-group">
-                  <label for="name">Intent Name</label>
+                <div class="mt-1 form-group">
+                  <label class="form-label fw-bold" for="name">Intent Name</label>
                   <input type="text" class="form-control" id="name" formControlName="name" required>
+                    <small *ngIf="triggerForm.get('name')?.touched && triggerForm.get('name')?.hasError('required')" class="text-danger">
+            Required Field
+          </small>
                 </div>
+
+
                 
                 <!-- Description field -->
-                <div class="form-group">
-                  <label for="description">Description</label>
+                <div class="form-group mt-3">
+                  <label class="form-label fw-bold" for="description">Description</label>
                   <textarea class="form-control" id="description" formControlName="description" rows="2" required></textarea>
                 </div>
                 
                 <!-- Training Phrases (FormArray) -->
-                <div class="form-group">
-                  <label>Training Phrases</label>
+                <div class="form-group mt-3">
+                  <label class="form-label fw-bold" >Training Phrases</label>
                   <div formArrayName="training_phrases">
                     <div *ngFor="let phrase of trainingPhrases.controls; let i = index" class="mb-2 d-flex align-items-center">
                       <input type="text" class="form-control" [formControlName]="i">
-                      <button type="button" class="btn btn-sm btn-outline-danger ml-2" (click)="removeTrainingPhrase(i)">
+                      <button type="button" class="btn btn-sm btn-outline-danger ml-3" (click)="removeTrainingPhrase(i)">
                         <i class="feather icon-trash-2"></i>
                       </button>
                     </div>
