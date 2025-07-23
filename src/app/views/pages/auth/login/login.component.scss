@@ -105,7 +105,7 @@ html, body {
 // --- Form header styles ---
 .form-header {
   text-align: center;
-  margin-bottom: 30px; // Match signup: 30px after logo, then 40px after subtitle, then 30px after tabs
+  margin-bottom: 0px; 
   width: 100%;
 
   .logo-header {
@@ -127,7 +127,7 @@ html, body {
   .welcome-subtitle {
     color: #6c757d;
     font-size: 15px;
-    margin-bottom: 40px; // Match signup page exactly
+    margin-bottom: 20px; // Match signup page exactly
   }
 }
 
