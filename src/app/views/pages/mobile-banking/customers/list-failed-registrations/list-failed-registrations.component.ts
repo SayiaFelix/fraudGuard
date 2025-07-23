@@ -141,13 +141,19 @@ isTyping = false;
   ngOnInit() {
   this.globalService.chatbotData$.subscribe((data) => {
     this.chatbotData = data;
-    console.log(this.chatbotData)
 
-    // Show welcome message only once
-    if (this.chatbotData?.welcome_message && this.messages.length === 0) {
+    // Clear previous messages if a new bot is created
+    this.messages = [];
+
+    if (this.chatbotData?.welcome_message) {
       this.messages.push({
         sender: 'bot',
         text: this.chatbotData.welcome_message
+      });
+    } else {
+      this.messages.push({
+        sender: 'bot',
+        text: '⚠️ Please create a chatbot before starting a test.'
       });
     }
 
@@ -157,15 +163,9 @@ isTyping = false;
     } else {
       console.warn('No chatbot ID found');
     }
-
-    if (!this.chatbotData?.welcome_message) {
-      this.messages.push({
-        sender: 'bot',
-        text: '⚠️ Please create a chatbot before starting a test.'
-      });
-    }
   });
 
+  // Routing and other initialization
   this.router.events.subscribe(() => {
     const currentUrl = this.router.url;
     this.isDefaultRouteActive = currentUrl.endsWith('/user_bot') || currentUrl.endsWith('/user_bot/general');
@@ -185,6 +185,8 @@ isTyping = false;
     image: [''],
   });
 }
+
+
 
 ngAfterViewChecked(): void {
     this.scrollToBottom();
