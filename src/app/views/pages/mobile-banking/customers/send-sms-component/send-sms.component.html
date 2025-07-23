@@ -29,7 +29,7 @@
           <div class="modal-header">
             <h5 class="modal-title" id="triggerModalLabel" style="font-family: Roboto;font-weight: 500;font-style: Medium;font-size: 20px;line-height: 100%;letter-spacing: 0%;color: #364153;
 
-">Add New Trigger</h5>
+">Add Trigger</h5>
             <button type="button" class="btn-close"(click)="closeModal()" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
 
@@ -39,7 +39,7 @@
                 <!-- Name field -->
                 <div class="mt-1 form-group">
                   <label class="form-label fw-bold" for="name">Intent Name</label>
-                  <input type="text" class="form-control" id="name" formControlName="name" required>
+                  <input type="text" placeholder="Enter the Intent Name" class="form-control" id="name" formControlName="name" required>
                     <small *ngIf="triggerForm.get('name')?.touched && triggerForm.get('name')?.hasError('required')" class="text-danger">
             Required Field
           </small>
@@ -50,7 +50,7 @@
                 <!-- Description field -->
                 <div class="form-group mt-3">
                   <label class="form-label fw-bold" for="description">Description</label>
-                  <textarea class="form-control" id="description" formControlName="description" rows="2" required></textarea>
+                  <textarea class="form-control" placeholder="Enter the Description" id="description" formControlName="description" rows="2" required></textarea>
                 </div>
                 
                 <!-- Training Phrases (FormArray) -->
@@ -58,7 +58,7 @@
                   <label class="form-label fw-bold" >Training Phrases</label>
                   <div formArrayName="training_phrases">
                     <div *ngFor="let phrase of trainingPhrases.controls; let i = index" class="mb-2 d-flex align-items-center">
-                      <input type="text" class="form-control" [formControlName]="i">
+                      <input type="text" placeholder="Enter the training phrases" class="form-control" [formControlName]="i">
                       <button type="button" class="btn btn-sm btn-outline-danger ml-3" (click)="removeTrainingPhrase(i)">
                         <i class="feather icon-trash-2"></i>
                       </button>
@@ -84,12 +84,12 @@
       <table class="table table-hover">
         <thead>
           <tr>
-            <th scope="col">TRIGGER</th>
+            <th scope="col">Name</th>
             <th scope="col">DESCRIPTION</th>
-            <th scope="col">LAST UPDATED</th>
-            <th scope="col">TYPE</th>
+            <th scope="col">Training Phrases</th>
+            <th scope="col">LAST UPDATED</th> 
             <th scope="col">ENABLED</th>
-            <th scope="col" class="text-center">ACTION</th>
+            <!-- <th scope="col" class="text-center">ACTION</th> -->
           </tr>
         </thead>
         <tbody>

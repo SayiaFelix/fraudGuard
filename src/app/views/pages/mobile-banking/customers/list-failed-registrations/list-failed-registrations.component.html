@@ -2,9 +2,22 @@
   <!-- Main Content Column -->
   <div class="col content-column">
     <div class="container-fluid">
-      <h2>AI Agents</h2>
+      <div class="d-flex align-items-center justify-content-between flex-wrap">
+         <h2 class="mb-0 me-3">AI Agents</h2>
 
-      <div class="ai-tab-buttons">
+      <!-- Bot Selector Dropdown -->
+          <div *ngIf="agentList?.length" class="dropdown">
+           <select class="form-select w-auto" [(ngModel)]="selectedBotId" (change)="onBotSelect($event)">
+              <option *ngFor="let bot of agentList" [value]="bot.id">
+                {{ bot.name }} == {{ bot.is_active ? '🟢 Active' : '🔴 Inactive' }}
+              </option>
+            </select>
+
+          </div>
+    </div>
+
+
+      <div class="ai-tab-buttons mt-3">
         <a class="ai-tab-button" [routerLink]="['general']" routerLinkActive="active-tab" [routerLinkActiveOptions]="{ exact: true }">
           <i class="mdi mdi-plus"></i> General
         </a>

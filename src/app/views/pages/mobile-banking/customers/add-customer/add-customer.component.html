@@ -1,88 +1,76 @@
-<div class="row">
-  <!-- LEFT SIDE: Form Panel (col-6) -->
-  <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
-    <div class="p-4 border rounded bg-white">
+
+<div style="background-color: #f8f9fa;" class="p-2">
+
+  <div class="card border-0 shadow-sm mb-2">
+    <div class="card-body">
       <div [formGroup]="form">
-            <!-- Image Upload Section (inline layout) -->
-        <div class="d-flex align-items-center gap-3 mb-4">
-          <!-- Icon/Image -->
-          <label style="width: 64;height: 64;opacity: 1;gap: 10px;border-radius: 32px;border-width: 1px;border-style: dashed;dashes: 4, 4;
-padding: 10px; background: #F8F8F8;
+        <div class="d-flex flex-wrap flex-lg-nowrap gap-4">
 
-" for="file-input" style="cursor: pointer;">
-            <img src="./assets/images/T.png" alt="Upload Image" class="upload-icon" style="width: 15px; height: 20px;">
-          </label>
+            <!-- Image Uploader -->
+            <div class="text-center" style="width: 110px; flex-shrink: 0;  margin-top: 50px;">
+              <label for="file-input"
+                class="d-flex align-items-center justify-content-center mb-2"
+                style="cursor: pointer; width: 100px; height: 100px; border: 2px dashed #e0e0e0; border-radius: 8px; background-color: #f8f9fa; margin: auto;">
+                <img src="./assets/images/T.png" alt="Upload Icon" style="width: 20px; height: 26px; opacity: 0.5;">
+              </label>
 
-          <!-- Upload Button -->
-          <button type="button" class="btn btn-primary btn-sm" (click)="uploadImageClick()">
-            Upload
-            <input id="file-input" type="file" accept="image/*" (change)="onFileSelected()" hidden />
-          </button>
+              <div class="d-flex justify-content-center gap-2 mb-2">
+                <button type="button" class="btn btn-primary btn-sm" (click)="uploadImageClick()">Upload</button>
+                <input id="file-input" type="file" accept="image/*" (change)="onFileSelected()" hidden />
+                <button type="button" class="btn btn-light btn-sm border" (click)="removeImage()">Remove</button>
+              </div>
 
-          <!-- Remove Button -->
-          <button type="button" class="btn btn-sm"  style="border: 1px solid #D8D8DA; color: #202020;
-;" (click)="removeImage()">
-            Remove
-          </button>
-          <!-- <span style="color: #99A1AF;
-">PNG or JPEG up to 10 MB</span> -->
-        </div>
-    
+              <small class="text-muted">PNG or JPEG up to 10MB</small>
+            </div>
+            <div class="border-start mx-3" style="height: auto; min-height: 100px;"></div>
 
-        <!-- Name Field -->
-        <div class="mb-4">
-          <label class="form-label fw-bold">Name</label>
-          <input placeholder="Enter the Chatbot Name"  class="form-control" formControlName="name" type="text" />
-          <small *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')" class="text-danger">
-            Required Field
-          </small>
-        </div>
+          <!-- Form Fields -->
+          <div class="flex-grow-1">
 
-        <div class="mb-3">
-          <label class="form-label fw-bold">Description</label>
-          <input placeholder="Enter Chatbot Description" class="form-control" formControlName="description" type="text" />
-        </div>
+            <!-- Name -->
+            <div class="mb-3">
+              <label class="form-label fw-bold">Name</label>
+              <input placeholder="Enter the Chatbot Name" class="form-control" formControlName="name" type="text" />
+              <small *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')" class="text-danger">Required Field</small>
+            </div>
 
-     <!-- Languages Input with Tags -->
-        <div class="mb-3">
-          <label class="form-label fw-bold">Languages</label>
-          <div class="form-control d-flex flex-wrap align-items-center" style="min-height: 48px;">
-            
-            <!-- Tags inside the input -->
-          <span *ngFor="let lang of language" class="badge bg-primary me-2 mb-1 rounded-pill">
-              {{ lang }}
-              <i class="mdi mdi-close-circle ms-1" style="cursor: pointer;" (click)="removeLanguage(lang)"></i>
-          </span>
+            <!-- Description -->
+            <div class="mb-3">
+              <label class="form-label fw-bold">Description</label>
+              <input placeholder="Enter Chatbot Description" class="form-control" formControlName="description" type="text" />
+            </div>
 
-    <!-- Dropdown at the end of the input box -->
-          <select
-              class="form-select border-0 shadow-none p-0 m-0 ms-auto"
-              style=" width: auto; min-width: 140px; background-color: #f8f9fa; font-size: 14px; border-radius: 4px; padding: 4px 8px;"
-              (change)="addLanguage($event)">
-              <option value="" disabled selected>Select language</option>
-              <option
-                *ngFor="let lang of availableLanguages"
-                [value]="lang"
-                [disabled]="language.includes(lang)">
-                {{ lang }}
-              </option>
-        </select>
+            <!-- Language -->
+            <div class="mb-3">
+              <label class="form-label fw-bold">Language</label>
+              <div class="form-control d-flex align-items-center flex-wrap" style="min-height: 38px; gap: 6px;">
+                <span *ngFor="let lang of language" class="badge rounded-pill" style="background-color: #e0e7ff; color: #3730a3; font-weight: 500; padding: 6px 10px; font-size: 0.85em;">
+                  {{ lang }}
+                  <i class="mdi mdi-close ms-1" style="cursor: pointer; vertical-align: middle;" (click)="removeLanguage(lang)"></i>
+                </span>
 
-          
-  </div>
-        </div>
+                <select class="form-select border-0 shadow-none p-0 m-0 ms-auto" style="width: auto; min-width: 140px; background-color: transparent; font-size: 14px;" (change)="addLanguage($event)">
+                  <option value="" disabled selected>Select language</option>
+                  <option *ngFor="let lang of availableLanguages" [value]="lang" [disabled]="language.includes(lang)">
+                    {{ lang }}
+                  </option>
+                </select>
+              </div>
+            </div>
 
-  
-   <!-- Default Language Field -->
-      <div class="mb-3">
-        <label class="form-label fw-bold">Default Language</label>
-        <input class="form-control" [value]="defaultLanguage" readonly />
-      </div>
+            <!-- Default Language -->
+            <div class="mb-3">
+              <label class="form-label fw-bold">Default Language</label>
+              <input class="form-control" [value]="defaultLanguage" readonly />
+            </div>
 
+          </div>
+          </div>
 
+       
 
-        <!-- Footer Buttons -->
-        <div class="d-flex justify-content-end gap-2 mt-4">
+        <!-- Footer Buttons-->
+        <div class="d-flex justify-content-end gap-2 mt-4 border-top pt-3">
           <button (click)="closeModal()" type="button" class="btn btn-outline-secondary btn-sm px-4">
             Delete
           </button>
@@ -90,11 +78,11 @@ padding: 10px; background: #F8F8F8;
             Save
           </button>
         </div>
-
       </div>
     </div>
   </div>
-  <div style="background: #F8F8F8;" class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+
+  <!-- <div style="background: #F8F8F8;" class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
   <div class="p-4 border rounded bg-white">
     <h3 class="mb-3" style="font-family: Roboto; font-weight: 500; font-size: 20px; color: #364153;">
       Recent Agent List
@@ -131,8 +119,5 @@ padding: 10px; background: #F8F8F8;
 
     <p *ngIf="!agentList?.length" class="text-muted">No bot has been created yet.</p>
   </div>
-</div>
-
-
-
+</div> -->
 </div>
