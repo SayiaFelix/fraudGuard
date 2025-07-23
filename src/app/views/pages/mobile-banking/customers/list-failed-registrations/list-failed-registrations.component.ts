@@ -203,12 +203,9 @@ onBotSelect(event: any) {
   // Update chatbotData or load messages, etc.
 }
 
-loadBots(): void {
+public loadBots(): void {
  
   const userId = localStorage.getItem('user_id');
-  // console.log({ user_id: userId });
-
-
 
   if (!userId) {
     console.warn('User ID not found in local storage.');
@@ -218,23 +215,25 @@ loadBots(): void {
   const usersId = parseInt(userId, 10);
   const body = { user_id: usersId };
 
+    this.httpService.mobileBankingPost('builder/chatbots/list', body).subscribe({
+      next: (res: any) => {
+        if (res.status === '00' && Array.isArray(res.data)) {
+          // Sort by created_at descending (latest first)
+          this.agentList = res.data.sort((a: { created_at: string | number | Date; }, b: { created_at: string | number | Date; }) => {
+            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+          });
 
-
-  this.httpService.mobileBankingPost('builder/chatbots/list', body).subscribe({
-    next: (res: any) => {
-      if (res.status === '00' && Array.isArray(res.data)) {
-        this.agentList = res.data;
-        this.selectedBotId = this.agentList[0]?.id ?? null;
-      } else {
+          this.selectedBotId = this.agentList[0]?.id ?? null;
+        } else {
+          this.agentList = [];
+          console.warn('Unexpected data format', res);
+        }
+      },
+      error: (err: any) => {
+        console.error('Error fetching agent list:', err);
         this.agentList = [];
-        console.warn('Unexpected data format', res);
       }
-    },
-    error: (err: any) => {
-      console.error('Error fetching agent list:', err);
-      this.agentList = [];
-    }
-  });
+    });
 }
 
 

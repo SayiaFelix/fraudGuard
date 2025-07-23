@@ -7,6 +7,8 @@ import {SendSmsComponent} from "./send-sms-component/send-sms.component";
 import {ReasonsForFailureComponent} from "./reasons-for-failure/reasons-for-failure.component";
 import { add } from 'ngx-bootstrap/chronos';
 import { AddCustomerComponent } from './add-customer/add-customer.component';
+import { VoiceComponent } from './voice/voice.component';
+import { IntentComponent } from './intents/intent.component';
 
 
 
@@ -23,10 +25,11 @@ const routes: Routes = [
     children: [
       { path: '', redirectTo: 'general', pathMatch: 'full' },
       { path: 'general', component: AddCustomerComponent },
-      { path: 'action', component: SendSmsComponent },
+      { path: 'triggers', component: SendSmsComponent },
+      { path: 'intent/:id', component: IntentComponent },
       { path: 'llm', component: ViewCustomerComponent },
       { path: 'publish', component: ReasonsForFailureComponent },
-      // { path: 'voice', component: VoiceComponent },
+      { path: 'voice', component: VoiceComponent },
     ]
   }
 ,
