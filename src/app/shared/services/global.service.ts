@@ -38,6 +38,16 @@ export class GlobalService {
 
  private chatbotId: string | null = null;
  private intentId: string | null = null
+private chatbotDataSubject = new BehaviorSubject<any>(null);
+chatbotData$ = this.chatbotDataSubject.asObservable();
+
+  setChatbotData(data: any) {
+    this.chatbotDataSubject.next(data);
+  }
+
+  getChatbotData() {
+    return this.chatbotDataSubject.value;
+  }
 
   setChatbotId(id: string): void {
     this.chatbotId = id;

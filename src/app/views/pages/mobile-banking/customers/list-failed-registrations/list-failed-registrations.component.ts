@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild,} from '@angular/core';
+import {Component, ElementRef, OnInit, ViewChild,} from '@angular/core';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {DatePipe} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -51,9 +51,20 @@ import { GlobalService } from 'src/app/shared/services/global.service';
  */
 export class ListFailedRegistrationsComponent implements OnInit {
   @ViewChild('table') table: DatatableComponent;
+  @ViewChild('chatContainer') chatContainer!: ElementRef;
+
 
 isCollapsed: boolean = false;
 isDefaultRouteActive = false;
+
+userMessage = '';
+messages: { sender: 'user' | 'bot'; text: string }[] = [];
+chatbotData: any = null;
+sessionId = 'test-session-001';
+isTyping = false;
+
+
+
   tempProductData = [
     {
       frontendId: 1,
@@ -109,10 +120,12 @@ isDefaultRouteActive = false;
   title: string = "Failed Registration";
 
   @ViewChild('mySwal')
+ 
   public readonly mySwal!: SwalComponent;
   actions = ["View"];
   private total: any;
   public customerId: any;
+  result: any;
 
   constructor(
     private httpService: HttpService,
@@ -126,32 +139,110 @@ isDefaultRouteActive = false;
   }
 
   ngOnInit() {
-    this.router.events.subscribe(() => {
-      const currentUrl = this.router.url;
-      // Mark as active only if it redirected to general
-      this.isDefaultRouteActive = currentUrl.endsWith('/user_bot') || currentUrl.endsWith('/user_bot/general');
-    });
-    
-    this.breadCrumbItems = [
-      {
-        label: 'Mobile banking',
-        path: '/mobile-banking/products/all-products',
-      },
-      {label: 'Pages', path: '/'},
-      {label: 'Products', active: true},
-    ];
+  this.globalService.chatbotData$.subscribe((data) => {
+    this.chatbotData = data;
+    console.log(this.chatbotData)
 
+    // Show welcome message only once
+    if (this.chatbotData?.welcome_message && this.messages.length === 0) {
+      this.messages.push({
+        sender: 'bot',
+        text: this.chatbotData.welcome_message
+      });
+    }
 
+    const chatbotId = this.globalService.getChatbotId();
+    if (chatbotId) {
+      console.log('Using Chatbot ID:', chatbotId);
+    } else {
+      console.warn('No chatbot ID found');
+    }
 
-    this.getIndividualData(0);
+    if (!this.chatbotData?.welcome_message) {
+      this.messages.push({
+        sender: 'bot',
+        text: '⚠️ Please create a chatbot before starting a test.'
+      });
+    }
+  });
 
-    this.form = this.fb.group({
-      name: ['', [Validators.required]],
-      description: ['', [Validators.required]],
-      image: [''],
-    });
+  this.router.events.subscribe(() => {
+    const currentUrl = this.router.url;
+    this.isDefaultRouteActive = currentUrl.endsWith('/user_bot') || currentUrl.endsWith('/user_bot/general');
+  });
+
+  this.breadCrumbItems = [
+    { label: 'Mobile banking', path: '/mobile-banking/products/all-products' },
+    { label: 'Pages', path: '/' },
+    { label: 'Products', active: true },
+  ];
+
+  this.getIndividualData(0);
+
+  this.form = this.fb.group({
+    name: ['', Validators.required],
+    description: ['', Validators.required],
+    image: [''],
+  });
+}
+
+ngAfterViewChecked(): void {
+    this.scrollToBottom();
   }
 
+scrollToBottom() {
+  try {
+    this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight;
+  } catch (err) {}
+}
+
+  sendMessage(): void {
+  if (!this.userMessage.trim() || !this.chatbotData) return;
+
+  const userText = this.userMessage;
+  this.messages.push({ sender: 'user', text: userText });
+  this.isTyping = true;
+
+  const body = {
+    chatbot_id: this.chatbotData.id,
+    message: userText,
+    session_id: this.sessionId,
+  };
+
+  this.httpService.mobileBankingPost('chatbot/chat', body).subscribe({
+    next: (result: any) => {
+      this.isTyping = false;
+
+      if (result?.status === '00' && result.data?.response) {
+        this.messages.push({ sender: 'bot', text: result.data.response });
+        console.log(result)
+
+        // Optionally log or display intent & confidence
+        const intent = result.data.metadata?.intent;
+        const confidence = result.data.metadata?.confidence;
+
+        console.log('Intent:', intent, 'Confidence:', confidence);
+        // You could also show this in UI optionally
+      } else {
+        this.messages.push({ sender: 'bot', text: result.message || 'Unexpected error occurred.' });
+      }
+    },
+    error: (err: any) => {
+      this.isTyping = false;
+      console.error(err);
+      this.messages.push({ sender: 'bot', text: '⚠️ Error: Unable to reach chatbot.' });
+      Swal.fire('Error', 'Chatbot service not reachable.', 'error');
+    },
+  });
+
+  this.userMessage = '';
+}
+
+
+
+
+
+  
   getIndividualData(event: number): void {
 
     this.loading = true;
