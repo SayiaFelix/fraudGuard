@@ -110,7 +110,7 @@
           </tr>
 
           <!-- Data Rows -->
-          <tr *ngFor="let trigger of agentList">
+          <tr *ngFor="let trigger of agentList" (click)="openIntent(trigger)"  style="cursor: pointer;">
             <td><strong>{{ trigger.name || 'N/A' }}</strong></td>
             <td>{{ trigger.description || 'N/A' }}</td>
             <!-- <td>{{ trigger.lastUpdated | date:'medium' }}</td> -->
