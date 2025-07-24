@@ -41,6 +41,10 @@ export class GlobalService {
 private chatbotDataSubject = new BehaviorSubject<any>(null);
 chatbotData$ = this.chatbotDataSubject.asObservable();
 
+private chatbotIdSubject = new BehaviorSubject<number | null>(null);
+chatbotId$ = this.chatbotIdSubject.asObservable();
+
+
   setChatbotData(data: any) {
     this.chatbotDataSubject.next(data);
   }
@@ -49,18 +53,25 @@ chatbotData$ = this.chatbotDataSubject.asObservable();
     return this.chatbotDataSubject.value;
   }
 
-  // setChatbotId(id: string): void {
-  //   this.chatbotId = id;
-  // }
-
+ 
   setChatbotId(id: number | string) {
-     this.chatbotId = typeof id === 'string' ? parseInt(id, 10) : id;
-}
-
-
-  getChatbotId(): string | number | null {
-    return this.chatbotId;
+    const parsedId = typeof id === 'string' ? parseInt(id, 10) : id;
+    this.chatbotIdSubject.next(parsedId);
   }
+
+  getChatbotId(): number | null {
+    return this.chatbotIdSubject.value;
+  }
+
+
+//   setChatbotId(id: number | string) {
+//      this.chatbotId = typeof id === 'string' ? parseInt(id, 10) : id;
+// }
+
+
+//   getChatbotId(): string | number | null {
+//     return this.chatbotId;
+//   }
 
   clearChatbotId(): void {
     this.chatbotId = null;

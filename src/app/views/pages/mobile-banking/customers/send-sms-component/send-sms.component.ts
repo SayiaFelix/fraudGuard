@@ -50,24 +50,27 @@ export class SendSmsComponent implements OnInit {
   this.chatbotData = this.globalService.getChatbotData();
   const chatbotId = this.globalService.getChatbotId();
   if (this.chatbotData?.welcome_message) {
-    // Push the welcome message only once
-    // this.messages.push({ sender: 'bot', text: this.chatbotData.welcome_message });
+
     console.log(this.chatbotData)
   } else {
-    // this.messages.push({ sender: 'bot', text: '⚠️ Please create a chatbot before starting a test.' });
+
   }
 
   if (chatbotId) {
           console.log('Using Chatbot ID:', chatbotId);
-          // You can now use this ID to fetch intents or create new ones
         } else {
           console.warn('No chatbot ID found');
         }
-   if (chatbotId) {
-    this.fetchIntentList();
-  } else {
-    console.warn('No chatbot selected.');
-  }
+
+  this.globalService.chatbotId$.subscribe((chatbotId) => {
+    if (chatbotId) {
+      console.log('Chatbot ID changed or loaded:', chatbotId);
+      this.fetchIntentList(chatbotId);
+    } else {
+      console.warn('No chatbot selected.');
+    }
+  });
+
   }
 
     
@@ -109,36 +112,33 @@ closeModal() {
   document.body.classList.remove('modal-open');
 }
 
-fetchIntentList(): void {
+
+fetchIntentList(chatbotId: number): void {
   this.isLoading = true;
-  const chatbotId = this.globalService.getChatbotId();
-  
+
   const body = { chatbot_id: chatbotId };
 
-    this.httpService.mobileBankingPost('builder/chatbots/root-intents', body).subscribe({
-      next: (res: any) => {
-        if (res.status === '00' && Array.isArray(res.data)) {
-          // Sort by created_at descending (latest first)
-          this.agentList = res.data.sort((a: { created_at: string | number | Date; }, b: { created_at: string | number | Date; }) => {
-            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-          });
-            this.isLoading = false;
-
-        } else {
-          this.agentList = [];
-          console.warn('Unexpected data format', res);
-            this.isLoading = false;
-         this.showErrorMessage('Failed to load triggers.')
-        }
-      },
-      error: (err: any) => {
-        console.error('Error fetching agent list:', err);
+  this.httpService.mobileBankingPost('builder/chatbots/root-intents', body).subscribe({
+    next: (res: any) => {
+      if (res.status === '00' && Array.isArray(res.data)) {
+        this.agentList = res.data.sort((a: { created_at: string | number | Date; }, b: { created_at: string | number | Date; }) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+      } else {
         this.agentList = [];
-        this.showErrorMessage('An error occurred while loading triggers.');
-        this.isLoading = false;
+        this.showErrorMessage('Failed to load triggers.');
       }
-    });
+      this.isLoading = false;
+    },
+    error: (err: any) => {
+      console.error('Error fetching agent list:', err);
+      this.agentList = [];
+      this.showErrorMessage('An error occurred while loading triggers.');
+      this.isLoading = false;
+    }
+  });
 }
+
 
 onTriggerSubmit(): void {
   if (this.triggerForm.valid) {
@@ -172,7 +172,7 @@ onTriggerSubmit(): void {
              
   
               this.globalService.setIntentId(result.data.id);
-              this.fetchIntentList()
+              this.fetchIntentList(chatbotId)
 
               Swal.fire('ChatBot', 'Intent created successfully!', 'success');
               this.triggerForm.reset();
