@@ -1,4 +1,3 @@
-
 <div style="background-color: #f8f9fa;" class="p-2">
 
   <div class="card border-0 shadow-sm mb-2">
@@ -82,42 +81,59 @@
     </div>
   </div>
 
-  <!-- <div style="background: #F8F8F8;" class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
-  <div class="p-4 border rounded bg-white">
-    <h3 class="mb-3" style="font-family: Roboto; font-weight: 500; font-size: 20px; color: #364153;">
-      Recent Agent List
-    </h3>
-
-    <table *ngIf="agentList?.length" class="table table-striped text-center">
-      <thead class="table-light">
-        <tr>
-          <th>ID</th>
-          <th>Name</th>
-          <th>Created At</th>
-          <th>Enabled</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let agent of agentList">
-          <td>{{ agent.id }}</td>
-          <td style="color: #364153;">{{ agent.name }}</td>
-          
-          <td>{{ agent.created_at | date:'medium' }}</td>
-          <td>
-            <span 
-              class="badge" 
-              [ngClass]="{
-                'bg-success': agent.is_active === true,
-                'bg-danger': agent.is_active === false
-              }">
-              {{ agent.is_active ? 'Active' : 'Inactive' }}
-            </span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <p *ngIf="!agentList?.length" class="text-muted">No bot has been created yet.</p>
+  <!-- Chatbot List Table -->
+  <div class="card border-0 shadow-sm mt-4">
+    <div class="card-body">
+      <h5 class="mb-3" style="font-family: Roboto; font-weight: 500; font-size: 20px; color: #364153;">
+        Recent Agent List
+      </h5>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Name</th>
+              <th>Language</th>
+              <th>Created At</th>
+              <th>Enabled</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Loading State -->
+            <tr *ngIf="isLoadingBots">
+              <td colspan="4" class="text-center py-4">
+                <div class="spinner-border" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+              </td>
+            </tr>
+            <!-- Empty State -->
+            <tr *ngIf="!isLoadingBots && (!chatbotList || chatbotList.length === 0)">
+              <td colspan="4" class="text-center text-muted py-4">
+                <div>
+                  <img src="assets/images/empty-bot-list.png" alt="No Bots" style="width: 60px; opacity: 0.5; margin-bottom: 10px;" />
+                  <div>No bot has been created yet. Create your first chatbot to see it here.</div>
+                </div>
+              </td>
+            </tr>
+            <!-- Data Rows -->
+            <tr *ngFor="let bot of chatbotList">
+              <td style="color: #364153;">{{ bot.name }}</td>
+              <td>{{ bot.language || (bot.languages ? bot.languages.join(', ') : 'N/A') }}</td>
+              <td>{{ bot.created_at | date:'medium' }}</td>
+              <td>
+                <span 
+                  class="badge" 
+                  [ngClass]="{
+                    'bg-success': bot.is_active === true,
+                    'bg-danger': bot.is_active === false
+                  }">
+                  {{ bot.is_active ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
-</div> -->
 </div>
