@@ -6,6 +6,7 @@ import MetisMenu from 'metismenujs';
 import { MENU } from './menu';
 import { MenuItem } from './menu.model';
 import { Router, NavigationEnd } from '@angular/router';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-sidebar',
@@ -23,22 +24,17 @@ export class SidebarComponent implements OnInit, AfterViewInit {
   showingClass = "d-none";
   selectedParent: string | undefined;
 
-  constructor(@Inject(DOCUMENT) private document: Document, private renderer: Renderer2, router: Router) {
+  constructor(
+    @Inject(DOCUMENT) private document: Document,
+    private renderer: Renderer2,
+    private router: Router // <-- Make sure it's 'private router: Router'
+  ) {
     router.events.forEach((event) => {
       if (event instanceof NavigationEnd) {
-
-        /**
-         * Activating the current active item dropdown
-         */
         this._activateMenuDropdown();
-
-        /**
-         * closing the sidebar
-         */
         if (window.matchMedia('(max-width: 991px)').matches) {
           this.document.body.classList.remove('sidebar-open');
         }
-
       }
     });
   }
@@ -127,6 +123,37 @@ export class SidebarComponent implements OnInit, AfterViewInit {
     this.document.body.classList.add((<HTMLInputElement>event.target).value);
     this.document.body.classList.remove('settings-open');
     this.logo = this.logo == '\\assets\\images\\MicrosoftTeams-image (1).png'? '\\assets\\images\\MicrosoftTeams-image (2).png' : '\\assets\\images\\MicrosoftTeams-image (1).png'
+  }
+
+    /**
+   * Logout the user and redirect to login page
+   */
+  onLogout(e: Event) {
+    e.preventDefault();
+
+    Swal.fire({
+      width: 500, 
+      title: 'Are you sure?',
+      text: "You will be logged out of your session.",
+      icon: 'warning',
+      
+      // --- Style Customizations ---
+      iconColor: '#f5c28d', 
+      confirmButtonColor: '#4A90E2', 
+      cancelButtonColor: '#4A90E2', 
+      
+      // --- Button Configuration ---
+      showCancelButton: true,
+      confirmButtonText: 'Yes, log me out!',
+      cancelButtonText: 'Cancel'
+
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // If the user clicks "Yes", proceed with logout
+        localStorage.clear();
+        this.router.navigate(['/auth/login']);
+      }
+    });
   }
 
 
