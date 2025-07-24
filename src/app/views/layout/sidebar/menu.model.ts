@@ -1,4 +1,3 @@
-
 export interface MenuItem {
   id?: number;
   label?: string;
@@ -10,4 +9,5 @@ export interface MenuItem {
   badge?: any;
   parentId?: number;
   profiles?: string[];
+  isLogout?: boolean; 
 }
