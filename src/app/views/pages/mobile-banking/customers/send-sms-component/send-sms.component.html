@@ -50,7 +50,7 @@
                 <!-- Description field -->
                 <div class="form-group mt-3">
                   <label class="form-label fw-bold" for="description">Description</label>
-                  <textarea class="form-control" placeholder="Enter the Description" id="description" formControlName="description" rows="2" required></textarea>
+                  <textarea class="form-control" placeholder="Enter the Description" id="description" formControlName="description" rows="2"></textarea>
                 </div>
                 
                 <!-- Training Phrases (FormArray) -->
@@ -85,11 +85,11 @@
         <thead>
           <tr>
             <th scope="col">Name</th>
-            <th scope="col">DESCRIPTION</th>
-            <th scope="col">Training Phrases</th>
-            <th scope="col">LAST UPDATED</th> 
+            <th scope="col">Description</th>
+            <!-- <th scope="col">Training Phrases</th> -->
+            <!-- <th scope="col">LAST UPDATED</th>  -->
             <th scope="col">ENABLED</th>
-            <!-- <th scope="col" class="text-center">ACTION</th> -->
+            <th scope="col" class="text-center">ACTION</th>
           </tr>
         </thead>
         <tbody>
@@ -103,18 +103,19 @@
           </tr>
 
           <!-- Empty State -->
-          <tr *ngIf="!isLoading && triggers.length === 0">
+          <tr *ngIf="!isLoading && agentList.length === 0">
             <td colspan="6" class="text-center text-muted py-5">
               No triggers found. Click "Add Trigger" to create one.
             </td>
           </tr>
 
           <!-- Data Rows -->
-          <tr *ngFor="let trigger of triggers">
+          <tr *ngFor="let trigger of agentList">
             <td><strong>{{ trigger.name || 'N/A' }}</strong></td>
             <td>{{ trigger.description || 'N/A' }}</td>
-            <td>{{ trigger.lastUpdated | date:'medium' }}</td>
-            <td><span class="badge bg-light text-dark">{{ trigger.type || 'Default' }}</span></td>
+            <!-- <td>{{ trigger.lastUpdated | date:'medium' }}</td> -->
+            <!-- <td>{{ trigger.created_at | date:'medium' }}</td> -->
+            <!-- <td><span class="badge bg-light text-dark">{{ trigger.type || 'Default' }}</span></td> -->
             <td>
               <div class="form-check form-switch">
                 <input 
@@ -122,7 +123,7 @@
                   type="checkbox" 
                   role="switch"
                   [id]="'switch-' + trigger.id" 
-                  [checked]="trigger.enabled"
+                  [checked]="trigger.is_active"
                   (change)="toggleTriggerStatus(trigger, $event)">
               </div>
             </td>
