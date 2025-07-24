@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {HttpService} from 'src/app/shared/services/http.service';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import { GlobalService } from 'src/app/shared/services/global.service';
@@ -29,10 +29,20 @@ export class IntentComponent implements OnInit {
     data: any;
     chatbotdata: any;
     result: any;
-    agentList: any[] = [];
+    intents: any[] = [];
+    isLoading = true;
+    triggerForm: FormGroup;
 
     chatbotId!: number | null;
     intentId!: number | null;
+
+    showAiActionPanel: boolean = false;
+    selectedTrigger: any = null;
+    hovering: boolean = false;
+  agentList: never[];
+  actions: any;
+  description: any;
+
 
     constructor(
         public activeModal: NgbActiveModal,
@@ -41,17 +51,25 @@ export class IntentComponent implements OnInit {
         private _toastService: ToastrService,
         private route: ActivatedRoute,
         private _httpService: HttpService) {
+        this.initializeForm();
     }
 
     ngOnInit() {
 
-        this.intentId = +this.route.snapshot.paramMap.get('id')!;
+        const intentId = +this.route.snapshot.paramMap.get('id')!;
+
         this.chatbotId = this.globalService.getChatbotId();
 
-        console.log('Editing intent ID:', this.intentId);
+        console.log('Editing intent ID:', intentId);
         console.log('For chatbot ID:', this.chatbotId);
+
+        if (this.intentId) {
+            this.fetchIntent(intentId);
+          } else {
+            console.warn('No chatbot selected.');
+          }
       
-      this.fetchAgentList();
+      this.fetchIntent(intentId);
 
 
     this.form = this.fb.group({
@@ -61,6 +79,10 @@ export class IntentComponent implements OnInit {
         // defaultLanguage: ['', Validators.required]
     });
 
+//     triggerForm = this.fb.group({
+//   training_phrases: this.fb.array([]),
+//   excluded_phrases: this.fb.array([]),
+// });
     }
 
     onFileSelected(){ }
@@ -98,32 +120,174 @@ removeLanguage(lang: string): void {
   }
 }
 
-fetchAgentList(): void {
- const userId = localStorage.getItem('user_id');
+triggerList = [
+  { id: 24, name: 'Trigger Name', is_active: true },
+  { id: 44, name: 'Trigger Name', is_active: false },
+  { id: 54, name: 'Trigger Name', is_active: true },
+  { id: 100, name: 'Trigger Name', is_active: true },
+];
 
-  if (!userId) {
-    console.warn('User ID not found in local storage.');
-    this.agentList = [];
-    return;
+openAiActionPanel(trigger: any): void {
+  // Logic to open right-side drawer/form
+  // You can pass `trigger` data if needed
+  this.selectedTrigger = trigger;
+  this.showAiActionPanel = true;
+}
+
+
+fetchIntent(intentId: number): void {
+  this.isLoading = true;
+  const body = { intent_id: 225 };
+
+  this._httpService.mobileBankingPost('builder/nodes/action/list', body).subscribe({
+    next: (res: any) => {
+      if (res.status === '00') {
+        this.intents = res.data
+         this.description = res.description; // Oracle intent description
+
+        console.log("Intent Data", res.data);
+        // console.log("Description", this.description);
+      } else {
+        this.intents = [];
+      }
+      this.isLoading = false;
+    },
+    error: (err: any) => {
+      console.error('Error fetching agent list:', err);
+      this.intents = [];
+      this.isLoading = false;
+    }
+  });
+}
+
+initializeForm() {
+    this.triggerForm = this.fb.group({
+      name: ['', [Validators.required, Validators.required]],
+      description: [''],
+      training_phrases: this.fb.array([
+        this.fb.control('', Validators.required)
+      ]),
+        // excluded_phrases: this.fb.array([]),
+    });
   }
 
-  const usersId = parseInt(userId, 10);
-  const body = { user_id: usersId };
+   get trainingPhrases() {
+    return this.triggerForm?.get('training_phrases') as FormArray;
+  }
 
-  this._httpService.mobileBankingPost('builder/chatbots/list', body).subscribe({
+  addTrainingPhrase() {
+    this.trainingPhrases.push(this.fb.control('', Validators.required));
+  }
+
+  removeTrainingPhrase(index: number) {
+    if (this.trainingPhrases.length > 1) {
+      this.trainingPhrases.removeAt(index);
+    }
+  }
+
+get excludedPhrases(): FormArray {
+  return this.triggerForm.get('excluded_phrases') as FormArray;
+}
+
+addExcludedPhrase(): void {
+  this.excludedPhrases.push(this.fb.control('', Validators.required));
+}
+
+removeExcludedPhrase(index: number): void {
+  if (this.excludedPhrases.length > 1) {
+    this.excludedPhrases.removeAt(index);
+  }
+}
+
+
+private markFormGroupTouched(formGroup: FormGroup) {
+  Object.values(formGroup.controls).forEach(control => {
+    control.markAsTouched();
+
+    if (control instanceof FormGroup) {
+      this.markFormGroupTouched(control);
+    }
+  });
+}
+
+fetchIntentList(chatbotId: number): void {
+  this.isLoading = true;
+  const body = { chatbot_id: chatbotId };
+
+  this._httpService.mobileBankingPost('builder/chatbots/root-intents', body).subscribe({
     next: (res: any) => {
       if (res.status === '00' && Array.isArray(res.data)) {
-        this.agentList = res.data;
+        this.agentList = res.data.sort((a: { created_at: string | number | Date; }, b: { created_at: string | number | Date; }) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
       } else {
         this.agentList = [];
-        console.warn('Unexpected data format', res);
+   
       }
+      this.isLoading = false;
     },
     error: (err: any) => {
       console.error('Error fetching agent list:', err);
       this.agentList = [];
+ 
+      this.isLoading = false;
     }
   });
+}
+
+
+onTriggerSubmit(): void {
+  if (this.triggerForm.valid) {
+    // Get chatbot ID from global service
+    const chatbotId = this.globalService.getChatbotId();
+    
+    if (!chatbotId) {
+      console.warn('No chatbot ID found');
+      Swal.fire('Error', 'No chatbot ID found,create Chatbot first', 'error');
+      return;
+    }
+
+    const model = {
+      ...this.triggerForm.value,
+      chatbot_id: chatbotId, 
+      is_root: true, 
+      order: 1,
+      responses: ["Welcome! How can I assist you today?"]       
+    };
+
+    console.log('Form data to submit:', model);
+
+    this._httpService
+      .mobileBankingPost('builder/nodes/intent', model)
+      .subscribe({
+        next: (result: any) => {
+          if (result.status === '00') {
+            setTimeout(() => {
+              this.result = result.data;
+              console.log(this.result);
+             
+  
+              this.globalService.setIntentId(result.data.id);
+              this.fetchIntentList(chatbotId)
+
+              Swal.fire('ChatBot', 'Intent created successfully!', 'success');
+              this.triggerForm.reset();
+              this.closeModal(); // Close modal after successful submission
+            }, 10);
+          } else {
+            console.log(result.message);
+            Swal.fire('Error', result.message || 'Failed to create intent', 'error');
+          }
+        },
+        error: (err: any) => {
+          console.error('Bot creation failed:', err);
+          Swal.fire('Error', 'Failed to create intent', 'error');
+        }
+      });
+  } else {
+    // Mark all fields as touched to show validation errors
+    this.markFormGroupTouched(this.triggerForm);
+  }
 }
 
 sendBot(): void {
@@ -132,7 +296,7 @@ sendBot(): void {
   const model = {
     name: this.form.value.name,
     description: this.form.value.description,
-    language: selectedLang, // Send as string
+    intentId: this.intentId, // Send as string
   };
 
   console.log('Bot payload:', model);
@@ -148,7 +312,7 @@ sendBot(): void {
 
             this.globalService.setChatbotId(result.data.id);
             this.globalService.setChatbotData(result.data);
-            this.fetchAgentList()
+            // this.fetchIntent(this.intentId)
 
 
             // ✅ Success toast
