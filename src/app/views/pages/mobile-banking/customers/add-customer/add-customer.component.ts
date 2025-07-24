@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {HttpService} from 'src/app/shared/services/http.service';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
@@ -12,7 +12,7 @@ import Swal from "sweetalert2";
     styleUrls: ['./add-customer.component.scss']
 })
 export class AddCustomerComponent implements OnInit {
-
+    @Output() botCreated = new EventEmitter<void>();
     @Input() title: any;
     @Input() formData: any;
     public loading = false;
@@ -141,6 +141,7 @@ sendBot(): void {
 
             // ✅ Success toast
             Swal.fire('ChatBot', 'Bot created successfully!', 'success');
+            this.globalService.notifyBotCreated();
 
             this.form.reset();
             this.language = [];

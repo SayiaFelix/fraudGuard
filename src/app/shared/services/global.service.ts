@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import {Injectable} from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import {environment} from 'src/environments/environment';
 import { BehaviorSubject } from 'rxjs';
 
@@ -36,7 +36,7 @@ export class GlobalService {
 
   }
 
- private chatbotId: string | null = null;
+ private chatbotId: string | number | null = null;
  private intentId: string | null = null
 private chatbotDataSubject = new BehaviorSubject<any>(null);
 chatbotData$ = this.chatbotDataSubject.asObservable();
@@ -49,11 +49,16 @@ chatbotData$ = this.chatbotDataSubject.asObservable();
     return this.chatbotDataSubject.value;
   }
 
-  setChatbotId(id: string): void {
-    this.chatbotId = id;
-  }
+  // setChatbotId(id: string): void {
+  //   this.chatbotId = id;
+  // }
 
-  getChatbotId(): string | null {
+  setChatbotId(id: number | string) {
+     this.chatbotId = typeof id === 'string' ? parseInt(id, 10) : id;
+}
+
+
+  getChatbotId(): string | number | null {
     return this.chatbotId;
   }
 
@@ -84,6 +89,13 @@ chatbotData$ = this.chatbotDataSubject.asObservable();
     this.intentId = null;
   }
 
+  private botCreatedSource = new Subject<void>();
+  botCreated$ = this.botCreatedSource.asObservable();
+
+  notifyBotCreated() {
+    this.botCreatedSource.next();
+  }
+  
   loadGlobalSettingsFromLocalStorage(): void {
     if (localStorage.getItem('backend-setting') != null) {
       const backend_setting = localStorage.getItem('backend-setting');

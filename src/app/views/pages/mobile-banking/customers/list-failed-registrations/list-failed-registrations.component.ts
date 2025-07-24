@@ -58,7 +58,6 @@ isCollapsed: boolean = false;
 isDefaultRouteActive = false;
 
 userMessage = '';
-// messages: { sender: 'user' | 'bot'; text: string }[] = [];
 messages: { sender: 'bot' | 'user'; text: string; time: Date }[] = [];
 
 chatbotData: any = null;
@@ -130,7 +129,9 @@ isTyping = false;
   result: any;
 
  agentList: any[] = []; // List of bots
-selectedBotId: number | null = null;
+// selectedBotId: number | null = null;
+  selectedBotId: string = '';
+
 
 
   constructor(
@@ -147,11 +148,14 @@ selectedBotId: number | null = null;
   ngOnInit() {
   const userId = localStorage.getItem('user_id');
   console.log('Fetched user_id:', userId);
-    this.loadBots()
+  this.loadBots()
+
+  this.globalService.botCreated$.subscribe(() => {
+    this.loadBots(); 
+  });
+
   this.globalService.chatbotData$.subscribe((data) => {
     this.chatbotData = data;
-
-    // Clear previous messages if a new bot is created
     this.messages = [];
 
     if (this.chatbotData?.welcome_message) {
@@ -200,10 +204,12 @@ selectedBotId: number | null = null;
 onBotSelect(event: any) {
   const botId = +event.target.value;
   console.log('Selected Bot ID:', botId);
+
+  this.globalService.setChatbotId(botId);
   // Update chatbotData or load messages, etc.
 }
 
-public loadBots(): void {
+loadBots(): void {
  
   const userId = localStorage.getItem('user_id');
 

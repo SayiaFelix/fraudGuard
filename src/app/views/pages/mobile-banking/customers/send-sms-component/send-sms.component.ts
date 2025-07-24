@@ -35,6 +35,7 @@ export class SendSmsComponent implements OnInit {
   triggers: Trigger[] = [];
   isLoading = true;
   result: any;
+  agentList: any[] = [];
 
   constructor(
     private httpService: HttpService,
@@ -62,15 +63,18 @@ export class SendSmsComponent implements OnInit {
         } else {
           console.warn('No chatbot ID found');
         }
-
-    this.loadTriggers();
+   if (chatbotId) {
+    this.fetchIntentList();
+  } else {
+    console.warn('No chatbot selected.');
+  }
   }
 
     
   initializeForm() {
     this.triggerForm = this.fb.group({
       name: ['', [Validators.required, Validators.required]],
-      description: ['', Validators.required],
+      description: [''],
       training_phrases: this.fb.array([
         this.fb.control('', Validators.required)
       ])
@@ -105,6 +109,37 @@ closeModal() {
   document.body.classList.remove('modal-open');
 }
 
+fetchIntentList(): void {
+  this.isLoading = true;
+  const chatbotId = this.globalService.getChatbotId();
+  
+  const body = { chatbot_id: chatbotId };
+
+    this.httpService.mobileBankingPost('builder/chatbots/root-intents', body).subscribe({
+      next: (res: any) => {
+        if (res.status === '00' && Array.isArray(res.data)) {
+          // Sort by created_at descending (latest first)
+          this.agentList = res.data.sort((a: { created_at: string | number | Date; }, b: { created_at: string | number | Date; }) => {
+            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+          });
+            this.isLoading = false;
+
+        } else {
+          this.agentList = [];
+          console.warn('Unexpected data format', res);
+            this.isLoading = false;
+         this.showErrorMessage('Failed to load triggers.')
+        }
+      },
+      error: (err: any) => {
+        console.error('Error fetching agent list:', err);
+        this.agentList = [];
+        this.showErrorMessage('An error occurred while loading triggers.');
+        this.isLoading = false;
+      }
+    });
+}
+
 onTriggerSubmit(): void {
   if (this.triggerForm.valid) {
     // Get chatbot ID from global service
@@ -134,9 +169,11 @@ onTriggerSubmit(): void {
             setTimeout(() => {
               this.result = result.data;
               console.log(this.result);
+             
   
               this.globalService.setIntentId(result.data.id);
-  
+              this.fetchIntentList()
+
               Swal.fire('ChatBot', 'Intent created successfully!', 'success');
               this.triggerForm.reset();
               this.closeModal(); // Close modal after successful submission
@@ -168,31 +205,31 @@ private markFormGroupTouched(formGroup: FormGroup) {
   });
 }
 
-  loadTriggers(): void {
-    this.isLoading = true;
-    const model = { page: 0, size: 100 }; // Fetch up to 100 triggers
+  // loadTriggers(): void {
+  //   this.isLoading = true;
+  //   const model = { page: 0, size: 100 }; // Fetch up to 100 triggers
 
-    // NOTE: This endpoint should list your triggers. Adjust if necessary.
-    this.httpService
-      .mobileBankingPost('api/v1/corporate/admin/list-triggers/all', model)
-      .subscribe({
-        next: (res: any) => {
-          if (res.status === 200) {
-            this.triggers = res.data || [];
-          } else {
-            this.showErrorMessage('Failed to load triggers.');
-            this.triggers = [];
-          }
-          this.isLoading = false;
-        },
-        error: (err: any) => {
-          console.error('Error loading triggers:', err);
-          this.showErrorMessage('An error occurred while loading triggers.');
-          this.triggers = []; // Default to empty on error
-          this.isLoading = false;
-        }
-    });
-  }
+  //   // NOTE: This endpoint should list your triggers. Adjust if necessary.
+  //   this.httpService
+  //     .mobileBankingPost('api/v1/corporate/admin/list-triggers/all', model)
+  //     .subscribe({
+  //       next: (res: any) => {
+  //         if (res.status === 200) {
+  //           this.triggers = res.data || [];
+  //         } else {
+  //           this.showErrorMessage('Failed to load triggers.');
+  //           this.triggers = [];
+  //         }
+  //         this.isLoading = false;
+  //       },
+  //       error: (err: any) => {
+  //         console.error('Error loading triggers:', err);
+  //         this.showErrorMessage('An error occurred while loading triggers.');
+  //         this.triggers = []; // Default to empty on error
+  //         this.isLoading = false;
+  //       }
+  //   });
+  // }
 
   editTrigger(trigger: Trigger): void {
     this.modalRef = this.modalService.open(AddCustomerComponent, {
@@ -206,7 +243,7 @@ private markFormGroupTouched(formGroup: FormGroup) {
     
     this.modalRef.result.then((result) => {
       if (result === 'success') {
-        this.loadTriggers();
+        // this.loadTriggers();
         this.showSuccessMessage('Trigger updated successfully!');
       }
     }).catch(() => {});
@@ -224,7 +261,7 @@ private markFormGroupTouched(formGroup: FormGroup) {
         .subscribe({
           next: (res: any) => {
             if (res.status === 200) {
-              this.loadTriggers();
+              // this.loadTriggers();
               this.showSuccessMessage('Trigger deleted successfully!');
             } else {
               this.showErrorMessage('Failed to delete trigger.');
@@ -280,7 +317,7 @@ private markFormGroupTouched(formGroup: FormGroup) {
       .subscribe({
         next: (res: any) => {
           this.showSuccessMessage('File uploaded successfully!');
-          this.loadTriggers();
+          // this.loadTriggers();
         },
         error: (err: any) => {
           this.showErrorMessage('Error uploading file.');
