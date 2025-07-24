@@ -129,7 +129,6 @@ isTyping = false;
   result: any;
 
  agentList: any[] = []; // List of bots
-// selectedBotId: number | null = null;
   selectedBotId: string = '';
 
 
@@ -204,10 +203,10 @@ isTyping = false;
 onBotSelect(event: any) {
   const botId = +event.target.value;
   console.log('Selected Bot ID:', botId);
-
   this.globalService.setChatbotId(botId);
   // Update chatbotData or load messages, etc.
 }
+
 
 loadBots(): void {
  
