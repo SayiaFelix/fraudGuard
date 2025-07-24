@@ -10,6 +10,7 @@ import { AddCustomerComponent } from "../add-customer/add-customer.component"; /
 import { GlobalService } from 'src/app/shared/services/global.service';
 import { FormBuilder, FormGroup, FormArray, Validators, FormControl } from '@angular/forms';
 import Swal from "sweetalert2";
+import { ActivatedRoute, Router } from '@angular/router';
 
 interface Trigger {
   id: number; // Make sure this is present
@@ -41,7 +42,9 @@ export class SendSmsComponent implements OnInit {
     private httpService: HttpService,
     private modalService: NgbModal,
     private globalService: GlobalService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private router: Router,
+     private route: ActivatedRoute
   ) {
      this.initializeForm();
   }
@@ -115,7 +118,6 @@ closeModal() {
 
 fetchIntentList(chatbotId: number): void {
   this.isLoading = true;
-
   const body = { chatbot_id: chatbotId };
 
   this.httpService.mobileBankingPost('builder/chatbots/root-intents', body).subscribe({
@@ -138,6 +140,7 @@ fetchIntentList(chatbotId: number): void {
     }
   });
 }
+
 
 
 onTriggerSubmit(): void {
@@ -192,6 +195,16 @@ onTriggerSubmit(): void {
     // Mark all fields as touched to show validation errors
     this.markFormGroupTouched(this.triggerForm);
   }
+}
+
+openIntent(trigger: any): void {
+  if (!trigger?.id) {
+    console.warn('Trigger ID not found.');
+    return;
+  }
+
+  // Navigate to the intent page with the ID
+  this.router.navigate(['../intent', trigger.id], { relativeTo: this.route });
 }
 
 // Helper method to mark all form controls as touched

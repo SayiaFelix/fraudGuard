@@ -31,6 +31,9 @@ export class IntentComponent implements OnInit {
     result: any;
     agentList: any[] = [];
 
+    chatbotId!: number | null;
+    intentId!: number | null;
+
     constructor(
         public activeModal: NgbActiveModal,
         private globalService: GlobalService, 
@@ -41,8 +44,12 @@ export class IntentComponent implements OnInit {
     }
 
     ngOnInit() {
-      const idNumber = this.route.snapshot.paramMap.get('id');
-      console.log('Received ID Number:', idNumber);
+
+        this.intentId = +this.route.snapshot.paramMap.get('id')!;
+        this.chatbotId = this.globalService.getChatbotId();
+
+        console.log('Editing intent ID:', this.intentId);
+        console.log('For chatbot ID:', this.chatbotId);
       
       this.fetchAgentList();
 
