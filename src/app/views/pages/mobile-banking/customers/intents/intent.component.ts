@@ -20,6 +20,8 @@ export class IntentComponent implements OnInit {
     public hasErrors = false;
     public errorMessages: any;
     public form: FormGroup;
+    public actionForm: FormGroup;
+
     public imageFile: File;
 
     // In your component.ts
@@ -42,6 +44,9 @@ export class IntentComponent implements OnInit {
   agentList: never[];
   actions: any;
   description: any;
+showActionForm = false;
+
+
 
 
     constructor(
@@ -70,6 +75,12 @@ export class IntentComponent implements OnInit {
           }
       
       this.fetchIntent(intentId);
+
+      this.actionForm = this.fb.group({
+        name: ['', Validators.required],
+        action_type: ['send_message'],
+        message: ['', Validators.required],
+      });
 
 
     this.form = this.fb.group({
@@ -120,12 +131,6 @@ removeLanguage(lang: string): void {
   }
 }
 
-triggerList = [
-  { id: 24, name: 'Trigger Name', is_active: true },
-  { id: 44, name: 'Trigger Name', is_active: false },
-  { id: 54, name: 'Trigger Name', is_active: true },
-  { id: 100, name: 'Trigger Name', is_active: true },
-];
 
 openAiActionPanel(trigger: any): void {
   // Logic to open right-side drawer/form
@@ -289,6 +294,38 @@ onTriggerSubmit(): void {
     this.markFormGroupTouched(this.triggerForm);
   }
 }
+
+openActionForm(): void {
+  this.showActionForm = true;
+  this.showAiActionPanel = false; // optional: hide trigger form
+}
+
+onActionSubmit(): void {
+  if (this.actionForm.valid) {
+    const body = {
+      name: this.actionForm.value.name,
+      action_type: this.actionForm.value.action_type, // always 'send_message'
+      config: {
+        message: this.actionForm.value.message,
+      },
+      // intent_id: this.selectedIntent?.id, // provide dynamically
+      parent_action_id: null,
+      branch_path: this.buildBranchPath(), // optional method
+      order: 3, // or calculate dynamically
+    };
+
+    // Send to backend API here
+    console.log('Action payload:', body);
+    this.showActionForm = false;
+    this.actionForm.reset({ action_type: 'send_message' });
+  }
+}
+
+buildBranchPath(): string {
+  // Customize as needed
+  return 'root>EBU Services Response>Product Licenses Response>Oracle Services Response';
+}
+
 
 sendBot(): void {
   const selectedLang = this.language.length > 0 ? this.language[0] : 'English';
