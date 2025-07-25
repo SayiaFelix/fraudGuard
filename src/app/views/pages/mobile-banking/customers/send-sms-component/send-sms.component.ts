@@ -126,6 +126,7 @@ fetchIntentList(chatbotId: number): void {
         this.agentList = res.data.sort((a: { created_at: string | number | Date; }, b: { created_at: string | number | Date; }) =>
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
+        // console.log("Agent List",this.agentList)
       } else {
         this.agentList = [];
         this.showErrorMessage('Failed to load triggers.');
