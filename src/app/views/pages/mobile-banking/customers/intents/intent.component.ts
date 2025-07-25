@@ -41,15 +41,31 @@ export class IntentComponent implements OnInit {
     showAiActionPanel: boolean = false;
     selectedTrigger: any = null;
     hovering: boolean = false;
-  agentList: never[];
-  actions: any;
-  description: any;
-showActionForm = false;
-  intentname: any;
-editingName = false;
+    agentList: never[];
+    actions: any;
+    description: any;
+    showActionForm = false;
+    showActionType = false;
+    intentname: any;
+    editingName = false;
+    actionTypes: any;
+    selectedAction: any = null;
+    hoveredAction: string | null = null;
 
 
-
+actionIcons: { [key: string]: string } = {
+  send_message: 'icon-message-square',
+  send_file: 'icon-file-text',
+  http_request: 'icon-link',
+  loop: 'icon-refresh-cw',
+  carousel: 'icon-layers',
+  Jump_to_Trigger: 'icon-corner-down-right',
+  webhook: 'icon-zap',
+  set_variable: 'icon-sliders',
+  survey: 'icon-edit-3',
+  create_ticket: 'icon-clipboard',
+  human_handoff: 'icon-user',
+};
 
     constructor(
         public activeModal: NgbActiveModal,
@@ -76,6 +92,7 @@ editingName = false;
       }
       
       this.fetchIntent(this.intentId);
+      this.fetchActionType()
 
       this.actionForm = this.fb.group({
         name: ['', Validators.required],
@@ -131,16 +148,6 @@ removeLanguage(lang: string): void {
     this.defaultLanguage = this.language.length > 0 ? this.language[0] : 'English';
   }
 }
-
-
-openAiActionPanel(trigger: any): void {
-  // Logic to open right-side drawer/form
-  // You can pass `trigger` data if needed
-  this.selectedTrigger = trigger;
-  this.showAiActionPanel = true;
-}
-
-
 
 
 initializeForm() {
@@ -249,6 +256,52 @@ fetchIntent(intentId: number): void {
     }
   });
 }
+
+// fetchActionType(): void {
+//   this.isLoading = true;
+
+//   this._httpService.mobileBankingPost('builder/nodes/action-types', {}).subscribe({
+//     next: (res: any) => {
+//       if (res?.status === '00') {
+//         this.actionTypes = res.data || [];
+//         console.log("Action Types:", this.actionTypes);
+//       } else {
+//         console.warn('Unexpected status code:', res.status);
+//         this.actionTypes = [];
+//       }
+//       this.isLoading = false;
+//     },
+//     error: (err: any) => {
+//       console.error('Error fetching action types:', err);
+//       this.actionTypes = [];
+//       this.isLoading = false;
+//     }
+//   });
+// }
+
+fetchActionType(): void {
+  this.isLoading = true;
+
+  this._httpService.mobileBankingPost('builder/nodes/action-types', {}).subscribe({
+    next: (res: any) => {
+      if (Array.isArray(res)) {
+        this.actionTypes = res;
+        console.log("Action Types", res);
+      } else {
+        this.actionTypes = [];
+        console.warn('Unexpected response format:', res);
+      }
+      this.isLoading = false;
+    },
+    error: (err: any) => {
+      console.error('Error fetching action types:', err);
+      this.actionTypes = [];
+      this.isLoading = false;
+    }
+  });
+}
+
+
 onTriggerSubmit(): void {
   if (this.triggerForm.valid) {
     // Get chatbot ID from global service
@@ -303,9 +356,30 @@ onTriggerSubmit(): void {
   }
 }
 
+openAiActionPanel(trigger: any): void {
+  // Logic to open right-side drawer/form
+  // You can pass `trigger` data if needed
+  this.selectedTrigger = trigger;
+  this.showAiActionPanel = true;
+  this.showActionForm = false;
+  this.showActionType = false;
+}
+
 openActionForm(action: any): void {
+  this.selectedAction = action;
+  console.log('Selected Action:', action);
+
   this.showActionForm = true;
-  this.showAiActionPanel = false; // optional: hide trigger form
+   this.showActionType = false;
+  this.showAiActionPanel = false; 
+}
+
+
+openActionType(action: any): void {
+  this.showActionType = true;
+  this.fetchActionType()
+  this.showActionForm = false;
+  this.showAiActionPanel = false;
 }
 
 onActionSubmit(): void {
