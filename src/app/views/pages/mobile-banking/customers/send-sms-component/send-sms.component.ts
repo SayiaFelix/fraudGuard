@@ -177,7 +177,7 @@ onTriggerSubmit(): void {
               this.globalService.setIntentId(result.data.id);
               this.fetchIntentList(chatbotId)
 
-              Swal.fire('ChatBot', 'Intent created successfully!', 'success');
+              Swal.fire('ChatBot', 'Trigger Created Successfully!', 'success');
               this.triggerForm.reset();
               this.closeModal(); // Close modal after successful submission
             }, 10);
