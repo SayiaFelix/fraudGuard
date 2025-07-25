@@ -61,20 +61,19 @@ showActionForm = false;
 
     ngOnInit() {
 
-        const intentId = +this.route.snapshot.paramMap.get('id')!;
+      this.intentId = +this.route.snapshot.paramMap.get('id')!;
+      this.chatbotId = this.globalService.getChatbotId();
 
-        this.chatbotId = this.globalService.getChatbotId();
+      console.log('Editing intent ID:', this.intentId);
+      console.log('For chatbot ID:', this.chatbotId);
 
-        console.log('Editing intent ID:', intentId);
-        console.log('For chatbot ID:', this.chatbotId);
-
-        if (this.intentId) {
-            this.fetchIntent(intentId);
-          } else {
-            console.warn('No chatbot selected.');
-          }
+      if (this.intentId) {
+        this.fetchIntent(this.intentId);
+      } else {
+        console.warn('No intent selected.');
+      }
       
-      this.fetchIntent(intentId);
+      this.fetchIntent(this.intentId);
 
       this.actionForm = this.fb.group({
         name: ['', Validators.required],
