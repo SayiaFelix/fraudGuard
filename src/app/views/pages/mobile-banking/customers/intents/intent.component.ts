@@ -36,7 +36,7 @@ export class IntentComponent implements OnInit {
     triggerForm: FormGroup;
 
     chatbotId!: number | null;
-    intentId!: number | null;
+    intentId!: number;
 
     showAiActionPanel: boolean = false;
     selectedTrigger: any = null;
@@ -45,6 +45,8 @@ export class IntentComponent implements OnInit {
   actions: any;
   description: any;
 showActionForm = false;
+  intentname: any;
+editingName = false;
 
 
 
@@ -139,41 +141,23 @@ openAiActionPanel(trigger: any): void {
 }
 
 
-fetchIntent(intentId: number): void {
-  this.isLoading = true;
-  const body = { intent_id: 225 };
 
-  this._httpService.mobileBankingPost('builder/nodes/action/list', body).subscribe({
-    next: (res: any) => {
-      if (res.status === '00') {
-        this.intents = res.data
-         this.description = res.description; // Oracle intent description
 
-        console.log("Intent Data", res.data);
-        // console.log("Description", this.description);
-      } else {
-        this.intents = [];
-      }
-      this.isLoading = false;
-    },
-    error: (err: any) => {
-      console.error('Error fetching agent list:', err);
-      this.intents = [];
-      this.isLoading = false;
-    }
+initializeForm() {
+  this.triggerForm = this.fb.group({
+    name: ['Message Received', Validators.required],
+    description: [''],
+    training_phrases: this.fb.array([
+      this.fb.control('', Validators.required)
+    ])
   });
 }
 
-initializeForm() {
-    this.triggerForm = this.fb.group({
-      name: ['', [Validators.required, Validators.required]],
-      description: [''],
-      training_phrases: this.fb.array([
-        this.fb.control('', Validators.required)
-      ]),
-        // excluded_phrases: this.fb.array([]),
-    });
-  }
+focusInput(input: HTMLInputElement) {
+  this.editingName = true;
+  setTimeout(() => input.focus(), 0);
+}
+
 
    get trainingPhrases() {
     return this.triggerForm?.get('training_phrases') as FormArray;
@@ -239,7 +223,32 @@ fetchIntentList(chatbotId: number): void {
   });
 }
 
+fetchIntent(intentId: number): void {
+  this.isLoading = true;
+  const body = { intent_id: intentId };
 
+  this._httpService.mobileBankingPost('builder/nodes/action/list', body).subscribe({
+    next: (res: any) => {
+      if (res.status === '00') {
+        this.intents = res.data
+         this.description = res.description; // Oracle intent description
+         this.intentname = res.intent_name
+
+        console.log("Intent Data", res.data);
+        console.log("Name", this.intentname);
+
+      } else {
+        this.intents = [];
+      }
+      this.isLoading = false;
+    },
+    error: (err: any) => {
+      console.error('Error fetching agent list:', err);
+      this.intents = [];
+      this.isLoading = false;
+    }
+  });
+}
 onTriggerSubmit(): void {
   if (this.triggerForm.valid) {
     // Get chatbot ID from global service
@@ -254,12 +263,11 @@ onTriggerSubmit(): void {
     const model = {
       ...this.triggerForm.value,
       chatbot_id: chatbotId, 
-      is_root: true, 
-      order: 1,
-      responses: ["Welcome! How can I assist you today?"]       
+      parent_id: this.intentId,
+      order: 2,   
     };
 
-    console.log('Form data to submit:', model);
+    console.log('Trigger Form data to submit:', model);
 
     this._httpService
       .mobileBankingPost('builder/nodes/intent', model)
@@ -273,8 +281,9 @@ onTriggerSubmit(): void {
   
               this.globalService.setIntentId(result.data.id);
               this.fetchIntentList(chatbotId)
+              this.fetchIntent(this.intentId,)
 
-              Swal.fire('ChatBot', 'Intent created successfully!', 'success');
+              Swal.fire('ChatBot', 'Trigger Added Successfully!', 'success');
               this.triggerForm.reset();
               this.closeModal(); // Close modal after successful submission
             }, 10);
@@ -294,7 +303,7 @@ onTriggerSubmit(): void {
   }
 }
 
-openActionForm(): void {
+openActionForm(action: any): void {
   this.showActionForm = true;
   this.showAiActionPanel = false; // optional: hide trigger form
 }
@@ -377,6 +386,7 @@ sendBot(): void {
       }
     });
 }
+
 
  
 

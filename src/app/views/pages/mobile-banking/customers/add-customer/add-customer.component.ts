@@ -140,7 +140,7 @@ sendBot(): void {
 
 
             // ✅ Success toast
-            Swal.fire('ChatBot', 'Bot created successfully!', 'success');
+            Swal.fire('ChatBot', 'ChatBot Name Created Successfully!', 'success');
             this.globalService.notifyBotCreated();
 
             this.form.reset();
