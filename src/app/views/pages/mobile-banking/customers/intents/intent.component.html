@@ -194,7 +194,6 @@
               {{ action.name }}
             </div>
           </div>
-
         </div>
       </div>
    </div>
@@ -214,9 +213,11 @@
                     style="cursor: pointer; padding: 0.375rem 0; border: 1px solid transparent; 
                             font-family: Roboto; font-weight: 500; font-style: Medium; 
                             font-size: 20px; line-height: 100%; letter-spacing: 0%; color: #364153;">
+                
                   <span (click)="editingName = true">
-                    {{ triggerForm.get('name')?.value || 'Untitled Action' }}
-                  </span>
+                      {{ actionForm.get('name')?.value || 'Untitled Action' }}
+                    </span>
+
 
                   <i style="font-size: 15px; cursor: pointer;" 
                     class="mdi mdi-pencil ms-1 text-muted"
@@ -244,34 +245,156 @@
           </div>
           <p class="text-muted mb-4" style="font-size: 14px;">Submit a preset reply to the chat.</p>
           <hr>
-                <!-- Name -->
-          <div class="mb-3">
-            <label class="form-label fw-bold">Name</label>
-            <input type="text" formControlName="name" class="form-control" placeholder="Enter action name" />
-          </div>
+    
 
-          <!-- Action Type (send_message) -->
-          <div class="mb-3">
-            <label class="form-label fw-bold">Action Type</label>
-            <input type="text" formControlName="action_type" class="form-control"/>
-          </div>
 
-          <!-- Message -->
-          <div class="mb-3">
-            <label class="form-label fw-bold">Message</label>
-            <textarea formControlName="message" rows="3" class="form-control" placeholder="A message variant"></textarea>
-            <div class="text-muted mt-1" style="font-size: 12px;">
-              A random message is used each time the action is triggered.
+          <!-- Dynamically render based on action type -->
+          <ng-container [ngSwitch]="selectedActionType">
+              <div *ngSwitchCase="'send_message'" class="mb-3">
+                <!-- Action Name -->
+                <!-- <div class="mb-3">
+                  <label class="form-label fw-bold">Name</label>
+                  <input type="text" formControlName="name" class="form-control" placeholder="Enter action name" 
+                  [class.is-invalid]="actionForm.get('name')?.touched && actionForm.get('name')?.invalid" />
+                  <div *ngIf="actionForm.get('name')?.touched && actionForm.get('name')?.invalid" class="invalid-feedback">
+                    Name is required.
+                  </div>
+                </div> -->
+
+              <div class="mb-3">
+                <label class="form-label fw-bold">Message</label>
+                <textarea formControlName="message" rows="3" class="form-control" placeholder="A message variant"
+                          [class.is-invalid]="actionForm.get('message')?.touched && actionForm.get('message')?.invalid"></textarea>
+                <div *ngIf="actionForm.get('message')?.touched && actionForm.get('message')?.invalid" class="invalid-feedback">
+                  Message is required.
+                </div>
+                <div class="text-muted mt-1" style="font-size: 12px;">
+                  A random message is used each time the action is triggered.
+                </div>
+                 <button class="mt-1 btn btn-link p-0 text-decoration-none text-dark d-flex align-items-center">
+                    <i style="font-size: 16px;" class="mdi mdi-plus me-1"></i>
+                    <span style="font-family: Roboto; font-weight: 600; font-size: 13px; letter-spacing: 5%;">
+                      Add Message
+                    </span>
+                 </button>
+              </div>
+
+               <div class="mt-3" >
+                  <label class="form-label fw-bold">Quick reply options</label>
+                  <div class="text-muted mt-1" style="font-size: 12px;">
+                     Optionally offer up to 10 clickable options below the sent message.
+                  </div>
+                  <input type="text" class="form-control" placeholder="Enter action name"/>
+                  <button class="mt-1 btn btn-link p-0 text-decoration-none text-dark d-flex align-items-center">
+                    <i style="font-size: 16px;" class="mdi mdi-plus me-1"></i>
+                    <span style="font-family: Roboto; font-weight: 600; font-size: 13px; letter-spacing: 5%;">
+                      Add Option
+                    </span>
+                 </button>
+                </div>
+
+           
             </div>
+
+
+            <!-- Send File Form -->
+            <div *ngSwitchCase="'send_file'" class="mb-3">
+              <!-- File Format -->
+              <div class="mb-3">
+                <label class="form-label fw-bold">File format</label>
+                <select class="form-select" formControlName="file_format">
+                  <option value="image">Image</option>
+                  <option value="pdf">PDF</option>
+                  <option value="doc">DOC</option>
+                  <!-- Add more formats if needed -->
+                </select>
+              </div>
+
+              <!-- Source Options -->
+              <div class="mb-3">
+                <label class="form-label fw-bold">Source</label>
+                <div class="d-flex gap-3">
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" value="upload" formControlName="source" id="uploadFile">
+                    <label class="form-check-label" for="uploadFile">Upload file</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" value="link" formControlName="source" id="fileLink">
+                    <label class="form-check-label" for="fileLink">File link</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" value="chat_script" formControlName="source" id="chatScript">
+                    <label class="form-check-label" for="chatScript">Chat script</label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Upload UI -->
+              <div class="mb-3 border rounded text-center py-4 px-3 bg-light" style="border-style: dashed;">
+                <div class="mb-2">
+                  <i class="bi bi-file-earmark-arrow-up-fill fs-1 text-primary"></i>
+                </div>
+                <p class="mb-1 fw-semibold">Drag and drop file here to upload</p>
+                <p class="text-muted" style="font-size: 13px;">Press the button to select a file from your computer.</p>
+                <p class="text-muted" style="font-size: 12px;">Supported file types: JPG, PNG, PDF, DOC. Max size: 20MB</p>
+                <button type="button" class="btn btn-outline-primary btn-sm">Browse Files</button>
+              </div>
+
+            </div>
+
+            <!-- HTTP Request -->
+          <div *ngSwitchCase="'http_request'" class="mb-3">
+
+            <!-- HTTP Method -->
+            <div class="mb-3">
+              <label class="form-label fw-bold">HTTP method</label>
+              <select class="form-select" formControlName="http_method">
+                <option value="GET">GET</option>
+                <option value="POST">POST</option>
+                <option value="PUT">PUT</option>
+                <option value="DELETE">DELETE</option>
+              </select>
+            </div>
+
+            <!-- URL Endpoint -->
+            <div class="mb-3">
+              <label class="form-label fw-bold">URL endpoint</label>
+              <input type="text" formControlName="url" class="form-control" placeholder="Enter URL (https://eclectics.io/)" />
+            </div>
+
+            <!-- Headers -->
+            <div class="mb-3">
+              <label class="form-label fw-bold">Headers</label>
+              <div *ngFor="let header of headers.controls; let i = index" class="d-flex gap-2 align-items-center mb-2">
+                <input type="text" class="form-control" placeholder="Key" />
+                <!-- <input type="text" class="form-control" placeholder="Value" /> -->
+                
+                <button type="button" class="btn btn-link text-danger p-0" (click)="removeHeader(i)">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+              <br>
+              <button type="button" class="btn btn-sm btn-outline-primary mt-2" (click)="addHeader()">+ Add Key and Value</button>
+            </div>
+
           </div>
+
+
+
+            <!-- Default fallback -->
+            <div *ngSwitchDefault class="mb-3">
+              <p class="text-muted">This action type doesn't have a custom form yet.</p>
+            </div>
+          </ng-container>
+
 
               <!-- Form Footer -->
           <div class="d-flex justify-content-end mt-4">
             <button type="button" class="btn btn-sm btn-outline-secondary me-2" (click)="showActionForm = false">Cancel</button>
             <button type="submit" class="btn btn-primary btn-sm" [disabled]="!actionForm.valid">Save Action</button>
           </div>
-         </form>
-</div>
+    </form>
+  </div>
 
 
   </div>
