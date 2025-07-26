@@ -8,23 +8,22 @@
       </a>
 
       <h3 style="margin: 0; color:#364153; font-family: Roboto; font-weight: 500; font-size: 20px; line-height: 100%; letter-spacing: 0%;">
-        <span style="gap: 10px;padding: 4px;border: 0.5px solid #EEF0F3">#{{intentId}} </span>  {{intentname}}  ChatbotID {{chatbotId}}
+        <span style="gap: 10px;padding: 4px;border: 0.5px solid #EEF0F3">#{{intentId}} </span>  {{intentname}}
       </h3>
     </div>
 
-    <p style="margin-top: 8px; margin-left: 20px; font-family: Roboto; font-weight: 300; font-style: Light; font-size: 14px; line-height: 21px; letter-spacing: 12%; color: #364153;">
+    <p style="margin-top: 8px; margin-left: 25px; font-family: Roboto; font-weight: 300; font-style: Light; font-size: 14px; line-height: 21px; letter-spacing: 12%; color: #364153;">
     {{description}}
     </p>
   </div>
 
-
-  <div class="d-flex flex-wrap flex-md-nowrap gap-4 mt-1">
+  <div class="d-flex flex-wrap flex-md-nowrap gap-4">
     <div class="flex-grow-1" style="min-width: 0;">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 style="color: #99A1AF; font-family: Roboto; font-weight: 600; font-size: 14px; letter-spacing: 5%;">
+        <div class="info-header d-flex justify-content-between align-items-center pt-2">
+          <h5 class="text-muted" style="padding-left:25px; font-family: Roboto; font-weight: 500; font-size: 15px; letter-spacing: 5%;">
             Info
           </h5>
-          <span style="font-family: Roboto; font-weight: 600; font-size: 14px; letter-spacing: 5%;" class="text-muted">
+          <span style="padding-right:55px; font-family: Roboto; font-weight: 600; font-size: 15px; letter-spacing: 5%;" class="text-muted">
             Enabled
           </span>
         </div>
@@ -32,52 +31,39 @@
         <div class="list-group">
             <ng-container *ngIf="intents.length > 0; else noIntents">
               <div *ngFor="let intent of intents" class="mb-1">
-                <!-- Main list item with proper indentation -->
-                <div class="list-group-item d-flex justify-content-between align-items-center" 
-                    [style.padding-left.px]="getIndentLevel(intent.order) * 20 + 16">
-                  
-                  <!-- Left-aligned content -->
-                  <div>
-                    <strong style="font-family: Roboto; font-weight: 600; font-size: 14px; letter-spacing: 5%;">
-                      #{{ intent.action_id }} {{ intent.name }}
-                    </strong>
-                  </div>
-                  
-                  <!-- Right-aligned toggle switch -->
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" [checked]="intent.is_active">
-                  </div>
+                <div class="list-group-item d-flex justify-content-between align-items-center"
+                      [style.padding-left.px]="getIndentLevel(intent.order) * 20 + 16">
+                    <div>
+                      <strong style="font-family: Roboto; font-weight: 600; font-size: 14px; letter-spacing: 5%;">
+                        #{{ intent.action_id }} {{ intent.name }}
+                      </strong>
+                    </div>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" [checked]="intent.is_active">
+                    </div>
                 </div>
 
-                <!-- Add AI Action button (indented) -->
-                <div class="ps-4 pt-1 pb-2" [style.margin-left.px]="getIndentLevel(intent.order) * 20">
-                  <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center"
-                          (click)="openActionType(intent)">
-                    <i class="mdi mdi-plus me-2"></i>
-                    <span>Add AI Action</span>
-                  </button>
-                </div>
+                <div class="ps-4 pt-1 pb-1 hover-card mt-1" 
+                      [style.margin-left.px]="getIndentLevel(intent.order) * 20 + 10">
 
-                <!-- For triggers only -->
-                <ng-container *ngIf="intent.action_type === 'trigger'">
-                  <div class="ps-4 pt-1 pb-2" [style.margin-left.px]="getIndentLevel(intent.order) * 20">
-                    <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center mb-1"
+                    <button class="btn btn-link p-0 d-flex align-items-center"
                             (click)="openActionType(intent)">
                       <i class="mdi mdi-plus me-2"></i>
                       <span>Add AI Action</span>
                     </button>
-                    
-                    <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center"
-                            (click)="openAiActionPanel(intent)">
-                      <i class="mdi mdi-plus me-2"></i>
-                      <span>Add Trigger</span>
-                    </button>
-                  </div>
-                </ng-container>
+
+                    <ng-container *ngIf="intent.action_type === 'trigger'">
+                      <button class="btn btn-link p-0 d-flex align-items-center"
+                              (click)="openAiActionPanel(intent)">
+                        <i class="mdi mdi-plus me-2"></i>
+                        <span>Add Trigger</span>
+                      </button>
+                    </ng-container>
+                </div>
               </div>
 
               <!-- Root level trigger button -->
-              <div class="ps-4 pt-2">
+              <div class="list-group-item ps-4 pt-1 pb-1 hover-card">
                 <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center"
                         (click)="openAiActionPanel(null)">
                   <i class="mdi mdi-plus me-2"></i>
@@ -86,357 +72,361 @@
               </div>
             </ng-container>
 
-            <ng-template #noIntents>
-              <div class="ps-4 pt-1">
-                <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center mb-2"
-                        (click)="openActionType(null)">
-                  <i style="font-size: 16px;" class="mdi mdi-plus me-2"></i>
-                  <span style="font-family: Roboto; font-weight: 600; font-size: 14px; letter-spacing: 5%;">
-                    Add AI Action
-                  </span>
-                </button>
-
-                <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center"
-                        (click)="openAiActionPanel(null)">
-                  <i style="font-size: 16px;" class="mdi mdi-plus me-2"></i>
-                  <span style="font-family: Roboto; font-weight: 600; font-size: 14px; letter-spacing: 5%;">
-                    Add Trigger
-                  </span>
-                </button>
-              </div>
-            </ng-template>
+              <ng-template #noIntents>
+                <div>
+                  <!-- Add AI Action -->
+                  <div class=" list-group-item hover-card mb-2 px-4 pt-2 pb-2 rounded">
+                    <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
+                            (click)="openActionType(null)">
+                      <i class="mdi mdi-plus me-2" style="font-size: 16px;"></i>
+                      <span style="font-family: Roboto; font-weight: 600; font-size: 14px; letter-spacing: 5%;">
+                        Add AI Action
+                      </span>
+                    </button>
+                  </div>
+                  <!-- Add Trigger -->
+                  <div class="list-group-item hover-card px-4 pt-2 pb-2 rounded">
+                    <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
+                            (click)="openAiActionPanel(null)">
+                      <i class="mdi mdi-plus me-2" style="font-size: 16px;"></i>
+                      <span style="font-family: Roboto; font-weight: 600; font-size: 14px; letter-spacing: 5%;">
+                        Add Trigger
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </ng-template>
         </div>
     </div>
 
 
 
-    <div *ngIf="showAiActionPanel"
-         class="bg-white border rounded shadow-sm p-3 fixed-height-panel"
-         style="width: 100%; max-width: 380px; flex-shrink: 0;">
-         <form [formGroup]="triggerForm" (ngSubmit)="onTriggerSubmit()">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <!-- Title that becomes an input when clicked -->
-            <div class="d-flex align-items-center flex-grow-1">
-              <div *ngIf="!editingName; else nameInput" class="d-flex align-items-center w-100">
-                <div class="fw-bold flex-grow-1 d-flex align-items-center" 
-                    style="cursor: pointer; padding: 0.375rem 0; border: 1px solid transparent; 
-                            font-family: Roboto; font-weight: 500; font-style: Medium; 
-                            font-size: 20px; line-height: 100%; letter-spacing: 0%; color: #364153;">
-                  <span (click)="editingName = true">
-                    {{ triggerForm.get('name')?.value || 'Untitled Trigger' }}
-                  </span>
-
-                  <i style="font-size: 15px; cursor: pointer;" 
-                    class="mdi mdi-pencil ms-1 text-muted"
-                    (click)="editingName = true; $event.stopPropagation()"></i>
-                
-                </div>
-              </div>
-              
-              <ng-template #nameInput>
-                <div class="d-flex align-items-center w-100">
-                  <input type="text" formControlName="name" 
-                        class="form-control border-0 p-0 fw-bold" 
-                        style="font-family: Roboto; font-weight: 500; font-size: 20px;
-                                line-height: 100%; color: #364153; box-shadow: none;"
-                        placeholder="Enter name for this trigger"
-                        (blur)="editingName = false"
-                        (keyup.enter)="editingName = false">
-                  <i class="feather icon-check ms-2 text-muted" 
-                    style="font-size: 16px; cursor: pointer;" 
-                    (click)="editingName = false"></i>
-                </div>
-              </ng-template>
-            </div>
-            <button class="btn-close btn-close-dark ms-2" (click)="showAiActionPanel = false"></button>
-          </div>
-          <hr>
-
-            <div class="form-group mt-2 mb-4">
-              <label class="form-label fw-bold">Training phrases</label>
-              <div formArrayName="training_phrases">
-                <div *ngFor="let phrase of trainingPhrases.controls; let i = index" class="d-flex align-items-center mb-2">
-                  <input type="text" placeholder="Enter the training phrase" class="form-control" [formControlName]="i">
-                  <button type="button" class="btn btn-sm btn-outline-danger ms-2" (click)="removeTrainingPhrase(i)">
-                    <i class="feather icon-trash-2"></i>
-                  </button>
-                </div>
-              </div>
-
-              <button type="button" class="btn btn-sm btn-outline-success mt-2" (click)="addTrainingPhrase()">
-                + Add Phrase
-              </button>
-              <div class="text-muted mt-1" style="font-size: 12px;">Approximate ways the person may express their intent.</div>
-            </div>
-
-            <div class="form-group mt-2 mb-4">
-              <label class="form-label fw-bold">Excluded phrases</label>
-              <div>
-                <div class="d-flex align-items-center mb-2">
-                  <input type="text" placeholder="Enter phrase" class="form-control">
-                  <button type="button" class="btn btn-sm btn-outline-danger ms-2">
-                    <i class="feather icon-trash-2"></i>
-                  </button>
-                </div>
-              </div>
-
-              <button type="button" class="btn btn-sm btn-outline-info mt-2" (click)="addExcludedPhrase()">
-                + Add Phrase
-              </button>
-              <div class="text-muted mt-1" style="font-size: 12px;">Similar phrases the trigger should avoid.</div>
-            </div>
-
-          <!-- Form Footer -->
-          <div class="d-flex justify-content-end mt-4">
-            <button type="button" class="btn btn-sm btn-outline-secondary me-2" (click)="showAiActionPanel = false" >Cancel</button>
-            <button type="submit" class="btn btn-primary">Save Trigger</button>
-          </div>
-         </form>
-    </div>
-
-    <div *ngIf="showActionType"
-     class="bg-white border rounded shadow-sm p-3 fixed-height-panels"
-     style="width: 100%; max-width: 320px; flex-shrink: 0;">
-
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="mb-0" style="font-family: Roboto; font-weight: 500; font-size: 20px; color: #364153;">
-            AI Actions
-          </h5>
-          <button class="btn-close btn-close-dark" (click)="showActionType = false"></button>
-        </div>
-
-      <p class="text-muted mb-3" style="font-size: 14px;">
-        Choose what the AI should do when this trigger is activated.
-      </p>
-      <hr>
-
-      <!-- Loader -->
-      <div *ngIf="isLoading" class="text-center my-4">
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Loading...</span>
-        </div>
-      </div>
-
-      <!-- Action List -->
-      <div *ngIf="!isLoading">
-        <div *ngFor="let action of actionTypes"
-            (click)="openActionForm(action)"
-            class="card p-3 mb-3 border-0 shadow-sm"
-            [ngClass]="{'bg-light': selectedAction?.type === action.type}"
-            style="cursor: pointer; transition: all 0.2s ease-in-out;"
-            (mouseenter)="hoveredAction = action.type"
-            (mouseleave)="hoveredAction = null"
-            [style.boxShadow]="hoveredAction === action.type ? '0 4px 12px rgba(0, 0, 0, 0.1)' : ''"
-            [style.transform]="hoveredAction === action.type ? 'scale(1.02)' : 'scale(1)'">
-
-          <div class="d-flex align-items-center">
-            <div class="me-3">
-              <i class="feather" [ngClass]="actionIcons[action.type] || 'icon-settings'" style="font-size: 20px;"></i>
-            </div>
-            <div style="font-weight: 500; font-size: 15px;">
-              {{ action.name }}
-            </div>
-          </div>
-        </div>
-      </div>
-   </div>
-
-  <div *ngIf="showActionForm"
-     class="bg-white border rounded shadow-sm p-3 fixed-height-panel"
-     style="width: 100%; max-width: 380px; flex-shrink: 0;">
-
-    <form [formGroup]="actionForm" (ngSubmit)="onActionSubmit()">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <!-- Title that becomes an input when clicked -->
-            <div class="d-flex align-items-center flex-grow-1">
-              <div *ngIf="!editingName; else nameInput" class="d-flex align-items-center w-100">
-                <div class="fw-bold flex-grow-1 d-flex align-items-center" 
-                    style="cursor: pointer; padding: 0.375rem 0; border: 1px solid transparent; 
-                            font-family: Roboto; font-weight: 500; font-style: Medium; 
-                            font-size: 20px; line-height: 100%; letter-spacing: 0%; color: #364153;">
-                
-                  <span (click)="editingName = true">
-                      {{ actionForm.get('name')?.value || 'Untitled Action' }}
+      <div *ngIf="showAiActionPanel"
+          class="bg-white border rounded shadow-sm p-3 fixed-height-panel"
+          style="width: 100%; max-width: 380px; flex-shrink: 0;">
+          <form [formGroup]="triggerForm" (ngSubmit)="onTriggerSubmit()">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <!-- Title that becomes an input when clicked -->
+              <div class="d-flex align-items-center flex-grow-1">
+                <div *ngIf="!editingName; else nameInput" class="d-flex align-items-center w-100">
+                  <div class="fw-bold flex-grow-1 d-flex align-items-center" 
+                      style="cursor: pointer; padding: 0.375rem 0; border: 1px solid transparent; 
+                              font-family: Roboto; font-weight: 500; font-style: Medium; 
+                              font-size: 20px; line-height: 100%; letter-spacing: 0%; color: #364153;">
+                    <span (click)="editingName = true">
+                      {{ triggerForm.get('name')?.value || 'Untitled Trigger' }}
                     </span>
 
-
-                  <i style="font-size: 15px; cursor: pointer;" 
-                    class="mdi mdi-pencil ms-1 text-muted"
-                    (click)="editingName = true; $event.stopPropagation()"></i>
+                    <i style="font-size: 15px; cursor: pointer;" 
+                      class="mdi mdi-pencil ms-1 text-muted"
+                      (click)="editingName = true; $event.stopPropagation()"></i>
+                  
+                  </div>
+                </div>
                 
-                </div>
+                <ng-template #nameInput>
+                  <div class="d-flex align-items-center w-100">
+                    <input type="text" formControlName="name" 
+                          class="form-control border-0 p-0 fw-bold" 
+                          style="font-family: Roboto; font-weight: 500; font-size: 20px;
+                                  line-height: 100%; color: #364153; box-shadow: none;"
+                          placeholder="Enter name for this trigger"
+                          (blur)="editingName = false"
+                          (keyup.enter)="editingName = false">
+                    <i class="feather icon-check ms-2 text-muted" 
+                      style="font-size: 16px; cursor: pointer;" 
+                      (click)="editingName = false"></i>
+                  </div>
+                </ng-template>
               </div>
-              
-              <ng-template #nameInput>
-                <div class="d-flex align-items-center w-100">
-                  <input type="text" formControlName="name" 
-                        class="form-control border-0 p-0 fw-bold" 
-                        style="font-family: Roboto; font-weight: 500; font-size: 20px;
-                                line-height: 100%; color: #364153; box-shadow: none;"
-                        placeholder="Enter name for this trigger"
-                        (blur)="editingName = false"
-                        (keyup.enter)="editingName = false">
-                  <i class="feather icon-check ms-2 text-muted" 
-                    style="font-size: 16px; cursor: pointer;" 
-                    (click)="editingName = false"></i>
-                </div>
-              </ng-template>
+              <button class="btn-close btn-close-dark ms-2" (click)="showAiActionPanel = false"></button>
             </div>
-            <button class="btn-close btn-close-dark ms-2" (click)="showActionForm = false"></button>
-          </div>
-          <p class="text-muted mb-4" style="font-size: 14px;">Submit a preset reply to the chat.</p>
-          <hr>
-    
+            <hr>
 
-
-          <!-- Dynamically render based on action type -->
-          <ng-container [ngSwitch]="selectedActionType">
-              <div *ngSwitchCase="'send_message'" class="mb-3">
-                <!-- Action Name -->
-                <!-- <div class="mb-3">
-                  <label class="form-label fw-bold">Name</label>
-                  <input type="text" formControlName="name" class="form-control" placeholder="Enter action name" 
-                  [class.is-invalid]="actionForm.get('name')?.touched && actionForm.get('name')?.invalid" />
-                  <div *ngIf="actionForm.get('name')?.touched && actionForm.get('name')?.invalid" class="invalid-feedback">
-                    Name is required.
-                  </div>
-                </div> -->
-
-              <div class="mb-3">
-                <label class="form-label fw-bold">Message</label>
-                <textarea formControlName="message" rows="3" class="form-control" placeholder="A message variant"
-                          [class.is-invalid]="actionForm.get('message')?.touched && actionForm.get('message')?.invalid"></textarea>
-                <div *ngIf="actionForm.get('message')?.touched && actionForm.get('message')?.invalid" class="invalid-feedback">
-                  Message is required.
-                </div>
-                <div class="text-muted mt-1" style="font-size: 12px;">
-                  A random message is used each time the action is triggered.
-                </div>
-                 <button class="mt-1 btn btn-link p-0 text-decoration-none text-dark d-flex align-items-center">
-                    <i style="font-size: 16px;" class="mdi mdi-plus me-1"></i>
-                    <span style="font-family: Roboto; font-weight: 600; font-size: 13px; letter-spacing: 5%;">
-                      Add Message
-                    </span>
-                 </button>
-              </div>
-
-               <div class="mt-3" >
-                  <label class="form-label fw-bold">Quick reply options</label>
-                  <div class="text-muted mt-1" style="font-size: 12px;">
-                     Optionally offer up to 10 clickable options below the sent message.
-                  </div>
-                  <input type="text" class="form-control" placeholder="Enter action name"/>
-                  <button class="mt-1 btn btn-link p-0 text-decoration-none text-dark d-flex align-items-center">
-                    <i style="font-size: 16px;" class="mdi mdi-plus me-1"></i>
-                    <span style="font-family: Roboto; font-weight: 600; font-size: 13px; letter-spacing: 5%;">
-                      Add Option
-                    </span>
-                 </button>
-                </div>
-
-           
-            </div>
-
-
-            <!-- Send File Form -->
-            <div *ngSwitchCase="'send_file'" class="mb-3">
-              <!-- File Format -->
-              <div class="mb-3">
-                <label class="form-label fw-bold">File format</label>
-                <select class="form-select" formControlName="file_format">
-                  <option value="image">Image</option>
-                  <option value="pdf">PDF</option>
-                  <option value="doc">DOC</option>
-                  <!-- Add more formats if needed -->
-                </select>
-              </div>
-
-              <!-- Source Options -->
-              <div class="mb-3">
-                <label class="form-label fw-bold">Source</label>
-                <div class="d-flex gap-3">
-                  <div class="form-check">
-                    <input class="form-check-input" type="radio" value="upload" formControlName="source" id="uploadFile">
-                    <label class="form-check-label" for="uploadFile">Upload file</label>
-                  </div>
-                  <div class="form-check">
-                    <input class="form-check-input" type="radio" value="link" formControlName="source" id="fileLink">
-                    <label class="form-check-label" for="fileLink">File link</label>
-                  </div>
-                  <div class="form-check">
-                    <input class="form-check-input" type="radio" value="chat_script" formControlName="source" id="chatScript">
-                    <label class="form-check-label" for="chatScript">Chat script</label>
+              <div class="form-group mt-2 mb-4">
+                <label class="form-label fw-bold">Training phrases</label>
+                <div formArrayName="training_phrases">
+                  <div *ngFor="let phrase of trainingPhrases.controls; let i = index" class="d-flex align-items-center mb-2">
+                    <input type="text" placeholder="Enter the training phrase" class="form-control" [formControlName]="i">
+                    <button type="button" class="btn btn-sm btn-outline-danger ms-2" (click)="removeTrainingPhrase(i)">
+                      <i class="feather icon-trash-2"></i>
+                    </button>
                   </div>
                 </div>
-              </div>
 
-              <!-- Upload UI -->
-              <div class="mb-3 border rounded text-center py-4 px-3 bg-light" style="border-style: dashed;">
-                <div class="mb-2">
-                  <i class="bi bi-file-earmark-arrow-up-fill fs-1 text-primary"></i>
-                </div>
-                <p class="mb-1 fw-semibold">Drag and drop file here to upload</p>
-                <p class="text-muted" style="font-size: 13px;">Press the button to select a file from your computer.</p>
-                <p class="text-muted" style="font-size: 12px;">Supported file types: JPG, PNG, PDF, DOC. Max size: 20MB</p>
-                <button type="button" class="btn btn-outline-primary btn-sm">Browse Files</button>
-              </div>
-
-            </div>
-
-            <!-- HTTP Request -->
-          <div *ngSwitchCase="'http_request'" class="mb-3">
-
-            <!-- HTTP Method -->
-            <div class="mb-3">
-              <label class="form-label fw-bold">HTTP method</label>
-              <select class="form-select" formControlName="http_method">
-                <option value="GET">GET</option>
-                <option value="POST">POST</option>
-                <option value="PUT">PUT</option>
-                <option value="DELETE">DELETE</option>
-              </select>
-            </div>
-
-            <!-- URL Endpoint -->
-            <div class="mb-3">
-              <label class="form-label fw-bold">URL endpoint</label>
-              <input type="text" formControlName="url" class="form-control" placeholder="Enter URL (https://eclectics.io/)" />
-            </div>
-
-            <!-- Headers -->
-            <div class="mb-3">
-              <label class="form-label fw-bold">Headers</label>
-              <div *ngFor="let header of headers.controls; let i = index" class="d-flex gap-2 align-items-center mb-2">
-                <input type="text" class="form-control" placeholder="Key" />
-                <!-- <input type="text" class="form-control" placeholder="Value" /> -->
-                
-                <button type="button" class="btn btn-link text-danger p-0" (click)="removeHeader(i)">
-                  <i class="bi bi-trash"></i>
+                <button type="button" class="btn btn-sm btn-outline-success mt-2" (click)="addTrainingPhrase()">
+                  + Add Phrase
                 </button>
+                <div class="text-muted mt-1" style="font-size: 12px;">Approximate ways the person may express their intent.</div>
               </div>
-              <br>
-              <button type="button" class="btn btn-sm btn-outline-primary mt-2" (click)="addHeader()">+ Add Key and Value</button>
+
+              <div class="form-group mt-2 mb-4">
+                <label class="form-label fw-bold">Excluded phrases</label>
+                <div>
+                  <div class="d-flex align-items-center mb-2">
+                    <input type="text" placeholder="Enter phrase" class="form-control">
+                    <button type="button" class="btn btn-sm btn-outline-danger ms-2">
+                      <i class="feather icon-trash-2"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <button type="button" class="btn btn-sm btn-outline-info mt-2" (click)="addExcludedPhrase()">
+                  + Add Phrase
+                </button>
+                <div class="text-muted mt-1" style="font-size: 12px;">Similar phrases the trigger should avoid.</div>
+              </div>
+
+            <!-- Form Footer -->
+            <div class="d-flex justify-content-end mt-4">
+              <button type="button" class="btn btn-sm btn-outline-secondary me-2" (click)="showAiActionPanel = false" >Cancel</button>
+              <button type="submit" class="btn btn-primary">Save Trigger</button>
+            </div>
+          </form>
+      </div>
+
+        <div *ngIf="showActionType"
+        class="bg-white border rounded shadow-sm p-3 fixed-height-panels"
+        style="width: 100%; max-width: 320px; flex-shrink: 0;">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="mb-0" style="font-family: Roboto; font-weight: 500; font-size: 20px; color: #364153;">
+                AI Actions
+              </h5>
+              <button class="btn-close btn-close-dark" (click)="showActionType = false"></button>
             </div>
 
-          </div>
+          <p class="text-muted mb-3" style="font-size: 14px;">
+            Choose what the AI should do when this trigger is activated.
+          </p>
+          <hr>
 
-
-
-            <!-- Default fallback -->
-            <div *ngSwitchDefault class="mb-3">
-              <p class="text-muted">This action type doesn't have a custom form yet.</p>
+          <!-- Loader -->
+          <div *ngIf="isLoading" class="text-center my-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
             </div>
-          </ng-container>
-
-
-              <!-- Form Footer -->
-          <div class="d-flex justify-content-end mt-4">
-            <button type="button" class="btn btn-sm btn-outline-secondary me-2" (click)="showActionForm = false">Cancel</button>
-            <button type="submit" class="btn btn-primary btn-sm" [disabled]="!actionForm.valid">Save Action</button>
           </div>
-    </form>
-  </div>
 
+          <!-- Action List -->
+          <div *ngIf="!isLoading">
+            <div *ngFor="let action of actionTypes"
+                (click)="openActionForm(action)"
+                class="card p-3 mb-3 border-0 shadow-sm"
+                [ngClass]="{'bg-light': selectedAction?.type === action.type}"
+                style="cursor: pointer; transition: all 0.2s ease-in-out;"
+                (mouseenter)="hoveredAction = action.type"
+                (mouseleave)="hoveredAction = null"
+                [style.boxShadow]="hoveredAction === action.type ? '0 4px 12px rgba(0, 0, 0, 0.1)' : ''"
+                [style.transform]="hoveredAction === action.type ? 'scale(1.02)' : 'scale(1)'">
+
+              <div class="d-flex align-items-center">
+                <div class="me-3">
+                  <i class="feather" [ngClass]="actionIcons[action.type] || 'icon-settings'" style="font-size: 20px;"></i>
+                </div>
+                <div style="font-weight: 500; font-size: 15px;">
+                  {{ action.name }}
+                </div>
+              </div>
+            </div>
+          </div>
+      </div>
+
+      <div *ngIf="showActionForm"
+        class="bg-white border rounded shadow-sm p-3 fixed-height-panel"
+        style="width: 100%; max-width: 380px; flex-shrink: 0;">
+
+        <form [formGroup]="actionForm" (ngSubmit)="onActionSubmit()">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <!-- Title that becomes an input when clicked -->
+                <div class="d-flex align-items-center flex-grow-1">
+                  <div *ngIf="!editingName; else nameInput" class="d-flex align-items-center w-100">
+                    <div class="fw-bold flex-grow-1 d-flex align-items-center" 
+                        style="cursor: pointer; padding: 0.375rem 0; border: 1px solid transparent; 
+                                font-family: Roboto; font-weight: 500; font-style: Medium; 
+                                font-size: 20px; line-height: 100%; letter-spacing: 0%; color: #364153;">
+                    
+                      <span (click)="editingName = true">
+                          {{ actionForm.get('name')?.value || 'Untitled Action' }}
+                        </span>
+
+
+                      <i style="font-size: 15px; cursor: pointer;" 
+                        class="mdi mdi-pencil ms-1 text-muted"
+                        (click)="editingName = true; $event.stopPropagation()"></i>
+                    
+                    </div>
+                  </div>
+                  
+                  <ng-template #nameInput>
+                    <div class="d-flex align-items-center w-100">
+                      <input type="text" formControlName="name" 
+                            class="form-control border-0 p-0 fw-bold" 
+                            style="font-family: Roboto; font-weight: 500; font-size: 20px;
+                                    line-height: 100%; color: #364153; box-shadow: none;"
+                            placeholder="Enter name for this trigger"
+                            (blur)="editingName = false"
+                            (keyup.enter)="editingName = false">
+                      <i class="feather icon-check ms-2 text-muted" 
+                        style="font-size: 16px; cursor: pointer;" 
+                        (click)="editingName = false"></i>
+                    </div>
+                  </ng-template>
+                </div>
+                <button class="btn-close btn-close-dark ms-2" (click)="showActionForm = false"></button>
+              </div>
+              <p class="text-muted mb-4" style="font-size: 14px;">Submit a preset reply to the chat.</p>
+              <hr>
+        
+
+
+              <!-- Dynamically render based on action type -->
+              <ng-container [ngSwitch]="selectedActionType">
+                  <div *ngSwitchCase="'send_message'" class="mb-3">
+                    <!-- Action Name -->
+                    <!-- <div class="mb-3">
+                      <label class="form-label fw-bold">Name</label>
+                      <input type="text" formControlName="name" class="form-control" placeholder="Enter action name" 
+                      [class.is-invalid]="actionForm.get('name')?.touched && actionForm.get('name')?.invalid" />
+                      <div *ngIf="actionForm.get('name')?.touched && actionForm.get('name')?.invalid" class="invalid-feedback">
+                        Name is required.
+                      </div>
+                    </div> -->
+
+                  <div class="mb-3">
+                    <label class="form-label fw-bold">Message</label>
+                    <textarea formControlName="message" rows="3" class="form-control" placeholder="A message variant"
+                              [class.is-invalid]="actionForm.get('message')?.touched && actionForm.get('message')?.invalid"></textarea>
+                    <div *ngIf="actionForm.get('message')?.touched && actionForm.get('message')?.invalid" class="invalid-feedback">
+                      Message is required.
+                    </div>
+                    <div class="text-muted mt-1" style="font-size: 12px;">
+                      A random message is used each time the action is triggered.
+                    </div>
+                    <button class="mt-1 btn btn-link p-0 text-decoration-none text-dark d-flex align-items-center">
+                        <i style="font-size: 16px;" class="mdi mdi-plus me-1"></i>
+                        <span style="font-family: Roboto; font-weight: 600; font-size: 13px; letter-spacing: 5%;">
+                          Add Message
+                        </span>
+                    </button>
+                  </div>
+
+                  <div class="mt-3" >
+                      <label class="form-label fw-bold">Quick reply options</label>
+                      <div class="text-muted mt-1" style="font-size: 12px;">
+                        Optionally offer up to 10 clickable options below the sent message.
+                      </div>
+                      <input type="text" class="form-control" placeholder="Enter action name"/>
+                      <button class="mt-1 btn btn-link p-0 text-decoration-none text-dark d-flex align-items-center">
+                        <i style="font-size: 16px;" class="mdi mdi-plus me-1"></i>
+                        <span style="font-family: Roboto; font-weight: 600; font-size: 13px; letter-spacing: 5%;">
+                          Add Option
+                        </span>
+                    </button>
+                    </div>
+
+              
+                </div>
+
+
+                <!-- Send File Form -->
+                <div *ngSwitchCase="'send_file'" class="mb-3">
+                  <!-- File Format -->
+                  <div class="mb-3">
+                    <label class="form-label fw-bold">File format</label>
+                    <select class="form-select" formControlName="file_format">
+                      <option value="image">Image</option>
+                      <option value="pdf">PDF</option>
+                      <option value="doc">DOC</option>
+                      <!-- Add more formats if needed -->
+                    </select>
+                  </div>
+
+                  <!-- Source Options -->
+                  <div class="mb-3">
+                    <label class="form-label fw-bold">Source</label>
+                    <div class="d-flex gap-3">
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" value="upload" formControlName="source" id="uploadFile">
+                        <label class="form-check-label" for="uploadFile">Upload file</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" value="link" formControlName="source" id="fileLink">
+                        <label class="form-check-label" for="fileLink">File link</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" value="chat_script" formControlName="source" id="chatScript">
+                        <label class="form-check-label" for="chatScript">Chat script</label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Upload UI -->
+                  <div class="mb-3 border rounded text-center py-4 px-3 bg-light" style="border-style: dashed;">
+                    <div class="mb-2">
+                      <i class="bi bi-file-earmark-arrow-up-fill fs-1 text-primary"></i>
+                    </div>
+                    <p class="mb-1 fw-semibold">Drag and drop file here to upload</p>
+                    <p class="text-muted" style="font-size: 13px;">Press the button to select a file from your computer.</p>
+                    <p class="text-muted" style="font-size: 12px;">Supported file types: JPG, PNG, PDF, DOC. Max size: 20MB</p>
+                    <button type="button" class="btn btn-outline-primary btn-sm">Browse Files</button>
+                  </div>
+
+                </div>
+
+                <!-- HTTP Request -->
+              <div *ngSwitchCase="'http_request'" class="mb-3">
+
+                <!-- HTTP Method -->
+                <div class="mb-3">
+                  <label class="form-label fw-bold">HTTP method</label>
+                  <select class="form-select" formControlName="http_method">
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                    <option value="PUT">PUT</option>
+                    <option value="DELETE">DELETE</option>
+                  </select>
+                </div>
+
+                <!-- URL Endpoint -->
+                <div class="mb-3">
+                  <label class="form-label fw-bold">URL endpoint</label>
+                  <input type="text" formControlName="url" class="form-control" placeholder="Enter URL (https://eclectics.io/)" />
+                </div>
+
+                <!-- Headers -->
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Headers</label>
+                  <div *ngFor="let header of headers.controls; let i = index" class="d-flex gap-2 align-items-center mb-2">
+                    <input type="text" class="form-control" placeholder="Key" />
+                    <!-- <input type="text" class="form-control" placeholder="Value" /> -->
+                    
+                    <button type="button" class="btn btn-link text-danger p-0" (click)="removeHeader(i)">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                  <br>
+                  <button type="button" class="btn btn-sm btn-outline-primary mt-2" (click)="addHeader()">+ Add Key and Value</button>
+                </div>
+
+              </div>
+
+
+
+                <!-- Default fallback -->
+                <div *ngSwitchDefault class="mb-3">
+                  <p class="text-muted">This action type doesn't have a custom form yet.</p>
+                </div>
+              </ng-container>
+
+
+                  <!-- Form Footer -->
+              <div class="d-flex justify-content-end mt-4">
+                <button type="button" class="btn btn-sm btn-outline-secondary me-2" (click)="showActionForm = false">Cancel</button>
+                <button type="submit" class="btn btn-primary btn-sm" [disabled]="!actionForm.valid">Save Action</button>
+              </div>
+        </form>
+      </div>
 
   </div>
 </div>
