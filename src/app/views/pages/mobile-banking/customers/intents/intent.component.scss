@@ -40,10 +40,65 @@ button.btn-outline-secondary:hover {
     overflow-y: auto;
   }
 
-    .fixed-height-panels {
+  .fixed-height-panels {
     height: 85vh;
     min-height: 700px; 
     max-height: 1000px; 
     overflow-y: auto; 
   }
+
+  /* Hover & border for list items */
+.list-group-item {
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.list-group-item:hover {
+  background-color: #f8f9fa;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+}
+
+/* Button hover effect */
+button.btn.btn-link {
+  transition: all 0.2s ease;
+  color: #6c757d;
+}
+
+
+.hover-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-radius: 0.5rem;
+}
+
+.hover-card:hover {
+  transform: scale(1.01); 
+  // box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); 
+  background-color: #f8f9fa;
+  cursor: pointer;
+}
+
+.info-header {
+  background-color: #f1f3f5;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  cursor: default;
+}
+
+.info-header:hover {
+  background-color: #e9ecef;
+  transform: scale(1.00);
+}
+
+.info-header h5,
+.info-header span {
+  font-family: Roboto, sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+  color: #495057;
+}
+
 

@@ -208,8 +208,40 @@ onBotSelect(event: any) {
 }
 
 
-loadBots(): void {
+// loadBots(): void {
  
+//   const userId = localStorage.getItem('user_id');
+
+//   if (!userId) {
+//     console.warn('User ID not found in local storage.');
+//     this.agentList = [];
+//     return;
+//   }
+//   const usersId = parseInt(userId, 10);
+//   const body = { user_id: usersId };
+
+//     this.httpService.mobileBankingPost('builder/chatbots/list', body).subscribe({
+//       next: (res: any) => {
+//         if (res.status === '00' && Array.isArray(res.data)) {
+//           // Sort by created_at descending (latest first)
+//           this.agentList = res.data.sort((a: { created_at: string | number | Date; }, b: { created_at: string | number | Date; }) => {
+//             return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+//           });
+
+//           this.selectedBotId = this.agentList[0]?.id ?? null;
+//         } else {
+//           this.agentList = [];
+//           console.warn('Unexpected data format', res);
+//         }
+//       },
+//       error: (err: any) => {
+//         console.error('Error fetching agent list:', err);
+//         this.agentList = [];
+//       }
+//     });
+// }
+
+loadBots(): void {
   const userId = localStorage.getItem('user_id');
 
   if (!userId) {
@@ -217,29 +249,35 @@ loadBots(): void {
     this.agentList = [];
     return;
   }
+
   const usersId = parseInt(userId, 10);
   const body = { user_id: usersId };
 
-    this.httpService.mobileBankingPost('builder/chatbots/list', body).subscribe({
-      next: (res: any) => {
-        if (res.status === '00' && Array.isArray(res.data)) {
-          // Sort by created_at descending (latest first)
-          this.agentList = res.data.sort((a: { created_at: string | number | Date; }, b: { created_at: string | number | Date; }) => {
-            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-          });
+  this.httpService.mobileBankingPost('builder/chatbots/list', body).subscribe({
+    next: (res: any) => {
+      if (res.status === '00' && Array.isArray(res.data)) {
+        // Sort by latest created
+        this.agentList = res.data.sort((a: { created_at: string | number | Date; }, b: { created_at: string | number | Date; }) => {
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        });
+        this.selectedBotId = this.agentList[0]?.id ?? null;
 
-          this.selectedBotId = this.agentList[0]?.id ?? null;
-        } else {
-          this.agentList = [];
-          console.warn('Unexpected data format', res);
+        // 🔥 Automatically trigger bot selection
+        if (this.selectedBotId) {
+          this.onBotSelect({ target: { value: this.selectedBotId } });
         }
-      },
-      error: (err: any) => {
-        console.error('Error fetching agent list:', err);
+      } else {
         this.agentList = [];
+        console.warn('Unexpected data format', res);
       }
-    });
+    },
+    error: (err: any) => {
+      console.error('Error fetching agent list:', err);
+      this.agentList = [];
+    }
+  });
 }
+
 
 
 

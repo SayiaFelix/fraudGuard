@@ -314,39 +314,17 @@ fetchIntent(intentId: number): void {
 }
 
 
-// fetchActionType(): void {
-//   this.isLoading = true;
-
-//   this._httpService.mobileBankingPost('builder/nodes/action-types', {}).subscribe({
-//     next: (res: any) => {
-//       if (res?.status === '00') {
-//         this.actionTypes = res.data || [];
-//         console.log("Action Types:", this.actionTypes);
-//       } else {
-//         console.warn('Unexpected status code:', res.status);
-//         this.actionTypes = [];
-//       }
-//       this.isLoading = false;
-//     },
-//     error: (err: any) => {
-//       console.error('Error fetching action types:', err);
-//       this.actionTypes = [];
-//       this.isLoading = false;
-//     }
-//   });
-// }
-
 fetchActionType(): void {
   this.isLoading = true;
 
   this._httpService.mobileBankingPost('builder/nodes/action-types', {}).subscribe({
     next: (res: any) => {
-      if (Array.isArray(res)) {
-        this.actionTypes = res;
-        // console.log("Action Types", res);
+      if (res?.status === '00') {
+        this.actionTypes = res.data || [];
+        console.log("Action Types:", this.actionTypes);
       } else {
+        console.warn('Unexpected status code:', res.status);
         this.actionTypes = [];
-        console.warn('Unexpected response format:', res);
       }
       this.isLoading = false;
     },
