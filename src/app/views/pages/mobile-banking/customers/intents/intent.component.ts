@@ -51,9 +51,10 @@ export class IntentComponent implements OnInit {
     actionTypes: any;
     selectedAction: any = null;
     hoveredAction: string | null = null;
+    selectedActionType: string | null = null;
+    headers: FormArray;
 
-
-actionIcons: { [key: string]: string } = {
+  actionIcons: { [key: string]: string } = {
   send_message: 'icon-message-square',
   send_file: 'icon-file-text',
   http_request: 'icon-link',
@@ -67,7 +68,7 @@ actionIcons: { [key: string]: string } = {
   human_handoff: 'icon-user',
 };
 
-    constructor(
+  constructor(
         public activeModal: NgbActiveModal,
         private globalService: GlobalService, 
         public fb: FormBuilder,
@@ -100,8 +101,17 @@ actionIcons: { [key: string]: string } = {
         message: ['', Validators.required],
       });
 
+  //     this.actionForm = this.fb.group({
+  //       http_method: ['GET'],
+  //       url: [''],
+  //       headers: this.fb.array([]),
+  // });
 
-    this.form = this.fb.group({
+  // this.headers = this.actionForm.get('headers') as FormArray;
+  // this.addHeader();
+
+
+  this.form = this.fb.group({
         name: ['', Validators.required],
         description: [''],
         language: [''], 
@@ -123,6 +133,7 @@ actionIcons: { [key: string]: string } = {
         }
         this.loading = true;
     }
+
 
   addLanguage(event: Event): void {
     const select = event.target as HTMLSelectElement;
@@ -205,6 +216,20 @@ private markFormGroupTouched(formGroup: FormGroup) {
   });
 }
 
+
+addHeader() {
+  this.headers.push(
+    this.fb.group({
+      key: [''],
+      value: ['']
+    })
+  );
+}
+
+removeHeader(index: number) {
+  this.headers.removeAt(index);
+}
+
 fetchIntentList(chatbotId: number): void {
   this.isLoading = true;
   const body = { chatbot_id: chatbotId };
@@ -232,7 +257,7 @@ fetchIntentList(chatbotId: number): void {
 
 fetchIntent(intentId: number): void {
   this.isLoading = true;
-  const body = { intent_id: intentId };
+  const body = { intent_id: 225 };
 
   this._httpService.mobileBankingPost('builder/nodes/action/list', body).subscribe({
     next: (res: any) => {
@@ -242,7 +267,7 @@ fetchIntent(intentId: number): void {
          this.intentname = res.intent_name
 
         console.log("Intent Data", res.data);
-        console.log("Name", this.intentname);
+        // console.log("Name", this.intentname);
 
       } else {
         this.intents = [];
@@ -286,7 +311,7 @@ fetchActionType(): void {
     next: (res: any) => {
       if (Array.isArray(res)) {
         this.actionTypes = res;
-        console.log("Action Types", res);
+        // console.log("Action Types", res);
       } else {
         this.actionTypes = [];
         console.warn('Unexpected response format:', res);
@@ -356,6 +381,12 @@ onTriggerSubmit(): void {
   }
 }
 
+
+onActionTypeSelect(action: any): void {
+  this.selectedActionType = action.type;
+}
+
+
 openAiActionPanel(trigger: any): void {
   // Logic to open right-side drawer/form
   // You can pass `trigger` data if needed
@@ -367,13 +398,34 @@ openAiActionPanel(trigger: any): void {
 
 openActionForm(action: any): void {
   this.selectedAction = action;
-  console.log('Selected Action:', action);
-
+  this.selectedActionType = action.type;
   this.showActionForm = true;
-   this.showActionType = false;
-  this.showAiActionPanel = false; 
-}
 
+  this.showActionType = false;
+  this.showAiActionPanel = false; 
+
+  // Optional: Initialize or reset your actionForm based on type
+  if (action.type === 'send_message') {
+    this.actionForm = this.fb.group({
+      name: [action.name || '', Validators.required],
+      action_type: ['send_message', Validators.required],
+      message: ['', Validators.required]
+    });
+    
+  } else if (action.type === 'send_file') {
+    this.actionForm = this.fb.group({
+      name: [action.name || '', Validators.required],
+      action_type: ['send_file', Validators.required],
+      file_url: ['', Validators.required]
+    });
+  } else if (action.type === 'http_request'){ this.actionForm = this.fb.group({
+      name: [action.name || '', Validators.required],
+      action_type: ['http_request', Validators.required],
+      url: ['', Validators.required]
+    });}
+
+  // Add more conditionals for other action types...
+}
 
 openActionType(action: any): void {
   this.showActionType = true;
@@ -382,26 +434,62 @@ openActionType(action: any): void {
   this.showAiActionPanel = false;
 }
 
+
+
 onActionSubmit(): void {
   if (this.actionForm.valid) {
-    const body = {
-      name: this.actionForm.value.name,
-      action_type: this.actionForm.value.action_type, // always 'send_message'
-      config: {
-        message: this.actionForm.value.message,
-      },
-      // intent_id: this.selectedIntent?.id, // provide dynamically
-      parent_action_id: null,
-      branch_path: this.buildBranchPath(), // optional method
-      order: 3, // or calculate dynamically
-    };
+    const chatbotId = this.globalService.getChatbotId();
 
-    // Send to backend API here
-    console.log('Action payload:', body);
-    this.showActionForm = false;
-    this.actionForm.reset({ action_type: 'send_message' });
+    if (!chatbotId) {
+      Swal.fire('Error', 'No chatbot ID found. Create a chatbot first.', 'error');
+      return;
+    }
+
+    if (this.selectedActionType === 'send_message') {
+      const model = {
+        name: this.actionForm.value.name,
+        action_type: 'send_message',
+        config: {
+          message: this.actionForm.value.message,
+        },
+        intent_id: this.intentId,
+        parent_action_id: chatbotId,
+        branch_path: this.buildBranchPath(),
+        order: 2,
+      };
+      console.log("Model ====>", model)
+
+  this._httpService
+    .mobileBankingPost('builder/nodes/action', model)
+    .subscribe({
+      next: (result: any) => {
+        if (result.status === '00') {
+          setTimeout(() => {
+            this.result = result.data;
+            this.globalService.setIntentId(result.data.id);
+            this.fetchIntentList(chatbotId);
+            this.fetchIntent(this.intentId);
+
+            Swal.fire('Send Message', 'Action set Successfully!', 'success');
+            this.actionForm.reset({ action_type: 'send_message' });
+          }, 10);
+        } else {
+          Swal.fire('Error', result.message || 'Failed to create intent', 'error');
+        }
+      },
+      error: (err: any) => {
+        console.error('Action creation failed:', err);
+        Swal.fire('Error', err?.message || 'Failed to create action', 'error');
+      }
+    });
+  }
+  } else {
+    // Mark all fields as touched to show validation errors
+    this.markFormGroupTouched(this.actionForm);
   }
 }
+
+
 
 buildBranchPath(): string {
   // Customize as needed
@@ -461,8 +549,6 @@ sendBot(): void {
     });
 }
 
-
- 
 
 uploadImageClick(){}
 removeImage(){}
