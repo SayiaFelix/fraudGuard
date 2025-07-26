@@ -24,7 +24,7 @@ export class IntentComponent implements OnInit {
     @Input() title: any;
     @Input() formData: any;
     @Input() nodes: Node[] = [];
-  @Input() depth: number = 0;
+    @Input() depth: number = 0;
 
  
     public loading = false;
@@ -491,65 +491,6 @@ openAiActionPanel(parentIntent: any) {
     this.actionForm.reset({ action_type: 'send_message' });
   }
 
-
-// onActionSubmit(): void {
-//   if (this.actionForm.valid) {
-
-//     const chatbotId = this.globalService.getChatbotId();
-
-//     let order = 1; // Default to root level
-//     let parent_action_id = null;
-    
-//     if (this.parentAction) {
-//       order = this.parentAction.order + 1;
-//       parent_action_id = this.parentAction.action_id;
-//     }
-
-//     if (this.selectedActionType === 'send_message') {
-//       const model = {
-//         name: this.actionForm.value.name,
-//         action_type: 'send_message',
-//         config: {
-//           message: this.actionForm.value.message,
-//         },
-//         intent_id: this.intentId,
-//         parent_action_id: parent_action_id,
-//         branch_path: this.buildBranchPath(),
-//         order: order,
-//       };
-
-//       console.log("Model ====>", model);
-
-//       this._httpService
-//         .mobileBankingPost('builder/nodes/action', model)
-//         .subscribe({
-//           next: (result: any) => {
-//             if (result.status === '00') {
-//               setTimeout(() => {
-//                 this.result = result.data;
-//                 this.globalService.setIntentId(result.data.id);
-//                 this.fetchIntentList(chatbotId!);
-//                 this.fetchIntent(this.intentId);
-//                this.showActionForm = false
-//                 this.parentAction = null; // Reset parent after submission
-                
-//                 Swal.fire('Send Message', 'Action set Successfully!', 'success');
-//                 this.actionForm.reset({ action_type: 'send_message' });
-//               }, 10);
-//             } else {
-//               Swal.fire('Error', result.message || 'Failed to create intent', 'error');
-//             }
-//           },
-//           error: (err: any) => {
-//             console.error('Action creation failed:', err);
-//             Swal.fire('Error', err?.message || 'Failed to create action', 'error');
-//           }
-//         });
-//     }
-//   } else {
-//     this.markFormGroupTouched(this.actionForm);
-//   }
-// }
 
 buildBranchPath(): string {
   // Customize as needed
