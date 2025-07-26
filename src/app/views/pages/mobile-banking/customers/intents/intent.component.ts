@@ -7,6 +7,13 @@ import { ToastrService } from 'ngx-toastr';
 import Swal from "sweetalert2";
 import { ActivatedRoute } from '@angular/router';
 
+interface Node {
+  id: number;
+  type: 'action' | 'trigger';
+  name: string;
+  children: Node[]; // nested actions/triggers
+}
+
 @Component({
     selector: 'app-intent',
     templateUrl: './intent.component.html',
@@ -16,6 +23,10 @@ export class IntentComponent implements OnInit {
 
     @Input() title: any;
     @Input() formData: any;
+    @Input() nodes: Node[] = [];
+  @Input() depth: number = 0;
+
+ 
     public loading = false;
     public hasErrors = false;
     public errorMessages: any;
@@ -40,6 +51,7 @@ export class IntentComponent implements OnInit {
 
     showAiActionPanel: boolean = false;
     selectedTrigger: any = null;
+    parentAction: any = null;
     hovering: boolean = false;
     agentList: never[];
     actions: any;
@@ -53,6 +65,10 @@ export class IntentComponent implements OnInit {
     hoveredAction: string | null = null;
     selectedActionType: string | null = null;
     headers: FormArray;
+    indentLevel: number = 0; // Track nesting level
+    currentParent: any = null;
+
+ 
 
   actionIcons: { [key: string]: string } = {
   send_message: 'icon-message-square',
@@ -67,6 +83,7 @@ export class IntentComponent implements OnInit {
   create_ticket: 'icon-clipboard',
   human_handoff: 'icon-user',
 };
+
 
   constructor(
         public activeModal: NgbActiveModal,
@@ -133,7 +150,21 @@ export class IntentComponent implements OnInit {
         }
         this.loading = true;
     }
+    
+ addChild(parent: Node, type: 'action' | 'trigger') {
+    const newId = Date.now(); // or use a better ID generator
+    const newNode: Node = {
+      id: newId,
+      name: type === 'action' ? 'Send Message' : 'Message Received',
+      type: type,
+      children: []
+    };
+    parent.children.push(newNode);
+  }
 
+  getIcon(type: string) {
+    return type === 'action' ? 'mdi mdi-message' : 'mdi mdi-message-reply-text';
+  }
 
   addLanguage(event: Event): void {
     const select = event.target as HTMLSelectElement;
@@ -257,13 +288,13 @@ fetchIntentList(chatbotId: number): void {
 
 fetchIntent(intentId: number): void {
   this.isLoading = true;
-  const body = { intent_id: 225 };
+  const body = { intent_id: intentId};
 
   this._httpService.mobileBankingPost('builder/nodes/action/list', body).subscribe({
     next: (res: any) => {
       if (res.status === '00') {
         this.intents = res.data
-         this.description = res.description; // Oracle intent description
+         this.description = res.description; 
          this.intentname = res.intent_name
 
         console.log("Intent Data", res.data);
@@ -281,6 +312,7 @@ fetchIntent(intentId: number): void {
     }
   });
 }
+
 
 // fetchActionType(): void {
 //   this.isLoading = true;
@@ -327,74 +359,71 @@ fetchActionType(): void {
 }
 
 
-onTriggerSubmit(): void {
-  if (this.triggerForm.valid) {
-    // Get chatbot ID from global service
-    const chatbotId = this.globalService.getChatbotId();
+
+// onTriggerSubmit(): void {
+//   if (this.triggerForm.valid) {
+//     // Get chatbot ID from global service
+//     const chatbotId = this.globalService.getChatbotId();
     
-    if (!chatbotId) {
-      console.warn('No chatbot ID found');
-      Swal.fire('Error', 'No chatbot ID found,create Chatbot first', 'error');
-      return;
-    }
+//     if (!chatbotId) {
+//       console.warn('No chatbot ID found');
+//       Swal.fire('Error', 'No chatbot ID found,create Chatbot first', 'error');
+//       return;
+//     }
 
-    const model = {
-      ...this.triggerForm.value,
-      chatbot_id: chatbotId, 
-      parent_id: this.intentId,
-      order: 2,   
-    };
+//     const model = {
+//       ...this.triggerForm.value,
+//       chatbot_id: chatbotId, 
+//       parent_id: this.intentId,
+//       order: 2,   
+//     };
 
-    console.log('Trigger Form data to submit:', model);
+//     console.log('Trigger Form data to submit:', model);
 
-    this._httpService
-      .mobileBankingPost('builder/nodes/intent', model)
-      .subscribe({
-        next: (result: any) => {
-          if (result.status === '00') {
-            setTimeout(() => {
-              this.result = result.data;
-              console.log(this.result);
+//     this._httpService
+//       .mobileBankingPost('builder/nodes/intent', model)
+//       .subscribe({
+//         next: (result: any) => {
+//           if (result.status === '00') {
+//             setTimeout(() => {
+//               this.result = result.data;
+//               console.log(this.result);
              
   
-              this.globalService.setIntentId(result.data.id);
-              this.fetchIntentList(chatbotId)
-              this.fetchIntent(this.intentId,)
+//               this.globalService.setIntentId(result.data.id);
+//               this.fetchIntentList(chatbotId)
+//               this.fetchIntent(this.intentId,)
 
-              Swal.fire('ChatBot', 'Trigger Added Successfully!', 'success');
-              this.triggerForm.reset();
-              this.closeModal(); // Close modal after successful submission
-            }, 10);
-          } else {
-            console.log(result.message);
-            Swal.fire('Error', result.message || 'Failed to create intent', 'error');
-          }
-        },
-        error: (err: any) => {
-          console.error('Bot creation failed:', err);
-          Swal.fire('Error', 'Failed to create intent', 'error');
-        }
-      });
-  } else {
-    // Mark all fields as touched to show validation errors
-    this.markFormGroupTouched(this.triggerForm);
-  }
-}
+//               Swal.fire('ChatBot', 'Trigger Added Successfully!', 'success');
+             
+//               this.triggerForm.reset();
+//               this.showAiActionPanel = false
+//               this.closeModal(); // Close modal after successful submission
+//             }, 10);
+//           } else {
+//             console.log(result.message);
+//             Swal.fire('Error', result.message || 'Failed to create intent', 'error');
+//           }
+//         },
+//         error: (err: any) => {
+//           console.error('Bot creation failed:', err);
+//           Swal.fire('Error', 'Failed to create intent', 'error');
+//         }
+//       });
+//   } else {
+//     // Mark all fields as touched to show validation errors
+//     this.markFormGroupTouched(this.triggerForm);
+//   }
+// }
 
 
 onActionTypeSelect(action: any): void {
   this.selectedActionType = action.type;
 }
 
-
-openAiActionPanel(trigger: any): void {
-  // Logic to open right-side drawer/form
-  // You can pass `trigger` data if needed
-  this.selectedTrigger = trigger;
-  this.showAiActionPanel = true;
-  this.showActionForm = false;
-  this.showActionType = false;
-}
+getIndentLevel(order: number): number {
+    return order - 1; 
+  }
 
 openActionForm(action: any): void {
   this.selectedAction = action;
@@ -427,25 +456,29 @@ openActionForm(action: any): void {
   // Add more conditionals for other action types...
 }
 
-openActionType(action: any): void {
-  this.showActionType = true;
-  this.fetchActionType()
-  this.showActionForm = false;
-  this.showAiActionPanel = false;
-}
+openActionType(parentIntent: any) {
+    this.currentParent = parentIntent;
+    this.showActionType = true;
+    this.fetchActionType();
+    this.showActionForm = false;
+    this.showAiActionPanel = false;
+  }
 
+openAiActionPanel(parentIntent: any) {
+    this.currentParent = parentIntent; 
+    this.selectedTrigger = parentIntent;
+    this.showAiActionPanel = true;
+    this.showActionForm = false;
+    this.showActionType = false;
+  }
 
+  onActionSubmit(): void {
+    if (this.actionForm.valid) {
+      const chatbotId = this.globalService.getChatbotId()!;
 
-onActionSubmit(): void {
-  if (this.actionForm.valid) {
-    const chatbotId = this.globalService.getChatbotId();
+      // Calculate order based on parent
+      const order = this.currentParent ? this.currentParent.order + 1 : 1;
 
-    if (!chatbotId) {
-      Swal.fire('Error', 'No chatbot ID found. Create a chatbot first.', 'error');
-      return;
-    }
-
-    if (this.selectedActionType === 'send_message') {
       const model = {
         name: this.actionForm.value.name,
         action_type: 'send_message',
@@ -453,43 +486,150 @@ onActionSubmit(): void {
           message: this.actionForm.value.message,
         },
         intent_id: this.intentId,
-        parent_action_id: chatbotId,
+        parent_action_id: this.currentParent?.action_id || null,
         branch_path: this.buildBranchPath(),
-        order: 2,
+        order: order, // Use calculated order
       };
-      console.log("Model ====>", model)
 
-  this._httpService
-    .mobileBankingPost('builder/nodes/action', model)
-    .subscribe({
-      next: (result: any) => {
-        if (result.status === '00') {
-          setTimeout(() => {
-            this.result = result.data;
-            this.globalService.setIntentId(result.data.id);
-            this.fetchIntentList(chatbotId);
-            this.fetchIntent(this.intentId);
-
-            Swal.fire('Send Message', 'Action set Successfully!', 'success');
-            this.actionForm.reset({ action_type: 'send_message' });
-          }, 10);
-        } else {
-          Swal.fire('Error', result.message || 'Failed to create intent', 'error');
-        }
-      },
-      error: (err: any) => {
-        console.error('Action creation failed:', err);
-        Swal.fire('Error', err?.message || 'Failed to create action', 'error');
-      }
-    });
+      this._httpService.mobileBankingPost('builder/nodes/action', model)
+        .subscribe({
+          next: (result: any) => {
+            if (result.status === '00') {
+              this.fetchIntent(this.intentId);
+              this.resetForm();
+            }
+          },
+          error: (err: any) => {
+            console.error('Action creation failed:', err);
+          }
+        });
+    }
   }
+
+  onTriggerSubmit(): void {
+  if (this.triggerForm.valid) {
+    const chatbotId = this.globalService.getChatbotId();
+    
+    if (!chatbotId) {
+      console.warn('No chatbot ID found');
+      Swal.fire('Error', 'No chatbot ID found, create Chatbot first', 'error');
+      return;
+    }
+
+    let order = 1; 
+    if (this.currentParent) {
+      order = this.currentParent.order + 1; // Child gets parent's order + 1
+    }
+
+    const model = {
+      ...this.triggerForm.value,
+      chatbot_id: chatbotId, 
+      parent_id: this.intentId,
+      order: order, // Use dynamic order calculation
+    };
+
+    console.log('Trigger Form data to submit:', model);
+
+    this._httpService
+      .mobileBankingPost('builder/nodes/intent', model)
+      .subscribe({
+        next: (result: any) => {
+          if (result.status === '00') {
+            setTimeout(() => {
+              this.result = result.data;
+              this.globalService.setIntentId(result.data.id);
+              
+              // Refresh the intent list and current intent
+              this.fetchIntentList(chatbotId);
+              this.fetchIntent(this.intentId);
+
+              Swal.fire('ChatBot', 'Trigger Added Successfully!', 'success');
+              
+              this.triggerForm.reset();
+              this.showAiActionPanel = false;
+              this.currentParent = null; // Reset parent context
+              this.closeModal();
+            }, 10);
+          } else {
+            Swal.fire('Error', result.message || 'Failed to create intent', 'error');
+          }
+        },
+        error: (err: any) => {
+          console.error('Trigger creation failed:', err);
+          Swal.fire('Error', 'Failed to create trigger', 'error');
+        }
+      });
   } else {
-    // Mark all fields as touched to show validation errors
-    this.markFormGroupTouched(this.actionForm);
+    this.markFormGroupTouched(this.triggerForm);
   }
 }
 
 
+  private resetForm(): void {
+    this.currentParent = null;
+    this.showActionForm = false;
+    this.actionForm.reset({ action_type: 'send_message' });
+  }
+
+
+// onActionSubmit(): void {
+//   if (this.actionForm.valid) {
+
+//     const chatbotId = this.globalService.getChatbotId();
+
+//     let order = 1; // Default to root level
+//     let parent_action_id = null;
+    
+//     if (this.parentAction) {
+//       order = this.parentAction.order + 1;
+//       parent_action_id = this.parentAction.action_id;
+//     }
+
+//     if (this.selectedActionType === 'send_message') {
+//       const model = {
+//         name: this.actionForm.value.name,
+//         action_type: 'send_message',
+//         config: {
+//           message: this.actionForm.value.message,
+//         },
+//         intent_id: this.intentId,
+//         parent_action_id: parent_action_id,
+//         branch_path: this.buildBranchPath(),
+//         order: order,
+//       };
+
+//       console.log("Model ====>", model);
+
+//       this._httpService
+//         .mobileBankingPost('builder/nodes/action', model)
+//         .subscribe({
+//           next: (result: any) => {
+//             if (result.status === '00') {
+//               setTimeout(() => {
+//                 this.result = result.data;
+//                 this.globalService.setIntentId(result.data.id);
+//                 this.fetchIntentList(chatbotId!);
+//                 this.fetchIntent(this.intentId);
+//                this.showActionForm = false
+//                 this.parentAction = null; // Reset parent after submission
+                
+//                 Swal.fire('Send Message', 'Action set Successfully!', 'success');
+//                 this.actionForm.reset({ action_type: 'send_message' });
+//               }, 10);
+//             } else {
+//               Swal.fire('Error', result.message || 'Failed to create intent', 'error');
+//             }
+//           },
+//           error: (err: any) => {
+//             console.error('Action creation failed:', err);
+//             Swal.fire('Error', err?.message || 'Failed to create action', 'error');
+//           }
+//         });
+//     }
+//   } else {
+//     this.markFormGroupTouched(this.actionForm);
+//   }
+// }
 
 buildBranchPath(): string {
   // Customize as needed
