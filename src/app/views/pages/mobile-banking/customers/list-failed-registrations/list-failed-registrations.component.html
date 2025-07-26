@@ -51,59 +51,57 @@
   </div>
 
   <!-- Toggleable Conversation Tester Panel -->
-   <div class="conversation-panel d-flex flex-column" [ngClass]="{ 'collapsed': isCollapsed }" style="height: 100vh;">
-  <!-- Header -->
-  <div class="panel-header d-flex align-items-center justify-content-start p-2" (click)="isCollapsed = !isCollapsed" style="cursor: pointer;">
-    <i class="mdi me-2" [ngClass]="{ 'mdi-chevron-left': isCollapsed, 'mdi-chevron-right': !isCollapsed }"></i>
-    <h2 *ngIf="!isCollapsed" class="mb-0">Chatbot Tester</h2>
-  </div>
-
-  <!-- Panel Body -->
-    <div *ngIf="!isCollapsed" class="panel-body p-3 d-flex flex-column flex-grow-1" style="overflow: hidden;">
-          <!-- Chat Window -->
-      <div class="chat-window flex-grow-1 mb-2 overflow-auto px-2" #chatContainer>
-        <div *ngFor="let msg of messages; let i = index" class="mb-2">
-          <div
-            [ngClass]="{
-              'd-flex justify-content-end': msg.sender === 'user',
-              'd-flex justify-content-start': msg.sender === 'bot'
-            }"
-            class="align-items-end"
-          >
-            <div class="message-wrapper d-flex flex-column align-items-start" *ngIf="msg.sender === 'bot'">
-              <div class="bubble bot d-flex align-items-center">
-                <i class="fas fa-robot me-2 text-secondary"></i>
-                <span>{{ msg.text }}</span>
-              </div>
-              <small class="text-dark mt-1 ms-4">{{ msg.time | date: 'shortTime' }}</small>
-            </div>
-
-            <div class="message-wrapper d-flex flex-column align-items-end" *ngIf="msg.sender === 'user'">
-              <div class="bubble user d-flex align-items-center">
-                <span>{{ msg.text }}</span>
-                <i class="fas fa-user ms-2 text-secondary"></i>
-              </div>
-              <small class="text-dark mt-1 me-4">{{ msg.time | date: 'shortTime' }}</small>
-            </div>
-          </div>
-        </div>
-
-        <!-- Typing Indicator -->
-        <div *ngIf="isTyping" class="d-flex align-items-center text-start mt-2">
-          <i class="fas fa-robot me-2 text-secondary"></i>
-          <div class="loader-dots">
-            <span class="dot"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-          </div>
-        </div>
-      </div>
-
-      <div class="input-group px-2">
-        <input type="text" class="form-control" [(ngModel)]="userMessage" [disabled]="!chatbotData?.id" placeholder="Type a message..." (keydown.enter)="sendMessage()" />
-        <button class="btn btn-primary" (click)="sendMessage()" [disabled]="!chatbotData?.id">Send</button>
-      </div>
-
+   <div class="conversation-panel d-flex flex-column" [ngClass]="{ 'collapsed': isCollapsed }" style="height: 98vh;">
+    <div class="panel-header d-flex align-items-center justify-content-start p-2" (click)="isCollapsed = !isCollapsed" style="cursor: pointer;">
+      <i class="mdi me-2" [ngClass]="{ 'mdi-chevron-left': isCollapsed, 'mdi-chevron-right': !isCollapsed }"></i>
+      <h2 *ngIf="!isCollapsed" class="mb-0">Chatbot Tester</h2>
     </div>
-</div>
+
+    <!-- Panel Body -->
+      <div *ngIf="!isCollapsed" class="panel-body p-3 d-flex flex-column flex-grow-1" style="overflow: hidden;">
+        <div class="chat-window flex-grow-1 mb-2 overflow-auto px-2" #chatContainer>
+          <div *ngFor="let msg of messages; let i = index" class="mb-2">
+            <div
+              [ngClass]="{
+                'd-flex justify-content-end': msg.sender === 'user',
+                'd-flex justify-content-start': msg.sender === 'bot'
+              }"
+              class="align-items-end"
+            >
+              <div class="message-wrapper d-flex flex-column align-items-start" *ngIf="msg.sender === 'bot'">
+                <div class="bubble bot d-flex align-items-center">
+                  <i class="fas fa-robot me-2 text-secondary"></i>
+                  <span>{{ msg.text }}</span>
+                </div>
+                <small class="text-dark mt-1 ms-4">{{ msg.time | date: 'shortTime' }}</small>
+              </div>
+
+              <div class="message-wrapper d-flex flex-column align-items-end" *ngIf="msg.sender === 'user'">
+                <div class="bubble user d-flex align-items-center">
+                  <span>{{ msg.text }}</span>
+                  <i class="fas fa-user ms-2 text-secondary"></i>
+                </div>
+                <small class="text-dark mt-1 me-4">{{ msg.time | date: 'shortTime' }}</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Typing Indicator -->
+          <div *ngIf="isTyping" class="d-flex align-items-center text-start mt-2">
+            <i class="fas fa-robot me-2 text-secondary"></i>
+            <div class="loader-dots">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="input-group px-2">
+          <input type="text" class="form-control" [(ngModel)]="userMessage" [disabled]="!chatbotData?.id" placeholder="Type a message..." (keydown.enter)="sendMessage()" />
+          <button class="btn btn-primary" (click)="sendMessage()" [disabled]="!chatbotData?.id">Send</button>
+        </div>
+
+      </div>
+   </div>
 </div>

@@ -18,6 +18,10 @@ button.btn-outline-secondary:hover {
 .list-group {
   list-style: none;
   padding-left: 0;
+  height: 63vh;
+  min-height: 400px; 
+  max-height: 650px; 
+  overflow-y: auto; 
 }
 
 .ps-0, .ps-4, .ps-8, .ps-12, .ps-16 {
@@ -33,17 +37,17 @@ button.btn-outline-secondary:hover {
 .list-group.ps-12 {
   padding-left: 3rem;
 }
-  .fixed-height-panel {
-    height: 70vh; 
+.fixed-height-panel {
+    height: 62vh; 
     min-height: 500px;
-    max-height: 900px; 
+    max-height: 700px; 
     overflow-y: auto;
   }
 
   .fixed-height-panels {
-    height: 85vh;
-    min-height: 700px; 
-    max-height: 1000px; 
+    height: 63vh;
+    min-height: 500px; 
+    max-height: 700px; 
     overflow-y: auto; 
   }
 
