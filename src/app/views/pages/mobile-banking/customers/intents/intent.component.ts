@@ -359,64 +359,6 @@ fetchActionType(): void {
 }
 
 
-
-// onTriggerSubmit(): void {
-//   if (this.triggerForm.valid) {
-//     // Get chatbot ID from global service
-//     const chatbotId = this.globalService.getChatbotId();
-    
-//     if (!chatbotId) {
-//       console.warn('No chatbot ID found');
-//       Swal.fire('Error', 'No chatbot ID found,create Chatbot first', 'error');
-//       return;
-//     }
-
-//     const model = {
-//       ...this.triggerForm.value,
-//       chatbot_id: chatbotId, 
-//       parent_id: this.intentId,
-//       order: 2,   
-//     };
-
-//     console.log('Trigger Form data to submit:', model);
-
-//     this._httpService
-//       .mobileBankingPost('builder/nodes/intent', model)
-//       .subscribe({
-//         next: (result: any) => {
-//           if (result.status === '00') {
-//             setTimeout(() => {
-//               this.result = result.data;
-//               console.log(this.result);
-             
-  
-//               this.globalService.setIntentId(result.data.id);
-//               this.fetchIntentList(chatbotId)
-//               this.fetchIntent(this.intentId,)
-
-//               Swal.fire('ChatBot', 'Trigger Added Successfully!', 'success');
-             
-//               this.triggerForm.reset();
-//               this.showAiActionPanel = false
-//               this.closeModal(); // Close modal after successful submission
-//             }, 10);
-//           } else {
-//             console.log(result.message);
-//             Swal.fire('Error', result.message || 'Failed to create intent', 'error');
-//           }
-//         },
-//         error: (err: any) => {
-//           console.error('Bot creation failed:', err);
-//           Swal.fire('Error', 'Failed to create intent', 'error');
-//         }
-//       });
-//   } else {
-//     // Mark all fields as touched to show validation errors
-//     this.markFormGroupTouched(this.triggerForm);
-//   }
-// }
-
-
 onActionTypeSelect(action: any): void {
   this.selectedActionType = action.type;
 }
