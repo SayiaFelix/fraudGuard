@@ -271,28 +271,11 @@ removeHeader(index: number) {
 }
 
 
-shouldShowRootButton(): boolean {
-  // Show root buttons only when no records exist
-  if (this.combinedItems.length === 0) return true;
-  
-  // Or when we have only actions (show Add Trigger button)
-  const hasOnlyActions = this.combinedItems.every(item => item.itemType === 'action');
-  const hasOnlyTriggers = this.combinedItems.every(item => item.itemType === 'trigger');
-  
-  // Show opposite button at root level
-  if (hasOnlyActions) return true; // Show Add Trigger
-  if (hasOnlyTriggers) return true; // Show Add Action
-  
-  return false;
-}
-
 shouldShowAddActionButton(): boolean {
-  // Show Add AI Action button only if there's NO action in order 1
   return !this.combinedItems.some(item => item.order === 1 && item.itemType === 'action');
 }
 
 shouldShowAddTriggerButton(): boolean {
-  // Show Add Trigger button only if there's NO trigger in order 1
   return !this.combinedItems.some(item => item.order === 1 && item.itemType === 'trigger');
 }
 
