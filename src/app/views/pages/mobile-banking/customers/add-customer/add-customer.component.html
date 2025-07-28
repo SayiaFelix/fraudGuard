@@ -106,31 +106,35 @@
                 </div>
               </td>
             </tr>
-            <!-- Empty State -->
-            <tr *ngIf="!isLoadingBots && (!chatbotList || chatbotList.length === 0)">
-              <td colspan="4" class="text-center text-muted py-4">
-                <div>
-                  <img src="assets/images/empty-bot-list.png" alt="No Bots" style="width: 60px; opacity: 0.5; margin-bottom: 10px;" />
-                  <div>No bot has been created yet. Create your first chatbot to see it here.</div>
-                </div>
-              </td>
-            </tr>
-            <!-- Data Rows -->
-            <tr *ngFor="let bot of chatbotList">
-              <td style="color: #364153;">{{ bot.name }}</td>
-              <td>{{ bot.language || (bot.languages ? bot.languages.join(', ') : 'N/A') }}</td>
-              <td>{{ bot.created_at | date:'medium' }}</td>
-              <td>
-                <span 
-                  class="badge" 
-                  [ngClass]="{
-                    'bg-success': bot.is_active === true,
-                    'bg-danger': bot.is_active === false
-                  }">
-                  {{ bot.is_active ? 'Active' : 'Inactive' }}
-                </span>
-              </td>
-            </tr>
+
+            <!-- Container for content when not loading -->
+            <ng-container *ngIf="!isLoadingBots">
+              <!-- Empty State -->
+              <tr *ngIf="!agentList || agentList.length === 0">
+                <td colspan="4" class="text-center text-muted py-4">
+                  <div>
+                    <img src="assets/images/empty-bot-list.png" alt="No Bots" style="width: 60px; opacity: 0.5; margin-bottom: 10px;" />
+                    <div>No bot has been created yet. Create your first chatbot to see it here.</div>
+                  </div>
+                </td>
+              </tr>
+              <!-- Data Rows -->
+              <tr *ngFor="let bot of agentList">
+                <td style="color: #364153;">{{ bot.name }}</td>
+                <td>{{ bot.language || (bot.languages ? bot.languages.join(', ') : 'N/A') }}</td>
+                <td>{{ bot.created_at | date:'medium' }}</td>
+                <td>
+                  <span 
+                    class="badge" 
+                    [ngClass]="{
+                      'bg-success': bot.is_active === true,
+                      'bg-danger': bot.is_active === false
+                    }">
+                    {{ bot.is_active ? 'Active' : 'Inactive' }}
+                  </span>
+                </td>
+              </tr>
+            </ng-container>
           </tbody>
         </table>
       </div>
