@@ -22,14 +22,14 @@ html, body {
   display: flex;
   width: 100%;
   height: 100%;
-  background: white; // Right panel background
+  background: white; 
   overflow: hidden;
 }
 
-// --- Styles for the left side (Banking theme) ---
+
 .logo-section {
   flex: 1;
-  background: #00A9E0; // Vibrant solid blue background
+  background: #00A9E0; 
   padding: 40px;
   display: flex;
   flex-direction: column;
@@ -77,29 +77,25 @@ html, body {
 
 // --- Right side styles ---
 .form-section {
-  flex: 1;
+  flex: 1; 
   padding: 40px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background: #f7f8fa;
-  // Removed overflow-y: auto to eliminate scroll bar
+  justify-content: center; 
+  align-items: center;    
+  background: #f7f8fa;    
+
 
   // Floating card for the form
   .login-form-container {
-    background: #fff;
-    border-radius: 20px;
-    box-shadow: 0 8px 32px rgba(44, 62, 80, 0.10);
-    padding: 40px 32px 32px 32px;
-    max-width: 480px;
-    width: 100%;
-    margin: auto;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    // Removed max-height and overflow-y to eliminate scroll bar
-  }
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(44, 62, 80, 0.10);
+  padding: 40px 32px 32px 32px;
+  max-width: 480px;  
+  width: 100%;       
+  margin: auto;      
+}
 }
 
 // --- Form header styles ---
@@ -434,8 +430,12 @@ html, body {
 // --- Responsive styles matching signup ---
 @media (max-width: 850px) {
   .login-content {
-    flex-direction: column;
-  }
+  display: flex;
+  width: 100%;
+  height: 100%;
+  background: white; 
+  overflow: hidden;
+}
   
   .logo-section {
     flex: 0 0 auto;
