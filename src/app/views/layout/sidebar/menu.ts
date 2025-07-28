@@ -207,6 +207,26 @@ export const MENU: MenuItem[] = [
       // }
   //    ]
   },
+  {
+    isTitle: true,
+    label: 'SETTINGS'
+  },
+  {
+    label: 'Settings', 
+    icon: 'settings',
+    link: '#' // TODO: Add your settings page link
+  },
+  {
+    label: 'Help Center',
+    icon: 'help-circle',
+    link: '#' // Add your link for help center
+  },
+  {
+    label: 'Logout',
+    icon: 'log-out',
+    link: '#', 
+    isLogout: true
+  }
 
 
   // {
