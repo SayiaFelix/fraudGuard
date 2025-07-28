@@ -105,4 +105,24 @@ button.btn.btn-link {
   color: #495057;
 }
 
+/* Add to your existing CSS */
+.trigger-buttons-container {
+  margin-bottom: 0; /* No margin after trigger items */
+}
 
+.trigger-buttons-container .list-group-item {
+  border-radius: 0;
+  margin: 0;
+  border-bottom: none; /* Remove bottom border between buttons */
+}
+
+.trigger-buttons-container .list-group-item:first-child {
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+}
+
+.trigger-buttons-container .list-group-item:last-child {
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+  border-bottom: 1px solid #f1f1f1; /* Only bottom border on last item */
+}
