@@ -68,6 +68,10 @@ export class IntentComponent implements OnInit {
     headers: FormArray;
     indentLevel: number = 0; // Track nesting level
     currentParent: any = null;
+    combinedItems: any[] = [];
+    loadingIntents = false;
+    loadingTriggers = false;
+
 
  
 
@@ -266,6 +270,110 @@ removeHeader(index: number) {
   this.headers.removeAt(index);
 }
 
+
+shouldShowRootButton(): boolean {
+  // Show root buttons only when no records exist
+  if (this.combinedItems.length === 0) return true;
+  
+  // Or when we have only actions (show Add Trigger button)
+  const hasOnlyActions = this.combinedItems.every(item => item.itemType === 'action');
+  const hasOnlyTriggers = this.combinedItems.every(item => item.itemType === 'trigger');
+  
+  // Show opposite button at root level
+  if (hasOnlyActions) return true; // Show Add Trigger
+  if (hasOnlyTriggers) return true; // Show Add Action
+  
+  return false;
+}
+
+shouldShowAddActionButton(): boolean {
+  // Show Add AI Action button only if there's NO action in order 1
+  return !this.combinedItems.some(item => item.order === 1 && item.itemType === 'action');
+}
+
+shouldShowAddTriggerButton(): boolean {
+  // Show Add Trigger button only if there's NO trigger in order 1
+  return !this.combinedItems.some(item => item.order === 1 && item.itemType === 'trigger');
+}
+
+
+fetchData(intentId: number): void {
+  this.loadingIntents = true;
+  this.loadingTriggers = true;
+  
+  // Fetch both intents and triggers
+  this.fetchIntent(intentId);
+  this.fetchNestedIntents(intentId);
+}
+
+fetchIntent(intentId: number): void {
+  this.loadingIntents = true;
+  const body = { intent_id: intentId };
+
+  this._httpService.mobileBankingPost('builder/nodes/action/list', body).subscribe({
+    next: (res: any) => {
+      if (res.status === '00') {
+        this.intents = res.data;
+        this.description = res.description; 
+        this.intentname = res.intent_name;
+      } else {
+        this.intents = [];
+      }
+      this.loadingIntents = false;
+      this.checkAndCombine();
+    },
+    error: (err: any) => {
+      console.error('Error fetching intent list:', err);
+      this.intents = [];
+      this.loadingIntents = false;
+      this.checkAndCombine();
+    }
+  });
+}
+
+fetchNestedIntents(intentId: number): void {
+  this.loadingTriggers = true;
+  const chatbotId = this.globalService.getChatbotId();
+  const body = { parent_id: intentId };
+
+  this._httpService.mobileBankingPost('builder/chatbots/nested-intents/children', body).subscribe({
+    next: (res: any) => {
+      if (res.status === '00') {
+        this.triggers = res.data;
+      } else {
+        this.triggers = [];
+      }
+      this.loadingTriggers = false;
+      this.checkAndCombine();
+    },
+    error: (err: any) => {
+      console.error('Error fetching triggers:', err);
+      this.triggers = [];
+      this.loadingTriggers = false;
+      this.checkAndCombine();
+    }
+  });
+}
+
+private checkAndCombine(): void {
+  if (!this.loadingIntents && !this.loadingTriggers) {
+    this.combineAndSortItems();
+  }
+}
+
+private combineAndSortItems(): void {
+  this.combinedItems = [...(this.intents || []), ...(this.triggers || [])];
+  this.combinedItems.sort((a, b) => a.order - b.order);
+  
+  // Add type property to distinguish them
+  this.combinedItems.forEach(item => {
+    item.itemType = item.action_id ? 'action' : 'trigger';
+  });
+  
+  // Update loading state
+  this.isLoading = false;
+}
+
 fetchIntentList(chatbotId: number): void {
   this.isLoading = true;
   const body = { chatbot_id: chatbotId };
@@ -281,65 +389,12 @@ fetchIntentList(chatbotId: number): void {
    
       }
       this.isLoading = false;
+
     },
     error: (err: any) => {
       console.error('Error fetching agent list:', err);
       this.agentList = [];
  
-      this.isLoading = false;
-    }
-  });
-}
-
-fetchIntent(intentId: number): void {
-  this.isLoading = true;
-  const body = { intent_id: intentId};
-
-  this._httpService.mobileBankingPost('builder/nodes/action/list', body).subscribe({
-    next: (res: any) => {
-      if (res.status === '00') {
-        this.intents = res.data
-         this.description = res.description; 
-         this.intentname = res.intent_name
-
-        console.log("Intent Data", res.data);
-        // console.log("Name", this.intentname);
-
-      } else {
-        this.intents = [];
-      }
-      this.isLoading = false;
-    },
-    error: (err: any) => {
-      console.error('Error fetching agent list:', err);
-      this.intents = [];
-      this.isLoading = false;
-    }
-  });
-}
-
-fetchNestedIntents(intentId: number): void {
-  this.isLoading = true;
-  const chatbotId = this.globalService.getChatbotId();
-  const body = { chatbot_id: chatbotId,
-                parent_id: intentId};
-
-  this._httpService.mobileBankingPost('builder/chatbots/nested-intents/children', body).subscribe({
-    next: (res: any) => {
-      if (res.status === '00') {
-        this.triggers = res.data
-     
-        console.log("Children Intent Data", res.data);
-        // console.log("Name", this.intentname);
-
-      } else {
-        this.triggers = [];
-      }
-      this.isLoading = false;
-    },
-    error: (err: any) => {
-      console.error('Error fetching agent list:', err);
-      this.triggers = [];
       this.isLoading = false;
     }
   });
@@ -448,6 +503,8 @@ openAiActionPanel(parentIntent: any) {
             if (result.status === '00') {
               this.fetchIntent(this.intentId);
               this.fetchNestedIntents(this.intentId);
+              this.checkAndCombine()
+              this.combineAndSortItems()
 
               this.resetForm();
             }
@@ -496,6 +553,8 @@ openAiActionPanel(parentIntent: any) {
               this.fetchIntentList(chatbotId);
               this.fetchIntent(this.intentId);
               this.fetchNestedIntents(this.intentId);
+              this.checkAndCombine()
+              this.combineAndSortItems()
 
               Swal.fire('ChatBot', 'Trigger Added Successfully!', 'success');
               
