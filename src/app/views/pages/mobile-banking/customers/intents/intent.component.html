@@ -28,7 +28,7 @@
           </span>
         </div>
 
-        <div class="list-group">
+       <div class="list-group">
           <!-- Loading state -->
           <div *ngIf="isLoading" class="text-center py-3">
             <div class="spinner-border text-primary" role="status">
@@ -36,38 +36,47 @@
             </div>
           </div>
 
-          <!-- Combined items display -->
-          <ng-container *ngIf="!isLoading">
-            <!-- Show combined items if any exist -->
-            <ng-container *ngIf="combinedItems.length > 0">
-              <div *ngFor="let item of combinedItems" class="mb-1">
-                <!-- Item display -->
-                <div class="list-group-item d-flex justify-content-between align-items-center"
-                    [style.padding-left.px]="getIndentLevel(item.order) * 20 + 16">
-                  <div class="d-flex align-items-center gap-2">
-                    <strong style="font-family: Roboto; font-weight: 600; font-size: 14px;">
-                      <span *ngIf="item.action_id">#{{ item.action_id }}</span>
-                      <span *ngIf="item.id">#{{ item.id }}</span>
-                      {{ item.name }}
-                    </strong>
-                    <span class="badge rounded-pill" 
-                          [ngClass]="{
-                            'bg-success': item.itemType === 'action',
-                            'bg-info': item.itemType === 'trigger'
-                          }"
-                          style="font-size: 10px; font-weight: 500;">
-                      {{ item.itemType === 'action' ? 'Action' : 'Trigger' }}
-                    </span>
-                  </div>
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" [checked]="item.is_active">
-                  </div>
+        <!-- Combined items display -->
+        <ng-container *ngIf="!isLoading">
+          <ng-container *ngIf="combinedItems.length > 0">
+            <div *ngFor="let item of combinedItems" class="mb-0">  
+              <div class="list-group-item d-flex justify-content-between align-items-center"
+                  [style.padding-left.px]="getIndentLevel(item.order) * 20 + 16">
+                <div class="d-flex align-items-center gap-2">
+                  <strong style="font-family: Roboto; font-weight: 600; font-size: 14px;">
+                    <span *ngIf="item.action_id">#{{ item.action_id }}</span>
+                    <span *ngIf="item.id">#{{ item.id }}</span>
+                    {{ item.name }}
+                  </strong>
+                  <span class="badge rounded-pill" 
+                        [ngClass]="{
+                          'bg-success': item.itemType === 'action',
+                          'bg-info': item.itemType === 'trigger'
+                        }"
+                        style="font-size: 10px; font-weight: 500;">
+                    {{ item.itemType === 'action' ? 'Action' : 'Trigger' }}
+                  </span>
                 </div>
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" [checked]="item.is_active">
+                </div>
+              </div>
 
-                <!-- Action buttons below each item -->
-                <div class="ps-4 " [style.margin-left.px]="getIndentLevel(item.order) * 20 + 10">
-                  <!-- For Actions - Show only Add AI Action button -->
-                  <div *ngIf="item.itemType === 'action'" class="list-group-item hover-card px-4 py-2 border-0 rounded">
+              <!-- Action buttons below each item -->
+              <div class="ps-4" [style.margin-left.px]="getIndentLevel(item.order) * 20 + 10">
+                <div *ngIf="item.itemType === 'action'" class="list-group-item hover-card px-4 py-2 border-0 rounded">
+                  <button class="btn btn-link p-0 d-flex align-items-center w-100"
+                          (click)="openActionType(item)">
+                    <i class="mdi mdi-plus me-2"></i>
+                    <span style="font-family: Roboto; font-weight: 600; font-size: 14px;">
+                      Add AI Action
+                    </span>
+                  </button>
+                </div>
+                
+                <!-- For Triggers - Show BOTH buttons -->
+                <div class="list-group mb-0" *ngIf="item.itemType === 'trigger'">
+                  <div class="list-group-item hover-card px-4 py-2 border-0 rounded">
                     <button class="btn btn-link p-0 d-flex align-items-center w-100"
                             (click)="openActionType(item)">
                       <i class="mdi mdi-plus me-2"></i>
@@ -76,61 +85,45 @@
                       </span>
                     </button>
                   </div>
-
-                  
-                  
-                  <!-- For Triggers - Show BOTH buttons -->
-                  <div class="list-group mb-0" *ngIf="item.itemType === 'trigger'">
-                    <div class="list-group-item hover-card px-4 py-2 border-0  rounded">
-                      <button class="btn btn-link p-0 d-flex align-items-center w-100"
-                              (click)="openActionType(item)">
-                        <i class="mdi mdi-plus me-2"></i>
-                        <span style="font-family: Roboto; font-weight: 600; font-size: 14px;">
-                          Add AI Action
-                        </span>
-                      </button>
-                    </div>
-                    <div class="list-group-item  border-left-0 border-right-0 hover-card px-4 py-2 rounded">
-                      <button class="btn btn-link p-0 d-flex align-items-center w-100"
-                              (click)="openAiActionPanel(item)">
-                        <i class="mdi mdi-plus me-2"></i>
-                        <span style="font-family: Roboto; font-weight: 600; font-size: 14px;">
-                          Add Trigger
-                        </span>
-                      </button>
-                    </div>
+                  <div class="list-group-item border-left-0 border-right-0 hover-card px-4 py-2 rounded">
+                    <button class="btn btn-link p-0 d-flex align-items-center w-100"
+                            (click)="openAiActionPanel(item)">
+                      <i class="mdi mdi-plus me-2"></i>
+                      <span style="font-family: Roboto; font-weight: 600; font-size: 14px;">
+                        Add Trigger
+                      </span>
+                    </button>
                   </div>
                 </div>
               </div>
-            </ng-container>
+            </div>
+          </ng-container>
 
-
-              <div class="list-group mb-0"*ngIf="combinedItems.length === 0 || shouldShowAddActionButton() || shouldShowAddTriggerButton()">
-                <div *ngIf="shouldShowAddActionButton()" class="list-group-item hover-card px-4 py-2 border-bottom-0">
-                  <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
-                          (click)="openActionType(null)">
-                    <i class="mdi mdi-plus me-2" style="font-size: 16px;"></i>
-                    <span style="font-family: Roboto; font-weight: 600; font-size: 14px;">
-                      Add AI Action
-                    </span>
-                  </button>
-                </div>
-
-                <div *ngIf="shouldShowAddTriggerButton()" class="list-group-item hover-card px-4 py-2">
-                  <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
-                          (click)="openAiActionPanel(null)">
-                    <i class="mdi mdi-plus me-2" style="font-size: 16px;"></i>
-                    <span style="font-family: Roboto; font-weight: 600; font-size: 14px;">
-                      Add Trigger
-                    </span>
-                  </button>
-                </div>
+          <!-- Add buttons at the bottom - moved inside the combinedItems container -->
+          <ng-container *ngIf="combinedItems.length === 0 || shouldShowAddActionButton() || shouldShowAddTriggerButton()">
+            <div class="list-group mb-0">
+              <div *ngIf="shouldShowAddActionButton()" class="list-group-item hover-card px-4 py-2 border-bottom-0">
+                <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
+                        (click)="openActionType(null)">
+                  <i class="mdi mdi-plus me-2" style="font-size: 16px;"></i>
+                  <span style="font-family: Roboto; font-weight: 600; font-size: 14px;">
+                    Add AI Action
+                  </span>
+                </button>
               </div>
 
-            
-      
-
+              <div *ngIf="shouldShowAddTriggerButton()" class="list-group-item hover-card px-4 py-2">
+                <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
+                        (click)="openAiActionPanel(null)">
+                  <i class="mdi mdi-plus me-2" style="font-size: 16px;"></i>
+                  <span style="font-family: Roboto; font-weight: 600; font-size: 14px;">
+                    Add Trigger
+                  </span>
+                </button>
+              </div>
+            </div>
           </ng-container>
+        </ng-container>
      </div>
  
     </div>
