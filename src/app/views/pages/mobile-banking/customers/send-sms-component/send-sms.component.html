@@ -27,14 +27,29 @@
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="triggerModalLabel" style="font-family: Roboto;font-weight: 500;font-style: Medium;font-size: 20px;line-height: 100%;letter-spacing: 0%;color: #364153;
-
-">Add Trigger</h5>
+            <h5 class="modal-title" id="triggerModalLabel" style="font-family: Roboto;font-weight: 500;font-style: Medium;font-size: 20px;line-height: 100%;letter-spacing: 0%;color: #364153;">
+              Add Trigger
+            </h5>
             <button type="button" class="btn-close"(click)="closeModal()" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
 
           <div class="modal-body">
             <form [formGroup]="triggerForm" (ngSubmit)="onTriggerSubmit()">
+              <!-- Trigger static select field (at the top of the modal) -->
+              <div class="form-group mb-3">
+                <label class="form-label fw-bold" for="triggerType">Trigger</label>
+                <select class="form-select" id="triggerType" formControlName="trigger_type" required>
+                  <option value="message_received">
+                    <i class="feather icon-message-square"></i> Message Received
+                  </option>
+                  <option value="attachment_received">
+                    <i class="feather icon-paperclip"></i> Attachment Received
+                  </option>
+                  <option value="fallback">
+                    <i class="feather icon-alert-triangle"></i> Fallback
+                  </option>
+                </select>
+              </div>
 
                 <!-- Name field -->
                 <div class="mt-1 form-group">
