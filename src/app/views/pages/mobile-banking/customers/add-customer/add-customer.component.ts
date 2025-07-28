@@ -12,6 +12,7 @@ import Swal from "sweetalert2";
     styleUrls: ['./add-customer.component.scss']
 })
 export class AddCustomerComponent implements OnInit {
+
     @Output() botCreated = new EventEmitter<void>();
     @Input() title: any;
     @Input() formData: any;
@@ -29,6 +30,8 @@ export class AddCustomerComponent implements OnInit {
     chatbotdata: any;
     result: any;
     agentList: any[] = [];
+    chatbotList: any[] = [];
+    isLoadingBots = false;
 
     constructor(
         public activeModal: NgbActiveModal,
@@ -49,6 +52,7 @@ export class AddCustomerComponent implements OnInit {
         // defaultLanguage: ['', Validators.required]
     });
 
+    this.loadChatbotList();
     }
 
     onFileSelected(){ }
@@ -182,5 +186,21 @@ removeImage(){}
     if (event.target.files && event.target.files.length) {
       this.imageFile = event.target.files[0];
     }
+  }
+
+  loadChatbotList() {
+    this.isLoadingBots = true;
+    this._httpService
+      .mobileBankingPost('api/v1/corporate/admin/list-chatbots', { page: 0, size: 50 })
+      .subscribe({
+        next: (res: any) => {
+          this.chatbotList = res.data || [];
+          this.isLoadingBots = false;
+        },
+        error: () => {
+          this.chatbotList = [];
+          this.isLoadingBots = false;
+        }
+      });
   }
 }
