@@ -1,6 +1,7 @@
 import { MenuItem } from './menu.model';
 
 export const MENU: MenuItem[] = [
+
   {
     // profiles: ['CORPORATE_ADMIN'],
     label: 'Dashboard',
@@ -41,6 +42,10 @@ export const MENU: MenuItem[] = [
     //     link: '/tra-client/standards/all-standards'
     //   },
     // ]
+  },
+  {
+    isTitle: true,
+    label: 'MAIN MENU'
   },
   {
   //// profiles: ['CORPORATE_ADMIN'],
