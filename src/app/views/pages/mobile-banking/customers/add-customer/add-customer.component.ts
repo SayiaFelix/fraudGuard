@@ -29,6 +29,7 @@ export class AddCustomerComponent implements OnInit {
     data: any;
     chatbotdata: any;
     result: any;
+    agentLists: any[] = [];
     agentList: any[] = [];
     chatbotList: any[] = [];
     isLoadingBots = false;
@@ -43,6 +44,7 @@ export class AddCustomerComponent implements OnInit {
 
     ngOnInit() {
       this.fetchAgentList();
+      this.fetchAgentLists();
 
 
     this.form = this.fb.group({
@@ -52,7 +54,7 @@ export class AddCustomerComponent implements OnInit {
         // defaultLanguage: ['', Validators.required]
     });
 
-    this.loadChatbotList();
+    // this.loadChatbotList();
     }
 
     onFileSelected(){ }
@@ -118,6 +120,37 @@ fetchAgentList(): void {
   });
 }
 
+fetchAgentLists(): void {
+  const userId = localStorage.getItem('user_id');
+
+  if (!userId) {
+    console.warn('User ID not found in local storage.');
+    this.agentList = [];
+    return;
+  }
+
+  const usersId = parseInt(userId, 10);
+  const body = { user_id: usersId };
+
+  this._httpService.mobileBankingPost('builder/chatbots/list', body).subscribe({
+    next: (res: any) => {
+      if (res.status === '00' && Array.isArray(res.data)) {
+        // Sort by created_at descending and take latest 5
+        this.agentLists = res.data
+          .sort((a: { created_at: string | number | Date; }, b: { created_at: string | number | Date; }) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+          .slice(0, 3);
+      } else {
+        this.agentLists = [];
+        console.warn('Unexpected data format', res);
+      }
+    },
+    error: (err: any) => {
+      console.error('Error fetching agent list:', err);
+      this.agentLists = [];
+    }
+  });
+}
+
 sendBot(): void {
   const selectedLang = this.language.length > 0 ? this.language[0] : 'English';
 
@@ -141,6 +174,7 @@ sendBot(): void {
             this.globalService.setChatbotId(result.data.id);
             this.globalService.setChatbotData(result.data);
             this.fetchAgentList()
+            this.fetchAgentLists();
 
 
             // ✅ Success toast
@@ -186,21 +220,5 @@ removeImage(){}
     if (event.target.files && event.target.files.length) {
       this.imageFile = event.target.files[0];
     }
-  }
-
-  loadChatbotList() {
-    this.isLoadingBots = true;
-    this._httpService
-      .mobileBankingPost('api/v1/corporate/admin/list-chatbots', { page: 0, size: 50 })
-      .subscribe({
-        next: (res: any) => {
-          this.chatbotList = res.data || [];
-          this.isLoadingBots = false;
-        },
-        error: () => {
-          this.chatbotList = [];
-          this.isLoadingBots = false;
-        }
-      });
   }
 }
