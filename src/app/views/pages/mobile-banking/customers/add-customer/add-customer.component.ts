@@ -28,8 +28,7 @@ export class AddCustomerComponent implements OnInit {
     chatbotdata: any;
     result: any;
     agentList: any[] = [];
-    chatbotList: any[] = [];
-    isLoadingBots = false;
+    isLoadingBots = false; // This will now correctly track the loading of agentList
 
     constructor(
         public activeModal: NgbActiveModal,
@@ -42,15 +41,14 @@ export class AddCustomerComponent implements OnInit {
     ngOnInit() {
       this.fetchAgentList();
 
+      this.form = this.fb.group({
+          name: ['', Validators.required],
+          description: [''],
+          language: [''], 
+          // defaultLanguage: ['', Validators.required]
+      });
 
-    this.form = this.fb.group({
-        name: ['', Validators.required],
-        description: [''],
-        language: [''], 
-        // defaultLanguage: ['', Validators.required]
-    });
-
-    this.loadChatbotList();
+      // The call to loadChatbotList() is removed as it was redundant.
     }
 
     onFileSelected(){ }
@@ -63,115 +61,117 @@ export class AddCustomerComponent implements OnInit {
         this.loading = true;
     }
 
-  addLanguage(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    const selectedLang = select.value;
+    addLanguage(event: Event): void {
+        const select = event.target as HTMLSelectElement;
+        const selectedLang = select.value;
 
-    if (selectedLang && !this.language.includes(selectedLang)) {
-        // Clear 'English' if it's the only one
-        if (this.language.length === 1 && this.language[0] === 'English') {
-        this.language = [];
-        }
-
-        this.language.push(selectedLang);
-        this.defaultLanguage = selectedLang; // Automatically set selected as default
-        select.value = ''; // Reset dropdown
-    }
-}
-
-removeLanguage(lang: string): void {
-  this.language = this.language.filter(l => l !== lang);
-
-  // Update default language if needed
-  if (this.defaultLanguage === lang) {
-    this.defaultLanguage = this.language.length > 0 ? this.language[0] : 'English';
-  }
-}
-
-fetchAgentList(): void {
- const userId = localStorage.getItem('user_id');
-
-  if (!userId) {
-    console.warn('User ID not found in local storage.');
-    this.agentList = [];
-    return;
-  }
-
-  const usersId = parseInt(userId, 10);
-  const body = { user_id: usersId };
-
-  this._httpService.mobileBankingPost('builder/chatbots/list', body).subscribe({
-    next: (res: any) => {
-      if (res.status === '00' && Array.isArray(res.data)) {
-        this.agentList = res.data;
-      } else {
-        this.agentList = [];
-        console.warn('Unexpected data format', res);
-      }
-    },
-    error: (err: any) => {
-      console.error('Error fetching agent list:', err);
-      this.agentList = [];
-    }
-  });
-}
-
-sendBot(): void {
-  const selectedLang = this.language.length > 0 ? this.language[0] : 'English';
-
-  const model = {
-    name: this.form.value.name,
-    description: this.form.value.description,
-    language: selectedLang, // Send as string
-  };
-
-  console.log('Bot payload:', model);
-
-  this._httpService
-    .mobileBankingPost('builder/chatbots', model)
-    .subscribe({
-      next: (result: any) => {
-        if (result.status === '00') {
-          setTimeout(() => {
-            this.result = result.data; // ✅ fix here
-            console.log(this.result);
-
-            this.globalService.setChatbotId(result.data.id);
-            this.globalService.setChatbotData(result.data);
-            this.fetchAgentList()
-
-
-            // ✅ Success toast
-            Swal.fire('ChatBot', 'Bot created successfully!', 'success');
-
-            this.form.reset();
+        if (selectedLang && !this.language.includes(selectedLang)) {
+            // Clear 'English' if it's the only one
+            if (this.language.length === 1 && this.language[0] === 'English') {
             this.language = [];
-            this.defaultLanguage = 'English';
-          }, 10);
-        } else {
-          // ⚠️ Non-success status
-          this._toastService.warning(
-            result.message || 'Bot creation did not complete successfully.',
-            'Warning'
-          );
+            }
+
+            this.language.push(selectedLang);
+            this.defaultLanguage = selectedLang; // Automatically set selected as default
+            select.value = ''; // Reset dropdown
         }
-      },
-      error: (err: any) => {
-        console.error('Bot creation failed:', err);
+    }
 
-        // ❌ Error toast
-        this._toastService.error(
-          err?.error?.message || 'An error occurred while creating the bot.',
-          'Error'
-        );
+    removeLanguage(lang: string): void {
+      this.language = this.language.filter(l => l !== lang);
+
+      // Update default language if needed
+      if (this.defaultLanguage === lang) {
+        this.defaultLanguage = this.language.length > 0 ? this.language[0] : 'English';
       }
-    });
-}
+    }
 
- 
+    fetchAgentList(): void {
+      this.isLoadingBots = true; // Start loading
+      const userId = localStorage.getItem('user_id');
 
-uploadImageClick(){}
-removeImage(){}
+      if (!userId) {
+        console.warn('User ID not found in local storage.');
+        this.agentList = [];
+        this.isLoadingBots = false; // Stop loading
+        return;
+      }
+
+      const usersId = parseInt(userId, 10);
+      const body = { user_id: usersId };
+
+      this._httpService.mobileBankingPost('builder/chatbots/list', body).subscribe({
+        next: (res: any) => {
+          if (res.status === '00' && Array.isArray(res.data)) {
+            this.agentList = res.data;
+          } else {
+            this.agentList = [];
+            console.warn('Unexpected data format', res);
+          }
+          this.isLoadingBots = false; // Stop loading on success
+        },
+        error: (err: any) => {
+          console.error('Error fetching agent list:', err);
+          this.agentList = [];
+          this.isLoadingBots = false; // Stop loading on error
+        }
+      });
+    }
+
+    sendBot(): void {
+      const selectedLang = this.language.length > 0 ? this.language[0] : 'English';
+
+      const model = {
+        name: this.form.value.name,
+        description: this.form.value.description,
+        language: selectedLang, // Send as string
+      };
+
+      console.log('Bot payload:', model);
+
+      this._httpService
+        .mobileBankingPost('builder/chatbots', model)
+        .subscribe({
+          next: (result: any) => {
+            if (result.status === '00') {
+              setTimeout(() => {
+                this.result = result.data; // ✅ fix here
+                console.log(this.result);
+
+                this.globalService.setChatbotId(result.data.id);
+                this.globalService.setChatbotData(result.data);
+                this.fetchAgentList();
+
+
+                // ✅ Success toast
+                Swal.fire('ChatBot', 'Bot created successfully!', 'success');
+
+                this.form.reset();
+                this.language = [];
+                this.defaultLanguage = 'English';
+              }, 10);
+            } else {
+              // ⚠️ Non-success status
+              this._toastService.warning(
+                result.message || 'Bot creation did not complete successfully.',
+                'Warning'
+              );
+            }
+          },
+          error: (err: any) => {
+            console.error('Bot creation failed:', err);
+
+            // ❌ Error toast
+            this._toastService.error(
+              err?.error?.message || 'An error occurred while creating the bot.',
+              'Error'
+            );
+          }
+        });
+    }
+
+    uploadImageClick(){}
+    removeImage(){}
     public closeModal(): void {
         this.activeModal.dismiss('Cross click');
     }
@@ -179,25 +179,11 @@ removeImage(){}
     private saveChanges(): any {
     }
 
-  onFileChange(event: any) {
-    if (event.target.files && event.target.files.length) {
-      this.imageFile = event.target.files[0];
-    }
-  }
-
-  loadChatbotList() {
-    this.isLoadingBots = true;
-    this._httpService
-      .mobileBankingPost('api/v1/corporate/admin/list-chatbots', { page: 0, size: 50 })
-      .subscribe({
-        next: (res: any) => {
-          this.chatbotList = res.data || [];
-          this.isLoadingBots = false;
-        },
-        error: () => {
-          this.chatbotList = [];
-          this.isLoadingBots = false;
+    onFileChange(event: any) {
+        if (event.target.files && event.target.files.length) {
+          this.imageFile = event.target.files[0];
         }
-      });
-  }
+    }
+
+    // The entire loadChatbotList method has been removed.
 }
