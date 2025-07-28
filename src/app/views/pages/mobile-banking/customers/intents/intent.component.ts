@@ -14,6 +14,7 @@ interface Node {
   children: Node[]; // nested actions/triggers
 }
 
+
 @Component({
     selector: 'app-intent',
     templateUrl: './intent.component.html',
@@ -83,6 +84,7 @@ export class IntentComponent implements OnInit {
   create_ticket: 'icon-clipboard',
   human_handoff: 'icon-user',
 };
+  triggers: any;
 
 
   constructor(
@@ -110,7 +112,9 @@ export class IntentComponent implements OnInit {
       }
       
       this.fetchIntent(this.intentId);
-      this.fetchIntentList(this.intentId);    
+      this.fetchIntentList(this.intentId);   
+      this.fetchNestedIntents(this.intentId) 
+
       this.fetchActionType()
 
       this.actionForm = this.fb.group({
@@ -314,7 +318,6 @@ fetchIntent(intentId: number): void {
   });
 }
 
-
 fetchNestedIntents(intentId: number): void {
   this.isLoading = true;
   const chatbotId = this.globalService.getChatbotId();
@@ -324,21 +327,19 @@ fetchNestedIntents(intentId: number): void {
   this._httpService.mobileBankingPost('builder/chatbots/nested-intents/children', body).subscribe({
     next: (res: any) => {
       if (res.status === '00') {
-        this.intents = res.data
-        //  this.description = res.description; 
-        //  this.intentname = res.intent_name
-
+        this.triggers = res.data
+     
         console.log("Children Intent Data", res.data);
         // console.log("Name", this.intentname);
 
       } else {
-        this.intents = [];
+        this.triggers = [];
       }
       this.isLoading = false;
     },
     error: (err: any) => {
       console.error('Error fetching agent list:', err);
-      this.intents = [];
+      this.triggers = [];
       this.isLoading = false;
     }
   });
@@ -446,6 +447,8 @@ openAiActionPanel(parentIntent: any) {
           next: (result: any) => {
             if (result.status === '00') {
               this.fetchIntent(this.intentId);
+              this.fetchNestedIntents(this.intentId);
+
               this.resetForm();
             }
           },
@@ -492,6 +495,7 @@ openAiActionPanel(parentIntent: any) {
               // Refresh the intent list and current intent
               this.fetchIntentList(chatbotId);
               this.fetchIntent(this.intentId);
+              this.fetchNestedIntents(this.intentId);
 
               Swal.fire('ChatBot', 'Trigger Added Successfully!', 'success');
               
