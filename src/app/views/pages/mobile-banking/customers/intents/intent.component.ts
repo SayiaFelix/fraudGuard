@@ -110,6 +110,7 @@ export class IntentComponent implements OnInit {
       }
       
       this.fetchIntent(this.intentId);
+      this.fetchIntentList(this.intentId);    
       this.fetchActionType()
 
       this.actionForm = this.fb.group({
@@ -313,6 +314,35 @@ fetchIntent(intentId: number): void {
   });
 }
 
+
+fetchNestedIntents(intentId: number): void {
+  this.isLoading = true;
+  const chatbotId = this.globalService.getChatbotId();
+  const body = { chatbot_id: chatbotId,
+                parent_id: intentId};
+
+  this._httpService.mobileBankingPost('builder/chatbots/nested-intents/children', body).subscribe({
+    next: (res: any) => {
+      if (res.status === '00') {
+        this.intents = res.data
+        //  this.description = res.description; 
+        //  this.intentname = res.intent_name
+
+        console.log("Children Intent Data", res.data);
+        // console.log("Name", this.intentname);
+
+      } else {
+        this.intents = [];
+      }
+      this.isLoading = false;
+    },
+    error: (err: any) => {
+      console.error('Error fetching agent list:', err);
+      this.intents = [];
+      this.isLoading = false;
+    }
+  });
+}
 
 fetchActionType(): void {
   this.isLoading = true;
