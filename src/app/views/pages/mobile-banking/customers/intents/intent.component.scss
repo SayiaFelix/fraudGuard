@@ -191,3 +191,17 @@
     max-height: none;
   }
 }
+
+.nested-triggers-list {
+  border-left: 2px solid #dee2e6;
+  margin: 0.25rem 0;
+}
+
+.nested-trigger-item {
+  margin: 0.25rem 0;
+}
+
+.nested-trigger-item .list-group-item {
+  border-radius: 0;
+  border-bottom: none;
+}
