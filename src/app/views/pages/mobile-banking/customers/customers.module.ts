@@ -17,6 +17,7 @@ import { Ng2TelInputModule } from 'ng2-tel-input';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { VoiceComponent } from './voice/voice.component';
 import { IntentComponent } from './intents/intent.component';
+import { FilterPipe } from './file.pipe';
 
 @NgModule({
     imports: [
@@ -28,7 +29,7 @@ import { IntentComponent } from './intents/intent.component';
         Ng2TelInputModule,
         TranslateModule,
         FormsModule,
-        ReactiveFormsModule,
+        ReactiveFormsModule
     ],
   declarations: [
     ListCustomersComponent,
@@ -38,7 +39,8 @@ import { IntentComponent } from './intents/intent.component';
     AddCustomerComponent,
     ReasonsForFailureComponent,
     VoiceComponent,
-    IntentComponent
+    IntentComponent,
+    FilterPipe 
     // CreateProductComponent
   ],
   entryComponents: [
