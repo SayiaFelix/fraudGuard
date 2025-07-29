@@ -292,13 +292,7 @@ removeHeader(index: number) {
 }
 
 
-shouldShowAddActionButton(): boolean {
-  return !this.combinedItems.some(item => item.order === 1 && item.itemType === 'action');
-}
 
-shouldShowAddTriggerButton(): boolean {
-  return !this.combinedItems.some(item => item.order === 1 && item.itemType === 'trigger');
-}
 
 
 fetchData(intentId: number): void {
@@ -484,6 +478,21 @@ openAiActionPanel(parentIntent: any) {
     this.showActionType = false;
   }
 
+
+shouldShowAddActionButton(): boolean {
+  // Show if no root actions exist
+  return !this.combinedItems.some(item => 
+    item.itemType === 'action' && !item.parent_id
+  );
+}
+
+shouldShowAddTriggerButton(): boolean {
+  // Show if no root triggers exist (parent_id matches intentId)
+  return !this.combinedItems.some(item => 
+    item.itemType === 'trigger' && item.parent_id === this.intentId
+  );
+}
+
   getIndentLevel(item: any): number {
   if (!item.parent_id) return 0;
   
@@ -493,7 +502,6 @@ openAiActionPanel(parentIntent: any) {
   
   return parent ? this.getIndentLevel(parent) + 1 : 0;
 }
-
   // Helper methods for hierarchy
 hasChildren(parentId: number): boolean {
   return this.combinedItems.some(item => item.parent_id === parentId);
@@ -512,58 +520,222 @@ shouldShowRootButtons(): boolean {
          this.combinedItems.length > 0;
 }
 
-getNextOrder(parent: any): number {
-  if (!parent) {
-    // For root level items, find max order + 1
-    const rootItems = this.combinedItems.filter(item => !item.parent_id);
-    return rootItems.length > 0 ? Math.max(...rootItems.map(i => i.order)) + 1 : 1;
-  } else {
-    // For child items, find max order among siblings + 1
-    const siblings = this.combinedItems.filter(item => item.parent_id === parent.id);
-    return siblings.length > 0 ? Math.max(...siblings.map(i => i.order)) + 1 : 1;
+// getNextOrder(parent: any): number {
+//   if (!parent) {
+//     // For root level items, find max order + 1
+//     const rootItems = this.combinedItems.filter(item => !item.parent_id);
+//     return rootItems.length > 0 ? Math.max(...rootItems.map(i => i.order)) + 1 : 1;
+//   } else {
+//     // For child items, find max order among siblings + 1
+//     const siblings = this.combinedItems.filter(item => item.parent_id === parent.id);
+//     return siblings.length > 0 ? Math.max(...siblings.map(i => i.order)) + 1 : 1;
+//   }
+// }
+
+//   onActionSubmit(): void {
+//     if (this.actionForm.valid) {
+//       const chatbotId = this.globalService.getChatbotId()!;
+
+//       // Calculate order based on parent
+//       const order = this.currentParent ? this.currentParent.order + 1 : 1;
+
+//       const model = {
+//         name: this.actionForm.value.name,
+//         action_type: 'send_message',
+//         config: {
+//           message: this.actionForm.value.message,
+//         },
+//         intent_id: this.intentId,
+//         parent_action_id: this.currentParent?.action_id || null,
+//         branch_path: this.buildBranchPath(),
+//         order: this.getNextOrder(this.currentParent),
+//       };
+
+//       this._httpService.mobileBankingPost('builder/nodes/action', model)
+//         .subscribe({
+//           next: (result: any) => {
+//             if (result.status === '00') {
+//               this.fetchIntent(this.intentId);
+//               this.fetchNestedIntents(this.intentId);
+//               this.checkAndCombine()
+//               this.combineAndSortItems()
+//               Swal.fire('AI Action', 'AI Action Created Successfully!!', 'success');
+
+//               this.resetForm();
+//             }
+//           },
+//           error: (err: any) => {
+//             console.error('Action creation failed:', err);
+//           }
+//         });
+//     }
+//   }
+
+//   onTriggerSubmit(): void {
+//   if (this.triggerForm.valid) {
+//     const chatbotId = this.globalService.getChatbotId();
+    
+//     if (!chatbotId) {
+//       console.warn('No chatbot ID found');
+//       Swal.fire('Error', 'No chatbot ID found, create Chatbot first', 'error');
+//       return;
+//     }
+
+//     const model = {
+//       ...this.triggerForm.value,
+//       chatbot_id: chatbotId, 
+//       parent_id: this.currentParent?.id || this.intentId,
+//       order: this.getNextOrder(this.currentParent), 
+//     };
+
+    
+//     console.log('Trigger Form data to submit:', model);
+
+//     this._httpService
+//       .mobileBankingPost('builder/nodes/intent', model)
+//       .subscribe({
+//         next: (result: any) => {
+//           if (result.status === '00') {
+//             setTimeout(() => {
+//               this.result = result.data;
+//               this.globalService.setIntentId(result.data.id);
+              
+//               // Refresh the intent list and current intent
+//               this.fetchIntentList(chatbotId);
+//               this.fetchIntent(this.intentId);
+//               this.fetchNestedIntents(this.intentId);
+//               this.checkAndCombine()
+//               this.combineAndSortItems()
+
+//               Swal.fire('AI Trigger / Intent', 'Trigger Added Successfully!!', 'success');
+              
+//               this.triggerForm.reset();
+//               this.showAiActionPanel = false;
+//               this.currentParent = null; // Reset parent context
+//               this.closeModal();
+//             }, 10);
+//           } else {
+//             Swal.fire('Error', result.message || 'Failed to create intent', 'error');
+//           }
+//         },
+//         error: (err: any) => {
+//           console.error('Trigger creation failed:', err);
+//           Swal.fire('Error', 'Failed to create trigger', 'error');
+//         }
+//       });
+//   } else {
+//     this.markFormGroupTouched(this.triggerForm);
+//   }
+// }
+
+// onActionSubmit(): void {
+//   if (this.actionForm.valid) {
+//     const chatbotId = this.globalService.getChatbotId()!;
+    
+//     // Determine the correct intent_id:
+//     // - For root actions: use this.intentId
+//     // - For child actions: use parent's id (if parent is a trigger)
+//     const intentId = this.currentParent?.itemType === 'trigger' 
+//       ? this.currentParent.id 
+//       : this.intentId;
+
+//     const model = {
+//       name: this.actionForm.value.name,
+//       action_type: 'send_message',
+//       config: {
+//         message: this.actionForm.value.message,
+//       },
+//       intent_id: intentId, // Use determined intent_id
+//       parent_action_id: this.currentParent?.action_id || chatbotId || null,
+//       branch_path: this.buildBranchPath(),
+//       order: this.getNextOrder(this.currentParent),
+//     };
+
+//     console.log('Action Form data to submit:', model);
+
+//     this._httpService.mobileBankingPost('builder/nodes/action', model)
+//       .subscribe({
+//         next: (result: any) => {
+//           if (result.status === '00') {
+//             this.fetchData(this.intentId); // Refresh all data
+//             Swal.fire('AI Action', 'AI Action Created Successfully!!', 'success');
+//             this.resetForm();
+//           }
+//         },
+//         error: (err: any) => {
+//           console.error('Action creation failed:', err);
+//         }
+//       });
+//   }
+// }
+
+onActionSubmit(): void {
+  if (this.actionForm.valid) {
+    const chatbotId = this.globalService.getChatbotId()!;
+    
+    // Determine IDs based on hierarchy
+    let intentId: number;
+    let parentActionId: number | null;
+
+    if (!this.currentParent) {
+      // Root level action
+      intentId = this.intentId;
+      parentActionId = chatbotId; 
+    } else if (this.currentParent.itemType === 'trigger') {
+      // Action under a trigger
+      intentId = this.currentParent.id; // trigger ID becomes intent_id
+      parentActionId = this.intentId; // root intent ID as parent_action_id
+    } else {
+      // Action under another action (if needed)
+      intentId = this.currentParent.intent_id;
+      parentActionId = this.currentParent.action_id;
+    }
+
+    const model = {
+      name: this.actionForm.value.name,
+      action_type: this.selectedActionType || 'send_message',
+      config: {
+        message: this.actionForm.value.message,
+        // include other config fields as needed
+      },
+      intent_id: intentId,
+      parent_action_id: null, // Use null if no parent action
+      branch_path: this.buildBranchPath(),
+      order: this.getNextOrder(this.currentParent),
+    };
+
+    console.log('Submitting action with:', {
+      intent_id: intentId,
+      parent_action_id: parentActionId,
+      currentParent: this.currentParent,
+      hierarchy: !this.currentParent ? 'root' : 
+                this.currentParent.itemType === 'trigger' ? 'under trigger' : 'under action'
+    });
+
+    this._httpService.mobileBankingPost('builder/nodes/action', model)
+      .subscribe({
+        next: (result: any) => {
+          if (result.status === '00') {
+            this.fetchData(this.intentId);
+            this.fetchIntentList(chatbotId);
+            this.fetchNestedIntents(this.intentId);
+            this.checkAndCombine();
+            this.combineAndSortItems();
+            Swal.fire('Success', 'Action created successfully!', 'success');
+            this.resetForm();
+          } else {
+            Swal.fire('Error', result.message || 'Action creation failed', 'error');
+          }
+        },
+        error: (err: any) => {
+          console.error('API Error:', err);
+          Swal.fire('Error', 'Failed to create action', 'error');
+        }
+      });
   }
 }
 
-  onActionSubmit(): void {
-    if (this.actionForm.valid) {
-      const chatbotId = this.globalService.getChatbotId()!;
-
-      // Calculate order based on parent
-      const order = this.currentParent ? this.currentParent.order + 1 : 1;
-
-      const model = {
-        name: this.actionForm.value.name,
-        action_type: 'send_message',
-        config: {
-          message: this.actionForm.value.message,
-        },
-        intent_id: this.intentId,
-        parent_action_id: this.currentParent?.action_id || null,
-        branch_path: this.buildBranchPath(),
-        order: this.getNextOrder(this.currentParent),
-      };
-
-      this._httpService.mobileBankingPost('builder/nodes/action', model)
-        .subscribe({
-          next: (result: any) => {
-            if (result.status === '00') {
-              this.fetchIntent(this.intentId);
-              this.fetchNestedIntents(this.intentId);
-              this.checkAndCombine()
-              this.combineAndSortItems()
-              Swal.fire('AI Action', 'AI Action Created Successfully!!', 'success');
-
-              this.resetForm();
-            }
-          },
-          error: (err: any) => {
-            console.error('Action creation failed:', err);
-          }
-        });
-    }
-  }
-
-  onTriggerSubmit(): void {
+onTriggerSubmit(): void {
   if (this.triggerForm.valid) {
     const chatbotId = this.globalService.getChatbotId();
     
@@ -573,14 +745,21 @@ getNextOrder(parent: any): number {
       return;
     }
 
+    // For triggers:
+    // - Root triggers: parent_id = this.intentId
+    // - Nested triggers: parent_id = currentParent.id
+
+  const parent_id = this.currentParent 
+    ? this.currentParent.id 
+    : this.intentId; // More explicit than ||
+
     const model = {
       ...this.triggerForm.value,
-      chatbot_id: chatbotId, 
-      parent_id: this.currentParent?.id || this.intentId,
-      order: this.getNextOrder(this.currentParent), // Use dynamic order calculation
+      chatbot_id: chatbotId,
+      parent_id: parent_id,
+      order: this.getNextOrder(this.currentParent),
     };
 
-    
     console.log('Trigger Form data to submit:', model);
 
     this._httpService
@@ -589,21 +768,15 @@ getNextOrder(parent: any): number {
         next: (result: any) => {
           if (result.status === '00') {
             setTimeout(() => {
-              this.result = result.data;
-              this.globalService.setIntentId(result.data.id);
-              
-              // Refresh the intent list and current intent
-              this.fetchIntentList(chatbotId);
-              this.fetchIntent(this.intentId);
+              this.fetchData(this.intentId); // Refresh all data
+              this.fetchIntentList(this.chatbotId!);
               this.fetchNestedIntents(this.intentId);
-              this.checkAndCombine()
-              this.combineAndSortItems()
-
-              Swal.fire('AI Trigger / Intent', 'Trigger Added Successfully!!', 'success');
               
+              this.checkAndCombine();
+              Swal.fire('AI Trigger / Intent', 'Trigger Added Successfully!!', 'success');
               this.triggerForm.reset();
               this.showAiActionPanel = false;
-              this.currentParent = null; // Reset parent context
+              this.currentParent = null;
               this.closeModal();
             }, 10);
           } else {
@@ -620,6 +793,24 @@ getNextOrder(parent: any): number {
   }
 }
 
+// Improved getNextOrder to handle hierarchy correctly
+getNextOrder(parent: any): number {
+  if (!parent) {
+    // Root level items - find max order among root items
+    const rootItems = this.combinedItems.filter(item => 
+      (item.itemType === 'action' && !item.parent_id) || 
+      (item.itemType === 'trigger' && item.parent_id === this.intentId)
+    );
+    return rootItems.length > 0 ? Math.max(...rootItems.map(i => i.order)) + 1 : 1;
+  } else {
+    // Child items - find max order among siblings
+    const siblings = this.combinedItems.filter(item => 
+      (item.parent_id === parent.id) ||
+      (item.parent_action_id === parent.action_id)
+    );
+    return siblings.length > 0 ? Math.max(...siblings.map(i => i.order)) + 1 : 1;
+  }
+}
 
   private resetForm(): void {
     this.currentParent = null;
