@@ -500,7 +500,7 @@ shouldShowAddTriggerButton(): boolean {
   );
 }
 
-  getIndentLevel(item: any): number {
+getIndentLevel(item: any): number {
   if (!item.parent_id) return 0;
   
   // For actions, use parent_action_id if available
@@ -670,6 +670,76 @@ getNextOrder(parent: any): number {
     return siblings.length > 0 ? Math.max(...siblings.map(i => i.order)) + 1 : 1;
   }
 }
+
+
+launchBot(intentId: number) {
+  console.log('Launching bot for intent:', intentId);
+
+  if (!intentId) return;
+
+  const chatbotId = this.globalService.getChatbotId();
+
+  // Assuming `intentId` is the root
+  const root_intent_id = intentId;
+
+  // Assuming you’ve combined data into a usable tree
+  const branches = this.getBranchesFromCombinedItems(intentId);
+
+  const payload = {
+    root_intent_id,
+    branches
+  };
+
+  console.log('Bot launch payload:', payload);
+
+  this._httpService
+    .mobileBankingPost('builder/flows/from-tree', payload)
+    .subscribe({
+      next: (result: any) => {
+        if (result.status === '00') {
+          setTimeout(() => {
+            this.fetchData(this.intentId);
+            this.checkAndCombine();
+            Swal.fire('ChatBot', 'Chatbot Launched Successfully, Test Now!!', 'success');
+          }, 10);
+        } else {
+          Swal.fire('Error', result.message || 'Failed to Launch Bot', 'error');
+        }
+      },
+      error: (err: any) => {
+        console.error('Bot Launch failed:', err);
+        Swal.fire('Error', 'Failed to Launch Bot', 'error');
+      }
+    });
+}
+
+getBranchesFromCombinedItems(rootId: number) {
+  const branches = [];
+
+  // Filter triggers that are children of the root intent
+  const triggers = this.combinedItems.filter(
+    item => item.itemType === 'trigger' && item.parent_id === rootId
+  );
+
+  for (const trigger of triggers) {
+    const actions = this.combinedItems
+      .filter(a => a.itemType === 'action' && a.parent_id === trigger.id)
+      .map((a, index) => ({
+        action_id: a.action_id,
+        order: index + 1
+      }));
+
+    branches.push({
+      intent_id: trigger.id,
+      order: trigger.order || 1,
+      actions
+    });
+  }
+
+  return branches;
+}
+
+
 
   private resetForm(): void {
     this.currentParent = null;
