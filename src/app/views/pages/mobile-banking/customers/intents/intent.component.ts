@@ -20,6 +20,8 @@ interface Node {
     templateUrl: './intent.component.html',
     styleUrls: ['./intent.component.scss']
 })
+
+
 export class IntentComponent implements OnInit {
 
     @Input() title: any;
@@ -159,6 +161,25 @@ export class IntentComponent implements OnInit {
         }
         this.loading = true;
     }
+
+// Add this method to your component
+getDisplayItems() {
+  return this.combinedItems.map(item => {
+    return {
+      ...item,
+      // Calculate indent level based on hierarchy
+      indentLevel: this.calculateIndentLevel(item)
+    };
+  });
+}
+
+calculateIndentLevel(item: any): number {
+  if (!item.parent_id) return 0; // Root level
+  // Find parent and return its level + 1
+  const parent = this.combinedItems.find(i => i.id === item.parent_id);
+  return parent ? this.calculateIndentLevel(parent) + 1 : 0;
+}
+
     
  addChild(parent: Node, type: 'action' | 'trigger') {
     const newId = Date.now(); // or use a better ID generator
@@ -357,6 +378,8 @@ private combineAndSortItems(): void {
   this.isLoading = false;
 }
 
+
+
 fetchIntentList(chatbotId: number): void {
   this.isLoading = true;
   const body = { chatbot_id: chatbotId };
@@ -410,9 +433,9 @@ onActionTypeSelect(action: any): void {
   this.selectedActionType = action.type;
 }
 
-getIndentLevel(order: number): number {
-    return order - 1; 
-  }
+// getIndentLevel(order: number): number {
+//     return order - 1; 
+//   }
 
 openActionForm(action: any): void {
   this.selectedAction = action;
@@ -461,6 +484,46 @@ openAiActionPanel(parentIntent: any) {
     this.showActionType = false;
   }
 
+  getIndentLevel(item: any): number {
+  if (!item.parent_id) return 0;
+  
+  // For actions, use parent_action_id if available
+  const parentId = item.parent_action_id || item.parent_id;
+  const parent = this.combinedItems.find(i => i.id === parentId || i.action_id === parentId);
+  
+  return parent ? this.getIndentLevel(parent) + 1 : 0;
+}
+
+  // Helper methods for hierarchy
+hasChildren(parentId: number): boolean {
+  return this.combinedItems.some(item => item.parent_id === parentId);
+}
+
+getChildren(parentId: number): any[] {
+  return this.combinedItems
+    .filter(item => item.parent_id === parentId)
+    .sort((a, b) => a.order - b.order);
+}
+
+
+
+shouldShowRootButtons(): boolean {
+  return (this.shouldShowAddActionButton() || this.shouldShowAddTriggerButton()) && 
+         this.combinedItems.length > 0;
+}
+
+getNextOrder(parent: any): number {
+  if (!parent) {
+    // For root level items, find max order + 1
+    const rootItems = this.combinedItems.filter(item => !item.parent_id);
+    return rootItems.length > 0 ? Math.max(...rootItems.map(i => i.order)) + 1 : 1;
+  } else {
+    // For child items, find max order among siblings + 1
+    const siblings = this.combinedItems.filter(item => item.parent_id === parent.id);
+    return siblings.length > 0 ? Math.max(...siblings.map(i => i.order)) + 1 : 1;
+  }
+}
+
   onActionSubmit(): void {
     if (this.actionForm.valid) {
       const chatbotId = this.globalService.getChatbotId()!;
@@ -477,7 +540,7 @@ openAiActionPanel(parentIntent: any) {
         intent_id: this.intentId,
         parent_action_id: this.currentParent?.action_id || null,
         branch_path: this.buildBranchPath(),
-        order: order, // Use calculated order
+        order: this.getNextOrder(this.currentParent),
       };
 
       this._httpService.mobileBankingPost('builder/nodes/action', model)
@@ -488,6 +551,7 @@ openAiActionPanel(parentIntent: any) {
               this.fetchNestedIntents(this.intentId);
               this.checkAndCombine()
               this.combineAndSortItems()
+              Swal.fire('AI Action', 'AI Action Created Successfully!!', 'success');
 
               this.resetForm();
             }
@@ -509,18 +573,14 @@ openAiActionPanel(parentIntent: any) {
       return;
     }
 
-    let order = 1; 
-    if (this.currentParent) {
-      order = this.currentParent.order + 1; // Child gets parent's order + 1
-    }
-
     const model = {
       ...this.triggerForm.value,
       chatbot_id: chatbotId, 
-      parent_id: this.intentId,
-      order: order, // Use dynamic order calculation
+      parent_id: this.currentParent?.id || this.intentId,
+      order: this.getNextOrder(this.currentParent), // Use dynamic order calculation
     };
 
+    
     console.log('Trigger Form data to submit:', model);
 
     this._httpService
@@ -539,7 +599,7 @@ openAiActionPanel(parentIntent: any) {
               this.checkAndCombine()
               this.combineAndSortItems()
 
-              Swal.fire('ChatBot', 'Trigger Added Successfully!', 'success');
+              Swal.fire('AI Trigger / Intent', 'Trigger Added Successfully!!', 'success');
               
               this.triggerForm.reset();
               this.showAiActionPanel = false;
