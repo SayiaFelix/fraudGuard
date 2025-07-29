@@ -360,7 +360,6 @@ private checkAndCombine(): void {
 }
 
 private combineAndSortItems(): void {
-  // Process triggers with children first
   const processedTriggers = (this.triggers || []).map((trigger: { children: any[]; }) => {
     return {
       ...trigger,

@@ -22,7 +22,7 @@
   border: 1px solid #e9ecef;
   border-radius: 6px;
   padding: 1rem 1.25rem;
-  margin-bottom: 8px;
+  // margin-bottom: 8px;
   transition: all 0.2s ease;
   background-color: #fff;
 }
@@ -32,14 +32,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-/* Hierarchy Indentation */
-.hierarchy-level-0 { padding-left: 0; }
-.hierarchy-level-1 { padding-left: 1.5rem; }
-.hierarchy-level-2 { padding-left: 3rem; }
-.hierarchy-level-3 { padding-left: 4.5rem; }
-.hierarchy-level-4 { padding-left: 6rem; }
-
-/* Item Type Indicators */
+// /* Item Type Indicators */
 .item-action {
   border-left: 4px solid #28a745;
   background-color: rgba(40, 167, 69, 0.03);
@@ -67,12 +60,12 @@
   color: #17a2b8;
 }
 
-/* Action Buttons Container */
+// /* Action Buttons Container */
 .action-buttons-container {
   margin-top: 0.5rem;
 }
 
-/* Button Styles */
+// /* Button Styles */
 .btn-action {
   color: #28a745;
   background-color: rgba(40, 167, 69, 0.05);
@@ -148,37 +141,11 @@
   transition: all 0.2s ease;
 }
 
-/* Trigger buttons container */
-.trigger-buttons-container {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  margin-top: 0.25rem;
-}
-
-.trigger-buttons-container .list-group-item {
-  border-radius: 0;
-  margin: 0;
-  border-bottom: none;
-}
-
-.trigger-buttons-container .list-group-item:first-child {
-  border-top-left-radius: 6px;
-  border-top-right-radius: 6px;
-}
-
-.trigger-buttons-container .list-group-item:last-child {
-  border-bottom-left-radius: 6px;
-  border-bottom-right-radius: 6px;
-  border-bottom: 1px solid #e9ecef;
-}
-
-/* Indentation helper */
 [style*="padding-left"] {
   transition: padding 0.2s ease;
 }
 
-/* Responsive Adjustments */
+
 @media (max-width: 768px) {
   .list-group {
     height: auto;
@@ -192,16 +159,5 @@
   }
 }
 
-.nested-triggers-list {
-  border-left: 2px solid #dee2e6;
-  margin: 0.25rem 0;
-}
 
-.nested-trigger-item {
-  margin: 0.25rem 0;
-}
 
-.nested-trigger-item .list-group-item {
-  border-radius: 0;
-  border-bottom: none;
-}
