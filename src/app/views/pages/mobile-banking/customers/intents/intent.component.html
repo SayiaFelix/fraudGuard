@@ -1,20 +1,23 @@
-
 <hr>
 <div class="container-fluid px-4 py-3" style="background-color: #f8f9fa;">
   <div>
-    <div style="display: flex; align-items: center; gap: 8px;">
-      <a href="javascript:history.back()" style=" width: 23;height: 17;opacity: 1;top: 7.05px;left: 4.72px;color: #000000; text-decoration: none; display: flex; align-items: center;">
-        <i class="fas fa-arrow-left"></i>
-      </a>
-
-      <h3 style="margin: 0; color:#364153; font-family: Roboto; font-weight: 500; font-size: 20px; line-height: 100%; letter-spacing: 0%;">
-        <span style="gap: 10px;padding: 4px;border: 0.5px solid #EEF0F3">#{{intentId}} </span>  {{intentname}}
-      </h3>
+    <!-- Intent Header -->
+    <div class="intent-header d-flex align-items-center justify-content-between mb-3">
+      <div>
+        <span class="intent-id" style="gap: 10px;padding: 4px;border: 0.5px solid #EEF0F3">#{{ intentId }}</span>
+        <span class="intent-title" style="margin: 0; color:#364153; font-family: Roboto; font-weight: 500; font-size: 20px; line-height: 100%; letter-spacing: 0%;">{{ intentname }}</span>
+        <div class="intent-desc" style="margin-top: 8px; margin-left: 25px; font-family: Roboto; font-weight: 300; font-style: Light; font-size: 14px; line-height: 21px; letter-spacing: 12%; color: #364153;">
+          {{ description }}
+        </div>
+      </div>
+      <div>
+        <label class="switch">
+          <input type="checkbox" [checked]="isActive" (change)="toggleIntentStatus($event)">
+          <span class="slider"></span>
+        </label>
+        <span class="ms-2 fw-bold">{{ isActive ? 'Active' : 'Inactive' }}</span>
+      </div>
     </div>
-
-    <p style="margin-top: 8px; margin-left: 25px; font-family: Roboto; font-weight: 300; font-style: Light; font-size: 14px; line-height: 21px; letter-spacing: 12%; color: #364153;">
-    {{description}}
-    </p>
   </div>
 
   <div class="d-flex flex-wrap flex-md-nowrap gap-4">

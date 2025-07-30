@@ -39,15 +39,9 @@
               <div class="form-group mb-3">
                 <label class="form-label fw-bold" for="triggerType">Trigger</label>
                 <select class="form-select" id="triggerType" formControlName="trigger_type" required>
-                  <option value="message_received">
-                    <i class="feather icon-message-square"></i> Message Received
-                  </option>
-                  <option value="attachment_received">
-                    <i class="feather icon-paperclip"></i> Attachment Received
-                  </option>
-                  <option value="fallback">
-                    <i class="feather icon-alert-triangle"></i> Fallback
-                  </option>
+                  <option value="message_received">🗨️ Message Received</option>
+                  <option value="attachment_received">📎 Attachment Received</option>
+                  <option value="fallback">❓ Fallback</option>
                 </select>
               </div>
 
@@ -103,9 +97,9 @@
             <th scope="col">Description</th>
             <!-- <th scope="col">Training Phrases</th> -->
             <!-- <th scope="col">LAST UPDATED</th>  -->
-            <th scope="col">ENABLED</th>
-            <th scope="col" class="text-center">ACTION</th>
-          </tr>
+            <th scope="col">Status</th>
+            <th scope="col" class="text-center">Action</th>
+          </tr> 
         </thead>
         <tbody>
           <!-- Loading State -->
@@ -132,15 +126,13 @@
             <!-- <td>{{ trigger.created_at | date:'medium' }}</td> -->
             <!-- <td><span class="badge bg-light text-dark">{{ trigger.type || 'Default' }}</span></td> -->
             <td>
-              <div class="form-check form-switch">
-                <input 
-                  class="form-check-input" 
-                  type="checkbox" 
-                  role="switch"
-                  [id]="'switch-' + trigger.id" 
-                  [checked]="trigger.is_active"
-                  (change)="toggleTriggerStatus(trigger, $event)">
-              </div>
+              <span [ngClass]="{
+    'badge bg-success': trigger.status === 'Active',
+    'badge bg-danger': trigger.status === 'Inactive'
+  }"
+  style="padding: 0.5em 1.2em; font-size: 1.05em;">
+    {{ trigger.status }}
+  </span>
             </td>
             <td class="text-center">
               <button class="btn btn-sm btn-icon btn-outline-secondary me-2" (click)="editTrigger(trigger)" title="Edit">

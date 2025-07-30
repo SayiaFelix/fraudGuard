@@ -12,6 +12,7 @@ import Swal from "sweetalert2";
     styleUrls: ['./add-customer.component.scss']
 })
 export class AddCustomerComponent implements OnInit {
+    imageUploaded: boolean = false;
 
     @Output() botCreated = new EventEmitter<void>();
     @Input() title: any;

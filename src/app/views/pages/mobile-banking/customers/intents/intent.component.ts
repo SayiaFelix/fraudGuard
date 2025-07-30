@@ -68,7 +68,7 @@ export class IntentComponent implements OnInit {
     indentLevel: number = 0; // Track nesting level
     currentParent: any = null;
 
- 
+    isActive: boolean = false;
 
   actionIcons: { [key: string]: string } = {
   send_message: 'icon-message-square',
@@ -288,18 +288,19 @@ fetchIntentList(chatbotId: number): void {
 
 fetchIntent(intentId: number): void {
   this.isLoading = true;
-  const body = { intent_id: intentId};
+  const body = { intent_id: intentId };
 
   this._httpService.mobileBankingPost('builder/nodes/action/list', body).subscribe({
     next: (res: any) => {
       if (res.status === '00') {
-        this.intents = res.data
-         this.description = res.description; 
-         this.intentname = res.intent_name
-
-        console.log("Intent Data", res.data);
-        // console.log("Name", this.intentname);
-
+        // Do NOT default is_active to true, just use backend value
+        this.intents = (res.data || []).map((intent: any) => ({
+          ...intent,
+          is_active: !!intent.is_active // use backend value only
+        }));
+        this.description = res.description;
+        this.intentname = res.intent_name;
+        this.isActive = !!res.is_active; // use backend value only
       } else {
         this.intents = [];
       }
@@ -565,4 +566,48 @@ removeImage(){}
       this.imageFile = event.target.files[0];
     }
   }
-}
+
+  toggleIntentStatus(event: Event) {
+  const checked = (event.target as HTMLInputElement).checked;
+  // Activate/deactivate chatbot
+  if (this.chatbotId) {
+    const chatbotPayload = {
+      chatbot_id: this.chatbotId,
+      is_active: checked
+    };
+    this._httpService.mobileBankingPost('builder/chatbots/status', chatbotPayload)
+      .subscribe({
+        next: (res: any) => {
+          if (res.status === '00') {
+            this.isActive = checked;
+            Swal.fire('Success', `Chatbot status updated to ${checked ? 'Active' : 'Inactive'}!`, 'success');
+          } else {
+            Swal.fire('API Error', res.message || 'Failed to update chatbot status', 'error');
+            this.isActive = !checked;
+          }
+        },
+        error: () => {
+          Swal.fire('Error', 'Failed to update chatbot status', 'error');
+          this.isActive = !checked;
+        }
+      });
+  }
+  // Activate/deactivate intent
+  if (this.intentId) {
+    const intentPayload = {
+      intent_id: this.intentId,
+      is_active: checked
+    };
+    this._httpService.mobileBankingPost('builder/nodes/intent/toggle', intentPayload)
+      .subscribe({
+        next: (res: any) => {
+          if (res.status === '00') {
+            // Optionally show a message for intent status
+          }
+        },
+        error: () => {
+          // Optionally handle intent error
+        }
+      });
+  }
+}}
