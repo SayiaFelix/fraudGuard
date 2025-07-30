@@ -10,7 +10,7 @@ import { AddCustomerComponent } from "../add-customer/add-customer.component"; /
 import { GlobalService } from 'src/app/shared/services/global.service';
 import { FormBuilder, FormGroup, FormArray, Validators, FormControl } from '@angular/forms';
 import Swal from "sweetalert2";
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 
 interface Trigger {
   id: number; // Make sure this is present
@@ -44,36 +44,47 @@ export class SendSmsComponent implements OnInit {
     private globalService: GlobalService,
     private fb: FormBuilder,
     private router: Router,
-     private route: ActivatedRoute
+    private route: ActivatedRoute
   ) {
-     this.initializeForm();
+    this.initializeForm();
+
+    // Refresh trigger list when navigating back to this page
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        // Adjust the route check as needed for your app
+        if (this.router.url.includes('/mobile-banking/customers/send-sms-component')) {
+          const chatbotId = this.globalService.getChatbotId();
+          if (chatbotId) {
+            this.fetchIntentList(chatbotId);
+          }
+        }
+      }
+    });
   }
 
   ngOnInit() {
-  this.chatbotData = this.globalService.getChatbotData();
-  const chatbotId = this.globalService.getChatbotId();
-  if (this.chatbotData?.welcome_message) {
+    this.chatbotData = this.globalService.getChatbotData();
+    const chatbotId = this.globalService.getChatbotId();
+    if (this.chatbotData?.welcome_message) {
 
-    console.log(this.chatbotData)
-  } else {
-
-  }
-
-  if (chatbotId) {
-          console.log('Using Chatbot ID:', chatbotId);
-        } else {
-          console.warn('No chatbot ID found');
-        }
-
-  this.globalService.chatbotId$.subscribe((chatbotId) => {
-    if (chatbotId) {
-      console.log('Chatbot ID changed or loaded:', chatbotId);
-      this.fetchIntentList(chatbotId);
+      console.log(this.chatbotData)
     } else {
-      console.warn('No chatbot selected.');
-    }
-  });
 
+    }
+
+    if (chatbotId) {
+            console.log('Using Chatbot ID:', chatbotId);
+          } else {
+            console.warn('No chatbot ID found');
+          }
+
+    this.globalService.chatbotId$.subscribe((chatbotId) => {
+      if (chatbotId) {
+        this.fetchIntentList(chatbotId);
+      } else {
+        console.warn('No chatbot selected.');
+      }
+    });
   }
 
     
@@ -123,10 +134,13 @@ fetchIntentList(chatbotId: number): void {
   this.httpService.mobileBankingPost('builder/chatbots/root-intents', body).subscribe({
     next: (res: any) => {
       if (res.status === '00' && Array.isArray(res.data)) {
-        this.agentList = res.data.sort((a: { created_at: string | number | Date; }, b: { created_at: string | number | Date; }) =>
+        // Map triggers to include status for display
+        this.agentList = res.data.map((trigger: any) => ({
+          ...trigger,
+          status: trigger.is_active !== undefined ? (trigger.is_active ? 'Active' : 'Inactive') : 'Active'
+        })).sort((a: { created_at: string | number | Date; }, b: { created_at: string | number | Date; }) =>
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
-        // console.log("Agent List",this.agentList)
       } else {
         this.agentList = [];
         this.showErrorMessage('Failed to load triggers.');
@@ -172,15 +186,11 @@ onTriggerSubmit(): void {
           if (result.status === '00') {
             setTimeout(() => {
               this.result = result.data;
-              console.log(this.result);
-             
-  
               this.globalService.setIntentId(result.data.id);
-              this.fetchIntentList(chatbotId)
-
+              this.fetchIntentList(chatbotId); // Refresh after create
               Swal.fire('ChatBot', 'Trigger Created Successfully!', 'success');
               this.triggerForm.reset();
-              this.closeModal(); // Close modal after successful submission
+              this.closeModal();
             }, 10);
           } else {
             console.log(result.message);
@@ -257,7 +267,10 @@ private markFormGroupTouched(formGroup: FormGroup) {
     
     this.modalRef.result.then((result) => {
       if (result === 'success') {
-        // this.loadTriggers();
+        const chatbotId = this.globalService.getChatbotId();
+        if (chatbotId) {
+          this.fetchIntentList(chatbotId); // Refresh after edit
+        }
         this.showSuccessMessage('Trigger updated successfully!');
       }
     }).catch(() => {});
@@ -268,21 +281,21 @@ private markFormGroupTouched(formGroup: FormGroup) {
    */
   deleteTrigger(trigger: Trigger): void {
     if (confirm(`Are you sure you want to delete the trigger "${trigger.name}"?`)) {
-      // Use POST to a delete endpoint, as your HttpService seems to require it.
-      // Adjust the endpoint as needed.
       this.httpService
         .mobileBankingPost(`api/v1/corporate/admin/triggers/delete/${trigger.id}`, {})
         .subscribe({
           next: (res: any) => {
             if (res.status === 200) {
-              // this.loadTriggers();
+              const chatbotId = this.globalService.getChatbotId();
+              if (chatbotId) {
+                this.fetchIntentList(chatbotId); // Refresh after delete
+              }
               this.showSuccessMessage('Trigger deleted successfully!');
             } else {
               this.showErrorMessage('Failed to delete trigger.');
             }
           },
           error: (err: any) => {
-            console.error('Error deleting trigger:', err);
             this.showErrorMessage('Error deleting trigger.');
           }
         });
