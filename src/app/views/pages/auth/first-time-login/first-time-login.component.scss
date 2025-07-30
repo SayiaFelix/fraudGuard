@@ -9,14 +9,14 @@
   display: flex;
   width: 100%;
   height: 100%;
-  background: white; // Right panel background
+  background: white;
   overflow: hidden;
 }
 
 // --- Styles for the left side (Banking theme) ---
 .signup-left {
   flex: 1;
-  background: #00A9E0; // Vibrant solid blue background
+  background: #00A9E0;
   padding: 40px;
   display: flex;
   flex-direction: column;
@@ -26,18 +26,14 @@
   color: white;
 
   h2 {
-    max-width: 440px;
     font-size: 32px;
     font-weight: 700;
     margin-top: 25px;
     margin-bottom: 15px;
-    line-height: 1.3;
   }
-
   p {
     max-width: 440px;
     font-size: 16px;
-    font-weight: 400;
     line-height: 1.6;
     opacity: 0.9;
   }
@@ -46,7 +42,6 @@
 .illustration-wrapper {
   width: 440px;
   height: 241px;
-  box-sizing: border-box;
   background: white;
   border-radius: 16px;
   padding: 30px;
@@ -72,7 +67,6 @@
   align-items: center;
   background: #f7f8fa;
 
-  // Floating card for the form
   .signup-form-container {
     background: #fff;
     border-radius: 20px;
@@ -81,9 +75,6 @@
     max-width: 480px;
     width: 100%;
     margin: auto;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
   }
 }
 
@@ -91,24 +82,11 @@
 .logo-container {
   display: flex;
   justify-content: center;
-  align-items: center;
   margin-bottom: 30px;
   
   .eclectics-logo {
     max-width: 350px;
     height: auto;
-    width: auto;
-    
-    // Responsive adjustments
-    @media (max-width: 480px) {
-      max-width: 280px;
-      width: auto;
-    }
-    
-    @media (max-width: 380px) {
-      max-width: 240px;
-      width: auto;
-    }
   }
 }
 
@@ -117,14 +95,12 @@
   h3, .signup-subtitle {
     text-align: center;
   }
-
   h3 {
     font-size: 32px;
     font-weight: 700;
     color: #212529;
     margin-bottom: 8px;
   }
-
   .signup-subtitle {
     color: #6c757d;
     font-size: 15px;
@@ -136,16 +112,12 @@
   .form-group {
     margin-bottom: 20px;
     text-align: left;
-    flex: 1;
-
     label {
       display: block;
       margin-bottom: 8px;
       font-weight: 500;
-      color: #343a40;
       font-size: 14px;
     }
-
     .form-control {
       width: 100%;
       padding: 12px 16px;
@@ -160,27 +132,25 @@
     }
   }
   
-  // --- ADDED: Styles for the password toggle icon ---
   .password-group {
-    position: relative; // Needed to position the icon
+    position: relative;
   }
   
   .password-toggle-icon {
     position: absolute;
-    top: 42px; // Position correctly next to the input
+    top: 42px;
     right: 16px;
     cursor: pointer;
     color: #6c757d;
-    font-size: 20px; // Make icon a bit bigger
+    font-size: 20px;
     
     &:hover {
       color: #343a40;
     }
   }
 
-  // --- ADDED: Styles for validation error messages ---
   .error-message {
-    color: #d93025; // A standard error red
+    color: #d93025;
     font-size: 13px;
     font-weight: 500;
     margin-top: 6px;
@@ -189,8 +159,6 @@
 
 // --- Button styles ---
 .submit-btn {
-  position: relative;
-  overflow: hidden;
   width: 100%;
   padding: 14px 0;
   background-color: #4A90E2;
@@ -204,44 +172,23 @@
   margin-top: 10px;
   margin-bottom: 20px;
 
-  span {
-    transition: opacity 0.3s ease;
-  }
-  
   &:hover:not(:disabled) {
     background-color: #357ABD;
   }
-
-  &.loading {
-    span {
-      opacity: 0.7;
-    }
-    
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(
-        110deg,
-        transparent 30%,
-        rgba(255, 255, 255, 0.4) 50%,
-        transparent 70%
-      );
-      animation: shimmer 1.5s linear infinite;
-    }
-  }
 }
 
-@keyframes shimmer {
-  to {
-    left: 100%;
-  }
+// --- Status container styles ---
+.status-container, .progress-bar-wrapper {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+.status-message.error-text {
+  color: #e53935;
+  font-weight: 600;
 }
 
-// --- ADDED: Styles for the "Back to Login" link ---
+// --- Login link & Footer ---
 .login-link {
   text-align: center;
   font-size: 14px;
@@ -255,47 +202,70 @@
   }
 }
 
-// --- Status container styles (for loading/error bars) ---
-.status-container {
-  margin-top: 10px;
-  margin-bottom: 10px;
+// --- ADDED: Footer Note Styles ---
+.footer-note {
   text-align: center;
-}
-
-.progress-bar-wrapper {
-  width: 100%;
-  height: 14px;
-  background: #e6f9e6;
-  border-radius: 8px;
-  overflow: hidden;
-  margin-bottom: 8px;
-  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.10);
-}
-
-.progress-bar-fill {
-  height: 100%;
-  width: 95%;
-  transition: background 0.3s;
-  &.loading {
-    background: linear-gradient(90deg, #43a047 60%, #a5d6a7 100%);
-    animation: loading-bar 1.2s linear infinite alternate;
+  color: #6c757d;
+  font-size: 13px;
+  margin-top: 20px;
+  
+  p {
+    color: #666;
+    font-size: 10px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    
+    &::before {
+      content: "🔒";
+      font-size: 10px;
+    }
   }
 }
 
-@keyframes loading-bar {
-  0% { width: 40%; }
-  100% { width: 95%; }
-}
+// --- ADDED: Clickable Logo Styles ---
+.clickable-logo-link {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
 
-.status-message {
-  font-size: 1rem;
-  margin: 0;
-  &.error-text {
-    color: #e53935;
-    font-weight: 600;
+  img {
+    transition: transform 0.3s ease;
+  }
+
+  &::after {
+    content: 'Go to home page';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 8px;
+    background-color: #00A9E0;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+    pointer-events: none;
+  }
+
+  &:hover {
+    img {
+      transform: scale(1.05);
+    }
+    &::after {
+      opacity: 1;
+      visibility: visible;
+    }
   }
 }
-
 
 // --- Responsive styles ---
 @media (max-width: 850px) {
@@ -303,15 +273,13 @@
     flex-direction: column;
   }
   .signup-left {
-    display: none; // Hide the decorative panel on mobile for more space
+    display: none;
   }
   .signup-right {
     flex: 1;
-    padding: 20px 15px; // Reduce padding on mobile
+    padding: 20px 15px;
     .signup-form-container {
-      border-radius: 14px;
-      padding: 32px 24px 24px 24px;
-      box-shadow: none; // Remove shadow for a flatter look on mobile
+      box-shadow: none;
     }
   }
 }
