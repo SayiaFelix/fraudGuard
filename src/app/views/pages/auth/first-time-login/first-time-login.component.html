@@ -1,9 +1,12 @@
 <div class="signup-container">
   <div class="signup-card">
-    <!-- Left side with illustration (You can customize this) -->
+    <!-- Left side with illustration -->
     <div class="signup-left">
       <div class="illustration-wrapper">
-        <img src="assets/images/image1.png" alt="Secure Banking Illustration" class="illustration-image">
+        <!-- UPDATED: Made logo clickable -->
+        <a href="/" class="clickable-logo-link">
+          <img src="assets/images/image1.png" alt="Secure Banking Illustration" class="illustration-image">
+        </a>
       </div>
       <h2>Security First</h2>
       <p>Your account's security is our top priority. Please choose a strong, new password.</p>
@@ -14,7 +17,10 @@
       <div class="signup-form-container">
         <!-- Eclectics Logo -->
         <div class="logo-container">
-          <img class="img-fluid eclectics-logo" src="assets/images/ecl-logo.png" width="350" height="40" alt="eclecticsLogo" />
+          <!-- UPDATED: Made logo clickable -->
+          <a href="/" class="clickable-logo-link">
+            <img class="img-fluid eclectics-logo" src="assets/images/ecl-logo.png" width="350" height="40" alt="eclecticsLogo" />
+          </a>
         </div>
         
         <h3>Set New Password</h3>
@@ -64,13 +70,11 @@
             </div>
           </div>
 
-          <!-- Status Messages (Success/Error) -->
+          <!-- Status Messages -->
           <div class="status-container" *ngIf="isLoading || hasError">
-            <!-- Loading Bar -->
             <div class="progress-bar-wrapper" *ngIf="isLoading">
               <div class="progress-bar-fill loading"></div>
             </div>
-            <!-- Error Message -->
             <p class="status-message error-text" *ngIf="hasError && !isLoading">
               <strong>Error Occurred!</strong> {{ errorMsg }}
             </p>
@@ -85,6 +89,12 @@
           </div>
 
         </form>
+
+        <!-- ADDED THIS SECTION -->
+        <div class="footer-note">
+          <p>Your data is protected with bank-level encryption and security measures</p>
+        </div>
+
       </div>
     </div>
   </div>

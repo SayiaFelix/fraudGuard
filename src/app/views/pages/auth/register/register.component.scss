@@ -97,6 +97,54 @@
   }
 }
 
+// --- NEW: Styles for Clickable Logo with Tooltip ---
+.clickable-logo-link {
+  position: relative;      // Required for tooltip positioning
+  display: inline-block;   // Ensures the link wraps the image neatly
+  cursor: pointer;
+
+  // Style the image itself for a smooth transition
+  img {
+    transition: transform 0.3s ease;
+  }
+
+  &::after {
+    content: 'Go to home page'; 
+    position: absolute;
+    bottom: 100%; 
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 8px; 
+
+    background-color:#00A9E0; 
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap; // Prevents the text from breaking into a new line
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+
+    opacity: 0; // Hidden by default
+    visibility: hidden;
+    transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+    pointer-events: none; // Tooltip should not be clickable itself
+  }
+
+  // --- The Hover Effect ---
+  &:hover {
+    img {
+      transform: scale(1.05);
+    }
+
+    // Make the tooltip appear
+    &::after {
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+}
+
 // --- Form container content styles ---
 .signup-form-container {
   h3, .signup-subtitle {
@@ -323,6 +371,29 @@
   font-size: 13px;
   margin-top: 15px;
   line-height: 1.4;
+}
+
+// --- ADDED THIS SECTION ---
+.footer-note {
+  text-align: center;
+  color: #6c757d;
+  font-size: 13px;
+  margin-top: 20px; // A little extra margin after the button
+  
+  p {
+    color: #666;
+    font-size: 10px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    
+    &::before {
+      content: "🔒"; // This adds the lock icon
+      font-size: 10px;
+    }
+  }
 }
 
 // --- Responsive styles ---

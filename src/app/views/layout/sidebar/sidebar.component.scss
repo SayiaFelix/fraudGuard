@@ -1,38 +1,46 @@
-.showHand {
-  cursor: pointer !important;
-}
-
-.metismenu .mm-collapse:not(.mm-show) {
-  display: contents !important;
+.sidebar-body .sidebar-nav {
+  padding: 25px 0; 
 }
 
 .nav-category {
-  padding: 25px 16px 10px 16px;
+  display: flex;
+  padding: 12px 16px;
+  align-items: center;
+  gap: 10px;
+  align-self: stretch;
+
   color: #99A1AF;
   font-family: Roboto, sans-serif;
   font-size: 12px;
-  font-style: normal;
   font-weight: 500;
-  line-height: normal;
   letter-spacing: 0.6px;
   text-transform: uppercase;
 }
 
 .nav-item {
+  padding: 0 16px;
+  margin-bottom: 4px;
+  position: static;
+
   .nav-link {
     display: flex;
     align-items: center;
-    padding: 12px 16px;
     gap: 12px;
+    padding: 14px 20px;
+
+
     color: #364153;
     font-family: Roboto, sans-serif;
     font-size: 14px;
     font-weight: 500;
     transition: background-color 0.2s ease, color 0.2s ease;
+    white-space: nowrap;
+    height: auto;
 
     &.active {
-      background-color: #e9f2ff;
+      background-color: #E3ECF9;
       color: #0d6efd;
+      font-weight: 600;
 
       .link-icon {
         color: #0d6efd;
@@ -44,14 +52,32 @@
     }
   }
 
+  // --- Icon Styles ---
   .link-icon {
     width: 20px;
     height: 20px;
     color: #6A7282;
     stroke-width: 1.8;
+    position: static;
+  }
+
+  // --- Text Styles ---
+  .link-title {
+    margin-left: 0;
+    line-height: 1;
   }
 }
 
-.main-menu-label {
-  display: inline-block;
+.nav-item:hover .nav-link,
+.nav-item.mm-active > .nav-link {
+  color: inherit;
 }
+
+.nav-item.mm-active {
+  background-color: transparent;
+}
+
+.nav-item.mm-active > .nav-link::before {
+  content: none;
+}
+
