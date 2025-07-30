@@ -78,7 +78,7 @@
               </div>
               <div class="list-group-item hover-card px-4 py-2" [style.padding-left.px]="10">
                 <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
-                        (click)="openAiActionPanel(null)">
+                        (click)="openTriggerForm(null)">
                   <i class="mdi mdi-plus me-2"></i>
                   <span style="font-family: Roboto; font-weight: 600; font-size: 14px;">Add Trigger</span>
                 </button>
@@ -210,7 +210,7 @@
                         <div class="list-group-item hover-card px-4 py-2 border-0 rounded mb-0 rounded-bottom"
                             [style.padding-left.px]="getIndentLevel(child) * 50 + 10">
                           <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
-                                  (click)="openAiActionPanel(child)">
+                                  (click)="openTriggerForm(child)">
                             <i class="mdi mdi-plus me-2"></i>
                             <span style="font-family: Roboto; font-weight: 600; font-size: 14px;">Add Nested Trigger</span>
                           </button>
@@ -224,7 +224,7 @@
               <!-- Add Root Trigger Button -->
               <div class="list-group-item hover-card px-4 py-2" [style.padding-left.px]="10">
                 <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100 mt-0"
-                        (click)="openAiActionPanel(null)">
+                        (click)="openTriggerForm(null)">
                   <i class="mdi mdi-plus me-2"></i>
                   <span style="font-family: Roboto; font-weight: 600; font-size: 14px;">Add Root Trigger</span>
                 </button>
@@ -238,8 +238,55 @@
 
 
 
+        <div *ngIf="showTriggerType"
+        class="bg-white border rounded shadow-sm p-3 fixed-height"
+        style="width: 100%; max-width: 320px; flex-shrink: 0;">
 
-      <div *ngIf="showAiActionPanel"
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="mb-0" style="font-family: Roboto; font-weight: 500; font-size: 20px; color: #364153;">
+                Triggers
+              </h5>
+              <button class="btn-close btn-close-dark" (click)="showTriggerType = false"></button>
+            </div>
+            <p class="text-muted mb-3" style="font-size: 14px;">
+              Add a trigger to initiate an action.
+             </p>
+
+          <hr>
+
+          <!-- Loader -->
+          <div *ngIf="isLoading" class="text-center my-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+
+          <!-- Trigger List -->
+          <div *ngIf="!isLoading">
+          <div *ngFor="let trig of triggerTypes"
+                (click)="openAiActionPanel(trig)"
+                class="card p-3 mb-3 border-0 shadow-sm"
+                [ngClass]="{'bg-light': selectedAction?.type === trig.type}"
+                style="cursor: pointer; transition: all 0.2s ease-in-out;"
+                (mouseenter)="hoveredAction = trig.type"
+                (mouseleave)="hoveredAction = null"
+                [style.boxShadow]="hoveredAction === trig.type ? '0 4px 12px rgba(0, 0, 0, 0.1)' : ''"
+                [style.transform]="hoveredAction === trig.type ? 'scale(1.02)' : 'scale(1)'">
+  
+              <div class="d-flex align-items-center">
+                <!-- Feather Icon -->
+                <div class="me-3">
+                  <i class="feather" [class]="trig.featherIcon" style="font-size: 20px;"></i>
+                </div>
+                <div style="font-weight: 500; font-size: 15px;">
+                  {{ trig.name }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+       <div *ngIf="showAiActionPanel"
           class="bg-white border rounded shadow-sm p-3 fixed-height-panel"
           style="width: 100%; max-width: 380px; flex-shrink: 0;">
           <form [formGroup]="triggerForm" (ngSubmit)="onTriggerSubmit()">
@@ -369,6 +416,7 @@
             </div>
           </div>
       </div>
+
 
       <div *ngIf="showActionForm"
         class="bg-white border rounded shadow-sm p-3 fixed-height-panel"
