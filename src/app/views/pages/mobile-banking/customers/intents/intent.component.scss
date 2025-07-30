@@ -145,6 +145,70 @@
   transition: padding 0.2s ease;
 }
 
+.intent-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.intent-id {
+  font-size: 1.2em;
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+.intent-title {
+  font-size: 1.2em;
+  font-weight: 500;
+}
+
+.intent-desc {
+  font-size: 0.95em;
+  color: #888;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 38px;
+  height: 22px;
+  vertical-align: middle;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #ccc;
+  border-radius: 22px;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px; width: 16px;
+  left: 3px; bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #1976d2;
+}
+
+input:checked + .slider:before {
+  transform: translateX(16px);
+}
+
 
 @media (max-width: 768px) {
   .list-group {
