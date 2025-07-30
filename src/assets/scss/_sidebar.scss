@@ -380,6 +380,8 @@
         }
         &.mm-active {
         background-color: #eff6ff;
+        
+        
         // padding: 10px 20px;
         // border-radius: 4px; // optional, just for a nicer look
         // margin-bottom: 5px; // optional, to separate items
@@ -451,6 +453,7 @@
             &.mm-active {
               margin-left: -12px;
               opacity: 1.0 !important;
+                                    
               &::before {
               border: 1px solid #F8F8F8;
               color:#F8F8F8;  
