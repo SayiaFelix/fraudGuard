@@ -338,46 +338,6 @@ fetchData(intentId: number): void {
 
 
 
-
-private combineAndSortItems(): void {
-  // Process triggers with their nested structure and actions
-  const processTrigger = (trigger: any): any => {
-    return {
-      ...trigger,
-      itemType: 'trigger',
-      children: [
-        // Include trigger's own actions
-        ...(trigger.actions || []).map((action: any) => ({
-          ...action,
-          itemType: 'action',
-          parent_id: trigger.id, // Set trigger ID as parent
-          isActionChild: true
-        })),
-        // Process nested triggers recursively
-        ...(trigger.children || []).map((child: any) => processTrigger(child))
-      ]
-    };
-  };
-
-  // Process all root triggers
-  const processedTriggers = (this.triggers || []).map(processTrigger);
-
-  // Process root-level actions (not associated with any trigger)
-  const rootActions = (this.intents || []).filter(
-    (action: any) => !this.triggers.some((t: { id: any; }) => t.id === action.intent_id)
-  ).map((action: any) => ({
-    ...action,
-    itemType: 'action'
-  }));
-
-  this.combinedItems = [
-    ...rootActions,
-    ...processedTriggers
-  ].sort((a, b) => a.order - b.order);
-  
-  this.isLoading = false;
-}
-
 private checkAndCombine(): void {
   if (!this.loadingIntents && !this.loadingTriggers) {
     // Force new references
@@ -386,6 +346,76 @@ private checkAndCombine(): void {
     this.combineAndSortItems();
     this.cdRef.detectChanges();
   }
+}
+
+
+
+private combineAndSortItems(): void {
+  // Enhanced processTrigger function
+  const processTrigger = (trigger: any, level = 0): any => {
+    const processedTrigger = {
+      ...trigger,
+      itemType: 'trigger',
+      indentLevel: level, // Track nesting level
+      children: []
+    };
+
+    // Process trigger's direct actions
+    if (trigger.actions && trigger.actions.length) {
+      processedTrigger.children.push(
+        ...trigger.actions.map((action: any) => ({
+          ...action,
+          itemType: 'action',
+          parent_id: trigger.id,
+          isActionChild: true,
+          indentLevel: level + 1
+        }))
+      );
+    }
+
+    // Process nested triggers recursively
+    if (trigger.children && trigger.children.length) {
+      processedTrigger.children.push(
+        ...trigger.children.map((child: any) => processTrigger(child, level + 1))
+      );
+    }
+
+    return processedTrigger;
+  };
+
+  // Process all root triggers with initial level 0
+  const processedTriggers = (this.triggers || []).map((trigger: any) => 
+    processTrigger(trigger, 0)
+  );
+
+  // Process root-level actions (not associated with any trigger)
+  const rootActions = (this.intents || []).filter(
+    (action: any) => !this.triggers.some((t: { id: any; }) => t.id === action.intent_id)
+  ).map((action: any) => ({
+    ...action,
+    itemType: 'action',
+    indentLevel: 0
+  }));
+
+  // Flatten the structure for the combinedItems array
+  this.combinedItems = [
+    ...rootActions,
+    ...this.flattenTriggerHierarchy(processedTriggers)
+  ].sort((a, b) => a.order - b.order);
+  
+  this.isLoading = false;
+}
+
+
+// Helper to flatten the nested trigger hierarchy
+private flattenTriggerHierarchy(triggers: any[]): any[] {
+  return triggers.reduce((acc, trigger) => {
+    acc.push(trigger);
+    if (trigger.children && trigger.children.length) {
+      acc.push(...this.flattenTriggerHierarchy(trigger.children));
+    }
+    return acc;
+  }, []);
 }
 
 fetchIntentList(chatbotId: number): void {
