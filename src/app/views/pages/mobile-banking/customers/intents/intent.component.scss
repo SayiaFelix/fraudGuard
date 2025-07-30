@@ -130,6 +130,18 @@
   border: 1px solid #e9ecef;
 }
 
+.fixed-height{
+
+  height: 50vh;
+  min-height: 300px;
+  max-height: 500px;
+  overflow-y: auto;
+  background-color: #fff;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+
+}
+
 /* Add these styles to your existing CSS */
 .list-group-item {
   position: relative;

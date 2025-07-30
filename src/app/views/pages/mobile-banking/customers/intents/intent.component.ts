@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, Input, OnInit} from '@angular/core';
 import {FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {HttpService} from 'src/app/shared/services/http.service';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
@@ -6,6 +6,7 @@ import { GlobalService } from 'src/app/shared/services/global.service';
 import { ToastrService } from 'ngx-toastr';
 import Swal from "sweetalert2";
 import { ActivatedRoute } from '@angular/router';
+import { catchError, forkJoin, of, tap } from 'rxjs';
 
 interface Node {
   id: number;
@@ -70,6 +71,7 @@ export class IntentComponent implements OnInit {
     description: any;
     showActionForm = false;
     showActionType = false;
+    showTriggerType = false;
     intentname: any;
     editingName = false;
     actionTypes: any;
@@ -108,6 +110,7 @@ export class IntentComponent implements OnInit {
 
 
   constructor(
+        private cdRef: ChangeDetectorRef,
         public activeModal: NgbActiveModal,
         private globalService: GlobalService, 
         public fb: FormBuilder,
@@ -166,7 +169,25 @@ export class IntentComponent implements OnInit {
 // });
     }
 
-  onFileSelected(){ }
+triggerTypes = [
+  { 
+    type: 'message_received', 
+    name: 'Message Received',
+    featherIcon: 'icon-mail' // Feather icon class
+  },
+  { 
+    type: 'attachment_received', 
+    name: 'Attachment Received',
+    featherIcon: 'icon-paperclip' 
+  },
+  { 
+    type: 'fallback', 
+    name: 'Fallback',
+    featherIcon: 'icon-refresh-cw'
+  }
+];
+
+onFileSelected(){ }
 
   public submitData(): void {
         if (this.formData) {
@@ -239,7 +260,7 @@ removeLanguage(lang: string): void {
 
 initializeForm() {
   this.triggerForm = this.fb.group({
-    name: ['Message Received', Validators.required],
+    name: ['', Validators.required], 
     description: [''],
     training_phrases: this.fb.array([
       this.fb.control('', Validators.required)
@@ -316,11 +337,6 @@ fetchData(intentId: number): void {
 }
 
 
-private checkAndCombine(): void {
-  if (!this.loadingIntents && !this.loadingTriggers) {
-    this.combineAndSortItems();
-  }
-}
 
 
 private combineAndSortItems(): void {
@@ -362,6 +378,15 @@ private combineAndSortItems(): void {
   this.isLoading = false;
 }
 
+private checkAndCombine(): void {
+  if (!this.loadingIntents && !this.loadingTriggers) {
+    // Force new references
+    this.intents = [...this.intents];
+    this.triggers = [...this.triggers];
+    this.combineAndSortItems();
+    this.cdRef.detectChanges();
+  }
+}
 
 fetchIntentList(chatbotId: number): void {
   this.isLoading = true;
@@ -388,7 +413,6 @@ fetchIntentList(chatbotId: number): void {
     }
   });
 }
-
 
 fetchIntent(intentId: number): void {
   this.isLoading = true;
@@ -506,12 +530,28 @@ openActionForm(action: any): void {
 }
 
 
+openTriggerForm(parentIntent: any): void {
+ this.showTriggerType = true;
+  this.showActionForm = false;
+  this.showActionType = false;
+  this.showAiActionPanel = false; 
+   this.currentParent = parentIntent;
+   this.initializeForm();
+
+    if (parentIntent) {
+    this.currentParentIntentId = parentIntent.id;
+  }
+ 
+}
+
+
 openActionType(parentIntent: any): void {
   this.currentParent = parentIntent;
   this.showActionType = true;
   this.fetchActionType();
   this.showActionForm = false;
   this.showAiActionPanel = false;
+   this.showTriggerType = false;
   
   // Set the currentParentIntentId for hierarchy tracking
   if (parentIntent) {
@@ -525,6 +565,12 @@ openAiActionPanel(parentIntent: any) {
     this.showAiActionPanel = true;
     this.showActionForm = false;
     this.showActionType = false;
+    this.showTriggerType = false;
+
+    // Initialize form with selected trigger type
+  this.triggerForm.patchValue({
+    name: parentIntent.name
+  });
   }
 
 
@@ -604,9 +650,77 @@ private findTriggerInChildren(trigger: any, intentId: number): any {
 }
 
 
+// onActionSubmit(): void {
+//   if (this.actionForm.valid) {
+//     const chatbotId = this.globalService.getChatbotId()!;
+    
+//     // Determine IDs based on hierarchy
+//     let intentId: number;
+//     let parentActionId: number | null;
+
+//     if (!this.currentParent) {
+//       // Root level action
+//       intentId = this.intentId;
+//       parentActionId = chatbotId; 
+//     } else if (this.currentParent.itemType === 'trigger') {
+//       // Action under a trigger
+//       intentId = this.currentParent.id; // trigger ID becomes intent_id
+//       parentActionId = this.intentId; // root intent ID as parent_action_id
+//     } else {
+//       // Action under another action (if needed)
+//       intentId = this.currentParent.intent_id;
+//       parentActionId = this.currentParent.action_id;
+//     }
+
+//     const model = {
+//       name: this.actionForm.value.name,
+//       action_type: this.selectedActionType || 'send_message',
+//       config: {
+//         message: this.actionForm.value.message,
+//         // include other config fields as needed
+//       },
+//       intent_id: intentId,
+//       parent_action_id: null, // Use null if no parent action
+//       branch_path: this.buildBranchPath(),
+//       order: this.getNextOrder(this.currentParent),
+//     };
+
+//     console.log('Submitting action with:', {
+//       intent_id: intentId,
+//       parent_action_id: parentActionId,
+//       currentParent: this.currentParent,
+//       hierarchy: !this.currentParent ? 'root' : 
+//                 this.currentParent.itemType === 'trigger' ? 'under trigger' : 'under action'
+//     });
+
+//     this._httpService.mobileBankingPost('builder/nodes/action', model)
+//       .subscribe({
+//         next: (result: any) => {
+//           if (result.status === '00') {
+//             this.cdRef.detectChanges();
+          
+//             this.fetchIntent(this.intentId);
+//             this.fetchIntentList(chatbotId);
+//             this.fetchNestedIntents(this.intentId);
+//             this.checkAndCombine();
+//             this.combineAndSortItems();
+//             Swal.fire('Success', 'Action created successfully!', 'success');
+//             this.resetForm();
+//           } else {
+//             Swal.fire('Error', result.message || 'Action creation failed', 'error');
+//           }
+//         },
+//         error: (err: any) => {
+//           console.error('API Error:', err);
+//           Swal.fire('Error', 'Failed to create action', 'error');
+//         }
+//       });
+//   }
+// }
+
 onActionSubmit(): void {
-  if (this.actionForm.valid) {
-    const chatbotId = this.globalService.getChatbotId()!;
+    if (this.actionForm.valid) {
+         const chatbotId = this.globalService.getChatbotId()!;
     
     // Determine IDs based on hierarchy
     let intentId: number;
@@ -647,28 +761,100 @@ onActionSubmit(): void {
                 this.currentParent.itemType === 'trigger' ? 'under trigger' : 'under action'
     });
 
-    this._httpService.mobileBankingPost('builder/nodes/action', model)
-      .subscribe({
-        next: (result: any) => {
-          if (result.status === '00') {
-            this.fetchData(this.intentId);
-            this.fetchIntentList(chatbotId);
-            this.fetchNestedIntents(this.intentId);
-            this.checkAndCombine();
-            this.combineAndSortItems();
-            Swal.fire('Success', 'Action created successfully!', 'success');
-            this.resetForm();
-          } else {
-            Swal.fire('Error', result.message || 'Action creation failed', 'error');
-          }
-        },
-        error: (err: any) => {
-          console.error('API Error:', err);
-          Swal.fire('Error', 'Failed to create action', 'error');
-        }
-      });
-  }
+        this._httpService.mobileBankingPost('builder/nodes/action', model)
+            .subscribe({
+                next: (result: any) => {
+                    if (result.status === '00') {
+                        // Parallel data refresh
+                        forkJoin([
+                            this.fetchIntent(this.intentId),
+                            this.fetchNestedIntents(this.intentId)
+                        ]).subscribe({
+                            next: () => {
+                                this.checkAndCombine();
+                                this.cdRef.detectChanges();
+                                Swal.fire('Success', 'Action created successfully!', 'success');
+                                this.resetForm(); // Reset after everything is done
+                            },
+                            error: (err) => {
+                                console.error('Error refreshing data:', err);
+                                this.resetForm(); // Still reset form even if refresh fails
+                            }
+                        });
+                    } else {
+                        Swal.fire('Error', result.message || 'Action creation failed', 'error');
+                    }
+                },
+                error: (err: any) => {
+                    console.error('API Error:', err);
+                    Swal.fire('Error', 'Failed to create action', 'error');
+                    // Don't reset form on error - let user retry with their data
+                }
+            });
+    } else {
+        this.markFormGroupTouched(this.actionForm);
+    }
 }
+
+
+// onTriggerSubmit(): void {
+//   if (this.triggerForm.valid) {
+//     const chatbotId = this.globalService.getChatbotId();
+    
+//     if (!chatbotId) {
+//       console.warn('No chatbot ID found');
+//       Swal.fire('Error', 'No chatbot ID found, create Chatbot first', 'error');
+//       return;
+//     }
+
+//     // For triggers:
+//     // - Root triggers: parent_id = this.intentId
+//     // - Nested triggers: parent_id = currentParent.id
+
+//   const parent_id = this.currentParent 
+//     ? this.currentParent.id 
+//     : this.intentId; // More explicit than ||
+
+//     const model = {
+//       ...this.triggerForm.value,
+//       chatbot_id: chatbotId,
+//       parent_id: parent_id,
+//       order: this.getNextOrder(this.currentParent),
+//     };
+
+//     console.log('Trigger Form data to submit:', model);
+
+//     this._httpService
+//       .mobileBankingPost('builder/nodes/intent', model)
+//       .subscribe({
+//         next: (result: any) => {
+//           if (result.status === '00') {
+//             setTimeout(() => {
+//               this.cdRef.detectChanges();
+//               this.fetchIntent(this.intentId);
+//               this.fetchIntentList(this.chatbotId!);
+//               this.fetchNestedIntents(this.intentId);
+              
+//               this.checkAndCombine();
+//               Swal.fire('AI Trigger / Intent', 'Trigger Added Successfully!!', 'success');
+//               this.triggerForm.reset();
+//               this.showAiActionPanel = false;
+//               this.currentParent = null;
+//               this.closeModal();
+//             }, 10);
+//           } else {
+//             Swal.fire('Error', result.message || 'Failed to create intent', 'error');
+//           }
+//         },
+//         error: (err: any) => {
+//           console.error('Trigger creation failed:', err);
+//           Swal.fire('Error', 'Failed to create trigger', 'error');
+//         }
+//       });
+//   } else {
+//     this.markFormGroupTouched(this.triggerForm);
+//   }
+// }
 
 onTriggerSubmit(): void {
   if (this.triggerForm.valid) {
@@ -680,13 +866,8 @@ onTriggerSubmit(): void {
       return;
     }
 
-    // For triggers:
-    // - Root triggers: parent_id = this.intentId
-    // - Nested triggers: parent_id = currentParent.id
-
-  const parent_id = this.currentParent 
-    ? this.currentParent.id 
-    : this.intentId; // More explicit than ||
+    // Determine parent ID
+    const parent_id = this.currentParent ? this.currentParent.id : this.intentId;
 
     const model = {
       ...this.triggerForm.value,
@@ -697,35 +878,62 @@ onTriggerSubmit(): void {
 
     console.log('Trigger Form data to submit:', model);
 
-    this._httpService
-      .mobileBankingPost('builder/nodes/intent', model)
+    this._httpService.mobileBankingPost('builder/nodes/intent', model)
       .subscribe({
         next: (result: any) => {
           if (result.status === '00') {
-            setTimeout(() => {
-              this.fetchData(this.intentId); // Refresh all data
-              this.fetchIntentList(this.chatbotId!);
-              this.fetchNestedIntents(this.intentId);
-              
-              this.checkAndCombine();
-              Swal.fire('AI Trigger / Intent', 'Trigger Added Successfully!!', 'success');
-              this.triggerForm.reset();
-              this.showAiActionPanel = false;
-              this.currentParent = null;
-              this.closeModal();
-            }, 10);
+            // Use forkJoin for parallel data fetching
+            forkJoin([
+              this.fetchIntent(this.intentId),
+              this.fetchIntentList(chatbotId),
+              this.fetchNestedIntents(this.intentId)
+            ]).subscribe({
+              next: () => {
+                this.checkAndCombine();
+                this.cdRef.detectChanges();
+                Swal.fire('Success', 'Trigger added successfully!', 'success');
+                this.resetTriggerForm();
+              },
+              error: (err) => {
+                console.error('Error refreshing data:', err);
+                this.resetTriggerForm(); // Still reset form even if refresh fails
+              }
+            });
           } else {
-            Swal.fire('Error', result.message || 'Failed to create intent', 'error');
+            Swal.fire('Error', result.message || 'Failed to create trigger', 'error');
           }
         },
         error: (err: any) => {
           console.error('Trigger creation failed:', err);
           Swal.fire('Error', 'Failed to create trigger', 'error');
+          // Don't reset form on error - let user retry with their data
         }
       });
   } else {
     this.markFormGroupTouched(this.triggerForm);
   }
+}
+
+private resetTriggerForm(): void {
+  // Reset form values
+  this.triggerForm.reset({
+    name: '',
+    description: '',
+    training_phrases: ['']
+  });
+
+  // Clear FormArray while keeping one empty control
+  const trainingPhrases = this.trainingPhrases;
+  while (trainingPhrases.length > 1) {
+    trainingPhrases.removeAt(0);
+  }
+  trainingPhrases.reset(['']);
+
+  // Reset UI state
+  this.showAiActionPanel = false;
+  this.currentParent = null;
+  this.selectedTrigger = null;
+  this.editingName = false;
 }
 
 // Improved getNextOrder to handle hierarchy correctly
@@ -844,10 +1052,38 @@ getBranchesFromCombinedItems(rootId: number): Branch[] {
 
 private resetForm(): void {
     this.currentParent = null;
+    this.selectedAction = null;
+    this.selectedActionType = null;
+    
+    // Close all panels
     this.showActionForm = false;
-    this.actionForm.reset({ action_type: 'send_message' });
-  }
+    this.showActionType = false;
+    this.showTriggerType = false;
+    this.showAiActionPanel = false;
 
+    // Reset forms with their default values
+    this.actionForm.reset({
+        action_type: 'send_message',
+        name: '',
+        message: ''
+    });
+
+    this.triggerForm.reset({
+        name: '',
+        description: '',
+        training_phrases: ['']
+    });
+
+    // Clear FormArrays properly
+    const trainingPhrases = this.triggerForm.get('training_phrases') as FormArray;
+    while (trainingPhrases.length > 1) {
+        trainingPhrases.removeAt(0);
+    }
+    trainingPhrases.reset(['']);
+
+    // Reset any other form-related state
+    this.editingName = false;
+}
 
 buildBranchPath(): string {
   // Customize as needed
@@ -877,7 +1113,7 @@ sendBot(): void {
 
             this.globalService.setChatbotId(result.data.id);
             this.globalService.setChatbotData(result.data);
-            // this.fetchIntent(this.intentId)
+            this.fetchIntent(this.intentId)
 
 
             // ✅ Success toast
