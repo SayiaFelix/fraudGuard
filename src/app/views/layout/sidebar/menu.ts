@@ -45,7 +45,7 @@ export const MENU: MenuItem[] = [
   {
   //// profiles: ['CORPORATE_ADMIN'],
     label: 'AI Agents',
-    icon: 'cpu',
+    icon: 'layers',
     link: '/eclectics/chatbot/user_bot'
   //// subItems: [
   //   //   // {
