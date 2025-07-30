@@ -200,46 +200,38 @@ isTyping = false;
   });
 }
 
+
 onBotSelect(event: any) {
   const botId = +event.target.value;
   console.log('Selected Bot ID:', botId);
   this.globalService.setChatbotId(botId);
-  // Update chatbotData or load messages, etc.
+  
+  const selectedBot = this.agentList.find(bot => bot.id === botId);
+  
+  if (selectedBot) {
+    this.chatbotData = selectedBot;
+    
+    // Clear existing messages
+    this.messages = [];
+    
+    // Add welcome message if available
+    if (selectedBot.welcome_message) {
+      this.messages.push({
+        sender: 'bot',
+        text: selectedBot.welcome_message,
+        time: new Date()
+      });
+    } else {
+    
+      this.messages.push({
+        sender: 'bot',
+        text: `Hello! I'm ${selectedBot.name} bot engine. How can I help you today?`,
+        time: new Date()
+      });
+    }
+  }
 }
 
-
-// loadBots(): void {
- 
-//   const userId = localStorage.getItem('user_id');
-
-//   if (!userId) {
-//     console.warn('User ID not found in local storage.');
-//     this.agentList = [];
-//     return;
-//   }
-//   const usersId = parseInt(userId, 10);
-//   const body = { user_id: usersId };
-
-//     this.httpService.mobileBankingPost('builder/chatbots/list', body).subscribe({
-//       next: (res: any) => {
-//         if (res.status === '00' && Array.isArray(res.data)) {
-//           // Sort by created_at descending (latest first)
-//           this.agentList = res.data.sort((a: { created_at: string | number | Date; }, b: { created_at: string | number | Date; }) => {
-//             return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-//           });
-
-//           this.selectedBotId = this.agentList[0]?.id ?? null;
-//         } else {
-//           this.agentList = [];
-//           console.warn('Unexpected data format', res);
-//         }
-//       },
-//       error: (err: any) => {
-//         console.error('Error fetching agent list:', err);
-//         this.agentList = [];
-//       }
-//     });
-// }
 
 loadBots(): void {
   const userId = localStorage.getItem('user_id');
