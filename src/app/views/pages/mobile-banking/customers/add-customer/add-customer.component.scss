@@ -11,3 +11,28 @@ th {
   transform: scale(1.05);
   border-radius: 8px;
 }
+
+.save-btn:hover {
+  background-color: #02A7E1;
+  color: #ffffff;
+  transform: scale(1.05);
+  border-radius: 8px;
+}
+.save {
+  display: flex;
+  height: 36px;
+  padding: 8px 12px;
+  justify-content: center;
+  align-items: center;
+  background-color : #2C71F6;
+  // border: 2px solid #02A7E1;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  color: #ffffff;
+}
+.save:hover {
+  background-color: #02A7E1;
+  color: #ffffff;
+  transform: scale(1.05);
+  border-radius: 8px;
+}
