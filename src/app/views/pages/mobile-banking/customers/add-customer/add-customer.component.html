@@ -17,7 +17,7 @@
 
               <div class="d-flex justify-content-center gap-2 mb-2">
                 <button type="button" class="btn btn-primary btn-sm" (click)="uploadImageClick()">Upload</button>
-                <button *ngIf="imageUploaded" type="button" class="btn btn-light btn-sm border" (click)="removeImage()">Remove</button>
+                <button *ngIf="imageUploaded" type="button" class="btn btn-danger btn-sm border" (click)="removeImage()">Remove</button>
               </div>
 
               <!-- *** FIX: Changed onFileSelected() to onFileChange($event) *** -->
@@ -99,9 +99,9 @@
             </tr>
             <ng-container *ngIf="!isLoadingBots">
               <tr *ngIf="!fullAgentList || fullAgentList.length === 0">
-                <td colspan="5" class="text-center text-muted py-4">
+                <td colspan="6" class="text-center text-muted py-5">
                   <div>
-                    <img src="assets/images/empty-bot-list.png" alt="No Bots" style="width: 60px; opacity: 0.5; margin-bottom: 10px;" />
+                    <!-- <img src="assets/images/empty-bot-list.png" alt="No Bots" style="width: 60px; opacity: 0.5; margin-bottom: 10px;" /> -->
                     <div>No bot has been created yet. Create your first chatbot to see it here.</div>
                   </div>
                 </td>
@@ -131,21 +131,21 @@
 
       <!-- ======================= Centered Pagination Controls ======================= -->
       <div *ngIf="totalPages > 1" class="d-flex justify-content-center align-items-center gap-2 mt-3">
-          <button class="btn btn-outline-secondary btn-sm"
-                  (click)="previousPage()"
-                  [disabled]="currentPage === 1">
-              <
-          </button>
+        <button class="btn btn-outline-info btn-sm d-flex align-items-center"
+                (click)="previousPage()"
+                [disabled]="currentPage === 1">
+            <span style="font-size:16px;"  class="mdi mdi-chevron-left"></span>
+        </button>
 
-          <span class="text-muted" style="font-size: 0.9em; font-weight: 500;">
-              Page {{ currentPage }} of {{ totalPages }}
-          </span>
+        <span class="text-muted" style="font-size: 0.9em; font-weight: 500;">
+            Page {{ currentPage }} of {{ totalPages }}
+        </span>
 
-          <button class="btn btn-outline-secondary btn-sm"
-                  (click)="nextPage()"
-                  [disabled]="currentPage === totalPages">
-              >
-          </button>
+        <button class="btn btn-outline-info btn-sm d-flex align-items-center"
+                (click)="nextPage()"
+                [disabled]="currentPage === totalPages">
+            <span style="font-size:16px;" class="mdi mdi-chevron-right"></span>
+        </button>
       </div>
 
     </div>

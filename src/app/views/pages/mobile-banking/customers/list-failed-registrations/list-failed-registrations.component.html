@@ -51,7 +51,7 @@
   </div>
 
   <!-- Toggleable Conversation Tester Panel -->
-   <div class="conversation-panel d-flex flex-column" [ngClass]="{ 'collapsed': isCollapsed }" style="height: 98vh;">
+   <div class="conversation-panel d-flex flex-column" [ngClass]="{ 'collapsed': isCollapsed }" style="height: 100vh;">
     <div class="panel-header d-flex align-items-center justify-content-start p-2" (click)="isCollapsed = !isCollapsed" style="cursor: pointer;">
       <i class="mdi me-2" [ngClass]="{ 'mdi-chevron-left': isCollapsed, 'mdi-chevron-right': !isCollapsed }"></i>
       <h2 *ngIf="!isCollapsed" class="mb-0">Chatbot Tester</h2>
