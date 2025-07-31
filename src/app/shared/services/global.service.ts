@@ -39,11 +39,16 @@ export class GlobalService {
  private chatbotId: string | number | null = null;
  private intentId: string | null = null
 private chatbotDataSubject = new BehaviorSubject<any>(null);
+private botStatusSubject = new BehaviorSubject<{ id: number, is_active: boolean } | null>(null);
+private chatbotIdSubject = new BehaviorSubject<number | null>(null);
+
+chatbotId$ = this.chatbotIdSubject.asObservable();
+botStatus$ = this.botStatusSubject.asObservable();
 chatbotData$ = this.chatbotDataSubject.asObservable();
 
-private chatbotIdSubject = new BehaviorSubject<number | null>(null);
-chatbotId$ = this.chatbotIdSubject.asObservable();
-
+updateBotStatus(update: { id: number, is_active: boolean }) {
+    this.botStatusSubject.next(update);
+  }
 
   setChatbotData(data: any) {
     this.chatbotDataSubject.next(data);

@@ -12,12 +12,13 @@ import Swal from "sweetalert2";
     styleUrls: ['./add-customer.component.scss']
 })
 export class AddCustomerComponent implements OnInit {
-    // --- PROPERTIES FOR IMAGE UPLOADER ---
+    @Output() statusUpdated = new EventEmitter<{ id: number, is_active: boolean }>();
+
     @ViewChild('fileInput') fileInput: ElementRef;
     imageUploaded: boolean = false;
     imagePreviewUrl: string | ArrayBuffer | null = null;
     imageFile: File | null = null;
-
+     
     @Output() botCreated = new EventEmitter<void>();
     @Input() title: any;
     @Input() formData: any;
@@ -39,6 +40,8 @@ export class AddCustomerComponent implements OnInit {
     paginatedAgentLists: any[] = []; 
     public currentPage: number = 1;
     public itemsPerPage: number = 3; 
+    selectedBotId: any;
+    chatbotData: any = null;
 
     constructor(
         public activeModal: NgbActiveModal,
@@ -51,6 +54,22 @@ export class AddCustomerComponent implements OnInit {
     ngOnInit() {
       this.fetchAgentList();
       this.fetchAgentLists();
+
+    this.globalService.botCreated$.subscribe(() => {
+    this.loadBots(); 
+  });
+
+  this.globalService.chatbotData$.subscribe((data) => {
+  this.chatbotdata = data;
+ 
+
+    const chatbotId = this.globalService.getChatbotId();
+    if (chatbotId) {
+      console.log('Using Chatbot ID:', chatbotId);
+    } else {
+      console.warn('No chatbot ID found');
+    }
+  });
 
       this.form = this.fb.group({
           name: ['', Validators.required],
@@ -126,6 +145,55 @@ export class AddCustomerComponent implements OnInit {
         this.goToPage(this.currentPage - 1);
     }
 
+  onBotSelect(event: any) {
+  const botId = +event.target.value;
+  console.log('Selected Bot ID:', botId);
+  this.globalService.setChatbotId(botId);
+  
+  const selectedBot = this.agentList.find(bot => bot.id === botId);
+  
+
+
+}
+
+  loadBots(): void {
+  const userId = localStorage.getItem('user_id');
+
+  if (!userId) {
+    console.warn('User ID not found in local storage.');
+    this.agentList = [];
+    return;
+  }
+
+  const usersId = parseInt(userId, 10);
+  const body = { user_id: usersId };
+
+  this._httpService.mobileBankingPost('builder/chatbots/list', body).subscribe({
+    next: (res: any) => {
+      if (res.status === '00' && Array.isArray(res.data)) {
+        // Sort by latest created
+        this.agentList = res.data.sort((a: { created_at: string | number | Date; }, b: { created_at: string | number | Date; }) => {
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        });
+        this.selectedBotId = this.agentList[0]?.id ?? null;
+
+        // 🔥 Automatically trigger bot selection
+        if (this.selectedBotId) {
+          this.onBotSelect({ target: { value: this.selectedBotId } });
+        }
+      } else {
+        this.agentList = [];
+        console.warn('Unexpected data format', res);
+      }
+    },
+    error: (err: any) => {
+      console.error('Error fetching agent list:', err);
+      this.agentList = [];
+    }
+  });
+}
+
+
     fetchAgentLists(): void {
       this.isLoadingBots = true;
       const userId = localStorage.getItem('user_id');
@@ -163,36 +231,84 @@ export class AddCustomerComponent implements OnInit {
       });
     }
 
-    toggleChatbotStatus(chatbot: any): void {
-      const newStatus = !chatbot.is_active;
-      const payload = {
-        chatbot_id: chatbot.id,
-        is_active: newStatus
-      };
+    // toggleChatbotStatus(chatbot: any): void {
+    //   const newStatus = !chatbot.is_active;
+    //   const payload = {
+    //     chatbot_id: chatbot.id,
+    //     is_active: newStatus
+    //   };
 
-      this._httpService.mobileBankingPost('builder/chatbots/status', payload).subscribe({
-        next: (res: any) => {
-          if (res.status === '00') {
-            const botInFullList = this.fullAgentList.find(b => b.id === chatbot.id);
+    //   this._httpService.mobileBankingPost('builder/chatbots/status', payload).subscribe({
+    //     next: (res: any) => {
+    //       if (res.status === '00') {
+    //         const botInFullList = this.fullAgentList.find(b => b.id === chatbot.id);
+    //         if (botInFullList) {
+    //             botInFullList.is_active = newStatus;
+    //         }
+    //         this.updatePaginatedList();
+    //       } else {
+    //         this._toastService.warning(
+    //           res.message || 'Failed to update chatbot status.',
+    //           'Warning'
+    //         );
+    //       }
+    //     },
+    //     error: (err: any) => {
+    //       this._toastService.error(
+    //         err?.error?.message || 'An error occurred while updating status.',
+    //         'Error'
+    //       );
+    //     }
+    //   });
+    // }
+
+toggleChatbotStatus(chatbot: any): void {
+  const newStatus = !chatbot.is_active;
+  const payload = {
+    chatbot_id: chatbot.id,
+    is_active: newStatus
+  };
+
+  this._httpService.mobileBankingPost('builder/chatbots/status', payload).subscribe({
+    next: (res: any) => {
+      if (res.status === '00') {
+        // Update full list
+        const botInFullList = this.fullAgentList.find(b => b.id === chatbot.id);
             if (botInFullList) {
-                botInFullList.is_active = newStatus;
+              botInFullList.is_active = newStatus;
             }
+
+            // Emit to parent
+            this.globalService.updateBotStatus({ id: chatbot.id, is_active: newStatus });
             this.updatePaginatedList();
-          } else {
-            this._toastService.warning(
-              res.message || 'Failed to update chatbot status.',
-              'Warning'
-            );
-          }
-        },
-        error: (err: any) => {
-          this._toastService.error(
-            err?.error?.message || 'An error occurred while updating status.',
-            'Error'
-          );
+
+        // ✅ Update agentList used in dropdown
+            const botInAgentList = this.agentList?.find(b => b.id === chatbot.id);
+            if (botInAgentList) {
+              botInAgentList.is_active = newStatus;
+            }
+
+        if (this.chatbotData?.id === chatbot.id) {
+          this.chatbotData.is_active = newStatus;
         }
-      });
+
+        this.updatePaginatedList();
+      } else {
+        this._toastService.warning(
+          res.message || 'Failed to update chatbot status.',
+          'Warning'
+        );
+      }
+    },
+    error: (err: any) => {
+      this._toastService.error(
+        err?.error?.message || 'An error occurred while updating status.',
+        'Error'
+      );
     }
+  });
+}
+
 
     public submitData(): void {
         if (this.formData) {

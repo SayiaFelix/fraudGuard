@@ -128,7 +128,7 @@ isTyping = false;
   public customerId: any;
   result: any;
 
- agentList: any[] = []; // List of bots
+  agentList: any[] = []; // List of bots
   selectedBotId: string = '';
 
 
@@ -147,8 +147,20 @@ isTyping = false;
   ngOnInit() {
   const userId = localStorage.getItem('user_id');
   console.log('Fetched user_id:', userId);
-  this.loadBots()
 
+  this.globalService.botStatus$.subscribe(update => {
+    if (update) {
+      const bot = this.agentList.find(b => b.id === update.id);
+      if (bot) {
+        bot.is_active = update.is_active;
+      }
+
+      if (this.chatbotData?.id === update.id) {
+        this.chatbotData.is_active = update.is_active;
+      }
+    }})
+
+  this.loadBots()
   this.globalService.botCreated$.subscribe(() => {
     this.loadBots(); 
   });
@@ -210,6 +222,8 @@ onBotSelect(event: any) {
   
   if (selectedBot) {
     this.chatbotData = selectedBot;
+    
+    // Clear existing messages
     this.messages = [];
     
     // Add welcome message if available
@@ -229,7 +243,6 @@ onBotSelect(event: any) {
     }
   }
 }
-
 
 loadBots(): void {
   const userId = localStorage.getItem('user_id');
@@ -267,9 +280,6 @@ loadBots(): void {
     }
   });
 }
-
-
-
 
 ngAfterViewChecked(): void {
     this.scrollToBottom();
