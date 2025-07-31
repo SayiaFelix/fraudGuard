@@ -60,170 +60,185 @@
         </div>
 
         <div class="list-group">
-  <!-- Loading Indicator -->
-  <div *ngIf="isLoading" class="text-center py-3">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Loading...</span>
-    </div>
-  </div>
-
-  <!-- Content when not loading -->
-  <ng-container *ngIf="!isLoading">
-    <!-- Empty state - show both buttons stacked -->
-    <div *ngIf="combinedItems.length === 0" class="list-group mb-0">
-      <div class="list-group-item hover-card px-4 py-2">
-        <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
-                (click)="openActionType(null)">
-          <i class="mdi mdi-plus me-2"></i>
-          <span>Add AI Action</span>
-        </button>
-      </div>
-      <div class="list-group-item hover-card px-4 py-2">
-        <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
-                (click)="openTriggerForm(null)">
-          <i class="mdi mdi-plus me-2"></i>
-          <span>Add Trigger</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- When items exist -->
-    <ng-container *ngIf="combinedItems.length > 0">
-      <!-- Add AI Action button at the top -->
-      <div class="list-group-item hover-card px-4 py-2 mb-0">
-        <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
-                (click)="openActionType(null)">
-          <i class="mdi mdi-plus me-2"></i>
-          <span>Add AI Action</span>
-        </button>
-      </div>
-
-      <!-- Main items list -->
-      <ng-container *ngFor="let trigger of getRootTriggers(); trackBy: trackById">
-        <!-- Trigger Item -->
-        <div class="list-group-item">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <strong>#{{ trigger.id }} {{ trigger.name }}</strong>
-              <span class="badge bg-info ms-2">Trigger</span>
+         
+            <div *ngIf="isLoading" class="text-center py-3">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
             </div>
-            <div class="form-check form-switch">
-              <input type="checkbox" class="form-check-input" [checked]="trigger.is_active">
-            </div>
-          </div>
 
-          <!-- Trigger buttons -->
-          <div class="mt-2 d-flex gap-2">
-            <button class="btn btn-sm btn-outline-primary me-2"
-                    (click)="openActionType(trigger)">
-              <i class="mdi mdi-plus me-1"></i>
-              Add Action
-            </button>
-            <button class="btn btn-sm btn-outline-secondary"
-                    (click)="openTriggerForm(trigger)">
-              <i class="mdi mdi-plus me-1"></i>
-              Add Nested Trigger
-            </button>
-          </div>
-
-          <!-- Direct actions under this trigger -->
-          <ng-container *ngIf="getDirectActions(trigger.id).length > 0">
-            <div class="mt-3">
-              <div *ngFor="let action of getDirectActions(trigger.id)" class="list-group-item mb-2">
-                <div class="d-flex justify-content-between align-items-center">
-                  <div [style.padding-left.px]="20">
-                    <strong>#{{ action.id }} {{ action.name }}</strong>
-                    <span class="badge bg-primary ms-2">Action</span>
-                    <small class="d-block text-muted">{{ action.action_type | titlecase }}</small>
-                  </div>
-                  <div class="form-check form-switch">
-                    <input type="checkbox" class="form-check-input" [checked]="action.is_active">
-                  </div>
+            <!-- Content when not loading -->
+            <ng-container *ngIf="!isLoading">
+              <!-- Empty state - show both buttons stacked -->
+              <div *ngIf="combinedItems.length === 0" class="list-group mb-0">
+                <div class="list-group-item hover-card px-4 py-2">
+                  <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
+                          (click)="openActionType(null)">
+                    <i class="mdi mdi-plus me-2"></i>
+                    <span>Add AI Action</span>
+                  </button>
                 </div>
-                
-                <!-- Action buttons -->
-                <div class="mt-2" [style.padding-left.px]="20">
-                  <button class="btn btn-sm btn-outline-primary"
-                          (click)="openActionType(action)">
-                    <i class="mdi mdi-plus me-1"></i>
-                    Add Child Action
+                <div class="list-group-item hover-card px-4 py-2">
+                  <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
+                          (click)="openTriggerForm(null)">
+                    <i class="mdi mdi-plus me-2"></i>
+                    <span>Add Trigger</span>
                   </button>
                 </div>
               </div>
-            </div>
-          </ng-container>
 
-          <!-- Nested triggers -->
-          <ng-container *ngIf="getChildTriggers(trigger.id).length > 0">
-            <div class="mt-3">
-              <div *ngFor="let childTrigger of getChildTriggers(trigger.id)" class="list-group-item mb-2">
-                <div class="d-flex justify-content-between align-items-center">
-                  <div [style.padding-left.px]="20">
-                    <strong>#{{ childTrigger.id }} {{ childTrigger.name }}</strong>
-                    <span class="badge bg-info ms-2">Trigger</span>
-                  </div>
-                  <div class="form-check form-switch">
-                    <input type="checkbox" class="form-check-input" [checked]="childTrigger.is_active">
-                  </div>
-                </div>
-
-                <!-- Nested trigger buttons -->
-                <div class="mt-2 d-flex gap-2" [style.padding-left.px]="20">
-                  <button class="btn btn-sm btn-outline-primary me-2"
-                          (click)="openActionType(childTrigger)">
-                    <i class="mdi mdi-plus me-1"></i>
-                    Add Action
-                  </button>
-                  <button class="btn btn-sm btn-outline-secondary"
-                          (click)="openTriggerForm(childTrigger)">
-                    <i class="mdi mdi-plus me-1"></i>
-                    Add Nested Trigger
+              <!-- When items exist -->
+              <ng-container *ngIf="combinedItems.length > 0">
+                <!-- Add AI Action button at the top -->
+                <div class="list-group-item hover-card px-4 py-2 mb-0">
+                  <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
+                          (click)="openActionType(null)">
+                    <i class="mdi mdi-plus me-2"></i>
+                    <span>Add AI Action</span>
                   </button>
                 </div>
+                
 
-                <!-- Actions under nested trigger -->
-                <ng-container *ngIf="getDirectActions(childTrigger.id).length > 0">
-                  <div class="mt-3">
-                    <div *ngFor="let action of getDirectActions(childTrigger.id)" class="list-group-item mb-2">
-                      <div class="d-flex justify-content-between align-items-center">
-                        <div [style.padding-left.px]="40">
-                          <strong>#{{ action.id }} {{ action.name }}</strong>
-                          <span class="badge bg-primary ms-2">Action</span>
-                          <small class="d-block text-muted">{{ action.action_type | titlecase }}</small>
-                        </div>
-                        <div class="form-check form-switch">
-                          <input type="checkbox" class="form-check-input" [checked]="action.is_active">
-                        </div>
+                <!-- Main items list -->
+                <ng-container *ngFor="let trigger of getRootTriggers(); trackBy: trackById">
+                  <!-- Trigger Item -->
+                  <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div>
+                        <strong>#{{ trigger.id }} {{ trigger.name }}</strong>
+                        <span class="badge bg-info ms-2">Trigger</span>
                       </div>
-                      
-                      <!-- Action buttons -->
-                      <div class="mt-2" [style.padding-left.px]="40">
-                        <button class="btn btn-sm btn-outline-primary"
-                                (click)="openActionType(action)">
-                          <i class="mdi mdi-plus me-1"></i>
-                          Add Child Action
+                      <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" [checked]="trigger.is_active">
+                      </div>
+                    </div>
+
+                    <!-- Trigger buttons -->
+                    <div class="">
+                      <div class="list-group-item hover-card px-4 py-2">
+                        <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
+                                (click)="openActionType(trigger)">
+                          <i class="mdi mdi-plus me-2"></i>
+                          <span>Add AI Action</span>
+                        </button>
+                      </div>
+
+                      <div class="list-group-item hover-card px-4 py-2">
+                        <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
+                                (click)="openTriggerForm(trigger)">
+                          <i class="mdi mdi-plus me-2"></i>
+                          <span>Add Nested Trigger</span>
                         </button>
                       </div>
                     </div>
+
+                    <!-- Direct actions under this trigger -->
+                    <ng-container *ngIf="getDirectActions(trigger.id).length > 0">
+                      <div class="">
+                        <div *ngFor="let action of getDirectActions(trigger.id)" class="list-group-item mb-2">
+                          <div class="d-flex justify-content-between align-items-center">
+                            <div [style.padding-left.px]="20">
+                              <strong>#{{ action.id }} {{ action.name }}</strong>
+                              <span class="badge bg-primary ms-2">Action</span>
+                              <!-- <small class="d-block text-muted">{{ action.action_type | titlecase }}</small> -->
+                            </div>
+                            <div class="form-check form-switch">
+                              <input type="checkbox" class="form-check-input" [checked]="action.is_active">
+                            </div>
+                          </div>
+                          
+                          <!-- Action buttons -->
+                          <div class="" [style.padding-left.px]="20">
+                            <div class="list-group-item hover-card px-4 py-2">
+                                <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
+                                        (click)="openActionType(action)">
+                                  <i class="mdi mdi-plus me-2"></i>
+                                  <span>Add AI Action</span>
+                                </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </ng-container>
+
+                    <!-- Nested triggers -->
+                    <ng-container *ngIf="getChildTriggers(trigger.id).length > 0">
+                      <div class="">
+                        <div *ngFor="let childTrigger of getChildTriggers(trigger.id)" class="list-group-item mb-2">
+                          <div class="d-flex justify-content-between align-items-center">
+                            <div [style.padding-left.px]="20">
+                              <strong>#{{ childTrigger.id }} {{ childTrigger.name }}</strong>
+                              <span class="badge bg-info ms-2">Trigger</span>
+                            </div>
+                            <div class="form-check form-switch">
+                              <input type="checkbox" class="form-check-input" [checked]="childTrigger.is_active">
+                            </div>
+                          </div>
+
+                          <!-- Nested trigger buttons -->
+                          <div class="mt-1" [style.padding-left.px]="20">
+                              <div class="list-group-item hover-card px-4 py-2">
+                                <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
+                                        (click)="openActionType(childTrigger)">
+                                  <i class="mdi mdi-plus me-2"></i>
+                                  <span>Add AI Action</span>
+                                </button>
+                              </div>
+
+                            <div class="list-group-item hover-card px-4 py-2">
+                              <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
+                                      (click)="openTriggerForm(childTrigger)">
+                                <i class="mdi mdi-plus me-2"></i>
+                                <span>Add Nested Trigger</span>
+                              </button>
+                            </div>
+                          </div>
+
+                          <!-- Actions under nested trigger -->
+                          <ng-container *ngIf="getDirectActions(childTrigger.id).length > 0">
+                            <div class="mt-1">
+                              <div *ngFor="let action of getDirectActions(childTrigger.id)" class="list-group-item mb-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                  <div [style.padding-left.px]="40">
+                                    <strong>#{{ action.id }} {{ action.name }}</strong>
+                                    <span class="badge bg-primary ms-2">Action</span>
+                                    <!-- <small class="d-block text-muted">{{ action.action_type | titlecase }}</small> -->
+                                  </div>
+                                  <div class="form-check form-switch">
+                                    <input type="checkbox" class="form-check-input" [checked]="action.is_active">
+                                  </div>
+                                </div>
+                                
+                                <!-- Action buttons -->
+                                <div class="mt-1" [style.padding-left.px]="40">
+                                    <div class="list-group-item hover-card px-4 py-2">
+                                        <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
+                                                (click)="openActionType(action)">
+                                          <i class="mdi mdi-plus me-2"></i>
+                                          <span>Add AI Action</span>
+                                        </button>
+                                      </div>
+                                </div>
+                              </div>
+                            </div>
+                          </ng-container>
+                        </div>
+                      </div>
+                    </ng-container>
                   </div>
                 </ng-container>
-              </div>
-            </div>
-          </ng-container>
-        </div>
-      </ng-container>
 
-      <!-- Add Trigger button at the bottom -->
-      <div class="list-group-item hover-card px-4 py-2">
-        <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
-                (click)="openTriggerForm(null)">
-          <i class="mdi mdi-plus me-2"></i>
-          <span>Add Trigger</span>
-        </button>
-      </div>
-    </ng-container>
-  </ng-container>
-</div>
+                <!-- Add Trigger button at the bottom -->
+                <div class="list-group-item hover-card px-4 py-2">
+                  <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
+                          (click)="openTriggerForm(null)">
+                    <i class="mdi mdi-plus me-2"></i>
+                    <span>Add Trigger</span>
+                  </button>
+                </div>
+              </ng-container>
+            </ng-container>
+       </div>
     </div>
 
 
