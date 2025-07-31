@@ -152,6 +152,7 @@ export class IntentComponent implements OnInit {
     
         if (this.intentId) {
             this.loadInitialData(); 
+            this.fetchNestedIntents(this.intentId);
         } else {
             console.warn('No intent selected.');
             this.isLoading = false;
@@ -160,8 +161,8 @@ export class IntentComponent implements OnInit {
         if (this.chatbotId) {
             this.fetchIntentList(this.chatbotId);
         }
-        
         this.fetchActionType();
+        
 
         this.actionForm = this.fb.group({
             name: ['', Validators.required],
@@ -526,9 +527,6 @@ fetchNestedIntents(intentId: number): void {
     });
 }
 
-
-
-
 private processApiTriggers(trigger: any, parentId: number): TriggerItem {
   return {
     id: trigger.id,
@@ -560,8 +558,6 @@ private transformAction(action: any, parentId: number): ActionItem {
     itemType: 'action'
   };
 }
-
-// Add these methods to your component class
 
 getRootTriggers(): any[] {
   return this.combinedItems.filter(item => 
