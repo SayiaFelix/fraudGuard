@@ -680,74 +680,6 @@ private findTriggerInChildren(trigger: any, intentId: number): any {
 }
 
 
-// onActionSubmit(): void {
-//   if (this.actionForm.valid) {
-//     const chatbotId = this.globalService.getChatbotId()!;
-    
-//     // Determine IDs based on hierarchy
-//     let intentId: number;
-//     let parentActionId: number | null;
-
-//     if (!this.currentParent) {
-//       // Root level action
-//       intentId = this.intentId;
-//       parentActionId = chatbotId; 
-//     } else if (this.currentParent.itemType === 'trigger') {
-//       // Action under a trigger
-//       intentId = this.currentParent.id; // trigger ID becomes intent_id
-//       parentActionId = this.intentId; // root intent ID as parent_action_id
-//     } else {
-//       // Action under another action (if needed)
-//       intentId = this.currentParent.intent_id;
-//       parentActionId = this.currentParent.action_id;
-//     }
-
-//     const model = {
-//       name: this.actionForm.value.name,
-//       action_type: this.selectedActionType || 'send_message',
-//       config: {
-//         message: this.actionForm.value.message,
-//         // include other config fields as needed
-//       },
-//       intent_id: intentId,
-//       parent_action_id: null, // Use null if no parent action
-//       branch_path: this.buildBranchPath(),
-//       order: this.getNextOrder(this.currentParent),
-//     };
-
-//     console.log('Submitting action with:', {
-//       intent_id: intentId,
-//       parent_action_id: parentActionId,
-//       currentParent: this.currentParent,
-//       hierarchy: !this.currentParent ? 'root' : 
-//                 this.currentParent.itemType === 'trigger' ? 'under trigger' : 'under action'
-//     });
-
-//     this._httpService.mobileBankingPost('builder/nodes/action', model)
-//       .subscribe({
-//         next: (result: any) => {
-//           if (result.status === '00') {
-//             this.cdRef.detectChanges();
-          
-//             this.fetchIntent(this.intentId);
-//             this.fetchIntentList(chatbotId);
-//             this.fetchNestedIntents(this.intentId);
-//             this.checkAndCombine();
-//             this.combineAndSortItems();
-//             Swal.fire('Success', 'Action created successfully!', 'success');
-//             this.resetForm();
-//           } else {
-//             Swal.fire('Error', result.message || 'Action creation failed', 'error');
-//           }
-//         },
-//         error: (err: any) => {
-//           console.error('API Error:', err);
-//           Swal.fire('Error', 'Failed to create action', 'error');
-//         }
-//       });
-//   }
-// }
-
 onActionSubmit(): void {
     if (this.actionForm.valid) {
          const chatbotId = this.globalService.getChatbotId()!;
@@ -826,65 +758,6 @@ onActionSubmit(): void {
     }
 }
 
-
-// onTriggerSubmit(): void {
-//   if (this.triggerForm.valid) {
-//     const chatbotId = this.globalService.getChatbotId();
-    
-//     if (!chatbotId) {
-//       console.warn('No chatbot ID found');
-//       Swal.fire('Error', 'No chatbot ID found, create Chatbot first', 'error');
-//       return;
-//     }
-
-//     // For triggers:
-//     // - Root triggers: parent_id = this.intentId
-//     // - Nested triggers: parent_id = currentParent.id
-
-//   const parent_id = this.currentParent 
-//     ? this.currentParent.id 
-//     : this.intentId; // More explicit than ||
-
-//     const model = {
-//       ...this.triggerForm.value,
-//       chatbot_id: chatbotId,
-//       parent_id: parent_id,
-//       order: this.getNextOrder(this.currentParent),
-//     };
-
-//     console.log('Trigger Form data to submit:', model);
-
-//     this._httpService
-//       .mobileBankingPost('builder/nodes/intent', model)
-//       .subscribe({
-//         next: (result: any) => {
-//           if (result.status === '00') {
-//             setTimeout(() => {
-//               this.cdRef.detectChanges();
-//               this.fetchIntent(this.intentId);
-//               this.fetchIntentList(this.chatbotId!);
-//               this.fetchNestedIntents(this.intentId);
-              
-//               this.checkAndCombine();
-//               Swal.fire('AI Trigger / Intent', 'Trigger Added Successfully!!', 'success');
-//               this.triggerForm.reset();
-//               this.showAiActionPanel = false;
-//               this.currentParent = null;
-//               this.closeModal();
-//             }, 10);
-//           } else {
-//             Swal.fire('Error', result.message || 'Failed to create intent', 'error');
-//           }
-//         },
-//         error: (err: any) => {
-//           console.error('Trigger creation failed:', err);
-//           Swal.fire('Error', 'Failed to create trigger', 'error');
-//         }
-//       });
-//   } else {
-//     this.markFormGroupTouched(this.triggerForm);
-//   }
-// }
 
 onTriggerSubmit(): void {
   if (this.triggerForm.valid) {
@@ -1190,46 +1063,27 @@ removeImage(){}
   }
 
   toggleIntentStatus(event: Event) {
-  const checked = (event.target as HTMLInputElement).checked;
-  // Activate/deactivate chatbot
-  if (this.chatbotId) {
-    const chatbotPayload = {
-      chatbot_id: this.chatbotId,
-      is_active: checked
-    };
-    this._httpService.mobileBankingPost('builder/chatbots/status', chatbotPayload)
-      .subscribe({
-        next: (res: any) => {
-          if (res.status === '00') {
-            this.isActive = checked;
-            Swal.fire('Success', `Chatbot status updated to ${checked ? 'Active' : 'Inactive'}!`, 'success');
-          } else {
-            Swal.fire('API Error', res.message || 'Failed to update chatbot status', 'error');
-            this.isActive = !checked;
+      const inputElement = event.target as HTMLInputElement;
+      const isChecked = inputElement.checked;
+      if (!this.intentId) return;
+      const payload = { intent_id: this.intentId, is_active: isChecked };
+      this.isActive = isChecked; // Optimistic update
+      this._httpService.mobileBankingPost('builder/nodes/intent/status', payload).subscribe({
+          next: (res: any) => {
+            if (res.status === '00') {
+              Swal.fire('Success', `Intent status updated to ${isChecked ? 'Active' : 'Inactive'}.`, 'success');
+            } else {
+              this.isActive = !isChecked;
+              inputElement.checked = !isChecked; // Revert UI
+              Swal.fire('API Error', res.message || 'Failed to update intent status', 'error');
+            }
+          },
+          // ✅ CORRECTED: Added 'any' type to the error parameter to fix TS7006
+          error: (err: any) => {
+            this.isActive = !isChecked;
+            inputElement.checked = !isChecked; // Revert UI
+            Swal.fire('Error', err?.error?.message || 'An unexpected error occurred.', 'error');
           }
-        },
-        error: () => {
-          Swal.fire('Error', 'Failed to update chatbot status', 'error');
-          this.isActive = !checked;
-        }
-      });
-  }
-  // Activate/deactivate intent
-  if (this.intentId) {
-    const intentPayload = {
-      intent_id: this.intentId,
-      is_active: checked
-    };
-    this._httpService.mobileBankingPost('builder/nodes/intent/toggle', intentPayload)
-      .subscribe({
-        next: (res: any) => {
-          if (res.status === '00') {
-            // Optionally show a message for intent status
-          }
-        },
-        error: () => {
-          // Optionally handle intent error
-        }
-      });
-  }
-}}
+        });
+    }
+}
