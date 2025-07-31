@@ -5,7 +5,7 @@
       <h5 class="card-title text-uppercase fw-bold mb-1">Recent Agent List</h5>
       <p class="text-muted mb-0">Add triggers and actions for a scripted chat flow. If an action is not triggered, then the enabled LLM will generate a response.</p>
     </div>
-    
+
     <!-- Action Buttons -->
     <div class="mt-4 mb-3">
       <div class="d-flex gap-2">
@@ -13,7 +13,7 @@
           <i class="feather icon-upload btn-icon-prepend"></i>
           Upload File
         </button>
-        <button class="btn btn-primary" data-bs-toggle="modal" (click)="onAddTriggerClick()">
+        <button class="btn btn-primary" (click)="onAddTriggerClick()">
           <i class="feather icon-plus btn-icon-prepend"></i>
           Add Trigger
         </button>
@@ -21,63 +21,53 @@
       </div>
     </div>
 
-    <!-- Modal Trigger Form -->
-    <div class="modal fade " id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel"
-       #triggerModal tabindex="-1" role="dialog" aria-labelledby="triggerModalLabel" aria-hidden="true">
+    <!-- Modal Trigger Form (This part is unchanged) -->
+    <div class="modal fade" #triggerModal tabindex="-1" role="dialog" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="triggerModalLabel" style="font-family: Roboto;font-weight: 500;font-style: Medium;font-size: 20px;line-height: 100%;letter-spacing: 0%;color: #364153;">
               Add Trigger
             </h5>
-            <button type="button" class="btn-close"(click)="closeModal()" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button type="button" class="btn-close" (click)="closeModal()" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-
           <div class="modal-body">
             <form [formGroup]="triggerForm" (ngSubmit)="onTriggerSubmit()">
-              <!-- Trigger static select field (at the top of the modal) -->
               <div class="form-group mb-3">
                 <label class="form-label fw-bold" for="triggerType">Trigger</label>
-                <select class="form-select" id="triggerType" required>
+                <select class="form-select" id="triggerType" formControlName="trigger_type" required>
                   <option value="message_received">🗨️ Message Received</option>
                   <option value="attachment_received">📎 Attachment Received</option>
                   <option value="fallback">❓ Fallback</option>
                 </select>
               </div>
-
-                <!-- Name field -->
-                <div class="mt-1 form-group">
-                  <label class="form-label fw-bold" for="name">Intent Name</label>
-                  <input type="text" placeholder="Enter the Intent Name" class="form-control" id="name" formControlName="name" required>
-                    <small *ngIf="triggerForm.get('name')?.touched && triggerForm.get('name')?.hasError('required')" class="text-danger">
-            Required Field
-          </small>
-                </div>
-                
-                <!-- Description field -->
-                <div class="form-group mt-3">
-                  <label class="form-label fw-bold" for="description">Description</label>
-                  <textarea class="form-control" placeholder="Enter the Description" id="description" formControlName="description" rows="2"></textarea>
-                </div>
-                
-                <!-- Training Phrases (FormArray) -->
-                <div class="form-group mt-3">
-                  <label class="form-label fw-bold" >Training Phrases</label>
-                  <div formArrayName="training_phrases">
-                    <div *ngFor="let phrase of trainingPhrases.controls; let i = index" class="mb-2 d-flex align-items-center">
-                      <input type="text" placeholder="Enter the training phrases" class="form-control" [formControlName]="i">
-                      <button type="button" class="btn btn-sm btn-outline-danger ml-3" (click)="removeTrainingPhrase(i)">
-                        <i class="feather icon-trash-2"></i>
-                      </button>
-                    </div>
+              <div class="mt-1 form-group">
+                <label class="form-label fw-bold" for="name">Intent Name</label>
+                <input type="text" placeholder="Enter the Intent Name" class="form-control" id="name" formControlName="name" required>
+                <small *ngIf="triggerForm.get('name')?.touched && triggerForm.get('name')?.hasError('required')" class="text-danger">
+                  Required Field
+                </small>
+              </div>
+              <div class="form-group mt-3">
+                <label class="form-label fw-bold" for="description">Description</label>
+                <textarea class="form-control" placeholder="Enter the Description" id="description" formControlName="description" rows="2"></textarea>
+              </div>
+              <div class="form-group mt-3">
+                <label class="form-label fw-bold">Training Phrases</label>
+                <div formArrayName="training_phrases">
+                  <div *ngFor="let phrase of trainingPhrases.controls; let i = index" class="mb-2 d-flex align-items-center">
+                    <input type="text" placeholder="Enter the training phrases" class="form-control" [formControlName]="i">
+                    <button type="button" class="btn btn-sm btn-outline-danger ms-2" (click)="removeTrainingPhrase(i)">
+                      <i class="feather icon-trash-2"></i>
+                    </button>
                   </div>
-                  <button type="button" class="btn btn-sm btn-outline-primary" (click)="addTrainingPhrase()">
-                    <i class="feather icon-plus"></i> Add Phrase
-                  </button>
                 </div>
-  
+                <button type="button" class="btn btn-sm btn-outline-primary mt-2" (click)="addTrainingPhrase()">
+                  <i class="feather icon-plus"></i> Add Phrase
+                </button>
+              </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal" (click)="closeModal()">Cancel</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" (click)="closeModal()">Cancel</button>
                 <button type="submit" class="btn btn-primary" [disabled]="!triggerForm.valid">Save Trigger</button>
               </div>
             </form>
@@ -93,50 +83,51 @@
           <tr>
             <th scope="col">Name</th>
             <th scope="col">Description</th>
-            <!-- <th scope="col">Training Phrases</th> -->
-            <!-- <th scope="col">LAST UPDATED</th>  -->
             <th scope="col">Status</th>
             <th scope="col" class="text-center">Action</th>
-          </tr> 
+          </tr>
         </thead>
         <tbody>
-          <!-- Loading State -->
+          <!-- Loading and Empty States (Unchanged) -->
           <tr *ngIf="isLoading">
-            <td colspan="6" class="text-center py-5">
+            <td colspan="4" class="text-center py-5">
               <div class="spinner-border" role="status">
                 <span class="visually-hidden">Loading...</span>
               </div>
             </td>
           </tr>
-
-          <!-- Empty State -->
           <tr *ngIf="!isLoading && agentList.length === 0">
-            <td colspan="6" class="text-center text-muted py-5">
+            <td colspan="4" class="text-center text-muted py-5">
               No triggers found. Click "Add Trigger" to create one.
             </td>
           </tr>
 
           <!-- Data Rows -->
-          <tr *ngFor="let trigger of agentList" (click)="openIntent(trigger)"  style="cursor: pointer;">
-            <td><strong>{{ trigger.name || 'N/A' }}</strong></td>
-            <td>{{ trigger.description || 'N/A' }}</td>
-            <!-- <td>{{ trigger.lastUpdated | date:'medium' }}</td> -->
-            <!-- <td>{{ trigger.created_at | date:'medium' }}</td> -->
-            <!-- <td><span class="badge bg-light text-dark">{{ trigger.type || 'Default' }}</span></td> -->
+          <tr *ngFor="let trigger of agentList">
+            <td (click)="openIntent(trigger)" style="cursor: pointer;">
+              <strong>{{ trigger.name || 'N/A' }}</strong>
+            </td>
+            <td (click)="openIntent(trigger)" style="cursor: pointer;">
+              {{ trigger.description || 'N/A' }}
+            </td>
             <td>
-              <span [ngClass]="{
-    'badge bg-success': trigger.status === 'Active',
-    'badge bg-danger': trigger.status === 'Inactive'
-  }"
-  style="padding: 0.5em 1.2em; font-size: 1.05em;">
-    {{ trigger.status }}
-  </span>
+              <span class="badge"
+                style="cursor: pointer; font-size: 0.8em; padding: 0.5em 0.75em;"
+                [ngClass]="{
+                  'bg-success': trigger.is_active,
+                  'bg-danger': !trigger.is_active
+                }"
+                (click)="toggleTriggerStatus(trigger); $event.stopPropagation()"
+                title="Click to toggle status">
+                {{ trigger.is_active ? 'Active' : 'Inactive' }}
+              </span>
             </td>
             <td class="text-center">
-              <button class="btn btn-sm btn-icon btn-outline-secondary me-2" (click)="editTrigger(trigger)" title="Edit">
+              <!-- These buttons stop propagation to prevent row click -->
+              <button class="btn btn-sm btn-icon btn-outline-secondary me-2" (click)="$event.stopPropagation(); editTrigger(trigger)" title="Edit">
                 <i class="feather icon-edit-2"></i>
               </button>
-              <button class="btn btn-sm btn-icon btn-outline-danger" (click)="deleteTrigger(trigger)" title="Delete">
+              <button class="btn btn-sm btn-icon btn-outline-danger" (click)="$event.stopPropagation(); deleteTrigger(trigger)" title="Delete">
                 <i class="feather icon-trash-2"></i>
               </button>
             </td>
