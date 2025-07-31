@@ -90,7 +90,7 @@
               <!-- When items exist -->
               <ng-container *ngIf="combinedItems.length > 0">
                 <!-- Add AI Action button at the top -->
-                <div class="list-group-item hover-card px-4 py-2 mb-0">
+                <div class="list-group-item hover-card  px-4 py-2 mb-0">
                   <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
                           (click)="openActionType(null)">
                     <i class="mdi mdi-plus me-2"></i>
@@ -102,8 +102,8 @@
                 <!-- Main items list -->
                 <ng-container *ngFor="let trigger of getRootTriggers(); trackBy: trackById">
                   <!-- Trigger Item -->
-                  <div class="list-group-item">
-                    <div class="d-flex justify-content-between align-items-center">
+                  <div class="">
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
                       <div>
                         <strong>#{{ trigger.id }} {{ trigger.name }}</strong>
                         <span class="badge bg-info ms-2">Trigger</span>
@@ -115,7 +115,7 @@
 
                     <!-- Trigger buttons -->
                     <div class="">
-                      <div class="list-group-item hover-card px-4 py-2">
+                      <div class="list-group-item border-0 hover-card px-4 py-2">
                         <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
                                 (click)="openActionType(trigger)">
                           <i class="mdi mdi-plus me-2"></i>
@@ -123,7 +123,7 @@
                         </button>
                       </div>
 
-                      <div class="list-group-item hover-card px-4 py-2">
+                      <div class="list-group-item border-0 hover-card px-4 py-2">
                         <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
                                 (click)="openTriggerForm(trigger)">
                           <i class="mdi mdi-plus me-2"></i>
@@ -135,8 +135,8 @@
                     <!-- Direct actions under this trigger -->
                     <ng-container *ngIf="getDirectActions(trigger.id).length > 0">
                       <div class="">
-                        <div *ngFor="let action of getDirectActions(trigger.id)" class="list-group-item mb-2">
-                          <div class="d-flex justify-content-between align-items-center">
+                        <div *ngFor="let action of getDirectActions(trigger.id)" class="mb-1">
+                          <div class="list-group-item d-flex justify-content-between align-items-center">
                             <div [style.padding-left.px]="20">
                               <strong>#{{ action.id }} {{ action.name }}</strong>
                               <span class="badge bg-primary ms-2">Action</span>
@@ -149,7 +149,7 @@
                           
                           <!-- Action buttons -->
                           <div class="" [style.padding-left.px]="20">
-                            <div class="list-group-item hover-card px-4 py-2">
+                            <div class="list-group-item border-0 hover-card px-4 py-2">
                                 <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
                                         (click)="openActionType(action)">
                                   <i class="mdi mdi-plus me-2"></i>
@@ -164,8 +164,8 @@
                     <!-- Nested triggers -->
                     <ng-container *ngIf="getChildTriggers(trigger.id).length > 0">
                       <div class="">
-                        <div *ngFor="let childTrigger of getChildTriggers(trigger.id)" class="list-group-item mb-2">
-                          <div class="d-flex justify-content-between align-items-center">
+                        <div *ngFor="let childTrigger of getChildTriggers(trigger.id)" class="mb-1">
+                          <div class="list-group-item d-flex justify-content-between align-items-center">
                             <div [style.padding-left.px]="20">
                               <strong>#{{ childTrigger.id }} {{ childTrigger.name }}</strong>
                               <span class="badge bg-info ms-2">Trigger</span>
@@ -177,7 +177,7 @@
 
                           <!-- Nested trigger buttons -->
                           <div class="mt-1" [style.padding-left.px]="20">
-                              <div class="list-group-item hover-card px-4 py-2">
+                              <div class="list-group-item border-0 hover-card px-4 py-2">
                                 <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
                                         (click)="openActionType(childTrigger)">
                                   <i class="mdi mdi-plus me-2"></i>
@@ -185,7 +185,7 @@
                                 </button>
                               </div>
 
-                            <div class="list-group-item hover-card px-4 py-2">
+                            <div class="list-group-item border-0 hover-card px-4 py-2">
                               <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
                                       (click)="openTriggerForm(childTrigger)">
                                 <i class="mdi mdi-plus me-2"></i>
@@ -197,8 +197,8 @@
                           <!-- Actions under nested trigger -->
                           <ng-container *ngIf="getDirectActions(childTrigger.id).length > 0">
                             <div class="mt-1">
-                              <div *ngFor="let action of getDirectActions(childTrigger.id)" class="list-group-item mb-2">
-                                <div class="d-flex justify-content-between align-items-center">
+                              <div *ngFor="let action of getDirectActions(childTrigger.id)" class="mb-1">
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
                                   <div [style.padding-left.px]="40">
                                     <strong>#{{ action.id }} {{ action.name }}</strong>
                                     <span class="badge bg-primary ms-2">Action</span>
@@ -211,7 +211,7 @@
                                 
                                 <!-- Action buttons -->
                                 <div class="mt-1" [style.padding-left.px]="40">
-                                    <div class="list-group-item hover-card px-4 py-2">
+                                    <div class="list-group-item border-0 hover-card px-4 py-2">
                                         <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
                                                 (click)="openActionType(action)">
                                           <i class="mdi mdi-plus me-2"></i>
@@ -229,7 +229,7 @@
                 </ng-container>
 
                 <!-- Add Trigger button at the bottom -->
-                <div class="list-group-item hover-card px-4 py-2">
+                <div class="list-group-item hover-card px-4 py-2 mb-1">
                   <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
                           (click)="openTriggerForm(null)">
                     <i class="mdi mdi-plus me-2"></i>
@@ -621,4 +621,3 @@
 
   </div>
 </div>
-<hr>
