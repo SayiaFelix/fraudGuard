@@ -5,11 +5,10 @@
   border: none;
 }
 
-/* List Group Container */
 .list-group {
   list-style: none;
   padding-left: 0;
-  height: 63vh;
+  height: 62vh;
   min-height: 400px;
   max-height: 650px;
   overflow-y: auto;
@@ -21,7 +20,7 @@
 .list-group-item {
   border: 1px solid #e9ecef;
   border-radius: 6px;
-  padding: 1rem 1.25rem;
+  // padding: 1rem 1.25rem;
   // margin-bottom: 8px;
   transition: all 0.2s ease;
   background-color: #fff;
