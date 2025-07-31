@@ -97,10 +97,31 @@
           </div>
         </div>
 
-        <div class="input-group px-2">
+
+
+       <div class="input-group">
+         <input type="text" 
+            class="form-control" 
+            [(ngModel)]="userMessage" 
+            [disabled]="!chatbotData?.id" 
+            placeholder="Type a message..." 
+            (keydown.enter)="sendMessage()" />
+
+            <button class="btn custom-send-btn border-success" 
+                    (click)="sendMessage()" 
+                    [disabled]="!chatbotData?.id">
+              <i class="fas fa-paper-plane"></i>
+            </button>
+         </div>
+
+
+
+        <!-- <div class="input-group px-2">
           <input type="text" class="form-control" [(ngModel)]="userMessage" [disabled]="!chatbotData?.id" placeholder="Type a message..." (keydown.enter)="sendMessage()" />
-          <button class="btn btn-primary" (click)="sendMessage()" [disabled]="!chatbotData?.id">Send</button>
-        </div>
+          <button class="btn btn-success" (click)="sendMessage()" [disabled]="!chatbotData?.id">
+             <i class="fas fa-paper-plane"></i>
+          </button>
+        </div> -->
 
       </div>
    </div>

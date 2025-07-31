@@ -149,3 +149,22 @@
   }
 }
 
+.custom-send-btn {
+  border-radius: 10px;
+  background-color: white !important;
+  border-color: #198754 !important; 
+  color: #198754 !important; 
+}
+
+.custom-send-btn i {
+  color: #198754;
+}
+
+.custom-send-btn:hover {
+  background-color: #198754 !important;
+}
+
+.custom-send-btn:hover i {
+  color: white !important; 
+}
+
