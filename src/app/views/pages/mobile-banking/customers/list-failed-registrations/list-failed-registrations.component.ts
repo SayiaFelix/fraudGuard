@@ -225,7 +225,7 @@ onBotSelect(event: any) {
     
       this.messages.push({
         sender: 'bot',
-        text: `Hello! I'm ${selectedBot.name} bot engine. How can I help you today?`,
+        text: `Hello! I'm ${selectedBot.name} Virtual Assistant. How can I help you today?`,
         time: new Date()
       });
     }
