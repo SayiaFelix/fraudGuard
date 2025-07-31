@@ -62,12 +62,12 @@
         </div>
 
         <!-- Footer Buttons-->
-        <div class="d-flex justify-content-end gap-2 mt-4 border-top pt-3">
-          <button (click)="closeModal()" type="button" class="btn btn-outline-secondary btn-sm px-4">
-            Delete
+        <div class="d-flex justify-content-between gap-2 mt-4 border-top pt-3">
+          <button  type="button" class="btn btn-info btn-sm px-4">
+            Clear
           </button>
-          <button (click)="sendBot()" [disabled]="!form.valid" type="button" class="btn btn-primary btn-sm px-4">
-            Save
+          <button (click)="sendBot()" type="button" class="btn save-btn btn-primary btn-sm px-4">
+            Save Chatbot
           </button>
         </div>
       </div>
@@ -85,7 +85,7 @@
         <table class="table table-hover align-middle mb-0">
           <thead class="table-light">
             <tr>
-              <th>Name</th>
+              <th>Bot Name</th>
               <th>Language</th>
               <th>Created At</th>
               <th>Status</th>

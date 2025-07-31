@@ -120,7 +120,7 @@ export const MENU: MenuItem[] = [
     // profiles: ['CORPORATE_ADMIN'],
     label: 'Tickets',
     icon: 'tag',
-    link: '/eclectics/analytic/all'
+    link: '/eclectics/rbac/all-profiles',
     // subItems: [
     //   {
     //     // profiles: ['CORPORATE_ADMIN'],
@@ -138,7 +138,7 @@ export const MENU: MenuItem[] = [
   {
     //  profiles:['CORPORATE_ADMIN'],
      label:'People',
-     icon:'user',
+     icon:'users',
      link: '/eclectics/analytics_logs/logs',
     //  subItems: [
     //   {
@@ -169,7 +169,8 @@ export const MENU: MenuItem[] = [
       //   profiles: ['CORPORATE_ADMIN'],
       label: 'Analytics',
       icon:'bar-chart',
-      link: '/eclectics/rbac/all-profiles',
+      link: '/eclectics/analytic/all',
+     
 
       //    subItems: [
       //     {
