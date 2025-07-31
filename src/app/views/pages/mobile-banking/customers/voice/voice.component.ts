@@ -1,185 +1,87 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {HttpService} from 'src/app/shared/services/http.service';
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import { GlobalService } from 'src/app/shared/services/global.service';
-import { ToastrService } from 'ngx-toastr';
-import Swal from "sweetalert2";
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
 
 @Component({
-    selector: 'app-voice',
-    templateUrl: './voice.component.html',
-    styleUrls: ['./voice.component.scss']
+  selector: 'app-voice',
+  templateUrl: './voice.component.html',
+  styleUrls: ['./voice.component.scss']
 })
 export class VoiceComponent implements OnInit {
 
-    @Input() title: any;
-    @Input() formData: any;
-    public loading = false;
-    public hasErrors = false;
-    public errorMessages: any;
-    public form: FormGroup;
-    public imageFile: File;
+  voiceForm: FormGroup;
 
-    // In your component.ts
-    availableLanguages: string[] = ['English', 'Swahili', 'French', 'Arabic', 'Spanish', 'German'];
-    language: string[] = ['English'];
-    defaultLanguage: string = 'English';
-    data: any;
-    chatbotdata: any;
-    result: any;
-    agentList: any[] = [];
+  // Languages available in the dropdowns (excluding initially selected ones)
+  availableLanguages: string[] = ['Swahili', 'Arabic', 'Spanish', 'German'];
 
-    constructor(
-        public activeModal: NgbActiveModal,
-        private globalService: GlobalService, 
-        public fb: FormBuilder,
-        private _toastService: ToastrService,
-        private _httpService: HttpService) {
-    }
+  // --- State for Speech-to-text (Multi-select) ---
+  selectedSttLanguages: string[] = ['English', 'French']; // Initial values from image
 
-    ngOnInit() {
-      this.fetchAgentList();
+  // --- State for Text-to-speech (Single-select) ---
+  // We manage this directly with a form control, but keep a separate var for the pill
+  selectedTtsLanguage: string = 'English'; 
 
+  constructor(private fb: FormBuilder) { }
 
-    this.form = this.fb.group({
-        name: ['', Validators.required],
-        description: [''],
-        language: [''], 
-        // defaultLanguage: ['', Validators.required]
+  ngOnInit() {
+    // Initialize the form with values that match the UI image
+    this.voiceForm = this.fb.group({
+      enableSpeechToText: [true],
+      enableTextToSpeech: [false],
+      textToSpeechLanguage: [this.selectedTtsLanguage], // 'English'
+      sendTextMessage: [false]
     });
 
-    }
+    // When the language for Text-to-Speech changes in the form, update our local variable for the pill
+    this.voiceForm.get('textToSpeechLanguage')!.valueChanges.subscribe(value => {
+        this.selectedTtsLanguage = value;
+    });
+  }
 
-    onFileSelected(){ }
-    public submitData(): void {
-        if (this.formData) {
-            this.saveChanges();
-        } else {
-            // this.createRecord();
-        }
-        this.loading = true;
-    }
+  // --- Getters for safe template access (prevents null errors) ---
+  get enableSpeechToTextValue(): boolean {
+    return this.voiceForm.get('enableSpeechToText')?.value ?? false;
+  }
+  
+  get enableTextToSpeechValue(): boolean {
+    return this.voiceForm.get('enableTextToSpeech')?.value ?? false;
+  }
 
-  addLanguage(event: Event): void {
+  // --- Speech-to-text Methods ---
+
+  addSttLanguage(event: Event): void {
     const select = event.target as HTMLSelectElement;
-    const selectedLang = select.value;
+    const langToAdd = select.value;
 
-    if (selectedLang && !this.language.includes(selectedLang)) {
-        // Clear 'English' if it's the only one
-        if (this.language.length === 1 && this.language[0] === 'English') {
-        this.language = [];
-        }
-
-        this.language.push(selectedLang);
-        this.defaultLanguage = selectedLang; // Automatically set selected as default
-        select.value = ''; // Reset dropdown
+    if (langToAdd && !this.selectedSttLanguages.includes(langToAdd)) {
+      this.selectedSttLanguages.push(langToAdd);
     }
-}
-
-removeLanguage(lang: string): void {
-  this.language = this.language.filter(l => l !== lang);
-
-  // Update default language if needed
-  if (this.defaultLanguage === lang) {
-    this.defaultLanguage = this.language.length > 0 ? this.language[0] : 'English';
-  }
-}
-
-fetchAgentList(): void {
- const userId = localStorage.getItem('user_id');
-
-  if (!userId) {
-    console.warn('User ID not found in local storage.');
-    this.agentList = [];
-    return;
+    // Reset the select dropdown so the placeholder is shown again
+    select.value = '';
   }
 
-  const usersId = parseInt(userId, 10);
-  const body = { user_id: usersId };
+  removeSttLanguage(langToRemove: string): void {
+    this.selectedSttLanguages = this.selectedSttLanguages.filter(lang => lang !== langToRemove);
+  }
 
-  this._httpService.mobileBankingPost('builder/chatbots/list', body).subscribe({
-    next: (res: any) => {
-      if (res.status === '00' && Array.isArray(res.data)) {
-        this.agentList = res.data;
-      } else {
-        this.agentList = [];
-        console.warn('Unexpected data format', res);
-      }
-    },
-    error: (err: any) => {
-      console.error('Error fetching agent list:', err);
-      this.agentList = [];
-    }
-  });
-}
+  // --- Save Methods (for simulation) ---
 
-sendBot(): void {
-  const selectedLang = this.language.length > 0 ? this.language[0] : 'English';
-
-  const model = {
-    name: this.form.value.name,
-    description: this.form.value.description,
-    language: selectedLang, // Send as string
-  };
-
-  console.log('Bot payload:', model);
-
-  this._httpService
-    .mobileBankingPost('builder/chatbots', model)
-    .subscribe({
-      next: (result: any) => {
-        if (result.status === '00') {
-          setTimeout(() => {
-            this.result = result.data; // ✅ fix here
-            console.log(this.result);
-
-            this.globalService.setChatbotId(result.data.id);
-            this.globalService.setChatbotData(result.data);
-            this.fetchAgentList()
-
-
-            // ✅ Success toast
-            Swal.fire('ChatBot', 'Bot created successfully!', 'success');
-
-            this.form.reset();
-            this.language = [];
-            this.defaultLanguage = 'English';
-          }, 10);
-        } else {
-          // ⚠️ Non-success status
-          this._toastService.warning(
-            result.message || 'Bot creation did not complete successfully.',
-            'Warning'
-          );
-        }
-      },
-      error: (err: any) => {
-        console.error('Bot creation failed:', err);
-
-        // ❌ Error toast
-        this._toastService.error(
-          err?.error?.message || 'An error occurred while creating the bot.',
-          'Error'
-        );
-      }
+  saveSpeechToTextSettings(): void {
+    console.log('Saving Speech-to-text settings:', {
+      enabled: this.enableSpeechToTextValue,
+      languages: this.selectedSttLanguages
     });
-}
+    // TODO: Replace alert with your actual API call (e.g., this._httpService.post(...))
+    alert('Speech-to-text settings saved! Check the browser console for the data.');
+  }
 
- 
-
-uploadImageClick(){}
-removeImage(){}
-    public closeModal(): void {
-        this.activeModal.dismiss('Cross click');
-    }
-
-    private saveChanges(): any {
-    }
-
-  onFileChange(event: any) {
-    if (event.target.files && event.target.files.length) {
-      this.imageFile = event.target.files[0];
-    }
+  saveTextToSpeechSettings(): void {
+    // This button is disabled if the section is off, so no need to check enableTextToSpeechValue here
+    console.log('Saving Text-to-speech settings:', {
+      enabled: this.enableTextToSpeechValue,
+      language: this.voiceForm.value.textToSpeechLanguage,
+      sendTranscript: this.voiceForm.value.sendTextMessage
+    });
+    // TODO: Replace alert with your actual API call
+    alert('Text-to-speech settings saved! Check the browser console for the data.');
   }
 }
