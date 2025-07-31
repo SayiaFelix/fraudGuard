@@ -127,7 +127,6 @@ isTyping = false;
   private total: any;
   public customerId: any;
   result: any;
-
   agentList: any[] = []; // List of bots
   selectedBotId: string = '';
 
@@ -226,7 +225,6 @@ onBotSelect(event: any) {
     // Clear existing messages
     this.messages = [];
     
-    // Add welcome message if available
     if (selectedBot.welcome_message) {
       this.messages.push({
         sender: 'bot',
@@ -293,19 +291,16 @@ scrollToBottom() {
 
 
 sendMessage(): void {
-  // Prevent sending if input is empty or chatbot is not loaded
+
   if (!this.userMessage.trim() || !this.chatbotData) return;
 
   const userText = this.userMessage;
-
-  // Push user's message with timestamp
   this.messages.push({
     sender: 'user',
     text: userText,
     time: new Date()
   });
 
-  // Show typing indicator
   this.isTyping = true;
 
   const body = {
@@ -314,7 +309,6 @@ sendMessage(): void {
     session_id: this.sessionId,
   };
 
-  // Call backend API
   this.httpService.mobileBankingPost('chatbot/chat', body).subscribe({
     next: (result: any) => {
       this.isTyping = false;
@@ -333,7 +327,7 @@ sendMessage(): void {
 
         console.log('Intent:', intent, 'Confidence:', confidence);
       } else {
-        // Push fallback bot message with timestamp
+      
         this.messages.push({
           sender: 'bot',
           text: result.message || 'Unexpected error occurred.',
@@ -360,7 +354,6 @@ sendMessage(): void {
   getIndividualData(event: number): void {
 
     this.loading = true;
-
     let payload = {
       page: 0,
       size: 1000
