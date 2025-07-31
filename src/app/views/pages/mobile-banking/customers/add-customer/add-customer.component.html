@@ -16,13 +16,11 @@
               </label>
 
               <div class="d-flex justify-content-center gap-2 mb-2">
-                <button type="button" class="btn btn-primary btn-sm" (click)="uploadImageClick()">Upload</button>
+                <button type="button"  class="btn save btn-sm" (click)="uploadImageClick()">Upload</button>
                 <button *ngIf="imageUploaded" type="button" class="btn btn-danger btn-sm border" (click)="removeImage()">Remove</button>
               </div>
 
-              <!-- *** FIX: Changed onFileSelected() to onFileChange($event) *** -->
               <input #fileInput id="file-input" type="file" accept="image/png, image/jpeg" (change)="onFileChange($event)" hidden />
-
               <small class="text-muted">PNG or JPEG up to 10MB</small>
             </div>
             
