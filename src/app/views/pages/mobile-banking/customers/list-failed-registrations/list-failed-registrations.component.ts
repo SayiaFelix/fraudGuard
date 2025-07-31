@@ -216,8 +216,15 @@ onBotSelect(event: any) {
   const botId = +event.target.value;
   console.log('Selected Bot ID:', botId);
   this.globalService.setChatbotId(botId);
+
+  
   
   const selectedBot = this.agentList.find(bot => bot.id === botId);
+  
+   if (selectedBot) {
+    this.chatbotData = selectedBot;
+    this.globalService.setChatbotData(selectedBot); 
+  }
   
   if (selectedBot) {
     this.chatbotData = selectedBot;

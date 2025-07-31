@@ -64,6 +64,7 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
   // --- Angular Lifecycle Hooks ---
 
   ngOnInit() {
+    
     this.subscribeToChatbotData();
     this.activatedRoute.params.subscribe((params: any) => {
       if (typeof params.id !== 'undefined') {
@@ -81,24 +82,35 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
   }
 
   // --- API and Data Handling Methods ---
-
   private subscribeToChatbotData() {
     this.chatbotSub = this.globalService.chatbotData$.subscribe(data => {
-      // THE FIX IS HERE: We now check for `embed_script` and use it directly.
       if (data && data.id && data.embed_script) {
         console.log("Received valid chatbot data. Populating fields.");
-        
-        // 1. Store the full data object
         this.chatbotData = data;
-        
-        // 2. Set the Webchat ID from the data
         this.webchatId = data.id;
-        
-        // 3. Set the deploy script DIRECTLY from the data
         this.deployScript = data.embed_script;
       }
+      console.log("Chatbot data updated:", this.chatbotData);
     });
-  }
+}
+
+  // private subscribeToChatbotData() {
+  //   this.chatbotSub = this.globalService.chatbotData$.subscribe(data => {
+  //     // THE FIX IS HERE: We now check for `embed_script` and use it directly.
+  //     if (data && data.id && data.embed_script) {
+  //       console.log("Received valid chatbot data. Populating fields.");
+        
+  //       // 1. Store the full data object
+  //       this.chatbotData = data;
+        
+  //       // 2. Set the Webchat ID from the data
+  //       this.webchatId = data.id;
+        
+  //       // 3. Set the deploy script DIRECTLY from the data
+  //       this.deployScript = data.embed_script;
+  //     }
+  //   });
+  // }
 
   private getIndividualData() {
     const model = { id: this.customerId };
