@@ -163,7 +163,6 @@ export class AddCustomerComponent implements OnInit {
       });
     }
 
-    // --- MODIFIED toggleChatbotStatus METHOD ---
     toggleChatbotStatus(chatbot: any): void {
       const newStatus = !chatbot.is_active;
       const payload = {

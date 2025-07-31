@@ -210,8 +210,6 @@ onBotSelect(event: any) {
   
   if (selectedBot) {
     this.chatbotData = selectedBot;
-    
-    // Clear existing messages
     this.messages = [];
     
     // Add welcome message if available
