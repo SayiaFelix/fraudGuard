@@ -63,14 +63,17 @@ export class SendSmsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.chatbotData = this.globalService.getChatbotData();
-    const chatbotId = this.globalService.getChatbotId();
+    this.globalService.chatbotId$.subscribe((chatbotId) => {
     if (chatbotId) {
       this.fetchIntentList(chatbotId);
     } else {
-      console.warn('No chatbot selected on init.');
-      this.isLoading = false;
+      this.agentList = [];
     }
+  });
+
+  this.globalService.chatbotData$.subscribe(data => {
+    this.chatbotData = data;
+  });
   }
 
   initializeForm() {
@@ -129,9 +132,7 @@ export class SendSmsComponent implements OnInit {
     });
   }
 
-  /**
-   * ✅ CORRECTED: Toggles the trigger's active status using the "update-in-place" pattern.
-   */
+
   toggleTriggerStatus(trigger: Trigger): void {
     const newStatus = !trigger.is_active;
 

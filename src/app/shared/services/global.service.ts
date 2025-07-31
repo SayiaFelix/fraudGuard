@@ -46,6 +46,8 @@ chatbotId$ = this.chatbotIdSubject.asObservable();
 botStatus$ = this.botStatusSubject.asObservable();
 chatbotData$ = this.chatbotDataSubject.asObservable();
 
+
+
 updateBotStatus(update: { id: number, is_active: boolean }) {
     this.botStatusSubject.next(update);
   }
@@ -67,16 +69,6 @@ updateBotStatus(update: { id: number, is_active: boolean }) {
   getChatbotId(): number | null {
     return this.chatbotIdSubject.value;
   }
-
-
-//   setChatbotId(id: number | string) {
-//      this.chatbotId = typeof id === 'string' ? parseInt(id, 10) : id;
-// }
-
-
-//   getChatbotId(): string | number | null {
-//     return this.chatbotId;
-//   }
 
   clearChatbotId(): void {
     this.chatbotId = null;
