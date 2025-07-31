@@ -112,7 +112,7 @@ export class IntentComponent implements OnInit {
         public fb: FormBuilder,
         private _toastService: ToastrService,
         private route: ActivatedRoute,
-        private router: Router, // ADDED: Router for fetching initial state
+        private router: Router, 
         private _httpService: HttpService) {
         this.initializeForm();
     }
@@ -124,7 +124,9 @@ export class IntentComponent implements OnInit {
         console.log('Editing intent ID:', this.intentId);
         console.log('For chatbot ID:', this.chatbotId);
 
-        // CORRECTED: Replaced old data fetching with robust loading logic
+        this.fetchIntentList(this.chatbotId!);
+
+    
         if (this.intentId) {
             this.loadInitialData(); 
         } else {
@@ -416,7 +418,6 @@ fetchIntentList(chatbotId: number): void {
   });
 }
 
-// CLEANED: This method now only fetches actions, as intended.
 fetchIntent(intentId: number): void {
   this.loadingIntents = true;
   const body = { intent_id: intentId };
