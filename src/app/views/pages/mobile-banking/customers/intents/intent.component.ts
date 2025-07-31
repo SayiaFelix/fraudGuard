@@ -14,7 +14,6 @@ interface Node {
   name: string;
   children: Node[]; // nested actions/triggers
 }
-
 interface Branch {
   intent_id: number;
   order: number;
@@ -23,6 +22,30 @@ interface Branch {
     order: number;
   }[];
   children: Branch[];
+}
+
+interface BaseItem {
+  id: number;
+  name: string;
+  is_active: boolean;
+  order: number;
+  parent_id: number | null;
+  itemType: 'action' | 'trigger';
+}
+
+interface TriggerItem extends BaseItem {
+  intent_id: number;
+  training_phrases: string[];
+  itemType: 'trigger';
+  children: Array<ActionItem | TriggerItem>;
+  branch_path?: string;
+}
+
+interface ActionItem extends BaseItem {
+  action_id: number;
+  action_type: string;
+  config: any;
+  itemType: 'action';
 }
 
 @Component({
@@ -180,14 +203,14 @@ onFileSelected(){ }
         this.loading = true;
     }
 
-getDisplayItems() {
-  return this.combinedItems.map(item => {
-    return {
-      ...item,
-      indentLevel: this.calculateIndentLevel(item)
-    };
-  });
-}
+// getDisplayItems() {
+//   return this.combinedItems.map(item => {
+//     return {
+//       ...item,
+//       indentLevel: this.calculateIndentLevel(item)
+//     };
+//   });
+// }
 
 calculateIndentLevel(item: any): number {
   if (!item.parent_id) return 0;
@@ -320,7 +343,41 @@ loadInitialData(): void {
     }
 }
 
-// ADDED: Method to fetch details of the root intent itself
+
+getIndentLevel(item: BaseItem): number {
+  if (!item.parent_id) return 0;
+  
+  // Find parent in combinedItems
+  const parent = this.combinedItems.find(i => i.id === item.parent_id);
+  
+  // If parent not found, check in nested children
+  if (!parent) {
+    for (const trigger of this.combinedItems) {
+      if (trigger.itemType === 'trigger') {
+        const foundParent = this.findParentInChildren(trigger, item.parent_id);
+        if (foundParent) {
+          return this.getIndentLevel(foundParent) + 1;
+        }
+      }
+    }
+  }
+  
+  return parent ? this.getIndentLevel(parent) + 1 : 0;
+}
+
+private findParentInChildren(parent: TriggerItem, parentId: number): TriggerItem | null {
+  if (parent.id === parentId) return parent;
+  
+  for (const child of parent.children || []) {
+    if (child.itemType === 'trigger') {
+      const found = this.findParentInChildren(child, parentId);
+      if (found) return found;
+    }
+  }
+  
+  return null;
+}
+
 fetchIntentDetailsFromAPI(intentId: number): void {
   this.isLoading = true;
   const chatbotId = this.globalService.getChatbotId();
@@ -358,7 +415,7 @@ fetchIntentDetailsFromAPI(intentId: number): void {
 fetchData(intentId: number): void {
   this.loadingIntents = true;
   this.loadingTriggers = true;
-  this.fetchIntent(intentId);
+  // this.fetchIntent(intentId);
   this.fetchNestedIntents(intentId);
 }
 
@@ -388,16 +445,6 @@ private combineAndSortItems(): void {
   this.isLoading = false;
 }
 
-private flattenTriggerHierarchy(triggers: any[]): any[] {
-  return triggers.reduce((acc, trigger) => {
-    acc.push(trigger);
-    if (trigger.children && trigger.children.length) {
-      acc.push(...this.flattenTriggerHierarchy(trigger.children));
-    }
-    return acc;
-  }, []);
-}
-
 fetchIntentList(chatbotId: number): void {
   this.isLoading = true;
   const body = { chatbot_id: chatbotId };
@@ -418,49 +465,230 @@ fetchIntentList(chatbotId: number): void {
   });
 }
 
-fetchIntent(intentId: number): void {
-  this.loadingIntents = true;
-  const body = { intent_id: intentId };
-  this._httpService.mobileBankingPost('builder/nodes/action/list', body).subscribe({
-    next: (res: any) => {
-      if (res.status === '00') {
-        this.intents = (res.data || []).map((intent: any) => ({
-          ...intent,
-          is_active: !!intent.is_active,
-          children: intent.children ? intent.children.map((child: any) => ({ ...child, is_active: !!child.is_active })) : []
-        }));
-      } else {
-        this.intents = [];
+// fetchIntent(intentId: number): void {
+//   this.loadingIntents = true;
+//   const body = { intent_id: intentId };
+//   this._httpService.mobileBankingPost('builder/nodes/action/list', body).subscribe({
+//     next: (res: any) => {
+//       if (res.status === '00') {
+//         this.intents = (res.data || []).map((intent: any) => ({
+//           ...intent,
+//           is_active: !!intent.is_active,
+//           children: intent.children ? intent.children.map((child: any) => ({ ...child, is_active: !!child.is_active })) : []
+//         }));
+//       } else {
+//         this.intents = [];
+//       }
+//       this.loadingIntents = false;
+//       this.checkAndCombine();
+//     },
+//     error: (err: any) => {
+//       console.error('Error fetching actions list:', err);
+//       this.intents = [];
+//       this.loadingIntents = false;
+//       this.checkAndCombine();
+//     }
+//   });
+// }
+
+// Replace your current fetchNestedIntents with this:
+fetchNestedIntents(intentId: number): void {
+  this.loadingTriggers = true;
+  const body = { parent_id: intentId };
+  
+  this._httpService.mobileBankingPost('builder/chatbots/nested-intents/children', body)
+    .pipe(
+      catchError(err => {
+        console.error('Error fetching triggers:', err);
+        return of({ status: '01', data: [] });
+      })
+    )
+    .subscribe({
+      next: (res: any) => {
+        if (res.status === '00') {
+          this.triggers = this.processApiResponse(res.data);
+          this.combinedItems = this.flattenTriggerHierarchy(this.triggers);
+        } else {
+          this.triggers = [];
+          this.combinedItems = [];
+        }
+        this.loadingTriggers = false;
+        this.isLoading = false;
+        this.cdRef.detectChanges();
+      },
+      error: () => {
+        this.triggers = [];
+        this.combinedItems = [];
+        this.loadingTriggers = false;
+        this.isLoading = false;
+        this.cdRef.detectChanges();
       }
-      this.loadingIntents = false;
-      this.checkAndCombine();
+    });
+}
+
+
+
+
+private processApiTriggers(trigger: any, parentId: number): TriggerItem {
+  return {
+    id: trigger.id,
+    name: trigger.name,
+    is_active: trigger.is_active,
+    order: trigger.order,
+    parent_id: parentId,
+    intent_id: trigger.intent_id,
+    training_phrases: trigger.training_phrases || [],
+    itemType: 'trigger',
+    children: [
+      ...(trigger.actions || []).map((a: any) => this.transformAction(a, trigger.id)),
+      ...(trigger.children || []).map((c: any) => this.processApiTriggers(c, trigger.id))
+    ]
+  };
+}
+
+
+private transformAction(action: any, parentId: number): ActionItem {
+  return {
+    id: action.id, // Include the required id property
+    action_id: action.id, // This can be the same as id if your API uses the same ID
+    name: action.name,
+    is_active: action.is_active,
+    order: action.order,
+    parent_id: parentId,
+    action_type: action.action_type,
+    config: action.config || {},
+    itemType: 'action'
+  };
+}
+
+// Add these methods to your component class
+
+getRootTriggers(): any[] {
+  return this.combinedItems.filter(item => 
+    item.itemType === 'trigger' && item.parent_id === this.intentId
+  ).sort((a, b) => a.order - b.order);
+}
+
+getChildTriggers(parentId: number): any[] {
+  return this.combinedItems.filter(item => 
+    item.itemType === 'trigger' && item.parent_id === parentId
+  ).sort((a, b) => a.order - b.order);
+}
+
+getDirectActions(parentId: number): any[] {
+  return this.combinedItems.filter(item => 
+    item.itemType === 'action' && item.parent_id === parentId
+  ).sort((a, b) => a.order - b.order);
+}
+
+// Update your processApiResponse method to ensure proper hierarchy
+private processApiResponse(data: any[]): TriggerItem[] {
+  return data.map(item => {
+    if (item.type !== 'trigger') return null;
+
+    const trigger: TriggerItem = {
+      id: item.id,
+      name: item.name,
+      is_active: item.is_active,
+      order: item.order,
+      parent_id: item.parent_id,
+      intent_id: item.id,
+      branch_path: item.branch_path,
+      training_phrases: [],
+      itemType: 'trigger',
+      children: []
+    };
+
+    // Process direct children
+    if (item.children && item.children.length) {
+      // Direct actions
+      const actions = item.children
+        .filter((child: { type: string; }) => child.type === 'action')
+        .map((child: any) => this.transformAction(child, item.id));
+      
+      // Nested triggers
+      const triggers = item.children
+        .filter((child: { type: string; }) => child.type === 'trigger')
+        .map((child: any) => this.processApiResponse([child])[0])
+        .filter(Boolean);
+      
+      // Combine all children
+      trigger.children = [...actions, ...triggers];
+    }
+
+    return trigger;
+  }).filter(Boolean) as TriggerItem[];
+}
+
+// Update flattenTriggerHierarchy to maintain proper structure
+private flattenTriggerHierarchy(triggers: TriggerItem[]): (TriggerItem | ActionItem)[] {
+  const result: (TriggerItem | ActionItem)[] = [];
+  
+  const flatten = (items: any[], level = 0) => {
+    items.forEach(item => {
+      // Add the item itself
+      result.push({ ...item, indentLevel: level });
+      
+      // Recursively add children
+      if (item.children && item.children.length) {
+        flatten(item.children, level + 1);
+      }
+    });
+  };
+  
+  flatten(triggers);
+  return result;
+}
+
+trackById(index: number, item: any): number {
+  return item.id || item.action_id;
+}
+
+getDisplayItems(): any[] {
+  return this.combinedItems.filter(item => {
+    if (!item.parent_id) return true;
+    
+    // Items whose parent exists in combinedItems
+    return this.combinedItems.some(parent => parent.id === item.parent_id);
+  });
+}
+
+toggleTriggerStatus(event: Event, trigger: any): void {
+  const isChecked = (event.target as HTMLInputElement).checked;
+  const payload = { intent_id: trigger.id, is_active: isChecked };
+  
+  this._httpService.mobileBankingPost('builder/nodes/intent/status', payload).subscribe({
+    next: (res: any) => {
+      if (res.status !== '00') {
+        // Revert if API call fails
+        (event.target as HTMLInputElement).checked = !isChecked;
+        this._toastService.error(res.message || 'Failed to update trigger status');
+      }
     },
     error: (err: any) => {
-      console.error('Error fetching actions list:', err);
-      this.intents = [];
-      this.loadingIntents = false;
-      this.checkAndCombine();
+      (event.target as HTMLInputElement).checked = !isChecked;
+      this._toastService.error(err.message || 'Error updating trigger status');
     }
   });
 }
 
-fetchNestedIntents(intentId: number): void {
-  this.loadingTriggers = true;
-  const body = { parent_id: intentId };
-  this._httpService.mobileBankingPost('builder/chatbots/nested-intents/children', body).subscribe({
-    next: (res: any) => {
-      this.triggers = (res.status === '00') ? res.data : [];
-      this.loadingTriggers = false;
-      this.checkAndCombine();
-    },
-    error: (err: any) => {
-      console.error('Error fetching triggers:', err);
-      this.triggers = [];
-      this.loadingTriggers = false;
-      this.checkAndCombine();
-    }
-  });
-}
+// fetchNestedIntents(intentId: number): void {
+//   this.loadingTriggers = true;
+//   const body = { parent_id: intentId };
+//   this._httpService.mobileBankingPost('builder/chatbots/nested-intents/children', body).subscribe({
+//     next: (res: any) => {
+//       this.triggers = (res.status === '00') ? res.data : [];
+//       this.loadingTriggers = false;
+//       this.checkAndCombine();
+//     },
+//     error: (err: any) => {
+//       console.error('Error fetching triggers:', err);
+//       this.triggers = [];
+//       this.loadingTriggers = false;
+//       this.checkAndCombine();
+//     }
+//   });
+// }
 
 fetchActionType(): void {
   this.isLoading = true;
@@ -556,15 +784,15 @@ shouldShowRootButtons(): boolean {
 }
 
 
-getIndentLevel(item: any): number {
-  if (!item.parent_id && !item.isActionChild) return 0;
-  if (item.isActionChild) {
-    const parentTrigger = this.findParentTrigger(item);
-    return parentTrigger ? this.getIndentLevel(parentTrigger) + 1 : 0;
-  }
-  const parent = this.findParentItem(item);
-  return parent ? this.getIndentLevel(parent) + 1 : 0;
-}
+// getIndentLevel(item: any): number {
+//   if (!item.parent_id && !item.isActionChild) return 0;
+//   if (item.isActionChild) {
+//     const parentTrigger = this.findParentTrigger(item);
+//     return parentTrigger ? this.getIndentLevel(parentTrigger) + 1 : 0;
+//   }
+//   const parent = this.findParentItem(item);
+//   return parent ? this.getIndentLevel(parent) + 1 : 0;
+// }
 
 private findParentItem(item: any): any {
   return this.combinedItems.find(i => i.id === item.parent_id || i.action_id === item.parent_id);
@@ -624,7 +852,7 @@ onActionSubmit(): void {
     this._httpService.mobileBankingPost('builder/nodes/action', model).subscribe({
         next: (result: any) => {
             if (result.status === '00') {
-                forkJoin([this.fetchIntent(this.intentId), this.fetchNestedIntents(this.intentId)]).subscribe({
+                forkJoin([this.fetchNestedIntents(this.intentId)]).subscribe({
                     next: () => {
                         this.checkAndCombine();
                         this.cdRef.detectChanges();
@@ -664,7 +892,7 @@ onTriggerSubmit(): void {
     this._httpService.mobileBankingPost('builder/nodes/intent', model).subscribe({
         next: (result: any) => {
             if (result.status === '00') {
-                forkJoin([this.fetchIntent(this.intentId), this.fetchIntentList(chatbotId), this.fetchNestedIntents(this.intentId)]).subscribe({
+                forkJoin([this.fetchIntentList(chatbotId), this.fetchNestedIntents(this.intentId)]).subscribe({
                     next: () => {
                         this.checkAndCombine();
                         this.cdRef.detectChanges();
