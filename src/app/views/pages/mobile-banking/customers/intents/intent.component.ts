@@ -123,8 +123,6 @@ export class IntentComponent implements OnInit {
 
     isLaunching = false;
     launchMessage = '';
-
-    // This property holds the active status for the entire intent.
     isActive: boolean = false;
 
     actionIcons: { [key: string]: string } = {
@@ -140,6 +138,7 @@ export class IntentComponent implements OnInit {
         create_ticket: 'icon-clipboard',
         human_handoff: 'icon-user',
     };
+    
     triggers: any;
     currentParentIntentId: number | null = null;
 
@@ -212,6 +211,7 @@ triggerTypes = [
   }
 ];
 
+
 onFileSelected(){ }
 
   public submitData(): void {
@@ -243,6 +243,10 @@ getIcon(type: string) {
     return type === 'action' ? 'mdi mdi-message' : 'mdi mdi-message-reply-text';
   }
 
+getTriggerIcon(triggerType: string): string {
+  const trigger = this.triggerTypes.find(t => t.type === triggerType);
+  return trigger ? trigger.featherIcon : 'icon-mail'; 
+}
 
 addLanguage(event: Event): void {
     const select = event.target as HTMLSelectElement;
