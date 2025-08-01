@@ -6,7 +6,7 @@
 .ai-tab-button {
   padding: 6px 12px;
   border: none;
-  background-color: #f1f1f1;
+  // background-color: #f1f1f1;
   color: #333;
   border-bottom: 3px solid transparent;
   text-decoration: none;
@@ -24,17 +24,18 @@
   margin-top: 10px;
   overflow-x: auto;
   white-space: nowrap;
+  background-color: #f8f8f8;
 }
 
 .ai-tab-button:hover {
-  background-color: #e0e0e0;
+  background-color: #E3ECF9;
   color: #000;
 }
 
 .ai-tab-button.active-tab {
-  color: #007bff;
-  // color: #fff;
+  color: #3779f6;
   border-bottom: 3px solid #0056b3;
+  background-color: #e3ecf9;
 }
 
 
