@@ -76,14 +76,14 @@
                   <button class="btn btn-link fw-bold p-0 text-decoration-none text-muted d-flex align-items-center w-100"
                           (click)="openActionType(null)">
                     <i class="mdi mdi-plus me-2"></i>
-                    <span>Add AI Root Action</span>
+                    <span>Add AI Action</span>
                   </button>
                 </div>
                 <div class="list-group-item hover-card px-4 py-2">
                   <button class="btn btn-link fw-bold p-0 text-decoration-none text-muted d-flex align-items-center w-100"
                           (click)="openTriggerForm(null)">
                     <i class="mdi mdi-plus me-2"></i>
-                    <span>Add R Trigger</span>
+                    <span>Add Trigger</span>
                   </button>
                 </div>
               </div>
@@ -95,7 +95,7 @@
                   <button class="btn btn-link fw-bold p-0 text-decoration-none text-muted d-flex align-items-center w-100"
                           (click)="openActionType(null)">
                     <i class="mdi mdi-plus me-2"></i>
-                    <span>Add AI Action</span>
+                    <span>Add Action</span>
                   </button>
                 </div>
                 
@@ -121,7 +121,7 @@
                         <button class="btn btn-link fw-bold p-0 text-decoration-none text-muted d-flex align-items-center w-100"
                                 (click)="openActionType(trigger)">
                           <i class="mdi mdi-plus me-2"></i>
-                          <span>Add AI Action</span>
+                          <span>Add Action</span>
                         </button>
                       </div>
 
@@ -129,7 +129,7 @@
                         <button class="btn btn-link p-0 fw-bold text-decoration-none text-muted d-flex align-items-center w-100"
                                 (click)="openTriggerForm(trigger)">
                           <i class="mdi mdi-plus me-2"></i>
-                          <span>Add Nested Trigger</span>
+                          <span>Add Trigger</span>
                         </button>
                       </div>
                     </div>
@@ -155,7 +155,7 @@
                                 <button class="btn btn-link fw-bold p-0 text-decoration-none text-muted d-flex align-items-center w-100"
                                         (click)="openActionType(action)">
                                   <i class="mdi mdi-plus me-2"></i>
-                                  <span>Add AI Action</span>
+                                  <span>Add Action</span>
                                 </button>
                             </div>
                           </div>
@@ -184,7 +184,7 @@
                                 <button class="btn btn-link p-0 fw-bold text-decoration-none text-muted d-flex align-items-center w-100"
                                         (click)="openActionType(childTrigger)">
                                   <i class="mdi mdi-plus me-2"></i>
-                                  <span>Add AI Action</span>
+                                  <span>Add Action</span>
                                 </button>
                               </div>
 
@@ -192,7 +192,7 @@
                               <button class="btn btn-link p-0 fw-bold text-decoration-none text-muted d-flex align-items-center w-100"
                                       (click)="openTriggerForm(childTrigger)">
                                 <i class="mdi mdi-plus me-2"></i>
-                                <span>Add Nested Trigger</span>
+                                <span>Add Trigger</span>
                               </button>
                             </div>
                           </div>
@@ -206,7 +206,6 @@
                                     <i class="feather {{ actionIcons[action.type] || 'icon-message-square' }} me-1 fw-bold" style="font-size: 16px;"></i>
                                     <strong>#{{ action.id }} {{ action.name }}</strong>
                                     <span class="badge bg-primary ms-2">Action</span>
-                                    <!-- <small class="d-block text-muted">{{ action.action_type | titlecase }}</small> -->
                                   </div>
                                   <div class="form-check form-switch">
                                     <input type="checkbox" class="form-check-input" [checked]="action.is_active">
@@ -219,7 +218,7 @@
                                         <button class="btn btn-link p-0 fw-bold text-decoration-none text-muted d-flex align-items-center w-100"
                                                 (click)="openActionType(action)">
                                           <i class="mdi mdi-plus me-2"></i>
-                                          <span>Add AI Action</span>
+                                          <span>Add Action</span>
                                         </button>
                                       </div>
                                 </div>
@@ -237,7 +236,7 @@
                   <button class="btn btn-link p-0 fw-bold text-decoration-none text-muted d-flex align-items-center w-100"
                           (click)="openTriggerForm(null)">
                     <i class="mdi mdi-plus me-2"></i>
-                    <span>Add Root Trigger</span>
+                    <span>Add Trigger</span>
                   </button>
                 </div>
               </ng-container>
