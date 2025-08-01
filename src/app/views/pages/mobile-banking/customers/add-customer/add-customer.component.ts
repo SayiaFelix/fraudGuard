@@ -257,36 +257,40 @@ export class AddCustomerComponent implements OnInit {
     });
   }
 
-  toggleChatbotStatus(chatbot: any): void {
-    const newStatus = !chatbot.is_active;
-    const payload = {
-      chatbot_id: chatbot.id,
-      is_active: newStatus
-    };
+toggleChatbotStatus(chatbot: any): void {
+  const newStatus = !chatbot.is_active;
+  const payload = {
+    chatbot_id: chatbot.id,
+    is_active: newStatus
+  };
 
-    this._httpService.mobileBankingPost('builder/chatbots/status', payload).subscribe({
-      next: (res: any) => {
-        if (res.status === '00') {
-          const botInFullList = this.fullAgentList.find(b => b.id === chatbot.id);
-          if (botInFullList) {
-              botInFullList.is_active = newStatus;
-          }
-          this.applyFilter();
-        } else {
-          this._toastService.warning(
-            res.message || 'Failed to update chatbot status.',
-            'Warning'
-          );
+  this._httpService.mobileBankingPost('builder/chatbots/status', payload).subscribe({
+    next: (res: any) => {
+      if (res.status === '00') {
+        const botInFullList = this.fullAgentList.find(b => b.id === chatbot.id);
+        if (botInFullList) {
+          botInFullList.is_active = newStatus;
         }
-      },
-      error: (err: any) => {
-        this._toastService.error(
-          err?.error?.message || 'An error occurred while updating status.',
-          'Error'
+
+        this.globalService.setBotStatus({ id: chatbot.id, is_active: newStatus });
+
+        this.applyFilter();
+      } else {
+        this._toastService.warning(
+          res.message || 'Failed to update chatbot status.',
+          'Warning'
         );
       }
-    });
-  }
+    },
+    error: (err: any) => {
+      this._toastService.error(
+        err?.error?.message || 'An error occurred while updating status.',
+        'Error'
+      );
+    }
+  });
+}
+
 
   public submitData(): void {
       if (this.formData) {

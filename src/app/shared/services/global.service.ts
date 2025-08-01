@@ -52,11 +52,16 @@ updateBotStatus(update: { id: number, is_active: boolean }) {
     this.botStatusSubject.next(update);
   }
 
-  setChatbotData(data: any) {
+setChatbotData(data: any) {
     this.chatbotDataSubject.next(data);
   }
 
-  getChatbotData() {
+setBotStatus(status: { id: number, is_active: boolean }) {
+  this.botStatusSubject.next(status);
+}
+
+
+getChatbotData() {
     return this.chatbotDataSubject.value;
   }
 

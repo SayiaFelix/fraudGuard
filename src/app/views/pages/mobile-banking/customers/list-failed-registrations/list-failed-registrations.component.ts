@@ -129,6 +129,7 @@ isTyping = false;
   result: any;
   agentList: any[] = []; // List of bots
   selectedBotId: string = '';
+  username: string | null;
 
 
 
@@ -147,6 +148,7 @@ isTyping = false;
   const userId = localStorage.getItem('user_id');
   console.log('Fetched user_id:', userId);
 
+  
   this.globalService.botStatus$.subscribe(update => {
     if (update) {
       const bot = this.agentList.find(b => b.id === update.id);
@@ -183,6 +185,9 @@ isTyping = false;
     }
 
     const chatbotId = this.globalService.getChatbotId();
+    this.username = localStorage.getItem('first_name');
+  
+
     if (chatbotId) {
       console.log('Using Chatbot ID:', chatbotId);
     } else {
@@ -214,12 +219,13 @@ isTyping = false;
 
 onBotSelect(event: any) {
   const botId = +event.target.value;
-  console.log('Selected Bot ID:', botId);
+  // console.log('Selected Bot ID:', botId);
   this.globalService.setChatbotId(botId);
 
   
   
   const selectedBot = this.agentList.find(bot => bot.id === botId);
+ 
   
    if (selectedBot) {
     this.chatbotData = selectedBot;
@@ -242,7 +248,7 @@ onBotSelect(event: any) {
     
       this.messages.push({
         sender: 'bot',
-        text: `Hello! I'm ${selectedBot.name} Virtual Assistant. How can I help you today?`,
+        text: `Hi ${this.username}! I'm ${selectedBot.name} Virtual Assistant. How can I help you today?`,
         time: new Date()
       });
     }
@@ -253,7 +259,7 @@ loadBots(): void {
   const userId = localStorage.getItem('user_id');
 
   if (!userId) {
-    console.warn('User ID not found in local storage.');
+    // console.warn('User ID not found in local storage.');
     this.agentList = [];
     return;
   }
