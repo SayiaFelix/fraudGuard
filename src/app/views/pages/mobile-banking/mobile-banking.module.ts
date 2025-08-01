@@ -16,7 +16,7 @@ const routes: Routes = [
   {
     path: '',
     component: MobileBankingComponent,
-    // canActivateChild: [AuthGuard],
+    canActivateChild: [AuthGuard],
     children: [
 
       {
