@@ -1,7 +1,8 @@
 <nav class="sidebar">
-  <div class="sidebar-header" style="background-color: #ffffff!important;">
+  <div class="sidebar-header" style="background-color: #f8f8f8!important;">
     <a routerLink="dashboard" class="sidebar-brand nobleui-logo">
-      <img src="assets/images/eclectics.png" alt="Portal" style="max-height: 40px;">
+      <img src="assets/images/eclectics.png" alt="Eclectics" style="max-height: 40px;">
+      <img src="assets/images/simplifying.png" alt="Portal" style="max-height: 10px;">
     </a>
     <div class="sidebar-toggler not-active" #sidebarToggler (click)="toggleSidebar($event)">
       <span></span>
@@ -10,19 +11,15 @@
     </div>
   </div>
 
-  <div class="sidebar-body" style="background-color: #ffffff!important;" [perfectScrollbar]>
+  <div class="sidebar-body" style="background-color: #f8f8f8!important;" [perfectScrollbar]>
     <ul class="sidebar-nav metismenu" id="sidebar-menu" #sidebarMenu>
       <ng-container *ngFor="let item of menuItems">
-
-        <!-- This li is ONLY for titles like "MAIN MENU" -->
         <li class="nav-category" *ngIf="item.isTitle">
           {{ item.label }}
         </li>
 
-        <!-- This li is ONLY for clickable menu items -->
         <li class="nav-item" *ngIf="!item.isTitle">
 
-          <!-- Render a standard router link for all items EXCEPT logout -->
           <a *ngIf="!item.isLogout" class="nav-link" [routerLink]="item.link" [routerLinkActive]="'active'">
             <i class="link-icon" [attr.data-feather]="item.icon" appFeatherIcon></i>
             <span class="link-title">{{ item.label }}</span>

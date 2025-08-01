@@ -20,6 +20,7 @@
     width: $sidebar-width-lg;
     -webkit-transition: width .1s ease;
     transition: width .1s ease;
+    margin-top: 5px;
 
     .sidebar-open & {
       border-bottom: 1px solid $border-color;;
