@@ -143,7 +143,7 @@ export class IntentComponent implements OnInit {
     currentParentIntentId: number | null = null;
 
 
-    constructor(
+constructor(
         private cdRef: ChangeDetectorRef,
         public activeModal: NgbActiveModal,
         private globalService: GlobalService, 
@@ -155,7 +155,7 @@ export class IntentComponent implements OnInit {
         this.initializeForm();
     }
 
-    ngOnInit() {
+ngOnInit() {
         this.intentId = +this.route.snapshot.paramMap.get('id')!;
         this.chatbotId = this.globalService.getChatbotId();
 
@@ -179,7 +179,6 @@ export class IntentComponent implements OnInit {
         }
         this.fetchActionType();
         
-
         this.actionForm = this.fb.group({
             name: ['', Validators.required],
             action_type: ['send_message'],
@@ -324,7 +323,6 @@ private markFormGroupTouched(formGroup: FormGroup) {
   });
 }
 
-
 addHeader() {
   this.headers.push(
     this.fb.group({
@@ -363,7 +361,7 @@ getIndentLevel(item: BaseItem): number {
   // Find parent in combinedItems
   const parent = this.combinedItems.find(i => i.id === item.parent_id);
   
-  // If parent not found, check in nested children
+  // check in nested children
   if (!parent) {
     for (const trigger of this.combinedItems) {
       if (trigger.itemType === 'trigger') {
@@ -529,7 +527,6 @@ private processApiTriggers(trigger: any, parentId: number): TriggerItem {
   };
 }
 
-
 private transformAction(action: any, parentId: number): ActionItem {
   return {
     id: action.id,
@@ -562,7 +559,7 @@ getDirectActions(parentId: number): any[] {
   ).sort((a, b) => a.order - b.order);
 }
 
-// Update your processApiResponse method to ensure proper hierarchy
+// processApiResponse method to ensure proper hierarchy
 private processApiResponse(data: any[]): TriggerItem[] {
   return data.map(item => {
     if (item.type !== 'trigger') return null;
@@ -601,7 +598,7 @@ private processApiResponse(data: any[]): TriggerItem[] {
   }).filter(Boolean) as TriggerItem[];
 }
 
-// Update flattenTriggerHierarchy to maintain proper structure
+// flattenTriggerHierarchy to maintain proper structure
 private flattenTriggerHierarchy(triggers: TriggerItem[]): (TriggerItem | ActionItem)[] {
   const result: (TriggerItem | ActionItem)[] = [];
   
@@ -653,7 +650,6 @@ toggleTriggerStatus(event: Event, trigger: any): void {
   });
 }
 
-
 fetchActionType(): void {
   this.isLoading = true;
   this._httpService.mobileBankingPost('builder/nodes/action-types', {}).subscribe({
@@ -675,7 +671,7 @@ onActionTypeSelect(action: any): void {
 }
 
 openActionForm(action: any): void {
-  this.selectedAction = action;
+
   this.selectedActionType = action.type;
   this.showActionForm = true;
   this.showActionType = false;
@@ -690,56 +686,38 @@ openActionForm(action: any): void {
   }
 }
 
-openActionType(item: any | null): void {
-  console.log('Opening Action Type with item:', item);
-  this.showActionType = true;
-  this.fetchActionType();
-  this.showActionForm = false;
-  this.showAiActionPanel = false;
-  this.showTriggerType = false;
-  
-  if (item) {
-    console.log('Item details:', {
-      id: item.id,
-      name: item.name,
-      type: item.itemType || (item.type ? 'trigger' : 'action')
-    });
-  } else {
-    console.log('Creating root level action');
-  }
-
-  this.currentParent = item ? { ...item, itemType: item.type ? 'trigger' : 'action' } : null;
-  this.selectedActionType = null;
-  this.resetForm();
-
-}
-
-openTriggerForm(item: any | null): void {
-  console.log('Opening Trigger Form with item:', item);
+openTriggerForm(parentItem: any): void {
+  console.log('Opening trigger form for parent item:', parentItem);
   this.showTriggerType = true;
   this.showActionForm = false;
   this.showActionType = false;
   this.showAiActionPanel = false; 
    this.initializeForm();
-  
-  if (item) {
-    console.log('Item details:', {
-      id: item.id,
-      name: item.name,
-      type: 'trigger'
-    });
-  } else {
-    console.log('Creating root level trigger');
-  }
 
-  this.currentParent = item ? { ...item, itemType: 'trigger' } : null;
-  this.resetTriggerForm();
- 
+    this.currentParent = parentItem ? {
+        id: parentItem.id,
+        itemType: 'trigger',
+        intent_id: parentItem.intent_id || parentItem.id
+    } : null;
 }
 
+openActionType(parentItem: any): void {
+  console.log('Opening action type for parent item:', parentItem);
+
+  this.showActionType = true;
+  this.fetchActionType();
+  this.showActionForm = false;
+  this.showAiActionPanel = false;
+   this.showTriggerType = false;
+
+   this.currentParent = parentItem ? {
+        id: parentItem.id,
+        itemType: parentItem.hasOwnProperty('action_type') ? 'action' : 'trigger',
+        intent_id: parentItem.intent_id || parentItem.id
+    } : null;
+}
 
 openAiActionPanel(parentIntent: any) {
-    this.currentParent = parentIntent; 
     this.selectedTrigger = parentIntent;
     this.showAiActionPanel = true;
     this.showActionForm = false;
@@ -780,7 +758,7 @@ onActionSubmit(): void {
   let order: number;
 
   if (!this.currentParent) {
-    // Root level action (no records exist or using top/bottom buttons)
+  
     intentId = this.intentId;
     parent_id = this.intentId; // Use intentId as parent
     order = this.combinedItems.length > 0 
@@ -798,12 +776,14 @@ onActionSubmit(): void {
     order = this.getNextOrder(this.currentParent);
   }
 
+  console.log('Creating action under parent:', this.currentParent, 'with intentId:', intentId, 'and parent_id:', parent_id);
+
   const model = {
     name: this.actionForm.value.name,
     action_type: this.selectedActionType || 'send_message',
     config: { message: this.actionForm.value.message },
     intent_id: intentId,
-    parent_id: parent_id, // Changed from parent_action_id to parent_id for consistency
+    parent_id: parent_id, 
     branch_path: this.buildBranchPath(),
     order: order
   };
@@ -853,13 +833,16 @@ onTriggerSubmit(): void {
     return;
   }
 
-  // Determine parent_id and order
+  //parent_id and order
   let parent_id: number;
   let order: number;
 
   if (this.currentParent) {
-    // For nested triggers - use parent trigger's ID
+    console.log('Creating nested trigger under:', this.currentParent);
+
     parent_id = this.currentParent.id;
+    console.log('Parent ID for nested trigger:', parent_id);
+
     order = this.getNextOrder(this.currentParent);
   } else {
     // For root-level triggers - use intentId
@@ -874,10 +857,10 @@ onTriggerSubmit(): void {
     chatbot_id: chatbotId,
     parent_id: parent_id,
     order: order,
-    is_root: parent_id === this.intentId // Mark as root if parent is intent
+    // is_root: parent_id === this.intentId // Mark as root if parent is intent
   };
 
-  console.log('Creating trigger with:', model);
+  console.log('Submitting Trigger with model:', model);
 
   this._httpService.mobileBankingPost('builder/nodes/intent', model).subscribe({
     next: (result: any) => {
@@ -898,74 +881,7 @@ onTriggerSubmit(): void {
   });
 }
 
-
-
-//   // In your component class
-// onTriggerSubmit(): void {
-//   if (!this.triggerForm.valid) {
-//     this.markFormGroupTouched(this.triggerForm);
-//     return;
-//   }
-
-//   const chatbotId = this.globalService.getChatbotId();
-//   if (!chatbotId) {
-//     Swal.fire('Error', 'No chatbot ID found, create Chatbot first', 'error');
-//     return;
-//   }
-
-//   // Determine parent_id based on the context
-//   let parent_id: number;
-//   let order: number = 1;
-
-//   if (this.currentParent) {
-//     // If clicking "Add Nested Trigger" on an existing item
-//     parent_id = this.currentParent.id;
-//     order = this.getNextOrder(this.currentParent);
-//   } else {
-//     // For root-level triggers (either first creation or "Add Root Trigger")
-//     if (this.combinedItems.length === 0) {
-//       // First creation - parent is the main intent
-//       parent_id = this.intentId;
-//     } else {
-//       // "Add Root Trigger" button clicked - also parent to main intent
-//       parent_id = this.intentId;
-//       order = this.getNextRootOrder();
-//     }
-//   }
-
-//   const model = { 
-//     ...this.triggerForm.value,
-//     chatbot_id: chatbotId,
-//     parent_id: parent_id,
-//     order: order
-//   };
-
-//   console.log('Creating trigger with:', {
-//     name: model.name,
-//     parent_id: model.parent_id,
-//     is_root: parent_id === this.intentId
-//   });
-
-//   this._httpService.mobileBankingPost('builder/nodes/intent', model).subscribe({
-//     next: (result: any) => {
-//       if (result.status === '00') {
-//         console.log('Created trigger with ID:', result.data.id);
-//         this.fetchNestedIntents(this.intentId)
-//           this.cdRef.detectChanges();
-//           Swal.fire('Success', 'Trigger created!', 'success');
-//           this.resetTriggerForm();
-//         } else {
-//         Swal.fire('Error', result.message || 'Creation failed', 'error');
-//       }
-//     },
-//     error: (err: { message: any; }) => {
-//       console.error('Creation error:', err);
-//       Swal.fire('Error', err.message || 'Request failed', 'error');
-//     }
-//   });
-// }
-
-// Helper method to calculate order for root triggers
+// order for root triggers
 getNextRootOrder(): number {
   const rootTriggers = this.combinedItems.filter(item => 
     item.itemType === 'trigger' && item.parent_id === this.intentId
@@ -973,7 +889,7 @@ getNextRootOrder(): number {
   return rootTriggers.length + 1;
 }
 
-// Modified getNextOrder to handle nested items
+// getNextOrder to handle nested items
 getNextOrder(parentItem: any): number {
   if (!parentItem) return 1;
   
@@ -985,74 +901,6 @@ getNextOrder(parentItem: any): number {
   return children.length + 1;
 }
 
-// onTriggerSubmit(): void {
-//       if (!this.triggerForm.valid) {
-//         this.markFormGroupTouched(this.triggerForm);
-//         return;
-//     }
-
-//     const chatbotId = this.globalService.getChatbotId();
-//     if (!chatbotId) {
-//         Swal.fire('Error', 'No chatbot ID found, create Chatbot first', 'error');
-//         return;
-//     }
-
-//     let parent_id: number;
-//     let order: number;
-
-//     if (!this.currentParent) {
-//         // Root level trigger (when no records exist)
-//         parent_id = this.intentId;
-//         order = 1;
-//     } else {
-//         // Nested trigger
-//         parent_id = this.currentParent.id;
-//         order = this.getNextOrder(this.currentParent);
-//     }
-
-//     const model = { 
-//         ...this.triggerForm.value, 
-//         chatbot_id: chatbotId, 
-//         parent_id: this.intentId, 
-//         order: order 
-//     };
-
-//     console.log('Submitting trigger with model:', model);
-
-//     this._httpService
-//       .mobileBankingPost('builder/nodes/intent', model)
-//       .subscribe({
-//         next: (result: any) => {
-//           if (result.status === '00') {
-//             setTimeout(() => {
-//               this.result = result.data;
-          
-//               this.fetchNestedIntents(this.intentId);
-//               this.checkAndCombine();
-//               this.cdRef.detectChanges();
-//               Swal.fire('Success', 'Trigger/Intent added successfully!', 'success');
-//               this.resetTriggerForm();
-
-//             }, 100);
-//           } else {
-//                Swal.fire({
-//                     icon: 'warning',
-//                     title: 'Unexpected Response',
-//                     text: result.message || 'Intent creation completed with unexpected response'
-//                 });
-//                  this.resetTriggerForm();
-//           }
-//         },
-//         error: (err: any) => {
-//           console.error('Intent creation failed:', err);
-//          Swal.fire({
-//                     icon: 'warning',
-//                     title: 'Unexpected Response',
-//                     text: err.message || 'Intent creation completed with unexpected response'
-//                 });
-//         }
-//       });
-//   }
 
 private resetTriggerForm(): void {
   this.triggerForm.reset({ name: '', description: '', training_phrases: [''] });
@@ -1138,7 +986,6 @@ buildBranchPath(): string {
   return 'root>EBU Services Response>Product Licenses Response>Oracle Services Response';
 }
 
-
 sendBot(): void {
   const model = { name: this.form.value.name, description: this.form.value.description, intentId: this.intentId };
   this._httpService.mobileBankingPost('builder/chatbots', model).subscribe({
@@ -1162,7 +1009,6 @@ sendBot(): void {
       }
     });
 }
-
 
 uploadImageClick(){}
 removeImage(){}
