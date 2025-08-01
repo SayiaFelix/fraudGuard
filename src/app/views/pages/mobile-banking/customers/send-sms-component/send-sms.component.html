@@ -1,6 +1,5 @@
 <div class="card">
   <div class="card-body">
-    <!-- Block 1: Title and Description -->
     <div>
       <h5 class="card-title text-uppercase fw-bold mb-1">Recent Agent List</h5>
       <p class="text-muted mb-0">Add triggers and actions for a scripted chat flow. If an action is not triggered, then the enabled LLM will generate a response.</p>
@@ -9,19 +8,17 @@
     <!-- Action Buttons -->
     <div class="mt-4 mb-3">
       <div class="d-flex gap-2">
-        <button class="btn btn-sm btn-outline-primary" (click)="triggerFileUpload()">
+        <button class="btn btn-sm btn-outline-primary" disabled>
           <i class="feather icon-upload btn-icon-prepend"></i>
           Upload File
         </button>
-        <button class="btn btn-primary" (click)="onAddTriggerClick()">
+        <button class="btn trigger_btn" (click)="onAddTriggerClick()">
           <i class="feather icon-plus btn-icon-prepend"></i>
           Add Trigger
         </button>
-        <input type="file" #fileInput (change)="onFileUpload($event)" style="display: none;" accept=".xlsx, .xls, .csv" />
-      </div>
+        <input type="file" #fileInput (change)="onFileUpload($event)" style="display: none;" accept=".xlsx, .xls, .csv" disabled />
+     </div>
     </div>
-
-    <!-- Modal Trigger Form (This part is unchanged) -->
     <div class="modal fade" #triggerModal tabindex="-1" role="dialog" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -66,9 +63,9 @@
                   <i class="feather icon-plus"></i> Add Phrase
                 </button>
               </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-sm btn-outline-secondary" (click)="closeModal()">Cancel</button>
-                <button type="submit" class="btn btn-primary" [disabled]="!triggerForm.valid">Save Trigger</button>
+              <div class="modal-footer d-flex justify-content-between">
+                <button type="button" class="btn btn-sm btn-outline-info" (click)="closeModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary save-btn" [disabled]="!triggerForm.valid">Save Trigger</button>
               </div>
             </form>
           </div>
