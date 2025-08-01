@@ -164,11 +164,12 @@ export class IntentComponent implements OnInit {
         console.log('For chatbot ID:', this.chatbotId);
 
         this.fetchIntentList(this.chatbotId!);
-
+         this.fetchNestedIntents(this.intentId);
+        this.loadInitialData(); 
     
         if (this.intentId) {
-            this.loadInitialData(); 
             this.fetchNestedIntents(this.intentId);
+         
         } else {
             console.warn('No intent selected.');
             this.isLoading = false;
@@ -242,6 +243,7 @@ getIcon(type: string) {
     return type === 'action' ? 'mdi mdi-message' : 'mdi mdi-message-reply-text';
   }
 
+
 addLanguage(event: Event): void {
     const select = event.target as HTMLSelectElement;
     const selectedLang = select.value;
@@ -280,15 +282,15 @@ focusInput(input: HTMLInputElement) {
 }
 
 
-   get trainingPhrases() {
+get trainingPhrases() {
     return this.triggerForm?.get('training_phrases') as FormArray;
   }
 
-  addTrainingPhrase() {
+addTrainingPhrase() {
     this.trainingPhrases.push(this.fb.control('', Validators.required));
   }
 
-  removeTrainingPhrase(index: number) {
+removeTrainingPhrase(index: number) {
     if (this.trainingPhrases.length > 1) {
       this.trainingPhrases.removeAt(index);
     }
@@ -401,8 +403,8 @@ fetchIntentDetailsFromAPI(intentId: number): void {
         if (intent) {
           this.intentname = intent.name;
           this.description = intent.description;
-          this.isActive = !!intent.is_active; // Correctly set status
-          this.fetchData(intentId); // Now fetch children
+          this.isActive = !!intent.is_active; 
+          this.fetchData(intentId);
         } else {
           this._toastService.error('Could not find the specified intent.', 'Error');
           this.isLoading = false;
@@ -472,7 +474,6 @@ fetchIntentList(chatbotId: number): void {
   });
 }
 
-// Replace your current fetchNestedIntents with this:
 fetchNestedIntents(intentId: number): void {
   this.loadingTriggers = true;
   const body = { parent_id: intentId };
@@ -685,7 +686,6 @@ openActionForm(action: any): void {
   }
 }
 
-
 openTriggerForm(parentItem: any): void {
  this.showTriggerType = true;
   this.showActionForm = false;
@@ -699,7 +699,6 @@ openTriggerForm(parentItem: any): void {
         intent_id: parentItem.intent_id || parentItem.id
     } : null;
 }
-
 
 openActionType(parentItem: any): void {
   this.showActionType = true;
@@ -715,7 +714,6 @@ openActionType(parentItem: any): void {
     } : null;
 }
 
-
 openAiActionPanel(parentIntent: any) {
     this.currentParent = parentIntent; 
     this.selectedTrigger = parentIntent;
@@ -725,9 +723,6 @@ openAiActionPanel(parentIntent: any) {
     this.showTriggerType = false;
     this.triggerForm.patchValue({ name: parentIntent.name });
 }
-
-
-
 
 shouldShowAddActionButton(): boolean {
   return !this.combinedItems.some(item => item.itemType === 'action' && !item.parent_id);
@@ -749,31 +744,6 @@ shouldShowRootButtons(): boolean {
   return (this.shouldShowAddActionButton() || this.shouldShowAddTriggerButton()) && this.combinedItems.length > 0;
 }
 
-
-// private findParentItem(item: any): any {
-//   return this.combinedItems.find(i => i.id === item.parent_id || i.action_id === item.parent_id);
-// }
-
-// private findParentTrigger(action: any): any {
-//   for (const trigger of this.triggers || []) {
-//     if (trigger.id === action.intent_id) return trigger;
-//     const found = this.findTriggerInChildren(trigger, action.intent_id);
-//     if (found) return found;
-//   }
-//   return null;
-// }
-
-// private findTriggerInChildren(trigger: any, intentId: number): any {
-//   if (trigger.id === intentId) return trigger;
-//   for (const child of trigger.children || []) {
-//     if (child.itemType === 'trigger') {
-//       const found = this.findTriggerInChildren(child, intentId);
-//       if (found) return found;
-//     }
-//   }
-//   return null;
-// }
-
 getNextOrder(parentItem: any): number {
     if (!parentItem || !parentItem.id) return 1;
 
@@ -793,9 +763,8 @@ getNextOrder(parentItem: any): number {
     return 1;
 }
 
-
 onActionSubmit(): void {
-    if (!this.actionForm.valid) {
+     if (!this.actionForm.valid) {
         this.markFormGroupTouched(this.actionForm);
         return;
     }
@@ -834,35 +803,45 @@ onActionSubmit(): void {
 
     console.log('Submitting action with model:', model);
 
-    this._httpService.mobileBankingPost('builder/nodes/action', model).subscribe({
+
+    this._httpService
+      .mobileBankingPost('builder/nodes/action', model)
+      .subscribe({
         next: (result: any) => {
-            if (result.status === '00') {
-                forkJoin([this.fetchNestedIntents(this.intentId)]).subscribe({
-                    next: () => {
-                        this.checkAndCombine();
-                        this.cdRef.detectChanges();
-                        Swal.fire('Success', 'Action created successfully!', 'success');
-                        this.resetForm();
-                    },
-                    error: (err) => {
-                        console.error('Error refreshing data:', err);
-                        this.resetForm();
-                    }
+          if (result.status === '00') {
+            setTimeout(() => {
+              this.result = result.data;
+          
+              this.fetchNestedIntents(this.intentId);
+              this.checkAndCombine();
+              this.cdRef.detectChanges();
+            
+              Swal.fire('Success', result.message, 'success');
+              this.resetForm();
+
+            }, 100);
+          } else {
+               Swal.fire({
+                    icon: 'warning',
+                    title: 'Unexpected Response',
+                    text: result.message || 'Action creation completed with unexpected response'
                 });
-            } else {
-                Swal.fire('Error', result.message || 'Action creation failed', 'error');
-            }
+              this.resetForm();
+          }
         },
         error: (err: any) => {
-            console.error('API Error:', err);
-            Swal.fire('Error', 'Failed to create action', 'error');
+          console.error('Action creation failed:', err);
+         Swal.fire({
+                    icon: 'warning',
+                    title: 'Unexpected Response',
+                    text: err.message || 'Action creation completed with unexpected response'
+                });
         }
-    });
- 
-}
+      });
+  }
 
 onTriggerSubmit(): void {
-    if (!this.triggerForm.valid) {
+      if (!this.triggerForm.valid) {
         this.markFormGroupTouched(this.triggerForm);
         return;
     }
@@ -895,128 +874,40 @@ onTriggerSubmit(): void {
 
     console.log('Submitting trigger with model:', model);
 
-    this._httpService.mobileBankingPost('builder/nodes/intent', model).subscribe({
+    this._httpService
+      .mobileBankingPost('builder/nodes/intent', model)
+      .subscribe({
         next: (result: any) => {
-            if (result.status === '00') {
-                forkJoin([this.fetchIntentList(chatbotId), this.fetchNestedIntents(this.intentId)]).subscribe({
-                    next: () => {
-                        this.checkAndCombine();
-                        this.cdRef.detectChanges();
-                        Swal.fire('Success', 'Trigger added successfully!', 'success');
-                        this.resetTriggerForm();
-                    },
-                    error: (err) => {
-                        console.error('Error refreshing data:', err);
-                        this.resetTriggerForm();
-                    }
+          if (result.status === '00') {
+            setTimeout(() => {
+              this.result = result.data;
+          
+              this.fetchNestedIntents(this.intentId);
+              this.checkAndCombine();
+              this.cdRef.detectChanges();
+              Swal.fire('Success', 'Trigger/Intent added successfully!', 'success');
+              this.resetTriggerForm();
+
+            }, 100);
+          } else {
+               Swal.fire({
+                    icon: 'warning',
+                    title: 'Unexpected Response',
+                    text: result.message || 'Intent creation completed with unexpected response'
                 });
-            } else {
-                Swal.fire('Error', result.message || 'Failed to create trigger', 'error');
-            }
+                 this.resetTriggerForm();
+          }
         },
         error: (err: any) => {
-            console.error('Trigger creation failed:', err);
-            Swal.fire('Error', 'Failed to create trigger', 'error');
+          console.error('Intent creation failed:', err);
+         Swal.fire({
+                    icon: 'warning',
+                    title: 'Unexpected Response',
+                    text: err.message || 'Intent creation completed with unexpected response'
+                });
         }
-    });
-  
-}
-
-// onActionSubmit(): void {
-//     if (!this.actionForm.valid) {
-//         this.markFormGroupTouched(this.actionForm);
-//         return;
-//     }
-//     const chatbotId = this.globalService.getChatbotId()!;
-//     let intentId: number;
-//     let parentActionId: number | null;
-
-//     if (!this.currentParent) {
-//       intentId = this.intentId;
-//       parentActionId = chatbotId; 
-//     } else if (this.currentParent.itemType === 'trigger') {
-//       intentId = this.currentParent.id;
-//       parentActionId = this.intentId;
-//     } else {
-//       intentId = this.currentParent.intent_id;
-//       parentActionId = this.currentParent.action_id;
-//     }
-
-//     const model = {
-//       name: this.actionForm.value.name,
-//       action_type: this.selectedActionType || 'send_message',
-//       config: { message: this.actionForm.value.message },
-//       intent_id: intentId,
-//       parent_action_id: null,
-//       branch_path: this.buildBranchPath(),
-//       order: this.getNextOrder(this.currentParent),
-//     };
-
-//     this._httpService.mobileBankingPost('builder/nodes/action', model).subscribe({
-//         next: (result: any) => {
-//             if (result.status === '00') {
-//                 forkJoin([this.fetchNestedIntents(this.intentId)]).subscribe({
-//                     next: () => {
-//                         this.checkAndCombine();
-//                         this.cdRef.detectChanges();
-//                         Swal.fire('Success', 'Action created successfully!', 'success');
-//                         this.resetForm();
-//                     },
-//                     error: (err) => {
-//                         console.error('Error refreshing data:', err);
-//                         this.resetForm();
-//                     }
-//                 });
-//             } else {
-//                 Swal.fire('Error', result.message || 'Action creation failed', 'error');
-//             }
-//         },
-//         error: (err: any) => {
-//             console.error('API Error:', err);
-//             Swal.fire('Error', 'Failed to create action', 'error');
-//         }
-//     });
-// }
-
-
-// onTriggerSubmit(): void {
-//     if (!this.triggerForm.valid) {
-//         this.markFormGroupTouched(this.triggerForm);
-//         return;
-//     }
-//     const chatbotId = this.globalService.getChatbotId();
-//     if (!chatbotId) {
-//       Swal.fire('Error', 'No chatbot ID found, create Chatbot first', 'error');
-//       return;
-//     }
-//     const parent_id = this.currentParent ? this.currentParent.id : this.intentId;
-//     const model = { ...this.triggerForm.value, chatbot_id: chatbotId, parent_id: parent_id, order: this.getNextOrder(this.currentParent) };
-
-//     this._httpService.mobileBankingPost('builder/nodes/intent', model).subscribe({
-//         next: (result: any) => {
-//             if (result.status === '00') {
-//                 forkJoin([this.fetchIntentList(chatbotId), this.fetchNestedIntents(this.intentId)]).subscribe({
-//                     next: () => {
-//                         this.checkAndCombine();
-//                         this.cdRef.detectChanges();
-//                         Swal.fire('Success', 'Trigger added successfully!', 'success');
-//                         this.resetTriggerForm();
-//                     },
-//                     error: (err) => {
-//                         console.error('Error refreshing data:', err);
-//                         this.resetTriggerForm();
-//                     }
-//                 });
-//             } else {
-//                 Swal.fire('Error', result.message || 'Failed to create trigger', 'error');
-//             }
-//         },
-//         error: (err: any) => {
-//             console.error('Trigger creation failed:', err);
-//             Swal.fire('Error', 'Failed to create trigger', 'error');
-//         }
-//     });
-// }
+      });
+  }
 
 private resetTriggerForm(): void {
   this.triggerForm.reset({ name: '', description: '', training_phrases: [''] });
@@ -1028,16 +919,6 @@ private resetTriggerForm(): void {
   this.selectedTrigger = null;
   this.editingName = false;
 }
-
-// getNextOrder(parent: any): number {
-//   if (!parent) {
-//     const rootItems = this.combinedItems.filter(item => (item.itemType === 'action' && !item.parent_id) || (item.itemType === 'trigger' && item.parent_id === this.intentId));
-//     return rootItems.length > 0 ? Math.max(...rootItems.map(i => i.order)) + 1 : 1;
-//   } else {
-//     const siblings = this.combinedItems.filter(item => (item.parent_id === parent.id) || (item.parent_action_id === parent.action_id));
-//     return siblings.length > 0 ? Math.max(...siblings.map(i => i.order)) + 1 : 1;
-//   }
-// }
 
 
 launchBot(intentId: number) {

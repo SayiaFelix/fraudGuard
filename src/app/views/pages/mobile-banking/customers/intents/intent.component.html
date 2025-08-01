@@ -73,14 +73,14 @@
               <!-- Empty state - show both buttons stacked -->
               <div *ngIf="combinedItems.length === 0" class="list-group mb-0">
                 <div class="list-group-item hover-card px-4 py-2">
-                  <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
+                  <button class="btn btn-link fw-bold p-0 text-decoration-none text-muted d-flex align-items-center w-100"
                           (click)="openActionType(null)">
                     <i class="mdi mdi-plus me-2"></i>
                     <span>Add AI Action</span>
                   </button>
                 </div>
                 <div class="list-group-item hover-card px-4 py-2">
-                  <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
+                  <button class="btn btn-link fw-bold p-0 text-decoration-none text-muted d-flex align-items-center w-100"
                           (click)="openTriggerForm(null)">
                     <i class="mdi mdi-plus me-2"></i>
                     <span>Add Trigger</span>
@@ -92,7 +92,7 @@
               <ng-container *ngIf="combinedItems.length > 0">
                 <!-- Add AI Action button at the top -->
                 <div class="list-group-item hover-card  px-4 py-2 mb-0">
-                  <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
+                  <button class="btn btn-link fw-bold p-0 text-decoration-none text-muted d-flex align-items-center w-100"
                           (click)="openActionType(null)">
                     <i class="mdi mdi-plus me-2"></i>
                     <span>Add AI Action</span>
@@ -117,7 +117,7 @@
                     <!-- Trigger buttons -->
                     <div class="">
                       <div class="list-group-item border-0 hover-card px-4 py-2">
-                        <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
+                        <button class="btn btn-link fw-bold p-0 text-decoration-none text-muted d-flex align-items-center w-100"
                                 (click)="openActionType(trigger)">
                           <i class="mdi mdi-plus me-2"></i>
                           <span>Add AI Action</span>
@@ -125,7 +125,7 @@
                       </div>
 
                       <div class="list-group-item border-0 hover-card px-4 py-2">
-                        <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
+                        <button class="btn btn-link p-0 fw-bold text-decoration-none text-muted d-flex align-items-center w-100"
                                 (click)="openTriggerForm(trigger)">
                           <i class="mdi mdi-plus me-2"></i>
                           <span>Add Nested Trigger</span>
@@ -151,7 +151,7 @@
                           <!-- Action buttons -->
                           <div class="" [style.padding-left.px]="20">
                             <div class="list-group-item border-0 hover-card px-4 py-2">
-                                <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
+                                <button class="btn btn-link fw-bold p-0 text-decoration-none text-muted d-flex align-items-center w-100"
                                         (click)="openActionType(action)">
                                   <i class="mdi mdi-plus me-2"></i>
                                   <span>Add AI Action</span>
@@ -179,7 +179,7 @@
                           <!-- Nested trigger buttons -->
                           <div class="mt-1" [style.padding-left.px]="20">
                               <div class="list-group-item border-0 hover-card px-4 py-2">
-                                <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
+                                <button class="btn btn-link p-0 fw-bold text-decoration-none text-muted d-flex align-items-center w-100"
                                         (click)="openActionType(childTrigger)">
                                   <i class="mdi mdi-plus me-2"></i>
                                   <span>Add AI Action</span>
@@ -187,7 +187,7 @@
                               </div>
 
                             <div class="list-group-item border-0 hover-card px-4 py-2">
-                              <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
+                              <button class="btn btn-link p-0 fw-bold text-decoration-none text-muted d-flex align-items-center w-100"
                                       (click)="openTriggerForm(childTrigger)">
                                 <i class="mdi mdi-plus me-2"></i>
                                 <span>Add Nested Trigger</span>
@@ -213,7 +213,7 @@
                                 <!-- Action buttons -->
                                 <div class="mt-1" [style.padding-left.px]="40">
                                     <div class="list-group-item border-0 hover-card px-4 py-2">
-                                        <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
+                                        <button class="btn btn-link p-0 fw-bold text-decoration-none text-muted d-flex align-items-center w-100"
                                                 (click)="openActionType(action)">
                                           <i class="mdi mdi-plus me-2"></i>
                                           <span>Add AI Action</span>
@@ -231,7 +231,7 @@
 
                 <!-- Add Trigger button at the bottom -->
                 <div class="list-group-item hover-card px-4 py-2 mb-1">
-                  <button class="btn btn-link p-0 text-decoration-none text-muted d-flex align-items-center w-100"
+                  <button class="btn btn-link p-0 fw-bold text-decoration-none text-muted d-flex align-items-center w-100"
                           (click)="openTriggerForm(null)">
                     <i class="mdi mdi-plus me-2"></i>
                     <span>Add Trigger</span>
@@ -291,7 +291,7 @@
 
        
           </div>
-        </div>
+      </div>
 
        <div *ngIf="showAiActionPanel"
           class="bg-white border rounded shadow-sm p-3 fixed-height-panel"
