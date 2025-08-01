@@ -532,8 +532,8 @@ private processApiTriggers(trigger: any, parentId: number): TriggerItem {
 
 private transformAction(action: any, parentId: number): ActionItem {
   return {
-    id: action.id, // Include the required id property
-    action_id: action.id, // This can be the same as id if your API uses the same ID
+    id: action.id,
+    action_id: action.id, 
     name: action.name,
     is_active: action.is_active,
     order: action.order,
