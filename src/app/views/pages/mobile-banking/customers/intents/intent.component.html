@@ -99,8 +99,35 @@
                   </button>
                 </div>
                 
+              <!-- Main items list -->
+              <!-- Root Actions -->
+              <ng-container *ngFor="let action of getRootActions(); trackBy: trackById">
+                <div class="mb-2">
+                  <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                      <i class="feather {{ actionIcons[action.action_type] || 'icon-message-square' }} me-1 fw-bold" style="font-size: 16px;"></i>
+                      <strong>#{{ action.id }} {{ action.name }}</strong>
+                      <span class="badge bg-primary ms-2">Action</span>
+                    </div>
+                    <div class="form-check form-switch">
+                      <input type="checkbox" class="form-check-input" [checked]="action.is_active">
+                    </div>
+                  </div>
+                  
+                  <!-- Action buttons -->
+                  <div class="">
+                    <div class="list-group-item border-0 hover-card px-4 py-2">
+                      <button class="btn btn-link fw-bold p-0 text-decoration-none text-muted d-flex align-items-center w-100"
+                              (click)="openActionType(action)">
+                        <i class="mdi mdi-plus me-2"></i>
+                        <span>Add Action</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </ng-container>
 
-                <!-- Main items list -->
+                 <!-- Root Trigger with childrens -->
                 <ng-container *ngFor="let trigger of getRootTriggers(); trackBy: trackById">
                   <!-- Trigger Item -->
                   <div class="">
