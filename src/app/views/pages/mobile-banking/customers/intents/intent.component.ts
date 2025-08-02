@@ -510,6 +510,8 @@ fetchNestedIntents(intentId: number): void {
     });
 }
 
+
+
 private processApiTriggers(trigger: any, parentId: number): TriggerItem {
   return {
     id: trigger.id,
@@ -547,6 +549,12 @@ getRootTriggers(): any[] {
   ).sort((a, b) => a.order - b.order);
 }
 
+getRootActions(): any[] {
+  return this.combinedItems.filter(item => 
+    item.itemType === 'action' && item.parent_id === this.intentId
+  ).sort((a, b) => a.order - b.order);
+}
+
 getChildTriggers(parentId: number): any[] {
   return this.combinedItems.filter(item => 
     item.itemType === 'trigger' && item.parent_id === parentId
@@ -559,56 +567,63 @@ getDirectActions(parentId: number): any[] {
   ).sort((a, b) => a.order - b.order);
 }
 
-// processApiResponse method to ensure proper hierarchy
 private processApiResponse(data: any[]): TriggerItem[] {
-  return data.map(item => {
-    if (item.type !== 'trigger') return null;
+  const result: TriggerItem[] = [];
+  
+  data.forEach(item => {
+    if (item.type === 'trigger') {
+      const trigger: TriggerItem = {
+        id: item.id,
+        name: item.name,
+        is_active: item.is_active,
+        order: item.order,
+        parent_id: item.parent_id,
+        intent_id: item.id,
+        branch_path: item.branch_path,
+        training_phrases: [],
+        itemType: 'trigger',
+        children: []
+      };
 
-    const trigger: TriggerItem = {
-      id: item.id,
-      name: item.name,
-      is_active: item.is_active,
-      order: item.order,
-      parent_id: item.parent_id,
-      intent_id: item.id,
-      branch_path: item.branch_path,
-      training_phrases: [],
-      itemType: 'trigger',
-      children: []
-    };
+      // Process direct children
+      if (item.children && item.children.length) {
+        // Direct actions
+        const actions = item.children
+          .filter((child: any) => child.type === 'action')
+          .map((child: any) => this.transformAction(child, item.id));
+        
+        // Nested triggers
+        const triggers = item.children
+          .filter((child: any) => child.type === 'trigger')
+          .map((child: any) => this.processApiResponse([child])[0])
+          .filter(Boolean);
+        
+        // Combine all children
+        trigger.children = [...actions, ...triggers];
+      }
 
-    // Process direct children
-    if (item.children && item.children.length) {
-      // Direct actions
-      const actions = item.children
-        .filter((child: { type: string; }) => child.type === 'action')
-        .map((child: any) => this.transformAction(child, item.id));
-      
-      // Nested triggers
-      const triggers = item.children
-        .filter((child: { type: string; }) => child.type === 'trigger')
-        .map((child: any) => this.processApiResponse([child])[0])
-        .filter(Boolean);
-      
-      // Combine all children
-      trigger.children = [...actions, ...triggers];
+      result.push(trigger);
+    } else if (item.type === 'action') {
+      // Add root-level actions to combinedItems through flattenTriggerHierarchy
+      const action = this.transformAction(item, item.parent_id);
+      result.push(action as any); 
     }
+  });
 
-    return trigger;
-  }).filter(Boolean) as TriggerItem[];
+  return result;
 }
 
-// flattenTriggerHierarchy to maintain proper structure
 private flattenTriggerHierarchy(triggers: TriggerItem[]): (TriggerItem | ActionItem)[] {
   const result: (TriggerItem | ActionItem)[] = [];
   
   const flatten = (items: any[], level = 0) => {
     items.forEach(item => {
       // Add the item itself
-      result.push({ ...item, indentLevel: level });
+      const newItem = { ...item, indentLevel: level };
+      result.push(newItem);
       
-      // Recursively add children
-      if (item.children && item.children.length) {
+      // Only triggers have children
+      if (item.itemType === 'trigger' && item.children && item.children.length) {
         flatten(item.children, level + 1);
       }
     });
