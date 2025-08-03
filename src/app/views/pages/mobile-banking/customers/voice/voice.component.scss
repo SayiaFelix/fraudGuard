@@ -1,32 +1,23 @@
-// The main container provides the background and structures the content
-.page-container {
-  background-color: #f9fafb; // The subtle gray background
-  // UPDATED PADDING: 2rem top, 1.5rem sides, 4rem bottom for a defined end
-  padding: 2rem 1.5rem 4rem 1.5rem; 
+
+.settings-page {
+  background-color: #f9fafb;
+  padding: 2rem;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  gap: 3rem; // This creates vertical space between the two sections
 }
 
-// Styles for each section, which now sits directly on the gray background
-.voice-section {
-  width: 100%;
-  max-width: 800px; // Constrains width for readability
-  margin: 0 auto; // Centers the content horizontally
+
+.settings-card {
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  padding: 2.5rem;
+  max-width: 720px;
+  margin: 0 auto;
 }
 
-.section-title {
+
+h2.fw-bold {
   font-size: 1.75rem;
-  font-weight: 700;
   color: #111827;
-}
-
-.section-description {
-  font-size: 0.9rem;
-  color: #6B7280;
-  margin-top: 0.5rem;
-  margin-bottom: 2rem;
 }
 
 .form-label.fw-medium {
@@ -34,17 +25,29 @@
   color: #374151;
 }
 
+
+.section-divider {
+  border: 0;
+  border-top: 1px solid #e5e7eb;
+  margin: 2.5rem 0;
+}
+
+
 .form-switch .form-check-input {
   width: 48px;
   height: 24px;
   cursor: pointer;
-  background-color: #d1d5db;
+  background-color: #e5e7eb;
   border-color: transparent;
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
 
-  &:focus { box-shadow: none; border-color: transparent; }
-  &:checked { background-color: #4f46e5; border-color: #4f46e5; }
+  &:focus { box-shadow: none; }
+  &:checked {
+    background-color: #4f46e5;
+    border-color: #4f46e5;
+  }
 }
+
 
 .language-input-container {
   display: flex;
@@ -53,7 +56,23 @@
   gap: 8px;
   min-height: 42px;
   padding: 6px 12px;
-  background-color: #ffffff; 
+  position: relative;
+
+  
+  .select-arrow {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    pointer-events: none;
+    font-size: 1rem;
+  }
+
+  &.single-select-wrapper {
+    flex-grow: 1;
+    flex-wrap: nowrap;
+  }
 }
 
 .language-pill {
@@ -67,15 +86,22 @@
   border-radius: 16px;
   font-size: 0.875rem;
 
-  &.single { padding-right: 12px; }
+  &.single {
+    padding-right: 12px;
+  }
 
+  
   .btn-close {
     width: 0.5em;
     height: 0.5em;
     padding: 0;
-    margin: 0;
-    opacity: 0.4;
-    &:hover { opacity: 0.8; }
+    margin: 0 0 0 2px;
+    opacity: 0.5;
+    filter: invert(25%) sepia(55%) saturate(3000%) hue-rotate(240deg);
+
+    &:hover {
+      opacity: 1;
+    }
   }
 }
 
@@ -89,27 +115,30 @@
   background: transparent;
   opacity: 0;
   cursor: pointer;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
 }
 
+
+.select-arrow {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+  pointer-events: none; 
+}
+
+
+.voice-variant-input {
+  flex-basis: 150px;
+  flex-grow: 0;
+}
+
+
 .disabled-section {
-  opacity: 0.4;
+  opacity: 0.5;
   pointer-events: none;
 }
 
-.btn-primary {
-  background-color: #6366f1;
-  border-color: #6366f1;
-  font-weight: 500;
-
-  &:hover {
-    background-color: #4f46e5;
-    border-color: #4f46e5;
-  }
-
-  &.disabled, &:disabled {
-    background-color: #e5e7eb !important;
-    border-color: #e5e7eb !important;
-    color: #9ca3af !important;
-    opacity: 1;
-  }
-}

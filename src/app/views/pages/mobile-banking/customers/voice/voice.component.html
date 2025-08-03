@@ -1,83 +1,97 @@
-<div class="page-container" [formGroup]="voiceForm">
+<div class="container-fluid px-2 py-2" style="background-color: #f8f9fa; min-height: 100vh;">
+  <div class="row">
+    <div class="col-12 col-md-10 col-lg-8">
+      <div class="settings-page" [formGroup]="voiceForm" style="margin-top: -8px;">
+        
+        <div class="voice-section">
+          <h2 class="fw-bold">Speech-to-text</h2>
+          <p class="text-muted mb-4">Voice recognition transcribes person voice messages for live agent in the inbox.</p>
 
-  <!-- ======================== -->
-  <!-- Section 1: Speech-to-text -->
-  <!-- ======================== -->
-  <div class="voice-section">
-    <h3 class="section-title">Speech-to-text</h3>
-    <p class="section-description">Voice recognition transcribes person voice messages for live agent in the inbox.</p>
+          
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <label for="enableSpeechToText" class="form-label mb-0 fw-medium">Enable speech-to-text</label>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="enableSpeechToText" formControlName="enableSpeechToText">
+            </div>
+          </div>
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <label for="enableSpeechToText" class="form-label mb-0 fw-medium">Enable speech-to-text</label>
-      <div class="form-check form-switch">
-        <input class="form-check-input" type="checkbox" role="switch" id="enableSpeechToText" formControlName="enableSpeechToText">
-      </div>
-    </div>
+          
+          <div>
+            <label class="form-label fw-medium mb-2">Language</label>
+            <div class="language-input-container form-control">
+              <span *ngFor="let lang of selectedSttLanguages" class="language-pill">
+                {{ lang }}
+                <button type="button" class="btn-close" aria-label="Remove" (click)="removeSttLanguage(lang)"></button>
+              </span>
+              <div class="flex-grow-1 position-relative">
+                <select class="language-select" (change)="addSttLanguage($event)">
+                  <option value="" disabled selected></option> 
+                  <option *ngFor="let lang of availableLanguages" [value]="lang" [disabled]="selectedSttLanguages.includes(lang)">
+                    {{ lang }}
+                  </option>
+                </select>
+                <i class="bi bi-chevron-down select-arrow"></i>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mt-3 text-start">
+            <button type="button" class="btn btn-primary btn-sm px-4" (click)="saveSettings()">Save</button>
+          </div>
+        </div>
 
-    <div [class.disabled-section]="!enableSpeechToTextValue">
-      <label class="form-label fw-medium mb-2">Language</label>
-      <div class="language-input-container form-control position-relative">
-        <span *ngFor="let lang of selectedSttLanguages" class="language-pill">
-          {{ lang }}
-          <button type="button" class="btn-close" (click)="removeSttLanguage(lang)"></button>
-        </span>
-        <div class="flex-grow-1">
-          <select class="language-select">
-            <option value="" disabled selected></option>
-            <option *ngFor="let lang of availableLanguages" [value]="lang" (click)="addSttLanguage($event)" [disabled]="selectedSttLanguages.includes(lang)"></option>
-          </select>
+        
+        <hr class="section-divider my-1"> 
+
+      
+        
+        <div class="voice-section">
+          <h2 class="fw-bold">Text-to-speech</h2>
+          <p class="text-muted mb-4">Voice generation sends AI assistant voice messages to people.</p>
+          
+          
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <label for="enableTextToSpeech" class="form-label mb-0 fw-medium">Enable text-to-speech generation</label>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="enableTextToSpeech" formControlName="enableTextToSpeech">
+            </div>
+          </div>
+
+          
+          <div [class.disabled-section]="!enableTextToSpeechValue">
+            
+            <div class="mb-3">
+                <label class="form-label fw-medium mb-2">Language</label>
+                <div class="d-flex align-items-center gap-3">
+                  
+                  <div class="language-input-container single-select-wrapper form-control">
+                      <span class="language-pill single">{{ selectedTtsLanguageDisplay }}</span>
+                      <select class="language-select" formControlName="textToSpeechLanguage">
+                          <option value="English">English</option>
+                          <option value="French">French</option>
+                          <option *ngFor="let lang of availableLanguages" [value]="lang">{{ lang }}</option>
+                      </select>
+                      <i class="bi bi-chevron-down select-arrow"></i>
+                  </div>
+                </div>
+            </div>
+
+            
+            <p class="text-muted small mb-2">If enabled, the text message transcript will be sent to people after the voice message.</p>
+            <div class="d-flex justify-content-between align-items-center">
+                <label for="sendTextMessage" class="form-label mb-0 fw-medium">Send text message</label>
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" role="switch" id="sendTextMessage" formControlName="sendTextMessage">
+                </div>
+            </div>
+          </div>
+        </div>
+
+        
+        <div class="mt-3 text-start">
+            <button type="button" class="btn btn-primary px-4" (click)="saveSettings()">Save</button>
         </div>
       </div>
     </div>
-
-    <div class="mt-4">
-      <button type="button" class="btn btn-primary px-4" (click)="saveSpeechToTextSettings()">Save</button>
-    </div>
   </div>
-
-  <!-- ======================== -->
-  <!-- Section 2: Text-to-speech -->
-  <!-- ======================== -->
-  <div class="voice-section">
-    <h3 class="section-title">Text-to-speech</h3>
-    <p class="section-description">Voice generation sends AI assistant voice messages to people.</p>
-    
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <label for="enableTextToSpeech" class="form-label mb-0 fw-medium">Enable text-to-speech generation</label>
-      <div class="form-check form-switch">
-        <input class="form-check-input" type="checkbox" role="switch" id="enableTextToSpeech" formControlName="enableTextToSpeech">
-      </div>
-    </div>
-
-    <div [class.disabled-section]="!enableTextToSpeechValue">
-      <div class="mb-4">
-          <label class="form-label fw-medium mb-2">Language</label>
-          <div class="language-input-container form-control position-relative">
-              <span *ngIf="selectedTtsLanguage" class="language-pill single">
-                  {{ selectedTtsLanguage }}
-              </span>
-              <div class="flex-grow-1">
-                  <select class="language-select" formControlName="textToSpeechLanguage">
-                      <option value="English">English</option>
-                      <option value="French">French</option>
-                      <option *ngFor="let lang of availableLanguages" [value]="lang">{{ lang }}</option>
-                  </select>
-              </div>
-          </div>
-      </div>
-
-      <p class="text-muted small mb-2">If enabled, the text message transcript will be sent to people after the voice message.</p>
-      <div class="d-flex justify-content-between align-items-center">
-          <label for="sendTextMessage" class="form-label mb-0 fw-medium">Send text message</label>
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" role="switch" id="sendTextMessage" formControlName="sendTextMessage">
-          </div>
-      </div>
-    </div>
-
-    <div class="mt-4">
-      <button type="button" class="btn btn-primary px-4" (click)="saveTextToSpeechSettings()" [disabled]="!enableTextToSpeechValue">Save</button>
-    </div>
-  </div>
-
 </div>
