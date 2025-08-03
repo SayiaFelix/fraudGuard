@@ -12,7 +12,7 @@ import Swal from "sweetalert2";
   styleUrls: ['./add-customer.component.scss']
 })
 export class AddCustomerComponent implements OnInit {
-  // --- PROPERTIES FOR IMAGE UPLOADER ---
+
   @ViewChild('fileInput') fileInput: ElementRef;
   imageUploaded: boolean = false;
   imagePreviewUrl: string | ArrayBuffer | null = null;
@@ -25,6 +25,9 @@ export class AddCustomerComponent implements OnInit {
   public hasErrors = false;
   public errorMessages: any;
   public form: FormGroup;
+
+
+  public editingBotId: number | null = null;
 
   availableLanguages: string[] = ['English', 'Swahili', 'French', 'Arabic', 'Spanish', 'German'];
   language: string[] = ['English'];
@@ -40,14 +43,12 @@ export class AddCustomerComponent implements OnInit {
   public currentPage: number = 1;
   public itemsPerPage: number = 3;
   
-  // --- MODIFIED: Properties for filtering ---
   public filteredAgentList: any[] = [];
-  public nameFilter: string = ''; // For the main search bar (Name only)
+  public nameFilter: string = '';
   public languageFilter: string = 'all';
   public dateFilter: string = 'all';
   public statusFilter: string = 'all';
   
-  // --- NEW: Properties for filter dropdown options ---
   public availableFilterLanguages: string[] = [];
   public dateFilterOptions = [
       { value: 'all', label: 'All Time' },
@@ -76,10 +77,11 @@ export class AddCustomerComponent implements OnInit {
     this.form = this.fb.group({
         name: ['', Validators.required],
         description: [''],
-        language: [''],
+        language: [''], 
     });
   }
 
+  
   uploadImageClick(): void {
     this.fileInput.nativeElement.click();
   }
@@ -89,14 +91,9 @@ export class AddCustomerComponent implements OnInit {
     if (files && files.length > 0) {
       this.imageFile = files[0];
       this.imageUploaded = true;
-
       const reader = new FileReader();
-      reader.onload = () => {
-        this.imagePreviewUrl = reader.result;
-      };
-      if (this.imageFile) {
-          reader.readAsDataURL(this.imageFile);
-      }
+      reader.onload = () => { this.imagePreviewUrl = reader.result; };
+      if (this.imageFile) { reader.readAsDataURL(this.imageFile); }
     }
   }
 
@@ -104,9 +101,7 @@ export class AddCustomerComponent implements OnInit {
       this.imageFile = null;
       this.imagePreviewUrl = null;
       this.imageUploaded = false;
-      if (this.fileInput) {
-          this.fileInput.nativeElement.value = '';
-      }
+      if (this.fileInput) { this.fileInput.nativeElement.value = ''; }
   }
 
   get totalPages(): number {
@@ -115,72 +110,40 @@ export class AddCustomerComponent implements OnInit {
 
   get pages(): number[] {
       const pagesArray = [];
-      for (let i = 1; i <= this.totalPages; i++) {
-          pagesArray.push(i);
-      }
+      for (let i = 1; i <= this.totalPages; i++) { pagesArray.push(i); }
       return pagesArray;
   }
 
-  // --- MODIFIED: Applies multiple independent filters ---
   applyFilter(): void {
     let filteredData = [...this.fullAgentList];
-  
-    // 1. Filter by Name (from the main search bar)
     const nameSearchValue = this.nameFilter.toLowerCase().trim();
     if (nameSearchValue) {
-      filteredData = filteredData.filter(bot =>
-        (bot.name || '').toLowerCase().includes(nameSearchValue)
-      );
+      filteredData = filteredData.filter(bot => (bot.name || '').toLowerCase().includes(nameSearchValue));
     }
-  
-    // 2. Filter by Language (from the header dropdown)
     if (this.languageFilter && this.languageFilter !== 'all') {
       filteredData = filteredData.filter(bot => {
         const botLangs = bot.language ? [bot.language] : (bot.languages || []);
         return botLangs.includes(this.languageFilter);
       });
     }
-  
-    // 3. Filter by Status (from the header dropdown)
     if (this.statusFilter && this.statusFilter !== 'all') {
       const isActive = this.statusFilter === 'active';
       filteredData = filteredData.filter(bot => bot.is_active === isActive);
     }
-  
-    // 4. Filter by Date (from the header dropdown)
     if (this.dateFilter && this.dateFilter !== 'all') {
       const now = new Date();
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       let startDate: Date | undefined;
-  
       switch (this.dateFilter) {
-        case 'today':
-          startDate = today;
-          break;
-        case '7d':
-          startDate = new Date();
-          startDate.setDate(now.getDate() - 7);
-          break;
-        case '30d':
-          startDate = new Date();
-          startDate.setDate(now.getDate() - 30);
-          break;
+        case 'today': startDate = today; break;
+        case '7d': startDate = new Date(); startDate.setDate(now.getDate() - 7); break;
+        case '30d': startDate = new Date(); startDate.setDate(now.getDate() - 30); break;
       }
-  
-      // --- THE FIX ---
-      // This check ensures 'startDate' is not undefined.
       if (startDate) {
-        // We create a new constant here. TypeScript's control flow analysis
-        // correctly infers that 'finalStartDate' is of type 'Date', not 'Date | undefined'.
         const finalStartDate = startDate;
-        filteredData = filteredData.filter(bot => {
-          const createdAt = new Date(bot.created_at);
-          // Now we compare against the new constant, which is guaranteed to be a Date.
-          return createdAt >= finalStartDate;
-        });
+        filteredData = filteredData.filter(bot => new Date(bot.created_at) >= finalStartDate);
       }
     }
-  
     this.filteredAgentList = filteredData;
     this.currentPage = 1;
     this.updatePaginatedList();
@@ -193,120 +156,71 @@ export class AddCustomerComponent implements OnInit {
   }
 
   goToPage(page: number): void {
-      if (page >= 1 && page <= this.totalPages) {
-          this.currentPage = page;
-          this.updatePaginatedList();
-      }
+      if (page >= 1 && page <= this.totalPages) { this.currentPage = page; this.updatePaginatedList(); }
   }
 
-  nextPage(): void {
-      this.goToPage(this.currentPage + 1);
-  }
-
-  previousPage(): void {
-      this.goToPage(this.currentPage - 1);
-  }
+  nextPage(): void { this.goToPage(this.currentPage + 1); }
+  previousPage(): void { this.goToPage(this.currentPage - 1); }
 
   fetchAgentLists(): void {
     this.isLoadingBots = true;
     const userId = localStorage.getItem('user_id');
-
-    if (!userId) {
-      console.warn('User ID not found in local storage.');
-      this.fullAgentList = [];
-      this.isLoadingBots = false;
-      return;
-    }
-
+    if (!userId) { this.fullAgentList = []; this.isLoadingBots = false; return; }
     const usersId = parseInt(userId, 10);
     const body = { user_id: usersId };
-
     this._httpService.mobileBankingPost('builder/chatbots/list', body).subscribe({
       next: (res: any) => {
         if (res.status === '00' && Array.isArray(res.data)) {
-          this.fullAgentList = res.data
-            .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-          
-          // Populate unique languages for the filter dropdown
+          this.fullAgentList = res.data.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
           const languages = new Set<string>();
           this.fullAgentList.forEach(bot => {
-              if (bot.language) {
-                  languages.add(bot.language);
-              } else if (bot.languages && Array.isArray(bot.languages)) {
-                  bot.languages.forEach((lang: string) => languages.add(lang));
-              }
+              if (bot.language) languages.add(bot.language);
+              else if (bot.languages && Array.isArray(bot.languages)) bot.languages.forEach((lang: string) => languages.add(lang));
           });
           this.availableFilterLanguages = Array.from(languages).sort();
-          
           this.applyFilter();
         } else {
-          this.fullAgentList = [];
-          this.filteredAgentList = [];
-          this.paginatedAgentLists = [];
-          console.warn('Unexpected data format', res);
+          this.fullAgentList = []; this.filteredAgentList = []; this.paginatedAgentLists = [];
         }
         this.isLoadingBots = false;
       },
       error: (err: any) => {
         console.error('Error fetching agent list:', err);
-        this.fullAgentList = [];
-        this.filteredAgentList = [];
-        this.paginatedAgentLists = [];
-        this.isLoadingBots = false;
+        this.fullAgentList = []; this.filteredAgentList = []; this.paginatedAgentLists = []; this.isLoadingBots = false;
       }
     });
   }
 
-toggleChatbotStatus(chatbot: any): void {
-  const newStatus = !chatbot.is_active;
-  const payload = {
-    chatbot_id: chatbot.id,
-    is_active: newStatus
-  };
-
-  this._httpService.mobileBankingPost('builder/chatbots/status', payload).subscribe({
-    next: (res: any) => {
-      if (res.status === '00') {
-        const botInFullList = this.fullAgentList.find(b => b.id === chatbot.id);
-        if (botInFullList) {
-          botInFullList.is_active = newStatus;
+  toggleChatbotStatus(chatbot: any): void {
+    const newStatus = !chatbot.is_active;
+    const payload = { chatbot_id: chatbot.id, is_active: newStatus };
+    this._httpService.mobileBankingPost('builder/chatbots/status', payload).subscribe({
+      next: (res: any) => {
+        if (res.status === '00') {
+          const botInFullList = this.fullAgentList.find(b => b.id === chatbot.id);
+          if (botInFullList) botInFullList.is_active = newStatus;
+          this.globalService.setBotStatus({ id: chatbot.id, is_active: newStatus });
+          this.applyFilter();
+        } else {
+          this._toastService.warning(res.message || 'Failed to update chatbot status.', 'Warning');
         }
-
-        this.globalService.setBotStatus({ id: chatbot.id, is_active: newStatus });
-
-        this.applyFilter();
-      } else {
-        this._toastService.warning(
-          res.message || 'Failed to update chatbot status.',
-          'Warning'
-        );
+      },
+      error: (err: any) => {
+        this._toastService.error(err?.error?.message || 'An error occurred while updating status.', 'Error');
       }
-    },
-    error: (err: any) => {
-      this._toastService.error(
-        err?.error?.message || 'An error occurred while updating status.',
-        'Error'
-      );
-    }
-  });
-}
-
+    });
+  }
 
   public submitData(): void {
-      if (this.formData) {
-          this.saveChanges();
-      }
+      if (this.formData) { this.saveChanges(); }
       this.loading = true;
   }
 
   addLanguage(event: Event): void {
       const select = event.target as HTMLSelectElement;
       const selectedLang = select.value;
-
       if (selectedLang && !this.language.includes(selectedLang)) {
-          if (this.language.length === 1 && this.language[0] === 'English') {
-              this.language = [];
-          }
+          if (this.language.length === 1 && this.language[0] === 'English') { this.language = []; }
           this.language.push(selectedLang);
           this.defaultLanguage = selectedLang;
           select.value = '';
@@ -315,7 +229,6 @@ toggleChatbotStatus(chatbot: any): void {
 
   removeLanguage(lang: string): void {
     this.language = this.language.filter(l => l !== lang);
-
     if (this.defaultLanguage === lang) {
       this.defaultLanguage = this.language.length > 0 ? this.language[0] : 'English';
     }
@@ -323,84 +236,129 @@ toggleChatbotStatus(chatbot: any): void {
 
   fetchAgentList(): void {
    const userId = localStorage.getItem('user_id');
-    if (!userId) {
-      console.warn('User ID not found in local storage.');
-      this.agentList = [];
-      return;
-    }
+    if (!userId) { this.agentList = []; return; }
     const usersId = parseInt(userId, 10);
     const body = { user_id: usersId };
     this._httpService.mobileBankingPost('builder/chatbots/list', body).subscribe({
       next: (res: any) => {
-        if (res.status === '00' && Array.isArray(res.data)) {
-          this.agentList = res.data;
-        } else {
-          this.agentList = [];
-          console.warn('Unexpected data format', res);
-        }
+        if (res.status === '00' && Array.isArray(res.data)) { this.agentList = res.data; }
+        else { this.agentList = []; }
       },
-      error: (err: any) => {
-        console.error('Error fetching agent list:', err);
-        this.agentList = [];
-      }
+      error: (err: any) => { this.agentList = []; }
     });
   }
 
-  sendBot(): void {
-    const selectedLang = this.language.length > 0 ? this.language[0] : 'English';
 
+  sendBot(): void {
+    if (this.editingBotId) {
+      this.updateBot();
+    } else {
+      this.createBot();
+    }
+  }
+
+ 
+  private createBot(): void {
+    const selectedLang = this.language.length > 0 ? this.language[0] : 'English';
     const model = {
       name: this.form.value.name,
       description: this.form.value.description,
       language: selectedLang,
     };
 
-    console.log('Bot payload:', model);
-    if (this.imageFile) {
-      console.log('Image to upload:', this.imageFile.name);
-    }
-
-    this._httpService
-      .mobileBankingPost('builder/chatbots', model)
-      .subscribe({
-        next: (result: any) => {
-          if (result.status === '00') {
-            setTimeout(() => {
-              this.result = result.data;
-              this.globalService.setChatbotId(result.data.id);
-              this.globalService.setChatbotData(result.data);
-              this.fetchAgentList();
-              this.fetchAgentLists();
-
-              Swal.fire('ChatBot', 'Chatbot Created Successfully!', 'success');
-              this.globalService.notifyBotCreated();
-
-              this.form.reset();
-              this.language = ['English'];
-              this.defaultLanguage = 'English';
-              this.removeImage();
-            }, 10);
-          } else {
-            this._toastService.warning(
-              result.message || 'Bot creation did not complete successfully.',
-              'Warning'
-            );
-          }
-        },
-        error: (err: any) => {
-          console.error('Bot creation failed:', err);
-          this._toastService.error(
-            err?.error?.message || 'An error occurred while creating the bot.',
-            'Error'
-          );
+    this._httpService.mobileBankingPost('builder/chatbots', model).subscribe({
+      next: (result: any) => {
+        if (result.status === '00') {
+          this._toastService.success('Chatbot Created Successfully!', 'Success');
+          this.globalService.notifyBotCreated();
+          this.fetchAgentLists();
+          this.clearForm();
+        } else {
+          this._toastService.warning(result.message || 'Bot creation did not complete.', 'Warning');
         }
-      });
+      },
+      error: (err: any) => this._toastService.error(err?.error?.message || 'An error occurred.', 'Error')
+    });
+  }
+  
+ 
+  private updateBot(): void {
+    if (!this.editingBotId) return;
+
+    const model = {
+      chatbot_id: this.editingBotId,
+      name: this.form.value.name,
+      description: this.form.value.description
+    };
+    
+
+    this._httpService.mobileBankingPost('builder/chatbots/update', model).subscribe({
+      next: (result: any) => {
+        if (result.status === '00') {
+          this._toastService.success('Assistant updated successfully!', 'Success');
+          this.fetchAgentLists();
+          this.clearForm();
+        } else {
+          this._toastService.warning(result.message || 'Update failed.', 'Warning');
+        }
+      },
+      error: (err: any) => this._toastService.error(err?.error?.message || 'An error occurred during update.', 'Error')
+    });
+  }
+  
+
+  public editBot(bot: any): void {
+    this.editingBotId = bot.id;
+    this.form.patchValue({
+      name: bot.name,
+      description: bot.description
+    });
+    this.form.get('language')?.disable(); 
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+
+  public deleteBot(bot: any): void {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: `You are about to delete "${bot.name}". This action cannot be undone.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const payload = { chatbot_id: bot.id };
+        
+        this._httpService.mobileBankingPost('builder/chatbots/delete', payload).subscribe({
+          next: (res: any) => {
+            if (res.status === '00') {
+              Swal.fire('Deleted!', 'The assistant has been deleted.', 'success');
+              this.fetchAgentLists();
+            } else {
+              this._toastService.error(res.message || 'Deletion failed.', 'Error');
+            }
+          },
+          error: (err: any) => this._toastService.error(err?.error?.message || 'An error occurred.', 'Error')
+        });
+      }
+    });
+  }
+
+
+  public clearForm(): void {
+    this.form.reset();
+    this.form.get('language')?.enable();
+    this.editingBotId = null;
+    this.language = ['English'];
+    this.defaultLanguage = 'English';
+    this.removeImage();
   }
 
   public closeModal(): void {
-      this.activeModal.dismiss('Cross click');
+    this.activeModal.dismiss('Cross click');
   }
 
-  private saveChanges(): any {
-  }
+  private saveChanges(): any {}
 }

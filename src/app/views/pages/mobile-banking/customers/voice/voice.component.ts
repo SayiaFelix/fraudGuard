@@ -1,43 +1,52 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-voice',
   templateUrl: './voice.component.html',
   styleUrls: ['./voice.component.scss']
 })
-export class VoiceComponent implements OnInit {
+export class VoiceComponent implements OnInit, OnDestroy {
 
   voiceForm: FormGroup;
+  private destroy$ = new Subject<void>();
 
-  // Languages available in the dropdowns (excluding initially selected ones)
+  
   availableLanguages: string[] = ['Swahili', 'Arabic', 'Spanish', 'German'];
 
-  // --- State for Speech-to-text (Multi-select) ---
-  selectedSttLanguages: string[] = ['English', 'French']; // Initial values from image
-
-  // --- State for Text-to-speech (Single-select) ---
-  // We manage this directly with a form control, but keep a separate var for the pill
-  selectedTtsLanguage: string = 'English'; 
+ 
+  selectedSttLanguages: string[] = ['English', 'French'];
 
   constructor(private fb: FormBuilder) { }
 
   ngOnInit() {
-    // Initialize the form with values that match the UI image
+    
     this.voiceForm = this.fb.group({
       enableSpeechToText: [true],
       enableTextToSpeech: [false],
-      textToSpeechLanguage: [this.selectedTtsLanguage], // 'English'
-      sendTextMessage: [false]
+    
+      textToSpeechLanguage: [{ value: 'English', disabled: true }],
+      textToSpeechVoice: [{ value: '', disabled: true }], 
+      sendTextMessage: [{ value: false, disabled: true }]
     });
 
-    // When the language for Text-to-Speech changes in the form, update our local variable for the pill
-    this.voiceForm.get('textToSpeechLanguage')!.valueChanges.subscribe(value => {
-        this.selectedTtsLanguage = value;
+    
+    this.voiceForm.get('enableTextToSpeech')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(enabled => {
+        const controlsToToggle = ['textToSpeechLanguage', 'textToSpeechVoice', 'sendTextMessage'];
+        controlsToToggle.forEach(name => {
+            const control = this.voiceForm.get(name);
+            if (control) {
+                enabled ? control.enable() : control.disable();
+            }
+        });
     });
   }
 
-  // --- Getters for safe template access (prevents null errors) ---
+  
   get enableSpeechToTextValue(): boolean {
     return this.voiceForm.get('enableSpeechToText')?.value ?? false;
   }
@@ -45,9 +54,12 @@ export class VoiceComponent implements OnInit {
   get enableTextToSpeechValue(): boolean {
     return this.voiceForm.get('enableTextToSpeech')?.value ?? false;
   }
+  
+  get selectedTtsLanguageDisplay(): string {
+    return this.voiceForm.get('textToSpeechLanguage')?.value ?? 'English';
+  }
 
-  // --- Speech-to-text Methods ---
-
+  
   addSttLanguage(event: Event): void {
     const select = event.target as HTMLSelectElement;
     const langToAdd = select.value;
@@ -55,33 +67,37 @@ export class VoiceComponent implements OnInit {
     if (langToAdd && !this.selectedSttLanguages.includes(langToAdd)) {
       this.selectedSttLanguages.push(langToAdd);
     }
-    // Reset the select dropdown so the placeholder is shown again
-    select.value = '';
+    select.value = ''; 
   }
 
   removeSttLanguage(langToRemove: string): void {
     this.selectedSttLanguages = this.selectedSttLanguages.filter(lang => lang !== langToRemove);
   }
 
-  // --- Save Methods (for simulation) ---
+  
+  saveSettings(): void {
+    
+    const formData = this.voiceForm.getRawValue();
 
-  saveSpeechToTextSettings(): void {
-    console.log('Saving Speech-to-text settings:', {
-      enabled: this.enableSpeechToTextValue,
-      languages: this.selectedSttLanguages
-    });
-    // TODO: Replace alert with your actual API call (e.g., this._httpService.post(...))
-    alert('Speech-to-text settings saved! Check the browser console for the data.');
+    const settingsToSave = {
+        speechToText: {
+            enabled: formData.enableSpeechToText,
+            languages: this.selectedSttLanguages
+        },
+        textToSpeech: {
+            enabled: formData.enableTextToSpeech,
+            language: formData.textToSpeechLanguage,
+            voice: formData.textToSpeechVoice,
+            sendTranscript: formData.sendTextMessage
+        }
+    };
+
+    console.log('Saving settings:', settingsToSave);
+    alert('Settings saved! Check the browser console for the complete data object.');
   }
-
-  saveTextToSpeechSettings(): void {
-    // This button is disabled if the section is off, so no need to check enableTextToSpeechValue here
-    console.log('Saving Text-to-speech settings:', {
-      enabled: this.enableTextToSpeechValue,
-      language: this.voiceForm.value.textToSpeechLanguage,
-      sendTranscript: this.voiceForm.value.sendTextMessage
-    });
-    // TODO: Replace alert with your actual API call
-    alert('Text-to-speech settings saved! Check the browser console for the data.');
+  
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

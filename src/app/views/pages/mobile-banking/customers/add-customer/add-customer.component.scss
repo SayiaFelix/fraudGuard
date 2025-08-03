@@ -30,3 +30,39 @@ th {
   transform: scale(1.05);
   border-radius: 8px;
 }
+
+
+.btn-icon {
+  background-color: transparent;
+  border: 1px solid;
+  border-radius: 50%; 
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+
+  &:hover {
+    color: #fff;
+  }
+}
+
+.btn-edit {
+  border-color: #6b7280; 
+  color: #4b5563; // 
+
+  &:hover {
+    background-color: #4b5563;
+  }
+}
+
+.btn-delete {
+  border-color: #ef4444; 
+  color: #ef4444; 
+
+  &:hover {
+    background-color: #ef4444;
+  }
+}
