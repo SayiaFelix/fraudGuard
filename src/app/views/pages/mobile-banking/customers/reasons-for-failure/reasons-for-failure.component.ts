@@ -1,5 +1,5 @@
 // ====================================================================================
-// FINAL, CORRECTED AND SIMPLIFIED TYPESCRIPT FILE
+// FINAL, CORRECTED AND UPDATED TYPESCRIPT FILE
 // ====================================================================================
 
 import { Component, OnInit, OnDestroy } from '@angular/core';
@@ -27,7 +27,6 @@ export interface Channel {
 export class ReasonsForFailureComponent implements OnInit, OnDestroy {
 
   // --- Properties for UI State & Data ---
-  public isSetupSectionOpen = false;
   public copySuccessMessage = '';
   public webchatId = 'Loading...';
   public deployScript = 'Waiting for chatbot selection...';
@@ -35,6 +34,14 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
   public channels: Channel[] = [];
   public selectedChannel: Channel | null = null;
   public addChannelForm: FormGroup;
+
+  // --- ADDED: State flags for each collapsible section ---
+  public isSetupSectionOpen = false;
+  public isBasicsSectionOpen = true; // Set to true to be open by default as per the design
+  public isProactiveSectionOpen = false;
+  public isBrandSectionOpen = false;
+  public isPreChatFormSectionOpen = false;
+  public isMobileBehaviourSectionOpen = false;
 
   // --- API & Subscription Properties ---
   private chatbotSub: Subscription;
@@ -163,14 +170,40 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
     this.closeModal();
   }
 
-  toggleSetupSection() { this.isSetupSectionOpen = !this.isSetupSectionOpen; }
   copyToClipboard(text: string) { navigator.clipboard.writeText(text).then(() => { this.copySuccessMessage = 'Copied!'; setTimeout(() => { this.copySuccessMessage = ''; }, 2000); }); }
   onSaveChanges() { console.log("Save button clicked."); }
-  onTestClick() { window.open('/test-page', '_blank'); }
+  onTestClick() {
+    if (this.deployScript && this.deployScript !== 'Waiting for chatbot selection...') {
+      localStorage.setItem('chatbotTestScript', this.deployScript);
+      window.open('eclectics/chatbot/test', '_blank');
+    } else {
+      alert('The chatbot script is not available yet. Please select a chatbot to generate the script first.');
+    }
+  }
+
   openModal() { this.showModal = true; }
   closeModal() { this.showModal = false; this.addChannelForm.reset({ channelType: 'Webchat', name: '', language: 'English' }); }
   viewChannelDetails(channel: Channel) { this.selectedChannel = channel; }
-  goBackToList() { this.isSetupSectionOpen = false; this.selectedChannel = null; }
+  
+  // --- ADDED: Toggle functions for each section ---
+  toggleSetupSection() { this.isSetupSectionOpen = !this.isSetupSectionOpen; }
+  toggleBasicsSection() { this.isBasicsSectionOpen = !this.isBasicsSectionOpen; }
+  toggleProactiveSection() { this.isProactiveSectionOpen = !this.isProactiveSectionOpen; }
+  toggleBrandSection() { this.isBrandSectionOpen = !this.isBrandSectionOpen; }
+  togglePreChatFormSection() { this.isPreChatFormSectionOpen = !this.isPreChatFormSectionOpen; }
+  toggleMobileBehaviourSection() { this.isMobileBehaviourSectionOpen = !this.isMobileBehaviourSectionOpen; }
+  
+  // --- UPDATED: Resets all section states on going back ---
+  goBackToList() { 
+    this.selectedChannel = null; 
+    // Reset all collapsible sections to their default state
+    this.isSetupSectionOpen = false; 
+    this.isBasicsSectionOpen = true; // Or false if you prefer it closed
+    this.isProactiveSectionOpen = false;
+    this.isBrandSectionOpen = false;
+    this.isPreChatFormSectionOpen = false;
+    this.isMobileBehaviourSectionOpen = false;
+  }
 
   // --- Original Methods for Modals ---
   approveRecord() { this.modalRef = this.modalService.open(ConfirmDialogComponent, { centered: true }); this.modalRef.componentInstance.title = `Approve Record?`; this.modalRef.componentInstance.body = `Do you want to approve this record?`; }
