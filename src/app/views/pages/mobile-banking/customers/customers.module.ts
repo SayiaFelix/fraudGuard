@@ -18,6 +18,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { VoiceComponent } from './voice/voice.component';
 import { IntentComponent } from './intents/intent.component';
 import { FilterPipe } from './file.pipe';
+import { TestPageComponent } from './test-page/test-page.component';
 
 @NgModule({
     imports: [
@@ -40,7 +41,8 @@ import { FilterPipe } from './file.pipe';
     ReasonsForFailureComponent,
     VoiceComponent,
     IntentComponent,
-    FilterPipe 
+    FilterPipe,
+    TestPageComponent
     // CreateProductComponent
   ],
   entryComponents: [

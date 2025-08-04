@@ -1,0 +1,32 @@
+// Make the component a full-screen white overlay
+:host {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #ffffff;
+  z-index: 9999; // A high z-index to be on top of everything
+}
+
+// Style the "Close Test" button
+.back-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background-color: #f1f1f1;
+  color: #333;
+  border: 1px solid #ccc;
+  border-radius: 50px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 8px 16px;
+  line-height: 1;
+  z-index: 10000; // Keep it on top of the chatbot widget
+
+  &:hover {
+    background-color: #e1e1e1;
+  }
+}
