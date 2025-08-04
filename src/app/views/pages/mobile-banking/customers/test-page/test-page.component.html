@@ -1,2 +1,15 @@
-<!-- This div will render the chatbot script that we prepared in the component's TypeScript file. -->
-<div [innerHTML]="chatbotScript"></div>
+<!-- ==================================================================================== -->
+<!-- COMPLETE CODE FOR test-page.component.html -->
+<!-- ==================================================================================== -->
+
+<div class="test-page-container">
+  <h1>Chatbot Test Page</h1>
+
+  <p>If the chatbot script was passed correctly, the widget should appear on this page shortly.</p>
+
+  <!-- This block will only appear if the script was NOT found -->
+  <div *ngIf="errorMessage" class="error-message">
+    <h2>Error</h2>
+    <p>{{ errorMessage }}</p>
+  </div>
+</div>
