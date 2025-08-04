@@ -9,6 +9,7 @@ import { add } from 'ngx-bootstrap/chronos';
 import { AddCustomerComponent } from './add-customer/add-customer.component';
 import { VoiceComponent } from './voice/voice.component';
 import { IntentComponent } from './intents/intent.component';
+import { TestComponentRenderer } from '@angular/core/testing';
 
 
 
@@ -30,9 +31,12 @@ const routes: Routes = [
       { path: 'llm', component: ViewCustomerComponent },
       { path: 'publish', component: ReasonsForFailureComponent },
       { path: 'voice', component: VoiceComponent },
+     
     ]
   }
 ,
+
+ { path: 'test', component: TestComponentRenderer },
   // {
   //   path: 'action',
   //   component: SendSmsComponent
