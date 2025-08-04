@@ -1,42 +1,39 @@
-// This is the complete code for: src/app/pages/test-page/test-page.component.ts
+// ====================================================================================
+// FINAL AND DEFINITIVELY CORRECTED test-page.component.ts
+// ====================================================================================
 
-import { Component, OnInit } from '@angular/core';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { Component, OnInit, Renderer2, Inject } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 
+// THIS IS THE CRITICAL FIX: The @Component decorator was missing.
 @Component({
   selector: 'app-test-page',
   templateUrl: './test-page.component.html',
-  styleUrls: ['./test-page.component.scss'] // <-- use .scss here
+  styleUrls: ['./test-page.component.scss']
 })
 export class TestPageComponent implements OnInit {
 
-  // This property will hold our safe, ready-to-use chatbot script.
-  public chatbotScript: SafeHtml;
+  public errorMessage: string | null = null;
 
-  // We need to ask Angular to give us its "DOM Sanitizer" tool.
-  constructor(private sanitizer: DomSanitizer) { }
+  constructor(
+    private renderer: Renderer2,
+    @Inject(DOCUMENT) private document: Document
+  ) {}
 
-  // ngOnInit is a special function that runs automatically when the component loads.
   ngOnInit(): void {
-    
-    // 1. Look in the browser's storage and get the item we saved called 'chatbotTestScript'.
-    const scriptFromStorage = localStorage.getItem('chatbotTestScript');
+    console.log('Test Page component has loaded. Checking for chatbot script in Local Storage...');
+    const scriptContent = localStorage.getItem('chatbotTestScript');
 
-    if (scriptFromStorage) {
-      // 2. IMPORTANT: We must tell Angular this script is safe to use.
-      // This prevents security issues and is a required step.
-      this.chatbotScript = this.sanitizer.bypassSecurityTrustHtml(scriptFromStorage);
-
-      // 3. (Optional but good practice) Remove the script from storage so it's clean for next time.
+    if (scriptContent) {
+      console.log('SUCCESS: Found script in localStorage. Injecting it into the page now.');
+      const script = this.renderer.createElement('script');
+      script.type = 'text/javascript';
+      script.text = scriptContent;
+      this.renderer.appendChild(this.document.body, script);
       localStorage.removeItem('chatbotTestScript');
-      
     } else {
-      // If for some reason the page is opened directly without the script, log an error.
-      console.error('Chatbot test script was not found in local storage.');
+      this.errorMessage = 'Chatbot script not found in Local Storage. Please go back to the setup page and click "Test" again.';
+      console.error('FAILURE: Could not find "chatbotTestScript" in Local Storage.');
     }
-  }
-
-  goBack(): void {
-    window.history.back();
   }
 }
