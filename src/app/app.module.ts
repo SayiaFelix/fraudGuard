@@ -20,6 +20,7 @@ import { Ng2TelInputModule } from 'ng2-tel-input';
 import { APP_BASE_HREF_TOKEN } from './views/pages/mobile-banking/requests/constants';
 import { APP_BASE_HREF } from '@angular/common';
 import { ToastrModule,ToastrConfig, ToastrService } from 'ngx-toastr';
+import { PersonDetailsPanelComponent } from './components/person-details-panel/person-details-panel.component';
 
 
 // AoT requires an exported function for factories
@@ -31,6 +32,7 @@ export function HttpLoaderFactory(http: HttpClient) {
   declarations: [
     AppComponent,
     ErrorPageComponent,
+    PersonDetailsPanelComponent,
   ],
   imports: [
     BrowserModule,
