@@ -116,7 +116,7 @@
     transform: translateX(-50%);
     margin-bottom: 8px; 
 
-    background-color:#00A9E0; 
+    background-color:hsl(195, 100%, 44%); 
     color: white;
     padding: 5px 10px;
     border-radius: 4px;
@@ -252,7 +252,7 @@
 .submit-btn {
   width: 100%;
   padding: 14px 0;
-  background-color: #4A90E2;
+  background-color: #0d6efd;
   color: white;
   border: none;
   border-radius: 8px;
@@ -268,7 +268,7 @@
   position: relative;
   
   &:hover:not(:disabled) {
-    background-color: #357ABD;
+    background-color: #4285f4;
     transform: translateY(-1px);
   }
 
