@@ -1,562 +1,283 @@
+/* ==================================================================================== */
+/* FINAL, COMPLETE, AND CORRECTED SCSS FILE. PLEASE REPLACE THE ENTIRE FILE WITH THIS. */
+/* ==================================================================================== */
 
+// STYLES FOR VIEW 1: CHANNEL LIST
 .channel-page-container {
   padding: 25px;
-  background-color: #f4f5f7; 
+  background-color: #f4f5f7;
   border-radius: 6px;
 }
-
-.page-header-top {
-  margin-bottom: 20px; 
-}
-
-.add-channel-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
+.page-header-top { margin-bottom: 20px; }
+.add-channel-btn { display: flex; align-items: center; gap: 8px; }
 .tabs {
   display: flex;
   border-bottom: 1px solid #dee2e6;
-  margin-bottom: 25px; 
+  margin-bottom: 25px;
 }
-
 .tab-item {
-  padding: 10px 4px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #6c757d;
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  
-  margin-bottom: -1px; 
-  transition: color 0.2s ease, border-color 0.2s ease;
-
-  &.active {
-    color: #0d6efd; 
-    border-bottom-color: #0d6efd;
-  }
+  padding: 10px 4px; font-size: 14px; font-weight: 500; color: #6c757d; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color 0.2s ease, border-color 0.2s ease;
+  &.active { color: #0d6efd; border-bottom-color: #0d6efd; }
 }
-
-.channel-table-wrapper {
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  overflow: hidden;
-  background-color: #ffffff;
-}
-
-/* Add these styles to your existing SCSS file */
-
-.modal-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1050; /* Ensure it's on top of other content */
-}
-
-.modal-content {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-  width: 100%;
-  max-width: 500px; /* Standard modal width */
-  animation: fadeIn 0.3s ease-out; /* Simple fade-in animation */
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #dee2e6;
-  padding-bottom: 1rem;
-  margin-bottom: 1rem;
-  .modal-title {
-    font-size: 1.25rem;
-    font-weight: 500;
-  }
-  .btn-close { /* Basic styling for the 'X' button */
-      background: transparent;
-      border: 0;
-      font-size: 1.5rem;
-  }
-}
-
-.modal-body {
-  margin-bottom: 1rem;
-}
-
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  border-top: 1px solid #dee2e6;
-  padding-top: 1rem;
-}
-
-/* Helper classes for form styling from your screenshots */
-.form-label {
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-}
-
-.form-select, .form-control {
-  width: 100%;
-  padding: 0.5rem 1rem;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
-}
-
-.mb-3 {
-  margin-bottom: 1rem;
-}
-
-.text-danger {
-  color: #dc3545;
-}
-.small {
-  font-size: 0.875em;
-}
-.mt-1 {
-  margin-top: 0.25rem;
-}
-
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
+.channel-table-wrapper { border: 1px solid #e9ecef; border-radius: 8px; overflow: hidden; background-color: #ffffff; }
 .channel-table {
-  width: 100%;
-  border-collapse: collapse;
-
-  th, td {
-    padding: 16px 20px;
-    text-align: left;
-    vertical-align: middle;
-  }
-
+  width: 100%; border-collapse: collapse;
+  th, td { padding: 16px 20px; text-align: left; vertical-align: middle; }
   thead {
     background-color: #f8f9fa;
-    th {
-      color: #6c757d;
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
+    th { color: #6c757d; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
   }
-
   tbody {
-    tr {
-      border-top: 1px solid #e9ecef;
-    }
-    td {
-      color: #212529;
-      font-size: 14px;
-    }
+    tr { border-top: 1px solid #e9ecef; transition: background-color 0.2s ease; &:hover { background-color: #f0f5ff; } }
+    td { color: #212529; font-size: 14px; }
   }
 }
-
-/* ADD THESE STYLES TO YOUR EXISTING SCSS FILE */
-
-// Button to view details
-.btn-link {
-  background: none;
-  border: none;
-  color: #0d6efd; // Use your theme's primary link color
-  text-decoration: underline;
-  cursor: pointer;
-  padding: 0;
-  text-align: left;
-  &:hover {
-    color: darken(#0d6efd, 10%);
-  }
-}
-
-// Styles for the Details View
-.details-view-container {
-  padding: 20px;
-  // Using your existing background color for consistency
-  background-color: #ffffff; 
-  color: #212529;
-}
-
-.details-header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 30px;
-
-  h1 {
-    font-size: 24px;
-    font-weight: 600;
-    margin: 0;
-  }
-}
-
-.btn-icon {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  color: #212529; // Match text color
-  i {
-    font-size: 24px;
-  }
-}
-
-.details-content {
-  max-width: 800px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.details-section {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  background-color: #f8f9fa; // Light background for sections
-  padding: 20px;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: #e9ecef;
-  }
-
-  .section-icon {
-    font-size: 20px;
-    color: #6c757d;
-  }
-
-  .section-text {
-    flex-grow: 1;
-  }
-
-  .section-title {
-    font-weight: 600;
-    font-size: 16px;
-    color: #212529;
-  }
-
-  .section-description {
-    color: #6c757d;
-    font-size: 14px;
-  }
-
-  .section-action {
-    font-size: 20px;
-    color: #6c757d;
-  }
-}
-
-// Styles for the expanded "Basics" section
-.details-section.collapsible {
-  display: block; // Change display to stack header and body
-  cursor: default;
-  &:hover {
-      background-color: #f8f9fa; // No hover effect for the container
-  }
-
-  .section-header {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      cursor: pointer;
-  }
-  
-  .section-body {
-    padding-top: 25px;
-    margin-top: 20px;
-    border-top: 1px solid #e9ecef;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-  }
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 150px 1fr;
-  align-items: center;
-  gap: 20px;
-
-  label {
-    font-weight: 500;
-  }
-}
-
-.form-control-dark {
-  background-color: #ffffff;
-  border: 1px solid #ced4da;
-  color: #212529;
-  padding: 8px 12px;
-  border-radius: 6px;
-  width: 100%;
-}
-
-select.form-control-dark {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right 0.75rem center;
-    background-size: 16px 12px;
-}
-
-.icon-upload-area {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    .icon-preview {
-        width: 48px;
-        height: 48px;
-        background-color: #e9ecef;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 24px;
-        color: #6c757d;
-    }
-}
-
-.btn-secondary-dark {
-    background-color: #f8f9fa;
-    color: #212529;
-    border: 1px solid #ced4da;
-    padding: 8px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    &:hover {
-        background-color: #e9ecef;
-    }
-}
-.btn-link-dark {
-    background: none;
-    border: none;
-    text-decoration: underline;
-    color: #6c757d;
-    cursor: pointer;
-}
-
-.upload-hint {
-    grid-column-start: 2;
-    font-size: 12px;
-    color: #6c757d;
-}
-
-.form-row-checkbox {
-    grid-column-start: 2;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    input {
-      width: 16px;
-      height: 16px;
-    }
-}
-
-.form-actions {
-    grid-column: 2;
-    padding-top: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    .divider {
-        border: none;
-        border-top: 1px solid #e9ecef;
-        margin: 0;
-    }
-}
-
-.btn-danger {
-    background-color: #dc3545; // Standard danger color
-    color: white;
-    border: none;
-    padding: 10px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    align-self: flex-start; // Align to the left
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    &:hover {
-        background-color: darken(#dc3545, 10%);
-    }
-}
-
-.channel-cell {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
+.actions-cell { text-align: right; width: 50px; }
+.btn-link { background: none; border: none; color: #0d6efd; text-decoration: underline; cursor: pointer; padding: 0; text-align: left; &:hover { color: darken(#0d6efd, 10%); } }
+.channel-cell { display: flex; align-items: center; gap: 10px; }
 .toggle-switch {
-  position: relative;
-  display: inline-block;
-  width: 44px;
-  height: 24px;
+  position: relative; display: inline-block; width: 44px; height: 24px;
   input { opacity: 0; width: 0; height: 0; }
   .slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: .4s;
-    border-radius: 24px;
-    &::before {
-      position: absolute;
-      content: "";
-      height: 18px;
-      width: 18px;
-      left: 3px;
-      bottom: 3px;
-      background-color: white;
-      transition: .4s;
-      border-radius: 50%;
-    }
+    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 24px;
+    &::before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
   }
-  input:checked + .slider {
-    background-color: #0d6efd;
-  }
-  input:checked + .slider::before {
-    transform: translateX(20px);
+  input:checked + .slider { background-color: #0d6efd; }
+  input:checked + .slider::before { transform: translateX(20px); }
+  // Smaller toggle for field lists
+  &.small-toggle {
+    width: 36px; height: 20px;
+    .slider::before { height: 14px; width: 14px; }
+    input:checked + .slider::before { transform: translateX(16px); }
   }
 }
 
-/* --- ADD THESE STYLES TO THE BOTTOM of reasons-for-failure.component.scss --- */
+/* ==================================================================================== */
+/* STYLES FOR VIEW 2: CHANNEL DETAIL */
+/* ==================================================================================== */
 
-/* Styles for the Collapsible Setup Section */
-.setup-section {
-  display: block; /* Allows header and body to stack */
-  padding: 0;
-  cursor: default;
-  &:hover {
-    background-color: #f8f9fa; // Your light background color
+.details-view-container {
+  padding: 20px;
+  background-color: #ffffff;
+}
+.details-header {
+  display: flex; align-items: center; gap: 20px; margin-bottom: 30px;
+  .header-text-content {
+    flex-grow: 1;
+    h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px 0; }
+    .header-description { font-size: 14px; color: #6c757d; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80vw; }
   }
-
+}
+.details-content {
+  max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px;
+}
+.details-section {
+  background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; transition: background-color 0.2s ease; padding: 0;
   .section-header {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    padding: 20px;
-    cursor: pointer;
+    display: flex; align-items: center; gap: 20px; padding: 20px; cursor: pointer; transition: background-color 0.2s ease; border-radius: 8px;
+    &:hover { background-color: #e2e6ea; }
   }
+  .section-icon { font-size: 20px; color: #6c757d; flex-shrink: 0; }
+  .section-text { flex-grow: 1; }
+  .section-title { font-weight: 600; font-size: 16px; color: #212529; }
+  .section-description { color: #6c757d; font-size: 14px; }
+  .section-action { font-size: 20px; color: #6c757d; }
+  .section-body { padding: 24px; border-top: 1px solid #e9ecef; animation: fadeIn 0.4s ease-in-out; }
 }
 
+/* ==================================================================================== */
+/* STYLES FOR INDIVIDUAL DETAIL SECTIONS */
+/* ==================================================================================== */
+
+// Setup Section
 .setup-section-body {
-  padding: 0 20px 20px 20px;
-  border-top: 1px solid #e9ecef;
-  margin-top: 10px;
-  animation: fadeIn 0.4s ease-in-out;
+  .form-group-dark {
+    margin-bottom: 20px;
+    &:last-child { margin-bottom: 0; }
+    label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; }
+  }
+  .input-with-button {
+    position: relative;
+    .btn-copy { position: absolute; top: 50%; right: 10px; transform: translateY(-50%); background: transparent; border: none; color: #6c757d; cursor: pointer; padding: 5px; &:hover { color: #212529; } }
+  }
+  .form-control-dark, .code-textarea {
+    background-color: #ffffff; border: 1px solid #ced4da; color: #212529; padding: 10px 12px; border-radius: 6px; width: 100%;
+  }
+  .code-textarea { height: 180px; font-family: 'Courier New', Courier, monospace; resize: vertical; padding-right: 40px; }
+  .deploy-hint { font-size: 12px; color: #6c757d; margin-top: 8px; }
+  .setup-actions {
+    margin-top: 25px; display: flex; align-items: center; gap: 12px;
+    .btn-test { background-color: #ffffff; color: #212529; border: 1px solid #ced4da; padding: 8px 16px; border-radius: 6px; font-weight: 500; cursor: pointer; }
+    .btn-save { background-color: #0d6efd; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 500; cursor: pointer; }
+  }
 }
 
-.form-group-dark {
-  margin-top: 20px;
+// Basics Section
+.basics-section-body {
+  display: flex; flex-direction: column; gap: 28px; padding: 24px 32px;
+  .basics-form-group { display: flex; flex-direction: column; gap: 8px; }
+  .basics-form-label { font-weight: 600; font-size: 14px; color: #212529; }
+  .basics-form-control { background-color: #ffffff; border: 1px solid #ced4da; color: #212529; padding: 10px 12px; border-radius: 6px; width: 100%; max-width: 450px; }
+  select.basics-form-control {
+    -webkit-appearance: none; -moz-appearance: none; appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 16px 12px;
+  }
+  .basics-icon-area { display: flex; align-items: center; gap: 16px; }
+  .basics-icon-preview { width: 64px; height: 64px; background-color: #f1f3f5; border-radius: 50%; border: 1px dashed #ced4da; }
+  .btn.basics-upload-btn { background-color: #0d6efd; color: white; font-weight: 500; padding: 8px 24px; border-radius: 6px; border: none; &:hover { background-color: darken(#0d6efd, 8%); } }
+  .basics-upload-hint { font-size: 12px; color: #6c757d; }
+  .basics-checkbox-group { display: flex; flex-direction: column; gap: 16px; padding-top: 10px; }
+  .basics-checkbox-label {
+    display: flex; align-items: center; gap: 12px; font-weight: 500; color: #212529; font-size: 14px;
+    input[type="checkbox"] { width: 18px; height: 18px; }
+  }
+  .basics-actions { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; padding-top: 20px; border-top: 1px solid #e9ecef; margin-top: 10px; }
+  .btn.basics-save-btn { background-color: #0d6efd; color: white; font-weight: 500; padding: 8px 24px; border-radius: 6px; border: none; min-width: 120px; &:hover { background-color: darken(#0d6efd, 8%); } }
+  .btn.basics-delete-btn { background-color: #dc3545; color: white; font-weight: 500; padding: 8px 16px; border-radius: 6px; border: none; &:hover { background-color: darken(#dc3545, 10%); } }
+}
+
+// Brand Section
+.brand-section-body {
+  display: grid; grid-template-columns: 1fr 380px; gap: 0; padding: 0; background-color: #f1f3f5;
+  .details-content > & { max-width: 1200px; }
+  .brand-settings-panel { padding: 24px; background-color: #ffffff; border-right: 1px solid #e9ecef; }
+  .brand-preview-panel { padding: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; background-color: #f8f9fa; }
+  .brand-tabs { display: inline-flex; gap: 4px; border: 1px solid #e0e0e0; border-radius: 8px; padding: 4px; background-color: #f1f3f5; margin-bottom: 24px; }
+  .brand-tab-item {
+    padding: 6px 16px; border: none; background-color: transparent; border-radius: 6px; font-weight: 500; font-size: 14px; color: #495057; cursor: pointer; transition: background-color 0.2s ease, color 0.2s ease;
+    &.active { background-color: #ffffff; color: #0d6efd; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  }
+  .brand-tab-content { display: flex; flex-direction: column; gap: 24px; }
+  .brand-form-row { display: flex; flex-direction: column; gap: 8px; &.space-between { flex-direction: row; justify-content: space-between; align-items: center; } }
+  .brand-form-label { font-weight: 600; font-size: 14px; }
+  .brand-form-control { width: 100%; padding: 10px 12px; border: 1px solid #ced4da; border-radius: 6px; }
+  .brand-form-hint { font-size: 12px; color: #6c757d; margin: 0; }
+  .btn.brand-save-btn { background-color: #0d6efd; color: white; border: none; padding: 8px 24px; border-radius: 6px; align-self: flex-start; }
+  .preview-widget { width: 320px; height: 520px; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; }
+  .preview-header { display: inline-flex; margin: 8px; padding: 4px; background-color: #e3edff; border: 1px solid #b2ccff; border-radius: 8px; }
+  .preview-tab-item {
+    flex: 1; text-align: center; padding: 6px 10px; font-size: 13px; border: none; background-color: transparent; cursor: default; border-radius: 6px; font-weight: 500;
+    &.active { background-color: #ffffff; }
+  }
+  .preview-body { flex-grow: 1; padding: 0 20px 20px 20px; display: flex; flex-direction: column; gap: 16px; }
+  .preview-card { background-color: #e3edff; border-radius: 8px; padding: 12px; }
+  .preview-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .preview-card-title { font-weight: 600; font-size: 14px; }
+  .preview-card-close { background: none; border: none; font-size: 18px; font-weight: 600; cursor: pointer; }
+  .preview-card-text { font-size: 13px; color: #333; margin: 0; }
+  .preview-card-placeholder { background-color: #ffffff; border-radius: 8px; padding: 12px; text-align: center; flex-grow: 1; }
+  .btn.preview-save-btn { background-color: #0d6efd; color: white; border: none; padding: 10px; border-radius: 8px; width: 100%; }
+  .preview-close-main { position: absolute; bottom: 16px; right: 16px; width: 40px; height: 40px; border-radius: 50%; background-color: #000; color: #fff; border: none; font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; line-height: 1; }
+}
+
+// Proactive Messages Section
+.proactive-messages-section-body {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 24px; background-color: #f8f9fa;
+  .details-content > & { max-width: 1000px; }
+  .proactive-settings-panel { display: flex; flex-direction: column; gap: 24px; }
+  .color-settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .color-picker-group {
+    display: flex; flex-direction: column; gap: 8px;
+    label { font-weight: 500; font-size: 14px; }
+  }
+  .color-input-wrapper {
+    position: relative; display: flex; align-items: center; border: 1px solid #ced4da; border-radius: 6px; background-color: #fff; overflow: hidden;
+    .color-swatch { width: 40px; height: 38px; border-right: 1px solid #ced4da; }
+    .native-color-picker { position: absolute; top: 0; left: 0; width: 40px; height: 40px; opacity: 0; cursor: pointer; }
+    .color-hex-input { border: none; padding: 10px 12px; font-family: monospace; width: 100%; &:focus { outline: none; } }
+  }
+  .btn.proactive-save-btn { background-color: #0d6efd; color: white; border: none; padding: 8px 24px; border-radius: 6px; align-self: flex-start; }
+  .message-creation-section {
+    display: flex; flex-direction: column; gap: 8px; padding-top: 24px; border-top: 1px solid #e9ecef;
+    label { font-weight: 500; font-size: 14px; }
+  }
+  .message-placeholder { background-color: #e9ecef; color: #6c757d; padding: 12px; border-radius: 6px; font-size: 14px; }
+  .btn.proactive-create-btn { background-color: #0d6efd; color: white; border: none; padding: 10px 16px; border-radius: 6px; align-self: flex-start; }
+  .proactive-preview-panel { display: flex; align-items: center; justify-content: center; position: relative; min-height: 400px; }
+  .chat-preview-container { width: 100%; max-width: 350px; display: flex; flex-direction: column; gap: 12px; }
+  .preview-message-bubble {
+    padding: 10px 14px; border-radius: 18px; font-size: 14px; max-width: 80%;
+    &.from-visitor { background-color: #e9ecef; align-self: flex-end; border-bottom-right-radius: 4px; }
+    &.from-ai { background-color: #fff; color: #212529; align-self: flex-start; border-bottom-left-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+  }
+  .preview-reply-buttons { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; margin-top: 10px; }
+  .preview-reply-btn { padding: 8px 14px; border: 1px solid; border-radius: 18px; cursor: default; font-size: 14px; }
+  .preview-widget-icon { position: absolute; bottom: 10px; right: 10px; width: 56px; height: 56px; border-radius: 50%; background-color: #000; color: #fff; border: none; font-size: 24px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+}
+
+// Pre-chat Form Section
+.prechat-section-body {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 32px; padding: 24px;
+  .details-content > & { max-width: 1100px; }
+}
+.prechat-settings-panel { display: flex; flex-direction: column; gap: 16px; }
+.prechat-form-row {
+  display: flex; align-items: center;
+  &.space-between { justify-content: space-between; }
+}
+.prechat-form-label {
+  font-size: 14px; font-weight: 500; color: #212529;
+  &.bold { font-weight: 600; }
+}
+.prechat-divider { border: none; border-top: 1px solid #e9ecef; margin: 8px 0; }
+.prechat-fields-list { display: flex; flex-direction: column; gap: 12px; border: 1px solid #e9ecef; border-radius: 8px; padding: 16px; background-color: #fff; }
+.prechat-field-item {
+  display: flex; justify-content: space-between; align-items: center;
+  .field-name { font-weight: 500; }
+  .field-controls { display: flex; align-items: center; gap: 16px; }
+}
+.prechat-checkbox-label {
+  display: flex; align-items: center; gap: 8px; font-size: 14px;
+  input[type="checkbox"] { width: 16px; height: 16px; }
+}
+.btn.prechat-add-btn {
+  background-color: transparent; color: #0d6efd; border: 1px solid #0d6efd; font-weight: 500; padding: 8px 16px; border-radius: 6px; align-self: flex-start;
+  &:hover { background-color: #e3edff; }
+}
+.btn.prechat-save-btn { background-color: #0d6efd; color: white; border: none; font-weight: 500; padding: 8px 24px; border-radius: 6px; align-self: flex-start; margin-top: 16px; }
+.prechat-preview-panel { display: flex; align-items: center; justify-content: center; background-color: #e9ecef; border-radius: 8px; padding: 24px; }
+.preview-widget.prechat {
+  width: 100%; max-width: 340px; background-color: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden;
+}
+.prechat-preview-header { background: linear-gradient(90deg, #0d6efd, #0d9afd); color: white; padding: 16px; display: flex; align-items: center; gap: 12px; font-size: 16px; font-weight: 600; }
+.prechat-preview-body {
+  padding: 20px;
+  p { font-size: 14px; line-height: 1.5; color: #495057; text-align: center; margin-bottom: 20px; }
+}
+.prechat-preview-form { display: flex; flex-direction: column; gap: 16px; }
+.preview-form-group {
+  display: flex; flex-direction: column; gap: 6px;
   label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 8px;
-    font-size: 14px;
+    font-size: 14px; font-weight: 500; color: #495057;
+    span { color: #dc3545; }
   }
+  input { width: 100%; padding: 10px 12px; border: 1px solid #ced4da; border-radius: 6px; background-color: #f8f9fa; }
 }
+.btn.prechat-preview-start-btn { width: 100%; background-color: #0d6efd; color: white; border: none; font-weight: 500; padding: 12px; border-radius: 6px; margin-top: 24px; }
+.prechat-preview-footer { background-color: #f8f9fa; color: #6c757d; text-align: center; font-size: 12px; padding: 12px; border-top: 1px solid #e9ecef; }
 
-.input-with-button {
-  position: relative;
-  .btn-copy {
-    position: absolute;
-    top: 50%;
-    right: 10px;
-    transform: translateY(-50%);
-    background: transparent;
-    border: none;
-    color: #6c757d; // Use your theme's muted text color
-    cursor: pointer;
-    padding: 5px;
-    &:hover {
-      color: #212529; // Use your theme's primary text color
-    }
-  }
+/* MODAL & OTHER STYLES */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+.modal-backdrop {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 1050;
 }
-
-.code-textarea {
-  background-color: #ffffff; // Use your theme's input background
-  border: 1px solid #ced4da;
-  color: #212529;
-  padding: 12px;
-  padding-right: 40px; // Make space for the copy button
-  border-radius: 6px;
-  width: 100%;
-  height: 180px;
-  font-family: 'Courier New', Courier, monospace; // Monospaced font for code
-  font-size: 14px;
-  resize: vertical;
+.modal-content {
+  background: white; padding: 20px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); width: 100%; max-width: 500px; animation: fadeIn 0.3s ease-out;
 }
-
-.deploy-hint {
-  font-size: 12px;
-  color: #6c757d;
-  margin-top: 8px;
+.modal-header {
+  display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #dee2e6; padding-bottom: 1rem; margin-bottom: 1rem;
+  .modal-title { font-size: 1.25rem; font-weight: 500; }
+  .btn-close { background: transparent; border: 0; font-size: 1.5rem; }
 }
-
-.setup-actions {
-  margin-top: 25px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.modal-body { margin-bottom: 1rem; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 0.5rem; border-top: 1px solid #dee2e6; padding-top: 1rem; }
+.form-label { margin-bottom: 0.5rem; font-weight: 500; }
+.form-select, .form-control { width: 100%; padding: 0.5rem 1rem; border: 1px solid #ced4da; border-radius: 4px; }
+.mb-3 { margin-bottom: 1rem; }
+.text-danger { color: #dc3545; }
+.small { font-size: 0.875em; }
+.mt-1 { margin-top: 0.25rem; }
+.btn-icon {
+  background: transparent; border: none; cursor: pointer; color: #212529; i { font-size: 24px; }
 }
-
-.btn-save {
-  background-color: #0d6efd;
-  color: white;
-  border: none;
-  padding: 10px 24px;
-  border-radius: 6px;
-  font-weight: 500;
-  cursor: pointer;
-  &:hover {
-    background-color: darken(#6c757d, 5%);
-  }
-}
-
-.btn-test {
-  background-color: transparent;
-  color: #0d6efd;
-  border: 1px solid #ced4da;
-  padding: 10px 24px;
-  border-radius: 6px;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  &:hover {
-    background-color: #f8f9fa;
-  }
-}
-
-.copy-feedback {
-  font-size: 14px;
-  color: #0d6efd; // Use your theme's primary/success color
-  font-weight: 500;
-}
-
