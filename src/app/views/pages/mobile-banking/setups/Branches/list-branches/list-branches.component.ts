@@ -1,15 +1,6 @@
-import { Component, Input, OnInit, TemplateRef, ViewChild , ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import {NgbActiveModal, NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
-import { ColumnMode, DatatableComponent } from '@swimlane/ngx-datatable';
-import { GlobalService } from 'src/app/shared/services/global.service';
-import { HttpService } from 'src/app/shared/services/http.service';
-import {AddBranchComponent} from "../add-branch/add-branch.component";
-import { HttpResponseBase } from '@angular/common/http';
-import Swal from 'sweetalert2';
-import { ConfirmDialogComponent } from 'src/app/shared/components/confirm-dialog/confirm-dialog.component';
-
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-list-branches',
@@ -17,334 +8,159 @@ import { ConfirmDialogComponent } from 'src/app/shared/components/confirm-dialog
   styleUrls: ['./list-branches.component.scss']
 })
 export class ListBranchesComponent implements OnInit {
+  // --- Master Data Store ---
+  allPeople: any[] = []; // The original, unfiltered list of all people
 
-  // bread crumb items
-  breadCrumbItems: Array<{}>;
-  rows: any = [];
-  filteredRows: any = [];
-  loadingIndicator = true;
-  reorderable = true;
+  // --- Filtered & Displayed Data ---
+  filteredPeople: any[] = []; // The list of people after all filters are applied
+  visiblePeople: any[] = [];  // The paginated portion of `filteredPeople` shown to the user
 
-  columns = [
-    { name: 'ID', prop: 'id' },
-    { name: 'Branch Name', prop:'name' },
-    { name: 'Branch Code', prop:'code' },
-    { name: 'Created On', prop:'createdOn' },
-    { name: 'Updated On', prop:'updatedOn' },
-    { name: 'Actions', prop: 'id' }
-  ];
+  // --- Counters and Pagination ---
+  recordsToShow = 20; // How many records to show per "page" or "load more"
 
-  allColumns = [...this.columns]
-
-  public form: FormGroup;
-  @Input() formData: { name: any; branchCode: any; is_active: any; };
-
-  ColumnMode = ColumnMode;
-  public imageFile: File;
-  @ViewChild('table') table: DatatableComponent;
-
-  public modalRef: NgbModalRef;
-
-  title: string = "Branches";
-
-  actions = ["Edit","Delete"];
-
-  loading: boolean;
-
-  totalRecords: number;
-
-  dashboards: { id: string; src: string }[] = [
-    {
-      id: 'dashboard1',
-      src: 'https://dub01.online.tableau.com/#/site/peternjosh7365-adf6ffe291/views/Book1/Sheet20',
-    },
-    // {
-    //   id: 'dashboard2',
-    //   src: 'https://dub01.online.tableau.com/t/sayiafelix18-8910cf7f09/views/Book1/Sheet17',
-    // },
-  ];
-
-  paginatedDashboards: { id: string; src: string }[] = [];
-  currentPage = 0;
-  itemsPerPage = 4;
-
-
-  // Array to hold chat messages
-  messages: { sender: string; text: string }[] = [];
-
-  // Variable to hold user input
-  userInput: string = '';
-  isChatVisible: boolean = false; 
-
-  constructor(private httpService: HttpService,
-              private modalService: NgbModal,
-              private cdr: ChangeDetectorRef,
-              public fb: FormBuilder,
-              public router: Router,
-              public globalService: GlobalService) {
+  get totalRecords(): number {
+    return this.filteredPeople.length;
   }
+
+  // --- Details Side Panel Properties ---
+  isDetailsPanelVisible = false;
+  selectedPerson: any = null;
+
+  // --- "Add Person" Modal Properties ---
+  @ViewChild('addPersonModal') addPersonModal: ElementRef;
+  private modalRef: NgbModalRef;
+  addPersonForm: FormGroup;
+  isSubmitted = false;
+
+  // --- Filter Properties ---
+  searchTerm: string = '';
+  nameFilter: string = '';
+  idFilter: string = '';
+  emailFilter: string = '';
+  locationFilter: string = '';
+
+  constructor(
+    private modalService: NgbModal,
+    private fb: FormBuilder
+  ) {}
 
   ngOnInit() {
-    this.updatePagination()
-    this.breadCrumbItems = [{ label: 'Mobile banking', path: '/mobile-banking/branches/all-branches' },
-      { label: 'Pages', path: '/' }, { label: 'Branches', active: true }];
-    this.getIndividualData(0);
+    this.loadInitialData();
+    this.applyFiltersAndPagination();
 
-    this.form = this.fb.group({
-      name: [this.formData ? this.formData.name : '', [Validators.required]],
-      code: [this.formData ? this.formData.branchCode : '', [Validators.required]],
-      is_active: [this.formData ? this.formData.is_active : '', [Validators.nullValidator]]
+    this.addPersonForm = this.fb.group({
+      name: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      phone: [''],
+      location: [''],
+      role: ['User', Validators.required]
     });
   }
 
-  updatePagination() {
-    const startIndex = this.currentPage * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    this.paginatedDashboards = this.dashboards.slice(startIndex, endIndex);
+  loadInitialData() {
+    this.allPeople = [
+        { name: '-', id: '01K1G5BY34KAYFEY44D8AE8PAW', email: '-', location: '-', ipAddress: '-', country: '-', phone: '-', notes: [] },
+        { name: 'Purity Jangaya', id: '01JSKX0FRZTM2G1DV1TW9K9XCR', email: 'purity.j@example.com', location: 'Nairobi', ipAddress: '41.90.101.26', country: 'Kenya', phone: '+2547...', notes: [] },
+        { name: 'Chris Theuri', id: '01JSKQM6EK9EDCJS2VFY4HSW39', email: 'chris.t@example.com', location: 'Mombasa', ipAddress: '192.168.1.10', country: 'Kenya', phone: '+2547...', notes: ['First note created.'] },
+        { name: 'John Doe', id: '01JXYZABCDEF1234567890ABCD', email: 'john.d@example.com', location: 'New York', ipAddress: '10.0.0.1', country: 'USA', phone: '+1234567890', notes: [] },
+        { name: 'Jane Smith', id: '01ABCDEFGH1234567890UVWXYZ', email: 'jane.s@example.com', location: 'London', ipAddress: '172.16.0.1', country: 'UK', phone: '+4412345678', notes: [] },
+    ];
   }
-  
-  nextPage() {
-    if ((this.currentPage + 1) * this.itemsPerPage < this.dashboards.length) {
-      this.currentPage++;
-      this.updatePagination();
+
+  // NEW FUNCTION: Clears all filter inputs and refreshes the list
+  resetFilters() {
+    this.searchTerm = '';
+    this.nameFilter = '';
+    this.idFilter = '';
+    this.emailFilter = '';
+    this.locationFilter = '';
+    this.applyFiltersAndPagination();
+  }
+
+  loadMorePeople() {
+    this.recordsToShow += 20;
+    this.visiblePeople = this.filteredPeople.slice(0, this.recordsToShow);
+  }
+
+  showPersonDetails(person: any) {
+    this.selectedPerson = person;
+    this.isDetailsPanelVisible = true;
+  }
+
+  hidePersonDetails() {
+    this.isDetailsPanelVisible = false;
+    this.selectedPerson = null;
+  }
+
+  get formControls() {
+    return this.addPersonForm.controls;
+  }
+
+  openAddPersonModal() {
+    this.isSubmitted = false;
+    this.addPersonForm.reset({ role: 'User' });
+    this.modalRef = this.modalService.open(this.addPersonModal, {
+      centered: true,
+      windowClass: 'dark-theme-modal',
+      backdropClass: 'dark-theme-backdrop'
+    });
+  }
+
+  savePerson() {
+    this.isSubmitted = true;
+    if (this.addPersonForm.invalid) {
+      return;
     }
-  }
-  
-  prevPage() {
-    if (this.currentPage > 0) {
-      this.currentPage--;
-      this.updatePagination();
-    }}
-    
-  public addBranch() {
-    this.modalRef = this.modalService.open(AddBranchComponent, {centered: true, size: "xl"});
-    this.modalRef.componentInstance.title = 'Add Branch';
-    this.modalRef.result.then((result) => {
-      if (result === 'success') {
-        this.getIndividualData(0);
-      }
-    }, (reason) => {
-    });
-  }
-
-  public editBranch(formData: any) {
-    this.modalRef = this.modalService.open(AddBranchComponent, {centered: true, size: "xl"});
-    this.modalRef.componentInstance.formData = formData;
-    this.modalRef.componentInstance.title = `Edit Branch (${formData.name})`;
-    this.modalRef.result.then((result) => {
-      if (result === 'success') {
-        this.getIndividualData(0);
-      }
-    }, (reason) => {
-    });
-  }
-
-  deleteBranch(formData: any) {
-    this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
-    this.modalRef.componentInstance.title = `Delete this Branch?`;
-    this.modalRef.componentInstance.body = `Do you want to delete branch?`;
-    // this.modalRef.componentInstance.formData = formData;
-    this.modalRef.result.then((result: any) => {
-      if (result === 'success') {
-      const model = {
-          id: formData.id
-        }
-        this.httpService.mobileBankingPost('config/branch/delete',model).subscribe(
-          (result: any) => {
-            if (result.status === 200) {
-              Swal.fire('Branch Deleted',
-                'Branch has been deleted successfully.',
-                'success').then(r => console.log(r))
-                this.getIndividualData(0);
-            } else {
-              Swal.fire('Record deletion error',
-                'Branch could not be deleted.',
-                'error').then(r => console.log(r))
-            }
-          },
-          (error: any) => {
-            Swal.fire('Record deletion error',
-              `Record deletion error`,
-              'error')
-          }
-        );
-      }
-    });
-  }
-
-  getIndividualData(event: number): void {
-
-    this.loading = true;
-
-    // this.rows = this.tempProductData;
-    const model = {
-      page:0,
-      size:50
+    const newPersonData = this.addPersonForm.value;
+    const newPerson = {
+        ...newPersonData,
+        id: 'GENERATED_ID_' + Date.now(),
+        location: newPersonData.location || '-',
+        ipAddress: '-',
+        country: '-',
+        notes: []
     };
 
-    this.httpService.mobileBankingPost('config/branch/fetch/region/page', model).subscribe((res: any) => {
-      if (res.status===200){
-        this.loading = false;
-
-        this.totalRecords = res.totalItems;
-        // this.activeModal.close('success');
-      //  Swal.fire('success','records fetched successfully','success')
-      //  .then(r=>console.log(r))
-        let response = res.data.map((item: any, index: any) => {
-          const res = {...item,
-            frontendId: index + 1,
-          };
-          return res;
-        });
-
-        this.rows = response;
-        console.log(this.rows);
-
-      }
-      else{
-        Swal.fire('failed','unable to fetch records','error')
-      }
-    });
+    this.allPeople.unshift(newPerson);
+    this.applyFiltersAndPagination();
+    this.modalRef.close();
   }
 
-  onFileChange(event: any) {
-    if (event.target.files && event.target.files.length) {
-      this.imageFile = event.target.files[0];
-    }
-  }
-
-  toggleExpandRow(row:any){
-    this.table.rowDetail.toggleExpandRow(row);
-  }
-
-  onDetailToggle(event:any){
-    console.log('Detail Toggled', event);
-  }
-
-  updateColumns(updatedColumns: any) {
-    this.columns = [...updatedColumns];
-  }
-
-  triggerEvent(data: string) {
-
-    let eventData = JSON.parse(data)
-
-    if (eventData.action == 'View') {
-    }else if (eventData.action == 'Edit') {
-      this.editBranch(eventData.row);
-    }
-    else if (eventData.action == 'Delete') {
-      this.deleteBranch(eventData.row);
+  applyFiltersAndPagination(resetPagination: boolean = true) {
+    if (resetPagination) {
+      this.recordsToShow = 20;
     }
 
-  }
+    let people = [...this.allPeople];
 
-  updateFilteredRowsEvent(data: string) {
-    console.log(data);
-
-    this.filteredRows = data
-  }
-
-
-  toggleChat() {
-    this.isChatVisible = !this.isChatVisible;
-    console.log('Chat visibility:', this.isChatVisible);
-    this.cdr.detectChanges(); // Ensure the DOM updates
-  }
-  
-  sendMessage(): void {
-    if (this.userInput.trim() === '') {
-      return; // Do not send empty messages
+    const lowercasedTerm = this.searchTerm.trim().toLowerCase();
+    if (lowercasedTerm) {
+      people = people.filter(p =>
+        (p.name?.toLowerCase().includes(lowercasedTerm)) ||
+        (p.id?.toLowerCase().includes(lowercasedTerm)) ||
+        (p.email?.toLowerCase().includes(lowercasedTerm)) ||
+        (p.location?.toLowerCase().includes(lowercasedTerm))
+      );
     }
-  
-    // user's message to the messages array
-    const userMessage = this.userInput.trim();
-    this.messages.push({ sender: 'user', text: userMessage });
-    this.userInput = ''; // Clear the input field
-  
-    // Show a 'Typing...' loading indicator for the bot
-    this.messages.push({ sender: 'bot', text: 'Typing...' });
-  
-    // User ID - replace with a dynamic value if needed
-    const userId = '12345';
-  
-    // Call the Flask backend to get the bot's response
-    this.globalService.sendMessageToBot(userMessage, userId).subscribe({
-      next: (response) => {
-        // Replace the 'Typing...' message with the actual bot response
-        this.messages.pop(); // Remove 'Typing...' indicator
-        this.messages.push({ sender: 'bot', text: response.response || 'Sorry, no response received.' });
-      },
-      error: (error) => {
-        console.error('Error communicating with the bot:', error);
-        this.messages.pop(); // Remove 'Typing...' indicator
-        this.messages.push({ sender: 'bot', text: 'Sorry, something went wrong. Please try again later.' });
-      },
-      complete: () => {
-        setTimeout(() => this.scrollToBottom(), 100);
-      },
-    });
-  }
-  
 
-  // sendMessage(): void {
-  //   if (this.userInput.trim() === '') {
-  //     return; // Do not send empty messages
-  //   }
-  
-  //   // Add user's message to the messages array
-  //   this.messages.push({ sender: 'user', text: this.userInput });
-  //   const userMessage = this.userInput;
-  //   this.userInput = ''; // Clear input field
-  
-  //   // Show a loading indicator for the bot
-  //   this.messages.push({ sender: 'bot', text: 'Typing...' });
-  
-  //   // User ID (replace '12345' with dynamic value if needed)
-  //   const userId = '12345';
-  
-  //   // Call the Flask backend to get the bot's response
-  //   this.globalService.sendMessageToBot(userMessage, userId).subscribe(
-  //     response => {
-  //       // Replace the loading indicator with the actual bot reply
-  //       this.messages.pop(); // Remove the 'Typing...' message
-  //       this.messages.push({ sender: 'bot', text: response.response }); // Use response.response
-  //     },
-  //     error => {
-  //       // Replace the loading indicator with an error message
-  //       this.messages.pop(); // Remove the 'Typing...' message
-  //       this.messages.push({ sender: 'bot', text: 'Sorry, something went wrong. Please try again later.' });
-  //     }
-  //   );
-  //   setTimeout(() => this.scrollToBottom(), 100);
-  // }
-
-  
-  // Helper method to scroll the chat to the bottom
-  scrollToBottom(): void {
-    const chatContainer = document.getElementById('chat-container');
-    if (chatContainer) {
-      chatContainer.scrollTop = chatContainer.scrollHeight;
+    const lowercasedNameFilter = this.nameFilter.trim().toLowerCase();
+    if (lowercasedNameFilter) {
+      people = people.filter(p => p.name?.toLowerCase().includes(lowercasedNameFilter));
     }
-  }
-  
-  // sendMessage(): void {
-  //   if (this.userInput.trim() === '') {
-  //     return; // Do not send empty messages
-  //   }
+    const lowercasedIdFilter = this.idFilter.trim().toLowerCase();
+    if (lowercasedIdFilter) {
+      people = people.filter(p => p.id?.toLowerCase().includes(lowercasedIdFilter));
+    }
+    const lowercasedEmailFilter = this.emailFilter.trim().toLowerCase();
+    if (lowercasedEmailFilter) {
+      people = people.filter(p => p.email?.toLowerCase().includes(lowercasedEmailFilter));
+    }
+    const lowercasedLocationFilter = this.locationFilter.trim().toLowerCase();
+    if (lowercasedLocationFilter) {
+      people = people.filter(p => p.location?.toLowerCase().includes(lowercasedLocationFilter));
+    }
 
-  //   this.messages.push({ sender: 'user', text: this.userInput });
-  //   const userMessage = this.userInput;
-  //   this.userInput = '';
-
-  //   // Call the Flask backend to get the bot's response
-  //   this.globalService.sendMessageToBot(userMessage).subscribe(response => {
-  //     this.messages.push({ sender: 'bot', text: response.reply });
-  //   });
-  // }
-
-  closeChat() {
-    this.messages = [];
-    this.userInput = '';
+    this.filteredPeople = people;
+    this.visiblePeople = this.filteredPeople.slice(0, this.recordsToShow);
   }
 }
