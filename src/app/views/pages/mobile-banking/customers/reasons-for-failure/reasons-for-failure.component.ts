@@ -166,11 +166,20 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
     console.log("Pre-Chat Form Saved", this.preChatForm.value);
   }
   onTestClick() {
-    if (this.deployScript && this.deployScript !== 'Waiting for chatbot selection...') {
-      localStorage.setItem('chatbotTestScript', this.deployScript);
-      window.open('eclectics/chatbot/test', '_blank');
-    } else { alert('The chatbot script is not available yet.'); }
+  // This will run every time you click the "Test" button
+  console.log('--- "Test" button clicked! ---');
+  console.log('Value of this.deployScript is:', this.deployScript);
+  console.log('--- Checking condition... ---');
+
+  if (this.deployScript && this.deployScript !== 'Waiting for chatbot selection...') {
+    console.log('SUCCESS: Condition passed. Saving to localStorage and opening new tab.');
+    localStorage.setItem('chatbotTestScript', this.deployScript);
+    window.open('eclectics/chatbot/test', '_blank');
+  } else {
+    console.log('FAILURE: Condition failed. The IF statement was false.');
+    alert('The chatbot script is not available yet. Please select a chatbot to generate the script first.');
   }
+}
   openModal() { this.showModal = true; }
   closeModal() { this.showModal = false; this.addChannelForm.reset({ channelType: 'Webchat', name: '', language: 'English' }); }
   viewChannelDetails(channel: Channel) { this.selectedChannel = channel; }
