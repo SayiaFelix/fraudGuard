@@ -297,7 +297,7 @@
 
           <!-- Trigger List -->
           <div *ngIf="!isLoading">
-          <div *ngFor="let trig of triggerTypes"
+           <div *ngFor="let trig of triggerTypes"
                 (click)="openAiActionPanel(trig)"
                 class="card p-3 mb-3 border-0 shadow-sm"
                 [ngClass]="{'bg-light': selectedAction?.type === trig.type}"
@@ -407,8 +407,8 @@
       </div>
 
         <div *ngIf="showActionType"
-        class="bg-white border rounded shadow-sm p-3 fixed-height-panels"
-        style="width: 100%; max-width: 320px; flex-shrink: 0;">
+           class="bg-white border rounded shadow-sm p-3 fixed-height-panels"
+             style="width: 100%; max-width: 320px; flex-shrink: 0;">
 
             <div class="d-flex justify-content-between align-items-center mb-3">
               <h5 class="mb-0" style="font-family: Roboto; font-weight: 500; font-size: 20px; color: #364153;">
@@ -457,195 +457,545 @@
         class="bg-white border rounded shadow-sm p-3 fixed-height-panel"
         style="width: 100%; max-width: 380px; flex-shrink: 0;">
 
-        <form [formGroup]="actionForm" (ngSubmit)="onActionSubmit()">
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <!-- Title that becomes an input when clicked -->
-                <div class="d-flex align-items-center flex-grow-1">
-                  <div *ngIf="!editingName; else nameInput" class="d-flex align-items-center w-100">
-                    <div class="fw-bold flex-grow-1 d-flex align-items-center" 
-                        style="cursor: pointer; padding: 0.375rem 0; border: 1px solid transparent; 
-                                font-family: Roboto; font-weight: 500; font-style: Medium; 
-                                font-size: 20px; line-height: 100%; letter-spacing: 0%; color: #364153;">
-                    
-                      <span (click)="editingName = true">
-                          {{ actionForm.get('name')?.value || 'Untitled Action' }}
-                        </span>
+      <form [formGroup]="actionForm" (ngSubmit)="onActionSubmit()">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <!-- Title that becomes an input when clicked -->
+            <div class="d-flex align-items-center flex-grow-1">
+              <div *ngIf="!editingName; else nameInput" class="d-flex align-items-center w-100">
+                <div class="fw-bold flex-grow-1 d-flex align-items-center" 
+                    style="cursor: pointer; padding: 0.375rem 0; border: 1px solid transparent; 
+                            font-family: Roboto; font-weight: 500; font-style: Medium; 
+                            font-size: 20px; line-height: 100%; letter-spacing: 0%; color: #364153;">
+                  <span (click)="editingName = true">
+                    {{ actionForm.get('name')?.value || 'Untitled Action' }}
+                  </span>
+                  <i style="font-size: 15px; cursor: pointer;" 
+                    class="mdi mdi-pencil ms-1 text-muted"
+                    (click)="editingName = true; $event.stopPropagation()"></i>
+                </div>
+              </div>
+              
+              <ng-template #nameInput>
+                <div class="d-flex align-items-center w-100">
+                  <input type="text" formControlName="name" 
+                        class="form-control border-0 p-0 fw-bold" 
+                        style="font-family: Roboto; font-weight: 500; font-size: 20px;
+                                line-height: 100%; color: #364153; box-shadow: none;"
+                        placeholder="Enter name for this action"
+                        (blur)="editingName = false"
+                        (keyup.enter)="editingName = false">
+                  <i class="feather icon-check ms-2 text-muted" 
+                    style="font-size: 16px; cursor: pointer;" 
+                    (click)="editingName = false"></i>
+                </div>
+              </ng-template>
+            </div>
+            <button class="btn-close btn-close-dark ms-2" (click)="showActionForm = false"></button>
+          </div>
+  
+          <p class="text-muted mb-1" style="font-size: 14px;" *ngIf="selectedActionType !== 'send_message'">
+            Configure the {{ actionForm.get('name')?.value || 'action' }} settings.
+          </p>
+          <p class="text-muted mb-3" *ngIf="selectedActionType == 'send_message'" style="font-size: 14px;">Submit a preset reply to the chat.</p>
+          <hr>
 
+          <!-- Dynamically render based on action type -->
+          <ng-container [ngSwitch]="selectedActionType">
+            <!-- Send Message Action -->
+            <div *ngSwitchCase="'send_message'" class="mb-3">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Message</label>
+                <textarea formControlName="message" rows="3" class="form-control" placeholder="Enter your varient message"
+                          [class.is-invalid]="actionForm.get('message')?.touched && actionForm.get('message')?.invalid"></textarea>
+                <div *ngIf="actionForm.get('message')?.touched && actionForm.get('message')?.invalid" class="invalid-feedback">
+                  Message is required.
+                </div>
+                <div class="text-muted mt-1" style="font-size: 12px;">
+                  A random message is used each time the action is triggered.
+                </div>
+                <button type="button" class="mt-1 btn btn-link p-0 text-decoration-none text-dark d-flex align-items-center"
+                        (click)="addTrainingPhrase()">
+                  <i style="font-size: 16px;" class="mdi mdi-plus me-1"></i>
+                  <span style="font-family: Roboto; font-weight: 600; font-size: 13px; letter-spacing: 5%;">
+                    Add Message
+                  </span>
+                </button>
+              </div>
 
-                      <i style="font-size: 15px; cursor: pointer;" 
-                        class="mdi mdi-pencil ms-1 text-muted"
-                        (click)="editingName = true; $event.stopPropagation()"></i>
+              <div class="mt-3">
+                <label class="form-label fw-bold">Quick reply options</label>
+                <div class="text-muted mt-1" style="font-size: 12px;">
+                  Optionally offer up to 10 clickable options below the sent message.
+                </div>
+                <div *ngFor="let option of quickReplies.controls; let i = index" class="d-flex align-items-center mb-2">
+                  <input type="text" [formControlName]="i" class="form-control" placeholder="Option text"/>
+                  <button type="button" class="btn btn-sm text-danger p-0 ms-2" (click)="removeQuickReply(i)">
+                      <i class="feather icon-trash-2"></i>
+                  </button>
+                 
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-primary mt-1" (click)="addQuickReply()">
+                  + Add Quick Reply
+                </button>
+              </div>
+            </div>
+
+            <!-- Send File Action -->
+            <div *ngSwitchCase="'send_file'" class="mb-3">
+              <div class="mb-3">
+                <label class="form-label fw-bold">File format</label>
+                <select class="form-select" formControlName="file_format">
+                  <option value="image">Image</option>
+                  <option value="pdf">PDF</option>
+                  <option value="doc">DOC</option>
+                  <option value="video">Video</option>
+                  <option value="audio">Audio</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-bold">Source</label>
+                <div class="d-flex gap-3">
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" value="upload" formControlName="source" id="uploadFile">
+                    <label class="form-check-label" for="uploadFile">Upload file</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" value="link" formControlName="source" id="fileLink">
+                    <label class="form-check-label" for="fileLink">File link</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" value="chat_script" formControlName="source" id="chatScript">
+                    <label class="form-check-label" for="chatScript">Chat script</label>
+                  </div>
+                </div>
+              </div>
+
+              <div *ngIf="actionForm.value.source === 'upload'" class="mb-3 border rounded text-center py-4 px-3 bg-light" 
+                  style="border-style: dashed;" appFileDrop (fileDropped)="onFileDropped($event)">
+                  <div class="file-upload-container" 
+                      appFileDrop
+                      (fileDropped)="onFileDropped($event)"
+                      (fileHovered)="onFileHovered($event)"
+                      [class.file-hover]="isHovering">
                     
+                    <div class="upload-content">
+                        <div class="mb-2">
+                            <i class="upload-icon mdi mdi-cloud-upload fs-1 text-primary"></i>
+                        </div>
+                  
+                       <p class="mb-1 fw-semibold">Drag and drop file here to upload</p>
+                       <p class="text-muted" style="font-size: 13px;">Or press the button to select a file</p>
+                        <button type="button" (click)="triggerFileInput()" class="btn btn-outline-primary btn-sm" (click)="fileUpload.click()">
+                        Browse Files
+                        </button>
+                       <input type="file" #fileUpload style="display: none" (change)="onFileSelected($event)">
                     </div>
+
+                    <div *ngIf="uploadedFile" class="mt-2">
+                      <span class="badge bg-success">{{ uploadedFile.name }}</span>
+                        <button type="button" class="btn btn-sm btn-outline-danger ms-2 mt-1" (click)="removeUploadedFile()">
+                          <i class="feather icon-trash-2"></i>
+                        </button>
+                    </div>
+                  </div>
+              </div>
+
+              <div *ngIf="actionForm.value.source === 'link'" class="mb-3">
+                <label class="form-label fw-bold">File URL</label>
+                <input type="url" formControlName="file_url" class="form-control" placeholder="https://example.com/file.pdf"/>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-bold">Caption (optional)</label>
+                <input type="text" formControlName="caption" class="form-control" placeholder="Enter file caption"/>
+              </div>
+            </div>
+
+            <!-- HTTP Request Action -->
+            <div *ngSwitchCase="'http_request'" class="mb-3">
+              <div class="mb-3">
+                <label class="form-label fw-bold">HTTP method</label>
+                <select class="form-select" formControlName="http_method">
+                  <option value="GET">GET</option>
+                  <option value="POST">POST</option>
+                  <option value="PUT">PUT</option>
+                  <option value="DELETE">DELETE</option>
+                  <option value="PATCH">PATCH</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-bold">URL endpoint</label>
+                <input type="url" formControlName="url" class="form-control" placeholder="https://api.example.com/endpoint"/>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-bold">Headers</label>
+                <div *ngFor="let header of headers.controls; let i = index" class="d-flex gap-2 align-items-center mb-2">
+                  <input type="text" [formControlName]="i" class="form-control" placeholder="Header key"/>
+                  <input type="text" [formControlName]="i" class="form-control" placeholder="Header value"/>
+                  <button type="button" class="btn btn-link text-danger p-0" (click)="removeHeader(i)">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+                <br>
+                <button type="button" class="btn btn-sm btn-outline-primary mt-1" (click)="addHeader()">
+                  + Add Header
+                </button>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-bold">Request Body (JSON)</label>
+                <textarea formControlName="request_body" rows="4" class="form-control" 
+                          placeholder='{"key": "value"}'></textarea>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-bold">Timeout (seconds)</label>
+                <input type="number" formControlName="timeout" class="form-control" min="1" max="60" value="30"/>
+              </div>
+            </div>
+
+            <!-- Loop Action -->
+            <div *ngSwitchCase="'loop'" class="mb-3">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Collection to loop through</label>
+                <input type="text" formControlName="collection" class="form-control" 
+                      placeholder="Enter variable name containing collection"/>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label fw-bold">Action to repeat</label>
+                <select formControlName="action" class="form-select">
+                  <option value="">Select an action</option>
+                  <option *ngFor="let action of combinedItems" [value]="action.id">{{action.name}}</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-bold">Maximum iterations</label>
+                <input type="number" formControlName="max_iterations" class="form-control" min="1" max="1000" value="100"/>
+                <div class="text-muted mt-1" style="font-size: 12px;">
+                  Prevent infinite loops by setting a maximum number of iterations
+                </div>
+              </div>
+            </div>
+
+            <!-- Carousel Action -->
+            <div *ngSwitchCase="'carousel'" class="mb-3">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Display Type</label>
+                <select class="form-select" formControlName="display_type">
+                  <option value="slider">Slider</option>
+                  <option value="grid">Grid</option>
+                  <option value="list">List</option>
+                </select>
+              </div>
+
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" formControlName="auto_advance" id="autoAdvance">
+                <label class="form-check-label" for="autoAdvance">Auto advance items</label>
+              </div>
+
+              <div *ngIf="actionForm.value.auto_advance" class="mb-3">
+                <label class="form-label fw-bold">Advance interval (seconds)</label>
+                <input type="number" formControlName="advance_interval" class="form-control" min="1" max="60" value="5"/>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-bold">Carousel Items</label>
+                <div *ngFor="let item of carouselItems.controls; let i = index" class="card mb-3 p-3">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="mb-0">Item #{{i + 1}}</h6>
+                  
+                    <button type="button" class="btn btn-sm btn-outline-danger p-0 ms-2 mt-1" (click)="removeCarouselItem(i)">
+                          <i class="feather icon-trash-2"></i>
+                    </button>
                   </div>
                   
-                  <ng-template #nameInput>
-                    <div class="d-flex align-items-center w-100">
-                      <input type="text" formControlName="name" 
-                            class="form-control border-0 p-0 fw-bold" 
-                            style="font-family: Roboto; font-weight: 500; font-size: 20px;
-                                    line-height: 100%; color: #364153; box-shadow: none;"
-                            placeholder="Enter name for this trigger"
-                            (blur)="editingName = false"
-                            (keyup.enter)="editingName = false">
-                      <i class="feather icon-check ms-2 text-muted" 
-                        style="font-size: 16px; cursor: pointer;" 
-                        (click)="editingName = false"></i>
-                    </div>
-                  </ng-template>
-                </div>
-                <button class="btn-close btn-close-dark ms-2" (click)="showActionForm = false"></button>
-              </div>
-              <p class="text-muted mb-4" style="font-size: 14px;">Submit a preset reply to the chat.</p>
-              <hr>
-        
-
-
-              <!-- Dynamically render based on action type -->
-              <ng-container [ngSwitch]="selectedActionType">
-                  <div *ngSwitchCase="'send_message'" class="mb-3">
-                    <!-- Action Name -->
-                    <!-- <div class="mb-3">
-                      <label class="form-label fw-bold">Name</label>
-                      <input type="text" formControlName="name" class="form-control" placeholder="Enter action name" 
-                      [class.is-invalid]="actionForm.get('name')?.touched && actionForm.get('name')?.invalid" />
-                      <div *ngIf="actionForm.get('name')?.touched && actionForm.get('name')?.invalid" class="invalid-feedback">
-                        Name is required.
-                      </div>
-                    </div> -->
-
-                  <div class="mb-3">
-                    <label class="form-label fw-bold">Message</label>
-                    <textarea formControlName="message" rows="3" class="form-control" placeholder="A message variant"
-                              [class.is-invalid]="actionForm.get('message')?.touched && actionForm.get('message')?.invalid"></textarea>
-                    <div *ngIf="actionForm.get('message')?.touched && actionForm.get('message')?.invalid" class="invalid-feedback">
-                      Message is required.
-                    </div>
-                    <div class="text-muted mt-1" style="font-size: 12px;">
-                      A random message is used each time the action is triggered.
-                    </div>
-                    <button class="mt-1 btn btn-link p-0 text-decoration-none text-dark d-flex align-items-center">
-                        <i style="font-size: 16px;" class="mdi mdi-plus me-1"></i>
-                        <span style="font-family: Roboto; font-weight: 600; font-size: 13px; letter-spacing: 5%;">
-                          Add Message
-                        </span>
-                    </button>
+                  <div class="mb-2">
+                    <label class="form-label">Title</label>
+                    <input type="text" [formControlName]="i" class="form-control" placeholder="Item title"/>
                   </div>
-
-                  <div class="mt-3" >
-                      <label class="form-label fw-bold">Quick reply options</label>
-                      <div class="text-muted mt-1" style="font-size: 12px;">
-                        Optionally offer up to 10 clickable options below the sent message.
-                      </div>
-                      <input type="text" class="form-control" placeholder="Enter action name"/>
-                      <button class="mt-1 btn btn-link p-0 text-decoration-none text-dark d-flex align-items-center">
-                        <i style="font-size: 16px;" class="mdi mdi-plus me-1"></i>
-                        <span style="font-family: Roboto; font-weight: 600; font-size: 13px; letter-spacing: 5%;">
-                          Add Option
-                        </span>
-                    </button>
-                    </div>
-
-              
-                </div>
-
-
-                <!-- Send File Form -->
-                <div *ngSwitchCase="'send_file'" class="mb-3">
-                  <!-- File Format -->
-                  <div class="mb-3">
-                    <label class="form-label fw-bold">File format</label>
-                    <select class="form-select" formControlName="file_format">
+                  
+                  <div class="mb-2">
+                    <label class="form-label">Description</label>
+                    <textarea [formControlName]="i" class="form-control" rows="2" placeholder="Item description"></textarea>
+                  </div>
+                  
+                  <div class="mb-2">
+                    <label class="form-label">Item Type</label>
+                    <select [formControlName]="i" class="form-select">
                       <option value="image">Image</option>
-                      <option value="pdf">PDF</option>
-                      <option value="doc">DOC</option>
-                      <!-- Add more formats if needed -->
+                      <option value="video">Video</option>
+                      <option value="card">Card</option>
                     </select>
                   </div>
-
-                  <!-- Source Options -->
-                  <div class="mb-3">
-                    <label class="form-label fw-bold">Source</label>
-                    <div class="d-flex gap-3">
-                      <div class="form-check">
-                        <input class="form-check-input" type="radio" value="upload" formControlName="source" id="uploadFile">
-                        <label class="form-check-label" for="uploadFile">Upload file</label>
-                      </div>
-                      <div class="form-check">
-                        <input class="form-check-input" type="radio" value="link" formControlName="source" id="fileLink">
-                        <label class="form-check-label" for="fileLink">File link</label>
-                      </div>
-                      <div class="form-check">
-                        <input class="form-check-input" type="radio" value="chat_script" formControlName="source" id="chatScript">
-                        <label class="form-check-label" for="chatScript">Chat script</label>
-                      </div>
-                    </div>
+                  
+                  <div class="mb-2">
+                    <label class="form-label">Media</label>
+                    <input type="file" #itemFile style="display: none" (change)="onCarouselItemFileSelected($event, i)">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" (click)="itemFile.click()">
+                      Upload File
+                    </button>
+                    <span *ngIf="carouselItemFiles[i]" class="ms-2">{{ carouselItemFiles[i].name }}</span>
                   </div>
-
-                  <!-- Upload UI -->
-                  <div class="mb-3 border rounded text-center py-4 px-3 bg-light" style="border-style: dashed;">
-                    <div class="mb-2">
-                      <i class="bi bi-file-earmark-arrow-up-fill fs-1 text-primary"></i>
-                    </div>
-                    <p class="mb-1 fw-semibold">Drag and drop file here to upload</p>
-                    <p class="text-muted" style="font-size: 13px;">Press the button to select a file from your computer.</p>
-                    <p class="text-muted" style="font-size: 12px;">Supported file types: JPG, PNG, PDF, DOC. Max size: 20MB</p>
-                    <button type="button" class="btn btn-outline-primary btn-sm">Browse Files</button>
-                  </div>
-
                 </div>
+                <br>
+                <button type="button" class="btn btn-sm btn-outline-primary" (click)="addCarouselItem()">
+                  + Add Carousel Item
+                </button>
+              </div>
+            </div>
 
-                <!-- HTTP Request -->
-              <div *ngSwitchCase="'http_request'" class="mb-3">
-
-                <!-- HTTP Method -->
-                <div class="mb-3">
-                  <label class="form-label fw-bold">HTTP method</label>
-                  <select class="form-select" formControlName="http_method">
-                    <option value="GET">GET</option>
-                    <option value="POST">POST</option>
-                    <option value="PUT">PUT</option>
-                    <option value="DELETE">DELETE</option>
-                  </select>
-                </div>
-
-                <!-- URL Endpoint -->
-                <div class="mb-3">
-                  <label class="form-label fw-bold">URL endpoint</label>
-                  <input type="text" formControlName="url" class="form-control" placeholder="Enter URL (https://eclectics.io/)" />
-                </div>
-
-                <!-- Headers -->
-                <div class="mb-3">
-                  <label class="form-label fw-bold">Headers</label>
-                  <div *ngFor="let header of headers.controls; let i = index" class="d-flex gap-2 align-items-center mb-2">
-                    <input type="text" class="form-control" placeholder="Key" />
-                    <!-- <input type="text" class="form-control" placeholder="Value" /> -->
-                    
-                    <button type="button" class="btn btn-link text-danger p-0" (click)="removeHeader(i)">
+            <!-- Survey Action -->
+            <div *ngSwitchCase="'survey'" class="mb-3">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Survey Questions</label>
+                <div *ngFor="let question of surveyQuestions.controls; let i = index" class="card mb-3 p-3">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="mb-0">Question #{{i + 1}}</h6>
+                    <button type="button" class="btn btn-link text-danger p-0" (click)="removeSurveyQuestion(i)">
                       <i class="bi bi-trash"></i>
                     </button>
                   </div>
-                  <br>
-                  <button type="button" class="btn btn-sm btn-outline-primary mt-2" (click)="addHeader()">+ Add Key and Value</button>
+                  
+                  <div class="mb-2">
+                    <label class="form-label">Question Text</label>
+                    <input type="text" [formControlName]="i" class="form-control" placeholder="Enter question text"/>
+                  </div>
+                  
+                  <div class="mb-2">
+                    <label class="form-label">Question Type</label>
+                    <select [formControlName]="i" class="form-select">
+                      <option value="text">Text</option>
+                      <option value="number">Number</option>
+                      <option value="choice">Multiple Choice</option>
+                      <option value="rating">Rating</option>
+                    </select>
+                  </div>
+                  
+                  <div *ngIf="surveyQuestions.controls[i].value.type === 'number'" class="mb-2">
+                    <div class="row">
+                      <div class="col">
+                        <label class="form-label">Min Value</label>
+                        <input type="number" [formControlName]="i" class="form-control"/>
+                      </div>
+                      <div class="col">
+                        <label class="form-label">Max Value</label>
+                        <input type="number" [formControlName]="i" class="form-control"/>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div *ngIf="surveyQuestions.controls[i].value.type === 'choice'" class="mb-2">
+                    <label class="form-label">Options (comma separated)</label>
+                    <input type="text" [formControlName]="i" class="form-control" placeholder="Option 1, Option 2, Option 3"/>
+                  </div>
+                  
+                  <div class="form-check">
+                    <input type="checkbox" [formControlName]="i" class="form-check-input" id="required{{i}}">
+                    <label class="form-check-label" for="required{{i}}">Required</label>
+                  </div>
                 </div>
-
+                <br>
+                <button type="button" class="btn btn-sm btn-outline-primary" (click)="addSurveyQuestion()">
+                  + Add Question
+                </button>
               </div>
+              
+              <div class="mb-3">
+                <label class="form-label fw-bold">Completion Message</label>
+                <input type="text" formControlName="completion_message" class="form-control" 
+                      placeholder="Thank you for completing our survey!"/>
+              </div>
+              
+              <div class="form-check mb-3">
+                <input type="checkbox" class="form-check-input" formControlName="persist_responses" id="persistResponses">
+                <label class="form-check-label" for="persistResponses">Save survey responses</label>
+              </div>
+            </div>
 
-
-
-                <!-- Default fallback -->
-                <div *ngSwitchDefault class="mb-3">
-                  <p class="text-muted">This action type doesn't have a custom form yet.</p>
+            <!-- Set Variable Action -->
+            <div *ngSwitchCase="'set_variable'" class="mb-3">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Variables</label>
+                <div *ngFor="let variable of variables.controls; let i = index" class="card mb-3 p-3">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="mb-0">Variable #{{i + 1}}</h6>
+                    <button type="button" class="btn btn-link text-danger p-0" (click)="removeVariable(i)">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                  
+                  <div class="mb-2">
+                    <label class="form-label">Variable Name</label>
+                    <input type="text" [formControlName]="i" class="form-control" placeholder="variable_name"/>
+                  </div>
+                  
+                  <div class="mb-2">
+                    <label class="form-label">Value Source</label>
+                    <select [formControlName]="i" class="form-select">
+                      <option value="static">Static Value</option>
+                      <option value="expression">Expression</option>
+                      <option value="context">From Context</option>
+                    </select>
+                  </div>
+                  
+                  <div *ngIf="variables.controls[i].value.source === 'static'" class="mb-2">
+                    <label class="form-label">Value</label>
+                    <input type="text" [formControlName]="i" class="form-control" placeholder="Enter value"/>
+                  </div>
+                  
+                  <div *ngIf="variables.controls[i].value.source === 'expression'" class="mb-2">
+                    <label class="form-label">Expression</label>
+                    <textarea [formControlName]="i" class="form-control" rows="2" 
+                              placeholder="0.1 if context.get('user_tier') == 'premium' else 0"></textarea>
+                  </div>
+                  
+                  <div *ngIf="variables.controls[i].value.source === 'context'" class="mb-2">
+                    <label class="form-label">Context Key</label>
+                    <input type="text" [formControlName]="i" class="form-control" placeholder="user_tier"/>
+                  </div>
                 </div>
-              </ng-container>
-
-                  <!-- Form Footer -->
-              <div class="d-flex justify-content-end mt-4">
-                <button type="button" class="btn btn-sm btn-outline-secondary me-2" (click)="showActionForm = false">Cancel</button>
-                <button type="submit" class="btn btn-primary btn-sm" [disabled]="!actionForm.valid">Save Action</button>
+                <br>
+                <button type="button" class="btn btn-sm btn-outline-primary" (click)="addVariable()">
+                  + Add Variable
+                </button>
               </div>
-        </form>
+              
+              <div class="form-check mb-3">
+                <input type="checkbox" class="form-check-input" formControlName="overwrite" id="overwriteVariables">
+                <label class="form-check-label" for="overwriteVariables">Overwrite existing variables</label>
+              </div>
+              
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" formControlName="clear_on_session_end" id="clearOnSessionEnd">
+                <label class="form-check-label" for="clearOnSessionEnd">Clear when session ends</label>
+              </div>
+            </div>
+
+            <!-- Jump to Trigger Action -->
+            <div *ngSwitchCase="'Jump_to_Trigger'" class="mb-3">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Target Trigger</label>
+                <select formControlName="target_trigger" class="form-select">
+                  <option value="">Select a trigger</option>
+                  <option *ngFor="let trigger of allTriggers" [value]="trigger.id">{{trigger.name}}</option>
+                </select>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label fw-bold">Condition (optional)</label>
+                <textarea formControlName="condition" class="form-control" rows="3" 
+                          placeholder="context.get('cart_items', 0) > 0"></textarea>
+                <div class="text-muted mt-1" style="font-size: 12px;">
+                  JavaScript expression that must evaluate to true for the jump to occur
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label fw-bold">Context Updates</label>
+                <textarea formControlName="context_updates" class="form-control" rows="3" 
+                          placeholder='{"skip_reason": "automatic_checkout"}'></textarea>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label fw-bold">Variables to Carry Over</label>
+                <div *ngFor="let variable of carryVariables.controls; let i = index" class="d-flex align-items-center mb-2">
+                  <input type="text" [formControlName]="i" class="form-control" placeholder="variable_name"/>
+                  <button type="button" class="btn btn-link text-danger p-0 ms-2" (click)="removeCarryVariable(i)">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+                <br>
+                <button type="button" class="btn btn-sm btn-outline-primary" (click)="addCarryVariable()">
+                  + Add Variable
+                </button>
+              </div>
+            </div>
+
+            <!-- Human Handoff Action -->
+            <div *ngSwitchCase="'human_handoff'" class="mb-3">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Handoff Mode</label>
+                <select class="form-select" formControlName="mode">
+                  <option value="direct">Direct Transfer</option>
+                  <option value="hybrid">Hybrid (Bot remains available)</option>
+                  <option value="request">Request Agent</option>
+                </select>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label fw-bold">Team</label>
+                <select formControlName="team_id" class="form-select">
+                  <option value="">Select a team</option>
+                  <option *ngFor="let team of teams" [value]="team.id">{{team.name}}</option>
+                </select>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label fw-bold">Priority</label>
+                <select class="form-select" formControlName="priority">
+                  <option value="1">Low</option>
+                  <option value="2">Medium</option>
+                  <option value="3">High</option>
+                  <option value="4">Urgent</option>
+                </select>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label fw-bold">Handoff Message</label>
+                <textarea formControlName="handoff_message" rows="3" class="form-control" 
+                          placeholder="Connecting you with an agent..."></textarea>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label fw-bold">Required Context</label>
+                <div *ngFor="let context of requiredContext.controls; let i = index" class="d-flex align-items-center mb-2">
+                  <input type="text" [formControlName]="i" class="form-control" placeholder="context_key"/>
+                  <button type="button" class="btn btn-link text-danger p-0 ms-2" (click)="removeRequiredContext(i)">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+                <br>
+                <button type="button" class="btn btn-sm btn-outline-primary" (click)="addRequiredContext()">
+                  + Add Context Key
+                </button>
+              </div>
+              
+              <div class="card p-3 mb-3">
+                <h6 class="fw-bold">Fallback Options</h6>
+                <div class="mb-2">
+                  <label class="form-label">Delay (seconds)</label>
+                  <input type="number" formControlName="fallback_delay" class="form-control" min="5" max="300" value="15"/>
+                </div>
+                <div>
+                  <label class="form-label">Fallback Message</label>
+                  <input type="text" formControlName="fallback_message" class="form-control" 
+                        placeholder="All agents are busy. We'll contact you shortly."/>
+                </div>
+              </div>
+            </div>
+
+            <!-- Default fallback for unsupported action types -->
+            <div *ngSwitchDefault class="mb-3">
+              <p class="text-muted">Configuration form for this action type is not yet implemented.</p>
+            </div>
+          </ng-container>
+
+        <!-- Form Footer -->
+        <div class="d-flex justify-content-between mt-4">
+          <button type="button" class="btn btn-sm btn-outline-info me-2" (click)="showActionForm = false">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary btn-sm btn-test" [disabled]="!actionForm.valid">
+            Save Action
+          </button>
+        </div>
+</form>
+
       </div>
 
   </div>
