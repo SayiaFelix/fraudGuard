@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {Component, HostListener, Input, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {Router} from '@angular/router';
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
@@ -36,6 +36,16 @@ export class ProfilesComponent implements OnInit {
     },
     
   ];
+
+    // === ADD THIS FUNCTION to close dropdowns when clicking away ===
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    // If the click is outside any <details> element, this will close any that are open
+    if (!target.closest('details')) {
+      document.querySelectorAll('details[open]').forEach(el => el.removeAttribute('open'));
+    }
+  }
 
   public statusList = [
     { name: 'Open', color: '#0d6efd' },

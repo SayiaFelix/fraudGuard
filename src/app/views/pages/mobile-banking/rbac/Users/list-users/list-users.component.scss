@@ -1,8 +1,7 @@
-/* ==================================================================================== */
-/* FINAL SCSS WITH CORRECTED FILTER STYLES. PLEASE REPLACE THE ENTIRE FILE. */
-/* ==================================================================================== */
-
-// Main container for the Livechats page
+:host {
+  display: block;
+  margin-top: -2rem; // Pulls the component up. Adjust this value if needed.
+}
 .livechats-container {
   background-color: #ffffff;
   padding: 24px;
@@ -45,8 +44,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background-color: #f8f9fa; // Light gray background
-  border: 1px solid #dee2e6;
+  background-color: #e7f0ff; 
+  border: 1px solid #d0e1ff;
   border-radius: 6px;
   padding: 8px 12px;
   font-size: 14px;
@@ -54,11 +53,9 @@
   cursor: pointer;
   transition: background-color 0.2s ease, border-color 0.2s ease;
   list-style: none;
+  outline: none;
   &::-webkit-details-marker { display: none; }
-  &:hover, details[open] > & { // Style when hovered or open
-    background-color: #e9ecef;
-    border-color: #ced4da;
-  }
+
   strong {
     color: #6c757d;
   }
