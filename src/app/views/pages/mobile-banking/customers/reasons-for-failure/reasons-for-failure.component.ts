@@ -1,7 +1,3 @@
-// ====================================================================================
-// COPY AND PASTE THE COMPLETE CONTENT INTO YOUR .ts FILE
-// ====================================================================================
-
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms'; // Added FormArray
 import { NgbModal, NgbModalRef } from "@ng-bootstrap/ng-bootstrap";
@@ -13,6 +9,7 @@ import { GlobalService } from '../../../../../shared/services/global.service';
 import { Subscription } from 'rxjs';
 
 export interface Channel {
+  [x: string]: any;
   name: string;
   type: 'Webchat' | 'WhatsApp';
   lastUpdated: Date;
@@ -30,7 +27,8 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
   public addChannelForm: FormGroup;
   public brandForm: FormGroup;
   public proactiveMessagesForm: FormGroup;
-  public preChatForm: FormGroup; // ADDED: Form for this section
+  public preChatForm: FormGroup; 
+  public isTesting = false;
 
   // --- UI State & Data ---
   public copySuccessMessage = '';
@@ -45,7 +43,7 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
   public isBasicsSectionOpen = false;
   public isProactiveSectionOpen = false;
   public isBrandSectionOpen = false;
-  public isPreChatFormSectionOpen = true; // Open this section by default
+  public isPreChatFormSectionOpen =false; // Open this section by default
   public isMobileBehaviourSectionOpen = false;
   
   public activeBrandTab: 'welcome' | 'chat' | 'styles' = 'welcome';
@@ -89,7 +87,7 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
       quickReplyButtonBorderColour: ['#2C71F6'],
     });
 
-    // ADDED: Initialize the form for the Pre-Chat Form section
+    // nitialize the form for the Pre-Chat Form section
     this.preChatForm = this.fb.group({
       enablePreChatForm: [true],
       fields: this.fb.array([
@@ -100,7 +98,7 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ADDED: Helper to create a form group for a single pre-chat field
+  //Helper to create a form group for a single pre-chat field
   createPreChatField(name: string, enabled: boolean, required: boolean): FormGroup {
     return this.fb.group({
       name: [name],
@@ -109,7 +107,7 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ADDED: Getter to easily access the fields FormArray in the template
+  //Getter to easily access the fields FormArray in the template
   get preChatFields(): FormArray {
     return this.preChatForm.get('fields') as FormArray;
   }
@@ -165,21 +163,150 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
     console.log("Proactive Messages Form Saved", this.proactiveMessagesForm.value);
     console.log("Pre-Chat Form Saved", this.preChatForm.value);
   }
-  onTestClick() {
-  // This will run every time you click the "Test" button
-  console.log('--- "Test" button clicked! ---');
-  console.log('Value of this.deployScript is:', this.deployScript);
-  console.log('--- Checking condition... ---');
 
-  if (this.deployScript && this.deployScript !== 'Waiting for chatbot selection...') {
-    console.log('SUCCESS: Condition passed. Saving to localStorage and opening new tab.');
-    localStorage.setItem('chatbotTestScript', this.deployScript);
-    window.open('eclectics/chatbot/test', '_blank');
-  } else {
-    console.log('FAILURE: Condition failed. The IF statement was false.');
-    alert('The chatbot script is not available yet. Please select a chatbot to generate the script first.');
+isDeployScriptValid(): boolean {
+  return !!this.deployScript && 
+         this.deployScript.trim().length > 0 && 
+         !this.deployScript.includes('Waiting for chatbot selection');
+}
+
+async onTestClick() {
+  if (this.isTesting) return;
+  this.isTesting = true;
+
+  try {
+    if (!this.webchatId) {
+      alert('No chatbot ID available');
+      return;
+    }
+
+    if (!this.isDeployScriptValid()) {
+      alert('Deploy script is not valid. Please select a chatbot first.');
+      return;
+    }
+
+    const chatbotId = this.webchatId;
+    const chatbotName = this.chatbotData?.name || 'Chatbot';
+
+    const testWindow = window.open('', '_blank');
+    if (!testWindow) {
+      alert('Please allow popups for this site.');
+      return;
+    }
+
+    testWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>${chatbotName} Bot Test - ID ${chatbotId}</title>
+        <style>
+          html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+          }
+          .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            text-align: center;
+            box-sizing: border-box;
+          }
+          .loader {
+            margin: 30px auto;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+          }
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+          #status {
+            max-width: 80%;
+            border-radius: 4px;
+            background: #f8f9fa;
+          }
+          .error { 
+            color: #dc3545;
+            background: #f8d7da;
+          }
+          .success { 
+            color: #28a745;
+            background: #d4edda;
+          }
+          h1 {
+            color: #333;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1>Testing ${chatbotName} Chatbot (ID: ${chatbotId})</h1>
+          <div id="status">Initializing chatbot...</div>
+          <div class="loader"></div>
+        </div>
+
+        <script>
+          (function() {
+            const statusEl = document.getElementById('status');
+            const loaderEl = document.querySelector('.loader');
+            
+            try {
+              const iframe = document.createElement("iframe");
+              iframe.src = "http://130.61.111.65:5040/static/chat-widget.html?chatbot_id=${chatbotId}";
+              iframe.style = "position:fixed;bottom:20px;right:20px;width:400px;height:600px;border:none; z-index:9999;";
+              
+              iframe.onload = function() {
+                statusEl.innerHTML = '<span class="success">${chatbotName} loaded successfully !!!!</span>';
+                loaderEl.style.display = 'none';
+              };
+              
+              iframe.onerror = function() {
+                statusEl.innerHTML = '<span class="error">Failed to load chatbot. Please check:</span>' +
+                  '<ul style="text-align: left; display: inline-block; text-align: left;">' +
+                  '<li>The server is running</li>' +
+                  '<li>Your network connection</li>' +
+                  '<li>Browser console for errors (F12)</li>' +
+                  '</ul>';
+                loaderEl.style.display = 'none';
+              };
+              
+              document.body.appendChild(iframe);
+              
+              setTimeout(() => {
+                if (!iframe.contentWindow?.document?.body?.innerHTML) {
+                  statusEl.innerHTML = '<span class="error">Chatbot loading timed out</span>';
+                  loaderEl.style.display = 'none';
+                }
+              }, 10000);
+              
+            } catch (err) {
+              statusEl.innerHTML = '<span class="error">Error: ' + err.message + '</span>';
+              loaderEl.style.display = 'none';
+            }
+          })();
+        </script>
+      </body>
+      </html>
+    `);
+    testWindow.document.close();
+
+  } catch (error) {
+    console.error('Error during test:', error);
+    alert('Test failed: ' + (error instanceof Error ? error.message : 'Unknown error'));
+  } finally {
+    this.isTesting = false;
   }
 }
+
+
   openModal() { this.showModal = true; }
   closeModal() { this.showModal = false; this.addChannelForm.reset({ channelType: 'Webchat', name: '', language: 'English' }); }
   viewChannelDetails(channel: Channel) { this.selectedChannel = channel; }
