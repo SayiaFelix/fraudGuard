@@ -1,35 +1,139 @@
-<div class="d-flex justify-content-between align-items-center flex-wrap grid-margin">
-  <div>
-    <h4 class="mb-3 mb-md-0">All Profiles</h4>
+<div class="tickets-container">
+  <!-- 1. Page Header -->
+  <div class="page-header">
+    <h2 class="page-title">Tickets</h2>
   </div>
-  <app-table-header
-    [allColumns]="allColumns"
-    [rows]="filteredRows.length > 0 ? filteredRows : rows"
-    [title]="title"
-    [showAddButton]="true"
-    (changeColumnsEvent)="updateColumns($event)"
-    (openAddModalEvent)="openAddProfileModal()"
-  ></app-table-header>
-</div>
 
-<div class="row">
-  <div class="col-md-12 stretch-card">
-    <div class="card" *ngIf="rows.length > 0">
-        <app-custom-ngx-table
-          [columns]="columns"
-          [rows]="rows"
-          [actions]="actions"
-          [loadingIndicator]="loading"
-          [totalItems]="totalRecords"
-          (outputEvent)="triggerEvent($event)"
-          (editEvent)="openEditProfileModal($event)"
-          (updateFilteredRows)="updateFilteredRowsEvent($event)"
-        ></app-custom-ngx-table>
-    </div>
-    <div class="card" *ngIf="!(profilesList$ | async)">
-      <div class="spinner-border text-success" role="status">
-        <span class="visually-hidden">Loading...</span>
+  <!-- 2. Main Content Card -->
+  <div class="card main-content-card">
+    <!-- 2a. The wrapper for all controls -->
+    <div class="controls-wrapper">
+      <div class="search-bar">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>
+        <input type="text" placeholder="Search" />
+      </div>
+      <div class="filters-and-actions">
+        <div class="filters">
+          <div class="filter-item">Assignee: <a href="#">Select</a></div>
+          <div class="filter-item">Assigned team: <a href="#">Select</a></div>
+          <div class="filter-item">Created by: <a href="#">Select</a></div>
+          <div class="filter-item">Custom fields: <a href="#">Select</a></div>
+          <div class="filter-item">Tags: <a href="#">Select</a></div>
+          <div class="filter-item">Status: <a href="#">Select</a></div>
+          <div class="filter-item">Created on: <a href="#">Select</a></div>
+          <a href="#" class="reset-all">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>
+            Reset all
+          </a>
+        </div>
+        <button class="btn create-ticket-btn" (click)="openCreateTicketModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/></svg>
+          Create Ticket
+        </button>
       </div>
     </div>
+
+    <!-- 2b. The table -->
+    <div class="table-responsive" *ngIf="!loading && rows.length > 0">
+      <ngx-datatable
+        class="material"
+        [rows]="rows"
+        [headerHeight]="50"
+        [footerHeight]="0"
+        [rowHeight]="65"
+        [columnMode]="ColumnMode.force"
+        [selectionType]="SelectionType.single"
+        [selectAllRowsOnPage]="false"
+        (select)="openDetailsSidebar($event.selected[0])">
+
+        <!-- Checkbox Column -->
+        <ngx-datatable-column [width]="50" [sortable]="false" [canAutoResize]="false" [draggable]="false" [resizeable]="false">
+          <ng-template ngx-datatable-header-template><input type="checkbox" /></ng-template>
+          <ng-template ngx-datatable-cell-template let-row="row" let-isSelected="isSelected"><input type="checkbox" [checked]="isSelected" /></ng-template>
+        </ngx-datatable-column>
+
+        <!-- Corrected Data Columns -->
+        <ngx-datatable-column name="Short ID" prop="ShortID"></ngx-datatable-column>
+        <ngx-datatable-column name="Person" prop="Person"></ngx-datatable-column>
+        <ngx-datatable-column name="Status" prop="Status">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <span class="status-badge" [ngClass]="'status-' + row.Status.toLowerCase().replace(' ', '-')">{{ row.Status }}</span>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="Subject" prop="Subject"></ngx-datatable-column>
+        <ngx-datatable-column name="Tags" prop="Tags"></ngx-datatable-column>
+        <ngx-datatable-column name="Assignee" prop="Assignee">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <div class="assignee-cell">
+              <div class="assignee-initials">{{ row.assigneeInitials }}</div>
+              <span>{{ row.assigneeFullName }}</span>
+            </div>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="Assigned Teams" prop="AssignedTeams"></ngx-datatable-column>
+      </ngx-datatable>
+    </div>
   </div>
+
+  <!-- 3. Page Footer -->
+  <div *ngIf="!loading && rows.length > 0" class="page-footer">
+    <span>Showing</span>
+    <input type="text" [value]="rows.length" class="ticket-count" readonly />
+    <span>ticket from {{ totalRecords }}</span>
+  </div>
+  <div *ngIf="!loading && rows.length === 0" class="no-more-tickets-container">
+      <p class="no-more-tickets">No more ticket</p>
+  </div>
+
+  <!-- 4. Sidebar (remains hidden until a row is clicked) -->
+  <ng-container *ngIf="isSidebarOpen">
+    <div class="sidebar-overlay" (click)="closeDetailsSidebar()"></div>
+    <div class="sidebar-container">
+      <!-- Sidebar Header -->
+      <div class="sidebar-header">
+        <div class="header-title">
+          <span>Tickets</span>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-dark btn-sm">Go to ticket</button>
+          <button class="btn-icon" (click)="closeDetailsSidebar()">
+             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16"><path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/></svg>
+          </button>
+        </div>
+      </div>
+      <!-- Sidebar Body -->
+      <div class="sidebar-body" *ngIf="selectedTicket">
+        <div class="info-row"><label>Subject</label><div class="value">{{ selectedTicket.Subject }}</div></div>
+        <div class="info-row"><label>Assignee</label><div class="value assignee-cell"><div class="assignee-initials">{{ selectedTicket.assigneeInitials }}</div><span>{{ selectedTicket.assigneeFullName }}</span></div></div>
+        <div class="info-row"><label>Assigned Teams</label><div class="value">{{ selectedTicket.AssignedTeams }}</div></div>
+        <div class="info-row"><label>Person</label><div class="value">{{ selectedTicket.Person }}</div></div>
+        <details class="collapsible-section" open><summary>Details</summary><div class="section-content"><div class="info-row-inline"><label>Ticket ID</label><div class="value">01JMW0P9...</div></div><div class="info-row-inline"><label>Short ID</label><div class="value">{{ selectedTicket.ShortID }}</div></div><div class="info-row-inline"><label>Created by</label><div class="value">...</div></div><div class="info-row-inline"><label>Description</label><div class="value">Trying to test tickets</div></div></div></details>
+        <div class="info-row-inline status-row"><label>Status</label><div class="value"><span class="status-badge" [ngClass]="'status-' + selectedTicket.Status.toLowerCase().replace(' ', '-')">{{ selectedTicket.Status }}</span></div></div>
+        <details class="collapsible-section"><summary>Custom Fields<button class="btn-icon-plus">+</button></summary><div class="section-content text-muted">Create a custom field to get started</div></details>
+        <details class="collapsible-section"><summary>Notes<button class="btn-icon-plus">+</button></summary><div class="section-content text-muted">Create the first note</div></details>
+        <details class="collapsible-section"><summary>Tags<button class="btn-icon-plus">+</button></summary><div class="section-content text-muted">Select a tag or tag group</div></details>
+      </div>
+    </div>
+  </ng-container>
 </div>
+
+<!-- 5. Create Ticket Modal (remains hidden until button is clicked) -->
+<ng-template #createTicketModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-title">Create Ticket</h4>
+    <button type="button" class="btn-close" aria-describedby="modal-title" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="ticketForm">
+      <div class="form-group"><label for="subject">Subject</label><input type="text" id="subject" class="form-control" formControlName="subject" placeholder="Subject"><small class="form-text">Email subject line seen by inboxes.</small></div>
+      <div class="form-group"><label for="fromEmail">From email</label><select id="fromEmail" class="form-control" formControlName="fromEmail"><option value="v3.proto.cx (default)">v3.proto.cx (default)</option><option value="support@example.com">support@example.com</option></select></div>
+      <div class="form-group"><label for="assignee">Assignee</label><select id="assignee" class="form-control" formControlName="assignee"><option value="" disabled>Select assignee</option><option *ngFor="let user of userList" [value]="user.id">{{ user.name }}</option></select></div>
+      <div class="form-group"><label for="assignedTeams">Assigned teams</label><select id="assignedTeams" class="form-control" formControlName="assignedTeams"><option value="" disabled>Select teams</option><option *ngFor="let team of teamList" [value]="team.id">{{ team.name }}</option></select></div>
+      <div class="form-group"><label>Recipient</label><div class="btn-group"><button type="button" class="btn-segment" [class.active]="activeRecipientSegment === 'existing'" (click)="activeRecipientSegment = 'existing'">Existing person</button><button type="button" class="btn-segment" [class.active]="activeRecipientSegment === 'add'" (click)="activeRecipientSegment = 'add'">Add person</button></div><div *ngIf="activeRecipientSegment === 'existing'" class="mt-2"><select class="form-control" formControlName="recipient"><option value="" disabled>Select person</option><option *ngFor="let user of userList" [value]="user.id">{{ user.name }}</option></select></div></div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-light" (click)="modal.close('Close click')">Cancel</button>
+    <button type="button" class="btn btn-dark" (click)="submitTicket()">Create Ticket</button>
+  </div>
+</ng-template>
