@@ -64,6 +64,32 @@ interface ActionModel {
     order: number;
 }
 
+// Add these interfaces at the top of your component file (with other interfaces)
+interface FileTypeInfo {
+  accept: string;
+  types: string;
+  maxSize: string;
+}
+
+interface FileTypeInfoMap {
+  image: FileTypeInfo;
+  document: FileTypeInfo;
+  video: FileTypeInfo;
+  audio: FileTypeInfo;
+  [key: string]: FileTypeInfo; // Index signature for dynamic access
+}
+
+interface FileSizeMap {
+  image: number;
+  document: number;
+  video: number;
+  audio: number;
+  [key: string]: number; // Index signature for dynamic access
+}
+
+type FileFormat = 'image' | 'document' | 'video' | 'audio';
+type FileSource = 'upload' | 'link' | 'chat_script';
+ 
 @Component({
     selector: 'app-intent',
     templateUrl: './intent.component.html',
@@ -71,14 +97,13 @@ interface ActionModel {
 })
 export class IntentComponent implements OnInit {
 
-   @ViewChild('fileInput') fileInput!: ElementRef;
-
+    @ViewChild('fileUpload', { static: false }) fileInput!: ElementRef<HTMLInputElement>;
     @Input() title: any;
     @Input() formData: any;
     @Input() nodes: Node[] = [];
     @Input() depth: number = 0;
 
- 
+
     public loading = false;
     public hasErrors = false;
     public errorMessages: any;
@@ -144,6 +169,10 @@ export class IntentComponent implements OnInit {
     triggers: any;
     currentParentIntentId: number | null = null;
      uploadedFile: File | null = null;
+     // In your component class
+
+
+
   
     carouselItemFiles: File[] = [];
     carouselItems: FormArray = this.fb.array([]);
@@ -154,7 +183,8 @@ export class IntentComponent implements OnInit {
     quickReplies: FormArray = this.fb.array([]);
     allTriggers: any[] = [];
     teams: any[] = []; 
-      isHovering = false;
+    isHovering = false;
+
 
 
 
@@ -240,15 +270,106 @@ calculateIndentLevel(item: any): number {
 
 
 
-
-  onFileHovered(isHovering: boolean) {
-    this.isHovering = isHovering;
+fileTypeInfo: FileTypeInfoMap = {
+  image: {
+    accept: 'image/*',
+    types: 'JPG/JPEG, PNG, GIF',
+    maxSize: '20MB'
+  },
+  document: {
+    accept: '.pdf,.doc,.docx,.xls,.xlsx',
+    types: 'PDF, DOC, DOCX, XLS, XLSX',
+    maxSize: '50MB'
+  },
+  video: {
+    accept: 'video/*,.mp4,.mov,.avi',
+    types: 'MP4, MOV, AVI',
+    maxSize: '100MB'
+  },
+  audio: {
+    accept: 'audio/*,.mp3,.wav,.aac',
+    types: 'MP3, WAV, AAC',
+    maxSize: '50MB'
   }
+};
+
+private sizeMap: FileSizeMap = {
+  image: 20 * 1024 * 1024,    // 20MB
+  document: 50 * 1024 * 1024, // 50MB
+  video: 100 * 1024 * 1024,   // 100MB
+  audio: 50 * 1024 * 1024     // 50MB
+};
 
 
-triggerFileInput() {
-  this.fileInput.nativeElement.click();
+getFileAcceptTypes(): string {
+  const format = this.actionForm?.value.file_format as keyof FileTypeInfoMap;
+  return this.fileTypeInfo[format]?.accept || '';
 }
+
+getMaxFileSize(format: keyof FileSizeMap): number {
+  return this.sizeMap[format] || 20 * 1024 * 1024; // Default to 20MB
+}
+
+onFileSelected(event: Event): void {
+  const input = event.target as HTMLInputElement;
+  if (input.files?.length) {
+    const file = input.files[0];
+    const format = this.actionForm.value.file_format as keyof FileTypeInfoMap;
+    
+    if (file.size > this.getMaxFileSize(format)) {
+      this._toastService.error(
+        `File exceeds maximum size of ${this.fileTypeInfo[format].maxSize}`, 
+        'Error'
+      );
+      return;
+    }
+    
+    this.uploadedFile = file;
+  }
+}
+
+// onFileSelected(event: Event): void {
+//   const input = event.target as HTMLInputElement;
+
+//     if (input.files && input.files.length > 0) {
+//     this.uploadedFile = input.files[0];
+//     // Optionally update form control if needed
+//     this.actionForm.patchValue({
+//       file_url: this.uploadedFile.name // or other relevant field
+//     });
+//   }
+
+//   if (input.files?.length) {
+//     const file = input.files[0];
+//     const format = this.actionForm.value.file_format;
+//     const maxSize = this.getMaxFileSize(format);
+    
+//     if (file.size > maxSize) {
+//       this._toastService.error(`File exceeds maximum size of ${this.fileTypeInfo[format].maxSize}`, 'Error');
+//       return;
+//     }
+    
+//     this.uploadedFile = file;
+//   }
+// }
+
+
+onFileHovered(isHovering: boolean): void {
+  this.isHovering = isHovering;
+}
+
+
+
+triggerFileInput(): void {
+  if (this.fileInput?.nativeElement) {
+    this.fileInput.nativeElement.click();
+  } else {
+    console.error('File input element not found');
+  }
+}
+
+
+
 
 
 onFileDropped(event: any): void {
@@ -260,11 +381,12 @@ onFileDropped(event: any): void {
     this.uploadedFile = dragEvent.dataTransfer.files[0];
   }
 }
-onFileSelected(event: Event): void {
-  const input = event.target as HTMLInputElement;
-  if (input.files?.length) {
-    this.uploadedFile = input.files[0];
-  }
+
+removeUploadedFile(): void {
+  this.uploadedFile = null;
+  // Reset the file input
+  this.fileInput.nativeElement.value = '';
+  // You might want to update your form control here if needed
 }
 
 addCarouselItem(): void {
@@ -277,10 +399,6 @@ addCarouselItem(): void {
   }));
 }
 
-
-removeUploadedFile(): void {
-  this.uploadedFile = null;
-}
 
 onCarouselItemFileSelected(event: Event, index: number): void {
   const input = event.target as HTMLInputElement;
@@ -339,10 +457,6 @@ removeRequiredContext(index: number): void {
   this.requiredContext.removeAt(index);
 }
 
-addMessageVariant(): void {
-  // Implement if you need multiple message variants
-}
-
 addQuickReply(): void {
   this.quickReplies.push(this.fb.control('', Validators.required));
 }
@@ -354,7 +468,7 @@ removeQuickReply(index: number): void {
 // Initialize the form arrays in ngOnInit or when creating the form
 initializeFormArrays(): void {
   this.actionForm = this.fb.group({
-    // ... your existing form controls
+   
     carouselItems: this.carouselItems,
     surveyQuestions: this.surveyQuestions,
     variables: this.variables,
@@ -826,21 +940,11 @@ onActionTypeSelect(action: any): void {
   this.selectedActionType = action.type;
 }
 
-// openActionForm(action: any): void {
 
-//   this.selectedActionType = action.type;
-//   this.showActionForm = true;
-//   this.showActionType = false;
-//   this.showAiActionPanel = false; 
-
-//   if (action.type === 'send_message') {
-//     this.actionForm = this.fb.group({ name: [action.name || '', Validators.required], action_type: ['send_message', Validators.required], message: ['', Validators.required] });
-//   } else if (action.type === 'send_file') {
-//     this.actionForm = this.fb.group({ name: [action.name || '', Validators.required], action_type: ['send_file', Validators.required], file_url: ['', Validators.required] });
-//   } else if (action.type === 'http_request'){
-//     this.actionForm = this.fb.group({ name: [action.name || '', Validators.required], action_type: ['http_request', Validators.required], url: ['', Validators.required] });
-//   }
-// }
+updateFileInstructions(): void {
+ 
+  this.cdRef.detectChanges();
+}
 
 openActionForm(action: any): void {
   this.selectedActionType = action.type;
@@ -858,16 +962,41 @@ openActionForm(action: any): void {
       });
       break;
     
+
     case 'send_file':
       this.actionForm = this.fb.group({
         name: [action.name || '', Validators.required],
         action_type: ['send_file', Validators.required],
         file_format: ['image', Validators.required],
-        source: ['upload', Validators.required],
-        file_url: ['']
+        source: ['', Validators.required], 
+        file_url: ['', [Validators.pattern('https?://.+')]],
+        chat_script: [''],
+        caption: ['']
+      });
+
+      // Set up conditional validation
+      this.actionForm.get('source')?.valueChanges.subscribe(source => {
+        const fileUrlControl = this.actionForm.get('file_url');
+        const chatScriptControl = this.actionForm.get('chat_script');
+        
+        if (source === 'link') {
+          fileUrlControl?.setValidators([Validators.required, Validators.pattern('https?://.+')]);
+          chatScriptControl?.clearValidators();
+        } 
+        else if (source === 'chat_script') {
+          fileUrlControl?.clearValidators();
+          chatScriptControl?.setValidators([Validators.required]);
+        }
+        else {
+          fileUrlControl?.clearValidators();
+          chatScriptControl?.clearValidators();
+        }
+        
+        fileUrlControl?.updateValueAndValidity();
+        chatScriptControl?.updateValueAndValidity();
       });
       break;
-    
+      
     case 'http_request':
       this.actionForm = this.fb.group({
         name: [action.name || '', Validators.required],
@@ -1016,8 +1145,6 @@ shouldShowRootButtons(): boolean {
   return (this.shouldShowAddActionButton() || this.shouldShowAddTriggerButton()) && this.combinedItems.length > 0;
 }
 
-
-
 // onActionSubmit(): void {
 //   if (!this.actionForm.valid) {
 //     this.markFormGroupTouched(this.actionForm);
@@ -1093,9 +1220,6 @@ shouldShowRootButtons(): boolean {
 //   });
 // }
 
-
-
-
 onActionSubmit(): void {
   if (!this.actionForm.valid) {
     this.markFormGroupTouched(this.actionForm);
@@ -1131,186 +1255,220 @@ onActionSubmit(): void {
     order: order
   };
 
-  // Action-specific config
-  let config: any = {};
-  let formData = new FormData();
-
+  // Handle different action types
   switch(this.selectedActionType) {
     case 'send_message':
-      config = {
-        message: this.actionForm.value.message,
-        quick_replies: this.actionForm.value.quick_replies || []
+      //send_message functionality
+      const sendMessageModel = {
+        ...baseModel,
+        config: {
+          message: this.actionForm.value.message,
+          // quick_replies: this.quickReplies.value || []
+        }
       };
+      this.submitAction(sendMessageModel);
       break;
 
+      
+
     case 'send_file':
-      if (this.actionForm.value.source === 'upload') {
-        // Handle file upload with FormData
-        formData.append('name', this.actionForm.value.name);
-        formData.append('action_type', 'send_file');
-        formData.append('intent_id', intentId.toString());
-        formData.append('parent_id', parent_id.toString());
-        formData.append('source_type', 'upload');
-        formData.append('file_type', this.actionForm.value.file_format);
-        formData.append('caption', this.actionForm.value.caption || '');
-        if (this.uploadedFile) {
-          formData.append('file', this.uploadedFile);
-        }
-      } else {
-        config = {
-          source_type: this.actionForm.value.source,
-          file_url: this.actionForm.value.file_url,
-          file_type: this.actionForm.value.file_format,
-          caption: this.actionForm.value.caption || ''
-        };
-      }
+      this.handleSendFileAction(intentId, parent_id, order);
       break;
 
     case 'http_request':
-      config = {
-        url: this.actionForm.value.url,
-        method: this.actionForm.value.http_method,
-        headers: this.actionForm.value.headers || {},
-        timeout: 30,
-        retry_policy: {
-          attempts: 3,
-          delay: 1
+      const httpRequestModel = {
+        ...baseModel,
+        config: {
+          url: this.actionForm.value.url,
+          method: this.actionForm.value.http_method,
+          headers: this.actionForm.value.headers || {},
+          body: this.actionForm.value.request_body,
+          timeout: this.actionForm.value.timeout || 30
         }
       };
+      this.submitAction(httpRequestModel);
       break;
 
     case 'loop':
-      config = {
-        collection: this.actionForm.value.collection,
-        action: this.actionForm.value.action,
-        max_iterations: this.actionForm.value.max_iterations || 100
+      const loopModel = {
+        ...baseModel,
+        config: {
+          collection: this.actionForm.value.collection,
+          action: this.actionForm.value.action,
+          max_iterations: this.actionForm.value.max_iterations || 100
+        }
       };
+      this.submitAction(loopModel);
       break;
 
     case 'carousel':
-      // For carousel with file uploads, use FormData
-      if (this.hasFileUploads()) {
-        formData.append('name', this.actionForm.value.name);
-        formData.append('action_type', 'carousel');
-        formData.append('intent_id', intentId.toString());
-        formData.append('parent_id', parent_id.toString());
-        formData.append('display_type', this.actionForm.value.display_type || 'slider');
-        
-        this.actionForm.value.items.forEach((item: any, index: number) => {
-          formData.append(`items[${index}][title]`, item.title);
-          formData.append(`items[${index}][description]`, item.description);
-          formData.append(`items[${index}][item_type]`, item.item_type);
-          if (item.file) {
-            formData.append(`items[${index}][file]`, item.file);
-          }
-        });
-      } else {
-        config = {
+      const carouselModel = {
+        ...baseModel,
+        config: {
           display_type: this.actionForm.value.display_type || 'slider',
           auto_advance: this.actionForm.value.auto_advance || false,
-          items: this.actionForm.value.items || []
-        };
-      }
+          items: this.carouselItems.value || []
+        }
+      };
+      this.submitAction(carouselModel);
       break;
 
     case 'Jump_to_Trigger':
-      config = {
-        target: this.actionForm.value.target_trigger,
-        condition: this.actionForm.value.condition || {},
-        context_updates: this.actionForm.value.context_updates || {}
+      const jumpModel = {
+        ...baseModel,
+        config: {
+          target_trigger: this.actionForm.value.target_trigger,
+          condition: this.actionForm.value.condition,
+          context_updates: this.actionForm.value.context_updates || {},
+          carry_variables: this.carryVariables.value || []
+        }
       };
-      break;
-
-    case 'webhook':
-      config = {
-        url: this.actionForm.value.url,
-        method: this.actionForm.value.method || 'POST',
-        payload: this.actionForm.value.payload || {},
-        headers: this.actionForm.value.headers || {}
-      };
+      this.submitAction(jumpModel);
       break;
 
     case 'set_variable':
-      config = {
-        variables: {
-          [this.actionForm.value.variable_name]: {
-            value: this.actionForm.value.variable_value,
-            source: "static"
-          }
-        },
-        overwrite: true,
-        clear_on_session_end: false
+      const variableModel = {
+        ...baseModel,
+        config: {
+          variables: this.variables.value || [],
+          overwrite: this.actionForm.value.overwrite || false,
+          clear_on_session_end: this.actionForm.value.clear_on_session_end || false
+        }
       };
+      this.submitAction(variableModel);
       break;
 
     case 'survey':
-      config = {
-        questions: this.actionForm.value.questions || [],
-        completion_message: this.actionForm.value.completion_message || 'Thank you for your feedback!',
-        persist_responses: this.actionForm.value.persist_responses !== false
+      const surveyModel = {
+        ...baseModel,
+        config: {
+          questions: this.surveyQuestions.value || [],
+          completion_message: this.actionForm.value.completion_message || 'Thank you for completing the survey!',
+          persist_responses: this.actionForm.value.persist_responses !== false
+        }
       };
-      break;
-
-    case 'create_ticket':
-      config = {
-        ticket_type: this.actionForm.value.ticket_type,
-        subject: this.actionForm.value.subject,
-        description: this.actionForm.value.description,
-        priority: this.actionForm.value.priority || 'medium'
-      };
+      this.submitAction(surveyModel);
       break;
 
     case 'human_handoff':
-      config = {
-        mode: this.actionForm.value.mode || 'direct',
-        team_id: this.actionForm.value.team,
-        priority: this.actionForm.value.priority || 1,
-        handoff_message: this.actionForm.value.message,
-        fallback_options: {
-          delay: 15,
-          fallback_message: 'All agents are busy. We\'ll contact you shortly.'
+      const handoffModel = {
+        ...baseModel,
+        config: {
+          mode: this.actionForm.value.mode || 'direct',
+          team_id: this.actionForm.value.team_id,
+          priority: this.actionForm.value.priority || 2,
+          handoff_message: this.actionForm.value.handoff_message,
+          required_context: this.requiredContext.value || [],
+          fallback_options: {
+            delay: this.actionForm.value.fallback_delay || 15,
+            message: this.actionForm.value.fallback_message || 'All agents are busy. We\'ll contact you shortly.'
+          }
         }
       };
+      this.submitAction(handoffModel);
       break;
 
     default:
-      config = this.actionForm.value.config || {};
-  }
-
-  // For actions that don't require file upload
-  if (formData.getAll('name').length === 0) {
-    const model = {
-      ...baseModel,
-      config: config
-    };
-
-    console.log('Creating action under parent:', this.currentParent, 'with intentId:', intentId, 'and parent_id:', parent_id);
-    console.log('Submitting action with model:', model);
-    this.submitAction(model);
-  } else {
-    // For actions with file upload (FormData)
-    console.log('Submitting action with FormData');
-    this.submitFormDataAction(formData);
+      // Generic action handler
+      const defaultModel = {
+        ...baseModel,
+        config: this.actionForm.value.config || {}
+      };
+      this.submitAction(defaultModel);
   }
 }
 
-// Helper method to submit regular JSON payload
+private handleSendFileAction(intentId: number, parent_id: number, order: number): void {
+  const sourceType = this.actionForm.value.source;
+  const fileFormat = this.actionForm.value.file_format;
+  const caption = this.actionForm.value.caption || '';
+
+  // Validate based on source type
+  if (sourceType === 'upload' && !this.uploadedFile) {
+    this._toastService.error('Please upload a file first', 'Error');
+    return;
+  }
+
+  if (sourceType === 'link' && !this.actionForm.value.file_url) {
+    this._toastService.error('Please provide a file URL', 'Error');
+    return;
+  }
+
+  if (sourceType === 'chat_script' && !this.actionForm.value.chat_script) {
+    this._toastService.error('Please enter a chat script', 'Error');
+    return;
+  }
+
+  const baseModel = {
+    name: this.actionForm.value.name,
+    action_type: 'send_file',
+    intent_id: intentId,
+    parent_id: parent_id,
+    order: order,
+    branch_path: this.buildBranchPath()
+  };
+
+  if (sourceType === 'upload') {
+    // Handle file upload with FormData
+    const formData = new FormData();
+    formData.append('name', baseModel.name);
+    formData.append('action_type', baseModel.action_type);
+    formData.append('intent_id', baseModel.intent_id.toString());
+    formData.append('parent_id', baseModel.parent_id.toString());
+    formData.append('order', baseModel.order.toString());
+    formData.append('branch_path', baseModel.branch_path);
+    formData.append('source_type', 'upload');
+    formData.append('file_type', fileFormat);
+    formData.append('caption', caption);
+    formData.append('file', this.uploadedFile!);
+
+    this._httpService.mobileBankingPostFormData('builder/nodes/action', formData).subscribe({
+      next: (result: any) => this.handleActionResponse(result),
+      error: (err: any) => this.handleActionError(err)
+    });
+  } else if (sourceType === 'chat_script') {
+    // Handle chat script
+    const model = {
+      ...baseModel,
+      config: {
+        source_type: 'chat_script',
+        script_content: this.actionForm.value.chat_script,
+        file_type: 'text',
+        caption: caption
+      }
+    };
+    
+    this._httpService.mobileBankingPost('builder/nodes/action', model).subscribe({
+      next: (result: any) => this.handleActionResponse(result),
+      error: (err: any) => this.handleActionError(err)
+    });
+  } else {
+    // Handle URL-based file
+    const model = {
+      ...baseModel,
+      config: {
+        source_type: 'link',
+        file_url: this.actionForm.value.file_url,
+        file_type: fileFormat,
+        caption: caption
+      }
+    };
+    console.log('Creating action under parent:', this.currentParent, 'with intentId:', intentId, 'and parent_id:', parent_id);
+    this._httpService.mobileBankingPost('builder/nodes/action', model).subscribe({
+      next: (result: any) => this.handleActionResponse(result),
+      error: (err: any) => this.handleActionError(err)
+    });
+  }
+}
+
 private submitAction(model: any): void {
+  console.log('Submitting action with model:', model);
   this._httpService.mobileBankingPost('builder/nodes/action', model).subscribe({
     next: (result: any) => this.handleActionResponse(result),
     error: (err: any) => this.handleActionError(err)
   });
 }
 
-// Helper method to submit FormData payload
-private submitFormDataAction(formData: FormData): void {
-  this._httpService.mobileBankingPostFormData('builder/nodes/action', formData).subscribe({
-    next: (result: any) => this.handleActionResponse(result),
-    error: (err: any) => this.handleActionError(err)
-  });
-}
-
-// Handle successful response
 private handleActionResponse(result: any): void {
   if (result.status === '00') {
     setTimeout(() => {
@@ -1318,7 +1476,7 @@ private handleActionResponse(result: any): void {
       this.fetchNestedIntents(this.intentId);
       this.checkAndCombine();
       this.cdRef.detectChanges();
-      Swal.fire('Success', result.message, 'success');
+      Swal.fire('Success', result.message || "Action Created Successfully !!!!", 'success');
       this.resetForm();
     }, 100);
   } else {
@@ -1331,7 +1489,6 @@ private handleActionResponse(result: any): void {
   }
 }
 
-// Handle error response
 private handleActionError(err: any): void {
   console.error('Action creation failed:', err);
   Swal.fire({
@@ -1341,11 +1498,6 @@ private handleActionError(err: any): void {
   });
 }
 
-// Helper to check if we have file uploads
-private hasFileUploads(): boolean {
-  return this.selectedActionType === 'send_file' && this.actionForm.value.source === 'upload' ||
-         this.selectedActionType === 'carousel' && this.actionForm.value.items.some((item: any) => item.file);
-}
 
 onTriggerSubmit(): void {
   if (!this.triggerForm.valid) {
@@ -1427,7 +1579,6 @@ getNextOrder(parentItem: any): number {
   return children.length + 1;
 }
 
-
 private resetTriggerForm(): void {
   this.triggerForm.reset({ name: '', description: '', training_phrases: [''] });
   const trainingPhrases = this.trainingPhrases;
@@ -1438,7 +1589,6 @@ private resetTriggerForm(): void {
   this.selectedTrigger = null;
   this.editingName = false;
 }
-
 
 launchBot(intentId: number) {
   this.isLaunching = true;
@@ -1491,7 +1641,6 @@ getBranchesFromCombinedItems(rootId: number): Branch[] {
   return branches;
 }
 
-
 private resetForm(): void {
     this.currentParent = null;
     this.selectedAction = null;
@@ -1508,8 +1657,109 @@ private resetForm(): void {
     this.editingName = false;
 }
 
-buildBranchPath(): string {
-  return 'root>EBU Services Response>Product Licenses Response>Oracle Services Response';
+buildBranchPath(actionId?: number): string {
+  if (actionId) {
+    return this.getPathForAction(actionId);
+  }
+
+  // Default path when creating new actions
+  if (!this.currentParent) {
+    return 'root';
+  }
+
+  // Get path based on current parent
+  if (this.currentParent.itemType === 'trigger') {
+    return this.getTriggerPath(this.currentParent.id);
+  } else {
+    // For actions, find their parent trigger first
+    const parentTrigger = this.findParentTrigger(this.currentParent.id);
+    return parentTrigger ? this.getTriggerPath(parentTrigger.id) : 'root';
+  }
+}
+
+private getPathForAction(actionId: number): string {
+  const action = this.findActionById(actionId);
+  if (!action) return 'root';
+
+  const parentTrigger = this.findParentTrigger(action.id);
+  return parentTrigger ? this.getTriggerPath(parentTrigger.id) : 'root';
+}
+
+private findActionById(id: number): any {
+  // Search through combinedItems to find the action
+  return this.combinedItems.find(item => 
+    item.itemType === 'action' && (item.id === id || item.action_id === id)
+  );
+}
+
+private findParentTrigger(actionId: number): any {
+  // First find the action
+  const action = this.findActionById(actionId);
+  if (!action) return null;
+
+  // If action has direct parent_id, find if it's a trigger
+  if (action.parent_id) {
+    const parent = this.combinedItems.find(item => 
+      item.id === action.parent_id || 
+      (item.itemType === 'trigger' && item.id === action.parent_id)
+    );
+    
+    if (parent && parent.itemType === 'trigger') {
+      return parent;
+    }
+  }
+
+  // If no direct trigger parent, search through all triggers' children
+  for (const item of this.combinedItems) {
+    if (item.itemType === 'trigger') {
+      const found = this.searchTriggerChildren(item, actionId);
+      if (found) return item;
+    }
+  }
+
+  return null;
+}
+
+private searchTriggerChildren(trigger: any, actionId: number): boolean {
+  if (!trigger.children) return false;
+  
+  for (const child of trigger.children) {
+    if (child.itemType === 'action' && (child.id === actionId || child.action_id === actionId)) {
+      return true;
+    }
+    if (child.itemType === 'trigger') {
+      const foundInNested = this.searchTriggerChildren(child, actionId);
+      if (foundInNested) return true;
+    }
+  }
+  
+  return false;
+}
+
+private getTriggerPath(triggerId: number): string {
+  const pathParts: string[] = [];
+  let currentId = triggerId;
+  
+  while (currentId) {
+    const trigger = this.combinedItems.find(item => 
+      item.itemType === 'trigger' && item.id === currentId
+    );
+    
+    if (!trigger) break;
+    
+    pathParts.unshift(trigger.name);
+    currentId = trigger.parent_id;
+  }
+  
+  // If we have no path parts, just return 'root'
+  if (pathParts.length === 0) return 'root';
+  
+  // Add root at the beginning if needed
+  if (pathParts[0] !== 'root') {
+    pathParts.unshift('root');
+  }
+  
+  return pathParts.join('>');
 }
 
 sendBot(): void {
