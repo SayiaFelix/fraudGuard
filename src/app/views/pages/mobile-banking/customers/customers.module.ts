@@ -19,6 +19,7 @@ import { VoiceComponent } from './voice/voice.component';
 import { IntentComponent } from './intents/intent.component';
 import { FilterPipe } from './file.pipe';
 import { TestPageComponent } from './test-page/test-page.component';
+import { FileDropDirective } from './file-drop.directive';
 
 @NgModule({
     imports: [
@@ -42,7 +43,8 @@ import { TestPageComponent } from './test-page/test-page.component';
     VoiceComponent,
     IntentComponent,
     FilterPipe,
-    TestPageComponent
+    TestPageComponent,
+     FileDropDirective
     // CreateProductComponent
   ],
   entryComponents: [

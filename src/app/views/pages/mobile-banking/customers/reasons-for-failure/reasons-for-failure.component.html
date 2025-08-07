@@ -1,7 +1,3 @@
-<!-- ==================================================================================== -->
-<!-- FINAL, COMPLETE, AND CORRECTED HTML FILE. PLEASE REPLACE THE ENTIRE FILE. -->
-<!-- ==================================================================================== -->
-
 <div class="container-fluid">
 
   <!-- VIEW 1: CHANNEL LIST (Unchanged) -->
@@ -85,14 +81,15 @@
                 </div>
                 <p class="deploy-hint">Paste this code snippet before the <code>&lt;/body&gt;</code> tag on your website.</p>
             </div>
-            <!-- THIS IS THE FIX: The [disabled] attribute is now correctly applied -->
+         
             <div class="setup-actions">
-                <button class="btn btn-test" 
-                        (click)="onTestClick()" 
-                        [disabled]="!deployScript || deployScript === 'Waiting for chatbot selection...'">
-                    Test
-                </button>
-                <button class="btn btn-save" 
+              
+                  <button class="btn btn-outline-success" 
+                          (click)="onTestClick()" 
+                          [disabled]="!isDeployScriptValid() || isTesting">
+                        {{ isTesting ? 'Testing...' : 'Test Webchat' }}
+                  </button>
+                  <button class="btn btn-save" 
                         (click)="onSaveChanges()" 
                         [disabled]="!deployScript || deployScript === 'Waiting for chatbot selection...'">
                     Save

@@ -5,6 +5,12 @@
   border: none;
 }
 
+.btn-test:hover {
+  background-color: #0ea908;
+  color: #ffffff;
+  transform: scale(1.05);
+  border-radius: 8px;
+}
 .list-group {
   list-style: none;
   padding-left: 0;
@@ -236,3 +242,39 @@ input:checked + .slider:before {
 
 
 
+.file-upload-container {
+  border: 2px dashed #ccc;
+  border-radius: 5px;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.file-hover {
+  border-color: #007bff;
+  background-color: rgba(0, 123, 255, 0.05);
+}
+
+.upload-content {
+  margin-bottom: 1rem;
+}
+
+.upload-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.small-text {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+.file-preview {
+  margin-top: 1rem;
+  padding: 0.5rem;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
