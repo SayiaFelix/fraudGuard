@@ -1,19 +1,236 @@
-.profiles-container {
-    background-color: #FFFFFF;
-  }
+/* ==================================================================================== */
+/* FINAL SCSS WITH CORRECTED FILTER STYLES. PLEASE REPLACE THE ENTIRE FILE. */
+/* ==================================================================================== */
 
-  .spinner-border{
-    margin: 10px auto !important;
-  }
-  .login-btn {
-    color: #ffffff;
-    background-color: #f7941d;
-    border-radius: 8px;
-  }
+// Main container for the Livechats page
+.livechats-container {
+  background-color: #ffffff;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e9ecef;
 
-  .dashboard-item {
-    background-color: #f8f9fa; /* Light background (optional) */
-    border-radius: 8px; /* Rounded corners */
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-    overflow: hidden; /* Ensures content stays inside the container */
+  max-width: 1800px; 
+  margin: 0 auto; 
+}
+
+// Page Header
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #212529;
+  margin: 0;
+}
+
+// Filter Bar
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.filter-item-details {
+  position: relative;
+  display: inline-block;
+}
+
+// THIS IS THE CORRECTED STYLE FOR THE FILTER BUTTONS
+.filter-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #f8f9fa; // Light gray background
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #495057;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  list-style: none;
+  &::-webkit-details-marker { display: none; }
+  &:hover, details[open] > & { // Style when hovered or open
+    background-color: #e9ecef;
+    border-color: #ced4da;
   }
+  strong {
+    color: #6c757d;
+  }
+}
+
+// THIS IS THE CORRECTED STYLE FOR THE SEARCH BAR
+.search-filter {
+  background-color: #ffffff; // White background
+  border: 1px solid #dee2e6;
+  padding: 0 0 0 12px;
+  cursor: text;
+  .filter-input {
+    border: none;
+    outline: none;
+    padding: 8px;
+    font-size: 14px;
+    background: none;
+  }
+  &:hover {
+    border-color: #adb5bd;
+  }
+}
+
+.reset-all-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: #6c757d;
+  font-size: 14px;
+  cursor: pointer;
+  margin-left: 12px;
+  &:hover {
+    color: #212529;
+  }
+}
+
+.table-wrapper {
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.livechats-table {
+  width: 100%;
+  min-width: 600px;
+  border-collapse: collapse;
+  th, td {
+    padding: 12px 16px;
+    text-align: left;
+    vertical-align: middle;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+  thead {
+    background-color: #f8f9fa;
+    th {
+      color: #6c757d;
+      font-weight: 600;
+    }
+  }
+  tbody {
+    tr {
+      border-top: 1px solid #e9ecef;
+      &:hover {
+        background-color: #f1f3f5;
+      }
+    }
+    td {
+      color: #212529;
+    }
+  }
+  .checkbox-cell {
+    width: 40px;
+    text-align: center;
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 5px 14px;
+  border-radius: 16px;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 1.5;
+  &.blue { background-color: #0d6efd; color: #ffffff; }
+  &.orange { background-color: #fd7e14; color: #ffffff; }
+  &.red { background-color: #dc3545; color: #ffffff; }
+  &.green { background-color: #198754; color: #ffffff; }
+  &.gray { background-color: #6c757d; color: #ffffff; }
+}
+
+.filter-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 100;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  border: 1px solid #dee2e6;
+  width: 320px;
+  padding: 12px;
+  animation: fadeIn 0.2s ease-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  i { color: #6c757d; }
+  input { border: none; outline: none; padding: 8px 4px; width: 100%; background: none; }
+}
+
+.no-results {
+  text-align: center;
+  padding: 20px;
+  color: #6c757d;
+}
+
+.assignee-list {
+  list-style: none; padding: 0; margin: 0; max-height: 250px; overflow-y: auto;
+  li {
+    display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 6px; cursor: pointer;
+    &:hover { background-color: #f1f3f5; }
+  }
+  .avatar {
+    width: 32px; height: 32px; border-radius: 50%; background-color: #e9ecef; color: #495057;
+    display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 12px;
+  }
+}
+
+.status-dropdown {
+  width: auto; min-width: 180px; padding: 16px;
+}
+.status-list {
+  list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 12px;
+  li { cursor: pointer; }
+}
+
+.date-dropdown {
+  width: 620px; display: flex; gap: 20px; padding: 16px;
+}
+.date-picker-container {
+  flex: 1; display: flex; flex-direction: column; gap: 12px;
+  label { font-weight: 600; font-size: 14px; }
+  input { border: 1px solid #ced4da; border-radius: 6px; padding: 8px; }
+}
+.calendar {
+  .calendar-header {
+    display: flex; gap: 8px; margin-bottom: 12px;
+    select { flex: 1; border-radius: 4px; border: 1px solid #ced4da; padding: 4px; }
+  }
+  .calendar-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center;
+    span {
+      padding: 6px; border-radius: 4px; font-size: 13px;
+      &.other-month { color: #adb5bd; }
+      &.selected { background-color: #fd7e14; color: white; }
+    }
+  }
+}

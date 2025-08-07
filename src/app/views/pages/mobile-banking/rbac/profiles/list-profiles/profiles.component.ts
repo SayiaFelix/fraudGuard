@@ -1,14 +1,11 @@
 import {Component, Input, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {Router} from '@angular/router';
-import {DatatableComponent} from "@swimlane/ngx-datatable/lib/components/datatable.component";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
-import { ColumnMode } from '@swimlane/ngx-datatable';
+import { ColumnMode, SelectionType } from '@swimlane/ngx-datatable';
 import {HttpService} from "../../../../../../shared/services/http.service";
-import {AddRoleComponent} from "../../roles/add-role/add-role.component";
-import {AddProfileComponent} from "../add-profile/add-profile.component";
 import Swal from 'sweetalert2';
-import { catchError, map, Observable, observable, throwError } from 'rxjs';
+import { catchError, map, Observable, throwError } from 'rxjs';
 
 @Component({
   selector: 'app-profiles',
@@ -17,160 +14,116 @@ import { catchError, map, Observable, observable, throwError } from 'rxjs';
 })
 export class ProfilesComponent implements OnInit {
 
-  @ViewChild('table') table: DatatableComponent;
-
-
-  // bread crumb items
-  breadCrumbItems: Array<{}>;
-  rows: any = [];
-  filteredRows: any = [];
-  loading: boolean = true;
-
-  profilesList$:Observable<any>
-  columns = [
-    { name: 'ID', prop: 'frontendId' },
-    { name: 'Name', prop:'name' },
-    { name: 'Remarks', prop:'remarks' },
-    // { name: 'UserType', prop:'userType' },
-    { name: 'Created On', prop:'createdOn' },
-    { name: 'Actions', prop: 'id' }
-  ];
-
-  allColumns = [...this.columns]
-
-  public form: FormGroup;
+  @ViewChild('createTicketModal') private createTicketModal: TemplateRef<any>;
   private modalRef: NgbModalRef;
 
-  @Input() formData: { name: any; description: any; is_active: any; };
-
+  // Component State
+  breadCrumbItems: Array<{}>;
+  loading: boolean = false;
   ColumnMode = ColumnMode;
-  public imageFile: File;
+  SelectionType = SelectionType;
 
-  title: string = "Profiles";
-  actions = ["View", "Edit"];
-  data: any;
+  rows: any = [
+    {
+      ShortID: 'Z9YKQEYAG2',
+      Person: 'Chris Theuri',
+      Status: 'Resolved',
+      Subject: 'TESTING TICKETS',
+      Tags: '–',
+      assigneeInitials: 'CK',
+      assigneeFullName: 'Chris Kahiga',
+      AssignedTeams: '–'
+    },
+    
+  ];
 
+  public statusList = [
+    { name: 'Open', color: '#0d6efd' },
+    { name: 'Pending', color: '#ffc107', textColor: '#000' },
+    { name: 'Overdue', color: '#dc3545' },
+    { name: 'Resolved', color: '#28a745' },
+    { name: 'Closed', color: '#6c757d' }
+  ];
+
+  public assigneeList = [
+    // Example: { id: 1, name: 'Chris Theuri' },
+    // Example: { id: 2, name: 'Jane Doe' }
+  ];
+  
   totalRecords: number;
-  constructor(private httpService: HttpService,
-              private modalService: NgbModal,
-              public fb: FormBuilder,
-              public router: Router,
+
+  // Ticket Creation Form
+  ticketForm: FormGroup;
+  activeRecipientSegment = 'existing'; 
+
+  userList = [
+    { id: 1, name: 'Chris Kahiga' },
+  ]
+  teamList = [
+    { id: 1, name: 'Support Tier 1' },
+    { id: 2, name: 'Support Tier 2' },
+    { id: 3, name: 'Development' },
+    { id: 4, name: 'Billing' }
+  ];
+
+  public isSidebarOpen: boolean = false;
+  public selectedTicket: any = null;
+
+  constructor(
+    private httpService: HttpService,
+    private modalService: NgbModal,
+    public fb: FormBuilder,
+    public router: Router,
   ) {
-
-
+    this.totalRecords = this.rows.length;
   }
+
 
   ngOnInit() {
-    this.breadCrumbItems = [{ label: 'Mobile banking', path: '/mobile-banking/products/all-products' },
-      { label: 'Pages', path: '/' }, { label: 'Products', active: true }];
-    this.getIndividualData(0);
-
-    this.form = this.fb.group({
-      name: [this.formData ? this.formData.name : '', [Validators.required]],
-      description: [this.formData ? this.formData.description : '', [Validators.required]],
-      is_active: [this.formData ? this.formData.is_active : '', [Validators.nullValidator]]
+    this.breadCrumbItems = [{ label: 'Mobile banking', path: '#' }, { label: 'Tickets', active: true }];
+    
+    // Initialize the form for creating tickets
+    this.ticketForm = this.fb.group({
+      subject: ['', [Validators.required]],
+      fromEmail: ['v3.proto.cx (default)', [Validators.required]],
+      assignee: ['', Validators.required],
+      assignedTeams: ['', Validators.required],
+      recipient: ['', Validators.required]
     });
   }
 
-
-  getIndividualData(event: number): void {
-
-    this.loading = true;
-
-    const model = {
-      page:0,
-      size:50
-    };
-
-    this.profilesList$ = this.httpService.mobileBankingPost('api/v1/admin/profile/get/all', model)
-      .pipe(
-        catchError((error: any) => {
-          Swal.fire('Error', "unable to fetch records", 'error');
-          return throwError(error);
-        }),
-        map((result: any) => {
-          if(result['status'] === 200){
-
-            this.loading = false;
-            this.totalRecords = result.totalItems;
-
-            let response = result['data'];
-            this.rows = response.map((item: any, index: any) => {
-              const res = {...item, frontendId: index + 1};
-              console.log(res);
-              return res;
-            });
-            return result
-          } else {
-            return []
-          }
-        }),
-      )
+  openDetailsSidebar(row: any) {
+    this.selectedTicket = row;
+    this.isSidebarOpen = true;
   }
 
-  openAddProfileModal() {
-    this.modalRef = this.modalService.open(AddProfileComponent, {centered: true});
-    this.modalRef.componentInstance.title = 'Add Profile: ';
-    this.modalRef.result.then((result) => {
-      if (result === 'success') {
-        this.getIndividualData(0);
-      } else {
-        console.log("Error occurred")
-      }
+  closeDetailsSidebar() {
+    this.isSidebarOpen = false;
+    setTimeout(() => {
+      this.selectedTicket = null;
+    }, 300); 
+  }
+
+
+  openCreateTicketModal() {
+    this.modalRef = this.modalService.open(this.createTicketModal, {
+      centered: true,
+      size: 'md',
+      windowClass: 'create-ticket-modal' 
     });
   }
 
-
-
-  openEditProfileModal(formData: any) {
-    this.modalRef = this.modalService.open(AddProfileComponent, {centered: true});
-    this.modalRef.componentInstance.formData = formData;
-    this.modalRef.componentInstance.title = 'Edit Profile: ';
-    this.modalRef.result.then((result) => {
-      if (result === 'success') {
-        this.getIndividualData(0);
-      } else {
-        console.log("Error occurred")
-      }
-    });
-  }
-
-  onFileChange(event: any) {
-    if (event.target.files && event.target.files.length) {
-      this.imageFile = event.target.files[0];
+  submitTicket() {
+    if (this.ticketForm.valid) {
+      console.log('Form Submitted!', this.ticketForm.value);
+      Swal.fire('Success', 'Ticket has been created (check console).', 'success');
+      this.modalRef.close();
+    } else {
+      Swal.fire('Error', 'Please fill out all required fields.', 'error');
     }
-  }
-
-  openViewProfile(data: any) {
-    this.router.navigateByUrl(`/mobile-banking/rbac/profile/${data.id}`);
-  }
-
-  toggleExpandRow(row: any) {
-    this.table.rowDetail.toggleExpandRow(row);
-  }
-  onDetailToggle(event:any){
-    console.log('Detail Toggled', event);
-  }
-
-  updateColumns(updatedColumns: any) {
-    this.columns = [...updatedColumns];
   }
 
   triggerEvent(data: string) {
-
-    let eventData = JSON.parse(data)
-
-    if (eventData.action == 'View') {
-      this.openViewProfile(eventData.row);
-    }else if (eventData.action == 'Edit') {
-      this.openEditProfileModal(eventData.row);
-    }
-
-  }
-
-  updateFilteredRowsEvent(data: string) {
-    console.log(data);
-
-    this.filteredRows = data
+  
   }
 }
