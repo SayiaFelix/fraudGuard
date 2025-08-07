@@ -74,8 +74,8 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
+  background-color: #e7f0ff;
+  border: 1px solid #d0e1ff;
   border-radius: 0.375rem;
   font-size: 0.875rem;
   color: #212529;
@@ -87,16 +87,20 @@
 }
 
 .create-ticket-btn {
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 0.375rem;
+  background-color: #0d6efd; // Your primary blue color
+  color: #fff;
+  border: 1px solid #0d6efd;
+  border-radius: 6px; // Slightly refined radius
   font-weight: 500;
-  color: #212529;
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1.25rem; // Adjusted padding for better look
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  &:hover { background-color: #e9ecef; }
+  transition: background-color 0.2s ease;
+  &:hover {
+    background-color: #0b5ed7; // A slightly darker blue for hover
+    border-color: #0b5ed7;
+  }
 }
 
 .table-responsive {
@@ -213,10 +217,16 @@
 }
 .modal-body { padding: 1.5rem; }
 .modal-footer {
-  display: flex; justify-content: flex-end; gap: 0.75rem;
-  padding: 1rem 1.5rem; border-top: 1px solid #e9ecef; background-color: #f8f9fa;
-  .btn-light { background-color: #e9ecef; border-color: #e9ecef; font-weight: 500; }
-  .btn-dark { font-weight: 500; }
+  // ... other styles
+  .btn-dark {
+    font-weight: 500;
+    background-color: #0d6efd; // Your primary blue color
+    border-color: #0d6efd;
+    &:hover {
+      background-color: #0b5ed7; // Darker blue for hover
+      border-color: #0b5ed7;
+    }
+  }
 }
 .form-group {
   margin-bottom: 1.75rem;
@@ -235,7 +245,7 @@
     flex: 1; background-color: #fff; border: none; padding: 0.75rem; cursor: pointer;
     font-weight: 500;
     &:not(:last-child) { border-right: 1px solid #ced4da; }
-    &.active { background-color: #212529; color: #fff; }
+    &.active { background-color: #0d6efd; color: #fff; }
   }
 }
 
@@ -265,6 +275,16 @@
   .btn-icon { background: none; border: none; padding: 0.5rem; line-height: 1; cursor: pointer; color: #6c757d; }
 }
 
+.btn-dark.btn-sm {
+    padding: 0.4rem 0.8rem;
+    background-color: #0d6efd; 
+    color: #fff;              
+    border-radius: 6px;       
+    border: none;              
+    font-weight: 500;         
+    cursor: pointer;          
+  }
+
 .sidebar-body {
   padding: 1rem 1.5rem; overflow-y: auto; flex-grow: 1;
   .info-row {
@@ -290,7 +310,7 @@
     }
     &[open] > summary::before { transform: rotate(180deg); }
     .section-content { padding-bottom: 1rem; color: #212529; }
-    .text-muted { color: #6c757d; }
+    .text-muted { color: #0d6efd; }
 }
 
 .btn-icon-plus {
@@ -298,4 +318,5 @@
     width: 24px; height: 24px; cursor: pointer; font-size: 1.2rem;
     line-height: 1; color: #495057;
 }
+
 
