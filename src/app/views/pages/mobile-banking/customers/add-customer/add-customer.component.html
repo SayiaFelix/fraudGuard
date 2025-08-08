@@ -64,9 +64,12 @@
             <i class="mdi mdi-delete-outline me-2" style="font-size: 1.1rem;"></i>Clear
           </button>
   
+          <!-- ==================================== THE ONLY CHANGE IS HERE ==================================== -->
           <button (click)="sendBot()" [disabled]="!form.valid" type="button" class="btn save-btn btn-primary btn-sm px-4">
-            {{ editingBotId ? 'Update Assistant' : 'Save Chatbot' }}
+            {{ editingBot ? 'Update Assistant' : 'Save Chatbot' }}
           </button>
+          <!-- ================================================================================================= -->
+
         </div>
       </div>
     </div>
