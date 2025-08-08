@@ -1,29 +1,23 @@
-
 :host {
-  background-color: #f7f8fc;
   display: block;
+  margin-top: -60px; 
 }
 
 .tickets-container {
-  // CORRECTED: Top padding is now 0 to remove the space
-  padding: 0 4rem 2rem; 
-  max-width: 1600px;
+  padding: 1rem 4rem; 
+  max-width: 100%;
   margin: 0 auto;
 }
 
 .page-header {
-  margin-bottom: 1rem;
-  // ADDED: Padding to replace what was removed from the container
-  padding-top: 2rem; 
+  margin-bottom: 1.5rem;
 }
-
 
 .page-title {
   font-size: 2.25rem;
   font-weight: 700;
-  color: #000;
+  color: #212529;
 }
-
 
 .main-view-wrapper {
   display: grid;
@@ -39,7 +33,6 @@
 .main-content {
   min-width: 0;
 }
-
 
 .card.main-content-card {
   background-color: #ffffff;
@@ -212,24 +205,42 @@ details[open] > .filter-item {
   display: flex; 
   flex-direction: column; 
   gap: 12px;
-  label { font-weight: 600; font-size: 14px; }
-  input { border: 1px solid #ced4da; border-radius: 6px; padding: 8px; }
+  label { 
+    font-weight: 600; 
+    font-size: 14px; 
+  }
+  input { 
+    border: 1px solid #ced4da; 
+    border-radius: 6px; 
+    padding: 8px; 
+  }
 }
 .calendar {
   .calendar-header {
-    display: flex; gap: 8px; margin-bottom: 12px;
-    select { flex: 1; border-radius: 4px; border: 1px solid #ced4da; padding: 4px; }
+    display: flex; 
+    gap: 8px; 
+    margin-bottom: 12px;
+    select { 
+      flex: 1; 
+      border-radius: 4px; 
+      border: 1px solid #ced4da; 
+      padding: 4px; 
+    }
   }
   .calendar-grid {
-    display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center;
+    display: grid; 
+    grid-template-columns: repeat(7, 1fr); 
+    gap: 4px; 
+    text-align: center;
     span {
-      padding: 6px; border-radius: 4px; font-size: 13px;
+      padding: 6px; 
+      border-radius: 4px; 
+      font-size: 13px;
       &.other-month { color: #adb5bd; }
       &.selected { background-color: #fd7e14; color: white; }
     }
   }
 }
-
 
 .table-responsive {
   width: 100%;
@@ -330,7 +341,7 @@ details[open] > .filter-item {
   .form-control { width: 100%; padding: 0.75rem 1rem; border: 1px solid #ced4da; border-radius: 8px; font-size: 1rem; }
   select.form-control {
     -webkit-appearance: none; appearance: none;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%<path fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
     background-repeat: no-repeat; background-position: right 1rem center; background-size: 0.8em;
   }
   .form-text { font-size: 0.85rem; color: #6c757d; margin-top: 0.5rem; }
@@ -344,7 +355,6 @@ details[open] > .filter-item {
     &.active { background-color: #0d6efd; color: #fff; }
   }
 }
-
 .sidebar-container {
   width: 100%;
   height: calc(100vh - 12rem);
@@ -355,7 +365,6 @@ details[open] > .filter-item {
   display: flex;
   flex-direction: column;
 }
-
 .sidebar-header {
   display: flex; justify-content: space-between; align-items: center;
   padding: 0.75rem 1.5rem; border-bottom: 1px solid #e9ecef; flex-shrink: 0;
@@ -372,13 +381,11 @@ details[open] > .filter-item {
   }
   .btn-icon { background: none; border: none; padding: 0.5rem; line-height: 1; cursor: pointer; color: #6c757d; font-size: 1.2rem;}
 }
-
 .sidebar-body {
   padding: 1.5rem;
   overflow-y: auto;
   flex-grow: 1;
 }
-
 .info-block {
   margin-bottom: 1.75rem;
   label {
@@ -393,7 +400,6 @@ details[open] > .filter-item {
     color: #212529;
   }
 }
-
 .details-section {
   border-top: 1px solid #e9ecef;
   padding-top: 1.5rem;

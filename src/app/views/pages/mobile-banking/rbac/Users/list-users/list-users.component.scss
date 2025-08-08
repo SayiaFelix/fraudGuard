@@ -1,10 +1,10 @@
 :host {
   display: block;
-  margin-top: -2rem; // Pulls the component up. Adjust this value if needed.
+  margin-top: -60px; 
 }
 .livechats-container {
   background-color: #ffffff;
-  padding: 24px;
+  padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   border: 1px solid #e9ecef;
@@ -13,7 +13,6 @@
   margin: 0 auto; 
 }
 
-// Page Header
 .page-header {
   margin-bottom: 24px;
 }
@@ -39,7 +38,6 @@
   display: inline-block;
 }
 
-// THIS IS THE CORRECTED STYLE FOR THE FILTER BUTTONS
 .filter-item {
   display: flex;
   align-items: center;
@@ -61,9 +59,8 @@
   }
 }
 
-// THIS IS THE CORRECTED STYLE FOR THE SEARCH BAR
 .search-filter {
-  background-color: #ffffff; // White background
+  background-color: #ffffff; 
   border: 1px solid #dee2e6;
   padding: 0 0 0 12px;
   cursor: text;
