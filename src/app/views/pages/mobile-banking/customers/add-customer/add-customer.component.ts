@@ -26,8 +26,8 @@ export class AddCustomerComponent implements OnInit {
   public errorMessages: any;
   public form: FormGroup;
 
-
-  public editingBotId: number | null = null;
+  
+  public editingBot: any | null = null;
 
   availableLanguages: string[] = ['English', 'Swahili', 'French', 'Arabic', 'Spanish', 'German'];
   language: string[] = ['English'];
@@ -42,13 +42,13 @@ export class AddCustomerComponent implements OnInit {
   paginatedAgentLists: any[] = [];
   public currentPage: number = 1;
   public itemsPerPage: number = 3;
-  
+
   public filteredAgentList: any[] = [];
   public nameFilter: string = '';
   public languageFilter: string = 'all';
   public dateFilter: string = 'all';
   public statusFilter: string = 'all';
-  
+
   public availableFilterLanguages: string[] = [];
   public dateFilterOptions = [
       { value: 'all', label: 'All Time' },
@@ -71,17 +71,16 @@ export class AddCustomerComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.fetchAgentList();
     this.fetchAgentLists();
-
+                       
     this.form = this.fb.group({
         name: ['', Validators.required],
         description: [''],
-        language: [''], 
+        language: [''],
     });
   }
 
-  
+
   uploadImageClick(): void {
     this.fileInput.nativeElement.click();
   }
@@ -234,31 +233,16 @@ export class AddCustomerComponent implements OnInit {
     }
   }
 
-  fetchAgentList(): void {
-   const userId = localStorage.getItem('user_id');
-    if (!userId) { this.agentList = []; return; }
-    const usersId = parseInt(userId, 10);
-    const body = { user_id: usersId };
-    this._httpService.mobileBankingPost('builder/chatbots/list', body).subscribe({
-      next: (res: any) => {
-        if (res.status === '00' && Array.isArray(res.data)) { this.agentList = res.data; }
-        else { this.agentList = []; }
-      },
-      error: (err: any) => { this.agentList = []; }
-    });
-  }
-
-
   sendBot(): void {
-    if (this.editingBotId) {
+    if (this.editingBot) {
       this.updateBot();
     } else {
       this.createBot();
     }
   }
 
- 
   private createBot(): void {
+    this.loading = true;
     const selectedLang = this.language.length > 0 ? this.language[0] : 'English';
     const model = {
       name: this.form.value.name,
@@ -268,89 +252,177 @@ export class AddCustomerComponent implements OnInit {
 
     this._httpService.mobileBankingPost('builder/chatbots', model).subscribe({
       next: (result: any) => {
+        this.loading = false;
         if (result.status === '00') {
-          this._toastService.success('Chatbot Created Successfully!', 'Success');
-          this.globalService.notifyBotCreated();
-          this.fetchAgentLists();
-          this.clearForm();
+          // Show SweetAlert success message
+          Swal.fire({
+            title: 'Success!',
+            text: 'AI Assistant created successfully!',
+            icon: 'success',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#28a745'
+          }).then(() => {
+            this.clearForm();
+            this.fetchAgentLists();
+            this.globalService.notifyBotCreated();
+            this.botCreated.emit();
+          });
+
+          // Also show toast as backup
+          this._toastService.success('AI Assistant Created Successfully!', 'Success');
         } else {
+          Swal.fire({
+            title: 'Warning!',
+            text: result.message || 'AI Assistant creation did not complete.',
+            icon: 'warning',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#ffc107'
+          });
           this._toastService.warning(result.message || 'Bot creation did not complete.', 'Warning');
         }
       },
-      error: (err: any) => this._toastService.error(err?.error?.message || 'An error occurred.', 'Error')
-    });
-  }
-  
- 
-  private updateBot(): void {
-    if (!this.editingBotId) return;
-
-    const model = {
-      chatbot_id: this.editingBotId,
-      name: this.form.value.name,
-      description: this.form.value.description
-    };
-    
-
-    this._httpService.mobileBankingPost('builder/chatbots/update', model).subscribe({
-      next: (result: any) => {
-        if (result.status === '00') {
-          this._toastService.success('Assistant updated successfully!', 'Success');
-          this.fetchAgentLists();
-          this.clearForm();
-        } else {
-          this._toastService.warning(result.message || 'Update failed.', 'Warning');
-        }
-      },
-      error: (err: any) => this._toastService.error(err?.error?.message || 'An error occurred during update.', 'Error')
-    });
-  }
-  
-
-  public editBot(bot: any): void {
-    this.editingBotId = bot.id;
-    this.form.patchValue({
-      name: bot.name,
-      description: bot.description
-    });
-    this.form.get('language')?.disable(); 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-
-  public deleteBot(bot: any): void {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: `You are about to delete "${bot.name}". This action cannot be undone.`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Yes, delete it!'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const payload = { chatbot_id: bot.id };
+      error: (err: any) => {
+        this.loading = false;
+        const errorMessage = err?.error?.message || 'An error occurred while creating the AI Assistant.';
         
-        this._httpService.mobileBankingPost('builder/chatbots/delete', payload).subscribe({
-          next: (res: any) => {
-            if (res.status === '00') {
-              Swal.fire('Deleted!', 'The assistant has been deleted.', 'success');
-              this.fetchAgentLists();
-            } else {
-              this._toastService.error(res.message || 'Deletion failed.', 'Error');
-            }
-          },
-          error: (err: any) => this._toastService.error(err?.error?.message || 'An error occurred.', 'Error')
+        Swal.fire({
+          title: 'Error!',
+          text: errorMessage,
+          icon: 'error',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#dc3545'
         });
+        
+        this._toastService.error(errorMessage, 'Error');
       }
     });
   }
 
+  private updateBot(): void {
+    if (!this.editingBot) return;
 
+    this.loading = true;
+    const model = {
+      chatbot_id: this.editingBot.id,
+      name: this.form.value.name,
+      description: this.form.value.description,
+      is_active: this.editingBot.is_active,
+      config: this.editingBot.config || {}
+    };
+
+    this._httpService.mobileBankingPost('builder/chatbots/update', model).subscribe({
+      next: (result: any) => {
+        this.loading = false;
+        if (result.status === '00') {
+          // Show SweetAlert success message
+          Swal.fire({
+            title: 'Success!',
+            text: 'AI Assistant updated successfully!',
+            icon: 'success',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#28a745'
+          }).then(() => {
+            this.clearForm();
+            this.fetchAgentLists();
+            this.globalService.notifyBotCreated();
+            this.botCreated.emit();
+          });
+
+          // Also show toast as backup
+          this._toastService.success('AI Assistant updated successfully!', 'Success');
+        } else {
+          Swal.fire({
+            title: 'Warning!',
+            text: result.message || 'Update failed.',
+            icon: 'warning',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#ffc107'
+          });
+          this._toastService.warning(result.message || 'Update failed.', 'Warning');
+        }
+      },
+      error: (err: any) => {
+        this.loading = false;
+        const errorMessage = err?.error?.message || 'An error occurred during update.';
+        
+        Swal.fire({
+          title: 'Error!',
+          text: errorMessage,
+          icon: 'error',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#dc3545'
+        });
+        
+        this._toastService.error(errorMessage, 'Error');
+      }
+    });
+  }
+
+  public editBot(bot: any): void {
+    this.editingBot = bot;
+    this.form.patchValue({
+      name: bot.name,
+      description: bot.description
+    });
+
+    this.language = bot.language ? [bot.language] : (bot.languages || ['English']);
+    this.defaultLanguage = this.language[0];
+    this.form.get('language')?.disable();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+ public deleteBot(bot: any): void {
+  Swal.fire({
+    title: 'Are you sure?',
+    text: `You are about to delete "${bot.name}". This action cannot be undone.`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Yes, delete it!'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      const payload = { chatbot_id: bot.id };
+      console.log('Attempting to delete bot with payload:', payload);
+
+      this._httpService.mobileBankingPost('builder/chatbots/delete', payload).subscribe({
+        next: (res: any) => {
+          // Log the raw response from the server
+          console.log('Server response from delete API:', res);
+
+          if (res && res.status === '00') {
+            Swal.fire('Deleted!', 'The AI Assistant has been deleted.', 'success');
+            this.fetchAgentLists()
+            // Log the state before the local list is modified
+            console.log(`Bot with id ${bot.id} deleted successfully on server. Removing from local list.`);
+            console.log('List size before filter:', this.fullAgentList.length);
+
+            this.fullAgentList = this.fullAgentList.filter(b => b.id !== bot.id);
+            
+            // Log the state after the local list is modified
+            console.log('List size after filter:', this.fullAgentList.length);
+            this.applyFilter();
+          } else {
+            // This case is important! The API succeeded but returned a non-success status code.
+            console.error('Deletion failed: API returned a non-success status.', res);
+            this._toastService.error(res.message || 'The server indicated the deletion failed.', 'Error');
+            Swal.fire('Failed!', res.message || 'The AI Assistant could not be deleted.', 'error');
+          }
+        },
+        error: (err: any) => {
+          // This case is when the HTTP request itself fails (e.g., 404, 500 error)
+          console.error('An HTTP error occurred during deletion:', err);
+          this._toastService.error(err?.error?.message || 'An unexpected error occurred.', 'Error');
+          Swal.fire('Error!', err?.error?.message || 'An unexpected error occurred.', 'error');
+        }
+      });
+    }
+  });
+}
   public clearForm(): void {
     this.form.reset();
     this.form.get('language')?.enable();
-    this.editingBotId = null;
+    this.editingBot = null; // Exit edit mode
     this.language = ['English'];
     this.defaultLanguage = 'English';
     this.removeImage();
