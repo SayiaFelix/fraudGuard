@@ -1,45 +1,260 @@
-<div class="d-flex justify-content-between align-items-center flex-wrap grid-margin mt-1"
-  style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 5px; padding: 10px;">
-  <div>
-    <h4 class="mb-3 mb-md-0"
-      style="color: var(--dark-purple, #1e0f2e); font-family: Muli; font-size: 20px; font-style: normal; font-weight: 700; line-height: 26px;">
-      Billing 
-    </h4>
-  </div>
-</div>
-<hr>
+<div class="analytics-container">
+  <!-- Page Header -->
+  <header class="page-header">
+    <div class="header-left">
+      <h1 class="page-title">Analytics</h1>
+      <div class="date-range-container">
+        <div class="date-range-display" (click)="toggleDatePicker()">
+          <span>{{ getDateRangeDisplay() }}</span>
+        </div>
 
-<div class="card" style="position: relative; margin-top:-1%;">
-  <div class="container mt-2">
-    <div class="row g-4">
-      <div class="col-12 col-md-6 col-lg-6 col-sm-12" *ngFor="let dashboard of paginatedDashboards">
-        <div class="dashboard-item p-3" style="height: 100%;"> <!-- Fixed parent height -->
-          <tableau-viz
-            id="{{dashboard.id}}"
-            [attr.src]="dashboard.src"  
-            class="w-100 h-100" 
-            hide-tabs
-            toolbar="bottom">
-          </tableau-viz>
+        <!-- Advanced Calendar Picker -->
+        <div class="calendar-dropdown" *ngIf="showDatePicker">
+          <div class="calendar-header">
+            <!-- Month and Year Dropdowns -->
+            <div class="month-year-selectors">
+              <select class="month-select" [value]="currentMonth" (change)="onMonthChange(+$any($event.target).value)">
+                <option *ngFor="let month of months; let i = index" [value]="i">{{ month }}</option>
+              </select>
+              <select class="year-select" [value]="currentYear" (change)="onYearChange(+$any($event.target).value)">
+                <option *ngFor="let year of years" [value]="year">{{ year }}</option>
+              </select>
+            </div>
+
+            <!-- Navigation arrows -->
+            <div class="calendar-nav">
+              <button class="nav-btn" (click)="previousMonth()" aria-label="Previous month">
+                <!-- CORRECTED ICON -->
+                <i class="fas fa-chevron-left"></i>
+              </button>
+              <button class="nav-btn" (click)="nextMonth()" aria-label="Next month">
+                <!-- CORRECTED ICON -->
+                <i class="fas fa-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Calendar Grid -->
+          <div class="calendar-body">
+            <!-- Week day headers -->
+            <div class="week-header">
+              <div *ngFor="let day of weekDays" class="week-day">{{ day }}</div>
+            </div>
+
+            <!-- Calendar days -->
+            <div class="calendar-grid">
+              <div
+                *ngFor="let day of getCalendarDays(); let i = index"
+                class="calendar-day"
+                [class.empty]="day === null"
+                [class.selected]="isDaySelected(day)"
+                [class.in-range]="isDayInRange(day)"
+                [class.range-start]="isDayRangeStart(day)"
+                [class.range-end]="isDayRangeEnd(day)"
+                [class.today]="isToday(day)"
+                (click)="selectDay(day)"
+              >
+                <span *ngIf="day !== null">{{ day }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Calendar Actions -->
+          <div class="calendar-actions">
+            <div class="selected-range" *ngIf="selectedStartDate">
+              <small>
+                <span *ngIf="selectedStartDate && selectedEndDate">
+                  {{ formatDate(selectedStartDate) }} - {{ formatDate(selectedEndDate) }}
+                </span>
+                <span *ngIf="selectedStartDate && !selectedEndDate">
+                  {{ formatDate(selectedStartDate) }} - Select end date
+                </span>
+              </small>
+            </div>
+            <div class="action-buttons">
+              <button class="btn-cancel" (click)="cancelDateSelection()">Cancel</button>
+              <button
+                class="btn-apply"
+                (click)="applyDateRange()"
+                [disabled]="!selectedStartDate || !selectedEndDate"
+              >
+                Apply
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    <div class="pagination mt-3 d-flex justify-content-end">
-      <button class="btn btn-primary me-2" (click)="prevPage()" [disabled]="currentPage === 0">
-        Previous
-      </button>
-      <button class="btn btn-success" (click)="nextPage()" [disabled]="(currentPage + 1) * itemsPerPage >= dashboards.length">
-        Next
-      </button>
+  </header>
+
+  <!-- Tab Navigation -->
+  <nav class="tabs-nav">
+    <button class="tab-button" [class.active]="activeTab === 'chats'" (click)="setActiveTab('chats')">
+      <!-- CORRECTED ICON: Using 'fa-comment' for chats -->
+      <i class="fas fa-comment"></i> Chats
+    </button>
+    <button class="tab-button" [class.active]="activeTab === 'tickets'" (click)="setActiveTab('tickets')">
+      <!-- CORRECTED ICON: Using 'fa-ticket-alt' which is perfect for tickets -->
+      <i class="fas fa-ticket-alt"></i> Tickets
+    </button>
+    <button class="tab-button" [class.active]="activeTab === 'interactions'" (click)="setActiveTab('interactions')">
+      <!-- CORRECTED ICON: Using 'fa-users' for interactions -->
+      <i class="fas fa-users"></i> Interactions
+    </button>
+  </nav>
+
+  <!-- ======================== -->
+  <!--    CHATS TAB CONTENT     -->
+  <!-- ======================== -->
+  <main *ngIf="activeTab === 'chats'" class="content-area">
+    <!-- Main Chart Panel -->
+    <div class="main-panel">
+      <div class="panel-header">
+        <h2 class="panel-title">Chats</h2>
+        <button class="download-btn" (click)="downloadData()" aria-label="Download data">
+         <!-- CORRECTED ICON -->
+         <i class="fas fa-download"></i>
+        </button>
+      </div>
+      <div class="filters-bar">
+        <button class="filter-chip">Group by: <span>Day</span></button>
+        <button class="filter-chip">Segment by: <span>Select</span></button>
+        <button class="filter-chip">Chat type: <span>Select</span></button>
+        <button class="filter-chip">AI Assistants: <span>Select</span></button>
+        <button class="filter-chip">Channels: <span>Select</span></button>
+        <button class="filter-chip">Live Agents: <span>Select</span></button>
+        <button class="filter-chip">Teams: <span>Select</span></button>
+        <button class="filter-chip">Status: <span>Select</span></button>
+        <button class="filter-chip">CSAT Rating: <span>Select</span></button>
+        <a href="#" class="reset-filters-link">× Reset all</a>
+      </div>
+      <div class="data-display-area">
+        <p>No data to display.</p>
+      </div>
     </div>
-  </div>
 
-  <div>
-    <footer class="footer mt-3 d-flex flex-column flex-md-row align-items-center justify-content-between px-4 border-top small">
-      <p class="text-muted">Copyright © 2024 <a href="" style="color: #6d36a8; font-family: 'Muli';" target="_blank">Analytics</a></p>
-      <p class="" style="color: #6d36a8; font-family: 'Muli'; font-style: normal; font-weight: 700; font-size: 13px; letter-spacing: 0.08em;">Faulu Bank Kenya</p>
-    </footer>
-  </div>
+    <!-- Summary Cards Section -->
+    <div class="summary-section">
+      <div class="summary-grid">
+        <div class="summary-card">
+          <h3>Total new chats</h3>
+          <p class="metric">-</p>
+        </div>
+        <div class="summary-card wide">
+          <h3>Chats by status</h3>
+          <div class="status-breakdown">
+            <div class="legend">
+              <div *ngFor="let status of chatStatuses" class="legend-item">
+                <span class="legend-dot" [style.backgroundColor]="status.color"></span>
+                {{ status.name }}
+              </div>
+            </div>
+            <div class="metrics">
+              <div *ngFor="let status of chatStatuses" class="metric-item">
+                <p class="metric">-</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="summary-card">
+          <h3>Average live agent response time</h3>
+          <p class="metric">-</p>
+        </div>
+        <div class="summary-card">
+          <h3>Average AI assistant response time</h3>
+          <p class="metric">-</p>
+        </div>
+      </div>
+    </div>
+  </main>
 
+  <!-- ======================== -->
+  <!--   TICKETS TAB CONTENT    -->
+  <!-- ======================== -->
+  <main *ngIf="activeTab === 'tickets'" class="content-area">
+    <div class="main-panel">
+      <div class="panel-header">
+        <h2 class="panel-title">Tickets</h2>
+        <button class="download-btn" (click)="downloadData()" aria-label="Download data">
+          <!-- CORRECTED ICON -->
+          <i class="fas fa-download"></i>
+        </button>
+      </div>
+      <div class="filters-bar">
+        <button class="filter-chip">Group by: <span>Day</span></button>
+        <button class="filter-chip">Segment by: <span>Select</span></button>
+        <button class="filter-chip">Live Agents: <span>Select</span></button>
+        <button class="filter-chip">Teams: <span>Select</span></button>
+        <button class="filter-chip">Status: <span>Select</span></button>
+        <button class="filter-chip">Tags: <span>Select</span></button>
+        <button class="filter-chip">Tag Groups: <span>Select</span></button>
+        <button class="filter-chip">Creator Type: <span>Select</span></button>
+        <button class="filter-chip">Custom Fields: <span>Select</span></button>
+        <a href="#" class="reset-filters-link">× Reset all</a>
+      </div>
+      <div class="data-display-area">
+        <p>No data to display.</p>
+      </div>
+    </div>
+
+    <!-- Summary Cards Section -->
+    <div class="summary-section">
+      <div class="summary-grid">
+        <div class="summary-card">
+          <h3>Total new tickets</h3>
+          <p class="metric">-</p>
+        </div>
+        <div class="summary-card wide">
+          <h3>Tickets by status</h3>
+          <div class="status-breakdown">
+            <div class="legend">
+              <div *ngFor="let status of ticketStatuses" class="legend-item">
+                <span class="legend-dot" [style.backgroundColor]="status.color"></span>
+                {{ status.name }}
+              </div>
+            </div>
+            <div class="metrics">
+              <div *ngFor="let status of ticketStatuses" class="metric-item">
+                <p class="metric">-</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="summary-card">
+          <h3>Average live agent response time</h3>
+          <p class="metric">-</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ======================== -->
+  <!-- INTERACTIONS TAB CONTENT -->
+  <!-- ======================== -->
+  <main *ngIf="activeTab === 'interactions'" class="content-area">
+    <div class="main-panel">
+      <div class="panel-header">
+        <h2 class="panel-title">Interactions</h2>
+        <button class="download-btn" (click)="downloadData()" aria-label="Download data">
+         <!-- CORRECTED ICON -->
+         <i class="fas fa-download"></i>
+        </button>
+      </div>
+      <div class="filters-bar">
+        <button class="filter-chip">Group by: <span>Day</span></button>
+        <button class="filter-chip">Segment by: <span>Select</span></button>
+        <button class="filter-chip">Conversation type: <span>Select</span></button>
+        <button class="filter-chip">AI Assistants: <span>Select</span></button>
+        <button class="filter-chip">Channels: <span>Select</span></button>
+        <button class="filter-chip">Live Agents: <span>Select</span></button>
+        <button class="filter-chip">Teams: <span>Select</span></button>
+        <button class="filter-chip">Status: <span>Select</span></button>
+        <button class="filter-chip">Sender: <span>Select</span></button>
+        <a href="#" class="reset-filters-link">× Reset all</a>
+      </div>
+      <div class="data-display-area">
+        <p>No data to display.</p>
+      </div>
+    </div>
+  </main>
 </div>
-
