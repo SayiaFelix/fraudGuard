@@ -4,120 +4,150 @@
     <h2 class="page-title">Tickets</h2>
   </div>
 
-  <!-- 2. Main Content Card -->
-  <div class="card main-content-card">
-    <!-- 2a. The wrapper for all controls -->
-    <div class="controls-wrapper">
-      <div class="search-bar">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>
-        <input type="text" placeholder="Search" />
-      </div>
-      <div class="filters-and-actions">
-        <div class="filters">
-          <div class="filter-item">Assignee: <a href="#">Select</a></div>
-          <div class="filter-item">Assigned team: <a href="#">Select</a></div>
-          <div class="filter-item">Created by: <a href="#">Select</a></div>
-          <div class="filter-item">Custom fields: <a href="#">Select</a></div>
-          <div class="filter-item">Tags: <a href="#">Select</a></div>
-          <div class="filter-item">Status: <a href="#">Select</a></div>
-          <div class="filter-item">Created on: <a href="#">Select</a></div>
-          <a href="#" class="reset-all">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>
-            Reset all
-          </a>
-        </div>
-        <button class="btn create-ticket-btn" (click)="openCreateTicketModal()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/></svg>
-          Create Ticket
-        </button>
-      </div>
-    </div>
+  
+  <div class="main-view-wrapper" [class.sidebar-open]="isSidebarOpen">
 
-    <!-- 2b. The table -->
-    <div class="table-responsive" *ngIf="!loading && rows.length > 0">
-      <ngx-datatable
-        class="material"
-        [rows]="rows"
-        [headerHeight]="50"
-        [footerHeight]="0"
-        [rowHeight]="65"
-        [columnMode]="ColumnMode.force"
-        [selectionType]="SelectionType.single"
-        [selectAllRowsOnPage]="false"
-        (select)="openDetailsSidebar($event.selected[0])">
-
-        <!-- Checkbox Column -->
-        <ngx-datatable-column [width]="50" [sortable]="false" [canAutoResize]="false" [draggable]="false" [resizeable]="false">
-          <ng-template ngx-datatable-header-template><input type="checkbox" /></ng-template>
-          <ng-template ngx-datatable-cell-template let-row="row" let-isSelected="isSelected"><input type="checkbox" [checked]="isSelected" /></ng-template>
-        </ngx-datatable-column>
-
-        <!-- Corrected Data Columns -->
-        <ngx-datatable-column name="Short ID" prop="ShortID"></ngx-datatable-column>
-        <ngx-datatable-column name="Person" prop="Person"></ngx-datatable-column>
-        <ngx-datatable-column name="Status" prop="Status">
-          <ng-template let-row="row" ngx-datatable-cell-template>
-            <span class="status-badge" [ngClass]="'status-' + row.Status.toLowerCase().replace(' ', '-')">{{ row.Status }}</span>
-          </ng-template>
-        </ngx-datatable-column>
-        <ngx-datatable-column name="Subject" prop="Subject"></ngx-datatable-column>
-        <ngx-datatable-column name="Tags" prop="Tags"></ngx-datatable-column>
-        <ngx-datatable-column name="Assignee" prop="Assignee">
-          <ng-template let-row="row" ngx-datatable-cell-template>
-            <div class="assignee-cell">
-              <div class="assignee-initials">{{ row.assigneeInitials }}</div>
-              <span>{{ row.assigneeFullName }}</span>
-            </div>
-          </ng-template>
-        </ngx-datatable-column>
-        <ngx-datatable-column name="Assigned Teams" prop="AssignedTeams"></ngx-datatable-column>
-      </ngx-datatable>
-    </div>
-  </div>
-
-  <!-- 3. Page Footer -->
-  <div *ngIf="!loading && rows.length > 0" class="page-footer">
-    <span>Showing</span>
-    <input type="text" [value]="rows.length" class="ticket-count" readonly />
-    <span>ticket from {{ totalRecords }}</span>
-  </div>
-  <div *ngIf="!loading && rows.length === 0" class="no-more-tickets-container">
-      <p class="no-more-tickets">No more ticket</p>
-  </div>
-
-  <!-- 4. Sidebar (remains hidden until a row is clicked) -->
-  <ng-container *ngIf="isSidebarOpen">
-    <div class="sidebar-overlay" (click)="closeDetailsSidebar()"></div>
-    <div class="sidebar-container">
-      <!-- Sidebar Header -->
-      <div class="sidebar-header">
-        <div class="header-title">
-          <span>Tickets</span>
-        </div>
-        <div class="header-actions">
-          <button class="btn btn-dark btn-sm">Go to ticket</button>
-          <button class="btn-icon" (click)="closeDetailsSidebar()">
-             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16"><path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/></svg>
+    
+    <div class="main-content">
+      <!-- Main Content Card -->
+      <div class="card main-content-card">
+        <!-- Controls Wrapper -->
+        <div class="controls-wrapper">
+          <div class="search-bar">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>
+            <input type="text" placeholder="Search" />
+          </div>
+          <div class="filters">
+              <details class="filter-item-details">
+                <summary class="filter-item"><span>Assignee: <strong>Select</strong></span></summary>
+                <div class="filter-dropdown"><div class="no-results">No results</div></div>
+              </details>
+              <details class="filter-item-details">
+                <summary class="filter-item"><span>Assigned team: <strong>Select</strong></span></summary>
+                <div class="filter-dropdown"><div class="no-results">No results</div></div>
+              </details>
+              <details class="filter-item-details">
+                <summary class="filter-item"><span>Created by: <strong>Select</strong></span></summary>
+                <div class="filter-dropdown"><div class="no-results">No results</div></div>
+              </details>
+              <details class="filter-item-details">
+                <summary class="filter-item"><span>Custom fields: <strong>Select</strong></span></summary>
+                <div class="filter-dropdown"><div class="no-results">No results</div></div>
+              </details>
+              <details class="filter-item-details">
+                <summary class="filter-item"><span>Tags: <strong>Select</strong></span></summary>
+                <div class="filter-dropdown"><div class="no-results">No results</div></div>
+              </details>
+              <details class="filter-item-details">
+                <summary class="filter-item"><span>Status: <strong>Select</strong></span></summary>
+                <div class="filter-dropdown status-dropdown">
+                  <ul class="status-list">
+                    <li *ngFor="let status of statusList"><span class="status-badge" [ngClass]="'status-' + status.name.toLowerCase().replace(' ', '-')">{{ status.name }}</span></li>
+                  </ul>
+                </div>
+              </details>
+              <details class="filter-item-details">
+                <summary class="filter-item"><span>Created on: <strong>Select</strong></span></summary>
+                <div class="filter-dropdown date-dropdown">
+                  <div class="date-picker-container"><label>Start date</label><input type="text" placeholder="DD/MM/YYYY"><div class="calendar"><div class="calendar-header"><select><option>August</option></select><select><option>2025</option></select></div><div class="calendar-grid"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span class="other-month">27</span><span class="other-month">28</span><span class="other-month">29</span><span class="other-month">30</span><span class="other-month">31</span><span>1</span><span>2</span><span>3</span><span>4</span><span class="selected">5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span><span>16</span><span>17</span><span>18</span><span>19</span><span>20</span><span>21</span><span>22</span><span>23</span><span>24</span><span>25</span><span>26</span><span>27</span><span>28</span><span>29</span><span>30</span><span>31</span><span class="other-month">1</span><span class="other-month">2</span><span class="other-month">3</span><span class="other-month">4</span><span class="other-month">5</span><span class="other-month">6</span></div></div></div>
+                  <div class="date-picker-container"><label>End date</label><input type="text" placeholder="DD/MM/YYYY"><div class="calendar"><div class="calendar-header"><select><option>August</option></select><select><option>2025</option></select></div><div class="calendar-grid"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span class="other-month">27</span><span class="other-month">28</span><span class="other-month">29</span><span class="other-month">30</span><span class="other-month">31</span><span>1</span><span>2</span><span>3</span><span>4</span><span class="selected">5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span><span>16</span><span>17</span><span>18</span><span>19</span><span>20</span><span>21</span><span>22</span><span>23</span><span>24</span><span>25</span><span>26</span><span>27</span><span>28</span><span>29</span><span>30</span><span>31</span><span class="other-month">1</span><span class="other-month">2</span><span class="other-month">3</span><span class="other-month">4</span><span class="other-month">5</span><span class="other-month">6</span></div></div></div>
+                </div>
+              </details>
+              <a href="#" class="reset-all-btn"><i class="feather icon-x"></i><span>Reset all</span></a>
+          </div>
+          <button class="btn create-ticket-btn" (click)="openCreateTicketModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/></svg>
+            Create Ticket
           </button>
         </div>
+        <!-- Table -->
+        <div class="table-responsive" *ngIf="!loading && rows.length > 0">
+          <ngx-datatable
+            class="material"
+            [rows]="rows"
+            [headerHeight]="50"
+            [footerHeight]="0"
+            [rowHeight]="65"
+            [columnMode]="ColumnMode.force"
+            [selectionType]="SelectionType.single"
+            (select)="openDetailsSidebar($event.selected[0])">
+            <ngx-datatable-column [width]="50" [sortable]="false" [canAutoResize]="false" [draggable]="false" [resizeable]="false">
+              <ng-template ngx-datatable-header-template><input type="checkbox" /></ng-template>
+              <ng-template ngx-datatable-cell-template let-row="row" let-isSelected="isSelected"><input type="checkbox" [checked]="isSelected" /></ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Short ID" prop="ShortID"></ngx-datatable-column>
+            <ngx-datatable-column name="Person" prop="Person"></ngx-datatable-column>
+            <ngx-datatable-column name="Status" prop="Status">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                <span class="status-badge" [ngClass]="'status-' + row.Status.toLowerCase().replace(' ', '-')">{{ row.Status }}</span>
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Subject" prop="Subject"></ngx-datatable-column>
+            <ngx-datatable-column name="Tags" prop="Tags"></ngx-datatable-column>
+            <ngx-datatable-column name="Assignee" prop="Assignee">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                <div class="assignee-cell">
+                  <div class="assignee-initials">{{ row.assigneeInitials }}</div>
+                  <span>{{ row.assigneeFullName }}</span>
+                </div>
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Assigned Teams" prop="AssignedTeams"></ngx-datatable-column>
+          </ngx-datatable>
+        </div>
       </div>
-      <!-- Sidebar Body -->
-      <div class="sidebar-body" *ngIf="selectedTicket">
-        <div class="info-row"><label>Subject</label><div class="value">{{ selectedTicket.Subject }}</div></div>
-        <div class="info-row"><label>Assignee</label><div class="value assignee-cell"><div class="assignee-initials">{{ selectedTicket.assigneeInitials }}</div><span>{{ selectedTicket.assigneeFullName }}</span></div></div>
-        <div class="info-row"><label>Assigned Teams</label><div class="value">{{ selectedTicket.AssignedTeams }}</div></div>
-        <div class="info-row"><label>Person</label><div class="value">{{ selectedTicket.Person }}</div></div>
-        <details class="collapsible-section" open><summary>Details</summary><div class="section-content"><div class="info-row-inline"><label>Ticket ID</label><div class="value">01JMW0P9...</div></div><div class="info-row-inline"><label>Short ID</label><div class="value">{{ selectedTicket.ShortID }}</div></div><div class="info-row-inline"><label>Created by</label><div class="value">...</div></div><div class="info-row-inline"><label>Description</label><div class="value">Trying to test tickets</div></div></div></details>
-        <div class="info-row-inline status-row"><label>Status</label><div class="value"><span class="status-badge" [ngClass]="'status-' + selectedTicket.Status.toLowerCase().replace(' ', '-')">{{ selectedTicket.Status }}</span></div></div>
-        <details class="collapsible-section"><summary>Custom Fields<button class="btn-icon-plus">+</button></summary><div class="section-content text-muted">Create a custom field to get started</div></details>
-        <details class="collapsible-section"><summary>Notes<button class="btn-icon-plus">+</button></summary><div class="section-content text-muted">Create the first note</div></details>
-        <details class="collapsible-section"><summary>Tags<button class="btn-icon-plus">+</button></summary><div class="section-content text-muted">Select a tag or tag group</div></details>
+      <!-- Footer -->
+      <div *ngIf="!loading && rows.length > 0" class="page-footer">
+        <span>Showing</span>
+        <input type="text" [value]="rows.length" class="ticket-count" readonly />
+        <span>ticket from {{ totalRecords }}</span>
       </div>
-    </div>
-  </ng-container>
+      <div *ngIf="!loading && rows.length === 0" class="no-more-tickets-container">
+          <p class="no-more-tickets">No more ticket</p>
+      </div>
+    </div> <!-- End of .main-content -->
+
+    <!-- Sidebar -->
+    <ng-container *ngIf="isSidebarOpen">
+      <div class="sidebar-container">
+        <!-- Sidebar Header -->
+        <div class="sidebar-header">
+          <div class="header-title">
+            <span>Tickets</span>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-dark btn-sm">Go to ticket</button>
+            <button class="btn-icon" (click)="closeDetailsSidebar()">
+               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16"><path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/></svg>
+            </button>
+          </div>
+        </div>
+        <!-- Sidebar Body -->
+        <div class="sidebar-body" *ngIf="selectedTicket">
+          <!-- Main Info Section -->
+          <div class="info-block"><label>Subject</label><div class="value">{{ selectedTicket.Subject }}</div></div>
+          <div class="info-block"><label>Assignee</label><div class="value assignee-cell"><div class="assignee-initials">{{ selectedTicket.assigneeInitials }}</div><span>{{ selectedTicket.assigneeFullName }}</span></div></div>
+          <div class="info-block"><label>Assigned Teams</label><div class="value">{{ selectedTicket.AssignedTeams }}</div></div>
+          <div class="info-block"><label>Person</label><div class="value assignee-cell"><div class="assignee-initials">C</div><span>{{ selectedTicket.Person }}</span></div></div>
+          <!-- Details Section -->
+          <div class="details-section">
+            <div class="details-header"><span>^</span><strong>Details</strong></div>
+            <div class="details-content">
+              <div class="details-row"><label>Ticket ID</label><div class="value">01JMW0P9...</div></div>
+              <div class="details-row"><label>Short ID</label><div class="value">{{ selectedTicket.ShortID }}</div></div>
+              <div class="details-row"><label>Created by</label><div class="value">...</div></div>
+              <div class="details-row"><label>Description</label><div class="value">Trying to test tickets</div></div>
+              <div class="details-row"><label>Status</label><div class="value"><span class="status-badge" [ngClass]="'status-' + selectedTicket.Status.toLowerCase().replace(' ', '-')">{{ selectedTicket.Status }}</span></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+  </div> 
 </div>
 
-<!-- 5. Create Ticket Modal (remains hidden until button is clicked) -->
+
 <ng-template #createTicketModal let-modal>
   <div class="modal-header">
     <h4 class="modal-title" id="modal-title">Create Ticket</h4>
