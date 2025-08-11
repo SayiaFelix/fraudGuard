@@ -174,9 +174,6 @@ export class IntentComponent implements OnInit {
     
     carouselItemFiles: File[] = [];
     carouselItems: FormArray = this.fb.array([]);
-  
-
-    carryVariables: FormArray = this.fb.array([]);
     requiredContext: FormArray = this.fb.array([]);
     quickReplies: FormArray = this.fb.array([]);
     allTriggers: any[] = [];
@@ -1042,13 +1039,37 @@ openActionForm(action: any): void {
       });
       break;
     
-    case 'Jump_to_Trigger':
+   case 'Jump_to_Trigger':
       this.actionForm = this.fb.group({
         name: [action.name || '', Validators.required],
         action_type: ['Jump_to_Trigger', Validators.required],
-        target_trigger: ['', Validators.required]
+        target_trigger: [action.config?.target || '', Validators.required],
+
+        // Nested form group for condition
+        condition: this.fb.group({
+          expression: [action.config?.condition?.expression || ''],
+          negate: [action.config?.condition?.negate || false]
+        }),
+
+        // Stringified JSON in the textarea
+        context_updates: [
+          action.config?.context_updates
+            ? JSON.stringify(action.config.context_updates, null, 2)
+            : ''
+        ],
+
+        // Array of carry variables
+        carry_variables: this.fb.array([])
       });
+
+      // Populate carry variables if editing
+      if (action.config?.carry_variables?.length) {
+        action.config.carry_variables.forEach((v: any) => {
+          this.carryVariables.push(this.fb.control(v));
+        });
+      }
       break;
+
     
     case 'webhook':
       this.actionForm = this.fb.group({
@@ -1295,80 +1316,11 @@ shouldShowRootButtons(): boolean {
   return (this.shouldShowAddActionButton() || this.shouldShowAddTriggerButton()) && this.combinedItems.length > 0;
 }
 
-// onActionSubmit(): void {
-//   if (!this.actionForm.valid) {
-//     this.markFormGroupTouched(this.actionForm);
-//     return;
-//   }
 
-//   const chatbotId = this.globalService.getChatbotId()!;
-//   let intentId: number;
-//   let parent_id: number; // Can be intentId or triggerId
-//   let order: number;
-
-//   if (!this.currentParent) {
-  
-//     intentId = this.intentId;
-//     parent_id = this.intentId; // Use intentId as parent
-//     order = this.combinedItems.length > 0 
-//       ? this.getNextRootOrder() 
-//       : 1;
-//   } else if (this.currentParent.itemType === 'trigger') {
-//     // Action under a trigger
-//     intentId = this.currentParent.id;
-//     parent_id = this.currentParent.id; // Use trigger's ID as parent
-//     order = this.getNextOrder(this.currentParent);
-//   } else {
-//     // Action under another action
-//     intentId = this.currentParent.intent_id;
-//     parent_id = this.currentParent.id; // Use parent action's ID
-//     order = this.getNextOrder(this.currentParent);
-//   }
-
-//   console.log('Creating action under parent:', this.currentParent, 'with intentId:', intentId, 'and parent_id:', parent_id);
-
-//   const model = {
-//     name: this.actionForm.value.name,
-//     action_type: this.selectedActionType || 'send_message',
-//     config: { message: this.actionForm.value.message },
-//     intent_id: intentId,
-//     parent_id: parent_id, 
-//     branch_path: this.buildBranchPath(),
-//     order: order
-//   };
-
-//   console.log('Submitting action with model:', model);
-
-//   this._httpService.mobileBankingPost('builder/nodes/action', model).subscribe({
-//     next: (result: any) => {
-//       if (result.status === '00') {
-//         setTimeout(() => {
-//           this.result = result.data;
-//           this.fetchNestedIntents(this.intentId);
-//           this.checkAndCombine();
-//           this.cdRef.detectChanges();
-//           Swal.fire('Success', result.message, 'success');
-//           this.resetForm();
-//         }, 100);
-//       } else {
-//         Swal.fire({
-//           icon: 'warning',
-//           title: 'Unexpected Response',
-//           text: result.message || 'Action creation completed with unexpected response'
-//         });
-//         this.resetForm();
-//       }
-//     },
-//     error: (err: any) => {
-//       console.error('Action creation failed:', err);
-//       Swal.fire({
-//         icon: 'warning',
-//         title: 'Unexpected Response',
-//         text: err.message || 'Action creation completed with unexpected response'
-//       });
-//     }
-//   });
-// }
+// Getter for carry_variables
+get carryVariables(): FormArray {
+  return this.actionForm.get('carry_variables') as FormArray;
+}
 
 onActionSubmit(): void {
   if (!this.actionForm.valid) {
