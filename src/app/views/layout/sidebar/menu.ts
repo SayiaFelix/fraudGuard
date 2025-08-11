@@ -213,14 +213,14 @@ export const MENU: MenuItem[] = [
       // }
   //    ]
   },
-  {
+{
     isTitle: true,
     label: 'SETTINGS'
   },
   {
     label: 'Settings', 
-    icon: 'settings',
-    link: '#' // TODO: Add your settings page link
+    icon: 'settings', 
+    isSettings: true 
   },
   {
     label: 'Help Center',

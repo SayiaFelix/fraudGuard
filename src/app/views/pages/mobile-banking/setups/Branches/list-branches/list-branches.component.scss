@@ -1,43 +1,55 @@
 /* --- Main Variable Definitions --- */
 :host {
-  --bg-color: #f3f4f6; /* Light grey page background */
-  --container-bg: #ffffff; /* White for cards/panels */
-  --input-bg: #ffffff;
+  --bg-color: #ffffff;
+  --box-bg-color: #f3f4f6;
+  --container-bg: #ffffff;
+  --input-bg: #f8f9fa;
   --header-bg: #ffffff;
-  --row-border-color: #e5e7eb;
-  --text-color: #111827;
+  --row-border-color: #d1d5db;
+  --text-color: #22223b;
   --text-muted: #6b7280;
-  --btn-save-bg: #007BFF; /* Blue for Save button */
-  --btn-cancel-bg: #dc3545; /* Red for Cancel button */
-  --btn-text-light: #ffffff;
-  --modal-bg: #ffffff;
-  --input-border: #d1d5db;
+  --button-dark-text: #ffffff;
+  --button-dark-bg: #e5e7eb;
+  --primary-blue: #007bff;
+  --primary-blue-light: #e6f2ff;
 }
 
-/* --- Page Layout --- */
-.people-container {
+/* --- Original Page & Side Panel Styles --- */
+.people-page-wrapper {
   position: relative;
+  overflow-x: hidden;
   background-color: var(--bg-color);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  padding: 24px 32px 32px;
-  min-height: 100vh;
-  transition: margin-right 0.3s ease-in-out;
-}
-.people-container.panel-visible {
-  margin-right: 400px;
-  overflow-x: hidden;
+  margin-top: -80px;
 }
 
-/* --- Controls Bar (Now inside white panel) --- */
+.main-content {
+  transition: margin-right 0.3s ease-in-out;
+  &.panel-visible {
+    margin-right: 400px;
+  }
+}
+
+.people-page {
+  padding: 2rem;
+  color: var(--text-color);
+  min-height: 100vh;
+}
+
+.page-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: var(--text-color);
+}
+
 .controls-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem; /* Space between controls and table header */
+  margin-bottom: 1.5rem;
   flex-wrap: wrap;
   gap: 1rem;
-  /* Padding added to give it space inside the .table-container */
-  padding: 1.5rem 1.5rem 0 1.5rem;
 }
 
 .filters {
@@ -45,31 +57,13 @@
   align-items: center;
   gap: 1rem;
   flex-wrap: wrap;
-  flex-grow: 1;
-}
-
-.add-person-btn {
-  background-color: var(--btn-save-bg); /* Use blue for consistency */
-  color: var(--btn-text-light);
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  padding: 10px 20px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: filter 0.2s ease;
-  flex-shrink: 0;
-}
-.add-person-btn:hover {
-  filter: brightness(90%);
 }
 
 .search-wrapper {
   position: relative;
   width: 250px;
 }
+
 .search-icon {
   position: absolute;
   left: 12px;
@@ -77,244 +71,330 @@
   transform: translateY(-50%);
   color: var(--text-muted);
 }
-.search-input, .tags-control, .reset-link {
-  background-color: var(--container-bg);
+
+.search-input, .tags-select {
+  background-color: var(--input-bg);
+  color: var(--text-color);
   border: 1px solid var(--row-border-color);
   border-radius: 6px;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-}
-.search-input, .tags-select {
-  color: var(--text-color);
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
-}
-.search-input:focus-within, .search-input:focus, .tags-select:focus {
-  outline: none;
-  border-color: var(--btn-save-bg);
-  box-shadow: 0 0 0 1px var(--btn-save-bg);
+  &:focus {
+    outline: none;
+    border-color: var(--text-muted);
+  }
 }
 .search-input { padding-left: 35px; }
+
 .tags-control {
   display: flex;
   align-items: center;
+  background-color: var(--input-bg);
+  border: 1px solid var(--row-border-color);
+  border-radius: 6px;
   padding-left: 0.75rem;
   color: var(--text-muted);
+  .tags-select { border: none; background: transparent; }
 }
-.tags-control .tags-select { border: none; background: transparent; }
+
 .reset-link {
   display: flex; align-items: center; gap: 0.25rem; color: var(--text-muted);
-  text-decoration: none; font-size: 0.9rem;
-  padding: 0.5rem 0.75rem;
+  text-decoration: none; font-size: 0.9rem; background-color: var(--input-bg);
+  padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--row-border-color);
+  &:hover { color: var(--text-color); }
 }
-.reset-link:hover { color: var(--text-color); }
 
-/* --- Table Styles (The main white panel) --- */
+.add-person-btn {
+  background-color: var(--primary-blue);
+  color: var(--button-dark-text);
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+.table-wrapper-box {
+  background-color: var(--box-bg-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
 .table-container {
   background-color: var(--container-bg);
   border-radius: 8px;
   border: 1px solid var(--row-border-color);
-  overflow-x: auto;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
 .table-header, .table-row {
   display: flex;
   align-items: center;
-  /* Padding moved from .controls-bar to here for table content */
-  padding: 0.75rem 1.5rem;
-  min-width: 800px;
+  padding: 0.75rem 1rem;
+  transition: background-color 0.2s ease;
 }
 
 .table-header {
   background-color: var(--header-bg);
   color: var(--text-muted);
   font-weight: 600;
-  border-bottom: 2px solid var(--row-border-color); /* Thicker border */
-  border-top: 1px solid var(--row-border-color); /* Line between controls and header */
+  border-bottom: 2px solid var(--row-border-color);
 }
 
 .table-row {
   border-bottom: 1px solid var(--row-border-color);
   cursor: pointer;
+  &:last-child { border-bottom: none; }
+  &:hover,
+  &.selected {
+    background-color: var(--primary-blue-light);
+  }
 }
-.table-row:last-child { border-bottom: none; }
-.table-row:hover { background-color: #f9fafb; }
 
 .header-cell, .table-cell {
-  padding: 0.5rem;
+  padding: 0.25rem 0.5rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   color: var(--text-color);
 }
+
 .header-cell {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding-top: 1rem;
-  padding-bottom: 1rem;
-}
-input.column-filter-input {
-  width: 100%;
-  box-sizing: border-box;
-  font-size: 0.85rem;
-  padding: 0.35rem 0.6rem;
-  border: 1px solid var(--row-border-color);
-  border-radius: 4px;
-  background-color: var(--input-bg);
-  color: var(--text-color);
-}
-input.column-filter-input::placeholder { color: var(--text-muted); }
-input.column-filter-input:focus {
-  outline: none;
-  border-color: var(--btn-save-bg);
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 2px;
+  
+  input.column-filter-input {
+    margin-top: 2px;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    font-size: 0.85rem;
+    padding: 0.15rem 0.4rem;
+    border: 1px solid var(--row-border-color);
+    border-radius: 4px;
+    background-color: var(--container-bg);
+    color: var(--text-color);
+    &::placeholder {
+      color: var(--text-muted);
+    }
+    &:focus {
+      outline: none;
+      border-color: var(--primary-blue);
+      box-shadow: 0 0 0 1px var(--primary-blue);
+    }
+  }
 }
 
 .checkbox-cell { flex: 0 0 50px; }
-.name-cell { flex: 2 1 120px; font-weight: 600; }
-.id-cell { flex: 3 1 200px; }
-.email-cell { flex: 2 1 150px; }
-.location-cell { flex: 1 1 100px; }
+.name-cell { flex: 2 1 0; font-weight: 600; color: #22223b; }
+.id-cell { flex: 4 1 0; }
+.email-cell { flex: 2 1 0; }
+.location-cell { flex: 2 1 0; }
 
-/* --- No Results Message --- */
-.no-results-message {
-  text-align: center;
-  padding: 4rem 1rem;
-  color: var(--text-muted);
-}
-/* --- Footer Actions Styles --- */
 .footer-actions {
   text-align: center;
-  padding: 1.5rem 0;
-  border-top: 1px solid var(--row-border-color);
-}
-.footer-actions .pagination-info {
-  color: var(--text-muted);
-  font-size: 0.9rem;
-  margin: 0;
-}
-.footer-actions .pagination-info:not(:last-child) {
-  margin-bottom: 1rem;
-}
-.show-more-btn {
-  background-color: var(--container-bg);
-  color: var(--text-color);
-  font-weight: 500;
-  border: 1px solid var(--row-border-color);
-  padding: 0.6rem 1.2rem;
-  cursor: pointer;
-  border-radius: 6px;
-}
-.show-more-btn:hover { background-color: #f9fafb; }
-
-
-/* --- Details Side Panel Styles (No changes) --- */
-/* ... existing styles ... */
-
-
-/*
-* ===================================================
-* MODAL STYLES (Add Person Popup) - CORRECTED
-* ===================================================
-*/
-:host ::ng-deep {
-  .dark-theme-backdrop { background-color: rgba(0, 0, 0, 0.15); }
-  .dark-theme-modal .modal-content { background: none; border: none; }
-  .modal-content-wrapper {
-    background-color: var(--modal-bg);
+  padding: 1.5rem 0 0 0;
+  .pagination-info { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem; }
+  .show-more-btn {
+    background-color: var(--button-dark-bg);
     color: var(--text-color);
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    font-weight: 500;
+    border: 1px solid var(--row-border-color);
+    padding: 0.6rem 1.2rem;
+    cursor: pointer;
+    border-radius: 6px;
+  }
+}
+
+.details-panel-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); z-index: 1040; opacity: 0;
+  visibility: hidden; transition: opacity 0.3s ease;
+  &.visible { opacity: 1; visibility: visible; }
+}
+
+.details-panel {
+  position: fixed; top: 0; right: -400px; width: 400px; height: 100%;
+  background-color: var(--container-bg); border-left: 1px solid var(--row-border-color);
+  z-index: 1050; transition: right 0.3s ease-in-out;
+  display: flex; flex-direction: column; color: var(--text-color);
+  &.visible { right: 0; }
+}
+
+.panel-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1rem 1.5rem; border-bottom: 1px solid var(--row-border-color);
+  flex-shrink: 0;
+}
+.person-title { display: flex; align-items: center; gap: 0.75rem; font-weight: 600; }
+.close-btn, .options-btn, .add-btn {
+  background: none; border: none; color: var(--text-muted);
+  font-size: 1.1rem; cursor: pointer;
+  &:hover { color: var(--text-color); }
+}
+
+.user-info {
+  display: flex; align-items: center; padding: 1.5rem;
+  gap: 1rem; border-bottom: 1px solid var(--row-border-color); flex-shrink: 0;
+}
+.user-avatar {
+  width: 40px; height: 40px; border-radius: 5px; background-color: var(--button-dark-bg);
+  display: flex; justify-content: center; align-items: center; font-size: 1.2rem;
+  color: var(--text-color);
+}
+.user-name { flex-grow: 1; font-weight: 600; color: #22223b; }
+.panel-body { padding: 1rem 1.5rem; overflow-y: auto; flex-grow: 1; }
+
+.detail-section {
+  margin-bottom: 1.5rem;
+  .section-header {
+    display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0;
+    font-weight: 600; color: var(--text-muted); cursor: pointer;
+    h4 { font-size: 0.9rem; margin: 0; flex-grow: 1; color: var(--text-color); }
+  }
+  .section-content {
+    padding: 0.5rem 0 0.5rem 1.5rem;
+    &.placeholder-text { color: var(--text-muted); font-size: 0.9rem; }
+  }
+}
+
+.detail-item {
+  display: flex; align-items: center; padding: 0.5rem 0; font-size: 0.9rem;
+  i { width: 20px; color: var(--text-muted); margin-right: 0.75rem; text-align: center; }
+  span { flex: 1; color: var(--text-muted); }
+  strong { color: var(--text-color); font-weight: 500; }
+}
+
+
+/* ======================================================= */
+/* FINAL, SELF-CONTAINED MODAL STYLES                      */
+/* These styles live inside the component and will work.   */
+/* ======================================================= */
+:host {
+  .people-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(9, 30, 66, 0.54);
+    z-index: 1050;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
-  /* FIXED: Added border to separate header */
-  .modal-header {
+  .people-modal-container {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    width: 100%;
+    max-width: 550px;
+  }
+
+  .people-modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid var(--row-border-color); /* Creates dividing line */
+    padding: 20px 24px;
+    border-bottom: 1px solid #e9ecef;
   }
 
-  /* FIXED: Made title larger and bolder to stand out */
-  .modal-header .modal-title {
-    font-size: 1.25rem; /* Increased size */
-    font-weight: 700;   /* Made it bolder */
+  .people-modal-title {
     margin: 0;
-  }
-  
-  .modal-body {
-    padding: 1.5rem;
-  }
-
-  /* FIXED: Increased spacing between form fields */
-  .form-group {
-    margin-bottom: 1.25rem; /* Increased spacing */
-  }
-  .form-group:last-child {
-    margin-bottom: 0; /* Remove margin from last item */
+    font-size: 20px;
+    font-weight: 600; /* Bolder Title */
+    color: #333;
   }
 
-  .form-group label {
+  .people-modal-close-btn {
+    background: none; border: none; font-size: 28px; font-weight: 300;
+    cursor: pointer; color: #888; padding: 0; line-height: 1;
+  }
+
+  .people-modal-body {
+    padding: 24px;
+  }
+
+  .people-modal-form-group {
+    margin-bottom: 20px;
+  }
+
+  .people-modal-form-group label {
     display: block;
-    margin-bottom: 0.5rem;
     font-weight: 500;
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 8px;
   }
-  .form-control {
+
+  .people-modal-form-group input,
+  .people-modal-form-group select {
+    display: block;
     width: 100%;
-    background-color: var(--input-bg);
-    border: 1px solid var(--input-border);
-    color: var(--text-color);
-    padding: 0.75rem;
+    padding: 10px 12px;
+    font-size: 14px;
+    border: 1px solid #ced4da;
     border-radius: 6px;
+    background-color: #fff;
+    color: #495057;
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+
+    &::placeholder {
+      color: #adb5bd;
+    }
+
+    &:focus {
+      border-color: var(--primary-blue);
+      outline: 0;
+      box-shadow: 0 0 0 2px rgba(0, 123, 255, .25);
+    }
   }
-  .form-control:focus {
-    outline: none;
-    border-color: var(--btn-save-bg);
-    box-shadow: 0 0 0 1px var(--btn-save-bg);
+
+  .people-modal-form-group select {
+    appearance: none;
+    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 16 16"><path stroke="%23888" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6l4 4 4-4"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 12px;
   }
-  
-  .modal-footer {
+
+  .people-modal-footer {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between; /* Pushes buttons to opposite ends */
     align-items: center;
-    padding: 1.25rem 1.5rem;
-    gap: 0.75rem;
-    background-color: #f9fafb; /* Lightly colored footer */
-    border-top: 1px solid var(--row-border-color);
+    padding: 16px 24px;
+    border-top: 1px solid #e9ecef;
   }
 
-  /* FIXED: Changed Cancel button to be red */
-  .btn-cancel {
-    background-color: var(--btn-cancel-bg);
-    color: var(--btn-text-light);
-    padding: 0.6rem 1.2rem;
+  .people-modal-cancel-btn,
+  .people-modal-save-btn {
+    padding: 10px 20px;
     border-radius: 6px;
-    font-weight: 600;
-    border: none;
-    transition: background-color 0.2s ease;
-  }
-  .btn-cancel:hover {
-    background-color: #c82333; /* Darker red on hover */
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid transparent;
   }
 
-  /* FIXED: Ensured Save button is blue */
-  .btn-save {
-    background-color: var(--btn-save-bg);
-    color: var(--btn-text-light);
-    padding: 0.6rem 1.2rem;
-    border-radius: 6px;
-    font-weight: 600;
-    border: none;
-    transition: filter 0.2s ease;
+  .people-modal-cancel-btn {
+    background-color: #e0f7fa; /* Light Teal */
+    color: #006064; /* Dark Teal Text */
+    border-color: #b2ebf2;
+    &:hover { background-color: #b2ebf2; }
   }
-  .btn-save:hover {
-    filter: brightness(90%);
-  }
-  .btn-save[disabled] {
-    opacity: 0.5;
-    cursor: not-allowed;
-    filter: none;
+
+  .people-modal-save-btn {
+    background-color: var(--primary-blue); /* Blue */
+    color: var(--button-dark-text);
+    border-color: var(--primary-blue);
+    &:hover:not([disabled]) { opacity: 0.9; }
+    &[disabled] { opacity: 0.6; cursor: not-allowed; }
   }
 }

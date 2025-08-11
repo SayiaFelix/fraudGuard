@@ -20,6 +20,7 @@ import { Ng2TelInputModule } from 'ng2-tel-input';
 import { APP_BASE_HREF_TOKEN } from './views/pages/mobile-banking/requests/constants';
 import { APP_BASE_HREF } from '@angular/common';
 import { ToastrModule,ToastrConfig, ToastrService } from 'ngx-toastr';
+import { SettingsModalComponent } from './layout/settings-modal/settings-modal.component';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
@@ -30,6 +31,7 @@ export function HttpLoaderFactory(http: HttpClient) {
   declarations: [
     AppComponent,
     ErrorPageComponent,
+    SettingsModalComponent,
   ],
   imports: [
     BrowserModule,

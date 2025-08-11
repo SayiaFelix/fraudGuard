@@ -19,6 +19,9 @@ export class SidebarComponent implements OnInit, AfterViewInit {
 
   menuItems: MenuItem[] = [];
   @ViewChild('sidebarMenu') sidebarMenu: ElementRef;
+
+  isSettingsModalVisible = false;
+
   showSubItems: boolean = true;
   logo: string = '\\assets\\images\\TRA_Logo.png'
   showingClass = "d-none";
@@ -50,6 +53,15 @@ export class SidebarComponent implements OnInit, AfterViewInit {
       this.iconSidebar;
     });
     this.iconSidebar(desktopMedium);
+  }
+  onSettingsClick(event: MouseEvent): void {
+    event.preventDefault(); // This is crucial to stop the link from navigating
+    this.isSettingsModalVisible = true;
+  }
+
+  // NEW: Add the function to close the modal
+  closeSettingsModal(): void {
+    this.isSettingsModalVisible = false;
   }
 
   ngAfterViewInit() {
