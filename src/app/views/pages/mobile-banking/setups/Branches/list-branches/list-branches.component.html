@@ -1,189 +1,216 @@
-<!-- Main Page Container -->
-<div class="people-container" [class.panel-visible]="isDetailsPanelVisible">
+<!-- Main Page Content Wrapper -->
+<div class="people-page-wrapper">
+  <!-- Main Content Area (shrinks when panel is open) -->
+  <div class="main-content" [class.panel-visible]="isDetailsPanelVisible">
+    <div class="people-page">
+      <h1 class="page-title">People</h1>
 
-  <!-- Page Header: Title only -->
-  <h1 class="page-title">People</h1>
+      <!-- Controls Bar -->
+      <div class="controls-bar">
+        <div class="filters">
+          <div class="search-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input
+              type="text"
+              class="form-control search-input"
+              placeholder="Search..."
+              [(ngModel)]="searchTerm"
+              (ngModelChange)="applyFiltersAndPagination()"
+            >
+          </div>
+          <div class="tags-control">
+            <span>Tags:</span>
+            <select class="tags-select"><option selected>Select</option></select>
+          </div>
+          <a href="javascript:void(0)" class="reset-link" (click)="resetFilters()">
+            <i class="fas fa-times"></i> Reset all
+          </a>
+        </div>
+        <button class="btn add-person-btn" (click)="openAddPersonModal()">+ Add Person</button>
+      </div>
 
-  <!-- Controls Bar -->
-  <div class="controls-bar">
-    <div class="filters">
-      <div class="search-wrapper">
-        <i class="fas fa-search search-icon"></i>
-        <input
-          type="text"
-          class="form-control search-input"
-          placeholder="Search..."
-          [(ngModel)]="searchTerm"
-          (ngModelChange)="applyFiltersAndPagination()"
-        >
+      <!-- Wrapper for the grey box containing the table and footer -->
+      <div class="table-wrapper-box">
+        <!-- Table Container -->
+        <div class="table-container">
+          <!-- Table Header -->
+          <div class="table-header">
+            <div class="header-cell checkbox-cell"><input type="checkbox"></div>
+            <div class="header-cell name-cell">
+              <span>Name</span>
+              <input
+                type="text"
+                placeholder="Filter Name"
+                class="column-filter-input"
+                [(ngModel)]="nameFilter"
+                (ngModelChange)="applyFiltersAndPagination()"
+              >
+            </div>
+            <div class="header-cell id-cell">
+              <span>ID</span>
+              <input
+                type="text"
+                placeholder="Filter ID"
+                class="column-filter-input"
+                [(ngModel)]="idFilter"
+                (ngModelChange)="applyFiltersAndPagination()"
+              >
+            </div>
+            <div class="header-cell email-cell">
+              <span>Email</span>
+              <input
+                type="text"
+                placeholder="Filter Email"
+                class="column-filter-input"
+                [(ngModel)]="emailFilter"
+                (ngModelChange)="applyFiltersAndPagination()"
+              >
+            </div>
+            <div class="header-cell location-cell">
+              <span>Location</span>
+              <input
+                type="text"
+                placeholder="Filter Location"
+                class="column-filter-input"
+                [(ngModel)]="locationFilter"
+                (ngModelChange)="applyFiltersAndPagination()"
+              >
+            </div>
+          </div>
+          <!-- Table Body -->
+          <ng-container *ngIf="visiblePeople.length > 0; else noResultsTemplate">
+            <div class="table-body">
+              <div
+                *ngFor="let person of visiblePeople"
+                class="table-row"
+                (click)="showPersonDetails(person)"
+                [class.selected]="selectedPerson && selectedPerson.id === person.id"
+              >
+                <div class="table-cell checkbox-cell"><input type="checkbox" (click)="$event.stopPropagation()"></div>
+                <div class="table-cell name-cell">{{ person.name }}</div>
+                <div class="table-cell id-cell">{{ person.id }}</div>
+                <div class="table-cell email-cell">{{ person.email }}</div>
+                <div class="table-cell location-cell">{{ person.location }}</div>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- No Results Template -->
+          <ng-template #noResultsTemplate>
+            <div class="no-results-message">
+              No results found
+            </div>
+          </ng-template>
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="footer-actions">
+          <ng-container *ngIf="visiblePeople.length > 0">
+            <p class="pagination-info" *ngIf="visiblePeople.length < totalRecords">
+              Showing {{ visiblePeople.length }} of {{ totalRecords }} people
+            </p>
+            <p class="pagination-info" *ngIf="visiblePeople.length === totalRecords && totalRecords > 0">
+              All {{ totalRecords }} people shown
+            </p>
+            <button class="btn show-more-btn" (click)="loadMorePeople()" *ngIf="visiblePeople.length < totalRecords">
+              Show 20 more people
+            </button>
+          </ng-container>
+        </div>
       </div>
-      <div class="tags-control">
-        <span>Tags:</span>
-        <select class="tags-select"><option selected>Select</option></select>
-      </div>
-      <a href="javascript:void(0)" class="reset-link" (click)="resetFilters()">
-        <i class="fas fa-times"></i>&nbsp;Reset all
-      </a>
+
     </div>
-    <button class="btn add-person-btn" (click)="openAddPersonModal()">
-      <i class="fas fa-plus"></i> Add Person
-    </button>
   </div>
 
-  <!-- Table Container (The white panel) -->
-  <div class="table-container">
-    <!-- Table Header -->
-    <div class="table-header">
-      <div class="header-cell checkbox-cell"><input type="checkbox"></div>
-      <div class="header-cell name-cell">
-        <span>Name</span>
-        <input
-          type="text"
-          placeholder="Filter Name"
-          class="column-filter-input"
-          [(ngModel)]="nameFilter"
-          (ngModelChange)="applyFiltersAndPagination()"
-        >
+  <!-- Details Side Panel -->
+  <div class="details-panel-overlay" [class.visible]="isDetailsPanelVisible" (click)="hidePersonDetails()"></div>
+  <div class="details-panel" [class.visible]="isDetailsPanelVisible">
+    <ng-container *ngIf="selectedPerson">
+      <div class="panel-header">
+        <div class="person-title"><i class="fas fa-users title-icon"></i><span>Person</span></div>
+        <button class="close-btn" (click)="hidePersonDetails()"><i class="fas fa-times"></i></button>
       </div>
-      <div class="header-cell id-cell">
-        <span>ID</span>
-        <input
-          type="text"
-          placeholder="Filter ID"
-          class="column-filter-input"
-          [(ngModel)]="idFilter"
-          (ngModelChange)="applyFiltersAndPagination()"
-        >
+      <div class="user-info">
+        <div class="user-avatar"><i class="fas fa-users"></i></div>
+        <div class="user-name">{{ selectedPerson.name !== '-' ? selectedPerson.name : 'Unknown' }}</div>
+        <button class="options-btn"><i class="fas fa-ellipsis-h"></i></button>
       </div>
-      <div class="header-cell email-cell">
-        <span>Email</span>
-        <input
-          type="text"
-          placeholder="Filter Email"
-          class="column-filter-input"
-          [(ngModel)]="emailFilter"
-          (ngModelChange)="applyFiltersAndPagination()"
-        >
-      </div>
-      <div class="header-cell location-cell">
-        <span>Location</span>
-        <input
-          type="text"
-          placeholder="Filter Location"
-          class="column-filter-input"
-          [(ngModel)]="locationFilter"
-          (ngModelChange)="applyFiltersAndPagination()"
-        >
-      </div>
-    </div>
-    <!-- Table Body -->
-    <ng-container *ngIf="visiblePeople.length > 0; else noResultsTemplate">
-      <div class="table-body">
-        <div *ngFor="let person of visiblePeople" class="table-row" (click)="showPersonDetails(person)">
-          <div class="table-cell checkbox-cell"><input type="checkbox" (click)="$event.stopPropagation()"></div>
-          <div class="table-cell name-cell">{{ person.name }}</div>
-          <div class="table-cell id-cell">{{ person.id }}</div>
-          <div class="table-cell email-cell">{{ person.email }}</div>
-          <div class="table-cell location-cell">{{ person.location }}</div>
+      <div class="panel-body">
+        <div class="detail-section">
+          <div class="section-header"><i class="fas fa-chevron-up"></i><h4>Details</h4></div>
+          <div class="section-content">
+            <div class="detail-item"><i class="fas fa-map-marker-alt"></i><span>Location</span><strong>{{ selectedPerson.location }}</strong></div>
+            <div class="detail-item"><i class="fas fa-globe-americas"></i><span>Country</span><strong>{{ selectedPerson.country }}</strong></div>
+            <div class="detail-item"><i class="fas fa-network-wired"></i><span>IP Address</span><strong>{{ selectedPerson.ipAddress }}</strong></div>
+            <div class="detail-item"><i class="fas fa-envelope"></i><span>Email</span><strong>{{ selectedPerson.email }}</strong></div>
+            <div class="detail-item"><i class="fas fa-phone"></i><span>Phone number</span><strong>{{ selectedPerson.phone }}</strong></div>
+            <div class="detail-item"><i class="fas fa-hashtag"></i><span>Personal ID</span><strong>{{ selectedPerson.id }}</strong></div>
+            <div class="detail-item"><i class="fas fa-hashtag"></i><span>Channel ID</span><strong>-</strong></div>
+            <div class="detail-item"><i class="fas fa-hashtag"></i><span>Unique ID</span><strong>-</strong></div>
+          </div>
+        </div>
+        <div class="detail-section">
+            <div class="section-header"><i class="fas fa-chevron-up"></i><h4>Custom Fields</h4></div>
+            <div class="section-content placeholder-text">Create a custom field to get started</div>
+        </div>
+        <div class="detail-section">
+            <div class="section-header"><i class="fas fa-chevron-up"></i><h4>Notes</h4><button class="add-btn"><i class="fas fa-plus"></i></button></div>
+            <div class="section-content placeholder-text">Create the first note</div>
+        </div>
+        <div class="detail-section">
+            <div class="section-header"><i class="fas fa-chevron-up"></i><h4>Tags</h4><button class="add-btn"><i class="fas fa-plus"></i></button></div>
+            <div class="section-content placeholder-text">Select a tag or tag group</div>
+        </div>
+        <div class="detail-section">
+            <div class="section-header"><i class="fas fa-chevron-down"></i><h4>History</h4></div>
         </div>
       </div>
     </ng-container>
-
-    <!-- No Results Template -->
-    <ng-template #noResultsTemplate>
-      <div class="no-results-message">
-        No results found
-      </div>
-    </ng-template>
-
-    <!-- Footer Actions -->
-    <div class="footer-actions">
-      <ng-container *ngIf="visiblePeople.length > 0">
-        <p class="pagination-info" *ngIf="visiblePeople.length === totalRecords && totalRecords > 0">
-          All {{ totalRecords }} people shown
-        </p>
-        <p class="pagination-info" *ngIf="visiblePeople.length < totalRecords">
-          Showing {{ visiblePeople.length }} of {{ totalRecords }} people
-        </p>
-        <button class="btn show-more-btn" (click)="loadMorePeople()" *ngIf="visiblePeople.length < totalRecords">
-          Show 20 more people
-        </button>
-      </ng-container>
-    </div>
   </div>
 </div>
 
-<!-- Details Side Panel (No changes here) -->
-<div class="details-panel-overlay" [class.visible]="isDetailsPanelVisible" (click)="hidePersonDetails()"></div>
-<div class="details-panel" [class.visible]="isDetailsPanelVisible">
-  <ng-container *ngIf="selectedPerson">
-    <div class="panel-header">
-      <div class="person-title"><i class="fas fa-users title-icon"></i><span>Person</span></div>
-      <button class="close-btn" (click)="hidePersonDetails()"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="user-info">
-      <div class="user-avatar"><i class="fas fa-users"></i></div>
-      <div class="user-name">{{ selectedPerson.name !== '-' ? selectedPerson.name : 'Unknown' }}</div>
-      <button class="options-btn"><i class="fas fa-ellipsis-h"></i></button>
-    </div>
-    <div class="panel-body">
-      <div class="detail-section">
-        <div class="section-header"><i class="fas fa-chevron-up"></i><h4>Details</h4></div>
-        <div class="section-content">
-          <div class="detail-item"><i class="fas fa-map-marker-alt"></i><span>Location</span><strong>{{ selectedPerson.location }}</strong></div>
-          <div class="detail-item"><i class="fas fa-globe-americas"></i><span>Country</span><strong>{{ selectedPerson.country }}</strong></div>
-          <div class="detail-item"><i class="fas fa-network-wired"></i><span>IP Address</span><strong>{{ selectedPerson.ipAddress }}</strong></div>
-          <div class="detail-item"><i class="fas fa-envelope"></i><span>Email</span><strong>{{ selectedPerson.email }}</strong></div>
-          <div class="detail-item"><i class="fas fa-phone"></i><span>Phone number</span><strong>{{ selectedPerson.phone }}</strong></div>
-          <div class="detail-item"><i class="fas fa-hashtag"></i><span>Personal ID</span><strong>{{ selectedPerson.id }}</strong></div>
-          <div class="detail-item"><i class="fas fa-hashtag"></i><span>Channel ID</span><strong>-</strong></div>
-          <div class="detail-item"><i class="fas fa-hashtag"></i><span>Unique ID</span><strong>-</strong></div>
-        </div>
-      </div>
-      <div class="detail-section">
-          <div class="section-header"><i class="fas fa-chevron-up"></i><h4>Custom Fields</h4></div>
-          <div class="section-content placeholder-text">Create a custom field to get started</div>
-      </div>
-      <div class="detail-section">
-          <div class="section-header"><i class="fas fa-chevron-up"></i><h4>Notes</h4><button class="add-btn"><i class="fas fa-plus"></i></button></div>
-          <div class="section-content placeholder-text">Create the first note</div>
-      </div>
-      <div class="detail-section">
-          <div class="section-header"><i class="fas fa-chevron-up"></i><h4>Tags</h4><button class="add-btn"><i class="fas fa-plus"></i></button></div>
-          <div class="section-content placeholder-text">Select a tag or tag group</div>
-      </div>
-      <div class="detail-section">
-          <div class="section-header"><i class="fas fa-chevron-down"></i><h4>History</h4></div>
-      </div>
-    </div>
-  </ng-container>
-</div>
+<!-- ======================================================= -->
+<!-- NEW, SELF-CONTAINED "ADD PERSON" MODAL STRUCTURE        -->
+<!-- This replaces the <ng-template> entirely.               -->
+<!-- ======================================================= -->
+<div *ngIf="isAddPersonModalVisible" class="people-modal-overlay" (click)="closeAddPersonModal()">
+  <div class="people-modal-container" (click)="$event.stopPropagation()">
 
-<!-- "Add Person" Modal Template (No changes here) -->
-<ng-template #addPersonModal let-modal>
-  <div class="modal-content-wrapper">
-    <div class="modal-header">
-      <h4 class="modal-title">Add Person</h4>
-      <button type="button" class="close-btn" (click)="modal.dismiss()"><i class="fas fa-times"></i></button>
+    <div class="people-modal-header">
+      <h4 class="people-modal-title">Add Person</h4>
+      <button type="button" class="people-modal-close-btn" (click)="closeAddPersonModal()">&times;</button>
     </div>
-    <div class="modal-body">
+
+    <div class="people-modal-body">
       <form [formGroup]="addPersonForm" id="add-person-form" (ngSubmit)="savePerson()">
-        <div class="form-group"><label for="name">Name</label><input type="text" id="name" formControlName="name" class="form-control"></div>
-        <div class="form-group"><label for="email">Email</label><input type="email" id="email" formControlName="email" class="form-control"></div>
-        <div class="form-group"><label for="phone">Phone number</label><input type="text" id="phone" formControlName="phone" class="form-control"></div>
-        <div class="form-group">
+        <div class="people-modal-form-group">
+          <label for="name">Name</label>
+          <input type="text" id="name" formControlName="name" placeholder="Enter the person's name">
+        </div>
+        <div class="people-modal-form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" formControlName="email" placeholder="Enter a valid email address">
+        </div>
+        <div class="people-modal-form-group">
+          <label for="phone">Phone number</label>
+          <input type="text" id="phone" formControlName="phone" placeholder="Enter a phone number">
+        </div>
+        <div class="people-modal-form-group">
           <label for="role">Role</label>
-          <select id="role" formControlName="role" class="form-control">
+          <select id="role" formControlName="role">
+            <option disabled value="">Select a role</option>
+            <option>Super Admin</option>
             <option>Admin</option>
-            <option>Manager</option>
             <option>User</option>
           </select>
         </div>
       </form>
     </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-cancel" (click)="modal.dismiss()">Cancel</button>
-      <button type="submit" form="add-person-form" class="btn btn-save" [disabled]="addPersonForm.invalid">Save</button>
+
+    <div class="people-modal-footer">
+     <button type="button" class="people-modal-cancel-btn" (click)="closeAddPersonModal()">Cancel</button>
+     <button type="submit" form="add-person-form" class="people-modal-save-btn" [disabled]="addPersonForm.invalid">Save</button>
     </div>
+
   </div>
-</ng-template>
+</div>
