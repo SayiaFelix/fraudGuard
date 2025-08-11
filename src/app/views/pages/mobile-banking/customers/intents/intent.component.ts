@@ -153,31 +153,29 @@ export class IntentComponent implements OnInit {
     isActive: boolean = false;
 
     actionIcons: { [key: string]: string } = {
-        send_message: 'icon-message-square',
-        send_file: 'icon-file-text',
-        http_request: 'icon-link',
-        loop: 'icon-refresh-cw',
-        carousel: 'icon-layers',
-        Jump_to_Trigger: 'icon-corner-down-right',
-        webhook: 'icon-zap',
-        set_variable: 'icon-sliders',
-        survey: 'icon-edit-3',
-        create_ticket: 'icon-clipboard',
-        human_handoff: 'icon-user',
-    };
+    send_message: 'icon-message-square',
+    send_file: 'icon-file-text',
+    http_request: 'icon-link',
+    webhook: 'icon-zap',
+    loop: 'icon-refresh-cw',
+    conditional: 'icon-code',          // New icon for conditional
+    carousel: 'icon-layers',
+    Jump_to_Trigger: 'icon-corner-down-right',
+    'If Else Branching': 'icon-git-branch',  // New icon for If Else Branching
+    set_variable: 'icon-sliders',
+    survey: 'icon-edit-3',
+    create_ticket: 'icon-clipboard',
+    human_handoff: 'icon-user'
+   };
     
     triggers: any;
     currentParentIntentId: number | null = null;
      uploadedFile: File | null = null;
-     // In your component class
-
-
-
-  
+    
     carouselItemFiles: File[] = [];
     carouselItems: FormArray = this.fb.array([]);
-    // surveyQuestions: FormArray = this.fb.array([]);
-    variables: FormArray = this.fb.array([]);
+  
+
     carryVariables: FormArray = this.fb.array([]);
     requiredContext: FormArray = this.fb.array([]);
     quickReplies: FormArray = this.fb.array([]);
@@ -333,8 +331,6 @@ onFileHovered(isHovering: boolean): void {
   this.isHovering = isHovering;
 }
 
-
-
 triggerFileInput(): void {
   if (this.fileInput?.nativeElement) {
     this.fileInput.nativeElement.click();
@@ -342,10 +338,6 @@ triggerFileInput(): void {
     console.error('File input element not found');
   }
 }
-
-
-
-
 
 onFileDropped(event: any): void {
   const dragEvent = event as DragEvent;
@@ -387,17 +379,6 @@ removeCarouselItem(index: number): void {
   this.carouselItemFiles.splice(index, 1);
 }
 
-
-addVariable(): void {
-  this.variables.push(this.fb.group({
-    name: ['', Validators.required],
-    source: ['static', Validators.required],
-    value: [''],
-    expression: [''],
-    contextKey: ['']
-  }));
-}
-
 removeVariable(index: number): void {
   this.variables.removeAt(index);
 }
@@ -437,6 +418,32 @@ initializeFormArrays(): void {
     requiredContext: this.requiredContext,
     quickReplies: this.quickReplies
   });
+}
+
+removeTrueStep(index: number) {
+  this.trueSteps.removeAt(index);
+}
+
+removeFalseStep(index: number) {
+  this.falseSteps.removeAt(index);
+}
+
+removeContextMapKey(key: string) {
+  const cmGroup = this.actionForm.get('context_map') as FormGroup;
+  cmGroup.removeControl(key);
+}
+
+
+addVariable() {
+  this.variables.push(
+    this.fb.group({
+      name: [''],
+      source: ['static'],
+      value: [''],
+      expression: [''],
+      context_key: ['']
+    })
+  );
 }
 
 
@@ -549,6 +556,29 @@ addHeader(): void {
 
 removeHeader(index: number): void {
   this.headers.removeAt(index);
+}
+
+get trueSteps() {
+  return this.actionForm.get('true_steps') as FormArray;
+}
+get falseSteps() {
+  return this.actionForm.get('false_steps') as FormArray;
+}
+
+addTrueStep() {
+  this.trueSteps.push(this.fb.control(''));
+}
+addFalseStep() {
+  this.falseSteps.push(this.fb.control(''));
+}
+
+// dynamically add context_map keys
+get contextMapKeys() {
+  return Object.keys(this.actionForm.get('context_map')?.value || {});
+}
+addContextMapKey(key: string) {
+  const cmGroup = this.actionForm.get('context_map') as FormGroup;
+  cmGroup.addControl(key, this.fb.control(''));
 }
 
 loadInitialData(): void {
@@ -724,8 +754,6 @@ fetchNestedIntents(intentId: number): void {
       }
     });
 }
-
-
 
 private processApiTriggers(trigger: any, parentId: number): TriggerItem {
   return {
@@ -906,6 +934,11 @@ updateFileInstructions(): void {
   this.cdRef.detectChanges();
 }
 
+get variables(): FormArray {
+  return this.actionForm.get('variables') as FormArray;
+}
+
+
 openActionForm(action: any): void {
   this.selectedActionType = action.type;
   this.showActionForm = true;
@@ -956,17 +989,42 @@ openActionForm(action: any): void {
         chatScriptControl?.updateValueAndValidity();
       });
       break;
-      
+
     case 'http_request':
       this.actionForm = this.fb.group({
         name: [action.name || '', Validators.required],
         action_type: ['http_request', Validators.required],
-        http_method: ['GET', Validators.required],
-        url: ['', Validators.required],
-        headers: this.fb.array([])
+        http_method: [action.config?.method || 'GET', Validators.required],
+        url: [action.config?.url || '', Validators.required],
+        headers: this.fb.array([]), // we'll populate below
+        request_body: [action.config?.body ? JSON.stringify(action.config.body, null, 2) : ''],
+        timeout: [action.config?.timeout || 30, [Validators.required, Validators.min(1), Validators.max(60)]]
       });
+
+      // Populate headers if editing existing
+      if (action.config?.headers) {
+        Object.entries(action.config.headers).forEach(([key, value]) => {
+          this.headers.push(
+            this.fb.group({
+              key: [key],
+              value: [value]
+            })
+          );
+        });
+      }
       break;
     
+    case 'conditional':
+      this.actionForm = this.fb.group({
+        name: [action.name || '', Validators.required],
+        action_type: ['conditional', Validators.required],
+        condition: ['', Validators.required],
+        true_steps: this.fb.array([]),   // Array of step IDs/names
+        false_steps: this.fb.array([]),  // Array of step IDs/names
+        context_map: this.fb.group({})   // Key/value expressions
+      });
+      break;
+
     case 'loop':
       this.actionForm = this.fb.group({
         name: [action.name || '', Validators.required],
@@ -1000,14 +1058,39 @@ openActionForm(action: any): void {
         payload: ['']
       });
       break;
-    
+
+
     case 'set_variable':
       this.actionForm = this.fb.group({
         name: [action.name || '', Validators.required],
         action_type: ['set_variable', Validators.required],
-        variable_name: ['', Validators.required],
-        variable_value: ['', Validators.required]
+        variables: this.fb.array([]),
+        overwrite: [action.config?.overwrite ?? true],
+        clear_on_session_end: [action.config?.clear_on_session_end ?? false]
       });
+
+      // If editing an existing action
+      if (action.config?.variables) {
+        Object.entries(action.config.variables).forEach(([varName, varConfig]: any) => {
+          this.variables.push(this.fb.group({
+            name: [varName, Validators.required],
+            source: [varConfig.source || 'static', Validators.required],
+            value: [varConfig.value || ''],
+            expression: [varConfig.expression || ''],
+            context_key: [varConfig.context_key || '']
+          }));
+        });
+      }
+
+      if (this.variables.length === 0) {
+        this.variables.push(this.fb.group({
+          name: [''],
+          source: ['static'],
+          value: [''],
+          expression: [''],
+          context_key: ['']
+        }));
+      }
       break;
     
     case 'survey':
@@ -1063,12 +1146,12 @@ initSurveyForm() {
     name: ['Customer Feedback Survey', Validators.required],
     action_type: ['survey', Validators.required],
     config: this.fb.group({
-      questions: this.fb.array([]),  // Initialize empty FormArray for questions
+      questions: this.fb.array([]),  
       completion_message: ['Thank you for your feedback!'],
       persist_responses: [true]
     })
   });
-  this.addSurveyQuestion(); // Add initial question
+  this.addSurveyQuestion(); 
 }
 
 addSurveyQuestion() {
@@ -1097,7 +1180,7 @@ resetSurveyForm() {
   while (questions.length > 0) {
     questions.removeAt(0);
   }
-  this.addSurveyQuestion(); // Add one empty question
+  this.addSurveyQuestion(); 
 }
 
 get surveyQuestions(): FormArray {
@@ -1108,7 +1191,6 @@ get surveyQuestions(): FormArray {
   return this.actionForm.get('config.questions') as FormArray;
 }
 
-// Update validation when question type changes
 updateQuestionValidation(questionIndex: number) {
   const questionGroup = this.surveyQuestions.at(questionIndex) as FormGroup;
   const questionType = questionGroup.get('type')?.value;
@@ -1130,7 +1212,6 @@ updateQuestionValidation(questionIndex: number) {
       break;
   }
 }
-
 
 removeSurveyQuestion(index: number) {
   const questions = this.actionForm.get('config.questions') as FormArray;
@@ -1343,18 +1424,52 @@ onActionSubmit(): void {
       break;
 
     case 'http_request':
+      const headersObj: { [key: string]: string } = {};
+      this.actionForm.value.headers.forEach((h: any) => {
+        if (h.key && h.value) {
+          headersObj[h.key] = h.value;
+        }
+      });
+
+      let parsedBody = {};
+      if (this.actionForm.value.request_body) {
+        try {
+          parsedBody = JSON.parse(this.actionForm.value.request_body);
+        } catch {
+          Swal.fire('Error', 'Invalid JSON in request body', 'error');
+          return;
+        }
+      }
+
       const httpRequestModel = {
         ...baseModel,
         config: {
           url: this.actionForm.value.url,
           method: this.actionForm.value.http_method,
-          headers: this.actionForm.value.headers || {},
-          body: this.actionForm.value.request_body,
-          timeout: this.actionForm.value.timeout || 30
+          headers: headersObj,
+          body: parsedBody,
+          timeout: this.actionForm.value.timeout || 30,
+          retry_policy: { attempts: 3, delay: 1 } // optional default
         }
       };
+
       this.submitAction(httpRequestModel);
       break;
+
+    case 'conditional':
+      const conditionalModel = {
+        ...baseModel,
+        config: {
+          condition: this.actionForm.value.condition,
+          true_steps: this.actionForm.value.true_steps,
+          false_steps: this.actionForm.value.false_steps,
+          context_map: this.actionForm.value.context_map
+        }
+      };
+      this.submitAction(conditionalModel);
+      break;
+
+
 
     case 'loop':
       const loopModel = {
@@ -1394,19 +1509,26 @@ onActionSubmit(): void {
       break;
 
     case 'set_variable':
-      const variableModel = {
+        const setVariableModel = {
         ...baseModel,
         config: {
-          variables: this.variables.value || [],
-          overwrite: this.actionForm.value.overwrite || false,
-          clear_on_session_end: this.actionForm.value.clear_on_session_end || false
+          variables: this.variables.value.reduce((acc: any, v: any) => {
+            acc[v.name] = {
+              source: v.source,
+              ...(v.source === 'static' && { value: v.value }),
+              ...(v.source === 'expression' && { expression: v.expression }),
+              ...(v.source === 'context' && { context_key: v.context_key })
+            };
+            return acc;
+          }, {}),
+          overwrite: this.actionForm.value.overwrite,
+          clear_on_session_end: this.actionForm.value.clear_on_session_end
         }
       };
-      this.submitAction(variableModel);
+      this.submitAction(setVariableModel);
       break;
 
     case 'survey':
-
       const surveyModel = {
         ...baseModel,
         config: {

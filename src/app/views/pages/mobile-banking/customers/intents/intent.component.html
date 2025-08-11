@@ -673,15 +673,17 @@
 
               <div class="mb-3">
                 <label class="form-label fw-bold">Headers</label>
-                <div *ngFor="let header of headers.controls; let i = index" class="d-flex gap-2 align-items-center mb-2">
-                  <input type="text" [formControlName]="i" class="form-control" placeholder="Header key"/>
-                  <input type="text" [formControlName]="i" class="form-control" placeholder="Header value"/>
-                  <button type="button" class="btn btn-link text-danger p-0" (click)="removeHeader(i)">
-                    <i class="bi bi-trash"></i>
-                  </button>
+                <div formArrayName="headers">
+                  <div *ngFor="let header of headers.controls; let i = index" [formGroupName]="i" class="d-flex gap-2 mb-2">
+                    <input type="text" formControlName="key" class="form-control" placeholder="Header key"/>
+                    <input type="text" formControlName="value" class="form-control" placeholder="Header value"/>
+                    <button type="button" class="btn btn-sm text-danger p-0" (click)="removeHeader(i)">
+                      <i class="feather icon-trash-2"></i>
+                    </button>
+                  </div>
                 </div>
                 <br>
-                <button type="button" class="btn btn-sm btn-outline-primary mt-1" (click)="addHeader()">
+                <button type="button" class="btn btn-sm btn-outline-primary" (click)="addHeader()">
                   + Add Header
                 </button>
               </div>
@@ -695,6 +697,84 @@
               <div class="mb-3">
                 <label class="form-label fw-bold">Timeout (seconds)</label>
                 <input type="number" formControlName="timeout" class="form-control" min="1" max="60" value="30"/>
+              </div>
+            </div>
+
+            <!-- Survey Action -->
+            <div *ngSwitchCase="'survey'" class="mb-3" formGroupName="config">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Survey Questions</label>
+                
+                <div formArrayName="questions">
+                  <div *ngFor="let question of surveyQuestions.controls; let i = index" 
+                      [formGroupName]="i" 
+                      class="card mb-3 p-3">
+
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <h6 class="mb-0">Question #{{i + 1}}</h6>
+                      <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeSurveyQuestion(i)">
+                        <i class="feather icon-trash-2"></i>
+                      </button>
+                    </div>
+                    
+                    <div class="mb-2">
+                      <label class="form-label">Question Text</label>
+                      <input type="text" formControlName="text" class="form-control" placeholder="Enter question text"/>
+                    </div>
+                    
+                    <div class="mb-2">
+                      <label class="form-label">Question Type</label>
+                      <select formControlName="type" class="form-select" (change)="updateQuestionValidation(i)">
+                        <option value="text">Text</option>
+                        <option value="number">Number</option>
+                        <option value="choice">Multiple Choice</option>
+                        <option value="rating">Rating (1-5)</option>
+                      </select>
+                    </div>
+                    
+                    <!-- Number validation -->
+                    <div *ngIf="question.get('type')?.value === 'number'" class="mb-2" formGroupName="validation">
+                      <div class="row">
+                        <div class="col">
+                          <label class="form-label">Min Value</label>
+                          <input type="number" formControlName="min" class="form-control"/>
+                        </div>
+                        <div class="col">
+                          <label class="form-label">Max Value</label>
+                          <input type="number" formControlName="max" class="form-control"/>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!-- Multiple choice options -->
+                    <div *ngIf="question.get('type')?.value === 'choice'" class="mb-2">
+                      <label class="form-label">Options (comma separated)</label>
+                      <input type="text" formControlName="options" class="form-control" placeholder="Option 1, Option 2, Option 3"/>
+                    </div>
+                    
+                    <div class="form-check">
+                      <input type="checkbox" formControlName="required" class="form-check-input" id="required{{i}}">
+                      <label class="form-check-label" for="required{{i}}">Required</label>
+                    </div>
+
+                  </div>
+                </div>
+                
+                <br>
+                <button type="button" class="btn btn-sm btn-outline-primary" (click)="addSurveyQuestion()">
+                  + Add Question
+                </button>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-bold">Completion Message</label>
+                <input type="text" formControlName="completion_message" class="form-control" 
+                      placeholder="Thank you for completing our survey!"/>
+              </div>
+
+              <div class="d-flex align-items-center mb-3">
+                <input class="form-check-input me-2" type="checkbox" formControlName="persist_responses" id="persistResponses">
+                <label class="form-check-label" for="persistResponses">Save survey responses</label>
               </div>
             </div>
 
@@ -790,151 +870,72 @@
               </div>
             </div>
 
-            <!-- Survey Action -->
-             <div *ngSwitchCase="'survey'" class="mb-3" formGroupName="config">
-  
-              <div class="mb-3">
-                <label class="form-label fw-bold">Survey Questions</label>
-                
-                <div formArrayName="questions">
-                  <div *ngFor="let question of surveyQuestions.controls; let i = index" 
-                      [formGroupName]="i" 
-                      class="card mb-3 p-3">
-
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                      <h6 class="mb-0">Question #{{i + 1}}</h6>
-                      <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeSurveyQuestion(i)">
-                        <i class="feather icon-trash-2"></i>
-                      </button>
-                    </div>
-                    
-                    <div class="mb-2">
-                      <label class="form-label">Question Text</label>
-                      <input type="text" formControlName="text" class="form-control" placeholder="Enter question text"/>
-                    </div>
-                    
-                    <div class="mb-2">
-                      <label class="form-label">Question Type</label>
-                      <select formControlName="type" class="form-select" (change)="updateQuestionValidation(i)">
-                        <option value="text">Text</option>
-                        <option value="number">Number</option>
-                        <option value="choice">Multiple Choice</option>
-                        <option value="rating">Rating (1-5)</option>
-                      </select>
-                    </div>
-                    
-                    <!-- Number validation -->
-                    <div *ngIf="question.get('type')?.value === 'number'" class="mb-2" formGroupName="validation">
-                      <div class="row">
-                        <div class="col">
-                          <label class="form-label">Min Value</label>
-                          <input type="number" formControlName="min" class="form-control"/>
-                        </div>
-                        <div class="col">
-                          <label class="form-label">Max Value</label>
-                          <input type="number" formControlName="max" class="form-control"/>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <!-- Multiple choice options -->
-                    <div *ngIf="question.get('type')?.value === 'choice'" class="mb-2">
-                      <label class="form-label">Options (comma separated)</label>
-                      <input type="text" formControlName="options" class="form-control" placeholder="Option 1, Option 2, Option 3"/>
-                    </div>
-                    
-                    <div class="form-check">
-                      <input type="checkbox" formControlName="required" class="form-check-input" id="required{{i}}">
-                      <label class="form-check-label" for="required{{i}}">Required</label>
-                    </div>
-
-                  </div>
-                </div>
-                
-                <br>
-                <button type="button" class="btn btn-sm btn-outline-primary" (click)="addSurveyQuestion()">
-                  + Add Question
-                </button>
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label fw-bold">Completion Message</label>
-                <input type="text" formControlName="completion_message" class="form-control" 
-                      placeholder="Thank you for completing our survey!"/>
-              </div>
-
-              <div class="d-flex align-items-center mb-3">
-                <input class="form-check-input me-2" type="checkbox" formControlName="persist_responses" id="persistResponses">
-                <label class="form-check-label" for="persistResponses">Save survey responses</label>
-              </div>
-
-                <!-- After submission -->
-                <!-- <div *ngIf="surveyCompleted" class="alert alert-success mt-3">
-                  {{ 'Thank you for your feedback!' }}
-                </div> -->
-
-            </div>
-
-           
-    
             <!-- Set Variable Action -->
-            <div *ngSwitchCase="'set_variable'" class="mb-3">
-              <div class="mb-3">
-                <label class="form-label fw-bold">Variables</label>
-                <div *ngFor="let variable of variables.controls; let i = index" class="card mb-3 p-3">
-                  <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h6 class="mb-0">Variable #{{i + 1}}</h6>
-                    <button type="button" class="btn btn-link text-danger p-0" (click)="removeVariable(i)">
-                      <i class="bi bi-trash"></i>
-                    </button>
-                  </div>
-                  
-                  <div class="mb-2">
-                    <label class="form-label">Variable Name</label>
-                    <input type="text" [formControlName]="i" class="form-control" placeholder="variable_name"/>
-                  </div>
-                  
-                  <div class="mb-2">
-                    <label class="form-label">Value Source</label>
-                    <select [formControlName]="i" class="form-select">
-                      <option value="static">Static Value</option>
-                      <option value="expression">Expression</option>
-                      <option value="context">From Context</option>
-                    </select>
-                  </div>
-                  
-                  <div *ngIf="variables.controls[i].value.source === 'static'" class="mb-2">
-                    <label class="form-label">Value</label>
-                    <input type="text" [formControlName]="i" class="form-control" placeholder="Enter value"/>
-                  </div>
-                  
-                  <div *ngIf="variables.controls[i].value.source === 'expression'" class="mb-2">
-                    <label class="form-label">Expression</label>
-                    <textarea [formControlName]="i" class="form-control" rows="2" 
-                              placeholder="0.1 if context.get('user_tier') == 'premium' else 0"></textarea>
-                  </div>
-                  
-                  <div *ngIf="variables.controls[i].value.source === 'context'" class="mb-2">
-                    <label class="form-label">Context Key</label>
-                    <input type="text" [formControlName]="i" class="form-control" placeholder="user_tier"/>
-                  </div>
+          <div *ngSwitchCase="'set_variable'" class="mb-3" [formGroup]="actionForm">
+            <div formArrayName="variables">
+              <label class="form-label fw-bold">Variables</label>
+
+              <div *ngFor="let variable of variables.controls; let i = index" [formGroupName]="i" class="card mb-2 p-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <h6 class="mb-0">Variable #{{i + 1}}</h6>
+                  <button type="button" class="btn btn-link text-danger p-0" (click)="removeVariable(i)">
+                    <i class="bi bi-trash"></i>
+                  </button>
                 </div>
-                <br>
-                <button type="button" class="btn btn-sm btn-outline-primary" (click)="addVariable()">
-                  + Add Variable
-                </button>
+
+                <!-- Variable Name -->
+                <div class="mb-2">
+                  <label class="form-label">Variable Name</label>
+                  <input type="text" formControlName="name" class="form-control" placeholder="variable_name"/>
+                </div>
+
+                <!-- Source -->
+                <div class="mb-2">
+                  <label class="form-label">Value Source</label>
+                  <select formControlName="source" class="form-select">
+                    <option value="static">Static Value</option>
+                    <option value="expression">Expression</option>
+                    <option value="context">From Context</option>
+                  </select>
+                </div>
+
+                <!-- Static Value -->
+                <div *ngIf="variable.get('source')?.value === 'static'" class="mb-2">
+                  <label class="form-label">Value</label>
+                  <input type="text" formControlName="value" class="form-control" placeholder="Enter value"/>
+                </div>
+
+                <!-- Expression -->
+                <div *ngIf="variable.get('source')?.value === 'expression'" class="mb-2">
+                  <label class="form-label">Expression</label>
+                  <textarea formControlName="expression" class="form-control" rows="2"
+                            placeholder="0.1 if context.get('user_tier') == 'premium' else 0"></textarea>
+                </div>
+
+                <!-- Context -->
+                <div *ngIf="variable.get('source')?.value === 'context'" class="mb-2">
+                  <label class="form-label">Context Key</label>
+                  <input type="text" formControlName="context_key" class="form-control" placeholder="user_tier"/>
+                </div>
               </div>
-              
-              <div class="form-check mb-3">
-                <input type="checkbox" class="form-check-input" formControlName="overwrite" id="overwriteVariables">
-                <label class="form-check-label" for="overwriteVariables">Overwrite existing variables</label>
-              </div>
-              
-              <div class="form-check">
-                <input type="checkbox" class="form-check-input" formControlName="clear_on_session_end" id="clearOnSessionEnd">
-                <label class="form-check-label" for="clearOnSessionEnd">Clear when session ends</label>
-              </div>
+              <br>
+              <button type="button" class="btn btn-sm btn-outline-primary mb-3" (click)="addVariable()">
+                + Add Variable
+              </button>
             </div>
+
+            <!-- Overwrite checkbox -->
+            <div class="form-check mb-3">
+              <input type="checkbox" class="form-check-input" formControlName="overwrite" id="overwriteVariables">
+              <label class="form-check-label" for="overwriteVariables">Overwrite existing variables</label>
+            </div>
+
+            <!-- Clear session checkbox -->
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" formControlName="clear_on_session_end" id="clearOnSessionEnd">
+              <label class="form-check-label" for="clearOnSessionEnd">Clear when session ends</label>
+            </div>
+          </div>
 
             <!-- Jump to Trigger Action -->
             <div *ngSwitchCase="'Jump_to_Trigger'" class="mb-3">
@@ -976,6 +977,64 @@
               </div>
             </div>
 
+            <!-- Conditional Action -->
+             <div *ngSwitchCase="'conditional'" class="mb-3">
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Condition Expression</label>
+                  <input type="text" formControlName="condition" class="form-control"
+                        placeholder="context.get('membership_level') in ['gold', 'platinum']"/>
+                </div>
+
+                <!-- True Steps -->
+                <div class="mb-3">
+                  <label class="form-label fw-bold">True Steps</label>
+                  <div *ngFor="let step of trueSteps.controls; let i = index" class="d-flex gap-2 mb-2">
+                    <input type="text" class="form-control" placeholder="Step ID or name"
+                          [formControlName]="i"/>
+                    <button type="button" class="btn btn-link text-danger p-0" (click)="removeTrueStep(i)">
+                      <i class="feather icon-trash-2"></i>
+                    </button>
+                  </div>
+                  <br>
+                  <button type="button" class="btn btn-outline-primary mt-2" (click)="addTrueStep()">+ Add True Step</button>
+                </div>
+
+                <!-- False Steps -->
+                <div class="mb-3">
+                  <label class="form-label fw-bold">False Steps</label>
+                  <div *ngFor="let step of falseSteps.controls; let i = index" class="d-flex gap-2 mb-2">
+                    <input type="text" class="form-control" placeholder="Step ID or name"
+                          [formControlName]="i"/>
+                    <button type="button" class="btn btn-link text-danger p-0" (click)="removeFalseStep(i)">
+                        <i class="feather icon-trash-2"></i>
+                    </button>
+                  </div>
+                  <br>
+                  <button type="button" class="btn btn-outline-primary mt-2" (click)="addFalseStep()">+ Add False Step</button>
+                </div>
+
+                <!-- Context Map -->
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Context Map</label>
+                  <div formGroupName="context_map">
+                    <div *ngFor="let key of contextMapKeys" class="d-flex gap-2 mb-2">
+                      <input type="text" [value]="key" readonly class="form-control"/>
+                      <input type="text" [formControlName]="key" placeholder="Expression" class="form-control"/>
+                      <button type="button" class="btn btn-link text-danger p-0" (click)="removeContextMapKey(key)">
+                          <i class="feather icon-trash-2"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="d-flex mt-2">
+                    <input type="text" #newContextKey placeholder="New Key" class="form-control"/>
+                    <button type="button" class="btn btn-sm btn-outline-primary" (click)="addContextMapKey(newContextKey.value); newContextKey.value=''">
+                      + Add Key
+                    </button>
+                  </div>
+                </div>
+            </div>
+
+      
             <!-- Human Handoff Action -->
             <div *ngSwitchCase="'human_handoff'" class="mb-3">
               <div class="mb-3">
