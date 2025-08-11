@@ -1042,7 +1042,7 @@ openActionForm(action: any): void {
    case 'Jump_to_Trigger':
       this.actionForm = this.fb.group({
         name: [action.name || '', Validators.required],
-        action_type: ['Jump_to_Trigger', Validators.required],
+        action_type: ['jump', Validators.required],
         target_trigger: [action.config?.target || '', Validators.required],
 
         // Nested form group for condition
@@ -1132,10 +1132,20 @@ openActionForm(action: any): void {
       this.actionForm = this.fb.group({
         name: [action.name || '', Validators.required],
         action_type: ['human_handoff', Validators.required],
-        team: ['', Validators.required],
-        message: ['', Validators.required]
+        mode: [action.config?.mode || 'hybrid', Validators.required],
+        handoff_message: [action.config?.handoff_message || '', Validators.required],
+        team_id: [action.config?.team_id || '', Validators.required],
+        priority: [action.config?.priority || 2, Validators.required],
+        required_context: this.fb.array(
+          (action.config?.required_context || []).map((ctx: any) => this.fb.control(ctx))
+        ),
+        fallback_options: this.fb.group({
+          delay: [action.config?.fallback_options?.delay || 15, [Validators.required, Validators.min(5), Validators.max(300)]],
+          fallback_message: [action.config?.fallback_options?.fallback_message || '', Validators.required]
+        })
       });
       break;
+
     
     default:
       this.actionForm = this.fb.group({
@@ -1447,18 +1457,32 @@ onActionSubmit(): void {
       this.submitAction(carouselModel);
       break;
 
+
     case 'Jump_to_Trigger':
+      let parsedContextUpdates = {};
+      try {
+        parsedContextUpdates = this.actionForm.value.context_updates
+          ? JSON.parse(this.actionForm.value.context_updates)
+          : {};
+      } catch (e) {
+        console.error("Invalid JSON in context_updates", e);
+        alert("Please enter valid JSON in Context Updates.");
+        return; // stop submission
+      }
+
       const jumpModel = {
         ...baseModel,
         config: {
           target_trigger: this.actionForm.value.target_trigger,
           condition: this.actionForm.value.condition,
-          context_updates: this.actionForm.value.context_updates || {},
+          context_updates: parsedContextUpdates,
           carry_variables: this.carryVariables.value || []
         }
       };
+      
       this.submitAction(jumpModel);
       break;
+
 
     case 'set_variable':
         const setVariableModel = {
@@ -1533,15 +1557,17 @@ onActionSubmit(): void {
           team_id: this.actionForm.value.team_id,
           priority: this.actionForm.value.priority || 2,
           handoff_message: this.actionForm.value.handoff_message,
-          required_context: this.requiredContext.value || [],
+          required_context: this.actionForm.value.required_context || [],
           fallback_options: {
-            delay: this.actionForm.value.fallback_delay || 15,
-            message: this.actionForm.value.fallback_message || 'All agents are busy. We\'ll contact you shortly.'
+            delay: this.actionForm.value.fallback_options?.delay || 15,
+            fallback_message: this.actionForm.value.fallback_options?.fallback_message || 
+              "All agents are busy. We'll contact you shortly."
           }
         }
       };
       this.submitAction(handoffModel);
       break;
+
 
     default:
       // Generic action handler

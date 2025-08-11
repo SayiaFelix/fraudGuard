@@ -937,7 +937,6 @@
             </div>
           </div>
 
-
             <!-- Jump to Trigger Action -->
             <div *ngSwitchCase="'Jump_to_Trigger'" class="mb-3">
               <!-- <div class="mb-3">
@@ -990,7 +989,6 @@
                 </button>
               </div>
             </div>
-
 
             <!-- Conditional Action -->
              <div *ngSwitchCase="'conditional'" class="mb-3">
@@ -1049,8 +1047,7 @@
                 </div>
             </div>
 
-      
-            <!-- Human Handoff Action -->
+             <!-- Human Handoff Action -->
             <div *ngSwitchCase="'human_handoff'" class="mb-3">
               <div class="mb-3">
                 <label class="form-label fw-bold">Handoff Mode</label>
@@ -1060,15 +1057,12 @@
                   <option value="request">Request Agent</option>
                 </select>
               </div>
-              
+
               <div class="mb-3">
                 <label class="form-label fw-bold">Team</label>
-                <select formControlName="team_id" class="form-select">
-                  <option value="">Select a team</option>
-                  <option *ngFor="let team of teams" [value]="team.id">{{team.name}}</option>
-                </select>
+                <input type="number" formControlName="team_id" class="form-control" placeholder="Enter team ID" />
               </div>
-              
+
               <div class="mb-3">
                 <label class="form-label fw-bold">Priority</label>
                 <select class="form-select" formControlName="priority">
@@ -1078,19 +1072,19 @@
                   <option value="4">Urgent</option>
                 </select>
               </div>
-              
+
               <div class="mb-3">
                 <label class="form-label fw-bold">Handoff Message</label>
-                <textarea formControlName="handoff_message" rows="3" class="form-control" 
+                <textarea formControlName="handoff_message" rows="3" class="form-control"
                           placeholder="Connecting you with an agent..."></textarea>
               </div>
-              
+
               <div class="mb-3">
                 <label class="form-label fw-bold">Required Context</label>
                 <div *ngFor="let context of requiredContext.controls; let i = index" class="d-flex align-items-center mb-2">
-                  <input type="text" [formControlName]="i" class="form-control" placeholder="context_key"/>
-                  <button type="button" class="btn btn-link text-danger p-0 ms-2" (click)="removeRequiredContext(i)">
-                    <i class="bi bi-trash"></i>
+                  <input type="text" [formControlName]="i" class="form-control" placeholder="context_key" />
+                  <button type="button" class="btn btn-sm btn-outline-danger ms-2" (click)="removeRequiredContext(i)">
+                     <i class="feather icon-trash-2"></i>
                   </button>
                 </div>
                 <br>
@@ -1098,21 +1092,22 @@
                   + Add Context Key
                 </button>
               </div>
-              
-              <div class="card p-3 mb-3">
+
+              <div class="card p-3 mb-3" formGroupName="fallback_options">
                 <h6 class="fw-bold">Fallback Options</h6>
                 <div class="mb-2">
                   <label class="form-label">Delay (seconds)</label>
-                  <input type="number" formControlName="fallback_delay" class="form-control" min="5" max="300" value="15"/>
+                  <input type="number" formControlName="delay" class="form-control" min="5" max="300" />
                 </div>
                 <div>
                   <label class="form-label">Fallback Message</label>
-                  <input type="text" formControlName="fallback_message" class="form-control" 
-                        placeholder="All agents are busy. We'll contact you shortly."/>
+                  <input type="text" formControlName="fallback_message" class="form-control"
+                        placeholder="All agents are busy. We'll contact you shortly." />
                 </div>
               </div>
             </div>
 
+         
             <!-- Default fallback for unsupported action types -->
             <div *ngSwitchDefault class="mb-3">
               <p class="text-muted">Configuration form for this action type is not yet implemented.</p>
