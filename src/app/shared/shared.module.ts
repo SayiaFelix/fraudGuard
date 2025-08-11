@@ -25,6 +25,7 @@ import { PerfectScrollbarConfigInterface } from 'ngx-perfect-scrollbar';
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import {ChannelDetailsWrapper} from "./services/channelDetailsWrapper";
 import {CompareImageComponent} from "./components/compare-image-component/compare-image.component";
+import { SettingsModalComponent } from './settings-modal/settings-modal.component';
 
 const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
   suppressScrollX: true,
@@ -44,7 +45,8 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
     CustomNgxTable,
     TableHeaderComponent,
     TableFiltersComponent,
-    CompareImageComponent
+    CompareImageComponent,
+    SettingsModalComponent
   ],
   entryComponents: [
     LabelBooleanComponent,
@@ -87,6 +89,7 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
     CustomNgxTable,
     TableHeaderComponent,
     TableFiltersComponent,
+    SettingsModalComponent
   ],
   providers: [
     {

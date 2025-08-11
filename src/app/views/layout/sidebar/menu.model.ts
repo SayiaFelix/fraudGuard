@@ -10,4 +10,6 @@ export interface MenuItem {
   parentId?: number;
   profiles?: string[];
   isLogout?: boolean; 
+  action?: string;
+  isSettings?: boolean;
 }
