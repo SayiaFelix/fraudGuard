@@ -1,5 +1,5 @@
 import {ChangeDetectorRef, Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
-import {FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {HttpService} from 'src/app/shared/services/http.service';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import { GlobalService } from 'src/app/shared/services/global.service';
@@ -176,7 +176,7 @@ export class IntentComponent implements OnInit {
   
     carouselItemFiles: File[] = [];
     carouselItems: FormArray = this.fb.array([]);
-    surveyQuestions: FormArray = this.fb.array([]);
+    // surveyQuestions: FormArray = this.fb.array([]);
     variables: FormArray = this.fb.array([]);
     carryVariables: FormArray = this.fb.array([]);
     requiredContext: FormArray = this.fb.array([]);
@@ -412,20 +412,6 @@ removeCarouselItem(index: number): void {
   this.carouselItemFiles.splice(index, 1);
 }
 
-addSurveyQuestion(): void {
-  this.surveyQuestions.push(this.fb.group({
-    text: ['', Validators.required],
-    type: ['text', Validators.required],
-    required: [true],
-    options: [''],
-    min: [null],
-    max: [null]
-  }));
-}
-
-removeSurveyQuestion(index: number): void {
-  this.surveyQuestions.removeAt(index);
-}
 
 addVariable(): void {
   this.variables.push(this.fb.group({
@@ -1085,6 +1071,109 @@ openActionForm(action: any): void {
   }
 }
 
+// In your component class
+createSurveyForm() {
+  this.actionForm = this.fb.group({
+    name: ['Customer Feedback Survey', Validators.required],
+    action_type: ['survey', Validators.required],
+    config: this.fb.group({
+      questions: this.fb.array([]),
+      completion_message: ['Thank you for your feedback!'],
+      persist_responses: [true]
+    })
+  });
+
+  // Add initial question if needed
+  this.addSurveyQuestion();
+}
+
+addSurveyQuestion() {
+  const questions = this.actionForm.get('config.questions') as FormArray;
+  questions.push(this.fb.group({
+    id: ['q' + (questions.length + 1)],
+    text: ['How satisfied are you? (1-5)', Validators.required],
+    type: ['number', Validators.required],
+    options: [''],
+    validation: this.fb.group({
+      min: [1],
+      max: [5]
+    }),
+    required: [false]
+  }));
+}
+
+
+
+initSurveyForm() {
+  this.actionForm = this.fb.group({
+    name: ['Customer Feedback Survey', Validators.required],
+    action_type: ['survey', Validators.required],
+    config: this.fb.group({
+      questions: this.fb.array([]),
+      completion_message: ['Thank you for your feedback!'],
+      persist_responses: [true]
+    })
+  });
+  this.addSurveyQuestion();
+}
+
+
+// Getter for survey questions
+get surveyQuestions(): FormArray {
+  return this.actionForm.get('config.questions') as FormArray;
+}
+
+// Update validation when question type changes
+updateQuestionValidation(questionIndex: number) {
+  const questionGroup = this.surveyQuestions.at(questionIndex) as FormGroup;
+  const questionType = questionGroup.get('type')?.value;
+  
+  // Clear previous validation
+  questionGroup.removeControl('validation');
+  questionGroup.removeControl('options');
+
+  switch(questionType) {
+    case 'number':
+    case 'rating':
+      questionGroup.addControl('validation', this.fb.group({
+        min: [1],
+        max: [5]
+      }));
+      break;
+      
+    case 'choice':
+      questionGroup.addControl('options', this.fb.control('', Validators.required));
+      break;
+  }
+}
+
+
+removeSurveyQuestion(index: number) {
+  const questions = this.actionForm.get('config.questions') as FormArray;
+  questions.removeAt(index);
+}
+
+// get surveyQuestions(): FormArray {
+//   return this.actionForm.get('config.questions') as FormArray;
+// }
+
+// Add these methods to your component class
+getQuestionControl(question: AbstractControl, path: string): FormControl {
+  const control = question.get(path);
+  if (!control) {
+    throw new Error(`Control not found at path: ${path}`);
+  }
+  return control as FormControl;
+}
+
+getConfigControl(path: string): FormControl {
+  const control = this.actionForm.get(`config.${path}`);
+  if (!control) {
+    throw new Error(`Control not found at path: config.${path}`);
+  }
+  return control as FormControl;
+}
+
 openTriggerForm(parentItem: any): void {
   console.log('Opening trigger form for parent item:', parentItem);
   this.showTriggerType = true;
@@ -1220,6 +1309,10 @@ shouldShowRootButtons(): boolean {
 //   });
 // }
 
+onActionSubmitjkj(): void {
+ 
+}
+
 onActionSubmit(): void {
   if (!this.actionForm.valid) {
     this.markFormGroupTouched(this.actionForm);
@@ -1342,9 +1435,16 @@ onActionSubmit(): void {
       const surveyModel = {
         ...baseModel,
         config: {
-          questions: this.surveyQuestions.value || [],
-          completion_message: this.actionForm.value.completion_message || 'Thank you for completing the survey!',
-          persist_responses: this.actionForm.value.persist_responses !== false
+          questions: this.actionForm.value.config.questions.map((q: any) => ({
+          id: q.id,
+          text: q.text,
+          type: q.type,
+          validation: q.type === 'number' ? { min: q.min, max: q.max } : undefined,
+          options: q.type === 'choice' ? q.options.split(',').map((opt: string) => opt.trim()) : undefined,
+          required: q.required || false
+        })),
+        completion_message: this.actionForm.value.config.completion_message,
+        persist_responses: this.actionForm.value.config.persist_responses !== false
         }
       };
       this.submitAction(surveyModel);
