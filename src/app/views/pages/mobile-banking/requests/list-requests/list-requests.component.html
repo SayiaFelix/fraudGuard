@@ -1,406 +1,187 @@
-<div class="d-flex justify-content-between align-items-center flex-wrap grid-margin mt-1"
-style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 5px; padding: 10px;">
-<div>
-  <h4 class="mb-3 mb-md-0"
-    style="color: var(--dark-purple, #1e0f2e); font-family: Muli; font-size: 22px; font-style: normal; font-weight: 700; line-height: 26px;">
-    Customer Insights
-  </h4>
-</div>
-</div>
-<hr>
-<div class="container mt-4">
+<div class="inbox-container" [class.details-sidebar-open]="isDetailsSidebarVisible">
 
-  <div class="row">
-    <!-- Total Investors -->
-   
-    <!-- Total Investments -->
-    <div class="col-md-4">
-        <div class="card p-3 text-center text-white bg-success">
-            <h5><i class="bi bi-cash-stack"></i> Total Investments</h5>
-            <h3> KSH. {{ kpis['Total Investments (KES)'] | number }}</h3>
-        </div> 
-    </div>
-
-    <div class="col-md-4">
-      <div class="card p-3 text-center text-white" style="background-color: #3cb7e9;">
-          <h5><i class="bi bi-people-fill"></i> Total Withdrawals </h5>
-          <h3> KSH. {{ kpis['Total Withdrawals (KES)'] | number }}</h3>
-          <!-- <h3>{{ investor.length }}</h3> -->
+  <!-- ======================================================================= -->
+  <!-- ===== LEFT PANEL: CONVERSATION LIST ===== -->
+  <!-- ======================================================================= -->
+  <div class="conversation-list-panel">
+    <!-- Header -->
+    <div class="panel-header">
+      <h1 class="inbox-title">Inbox</h1>
+      <div class="header-actions">
+        <button class="btn-icon"><i class="feather icon-bell"></i></button>
+        <button class="btn-icon"><i class="feather icon-plus"></i></button>
+        <button class="btn-icon"><i class="feather icon-search"></i></button>
       </div>
-  </div>
-
-    <!-- Average Balance -->
-    <div class="col-md-4">
-        <div class="card p-3 text-center text-dark bg-warning">
-            <h5><i class="bi bi-piggy-bank-fill"></i> Total Transactions </h5>
-            <h3> {{ kpis['Total Transactions'] | number }} Transactions</h3>
-        </div>
     </div>
-</div>
 
-    
-<div class="d-flex justify-content-between align-items-center flex-wrap grid-margin mt-2"
-style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 5px; padding: 10px;">
-<div>
-  <h4 class="mb-1 mb-md-0"
-    style="color: var(--dark-purple, #121113); font-family: Muli; font-size: 20px; font-style: normal; font-weight: 700; line-height: 26px;">
-    Investors Portfolio Overview
-  </h4>
-</div>
-</div>
-
-  <!-- Customer List Section -->
-  <div class="card p-3 mt-3">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-      <div>
-        <label style=" color: var(--dark-purple, #1e0f2e) ;font-size: 13px; font-weight: 700; font-family: Muli, sans-serif; " for="investmentFilter">Filter by Investment Type</label>
-        <select id="investmentFilter" class="form-control" [(ngModel)]="selectedInvestment">
-            <option value="">All</option>
-            <option *ngFor="let type of investmentTypes" [value]="type">{{ type }}</option>
-        </select>
-     </div>
-     <div>
-        <label  style=" color: var(--dark-purple, #1e0f2e) ;font-size: 13px; font-weight: 700; font-family: Muli, sans-serif; " for="riskFilter">Filter by Risk Profile</label>
-        <select id="riskFilter" class="form-control" [(ngModel)]="selectedRisk">
-            <option value="">All</option>
-            <option *ngFor="let risk of riskProfiles" [value]="risk">{{ risk }}</option>
-        </select>
-     </div>
-     <div>
-      <input [(ngModel)]="searchQuery" class="form-control" placeholder="Search by INVESTOR ID...">
-    </div>
-      
-     <div class="text-end position-relative">
-      <label style="color: var(--dark-purple, #1e0f2e); font-size: 13px; font-weight: 700; font-family: Muli, sans-serif;" for="downloadOptions">
-          Download Live Report
-      </label>
-      <div class="dropdown">
-          <button class="btn btn-secondary dropdown-toggle" type="button" id="downloadOptions" data-bs-toggle="dropdown" aria-expanded="false">
-              📥 Export Data
-          </button>
-          <ul class="dropdown-menu" aria-labelledby="downloadOptions">
-              <li><button class="dropdown-item" (click)="exportToExcel()">📊 Export to Excel</button></li>
-              <li><button class="dropdown-item" (click)="exportToPDF()">📄 Export to PDF</button></li>
+    <!-- Filters -->
+    <div class="panel-filters">
+      <!-- Conversation View Filter -->
+      <details class="filter-container">
+        <summary class="filter-button">
+          <span>{{ selectedView?.name || 'All active conversations' }}</span>
+          <i class="feather icon-chevron-down"></i>
+        </summary>
+        <div class="filter-dropdown">
+          <div class="dropdown-header">Default</div>
+          <ul class="view-list">
+            <li *ngFor="let view of views" class="view-item" [class.selected]="view.id === selectedView?.id" (click)="selectView(view)">
+              <span class="checkbox-placeholder"><i *ngIf="view.id === selectedView?.id" class="feather icon-check"></i></span>
+              <span>{{ view.name }}</span>
+            </li>
           </ul>
-      </div>
-     </div>
- </div>
-<hr>
-
-<div class="table-responsive mt-3">
-  <table class="table table-striped table-hover">
-    <thead class="table-dark">
-      <tr class="text-center text-light">
-        <th (click)="sortBy('investorID')" style="cursor: pointer;">
-          Investor ID <span *ngIf="sortField === 'investorID'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
-        </th>
-        <!-- <th>Cluster ID</th>  -->
-        <!-- <th>Investment Type</th> -->
-        <!-- <th>Amount Invested (KES)</th> -->
-        <th>Risk Score</th>
-        <th>Investor Profile</th>
-       
-        <th>Investment Details</th> 
-        <!-- <th>Investment Recommendation</th> -->
-        <th>Recommended Investments</th>
-        <th>Anomaly Flag</th> 
-        <th>ROI (%)</th> <!-- ROI Column Added -->
-     <!-- Dropdown Column -->
-      </tr>
-    </thead>
-    
-    <tbody>
-      <tr *ngFor="let investor of filteredInvestors(); let i = index">
-        <td>{{ investor.investorID }}</td>
-        <!-- <td>{{ investor.cluster }}</td> -->
-        <!-- <td>{{ investor.investmentType }}</td> -->
-        <!-- <td>{{ investor.amountInvested | currency:'KES ' }}</td> -->
-        <td>{{ investor.riskScore | number: '1.0-2' }}</td> 
-        <td>
-          <span [ngClass]="getRiskClass(investor.riskCategory)">
-            {{ investor.riskCategory }}
-          </span>
-        </td>
-
-        
-        <!-- Investment Dropdown -->
-        <td>
-          <details>
-            <summary class="text-primary" style="cursor: pointer;">View Investments</summary>
-            <ul *ngIf="investor.investments.length > 0; else noInvestment">
-              <li *ngFor="let invest of investor.investments">
-                <strong>Type:</strong> {{ invest.investmentType }} <br>
-                <strong>Amount:</strong> {{ invest.amountInvested | currency:'KES ' }} <br>
-                <!-- <strong>Risk:</strong> {{ invest.riskCategory }} ({{ invest.riskScore }}) <br>   -->
+          <div class="dropdown-footer">
+            <button class="create-view-btn"><i class="feather icon-plus"></i><span>Create View</span></button>
+          </div>
+        </div>
+      </details>
+      
+      <!-- Sort By Filter -->
+      <details class="filter-container">
+        <summary class="sort-button">
+          <i class="feather icon-arrow-up"></i><i class="feather icon-arrow-down"></i><span>Sort</span>
+        </summary>
+        <div class="filter-dropdown sort-dropdown">
+          <div class="sort-section">
+            <div class="sort-header">Sort by:</div>
+            <ul class="sort-list">
+              <li *ngFor="let option of sortByOptions"
+                  class="sort-item"
+                  [class.selected]="option.value === selectedSortBy?.value"
+                  (click)="selectSortBy(option)">
+                {{ option.name }}
               </li>
             </ul>
-            <ng-template #noInvestment>
-              <span class="text-muted">No Investments</span>
-            </ng-template>
-          </details>
-          
-        </td>
-       
-        <td>{{ investor.recommendedInvestments ? investor.recommendedInvestments.join(", ") : "N/A" }}</td>
-        
-        <td>
-          <span [ngClass]="investor.anomalyFlag === 'Suspicious' ? 'text-danger' : 'text-success'">
-            {{ investor.anomalyFlag }}
-          </span>
-        </td>
-        <td>{{ investor.roi ? (investor.roi | number: '1.2-2') + '%' : 'N/A' }}</td> <!-- ROI Displayed -->
-      </tr>
-    </tbody>
-  </table>
-</div>
-</div>
-</div>
-
-<div class="container">
-  <div class="row">
-    <!-- Investment Simulator Card-->
-    <div class="col-md-6">
-      <div class="card p-4 mt-4 shadow-sm h-100">
-        <h4 class="fw-bold text-dark" style="font-family: Muli; font-size: 20px; line-height: 26px;">
-          AI-Powered Investment Prediction Returns
-        </h4>
-        <p class="text-muted">Estimate potential returns based on your investment amount.</p>
-
-        <!-- Investor ID Input -->
-        <div class="mb-3">
-          <label for="investorId" class="form-label fw-bold">Investor ID</label>
-          <input 
-            type="text" 
-            id="investorId" 
-            class="form-control" 
-            [(ngModel)]="investorID" 
-            (ngModelChange)="onInvestorIDChange($event)" 
-            placeholder="Enter Investor ID"
-          />
-          <!-- Error message for invalid Investor ID -->
-          <div *ngIf="!isValidInvestorID && investorID" class="text-danger mt-2">
-            <small>Investor ID must start with 'INV' followed by numbers (e.g., 'INV12345').</small>
+          </div>
+          <div class="sort-section">
+            <div class="sort-header">Sorting order:</div>
+            <ul class="sort-list">
+              <li *ngFor="let order of sortOrderOptions"
+                  class="sort-item order-item"
+                  [class.selected]="order.value === selectedSortOrder?.value"
+                  (click)="selectSortOrder(order)">
+                {{ order.name }}
+              </li>
+            </ul>
           </div>
         </div>
-
-        <!-- Investment Amount Input -->
-        <div class="mb-3">
-          <label for="investmentAmount" class="form-label fw-bold">Investment Amount (KES)</label>
-          <input 
-            type="number" 
-            id="investmentAmount" 
-            class="form-control" 
-            [(ngModel)]="simulatedInvestment" 
-            placeholder="Enter Investment Amount"
-          />
-        </div>
-
-        <!-- Investment Period Selection -->
-        <div class="mb-3">
-          <label class="form-label fw-bold">Investment Period</label>
-          <select class="form-select" [(ngModel)]="selectedTimeline">
-            <option [value]="6">6 Months</option>
-            <option [value]="12">1 Year</option>
-            <option [value]="24">2 Years</option>
-          </select>
-        </div>
-
-        <!-- Predict Button -->
-        <button 
-          class="btn btn-success w-100" 
-          (click)="simulateReturns()" 
-          [disabled]="!isValidInvestorID || isProcessing">
-          {{ isProcessing ? 'Analyzing...' : 'Predict Returns' }}
-        </button>
-
-        <!-- AI Processing Effect -->
-        <div *ngIf="isProcessing" class="mt-2 text-warning">
-          <small>⏳ AI is analyzing market trends...</small>
-        </div>
-
-        <!-- Predicted Results -->
-        <div *ngIf="simulatedReturn && !isProcessing" class="mt-4 p-3 bg-light rounded shadow-sm">
-          <h5 class="text-success">Predicted Return for {{ selectedTimeline }} Months</h5>
-          <p class="fw-bold fs-5">KSh {{ simulatedReturn | number }}</p>
-          <small class="text-muted">AI Confidence: {{ confidenceScore }}%</small>
-        </div>
-      </div>
+      </details>
     </div>
 
-    <!-- Customer Churn Prediction-->
-<div class="col-md-6">
-  <div class="card p-4 mt-4 shadow-sm h-100">
-    <h4 class="fw-bold text-dark" style="font-family: Muli; font-size: 20px; line-height: 26px;">
-      Customer Churn Prediction
-    </h4>
-    <p class="text-muted">Enter a Customer ID to get churn prediction details.</p>
-
-    <!-- Customer ID Input -->
-    <div class="mb-3">
-      <label for="customerId" class="form-label fw-bold">Customer ID</label>
-      <input 
-        type="number" 
-        id="customerId" 
-        class="form-control" 
-        [(ngModel)]="customerId" 
-        placeholder="Enter Customer ID"
-        min="0"  
-      />
-    </div>
-
-    <div class="d-flex justify-content-between">
-      <button 
-        class="btn btn-primary" 
-        (click)="fetchChurnPrediction(churnPredictionModal)" 
-        [disabled]="!customerId">
-          <span *ngIf="!isLoading">Churn Prediction</span> 
-          
-          <!-- Loading State -->
-          <div *ngIf="isLoading" class="text-center">
-            <!-- <p>Loading...</p> -->
-            <div class="spinner-border text-success" role="status">
-              <span class="visually-hidden">Loading...</span>
-            </div>
-          </div>
-      </button>
-    </div>
-
-    <!-- Error Message -->
-<div *ngIf="errorMessage" class="mt-3 text-danger">
-  <small>{{ errorMessage }}</small>
-</div>
-
-      <ng-template #churnPredictionModal let-modal>
-        <div class="modal-header bg-light">
-          <h5 class="modal-title fw-bold text-primary">
-            <i class="fas fa-chart-line me-2"></i> <strong>Churn Prediction Details</strong>
-          </h5>
-          <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+    <!-- Conversation List -->
+    <div class="conversation-list">
+      <div class="conversation-item" *ngFor="let conversation of conversations" [class.active]="conversation.id === selectedConversation?.id" (click)="selectConversation(conversation)">
+        <div class="avatar" [style.background-color]="conversation.avatarColor">
+          <img *ngIf="conversation.avatarUrl; else initials" [src]="conversation.avatarUrl" alt="Avatar">
+          <ng-template #initials>{{ conversation.initials }}</ng-template>
         </div>
-        
-        <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
-          <!-- Customer Summary Card -->
-          <div class="card mb-4 border-0 shadow-sm">
-            <div class="card-body">
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="d-flex align-items-center mb-3">
-                    <div class="bg-primary bg-opacity-10 p-2 rounded me-3">
-                      <i class="fas fa-user text-primary"></i>
-                    </div>
-                    <div>
-                      <small class="text-muted d-block fw-bold"> <strong>Customer ID</strong></small>
-                      <strong class="h6">{{ churnPredictionDetails?.customer_id || 'N/A' }}</strong>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="d-flex align-items-center mb-3">
-                    <div class="bg-primary bg-opacity-10 p-2 rounded me-3">
-                      <i class="fas fa-bell text-primary"></i>
-                    </div>
-                    <div>
-                      <small class="text-muted d-block fw-bold"> <strong>Churn Status</strong></small>
-                      <span class="h6" [ngClass]="{
-                        'text-success': churnPredictionDetails?.churn_status === 'not likely to churn',
-                        'text-danger': churnPredictionDetails?.churn_status !== 'not likely to churn'
-                      }">
-                        {{ churnPredictionDetails?.churn_status || 'Loading...' }}
-                        <i class="fas" 
-                          [class.fa-check-circle]="churnPredictionDetails?.churn_status === 'not likely to churn'"
-                          [class.fa-exclamation-circle]="churnPredictionDetails?.churn_status !== 'not likely to churn'">
-                        </i>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Prediction Graph Section (Updated Title) -->
-          <div *ngIf="predictionGraphUrl" class="card mb-4 border-0 shadow-sm">
-            <div class="text-center">
-              <h5 class="mb-0 fw-bold text-dark" style="font-size: 1.1rem;">
-                <i class="fas fa-chart-pie me-2 text-info"></i> <strong>AI Prediction Visualization</strong>
-              </h5>
-            </div>
-            <div class="card-body">
-              <div class="text-center p-3 bg-light rounded">
-                <img [src]="predictionGraphUrl" 
-                    alt="Prediction Graph" 
-                    class="img-fluid rounded"
-                    style="max-height: 250px; object-fit: contain;">
-              </div>
-              <div class="text-center mt-2">
-                <small class="text-muted"> <strong>AI-generated prediction analysis</strong></small>
-              </div>
-            </div>
-          </div>
-
-          <!-- Lime Explanation Section (Updated Title) -->
-          <div class="card mb-4 border-0 shadow-sm mt-2">
-            <div class="">
-              <h5 class="mb-0 fw-bold text-dark" style="font-size: 1.1rem;">
-                <i class="fas fa-lightbulb me-2 text-warning"></i> <strong>AI Prediction Explanation</strong>
-              </h5>
-            </div>
-            <div class="card-body">
-              <ul class="list-unstyled">
-                <li *ngFor="let explanation of churnPredictionDetails?.lime_explanation" 
-                    class="mb-2 p-2 bg-light rounded">
-                  <i class="fas fa-circle-notch text-primary me-2 small"></i>
-                  {{ explanation }}
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div class="card border-0 shadow-sm mt-2">
-            <div class="">
-              <h5 class="mb-0 fw-bold text-dark" style="font-size: 1.1rem;">
-                <i class="fas fa-hands-helping me-2 text-success"></i><strong>Recommended Retention Strategies</strong> 
-              </h5>
-    
-            </div>
-            <hr>
-            <div class="card-body">
-              <ol class="list-group">
-                <li *ngFor="let strategy of churnPredictionDetails?.retention_strategies" 
-                    class="list-group-item border-0">
-                  <div class="d-flex">
-                    <div class="ms-1 me-auto">
-                      {{ formatStrategyText(strategy) }}
-                    </div>
-                  </div>
-                </li>
-              </ol>
-            
-            </div>
-          </div>
+        <div class="conversation-details">
+          <div class="details-header"><span class="sender-name">{{ conversation.sender }}</span><span class="timestamp">{{ conversation.timestamp }}</span></div>
+          <div class="message-preview"><i class="channel-icon" [ngClass]="conversation.channelIcon"></i><span>{{ conversation.preview }}</span></div>
         </div>
-        
-        <div class="modal-footer bg-light">
-          <button type="button" 
-                  class="btn btn-primary px-4 rounded-pill"
-                  (click)="modal.dismiss('Close click')">
-            <i class="fas fa-check me-2"></i>Understood
-          </button>
-        </div>
-      </ng-template>
-  
       </div>
     </div>
   </div>
-</div>
-<br>
-<div>
-  <footer
-  class="footer mt-3 d-flex flex-column flex-md-row align-items-center justify-content-between px-4 border-top small">
-  <p class="text-muted">Copyright © 2025 <a href="" style="color:#46bfe9; font-family: 'Muli';"
-      target="_blank">Eclectics International Limited</a></p>
-  <p class=""
-    style="color: #083273; font-family: 'Muli'; font-style: normal; font-weight: 700; font-size: 13px; letter-spacing: 0.08em;">
-    AI Analytics Solutions</p>
-</footer>
+
+  <!-- ======================================================================= -->
+  <!-- ===== RIGHT PANEL: MESSAGE VIEW (THIS SECTION IS NOW FIXED) ===== -->
+  <!-- ======================================================================= -->
+  <div class="message-view-panel">
+    <!-- Show this when no conversation is selected -->
+    <div class="placeholder-view" *ngIf="!selectedConversation">
+      <p>Select a conversation</p>
+    </div>
+
+    <!-- Show the conversation view when one IS selected -->
+    <div class="conversation-view" *ngIf="selectedConversation">
+      <!-- Chat Header -->
+      <div class="chat-header">
+        <div class="header-info">
+          <div class="avatar">
+            <ng-container *ngIf="!selectedConversation.avatarUrl">{{ selectedConversation.initials }}</ng-container>
+            <img *ngIf="selectedConversation.avatarUrl" [src]="selectedConversation.avatarUrl" alt="">
+          </div>
+          <span class="header-name">{{ selectedConversation.sender }}</span>
+        </div>
+      </div>
+
+      <!-- Chat Messages Area -->
+      <div class="chat-messages">
+        <!-- Example Messages -->
+        <div class="message-bubble incoming">
+            <div class="message-text">Welcome! I'm Fahari from NMB Bank Tanzania. Here to guide you through our offerings and answer any queries you might have</div>
+            <div class="message-meta">13:14:48 Bot</div>
+        </div>
+         <div class="message-bubble incoming">
+            <div class="message-text">How can I assist you today?</div>
+            <div class="message-meta">13:14:49 Bot</div>
+        </div>
+      </div>
+
+      <!-- Chat Input Area -->
+      <div class="chat-input-area">
+        <textarea class="message-input" placeholder="Type a message..."></textarea>
+        <div class="input-actions">
+          <button class="action-btn livechat-btn">Livechat</button>
+          <button class="action-btn note-btn">Note</button>
+          <div class="icon-buttons">
+            <button class="btn-icon"><i class="feather icon-paperclip"></i></button>
+            <button class="btn-icon"><i class="feather icon-smile"></i></button>
+          </div>
+          <button class="send-btn">Takeover & Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- ===== DETAILS SIDEBAR PANEL (ON THE FAR RIGHT) ===== -->
+  <!-- ======================================================================= -->
+  <div class="details-sidebar-panel" *ngIf="isDetailsSidebarVisible">
+    <!-- Sidebar Tabs -->
+    <div class="sidebar-tabs">
+      <button class="tab-button active">Conversation</button>
+      <button class="tab-button">Person</button>
+    </div>
+
+    <!-- Sidebar Content -->
+    <div class="sidebar-content" *ngIf="selectedConversation">
+      <!-- Assignee Section -->
+      <div class="info-section">
+        <div class="info-row"><label><i class="feather icon-user"></i> Assignee</label><div class="info-value">-</div></div>
+        <div class="info-row"><label><i class="feather icon-users"></i> Assigned Teams</label><div class="info-value">-</div></div>
+        <div class="info-row"><label><i class="feather icon-user-check"></i> Person</label><div class="info-value person-value"><div class="avatar-small"></div><span>{{ selectedConversation.sender }}</span></div></div>
+      </div>
+
+      <!-- Details Section -->
+      <details class="details-section" open>
+        <summary class="details-header"><span>Details</span><i class="feather icon-chevron-up"></i></summary>
+        <div class="details-content">
+          <div class="info-row inline"><label><i class="feather icon-hash"></i> Livechat ID</label><div class="info-value">{{ selectedConversation.id }}</div></div>
+          <div class="info-row inline"><label><i class="feather icon-message-circle"></i> Channel</label><div class="info-value"><i class="channel-icon" [ngClass]="selectedConversation.channelIcon"></i> Test</div></div>
+          <div class="info-row inline"><label><i class="feather icon-align-left"></i> Description</label><div class="info-value">-</div></div>
+          <div class="info-row inline status-dropdown-container">
+            <label><i class="feather icon-loader"></i> Status</label>
+            <div class="info-value clickable" (click)="toggleStatusDropdown($event)">
+              <span class="status-badge" [ngClass]="selectedConversation.status.toLowerCase()">{{ selectedConversation.status }}</span>
+              <i class="feather icon-chevron-down"></i>
+            </div>
+            <div class="status-change-dropdown" *ngIf="isStatusDropdownOpen">
+              <div class="status-option" *ngFor="let status of statusOptions" (click)="selectStatus(status)">
+                <span class="status-badge" [ngClass]="status.name.toLowerCase()">{{ status.name }}</span>
+                <i *ngIf="status.name === selectedConversation.status" class="feather icon-check"></i>
+              </div>
+            </div>
+          </div>
+          <div class="info-row inline"><label><i class="feather icon-clock"></i> Created</label><div class="info-value">{{ selectedConversation.timestamp }} 2025...</div></div>
+          <div class="info-row inline"><label><i class="feather icon-star"></i> Rating</label><div class="info-value">-</div></div>
+        </div>
+      </details>
+
+      <!-- Custom Fields, Notes, Tags Sections -->
+      <details class="details-section"><summary class="details-header"><span>Custom Fields</span><i class="feather icon-chevron-up"></i></summary><div class="details-content placeholder-text">Create a custom field to get started</div></details>
+      <details class="details-section"><summary class="details-header"><span>Notes</span><button class="btn-icon-plus">+</button></summary><div class="details-content placeholder-text">Create the first note</div></details>
+      <details class="details-section"><summary class="details-header"><span>Tags</span><button class="btn-icon-plus">+</button></summary><div class="details-content placeholder-text">Select a tag or tag group</div></details>
+    </div>
+  </div>
 </div>
