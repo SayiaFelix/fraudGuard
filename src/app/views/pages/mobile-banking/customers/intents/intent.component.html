@@ -871,15 +871,15 @@
             </div>
 
             <!-- Set Variable Action -->
-          <div *ngSwitchCase="'set_variable'" class="mb-3" [formGroup]="actionForm">
+          <div *ngSwitchCase="'set_variable'" class="mb-3">
             <div formArrayName="variables">
               <label class="form-label fw-bold">Variables</label>
 
               <div *ngFor="let variable of variables.controls; let i = index" [formGroupName]="i" class="card mb-2 p-3">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                   <h6 class="mb-0">Variable #{{i + 1}}</h6>
-                  <button type="button" class="btn btn-link text-danger p-0" (click)="removeVariable(i)">
-                    <i class="bi bi-trash"></i>
+                  <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeVariable(i)">
+                    <i class="feather icon-trash-2"></i>
                   </button>
                 </div>
 
@@ -937,20 +937,34 @@
             </div>
           </div>
 
+
             <!-- Jump to Trigger Action -->
             <div *ngSwitchCase="'Jump_to_Trigger'" class="mb-3">
-              <div class="mb-3">
+              <!-- <div class="mb-3">
                 <label class="form-label fw-bold">Target Trigger</label>
                 <select formControlName="target_trigger" class="form-select">
                   <option value="">Select a trigger</option>
                   <option *ngFor="let trigger of allTriggers" [value]="trigger.id">{{trigger.name}}</option>
                 </select>
-              </div>
-              
+              </div> -->
+
               <div class="mb-3">
+                <label class="form-label fw-bold">Target Trigger</label>
+                <input type="text"
+                      formControlName="target_trigger"
+                      class="form-control"
+                      placeholder="Enter target trigger ID or name" />
+              </div>
+
+              
+              <div class="mb-3" formGroupName="condition">
                 <label class="form-label fw-bold">Condition (optional)</label>
-                <textarea formControlName="condition" class="form-control" rows="3" 
-                          placeholder="context.get('cart_items', 0) > 0"></textarea>
+                <textarea formControlName="expression" class="form-control" rows="3"
+                  placeholder="context.get('cart_items', 0) > 0"></textarea>
+                <div class="form-check mt-2">
+                  <input type="checkbox" formControlName="negate" class="form-check-input" id="negateCondition">
+                  <label class="form-check-label" for="negateCondition">Negate Condition</label>
+                </div>
                 <div class="text-muted mt-1" style="font-size: 12px;">
                   JavaScript expression that must evaluate to true for the jump to occur
                 </div>
@@ -958,16 +972,16 @@
               
               <div class="mb-3">
                 <label class="form-label fw-bold">Context Updates</label>
-                <textarea formControlName="context_updates" class="form-control" rows="3" 
-                          placeholder='{"skip_reason": "automatic_checkout"}'></textarea>
+                <textarea formControlName="context_updates" class="form-control" rows="3"
+                  placeholder='{"skip_reason": "automatic_checkout"}'></textarea>
               </div>
               
               <div class="mb-3">
                 <label class="form-label fw-bold">Variables to Carry Over</label>
                 <div *ngFor="let variable of carryVariables.controls; let i = index" class="d-flex align-items-center mb-2">
                   <input type="text" [formControlName]="i" class="form-control" placeholder="variable_name"/>
-                  <button type="button" class="btn btn-link text-danger p-0 ms-2" (click)="removeCarryVariable(i)">
-                    <i class="bi bi-trash"></i>
+                  <button type="button" class="btn btn-sm btn-outline-danger ms-2" (click)="removeCarryVariable(i)">
+                      <i class="feather icon-trash-2"></i>
                   </button>
                 </div>
                 <br>
@@ -976,6 +990,7 @@
                 </button>
               </div>
             </div>
+
 
             <!-- Conditional Action -->
              <div *ngSwitchCase="'conditional'" class="mb-3">
@@ -991,7 +1006,7 @@
                   <div *ngFor="let step of trueSteps.controls; let i = index" class="d-flex gap-2 mb-2">
                     <input type="text" class="form-control" placeholder="Step ID or name"
                           [formControlName]="i"/>
-                    <button type="button" class="btn btn-link text-danger p-0" (click)="removeTrueStep(i)">
+                    <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeTrueStep(i)">
                       <i class="feather icon-trash-2"></i>
                     </button>
                   </div>
@@ -1005,7 +1020,7 @@
                   <div *ngFor="let step of falseSteps.controls; let i = index" class="d-flex gap-2 mb-2">
                     <input type="text" class="form-control" placeholder="Step ID or name"
                           [formControlName]="i"/>
-                    <button type="button" class="btn btn-link text-danger p-0" (click)="removeFalseStep(i)">
+                    <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeFalseStep(i)">
                         <i class="feather icon-trash-2"></i>
                     </button>
                   </div>
@@ -1017,15 +1032,15 @@
                 <div class="mb-3">
                   <label class="form-label fw-bold">Context Map</label>
                   <div formGroupName="context_map">
-                    <div *ngFor="let key of contextMapKeys" class="d-flex gap-2 mb-2">
+                    <div *ngFor="let key of contextMapKeys" class="d-flex gap-1 mb-2">
                       <input type="text" [value]="key" readonly class="form-control"/>
                       <input type="text" [formControlName]="key" placeholder="Expression" class="form-control"/>
-                      <button type="button" class="btn btn-link text-danger p-0" (click)="removeContextMapKey(key)">
+                      <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeContextMapKey(key)">
                           <i class="feather icon-trash-2"></i>
                       </button>
                     </div>
                   </div>
-                  <div class="d-flex mt-2">
+                  <div class="d-flex gap-1 mt-1">
                     <input type="text" #newContextKey placeholder="New Key" class="form-control"/>
                     <button type="button" class="btn btn-sm btn-outline-primary" (click)="addContextMapKey(newContextKey.value); newContextKey.value=''">
                       + Add Key
@@ -1109,7 +1124,7 @@
           <button type="button" class="btn btn-sm btn-outline-info me-2" (click)="showActionForm = false">
             Cancel
           </button>
-          <button  type="submit" class="btn btn-primary btn-sm btn-test" [disabled]="!actionForm.valid">
+          <button  type="submit" class="btn btn-primary btn-sm btn-test">
             Save Action
           </button>
           
