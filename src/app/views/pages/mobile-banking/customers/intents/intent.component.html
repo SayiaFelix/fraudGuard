@@ -791,15 +791,20 @@
             </div>
 
             <!-- Survey Action -->
-             <div *ngSwitchCase="'survey'" class="mb-3">
-                <div class="mb-3">
-                  <label class="form-label fw-bold">Survey Questions</label>
-                  
-                  <div *ngFor="let question of surveyQuestions.controls; let i = index" class="card mb-3 p-3">
+             <div *ngSwitchCase="'survey'" class="mb-3" formGroupName="config">
+  
+              <div class="mb-3">
+                <label class="form-label fw-bold">Survey Questions</label>
+                
+                <div formArrayName="questions">
+                  <div *ngFor="let question of surveyQuestions.controls; let i = index" 
+                      [formGroupName]="i" 
+                      class="card mb-3 p-3">
+
                     <div class="d-flex justify-content-between align-items-center mb-2">
                       <h6 class="mb-0">Question #{{i + 1}}</h6>
                       <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeSurveyQuestion(i)">
-                        <i class="bi bi-trash"></i>
+                        <i class="feather icon-trash-2"></i>
                       </button>
                     </div>
                     
@@ -819,7 +824,7 @@
                     </div>
                     
                     <!-- Number validation -->
-                    <div *ngIf="question.get('type')?.value === 'number'" class="mb-2">
+                    <div *ngIf="question.get('type')?.value === 'number'" class="mb-2" formGroupName="validation">
                       <div class="row">
                         <div class="col">
                           <label class="form-label">Min Value</label>
@@ -842,24 +847,35 @@
                       <input type="checkbox" formControlName="required" class="form-check-input" id="required{{i}}">
                       <label class="form-check-label" for="required{{i}}">Required</label>
                     </div>
-                  </div>
-                  
-                  <button type="button" class="btn btn-sm btn-outline-primary" (click)="addSurveyQuestion()">
-                    + Add Question
-                  </button>
-                </div>
-  
-                  <div class="mb-3">
-                    <label class="form-label fw-bold">Completion Message</label>
-                    <input type="text" formControlName="completion_message" class="form-control" 
-                          placeholder="Thank you for completing our survey!"/>
-                  </div>
-  
-                  <div class="form-check mb-3">
-                    <input type="checkbox" formControlName="persist_responses" id="persistResponses">
-                    <label class="form-check-label" for="persistResponses">Save survey responses</label>
+
                   </div>
                 </div>
+                
+                <br>
+                <button type="button" class="btn btn-sm btn-outline-primary" (click)="addSurveyQuestion()">
+                  + Add Question
+                </button>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-bold">Completion Message</label>
+                <input type="text" formControlName="completion_message" class="form-control" 
+                      placeholder="Thank you for completing our survey!"/>
+              </div>
+
+              <div class="d-flex align-items-center mb-3">
+                <input class="form-check-input me-2" type="checkbox" formControlName="persist_responses" id="persistResponses">
+                <label class="form-check-label" for="persistResponses">Save survey responses</label>
+              </div>
+
+                <!-- After submission -->
+                <!-- <div *ngIf="surveyCompleted" class="alert alert-success mt-3">
+                  {{ 'Thank you for your feedback!' }}
+                </div> -->
+
+            </div>
+
+           
     
             <!-- Set Variable Action -->
             <div *ngSwitchCase="'set_variable'" class="mb-3">
@@ -1034,9 +1050,10 @@
           <button type="button" class="btn btn-sm btn-outline-info me-2" (click)="showActionForm = false">
             Cancel
           </button>
-          <button type="submit" class="btn btn-primary btn-sm btn-test" [disabled]="!actionForm.valid">
+          <button  type="submit" class="btn btn-primary btn-sm btn-test" [disabled]="!actionForm.valid">
             Save Action
           </button>
+          
         </div>
     </form>
 
