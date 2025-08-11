@@ -236,7 +236,7 @@ ngOnInit() {
             language: [''], 
         });
     }
-
+surveyCompleted = false;
 triggerTypes = [
   { 
     type: 'message_received', 
@@ -327,31 +327,6 @@ onFileSelected(event: Event): void {
     this.uploadedFile = file;
   }
 }
-
-// onFileSelected(event: Event): void {
-//   const input = event.target as HTMLInputElement;
-
-//     if (input.files && input.files.length > 0) {
-//     this.uploadedFile = input.files[0];
-//     // Optionally update form control if needed
-//     this.actionForm.patchValue({
-//       file_url: this.uploadedFile.name // or other relevant field
-//     });
-//   }
-
-//   if (input.files?.length) {
-//     const file = input.files[0];
-//     const format = this.actionForm.value.file_format;
-//     const maxSize = this.getMaxFileSize(format);
-    
-//     if (file.size > maxSize) {
-//       this._toastService.error(`File exceeds maximum size of ${this.fileTypeInfo[format].maxSize}`, 'Error');
-//       return;
-//     }
-    
-//     this.uploadedFile = file;
-//   }
-// }
 
 
 onFileHovered(isHovering: boolean): void {
@@ -451,7 +426,7 @@ removeQuickReply(index: number): void {
   this.quickReplies.removeAt(index);
 }
 
-// Initialize the form arrays in ngOnInit or when creating the form
+// Initialize the form arrays 
 initializeFormArrays(): void {
   this.actionForm = this.fb.group({
    
@@ -560,7 +535,6 @@ private markFormGroupTouched(formGroup: FormGroup) {
     }
   });
 }
-
 
 get headers(): FormArray {
   return this.actionForm.get('headers') as FormArray;
@@ -1037,11 +1011,7 @@ openActionForm(action: any): void {
       break;
     
     case 'survey':
-      this.actionForm = this.fb.group({
-        name: [action.name || '', Validators.required],
-        action_type: ['survey', Validators.required],
-        questions: this.fb.array([])
-      });
+      this.initSurveyForm();
       break;
     
     case 'create_ticket':
@@ -1083,17 +1053,37 @@ createSurveyForm() {
     })
   });
 
-  // Add initial question if needed
+  //initial question if needed
   this.addSurveyQuestion();
 }
 
+// In your component class
+initSurveyForm() {
+  this.actionForm = this.fb.group({
+    name: ['Customer Feedback Survey', Validators.required],
+    action_type: ['survey', Validators.required],
+    config: this.fb.group({
+      questions: this.fb.array([]),  // Initialize empty FormArray for questions
+      completion_message: ['Thank you for your feedback!'],
+      persist_responses: [true]
+    })
+  });
+  this.addSurveyQuestion(); // Add initial question
+}
+
 addSurveyQuestion() {
-  const questions = this.actionForm.get('config.questions') as FormArray;
+  // Safely get the questions FormArray
+  const questions = this.actionForm?.get('config.questions') as FormArray;
+  
+  if (!questions) {
+    console.error('Questions FormArray not found!');
+    return;
+  }
+
   questions.push(this.fb.group({
     id: ['q' + (questions.length + 1)],
     text: ['How satisfied are you? (1-5)', Validators.required],
     type: ['number', Validators.required],
-    options: [''],
     validation: this.fb.group({
       min: [1],
       max: [5]
@@ -1102,24 +1092,19 @@ addSurveyQuestion() {
   }));
 }
 
-
-
-initSurveyForm() {
-  this.actionForm = this.fb.group({
-    name: ['Customer Feedback Survey', Validators.required],
-    action_type: ['survey', Validators.required],
-    config: this.fb.group({
-      questions: this.fb.array([]),
-      completion_message: ['Thank you for your feedback!'],
-      persist_responses: [true]
-    })
-  });
-  this.addSurveyQuestion();
+resetSurveyForm() {
+  const questions = this.surveyQuestions;
+  while (questions.length > 0) {
+    questions.removeAt(0);
+  }
+  this.addSurveyQuestion(); // Add one empty question
 }
 
-
-// Getter for survey questions
 get surveyQuestions(): FormArray {
+  if (!this.actionForm || !this.actionForm.get('config.questions')) {
+    console.error('Form controls not initialized!');
+    return this.fb.array([]); // Return empty array as fallback
+  }
   return this.actionForm.get('config.questions') as FormArray;
 }
 
@@ -1128,7 +1113,6 @@ updateQuestionValidation(questionIndex: number) {
   const questionGroup = this.surveyQuestions.at(questionIndex) as FormGroup;
   const questionType = questionGroup.get('type')?.value;
   
-  // Clear previous validation
   questionGroup.removeControl('validation');
   questionGroup.removeControl('options');
 
@@ -1152,10 +1136,6 @@ removeSurveyQuestion(index: number) {
   const questions = this.actionForm.get('config.questions') as FormArray;
   questions.removeAt(index);
 }
-
-// get surveyQuestions(): FormArray {
-//   return this.actionForm.get('config.questions') as FormArray;
-// }
 
 // Add these methods to your component class
 getQuestionControl(question: AbstractControl, path: string): FormControl {
@@ -1309,10 +1289,6 @@ shouldShowRootButtons(): boolean {
 //   });
 // }
 
-onActionSubmitjkj(): void {
- 
-}
-
 onActionSubmit(): void {
   if (!this.actionForm.valid) {
     this.markFormGroupTouched(this.actionForm);
@@ -1356,13 +1332,11 @@ onActionSubmit(): void {
         ...baseModel,
         config: {
           message: this.actionForm.value.message,
-          // quick_replies: this.quickReplies.value || []
+          quick_replies: this.quickReplies.value || []
         }
       };
       this.submitAction(sendMessageModel);
       break;
-
-      
 
     case 'send_file':
       this.handleSendFileAction(intentId, parent_id, order);
@@ -1432,21 +1406,48 @@ onActionSubmit(): void {
       break;
 
     case 'survey':
+
       const surveyModel = {
         ...baseModel,
         config: {
-          questions: this.actionForm.value.config.questions.map((q: any) => ({
-          id: q.id,
-          text: q.text,
-          type: q.type,
-          validation: q.type === 'number' ? { min: q.min, max: q.max } : undefined,
-          options: q.type === 'choice' ? q.options.split(',').map((opt: string) => opt.trim()) : undefined,
-          required: q.required || false
-        })),
-        completion_message: this.actionForm.value.config.completion_message,
-        persist_responses: this.actionForm.value.config.persist_responses !== false
+          questions: this.actionForm.value.config.questions.map((q: any, idx: number) => {
+            const question: any = {
+              id: q.id || `q${idx + 1}`,
+              text: q.text?.trim(),
+              type: q.type,
+              required: !!q.required
+            };
+
+            if (q.type === 'number') {
+              question.validation = {
+                min: q.min ?? 1,
+                max: q.max ?? 5
+              };
+            }
+
+            if (q.type === 'choice') {
+              const opts = q.options
+                ? q.options.split(',').map((opt: string) => opt.trim()).filter(Boolean)
+                : [];
+              if (opts.length === 0) {
+                opts.push('Option 1'); 
+              }
+              question.options = opts;
+            }
+
+            return question;
+          }),
+          completion_message: this.actionForm.value.config.completion_message?.trim() || 'Thank you for your feedback!',
+          persist_responses: this.actionForm.value.config.persist_responses !== false
         }
       };
+
+      // Frontend validation
+      if (!this.surveyQuestions || this.surveyQuestions.length === 0) {
+        Swal.fire('Error', 'Please add at least one survey question', 'error');
+        return;
+      }
+
       this.submitAction(surveyModel);
       break;
 
@@ -1476,6 +1477,7 @@ onActionSubmit(): void {
       };
       this.submitAction(defaultModel);
   }
+   console.log('Creating action under parent:', this.currentParent, 'with intentId:', intentId, 'and parent_id:', parent_id);
 }
 
 private handleSendFileAction(intentId: number, parent_id: number, order: number): void {
@@ -1485,17 +1487,18 @@ private handleSendFileAction(intentId: number, parent_id: number, order: number)
 
   // Validate based on source type
   if (sourceType === 'upload' && !this.uploadedFile) {
-    this._toastService.error('Please upload a file first', 'Error');
+     Swal.fire('Error',"Please upload a file first", 'error');
     return;
   }
 
   if (sourceType === 'link' && !this.actionForm.value.file_url) {
     this._toastService.error('Please provide a file URL', 'Error');
+     Swal.fire('Error',"Please provide a file URL", 'error');
     return;
   }
 
   if (sourceType === 'chat_script' && !this.actionForm.value.chat_script) {
-    this._toastService.error('Please enter a chat script', 'Error');
+    Swal.fire('Error',"Please enter a chat script", 'error');
     return;
   }
 
@@ -1578,6 +1581,7 @@ private handleActionResponse(result: any): void {
       this.cdRef.detectChanges();
       Swal.fire('Success', result.message || "Action Created Successfully !!!!", 'success');
       this.resetForm();
+      this.resetSurveyForm()
     }, 100);
   } else {
     Swal.fire({
@@ -1586,6 +1590,7 @@ private handleActionResponse(result: any): void {
       text: result.message || 'Action creation completed with unexpected response'
     });
     this.resetForm();
+    this.resetSurveyForm()
   }
 }
 
