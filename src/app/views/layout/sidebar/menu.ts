@@ -34,7 +34,7 @@ export const MENU: MenuItem[] = [
     // profiles: ['CORPORATE_ADMIN'],
     label: 'Inbox',
     icon: 'inbox',
-    link: '/eclectics/analytics/all-analytics'
+    link: '/eclectics/user/inbox'
     // subItems: [
     //   {
     //     profiles: ['CORPORATE_ADMIN'],
@@ -97,7 +97,7 @@ export const MENU: MenuItem[] = [
     // profiles: ['CORPORATE_ADMIN'],
     label: 'Livechats',
     icon: 'message-circle',
-    link: '/eclectics/new_customer_analytics/new_customers'
+    link: '/eclectics/customer/livechats'
     // subItems: [
     //   {
     //     profiles: ['CORPORATE_ADMIN'],
@@ -120,7 +120,7 @@ export const MENU: MenuItem[] = [
     // profiles: ['CORPORATE_ADMIN'],
     label: 'Tickets',
     icon: 'tag',
-    link: '/eclectics/rbac/all-profiles',
+    link: '/eclectics/customer/tickets',
     // subItems: [
     //   {
     //     // profiles: ['CORPORATE_ADMIN'],
@@ -139,7 +139,7 @@ export const MENU: MenuItem[] = [
     //  profiles:['CORPORATE_ADMIN'],
      label:'People',
      icon:'users',
-     link: '/eclectics/analytics_logs/logs',
+     link: '/eclectics/analytics/people',
     //  subItems: [
     //   {
     //     profiles: ['CORPORATE_ADMIN'],

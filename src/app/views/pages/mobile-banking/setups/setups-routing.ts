@@ -13,7 +13,7 @@ const routes: Routes = [
   },
 
   {
-    path: 'logs',
+    path: 'people',
     component: ListBranchesComponent
   },
 

@@ -20,7 +20,7 @@ const routes: Routes = [
     children: [
 
       {
-        path: 'analytics',
+        path: 'user',
         loadChildren: () =>
           import('./requests/requests.module').then((m) => m.RequestsModule)
       },
@@ -42,18 +42,18 @@ const routes: Routes = [
       },
 
       {
-        path: 'analytics_logs',
+        path: 'analytics',
         loadChildren: () =>
           import('./setups/setups.module').then((m) => m.SetupsModule),
       },
       {
-        path: 'new_customer_analytics',
+        path: 'customer',
         loadChildren: () =>
           import('./rbac/rbac.module').then((m) => m.RbacModule),
       },
 
       {
-        path: 'rbac',
+        path: 'customer',
         loadChildren: () =>
           import('./rbac/rbac.module').then((m) => m.RbacModule),
       },

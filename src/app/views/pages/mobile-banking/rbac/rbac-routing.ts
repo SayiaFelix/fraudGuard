@@ -13,7 +13,7 @@ const routes: Routes = [
         component: RolesComponent
     },
     {
-      path: 'all-profiles',
+      path: 'tickets',
       component: ProfilesComponent
     },
     {
@@ -22,7 +22,7 @@ const routes: Routes = [
     },
 
   {
-    path: 'new_customers',
+    path: 'livechats',
     component: ListUsersComponent
   },
 
