@@ -9,7 +9,7 @@ import { ViewRequestsComponent } from './view-requests/view-requests.component';
 const routes: Routes = [
 
   {
-    path: 'all-analytics',
+    path: 'inbox',
     component: ListRequestsComponent
   }
 ,
