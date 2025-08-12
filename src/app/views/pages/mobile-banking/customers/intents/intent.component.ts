@@ -151,23 +151,23 @@ export class IntentComponent implements OnInit {
     isLaunching = false;
     launchMessage = '';
     isActive: boolean = false;
-
-    actionIcons: { [key: string]: string } = {
-    send_message: 'icon-message-square',
-    send_file: 'icon-file-text',
-    http_request: 'icon-link',
-    webhook: 'icon-zap',
-    loop: 'icon-refresh-cw',
-    conditional: 'icon-code',          // New icon for conditional
-    carousel: 'icon-layers',
-    Jump_to_Trigger: 'icon-corner-down-right',
-    'If Else Branching': 'icon-git-branch',  // New icon for If Else Branching
-    set_variable: 'icon-sliders',
-    survey: 'icon-edit-3',
-    create_ticket: 'icon-clipboard',
-    human_handoff: 'icon-user'
-   };
     
+
+  actionIcons: { [key: string]: string } = {
+  send_message: 'icon-message-square',      
+  send_file: 'icon-file-text',              
+  http_request: 'icon-link',                 
+  webhook: 'icon-zap',                       
+  loop: 'icon-refresh-cw',                   
+  conditional: 'icon-code',                
+  carousel: 'icon-layers',                   
+  Jump_to_Trigger: 'icon-corner-down-right', 
+  set_variable: 'icon-sliders',              
+  survey: 'icon-edit-3',  
+  human_handoff: 'icon-user',                
+  create_ticket: 'icon-clipboard'        
+};
+
     triggers: any;
     currentParentIntentId: number | null = null;
      uploadedFile: File | null = null;
