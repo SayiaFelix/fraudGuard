@@ -7,6 +7,7 @@ import { ToastrService } from 'ngx-toastr';
 import Swal from "sweetalert2";
 import { ActivatedRoute, Router } from '@angular/router'; // Added Router
 import { catchError, forkJoin, of, tap } from 'rxjs';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 interface Node {
   id: number;
@@ -64,7 +65,6 @@ interface ActionModel {
     order: number;
 }
 
-// Add these interfaces at the top of your component file (with other interfaces)
 interface FileTypeInfo {
   accept: string;
   types: string;
@@ -151,22 +151,23 @@ export class IntentComponent implements OnInit {
     isLaunching = false;
     launchMessage = '';
     isActive: boolean = false;
-    
+    filePreviews: { [key: number]: SafeUrl } = {};
 
-  actionIcons: { [key: string]: string } = {
-  send_message: 'icon-message-square',      
-  send_file: 'icon-file-text',              
-  http_request: 'icon-link',                 
-  webhook: 'icon-zap',                       
-  loop: 'icon-refresh-cw',                   
-  conditional: 'icon-code',                
-  carousel: 'icon-layers',                   
-  Jump_to_Trigger: 'icon-corner-down-right', 
-  set_variable: 'icon-sliders',              
-  survey: 'icon-edit-3',  
-  human_handoff: 'icon-user',                
-  create_ticket: 'icon-clipboard'        
-};
+
+    actionIcons: { [key: string]: string } = {
+    send_message: 'icon-message-square',      
+    send_file: 'icon-file-text',              
+    http_request: 'icon-link',                 
+    webhook: 'icon-zap',                       
+    loop: 'icon-refresh-cw',                   
+    conditional: 'icon-code',                
+    carousel: 'icon-layers',                   
+    Jump_to_Trigger: 'icon-corner-down-right', 
+    set_variable: 'icon-sliders',              
+    survey: 'icon-edit-3',  
+    human_handoff: 'icon-user',                
+    create_ticket: 'icon-clipboard'        
+  };
 
     triggers: any;
     currentParentIntentId: number | null = null;
@@ -180,11 +181,8 @@ export class IntentComponent implements OnInit {
     isHovering = false;
 
 
-
-
-
-
 constructor(
+        private sanitizer: DomSanitizer,
         private cdRef: ChangeDetectorRef,
         public activeModal: NgbActiveModal,
         private globalService: GlobalService, 
@@ -257,6 +255,14 @@ triggerTypes = [
         }
         this.loading = true;
     }
+
+    // Update your methods
+getFilePreview(file: File): SafeUrl {
+  const url = URL.createObjectURL(file);
+  return this.sanitizer.bypassSecurityTrustUrl(url);
+}
+
+
 
 calculateIndentLevel(item: any): number {
   if (!item.parent_id) return 0;
@@ -496,7 +502,39 @@ private markFormGroupTouched(formGroup: FormGroup) {
   });
 }
 
+onCarouselItemFileSelected(event: Event, index: number): void {
+  const input = event.target as HTMLInputElement;
+  if (input.files?.length) {
+    // Clean up previous blob URL if exists
+    if (this.filePreviews[index]) {
+      URL.revokeObjectURL(this.filePreviews[index] as any);
+    }
+    
+    const file = input.files[0];
+    this.carouselItemFiles[index] = file;
+    this.filePreviews[index] = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(file));
+    this.cdRef.detectChanges();
+  }
+}
 
+removeCarouselItemFile(index: number): void {
+  // Clean up blob URL
+  if (this.filePreviews[index]) {
+    URL.revokeObjectURL(this.filePreviews[index] as any);
+  }
+  
+  delete this.carouselItemFiles[index];
+  delete this.filePreviews[index];
+  this.cdRef.detectChanges();
+}
+
+isImageFile(file: File): boolean {
+  return file?.type.startsWith('image/');
+}
+
+isVideoFile(file: File): boolean {
+  return file?.type.startsWith('video/');
+}
 
 // Initialize carousel form
 initCarouselForm(): void {
@@ -520,14 +558,7 @@ addCarouselItem(): void {
   this.carouselItems.push(itemGroup);
 }
 
-// Handle file selection for carousel items
-onCarouselItemFileSelected(event: Event, index: number): void {
-  const input = event.target as HTMLInputElement;
-  if (input.files?.length) {
-    this.carouselItemFiles[index] = input.files[0];
-    this.cdRef.detectChanges(); // Update the view
-  }
-}
+
 
 // Remove carousel item
 removeCarouselItem(index: number): void {
@@ -1081,7 +1112,7 @@ openActionForm(action: any): void {
    case 'Jump_to_Trigger':
       this.actionForm = this.fb.group({
         name: [action.name || '', Validators.required],
-        action_type: ['jump', Validators.required],
+        action_type: ['Jump_to_Trigger', Validators.required],
         target_trigger: [action.config?.target || '', Validators.required],
 
         // Nested form group for condition
@@ -1364,7 +1395,6 @@ shouldShowRootButtons(): boolean {
   return (this.shouldShowAddActionButton() || this.shouldShowAddTriggerButton()) && this.combinedItems.length > 0;
 }
 
-
 // Getter for carry_variables
 get carryVariables(): FormArray {
   return this.actionForm.get('carry_variables') as FormArray;
@@ -1635,9 +1665,8 @@ private handleSendFileAction(intentId: number, parent_id: number, order: number)
   formData.append('intent_id', intentId.toString());
   formData.append('parent_id', parent_id.toString());
   formData.append('order', order.toString());
-  formData.append('branch_path', this.buildBranchPath());
-  
-  // Add config as JSON string
+
+  // config as JSON string
   const config = {
     name: this.actionForm.value.name,
     intent_id: intentId,
@@ -1647,11 +1676,13 @@ private handleSendFileAction(intentId: number, parent_id: number, order: number)
     source_type: sourceType
   };
   formData.append('config', JSON.stringify(config));
+  // formData.append('branch_path', this.buildBranchPath());
+  
 
   // Handle different source types
   if (sourceType === 'upload') {
     formData.append('files', this.uploadedFile!);
-    
+   
     // Use the multipart endpoint
     this._httpService.mobileBankingPostFormData('builder/nodes/action-multipart', formData).subscribe({
       next: (result: any) => this.handleActionResponse(result),
@@ -1664,7 +1695,8 @@ private handleSendFileAction(intentId: number, parent_id: number, order: number)
       script_content: this.actionForm.value.chat_script,
       file_type: 'text'
     };
-    
+
+    console.log('Submitting Model Form:', model);
     this._httpService.mobileBankingPost('builder/nodes/action', model).subscribe({
       next: (result: any) => this.handleActionResponse(result),
       error: (err: any) => this.handleActionError(err)
@@ -1676,6 +1708,7 @@ private handleSendFileAction(intentId: number, parent_id: number, order: number)
       file_url: this.actionForm.value.file_url
     };
     
+    console.log('Submitting Model form:', model);
     this._httpService.mobileBankingPost('builder/nodes/action', model).subscribe({
       next: (result: any) => this.handleActionResponse(result),
       error: (err: any) => this.handleActionError(err)
@@ -1695,6 +1728,17 @@ private getFileType(format: string): string {
 
 // Handle carousel action submission
 private handleCarouselAction(intentId: number, parent_id: number, order: number): void {
+  // Validate that at least one file is uploaded for image/video items
+  const hasEmptyFiles = this.carouselItems.controls.some((item, index) => {
+    const itemType = item.get('item_type')?.value;
+    return (itemType === 'image' || itemType === 'video') && !this.carouselItemFiles[index];
+  });
+
+  if (hasEmptyFiles) {
+    Swal.fire('Error', "Please upload files for all image/video items", 'error');
+    return;
+  }
+
   const formData = new FormData();
   
   // Add basic fields
@@ -1724,14 +1768,14 @@ private handleCarouselAction(intentId: number, parent_id: number, order: number)
   };
   
   formData.append('config', JSON.stringify(config));
-  
+
   // Add files
   Object.entries(this.carouselItemFiles).forEach(([index, file]) => {
     formData.append('files', file, `item_${index}_${file.name}`);
   });
-  
+
   // Submit to multipart endpoint
-  this._httpService.mobileBankingPostFormData('actions/test-action-multipart', formData).subscribe({
+  this._httpService.mobileBankingPostFormData('builder/nodes/action-multipart', formData).subscribe({
     next: (result: any) => this.handleActionResponse(result),
     error: (err: any) => this.handleActionError(err)
   });
