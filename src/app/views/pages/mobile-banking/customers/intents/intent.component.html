@@ -543,115 +543,236 @@
             <!-- Send File Action -->
             <div *ngSwitchCase="'send_file'" class="mb-3">
                 <!-- File Format Selection -->
-            <div class="mb-3">
-              <label class="form-label fw-bold">File format</label>
-              <select class="form-select" formControlName="file_format" (change)="updateFileInstructions()">
-                <option value="image">Image</option>
-                <option value="document">Document</option>
-                <option value="video">Video</option>
-                <option value="audio">Audio</option>
-              </select>
-            </div>
+                <div class="mb-3">
+                  <label class="form-label fw-bold">File format</label>
+                  <select class="form-select" formControlName="file_format" (change)="updateFileInstructions()">
+                    <option value="image">Image</option>
+                    <option value="document">Document</option>
+                    <option value="video">Video</option>
+                    <option value="audio">Audio</option>
+                  </select>
+                </div>
 
-            <!-- Source Selection -->
-            <div class="mb-3">
-              <label class="form-label fw-bold">Source</label>
-              <div class="d-flex gap-3">
-                <div class="form-check">
-                  <input class="form-check-input" type="radio" value="upload" formControlName="source" id="uploadFile">
-                  <label class="form-check-label" for="uploadFile">Upload file</label>
+                <!-- Source Selection -->
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Source</label>
+                  <div class="d-flex gap-3">
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" value="upload" formControlName="source" id="uploadFile">
+                      <label class="form-check-label" for="uploadFile">Upload file</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" value="link" formControlName="source" id="fileLink">
+                      <label class="form-check-label" for="fileLink">File link</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" value="chat_script" formControlName="source" id="chatScript">
+                      <label class="form-check-label" for="chatScript">Chat script</label>
+                    </div>
+                  </div>
                 </div>
-                <div class="form-check">
-                  <input class="form-check-input" type="radio" value="link" formControlName="source" id="fileLink">
-                  <label class="form-check-label" for="fileLink">File link</label>
+
+              <!-- Dynamic Upload Section -->
+              <div *ngIf="actionForm.value.source === 'upload'" class="mb-3 border rounded text-center py-4 px-3 bg-light" 
+                  style="border-style: dashed;" appFileDrop (fileDropped)="onFileDropped($event)">
+                <div class="file-upload-container" 
+                    appFileDrop
+                    (fileDropped)="onFileDropped($event)"
+                    (fileHovered)="onFileHovered($event)"
+                    [class.file-hover]="isHovering">
+                  
+                  <div class="upload-content">
+                    <div class="mb-2">
+                      <i class="upload-icon mdi mdi-cloud-upload fs-1 text-primary"></i>
+                    </div>
+                    
+                    <!-- Dynamic Instructions -->
+                    <p class="mb-1 fw-semibold">Drag and drop file here to upload</p>
+                    <p class="text-muted" style="font-size: 13px;">
+                      Press the button to select a file from your computer.
+                    </p>
+                    
+                    <!-- Dynamic File Info -->
+                    <div class="file-info text-muted mb-2" style="font-size: 12px;">
+                      <div *ngIf="actionForm.value.file_format === 'image'">
+                        Supported file types: JPG/JPEG, PNG, GIF.<br>
+                        Maximum file size: 20MB
+                      </div>
+                      <div *ngIf="actionForm.value.file_format === 'document'">
+                        Supported file types: PDF, DOC, DOCX, XLS, XLSX.<br>
+                        Maximum file size: 50MB
+                      </div>
+                      <div *ngIf="actionForm.value.file_format === 'video'">
+                        Supported file types: MP4, MOV, AVI.<br>
+                        Maximum file size: 100MB
+                      </div>
+                      <div *ngIf="actionForm.value.file_format === 'audio'">
+                        Supported file types: MP3, WAV, AAC.<br>
+                        Maximum file size: 50MB
+                      </div>
+                    </div>
+
+                    <button type="button" (click)="triggerFileInput()" class="btn btn-outline-primary btn-sm">
+                      Browse Files
+                    </button>
+                    <input type="file" #fileUpload style="display: none" (change)="onFileSelected($event)" [accept]="getFileAcceptTypes()">
+                  </div>
+
+                  <div *ngIf="uploadedFile" class="mt-2">
+                    <span class="badge bg-success">{{ uploadedFile.name }}</span>
+                    <button type="button" class="btn btn-sm btn-outline-danger ms-2 mt-1" (click)="removeUploadedFile()">
+                      <i class="feather icon-trash-2"></i>
+                    </button>
+                  </div>
                 </div>
-                <div class="form-check">
-                  <input class="form-check-input" type="radio" value="chat_script" formControlName="source" id="chatScript">
-                  <label class="form-check-label" for="chatScript">Chat script</label>
+              </div>
+
+              <!-- File URL Section -->
+              <div *ngIf="actionForm.value.source === 'link'" class="mb-3">
+                <label class="form-label fw-bold">File URL</label>
+                <input type="url" formControlName="file_url" class="form-control" placeholder="https://example.com/file.pdf"/>
+                <div *ngIf="actionForm.get('file_url')?.invalid && actionForm.get('file_url')?.touched" class="invalid-feedback">
+                  Please provide a valid URL starting with http:// or https://
                 </div>
+              </div>
+
+              <!-- Chat Script Section -->
+              <div *ngIf="actionForm.value.source === 'chat_script'" class="mb-3">
+                <label class="form-label fw-bold">Chat Script</label>
+                <textarea formControlName="chat_script" rows="3" class="form-control" placeholder="Enter your chat script here..."></textarea>
+
+                  <div class="d-flex align-items-center mt-2 text-muted">
+                    <i class="feather icon-code me-2"></i>
+                    <small>script</small>
+                  </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-bold">Caption (optional)</label>
+                <input type="text" formControlName="caption" class="form-control" placeholder="Enter file caption"/>
               </div>
             </div>
 
-            <!-- Dynamic Upload Section -->
-            <div *ngIf="actionForm.value.source === 'upload'" class="mb-3 border rounded text-center py-4 px-3 bg-light" 
-                style="border-style: dashed;" appFileDrop (fileDropped)="onFileDropped($event)">
-              <div class="file-upload-container" 
-                  appFileDrop
-                  (fileDropped)="onFileDropped($event)"
-                  (fileHovered)="onFileHovered($event)"
-                  [class.file-hover]="isHovering">
+           <!-- Carousel Action -->
+           <div *ngSwitchCase="'carousel'" class="mb-3">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Display Type</label>
+                <select class="form-select" formControlName="display_type">
+                  <option value="slider">Slider</option>
+                  <option value="grid">Grid</option>
+                  <option value="list">List</option>
+                </select>
+              </div>
+
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" formControlName="auto_advance" id="autoAdvance">
+                <label class="form-check-label" for="autoAdvance">Auto advance items</label>
+              </div>
+
+              <div *ngIf="actionForm.value.auto_advance" class="mb-3">
+                <label class="form-label fw-bold">Advance interval (seconds)</label>
+                <input type="number" formControlName="advance_interval" class="form-control" min="1" max="60" value="5"/>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-bold">Carousel Items</label>
+                <div formArrayName="items">
+                  <div *ngFor="let item of carouselItems.controls; let i = index" [formGroupName]="i" class="card mb-3 p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <h6 class="mb-0">Carousel #{{i + 1}}</h6>
+                      <button type="button" class="btn btn-sm btn-outline-danger ms-2 mt-1" (click)="removeCarouselItem(i)">
+                        <i class="feather icon-trash-2"></i>
+                      </button>
+                    </div>
+                    
+                    <div class="mb-2">
+                      <label class="form-label fw-bold">Title</label>
+                      <input type="text" formControlName="title" class="form-control" placeholder="Item title"/>
+                    </div>
+                    
+                    <div class="mb-2">
+                      <label class="form-label fw-bold">Description</label>
+                      <textarea formControlName="description" class="form-control" rows="2" placeholder="Item description"></textarea>
+                    </div>
+                    
+                    <div class="mb-2">
+                      <label class="form-label fw-bold">Item Type</label>
+                      <select formControlName="item_type" class="form-select">
+                        <option value="image">Image</option>
+                        <option value="video">Video</option>
+                        <option value="card">Card</option>
+                      </select>
+                    </div>
+                    
+                    <!-- Improved Media Upload Section -->
+                    <div class="mb-3">
+                      <label class="form-label fw-bold">Media</label>
+                      <div class="d-flex flex-column align-items-center border rounded p-3 bg-light" 
+                          style="border-style: dashed;">
+                        
+                        <input type="file" #itemFile style="display: none" 
+                              (change)="onCarouselItemFileSelected($event, i)"
+                              accept="image/*,video/*">
+                        
+                        <!-- Upload area -->
+                        <div *ngIf="!carouselItemFiles[i]" class="text-center">
+                          <i class="feather icon-upload-cloud fs-3 text-muted mb-2"></i>
+                          <p class="text-muted mb-2">Drag & drop or click to upload</p>
+                          <button type="button" class="btn btn-outline-success btn-sm"
+                                  (click)="itemFile.click()">
+                            <i class="feather icon-upload me-1"></i> Select File
+                          </button>
+                        </div>
+                        
+                        <!-- Uploaded file preview -->
+                        <div *ngIf="carouselItemFiles[i]" class="text-center">
+                          <!-- Image preview -->
+                          <div *ngIf="isImageFile(carouselItemFiles[i])" class="mb-2">
+                            <img [src]="filePreviews[i]" 
+                                class="img-thumbnail" 
+                                style="max-height: 120px; max-width: 200px;">
+                          </div>
+                          
+                          <!-- Video preview -->
+                          <div *ngIf="isVideoFile(carouselItemFiles[i])" class="mb-2">
+                            <video controls style="max-height: 120px; max-width: 200px;">
+                              <source [src]="filePreviews[i]" 
+                                      [type]="carouselItemFiles[i].type">
+                            </video>
+                          </div>
+                          
+                          <!-- File info -->
+                          <div class="d-flex align-items-center justify-content-center mb-2">
+                            <i class="feather icon-file-text me-2"></i>
+                            <span class="text-truncate" style="max-width: 200px;">{{ carouselItemFiles[i].name }}</span>
+                          </div>
+                          
+                          <!-- Action buttons -->
+                          <div class="d-flex gap-2 justify-content-center">
+                            <button type="button" class="btn btn-outline-secondary btn-sm"
+                                    (click)="itemFile.click()">
+                              <i class="feather icon-edit"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-danger btn-sm"
+                                    (click)="removeCarouselItemFile(i)">
+                              <i class="feather icon-trash-2"></i>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 
-                <div class="upload-content">
-                  <div class="mb-2">
-                    <i class="upload-icon mdi mdi-cloud-upload fs-1 text-primary"></i>
-                  </div>
-                  
-                  <!-- Dynamic Instructions -->
-                  <p class="mb-1 fw-semibold">Drag and drop file here to upload</p>
-                  <p class="text-muted" style="font-size: 13px;">
-                    Press the button to select a file from your computer.
-                  </p>
-                  
-                  <!-- Dynamic File Info -->
-                  <div class="file-info text-muted mb-2" style="font-size: 12px;">
-                    <div *ngIf="actionForm.value.file_format === 'image'">
-                      Supported file types: JPG/JPEG, PNG, GIF.<br>
-                      Maximum file size: 20MB
-                    </div>
-                    <div *ngIf="actionForm.value.file_format === 'document'">
-                      Supported file types: PDF, DOC, DOCX, XLS, XLSX.<br>
-                      Maximum file size: 50MB
-                    </div>
-                    <div *ngIf="actionForm.value.file_format === 'video'">
-                      Supported file types: MP4, MOV, AVI.<br>
-                      Maximum file size: 100MB
-                    </div>
-                    <div *ngIf="actionForm.value.file_format === 'audio'">
-                      Supported file types: MP3, WAV, AAC.<br>
-                      Maximum file size: 50MB
-                    </div>
-                  </div>
-
-                  <button type="button" (click)="triggerFileInput()" class="btn btn-outline-primary btn-sm">
-                    Browse Files
-                  </button>
-                  <input type="file" #fileUpload style="display: none" (change)="onFileSelected($event)" [accept]="getFileAcceptTypes()">
-                </div>
-
-                <div *ngIf="uploadedFile" class="mt-2">
-                  <span class="badge bg-success">{{ uploadedFile.name }}</span>
-                  <button type="button" class="btn btn-sm btn-outline-danger ms-2 mt-1" (click)="removeUploadedFile()">
-                    <i class="feather icon-trash-2"></i>
+                <div class="d-flex justify-content-center mt-3">
+                  <button type="button" class="btn btn-outline-primary btn-sm px-3" 
+                          (click)="addCarouselItem()">
+                    <i class="feather icon-plus me-1"></i> Add Carousel Item
                   </button>
                 </div>
+                <hr>
               </div>
-            </div>
-
-            <!-- File URL Section -->
-            <div *ngIf="actionForm.value.source === 'link'" class="mb-3">
-              <label class="form-label fw-bold">File URL</label>
-              <input type="url" formControlName="file_url" class="form-control" placeholder="https://example.com/file.pdf"/>
-              <div *ngIf="actionForm.get('file_url')?.invalid && actionForm.get('file_url')?.touched" class="invalid-feedback">
-                Please provide a valid URL starting with http:// or https://
-              </div>
-            </div>
-
-            <!-- Chat Script Section -->
-            <div *ngIf="actionForm.value.source === 'chat_script'" class="mb-3">
-              <label class="form-label fw-bold">Chat Script</label>
-              <textarea formControlName="chat_script" rows="3" class="form-control" placeholder="Enter your chat script here..."></textarea>
-
-                <div class="d-flex align-items-center mt-2 text-muted">
-                  <i class="feather icon-code me-2"></i>
-                  <small>script</small>
-                </div>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label fw-bold">Caption (optional)</label>
-              <input type="text" formControlName="caption" class="form-control" placeholder="Enter file caption"/>
-            </div>
-            </div>
+           </div>
 
             <!-- HTTP Request Action -->
             <div *ngSwitchCase="'http_request'" class="mb-3">
@@ -802,75 +923,6 @@
                 </div>
               </div>
             </div>
-
-            <div *ngSwitchCase="'carousel'" class="mb-3">
-  <div class="mb-3">
-    <label class="form-label fw-bold">Display Type</label>
-    <select class="form-select" formControlName="display_type">
-      <option value="slider">Slider</option>
-      <option value="grid">Grid</option>
-      <option value="list">List</option>
-    </select>
-  </div>
-
-  <div class="mb-3 form-check">
-    <input type="checkbox" class="form-check-input" formControlName="auto_advance" id="autoAdvance">
-    <label class="form-check-label" for="autoAdvance">Auto advance items</label>
-  </div>
-
-  <div *ngIf="actionForm.value.auto_advance" class="mb-3">
-    <label class="form-label fw-bold">Advance interval (seconds)</label>
-    <input type="number" formControlName="advance_interval" class="form-control" min="1" max="60" value="5"/>
-  </div>
-
-  <div class="mb-3">
-    <label class="form-label fw-bold">Carousel Items</label>
-    <div formArrayName="items">
-      <div *ngFor="let item of carouselItems.controls; let i = index" [formGroupName]="i" class="card mb-3 p-3">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <h6 class="mb-0">Item #{{i + 1}}</h6>
-          <button type="button" class="btn btn-sm btn-outline-danger p-0 ms-2 mt-1" (click)="removeCarouselItem(i)">
-            <i class="feather icon-trash-2"></i>
-          </button>
-        </div>
-        
-        <div class="mb-2">
-          <label class="form-label">Title</label>
-          <input type="text" formControlName="title" class="form-control" placeholder="Item title"/>
-        </div>
-        
-        <div class="mb-2">
-          <label class="form-label">Description</label>
-          <textarea formControlName="description" class="form-control" rows="2" placeholder="Item description"></textarea>
-        </div>
-        
-        <div class="mb-2">
-          <label class="form-label">Item Type</label>
-          <select formControlName="item_type" class="form-select">
-            <option value="image">Image</option>
-            <option value="video">Video</option>
-            <option value="card">Card</option>
-          </select>
-        </div>
-        
-        <div class="mb-2">
-          <label class="form-label">Media</label>
-          <input type="file" #itemFile style="display: none" (change)="onCarouselItemFileSelected($event, i)">
-          <button type="button" class="btn btn-outline-secondary btn-sm" (click)="itemFile.click()">
-            Upload File
-          </button>
-          <span *ngIf="carouselItemFiles[i]" class="ms-2">{{ carouselItemFiles[i].name }}</span>
-        </div>
-      </div>
-    </div>
-    <br>
-    <button type="button" class="btn btn-sm btn-outline-primary" (click)="addCarouselItem()">
-      + Add Carousel Item
-    </button>
-  </div>
-</div>
-
-       
 
             <!-- Set Variable Action -->
           <div *ngSwitchCase="'set_variable'" class="mb-3">
