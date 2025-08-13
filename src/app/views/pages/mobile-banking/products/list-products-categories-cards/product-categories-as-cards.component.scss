@@ -19,7 +19,7 @@
   font-family: var(--font-family);
   min-height: 100vh;
   // MODIFICATION: Reduced left/right padding from 48px to 32px
-  padding: 0 32px 32px;
+  padding: 1.0rem;
   margin-top: -60px;
 }
 
@@ -28,13 +28,13 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding-top: 24px;
-  margin-bottom: 24px;
+  // padding-top: 24px;
+  margin-bottom: 10px;
   flex-wrap: wrap;
   gap: 16px;
   
   .page-title {
-    font-size: 28px;
+    font-size: 1.5rem;
     font-weight: 700;
     margin: 0 0 16px 0;
   }
@@ -44,7 +44,8 @@
 .tabs-nav {
   display: flex;
   gap: 10px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
+  margin-top: 20px;
   
   .tab-button {
     border: none;
@@ -256,6 +257,7 @@
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   margin-top: 8px;
+  // margin-bottom: 20px;
   width: 320px;
   color: var(--text-primary);
 }
