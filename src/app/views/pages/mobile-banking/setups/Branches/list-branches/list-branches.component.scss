@@ -20,7 +20,7 @@
   overflow-x: hidden;
   background-color: var(--bg-color);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  margin-top: -80px;
+  margin-top: -55px;
 }
 
 .main-content {
@@ -31,13 +31,13 @@
 }
 
 .people-page {
-  padding: 2rem;
+  // padding: 2rem;
   color: var(--text-color);
   min-height: 100vh;
 }
 
 .page-title {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 700;
   margin-bottom: 1.5rem;
   color: var(--text-color);
