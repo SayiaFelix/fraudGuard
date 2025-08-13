@@ -2149,4 +2149,11 @@ toggleIntentStatus(event: Event) {
         }
       });
   }
+
+ngOnDestroy() {
+  // Clean up all blob URLs
+  Object.values(this.filePreviews).forEach(url => {
+    URL.revokeObjectURL(url as any);
+  });
+}
 }
