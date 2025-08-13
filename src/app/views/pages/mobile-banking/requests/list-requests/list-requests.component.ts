@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener } from '@angular/core'; // Added HostListener here
+import { Component, OnInit, HostListener } from '@angular/core';
 
 @Component({
   selector: 'app-list-requests',
@@ -26,17 +26,73 @@ export class ListRequestsComponent implements OnInit {
   public statusOptions: any[] = [];
   public isStatusDropdownOpen: boolean = false;
 
+  // State for the active sidebar tab
+  public activeTab: 'conversation' | 'person' = 'conversation';
+
   constructor() { }
 
   ngOnInit(): void {
-    // Populate conversations list (with a status property for the dropdown to work)
+    // =======================================================================
+    // ===== MODIFIED: conversations array now includes personDetails    =====
+    // =======================================================================
     this.conversations = [
-      { id: 1, sender: 'Ecl Test', timestamp: '5 Aug', preview: 'Test', status: 'Open', avatarUrl: null, initials: '', avatarColor: '#e9ecef', channelIcon: 'feather icon-message-circle' },
-      { id: 2, sender: 'Chris Theuri', timestamp: '4 Aug', preview: 'Confirm', status: 'Open', avatarUrl: null, initials: 'CT', avatarColor: '#f1f3f5', channelIcon: 'feather icon-message-square' },
-      { id: 3, sender: 'Chris - WA', timestamp: '4 Aug', preview: 'Message from WhatsApp', status: 'Pending', avatarUrl: null, initials: '', avatarColor: '#e9ecef', channelIcon: 'feather icon-phone' },
-      { id: 4, sender: 'Unknown', timestamp: '31 Jul', preview: 'Hello! How can I hel...', status: 'Resolved', avatarUrl: null, initials: '', avatarColor: '#e9ecef', channelIcon: 'feather icon-users' },
-      { id: 5, sender: 'Default Webchat', timestamp: '28 Jul', preview: 'A new webchat started', status: 'Open', avatarUrl: null, initials: '', avatarColor: '#e9ecef', channelIcon: 'feather icon-message-square' },
-      { id: 6, sender: 'Tim', timestamp: '6 Jul', preview: 'Family', status: 'Closed', avatarUrl: null, initials: 'T', avatarColor: '#f1f3f5', channelIcon: 'feather icon-message-circle' }
+      { 
+        id: 1, sender: 'Ecl Test', timestamp: '5 Aug', preview: 'Test', status: 'Open', avatarUrl: null, initials: 'ET', avatarColor: '#e9ecef', channelIcon: 'feather icon-message-circle',
+        personDetails: {
+          location: 'Dar es Salaam',
+          country: 'Tanzania',
+          ipAddress: '192.168.1.10',
+          email: 'test@ecl.com',
+          phoneNumber: '0712345678',
+          personalId: 'N/A',
+          channelId: 'web-1a2b3c',
+          uniqueId: 'uid-ecl-test'
+        }
+      },
+      { 
+        id: 2, sender: 'Chris Theuri', timestamp: '4 Aug', preview: 'Confirm', status: 'Open', avatarUrl: null, initials: 'CT', avatarColor: '#f1f3f5', channelIcon: 'feather icon-message-square',
+        personDetails: {
+          location: 'Nairobi',
+          country: 'Kenya',
+          ipAddress: '10.0.0.5',
+          email: 'criskahiga@example.com',
+          phoneNumber: '0704349218',
+          personalId: '01J1YSQW...',
+          channelId: '254704349...',
+          uniqueId: 'uid-chris-t'
+        }
+      },
+      { 
+        id: 3, sender: 'Chris - WA', timestamp: '4 Aug', preview: 'Message from WhatsApp', status: 'Pending', avatarUrl: null, initials: 'CW', avatarColor: '#e9ecef', channelIcon: 'feather icon-phone',
+         personDetails: {
+          location: null,
+          country: 'Kenya',
+          ipAddress: null,
+          email: null,
+          phoneNumber: '254798765432',
+          personalId: 'N/A',
+          channelId: 'wa-254798765432',
+          uniqueId: 'uid-chris-wa'
+        }
+      },
+      { 
+        id: 4, sender: 'Unknown', timestamp: '31 Jul', preview: 'Hello! How can I hel...', status: 'Resolved', avatarUrl: null, initials: '?', avatarColor: '#e9ecef', channelIcon: 'feather icon-users',
+         personDetails: {
+          location: null, country: null, ipAddress: '172.16.0.100', email: null, phoneNumber: null, personalId: null, channelId: null, uniqueId: 'uid-unknown-1'
+        }
+      },
+      { 
+        id: 5, sender: 'Default Webchat', timestamp: '28 Jul', preview: 'A new webchat started', status: 'Open', avatarUrl: null, initials: 'DW', avatarColor: '#e9ecef', channelIcon: 'feather icon-message-square',
+        personDetails: {
+          location: 'New York', country: 'USA', ipAddress: '208.80.154.224', email: 'visitor@web.com', phoneNumber: null, personalId: null, channelId: 'web-def-456', uniqueId: 'uid-webchat-def'
+        }
+      },
+      { 
+        id: 6, sender: 'Tim', timestamp: '6 Jul', preview: 'Family', status: 'Closed', avatarUrl: null, initials: 'T', avatarColor: '#f1f3f5', channelIcon: 'feather icon-message-circle',
+         personDetails: {
+          location: 'London', country: 'UK', ipAddress: '8.8.8.8', email: 'tim@family.com', phoneNumber: '442079460991', personalId: 'UK-TIM-123', channelId: 'email-tim', uniqueId: 'uid-tim-uk'
+        }
+      }
     ];
 
     // Populate "Views" filter options
@@ -74,9 +130,6 @@ export class ListRequestsComponent implements OnInit {
     ];
   }
 
-  // =======================================================================
-  // ===== THIS IS THE CRITICAL FUNCTION THAT WAS MISSING =====
-  // =======================================================================
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
@@ -86,12 +139,13 @@ export class ListRequestsComponent implements OnInit {
       this.isStatusDropdownOpen = false;
     }
   }
-  // =======================================================================
 
   // --- Inbox Methods ---
   selectConversation(conversation: any): void {
     this.selectedConversation = conversation;
     this.isDetailsSidebarVisible = true;
+    // When a new conversation is selected, it's good practice to default to the conversation tab
+    this.activeTab = 'conversation'; 
   }
 
   hideDetailsSidebar(): void {
@@ -126,5 +180,10 @@ export class ListRequestsComponent implements OnInit {
       this.selectedConversation.status = newStatus.name;
     }
     this.isStatusDropdownOpen = false;
+  }
+
+  // --- Sidebar Tab Method ---
+  selectTab(tab: 'conversation' | 'person'): void {
+    this.activeTab = tab;
   }
 }

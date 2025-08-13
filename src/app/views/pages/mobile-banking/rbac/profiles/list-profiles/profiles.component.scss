@@ -1,12 +1,12 @@
 :host {
   display: block;
-  margin-top: -60px; 
+  margin-top: -55px; 
 }
 
 .tickets-container {
-  padding: 1rem 4rem; 
-  max-width: 100%;
-  margin: 0 auto;
+  //padding: 1rem; 
+  max-width: none;
+  margin: 0;
 }
 
 .page-header {
@@ -14,15 +14,16 @@
 }
 
 .page-title {
-  font-size: 2.25rem;
+  font-size: 2rem;
   font-weight: 700;
   color: #212529;
+  
 }
 
 .main-view-wrapper {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 2rem;
+  gap: 0rem;
   transition: grid-template-columns 0.35s ease-in-out;
 
   &.sidebar-open {
