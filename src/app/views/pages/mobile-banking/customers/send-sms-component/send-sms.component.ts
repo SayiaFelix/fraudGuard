@@ -4,24 +4,22 @@ import {
   ViewChild,
   ElementRef,
 } from '@angular/core';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { HttpService } from 'src/app/shared/services/http.service';
-import { AddCustomerComponent } from "../add-customer/add-customer.component";
 import { GlobalService } from 'src/app/shared/services/global.service';
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import Swal from "sweetalert2";
 import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
-import { ToastrService } from 'ngx-toastr'; // Make sure you have ngx-toastr installed and imported in your app module
+import { ToastrService } from 'ngx-toastr';
 
-// A clean interface for your trigger data
+// MODIFIED: Added training_phrases to the interface for editing
 interface Trigger {
   id: number;
   name: string;
   description?: string;
   is_active: boolean;
-  created_at: string; // Keep for sorting
-  // Add any other properties you pass to the intent page
+  created_at: string;
+  training_phrases?: string[]; // Needed for the edit form
 }
 
 @Component({
@@ -35,23 +33,22 @@ export class SendSmsComponent implements OnInit {
 
   triggerForm: FormGroup;
   chatbotData: any = null;
-  public modalRef: NgbModalRef;
-  agentList: Trigger[] = []; // Use the strong type
+  agentList: Trigger[] = [];
   isLoading = true;
-  result: any;
+  
+  // NEW: Property to track if we are in edit mode
+  editingTriggerId: number | null = null;
 
   constructor(
     private httpService: HttpService,
-    private modalService: NgbModal,
     private globalService: GlobalService,
     private fb: FormBuilder,
     private router: Router,
     private route: ActivatedRoute,
-    private toastrService: ToastrService // Inject ToastrService
+    private toastrService: ToastrService
   ) {
     this.initializeForm();
 
-    // Refresh trigger list when navigating back to this page
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd && event.url.includes('/send-sms-component'))
     ).subscribe(() => {
@@ -80,7 +77,6 @@ export class SendSmsComponent implements OnInit {
     this.triggerForm = this.fb.group({
       name: ['', Validators.required],
       description: [''],
-      // This control was in your HTML, so it needs to be in the form group
       trigger_type: ['message_received', Validators.required],
       training_phrases: this.fb.array([
         this.fb.control('', Validators.required)
@@ -105,21 +101,17 @@ export class SendSmsComponent implements OnInit {
   fetchIntentList(chatbotId: number): void {
     this.isLoading = true;
     const body = { chatbot_id: chatbotId };
-
     this.httpService.mobileBankingPost('builder/chatbots/root-intents', body).subscribe({
       next: (res: any) => {
         if (res.status === '00' && Array.isArray(res.data)) {
-          // ✅ CORRECTED: Map API data to our clean Trigger interface
           this.agentList = res.data.map((trigger: any) => ({
             ...trigger,
-            // Ensure is_active is always a strict boolean for the toggle to work reliably
             is_active: trigger.is_active === 1 || trigger.is_active === true,
           })).sort((a: Trigger, b: Trigger) =>
             new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
           );
         } else {
           this.agentList = [];
-          this.toastrService.warning('Could not load triggers.', 'Warning');
         }
         this.isLoading = false;
       },
@@ -132,35 +124,25 @@ export class SendSmsComponent implements OnInit {
     });
   }
 
-
   toggleTriggerStatus(trigger: Trigger): void {
     const newStatus = !trigger.is_active;
-
-    const payload = {
-      intent_id: trigger.id,
-      is_active: newStatus
-    };
-
-    // Use the correct API endpoint from IntentComponent
+    const payload = { intent_id: trigger.id, is_active: newStatus };
     this.httpService.mobileBankingPost('builder/nodes/intent/status', payload).subscribe({
       next: (res: any) => {
         if (res.status === '00') {
-          // On success, update the property ON THE OBJECT in the array.
-          // This instantly updates the UI without a page reload.
           trigger.is_active = newStatus;
           this.toastrService.success(`Trigger status updated to ${newStatus ? 'Active' : 'Inactive'}.`, 'Success');
         } else {
-          // If the API call fails, the UI does not change, which is correct.
           this.toastrService.warning(res.message || 'Failed to update trigger status.', 'Warning');
         }
       },
       error: (err: any) => {
-        // The UI also remains unchanged on HTTP error.
         this.toastrService.error(err?.error?.message || 'An error occurred while updating status.', 'Error');
       }
     });
   }
 
+  // MODIFIED: This function now handles both create and update
   onTriggerSubmit(): void {
     if (!this.triggerForm.valid) {
       this.markFormGroupTouched(this.triggerForm);
@@ -171,55 +153,85 @@ export class SendSmsComponent implements OnInit {
       Swal.fire('Error', 'No chatbot ID found. Please create or select a Chatbot first.', 'error');
       return;
     }
-    const model = {
-      ...this.triggerForm.value,
-      chatbot_id: chatbotId,
-      is_root: true,
-      order: (this.agentList.length || 0) + 1, // A slightly better way to order
-    };
-    this.httpService.mobileBankingPost('builder/nodes/intent', model).subscribe({
-        next: (result: any) => {
-          if (result.status === '00') {
-            this.fetchIntentList(chatbotId); // Refresh list to show the new item
-            Swal.fire('Success', 'Trigger Created Successfully!', 'success');
+
+    // --- UPDATE LOGIC ---
+    if (this.editingTriggerId) {
+      const originalTrigger = this.agentList.find(t => t.id === this.editingTriggerId);
+      const payload = {
+        intent_id: this.editingTriggerId,
+        chatbot_id: chatbotId,
+        ...this.triggerForm.value,
+        is_active: originalTrigger ? originalTrigger.is_active : true // Preserve status
+      };
+
+      this.httpService.mobileBankingPost('builder/nodes/intent/update', payload).subscribe({
+        next: (res: any) => {
+          if (res.status === '00') {
+            Swal.fire('Success', 'Trigger updated successfully!', 'success');
+            this.fetchIntentList(chatbotId);
             this.closeModal();
           } else {
-            Swal.fire('Error', result.message || 'Failed to create intent.', 'error');
+            Swal.fire('Error', res.message || 'Failed to update trigger.', 'error');
           }
         },
         error: (err: any) => {
-          Swal.fire('Error', err?.error?.message || 'An error occurred while creating the trigger.', 'error');
+          Swal.fire('Error', err?.error?.message || 'An error occurred.', 'error');
         }
       });
-  }
-
-  openIntent(trigger: Trigger): void {
-    if (!trigger?.id) {
-      console.warn('Trigger ID not found.');
-      return;
+    } 
+    // --- CREATE LOGIC ---
+    else {
+      const payload = {
+        ...this.triggerForm.value,
+        chatbot_id: chatbotId,
+        is_root: true,
+        order: (this.agentList.length || 0) + 1,
+      };
+      this.httpService.mobileBankingPost('builder/nodes/intent', payload).subscribe({
+          next: (result: any) => {
+            if (result.status === '00') {
+              Swal.fire('Success', 'Trigger Created Successfully!', 'success');
+              this.fetchIntentList(chatbotId);
+              this.closeModal();
+            } else {
+              Swal.fire('Error', result.message || 'Failed to create intent.', 'error');
+            }
+          },
+          error: (err: any) => {
+            Swal.fire('Error', err?.error?.message || 'An error occurred.', 'error');
+          }
+        });
     }
-    // This is correct: it passes the whole trigger object with its current state
-    this.router.navigate(['../intent', trigger.id], {
-      relativeTo: this.route,
-      state: { triggerData: trigger }
-    });
   }
 
+  // MODIFIED: This now uses the component's own modal instead of NgbModal
   editTrigger(trigger: Trigger): void {
-    // This function relies on another component 'AddCustomerComponent'.
-    // Assuming that component is set up to handle 'edit-trigger', this logic is okay.
-    this.modalRef = this.modalService.open(AddCustomerComponent, { centered: true, size: 'lg' });
-    this.modalRef.componentInstance.title = 'Edit Trigger';
-    this.modalRef.componentInstance.formData = trigger;
-    this.modalRef.result.then((result) => {
-      if (result === 'success') {
-        const chatbotId = this.globalService.getChatbotId();
-        if (chatbotId) this.fetchIntentList(chatbotId); // Refresh list on success
-        this.toastrService.success('Trigger updated successfully!');
-      }
-    }).catch(() => {});
+    this.editingTriggerId = trigger.id;
+
+    // Populate the form with the trigger's data
+    this.triggerForm.patchValue({
+      name: trigger.name,
+      description: trigger.description,
+      // trigger_type: trigger.trigger_type // Add this if trigger_type is part of your trigger object
+    });
+
+    // Clear and re-populate training phrases
+    this.trainingPhrases.clear();
+    if (trigger.training_phrases && trigger.training_phrases.length > 0) {
+      trigger.training_phrases.forEach(phrase => {
+        this.trainingPhrases.push(this.fb.control(phrase, Validators.required));
+      });
+    } else {
+      this.addTrainingPhrase(); // Add at least one empty field
+    }
+    
+    // Open the modal
+    this.triggerModal.nativeElement.classList.add('show');
+    this.triggerModal.nativeElement.style.display = 'block';
+    document.body.classList.add('modal-open');
   }
 
+  // MODIFIED: Updated to use the correct API endpoint and payload for deletion
   deleteTrigger(trigger: Trigger): void {
     Swal.fire({
       title: 'Are you sure?',
@@ -231,13 +243,22 @@ export class SendSmsComponent implements OnInit {
       confirmButtonText: 'Yes, delete it!'
     }).then((result) => {
       if (result.isConfirmed) {
-        // ✅ CORRECTED: Use the correct API endpoint for deleting an intent
-        this.httpService.mobileBankingPost(`builder/nodes/intent/delete/${trigger.id}`, {}).subscribe({
+        const chatbotId = this.globalService.getChatbotId();
+        if (!chatbotId) {
+            Swal.fire('Error', 'Chatbot context lost. Cannot delete.', 'error');
+            return;
+        }
+
+        const payload = {
+          intent_id: trigger.id,
+          chatbot_id: chatbotId
+        };
+        
+        this.httpService.mobileBankingPost('builder/nodes/intent/delete', payload).subscribe({
           next: (res: any) => {
             if (res.status === '00') {
               Swal.fire('Deleted!', 'The trigger has been deleted.', 'success');
-              const chatbotId = this.globalService.getChatbotId();
-              if (chatbotId) this.fetchIntentList(chatbotId); // Refresh list
+              this.fetchIntentList(chatbotId); // Refresh list
             } else {
               Swal.fire('Error', res.message || 'Failed to delete trigger.', 'error');
             }
@@ -250,9 +271,8 @@ export class SendSmsComponent implements OnInit {
     });
   }
 
-  // --- Modal and File Upload Methods ---
-
   onAddTriggerClick(): void {
+    this.editingTriggerId = null; // Ensure we are in "add" mode
     this.initializeForm(); // Reset form for a new entry
     this.triggerModal.nativeElement.classList.add('show');
     this.triggerModal.nativeElement.style.display = 'block';
@@ -263,18 +283,24 @@ export class SendSmsComponent implements OnInit {
     this.triggerModal.nativeElement.classList.remove('show');
     this.triggerModal.nativeElement.style.display = 'none';
     document.body.classList.remove('modal-open');
+    this.editingTriggerId = null; // Reset edit state on close
   }
 
-  triggerFileUpload(): void {
-    this.fileInput.nativeElement.click();
+  openIntent(trigger: Trigger): void {
+    if (!trigger?.id) { console.warn('Trigger ID not found.'); return; }
+    this.router.navigate(['../intent', trigger.id], {
+      relativeTo: this.route,
+      state: { triggerData: trigger }
+    });
   }
+
+  triggerFileUpload(): void { this.fileInput.nativeElement.click(); }
 
   onFileUpload(event: any): void {
     const file = event.target.files[0];
     if (!file) return;
     const formData = new FormData();
     formData.append('file', file);
-    // Add your API call logic here for file upload
     this.toastrService.info('File upload initiated...');
   }
 
