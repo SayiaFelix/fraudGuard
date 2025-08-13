@@ -170,15 +170,16 @@ export class IntentComponent implements OnInit {
 
     triggers: any;
     currentParentIntentId: number | null = null;
-     uploadedFile: File | null = null;
-    
-    carouselItemFiles: File[] = [];
+    uploadedFile: File | null = null;
+    carouselItemFiles: { [key: number]: File } = {};
     carouselItems: FormArray = this.fb.array([]);
     requiredContext: FormArray = this.fb.array([]);
     quickReplies: FormArray = this.fb.array([]);
     allTriggers: any[] = [];
     teams: any[] = []; 
     isHovering = false;
+
+
 
 
 
@@ -305,24 +306,6 @@ getMaxFileSize(format: keyof FileSizeMap): number {
   return this.sizeMap[format] || 20 * 1024 * 1024; // Default to 20MB
 }
 
-onFileSelected(event: Event): void {
-  const input = event.target as HTMLInputElement;
-  if (input.files?.length) {
-    const file = input.files[0];
-    const format = this.actionForm.value.file_format as keyof FileTypeInfoMap;
-    
-    if (file.size > this.getMaxFileSize(format)) {
-      this._toastService.error(
-        `File exceeds maximum size of ${this.fileTypeInfo[format].maxSize}`, 
-        'Error'
-      );
-      return;
-    }
-    
-    this.uploadedFile = file;
-  }
-}
-
 
 onFileHovered(isHovering: boolean): void {
   this.isHovering = isHovering;
@@ -353,28 +336,6 @@ removeUploadedFile(): void {
   // You might want to update your form control here if needed
 }
 
-addCarouselItem(): void {
-  const items = this.actionForm.get('items') as FormArray;
-  items.push(this.fb.group({
-    title: ['', Validators.required],
-    description: [''],
-    item_type: ['image'],
-    file: [null]
-  }));
-}
-
-
-onCarouselItemFileSelected(event: Event, index: number): void {
-  const input = event.target as HTMLInputElement;
-  if (input.files?.length) {
-    this.carouselItemFiles[index] = input.files[0];
-  }
-}
-
-removeCarouselItem(index: number): void {
-  this.carouselItems.removeAt(index);
-  this.carouselItemFiles.splice(index, 1);
-}
 
 removeVariable(index: number): void {
   this.variables.removeAt(index);
@@ -430,7 +391,6 @@ removeContextMapKey(key: string) {
   cmGroup.removeControl(key);
 }
 
-
 addVariable() {
   this.variables.push(
     this.fb.group({
@@ -442,7 +402,6 @@ addVariable() {
     })
   );
 }
-
 
 addChild(parent: Node, type: 'action' | 'trigger') {
     const newId = Date.now();
@@ -485,7 +444,6 @@ removeLanguage(lang: string): void {
   }
 }
 
-
 initializeForm() {
   this.triggerForm = this.fb.group({
     name: ['', Validators.required], 
@@ -500,7 +458,6 @@ focusInput(input: HTMLInputElement) {
   this.editingName = true;
   setTimeout(() => input.focus(), 0);
 }
-
 
 get trainingPhrases() {
     return this.triggerForm?.get('training_phrases') as FormArray;
@@ -530,7 +487,6 @@ removeExcludedPhrase(index: number): void {
   }
 }
 
-
 private markFormGroupTouched(formGroup: FormGroup) {
   Object.values(formGroup.controls).forEach(control => {
     control.markAsTouched();
@@ -539,6 +495,46 @@ private markFormGroupTouched(formGroup: FormGroup) {
     }
   });
 }
+
+
+
+// Initialize carousel form
+initCarouselForm(): void {
+  this.actionForm = this.fb.group({
+    name: ['', Validators.required],
+    action_type: ['carousel', Validators.required],
+    display_type: ['slider', Validators.required],
+    auto_advance: [false],
+    advance_interval: [5, [Validators.min(1), Validators.max(60)]],
+    items: this.carouselItems
+  });
+}
+
+// Add carousel item
+addCarouselItem(): void {
+  const itemGroup = this.fb.group({
+    title: ['', Validators.required],
+    description: [''],
+    item_type: ['image']
+  });
+  this.carouselItems.push(itemGroup);
+}
+
+// Handle file selection for carousel items
+onCarouselItemFileSelected(event: Event, index: number): void {
+  const input = event.target as HTMLInputElement;
+  if (input.files?.length) {
+    this.carouselItemFiles[index] = input.files[0];
+    this.cdRef.detectChanges(); // Update the view
+  }
+}
+
+// Remove carousel item
+removeCarouselItem(index: number): void {
+  this.carouselItems.removeAt(index);
+  delete this.carouselItemFiles[index];
+}
+
 
 get headers(): FormArray {
   return this.actionForm.get('headers') as FormArray;
@@ -573,6 +569,7 @@ addFalseStep() {
 get contextMapKeys() {
   return Object.keys(this.actionForm.get('context_map')?.value || {});
 }
+
 addContextMapKey(key: string) {
   const cmGroup = this.actionForm.get('context_map') as FormGroup;
   cmGroup.addControl(key, this.fb.control(''));
@@ -595,7 +592,6 @@ loadInitialData(): void {
         this.fetchIntentDetailsFromAPI(this.intentId);
     }
 }
-
 
 getIndentLevel(item: BaseItem): number {
   if (!item.parent_id) return 0;
@@ -769,6 +765,25 @@ private processApiTriggers(trigger: any, parentId: number): TriggerItem {
   };
 }
 
+onFileSelected(event: Event): void {
+  const input = event.target as HTMLInputElement;
+  if (input.files?.length) {
+    const file = input.files[0];
+    const format = this.actionForm.value.file_format as keyof FileTypeInfoMap;
+    
+    if (file.size > this.getMaxFileSize(format)) {
+      this._toastService.error(
+        `File exceeds maximum size of ${this.fileTypeInfo[format].maxSize}`, 
+        'Error'
+      );
+      input.value = ''; // Clear the invalid file
+      return;
+    }
+    
+    this.uploadedFile = file;
+  }
+}
+
 private transformAction(action: any, parentId: number): ActionItem {
   return {
     id: action.id,
@@ -868,7 +883,7 @@ const flatten = (items: any[], level = 0) => {
       }
     });
   };
-  
+ 
 flatten(triggers);
   return result;
 }
@@ -925,16 +940,13 @@ onActionTypeSelect(action: any): void {
   this.selectedActionType = action.type;
 }
 
-
 updateFileInstructions(): void {
- 
   this.cdRef.detectChanges();
 }
 
 get variables(): FormArray {
   return this.actionForm.get('variables') as FormArray;
 }
-
 
 openActionForm(action: any): void {
   this.selectedActionType = action.type;
@@ -951,19 +963,21 @@ openActionForm(action: any): void {
         message: ['', Validators.required]
       });
       break;
-    
 
-    case 'send_file':
+     case 'send_file':
       this.actionForm = this.fb.group({
         name: [action.name || '', Validators.required],
         action_type: ['send_file', Validators.required],
         file_format: ['image', Validators.required],
-        source: ['', Validators.required], 
+        source: ['upload', Validators.required], // Default to 'upload'
         file_url: ['', [Validators.pattern('https?://.+')]],
         chat_script: [''],
         caption: ['']
       });
 
+      // Clear any existing files
+      this.uploadedFile = null;
+      
       // Set up conditional validation
       this.actionForm.get('source')?.valueChanges.subscribe(source => {
         const fileUrlControl = this.actionForm.get('file_url');
@@ -977,7 +991,7 @@ openActionForm(action: any): void {
           fileUrlControl?.clearValidators();
           chatScriptControl?.setValidators([Validators.required]);
         }
-        else {
+        else { // upload
           fileUrlControl?.clearValidators();
           chatScriptControl?.clearValidators();
         }
@@ -987,6 +1001,39 @@ openActionForm(action: any): void {
       });
       break;
 
+    case 'carousel':
+      // Initialize or reset carousel items
+      this.carouselItems = this.fb.array([]);
+      this.carouselItemFiles = {};
+      
+      this.actionForm = this.fb.group({
+        name: [action.name || '', Validators.required],
+        action_type: ['carousel', Validators.required],
+        display_type: [action.config?.display_type || 'slider', Validators.required],
+        auto_advance: [action.config?.auto_advance || false],
+        advance_interval: [action.config?.advance_interval || 5, [Validators.min(1), Validators.max(60)]],
+        items: this.carouselItems
+      });
+
+      // If editing existing carousel, populate items
+      if (action.config?.items) {
+        action.config.items.forEach((item: any, index: number) => {
+          const itemGroup = this.fb.group({
+            title: [item.title || '', Validators.required],
+            description: [item.description || ''],
+            item_type: [item.item_type || 'image']
+          });
+          this.carouselItems.push(itemGroup);
+          
+          // Note: For editing, you might need to handle existing files differently
+          // since you can't repopulate file inputs due to browser security
+        });
+      } else {
+        // Add one empty item by default
+        this.addCarouselItem();
+      }
+      break;
+    
     case 'http_request':
       this.actionForm = this.fb.group({
         name: [action.name || '', Validators.required],
@@ -1028,14 +1075,6 @@ openActionForm(action: any): void {
         action_type: ['loop', Validators.required],
         collection: ['', Validators.required],
         action: ['', Validators.required]
-      });
-      break;
-    
-    case 'carousel':
-      this.actionForm = this.fb.group({
-        name: [action.name || '', Validators.required],
-        action_type: ['carousel', Validators.required],
-        items: this.fb.array([])
       });
       break;
     
@@ -1155,7 +1194,6 @@ openActionForm(action: any): void {
   }
 }
 
-// In your component class
 createSurveyForm() {
   this.actionForm = this.fb.group({
     name: ['Customer Feedback Survey', Validators.required],
@@ -1249,7 +1287,7 @@ removeSurveyQuestion(index: number) {
   questions.removeAt(index);
 }
 
-// Add these methods to your component class
+//these methods to your component class
 getQuestionControl(question: AbstractControl, path: string): FormControl {
   const control = question.get(path);
   if (!control) {
@@ -1431,8 +1469,6 @@ onActionSubmit(): void {
       this.submitAction(conditionalModel);
       break;
 
-
-
     case 'loop':
       const loopModel = {
         ...baseModel,
@@ -1446,15 +1482,7 @@ onActionSubmit(): void {
       break;
 
     case 'carousel':
-      const carouselModel = {
-        ...baseModel,
-        config: {
-          display_type: this.actionForm.value.display_type || 'slider',
-          auto_advance: this.actionForm.value.auto_advance || false,
-          items: this.carouselItems.value || []
-        }
-      };
-      this.submitAction(carouselModel);
+      this.handleCarouselAction(intentId, parent_id, order);
       break;
 
 
@@ -1482,7 +1510,6 @@ onActionSubmit(): void {
       
       this.submitAction(jumpModel);
       break;
-
 
     case 'set_variable':
         const setVariableModel = {
@@ -1587,58 +1614,55 @@ private handleSendFileAction(intentId: number, parent_id: number, order: number)
 
   // Validate based on source type
   if (sourceType === 'upload' && !this.uploadedFile) {
-     Swal.fire('Error',"Please upload a file first", 'error');
+    Swal.fire('Error', "Please upload a file first", 'error');
     return;
   }
 
   if (sourceType === 'link' && !this.actionForm.value.file_url) {
-    this._toastService.error('Please provide a file URL', 'Error');
-     Swal.fire('Error',"Please provide a file URL", 'error');
+    Swal.fire('Error', "Please provide a file URL", 'error');
     return;
   }
 
   if (sourceType === 'chat_script' && !this.actionForm.value.chat_script) {
-    Swal.fire('Error',"Please enter a chat script", 'error');
+    Swal.fire('Error', "Please enter a chat script", 'error');
     return;
   }
 
-  const baseModel = {
+  // Create FormData for multipart upload
+  const formData = new FormData();
+  formData.append('name', this.actionForm.value.name);
+  formData.append('action_type', 'send_file');
+  formData.append('intent_id', intentId.toString());
+  formData.append('parent_id', parent_id.toString());
+  formData.append('order', order.toString());
+  formData.append('branch_path', this.buildBranchPath());
+  
+  // Add config as JSON string
+  const config = {
     name: this.actionForm.value.name,
-    action_type: 'send_file',
     intent_id: intentId,
-    parent_id: parent_id,
+    caption: caption,
+    file_type: this.getFileType(fileFormat),
     order: order,
-    branch_path: this.buildBranchPath()
+    source_type: sourceType
   };
+  formData.append('config', JSON.stringify(config));
 
+  // Handle different source types
   if (sourceType === 'upload') {
-    // Handle file upload with FormData
-    const formData = new FormData();
-    formData.append('name', baseModel.name);
-    formData.append('action_type', baseModel.action_type);
-    formData.append('intent_id', baseModel.intent_id.toString());
-    formData.append('parent_id', baseModel.parent_id.toString());
-    formData.append('order', baseModel.order.toString());
-    formData.append('branch_path', baseModel.branch_path);
-    formData.append('source_type', 'upload');
-    formData.append('file_type', fileFormat);
-    formData.append('caption', caption);
-    formData.append('file', this.uploadedFile!);
-
-    this._httpService.mobileBankingPostFormData('builder/nodes/action', formData).subscribe({
+    formData.append('files', this.uploadedFile!);
+    
+    // Use the multipart endpoint
+    this._httpService.mobileBankingPostFormData('builder/nodes/action-multipart', formData).subscribe({
       next: (result: any) => this.handleActionResponse(result),
       error: (err: any) => this.handleActionError(err)
     });
   } else if (sourceType === 'chat_script') {
-    // Handle chat script
+    // For chat script, use regular JSON endpoint
     const model = {
-      ...baseModel,
-      config: {
-        source_type: 'chat_script',
-        script_content: this.actionForm.value.chat_script,
-        file_type: 'text',
-        caption: caption
-      }
+      ...config,
+      script_content: this.actionForm.value.chat_script,
+      file_type: 'text'
     };
     
     this._httpService.mobileBankingPost('builder/nodes/action', model).subscribe({
@@ -1646,22 +1670,71 @@ private handleSendFileAction(intentId: number, parent_id: number, order: number)
       error: (err: any) => this.handleActionError(err)
     });
   } else {
-    // Handle URL-based file
+    // For URL-based file
     const model = {
-      ...baseModel,
-      config: {
-        source_type: 'link',
-        file_url: this.actionForm.value.file_url,
-        file_type: fileFormat,
-        caption: caption
-      }
+      ...config,
+      file_url: this.actionForm.value.file_url
     };
-    console.log('Creating action under parent:', this.currentParent, 'with intentId:', intentId, 'and parent_id:', parent_id);
+    
     this._httpService.mobileBankingPost('builder/nodes/action', model).subscribe({
       next: (result: any) => this.handleActionResponse(result),
       error: (err: any) => this.handleActionError(err)
     });
   }
+}
+
+private getFileType(format: string): string {
+  switch(format) {
+    case 'image': return 'image/*';
+    case 'document': return 'application/pdf,application/msword,application/vnd.ms-excel';
+    case 'video': return 'video/*';
+    case 'audio': return 'audio/*';
+    default: return 'application/octet-stream';
+  }
+}
+
+// Handle carousel action submission
+private handleCarouselAction(intentId: number, parent_id: number, order: number): void {
+  const formData = new FormData();
+  
+  // Add basic fields
+  formData.append('name', this.actionForm.value.name);
+  formData.append('action_type', 'carousel');
+  formData.append('intent_id', intentId.toString());
+  formData.append('parent_id', parent_id.toString());
+  formData.append('order', order.toString());
+  
+  // Build config object
+  const config = {
+    display_type: this.actionForm.value.display_type,
+    auto_advance: this.actionForm.value.auto_advance,
+    advance_interval: this.actionForm.value.advance_interval,
+    style: {
+      card_width: "300px",
+      max_height: "400px",
+      show_indicators: true,
+      show_controls: true
+    },
+    items: this.carouselItems.value.map((item: any, index: number) => ({
+      title: item.title,
+      description: item.description,
+      item_type: item.item_type,
+      file_name: this.carouselItemFiles[index]?.name || ''
+    }))
+  };
+  
+  formData.append('config', JSON.stringify(config));
+  
+  // Add files
+  Object.entries(this.carouselItemFiles).forEach(([index, file]) => {
+    formData.append('files', file, `item_${index}_${file.name}`);
+  });
+  
+  // Submit to multipart endpoint
+  this._httpService.mobileBankingPostFormData('actions/test-action-multipart', formData).subscribe({
+    next: (result: any) => this.handleActionResponse(result),
+    error: (err: any) => this.handleActionError(err)
+  });
 }
 
 private submitAction(model: any): void {

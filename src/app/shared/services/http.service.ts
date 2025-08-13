@@ -340,7 +340,6 @@ public customerPortalLogin(endpoint: string, model: any): Observable<any> {
   public mobileBankingPost(endpoint: string, model: any): any {
     return this.http
       .post(
-
         this.globalService.customerPortalNest + endpoint,
         model,
         this.getHeaders()
@@ -353,23 +352,19 @@ public customerPortalLogin(endpoint: string, model: any): Observable<any> {
       );
   }
 
-  public mobileBankingPostFormData(endpoint: string, model: any): any {
-    return this.http
-      .post(
-        this.globalService.channelManagerHost + endpoint,
+  public mobileBankingPostFormData(endpoint: string, model: FormData): Observable<any> {
+    return this.http.post(
+        this.globalService.customerPortalNest + endpoint,
         model,
         this.getFormHeaders()
-      )
-      .pipe(
-        map((response) => {
-          response = response;
-          return response;
-        })
-      );
-  }
+    ).pipe(
+        map((response) => response) // Simplified the map operation
+    );
+}
+
 
   // For Pagination
-  public mobileBankingPaginationPost(endpoint: string, model: any): any {
+public mobileBankingPaginationPost(endpoint: string, model: any): any {
     const updatedModel = {
       page: model.page - 1,
       size: model.size,
@@ -431,15 +426,14 @@ getHeaders(): any {
     };
   }
 
-getFormHeaders(): any {
+   getFormHeaders(): any {
     return {
       headers: new HttpHeaders({
-        // 'Content-Type': 'multipart/form-data',
-        Authorization: 'Bearer ' + this.globalService.getToken()
-
+        // Remove 'Content-Type': 'multipart/form-data' - let the browser set it automatically
+        'Authorization': 'Bearer ' + this.globalService.getToken()
       })
     };
-  }
+}
 
 
   private generateLoginHeaders(): { headers: HttpHeaders } {
