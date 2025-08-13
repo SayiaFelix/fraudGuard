@@ -19,12 +19,15 @@
         <input type="file" #fileInput (change)="onFileUpload($event)" style="display: none;" accept=".xlsx, .xls, .csv" disabled />
      </div>
     </div>
+    
+    <!-- MODIFIED: Modal for both Add and Edit -->
     <div class="modal fade" #triggerModal tabindex="-1" role="dialog" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
           <div class="modal-header">
+            <!-- MODIFIED: Dynamic title for Add/Edit -->
             <h5 class="modal-title" id="triggerModalLabel" style="font-family: Roboto;font-weight: 500;font-style: Medium;font-size: 20px;line-height: 100%;letter-spacing: 0%;color: #364153;">
-              Add Trigger
+              {{ editingTriggerId ? 'Edit Trigger' : 'Add Trigger' }}
             </h5>
             <button type="button" class="btn-close" (click)="closeModal()" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
@@ -65,7 +68,10 @@
               </div>
               <div class="modal-footer d-flex justify-content-between">
                 <button type="button" class="btn btn-sm btn-outline-info" (click)="closeModal()">Cancel</button>
-                <button type="submit" class="btn btn-primary save-btn" [disabled]="!triggerForm.valid">Save Trigger</button>
+                <!-- MODIFIED: Dynamic button text for Save/Update -->
+                <button type="submit" class="btn btn-primary save-btn" [disabled]="!triggerForm.valid">
+                  {{ editingTriggerId ? 'Update Trigger' : 'Save Trigger' }}
+                </button>
               </div>
             </form>
           </div>
@@ -81,20 +87,23 @@
             <th scope="col">Name</th>
             <th scope="col">Description</th>
             <th scope="col">Status</th>
+            <!-- NEW: "Enabled" column added -->
+            <th scope="col" class="text-center">Enabled</th>
             <th scope="col" class="text-center">Action</th>
           </tr>
         </thead>
         <tbody>
-          <!-- Loading and Empty States (Unchanged) -->
+          <!-- MODIFIED: colspan updated to 5 -->
           <tr *ngIf="isLoading">
-            <td colspan="4" class="text-center py-5">
+            <td colspan="5" class="text-center py-5">
               <div class="spinner-border" role="status">
                 <span class="visually-hidden">Loading...</span>
               </div>
             </td>
           </tr>
+          <!-- MODIFIED: colspan updated to 5 -->
           <tr *ngIf="!isLoading && agentList.length === 0">
-            <td colspan="4" class="text-center text-muted py-5">
+            <td colspan="5" class="text-center text-muted py-5">
               No triggers found. Click "Add Trigger" to create one.
             </td>
           </tr>
@@ -109,18 +118,29 @@
             </td>
             <td>
               <span class="badge"
-                style="cursor: pointer; font-size: 0.8em; padding: 0.5em 0.75em;"
                 [ngClass]="{
                   'bg-success': trigger.is_active,
                   'bg-danger': !trigger.is_active
-                }"
-                (click)="toggleTriggerStatus(trigger); $event.stopPropagation()"
-                title="Click to toggle status">
+                }">
                 {{ trigger.is_active ? 'Active' : 'Inactive' }}
               </span>
             </td>
+            <!-- NEW: Column with the toggle switch -->
             <td class="text-center">
-              <!-- These buttons stop propagation to prevent row click -->
+              <div class="form-check form-switch d-inline-block">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  [checked]="trigger.is_active"
+                  (change)="toggleTriggerStatus(trigger)"
+                  (click)="$event.stopPropagation()"
+                  title="{{ trigger.is_active ? 'Click to deactivate' : 'Click to activate' }}"
+                >
+              </div>
+            </td>
+            <td class="text-center">
+              <!-- MODIFIED: editTrigger now uses the component's own modal -->
               <button class="btn btn-sm btn-icon btn-outline-secondary me-2" (click)="$event.stopPropagation(); editTrigger(trigger)" title="Edit">
                 <i class="feather icon-edit-2"></i>
               </button>
