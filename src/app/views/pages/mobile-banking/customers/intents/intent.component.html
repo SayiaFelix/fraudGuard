@@ -803,72 +803,74 @@
               </div>
             </div>
 
-            <!-- Carousel Action -->
             <div *ngSwitchCase="'carousel'" class="mb-3">
-              <div class="mb-3">
-                <label class="form-label fw-bold">Display Type</label>
-                <select class="form-select" formControlName="display_type">
-                  <option value="slider">Slider</option>
-                  <option value="grid">Grid</option>
-                  <option value="list">List</option>
-                </select>
-              </div>
+  <div class="mb-3">
+    <label class="form-label fw-bold">Display Type</label>
+    <select class="form-select" formControlName="display_type">
+      <option value="slider">Slider</option>
+      <option value="grid">Grid</option>
+      <option value="list">List</option>
+    </select>
+  </div>
 
-              <div class="mb-3 form-check">
-                <input type="checkbox" class="form-check-input" formControlName="auto_advance" id="autoAdvance">
-                <label class="form-check-label" for="autoAdvance">Auto advance items</label>
-              </div>
+  <div class="mb-3 form-check">
+    <input type="checkbox" class="form-check-input" formControlName="auto_advance" id="autoAdvance">
+    <label class="form-check-label" for="autoAdvance">Auto advance items</label>
+  </div>
 
-              <div *ngIf="actionForm.value.auto_advance" class="mb-3">
-                <label class="form-label fw-bold">Advance interval (seconds)</label>
-                <input type="number" formControlName="advance_interval" class="form-control" min="1" max="60" value="5"/>
-              </div>
+  <div *ngIf="actionForm.value.auto_advance" class="mb-3">
+    <label class="form-label fw-bold">Advance interval (seconds)</label>
+    <input type="number" formControlName="advance_interval" class="form-control" min="1" max="60" value="5"/>
+  </div>
 
-              <div class="mb-3">
-                <label class="form-label fw-bold">Carousel Items</label>
-                <div *ngFor="let item of carouselItems.controls; let i = index" class="card mb-3 p-3">
-                  <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h6 class="mb-0">Item #{{i + 1}}</h6>
-                  
-                    <button type="button" class="btn btn-sm btn-outline-danger p-0 ms-2 mt-1" (click)="removeCarouselItem(i)">
-                          <i class="feather icon-trash-2"></i>
-                    </button>
-                  </div>
-                  
-                  <div class="mb-2">
-                    <label class="form-label">Title</label>
-                    <input type="text" [formControlName]="i" class="form-control" placeholder="Item title"/>
-                  </div>
-                  
-                  <div class="mb-2">
-                    <label class="form-label">Description</label>
-                    <textarea [formControlName]="i" class="form-control" rows="2" placeholder="Item description"></textarea>
-                  </div>
-                  
-                  <div class="mb-2">
-                    <label class="form-label">Item Type</label>
-                    <select [formControlName]="i" class="form-select">
-                      <option value="image">Image</option>
-                      <option value="video">Video</option>
-                      <option value="card">Card</option>
-                    </select>
-                  </div>
-                  
-                  <div class="mb-2">
-                    <label class="form-label">Media</label>
-                    <input type="file" #itemFile style="display: none" (change)="onCarouselItemFileSelected($event, i)">
-                    <button type="button" class="btn btn-outline-secondary btn-sm" (click)="itemFile.click()">
-                      Upload File
-                    </button>
-                    <span *ngIf="carouselItemFiles[i]" class="ms-2">{{ carouselItemFiles[i].name }}</span>
-                  </div>
-                </div>
-                <br>
-                <button type="button" class="btn btn-sm btn-outline-primary" (click)="addCarouselItem()">
-                  + Add Carousel Item
-                </button>
-              </div>
-            </div>
+  <div class="mb-3">
+    <label class="form-label fw-bold">Carousel Items</label>
+    <div formArrayName="items">
+      <div *ngFor="let item of carouselItems.controls; let i = index" [formGroupName]="i" class="card mb-3 p-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h6 class="mb-0">Item #{{i + 1}}</h6>
+          <button type="button" class="btn btn-sm btn-outline-danger p-0 ms-2 mt-1" (click)="removeCarouselItem(i)">
+            <i class="feather icon-trash-2"></i>
+          </button>
+        </div>
+        
+        <div class="mb-2">
+          <label class="form-label">Title</label>
+          <input type="text" formControlName="title" class="form-control" placeholder="Item title"/>
+        </div>
+        
+        <div class="mb-2">
+          <label class="form-label">Description</label>
+          <textarea formControlName="description" class="form-control" rows="2" placeholder="Item description"></textarea>
+        </div>
+        
+        <div class="mb-2">
+          <label class="form-label">Item Type</label>
+          <select formControlName="item_type" class="form-select">
+            <option value="image">Image</option>
+            <option value="video">Video</option>
+            <option value="card">Card</option>
+          </select>
+        </div>
+        
+        <div class="mb-2">
+          <label class="form-label">Media</label>
+          <input type="file" #itemFile style="display: none" (change)="onCarouselItemFileSelected($event, i)">
+          <button type="button" class="btn btn-outline-secondary btn-sm" (click)="itemFile.click()">
+            Upload File
+          </button>
+          <span *ngIf="carouselItemFiles[i]" class="ms-2">{{ carouselItemFiles[i].name }}</span>
+        </div>
+      </div>
+    </div>
+    <br>
+    <button type="button" class="btn btn-sm btn-outline-primary" (click)="addCarouselItem()">
+      + Add Carousel Item
+    </button>
+  </div>
+</div>
+
+       
 
             <!-- Set Variable Action -->
           <div *ngSwitchCase="'set_variable'" class="mb-3">
@@ -1124,7 +1126,7 @@
           </button>
           
         </div>
-    </form>
+      </form>
 
       </div>
 
