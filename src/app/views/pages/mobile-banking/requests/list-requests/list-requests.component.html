@@ -84,7 +84,7 @@
   </div>
 
   <!-- ======================================================================= -->
-  <!-- ===== RIGHT PANEL: MESSAGE VIEW (THIS SECTION IS NOW FIXED) ===== -->
+  <!-- ===== RIGHT PANEL: MESSAGE VIEW ===== -->
   <!-- ======================================================================= -->
   <div class="message-view-panel">
     <!-- Show this when no conversation is selected -->
@@ -138,14 +138,15 @@
   <!-- ===== DETAILS SIDEBAR PANEL (ON THE FAR RIGHT) ===== -->
   <!-- ======================================================================= -->
   <div class="details-sidebar-panel" *ngIf="isDetailsSidebarVisible">
-    <!-- Sidebar Tabs -->
+    
+    <!-- ===== Sidebar Tabs ===== -->
     <div class="sidebar-tabs">
-      <button class="tab-button active">Conversation</button>
-      <button class="tab-button">Person</button>
+      <button class="tab-button" [class.active]="activeTab === 'conversation'" (click)="selectTab('conversation')">Conversation</button>
+      <button class="tab-button" [class.active]="activeTab === 'person'" (click)="selectTab('person')">Person</button>
     </div>
 
-    <!-- Sidebar Content -->
-    <div class="sidebar-content" *ngIf="selectedConversation">
+    <!-- ===== 'Conversation' Tab View ===== -->
+    <div class="sidebar-content" *ngIf="selectedConversation && activeTab === 'conversation'">
       <!-- Assignee Section -->
       <div class="info-section">
         <div class="info-row"><label><i class="feather icon-user"></i> Assignee</label><div class="info-value">-</div></div>
@@ -183,5 +184,51 @@
       <details class="details-section"><summary class="details-header"><span>Notes</span><button class="btn-icon-plus">+</button></summary><div class="details-content placeholder-text">Create the first note</div></details>
       <details class="details-section"><summary class="details-header"><span>Tags</span><button class="btn-icon-plus">+</button></summary><div class="details-content placeholder-text">Select a tag or tag group</div></details>
     </div>
+
+    <!-- ===== 'Person' Tab View (NOW DYNAMIC) ===== -->
+    <div class="sidebar-content" *ngIf="selectedConversation && activeTab === 'person'">
+        <!-- Person Header -->
+        <div class="person-header">
+            <div class="avatar">{{ selectedConversation.initials }}</div>
+            <div class="person-name">{{ selectedConversation.sender }}</div>
+            <button class="btn-icon"><i class="feather icon-more-vertical"></i></button>
+        </div>
+
+        <!-- Person Details Section -->
+        <details class="details-section" open>
+            <summary class="details-header">
+                <span>Details</span><i class="feather icon-chevron-up"></i>
+            </summary>
+            <div class="details-content">
+                <div class="info-row inline"><label><i class="feather icon-map-pin"></i> Location</label><div class="info-value">{{ selectedConversation.personDetails.location || '-' }}</div></div>
+                <div class="info-row inline"><label><i class="feather icon-globe"></i> Country</label><div class="info-value">{{ selectedConversation.personDetails.country || '-' }}</div></div>
+                <div class="info-row inline"><label><i class="feather icon-crosshair"></i> IP Address</label><div class="info-value">{{ selectedConversation.personDetails.ipAddress || '-' }}</div></div>
+                <div class="info-row inline"><label><i class="feather icon-mail"></i> Email</label><div class="info-value">{{ selectedConversation.personDetails.email || '-' }}</div></div>
+                <div class="info-row inline"><label><i class="feather icon-phone"></i> Phone number</label><div class="info-value">{{ selectedConversation.personDetails.phoneNumber || '-' }}</div></div>
+                <div class="info-row inline"><label><i class="feather icon-hash"></i> Personal ID</label><div class="info-value">{{ selectedConversation.personDetails.personalId || '-' }}</div></div>
+                <div class="info-row inline"><label><i class="feather icon-hash"></i> Channel ID</label><div class="info-value">{{ selectedConversation.personDetails.channelId || '-' }}</div></div>
+                <div class="info-row inline"><label><i class="feather icon-hash"></i> Unique ID</label><div class="info-value">{{ selectedConversation.personDetails.uniqueId || '-' }}</div></div>
+            </div>
+        </details>
+
+        <!-- Other Person Sections -->
+        <details class="details-section">
+            <summary class="details-header"><span>Custom Fields</span><i class="feather icon-chevron-up"></i></summary>
+            <div class="details-content placeholder-text">Create a custom field to get started</div>
+        </details>
+        <details class="details-section">
+            <summary class="details-header"><span>Notes</span><button class="btn-icon-plus">+</button></summary>
+            <div class="details-content placeholder-text">Create the first note</div>
+        </details>
+        <details class="details-section">
+            <summary class="details-header"><span>Tags</span><button class="btn-icon-plus">+</button></summary>
+            <div class="details-content placeholder-text">Select a tag or tag group</div>
+        </details>
+        <details class="details-section">
+            <summary class="details-header"><span>History</span><i class="feather icon-chevron-down"></i></summary>
+            <div class="details-content"></div>
+        </details>
+    </div>
   </div>
+
 </div>
