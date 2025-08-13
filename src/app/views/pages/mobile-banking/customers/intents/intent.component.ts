@@ -1912,26 +1912,37 @@ private resetTriggerForm(): void {
   this.editingName = false;
 }
 
-launchBot(intentId: number) {
+launchBot() {
   this.isLaunching = true;
   this.launchMessage = 'Preparing bot launch...';
 
-  if (!intentId) {
+  const chatbotId = this.globalService.getChatbotId();
+
+  // if (!chatbotId) {
+  //   Swal.fire('Error', 'Error: No ChatbotId specified', 'error');
+  //   return;
+  // }
+
+  if (!chatbotId) {
     this.isLaunching = false;
-    this.launchMessage = 'Error: No intent specified';
+    this.launchMessage = 'Error: No ChatbotId specified';
     return;
   }
-  const branches = this.getBranchesFromCombinedItems(intentId);
-  const payload = { root_intent_id: intentId, branches };
+
+  // const branches = this.getBranchesFromCombinedItems(intentId);
+  // const payload = { root_intent_id: intentId, branches };
+
+  const payload = { chatbot_id: chatbotId };
+  console.log("ChatBot ID Launched", chatbotId)
   
-  this._httpService.mobileBankingPost('builder/flows/from-tree', payload).subscribe({
+  this._httpService.mobileBankingPost('builder/chatbots/initialize', payload).subscribe({
       next: (result: any) => {
         this.isLaunching = false;
         if (result.status === '00') {
           this.launchMessage = 'Bot launched successfully!';
-          Swal.fire('ChatBot', 'Chatbot Launched Successfully, Test Now!!', 'success');
+          Swal.fire('ChatBot',  'Chatbot Launched Successfully !!!!, Test Now!!', 'success');
         } else {
-          this.launchMessage = result.message || 'Failed to Launch Bot';
+          this.launchMessage = 'Failed to Launch Bot';
           Swal.fire('Error', this.launchMessage, 'error');
         }
       },
