@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, ElementRef, Input, OnInit, SecurityContext, ViewChild} from '@angular/core';
 import {AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {HttpService} from 'src/app/shared/services/http.service';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
@@ -89,7 +89,9 @@ interface FileSizeMap {
 
 type FileFormat = 'image' | 'document' | 'video' | 'audio';
 type FileSource = 'upload' | 'link' | 'chat_script';
- 
+const SUPPORTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif'];
+const SUPPORTED_VIDEO_TYPES = ['video/mp4', 'video/webm'];
+
 @Component({
     selector: 'app-intent',
     templateUrl: './intent.component.html',
@@ -181,6 +183,7 @@ export class IntentComponent implements OnInit {
     isHovering = false;
 
 
+
 constructor(
         private sanitizer: DomSanitizer,
         private cdRef: ChangeDetectorRef,
@@ -230,6 +233,7 @@ ngOnInit() {
             language: [''], 
         });
     }
+    
 surveyCompleted = false;
 triggerTypes = [
   { 
@@ -269,8 +273,6 @@ calculateIndentLevel(item: any): number {
   const parent = this.combinedItems.find(i => i.id === item.parent_id);
   return parent ? this.calculateIndentLevel(parent) + 1 : 0;
 }
-
-
 
 fileTypeInfo: FileTypeInfoMap = {
   image: {
@@ -502,20 +504,7 @@ private markFormGroupTouched(formGroup: FormGroup) {
   });
 }
 
-onCarouselItemFileSelected(event: Event, index: number): void {
-  const input = event.target as HTMLInputElement;
-  if (input.files?.length) {
-    // Clean up previous blob URL if exists
-    if (this.filePreviews[index]) {
-      URL.revokeObjectURL(this.filePreviews[index] as any);
-    }
-    
-    const file = input.files[0];
-    this.carouselItemFiles[index] = file;
-    this.filePreviews[index] = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(file));
-    this.cdRef.detectChanges();
-  }
-}
+
 
 removeCarouselItemFile(index: number): void {
   // Clean up blob URL
@@ -548,16 +537,15 @@ initCarouselForm(): void {
   });
 }
 
-// Add carousel item
-addCarouselItem(): void {
-  const itemGroup = this.fb.group({
-    title: ['', Validators.required],
+// carousel item
+addCarouselItem() {
+  this.carouselItems.push(this.fb.group({
+    title: [''],
     description: [''],
-    item_type: ['image']
-  });
-  this.carouselItems.push(itemGroup);
+    item_type: ['image'],
+    action_url: ['', Validators.pattern('https?://.+')]
+  }));
 }
-
 
 
 // Remove carousel item
@@ -1052,7 +1040,8 @@ openActionForm(action: any): void {
           const itemGroup = this.fb.group({
             title: [item.title || '', Validators.required],
             description: [item.description || ''],
-            item_type: [item.item_type || 'image']
+            item_type: [item.item_type || 'image'],
+            action_url: [item.action_url || '', Validators.pattern('https?://.+')]
           });
           this.carouselItems.push(itemGroup);
           
@@ -1726,52 +1715,131 @@ private getFileType(format: string): string {
   }
 }
 
-// Handle carousel action submission
-private handleCarouselAction(intentId: number, parent_id: number, order: number): void {
-  // Validate that at least one file is uploaded for image/video items
-  const hasEmptyFiles = this.carouselItems.controls.some((item, index) => {
-    const itemType = item.get('item_type')?.value;
-    return (itemType === 'image' || itemType === 'video') && !this.carouselItemFiles[index];
-  });
+onCarouselItemFileSelected(event: Event, index: number): void {
+  const input = event.target as HTMLInputElement;
+  if (!input.files?.length) return;
 
-  if (hasEmptyFiles) {
-    Swal.fire('Error', "Please upload files for all image/video items", 'error');
+  const file = input.files[0];
+  const itemType = this.carouselItems.at(index).get('item_type')?.value;
+
+  if (itemType === 'image' && !file.type.startsWith('image/')) {
+     Swal.fire('Error', 'Please select an image file', 'error');
     return;
   }
 
+  if (itemType === 'video' && !file.type.startsWith('video/')) {
+     Swal.fire('Error', 'Please select a video file', 'error');
+    return;
+  }
+
+  // Validate file size
+  const maxSize = itemType === 'video' ? 50 * 1024 * 1024 : 5 * 1024 * 1024;
+  if (file.size > maxSize) {
+     Swal.fire('Error', `File too large. Max ${maxSize/1024/1024}MB allowed`, 'error');
+    return;
+  }
+
+  this.cleanupFileResources(index);
+
+  this.carouselItemFiles[index] = file;
+  this.filePreviews[index] = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(file));
+  
+  // Update form validity
+  this.carouselItems.at(index).markAsDirty();
+  this.cdRef.detectChanges();
+}
+
+private cleanupFileResources(index: number): void {
+  // Revoke previous object URL
+  if (this.filePreviews[index]) {
+    const unsafeUrl = this.sanitizer.sanitize(
+      SecurityContext.RESOURCE_URL, 
+      this.filePreviews[index]
+    );
+    if (unsafeUrl) URL.revokeObjectURL(unsafeUrl);
+  }
+  
+  delete this.carouselItemFiles[index];
+  delete this.filePreviews[index];
+}
+
+private handleCarouselAction(intentId: number, parent_id: number, order: number): void {
+  // Validate form before submission
+  if (this.actionForm.invalid) {
+    this.markFormGroupTouched(this.actionForm);
+    Swal.fire('Error', 'Please fill all required fields correctly', 'error');
+    return;
+  }
+
+  // Enhanced file validation
+  const invalidItems = this.carouselItems.controls
+    .map((item, index) => ({ item, index }))
+    .filter(({ item, index }) => {
+      const itemType = item.get('item_type')?.value;
+      const requiresFile = ['image', 'video'].includes(itemType);
+      return requiresFile && !this.carouselItemFiles[index];
+    });
+
+  if (invalidItems.length > 0) {
+    const itemNumbers = invalidItems.map(({ index }) => index + 1).join(', ');
+    Swal.fire('Error', `Please upload files for items: ${itemNumbers}`, 'error');
+    return;
+  }
+
+  //FormData
   const formData = new FormData();
   
-  // Add basic fields
-  formData.append('name', this.actionForm.value.name);
+  // basic fields with validation
+  this.appendFormDataField(formData, 'name', this.actionForm.value.name);
   formData.append('action_type', 'carousel');
   formData.append('intent_id', intentId.toString());
   formData.append('parent_id', parent_id.toString());
   formData.append('order', order.toString());
   
-  // Build config object
+  // Build config object with default styles
   const config = {
-    display_type: this.actionForm.value.display_type,
-    auto_advance: this.actionForm.value.auto_advance,
-    advance_interval: this.actionForm.value.advance_interval,
+    display_type: this.actionForm.value.display_type || 'slider',
+    auto_advance: Boolean(this.actionForm.value.auto_advance),
+    advance_interval: Math.min(Math.max(this.actionForm.value.advance_interval || 5, 1), 60),
+    intent_id: intentId,
+    name:  this.actionForm.value.name,
     style: {
       card_width: "300px",
       max_height: "400px",
       show_indicators: true,
-      show_controls: true
+      show_controls: true,
+      // // Added responsive settings
+      // responsive: {
+      //   mobile: { card_width: "250px", max_height: "350px" },
+      //   tablet: { card_width: "275px", max_height: "375px" }
+      // }
     },
     items: this.carouselItems.value.map((item: any, index: number) => ({
-      title: item.title,
-      description: item.description,
-      item_type: item.item_type,
-      file_name: this.carouselItemFiles[index]?.name || ''
+      title: item.title || `Item ${index + 1}`,
+      description: item.description || '',
+      item_type: item.item_type || 'image',
+      file_name: this.carouselItemFiles[index]?.name || '',
+      // Add action URL if exists
+      ...(item.action_url ? { action_url: item.action_url } : {})
     }))
   };
   
-  formData.append('config', JSON.stringify(config));
+  // Safely stringify config
+  try {
+    formData.append('config', JSON.stringify(config));
+  } catch (error) {
+    console.error('Error stringifying config:', error);
+    Swal.fire('Error', 'Failed to prepare carousel configuration', 'error');
+    return;
+  }
 
-  // Add files
+  // Add files with better naming convention
   Object.entries(this.carouselItemFiles).forEach(([index, file]) => {
-    formData.append('files', file, `item_${index}_${file.name}`);
+    if (file) {
+      const safeIndex = index.padStart(3, '0'); // 001, 002, etc.
+      const extension = file.name.split('.').pop() || '';
+      formData.append('files', file, `item_${safeIndex}.${extension}`);
+    }
   });
 
   // Submit to multipart endpoint
@@ -1779,6 +1847,13 @@ private handleCarouselAction(intentId: number, parent_id: number, order: number)
     next: (result: any) => this.handleActionResponse(result),
     error: (err: any) => this.handleActionError(err)
   });
+}
+
+
+private appendFormDataField(formData: FormData, key: string, value: any): void {
+  if (value !== null && value !== undefined) {
+    formData.append(key, value);
+  }
 }
 
 private submitAction(model: any): void {
@@ -1790,8 +1865,10 @@ private submitAction(model: any): void {
 }
 
 private handleActionResponse(result: any): void {
+ 
   if (result.status === '00') {
     setTimeout(() => {
+      Swal.close();  // When your API call completes
       this.result = result.data;
       this.fetchNestedIntents(this.intentId);
       this.checkAndCombine();
@@ -1801,6 +1878,7 @@ private handleActionResponse(result: any): void {
       this.resetSurveyForm()
     }, 100);
   } else {
+    Swal.close();  
     Swal.fire({
       icon: 'warning',
       title: 'Unexpected Response',
@@ -2167,4 +2245,6 @@ ngOnDestroy() {
     URL.revokeObjectURL(url as any);
   });
 }
+
+
 }
