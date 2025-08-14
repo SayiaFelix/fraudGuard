@@ -703,7 +703,21 @@
                         <option value="card">Card</option>
                       </select>
                     </div>
-                    
+
+                    <div class="mb-2">
+                      <label class="form-label fw-bold">Action URL</label>
+                      <input type="url" 
+                            formControlName="action_url" 
+                            class="form-control" 
+                            placeholder="https://example.com"
+                            pattern="https?://.+">
+                      <small class="text-muted">URL to open when this item is clicked (optional)</small>
+                    </div>
+                    <div *ngIf="item.get('action_url')?.invalid && (item.get('action_url')?.dirty || item.get('action_url')?.touched)"
+                        class="text-danger small">
+                      Please enter a valid URL (must start with http:// or https://)
+                    </div>
+                                        
                     <!-- Improved Media Upload Section -->
                     <div class="mb-3">
                       <label class="form-label fw-bold">Media</label>
@@ -716,7 +730,7 @@
                         
                         <!-- Upload area -->
                         <div *ngIf="!carouselItemFiles[i]" class="text-center">
-                          <i class="feather icon-upload-cloud fs-3 text-muted mb-2"></i>
+                          <i class="feather icon-upload-cloud upload-btn mb-2"></i>
                           <p class="text-muted mb-2">Drag & drop or click to upload</p>
                           <button type="button" class="btn btn-outline-success btn-sm"
                                   (click)="itemFile.click()">
@@ -761,6 +775,8 @@
                         </div>
                       </div>
                     </div>
+
+                    
                   </div>
                 </div>
                 
