@@ -12,8 +12,11 @@
       <!-- Main Content Card -->
       <div class="card main-content-card">
         <div class="page-header">
-    <h2 class="page-title">Tickets</h2>
-  </div>
+          <h2 class="page-title">Tickets</h2>
+          <p class="page-description">
+            Track, manage, and resolve customer support tickets. Use the filters to find specific tickets and the button below to create new ones.
+          </p>
+        </div>
         <div class="controls-wrapper">
           <div class="search-bar">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>
@@ -114,34 +117,100 @@
       <div class="sidebar-container">
         <!-- Sidebar Header -->
         <div class="sidebar-header">
-          <div class="header-title">
-            <span>Tickets</span>
+          <div class="sidebar-title">
+            <i class="feather icon-message-square"></i>
+            <span>Ticket</span>
           </div>
           <div class="header-actions">
-            <button class="btn btn-dark btn-sm">Go to ticket</button>
-            <button class="btn-icon" (click)="closeDetailsSidebar()">
-               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16"><path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/></svg>
+            <button class="btn-dark-solid">Go to Ticket</button>
+            <button class="btn-icon-close" (click)="closeDetailsSidebar()">
+              <i class="feather icon-x"></i>
             </button>
           </div>
         </div>
+    
         <!-- Sidebar Body -->
         <div class="sidebar-body" *ngIf="selectedTicket">
-          <!-- Main Info Section -->
-          <div class="info-block"><label>Subject</label><div class="value">{{ selectedTicket.Subject }}</div></div>
-          <div class="info-block"><label>Assignee</label><div class="value assignee-cell"><div class="assignee-initials">{{ selectedTicket.assigneeInitials }}</div><span>{{ selectedTicket.assigneeFullName }}</span></div></div>
-          <div class="info-block"><label>Assigned Teams</label><div class="value">{{ selectedTicket.AssignedTeams }}</div></div>
-          <div class="info-block"><label>Person</label><div class="value assignee-cell"><div class="assignee-initials">C</div><span>{{ selectedTicket.Person }}</span></div></div>
-          <!-- Details Section -->
-          <div class="details-section">
-            <div class="details-header"><span>^</span><strong>Details</strong></div>
-            <div class="details-content">
-              <div class="details-row"><label>Ticket ID</label><div class="value">01JMW0P9...</div></div>
-              <div class="details-row"><label>Short ID</label><div class="value">{{ selectedTicket.ShortID }}</div></div>
-              <div class="details-row"><label>Created by</label><div class="value">...</div></div>
-              <div class="details-row"><label>Description</label><div class="value">Trying to test tickets</div></div>
-              <div class="details-row"><label>Status</label><div class="value"><span class="status-badge" [ngClass]="'status-' + selectedTicket.Status.toLowerCase().replace(' ', '-')">{{ selectedTicket.Status }}</span></div></div>
+          
+          <!-- General Info Section -->
+          <div class="info-section">
+            <div class="info-row">
+              <div class="info-label"><i class="feather icon-user"></i> Assignee</div>
+              <div class="info-value">{{ selectedTicket.assigneeFullName || '-' }}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label"><i class="feather icon-users"></i> Assigned Teams</div>
+              <div class="info-value">{{ selectedTicket.AssignedTeams || '-' }}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label"><i class="feather icon-user-check"></i> Person</div>
+              <div class="info-value person-value">
+                <i class="feather icon-user"></i>
+                <span>{{ selectedTicket.Person || 'Unknown' }}</span>
+              </div>
             </div>
           </div>
+    
+          <!-- Details Section (Collapsible) -->
+          <details class="collapsible-section" open>
+            <summary class="collapsible-header">
+              <i class="feather icon-chevron-down"></i>
+              <span>Details</span>
+            </summary>
+            <div class="collapsible-content">
+              <div class="info-row">
+                <div class="info-label"><i class="feather icon-hash"></i> Livechat ID</div>
+                <div class="info-value">{{ selectedTicket.ShortID || '-' }}</div>
+              </div>
+              <div class="info-row">
+                <div class="info-label"><i class="feather icon-message-circle"></i> Channel</div>
+                <div class="info-value channel-value">
+                    <i class="feather icon-message-square"></i>
+                    <span>Test</span>
+                </div>
+              </div>
+              <div class="info-row">
+                <div class="info-label"><i class="feather icon-align-left"></i> Description</div>
+                <div class="info-value">{{ selectedTicket.Subject || '-' }}</div>
+              </div>
+              <div class="info-row">
+                <div class="info-label"><i class="feather icon-loader"></i> Status</div>
+                <div class="info-value">
+                  <span class="status-badge" [ngClass]="'status-' + selectedTicket.Status.toLowerCase().replace(' ', '-')">{{ selectedTicket.Status }}</span>
+                </div>
+              </div>
+              <div class="info-row">
+                <div class="info-label"><i class="feather icon-clock"></i> Created</div>
+                <div class="info-value">05 Aug 2025 01:14 PM</div>
+              </div>
+               <div class="info-row">
+                <div class="info-label"><i class="feather icon-star"></i> Rating</div>
+                <div class="info-value">-</div>
+              </div>
+            </div>
+          </details>
+          
+          <!-- Other Collapsible Sections -->
+          <details class="collapsible-section">
+            <summary class="collapsible-header">
+                <i class="feather icon-chevron-down"></i>
+                <span>Custom Fields</span>
+            </summary>
+          </details>
+           <details class="collapsible-section">
+            <summary class="collapsible-header">
+                <i class="feather icon-chevron-down"></i>
+                <span>Notes</span>
+                <i class="feather icon-plus"></i>
+            </summary>
+          </details>
+           <details class="collapsible-section">
+            <summary class="collapsible-header">
+                <i class="feather icon-chevron-down"></i>
+                <span>Tags</span>
+                <i class="feather icon-plus"></i>
+            </summary>
+          </details>
         </div>
       </div>
     </ng-container>
