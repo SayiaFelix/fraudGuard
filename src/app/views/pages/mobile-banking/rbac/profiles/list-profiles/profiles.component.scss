@@ -17,17 +17,25 @@
   font-size: 2rem;
   font-weight: 700;
   color: #212529;
+  margin: 0 0 8px 0;
   
+}
+
+.page-description {
+  font-size: 14px;
+  color: #6c757d;
+  line-height: 1.5;
+  max-width: 800px; 
 }
 
 .main-view-wrapper {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 0rem;
+  gap: 1.5rem; // Added a gap for spacing
   transition: grid-template-columns 0.35s ease-in-out;
 
   &.sidebar-open {
-    grid-template-columns: 1fr 450px;
+    grid-template-columns: 1fr 400px; // Adjusted sidebar width
   }
 }
 
@@ -356,85 +364,147 @@ details[open] > .filter-item {
     &.active { background-color: #0d6efd; color: #fff; }
   }
 }
+
+// ============== NEW SIDEBAR STYLES ==============
 .sidebar-container {
   width: 100%;
-  height: calc(100vh - 12rem);
+  height: auto;
   background-color: #fff;
   border: 1px solid #e9ecef;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
   display: flex;
   flex-direction: column;
 }
+
 .sidebar-header {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 0.75rem 1.5rem; border-bottom: 1px solid #e9ecef; flex-shrink: 0;
-  .header-title { font-weight: 600; font-size: 1.1rem; }
-  .header-actions { display: flex; align-items: center; gap: 0.75rem; }
-  .btn-dark.btn-sm {
-    padding: 0.4rem 0.8rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+  flex-shrink: 0;
+
+  .sidebar-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #212529;
+    i { font-size: 1.25rem; }
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .btn-dark-solid {
+    padding: 0.5rem 1rem;
     background-color: #212529;
     color: #fff;
     border-radius: 6px;
     border: none;
     font-weight: 500;
+    font-size: 0.9rem;
     cursor: pointer;
+    transition: background-color 0.2s;
+    &:hover { background-color: #343a40; }
   }
-  .btn-icon { background: none; border: none; padding: 0.5rem; line-height: 1; cursor: pointer; color: #6c757d; font-size: 1.2rem;}
+  
+  .btn-icon-close {
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    line-height: 1;
+    cursor: pointer;
+    color: #6c757d;
+    font-size: 1.2rem;
+    &:hover { color: #212529; }
+  }
 }
+
 .sidebar-body {
   padding: 1.5rem;
   overflow-y: auto;
   flex-grow: 1;
 }
-.info-block {
-  margin-bottom: 1.75rem;
-  label {
-    display: block;
-    color: #6c757d;
-    font-size: 0.85rem;
-    margin-bottom: 0.5rem;
+
+.info-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+
+  .info-label {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    color: #495057;
+    i { font-size: 1rem; color: #6c757d; }
   }
-  .value {
-    font-weight: 600;
-    font-size: 0.95rem;
+  
+  .info-value {
     color: #212529;
-  }
-}
-.details-section {
-  border-top: 1px solid #e9ecef;
-  padding-top: 1.5rem;
-}
-.details-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-  strong {
-    font-size: 1rem;
-    font-weight: 600;
-  }
-  span {
-    font-weight: 600;
-  }
-}
-.details-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 0;
-  border-top: 1px solid #f1f3f5;
-  &:first-child {
-    border-top: none;
-    padding-top: 0;
-  }
-  label {
-    color: #6c757d;
-    font-size: 0.9rem;
-  }
-  .value {
     font-weight: 500;
+  }
+
+  .person-value, .channel-value {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    i { color: #adb5bd; }
+  }
+}
+
+.collapsible-section {
+  border-bottom: 1px solid #e9ecef;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  .collapsible-header {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 1.25rem 0;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
     color: #212529;
-    font-size: 0.9rem;
+    list-style: none; // Remove default marker
+
+    &::-webkit-details-marker { display: none; } // Hide marker in Webkit
+
+    i.icon-chevron-down {
+      transition: transform 0.2s ease-in-out;
+    }
+
+    i.icon-plus {
+        margin-left: auto;
+        color: #6c757d;
+    }
+  }
+
+  &[open] > .collapsible-header i.icon-chevron-down {
+    transform: rotate(-180deg);
+  }
+
+  .collapsible-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding-bottom: 1.5rem;
   }
 }
