@@ -105,7 +105,10 @@
   color: green;
   border-color: green;
 }
-
+.file-hover {
+  background-color: rgba(0, 123, 255, 0.1) !important;
+  border-color: #0d6efd !important;
+}
 
 /* Header Styles */
 .info-header {
@@ -257,10 +260,6 @@ input:checked + .slider:before {
   transition: all 0.3s;
 }
 
-.file-hover {
-  border-color: #007bff;
-  background-color: rgba(0, 123, 255, 0.05);
-}
 
 .upload-content {
   margin-bottom: 1rem;

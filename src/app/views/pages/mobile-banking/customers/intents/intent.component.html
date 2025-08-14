@@ -583,7 +583,7 @@
                   
                   <div class="upload-content">
                     <div class="mb-2">
-                      <i class="upload-icon mdi mdi-cloud-upload fs-1 text-primary"></i>
+                      <i class="upload-icon mdi mdi-cloud-upload fs-1 text-success"></i>
                     </div>
                     
                     <!-- Dynamic Instructions -->
@@ -612,18 +612,27 @@
                       </div>
                     </div>
 
-                    <button type="button" (click)="triggerFileInput()" class="btn btn-outline-primary btn-sm">
-                      Browse Files
+                    <button  *ngIf="!uploadedFile" type="button" (click)="triggerFileInput()" class="btn btn-outline-success btn-sm">
+                         <i class="feather icon-upload me-1"></i>  Browse Files
                     </button>
                     <input type="file" #fileUpload style="display: none" (change)="onFileSelected($event)" [accept]="getFileAcceptTypes()">
                   </div>
 
                   <div *ngIf="uploadedFile" class="mt-2">
                     <span class="badge bg-success">{{ uploadedFile.name }}</span>
-                    <button type="button" class="btn btn-sm btn-outline-danger ms-2 mt-1" (click)="removeUploadedFile()">
-                      <i class="feather icon-trash-2"></i>
-                    </button>
+                     <div class="d-flex gap-2 justify-content-center">
+                        <button type="button" class="btn btn-outline-secondary btn-sm mt-1"
+                                    (click)="triggerFileInput()">
+                          <i class="feather icon-edit"></i>
+                      </button>
+                        <button type="button" class="btn btn-sm btn-outline-danger ms-2 mt-1" (click)="removeUploadedFile()">
+                          <i class="feather icon-trash-2"></i>
+                        </button>
+
+                     </div>
+                 
                   </div>
+
                 </div>
               </div>
 
@@ -722,46 +731,39 @@
                     <div class="mb-3">
                       <label class="form-label fw-bold">Media</label>
                       <div class="d-flex flex-column align-items-center border rounded p-3 bg-light" 
-                          style="border-style: dashed;">
+                          style="border-style: dashed;"
+                          (drop)="onCarouselItemFileDropped($event, i)"
+                          (dragover)="onDragOver($event)"
+                          (dragleave)="onDragLeave($event)">
                         
                         <input type="file" #itemFile style="display: none" 
                               (change)="onCarouselItemFileSelected($event, i)"
                               accept="image/*,video/*">
-                        
+
                         <!-- Upload area -->
                         <div *ngIf="!carouselItemFiles[i]" class="text-center">
                           <i class="feather icon-upload-cloud upload-btn mb-2"></i>
-                          <p class="text-muted mb-2">Drag & drop or click to upload</p>
+                          <p class="text-dark mb-2">Drag & drop or click to upload</p>
                           <button type="button" class="btn btn-outline-success btn-sm"
                                   (click)="itemFile.click()">
                             <i class="feather icon-upload me-1"></i> Select File
                           </button>
                         </div>
-                        
+
                         <!-- Uploaded file preview -->
                         <div *ngIf="carouselItemFiles[i]" class="text-center">
-                          <!-- Image preview -->
                           <div *ngIf="isImageFile(carouselItemFiles[i])" class="mb-2">
-                            <img [src]="filePreviews[i]" 
-                                class="img-thumbnail" 
-                                style="max-height: 120px; max-width: 200px;">
+                            <img [src]="filePreviews[i]" class="img-thumbnail" style="max-height: 120px; max-width: 200px;">
                           </div>
-                          
-                          <!-- Video preview -->
                           <div *ngIf="isVideoFile(carouselItemFiles[i])" class="mb-2">
                             <video controls style="max-height: 120px; max-width: 200px;">
-                              <source [src]="filePreviews[i]" 
-                                      [type]="carouselItemFiles[i].type">
+                              <source [src]="filePreviews[i]" [type]="carouselItemFiles[i].type">
                             </video>
                           </div>
-                          
-                          <!-- File info -->
                           <div class="d-flex align-items-center justify-content-center mb-2">
                             <i class="feather icon-file-text me-2"></i>
-                            <span class="text-truncate" style="max-width: 200px;">{{ carouselItemFiles[i].name }}</span>
+                            <span class="text-truncate badge bg-success" style="max-width: 200px;">{{ carouselItemFiles[i].name }}</span>
                           </div>
-                          
-                          <!-- Action buttons -->
                           <div class="d-flex gap-2 justify-content-center">
                             <button type="button" class="btn btn-outline-secondary btn-sm"
                                     (click)="itemFile.click()">
@@ -1017,10 +1019,11 @@
                 </select>
               </div> -->
 
+      
               <div class="mb-3">
                 <label class="form-label fw-bold">Target Trigger</label>
                 <input type="text"
-                      formControlName="target_trigger"
+                      formControlName="target"
                       class="form-control"
                       placeholder="Enter target trigger ID or name" />
               </div>

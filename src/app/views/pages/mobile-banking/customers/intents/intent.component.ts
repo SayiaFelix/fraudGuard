@@ -67,8 +67,8 @@ interface ActionModel {
 
 interface FileTypeInfo {
   accept: string;
-  types: string;
-  maxSize: string;
+  types: string[];  // Changed from string to string[]
+  maxSize: number;  // Changed from string to number
 }
 
 interface FileTypeInfoMap {
@@ -76,7 +76,7 @@ interface FileTypeInfoMap {
   document: FileTypeInfo;
   video: FileTypeInfo;
   audio: FileTypeInfo;
-  [key: string]: FileTypeInfo; // Index signature for dynamic access
+  [key: string]: FileTypeInfo;
 }
 
 interface FileSizeMap {
@@ -277,23 +277,23 @@ calculateIndentLevel(item: any): number {
 fileTypeInfo: FileTypeInfoMap = {
   image: {
     accept: 'image/*',
-    types: 'JPG/JPEG, PNG, GIF',
-    maxSize: '20MB'
+    types: ['JPG', 'JPEG', 'PNG', 'GIF'],
+    maxSize: 20 * 1024 * 1024
   },
   document: {
     accept: '.pdf,.doc,.docx,.xls,.xlsx',
-    types: 'PDF, DOC, DOCX, XLS, XLSX',
-    maxSize: '50MB'
+    types: ['PDF', 'DOC', 'DOCX', 'XLS', 'XLSX'],
+    maxSize: 50 * 1024 * 1024
   },
   video: {
     accept: 'video/*,.mp4,.mov,.avi',
-    types: 'MP4, MOV, AVI',
-    maxSize: '100MB'
+    types: ['MP4', 'MOV', 'AVI'],
+    maxSize: 100 * 1024 * 1024
   },
   audio: {
     accept: 'audio/*,.mp3,.wav,.aac',
-    types: 'MP3, WAV, AAC',
-    maxSize: '50MB'
+    types: ['MP3', 'WAV', 'AAC'],
+    maxSize: 50 * 1024 * 1024
   }
 };
 
@@ -310,30 +310,11 @@ getFileAcceptTypes(): string {
   return this.fileTypeInfo[format]?.accept || '';
 }
 
-getMaxFileSize(format: keyof FileSizeMap): number {
-  return this.sizeMap[format] || 20 * 1024 * 1024; // Default to 20MB
-}
-
-
-onFileHovered(isHovering: boolean): void {
-  this.isHovering = isHovering;
-}
-
 triggerFileInput(): void {
   if (this.fileInput?.nativeElement) {
     this.fileInput.nativeElement.click();
   } else {
     console.error('File input element not found');
-  }
-}
-
-onFileDropped(event: any): void {
-  const dragEvent = event as DragEvent;
-  dragEvent.preventDefault();
-  dragEvent.stopPropagation();
-  
-  if (dragEvent.dataTransfer?.files && dragEvent.dataTransfer.files.length > 0) {
-    this.uploadedFile = dragEvent.dataTransfer.files[0];
   }
 }
 
@@ -535,6 +516,57 @@ initCarouselForm(): void {
     advance_interval: [5, [Validators.min(1), Validators.max(60)]],
     items: this.carouselItems
   });
+}
+
+onFileHovered(isHovering: boolean): void {
+  this.isHovering = isHovering;
+}
+
+// Add these methods to your component class
+private getAcceptTypes(): string[] {
+  const format = this.actionForm.value.file_format;
+  return this.getFileTypeInfo(format).types;
+}
+
+private getMaxFileSize(): number {
+  const format = this.actionForm.value.file_format;
+  return this.getFileTypeInfo(format).maxSize;
+}
+
+private getFileTypeInfo(format: string): FileTypeInfo {
+  const fileTypeMap: FileTypeInfoMap = {
+    image: {
+      maxSize: 20 * 1024 * 1024, // 20MB
+      types: ['image/jpeg', 'image/png', 'image/gif'],
+      accept: 'image/jpeg,image/png,image/gif'
+    },
+    document: {
+      maxSize: 50 * 1024 * 1024, // 50MB
+      types: [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      ],
+      accept: '.pdf,.doc,.docx'
+    },
+    video: {
+      maxSize: 100 * 1024 * 1024, // 100MB
+      types: ['video/mp4', 'video/quicktime', 'video/x-msvideo'],
+      accept: 'video/mp4,video/quicktime,video/x-msvideo'
+    },
+    audio: {
+      maxSize: 50 * 1024 * 1024, // 50MB
+      types: ['audio/mpeg', 'audio/wav', 'audio/aac'],
+      accept: 'audio/mpeg,audio/wav,audio/aac'
+    }
+  };
+
+  // Always return all required properties
+  return fileTypeMap[format as keyof FileTypeInfoMap] || {
+    maxSize: 10 * 1024 * 1024, // Default 10MB
+    types: [],
+    accept: '*/*'
+  };
 }
 
 // carousel item
@@ -784,13 +816,61 @@ private processApiTriggers(trigger: any, parentId: number): TriggerItem {
   };
 }
 
+onFileDropped(files: FileList): void {
+  if (files.length > 0) {
+    const file = files[0];
+
+    // Validate file type
+    const allowedTypes = this.getAcceptTypes();
+    if (allowedTypes.length > 0 && !allowedTypes.includes(file.type)) {
+      Swal.fire('Error', `Invalid file type. Supported types: ${allowedTypes.join(', ')}`, 'error');
+      return;
+    }
+
+    // Validate file size
+    const maxSize = this.getMaxFileSize();
+    if (file.size > maxSize) {
+      Swal.fire('Error', `File too large. Max ${maxSize / 1024 / 1024}MB allowed`, 'error');
+      return;
+    }
+
+    this.handleUploadedFile(file);
+  }
+}
+
+private handleUploadedFile(file: File): void {
+  // Store the file for submission
+  this.uploadedFile = file;
+
+  // Reset preview
+  this.filePreviews = '';
+
+  // Generate preview for images & videos
+  if (file.type.startsWith('image/') || file.type.startsWith('video/')) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.filePreviews = e.target?.result as string;
+      this.cdRef.detectChanges();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // ✅ Ensure form is set to "upload" mode
+  this.actionForm.patchValue({
+    source: 'upload',
+    file_url: file.name
+  });
+
+  this.actionForm.updateValueAndValidity();
+}
+
 onFileSelected(event: Event): void {
   const input = event.target as HTMLInputElement;
   if (input.files?.length) {
     const file = input.files[0];
     const format = this.actionForm.value.file_format as keyof FileTypeInfoMap;
     
-    if (file.size > this.getMaxFileSize(format)) {
+    if (file.size > this.getMaxFileSize()) {
       this._toastService.error(
         `File exceeds maximum size of ${this.fileTypeInfo[format].maxSize}`, 
         'Error'
@@ -802,6 +882,56 @@ onFileSelected(event: Event): void {
     this.uploadedFile = file;
   }
 }
+
+onDragOver(event: DragEvent): void {
+  event.preventDefault();
+}
+
+onDragLeave(event: DragEvent): void {
+  event.preventDefault();
+}
+
+onCarouselItemFileDropped(event: DragEvent, index: number): void {
+  event.preventDefault();
+  if (!event.dataTransfer?.files || event.dataTransfer.files.length === 0) return;
+
+  const file = event.dataTransfer.files[0];
+
+  // Validate type
+  if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
+    Swal.fire('Error', 'Invalid file type. Only images or videos are allowed.', 'error');
+    return;
+  }
+
+  // Optional size check
+  const maxSize = 5 * 1024 * 1024; // 5MB example
+  if (file.size > maxSize) {
+    Swal.fire('Error', `File too large. Max ${maxSize / 1024 / 1024}MB allowed.`, 'error');
+    return;
+  }
+
+  this.handleCarouselItemUploadedFile(file, index);
+}
+
+handleCarouselItemUploadedFile(file: File, index: number): void {
+  this.carouselItemFiles[index] = file;
+
+  if (file.type.startsWith('image/') || file.type.startsWith('video/')) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.filePreviews[index] = e.target?.result as string;
+      this.cdRef.detectChanges();
+    };
+    reader.readAsDataURL(file);
+  } else {
+    this.filePreviews[index] = '';
+  }
+
+  // Update the form control
+  const itemsArray = this.actionForm.get('items') as FormArray;
+  itemsArray.at(index).patchValue({ media_url: file.name });
+}
+
 
 private transformAction(action: any, parentId: number): ActionItem {
   return {
@@ -1097,27 +1227,18 @@ openActionForm(action: any): void {
         action: ['', Validators.required]
       });
       break;
-    
-   case 'Jump_to_Trigger':
+
+    case 'Jump_to_Trigger':
       this.actionForm = this.fb.group({
         name: [action.name || '', Validators.required],
         action_type: ['Jump_to_Trigger', Validators.required],
-        target_trigger: [action.config?.target || '', Validators.required],
-
-        // Nested form group for condition
+        target: [action.config?.target || '', Validators.required], // Changed from target_trigger to target
         condition: this.fb.group({
           expression: [action.config?.condition?.expression || ''],
           negate: [action.config?.condition?.negate || false]
         }),
-
-        // Stringified JSON in the textarea
         context_updates: [
-          action.config?.context_updates
-            ? JSON.stringify(action.config.context_updates, null, 2)
-            : ''
-        ],
-
-        // Array of carry variables
+          action.config?.context_updates],
         carry_variables: this.fb.array([])
       });
 
@@ -1504,7 +1625,6 @@ onActionSubmit(): void {
       this.handleCarouselAction(intentId, parent_id, order);
       break;
 
-
     case 'Jump_to_Trigger':
       let parsedContextUpdates = {};
       try {
@@ -1513,15 +1633,18 @@ onActionSubmit(): void {
           : {};
       } catch (e) {
         console.error("Invalid JSON in context_updates", e);
-        alert("Please enter valid JSON in Context Updates.");
-        return; // stop submission
+        Swal.fire('Error', 'Please enter valid JSON in Context Updates', 'error');
+        return;
       }
 
       const jumpModel = {
         ...baseModel,
         config: {
-          target_trigger: this.actionForm.value.target_trigger,
-          condition: this.actionForm.value.condition,
+          target: this.actionForm.value.target,  // Changed from target_trigger
+          condition: {
+            expression: this.actionForm.value.condition.expression,
+            negate: this.actionForm.value.condition.negate
+          },
           context_updates: parsedContextUpdates,
           carry_variables: this.carryVariables.value || []
         }
