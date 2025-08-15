@@ -119,6 +119,26 @@ interface VariableConfig {
   context_key?: string;
 }
 
+interface FallbackOptions {
+  delay: number;
+  fallback_message: string;
+}
+
+interface HumanHandoffConfig {
+  mode: 'direct' | 'hybrid' | 'request';
+  handoff_message: string;
+  team_id: number;
+  priority: 1 | 2 | 3 | 4;
+  fallback_options: FallbackOptions;
+  required_context: string[];
+}
+
+interface HumanHandoffAction {
+  name: string;
+  action_type: 'human_handoff';
+  config: HumanHandoffConfig;
+  // ... other common action fields
+}
 
 interface SetVariableAction {
   name: string;
@@ -206,10 +226,10 @@ export class IntentComponent implements OnInit {
     send_file: 'icon-file-text',              
     http_request: 'icon-link',                 
     webhook: 'icon-zap',                       
-    loop: 'icon-refresh-cw',                   
+    loop: 'icon-zap',                   
     conditional: 'icon-code',                
     carousel: 'icon-layers',                   
-    Jump_to_Trigger: 'icon-corner-down-right', 
+    Jump_to_Trigger: 'icon-refresh-cw', 
     set_variable: 'icon-sliders',              
     survey: 'icon-edit-3',  
     human_handoff: 'icon-user',                
@@ -221,7 +241,6 @@ export class IntentComponent implements OnInit {
     uploadedFile: File | null = null;
     carouselItemFiles: { [key: number]: File } = {};
     carouselItems: FormArray = this.fb.array([]);
-    requiredContext: FormArray = this.fb.array([]);
     quickReplies: FormArray = this.fb.array([]);
     allTriggers: any[] = [];
     teams: any[] = []; 
@@ -309,6 +328,22 @@ triggerTypes = [
 getFilePreview(file: File): SafeUrl {
   const url = URL.createObjectURL(file);
   return this.sanitizer.bypassSecurityTrustUrl(url);
+}
+
+get requiredContext(): FormArray {
+  return this.actionForm.get('required_context') as FormArray;
+}
+
+get fallbackOptions(): FormGroup {
+  return this.actionForm.get('fallback_options') as FormGroup;
+}
+
+addRequiredContext(context: string = '') {
+  this.requiredContext.push(this.fb.control(context, Validators.required));
+}
+
+removeRequiredContext(index: number) {
+  this.requiredContext.removeAt(index);
 }
 
 private createSafePreview(file: File): SafeUrl {
@@ -400,14 +435,6 @@ removeUploadedFile(): void {
 
 removeVariable(index: number): void {
   this.variables.removeAt(index);
-}
-
-addRequiredContext(): void {
-  this.requiredContext.push(this.fb.control('', Validators.required));
-}
-
-removeRequiredContext(index: number): void {
-  this.requiredContext.removeAt(index);
 }
 
 addQuickReply(): void {
@@ -1435,24 +1462,34 @@ openActionForm(action: any): void {
         description: ['', Validators.required]
       });
       break;
-    
-    case 'human_handoff':
-      this.actionForm = this.fb.group({
-        name: [action.name || '', Validators.required],
-        action_type: ['human_handoff', Validators.required],
-        mode: [action.config?.mode || 'hybrid', Validators.required],
-        handoff_message: [action.config?.handoff_message || '', Validators.required],
-        team_id: [action.config?.team_id || '', Validators.required],
-        priority: [action.config?.priority || 2, Validators.required],
-        required_context: this.fb.array(
-          (action.config?.required_context || []).map((ctx: any) => this.fb.control(ctx))
-        ),
-        fallback_options: this.fb.group({
-          delay: [action.config?.fallback_options?.delay || 15, [Validators.required, Validators.min(5), Validators.max(300)]],
-          fallback_message: [action.config?.fallback_options?.fallback_message || '', Validators.required]
-        })
-      });
-      break;
+  
+      case 'human_handoff':
+        this.actionForm = this.fb.group({
+          name: [action?.name || '', Validators.required],
+          action_type: ['human_handoff', Validators.required],
+          mode: [action?.config?.mode || 'hybrid', Validators.required],
+          handoff_message: [
+            action?.config?.handoff_message || 'Connecting you with an agent...', 
+            Validators.required
+          ],
+          team_id: [action?.config?.team_id || null, [Validators.required, Validators.min(1)]],
+          priority: [action?.config?.priority || 2, Validators.required],
+          required_context: this.fb.array(
+            (action?.config?.required_context || []).map((ctx: any) => this.fb.control(ctx, Validators.required))
+          ),
+          fallback_options: this.fb.group({
+            delay: [
+              action?.config?.fallback_options?.delay || 15, 
+              [Validators.required, Validators.min(5), Validators.max(300)]
+            ],
+            fallback_message: [
+              action?.config?.fallback_options?.fallback_message || 
+              'All agents are busy. We\'ll contact you shortly.',
+              Validators.required
+            ]
+          })
+        });
+        break;
 
     
     default:
@@ -1883,21 +1920,25 @@ onActionSubmit(): void {
       const handoffModel = {
         ...baseModel,
         config: {
-          mode: this.actionForm.value.mode || 'direct',
-          team_id: this.actionForm.value.team_id,
-          priority: this.actionForm.value.priority || 2,
-          handoff_message: this.actionForm.value.handoff_message,
-          required_context: this.actionForm.value.required_context || [],
+          mode: this.actionForm.value.mode,
+          team_id: Number(this.actionForm.value.team_id),
+          priority: Number(this.actionForm.value.priority),
+          handoff_message: this.actionForm.value.handoff_message.trim(),
+          required_context: this.requiredContext.value.filter((ctx: string) => ctx.trim()),
           fallback_options: {
-            delay: this.actionForm.value.fallback_options?.delay || 15,
-            fallback_message: this.actionForm.value.fallback_options?.fallback_message || 
-              "All agents are busy. We'll contact you shortly."
+            delay: Number(this.fallbackOptions.value.delay),
+            fallback_message: this.fallbackOptions.value.fallback_message.trim()
           }
         }
       };
+      
+      // Additional validation
+      if (handoffModel.config.required_context.length === 0) {
+        Swal.fire('Warning', 'At least one context key is recommended for handoff', 'warning');
+      }
+      
       this.submitAction(handoffModel);
       break;
-
 
     default:
       // Generic action handler
