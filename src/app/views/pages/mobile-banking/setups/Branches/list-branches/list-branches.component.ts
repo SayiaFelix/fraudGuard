@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-// Add any other imports your component needs
 
 @Component({
-  selector: 'app-list-branches', // Or whatever your component's selector is
+  selector: 'app-list-branches',
   templateUrl: './list-branches.component.html',
   styleUrls: ['./list-branches.component.scss']
 })
@@ -53,18 +52,18 @@ export class ListBranchesComponent implements OnInit {
   // --- Functions for the main page (table, filters, side panel) ---
 
   loadPeopleData(): void {
-    // Dummy data list expanded to 10 people
+    // Dummy data list expanded to 10 people with selected property
     this.allPeople = [
-      { id: '1a-jd', name: 'John Doe', email: 'john.doe@example.com', location: 'New York', country: 'USA', ipAddress: '192.168.1.1', phone: '123-456-7890' },
-      { id: '2b-js', name: 'Jane Smith', email: 'jane.smith@example.com', location: 'London', country: 'UK', ipAddress: '192.168.1.2', phone: '987-654-3210' },
-      { id: '3c-as', name: 'Alice Johnson', email: 'alice.j@example.com', location: 'Toronto', country: 'Canada', ipAddress: '172.16.0.5', phone: '555-123-4567' },
-      { id: '4d-bw', name: 'Bob Williams', email: 'bob.w@example.com', location: 'Sydney', country: 'Australia', ipAddress: '10.0.0.10', phone: '444-555-6666' },
-      { id: '5e-cb', name: 'Charlie Brown', email: 'charlie.b@example.com', location: 'Tokyo', country: 'Japan', ipAddress: '203.0.113.15', phone: '333-222-1111' },
-      { id: '6f-dm', name: 'Diana Miller', email: 'diana.m@example.com', location: 'Berlin', country: 'Germany', ipAddress: '198.51.100.20', phone: '222-333-4444' },
-      { id: '7g-eg', name: 'Ethan Garcia', email: 'ethan.g@example.com', location: 'Mexico City', country: 'Mexico', ipAddress: '203.0.113.25', phone: '111-444-5555' },
-      { id: '8h-fh', name: 'Fiona Harris', email: 'fiona.h@example.com', location: 'Paris', country: 'France', ipAddress: '198.51.100.30', phone: '666-777-8888' },
-      { id: '9i-gk', name: 'George King', email: 'george.k@example.com', location: 'Moscow', country: 'Russia', ipAddress: '10.0.0.15', phone: '777-888-9999' },
-      { id: '10j-hl', name: 'Hannah Lee', email: 'hannah.l@example.com', location: 'Seoul', country: 'South Korea', ipAddress: '172.16.0.25', phone: '888-999-0000' }
+      { id: '1a-jd', name: 'John Doe', email: 'john.doe@example.com', location: 'New York', country: 'USA', ipAddress: '192.168.1.1', phone: '123-456-7890', selected: false },
+      { id: '2b-js', name: 'Jane Smith', email: 'jane.smith@example.com', location: 'London', country: 'UK', ipAddress: '192.168.1.2', phone: '987-654-3210', selected: false },
+      { id: '3c-as', name: 'Alice Johnson', email: 'alice.j@example.com', location: 'Toronto', country: 'Canada', ipAddress: '172.16.0.5', phone: '555-123-4567', selected: false },
+      { id: '4d-bw', name: 'Bob Williams', email: 'bob.w@example.com', location: 'Sydney', country: 'Australia', ipAddress: '10.0.0.10', phone: '444-555-6666', selected: false },
+      { id: '5e-cb', name: 'Charlie Brown', email: 'charlie.b@example.com', location: 'Tokyo', country: 'Japan', ipAddress: '203.0.113.15', phone: '333-222-1111', selected: false },
+      { id: '6f-dm', name: 'Diana Miller', email: 'diana.m@example.com', location: 'Berlin', country: 'Germany', ipAddress: '198.51.100.20', phone: '222-333-4444', selected: false },
+      { id: '7g-eg', name: 'Ethan Garcia', email: 'ethan.g@example.com', location: 'Mexico City', country: 'Mexico', ipAddress: '203.0.113.25', phone: '111-444-5555', selected: false },
+      { id: '8h-fh', name: 'Fiona Harris', email: 'fiona.h@example.com', location: 'Paris', country: 'France', ipAddress: '198.51.100.30', phone: '666-777-8888', selected: false },
+      { id: '9i-gk', name: 'George King', email: 'george.k@example.com', location: 'Moscow', country: 'Russia', ipAddress: '10.0.0.15', phone: '777-888-9999', selected: false },
+      { id: '10j-hl', name: 'Hannah Lee', email: 'hannah.l@example.com', location: 'Seoul', country: 'South Korea', ipAddress: '172.16.0.25', phone: '888-999-0000', selected: false }
     ];
     
     // Initially, the filtered list is the full list
@@ -134,6 +133,65 @@ export class ListBranchesComponent implements OnInit {
     this.selectedPerson = null;
   }
 
+  // --- Checkbox Selection Methods ---
+  
+  toggleSelectAll(event: any): void {
+    const isChecked = event.target.checked;
+    // Update all visible people
+    this.visiblePeople.forEach(person => person.selected = isChecked);
+    
+    // Also update the corresponding people in the main arrays
+    this.allPeople.forEach(person => {
+      const visiblePerson = this.visiblePeople.find(vp => vp.id === person.id);
+      if (visiblePerson) {
+        person.selected = isChecked;
+      }
+    });
+    
+    this.filteredPeople.forEach(person => {
+      const visiblePerson = this.visiblePeople.find(vp => vp.id === person.id);
+      if (visiblePerson) {
+        person.selected = isChecked;
+      }
+    });
+  }
+
+  togglePersonSelection(person: any, event: any): void {
+    const isChecked = event.target.checked;
+    person.selected = isChecked;
+    
+    // Update the corresponding person in all arrays
+    const allPersonIndex = this.allPeople.findIndex(p => p.id === person.id);
+    if (allPersonIndex !== -1) {
+      this.allPeople[allPersonIndex].selected = isChecked;
+    }
+    
+    const filteredPersonIndex = this.filteredPeople.findIndex(p => p.id === person.id);
+    if (filteredPersonIndex !== -1) {
+      this.filteredPeople[filteredPersonIndex].selected = isChecked;
+    }
+  }
+
+  areAllSelected(): boolean {
+    return this.visiblePeople.length > 0 && this.visiblePeople.every(person => person.selected);
+  }
+
+  areSomeSelected(): boolean {
+    return this.visiblePeople.some(person => person.selected) && !this.areAllSelected();
+  }
+
+  // Get selected people (useful for bulk operations)
+  getSelectedPeople(): any[] {
+    return this.allPeople.filter(person => person.selected);
+  }
+
+  // Clear all selections
+  clearAllSelections(): void {
+    this.allPeople.forEach(person => person.selected = false);
+    this.filteredPeople.forEach(person => person.selected = false);
+    this.visiblePeople.forEach(person => person.selected = false);
+  }
+
   // --- Functions for the "Add Person" Modal ---
 
   openAddPersonModal(): void {
@@ -159,7 +217,8 @@ export class ListBranchesComponent implements OnInit {
         location: newPersonData.location || '-',
         ipAddress: '-',
         country: '-',
-        notes: []
+        notes: [],
+        selected: false // Initialize selection state
     };
     
     // Add the new person to the top of the master list
