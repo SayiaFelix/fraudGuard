@@ -308,6 +308,30 @@ private sizeMap: FileSizeMap = {
   audio: 50 * 1024 * 1024     // 50MB
 };
 
+get trueSteps(): FormArray {
+  return this.actionForm.get('true_steps') as FormArray;
+}
+
+get falseSteps(): FormArray {
+  return this.actionForm.get('false_steps') as FormArray;
+}
+
+addTrueStep(step?: string) {
+  this.trueSteps.push(this.fb.control(step || ''));
+}
+
+addFalseStep(step?: string) {
+  this.falseSteps.push(this.fb.control(step || ''));
+}
+
+removeTrueStep(index: number) {
+  this.trueSteps.removeAt(index);
+}
+
+removeFalseStep(index: number) {
+  this.falseSteps.removeAt(index);
+}
+
 
 getFileAcceptTypes(): string {
   const format = this.actionForm?.value.file_format as keyof FileTypeInfoMap;
@@ -363,13 +387,6 @@ initializeFormArrays(): void {
   });
 }
 
-removeTrueStep(index: number) {
-  this.trueSteps.removeAt(index);
-}
-
-removeFalseStep(index: number) {
-  this.falseSteps.removeAt(index);
-}
 
 removeContextMapKey(key: string) {
   const cmGroup = this.actionForm.get('context_map') as FormGroup;
@@ -614,20 +631,6 @@ addHeader(key: string = '', value: string = '') {
 
 removeHeader(index: number) {
   this.headers.removeAt(index);
-}
-
-get trueSteps() {
-  return this.actionForm.get('true_steps') as FormArray;
-}
-get falseSteps() {
-  return this.actionForm.get('false_steps') as FormArray;
-}
-
-addTrueStep() {
-  this.trueSteps.push(this.fb.control(''));
-}
-addFalseStep() {
-  this.falseSteps.push(this.fb.control(''));
 }
 
 // dynamically add context_map keys
@@ -1083,6 +1086,8 @@ toggleTriggerStatus(event: Event, trigger: any): void {
   });
 }
 
+
+
 fetchActionType(): void {
   this.isLoading = true;
   this._httpService.mobileBankingPost('builder/nodes/action-types', {}).subscribe({
@@ -1159,7 +1164,7 @@ openActionForm(action: any): void {
       // Clear any existing files
       this.uploadedFile = null;
       
-      // Set up conditional validation
+      // Set up condition validation
       this.actionForm.get('source')?.valueChanges.subscribe(source => {
         const fileUrlControl = this.actionForm.get('file_url');
         const chatScriptControl = this.actionForm.get('chat_script');
@@ -1232,7 +1237,7 @@ openActionForm(action: any): void {
         retry_delay: [action.config?.retry_policy?.delay || 1, [Validators.min(0), Validators.max(10)]]
       });
 
-      // headers if editing existing
+      // Populate headers if editing existing
       if (action.config?.headers) {
         Object.entries(action.config.headers).forEach(([key, value]) => {
           this.headers.push(
@@ -1244,15 +1249,16 @@ openActionForm(action: any): void {
         });
       }
       break;
-    
+  
+
     case 'conditional':
       this.actionForm = this.fb.group({
         name: [action.name || '', Validators.required],
         action_type: ['conditional', Validators.required],
-        condition: ['', Validators.required],
-        true_steps: this.fb.array([]),   // Array of step IDs/names
-        false_steps: this.fb.array([]),  // Array of step IDs/names
-        context_map: this.fb.group({})   // Key/value expressions
+        condition: [action.config?.condition || '', Validators.required],
+        true_steps: this.fb.array(action.config?.true_steps?.map((step: any) => this.fb.control(step)) || []),
+        false_steps: this.fb.array(action.config?.false_steps?.map((step: any) => this.fb.control(step)) || []),
+        context_map: this.fb.group(action.config?.context_map || {})
       });
       break;
 
@@ -1649,8 +1655,8 @@ onActionSubmit(): void {
         ...baseModel,
         config: {
           condition: this.actionForm.value.condition,
-          true_steps: this.actionForm.value.true_steps,
-          false_steps: this.actionForm.value.false_steps,
+          true_steps: this.trueSteps.controls.map(control => control.value),
+          false_steps: this.falseSteps.controls.map(control => control.value), 
           context_map: this.actionForm.value.context_map
         }
       };
