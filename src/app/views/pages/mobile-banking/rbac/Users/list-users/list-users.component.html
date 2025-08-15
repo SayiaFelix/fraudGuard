@@ -1,188 +1,192 @@
-<!-- The outer "page-wrapper" div has been removed to allow the container to be full-width -->
+<!-- Main Grid Wrapper -->
+<div class="main-view-wrapper" [class.sidebar-open]="isSidebarVisible">
+  
+  <!-- Main Content Area -->
+  <div class="main-content">
+    <div class="livechats-container">
+      <!-- Page Header -->
+      <div class="page-header">
+        <h1 class="page-title">Livechats</h1>
+        <p class="page-description">
+          View, manage, and filter all live chat conversations. Use the tools below to search for specific chats by assignee, status, creation date, and more.
+        </p>
+      </div>
 
-<div class="livechats-container">
-  <!-- Page Header -->
-  <div class="page-header">
-    <h1 class="page-title">Livechats</h1>
-  </div>
-
-  <!-- Filter Bar -->
-  <div class="filter-bar">
-    <div class="filter-item search-filter">
-      <i class="feather icon-search"></i>
-      <input type="text" class="filter-input" placeholder="Search">
-    </div>
-
-    <!-- Assignee Filter -->
-    <details class="filter-item-details">
-      <summary class="filter-item">
-        <span>Assignee: <strong>Select</strong></span>
-      </summary>
-      <div class="filter-dropdown assignee-dropdown">
-        <div class="dropdown-search">
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <div class="filter-item search-filter">
           <i class="feather icon-search"></i>
-          <input type="text" placeholder="Search">
+          <input type="text" class="filter-input" placeholder="Search">
         </div>
-        <ul class="assignee-list">
-          <!-- Static list of assignees -->
-          <li><div class="avatar">N</div><span>ndungu.joseph</span></li>
-          <li><div class="avatar">BM</div><span>Bridged Mwende</span></li>
-          <li><div class="avatar">CK</div><span>Chris Kahiga</span></li>
-          <li><div class="avatar">FO</div><span>Fareedah Okunade</span></li>
-          <li><div class="avatar">FL</div><span>Felix Lucas Sayia</span></li>
-          <li><div class="avatar">GM</div><span>George Maputol</span></li>
-          <li><div class="avatar">HS</div><span>Harith Said</span></li>
-        </ul>
+        <!-- Filters... -->
+        <details class="filter-item-details">
+          <summary class="filter-item"><span>Assignee: <strong>Select</strong></span></summary>
+          <!-- Dropdown content -->
+        </details>
+        <details class="filter-item-details">
+          <summary class="filter-item"><span>Assigned team: <strong>Select</strong></span></summary>
+          <!-- Dropdown content -->
+        </details>
+        <details class="filter-item-details">
+          <summary class="filter-item"><span>Tags: <strong>Select</strong></span></summary>
+          <!-- Dropdown content -->
+        </details>
+        <details class="filter-item-details">
+          <summary class="filter-item"><span>Status: <strong>Select</strong></span></summary>
+          <!-- Dropdown content -->
+        </details>
+        <details class="filter-item-details">
+          <summary class="filter-item"><span>Created on: <strong>Select</strong></span></summary>
+          <!-- Dropdown content -->
+        </details>
+        <button class="reset-all-btn">
+          <i class="feather icon-x"></i>
+          <span>Reset all</span>
+        </button>
       </div>
-    </details>
 
-    <!-- Assigned Team Filter -->
-    <details class="filter-item-details">
-      <summary class="filter-item">
-        <span>Assigned team: <strong>Select</strong></span>
-      </summary>
-      <div class="filter-dropdown">
-        <div class="dropdown-search"><i class="feather icon-search"></i><input type="text" placeholder="Search"></div>
-        <div class="no-results">No results</div>
+      <!-- Livechats Table -->
+      <div class="table-wrapper">
+        <table class="livechats-table">
+          <thead>
+            <tr>
+              <th class="checkbox-cell"><input type="checkbox"></th>
+              <th>ID</th>
+              <th>Status</th>
+              <th>Tags</th>
+              <th>Assignee</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Correctly Added (click) Handlers -->
+            <tr (click)="showDetailsSidebar({ id: '01K1WVKVHGWR744B61YNEQN09X', status: 'Open', person: 'Ecl Test' })">
+              <td class="checkbox-cell"><input type="checkbox" (click)="$event.stopPropagation()"></td>
+              <td>01K1WVKVHGWR744B61YNEQN09X</td>
+              <td><span class="status-badge blue">Open</span></td>
+              <td>-</td>
+              <td>-</td>
+            </tr>
+            <tr (click)="showDetailsSidebar({ id: '01K1G5BY3CE0KD3MQ5P8YDHM..', status: 'Open', person: 'John Doe' })">
+              <td class="checkbox-cell"><input type="checkbox" (click)="$event.stopPropagation()"></td>
+              <td>01K1G5BY3CE0KD3MQ5P8YDHM..</td>
+              <td><span class="status-badge blue">Open</span></td>
+              <td>-</td>
+              <td>-</td>
+            </tr>
+            <tr (click)="showDetailsSidebar({ id: '01K1DM366AA20EAQYJX7X828ES', status: 'Pending', person: 'Jane Smith' })">
+              <td class="checkbox-cell"><input type="checkbox" (click)="$event.stopPropagation()"></td>
+              <td>01K1DM366AA20EAQYJX7X828ES</td>
+              <td><span class="status-badge orange">Pending</span></td>
+              <td>-</td>
+              <td>-</td>
+            </tr>
+            <!-- Repeat for other rows -->
+          </tbody>
+        </table>
       </div>
-    </details>
+    </div>
+  </div>
 
-    <!-- Tags Filter -->
-    <details class="filter-item-details">
-      <summary class="filter-item">
-        <span>Tags: <strong>Select</strong></span>
-      </summary>
-      <div class="filter-dropdown">
-         <div class="no-results">No tags available</div>
+  <!-- Sidebar -->
+  <ng-container *ngIf="isSidebarVisible">
+    <div class="sidebar-container">
+      <!-- Sidebar Header -->
+      <div class="sidebar-header">
+        <div class="sidebar-title">
+          <i class="feather icon-message-square"></i>
+          <span>Livechat</span>
+        </div>
+        <div class="header-actions">
+          <button class="btn-dark-solid">Go to livechat</button>
+          <button class="btn-icon-close" (click)="hideDetailsSidebar()">
+            <i class="feather icon-x"></i>
+          </button>
+        </div>
       </div>
-    </details>
-
-    <!-- Status Filter -->
-    <details class="filter-item-details">
-      <summary class="filter-item">
-        <span>Status: <strong>Select</strong></span>
-      </summary>
-      <div class="filter-dropdown status-dropdown">
-        <ul class="status-list">
-          <!-- Static list of statuses -->
-          <li><span class="status-badge blue">Open</span></li>
-          <li><span class="status-badge orange">Pending</span></li>
-          <li><span class="status-badge red">Overdue</span></li>
-          <li><span class="status-badge green">Resolved</span></li>
-          <li><span class="status-badge gray">Closed</span></li>
-        </ul>
-      </div>
-    </details>
-
-    <!-- Created On Filter -->
-    <details class="filter-item-details">
-      <summary class="filter-item">
-        <span>Created on: <strong>Select</strong></span>
-      </summary>
-      <div class="filter-dropdown date-dropdown">
-        <div class="date-picker-container">
-          <label>Start date</label>
-          <input type="text" placeholder="DD/MM/YYYY">
-          <div class="calendar">
-            <div class="calendar-header">
-              <select><option>August</option></select>
-              <select><option>2025</option></select>
-            </div>
-            <div class="calendar-grid">
-              <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
-              <span class="other-month">27</span><span class="other-month">28</span><span class="other-month">29</span><span class="other-month">30</span><span class="other-month">31</span><span>1</span><span>2</span>
-              <span>3</span><span>4</span><span class="selected">5</span><span>6</span><span>7</span><span>8</span><span>9</span>
-              <span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span><span>16</span>
-              <span>17</span><span>18</span><span>19</span><span>20</span><span>21</span><span>22</span><span>23</span>
-              <span>24</span><span>25</span><span>26</span><span>27</span><span>28</span><span>29</span><span>30</span>
-              <span>31</span><span class="other-month">1</span><span class="other-month">2</span><span class="other-month">3</span><span class="other-month">4</span><span class="other-month">5</span><span class="other-month">6</span>
+  
+      <!-- Sidebar Body -->
+      <div class="sidebar-body" *ngIf="selectedLivechat">
+        
+        <!-- General Info Section -->
+        <div class="info-section">
+          <div class="info-row">
+            <div class="info-label"><i class="feather icon-user"></i> Assignee</div>
+            <div class="info-value">{{ selectedLivechat.assignee || '-' }}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label"><i class="feather icon-users"></i> Assigned Teams</div>
+            <div class="info-value">{{ selectedLivechat.team || '-' }}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label"><i class="feather icon-user-check"></i> Person</div>
+            <div class="info-value person-value">
+              <i class="feather icon-user"></i>
+              <span>{{ selectedLivechat.person || 'Unknown' }}</span>
             </div>
           </div>
         </div>
-        <div class="date-picker-container">
-          <label>End date</label>
-          <input type="text" placeholder="DD/MM/YYYY">
-           <div class="calendar">
-            <div class="calendar-header">
-              <select><option>August</option></select>
-              <select><option>2025</option></select>
+  
+        <!-- Details Section -->
+        <details class="collapsible-section" open>
+          <summary class="collapsible-header">
+            <i class="feather icon-chevron-down"></i>
+            <span>Details</span>
+          </summary>
+          <div class="collapsible-content">
+            <div class="info-row">
+              <div class="info-label"><i class="feather icon-hash"></i> Livechat ID</div>
+              <div class="info-value">{{ selectedLivechat.id || '-' }}</div>
             </div>
-            <div class="calendar-grid">
-              <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
-              <span class="other-month">27</span><span class="other-month">28</span><span class="other-month">29</span><span class="other-month">30</span><span class="other-month">31</span><span>1</span><span>2</span>
-              <span>3</span><span>4</span><span class="selected">5</span><span>6</span><span>7</span><span>8</span><span>9</span>
-              <span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span><span>16</span>
-              <span>17</span><span>18</span><span>19</span><span>20</span><span>21</span><span>22</span><span>23</span>
-              <span>24</span><span>25</span><span>26</span><span>27</span><span>28</span><span>29</span><span>30</span>
-              <span>31</span><span class="other-month">1</span><span class="other-month">2</span><span class="other-month">3</span><span class="other-month">4</span><span class="other-month">5</span><span class="other-month">6</span>
+            <div class="info-row">
+              <div class="info-label"><i class="feather icon-message-circle"></i> Channel</div>
+              <div class="info-value channel-value">
+                <i class="feather icon-message-square"></i>
+                <span>Test</span>
+              </div>
+            </div>
+            <div class="info-row">
+              <div class="info-label"><i class="feather icon-align-left"></i> Description</div>
+              <div class="info-value">-</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label"><i class="feather icon-loader"></i> Status</div>
+              <div class="info-value">
+                <span class="status-badge" [ngClass]="selectedLivechat.status.toLowerCase()">{{ selectedLivechat.status }}</span>
+              </div>
+            </div>
+            <div class="info-row">
+              <div class="info-label"><i class="feather icon-clock"></i> Created</div>
+              <div class="info-value">05 Aug 2025 01:14 PM</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label"><i class="feather icon-star"></i> Rating</div>
+              <div class="info-value">-</div>
             </div>
           </div>
-        </div>
+        </details>
+        
+        <!-- Other Sections -->
+        <details class="collapsible-section">
+          <summary class="collapsible-header">
+            <i class="feather icon-chevron-down"></i>
+            <span>Custom Fields</span>
+          </summary>
+        </details>
+        <details class="collapsible-section">
+          <summary class="collapsible-header">
+            <i class="feather icon-chevron-down"></i>
+            <span>Notes</span>
+            <i class="feather icon-plus"></i>
+          </summary>
+        </details>
+        <details class="collapsible-section">
+          <summary class="collapsible-header">
+            <i class="feather icon-chevron-down"></i>
+            <span>Tags</span>
+            <i class="feather icon-plus"></i>
+          </summary>
+        </details>
       </div>
-    </details>
-    
-    <button class="reset-all-btn">
-      <i class="feather icon-x"></i>
-      <span>Reset all</span>
-    </button>
-  </div>
-
-  <!-- Livechats Table -->
-  <div class="table-wrapper">
-    <table class="livechats-table">
-      <thead>
-        <tr>
-          <th class="checkbox-cell"><input type="checkbox"></th>
-          <th>ID</th>
-          <th>Status</th>
-          <th>Tags</th>
-          <th>Assignee</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td class="checkbox-cell"><input type="checkbox"></td><td>01K1WVKVHGWR744B61YNEQN09X</td><td><span class="status-badge blue">Open</span></td><td>-</td><td>-</td></tr>
-        <tr><td class="checkbox-cell"><input type="checkbox"></td><td>01K1G5BY3CE0KD3MQ5P8YDHM XS</td><td><span class="status-badge blue">Open</span></td><td>-</td><td>-</td></tr>
-        <tr><td class="checkbox-cell"><input type="checkbox"></td><td>01K1DM366AA20EAQYJX7X828ES</td><td><span class="status-badge blue">Open</span></td><td>-</td><td>-</td></tr>
-        <tr><td class="checkbox-cell"><input type="checkbox"></td><td>01JYZRATP0CRWD695XM35CWZ1T</td><td><span class="status-badge blue">Open</span></td><td>-</td><td>-</td></tr>
-        <tr><td class="checkbox-cell"><input type="checkbox"></td><td>01JXX2357KPACQ0BWMT8MJ5JVV</td><td><span class="status-badge blue">Open</span></td><td>-</td><td>-</td></tr>
-        <tr><td class="checkbox-cell"><input type="checkbox"></td><td>01JXX1K72AGV70CWHFNDN2QDEM</td><td><span class="status-badge blue">Open</span></td><td>-</td><td>-</td></tr>
-        <tr><td class="checkbox-cell"><input type="checkbox"></td><td>01JXX1CER4Z4WTFCRVYJYSFQXB</td><td><span class="status-badge blue">Open</span></td><td>-</td><td>-</td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-<!-- The closing div for page-wrapper that was here has been removed -->
-
-
-<!-- The details sidebar now sits at the same level as the livechats container -->
-<div class="details-sidebar" *ngIf="isSidebarVisible">
-  <!-- Sidebar Header -->
-  <div class="sidebar-header">
-    <div class="sidebar-title">
-      <i class="feather icon-message-square"></i>
-      <span>Livechat</span>
     </div>
-    <button class="btn go-to-btn">Go to livechat</button>
-    <button class="btn-icon close-btn" (click)="hideDetailsSidebar()">
-      <i class="feather icon-x"></i>
-    </button>
-  </div>
-
-  <!-- Info Sections -->
-  <div class="sidebar-content">
-    <div class="info-section">
-      <div class="info-row"><div class="info-label"><i class="feather icon-user"></i> Assignee</div><div class="info-value">-</div></div>
-      <div class="info-row"><div class="info-label"><i class="feather icon-users"></i> Assigned Teams</div><div class="info-value">-</div></div>
-      <div class="info-row"><div class="info-label"><i class="feather icon-user-check"></i> Person</div><div class="info-value person"><i class="feather icon-users"></i> Unknown</div></div>
-    </div>
-    <div class="info-section details">
-      <div class="details-header"><i class="feather icon-chevron-down"></i> Details</div>
-      <div class="info-row"><div class="info-label"><i class="feather icon-hash"></i> Livechat ID</div><div class="info-value">{{ selectedLivechat?.id.substring(0, 10) }}...</div></div>
-      <div class="info-row"><div class="info-label"><i class="feather icon-message-circle"></i> Channel</div><div class="info-value channel"><i class="feather icon-message-square"></i> Default Webchat</div></div>
-      <div class="info-row"><div class="info-label"><i class="feather icon-align-left"></i> Description</div><div class="info-value">-</div></div>
-      <div class="info-row"><div class="info-label"><i class="feather icon-loader"></i> Status</div><div class="info-value"><span class="status-badge blue">Open</span></div></div>
-      <div class="info-row"><div class="info-label"><i class="feather icon-clock"></i> Created</div><div class="info-value">31 Jul 2025...</div></div>
-      <div class="info-row"><div class="info-label"><i class="feather icon-star"></i> Rating</div><div class="info-value">-</div></div>
-    </div>
-  </div>
+  </ng-container>
 </div>
