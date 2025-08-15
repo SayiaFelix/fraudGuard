@@ -400,6 +400,7 @@ public mobileBankingPaginationPost(endpoint: string, model: any): any {
       );
   }
 
+
   public getMapCoordinates(endpoint: string): any {
     return this.http.get(endpoint, this.getHeaders()).pipe(
       map((response) => {
