@@ -86,6 +86,24 @@ interface FileSizeMap {
   audio: number;
   [key: string]: number; // Index signature for dynamic access
 }
+interface VariableConfig {
+  source: 'static' | 'expression' | 'context';
+  value?: string;
+  expression?: string;
+  context_key?: string;
+}
+
+
+interface SetVariableAction {
+  name: string;
+  action_type: 'set_variable';
+  config: {
+    variables: Record<string, VariableConfig>;
+    overwrite: boolean;
+    clear_on_session_end: boolean;
+  };
+}
+
 
 type FileFormat = 'image' | 'document' | 'video' | 'audio';
 type FileSource = 'upload' | 'link' | 'chat_script';
@@ -393,17 +411,48 @@ removeContextMapKey(key: string) {
   cmGroup.removeControl(key);
 }
 
-addVariable() {
-  this.variables.push(
-    this.fb.group({
-      name: [''],
-      source: ['static'],
-      value: [''],
-      expression: [''],
-      context_key: ['']
-    })
-  );
+//add variables
+addVariable(name: string = '', config?: VariableConfig) {
+   const source = config?.source || 'static';
+  
+    const variableGroup = this.fb.group({
+      name: [name, Validators.required],
+      source: [source, Validators.required],
+      value: [source === 'static' ? config?.value : ''],
+      expression: [source === 'expression' ? config?.expression : ''],
+      context_key: [source === 'context' ? config?.context_key : '']
+    });
+
+
+  // Add conditional validators
+  const sourceControl = variableGroup.get('source');
+  sourceControl?.valueChanges.subscribe(source => {
+    const valueCtrl = variableGroup.get('value');
+    const exprCtrl = variableGroup.get('expression');
+    const ctxCtrl = variableGroup.get('context_key');
+
+    // Clear validators first
+    [valueCtrl, exprCtrl, ctxCtrl].forEach(ctrl => ctrl?.clearValidators());
+
+    // Set appropriate validator based on source
+    switch (source) {
+      case 'static':
+        valueCtrl?.setValidators(Validators.required);
+        break;
+      case 'expression':
+        exprCtrl?.setValidators(Validators.required);
+        break;
+      case 'context':
+        ctxCtrl?.setValidators(Validators.required);
+        break;
+    }
+
+    [valueCtrl, exprCtrl, ctxCtrl].forEach(ctrl => ctrl?.updateValueAndValidity());
+  });
+
+  this.variables.push(variableGroup);
 }
+
 
 addChild(parent: Node, type: 'action' | 'trigger') {
     const newId = Date.now();
@@ -1134,6 +1183,17 @@ removeCarryVariable(index: number): void {
   }
 }
 
+private isVariableConfig(config: any): config is VariableConfig {
+  return (
+    config && 
+    ['static', 'expression', 'context'].includes(config.source) &&
+    (config.source !== 'static' || 'value' in config) &&
+    (config.source !== 'expression' || 'expression' in config) &&
+    (config.source !== 'context' || 'context_key' in config)
+  );
+}
+
+
 openActionForm(action: any): void {
   this.selectedActionType = action.type;
   this.showActionForm = true;
@@ -1291,10 +1351,9 @@ openActionForm(action: any): void {
         ? action.config.carry_variables.map((v: any) => this.fb.control(v))
         : []
         )
-        // carry_variables: this.fb.array([])
       });
 
-      // Populate carry variables if editing
+      // carry variables if editing
       if (action.config?.carry_variables?.length) {
         action.config.carry_variables.forEach((v: any) => {
           this.carryVariables.push(this.fb.control(v));
@@ -1312,7 +1371,6 @@ openActionForm(action: any): void {
       });
       break;
 
-
     case 'set_variable':
       this.actionForm = this.fb.group({
         name: [action.name || '', Validators.required],
@@ -1322,30 +1380,22 @@ openActionForm(action: any): void {
         clear_on_session_end: [action.config?.clear_on_session_end ?? false]
       });
 
-      // If editing an existing action
+      // Initialize variables 
       if (action.config?.variables) {
-        Object.entries(action.config.variables).forEach(([varName, varConfig]: any) => {
-          this.variables.push(this.fb.group({
-            name: [varName, Validators.required],
-            source: [varConfig.source || 'static', Validators.required],
-            value: [varConfig.value || ''],
-            expression: [varConfig.expression || ''],
-            context_key: [varConfig.context_key || '']
-          }));
+        Object.entries(action.config.variables).forEach(([varName, varConfig]) => {
+        
+          if (this.isVariableConfig(varConfig)) {
+            this.addVariable(varName, varConfig);
+          } else {
+            console.warn('Invalid variable config:', varConfig);
+            this.addVariable(varName);
+          }
         });
-      }
-
-      if (this.variables.length === 0) {
-        this.variables.push(this.fb.group({
-          name: [''],
-          source: ['static'],
-          value: [''],
-          expression: [''],
-          context_key: ['']
-        }));
+      } else {
+        this.addVariable(); 
       }
       break;
-    
+
     case 'survey':
       this.initSurveyForm();
       break;
@@ -1711,18 +1761,25 @@ onActionSubmit(): void {
       break;
 
     case 'set_variable':
-        const setVariableModel = {
+      const variablesObj = this.variables.controls.reduce((acc, variableGroup) => {
+        const varName = variableGroup.get('name')?.value;
+        const source = variableGroup.get('source')?.value;
+        
+        if (!varName) return acc; // Skip invalid entries
+
+        acc[varName] = {
+          source,
+          ...(source === 'static' && { value: variableGroup.get('value')?.value }),
+          ...(source === 'expression' && { expression: variableGroup.get('expression')?.value }),
+          ...(source === 'context' && { context_key: variableGroup.get('context_key')?.value })
+        };
+        return acc;
+      }, {} as Record<string, VariableConfig>);
+
+      const setVariableModel = {
         ...baseModel,
         config: {
-          variables: this.variables.value.reduce((acc: any, v: any) => {
-            acc[v.name] = {
-              source: v.source,
-              ...(v.source === 'static' && { value: v.value }),
-              ...(v.source === 'expression' && { expression: v.expression }),
-              ...(v.source === 'context' && { context_key: v.context_key })
-            };
-            return acc;
-          }, {}),
+          variables: variablesObj,
           overwrite: this.actionForm.value.overwrite,
           clear_on_session_end: this.actionForm.value.clear_on_session_end
         }
