@@ -154,6 +154,7 @@ export class IntentComponent implements OnInit {
     launchMessage = '';
     isActive: boolean = false;
     filePreviews: { [key: number]: SafeUrl } = {};
+    // filePreviews: (SafeUrl | null)[] = [];
 
 
     actionIcons: { [key: string]: string } = {
@@ -266,6 +267,9 @@ getFilePreview(file: File): SafeUrl {
   return this.sanitizer.bypassSecurityTrustUrl(url);
 }
 
+private createSafePreview(file: File): SafeUrl {
+  return this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(file));
+}
 
 
 calculateIndentLevel(item: any): number {
@@ -330,14 +334,6 @@ removeVariable(index: number): void {
   this.variables.removeAt(index);
 }
 
-addCarryVariable(): void {
-  this.carryVariables.push(this.fb.control('', Validators.required));
-}
-
-removeCarryVariable(index: number): void {
-  this.carryVariables.removeAt(index);
-}
-
 addRequiredContext(): void {
   this.requiredContext.push(this.fb.control('', Validators.required));
 }
@@ -361,7 +357,7 @@ initializeFormArrays(): void {
     carouselItems: this.carouselItems,
     surveyQuestions: this.surveyQuestions,
     variables: this.variables,
-    carryVariables: this.carryVariables,
+    carry_variables: this.fb.array([]),
     requiredContext: this.requiredContext,
     quickReplies: this.quickReplies
   });
@@ -489,8 +485,15 @@ private markFormGroupTouched(formGroup: FormGroup) {
 
 removeCarouselItemFile(index: number): void {
   // Clean up blob URL
-  if (this.filePreviews[index]) {
-    URL.revokeObjectURL(this.filePreviews[index] as any);
+  // if (this.filePreviews[index]) {
+  //   URL.revokeObjectURL(this.filePreviews[index] as any);
+  // }
+
+    if (this.filePreviews[index]) {
+    const url = this.filePreviews[index] as unknown as string;
+    if (url.startsWith('blob:')) {
+      setTimeout(() => URL.revokeObjectURL(url), 0);
+    }
   }
   
   delete this.carouselItemFiles[index];
@@ -521,6 +524,18 @@ initCarouselForm(): void {
 onFileHovered(isHovering: boolean): void {
   this.isHovering = isHovering;
 }
+
+get carryVariables(): FormArray {
+  return this.actionForm.get('carry_variables') as FormArray;
+}
+
+addCarryVariable(): void {
+  this.carryVariables.push(this.fb.control(''));
+  // console.log('After add:', this.carryVariables.value);
+}
+
+
+
 
 // Add these methods to your component class
 private getAcceptTypes(): string[] {
@@ -1097,6 +1112,24 @@ get variables(): FormArray {
   return this.actionForm.get('variables') as FormArray;
 }
 
+getTargetPlaceholder(): string {
+  const type = this.actionForm?.get('target_type')?.value;
+  switch(type) {
+    case 'flow': return 'Enter flow name (e.g. checkout_flow)';
+    case 'intent': return 'Enter intent ID or name';
+    case 'action': return 'Enter action ID or name';
+    case 'step': return 'Enter step ID or name';
+    default: return 'Enter target';
+  }
+}
+
+
+removeCarryVariable(index: number): void {
+  if (this.carryVariables.length > 0) {
+    this.carryVariables.removeAt(index);
+  }
+}
+
 openActionForm(action: any): void {
   this.selectedActionType = action.type;
   this.showActionForm = true;
@@ -1232,14 +1265,23 @@ openActionForm(action: any): void {
       this.actionForm = this.fb.group({
         name: [action.name || '', Validators.required],
         action_type: ['Jump_to_Trigger', Validators.required],
-        target: [action.config?.target || '', Validators.required], // Changed from target_trigger to target
+        target_type: [action.config?.target_type || 'flow', Validators.required], 
+        target: [action.config?.target || '', Validators.required],
         condition: this.fb.group({
           expression: [action.config?.condition?.expression || ''],
           negate: [action.config?.condition?.negate || false]
         }),
         context_updates: [
-          action.config?.context_updates],
-        carry_variables: this.fb.array([])
+          action.config?.context_updates 
+            ? JSON.stringify(action.config.context_updates, null, 2)
+            : '{}'
+        ],
+         carry_variables: this.fb.array(
+           action.config?.carry_variables?.length 
+        ? action.config.carry_variables.map((v: any) => this.fb.control(v))
+        : []
+        )
+        // carry_variables: this.fb.array([])
       });
 
       // Populate carry variables if editing
@@ -1445,6 +1487,7 @@ getConfigControl(path: string): FormControl {
   return control as FormControl;
 }
 
+
 openTriggerForm(parentItem: any): void {
   console.log('Opening trigger form for parent item:', parentItem);
   this.showTriggerType = true;
@@ -1505,10 +1548,6 @@ shouldShowRootButtons(): boolean {
   return (this.shouldShowAddActionButton() || this.shouldShowAddTriggerButton()) && this.combinedItems.length > 0;
 }
 
-// Getter for carry_variables
-get carryVariables(): FormArray {
-  return this.actionForm.get('carry_variables') as FormArray;
-}
 
 onActionSubmit(): void {
   if (!this.actionForm.valid) {
@@ -1640,17 +1679,20 @@ onActionSubmit(): void {
       const jumpModel = {
         ...baseModel,
         config: {
-          target: this.actionForm.value.target,  // Changed from target_trigger
+          target_type: this.actionForm.value.target_type,
+          target: this.actionForm.value.target,  
           condition: {
             expression: this.actionForm.value.condition.expression,
             negate: this.actionForm.value.condition.negate
           },
           context_updates: parsedContextUpdates,
-          carry_variables: this.carryVariables.value || []
-        }
+          carry_variables: this.carryVariables.value
+           .filter((v: string) => v.trim() !== '') 
+           .map((v: string) => v.trim()) } 
       };
       
       this.submitAction(jumpModel);
+      console.log("Jump Model =====>", jumpModel)
       break;
 
     case 'set_variable':
@@ -1748,6 +1790,8 @@ onActionSubmit(): void {
   }
    console.log('Creating action under parent:', this.currentParent, 'with intentId:', intentId, 'and parent_id:', parent_id);
 }
+
+
 
 private handleSendFileAction(intentId: number, parent_id: number, order: number): void {
   const sourceType = this.actionForm.value.source;
@@ -1865,8 +1909,9 @@ onCarouselItemFileSelected(event: Event, index: number): void {
   this.cleanupFileResources(index);
 
   this.carouselItemFiles[index] = file;
-  this.filePreviews[index] = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(file));
-  
+  // this.filePreviews[index] = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(file));
+  this.filePreviews[index] = this.createSafePreview(file);
+
   // Update form validity
   this.carouselItems.at(index).markAsDirty();
   this.cdRef.detectChanges();
@@ -1885,6 +1930,7 @@ private cleanupFileResources(index: number): void {
   delete this.carouselItemFiles[index];
   delete this.filePreviews[index];
 }
+
 
 private handleCarouselAction(intentId: number, parent_id: number, order: number): void {
   // Validate form before submission
