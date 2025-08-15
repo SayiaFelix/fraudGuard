@@ -538,6 +538,7 @@
                   + Add Quick Reply
                 </button>
               </div>
+              <hr>
             </div>
 
             <!-- Send File Action -->
@@ -660,6 +661,8 @@
                 <label class="form-label fw-bold">Caption (optional)</label>
                 <input type="text" formControlName="caption" class="form-control" placeholder="Enter file caption"/>
               </div>
+
+              <hr>
             </div>
 
            <!-- Carousel Action -->
@@ -798,8 +801,8 @@
                     <i class="feather icon-plus me-1"></i> Add Carousel Item
                   </button>
                 </div>
-                <hr>
               </div>
+              <hr>
             </div>
 
             <!-- HTTP Request Action -->
@@ -843,84 +846,85 @@
                           placeholder='{"key": "value"}'></textarea>
               </div>
 
-              <!-- Timeout Field -->
-            <div class="mb-3">
-              <label class="form-label fw-bold">Timeout (seconds)</label>
-              <input type="number" 
-                    formControlName="timeout" 
-                    class="form-control" 
-                    [class.is-invalid]="actionForm.get('timeout')?.invalid && 
-                                      (actionForm.get('timeout')?.dirty || 
-                                      actionForm.get('timeout')?.touched)"/>
-              
-              <div *ngIf="actionForm.get('timeout')?.invalid && 
-                        (actionForm.get('timeout')?.dirty || 
-                          actionForm.get('timeout')?.touched)" 
-                  class="invalid-feedback">
-                <div *ngIf="actionForm.get('timeout')?.errors?.['required']">
-                  Timeout is required
-                </div>
-                <div *ngIf="actionForm.get('timeout')?.errors?.['min']">
-                  Minimum timeout is 1 second
-                </div>
-                <div *ngIf="actionForm.get('timeout')?.errors?.['max']">
-                  Maximum timeout is 60 seconds
+                <!-- Timeout Field -->
+              <div class="mb-3">
+                <label class="form-label fw-bold">Timeout (seconds)</label>
+                <input type="number" 
+                      formControlName="timeout" 
+                      class="form-control" 
+                      [class.is-invalid]="actionForm.get('timeout')?.invalid && 
+                                        (actionForm.get('timeout')?.dirty || 
+                                        actionForm.get('timeout')?.touched)"/>
+                
+                <div *ngIf="actionForm.get('timeout')?.invalid && 
+                          (actionForm.get('timeout')?.dirty || 
+                            actionForm.get('timeout')?.touched)" 
+                    class="invalid-feedback">
+                  <div *ngIf="actionForm.get('timeout')?.errors?.['required']">
+                    Timeout is required
+                  </div>
+                  <div *ngIf="actionForm.get('timeout')?.errors?.['min']">
+                    Minimum timeout is 1 second
+                  </div>
+                  <div *ngIf="actionForm.get('timeout')?.errors?.['max']">
+                    Maximum timeout is 60 seconds
+                  </div>
                 </div>
               </div>
-            </div>
 
-              <!-- Retry Policy -->
-            <div class="row mb-3">
-              <div class="col-md-5">
-                <label class="form-label fw-bold">Retry Attempts (0-5)</label>
-                <input type="number" 
-                      formControlName="retry_attempts" 
-                      class="form-control" 
-                      [class.is-invalid]="actionForm.get('retry_attempts')?.invalid && 
-                                        (actionForm.get('retry_attempts')?.dirty || 
-                                          actionForm.get('retry_attempts')?.touched)"/>
+                <!-- Retry Policy -->
+              <div class="row mb-3">
+                <div class="col-md-5">
+                  <label class="form-label fw-bold">Retry Attempts (0-5)</label>
+                  <input type="number" 
+                        formControlName="retry_attempts" 
+                        class="form-control" 
+                        [class.is-invalid]="actionForm.get('retry_attempts')?.invalid && 
+                                          (actionForm.get('retry_attempts')?.dirty || 
+                                            actionForm.get('retry_attempts')?.touched)"/>
+                  
+                  <div *ngIf="actionForm.get('retry_attempts')?.invalid && 
+                            (actionForm.get('retry_attempts')?.dirty || 
+                              actionForm.get('retry_attempts')?.touched)" 
+                      class="invalid-feedback">
+                    <div *ngIf="actionForm.get('retry_attempts')?.errors?.['required']">
+                      Retry attempts is required
+                    </div>
+                    <div *ngIf="actionForm.get('retry_attempts')?.errors?.['min']">
+                      Minimum attempts is 0
+                    </div>
+                    <div *ngIf="actionForm.get('retry_attempts')?.errors?.['max']">
+                      Maximum attempts is 5
+                    </div>
+                  </div>
+                </div>
                 
-                <div *ngIf="actionForm.get('retry_attempts')?.invalid && 
-                          (actionForm.get('retry_attempts')?.dirty || 
-                            actionForm.get('retry_attempts')?.touched)" 
-                    class="invalid-feedback">
-                  <div *ngIf="actionForm.get('retry_attempts')?.errors?.['required']">
-                    Retry attempts is required
-                  </div>
-                  <div *ngIf="actionForm.get('retry_attempts')?.errors?.['min']">
-                    Minimum attempts is 0
-                  </div>
-                  <div *ngIf="actionForm.get('retry_attempts')?.errors?.['max']">
-                    Maximum attempts is 5
+                <div class="col-md-6">
+                  <label class="form-label fw-bold">Retry Delay (seconds, 0-10)</label>
+                  <input type="number" 
+                        formControlName="retry_delay" 
+                        class="form-control" 
+                        [class.is-invalid]="actionForm.get('retry_delay')?.invalid && 
+                                          (actionForm.get('retry_delay')?.dirty || 
+                                            actionForm.get('retry_delay')?.touched)"/>
+                  
+                  <div *ngIf="actionForm.get('retry_delay')?.invalid && 
+                            (actionForm.get('retry_delay')?.dirty || 
+                              actionForm.get('retry_delay')?.touched)" 
+                      class="invalid-feedback">
+                    <div *ngIf="actionForm.get('retry_delay')?.errors?.['required']">
+                      Retry delay is required
+                    </div>
+                    <div *ngIf="actionForm.get('retry_delay')?.errors?.['min']">
+                      Minimum delay is 0 seconds
+                    </div>
+                    <div *ngIf="actionForm.get('retry_delay')?.errors?.['max']">
+                      Maximum delay is 10 seconds
+                    </div>
                   </div>
                 </div>
               </div>
-              
-              <div class="col-md-6">
-                <label class="form-label fw-bold">Retry Delay (seconds, 0-10)</label>
-                <input type="number" 
-                      formControlName="retry_delay" 
-                      class="form-control" 
-                      [class.is-invalid]="actionForm.get('retry_delay')?.invalid && 
-                                        (actionForm.get('retry_delay')?.dirty || 
-                                          actionForm.get('retry_delay')?.touched)"/>
-                
-                <div *ngIf="actionForm.get('retry_delay')?.invalid && 
-                          (actionForm.get('retry_delay')?.dirty || 
-                            actionForm.get('retry_delay')?.touched)" 
-                    class="invalid-feedback">
-                  <div *ngIf="actionForm.get('retry_delay')?.errors?.['required']">
-                    Retry delay is required
-                  </div>
-                  <div *ngIf="actionForm.get('retry_delay')?.errors?.['min']">
-                    Minimum delay is 0 seconds
-                  </div>
-                  <div *ngIf="actionForm.get('retry_delay')?.errors?.['max']">
-                    Maximum delay is 10 seconds
-                  </div>
-                </div>
-              </div>
-            </div>
+              <hr>
             </div>
 
             <!-- Survey Action -->
@@ -940,94 +944,123 @@
                       </button>
                     </div>
                     
+                    <!-- Question Text -->
                     <div class="mb-2">
-                      <label class="form-label">Question Text</label>
-                      <input type="text" formControlName="text" class="form-control" placeholder="Enter question text"/>
+                      <label class="form-label">Question <span class="text-danger">*</span></label>
+                      <input type="text" 
+                            formControlName="text" 
+                            class="form-control" 
+                            [class.is-invalid]="question.get('text')?.invalid && (question.get('text')?.dirty || question.get('text')?.touched)"
+                            placeholder="Set Question ...."/>
+                      <div *ngIf="question.get('text')?.invalid && (question.get('text')?.dirty || question.get('text')?.touched)"
+                          class="invalid-feedback mt-1">
+                        Question is required
+                      </div>
                     </div>
                     
+                    <!-- Question Type -->
                     <div class="mb-2">
-                      <label class="form-label">Question Type</label>
-                      <select formControlName="type" class="form-select" (change)="updateQuestionValidation(i)">
+                      <label class="form-label">Question Type <span class="text-danger">*</span></label>
+                      <select formControlName="type" 
+                            class="form-select"
+                            [class.is-invalid]="question.get('type')?.invalid && (question.get('type')?.dirty || question.get('type')?.touched)"
+                            (change)="updateQuestionValidation(i)">
                         <option value="text">Text</option>
                         <option value="number">Number</option>
                         <option value="choice">Multiple Choice</option>
                         <option value="rating">Rating (1-5)</option>
                       </select>
                     </div>
-                    
+                                                
                     <!-- Number validation -->
                     <div *ngIf="question.get('type')?.value === 'number'" class="mb-2" formGroupName="validation">
                       <div class="row">
                         <div class="col">
-                          <label class="form-label">Min Value</label>
-                          <input type="number" formControlName="min" class="form-control"/>
+                          <label class="form-label">Min Value <span class="text-danger">*</span></label>
+                          <input type="number" 
+                                formControlName="min" 
+                                class="form-control"
+                                [class.is-invalid]="question.get('validation.min')?.invalid"/>
+                          <div *ngIf="question.get('validation.min')?.invalid" class="invalid-feedback mt-1">
+                            Minimum value is required
+                          </div>
                         </div>
+
                         <div class="col">
-                          <label class="form-label">Max Value</label>
-                          <input type="number" formControlName="max" class="form-control"/>
+                          <label class="form-label">Max Value <span class="text-danger">*</span></label>
+                          <input type="number" 
+                                formControlName="max" 
+                                class="form-control"
+                                [class.is-invalid]="question.get('validation.max')?.invalid"/>
+                          <div *ngIf="question.get('validation.max')?.invalid" class="invalid-feedback mt-1">
+                            Maximum value is required and must be at least 1
+                          </div>
                         </div>
                       </div>
                     </div>
                     
                     <!-- Multiple choice options -->
                     <div *ngIf="question.get('type')?.value === 'choice'" class="mb-2">
-                      <label class="form-label">Options (comma separated)</label>
-                      <input type="text" formControlName="options" class="form-control" placeholder="Option 1, Option 2, Option 3"/>
+                      <label class="form-label">Options (comma separated) <span class="text-danger">*</span></label>
+                      <input type="text" 
+                            formControlName="options" 
+                            class="form-control"
+                            [class.is-invalid]="question.get('options')?.invalid && (question.get('options')?.dirty || question.get('options')?.touched)"
+                            placeholder="Option 1, Option 2, Option 3"/>
+                      <div *ngIf="question.get('options')?.invalid && (question.get('options')?.dirty || question.get('options')?.touched)"
+                          class="invalid-feedback mt-1">
+                        Please provide at least one option
+                      </div>
+                      <small class="text-muted">Separate multiple options with commas</small>
                     </div>
                     
-                    <div class="form-check">
-                      <input type="checkbox" formControlName="required" class="form-check-input" id="required{{i}}">
+                    <!-- Required checkbox -->
+                    <div class="form-check mt-2">
+                      <input type="checkbox" 
+                            formControlName="required" 
+                            class="form-check-input" 
+                            id="required{{i}}">
                       <label class="form-check-label" for="required{{i}}">Required</label>
                     </div>
-
                   </div>
                 </div>
-                
-                <br>
-                <button type="button" class="btn btn-sm btn-outline-primary" (click)="addSurveyQuestion()">
-                  + Add Question
-                </button>
+  
+                 <div class="d-flex justify-content-end mt-2">
+                  <button type="button" 
+                          class="btn btn-outline-primary" 
+                          (click)="addSurveyQuestion()">
+                    <i class="feather icon-plus me-1"></i> Add Question
+                  </button>
+                </div>
+                <hr>
               </div>
 
+              <!-- Completion Message -->
               <div class="mb-3">
                 <label class="form-label fw-bold">Completion Message</label>
-                <input type="text" formControlName="completion_message" class="form-control" 
+                <input type="text" 
+                      formControlName="completion_message" 
+                      class="form-control" 
                       placeholder="Thank you for completing our survey!"/>
+                <small class="text-muted">Message to show after survey submission</small>
               </div>
 
-              <div class="d-flex align-items-center mb-3">
-                <input class="form-check-input me-2" type="checkbox" formControlName="persist_responses" id="persistResponses">
-                <label class="form-check-label" for="persistResponses">Save survey responses</label>
+              <!-- Persist Responses -->
+              <div class="form-check mb-3">
+                <input class="form-check-input" 
+                      type="checkbox" 
+                      formControlName="persist_responses" 
+                      id="persistResponses">
+                <label class="form-check-label" for="persistResponses">
+                  Save survey responses
+                </label>
+                <small class="text-muted d-block">Responses will be stored in the database</small>
               </div>
-            </div>
-
-            <!-- Loop Action -->
-            <div *ngSwitchCase="'loop'" class="mb-3">
-              <div class="mb-3">
-                <label class="form-label fw-bold">Collection to loop through</label>
-                <input type="text" formControlName="collection" class="form-control" 
-                      placeholder="Enter variable name containing collection"/>
-              </div>
-              
-              <div class="mb-3">
-                <label class="form-label fw-bold">Action to repeat</label>
-                <select formControlName="action" class="form-select">
-                  <option value="">Select an action</option>
-                  <option *ngFor="let action of combinedItems" [value]="action.id">{{action.name}}</option>
-                </select>
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label fw-bold">Maximum iterations</label>
-                <input type="number" formControlName="max_iterations" class="form-control" min="1" max="1000" value="100"/>
-                <div class="text-muted mt-1" style="font-size: 12px;">
-                  Prevent infinite loops by setting a maximum number of iterations
-                </div>
-              </div>
+              <hr>
             </div>
 
             <!-- Set Variable Action -->
-          <div *ngSwitchCase="'set_variable'" class="mb-3">
+           <div *ngSwitchCase="'set_variable'" class="mb-3">
             <div formArrayName="variables">
               <label class="form-label fw-bold">Variables</label>
 
@@ -1091,10 +1124,11 @@
               <input type="checkbox" class="form-check-input" formControlName="clear_on_session_end" id="clearOnSessionEnd">
               <label class="form-check-label" for="clearOnSessionEnd">Clear when session ends</label>
             </div>
-          </div>
+            <hr>
+            </div>
 
             <!-- Jump to Trigger Action -->
-            <div *ngSwitchCase="'Jump_to_Trigger'" class="mb-3">
+          <div *ngSwitchCase="'Jump_to_Trigger'" class="mb-3">
                   <div class="mb-3">
                     <label class="form-label fw-bold">Target Type</label>
                     <select formControlName="target_type" class="form-select">
@@ -1170,9 +1204,7 @@
                   <i class="feather icon-plus"></i> Add Variable
                 </button>
                </div>
-              
-
-         
+            <hr>
             </div>
 
             <!-- Conditional Action -->
@@ -1270,7 +1302,34 @@
                   </button>
                 </div>
               </div>
-           </div>
+              <hr>
+            </div>
+
+               <!-- Loop Action -->
+            <div *ngSwitchCase="'loop'" class="mb-3">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Collection to loop through</label>
+                <input type="text" formControlName="collection" class="form-control" 
+                      placeholder="Enter variable name containing collection"/>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label fw-bold">Action to repeat</label>
+                <select formControlName="action" class="form-select">
+                  <option value="">Select an action</option>
+                  <option *ngFor="let action of combinedItems" [value]="action.id">{{action.name}}</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-bold">Maximum iterations</label>
+                <input type="number" formControlName="max_iterations" class="form-control" min="1" max="1000" value="100"/>
+                <div class="text-muted mt-1" style="font-size: 12px;">
+                  Prevent infinite loops by setting a maximum number of iterations
+                </div>
+            </div>
+              <hr>
+            </div>
 
              <!-- Human Handoff Action -->
             <div *ngSwitchCase="'human_handoff'" class="mb-3">
@@ -1328,18 +1387,17 @@
                   <label class="form-label">Fallback Message</label>
                   <input type="text" formControlName="fallback_message" class="form-control"
                         placeholder="All agents are busy. We'll contact you shortly." />
-                </div>
               </div>
-            </div>
+              </div>
+              <hr>
+             </div>
 
-         
             <!-- Default fallback for unsupported action types -->
             <div *ngSwitchDefault class="mb-3">
               <p class="text-muted">Configuration form for this action type is not yet implemented.</p>
             </div>
           </ng-container>
 
-        <!-- Form Footer -->
         <div class="d-flex justify-content-between mt-4">
           <button type="button" class="btn btn-sm btn-outline-info me-2" (click)="showActionForm = false">
             Cancel
@@ -1350,8 +1408,6 @@
           
         </div>
       </form>
-
       </div>
-
   </div>
 </div>

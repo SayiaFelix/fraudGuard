@@ -9,6 +9,32 @@ import { ActivatedRoute, Router } from '@angular/router'; // Added Router
 import { catchError, forkJoin, of, tap } from 'rxjs';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
+
+interface SurveyQuestion {
+  id?: string;
+  text: string;
+  type: 'text' | 'number' | 'choice' | 'rating';
+  required?: boolean;
+  validation?: {
+    min?: number;
+    max?: number;
+  };
+  options?: string[];
+}
+
+interface SurveyConfig {
+  questions: SurveyQuestion[];
+  completion_message?: string;
+  persist_responses?: boolean;
+}
+
+interface SurveyAction {
+  name: string;
+  action_type: 'survey';
+  config: SurveyConfig;
+  // ...
+}
+
 interface Node {
   id: number;
   type: 'action' | 'trigger';
@@ -1452,21 +1478,33 @@ createSurveyForm() {
   this.addSurveyQuestion();
 }
 
-// In your component class
-initSurveyForm() {
-  this.actionForm = this.fb.group({
-    name: ['Customer Feedback Survey', Validators.required],
-    action_type: ['survey', Validators.required],
-    config: this.fb.group({
-      questions: this.fb.array([]),  
-      completion_message: ['Thank you for your feedback!'],
-      persist_responses: [true]
-    })
-  });
-  this.addSurveyQuestion(); 
+get surveyQuestions(): FormArray {
+  return (this.actionForm.get('config.questions') as FormArray);
 }
 
-addSurveyQuestion() {
+
+initSurveyForm(action?: any) {
+  this.actionForm = this.fb.group({
+    name: [action?.name || 'Customer Feedback Survey', Validators.required],
+    action_type: ['survey', Validators.required],
+    config: this.fb.group({
+      questions: this.fb.array([]),
+      completion_message: [action?.config?.completion_message || 'Thank you for your feedback!'],
+      persist_responses: [action?.config?.persist_responses !== false]
+    })
+  });
+
+  // Initialize with existing questions if editing
+  if (action?.config?.questions?.length) {
+    action.config.questions.forEach((q: SurveyQuestion) => {
+      this.addSurveyQuestion(q);
+    });
+  } else {
+    this.addSurveyQuestion(); 
+  }
+}
+
+addSurveyQuestion(question?: SurveyQuestion) {
   // Safely get the questions FormArray
   const questions = this.actionForm?.get('config.questions') as FormArray;
   
@@ -1475,16 +1513,61 @@ addSurveyQuestion() {
     return;
   }
 
-  questions.push(this.fb.group({
-    id: ['q' + (questions.length + 1)],
-    text: ['How satisfied are you? (1-5)', Validators.required],
-    type: ['number', Validators.required],
+  const questionGroup = this.fb.group({
+    id: [question?.id || ''],
+    text: [question?.text || '', Validators.required],
+    type: [question?.type || 'text', Validators.required],
+    required: [question?.required || false],
+    // Conditional fields
     validation: this.fb.group({
-      min: [1],
-      max: [5]
+      min: [question?.type === 'number' ? question?.validation?.min : null],
+      max: [question?.type === 'number' ? question?.validation?.max : null]
     }),
-    required: [false]
-  }));
+    options: [question?.type === 'choice' ? question?.options?.join(', ') : '']
+  });
+
+  // Set up type change handler
+  questionGroup.get('type')?.valueChanges.subscribe(type => {
+    this.updateQuestionValidation(this.surveyQuestions.controls.indexOf(questionGroup));
+  });
+
+  this.surveyQuestions.push(questionGroup);
+}
+
+removeSurveyQuestion(index: number) {
+  this.surveyQuestions.removeAt(index);
+}
+
+updateQuestionValidation(index: number) {
+  const question = this.surveyQuestions.at(index);
+  const type = question.get('type')?.value;
+  
+  // Clear validators first
+  question.get('validation.min')?.clearValidators();
+  question.get('validation.max')?.clearValidators();
+  question.get('options')?.clearValidators();
+  
+  // Set validators based on type
+  if (type === 'number' || type === 'rating') {
+    const min = type === 'rating' ? 1 : null;
+    const max = type === 'rating' ? 5 : null;
+    
+    question.get('validation.min')?.setValidators([Validators.required, Validators.min(0)]);
+    question.get('validation.max')?.setValidators([Validators.required, Validators.min(1)]);
+    
+    // Auto-set values for rating
+    if (type === 'rating') {
+      question.get('validation.min')?.setValue(1);
+      question.get('validation.max')?.setValue(5);
+    }
+  } else if (type === 'choice') {
+    question.get('options')?.setValidators(Validators.required);
+  }
+  
+  // Update validity
+  question.get('validation.min')?.updateValueAndValidity();
+  question.get('validation.max')?.updateValueAndValidity();
+  question.get('options')?.updateValueAndValidity();
 }
 
 resetSurveyForm() {
@@ -1495,42 +1578,6 @@ resetSurveyForm() {
   this.addSurveyQuestion(); 
 }
 
-get surveyQuestions(): FormArray {
-  if (!this.actionForm || !this.actionForm.get('config.questions')) {
-    console.error('Form controls not initialized!');
-    return this.fb.array([]); // Return empty array as fallback
-  }
-  return this.actionForm.get('config.questions') as FormArray;
-}
-
-updateQuestionValidation(questionIndex: number) {
-  const questionGroup = this.surveyQuestions.at(questionIndex) as FormGroup;
-  const questionType = questionGroup.get('type')?.value;
-  
-  questionGroup.removeControl('validation');
-  questionGroup.removeControl('options');
-
-  switch(questionType) {
-    case 'number':
-    case 'rating':
-      questionGroup.addControl('validation', this.fb.group({
-        min: [1],
-        max: [5]
-      }));
-      break;
-      
-    case 'choice':
-      questionGroup.addControl('options', this.fb.control('', Validators.required));
-      break;
-  }
-}
-
-removeSurveyQuestion(index: number) {
-  const questions = this.actionForm.get('config.questions') as FormArray;
-  questions.removeAt(index);
-}
-
-//these methods to your component class
 getQuestionControl(question: AbstractControl, path: string): FormControl {
   const control = question.get(path);
   if (!control) {
@@ -1801,8 +1848,8 @@ onActionSubmit(): void {
 
             if (q.type === 'number') {
               question.validation = {
-                min: q.min ?? 1,
-                max: q.max ?? 5
+                min: q.validation?.min ?? 1,
+                max: q.validation?.max ?? 5
               };
             }
 
