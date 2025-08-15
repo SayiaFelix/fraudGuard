@@ -601,19 +601,18 @@ removeCarouselItem(index: number): void {
   delete this.carouselItemFiles[index];
 }
 
-
 get headers(): FormArray {
   return this.actionForm.get('headers') as FormArray;
 }
 
-addHeader(): void {
+addHeader(key: string = '', value: string = '') {
   this.headers.push(this.fb.group({
-    key: ['', Validators.required],
-    value: ['', Validators.required]
+    key: [key, Validators.required],
+    value: [value, Validators.required]
   }));
 }
 
-removeHeader(index: number): void {
+removeHeader(index: number) {
   this.headers.removeAt(index);
 }
 
@@ -1216,19 +1215,24 @@ openActionForm(action: any): void {
         this.addCarouselItem();
       }
       break;
-    
+
     case 'http_request':
       this.actionForm = this.fb.group({
         name: [action.name || '', Validators.required],
         action_type: ['http_request', Validators.required],
-        http_method: [action.config?.method || 'GET', Validators.required],
-        url: [action.config?.url || '', Validators.required],
-        headers: this.fb.array([]), // we'll populate below
+        http_method: [action.config?.method || 'GET', Validators.required],         
+        url: [action.config?.url || '', [
+          Validators.required,
+          Validators.pattern(/^https?:\/\/.+/)
+        ]],
+        headers: this.fb.array([]),
         request_body: [action.config?.body ? JSON.stringify(action.config.body, null, 2) : ''],
-        timeout: [action.config?.timeout || 30, [Validators.required, Validators.min(1), Validators.max(60)]]
+        timeout: [action.config?.timeout || 30, [Validators.required, Validators.min(1), Validators.max(60)]],
+        retry_attempts: [action.config?.retry_policy?.attempts || 3, [Validators.min(0), Validators.max(5)]],
+        retry_delay: [action.config?.retry_policy?.delay || 1, [Validators.min(0), Validators.max(10)]]
       });
 
-      // Populate headers if editing existing
+      // headers if editing existing
       if (action.config?.headers) {
         Object.entries(action.config.headers).forEach(([key, value]) => {
           this.headers.push(
@@ -1604,9 +1608,11 @@ onActionSubmit(): void {
 
     case 'http_request':
       const headersObj: { [key: string]: string } = {};
-      this.actionForm.value.headers.forEach((h: any) => {
-        if (h.key && h.value) {
-          headersObj[h.key] = h.value;
+      this.headers.controls.forEach(headerGroup => {
+        const key = headerGroup.get('key')?.value?.trim();
+        const value = headerGroup.get('value')?.value?.trim();
+        if (key && value) {
+          headersObj[key] = value;
         }
       });
 
@@ -1614,8 +1620,8 @@ onActionSubmit(): void {
       if (this.actionForm.value.request_body) {
         try {
           parsedBody = JSON.parse(this.actionForm.value.request_body);
-        } catch {
-          Swal.fire('Error', 'Invalid JSON in request body', 'error');
+        } catch (e) {
+          Swal.fire('Invalid JSON', `Error in request body: ${(e as Error).message}`, 'error');
           return;
         }
       }
@@ -1627,8 +1633,11 @@ onActionSubmit(): void {
           method: this.actionForm.value.http_method,
           headers: headersObj,
           body: parsedBody,
-          timeout: this.actionForm.value.timeout || 30,
-          retry_policy: { attempts: 3, delay: 1 } // optional default
+          timeout: this.actionForm.value.timeout,
+          retry_policy: { // Change to plain object
+            attempts: this.actionForm.value.retry_attempts,
+            delay: this.actionForm.value.retry_delay
+          }
         }
       };
 
@@ -2037,7 +2046,6 @@ private handleActionResponse(result: any): void {
  
   if (result.status === '00') {
     setTimeout(() => {
-      Swal.close();  // When your API call completes
       this.result = result.data;
       this.fetchNestedIntents(this.intentId);
       this.checkAndCombine();
@@ -2047,7 +2055,6 @@ private handleActionResponse(result: any): void {
       this.resetSurveyForm()
     }, 100);
   } else {
-    Swal.close();  
     Swal.fire({
       icon: 'warning',
       title: 'Unexpected Response',

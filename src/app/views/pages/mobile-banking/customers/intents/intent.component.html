@@ -843,11 +843,102 @@
                           placeholder='{"key": "value"}'></textarea>
               </div>
 
-              <div class="mb-3">
+              <!-- <div class="mb-3">
                 <label class="form-label fw-bold">Timeout (seconds)</label>
                 <input type="number" formControlName="timeout" class="form-control" min="1" max="60" value="30"/>
+              </div> -->
+
+
+              <!-- <div class="row mb-3">
+                <div class="col-md-4">
+                  <label class="form-label fw-bold">Retry Attempts (0-5)</label>
+                  <input type="number" formControlName="retry_attempts" class="form-control" min="0" max="5"/>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-bold">Retry Delay (seconds, 0-10)</label>
+                  <input type="number" formControlName="retry_delay" class="form-control" min="0" max="10"/>
+                </div>
+              </div> -->
+
+              <!-- Timeout Field -->
+            <div class="mb-3">
+              <label class="form-label fw-bold">Timeout (seconds)</label>
+              <input type="number" 
+                    formControlName="timeout" 
+                    class="form-control" 
+                    [class.is-invalid]="actionForm.get('timeout')?.invalid && 
+                                      (actionForm.get('timeout')?.dirty || 
+                                      actionForm.get('timeout')?.touched)"/>
+              
+              <div *ngIf="actionForm.get('timeout')?.invalid && 
+                        (actionForm.get('timeout')?.dirty || 
+                          actionForm.get('timeout')?.touched)" 
+                  class="invalid-feedback">
+                <div *ngIf="actionForm.get('timeout')?.errors?.['required']">
+                  Timeout is required
+                </div>
+                <div *ngIf="actionForm.get('timeout')?.errors?.['min']">
+                  Minimum timeout is 1 second
+                </div>
+                <div *ngIf="actionForm.get('timeout')?.errors?.['max']">
+                  Maximum timeout is 60 seconds
+                </div>
               </div>
             </div>
+
+              <!-- Retry Policy -->
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <label class="form-label fw-bold">Retry Attempts (0-5)</label>
+                <input type="number" 
+                      formControlName="retry_attempts" 
+                      class="form-control" 
+                      [class.is-invalid]="actionForm.get('retry_attempts')?.invalid && 
+                                        (actionForm.get('retry_attempts')?.dirty || 
+                                          actionForm.get('retry_attempts')?.touched)"/>
+                
+                <div *ngIf="actionForm.get('retry_attempts')?.invalid && 
+                          (actionForm.get('retry_attempts')?.dirty || 
+                            actionForm.get('retry_attempts')?.touched)" 
+                    class="invalid-feedback">
+                  <div *ngIf="actionForm.get('retry_attempts')?.errors?.['required']">
+                    Retry attempts is required
+                  </div>
+                  <div *ngIf="actionForm.get('retry_attempts')?.errors?.['min']">
+                    Minimum attempts is 0
+                  </div>
+                  <div *ngIf="actionForm.get('retry_attempts')?.errors?.['max']">
+                    Maximum attempts is 5
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Retry Delay (seconds, 0-10)</label>
+                <input type="number" 
+                      formControlName="retry_delay" 
+                      class="form-control" 
+                      [class.is-invalid]="actionForm.get('retry_delay')?.invalid && 
+                                        (actionForm.get('retry_delay')?.dirty || 
+                                          actionForm.get('retry_delay')?.touched)"/>
+                
+                <div *ngIf="actionForm.get('retry_delay')?.invalid && 
+                          (actionForm.get('retry_delay')?.dirty || 
+                            actionForm.get('retry_delay')?.touched)" 
+                    class="invalid-feedback">
+                  <div *ngIf="actionForm.get('retry_delay')?.errors?.['required']">
+                    Retry delay is required
+                  </div>
+                  <div *ngIf="actionForm.get('retry_delay')?.errors?.['min']">
+                    Minimum delay is 0 seconds
+                  </div>
+                  <div *ngIf="actionForm.get('retry_delay')?.errors?.['max']">
+                    Maximum delay is 10 seconds
+                  </div>
+                </div>
+              </div>
+            </div>
+           </div>
 
             <!-- Survey Action -->
             <div *ngSwitchCase="'survey'" class="mb-3" formGroupName="config">
