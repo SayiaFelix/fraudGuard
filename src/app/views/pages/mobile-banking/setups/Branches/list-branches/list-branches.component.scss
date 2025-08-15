@@ -12,6 +12,8 @@
   --button-dark-bg: #e5e7eb;
   --primary-blue: #007bff;
   --primary-blue-light: #e6f2ff;
+  --checkbox-blue: #007bff;
+  --checkbox-blue-light: rgba(0, 123, 255, 0.1);
 }
 
 /* --- Original Page & Side Panel Styles --- */
@@ -20,18 +22,21 @@
   overflow-x: hidden;
   background-color: var(--bg-color);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  margin-top: -55px;
+  margin-top: -80px; // Move the whole page up a bit more
 }
 
 .main-content {
   transition: margin-right 0.3s ease-in-out;
+  // Remove default margin-right when panel is not visible
+  margin-right: 0;
+  
   &.panel-visible {
     margin-right: 400px;
   }
 }
 
 .people-page {
-  // padding: 2rem;
+  padding: 2rem;
   color: var(--text-color);
   min-height: 100vh;
 }
@@ -50,6 +55,8 @@
   margin-bottom: 1.5rem;
   flex-wrap: wrap;
   gap: 1rem;
+  // Add padding to prevent button from touching edge
+  padding-right: 1rem;
 }
 
 .filters {
@@ -112,6 +119,8 @@
   font-weight: 600;
   padding: 0.5rem 1rem;
   cursor: pointer;
+  // Add margin to prevent touching edge
+  margin-right: 0.5rem;
   &:hover {
     opacity: 0.9;
   }
@@ -191,7 +200,31 @@
   }
 }
 
-.checkbox-cell { flex: 0 0 50px; }
+.checkbox-cell { 
+  flex: 0 0 50px; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--checkbox-blue);
+    cursor: pointer;
+    
+    // Custom checkbox styling for better blue theme integration
+    &:checked {
+      background-color: var(--checkbox-blue);
+      border-color: var(--checkbox-blue);
+    }
+    
+    &:focus {
+      outline: 2px solid var(--checkbox-blue-light);
+      outline-offset: 2px;
+    }
+  }
+}
+
 .name-cell { flex: 2 1 0; font-weight: 600; color: #22223b; }
 .id-cell { flex: 4 1 0; }
 .email-cell { flex: 2 1 0; }
@@ -212,19 +245,31 @@
   }
 }
 
-.details-panel-overlay {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); z-index: 1040; opacity: 0;
-  visibility: hidden; transition: opacity 0.3s ease;
-  &.visible { opacity: 1; visibility: visible; }
+.no-results-message {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-muted);
+  font-style: italic;
 }
 
+// Details panel only shows when there's a selected person
 .details-panel {
-  position: fixed; top: 0; right: -400px; width: 400px; height: 100%;
-  background-color: var(--container-bg); border-left: 1px solid var(--row-border-color);
-  z-index: 1050; transition: right 0.3s ease-in-out;
-  display: flex; flex-direction: column; color: var(--text-color);
-  &.visible { right: 0; }
+  position: fixed; 
+  top: -60px; // Align the side panel with the main content
+  right: -400px; 
+  width: 400px; 
+  height: calc(100% + 60px); // Extend height to cover the new top offset
+  background-color: var(--container-bg); 
+  border-left: 1px solid var(--row-border-color);
+  z-index: 1050; 
+  transition: right 0.3s ease-in-out;
+  display: flex; 
+  flex-direction: column; 
+  color: var(--text-color);
+  
+  &.visible { 
+    right: 0; 
+  }
 }
 
 .panel-header {
@@ -251,16 +296,56 @@
 .user-name { flex-grow: 1; font-weight: 600; color: #22223b; }
 .panel-body { padding: 1rem 1.5rem; overflow-y: auto; flex-grow: 1; }
 
+/* Updated styles for collapsible sections using details/summary */
 .detail-section {
   margin-bottom: 1.5rem;
-  .section-header {
-    display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0;
-    font-weight: 600; color: var(--text-muted); cursor: pointer;
-    h4 { font-size: 0.9rem; margin: 0; flex-grow: 1; color: var(--text-color); }
+  border: none;
+  
+  /* Style the summary element (the clickable header) */
+  summary.section-header {
+    display: flex; 
+    align-items: center; 
+    gap: 0.75rem; 
+    padding: 0.5rem 0;
+    font-weight: 600; 
+    color: var(--text-muted); 
+    cursor: pointer;
+    list-style: none; /* Remove the default triangle */
+    user-select: none;
+    
+    /* Hide the default browser disclosure triangle */
+    &::-webkit-details-marker {
+      display: none;
+    }
+    
+    h4 { 
+      font-size: 0.9rem; 
+      margin: 0; 
+      flex-grow: 1; 
+      color: var(--text-color); 
+    }
+    
+    /* Style the chevron icon */
+    i.fas.fa-chevron-down {
+      transition: transform 0.2s ease;
+    }
+    
+    &:hover {
+      color: var(--text-color);
+    }
   }
+  
+  /* Rotate the chevron when the details is open */
+  &[open] summary.section-header i.fas.fa-chevron-down {
+    transform: rotate(180deg);
+  }
+  
   .section-content {
     padding: 0.5rem 0 0.5rem 1.5rem;
-    &.placeholder-text { color: var(--text-muted); font-size: 0.9rem; }
+    &.placeholder-text { 
+      color: var(--text-muted); 
+      font-size: 0.9rem; 
+    }
   }
 }
 
@@ -271,10 +356,8 @@
   strong { color: var(--text-color); font-weight: 500; }
 }
 
-
 /* ======================================================= */
-/* FINAL, SELF-CONTAINED MODAL STYLES                      */
-/* These styles live inside the component and will work.   */
+/* MODAL STYLES                                            */
 /* ======================================================= */
 :host {
   .people-modal-overlay {
@@ -283,7 +366,8 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(9, 30, 66, 0.54);
+    // Remove the background shadow
+    background-color: transparent;
     z-index: 1050;
     display: flex;
     justify-content: center;
@@ -309,7 +393,7 @@
   .people-modal-title {
     margin: 0;
     font-size: 20px;
-    font-weight: 600; /* Bolder Title */
+    font-weight: 600;
     color: #333;
   }
 
@@ -367,7 +451,7 @@
 
   .people-modal-footer {
     display: flex;
-    justify-content: space-between; /* Pushes buttons to opposite ends */
+    justify-content: space-between;
     align-items: center;
     padding: 16px 24px;
     border-top: 1px solid #e9ecef;
@@ -384,14 +468,14 @@
   }
 
   .people-modal-cancel-btn {
-    background-color: #e0f7fa; /* Light Teal */
-    color: #006064; /* Dark Teal Text */
+    background-color: #e0f7fa;
+    color: #006064;
     border-color: #b2ebf2;
     &:hover { background-color: #b2ebf2; }
   }
 
   .people-modal-save-btn {
-    background-color: var(--primary-blue); /* Blue */
+    background-color: var(--primary-blue);
     color: var(--button-dark-text);
     border-color: var(--primary-blue);
     &:hover:not([disabled]) { opacity: 0.9; }

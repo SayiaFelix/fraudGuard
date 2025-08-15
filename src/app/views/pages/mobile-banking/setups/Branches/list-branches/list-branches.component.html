@@ -23,19 +23,28 @@
             <select class="tags-select"><option selected>Select</option></select>
           </div>
           <a href="javascript:void(0)" class="reset-link" (click)="resetFilters()">
-            <i class="fas fa-times"></i> Reset all
+            <i class="fas fa-times"></i> Reset all
           </a>
         </div>
-        <button class="btn add-person-btn" (click)="openAddPersonModal()">+ Add Person</button>
+        <button class="btn add-person-btn" (click)="openAddPersonModal()">
+          <i class="fas fa-plus"></i> Add Person
+        </button>
       </div>
 
-      <!-- Wrapper for the grey box containing the table and footer -->
+      <!-- Wrapper for the table container -->
       <div class="table-wrapper-box">
         <!-- Table Container -->
         <div class="table-container">
           <!-- Table Header -->
           <div class="table-header">
-            <div class="header-cell checkbox-cell"><input type="checkbox"></div>
+            <div class="header-cell checkbox-cell">
+              <input 
+                type="checkbox" 
+                (change)="toggleSelectAll($event)"
+                [checked]="areAllSelected()"
+                [indeterminate]="areSomeSelected()"
+              >
+            </div>
             <div class="header-cell name-cell">
               <span>Name</span>
               <input
@@ -86,7 +95,14 @@
                 (click)="showPersonDetails(person)"
                 [class.selected]="selectedPerson && selectedPerson.id === person.id"
               >
-                <div class="table-cell checkbox-cell"><input type="checkbox" (click)="$event.stopPropagation()"></div>
+                <div class="table-cell checkbox-cell">
+                  <input 
+                    type="checkbox" 
+                    [checked]="person.selected"
+                    (change)="togglePersonSelection(person, $event)"
+                    (click)="$event.stopPropagation()"
+                  >
+                </div>
                 <div class="table-cell name-cell">{{ person.name }}</div>
                 <div class="table-cell id-cell">{{ person.id }}</div>
                 <div class="table-cell email-cell">{{ person.email }}</div>
@@ -122,57 +138,88 @@
     </div>
   </div>
 
-  <!-- Details Side Panel -->
-  <div class="details-panel-overlay" [class.visible]="isDetailsPanelVisible" (click)="hidePersonDetails()"></div>
-  <div class="details-panel" [class.visible]="isDetailsPanelVisible">
-    <ng-container *ngIf="selectedPerson">
-      <div class="panel-header">
-        <div class="person-title"><i class="fas fa-users title-icon"></i><span>Person</span></div>
-        <button class="close-btn" (click)="hidePersonDetails()"><i class="fas fa-times"></i></button>
+  <!-- Details Side Panel (only renders when a person is selected) -->
+  <div class="details-panel-overlay" *ngIf="isDetailsPanelVisible && selectedPerson" (click)="hidePersonDetails()"
+    style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:1049;background:transparent;">
+  </div>
+  <div class="details-panel" [class.visible]="isDetailsPanelVisible" *ngIf="selectedPerson">
+    <div class="panel-header">
+      <div class="person-title">
+        <i class="fas fa-users title-icon"></i>
+        <span>Person</span>
       </div>
-      <div class="user-info">
-        <div class="user-avatar"><i class="fas fa-users"></i></div>
-        <div class="user-name">{{ selectedPerson.name !== '-' ? selectedPerson.name : 'Unknown' }}</div>
-        <button class="options-btn"><i class="fas fa-ellipsis-h"></i></button>
-      </div>
-      <div class="panel-body">
-        <div class="detail-section">
-          <div class="section-header"><i class="fas fa-chevron-up"></i><h4>Details</h4></div>
-          <div class="section-content">
-            <div class="detail-item"><i class="fas fa-map-marker-alt"></i><span>Location</span><strong>{{ selectedPerson.location }}</strong></div>
-            <div class="detail-item"><i class="fas fa-globe-americas"></i><span>Country</span><strong>{{ selectedPerson.country }}</strong></div>
-            <div class="detail-item"><i class="fas fa-network-wired"></i><span>IP Address</span><strong>{{ selectedPerson.ipAddress }}</strong></div>
-            <div class="detail-item"><i class="fas fa-envelope"></i><span>Email</span><strong>{{ selectedPerson.email }}</strong></div>
-            <div class="detail-item"><i class="fas fa-phone"></i><span>Phone number</span><strong>{{ selectedPerson.phone }}</strong></div>
-            <div class="detail-item"><i class="fas fa-hashtag"></i><span>Personal ID</span><strong>{{ selectedPerson.id }}</strong></div>
-            <div class="detail-item"><i class="fas fa-hashtag"></i><span>Channel ID</span><strong>-</strong></div>
-            <div class="detail-item"><i class="fas fa-hashtag"></i><span>Unique ID</span><strong>-</strong></div>
-          </div>
+      <button class="close-btn" (click)="hidePersonDetails()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="user-info">
+      <div class="user-avatar"><i class="fas fa-user"></i></div>
+      <div class="user-name">{{ selectedPerson.name !== '-' ? selectedPerson.name : 'Unknown' }}</div>
+      <button class="options-btn"><i class="fas fa-ellipsis-h"></i></button>
+    </div>
+    <div class="panel-body">
+      
+      <!-- Details Section (Collapsible using details/summary) -->
+      <details class="detail-section" open>
+        <summary class="section-header">
+          <i class="fas fa-chevron-down"></i>
+          <h4>Details</h4>
+        </summary>
+        <div class="section-content">
+          <div class="detail-item"><i class="fas fa-map-marker-alt"></i><span>Location</span><strong>{{ selectedPerson.location }}</strong></div>
+          <div class="detail-item"><i class="fas fa-globe-americas"></i><span>Country</span><strong>{{ selectedPerson.country }}</strong></div>
+          <div class="detail-item"><i class="fas fa-network-wired"></i><span>IP Address</span><strong>{{ selectedPerson.ipAddress }}</strong></div>
+          <div class="detail-item"><i class="fas fa-envelope"></i><span>Email</span><strong>{{ selectedPerson.email }}</strong></div>
+          <div class="detail-item"><i class="fas fa-phone"></i><span>Phone number</span><strong>{{ selectedPerson.phone }}</strong></div>
+          <div class="detail-item"><i class="fas fa-hashtag"></i><span>Personal ID</span><strong>{{ selectedPerson.id }}</strong></div>
+          <div class="detail-item"><i class="fas fa-hashtag"></i><span>Channel ID</span><strong>-</strong></div>
+          <div class="detail-item"><i class="fas fa-hashtag"></i><span>Unique ID</span><strong>-</strong></div>
         </div>
-        <div class="detail-section">
-            <div class="section-header"><i class="fas fa-chevron-up"></i><h4>Custom Fields</h4></div>
-            <div class="section-content placeholder-text">Create a custom field to get started</div>
-        </div>
-        <div class="detail-section">
-            <div class="section-header"><i class="fas fa-chevron-up"></i><h4>Notes</h4><button class="add-btn"><i class="fas fa-plus"></i></button></div>
-            <div class="section-content placeholder-text">Create the first note</div>
-        </div>
-        <div class="detail-section">
-            <div class="section-header"><i class="fas fa-chevron-up"></i><h4>Tags</h4><button class="add-btn"><i class="fas fa-plus"></i></button></div>
-            <div class="section-content placeholder-text">Select a tag or tag group</div>
-        </div>
-        <div class="detail-section">
-            <div class="section-header"><i class="fas fa-chevron-down"></i><h4>History</h4></div>
-        </div>
-      </div>
-    </ng-container>
+      </details>
+      
+      <!-- Custom Fields Section (Collapsible) -->
+      <details class="detail-section">
+        <summary class="section-header">
+          <i class="fas fa-chevron-down"></i>
+          <h4>Custom Fields</h4>
+        </summary>
+        <div class="section-content placeholder-text">Create a custom field to get started</div>
+      </details>
+      
+      <!-- Notes Section (Collapsible) -->
+      <details class="detail-section">
+        <summary class="section-header">
+          <i class="fas fa-chevron-down"></i>
+          <h4>Notes</h4>
+          <button class="add-btn" onclick="event.stopPropagation()"><i class="fas fa-plus"></i></button>
+        </summary>
+        <div class="section-content placeholder-text">Create the first note</div>
+      </details>
+      
+      <!-- Tags Section (Collapsible) -->
+      <details class="detail-section">
+        <summary class="section-header">
+          <i class="fas fa-chevron-down"></i>
+          <h4>Tags</h4>
+          <button class="add-btn" onclick="event.stopPropagation()"><i class="fas fa-plus"></i></button>
+        </summary>
+        <div class="section-content placeholder-text">Select a tag or tag group</div>
+      </details>
+      
+      <!-- History Section (Collapsible, closed by default) -->
+      <details class="detail-section">
+        <summary class="section-header">
+          <i class="fas fa-chevron-down"></i>
+          <h4>History</h4>
+        </summary>
+        <div class="section-content placeholder-text">No history available</div>
+      </details>
+      
+    </div>
   </div>
 </div>
 
-<!-- ======================================================= -->
-<!-- NEW, SELF-CONTAINED "ADD PERSON" MODAL STRUCTURE        -->
-<!-- This replaces the <ng-template> entirely.               -->
-<!-- ======================================================= -->
+<!-- Add Person Modal -->
 <div *ngIf="isAddPersonModalVisible" class="people-modal-overlay" (click)="closeAddPersonModal()">
   <div class="people-modal-container" (click)="$event.stopPropagation()">
 
