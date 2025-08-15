@@ -1128,7 +1128,7 @@
             </div>
 
             <!-- Jump to Trigger Action -->
-          <div *ngSwitchCase="'Jump_to_Trigger'" class="mb-3">
+            <div *ngSwitchCase="'Jump_to_Trigger'" class="mb-3">
                   <div class="mb-3">
                     <label class="form-label fw-bold">Target Type</label>
                     <select formControlName="target_type" class="form-select">
@@ -1305,92 +1305,135 @@
               <hr>
             </div>
 
-               <!-- Loop Action -->
-            <div *ngSwitchCase="'loop'" class="mb-3">
-              <div class="mb-3">
-                <label class="form-label fw-bold">Collection to loop through</label>
-                <input type="text" formControlName="collection" class="form-control" 
-                      placeholder="Enter variable name containing collection"/>
-              </div>
-              
-              <div class="mb-3">
-                <label class="form-label fw-bold">Action to repeat</label>
-                <select formControlName="action" class="form-select">
-                  <option value="">Select an action</option>
-                  <option *ngFor="let action of combinedItems" [value]="action.id">{{action.name}}</option>
-                </select>
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label fw-bold">Maximum iterations</label>
-                <input type="number" formControlName="max_iterations" class="form-control" min="1" max="1000" value="100"/>
-                <div class="text-muted mt-1" style="font-size: 12px;">
-                  Prevent infinite loops by setting a maximum number of iterations
-                </div>
-            </div>
-              <hr>
-            </div>
-
-             <!-- Human Handoff Action -->
+            <!-- Human Handoff Action -->
             <div *ngSwitchCase="'human_handoff'" class="mb-3">
-              <div class="mb-3">
-                <label class="form-label fw-bold">Handoff Mode</label>
-                <select class="form-select" formControlName="mode">
-                  <option value="direct">Direct Transfer</option>
-                  <option value="hybrid">Hybrid (Bot remains available)</option>
-                  <option value="request">Request Agent</option>
-                </select>
-              </div>
+                <!-- Handoff Mode -->
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Handoff Mode <span class="text-danger">*</span></label>
+                  <select class="form-select" 
+                          formControlName="mode"
+                          [class.is-invalid]="actionForm.get('mode')?.invalid && actionForm.get('mode')?.touched">
+                    <option value="direct">Direct Transfer</option>
+                    <option value="hybrid">Hybrid (Bot remains available)</option>
+                    <option value="request">Request Agent</option>
+                  </select>
+                  <div *ngIf="actionForm.get('mode')?.invalid && actionForm.get('mode')?.touched" 
+                      class="invalid-feedback">
+                    Please select a handoff mode
+                  </div>
+                </div>
 
-              <div class="mb-3">
-                <label class="form-label fw-bold">Team</label>
-                <input type="number" formControlName="team_id" class="form-control" placeholder="Enter team ID" />
-              </div>
+                <!-- Team ID -->
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Team ID <span class="text-danger">*</span></label>
+                  <input type="number" 
+                        formControlName="team_id" 
+                        class="form-control"
+                        [class.is-invalid]="actionForm.get('team_id')?.invalid && actionForm.get('team_id')?.touched"
+                        placeholder="Enter team ID" />
+                  <div *ngIf="actionForm.get('team_id')?.errors?.required && actionForm.get('team_id')?.touched" 
+                      class="invalid-feedback">
+                    Team ID is required
+                  </div>
+                  <div *ngIf="actionForm.get('team_id')?.errors?.min" 
+                      class="invalid-feedback">
+                    Team ID must be at least 1
+                  </div>
+                </div>
 
-              <div class="mb-3">
-                <label class="form-label fw-bold">Priority</label>
-                <select class="form-select" formControlName="priority">
-                  <option value="1">Low</option>
-                  <option value="2">Medium</option>
-                  <option value="3">High</option>
-                  <option value="4">Urgent</option>
-                </select>
-              </div>
+                <!-- Priority -->
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Priority <span class="text-danger">*</span></label>
+                  <select class="form-select" 
+                          formControlName="priority"
+                          [class.is-invalid]="actionForm.get('priority')?.invalid && actionForm.get('priority')?.touched">
+                    <option value="1">Low</option>
+                    <option value="2">Medium</option>
+                    <option value="3">High</option>
+                    <option value="4">Urgent</option>
+                  </select>
+                </div>
 
-              <div class="mb-3">
-                <label class="form-label fw-bold">Handoff Message</label>
-                <textarea formControlName="handoff_message" rows="3" class="form-control"
-                          placeholder="Connecting you with an agent..."></textarea>
-              </div>
+                <!-- Handoff Message -->
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Handoff Message <span class="text-danger">*</span></label>
+                  <textarea formControlName="handoff_message" 
+                            rows="3" 
+                            class="form-control"
+                            [class.is-invalid]="actionForm.get('handoff_message')?.invalid && actionForm.get('handoff_message')?.touched"
+                            placeholder="Connecting you with an agent..."></textarea>
+                  <div *ngIf="actionForm.get('handoff_message')?.invalid && actionForm.get('handoff_message')?.touched" 
+                      class="invalid-feedback">
+                    Handoff message is required
+                  </div>
+                </div>
 
-              <div class="mb-3">
-                <label class="form-label fw-bold">Required Context</label>
-                <div *ngFor="let context of requiredContext.controls; let i = index" class="d-flex align-items-center mb-2">
-                  <input type="text" [formControlName]="i" class="form-control" placeholder="context_key" />
-                  <button type="button" class="btn btn-sm btn-outline-danger ms-2" (click)="removeRequiredContext(i)">
-                     <i class="feather icon-trash-2"></i>
+                <!-- Required Context -->
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Required Context</label>
+                  <div *ngFor="let context of requiredContext.controls; let i = index" 
+                      class="d-flex align-items-center mb-2">
+                    <input type="text" 
+                          [formControlName]="i" 
+                          class="form-control"
+                          [class.is-invalid]="context.invalid && (context.dirty || context.touched)"
+                          placeholder="context_key" />
+                    <button type="button" 
+                            class="btn btn-sm btn-outline-danger ms-2" 
+                            (click)="removeRequiredContext(i)">
+                      <i class="feather icon-trash-2"></i>
+                    </button>
+                    <div *ngIf="context.invalid && (context.dirty || context.touched)" 
+                        class="invalid-feedback ms-2">
+                      Context key is required
+                    </div>
+                  </div>
+                  <button type="button" 
+                          class="btn btn-sm btn-outline-primary" 
+                          (click)="addRequiredContext()">
+                    + Add Context Key
                   </button>
                 </div>
-                <br>
-                <button type="button" class="btn btn-sm btn-outline-primary" (click)="addRequiredContext()">
-                  + Add Context Key
-                </button>
-              </div>
 
-              <div class="card p-3 mb-3" formGroupName="fallback_options">
-                <h6 class="fw-bold">Fallback Options</h6>
-                <div class="mb-2">
-                  <label class="form-label">Delay (seconds)</label>
-                  <input type="number" formControlName="delay" class="form-control" min="5" max="300" />
+                <!-- Fallback Options -->
+                <div class="card p-3 mb-3" formGroupName="fallback_options">
+                  <h6 class="fw-bold">Fallback Options</h6>
+                  
+                  <!-- Delay -->
+                  <div class="mb-2">
+                    <label class="form-label">Delay (seconds) <span class="text-danger">*</span></label>
+                    <input type="number" 
+                          formControlName="delay" 
+                          class="form-control"
+                          [class.is-invalid]="fallbackOptions.get('delay')?.invalid && fallbackOptions.get('delay')?.touched"
+                          min="5" 
+                          max="300" />
+                    <div *ngIf="fallbackOptions.get('delay')?.errors?.required" 
+                        class="invalid-feedback">
+                      Delay is required
+                    </div>
+                    <div *ngIf="fallbackOptions.get('delay')?.errors?.min || fallbackOptions.get('delay')?.errors?.max" 
+                        class="invalid-feedback">
+                      Delay must be between 5 and 300 seconds
+                    </div>
+                  </div>
+                  
+                  <!-- Fallback Message -->
+                  <div>
+                    <label class="form-label">Fallback Message <span class="text-danger">*</span></label>
+                    <input type="text" 
+                          formControlName="fallback_message" 
+                          class="form-control"
+                          [class.is-invalid]="fallbackOptions.get('fallback_message')?.invalid && fallbackOptions.get('fallback_message')?.touched"
+                          placeholder="All agents are busy. We'll contact you shortly." />
+                    <div *ngIf="fallbackOptions.get('fallback_message')?.invalid && fallbackOptions.get('fallback_message')?.touched" 
+                        class="invalid-feedback">
+                      Fallback message is required
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <label class="form-label">Fallback Message</label>
-                  <input type="text" formControlName="fallback_message" class="form-control"
-                        placeholder="All agents are busy. We'll contact you shortly." />
-              </div>
-              </div>
               <hr>
-             </div>
+            </div>
 
             <!-- Default fallback for unsupported action types -->
             <div *ngSwitchDefault class="mb-3">
