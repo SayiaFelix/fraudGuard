@@ -663,7 +663,7 @@
             </div>
 
            <!-- Carousel Action -->
-           <div *ngSwitchCase="'carousel'" class="mb-3">
+            <div *ngSwitchCase="'carousel'" class="mb-3">
               <div class="mb-3">
                 <label class="form-label fw-bold">Display Type</label>
                 <select class="form-select" formControlName="display_type">
@@ -800,7 +800,7 @@
                 </div>
                 <hr>
               </div>
-           </div>
+            </div>
 
             <!-- HTTP Request Action -->
             <div *ngSwitchCase="'http_request'" class="mb-3">
@@ -843,23 +843,6 @@
                           placeholder='{"key": "value"}'></textarea>
               </div>
 
-              <!-- <div class="mb-3">
-                <label class="form-label fw-bold">Timeout (seconds)</label>
-                <input type="number" formControlName="timeout" class="form-control" min="1" max="60" value="30"/>
-              </div> -->
-
-
-              <!-- <div class="row mb-3">
-                <div class="col-md-4">
-                  <label class="form-label fw-bold">Retry Attempts (0-5)</label>
-                  <input type="number" formControlName="retry_attempts" class="form-control" min="0" max="5"/>
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label fw-bold">Retry Delay (seconds, 0-10)</label>
-                  <input type="number" formControlName="retry_delay" class="form-control" min="0" max="10"/>
-                </div>
-              </div> -->
-
               <!-- Timeout Field -->
             <div class="mb-3">
               <label class="form-label fw-bold">Timeout (seconds)</label>
@@ -888,7 +871,7 @@
 
               <!-- Retry Policy -->
             <div class="row mb-3">
-              <div class="col-md-4">
+              <div class="col-md-5">
                 <label class="form-label fw-bold">Retry Attempts (0-5)</label>
                 <input type="number" 
                       formControlName="retry_attempts" 
@@ -938,7 +921,7 @@
                 </div>
               </div>
             </div>
-           </div>
+            </div>
 
             <!-- Survey Action -->
             <div *ngSwitchCase="'survey'" class="mb-3" formGroupName="config">
@@ -1193,61 +1176,101 @@
             </div>
 
             <!-- Conditional Action -->
-             <div *ngSwitchCase="'conditional'" class="mb-3">
-                <div class="mb-3">
-                  <label class="form-label fw-bold">Condition Expression</label>
-                  <input type="text" formControlName="condition" class="form-control"
-                        placeholder="context.get('membership_level') in ['gold', 'platinum']"/>
+            <div *ngSwitchCase="'conditional'" class="mb-3">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Condition Expression</label>
+                <input type="text" 
+                      formControlName="condition" 
+                      class="form-control"
+                      [class.is-invalid]="actionForm.get('condition')?.invalid && 
+                                        (actionForm.get('condition')?.dirty || 
+                                          actionForm.get('condition')?.touched)"
+                      placeholder="context.get('membership_level') in ['gold', 'platinum']"/>
+                <div *ngIf="actionForm.get('condition')?.invalid && 
+                          (actionForm.get('condition')?.dirty || 
+                            actionForm.get('condition')?.touched)" 
+                    class="invalid-feedback">
+                  Condition expression is required
                 </div>
+              </div>
 
-                <!-- True Steps -->
-                <div class="mb-3">
+              <!-- True Steps -->
+              <div class="mb-3" formArrayName="true_steps">
                   <label class="form-label fw-bold">True Steps</label>
                   <div *ngFor="let step of trueSteps.controls; let i = index" class="d-flex gap-2 mb-2">
-                    <input type="text" class="form-control" placeholder="Step ID or name"
-                          [formControlName]="i"/>
-                    <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeTrueStep(i)">
+                    <input type="text" 
+                          class="form-control" 
+                          placeholder="Step ID or name"
+                          [formControlName]="i"
+                          [class.is-invalid]="step.invalid && (step.dirty || step.touched)"/>
+                    <button type="button" 
+                            class="btn btn-sm btn-outline-danger" 
+                            (click)="removeTrueStep(i)">
                       <i class="feather icon-trash-2"></i>
                     </button>
                   </div>
-                  <br>
-                  <button type="button" class="btn btn-outline-primary mt-2" (click)="addTrueStep()">+ Add True Step</button>
-                </div>
+                  <div *ngIf="trueSteps.length === 0" class="text-muted mb-2">
+                    No true steps configured
+                  </div>
+                  <button type="button" 
+                          class="btn btn-outline-primary mt-2" 
+                          (click)="addTrueStep()">
+                    + Add True Step
+                  </button>
+              </div>
 
                 <!-- False Steps -->
-                <div class="mb-3">
+              <div class="mb-3" formArrayName="false_steps">
                   <label class="form-label fw-bold">False Steps</label>
                   <div *ngFor="let step of falseSteps.controls; let i = index" class="d-flex gap-2 mb-2">
-                    <input type="text" class="form-control" placeholder="Step ID or name"
-                          [formControlName]="i"/>
-                    <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeFalseStep(i)">
-                        <i class="feather icon-trash-2"></i>
+                    <input type="text" 
+                          class="form-control" 
+                          placeholder="Step ID or name"
+                          [formControlName]="i"
+                          [class.is-invalid]="step.invalid && (step.dirty || step.touched)"/>
+                    <button type="button" 
+                            class="btn btn-sm btn-outline-danger" 
+                            (click)="removeFalseStep(i)">
+                      <i class="feather icon-trash-2"></i>
                     </button>
                   </div>
-                  <br>
-                  <button type="button" class="btn btn-outline-primary mt-2" (click)="addFalseStep()">+ Add False Step</button>
+                  <div *ngIf="falseSteps.length === 0" class="text-muted mb-2">
+                    No false steps configured
+                  </div>
+                  <button type="button" 
+                          class="btn btn-outline-primary mt-2" 
+                          (click)="addFalseStep()">
+                    + Add False Step
+                  </button>
+              </div>
+
+              <!-- Context Map -->
+              <div class="mb-3">
+                <label class="form-label fw-bold">Context Map</label>
+              
+                <div formGroupName="context_map">
+              <div *ngFor="let key of contextMapKeys" class="d-flex gap-1 mb-2">
+                <input type="text" [value]="key" readonly class="form-control"/>
+                <input type="text" [formControlName]="key" placeholder="Expression" class="form-control"/>
+                <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeContextMapKey(key)">
+                  <i class="feather icon-trash-2"></i>
+                </button>
+              </div>
                 </div>
 
-                <!-- Context Map -->
-                <div class="mb-3">
-                  <label class="form-label fw-bold">Context Map</label>
-                  <div formGroupName="context_map">
-                    <div *ngFor="let key of contextMapKeys" class="d-flex gap-1 mb-2">
-                      <input type="text" [value]="key" readonly class="form-control"/>
-                      <input type="text" [formControlName]="key" placeholder="Expression" class="form-control"/>
-                      <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeContextMapKey(key)">
-                          <i class="feather icon-trash-2"></i>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="d-flex gap-1 mt-1">
-                    <input type="text" #newContextKey placeholder="New Key" class="form-control"/>
-                    <button type="button" class="btn btn-sm btn-outline-primary" (click)="addContextMapKey(newContextKey.value); newContextKey.value=''">
-                      + Add Key
-                    </button>
-                  </div>
+                <div class="d-flex gap-1 mt-1">
+                  <input type="text" 
+                        #newContextKey 
+                        placeholder="New Key" 
+                        class="form-control"/>
+                  <button type="button" 
+                          class="btn btn-sm btn-outline-primary" 
+                          (click)="addContextMapKey(newContextKey.value); newContextKey.value=''">
+                    + Add Key
+                  </button>
                 </div>
-            </div>
+              </div>
+           </div>
 
              <!-- Human Handoff Action -->
             <div *ngSwitchCase="'human_handoff'" class="mb-3">
