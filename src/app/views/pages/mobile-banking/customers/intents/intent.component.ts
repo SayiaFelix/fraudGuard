@@ -5,7 +5,7 @@ import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import { GlobalService } from 'src/app/shared/services/global.service';
 import { ToastrService } from 'ngx-toastr';
 import Swal from "sweetalert2";
-import { ActivatedRoute, Router } from '@angular/router'; // Added Router
+import { ActivatedRoute, Router } from '@angular/router'; 
 import { catchError, forkJoin, of, tap } from 'rxjs';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
@@ -39,7 +39,7 @@ interface Node {
   id: number;
   type: 'action' | 'trigger';
   name: string;
-  children: Node[]; // nested actions/triggers
+  children: Node[]; 
 }
 interface Branch {
   intent_id: number;
@@ -93,8 +93,8 @@ interface ActionModel {
 
 interface FileTypeInfo {
   accept: string;
-  types: string[];  // Changed from string to string[]
-  maxSize: number;  // Changed from string to number
+  types: string[];  
+  maxSize: number;  
 }
 
 interface FileTypeInfoMap {
@@ -110,7 +110,7 @@ interface FileSizeMap {
   document: number;
   video: number;
   audio: number;
-  [key: string]: number; // Index signature for dynamic access
+  [key: string]: number; 
 }
 interface VariableConfig {
   source: 'static' | 'expression' | 'context';
@@ -137,7 +137,6 @@ interface HumanHandoffAction {
   name: string;
   action_type: 'human_handoff';
   config: HumanHandoffConfig;
-  // ... other common action fields
 }
 
 interface SetVariableAction {
@@ -175,7 +174,6 @@ export class IntentComponent implements OnInit {
     public errorMessages: any;
     public form: FormGroup;
     public actionForm: FormGroup;
-
     public imageFile: File;
 
     availableLanguages: string[] = ['English', 'Swahili', 'French', 'Arabic', 'Spanish', 'German'];
@@ -187,15 +185,13 @@ export class IntentComponent implements OnInit {
     intents: any[] = [];
     isLoading = true;
     triggerForm: FormGroup;
-
     chatbotId!: number | null;
     intentId!: number;
-
     showAiActionPanel: boolean = false;
     selectedTrigger: any = null;
     parentAction: any = null;
     hovering: boolean = false;
-    agentList: any[]; // CORRECTED: from never[] to any[]
+    agentList: any[]; 
     actions: any;
     description: any;
     showActionForm = false;
@@ -207,35 +203,15 @@ export class IntentComponent implements OnInit {
     selectedAction: any = null;
     hoveredAction: string | null = null;
     selectedActionType: string | null = null;
-    // headers: FormArray;
     indentLevel: number = 0;
     currentParent: any = null;
     combinedItems: any[] = [];
     loadingIntents = false;
     loadingTriggers = false;
-
     isLaunching = false;
     launchMessage = '';
     isActive: boolean = false;
     filePreviews: { [key: number]: SafeUrl } = {};
-    // filePreviews: (SafeUrl | null)[] = [];
-
-
-    actionIcons: { [key: string]: string } = {
-    send_message: 'icon-message-square',      
-    send_file: 'icon-file-text',              
-    http_request: 'icon-link',                 
-    webhook: 'icon-zap',                       
-    loop: 'icon-zap',                   
-    conditional: 'icon-code',                
-    carousel: 'icon-layers',                   
-    Jump_to_Trigger: 'icon-refresh-cw', 
-    set_variable: 'icon-sliders',              
-    survey: 'icon-edit-3',  
-    human_handoff: 'icon-user',                
-    create_ticket: 'icon-clipboard'        
-  };
-
     triggers: any;
     currentParentIntentId: number | null = null;
     uploadedFile: File | null = null;
@@ -246,7 +222,20 @@ export class IntentComponent implements OnInit {
     teams: any[] = []; 
     isHovering = false;
 
-
+    actionIcons: { [key: string]: string } = {
+      send_message: 'icon-message-square',      
+      send_file: 'icon-file-text',              
+      http_request: 'icon-link',                 
+      webhook: 'icon-zap',                       
+      loop: 'icon-zap',                   
+      conditional: 'icon-code',                
+      carousel: 'icon-layers',                   
+      Jump_to_Trigger: 'icon-refresh-cw', 
+      set_variable: 'icon-sliders',              
+      survey: 'icon-edit-3',  
+      human_handoff: 'icon-user',                
+      create_ticket: 'icon-clipboard'        
+    };
 
 constructor(
         private sanitizer: DomSanitizer,
@@ -317,14 +306,13 @@ triggerTypes = [
   }
 ];
 
-  public submitData(): void {
+public submitData(): void {
         if (this.formData) {
             this.saveChanges();
         }
         this.loading = true;
     }
 
-    // Update your methods
 getFilePreview(file: File): SafeUrl {
   const url = URL.createObjectURL(file);
   return this.sanitizer.bypassSecurityTrustUrl(url);
@@ -427,11 +415,8 @@ triggerFileInput(): void {
 
 removeUploadedFile(): void {
   this.uploadedFile = null;
-  // Reset the file input
   this.fileInput.nativeElement.value = '';
-  // You might want to update your form control here if needed
 }
-
 
 removeVariable(index: number): void {
   this.variables.removeAt(index);
@@ -445,10 +430,8 @@ removeQuickReply(index: number): void {
   this.quickReplies.removeAt(index);
 }
 
-// Initialize the form arrays 
 initializeFormArrays(): void {
   this.actionForm = this.fb.group({
-   
     carouselItems: this.carouselItems,
     surveyQuestions: this.surveyQuestions,
     variables: this.variables,
@@ -458,13 +441,11 @@ initializeFormArrays(): void {
   });
 }
 
-
 removeContextMapKey(key: string) {
   const cmGroup = this.actionForm.get('context_map') as FormGroup;
   cmGroup.removeControl(key);
 }
 
-//add variables
 addVariable(name: string = '', config?: VariableConfig) {
    const source = config?.source || 'static';
   
@@ -476,8 +457,6 @@ addVariable(name: string = '', config?: VariableConfig) {
       context_key: [source === 'context' ? config?.context_key : '']
     });
 
-
-  // Add conditional validators
   const sourceControl = variableGroup.get('source');
   sourceControl?.valueChanges.subscribe(source => {
     const valueCtrl = variableGroup.get('value');
@@ -505,7 +484,6 @@ addVariable(name: string = '', config?: VariableConfig) {
 
   this.variables.push(variableGroup);
 }
-
 
 addChild(parent: Node, type: 'action' | 'trigger') {
     const newId = Date.now();
@@ -603,10 +581,6 @@ private markFormGroupTouched(formGroup: FormGroup) {
 
 
 removeCarouselItemFile(index: number): void {
-  // Clean up blob URL
-  // if (this.filePreviews[index]) {
-  //   URL.revokeObjectURL(this.filePreviews[index] as any);
-  // }
 
     if (this.filePreviews[index]) {
     const url = this.filePreviews[index] as unknown as string;
@@ -653,10 +627,6 @@ addCarryVariable(): void {
   // console.log('After add:', this.carryVariables.value);
 }
 
-
-
-
-// Add these methods to your component class
 private getAcceptTypes(): string[] {
   const format = this.actionForm.value.file_format;
   return this.getFileTypeInfo(format).types;
@@ -695,7 +665,6 @@ private getFileTypeInfo(format: string): FileTypeInfo {
     }
   };
 
-  // Always return all required properties
   return fileTypeMap[format as keyof FileTypeInfoMap] || {
     maxSize: 10 * 1024 * 1024, // Default 10MB
     types: [],
@@ -703,7 +672,6 @@ private getFileTypeInfo(format: string): FileTypeInfo {
   };
 }
 
-// carousel item
 addCarouselItem() {
   this.carouselItems.push(this.fb.group({
     title: [''],
@@ -713,8 +681,6 @@ addCarouselItem() {
   }));
 }
 
-
-// Remove carousel item
 removeCarouselItem(index: number): void {
   this.carouselItems.removeAt(index);
   delete this.carouselItemFiles[index];
@@ -735,7 +701,6 @@ removeHeader(index: number) {
   this.headers.removeAt(index);
 }
 
-// dynamically add context_map keys
 get contextMapKeys() {
   return Object.keys(this.actionForm.get('context_map')?.value || {});
 }
@@ -960,8 +925,6 @@ onFileDropped(files: FileList): void {
 private handleUploadedFile(file: File): void {
   // Store the file for submission
   this.uploadedFile = file;
-
-  // Reset preview
   this.filePreviews = '';
 
   // Generate preview for images & videos
@@ -974,7 +937,6 @@ private handleUploadedFile(file: File): void {
     reader.readAsDataURL(file);
   }
 
-  // ✅ Ensure form is set to "upload" mode
   this.actionForm.patchValue({
     source: 'upload',
     file_url: file.name
@@ -994,7 +956,7 @@ onFileSelected(event: Event): void {
         `File exceeds maximum size of ${this.fileTypeInfo[format].maxSize}`, 
         'Error'
       );
-      input.value = ''; // Clear the invalid file
+      input.value = '';
       return;
     }
     
@@ -1016,7 +978,6 @@ onCarouselItemFileDropped(event: DragEvent, index: number): void {
 
   const file = event.dataTransfer.files[0];
 
-  // Validate type
   if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
     Swal.fire('Error', 'Invalid file type. Only images or videos are allowed.', 'error');
     return;
@@ -1050,7 +1011,6 @@ handleCarouselItemUploadedFile(file: File, index: number): void {
   const itemsArray = this.actionForm.get('items') as FormArray;
   itemsArray.at(index).patchValue({ media_url: file.name });
 }
-
 
 private transformAction(action: any, parentId: number): ActionItem {
   return {
@@ -1108,7 +1068,6 @@ private processApiResponse(data: any[]): TriggerItem[] {
         children: []
       };
 
-      // Process direct children
       if (item.children && item.children.length) {
         // Direct actions
         const actions = item.children
@@ -1127,7 +1086,7 @@ private processApiResponse(data: any[]): TriggerItem[] {
 
       result.push(trigger);
     } else if (item.type === 'action') {
-      // Add root-level actions to combinedItems through flattenTriggerHierarchy
+      // Add root-level actions to combinedItems
       const action = this.transformAction(item, item.parent_id);
       result.push(action as any); 
     }
@@ -1164,7 +1123,6 @@ getDisplayItems(): any[] {
   return this.combinedItems.filter(item => {
     if (!item.parent_id) return true;
     
-    // Items whose parent exists in combinedItems
     return this.combinedItems.some(parent => parent.id === item.parent_id);
   });
 }
@@ -1187,8 +1145,6 @@ toggleTriggerStatus(event: Event, trigger: any): void {
     }
   });
 }
-
-
 
 fetchActionType(): void {
   this.isLoading = true;
@@ -1229,7 +1185,6 @@ getTargetPlaceholder(): string {
   }
 }
 
-
 removeCarryVariable(index: number): void {
   if (this.carryVariables.length > 0) {
     this.carryVariables.removeAt(index);
@@ -1245,7 +1200,6 @@ private isVariableConfig(config: any): config is VariableConfig {
     (config.source !== 'context' || 'context_key' in config)
   );
 }
-
 
 openActionForm(action: any): void {
   this.selectedActionType = action.type;
@@ -1329,7 +1283,6 @@ openActionForm(action: any): void {
           // since you can't repopulate file inputs due to browser security
         });
       } else {
-        // Add one empty item by default
         this.addCarouselItem();
       }
       break;
@@ -1414,7 +1367,6 @@ openActionForm(action: any): void {
       }
       break;
 
-    
     case 'webhook':
       this.actionForm = this.fb.group({
         name: [action.name || '', Validators.required],
@@ -1491,7 +1443,6 @@ openActionForm(action: any): void {
         });
         break;
 
-    
     default:
       this.actionForm = this.fb.group({
         name: [action.name || '', Validators.required],
@@ -1518,7 +1469,6 @@ createSurveyForm() {
 get surveyQuestions(): FormArray {
   return (this.actionForm.get('config.questions') as FormArray);
 }
-
 
 initSurveyForm(action?: any) {
   this.actionForm = this.fb.group({
@@ -1691,7 +1641,6 @@ getChildren(parentId: number): any[] {
 shouldShowRootButtons(): boolean {
   return (this.shouldShowAddActionButton() || this.shouldShowAddTriggerButton()) && this.combinedItems.length > 0;
 }
-
 
 onActionSubmit(): void {
   if (!this.actionForm.valid) {
@@ -1951,8 +1900,6 @@ onActionSubmit(): void {
    console.log('Creating action under parent:', this.currentParent, 'with intentId:', intentId, 'and parent_id:', parent_id);
 }
 
-
-
 private handleSendFileAction(intentId: number, parent_id: number, order: number): void {
   const sourceType = this.actionForm.value.source;
   const fileFormat = this.actionForm.value.file_format;
@@ -1974,7 +1921,6 @@ private handleSendFileAction(intentId: number, parent_id: number, order: number)
     return;
   }
 
-  // Create FormData for multipart upload
   const formData = new FormData();
   formData.append('name', this.actionForm.value.name);
   formData.append('action_type', 'send_file');
@@ -1993,7 +1939,6 @@ private handleSendFileAction(intentId: number, parent_id: number, order: number)
   };
   formData.append('config', JSON.stringify(config));
   // formData.append('branch_path', this.buildBranchPath());
-  
 
   // Handle different source types
   if (sourceType === 'upload') {
@@ -2005,7 +1950,7 @@ private handleSendFileAction(intentId: number, parent_id: number, order: number)
       error: (err: any) => this.handleActionError(err)
     });
   } else if (sourceType === 'chat_script') {
-    // For chat script, use regular JSON endpoint
+  
     const model = {
       ...config,
       script_content: this.actionForm.value.chat_script,
@@ -2069,7 +2014,6 @@ onCarouselItemFileSelected(event: Event, index: number): void {
   this.cleanupFileResources(index);
 
   this.carouselItemFiles[index] = file;
-  // this.filePreviews[index] = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(file));
   this.filePreviews[index] = this.createSafePreview(file);
 
   // Update form validity
@@ -2137,7 +2081,7 @@ private handleCarouselAction(intentId: number, parent_id: number, order: number)
       max_height: "400px",
       show_indicators: true,
       show_controls: true,
-      // // Added responsive settings
+      // // responsive settings
       // responsive: {
       //   mobile: { card_width: "250px", max_height: "350px" },
       //   tablet: { card_width: "275px", max_height: "375px" }
@@ -2148,7 +2092,6 @@ private handleCarouselAction(intentId: number, parent_id: number, order: number)
       description: item.description || '',
       item_type: item.item_type || 'image',
       file_name: this.carouselItemFiles[index]?.name || '',
-      // Add action URL if exists
       ...(item.action_url ? { action_url: item.action_url } : {})
     }))
   };
@@ -2162,7 +2105,7 @@ private handleCarouselAction(intentId: number, parent_id: number, order: number)
     return;
   }
 
-  // Add files with better naming convention
+  // files with better naming convention
   Object.entries(this.carouselItemFiles).forEach(([index, file]) => {
     if (file) {
       const safeIndex = index.padStart(3, '0'); // 001, 002, etc.
@@ -2177,7 +2120,6 @@ private handleCarouselAction(intentId: number, parent_id: number, order: number)
     error: (err: any) => this.handleActionError(err)
   });
 }
-
 
 private appendFormDataField(formData: FormData, key: string, value: any): void {
   if (value !== null && value !== undefined) {
@@ -2225,7 +2167,6 @@ private handleActionError(err: any): void {
   });
 }
 
-
 onTriggerSubmit(): void {
   if (!this.triggerForm.valid) {
     this.markFormGroupTouched(this.triggerForm);
@@ -2254,7 +2195,7 @@ onTriggerSubmit(): void {
     parent_id = this.intentId;
     order = this.combinedItems.length > 0 
       ? this.getNextRootOrder() 
-      : 1; // First item gets order 1
+      : 1; 
   }
 
   const model = { 
@@ -2262,11 +2203,9 @@ onTriggerSubmit(): void {
     chatbot_id: chatbotId,
     parent_id: parent_id,
     order: order,
-    // is_root: parent_id === this.intentId // Mark as root if parent is intent
   };
 
   console.log('Submitting Trigger with model:', model);
-
   this._httpService.mobileBankingPost('builder/nodes/intent', model).subscribe({
     next: (result: any) => {
       if (result.status === '00') {
@@ -2298,7 +2237,6 @@ getNextRootOrder(): number {
 getNextOrder(parentItem: any): number {
   if (!parentItem) return 1;
   
-  // Get all direct children of this parent
   const children = this.combinedItems.filter(item => 
     item.parent_id === parentItem.id
   );
@@ -2348,7 +2286,7 @@ launchBot() {
           Swal.fire('ChatBot',  'Chatbot Launched Successfully !!!!, Test Now!!', 'success');
         } else {
           this.launchMessage = 'Failed to Launch Bot';
-          Swal.fire('Error', this.launchMessage, 'error');
+          Swal.fire('Error', this.launchMessage || "Error in Launching the Bot", 'error');
         }
       },
       error: (err: any) => {
@@ -2400,12 +2338,10 @@ buildBranchPath(actionId?: number): string {
     return this.getPathForAction(actionId);
   }
 
-  // Default path when creating new actions
   if (!this.currentParent) {
     return 'root';
   }
 
-  // Get path based on current parent
   if (this.currentParent.itemType === 'trigger') {
     return this.getTriggerPath(this.currentParent.id);
   } else {
@@ -2435,7 +2371,6 @@ private findParentTrigger(actionId: number): any {
   const action = this.findActionById(actionId);
   if (!action) return null;
 
-  // If action has direct parent_id, find if it's a trigger
   if (action.parent_id) {
     const parent = this.combinedItems.find(item => 
       item.id === action.parent_id || 
@@ -2454,7 +2389,6 @@ private findParentTrigger(actionId: number): any {
       if (found) return item;
     }
   }
-
   return null;
 }
 
@@ -2492,7 +2426,6 @@ private getTriggerPath(triggerId: number): string {
   // If we have no path parts, just return 'root'
   if (pathParts.length === 0) return 'root';
   
-  // Add root at the beginning if needed
   if (pathParts[0] !== 'root') {
     pathParts.unshift('root');
   }
@@ -2524,15 +2457,11 @@ sendBot(): void {
     });
 }
 
-uploadImageClick(){}
-removeImage(){}
-
 public closeModal(): void {
     if(this.activeModal) {
         this.activeModal.dismiss('Cross click');
     }
 }
-
 private saveChanges(): any {
 }
 
@@ -2572,6 +2501,4 @@ ngOnDestroy() {
     URL.revokeObjectURL(url as any);
   });
 }
-
-
 }
