@@ -1,6 +1,6 @@
 <div class="container-fluid">
 
-  <!-- VIEW 1: CHANNEL LIST (Unchanged) -->
+  <!-- VIEW 1: CHANNEL LIST -->
   <div *ngIf="!selectedChannel">
     <div class="channel-page-container">
       <div class="page-header-top">
@@ -27,14 +27,18 @@
             <tr *ngIf="channels.length === 0">
               <td colspan="6" class="text-center py-5 text-muted">No channels have been added yet.</td>
             </tr>
-            <tr *ngFor="let channel of channels">
-              <td><button class="btn-link" (click)="viewChannelDetails(channel)">{{ channel.name }}</button></td>
-              <td><div class="channel-cell"><i class="feather" [ngClass]="{'icon-message-square': channel.type === 'Webchat', 'icon-phone': channel.type === 'WhatsApp'}"></i><span>{{ channel.type }}</span></div></td>
+            <tr *ngFor="let channel of channels" (click)="viewChannelDetails(channel)">
+              <td>{{ channel.name }}</td>
+              <td>
+                <div class="channel-cell"><i class="feather" [ngClass]="{'icon-message-square': channel.type === 'Webchat', 'icon-phone': channel.type === 'WhatsApp', 'icon-facebook': channel.type === 'Facebook'}"></i><span>{{ channel.type }}</span></div>
+              </td>
               <td>Last Updated</td>
               <td>{{ channel.lastUpdated | date:'MMM d, y, h:mm a' }}</td>
-              <td><label class="toggle-switch"><input type="checkbox" [(ngModel)]="channel.enabled"><span class="slider"></span></label></td>
+              <td>
+                <label class="toggle-switch" (click)="$event.stopPropagation()"><input type="checkbox" [(ngModel)]="channel.enabled"><span class="slider"></span></label>
+              </td>
               <td class="actions-cell">
-                <button class="btn-icon"><i class="feather icon-more-vertical"></i></button>
+                <button class="btn-icon" (click)="$event.stopPropagation()"><i class="feather icon-more-vertical"></i></button>
               </td>
             </tr>
           </tbody>
@@ -50,300 +54,518 @@
     <div class="details-header">
       <button class="btn-icon" (click)="goBackToList()"><i class="feather icon-arrow-left"></i></button>
       <div class="header-text-content">
-        <h1>Web-chat</h1>
-        <p class="header-description">Web-chatWeb-chatWeb-chatWeb-chatWeb-chatWeb-chat Web-chatWeb-chatWeb-chat Web-chatWeb-chatWeb-chatWeb-chat</p>
+        <h1>{{ selectedChannel.type === 'Facebook' ? 'Facebook Messenger' : selectedChannel.type }}</h1>
+        <p class="header-description">Configure the settings for your {{ selectedChannel.type }} channel.</p>
       </div>
     </div>
-    
-    <div class="details-content">
-      
-      <!-- Setup Section -->
-      <div class="details-section">
-        <div class="section-header" (click)="toggleSetupSection()">
-          <div class="section-icon"><i class="feather icon-code"></i></div>
-          <div class="section-text"><div class="section-title">Setup</div><div class="section-description">Paste the webchat snippet into your website</div></div>
-          <div class="section-action"><i class="feather" [ngClass]="{'icon-chevron-down': isSetupSectionOpen, 'icon-chevron-right': !isSetupSectionOpen}"></i></div>
-        </div>
-        <!-- THIS IS THE CORRECTED SECTION BODY -->
-        <div class="section-body setup-section-body" *ngIf="isSetupSectionOpen">
-            <div class="setup-form-group">
-                <label>Name</label>
-                <div class="input-with-button">
-                    <input type="text" readonly class="form-control-dark" [value]="webchatId">
-                    <button class="btn-copy" (click)="copyToClipboard(webchatId)"><i class="feather icon-copy"></i></button>
-                </div>
-            </div>
-            <div class="setup-form-group">
-                <label>Deploy</label>
-                <div class="input-with-button">
-                    <textarea readonly class="code-textarea">{{ deployScript }}</textarea>
-                    <button class="btn-copy code" (click)="copyToClipboard(deployScript)"><i class="feather icon-copy"></i></button>
-                </div>
-                <p class="deploy-hint">Paste this code snippet before the <code>&lt;/body&gt;</code> tag on your website.</p>
-            </div>
-         
-            <div class="setup-actions">
-              
-                  <button class="btn btn-outline-success" 
-                          (click)="onTestClick()" 
-                          [disabled]="!isDeployScriptValid() || isTesting">
-                        {{ isTesting ? 'Testing...' : 'Test Webchat' }}
-                  </button>
-                  <button class="btn btn-save" 
-                        (click)="onSaveChanges()" 
-                        [disabled]="!deployScript || deployScript === 'Waiting for chatbot selection...'">
-                    Save
-                </button>
-                <span *ngIf="copySuccessMessage" class="copy-feedback">{{ copySuccessMessage }}</span>
-            </div>
-        </div>
-      </div>
 
-      <!-- Basics Section -->
-       <div class="details-section">
-        <div class="section-header" (click)="toggleBasicsSection()">
-          <div class="section-icon"><i class="feather icon-settings"></i></div>
-          <div class="section-text"><div class="section-title">Basics</div><div class="section-description">General AI assistant settings</div></div>
-          <div class="section-action"><i class="feather" [ngClass]="{'icon-chevron-down': isBasicsSectionOpen, 'icon-chevron-right': !isBasicsSectionOpen}"></i></div>
-        </div>
-        <div class="section-body basics-section-body" *ngIf="isBasicsSectionOpen">
-          <div class="basics-form-group">
-            <label for="channelName" class="basics-form-label">Name</label>
-            <input type="text" id="channelName" class="basics-form-control" placeholder="Enter name" [value]="selectedChannel.name">
-          </div>
-          <div class="basics-form-group">
-            <label for="channelLanguage" class="basics-form-label">Default Language</label>
-            <select id="channelLanguage" class="basics-form-control">
-              <option>English</option>
-              <option>Spanish</option>
-            </select>
-          </div>
-          <div class="basics-form-group">
-            <label class="basics-form-label">Icon</label>
-            <div class="basics-icon-area">
-              <div class="basics-icon-preview"></div>
-              <button class="btn basics-upload-btn">Upload</button>
-            </div>
-            <div class="basics-upload-hint">PNG OR JPEG up to 10 MB</div>
-          </div>
-          <div class="basics-checkbox-group">
-            <label class="basics-checkbox-label"><input type="checkbox" id="allowAttachments">Allow attachments</label>
-            <label class="basics-checkbox-label"><input type="checkbox" id="enableVoice">Enable voice</label>
-            <label class="basics-checkbox-label"><input type="checkbox" id="hideWebchat">Hide webchat if no live agents online</label>
-          </div>
-          <div class="basics-actions">
-            <button class="btn basics-save-btn">Save</button>
-            <button class="btn basics-delete-btn">Delete Channel</button>
-          </div>
-        </div>
-      </div>
+    <!-- This [ngSwitch] will now show the correct layout for each channel type -->
+    <div [ngSwitch]="selectedChannel.type">
 
-      <!-- Proactive messages Section -->
-      <div class="details-section">
-        <div class="section-header" (click)="toggleProactiveSection()">
-          <div class="section-icon"><i class="feather icon-fast-forward"></i></div>
-          <div class="section-text"><div class="section-title">Proactive messages</div><div class="section-description">Proactive pop-up message to engage website visitors</div></div>
-          <div class="section-action"><i class="feather" [ngClass]="{'icon-chevron-down': isProactiveSectionOpen, 'icon-chevron-right': !isProactiveSectionOpen}"></i></div>
-        </div>
-        <div class="section-body proactive-messages-section-body" *ngIf="isProactiveSectionOpen" [formGroup]="proactiveMessagesForm">
-          <div class="proactive-settings-panel">
-            <div class="color-settings-grid">
-              <div class="color-picker-group">
-                <label>Message Colour</label>
-                <div class="color-input-wrapper">
-                  <input type="color" class="native-color-picker" formControlName="messageColour">
-                  <div class="color-swatch" [style.background-color]="proactiveMessagesForm.get('messageColour')!.value"></div>
-                  <input type="text" class="color-hex-input" formControlName="messageColour">
-                </div>
-              </div>
-              <div class="color-picker-group">
-                <label>Quick reply button colour</label>
-                <div class="color-input-wrapper">
-                  <input type="color" class="native-color-picker" formControlName="quickReplyButtonColour">
-                  <div class="color-swatch" [style.background-color]="proactiveMessagesForm.get('quickReplyButtonColour')!.value"></div>
-                  <input type="text" class="color-hex-input" formControlName="quickReplyButtonColour">
-                </div>
-              </div>
-              <div class="color-picker-group">
-                <label>Quick reply button border colour</label>
-                <div class="color-input-wrapper">
-                  <input type="color" class="native-color-picker" formControlName="quickReplyButtonBorderColour">
-                  <div class="color-swatch" [style.background-color]="proactiveMessagesForm.get('quickReplyButtonBorderColour')!.value"></div>
-                  <input type="text" class="color-hex-input" formControlName="quickReplyButtonBorderColour">
-                </div>
-              </div>
+      <!-- ==================================================================================== -->
+      <!-- CASE 1: WEBCHAT (Your original detailed layout) -->
+      <!-- ==================================================================================== -->
+      <div *ngSwitchCase="'Webchat'">
+        <div class="details-content">
+          <!-- Setup Section -->
+          <div class="details-section">
+            <div class="section-header" (click)="toggleSetupSection()">
+              <div class="section-icon"><i class="feather icon-code"></i></div>
+              <div class="section-text"><div class="section-title">Setup</div><div class="section-description">Paste the webchat snippet into your website</div></div>
+              <div class="section-action"><i class="feather" [ngClass]="{'icon-chevron-down': isSetupSectionOpen, 'icon-chevron-right': !isSetupSectionOpen}"></i></div>
             </div>
-            <button class="btn proactive-save-btn" (click)="onSaveChanges()">Save</button>
-            <div class="message-creation-section">
-              <label>Proactive message</label>
-              <div class="message-placeholder">No proactive messages created.</div>
-              <button class="btn proactive-create-btn">Create New Proactive Message</button>
-            </div>
-          </div>
-          <div class="proactive-preview-panel">
-            <div class="chat-preview-container">
-              <div class="preview-message-bubble from-visitor">Hello</div>
-              <div class="preview-message-bubble from-ai" [ngStyle]="{'background-color': proactiveMessagesForm.get('messageColour')!.value}">Type what you want your AI Assistant to say.</div>
-              <div class="preview-message-bubble from-ai" [ngStyle]="{'background-color': proactiveMessagesForm.get('messageColour')!.value}">Type what you want your AI Assistant to say.</div>
-              <div class="preview-message-bubble from-ai" [ngStyle]="{'background-color': proactiveMessagesForm.get('messageColour')!.value}">Type what you want your AI Assistant to say.</div>
-              <div class="preview-reply-buttons">
-                <button class="preview-reply-btn" [ngStyle]="{'background-color': proactiveMessagesForm.get('quickReplyButtonColour')!.value, 'border-color': proactiveMessagesForm.get('quickReplyButtonBorderColour')!.value}">Connect to product expert</button>
-                <button class="preview-reply-btn" [ngStyle]="{'background-color': proactiveMessagesForm.get('quickReplyButtonColour')!.value, 'border-color': proactiveMessagesForm.get('quickReplyButtonBorderColour')!.value}">Book demo</button>
-                <button class="preview-reply-btn" [ngStyle]="{'background-color': proactiveMessagesForm.get('quickReplyButtonColour')!.value, 'border-color': proactiveMessagesForm.get('quickReplyButtonBorderColour')!.value}">Learn more about features</button>
-              </div>
-            </div>
-            <button class="preview-widget-icon"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="0" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a2 2 0 0 0-2 2v2H8a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-2V4a2 2 0 0 0-2-2zM9 12a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm8 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-4 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/><path d="M4.5 10.5h-2a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1zm15 0h-2a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1z"/><path d="M9 16.5H7.5v1.5H9v-1.5zm7.5 0H15v1.5h1.5v-1.5z"/></svg></button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Brand Section -->
-      <div class="details-section">
-        <div class="section-header" (click)="toggleBrandSection()">
-          <div class="section-icon"><i class="feather icon-eye"></i></div>
-          <div class="section-text"><div class="section-title">Brand</div><div class="section-description">Customise the webchat style to match your brand</div></div>
-          <div class="section-action"><i class="feather" [ngClass]="{'icon-chevron-down': isBrandSectionOpen, 'icon-chevron-right': !isBrandSectionOpen}"></i></div>
-        </div>
-        <div class="section-body brand-section-body" *ngIf="isBrandSectionOpen" [formGroup]="brandForm">
-          <div class="brand-settings-panel">
-            <div class="brand-tabs">
-              <button class="brand-tab-item" [class.active]="activeBrandTab === 'welcome'" (click)="setActiveBrandTab('welcome')">Welcome Screen</button>
-              <button class="brand-tab-item" [class.active]="activeBrandTab === 'chat'" (click)="setActiveBrandTab('chat')">Chat Screen</button>
-              <button class="brand-tab-item" [class.active]="activeBrandTab === 'styles'" (click)="setActiveBrandTab('styles')">Styles</button>
-            </div>
-            <div class="brand-tab-content">
-              <div *ngIf="activeBrandTab === 'welcome'">
-                <div class="brand-form-row space-between">
-                  <label class="brand-form-label">Enable Welcome Screen</label>
-                  <label class="toggle-switch"><input type="checkbox" formControlName="enableWelcomeScreen"><span class="slider"></span></label>
-                </div>
-                <div class="brand-form-row">
-                  <label class="brand-form-label" for="brandTitle">Title</label>
-                  <input type="text" id="brandTitle" class="brand-form-control" placeholder="Enter your email" formControlName="title">
-                  <p class="brand-form-hint">This appears in the webchat header.</p>
-                </div>
-                <div class="brand-form-row">
-                  <label class="brand-form-label" for="brandDesc1">Description</label>
-                  <input type="text" id="brandDesc1" class="brand-form-control" placeholder="Enter your email" formControlName="description1">
-                  <p class="brand-form-hint">Additional details for welcome title.</p>
-                </div>
-                <div class="brand-form-row">
-                  <label class="brand-form-label" for="brandDesc2">Description</label>
-                  <input type="text" id="brandDesc2" class="brand-form-control" placeholder="Enter your email" formControlName="description2">
-                  <p class="brand-form-hint">Additional details for welcome title.</p>
-                </div>
-                <div class="brand-form-row">
-                  <button class="btn brand-save-btn" (click)="onSaveChanges()">Save</button>
-                </div>
-              </div>
-              <div *ngIf="activeBrandTab === 'chat'"><p>Chat Screen Settings Go Here...</p></div>
-              <div *ngIf="activeBrandTab === 'styles'"><p>Styles Settings Go Here...</p></div>
-            </div>
-          </div>
-          <div class="brand-preview-panel">
-            <div class="preview-widget">
-              <div class="preview-header">
-                <button class="preview-tab-item active">Welcome Screen</button>
-                <button class="preview-tab-item">Styles</button>
-              </div>
-              <div class="preview-body">
-                <div class="preview-card" *ngIf="brandForm.get('enableWelcomeScreen')!.value">
-                  <div class="preview-card-header">
-                    <span class="preview-card-title">{{ brandForm.get('title')!.value }}</span>
-                    <button class="preview-card-close">×</button>
-                  </div>
-                  <p class="preview-card-text">{{ brandForm.get('description1')!.value }}</p>
-                </div>
-                 <div class="preview-card-placeholder" *ngIf="brandForm.get('enableWelcomeScreen')!.value">
-                  <span class="preview-card-title">{{ brandForm.get('title')!.value }}</span>
-                  <p class="preview-card-text">{{ brandForm.get('description2')!.value }}</p>
-                </div>
-                <button class="btn preview-save-btn">Save</button>
-              </div>
-            </div>
-            <button class="preview-close-main">×</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Pre-chat form Section -->
-      <div class="details-section">
-        <div class="section-header" (click)="togglePreChatFormSection()">
-          <div class="section-icon"><i class="feather icon-file-text"></i></div>
-          <div class="section-text"><div class="section-title">Pre-chat form</div><div class="section-description">Gather essential information from people before starting a chat session</div></div>
-          <div class="section-action"><i class="feather" [ngClass]="{'icon-chevron-down': isPreChatFormSectionOpen, 'icon-chevron-right': !isPreChatFormSectionOpen}"></i></div>
-        </div>
-        <div class="section-body prechat-section-body" *ngIf="isPreChatFormSectionOpen" [formGroup]="preChatForm">
-          <div class="prechat-settings-panel">
-            <div class="prechat-form-row space-between">
-              <label class="prechat-form-label">Enable Pre-chat form</label>
-              <label class="toggle-switch"><input type="checkbox" formControlName="enablePreChatForm"><span class="slider"></span></label>
-            </div>
-            <hr class="prechat-divider">
-            <div class="prechat-form-row">
-              <label class="prechat-form-label bold">Fields</label>
-            </div>
-            <div class="prechat-fields-list" formArrayName="fields">
-              <div class="prechat-field-item" *ngFor="let field of preChatFields.controls; let i = index" [formGroupName]="i">
-                <div class="field-name">{{ field.get('name')!.value }}</div>
-                <div class="field-controls">
-                  <label class="prechat-checkbox-label">
-                    <input type="checkbox" formControlName="required">
-                    Required
-                  </label>
-                  <label class="toggle-switch small-toggle">
-                    <input type="checkbox" formControlName="enabled">
-                    <span class="slider"></span>
-                  </label>
-                </div>
-              </div>
-            </div>
-            <button class="btn prechat-add-btn">Add field</button>
-            <button class="btn prechat-save-btn" (click)="onSaveChanges()">Save</button>
-          </div>
-          <div class="prechat-preview-panel">
-            <div class="preview-widget prechat">
-              <div class="prechat-preview-header">
-                <i class="feather icon-message-square"></i>
-                <span>Start a conversation</span>
-              </div>
-              <div class="prechat-preview-body" *ngIf="preChatForm.get('enablePreChatForm')!.value">
-                <p>Hi! Please fill out the form below to start chatting with the next available agent.</p>
-                <div class="prechat-preview-form">
-                  <ng-container *ngFor="let field of preChatFields.controls">
-                    <div class="preview-form-group" *ngIf="field.get('enabled')!.value">
-                      <label>
-                        {{ field.get('name')!.value }}
-                        <span *ngIf="field.get('required')!.value">*</span>
-                      </label>
-                      <input type="text" [placeholder]="field.get('name')!.value">
+            <div class="section-body setup-section-body" *ngIf="isSetupSectionOpen">
+                <div class="setup-form-group">
+                    <label>Name</label>
+                    <div class="input-with-button">
+                        <input type="text" readonly class="form-control-dark" [value]="webchatId">
+                        <button class="btn-copy" (click)="copyToClipboard(webchatId)"><i class="feather icon-copy"></i></button>
                     </div>
-                  </ng-container>
                 </div>
-                <button class="btn prechat-preview-start-btn">Start chat</button>
+                <div class="setup-form-group">
+                    <label>Deploy</label>
+                    <div class="input-with-button">
+                        <textarea readonly class="code-textarea">{{ deployScript }}</textarea>
+                        <button class="btn-copy code" (click)="copyToClipboard(deployScript)"><i class="feather icon-copy"></i></button>
+                    </div>
+                    <p class="deploy-hint">Paste this code snippet before the <code>&lt;/body&gt;</code> tag on your website.</p>
+                </div>
+                <div class="setup-actions">
+                      <button class="btn btn-outline-success" (click)="onTestClick()" [disabled]="!isDeployScriptValid() || isTesting">
+                            {{ isTesting ? 'Testing...' : 'Test Webchat' }}
+                      </button>
+                      <button class="btn btn-save" (click)="onSaveChanges()" [disabled]="!deployScript || deployScript === 'Waiting for chatbot selection...'">
+                        Save
+                    </button>
+                    <span *ngIf="copySuccessMessage" class="copy-feedback">{{ copySuccessMessage }}</span>
+                </div>
+            </div>
+          </div>
+
+          
+
+          <!-- Basics Section -->
+          <div class="details-section">
+            <div class="section-header" (click)="toggleBasicsSection()">
+              <div class="section-icon"><i class="feather icon-settings"></i></div>
+              <div class="section-text"><div class="section-title">Basics</div><div class="section-description">General AI assistant settings</div></div>
+              <div class="section-action"><i class="feather" [ngClass]="{'icon-chevron-down': isBasicsSectionOpen, 'icon-chevron-right': !isBasicsSectionOpen}"></i></div>
+            </div>
+            <div class="section-body basics-section-body" *ngIf="isBasicsSectionOpen">
+              <div class="basics-form-group">
+                <label for="channelName" class="basics-form-label">Name</label>
+                <input type="text" id="channelName" class="basics-form-control" placeholder="Enter name" [value]="selectedChannel.name">
               </div>
-              <div class="prechat-preview-footer">
-                Our usual reply time is a few minutes
+              <div class="basics-form-group">
+                <label for="channelLanguage" class="basics-form-label">Default Language</label>
+                <select id="channelLanguage" class="basics-form-control">
+                  <option>English</option>
+                  <option>Spanish</option>
+                </select>
+              </div>
+              <div class="basics-form-group">
+                <label class="basics-form-label">Icon</label>
+                <div class="basics-icon-area">
+                  <div class="basics-icon-preview"></div>
+                  <button class="btn basics-upload-btn">Upload</button>
+                </div>
+                <div class="basics-upload-hint">PNG OR JPEG up to 10 MB</div>
+              </div>
+              <div class="basics-checkbox-group">
+                <label class="basics-checkbox-label"><input type="checkbox" id="allowAttachments">Allow attachments</label>
+                <label class="basics-checkbox-label"><input type="checkbox" id="enableVoice">Enable voice</label>
+                <label class="basics-checkbox-label"><input type="checkbox" id="hideWebchat">Hide webchat if no live agents online</label>
+              </div>
+              <div class="basics-actions">
+                <button class="btn basics-save-btn">Save</button>
+                <button class="btn basics-delete-btn">Delete Channel</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="details-section">
+            <div class="section-header" (click)="toggleProactiveSection()">
+              <div class="section-icon"><i class="feather icon-fast-forward"></i></div>
+              <div class="section-text"><div class="section-title">Proactive messages</div><div class="section-description">Proactive pop-up message to engage website visitors</div></div>
+              <div class="section-action"><i class="feather" [ngClass]="{'icon-chevron-down': isProactiveSectionOpen, 'icon-chevron-right': !isProactiveSectionOpen}"></i></div>
+            </div>
+            <div class="section-body proactive-messages-section-body" *ngIf="isProactiveSectionOpen" [formGroup]="proactiveMessagesForm">
+              <div class="proactive-settings-panel">
+                <div class="color-settings-grid">
+                  <div class="color-picker-group">
+                    <label>Message Colour</label>
+                    <div class="color-input-wrapper">
+                      <input type="color" class="native-color-picker" formControlName="messageColour">
+                      <div class="color-swatch" [style.background-color]="proactiveMessagesForm.get('messageColour')!.value"></div>
+                      <input type="text" class="color-hex-input" formControlName="messageColour">
+                    </div>
+                  </div>
+                  <div class="color-picker-group">
+                    <label>Quick reply button colour</label>
+                    <div class="color-input-wrapper">
+                      <input type="color" class="native-color-picker" formControlName="quickReplyButtonColour">
+                      <div class="color-swatch" [style.background-color]="proactiveMessagesForm.get('quickReplyButtonColour')!.value"></div>
+                      <input type="text" class="color-hex-input" formControlName="quickReplyButtonColour">
+                    </div>
+                  </div>
+                  <div class="color-picker-group">
+                    <label>Quick reply button border colour</label>
+                    <div class="color-input-wrapper">
+                      <input type="color" class="native-color-picker" formControlName="quickReplyButtonBorderColour">
+                      <div class="color-swatch" [style.background-color]="proactiveMessagesForm.get('quickReplyButtonBorderColour')!.value"></div>
+                      <input type="text" class="color-hex-input" formControlName="quickReplyButtonBorderColour">
+                    </div>
+                  </div>
+                </div>
+                <button class="btn proactive-save-btn" (click)="onSaveChanges()">Save</button>
+                <div class="message-creation-section">
+                  <label>Proactive message</label>
+                  <div class="message-placeholder">No proactive messages created.</div>
+                  <button class="btn proactive-create-btn">Create New Proactive Message</button>
+                </div>
+              </div>
+              <div class="proactive-preview-panel">
+                <div class="chat-preview-container">
+                  <div class="preview-message-bubble from-visitor">Hello</div>
+                  <div class="preview-message-bubble from-ai" [ngStyle]="{'background-color': proactiveMessagesForm.get('messageColour')!.value}">Type what you want your AI Assistant to say.</div>
+                  <div class="preview-message-bubble from-ai" [ngStyle]="{'background-color': proactiveMessagesForm.get('messageColour')!.value}">Type what you want your AI Assistant to say.</div>
+                  <div class="preview-message-bubble from-ai" [ngStyle]="{'background-color': proactiveMessagesForm.get('messageColour')!.value}">Type what you want your AI Assistant to say.</div>
+                  <div class="preview-reply-buttons">
+                    <button class="preview-reply-btn" [ngStyle]="{'background-color': proactiveMessagesForm.get('quickReplyButtonColour')!.value, 'border-color': proactiveMessagesForm.get('quickReplyButtonBorderColour')!.value}">Connect to product expert</button>
+                    <button class="preview-reply-btn" [ngStyle]="{'background-color': proactiveMessagesForm.get('quickReplyButtonColour')!.value, 'border-color': proactiveMessagesForm.get('quickReplyButtonBorderColour')!.value}">Book demo</button>
+                    <button class="preview-reply-btn" [ngStyle]="{'background-color': proactiveMessagesForm.get('quickReplyButtonColour')!.value, 'border-color': proactiveMessagesForm.get('quickReplyButtonBorderColour')!.value}">Learn more about features</button>
+                  </div>
+                </div>
+                <button class="preview-widget-icon"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="0" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a2 2 0 0 0-2 2v2H8a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-2V4a2 2 0 0 0-2-2zM9 12a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm8 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-4 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/><path d="M4.5 10.5h-2a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1zm15 0h-2a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1z"/><path d="M9 16.5H7.5v1.5H9v-1.5zm7.5 0H15v1.5h1.5v-1.5z"/></svg></button>
+              </div>
+            </div>
+          </div>
+          <div class="details-section">
+            <div class="section-header" (click)="toggleBrandSection()">
+              <div class="section-icon"><i class="feather icon-eye"></i></div>
+              <div class="section-text"><div class="section-title">Brand</div><div class="section-description">Customise the webchat style to match your brand</div></div>
+              <div class="section-action"><i class="feather" [ngClass]="{'icon-chevron-down': isBrandSectionOpen, 'icon-chevron-right': !isBrandSectionOpen}"></i></div>
+            </div>
+            <div class="section-body brand-section-body" *ngIf="isBrandSectionOpen" [formGroup]="brandForm">
+              <div class="brand-settings-panel">
+                <div class="brand-tabs">
+                  <button class="brand-tab-item" [class.active]="activeBrandTab === 'welcome'" (click)="setActiveBrandTab('welcome')">Welcome Screen</button>
+                  <button class="brand-tab-item" [class.active]="activeBrandTab === 'chat'" (click)="setActiveBrandTab('chat')">Chat Screen</button>
+                  <button class="brand-tab-item" [class.active]="activeBrandTab === 'styles'" (click)="setActiveBrandTab('styles')">Styles</button>
+                </div>
+                <div class="brand-tab-content">
+                  <div *ngIf="activeBrandTab === 'welcome'">
+                    <div class="brand-form-row space-between">
+                      <label class="brand-form-label">Enable Welcome Screen</label>
+                      <label class="toggle-switch"><input type="checkbox" formControlName="enableWelcomeScreen"><span class="slider"></span></label>
+                    </div>
+                    <div class="brand-form-row">
+                      <label class="brand-form-label" for="brandTitle">Title</label>
+                      <input type="text" id="brandTitle" class="brand-form-control" placeholder="Enter your email" formControlName="title">
+                      <p class="brand-form-hint">This appears in the webchat header.</p>
+                    </div>
+                    <div class="brand-form-row">
+                      <label class="brand-form-label" for="brandDesc1">Description</label>
+                      <input type="text" id="brandDesc1" class="brand-form-control" placeholder="Enter your email" formControlName="description1">
+                      <p class="brand-form-hint">Additional details for welcome title.</p>
+                    </div>
+                    <div class="brand-form-row">
+                      <label class="brand-form-label" for="brandDesc2">Description</label>
+                      <input type="text" id="brandDesc2" class="brand-form-control" placeholder="Enter your email" formControlName="description2">
+                      <p class="brand-form-hint">Additional details for welcome title.</p>
+                    </div>
+                    <div class="brand-form-row">
+                      <button class="btn brand-save-btn" (click)="onSaveChanges()">Save</button>
+                    </div>
+                  </div>
+                  <div *ngIf="activeBrandTab === 'chat'"><p>Chat Screen Settings Go Here...</p></div>
+                  <div *ngIf="activeBrandTab === 'styles'"><p>Styles Settings Go Here...</p></div>
+                </div>
+              </div>
+              <div class="brand-preview-panel">
+                <div class="preview-widget">
+                  <div class="preview-header">
+                    <button class="preview-tab-item active">Welcome Screen</button>
+                    <button class="preview-tab-item">Styles</button>
+                  </div>
+                  <div class="preview-body">
+                    <div class="preview-card" *ngIf="brandForm.get('enableWelcomeScreen')!.value">
+                      <div class="preview-card-header">
+                        <span class="preview-card-title">{{ brandForm.get('title')!.value }}</span>
+                        <button class="preview-card-close">×</button>
+                      </div>
+                      <p class="preview-card-text">{{ brandForm.get('description1')!.value }}</p>
+                    </div>
+                     <div class="preview-card-placeholder" *ngIf="brandForm.get('enableWelcomeScreen')!.value">
+                      <span class="preview-card-title">{{ brandForm.get('title')!.value }}</span>
+                      <p class="preview-card-text">{{ brandForm.get('description2')!.value }}</p>
+                    </div>
+                    <button class="btn preview-save-btn">Save</button>
+                  </div>
+                </div>
+                <button class="preview-close-main">×</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pre-chat form Section - FULLY RESTORED -->
+          <div class="details-section">
+            <div class="section-header" (click)="togglePreChatFormSection()">
+              <div class="section-icon"><i class="feather icon-file-text"></i></div>
+              <div class="section-text"><div class="section-title">Pre-chat form</div><div class="section-description">Gather essential information from people before starting a chat session</div></div>
+              <div class="section-action"><i class="feather" [ngClass]="{'icon-chevron-down': isPreChatFormSectionOpen, 'icon-chevron-right': !isPreChatFormSectionOpen}"></i></div>
+            </div>
+            <div class="section-body prechat-section-body" *ngIf="isPreChatFormSectionOpen" [formGroup]="preChatForm">
+              <div class="prechat-settings-panel">
+                <div class="prechat-form-row space-between">
+                  <label class="prechat-form-label">Enable Pre-chat form</label>
+                  <label class="toggle-switch"><input type="checkbox" formControlName="enablePreChatForm"><span class="slider"></span></label>
+                </div>
+                <hr class="prechat-divider">
+                <div class="prechat-form-row">
+                  <label class="prechat-form-label bold">Fields</label>
+                </div>
+                <div class="prechat-fields-list" formArrayName="fields">
+                  <div class="prechat-field-item" *ngFor="let field of preChatFields.controls; let i = index" [formGroupName]="i">
+                    <div class="field-name">{{ field.get('name')!.value }}</div>
+                    <div class="field-controls">
+                      <label class="prechat-checkbox-label">
+                        <input type="checkbox" formControlName="required">
+                        Required
+                      </label>
+                      <label class="toggle-switch small-toggle">
+                        <input type="checkbox" formControlName="enabled">
+                        <span class="slider"></span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <button class="btn prechat-add-btn">Add field</button>
+                <button class="btn prechat-save-btn" (click)="onSaveChanges()">Save</button>
+              </div>
+              <div class="prechat-preview-panel">
+                <div class="preview-widget prechat">
+                  <div class="prechat-preview-header">
+                    <i class="feather icon-message-square"></i>
+                    <span>Start a conversation</span>
+                  </div>
+                  <div class="prechat-preview-body" *ngIf="preChatForm.get('enablePreChatForm')!.value">
+                    <p>Hi! Please fill out the form below to start chatting with the next available agent.</p>
+                    <div class="prechat-preview-form">
+                      <ng-container *ngFor="let field of preChatFields.controls">
+                        <div class="preview-form-group" *ngIf="field.get('enabled')!.value">
+                          <label>
+                            {{ field.get('name')!.value }}
+                            <span *ngIf="field.get('required')!.value">*</span>
+                          </label>
+                          <input type="text" [placeholder]="field.get('name')!.value">
+                        </div>
+                      </ng-container>
+                    </div>
+                    <button class="btn prechat-preview-start-btn">Start chat</button>
+                  </div>
+                  <div class="prechat-preview-footer">
+                    Our usual reply time is a few minutes
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Mobile behaviour Section -->
+          <div class="details-section">
+            <div class="section-header" (click)="toggleMobileBehaviourSection()">
+              <div class="section-icon"><i class="feather icon-smartphone"></i></div>
+              <div class="section-text">
+                <div class="section-title">Mobile behaviour</div>
+                <div class="section-description">This is used for webchat appearance on mobile devices</div>
+              </div>
+              <div class="section-action"><i class="feather" [ngClass]="{'icon-chevron-down': isMobileBehaviourSectionOpen, 'icon-chevron-right': !isMobileBehaviourSectionOpen}"></i></div>
+            </div>
+            <div class="section-body mobile-behaviour-body" *ngIf="isMobileBehaviourSectionOpen" [formGroup]="mobileBehaviourForm">
+              <div class="form-group">
+                <label>Mobile screen width threshold</label>
+                <p class="form-hint">This specifies the threshold of a mobile device.</p>
+                <div class="input-with-unit">
+                  <input type="number" class="form-control" formControlName="threshold">
+                  <span>px</span>
+                </div>
+              </div>
+              <div class="radio-group">
+                <label class="radio-label">
+                  <input type="radio" value="fullscreen" formControlName="displayMode">
+                  Fullscreen on Mobile
+                </label>
+                <label class="radio-label">
+                  <input type="radio" value="hide" formControlName="displayMode">
+                  Hide on Mobile
+                </label>
+              </div>
+              <div class="form-group">
+                <label>Mobile size</label>
+                <div class="size-inputs">
+                  <div class="input-with-unit">
+                    <label class="sub-label">Width</label>
+                    <input type="number" class="form-control" formControlName="width">
+                    <span>%</span>
+                  </div>
+                  <div class="input-with-unit">
+                    <label class="sub-label">Height</label>
+                    <input type="number" class="form-control" formControlName="height">
+                    <span>%</span>
+                  </div>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button class="btn btn-primary" (click)="onSaveChanges()">Save</button>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Mobile behaviour Section -->
-      <div class="details-section">
-        <div class="section-header" (click)="toggleMobileBehaviourSection()">
-          <div class="section-icon"><i class="feather icon-smartphone"></i></div>
-          <div class="section-text"><div class="section-title">Mobile behaviour</div><div class="section-description">This is used for webchat appearance on mobile devices</div></div>
-          <div class="section-action"><i class="feather" [ngClass]="{'icon-chevron-down': isMobileBehaviourSectionOpen, 'icon-chevron-right': !isMobileBehaviourSectionOpen}"></i></div>
+      <!-- ==================================================================================== -->
+      <!-- CASE 2: WHATSAPP (This is now a sibling of the Webchat case) -->
+      <!-- ==================================================================================== -->
+      <div *ngSwitchCase="'WhatsApp'" class="details-content">
+        <!-- Basics Section -->
+        <div class="details-section">
+          <div class="section-header" (click)="toggleBasicsSection()">
+            <div class="section-icon"><i class="feather icon-settings"></i></div>
+            <div class="section-text">
+              <div class="section-title">Basics</div>
+              <div class="section-description">General AI assistant settings</div>
+            </div>
+            <div class="section-action"><i class="feather" [ngClass]="{'icon-chevron-down': isBasicsSectionOpen, 'icon-chevron-right': !isBasicsSectionOpen}"></i></div>
+          </div>
+          <div class="section-body generic-form-body" *ngIf="isBasicsSectionOpen" [formGroup]="whatsAppForm">
+            <div class="form-row space-between">
+              <label class="form-label">WhatsApp</label>
+              <label class="toggle-switch"><input type="checkbox" formControlName="enabled"><span class="slider"></span></label>
+            </div>
+            <div class="form-row">
+              <label for="waMessage" class="form-label">Message</label>
+              <textarea id="waMessage" class="form-control" formControlName="message" placeholder="Please fill in the form before starting the chat."></textarea>
+            </div>
+            <div class="form-row">
+              <label for="waLanguage" class="form-label">Language</label>
+              <select id="waLanguage" class="form-control" formControlName="language">
+                <option>English</option>
+                <option>Spanish</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label class="form-label">Icon</label>
+              <div class="icon-upload-area">
+                <div class="icon-preview"></div>
+                <button class="btn btn-primary">Upload</button>
+              </div>
+              <p class="form-hint">PNG OR JPEG up to 10 MB</p>
+            </div>
+            <div class="form-row auto-close-row">
+              <label class="checkbox-label"><input type="checkbox" formControlName="autoCloseChat">Auto-close chat on timeout:</label>
+              <select class="form-control" formControlName="autoCloseTimeout">
+                <option>15 Minutes</option>
+                <option>30 Minutes</option>
+                <option>1 Hour</option>
+              </select>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary" (click)="onSaveChanges()">Save</button>
+              <button class="btn btn-danger">Delete Channel</button>
+            </div>
+          </div>
         </div>
-        <div class="section-body" *ngIf="isMobileBehaviourSectionOpen">Content for Mobile Behaviour goes here.</div>
+        <!-- Configuration Section -->
+        <div class="details-section">
+          <div class="section-header" (click)="toggleConfigurationSection()">
+            <div class="section-icon"><i class="feather icon-tool"></i></div>
+            <div class="section-text"><div class="section-title">Configuration</div><div class="section-description">Configure the service integration.</div></div>
+            <div class="section-action"><i class="feather icon-chevron-right"></i></div>
+          </div>
+        </div>
+        <!-- Webhook Section -->
+        <div class="details-section">
+          <div class="section-header" (click)="toggleWebhookSection()">
+            <div class="section-icon"><i class="feather icon-git-pull-request"></i></div>
+            <div class="section-text"><div class="section-title">Webhook</div><div class="section-description">Enable webhook URL</div></div>
+            <div class="section-action"><i class="feather icon-chevron-right"></i></div>
+          </div>
+        </div>
+        <!-- Setup Section -->
+        <div class="details-section">
+          <div class="section-header" (click)="toggleSetupSection()">
+            <div class="section-icon"><i class="feather icon-code"></i></div>
+            <div class="section-text"><div class="section-title">Setup</div><div class="section-description">Required for the deploy script</div></div>
+            <div class="section-action"><i class="feather icon-chevron-right"></i></div>
+          </div>
+        </div>
       </div>
+
+      <!-- ==================================================================================== -->
+      <!-- CASE 3: FACEBOOK (This is now a sibling of the Webchat case) -->
+      <!-- ==================================================================================== -->
+      <div *ngSwitchCase="'Facebook'" class="details-content">
+        <!-- Basics Section -->
+        <div class="details-section">
+          <div class="section-header" (click)="toggleBasicsSection()">
+            <div class="section-icon"><i class="feather icon-settings"></i></div>
+            <div class="section-text"><div class="section-title">Basics</div><div class="section-description">General AI assistant settings</div></div>
+            <div class="section-action"><i class="feather" [ngClass]="{'icon-chevron-down': isBasicsSectionOpen, 'icon-chevron-right': !isBasicsSectionOpen}"></i></div>
+          </div>
+          <div class="section-body generic-form-body" *ngIf="isBasicsSectionOpen" [formGroup]="facebookForm">
+            <div class="form-row space-between">
+              <label class="form-label">Facebook Messenger</label>
+              <label class="toggle-switch"><input type="checkbox" formControlName="enabled"><span class="slider"></span></label>
+            </div>
+            <div class="form-row">
+              <label for="fbName" class="form-label">Name</label>
+              <input type="text" id="fbName" class="form-control" formControlName="name">
+            </div>
+            <div class="form-row">
+              <label for="fbLanguage" class="form-label">Language</label>
+              <select id="fbLanguage" class="form-control" formControlName="language">
+                <option>English</option>
+                <option>Spanish</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label class="form-label">Icon</label>
+              <div class="icon-upload-area">
+                <div class="icon-preview"></div>
+                <button class="btn btn-primary">Upload</button>
+              </div>
+              <p class="form-hint">PNG OR JPEG up to 10 MB</p>
+            </div>
+            <div class="form-row auto-close-row">
+              <label class="checkbox-label"><input type="checkbox" formControlName="autoCloseChat">Auto-close chat on timeout:</label>
+              <select class="form-control" formControlName="autoCloseTimeout">
+                <option>15 Minutes</option>
+                <option>30 Minutes</option>
+                <option>1 Hour</option>
+              </select>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary" (click)="onSaveChanges()">Save</button>
+              <button class="btn btn-danger">Delete Channel</button>
+            </div>
+          </div>
+        </div>
+        <!-- Setup Section -->
+        <div class="details-section">
+          <div class="section-header" (click)="toggleSetupSection()">
+            <div class="section-icon"><i class="feather icon-code"></i></div>
+            <div class="section-text"><div class="section-title">Setup</div><div class="section-description">Required for the deploy script</div></div>
+            <div class="section-action"><i class="feather icon-chevron-right"></i></div>
+          </div>
+        </div>
+        <!-- Connected page Section -->
+        <div class="details-section">
+          <div class="section-header" (click)="toggleConnectedPageSection()">
+            <div class="section-icon"><i class="feather icon-link"></i></div>
+            <div class="section-text"><div class="section-title">Connected page</div><div class="section-description">Login for the deploy script</div></div>
+            <div class="section-action"><i class="feather icon-chevron-right"></i></div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
-
 </div>
 
-<!-- Add Channel Modal (Unchanged) -->
+<!-- Add Channel Modal -->
 <div class="modal-backdrop" *ngIf="showModal">
-  <div class="modal-content"><div class="modal-header"><h4 class="modal-title">Add Channel</h4><button type="button" class="btn-close" aria-label="Close" (click)="closeModal()"></button></div><div class="modal-body"><form [formGroup]="addChannelForm"><div class="mb-3"><label class="form-label">Channel</label><select class="form-select" formControlName="channelType"><option value="Webchat">Webchat</option><option value="WhatsApp">WhatsApp</option></select></div><div class="mb-3"><label class="form-label">Name</label><input type="text" class="form-control" formControlName="name" placeholder="Enter name"><div *ngIf="addChannelForm.get('name')?.invalid && addChannelForm.get('name')?.touched" class="text-danger small mt-1">Name is required.</div></div><div class="mb-3"><label class="form-label">Default chat language</label><select class="form-select" formControlName="language"><option value="English">English</option><option value="Spanish">Spanish</option></select></div></form></div><div class="modal-footer"><button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button><button type="button" class="btn btn-primary" (click)="onAddChannel()" [disabled]="addChannelForm.invalid">Create</button></div></div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h4 class="modal-title">Add Channel</h4>
+      <button type="button" class="btn-close" aria-label="Close" (click)="closeModal()"></button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="addChannelForm">
+        <div class="mb-3">
+          <label class="form-label">Channel</label>
+          <select class="form-select" formControlName="channelType">
+            <option value="Webchat">Webchat</option>
+            <option value="WhatsApp">WhatsApp</option>
+            <option value="Facebook">Facebook</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Name</label>
+          <input type="text" class="form-control" formControlName="name" placeholder="Enter name">
+          <div *ngIf="addChannelForm.get('name')?.invalid && addChannelForm.get('name')?.touched" class="text-danger small mt-1">Name is required.</div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Default chat language</label>
+          <select class="form-select" formControlName="language">
+            <option value="English">English</option>
+            <option value="Spanish">Spanish</option>
+          </select>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+      <button type="button" class="btn btn-primary" (click)="onAddChannel()" [disabled]="addChannelForm.invalid">Create</button>
+    </div>
+  </div>
+</div>

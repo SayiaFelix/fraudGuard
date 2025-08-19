@@ -14,36 +14,40 @@
 
       <!-- Filter Bar -->
       <div class="filter-bar">
-        <div class="filter-item search-filter">
-          <i class="feather icon-search"></i>
-          <input type="text" class="filter-input" placeholder="Search">
-        </div>
-        <!-- Filters... -->
-        <details class="filter-item-details">
-          <summary class="filter-item"><span>Assignee: <strong>Select</strong></span></summary>
-          <!-- Dropdown content -->
-        </details>
-        <details class="filter-item-details">
-          <summary class="filter-item"><span>Assigned team: <strong>Select</strong></span></summary>
-          <!-- Dropdown content -->
-        </details>
-        <details class="filter-item-details">
-          <summary class="filter-item"><span>Tags: <strong>Select</strong></span></summary>
-          <!-- Dropdown content -->
-        </details>
-        <details class="filter-item-details">
-          <summary class="filter-item"><span>Status: <strong>Select</strong></span></summary>
-          <!-- Dropdown content -->
-        </details>
-        <details class="filter-item-details">
-          <summary class="filter-item"><span>Created on: <strong>Select</strong></span></summary>
-          <!-- Dropdown content -->
-        </details>
-        <button class="reset-all-btn">
-          <i class="feather icon-x"></i>
-          <span>Reset all</span>
-        </button>
-      </div>
+  <!-- Corrected Search Bar Structure -->
+  <div class="search-bar">
+    <i class="feather icon-search"></i>
+    <input type="text" placeholder="Search">
+  </div>
+
+  <!-- Filters (no changes here) -->
+  <details class="filter-item-details">
+    <summary class="filter-item"><span>Assignee: <strong>Select</strong></span></summary>
+    <!-- Dropdown content -->
+  </details>
+  <details class="filter-item-details">
+    <summary class="filter-item"><span>Assigned team: <strong>Select</strong></span></summary>
+    <!-- Dropdown content -->
+  </details>
+  <details class="filter-item-details">
+    <summary class="filter-item"><span>Tags: <strong>Select</strong></span></summary>
+    <!-- Dropdown content -->
+  </details>
+  <details class="filter-item-details">
+    <summary class="filter-item"><span>Status: <strong>Select</strong></span></summary>
+    <!-- Dropdown content -->
+  </details>
+  <details class="filter-item-details">
+    <summary class="filter-item"><span>Created on: <strong>Select</strong></span></summary>
+    <!-- Dropdown content -->
+  </details>
+  
+  <!-- Reset Button (no changes here) -->
+  <button class="reset-all-btn">
+    <i class="feather icon-x"></i>
+    <span>Reset all</span>
+  </button>
+</div>
 
       <!-- Livechats Table -->
       <div class="table-wrapper">
@@ -93,11 +97,10 @@
       <!-- Sidebar Header -->
       <div class="sidebar-header">
         <div class="sidebar-title">
-          <i class="feather icon-message-square"></i>
+          <i class="feather icon-message-circle"></i>
           <span>Livechat</span>
         </div>
         <div class="header-actions">
-          <button class="btn-dark-solid">Go to livechat</button>
           <button class="btn-icon-close" (click)="hideDetailsSidebar()">
             <i class="feather icon-x"></i>
           </button>
@@ -171,20 +174,39 @@
             <i class="feather icon-chevron-down"></i>
             <span>Custom Fields</span>
           </summary>
+          <div class="collapsible-content">
+            <div class="empty-state-message">
+              <span>Create a custom field to get started</span>
+            </div>
+          </div>
         </details>
+        
+        <!-- Notes Section -->
         <details class="collapsible-section">
           <summary class="collapsible-header">
             <i class="feather icon-chevron-down"></i>
             <span>Notes</span>
             <i class="feather icon-plus"></i>
           </summary>
+          <div class="collapsible-content">
+            <div class="empty-state-message">
+              <span>Create the first note</span>
+            </div>
+          </div>
         </details>
+        
+        <!-- Tags Section -->
         <details class="collapsible-section">
           <summary class="collapsible-header">
             <i class="feather icon-chevron-down"></i>
             <span>Tags</span>
             <i class="feather icon-plus"></i>
           </summary>
+          <div class="collapsible-content">
+             <div class="empty-state-message">
+              <span>Select a tag or tag group</span>
+            </div>
+          </div>
         </details>
       </div>
     </div>
