@@ -113,11 +113,10 @@
         <!-- Sidebar Header -->
         <div class="sidebar-header">
           <div class="sidebar-title">
-            <i class="feather icon-message-square"></i>
+            <i class="feather icon-tag"></i>
             <span>Ticket</span>
           </div>
           <div class="header-actions">
-            <button class="btn-dark-solid">Go to Ticket</button>
             <button class="btn-icon-close" (click)="closeDetailsSidebar()">
               <i class="feather icon-x"></i>
             </button>
@@ -186,26 +185,45 @@
           </details>
           
           <!-- Other Collapsible Sections -->
-          <details class="collapsible-section">
-            <summary class="collapsible-header">
-                <i class="feather icon-chevron-down"></i>
-                <span>Custom Fields</span>
-            </summary>
-          </details>
            <details class="collapsible-section">
-            <summary class="collapsible-header">
-                <i class="feather icon-chevron-down"></i>
-                <span>Notes</span>
-                <i class="feather icon-plus"></i>
-            </summary>
-          </details>
-           <details class="collapsible-section">
-            <summary class="collapsible-header">
-                <i class="feather icon-chevron-down"></i>
-                <span>Tags</span>
-                <i class="feather icon-plus"></i>
-            </summary>
-          </details>
+          <summary class="collapsible-header">
+            <i class="feather icon-chevron-down"></i>
+            <span>Custom Fields</span>
+          </summary>
+          <div class="collapsible-content">
+            <div class="empty-state-message">
+              <span>Create a custom field to get started</span>
+            </div>
+          </div>
+        </details>
+        
+        <!-- Notes Section -->
+        <details class="collapsible-section">
+          <summary class="collapsible-header">
+            <i class="feather icon-chevron-down"></i>
+            <span>Notes</span>
+            <i class="feather icon-plus"></i>
+          </summary>
+          <div class="collapsible-content">
+            <div class="empty-state-message">
+              <span>Create the first note</span>
+            </div>
+          </div>
+        </details>
+        
+        <!-- Tags Section -->
+        <details class="collapsible-section">
+          <summary class="collapsible-header">
+            <i class="feather icon-chevron-down"></i>
+            <span>Tags</span>
+            <i class="feather icon-plus"></i>
+          </summary>
+          <div class="collapsible-content">
+             <div class="empty-state-message">
+              <span>Select a tag or tag group</span>
+            </div>
+          </div>
+        </details>
         </div>
       </div>
     </ng-container>
