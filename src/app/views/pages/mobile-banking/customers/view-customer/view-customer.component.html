@@ -1,28 +1,32 @@
-<div class="add-training-container container-fluid mt-2">
-  <div class="header mb-4">
+<div class="add-training-container container-fluid mt-1">
+  <div class="header mb-2">
     <h2>Add Training</h2>
     <p class="text-muted">Add triggers and actions for a scripted chat flow. If an action is not triggered, then the enabled LLM will generate a response.</p>
   </div>
 
-  <div class="fallback-section d-flex align-items-center mb-3">
-    <span class="me-2">Fallback to GPT-4o</span>
-    <div class="form-check form-switch">
-      <input class="form-check-input" type="checkbox" role="switch" id="fallbackSwitch" checked>
-    </div>
-  </div>
-  
-  <div class="info-banner alert alert-info d-flex align-items-start mb-3">
-    <img src="assets/images/Icon2.png" alt="Info Icon" class="me-2" width="20">
-    <p class="mb-0">Enable this option for enhanced natural language understanding and generation capabilities within your AI agent. Enabling the large language model may increase resource usage and response time.</p>
-  </div>
+ 
 
   <form [formGroup]="trainingForm" (ngSubmit)="submitTraining()" class="mb-3" enctype="multipart/form-data">
     <div class="row">
+        <div class="fallback-section d-flex align-items-center mb-2">
+            <span class="me-2">Fallback to GPT-4o</span>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="fallbackSwitch" checked>
+            </div>
+        </div>
+  
+        <div class="info-banner alert alert-info d-flex align-items-start mb-3">
+          <img src="assets/images/Icon2.png" alt="Info Icon" class="me-2" width="20">
+          <p class="mb-0">Enable this option for enhanced natural language understanding and generation capabilities within your AI agent. Enabling the large language model may increase resource usage and response time.</p>
+        </div>
+
       <!-- Left Panel - Prompt -->
       <div class="col-md-7">
         <div class="card mb-1">
+           
           <div class="card-header">
-            <h5 class="card-title mb-0">Personalisation Prompt</h5>
+            <h5 style="font-family: Roboto;font-weight: 500;font-style: Medium;font-size: 17px;" 
+               class="mb-0">Personalisation Prompt</h5>
           </div>
           <div class="card-body">
             <textarea 
@@ -39,7 +43,8 @@
       <div class="col-md-5">
         <div class="card">
           <div class="card-header">
-            <h5 class="card-title mb-0">Import Training Data</h5>
+            <h5 style="font-family: Roboto;font-weight: 500;font-style: Medium;font-size: 17px;" 
+             class="mb-0">Import Training Data</h5>
           </div>
           
           <div class="card-body">
@@ -47,7 +52,9 @@
               <!-- File Upload -->
               <div class="mb-2">
                 <label class="btn btn-sm import-option w-100 text-start">
-                  <i class="feather icon-upload"></i>
+                  <div class="icon">
+                     <i class="feather icon-upload"></i>
+                  </div>
                   <span class="ms-2">Upload File</span>
                   <input 
                     type="file" 
@@ -82,7 +89,9 @@
 
               <!-- URL Button -->
               <button *ngIf="!showUrlInput" type="button" class="btn btn-sm import-option w-100 text-start mb-2" (click)="toggleUrlInput()">
-                <i class="feather icon-link"></i>
+                <div class="icon">
+                    <i class="feather icon-link"></i>
+                </div>
                 <span class="ms-2">Add URL</span>
               </button>
               
@@ -102,7 +111,9 @@
               </div>
               
               <button *ngIf="!showCodeInput" type="button" class="btn btn-sm import-option w-100 text-start" (click)="toggleCodeInput()">
-                <i class="feather icon-code"></i>
+               <div class="icon">
+                 <i class="feather icon-code"></i>
+               </div>                
                 <span class="ms-2">Paste Code Snippet</span>
               </button>
               <hr>
@@ -144,7 +155,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let i of [1,2,3,4,5,6,7,8,9]">
+              <tr *ngFor="let i of [1,2,3,4,5]">
                 <td><input type="checkbox" class="form-check-input"></td>
                 <td>Name</td>
                 <td>Last Updated</td>
