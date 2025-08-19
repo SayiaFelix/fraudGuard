@@ -1,86 +1,167 @@
-<div class="add-training-container">
-  <div class="header">
+<div class="add-training-container container-fluid mt-2">
+  <div class="header mb-4">
     <h2>Add Training</h2>
-    <p>Add triggers and actions for a scripted chat flow. If an action is not triggered, then the enabled LLM will generate a response.</p>
+    <p class="text-muted">Add triggers and actions for a scripted chat flow. If an action is not triggered, then the enabled LLM will generate a response.</p>
   </div>
 
-  <div class="fallback-section">
-    <span>Fallback to GPT-4o</span>
-    <label class="switch">
-      <input type="checkbox" checked>
-      <span class="slider round"></span>
-    </label>
+  <div class="fallback-section d-flex align-items-center mb-3">
+    <span class="me-2">Fallback to GPT-4o</span>
+    <div class="form-check form-switch">
+      <input class="form-check-input" type="checkbox" role="switch" id="fallbackSwitch" checked>
+    </div>
   </div>
-     <div class="info-banner">
-     <img src="assets/images/Icon2.png" alt="Info Icon">
-     <p>Enable this option for enhanced natural language understanding and generation capabilities within your AI agent. Enabling the large language model may increase resource usage and response time.</p>
+  
+  <div class="info-banner alert alert-info d-flex align-items-start mb-3">
+    <img src="assets/images/Icon2.png" alt="Info Icon" class="me-2" width="20">
+    <p class="mb-0">Enable this option for enhanced natural language understanding and generation capabilities within your AI agent. Enabling the large language model may increase resource usage and response time.</p>
   </div>
 
-  <div class="main-content">
-    <div class="left-panel">
-      <div class="personalisation-prompt">
-        <h5>Personalisation Prompt</h5>
-        <div class="prompt-box">
-          <textarea></textarea>
-       </div>
-     </div>
-
-      <div class="existing-training">
-        <h5>Existing Training</h5>
-        <div class="search-box">
-          <input type="text" placeholder="Search">
-        </div>
-        <div class="training-table">
-          <div class="table-header">
-            <div class="table-row">
-              <div class="table-cell name-col"><input type="checkbox"> Name</div>
-              <div class="table-cell">Last Updated</div>
-              <div class="table-cell">Status</div>
-              <div class="table-cell">Action</div>
-            </div>
+  <form [formGroup]="trainingForm" (ngSubmit)="submitTraining()" class="mb-3" enctype="multipart/form-data">
+    <div class="row">
+      <!-- Left Panel - Prompt -->
+      <div class="col-md-7">
+        <div class="card mb-1">
+          <div class="card-header">
+            <h5 class="card-title mb-0">Personalisation Prompt</h5>
           </div>
-          <div class="table-body">
-            <div class="table-row" *ngFor="let i of [1,2,3,4,5,6,7,8,9]">
-              <div class="table-cell name-col"><input type="checkbox"> Name</div>
-              <div class="table-cell">Last Updated</div>
-              <div class="table-cell">Enabled</div>
-              <div class="table-cell action-col">
-                <label class="switch">
-                  <input type="checkbox" checked>
-                  <span class="slider round"></span>
+          <div class="card-body">
+            <textarea 
+              formControlName="prompt"
+              placeholder="Enter Personalised Prompt ....." 
+              class="form-control" 
+              rows="10"
+              required
+            ></textarea>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-5">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title mb-0">Import Training Data</h5>
+          </div>
+          
+          <div class="card-body">
+        
+              <!-- File Upload -->
+              <div class="mb-2">
+                <label class="btn btn-sm import-option w-100 text-start">
+                  <i class="feather icon-upload"></i>
+                  <span class="ms-2">Upload File</span>
+                  <input 
+                    type="file" 
+                    class="d-none" 
+                    (change)="onFileChange($event)"
+                    accept=".pdf,.doc,.docx,.txt"
+                    #fileInput
+                  >
                 </label>
-                <span class="dots">...</span>
+                <small *ngIf="uploadedFile" class="text-muted d-block mt-1">
+                  {{ uploadedFile.name }}
+                  <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeFile()">
+                    <i class="feather icon-trash-2"></i>
+                  </button>
+                </small>
               </div>
-            </div>
+              
+              <!-- URL Input -->
+              <div class="mb-2" *ngIf="showUrlInput">
+                <div class="input-group">
+                  <input 
+                    type="url" 
+                    class="form-control" 
+                    formControlName="url"
+                    placeholder="https://www.example.com/article"
+                  >
+                  <button class="btn btn-outline-danger" type="button" (click)="cancelUrlInput()">
+                    <i class="feather icon-x"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- URL Button -->
+              <button *ngIf="!showUrlInput" type="button" class="btn btn-sm import-option w-100 text-start mb-2" (click)="toggleUrlInput()">
+                <i class="feather icon-link"></i>
+                <span class="ms-2">Add URL</span>
+              </button>
+              
+              <!-- Code Snippet Input -->
+              <div class="mb-2" *ngIf="showCodeInput">
+                <div class="input-group">
+                  <textarea
+                    class="form-control"
+                    formControlName="codeSnippet"
+                    placeholder="Paste your code snippet here..."
+                    rows="3"
+                  ></textarea>
+                  <button class="btn btn-outline-danger" type="button" (click)="cancelCodeInput()">
+                    <i class="feather icon-x"></i>
+                  </button>
+                </div>
+              </div>
+              
+              <button *ngIf="!showCodeInput" type="button" class="btn btn-sm import-option w-100 text-start" (click)="toggleCodeInput()">
+                <i class="feather icon-code"></i>
+                <span class="ms-2">Paste Code Snippet</span>
+              </button>
+              <hr>
+          </div>
+     
+          <div style="margin-top:-20px; padding-right: 20px;" class="text-end">
+            <button 
+              type="submit" 
+              class="btn btn-primary btn-test" 
+              [disabled]="!isFormValid || trainingForm.invalid"
+            >
+              Save Training
+            </button>
           </div>
         </div>
       </div>
     </div>
+  </form>
 
-   <div class="right-panel">
-  <div class="import-training-data">
-    <h5>Import Training Data</h5>
-    
-    <div class="import-option">
-      <span class="icon">
-        <img src="assets/images/icon1.png" alt="Upload Icon">
-      </span>
-      <span>Upload File</span>
+  <!-- Existing Training Table -->
+  <div class="existing-training">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">Existing Training</h5>
+        <div class="search-box">
+          <input type="text" class="form-control" placeholder="Search">
+        </div>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead>
+              <tr>
+                <th><input type="checkbox" class="form-check-input"></th>
+                <th>Name</th>
+                <th>Last Updated</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let i of [1,2,3,4,5,6,7,8,9]">
+                <td><input type="checkbox" class="form-check-input"></td>
+                <td>Name</td>
+                <td>Last Updated</td>
+                <td>Enabled</td>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <div class="form-check form-switch me-2">
+                      <input class="form-check-input" type="checkbox" role="switch" checked>
+                    </div>
+                    <!-- <span class="dots">...</span> -->
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
-    
-    <div class="import-option">
-      <span class="icon">
-        <img src="assets/images/icon1.png" alt="Code Snippet Icon">
-      </span>
-      <span>Paste Code Snippet</span>
-    </div>
-    
-    <div class="import-option">
-      <span class="icon">
-        <img src="assets/images/icon1.png" alt="Add URL Icon">
-      </span>
-      <span>Add URL</span>
-    </div>
-
   </div>
 </div>
