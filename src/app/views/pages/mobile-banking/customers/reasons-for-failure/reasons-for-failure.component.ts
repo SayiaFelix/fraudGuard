@@ -8,10 +8,13 @@ import { CompareImageComponent } from "../../../../../shared/components/compare-
 import { GlobalService } from '../../../../../shared/services/global.service';
 import { Subscription } from 'rxjs';
 
+// --- CHANGED: Added 'Facebook' to the list of possible channel types ---
+export type ChannelType = 'Webchat' | 'WhatsApp' | 'Facebook';
+
 export interface Channel {
   [x: string]: any;
   name: string;
-  type: 'Webchat' | 'WhatsApp';
+  type: ChannelType; // Use the new type alias
   lastUpdated: Date;
   enabled: boolean;
 }
@@ -27,7 +30,10 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
   public addChannelForm: FormGroup;
   public brandForm: FormGroup;
   public proactiveMessagesForm: FormGroup;
-  public preChatForm: FormGroup; 
+  public preChatForm: FormGroup;
+  public mobileBehaviourForm: FormGroup;
+  public whatsAppForm: FormGroup; // NEW: For WhatsApp
+  public facebookForm: FormGroup; // NEW: For Facebook
   public isTesting = false;
 
   // --- UI State & Data ---
@@ -39,13 +45,17 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
   public selectedChannel: Channel | null = null;
   
   // --- Section visibility flags ---
-  public isSetupSectionOpen = false;
-  public isBasicsSectionOpen = false;
+   public isSetupSectionOpen = false;
+  public isBasicsSectionOpen = true; // Keep Basics open by default
   public isProactiveSectionOpen = false;
   public isBrandSectionOpen = false;
-  public isPreChatFormSectionOpen =false; // Open this section by default
+  public isPreChatFormSectionOpen = false;
   public isMobileBehaviourSectionOpen = false;
   
+  // --- NEW: Section visibility flags for WHATSAPP & FACEBOOK ---
+  public isConfigurationSectionOpen = false;
+  public isWebhookSectionOpen = false;
+  public isConnectedPageSectionOpen = false;
   public activeBrandTab: 'welcome' | 'chat' | 'styles' = 'welcome';
 
   // --- API & Subscription Properties ---
@@ -96,6 +106,31 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
         this.createPreChatField('Phone', false, false),
       ])
     });
+
+    this.mobileBehaviourForm = this.fb.group({
+        threshold: [768],
+        displayMode: ['fullscreen'], // 'fullscreen' or 'hide'
+        width: [100],
+        height: [100]
+    });
+    
+    this.whatsAppForm = this.fb.group({
+      enabled: [true],
+      message: ['Please fill in the form before starting the chat.'],
+      language: ['English'],
+      autoCloseChat: [false],
+      autoCloseTimeout: ['15 Minutes']
+    });
+
+    // --- NEW: Form for Facebook Channel ---
+    this.facebookForm = this.fb.group({
+      enabled: [true],
+      name: ['NIT FB'],
+      language: ['English'],
+      autoCloseChat: [false],
+      autoCloseTimeout: ['15 Minutes']
+    });
+  
   }
 
   //Helper to create a form group for a single pre-chat field
@@ -146,19 +181,31 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
     if (savedChannelsJson) {
       this.channels = JSON.parse(savedChannelsJson).map((c: any) => ({ ...c, lastUpdated: new Date(c.lastUpdated) }));
     } else {
-      this.channels = [{ name: 'Default Webchat', type: 'Webchat', lastUpdated: new Date(), enabled: true }];
+      // --- NOTE: Added examples of the new channels for default data ---
+      this.channels = [
+        { name: 'Default Webchat', type: 'Webchat', lastUpdated: new Date(), enabled: true },
+        { name: 'Default WhatsApp', type: 'WhatsApp', lastUpdated: new Date(), enabled: true },
+        { name: 'Default Facebook', type: 'Facebook', lastUpdated: new Date(), enabled: false },
+      ];
     }
   }
   private saveChannelsToStorage() { localStorage.setItem(this.storageKey, JSON.stringify(this.channels)); }
 
   onAddChannel() {
     if (this.addChannelForm.invalid) { return; }
-    this.channels.unshift({ name: this.addChannelForm.value.name, type: this.addChannelForm.value.channelType, lastUpdated: new Date(), enabled: true });
+    const newChannel: Channel = {
+      name: this.addChannelForm.value.name,
+      type: this.addChannelForm.value.channelType, // Type is already dynamic
+      lastUpdated: new Date(),
+      enabled: true
+    };
+    this.channels.unshift(newChannel);
     this.saveChannelsToStorage();
     this.closeModal();
   }
   copyToClipboard(text: string) { navigator.clipboard.writeText(text).then(() => { this.copySuccessMessage = 'Copied!'; setTimeout(() => { this.copySuccessMessage = ''; }, 2000); }); }
   onSaveChanges() { 
+    console.log("Saving changes for channel:", this.selectedChannel?.name);
     console.log("Brand Form Saved", this.brandForm.value);
     console.log("Proactive Messages Form Saved", this.proactiveMessagesForm.value);
     console.log("Pre-Chat Form Saved", this.preChatForm.value);
@@ -317,14 +364,25 @@ async onTestClick() {
   toggleBrandSection() { this.isBrandSectionOpen = !this.isBrandSectionOpen; }
   togglePreChatFormSection() { this.isPreChatFormSectionOpen = !this.isPreChatFormSectionOpen; }
   toggleMobileBehaviourSection() { this.isMobileBehaviourSectionOpen = !this.isMobileBehaviourSectionOpen; }
+  toggleConfigurationSection() { this.isConfigurationSectionOpen = !this.isConfigurationSectionOpen; }
+  toggleWebhookSection() { this.isWebhookSectionOpen = !this.isWebhookSectionOpen; }
+  toggleConnectedPageSection() { this.isConnectedPageSectionOpen = !this.isConnectedPageSectionOpen; }
   
   setActiveBrandTab(tab: 'welcome' | 'chat' | 'styles') { this.activeBrandTab = tab; }
 
   goBackToList() { 
     this.selectedChannel = null; 
-    this.isSetupSectionOpen = false; this.isBasicsSectionOpen = false; this.isProactiveSectionOpen = false; this.isBrandSectionOpen = false; this.isPreChatFormSectionOpen = true; this.isMobileBehaviourSectionOpen = false;
+    // Reset ALL flags to their default states
+    this.isSetupSectionOpen = false; 
+    this.isBasicsSectionOpen = true; 
+    this.isProactiveSectionOpen = false; 
+    this.isBrandSectionOpen = false; 
+    this.isPreChatFormSectionOpen = false; 
+    this.isMobileBehaviourSectionOpen = false;
+    this.isConfigurationSectionOpen = false;
+    this.isWebhookSectionOpen = false;
+    this.isConnectedPageSectionOpen = false;
   }
-
   approveRecord() { this.modalRef = this.modalService.open(ConfirmDialogComponent, { centered: true }); this.modalRef.componentInstance.title = `Approve Record?`; this.modalRef.componentInstance.body = `Do you want to approve this record?`; }
   deleteRecord() { this.modalRef = this.modalService.open(ConfirmDialogComponent, { centered: true }); this.modalRef.componentInstance.title = `Delete Record?`; this.modalRef.componentInstance.body = `Do you want to delete this record?`; }
   openImage() { this.modalRef = this.modalService.open(CompareImageComponent, { centered: true }); this.modalRef.componentInstance.title = `Image Comparison`; this.modalRef.componentInstance.body = `Do you want to approve this record?`; }
