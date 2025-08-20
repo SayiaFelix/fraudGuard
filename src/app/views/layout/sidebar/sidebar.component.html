@@ -1,3 +1,5 @@
+<!-- src/app/views/layout/sidebar/sidebar.component.html -->
+
 <!-- The main sidebar container -->
 <nav class="sidebar">
 
@@ -30,7 +32,8 @@
         <li class="nav-item" *ngIf="!item.isTitle">
 
           <!-- Case 1: A REGULAR link that navigates to a new page -->
-          <a *ngIf="!item.isLogout && !item.isSettings" class="nav-link" [routerLink]="item.link" routerLinkActive="active">
+          <!-- MODIFIED: Added '!item.isHelpCenter' to the condition -->
+          <a *ngIf="!item.isLogout && !item.isSettings && !item.isHelpCenter" class="nav-link" [routerLink]="item.link" routerLinkActive="active">
             <i class="link-icon" [attr.data-feather]="item.icon" appFeatherIcon></i>
             <span class="link-title">{{ item.label }}</span>
           </a>
@@ -41,8 +44,14 @@
             <span class="link-title">{{ item.label }}</span>
           </a>
           
-          <!-- Case 3: The new SETTINGS button. It calls the onSettingsClick() function. -->
+          <!-- Case 3: The SETTINGS button. It calls the onSettingsClick() function. -->
           <a *ngIf="item.isSettings" class="nav-link" href="#" (click)="onSettingsClick($event)">
+            <i class="link-icon" [attr.data-feather]="item.icon" appFeatherIcon></i>
+            <span class="link-title">{{ item.label }}</span>
+          </a>
+
+          <!-- NEW: Case 4: The HELP CENTER button. It calls the onHelpCenterClick() function. -->
+          <a *ngIf="item.isHelpCenter" class="nav-link" href="#" (click)="onHelpCenterClick($event)">
             <i class="link-icon" [attr.data-feather]="item.icon" appFeatherIcon></i>
             <span class="link-title">{{ item.label }}</span>
           </a>
