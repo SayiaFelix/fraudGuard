@@ -224,8 +224,9 @@ export const MENU: MenuItem[] = [
   },
   {
     label: 'Help Center',
-    icon: 'help-circle',
-    link: '#' // Add your link for help center
+    icon: 'help-circle', // This seems to be the correct icon name based on your menu.ts
+    link: '#', 
+    isHelpCenter: true // <-- ADD THIS LINE
   },
   {
     label: 'Logout',
