@@ -6,105 +6,105 @@
 <div class="analytics-container">
   <!-- Content wrapper for grey background -->
   <div class="content-wrapper">
-    <!-- Secondary Header with Date Range and Chatbot Selector -->
+    <!-- Enhanced Date Range Header with Date Picker -->
     <header class="secondary-header">
       <div class="header-left">
         <div class="date-range-container">
           <div class="date-range-display" (click)="toggleDatePicker()">
+            <i class="fas fa-calendar-alt"></i>
             <span>{{ getDateRangeDisplay() }}</span>
+            <i class="fas fa-chevron-down" [class.rotated]="showDatePicker"></i>
           </div>
           
-          <!-- Advanced Calendar Picker -->
-          <div class="calendar-dropdown" *ngIf="showDatePicker">
-            <div class="calendar-header">
-              <!-- Month and Year Dropdowns -->
-              <div class="month-year-selectors">
-                <select class="month-select" [value]="currentMonth" (change)="onMonthChange(+$any($event.target).value)">
-                  <option *ngFor="let month of months; let i = index" [value]="i">{{ month }}</option>
-                </select>
-                <select class="year-select" [value]="currentYear" (change)="onYearChange(+$any($event.target).value)">
-                  <option *ngFor="let year of years" [value]="year">{{ year }}</option>
-                </select>
-              </div>
-
-              <!-- Navigation arrows -->
+          <!-- Date Picker Modal -->
+          <div class="date-picker-modal" *ngIf="showDatePicker">
+            <div class="date-picker-header">
+              <h3>Select Date Range</h3>
+              <button class="close-btn" (click)="cancelDateSelection()">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            
+            <div class="date-picker-content">
+              <!-- Calendar Navigation -->
               <div class="calendar-nav">
-                <button class="nav-btn" (click)="previousMonth()" aria-label="Previous month">
+                <button class="nav-btn" (click)="previousMonth()">
                   <i class="fas fa-chevron-left"></i>
                 </button>
-                <button class="nav-btn" (click)="nextMonth()" aria-label="Next month">
+                
+                <div class="month-year-selectors">
+                  <!-- =========== FIX STARTS HERE =========== -->
+                  <select class="month-selector" [value]="currentMonth" (change)="onMonthChange($event)">
+                    <option *ngFor="let month of months; let i = index" [value]="i">{{ month }}</option>
+                  </select>
+                  
+                  <select class="year-selector" [value]="currentYear" (change)="onYearChange($event)">
+                    <option *ngFor="let year of years" [value]="year">{{ year }}</option>
+                  </select>
+                  <!-- =========== FIX ENDS HERE =========== -->
+                </div>
+                
+                <button class="nav-btn" (click)="nextMonth()">
                   <i class="fas fa-chevron-right"></i>
                 </button>
               </div>
-            </div>
-
-            <!-- Calendar Grid -->
-            <div class="calendar-body">
-              <!-- Week day headers -->
-              <div class="week-header">
-                <div *ngFor="let day of weekDays" class="week-day">{{ day }}</div>
-              </div>
-
-              <!-- Calendar days -->
-              <div class="calendar-grid">
-                <div
-                  *ngFor="let day of getCalendarDays(); let i = index"
-                  class="calendar-day"
-                  [class.empty]="day === null"
-                  [class.selected]="isDaySelected(day)"
-                  [class.in-range]="isDayInRange(day)"
-                  [class.range-start]="isDayRangeStart(day)"
-                  [class.range-end]="isDayRangeEnd(day)"
-                  [class.today]="isToday(day)"
-                  (click)="selectDay(day)"
-                >
-                  <span *ngIf="day !== null">{{ day }}</span>
+              
+              <!-- Calendar Grid -->
+              <div class="calendar-container">
+                <!-- Week Day Headers -->
+                <div class="calendar-header">
+                  <div *ngFor="let day of weekDays" class="week-day">{{ day }}</div>
+                </div>
+                
+                <!-- Calendar Days -->
+                <div class="calendar-grid">
+                  <div
+                    *ngFor="let day of getCalendarDays()"
+                    class="calendar-day"
+                    [class.empty]="day === null"
+                    [class.today]="isToday(day)"
+                    [class.selected]="isDaySelected(day)"
+                    [class.in-range]="isDayInRange(day)"
+                    [class.range-start]="isDayRangeStart(day)"
+                    [class.range-end]="isDayRangeEnd(day)"
+                    (click)="selectDay(day)"
+                  >
+                    <span *ngIf="day !== null">{{ day }}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <!-- Calendar Actions -->
-            <div class="calendar-actions">
-              <div class="selected-range" *ngIf="selectedStartDate">
-                <small>
+              
+              <!-- Selected Range Display -->
+              <div class="selected-range-info" *ngIf="selectedStartDate">
+                <div class="range-info">
+                  <strong>Selected Range:</strong>
                   <span *ngIf="selectedStartDate && selectedEndDate">
                     {{ formatDate(selectedStartDate) }} - {{ formatDate(selectedEndDate) }}
                   </span>
                   <span *ngIf="selectedStartDate && !selectedEndDate">
                     {{ formatDate(selectedStartDate) }} - Select end date
                   </span>
-                </small>
-              </div>
-              <div class="action-buttons">
-                <button class="btn-cancel" (click)="cancelDateSelection()">Cancel</button>
-                <button
-                  class="btn-apply"
-                  (click)="applyDateRange()"
-                  [disabled]="!selectedStartDate || !selectedEndDate"
-                >
-                  Apply
-                </button>
+                </div>
               </div>
             </div>
+            
+            <!-- Date Picker Actions -->
+            <div class="date-picker-actions">
+              <button class="btn btn-secondary" (click)="cancelDateSelection()">
+                Cancel
+              </button>
+              <button 
+                class="btn btn-primary" 
+                (click)="applyDateRange()"
+                [disabled]="!selectedStartDate || !selectedEndDate"
+              >
+                Apply Range
+              </button>
+            </div>
           </div>
-        </div>
-      </div>
-
-      <!-- Chatbot Selector -->
-      <div class="header-right" *ngIf="availableChatbots.length > 0">
-        <div class="chatbot-selector">
-          <label for="chatbot-select">AI Assistant:</label>
-          <select 
-            id="chatbot-select" 
-            class="chatbot-select"
-            [value]="selectedChatbotId" 
-            (change)="onChatbotChange(+$any($event.target).value)"
-          >
-            <option value="" disabled>Select AI Assistant</option>
-            <option *ngFor="let bot of availableChatbots" [value]="bot.id">
-              {{ bot.name }}
-            </option>
-          </select>
+          
+          <!-- Backdrop -->
+          <div class="date-picker-backdrop" *ngIf="showDatePicker" (click)="cancelDateSelection()"></div>
         </div>
       </div>
     </header>
@@ -162,16 +162,176 @@
           </button>
         </div>
         <div class="filters-bar">
-          <button class="filter-chip">Group by: <span>Day</span></button>
-          <button class="filter-chip">Segment by: <span>Select</span></button>
-          <button class="filter-chip">Chat type: <span>Select</span></button>
-          <button class="filter-chip">AI Assistants: <span>Select</span></button>
-          <button class="filter-chip">Channels: <span>Select</span></button>
-          <button class="filter-chip">Live Agents: <span>Select</span></button>
-          <button class="filter-chip">Teams: <span>Select</span></button>
-          <button class="filter-chip">Status: <span>Select</span></button>
-          <button class="filter-chip">CSAT Rating: <span>Select</span></button>
-          <a href="#" class="reset-filters-link">× Reset all</a>
+          <!-- Group by dropdown -->
+          <div class="filter-dropdown-container">
+            <button class="filter-chip" (click)="toggleGroupByDropdown()">
+              Group by: <span>{{ selectedGroupBy }}</span>
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="filter-dropdown" *ngIf="showGroupByDropdown">
+              <div 
+                *ngFor="let option of groupByOptions" 
+                class="filter-option"
+                [class.selected]="selectedGroupBy === option"
+                (click)="selectGroupBy(option)"
+              >
+                {{ option }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Segment by dropdown -->
+          <div class="filter-dropdown-container">
+            <button class="filter-chip" (click)="toggleSegmentByDropdown()">
+              Segment by: <span>{{ selectedSegmentBy }}</span>
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="filter-dropdown" *ngIf="showSegmentByDropdown">
+              <div 
+                *ngFor="let option of segmentByOptions" 
+                class="filter-option"
+                (click)="selectSegmentBy(option)"
+              >
+                {{ option }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Chat type dropdown -->
+          <div class="filter-dropdown-container">
+            <button class="filter-chip" (click)="toggleChatTypeDropdown()">
+              Chat type: <span>{{ selectedChatType }}</span>
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="filter-dropdown" *ngIf="showChatTypeDropdown">
+              <div 
+                *ngFor="let option of chatTypeOptions" 
+                class="filter-option"
+                [class.selected]="selectedChatType === option"
+                (click)="selectChatType(option)"
+              >
+                {{ option }}
+              </div>
+            </div>
+          </div>
+
+          <!-- AI Assistants dropdown -->
+          <div class="filter-dropdown-container">
+            <button class="filter-chip" (click)="toggleAIAssistantsDropdown()">
+              AI Assistants: <span>{{ getSelectedAIAssistantsDisplay() }}</span>
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="filter-dropdown" *ngIf="showAIAssistantsDropdown">
+              <div class="filter-search">
+                <input type="text" placeholder="Search" class="search-input">
+              </div>
+              <div 
+                *ngFor="let bot of availableChatbots" 
+                class="filter-option checkbox-option"
+                (click)="toggleAIAssistantSelection(bot.id, bot.name)"
+              >
+                <input 
+                  type="checkbox" 
+                  [checked]="isAIAssistantSelected(bot.name)"
+                  (click)="$event.stopPropagation()"
+                >
+                {{ bot.name }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Channels dropdown -->
+          <div class="filter-dropdown-container">
+            <button class="filter-chip" (click)="toggleChannelsDropdown()">
+              Channels: <span>Select</span>
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="filter-dropdown" *ngIf="showChannelsDropdown">
+              <div 
+                *ngFor="let channel of availableChannels" 
+                class="filter-option"
+              >
+                {{ channel }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Live Agents dropdown -->
+          <div class="filter-dropdown-container">
+            <button class="filter-chip" (click)="toggleLiveAgentsDropdown()">
+              Live Agents: <span>Select</span>
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="filter-dropdown" *ngIf="showLiveAgentsDropdown">
+              <div class="filter-search">
+                <input type="text" placeholder="Search" class="search-input">
+              </div>
+              <div 
+                *ngFor="let agent of availableLiveAgents" 
+                class="filter-option"
+              >
+                {{ agent.name }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Teams dropdown -->
+          <div class="filter-dropdown-container">
+            <button class="filter-chip" (click)="toggleTeamsDropdown()">
+              Teams: <span>Select</span>
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="filter-dropdown" *ngIf="showTeamsDropdown">
+              <div 
+                *ngFor="let team of availableTeams" 
+                class="filter-option"
+              >
+                {{ team }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Status dropdown -->
+          <div class="filter-dropdown-container">
+            <button class="filter-chip" (click)="toggleStatusDropdown()">
+              Status: <span>{{ getSelectedStatusDisplay() }}</span>
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="filter-dropdown" *ngIf="showStatusDropdown">
+              <div 
+                *ngFor="let status of statusOptions" 
+                class="filter-option status-option"
+                [class.selected]="isStatusSelected(status)"
+                (click)="toggleStatusSelection(status)"
+              >
+                <span 
+                  class="status-dot" 
+                  [style.backgroundColor]="getStatusColor(status)"
+                ></span>
+                {{ status }}
+              </div>
+            </div>
+          </div>
+
+          <!-- CSAT Rating dropdown -->
+          <div class="filter-dropdown-container">
+            <button class="filter-chip" (click)="toggleCSATRatingDropdown()">
+              CSAT Rating: <span>{{ getSelectedCSATRatingDisplay() }}</span>
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="filter-dropdown" *ngIf="showCSATRatingDropdown">
+              <div 
+                *ngFor="let rating of csatRatingOptions" 
+                class="filter-option"
+                [class.selected]="isCSATRatingSelected(rating)"
+                (click)="toggleCSATRatingSelection(rating)"
+              >
+                {{ rating }}
+              </div>
+            </div>
+          </div>
+
+          <a href="#" class="reset-filters-link" (click)="resetAllFilters()">× Reset all</a>
         </div>
 
         <!-- Loading indicator -->
@@ -179,17 +339,34 @@
           <i class="fas fa-spinner fa-spin"></i> Loading chat analytics...
         </div>
 
-        <!-- Data display area -->
+        <!-- Bar Chart Display Area -->
         <div class="data-display-area" *ngIf="!isLoadingChats">
           <div *ngIf="hasChatData(); else noChatData">
-            <!-- Chart placeholder - you can integrate your preferred charting library here -->
             <div class="chart-container">
-              <div class="chart-placeholder">
-                <h4>Chat Analytics Chart</h4>
-                <p>Total Sessions: {{ getTotalSessions() }}</p>
-                <p>Completed Sessions: {{ getCompletedSessions() }}</p>
-                <p>Average Response Time: {{ getAverageResponseTime() }}</p>
-                <p>System Uptime: {{ getSystemUptime() }}</p>
+              <div class="bar-chart">
+                <h4>AI Assistants Created Over Time</h4>
+                <div class="chart-wrapper">
+                  <div class="chart-bars">
+                    <div 
+                      *ngFor="let dataPoint of chartData; let i = index" 
+                      class="bar-container"
+                    >
+                      <div 
+                        class="bar" 
+                        [style.height.%]="(dataPoint.count / getMaxCount()) * 100"
+                        [title]="dataPoint.date + ': ' + dataPoint.count + ' assistants'"
+                      ></div>
+                      <span class="bar-label">{{ dataPoint.date }}</span>
+                      <span class="bar-value">{{ dataPoint.count }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="chart-summary">
+                  <p>Total Sessions: {{ getTotalSessions() }}</p>
+                  <p>Completed Sessions: {{ getCompletedSessions() }}</p>
+                  <p>Average Response Time: {{ getAverageResponseTime() }}</p>
+                  <p>System Uptime: {{ getSystemUptime() }}</p>
+                </div>
               </div>
             </div>
           </div>
@@ -224,7 +401,6 @@
               </div>
               <div class="metrics">
                 <div *ngFor="let status of chatStatuses" class="metric-item">
-                  <!-- Mock data for now - replace with real status data when available -->
                   <p class="metric">{{ status.name === 'Resolved' ? getCompletedSessions() : '-' }}</p>
                 </div>
               </div>
@@ -274,15 +450,12 @@
           <a href="#" class="reset-filters-link">× Reset all</a>
         </div>
 
-        <!-- Loading indicator -->
         <div class="loading-indicator" *ngIf="isLoadingTickets">
           <i class="fas fa-spinner fa-spin"></i> Loading ticket analytics...
         </div>
 
-        <!-- Data display area -->
         <div class="data-display-area" *ngIf="!isLoadingTickets">
           <div *ngIf="hasTicketData(); else noTicketData">
-            <!-- Tickets chart will go here when API is ready -->
             <div class="chart-container">
               <div class="chart-placeholder">
                 <h4>Ticket Analytics Chart</h4>
@@ -359,15 +532,12 @@
           <a href="#" class="reset-filters-link">× Reset all</a>
         </div>
 
-        <!-- Loading indicator -->
         <div class="loading-indicator" *ngIf="isLoadingInteractions">
           <i class="fas fa-spinner fa-spin"></i> Loading interaction analytics...
         </div>
 
-        <!-- Data display area -->
         <div class="data-display-area" *ngIf="!isLoadingInteractions">
           <div *ngIf="hasInteractionData(); else noInteractionData">
-            <!-- Interactions chart will go here when API is ready -->
             <div class="chart-container">
               <div class="chart-placeholder">
                 <h4>Interaction Analytics Chart</h4>
@@ -425,13 +595,6 @@
         <i class="fas fa-robot"></i>
         <h3>No Active AI Assistants</h3>
         <p>Create and activate an AI Assistant to view analytics data.</p>
-      </div>
-    </div>
-    <div class="no-chatbot-selected" *ngIf="availableChatbots.length > 0 && !selectedChatbotId">
-      <div class="empty-state">
-        <i class="fas fa-chart-line"></i>
-        <h3>Select an AI Assistant</h3>
-        <p>Choose an AI Assistant from the dropdown to view its analytics.</p>
       </div>
     </div>
   </div>
