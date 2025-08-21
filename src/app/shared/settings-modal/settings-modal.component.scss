@@ -44,7 +44,7 @@ $danger-red: #dc3545;
   // User Profile Section
   .user-profile {
     padding: 20px;
-    background: $dark-bg;
+    background: $primary-blue;
     color: $white;
     display: flex;
     align-items: center;
@@ -55,7 +55,7 @@ $danger-red: #dc3545;
       position: relative;
       width: 48px;
       height: 48px;
-      background: $primary-blue;
+      background: $white;
       border-radius: 8px;
       display: flex;
       align-items: center;
@@ -64,7 +64,7 @@ $danger-red: #dc3545;
       font-size: 16px;
 
       .avatar-text {
-        color: $white;
+        color: $primary-blue;
       }
 
       .status-indicator {
@@ -75,7 +75,7 @@ $danger-red: #dc3545;
         height: 14px;
         background: #4ade80; // Green for online
         border-radius: 50%;
-        border: 2px solid $dark-bg;
+        border: 2px solid $primary-blue;
       }
     }
 
@@ -244,6 +244,15 @@ $danger-red: #dc3545;
 
         &:hover {
           background: darken($primary-blue, 8%);
+        }
+      }
+
+      &.btn-teal {
+        background: #20b2aa;
+        color: $white;
+
+        &:hover {
+          background: darken(#20b2aa, 8%);
         }
       }
 

@@ -6,7 +6,7 @@
   <!-- User Profile Section -->
   <div class="user-profile">
     <div class="user-avatar">
-      <span class="avatar-text">TK</span>
+      <span class="avatar-text">{{ userInitials }}</span>
       <div class="status-indicator"></div>
     </div>
     <div class="user-info">
@@ -74,14 +74,14 @@
     <button class="menu-item" (click)="onChangeWorkspace()">
       Change Workspace
     </button>
+    <button class="menu-item" (click)="onChangePassword()">
+      Change Password
+    </button>
   </div>
 
   <!-- Footer with buttons -->
   <div class="modal-footer">
-    <button class="btn btn-danger" (click)="onSignOut()">Sign Out</button>
-    <div class="footer-buttons">
-      <button class="btn btn-secondary" (click)="onClose()">Close</button>
-      <button class="btn btn-primary" (click)="onSaveChanges()">Save Changes</button>
-    </div>
+    <button class="btn btn-teal" (click)="onClose()">Close</button>
+    <button class="btn btn-primary" (click)="onSaveChanges()">Save Changes</button>
   </div>
 </div>
