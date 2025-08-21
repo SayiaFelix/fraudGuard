@@ -438,9 +438,38 @@
         <!-- Configuration Section -->
         <div class="details-section">
           <div class="section-header" (click)="toggleConfigurationSection()">
-            <div class="section-icon"><i class="feather icon-tool"></i></div>
+            <div class.bind
+="section-icon"><i class="feather icon-tool"></i></div>
             <div class="section-text"><div class="section-title">Configuration</div><div class="section-description">Configure the service integration.</div></div>
-            <div class="section-action"><i class="feather icon-chevron-right"></i></div>
+            <div class="section-action"><i class="feather" [ngClass]="{'icon-chevron-down': isConfigurationSectionOpen, 'icon-chevron-right': !isConfigurationSectionOpen}"></i></div>
+          </div>
+          <!-- This is the new body for the configuration form -->
+          <div class="section-body config-form-body" *ngIf="isConfigurationSectionOpen" [formGroup]="whatsAppConfigForm">
+            <div class="form-group">
+              <label>App ID</label>
+              <input type="text" class="form-control" placeholder="Copy and paste here" formControlName="appId">
+              <p class="form-hint">Copy your App ID from Settings > Basic in Meta for Developers, and paste it here.</p>
+            </div>
+            <div class="form-group">
+              <label>App secret</label>
+              <input type="text" class="form-control" placeholder="Copy and paste here" formControlName="appSecret">
+              <p class="form-hint">Copy your App secret from Settings > Basic in Meta for Developers, and paste it here.</p>
+            </div>
+            <div class="form-group">
+              <label>User Access Token</label>
+              <input type="text" class="form-control" placeholder="Copy and paste here" formControlName="accessToken">
+              <p class="form-hint">Copy your User Access Token from Business settings > Users > System users in the Business Manager Dashboard, and paste it here.</p>
+            </div>
+            <div class="form-group">
+              <label>Phone Number ID</label>
+              <input type="text" class="form-control" placeholder="Copy and paste here" formControlName="phoneNumberId">
+              <p class="form-hint">Copy your Phone Number ID from WhatsApp > Getting Started in Meta for Developers, and paste it here.</p>
+            </div>
+            <div class="form-actions spaced">
+              <button class="btn btn-verify">Verify</button>
+              <hr>
+              <button class="btn btn-save-dark">Save</button>
+            </div>
           </div>
         </div>
         <!-- Webhook Section -->
@@ -448,23 +477,65 @@
           <div class="section-header" (click)="toggleWebhookSection()">
             <div class="section-icon"><i class="feather icon-git-pull-request"></i></div>
             <div class="section-text"><div class="section-title">Webhook</div><div class="section-description">Enable webhook URL</div></div>
-            <div class="section-action"><i class="feather icon-chevron-right"></i></div>
+            <div class="section-action"><i class="feather" [ngClass]="{'icon-chevron-down': isWebhookSectionOpen, 'icon-chevron-right': !isWebhookSectionOpen}"></i></div>
           </div>
-        </div>
+          <!-- This is the new body for the Webhook section -->
+          <div class="section-body webhook-body" *ngIf="isWebhookSectionOpen">
+            <div class="info-box">
+              <i class="feather icon-info"></i>
+              <span>Paste the Webhook URL into the "Callback URL" field in the App Dashboard > WhatsApp > Configuration.</span>
+            </div>
+            <!-- ADD THIS form-group WRAPPER -->
+            <div class="form-group">
+              <div class="input-with-button">
+                <input type="text" readonly class="form-control" [value]="webhookUrl">
+                <button class="btn-copy" (click)="copyToClipboard(webhookUrl)"><i class="feather icon-copy"></i></button>
+              </div>
+            </div>
+          </div>
         <!-- Setup Section -->
         <div class="details-section">
           <div class="section-header" (click)="toggleSetupSection()">
             <div class="section-icon"><i class="feather icon-code"></i></div>
             <div class="section-text"><div class="section-title">Setup</div><div class="section-description">Required for the deploy script</div></div>
-            <div class="section-action"><i class="feather icon-chevron-right"></i></div>
+            <div class="section-action"><i class="feather" [ngClass]="{'icon-chevron-down': isSetupSectionOpen, 'icon-chevron-right': !isSetupSectionOpen}"></i></div>
           </div>
-        </div>
+          <!-- This is the new body for the WhatsApp Setup section -->
+          <div class="section-body wa-setup-body" *ngIf="isSetupSectionOpen" [formGroup]="whatsAppSetupForm">
+            <div class="form-group">
+              <label>App ID</label>
+              <div class="input-with-actions">
+                <input type="text" readonly class="form-control" formControlName="appId">
+                <div class="actions-wrapper">
+                  <button class="btn-icon" (click)="copyToClipboard(whatsAppSetupForm.get('appId')!.value)"><i class="feather icon-copy"></i></button>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>App secret</label>
+              <div class="input-with-actions">
+                <input [type]="showAppSecret ? 'text' : 'password'" readonly class="form-control" formControlName="appSecret">
+                <div class="actions-wrapper">
+                  <button class="btn-icon" (click)="showAppSecret = !showAppSecret">
+                    <i class="feather" [ngClass]="showAppSecret ? 'icon-eye-off' : 'icon-eye'"></i>
+                  </button>
+                  <button class="btn-icon" (click)="copyToClipboard(whatsAppSetupForm.get('appSecret')!.value)"><i class="feather icon-copy"></i></button>
+                </div>
+              </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-reissue">Reissue</button>
+             </div>
       </div>
+    </div> 
 
-      <!-- ==================================================================================== -->
-      <!-- CASE 3: FACEBOOK (This is now a sibling of the Webchat case) -->
-      <!-- ==================================================================================== -->
-      <div *ngSwitchCase="'Facebook'" class="details-content">
+  </div>
+</div> 
+
+  <!-- ==================================================================================== -->
+  <!-- CASE 3: FACEBOOK (This is now a sibling of the Webchat case) -->
+  <!-- ==================================================================================== -->
+  <div *ngSwitchCase="'Facebook'" class="details-content">
         <!-- Basics Section -->
         <div class="details-section">
           <div class="section-header" (click)="toggleBasicsSection()">
@@ -511,22 +582,41 @@
           </div>
         </div>
         <!-- Setup Section -->
-        <div class="details-section">
+         <div class="details-section">
           <div class="section-header" (click)="toggleSetupSection()">
             <div class="section-icon"><i class="feather icon-code"></i></div>
             <div class="section-text"><div class="section-title">Setup</div><div class="section-description">Required for the deploy script</div></div>
-            <div class="section-action"><i class="feather icon-chevron-right"></i></div>
+            <div class="section-action"><i class="feather" [ngClass]="{'icon-chevron-down': isSetupSectionOpen, 'icon-chevron-right': !isSetupSectionOpen}"></i></div>
+          </div>
+          <!-- This is the new body for the Facebook Setup section -->
+          <div class="section-body fb-setup-body" *ngIf="isSetupSectionOpen" [formGroup]="facebookSetupForm">
+            <div class="form-group">
+              <label>App ID</label>
+              <div class="input-with-actions">
+                <input type="text" readonly class="form-control" formControlName="appId">
+                <div class="actions-wrapper">
+                  <button class="btn-icon" (click)="copyToClipboard(facebookSetupForm.get('appId')!.value)"><i class="feather icon-copy"></i></button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <!-- Connected page Section -->
         <div class="details-section">
           <div class="section-header" (click)="toggleConnectedPageSection()">
             <div class="section-icon"><i class="feather icon-link"></i></div>
-            <div class="section-text"><div class="section-title">Connected page</div><div class="section-description">Login for the deploy script</div></div>
-            <div class="section-action"><i class="feather icon-chevron-right"></i></div>
+            <div class="section-text"><div class="section-title">Connected page</div><div class="section-description">Login with Facebook to connect your AI assistant.</div></div>
+            <div class="section-action"><i class="feather" [ngClass]="{'icon-chevron-down': isConnectedPageSectionOpen, 'icon-chevron-right': !isConnectedPageSectionOpen}"></i></div>
+          </div>
+          <!-- This is the new body for the Connected Page section -->
+          <div class="section-body connected-page-body" *ngIf="isConnectedPageSectionOpen">
+            <p>No connected Facebook Page</p>
+            <hr>
+            <button class="btn btn-facebook">
+              <i class="feather icon-facebook"></i> Login with Facebook
+            </button>
           </div>
         </div>
-      </div>
 
     </div>
   </div>
