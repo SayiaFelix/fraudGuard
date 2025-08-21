@@ -1,4 +1,6 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, Renderer2, Inject } from '@angular/core';
+// src/app/views/layout/sidebar/sidebar.component.ts
+
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, Renderer2, Inject, Output, EventEmitter } from '@angular/core'; // NEW: Import Output and EventEmitter
 import { DOCUMENT } from '@angular/common';
 
 import MetisMenu from 'metismenujs';
@@ -16,6 +18,10 @@ import Swal from 'sweetalert2';
 export class SidebarComponent implements OnInit, AfterViewInit {
 
   @ViewChild('sidebarToggler') sidebarToggler: ElementRef;
+
+  // NEW: Define the Output property to communicate with the parent (layout) component.
+  // It will emit the original MouseEvent, which is needed for positioning the popover.
+  @Output() helpCenterToggled = new EventEmitter<MouseEvent>();
 
   menuItems: MenuItem[] = [];
   @ViewChild('sidebarMenu') sidebarMenu: ElementRef;
@@ -54,12 +60,20 @@ export class SidebarComponent implements OnInit, AfterViewInit {
     });
     this.iconSidebar(desktopMedium);
   }
+
   onSettingsClick(event: MouseEvent): void {
     event.preventDefault(); // This is crucial to stop the link from navigating
     this.isSettingsModalVisible = true;
   }
 
-  // NEW: Add the function to close the modal
+  // NEW: Add the click handler for the Help Center item.
+  // This function will be called from the HTML template.
+  onHelpCenterClick(event: MouseEvent): void {
+    event.preventDefault(); // Stop the browser from navigating to '#'
+    this.helpCenterToggled.emit(event); // Emit the event to the parent component
+  }
+
+  // Your existing function to close the modal
   closeSettingsModal(): void {
     this.isSettingsModalVisible = false;
   }

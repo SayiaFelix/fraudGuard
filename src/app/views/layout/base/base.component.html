@@ -1,6 +1,6 @@
 <div class="main-wrapper" style="background-color: #f8fafc;">
-  <!-- partial:sidebar -->
-  <app-sidebar></app-sidebar>
+  <!-- partial:sidebar - MODIFIED: Listen for helpCenterToggled event -->
+  <app-sidebar (helpCenterToggled)="onHelpCenterToggled($event)"></app-sidebar>
   <!-- partial -->
   <div class="page-wrapper">
     <!-- partial:navbar -->
@@ -19,4 +19,14 @@
     <!-- <app-footer></app-footer> -->
     <!-- partial -->
   </div>
+
+  <!-- ADD: Help Center Popover - Show when isHelpCenterVisible is true -->
+  <div 
+    *ngIf="isHelpCenterVisible" 
+    class="help-center-overlay"
+    [style.top]="helpCenterPosition.top"
+    [style.left]="helpCenterPosition.left">
+    <app-help-center (close)="onHelpCenterClose()"></app-help-center>
+  </div>
+
 </div>

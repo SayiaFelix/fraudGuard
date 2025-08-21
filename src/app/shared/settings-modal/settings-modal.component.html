@@ -3,24 +3,85 @@
 
 <!-- The modal window itself -->
 <div class="modal-container">
-  <div class="modal-header">
-    <h3>Settings</h3>
+  <!-- User Profile Section -->
+  <div class="user-profile">
+    <div class="user-avatar">
+      <span class="avatar-text">{{ userInitials }}</span>
+      <div class="status-indicator"></div>
+    </div>
+    <div class="user-info">
+      <div class="user-name">{{ userName }}</div>
+      <div class="user-email">{{ userEmail }}</div>
+    </div>
     <button class="close-button" (click)="onClose()">×</button>
   </div>
-  <div class="modal-body">
-    <p>Your settings content goes here.</p>
-    <p>You can add forms, toggles, or any other configuration options.</p>
-    <!-- Example: A form field -->
-    <div class="form-group">
-      <label for="theme">Theme</label>
-      <select id="theme" class="form-control">
-        <option>Light</option>
-        <option>Dark</option>
-      </select>
+
+  <!-- Status Section -->
+  <div class="section">
+    <div class="section-title">Set as</div>
+    <div class="status-options">
+      <button 
+        class="status-button" 
+        [class.active]="userStatus === 'Online'"
+        (click)="setStatus('Online')">
+        Online
+      </button>
+      <button 
+        class="status-button" 
+        [class.active]="userStatus === 'Away'"
+        (click)="setStatus('Away')">
+        Away
+      </button>
     </div>
   </div>
+
+  <!-- Theme Section -->
+  <div class="section">
+    <div class="section-title">Theme</div>
+    <div class="theme-options">
+      <button 
+        class="theme-button" 
+        [class.active]="selectedTheme === 'System'"
+        (click)="setTheme('System')">
+        <span class="theme-icon">⚙️</span>
+        System
+      </button>
+      <button 
+        class="theme-button" 
+        [class.active]="selectedTheme === 'Light'"
+        (click)="setTheme('Light')">
+        <span class="theme-icon">☀️</span>
+        Light
+      </button>
+      <button 
+        class="theme-button" 
+        [class.active]="selectedTheme === 'Dark'"
+        (click)="setTheme('Dark')">
+        <span class="theme-icon">🌙</span>
+        Dark
+      </button>
+    </div>
+  </div>
+
+  <!-- Menu Options -->
+  <div class="menu-options">
+    <button class="menu-item" (click)="onWorkspaceSettings()">
+      Workspace Settings
+    </button>
+    <button class="menu-item" (click)="onAccountSettings()">
+      Account Settings
+    </button>
+    <button class="menu-item" (click)="onChangeWorkspace()">
+      Change Workspace
+    </button>
+    <button class="menu-item" (click)="onChangePassword()">
+      Change Password
+    </button>
+  </div>
+
+  <!-- Footer with buttons -->
   <div class="modal-footer">
-    <button class="btn btn-secondary" (click)="onClose()">Close</button>
-    <button class="btn btn-primary">Save Changes</button>
+    <button class="btn btn-teal" (click)="onClose()">Close</button>
+    <button class="btn btn-primary" (click)="onSaveChanges()">Save Changes</button>
   </div>
 </div>
