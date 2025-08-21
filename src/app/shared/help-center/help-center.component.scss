@@ -1,0 +1,89 @@
+/* src/app/shared/help-center/help-center.component.scss */
+
+.help-center-popover {
+  background-color: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  width: 320px;
+  z-index: 1050; // Ensure it appears on top of other content
+  position: relative; 
+}
+
+.popover-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e9ecef;
+
+  h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #364153;
+  }
+}
+
+.close-button {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-size: 28px;
+  font-weight: 300;
+  line-height: 1;
+  color: #888;
+  cursor: pointer;
+  opacity: 0.7;
+  
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.popover-body {
+  padding: 20px;
+
+  p {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #6A7282;
+    font-size: 14px;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li a {
+      display: block;
+      padding: 10px 0;
+      color: #0d6efd;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s ease-in-out;
+
+      &:hover {
+        color: #0a58ca;
+        text-decoration: underline;
+      }
+    }
+
+    // Style the "Contact Support" title
+    .contact-title {
+      margin-top: 16px; // Add space above the title
+      padding-bottom: 4px; // Add small space below the title
+      color: #364153;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    // Reduce top padding for the links immediately following the title
+    .contact-title + li > a,
+    .contact-title + li + li > a {
+      padding-top: 6px;
+    }
+  }
+}

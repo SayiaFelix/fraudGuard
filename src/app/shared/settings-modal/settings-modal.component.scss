@@ -1,3 +1,14 @@
+// Theme colors
+$primary-blue: #4285f4;
+$light-blue: #e8f0fe;
+$dark-bg: #1a1a1a;
+$text-primary: #333333;
+$text-secondary: #666666;
+$border-color: #e1e5e9;
+$hover-bg: #f5f7fa;
+$white: #ffffff;
+$danger-red: #dc3545;
+
 :host {
   position: fixed;
   top: 0;
@@ -21,51 +32,259 @@
 
 .modal-container {
   position: relative;
-  background: white;
-  border-radius: 8px;
-  width: 500px;
+  background: $white;
+  border-radius: 12px;
+  width: 400px;
   max-width: 90%;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   z-index: 1001;
   animation: fadeIn 0.3s ease-out;
-}
+  overflow: hidden;
 
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-  border-bottom: 1px solid #e9ecef;
+  // User Profile Section
+  .user-profile {
+    padding: 20px;
+    background: $primary-blue;
+    color: $white;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: relative;
 
-  h3 {
-    margin: 0;
-    font-size: 1.25rem;
+    .user-avatar {
+      position: relative;
+      width: 48px;
+      height: 48px;
+      background: $white;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 16px;
+
+      .avatar-text {
+        color: $primary-blue;
+      }
+
+      .status-indicator {
+        position: absolute;
+        bottom: -2px;
+        right: -2px;
+        width: 14px;
+        height: 14px;
+        background: #4ade80; // Green for online
+        border-radius: 50%;
+        border: 2px solid $primary-blue;
+      }
+    }
+
+    .user-info {
+      flex: 1;
+
+      .user-name {
+        font-weight: 600;
+        font-size: 18px;
+        margin-bottom: 4px;
+      }
+
+      .user-email {
+        font-size: 14px;
+        color: #b0b0b0;
+      }
+    }
+
+    .close-button {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #b0b0b0;
+      padding: 4px;
+      line-height: 1;
+
+      &:hover {
+        color: $white;
+      }
+    }
   }
 
-  .close-button {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: #6c757d;
+  // Sections
+  .section {
+    padding: 20px;
+    border-bottom: 1px solid $border-color;
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: $text-primary;
+      margin-bottom: 16px;
+    }
+
+    // Status Options
+    .status-options {
+      display: flex;
+      gap: 12px;
+
+      .status-button {
+        flex: 1;
+        padding: 12px 20px;
+        border: 1px solid $border-color;
+        background: $white;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        color: $text-primary;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: $hover-bg;
+          border-color: $primary-blue;
+        }
+
+        &.active {
+          background: $primary-blue;
+          color: $white;
+          border-color: $primary-blue;
+        }
+      }
+    }
+
+    // Theme Options
+    .theme-options {
+      display: flex;
+      gap: 8px;
+
+      .theme-button {
+        flex: 1;
+        padding: 12px 8px;
+        border: 1px solid $border-color;
+        background: $white;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 500;
+        color: $text-primary;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+
+        .theme-icon {
+          font-size: 18px;
+        }
+
+        &:hover {
+          background: $hover-bg;
+          border-color: $primary-blue;
+        }
+
+        &.active {
+          background: $primary-blue;
+          color: $white;
+          border-color: $primary-blue;
+        }
+      }
+    }
   }
-}
 
-.modal-body {
-  padding: 1rem;
-}
+  // Menu Options
+  .menu-options {
+    padding: 12px 0;
 
-.modal-footer {
-  padding: 1rem;
-  border-top: 1px solid #e9ecef;
-  text-align: right;
+    .menu-item {
+      width: 100%;
+      padding: 16px 20px;
+      border: none;
+      background: none;
+      text-align: left;
+      font-size: 15px;
+      font-weight: 500;
+      color: $text-primary;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      display: block;
 
-  .btn {
-    margin-left: 0.5rem;
+      &:hover {
+        background: $hover-bg;
+      }
+    }
+  }
+
+  // Modal Footer
+  .modal-footer {
+    padding: 20px;
+    border-top: 1px solid $border-color;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .footer-buttons {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &.btn-primary {
+        background: $primary-blue;
+        color: $white;
+
+        &:hover {
+          background: darken($primary-blue, 8%);
+        }
+      }
+
+      &.btn-teal {
+        background: #20b2aa;
+        color: $white;
+
+        &:hover {
+          background: darken(#20b2aa, 8%);
+        }
+      }
+
+      &.btn-secondary {
+        background: #f8f9fa;
+        color: $text-primary;
+        border: 1px solid $border-color;
+
+        &:hover {
+          background: $hover-bg;
+        }
+      }
+
+      &.btn-danger {
+        background: $danger-red;
+        color: $white;
+
+        &:hover {
+          background: darken($danger-red, 8%);
+        }
+      }
+    }
   }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
+  from { 
+    opacity: 0; 
+    transform: scale(0.9); 
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1); 
+  }
 }
