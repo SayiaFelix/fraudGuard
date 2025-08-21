@@ -32,14 +32,19 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
   public proactiveMessagesForm: FormGroup;
   public preChatForm: FormGroup;
   public mobileBehaviourForm: FormGroup;
-  public whatsAppForm: FormGroup; // NEW: For WhatsApp
-  public facebookForm: FormGroup; // NEW: For Facebook
+  public whatsAppForm: FormGroup; 
+  public whatsAppConfigForm: FormGroup;
+  public whatsAppSetupForm: FormGroup;
+  public facebookForm: FormGroup; 
+  public facebookSetupForm: FormGroup;
   public isTesting = false;
 
   // --- UI State & Data ---
   public copySuccessMessage = '';
   public webchatId = 'Loading...';
   public deployScript = 'Waiting for chatbot selection...';
+  public webhookUrl = 'https://v3-api.proto.cx/api/platform/inbound/whatsapp/01K2M81A...';
+  public showAppSecret = false;
   public showModal = false;
   public channels: Channel[] = [];
   public selectedChannel: Channel | null = null;
@@ -122,6 +127,18 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
       autoCloseTimeout: ['15 Minutes']
     });
 
+    this.whatsAppConfigForm = this.fb.group({
+      appId: [''],
+      appSecret: [''],
+      accessToken: [''],
+      phoneNumberId: ['']
+    });
+
+    this.whatsAppSetupForm = this.fb.group({
+      appId: ['01K2M81A7A67HZ6KHZW6MSM4V3'],
+      appSecret: ['a-very-secret-password-string']
+    });
+
     // --- NEW: Form for Facebook Channel ---
     this.facebookForm = this.fb.group({
       enabled: [true],
@@ -129,6 +146,10 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
       language: ['English'],
       autoCloseChat: [false],
       autoCloseTimeout: ['15 Minutes']
+    });
+
+    this.facebookSetupForm = this.fb.group({
+      appId: ['01K35X3A7BEAWTVNNJDCHZYAVG']
     });
   
   }
