@@ -495,7 +495,6 @@
             <p class="text-muted mb-3" *ngIf="selectedActionType == 'send_message'" style="font-size: 14px;">Submit a preset reply to the chat.</p>
             <hr>
 
-            <!-- Dynamically render based on action type -->
             <ng-container [ngSwitch]="selectedActionType">
               <!-- Send Message Action -->
               <div *ngSwitchCase="'send_message'" class="mb-3">
@@ -1445,7 +1444,6 @@
             <button  type="submit" class="btn btn-primary btn-sm btn-test">
               Save Action
             </button>
-            
           </div>
         </form>
     </div>
