@@ -9,7 +9,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, forkJoin, of, tap } from 'rxjs';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
-
 interface SurveyQuestion {
   id?: string;
   text: string;
@@ -21,20 +20,16 @@ interface SurveyQuestion {
   };
   options?: string[];
 }
-
 interface SurveyConfig {
   questions: SurveyQuestion[];
   completion_message?: string;
   persist_responses?: boolean;
 }
-
 interface SurveyAction {
   name: string;
   action_type: 'survey';
   config: SurveyConfig;
-  // ...
 }
-
 interface Node {
   id: number;
   type: 'action' | 'trigger';
@@ -50,7 +45,6 @@ interface Branch {
   }[];
   children: Branch[];
 }
-
 interface BaseItem {
   id: number;
   name: string;
@@ -59,7 +53,6 @@ interface BaseItem {
   parent_id: number | null;
   itemType: 'action' | 'trigger';
 }
-
 interface TriggerItem extends BaseItem {
   intent_id: number;
   training_phrases: string[];
@@ -67,20 +60,17 @@ interface TriggerItem extends BaseItem {
   children: Array<ActionItem | TriggerItem>;
   branch_path?: string;
 }
-
 interface ActionItem extends BaseItem {
   action_id: number;
   action_type: string;
   config: any;
   itemType: 'action';
 }
-
 interface ParentContext {
     id: number;
     itemType: 'trigger' | 'action';
     intent_id: number;
 }
-
 interface ActionModel {
     name: string;
     action_type: string;
@@ -90,13 +80,11 @@ interface ActionModel {
     branch_path: string;
     order: number;
 }
-
 interface FileTypeInfo {
   accept: string;
   types: string[];  
   maxSize: number;  
 }
-
 interface FileTypeInfoMap {
   image: FileTypeInfo;
   document: FileTypeInfo;
@@ -104,7 +92,6 @@ interface FileTypeInfoMap {
   audio: FileTypeInfo;
   [key: string]: FileTypeInfo;
 }
-
 interface FileSizeMap {
   image: number;
   document: number;
@@ -118,12 +105,10 @@ interface VariableConfig {
   expression?: string;
   context_key?: string;
 }
-
 interface FallbackOptions {
   delay: number;
   fallback_message: string;
 }
-
 interface HumanHandoffConfig {
   mode: 'direct' | 'hybrid' | 'request';
   handoff_message: string;
@@ -132,13 +117,11 @@ interface HumanHandoffConfig {
   fallback_options: FallbackOptions;
   required_context: string[];
 }
-
 interface HumanHandoffAction {
   name: string;
   action_type: 'human_handoff';
   config: HumanHandoffConfig;
 }
-
 interface SetVariableAction {
   name: string;
   action_type: 'set_variable';
@@ -148,7 +131,6 @@ interface SetVariableAction {
     clear_on_session_end: boolean;
   };
 }
-
 
 type FileFormat = 'image' | 'document' | 'video' | 'audio';
 type FileSource = 'upload' | 'link' | 'chat_script';
@@ -168,7 +150,6 @@ export class IntentComponent implements OnInit {
     @Input() nodes: Node[] = [];
     @Input() depth: number = 0;
 
-
     public loading = false;
     public hasErrors = false;
     public errorMessages: any;
@@ -176,7 +157,7 @@ export class IntentComponent implements OnInit {
     public actionForm: FormGroup;
     public imageFile: File;
 
-    availableLanguages: string[] = ['English', 'Swahili', 'French', 'Arabic', 'Spanish', 'German'];
+    availableLanguages: string[] = ['English', 'Swahili','Dholuo','Luhya','Kikuyu','French', 'Arabic', 'Spanish', 'German'];
     language: string[] = ['English'];
     defaultLanguage: string = 'English';
     data: any;
@@ -263,7 +244,6 @@ ngOnInit() {
     
         if (this.intentId) {
             this.fetchNestedIntents(this.intentId);
-         
         } else {
             console.warn('No intent selected.');
             this.isLoading = false;
@@ -338,7 +318,6 @@ private createSafePreview(file: File): SafeUrl {
   return this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(file));
 }
 
-
 calculateIndentLevel(item: any): number {
   if (!item.parent_id) return 0;
   const parent = this.combinedItems.find(i => i.id === item.parent_id);
@@ -398,7 +377,6 @@ removeTrueStep(index: number) {
 removeFalseStep(index: number) {
   this.falseSteps.removeAt(index);
 }
-
 
 getFileAcceptTypes(): string {
   const format = this.actionForm?.value.file_format as keyof FileTypeInfoMap;
@@ -466,7 +444,6 @@ addVariable(name: string = '', config?: VariableConfig) {
     // Clear validators first
     [valueCtrl, exprCtrl, ctxCtrl].forEach(ctrl => ctrl?.clearValidators());
 
-    // Set appropriate validator based on source
     switch (source) {
       case 'static':
         valueCtrl?.setValidators(Validators.required);
@@ -578,8 +555,6 @@ private markFormGroupTouched(formGroup: FormGroup) {
   });
 }
 
-
-
 removeCarouselItemFile(index: number): void {
 
     if (this.filePreviews[index]) {
@@ -666,7 +641,7 @@ private getFileTypeInfo(format: string): FileTypeInfo {
   };
 
   return fileTypeMap[format as keyof FileTypeInfoMap] || {
-    maxSize: 10 * 1024 * 1024, // Default 10MB
+    maxSize: 10 * 1024 * 1024,
     types: [],
     accept: '*/*'
   };
@@ -799,7 +774,6 @@ fetchIntentDetailsFromAPI(intentId: number): void {
 fetchData(intentId: number): void {
   this.loadingIntents = true;
   this.loadingTriggers = true;
-  // this.fetchIntent(intentId);
   this.fetchNestedIntents(intentId);
 }
 
@@ -923,7 +897,6 @@ onFileDropped(files: FileList): void {
 }
 
 private handleUploadedFile(file: File): void {
-  // Store the file for submission
   this.uploadedFile = file;
   this.filePreviews = '';
 
@@ -1228,7 +1201,6 @@ openActionForm(action: any): void {
         caption: ['']
       });
 
-      // Clear any existing files
       this.uploadedFile = null;
       
       // Set up condition validation
@@ -1278,9 +1250,6 @@ openActionForm(action: any): void {
             action_url: [item.action_url || '', Validators.pattern('https?://.+')]
           });
           this.carouselItems.push(itemGroup);
-          
-          // Note: For editing, you might need to handle existing files differently
-          // since you can't repopulate file inputs due to browser security
         });
       } else {
         this.addCarouselItem();
@@ -1316,7 +1285,6 @@ openActionForm(action: any): void {
       }
       break;
   
-
     case 'conditional':
       this.actionForm = this.fb.group({
         name: [action.name || '', Validators.required],
@@ -1528,8 +1496,7 @@ removeSurveyQuestion(index: number) {
 updateQuestionValidation(index: number) {
   const question = this.surveyQuestions.at(index);
   const type = question.get('type')?.value;
-  
-  // Clear validators first
+
   question.get('validation.min')?.clearValidators();
   question.get('validation.max')?.clearValidators();
   question.get('options')?.clearValidators();
@@ -1580,7 +1547,6 @@ getConfigControl(path: string): FormControl {
   }
   return control as FormControl;
 }
-
 
 openTriggerForm(parentItem: any): void {
   console.log('Opening trigger form for parent item:', parentItem);
@@ -1798,7 +1764,7 @@ onActionSubmit(): void {
         const varName = variableGroup.get('name')?.value;
         const source = variableGroup.get('source')?.value;
         
-        if (!varName) return acc; // Skip invalid entries
+        if (!varName) return acc; 
 
         acc[varName] = {
           source,
@@ -2069,7 +2035,6 @@ private handleCarouselAction(intentId: number, parent_id: number, order: number)
   formData.append('parent_id', parent_id.toString());
   formData.append('order', order.toString());
   
-  // Build config object with default styles
   const config = {
     display_type: this.actionForm.value.display_type || 'slider',
     auto_advance: Boolean(this.actionForm.value.auto_advance),
@@ -2081,7 +2046,7 @@ private handleCarouselAction(intentId: number, parent_id: number, order: number)
       max_height: "400px",
       show_indicators: true,
       show_controls: true,
-      // // responsive settings
+  
       // responsive: {
       //   mobile: { card_width: "250px", max_height: "350px" },
       //   tablet: { card_width: "275px", max_height: "375px" }
@@ -2095,8 +2060,7 @@ private handleCarouselAction(intentId: number, parent_id: number, order: number)
       ...(item.action_url ? { action_url: item.action_url } : {})
     }))
   };
-  
-  // Safely stringify config
+ 
   try {
     formData.append('config', JSON.stringify(config));
   } catch (error) {
@@ -2105,7 +2069,6 @@ private handleCarouselAction(intentId: number, parent_id: number, order: number)
     return;
   }
 
-  // files with better naming convention
   Object.entries(this.carouselItemFiles).forEach(([index, file]) => {
     if (file) {
       const safeIndex = index.padStart(3, '0'); // 001, 002, etc.
@@ -2114,7 +2077,6 @@ private handleCarouselAction(intentId: number, parent_id: number, order: number)
     }
   });
 
-  // Submit to multipart endpoint
   this._httpService.mobileBankingPostFormData('builder/nodes/action-multipart', formData).subscribe({
     next: (result: any) => this.handleActionResponse(result),
     error: (err: any) => this.handleActionError(err)
@@ -2225,7 +2187,6 @@ onTriggerSubmit(): void {
   });
 }
 
-// order for root triggers
 getNextRootOrder(): number {
   const rootTriggers = this.combinedItems.filter(item => 
     item.itemType === 'trigger' && item.parent_id === this.intentId
@@ -2233,7 +2194,6 @@ getNextRootOrder(): number {
   return rootTriggers.length + 1;
 }
 
-// getNextOrder to handle nested items
 getNextOrder(parentItem: any): number {
   if (!parentItem) return 1;
   
@@ -2382,7 +2342,6 @@ private findParentTrigger(actionId: number): any {
     }
   }
 
-  // If no direct trigger parent, search through all triggers' children
   for (const item of this.combinedItems) {
     if (item.itemType === 'trigger') {
       const found = this.searchTriggerChildren(item, actionId);
@@ -2496,7 +2455,6 @@ toggleIntentStatus(event: Event) {
   }
 
 ngOnDestroy() {
-  // Clean up all blob URLs
   Object.values(this.filePreviews).forEach(url => {
     URL.revokeObjectURL(url as any);
   });
