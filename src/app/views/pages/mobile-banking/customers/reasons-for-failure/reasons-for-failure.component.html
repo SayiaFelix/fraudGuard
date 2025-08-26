@@ -438,8 +438,7 @@
         <!-- Configuration Section -->
         <div class="details-section">
           <div class="section-header" (click)="toggleConfigurationSection()">
-            <div class.bind
-="section-icon"><i class="feather icon-tool"></i></div>
+            <div [class]="'section-icon'"><i class="feather icon-tool"></i></div>
             <div class="section-text"><div class="section-title">Configuration</div><div class="section-description">Configure the service integration.</div></div>
             <div class="section-action"><i class="feather" [ngClass]="{'icon-chevron-down': isConfigurationSectionOpen, 'icon-chevron-right': !isConfigurationSectionOpen}"></i></div>
           </div>
