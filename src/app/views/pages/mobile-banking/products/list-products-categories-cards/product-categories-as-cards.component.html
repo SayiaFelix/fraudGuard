@@ -33,7 +33,6 @@
                 </button>
                 
                 <div class="month-year-selectors">
-                  <!-- =========== FIX STARTS HERE =========== -->
                   <select class="month-selector" [value]="currentMonth" (change)="onMonthChange($event)">
                     <option *ngFor="let month of months; let i = index" [value]="i">{{ month }}</option>
                   </select>
@@ -41,7 +40,6 @@
                   <select class="year-selector" [value]="currentYear" (change)="onYearChange($event)">
                     <option *ngFor="let year of years" [value]="year">{{ year }}</option>
                   </select>
-                  <!-- =========== FIX ENDS HERE =========== -->
                 </div>
                 
                 <button class="nav-btn" (click)="nextMonth()">
@@ -158,7 +156,7 @@
         <div class="panel-header">
           <h2 class="panel-title">Chats</h2>
           <button class="download-btn" (click)="downloadData()" aria-label="Download data">
-           <i class="fas fa-download"></i>
+            <i class="fas fa-download"></i>
           </button>
         </div>
         <div class="filters-bar">
@@ -339,39 +337,51 @@
           <i class="fas fa-spinner fa-spin"></i> Loading chat analytics...
         </div>
 
-        <!-- Bar Chart Display Area -->
+        <!-- FIXED Bar Chart Display Area -->
         <div class="data-display-area" *ngIf="!isLoadingChats">
           <div *ngIf="hasChatData(); else noChatData">
             <div class="chart-container">
               <div class="bar-chart">
                 <h4>AI Assistants Created Over Time</h4>
                 <div class="chart-wrapper">
-                  <div class="chart-bars">
-                    <div 
-                      *ngFor="let dataPoint of chartData; let i = index" 
-                      class="bar-container"
-                    >
+                  <!-- Y-axis labels -->
+                  <div class="y-axis">
+                    <div class="y-label" *ngFor="let label of getYAxisLabels()">{{ label }}</div>
+                  </div>
+                  
+                  <!-- Chart area -->
+                  <div class="chart-area">
+                    <!-- Grid lines for better visualization -->
+                    <div class="grid-lines">
+                      <div class="grid-line" *ngFor="let label of getYAxisLabels()"></div>
+                    </div>
+                    
+                    <div class="chart-bars">
                       <div 
-                        class="bar" 
-                        [style.height.%]="(dataPoint.count / getMaxCount()) * 100"
-                        [title]="dataPoint.date + ': ' + dataPoint.count + ' assistants'"
-                      ></div>
-                      <span class="bar-label">{{ dataPoint.date }}</span>
-                      <span class="bar-value">{{ dataPoint.count }}</span>
+                        *ngFor="let dataPoint of chartData; let i = index" 
+                        class="bar-container"
+                      >
+                        <div 
+                          class="bar" 
+                          [style.height.%]="getBarHeightPercentage(dataPoint.count)"
+                          [title]="dataPoint.label + ': ' + dataPoint.count + ' assistants'"
+                        >
+                          <div class="bar-value" *ngIf="dataPoint.count > 0">{{ dataPoint.count }}</div>
+                        </div>
+                        <span class="bar-label">{{ dataPoint.label }}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div class="chart-summary">
-                  <p>Total Sessions: {{ getTotalSessions() }}</p>
-                  <p>Completed Sessions: {{ getCompletedSessions() }}</p>
-                  <p>Average Response Time: {{ getAverageResponseTime() }}</p>
-                  <p>System Uptime: {{ getSystemUptime() }}</p>
                 </div>
               </div>
             </div>
           </div>
           <ng-template #noChatData>
-            <p>No chat data to display for the selected period.</p>
+            <div class="no-data-placeholder">
+              <i class="fas fa-chart-bar"></i>
+              <h3>No Chat Data Available</h3>
+              <p>No chat data to display for the selected period and filters.</p>
+            </div>
           </ng-template>
         </div>
       </div>
@@ -464,7 +474,11 @@
             </div>
           </div>
           <ng-template #noTicketData>
-            <p>No ticket data to display. Tickets API coming soon.</p>
+            <div class="no-data-placeholder">
+              <i class="fas fa-ticket-alt"></i>
+              <h3>No Ticket Data Available</h3>
+              <p>Tickets API coming soon.</p>
+            </div>
           </ng-template>
         </div>
       </div>
@@ -546,45 +560,12 @@
             </div>
           </div>
           <ng-template #noInteractionData>
-            <p>No interaction data to display. Interactions API coming soon.</p>
+            <div class="no-data-placeholder">
+              <i class="fas fa-users"></i>
+              <h3>No Interaction Data Available</h3>
+              <p>Interactions API coming soon.</p>
+            </div>
           </ng-template>
-        </div>
-      </div>
-
-      <!-- Summary Cards Section for Interactions -->
-      <div class="summary-section">
-        <div class="summary-grid">
-          <div class="summary-card">
-            <h3>Total interactions</h3>
-            <p class="metric">-</p>
-            <div class="metric-description">
-              <small>API coming soon</small>
-            </div>
-          </div>
-          
-          <div class="summary-card">
-            <h3>By channel distribution</h3>
-            <p class="metric">-</p>
-            <div class="metric-description">
-              <small>API coming soon</small>
-            </div>
-          </div>
-          
-          <div class="summary-card">
-            <h3>By agent type</h3>
-            <p class="metric">-</p>
-            <div class="metric-description">
-              <small>API coming soon</small>
-            </div>
-          </div>
-          
-          <div class="summary-card">
-            <h3>Success rate</h3>
-            <p class="metric">-</p>
-            <div class="metric-description">
-              <small>API coming soon</small>
-            </div>
-          </div>
         </div>
       </div>
     </main>
