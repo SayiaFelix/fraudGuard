@@ -1,22 +1,25 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms'; // Added FormArray
+import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { NgbModal, NgbModalRef } from "@ng-bootstrap/ng-bootstrap";
 import { ActivatedRoute, Router } from "@angular/router";
 import { HttpService } from "../../../../../shared/services/http.service";
 import { ConfirmDialogComponent } from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
 import { CompareImageComponent } from "../../../../../shared/components/compare-image-component/compare-image.component";
 import { GlobalService } from '../../../../../shared/services/global.service';
-import { Subscription } from 'rxjs';
+import { Subscription, of } from 'rxjs'; 
+import { catchError } from 'rxjs/operators'; 
+import Swal from "sweetalert2";
 
-// --- CHANGED: Added 'Facebook' to the list of possible channel types ---
-export type ChannelType = 'Webchat' | 'WhatsApp' | 'Facebook';
+export type ChannelType = 'web' | 'whatsapp' | 'facebook'; 
 
 export interface Channel {
-  [x: string]: any;
+  id: number; 
   name: string;
-  type: ChannelType; // Use the new type alias
-  lastUpdated: Date;
-  enabled: boolean;
+  type: ChannelType;
+  created_at: string; 
+  is_active: boolean; 
+  lastUpdated?: Date; 
+  enabled?: boolean; 
 }
 
 @Component({
@@ -32,12 +35,14 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
   public proactiveMessagesForm: FormGroup;
   public preChatForm: FormGroup;
   public mobileBehaviourForm: FormGroup;
-  public whatsAppForm: FormGroup; 
+  public whatsAppForm: FormGroup;
   public whatsAppConfigForm: FormGroup;
   public whatsAppSetupForm: FormGroup;
-  public facebookForm: FormGroup; 
+  public facebookForm: FormGroup;
   public facebookSetupForm: FormGroup;
   public isTesting = false;
+  public isLoadingChannels = true; 
+  public isVerifyingWhatsApp = false;
 
   // --- UI State & Data ---
   public copySuccessMessage = '';
@@ -48,26 +53,26 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
   public showModal = false;
   public channels: Channel[] = [];
   public selectedChannel: Channel | null = null;
+
   
-  // --- Section visibility flags ---
    public isSetupSectionOpen = false;
-  public isBasicsSectionOpen = true; // Keep Basics open by default
+  public isBasicsSectionOpen = true; 
   public isProactiveSectionOpen = false;
   public isBrandSectionOpen = false;
   public isPreChatFormSectionOpen = false;
   public isMobileBehaviourSectionOpen = false;
+
   
-  // --- NEW: Section visibility flags for WHATSAPP & FACEBOOK ---
   public isConfigurationSectionOpen = false;
   public isWebhookSectionOpen = false;
   public isConnectedPageSectionOpen = false;
   public activeBrandTab: 'welcome' | 'chat' | 'styles' = 'welcome';
 
-  // --- API & Subscription Properties ---
+  
   private chatbotSub: Subscription;
   public chatbotData: any;
-  private readonly storageKey = 'my-app-channels';
   
+
   public modalRef: NgbModalRef;
   public customerId: any;
   public accountData: any;
@@ -78,11 +83,12 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private httpService: HttpService,
     private router: Router,
-    private globalService: GlobalService
+    private globalService: GlobalService,
+    
   ) {
     // Add Channel Form
     this.addChannelForm = this.fb.group({
-      channelType: ['Webchat', Validators.required],
+      channelType: ['webchat', Validators.required], 
       name: ['', Validators.required],
       language: ['English', Validators.required],
     });
@@ -114,11 +120,11 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
 
     this.mobileBehaviourForm = this.fb.group({
         threshold: [768],
-        displayMode: ['fullscreen'], // 'fullscreen' or 'hide'
+        displayMode: ['fullscreen'], 
         width: [100],
         height: [100]
     });
-    
+
     this.whatsAppForm = this.fb.group({
       enabled: [true],
       message: ['Please fill in the form before starting the chat.'],
@@ -128,18 +134,18 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
     });
 
     this.whatsAppConfigForm = this.fb.group({
-      appId: [''],
-      appSecret: [''],
-      accessToken: [''],
-      phoneNumberId: ['']
-    });
+  appId: ['', Validators.required],
+  appSecret: ['', Validators.required],
+  accessToken: ['', Validators.required],
+  phoneNumberId: ['', Validators.required]
+});
 
     this.whatsAppSetupForm = this.fb.group({
       appId: ['01K2M81A7A67HZ6KHZW6MSM4V3'],
       appSecret: ['a-very-secret-password-string']
     });
 
-    // --- NEW: Form for Facebook Channel ---
+    
     this.facebookForm = this.fb.group({
       enabled: [true],
       name: ['NIT FB'],
@@ -151,10 +157,10 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
     this.facebookSetupForm = this.fb.group({
       appId: ['01K35X3A7BEAWTVNNJDCHZYAVG']
     });
-  
+
   }
 
-  //Helper to create a form group for a single pre-chat field
+  
   createPreChatField(name: string, enabled: boolean, required: boolean): FormGroup {
     return this.fb.group({
       name: [name],
@@ -163,19 +169,16 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
     });
   }
 
-  //Getter to easily access the fields FormArray in the template
   get preChatFields(): FormArray {
     return this.preChatForm.get('fields') as FormArray;
   }
 
   ngOnInit() {
-    
     this.subscribeToChatbotData();
     this.activatedRoute.params.subscribe((params: any) => {
       if (typeof params.id !== 'undefined') { this.customerId = params.id; }
     });
     this.getIndividualData();
-    this.loadChannelsFromStorage();
   }
 
   ngOnDestroy() {
@@ -185,11 +188,18 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
   private subscribeToChatbotData() {
     this.chatbotSub = this.globalService.chatbotData$.subscribe(data => {
       if (data && data.id && data.embed_script) {
-        this.chatbotData = data; this.webchatId = data.id; this.deployScript = data.embed_script;
+        this.chatbotData = data;
+        this.webchatId = data.id;
+        this.deployScript = data.embed_script;
+        this.fetchChannels(); 
+      } else {
+        this.isLoadingChannels = false; 
+        Swal.fire('Warning','Please select a chatbot to manage channels.', 'warning');
       }
       console.log("Chatbot data updated:", this.chatbotData);
     });
   }
+
   private getIndividualData() {
     const model = { id: this.customerId };
     if (!model.id) { return; }
@@ -197,35 +207,131 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
       if (res.status === 201) { this.accountData = res.data; }
     });
   }
-  private loadChannelsFromStorage() {
-    const savedChannelsJson = localStorage.getItem(this.storageKey);
-    if (savedChannelsJson) {
-      this.channels = JSON.parse(savedChannelsJson).map((c: any) => ({ ...c, lastUpdated: new Date(c.lastUpdated) }));
-    } else {
-      // --- NOTE: Added examples of the new channels for default data ---
-      this.channels = [
-        { name: 'Default Webchat', type: 'Webchat', lastUpdated: new Date(), enabled: true },
-        { name: 'Default WhatsApp', type: 'WhatsApp', lastUpdated: new Date(), enabled: true },
-        { name: 'Default Facebook', type: 'Facebook', lastUpdated: new Date(), enabled: false },
-      ];
-    }
-  }
-  private saveChannelsToStorage() { localStorage.setItem(this.storageKey, JSON.stringify(this.channels)); }
 
-  onAddChannel() {
-    if (this.addChannelForm.invalid) { return; }
-    const newChannel: Channel = {
-      name: this.addChannelForm.value.name,
-      type: this.addChannelForm.value.channelType, // Type is already dynamic
-      lastUpdated: new Date(),
-      enabled: true
+private fetchChannels(): void {
+    if (!this.chatbotData || !this.chatbotData.id) {
+      console.warn('Cannot fetch channels: Chatbot ID not available.');
+      this.isLoadingChannels = false;
+      return;
+    }
+
+    this.isLoadingChannels = true;
+    const body = { chatbot_id: this.chatbotData.id };
+
+    this.httpService.mobileBankingPost('builder/channels/list', body)
+      .pipe(
+        catchError(err => {
+          console.error('Error fetching channels:', err);
+          Swal.fire('Error','Failed to load channels.', 'error');
+          this.isLoadingChannels = false;
+          return of({ status: '01', data: [] });
+        })
+      )
+      .subscribe({
+        next: (res: any) => {
+          if (res.status === '00' && Array.isArray(res.data)) {
+            
+            const supportedTypes: ChannelType[] = ['web', 'whatsapp', 'facebook'];
+
+            this.channels = res.data
+              .filter((apiChannel: any) => supportedTypes.includes(apiChannel.type))
+              .map((apiChannel: any) => ({
+                id: apiChannel.id,
+                name: apiChannel.name,
+                type: apiChannel.type as ChannelType, 
+                is_active: apiChannel.is_active,
+                created_at: apiChannel.created_at,
+                language: apiChannel.language,
+                lastUpdated: new Date(apiChannel.created_at),
+                enabled: apiChannel.is_active
+              }));
+            
+          } else {
+            this.channels = [];
+            Swal.fire('Error','Failed to fetch channels.', 'error');
+          }
+          this.isLoadingChannels = false;
+        },
+        error: () => {
+          this.isLoadingChannels = false;
+        }
+      });
+  }
+
+
+onVerifyWhatsAppConfig(): void {
+    if (this.whatsAppConfigForm.invalid) {
+      Swal.fire('Error','Please fill in all four configuration fields.', 'error');
+      this.whatsAppConfigForm.markAllAsTouched();
+      return;
+    }
+
+    this.isVerifyingWhatsApp = true; 
+
+    const payload = {
+      app_id: this.whatsAppConfigForm.value.appId,
+      app_secret: this.whatsAppConfigForm.value.appSecret,
+      user_access_token: this.whatsAppConfigForm.value.accessToken,
+      phone_number_id: this.whatsAppConfigForm.value.phoneNumberId
     };
-    this.channels.unshift(newChannel);
-    this.saveChannelsToStorage();
-    this.closeModal();
+
+    this.httpService.mobileBankingPost('whatsapp/configure', payload)
+      .subscribe({
+        next: (response: any) => {
+          if (response.status === '00') {
+            Swal.fire('Succes','Configuration verified successfully!', 'success');
+          } else {
+            Swal.fire('Error','Verification failed. Please check your credentials.', 'error');
+          }
+          this.isVerifyingWhatsApp = false; 
+        },
+        error: (err: any) => {
+          console.error('WhatsApp configuration error:', err);
+          const errorMessage = err?.error?.message || 'An unexpected error occurred during verification.';
+          this.isVerifyingWhatsApp = false; 
+          Swal.fire('Error','errorMessage', 'error');
+        }
+      });
+  }
+
+ 
+onAddChannel() {
+    if (this.addChannelForm.invalid) {
+      Swal.fire('Error','Please fill in all required fields.', 'error');
+      return;
+    }
+
+    if (!this.chatbotData || !this.chatbotData.id) {
+        Swal.fire('Error','Cannot create channel: Chatbot data is not available.', 'error');
+        return;
+    }
+    
+    const newChannelPayload = {
+      chatbot_id: this.chatbotData.id,
+      name: this.addChannelForm.value.name,
+      type: this.addChannelForm.value.channelType,
+      language: this.addChannelForm.value.language 
+    };
+                           
+    this.httpService.mobileBankingPost('builder/channels', newChannelPayload) // <-- FIX #1: Correct URL here
+      .subscribe({
+        next: (response: any) => {
+          if (response.status === '00') {
+            Swal.fire('Success','Channel created successfully!', 'success');
+            this.closeModal();
+            this.fetchChannels();
+          } else {
+            Swal.fire('Error','Failed to create channel.', 'error');
+          }
+        },
+        error: (err: any) => {
+          console.error('Error creating channel:', err);
+          Swal.fire('Error','An unexpected error occurred.', 'error');
+        }
+      });
   }
   copyToClipboard(text: string) { navigator.clipboard.writeText(text).then(() => { this.copySuccessMessage = 'Copied!'; setTimeout(() => { this.copySuccessMessage = ''; }, 2000); }); }
-  onSaveChanges() { 
+  onSaveChanges() {
     console.log("Saving changes for channel:", this.selectedChannel?.name);
     console.log("Brand Form Saved", this.brandForm.value);
     console.log("Proactive Messages Form Saved", this.proactiveMessagesForm.value);
@@ -233,8 +339,8 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
   }
 
 isDeployScriptValid(): boolean {
-  return !!this.deployScript && 
-         this.deployScript.trim().length > 0 && 
+  return !!this.deployScript &&
+         this.deployScript.trim().length > 0 &&
          !this.deployScript.includes('Waiting for chatbot selection');
 }
 
@@ -301,11 +407,11 @@ async onTestClick() {
             border-radius: 4px;
             background: #f8f9fa;
           }
-          .error { 
+          .error {
             color: #dc3545;
             background: #f8d7da;
           }
-          .success { 
+          .success {
             color: #28a745;
             background: #d4edda;
           }
@@ -325,17 +431,17 @@ async onTestClick() {
           (function() {
             const statusEl = document.getElementById('status');
             const loaderEl = document.querySelector('.loader');
-            
+
             try {
               const iframe = document.createElement("iframe");
               iframe.src = "http://130.61.111.65:5040/static/chat-widget.html?chatbot_id=${chatbotId}";
               iframe.style = "position:fixed;bottom:20px;right:20px;width:400px;height:600px;border:none; z-index:9999;";
-              
+
               iframe.onload = function() {
                 statusEl.innerHTML = '<span class="success">${chatbotName} loaded successfully !!!!</span>';
                 loaderEl.style.display = 'none';
               };
-              
+
               iframe.onerror = function() {
                 statusEl.innerHTML = '<span class="error">Failed to load chatbot. Please check:</span>' +
                   '<ul style="text-align: left; display: inline-block; text-align: left;">' +
@@ -345,16 +451,16 @@ async onTestClick() {
                   '</ul>';
                 loaderEl.style.display = 'none';
               };
-              
+
               document.body.appendChild(iframe);
-              
+
               setTimeout(() => {
                 if (!iframe.contentWindow?.document?.body?.innerHTML) {
                   statusEl.innerHTML = '<span class="error">Chatbot loading timed out</span>';
                   loaderEl.style.display = 'none';
                 }
               }, 10000);
-              
+
             } catch (err) {
               statusEl.innerHTML = '<span class="error">Error: ' + err.message + '</span>';
               loaderEl.style.display = 'none';
@@ -376,7 +482,7 @@ async onTestClick() {
 
 
   openModal() { this.showModal = true; }
-  closeModal() { this.showModal = false; this.addChannelForm.reset({ channelType: 'Webchat', name: '', language: 'English' }); }
+  closeModal() { this.showModal = false; this.addChannelForm.reset({ channelType: 'webchat', name: '', language: 'English' }); } // Changed default to lowercase
   viewChannelDetails(channel: Channel) { this.selectedChannel = channel; }
 
   toggleSetupSection() { this.isSetupSectionOpen = !this.isSetupSectionOpen; }
@@ -388,17 +494,16 @@ async onTestClick() {
   toggleConfigurationSection() { this.isConfigurationSectionOpen = !this.isConfigurationSectionOpen; }
   toggleWebhookSection() { this.isWebhookSectionOpen = !this.isWebhookSectionOpen; }
   toggleConnectedPageSection() { this.isConnectedPageSectionOpen = !this.isConnectedPageSectionOpen; }
-  
+
   setActiveBrandTab(tab: 'welcome' | 'chat' | 'styles') { this.activeBrandTab = tab; }
 
-  goBackToList() { 
-    this.selectedChannel = null; 
-    // Reset ALL flags to their default states
-    this.isSetupSectionOpen = false; 
-    this.isBasicsSectionOpen = true; 
-    this.isProactiveSectionOpen = false; 
-    this.isBrandSectionOpen = false; 
-    this.isPreChatFormSectionOpen = false; 
+  goBackToList() {
+    this.selectedChannel = null;
+    this.isSetupSectionOpen = false;
+    this.isBasicsSectionOpen = true;
+    this.isProactiveSectionOpen = false;
+    this.isBrandSectionOpen = false;
+    this.isPreChatFormSectionOpen = false;
     this.isMobileBehaviourSectionOpen = false;
     this.isConfigurationSectionOpen = false;
     this.isWebhookSectionOpen = false;
