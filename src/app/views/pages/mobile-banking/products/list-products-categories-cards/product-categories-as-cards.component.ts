@@ -68,11 +68,11 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
   
   activeTab: string = 'chats';
   
-  // Date range properties
+  // Date range properties - Fixed default dates
   startDate: Date = new Date('2025-07-01');
   endDate: Date = new Date('2025-07-31');
   
-  // Calendar properties
+  // Calendar properties - Fixed year initialization
   showDatePicker: boolean = false;
   currentMonth: number = new Date().getMonth();
   currentYear: number = new Date().getFullYear();
@@ -131,7 +131,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
   statusOptions = ['Open', 'Pending', 'Resolved', 'Overdue', 'Closed'];
   csatRatingOptions = ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'];
   
-  // Calendar data
+  // Calendar data - Fixed years array
   months = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
@@ -161,17 +161,19 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
     private _httpService: HttpService,
     private _toastService: ToastrService
   ) {
-    // Initialize years array
+    // Fixed years array initialization to show current year by default
     const currentYear = new Date().getFullYear();
-    for (let year = currentYear - 10; year <= currentYear + 10; year++) {
+    for (let year = currentYear - 5; year <= currentYear + 5; year++) {
       this.years.push(year);
     }
   }
 
   ngOnInit(): void {
-    // Initialize calendar with current date range
+    // Initialize calendar with current date range - Fixed initialization
     this.selectedStartDate = new Date(this.startDate);
     this.selectedEndDate = new Date(this.endDate);
+    this.currentYear = this.startDate.getFullYear();
+    this.currentMonth = this.startDate.getMonth();
     
     // Load initial data
     this.loadUserStats();
@@ -207,7 +209,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Generate realistic mock chart data - IMPROVED VERSION
+   * Generate realistic mock chart data - FIXED to respect date range
    */
   private generateMockChartData(): void {
     const data: ChartDataPoint[] = [];
@@ -215,7 +217,9 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
     const endTime = this.endDate.getTime();
     const dayMs = 24 * 60 * 60 * 1000;
     
-    // Generate realistic varying data
+    console.log(`Generating chart data from ${this.startDate.toISOString()} to ${this.endDate.toISOString()}`);
+    
+    // Generate realistic varying data for the selected date range
     for (let time = startTime; time <= endTime; time += dayMs) {
       const date = new Date(time);
       const dateStr = date.toISOString().split('T')[0];
@@ -230,9 +234,14 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
         baseCount *= 0.6;
       }
       
-      // Add some random variation
-      const variation = (Math.random() - 0.5) * 100;
-      const finalCount = Math.max(10, Math.floor(baseCount + variation));
+      // Add some random variation but keep some days at 0
+      const shouldHaveActivity = Math.random() > 0.1; // 90% chance of activity
+      let finalCount = 0;
+      
+      if (shouldHaveActivity) {
+        const variation = (Math.random() - 0.5) * 100;
+        finalCount = Math.max(10, Math.floor(baseCount + variation));
+      }
       
       data.push({
         date: dateStr,
@@ -240,7 +249,9 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
         label: shortDate
       });
     }
+    
     this.chartData = data;
+    console.log(`Generated ${data.length} data points:`, data);
   }
 
   /**
@@ -282,7 +293,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Load user activity data
+   * Load user activity data - FIXED to regenerate chart data
    */
   private loadUserActivity(): void {
     this.isLoadingUserActivity = true;
@@ -290,6 +301,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
     
     if (!userId) {
       this.isLoadingUserActivity = false;
+      this.generateMockChartData(); // Generate mock data if no user ID
       return;
     }
 
@@ -855,10 +867,13 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
     return rows;
   }
 
+  /**
+   * FIXED refresh data method to properly regenerate chart data
+   */
   private refreshData(): void {
     console.log(`Refreshing ${this.activeTab} data for range: ${this.getDateRangeDisplay()}`);
     this.loadUserStats();
-    this.loadUserActivity();
+    this.loadUserActivity(); // This will regenerate chart data based on new date range
     this.loadDataForActiveTab();
   }
 
@@ -886,26 +901,28 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Get maximum count for bar chart scaling - FIXED
+   * Get maximum count for bar chart scaling - FIXED to handle zero values
    */
   getMaxCount(): number {
     if (this.chartData.length === 0) return 100;
     const max = Math.max(...this.chartData.map(d => d.count));
-    return Math.max(max, 10); // Ensure minimum scale
+    return Math.max(max, 10); // Ensure minimum scale of 10
   }
 
   /**
-   * Get bar height percentage for proper scaling - FIXED
+   * Get bar height percentage for proper scaling - FIXED to handle zero values properly
    */
   getBarHeightPercentage(count: number): number {
+    if (count === 0) return 0; // Return 0 height for zero values
+    
     const maxCount = this.getMaxCount();
-    const minHeight = 2; // Minimum 2% height for visibility
-    const percentage = (count / maxCount) * 98; // Use 98% to leave room for labels
+    const minHeight = 5; // Minimum 5% height for visibility of non-zero values
+    const percentage = (count / maxCount) * 95; // Use 95% to leave room for labels
     return Math.max(percentage, minHeight);
   }
 
   /**
-   * Get Y-axis labels for the chart - FIXED for proper ordering
+   * Get Y-axis labels for the chart - FIXED for proper ordering and scaling
    */
   getYAxisLabels(): number[] {
     const maxCount = this.getMaxCount();
@@ -919,6 +936,13 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
     }
     
     return labels;
+  }
+
+  /**
+   * Check if a bar should be visible (has non-zero value)
+   */
+  isBarVisible(count: number): boolean {
+    return count > 0;
   }
 
   /**
@@ -945,7 +969,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
   }
 
   // ========================================
-  // CALENDAR METHODS
+  // CALENDAR METHODS - FIXED
   // ========================================
 
   toggleDatePicker(): void {
@@ -953,6 +977,8 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
     if (this.showDatePicker) {
       this.selectedStartDate = new Date(this.startDate);
       this.selectedEndDate = new Date(this.endDate);
+      this.currentYear = this.startDate.getFullYear(); // Set calendar to current date range
+      this.currentMonth = this.startDate.getMonth();
       this.isSelectingRange = false;
     }
   }
@@ -1064,11 +1090,16 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
     this.currentYear = parseInt(target.value, 10);
   }
 
+  /**
+   * FIXED - Apply date range and refresh all data
+   */
   applyDateRange(): void {
     if (this.selectedStartDate && this.selectedEndDate) {
       this.startDate = new Date(this.selectedStartDate);
       this.endDate = new Date(this.selectedEndDate);
       this.showDatePicker = false;
+      console.log('Applied new date range:', this.getDateRangeDisplay());
+      // Force refresh of all data including chart generation
       this.refreshData();
     }
   }
