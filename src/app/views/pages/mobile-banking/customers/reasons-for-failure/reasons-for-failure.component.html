@@ -30,7 +30,7 @@
             <tr *ngFor="let channel of channels" (click)="viewChannelDetails(channel)">
               <td>{{ channel.name }}</td>
               <td>
-                <div class="channel-cell"><i class="feather" [ngClass]="{'icon-message-square': channel.type === 'Webchat', 'icon-phone': channel.type === 'WhatsApp', 'icon-facebook': channel.type === 'Facebook'}"></i><span>{{ channel.type }}</span></div>
+                <div class="channel-cell"><i class="feather" [ngClass]="{'icon-message-square': channel.type === 'web', 'icon-phone': channel.type === 'whatsapp', 'icon-facebook': channel.type === 'facebook'}"></i><span>{{ channel.type }}</span></div>
               </td>
               <td>Last Updated</td>
               <td>{{ channel.lastUpdated | date:'MMM d, y, h:mm a' }}</td>
@@ -47,25 +47,18 @@
     </div>
   </div>
 
-  <!-- ==================================================================================== -->
-  <!-- VIEW 2: CHANNEL DETAIL -->
-  <!-- ==================================================================================== -->
   <div *ngIf="selectedChannel" class="details-view-container">
     <div class="details-header">
       <button class="btn-icon" (click)="goBackToList()"><i class="feather icon-arrow-left"></i></button>
       <div class="header-text-content">
-        <h1>{{ selectedChannel.type === 'Facebook' ? 'Facebook Messenger' : selectedChannel.type }}</h1>
+        <h1>{{ selectedChannel.type === 'facebook' ? 'Facebook Messenger' : selectedChannel.type }}</h1>
         <p class="header-description">Configure the settings for your {{ selectedChannel.type }} channel.</p>
       </div>
     </div>
 
-    <!-- This [ngSwitch] will now show the correct layout for each channel type -->
+    
     <div [ngSwitch]="selectedChannel.type">
-
-      <!-- ==================================================================================== -->
-      <!-- CASE 1: WEBCHAT (Your original detailed layout) -->
-      <!-- ==================================================================================== -->
-      <div *ngSwitchCase="'Webchat'">
+      <div *ngSwitchCase="'web'">
         <div class="details-content">
           <!-- Setup Section -->
           <div class="details-section">
@@ -383,10 +376,7 @@
         </div>
       </div>
 
-      <!-- ==================================================================================== -->
-      <!-- CASE 2: WHATSAPP (This is now a sibling of the Webchat case) -->
-      <!-- ==================================================================================== -->
-      <div *ngSwitchCase="'WhatsApp'" class="details-content">
+      <div *ngSwitchCase="'whatsapp'" class="details-content">
         <!-- Basics Section -->
         <div class="details-section">
           <div class="section-header" (click)="toggleBasicsSection()">
@@ -442,7 +432,6 @@
             <div class="section-text"><div class="section-title">Configuration</div><div class="section-description">Configure the service integration.</div></div>
             <div class="section-action"><i class="feather" [ngClass]="{'icon-chevron-down': isConfigurationSectionOpen, 'icon-chevron-right': !isConfigurationSectionOpen}"></i></div>
           </div>
-          <!-- This is the new body for the configuration form -->
           <div class="section-body config-form-body" *ngIf="isConfigurationSectionOpen" [formGroup]="whatsAppConfigForm">
             <div class="form-group">
               <label>App ID</label>
@@ -465,7 +454,9 @@
               <p class="form-hint">Copy your Phone Number ID from WhatsApp > Getting Started in Meta for Developers, and paste it here.</p>
             </div>
             <div class="form-actions spaced">
-              <button class="btn btn-verify">Verify</button>
+              <button class="btn btn-verify" (click)="onVerifyWhatsAppConfig()" [disabled]="isVerifyingWhatsApp">
+  {{ isVerifyingWhatsApp ? 'Verifying...' : 'Verify' }}
+</button>
               <hr>
               <button class="btn btn-save-dark">Save</button>
             </div>
@@ -478,13 +469,11 @@
             <div class="section-text"><div class="section-title">Webhook</div><div class="section-description">Enable webhook URL</div></div>
             <div class="section-action"><i class="feather" [ngClass]="{'icon-chevron-down': isWebhookSectionOpen, 'icon-chevron-right': !isWebhookSectionOpen}"></i></div>
           </div>
-          <!-- This is the new body for the Webhook section -->
           <div class="section-body webhook-body" *ngIf="isWebhookSectionOpen">
             <div class="info-box">
               <i class="feather icon-info"></i>
               <span>Paste the Webhook URL into the "Callback URL" field in the App Dashboard > WhatsApp > Configuration.</span>
             </div>
-            <!-- ADD THIS form-group WRAPPER -->
             <div class="form-group">
               <div class="input-with-button">
                 <input type="text" readonly class="form-control" [value]="webhookUrl">
@@ -499,7 +488,6 @@
             <div class="section-text"><div class="section-title">Setup</div><div class="section-description">Required for the deploy script</div></div>
             <div class="section-action"><i class="feather" [ngClass]="{'icon-chevron-down': isSetupSectionOpen, 'icon-chevron-right': !isSetupSectionOpen}"></i></div>
           </div>
-          <!-- This is the new body for the WhatsApp Setup section -->
           <div class="section-body wa-setup-body" *ngIf="isSetupSectionOpen" [formGroup]="whatsAppSetupForm">
             <div class="form-group">
               <label>App ID</label>
@@ -531,10 +519,7 @@
   </div>
 </div> 
 
-  <!-- ==================================================================================== -->
-  <!-- CASE 3: FACEBOOK (This is now a sibling of the Webchat case) -->
-  <!-- ==================================================================================== -->
-  <div *ngSwitchCase="'Facebook'" class="details-content">
+  <div *ngSwitchCase="'facebook'" class="details-content">
         <!-- Basics Section -->
         <div class="details-section">
           <div class="section-header" (click)="toggleBasicsSection()">
@@ -587,7 +572,6 @@
             <div class="section-text"><div class="section-title">Setup</div><div class="section-description">Required for the deploy script</div></div>
             <div class="section-action"><i class="feather" [ngClass]="{'icon-chevron-down': isSetupSectionOpen, 'icon-chevron-right': !isSetupSectionOpen}"></i></div>
           </div>
-          <!-- This is the new body for the Facebook Setup section -->
           <div class="section-body fb-setup-body" *ngIf="isSetupSectionOpen" [formGroup]="facebookSetupForm">
             <div class="form-group">
               <label>App ID</label>
@@ -600,14 +584,12 @@
             </div>
           </div>
         </div>
-        <!-- Connected page Section -->
         <div class="details-section">
           <div class="section-header" (click)="toggleConnectedPageSection()">
             <div class="section-icon"><i class="feather icon-link"></i></div>
             <div class="section-text"><div class="section-title">Connected page</div><div class="section-description">Login with Facebook to connect your AI assistant.</div></div>
             <div class="section-action"><i class="feather" [ngClass]="{'icon-chevron-down': isConnectedPageSectionOpen, 'icon-chevron-right': !isConnectedPageSectionOpen}"></i></div>
           </div>
-          <!-- This is the new body for the Connected Page section -->
           <div class="section-body connected-page-body" *ngIf="isConnectedPageSectionOpen">
             <p>No connected Facebook Page</p>
             <hr>
@@ -633,9 +615,9 @@
         <div class="mb-3">
           <label class="form-label">Channel</label>
           <select class="form-select" formControlName="channelType">
-            <option value="Webchat">Webchat</option>
-            <option value="WhatsApp">WhatsApp</option>
-            <option value="Facebook">Facebook</option>
+            <option value="web">Webchat</option>
+            <option value="whatsapp">Whatsapp</option>
+            <option value="facebook">Facebook</option>
           </select>
         </div>
         <div class="mb-3">
