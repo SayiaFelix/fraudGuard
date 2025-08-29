@@ -194,7 +194,7 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
         this.fetchChannels(); 
       } else {
         this.isLoadingChannels = false; 
-        Swal.fire('Warning','Please select a chatbot to manage channels.', 'warning');
+        // Swal.fire('Warning','Please select a chatbot to manage channels.', 'warning');
       }
       console.log("Chatbot data updated:", this.chatbotData);
     });
@@ -313,7 +313,7 @@ onAddChannel() {
       language: this.addChannelForm.value.language 
     };
                            
-    this.httpService.mobileBankingPost('builder/channels', newChannelPayload) // <-- FIX #1: Correct URL here
+    this.httpService.mobileBankingPost('builder/channels', newChannelPayload) 
       .subscribe({
         next: (response: any) => {
           if (response.status === '00') {
