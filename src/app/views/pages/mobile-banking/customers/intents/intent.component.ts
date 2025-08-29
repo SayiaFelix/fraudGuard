@@ -239,6 +239,7 @@ ngOnInit() {
         console.log('For chatbot ID:', this.chatbotId);
 
         this.fetchIntentList(this.chatbotId!);
+        
          this.fetchNestedIntents(this.intentId);
         this.loadInitialData(); 
     
