@@ -107,24 +107,47 @@
       </div>
     </header>
 
-    <!-- User Stats Summary (shown on all tabs) -->
+    <!-- User Stats Summary (Bootstrap Cards) -->
     <div class="user-stats-summary" *ngIf="userStats && !isLoadingUserStats">
-      <div class="stats-grid">
-        <div class="stat-item">
-          <span class="stat-label">Total AI Assistants</span>
-          <span class="stat-value">{{ userStats.total_chatbots }}</span>
+      <div class="row g-4">
+        <!-- Total AI Assistants Card -->
+        <div class="col-12 col-sm-6 col-lg-3">
+          <div class="card stat-card h-100">
+            <div class="card-body text-center">
+              <div class="stat-label">Total AI Assistants</div>
+              <div class="stat-value">{{ userStats.total_chatbots }}</div>
+            </div>
+          </div>
         </div>
-        <div class="stat-item">
-          <span class="stat-label">Active</span>
-          <span class="stat-value">{{ userStats.active_chatbots }}</span>
+
+        <!-- Active Card -->
+        <div class="col-12 col-sm-6 col-lg-3">
+          <div class="card stat-card h-100">
+            <div class="card-body text-center">
+              <div class="stat-label">Active</div>
+              <div class="stat-value text-success">{{ userStats.active_chatbots }}</div>
+            </div>
+          </div>
         </div>
-        <div class="stat-item">
-          <span class="stat-label">Inactive</span>
-          <span class="stat-value">{{ userStats.inactive_chatbots }}</span>
+
+        <!-- Inactive Card -->
+        <div class="col-12 col-sm-6 col-lg-3">
+          <div class="card stat-card h-100">
+            <div class="card-body text-center">
+              <div class="stat-label">Inactive</div>
+              <div class="stat-value text-warning">{{ userStats.inactive_chatbots }}</div>
+            </div>
+          </div>
         </div>
-        <div class="stat-item">
-          <span class="stat-label">Avg Intents/Bot</span>
-          <span class="stat-value">{{ userStats.avg_intents_per_chatbot | number:'1.1-1' }}</span>
+
+        <!-- Average Intents/Bot Card -->
+        <div class="col-12 col-sm-6 col-lg-3">
+          <div class="card stat-card h-100">
+            <div class="card-body text-center">
+              <div class="stat-label">Avg Intents/Bot</div>
+              <div class="stat-value text-info">{{ userStats.avg_intents_per_chatbot | number:'1.1-1' }}</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -337,7 +360,7 @@
           <i class="fas fa-spinner fa-spin"></i> Loading chat analytics...
         </div>
 
-        <!-- FIXED Bar Chart Display Area -->
+        <!-- Fixed Bar Chart Display Area -->
         <div class="data-display-area" *ngIf="!isLoadingChats">
           <div *ngIf="hasChatData(); else noChatData">
             <div class="chart-container">
