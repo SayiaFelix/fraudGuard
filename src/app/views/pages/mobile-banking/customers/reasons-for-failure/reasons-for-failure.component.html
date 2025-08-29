@@ -17,7 +17,7 @@
             <tr>
               <th>Trigger</th>
               <th>Channel</th>
-              <th>Description</th>
+              <!-- <th>Language</th> -->
               <th>Last updated</th>
               <th>Enabled</th>
               <th></th>
@@ -32,7 +32,7 @@
               <td>
                 <div class="channel-cell"><i class="feather" [ngClass]="{'icon-message-square': channel.type === 'web', 'icon-phone': channel.type === 'whatsapp', 'icon-facebook': channel.type === 'facebook'}"></i><span>{{ channel.type }}</span></div>
               </td>
-              <td>Last Updated</td>
+              <!-- <td>{{ channel.language }}</td> -->
               <td>{{ channel.lastUpdated | date:'MMM d, y, h:mm a' }}</td>
               <td>
                 <label class="toggle-switch" (click)="$event.stopPropagation()"><input type="checkbox" [(ngModel)]="channel.enabled"><span class="slider"></span></label>
