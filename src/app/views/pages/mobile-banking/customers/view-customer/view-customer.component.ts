@@ -159,10 +159,10 @@ submitTraining(): void {
     return;
   }
 
-  if (!this.uploadedFile && !this.trainingForm.value.url) {
-    Swal.fire('Error', 'Please provide either a file or URL', 'error');
-    return;
-  }
+  // if (!this.uploadedFile && !this.trainingForm.value.url) {
+  //   Swal.fire('Error', 'Please provide either a file or URL', 'error');
+  //   return;
+  // }
 
   const formData = new FormData();
   formData.append('prompt', this.trainingForm.value.prompt);
