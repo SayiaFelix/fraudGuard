@@ -457,8 +457,6 @@
               <button class="btn btn-verify" (click)="onVerifyWhatsAppConfig()" [disabled]="isVerifyingWhatsApp">
   {{ isVerifyingWhatsApp ? 'Verifying...' : 'Verify' }}
 </button>
-              <hr>
-              <button class="btn btn-save-dark">Save</button>
             </div>
           </div>
         </div>
@@ -475,12 +473,16 @@
               <span>Paste the Webhook URL into the "Callback URL" field in the App Dashboard > WhatsApp > Configuration.</span>
             </div>
             <div class="form-group">
-              <div class="input-with-button">
-                <input type="text" readonly class="form-control" [value]="webhookUrl">
-                <button class="btn-copy" (click)="copyToClipboard(webhookUrl)"><i class="feather icon-copy"></i></button>
-              </div>
-            </div>
-          </div>
+              <div class="input-with-actions">
+        <input type="text" readonly class="form-control" [value]="webhookUrl">
+        <div class="actions-wrapper">
+          <button class="btn-icon" (click)="copyToClipboard(webhookUrl)"><i class="feather icon-copy"></i></button>
+        </div>
+      </div>
+      <!-- END REPLACEMENT -->
+    </div>
+  </div>
+
         <!-- Setup Section -->
         <div class="details-section">
           <div class="section-header" (click)="toggleSetupSection()">
