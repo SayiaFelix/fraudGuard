@@ -129,6 +129,7 @@ export class LoginComponent implements OnInit {
               localStorage.setItem('user_name', result['data']['name'] || '');
               localStorage.setItem('first_name', result['data']['first_name'] || '');
               localStorage.setItem('last_name', result['data']['last_name'] || '');
+              localStorage.setItem('email', result['data']['email'] || '');
               console.log('User data saved:', result['data']);
             }
 

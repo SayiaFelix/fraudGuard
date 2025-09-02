@@ -98,9 +98,8 @@ export class SettingsModalComponent {
     // Add navigation logic here
   }
 
-  onChangePassword() {
-    console.log('Change password');
-    // Add change password logic here
+  changePassword() {
+    window.location.href = 'http://localhost:4200/auth/first-time-password';
   }
 
   onSignOut() {
