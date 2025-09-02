@@ -1,5 +1,5 @@
 // Theme colors
-$primary-blue: #4285f4;
+$primary-blue: #007bff;
 $light-blue: #e8f0fe;
 $dark-bg: #1a1a1a;
 $text-primary: #333333;
@@ -33,35 +33,36 @@ $danger-red: #dc3545;
 .modal-container {
   position: relative;
   background: $white;
-  border-radius: 12px;
-  width: 400px;
+  border-radius: 10px;
+  width: 300px; // Reduced width
   max-width: 90%;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   z-index: 1001;
   animation: fadeIn 0.3s ease-out;
   overflow: hidden;
+  font-size: 13px; // Set base font smaller
 
   // User Profile Section
   .user-profile {
-    padding: 20px;
+    padding: 12px 16px;
     background: $primary-blue;
     color: $white;
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 10px;
     position: relative;
 
     .user-avatar {
       position: relative;
-      width: 48px;
-      height: 48px;
+      width: 36px;
+      height: 36px;
       background: $white;
-      border-radius: 8px;
+      border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 600;
-      font-size: 16px;
+      font-size: 14px;
 
       .avatar-text {
         color: $primary-blue;
@@ -69,13 +70,13 @@ $danger-red: #dc3545;
 
       .status-indicator {
         position: absolute;
-        bottom: -2px;
-        right: -2px;
-        width: 14px;
-        height: 14px;
-        background: #4ade80; // Green for online
+        bottom: -1px;
+        right: -1px;
+        width: 10px;
+        height: 10px;
+        background: #4ade80;
         border-radius: 50%;
-        border: 2px solid $primary-blue;
+        border: 1px solid $primary-blue;
       }
     }
 
@@ -84,23 +85,23 @@ $danger-red: #dc3545;
 
       .user-name {
         font-weight: 600;
-        font-size: 18px;
-        margin-bottom: 4px;
+        font-size: 14px;
+        margin-bottom: 2px;
       }
 
       .user-email {
-        font-size: 14px;
+        font-size: 12px;
         color: #b0b0b0;
       }
     }
 
     .close-button {
       position: absolute;
-      top: 16px;
-      right: 16px;
+      top: 10px;
+      right: 10px;
       background: none;
       border: none;
-      font-size: 24px;
+      font-size: 18px;
       cursor: pointer;
       color: #b0b0b0;
       padding: 4px;
@@ -114,28 +115,27 @@ $danger-red: #dc3545;
 
   // Sections
   .section {
-    padding: 20px;
+    padding: 12px 16px;
     border-bottom: 1px solid $border-color;
 
     .section-title {
-      font-size: 16px;
+      font-size: 13px;
       font-weight: 600;
       color: $text-primary;
-      margin-bottom: 16px;
+      margin-bottom: 10px;
     }
 
-    // Status Options
     .status-options {
       display: flex;
-      gap: 12px;
+      gap: 6px;
 
       .status-button {
         flex: 1;
-        padding: 12px 20px;
+        padding: 8px 10px;
         border: 1px solid $border-color;
         background: $white;
-        border-radius: 8px;
-        font-size: 14px;
+        border-radius: 6px;
+        font-size: 12px;
         font-weight: 500;
         color: $text-primary;
         cursor: pointer;
@@ -154,18 +154,17 @@ $danger-red: #dc3545;
       }
     }
 
-    // Theme Options
     .theme-options {
       display: flex;
-      gap: 8px;
+      gap: 6px;
 
       .theme-button {
         flex: 1;
-        padding: 12px 8px;
+        padding: 8px 6px;
         border: 1px solid $border-color;
         background: $white;
-        border-radius: 8px;
-        font-size: 12px;
+        border-radius: 6px;
+        font-size: 11px;
         font-weight: 500;
         color: $text-primary;
         cursor: pointer;
@@ -173,10 +172,10 @@ $danger-red: #dc3545;
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 6px;
+        gap: 4px;
 
         .theme-icon {
-          font-size: 18px;
+          font-size: 14px;
         }
 
         &:hover {
@@ -195,15 +194,15 @@ $danger-red: #dc3545;
 
   // Menu Options
   .menu-options {
-    padding: 12px 0;
+    padding: 8px 0;
 
     .menu-item {
       width: 100%;
-      padding: 16px 20px;
+      padding: 10px 16px;
       border: none;
       background: none;
       text-align: left;
-      font-size: 15px;
+      font-size: 13px;
       font-weight: 500;
       color: $text-primary;
       cursor: pointer;
@@ -218,7 +217,7 @@ $danger-red: #dc3545;
 
   // Modal Footer
   .modal-footer {
-    padding: 20px;
+    padding: 12px 16px;
     border-top: 1px solid $border-color;
     display: flex;
     justify-content: space-between;
@@ -226,14 +225,14 @@ $danger-red: #dc3545;
 
     .footer-buttons {
       display: flex;
-      gap: 12px;
+      gap: 8px;
     }
 
     .btn {
-      padding: 10px 20px;
+      padding: 6px 12px;
       border: none;
-      border-radius: 6px;
-      font-size: 14px;
+      border-radius: 5px;
+      font-size: 13px;
       font-weight: 500;
       cursor: pointer;
       transition: all 0.2s ease;
@@ -279,12 +278,12 @@ $danger-red: #dc3545;
 }
 
 @keyframes fadeIn {
-  from { 
-    opacity: 0; 
-    transform: scale(0.9); 
+  from {
+    opacity: 0;
+    transform: scale(0.95);
   }
-  to { 
-    opacity: 1; 
-    transform: scale(1); 
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }

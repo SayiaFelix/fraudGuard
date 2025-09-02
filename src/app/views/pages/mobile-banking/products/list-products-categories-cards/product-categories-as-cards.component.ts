@@ -157,23 +157,32 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
     { name: 'Overdue', color: '#EB5757' }
   ];
 
-  constructor(
-    private _httpService: HttpService,
-    private _toastService: ToastrService
-  ) {
-    // Fixed years array initialization to show current year by default
-    const currentYear = new Date().getFullYear();
-    for (let year = currentYear - 5; year <= currentYear + 5; year++) {
-      this.years.push(year);
-    }
+// In the constructor, change this part:
+constructor(
+  private _httpService: HttpService,
+  private _toastService: ToastrService
+) {
+  // FIXED: Initialize years array to always show current year as default
+  const currentYear = new Date().getFullYear(); // This will be 2025
+  // Create years array with current year in the middle
+  for (let year = currentYear - 5; year <= currentYear + 5; year++) {
+    this.years.push(year);
   }
+}
 
-  ngOnInit(): void {
-    // Initialize calendar with current date range - Fixed initialization
-    this.selectedStartDate = new Date(this.startDate);
-    this.selectedEndDate = new Date(this.endDate);
-    this.currentYear = this.startDate.getFullYear();
-    this.currentMonth = this.startDate.getMonth();
+// In ngOnInit, change this part:
+ngOnInit(): void {
+  // FIXED: Always initialize calendar with current year, not startDate year
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth();
+  
+  this.selectedStartDate = new Date(this.startDate);
+  this.selectedEndDate = new Date(this.endDate);
+  
+  // Set calendar to current year/month instead of startDate
+  this.currentYear = currentYear;  // This ensures 2025 shows in dropdown
+  this.currentMonth = currentMonth; // This shows current month
+  
     
     // Load initial data
     this.loadUserStats();
@@ -972,16 +981,22 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
   // CALENDAR METHODS - FIXED
   // ========================================
 
-  toggleDatePicker(): void {
-    this.showDatePicker = !this.showDatePicker;
-    if (this.showDatePicker) {
-      this.selectedStartDate = new Date(this.startDate);
-      this.selectedEndDate = new Date(this.endDate);
-      this.currentYear = this.startDate.getFullYear(); // Set calendar to current date range
-      this.currentMonth = this.startDate.getMonth();
-      this.isSelectingRange = false;
-    }
+// Also update the toggleDatePicker method:
+toggleDatePicker(): void {
+  this.showDatePicker = !this.showDatePicker;
+  if (this.showDatePicker) {
+    this.selectedStartDate = new Date(this.startDate);
+    this.selectedEndDate = new Date(this.endDate);
+    
+    // FIXED: Always show current year in dropdown when opening calendar
+    const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth();
+    
+    this.currentYear = currentYear;  // Always show 2025 (current year)
+    this.currentMonth = currentMonth; // Show current month
+    this.isSelectingRange = false;
   }
+}
 
   getCalendarDays(): (number | null)[] {
     const firstDay = new Date(this.currentYear, this.currentMonth, 1);
