@@ -30,7 +30,7 @@
             <tr *ngFor="let channel of channels" (click)="viewChannelDetails(channel)">
               <td>{{ channel.name }}</td>
               <td>
-                <div class="channel-cell"><i class="feather" [ngClass]="{'icon-message-square': channel.type === 'web', 'icon-phone': channel.type === 'whatsapp', 'icon-facebook': channel.type === 'facebook'}"></i><span>{{ channel.type }}</span></div>
+                <div class="channel-cell"><i class="feather" [ngClass]="{'icon-message-square': channel.type === 'webchat', 'icon-phone': channel.type === 'whatsapp', 'icon-facebook': channel.type === 'facebook'}"></i><span>{{ channel.type }}</span></div>
               </td>
               <!-- <td>{{ channel.language }}</td> -->
               <td>{{ channel.lastUpdated | date:'MMM d, y, h:mm a' }}</td>
@@ -617,7 +617,7 @@
         <div class="mb-3">
           <label class="form-label">Channel</label>
           <select class="form-select" formControlName="channelType">
-            <option value="web">Webchat</option>
+            <option value="webchat">Webchat</option>
             <option value="whatsapp">Whatsapp</option>
             <option value="facebook">Facebook</option>
           </select>
