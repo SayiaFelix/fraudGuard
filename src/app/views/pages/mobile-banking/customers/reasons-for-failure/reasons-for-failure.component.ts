@@ -10,7 +10,7 @@ import { Subscription, of } from 'rxjs';
 import { catchError } from 'rxjs/operators'; 
 import Swal from "sweetalert2";
 
-export type ChannelType = 'web' | 'whatsapp' | 'facebook'; 
+export type ChannelType = 'webchat' | 'whatsapp' | 'facebook'; 
 
 export interface Channel {
   id: number; 
@@ -231,7 +231,7 @@ private fetchChannels(): void {
         next: (res: any) => {
           if (res.status === '00' && Array.isArray(res.data)) {
             
-            const supportedTypes: ChannelType[] = ['web', 'whatsapp', 'facebook'];
+            const supportedTypes: ChannelType[] = ['webchat', 'whatsapp', 'facebook'];
 
             this.channels = res.data
               .filter((apiChannel: any) => supportedTypes.includes(apiChannel.type))
