@@ -1,13 +1,13 @@
-<!-- The semi-transparent background overlay -->
+<!-- Modal Overlay -->
 <div class="modal-overlay" (click)="onClose()"></div>
 
-<!-- The modal window itself -->
-<div class="modal-container">
+<!-- Main Settings View -->
+<div *ngIf="currentView === 'main'" class="modal-container">
   <!-- User Profile Section -->
   <div class="user-profile">
     <div class="user-avatar">
       <span class="avatar-text">{{ userInitials }}</span>
-      <div class="status-indicator"></div>
+      <div class="status-indicator" [style.background-color]="getStatusColor()"></div>
     </div>
     <div class="user-info">
       <div class="user-name">{{ userName }}</div>
@@ -22,15 +22,24 @@
     <div class="status-options">
       <button 
         class="status-button" 
-        [class.active]="userStatus === 'Online'"
-        (click)="setStatus('Online')">
+        [class.active]="userStatus === 'online'"
+        (click)="setStatus('online')">
+        <span class="status-dot" style="background-color: #4ade80;"></span>
         Online
       </button>
       <button 
         class="status-button" 
-        [class.active]="userStatus === 'Away'"
-        (click)="setStatus('Away')">
+        [class.active]="userStatus === 'away'"
+        (click)="setStatus('away')">
+        <span class="status-dot" style="background-color: #f59e0b;"></span>
         Away
+      </button>
+      <button 
+        class="status-button" 
+        [class.active]="userStatus === 'offline'"
+        (click)="setStatus('offline')">
+        <span class="status-dot" style="background-color: #ef4444;"></span>
+        Offline
       </button>
     </div>
   </div>
@@ -41,22 +50,22 @@
     <div class="theme-options">
       <button 
         class="theme-button" 
-        [class.active]="selectedTheme === 'System'"
-        (click)="setTheme('System')">
-        <span class="theme-icon">⚙️</span>
+        [class.active]="selectedTheme === 'system'"
+        (click)="setTheme('system')">
+        <span class="theme-icon">🖥️</span>
         System
       </button>
       <button 
         class="theme-button" 
-        [class.active]="selectedTheme === 'Light'"
-        (click)="setTheme('Light')">
-        <span class="theme-icon">☀️</span>
+        [class.active]="selectedTheme === 'light'"
+        (click)="setTheme('light')">
+        <span class="theme-icon">💡</span>
         Light
       </button>
       <button 
         class="theme-button" 
-        [class.active]="selectedTheme === 'Dark'"
-        (click)="setTheme('Dark')">
+        [class.active]="selectedTheme === 'dark'"
+        (click)="setTheme('dark')">
         <span class="theme-icon">🌙</span>
         Dark
       </button>
@@ -65,21 +74,208 @@
 
   <!-- Menu Options -->
   <div class="menu-options">
-    <button class="menu-item" (click)="onWorkspaceSettings()">
+    <button class="menu-item" (click)="showView('workspace')">
       Workspace Settings
     </button>
-    <button class="menu-item" (click)="onAccountSettings()">
+    <button class="menu-item" (click)="showView('account')">
       Account Settings
     </button>
-    <button class="menu-item" (click)="onChangeWorkspace()">
+    <button class="menu-item" (click)="showView('changeWorkspace')">
       Change Workspace
     </button>
-    <button class="menu-item" (click)="changePassword()">Change Password</button>
+    <button class="menu-item" (click)="changePassword()">
+      Change Password
+    </button>
   </div>
 
-  <!-- Footer with buttons -->
+  <!-- Footer -->
   <div class="modal-footer">
     <button class="btn btn-teal" (click)="onClose()">Close</button>
     <button class="btn btn-primary" (click)="onSaveChanges()">Save Changes</button>
+  </div>
+</div>
+
+<!-- Workspace Settings View -->
+<div *ngIf="currentView === 'workspace'" class="settings-modal-container">
+  <div class="settings-header">
+    <button class="back-button" (click)="goBack()">← Back</button>
+    <h2>Workspace Settings</h2>
+    <button class="close-button" (click)="onClose()">×</button>
+  </div>
+  
+  <div class="settings-content">
+    <div class="settings-section">
+      <h3>General</h3>
+      
+      <div class="form-group">
+        <label>Profile Picture</label>
+        <div class="profile-upload">
+          <div class="profile-preview">
+            <span class="profile-initial">{{ workspaceInitial }}</span>
+          </div>
+          <div class="upload-actions">
+            <button class="btn btn-outline" (click)="uploadWorkspaceImage()">
+              📤 Upload
+            </button>
+            <button class="btn btn-text" (click)="removeWorkspaceImage()">
+              Remove
+            </button>
+          </div>
+        </div>
+        <small class="help-text">PNG or JPEG up to 10MB</small>
+      </div>
+      
+      <div class="form-group">
+        <label for="workspaceName">Workspace name</label>
+        <input 
+          type="text" 
+          id="workspaceName"
+          [(ngModel)]="workspaceName"
+          class="form-input"
+          placeholder="Enter workspace name">
+      </div>
+      
+      <button class="btn btn-primary" (click)="saveWorkspaceSettings()">
+        Save
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Account Settings View -->
+<div *ngIf="currentView === 'account'" class="settings-modal-container">
+  <div class="settings-header">
+    <button class="back-button" (click)="goBack()">← Back</button>
+    <h2>Account Settings</h2>
+    <button class="close-button" (click)="onClose()">×</button>
+  </div>
+  
+  <div class="settings-content">
+    <div class="settings-section">
+      <h3>Account</h3>
+      
+      <div class="form-group">
+        <label>Profile Picture</label>
+        <div class="profile-upload">
+          <div class="profile-preview">
+            <span class="profile-initial">{{ userInitials }}</span>
+          </div>
+          <div class="upload-actions">
+            <button class="btn btn-outline" (click)="uploadAccountImage()">
+              📤 Upload
+            </button>
+            <button class="btn btn-text" (click)="removeAccountImage()">
+              Remove
+            </button>
+          </div>
+        </div>
+        <small class="help-text">PNG or JPEG up to 10MB</small>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group half-width">
+          <label for="firstName">First name</label>
+          <input 
+            type="text" 
+            id="firstName"
+            [(ngModel)]="firstName"
+            class="form-input"
+            placeholder="Enter first name">
+        </div>
+        <div class="form-group half-width">
+          <label for="lastName">Last name</label>
+          <input 
+            type="text" 
+            id="lastName"
+            [(ngModel)]="lastName"
+            class="form-input"
+            placeholder="Enter last name">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input 
+          type="email" 
+          id="email"
+          [(ngModel)]="userEmail"
+          class="form-input"
+          placeholder="Enter email address">
+      </div>
+      
+      <div class="form-group">
+        <label for="language">Preferred chat language</label>
+        <select id="language" [(ngModel)]="preferredLanguage" class="form-select">
+          <option value="en">English</option>
+          <option value="es">Spanish</option>
+          <option value="fr">French</option>
+          <option value="de">German</option>
+          <option value="it">Italian</option>
+          <option value="pt">Portuguese</option>
+        </select>
+        <small class="help-text">
+          The language that inbound Inbox messages are translated to, available with the Enterprise Max add-on.
+        </small>
+      </div>
+      
+      <button class="btn btn-primary" (click)="saveAccountSettings()">
+        Save
+      </button>
+    </div>
+    
+    <div class="settings-section">
+      <h3>Notifications</h3>
+      
+      <div class="toggle-group">
+        <div class="toggle-item">
+          <label>Enable browser notifications</label>
+          <div class="toggle-switch" 
+               [class.active]="browserNotifications" 
+               (click)="toggleBrowserNotifications()">
+            <div class="toggle-slider"></div>
+          </div>
+        </div>
+        
+        <div class="toggle-item">
+          <label>Enable platform notifications</label>
+          <div class="toggle-switch" 
+               [class.active]="platformNotifications" 
+               (click)="togglePlatformNotifications()">
+            <div class="toggle-slider"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Change Workspace View -->
+<div *ngIf="currentView === 'changeWorkspace'" class="workspace-modal-container">
+  <div class="workspace-header">
+    <button class="back-button" (click)="goBack()">← Back</button>
+    <div class="logo-container">
+      <div class="logo">eclectics</div>
+    </div>
+    <button class="close-button" (click)="onClose()">×</button>
+  </div>
+  
+  <div class="workspace-content">
+    <h2>Select a workspace</h2>
+    <p class="subtitle">You are a member of the following workspaces</p>
+    
+    <div class="workspace-list">
+      <div 
+        *ngFor="let workspace of workspaces" 
+        class="workspace-item"
+        [class.active]="workspace.isActive"
+        (click)="selectWorkspace(workspace)">
+        <div class="workspace-avatar">
+          {{ workspace.initial }}
+        </div>
+        <div class="workspace-name">
+          {{ workspace.name }}
+        </div>
+      </div>
+    </div>
   </div>
 </div>
