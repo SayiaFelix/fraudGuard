@@ -46,19 +46,19 @@ tbody {
 .btn-link { background: none; border: none; color: #0d6efd; text-decoration: underline; cursor: pointer; padding: 0; text-align: left; &:hover { color: darken(#0d6efd, 10%); } }
 .channel-cell { display: flex; align-items: center; gap: 10px;
 .feather {
-    font-size: 20px; // Increased icon size
-    line-height: 1;  // Ensures vertical alignment
+    font-size: 20px; 
+    line-height: 1;  
   }
 
-  // Specific styles for each channel icon
-  .icon-message-square { // Web
-    color: #6f42c1; // A professional blue for web/general
+  
+  .icon-message-square { 
+    color: #6f42c1; 
   }
-  .icon-facebook { // Facebook
-    color: #1877F2; // Official Facebook blue
+  .icon-facebook { 
+    color: #1877F2; 
   }
-  .icon-phone { // WhatsApp (as per your ngClass)
-    color: #25D366; // Official WhatsApp green
+  .icon-phone { 
+    color: #25D366; 
   } }
 
 .toggle-switch {
