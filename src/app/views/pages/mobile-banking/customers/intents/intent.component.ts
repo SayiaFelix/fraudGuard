@@ -2442,7 +2442,6 @@ onTriggerSubmit(): void {
     return;
   }
 
-  //parent_id and order
   let parent_id: number;
   let order: number;
 
@@ -2454,7 +2453,7 @@ onTriggerSubmit(): void {
 
     order = this.getNextOrder(this.currentParent);
   } else {
-    // For root-level triggers - use intentId
+    // For root-level triggers
     parent_id = this.intentId;
     order = this.combinedItems.length > 0 
       ? this.getNextRootOrder() 
@@ -2521,11 +2520,6 @@ launchBot() {
   this.launchMessage = 'Preparing bot launch...';
 
   const chatbotId = this.globalService.getChatbotId();
-
-  // if (!chatbotId) {
-  //   Swal.fire('Error', 'Error: No ChatbotId specified', 'error');
-  //   return;
-  // }
 
   if (!chatbotId) {
     this.isLaunching = false;
