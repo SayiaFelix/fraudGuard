@@ -6,7 +6,7 @@ import { GlobalService } from 'src/app/shared/services/global.service';
 import { ToastrService } from 'ngx-toastr';
 import Swal from "sweetalert2";
 import { ActivatedRoute, Router } from '@angular/router'; 
-import { catchError, forkJoin, of, tap } from 'rxjs';
+import { catchError, forkJoin, Observable, of, tap } from 'rxjs';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 interface SurveyQuestion {
@@ -202,13 +202,16 @@ export class IntentComponent implements OnInit {
     allTriggers: any[] = [];
     teams: any[] = []; 
     isHovering = false;
+    editingItem: any = null;
+    isEditing: boolean = false;
+
 
     actionIcons: { [key: string]: string } = {
       send_message: 'icon-message-square',      
       send_file: 'icon-file-text',              
       http_request: 'icon-link',                 
-      webhook: 'icon-zap',                       
-      loop: 'icon-zap',                   
+      // webhook: 'icon-zap',                       
+      // loop: 'icon-zap',                   
       conditional: 'icon-code',                
       carousel: 'icon-layers',                   
       Jump_to_Trigger: 'icon-refresh-cw', 
@@ -266,7 +269,7 @@ ngOnInit() {
             description: [''],
             language: [''], 
         });
-    }
+  }
     
 surveyCompleted = false;
 triggerTypes = [
@@ -288,11 +291,11 @@ triggerTypes = [
 ];
 
 public submitData(): void {
-        if (this.formData) {
-            this.saveChanges();
+  if (this.formData) {
+    this.saveChanges();
         }
-        this.loading = true;
-    }
+  this.loading = true;
+}
 
 getFilePreview(file: File): SafeUrl {
   const url = URL.createObjectURL(file);
@@ -1175,36 +1178,56 @@ private isVariableConfig(config: any): config is VariableConfig {
   );
 }
 
+editAction(item: any): void {
+  console.log('Editing item:', item);
+  this.editingItem = item;
+  this.isEditing = true;
+  
+  if (item.itemType === 'action' || item.action_type) {
+    this.openActionForm(item);
+  } else {
+    this.openAiActionPanel(item);
+  }
+}
+
 openActionForm(action: any): void {
-  this.selectedActionType = action.type;
+  this.selectedActionType = action.action_type || action.type;
+  console.log('Selected action type:', this.selectedActionType);
+
   this.showActionForm = true;
   this.showActionType = false;
   this.showAiActionPanel = false;
 
+  if (this.isEditing && this.editingItem) {
+    action = this.editingItem;
+  }
+
   // Initialize form based on action type
-  switch(action.type) {
+  switch(this.selectedActionType) {
     case 'send_message':
       this.actionForm = this.fb.group({
+        id: [action.id || null], 
         name: [action.name || '', Validators.required],
         action_type: ['send_message', Validators.required],
-        message: ['', Validators.required]
+        message: [action.config?.message || '', Validators.required]
       });
       break;
 
      case 'send_file':
       this.actionForm = this.fb.group({
+        id: [action.id || null], 
         name: [action.name || '', Validators.required],
         action_type: ['send_file', Validators.required],
-        file_format: ['image', Validators.required],
-        source: ['upload', Validators.required], // Default to 'upload'
-        file_url: ['', [Validators.pattern('https?://.+')]],
-        chat_script: [''],
-        caption: ['']
+        file_format: [action.config?.file_type?.split('/')[0] || 'image', Validators.required],
+        source: [action.config?.source ? 'link' : 'upload', Validators.required],
+        file_url: [action.config?.file_url || '', [Validators.pattern('https?://.+')]],
+        chat_script: [action.config?.chat_script || ''],
+        caption: [action.config?.caption || '']
       });
 
       this.uploadedFile = null;
       
-      // Set up condition validation
+     // Set up condition validation
       this.actionForm.get('source')?.valueChanges.subscribe(source => {
         const fileUrlControl = this.actionForm.get('file_url');
         const chatScriptControl = this.actionForm.get('chat_script');
@@ -1225,6 +1248,7 @@ openActionForm(action: any): void {
         fileUrlControl?.updateValueAndValidity();
         chatScriptControl?.updateValueAndValidity();
       });
+
       break;
 
     case 'carousel':
@@ -1233,6 +1257,7 @@ openActionForm(action: any): void {
       this.carouselItemFiles = {};
       
       this.actionForm = this.fb.group({
+        id: [action.id || null], 
         name: [action.name || '', Validators.required],
         action_type: ['carousel', Validators.required],
         display_type: [action.config?.display_type || 'slider', Validators.required],
@@ -1245,6 +1270,7 @@ openActionForm(action: any): void {
       if (action.config?.items) {
         action.config.items.forEach((item: any, index: number) => {
           const itemGroup = this.fb.group({
+            id: [action.id || null], 
             title: [item.title || '', Validators.required],
             description: [item.description || ''],
             item_type: [item.item_type || 'image'],
@@ -1259,6 +1285,7 @@ openActionForm(action: any): void {
 
     case 'http_request':
       this.actionForm = this.fb.group({
+        id: [action.id || null], 
         name: [action.name || '', Validators.required],
         action_type: ['http_request', Validators.required],
         http_method: [action.config?.method || 'GET', Validators.required],         
@@ -1288,6 +1315,7 @@ openActionForm(action: any): void {
   
     case 'conditional':
       this.actionForm = this.fb.group({
+        id: [action.id || null],
         name: [action.name || '', Validators.required],
         action_type: ['conditional', Validators.required],
         condition: [action.config?.condition || '', Validators.required],
@@ -1297,17 +1325,9 @@ openActionForm(action: any): void {
       });
       break;
 
-    case 'loop':
-      this.actionForm = this.fb.group({
-        name: [action.name || '', Validators.required],
-        action_type: ['loop', Validators.required],
-        collection: ['', Validators.required],
-        action: ['', Validators.required]
-      });
-      break;
-
     case 'Jump_to_Trigger':
       this.actionForm = this.fb.group({
+        id: [action.id || null], 
         name: [action.name || '', Validators.required],
         action_type: ['Jump_to_Trigger', Validators.required],
         target_type: [action.config?.target_type || 'flow', Validators.required], 
@@ -1327,26 +1347,11 @@ openActionForm(action: any): void {
         : []
         )
       });
-
-      // carry variables if editing
-      if (action.config?.carry_variables?.length) {
-        action.config.carry_variables.forEach((v: any) => {
-          this.carryVariables.push(this.fb.control(v));
-        });
-      }
-      break;
-
-    case 'webhook':
-      this.actionForm = this.fb.group({
-        name: [action.name || '', Validators.required],
-        action_type: ['webhook', Validators.required],
-        url: ['', Validators.required],
-        payload: ['']
-      });
       break;
 
     case 'set_variable':
       this.actionForm = this.fb.group({
+        id: [action.id || null],
         name: [action.name || '', Validators.required],
         action_type: ['set_variable', Validators.required],
         variables: this.fb.array([]),
@@ -1371,11 +1376,32 @@ openActionForm(action: any): void {
       break;
 
     case 'survey':
-      this.initSurveyForm();
+       this.actionForm = this.fb.group({
+          id: [action.id || null],
+          name: [action?.name || 'Customer Feedback Survey', Validators.required],
+          action_type: ['survey', Validators.required],
+          config: this.fb.group({
+            questions: this.fb.array([]),
+            completion_message: [action?.config?.completion_message || 'Thank you for your feedback!'],
+            persist_responses: [action?.config?.persist_responses !== false]
+          })
+        });
+
+        // Initialize with existing questions if editing
+        if (action?.config?.questions?.length) {
+          action.config.questions.forEach((q: SurveyQuestion) => {
+            this.addSurveyQuestion(q);
+          });
+        } else {
+          this.addSurveyQuestion(); 
+        }
+
+      // this.initSurveyForm();
       break;
     
     case 'create_ticket':
       this.actionForm = this.fb.group({
+        id: [action.id || null], 
         name: [action.name || '', Validators.required],
         action_type: ['create_ticket', Validators.required],
         ticket_type: ['', Validators.required],
@@ -1418,6 +1444,8 @@ openActionForm(action: any): void {
         action_type: [action.type || '', Validators.required]
       });
   }
+
+  console.log('Form values after initialization:', this.actionForm.value);
 }
 
 createSurveyForm() {
@@ -1439,33 +1467,10 @@ get surveyQuestions(): FormArray {
   return (this.actionForm.get('config.questions') as FormArray);
 }
 
-initSurveyForm(action?: any) {
-  this.actionForm = this.fb.group({
-    name: [action?.name || 'Customer Feedback Survey', Validators.required],
-    action_type: ['survey', Validators.required],
-    config: this.fb.group({
-      questions: this.fb.array([]),
-      completion_message: [action?.config?.completion_message || 'Thank you for your feedback!'],
-      persist_responses: [action?.config?.persist_responses !== false]
-    })
-  });
-
-  // Initialize with existing questions if editing
-  if (action?.config?.questions?.length) {
-    action.config.questions.forEach((q: SurveyQuestion) => {
-      this.addSurveyQuestion(q);
-    });
-  } else {
-    this.addSurveyQuestion(); 
-  }
-}
-
 addSurveyQuestion(question?: SurveyQuestion) {
   // Safely get the questions FormArray
   const questions = this.actionForm?.get('config.questions') as FormArray;
-  
   if (!questions) {
-    console.error('Questions FormArray not found!');
     return;
   }
 
@@ -1527,10 +1532,12 @@ updateQuestionValidation(index: number) {
 
 resetSurveyForm() {
   const questions = this.surveyQuestions;
-  while (questions.length > 0) {
-    questions.removeAt(0);
+  if (questions && questions.length > 0) {
+    while (questions.length !== 0) {
+      questions.removeAt(0);
+    }
   }
-  this.addSurveyQuestion(); 
+  this.addSurveyQuestion();
 }
 
 getQuestionControl(question: AbstractControl, path: string): FormControl {
@@ -1610,6 +1617,311 @@ shouldShowRootButtons(): boolean {
 }
 
 onActionSubmit(): void {
+  if (!this.actionForm.valid) {
+    this.markFormGroupTouched(this.actionForm);
+    return;
+  }
+
+  const isEditing = this.isEditing && this.editingItem;
+  const actionId = isEditing ? this.editingItem.id : null;
+
+  if (isEditing) {
+    this.updateAction(actionId);
+  } else {
+    this.createNewAction();
+  }
+}
+
+prepareFormData(isEditing: boolean): any {
+  const formValue = this.actionForm.value;
+  const baseData: any = {
+    name: formValue.name,
+    action_type: formValue.action_type
+  };
+
+  // Include ID only when editing
+  if (isEditing) {
+    baseData.id = formValue.id;
+  }
+
+  switch (formValue.action_type) {
+    case 'send_message':
+      baseData.config = {
+        message: formValue.message,
+        quick_replies: this.quickReplies.value || []
+      };
+      break;
+
+    case 'http_request':
+      const headersObj: { [key: string]: string } = {};
+      if (this.headers && this.headers.controls) {
+        this.headers.controls.forEach(headerGroup => {
+          const key = headerGroup.get('key')?.value?.trim();
+          const value = headerGroup.get('value')?.value?.trim();
+          if (key && value) {
+            headersObj[key] = value;
+          }
+        });
+      }
+
+      let parsedBody = {};
+      if (formValue.request_body) {
+        try {
+          parsedBody = JSON.parse(formValue.request_body);
+        } catch (e) {
+          console.error('Invalid JSON in request body:', e);
+          parsedBody = {};
+        }
+      }
+
+      baseData.config = {
+        url: formValue.url,
+        method: formValue.http_method,
+        headers: headersObj,
+        body: parsedBody,
+        timeout: formValue.timeout,
+        retry_policy: {
+          attempts: formValue.retry_attempts,
+          delay: formValue.retry_delay
+        }
+      };
+      break;
+
+    case 'conditional':
+      baseData.config = {
+        condition: formValue.condition,
+        true_steps: this.trueSteps?.controls?.map(control => control.value) || [],
+        false_steps: this.falseSteps?.controls?.map(control => control.value) || [],
+        context_map: formValue.context_map || {}
+      };
+      break;
+
+    case 'Jump_to_Trigger':
+      let parsedContextUpdates = {};
+      try {
+        parsedContextUpdates = formValue.context_updates
+          ? JSON.parse(formValue.context_updates)
+          : {};
+      } catch (e) {
+        console.error("Invalid JSON in context_updates", e);
+        parsedContextUpdates = {};
+      }
+
+      baseData.config = {
+        target_type: formValue.target_type,
+        target: formValue.target,
+        condition: {
+          expression: formValue.condition?.expression,
+          negate: formValue.condition?.negate || false
+        },
+        context_updates: parsedContextUpdates,
+        carry_variables: this.carryVariables?.value?.filter((v: string) => v.trim() !== '')?.map((v: string) => v.trim()) || []
+      };
+      break;
+
+    case 'set_variable':
+      const variablesObj: Record<string, any> = {};
+      if (this.variables && this.variables.controls) {
+        this.variables.controls.forEach(variableGroup => {
+          const varName = variableGroup.get('name')?.value;
+          const source = variableGroup.get('source')?.value;
+          
+          if (!varName) return;
+
+          variablesObj[varName] = {
+            source,
+            ...(source === 'static' && { value: variableGroup.get('value')?.value }),
+            ...(source === 'expression' && { expression: variableGroup.get('expression')?.value }),
+            ...(source === 'context' && { context_key: variableGroup.get('context_key')?.value })
+          };
+        });
+      }
+
+      baseData.config = {
+        variables: variablesObj,
+        overwrite: formValue.overwrite,
+        clear_on_session_end: formValue.clear_on_session_end
+      };
+      break;
+
+    case 'survey':
+      const questions = formValue.config?.questions || [];
+      baseData.config = {
+        questions: questions.map((q: any, idx: number) => {
+          const question: any = {
+            id: q.id || `q${idx + 1}`,
+            text: q.text?.trim(),
+            type: q.type,
+            required: !!q.required
+          };
+
+          if (q.type === 'number') {
+            question.validation = {
+              min: q.validation?.min ?? 1,
+              max: q.validation?.max ?? 5
+            };
+          }
+
+          if (q.type === 'choice') {
+            const opts = q.options
+              ? q.options.split(',').map((opt: string) => opt.trim()).filter(Boolean)
+              : [];
+            if (opts.length === 0) {
+              opts.push('Option 1');
+            }
+            question.options = opts;
+          }
+
+          return question;
+        }),
+        completion_message: formValue.config?.completion_message?.trim() || 'Thank you for your feedback!',
+        persist_responses: formValue.config?.persist_responses !== false
+      };
+      break;
+
+    case 'human_handoff':
+      baseData.config = {
+        mode: formValue.mode,
+        team_id: Number(formValue.team_id),
+        priority: Number(formValue.priority),
+        handoff_message: formValue.handoff_message?.trim(),
+        required_context: this.requiredContext?.value?.filter((ctx: string) => ctx.trim()) || [],
+        fallback_options: {
+          delay: Number(formValue.fallback_options?.delay),
+          fallback_message: formValue.fallback_options?.fallback_message?.trim()
+        }
+      };
+      break;
+
+    default:
+      baseData.config = formValue.config || {};
+  }
+
+  return baseData;
+}
+
+private prepareMultipartFormData(isEditing: boolean): FormData {
+  const formValue = this.actionForm.value;
+  const formData = new FormData();
+
+  // fields
+  formData.append('name', formValue.name);
+  formData.append('action_type', formValue.action_type);
+  
+  if (isEditing && formValue.id) {
+    formData.append('action_id', formValue.id.toString());
+  }
+
+  switch (formValue.action_type) {
+    case 'send_file':
+      const sendFileConfig: {
+        name: any;
+        caption: any;
+        source_type: any;
+        file_url?: string;
+        chat_script?: string;
+        file_type?: string;
+      } = {
+        name: formValue.name,
+        caption: formValue.caption || '',
+        source_type: formValue.source
+      };
+
+      if (formValue.source === 'link') {
+        sendFileConfig.file_url = formValue.file_url;
+      } else if (formValue.source === 'chat_script') {
+        sendFileConfig.chat_script = formValue.chat_script;
+      } else if (formValue.source === 'upload' && this.uploadedFile) {
+        // Add the file to FormData
+        formData.append('files', this.uploadedFile);
+        sendFileConfig.file_type = this.uploadedFile.type;
+      }
+
+      formData.append('config', JSON.stringify(sendFileConfig));
+      break;
+
+    case 'carousel':
+      const carouselConfig = {
+        name: formValue.name,
+        display_type: formValue.display_type,
+        auto_advance: formValue.auto_advance,
+        advance_interval: formValue.advance_interval,
+        style: {
+          card_width: "300px",
+          max_height: "400px",
+          show_indicators: true,
+          show_controls: true,
+        },
+        items: this.carouselItems.value.map((item: any, index: number) => ({
+          title: item.title || `Item ${index + 1}`,
+          description: item.description || '',
+          item_type: item.item_type || 'image',
+          file_name: this.carouselItemFiles[index]?.name || '',
+          ...(item.action_url ? { action_url: item.action_url } : {})
+        }))
+      };
+
+      formData.append('config', JSON.stringify(carouselConfig));
+
+      // Add all carousel item files
+      Object.entries(this.carouselItemFiles).forEach(([index, file]) => {
+        if (file) {
+          const safeIndex = index.padStart(3, '0');
+          const extension = file.name.split('.').pop() || '';
+          formData.append('files', file, `item_${safeIndex}.${extension}`);
+        }
+      });
+      break;
+
+    default:
+      // Fallback for other multipart types
+      const config = this.prepareFormData(isEditing).config;
+      formData.append('config', JSON.stringify(config));
+  }
+
+  return formData;
+}
+
+updateAction(actionId: number): void {
+  const isMultipart = this.actionForm.value.action_type === 'send_file' || this.actionForm.value.action_type === 'carousel';
+  
+  let endpoint = 'builder/nodes/action/update';
+  let payload: any;
+  let serviceCall: Observable<any>;
+
+  if (isMultipart) {
+    endpoint = 'builder/nodes/action-multipart/update';
+    // For multipart,
+    payload = this.prepareMultipartFormData(true);
+    serviceCall = this._httpService.mobileBankingPostFormData(endpoint, payload);
+  } else {
+    // For non-multipart,
+    payload = this.prepareFormData(true);
+    serviceCall = this._httpService.mobileBankingPost(endpoint, payload);
+  }
+
+  console.log('Updating action with data:', payload);
+
+  serviceCall.subscribe({
+    next: (res: any) => {
+      if (res.status === '00') {
+        this.fetchNestedIntents(this.intentId);
+        Swal.fire('Success', res.message || "Action updated successfully !!!!", 'success');
+        this.resetForm();
+        this.resetSurveyForm();
+      } else {
+        Swal.fire('Error', res.message || 'Failed to update action', 'error');
+      }
+    },
+    error: (err: any) => {
+      console.error('Error updating action:', err);
+      Swal.fire('Error', 'Failed to update action', 'error');
+    }
+  });
+}
+
+
+createNewAction(): void {
   if (!this.actionForm.valid) {
     this.markFormGroupTouched(this.actionForm);
     return;
@@ -1711,18 +2023,6 @@ onActionSubmit(): void {
         }
       };
       this.submitAction(conditionalModel);
-      break;
-
-    case 'loop':
-      const loopModel = {
-        ...baseModel,
-        config: {
-          collection: this.actionForm.value.collection,
-          action: this.actionForm.value.action,
-          max_iterations: this.actionForm.value.max_iterations || 100
-        }
-      };
-      this.submitAction(loopModel);
       break;
 
     case 'carousel':
@@ -2286,6 +2586,8 @@ private resetForm(): void {
     this.showActionType = false;
     this.showTriggerType = false;
     this.showAiActionPanel = false;
+    this.isEditing = false;
+   this.editingItem = null;
     this.actionForm.reset({ action_type: 'send_message', name: '', message: '' });
     this.triggerForm.reset({ name: '', description: '', training_phrases: [''] });
     const trainingPhrases = this.triggerForm.get('training_phrases') as FormArray;

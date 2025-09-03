@@ -103,7 +103,8 @@
                   <div class="list-group-item d-flex justify-content-between align-items-center">
                     <div>
                       <i class="feather {{ actionIcons[action.action_type] || 'icon-message-square' }} me-1 fw-bold" style="font-size: 16px;"></i>
-                      <strong>#{{ action.id }} {{ action.name }}</strong>
+                      <!-- <strong>#{{ action.id }} {{ action.name }}</strong> -->
+                       <strong (click)="editAction(action)" style="cursor: pointer;">#{{ action.id }} {{ action.name }}</strong>
                       <span class="badge bg-primary ms-2">Action</span>
                     </div>
                     <div class="form-check form-switch">
@@ -131,7 +132,8 @@
                     <div class="list-group-item d-flex justify-content-between align-items-center">
                       <div>
                          <i class="feather {{ getTriggerIcon(trigger.type) }} me-2 fw-bold" ></i>
-                        <strong>#{{ trigger.id }} {{ trigger.name }}</strong>
+                        <!-- <strong>#{{ trigger.id }} {{ trigger.name }}</strong> -->
+                        <strong (click)="editAction(trigger)" style="cursor: pointer;">#{{ trigger.id }} {{ trigger.name }}</strong>
                         <span class="badge bg-info ms-2">Trigger</span>
                       </div>
                       <div class="form-check form-switch">
@@ -165,7 +167,8 @@
                           <div class="list-group-item d-flex justify-content-between align-items-center">
                             <div [style.padding-left.px]="20">
                               <i class="feather {{ actionIcons[action.type] || 'icon-message-square' }} me-1 fw-bold" style="font-size: 16px;"></i>
-                              <strong>#{{ action.id }} {{ action.name }}</strong>
+                              <!-- <strong>#{{ action.id }} {{ action.name }}</strong> -->
+                                 <strong (click)="editAction(action)" style="cursor: pointer;">#{{ action.id }} {{ action.name }}</strong>
                               <span class="badge bg-primary ms-2">Action</span>
                             </div>
                             <div class="form-check form-switch">
@@ -194,7 +197,8 @@
                           <div class="list-group-item d-flex justify-content-between align-items-center">
                             <div [style.padding-left.px]="20">
                               <i class="feather {{ getTriggerIcon(trigger.type) }} me-2 fw-bold"></i>
-                              <strong>#{{ childTrigger.id }} {{ childTrigger.name }}</strong>
+                              <!-- <strong>#{{ childTrigger.id }} {{ childTrigger.name }}</strong> -->
+                               <strong (click)="editAction(childTrigger)" style="cursor: pointer;">#{{ childTrigger.id }} {{ childTrigger.name }}</strong>
                               <span class="badge bg-info ms-2">Trigger</span>
                             </div>
                             <div class="form-check form-switch">
@@ -228,7 +232,8 @@
                                 <div class="list-group-item d-flex justify-content-between align-items-center">
                                   <div [style.padding-left.px]="40">
                                     <i class="feather {{ actionIcons[action.type] || 'icon-message-square' }} me-1 fw-bold" style="font-size: 16px;"></i>
-                                    <strong>#{{ action.id }} {{ action.name }}</strong>
+                                    <!-- <strong>#{{ action.id }} {{ action.name }}</strong> -->
+                                     <strong (click)="editAction(action)" style="cursor: pointer;">#{{ action.id }} {{ action.name }}</strong>
                                     <span class="badge bg-primary ms-2">Action</span>
                                   </div>
                                   <div class="form-check form-switch">
