@@ -1,13 +1,28 @@
 // Theme colors
-$primary-blue: #4285f4;
+$primary-blue: #007bff;
 $light-blue: #e8f0fe;
-$dark-bg: #1a1a1a;
+$teal: #009688;
+$light-teal: #e0f2f1;
 $text-primary: #333333;
 $text-secondary: #666666;
 $border-color: #e1e5e9;
 $hover-bg: #f5f7fa;
 $white: #ffffff;
 $danger-red: #dc3545;
+
+// Dark theme colors
+$dark-bg: #1a1a1a;
+$dark-card: #2d2d2d;
+$dark-text-primary: #f0f0f0;
+$dark-text-secondary: #b0b0b0;
+$dark-border: #404040;
+$dark-hover: #3a3a3a;
+
+// Animation definition
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
 
 :host {
   position: fixed;
@@ -30,261 +45,417 @@ $danger-red: #dc3545;
   background-color: rgba(0, 0, 0, 0.5);
 }
 
+// Main Settings Modal
 .modal-container {
   position: relative;
   background: $white;
-  border-radius: 12px;
-  width: 400px;
+  border-radius: 10px;
+  width: 320px;
   max-width: 90%;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   z-index: 1001;
   animation: fadeIn 0.3s ease-out;
   overflow: hidden;
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
 
-  // User Profile Section
-  .user-profile {
-    padding: 20px;
-    background: $primary-blue;
-    color: $white;
-    display: flex;
-    align-items: center;
-    gap: 16px;
+  :host-context(.theme-dark) & {
+    background: $dark-card;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  }
+}
+
+// Settings and Workspace Modals
+.settings-modal-container,
+.workspace-modal-container {
+  position: relative;
+  background: $white;
+  border-radius: 10px;
+  width: 600px;
+  max-width: 90%;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  z-index: 1001;
+  animation: fadeIn 0.3s ease-out;
+
+  :host-context(.theme-dark) & {
+    background: $dark-card;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    color: $dark-text-primary;
+  }
+}
+
+.workspace-modal-container {
+  width: 400px;
+}
+
+// User Profile Section (Main Modal)
+.user-profile {
+  padding: 12px 16px;
+  background: $primary-blue;
+  color: $white;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+
+  .user-avatar {
     position: relative;
-
-    .user-avatar {
-      position: relative;
-      width: 48px;
-      height: 48px;
-      background: $white;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-      font-size: 16px;
-
-      .avatar-text {
-        color: $primary-blue;
-      }
-
-      .status-indicator {
-        position: absolute;
-        bottom: -2px;
-        right: -2px;
-        width: 14px;
-        height: 14px;
-        background: #4ade80; // Green for online
-        border-radius: 50%;
-        border: 2px solid $primary-blue;
-      }
-    }
-
-    .user-info {
-      flex: 1;
-
-      .user-name {
-        font-weight: 600;
-        font-size: 18px;
-        margin-bottom: 4px;
-      }
-
-      .user-email {
-        font-size: 14px;
-        color: #b0b0b0;
-      }
-    }
-
-    .close-button {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      background: none;
-      border: none;
-      font-size: 24px;
-      cursor: pointer;
-      color: #b0b0b0;
-      padding: 4px;
-      line-height: 1;
-
-      &:hover {
-        color: $white;
-      }
-    }
-  }
-
-  // Sections
-  .section {
-    padding: 20px;
-    border-bottom: 1px solid $border-color;
-
-    .section-title {
-      font-size: 16px;
-      font-weight: 600;
-      color: $text-primary;
-      margin-bottom: 16px;
-    }
-
-    // Status Options
-    .status-options {
-      display: flex;
-      gap: 12px;
-
-      .status-button {
-        flex: 1;
-        padding: 12px 20px;
-        border: 1px solid $border-color;
-        background: $white;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 500;
-        color: $text-primary;
-        cursor: pointer;
-        transition: all 0.2s ease;
-
-        &:hover {
-          background: $hover-bg;
-          border-color: $primary-blue;
-        }
-
-        &.active {
-          background: $primary-blue;
-          color: $white;
-          border-color: $primary-blue;
-        }
-      }
-    }
-
-    // Theme Options
-    .theme-options {
-      display: flex;
-      gap: 8px;
-
-      .theme-button {
-        flex: 1;
-        padding: 12px 8px;
-        border: 1px solid $border-color;
-        background: $white;
-        border-radius: 8px;
-        font-size: 12px;
-        font-weight: 500;
-        color: $text-primary;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 6px;
-
-        .theme-icon {
-          font-size: 18px;
-        }
-
-        &:hover {
-          background: $hover-bg;
-          border-color: $primary-blue;
-        }
-
-        &.active {
-          background: $primary-blue;
-          color: $white;
-          border-color: $primary-blue;
-        }
-      }
-    }
-  }
-
-  // Menu Options
-  .menu-options {
-    padding: 12px 0;
-
-    .menu-item {
-      width: 100%;
-      padding: 16px 20px;
-      border: none;
-      background: none;
-      text-align: left;
-      font-size: 15px;
-      font-weight: 500;
-      color: $text-primary;
-      cursor: pointer;
-      transition: background-color 0.2s ease;
-      display: block;
-
-      &:hover {
-        background: $hover-bg;
-      }
-    }
-  }
-
-  // Modal Footer
-  .modal-footer {
-    padding: 20px;
-    border-top: 1px solid $border-color;
+    width: 36px;
+    height: 36px;
+    background: $white;
+    border-radius: 6px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+    flex-shrink: 0;
 
-    .footer-buttons {
-      display: flex;
-      gap: 12px;
+    .avatar-text { color: $primary-blue; }
+
+    .status-indicator {
+      position: absolute;
+      bottom: -1px;
+      right: -1px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 2px solid $primary-blue;
     }
+  }
 
-    .btn {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s ease;
+  .user-info {
+    flex: 1;
+    .user-name { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
+    .user-email { font-size: 12px; color: #d1d5db; }
+  }
+}
 
-      &.btn-primary {
-        background: $primary-blue;
-        color: $white;
+// Shared Close Button
+.close-button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: $text-secondary;
+  padding: 4px;
+  line-height: 1;
 
-        &:hover {
-          background: darken($primary-blue, 8%);
-        }
-      }
+  :host-context(.theme-dark) & { color: $dark-text-secondary; }
+  &:hover {
+    color: $text-primary;
+    :host-context(.theme-dark) & { color: $dark-text-primary; }
+  }
+}
 
-      &.btn-teal {
-        background: #20b2aa;
-        color: $white;
+// Headers for Settings Modals
+.settings-header,
+.workspace-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid $border-color;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  flex-shrink: 0;
 
-        &:hover {
-          background: darken(#20b2aa, 8%);
-        }
-      }
+  :host-context(.theme-dark) & { border-bottom-color: $dark-border; }
 
-      &.btn-secondary {
-        background: #f8f9fa;
-        color: $text-primary;
-        border: 1px solid $border-color;
+  .back-button {
+    background: none; border: none; font-size: 14px;
+    cursor: pointer; color: $text-secondary; padding: 4px 8px;
+    border-radius: 4px; font-weight: 500;
+    
+    :host-context(.theme-dark) & { color: $dark-text-secondary; }
+    &:hover {
+      background: $hover-bg;
+      :host-context(.theme-dark) & { background: $dark-hover; }
+    }
+  }
 
-        &:hover {
-          background: $hover-bg;
-        }
-      }
-
-      &.btn-danger {
-        background: $danger-red;
-        color: $white;
-
-        &:hover {
-          background: darken($danger-red, 8%);
-        }
-      }
+  h2 {
+    margin: 0; font-size: 18px; font-weight: 600;
+    color: $text-primary; flex: 1;
+    :host-context(.theme-dark) & { color: $dark-text-primary; }
+  }
+  
+  .logo-container {
+    flex: 1; text-align: center;
+    .logo {
+      font-size: 24px; font-weight: bold; color: $text-primary;
+      :host-context(.theme-dark) & { color: $dark-text-primary; }
     }
   }
 }
 
-@keyframes fadeIn {
-  from { 
-    opacity: 0; 
-    transform: scale(0.9); 
+// Content Areas
+.settings-content,
+.workspace-content {
+  padding: 24px;
+  overflow-y: auto;
+
+  h2 {
+    margin: 0 0 8px 0; font-size: 24px; font-weight: 600;
+    color: $text-primary;
+    :host-context(.theme-dark) & { color: $dark-text-primary; }
   }
-  to { 
-    opacity: 1; 
-    transform: scale(1); 
+
+  .subtitle {
+    color: $text-secondary; margin-bottom: 24px; font-size: 14px;
+    :host-context(.theme-dark) & { color: $dark-text-secondary; }
   }
+}
+
+// Sections (Main Modal)
+.section {
+  padding: 12px 16px;
+  border-bottom: 1px solid $border-color;
+  :host-context(.theme-dark) & { border-bottom-color: $dark-border; }
+
+  .section-title {
+    font-size: 13px; font-weight: 600; color: $text-primary;
+    margin-bottom: 10px;
+    :host-context(.theme-dark) & { color: $dark-text-primary; }
+  }
+}
+
+// Status & Theme Options
+.status-options, .theme-options {
+  display: flex;
+  gap: 6px;
+}
+
+.status-button, .theme-button {
+  flex: 1; padding: 8px 10px;
+  border: 1px solid $border-color; background: $white;
+  border-radius: 6px; font-size: 12px; font-weight: 500;
+  color: $text-primary; cursor: pointer;
+  transition: all 0.2s ease; display: flex;
+  align-items: center; gap: 6px; justify-content: center;
+
+  :host-context(.theme-dark) & {
+    background: $dark-bg; border-color: $dark-border;
+    color: $dark-text-primary;
+  }
+
+  &:hover {
+    background: $hover-bg; border-color: darken($border-color, 10%);
+    :host-context(.theme-dark) & { background: $dark-hover; }
+  }
+
+  &.active {
+    background: $light-blue; color: $primary-blue;
+    border-color: $primary-blue;
+    :host-context(.theme-dark) & {
+        background: lighten($dark-hover, 5%);
+        color: $white;
+    }
+  }
+}
+.status-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+// Menu Options
+.menu-options {
+  padding: 8px 0;
+  border-bottom: 1px solid $border-color;
+  :host-context(.theme-dark) & { border-bottom-color: $dark-border; }
+
+  .menu-item {
+    display: block; width: 100%; text-align: left;
+    background: none; border: none;
+    padding: 10px 16px; font-size: 13px; cursor: pointer;
+    color: $text-primary;
+    :host-context(.theme-dark) & { color: $dark-text-primary; }
+    &:hover {
+      background: $hover-bg;
+      :host-context(.theme-dark) & { background: $dark-hover; }
+    }
+  }
+}
+
+// Modal Footer
+.modal-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background-color: #f9fafb;
+  border-top: 1px solid $border-color;
+  :host-context(.theme-dark) & {
+    background: $dark-bg;
+    border-top-color: $dark-border;
+  }
+}
+
+// General Button Styles
+.btn {
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  
+  &.btn-primary {
+    background-color: $primary-blue;
+    color: $white;
+    &:hover { opacity: 0.9; }
+  }
+
+  &.btn-teal {
+    background-color: $light-teal;
+    color: $teal;
+    border-color: $teal;
+    &:hover { filter: brightness(95%); }
+  }
+
+  &.btn-outline {
+    border-color: $border-color;
+    background: $white;
+    color: $text-primary;
+    :host-context(.theme-dark) & {
+      border-color: $dark-border;
+      background: $dark-card;
+      color: $dark-text-primary;
+    }
+    &:hover { background: $hover-bg; }
+  }
+
+  &.btn-text {
+    background: none; border: none; color: $danger-red;
+    &:hover { text-decoration: underline; }
+  }
+}
+
+// Settings Forms
+.settings-section {
+  border-bottom: 1px solid $border-color;
+  padding-bottom: 24px; margin-bottom: 24px;
+  &:last-child { border-bottom: none; margin-bottom: 0; }
+  :host-context(.theme-dark) & { border-bottom-color: $dark-border; }
+
+  h3 {
+    margin: 0 0 20px 0; font-size: 16px; font-weight: 600;
+  }
+}
+
+.form-group {
+  margin-bottom: 20px;
+  label {
+    display: block; font-weight: 500; margin-bottom: 8px; font-size: 14px;
+  }
+  .help-text {
+    font-size: 12px; color: $text-secondary; margin-top: 6px; display: block;
+    :host-context(.theme-dark) & { color: $dark-text-secondary; }
+  }
+}
+
+.form-input, .form-select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid $border-color;
+  background: $white;
+  color: $text-primary;
+  &:focus {
+    outline: none;
+    border-color: $primary-blue;
+    box-shadow: 0 0 0 1px $primary-blue;
+  }
+  :host-context(.theme-dark) & {
+    background: $dark-bg;
+    border-color: $dark-border;
+    color: $dark-text-primary;
+  }
+}
+.form-row { display: flex; gap: 16px; }
+.half-width { flex: 1; }
+
+// Profile Picture Upload
+.profile-upload {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.profile-preview {
+  width: 64px; height: 64px;
+  background: $hover-bg;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; font-weight: 600;
+  color: $text-secondary;
+  :host-context(.theme-dark) & { background: $dark-hover; color: $dark-text-secondary; }
+}
+.upload-actions { display: flex; flex-direction: column; gap: 8px; }
+
+// Toggle Switch
+.toggle-group { display: flex; flex-direction: column; gap: 16px; }
+.toggle-item { display: flex; justify-content: space-between; align-items: center; }
+.toggle-switch {
+  width: 44px; height: 24px;
+  background: $border-color;
+  border-radius: 12px;
+  padding: 2px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  :host-context(.theme-dark) & { background: $dark-border; }
+
+  &.active {
+    background: $primary-blue;
+    .toggle-slider { transform: translateX(20px); }
+  }
+}
+.toggle-slider {
+  width: 20px; height: 20px;
+  background: $white;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+
+// Workspace List
+.workspace-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.workspace-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid $border-color;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  :host-context(.theme-dark) & { border-color: $dark-border; }
+
+  &:hover {
+    background: $hover-bg;
+    border-color: darken($border-color, 10%);
+    :host-context(.theme-dark) & { background: $dark-hover; }
+  }
+
+  &.active {
+    border-color: $primary-blue;
+    background: $light-blue;
+    box-shadow: 0 0 0 1px $primary-blue;
+    :host-context(.theme-dark) & { background: lighten($dark-hover, 5%); }
+  }
+}
+.workspace-avatar {
+  width: 40px; height: 40px;
+  background: $hover-bg;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 600;
+  color: $text-secondary;
+  margin-right: 12px;
+  :host-context(.theme-dark) & { background: $dark-hover; color: $dark-text-secondary; }
+}
+.workspace-name {
+  font-weight: 500;
+  color: $text-primary;
+  :host-context(.theme-dark) & { color: $dark-text-primary; }
 }
