@@ -56,23 +56,43 @@
     <!-- Panel Body -->
       <div *ngIf="!isCollapsed" class="panel-body p-3 d-flex flex-column flex-grow-1" style="overflow: hidden;">
         <div class="chat-window flex-grow-1 mb-2 overflow-auto px-2" #chatContainer>
-          <div *ngFor="let msg of messages; let i = index" class="mb-2">
-            <div
-              [ngClass]="{
-                'd-flex justify-content-end': msg.sender === 'user',
-                'd-flex justify-content-start': msg.sender === 'bot'
-              }"
-              class="align-items-end"
-            >
-              <div class="message-wrapper d-flex flex-column align-items-start" *ngIf="msg.sender === 'bot'">
-                <div class="bubble bot d-flex align-items-center">
+
+          <div *ngFor="let msg of messages" class="mb-2">
+            <div [ngClass]="{
+                  'd-flex justify-content-end': msg.sender === 'user',
+                  'd-flex justify-content-start': msg.sender === 'bot'
+                }">
+                
+              <!-- Bot message -->
+              <div *ngIf="msg.sender === 'bot'" class="message-wrapper d-flex flex-column align-items-start">
+                
+                <!-- Text bubble -->
+                <div *ngIf="msg.type === 'text'" class="bubble bot d-flex align-items-center">
                   <i class="fas fa-robot me-2 text-secondary"></i>
                   <span>{{ msg.text }}</span>
                 </div>
+
+                <!-- File bubble -->
+                <div *ngIf="msg.type === 'file'" class="bubble bot d-flex flex-column align-items-start">
+                  <i class="fas fa-robot me-2 text-secondary"></i>
+                  <img *ngIf="msg.fileUrl && (msg.fileUrl.endsWith('.jpg') || msg.fileUrl.endsWith('.jpeg') || msg.fileUrl.endsWith('.png') || msg.fileUrl.endsWith('.gif') || msg.fileUrl.endsWith('.webp'))"
+                      [src]="msg.fileUrl"
+                      alt="file"
+                      class="img-fluid rounded mb-1"
+                      style="max-width: 200px;">
+                  <a *ngIf="msg.fileUrl && !(msg.fileUrl.endsWith('.jpg') || msg.fileUrl.endsWith('.jpeg') || msg.fileUrl.endsWith('.png') || msg.fileUrl.endsWith('.gif') || msg.fileUrl.endsWith('.webp'))"
+                    [href]="msg.fileUrl" target="_blank">
+                    <i class="upload-icon mdi mdi-cloud-upload fs-1 text-primary"></i>
+                      Download File
+                  </a>
+                  <small *ngIf="msg.caption">{{ msg.caption }}</small>
+                </div>
+
                 <small class="text-dark mt-1 ms-4">{{ msg.time | date: 'shortTime' }}</small>
               </div>
 
-              <div class="message-wrapper d-flex flex-column align-items-end" *ngIf="msg.sender === 'user'">
+              <!-- User message -->
+              <div *ngIf="msg.sender === 'user'" class="message-wrapper d-flex flex-column align-items-end">
                 <div class="bubble user d-flex align-items-center">
                   <span>{{ msg.text }}</span>
                   <i class="fas fa-user ms-2 text-secondary"></i>

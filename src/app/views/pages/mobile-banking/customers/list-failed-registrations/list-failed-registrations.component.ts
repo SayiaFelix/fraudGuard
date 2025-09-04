@@ -20,8 +20,18 @@ import {
 } from '@angular/animations';
 import { GlobalService } from 'src/app/shared/services/global.service';
 
+// flexible interface for messages
+interface ChatMessage {
+  sender: 'bot' | 'user';
+  type: 'text' | 'file';
+  text?: string;         // optional for text messages
+  fileUrl?: string;      // optional for file messages
+  caption?: string;      // optional caption for file
+  time: Date;
+}
+
 @Component({
-  selector: 'app-list-internet-banking',
+  selector: 'app-list-failed-registrations',
   templateUrl: './list-failed-registrations.component.html',
   styleUrls: ['./list-failed-registrations.component.scss'],
   providers: [DatePipe],
@@ -46,25 +56,35 @@ import { GlobalService } from 'src/app/shared/services/global.service';
   ]
 })
 
-/**
- * Starter-component
- */
 export class ListFailedRegistrationsComponent implements OnInit {
+
   @ViewChild('table') table: DatatableComponent;
   @ViewChild('chatContainer') chatContainer!: ElementRef;
 
+  isCollapsed: boolean = false;
+  isDefaultRouteActive = false;
 
-isCollapsed: boolean = false;
-isDefaultRouteActive = false;
+  userMessage = '';
+  messages: ChatMessage[] = [];  // ✅ use interface here
 
-userMessage = '';
-messages: { sender: 'bot' | 'user'; text: string; time: Date }[] = [];
-
-chatbotData: any = null;
-sessionId = 'test-session-001';
-isTyping = false;
+  chatbotData: any = null;
+  sessionId = 'test-session-001';
+  isTyping = false;
 
 
+  private apiBaseUrl = 'http://130.61.111.65:5040/api'; 
+
+
+
+// isCollapsed: boolean = false;
+// isDefaultRouteActive = false;
+
+// userMessage = '';
+// messages: { sender: 'bot' | 'user'; text: string; time: Date }[] = [];
+
+// chatbotData: any = null;
+// sessionId = 'test-session-001';
+// isTyping = false;
 
   tempProductData = [
     {
@@ -174,13 +194,15 @@ isTyping = false;
       this.messages.push({
         sender: 'bot',
         text: this.chatbotData.welcome_message,
-        time: new Date()
+        time: new Date(),
+        type: 'text'
       });
     } else {
       this.messages.push({
         sender: 'bot',
         text: '⚠️ Please create a chatbot before starting a test.',
-        time: new Date()
+        time: new Date(),
+        type: 'text'
       });
     }
 
@@ -222,11 +244,8 @@ onBotSelect(event: any) {
   // console.log('Selected Bot ID:', botId);
   this.globalService.setChatbotId(botId);
 
-  
-  
   const selectedBot = this.agentList.find(bot => bot.id === botId);
  
-  
    if (selectedBot) {
     this.chatbotData = selectedBot;
     this.globalService.setChatbotData(selectedBot); 
@@ -242,14 +261,16 @@ onBotSelect(event: any) {
       this.messages.push({
         sender: 'bot',
         text: selectedBot.welcome_message,
-        time: new Date()
+        time: new Date(),
+        type: 'text'
       });
     } else {
     
       this.messages.push({
         sender: 'bot',
         text: `Hi ${this.username}! I'm ${selectedBot.name} Virtual Assistant. How can I help you today?`,
-        time: new Date()
+        time: new Date(),
+        type: 'text'
       });
     }
   }
@@ -259,7 +280,6 @@ loadBots(): void {
   const userId = localStorage.getItem('user_id');
 
   if (!userId) {
-    // console.warn('User ID not found in local storage.');
     this.agentList = [];
     return;
   }
@@ -303,66 +323,149 @@ scrollToBottom() {
 }
 
 
-sendMessage(): void {
+// sendMessage(): void {
 
-  if (!this.userMessage.trim() || !this.chatbotData) return;
+//   if (!this.userMessage.trim() || !this.chatbotData) return;
 
-  const userText = this.userMessage;
-  this.messages.push({
-    sender: 'user',
-    text: userText,
-    time: new Date()
-  });
+//   const userText = this.userMessage;
+//   this.messages.push({
+//     sender: 'user',
+//     text: userText,
+//     time: new Date()
+//   });
 
-  this.isTyping = true;
+//   this.isTyping = true;
 
-  const body = {
-    chatbot_id: this.chatbotData.id,
-    message: userText,
-    session_id: this.sessionId,
-  };
+//   const body = {
+//     chatbot_id: this.chatbotData.id,
+//     message: userText,
+//     session_id: this.sessionId,
+//   };
 
-  this.httpService.mobileBankingPost('chatbot/chat', body).subscribe({
-    next: (result: any) => {
-      this.isTyping = false;
+//   this.httpService.mobileBankingPost('chatbot/chat', body).subscribe({
+//     next: (result: any) => {
+//       this.isTyping = false;
 
-      if (result?.status === '00' && result.data?.response) {
-        // Push bot response with timestamp
-        this.messages.push({
-          sender: 'bot',
-          text: result.data.response,
-          time: new Date()
-        });
+//       if (result?.status === '00' && result.data?.response) {
+//         // Push bot response with timestamp
+//         this.messages.push({
+//           sender: 'bot',
+//           text: result.data.response,
+//           time: new Date()
+//         });
 
-        // Log intent and confidence if available
-        const intent = result.data.metadata?.intent;
-        const confidence = result.data.metadata?.confidence;
+//         // Log intent and confidence if available
+//         const intent = result.data.metadata?.intent;
+//         const confidence = result.data.metadata?.confidence;
 
-        console.log('Intent:', intent, 'Confidence:', confidence);
-      } else {
+//         console.log('Intent:', intent, 'Confidence:', confidence);
+//       } else {
       
+//         this.messages.push({
+//           sender: 'bot',
+//           text: result.message || 'Unexpected error occurred.',
+//           time: new Date()
+//         });
+//       }
+//     },
+//     error: (err: any) => {
+//       this.isTyping = false;
+//       console.error(err);
+//       this.messages.push({
+//         sender: 'bot',
+//         text: '⚠️ Error: Unable to reach chatbot.',
+//         time: new Date()
+//       });
+//       Swal.fire('Error', 'Chatbot service not reachable.', 'error');
+//     },
+//   });
+
+//   // Clear the input field
+//   this.userMessage = '';
+// }
+
+ sendMessage(): void {
+    if (!this.userMessage.trim() || !this.chatbotData) return;
+
+    const userText = this.userMessage;
+
+    // Push user message
+    this.messages.push({
+      sender: 'user',
+      type: 'text',
+      text: userText,
+      time: new Date()
+    });
+
+    this.isTyping = true;
+
+    const body = {
+      chatbot_id: this.chatbotData.id,
+      message: userText,
+      session_id: this.sessionId,
+    };
+
+    this.httpService.mobileBankingPost('chatbot/chat', body).subscribe({
+      next: (result: any) => {
+        this.isTyping = false;
+
+        if (result?.status === '00') {
+          // Handle text response
+          if (typeof result.data?.response === 'string') {
+            this.messages.push({
+              sender: 'bot',
+              type: 'text',
+              text: result.data.response,
+              time: new Date()
+            });
+          }
+
+          // Handle file responses from metadata
+          if (result.metadata?.action_results?.length) {
+            result.metadata.action_results.forEach((action: any) => {
+              if (action.type === 'send_file' && action.content?.file_url) {
+                this.messages.push({
+                  sender: 'bot',
+                  type: 'file',
+                  fileUrl: this.apiBaseUrl + action.content.file_url,
+                  caption: action.content.caption || '',
+                  time: new Date()
+                });
+              }
+            });
+          }
+
+          // Debug intent & confidence if present
+          const intent = result.data.metadata?.intent;
+          const confidence = result.data.metadata?.confidence;
+          console.log('Intent:', intent, 'Confidence:', confidence);
+        } else {
+          this.messages.push({
+            sender: 'bot',
+            type: 'text',
+            text: result.message || 'Unexpected error occurred.',
+            time: new Date()
+          });
+        }
+      },
+      error: (err: any) => {
+        this.isTyping = false;
+        console.error(err);
         this.messages.push({
           sender: 'bot',
-          text: result.message || 'Unexpected error occurred.',
+          type: 'text',
+          text: '⚠️ Error: Unable to reach chatbot.',
           time: new Date()
         });
-      }
-    },
-    error: (err: any) => {
-      this.isTyping = false;
-      console.error(err);
-      this.messages.push({
-        sender: 'bot',
-        text: '⚠️ Error: Unable to reach chatbot.',
-        time: new Date()
-      });
-      Swal.fire('Error', 'Chatbot service not reachable.', 'error');
-    },
-  });
+        Swal.fire('Error', 'Chatbot service not reachable.', 'error');
+      },
+    });
 
-  // Clear the input field
-  this.userMessage = '';
-}
+    // Clear input
+    this.userMessage = '';
+  }
+
+
 
   getIndividualData(event: number): void {
 
