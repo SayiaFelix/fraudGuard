@@ -803,8 +803,34 @@ private combineAndSortItems(): void {
   };
   const processedTriggers = (this.triggers || []).map((trigger: any) => processTrigger(trigger, 0));
   const rootActions = (this.intents || []).filter((action: any) => !this.triggers.some((t: { id: any; }) => t.id === action.intent_id)).map((action: any) => ({ ...action, itemType: 'action', indentLevel: 0 }));
-  this.combinedItems = [...rootActions, ...this.flattenTriggerHierarchy(processedTriggers)].sort((a, b) => a.order - b.order);
+  
+  // Sort by ID in ascending order (lower IDs first, higher IDs later)
+  this.combinedItems = [...rootActions, ...this.flattenTriggerHierarchy(processedTriggers)].sort((a, b) => a.id - b.id);
   this.isLoading = false;
+}
+
+getRootTriggers(): any[] {
+  return this.combinedItems.filter(item => 
+    item.itemType === 'trigger' && item.parent_id === this.intentId
+  ).sort((a, b) => a.id - b.id);  
+}
+
+getRootActions(): any[] {
+  return this.combinedItems.filter(item => 
+    item.itemType === 'action' && item.parent_id === this.intentId
+  ).sort((a, b) => a.id - b.id);  
+}
+
+getChildTriggers(parentId: number): any[] {
+  return this.combinedItems.filter(item => 
+    item.itemType === 'trigger' && item.parent_id === parentId
+  ).sort((a, b) => a.id - b.id);  
+}
+
+getDirectActions(parentId: number): any[] {
+  return this.combinedItems.filter(item => 
+    item.itemType === 'action' && item.parent_id === parentId
+  ).sort((a, b) => a.id - b.id);  
 }
 
 fetchIntentList(chatbotId: number): void {
@@ -1003,29 +1029,6 @@ private transformAction(action: any, parentId: number): ActionItem {
   };
 }
 
-getRootTriggers(): any[] {
-  return this.combinedItems.filter(item => 
-    item.itemType === 'trigger' && item.parent_id === this.intentId
-  ).sort((a, b) => a.order - b.order);
-}
-
-getRootActions(): any[] {
-  return this.combinedItems.filter(item => 
-    item.itemType === 'action' && item.parent_id === this.intentId
-  ).sort((a, b) => a.order - b.order);
-}
-
-getChildTriggers(parentId: number): any[] {
-  return this.combinedItems.filter(item => 
-    item.itemType === 'trigger' && item.parent_id === parentId
-  ).sort((a, b) => a.order - b.order);
-}
-
-getDirectActions(parentId: number): any[] {
-  return this.combinedItems.filter(item => 
-    item.itemType === 'action' && item.parent_id === parentId
-  ).sort((a, b) => a.order - b.order);
-}
 
 private processApiResponse(data: any[]): TriggerItem[] {
   const result: TriggerItem[] = [];
@@ -2205,7 +2208,6 @@ private handleSendFileAction(intentId: number, parent_id: number, order: number)
     source_type: sourceType
   };
   formData.append('config', JSON.stringify(config));
-  // formData.append('branch_path', this.buildBranchPath());
 
   // Handle different source types
   if (sourceType === 'upload') {
