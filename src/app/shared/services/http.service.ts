@@ -180,15 +180,7 @@ public customerPortalLogin(endpoint: string, model: any): Observable<any> {
     return userDetails$;
   }
 
-  
-  // getData(page: number, size: number): any {
-  //   const params = new HttpParams()
-  //     .set('page', page.toString())
-  //     .set('size', size.toString());
-    
-  //   return this.http.get(this.url + '/kyc/group/' + filter, {params, headers: this.apiService.generateHeaders()})
-  // }
-  
+
   public customerPortalPostData(endpoint: string,model: { page: { toString: () => string | number | boolean; }; size: { toString: () => string | number | boolean; }; }): any {
     const params = new HttpParams()
     .set('page', model.page.toString())
@@ -205,9 +197,6 @@ public customerPortalLogin(endpoint: string, model: any): Observable<any> {
         })
       );
   }
-
-
-
 
   public customerPortalPost(endpoint: string, model: any): any {
     return this.http
@@ -251,8 +240,6 @@ public customerPortalLogin(endpoint: string, model: any): Observable<any> {
         })
       );
   }
-
- 
   
   public customerPortalPosts(endpoint: string, model: any): any {
     return this.http
@@ -351,6 +338,50 @@ public customerPortalLogin(endpoint: string, model: any): Observable<any> {
         })
       );
   }
+
+   public mobileBankingGet(endpoint: string, model: any): any {
+    return this.http
+      .get(
+        this.globalService.customerPortalNest + endpoint,
+        this.getHeaders()
+      )
+      .pipe(
+        map((response) => {
+          response = response;
+          return response;
+        })
+      );
+  }
+
+public mobileBankingPatch(endpoint: string, model: any): any {
+    return this.http
+      .patch(
+        this.globalService.customerPortalNest + endpoint,
+        model,
+        this.getHeaders()
+      )
+      .pipe(
+        map((response) => {
+          response = response;
+          return response;
+        })
+      );
+  }
+
+  public mobileBankingDel(endpoint: string, model: any): any {
+    return this.http
+      .delete(
+        this.globalService.customerPortalNest + endpoint,
+        this.getHeaders()
+      )
+      .pipe(
+        map((response) => {
+          response = response;
+          return response;
+        })
+      );
+  }
+
 
   public mobileBankingPostFormData(endpoint: string, model: FormData): Observable<any> {
     return this.http.post(
