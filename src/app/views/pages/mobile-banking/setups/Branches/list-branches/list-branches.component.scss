@@ -482,3 +482,14 @@
     &[disabled] { opacity: 0.6; cursor: not-allowed; }
   }
 }
+
+:host {
+  .people-form-row {
+    display: flex;
+    gap: 16px;
+    
+    .people-modal-form-group {
+      flex: 1;
+    }
+  }
+}
