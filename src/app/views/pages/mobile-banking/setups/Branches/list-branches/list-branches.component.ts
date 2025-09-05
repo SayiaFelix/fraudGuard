@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { HttpService } from 'src/app/shared/services/http.service';
+import { ToastrService } from 'ngx-toastr';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-list-branches',
@@ -34,13 +37,17 @@ export class ListBranchesComponent implements OnInit {
   addPersonForm: FormGroup;
   isAddPersonModalVisible = false; // This controls the modal's visibility
 
-  constructor(private fb: FormBuilder) {
-    // Initialize the form for adding a person
+  constructor(
+    private fb: FormBuilder,
+    private httpService: HttpService, // Added
+    private toastr: ToastrService      // Added
+  ) {
+    // Updated the form to match the API requirements
     this.addPersonForm = this.fb.group({
-      name: ['', Validators.required],
+      firstName: ['', Validators.required],
+      lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      phone: [''],
-      role: ['User', Validators.required]
+      role: ['CREATOR', Validators.required] // Role now expects 'CREATOR' or 'ADMIN'
     });
   }
 
@@ -206,28 +213,40 @@ export class ListBranchesComponent implements OnInit {
   savePerson(): void {
     if (this.addPersonForm.invalid) {
       this.addPersonForm.markAllAsTouched();
+      this.toastr.warning('Please fill all required fields correctly.', 'Invalid Form');
       return;
     }
     
-    // Create new person object
-    const newPersonData = this.addPersonForm.value;
-    const newPerson = {
-        ...newPersonData,
-        id: 'GENERATED_ID_' + Date.now(),
-        location: newPersonData.location || '-',
-        ipAddress: '-',
-        country: '-',
-        notes: [],
-        selected: false // Initialize selection state
+    // Construct the payload to match the API's expected format
+    const formData = this.addPersonForm.value;
+    const payload = {
+      first_name: formData.firstName,
+      last_name: formData.lastName,
+      email: formData.email,
+      role: formData.role
     };
-    
-    // Add the new person to the top of the master list
-    this.allPeople.unshift(newPerson);
 
-    // Re-apply filters and pagination to update the view
-    this.applyFiltersAndPagination();
+    // Call the API endpoint to register the new creator/admin
+    this.httpService.mobileBankingPost('auth/admin/register-user', payload).subscribe({
+      next: (result: any) => {
+        if (result.status === '00') {
+          Swal.fire('Success', result.message || 'Person added successfully!', 'success');
+          
+          // You should refresh the list of people from your API here
+          this.loadPeopleData(); 
 
-    // After saving, close the modal
-    this.closeAddPersonModal();
+          this.closeAddPersonModal();
+        } else {
+          // Handle API-specific errors (e.g., user already exists)
+          Swal.fire('Error', result.message || 'An unexpected error occurred.', 'error');
+        }
+      },
+      error: (err: any) => {
+        // Handle HTTP-level errors (e.g., server down)
+        console.error('API call failed:', err);
+        Swal.fire('Request Failed', err.error?.message || 'Could not connect to the server.', 'error');
+      }
+    });
   }
+
 }

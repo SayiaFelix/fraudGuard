@@ -31,7 +31,8 @@ export class RegisterComponent implements OnInit, OnDestroy {
     this.form = this.fb.group({
       first_name: ['', Validators.required],
       last_name: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]]
+      email: ['', [Validators.required, Validators.email]],
+
     });
   }
 
@@ -56,7 +57,8 @@ export class RegisterComponent implements OnInit, OnDestroy {
     const model = {
       first_name: this.form.value.first_name,
       last_name: this.form.value.last_name,
-      email: this.form.value.email
+      email: this.form.value.email,
+      role: "CREATOR"
     };
 
     console.log('Register Payload:', model);
