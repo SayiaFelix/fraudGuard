@@ -230,10 +230,16 @@
 
     <div class="people-modal-body">
       <form [formGroup]="addPersonForm" id="add-person-form" (ngSubmit)="savePerson()">
-        <div class="people-modal-form-group">
-          <label for="name">Name</label>
-          <input type="text" id="name" formControlName="name" placeholder="Enter the person's name">
+        <div class="people-form-row"> <!-- This class is for side-by-side styling -->
+          <div class="people-modal-form-group">
+            <label for="firstName">First Name</label>
+            <input type="text" id="firstName" formControlName="firstName" placeholder="Enter first name">
         </div>
+        <div class="people-modal-form-group">
+          <label for="lastName">Last Name</label>
+          <input type="text" id="lastName" formControlName="lastName" placeholder="Enter last name">
+        </div>
+    </div>
         <div class="people-modal-form-group">
           <label for="email">Email</label>
           <input type="email" id="email" formControlName="email" placeholder="Enter a valid email address">
@@ -246,9 +252,8 @@
           <label for="role">Role</label>
           <select id="role" formControlName="role">
             <option disabled value="">Select a role</option>
-            <option>Super Admin</option>
-            <option>Admin</option>
-            <option>User</option>
+            <option value="CREATOR">Creator</option>
+            <option value="ADMIN">Admin</option>
           </select>
         </div>
       </form>
