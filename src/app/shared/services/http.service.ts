@@ -368,19 +368,31 @@ public mobileBankingPatch(endpoint: string, model: any): any {
       );
   }
 
-  public mobileBankingDel(endpoint: string, model: any): any {
+
+public mobileBankingDel(endpoint: string, payload?: any): any { // Renamed 'model' to 'payload' for clarity, made optional
+    const options: any = { // Use 'any' for options to allow dynamic 'body' property
+        headers: this.getHeaders().headers // Get HttpHeaders from getHeaders()
+    };
+
+    // If a payload is provided, include it in the options for the DELETE request
+    if (payload) {
+        options.body = payload;
+    }
+
     return this.http
-      .delete(
-        this.globalService.customerPortalNest + endpoint,
-        this.getHeaders()
-      )
-      .pipe(
-        map((response) => {
-          response = response;
-          return response;
-        })
-      );
-  }
+        .delete(
+            this.globalService.customerPortalNest + endpoint,
+            options // Pass the combined options (headers + optional body)
+        )
+        .pipe(
+            map((response) => {
+                response = response;
+                return response;
+            })
+        );
+}
+
+
 
 
   public mobileBankingPostFormData(endpoint: string, model: FormData): Observable<any> {

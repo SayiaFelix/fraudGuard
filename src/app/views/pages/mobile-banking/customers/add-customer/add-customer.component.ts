@@ -161,34 +161,44 @@ export class AddCustomerComponent implements OnInit {
   nextPage(): void { this.goToPage(this.currentPage + 1); }
   previousPage(): void { this.goToPage(this.currentPage - 1); }
 
-  fetchAgentLists(): void {
-    this.isLoadingBots = true;
-    const userId = localStorage.getItem('user_id');
-    if (!userId) { this.fullAgentList = []; this.isLoadingBots = false; return; }
-    const usersId = parseInt(userId, 10);
-    const body = { user_id: usersId };
-    this._httpService.mobileBankingPost('builder/chatbots/list', body).subscribe({
-      next: (res: any) => {
-        if (res.status === '00' && Array.isArray(res.data)) {
-          this.fullAgentList = res.data.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-          const languages = new Set<string>();
-          this.fullAgentList.forEach(bot => {
-              if (bot.language) languages.add(bot.language);
-              else if (bot.languages && Array.isArray(bot.languages)) bot.languages.forEach((lang: string) => languages.add(lang));
-          });
-          this.availableFilterLanguages = Array.from(languages).sort();
-          this.applyFilter();
-        } else {
-          this.fullAgentList = []; this.filteredAgentList = []; this.paginatedAgentLists = [];
-        }
-        this.isLoadingBots = false;
-      },
-      error: (err: any) => {
-        console.error('Error fetching agent list:', err);
-        this.fullAgentList = []; this.filteredAgentList = []; this.paginatedAgentLists = []; this.isLoadingBots = false;
-      }
-    });
+  // Inside AddCustomerComponent class
+
+fetchAgentLists(): void {
+  this.isLoadingBots = true;
+  const userId = localStorage.getItem('user_id'); 
+  // The 'userId' is not directly sent with this API call, as per your Postman image,
+  // but it's good to keep this check if other logic depends on the user being logged in.
+  if (!userId) {
+    this.fullAgentList = [];
+    this.isLoadingBots = false;
+    return;
   }
+  
+  // Call _httpService.customerPortalGet and pass the headers directly.
+  // this._httpService.getHeaders() returns the object { headers: HttpHeaders }
+  // which is exactly what HttpClient.get expects as its options argument.
+  this._httpService.customerPortalGet('builder/chatbots/list', this._httpService.getHeaders()).subscribe({
+    next: (res: any) => {
+      if (res.status === '00' && Array.isArray(res.data)) {
+        this.fullAgentList = res.data.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        const languages = new Set<string>();
+        this.fullAgentList.forEach(bot => {
+            if (bot.language) languages.add(bot.language);
+            else if (bot.languages && Array.isArray(bot.languages)) bot.languages.forEach((lang: string) => languages.add(lang));
+        });
+        this.availableFilterLanguages = Array.from(languages).sort();
+        this.applyFilter();
+      } else {
+        this.fullAgentList = []; this.filteredAgentList = []; this.paginatedAgentLists = [];
+      }
+      this.isLoadingBots = false;
+    },
+    error: (err: any) => {
+      console.error('Error fetching agent list:', err);
+      this.fullAgentList = []; this.filteredAgentList = []; this.paginatedAgentLists = []; this.isLoadingBots = false;
+    }
+  });
+}
 
   toggleChatbotStatus(chatbot: any): void {
     const newStatus = !chatbot.is_active;
@@ -250,7 +260,7 @@ export class AddCustomerComponent implements OnInit {
       language: selectedLang,
     };
 
-    this._httpService.mobileBankingPost('builder/chatbots', model).subscribe({
+    this._httpService.mobileBankingPost('builder/chatbots/create', model).subscribe({
       next: (result: any) => {
         this.loading = false;
         if (result.status === '00') {
@@ -298,65 +308,64 @@ export class AddCustomerComponent implements OnInit {
     });
   }
 
-  private updateBot(): void {
-    if (!this.editingBot) return;
+  // Inside AddCustomerComponent class, in private updateBot(): void method
 
-    this.loading = true;
-    const model = {
-      chatbot_id: this.editingBot.id,
-      name: this.form.value.name,
-      description: this.form.value.description,
-      is_active: this.editingBot.is_active,
-      config: this.editingBot.config || {}
-    };
+private updateBot(): void {
+  if (!this.editingBot) return;
 
-    this._httpService.mobileBankingPost('builder/chatbots/update', model).subscribe({
-      next: (result: any) => {
-        this.loading = false;
-        if (result.status === '00') {
-          // Show SweetAlert success message
-          Swal.fire({
-            title: 'Success!',
-            text: 'AI Assistant updated successfully!',
-            icon: 'success',
-            confirmButtonText: 'OK',
-            confirmButtonColor: '#28a745'
-          }).then(() => {
-            this.clearForm();
-            this.fetchAgentLists();
-            this.globalService.notifyBotCreated();
-            this.botCreated.emit();
-          });
+  this.loading = true;
+  const model = {
+    chatbot_id: this.editingBot.id,
+    name: this.form.value.name,
+    description: this.form.value.description,
+    is_active: this.editingBot.is_active, // Ensure this is included as per PATCH API
+    language: this.language.length > 0 ? this.language[0] : 'English', // Add language to payload if backend expects it on PATCH
+    config: this.editingBot.config || {}
+  };
 
-          // Also show toast as backup
-          this._toastService.success('AI Assistant updated successfully!', 'Success');
-        } else {
-          Swal.fire({
-            title: 'Warning!',
-            text: result.message || 'Update failed.',
-            icon: 'warning',
-            confirmButtonText: 'OK',
-            confirmButtonColor: '#ffc107'
-          });
-          this._toastService.warning(result.message || 'Update failed.', 'Warning');
-        }
-      },
-      error: (err: any) => {
-        this.loading = false;
-        const errorMessage = err?.error?.message || 'An error occurred during update.';
-        
+  // ***** CRITICAL CHANGE HERE: Use mobileBankingPatch instead of mobileBankingPost *****
+  this._httpService.mobileBankingPatch('builder/chatbots/update', model).subscribe({
+    next: (result: any) => {
+      this.loading = false;
+      if (result.status === '00') {
         Swal.fire({
-          title: 'Error!',
-          text: errorMessage,
-          icon: 'error',
+          title: 'Success!',
+          text: 'AI Assistant updated successfully!',
+          icon: 'success',
           confirmButtonText: 'OK',
-          confirmButtonColor: '#dc3545'
+          confirmButtonColor: '#28a745'
+        }).then(() => {
+          this.clearForm();
+          this.fetchAgentLists();
+          this.globalService.notifyBotCreated();
+          this.botCreated.emit();
         });
-        
-        this._toastService.error(errorMessage, 'Error');
+        this._toastService.success('AI Assistant updated successfully!', 'Success');
+      } else {
+        Swal.fire({
+          title: 'Warning!',
+          text: result.message || 'Update failed.',
+          icon: 'warning',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#ffc107'
+        });
+        this._toastService.warning(result.message || 'Update failed.', 'Warning');
       }
-    });
-  }
+    },
+    error: (err: any) => {
+      this.loading = false;
+      const errorMessage = err?.error?.message || 'An error occurred during update.';
+      Swal.fire({
+        title: 'Error!',
+        text: errorMessage,
+        icon: 'error',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#dc3545'
+      });
+      this._toastService.error(errorMessage, 'Error');
+    }
+  });
+}
 
   public editBot(bot: any): void {
     this.editingBot = bot;
@@ -371,7 +380,9 @@ export class AddCustomerComponent implements OnInit {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
- public deleteBot(bot: any): void {
+// Inside AddCustomerComponent class
+
+public deleteBot(bot: any): void {
   Swal.fire({
     title: 'Are you sure?',
     text: `You are about to delete "${bot.name}". This action cannot be undone.`,
@@ -385,32 +396,29 @@ export class AddCustomerComponent implements OnInit {
       const payload = { chatbot_id: bot.id };
       console.log('Attempting to delete bot with payload:', payload);
 
-      this._httpService.mobileBankingPost('builder/chatbots/delete', payload).subscribe({
+      // ***** CRITICAL CHANGE HERE: Using mobileBankingDel for the DELETE request *****
+      // Pass the endpoint and the payload as the body.
+      this._httpService.mobileBankingDel('builder/chatbots/delete', payload).subscribe({
         next: (res: any) => {
-          // Log the raw response from the server
           console.log('Server response from delete API:', res);
 
           if (res && res.status === '00') {
             Swal.fire('Deleted!', 'The AI Assistant has been deleted.', 'success');
             this.fetchAgentLists()
-            // Log the state before the local list is modified
             console.log(`Bot with id ${bot.id} deleted successfully on server. Removing from local list.`);
             console.log('List size before filter:', this.fullAgentList.length);
 
             this.fullAgentList = this.fullAgentList.filter(b => b.id !== bot.id);
             
-            // Log the state after the local list is modified
             console.log('List size after filter:', this.fullAgentList.length);
             this.applyFilter();
           } else {
-            // This case is important! The API succeeded but returned a non-success status code.
             console.error('Deletion failed: API returned a non-success status.', res);
             this._toastService.error(res.message || 'The server indicated the deletion failed.', 'Error');
             Swal.fire('Failed!', res.message || 'The AI Assistant could not be deleted.', 'error');
           }
         },
         error: (err: any) => {
-          // This case is when the HTTP request itself fails (e.g., 404, 500 error)
           console.error('An HTTP error occurred during deletion:', err);
           this._toastService.error(err?.error?.message || 'An unexpected error occurred.', 'Error');
           Swal.fire('Error!', err?.error?.message || 'An unexpected error occurred.', 'error');
@@ -419,6 +427,7 @@ export class AddCustomerComponent implements OnInit {
     }
   });
 }
+
   public clearForm(): void {
     this.form.reset();
     this.form.get('language')?.enable();

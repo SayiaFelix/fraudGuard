@@ -65,21 +65,21 @@ interface ChartDataPoint {
 })
 export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
-  
+
   activeTab: string = 'chats';
-  
+
   // Date range properties - Fixed default dates
   startDate: Date = new Date('2025-07-01');
   endDate: Date = new Date('2025-07-31');
-  
-  // Calendar properties - Fixed year initialization
+
+  // Calendar properties
   showDatePicker: boolean = false;
-  currentMonth: number = new Date().getMonth();
-  currentYear: number = new Date().getFullYear();
+  currentMonth: number;
+  currentYear: number;
   selectedStartDate: Date | null = null;
   selectedEndDate: Date | null = null;
   isSelectingRange: boolean = false;
-  
+
   // Filter dropdown states
   showGroupByDropdown: boolean = false;
   showSegmentByDropdown: boolean = false;
@@ -90,26 +90,26 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
   showTeamsDropdown: boolean = false;
   showStatusDropdown: boolean = false;
   showCSATRatingDropdown: boolean = false;
-  
+
   // Filter selected values
   selectedGroupBy: string = 'Day';
   selectedSegmentBy: string = 'Select';
   selectedChatType: string = 'Select';
   selectedAIAssistants: string[] = [];
   selectedChannels: string[] = [];
-  selectedLiveAgents: string[] = [];
+  selectedLiveAgents: string[] = []; // This array holds the NAMES/IDs of selected agents
   selectedTeams: string[] = [];
   selectedStatus: string[] = [];
   selectedCSATRating: string[] = [];
   selectedChatbotId: number | null = null;
-  
+
   // Loading states
   isLoadingChats: boolean = false;
   isLoadingTickets: boolean = false;
   isLoadingInteractions: boolean = false;
   isLoadingUserStats: boolean = false;
   isLoadingUserActivity: boolean = false;
-  
+
   // Data properties
   userStats: UserStats | null = null;
   userActivity: UserActivity | null = null;
@@ -117,29 +117,29 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
   conversationMetrics: ConversationMetrics | null = null;
   performanceMetrics: PerformanceMetrics | null = null;
   chartData: ChartDataPoint[] = [];
-  
+
   // Available options for dropdowns
   availableChatbots: any[] = [];
   availableChannels: string[] = ['Web Chat', 'WhatsApp', 'Facebook', 'SMS'];
-  availableLiveAgents: any[] = [{ id: 1, name: 'Tecla Kyalo' }];
+  availableLiveAgents: any[] = [{ id: 1, name: 'Tecla Kyalo' }, { id: 2, name: 'John Doe' }, { id: 3, name: 'Jane Smith' }]; // <== CORRECTLY DEFINED HERE
   availableTeams: string[] = ['Customer Support', 'Sales', 'Technical'];
-  
+
   // Filter options
   groupByOptions = ['Day', 'Week', 'Month', 'Quarter', 'Year'];
   segmentByOptions = ['Chat type', 'AI Assistants', 'Channels', 'Live Agents', 'Teams', 'Status', 'CSAT Rating'];
   chatTypeOptions = ['Livechats', 'AI assistants'];
   statusOptions = ['Open', 'Pending', 'Resolved', 'Overdue', 'Closed'];
   csatRatingOptions = ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'];
-  
-  // Calendar data - Fixed years array
+
+  // Calendar data
   months = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
   ];
-  
+
   weekDays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
   years: number[] = [];
-  
+
   // Statuses for the CHATS tab summary cards
   chatStatuses = [
     { name: 'Open', color: '#56CCF2' },
@@ -157,33 +157,30 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
     { name: 'Overdue', color: '#EB5757' }
   ];
 
-// In the constructor, change this part:
-constructor(
-  private _httpService: HttpService,
-  private _toastService: ToastrService
-) {
-  // FIXED: Initialize years array to always show current year as default
-  const currentYear = new Date().getFullYear(); // This will be 2025
-  // Create years array with current year in the middle
-  for (let year = currentYear - 5; year <= currentYear + 5; year++) {
-    this.years.push(year);
-  }
-}
+  constructor(
+    private _httpService: HttpService,
+    private _toastService: ToastrService
+  ) {
+    // Initialize years array to always show current year as default
+    const currentYear = new Date().getFullYear();
+    this.currentYear = currentYear; // Initialize here for initial state
+    this.currentMonth = new Date().getMonth(); // Initialize here for initial state
 
-// In ngOnInit, change this part:
-ngOnInit(): void {
-  // FIXED: Always initialize calendar with current year, not startDate year
-  const currentYear = new Date().getFullYear();
-  const currentMonth = new Date().getMonth();
-  
-  this.selectedStartDate = new Date(this.startDate);
-  this.selectedEndDate = new Date(this.endDate);
-  
-  // Set calendar to current year/month instead of startDate
-  this.currentYear = currentYear;  // This ensures 2025 shows in dropdown
-  this.currentMonth = currentMonth; // This shows current month
-  
-    
+    // Create years array with current year in the middle
+    for (let year = currentYear - 5; year <= currentYear + 5; year++) {
+      this.years.push(year);
+    }
+  }
+
+  ngOnInit(): void {
+    // Always initialize calendar with current year/month upon component load
+    const today = new Date();
+    this.currentYear = today.getFullYear();
+    this.currentMonth = today.getMonth();
+
+    this.selectedStartDate = new Date(this.startDate);
+    this.selectedEndDate = new Date(this.endDate);
+
     // Load initial data
     this.loadUserStats();
     this.loadUserActivity();
@@ -197,7 +194,7 @@ ngOnInit(): void {
   }
 
   /**
-   * Generate chart data from user activity - FIXED VERSION
+   * Generate chart data from user activity
    */
   private generateChartDataFromActivity(): void {
     if (!this.userActivity?.activity_trend) {
@@ -218,47 +215,47 @@ ngOnInit(): void {
   }
 
   /**
-   * Generate realistic mock chart data - FIXED to respect date range
+   * Generate realistic mock chart data - respects date range
    */
   private generateMockChartData(): void {
     const data: ChartDataPoint[] = [];
     const startTime = this.startDate.getTime();
     const endTime = this.endDate.getTime();
     const dayMs = 24 * 60 * 60 * 1000;
-    
+
     console.log(`Generating chart data from ${this.startDate.toISOString()} to ${this.endDate.toISOString()}`);
-    
+
     // Generate realistic varying data for the selected date range
     for (let time = startTime; time <= endTime; time += dayMs) {
       const date = new Date(time);
       const dateStr = date.toISOString().split('T')[0];
       const shortDate = date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
-      
+
       // Create more realistic data with weekend dips and random variations
       let baseCount = 150;
       const dayOfWeek = date.getDay();
-      
+
       // Lower activity on weekends
       if (dayOfWeek === 0 || dayOfWeek === 6) {
         baseCount *= 0.6;
       }
-      
+
       // Add some random variation but keep some days at 0
       const shouldHaveActivity = Math.random() > 0.1; // 90% chance of activity
       let finalCount = 0;
-      
+
       if (shouldHaveActivity) {
         const variation = (Math.random() - 0.5) * 100;
         finalCount = Math.max(10, Math.floor(baseCount + variation));
       }
-      
+
       data.push({
         date: dateStr,
         count: finalCount,
         label: shortDate
       });
     }
-    
+
     this.chartData = data;
     console.log(`Generated ${data.length} data points:`, data);
   }
@@ -269,7 +266,7 @@ ngOnInit(): void {
   private loadUserStats(): void {
     this.isLoadingUserStats = true;
     const userId = localStorage.getItem('user_id');
-    
+
     if (!userId) {
       this._toastService.error('User ID not found', 'Error');
       this.isLoadingUserStats = false;
@@ -302,12 +299,12 @@ ngOnInit(): void {
   }
 
   /**
-   * Load user activity data - FIXED to regenerate chart data
+   * Load user activity data
    */
   private loadUserActivity(): void {
     this.isLoadingUserActivity = true;
     const userId = localStorage.getItem('user_id');
-    
+
     if (!userId) {
       this.isLoadingUserActivity = false;
       this.generateMockChartData(); // Generate mock data if no user ID
@@ -579,14 +576,14 @@ ngOnInit(): void {
     } else {
       this.selectedAIAssistants.push(botName);
     }
-    
+
     // Set the chatbot ID for API calls
     if (this.selectedAIAssistants.length === 1) {
       this.selectedChatbotId = botId;
     } else if (this.selectedAIAssistants.length === 0) {
       this.selectedChatbotId = this.availableChatbots.length > 0 ? this.availableChatbots[0].id : null;
     }
-    
+
     this.refreshData();
   }
 
@@ -646,23 +643,23 @@ ngOnInit(): void {
    */
   private buildFilters(): FilterItem[] {
     const filters: FilterItem[] = [];
-    
+
     if (this.selectedChatType !== 'Select') {
       filters.push({ field: 'chat_type', operator: 'eq', value: this.selectedChatType });
     }
-    
+
     if (this.selectedAIAssistants.length > 0) {
       filters.push({ field: 'ai_assistants', operator: 'in', value: this.selectedAIAssistants.join(',') });
     }
-    
+
     if (this.selectedStatus.length > 0) {
       filters.push({ field: 'status', operator: 'in', value: this.selectedStatus.join(',') });
     }
-    
+
     if (this.selectedCSATRating.length > 0) {
       filters.push({ field: 'csat_rating', operator: 'in', value: this.selectedCSATRating.join(',') });
     }
-    
+
     return filters;
   }
 
@@ -699,7 +696,7 @@ ngOnInit(): void {
   }
 
   /**
-   * Get total sessions for display - now using real data
+   * Get total sessions for display
    */
   getTotalSessions(): string {
     return this.conversationMetrics?.total_sessions?.toString() || (this.userActivity?.chatbots_created?.toString()) || '0';
@@ -756,7 +753,7 @@ ngOnInit(): void {
    */
   hasChatData(): boolean {
     return !this.isLoadingChats && (
-      this.conversationMetrics !== null || 
+      this.conversationMetrics !== null ||
       this.performanceMetrics !== null ||
       this.chatAnalytics !== null ||
       this.userActivity !== null ||
@@ -784,10 +781,10 @@ ngOnInit(): void {
   }
 
   formatDate(date: Date): string {
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: '2-digit', 
-      year: 'numeric' 
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: '2-digit',
+      year: 'numeric'
     });
   }
 
@@ -798,12 +795,12 @@ ngOnInit(): void {
   downloadData(): void {
     const currentDate = new Date().toISOString().split('T')[0];
     const fileName = `${this.activeTab}_data_${currentDate}.csv`;
-    
+
     let csvData = this.generateCSVData();
-    
+
     const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
-    
+
     if (link.download !== undefined) {
       const url = URL.createObjectURL(blob);
       link.setAttribute('href', url);
@@ -818,7 +815,7 @@ ngOnInit(): void {
   private generateCSVData(): string {
     const headers = this.getCSVHeaders();
     const rows = this.getCSVRows();
-    
+
     return [headers, ...rows].join('\n');
   }
 
@@ -837,7 +834,7 @@ ngOnInit(): void {
 
   private getCSVRows(): string[] {
     const rows: string[] = [];
-    
+
     if (this.activeTab === 'chats' && this.chartData.length > 0) {
       this.chartData.forEach(dataPoint => {
         const totalSessions = this.conversationMetrics?.total_sessions || 0;
@@ -846,7 +843,7 @@ ngOnInit(): void {
         const avgMessages = this.conversationMetrics?.avg_messages || 0;
         const avgResponseTime = this.performanceMetrics?.avg_response_time || 0;
         const uptime = this.performanceMetrics?.uptime || 0;
-        
+
         rows.push(`${dataPoint.label},${totalSessions},${completedSessions},${avgDuration.toFixed(2)},${avgMessages.toFixed(2)},${avgResponseTime.toFixed(2)},${uptime.toFixed(1)}%,${dataPoint.count}`);
       });
     } else {
@@ -854,11 +851,11 @@ ngOnInit(): void {
       const startTime = this.startDate.getTime();
       const endTime = this.endDate.getTime();
       const dayMs = 24 * 60 * 60 * 1000;
-      
+
       for (let time = startTime; time <= endTime; time += dayMs) {
         const date = new Date(time);
         const dateStr = date.toISOString().split('T')[0];
-        
+
         switch (this.activeTab) {
           case 'chats':
             rows.push(`${dateStr},0,0,0,0,0,0%,0`);
@@ -872,12 +869,12 @@ ngOnInit(): void {
         }
       }
     }
-    
+
     return rows;
   }
 
   /**
-   * FIXED refresh data method to properly regenerate chart data
+   * Refresh data method
    */
   private refreshData(): void {
     console.log(`Refreshing ${this.activeTab} data for range: ${this.getDateRangeDisplay()}`);
@@ -910,7 +907,7 @@ ngOnInit(): void {
   }
 
   /**
-   * Get maximum count for bar chart scaling - FIXED to handle zero values
+   * Get maximum count for bar chart scaling
    */
   getMaxCount(): number {
     if (this.chartData.length === 0) return 100;
@@ -919,11 +916,10 @@ ngOnInit(): void {
   }
 
   /**
-   * Get bar height percentage for proper scaling - FIXED to handle zero values properly
+   * Get bar height percentage for proper scaling
    */
   getBarHeightPercentage(count: number): number {
-    if (count === 0) return 0; // Return 0 height for zero values
-    
+    if (count === 0) return 0;
     const maxCount = this.getMaxCount();
     const minHeight = 5; // Minimum 5% height for visibility of non-zero values
     const percentage = (count / maxCount) * 95; // Use 95% to leave room for labels
@@ -931,19 +927,19 @@ ngOnInit(): void {
   }
 
   /**
-   * Get Y-axis labels for the chart - FIXED for proper ordering and scaling
+   * Get Y-axis labels for the chart
    */
   getYAxisLabels(): number[] {
     const maxCount = this.getMaxCount();
     const labels: number[] = [];
     const steps = 5; // Number of Y-axis labels
-    
+
     // Generate from top to bottom (highest to lowest)
     for (let i = steps; i >= 0; i--) {
       const value = Math.round((maxCount * i) / steps);
       labels.push(value);
     }
-    
+
     return labels;
   }
 
@@ -960,7 +956,8 @@ ngOnInit(): void {
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event): void {
     const target = event.target as HTMLElement;
-    if (!target.closest('.filter-dropdown-container')) {
+    // Exclude clicks inside the date picker itself
+    if (!target.closest('.filter-dropdown-container') && !target.closest('.date-range-container')) {
       this.closeAllDropdowns();
     }
   }
@@ -978,50 +975,47 @@ ngOnInit(): void {
   }
 
   // ========================================
-  // CALENDAR METHODS - FIXED
+  // CUSTOM CALENDAR METHODS
   // ========================================
 
-// Also update the toggleDatePicker method:
-toggleDatePicker(): void {
-  this.showDatePicker = !this.showDatePicker;
-  if (this.showDatePicker) {
-    this.selectedStartDate = new Date(this.startDate);
-    this.selectedEndDate = new Date(this.endDate);
-    
-    // FIXED: Always show current year in dropdown when opening calendar
-    const currentYear = new Date().getFullYear();
-    const currentMonth = new Date().getMonth();
-    
-    this.currentYear = currentYear;  // Always show 2025 (current year)
-    this.currentMonth = currentMonth; // Show current month
-    this.isSelectingRange = false;
+  toggleDatePicker(): void {
+    this.showDatePicker = !this.showDatePicker;
+    if (this.showDatePicker) {
+      this.selectedStartDate = new Date(this.startDate);
+      this.selectedEndDate = new Date(this.endDate);
+
+      // IMPORTANT: Always show current year/month in dropdown when opening calendar
+      const today = new Date();
+      this.currentYear = today.getFullYear();
+      this.currentMonth = today.getMonth();
+      this.isSelectingRange = false;
+    }
   }
-}
 
   getCalendarDays(): (number | null)[] {
     const firstDay = new Date(this.currentYear, this.currentMonth, 1);
     const lastDay = new Date(this.currentYear, this.currentMonth + 1, 0);
     const daysInMonth = lastDay.getDate();
     const startingDayOfWeek = firstDay.getDay();
-    
+
     const days: (number | null)[] = [];
-    
+
     for (let i = 0; i < startingDayOfWeek; i++) {
       days.push(null);
     }
-    
+
     for (let day = 1; day <= daysInMonth; day++) {
       days.push(day);
     }
-    
+
     return days;
   }
 
   selectDay(day: number | null): void {
     if (day === null) return;
-    
+
     const selectedDate = new Date(this.currentYear, this.currentMonth, day);
-    
+
     if (!this.isSelectingRange || !this.selectedStartDate) {
       this.selectedStartDate = selectedDate;
       this.selectedEndDate = null;
@@ -1039,41 +1033,41 @@ toggleDatePicker(): void {
 
   isDaySelected(day: number | null): boolean {
     if (day === null) return false;
-    
+
     const date = new Date(this.currentYear, this.currentMonth, day);
     const dateStr = date.toDateString();
-    
+
     return (this.selectedStartDate?.toDateString() === dateStr) ||
            (this.selectedEndDate?.toDateString() === dateStr);
   }
 
   isDayInRange(day: number | null): boolean {
     if (day === null || !this.selectedStartDate || !this.selectedEndDate) return false;
-    
+
     const date = new Date(this.currentYear, this.currentMonth, day);
     return date > this.selectedStartDate && date < this.selectedEndDate;
   }
 
   isDayRangeStart(day: number | null): boolean {
     if (day === null) return false;
-    
+
     const date = new Date(this.currentYear, this.currentMonth, day);
     return this.selectedStartDate?.toDateString() === date.toDateString();
   }
 
   isDayRangeEnd(day: number | null): boolean {
     if (day === null) return false;
-    
+
     const date = new Date(this.currentYear, this.currentMonth, day);
     return this.selectedEndDate?.toDateString() === date.toDateString();
   }
 
   isToday(day: number | null): boolean {
     if (day === null) return false;
-    
+
     const today = new Date();
-    return day === today.getDate() && 
-           this.currentMonth === today.getMonth() && 
+    return day === today.getDate() &&
+           this.currentMonth === today.getMonth() &&
            this.currentYear === today.getFullYear();
   }
 
@@ -1106,7 +1100,7 @@ toggleDatePicker(): void {
   }
 
   /**
-   * FIXED - Apply date range and refresh all data
+   * Apply date range and refresh all data
    */
   applyDateRange(): void {
     if (this.selectedStartDate && this.selectedEndDate) {

@@ -276,6 +276,7 @@ onBotSelect(event: any) {
   }
 }
 
+// Corrected loadBots() method
 loadBots(): void {
   const userId = localStorage.getItem('user_id');
 
@@ -284,10 +285,12 @@ loadBots(): void {
     return;
   }
 
-  const usersId = parseInt(userId, 10);
-  const body = { user_id: usersId };
+  // No need for usersId or body for this GET request
+  // const usersId = parseInt(userId, 10);
+  // const body = { user_id: usersId };
 
-  this.httpService.mobileBankingPost('builder/chatbots/list', body).subscribe({
+  // CHANGE: Use customerPortalGet and pass headers
+  this.httpService.customerPortalGet('builder/chatbots/list', this.httpService.getHeaders()).subscribe({
     next: (res: any) => {
       if (res.status === '00' && Array.isArray(res.data)) {
         // Sort by latest created

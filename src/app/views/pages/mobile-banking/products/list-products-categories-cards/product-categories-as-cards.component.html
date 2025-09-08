@@ -15,7 +15,7 @@
             <span>{{ getDateRangeDisplay() }}</span>
             <i class="fas fa-chevron-down" [class.rotated]="showDatePicker"></i>
           </div>
-          
+
           <!-- Date Picker Modal -->
           <div class="date-picker-modal" *ngIf="showDatePicker">
             <div class="date-picker-header">
@@ -24,36 +24,36 @@
                 <i class="fas fa-times"></i>
               </button>
             </div>
-            
+
             <div class="date-picker-content">
               <!-- Calendar Navigation -->
               <div class="calendar-nav">
                 <button class="nav-btn" (click)="previousMonth()">
                   <i class="fas fa-chevron-left"></i>
                 </button>
-                
+
                 <div class="month-year-selectors">
-                  <select class="month-selector" [value]="currentMonth" (change)="onMonthChange($event)">
+                  <select class="month-selector" [ngModel]="currentMonth" (ngModelChange)="onMonthChange($event)">
                     <option *ngFor="let month of months; let i = index" [value]="i">{{ month }}</option>
                   </select>
-                  
-                  <select class="year-selector" [value]="currentYear" (change)="onYearChange($event)">
+
+                  <select class="year-selector" [ngModel]="currentYear" (ngModelChange)="onYearChange($event)">
                     <option *ngFor="let year of years" [value]="year">{{ year }}</option>
                   </select>
                 </div>
-                
+
                 <button class="nav-btn" (click)="nextMonth()">
                   <i class="fas fa-chevron-right"></i>
                 </button>
               </div>
-              
+
               <!-- Calendar Grid -->
               <div class="calendar-container">
                 <!-- Week Day Headers -->
                 <div class="calendar-header">
                   <div *ngFor="let day of weekDays" class="week-day">{{ day }}</div>
                 </div>
-                
+
                 <!-- Calendar Days -->
                 <div class="calendar-grid">
                   <div
@@ -71,7 +71,7 @@
                   </div>
                 </div>
               </div>
-              
+
               <!-- Selected Range Display -->
               <div class="selected-range-info" *ngIf="selectedStartDate">
                 <div class="range-info">
@@ -85,14 +85,14 @@
                 </div>
               </div>
             </div>
-            
+
             <!-- Date Picker Actions -->
             <div class="date-picker-actions">
               <button class="btn btn-secondary" (click)="cancelDateSelection()">
                 Cancel
               </button>
-              <button 
-                class="btn btn-primary" 
+              <button
+                class="btn btn-primary"
                 (click)="applyDateRange()"
                 [disabled]="!selectedStartDate || !selectedEndDate"
               >
@@ -100,7 +100,7 @@
               </button>
             </div>
           </div>
-          
+
           <!-- Backdrop -->
           <div class="date-picker-backdrop" *ngIf="showDatePicker" (click)="cancelDateSelection()"></div>
         </div>
@@ -183,8 +183,8 @@
               <i class="fas fa-chevron-down"></i>
             </button>
             <div class="filter-dropdown" *ngIf="showGroupByDropdown">
-              <div 
-                *ngFor="let option of groupByOptions" 
+              <div
+                *ngFor="let option of groupByOptions"
                 class="filter-option"
                 [class.selected]="selectedGroupBy === option"
                 (click)="selectGroupBy(option)"
@@ -201,8 +201,8 @@
               <i class="fas fa-chevron-down"></i>
             </button>
             <div class="filter-dropdown" *ngIf="showSegmentByDropdown">
-              <div 
-                *ngFor="let option of segmentByOptions" 
+              <div
+                *ngFor="let option of segmentByOptions"
                 class="filter-option"
                 (click)="selectSegmentBy(option)"
               >
@@ -218,8 +218,8 @@
               <i class="fas fa-chevron-down"></i>
             </button>
             <div class="filter-dropdown" *ngIf="showChatTypeDropdown">
-              <div 
-                *ngFor="let option of chatTypeOptions" 
+              <div
+                *ngFor="let option of chatTypeOptions"
                 class="filter-option"
                 [class.selected]="selectedChatType === option"
                 (click)="selectChatType(option)"
@@ -239,13 +239,13 @@
               <div class="filter-search">
                 <input type="text" placeholder="Search" class="search-input">
               </div>
-              <div 
-                *ngFor="let bot of availableChatbots" 
+              <div
+                *ngFor="let bot of availableChatbots"
                 class="filter-option checkbox-option"
                 (click)="toggleAIAssistantSelection(bot.id, bot.name)"
               >
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   [checked]="isAIAssistantSelected(bot.name)"
                   (click)="$event.stopPropagation()"
                 >
@@ -261,8 +261,8 @@
               <i class="fas fa-chevron-down"></i>
             </button>
             <div class="filter-dropdown" *ngIf="showChannelsDropdown">
-              <div 
-                *ngFor="let channel of availableChannels" 
+              <div
+                *ngFor="let channel of availableChannels"
                 class="filter-option"
               >
                 {{ channel }}
@@ -280,8 +280,8 @@
               <div class="filter-search">
                 <input type="text" placeholder="Search" class="search-input">
               </div>
-              <div 
-                *ngFor="let agent of availableLiveAgents" 
+              <div
+                *ngFor="let agent of availableLiveAgents"
                 class="filter-option"
               >
                 {{ agent.name }}
@@ -296,8 +296,8 @@
               <i class="fas fa-chevron-down"></i>
             </button>
             <div class="filter-dropdown" *ngIf="showTeamsDropdown">
-              <div 
-                *ngFor="let team of availableTeams" 
+              <div
+                *ngFor="let team of availableTeams"
                 class="filter-option"
               >
                 {{ team }}
@@ -312,14 +312,14 @@
               <i class="fas fa-chevron-down"></i>
             </button>
             <div class="filter-dropdown" *ngIf="showStatusDropdown">
-              <div 
-                *ngFor="let status of statusOptions" 
+              <div
+                *ngFor="let status of statusOptions"
                 class="filter-option status-option"
                 [class.selected]="isStatusSelected(status)"
                 (click)="toggleStatusSelection(status)"
               >
-                <span 
-                  class="status-dot" 
+                <span
+                  class="status-dot"
                   [style.backgroundColor]="getStatusColor(status)"
                 ></span>
                 {{ status }}
@@ -334,8 +334,8 @@
               <i class="fas fa-chevron-down"></i>
             </button>
             <div class="filter-dropdown" *ngIf="showCSATRatingDropdown">
-              <div 
-                *ngFor="let rating of csatRatingOptions" 
+              <div
+                *ngFor="let rating of csatRatingOptions"
                 class="filter-option"
                 [class.selected]="isCSATRatingSelected(rating)"
                 (click)="toggleCSATRatingSelection(rating)"
@@ -364,21 +364,21 @@
                   <div class="y-axis">
                     <div class="y-label" *ngFor="let label of getYAxisLabels()">{{ label }}</div>
                   </div>
-                  
+
                   <!-- Chart area -->
                   <div class="chart-area">
                     <!-- Grid lines for better visualization -->
                     <div class="grid-lines">
                       <div class="grid-line" *ngFor="let label of getYAxisLabels()"></div>
                     </div>
-                    
+
                     <div class="chart-bars">
-                      <div 
-                        *ngFor="let dataPoint of chartData; let i = index" 
+                      <div
+                        *ngFor="let dataPoint of chartData; let i = index"
                         class="bar-container"
                       >
-                        <div 
-                          class="bar" 
+                        <div
+                          class="bar"
                           [style.height.%]="getBarHeightPercentage(dataPoint.count)"
                           [title]="dataPoint.label + ': ' + dataPoint.count + ' assistants'"
                         >
@@ -410,12 +410,12 @@
             <p class="metric">{{ getTotalSessions() }}</p>
             <div class="metric-change" *ngIf="conversationMetrics">
               <small class="change-indicator positive">
-                <i class="fas fa-arrow-up"></i> 
+                <i class="fas fa-arrow-up"></i>
                 {{ ((conversationMetrics.completed_sessions / conversationMetrics.total_sessions) * 100 | number:'1.0-0') || 0 }}% completion rate
               </small>
             </div>
           </div>
-          
+
           <div class="summary-card wide">
             <h3>Chats by status</h3>
             <div class="status-breakdown">
@@ -432,7 +432,7 @@
               </div>
             </div>
           </div>
-          
+
           <div class="summary-card">
             <h3>Average live agent response time</h3>
             <p class="metric">{{ getAverageResponseTime() }}</p>
@@ -440,7 +440,7 @@
               <small>System uptime: {{ getSystemUptime() }}</small>
             </div>
           </div>
-          
+
           <div class="summary-card">
             <h3>Average AI assistant response time</h3>
             <p class="metric">{{ getAverageResponseTime() }}</p>
@@ -509,7 +509,7 @@
               <small>API coming soon</small>
             </div>
           </div>
-          
+
           <div class="summary-card wide">
             <h3>Tickets by status</h3>
             <div class="status-breakdown">
@@ -526,7 +526,7 @@
               </div>
             </div>
           </div>
-          
+
           <div class="summary-card">
             <h3>Average live agent response time</h3>
             <p class="metric">-</p>
@@ -587,12 +587,12 @@
     </main>
 
     <!-- No chatbot selected message -->
-    <div class="no-chatbot-selected" *ngIf="availableChatbots.length === 0 && !isLoadingUserStats">
+    <!-- <div class="no-chatbot-selected" *ngIf="availableChatbots.length === 0 && !isLoadingUserStats">
       <div class="empty-state">
         <i class="fas fa-robot"></i>
         <h3>No Active AI Assistants</h3>
         <p>Create and activate an AI Assistant to view analytics data.</p>
       </div>
-    </div>
+    </div> -->
   </div>
 </div>

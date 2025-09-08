@@ -146,15 +146,23 @@ export class SettingsModalComponent implements OnInit {
   }
 
   private applyTheme() {
+    // Apply theme to the entire document body, not just the modal
     const body = document.body;
+    const html = document.documentElement;
+    
+    // Remove existing theme classes
     body.classList.remove('theme-system', 'theme-light', 'theme-dark');
+    html.classList.remove('theme-system', 'theme-light', 'theme-dark');
     
     if (this.selectedTheme === 'system') {
       const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      body.classList.add(isDarkMode ? 'theme-dark' : 'theme-light');
-      body.classList.add('theme-system');
+      const themeClass = isDarkMode ? 'theme-dark' : 'theme-light';
+      body.classList.add(themeClass, 'theme-system');
+      html.classList.add(themeClass, 'theme-system');
     } else {
-      body.classList.add(`theme-${this.selectedTheme}`);
+      const themeClass = `theme-${this.selectedTheme}`;
+      body.classList.add(themeClass);
+      html.classList.add(themeClass);
     }
   }
 

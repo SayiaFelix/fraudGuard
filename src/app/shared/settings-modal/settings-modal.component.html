@@ -98,7 +98,6 @@
 <!-- Workspace Settings View -->
 <div *ngIf="currentView === 'workspace'" class="settings-modal-container">
   <div class="settings-header">
-    <button class="back-button" (click)="goBack()">← Back</button>
     <h2>Workspace Settings</h2>
     <button class="close-button" (click)="onClose()">×</button>
   </div>
@@ -145,7 +144,6 @@
 <!-- Account Settings View -->
 <div *ngIf="currentView === 'account'" class="settings-modal-container">
   <div class="settings-header">
-    <button class="back-button" (click)="goBack()">← Back</button>
     <h2>Account Settings</h2>
     <button class="close-button" (click)="onClose()">×</button>
   </div>
@@ -252,7 +250,6 @@
 <!-- Change Workspace View -->
 <div *ngIf="currentView === 'changeWorkspace'" class="workspace-modal-container">
   <div class="workspace-header">
-    <button class="back-button" (click)="goBack()">← Back</button>
     <div class="logo-container">
       <div class="logo">eclectics</div>
     </div>
