@@ -200,25 +200,56 @@ fetchAgentLists(): void {
   });
 }
 
-  toggleChatbotStatus(chatbot: any): void {
-    const newStatus = !chatbot.is_active;
-    const payload = { chatbot_id: chatbot.id, is_active: newStatus };
-    this._httpService.mobileBankingPost('builder/chatbots/status', payload).subscribe({
-      next: (res: any) => {
-        if (res.status === '00') {
-          const botInFullList = this.fullAgentList.find(b => b.id === chatbot.id);
-          if (botInFullList) botInFullList.is_active = newStatus;
-          this.globalService.setBotStatus({ id: chatbot.id, is_active: newStatus });
-          this.applyFilter();
-        } else {
-          this._toastService.warning(res.message || 'Failed to update chatbot status.', 'Warning');
+  // toggleChatbotStatus(chatbot: any): void {
+  //   const newStatus = !chatbot.is_active;
+  //   const payload = { chatbot_id: chatbot.id, is_active: newStatus };
+  //   this._httpService.mobileBankingPost('builder/chatbots/status', payload).subscribe({
+  //     next: (res: any) => {
+  //       if (res.status === '00') {
+  //         const botInFullList = this.fullAgentList.find(b => b.id === chatbot.id);
+  //         if (botInFullList) botInFullList.is_active = newStatus;
+  //         this.globalService.setBotStatus({ id: chatbot.id, is_active: newStatus });
+  //         this.applyFilter();
+  //       } else {
+  //         this._toastService.warning(res.message || 'Failed to update chatbot status.', 'Warning');
+  //       }
+  //     },
+  //     error: (err: any) => {
+  //       this._toastService.error(err?.error?.message || 'An error occurred while updating status.', 'Error');
+  //     }
+  //   });
+  // }
+
+  // Inside AddCustomerComponent class
+
+toggleChatbotStatus(chatbot: any): void {
+  const newStatus = !chatbot.is_active;
+  const payload = { 
+      chatbot_id: chatbot.id, 
+      is_active: newStatus 
+  };
+
+  // *** CRITICAL CHANGE: Use mobileBankingPatch instead of mobileBankingPost ***
+  // This aligns the status update with the main PATCH /update API if it handles 'is_active'.
+  this._httpService.mobileBankingPatch('builder/chatbots/update', payload).subscribe({
+    next: (res: any) => {
+      if (res.status === '00') {
+        const botInFullList = this.fullAgentList.find(b => b.id === chatbot.id);
+        if (botInFullList) {
+            botInFullList.is_active = newStatus;
+            // Also update the global service if you're using it to reflect status changes elsewhere
+            this.globalService.setBotStatus({ id: chatbot.id, is_active: newStatus });
         }
-      },
-      error: (err: any) => {
-        this._toastService.error(err?.error?.message || 'An error occurred while updating status.', 'Error');
+        this.applyFilter(); // Reapply filters to reflect the status change in the UI
+      } else {
+        this._toastService.warning(res.message || 'Failed to update chatbot status.', 'Warning');
       }
-    });
-  }
+    },
+    error: (err: any) => {
+      this._toastService.error(err?.error?.message || 'An error occurred while updating status.', 'Error');
+    }
+  });
+}
 
   public submitData(): void {
       if (this.formData) { this.saveChanges(); }
