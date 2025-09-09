@@ -20,6 +20,7 @@ interface Trigger {
   is_active: boolean;
   created_at: string;
   training_phrases?: string[]; // Needed for the edit form
+  is_root?: boolean; // Added for update payload as per API screenshot
 }
 
 @Component({
@@ -36,7 +37,6 @@ export class SendSmsComponent implements OnInit {
   agentList: Trigger[] = [];
   isLoading = true;
   
-  // NEW: Property to track if we are in edit mode
   editingTriggerId: number | null = null;
 
   constructor(
@@ -77,6 +77,8 @@ export class SendSmsComponent implements OnInit {
     this.triggerForm = this.fb.group({
       name: ['', Validators.required],
       description: [''],
+      // Assuming trigger_type is not directly editable or always 'message_received' for new intents
+      // If it's part of the form, ensure it's loaded in editTrigger and saved in onTriggerSubmit
       trigger_type: ['message_received', Validators.required],
       training_phrases: this.fb.array([
         this.fb.control('', Validators.required)
@@ -98,10 +100,13 @@ export class SendSmsComponent implements OnInit {
     }
   }
 
+  // --- 1. FETCH INTENT LIST (Updated API) ---
   fetchIntentList(chatbotId: number): void {
     this.isLoading = true;
-    const body = { chatbot_id: chatbotId };
-    this.httpService.mobileBankingPost('builder/chatbots/root-intents', body).subscribe({
+    const payload = { chatbot_id: chatbotId }; // API now expects POST with body
+
+    // Changed to mobileBankingPost and updated endpoint
+    this.httpService.mobileBankingPost('builder/chatbots/root-intents', payload).subscribe({
       next: (res: any) => {
         if (res.status === '00' && Array.isArray(res.data)) {
           this.agentList = res.data.map((trigger: any) => ({
@@ -116,7 +121,7 @@ export class SendSmsComponent implements OnInit {
         this.isLoading = false;
       },
       error: (err: any) => {
-        console.error('Error fetching agent list:', err);
+        console.error('Error fetching intent list:', err);
         this.agentList = [];
         this.toastrService.error('An error occurred while loading triggers.', 'Error');
         this.isLoading = false;
@@ -124,13 +129,29 @@ export class SendSmsComponent implements OnInit {
     });
   }
 
+  // --- 2. TOGGLE TRIGGER STATUS (Updated API) ---
   toggleTriggerStatus(trigger: Trigger): void {
     const newStatus = !trigger.is_active;
-    const payload = { intent_id: trigger.id, is_active: newStatus };
-    this.httpService.mobileBankingPost('builder/nodes/intent/status', payload).subscribe({
+    const chatbotId = this.globalService.getChatbotId(); // Ensure chatbotId is retrieved
+
+    if (!chatbotId) {
+      this.toastrService.error('Chatbot context missing. Cannot update status.', 'Error');
+      return;
+    }
+
+    // Payload for PATCH /update API, including chatbot_id, intent_id, is_active, and is_root
+    const payload = { 
+        intent_id: trigger.id, 
+        chatbot_id: chatbotId, // Required by new PATCH API
+        is_active: newStatus,
+        is_root: trigger.is_root // Preserve is_root status as per API screenshot
+    };
+
+    // Use mobileBankingPatch and updated endpoint
+    this.httpService.mobileBankingPatch('builder/intents/update', payload).subscribe({
       next: (res: any) => {
         if (res.status === '00') {
-          trigger.is_active = newStatus;
+          trigger.is_active = newStatus; // Update local state on success
           this.toastrService.success(`Trigger status updated to ${newStatus ? 'Active' : 'Inactive'}.`, 'Success');
         } else {
           this.toastrService.warning(res.message || 'Failed to update trigger status.', 'Warning');
@@ -142,7 +163,7 @@ export class SendSmsComponent implements OnInit {
     });
   }
 
-  // MODIFIED: This function now handles both create and update
+  // --- 3. ON TRIGGER SUBMIT (CREATE & UPDATE Logic) (Updated APIs) ---
   onTriggerSubmit(): void {
     if (!this.triggerForm.valid) {
       this.markFormGroupTouched(this.triggerForm);
@@ -160,11 +181,15 @@ export class SendSmsComponent implements OnInit {
       const payload = {
         intent_id: this.editingTriggerId,
         chatbot_id: chatbotId,
-        ...this.triggerForm.value,
-        is_active: originalTrigger ? originalTrigger.is_active : true // Preserve status
+        name: this.triggerForm.value.name,
+        description: this.triggerForm.value.description,
+        training_phrases: this.triggerForm.value.training_phrases,
+        is_active: originalTrigger ? originalTrigger.is_active : true, // Preserve status
+        is_root: originalTrigger ? originalTrigger.is_root : true // Preserve is_root as per API screenshot
       };
 
-      this.httpService.mobileBankingPost('builder/nodes/intent/update', payload).subscribe({
+      // Use mobileBankingPatch and updated endpoint
+      this.httpService.mobileBankingPatch('builder/intents/update', payload).subscribe({
         next: (res: any) => {
           if (res.status === '00') {
             Swal.fire('Success', 'Trigger updated successfully!', 'success');
@@ -182,12 +207,17 @@ export class SendSmsComponent implements OnInit {
     // --- CREATE LOGIC ---
     else {
       const payload = {
-        ...this.triggerForm.value,
+        name: this.triggerForm.value.name,
+        description: this.triggerForm.value.description,
+        training_phrases: this.triggerForm.value.training_phrases, // Include training phrases
         chatbot_id: chatbotId,
-        is_root: true,
-        order: (this.agentList.length || 0) + 1,
+        is_root: true, // As per API screenshot, implies root intent
+        order: (this.agentList.length || 0) + 1, // Order is included in API screenshot
+        // parent_id: ... // If creating a child intent, add parent_id here
       };
-      this.httpService.mobileBankingPost('builder/nodes/intent', payload).subscribe({
+
+      // Use mobileBankingPost and updated endpoint
+      this.httpService.mobileBankingPost('builder/intents/create', payload).subscribe({
           next: (result: any) => {
             if (result.status === '00') {
               Swal.fire('Success', 'Trigger Created Successfully!', 'success');
@@ -231,7 +261,7 @@ export class SendSmsComponent implements OnInit {
     document.body.classList.add('modal-open');
   }
 
-  // MODIFIED: Updated to use the correct API endpoint and payload for deletion
+  // --- 4. DELETE TRIGGER (Updated API) ---
   deleteTrigger(trigger: Trigger): void {
     Swal.fire({
       title: 'Are you sure?',
@@ -251,10 +281,11 @@ export class SendSmsComponent implements OnInit {
 
         const payload = {
           intent_id: trigger.id,
-          chatbot_id: chatbotId
+          chatbot_id: chatbotId // Required by new DELETE API
         };
         
-        this.httpService.mobileBankingPost('builder/nodes/intent/delete', payload).subscribe({
+        // Use mobileBankingDel (now configured to send a body) and updated endpoint
+        this.httpService.mobileBankingDel('builder/intents/delete', payload).subscribe({
           next: (res: any) => {
             if (res.status === '00') {
               Swal.fire('Deleted!', 'The trigger has been deleted.', 'success');
