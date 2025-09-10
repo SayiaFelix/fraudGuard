@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpService } from 'src/app/shared/services/http.service';
 import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
+import { forkJoin } from 'rxjs'; // Import forkJoin for parallel API calls
 
 @Component({
   selector: 'app-list-branches',
@@ -15,14 +16,14 @@ export class ListBranchesComponent implements OnInit {
   isDetailsPanelVisible = false;
   selectedPerson: any = null;
   visiblePeople: any[] = [];
-  allPeople: any[] = []; // Store the full list
-  filteredPeople: any[] = []; // Store the filtered list
-  
+  allPeople: any[] = [];
+  filteredPeople: any[] = [];
+  isLoading = false;
+
   // --- Pagination Properties ---
   recordsToShow = 20;
 
   get totalRecords(): number {
-    // The total should reflect the count after filtering
     return this.filteredPeople.length;
   }
   
@@ -35,70 +36,130 @@ export class ListBranchesComponent implements OnInit {
 
   // --- Properties for the "Add Person" Modal ---
   addPersonForm: FormGroup;
-  isAddPersonModalVisible = false; // This controls the modal's visibility
+  isAddPersonModalVisible = false;
 
   constructor(
     private fb: FormBuilder,
-    private httpService: HttpService, // Added
-    private toastr: ToastrService      // Added
+    private httpService: HttpService,
+    private toastr: ToastrService
   ) {
-    // Updated the form to match the API requirements
     this.addPersonForm = this.fb.group({
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      role: ['CREATOR', Validators.required] // Role now expects 'CREATOR' or 'ADMIN'
+      role: ['', Validators.required]
     });
   }
 
   ngOnInit(): void {
-    // Your existing ngOnInit logic to load data, etc.
     this.loadPeopleData();
   }
 
-  // --- Functions for the main page (table, filters, side panel) ---
+  private getUserRole(): string {
+    const role = localStorage.getItem('user_role');
+    return role ? role.toUpperCase() : 'UNKNOWN';
+  }
 
+  private mapApiDataToPerson(user: any, role: string): any {
+    return {
+      id: user.id,
+      name: `${user.first_name} ${user.last_name}`,
+      email: user.email,
+      location: role,
+      country: user.country || 'N/A',
+      ipAddress: 'N/A',
+      phone: user.phone || 'N/A',
+      selected: false
+    };
+  }
+
+  // THIS IS THE UPDATED METHOD
   loadPeopleData(): void {
-    // Dummy data list expanded to 10 people with selected property
-    this.allPeople = [
-      { id: '1a-jd', name: 'John Doe', email: 'john.doe@example.com', location: 'New York', country: 'USA', ipAddress: '192.168.1.1', phone: '123-456-7890', selected: false },
-      { id: '2b-js', name: 'Jane Smith', email: 'jane.smith@example.com', location: 'London', country: 'UK', ipAddress: '192.168.1.2', phone: '987-654-3210', selected: false },
-      { id: '3c-as', name: 'Alice Johnson', email: 'alice.j@example.com', location: 'Toronto', country: 'Canada', ipAddress: '172.16.0.5', phone: '555-123-4567', selected: false },
-      { id: '4d-bw', name: 'Bob Williams', email: 'bob.w@example.com', location: 'Sydney', country: 'Australia', ipAddress: '10.0.0.10', phone: '444-555-6666', selected: false },
-      { id: '5e-cb', name: 'Charlie Brown', email: 'charlie.b@example.com', location: 'Tokyo', country: 'Japan', ipAddress: '203.0.113.15', phone: '333-222-1111', selected: false },
-      { id: '6f-dm', name: 'Diana Miller', email: 'diana.m@example.com', location: 'Berlin', country: 'Germany', ipAddress: '198.51.100.20', phone: '222-333-4444', selected: false },
-      { id: '7g-eg', name: 'Ethan Garcia', email: 'ethan.g@example.com', location: 'Mexico City', country: 'Mexico', ipAddress: '203.0.113.25', phone: '111-444-5555', selected: false },
-      { id: '8h-fh', name: 'Fiona Harris', email: 'fiona.h@example.com', location: 'Paris', country: 'France', ipAddress: '198.51.100.30', phone: '666-777-8888', selected: false },
-      { id: '9i-gk', name: 'George King', email: 'george.k@example.com', location: 'Moscow', country: 'Russia', ipAddress: '10.0.0.15', phone: '777-888-9999', selected: false },
-      { id: '10j-hl', name: 'Hannah Lee', email: 'hannah.l@example.com', location: 'Seoul', country: 'South Korea', ipAddress: '172.16.0.25', phone: '888-999-0000', selected: false }
-    ];
-    
-    // Initially, the filtered list is the full list
-    this.applyFiltersAndPagination();
+    this.isLoading = true;
+    this.allPeople = []; // Reset the list before loading
+    const userRole = this.getUserRole();
+    console.log('Detected user role:', userRole);
+
+    if (userRole === 'ADMIN') {
+      const creators$ = this.httpService.mobileBankingGet('auth/admin/creators', {});
+      const admins$ = this.httpService.mobileBankingGet('auth/admin/admins', {});
+      
+      forkJoin([creators$, admins$]).subscribe({
+        next: (results: any[]) => {
+          const creatorsResult = results[0];
+          const adminsResult = results[1];
+          console.log('Creators API result:', creatorsResult);
+          console.log('Admins API result:', adminsResult);
+
+          // Process and map the creators data
+          const creators = Array.isArray(creatorsResult?.data)
+            ? creatorsResult.data.map((user: any) => this.mapApiDataToPerson(user, 'CREATOR'))
+            : [];
+
+          // Process and map the admins data
+          const admins = Array.isArray(adminsResult?.data)
+            ? adminsResult.data.map((user: any) => this.mapApiDataToPerson(user, 'ADMIN'))
+            : [];
+
+          // Combine both lists into the main array
+          this.allPeople = [...creators, ...admins];
+          console.log('Combined people list:', this.allPeople); 
+          
+          this.applyFiltersAndPagination();
+          this.isLoading = false;
+        },
+        error: (err: any) => {
+          console.error('Failed to load data for admin:', err);
+          this.toastr.error('Could not load user data.', 'API Error');
+          this.isLoading = false;
+        }
+      });
+    } else if (userRole === 'CREATOR') {
+      this.httpService.mobileBankingGet('auth/admin/creators', {}).subscribe({
+        next: (result: any) => {
+          console.log('Creators API result for CREATOR role:', result);
+          
+          // Process and map the creators data
+          const creators = Array.isArray(result?.data)
+            ? result.data.map((user: any) => this.mapApiDataToPerson(user, 'CREATOR'))
+            : [];
+
+          // Assign the creators list to the main array
+          this.allPeople = creators;
+
+          this.applyFiltersAndPagination();
+          this.isLoading = false;
+        },
+        error: (err: any) => {
+          console.error('Failed to load creator data:', err);
+          this.toastr.error('Could not load user data.', 'API Error');
+          this.isLoading = false;
+        }
+      });
+    } else {
+      this.isLoading = false;
+      this.toastr.warning('You do not have permission to view this page.');
+      console.warn('Unknown user role:', userRole);
+    }
   }
 
   applyFiltersAndPagination(): void {
-    // Start with the master list of all people
     let people = [...this.allPeople];
-
-    // Apply global search term
     const lowercasedTerm = this.searchTerm.trim().toLowerCase();
     if (lowercasedTerm) {
       people = people.filter(p =>
-        Object.values(p).some(val => 
+        Object.values(p).some(val =>
           String(val).toLowerCase().includes(lowercasedTerm)
         )
       );
     }
-
-    // Apply column-specific filters
     const lowercasedNameFilter = this.nameFilter.trim().toLowerCase();
     if (lowercasedNameFilter) {
       people = people.filter(p => p.name?.toLowerCase().includes(lowercasedNameFilter));
     }
     const lowercasedIdFilter = this.idFilter.trim().toLowerCase();
     if (lowercasedIdFilter) {
-      people = people.filter(p => p.id?.toLowerCase().includes(lowercasedIdFilter));
+      people = people.filter(p => p.id?.toString().toLowerCase().includes(lowercasedIdFilter));
     }
     const lowercasedEmailFilter = this.emailFilter.trim().toLowerCase();
     if (lowercasedEmailFilter) {
@@ -108,11 +169,7 @@ export class ListBranchesComponent implements OnInit {
     if (lowercasedLocationFilter) {
       people = people.filter(p => p.location?.toLowerCase().includes(lowercasedLocationFilter));
     }
-
-    // Update the filtered list
     this.filteredPeople = people;
-
-    // Apply pagination to the filtered list to get the visible list
     this.visiblePeople = this.filteredPeople.slice(0, this.recordsToShow);
   }
 
@@ -140,24 +197,16 @@ export class ListBranchesComponent implements OnInit {
     this.selectedPerson = null;
   }
 
-  // --- Checkbox Selection Methods ---
-  
   toggleSelectAll(event: any): void {
     const isChecked = event.target.checked;
-    // Update all visible people
     this.visiblePeople.forEach(person => person.selected = isChecked);
-    
-    // Also update the corresponding people in the main arrays
     this.allPeople.forEach(person => {
-      const visiblePerson = this.visiblePeople.find(vp => vp.id === person.id);
-      if (visiblePerson) {
+      if (this.visiblePeople.find(vp => vp.id === person.id)) {
         person.selected = isChecked;
       }
     });
-    
     this.filteredPeople.forEach(person => {
-      const visiblePerson = this.visiblePeople.find(vp => vp.id === person.id);
-      if (visiblePerson) {
+      if (this.visiblePeople.find(vp => vp.id === person.id)) {
         person.selected = isChecked;
       }
     });
@@ -166,17 +215,10 @@ export class ListBranchesComponent implements OnInit {
   togglePersonSelection(person: any, event: any): void {
     const isChecked = event.target.checked;
     person.selected = isChecked;
-    
-    // Update the corresponding person in all arrays
     const allPersonIndex = this.allPeople.findIndex(p => p.id === person.id);
-    if (allPersonIndex !== -1) {
-      this.allPeople[allPersonIndex].selected = isChecked;
-    }
-    
+    if (allPersonIndex !== -1) this.allPeople[allPersonIndex].selected = isChecked;
     const filteredPersonIndex = this.filteredPeople.findIndex(p => p.id === person.id);
-    if (filteredPersonIndex !== -1) {
-      this.filteredPeople[filteredPersonIndex].selected = isChecked;
-    }
+    if (filteredPersonIndex !== -1) this.filteredPeople[filteredPersonIndex].selected = isChecked;
   }
 
   areAllSelected(): boolean {
@@ -187,22 +229,18 @@ export class ListBranchesComponent implements OnInit {
     return this.visiblePeople.some(person => person.selected) && !this.areAllSelected();
   }
 
-  // Get selected people (useful for bulk operations)
   getSelectedPeople(): any[] {
     return this.allPeople.filter(person => person.selected);
   }
 
-  // Clear all selections
   clearAllSelections(): void {
     this.allPeople.forEach(person => person.selected = false);
     this.filteredPeople.forEach(person => person.selected = false);
     this.visiblePeople.forEach(person => person.selected = false);
   }
 
-  // --- Functions for the "Add Person" Modal ---
-
   openAddPersonModal(): void {
-    this.addPersonForm.reset({ role: 'User' });
+    this.addPersonForm.reset({ role: 'CREATOR' });
     this.isAddPersonModalVisible = true;
   }
 
@@ -217,7 +255,6 @@ export class ListBranchesComponent implements OnInit {
       return;
     }
     
-    // Construct the payload to match the API's expected format
     const formData = this.addPersonForm.value;
     const payload = {
       first_name: formData.firstName,
@@ -226,27 +263,23 @@ export class ListBranchesComponent implements OnInit {
       role: formData.role
     };
 
-    // Call the API endpoint to register the new creator/admin
     this.httpService.mobileBankingPost('auth/admin/register-user', payload).subscribe({
       next: (result: any) => {
-        if (result.status === '00') {
-          Swal.fire('Success', result.message || 'Person added successfully!', 'success');
+        if (result.status === '00' || result.message === "Creator registered successfully.") {
           
-          // You should refresh the list of people from your API here
-          this.loadPeopleData(); 
-
+          Swal.fire('Success', result.message || 'Person added successfully!', 'success');
+          this.loadMorePeople();
+          this.applyFiltersAndPagination(); 
           this.closeAddPersonModal();
+
         } else {
-          // Handle API-specific errors (e.g., user already exists)
           Swal.fire('Error', result.message || 'An unexpected error occurred.', 'error');
         }
       },
       error: (err: any) => {
-        // Handle HTTP-level errors (e.g., server down)
         console.error('API call failed:', err);
         Swal.fire('Request Failed', err.error?.message || 'Could not connect to the server.', 'error');
       }
     });
   }
-
 }
