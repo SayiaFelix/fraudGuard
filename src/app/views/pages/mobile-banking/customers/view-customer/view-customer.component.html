@@ -4,8 +4,6 @@
     <p class="text-muted">Add triggers and actions for a scripted chat flow. If an action is not triggered, then the enabled LLM will generate a response.</p>
   </div>
 
- 
-
   <form [formGroup]="trainingForm" (ngSubmit)="submitTraining()" class="mb-3" enctype="multipart/form-data">
     <div class="row">
         <div class="fallback-section d-flex align-items-center mb-2">
@@ -119,7 +117,7 @@
               <hr>
           </div>
      
-          <div style="margin-top:-20px; padding-right: 20px;" class="text-end">
+          <div style="margin-top:-20px; padding-right: 20px;" class="text-end mb-3">
             <button 
               type="submit" 
               class="btn btn-primary btn-test" 
@@ -154,18 +152,35 @@
                 <th>Action</th>
               </tr>
             </thead>
+            <!-- THIS IS THE UPDATED TABLE BODY -->
             <tbody>
-              <tr *ngFor="let i of [1,2,3,4,5]">
+              <tr *ngIf="isTrainingLoading">
+                <td colspan="5" class="text-center py-4">
+                  <div class="spinner-border spinner-border-sm" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
+                  <span class="ms-2">Loading training data...</span>
+                </td>
+              </tr>
+              <tr *ngIf="!isTrainingLoading && existingTraining.length === 0">
+                <td colspan="5" class="text-center py-4 text-muted">
+                  No existing training found for this chatbot.
+                </td>
+              </tr>
+              <tr *ngFor="let item of existingTraining">
                 <td><input type="checkbox" class="form-check-input"></td>
-                <td>Name</td>
-                <td>Last Updated</td>
-                <td>Enabled</td>
+                <td>{{ item.name }}</td>
+                <td>{{ item.last_updated ? (item.last_updated | date:'medium') : 'N/A' }}</td>
+                <td>
+                  <span class="badge" [ngClass]="{'bg-success': item.status === 'success', 'bg-warning': item.status !== 'success'}">
+                    {{ item.status }}
+                  </span>
+                </td>
                 <td>
                   <div class="d-flex align-items-center">
                     <div class="form-check form-switch me-2">
                       <input class="form-check-input" type="checkbox" role="switch" checked>
                     </div>
-                    <!-- <span class="dots">...</span> -->
                   </div>
                 </td>
               </tr>
