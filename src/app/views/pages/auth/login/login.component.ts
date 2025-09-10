@@ -30,9 +30,6 @@ export class LoginComponent implements OnInit {
   inputType = 'password';
  
   loginResponse$: Observable<any>;
-  // userDataResp$: Observable<any>;
-  // profileResp$: Observable<any>;
-  // combinedLoginResult$: Observable<any>;
  
   errorMsg: string;
   hasError: boolean = false;
@@ -66,14 +63,12 @@ export class LoginComponent implements OnInit {
  
   ngOnInit(): void {
     localStorage.clear();
-    // get return url from route parameters or default to '/'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
 
   onSubmit(e: Event) {
     e.preventDefault();
     
-    // Prevent multiple submissions
     if (this.isLoading) {
       return;
     }
@@ -81,11 +76,12 @@ export class LoginComponent implements OnInit {
     this.hasError = false;
     this.isLoading = true;
 
+    // --- CHANGE #1: Convert email to lowercase for robust login ---
     const model = {
-      email: this.form.value.email,
+      email: this.form.value.email.toLowerCase(),
       password: this.form.value.password
     }
-    // Subscribe to the Observable to actually execute the HTTP request
+
     this.httpService
       .customerPortalAuth('auth/login', model)
       .pipe(
@@ -103,7 +99,6 @@ export class LoginComponent implements OnInit {
           this.isLoading = false;
           
           if (result['status'] != '00') {
-            // Handle login failure
             this.hasError = true;
             this.errorMsg = result['error'] || result['message'] || 'Login failed';
             setTimeout(() => {
@@ -112,31 +107,33 @@ export class LoginComponent implements OnInit {
               this.form.reset();
             }, 3000);
           } else {
-            // Handle login success
             this.hasError = false; 
             
-            // Store the correct token from the data object
             if (result['data']?.['access_token']) {
               localStorage.setItem('token', result['data']['access_token']);
               localStorage.setItem('access_token', result['data']['access_token']);
               localStorage.setItem('user_id', result['data']['user_id']);
-              console.log(result['data']['access_token']);     
               console.log('Token saved successfully');
             }
             
-            // Store additional user data
             if (result['data']) {
               localStorage.setItem('user_name', result['data']['name'] || '');
               localStorage.setItem('first_name', result['data']['first_name'] || '');
               localStorage.setItem('last_name', result['data']['last_name'] || '');
               localStorage.setItem('email', result['data']['email'] || '');
+
+              //
+              // --- CHANGE #2 (THE FIX): Save the user's role to localStorage ---
+              //
+              localStorage.setItem('user_role', result['data']['role']);
+              //
+              //
+
               console.log('User data saved:', result['data']);
             }
 
             this.globalService.setUserId(result['data']['user_id']);
-
             
-            // Navigate based on first-time login status
             const isFirstTimeLogin = result['first_time_login'] === true || result['data']?.['first_time_login'] === true;
             
             if (isFirstTimeLogin) {
@@ -191,11 +188,10 @@ export class LoginComponent implements OnInit {
   private saveUsernameAndRolesOnLogin() {
     let accessToken = localStorage.getItem("access_token");
  
-    // decode token to get response
     let model = {
       token: accessToken,
     };
-    // console.log("remove model: ", model);
+
     this.httpService.mobileBankingPost('oauth/validate', model).subscribe((res: any) => {
       if (res.status === 200) {
         console.log(res.data);

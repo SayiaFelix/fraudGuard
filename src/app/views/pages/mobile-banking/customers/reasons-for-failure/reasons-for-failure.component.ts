@@ -187,6 +187,7 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
 
   private subscribeToChatbotData() {
     this.chatbotSub = this.globalService.chatbotData$.subscribe(data => {
+      console.log("Received chatbot data:", data);
       if (data && data.id && data.embed_script) {
         this.chatbotData = data;
         this.webchatId = data.id;
@@ -194,7 +195,6 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
         this.fetchChannels(); 
       } else {
         this.isLoadingChannels = false; 
-        // Swal.fire('Warning','Please select a chatbot to manage channels.', 'warning');
       }
       console.log("Chatbot data updated:", this.chatbotData);
     });
@@ -208,54 +208,69 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
     });
   }
 
-private fetchChannels(): void {
+  // --- THIS IS THE DEFINITIVE, FINAL, CORRECTED FUNCTION ---
+  private fetchChannels(): void {
     if (!this.chatbotData || !this.chatbotData.id) {
-      console.warn('Cannot fetch channels: Chatbot ID not available.');
-      this.isLoadingChannels = false;
-      return;
+        console.warn('Cannot fetch channels: Chatbot ID not available.');
+        this.isLoadingChannels = false;
+        return;
     }
 
     this.isLoadingChannels = true;
     const body = { chatbot_id: this.chatbotData.id };
 
-    this.httpService.mobileBankingPost('builder/channels/list', body)
-      .pipe(
-        catchError(err => {
-          console.error('Error fetching channels:', err);
-          Swal.fire('Error','Failed to load channels.', 'error');
-          this.isLoadingChannels = false;
-          return of({ status: '01', data: [] });
-        })
-      )
-      .subscribe({
-        next: (res: any) => {
-          if (res.status === '00' && Array.isArray(res.data)) {
-            
-            const supportedTypes: ChannelType[] = ['webchat', 'whatsapp', 'facebook'];
+    this.httpService.mobileBankingPost('builder/channels/list-by-chatbot', body)
+        .pipe(
+            catchError(err => {
+                console.error('HTTP Error while fetching channels:', err);
+                Swal.fire('Error', 'Failed to load channels from the server.', 'error');
+                this.isLoadingChannels = false;
+                return of(null);
+            })
+        )
+        .subscribe({
+            next: (res: any) => {
+                console.log('RAW API RESPONSE RECEIVED:', res);
 
-            this.channels = res.data
-              .filter((apiChannel: any) => supportedTypes.includes(apiChannel.type))
-              .map((apiChannel: any) => ({
-                id: apiChannel.id,
-                name: apiChannel.name,
-                type: apiChannel.type as ChannelType, 
-                is_active: apiChannel.is_active,
-                created_at: apiChannel.created_at,
-                language: apiChannel.language,
-                lastUpdated: new Date(apiChannel.created_at),
-                enabled: apiChannel.is_active
-              }));
-            
-          } else {
-            this.channels = [];
-            Swal.fire('Error','Failed to fetch channels.', 'error');
-          }
-          this.isLoadingChannels = false;
-        },
-        error: () => {
-          this.isLoadingChannels = false;
-        }
-      });
+                // FINAL FIX #1: Based on your screenshot, the array is at res.data
+                if (res && res.status === '00' && Array.isArray(res.data)) {
+                    
+                    const channelData = res.data; // The array is here
+                    console.log("SUCCESS: Found channels array directly in res.data:", channelData);
+
+                    if (channelData.length === 0) {
+                        console.log("INFO: The channel list from the API is empty.");
+                        this.channels = [];
+                    } else {
+                        const supportedTypes: ChannelType[] = ['webchat', 'whatsapp', 'facebook'];
+                        this.channels = channelData
+                            // FINAL FIX #2: The property name is 'type'
+                            .filter((apiChannel: any) => supportedTypes.includes(apiChannel.type))
+                            .map((apiChannel: any) => ({
+                                id: apiChannel.id,
+                                name: apiChannel.name,
+                                type: apiChannel.type as ChannelType, // Correct property
+                                is_active: apiChannel.is_active,
+                                created_at: apiChannel.created_at,
+                                language: apiChannel.language,
+                                lastUpdated: new Date(apiChannel.created_at),
+                                enabled: apiChannel.is_active
+                            }));
+                        
+                        console.log("SUCCESS: Processed and populated 'this.channels' with", this.channels.length, "items.");
+                    }
+                } else {
+                    console.warn('FAILURE: Response format was not the expected {status: "00", data: [...]}. Response:', res);
+                    this.channels = [];
+                }
+                
+                this.isLoadingChannels = false;
+            },
+            error: (err: any) => { // <-- Add ': any' here
+                console.error("Subscription-level error:", err);
+                this.isLoadingChannels = false;
+            }
+        });
   }
 
 
@@ -313,7 +328,7 @@ onAddChannel() {
       language: this.addChannelForm.value.language 
     };
                            
-    this.httpService.mobileBankingPost('builder/channels', newChannelPayload) 
+    this.httpService.mobileBankingPost('builder/channels/create', newChannelPayload) 
       .subscribe({
         next: (response: any) => {
           if (response.status === '00') {
@@ -482,7 +497,7 @@ async onTestClick() {
 
 
   openModal() { this.showModal = true; }
-  closeModal() { this.showModal = false; this.addChannelForm.reset({ channelType: 'webchat', name: '', language: 'English' }); } // Changed default to lowercase
+  closeModal() { this.showModal = false; this.addChannelForm.reset({ channelType: 'webchat', name: '', language: 'English' }); } 
   viewChannelDetails(channel: Channel) { this.selectedChannel = channel; }
 
   toggleSetupSection() { this.isSetupSectionOpen = !this.isSetupSectionOpen; }
