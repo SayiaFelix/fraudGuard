@@ -9,6 +9,17 @@ import {ConfirmDialogComponent} from "../../../../../shared/components/confirm-d
 import Swal from "sweetalert2";
 import {ChannelDetailsWrapper} from "../../../../../shared/services/channelDetailsWrapper";
 
+// --- NEW INTERFACE ---
+export interface TrainingItem {
+  chatbot_id: number;
+  url: string;
+  file_name: string | null;
+  last_updated: string | null;
+  status: string;
+  name: string; // Derived property for display
+}
+
+
 @Component({
   selector: 'app-view-customer',
   templateUrl: './view-customer.component.html',
@@ -27,8 +38,11 @@ export class ViewCustomerComponent implements OnInit {
   showUrlInput = false;
   showCodeInput = false;
 
+  // --- NEW PROPERTIES ---
+  existingTraining: TrainingItem[] = [];
+  isTrainingLoading = true;
+
   Transactioncolumns = [
-    // { name: 'ID', prop: 'id' },
     { name: 'Trans. ID', prop:'TransID' },
     { name: 'Created On', prop:'CreatedOn' },
     {name:'Service Name',prop:'ServiceName'},
@@ -36,8 +50,6 @@ export class ViewCustomerComponent implements OnInit {
     {name:'Amount',prop:'Amount'},
     {name:'Charge Amt.',prop:'ChargeAmt'},
     {name:'Res. Code',prop:'Respons'},
-    // { name: 'IsActive', prop:'isActive' },
-    // { name: 'Actions', prop: 'id' }
   ];
 
 Accountscolumns = [
@@ -53,7 +65,6 @@ Accountscolumns = [
     { name: 'Channel', prop: 'channel'},
     { name: 'Created At', prop: 'createdOn'},
     { name: 'Status', prop:'active'},
-
   ];
 
   public mainProduct: any;
@@ -63,9 +74,7 @@ Accountscolumns = [
   public form: FormGroup;
 
   public imageFile: File;
-
   ColumnMode = ColumnMode;
-
   modalRef: NgbModalRef;
 
   loading: boolean;
@@ -83,19 +92,25 @@ Accountscolumns = [
   ) {
     activatedRoute.queryParams.subscribe(
       params => {
-
         this.mainProduct = params;
         console.log('queryParams', params);
       });
   }
 
   ngOnInit(): void {
-
+    this.globalService.chatbotId$.subscribe((chatbotId) => {
+    if (chatbotId) {
+      this.loadTrainingData();
+      console.log("Chatbot ID changed, reloading training data for ID:", chatbotId);
+    } else {
+      this.existingTraining= [];
+    }
+  });
     this.activatedRoute.params.subscribe(params => {
       if (typeof params.id !== 'undefined') {
         this.customerId = params.id;
       }
-    })
+    });
     
     this.trainingForm = this.fb.group({
       prompt: ['', [Validators.required]],
@@ -103,20 +118,61 @@ Accountscolumns = [
       // codeSnippet: ['']
     });
 
-    // this.loadCustomerData();
-    // this.loadChannelData();
-
     this.form = this.fb.group({
-      name: [this.formData ? this.formData.name : '',
-        [Validators.required]],
-      description: [this.formData ? this.formData.description : '',
-        [Validators.required]],
-      longDescription: [this.formData ? this.formData.longDescription : '',
-        [Validators.required]],
+      name: [this.formData ? this.formData.name : '', [Validators.required]],
+      description: [this.formData ? this.formData.description : '', [Validators.required]],
+      longDescription: [this.formData ? this.formData.longDescription : '', [Validators.required]],
       feature: [this.formData ? this.formData.feature : ''],
       requirement: [this.formData ? this.formData.requirement : '']
     });
 
+  
+    
+  }
+
+  // --- NEW METHOD TO FETCH TRAINING DATA ---
+  loadTrainingData(): void {
+    const chatbotId = this.globalService.getChatbotId();
+    if (!chatbotId) {
+      console.warn('No chatbot ID found, cannot load training data.');
+      this.isTrainingLoading = false;
+      return;
+    }
+
+    this.isTrainingLoading = true;
+    // Assuming your http service can handle query params, if not, construct the URL manually.
+    this.httpService.mobileBankingGet(`llm/personalise/list?chatbot_id=${chatbotId}`, {})
+      .subscribe({
+        next: (res: any) => {
+          if (res && res.status === '00' && Array.isArray(res.data)) {
+            this.existingTraining = res.data.map((item: any) => {
+              let name = 'Untitled Training';
+              if (item.file_name) {
+                name = item.file_name;
+              } else if (item.url) {
+                try {
+                  const url = new URL(item.url);
+                  name = url.hostname + (url.pathname.length > 1 ? url.pathname.substring(0, 20) + '...' : '');
+                } catch {
+                  name = item.url.substring(0, 30) + '...';
+                }
+              }
+              return { ...item, name: name };
+            });
+            console.log("Successfully loaded training data:", this.existingTraining);
+          } else {
+            this.existingTraining = [];
+            // Swal.fire('Warning', 'Could not retrieve existing training data.', 'warning');
+          }
+          this.isTrainingLoading = false;
+        },
+        error: (err: any) => {
+          console.error('Error fetching training data:', err);
+          this.existingTraining = [];
+          this.isTrainingLoading = false;
+          Swal.fire('Error', 'An error occurred while fetching training data.', 'error');
+        }
+      });
   }
 
  toggleUrlInput() {
@@ -136,33 +192,26 @@ toggleCodeInput() {
 
 cancelCodeInput() {
   this.showCodeInput = false;
-  this.trainingForm.get('codeSnippet')?.setValue(''); // Clear the input
+  // Assuming you add a 'codeSnippet' control if you implement this
+  // this.trainingForm.get('codeSnippet')?.setValue(''); 
 }
 
 get isFormValid(): boolean {
   return !!(
     this.uploadedFile || 
-    this.trainingForm.value.url || 
-    this.trainingForm.value.codeSnippet
+    this.trainingForm.value.url
   );
 }
 
 submitTraining(): void {
-
   const id = this.globalService.getChatbotId();
   this.chatbotId = id ? id.toString() : '';
   console.log('For chatbot ID:', this.chatbotId);
-   
 
   if (!this.chatbotId) {
     Swal.fire('Error', 'No chatbot ID found, create Chatbot first', 'error');
     return;
   }
-
-  // if (!this.uploadedFile && !this.trainingForm.value.url) {
-  //   Swal.fire('Error', 'Please provide either a file or URL', 'error');
-  //   return;
-  // }
 
   const formData = new FormData();
   formData.append('prompt', this.trainingForm.value.prompt);
@@ -173,8 +222,6 @@ submitTraining(): void {
     formData.append('file', this.uploadedFile);
   }
 
-  console.log("Form Data Model =====>", formData)
-
   this.httpService
     .mobileBankingPostFormData('llm/personalise', formData)
     .subscribe({
@@ -182,6 +229,7 @@ submitTraining(): void {
         if (res.status === "00") {
           Swal.fire('Success', res.message || 'Knowledge base updated.', 'success');
           this.resetInputs();
+          this.loadTrainingData(); // Refresh the list after successful submission
         } else {
           Swal.fire('Error', res.message || 'Failed to update knowledge base', 'error');
         }
@@ -198,15 +246,9 @@ resetInputs(): void {
   if (this.fileInput && this.fileInput.nativeElement) {
     this.fileInput.nativeElement.value = '';
   }
-
   this.showUrlInput = false;
   this.trainingForm.get('url')?.setValue('');
-
   this.showCodeInput = false;
-  this.trainingForm.get('codeSnippet')?.setValue('');
-
-  // Keep the prompt as it might be reusable
-  // this.trainingForm.get('prompt')?.setValue(''); // Uncomment if you want to clear prompt too
 }
 
 onFileChange(event: any) {
@@ -220,165 +262,4 @@ removeFile() {
   this.uploadedFile = null;
   this.fileInput.nativeElement.value = '';
 }
-
-//   private loadChannelData(): any {
-//     this.channelsLoading = true;
-//     let model = ChannelDetailsWrapper.channelDetailsWrapper;
-
-//     model.payload = {
-//       customerId: this.customerId
-//     }
-
-//     this.httpService
-//       .mobileBankingPostUpdated('api/v1/kyc/portal/get-user-channels', model)
-//       .subscribe((res: any) => {
-//         if (res.status === '00') {
-//           setTimeout(() => {
-
-
-//             let response = res['data'].map((item: any, index: any) => {
-//               let res = {...item,
-//                 createdOn: new Date(item.createdOn).toLocaleDateString()
-//               };
-//               return res;
-//             })
-
-//             this.channelRows = response;
-
-
-//             let total = res.metadata.numofrecords;
-//           }, 10);
-//         } else {
-//         }
-//       });
-
-//     this.channelsLoading = false;
-
-//   }
-
-//   private loadCustomerData(): any {
-//     this.customerLoading = true;
-
-//     // let model = ChannelDetailsWrapper.channelDetailsWrapper;
-
-//     let payload = {
-//       id: this.customerId
-//     }
-
-//     this.httpService
-//       .mobileBankingPostNest('customers/getCustomerById', payload)
-//       .subscribe((res: any) => {
-//         if (res.status === 201) {
-//           setTimeout(() => {
-//             let response = res['data'];
-
-//             this.customerDetails = response;
-//           }, 10);
-//         } else {
-//         }
-//       });
-
-//     this.channelsLoading = false;
-
-//   }
-
-//   isAsideNavCollapsed: any;
-//   openAddProductSubcategoryModal(content: TemplateRef<any>) {
-//     this.modalService.open(content, {centered: true, size: "lg"}).result.then((result) => {
-//       console.log("Modal closed" + result);
-//     }).catch((res) => {});
-//   }
-
-
-//   private createRecord(): any {
-
-//     const model = {
-//       firstName: this.form.value.firstName,
-//       lastName: this.form.value.lastName,
-//       middleName: this.form.value.middleName,
-//       phoneNumber: this.form.value.phoneNumber,
-//       email: this.form.value.email,
-//       position: this.form.value.position,
-//       profileId: this.form.value.profile
-//     };
-
-//     this.httpService.mobileBankingPost('api/v1/corporate/admin/create', model).subscribe(
-//       (result: any) => {
-//         if (result.status === 200) {
-//         } else {
-
-//         }
-//       }
-//     );
-//   }
-
-//   private disableCustomer(id: string) {
-//     const model = {
-//       id
-//     };
-
-//     this.httpService
-//       .mobileBankingPostNest('customers/disableCustomerById', model)
-//       .subscribe((res: any) => {
-//         if (res.status === 201) {
-//           setTimeout(() => {
-//             Swal.fire('Disable Successful',
-//               'Customer has been disabled successfully!',
-//               'success').then(r => {});
-//           }, 10);
-//         } else {
-//           Swal.fire('Unable to disable customer',
-//             'Customer could not be disabled!',
-//             'error').then(r => {});
-//         }
-//       });
-//   }
-//   openResetPinModal(content: TemplateRef<any>){
-//     this.modalService.open(content, {centered: true, size: "md"}).result.then((result) => {
-//       console.log("Modal closed" + result);
-//     }).catch((res) => {});
-//   }
-//   openDisableCustomerModal(){
-//     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
-//     this.modalRef.componentInstance.title = 'Delete Customer';
-//     this.modalRef.componentInstance.body = 'Do you want to permanently delete this customer?';
-//     this.modalRef.result.then((result) => {
-//       if (result === 'success') {
-//         Swal.fire('Delete Successful',
-//           'Customer has been deleted successfully!',
-//           'success').then(r => {});
-//       } else {
-//         console.log("Error occurred")
-//       }
-//     });
-//   }
-
-
-//   openBlockCustomerModal(id: string) {
-//     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
-//     this.modalRef.componentInstance.title = 'Disable Customer';
-//     this.modalRef.componentInstance.body = 'Do you want to  disable this customer?';
-//     this.modalRef.result.then((result) => {
-//       if (result === 'success') {
-//         this.disableCustomer(id);
-//       }
-//     });
-//   }
-
-
-
-//   resetCustomerPassword() {
-//     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
-//     this.modalRef.componentInstance.title = 'Reset Customer Password';
-//     this.modalRef.componentInstance.body = 'Do you want to reset customer password?';
-//     this.modalRef.result.then((result) => {
-//       if (result === 'success') {
-//         Swal.fire('Reset Password',
-//           'Customer password has been reset successfully!',
-//           'success').then(r => {});
-//       } else {
-//         console.log("Error occurred")
-//       }
-//     });
-//   }
 }
