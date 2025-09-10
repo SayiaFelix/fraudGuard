@@ -161,22 +161,16 @@ export class AddCustomerComponent implements OnInit {
   nextPage(): void { this.goToPage(this.currentPage + 1); }
   previousPage(): void { this.goToPage(this.currentPage - 1); }
 
-  // Inside AddCustomerComponent class
-
 fetchAgentLists(): void {
   this.isLoadingBots = true;
   const userId = localStorage.getItem('user_id'); 
-  // The 'userId' is not directly sent with this API call, as per your Postman image,
-  // but it's good to keep this check if other logic depends on the user being logged in.
+
   if (!userId) {
     this.fullAgentList = [];
     this.isLoadingBots = false;
     return;
   }
   
-  // Call _httpService.customerPortalGet and pass the headers directly.
-  // this._httpService.getHeaders() returns the object { headers: HttpHeaders }
-  // which is exactly what HttpClient.get expects as its options argument.
   this._httpService.customerPortalGet('builder/chatbots/list', this._httpService.getHeaders()).subscribe({
     next: (res: any) => {
       if (res.status === '00' && Array.isArray(res.data)) {
@@ -200,28 +194,6 @@ fetchAgentLists(): void {
   });
 }
 
-  // toggleChatbotStatus(chatbot: any): void {
-  //   const newStatus = !chatbot.is_active;
-  //   const payload = { chatbot_id: chatbot.id, is_active: newStatus };
-  //   this._httpService.mobileBankingPost('builder/chatbots/status', payload).subscribe({
-  //     next: (res: any) => {
-  //       if (res.status === '00') {
-  //         const botInFullList = this.fullAgentList.find(b => b.id === chatbot.id);
-  //         if (botInFullList) botInFullList.is_active = newStatus;
-  //         this.globalService.setBotStatus({ id: chatbot.id, is_active: newStatus });
-  //         this.applyFilter();
-  //       } else {
-  //         this._toastService.warning(res.message || 'Failed to update chatbot status.', 'Warning');
-  //       }
-  //     },
-  //     error: (err: any) => {
-  //       this._toastService.error(err?.error?.message || 'An error occurred while updating status.', 'Error');
-  //     }
-  //   });
-  // }
-
-  // Inside AddCustomerComponent class
-
 toggleChatbotStatus(chatbot: any): void {
   const newStatus = !chatbot.is_active;
   const payload = { 
@@ -229,18 +201,15 @@ toggleChatbotStatus(chatbot: any): void {
       is_active: newStatus 
   };
 
-  // *** CRITICAL CHANGE: Use mobileBankingPatch instead of mobileBankingPost ***
-  // This aligns the status update with the main PATCH /update API if it handles 'is_active'.
   this._httpService.mobileBankingPatch('builder/chatbots/update', payload).subscribe({
     next: (res: any) => {
       if (res.status === '00') {
         const botInFullList = this.fullAgentList.find(b => b.id === chatbot.id);
         if (botInFullList) {
             botInFullList.is_active = newStatus;
-            // Also update the global service if you're using it to reflect status changes elsewhere
             this.globalService.setBotStatus({ id: chatbot.id, is_active: newStatus });
         }
-        this.applyFilter(); // Reapply filters to reflect the status change in the UI
+        this.applyFilter(); 
       } else {
         this._toastService.warning(res.message || 'Failed to update chatbot status.', 'Warning');
       }
@@ -309,7 +278,6 @@ toggleChatbotStatus(chatbot: any): void {
             this.botCreated.emit();
           });
 
-          // Also show toast as backup
           this._toastService.success('AI Assistant Created Successfully!', 'Success');
         } else {
           Swal.fire({
@@ -339,8 +307,6 @@ toggleChatbotStatus(chatbot: any): void {
     });
   }
 
-  // Inside AddCustomerComponent class, in private updateBot(): void method
-
 private updateBot(): void {
   if (!this.editingBot) return;
 
@@ -349,12 +315,11 @@ private updateBot(): void {
     chatbot_id: this.editingBot.id,
     name: this.form.value.name,
     description: this.form.value.description,
-    is_active: this.editingBot.is_active, // Ensure this is included as per PATCH API
-    language: this.language.length > 0 ? this.language[0] : 'English', // Add language to payload if backend expects it on PATCH
+    is_active: this.editingBot.is_active,
+    language: this.language.length > 0 ? this.language[0] : 'English',
     config: this.editingBot.config || {}
   };
 
-  // ***** CRITICAL CHANGE HERE: Use mobileBankingPatch instead of mobileBankingPost *****
   this._httpService.mobileBankingPatch('builder/chatbots/update', model).subscribe({
     next: (result: any) => {
       this.loading = false;
@@ -411,8 +376,6 @@ private updateBot(): void {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-// Inside AddCustomerComponent class
-
 public deleteBot(bot: any): void {
   Swal.fire({
     title: 'Are you sure?',
@@ -427,8 +390,6 @@ public deleteBot(bot: any): void {
       const payload = { chatbot_id: bot.id };
       console.log('Attempting to delete bot with payload:', payload);
 
-      // ***** CRITICAL CHANGE HERE: Using mobileBankingDel for the DELETE request *****
-      // Pass the endpoint and the payload as the body.
       this._httpService.mobileBankingDel('builder/chatbots/delete', payload).subscribe({
         next: (res: any) => {
           console.log('Server response from delete API:', res);
