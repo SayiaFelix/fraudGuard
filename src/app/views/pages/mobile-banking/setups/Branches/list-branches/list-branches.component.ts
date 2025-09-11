@@ -81,8 +81,8 @@ export class ListBranchesComponent implements OnInit {
     console.log('Detected user role:', userRole);
 
     if (userRole === 'ADMIN') {
-      const creators$ = this.httpService.mobileBankingGet('auth/admin/creators', {});
-      const admins$ = this.httpService.mobileBankingGet('auth/admin/admins', {});
+      const creators$ = this.httpService.mobileBankingGet('auth/admin/creators');
+      const admins$ = this.httpService.mobileBankingGet('auth/admin/admins');
       
       forkJoin([creators$, admins$]).subscribe({
         next: (results: any[]) => {
@@ -115,7 +115,7 @@ export class ListBranchesComponent implements OnInit {
         }
       });
     } else if (userRole === 'CREATOR') {
-      this.httpService.mobileBankingGet('auth/admin/creators', {}).subscribe({
+      this.httpService.mobileBankingGet('auth/admin/creators').subscribe({
         next: (result: any) => {
           console.log('Creators API result for CREATOR role:', result);
           

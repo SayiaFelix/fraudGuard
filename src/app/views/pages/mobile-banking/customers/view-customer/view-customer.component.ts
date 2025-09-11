@@ -130,7 +130,6 @@ Accountscolumns = [
     
   }
 
-  // --- NEW METHOD TO FETCH TRAINING DATA ---
   loadTrainingData(): void {
     const chatbotId = this.globalService.getChatbotId();
     if (!chatbotId) {
@@ -140,8 +139,7 @@ Accountscolumns = [
     }
 
     this.isTrainingLoading = true;
-    // Assuming your http service can handle query params, if not, construct the URL manually.
-    this.httpService.mobileBankingGet(`llm/personalise/list?chatbot_id=${chatbotId}`, {})
+    this.httpService.mobileBankingGet(`llm/personalise/list?chatbot_id=${chatbotId}`)
       .subscribe({
         next: (res: any) => {
           if (res && res.status === '00' && Array.isArray(res.data)) {

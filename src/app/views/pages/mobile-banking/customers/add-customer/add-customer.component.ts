@@ -171,7 +171,7 @@ fetchAgentLists(): void {
     return;
   }
   
-  this._httpService.customerPortalGet('builder/chatbots/list', this._httpService.getHeaders()).subscribe({
+  this._httpService.mobileBankingGet('builder/chatbots/list').subscribe({
     next: (res: any) => {
       if (res.status === '00' && Array.isArray(res.data)) {
         this.fullAgentList = res.data.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
