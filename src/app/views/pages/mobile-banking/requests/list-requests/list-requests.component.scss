@@ -12,16 +12,12 @@
   width: 100%;
   background-color: #f8f9fa;
 
-  // When the details sidebar is open, we adjust the grid
   &.details-sidebar-open {
     grid-template-columns: 360px 1fr 400px;
   }
 }
 
 
-/* ======================================================================= */
-/* LEFT PANEL: CONVERSATION LIST                                           */
-/* ======================================================================= */
 .conversation-list-panel {
   display: flex;
   flex-direction: column;
@@ -30,6 +26,7 @@
 }
 
 .panel-header {
+  position: relative;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -106,9 +103,6 @@
   .channel-icon { font-size: 1rem; }
 }
 
-/* ======================================================================= */
-/* RIGHT PANEL: MESSAGE VIEW                                               */
-/* ======================================================================= */
 .message-view-panel {
   display: flex;
   flex-direction: column;
@@ -151,9 +145,6 @@
   .send-btn { background-color: #0d6efd; color: #fff; border: none; border-radius: 6px; padding: 8px 16px; font-weight: 500; cursor: pointer; }
 }
 
-/* ======================================================================= */
-/* DETAILS SIDEBAR PANEL (Far Right)                                       */
-/* ======================================================================= */
 .details-sidebar-panel {
   background-color: #ffffff;
   border-left: 1px solid #e9ecef;
@@ -175,62 +166,61 @@
     &[open] > summary i { transform: rotate(-180deg); }
     .details-content { .info-row.inline { padding: 0.75rem 0; border-top: 1px solid #f1f3f5; } }
   }
-  .placeholder-text { padding: 0.5rem 0; color: #6c757d; font-size: 0.9rem; }
 }
 .avatar-small { width: 24px; height: 24px; border-radius: 4px; background-color: #e9ecef; }
-.status-dropdown-container { position: relative; }
-.info-value.clickable { cursor: pointer; &:hover { opacity: 0.9; } }
-.status-change-dropdown {
-  position: absolute; top: calc(100% + 4px); right: 0; z-index: 1055; width: 220px;
-  background-color: #fff; border: 1px solid #e9ecef; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-  padding: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem;
-}
-.status-option {
-  display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0.75rem; border-radius: 6px; cursor: pointer;
-  &:hover { background-color: #f8f9fa; }
-  .feather.icon-check { font-size: 1.1rem; stroke-width: 3; color: #212529; }
-}
 .status-badge {
   display: inline-block; padding: 5px 14px; border-radius: 16px; font-weight: 500; font-size: 13px; line-height: 1.5; color: #ffffff;
   &.blue, &.open { background-color: #0d6efd; }
-  &.orange, &.pending { background-color: #fd7e14; }
-  &.red, &.overdue { background-color: #dc3545; }
-  &.green, &.resolved { background-color: #198754; }
-  &.gray, &.closed { background-color: #6c757d; }
+  &.orange, &.pending, &.pending-approval { background-color: #fd7e14; }
 }
-.person-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding-bottom: 1.5rem;
-  margin-bottom: 1.5rem;
-  border-bottom: 1px solid #e9ecef;
 
-  .avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 8px;
-    background-color: #e9ecef;
-    color: #495057;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: 1.25rem; 
-  }
+.notification-btn {
+  position: relative;
+}
+.notification-badge {
+  position: absolute; top: 6px; right: 6px; width: 18px; height: 18px; background-color: #dc3545; color: #fff; border-radius: 50%;
+  font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; line-height: 1;
+}
+.notifications-dropdown {
+  position: absolute; top: calc(100% - 10px); right: 1.5rem; width: 320px; background-color: #fff; border: 1px solid #e9ecef;
+  border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); z-index: 1060; overflow: hidden;
 
-  .person-name {
-    font-weight: 600;
-    font-size: 1.1rem;
-    flex-grow: 1;
-  }
-
-  .btn-icon {
-    background: none;
-    border: none;
-    font-size: 1.25rem;
-    color: #6c757d;
-    cursor: pointer;
+  .dropdown-header { padding: 0.75rem 1rem; font-weight: 600; border-bottom: 1px solid #e9ecef; }
+  .no-notifications { padding: 1.5rem 1rem; text-align: center; color: #6c757d; }
+  .notification-list { list-style: none; padding: 0; margin: 0; max-height: 400px; overflow-y: auto; }
+  .notification-item {
+    display: flex; align-items: flex-start; gap: 1rem; padding: 0.75rem 1rem; cursor: pointer;
+    border-bottom: 1px solid #f1f3f5;
+    &:last-child { border-bottom: none; }
+    &:hover { background-color: #f8f9fa; }
+    .avatar { font-size: 1rem; width: 40px; height: 40px; }
   }
 }
 
+.approval-actions {
+  display: flex; flex-direction: column; gap: 1rem; padding-bottom: 1.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid #e9ecef;
+  .approval-prompt { font-size: 0.9rem; color: #6c757d; line-height: 1.5; text-align: center; margin: 0; }
+  button {
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.75rem 1rem; border-radius: 6px; border: none;
+    font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.2s ease;
+  }
+  .btn-approve { background-color: #d4edda; color: #155724; &:hover { background-color: #c3e6cb; } }
+  .btn-deny { background-color: #f8d7da; color: #721c24; &:hover { background-color: #f5c6cb; } }
+}
+
+.approval-view-content {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+  padding: 2rem; height: 100%; background-color: #f8f9fa; color: #495057;
+
+  .approval-icon {
+    width: 80px; height: 80px; border-radius: 50%; background-color: #e9ecef;
+    display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;
+    i { font-size: 2.5rem; color: #6c757d; stroke-width: 1.5; }
+  }
+  h2 { font-size: 1.5rem; font-weight: 600; color: #212529; margin-bottom: 0.75rem; }
+  .approval-details {
+    font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem; padding: 1rem;
+    background-color: #fff; border: 1px solid #dee2e6; border-radius: 8px;
+  }
+  .approval-instructions { font-size: 0.9rem; color: #6c757d; max-width: 400px; }
+}
