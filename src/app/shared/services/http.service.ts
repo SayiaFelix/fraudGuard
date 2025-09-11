@@ -61,23 +61,12 @@ export class HttpService {
     return this.http.post(`${this.baseUrls}/chat`, { query });
   }
 
-
-
-
-
-
-
-  
-
   public getEnterpriseUsers(endpoint: string):Observable<any> {
     return this.http.get(this.globalService.customerPortalNest + endpoint)
   }
   public channelManagerLogin(){
 
   }
-  // In: http.service.ts
-
-// In: http.service.ts
 
 public customerPortalLogin(endpoint: string, model: any): Observable<any> {
   return this.http
@@ -88,23 +77,17 @@ public customerPortalLogin(endpoint: string, model: any): Observable<any> {
     )
     .pipe(
       map((result: any) => {
-        // We check for the 'token' field from your login response
+     
         if (result.status === '00' && result.token) {
           localStorage.setItem('isLoggedin', 'true');
-          
-          // *** CRITICAL FIX HERE: Save the token under the 'authToken' key ***
-          // This ensures that globalService.getToken() can find it later.
           localStorage.setItem('authToken', result.token); 
-          
           localStorage.setItem('data', JSON.stringify(result));
         } else {
-          // If login is successful but there's no token, something is wrong.
           throwError(() => new Error(result.message || 'Login failed.'));
         }
         return result;
       }),
       catchError((err) => {
-        // console.error('customerPortalLogin error:', err);
         return throwError(() => err);
       })
     );
@@ -117,7 +100,6 @@ public customerPortalLogin(endpoint: string, model: any): Observable<any> {
                 map((result: any) => {
                     if (result['status'] == '00') {
                       console.log('Activation successful:', result); 
-                        // localStorage.setItem('isActivated', 'true');
                     } else {
                         throw new Error(result['message']);
                     }
@@ -135,13 +117,12 @@ public customerPortalLogin(endpoint: string, model: any): Observable<any> {
     return this.http.get<any>(this.subclassDataUrl);
   }
 
-  // Accepts optional options (e.g., headers) as third argument
   public customerPortalAuth(endpoint: string, model: any, options?: any): Observable<any> {
     return this.http
       .post(
         this.globalService.customerPortalNest + endpoint,
         model,
-        options // Pass headers or other options if provided
+        options 
       )
       .pipe(
         map((result: any) => {
@@ -339,7 +320,7 @@ public customerPortalLogin(endpoint: string, model: any): Observable<any> {
       );
   }
 
-   public mobileBankingGet(endpoint: string, model: any): any {
+   public mobileBankingGet(endpoint: string): any {
     return this.http
       .get(
         this.globalService.customerPortalNest + endpoint,
@@ -369,12 +350,12 @@ public mobileBankingPatch(endpoint: string, model: any): any {
   }
 
 
-public mobileBankingDel(endpoint: string, payload?: any): any { // Renamed 'model' to 'payload' for clarity, made optional
-    const options: any = { // Use 'any' for options to allow dynamic 'body' property
-        headers: this.getHeaders().headers // Get HttpHeaders from getHeaders()
+
+public mobileBankingDel(endpoint: string, payload?: any): any {
+    const options: any = { 
+        headers: this.getHeaders().headers 
     };
 
-    // If a payload is provided, include it in the options for the DELETE request
     if (payload) {
         options.body = payload;
     }
@@ -382,7 +363,7 @@ public mobileBankingDel(endpoint: string, payload?: any): any { // Renamed 'mode
     return this.http
         .delete(
             this.globalService.customerPortalNest + endpoint,
-            options // Pass the combined options (headers + optional body)
+            options 
         )
         .pipe(
             map((response) => {
@@ -392,21 +373,26 @@ public mobileBankingDel(endpoint: string, payload?: any): any { // Renamed 'mode
         );
 }
 
-
-
-
   public mobileBankingPostFormData(endpoint: string, model: FormData): Observable<any> {
     return this.http.post(
         this.globalService.customerPortalNest + endpoint,
         model,
         this.getFormHeaders()
     ).pipe(
-        map((response) => response) // Simplified the map operation
+        map((response) => response) 
     );
 }
 
+  public mobileBankingPatchFormData(endpoint: string, model: FormData): Observable<any> {
+    return this.http.patch(
+        this.globalService.customerPortalNest + endpoint,
+        model,
+        this.getFormHeaders()
+    ).pipe(
+        map((response) => response) 
+    );
+}
 
-  // For Pagination
 public mobileBankingPaginationPost(endpoint: string, model: any): any {
     const updatedModel = {
       page: model.page - 1,
@@ -425,9 +411,8 @@ public mobileBankingPaginationPost(endpoint: string, model: any): any {
           return response;
         })
       );
-  }
+    }
 
-  // endpoint for submitting form Data
   public mobileBankingFormRequestPost(endpoint: string, model: any): any {
     return this.http
       .post(
@@ -442,7 +427,6 @@ public mobileBankingPaginationPost(endpoint: string, model: any): any {
         })
       );
   }
-
 
   public getMapCoordinates(endpoint: string): any {
     return this.http.get(endpoint, this.getHeaders()).pipe(
@@ -495,7 +479,6 @@ getHeaders(): any {
     return roles;
   }
 
-  // Other requests to backend...Mobile Banking extended endpoints
   public mobileBankingPostUpdated(endpoint: string, model: any): any {
     return this.http
       .post(
@@ -512,7 +495,6 @@ getHeaders(): any {
       );
   }
 
-  // Other requests to backend...Nest Mobile Banking extended endpoints
   public mobileBankingPostNest(endpoint: string, model: any): any {
     return this.http
       .post(

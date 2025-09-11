@@ -698,9 +698,9 @@ loadInitialData(): void {
         console.log('Using router state for initial data:', triggerData);
         this.intentname = triggerData.name;
         this.description = triggerData.description;
-        this.isActive = !!triggerData.is_active; // Use passed status
+        this.isActive = !!triggerData.is_active; 
         this.intentId = triggerData.id;
-        this.fetchData(this.intentId); // Fetch children
+        this.fetchData(this.intentId); 
     } else {
         console.log('No router state found. Fetching full intent details from API...');
         this.fetchIntentDetailsFromAPI(this.intentId);
@@ -855,9 +855,13 @@ fetchIntentList(chatbotId: number): void {
 
 fetchNestedIntents(intentId: number): void {
   this.loadingTriggers = true;
-  const body = { parent_id: intentId };
+  const body = { 
+    chatbot_id: this.chatbotId,
+    parent_id: intentId 
+  };
+  console.log('Fetching triggers with body:', body);
   
-  this._httpService.mobileBankingPost('builder/chatbots/nested-intents/children', body)
+  this._httpService.mobileBankingPost('builder/intents/children', body)
     .pipe(
       catchError(err => {
         console.error('Error fetching triggers:', err);
@@ -1107,28 +1111,61 @@ getDisplayItems(): any[] {
   });
 }
 
-toggleTriggerStatus(event: Event, trigger: any): void {
-  const isChecked = (event.target as HTMLInputElement).checked;
-  const payload = { intent_id: trigger.id, is_active: isChecked };
-  
-  this._httpService.mobileBankingPost('builder/nodes/intent/status', payload).subscribe({
-    next: (res: any) => {
-      if (res.status !== '00') {
-        // Revert if API call fails
-        (event.target as HTMLInputElement).checked = !isChecked;
-        this._toastService.error(res.message || 'Failed to update trigger status');
+toggleActionStatus(action: any): void {
+  console.log('Toggled action:', action);
+
+  const body = {
+    action_id: action.id,
+    is_active: action.is_active
+  };
+  console.log('Updating action status with body:', body);
+
+  this._httpService.mobileBankingPatch('builder/actions/update', body)
+    .subscribe({
+      next: (res: any) => {
+        if (res.status === '00') {
+          this.fetchNestedIntents(this.intentId);
+        
+          console.log(`Action ${action.id} status updated successfully`);
+        } else {
+          console.error(`Failed to update status for action ${action.id}`);
+        }
+      },
+      error: (err : any) => {
+        console.error('Error updating action status:', err);
       }
-    },
-    error: (err: any) => {
-      (event.target as HTMLInputElement).checked = !isChecked;
-      this._toastService.error(err.message || 'Error updating trigger status');
-    }
-  });
+    });
 }
+
+toggleTriggerStatus(trigger: any): void {
+  console.log('Toggled trigger:', trigger);
+
+  const body = {
+    id: trigger.id,
+    is_active: trigger.is_active
+  };
+
+  this._httpService.mobileBankingPatch('builder/triggers/update', body)
+    .subscribe({
+      next: (res: any) => {
+        if (res.status === '00') {
+           this.fetchNestedIntents(this.intentId);
+          console.log(`Trigger ${trigger.id} status updated successfully`);
+        } else {
+          console.error(`Failed to update status for trigger ${trigger.id}`);
+        }
+      },
+      error: (err: any) => {
+        console.error('Error updating trigger status:', err);
+      }
+    });
+}
+
+
 
 fetchActionType(): void {
   this.isLoading = true;
-  this._httpService.mobileBankingPost('builder/nodes/action-types', {}).subscribe({
+  this._httpService.mobileBankingGet('builder/actions/types').subscribe({
     next: (res: any) => {
       this.actionTypes = (res?.status === '00') ? res.data || [] : [];
       console.log("Action Types:", this.actionTypes);
@@ -1209,7 +1246,7 @@ openActionForm(action: any): void {
   switch(this.selectedActionType) {
     case 'send_message':
       this.actionForm = this.fb.group({
-        id: [action.id || null], 
+        action_id: [action.id || null], 
         name: [action.name || '', Validators.required],
         action_type: ['send_message', Validators.required],
         message: [action.config?.message || '', Validators.required]
@@ -1218,7 +1255,7 @@ openActionForm(action: any): void {
 
      case 'send_file':
       this.actionForm = this.fb.group({
-        id: [action.id || null], 
+        action_id: [action.id || null], 
         name: [action.name || '', Validators.required],
         action_type: ['send_file', Validators.required],
         file_format: [action.config?.file_type?.split('/')[0] || 'image', Validators.required],
@@ -1260,7 +1297,7 @@ openActionForm(action: any): void {
       this.carouselItemFiles = {};
       
       this.actionForm = this.fb.group({
-        id: [action.id || null], 
+        action_id: [action.id || null], 
         name: [action.name || '', Validators.required],
         action_type: ['carousel', Validators.required],
         display_type: [action.config?.display_type || 'slider', Validators.required],
@@ -1273,7 +1310,7 @@ openActionForm(action: any): void {
       if (action.config?.items) {
         action.config.items.forEach((item: any, index: number) => {
           const itemGroup = this.fb.group({
-            id: [action.id || null], 
+            action_id: [action.id || null], 
             title: [item.title || '', Validators.required],
             description: [item.description || ''],
             item_type: [item.item_type || 'image'],
@@ -1288,7 +1325,7 @@ openActionForm(action: any): void {
 
     case 'http_request':
       this.actionForm = this.fb.group({
-        id: [action.id || null], 
+        action_id: [action.id || null], 
         name: [action.name || '', Validators.required],
         action_type: ['http_request', Validators.required],
         http_method: [action.config?.method || 'GET', Validators.required],         
@@ -1318,7 +1355,7 @@ openActionForm(action: any): void {
   
     case 'conditional':
       this.actionForm = this.fb.group({
-        id: [action.id || null],
+        action_id: [action.id || null],
         name: [action.name || '', Validators.required],
         action_type: ['conditional', Validators.required],
         condition: [action.config?.condition || '', Validators.required],
@@ -1330,7 +1367,7 @@ openActionForm(action: any): void {
 
     case 'Jump_to_Trigger':
       this.actionForm = this.fb.group({
-        id: [action.id || null], 
+        action_id: [action.id || null], 
         name: [action.name || '', Validators.required],
         action_type: ['Jump_to_Trigger', Validators.required],
         target_type: [action.config?.target_type || 'flow', Validators.required], 
@@ -1354,7 +1391,7 @@ openActionForm(action: any): void {
 
     case 'set_variable':
       this.actionForm = this.fb.group({
-        id: [action.id || null],
+        action_id: [action.id || null],
         name: [action.name || '', Validators.required],
         action_type: ['set_variable', Validators.required],
         variables: this.fb.array([]),
@@ -1380,7 +1417,7 @@ openActionForm(action: any): void {
 
     case 'survey':
        this.actionForm = this.fb.group({
-          id: [action.id || null],
+          action_id: [action.id || null],
           name: [action?.name || 'Customer Feedback Survey', Validators.required],
           action_type: ['survey', Validators.required],
           config: this.fb.group({
@@ -1404,7 +1441,7 @@ openActionForm(action: any): void {
     
     case 'create_ticket':
       this.actionForm = this.fb.group({
-        id: [action.id || null], 
+        action_id: [action.id || null], 
         name: [action.name || '', Validators.required],
         action_type: ['create_ticket', Validators.required],
         ticket_type: ['', Validators.required],
@@ -1641,10 +1678,10 @@ prepareFormData(isEditing: boolean): any {
     name: formValue.name,
     action_type: formValue.action_type
   };
-
+   
   // Include ID only when editing
   if (isEditing) {
-    baseData.id = formValue.id;
+    baseData.action_id = formValue.action_id;
   }
 
   switch (formValue.action_type) {
@@ -1653,6 +1690,7 @@ prepareFormData(isEditing: boolean): any {
         message: formValue.message,
         quick_replies: this.quickReplies.value || []
       };
+      console.log('Prepared send_message config:', baseData);
       break;
 
     case 'http_request':
@@ -1888,19 +1926,19 @@ private prepareMultipartFormData(isEditing: boolean): FormData {
 updateAction(actionId: number): void {
   const isMultipart = this.actionForm.value.action_type === 'send_file' || this.actionForm.value.action_type === 'carousel';
   
-  let endpoint = 'builder/nodes/action/update';
+  let endpoint = 'builder/actions/update';
   let payload: any;
   let serviceCall: Observable<any>;
 
   if (isMultipart) {
-    endpoint = 'builder/nodes/action-multipart/update';
+    endpoint = 'builder/action-multipart/update';
     // For multipart,
     payload = this.prepareMultipartFormData(true);
-    serviceCall = this._httpService.mobileBankingPostFormData(endpoint, payload);
+    serviceCall = this._httpService.mobileBankingPatchFormData(endpoint, payload);
   } else {
     // For non-multipart,
     payload = this.prepareFormData(true);
-    serviceCall = this._httpService.mobileBankingPost(endpoint, payload);
+    serviceCall = this._httpService.mobileBankingPatch(endpoint, payload);
   }
 
   console.log('Updating action with data:', payload);
@@ -1955,14 +1993,12 @@ createNewAction(): void {
     action_type: this.selectedActionType,
     intent_id: intentId,
     parent_id: parent_id,
-    branch_path: this.buildBranchPath(),
+    // branch_path: this.buildBranchPath(),
     order: order
   };
 
-  // Handle different action types
   switch(this.selectedActionType) {
     case 'send_message':
-      //send_message functionality
       const sendMessageModel = {
         ...baseModel,
         config: {
@@ -2005,7 +2041,7 @@ createNewAction(): void {
           headers: headersObj,
           body: parsedBody,
           timeout: this.actionForm.value.timeout,
-          retry_policy: { // Change to plain object
+          retry_policy: {
             attempts: this.actionForm.value.retry_attempts,
             delay: this.actionForm.value.retry_delay
           }
@@ -2195,8 +2231,9 @@ private handleSendFileAction(intentId: number, parent_id: number, order: number)
   formData.append('name', this.actionForm.value.name);
   formData.append('action_type', 'send_file');
   formData.append('intent_id', intentId.toString());
-  formData.append('parent_id', parent_id.toString());
+  formData.append('parent_action_id', parent_id.toString());
   formData.append('order', order.toString());
+  formData.append('branch_path', this.buildBranchPath());
 
   // config as JSON string
   const config = {
@@ -2214,7 +2251,7 @@ private handleSendFileAction(intentId: number, parent_id: number, order: number)
     formData.append('files', this.uploadedFile!);
    
     // Use the multipart endpoint
-    this._httpService.mobileBankingPostFormData('builder/nodes/action-multipart', formData).subscribe({
+    this._httpService.mobileBankingPostFormData('builder/actions/create-multipart', formData).subscribe({
       next: (result: any) => this.handleActionResponse(result),
       error: (err: any) => this.handleActionError(err)
     });
@@ -2227,7 +2264,7 @@ private handleSendFileAction(intentId: number, parent_id: number, order: number)
     };
 
     console.log('Submitting Model Form:', model);
-    this._httpService.mobileBankingPost('builder/nodes/action', model).subscribe({
+    this._httpService.mobileBankingPost('builder/actions/create', model).subscribe({
       next: (result: any) => this.handleActionResponse(result),
       error: (err: any) => this.handleActionError(err)
     });
@@ -2239,7 +2276,7 @@ private handleSendFileAction(intentId: number, parent_id: number, order: number)
     };
     
     console.log('Submitting Model form:', model);
-    this._httpService.mobileBankingPost('builder/nodes/action', model).subscribe({
+    this._httpService.mobileBankingPost('builder/actions/create', model).subscribe({
       next: (result: any) => this.handleActionResponse(result),
       error: (err: any) => this.handleActionError(err)
     });
@@ -2335,8 +2372,10 @@ private handleCarouselAction(intentId: number, parent_id: number, order: number)
   this.appendFormDataField(formData, 'name', this.actionForm.value.name);
   formData.append('action_type', 'carousel');
   formData.append('intent_id', intentId.toString());
-  formData.append('parent_id', parent_id.toString());
+  formData.append('parent_action_id', parent_id.toString());
   formData.append('order', order.toString());
+  formData.append('branch_path', this.buildBranchPath());
+
   
   const config = {
     display_type: this.actionForm.value.display_type || 'slider',
@@ -2380,7 +2419,7 @@ private handleCarouselAction(intentId: number, parent_id: number, order: number)
     }
   });
 
-  this._httpService.mobileBankingPostFormData('builder/nodes/action-multipart', formData).subscribe({
+  this._httpService.mobileBankingPostFormData('builder/actions/create-multipart', formData).subscribe({
     next: (result: any) => this.handleActionResponse(result),
     error: (err: any) => this.handleActionError(err)
   });
@@ -2394,7 +2433,7 @@ private appendFormDataField(formData: FormData, key: string, value: any): void {
 
 private submitAction(model: any): void {
   console.log('Submitting action with model:', model);
-  this._httpService.mobileBankingPost('builder/nodes/action', model).subscribe({
+  this._httpService.mobileBankingPost('builder/actions/create', model).subscribe({
     next: (result: any) => this.handleActionResponse(result),
     error: (err: any) => this.handleActionError(err)
   });

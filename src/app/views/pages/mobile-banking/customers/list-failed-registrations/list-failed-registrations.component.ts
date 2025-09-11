@@ -472,34 +472,34 @@ scrollToBottom() {
 
   getIndividualData(event: number): void {
 
-    this.loading = true;
-    let payload = {
-      page: 0,
-      size: 1000
-    }
+    // this.loading = true;
+    // let payload = {
+    //   page: 0,
+    //   size: 1000
+    // }
 
-    this.httpService
-      .mobileBankingPostNest('customers/getAllCustomers?walletAccountAvailable=false', payload)
-      .subscribe((res: any) => {
-        if (res.status === 201) {
-          setTimeout(() => {
+    // this.httpService
+    //   .mobileBankingPostNest('customers/getAllCustomers?walletAccountAvailable=false', payload)
+    //   .subscribe((res: any) => {
+    //     if (res.status === 201) {
+    //       setTimeout(() => {
 
-            let response = res['data'].filter((i: any) => i.walletAccount !== "").map((item: any, index: any) => {
-              let res = {...item,
-                frontendId: index + 1,
-                wallet_account: "Not Assigned"
-              };
-              return res;
-            })
-            this.rows = response;
+    //         let response = res['data'].filter((i: any) => i.walletAccount !== "").map((item: any, index: any) => {
+    //           let res = {...item,
+    //             frontendId: index + 1,
+    //             wallet_account: "Not Assigned"
+    //           };
+    //           return res;
+    //         })
+    //         this.rows = response;
 
-            this.total = res.metadata.numofrecords;
-          }, 10);
-        } else {
-        }
-      });
+    //         this.total = res.metadata.numofrecords;
+    //       }, 10);
+    //     } else {
+    //     }
+    //   });
 
-    this.loading = false;
+    // this.loading = false;
 
   }
 
