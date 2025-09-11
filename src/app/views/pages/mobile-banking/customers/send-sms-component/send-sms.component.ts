@@ -179,7 +179,7 @@ export class SendSmsComponent implements OnInit {
         }
       });
     } 
-    // --- CREATE LOGIC ---
+  
     else {
       const payload = {
         ...this.triggerForm.value,
