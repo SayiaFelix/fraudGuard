@@ -2509,7 +2509,7 @@ onTriggerSubmit(): void {
   };
 
   console.log('Submitting Trigger with model:', model);
-  this._httpService.mobileBankingPost('builder/nodes/intent', model).subscribe({
+  this._httpService.mobileBankingPost('builder/intents/create', model).subscribe({
     next: (result: any) => {
       if (result.status === '00') {
         console.log('Created trigger with ID:', result.data.id);
