@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpService } from 'src/app/shared/services/http.service';
 import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
-import { forkJoin } from 'rxjs'; // Import forkJoin for parallel API calls
+import { forkJoin, Observable } from 'rxjs'; // Import forkJoin for parallel API calls
 
 @Component({
   selector: 'app-list-branches',
@@ -12,7 +12,6 @@ import { forkJoin } from 'rxjs'; // Import forkJoin for parallel API calls
 })
 export class ListBranchesComponent implements OnInit {
 
-  // --- Properties for your main page ---
   isDetailsPanelVisible = false;
   selectedPerson: any = null;
   visiblePeople: any[] = [];
@@ -20,21 +19,18 @@ export class ListBranchesComponent implements OnInit {
   filteredPeople: any[] = [];
   isLoading = false;
 
-  // --- Pagination Properties ---
   recordsToShow = 20;
 
   get totalRecords(): number {
     return this.filteredPeople.length;
   }
   
-  // Your filter properties
   searchTerm = '';
   nameFilter = '';
   idFilter = '';
   emailFilter = '';
-  locationFilter = '';
+  locationFilter = ''; // Renamed from 'locationFilter' to 'roleFilter' in concept for HTML below
 
-  // --- Properties for the "Add Person" Modal ---
   addPersonForm: FormGroup;
   isAddPersonModalVisible = false;
 
@@ -47,7 +43,8 @@ export class ListBranchesComponent implements OnInit {
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      role: ['', Validators.required]
+      role: ['CREATOR', Validators.required], 
+      // phone: [''] // REMOVED: Phone control from FormGroup, as per instruction
     });
   }
 
@@ -60,99 +57,73 @@ export class ListBranchesComponent implements OnInit {
     return role ? role.toUpperCase() : 'UNKNOWN';
   }
 
-  private mapApiDataToPerson(user: any, role: string): any {
+  private mapApiDataToPerson(user: any): any { // Simplified: 'role' now comes directly from 'user' object
     return {
       id: user.id,
-      name: `${user.first_name} ${user.last_name}`,
+      name: user.name || `${user.first_name || ''} ${user.last_name || ''}`.trim(), // Use 'name' if available, otherwise construct
       email: user.email,
-      location: role,
-      country: user.country || 'N/A',
-      ipAddress: 'N/A',
-      phone: user.phone || 'N/A',
+      // The API response explicitly has 'role', so map 'location' to 'role' for display compatibility
+      location: user.role || 'N/A', 
+      country: user.country || 'N/A', // Assuming API might provide these
+      ipAddress: user.ip_address || 'N/A', 
+      phone: user.phone || 'N/A', // If API ever returns phone, it'll be here. Else N/A.
       selected: false
     };
   }
 
-  // THIS IS THE UPDATED METHOD
+  // --- Functions for the main page (table, filters, side panel) ---
+
+  // *** UPDATED: loadPeopleData to use the single /auth/admin/users/list API ***
   loadPeopleData(): void {
     this.isLoading = true;
-    this.allPeople = []; // Reset the list before loading
+    this.allPeople = []; // Reset the list before loading fresh data
     const userRole = this.getUserRole();
     console.log('Detected user role:', userRole);
 
-    if (userRole === 'ADMIN') {
-      const creators$ = this.httpService.mobileBankingGet('auth/admin/creators', {});
-      const admins$ = this.httpService.mobileBankingGet('auth/admin/admins', {});
-      
-      forkJoin([creators$, admins$]).subscribe({
-        next: (results: any[]) => {
-          const creatorsResult = results[0];
-          const adminsResult = results[1];
-          console.log('Creators API result:', creatorsResult);
-          console.log('Admins API result:', adminsResult);
-
-          // Process and map the creators data
-          const creators = Array.isArray(creatorsResult?.data)
-            ? creatorsResult.data.map((user: any) => this.mapApiDataToPerson(user, 'CREATOR'))
-            : [];
-
-          // Process and map the admins data
-          const admins = Array.isArray(adminsResult?.data)
-            ? adminsResult.data.map((user: any) => this.mapApiDataToPerson(user, 'ADMIN'))
-            : [];
-
-          // Combine both lists into the main array
-          this.allPeople = [...creators, ...admins];
-          console.log('Combined people list:', this.allPeople); 
-          
-          this.applyFiltersAndPagination();
-          this.isLoading = false;
-        },
-        error: (err: any) => {
-          console.error('Failed to load data for admin:', err);
-          this.toastr.error('Could not load user data.', 'API Error');
-          this.isLoading = false;
-        }
-      });
-    } else if (userRole === 'CREATOR') {
-      this.httpService.mobileBankingGet('auth/admin/creators', {}).subscribe({
+    // Assuming the 'auth/admin/users/list' endpoint returns all users an admin/creator can see.
+    // The role-specific logic is handled by the backend's authorization.
+    if (userRole === 'ADMIN' || userRole === 'CREATOR') {
+      this.httpService.mobileBankingGet('auth/admin/users/list', {}).subscribe({
         next: (result: any) => {
-          console.log('Creators API result for CREATOR role:', result);
+          console.log('Users list API result:', result);
+
+          if (result.status === '00' && Array.isArray(result?.data)) {
+            // Map the API data to our frontend person object
+            this.allPeople = result.data.map((user: any) => this.mapApiDataToPerson(user));
+            console.log('Combined people list (API data):', this.allPeople); 
+          } else {
+            this.allPeople = [];
+            console.warn('API did not return an array of data or status not 00:', result);
+          }
           
-          // Process and map the creators data
-          const creators = Array.isArray(result?.data)
-            ? result.data.map((user: any) => this.mapApiDataToPerson(user, 'CREATOR'))
-            : [];
-
-          // Assign the creators list to the main array
-          this.allPeople = creators;
-
           this.applyFiltersAndPagination();
           this.isLoading = false;
         },
         error: (err: any) => {
-          console.error('Failed to load creator data:', err);
-          this.toastr.error('Could not load user data.', 'API Error');
+          console.error('Failed to load user data:', err);
+          this.toastr.error('Could not load user data from the server.', 'API Error');
           this.isLoading = false;
         }
       });
     } else {
       this.isLoading = false;
       this.toastr.warning('You do not have permission to view this page.');
-      console.warn('Unknown user role:', userRole);
+      console.warn('Unknown user role or unauthorized:', userRole);
     }
   }
 
   applyFiltersAndPagination(): void {
     let people = [...this.allPeople];
+
     const lowercasedTerm = this.searchTerm.trim().toLowerCase();
     if (lowercasedTerm) {
       people = people.filter(p =>
-        Object.values(p).some(val =>
+        Object.values(p).some(val => 
           String(val).toLowerCase().includes(lowercasedTerm)
         )
       );
     }
+
     const lowercasedNameFilter = this.nameFilter.trim().toLowerCase();
     if (lowercasedNameFilter) {
       people = people.filter(p => p.name?.toLowerCase().includes(lowercasedNameFilter));
@@ -165,10 +136,11 @@ export class ListBranchesComponent implements OnInit {
     if (lowercasedEmailFilter) {
       people = people.filter(p => p.email?.toLowerCase().includes(lowercasedEmailFilter));
     }
-    const lowercasedLocationFilter = this.locationFilter.trim().toLowerCase();
-    if (lowercasedLocationFilter) {
-      people = people.filter(p => p.location?.toLowerCase().includes(lowercasedLocationFilter));
+    const lowercasedRoleFilter = this.locationFilter.trim().toLowerCase(); // Using locationFilter for Role
+    if (lowercasedRoleFilter) {
+      people = people.filter(p => p.location?.toLowerCase().includes(lowercasedRoleFilter));
     }
+
     this.filteredPeople = people;
     this.visiblePeople = this.filteredPeople.slice(0, this.recordsToShow);
   }
@@ -178,7 +150,7 @@ export class ListBranchesComponent implements OnInit {
     this.nameFilter = '';
     this.idFilter = '';
     this.emailFilter = '';
-    this.locationFilter = '';
+    this.locationFilter = ''; // This now acts as roleFilter
     this.applyFiltersAndPagination();
   }
 
@@ -200,13 +172,17 @@ export class ListBranchesComponent implements OnInit {
   toggleSelectAll(event: any): void {
     const isChecked = event.target.checked;
     this.visiblePeople.forEach(person => person.selected = isChecked);
+    
     this.allPeople.forEach(person => {
-      if (this.visiblePeople.find(vp => vp.id === person.id)) {
+      const visiblePerson = this.visiblePeople.find(vp => vp.id === person.id);
+      if (visiblePerson) {
         person.selected = isChecked;
       }
     });
+    
     this.filteredPeople.forEach(person => {
-      if (this.visiblePeople.find(vp => vp.id === person.id)) {
+      const visiblePerson = this.visiblePeople.find(vp => vp.id === person.id);
+      if (visiblePerson) {
         person.selected = isChecked;
       }
     });
@@ -215,10 +191,16 @@ export class ListBranchesComponent implements OnInit {
   togglePersonSelection(person: any, event: any): void {
     const isChecked = event.target.checked;
     person.selected = isChecked;
+    
     const allPersonIndex = this.allPeople.findIndex(p => p.id === person.id);
-    if (allPersonIndex !== -1) this.allPeople[allPersonIndex].selected = isChecked;
+    if (allPersonIndex !== -1) {
+      this.allPeople[allPersonIndex].selected = isChecked;
+    }
+    
     const filteredPersonIndex = this.filteredPeople.findIndex(p => p.id === person.id);
-    if (filteredPersonIndex !== -1) this.filteredPeople[filteredPersonIndex].selected = isChecked;
+    if (filteredPersonIndex !== -1) {
+      this.filteredPeople[filteredPersonIndex].selected = isChecked;
+    }
   }
 
   areAllSelected(): boolean {
@@ -240,8 +222,8 @@ export class ListBranchesComponent implements OnInit {
   }
 
   openAddPersonModal(): void {
-    this.addPersonForm.reset({ role: 'CREATOR' });
-    this.isAddPersonModalVisible = true;
+    this.addPersonForm.reset({ role: 'CREATOR' }); // Default to CREATOR as per select options
+    this.isAddPersonModalVisible = true; 
   }
 
   closeAddPersonModal(): void {
@@ -260,26 +242,40 @@ export class ListBranchesComponent implements OnInit {
       first_name: formData.firstName,
       last_name: formData.lastName,
       email: formData.email,
-      role: formData.role
+      role: formData.role,
+      // phone: formData.phone // REMOVED: 'phone' from the API payload
     };
 
+    console.log('Sending payload to register-user:', payload); 
     this.httpService.mobileBankingPost('auth/admin/register-user', payload).subscribe({
       next: (result: any) => {
         if (result.status === '00' || result.message === "Creator registered successfully.") {
           
           Swal.fire('Success', result.message || 'Person added successfully!', 'success');
-          this.loadMorePeople();
-          this.applyFiltersAndPagination(); 
-          this.closeAddPersonModal();
+          
+          // CRITICAL: Re-fetch all data from the API after a successful add
+          this.loadPeopleData(); 
 
+          this.closeAddPersonModal();
         } else {
           Swal.fire('Error', result.message || 'An unexpected error occurred.', 'error');
         }
       },
       error: (err: any) => {
         console.error('API call failed:', err);
-        Swal.fire('Request Failed', err.error?.message || 'Could not connect to the server.', 'error');
+        let errorMessage = 'Could not connect to the server. Please try again.';
+
+        if (err.error && typeof err.error === 'object' && err.error.message) {
+            errorMessage = err.error.message;
+        } else if (err.status) { // Check for status only if err.status exists
+            errorMessage = `Server returned code ${err.status}: ${err.statusText || 'Unknown error'}`;
+        } else if (err.message) {
+            errorMessage = err.message;
+        }
+        
+        Swal.fire('Request Failed', errorMessage, 'error');
       }
     });
   }
+
 }
