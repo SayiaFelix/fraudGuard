@@ -1,4 +1,4 @@
-import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, ChangeDetectorRef} from '@angular/core'; // <-- ADD ChangeDetectorRef HERE
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {HttpService} from 'src/app/shared/services/http.service';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
@@ -67,8 +67,9 @@ export class AddCustomerComponent implements OnInit {
       private globalService: GlobalService,
       public fb: FormBuilder,
       private _toastService: ToastrService,
-      private _httpService: HttpService) {
-  }
+      private _httpService: HttpService,
+      private cdr: ChangeDetectorRef // <-- INJECT ChangeDetectorRef HERE
+  ) { }
 
   ngOnInit() {
     this.fetchAgentLists();
@@ -394,26 +395,48 @@ public deleteBot(bot: any): void {
         next: (res: any) => {
           console.log('Server response from delete API:', res);
 
-          if (res && res.status === '00') {
+          // *** CRITICAL CHANGE: Check for null response as 204 No Content ***
+          // If res is null or undefined, assume it's a 204 No Content success
+          if (res === null) {
+            console.log('AddCustomerComponent: deleteBot - Received null response (204 No Content). Assuming success.');
             Swal.fire('Deleted!', 'The AI Assistant has been deleted.', 'success');
-            this.fetchAgentLists()
-            console.log(`Bot with id ${bot.id} deleted successfully on server. Removing from local list.`);
-            console.log('List size before filter:', this.fullAgentList.length);
-
-            this.fullAgentList = this.fullAgentList.filter(b => b.id !== bot.id);
             
-            console.log('List size after filter:', this.fullAgentList.length);
+            // --- OPTIMISTIC UPDATE: Remove from local list immediately ---
+            this.fullAgentList = this.fullAgentList.filter(b => b.id !== bot.id);
+            console.log(`Bot with id ${bot.id} deleted successfully on server. Removing from local list.`);
+            
+            this.applyFilter(); // This updates filteredAgentList and paginatedAgentLists.
+
+            // *** Force Change Detection ***
+            this.cdr.detectChanges(); // This line now requires ChangeDetectorRef to be injected
+
+            // *** IMPORTANT: REMOVE this.fetchAgentLists(); ***
+            // Remove the immediate full re-fetch to avoid overwriting the optimistic update
+            // if the backend's list endpoint isn't instantly updated.
+
+          } else if (res && res.status === '00') {
+            // This else-if handles cases where the backend *might* return a 200 OK with {status: '00'} body
+            console.log('AddCustomerComponent: deleteBot - Received response with status "00". Assuming success.');
+            Swal.fire('Deleted!', 'The AI Assistant has been deleted.', 'success');
+            
+            this.fullAgentList = this.fullAgentList.filter(b => b.id !== bot.id);
             this.applyFilter();
+            this.cdr.detectChanges(); // Requires ChangeDetectorRef
+
           } else {
-            console.error('Deletion failed: API returned a non-success status.', res);
-            this._toastService.error(res.message || 'The server indicated the deletion failed.', 'Error');
-            Swal.fire('Failed!', res.message || 'The AI Assistant could not be deleted.', 'error');
+            // This branch handles responses that are not null, and not {status: '00'}
+            console.log('AddCustomerComponent: deleteBot - Condition for success not met. Response:', res);
+            const serverMessage = res?.message || 'Deletion failed: The server responded with an unexpected status or format.';
+            this._toastService.error(serverMessage, 'Warning');
+            Swal.fire('Failed!', serverMessage, 'error');
           }
         },
         error: (err: any) => {
-          console.error('An HTTP error occurred during deletion:', err);
-          this._toastService.error(err?.error?.message || 'An unexpected error occurred.', 'Error');
-          Swal.fire('Error!', err?.error?.message || 'An unexpected error occurred.', 'error');
+          // *** FIX FOR TS1134 ERROR STARTS HERE ***
+          const errorMessage = err?.message || 'An unexpected error occurred.'; // Corrected line
+          this._toastService.error(errorMessage, 'Error'); // 'Error' is now the title for Toastr
+          Swal.fire('Error!', errorMessage, 'error'); // 'Error!' is the title for SweetAlert
+          // *** FIX FOR TS1134 ERROR ENDS HERE ***
         }
       });
     }

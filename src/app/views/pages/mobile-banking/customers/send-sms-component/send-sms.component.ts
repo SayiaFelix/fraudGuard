@@ -3,6 +3,7 @@ import {
   OnInit,
   ViewChild,
   ElementRef,
+  ChangeDetectorRef // <-- ENSURE ChangeDetectorRef IS IMPORTED
 } from '@angular/core';
 import { HttpService } from 'src/app/shared/services/http.service';
 import { GlobalService } from 'src/app/shared/services/global.service';
@@ -45,7 +46,8 @@ export class SendSmsComponent implements OnInit {
     private fb: FormBuilder,
     private router: Router,
     private route: ActivatedRoute,
-    private toastrService: ToastrService
+    private toastrService: ToastrService,
+    private cdr: ChangeDetectorRef // <-- INJECT ChangeDetectorRef HERE
   ) {
     this.initializeForm();
 
@@ -287,15 +289,42 @@ export class SendSmsComponent implements OnInit {
         // Use mobileBankingDel (now configured to send a body) and updated endpoint
         this.httpService.mobileBankingDel('builder/intents/delete', payload).subscribe({
           next: (res: any) => {
-            if (res.status === '00') {
+            // *** CRITICAL CHANGE: Check for null response as 204 No Content ***
+            // If res is null or undefined, assume it's a 204 No Content success
+            if (res === null) {
+              console.log('SendSmsComponent: deleteTrigger - Received null response (204 No Content). Assuming success.');
               Swal.fire('Deleted!', 'The trigger has been deleted.', 'success');
-              this.fetchIntentList(chatbotId); // Refresh list
+              
+              // --- OPTIMISTIC UPDATE: Remove from local list immediately ---
+              this.agentList = this.agentList.filter(item => item.id !== trigger.id);
+              
+              // *** Force Change Detection ***
+              this.cdr.detectChanges(); 
+              console.log('SendSmsComponent: deleteTrigger - Local list updated and change detection triggered.');
+
+              // *** REMOVED: this.fetchIntentList(chatbotId); ***
+              // This is crucial. Remove the immediate re-fetch so the optimistic update is visible.
+              // A full re-fetch can happen later (e.g., when the component is loaded or after adding/updating).
+
+            } else if (res && res.status === '00') {
+              // This else-if handles cases where the backend *might* return a 200 OK with {status: '00'} body
+              console.log('SendSmsComponent: deleteTrigger - Received response with status "00". Assuming success.');
+              Swal.fire('Deleted!', 'The trigger has been deleted.', 'success');
+              
+              this.agentList = this.agentList.filter(item => item.id !== trigger.id);
+              this.cdr.detectChanges(); 
+
             } else {
-              Swal.fire('Error', res.message || 'Failed to delete trigger.', 'error');
+              // This branch handles responses that are not null, and not {status: '00'}
+              console.log('SendSmsComponent: deleteTrigger - Condition for success not met. Response:', res);
+              const serverMessage = res?.message || 'Deletion failed: The server responded with an unexpected status or format.';
+              Swal.fire('Error', serverMessage, 'error');
             }
           },
           error: (err: any) => {
-            Swal.fire('Error', err?.error?.message || 'An error occurred.', 'error');
+            console.error('SendSmsComponent: deleteTrigger - ERROR block entered. Error:', err);
+            const errorMessage = err?.message || 'An unexpected network or server error occurred during deletion.';
+            Swal.fire('Error!', errorMessage, 'error');
           }
         });
       }
