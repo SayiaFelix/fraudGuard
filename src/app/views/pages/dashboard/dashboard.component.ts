@@ -33,7 +33,9 @@ import { FilesizePipe } from '../mobile-banking/customers/list-customers/list-cu
 interface ConversationMessage {
   sender: 'user' | 'bot';
   text: string;
+  type?: 'text' | 'file';
   time: string;
+  fileUrl?: string; 
   isFileResponse?: boolean;
   isWelcomeMessage?: boolean;
   isGeneratingReport?: boolean;
@@ -251,6 +253,7 @@ startChat(message: string) {
 private getCurrentTime(): string {
   return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
 }
+
 sendMessage(query?: string) {
     this.isLoading = true;
     const userId = localStorage.getItem('user_id'); 
@@ -289,7 +292,6 @@ sendMessage(query?: string) {
         this.isLoading = false;
          this.isTyping = false;
 
-        // Handle response — adjust based on how API returns text
         const botMessage = response?.response || response?.data || 'No response from server';
 
         this.conversation.push({
@@ -318,7 +320,6 @@ sendMessage(query?: string) {
 
   this.userQuery = '';
 }
-
 
   getMimeType(filename: string): string {
     if (filename.endsWith('.pdf')) {
@@ -408,6 +409,8 @@ sendMessage(query?: string) {
     return content ? content.replace(/\n/g, '<br>') : '';
   }
 
+
+
   parseAnalysis(analysis?: string): any[] {
     if (!analysis) return [];
 
@@ -421,7 +424,28 @@ sendMessage(query?: string) {
     });
   }
 
-  onFileSelected(event: Event) {
+onFileSelected(event: any) {
+  const file: File = event.target.files[0];
+  if (file) {
+    const fileUrl = URL.createObjectURL(file);
+
+    this.conversation.push({
+      sender: 'user',
+      type: 'file',
+      text: file.name,
+      fileUrl: fileUrl,
+      time: this.getCurrentTime(),
+    });
+
+    // TODO: if you want to send the file to backend, handle upload here
+    console.log('Selected file:', file);
+
+    this.scrollToBottom();
+  }
+}
+
+
+  onFileSelectedss(event: Event) {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) {
       this.uploadMessage = 'No file selected';
