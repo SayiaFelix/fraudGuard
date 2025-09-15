@@ -159,7 +159,7 @@ export class DashboardComponent implements OnInit {
   conversation: ConversationMessage[] = [
     {
       sender: 'bot',
-      text: "Welcome to ECLBOT Customer Support. How can I assist you today?",
+      text: "Welcome to ECL AICX. How can I assist you today?",
       isWelcomeMessage: true,
       time: this.getCurrentTime()
     }
@@ -259,7 +259,6 @@ sendMessage(query?: string) {
     const userId = localStorage.getItem('user_id'); 
     this.isTyping = true;
 
-  // Use query from button if provided
   if (query) {
     this.userQuery = query;
   }

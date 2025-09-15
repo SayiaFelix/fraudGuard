@@ -13,17 +13,20 @@
   background: #333 !important;
 }
 
+.chat-area {
+  overflow-y: auto;
+  min-height: 450px;  
+  max-height: 70vh;  
+}
 
-/* User bubble (right side) */
 .user-bubble {
-  background-color: #e6f0ff;   /* soft light-blue */
+  background-color: #e6f0ff; 
   color: #1a1a1a;
   border-radius: 18px 18px 0 18px;
 }
 
-/* Bot bubble (left side) */
 .bot-bubble {
-  background-color: #f1f1f1;   /* soft light-gray */
+  background-color: #f1f1f1;   
   color: #1a1a1a;
   border-radius: 18px 18px 18px 0;
   padding: 8px 12px;
