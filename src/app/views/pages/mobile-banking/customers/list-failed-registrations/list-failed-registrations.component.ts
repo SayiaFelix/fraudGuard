@@ -284,12 +284,7 @@ loadBots(): void {
     this.agentList = [];
     return;
   }
-
-  // No need for usersId or body for this GET request
-  // const usersId = parseInt(userId, 10);
-  // const body = { user_id: usersId };
-
-  // CHANGE: Use customerPortalGet and pass headers
+  
   this.httpService.customerPortalGet('builder/chatbots/list', this.httpService.getHeaders()).subscribe({
     next: (res: any) => {
       if (res.status === '00' && Array.isArray(res.data)) {
