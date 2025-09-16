@@ -395,6 +395,7 @@ sendMessage(query?: string) {
       .replace(/\n\n/g, '</p><p>')
       .replace(/\n/g, '<br>')
       .replace(/<p><\/p>/g, '');
+      
   }
 
   scrollToBottom() {
