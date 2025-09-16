@@ -1,20 +1,14 @@
 import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { HttpService } from 'src/app/shared/services/http.service';
 import { ToastrService } from 'ngx-toastr';
-import { Subject } from 'rxjs';
+import { Subject, Observable } from 'rxjs';
 import { takeUntil, finalize } from 'rxjs/operators';
+import { forkJoin } from 'rxjs'; // Explicitly import forkJoin
 
 interface FilterItem {
   field: string;
   operator: string;
   value: string;
-}
-
-interface AnalyticsData {
-  metrics: any;
-  time_series: any;
-  grouped_data: any;
-  segments: any;
 }
 
 interface UserStats {
@@ -31,25 +25,19 @@ interface UserActivity {
   intents_created: number;
   actions_created: number;
   channels_created: number;
-  activity_trend: { [key: string]: number };
+  activity_trend: { [key: string]: number }; // Date string to count mapping for chart
 }
 
-interface ConversationMetrics {
-  total_sessions: number;
-  completed_sessions: number;
-  avg_duration: number;
-  avg_messages: number;
-  intent_distribution: { [key: string]: number };
-  channel_distribution: { [key: string]: number };
+interface ChannelDistributionItem {
+  channel_type: string;
+  count: number;
+  percentage: number;
 }
 
-interface PerformanceMetrics {
-  uptime: number;
-  error_rate: number;
-  avg_response_time: number;
-  max_concurrent_users: number;
-  intents_triggered: number;
-  fallback_rate: number;
+interface UserProductivity {
+  avg_time_to_first_flow_hours: number;
+  chatbots_without_flows: number;
+  total_chatbots_analyzed: number;
 }
 
 interface ChartDataPoint {
@@ -68,7 +56,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
 
   activeTab: string = 'chats';
 
-  // Date range properties - Fixed default dates
+  // Date range properties - Initialized to a default range
   startDate: Date = new Date('2025-07-01');
   endDate: Date = new Date('2025-07-31');
 
@@ -76,8 +64,8 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
   showDatePicker: boolean = false;
   currentMonth: number;
   currentYear: number;
-  selectedStartDate: Date | null = null;
-  selectedEndDate: Date | null = null;
+  selectedStartDate: Date | null = null; // Used for temporary selection in calendar
+  selectedEndDate: Date | null = null;   // Used for temporary selection in calendar
   isSelectingRange: boolean = false;
 
   // Filter dropdown states
@@ -95,13 +83,13 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
   selectedGroupBy: string = 'Day';
   selectedSegmentBy: string = 'Select';
   selectedChatType: string = 'Select';
-  selectedAIAssistants: string[] = [];
-  selectedChannels: string[] = [];
-  selectedLiveAgents: string[] = []; // This array holds the NAMES/IDs of selected agents
+  selectedAIAssistants: { id: number, name: string }[] = []; // Store selected chatbot objects
+  selectedChannels: string[] = []; // Used for the "Channels" filter, not the distribution API response
+  selectedLiveAgents: string[] = []; // Stores live agent IDs as strings
   selectedTeams: string[] = [];
   selectedStatus: string[] = [];
   selectedCSATRating: string[] = [];
-  selectedChatbotId: number | null = null;
+  selectedChatbotId: number | null = null; // Used when a single chatbot is effectively selected
 
   // Loading states
   isLoadingChats: boolean = false;
@@ -109,22 +97,33 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
   isLoadingInteractions: boolean = false;
   isLoadingUserStats: boolean = false;
   isLoadingUserActivity: boolean = false;
+  isLoadingAvailableChatbots: boolean = false;
+  isLoadingUserProductivity: boolean = false; // New loading state
+  isLoadingChannelDistribution: boolean = false; // New loading state
 
   // Data properties
-  userStats: UserStats | null = null;
-  userActivity: UserActivity | null = null;
-  chatAnalytics: AnalyticsData | null = null;
-  conversationMetrics: ConversationMetrics | null = null;
-  performanceMetrics: PerformanceMetrics | null = null;
+  userStats: UserStats | null = null; // From analytics/user/stats
+  userActivity: UserActivity | null = null; // From analytics/user/activity
+  userProductivity: UserProductivity | null = null; // From analytics/user/productivity
+  channelDistribution: ChannelDistributionItem[] | null = null; // From analytics/user/channels-distribution
+
+  // Placeholder for general chat/conversation/performance analytics (if separate APIs are confirmed)
+  // For now, these interfaces are not being directly filled from a single 'analytics/chats' API.
+  // Instead, the summary cards and other metrics are built from userStats, userActivity, etc.
+  // Keeping them here for future expansion if specific APIs are defined.
+  chatAnalytics: any | null = null; 
+  conversationMetrics: any | null = null;
+  performanceMetrics: any | null = null;
+
   chartData: ChartDataPoint[] = [];
 
   // Available options for dropdowns
-  availableChatbots: any[] = [];
-  availableChannels: string[] = ['Web Chat', 'WhatsApp', 'Facebook', 'SMS'];
-  availableLiveAgents: any[] = [{ id: 1, name: 'Tecla Kyalo' }, { id: 2, name: 'John Doe' }, { id: 3, name: 'Jane Smith' }]; // <== CORRECTLY DEFINED HERE
+  availableChatbots: { id: number, name: string, is_active: boolean }[] = []; // For "AI Assistants" filter
+  availableChannels: string[] = ['Web Chat', 'WhatsApp', 'Facebook', 'SMS']; // Default channels, can be updated by API if dynamic
+  availableLiveAgents: any[] = [{ id: 1, name: 'Tecla Kyalo' }, { id: 2, name: 'John Doe' }, { id: 3, name: 'Jane Smith' }];
   availableTeams: string[] = ['Customer Support', 'Sales', 'Technical'];
 
-  // Filter options
+  // Filter options (UI labels)
   groupByOptions = ['Day', 'Week', 'Month', 'Quarter', 'Year'];
   segmentByOptions = ['Chat type', 'AI Assistants', 'Channels', 'Live Agents', 'Teams', 'Status', 'CSAT Rating'];
   chatTypeOptions = ['Livechats', 'AI assistants'];
@@ -140,7 +139,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
   weekDays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
   years: number[] = [];
 
-  // Statuses for the CHATS tab summary cards
+  // Statuses for the CHATS tab summary cards (Hardcoded colors for UI)
   chatStatuses = [
     { name: 'Open', color: '#56CCF2' },
     { name: 'Pending', color: '#F2994A' },
@@ -149,7 +148,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
     { name: 'Closed', color: '#828282' }
   ];
 
-  // Statuses for the TICKETS tab summary cards
+  // Statuses for the TICKETS tab summary cards (Hardcoded colors for UI)
   ticketStatuses = [
     { name: 'Open', color: '#56CCF2' },
     { name: 'Pending', color: '#F2994A' },
@@ -161,31 +160,26 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
     private _httpService: HttpService,
     private _toastService: ToastrService
   ) {
-    // Initialize years array to always show current year as default
     const currentYear = new Date().getFullYear();
-    this.currentYear = currentYear; // Initialize here for initial state
-    this.currentMonth = new Date().getMonth(); // Initialize here for initial state
+    this.currentYear = currentYear;
+    this.currentMonth = new Date().getMonth();
 
-    // Create years array with current year in the middle
     for (let year = currentYear - 5; year <= currentYear + 5; year++) {
       this.years.push(year);
     }
   }
 
   ngOnInit(): void {
-    // Always initialize calendar with current year/month upon component load
     const today = new Date();
+    // Initialize current calendar view to today's month/year
     this.currentYear = today.getFullYear();
     this.currentMonth = today.getMonth();
 
+    // Set initial selected range to match the default display range
     this.selectedStartDate = new Date(this.startDate);
     this.selectedEndDate = new Date(this.endDate);
 
-    // Load initial data
-    this.loadUserStats();
-    this.loadUserActivity();
-    this.loadAvailableChatbots();
-    this.loadDataForActiveTab();
+    this.refreshData(); // Triggers all necessary initial data loads
   }
 
   ngOnDestroy(): void {
@@ -194,11 +188,11 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Generate chart data from user activity
+   * Helper to generate chart data from user activity (activity_trend)
    */
   private generateChartDataFromActivity(): void {
-    if (!this.userActivity?.activity_trend) {
-      this.generateMockChartData();
+    if (!this.userActivity?.activity_trend || Object.keys(this.userActivity.activity_trend).length === 0) {
+      this.generateMockChartData(); // Fallback to mock data if API doesn't provide activity_trend or it's empty
       return;
     }
 
@@ -212,10 +206,15 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
         label: shortDate
       };
     }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+    if (this.chartData.length === 0) { // If activity_trend was present but mapped to empty chartData
+      this.generateMockChartData();
+    }
   }
 
   /**
-   * Generate realistic mock chart data - respects date range
+   * Generates mock chart data, respecting the current date range.
+   * Used as a fallback or for demonstration if API data is unavailable.
    */
   private generateMockChartData(): void {
     const data: ChartDataPoint[] = [];
@@ -223,30 +222,25 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
     const endTime = this.endDate.getTime();
     const dayMs = 24 * 60 * 60 * 1000;
 
-    console.log(`Generating chart data from ${this.startDate.toISOString()} to ${this.endDate.toISOString()}`);
+    console.log(`Generating mock chart data from ${this.formatDate(this.startDate)} to ${this.formatDate(this.endDate)}`);
 
-    // Generate realistic varying data for the selected date range
     for (let time = startTime; time <= endTime; time += dayMs) {
       const date = new Date(time);
       const dateStr = date.toISOString().split('T')[0];
       const shortDate = date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
 
-      // Create more realistic data with weekend dips and random variations
       let baseCount = 150;
-      const dayOfWeek = date.getDay();
+      const dayOfWeek = date.getDay(); // 0 = Sunday, 6 = Saturday
 
       // Lower activity on weekends
       if (dayOfWeek === 0 || dayOfWeek === 6) {
         baseCount *= 0.6;
       }
 
-      // Add some random variation but keep some days at 0
-      const shouldHaveActivity = Math.random() > 0.1; // 90% chance of activity
       let finalCount = 0;
-
-      if (shouldHaveActivity) {
-        const variation = (Math.random() - 0.5) * 100;
-        finalCount = Math.max(10, Math.floor(baseCount + variation));
+      if (Math.random() > 0.15) { // ~85% chance of activity
+          const variation = (Math.random() - 0.5) * 100;
+          finalCount = Math.max(0, Math.floor(baseCount + variation)); // Ensure non-negative
       }
 
       data.push({
@@ -257,27 +251,20 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
     }
 
     this.chartData = data;
-    console.log(`Generated ${data.length} data points:`, data);
+    console.log(`Generated ${data.length} mock data points.`);
   }
 
   /**
-   * Load user statistics
+   * Load user statistics (Total, Active, Inactive AI Assistants, Avg Intents/Bot)
+   * API: POST api/analytics/user/stats
    */
   private loadUserStats(): void {
     this.isLoadingUserStats = true;
-    const userId = localStorage.getItem('user_id');
-
-    if (!userId) {
-      this._toastService.error('User ID not found', 'Error');
-      this.isLoadingUserStats = false;
-      return;
-    }
-
     const payload = {
-      user_id: parseInt(userId, 10),
-      days: this.getDaysBetweenDates()
+      days: this.getDaysBetweenDates() 
     };
 
+    console.log('Fetching user stats with payload:', payload);
     this._httpService.mobileBankingPost('analytics/user/stats', payload)
       .pipe(
         takeUntil(this.destroy$),
@@ -285,37 +272,53 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (response: any) => {
-          if (response.status === '00') {
+          console.log('User stats API raw response:', response);
+          if (response.status === '00' && response.data) {
             this.userStats = response.data;
+            console.log('User stats loaded:', this.userStats);
           } else {
             this._toastService.warning(response.message || 'Failed to load user stats', 'Warning');
+            // Fallback empty stats on API error or unexpected response
+            this.userStats = {
+              total_chatbots: 0, active_chatbots: 0, inactive_chatbots: 0,
+              chatbots_by_language: {}, avg_intents_per_chatbot: 0, avg_flows_per_chatbot: 0,
+            };
           }
         },
         error: (error: any) => {
           console.error('Error loading user stats:', error);
           this._toastService.error('Failed to load user statistics', 'Error');
+          // Fallback empty stats on HTTP error
+          this.userStats = {
+            total_chatbots: 0, active_chatbots: 0, inactive_chatbots: 0,
+            chatbots_by_language: {}, avg_intents_per_chatbot: 0, avg_flows_per_chatbot: 0,
+          };
         }
       });
   }
 
   /**
-   * Load user activity data
+   * Load user activity data (e.g., for "AI Assistants Created Over Time" chart trend)
+   * API: POST api/analytics/user/activity
    */
   private loadUserActivity(): void {
     this.isLoadingUserActivity = true;
-    const userId = localStorage.getItem('user_id');
+    const userId = localStorage.getItem('user_id'); // Assuming this API might be user_id dependent
 
     if (!userId) {
+      console.warn('User ID not found for user activity. Generating mock chart data.');
       this.isLoadingUserActivity = false;
-      this.generateMockChartData(); // Generate mock data if no user ID
+      this.userActivity = { chatbots_created: 0, intents_created: 0, actions_created: 0, channels_created: 0, activity_trend: {} };
+      this.generateMockChartData(); // Fallback to mock data
       return;
     }
 
     const payload = {
-      user_id: parseInt(userId, 10),
+      user_id: parseInt(userId, 10), // User ID from local storage
       days: this.getDaysBetweenDates()
     };
 
+    console.log('Fetching user activity with payload:', payload);
     this._httpService.mobileBankingPost('analytics/user/activity', payload)
       .pipe(
         takeUntil(this.destroy$),
@@ -323,173 +326,277 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (response: any) => {
-          if (response.status === '00') {
+          console.log('User activity API raw response:', response);
+          if (response.status === '00' && response.data) {
             this.userActivity = response.data;
-            this.generateChartDataFromActivity();
+            this.generateChartDataFromActivity(); // Generate chart data from loaded activity
           } else {
-            this.generateMockChartData();
+            this.userActivity = { chatbots_created: 0, intents_created: 0, actions_created: 0, channels_created: 0, activity_trend: {} };
+            this.generateMockChartData(); // Fallback to mock data on API error
           }
         },
         error: (error: any) => {
           console.error('Error loading user activity:', error);
-          this.generateMockChartData();
+          this.userActivity = { chatbots_created: 0, intents_created: 0, actions_created: 0, channels_created: 0, activity_trend: {} };
+          this.generateMockChartData(); // Fallback to mock data on HTTP error
         }
       });
   }
 
   /**
-   * Load available chatbots for selection
+   * Load user productivity data (e.g., avg_time_to_first_flow_hours)
+   * API: POST api/analytics/user/productivity
    */
-  private loadAvailableChatbots(): void {
-    const userId = localStorage.getItem('user_id');
-    if (!userId) return;
+  private loadUserProductivity(): void {
+    this.isLoadingUserProductivity = true;
+    const payload = {
+      days: this.getDaysBetweenDates()
+    };
 
-    const payload = { user_id: parseInt(userId, 10) };
-
-    this._httpService.mobileBankingPost('builder/chatbots/list', payload)
-      .pipe(takeUntil(this.destroy$))
+    console.log('Fetching user productivity with payload:', payload);
+    this._httpService.mobileBankingPost('analytics/user/productivity', payload)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoadingUserProductivity = false)
+      )
       .subscribe({
         next: (response: any) => {
+          console.log('User productivity API raw response:', response);
+          if (response.status === '00' && response.data) {
+            this.userProductivity = response.data;
+            console.log('User productivity loaded:', this.userProductivity);
+          } else {
+            this.userProductivity = null;
+          }
+        },
+        error: (error: any) => {
+          console.error('Error loading user productivity:', error);
+          this.userProductivity = null;
+        }
+      });
+  }
+
+  /**
+   * Load channel distribution data (e.g., for "Channels" breakdown in summary)
+   * API: POST api/analytics/user/channels-distribution
+   */
+  private loadChannelDistribution(): void {
+    this.isLoadingChannelDistribution = true;
+    const payload = {
+      days: this.getDaysBetweenDates()
+    };
+
+    console.log('Fetching channel distribution with payload:', payload);
+    this._httpService.mobileBankingPost('analytics/user/channels-distribution', payload)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoadingChannelDistribution = false)
+      )
+      .subscribe({
+        next: (response: any) => {
+          console.log('Channel distribution API raw response:', response);
+          if (response.status === '00' && response.data && Array.isArray(response.data.channels)) {
+            this.channelDistribution = response.data.channels;
+            console.log('Channel distribution loaded:', this.channelDistribution);
+            // Optionally update availableChannels if they are meant to be dynamic from this API
+            // this.availableChannels = this.channelDistribution.map(c => c.channel_type);
+          } else {
+            this.channelDistribution = null;
+          }
+        },
+        error: (error: any) => {
+          console.error('Error loading channel distribution:', error);
+          this.channelDistribution = null;
+        }
+      });
+  }
+
+  /**
+   * Load available chatbots for selection (e.g., in "AI Assistants" filter dropdown)
+   * API: GET builder/chatbots/list
+   */
+  private loadAvailableChatbots(): void {
+    this.isLoadingAvailableChatbots = true;
+    const userId = localStorage.getItem('user_id');
+
+    // Assuming builder/chatbots/list expects user_id in GET query params or Authorization handles user_id.
+    this._httpService.customerPortalGet('builder/chatbots/list', userId ? { user_id: parseInt(userId, 10) } : {} )
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoadingAvailableChatbots = false)
+      )
+      .subscribe({
+        next: (response: any) => {
+          console.log('Available chatbots API raw response (from GET):', response);
+          // Assuming the response is like { status: '00', data: [...] }
           if (response.status === '00' && Array.isArray(response.data)) {
             this.availableChatbots = response.data.filter((bot: any) => bot.is_active);
-            // Auto-select first chatbot if available
-            if (this.availableChatbots.length > 0 && !this.selectedChatbotId) {
-              this.selectedChatbotId = this.availableChatbots[0].id;
+            console.log('Available chatbots loaded:', this.availableChatbots);
+            // Auto-select first chatbot if available AND nothing is currently selected
+            if (this.availableChatbots.length > 0 && this.selectedAIAssistants.length === 0 && this.selectedChatbotId === null) {
+              this.selectedAIAssistants.push(this.availableChatbots[0]); // Add to multi-select list
+              this.selectedChatbotId = this.availableChatbots[0].id; // Set single ID for context
+              this.refreshData(); // Re-trigger data load for analytics using the newly selected chatbot
             }
+          } else {
+            this.availableChatbots = [];
+            console.warn('API did not return expected data structure for available chatbots:', response);
           }
         },
         error: (error: any) => {
           console.error('Error loading chatbots:', error);
+          this.availableChatbots = [];
         }
       });
   }
 
-  /**
-   * Load chat analytics data
-   */
+  // --- Placeholder for other Analytics APIs, keeping structure as per your previous code ---
   private loadChatAnalytics(): void {
-    if (!this.selectedChatbotId) {
-      console.warn('No chatbot selected for analytics');
+    if (!this.selectedChatbotId && this.selectedAIAssistants.length === 0) {
+      console.warn('No chatbot selected for chat analytics. Skipping load.');
+      this.chatAnalytics = null;
       return;
     }
 
     this.isLoadingChats = true;
     const payload = {
       chatbot_id: this.selectedChatbotId,
+      chatbot_ids: this.selectedAIAssistants.length > 0 ? this.selectedAIAssistants.map(bot => bot.id) : undefined,
       start_date: this.formatDateForAPI(this.startDate),
       end_date: this.formatDateForAPI(this.endDate),
       group_by: this.selectedGroupBy.toLowerCase(),
       filters: this.buildFilters()
     };
+    const filteredPayload = Object.fromEntries(Object.entries(payload).filter(([_, v]) => v !== undefined));
 
-    this._httpService.mobileBankingPost('analytics/chats', payload)
+    console.log('Fetching chat analytics with payload:', filteredPayload);
+    this._httpService.mobileBankingPost('analytics/chats', filteredPayload)
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => this.isLoadingChats = false)
       )
       .subscribe({
         next: (response: any) => {
-          this.chatAnalytics = response;
+          console.log('Chat analytics API raw response:', response);
+          if (response.status === '00' && response.data) {
+            this.chatAnalytics = response.data;
+          } else {
+            this.chatAnalytics = null;
+            this._toastService.warning(response.message || 'Failed to load chat analytics', 'Warning');
+          }
           this.loadConversationMetrics();
           this.loadPerformanceMetrics();
         },
         error: (error: any) => {
           console.error('Error loading chat analytics:', error);
+          this.chatAnalytics = null;
           this._toastService.error('Failed to load chat analytics', 'Error');
+          this.loadConversationMetrics();
+          this.loadPerformanceMetrics();
         }
       });
   }
 
-  /**
-   * Load conversation metrics
-   */
   private loadConversationMetrics(): void {
-    if (!this.selectedChatbotId) return;
+    if (!this.selectedChatbotId && this.selectedAIAssistants.length === 0) {
+        console.warn('No chatbot selected for conversation metrics. Skipping load.');
+        this.conversationMetrics = null;
+        return;
+    }
 
     const payload = {
-      chatbot_id: this.selectedChatbotId,
-      start_date: this.formatDateForAPI(this.startDate),
-      end_date: this.formatDateForAPI(this.endDate),
-      group_by: this.selectedGroupBy.toLowerCase(),
-      segmented_by: 'channel',
-      filters: this.buildFilters(),
-      days: this.getDaysBetweenDates()
+        chatbot_id: this.selectedChatbotId,
+        chatbot_ids: this.selectedAIAssistants.length > 0 ? this.selectedAIAssistants.map(bot => bot.id) : undefined,
+        start_date: this.formatDateForAPI(this.startDate),
+        end_date: this.formatDateForAPI(this.endDate),
+        group_by: this.selectedGroupBy.toLowerCase(),
+        segmented_by: this.selectedSegmentBy.toLowerCase() !== 'select' ? this.selectedSegmentBy.toLowerCase() : undefined,
+        filters: this.buildFilters(),
+        days: this.getDaysBetweenDates()
     };
+    const filteredPayload = Object.fromEntries(Object.entries(payload).filter(([_, v]) => v !== undefined));
 
-    this._httpService.mobileBankingPost('analytics/conversations', payload)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response: any) => {
-          if (response.status === '00' && Array.isArray(response.data)) {
-            // Convert array format to object format
-            const metrics: any = {};
-            response.data.forEach(([key, value]: [string, any]) => {
-              metrics[key] = value;
-            });
-            this.conversationMetrics = metrics;
-          }
-        },
-        error: (error: any) => {
-          console.error('Error loading conversation metrics:', error);
-        }
-      });
+    console.log('Fetching general conversation metrics with payload:', filteredPayload);
+    this._httpService.mobileBankingPost('analytics/conversations', filteredPayload)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+            next: (response: any) => {
+                console.log('General Conversation metrics API raw response:', response);
+                if (response.status === '00' && response.data) {
+                    this.conversationMetrics = response.data;
+                } else {
+                    this.conversationMetrics = null;
+                }
+            },
+            error: (error: any) => {
+                console.error('Error loading general conversation metrics:', error);
+                this.conversationMetrics = null;
+            }
+        });
   }
 
-  /**
-   * Load performance metrics
-   */
   private loadPerformanceMetrics(): void {
-    if (!this.selectedChatbotId) return;
+    if (!this.selectedChatbotId && this.selectedAIAssistants.length === 0) {
+      console.warn('No chatbot selected for performance metrics. Skipping load.');
+      this.performanceMetrics = null;
+      return;
+    }
 
     const payload = {
       chatbot_id: this.selectedChatbotId,
+      chatbot_ids: this.selectedAIAssistants.length > 0 ? this.selectedAIAssistants.map(bot => bot.id) : undefined,
       start_date: this.formatDateForAPI(this.startDate),
       end_date: this.formatDateForAPI(this.endDate),
       group_by: this.selectedGroupBy.toLowerCase(),
-      segmented_by: 'channel',
+      segmented_by: this.selectedSegmentBy.toLowerCase() !== 'select' ? this.selectedSegmentBy.toLowerCase() : undefined,
       filters: this.buildFilters(),
       days: this.getDaysBetweenDates()
     };
+    const filteredPayload = Object.fromEntries(Object.entries(payload).filter(([_, v]) => v !== undefined));
 
-    this._httpService.mobileBankingPost('analytics/performance', payload)
+    console.log('Fetching performance metrics with payload:', filteredPayload);
+    this._httpService.mobileBankingPost('analytics/performance', filteredPayload)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: any) => {
-          if (response.status === '00' && Array.isArray(response.data)) {
-            // Convert array format to object format
-            const metrics: any = {};
-            response.data.forEach(([key, value]: [string, any]) => {
-              metrics[key] = value;
-            });
-            this.performanceMetrics = metrics;
+          console.log('Performance metrics API raw response:', response);
+          if (response.status === '00' && response.data) {
+            this.performanceMetrics = response.data;
+          } else {
+            this.performanceMetrics = null;
           }
         },
         error: (error: any) => {
           console.error('Error loading performance metrics:', error);
+          this.performanceMetrics = null;
         }
       });
   }
 
-  /**
-   * Load ticket analytics (placeholder - implement when API is ready)
-   */
   private loadTicketAnalytics(): void {
     this.isLoadingTickets = true;
     setTimeout(() => {
       this.isLoadingTickets = false;
       console.log('Tickets API not yet implemented');
     }, 1000);
+    this.chatAnalytics = null;
+    this.conversationMetrics = null;
+    this.performanceMetrics = null;
+    this.channelDistribution = null;
+    this.userProductivity = null;
   }
 
-  /**
-   * Load interaction analytics (placeholder - implement when API is ready)
-   */
   private loadInteractionAnalytics(): void {
     this.isLoadingInteractions = true;
     setTimeout(() => {
       this.isLoadingInteractions = false;
       console.log('Interactions API not yet implemented');
     }, 1000);
+    this.chatAnalytics = null;
+    this.conversationMetrics = null;
+    this.performanceMetrics = null;
+    this.channelDistribution = null;
+    this.userProductivity = null;
   }
 
   // Filter dropdown methods
@@ -569,21 +676,53 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
     this.refreshData();
   }
 
-  toggleAIAssistantSelection(botId: number, botName: string): void {
-    const index = this.selectedAIAssistants.findIndex(bot => bot === botName);
+  toggleAIAssistantSelection(bot: { id: number, name: string, is_active: boolean }): void {
+    const index = this.selectedAIAssistants.findIndex(selectedBot => selectedBot.id === bot.id);
     if (index > -1) {
       this.selectedAIAssistants.splice(index, 1);
     } else {
-      this.selectedAIAssistants.push(botName);
+      this.selectedAIAssistants.push(bot);
     }
 
-    // Set the chatbot ID for API calls
     if (this.selectedAIAssistants.length === 1) {
-      this.selectedChatbotId = botId;
+      this.selectedChatbotId = this.selectedAIAssistants[0].id;
     } else if (this.selectedAIAssistants.length === 0) {
-      this.selectedChatbotId = this.availableChatbots.length > 0 ? this.availableChatbots[0].id : null;
+      this.selectedChatbotId = null;
+    } else {
+      this.selectedChatbotId = null; // If multiple bots are selected, clear single ID
     }
 
+    this.refreshData();
+  }
+
+  toggleChannelsSelection(channel: string): void {
+    const index = this.selectedChannels.indexOf(channel);
+    if (index > -1) {
+      this.selectedChannels.splice(index, 1);
+    } else {
+      this.selectedChannels.push(channel);
+    }
+    this.refreshData();
+  }
+
+  toggleLiveAgentSelection(agent: any): void {
+    const agentIdStr = agent.id.toString();
+    const index = this.selectedLiveAgents.indexOf(agentIdStr);
+    if (index > -1) {
+      this.selectedLiveAgents.splice(index, 1);
+    } else {
+      this.selectedLiveAgents.push(agentIdStr);
+    }
+    this.refreshData();
+  }
+
+  toggleTeamsSelection(team: string): void {
+    const index = this.selectedTeams.indexOf(team);
+    if (index > -1) {
+      this.selectedTeams.splice(index, 1);
+    } else {
+      this.selectedTeams.push(team);
+    }
     this.refreshData();
   }
 
@@ -607,9 +746,21 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
     this.refreshData();
   }
 
-  // Helper methods
-  isAIAssistantSelected(botName: string): boolean {
-    return this.selectedAIAssistants.includes(botName);
+  // Helper methods for UI display
+  isAIAssistantSelected(bot: { id: number, name: string }): boolean {
+    return this.selectedAIAssistants.some(selectedBot => selectedBot.id === bot.id);
+  }
+
+  isChannelSelected(channel: string): boolean {
+    return this.selectedChannels.includes(channel);
+  }
+
+  isLiveAgentSelected(agent: any): boolean {
+    return this.selectedLiveAgents.includes(agent.id.toString());
+  }
+
+  isTeamSelected(team: string): boolean {
+    return this.selectedTeams.includes(team);
   }
 
   isStatusSelected(status: string): boolean {
@@ -622,8 +773,29 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
 
   getSelectedAIAssistantsDisplay(): string {
     if (this.selectedAIAssistants.length === 0) return 'Select';
-    if (this.selectedAIAssistants.length === 1) return this.selectedAIAssistants[0];
+    if (this.selectedAIAssistants.length === 1) return this.selectedAIAssistants[0].name;
     return `${this.selectedAIAssistants.length} selected`;
+  }
+
+  getSelectedChannelsDisplay(): string {
+    if (this.selectedChannels.length === 0) return 'Select';
+    if (this.selectedChannels.length === 1) return this.selectedChannels[0];
+    return `${this.selectedChannels.length} selected`;
+  }
+
+  getSelectedLiveAgentsDisplay(): string {
+    if (this.selectedLiveAgents.length === 0) return 'Select';
+    if (this.selectedLiveAgents.length === 1) {
+      const agent = this.availableLiveAgents.find(a => a.id.toString() === this.selectedLiveAgents[0]);
+      return agent ? agent.name : 'Select';
+    }
+    return `${this.selectedLiveAgents.length} selected`;
+  }
+
+  getSelectedTeamsDisplay(): string {
+    if (this.selectedTeams.length === 0) return 'Select';
+    if (this.selectedTeams.length === 1) return this.selectedTeams[0];
+    return `${this.selectedTeams.length} selected`;
   }
 
   getSelectedStatusDisplay(): string {
@@ -639,7 +811,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Helper method to build filters array
+   * Helper method to build filters array for API payloads
    */
   private buildFilters(): FilterItem[] {
     const filters: FilterItem[] = [];
@@ -649,7 +821,19 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
     }
 
     if (this.selectedAIAssistants.length > 0) {
-      filters.push({ field: 'ai_assistants', operator: 'in', value: this.selectedAIAssistants.join(',') });
+      filters.push({ field: 'ai_assistant_ids', operator: 'in', value: this.selectedAIAssistants.map(bot => bot.id).join(',') });
+    }
+
+    if (this.selectedChannels.length > 0) {
+      filters.push({ field: 'channels', operator: 'in', value: this.selectedChannels.join(',') });
+    }
+
+    if (this.selectedLiveAgents.length > 0) {
+      filters.push({ field: 'live_agent_ids', operator: 'in', value: this.selectedLiveAgents.join(',') });
+    }
+
+    if (this.selectedTeams.length > 0) {
+      filters.push({ field: 'teams', operator: 'in', value: this.selectedTeams.join(',') });
     }
 
     if (this.selectedStatus.length > 0) {
@@ -664,27 +848,38 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Helper method to format date for API
+   * Helper method to format date for API (YYYY-MM-DD)
    */
   private formatDateForAPI(date: Date): string {
     return date.toISOString().split('T')[0];
   }
 
   /**
-   * Helper method to calculate days between dates
+   * Helper method to calculate number of days between dates
    */
   private getDaysBetweenDates(): number {
-    const timeDiff = this.endDate.getTime() - this.startDate.getTime();
-    return Math.ceil(timeDiff / (1000 * 3600 * 24));
+    const start = new Date(this.startDate.getFullYear(), this.startDate.getMonth(), this.startDate.getDate());
+    const end = new Date(this.endDate.getFullYear(), this.endDate.getMonth(), this.endDate.getDate());
+    const timeDiff = end.getTime() - start.getTime();
+    const days = Math.floor(timeDiff / (1000 * 3600 * 24));
+    return days >= 0 ? days + 1 : 1;
   }
 
   /**
-   * Load data based on active tab
+   * Loads all relevant data for the currently active tab.
    */
   private loadDataForActiveTab(): void {
+    console.log(`Loading data for active tab: ${this.activeTab}`);
+    // Clear previous data for other tabs or specific metrics
+    this.chatAnalytics = null;
+    this.conversationMetrics = null;
+    this.performanceMetrics = null;
+
     switch (this.activeTab) {
       case 'chats':
         this.loadChatAnalytics();
+        this.loadConversationMetrics();
+        this.loadPerformanceMetrics();
         break;
       case 'tickets':
         this.loadTicketAnalytics();
@@ -699,7 +894,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
    * Get total sessions for display
    */
   getTotalSessions(): string {
-    return this.conversationMetrics?.total_sessions?.toString() || (this.userActivity?.chatbots_created?.toString()) || '0';
+    return this.conversationMetrics?.total_sessions?.toString() || '0';
   }
 
   /**
@@ -710,10 +905,27 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Get average response time for display
+   * Get average duration for display
    */
-  getAverageResponseTime(): string {
-    if (this.performanceMetrics?.avg_response_time !== undefined) {
+  getAverageDurationDisplay(): string {
+    if (this.conversationMetrics?.avg_duration !== undefined && this.conversationMetrics.avg_duration !== null) {
+      const durationSeconds = this.conversationMetrics.avg_duration;
+      if (durationSeconds < 60) {
+        return `${durationSeconds.toFixed(0)}s`;
+      } else {
+        const minutes = Math.floor(durationSeconds / 60);
+        const seconds = durationSeconds % 60;
+        return `${minutes}m ${seconds.toFixed(0)}s`;
+      }
+    }
+    return '-';
+  }
+
+  /**
+   * Get average response time for display (for Live Agent)
+   */
+  getAverageResponseTimeDisplay(): string {
+    if (this.performanceMetrics?.avg_response_time !== undefined && this.performanceMetrics.avg_response_time !== null) {
       const timeMs = this.performanceMetrics.avg_response_time;
       if (timeMs < 1000) {
         return `${timeMs.toFixed(0)}ms`;
@@ -727,50 +939,48 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
   /**
    * Get system uptime for display
    */
-  getSystemUptime(): string {
-    if (this.performanceMetrics?.uptime !== undefined) {
+  getSystemUptimeDisplay(): string {
+    if (this.performanceMetrics?.uptime !== undefined && this.performanceMetrics.uptime !== null) {
       return `${this.performanceMetrics.uptime.toFixed(1)}%`;
     }
     return '-';
   }
 
   /**
-   * Get total chatbots created from user activity
-   */
-  getTotalChatbotsCreated(): string {
-    return this.userActivity?.chatbots_created?.toString() || '0';
-  }
-
-  /**
    * Get intents triggered count
    */
-  getIntentsTriggered(): string {
-    return this.performanceMetrics?.intents_triggered?.toString() || this.userActivity?.intents_created?.toString() || '0';
+  getIntentsTriggeredDisplay(): string {
+    return this.performanceMetrics?.intents_triggered?.toString() || '0';
   }
 
   /**
-   * Check if we have chat data to display
+   * Get average AI assistant response time for display (using PerformanceMetrics avg_response_time)
+   */
+  getAverageAIAssistantResponseTimeDisplay(): string {
+    return this.getAverageResponseTimeDisplay(); // Re-uses the general avg_response_time
+  }
+
+  /**
+   * Check if we have any data (real or mock) to display in the chats tab's main area.
    */
   hasChatData(): boolean {
-    return !this.isLoadingChats && (
-      this.conversationMetrics !== null ||
-      this.performanceMetrics !== null ||
-      this.chatAnalytics !== null ||
-      this.userActivity !== null ||
-      this.chartData.length > 0
+    const hasChartData = this.chartData.length > 0 && this.chartData.some(d => d.count > 0);
+    const hasConversationMetrics = this.conversationMetrics && this.conversationMetrics.total_sessions !== undefined && this.conversationMetrics.total_sessions > 0;
+    const hasPerformanceMetrics = this.performanceMetrics && this.performanceMetrics.avg_response_time !== undefined && this.performanceMetrics.avg_response_time > 0;
+    const hasUserActivity = this.userActivity && Object.keys(this.userActivity.activity_trend).length > 0;
+
+    return !this.isLoadingChats && !this.isLoadingUserActivity && (
+      hasChartData ||
+      hasConversationMetrics ||
+      hasPerformanceMetrics ||
+      hasUserActivity
     );
   }
 
-  /**
-   * Check if we have ticket data to display
-   */
   hasTicketData(): boolean {
     return !this.isLoadingTickets && false;
   }
 
-  /**
-   * Check if we have interaction data to display
-   */
   hasInteractionData(): boolean {
     return !this.isLoadingInteractions && false;
   }
@@ -847,7 +1057,6 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
         rows.push(`${dataPoint.label},${totalSessions},${completedSessions},${avgDuration.toFixed(2)},${avgMessages.toFixed(2)},${avgResponseTime.toFixed(2)},${uptime.toFixed(1)}%,${dataPoint.count}`);
       });
     } else {
-      // Fallback for empty data
       const startTime = this.startDate.getTime();
       const endTime = this.endDate.getTime();
       const dayMs = 24 * 60 * 60 * 1000;
@@ -873,14 +1082,14 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
     return rows;
   }
 
-  /**
-   * Refresh data method
-   */
   private refreshData(): void {
-    console.log(`Refreshing ${this.activeTab} data for range: ${this.getDateRangeDisplay()}`);
-    this.loadUserStats();
-    this.loadUserActivity(); // This will regenerate chart data based on new date range
-    this.loadDataForActiveTab();
+    console.log(`Refreshing all analytics data for range: ${this.getDateRangeDisplay()}. Active Tab: ${this.activeTab}`);
+    this.loadUserStats();          // Top cards
+    this.loadUserActivity();       // Chart data
+    this.loadUserProductivity();   // Productivity metrics
+    this.loadChannelDistribution(); // Channel distribution
+    this.loadAvailableChatbots();  // Ensure chatbots list is fresh for filters
+    this.loadDataForActiveTab();   // Tab-specific data (chat analytics, conversation metrics, performance metrics)
   }
 
   resetAllFilters(): void {
@@ -893,16 +1102,19 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
     this.selectedTeams = [];
     this.selectedStatus = [];
     this.selectedCSATRating = [];
-    // Reset to first available chatbot
+    // Reset to first available chatbot or null
     this.selectedChatbotId = this.availableChatbots.length > 0 ? this.availableChatbots[0].id : null;
     this.refreshData();
   }
 
   /**
-   * Get status color based on status name
+   * Get status color based on status name (for Chat and Ticket Statuses)
    */
   getStatusColor(status: string): string {
-    const statusColor = this.chatStatuses.find(s => s.name === status);
+    let statusColor = this.chatStatuses.find(s => s.name === status);
+    if (!statusColor) { // Fallback for ticket statuses or unknown
+      statusColor = this.ticketStatuses.find(s => s.name === status);
+    }
     return statusColor ? statusColor.color : '#666';
   }
 
@@ -912,7 +1124,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
   getMaxCount(): number {
     if (this.chartData.length === 0) return 100;
     const max = Math.max(...this.chartData.map(d => d.count));
-    return Math.max(max, 10); // Ensure minimum scale of 10
+    return Math.max(max, 10);
   }
 
   /**
@@ -921,8 +1133,8 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
   getBarHeightPercentage(count: number): number {
     if (count === 0) return 0;
     const maxCount = this.getMaxCount();
-    const minHeight = 5; // Minimum 5% height for visibility of non-zero values
-    const percentage = (count / maxCount) * 95; // Use 95% to leave room for labels
+    const minHeight = 5;
+    const percentage = (count / maxCount) * 95;
     return Math.max(percentage, minHeight);
   }
 
@@ -932,9 +1144,8 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
   getYAxisLabels(): number[] {
     const maxCount = this.getMaxCount();
     const labels: number[] = [];
-    const steps = 5; // Number of Y-axis labels
+    const steps = 5;
 
-    // Generate from top to bottom (highest to lowest)
     for (let i = steps; i >= 0; i--) {
       const value = Math.round((maxCount * i) / steps);
       labels.push(value);
@@ -950,13 +1161,9 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
     return count > 0;
   }
 
-  /**
-   * Close all dropdowns when clicking outside
-   */
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event): void {
     const target = event.target as HTMLElement;
-    // Exclude clicks inside the date picker itself
     if (!target.closest('.filter-dropdown-container') && !target.closest('.date-range-container')) {
       this.closeAllDropdowns();
     }
@@ -972,6 +1179,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
     this.showTeamsDropdown = false;
     this.showStatusDropdown = false;
     this.showCSATRatingDropdown = false;
+    this.showDatePicker = false;
   }
 
   // ========================================
@@ -984,10 +1192,12 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
       this.selectedStartDate = new Date(this.startDate);
       this.selectedEndDate = new Date(this.endDate);
 
-      // IMPORTANT: Always show current year/month in dropdown when opening calendar
-      const today = new Date();
-      this.currentYear = today.getFullYear();
-      this.currentMonth = today.getMonth();
+      this.currentYear = this.startDate.getFullYear();
+      this.currentMonth = this.startDate.getMonth();
+      this.isSelectingRange = false;
+    } else {
+      this.selectedStartDate = new Date(this.startDate);
+      this.selectedEndDate = new Date(this.endDate);
       this.isSelectingRange = false;
     }
   }
@@ -1015,15 +1225,18 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
     if (day === null) return;
 
     const selectedDate = new Date(this.currentYear, this.currentMonth, day);
+    selectedDate.setHours(0, 0, 0, 0);
 
     if (!this.isSelectingRange || !this.selectedStartDate) {
       this.selectedStartDate = selectedDate;
       this.selectedEndDate = null;
       this.isSelectingRange = true;
     } else {
-      if (selectedDate < this.selectedStartDate) {
+      if (selectedDate.getTime() < this.selectedStartDate.getTime()) {
         this.selectedEndDate = this.selectedStartDate;
         this.selectedStartDate = selectedDate;
+      } else if (selectedDate.getTime() === this.selectedStartDate.getTime()) {
+        this.selectedEndDate = selectedDate;
       } else {
         this.selectedEndDate = selectedDate;
       }
@@ -1035,31 +1248,38 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
     if (day === null) return false;
 
     const date = new Date(this.currentYear, this.currentMonth, day);
-    const dateStr = date.toDateString();
+    date.setHours(0, 0, 0, 0);
 
-    return (this.selectedStartDate?.toDateString() === dateStr) ||
-           (this.selectedEndDate?.toDateString() === dateStr);
+    return !!(this.selectedStartDate && this.selectedStartDate.getTime() === date.getTime()) ||
+           !!(this.selectedEndDate && this.selectedEndDate.getTime() === date.getTime());
   }
 
   isDayInRange(day: number | null): boolean {
     if (day === null || !this.selectedStartDate || !this.selectedEndDate) return false;
 
     const date = new Date(this.currentYear, this.currentMonth, day);
-    return date > this.selectedStartDate && date < this.selectedEndDate;
+    date.setHours(0, 0, 0, 0);
+
+    const normalizedStart = new Date(Math.min(this.selectedStartDate.getTime(), this.selectedEndDate.getTime()));
+    const normalizedEnd = new Date(Math.max(this.selectedStartDate.getTime(), this.selectedEndDate.getTime()));
+    normalizedStart.setHours(0, 0, 0, 0);
+    normalizedEnd.setHours(0, 0, 0, 0);
+
+    return date.getTime() > normalizedStart.getTime() && date.getTime() < normalizedEnd.getTime();
   }
 
   isDayRangeStart(day: number | null): boolean {
-    if (day === null) return false;
-
+    if (day === null || !this.selectedStartDate) return false;
     const date = new Date(this.currentYear, this.currentMonth, day);
-    return this.selectedStartDate?.toDateString() === date.toDateString();
+    date.setHours(0, 0, 0, 0);
+    return this.selectedStartDate.getTime() === date.getTime();
   }
 
   isDayRangeEnd(day: number | null): boolean {
-    if (day === null) return false;
-
+    if (day === null || !this.selectedEndDate) return false;
     const date = new Date(this.currentYear, this.currentMonth, day);
-    return this.selectedEndDate?.toDateString() === date.toDateString();
+    date.setHours(0, 0, 0, 0);
+    return this.selectedEndDate.getTime() === date.getTime();
   }
 
   isToday(day: number | null): boolean {
@@ -1100,15 +1320,17 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Apply date range and refresh all data
+   * Apply selected date range and refresh all data.
    */
   applyDateRange(): void {
     if (this.selectedStartDate && this.selectedEndDate) {
+      if (this.selectedStartDate.getTime() > this.selectedEndDate.getTime()) {
+        [this.selectedStartDate, this.selectedEndDate] = [this.selectedEndDate, this.selectedStartDate];
+      }
       this.startDate = new Date(this.selectedStartDate);
       this.endDate = new Date(this.selectedEndDate);
       this.showDatePicker = false;
       console.log('Applied new date range:', this.getDateRangeDisplay());
-      // Force refresh of all data including chart generation
       this.refreshData();
     }
   }

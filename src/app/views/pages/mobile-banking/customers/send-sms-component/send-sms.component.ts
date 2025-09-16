@@ -3,6 +3,7 @@ import {
   OnInit,
   ViewChild,
   ElementRef,
+  ChangeDetectorRef 
 } from '@angular/core';
 import { HttpService } from 'src/app/shared/services/http.service';
 import { GlobalService } from 'src/app/shared/services/global.service';
@@ -12,14 +13,14 @@ import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 
-// MODIFIED: Added training_phrases to the interface for editing
 interface Trigger {
   id: number;
   name: string;
   description?: string;
   is_active: boolean;
   created_at: string;
-  training_phrases?: string[]; // Needed for the edit form
+  training_phrases?: string[]; 
+  is_root?: boolean; 
 }
 
 @Component({
@@ -36,7 +37,6 @@ export class SendSmsComponent implements OnInit {
   agentList: Trigger[] = [];
   isLoading = true;
   
-  // NEW: Property to track if we are in edit mode
   editingTriggerId: number | null = null;
 
   constructor(
@@ -45,7 +45,8 @@ export class SendSmsComponent implements OnInit {
     private fb: FormBuilder,
     private router: Router,
     private route: ActivatedRoute,
-    private toastrService: ToastrService
+    private toastrService: ToastrService,
+    private cdr: ChangeDetectorRef 
   ) {
     this.initializeForm();
 
@@ -100,8 +101,8 @@ export class SendSmsComponent implements OnInit {
 
   fetchIntentList(chatbotId: number): void {
     this.isLoading = true;
-    const body = { chatbot_id: chatbotId };
-    this.httpService.mobileBankingPost('builder/chatbots/root-intents', body).subscribe({
+    const payload = { chatbot_id: chatbotId };
+    this.httpService.mobileBankingPost('builder/chatbots/root-intents', payload).subscribe({
       next: (res: any) => {
         if (res.status === '00' && Array.isArray(res.data)) {
           this.agentList = res.data.map((trigger: any) => ({
@@ -116,7 +117,7 @@ export class SendSmsComponent implements OnInit {
         this.isLoading = false;
       },
       error: (err: any) => {
-        console.error('Error fetching agent list:', err);
+        console.error('Error fetching intent list:', err);
         this.agentList = [];
         this.toastrService.error('An error occurred while loading triggers.', 'Error');
         this.isLoading = false;
@@ -126,8 +127,21 @@ export class SendSmsComponent implements OnInit {
 
   toggleTriggerStatus(trigger: Trigger): void {
     const newStatus = !trigger.is_active;
-    const payload = { intent_id: trigger.id, is_active: newStatus };
-    this.httpService.mobileBankingPost('builder/nodes/intent/status', payload).subscribe({
+    const chatbotId = this.globalService.getChatbotId();
+
+    if (!chatbotId) {
+      this.toastrService.error('Chatbot context missing. Cannot update status.', 'Error');
+      return;
+    }
+
+    const payload = { 
+        intent_id: trigger.id, 
+        chatbot_id: chatbotId, 
+        is_active: newStatus,
+        is_root: trigger.is_root 
+    };
+
+    this.httpService.mobileBankingPatch('builder/intents/update', payload).subscribe({
       next: (res: any) => {
         if (res.status === '00') {
           trigger.is_active = newStatus;
@@ -142,7 +156,6 @@ export class SendSmsComponent implements OnInit {
     });
   }
 
-  // MODIFIED: This function now handles both create and update
   onTriggerSubmit(): void {
     if (!this.triggerForm.valid) {
       this.markFormGroupTouched(this.triggerForm);
@@ -160,11 +173,14 @@ export class SendSmsComponent implements OnInit {
       const payload = {
         intent_id: this.editingTriggerId,
         chatbot_id: chatbotId,
-        ...this.triggerForm.value,
-        is_active: originalTrigger ? originalTrigger.is_active : true // Preserve status
+        name: this.triggerForm.value.name,
+        description: this.triggerForm.value.description,
+        training_phrases: this.triggerForm.value.training_phrases,
+        is_active: originalTrigger ? originalTrigger.is_active : true,
+        is_root: originalTrigger ? originalTrigger.is_root : true 
       };
 
-      this.httpService.mobileBankingPost('builder/nodes/intent/update', payload).subscribe({
+      this.httpService.mobileBankingPatch('builder/intents/update', payload).subscribe({
         next: (res: any) => {
           if (res.status === '00') {
             Swal.fire('Success', 'Trigger updated successfully!', 'success');
@@ -182,12 +198,15 @@ export class SendSmsComponent implements OnInit {
   
     else {
       const payload = {
-        ...this.triggerForm.value,
+        name: this.triggerForm.value.name,
+        description: this.triggerForm.value.description,
+        training_phrases: this.triggerForm.value.training_phrases, 
         chatbot_id: chatbotId,
         is_root: true,
-        order: (this.agentList.length || 0) + 1,
+        order: (this.agentList.length || 0) + 1, 
       };
-      this.httpService.mobileBankingPost('builder/nodes/intent', payload).subscribe({
+
+      this.httpService.mobileBankingPost('builder/intents/create', payload).subscribe({
           next: (result: any) => {
             if (result.status === '00') {
               Swal.fire('Success', 'Trigger Created Successfully!', 'success');
@@ -204,15 +223,11 @@ export class SendSmsComponent implements OnInit {
     }
   }
 
-  // MODIFIED: This now uses the component's own modal instead of NgbModal
   editTrigger(trigger: Trigger): void {
     this.editingTriggerId = trigger.id;
-
-    // Populate the form with the trigger's data
     this.triggerForm.patchValue({
       name: trigger.name,
       description: trigger.description,
-      // trigger_type: trigger.trigger_type // Add this if trigger_type is part of your trigger object
     });
 
     // Clear and re-populate training phrases
@@ -222,16 +237,14 @@ export class SendSmsComponent implements OnInit {
         this.trainingPhrases.push(this.fb.control(phrase, Validators.required));
       });
     } else {
-      this.addTrainingPhrase(); // Add at least one empty field
+      this.addTrainingPhrase(); 
     }
-    
-    // Open the modal
+ 
     this.triggerModal.nativeElement.classList.add('show');
     this.triggerModal.nativeElement.style.display = 'block';
     document.body.classList.add('modal-open');
   }
 
-  // MODIFIED: Updated to use the correct API endpoint and payload for deletion
   deleteTrigger(trigger: Trigger): void {
     Swal.fire({
       title: 'Are you sure?',
@@ -251,20 +264,38 @@ export class SendSmsComponent implements OnInit {
 
         const payload = {
           intent_id: trigger.id,
-          chatbot_id: chatbotId
+          chatbot_id: chatbotId // Required by new DELETE API
         };
         
-        this.httpService.mobileBankingPost('builder/nodes/intent/delete', payload).subscribe({
+        this.httpService.mobileBankingDel('builder/intents/delete', payload).subscribe({
           next: (res: any) => {
-            if (res.status === '00') {
+    
+            if (res === null) {
+              console.log('SendSmsComponent: deleteTrigger - Received null response (204 No Content). Assuming success.');
               Swal.fire('Deleted!', 'The trigger has been deleted.', 'success');
-              this.fetchIntentList(chatbotId); // Refresh list
+            
+              this.agentList = this.agentList.filter(item => item.id !== trigger.id);
+              
+              // *** Force Change Detection ***
+              this.cdr.detectChanges(); 
+              console.log('SendSmsComponent: deleteTrigger - Local list updated and change detection triggered.');
+
+            } else if (res && res.status === '00') {
+              Swal.fire('Deleted!', 'The trigger has been deleted.', 'success');
+              
+              this.agentList = this.agentList.filter(item => item.id !== trigger.id);
+              this.cdr.detectChanges(); 
+
             } else {
-              Swal.fire('Error', res.message || 'Failed to delete trigger.', 'error');
+         
+              const serverMessage = res?.message || 'Deletion failed: The server responded with an unexpected status or format.';
+              Swal.fire('Error', serverMessage, 'error');
             }
           },
           error: (err: any) => {
-            Swal.fire('Error', err?.error?.message || 'An error occurred.', 'error');
+            console.error('SendSmsComponent: deleteTrigger - ERROR block entered. Error:', err);
+            const errorMessage = err?.message || 'An unexpected network or server error occurred during deletion.';
+            Swal.fire('Error!', errorMessage, 'error');
           }
         });
       }
@@ -272,8 +303,8 @@ export class SendSmsComponent implements OnInit {
   }
 
   onAddTriggerClick(): void {
-    this.editingTriggerId = null; // Ensure we are in "add" mode
-    this.initializeForm(); // Reset form for a new entry
+    this.editingTriggerId = null;
+    this.initializeForm();
     this.triggerModal.nativeElement.classList.add('show');
     this.triggerModal.nativeElement.style.display = 'block';
     document.body.classList.add('modal-open');
@@ -283,7 +314,7 @@ export class SendSmsComponent implements OnInit {
     this.triggerModal.nativeElement.classList.remove('show');
     this.triggerModal.nativeElement.style.display = 'none';
     document.body.classList.remove('modal-open');
-    this.editingTriggerId = null; // Reset edit state on close
+    this.editingTriggerId = null;
   }
 
   openIntent(trigger: Trigger): void {

@@ -114,7 +114,7 @@
           <div class="card stat-card h-100">
             <div class="card-body text-center">
               <div class="stat-label">Total AI Assistants</div>
-              <div class="stat-value">{{ userStats.total_chatbots }}</div>
+              <div class="stat-value">{{ userStats.total_chatbots || 0 }}</div>
             </div>
           </div>
         </div>
@@ -122,7 +122,7 @@
           <div class="card stat-card h-100">
             <div class="card-body text-center">
               <div class="stat-label">Active</div>
-              <div class="stat-value text-success">{{ userStats.active_chatbots }}</div>
+              <div class="stat-value text-success">{{ userStats.active_chatbots || 0 }}</div>
             </div>
           </div>
         </div>
@@ -130,7 +130,7 @@
           <div class="card stat-card h-100">
             <div class="card-body text-center">
               <div class="stat-label">Inactive</div>
-              <div class="stat-value text-warning">{{ userStats.inactive_chatbots }}</div>
+              <div class="stat-value text-warning">{{ userStats.inactive_chatbots || 0 }}</div>
             </div>
           </div>
         </div>
@@ -138,7 +138,7 @@
           <div class="card stat-card h-100">
             <div class="card-body text-center">
               <div class="stat-label">Avg Intents/Bot</div>
-              <div class="stat-value text-info">{{ userStats.avg_intents_per_chatbot | number:'1.1-1' }}</div>
+              <div class="stat-value text-info">{{ userStats.avg_intents_per_chatbot !== undefined ? (userStats.avg_intents_per_chatbot | number:'1.1-1') : 'N/A' }}</div>
             </div>
           </div>
         </div>
@@ -242,11 +242,11 @@
               <div
                 *ngFor="let bot of availableChatbots"
                 class="filter-option checkbox-option"
-                (click)="toggleAIAssistantSelection(bot.id, bot.name)"
+                (click)="toggleAIAssistantSelection(bot)"
               >
                 <input
                   type="checkbox"
-                  [checked]="isAIAssistantSelected(bot.name)"
+                  [checked]="isAIAssistantSelected(bot)"
                   (click)="$event.stopPropagation()"
                 >
                 {{ bot.name }}
@@ -257,14 +257,20 @@
           <!-- Channels dropdown -->
           <div class="filter-dropdown-container">
             <button class="filter-chip" (click)="toggleChannelsDropdown()">
-              Channels: <span>Select</span>
+              Channels: <span>{{ getSelectedChannelsDisplay() }}</span>
               <i class="fas fa-chevron-down"></i>
             </button>
             <div class="filter-dropdown" *ngIf="showChannelsDropdown">
               <div
                 *ngFor="let channel of availableChannels"
-                class="filter-option"
+                class="filter-option checkbox-option"
+                (click)="toggleChannelsSelection(channel)"
               >
+                <input
+                  type="checkbox"
+                  [checked]="isChannelSelected(channel)"
+                  (click)="$event.stopPropagation()"
+                >
                 {{ channel }}
               </div>
             </div>
@@ -273,7 +279,7 @@
           <!-- Live Agents dropdown -->
           <div class="filter-dropdown-container">
             <button class="filter-chip" (click)="toggleLiveAgentsDropdown()">
-              Live Agents: <span>Select</span>
+              Live Agents: <span>{{ getSelectedLiveAgentsDisplay() }}</span>
               <i class="fas fa-chevron-down"></i>
             </button>
             <div class="filter-dropdown" *ngIf="showLiveAgentsDropdown">
@@ -282,8 +288,14 @@
               </div>
               <div
                 *ngFor="let agent of availableLiveAgents"
-                class="filter-option"
+                class="filter-option checkbox-option"
+                (click)="toggleLiveAgentSelection(agent)"
               >
+                <input
+                  type="checkbox"
+                  [checked]="isLiveAgentSelected(agent)"
+                  (click)="$event.stopPropagation()"
+                >
                 {{ agent.name }}
               </div>
             </div>
@@ -292,14 +304,20 @@
           <!-- Teams dropdown -->
           <div class="filter-dropdown-container">
             <button class="filter-chip" (click)="toggleTeamsDropdown()">
-              Teams: <span>Select</span>
+              Teams: <span>{{ getSelectedTeamsDisplay() }}</span>
               <i class="fas fa-chevron-down"></i>
             </button>
             <div class="filter-dropdown" *ngIf="showTeamsDropdown">
               <div
                 *ngFor="let team of availableTeams"
-                class="filter-option"
+                class="filter-option checkbox-option"
+                (click)="toggleTeamsSelection(team)"
               >
+                <input
+                  type="checkbox"
+                  [checked]="isTeamSelected(team)"
+                  (click)="$event.stopPropagation()"
+                >
                 {{ team }}
               </div>
             </div>
@@ -345,16 +363,16 @@
             </div>
           </div>
 
-          <a href="#" class="reset-filters-link" (click)="resetAllFilters()">× Reset all</a>
+          <a href="javascript:void(0)" class="reset-filters-link" (click)="resetAllFilters()">× Reset all</a>
         </div>
 
         <!-- Loading indicator -->
-        <div class="loading-indicator" *ngIf="isLoadingChats">
-          <i class="fas fa-spinner fa-spin"></i> Loading chat analytics...
+        <div class="loading-indicator" *ngIf="isLoadingChats || isLoadingUserActivity">
+          <i class="fas fa-spinner fa-spin"></i> Loading chat data...
         </div>
 
         <!-- Fixed Bar Chart Display Area -->
-        <div class="data-display-area" *ngIf="!isLoadingChats">
+        <div class="data-display-area" *ngIf="!isLoadingChats && !isLoadingUserActivity">
           <div *ngIf="hasChatData(); else noChatData">
             <div class="chart-container">
               <div class="bar-chart">
@@ -416,18 +434,22 @@
             </div>
           </div>
 
+          <!-- Inside the "Chats by status" summary card -->
           <div class="summary-card wide">
             <h3>Chats by status</h3>
             <div class="status-breakdown">
               <div class="legend">
-                <div *ngFor="let status of chatStatuses" class="legend-item">
-                  <span class="legend-dot" [style.backgroundColor]="status.color"></span>
-                  {{ status.name }}
+                <div *ngFor="let statusItem of chatStatuses" class="legend-item"> <!-- Renamed 'status' to 'statusItem' for clarity -->
+                  <span class="legend-dot" [style.backgroundColor]="getStatusColor(statusItem.name)"></span> <!-- FIX: Pass statusItem.name -->
+                  {{ statusItem.name }}
                 </div>
               </div>
               <div class="metrics">
-                <div *ngFor="let status of chatStatuses" class="metric-item">
-                  <p class="metric">{{ status.name === 'Resolved' ? getCompletedSessions() : '-' }}</p>
+                <div *ngFor="let statusItem of chatStatuses" class="metric-item"> <!-- Renamed 'status' to 'statusItem' -->
+                  <p class="metric">
+                    <!-- Assuming conversationMetrics provides status counts or some way to derive them -->
+                    {{ statusItem.name === 'Resolved' ? (getCompletedSessions()) : '-' }}
+                  </p>
                 </div>
               </div>
             </div>
@@ -435,17 +457,17 @@
 
           <div class="summary-card">
             <h3>Average live agent response time</h3>
-            <p class="metric">{{ getAverageResponseTime() }}</p>
+            <p class="metric">{{ getAverageResponseTimeDisplay() }}</p>
             <div class="metric-description" *ngIf="performanceMetrics">
-              <small>System uptime: {{ getSystemUptime() }}</small>
+              <small>System uptime: {{ getSystemUptimeDisplay() }}</small>
             </div>
           </div>
 
           <div class="summary-card">
             <h3>Average AI assistant response time</h3>
-            <p class="metric">{{ getAverageResponseTime() }}</p>
+            <p class="metric">{{ getAverageAIAssistantResponseTimeDisplay() }}</p>
             <div class="metric-description" *ngIf="performanceMetrics?.intents_triggered">
-              <small>{{ performanceMetrics?.intents_triggered }} intents triggered</small>
+              <small>{{ getIntentsTriggeredDisplay() }} intents triggered</small>
             </div>
           </div>
         </div>
@@ -473,7 +495,7 @@
           <button class="filter-chip">Tag Groups: <span>Select</span></button>
           <button class="filter-chip">Creator Type: <span>Select</span></button>
           <button class="filter-chip">Custom Fields: <span>Select</span></button>
-          <a href="#" class="reset-filters-link">× Reset all</a>
+          <a href="javascript:void(0)" class="reset-filters-link" (click)="resetAllFilters()">× Reset all</a>
         </div>
 
         <div class="loading-indicator" *ngIf="isLoadingTickets">
@@ -559,7 +581,7 @@
           <button class="filter-chip">Teams: <span>Select</span></button>
           <button class="filter-chip">Status: <span>Select</span></button>
           <button class="filter-chip">Sender: <span>Select</span></button>
-          <a href="#" class="reset-filters-link">× Reset all</a>
+          <a href="javascript:void(0)" class="reset-filters-link" (click)="resetAllFilters()">× Reset all</a>
         </div>
 
         <div class="loading-indicator" *ngIf="isLoadingInteractions">
@@ -587,7 +609,7 @@
     </main>
 
     <!-- No chatbot selected message -->
-    <!-- <div class="no-chatbot-selected" *ngIf="availableChatbots.length === 0 && !isLoadingUserStats">
+    <!-- <div class="no-chatbot-selected" *ngIf="availableChatbots.length === 0 && !isLoadingAvailableChatbots && !isLoadingUserStats">
       <div class="empty-state">
         <i class="fas fa-robot"></i>
         <h3>No Active AI Assistants</h3>
