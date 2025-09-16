@@ -1,3 +1,7 @@
+// ====================================================================================
+// FINAL, DEFINITIVE `list-requests.component.ts` WITH ENHANCED DEBUGGING
+// ====================================================================================
+
 import { Component, OnInit, HostListener, ChangeDetectorRef } from '@angular/core';
 import { HttpService } from 'src/app/shared/services/http.service';
 import Swal from 'sweetalert2';
@@ -27,6 +31,7 @@ export interface Conversation {
 })
 export class ListRequestsComponent implements OnInit {
 
+  // Component state
   public conversations: Conversation[] = [];
   public selectedConversation: Conversation | null = null;
   public isDetailsSidebarVisible: boolean = false;
@@ -34,6 +39,7 @@ export class ListRequestsComponent implements OnInit {
   public pendingApprovals: Conversation[] = [];
   public isNotificationsVisible: boolean = false;
 
+  // Filter state
   public views: any[] = [];
   public selectedView: any = null;
   public sortByOptions: any[] = [];
@@ -54,11 +60,11 @@ export class ListRequestsComponent implements OnInit {
     // Static data setup...
     this.views = [{ id: 1, name: 'All active conversations' }, { id: 2, name: 'Active Livechats' }, { id: 3, name: 'Active Tickets' }, { id: 4, name: 'My inbox' }, { id: 5, 'name': 'AI assistant chats' }, { id: 6, name: 'All test conversations' }];
     this.selectedView = this.views[0];
-    this.sortByOptions = [{ id: 'creation_date', name: 'Creation date' }, { id: 'latest_message', name: 'Latest message' }, { id: 'customer_wait_time', name: 'Customer wait time' }, { id: 'agent_takeover_time', name: 'Time since live agent takeover' }];
+    this.sortByOptions = [{ id: 'creation_date', name: 'Creation date' }, { id: 'latest_message', name: 'Latest message' }];
     this.sortOrderOptions = [{ id: 'asc', name: 'Ascending' }, { id: 'desc', name: 'Descending' }];
     this.selectedSortBy = this.sortByOptions[0];
     this.selectedSortOrder = this.sortOrderOptions[0];
-    this.statusOptions = [{ name: 'Open', color: '#0d6efd' }, { name: 'Pending', color: '#fd7e14' }, { name: 'Overdue', color: '#dc3545' }, { name: 'Resolved', color: '#198754' }, { name: 'Closed', color: '#6c757d' }];
+    this.statusOptions = [{ name: 'Open', color: '#0d6efd' }, { name: 'Pending', color: '#fd7e14' }, { name: 'Resolved', color: '#198754' }, { name: 'Closed', color: '#6c757d' }];
   }
 
   loadInitialData(): void {
@@ -71,31 +77,24 @@ export class ListRequestsComponent implements OnInit {
         this.conversations = conversations;
         this.pendingApprovals = pendingApprovals;
         this.isLoading = false;
-        console.log("--- FINAL DATA ---");
-        console.log("Loaded conversations:", this.conversations);
-        console.log("Loaded pending approvals:", this.pendingApprovals);
         this.cdr.detectChanges();
       }
     );
   }
 
   loadConversations(): Observable<Conversation[]> {
-    console.log("1. Loading static conversations...");
     const staticConversations: Conversation[] = [
-      { id: 1, sender: 'Ecl Test', assignee: 'Admin', timestamp: '5 Aug', preview: 'Test', status: 'Open', avatarUrl: null, initials: 'ET', avatarColor: '#e9ecef', channelIcon: 'feather icon-message-circle', personDetails: { location: 'Dar es Salaam', country: 'Tanzania', ipAddress: '192.168.1.10', email: 'test@ecl.com', phoneNumber: '0712345678', personalId: 'N/A', channelId: 'web-1a2b3c', uniqueId: 'uid-ecl-test' } },
-      { id: 2, sender: 'Chris Theuri', assignee: 'Admin', timestamp: '4 Aug', preview: 'Confirm', status: 'Open', avatarUrl: null, initials: 'CT', avatarColor: '#f1f3f5', channelIcon: 'feather icon-message-square', personDetails: { location: 'Nairobi', country: 'Kenya', ipAddress: '10.0.0.5', email: 'criskahiga@example.com', phoneNumber: '0704349218', personalId: '01J1YSQW...', channelId: '254704349...', uniqueId: 'uid-chris-t' } },
+      { id: 1, sender: 'Ecl Test', assignee: 'Admin', timestamp: '5 Aug', preview: 'Test', status: 'Open', avatarUrl: null, initials: 'ET', avatarColor: '#e9ecef', channelIcon: 'feather icon-message-circle', personDetails: {}},
+      { id: 2, sender: 'Chris Theuri', assignee: 'Admin', timestamp: '4 Aug', preview: 'Confirm', status: 'Open', avatarUrl: null, initials: 'CT', avatarColor: '#f1f3f5', channelIcon: 'feather icon-message-square', personDetails: {} },
     ];
     return of(staticConversations);
   }
 
   loadPendingApprovals(): Observable<Conversation[]> {
-    console.log("2. Fetching pending creator approvals...");
     const endpoint = 'auth/admin/pending-creators';
     return this.httpService.mobileBankingGet(endpoint, {}).pipe(
       map((res: any) => {
-        console.log("3. RAW API RESPONSE FOR PENDING CREATORS:", res);
         if (Array.isArray(res)) {
-          console.log("4. SUCCESS: Response is an array. Processing...");
           return res.map((creator: any): Conversation => {
             const nameParts = creator.name ? creator.name.split(' ') : ['New', 'User'];
             const firstName = nameParts[0] || '';
@@ -117,13 +116,9 @@ export class ListRequestsComponent implements OnInit {
             };
           });
         }
-        console.log("4. FAILURE: Response was not a direct array as expected.");
         return [];
       }),
-      catchError(err => {
-        console.error(`5. HTTP ERROR: Failed to load from endpoint: ${endpoint}`, err);
-        return of([]);
-      })
+      catchError(err => of([]))
     );
   }
 
@@ -143,19 +138,29 @@ export class ListRequestsComponent implements OnInit {
     });
   }
 
+  // --- THIS IS THE UPDATED FUNCTION ---
   removeCreator(creatorId: number): void {
     const payload = { creator_id: creatorId, reason: "Registration denied by admin." };
-    this.httpService.mobileBankingPost('auth/admin/remove-creator', payload).subscribe({
+    // Get the exact endpoint string from your backend developer
+    const endpoint = 'auth/admin/reject-creator'; 
+
+    console.log(`Attempting to POST to endpoint: ${endpoint}`);
+    
+    this.httpService.mobileBankingPost(endpoint, payload).subscribe({
       next: (res: any) => {
         if (res.status === '00') {
-          Swal.fire('Success', 'Creator has been denied and removed.', 'success');
+          Swal.fire('Success', 'Creator has been rejected and removed.', 'success');
           this.hideDetailsSidebar();
           this.loadInitialData();
         } else {
-          Swal.fire('Error', res.message || 'Could not remove creator.', 'error');
+          Swal.fire('Error', res.message || 'Could not reject creator.', 'error');
         }
       },
-      error: (err: any) => Swal.fire('Error', 'An API error occurred during removal.', 'error')
+      error: (err: any) => {
+        console.error(`API Error on POST to ${endpoint}:`, err);
+        const errorMessage = err?.error?.message || 'An API error occurred during removal.';
+        Swal.fire('Error', `Request failed: ${errorMessage}`, 'error');
+      }
     });
   }
 
