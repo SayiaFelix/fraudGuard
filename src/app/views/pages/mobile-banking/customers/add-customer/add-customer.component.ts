@@ -1,4 +1,4 @@
-import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, ChangeDetectorRef} from '@angular/core'; // <-- ADD ChangeDetectorRef HERE
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {HttpService} from 'src/app/shared/services/http.service';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
@@ -67,8 +67,9 @@ export class AddCustomerComponent implements OnInit {
       private globalService: GlobalService,
       public fb: FormBuilder,
       private _toastService: ToastrService,
-      private _httpService: HttpService) {
-  }
+      private _httpService: HttpService,
+      private cdr: ChangeDetectorRef // <-- INJECT ChangeDetectorRef HERE
+  ) { }
 
   ngOnInit() {
     this.fetchAgentLists();
@@ -393,27 +394,36 @@ public deleteBot(bot: any): void {
       this._httpService.mobileBankingDel('builder/chatbots/delete', payload).subscribe({
         next: (res: any) => {
           console.log('Server response from delete API:', res);
-
-          if (res && res.status === '00') {
+          if (res === null) {
+            console.log('AddCustomerComponent: deleteBot - Received null response (204 No Content). Assuming success.');
             Swal.fire('Deleted!', 'The AI Assistant has been deleted.', 'success');
-            this.fetchAgentLists()
-            console.log(`Bot with id ${bot.id} deleted successfully on server. Removing from local list.`);
-            console.log('List size before filter:', this.fullAgentList.length);
 
             this.fullAgentList = this.fullAgentList.filter(b => b.id !== bot.id);
+            console.log(`Bot with id ${bot.id} deleted successfully on server. Removing from local list.`);
             
-            console.log('List size after filter:', this.fullAgentList.length);
             this.applyFilter();
+            this.cdr.detectChanges(); 
+
+          } else if (res && res.status === '00') {
+            Swal.fire('Deleted!', 'The AI Assistant has been deleted.', 'success');
+            
+            this.fullAgentList = this.fullAgentList.filter(b => b.id !== bot.id);
+            this.applyFilter();
+            this.cdr.detectChanges(); 
+
           } else {
-            console.error('Deletion failed: API returned a non-success status.', res);
-            this._toastService.error(res.message || 'The server indicated the deletion failed.', 'Error');
-            Swal.fire('Failed!', res.message || 'The AI Assistant could not be deleted.', 'error');
+    
+            const serverMessage = res?.message || 'Deletion failed: The server responded with an unexpected status or format.';
+            this._toastService.error(serverMessage, 'Warning');
+            Swal.fire('Failed!', serverMessage, 'error');
           }
         },
         error: (err: any) => {
-          console.error('An HTTP error occurred during deletion:', err);
-          this._toastService.error(err?.error?.message || 'An unexpected error occurred.', 'Error');
-          Swal.fire('Error!', err?.error?.message || 'An unexpected error occurred.', 'error');
+
+          const errorMessage = err?.message || 'An unexpected error occurred.'; 
+          this._toastService.error(errorMessage, 'Error'); 
+          Swal.fire('Error!', errorMessage, 'error'); 
+      
         }
       });
     }
