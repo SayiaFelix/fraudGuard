@@ -92,7 +92,7 @@ export class ListRequestsComponent implements OnInit {
 
   loadPendingApprovals(): Observable<Conversation[]> {
     const endpoint = 'auth/admin/pending-creators';
-    return this.httpService.mobileBankingGet(endpoint, {}).pipe(
+    return this.httpService.mobileBankingGet(endpoint).pipe(
       map((res: any) => {
         if (Array.isArray(res)) {
           return res.map((creator: any): Conversation => {
