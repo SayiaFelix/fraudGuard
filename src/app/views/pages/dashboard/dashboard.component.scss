@@ -15,8 +15,40 @@
 
 .chat-area {
   overflow-y: auto;
-  min-height: 450px;  
-  max-height: 70vh;  
+  min-height: 500px;  
+  max-height: 80vh;  
+  border: 2px solid #dee2e6; 
+  border-radius: 8px;
+}
+
+.bot-bubble ol,
+.bot-bubble ul {
+  margin: 0.25rem 0;
+  padding-left: 1.5rem; 
+  list-style-position: outside; 
+}
+
+.bot-bubble li {
+  margin: 0.4rem 0;
+  padding-left: 0;     
+  text-indent: 0;       
+}
+
+
+.bot-bubble ol li {
+  margin: 0.1rem 0;      
+  padding-left: 0;  
+  text-indent: 0;         
+}
+
+.bot-bubble ul li {
+  margin: 0.1rem 0;
+  padding-left: 0.3rem;
+}
+
+.bot-bubble p {
+  margin: 0.25rem 0;
+  text-align: left;
 }
 
 .user-bubble {
