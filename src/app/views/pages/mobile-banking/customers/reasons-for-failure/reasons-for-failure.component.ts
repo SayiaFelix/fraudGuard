@@ -134,11 +134,11 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
     });
 
     this.whatsAppConfigForm = this.fb.group({
-  appId: ['', Validators.required],
-  appSecret: ['', Validators.required],
-  accessToken: ['', Validators.required],
-  phoneNumberId: ['', Validators.required]
-});
+      appId: ['', Validators.required],
+      appSecret: ['', Validators.required],
+      accessToken: ['', Validators.required],
+      phoneNumberId: ['', Validators.required]
+    });
 
     this.whatsAppSetupForm = this.fb.group({
       appId: ['01K2M81A7A67HZ6KHZW6MSM4V3'],
@@ -208,7 +208,6 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
     });
   }
 
-  // --- THIS IS THE DEFINITIVE, FINAL, CORRECTED FUNCTION ---
   private fetchChannels(): void {
     if (!this.chatbotData || !this.chatbotData.id) {
         console.warn('Cannot fetch channels: Chatbot ID not available.');
@@ -231,58 +230,52 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
         .subscribe({
             next: (res: any) => {
                 console.log('RAW API RESPONSE RECEIVED:', res);
-
-                // FINAL FIX #1: Based on your screenshot, the array is at res.data
                 if (res && res.status === '00' && Array.isArray(res.data)) {
-                    
-                    const channelData = res.data; // The array is here
+                    const channelData = res.data;
                     console.log("SUCCESS: Found channels array directly in res.data:", channelData);
-
                     if (channelData.length === 0) {
-                        console.log("INFO: The channel list from the API is empty.");
                         this.channels = [];
                     } else {
                         const supportedTypes: ChannelType[] = ['webchat', 'whatsapp', 'facebook'];
                         this.channels = channelData
-                            // FINAL FIX #2: The property name is 'type'
                             .filter((apiChannel: any) => supportedTypes.includes(apiChannel.type))
                             .map((apiChannel: any) => ({
                                 id: apiChannel.id,
                                 name: apiChannel.name,
-                                type: apiChannel.type as ChannelType, // Correct property
+                                type: apiChannel.type as ChannelType,
                                 is_active: apiChannel.is_active,
                                 created_at: apiChannel.created_at,
                                 language: apiChannel.language,
                                 lastUpdated: new Date(apiChannel.created_at),
                                 enabled: apiChannel.is_active
                             }));
-                        
-                        console.log("SUCCESS: Processed and populated 'this.channels' with", this.channels.length, "items.");
                     }
                 } else {
                     console.warn('FAILURE: Response format was not the expected {status: "00", data: [...]}. Response:', res);
                     this.channels = [];
                 }
-                
                 this.isLoadingChannels = false;
             },
-            error: (err: any) => { // <-- Add ': any' here
+            error: (err: any) => {
                 console.error("Subscription-level error:", err);
                 this.isLoadingChannels = false;
             }
         });
   }
 
-
-onVerifyWhatsAppConfig(): void {
+  // --- THIS IS THE UPDATED FUNCTION ---
+  onVerifyWhatsAppConfig(): void {
+    // 1. Check if the form is valid
     if (this.whatsAppConfigForm.invalid) {
       Swal.fire('Error','Please fill in all four configuration fields.', 'error');
-      this.whatsAppConfigForm.markAllAsTouched();
+      this.whatsAppConfigForm.markAllAsTouched(); // Show validation errors
       return;
     }
 
+    // 2. Set loading state to provide user feedback
     this.isVerifyingWhatsApp = true; 
 
+    // 3. Construct the payload from the form values
     const payload = {
       app_id: this.whatsAppConfigForm.value.appId,
       app_secret: this.whatsAppConfigForm.value.appSecret,
@@ -290,25 +283,26 @@ onVerifyWhatsAppConfig(): void {
       phone_number_id: this.whatsAppConfigForm.value.phoneNumberId
     };
 
+    // 4. Make the API call
     this.httpService.mobileBankingPost('whatsapp/configure', payload)
       .subscribe({
         next: (response: any) => {
           if (response.status === '00') {
-            Swal.fire('Succes','Configuration verified successfully!', 'success');
+            Swal.fire('Success','Configuration verified successfully!', 'success');
           } else {
-            Swal.fire('Error','Verification failed. Please check your credentials.', 'error');
+            // Handle cases where the API returns a success status but with an error message
+            Swal.fire('Verification Failed', response.message || 'Please check your credentials.', 'error');
           }
-          this.isVerifyingWhatsApp = false; 
+          this.isVerifyingWhatsApp = false; // Reset loading state
         },
         error: (err: any) => {
-          console.error('WhatsApp configuration error:', err);
+          console.error('WhatsApp configuration API error:', err);
           const errorMessage = err?.error?.message || 'An unexpected error occurred during verification.';
-          this.isVerifyingWhatsApp = false; 
-          Swal.fire('Error','errorMessage', 'error');
+          this.isVerifyingWhatsApp = false; // Reset loading state
+          Swal.fire('API Error', errorMessage, 'error');
         }
       });
   }
-
  
 onAddChannel() {
     if (this.addChannelForm.invalid) {
@@ -345,6 +339,7 @@ onAddChannel() {
         }
       });
   }
+
   copyToClipboard(text: string) { navigator.clipboard.writeText(text).then(() => { this.copySuccessMessage = 'Copied!'; setTimeout(() => { this.copySuccessMessage = ''; }, 2000); }); }
   onSaveChanges() {
     console.log("Saving changes for channel:", this.selectedChannel?.name);
@@ -389,50 +384,10 @@ async onTestClick() {
       <head>
         <title>${chatbotName} Bot Test - ID ${chatbotId}</title>
         <style>
-          html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-          }
-          .container {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-            text-align: center;
-            box-sizing: border-box;
-          }
-          .loader {
-            margin: 30px auto;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #3498db;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-          }
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-          #status {
-            max-width: 80%;
-            border-radius: 4px;
-            background: #f8f9fa;
-          }
-          .error {
-            color: #dc3545;
-            background: #f8d7da;
-          }
-          .success {
-            color: #28a745;
-            background: #d4edda;
-          }
-          h1 {
-            color: #333;
-          }
+          html, body { height: 100%; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+          .container { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; text-align: center; }
+          .loader { margin: 30px auto; border: 5px solid #f3f3f3; border-top: 5px solid #3498db; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+          @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         </style>
       </head>
       <body>
@@ -441,43 +396,19 @@ async onTestClick() {
           <div id="status">Initializing chatbot...</div>
           <div class="loader"></div>
         </div>
-
         <script>
           (function() {
             const statusEl = document.getElementById('status');
             const loaderEl = document.querySelector('.loader');
-
             try {
               const iframe = document.createElement("iframe");
               iframe.src = "http://130.61.111.65:5040/static/chat-widget.html?chatbot_id=${chatbotId}";
               iframe.style = "position:fixed;bottom:20px;right:20px;width:400px;height:600px;border:none; z-index:9999;";
-
-              iframe.onload = function() {
-                statusEl.innerHTML = '<span class="success">${chatbotName} loaded successfully !!!!</span>';
-                loaderEl.style.display = 'none';
-              };
-
-              iframe.onerror = function() {
-                statusEl.innerHTML = '<span class="error">Failed to load chatbot. Please check:</span>' +
-                  '<ul style="text-align: left; display: inline-block; text-align: left;">' +
-                  '<li>The server is running</li>' +
-                  '<li>Your network connection</li>' +
-                  '<li>Browser console for errors (F12)</li>' +
-                  '</ul>';
-                loaderEl.style.display = 'none';
-              };
-
+              iframe.onload = function() { statusEl.textContent = 'Chatbot loaded successfully!'; loaderEl.style.display = 'none'; };
+              iframe.onerror = function() { statusEl.textContent = 'Failed to load chatbot.'; loaderEl.style.display = 'none'; };
               document.body.appendChild(iframe);
-
-              setTimeout(() => {
-                if (!iframe.contentWindow?.document?.body?.innerHTML) {
-                  statusEl.innerHTML = '<span class="error">Chatbot loading timed out</span>';
-                  loaderEl.style.display = 'none';
-                }
-              }, 10000);
-
             } catch (err) {
-              statusEl.innerHTML = '<span class="error">Error: ' + err.message + '</span>';
+              statusEl.textContent = 'Error: ' + err.message;
               loaderEl.style.display = 'none';
             }
           })();
@@ -489,12 +420,10 @@ async onTestClick() {
 
   } catch (error) {
     console.error('Error during test:', error);
-    alert('Test failed: ' + (error instanceof Error ? error.message : 'Unknown error'));
   } finally {
     this.isTesting = false;
   }
 }
-
 
   openModal() { this.showModal = true; }
   closeModal() { this.showModal = false; this.addChannelForm.reset({ channelType: 'webchat', name: '', language: 'English' }); } 
