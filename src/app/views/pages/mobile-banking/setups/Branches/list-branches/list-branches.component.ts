@@ -29,7 +29,7 @@ export class ListBranchesComponent implements OnInit {
   nameFilter = '';
   idFilter = '';
   emailFilter = '';
-  locationFilter = ''; // Renamed from 'locationFilter' to 'roleFilter' in concept for HTML below
+  locationFilter = ''; // This is used for roleFilter in HTML
 
   addPersonForm: FormGroup;
   isAddPersonModalVisible = false;
@@ -54,49 +54,61 @@ export class ListBranchesComponent implements OnInit {
 
   private getUserRole(): string {
     const role = localStorage.getItem('user_role');
-    return role ? role.toUpperCase() : 'UNKNOWN';
+    console.log('Raw role from localStorage:', role);
+    const upperCaseRole = role ? role.toUpperCase() : 'UNKNOWN';
+    console.log('Processed role:', upperCaseRole);
+    return upperCaseRole;
   }
 
-  private mapApiDataToPerson(user: any): any { // Simplified: 'role' now comes directly from 'user' object
+  private mapApiDataToPerson(user: any): any {
+    console.log('Mapping user data:', user); 
+    
     return {
       id: user.id,
-      name: user.name || `${user.first_name || ''} ${user.last_name || ''}`.trim(), // Use 'name' if available, otherwise construct
-      email: user.email,
-      // The API response explicitly has 'role', so map 'location' to 'role' for display compatibility
-      location: user.role || 'N/A', 
-      country: user.country || 'N/A', // Assuming API might provide these
+      // The API response screenshot shows 'name' directly, e.g., "name": "peter njoroge"
+      name: user.name || 'N/A', 
+      email: user.email || 'N/A',
+      // The API response screenshot explicitly has 'role', so map 'location' to 'role' for display compatibility
+      location: user.role || 'N/A', // Assuming 'location' field in frontend maps to 'role' from API for display
+      country: user.country || 'N/A', // If API ever returns these, they'll be here
       ipAddress: user.ip_address || 'N/A', 
       phone: user.phone || 'N/A', // If API ever returns phone, it'll be here. Else N/A.
       selected: false
     };
   }
 
-  // --- Functions for the main page (table, filters, side panel) ---
-
-  // *** UPDATED: loadPeopleData to use the single /auth/admin/users/list API ***
   loadPeopleData(): void {
     this.isLoading = true;
     this.allPeople = []; // Reset the list before loading fresh data
     const userRole = this.getUserRole();
     console.log('Detected user role:', userRole);
 
-    // Assuming the 'auth/admin/users/list' endpoint returns all users an admin/creator can see.
-    // The role-specific logic is handled by the backend's authorization.
     if (userRole === 'ADMIN' || userRole === 'CREATOR') {
+      // mobileBankingGet does not have 'status' or 'data' wrapping if response is direct array
       this.httpService.mobileBankingGet('auth/admin/users/list', {}).subscribe({
-        next: (result: any) => {
-          console.log('Users list API result:', result);
+        next: (result: any) => { // 'result' here is directly the array of users
+          console.log('Raw API result:', result);
+          console.log('Result data type:', typeof result); // Will be 'object'
+          console.log('Is result an array?', Array.isArray(result)); // Will be true
 
-          if (result.status === '00' && Array.isArray(result?.data)) {
-            // Map the API data to our frontend person object
-            this.allPeople = result.data.map((user: any) => this.mapApiDataToPerson(user));
-            console.log('Combined people list (API data):', this.allPeople); 
+          // *** CRITICAL FIX HERE: Directly use 'result' if it's the array ***
+          if (Array.isArray(result)) { // Check if 'result' itself is an array
+            console.log('Processing', result.length, 'users from API');
+            
+            this.allPeople = result.map((user: any, index: number) => {
+              console.log(`Mapping user ${index}:`, user);
+              return this.mapApiDataToPerson(user);
+            });
+            
+            console.log('Mapped people data:', this.allPeople); 
           } else {
             this.allPeople = [];
-            console.warn('API did not return an array of data or status not 00:', result);
+            console.warn('API did not return an array of data directly:', result);
           }
           
+          console.log('Before applyFiltersAndPagination - allPeople length:', this.allPeople.length);
           this.applyFiltersAndPagination();
+          console.log('After applyFiltersAndPagination - visiblePeople length:', this.visiblePeople.length);
           this.isLoading = false;
         },
         error: (err: any) => {
@@ -253,7 +265,6 @@ export class ListBranchesComponent implements OnInit {
           
           Swal.fire('Success', result.message || 'Person added successfully!', 'success');
           
-          // CRITICAL: Re-fetch all data from the API after a successful add
           this.loadPeopleData(); 
 
           this.closeAddPersonModal();
@@ -267,7 +278,7 @@ export class ListBranchesComponent implements OnInit {
 
         if (err.error && typeof err.error === 'object' && err.error.message) {
             errorMessage = err.error.message;
-        } else if (err.status) { // Check for status only if err.status exists
+        } else if (err.status) { 
             errorMessage = `Server returned code ${err.status}: ${err.statusText || 'Unknown error'}`;
         } else if (err.message) {
             errorMessage = err.message;
