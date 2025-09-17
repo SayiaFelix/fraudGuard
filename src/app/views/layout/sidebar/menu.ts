@@ -116,24 +116,24 @@ export const MENU: MenuItem[] = [
     //   }
     // ]
   },
-  {
-    // profiles: ['CORPORATE_ADMIN'],
-    label: 'Tickets',
-    icon: 'tag',
-    link: '/eclectics/customer/tickets',
-    // subItems: [
-    //   {
-    //     // profiles: ['CORPORATE_ADMIN'],
-    //     label: 'All Requests',
-    //     link: '/tra-client/requests/all'
-    //   },
-      // {
-      //   // profiles: ['CORPORATE_ADMIN'],
-      //   label: 'All Requests',
-      //   link: '/tra-client/requests/all-accreditations'
-      // },
-    // ]
-  },
+  // {
+  //   // profiles: ['CORPORATE_ADMIN'],
+  //   label: 'Tickets',
+  //   icon: 'tag',
+  //   link: '/eclectics/customer/tickets',
+  //   // subItems: [
+  //   //   {
+  //   //     // profiles: ['CORPORATE_ADMIN'],
+  //   //     label: 'All Requests',
+  //   //     link: '/tra-client/requests/all'
+  //   //   },
+  //     // {
+  //     //   // profiles: ['CORPORATE_ADMIN'],
+  //     //   label: 'All Requests',
+  //     //   link: '/tra-client/requests/all-accreditations'
+  //     // },
+  //   // ]
+  // },
 
   {
     //  profiles:['CORPORATE_ADMIN'],

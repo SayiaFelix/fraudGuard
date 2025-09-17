@@ -73,7 +73,11 @@
 
        <div *ngIf="!chatStarted" class="flex-grow-1 d-flex flex-column justify-content-center align-items-center">
            <div class="mb-4">
-              <h2 class="fw-bold mb-3">Hello, {{ getCapitalizedName() }}</h2>
+              <p class="default-label">
+                <span class="label-span">ECL</span> Default
+              </p>
+
+              <h2 style="font-weight: bold; margin-bottom: 80px; font-size: 35px;" >Hello, {{ getCapitalizedName() }}</h2>
               <div class="d-flex flex-wrap justify-content-center gap-2">
                 <button class="quick-btn btn" (click)="startChat('How do I test an AI agent?')">
                   <i class="fas fa-robot text-primary"></i> How do I test an AI agent?
