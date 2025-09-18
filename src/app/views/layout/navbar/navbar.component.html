@@ -7,7 +7,7 @@
       <h3 class="header" style="font-weight: 700; font-family: Mulish; "> <span style="color:#F8F8F8; font-style: normal; font-size:23px; font-weight: 700;">{{profile}}</span></h3>
     </form>
     <ul class="navbar-nav">
-      <li class="nav-item" ngbDropdown>
+      <!-- <li class="nav-item" ngbDropdown>
         <a class="nav-link" ngbDropdownToggle id="languageDropdown" role="button">
           <img [src]="selectedLanguageFlag" class="wd-20 me-1" title="us" alt="us">
           <span class="fw-bold ms-1 me-1 d-none d-md-inline-block">{{selectedLanguage}}</span>
@@ -16,7 +16,7 @@
           <a ngbDropdownItem class="py-2" (click)="changeLanguage('en')"> <img src="assets/images/flags/us.svg" class="wd-20 me-1" title="us" alt="us"> <span class="ms-1"> English </span></a>
           <a ngbDropdownItem class="py-2" (click)="changeLanguage('kis')"> <img src="assets/images/flags/ke.svg" class="wd-20 me-1" title="es" alt="es"> <span class="ms-1"> Kiswahili </span></a>
         </div>
-      </li>
+      </li> -->
 <!-- 
       <li class="nav-item">
         <P class="header"> <span style="color:#F8F8F8;
@@ -24,12 +24,12 @@
       </li> -->
 
       <li class="nav-item text-light nav-notifications ml-4" ngbDropdown (click)="updateNotificationList()">
-        <a class="nav-link" ngbDropdownToggle id="notificationDropdown">
+        <!-- <a class="nav-link" ngbDropdownToggle id="notificationDropdown">
           <i class="link-icon text-light feather icon-bell"></i>
           <div class="indicator">
             <div class="circle"></div>
           </div>
-        </a>
+        </a> -->
         <div ngbDropdownMenu class="px-0" aria-labelledby="notificationDropdown">
           <div class="px-3 py-2 d-flex align-items-center justify-content-between border-bottom">
             <p>No New Notifications</p>
@@ -55,6 +55,7 @@
           </div> -->
         </div>
       </li>
+
       <li class="nav-item nav-profile" ngbDropdown>
         <!-- <a class="nav-link" ngbDropdownToggle id="profileDropdown">
           <img class="wd-30 ht-30 rounded-circle" src="./assets/images/cytonn_logo.svg" alt="profile">
