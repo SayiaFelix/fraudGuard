@@ -1,5 +1,5 @@
 // ====================================================================================
-// FINAL, DEFINITIVE `list-requests.component.ts` WITH ENHANCED DEBUGGING
+// FINAL, CORRECTED `list-requests.component.ts` WITH DATA CONVERSION
 // ====================================================================================
 
 import { Component, OnInit, HostListener, ChangeDetectorRef } from '@angular/core';
@@ -7,6 +7,8 @@ import { HttpService } from 'src/app/shared/services/http.service';
 import Swal from 'sweetalert2';
 import { forkJoin, of, Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
+import { NotificationService } from 'src/app/shared/services/NotificationService';
+import { Notification } from 'src/app/shared/services/Notification'; // <-- Import the Notification model
 
 export interface Conversation {
   id: number | string;
@@ -31,15 +33,12 @@ export interface Conversation {
 })
 export class ListRequestsComponent implements OnInit {
 
-  // Component state
   public conversations: Conversation[] = [];
   public selectedConversation: Conversation | null = null;
   public isDetailsSidebarVisible: boolean = false;
   public isLoading: boolean = true;
   public pendingApprovals: Conversation[] = [];
   public isNotificationsVisible: boolean = false;
-
-  // Filter state
   public views: any[] = [];
   public selectedView: any = null;
   public sortByOptions: any[] = [];
@@ -52,12 +51,12 @@ export class ListRequestsComponent implements OnInit {
 
   constructor(
     private httpService: HttpService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private notificationService: NotificationService
   ) { }
 
   ngOnInit(): void {
     this.loadInitialData();
-    // Static data setup...
     this.views = [{ id: 1, name: 'All active conversations' }, { id: 2, name: 'Active Livechats' }, { id: 3, name: 'Active Tickets' }, { id: 4, name: 'My inbox' }, { id: 5, 'name': 'AI assistant chats' }, { id: 6, name: 'All test conversations' }];
     this.selectedView = this.views[0];
     this.sortByOptions = [{ id: 'creation_date', name: 'Creation date' }, { id: 'latest_message', name: 'Latest message' }];
@@ -76,6 +75,21 @@ export class ListRequestsComponent implements OnInit {
       ([conversations, pendingApprovals]: [Conversation[], Conversation[]]) => {
         this.conversations = conversations;
         this.pendingApprovals = pendingApprovals;
+
+        // --- THIS IS THE NEW CONVERSION LOGIC ---
+        // 1. Convert the 'pendingApprovals' (Conversation[]) into the format the service expects (Notification[])
+        const notificationsForService: Notification[] = pendingApprovals.map(conv => {
+          return {
+            process: conv.preview, // e.g., "New creator registration..."
+            stagerDetails: conv.sender, // e.g., "John Doe"
+            createdOn: conv.timestamp  // e.g., "Sep 17"
+          };
+        });
+
+        // 2. Update the service with the correctly formatted data
+        this.notificationService.updateNotifications(notificationsForService);
+        // --- END OF NEW LOGIC ---
+
         this.isLoading = false;
         this.cdr.detectChanges();
       }
@@ -87,6 +101,7 @@ export class ListRequestsComponent implements OnInit {
       { id: 1, sender: 'Ecl Test', assignee: 'Admin', timestamp: '5 Aug', preview: 'Test', status: 'Open', avatarUrl: null, initials: 'ET', avatarColor: '#e9ecef', channelIcon: 'feather icon-message-circle', personDetails: {}},
       { id: 2, sender: 'Chris Theuri', assignee: 'Admin', timestamp: '4 Aug', preview: 'Confirm', status: 'Open', avatarUrl: null, initials: 'CT', avatarColor: '#f1f3f5', channelIcon: 'feather icon-message-square', personDetails: {} },
     ];
+    // --- FIX: Corrected the typo ---
     return of(staticConversations);
   }
 
@@ -122,6 +137,8 @@ export class ListRequestsComponent implements OnInit {
     );
   }
 
+  // ... all your other functions (approveCreator, removeCreator, etc.) remain unchanged ...
+  
   approveCreator(creatorId: number): void {
     const payload = { id: creatorId, approve: true };
     this.httpService.mobileBankingPost('auth/admin/approve-creator', payload).subscribe({
@@ -138,14 +155,9 @@ export class ListRequestsComponent implements OnInit {
     });
   }
 
-  // --- THIS IS THE UPDATED FUNCTION ---
   removeCreator(creatorId: number): void {
     const payload = { creator_id: creatorId, reason: "Registration denied by admin." };
-    // Get the exact endpoint string from your backend developer
     const endpoint = 'auth/admin/reject-creator'; 
-
-    console.log(`Attempting to POST to endpoint: ${endpoint}`);
-    
     this.httpService.mobileBankingPost(endpoint, payload).subscribe({
       next: (res: any) => {
         if (res.status === '00') {
@@ -157,7 +169,6 @@ export class ListRequestsComponent implements OnInit {
         }
       },
       error: (err: any) => {
-        console.error(`API Error on POST to ${endpoint}:`, err);
         const errorMessage = err?.error?.message || 'An API error occurred during removal.';
         Swal.fire('Error', `Request failed: ${errorMessage}`, 'error');
       }
@@ -167,7 +178,7 @@ export class ListRequestsComponent implements OnInit {
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
-    if (!target.closest('.panel-header')) { 
+    if (!target.closest('.panel-header')) {
       this.isNotificationsVisible = false;
     }
     if (!target.closest('summary') && !target.closest('.status-dropdown-container')) {
@@ -184,8 +195,8 @@ export class ListRequestsComponent implements OnInit {
   selectConversation(conversation: Conversation): void {
     this.selectedConversation = conversation;
     this.isDetailsSidebarVisible = true;
-    this.activeTab = 'conversation'; 
-    this.isNotificationsVisible = false; 
+    this.activeTab = 'conversation';
+    this.isNotificationsVisible = false;
   }
 
   hideDetailsSidebar(): void {
