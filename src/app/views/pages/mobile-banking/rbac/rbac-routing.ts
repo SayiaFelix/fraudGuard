@@ -22,7 +22,7 @@ const routes: Routes = [
     },
 
   {
-    path: 'livechats',
+    path: 'workflows',
     component: ListUsersComponent
   },
 

@@ -21,9 +21,9 @@ export class HttpService {
     private authService: AuthService,
     private router: Router
   ) {}
-
+  private apiUrl = 'http://localhost:3000/users';
   private cytonUrl = 'http://130.61.111.65:5016/api/get_all_charts_kpis'; 
-  private apiUrl = 'http://127.0.0.1:5020/api/chat'; 
+  private apiUrls = 'http://127.0.0.1:5020/api/chat'; 
 
   // private baseUrl = "http://130.61.111.65:5016"; 
   private baseUrl = "http://130.61.111.65:5016";
@@ -116,6 +116,16 @@ public customerPortalLogin(endpoint: string, model: any): Observable<any> {
   getClassAndSubclassData(): Observable<any> {
     return this.http.get<any>(this.subclassDataUrl);
   }
+
+  login(email: string, password: string) {
+    return this.http.get<any[]>(`${this.apiUrl}?email=${email}&password=${password}`);
+  }
+
+  // http.service.ts
+    getUsers(email: string, password: string): Observable<any[]> {
+      return this.http.get<any[]>(`http://localhost:3000/users?email=${email}&password=${password}`);
+    }
+
 
   public customerPortalAuth(endpoint: string, model: any, options?: any): Observable<any> {
     return this.http

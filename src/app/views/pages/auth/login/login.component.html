@@ -34,6 +34,21 @@
 
         <form class="login-form" [formGroup]="form" (ngSubmit)="onSubmit($event)">
           <div class="form-group">
+              <label for="role">Role</label>
+              <select 
+                id="role" 
+                formControlName="role"
+                class="form-input">
+                <option value="Auditor">Auditor</option>
+                <option value="CIA">Chief Internal Auditor (CIA)</option>
+                <option value="AuditUnit">Audit Unit</option>
+              </select>
+            </div>
+
+
+          <div class="form-group">
+
+
             <label for="email">Email</label>
             <input 
               type="email" 

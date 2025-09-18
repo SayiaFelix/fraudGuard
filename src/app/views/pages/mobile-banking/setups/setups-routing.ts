@@ -13,7 +13,7 @@ const routes: Routes = [
   },
 
   {
-    path: 'people',
+    path: 'users',
     component: ListBranchesComponent
   },
 

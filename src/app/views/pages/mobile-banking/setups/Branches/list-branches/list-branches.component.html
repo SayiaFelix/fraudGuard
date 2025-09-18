@@ -1,269 +1,159 @@
-<!-- Main Page Content Wrapper -->
-<div class="people-page-wrapper">
-  <!-- Main Content Area (shrinks when panel is open) -->
-  <div class="main-content" [class.panel-visible]="isDetailsPanelVisible">
-    <div class="people-page">
-      <h1 class="page-title">People</h1>
+<div  class="container-fluid user-page-wrapper">
+  <div class="row">
+    <!-- Left Side: Table -->
+    <div class="col-lg-8 col-md-7"
+         [ngClass]="{'col-lg-12 col-md-12': !isDetailsPanelVisible, 'col-lg-8 col-md-7': isDetailsPanelVisible}">
+      <div class="user-page">
+        <h1 class="h3 mb-4">User Management</h1>
 
-      <!-- Controls Bar -->
-      <div class="controls-bar">
-        <div class="filters">
-          <div class="search-wrapper">
-            <i class="fas fa-search search-icon"></i>
+        <!-- Controls Bar -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="input-group w-50">
+            <span class="input-group-text"><i class="fas fa-search"></i></span>
             <input
               type="text"
-              class="form-control search-input"
-              placeholder="Search..."
+              class="form-control"
+              placeholder="Search by email or username..."
               [(ngModel)]="searchTerm"
               (ngModelChange)="applyFiltersAndPagination()"
             >
           </div>
-          <div class="tags-control">
-            <span>Tags:</span>
-            <select class="tags-select"><option selected>Select</option></select>
-          </div>
-          <a href="javascript:void(0)" class="reset-link" (click)="resetFilters()">
-            <i class="fas fa-times"></i> Reset all
-          </a>
+          <button class="btn btn-primary" (click)="openAddUserModal()">
+            <i class="fas fa-plus"></i> Add User
+          </button>
         </div>
-        <button class="btn add-person-btn" (click)="openAddPersonModal()">
-          <i class="fas fa-plus"></i> Add Person
+
+        <!-- Table -->
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Username</th>
+                <th scope="col">Email</th>
+                <th scope="col">Role</th>
+              </tr>
+            </thead>
+            <tbody *ngIf="visibleUsers.length > 0; else noUsers">
+              <tr
+                *ngFor="let user of visibleUsers"
+                (click)="showUserDetails(user)"
+                [class.table-active]="selectedUser && selectedUser.id === user.id"
+                style="cursor:pointer"
+              >
+                <td>{{ user.id }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.role }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <ng-template #noUsers>
+          <div class="alert alert-info">No users found</div>
+        </ng-template>
+      </div>
+    </div>
+
+    <!-- Right Side: Details Panel -->
+    <div class="card col-lg-4 col-md-5 bg-white text-dark border-start shadow-sm details-panel"
+         *ngIf="isDetailsPanelVisible">
+      <div class="p-3 d-flex justify-content-between align-items-center border-bottom">
+        <h5 class="mb-0"><i class="fas fa-user-circle"></i> Profile</h5>
+        <button class="btn btn-sm btn-light" (click)="hideUserDetails()">
+          <i class="fas fa-times"></i>
         </button>
       </div>
 
-      <!-- Wrapper for the table container -->
-      <div class="table-wrapper-box">
-        <!-- Table Container -->
-        <div class="table-container">
-          <!-- Table Header -->
-          <div class="table-header">
-            <div class="header-cell checkbox-cell">
-              <input 
-                type="checkbox" 
-                (change)="toggleSelectAll($event)"
-                [checked]="areAllSelected()"
-                [indeterminate]="areSomeSelected()"
-              >
+      <div class="p-4 text-center">
+        <!-- Avatar -->
+        <div class="mb-3">
+          <i class="fas fa-user-circle fa-5x text-secondary"></i>
+        </div>
+        <!-- Username + Role -->
+        <h4 class="mb-0">{{ selectedUser?.username }}</h4>
+        <p class="text-muted">{{ selectedUser?.role }}</p>
+
+        <hr>
+
+        <!-- User Details -->
+        <div class="text-start">
+          <p><strong>ID:</strong> {{ selectedUser?.id }}</p>
+          <p><strong>Email:</strong> {{ selectedUser?.email }}</p>
+          <p><strong>Role:</strong> {{ selectedUser?.role }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+   
+   <div
+    class="modal fade show custom-modal-backdrop"
+    tabindex="-1"
+    *ngIf="isAddUserModalVisible"
+    style="display:block; background: rgba(0,0,0,0.5);"
+    (click)="closeAddUserModal()"
+  >
+    <div
+      class="modal-dialog"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-content">
+        <div class="modal-header">
+            <h1 class="h3 mb-0">Add Auditor</h1>
+          <button type="button" class="btn-close" (click)="closeAddUserModal()"></button>
+        </div>
+
+        <form [formGroup]="addUserForm" (ngSubmit)="saveUser()">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="username" class="form-label">Username</label>
+              <input id="username" formControlName="username" type="text" class="form-control" placeholder="Enter username">
             </div>
-            <div class="header-cell name-cell">
-              <span>Name</span>
-              <input
-                type="text"
-                placeholder="Filter Name"
-                class="column-filter-input"
-                [(ngModel)]="nameFilter"
-                (ngModelChange)="applyFiltersAndPagination()"
-              >
+
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input id="email" formControlName="email" type="email" class="form-control" placeholder="Enter email">
             </div>
-            <div class="header-cell id-cell">
-              <span>ID</span>
+
+            <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <div class="input-group">
               <input
-                type="text"
-                placeholder="Filter ID"
-                class="column-filter-input"
-                [(ngModel)]="idFilter"
-                (ngModelChange)="applyFiltersAndPagination()"
+                id="password"
+                formControlName="password"
+                [type]="showPassword ? 'text' : 'password'"
+                class="form-control"
+                placeholder="Enter password"
               >
-            </div>
-            <div class="header-cell email-cell">
-              <span>Email</span>
-              <input
-                type="text"
-                placeholder="Filter Email"
-                class="column-filter-input"
-                [(ngModel)]="emailFilter"
-                (ngModelChange)="applyFiltersAndPagination()"
+              <button
+                type="button"
+                class="btn btn-outline-secondary"
+                (click)="showPassword = !showPassword"
+                type="button"
               >
-            </div>
-            <div class="header-cell location-cell">
-              <span>Role</span>
-              <input
-                type="text"
-                placeholder="Filter Role"
-                class="column-filter-input"
-                [(ngModel)]="locationFilter"
-                (ngModelChange)="applyFiltersAndPagination()"
-              >
+                <i class="fas" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+              </button>
             </div>
           </div>
-          <!-- Table Body -->
-          <ng-container *ngIf="visiblePeople.length > 0; else noResultsTemplate">
-            <div class="table-body">
-              <div
-                *ngFor="let person of visiblePeople"
-                class="table-row"
-                (click)="showPersonDetails(person)"
-                [class.selected]="selectedPerson && selectedPerson.id === person.id"
-              >
-                <div class="table-cell checkbox-cell">
-                  <input 
-                    type="checkbox" 
-                    [checked]="person.selected"
-                    (change)="togglePersonSelection(person, $event)"
-                    (click)="$event.stopPropagation()"
-                  >
-                </div>
-                <div class="table-cell name-cell">{{ person.name }}</div>
-                <div class="table-cell id-cell">{{ person.id }}</div>
-                <div class="table-cell email-cell">{{ person.email }}</div>
-                <div class="table-cell location-cell">{{ person.location }}</div>
-              </div>
+
+            <div class="mb-3">
+              <label for="role" class="form-label">Role</label>
+              <select id="role" formControlName="role" class="form-select">
+                <option value="">Select a role</option>
+                <option value="Auditor">Auditor</option>
+                <option value="CIA">Chief Internal Auditor</option>
+                <option value="AuditUnit">Audit Unit</option>
+              </select>
             </div>
-          </ng-container>
+          </div>
 
-          <!-- No Results Template -->
-          <ng-template #noResultsTemplate>
-            <div class="no-results-message">
-              No results found
-            </div>
-          </ng-template>
-        </div>
-
-        <!-- Footer Actions -->
-        <div class="footer-actions">
-          <ng-container *ngIf="visiblePeople.length > 0">
-            <p class="pagination-info" *ngIf="visiblePeople.length < totalRecords">
-              Showing {{ visiblePeople.length }} of {{ totalRecords }} people
-            </p>
-            <p class="pagination-info" *ngIf="visiblePeople.length === totalRecords && totalRecords > 0">
-              All {{ totalRecords }} people shown
-            </p>
-            <button class="btn show-more-btn" (click)="loadMorePeople()" *ngIf="visiblePeople.length < totalRecords">
-              Show 20 more people
-            </button>
-          </ng-container>
-        </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeAddUserModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary" [disabled]="addUserForm.invalid">Save</button>
+          </div>
+        </form>
       </div>
-
     </div>
-  </div>
-
-  <!-- Details Side Panel (only renders when a person is selected) -->
-  <div class="details-panel-overlay" *ngIf="isDetailsPanelVisible && selectedPerson" (click)="hidePersonDetails()"
-    style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:1049;background:transparent;">
-  </div>
-  <div class="details-panel" [class.visible]="isDetailsPanelVisible" *ngIf="selectedPerson">
-    <div class="panel-header">
-      <div class="person-title">
-        <i class="fas fa-users title-icon"></i>
-        <span>Person</span>
-      </div>
-      <button class="close-btn" (click)="hidePersonDetails()">
-        <i class="fas fa-times"></i>
-      </button>
-    </div>
-    <div class="user-info">
-      <div class="user-avatar"><i class="fas fa-user"></i></div>
-      <div class="user-name">{{ selectedPerson.name !== '-' ? selectedPerson.name : 'Unknown' }}</div>
-      <button class="options-btn"><i class="fas fa-ellipsis-h"></i></button>
-    </div>
-    <div class="panel-body">
-      
-      <!-- Details Section (Collapsible using details/summary) -->
-      <details class="detail-section" open>
-        <summary class="section-header">
-          <i class="fas fa-chevron-down"></i>
-          <h4>Details</h4>
-        </summary>
-        <div class="section-content">
-          <div class="detail-item"><i class="fas fa-map-marker-alt"></i><span>Location</span><strong>{{ selectedPerson.location }}</strong></div>
-          <div class="detail-item"><i class="fas fa-globe-americas"></i><span>Country</span><strong>{{ selectedPerson.country }}</strong></div>
-          <div class="detail-item"><i class="fas fa-network-wired"></i><span>IP Address</span><strong>{{ selectedPerson.ipAddress }}</strong></div>
-          <div class="detail-item"><i class="fas fa-envelope"></i><span>Email</span><strong>{{ selectedPerson.email }}</strong></div>
-          <div class="detail-item"><i class="fas fa-phone"></i><span>Phone number</span><strong>{{ selectedPerson.phone }}</strong></div>
-          <div class="detail-item"><i class="fas fa-hashtag"></i><span>Personal ID</span><strong>{{ selectedPerson.id }}</strong></div>
-          <div class="detail-item"><i class="fas fa-hashtag"></i><span>Channel ID</span><strong>-</strong></div>
-          <div class="detail-item"><i class="fas fa-hashtag"></i><span>Unique ID</span><strong>-</strong></div>
-        </div>
-      </details>
-      
-      <!-- Custom Fields Section (Collapsible) -->
-      <details class="detail-section">
-        <summary class="section-header">
-          <i class="fas fa-chevron-down"></i>
-          <h4>Custom Fields</h4>
-        </summary>
-        <div class="section-content placeholder-text">Create a custom field to get started</div>
-      </details>
-      
-      <!-- Notes Section (Collapsible) -->
-      <details class="detail-section">
-        <summary class="section-header">
-          <i class="fas fa-chevron-down"></i>
-          <h4>Notes</h4>
-          <button class="add-btn" onclick="event.stopPropagation()"><i class="fas fa-plus"></i></button>
-        </summary>
-        <div class="section-content placeholder-text">Create the first note</div>
-      </details>
-      
-      <!-- Tags Section (Collapsible) -->
-      <details class="detail-section">
-        <summary class="section-header">
-          <i class="fas fa-chevron-down"></i>
-          <h4>Tags</h4>
-          <button class="add-btn" onclick="event.stopPropagation()"><i class="fas fa-plus"></i></button>
-        </summary>
-        <div class="section-content placeholder-text">Select a tag or tag group</div>
-      </details>
-      
-      <!-- History Section (Collapsible, closed by default) -->
-      <details class="detail-section">
-        <summary class="section-header">
-          <i class="fas fa-chevron-down"></i>
-          <h4>History</h4>
-        </summary>
-        <div class="section-content placeholder-text">No history available</div>
-      </details>
-      
-    </div>
-  </div>
-</div>
-
-<!-- Add Person Modal -->
-<div *ngIf="isAddPersonModalVisible" class="people-modal-overlay" (click)="closeAddPersonModal()">
-  <div class="people-modal-container" (click)="$event.stopPropagation()">
-
-    <div class="people-modal-header">
-      <h4 class="people-modal-title">Add Person</h4>
-      <button type="button" class="people-modal-close-btn" (click)="closeAddPersonModal()">&times;</button>
-    </div>
-
-    <div class="people-modal-body">
-      <form [formGroup]="addPersonForm" id="add-person-form" (ngSubmit)="savePerson()">
-        <div class="people-form-row"> <!-- This class is for side-by-side styling -->
-          <div class="people-modal-form-group">
-            <label for="firstName">First Name</label>
-            <input type="text" id="firstName" formControlName="firstName" placeholder="Enter first name">
-        </div>
-        <div class="people-modal-form-group">
-          <label for="lastName">Last Name</label>
-          <input type="text" id="lastName" formControlName="lastName" placeholder="Enter last name">
-        </div>
-    </div>
-        <div class="people-modal-form-group">
-          <label for="email">Email</label>
-          <input type="email" id="email" formControlName="email" placeholder="Enter a valid email address">
-        </div>
-        <!-- *** COMMENTED OUT: Phone number form group from HTML *** -->
-        <!-- <div class="people-modal-form-group">
-          <label for="phone">Phone number</label>
-          <input type="text" id="phone" formControlName="phone" placeholder="Enter a phone number">
-        </div> -->
-        <div class="people-modal-form-group">
-          <label for="role">Role</label>
-          <select id="role" formControlName="role">
-            <option disabled value="">Select a role</option>
-            <option value="CREATOR">Creator</option>
-            <option value="ADMIN">Admin</option>
-          </select>
-        </div>
-      </form>
-    </div>
-
-    <div class="people-modal-footer">
-     <button type="button" class="people-modal-cancel-btn" (click)="closeAddPersonModal()">Cancel</button>
-     <button type="submit" form="add-person-form" class="people-modal-save-btn" [disabled]="addPersonForm.invalid">Save</button>
-    </div>
-
   </div>
 </div>

@@ -22,7 +22,7 @@ const routes: Routes = [
     component: ProductCategoriesComponent
   },
   {
-    path: 'all',
+    path: 'reports',
     component: ProductCategoriesAsCardsComponent
   },
   {

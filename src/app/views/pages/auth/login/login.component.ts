@@ -49,6 +49,7 @@ export class LoginComponent implements OnInit {
     private toastr: ToastrService,
     private globalService: GlobalService
   ) {
+
     this.form = fb.group({
       email: [
         '',
@@ -58,6 +59,7 @@ export class LoginComponent implements OnInit {
         '',
         Validators.compose([Validators.required, Validators.minLength(6)]),
       ],
+      role: ['Auditor', Validators.required]  
     });
   }
  
@@ -66,102 +68,43 @@ export class LoginComponent implements OnInit {
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
 
-  onSubmit(e: Event) {
-    e.preventDefault();
-    
-    if (this.isLoading) {
-      return;
-    }
-    
-    this.hasError = false;
-    this.isLoading = true;
+onSubmit(event: Event) {
+  event.preventDefault();
 
-    // --- CHANGE #1: Convert email to lowercase for robust login ---
-    const model = {
-      email: this.form.value.email.toLowerCase(),
-      password: this.form.value.password
-    }
+  if (this.isLoading) return;
 
-    this.httpService
-      .customerPortalAuth('auth/login', model)
-      .pipe(
-        catchError((error: any) => {
-          console.log(error);
+  this.hasError = false;
+  this.isLoading = true;
+
+  const { email, password, role } = this.form.value;
+
+  this.httpService
+    .login(email, password)   // <-- should return users[] from db.json
+    .subscribe(users => {
+      this.isLoading = false;
+
+      if (users.length > 0) {
+        const user = users[0];
+        if (user.role === role) {
+          localStorage.setItem('userRole', user.role);
+          localStorage.setItem('userEmail', user.email);
+          localStorage.setItem('username', user.username);
+
+          // Redirect
+          this.router.navigate(['/dashboard']);
+          console.log('Login successful:', user);
+        } else {
           this.hasError = true;
-          this.errorMsg = error.message || 'Login failed';
-          this.isLoading = false;
-          return throwError(error);
-        })
-      )
-      .subscribe({
-        next: (result) => {
-          console.log('Login result:', result);
-          this.isLoading = false;
-          
-          if (result['status'] != '00') {
-            this.hasError = true;
-            this.errorMsg = result['error'] || result['message'] || 'Login failed';
-            setTimeout(() => {
-              this.hasError = false;
-              this.errorMsg = '';
-              this.form.reset();
-            }, 3000);
-          } else {
-            this.hasError = false; 
-            
-            if (result['data']?.['access_token']) {
-              localStorage.setItem('token', result['data']['access_token']);
-              localStorage.setItem('access_token', result['data']['access_token']);
-              localStorage.setItem('user_id', result['data']['user_id']);
-              console.log('Token saved successfully');
-            }
-            
-            if (result['data']) {
-              localStorage.setItem('user_name', result['data']['name'] || '');
-              localStorage.setItem('first_name', result['data']['first_name'] || '');
-              localStorage.setItem('last_name', result['data']['last_name'] || '');
-              localStorage.setItem('email', result['data']['email'] || '');
-
-              //
-              // --- CHANGE #2 (THE FIX): Save the user's role to localStorage ---
-              //
-              localStorage.setItem('user_role', result['data']['role']);
-              //
-              //
-
-              console.log('User data saved:', result['data']);
-            }
-
-            this.globalService.setUserId(result['data']['user_id']);
-            
-            const isFirstTimeLogin = result['first_time_login'] === true || result['data']?.['first_time_login'] === true;
-            
-            if (isFirstTimeLogin) {
-              console.log('Navigating to first-time password setup');
-              this.router.navigate(['/auth/first-time-password']);
-            } else {
-              console.log('Navigating to dashboard');
-              this.router.navigate(['/dashboard']).then(
-                (success) => {
-                  if (success) {
-                    console.log('Navigation to dashboard successful');
-                  } else {
-                    console.log('Navigation to dashboard failed');
-                  }
-                },
-                (error) => console.log('Navigation error:', error)
-              );
-            }
-          }
-        },
-        error: (error) => {
-          console.error('Login error:', error);
-          this.hasError = true;
-          this.errorMsg = 'An unexpected error occurred. Please try again.';
-          this.isLoading = false;
+          this.errorMsg = `Role mismatch. You selected "${role}", but your account is "${user.role}".`;
         }
-      });
-  }
+      } else {
+        this.hasError = true;
+        this.errorMsg = 'Invalid credentials';
+      }
+    });
+}
+
+
   toggleShowPassword() {
     this.showingPassword = !this.showingPassword;
     if (this.showingPassword) {

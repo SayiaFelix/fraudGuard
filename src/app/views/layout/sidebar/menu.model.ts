@@ -9,6 +9,7 @@ export interface MenuItem {
   badge?: any;
   parentId?: number;
   profiles?: string[];
+  roles?: string[];
   isLogout?: boolean; 
   action?: string;
   isSettings?: boolean;

@@ -1,0 +1,39 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "username": "auditor1",
+      "email": "auditor@gmail.com",
+      "password": "Jaysafu@25",
+      "role": "Auditor"
+    },
+    {
+      "id": 2,
+      "username": "cia1",
+      "email": "cia@gmail.com",
+      "password": "cia@123456",
+      "role": "CIA"
+    },
+    {
+      "id": 3,
+      "username": "unit1",
+      "email": "unit@gmail.com",
+      "password": "unit@123456",
+      "role": "AuditUnit"
+    },
+    {
+      "id": 1758204985674,
+      "username": "cia2@gmail.com",
+      "email": "cia2@gmail.com",
+      "password": "Jaysafu@12345",
+      "role": "Auditor"
+    },
+    {
+      "id": 1758207203665,
+      "username": "cia4@gmail.com",
+      "email": "cia4@gmail.com",
+      "password": "cia@123456dewdew",
+      "role": "CIA"
+    }
+  ]
+}
