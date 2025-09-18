@@ -18,8 +18,8 @@
               (ngModelChange)="applyFiltersAndPagination()"
             >
           </div>
-          <button class="btn btn-primary" (click)="openAddUserModal()">
-            <i class="fas fa-plus"></i> Add User
+          <button class="btn btn-sm btn-primary btn-test" (click)="openAddUserModal()">
+            <i class="fas fa-plus"></i> Add Auditor
           </button>
         </div>
 
@@ -57,33 +57,49 @@
     </div>
 
     <!-- Right Side: Details Panel -->
-    <div class="card col-lg-4 col-md-5 bg-white text-dark border-start shadow-sm details-panel"
-         *ngIf="isDetailsPanelVisible">
-      <div class="p-3 d-flex justify-content-between align-items-center border-bottom">
-        <h5 class="mb-0"><i class="fas fa-user-circle"></i> Profile</h5>
-        <button class="btn btn-sm btn-light" (click)="hideUserDetails()">
+    <div class="col-lg-4 col-md-5 bg-white border-start shadow-sm details-panel"
+        *ngIf="isDetailsPanelVisible">
+      <div class="mt-3 p-3 d-flex justify-content-between align-items-center border-bottom">
+        <h2 class="h3  mb-0"><i class="fas fa-user-circle me-2"></i> Profile</h2>
+        <button class="btn btn-sm btn-outline-secondary" (click)="hideUserDetails()">
           <i class="fas fa-times"></i>
         </button>
       </div>
 
-      <div class="p-4 text-center">
+      <div class="p-4 text-center" *ngIf="selectedUser; else loadingTemplate">
         <!-- Avatar -->
-        <div class="mb-3">
-          <i class="fas fa-user-circle fa-5x text-secondary"></i>
+        <div class="mb-1">
+          <i class="fas fa-user-circle fa-6x text-secondary"></i>
         </div>
-        <!-- Username + Role -->
-        <h4 class="mb-0">{{ selectedUser?.username }}</h4>
-        <p class="text-muted">{{ selectedUser?.role }}</p>
 
-        <hr>
+        <!-- Username + Role Badge -->
+        <h3 class="mb-1">{{ selectedUser.username }}</h3>
+        <span class="badge" [ngClass]="getRoleBadgeClass(selectedUser.role)">{{ selectedUser.role }}</span>
 
-        <!-- User Details -->
-        <div class="text-start">
-          <p><strong>ID:</strong> {{ selectedUser?.id }}</p>
-          <p><strong>Email:</strong> {{ selectedUser?.email }}</p>
-          <p><strong>Role:</strong> {{ selectedUser?.role }}</p>
+        <hr class="my-4">
+        <div class="text-start small">
+          <p><strong>Email:</strong> {{ selectedUser.email }}</p>
+          <p><strong>Role:</strong> {{ selectedUser.role }}</p>
+        </div>
+
+        <div class="d-flex justify-content-between mt-3">
+          <button class="btn btn-outline-primary btn-sm w-50 me-2" (click)="openEditUserModal(selectedUser)">
+            <i class="fas fa-edit me-1"></i> Edit
+          </button>
+          <button class="btn btn-outline-danger btn-sm w-50" (click)="deleteUser(selectedUser.id)">
+            <i class="fas fa-trash-alt me-1"></i> Delete
+          </button>
         </div>
       </div>
+
+      <ng-template #loadingTemplate>
+        <div class="p-4 text-center">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mt-2">Loading user details...</p>
+        </div>
+      </ng-template>
     </div>
   </div>
    
@@ -141,16 +157,16 @@
               <label for="role" class="form-label">Role</label>
               <select id="role" formControlName="role" class="form-select">
                 <option value="">Select a role</option>
-                <option value="Auditor">Auditor</option>
                 <option value="CIA">Chief Internal Auditor</option>
+                <option value="Auditor">Auditor</option>
                 <option value="AuditUnit">Audit Unit</option>
               </select>
             </div>
           </div>
 
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" (click)="closeAddUserModal()">Cancel</button>
-            <button type="submit" class="btn btn-primary" [disabled]="addUserForm.invalid">Save</button>
+            <button type="button" class="btn btn-sm btn-secondary" (click)="closeAddUserModal()">Cancel</button>
+            <button type="submit" class="btn btn-sm btn-primary btn-test" [disabled]="addUserForm.invalid">Save Auditor</button>
           </div>
         </form>
       </div>

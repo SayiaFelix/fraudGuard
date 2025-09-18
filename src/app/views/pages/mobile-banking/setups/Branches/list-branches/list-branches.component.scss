@@ -272,37 +272,20 @@
   font-style: italic;
 }
 
-// Details panel only shows when there's a selected person
-.details-panel {
-  position: fixed; 
-  top: -60px; // Align the side panel with the main content
-  right: -400px; 
-  width: 400px; 
-  height: calc(100% + 60px); // Extend height to cover the new top offset
-  background-color: var(--container-bg); 
-  border-left: 1px solid var(--row-border-color);
-  z-index: 1050; 
-  transition: right 0.3s ease-in-out;
-  display: flex; 
-  flex-direction: column; 
-  color: var(--text-color);
-  
-  &.visible { 
-    right: 0; 
-  }
-}
-
-.panel-header {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 1rem 1.5rem; border-bottom: 1px solid var(--row-border-color);
-  flex-shrink: 0;
-}
 .person-title { display: flex; align-items: center; gap: 0.75rem; font-weight: 600; }
 .close-btn, .options-btn, .add-btn {
   background: none; border: none; color: var(--text-muted);
   font-size: 1.1rem; cursor: pointer;
   &:hover { color: var(--text-color); }
 }
+
+.details-panel {
+  min-height: 100%;
+  padding: 1rem;
+  background-color: #fff;
+  border-left: 1px solid #ddd;
+}
+
 
 .user-info {
   display: flex; align-items: center; padding: 1.5rem;
@@ -417,6 +400,12 @@
     color: #333;
   }
 
+  .btn-test:hover {
+  background-color: #0ea908;
+  color: #ffffff;
+  transform: scale(1.05);
+  border-radius: 8px;
+}
   .people-modal-close-btn {
     background: none; border: none; font-size: 28px; font-weight: 300;
     cursor: pointer; color: #888; padding: 0; line-height: 1;

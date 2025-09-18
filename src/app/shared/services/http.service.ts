@@ -126,6 +126,10 @@ public customerPortalLogin(endpoint: string, model: any): Observable<any> {
       return this.http.get<any[]>(`http://localhost:3000/users?email=${email}&password=${password}`);
     }
 
+      getUserById(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}`);
+  }
+  
 
   public customerPortalAuth(endpoint: string, model: any, options?: any): Observable<any> {
     return this.http
