@@ -7,41 +7,12 @@ export const MENU: MenuItem[] = [
     label: 'Dashboard',
     icon: 'home',
     link: '/dashboard',
-    // subItems: [
-    //   {
-    //     // profiles: ['CORPORATE_ADMIN'],
-    //     label: 'EcleBot AICX',
-    //     link: '/dashboard'
-    //   },
-    //   {
-    //     // profiles: ['CORPORATE_ADMIN'],
-    //     label: 'Quantra AI',
-    //     link: '/eclectics/ai_analytics/ai_chat'
-    //   },
-    //   // {
-    //   //   profiles: ['CORPORATE_ADMIN'],
-    //   //   label: 'Mobile Banking IB',
-    //   //   link: '/mobile-banking/channels/ib-ussd-channel-dashboard'
-    //   // },
-    //   // {
-    //   //   profiles: ['CORPORATE_ADMIN'],
-    //   //   label: 'Mobile Banking APP',
-    //   //   link: '/mobile-banking/channels/app-ussd-channel-dashboard'
-    //   // },
-    // ]
   },
   {
     // profiles: ['CORPORATE_ADMIN'],
     label: 'Inbox',
-    icon: 'inbox',
+    icon: 'bell',
     link: '/eclectics/user/inbox'
-    // subItems: [
-    //   {
-    //     profiles: ['CORPORATE_ADMIN'],
-    //     label: 'All Standards',
-    //     link: '/tra-client/standards/all-standards'
-    //   },
-    // ]
   },
   {
     isTitle: true,
@@ -49,54 +20,63 @@ export const MENU: MenuItem[] = [
   },
   {
   //// profiles: ['CORPORATE_ADMIN'],
-    label: 'AI Assistants',
-    icon: 'layers', 
-    link: '/eclectics/chatbot/user_bot'
-  //// subItems: [
-  //   //   // {
-  //   //   //   // profiles: ['CORPORATE_ADMIN'],
-  //   //   //   label: 'All Classifications',
-  //   //   //   link: '/tra-client/customers/list-requests'
-  //   //   // },
-  //   //   // {
-  //   //   //   profiles: ['CORPORATE_ADMIN'],
-  //   //   //   label: 'Classification Results',
-  //   //   //   link: '/tra-client/customers/list-failed-registrations'
-  //   //   // },
-  //   //   {
-  //   //     // profiles: ['CORPORATE_ADMIN'],
-  //   //     label: 'Notifications',
-  //   //     link: '/tra-client/customers/send-bulk-sms'
-  //   //   },
-  //   // ]
+    label: 'Audit Management',
+    icon: 'calendar', 
+    link: '/eclectics/chatbot/user_bot',
+    // subItems: [
+    //     {
+    //       // profiles: ['CORPORATE_ADMIN'],
+    //       label: 'Planning',
+    //       // icon: 'calendar',
+    //       link: '/eclectics/chatbot/list-requests'
+    //     },
+    //     {
+    //       // profiles: ['CORPORATE_ADMIN'],
+    //       label: 'Observations',
+    //       // icon: 'file-text',
+    //       link: '/eclectics/chatbot/list-failed-registrations'
+    //     },
+        // {
+        //   // profiles: ['CORPORATE_ADMIN'],
+        //   label: 'Notifications',
+        //   link: '/tra-client/customers/send-bulk-sms'
+        // },
+      // ]
   },
-  {
-  //// profiles: ['CORPORATE_ADMIN'],
-    label: 'Quantra AI',
-    icon: 'cpu',
-    link: '/eclectics/ai_analytics/ai_chat'
-  //// subItems: [
-  //   //   // {
-  //   //   //   // profiles: ['CORPORATE_ADMIN'],
-  //   //   //   label: 'All Classifications',
-  //   //   //   link: '/tra-client/customers/list-requests'
-  //   //   // },
-  //   //   // {
-  //   //   //   profiles: ['CORPORATE_ADMIN'],
-  //   //   //   label: 'Classification Results',
-  //   //   //   link: '/tra-client/customers/list-failed-registrations'
-  //   //   // },
-  //   //   {
-  //   //     // profiles: ['CORPORATE_ADMIN'],
-  //   //     label: 'Notifications',
-  //   //     link: '/tra-client/customers/send-bulk-sms'
-  //   //   },
-  //   // ]
-  },
+    {
+    //  profiles:['CORPORATE_ADMIN'],
+     label:'User Management',
+     icon:'users',
+     link: '/eclectics/analytics/people',
+    //  subItems: [
+    //   {
+    //     profiles: ['CORPORATE_ADMIN'],
+    //     label: 'Account Registration',
+    //     subItems: [
+    //       {
+    //         profiles: ['CORPORATE_ADMIN'],
+    //         label:'All Accounts',
+    //         link:'/mobile-banking/accounts/list-accounts'
+    //       },
+    //       {
+    //         profiles: ['CORPORATE_ADMIN'],
+    //         label:'Pending Account Openings',
+    //         link:'/mobile-banking/accounts/list-pending'
+    //       },
+    //       {
+    //         profiles: ['CORPORATE_ADMIN'],
+    //         label:'Failed Account Openings',
+    //         link:'/mobile-banking/accounts/list-failed'
+    //       },
+
+    //     ]
+    //   },]
+    },
+
   {
     // profiles: ['CORPORATE_ADMIN'],
-    label: 'Livechats',
-    icon: 'message-circle',
+    label: 'Execution (Workflow)',
+    icon: 'git-branch',
     link: '/eclectics/customer/livechats'
     // subItems: [
     //   {
@@ -135,39 +115,10 @@ export const MENU: MenuItem[] = [
   //   // ]
   // },
 
-  {
-    //  profiles:['CORPORATE_ADMIN'],
-     label:'People',
-     icon:'users',
-     link: '/eclectics/analytics/people',
-    //  subItems: [
-    //   {
-    //     profiles: ['CORPORATE_ADMIN'],
-    //     label: 'Account Registration',
-    //     subItems: [
-    //       {
-    //         profiles: ['CORPORATE_ADMIN'],
-    //         label:'All Accounts',
-    //         link:'/mobile-banking/accounts/list-accounts'
-    //       },
-    //       {
-    //         profiles: ['CORPORATE_ADMIN'],
-    //         label:'Pending Account Openings',
-    //         link:'/mobile-banking/accounts/list-pending'
-    //       },
-    //       {
-    //         profiles: ['CORPORATE_ADMIN'],
-    //         label:'Failed Account Openings',
-    //         link:'/mobile-banking/accounts/list-failed'
-    //       },
-
-    //     ]
-    //   },]
-    },
 
     {
       //   profiles: ['CORPORATE_ADMIN'],
-      label: 'Analytics',
+      label: 'MIS Reports',
       icon:'bar-chart',
       link: '/eclectics/analytic/all',
      
@@ -212,6 +163,32 @@ export const MENU: MenuItem[] = [
       //   ]
       // }
   //    ]
+
+  },
+
+  
+  {
+  //// profiles: ['CORPORATE_ADMIN'],
+    label: 'Compliance',
+    icon: 'check-circle',
+    link: '/eclectics/ai_analytics/ai_chat'
+  //// subItems: [
+  //   //   // {
+  //   //   //   // profiles: ['CORPORATE_ADMIN'],
+  //   //   //   label: 'All Classifications',
+  //   //   //   link: '/tra-client/customers/list-requests'
+  //   //   // },
+  //   //   // {
+  //   //   //   profiles: ['CORPORATE_ADMIN'],
+  //   //   //   label: 'Classification Results',
+  //   //   //   link: '/tra-client/customers/list-failed-registrations'
+  //   //   // },
+  //   //   {
+  //   //     // profiles: ['CORPORATE_ADMIN'],
+  //   //     label: 'Notifications',
+  //   //     link: '/tra-client/customers/send-bulk-sms'
+  //   //   },
+  //   // ]
   },
 {
     isTitle: true,
@@ -224,9 +201,9 @@ export const MENU: MenuItem[] = [
   },
   {
     label: 'Help Center',
-    icon: 'help-circle', // This seems to be the correct icon name based on your menu.ts
+    icon: 'help-circle', 
     link: '#', 
-    isHelpCenter: true // <-- ADD THIS LINE
+    isHelpCenter: true
   },
   {
     label: 'Logout',
