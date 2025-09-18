@@ -53,26 +53,22 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
   public showModal = false;
   public channels: Channel[] = [];
   public selectedChannel: Channel | null = null;
-
   
-   public isSetupSectionOpen = false;
+  public isSetupSectionOpen = false;
   public isBasicsSectionOpen = true; 
   public isProactiveSectionOpen = false;
   public isBrandSectionOpen = false;
   public isPreChatFormSectionOpen = false;
   public isMobileBehaviourSectionOpen = false;
 
-  
   public isConfigurationSectionOpen = false;
   public isWebhookSectionOpen = false;
   public isConnectedPageSectionOpen = false;
   public activeBrandTab: 'welcome' | 'chat' | 'styles' = 'welcome';
-
   
   private chatbotSub: Subscription;
   public chatbotData: any;
   
-
   public modalRef: NgbModalRef;
   public customerId: any;
   public accountData: any;
@@ -84,7 +80,6 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
     private httpService: HttpService,
     private router: Router,
     private globalService: GlobalService,
-    
   ) {
     // Add Channel Form
     this.addChannelForm = this.fb.group({
@@ -108,7 +103,7 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
       quickReplyButtonBorderColour: ['#2C71F6'],
     });
 
-    // nitialize the form for the Pre-Chat Form section
+    // Initialize the form for the Pre-Chat Form section
     this.preChatForm = this.fb.group({
       enablePreChatForm: [true],
       fields: this.fb.array([
@@ -145,7 +140,6 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
       appSecret: ['a-very-secret-password-string']
     });
 
-    
     this.facebookForm = this.fb.group({
       enabled: [true],
       name: ['NIT FB'],
@@ -157,9 +151,7 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
     this.facebookSetupForm = this.fb.group({
       appId: ['01K35X3A7BEAWTVNNJDCHZYAVG']
     });
-
   }
-
   
   createPreChatField(name: string, enabled: boolean, required: boolean): FormGroup {
     return this.fb.group({
@@ -262,20 +254,15 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
             }
         });
   }
-
-  // --- THIS IS THE UPDATED FUNCTION ---
+  
   onVerifyWhatsAppConfig(): void {
-    // 1. Check if the form is valid
     if (this.whatsAppConfigForm.invalid) {
       Swal.fire('Error','Please fill in all four configuration fields.', 'error');
-      this.whatsAppConfigForm.markAllAsTouched(); // Show validation errors
+      this.whatsAppConfigForm.markAllAsTouched();
       return;
     }
 
-    // 2. Set loading state to provide user feedback
     this.isVerifyingWhatsApp = true; 
-
-    // 3. Construct the payload from the form values
     const payload = {
       app_id: this.whatsAppConfigForm.value.appId,
       app_secret: this.whatsAppConfigForm.value.appSecret,
@@ -283,28 +270,26 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
       phone_number_id: this.whatsAppConfigForm.value.phoneNumberId
     };
 
-    // 4. Make the API call
     this.httpService.mobileBankingPost('whatsapp/configure', payload)
       .subscribe({
         next: (response: any) => {
           if (response.status === '00') {
             Swal.fire('Success','Configuration verified successfully!', 'success');
           } else {
-            // Handle cases where the API returns a success status but with an error message
             Swal.fire('Verification Failed', response.message || 'Please check your credentials.', 'error');
           }
-          this.isVerifyingWhatsApp = false; // Reset loading state
+          this.isVerifyingWhatsApp = false;
         },
         error: (err: any) => {
           console.error('WhatsApp configuration API error:', err);
           const errorMessage = err?.error?.message || 'An unexpected error occurred during verification.';
-          this.isVerifyingWhatsApp = false; // Reset loading state
+          this.isVerifyingWhatsApp = false;
           Swal.fire('API Error', errorMessage, 'error');
         }
       });
   }
  
-onAddChannel() {
+  onAddChannel() {
     if (this.addChannelForm.invalid) {
       Swal.fire('Error','Please fill in all required fields.', 'error');
       return;
@@ -340,6 +325,49 @@ onAddChannel() {
       });
   }
 
+  // --- NEW: Function to delete a channel ---
+  public deleteChannel(channelToDelete: Channel): void {
+    const creatorUserId = localStorage.getItem('user_id');
+
+    if (!creatorUserId) {
+      Swal.fire('Error', 'Could not identify the current user. Please log in again.', 'error');
+      return;
+    }
+
+    Swal.fire({
+      title: 'Are you sure?',
+      text: `You are about to delete the channel "${channelToDelete.name}". This action cannot be undone.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc3545',
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const payload = {
+          channel_id: channelToDelete.id,
+          creator_user_id: parseInt(creatorUserId, 10)
+        };
+
+        this.httpService.mobileBankingDel('builder/channels/delete', payload)
+          .subscribe({
+            next: (response: any) => {
+              if (response.status === '00') {
+                Swal.fire('Deleted!', 'The channel has been successfully deleted.', 'success');
+                this.goBackToList();
+                this.fetchChannels();
+              } else {
+                Swal.fire('Deletion Failed', response.message || 'The channel could not be deleted.', 'error');
+              }
+            },
+            error: (err: any) => {
+              console.error('Error deleting channel:', err);
+              Swal.fire('API Error', err.error?.message || 'An unexpected error occurred.', 'error');
+            }
+          });
+      }
+    });
+  }
+
   copyToClipboard(text: string) { navigator.clipboard.writeText(text).then(() => { this.copySuccessMessage = 'Copied!'; setTimeout(() => { this.copySuccessMessage = ''; }, 2000); }); }
   onSaveChanges() {
     console.log("Saving changes for channel:", this.selectedChannel?.name);
@@ -348,82 +376,82 @@ onAddChannel() {
     console.log("Pre-Chat Form Saved", this.preChatForm.value);
   }
 
-isDeployScriptValid(): boolean {
-  return !!this.deployScript &&
-         this.deployScript.trim().length > 0 &&
-         !this.deployScript.includes('Waiting for chatbot selection');
-}
-
-async onTestClick() {
-  if (this.isTesting) return;
-  this.isTesting = true;
-
-  try {
-    if (!this.webchatId) {
-      alert('No chatbot ID available');
-      return;
-    }
-
-    if (!this.isDeployScriptValid()) {
-      alert('Deploy script is not valid. Please select a chatbot first.');
-      return;
-    }
-
-    const chatbotId = this.webchatId;
-    const chatbotName = this.chatbotData?.name || 'Chatbot';
-
-    const testWindow = window.open('', '_blank');
-    if (!testWindow) {
-      alert('Please allow popups for this site.');
-      return;
-    }
-
-    testWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>${chatbotName} Bot Test - ID ${chatbotId}</title>
-        <style>
-          html, body { height: 100%; margin: 0; padding: 0; font-family: Arial, sans-serif; }
-          .container { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; text-align: center; }
-          .loader { margin: 30px auto; border: 5px solid #f3f3f3; border-top: 5px solid #3498db; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
-          @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <h1>Testing ${chatbotName} Chatbot (ID: ${chatbotId})</h1>
-          <div id="status">Initializing chatbot...</div>
-          <div class="loader"></div>
-        </div>
-        <script>
-          (function() {
-            const statusEl = document.getElementById('status');
-            const loaderEl = document.querySelector('.loader');
-            try {
-              const iframe = document.createElement("iframe");
-              iframe.src = "http://130.61.111.65:5040/static/chat-widget.html?chatbot_id=${chatbotId}";
-              iframe.style = "position:fixed;bottom:20px;right:20px;width:400px;height:600px;border:none; z-index:9999;";
-              iframe.onload = function() { statusEl.textContent = 'Chatbot loaded successfully!'; loaderEl.style.display = 'none'; };
-              iframe.onerror = function() { statusEl.textContent = 'Failed to load chatbot.'; loaderEl.style.display = 'none'; };
-              document.body.appendChild(iframe);
-            } catch (err) {
-              statusEl.textContent = 'Error: ' + err.message;
-              loaderEl.style.display = 'none';
-            }
-          })();
-        </script>
-      </body>
-      </html>
-    `);
-    testWindow.document.close();
-
-  } catch (error) {
-    console.error('Error during test:', error);
-  } finally {
-    this.isTesting = false;
+  isDeployScriptValid(): boolean {
+    return !!this.deployScript &&
+           this.deployScript.trim().length > 0 &&
+           !this.deployScript.includes('Waiting for chatbot selection');
   }
-}
+
+  async onTestClick() {
+    if (this.isTesting) return;
+    this.isTesting = true;
+
+    try {
+      if (!this.webchatId) {
+        alert('No chatbot ID available');
+        return;
+      }
+
+      if (!this.isDeployScriptValid()) {
+        alert('Deploy script is not valid. Please select a chatbot first.');
+        return;
+      }
+
+      const chatbotId = this.webchatId;
+      const chatbotName = this.chatbotData?.name || 'Chatbot';
+
+      const testWindow = window.open('', '_blank');
+      if (!testWindow) {
+        alert('Please allow popups for this site.');
+        return;
+      }
+
+      testWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>${chatbotName} Bot Test - ID ${chatbotId}</title>
+          <style>
+            html, body { height: 100%; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+            .container { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; text-align: center; }
+            .loader { margin: 30px auto; border: 5px solid #f3f3f3; border-top: 5px solid #3498db; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+            @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h1>Testing ${chatbotName} Chatbot (ID: ${chatbotId})</h1>
+            <div id="status">Initializing chatbot...</div>
+            <div class="loader"></div>
+          </div>
+          <script>
+            (function() {
+              const statusEl = document.getElementById('status');
+              const loaderEl = document.querySelector('.loader');
+              try {
+                const iframe = document.createElement("iframe");
+                iframe.src = "http://130.61.111.65:5040/static/chat-widget.html?chatbot_id=${chatbotId}";
+                iframe.style = "position:fixed;bottom:20px;right:20px;width:400px;height:600px;border:none; z-index:9999;";
+                iframe.onload = function() { statusEl.textContent = 'Chatbot loaded successfully!'; loaderEl.style.display = 'none'; };
+                iframe.onerror = function() { statusEl.textContent = 'Failed to load chatbot.'; loaderEl.style.display = 'none'; };
+                document.body.appendChild(iframe);
+              } catch (err) {
+                statusEl.textContent = 'Error: ' + err.message;
+                loaderEl.style.display = 'none';
+              }
+            })();
+          </script>
+        </body>
+        </html>
+      `);
+      testWindow.document.close();
+
+    } catch (error) {
+      console.error('Error during test:', error);
+    } finally {
+      this.isTesting = false;
+    }
+  }
 
   openModal() { this.showModal = true; }
   closeModal() { this.showModal = false; this.addChannelForm.reset({ channelType: 'webchat', name: '', language: 'English' }); } 
@@ -453,6 +481,7 @@ async onTestClick() {
     this.isWebhookSectionOpen = false;
     this.isConnectedPageSectionOpen = false;
   }
+  
   approveRecord() { this.modalRef = this.modalService.open(ConfirmDialogComponent, { centered: true }); this.modalRef.componentInstance.title = `Approve Record?`; this.modalRef.componentInstance.body = `Do you want to approve this record?`; }
   deleteRecord() { this.modalRef = this.modalService.open(ConfirmDialogComponent, { centered: true }); this.modalRef.componentInstance.title = `Delete Record?`; this.modalRef.componentInstance.body = `Do you want to delete this record?`; }
   openImage() { this.modalRef = this.modalService.open(CompareImageComponent, { centered: true }); this.modalRef.componentInstance.title = `Image Comparison`; this.modalRef.componentInstance.body = `Do you want to approve this record?`; }

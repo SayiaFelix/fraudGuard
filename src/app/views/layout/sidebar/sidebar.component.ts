@@ -1,42 +1,45 @@
 // src/app/views/layout/sidebar/sidebar.component.ts
 
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, Renderer2, Inject, Output, EventEmitter } from '@angular/core'; // NEW: Import Output and EventEmitter
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit, Renderer2, Inject, Output, EventEmitter } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
-
 import MetisMenu from 'metismenujs';
-
 import { MENU } from './menu';
 import { MenuItem } from './menu.model';
 import { Router, NavigationEnd } from '@angular/router';
 import Swal from 'sweetalert2';
+import { Subscription } from 'rxjs';
+
+// --- THESE ARE THE CORRECTED IMPORT PATHS BASED ON YOUR SCREENSHOT ---
+import { NotificationService } from '../../../shared/services/NotificationService';
+import { Notification } from '../../../shared/services/Notification';
+// ---
 
 @Component({
   selector: 'app-sidebar',
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss']
 })
-export class SidebarComponent implements OnInit, AfterViewInit {
+export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild('sidebarToggler') sidebarToggler: ElementRef;
-
-  // NEW: Define the Output property to communicate with the parent (layout) component.
-  // It will emit the original MouseEvent, which is needed for positioning the popover.
   @Output() helpCenterToggled = new EventEmitter<MouseEvent>();
 
   menuItems: MenuItem[] = [];
   @ViewChild('sidebarMenu') sidebarMenu: ElementRef;
 
   isSettingsModalVisible = false;
-
   showSubItems: boolean = true;
-  logo: string = '\\assets\\images\\TRA_Logo.png'
+  logo: string = '\\assets\\images\\TRA_Logo.png';
   showingClass = "d-none";
   selectedParent: string | undefined;
+
+  private notificationSub: Subscription;
 
   constructor(
     @Inject(DOCUMENT) private document: Document,
     private renderer: Renderer2,
-    private router: Router // <-- Make sure it's 'private router: Router'
+    private router: Router,
+    private notificationService: NotificationService
   ) {
     router.events.forEach((event) => {
       if (event instanceof NavigationEnd) {
@@ -51,9 +54,10 @@ export class SidebarComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.menuItems = MENU;
 
-    /**
-     * Sidebar-folded on desktop (min-width:992px and max-width: 1199px)
-     */
+    this.notificationSub = this.notificationService.castNotifications.subscribe((notifications: Notification[]) => {
+      this.updateInboxBadge(notifications);
+    });
+
     const desktopMedium = window.matchMedia('(min-width:992px) and (max-width: 1199px)');
     desktopMedium.addEventListener('change', () => {
       this.iconSidebar;
@@ -61,33 +65,48 @@ export class SidebarComponent implements OnInit, AfterViewInit {
     this.iconSidebar(desktopMedium);
   }
 
+  ngOnDestroy(): void {
+    if (this.notificationSub) {
+      this.notificationSub.unsubscribe();
+    }
+  }
+
+  private updateInboxBadge(notifications: Notification[]): void {
+    const inboxMenuItem = this.menuItems.find(item => item.label === 'Inbox');
+    
+    if (inboxMenuItem) {
+      const unreadCount = notifications.length;
+
+      if (unreadCount > 0) {
+        inboxMenuItem.badge = { 
+          text: unreadCount, 
+          variant: 'danger'
+        };
+      } else {
+        delete inboxMenuItem.badge;
+      }
+    }
+  }
+  
   onSettingsClick(event: MouseEvent): void {
-    event.preventDefault(); // This is crucial to stop the link from navigating
+    event.preventDefault();
     this.isSettingsModalVisible = true;
   }
 
-  // NEW: Add the click handler for the Help Center item.
-  // This function will be called from the HTML template.
   onHelpCenterClick(event: MouseEvent): void {
-    event.preventDefault(); // Stop the browser from navigating to '#'
-    this.helpCenterToggled.emit(event); // Emit the event to the parent component
+    event.preventDefault();
+    this.helpCenterToggled.emit(event);
   }
 
-  // Your existing function to close the modal
   closeSettingsModal(): void {
     this.isSettingsModalVisible = false;
   }
 
   ngAfterViewInit() {
-    // activate menu item
     new MetisMenu(this.sidebarMenu.nativeElement);
-
     this._activateMenuDropdown();
   }
 
-  /**
-   * Toggle sidebar on hamburger button click
-   */
   toggleSidebar(e: Event) {
     this.sidebarToggler.nativeElement.classList.toggle('active');
     this.sidebarToggler.nativeElement.classList.toggle('not-active');
@@ -100,38 +119,23 @@ export class SidebarComponent implements OnInit, AfterViewInit {
     }
   }
 
-
-  /**
-   * Toggle settings-sidebar
-   */
   toggleSettingsSidebar(e: Event) {
     e.preventDefault();
     this.document.body.classList.toggle('settings-open');
   }
 
-
-  /**
-   * Open sidebar when hover (in folded folded state)
-   */
   operSidebarFolded() {
     if (this.document.body.classList.contains('sidebar-folded')){
       this.document.body.classList.add("open-sidebar-folded");
     }
   }
 
-
-  /**
-   * Fold sidebar after mouse leave (in folded state)
-   */
   closeSidebarFolded() {
     if (this.document.body.classList.contains('sidebar-folded')){
       this.document.body.classList.remove("open-sidebar-folded");
     }
   }
 
-  /**
-   * Sidebar-folded on desktop (min-width:992px and max-width: 1199px)
-   */
   iconSidebar(mq: MediaQueryList) {
     if (mq.matches) {
       this.document.body.classList.add('sidebar-folded');
@@ -140,10 +144,6 @@ export class SidebarComponent implements OnInit, AfterViewInit {
     }
   }
 
-
-  /**
-   * Switching sidebar light/dark
-   */
   onSidebarThemeChange(event: Event) {
     this.document.body.classList.remove('sidebar-light', 'sidebar-dark');
     this.document.body.classList.add((<HTMLInputElement>event.target).value);
@@ -151,92 +151,60 @@ export class SidebarComponent implements OnInit, AfterViewInit {
     this.logo = this.logo == '\\assets\\images\\MicrosoftTeams-image (1).png'? '\\assets\\images\\MicrosoftTeams-image (2).png' : '\\assets\\images\\MicrosoftTeams-image (1).png'
   }
 
-    /**
-   * Logout the user and redirect to login page
-   */
   onLogout(e: Event) {
     e.preventDefault();
-
     Swal.fire({
       width: 500, 
       title: 'Are you sure?',
       text: "You will be logged out of your session.",
       icon: 'warning',
-      
-      // --- Style Customizations ---
       iconColor: '#f5c28d', 
       confirmButtonColor: '#4A90E2', 
       cancelButtonColor: '#4A90E2', 
-      
-      // --- Button Configuration ---
       showCancelButton: true,
       confirmButtonText: 'Yes, log me out!',
       cancelButtonText: 'Cancel'
-
     }).then((result) => {
       if (result.isConfirmed) {
-        // If the user clicks "Yes", proceed with logout
         localStorage.clear();
         this.router.navigate(['/auth/login']);
       }
     });
   }
 
-
-  /**
-   * Returns true or false if given menu item has child or not
-   * @param item menuItem
-   */
   hasItems(item: MenuItem) {
     return item.subItems !== undefined ? item.subItems.length > 0 : false;
   }
 
-
-  /**
-   * Reset the menus then hilight current active menu item
-   */
   _activateMenuDropdown() {
     this.resetMenuItems();
     this.activateMenuItems();
   }
 
-
-  /**
-   * Resets the menus
-   */
   resetMenuItems() {
-
     const links = document.getElementsByClassName('nav-link-ref');
-
     for (let i = 0; i < links.length; i++) {
       const menuItemEl = links[i];
       menuItemEl.classList.remove('mm-active');
       const parentEl = menuItemEl.parentElement;
-
       if (parentEl) {
           parentEl.classList.remove('mm-active');
           const parent2El = parentEl.parentElement;
-
           if (parent2El) {
             parent2El.classList.remove('mm-show');
           }
-
           const parent3El = parent2El?.parentElement;
           if (parent3El) {
             parent3El.classList.remove('mm-active');
-
             if (parent3El.classList.contains('side-nav-item')) {
               const firstAnchor = parent3El.querySelector('.side-nav-link-a-ref');
-
               if (firstAnchor) {
                 firstAnchor.classList.remove('mm-active');
               }
             }
-
             const parent4El = parent3El.parentElement;
             if (parent4El) {
               parent4El.classList.remove('mm-show');
-
               const parent5El = parent4El.parentElement;
               if (parent5El) {
                 parent5El.classList.remove('mm-active');
@@ -247,54 +215,36 @@ export class SidebarComponent implements OnInit, AfterViewInit {
     }
   };
 
-
-  /**
-   * Toggles the menu items
-   */
   activateMenuItems() {
-
     const links: any = document.getElementsByClassName('nav-link-ref');
-
     let menuItemEl = null;
-
     for (let i = 0; i < links.length; i++) {
-      // tslint:disable-next-line: no-string-literal
         if (window.location.pathname === links[i]['pathname']) {
-
             menuItemEl = links[i];
-
             break;
         }
     }
-
     if (menuItemEl) {
         menuItemEl.classList.add('mm-active');
         const parentEl = menuItemEl.parentElement;
-
         if (parentEl) {
             parentEl.classList.add('mm-active');
-
             const parent2El = parentEl.parentElement;
             if (parent2El) {
                 parent2El.classList.add('mm-show');
             }
-
             const parent3El = parent2El.parentElement;
             if (parent3El) {
                 parent3El.classList.add('mm-active');
-
                 if (parent3El.classList.contains('side-nav-item')) {
                     const firstAnchor = parent3El.querySelector('.side-nav-link-a-ref');
-
                     if (firstAnchor) {
                         firstAnchor.classList.add('mm-active');
                     }
                 }
-
                 const parent4El = parent3El.parentElement;
                 if (parent4El) {
                     parent4El.classList.add('mm-show');
-
                     const parent5El = parent4El.parentElement;
                     if (parent5El) {
                         parent5El.classList.add('mm-active');
@@ -315,5 +265,4 @@ export class SidebarComponent implements OnInit, AfterViewInit {
     } else
     return false;
   }
-
 }

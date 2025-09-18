@@ -32,10 +32,25 @@
         <li class="nav-item" *ngIf="!item.isTitle">
 
           <!-- Case 1: A REGULAR link that navigates to a new page -->
-          <!-- MODIFIED: Added '!item.isHelpCenter' to the condition -->
           <a *ngIf="!item.isLogout && !item.isSettings && !item.isHelpCenter" class="nav-link" [routerLink]="item.link" routerLinkActive="active">
             <i class="link-icon" [attr.data-feather]="item.icon" appFeatherIcon></i>
             <span class="link-title">{{ item.label }}</span>
+            
+            <!-- 
+              ================================================================
+              ===                THIS IS THE ONLY NEW CODE                 ===
+              ================================================================
+              This span will display the badge if the `item.badge` object exists.
+              The `ms-auto` class pushes it to the far right.
+            -->
+            <span 
+              *ngIf="item.badge && item.badge.text > 0" 
+              class="badge rounded-pill ms-auto" 
+              [ngClass]="'bg-' + item.badge.variant">
+              {{ item.badge.text }}
+            </span>
+            <!-- ================================================================ -->
+            
           </a>
 
           <!-- Case 2: The LOGOUT button. It calls the onLogout() function. -->
@@ -50,7 +65,7 @@
             <span class="link-title">{{ item.label }}</span>
           </a>
 
-          <!-- NEW: Case 4: The HELP CENTER button. It calls the onHelpCenterClick() function. -->
+          <!-- Case 4: The HELP CENTER button. It calls the onHelpCenterClick() function. -->
           <a *ngIf="item.isHelpCenter" class="nav-link" href="#" (click)="onHelpCenterClick($event)">
             <i class="link-icon" [attr.data-feather]="item.icon" appFeatherIcon></i>
             <span class="link-title">{{ item.label }}</span>
