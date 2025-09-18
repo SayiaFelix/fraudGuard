@@ -249,5 +249,4 @@ deleteUser(id: number): void {
     }
   });
 }
-
 }
