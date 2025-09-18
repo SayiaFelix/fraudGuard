@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
+import { map, Observable } from 'rxjs';
 
 @Component({
   selector: 'app-user-management',
@@ -54,16 +55,43 @@ user: any;
     this.loadUsers();
   }
 
-showUserDetails(user: any): void {
-  if (this.selectedUser && this.selectedUser.id === user.id) {
-    console.log('Hiding details for user:', user);
-    this.hideUserDetails();
-  } else {
-    this.isDetailsPanelVisible = true;
-    this.selectedUser = user;
-    console.log('Showing details for user:', this.selectedUser); // <-- corrected
+  showUserDetails(user: any): void {
+
+    if (this.selectedUser && this.selectedUser.id === user.id) {
+      console.log('Hiding details for user:', user);
+      this.hideUserDetails();
+      return;
+    }
+
+  this.selectedUser = { ...user };
+  this.isDetailsPanelVisible = true;
+  
+  console.log('Fetching details for user id:', user.id);
+
+  this.getUserById(user.id).subscribe({
+    next: (res) => {
+      this.selectedUser = { ...this.selectedUser, ...res };
+      console.log('Fetched user details:', this.selectedUser);
+    },
+    error: (err) => {
+      console.error('Error fetching user details:', err);
+    }
+  });
+}
+
+getRoleBadgeClass(role: string): string {
+  switch (role) {
+    case 'Auditor': return 'bg-info';
+    case 'CIA': return 'bg-success';
+    case 'AuditUnit': return 'bg-warning text-dark';
+    default: return 'bg-secondary';
   }
 }
+
+  getUserById(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}`);
+  }
+
 
   loadUsers(): void {
     this.isLoading = true;
@@ -139,18 +167,50 @@ showUserDetails(user: any): void {
     this.isAddUserModalVisible = false;
   }
 
-  saveUser(): void {
-    if (this.addUserForm.invalid) {
-      this.addUserForm.markAllAsTouched();
-      this.toastr.warning('Please fill all required fields.', 'Invalid Form');
-      return;
-    }
+  openEditUserModal(user: any): void {
+  this.addUserForm.patchValue({
+    username: user.username,
+    email: user.email,
+    password: user.password,
+    role: user.role
+  });
+  this.isAddUserModalVisible = true;
+  this.selectedUser = user; // keep track for update
+}
 
+saveUser(): void {
+  if (this.addUserForm.invalid) {
+    this.addUserForm.markAllAsTouched();
+    this.toastr.warning('Please fill all required fields.', 'Invalid Form');
+    return;
+  }
+
+  const formData = this.addUserForm.value;
+
+  if (this.selectedUser) {
+    // 🟢 Update existing user
+    this.http.put(`${this.apiUrl}/${this.selectedUser.id}`, {
+      ...formData,
+      id: this.selectedUser.id
+    }).subscribe({
+      next: () => {
+        Swal.fire('Updated', 'User updated successfully!', 'success');
+        this.loadUsers();
+        this.closeAddUserModal();
+        this.selectedUser = null; // clear selection
+        this.hideUserDetails();
+        
+      },
+      error: (err) => {
+        console.error('Update failed:', err);
+        Swal.fire('Error', 'Could not update user.', 'error');
+      }
+    });
+  } else {
     const newUser = {
-      ...this.addUserForm.value,
-      id: Date.now() // simple unique id for mock
+      ...formData,
+      id: Date.now()
     };
-
     this.http.post(this.apiUrl, newUser).subscribe({
       next: () => {
         Swal.fire('Success', 'User added successfully!', 'success');
@@ -163,4 +223,31 @@ showUserDetails(user: any): void {
       }
     });
   }
+}
+
+deleteUser(id: number): void {
+  Swal.fire({
+    title: 'Are you sure?',
+    text: 'This action cannot be undone.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete it!',
+    cancelButtonText: 'Cancel'
+  }).then(result => {
+    if (result.isConfirmed) {
+      this.http.delete(`${this.apiUrl}/${id}`).subscribe({
+        next: () => {
+          Swal.fire('Deleted!', 'User has been deleted.', 'success');
+          this.loadUsers();
+          this.hideUserDetails();
+        },
+        error: (err) => {
+          console.error('Delete failed:', err);
+          Swal.fire('Error', 'Could not delete user.', 'error');
+        }
+      });
+    }
+  });
+}
+
 }
