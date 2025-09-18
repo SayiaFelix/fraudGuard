@@ -16,7 +16,7 @@ const routes: Routes = [
   {
     path: '',
     component: MobileBankingComponent,
-    canActivateChild: [AuthGuard],
+    // canActivateChild: [AuthGuard],
     children: [
 
       {
@@ -25,12 +25,12 @@ const routes: Routes = [
           import('./requests/requests.module').then((m) => m.RequestsModule)
       },
       {
-        path: 'ai_analytics',
+        path: 'compliance',
         loadChildren: () =>
           import('./customers/customers.module').then((m) => m.CustomersModule)
       },
       {
-        path: 'chatbot',
+        path: 'audit_management',
         loadChildren: () =>
           import('./customers/customers.module').then((m) => m.CustomersModule)
       },
@@ -42,18 +42,12 @@ const routes: Routes = [
       },
 
       {
-        path: 'analytics',
+        path: 'user_managements',
         loadChildren: () =>
           import('./setups/setups.module').then((m) => m.SetupsModule),
       },
       {
-        path: 'customer',
-        loadChildren: () =>
-          import('./rbac/rbac.module').then((m) => m.RbacModule),
-      },
-
-      {
-        path: 'customer',
+        path: 'executions',
         loadChildren: () =>
           import('./rbac/rbac.module').then((m) => m.RbacModule),
       },

@@ -16,12 +16,12 @@ import { TestComponentRenderer } from '@angular/core/testing';
 const routes: Routes = [
 
   {
-    path: 'ai_chat',
+    path: 'all',
     component: ListCustomersComponent
   },
 
 {
-    path: 'user_bot',
+    path: 'audits',
     component: ListFailedRegistrationsComponent,
     children: [
       { path: '', redirectTo: 'general', pathMatch: 'full' },

@@ -51,19 +51,26 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+
   ngOnInit(): void {
-    this.menuItems = MENU;
+  const role = localStorage.getItem('userRole');
 
-    this.notificationSub = this.notificationService.castNotifications.subscribe((notifications: Notification[]) => {
-      this.updateInboxBadge(notifications);
-    });
+  this.menuItems = MENU.filter(item => 
+    !item.roles || item.roles.includes(role!)
+  );
 
-    const desktopMedium = window.matchMedia('(min-width:992px) and (max-width: 1199px)');
-    desktopMedium.addEventListener('change', () => {
-      this.iconSidebar;
-    });
-    this.iconSidebar(desktopMedium);
-  }
+  this.notificationSub = this.notificationService.castNotifications.subscribe((notifications: Notification[]) => {
+    this.updateInboxBadge(notifications);
+  });
+
+  const desktopMedium = window.matchMedia('(min-width:992px) and (max-width: 1199px)');
+  desktopMedium.addEventListener('change', () => {
+    this.iconSidebar;
+  });
+  this.iconSidebar(desktopMedium);
+}
+
+
 
   ngOnDestroy(): void {
     if (this.notificationSub) {

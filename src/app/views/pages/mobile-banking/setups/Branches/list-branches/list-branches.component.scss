@@ -16,6 +16,26 @@
   --checkbox-blue-light: rgba(0, 123, 255, 0.1);
 }
 
+.details-panel {
+  animation: slideIn 0.3s ease-in-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.custom-modal-backdrop {
+  background: transparent !important;
+}
+
+
 /* --- Original Page & Side Panel Styles --- */
 .people-page-wrapper {
   position: relative;
