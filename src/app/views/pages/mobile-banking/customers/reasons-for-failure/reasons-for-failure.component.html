@@ -131,7 +131,7 @@
               </div>
               <div class="basics-actions">
                 <button class="btn basics-save-btn">Save</button>
-                <button class="btn basics-delete-btn">Delete Channel</button>
+                <button class="btn basics-delete-btn" (click)="deleteChannel(selectedChannel!)">Delete Channel</button>
               </div>
             </div>
           </div>
@@ -421,7 +421,7 @@
             </div>
             <div class="form-actions">
               <button class="btn btn-primary" (click)="onSaveChanges()">Save</button>
-              <button class="btn btn-danger">Delete Channel</button>
+              <button class="btn btn-danger" (click)="deleteChannel(selectedChannel!)">Delete Channel</button>
             </div>
           </div>
         </div>
@@ -563,7 +563,7 @@
             </div>
             <div class="form-actions">
               <button class="btn btn-primary" (click)="onSaveChanges()">Save</button>
-              <button class="btn btn-danger">Delete Channel</button>
+              <button class="btn btn-danger" (click)="deleteChannel(selectedChannel!)">Delete Channel</button>
             </div>
           </div>
         </div>
