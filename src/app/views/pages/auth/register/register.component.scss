@@ -16,7 +16,7 @@
 // --- Styles for the left side (Banking theme) ---
 .signup-left {
   flex: 1;
-  background: #00A9E0;
+  background: #096f91;
   padding: 40px;
   display: flex;
   flex-direction: column;
@@ -46,11 +46,11 @@
 .illustration-wrapper {
   width: 440px;
   height: 241px;
-  box-sizing: border-box;
-  background: white;
-  border-radius: 16px;
+  //box-sizing: border-box;
+  //background: white;
+  //border-radius: 16px;
   padding: 30px;
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+  //box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
   display: flex;
   align-items: center;
@@ -60,6 +60,7 @@
 .illustration-image {
   max-width: 400px;
   height: auto;
+  border-radius: 16px;
 }
 
 // --- Right side styles ---
@@ -92,7 +93,7 @@
   margin-bottom: 30px;
   
   .eclectics-logo {
-    max-width: 280px;
+    max-width: 200px;
     height: auto;
   }
 }
@@ -186,7 +187,7 @@
   border-radius: 6px;
 
   &.active {
-    color: #0d6efd;
+    color: #096f91;
     background-color: #ffffff;
     font-weight: 600;
     box-shadow: 0 2px 5px rgba(0,0,0,0.08);
@@ -228,7 +229,7 @@
       
       &:focus {
         outline: none;
-        border-color: #5b9dff;
+        border-color: #096f91;
         box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
       }
 
@@ -252,7 +253,7 @@
 .submit-btn {
   width: 100%;
   padding: 14px 0;
-  background-color: #0d6efd;
+  background-color: #096f91;
   color: white;
   border: none;
   border-radius: 8px;
@@ -268,7 +269,7 @@
   position: relative;
   
   &:hover:not(:disabled) {
-    background-color: #4285f4;
+    background-color: #096f91;
     transform: translateY(-1px);
   }
 
