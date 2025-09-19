@@ -33,7 +33,16 @@
                 style="cursor:pointer">
               <td>{{ audit.title }}</td>
               <td>{{ audit.department }}</td>
-              <td><span class="badge bg-info">{{ audit.status }}</span></td>
+              <td>
+                <span class="badge"
+                      [ngClass]="{
+                        'bg-secondary': audit.status === 'Planned',
+                        'bg-warning text-dark': audit.status === 'In Progress',
+                        'bg-success': audit.status === 'Completed'
+                      }">
+                  {{ audit.status }}
+                </span>
+              </td>
               <td>{{ audit.startDate }}</td>
               <td>{{ audit.endDate }}</td>
             </tr>
@@ -55,7 +64,18 @@
         <p><strong>Title:</strong> {{ selectedAudit?.title }}</p>
         <p><strong>Scope:</strong> {{ selectedAudit?.scope }}</p>
         <p><strong>Department:</strong> {{ selectedAudit?.department }}</p>
-        <p><strong>Status:</strong> {{ selectedAudit?.status }}</p>
+        <p>
+          <strong>Status: </strong>
+          <span class="badge"
+                [ngClass]="{
+                  'bg-secondary': selectedAudit?.status === 'Planned',
+                  'bg-warning text-dark': selectedAudit?.status === 'In Progress',
+                  'bg-success': selectedAudit?.status === 'Completed'
+                }">
+          
+          {{ selectedAudit?.status }}
+          </span>
+        </p>
         <p><strong>Start Date:</strong> {{ selectedAudit?.startDate }}</p>
         <p><strong>End Date:</strong> {{ selectedAudit?.endDate }}</p>
 
