@@ -54,7 +54,6 @@ export class AddCustomerComponent implements OnInit {
     this.loadAudits();
   }
 
-  // Load all audits
   loadAudits(): void {
     this.isLoading = true;
     this.http.get<any[]>(this.apiUrl).subscribe({
@@ -70,7 +69,6 @@ export class AddCustomerComponent implements OnInit {
     });
   }
 
-  // Filtering & pagination
   applyFiltersAndPagination(): void {
     let audits = [...this.allAudits];
 
@@ -111,7 +109,6 @@ export class AddCustomerComponent implements OnInit {
     this.visibleAudits = this.filteredAudits.slice(0, this.recordsToShow);
   }
 
-  // Details Panel
   showAuditDetails(audit: any): void {
     if (this.selectedAudit && this.selectedAudit.id === audit.id) {
       this.hideAuditDetails();
@@ -144,7 +141,6 @@ export class AddCustomerComponent implements OnInit {
     this.isAddAuditModalVisible = false;
   }
 
-  // Save Audit (Add or Update)
   saveAudit(): void {
     if (this.addAuditForm.invalid) {
       this.addAuditForm.markAllAsTouched();

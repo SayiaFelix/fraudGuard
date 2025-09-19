@@ -38,81 +38,82 @@
       </div>
     </div>
   </div>
+
    <div class="conversation-panel d-flex flex-column" [ngClass]="{ 'collapsed': isCollapsed }" style="height: 100vh;">
-    <div class="panel-header d-flex align-items-center justify-content-start p-2" (click)="isCollapsed = !isCollapsed" style="cursor: pointer;">
-      <i class="mdi me-2" [ngClass]="{ 'mdi-chevron-left': isCollapsed, 'mdi-chevron-right': !isCollapsed }"></i>
-      <h2 *ngIf="!isCollapsed" class="mb-0">Audit Summary</h2>
-    </div>
+      <div class="panel-header d-flex align-items-center justify-content-start p-2"
+          (click)="toggleConversationPanel()" style="cursor: pointer;">
+        <i class="mdi me-2" [ngClass]="{ 'mdi-chevron-left': isCollapsed, 'mdi-chevron-right': !isCollapsed }"></i>
+        <h2 *ngIf="!isCollapsed" class="mb-0">Audit Summary</h2>
+      </div>
 
-       <div *ngIf="!isCollapsed" class="panel-body p-3 d-flex flex-column flex-grow-1 overflow-auto">
-          <!-- Mini Calendar -->
-          <div class="calendar-card card shadow-sm mb-2">
-            <div class="card-header bg-light border-0">
-              <h3 class="mb-0 fw-bold text-dark">
-                <i class="mdi mdi-calendar-month-outline me-1 text-primary"></i> Audit Calendar
-              </h3>
-            </div>
-            <div class="card-body p-2">
-              <ngb-datepicker [(ngModel)]="viewDate" [dayTemplate]="t" outsideDays="hidden"></ngb-datepicker>
-
-              <!-- Custom template to highlight audit days -->
-              <ng-template #t let-date="date" let-currentMonth="currentMonth">
-                <span class="custom-day"
-                      [class.audit-day]="isAuditDay(date)"
-                      [class.text-muted]="!currentMonth">
-                  {{ date.day }}
-                </span>
-              </ng-template>
-            </div>
+      <div *ngIf="!isCollapsed" class="panel-body p-3 d-flex flex-column flex-grow-1 overflow-auto">
+        <!-- Mini Calendar -->
+        <div class="calendar-card card shadow-sm mb-2">
+          <div class="card-header bg-light border-0">
+            <h3 class="mb-0 fw-bold text-dark">
+              <i class="mdi mdi-calendar-month-outline me-1 text-primary"></i> Audit Calendar
+            </h3>
           </div>
-
-          <!-- Dashboard / Summary -->
-          <div class="summary-card card shadow-sm mb-2 flex-grow-1 overflow-auto">
-            <div class="card-header bg-light border-0">
-              <h3 class="mb-0 fw-bold text-dark">
-                <i class="mdi mdi-file-document-outline me-1 text-info"></i> Upcoming Audits
-              </h3>
-            </div>
-            <ul class="list-group list-group-flush">
-              <li class="list-group-item d-flex align-items-center" *ngFor="let audit of upcomingAudits">
-                <i class="mdi mdi-office-building me-2 text-secondary"></i>
-                <span>{{ audit.unit }}</span>
-                <span class="ms-auto text-muted small">{{ audit.plannedDate | date:'MMM d, y' }}</span>
-              </li>
-            </ul>
+          <div class="card-body p-2">
+            <ngb-datepicker [(ngModel)]="viewDate" [dayTemplate]="t" outsideDays="hidden"></ngb-datepicker>
+            <ng-template #t let-date="date" let-currentMonth="currentMonth">
+              <span class="custom-day"
+                    [class.audit-day]="isAuditDay(date)"
+                    [class.text-muted]="!currentMonth">
+                {{ date.day }}
+              </span>
+            </ng-template>
           </div>
+        </div>
 
-          <div class="card shadow-sm mb-2">
-            <div class="card-body">
-              <h3 class="fw-bold text-dark mb-2">
-                <i class="mdi mdi-alert-octagon-outline me-1 text-danger"></i> Risk Levels
-              </h3>
-              <div class="d-flex gap-2">
-                <span class="badge bg-danger rounded-pill px-3 py-2">High: {{ riskStats.high }}</span>
-                <span class="badge bg-warning rounded-pill px-3 py-2">Medium: {{ riskStats.medium }}</span>
-                <span class="badge bg-success rounded-pill px-3 py-2">Low: {{ riskStats.low }}</span>
-              </div>
-            </div>
+        <!-- Upcoming Audits -->
+        <div class="summary-card card shadow-sm mb-2 flex-grow-1 overflow-auto">
+          <div class="card-header bg-light border-0">
+            <h3 class="mb-0 fw-bold text-dark">
+              <i class="mdi mdi-file-document-outline me-1 text-info"></i> Upcoming Audits
+            </h3>
           </div>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex align-items-center" *ngFor="let audit of upcomingAudits">
+              <i class="mdi mdi-office-building me-2 text-secondary"></i>
+              <span>{{ audit.department }}</span>
+              <span class="ms-auto text-muted small">{{ audit.startDate | date:'MMM d, y' }}</span>
+            </li>
+            <li *ngIf="upcomingAudits.length === 0" class="list-group-item text-muted">No upcoming audits.</li>
+          </ul>
+        </div>
 
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <h3 class="fw-bold text-dark mb-2">
-                <i class="mdi mdi-check-decagram-outline me-1 text-info"></i> Compliance Status
-              </h3>
-              <div class="progress mb-2" style="height: 10px;">
-                <div class="progress-bar bg-success" role="progressbar"
-                    [style.width.%]="complianceStats.completed / (complianceStats.completed + complianceStats.pending) * 100">
-                </div>
-              </div>
-              <small class="text-muted">
-                Completed: {{ complianceStats.completed }} |
-                Pending: {{ complianceStats.pending }}
-              </small>
+        <!-- Risk Levels -->
+        <div class="card shadow-sm mb-2">
+          <div class="card-body">
+            <h3 class="fw-bold text-dark mb-2">
+              <i class="mdi mdi-alert-octagon-outline me-1 text-danger"></i> Risk Levels
+            </h3>
+            <div class="d-flex gap-2">
+              <span class="badge bg-danger rounded-pill px-3 py-2">High: {{ riskStats.high }}</span>
+              <span class="badge bg-warning rounded-pill px-3 py-2">Medium: {{ riskStats.medium }}</span>
+              <span class="badge bg-success rounded-pill px-3 py-2">Low: {{ riskStats.low }}</span>
             </div>
           </div>
         </div>
 
-
-   </div>
+        <!-- Compliance -->
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h3 class="fw-bold text-dark mb-2">
+              <i class="mdi mdi-check-decagram-outline me-1 text-info"></i> Compliance Status
+            </h3>
+            <div class="progress mb-2" style="height: 10px;">
+              <div class="progress-bar bg-success" role="progressbar"
+                  [style.width.%]="complianceStats.completed / (complianceStats.completed + complianceStats.pending) * 100">
+              </div>
+            </div>
+            <small class="text-muted">
+              Completed: {{ complianceStats.completed }} |
+              Pending: {{ complianceStats.pending }}
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
 </div>

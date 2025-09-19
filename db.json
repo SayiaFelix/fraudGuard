@@ -57,28 +57,140 @@
     },
     {
       "id": "4b96",
-      "title": "Performance",
-      "scope": "In the next 3 month",
+      "title": "Performance Audit",
+      "scope": "Review performance KPIs for last 3 months",
       "department": "EBU",
-      "status": "Planned",
+      "status": "Completed",
       "startDate": "2025-09-11",
       "endDate": "2025-09-30"
-    }
-  ], 
-  "observations": [
-    {
-      "id": 1,
-      "auditId": "4b96",
-      "description": "Missing receipts for 10 transactions",
-      "severity": "High",
-      "status": "Open"
     },
     {
-      "id": 2,
+      "id": "7ac3",
+      "title": "Compliance Audit",
+      "scope": "Check adherence to regulatory requirements",
+      "department": "Legal",
+      "status": "Planned",
+      "startDate": "2025-10-05",
+      "endDate": "2025-10-15"
+    },
+    {
+      "id": "9ff1",
+      "title": "Procurement Audit",
+      "scope": "Review supplier contracts and tendering process",
+      "department": "Procurement",
+      "status": "Completed",
+      "startDate": "2025-11-01",
+      "endDate": "2025-11-12"
+    }
+  ],
+  "observations": [
+    {
+      "id": "o1",
+      "auditId": "fwe12",
+      "description": "Unauthorized system access detected",
+      "severity": "High",
+      "status": "Open",
+      "recommendation": "Implement stronger access controls",
+      "createdAt": "2025-09-15"
+    },
+    {
+      "id": "o2",
+      "auditId": "fwe12",
+      "description": "Late financial reporting",
+      "severity": "Low",
+      "status": "Closed",
+      "recommendation": "Establish stricter deadlines",
+      "createdAt": "2025-09-10"
+    },
+    {
+      "id": "o3",
+      "auditId": "fwe12",
+      "description": "Unreconciled transactions in ledger",
+      "severity": "Medium",
+      "status": "In Progress",
+      "recommendation": "Automate reconciliation checks",
+      "createdAt": "2025-09-20"
+    },
+    {
+      "id": "o4",
       "auditId": "ewqwq",
       "description": "Delayed payroll processing",
       "severity": "Medium",
-      "status": "In Progress"
+      "status": "In Progress",
+      "recommendation": "Automate payroll reconciliation",
+      "createdAt": "2025-09-18"
+    },
+    {
+      "id": "o5",
+      "auditId": "ewqwq",
+      "description": "Weak password policy",
+      "severity": "High",
+      "status": "Open",
+      "recommendation": "Enforce MFA and strong passwords",
+      "createdAt": "2025-09-17"
+    },
+    {
+      "id": "o6",
+      "auditId": "ewqwq",
+      "description": "Unpatched servers identified",
+      "severity": "High",
+      "status": "Open",
+      "recommendation": "Apply latest security patches",
+      "createdAt": "2025-09-14"
+    },
+    {
+      "description": "Missing receipts for 10 transactions",
+      "severity": "High",
+      "status": "In Progress",
+      "recommendation": "Enforce dual approvals",
+      "auditId": "4b96",
+      "createdAt": "2025-09-19",
+      "id": "o7"
+    },
+    {
+      "description": "Low staff productivity levels",
+      "severity": "Medium",
+      "status": "Closed",
+      "recommendation": "Implement performance tracking",
+      "auditId": "4b96",
+      "createdAt": "2025-09-19",
+      "id": "o8"
+    },
+    {
+      "id": "o9",
+      "auditId": "4b96",
+      "description": "Delayed project reporting",
+      "severity": "Low",
+      "status": "Closed",
+      "recommendation": "Adopt automated dashboards",
+      "createdAt": "2025-09-16"
+    },
+    {
+      "id": "o10",
+      "auditId": "7ac3",
+      "description": "Non-compliance with tax regulation",
+      "severity": "High",
+      "status": "Open",
+      "recommendation": "Conduct tax compliance review",
+      "createdAt": "2025-09-19"
+    },
+    {
+      "id": "o11",
+      "auditId": "7ac3",
+      "description": "Missing regulatory filings",
+      "severity": "Medium",
+      "status": "In Progress",
+      "recommendation": "Automate compliance calendar",
+      "createdAt": "2025-09-18"
+    },
+    {
+      "id": "o12",
+      "auditId": "7ac3",
+      "description": "Policies not updated",
+      "severity": "Low",
+      "status": "Closed",
+      "recommendation": "Update compliance manuals annually",
+      "createdAt": "2025-09-17"
     }
   ]
 }
