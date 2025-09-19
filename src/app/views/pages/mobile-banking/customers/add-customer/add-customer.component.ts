@@ -69,6 +69,8 @@ export class AddCustomerComponent implements OnInit {
   });
   }
 
+  
+
   loadAudits(): void {
     this.isLoading = true;
     this.http.get<any[]>(this.apiUrl).subscribe({

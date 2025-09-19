@@ -41,6 +41,8 @@
               </li>
             </ul>
           </div>
+
+          
           <button class="btn btn-sm btn-primary save-btn" (click)="openAddAuditModal()">
             <i class="fas fa-plus"></i> Add Audit
           </button>
@@ -141,27 +143,27 @@
       <form [formGroup]="addAuditForm" (ngSubmit)="saveAudit()">
         <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label">Title</label>
-            <input formControlName="title" class="form-control">
+            <label class="form-label fw-bold">Title</label>
+            <input formControlName="title" placeholder="Enter Title" class="form-control">
           </div>
           <div class="mb-3">
-            <label class="form-label">Scope</label>
-            <input formControlName="scope" class="form-control">
+            <label class="form-label fw-bold">Scope</label>
+            <input formControlName="scope" placeholder="Enter Scope" class="form-control">
           </div>
           <div class="mb-3">
-            <label class="form-label">Department</label>
-            <input formControlName="department" class="form-control">
+            <label class="form-label fw-bold">Department</label>
+            <input formControlName="department" placeholder="Enter Department" class="form-control">
           </div>
           <div class="mb-3">
-            <label class="form-label">Status</label>
-            <select formControlName="status" class="form-select">
+            <label class="form-label fw-bold">Status</label>
+            <select formControlName="status"  class="form-select">
               <option>Planned</option>
               <option>In Progress</option>
               <option>Completed</option>
             </select>
           </div>
           <div class="mb-3">
-              <label class="form-label">Start Date</label>
+              <label class="form-label fw-bold">Start Date</label>
               <input 
                 type="date" 
                 formControlName="startDate" 
@@ -170,7 +172,7 @@
             </div>
 
             <div class="mb-3">
-              <label class="form-label">End Date</label>
+              <label class="form-label fw-bold">End Date</label>
               <input 
                 type="date" 
                 formControlName="endDate" 
@@ -186,4 +188,3 @@
     </div>
   </div>
 </div>
-<hr>
