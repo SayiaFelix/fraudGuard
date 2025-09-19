@@ -60,6 +60,12 @@ setBotStatus(status: { id: number, is_active: boolean }) {
   this.botStatusSubject.next(status);
 }
 
+ private auditsChangedSource = new Subject<void>();
+  auditsChanged$ = this.auditsChangedSource.asObservable();
+
+  notifyAuditsChanged() {
+    this.auditsChangedSource.next();
+  }
 
 getChatbotData() {
     return this.chatbotDataSubject.value;

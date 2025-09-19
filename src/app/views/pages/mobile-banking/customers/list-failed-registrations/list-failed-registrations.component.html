@@ -11,15 +11,14 @@
         <a class="ai-tab-button" [routerLink]="['planning']" routerLinkActive="active-tab" [routerLinkActiveOptions]="{ exact: true }">
           <i class="mdi mdi-plus"></i> Audit Planning
         </a>
-    
-      <a class="ai-tab-button"
-          [routerLink]="['observation']"
-          routerLinkActive="active-tab"
-          [class.disabled]="!isObservationRoute()"
-          (click)="!isObservationRoute() && $event.preventDefault()">
-          <i class="mdi mdi-eye"></i> Audit Observations
-        </a>
-
+        <a class="ai-tab-button"
+        [routerLink]="['observation']"
+        routerLinkActive="active-tab"
+        [routerLinkActiveOptions]="{ exact: false }"
+        [class.disabled]="isPlanningRoute()"
+        (click)="isPlanningRoute() && $event.preventDefault()">
+        <i class="mdi mdi-eye"></i> Audit Observations
+      </a>
 
 
         <!-- <a class="ai-tab-button" [routerLink]="['llm']" routerLinkActive="active-tab">
@@ -56,18 +55,21 @@
           </div>
           <div class="card-body p-2">
             <ngb-datepicker [(ngModel)]="viewDate" [dayTemplate]="t" outsideDays="hidden"></ngb-datepicker>
-            <ng-template #t let-date="date" let-currentMonth="currentMonth">
-              <span class="custom-day"
-                    [class.audit-day]="isAuditDay(date)"
-                    [class.text-muted]="!currentMonth">
-                {{ date.day }}
-              </span>
-            </ng-template>
+
+          <ng-template #t let-date="date" let-currentMonth="currentMonth">
+            <span class="custom-day"
+                  [class.text-muted]="!currentMonth"
+                  [class.audit-start-day]="isAuditStartDay(date).length > 0"
+                  [class.audit-end-day]="isAuditEndDay(date).length > 0"
+                  [ngbTooltip]="getAuditTooltip(date)">
+              {{ date.day }}
+            </span>
+          </ng-template>
           </div>
         </div>
 
         <!-- Upcoming Audits -->
-        <div class="summary-card card shadow-sm mb-2 flex-grow-1 overflow-auto">
+        <div class="card shadow-sm mb-2">
           <div class="card-header bg-light border-0">
             <h3 class="mb-0 fw-bold text-dark">
               <i class="mdi mdi-file-document-outline me-1 text-info"></i> Upcoming Audits
@@ -76,7 +78,7 @@
           <ul class="list-group list-group-flush">
             <li class="list-group-item d-flex align-items-center" *ngFor="let audit of upcomingAudits">
               <i class="mdi mdi-office-building me-2 text-secondary"></i>
-              <span>{{ audit.department }}</span>
+              <span>{{ audit.title }} ({{ audit.department }})</span>
               <span class="ms-auto text-muted small">{{ audit.startDate | date:'MMM d, y' }}</span>
             </li>
             <li *ngIf="upcomingAudits.length === 0" class="list-group-item text-muted">No upcoming audits.</li>

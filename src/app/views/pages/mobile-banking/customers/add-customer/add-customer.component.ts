@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
 import Swal from "sweetalert2";
 import { Router } from '@angular/router';
+import { GlobalService } from 'src/app/shared/services/global.service';
 
 @Component({
   selector: 'app-add-customer',
@@ -11,7 +12,8 @@ import { Router } from '@angular/router';
   styleUrls: ['./add-customer.component.scss']
 })
 export class AddCustomerComponent implements OnInit {
-
+ @Output() auditsChanged = new EventEmitter<void>();
+  todayString: string;
   // State
   isDetailsPanelVisible = false;
   selectedAudit: any = null;
@@ -38,7 +40,8 @@ export class AddCustomerComponent implements OnInit {
     private fb: FormBuilder,
     private http: HttpClient,
     private toastr: ToastrService,
-      private router: Router
+      private router: Router,
+      private globalService: GlobalService
   ) {
     this.addAuditForm = this.fb.group({
       title: ['', Validators.required],
@@ -51,6 +54,8 @@ export class AddCustomerComponent implements OnInit {
   }
 
   ngOnInit(): void {
+  const today = new Date();
+   this.todayString = today.toISOString().split('T')[0]; // "2025-09-18" format
     this.loadAudits();
   }
 
@@ -127,6 +132,7 @@ export class AddCustomerComponent implements OnInit {
   // Modal Controls
   openAddAuditModal(): void {
     this.addAuditForm.reset({ status: 'Planned' });
+    this.hideAuditDetails();
     this.isAddAuditModalVisible = true;
     this.selectedAudit = null;
   }
@@ -140,51 +146,41 @@ export class AddCustomerComponent implements OnInit {
   closeAddAuditModal(): void {
     this.isAddAuditModalVisible = false;
   }
-
+  
   saveAudit(): void {
-    if (this.addAuditForm.invalid) {
-      this.addAuditForm.markAllAsTouched();
-      this.toastr.warning('Please fill all required fields.', 'Invalid Form');
-      return;
-    }
-
-    const formData = this.addAuditForm.value;
-
-    if (this.selectedAudit) {
-      // Update
-      this.http.put(`${this.apiUrl}/${this.selectedAudit.id}`, {
-        ...formData,
-        id: this.selectedAudit.id
-      }).subscribe({
-        next: () => {
-          Swal.fire('Updated', 'Audit updated successfully!', 'success');
-          this.loadAudits();
-          this.closeAddAuditModal();
-          this.hideAuditDetails();
-          this.selectedAudit = null;
-        },
-        error: () => {
-          Swal.fire('Error', 'Could not update audit.', 'error');
-        }
-      });
-    } else {
-      // Create
-      const newAudit = {
-        ...formData,
-        // id: Date.now()
-      };
-      this.http.post(this.apiUrl, newAudit).subscribe({
-        next: () => {
-          Swal.fire('Created', 'Audit added successfully!', 'success');
-          this.loadAudits();
-          this.closeAddAuditModal();
-        },
-        error: () => {
-          Swal.fire('Error', 'Could not add audit.', 'error');
-        }
-      });
-    }
+  if (this.addAuditForm.invalid) {
+    this.toastr.warning('Please fill all required fields.', 'Invalid Form');
+    return;
   }
+
+  const formData = this.addAuditForm.value;
+
+  if (this.selectedAudit) {
+    this.http.put(`${this.apiUrl}/${this.selectedAudit.id}`, {
+      ...formData,
+      id: this.selectedAudit.id
+    }).subscribe({
+      next: () => {
+        Swal.fire('Updated', 'Audit updated successfully!', 'success');
+        this.loadAudits();
+        this.closeAddAuditModal();
+          this.hideAuditDetails();
+        this.globalService.notifyAuditsChanged();  // 🔔 notify parent
+      }
+    });
+  } else {
+    this.http.post(this.apiUrl, formData).subscribe({
+      next: () => {
+        Swal.fire('Created', 'Audit added successfully!', 'success');
+        this.loadAudits();
+        this.closeAddAuditModal();
+        this.hideAuditDetails();
+        this.globalService.notifyAuditsChanged();  // 🔔 notify parent
+      }
+    });
+  }
+  }
+
   deleteAudit(id: number): void {
     Swal.fire({
       title: 'Are you sure?',
