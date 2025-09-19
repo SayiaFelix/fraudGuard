@@ -74,13 +74,13 @@
       "endDate": "2025-10-15"
     },
     {
-      "id": "9ff1",
       "title": "Procurement Audit",
       "scope": "Review supplier contracts and tendering process",
-      "department": "Procurement",
-      "status": "Completed",
+      "department": "Proc",
+      "status": "Planned",
       "startDate": "2025-11-01",
-      "endDate": "2025-11-12"
+      "endDate": "2025-11-12",
+      "id": "9ff1"
     },
     {
       "title": "ELO",

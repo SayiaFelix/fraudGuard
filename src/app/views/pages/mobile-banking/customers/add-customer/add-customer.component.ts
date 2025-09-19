@@ -5,6 +5,9 @@ import { ToastrService } from 'ngx-toastr';
 import Swal from "sweetalert2";
 import { Router } from '@angular/router';
 import { GlobalService } from 'src/app/shared/services/global.service';
+import * as saveAs from 'file-saver';
+import jsPDF from 'jspdf';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-add-customer',
@@ -208,5 +211,75 @@ export class AddCustomerComponent implements OnInit {
   openObservations(audit: any): void {
   this.router.navigate(['/eclectics/audit_management/audits/observation', audit.id]);
 }
+
+ exportAsExcel(): void {
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.allAudits);
+    const workbook: XLSX.WorkBook = { Sheets: { 'Audits': worksheet }, SheetNames: ['Audits'] };
+    const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const data: Blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+    saveAs(data, 'audits.xlsx');
+  }
+
+
+exportAsPDF(): void {
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.getWidth();
+
+  // Title (centered)
+  doc.setFontSize(16);
+  doc.setFont("helvetica", "bold");
+  doc.text("Audit Report", pageWidth / 2, 15, { align: "center" });
+
+  // Generated Date (centered below title)
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  const generatedOn = new Date().toLocaleString();
+  doc.text(`Generated on: ${generatedOn}`, pageWidth / 2, 22, { align: "center" });
+
+  // Add Table
+  (doc as any).autoTable({
+    startY: 30,
+    head: [['Title', 'Department', 'Status', 'Start Date', 'End Date']],
+    body: this.allAudits.map(a => [
+      a.title,
+      a.department,
+      a.status,
+      a.startDate,
+      a.endDate
+    ]),
+    didDrawPage: (data: any) => {
+      // Footer
+      const pageCount = doc.getNumberOfPages();
+      const currentPage = data.pageNumber; // autoTable gives this
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "italic");
+      doc.text(
+        `Page ${currentPage} of ${pageCount}`,
+        pageWidth / 2,
+        doc.internal.pageSize.getHeight() - 10,
+        { align: "center" }
+      );
+    }
+  });
+
+  doc.save('audits.pdf');
+}
+
+
+  exportAsXML(): void {
+    let xmlData = '<?xml version="1.0" encoding="UTF-8"?>\n<audits>\n';
+    this.allAudits.forEach(audit => {
+      xmlData += `  <audit>
+    <title>${audit.title}</title>
+    <department>${audit.department}</department>
+    <status>${audit.status}</status>
+    <startDate>${audit.startDate}</startDate>
+    <endDate>${audit.endDate}</endDate>
+  </audit>\n`;
+    });
+    xmlData += '</audits>';
+    const blob = new Blob([xmlData], { type: 'application/xml' });
+    saveAs(blob, 'audits.xml');
+  }
 
 }
