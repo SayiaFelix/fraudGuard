@@ -29,7 +29,7 @@ html, body {
 
 .logo-section {
   flex: 1;
-  background: #00A9E0; 
+  background: #096f91; 
   padding: 40px;
   display: flex;
   flex-direction: column;
@@ -42,19 +42,22 @@ html, body {
 .logo-container {
   width: 440px;
   height: 241px;
-  box-sizing: border-box;
-  background: white;
+  //box-sizing: border-box;
+  //background: white;
   border-radius: 16px;
   padding: 30px;
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+  //box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
 
   .logo-icon {
-    max-width: 400px;
-    height: auto;
+    max-width: 100%;    // <-- This tells the image: "never be wider than your container"
+    max-height: 100%;   // <-- This tells the image: "never be taller than your container"
+    width: auto;        // <-- This maintains the aspect ratio
+    height: auto;  
+    border-radius: 16px;
   }
 }
 
@@ -149,7 +152,7 @@ html, body {
   border-radius: 6px;
 
   &.active {
-    color: #0d6efd;
+    color: #096f91;
     background-color: #ffffff;
     font-weight: 600;
     box-shadow: 0 2px 5px rgba(0,0,0,0.08);
@@ -172,7 +175,7 @@ html, body {
       display: block;
       margin-bottom: 8px;
       font-weight: 500;
-      color: #343a40;
+      color: #096f91;
       font-size: 14px;
     }
   }
@@ -188,7 +191,7 @@ html, body {
   
   &:focus {
     outline: none;
-    border-color: #5b9dff;
+    border-color: #096f91;
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
   }
   
@@ -217,7 +220,7 @@ html, body {
     font-size: 16px;
     
     &:hover {
-      color: #4285f4;
+      color: #096f91;
     }
   }
 }
@@ -241,7 +244,7 @@ html, body {
     transform: translateX(-50%);
     margin-bottom: 8px; 
 
-    background-color: #00A9E0; 
+    background-color: #096f91; 
     color: white;
     padding: 5px 10px;
     border-radius: 4px;
@@ -290,7 +293,7 @@ html, body {
   .checkbox {
     width: 14px;
     height: 14px;
-    accent-color: #4285f4;
+    accent-color: #096f91;
   }
   
   label {
@@ -302,7 +305,7 @@ html, body {
 }
 
 .forgot-password {
-  color: #4285f4;
+  color: #096f91;
   text-decoration: none;
   font-weight: 500;
   font-size: 12px;
@@ -318,7 +321,7 @@ html, body {
   overflow: hidden;
   width: 100%;
   padding: 14px 0;
-  background-color: #4A90E2;
+  background-color: #096f91;
   color: white;
   border: none;
   border-radius: 8px;
@@ -336,7 +339,7 @@ html, body {
   }
 
   &:hover:not(:disabled) {
-    background-color: #357ABD;
+    background-color: #096f91;
   }
 
   &:disabled {

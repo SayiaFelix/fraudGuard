@@ -19,7 +19,14 @@ padding: 50px 90px;
 align-items: center;
 gap: 50px;
 align-self: stretch;
-background: #02A7E1;;
+background: #096f91;;
+
+ img {
+    max-width: 500px; // This is the key property to control the size. Adjust as needed.
+    width: 100%;      // Ensures the image is responsive and shrinks on smaller screens.
+    height: auto;     // Maintains the aspect ratio of the image.
+    border-radius: 8px;
+  }
 }
 .login-btn {
   display: flex;
@@ -27,20 +34,20 @@ background: #02A7E1;;
   padding: 8px 12px;
   justify-content: center;
   align-items: center;
-  background-color : #2C71F6;
-  border: 2px solid #02A7E1;
+  background-color : #096f91;
+  border: 2px solid #096f91;
   transition: all 0.3s ease;
   border-radius: 8px;
 }
 
 .login-btn:hover {
-  background-color: #02A7E1;
+  background-color: #096f91;
   color: #ffffff;
   transform: scale(1.05);
   border-radius: 8px;
 }
 .open_btn:hover {
-  background-color: #02A7E1;
+  background-color: #096f91;
   color: #ffffff;
   transform: scale(1.05);
   border-radius: 8px;
@@ -61,7 +68,7 @@ background: #02A7E1;;
   flex-direction: column;
   align-items: flex-start;
   gap: 16px;
-  background: #02A7E1;
+  background: #096f91;
   flex: 1 0 0;
 }
 .main-heading {
@@ -191,7 +198,7 @@ justify-content: center;
 align-items: center;
 gap: 12px;
 border-radius: 6px;
-background: var(--Light-Mode-Background-Primary, #2C71F6);
+background: var(--Light-Mode-Background-Primary, #096f91);
 
 }
 
