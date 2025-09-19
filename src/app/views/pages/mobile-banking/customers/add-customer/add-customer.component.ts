@@ -220,7 +220,17 @@ export class AddCustomerComponent implements OnInit {
     saveAs(data, 'audits.xlsx');
   }
 
+exportAsCSV(): void {
+    const header = ['Title', 'Department', 'Status', 'Start Date', 'End Date'];
+    const rows = this.allAudits.map(a =>
+      [a.title, a.department, a.status, a.startDate, a.endDate]
+    );
 
+    const csvContent = [header, ...rows].map(e => e.join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    saveAs(blob, 'audits.csv');
+  }
+  
 exportAsPDF(): void {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();

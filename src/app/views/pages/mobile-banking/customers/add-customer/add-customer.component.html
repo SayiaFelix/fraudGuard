@@ -18,6 +18,12 @@
               <i class="fas fa-download"></i> Export
             </button>
             <ul class="dropdown-menu">
+               <li>
+                <a class="dropdown-item" (click)="exportAsCSV()">
+                  <i class="fas fa-file-csv text-warning me-2"></i> CSV
+                </a>
+              </li>
+
               <li>
                 <a class="dropdown-item" (click)="exportAsExcel()">
                   <i class="fas fa-file-excel text-success me-2"></i> Excel
