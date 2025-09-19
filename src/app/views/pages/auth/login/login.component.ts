@@ -59,7 +59,7 @@ export class LoginComponent implements OnInit {
         '',
         Validators.compose([Validators.required, Validators.minLength(6)]),
       ],
-      role: ['Auditor', Validators.required]  
+      role: ['CIA', Validators.required]  
     });
   }
  

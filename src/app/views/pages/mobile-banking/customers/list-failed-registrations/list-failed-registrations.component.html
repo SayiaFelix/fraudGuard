@@ -1,33 +1,19 @@
-<div class="row" style="margin-top: -50px;">
+<div class="row">
   <!-- Main Content Column -->
   <div class="col content-column">
     <div class="container-fluid">
       <div class="d-flex align-items-center justify-content-between flex-wrap">
-         <h2 class="mb-0 me-3">AI Assistants</h2>
-
-            <div *ngIf="agentList?.length; else noBots" class="dropdown">
-              <select class="form-select w-auto" [(ngModel)]="selectedBotId" (change)="onBotSelect($event)">
-                <option *ngFor="let bot of agentList" [value]="bot.id.toString()">
-                  {{ bot.name }} == {{ bot.is_active ? '🟢 Active' : '🔴 Inactive' }}
-                </option>
-              </select>
-            </div>
-
-            <ng-template #noBots>
-              <div class="alert alert-warning mt-2">
-                🚫 No AI chatbots found. Please create one to get started.
-              </div>
-            </ng-template>
+         <h2 class="mb-0 me-3">Audit Management</h2>
        </div>
 
 
       <div class="ai-tab-buttons mt-2">
-        <a class="ai-tab-button" [routerLink]="['general']" routerLinkActive="active-tab" [routerLinkActiveOptions]="{ exact: true }">
-          <i class="mdi mdi-plus"></i> General
+        <a class="ai-tab-button" [routerLink]="['planning']" routerLinkActive="active-tab" [routerLinkActiveOptions]="{ exact: true }">
+          <i class="mdi mdi-plus"></i> Audit Planning
         </a>
 
-        <a class="ai-tab-button" [routerLink]="['triggers']" routerLinkActive="active-tab">
-          <i class="mdi mdi-eye"></i> Action
+        <a class="ai-tab-button" [routerLink]="['observation']" routerLinkActive="active-tab">
+          <i class="mdi mdi-eye"></i> Audit Observations
         </a>
         <a class="ai-tab-button" [routerLink]="['llm']" routerLinkActive="active-tab">
           <i class="mdi mdi-chart-bar"></i> LLM
@@ -45,100 +31,81 @@
       </div>
     </div>
   </div>
-
-  <!-- Toggleable Conversation Tester Panel -->
    <div class="conversation-panel d-flex flex-column" [ngClass]="{ 'collapsed': isCollapsed }" style="height: 100vh;">
     <div class="panel-header d-flex align-items-center justify-content-start p-2" (click)="isCollapsed = !isCollapsed" style="cursor: pointer;">
       <i class="mdi me-2" [ngClass]="{ 'mdi-chevron-left': isCollapsed, 'mdi-chevron-right': !isCollapsed }"></i>
-      <h2 *ngIf="!isCollapsed" class="mb-0">Chatbot Tester</h2>
+      <h2 *ngIf="!isCollapsed" class="mb-0">Audit Summary</h2>
     </div>
 
-    <!-- Panel Body -->
-      <div *ngIf="!isCollapsed" class="panel-body p-3 d-flex flex-column flex-grow-1" style="overflow: hidden;">
-        <div class="chat-window flex-grow-1 mb-2 overflow-auto px-2" #chatContainer>
+       <div *ngIf="!isCollapsed" class="panel-body p-3 d-flex flex-column flex-grow-1 overflow-auto">
+          <!-- Mini Calendar -->
+          <div class="calendar-card card shadow-sm mb-2">
+            <div class="card-header bg-light border-0">
+              <h3 class="mb-0 fw-bold text-dark">
+                <i class="mdi mdi-calendar-month-outline me-1 text-primary"></i> Audit Calendar
+              </h3>
+            </div>
+            <div class="card-body p-2">
+              <ngb-datepicker [(ngModel)]="viewDate" [dayTemplate]="t" outsideDays="hidden"></ngb-datepicker>
 
-          <div *ngFor="let msg of messages" class="mb-2">
-            <div [ngClass]="{
-                  'd-flex justify-content-end': msg.sender === 'user',
-                  'd-flex justify-content-start': msg.sender === 'bot'
-                }">
-                
-              <!-- Bot message -->
-              <div *ngIf="msg.sender === 'bot'" class="message-wrapper d-flex flex-column align-items-start">
-                
-                <!-- Text bubble -->
-                <div *ngIf="msg.type === 'text'" class="bubble bot d-flex align-items-center">
-                  <i class="fas fa-robot me-2 text-secondary"></i>
-                  <span>{{ msg.text }}</span>
-                </div>
+              <!-- Custom template to highlight audit days -->
+              <ng-template #t let-date="date" let-currentMonth="currentMonth">
+                <span class="custom-day"
+                      [class.audit-day]="isAuditDay(date)"
+                      [class.text-muted]="!currentMonth">
+                  {{ date.day }}
+                </span>
+              </ng-template>
+            </div>
+          </div>
 
-                <!-- File bubble -->
-                <div *ngIf="msg.type === 'file'" class="bubble bot d-flex flex-column align-items-start">
-                  <i class="fas fa-robot me-2 text-secondary"></i>
-                  <img *ngIf="msg.fileUrl && (msg.fileUrl.endsWith('.jpg') || msg.fileUrl.endsWith('.jpeg') || msg.fileUrl.endsWith('.png') || msg.fileUrl.endsWith('.gif') || msg.fileUrl.endsWith('.webp'))"
-                      [src]="msg.fileUrl"
-                      alt="file"
-                      class="img-fluid rounded mb-1"
-                      style="max-width: 200px;">
-                  <a *ngIf="msg.fileUrl && !(msg.fileUrl.endsWith('.jpg') || msg.fileUrl.endsWith('.jpeg') || msg.fileUrl.endsWith('.png') || msg.fileUrl.endsWith('.gif') || msg.fileUrl.endsWith('.webp'))"
-                    [href]="msg.fileUrl" target="_blank">
-                    <i class="upload-icon mdi mdi-cloud-upload fs-1 text-primary"></i>
-                      Download File
-                  </a>
-                  <small *ngIf="msg.caption">{{ msg.caption }}</small>
-                </div>
+          <!-- Dashboard / Summary -->
+          <div class="summary-card card shadow-sm mb-2 flex-grow-1 overflow-auto">
+            <div class="card-header bg-light border-0">
+              <h3 class="mb-0 fw-bold text-dark">
+                <i class="mdi mdi-file-document-outline me-1 text-info"></i> Upcoming Audits
+              </h3>
+            </div>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item d-flex align-items-center" *ngFor="let audit of upcomingAudits">
+                <i class="mdi mdi-office-building me-2 text-secondary"></i>
+                <span>{{ audit.unit }}</span>
+                <span class="ms-auto text-muted small">{{ audit.plannedDate | date:'MMM d, y' }}</span>
+              </li>
+            </ul>
+          </div>
 
-                <small class="text-dark mt-1 ms-4">{{ msg.time | date: 'shortTime' }}</small>
-              </div>
-
-              <!-- User message -->
-              <div *ngIf="msg.sender === 'user'" class="message-wrapper d-flex flex-column align-items-end">
-                <div class="bubble user d-flex align-items-center">
-                  <span>{{ msg.text }}</span>
-                  <i class="fas fa-user ms-2 text-secondary"></i>
-                </div>
-                <small class="text-dark mt-1 me-4">{{ msg.time | date: 'shortTime' }}</small>
+          <div class="card shadow-sm mb-2">
+            <div class="card-body">
+              <h3 class="fw-bold text-dark mb-2">
+                <i class="mdi mdi-alert-octagon-outline me-1 text-danger"></i> Risk Levels
+              </h3>
+              <div class="d-flex gap-2">
+                <span class="badge bg-danger rounded-pill px-3 py-2">High: {{ riskStats.high }}</span>
+                <span class="badge bg-warning rounded-pill px-3 py-2">Medium: {{ riskStats.medium }}</span>
+                <span class="badge bg-success rounded-pill px-3 py-2">Low: {{ riskStats.low }}</span>
               </div>
             </div>
           </div>
 
-          <!-- Typing Indicator -->
-          <div *ngIf="isTyping" class="d-flex align-items-center text-start mt-2">
-            <i class="fas fa-robot me-2 text-secondary"></i>
-            <div class="loader-dots">
-              <span class="dot"></span>
-              <span class="dot"></span>
-              <span class="dot"></span>
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h3 class="fw-bold text-dark mb-2">
+                <i class="mdi mdi-check-decagram-outline me-1 text-info"></i> Compliance Status
+              </h3>
+              <div class="progress mb-2" style="height: 10px;">
+                <div class="progress-bar bg-success" role="progressbar"
+                    [style.width.%]="complianceStats.completed / (complianceStats.completed + complianceStats.pending) * 100">
+                </div>
+              </div>
+              <small class="text-muted">
+                Completed: {{ complianceStats.completed }} |
+                Pending: {{ complianceStats.pending }}
+              </small>
             </div>
           </div>
         </div>
 
 
-
-       <div class="input-group">
-         <input type="text" 
-            class="form-control" 
-            [(ngModel)]="userMessage" 
-            [disabled]="!chatbotData?.id" 
-            placeholder="Type a message..." 
-            (keydown.enter)="sendMessage()" />
-
-            <button class="btn custom-send-btn border-success" 
-                    (click)="sendMessage()" 
-                    [disabled]="!chatbotData?.id">
-              <i class="fas fa-paper-plane"></i>
-            </button>
-         </div>
-
-
-
-        <!-- <div class="input-group px-2">
-          <input type="text" class="form-control" [(ngModel)]="userMessage" [disabled]="!chatbotData?.id" placeholder="Type a message..." (keydown.enter)="sendMessage()" />
-          <button class="btn btn-success" (click)="sendMessage()" [disabled]="!chatbotData?.id">
-             <i class="fas fa-paper-plane"></i>
-          </button>
-        </div> -->
-
-      </div>
    </div>
 </div>

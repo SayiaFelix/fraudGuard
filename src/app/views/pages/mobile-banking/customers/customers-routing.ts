@@ -24,9 +24,9 @@ const routes: Routes = [
     path: 'audits',
     component: ListFailedRegistrationsComponent,
     children: [
-      { path: '', redirectTo: 'general', pathMatch: 'full' },
-      { path: 'general', component: AddCustomerComponent },
-      { path: 'triggers', component: SendSmsComponent },
+      { path: '', redirectTo: 'planning', pathMatch: 'full' },
+      { path: 'planning', component: AddCustomerComponent },
+      { path: 'observation', component: SendSmsComponent },
       { path: 'intent/:id', component: IntentComponent },
       { path: 'llm', component: ViewCustomerComponent },
       { path: 'publish', component: ReasonsForFailureComponent },

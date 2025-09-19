@@ -21,6 +21,7 @@ import { APP_BASE_HREF_TOKEN } from './views/pages/mobile-banking/requests/const
 import { APP_BASE_HREF } from '@angular/common';
 import { ToastrModule,ToastrConfig, ToastrService } from 'ngx-toastr';
 import { SettingsModalComponent } from './layout/settings-modal/settings-modal.component';
+import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
@@ -36,6 +37,7 @@ export function HttpLoaderFactory(http: HttpClient) {
   imports: [
     BrowserModule,
     Ng2TelInputModule,
+    NgbDatepickerModule,
     AppRoutingModule,
     HttpClientModule,
     BrowserAnimationsModule,
