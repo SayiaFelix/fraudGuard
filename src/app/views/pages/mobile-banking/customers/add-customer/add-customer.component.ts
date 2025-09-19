@@ -58,8 +58,15 @@ export class AddCustomerComponent implements OnInit {
 
   ngOnInit(): void {
   const today = new Date();
-   this.todayString = today.toISOString().split('T')[0]; // "2025-09-18" format
-    this.loadAudits();
+  this.todayString = today.toISOString().split('T')[0];
+  this.loadAudits();
+
+  // reactively enforce endDate ≥ startDate
+  this.addAuditForm.get('startDate')?.valueChanges.subscribe(start => {
+    if (this.addAuditForm.get('endDate')?.value < start) {
+      this.addAuditForm.patchValue({ endDate: start }); 
+    }
+  });
   }
 
   loadAudits(): void {
@@ -134,7 +141,11 @@ export class AddCustomerComponent implements OnInit {
 
   // Modal Controls
   openAddAuditModal(): void {
-    this.addAuditForm.reset({ status: 'Planned' });
+      this.addAuditForm.reset({
+        status: 'Planned',
+        startDate: this.todayString,  
+        endDate: ''                  
+      });
     this.hideAuditDetails();
     this.isAddAuditModalVisible = true;
     this.selectedAudit = null;
@@ -230,7 +241,7 @@ exportAsCSV(): void {
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     saveAs(blob, 'audits.csv');
   }
-  
+
 exportAsPDF(): void {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
