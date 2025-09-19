@@ -58,7 +58,6 @@ user: any;
   showUserDetails(user: any): void {
 
     if (this.selectedUser && this.selectedUser.id === user.id) {
-      console.log('Hiding details for user:', user);
       this.hideUserDetails();
       return;
     }
@@ -98,12 +97,10 @@ getRoleBadgeClass(role: string): string {
     this.http.get<any[]>(this.apiUrl).subscribe({
       next: (users) => {
         this.allUsers = users;
-        console.log('Loaded users:', this.allUsers);
         this.applyFiltersAndPagination();
         this.isLoading = false;
       },
       error: (err) => {
-        console.error('Failed to load users:', err);
         this.toastr.error('Could not load users from mock backend.', 'API Error');
         this.isLoading = false;
       }
@@ -242,7 +239,6 @@ deleteUser(id: number): void {
           this.hideUserDetails();
         },
         error: (err) => {
-          console.error('Delete failed:', err);
           Swal.fire('Error', 'Could not delete user.', 'error');
         }
       });
