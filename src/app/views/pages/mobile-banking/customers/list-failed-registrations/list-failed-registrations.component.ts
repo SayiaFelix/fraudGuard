@@ -71,7 +71,11 @@ export class ListFailedRegistrationsComponent implements OnInit {
   }
 
   ngOnInit() {
+  this.loadAudits();
+
+  this.globalService.auditsChanged$.subscribe(() => {
     this.loadAudits();
+  });
   }
 
   isAuditDay(date: { year: number; month: number; day: number }): boolean {
@@ -80,6 +84,51 @@ export class ListFailedRegistrationsComponent implements OnInit {
       audit.startDate === d || audit.endDate === d
     );
   }
+
+isAuditStartDay(date: { year: number; month: number; day: number }): any[] {
+  const d = `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`;
+  return this.allAudits.filter(audit => audit.startDate === d);
+}
+
+isAuditEndDay(date: { year: number; month: number; day: number }): any[] {
+  const d = `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`;
+  return this.allAudits.filter(audit => audit.endDate === d);
+}
+
+getAuditTooltip(date: { year: number; month: number; day: number }): string {
+  const starts = this.isAuditStartDay(date);
+  const ends = this.isAuditEndDay(date);
+
+  let tips: string[] = [];
+
+  if (starts.length) {
+    tips.push(...starts.map(a => `Start: ${a.title} (${a.department})`));
+  }
+  if (ends.length) {
+    tips.push(...ends.map(a => `End: ${a.title} (${a.department})`));
+  }
+
+  return tips.join(' | ') || '';
+}
+
+loadUpcomingAudits(): void {
+  const today = new Date();
+  this.upcomingAudits = this.allAudits
+    .filter(a => new Date(a.startDate) >= today) // only future audits
+    .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
+    .slice(0, 3); // take only next 3
+}
+
+
+
+get nextThreeAudits() {
+  const today = new Date();
+  return this.allAudits
+    .filter(a => new Date(a.startDate) >= today)
+    .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
+    .slice(0, 3);
+}
+
 
   loadAudits(): void {
     this.http.get<any[]>(this.apiUrl).subscribe({
@@ -95,13 +144,6 @@ export class ListFailedRegistrationsComponent implements OnInit {
     });
   }
 
-  loadUpcomingAudits(): void {
-    const today = new Date();
-    this.upcomingAudits = this.allAudits
-      .filter(a => new Date(a.startDate) >= today)
-      .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
-      .slice(0, 5);
-  }
 
   loadRiskStats(): void {
     this.http.get<any[]>(this.observationsUrl).subscribe(obs => {
@@ -123,7 +165,12 @@ export class ListFailedRegistrationsComponent implements OnInit {
     this.isCollapsed = !this.isCollapsed;
   }
 
-  isObservationRoute(): boolean {
-    return this.router.url.includes('observation');
-  }
+  isPlanningRoute(): boolean {
+  return this.router.url.includes('planning');
+}
+
+isObservationRoute(): boolean {
+  return this.router.url.includes('observation');
+}
+
 }

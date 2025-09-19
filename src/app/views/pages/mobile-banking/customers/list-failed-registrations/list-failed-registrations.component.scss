@@ -31,6 +31,17 @@
   background-color: #E3ECF9;
   color: #000;
 }
+.custom-day.audit-start-day {
+  background-color: #28a745; /* green */
+  color: white;
+  border-radius: 50%;
+}
+
+.custom-day.audit-end-day {
+  background-color: #dc3545; /* red */
+  color: white;
+  border-radius: 50%;
+}
 
 .ai-tab-button.active-tab {
   color: #3779f6;
@@ -196,6 +207,15 @@
 .card {
   border-radius: 12px;
 }
+
+.ai-tab-button.disabled {
+  pointer-events: none;   /* prevents clicking */
+  opacity: 0.6;           /* make it look disabled */
+  cursor: not-allowed;
+
+  color: black !important;
+}
+
 
 .card-header {
   background: #f8f9fc;

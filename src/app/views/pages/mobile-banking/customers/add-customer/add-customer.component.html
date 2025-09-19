@@ -127,13 +127,22 @@
             </select>
           </div>
           <div class="mb-3">
-            <label class="form-label">Start Date</label>
-            <input type="date" formControlName="startDate" class="form-control">
-          </div>
-          <div class="mb-3">
-            <label class="form-label">End Date</label>
-            <input type="date" formControlName="endDate" class="form-control">
-          </div>
+              <label class="form-label">Start Date</label>
+              <input 
+                type="date" 
+                formControlName="startDate" 
+                class="form-control"
+                [attr.min]="todayString">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">End Date</label>
+              <input 
+                type="date" 
+                formControlName="endDate" 
+                class="form-control"
+                [attr.min]="addAuditForm.get('startDate')?.value || todayString">
+            </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" (click)="closeAddAuditModal()">Cancel</button>
