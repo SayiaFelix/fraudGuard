@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
 import Swal from "sweetalert2";
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-add-customer',
@@ -11,26 +12,34 @@ import Swal from "sweetalert2";
 })
 export class AddCustomerComponent implements OnInit {
 
-  audits: any[] = [];
-  selectedAudit: any = null;
+  // State
   isDetailsPanelVisible = false;
-  searchTerm = '';
+  selectedAudit: any = null;
 
-  addAuditForm!: FormGroup;
-  isAddModalVisible = false;
-  isEditMode = false;
+  allAudits: any[] = [];
+  filteredAudits: any[] = [];
+  visibleAudits: any[] = [];
+
+  recordsToShow = 20;
+  isLoading = false;
+
+  // Filters
+  searchTerm = '';
+  departmentFilter = '';
+  statusFilter = '';
+
+  // Form & Modal
+  addAuditForm: FormGroup;
+  isAddAuditModalVisible = false;
 
   private apiUrl = 'http://localhost:3000/audits';
 
   constructor(
-    private http: HttpClient,
     private fb: FormBuilder,
-    private toastr: ToastrService
-  ) {}
-
-  ngOnInit(): void {
-    this.loadAudits();
-
+    private http: HttpClient,
+    private toastr: ToastrService,
+      private router: Router
+  ) {
     this.addAuditForm = this.fb.group({
       title: ['', Validators.required],
       scope: ['', Validators.required],
@@ -41,22 +50,76 @@ export class AddCustomerComponent implements OnInit {
     });
   }
 
+  ngOnInit(): void {
+    this.loadAudits();
+  }
+
   // Load all audits
   loadAudits(): void {
+    this.isLoading = true;
     this.http.get<any[]>(this.apiUrl).subscribe({
-      next: (data) => (this.audits = data),
-      error: () => this.toastr.error('Failed to load audits')
+      next: (audits) => {
+        this.allAudits = audits;
+        this.applyFiltersAndPagination();
+        this.isLoading = false;
+      },
+      error: () => {
+        this.toastr.error('Could not load audits from backend.', 'API Error');
+        this.isLoading = false;
+      }
     });
   }
 
-  // Show details
+  // Filtering & pagination
+  applyFiltersAndPagination(): void {
+    let audits = [...this.allAudits];
+
+    const search = this.searchTerm.trim().toLowerCase();
+    if (search) {
+      audits = audits.filter(a =>
+        a.title.toLowerCase().includes(search) ||
+        a.department.toLowerCase().includes(search) ||
+        a.status.toLowerCase().includes(search)
+      );
+    }
+
+    if (this.departmentFilter) {
+      audits = audits.filter(a =>
+        a.department.toLowerCase().includes(this.departmentFilter.toLowerCase())
+      );
+    }
+
+    if (this.statusFilter) {
+      audits = audits.filter(a =>
+        a.status.toLowerCase().includes(this.statusFilter.toLowerCase())
+      );
+    }
+
+    this.filteredAudits = audits;
+    this.visibleAudits = this.filteredAudits.slice(0, this.recordsToShow);
+  }
+
+  resetFilters(): void {
+    this.searchTerm = '';
+    this.departmentFilter = '';
+    this.statusFilter = '';
+    this.applyFiltersAndPagination();
+  }
+
+  loadMoreAudits(): void {
+    this.recordsToShow += 20;
+    this.visibleAudits = this.filteredAudits.slice(0, this.recordsToShow);
+  }
+
+  // Details Panel
   showAuditDetails(audit: any): void {
     if (this.selectedAudit && this.selectedAudit.id === audit.id) {
       this.hideAuditDetails();
-    } else {
-      this.selectedAudit = audit;
-      this.isDetailsPanelVisible = true;
+      return;
     }
+
+    this.selectedAudit = { ...audit };
+    this.isDetailsPanelVisible = true;
   }
 
   hideAuditDetails(): void {
@@ -64,97 +127,94 @@ export class AddCustomerComponent implements OnInit {
     this.selectedAudit = null;
   }
 
-  // Open Add Modal
+  // Modal Controls
   openAddAuditModal(): void {
-    this.isEditMode = false;
     this.addAuditForm.reset({ status: 'Planned' });
-    this.isAddModalVisible = true;
+    this.isAddAuditModalVisible = true;
+    this.selectedAudit = null;
   }
 
-  // Open Edit Modal
-  editAudit(audit: any): void {
-    this.isEditMode = true;
+  openEditAuditModal(audit: any): void {
     this.addAuditForm.patchValue(audit);
+    this.isAddAuditModalVisible = true;
     this.selectedAudit = audit;
-    this.isAddModalVisible = true;
   }
 
-  // Save (Add or Update)
+  closeAddAuditModal(): void {
+    this.isAddAuditModalVisible = false;
+  }
+
+  // Save Audit (Add or Update)
   saveAudit(): void {
     if (this.addAuditForm.invalid) {
-      this.toastr.warning('Fill all fields');
+      this.addAuditForm.markAllAsTouched();
+      this.toastr.warning('Please fill all required fields.', 'Invalid Form');
       return;
     }
 
-    const payload = this.addAuditForm.value;
+    const formData = this.addAuditForm.value;
 
-    if (this.isEditMode && this.selectedAudit) {
+    if (this.selectedAudit) {
       // Update
-      this.http.put(`${this.apiUrl}/${this.selectedAudit.id}`, payload).subscribe({
+      this.http.put(`${this.apiUrl}/${this.selectedAudit.id}`, {
+        ...formData,
+        id: this.selectedAudit.id
+      }).subscribe({
         next: () => {
-          Swal.fire('Updated', 'Audit updated successfully', 'success');
+          Swal.fire('Updated', 'Audit updated successfully!', 'success');
           this.loadAudits();
-          this.closeModal();
+          this.closeAddAuditModal();
+          this.hideAuditDetails();
+          this.selectedAudit = null;
         },
-        error: () => this.toastr.error('Failed to update audit')
+        error: () => {
+          Swal.fire('Error', 'Could not update audit.', 'error');
+        }
       });
     } else {
       // Create
-      const newAudit = { ...payload, id: Date.now() };
+      const newAudit = {
+        ...formData,
+        // id: Date.now()
+      };
       this.http.post(this.apiUrl, newAudit).subscribe({
         next: () => {
-          Swal.fire('Created', 'Audit created successfully', 'success');
+          Swal.fire('Created', 'Audit added successfully!', 'success');
           this.loadAudits();
-          this.closeModal();
+          this.closeAddAuditModal();
         },
-        error: () => this.toastr.error('Failed to create audit')
+        error: () => {
+          Swal.fire('Error', 'Could not add audit.', 'error');
+        }
       });
     }
   }
-
-  // Delete
   deleteAudit(id: number): void {
     Swal.fire({
       title: 'Are you sure?',
-      text: 'This audit will be deleted permanently!',
+      text: 'This action cannot be undone.',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Yes, delete it!',
-    }).then((result) => {
+      cancelButtonText: 'Cancel'
+    }).then(result => {
       if (result.isConfirmed) {
         this.http.delete(`${this.apiUrl}/${id}`).subscribe({
           next: () => {
-            Swal.fire('Deleted!', 'Audit removed successfully', 'success');
+            Swal.fire('Deleted!', 'Audit has been deleted.', 'success');
             this.loadAudits();
             this.hideAuditDetails();
           },
-          error: () => this.toastr.error('Delete failed')
+          error: () => {
+            Swal.fire('Error', 'Could not delete audit.', 'error');
+          }
         });
       }
     });
   }
 
-  // Close modal
-  closeModal(): void {
-    this.isAddModalVisible = false;
-    this.addAuditForm.reset({ status: 'Planned' });
-  }
-
-  // Navigation placeholder
   openObservations(audit: any): void {
-    this.toastr.info(`Opening observations for: ${audit.title}`);
-  }
+  this.router.navigate(['/eclectics/audit_management/audits/observation', audit.id]);
+}
 
-  // Search filter
-  applyFilters(): void {
-    this.http.get<any[]>(this.apiUrl).subscribe({
-      next: (res) => {
-        this.audits = res.filter(
-          (a) =>
-            a.title.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-            a.department.toLowerCase().includes(this.searchTerm.toLowerCase())
-        );
-      },
-    });
-  }
 }

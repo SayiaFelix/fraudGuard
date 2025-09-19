@@ -1,157 +1,23 @@
-<div class="card" style="  background-color: #f8f8f8;">
-  <div class="card-body">
-    <div>
-      <h5 class="card-title text-uppercase fw-bold mb-1">Recent Agent List</h5>
-      <p class="text-muted mb-0">Add triggers and actions for a scripted chat flow. If an action is not triggered, then the enabled LLM will generate a response.</p>
-    </div>
-
-    <!-- Action Buttons -->
-    <div class="mt-4 mb-3">
-      <div class="d-flex gap-2">
-        <button class="btn btn-sm btn-outline-primary" disabled>
-          <i class="feather icon-upload btn-icon-prepend"></i>
-          Upload File
-        </button>
-        <button class="btn trigger_btn" (click)="onAddTriggerClick()">
-          <i class="feather icon-plus btn-icon-prepend"></i>
-          Add Trigger
-        </button>
-        <input type="file" #fileInput (change)="onFileUpload($event)" style="display: none;" accept=".xlsx, .xls, .csv" disabled />
-     </div>
-    </div>
-    
-    <!-- MODIFIED: Modal for both Add and Edit -->
-    <div class="modal fade" #triggerModal tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <!-- MODIFIED: Dynamic title for Add/Edit -->
-            <h5 class="modal-title" id="triggerModalLabel" style="font-family: Roboto;font-weight: 500;font-style: Medium;font-size: 20px;line-height: 100%;letter-spacing: 0%;color: #364153;">
-              {{ editingTriggerId ? 'Edit Trigger' : 'Add Trigger' }}
-            </h5>
-            <button type="button" class="btn-close" (click)="closeModal()" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <form [formGroup]="triggerForm" (ngSubmit)="onTriggerSubmit()">
-              <div class="form-group mb-3">
-                <label class="form-label fw-bold" for="triggerType">Trigger</label>
-                <select class="form-select" id="triggerType" formControlName="trigger_type" required>
-                  <option value="message_received">🗨️ Message Received</option>
-                  <option value="attachment_received">📎 Attachment Received</option>
-                  <option value="fallback">❓ Fallback</option>
-                </select>
-              </div>
-              <div class="mt-1 form-group">
-                <label class="form-label fw-bold" for="name">Intent Name</label>
-                <input type="text" placeholder="Enter the Intent Name" class="form-control" id="name" formControlName="name" required>
-                <small *ngIf="triggerForm.get('name')?.touched && triggerForm.get('name')?.hasError('required')" class="text-danger">
-                  Required Field
-                </small>
-              </div>
-              <div class="form-group mt-3">
-                <label class="form-label fw-bold" for="description">Description</label>
-                <textarea class="form-control" placeholder="Enter the Description" id="description" formControlName="description" rows="2"></textarea>
-              </div>
-              <div class="form-group mt-3">
-                <label class="form-label fw-bold">Training Phrases</label>
-                <div formArrayName="training_phrases">
-                  <div *ngFor="let phrase of trainingPhrases.controls; let i = index" class="mb-2 d-flex align-items-center">
-                    <input type="text" placeholder="Enter the training phrases" class="form-control" [formControlName]="i">
-                    <button type="button" class="btn btn-sm btn-outline-danger ms-2" (click)="removeTrainingPhrase(i)">
-                      <i class="feather icon-trash-2"></i>
-                    </button>
-                  </div>
-                </div>
-                <button type="button" class="btn btn-sm btn-outline-primary mt-2" (click)="addTrainingPhrase()">
-                  <i class="feather icon-plus"></i> Add Phrase
-                </button>
-              </div>
-              <div class="modal-footer d-flex justify-content-between">
-                <button type="button" class="btn btn-sm btn-outline-info" (click)="closeModal()">Cancel</button>
-                <!-- MODIFIED: Dynamic button text for Save/Update -->
-                <button type="submit" class="btn btn-primary save-btn" [disabled]="!triggerForm.valid">
-                  {{ editingTriggerId ? 'Update Trigger' : 'Save Trigger' }}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Triggers Table -->
-    <div class="table-responsive">
-      <table class="table table-hover">
-        <thead>
-          <tr>
-            <th scope="col">Name</th>
-            <th scope="col">Description</th>
-            <th scope="col">Status</th>
-            <!-- NEW: "Enabled" column added -->
-            <th scope="col" class="text-center">Enabled</th>
-            <th scope="col" class="text-center">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- MODIFIED: colspan updated to 5 -->
-          <tr *ngIf="isLoading">
-            <td colspan="5" class="text-center py-5">
-              <div class="spinner-border" role="status">
-                <span class="visually-hidden">Loading...</span>
-              </div>
-            </td>
-          </tr>
-          <!-- MODIFIED: colspan updated to 5 -->
-          <tr *ngIf="!isLoading && agentList.length === 0">
-            <td colspan="5" class="text-center text-muted py-5">
-              No triggers found. Click "Add Trigger" to create one.
-            </td>
-          </tr>
-
-          <!-- Data Rows -->
-          <tr *ngFor="let trigger of agentList">
-            <td (click)="openIntent(trigger)" style="cursor: pointer;">
-              <strong>{{ trigger.name || 'N/A' }}</strong>
-            </td>
-            <td (click)="openIntent(trigger)" style="cursor: pointer;">
-              {{ trigger.description || 'N/A' }}
-            </td>
-            <td>
-              <span class="badge"
-                [ngClass]="{
-                  'bg-success': trigger.is_active,
-                  'bg-danger': !trigger.is_active
-                }">
-                {{ trigger.is_active ? 'Active' : 'Inactive' }}
-              </span>
-            </td>
-            <!-- NEW: Column with the toggle switch -->
-            <td class="text-center">
-              <div class="form-check form-switch d-inline-block">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  role="switch"
-                  [checked]="trigger.is_active"
-                  (change)="toggleTriggerStatus(trigger)"
-                  (click)="$event.stopPropagation()"
-                  title="{{ trigger.is_active ? 'Click to deactivate' : 'Click to activate' }}"
-                >
-              </div>
-            </td>
-            <td class="text-center">
-              <!-- MODIFIED: editTrigger now uses the component's own modal -->
-              <button class="btn btn-sm btn-icon btn-outline-secondary me-2" (click)="$event.stopPropagation(); editTrigger(trigger)" title="Edit">
-                <i class="feather icon-edit-2"></i>
-              </button>
-              <button class="btn btn-sm btn-icon btn-outline-danger" (click)="$event.stopPropagation(); deleteTrigger(trigger)" title="Delete">
-                <i class="feather icon-trash-2"></i>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+<div class="container mt-3">
+  <h3>Observations for Audit #{{ auditId }}</h3>
+  <table class="table table-bordered mt-3">
+    <thead>
+      <tr>
+        <th>Description</th>
+        <th>Severity</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let obs of observations">
+        <td>{{ obs.description }}</td>
+        <td><span class="badge" [ngClass]="{
+              'bg-danger': obs.severity === 'High',
+              'bg-warning': obs.severity === 'Medium',
+              'bg-success': obs.severity === 'Low'
+            }">{{ obs.severity }}</span></td>
+        <td>{{ obs.status }}</td>
+      </tr>
+    </tbody>
+  </table>
 </div>
-<hr>

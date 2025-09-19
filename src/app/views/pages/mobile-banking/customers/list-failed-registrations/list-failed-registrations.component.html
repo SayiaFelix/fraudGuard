@@ -11,11 +11,18 @@
         <a class="ai-tab-button" [routerLink]="['planning']" routerLinkActive="active-tab" [routerLinkActiveOptions]="{ exact: true }">
           <i class="mdi mdi-plus"></i> Audit Planning
         </a>
-
-        <a class="ai-tab-button" [routerLink]="['observation']" routerLinkActive="active-tab">
+    
+      <a class="ai-tab-button"
+          [routerLink]="['observation']"
+          routerLinkActive="active-tab"
+          [class.disabled]="!isObservationRoute()"
+          (click)="!isObservationRoute() && $event.preventDefault()">
           <i class="mdi mdi-eye"></i> Audit Observations
         </a>
-        <a class="ai-tab-button" [routerLink]="['llm']" routerLinkActive="active-tab">
+
+
+
+        <!-- <a class="ai-tab-button" [routerLink]="['llm']" routerLinkActive="active-tab">
           <i class="mdi mdi-chart-bar"></i> LLM
         </a>
         <a class="ai-tab-button" [routerLink]="['voice']" routerLinkActive="active-tab">
@@ -23,7 +30,7 @@
         </a>
         <a class="ai-tab-button" [routerLink]="['publish']" routerLinkActive="active-tab">
           <i class="mdi mdi-upload"></i> Publish
-        </a>
+        </a> -->
       </div>
 
       <div class="mt-4">
