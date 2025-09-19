@@ -117,11 +117,11 @@
       <form [formGroup]="observationForm" (ngSubmit)="saveObservation()">
         <div class="modal-body">
           <div class="mb-3">
-            <label>Description</label>
-            <textarea formControlName="description" class="form-control"></textarea>
+            <label class="fw-bold form-label">Description</label>
+            <textarea formControlName="description" placeholder="Enter Description" class="form-control"></textarea>
           </div>
           <div class="mb-3">
-            <label>Severity</label>
+            <label class="fw-bold form-label">Severity</label>
             <select formControlName="severity" class="form-select">
               <option>High</option>
               <option>Medium</option>
@@ -129,7 +129,7 @@
             </select>
           </div>
           <div class="mb-3">
-            <label>Status</label>
+            <label class="fw-bold form-label">Status</label>
             <select formControlName="status" class="form-select">
               <option>Open</option>
               <option>In Progress</option>
@@ -137,8 +137,8 @@
             </select>
           </div>
           <div class="mb-3">
-            <label>Recommendation</label>
-            <input formControlName="recommendation" class="form-control">
+            <label class="fw-bold form-label">Recommendation</label>
+            <input formControlName="recommendation" placeholder="Enter Recommendation" class="form-control">
           </div>
         </div>
         <div class="modal-footer">
