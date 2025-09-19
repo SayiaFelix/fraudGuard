@@ -6,13 +6,13 @@ export const MENU: MenuItem[] = [
     label: 'Dashboard',
     icon: 'home',
     link: '/dashboard',
-    roles: ['Auditor', 'CIA', 'AuditUnit'] // everyone can see
+    // roles: ['Auditor', 'CIA', 'AuditUnit']
   },
   {
     label: 'Inbox',
     icon: 'inbox',
     link: '/eclectics/user/inbox',
-    roles: ['CIA', 'AuditUnit'] // optional, or remove if not needed
+    // roles: ['CIA', 'AuditUnit']
   },
   {
     isTitle: true,
@@ -23,7 +23,13 @@ export const MENU: MenuItem[] = [
     label: 'Audit Management',
     icon: 'calendar', 
     link: '/eclectics/audit_management/audits',
-    roles: ['Auditor', 'CIA'] // visible to auditors + CIA
+    roles: ['Auditor', 'CIA']
+  },
+    {
+    label: 'Audit Execution',
+    icon: 'git-branch',
+    link: '/eclectics/executions/workflows',
+    roles: ['Auditor', 'CIA'] // workflow part of execution
   },
   {
     label:'User Management',
@@ -31,12 +37,7 @@ export const MENU: MenuItem[] = [
     link: '/eclectics/user_managements/users',
     roles: ['CIA'] // CIA can manage users
   },
-  {
-    label: 'Execution (Workflow)',
-    icon: 'git-branch',
-    link: '/eclectics/executions/workflows',
-    roles: ['Auditor', 'CIA'] // workflow part of execution
-  },
+
   {
     label: 'MIS Reports',
     icon:'bar-chart',
@@ -47,32 +48,32 @@ export const MENU: MenuItem[] = [
     label: 'Compliance',
     icon: 'check-circle',
     link: '/eclectics/compliance/all',
-    roles: ['AuditUnit'] // only Audit Unit
+    roles: ['AuditUnit']
   },
 
   {
     isTitle: true,
     label: 'SETTINGS',
-    roles: ['Auditor', 'CIA', 'AuditUnit']
+    // roles: ['Auditor', 'CIA', 'AuditUnit']
   },
   {
     label: 'Settings', 
     icon: 'settings', 
     isSettings: true,
-    roles: ['Auditor', 'CIA', 'AuditUnit']
+    // roles: ['Auditor', 'CIA', 'AuditUnit']
   },
   {
     label: 'Help Center',
     icon: 'help-circle', 
     link: '#', 
     isHelpCenter: true,
-    roles: ['Auditor', 'CIA', 'AuditUnit']
+    // roles: ['Auditor', 'CIA', 'AuditUnit']
   },
   {
     label: 'Logout',
     icon: 'log-out',
     link: '#', 
     isLogout: true,
-    roles: ['Auditor', 'CIA', 'AuditUnit']
+    // roles: ['Auditor', 'CIA', 'AuditUnit']
   }
 ];

@@ -1,32 +1,32 @@
 {
   "users": [
     {
-      "id": "1",
+      "id": 1,
       "username": "auditor1",
       "email": "auditor@gmail.com",
       "password": "Jaysafu@25",
       "role": "Auditor"
     },
     {
-      "id": "2",
+      "id": 2,
       "username": "cia1",
       "email": "cia@gmail.com",
       "password": "cia@123456",
       "role": "CIA"
     },
     {
-      "id": "3",
+      "id": 3,
       "username": "unit1",
       "email": "unit@gmail.com",
       "password": "unit@123456",
       "role": "AuditUnit"
     },
     {
+      "id": 1758204985674,
       "username": "cia2",
       "email": "cia2@gmail.com",
       "password": "Jaysafu@12345",
-      "role": "CIA",
-      "id": "1758204985674"
+      "role": "CIA"
     },
     {
       "id": 1758211496741,
@@ -34,6 +34,44 @@
       "email": "unit2@gmail.com",
       "password": "cia@123456dfsew",
       "role": "AuditUnit"
+    }
+  ],
+  "audits": [
+    {
+      "id": 1,
+      "title": "Q1 Financial Audit",
+      "scope": "Review financial transactions Jan–Mar",
+      "department": "Finance",
+      "status": "Planned",
+      "startDate": "2025-01-10",
+      "endDate": "2025-01-20"
+    },
+    {
+      "id": 2,
+      "title": "IT Security Review",
+      "scope": "Check system vulnerabilities",
+      "department": "IT",
+      "status": "In Progress",
+      "startDate": "2025-02-01",
+      "endDate": "2025-02-15"
+    },
+    {
+      "id": 1758272615411,
+      "title": "Finance ",
+      "scope": "ten",
+      "department": "EBU",
+      "status": "Planned",
+      "startDate": "2025-09-17",
+      "endDate": "2025-09-25"
+    },
+    {
+      "id": 1758273142772,
+      "title": "grerew",
+      "scope": "ewfew",
+      "department": "rewfwew",
+      "status": "In Progress",
+      "startDate": "2025-09-24",
+      "endDate": "2025-09-30"
     }
   ]
 }

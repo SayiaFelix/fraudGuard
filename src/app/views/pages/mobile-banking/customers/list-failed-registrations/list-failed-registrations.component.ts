@@ -1,5 +1,5 @@
 import {Component, ElementRef, OnInit, ViewChild,} from '@angular/core';
-import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
+import {NgbDateStruct, NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {DatePipe} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ColumnMode} from '@swimlane/ngx-datatable';
@@ -19,6 +19,7 @@ import {
   transition
 } from '@angular/animations';
 import { GlobalService } from 'src/app/shared/services/global.service';
+import { Subject } from 'rxjs';
 
 // flexible interface for messages
 interface ChatMessage {
@@ -29,6 +30,12 @@ interface ChatMessage {
   caption?: string;      // optional caption for file
   time: Date;
 }
+  // CalendarEvent interface definition
+  interface CalendarEvent {
+    start: Date;
+    title: string;
+    color: { primary: string; secondary: string };
+  }
 
 @Component({
   selector: 'app-list-failed-registrations',
@@ -150,6 +157,16 @@ export class ListFailedRegistrationsComponent implements OnInit {
   agentList: any[] = []; // List of bots
   selectedBotId: string = '';
   username: string | null;
+  refresh: Subject<any> = new Subject();
+ viewDate: NgbDateStruct;
+
+  upcomingAudits = [
+    { unit: 'Finance Dept', plannedDate: new Date() },
+    { unit: 'HR Dept', plannedDate: new Date(new Date().setDate(new Date().getDate() + 7)) }
+  ];
+
+  riskStats = { high: 1, medium: 2, low: 0 };
+  complianceStats = { completed: 1, pending: 1 };
 
 
 
@@ -162,6 +179,8 @@ export class ListFailedRegistrationsComponent implements OnInit {
     public activatedRoute: ActivatedRoute,
     private dataExploration: DataExportationService
   ) {
+    const today = new Date();
+    this.viewDate = { year: today.getFullYear(), month: today.getMonth() + 1, day: today.getDate() };
   }
 
   ngOnInit() {
@@ -181,10 +200,10 @@ export class ListFailedRegistrationsComponent implements OnInit {
       }
     }})
 
-  this.loadBots()
-  this.globalService.botCreated$.subscribe(() => {
-    this.loadBots(); 
-  });
+  // this.loadBots()
+  // this.globalService.botCreated$.subscribe(() => {
+  //   this.loadBots(); 
+  // });
 
   this.globalService.chatbotData$.subscribe((data) => {
     this.chatbotData = data;
@@ -238,77 +257,23 @@ export class ListFailedRegistrationsComponent implements OnInit {
   });
 }
 
-
-onBotSelect(event: any) {
-  const botId = +event.target.value;
-  // console.log('Selected Bot ID:', botId);
-  this.globalService.setChatbotId(botId);
-
-  const selectedBot = this.agentList.find(bot => bot.id === botId);
- 
-   if (selectedBot) {
-    this.chatbotData = selectedBot;
-    this.globalService.setChatbotData(selectedBot); 
+  // Check if a date is an audit day
+  isAuditDay(date: any): boolean {
+    return this.upcomingAudits.some(audit => {
+      const d = audit.plannedDate;
+      return (
+        d.getFullYear() === date.year &&
+        d.getMonth() + 1 === date.month &&
+        d.getDate() === date.day
+      );
+    });
   }
-  
-  if (selectedBot) {
-    this.chatbotData = selectedBot;
-    
-    // Clear existing messages
-    this.messages = [];
-    
-    if (selectedBot.welcome_message) {
-      this.messages.push({
-        sender: 'bot',
-        text: selectedBot.welcome_message,
-        time: new Date(),
-        type: 'text'
-      });
-    } else {
-    
-      this.messages.push({
-        sender: 'bot',
-        text: `Hi ${this.username}! I'm ${selectedBot.name} Virtual Assistant. How can I help you today?`,
-        time: new Date(),
-        type: 'text'
-      });
-    }
-  }
-}
 
-// Corrected loadBots() method
-loadBots(): void {
-  const userId = localStorage.getItem('user_id');
-
-  if (!userId) {
-    this.agentList = [];
-    return;
-  }
-  
-  this.httpService.customerPortalGet('builder/chatbots/list', this.httpService.getHeaders()).subscribe({
-    next: (res: any) => {
-      if (res.status === '00' && Array.isArray(res.data)) {
-        // Sort by latest created
-        this.agentList = res.data.sort((a: { created_at: string | number | Date; }, b: { created_at: string | number | Date; }) => {
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-        });
-        this.selectedBotId = this.agentList[0]?.id ?? null;
-
-        // 🔥 Automatically trigger bot selection
-        if (this.selectedBotId) {
-          this.onBotSelect({ target: { value: this.selectedBotId } });
-        }
-      } else {
-        this.agentList = [];
-        console.warn('Unexpected data format', res);
-      }
-    },
-    error: (err: any) => {
-      console.error('Error fetching agent list:', err);
-      this.agentList = [];
-    }
-  });
-}
+  // Mock Data
+  calendarEvents: CalendarEvent[] = [
+    { start: new Date(), title: 'Audit - Finance Dept', color: { primary: '#ad2121', secondary: '#FAE3E3' }},
+    { start: new Date(new Date().setDate(new Date().getDate() + 7)), title: 'Audit - HR Dept', color: { primary: '#1e90ff', secondary: '#D1E8FF' }}
+  ];
 
 ngAfterViewChecked(): void {
     this.scrollToBottom();
@@ -321,147 +286,6 @@ scrollToBottom() {
 }
 
 
-// sendMessage(): void {
-
-//   if (!this.userMessage.trim() || !this.chatbotData) return;
-
-//   const userText = this.userMessage;
-//   this.messages.push({
-//     sender: 'user',
-//     text: userText,
-//     time: new Date()
-//   });
-
-//   this.isTyping = true;
-
-//   const body = {
-//     chatbot_id: this.chatbotData.id,
-//     message: userText,
-//     session_id: this.sessionId,
-//   };
-
-//   this.httpService.mobileBankingPost('chatbot/chat', body).subscribe({
-//     next: (result: any) => {
-//       this.isTyping = false;
-
-//       if (result?.status === '00' && result.data?.response) {
-//         // Push bot response with timestamp
-//         this.messages.push({
-//           sender: 'bot',
-//           text: result.data.response,
-//           time: new Date()
-//         });
-
-//         // Log intent and confidence if available
-//         const intent = result.data.metadata?.intent;
-//         const confidence = result.data.metadata?.confidence;
-
-//         console.log('Intent:', intent, 'Confidence:', confidence);
-//       } else {
-      
-//         this.messages.push({
-//           sender: 'bot',
-//           text: result.message || 'Unexpected error occurred.',
-//           time: new Date()
-//         });
-//       }
-//     },
-//     error: (err: any) => {
-//       this.isTyping = false;
-//       console.error(err);
-//       this.messages.push({
-//         sender: 'bot',
-//         text: '⚠️ Error: Unable to reach chatbot.',
-//         time: new Date()
-//       });
-//       Swal.fire('Error', 'Chatbot service not reachable.', 'error');
-//     },
-//   });
-
-//   // Clear the input field
-//   this.userMessage = '';
-// }
-
- sendMessage(): void {
-    if (!this.userMessage.trim() || !this.chatbotData) return;
-
-    const userText = this.userMessage;
-
-    // Push user message
-    this.messages.push({
-      sender: 'user',
-      type: 'text',
-      text: userText,
-      time: new Date()
-    });
-
-    this.isTyping = true;
-
-    const body = {
-      chatbot_id: this.chatbotData.id,
-      message: userText,
-      session_id: this.sessionId,
-    };
-
-    this.httpService.mobileBankingPost('chatbot/chat', body).subscribe({
-      next: (result: any) => {
-        this.isTyping = false;
-
-        if (result?.status === '00') {
-          // Handle text response
-          if (typeof result.data?.response === 'string') {
-            this.messages.push({
-              sender: 'bot',
-              type: 'text',
-              text: result.data.response,
-              time: new Date()
-            });
-          }
-
-          // Handle file responses from metadata
-          if (result.metadata?.action_results?.length) {
-            result.metadata.action_results.forEach((action: any) => {
-              if (action.type === 'send_file' && action.content?.file_url) {
-                this.messages.push({
-                  sender: 'bot',
-                  type: 'file',
-                  fileUrl: this.apiBaseUrl + action.content.file_url,
-                  caption: action.content.caption || '',
-                  time: new Date()
-                });
-              }
-            });
-          }
-
-          // Debug intent & confidence if present
-          const intent = result.data.metadata?.intent;
-          const confidence = result.data.metadata?.confidence;
-          console.log('Intent:', intent, 'Confidence:', confidence);
-        } else {
-          this.messages.push({
-            sender: 'bot',
-            type: 'text',
-            text: result.message || 'Unexpected error occurred.',
-            time: new Date()
-          });
-        }
-      },
-      error: (err: any) => {
-        this.isTyping = false;
-        console.error(err);
-        this.messages.push({
-          sender: 'bot',
-          type: 'text',
-          text: '⚠️ Error: Unable to reach chatbot.',
-          time: new Date()
-        });
-        Swal.fire('Error', 'Chatbot service not reachable.', 'error');
-      },
-    });
-
-    // Clear input
-    this.userMessage = '';
-  }
 
 
 

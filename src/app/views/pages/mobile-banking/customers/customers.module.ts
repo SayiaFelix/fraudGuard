@@ -20,11 +20,13 @@ import { IntentComponent } from './intents/intent.component';
 import { FilterPipe } from './file.pipe';
 import { TestPageComponent } from './test-page/test-page.component';
 import { FileDropDirective } from './file-drop.directive';
+import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
     imports: [
         SharedModule,
         Ng2TelInputModule,
+        NgbDatepickerModule,
         CustomersRoutingModule,
         FeatherIconModule,
         NgxDatatableModule,
