@@ -8,7 +8,7 @@
         <div class="input-group w-50">
           <span class="input-group-text"><i class="fas fa-search"></i></span>
           <input type="text" class="form-control" placeholder="Search audits..."
-                 [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()">
+                 [(ngModel)]="searchTerm" (ngModelChange)="applyFiltersAndPagination()">
         </div>
         <button class="btn btn-sm btn-primary save-btn" (click)="openAddAuditModal()">
           <i class="fas fa-plus"></i> Add Audit
@@ -27,7 +27,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let audit of audits"
+            <tr *ngFor="let audit of visibleAudits"
                 (click)="showAuditDetails(audit)"
                 [class.table-active]="selectedAudit?.id === audit.id"
                 style="cursor:pointer">
@@ -63,7 +63,7 @@
         <button class="btn btn-outline-primary btn-sm w-100 mb-2" (click)="openObservations(selectedAudit)">
           <i class="fas fa-eye"></i> View Observations
         </button>
-        <button class="btn btn-outline-secondary btn-sm w-100 mb-2" (click)="editAudit(selectedAudit)">
+        <button class="btn btn-outline-secondary btn-sm w-100 mb-2" (click)="openEditAuditModal(selectedAudit)">
           <i class="fas fa-edit"></i> Edit
         </button>
         <button class="btn btn-outline-danger btn-sm w-100" (click)="deleteAudit(selectedAudit.id)">
@@ -75,14 +75,14 @@
 </div>
 
 <!-- Add/Edit Audit Modal -->
-<div class="modal fade show" *ngIf="isAddModalVisible"
+<div class="modal fade show" *ngIf="isAddAuditModalVisible"
      style="display:block; background:rgba(0,0,0,0.5)"
-     (click)="closeModal()">
+     (click)="closeAddAuditModal()">
   <div class="modal-dialog" (click)="$event.stopPropagation()">
     <div class="modal-content">
       <div class="modal-header">
-        <h2 class="modal-title">{{ isEditMode ? 'Edit Audit' : 'Add Audit' }}</h2>
-        <button type="button" class="btn-close" (click)="closeModal()"></button>
+        <h2 class="modal-title">{{ selectedAudit ? 'Edit Audit' : 'Add Audit' }}</h2>
+        <button type="button" class="btn-close" (click)="closeAddAuditModal()"></button>
       </div>
       <form [formGroup]="addAuditForm" (ngSubmit)="saveAudit()">
         <div class="modal-body">
@@ -116,8 +116,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
-          <button type="submit" class="btn btn-primary btn-sm save-btn">{{ isEditMode ? 'Update' : 'Save' }}</button>
+          <button type="button" class="btn btn-secondary" (click)="closeAddAuditModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm save-btn">{{ selectedAudit ? 'Update' : 'Save' }}</button>
         </div>
       </form>
     </div>

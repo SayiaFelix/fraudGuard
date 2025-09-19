@@ -340,6 +340,14 @@ toggleConversationPanel() {
     });
   }
 
+  activeTab = 'planning'; // default
+
+setActive(tab: string) {
+  this.activeTab = tab;
+}
+isObservationRoute(): boolean {
+  return this.router.url.includes('observation');
+}
   openResetModal(formData: any) {
     this.modalRef = this.modalService.open(ConfirmDialogComponent, {centered: true});
     this.modalRef.componentInstance.title = 'Reset Customer';

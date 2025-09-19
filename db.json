@@ -1,35 +1,35 @@
 {
   "users": [
     {
-      "id": 1,
+      "id": "1",
       "username": "auditor1",
       "email": "auditor@gmail.com",
       "password": "Jaysafu@25",
       "role": "Auditor"
     },
     {
-      "id": 2,
+      "id": "2",
       "username": "cia1",
       "email": "cia@gmail.com",
       "password": "cia@123456",
       "role": "CIA"
     },
     {
-      "id": 3,
+      "id": "3",
       "username": "unit1",
       "email": "unit@gmail.com",
       "password": "unit@123456",
       "role": "AuditUnit"
     },
     {
-      "id": 1758204985674,
+      "id": "1758204985674",
       "username": "cia2",
       "email": "cia2@gmail.com",
       "password": "Jaysafu@12345",
       "role": "CIA"
     },
     {
-      "id": 1758211496741,
+      "id": "1758211496741",
       "username": "unit",
       "email": "unit2@gmail.com",
       "password": "cia@123456dfsew",
@@ -38,7 +38,7 @@
   ],
   "audits": [
     {
-      "id": 1,
+      "id": "fwe12",
       "title": "Q1 Financial Audit",
       "scope": "Review financial transactions Jan–Mar",
       "department": "Finance",
@@ -47,7 +47,7 @@
       "endDate": "2025-01-20"
     },
     {
-      "id": 2,
+      "id": "ewqwq",
       "title": "IT Security Review",
       "scope": "Check system vulnerabilities",
       "department": "IT",
@@ -56,22 +56,29 @@
       "endDate": "2025-02-15"
     },
     {
-      "id": 1758272615411,
-      "title": "Finance ",
-      "scope": "ten",
+      "id": "4b96",
+      "title": "Performance",
+      "scope": "In the next 3 month",
       "department": "EBU",
       "status": "Planned",
-      "startDate": "2025-09-17",
-      "endDate": "2025-09-25"
+      "startDate": "2025-09-11",
+      "endDate": "2025-09-30"
+    }
+  ], 
+  "observations": [
+    {
+      "id": 1,
+      "auditId": "4b96",
+      "description": "Missing receipts for 10 transactions",
+      "severity": "High",
+      "status": "Open"
     },
     {
-      "id": 1758273142772,
-      "title": "grerew",
-      "scope": "ewfew",
-      "department": "rewfwew",
-      "status": "In Progress",
-      "startDate": "2025-09-24",
-      "endDate": "2025-09-30"
+      "id": 2,
+      "auditId": "ewqwq",
+      "description": "Delayed payroll processing",
+      "severity": "Medium",
+      "status": "In Progress"
     }
   ]
 }

@@ -26,7 +26,7 @@ const routes: Routes = [
     children: [
       { path: '', redirectTo: 'planning', pathMatch: 'full' },
       { path: 'planning', component: AddCustomerComponent },
-      { path: 'observation', component: SendSmsComponent },
+      { path: 'observation/:auditId', component: SendSmsComponent },
       { path: 'intent/:id', component: IntentComponent },
       { path: 'llm', component: ViewCustomerComponent },
       { path: 'publish', component: ReasonsForFailureComponent },
