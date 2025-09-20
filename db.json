@@ -150,7 +150,8 @@
           "status": "Done",
           "dueDate": "2025-09-20"
         }
-      ]
+      ],
+      "miniFindings": []
     },
     {
       "title": "Marketing Audit",
@@ -161,7 +162,8 @@
       "startDate": "2025-09-22",
       "dueDate": "2025-10-03",
       "tasks": [],
-      "id": "64b0"
+      "id": "64b0",
+      "miniFindings": []
     }
   ],
   "observations": [
@@ -176,13 +178,15 @@
       "findings": [
         {
           "id": "f1",
-          "summary": "2 logins outside business hours",
-          "impact": "High"
+          "description": "2 logins outside business hours",
+          "impact": "High",
+          "status": "Done"
         },
         {
           "id": "f2",
-          "summary": "No MFA on admin accounts",
-          "impact": "High"
+          "description": "No MFA on admin accounts",
+          "impact": "High",
+          "status": "Done"
         }
       ]
     },
@@ -197,12 +201,14 @@
       "findings": [
         {
           "id": "f3",
-          "summary": "Found 10 users with '12345' passwords",
+          "description": "Found 10 users with '12345' passwords",
+          "status": "Noted",
           "impact": "High"
         },
         {
           "id": "f4",
-          "summary": "Policy allows passwords under 6 chars",
+          "description": "Policy allows passwords under 6 chars",
+          "status": "Done",
           "impact": "Medium"
         }
       ]
@@ -218,15 +224,21 @@
       "findings": [
         {
           "id": "f5",
-          "summary": "5 unreconciled transactions > $10,000",
+          "description": "5 unreconciled transactions > $10,000",
+          "status": "Done",
           "impact": "High"
-        },
-        {
-          "id": "f6",
-          "summary": "Delayed reconciliations by 7 days",
-          "impact": "Medium"
         }
       ]
+    },
+    {
+      "id": "48e1",
+      "description": "fewefwefew",
+      "severity": "Medium",
+      "status": "Open",
+      "recommendation": "fewew",
+      "auditId": "a3",
+      "createdAt": "2025-09-20",
+      "findings": []
     }
   ]
 }
