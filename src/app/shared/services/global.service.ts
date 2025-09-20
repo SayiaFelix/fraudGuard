@@ -99,11 +99,19 @@ setBotStatus(status: { id: number, is_active: boolean }) {
     this.auditsChangedSource.next();
   }
 
-getChatbotData() {
-    return this.chatbotDataSubject.value;
-  }
+  private observationsChanged = new Subject<void>();   // 🔹 NEW
+  observationsChanged$ = this.observationsChanged.asObservable();  // 🔹 NEW
 
  
+  notifyObservationsChanged() {    // 🔹 NEW
+    this.observationsChanged.next();
+  }
+
+    getChatbotData() {
+        return this.chatbotDataSubject.value;
+      }
+
+
   setChatbotId(id: number | string) {
     const parsedId = typeof id === 'string' ? parseInt(id, 10) : id;
     this.chatbotIdSubject.next(parsedId);

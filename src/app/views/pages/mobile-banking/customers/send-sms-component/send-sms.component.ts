@@ -66,7 +66,7 @@ export class SendSmsComponent implements OnInit {
     this.loadAuditTitle();
     this.loadObservations();
   }
-  
+
 isDetailsPanelVisible = false;
 
 showObservationDetails(obs: any): void {
@@ -200,11 +200,14 @@ toggleObservationDetails(obs: any): void {
       this.loadObservations();
       this.closeModal();
       this.globalService.notifyAuditsChanged();
+      this.globalService.notifyObservationsChanged(); 
     });
   } else {
     this.http.post(this.apiUrl, formData).subscribe(() => {
       this.loadObservations();
       this.closeModal();
+      this.globalService.notifyAuditsChanged();
+      this.globalService.notifyObservationsChanged(); 
     });
   }
 }
@@ -221,6 +224,8 @@ deleteObservation(id: string): void {
       this.http.delete(`${this.apiUrl}/${id}`).subscribe(() => {
         Swal.fire('Deleted!', 'Observation deleted', 'success');
         this.loadObservations();
+        this.globalService.notifyAuditsChanged();
+          this.globalService.notifyObservationsChanged(); 
         this.selectedObservation = null;
         this.isDetailsPanelVisible = false;
       });
