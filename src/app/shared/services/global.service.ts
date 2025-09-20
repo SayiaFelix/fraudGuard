@@ -3,6 +3,7 @@ import {Injectable} from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import {environment} from 'src/environments/environment';
 import { BehaviorSubject } from 'rxjs';
+import { Workflow } from 'src/app/views/pages/mobile-banking/rbac/Users/list-users/list-users.component';
 
 // In: global.service.ts (or auth.service.ts)
 
@@ -46,7 +47,29 @@ chatbotId$ = this.chatbotIdSubject.asObservable();
 botStatus$ = this.botStatusSubject.asObservable();
 chatbotData$ = this.chatbotDataSubject.asObservable();
 
+private api = 'http://localhost:3000/workflows'; 
+  
 
+list(): Observable<Workflow[]> {
+    return this.http.get<Workflow[]>(this.api);
+  }
+
+  get(id: number | string): Observable<Workflow> {
+    return this.http.get<Workflow>(`${this.api}/${id}`);
+  }
+
+  create(payload: Workflow): Observable<Workflow> {
+    return this.http.post<Workflow>(this.api, payload);
+  }
+
+  update(id: number | string, payload: Workflow): Observable<Workflow> {
+    return this.http.put<Workflow>(`${this.api}/${id}`, payload);
+  }
+
+  delete(id: number | string): Observable<void> {
+    return this.http.delete<void>(`${this.api}/${id}`);
+  }
+  
 
 updateBotStatus(update: { id: number, is_active: boolean }) {
     this.botStatusSubject.next(update);

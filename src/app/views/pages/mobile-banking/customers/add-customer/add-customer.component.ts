@@ -163,6 +163,40 @@ export class AddCustomerComponent implements OnInit {
     this.isAddAuditModalVisible = false;
   }
   
+  // saveAudit(): void {
+  // if (this.addAuditForm.invalid) {
+  //   this.toastr.warning('Please fill all required fields.', 'Invalid Form');
+  //   return;
+  // }
+
+  // const formData = this.addAuditForm.value;
+
+  // if (this.selectedAudit) {
+  //   this.http.put(`${this.apiUrl}/${this.selectedAudit.id}`, {
+  //     ...formData,
+  //     id: this.selectedAudit.id
+  //   }).subscribe({
+  //     next: () => {
+  //       Swal.fire('Updated', 'Audit updated successfully!', 'success');
+  //       this.loadAudits();
+  //       this.closeAddAuditModal();
+  //         this.hideAuditDetails();
+  //       this.globalService.notifyAuditsChanged();  // 🔔 notify parent
+  //     }
+  //   });
+  // } else {
+  //   this.http.post(this.apiUrl, formData).subscribe({
+  //     next: () => {
+  //       Swal.fire('Created', 'Audit added successfully!', 'success');
+  //       this.loadAudits();
+  //       this.closeAddAuditModal();
+  //       this.hideAuditDetails();
+  //       this.globalService.notifyAuditsChanged();  // 🔔 notify parent
+  //     }
+  //   });
+  // }
+  // }
+
   saveAudit(): void {
   if (this.addAuditForm.invalid) {
     this.toastr.warning('Please fill all required fields.', 'Invalid Form');
@@ -172,6 +206,7 @@ export class AddCustomerComponent implements OnInit {
   const formData = this.addAuditForm.value;
 
   if (this.selectedAudit) {
+    // Update audit
     this.http.put(`${this.apiUrl}/${this.selectedAudit.id}`, {
       ...formData,
       id: this.selectedAudit.id
@@ -180,46 +215,104 @@ export class AddCustomerComponent implements OnInit {
         Swal.fire('Updated', 'Audit updated successfully!', 'success');
         this.loadAudits();
         this.closeAddAuditModal();
-          this.hideAuditDetails();
-        this.globalService.notifyAuditsChanged();  // 🔔 notify parent
+        this.hideAuditDetails();
+        this.globalService.notifyAuditsChanged();
+
+        // 🔹 Also update the workflow
+        const workflowPayload = {
+          auditId: this.selectedAudit.id,
+          title: formData.title,
+          scope: formData.scope,
+          department: formData.department,
+          assignedTo: '',
+          status: formData.status === 'Planned' ? 'Not Started' : formData.status,
+          startDate: formData.startDate,
+          dueDate: formData.endDate,
+          tasks: []
+        };
+        this.http.put(`http://localhost:3000/workflows/${this.selectedAudit.id}`, workflowPayload).subscribe();
       }
     });
   } else {
-    this.http.post(this.apiUrl, formData).subscribe({
-      next: () => {
+    // Create audit
+    this.http.post<any>(this.apiUrl, formData).subscribe({
+      next: (createdAudit) => {
         Swal.fire('Created', 'Audit added successfully!', 'success');
         this.loadAudits();
         this.closeAddAuditModal();
         this.hideAuditDetails();
-        this.globalService.notifyAuditsChanged();  // 🔔 notify parent
-      }
-    });
-  }
-  }
+        this.globalService.notifyAuditsChanged();
 
-  deleteAudit(id: number): void {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'This action cannot be undone.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, delete it!',
-      cancelButtonText: 'Cancel'
-    }).then(result => {
-      if (result.isConfirmed) {
-        this.http.delete(`${this.apiUrl}/${id}`).subscribe({
-          next: () => {
-            Swal.fire('Deleted!', 'Audit has been deleted.', 'success');
-            this.loadAudits();
-            this.hideAuditDetails();
-          },
-          error: () => {
-            Swal.fire('Error', 'Could not delete audit.', 'error');
-          }
-        });
+        // 🔹 Also create linked workflow
+        const workflowPayload = {
+          id: createdAudit.id, // reuse same id for easy linking
+          auditId: createdAudit.id,
+          title: createdAudit.title,
+          scope: createdAudit.scope,
+          department: createdAudit.department,
+          assignedTo: '',
+          status: createdAudit.status === 'Planned' ? 'Not Started' : createdAudit.status,
+          startDate: createdAudit.startDate,
+          dueDate: createdAudit.endDate,
+          tasks: []
+        };
+        this.http.post(`http://localhost:3000/workflows`, workflowPayload).subscribe();
       }
     });
   }
+}
+
+deleteAudit(id: number): void {
+  Swal.fire({
+    title: 'Are you sure?',
+    text: 'This action cannot be undone.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete it!',
+    cancelButtonText: 'Cancel'
+  }).then(result => {
+    if (result.isConfirmed) {
+      this.http.delete(`${this.apiUrl}/${id}`).subscribe({
+        next: () => {
+          Swal.fire('Deleted!', 'Audit has been deleted.', 'success');
+          this.loadAudits();
+          this.hideAuditDetails();
+
+          // 🔹 Also delete linked workflow
+          this.http.delete(`http://localhost:3000/workflows/${id}`).subscribe();
+        },
+        error: () => {
+          Swal.fire('Error', 'Could not delete audit.', 'error');
+        }
+      });
+    }
+  });
+}
+
+
+  // deleteAudit(id: number): void {
+  //   Swal.fire({
+  //     title: 'Are you sure?',
+  //     text: 'This action cannot be undone.',
+  //     icon: 'warning',
+  //     showCancelButton: true,
+  //     confirmButtonText: 'Yes, delete it!',
+  //     cancelButtonText: 'Cancel'
+  //   }).then(result => {
+  //     if (result.isConfirmed) {
+  //       this.http.delete(`${this.apiUrl}/${id}`).subscribe({
+  //         next: () => {
+  //           Swal.fire('Deleted!', 'Audit has been deleted.', 'success');
+  //           this.loadAudits();
+  //           this.hideAuditDetails();
+  //         },
+  //         error: () => {
+  //           Swal.fire('Error', 'Could not delete audit.', 'error');
+  //         }
+  //       });
+  //     }
+  //   });
+  // }
 
   openObservations(audit: any): void {
   this.router.navigate(['/eclectics/audit_management/audits/observation', audit.id]);
