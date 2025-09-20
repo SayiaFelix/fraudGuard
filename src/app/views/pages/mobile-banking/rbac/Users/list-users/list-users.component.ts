@@ -13,6 +13,19 @@ export interface Task {
   dueDate?: string; 
 }
 
+export interface Workflow {
+  id?: string;
+  auditId: string;          // 🔹 add this
+  title: string;
+  scope: string;
+  department: string;
+  assignedTo: string;
+  status: string;
+  startDate: string;
+  dueDate: string;
+  tasks: any[];
+  miniFindings?: any[];
+}
 
 export interface MiniFinding {
   id?: string;
@@ -22,20 +35,6 @@ export interface MiniFinding {
   status: 'Noted' | 'Confirmed';
   createdAt?: string;
 }
-
-export interface Workflow {
-  id?: number | string;
-  title: string;
-  scope?: string;
-  department?: string;
-  assignedTo?: string;
-  status?: 'Not Started' | 'In Progress' | 'Under Review' | 'Completed';
-  startDate?: string;
-  dueDate?: string;
-  tasks?: Task[];
-  miniFindings?: MiniFinding[];   // ✅ new field
-}
-
 @Component({
   selector: 'app-list-users',
   templateUrl: './list-users.component.html',
@@ -192,13 +191,12 @@ openFindingModal(): void {
 openTaskModal() { this.isTaskModalVisible = true; }
 closeTaskModal() { this.isTaskModalVisible = false; }
 
-
 loadWorkflows(): void {
     this.isLoading = true;
     this.globalService.list().subscribe({
       next: (res) => {
         // Ensure tasks array present
-        this.allWorkflows = res.map(w => ({ tasks: [], ...w }));
+        this.allWorkflows = res.map(w => ({ ...w, tasks: w.tasks || [] }));
         this.applyFiltersAndPagination();
         this.isLoading = false;
       },
@@ -295,67 +293,118 @@ loadWorkflows(): void {
     this.workflowForm.reset();
   }
 
-  saveWorkflow(): void {
-    if (this.workflowForm.invalid) {
-      this.workflowForm.markAllAsTouched();
-      return;
-    }
-    const payload: Workflow = {
-      ...this.workflowForm.value,
-      tasks: this.selectedWorkflow?.tasks || []
-    };
 
-    if (this.isEditMode && this.selectedWorkflow && this.selectedWorkflow.id) {
-      this.globalService.update(this.selectedWorkflow.id!, payload).subscribe({
-        next: () => {
-          Swal.fire('Updated', 'Workflow updated', 'success');
-          this.closeModal();
-          this.loadWorkflows();
-        },
-        error: err => {
-          console.error(err);
-          Swal.fire('Error', 'Failed to update', 'error');
-        }
-      });
-    } else {
-      // Create
-      this.globalService.create(payload).subscribe({
-        next: () => {
-          Swal.fire('Created', 'Workflow created', 'success');
-          this.closeModal();
-          this.loadWorkflows();
-        },
-        error: err => {
-          console.error(err);
-          Swal.fire('Error', 'Failed to create', 'error');
-        }
-      });
-    }
+saveWorkflow(): void {
+  if (this.workflowForm.invalid) {
+    this.workflowForm.markAllAsTouched();
+    return;
   }
 
-  deleteWorkflow(id?: number | string): void {
-    if (!id) return;
-    Swal.fire({
-      title: 'Delete workflow?',
-      text: 'This will remove workflow and all tasks',
-      icon: 'warning',
-      showCancelButton: true
-    }).then(result => {
-      if (result.isConfirmed) {
-        this.globalService.delete(id).subscribe({
-          next: () => {
-            Swal.fire('Deleted', 'Workflow deleted', 'success');
-            this.loadWorkflows();
-            this.hideDetails();
-          },
-          error: err => {
-            console.error(err);
-            Swal.fire('Error', 'Failed to delete', 'error');
-          }
+  const payload: Workflow = {
+    ...this.workflowForm.value,
+    tasks: this.selectedWorkflow?.tasks || [],
+    miniFindings: this.selectedWorkflow?.miniFindings || []
+  };
+
+  if (this.isEditMode && this.selectedWorkflow && this.selectedWorkflow.id) {
+    // ------------------- UPDATE WORKFLOW -------------------
+    this.globalService.update(this.selectedWorkflow.id!, payload).subscribe({
+      next: () => {
+        Swal.fire('Updated', 'Workflow updated successfully!', 'success');
+
+        // 🔹 Sync audit directly
+        const auditPayload = {
+          id: payload.auditId,
+          title: payload.title,
+          scope: payload.scope,
+          department: payload.department,
+          status: payload.status === 'Not Started' ? 'Planned' : payload.status,
+          startDate: payload.startDate,
+          endDate: payload.dueDate
+        };
+
+        this.http.put(`http://localhost:3000/audits/${payload.auditId}`, auditPayload).subscribe({
+          next: () => this.globalService.notifyAuditsChanged()
         });
+
+        this.closeModal();
+        this.loadWorkflows();
+        this.globalService.notifyWorkflowsChanged();
+      },
+      error: err => {
+        console.error(err);
+        Swal.fire('Error', 'Failed to update workflow', 'error');
+      }
+    });
+
+  } else {
+    // ------------------- CREATE WORKFLOW -------------------
+    this.globalService.create(payload).subscribe({
+      next: (createdWf: Workflow) => {
+        Swal.fire('Created', 'Workflow created successfully!', 'success');
+
+        // 🔹 Also create/update linked audit
+        const auditPayload = {
+          id: createdWf.auditId,
+          title: createdWf.title,
+          scope: createdWf.scope,
+          department: createdWf.department,
+          status: createdWf.status === 'Not Started' ? 'Planned' : createdWf.status,
+          startDate: createdWf.startDate,
+          endDate: createdWf.dueDate
+        };
+
+        this.http.post(`http://localhost:3000/audits`, auditPayload).subscribe({
+          next: () => this.globalService.notifyAuditsChanged()
+        });
+
+        this.closeModal();
+        this.loadWorkflows();
+        this.globalService.notifyWorkflowsChanged();
+      },
+      error: err => {
+        console.error(err);
+        Swal.fire('Error', 'Failed to create workflow', 'error');
       }
     });
   }
+}
+
+deleteWorkflow(id?: number | string, auditId?: string): void {
+  if (!id) return;
+
+  Swal.fire({
+    title: 'Delete workflow?',
+    text: 'This will remove the workflow, linked audit, and all tasks.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete it!'
+  }).then(result => {
+    if (result.isConfirmed) {
+      this.globalService.delete(id).subscribe({
+        next: () => {
+          // 🔹 Also delete linked audit if auditId is provided
+          if (auditId) {
+            this.http.delete(`http://localhost:3000/audits/${auditId}`).subscribe({
+              next: () => this.globalService.notifyAuditsChanged(),
+              error: err => console.warn('Failed to delete linked audit', err)
+            });
+          }
+
+          Swal.fire('Deleted', 'Workflow and linked audit deleted', 'success');
+          this.loadWorkflows();
+          this.hideDetails();
+          this.globalService.notifyWorkflowsChanged();
+        },
+        error: err => {
+          console.error(err);
+          Swal.fire('Error', 'Failed to delete workflow', 'error');
+        }
+      });
+    }
+  });
+}
+
 
   openAddTask(): void {
     this.taskForm.reset({ status: 'Pending' });

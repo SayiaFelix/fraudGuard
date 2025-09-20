@@ -12,7 +12,7 @@ import { ConfirmDialogComponent } from "../../../../../shared/components/confirm
 import { SwalComponent } from "@sweetalert2/ngx-sweetalert2";
 import Swal from "sweetalert2";
 import { GlobalService } from 'src/app/shared/services/global.service';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 
@@ -70,13 +70,29 @@ export class ListFailedRegistrationsComponent implements OnInit {
     this.viewDate = { year: today.getFullYear(), month: today.getMonth() + 1, day: today.getDate() };
   }
 
-  ngOnInit() {
+ private subs: Subscription[] = [];
+
+ngOnInit() {
   this.loadAudits();
 
-  this.globalService.auditsChanged$.subscribe(() => {
-    this.loadAudits();
-  });
-  }
+  this.subs.push(
+    this.globalService.observationsChanged$.subscribe(() => {
+      console.log('🔄 Observations changed, refreshing parent...');
+      this.loadAudits();
+    })
+  );
+
+  this.subs.push(
+    this.globalService.auditsChanged$.subscribe(() => {
+      this.loadAudits();
+    })
+  );
+}
+
+ngOnDestroy() {
+  this.subs.forEach(s => s.unsubscribe());
+}
+
 
   isAuditDay(date: { year: number; month: number; day: number }): boolean {
     const d = `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`;
