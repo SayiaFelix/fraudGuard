@@ -69,8 +69,6 @@ export class AddCustomerComponent implements OnInit {
   });
   }
 
-  
-
   loadAudits(): void {
     this.isLoading = true;
     this.http.get<any[]>(this.apiUrl).subscribe({
@@ -162,42 +160,73 @@ export class AddCustomerComponent implements OnInit {
   closeAddAuditModal(): void {
     this.isAddAuditModalVisible = false;
   }
-  
-  // saveAudit(): void {
-  // if (this.addAuditForm.invalid) {
-  //   this.toastr.warning('Please fill all required fields.', 'Invalid Form');
-  //   return;
-  // }
 
-  // const formData = this.addAuditForm.value;
+//   saveAudit(): void {
+//   if (this.addAuditForm.invalid) {
+//     this.toastr.warning('Please fill all required fields.', 'Invalid Form');
+//     return;
+//   }
 
-  // if (this.selectedAudit) {
-  //   this.http.put(`${this.apiUrl}/${this.selectedAudit.id}`, {
-  //     ...formData,
-  //     id: this.selectedAudit.id
-  //   }).subscribe({
-  //     next: () => {
-  //       Swal.fire('Updated', 'Audit updated successfully!', 'success');
-  //       this.loadAudits();
-  //       this.closeAddAuditModal();
-  //         this.hideAuditDetails();
-  //       this.globalService.notifyAuditsChanged();  // 🔔 notify parent
-  //     }
-  //   });
-  // } else {
-  //   this.http.post(this.apiUrl, formData).subscribe({
-  //     next: () => {
-  //       Swal.fire('Created', 'Audit added successfully!', 'success');
-  //       this.loadAudits();
-  //       this.closeAddAuditModal();
-  //       this.hideAuditDetails();
-  //       this.globalService.notifyAuditsChanged();  // 🔔 notify parent
-  //     }
-  //   });
-  // }
-  // }
+//   const formData = this.addAuditForm.value;
 
-  saveAudit(): void {
+//   if (this.selectedAudit) {
+//     // Update audit
+//     this.http.put(`${this.apiUrl}/${this.selectedAudit.id}`, {
+//       ...formData,
+//       id: this.selectedAudit.id
+//     }).subscribe({
+//       next: () => {
+//         Swal.fire('Updated', 'Audit updated successfully!', 'success');
+//         this.loadAudits();
+//         this.closeAddAuditModal();
+//         this.hideAuditDetails();
+//         this.globalService.notifyAuditsChanged();
+
+//         // 🔹 Also update the workflow
+//         const workflowPayload = {
+//           auditId: this.selectedAudit.id,
+//           title: formData.title,
+//           scope: formData.scope,
+//           department: formData.department,
+//           assignedTo: '',
+//           status: formData.status === 'Planned' ? 'Not Started' : formData.status,
+//           startDate: formData.startDate,
+//           dueDate: formData.endDate,
+//           tasks: []
+//         };
+//         this.http.put(`http://localhost:3000/workflows/${this.selectedAudit.id}`, workflowPayload).subscribe();
+//       }
+//     });
+//   } else {
+//     // Create audit
+//     this.http.post<any>(this.apiUrl, formData).subscribe({
+//       next: (createdAudit) => {
+//         Swal.fire('Created', 'Audit added successfully!', 'success');
+//         this.loadAudits();
+//         this.closeAddAuditModal();
+//         this.hideAuditDetails();
+//         this.globalService.notifyAuditsChanged();
+
+//         // 🔹 Also create linked workflow
+//         const workflowPayload = {
+//           id: createdAudit.id, // reuse same id for easy linking
+//           auditId: createdAudit.id,
+//           title: createdAudit.title,
+//           scope: createdAudit.scope,
+//           department: createdAudit.department,
+//           assignedTo: '',
+//           status: createdAudit.status === 'Planned' ? 'Not Started' : createdAudit.status,
+//           startDate: createdAudit.startDate,
+//           dueDate: createdAudit.endDate,
+//           tasks: []
+//         };
+//         this.http.post(`http://localhost:3000/workflows`, workflowPayload).subscribe();
+//       }
+//     });
+//   }
+// }
+
+saveAudit(): void {
   if (this.addAuditForm.invalid) {
     this.toastr.warning('Please fill all required fields.', 'Invalid Form');
     return;
@@ -206,7 +235,7 @@ export class AddCustomerComponent implements OnInit {
   const formData = this.addAuditForm.value;
 
   if (this.selectedAudit) {
-    // Update audit
+    // ------------------- UPDATE AUDIT -------------------
     this.http.put(`${this.apiUrl}/${this.selectedAudit.id}`, {
       ...formData,
       id: this.selectedAudit.id
@@ -218,23 +247,32 @@ export class AddCustomerComponent implements OnInit {
         this.hideAuditDetails();
         this.globalService.notifyAuditsChanged();
 
-        // 🔹 Also update the workflow
-        const workflowPayload = {
-          auditId: this.selectedAudit.id,
-          title: formData.title,
-          scope: formData.scope,
-          department: formData.department,
-          assignedTo: '',
-          status: formData.status === 'Planned' ? 'Not Started' : formData.status,
-          startDate: formData.startDate,
-          dueDate: formData.endDate,
-          tasks: []
-        };
-        this.http.put(`http://localhost:3000/workflows/${this.selectedAudit.id}`, workflowPayload).subscribe();
-      }
+        // 🔹 Sync workflow (find by auditId first)
+        this.http.get<any[]>(`http://localhost:3000/workflows?auditId=${this.selectedAudit.id}`).subscribe({
+          next: (workflows) => {
+            if (workflows.length > 0) {
+              const wf = workflows[0];
+              const updatedWf = {
+                ...wf,
+                title: formData.title,
+                scope: formData.scope,
+                department: formData.department,
+                status: formData.status === 'Planned' ? 'Not Started' : formData.status,
+                startDate: formData.startDate,
+                dueDate: formData.endDate
+              };
+              this.http.put(`http://localhost:3000/workflows/${wf.id}`, updatedWf).subscribe({
+                next: () => this.globalService.notifyWorkflowsChanged()
+              });
+            }
+          }
+        });
+      },
+      error: () => this.toastr.error('Failed to update audit')
     });
+
   } else {
-    // Create audit
+    // ------------------- CREATE AUDIT -------------------
     this.http.post<any>(this.apiUrl, formData).subscribe({
       next: (createdAudit) => {
         Swal.fire('Created', 'Audit added successfully!', 'success');
@@ -243,9 +281,9 @@ export class AddCustomerComponent implements OnInit {
         this.hideAuditDetails();
         this.globalService.notifyAuditsChanged();
 
-        // 🔹 Also create linked workflow
+        // 🔹 Create linked workflow with same id
         const workflowPayload = {
-          id: createdAudit.id, // reuse same id for easy linking
+          id: createdAudit.id,  // force same id
           auditId: createdAudit.id,
           title: createdAudit.title,
           scope: createdAudit.scope,
@@ -254,13 +292,19 @@ export class AddCustomerComponent implements OnInit {
           status: createdAudit.status === 'Planned' ? 'Not Started' : createdAudit.status,
           startDate: createdAudit.startDate,
           dueDate: createdAudit.endDate,
-          tasks: []
+          tasks: [],
+          miniFindings: []
         };
-        this.http.post(`http://localhost:3000/workflows`, workflowPayload).subscribe();
-      }
+
+        this.http.post(`http://localhost:3000/workflows`, workflowPayload).subscribe({
+          next: () => this.globalService.notifyWorkflowsChanged()
+        });
+      },
+      error: () => this.toastr.error('Failed to create audit')
     });
   }
 }
+
 
 deleteAudit(id: number): void {
   Swal.fire({
@@ -278,8 +322,8 @@ deleteAudit(id: number): void {
           this.loadAudits();
           this.hideAuditDetails();
 
-          // 🔹 Also delete linked workflow
           this.http.delete(`http://localhost:3000/workflows/${id}`).subscribe();
+          this.globalService.notifyAuditsChanged();
         },
         error: () => {
           Swal.fire('Error', 'Could not delete audit.', 'error');
@@ -288,31 +332,6 @@ deleteAudit(id: number): void {
     }
   });
 }
-
-
-  // deleteAudit(id: number): void {
-  //   Swal.fire({
-  //     title: 'Are you sure?',
-  //     text: 'This action cannot be undone.',
-  //     icon: 'warning',
-  //     showCancelButton: true,
-  //     confirmButtonText: 'Yes, delete it!',
-  //     cancelButtonText: 'Cancel'
-  //   }).then(result => {
-  //     if (result.isConfirmed) {
-  //       this.http.delete(`${this.apiUrl}/${id}`).subscribe({
-  //         next: () => {
-  //           Swal.fire('Deleted!', 'Audit has been deleted.', 'success');
-  //           this.loadAudits();
-  //           this.hideAuditDetails();
-  //         },
-  //         error: () => {
-  //           Swal.fire('Error', 'Could not delete audit.', 'error');
-  //         }
-  //       });
-  //     }
-  //   });
-  // }
 
   openObservations(audit: any): void {
   this.router.navigate(['/eclectics/audit_management/audits/observation', audit.id]);

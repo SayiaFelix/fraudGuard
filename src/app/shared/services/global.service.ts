@@ -70,6 +70,16 @@ list(): Observable<Workflow[]> {
     return this.http.delete<void>(`${this.api}/${id}`);
   }
   
+  private auditsChanged = new Subject<void>();
+  private workflowsChanged = new Subject<void>();
+
+  auditsChanged$ = this.auditsChanged.asObservable();
+  workflowsChanged$ = this.workflowsChanged.asObservable();
+
+  notifyWorkflowsChanged() {
+    this.workflowsChanged.next();
+  }
+
 
 updateBotStatus(update: { id: number, is_active: boolean }) {
     this.botStatusSubject.next(update);
@@ -84,7 +94,6 @@ setBotStatus(status: { id: number, is_active: boolean }) {
 }
 
  private auditsChangedSource = new Subject<void>();
-  auditsChanged$ = this.auditsChangedSource.asObservable();
 
   notifyAuditsChanged() {
     this.auditsChangedSource.next();
