@@ -20,34 +20,20 @@
       "email": "unit@gmail.com",
       "password": "unit@123456",
       "role": "AuditUnit"
-    },
-    {
-      "id": "1758204985674",
-      "username": "cia2",
-      "email": "cia2@gmail.com",
-      "password": "Jaysafu@12345",
-      "role": "CIA"
-    },
-    {
-      "id": "1758211496741",
-      "username": "unit",
-      "email": "unit2@gmail.com",
-      "password": "cia@123456dfsew",
-      "role": "AuditUnit"
     }
   ],
   "audits": [
     {
+      "id": "a1",
       "title": "Q1 Financial Audit",
       "scope": "Review financial transactions Jan–Mar",
       "department": "Finance",
       "status": "Completed",
       "startDate": "2025-01-10",
-      "endDate": "2025-01-20",
-      "id": "fwe12"
+      "endDate": "2025-01-20"
     },
     {
-      "id": "ewqwq",
+      "id": "a2",
       "title": "IT Security Review",
       "scope": "Check system vulnerabilities",
       "department": "IT",
@@ -56,7 +42,7 @@
       "endDate": "2025-02-15"
     },
     {
-      "id": "4b96",
+      "id": "a3",
       "title": "Performance Audit",
       "scope": "Review performance KPIs for last 3 months",
       "department": "EBU",
@@ -65,150 +51,182 @@
       "endDate": "2025-09-30"
     },
     {
-      "id": "7ac3",
-      "title": "Compliance Audit",
-      "scope": "Check adherence to regulatory requirements",
-      "department": "Legal",
+      "title": "Marketing Audits",
+      "scope": "Review advertising spend and ROI",
+      "department": "Market",
       "status": "Planned",
-      "startDate": "2025-10-05",
-      "endDate": "2025-10-15"
-    },
+      "startDate": "2025-09-22",
+      "endDate": "2025-10-03",
+      "id": "64b0"
+    }
+  ],
+  "workflows": [
     {
-      "title": "Procurement Audit",
-      "scope": "Review supplier contracts and tendering process",
-      "department": "Proc",
-      "status": "Planned",
-      "startDate": "2025-11-01",
-      "endDate": "2025-11-12",
-      "id": "9ff1"
-    },
-    {
-      "title": "ELO",
-      "scope": "ergerg",
-      "department": "EBU",
+      "id": "a1",
+      "auditId": "a1",
+      "title": "Q1 Financial Audit Workflow",
+      "scope": "Financial transactions testing",
+      "department": "Finance",
+      "assignedTo": "auditor1",
       "status": "Completed",
-      "startDate": "2025-09-18",
-      "endDate": "2025-09-23",
-      "id": "2b93"
+      "startDate": "2025-01-10",
+      "dueDate": "2025-01-20",
+      "tasks": [
+        {
+          "id": "t1",
+          "description": "Review ledger entries",
+          "assignee": "auditor1",
+          "status": "Done",
+          "dueDate": "2025-01-15"
+        },
+        {
+          "id": "t2",
+          "description": "Reconcile bank statements",
+          "assignee": "auditor2",
+          "status": "Done",
+          "dueDate": "2025-01-18"
+        }
+      ]
     },
     {
-      "title": "Research",
-      "scope": "wehwiojfew",
-      "department": "RND",
-      "status": "Planned",
-      "startDate": "2025-09-23",
-      "endDate": "2025-09-30",
-      "id": "3273"
+      "id": "a2",
+      "auditId": "a2",
+      "title": "IT Security Workflow",
+      "scope": "System vulnerabilities testing",
+      "department": "IT",
+      "assignedTo": "auditor2",
+      "status": "In Progress",
+      "startDate": "2025-02-01",
+      "dueDate": "2025-02-15",
+      "tasks": [
+        {
+          "id": "t3",
+          "description": "Run penetration testing",
+          "assignee": "auditor2",
+          "status": "In Progress",
+          "dueDate": "2025-02-10"
+        },
+        {
+          "id": "t4",
+          "description": "Review firewall logs",
+          "assignee": "auditor1",
+          "status": "Pending",
+          "dueDate": "2025-02-12"
+        }
+      ],
+      "miniFindings": [
+        {
+          "taskId": "t3",
+          "description": "ggreergre",
+          "severity": "Medium",
+          "status": "Noted",
+          "id": "1758359450338",
+          "createdAt": "2025-09-20"
+        }
+      ]
+    },
+    {
+      "id": "a3",
+      "auditId": "a3",
+      "title": "Performance Audit Workflow",
+      "scope": "KPI review",
+      "department": "EBU",
+      "assignedTo": "auditor1",
+      "status": "Completed",
+      "startDate": "2025-09-11",
+      "dueDate": "2025-09-30",
+      "tasks": [
+        {
+          "id": "t5",
+          "description": "Collect KPI reports",
+          "assignee": "auditor1",
+          "status": "Done",
+          "dueDate": "2025-09-15"
+        },
+        {
+          "id": "t6",
+          "description": "Validate department submissions",
+          "assignee": "auditor2",
+          "status": "Done",
+          "dueDate": "2025-09-20"
+        }
+      ]
+    },
+    {
+      "title": "Marketing Audit",
+      "scope": "Review advertising spend and ROI",
+      "department": "Marketing",
+      "assignedTo": "Auditor",
+      "status": "Not Started",
+      "startDate": "2025-09-22",
+      "dueDate": "2025-10-03",
+      "tasks": [],
+      "id": "64b0"
     }
   ],
   "observations": [
     {
       "id": "o1",
-      "auditId": "fwe12",
+      "auditId": "a1",
       "description": "Unauthorized system access detected",
       "severity": "High",
       "status": "Open",
       "recommendation": "Implement stronger access controls",
-      "createdAt": "2025-09-15"
+      "createdAt": "2025-09-15",
+      "findings": [
+        {
+          "id": "f1",
+          "summary": "2 logins outside business hours",
+          "impact": "High"
+        },
+        {
+          "id": "f2",
+          "summary": "No MFA on admin accounts",
+          "impact": "High"
+        }
+      ]
     },
     {
       "id": "o2",
-      "auditId": "fwe12",
-      "description": "Late financial reporting",
-      "severity": "Low",
-      "status": "Closed",
-      "recommendation": "Establish stricter deadlines",
-      "createdAt": "2025-09-10"
-    },
-    {
-      "id": "o3",
-      "auditId": "fwe12",
-      "description": "Unreconciled transactions in ledger",
-      "severity": "Medium",
-      "status": "In Progress",
-      "recommendation": "Automate reconciliation checks",
-      "createdAt": "2025-09-20"
-    },
-    {
-      "id": "o4",
-      "auditId": "ewqwq",
-      "description": "Delayed payroll processing",
-      "severity": "Medium",
-      "status": "In Progress",
-      "recommendation": "Automate payroll reconciliation",
-      "createdAt": "2025-09-18"
-    },
-    {
-      "id": "o5",
-      "auditId": "ewqwq",
+      "auditId": "a2",
       "description": "Weak password policy",
       "severity": "High",
       "status": "Open",
       "recommendation": "Enforce MFA and strong passwords",
-      "createdAt": "2025-09-17"
+      "createdAt": "2025-09-17",
+      "findings": [
+        {
+          "id": "f3",
+          "summary": "Found 10 users with '12345' passwords",
+          "impact": "High"
+        },
+        {
+          "id": "f4",
+          "summary": "Policy allows passwords under 6 chars",
+          "impact": "Medium"
+        }
+      ]
     },
     {
-      "id": "o6",
-      "auditId": "ewqwq",
-      "description": "Unpatched servers identified",
-      "severity": "High",
-      "status": "Open",
-      "recommendation": "Apply latest security patches",
-      "createdAt": "2025-09-14"
-    },
-    {
-      "description": "Missing receipts for 10 transactions",
-      "severity": "High",
-      "status": "In Progress",
-      "recommendation": "Enforce dual approvals",
-      "auditId": "4b96",
-      "createdAt": "2025-09-19",
-      "id": "o7"
-    },
-    {
-      "description": "Low staff productivity levels",
-      "severity": "Medium",
-      "status": "Closed",
-      "recommendation": "Implement performance tracking",
-      "auditId": "4b96",
-      "createdAt": "2025-09-19",
-      "id": "o8"
-    },
-    {
-      "id": "o9",
-      "auditId": "4b96",
-      "description": "Delayed project reporting",
-      "severity": "Low",
-      "status": "Closed",
-      "recommendation": "Adopt automated dashboards",
-      "createdAt": "2025-09-16"
-    },
-    {
-      "id": "o10",
-      "auditId": "7ac3",
-      "description": "Non-compliance with tax regulation",
-      "severity": "High",
-      "status": "Open",
-      "recommendation": "Conduct tax compliance review",
-      "createdAt": "2025-09-19"
-    },
-    {
-      "id": "o11",
-      "auditId": "7ac3",
-      "description": "Missing regulatory filings",
+      "id": "o3",
+      "auditId": "a3",
+      "description": "Unreconciled transactions in ledger",
       "severity": "Medium",
       "status": "In Progress",
-      "recommendation": "Automate compliance calendar",
-      "createdAt": "2025-09-18"
-    },
-    {
-      "id": "o12",
-      "auditId": "7ac3",
-      "description": "Policies not updated",
-      "severity": "Low",
-      "status": "Closed",
-      "recommendation": "Update compliance manuals annually",
-      "createdAt": "2025-09-17"
+      "recommendation": "Automate reconciliation checks",
+      "createdAt": "2025-09-20",
+      "findings": [
+        {
+          "id": "f5",
+          "summary": "5 unreconciled transactions > $10,000",
+          "impact": "High"
+        },
+        {
+          "id": "f6",
+          "summary": "Delayed reconciliations by 7 days",
+          "impact": "Medium"
+        }
+      ]
     }
   ]
 }

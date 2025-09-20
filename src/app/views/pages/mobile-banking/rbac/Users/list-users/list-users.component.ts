@@ -1,8 +1,40 @@
-// ====================================================================================
-// FINAL, CORRECTED `list-users.component.ts`. PLEASE REPLACE THE ENTIRE FILE.
-// ====================================================================================
-
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, HostListener } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Observable } from 'rxjs';
+import { GlobalService } from 'src/app/shared/services/global.service';
+import Swal from 'sweetalert2';
+
+export interface Task {
+  id: number;
+  description: string;
+  assignee?: string;
+  status: string;
+  dueDate?: string; 
+}
+
+
+export interface MiniFinding {
+  id?: string;
+  taskId?: string;
+  description: string;
+  severity: 'Low' | 'Medium' | 'High';
+  status: 'Noted' | 'Confirmed';
+  createdAt?: string;
+}
+
+export interface Workflow {
+  id?: number | string;
+  title: string;
+  scope?: string;
+  department?: string;
+  assignedTo?: string;
+  status?: 'Not Started' | 'In Progress' | 'Under Review' | 'Completed';
+  startDate?: string;
+  dueDate?: string;
+  tasks?: Task[];
+  miniFindings?: MiniFinding[];   // ✅ new field
+}
 
 @Component({
   selector: 'app-list-users',
@@ -10,74 +42,415 @@ import { Component, OnInit, HostListener } from '@angular/core';
   styleUrls: ['./list-users.component.scss']
 })
 export class ListUsersComponent implements OnInit {
-  public isSidebarVisible: boolean = false;
-  public selectedLivechat: any = null;
-
-  // --- Dropdown State ---
-  public activeDropdown: 'assignee' | 'team' | 'tags' | 'status' | 'date' | null = null;
   
-  // Static data for the dropdowns
-  public assigneesList = [
-    { name: 'ndungu.joseph', initials: 'N' },
-    { name: 'Bridged Mwende', initials: 'BM' },
-    { name: 'Chris Kahiga', initials: 'CK' },
-    { name: 'Fareedah Okunade', initials: 'FO' },
-    { name: 'Felix Lucas Sayia', initials: 'FL' },
-    { name: 'George Maputol', initials: 'GM' },
-    { name: 'Harith Said', initials: 'HS' }
-  ];
+  private api = 'http://localhost:3000/workflows'; 
+  
+   // UI state
+  isDetailsPanelVisible = false;
+  selectedWorkflow: Workflow | null = null;
+  isAddEditModalVisible = false;
+  isEditMode = false;
 
-  public statusesList = [
-    { name: 'Open', color: 'blue' },
-    { name: 'Pending', color: 'orange' },
-    { name: 'Overdue', color: 'red' },
-    { name: 'Resolved', color: 'green' },
-    { name: 'Closed', color: 'gray' }
-  ];
+  // Data
+  allWorkflows: Workflow[] = [];
+  visibleWorkflows: Workflow[] = [];
+  recordsToShow = 20;
+  isLoading = false;
 
-  constructor() { }
+  // Filters
+  searchTerm = '';
+  departmentFilter = '';
+  statusFilter = '';
+
+  // Forms
+  workflowForm: FormGroup;
+  taskForm: FormGroup;
+   miniFindingForm: FormGroup;
+
+  constructor(
+    private http: HttpClient,
+    private fb: FormBuilder,
+    private globalService: GlobalService
+  ) {
+    this.workflowForm = this.fb.group({
+      title: ['', Validators.required],
+      scope: [''],
+      department: [''],
+      assignedTo: [''],
+      status: ['Not Started', Validators.required],
+      startDate: ['', Validators.required],
+      dueDate: ['', Validators.required]
+    });
+
+    this.taskForm = this.fb.group({
+      description: ['', Validators.required],
+      assignee: [''],
+      status: ['Pending', Validators.required],
+      dueDate: ['']
+    });
+
+    this.miniFindingForm = this.fb.group({
+    taskId: ['', Validators.required],
+    description: ['', Validators.required],
+    severity: ['Low', Validators.required],
+    status: ['Noted', Validators.required]
+  });
+  }
+
 
   ngOnInit(): void {
+    this.loadWorkflows();
   }
 
-  // This helps us close the dropdown if the user clicks anywhere else on the page
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    const target = event.target as HTMLElement;
-    if (!target.closest('.filter-item')) {
-      this.activeDropdown = null;
+//   addMiniFinding(): void {
+//   if (!this.selectedWorkflow) return;
+//   if (this.miniFindingForm.invalid) {
+//     this.miniFindingForm.markAllAsTouched();
+//     return;
+//   }
+
+//   const finding: MiniFinding = {
+//     ...this.miniFindingForm.value,
+//     id: Date.now().toString(),
+//     createdAt: new Date().toISOString().split('T')[0]
+//   };
+
+//   const updated = {
+//     ...this.selectedWorkflow,
+//     miniFindings: [...(this.selectedWorkflow.miniFindings || []), finding]
+//   };
+
+//   this.globalService.update(updated.id!, updated).subscribe({
+//     next: wf => {
+//       this.selectedWorkflow = wf;
+//       this.loadWorkflows();
+//       this.miniFindingForm.reset({ severity: 'Low', status: 'Noted' });
+//     },
+//     error: err => console.error('Failed to add mini finding', err)
+//   });
+// }
+
+deleteMiniFinding(id: string): void {
+  if (!this.selectedWorkflow) return;
+  const updated = {
+    ...this.selectedWorkflow,
+    miniFindings: (this.selectedWorkflow.miniFindings || []).filter(mf => mf.id !== id)
+  };
+
+  this.globalService.update(updated.id!, updated).subscribe({
+    next: wf => {
+      this.selectedWorkflow = wf;
+      this.loadWorkflows();
+    },
+    error: err => console.error('Failed to delete mini finding', err)
+  });
+}
+
+isTaskModalVisible = false;
+isFindingModalVisible = false;
+
+openFindingModal(): void {
+    if (!this.selectedWorkflow) return;
+    this.miniFindingForm.reset({
+      taskId: '',
+      description: '',
+      severity: 'Low',
+      status: 'Noted'
+    });
+    this.isFindingModalVisible = true;
+  }
+
+  closeFindingModal(): void {
+    this.isFindingModalVisible = false;
+  }
+
+  addMiniFinding(): void {
+    if (!this.selectedWorkflow) return;
+    if (this.miniFindingForm.invalid) {
+      this.miniFindingForm.markAllAsTouched();
+      return;
+    }
+    const finding: MiniFinding = {
+      ...this.miniFindingForm.value,
+      id: Date.now().toString(),
+      createdAt: new Date().toISOString().split('T')[0]
+    };
+    const updated = {
+      ...this.selectedWorkflow,
+      miniFindings: [...(this.selectedWorkflow.miniFindings || []), finding]
+    };
+    this.globalService.update(updated.id!, updated).subscribe({
+      next: wf => {
+        this.selectedWorkflow = wf;
+        this.loadWorkflows();
+        this.closeFindingModal();
+      },
+      error: err => console.error('Failed to add mini finding', err)
+    });
+  }
+
+openTaskModal() { this.isTaskModalVisible = true; }
+closeTaskModal() { this.isTaskModalVisible = false; }
+
+
+loadWorkflows(): void {
+    this.isLoading = true;
+    this.globalService.list().subscribe({
+      next: (res) => {
+        // Ensure tasks array present
+        this.allWorkflows = res.map(w => ({ tasks: [], ...w }));
+        this.applyFiltersAndPagination();
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Failed to load workflows', err);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  applyFiltersAndPagination(): void {
+    let list = [...this.allWorkflows];
+    const search = this.searchTerm.trim().toLowerCase();
+    if (search) {
+      list = list.filter(w =>
+        (w.title || '').toLowerCase().includes(search) ||
+        (w.department || '').toLowerCase().includes(search) ||
+        (w.assignedTo || '').toLowerCase().includes(search)
+      );
+    }
+    if (this.departmentFilter) {
+      list = list.filter(w => (w.department || '').toLowerCase().includes(this.departmentFilter.toLowerCase()));
+    }
+    if (this.statusFilter) {
+      list = list.filter(w => (w.status || '').toLowerCase() === this.statusFilter.toLowerCase());
+    }
+
+    this.visibleWorkflows = list.slice(0, this.recordsToShow);
+  }
+
+  loadMore(): void {
+    this.recordsToShow += 20;
+    this.applyFiltersAndPagination();
+  }
+
+  resetFilters(): void {
+    this.searchTerm = '';
+    this.departmentFilter = '';
+    this.statusFilter = '';
+    this.applyFiltersAndPagination();
+  }
+
+  // --- Details panel ----------------------------------------------
+  showWorkflowDetails(w: Workflow): void {
+    if (this.selectedWorkflow && this.selectedWorkflow.id === w.id) {
+      this.hideDetails();
+      return;
+    }
+    // show immediately basic data, and fetch latest (optional)
+    this.selectedWorkflow = { ...w };
+    this.isDetailsPanelVisible = true;
+
+    // If you want to refresh from server:
+    if (w.id) {
+      this.globalService.get(w.id).subscribe({
+        next: wf => this.selectedWorkflow = wf,
+        error: err => console.warn('Could not fetch workflow details', err)
+      });
     }
   }
-  
-  /**
-   * Toggles the visibility of a specific filter dropdown.
-   */
-  toggleDropdown(event: MouseEvent, dropdownName: 'assignee' | 'team' | 'tags' | 'status' | 'date'): void {
-    event.stopPropagation(); 
-    if (this.activeDropdown === dropdownName) {
-      this.activeDropdown = null;
+
+  hideDetails(): void {
+    this.isDetailsPanelVisible = false;
+    this.selectedWorkflow = null;
+  }
+
+  openAddModal(): void {
+    this.isEditMode = false;
+    this.workflowForm.reset({ status: 'Not Started' });
+    const today = new Date().toISOString().split('T')[0];
+    this.workflowForm.patchValue({ startDate: today, dueDate: today });
+    this.isAddEditModalVisible = true;
+    this.selectedWorkflow = null;
+  }
+
+  openEditModal(w: Workflow): void {
+    this.isEditMode = true;
+    this.isAddEditModalVisible = true;
+    this.selectedWorkflow = w;
+    this.workflowForm.patchValue({
+      title: w.title,
+      scope: w.scope || '',
+      department: w.department || '',
+      assignedTo: w.assignedTo || '',
+      status: w.status || 'Not Started',
+      startDate: w.startDate || '',
+      dueDate: w.dueDate || ''
+    });
+  }
+
+  closeModal(): void {
+    this.isAddEditModalVisible = false;
+    this.isEditMode = false;
+    this.workflowForm.reset();
+  }
+
+  saveWorkflow(): void {
+    if (this.workflowForm.invalid) {
+      this.workflowForm.markAllAsTouched();
+      return;
+    }
+    const payload: Workflow = {
+      ...this.workflowForm.value,
+      tasks: this.selectedWorkflow?.tasks || []
+    };
+
+    if (this.isEditMode && this.selectedWorkflow && this.selectedWorkflow.id) {
+      this.globalService.update(this.selectedWorkflow.id!, payload).subscribe({
+        next: () => {
+          Swal.fire('Updated', 'Workflow updated', 'success');
+          this.closeModal();
+          this.loadWorkflows();
+        },
+        error: err => {
+          console.error(err);
+          Swal.fire('Error', 'Failed to update', 'error');
+        }
+      });
     } else {
-      this.activeDropdown = dropdownName;
+      // Create
+      this.globalService.create(payload).subscribe({
+        next: () => {
+          Swal.fire('Created', 'Workflow created', 'success');
+          this.closeModal();
+          this.loadWorkflows();
+        },
+        error: err => {
+          console.error(err);
+          Swal.fire('Error', 'Failed to create', 'error');
+        }
+      });
     }
   }
 
-  // --- ADDED: Methods to control the details sidebar ---
-
-  /**
-   * Shows the sidebar and sets the selected chat data.
-   * For now, we pass a static object for design purposes.
-   * @param chat The chat object from the row that was clicked.
-   */
-  showDetailsSidebar(chat: any): void {
-    this.selectedLivechat = chat;
-    this.isSidebarVisible = true;
+  deleteWorkflow(id?: number | string): void {
+    if (!id) return;
+    Swal.fire({
+      title: 'Delete workflow?',
+      text: 'This will remove workflow and all tasks',
+      icon: 'warning',
+      showCancelButton: true
+    }).then(result => {
+      if (result.isConfirmed) {
+        this.globalService.delete(id).subscribe({
+          next: () => {
+            Swal.fire('Deleted', 'Workflow deleted', 'success');
+            this.loadWorkflows();
+            this.hideDetails();
+          },
+          error: err => {
+            console.error(err);
+            Swal.fire('Error', 'Failed to delete', 'error');
+          }
+        });
+      }
+    });
   }
 
-  /**
-   * Hides the sidebar.
-   */
-  hideDetailsSidebar(): void {
-    this.isSidebarVisible = false;
-    this.selectedLivechat = null; // Clear the selection
+  openAddTask(): void {
+    this.taskForm.reset({ status: 'Pending' });
+    // We'll use the modal in details panel DOM to add
   }
+
+  addTaskToSelected(): void {
+    if (!this.selectedWorkflow) return;
+    if (this.taskForm.invalid) {
+      this.taskForm.markAllAsTouched();
+      return;
+    }
+    const newTask: Task = {
+      ...this.taskForm.value,
+      // id: Date.now(),
+      // status: this.taskForm.value.status as 'Pending' | 'In Progress' | 'Done'
+    };
+    const updated = { ...this.selectedWorkflow, tasks: [...(this.selectedWorkflow.tasks || []), newTask] };
+    // Persist update
+    this.globalService.update(updated.id!, updated).subscribe({
+      next: wf => {
+        this.selectedWorkflow = wf;
+        this.loadWorkflows();
+        this.taskForm.reset({ status: 'Pending' });
+      },
+      error: err => console.error('Failed to add task', err)
+    });
+  }
+
+  editTask(task: Task): void {
+    // populate taskForm and let user update then call updateTask()
+    this.taskForm.patchValue(task);
+  }
+
+  updateTask(taskId: number | string): void {
+    if (!this.selectedWorkflow) return;
+    if (this.taskForm.invalid) {
+      this.taskForm.markAllAsTouched();
+      return;
+    }
+    const tasks = (this.selectedWorkflow.tasks || []).map(t => 
+      t.id === taskId 
+        ? { 
+            ...t, 
+            ...this.taskForm.value, 
+            id: taskId, 
+            status: this.taskForm.value.status as 'Pending' | 'In Progress' | 'Done' 
+          } 
+        : t
+    );
+    const updated = { ...this.selectedWorkflow, tasks };
+    this.globalService.update(updated.id!, updated).subscribe({
+      next: wf => {
+        this.selectedWorkflow = wf;
+        this.loadWorkflows();
+        this.taskForm.reset({ status: 'Pending' });
+      },
+      error: err => console.error('Failed to update task', err)
+    });
+  }
+
+  deleteTask(taskId: number | string): void {
+    if (!this.selectedWorkflow) return;
+    const tasks = (this.selectedWorkflow.tasks || []).filter(t => t.id !== taskId);
+    const updated = { ...this.selectedWorkflow, tasks };
+    this.globalService.update(updated.id!, updated).subscribe({
+      next: wf => {
+        this.selectedWorkflow = wf;
+        this.loadWorkflows();
+      },
+      error: err => console.error('Failed to delete task', err)
+    });
+  }
+
+  toggleTaskStatus(task: Task): void {
+    if (!this.selectedWorkflow) return;
+    const newStatus = task.status === 'Done' ? 'Pending' : task.status === 'Pending' ? 'In Progress' : 'Done';
+    const tasks = (this.selectedWorkflow.tasks || []).map(t => t.id === task.id ? { ...t, status: newStatus } : t);
+    const updated = { ...this.selectedWorkflow, tasks };
+    this.globalService.update(updated.id!, updated).subscribe({
+      next: wf => {
+        this.selectedWorkflow = wf;
+        this.loadWorkflows();
+      },
+      error: err => console.error('Failed to update task status', err)
+    });
+  }
+
+  // --- helpers -----------------------------------------------
+  taskProgressPercent(w?: Workflow): number {
+    const wf = w || this.selectedWorkflow;
+    if (!wf || !wf.tasks || wf.tasks.length === 0) return 0;
+    const total = wf.tasks.length;
+    const done = wf.tasks.filter(t => t.status === 'Done').length;
+    return Math.round((done / total) * 100);
+  }
+
 }
