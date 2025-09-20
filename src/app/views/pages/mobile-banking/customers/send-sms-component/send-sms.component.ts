@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import Swal from "sweetalert2";
 import { ActivatedRoute } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { GlobalService } from 'src/app/shared/services/global.service';
 
 @Component({
   selector: 'app-list-observations',
@@ -43,7 +44,8 @@ export class SendSmsComponent implements OnInit {
     private route: ActivatedRoute,
     private http: HttpClient,
     private fb: FormBuilder,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private globalService: GlobalService
   ) {
     this.observationForm = this.fb.group({
       description: ['', Validators.required],
@@ -64,8 +66,7 @@ export class SendSmsComponent implements OnInit {
     this.loadAuditTitle();
     this.loadObservations();
   }
-
-
+  
 isDetailsPanelVisible = false;
 
 showObservationDetails(obs: any): void {
@@ -181,31 +182,32 @@ toggleObservationDetails(obs: any): void {
     this.isAddEditModalVisible = false;
   }
 
-//   saveObservation(): void {
-//   if (this.observationForm.invalid) {
-//     this.observationForm.markAllAsTouched();
-//     return;
-//   }
+  saveObservation(): void {
+  if (this.observationForm.invalid) {
+    this.observationForm.markAllAsTouched();
+    return;
+  }
 
-//   const formData = {
-//     ...this.observationForm.value,
-//     auditId: this.auditId,
-//     createdAt: this.isEditMode ? this.selectedObservation.createdAt : new Date().toISOString().slice(0, 10),
-//     findings: this.selectedObservation?.findings || []
-//   };
+  const formData = {
+    ...this.observationForm.value,
+    auditId: this.auditId,
+    createdAt: this.isEditMode ? this.selectedObservation.createdAt : new Date().toISOString().slice(0, 10),
+    findings: this.selectedObservation?.findings || []
+  };
 
-//   if (this.isEditMode && this.selectedObservation) {
-//     this.http.put(`${this.apiUrl}/${this.selectedObservation.id}`, formData).subscribe(() => {
-//       this.loadObservations();
-//       this.closeModal();
-//     });
-//   } else {
-//     this.http.post(this.apiUrl, formData).subscribe(() => {
-//       this.loadObservations();
-//       this.closeModal();
-//     });
-//   }
-// }
+  if (this.isEditMode && this.selectedObservation) {
+    this.http.put(`${this.apiUrl}/${this.selectedObservation.id}`, formData).subscribe(() => {
+      this.loadObservations();
+      this.closeModal();
+      this.globalService.notifyAuditsChanged();
+    });
+  } else {
+    this.http.post(this.apiUrl, formData).subscribe(() => {
+      this.loadObservations();
+      this.closeModal();
+    });
+  }
+}
 
 deleteObservation(id: string): void {
   Swal.fire({
@@ -285,46 +287,6 @@ saveFinding(): void {
     }
   });
 }
-
-
-  saveObservation(): void {
-    if (this.observationForm.invalid) {
-      this.observationForm.markAllAsTouched();
-      this.toastr.warning('Please fill all fields');
-      return;
-    }
-
-    const formData = {
-      ...this.observationForm.value,
-      auditId: this.auditId,
-      createdAt: new Date().toISOString().slice(0, 10),
-      findings: this.selectedObservation?.findings || []
-    };
-
-    if (this.isEditMode && this.selectedObservation) {
-      this.http.put(`${this.apiUrl}/${this.selectedObservation.id}`, {
-        ...formData,
-        id: this.selectedObservation.id
-      }).subscribe({
-        next: () => {
-          Swal.fire('Updated!', 'Observation updated successfully', 'success');
-          this.loadObservations();
-          this.closeModal();
-        },
-        error: () => this.toastr.error('Failed to update observation')
-      });
-    } else {
-      this.http.post(this.apiUrl, formData).subscribe({
-        next: () => {
-          Swal.fire('Created!', 'Observation added successfully', 'success');
-          this.loadObservations();
-          this.closeModal();
-        },
-        error: () => this.toastr.error('Failed to create observation')
-      });
-    }
-  }
-  
 
   openFindingModal(obs: any, finding: any = null): void {
     this.targetObservation = obs;
