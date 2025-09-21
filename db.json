@@ -34,8 +34,8 @@
     },
     {
       "id": "a2",
-      "title": "IT Security Review",
-      "scope": "Check system vulnerabilities",
+      "title": "IT Security Workflow",
+      "scope": "System vulnerabilities testing",
       "department": "IT",
       "status": "In Progress",
       "startDate": "2025-02-01",
@@ -51,22 +51,31 @@
       "endDate": "2025-09-30"
     },
     {
+      "id": "64b0",
       "title": "Marketing Audits",
       "scope": "Review advertising spend and ROI",
       "department": "Market",
       "status": "Planned",
       "startDate": "2025-09-22",
-      "endDate": "2025-10-03",
-      "id": "64b0"
+      "endDate": "2025-10-03"
     },
     {
-      "id": "408c",
-      "title": "cdsvds",
-      "scope": "sdvdsv",
-      "department": "sdvsd",
+      "id": "85aa",
+      "title": "eereew Workflow",
+      "scope": "bgdfgdf",
+      "department": "fdghjhi",
+      "status": "In Progress",
+      "startDate": "2025-09-21",
+      "endDate": "2025-09-24"
+    },
+    {
+      "id": "b62d",
+      "title": "fdsdfe",
+      "scope": "wfwew",
+      "department": "ewfewf",
       "status": "Planned",
-      "startDate": "2025-09-20",
-      "endDate": "2025-09-20"
+      "startDate": "2025-09-21",
+      "endDate": "2025-09-24"
     }
   ],
   "workflows": [
@@ -112,7 +121,7 @@
           "id": "t3",
           "description": "Run penetration testing",
           "assignee": "auditor2",
-          "status": "In Progress",
+          "status": "Done",
           "dueDate": "2025-02-10"
         },
         {
@@ -133,6 +142,27 @@
           "createdAt": "2025-09-20"
         }
       ]
+    },
+    {
+      "title": "Marketing Audits",
+      "scope": "Review advertising spend and ROI",
+      "department": "Market",
+      "status": "Not Started",
+      "startDate": "2025-09-22",
+      "dueDate": "2025-10-03",
+      "id": "64b0",
+      "auditId": "64b0",
+      "assignedTo": "auditor1",
+      "tasks": [
+        {
+          "id": "t1758439444442",
+          "description": "fwewe",
+          "assignee": "auditor1",
+          "status": "Pending",
+          "dueDate": "2025-09-23"
+        }
+      ],
+      "miniFindings": []
     },
     {
       "id": "a3",
@@ -160,18 +190,79 @@
           "dueDate": "2025-09-20"
         }
       ],
-      "miniFindings": []
+      "miniFindings": [
+        {
+          "description": "gewfwe",
+          "impact": "Low",
+          "status": "Confirmed",
+          "id": "1758438821625",
+          "createdAt": "2025-09-21"
+        }
+      ]
     },
     {
-      "title": "Marketing Audit",
-      "scope": "Review advertising spend and ROI",
-      "department": "Marketing",
-      "assignedTo": "Auditor",
+      "title": "eereew Workflow",
+      "scope": "bgdfgdf",
+      "department": "fdghjhi",
+      "assignedTo": "auditor",
+      "status": "In Progress",
+      "startDate": "2025-09-21",
+      "dueDate": "2025-09-24",
+      "id": "85aa",
+      "auditId": "85aa",
+      "tasks": [
+        {
+          "id": "t1758437610671",
+          "description": "dsfds",
+          "assignee": "cia1",
+          "status": "Done",
+          "dueDate": "2025-09-30"
+        },
+        {
+          "id": "t1758438875568",
+          "description": "gfegege",
+          "assignee": "auditor1",
+          "status": "Pending",
+          "dueDate": "2025-09-24"
+        },
+        {
+          "id": "t1758439171124",
+          "description": "vdsfds",
+          "assignee": "auditor1",
+          "status": "Pending",
+          "dueDate": "2025-09-30"
+        }
+      ],
+      "miniFindings": [
+        {
+          "taskId": "t1758438875568",
+          "description": "wewewfwe",
+          "severity": "Medium",
+          "status": "Noted",
+          "id": "1758439520711",
+          "createdAt": "2025-09-21"
+        },
+        {
+          "taskId": "t1758437610671",
+          "description": "rere",
+          "severity": "Medium",
+          "status": "Confirmed",
+          "id": "1758439758681",
+          "createdAt": "2025-09-21"
+        }
+      ]
+    },
+    {
+      "id": "b62d",
+      "auditId": "b62d",
+      "title": "fdsdfe Workflow",
+      "scope": "wfwew",
+      "department": "ewfewf",
+      "assignedTo": "",
       "status": "Not Started",
-      "startDate": "2025-09-22",
-      "dueDate": "2025-10-03",
+      "startDate": "2025-09-21",
+      "dueDate": "2025-09-24",
       "tasks": [],
-      "id": "64b0",
       "miniFindings": []
     }
   ],
@@ -266,7 +357,15 @@
       "recommendation": "ewfewfew",
       "auditId": "a3",
       "createdAt": "2025-09-20",
-      "findings": [],
+      "findings": [
+        {
+          "description": "gewfwe",
+          "impact": "Low",
+          "status": "Confirmed",
+          "id": "1758438821625",
+          "createdAt": "2025-09-21"
+        }
+      ],
       "id": "9444"
     }
   ]
