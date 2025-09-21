@@ -30,6 +30,7 @@ import {
 import { AddBenefitComponent } from './add-benefit/add-benefit.component';
 import {NgxPaginationModule} from "ngx-pagination";
 import { Ng2TelInputModule } from 'ng2-tel-input';
+import { SafeUrlPipe } from './safe-url.pipe';
 
 
 @NgModule({
@@ -42,7 +43,8 @@ import { Ng2TelInputModule } from 'ng2-tel-input';
         TranslateModule,
         CarouselModule,
         PerfectScrollbarModule,
-        NgxPaginationModule
+        NgxPaginationModule,
+     
     ],
   declarations: [
     ProductCategoriesComponent,
@@ -57,7 +59,8 @@ import { Ng2TelInputModule } from 'ng2-tel-input';
     ProductCategoriesComponentSubItem,
     ListAllProductsAsCardsComponent,
     ProductSubCategoriesAsCardsComponent,
-    AddBenefitComponent
+    AddBenefitComponent,
+      SafeUrlPipe
     
   ]
   ,
