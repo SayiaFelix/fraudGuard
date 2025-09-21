@@ -52,10 +52,20 @@ private api = 'http://localhost:3000/workflows';
   
   private apis = 'http://localhost:3000'; 
 
-  // Basic reads
-  getAudits(): Observable<Audit[]> {
-    return this.http.get<Audit[]>(`${this.apis}/audits`);
+  getAudits() {
+    return this.http.get<any[]>(`${this.apis}/audits`);
   }
+
+
+  getMISReports() {
+    return this.http.get<any[]>(`${this.apis}/misReports`);
+  }
+
+  getAll() {
+  return this.http.get<any>('http://localhost:3000');
+}
+
+  
   getWorkflows() { return this.http.get<Workflow[]>(`${this.apis}/workflows`); }
   getObservations() { return this.http.get<Observation[]>(`${this.apis}/observations`); }
 
