@@ -42,7 +42,7 @@ export const MENU: MenuItem[] = [
     label: 'MIS Reports',
     icon:'bar-chart',
     link: '/eclectics/analytic/reports',
-    roles: ['CIA'] // only CIA
+    // roles: ['CIA'] // only CIA
   },
   {
     label: 'Compliance',
