@@ -81,10 +81,9 @@
         </div>
       </div>
 
-       <div class="p-3" *ngIf="selectedWorkflow">
+       <div class="card p-3 shadow-sm" *ngIf="selectedWorkflow">
         <h3 class="fw-bold"><i class="fas fa-clipboard-list me-2 text-primary"></i> {{ selectedWorkflow.title }}</h3>
-        <p class="text-dark mb-1"><i class="fas fa-align-left me-2 text-muted"></i> {{ selectedWorkflow.scope }}</p>
-
+       
         <p><i class="fas fa-building me-2 text-secondary"></i> <strong>Department:</strong> {{ selectedWorkflow.department }}</p>
         <p><i class="fas fa-user me-2 text-info"></i> <strong>Assigned To:</strong> {{ selectedWorkflow.assignedTo }}</p>
         <p><i class="fas fa-flag me-2 text-warning"></i> <strong>Status: </strong>
@@ -98,18 +97,22 @@
             {{ selectedWorkflow.status }}
           </span>
         </p>
-
-      <div class="mb-3">
-        <i class="fas fa-chart-line me-2 text-success"></i>
-        <div class="progress" style="height:10px;">
-          <div class="progress-bar" role="progressbar" [style.width.%]="taskProgressPercent()"></div>
+    
+        <div class="mb-3 mt-1 d-flex align-items-center">
+          <!-- <i class="fas fa-chart-line me-2 text-success"></i> -->
+          <div class="flex-grow-1">
+            <div class="progress" style="height:10px;">
+              <div class="progress-bar bg-success" role="progressbar" [style.width.%]="taskProgressPercent()"></div>
+            </div>
+            <small class="text-muted">{{ taskProgressPercent() }}% complete</small>
+          </div>
         </div>
-        <small>{{ taskProgressPercent() }}% complete</small>
-      </div>
+        <p class="text-dark mb-1"><i class="fas fa-align-left me-2 text-muted"></i> {{ selectedWorkflow.scope }}</p>
+
      <hr>
 
       <!-- Tasks -->
-      <h3><i class="fas fa-tasks me-2 text-primary"></i> Tasks</h3>
+      <h3 class="fw-bold"><i class="fas fa-tasks me-2 text-primary"></i> Tasks</h3>
       <div *ngIf="!(selectedWorkflow.tasks?.length); else tasksTpl" class="text-muted mb-2">
         No tasks yet.
       </div>
@@ -119,19 +122,18 @@
     <!-- Add Task -->
       <div class="card shadow-sm mb-3">
         <div class="card-body">
-          <h5 class="card-title">
+          <h5 class="card-title fw-bold">
             <i class="fas fa-tasks me-2 text-success"></i> 
             {{ editingTask ? 'Edit Task' : 'Add Task' }}
           </h5>
 
           <form [formGroup]="taskForm" (ngSubmit)="editingTask ? updateTask() : addTaskToWorkflow()">
-            <!-- Description -->
+    
             <div class="mb-3">
               <label class="form-label fw-bold">Task Description</label>
               <input class="form-control" placeholder="Enter task description" formControlName="description">
             </div>
 
-            <!-- Assignee -->
             <div class="mb-3">
               <label class="form-label fw-bold">Assign To</label>
               <select class="form-select" aria-placeholder="-- Select User --" formControlName="assignee">
@@ -142,7 +144,6 @@
               </select>
             </div>
 
-            <!-- Status -->
             <div class="mb-3">
               <label class="form-label fw-bold">Status</label>
               <select class="form-select" formControlName="status">
@@ -152,7 +153,6 @@
               </select>
             </div>
 
-            <!-- Due Date -->
             <div class="mb-3">
               <label class="form-label fw-bold">Due Date</label>
               <input 
@@ -210,7 +210,7 @@
 
         <div style="border-radius: 12px;" class="card shadow-sm p-2">
             <!-- Mini Findings -->
-          <h3><i class="fas fa-exclamation-circle me-2 text-danger"></i> Mini Findings</h3>
+          <h3 class="fw-bold"><i class="fas fa-exclamation-circle me-2 text-danger"></i> Mini Findings</h3>
 
           <div *ngIf="!(selectedWorkflow?.tasks?.length); else tasksWithFindingsTpl" class="text-muted mb-2">
             No tasks yet to attach findings.
@@ -440,7 +440,6 @@
                 </select>
               </div>
             </div>
-
           </div>
         </div>
 
