@@ -83,11 +83,11 @@ ngOnInit() {
   );
 
   this.subs.push(
-    this.globalService.auditsChanged$.subscribe(() => {
-      this.loadAudits();
-    })
-  );
-}
+  this.globalService.auditsChanged$.subscribe(() => {
+    console.log("🔄 auditsChanged received in parent");
+    this.loadAudits();
+  })
+)}
 
 ngOnDestroy() {
   this.subs.forEach(s => s.unsubscribe());

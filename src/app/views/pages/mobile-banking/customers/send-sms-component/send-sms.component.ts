@@ -167,7 +167,6 @@ hideDetails(): void {
 
 toggleObservationDetails(obs: any): void {
   if (this.selectedObservation?.id === obs.id) {
-    console.log("Selected Obs:",this.selectedObservation )
     // If same row clicked again → close
     this.selectedObservation = null;
     this.isDetailsPanelVisible = false;
@@ -255,15 +254,19 @@ saveFinding(): void {
     // Add new finding
     const newFinding = {
       ...this.findingForm.value,
-      id: Date.now().toString(), // unique id
+      id: Date.now().toString(),
       createdAt: new Date().toISOString().split('T')[0]
     };
     updatedFindings = [...(this.targetObservation.findings || []), newFinding];
   }
 
+  // 🔹 Recalculate Observation status based on findings
+  const newStatus = this.calculateObservationStatus(updatedFindings);
+
   const updatedObs = {
     ...this.targetObservation,
-    findings: updatedFindings
+    findings: updatedFindings,
+    status: newStatus
   };
 
   this.http.put(`${this.apiUrl}/${this.targetObservation.id}`, updatedObs).subscribe({
@@ -274,14 +277,11 @@ saveFinding(): void {
         this.syncFindingToWorkflow(updatedFindings[updatedFindings.length - 1], this.targetObservation.auditId);
       }
 
-      // Refresh observations list
       this.loadObservations();
 
-      // Refresh the selectedObservation details immediately
-      this.http.get<any>(`${this.apiUrl}/${this.targetObservation.id}`).subscribe({
-        next: obs => {
-          this.selectedObservation = obs;
-        }
+      // Refresh selectedObservation details
+      this.http.get<any>(`${this.apiUrl}/${this.targetObservation.id}`).subscribe(res => {
+        this.selectedObservation = res;
       });
 
       this.toastr.success('Finding saved successfully');
@@ -292,6 +292,149 @@ saveFinding(): void {
     }
   });
 }
+
+private calculateObservationStatus(findings: any[]): string {
+  if (!findings || findings.length === 0) return 'Open';
+
+  const hasNoted = findings.some(f => f.status === 'Noted');
+  const allConfirmed = findings.every(f => f.status === 'Confirmed');
+
+  if (allConfirmed) return 'Closed';
+  if (hasNoted) return 'In Progress';
+  return 'Open';
+}
+
+toggleFindingStatus(obs: any, finding: any): void {
+  const updatedFindings = (obs.findings || []).map((f: any) =>
+    f.id === finding.id
+      ? { ...f, status: f.status === 'Noted' ? 'Confirmed' : 'Noted' }
+      : f
+  );
+
+  const newStatus = this.calculateObservationStatus(updatedFindings);
+
+  const updatedObs = {
+    ...obs,
+    findings: updatedFindings,
+    status: newStatus
+  };
+
+  this.http.put(`${this.apiUrl}/${obs.id}`, updatedObs).subscribe({
+    next: () => {
+      // also sync to workflow
+      this.updateFindingInWorkflow(finding.id, 
+        { status: finding.status === 'Noted' ? 'Confirmed' : 'Noted' }, 
+        obs.auditId
+      );
+
+      this.loadObservations();
+      this.http.get<any>(`${this.apiUrl}/${obs.id}`).subscribe(res => {
+        this.selectedObservation = res;
+      });
+
+      this.toastr.success('Finding status updated');
+    },
+    error: () => this.toastr.error('Failed to update finding status')
+  });
+}
+
+
+deleteFinding(obs: any, findingId: string): void {
+  Swal.fire({
+    title: 'Are you sure?',
+    text: 'This finding will be deleted permanently!',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete it!',
+    cancelButtonText: 'Cancel'
+  }).then(result => {
+    if (result.isConfirmed) {
+      const updatedFindings = (obs.findings || []).filter((f: any) => f.id !== findingId);
+      const newStatus = this.calculateObservationStatus(updatedFindings);
+
+      const updatedObs = {
+        ...obs,
+        findings: updatedFindings,
+        status: newStatus
+      };
+
+      this.http.put(`${this.apiUrl}/${obs.id}`, updatedObs).subscribe({
+        next: () => {
+          this.removeFindingFromWorkflow(findingId, obs.auditId);
+          this.loadObservations();
+
+          this.http.get<any>(`${this.apiUrl}/${obs.id}`).subscribe(res => {
+            this.selectedObservation = res;
+          });
+
+          Swal.fire('Deleted!', 'Finding deleted successfully', 'success');
+        },
+        error: () => Swal.fire('Error', 'Failed to delete finding', 'error')
+      });
+    }
+  });
+}
+
+
+// saveFinding(): void {
+//   if (!this.targetObservation) return;
+
+//   if (this.findingForm.invalid) {
+//     this.findingForm.markAllAsTouched();
+//     this.toastr.warning('Please fill all required fields');
+//     return;
+//   }
+
+//   let updatedFindings: any[];
+
+//   if (this.isFindingEditMode && this.selectedFinding) {
+//     // Update existing finding
+//     updatedFindings = (this.targetObservation.findings || []).map((f: any) =>
+//       f.id === this.selectedFinding.id
+//         ? { ...f, ...this.findingForm.value }
+//         : f
+//     );
+//   } else {
+//     // Add new finding
+//     const newFinding = {
+//       ...this.findingForm.value,
+//       id: Date.now().toString(), // unique id
+//       createdAt: new Date().toISOString().split('T')[0]
+//     };
+//     updatedFindings = [...(this.targetObservation.findings || []), newFinding];
+//   }
+
+//   const updatedObs = {
+//     ...this.targetObservation,
+//     findings: updatedFindings
+//   };
+
+//   this.http.put(`${this.apiUrl}/${this.targetObservation.id}`, updatedObs).subscribe({
+//     next: () => {
+//       if (this.isFindingEditMode) {
+//         this.updateFindingInWorkflow(this.selectedFinding.id, this.findingForm.value, this.targetObservation.auditId);
+//       } else {
+//         this.syncFindingToWorkflow(updatedFindings[updatedFindings.length - 1], this.targetObservation.auditId);
+//       }
+
+//       // Refresh observations list
+//       this.loadObservations();
+
+//       // Refresh the selectedObservation details immediately
+//       this.http.get<any>(`${this.apiUrl}/${this.targetObservation.id}`).subscribe({
+//         next: obs => {
+//           this.selectedObservation = obs;
+//         }
+//       });
+
+//       this.toastr.success('Finding saved successfully');
+//       this.closeFindingModal();
+//     },
+//     error: () => {
+//       this.toastr.error('Failed to save finding');
+//     }
+//   });
+// }
 
   openFindingModal(obs: any, finding: any = null): void {
     this.targetObservation = obs;
@@ -314,44 +457,44 @@ saveFinding(): void {
   }
 
 
-  deleteFinding(obs: any, findingId: string): void {
-  Swal.fire({
-    title: 'Are you sure?',
-    text: 'This finding will be deleted permanently!',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Yes, delete it!',
-    cancelButtonText: 'Cancel'
-  }).then(result => {
-    if (result.isConfirmed) {
-      const updatedObs = {
-        ...obs,
-        findings: (obs.findings || []).filter((f: any) => f.id !== findingId)
-      };
+//   deleteFinding(obs: any, findingId: string): void {
+//   Swal.fire({
+//     title: 'Are you sure?',
+//     text: 'This finding will be deleted permanently!',
+//     icon: 'warning',
+//     showCancelButton: true,
+//     confirmButtonText: 'Yes, delete it!',
+//     cancelButtonText: 'Cancel'
+//   }).then(result => {
+//     if (result.isConfirmed) {
+//       const updatedObs = {
+//         ...obs,
+//         findings: (obs.findings || []).filter((f: any) => f.id !== findingId)
+//       };
 
-      this.http.put(`${this.apiUrl}/${obs.id}`, updatedObs).subscribe({
-        next: () => {
-          this.removeFindingFromWorkflow(findingId, obs.auditId);
+//       this.http.put(`${this.apiUrl}/${obs.id}`, updatedObs).subscribe({
+//         next: () => {
+//           this.removeFindingFromWorkflow(findingId, obs.auditId);
 
-          // Refresh observations list
-          this.loadObservations();
+//           // Refresh observations list
+//           this.loadObservations();
 
-          // Refresh the selectedObservation details
-          this.http.get<any>(`${this.apiUrl}/${obs.id}`).subscribe({
-            next: freshObs => {
-              this.selectedObservation = freshObs;
-            }
-          });
+//           // Refresh the selectedObservation details
+//           this.http.get<any>(`${this.apiUrl}/${obs.id}`).subscribe({
+//             next: freshObs => {
+//               this.selectedObservation = freshObs;
+//             }
+//           });
 
-          Swal.fire('Deleted!', 'Finding deleted successfully', 'success');
-        },
-        error: () => {
-          Swal.fire('Error', 'Failed to delete finding', 'error');
-        }
-      });
-    }
-  });
-}
+//           Swal.fire('Deleted!', 'Finding deleted successfully', 'success');
+//         },
+//         error: () => {
+//           Swal.fire('Error', 'Failed to delete finding', 'error');
+//         }
+//       });
+//     }
+//   });
+// }
 
 
   private syncFindingToWorkflow(finding: any, auditId: string): void {
