@@ -161,6 +161,87 @@ export class AddCustomerComponent implements OnInit {
     this.isAddAuditModalVisible = false;
   }
 
+// saveAudit(): void {
+//   if (this.addAuditForm.invalid) {
+//     this.toastr.warning('Please fill all required fields.', 'Invalid Form');
+//     return;
+//   }
+
+//   const formData = this.addAuditForm.value;
+
+//   if (this.selectedAudit) {
+//     // ------------------- UPDATE AUDIT -------------------
+//     this.http.put(`${this.apiUrl}/${this.selectedAudit.id}`, {
+//       ...formData,
+//       id: this.selectedAudit.id
+//     }).subscribe({
+//       next: () => {
+//         Swal.fire('Updated', 'Audit updated successfully!', 'success');
+//         this.loadAudits();
+//         this.closeAddAuditModal();
+//         this.hideAuditDetails();
+//         this.globalService.notifyAuditsChanged();
+
+//         // 🔹 Sync workflow (find by auditId first)
+//         console.log(this.selectedAudit.id)
+//         this.http.get<any[]>(`http://localhost:3000/workflows?auditId=${this.selectedAudit.id}`).subscribe({
+//           next: (workflows) => {
+//             if (workflows.length > 0) {
+//               const wf = workflows[0];
+//               const updatedWf = {
+//                 ...wf,
+//                 title: formData.title,
+//                 scope: formData.scope,
+//                 department: formData.department,
+//                 status: formData.status === 'Planned' ? 'Not Started' : formData.status,
+//                 startDate: formData.startDate,
+//                 dueDate: formData.endDate
+//               };
+//               console.log(wf)
+//               this.http.put(`http://localhost:3000/workflows/${wf.id}`, updatedWf).subscribe({
+//                 next: () => this.globalService.notifyWorkflowsChanged()
+//               });
+//             }
+//           }
+//         });
+//       },
+//       error: () => this.toastr.error('Failed to update audit')
+//     });
+
+//   } else {
+//     // ------------------- CREATE AUDIT -------------------
+//     this.http.post<any>(this.apiUrl, formData).subscribe({
+//       next: (createdAudit) => {
+//         Swal.fire('Created', 'Audit added successfully!', 'success');
+//         this.loadAudits();
+//         this.closeAddAuditModal();
+//         this.hideAuditDetails();
+//         this.globalService.notifyAuditsChanged();
+
+//         // 🔹 Create linked workflow with same id
+//         const workflowPayload = {
+//           id: createdAudit.id,  // force same id
+//           auditId: createdAudit.id,
+//           title: createdAudit.title,
+//           scope: createdAudit.scope,
+//           department: createdAudit.department,
+//           assignedTo: '',
+//           status: createdAudit.status === 'Planned' ? 'Not Started' : createdAudit.status,
+//           startDate: createdAudit.startDate,
+//           dueDate: createdAudit.endDate,
+//           tasks: [],
+//           miniFindings: []
+//         };
+
+//         this.http.post(`http://localhost:3000/workflows`, workflowPayload).subscribe({
+//           next: () => this.globalService.notifyWorkflowsChanged()
+//         });
+//       },
+//       error: () => this.toastr.error('Failed to create audit')
+//     });
+//   }
+// }
+
 saveAudit(): void {
   if (this.addAuditForm.invalid) {
     this.toastr.warning('Please fill all required fields.', 'Invalid Form');
@@ -171,9 +252,11 @@ saveAudit(): void {
 
   if (this.selectedAudit) {
     // ------------------- UPDATE AUDIT -------------------
-    this.http.put(`${this.apiUrl}/${this.selectedAudit.id}`, {
+    const auditId = this.selectedAudit.id; // ✅ capture before hiding
+
+    this.http.put(`${this.apiUrl}/${auditId}`, {
       ...formData,
-      id: this.selectedAudit.id
+      id: auditId
     }).subscribe({
       next: () => {
         Swal.fire('Updated', 'Audit updated successfully!', 'success');
@@ -183,19 +266,22 @@ saveAudit(): void {
         this.globalService.notifyAuditsChanged();
 
         // 🔹 Sync workflow (find by auditId first)
-        this.http.get<any[]>(`http://localhost:3000/workflows?auditId=${this.selectedAudit.id}`).subscribe({
+        this.http.get<any[]>(`http://localhost:3000/workflows?auditId=${auditId}`).subscribe({
           next: (workflows) => {
             if (workflows.length > 0) {
               const wf = workflows[0];
               const updatedWf = {
                 ...wf,
-                title: formData.title,
+                title: formData.title.includes("Workflow") 
+                  ? formData.title 
+                  : `${formData.title} Workflow`, // ✅ keep consistent
                 scope: formData.scope,
                 department: formData.department,
                 status: formData.status === 'Planned' ? 'Not Started' : formData.status,
                 startDate: formData.startDate,
                 dueDate: formData.endDate
               };
+
               this.http.put(`http://localhost:3000/workflows/${wf.id}`, updatedWf).subscribe({
                 next: () => this.globalService.notifyWorkflowsChanged()
               });
@@ -220,7 +306,7 @@ saveAudit(): void {
         const workflowPayload = {
           id: createdAudit.id,  // force same id
           auditId: createdAudit.id,
-          title: createdAudit.title,
+          title: `${createdAudit.title} Workflow`, // ✅ ensure naming convention
           scope: createdAudit.scope,
           department: createdAudit.department,
           assignedTo: '',
@@ -239,7 +325,6 @@ saveAudit(): void {
     });
   }
 }
-
 
 deleteAudit(id: number): void {
   Swal.fire({

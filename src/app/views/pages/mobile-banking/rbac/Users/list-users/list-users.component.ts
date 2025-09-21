@@ -53,7 +53,7 @@ export class ListUsersComponent implements OnInit {
   // Data
   allWorkflows: Workflow[] = [];
   visibleWorkflows: Workflow[] = [];
-  recordsToShow = 20;
+  recordsToShow = 5;
   isLoading = false;
 
   // Filters
@@ -99,35 +99,61 @@ export class ListUsersComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadWorkflows();
+      this.loadUsers(); 
+    
   }
 
-//   addMiniFinding(): void {
-//   if (!this.selectedWorkflow) return;
-//   if (this.miniFindingForm.invalid) {
-//     this.miniFindingForm.markAllAsTouched();
-//     return;
-//   }
+users: any[] = [];
+today: string = new Date().toISOString().split('T')[0];
 
-//   const finding: MiniFinding = {
-//     ...this.miniFindingForm.value,
-//     id: Date.now().toString(),
-//     createdAt: new Date().toISOString().split('T')[0]
-//   };
+loadUsers(): void {
+  this.http.get<any[]>('http://localhost:3000/users').subscribe({
+    next: (res) => this.users = res,
+    error: (err) => console.error('Failed to load users', err)
+  });
+}
 
-//   const updated = {
-//     ...this.selectedWorkflow,
-//     miniFindings: [...(this.selectedWorkflow.miniFindings || []), finding]
-//   };
+editingTask: any = null; 
+editTask(task: Task): void {
+  this.editingTask = task;
+  this.taskForm.patchValue(task); 
+}
 
-//   this.globalService.update(updated.id!, updated).subscribe({
-//     next: wf => {
-//       this.selectedWorkflow = wf;
-//       this.loadWorkflows();
-//       this.miniFindingForm.reset({ severity: 'Low', status: 'Noted' });
-//     },
-//     error: err => console.error('Failed to add mini finding', err)
-//   });
-// }
+// Cancel editing
+cancelEditTask(): void {
+  this.editingTask = null;
+  this.taskForm.reset({ status: 'Pending' });
+}
+
+addTaskToWorkflow(): void {
+  if (!this.selectedWorkflow) {
+    Swal.fire('Error', 'No workflow selected', 'error');
+    return;
+  }
+
+  if (this.taskForm.invalid) {
+    this.taskForm.markAllAsTouched();
+    return;
+  }
+
+  const newTask = {
+    id: 't' + Date.now(), // simple unique id
+    ...this.taskForm.value
+  };
+
+  // Push into workflow tasks
+  this.selectedWorkflow.tasks = this.selectedWorkflow.tasks || [];
+  this.selectedWorkflow.tasks.push(newTask);
+
+  const updated = { ...this.selectedWorkflow }; // ✅ full updated workflow
+
+  // Save workflow + sync status + audit
+  this.syncWorkflowAndAudit(updated);
+
+  Swal.fire('Task Added', 'New task added successfully!', 'success');
+  this.taskForm.reset({ status: 'Pending' });
+}
+
 
 deleteMiniFinding(id: string): void {
   if (!this.selectedWorkflow) return;
@@ -228,7 +254,7 @@ loadWorkflows(): void {
   }
 
   loadMore(): void {
-    this.recordsToShow += 20;
+    this.recordsToShow += 5;
     this.applyFiltersAndPagination();
   }
 
@@ -294,7 +320,7 @@ loadWorkflows(): void {
   }
 
 
-saveWorkflow(): void {
+saveWorkflow(): void { 
   if (this.workflowForm.invalid) {
     this.workflowForm.markAllAsTouched();
     return;
@@ -302,6 +328,8 @@ saveWorkflow(): void {
 
   const payload: Workflow = {
     ...this.workflowForm.value,
+    id: this.selectedWorkflow?.id || this.workflowForm.value.id,  
+    auditId: this.selectedWorkflow?.auditId || this.workflowForm.value.id, 
     tasks: this.selectedWorkflow?.tasks || [],
     miniFindings: this.selectedWorkflow?.miniFindings || []
   };
@@ -312,10 +340,10 @@ saveWorkflow(): void {
       next: () => {
         Swal.fire('Updated', 'Workflow updated successfully!', 'success');
 
-        // 🔹 Sync audit directly
+        // 🔹 Sync audit directly (same ID as workflow)
         const auditPayload = {
           id: payload.auditId,
-          title: payload.title,
+          title: payload.title, 
           scope: payload.scope,
           department: payload.department,
           status: payload.status === 'Not Started' ? 'Planned' : payload.status,
@@ -324,11 +352,13 @@ saveWorkflow(): void {
         };
 
         this.http.put(`http://localhost:3000/audits/${payload.auditId}`, auditPayload).subscribe({
-          next: () => this.globalService.notifyAuditsChanged()
+          next: () => this.globalService.notifyAuditsChanged(),
+          error: err => console.error('Audit sync failed:', err)
         });
 
         this.closeModal();
         this.loadWorkflows();
+          this.hideDetails()
         this.globalService.notifyWorkflowsChanged();
       },
       error: err => {
@@ -339,14 +369,17 @@ saveWorkflow(): void {
 
   } else {
     // ------------------- CREATE WORKFLOW -------------------
-    this.globalService.create(payload).subscribe({
+    const newPayload = {
+      ...payload,
+      title: `${payload.title} Workflow`
+    };
+
+    this.globalService.create(newPayload).subscribe({
       next: (createdWf: Workflow) => {
         Swal.fire('Created', 'Workflow created successfully!', 'success');
-
-        // 🔹 Also create/update linked audit
         const auditPayload = {
-          id: createdWf.auditId,
-          title: createdWf.title,
+          id: createdWf.id,  
+          title: createdWf.title.replace(/^Workflow - /, ''), 
           scope: createdWf.scope,
           department: createdWf.department,
           status: createdWf.status === 'Not Started' ? 'Planned' : createdWf.status,
@@ -354,8 +387,14 @@ saveWorkflow(): void {
           endDate: createdWf.dueDate
         };
 
-        this.http.post(`http://localhost:3000/audits`, auditPayload).subscribe({
-          next: () => this.globalService.notifyAuditsChanged()
+        const auditPayloads = {
+            ...payload,
+            title: `${payload.title}`
+          };
+
+        this.http.post(`http://localhost:3000/audits`, auditPayloads).subscribe({
+          next: () => this.globalService.notifyAuditsChanged(),
+          error: err => console.error('Audit create failed:', err)
         });
 
         this.closeModal();
@@ -405,7 +444,6 @@ deleteWorkflow(id?: number | string, auditId?: string): void {
   });
 }
 
-
   openAddTask(): void {
     this.taskForm.reset({ status: 'Pending' });
     // We'll use the modal in details panel DOM to add
@@ -434,64 +472,97 @@ deleteWorkflow(id?: number | string, auditId?: string): void {
     });
   }
 
-  editTask(task: Task): void {
-    // populate taskForm and let user update then call updateTask()
-    this.taskForm.patchValue(task);
-  }
-
-  updateTask(taskId: number | string): void {
-    if (!this.selectedWorkflow) return;
-    if (this.taskForm.invalid) {
-      this.taskForm.markAllAsTouched();
-      return;
-    }
-    const tasks = (this.selectedWorkflow.tasks || []).map(t => 
-      t.id === taskId 
-        ? { 
-            ...t, 
-            ...this.taskForm.value, 
-            id: taskId, 
-            status: this.taskForm.value.status as 'Pending' | 'In Progress' | 'Done' 
-          } 
-        : t
-    );
-    const updated = { ...this.selectedWorkflow, tasks };
-    this.globalService.update(updated.id!, updated).subscribe({
-      next: wf => {
-        this.selectedWorkflow = wf;
-        this.loadWorkflows();
-        this.taskForm.reset({ status: 'Pending' });
-      },
-      error: err => console.error('Failed to update task', err)
-    });
-  }
-
-  deleteTask(taskId: number | string): void {
-    if (!this.selectedWorkflow) return;
-    const tasks = (this.selectedWorkflow.tasks || []).filter(t => t.id !== taskId);
-    const updated = { ...this.selectedWorkflow, tasks };
-    this.globalService.update(updated.id!, updated).subscribe({
-      next: wf => {
-        this.selectedWorkflow = wf;
-        this.loadWorkflows();
-      },
-      error: err => console.error('Failed to delete task', err)
-    });
-  }
-
   toggleTaskStatus(task: Task): void {
-    if (!this.selectedWorkflow) return;
-    const newStatus = task.status === 'Done' ? 'Pending' : task.status === 'Pending' ? 'In Progress' : 'Done';
-    const tasks = (this.selectedWorkflow.tasks || []).map(t => t.id === task.id ? { ...t, status: newStatus } : t);
-    const updated = { ...this.selectedWorkflow, tasks };
-    this.globalService.update(updated.id!, updated).subscribe({
-      next: wf => {
-        this.selectedWorkflow = wf;
-        this.loadWorkflows();
-      },
-      error: err => console.error('Failed to update task status', err)
-    });
+  if (!this.selectedWorkflow) return;
+
+  const newStatus =
+    task.status === 'Done'
+      ? 'Pending'
+      : task.status === 'Pending'
+      ? 'In Progress'
+      : 'Done';
+
+  const tasks = (this.selectedWorkflow.tasks || []).map(t =>
+    t.id === task.id ? { ...t, status: newStatus } : t
+  );
+
+  const updated = { ...this.selectedWorkflow, tasks };
+  this.syncWorkflowAndAudit(updated);
+}
+
+updateTask(): void {
+  if (!this.selectedWorkflow || !this.editingTask) return;
+  if (this.taskForm.invalid) {
+    this.taskForm.markAllAsTouched();
+    return;
   }
+
+  const tasks = this.selectedWorkflow.tasks.map(t =>
+    t.id === this.editingTask.id ? { ...t, ...this.taskForm.value } : t
+  );
+
+  const updated = { ...this.selectedWorkflow, tasks };
+  this.syncWorkflowAndAudit(updated);
+
+  Swal.fire('Updated', 'Task updated successfully!', 'success');
+  this.cancelEditTask();
+}
+
+deleteTask(taskId: number | string): void {
+  if (!this.selectedWorkflow) return;
+
+  const tasks = (this.selectedWorkflow.tasks || []).filter(t => t.id !== taskId);
+  const updated = { ...this.selectedWorkflow, tasks };
+  this.syncWorkflowAndAudit(updated);
+  this.loadWorkflows();
+
+  Swal.fire('Deleted', 'Task deleted successfully!', 'success');
+}
+
+
+
+  private computeWorkflowStatus(tasks: Task[]): string {
+  if (!tasks || tasks.length === 0) return 'Not Started';
+
+  const total = tasks.length;
+  const done = tasks.filter(t => t.status === 'Done').length;
+  const inProgress = tasks.filter(t => t.status === 'In Progress').length;
+
+  if (done === total) return 'Completed';
+  if (inProgress > 0 || done > 0) return 'In Progress';
+  return 'Not Started';
+}
+
+private syncWorkflowAndAudit(updated: Workflow): void {
+  // Compute workflow status from tasks
+  updated.status = this.computeWorkflowStatus(updated.tasks);
+
+  // Save workflow
+  this.globalService.update(updated.id!, updated).subscribe({
+    next: wf => {
+      this.selectedWorkflow = wf;
+      this.loadWorkflows();
+
+      // 🔹 Sync linked audit
+      const auditPayload = {
+        id: updated.auditId,
+        title: updated.title,
+        scope: updated.scope,
+        department: updated.department,
+        status: updated.status === 'Not Started' ? 'Planned' : updated.status,
+        startDate: updated.startDate,
+        endDate: updated.dueDate
+      };
+
+      this.http.put(`http://localhost:3000/audits/${updated.auditId}`, auditPayload).subscribe({
+        next: () => this.globalService.notifyAuditsChanged(),
+        error: err => console.error('Audit sync failed:', err)
+      });
+    },
+    error: err => console.error('Failed to sync workflow', err)
+  });
+}
+
 
   // --- helpers -----------------------------------------------
   taskProgressPercent(w?: Workflow): number {
