@@ -92,8 +92,11 @@ export class DashboardComponent implements OnInit {
   pieChartData: ChartData<'pie'> = { labels: [], datasets: [] };
   lineChartData: ChartData<'line'> = { labels: [], datasets: [] };
   workflowChartData: ChartData<'line'> = { labels: [], datasets: [] };
+  statusPieChartData: ChartData<'pie'> = { labels: [], datasets: [] };
 
   isLoading = false;
+
+ 
 
   constructor(private mis: GlobalService) {}
 
@@ -109,8 +112,14 @@ export class DashboardComponent implements OnInit {
 
   pieChartOptions: ChartConfiguration<'pie'>['options'] = { 
     responsive: true,
-    plugins: { title: { display: true, text: 'Findings by Severity' } }
+    plugins: { title: { display: true, text: 'Findings by Severity' }},
+   
   };
+
+  statusPieChartOptions: ChartConfiguration<'pie'>['options'] = {
+  responsive: true,
+  plugins: { title: { display: true, text: 'Audit Status' }}
+};
 
   lineChartOptions: ChartConfiguration<'line'>['options'] = { 
     responsive: true,
@@ -122,6 +131,7 @@ export class DashboardComponent implements OnInit {
     plugins: { title: { display: true, text: 'Workflow Completion Trends (%)' } }
   };
 
+  
   refresh(): void {
   this.isLoading = true;
 
@@ -130,7 +140,6 @@ export class DashboardComponent implements OnInit {
     workflows: this.mis.getWorkflows(),
     observations: this.mis.getObservations()
   }).subscribe(({ audits, workflows, observations }) => {
-
     // ✅ Apply filters
     let filteredAudits = audits;
     let filteredWorkflows = workflows;
@@ -178,7 +187,8 @@ export class DashboardComponent implements OnInit {
 
     // --- Audits Over Time (YYYY-MM) ---
     this.auditsOverTime = filteredAudits.reduce((acc: any, a: any) => {
-      const month = a.startDate.slice(0, 7);
+      if (!a.startDate) return acc;
+      const month = a.startDate.slice(0, 7); // YYYY-MM
       acc[month] = (acc[month] || 0) + 1;
       return acc;
     }, {});
@@ -194,13 +204,18 @@ export class DashboardComponent implements OnInit {
       acc[month].push(pct);
       return acc;
     }, {});
-
     this.workflowTrends = Object.fromEntries(
       Object.entries(this.workflowTrends).map(([m, arr]: any) => {
         const avg = arr.reduce((a: number, b: number) => a + b, 0) / arr.length;
         return [m, Math.round(avg)];
       })
     );
+
+    // --- Audit Status Counts ---
+    const statusCount: any = {};
+    filteredAudits.forEach((a: any) => {
+      statusCount[a.status] = (statusCount[a.status] || 0) + 1;
+    });
 
     // --- KPIs ---
     const totalAudits = filteredAudits.length;
@@ -215,48 +230,19 @@ export class DashboardComponent implements OnInit {
     );
 
     this.kpis = [
-      { 
-        label: 'Total Audits', 
-        value: totalAudits, 
-        icon: 'fas fa-clipboard-list', 
-        borderClass: 'border-primary', 
-        textClass: 'text-primary',
-        trend: totalAudits > 5 ? 'up' : 'down' 
-      },
-      { 
-        label: 'Completed Audits', 
-        value: completedAudits, 
-        icon: 'fas fa-check-circle', 
-        borderClass: 'border-success', 
-        textClass: 'text-success',
-        trend: completedAudits > 2 ? 'up' : 'flat' 
-      },
-      { 
-        label: 'Open Observations', 
-        value: openObservations, 
-        icon: 'fas fa-exclamation-triangle', 
-        borderClass: 'border-warning', 
-        textClass: 'text-warning',
-        trend: openObservations > 3 ? 'down' : 'up' 
-      },
-      { 
-        label: 'Workflow Completion', 
-        value: avgWorkflowCompletion + '%', 
-        icon: 'fas fa-tasks', 
-        borderClass: 'border-info', 
-        textClass: 'text-info',
-        trend: avgWorkflowCompletion >= 50 ? 'up' : 'down' 
-      }
+      { label: 'Total Audits', value: totalAudits, icon: 'fas fa-clipboard-list', borderClass: 'border-primary', textClass: 'text-primary', trend: totalAudits > 5 ? 'up' : 'down' },
+      { label: 'Completed Audits', value: completedAudits, icon: 'fas fa-check-circle', borderClass: 'border-success', textClass: 'text-success', trend: completedAudits > 2 ? 'up' : 'flat' },
+      { label: 'Open Observations', value: openObservations, icon: 'fas fa-exclamation-triangle', borderClass: 'border-warning', textClass: 'text-warning', trend: openObservations > 3 ? 'down' : 'up' },
+      { label: 'Workflow Completion', value: avgWorkflowCompletion + '%', icon: 'fas fa-tasks', borderClass: 'border-info', textClass: 'text-info', trend: avgWorkflowCompletion >= 50 ? 'up' : 'down' }
     ];
 
-    // --- Build charts
-    this.buildCharts();
+    // --- Build Charts ---
+    this.buildCharts(statusCount);
     this.isLoading = false;
   }, () => this.isLoading = false);
 }
 
-buildCharts() {
-  // 🔹 Dynamic color palette (extend as needed)
+buildCharts(statusCount: any) {
   const palette = [
     '#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1',
     '#20c997', '#fd7e14', '#6610f2', '#17a2b8', '#e83e8c'
@@ -265,15 +251,12 @@ buildCharts() {
   const deptLabels = Object.keys(this.auditsByDept);
   const deptValues = Object.values(this.auditsByDept);
 
-  // 🔹 Assign colors dynamically
-  const backgroundColors = deptLabels.map((_, i) => palette[i % palette.length]);
-
   this.barChartData = {
     labels: deptLabels,
     datasets: [{
       data: deptValues,
       label: 'Audits',
-      backgroundColor: backgroundColors
+      backgroundColor: deptLabels.map((_, i) => palette[i % palette.length])
     }]
   };
 
@@ -282,6 +265,14 @@ buildCharts() {
     datasets: [{
       data: Object.values(this.findingsSeverity),
       backgroundColor: Object.keys(this.findingsSeverity).map((_, i) => palette[i % palette.length])
+    }]
+  };
+
+  this.statusPieChartData = {
+    labels: Object.keys(statusCount),
+    datasets: [{
+      data: Object.values(statusCount),
+      backgroundColor: Object.keys(statusCount).map((_, i) => palette[i % palette.length])
     }]
   };
 
@@ -309,6 +300,7 @@ buildCharts() {
     }]
   };
 }
+
   // Export helpers
   exportExcel() {
     const wb = XLSX.utils.book_new();
