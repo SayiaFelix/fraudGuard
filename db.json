@@ -62,7 +62,7 @@
     {
       "id": "85aa",
       "title": "Money Cash Workflow",
-      "scope": "pesaaa",
+      "scope": "checking cash flow for q1 ",
       "department": "Finance",
       "status": "In Progress",
       "startDate": "2025-09-25",
@@ -216,7 +216,7 @@
     },
     {
       "title": "Money Cash Workflow",
-      "scope": "pesaaa",
+      "scope": "checking cash flow for q1 ",
       "department": "Finance",
       "assignedTo": "auditor",
       "status": "In Progress",
