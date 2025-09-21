@@ -61,8 +61,8 @@
     },
     {
       "id": "85aa",
-      "title": "Money Workflow",
-      "scope": "bgdfgdf",
+      "title": "Money Cash Workflow",
+      "scope": "pesaaa",
       "department": "Finance",
       "status": "In Progress",
       "startDate": "2025-09-25",
@@ -215,8 +215,8 @@
       ]
     },
     {
-      "title": "Money Workflow",
-      "scope": "bgdfgdf",
+      "title": "Money Cash Workflow",
+      "scope": "pesaaa",
       "department": "Finance",
       "assignedTo": "auditor",
       "status": "In Progress",
