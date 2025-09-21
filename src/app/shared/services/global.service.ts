@@ -1,9 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import {Injectable} from '@angular/core';
-import { Observable, Subject } from 'rxjs';
+import { forkJoin, map, Observable, Subject } from 'rxjs';
 import {environment} from 'src/environments/environment';
 import { BehaviorSubject } from 'rxjs';
 import { Workflow } from 'src/app/views/pages/mobile-banking/rbac/Users/list-users/list-users.component';
+import { Audit, MISReport, Observation } from 'src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component';
 
 // In: global.service.ts (or auth.service.ts)
 
@@ -49,6 +50,72 @@ chatbotData$ = this.chatbotDataSubject.asObservable();
 
 private api = 'http://localhost:3000/workflows'; 
   
+  private apis = 'http://localhost:3000'; 
+
+  // Basic reads
+  getAudits(): Observable<Audit[]> {
+    return this.http.get<Audit[]>(`${this.apis}/audits`);
+  }
+  getWorkflows() { return this.http.get<Workflow[]>(`${this.apis}/workflows`); }
+  getObservations() { return this.http.get<Observation[]>(`${this.apis}/observations`); }
+
+  // MIS reports CRUD
+  listReports(): Observable<MISReport[]> {
+    return this.http.get<MISReport[]>(`${this.apis}/misReports?_sort=createdAt&_order=desc`);
+  }
+  createReport(payload: MISReport) {
+    return this.http.post<MISReport>(`${this.apis}/misReports`, payload);
+  }
+  deleteReport(id: string) {
+    return this.http.delete(`${this.apis}/misReports/${id}`);
+  }
+
+  // Auto-generate summary from audits/workflows/observations
+  generateSummary(): Observable<any> {
+    return forkJoin({
+      audits: this.getAudits(),
+      workflows: this.getWorkflows(),
+      observations: this.getObservations()
+    }).pipe(map(({audits, workflows, observations}) => {
+      // audits per department
+      const auditsByDept: Record<string, number> = {};
+      audits.forEach(a => auditsByDept[a.department] = (auditsByDept[a.department] || 0) + 1);
+
+      // findings by severity (from workflows.miniFindings + observations.findings)
+      const findingsSeverity = { High: 0, Medium: 0, Low: 0, Unknown: 0 };
+      workflows.forEach(w => (w.miniFindings || []).forEach(f => {
+        const sev = (f.severity || f.impact) || 'Unknown';
+        findingsSeverity[sev as keyof typeof findingsSeverity] = (findingsSeverity[sev as keyof typeof findingsSeverity] || 0) + 1;
+      }));
+      observations.forEach(o => (o.findings || []).forEach(f => {
+        const sev = (f.severity || f.impact) || 'Unknown';
+        findingsSeverity[sev as keyof typeof findingsSeverity] = (findingsSeverity[sev as keyof typeof findingsSeverity] || 0) + 1;
+      }));
+
+      // audits over time (count per month)
+      const auditsOverTime: Record<string, number> = {};
+      audits.forEach(a => {
+        const m = a.startDate ? a.startDate.slice(0,7) : 'unknown'; // YYYY-MM
+        auditsOverTime[m] = (auditsOverTime[m] || 0) + 1;
+      });
+
+      // quick stats
+      const totalAudits = audits.length;
+      const completedAudits = audits.filter(a => a.status === 'Completed').length;
+      const inProgress = audits.filter(a => a.status === 'In Progress').length;
+
+      return {
+        auditsByDept,
+        findingsSeverity,
+        auditsOverTime,
+        totalAudits,
+        completedAudits,
+        inProgress
+      };
+    }));
+  }
+
+// ///////////////////////////////////////////////
 
 list(): Observable<Workflow[]> {
     return this.http.get<Workflow[]>(this.api);
