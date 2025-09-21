@@ -177,7 +177,7 @@ clearFilters() {
   this.filteredReports = [...this.reports];
 }
 
-// 🔹 PREVIEW ONLY (no saving, just show modal)
+// 🔹 PREVIEW ONLY (dynamic, no saving, just modal)
 previewAutoReport() {
   this.isLoading = true;
 
@@ -193,13 +193,46 @@ previewAutoReport() {
     .subscribe({
       next: summary => {
         try {
-          // Build PDF in memory
           const doc = new jsPDF();
-          doc.text('Auto Report Preview', 10, 10);
-          doc.text(JSON.stringify(summary, null, 2), 10, 20);
+
+          // Title
+          doc.setFontSize(16);
+          doc.text('Auto Report Preview', 14, 20);
+
+          // Quick Stats
+          doc.setFontSize(12);
+          doc.text('Quick Stats', 14, 35);
+          const quickStatsTable = autoTable(doc, {
+            startY: 40,
+            head: [['Total Audits', 'Completed', 'In Progress']],
+            body: [[summary.totalAudits, summary.completedAudits, summary.inProgress]]
+          });
+
+          // Audits by Department
+          const auditsByDeptTable = autoTable(doc, {
+            startY: (quickStatsTable as any)?.finalY ? (quickStatsTable as any).finalY + 15 : 55,
+            head: [['Department', 'Count']],
+            body: Object.entries(summary.auditsByDept)
+          });
+
+          // Findings by Severity
+          const findingsSeverityTable = autoTable(doc, {
+            startY: (auditsByDeptTable as any)?.finalY ? (auditsByDeptTable as any).finalY + 15 : 70,
+            head: [['Severity', 'Count']],
+            body: Object.entries(summary.findingsSeverity)
+          });
+
+          // Audits Over Time
+          autoTable(doc, {
+            startY: (findingsSeverityTable as any)?.finalY ? (findingsSeverityTable as any).finalY + 15 : 85,
+            head: [['Month', 'Count']],
+            body: Object.entries(summary.auditsOverTime)
+          });
+
+          // Convert PDF to base64
           const pdfBase64 = doc.output('datauristring');
 
-          // Show it in preview modal without saving
+          // Show preview only (not saving)
           this.selectedReport = {
             title: `Auto Report Preview - ${new Date().toISOString().slice(0, 10)}`,
             type: 'auto-generated',
@@ -212,7 +245,7 @@ previewAutoReport() {
             filePath: undefined
           };
 
-          Swal.close(); // close loading
+          Swal.close();
           this.openPreviewModal(this.selectedReport);
 
         } catch (err) {
@@ -226,6 +259,7 @@ previewAutoReport() {
     });
 }
 
+// 🔹 GENERATE & SAVE (dynamic + persists in DB)
 createAutoReport() {
   this.isLoading = true;
 
@@ -241,13 +275,43 @@ createAutoReport() {
     .subscribe({
       next: summary => {
         try {
-          // Build PDF
           const doc = new jsPDF();
-          doc.text('Auto Report', 10, 10);
-          doc.text(JSON.stringify(summary, null, 2), 10, 20);
+
+          doc.setFontSize(16);
+          doc.text('Auto Report', 14, 20);
+
+          // Quick Stats
+          doc.setFontSize(12);
+          doc.text('Quick Stats', 14, 35);
+          const quickStatsTable = autoTable(doc, {
+            startY: 40,
+            head: [['Total Audits', 'Completed', 'In Progress']],
+            body: [[summary.totalAudits, summary.completedAudits, summary.inProgress]]
+          });
+
+          // Audits by Department
+          const auditsByDeptTable = autoTable(doc, {
+            startY: (quickStatsTable as any)?.finalY ? (quickStatsTable as any).finalY + 15 : 55,
+            head: [['Department', 'Count']],
+            body: Object.entries(summary.auditsByDept)
+          });
+
+          // Findings by Severity
+          const findingsSeverityTable = autoTable(doc, {
+            startY: (auditsByDeptTable as any)?.finalY ? (auditsByDeptTable as any).finalY + 15 : 70,
+            head: [['Severity', 'Count']],
+            body: Object.entries(summary.findingsSeverity)
+          });
+
+          // Audits Over Time
+          autoTable(doc, {
+            startY: (findingsSeverityTable as any)?.finalY ? (findingsSeverityTable as any).finalY + 15 : 85,
+            head: [['Month', 'Count']],
+            body: Object.entries(summary.auditsOverTime)
+          });
+
           const pdfBase64 = doc.output('datauristring');
 
-          // Payload
           const payload: MISReport = {
             title: `Auto Report ${new Date().toISOString().slice(0, 10)}`,
             type: 'auto-generated',
@@ -260,10 +324,9 @@ createAutoReport() {
             filePath: undefined
           };
 
-          // Save to backend
           this.mis.createReport(payload).subscribe({
             next: () => {
-              this.load();
+              this.load(); // refresh table
               Swal.fire('Success ✅', 'Auto report generated and saved!', 'success');
             },
             error: () => {
@@ -281,6 +344,7 @@ createAutoReport() {
       }
     });
 }
+
 
 handleFileInput(ev: any) {
     this.uploadingFile = ev.target.files?.[0];
