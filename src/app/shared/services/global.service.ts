@@ -80,7 +80,6 @@ private api = 'http://localhost:3000/workflows';
     return this.http.delete(`${this.apis}/misReports/${id}`);
   }
 
-  // Auto-generate summary from audits/workflows/observations
   generateSummary(): Observable<any> {
     return forkJoin({
       audits: this.getAudits(),
@@ -125,7 +124,36 @@ private api = 'http://localhost:3000/workflows';
     }));
   }
 
-// ///////////////////////////////////////////////
+getDynamicSummary(): Observable<any> {
+    return this.http.get<any>(`${this.apis}/audits`).pipe(
+      map(audits => {
+        // Audits by Department
+        const auditsByDept: any = {};
+        audits.forEach((a: any) => {
+          auditsByDept[a.department] = (auditsByDept[a.department] || 0) + 1;
+        });
+
+        // Completed & In-progress
+        const completedAudits = audits.filter((a: any) => a.status === 'Completed').length;
+        const inProgress = audits.filter((a: any) => a.status === 'In Progress').length;
+
+        // Over Time (by month-year)
+        const auditsOverTime: any = {};
+        audits.forEach((a: any) => {
+          const month = a.startDate.slice(0, 7); // e.g. "2025-09"
+          auditsOverTime[month] = (auditsOverTime[month] || 0) + 1;
+        });
+
+        return {
+          totalAudits: audits.length,
+          completedAudits,
+          inProgress,
+          auditsByDept,
+          auditsOverTime
+        };
+      })
+    );
+  }
 
 list(): Observable<Workflow[]> {
     return this.http.get<Workflow[]>(this.api);

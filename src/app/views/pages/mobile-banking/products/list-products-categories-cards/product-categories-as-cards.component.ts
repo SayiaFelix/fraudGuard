@@ -53,6 +53,9 @@ export interface Observation {
   findings?: any[];
 }
 
+// Add global bootstrap declaration for TypeScript
+declare var bootstrap: any;
+
 @Component({
   selector: 'app-product-categories',
   templateUrl: './product-categories-as-cards.component.html',
@@ -70,6 +73,13 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
   filterType = '';
   filterDate = '';
   private destroy$ = new Subject<void>();
+// Add KPI holders
+kpis = {
+  total: 0,
+  uploaded: 0,
+  auto: 0,
+  latestDate: ''
+};
 
   constructor(private mis: GlobalService) {}
 
@@ -81,6 +91,34 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
+
+  selectedReport?: MISReport;
+previewContent: string | null = null;
+
+openUploadModal() {
+  const modal = new bootstrap.Modal(document.getElementById('uploadModal')!);
+  modal.show();
+}
+
+openPreviewModal(r: MISReport) {
+  this.selectedReport = r;
+
+  if (r.fileUrl?.startsWith('data:')) {
+    this.previewContent = r.fileUrl;
+  } else if (r.filePath) {
+    this.previewContent = r.filePath;
+  } else {
+    this.previewContent = null;
+  }
+
+  const modal = new bootstrap.Modal(document.getElementById('previewModal')!);
+  modal.show();
+}
+
+previewReport(report: any) {
+  this.selectedReport = report;
+}
+
 
   applyFilter() {
   this.filteredReports = this.reports.filter(r => {
@@ -103,13 +141,6 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
   });
 }
 
-clearFilters() {
-  this.filterTitle = '';
-  this.filterType = '';
-  this.filterDate = '';
-  this.filteredReports = [...this.reports];
-}
-
 load() {
   this.isLoading = true;
   this.mis.listReports()
@@ -117,35 +148,163 @@ load() {
     .subscribe({
       next: r => {
         this.reports = r;
-        this.filteredReports = [...this.reports]; // reset filters
+        this.filteredReports = [...this.reports];
+        this.updateKPIs();
       },
       error: () => Swal.fire('Error', 'Failed to load reports', 'error')
     });
 }
 
-  createAutoReport() {
-    this.isLoading = true;
-    this.mis.generateSummary()
-      .pipe(finalize(() => this.isLoading = false))
-      .subscribe({
-        next: summary => {
+updateKPIs() {
+  this.kpis.total = this.reports.length;
+  this.kpis.uploaded = this.reports.filter(r => r.type === 'uploaded').length;
+  this.kpis.auto = this.reports.filter(r => r.type === 'auto-generated').length;
+
+  if (this.reports.length > 0) {
+    const latest = this.reports
+      .map(r => new Date(r.createdAt))
+      .sort((a, b) => b.getTime() - a.getTime())[0];
+    this.kpis.latestDate = latest.toLocaleDateString();
+  } else {
+    this.kpis.latestDate = 'N/A';
+  }
+}
+
+clearFilters() {
+  this.filterTitle = '';
+  this.filterType = '';
+  this.filterDate = '';
+  this.filteredReports = [...this.reports];
+}
+
+// 🔹 PREVIEW ONLY (no saving, just show modal)
+previewAutoReport() {
+  this.isLoading = true;
+
+  Swal.fire({
+    title: 'Generating Preview...',
+    text: 'Please wait while we build the report preview.',
+    allowOutsideClick: false,
+    didOpen: () => Swal.showLoading()
+  });
+
+  this.mis.generateSummary()
+    .pipe(finalize(() => this.isLoading = false))
+    .subscribe({
+      next: summary => {
+        try {
+          // Build PDF in memory
+          const doc = new jsPDF();
+          doc.text('Auto Report Preview', 10, 10);
+          doc.text(JSON.stringify(summary, null, 2), 10, 20);
+          const pdfBase64 = doc.output('datauristring');
+
+          // Show it in preview modal without saving
+          this.selectedReport = {
+            title: `Auto Report Preview - ${new Date().toISOString().slice(0, 10)}`,
+            type: 'auto-generated',
+            createdAt: new Date().toISOString(),
+            uploadedBy: 'System',
+            fileType: 'application/pdf',
+            fileUrl: pdfBase64,
+            description: 'Temporary preview of auto-generated report',
+            summary,
+            filePath: undefined
+          };
+
+          Swal.close(); // close loading
+          this.openPreviewModal(this.selectedReport);
+
+        } catch (err) {
+          console.error(err);
+          Swal.fire('Error ❌', 'Could not generate the preview.', 'error');
+        }
+      },
+      error: () => {
+        Swal.fire('Error ❌', 'Failed to generate report preview.', 'error');
+      }
+    });
+}
+
+createAutoReport() {
+  this.isLoading = true;
+
+  Swal.fire({
+    title: 'Generating Auto Report...',
+    text: 'Please wait while the report is being generated.',
+    allowOutsideClick: false,
+    didOpen: () => Swal.showLoading()
+  });
+
+  this.mis.generateSummary()
+    .pipe(finalize(() => this.isLoading = false))
+    .subscribe({
+      next: summary => {
+        try {
+          // Build PDF
+          const doc = new jsPDF();
+          doc.text('Auto Report', 10, 10);
+          doc.text(JSON.stringify(summary, null, 2), 10, 20);
+          const pdfBase64 = doc.output('datauristring');
+
+          // Payload
           const payload: MISReport = {
             title: `Auto Report ${new Date().toISOString().slice(0, 10)}`,
             type: 'auto-generated',
             createdAt: new Date().toISOString(),
-            summary,
             uploadedBy: 'System',
-            fileType: 'json',
-            description: undefined,
+            fileType: 'application/pdf',
+            fileUrl: pdfBase64,
+            description: 'Auto-generated audit summary',
+            summary,
             filePath: undefined
           };
-          this.mis.createReport(payload).subscribe(() => this.load());
+
+          // Save to backend
+          this.mis.createReport(payload).subscribe({
+            next: () => {
+              this.load();
+              Swal.fire('Success ✅', 'Auto report generated and saved!', 'success');
+            },
+            error: () => {
+              Swal.fire('Error ❌', 'Failed to save the auto report.', 'error');
+            }
+          });
+
+        } catch (err) {
+          console.error(err);
+          Swal.fire('Error ❌', 'Could not generate the report.', 'error');
         }
-      });
+      },
+      error: () => {
+        Swal.fire('Error ❌', 'Failed to generate auto report summary.', 'error');
+      }
+    });
+}
+
+handleFileInput(ev: any) {
+    this.uploadingFile = ev.target.files?.[0];
   }
 
-  handleFileInput(ev: any) {
-    this.uploadingFile = ev.target.files?.[0];
+  generateAutoReport() {
+    this.mis.getDynamicSummary().subscribe(summary => {
+      const newReport = {
+        id: Date.now().toString(36),
+        title: `Auto Report ${new Date().toISOString().split('T')[0]}`,
+        type: 'auto-generated',
+        createdAt: new Date().toISOString(),
+        summary
+      };
+
+      // Normally POST to json-server
+      fetch('http://localhost:3000/misReports', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newReport)
+      }).then(() => {
+        Swal.fire('Success', 'Auto Report generated successfully!', 'success');
+      });
+    });
   }
 
  uploadReportMetadata() {
