@@ -1,6 +1,8 @@
+
+
 <div class="container-fluid">
   <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2 class="mb-0 me-3">Dashboard</h2>
+    <h2 class="mb-0 me-3">Dashboard</h2>
     <div>
       <button class="btn btn-outline-secondary me-2" (click)="refresh()">
         <i class="fas fa-sync-alt"></i> Refresh
@@ -10,8 +12,34 @@
     </div>
   </div>
 
-  <!-- Filters -->
-  <div class="card mb-3 p-3">
+<!-- 🔹 KPI Cards -->
+<div class="row mb-4">
+  <div class="col-md-3 col-sm-6 mb-2" *ngFor="let kpi of kpis">
+    <div class="card shadow-sm text-center p-3 border-2 rounded-3" [ngClass]="kpi.borderClass">
+      
+      <!-- Icon -->
+      <div class="mb-2">
+        <i [class]="kpi.icon + ' fa-2x ' + kpi.textClass"></i>
+      </div>
+
+      <!-- Label -->
+      <h6 class="fw-bold mb-1">{{ kpi.label }}</h6>
+
+      <!-- Value + Trend -->
+      <h3 class="fw-bold d-flex justify-content-center align-items-center">
+        {{ kpi.value }}
+        <span class="ms-2">
+          <i *ngIf="kpi.trend === 'up'" class="fas fa-arrow-up text-success"></i>
+          <i *ngIf="kpi.trend === 'down'" class="fas fa-arrow-down text-danger"></i>
+          <i *ngIf="kpi.trend === 'flat'" class="fas fa-arrow-right text-secondary"></i>
+        </span>
+      </h3>
+    </div>
+  </div>
+</div>
+
+    <!-- Filters -->
+  <div class="card mt-3 mb-3 p-3">
     <div class="row g-2 align-items-center">
       <div class="col-auto">
         <label class="form-label mb-0 small">Department</label>
@@ -28,34 +56,27 @@
     </div>
   </div>
 
+  <!-- 🔹 Bar Chart -->
   <div class="card shadow-sm p-3">
-  <h5>Bar Chart</h5>
-  <canvas 
-    baseChart
-    [data]="barChartData"
-    [options]="barChartOptions"
-    [type]="'bar'">
-  </canvas>
-</div>
+    <h5><i class="fas fa-chart-bar text-primary me-2"></i>{{ barChartOptions?.plugins?.title?.text }}</h5>
+    <canvas baseChart [data]="barChartData" [options]="barChartOptions" [type]="'bar'"></canvas>
+  </div>
 
-<div class="card shadow-sm p-3 mt-3">
-  <h5>Pie Chart</h5>
-  <canvas 
-    baseChart
-    [data]="pieChartData"
-    [options]="pieChartOptions"
-    [type]="'pie'">
-  </canvas>
-</div>
+  <!-- 🔹 Pie Chart -->
+  <div class="card shadow-sm p-3 mt-3">
+    <h5><i class="fas fa-chart-pie text-success me-2"></i>{{ pieChartOptions?.plugins?.title?.text }}</h5>
+    <canvas baseChart [data]="pieChartData" [options]="pieChartOptions" [type]="'pie'"></canvas>
+  </div>
 
-<div class="card shadow-sm p-3 mt-3">
-  <h5>Line Chart</h5>
-  <canvas 
-    baseChart
-    [data]="lineChartData"
-    [options]="lineChartOptions"
-    [type]="'line'">
-  </canvas>
-</div>
+  <!-- 🔹 Line Chart -->
+  <div class="card shadow-sm p-3 mt-3">
+    <h5><i class="fas fa-chart-line text-info me-2"></i>{{ lineChartOptions?.plugins?.title?.text }}</h5>
+    <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" [type]="'line'"></canvas>
+  </div>
 
+  <!-- 🔹 Workflow Completion Trends -->
+  <div class="card shadow-sm p-3 mt-3">
+    <h5><i class="fas fa-tasks text-warning me-2"></i>{{ workflowChartOptions?.plugins?.title?.text }}</h5>
+    <canvas baseChart [data]="workflowChartData" [options]="workflowChartOptions" [type]="'line'"></canvas>
+  </div>
 </div>

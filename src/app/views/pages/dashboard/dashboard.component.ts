@@ -26,12 +26,6 @@ import { GlobalService } from 'src/app/shared/services/global.service';
 import { ChartConfiguration, ChartData } from 'chart.js';
 import * as saveAs from 'file-saver';
 
-// interface Message {
-//   text: string;
-//   sender: "user" | "bot";
-//   isAttention?: boolean;  
-// }
-// interface to match the API response
 
 interface ConversationMessage {
   sender: 'user' | 'bot';
@@ -86,16 +80,18 @@ export class DashboardComponent implements OnInit {
   department = '';
   dateFrom?: string;
   dateTo?: string;
-
-  // summary data for charts
+   kpis: { label: string; value: number | string; icon: string; borderClass: string; textClass: string; trend: string }[] = [];
+  // summary data
   auditsByDept: Record<string, number> = {};
   findingsSeverity: any = {};
   auditsOverTime: Record<string, number> = {};
+  workflowTrends: any;
 
-  // chart data holders (ng2-charts)
+  // chart data holders
   barChartData: ChartData<'bar'> = { labels: [], datasets: [] };
   pieChartData: ChartData<'pie'> = { labels: [], datasets: [] };
   lineChartData: ChartData<'line'> = { labels: [], datasets: [] };
+  workflowChartData: ChartData<'line'> = { labels: [], datasets: [] };
 
   isLoading = false;
 
@@ -105,64 +101,198 @@ export class DashboardComponent implements OnInit {
     this.refresh();
   }
 
-  //   // Bar Chart
-  // barChartData: ChartConfiguration<'bar'>['data'] = {
-  //   labels: ['Finance', 'IT', 'EBU', 'Market'],
-  //   datasets: [
-  //     { data: [12, 19, 3, 5], label: 'Audits' }
-  //   ]
-  // };
-   barChartOptions: ChartConfiguration<'bar'>['options'] = { responsive: true };
+  // Chart options
+  barChartOptions: ChartConfiguration<'bar'>['options'] = { 
+    responsive: true,
+    plugins: { title: { display: true, text: 'Audits by Department' } }
+  };
 
-  // // Pie Chart
-  // pieChartData: ChartConfiguration<'pie'>['data'] = {
-  //   labels: ['Completed', 'In Progress', 'Planned'],
-  //   datasets: [
-  //     { data: [5, 3, 2] }
-  //   ]
-  // };
-   pieChartOptions: ChartConfiguration<'pie'>['options'] = { responsive: true };
+  pieChartOptions: ChartConfiguration<'pie'>['options'] = { 
+    responsive: true,
+    plugins: { title: { display: true, text: 'Findings by Severity' } }
+  };
 
-  // // Line Chart
-  // // lineChartData: ChartConfiguration<'line'>['data'] = {
-  // //   labels: ['Jan', 'Feb', 'Mar', 'Apr'],
-  // //   datasets: [
-  // //     { data: [10, 20, 15, 25], label: 'Findings Trend' }
-  // //   ]
-  // // };
-   lineChartOptions: ChartConfiguration<'line'>['options'] = { responsive: true };
+  lineChartOptions: ChartConfiguration<'line'>['options'] = { 
+    responsive: true,
+    plugins: { title: { display: true, text: 'Audits Over Time' } }
+  };
+
+  workflowChartOptions: ChartConfiguration<'line'>['options'] = { 
+    responsive: true,
+    plugins: { title: { display: true, text: 'Workflow Completion Trends (%)' } }
+  };
 
   refresh(): void {
-    this.isLoading = true;
-    this.mis.generateSummary().subscribe(s => {
-      this.auditsByDept = s.auditsByDept;
-      this.findingsSeverity = s.findingsSeverity;
-      this.auditsOverTime = s.auditsOverTime;
+  this.isLoading = true;
 
-      this.buildCharts();
-      this.isLoading = false;
-    }, () => this.isLoading = false);
-  }
+  forkJoin({
+    audits: this.mis.getAudits(),
+    workflows: this.mis.getWorkflows(),
+    observations: this.mis.getObservations()
+  }).subscribe(({ audits, workflows, observations }) => {
+
+    // ✅ Apply filters
+    let filteredAudits = audits;
+    let filteredWorkflows = workflows;
+    let filteredObservations = observations;
+
+    if (this.department) {
+      filteredAudits = filteredAudits.filter((a: any) =>
+        a.department?.toLowerCase().includes(this.department.toLowerCase())
+      );
+      filteredWorkflows = filteredWorkflows.filter((wf: any) =>
+        wf.department?.toLowerCase().includes(this.department.toLowerCase())
+      );
+    }
+
+    if (this.dateFrom) {
+      filteredAudits = filteredAudits.filter((a: any) => a.startDate >= this.dateFrom!);
+      filteredWorkflows = filteredWorkflows.filter((wf: any) => wf.startDate >= this.dateFrom!);
+      filteredObservations = filteredObservations.filter((o: any) => o.createdAt >= this.dateFrom!);
+    }
+
+    if (this.dateTo) {
+      filteredAudits = filteredAudits.filter((a: any) => a.startDate <= this.dateTo!);
+      filteredWorkflows = filteredWorkflows.filter((wf: any) => wf.startDate <= this.dateTo!);
+      filteredObservations = filteredObservations.filter((o: any) => o.createdAt <= this.dateTo!);
+    }
+
+    // --- Audits by Department ---
+    this.auditsByDept = filteredAudits.reduce((acc: any, a: any) => {
+      acc[a.department] = (acc[a.department] || 0) + 1;
+      return acc;
+    }, {});
+
+    // --- Findings Severity ---
+    const severityCount: any = { High: 0, Medium: 0, Low: 0 };
+    filteredObservations.forEach((obs: any) => {
+      severityCount[obs.severity] = (severityCount[obs.severity] || 0) + 1;
+    });
+    filteredWorkflows.forEach((wf: any) => {
+      (wf.miniFindings || []).forEach((f: any) => {
+        const sev = f.severity || f.impact || 'Unknown';
+        severityCount[sev] = (severityCount[sev] || 0) + 1;
+      });
+    });
+    this.findingsSeverity = severityCount;
+
+    // --- Audits Over Time (YYYY-MM) ---
+    this.auditsOverTime = filteredAudits.reduce((acc: any, a: any) => {
+      const month = a.startDate.slice(0, 7);
+      acc[month] = (acc[month] || 0) + 1;
+      return acc;
+    }, {});
+
+    // --- Workflow Completion Trends ---
+    this.workflowTrends = filteredWorkflows.reduce((acc: any, wf: any) => {
+      if (!wf.startDate) return acc;
+      const month = wf.startDate.slice(0, 7);
+      const total = (wf.tasks?.length || 0);
+      const done = (wf.tasks || []).filter((t: any) => t.status === 'Done').length;
+      const pct = total ? Math.round((done / total) * 100) : 0;
+      acc[month] = acc[month] || [];
+      acc[month].push(pct);
+      return acc;
+    }, {});
+
+    this.workflowTrends = Object.fromEntries(
+      Object.entries(this.workflowTrends).map(([m, arr]: any) => {
+        const avg = arr.reduce((a: number, b: number) => a + b, 0) / arr.length;
+        return [m, Math.round(avg)];
+      })
+    );
+
+    // --- KPIs ---
+    const totalAudits = filteredAudits.length;
+    const completedAudits = filteredAudits.filter((a: any) => a.status === 'Completed').length;
+    const openObservations = filteredObservations.filter((o: any) => o.status === 'Open').length;
+    const avgWorkflowCompletion = Math.round(
+      filteredWorkflows.reduce((sum: number, wf: any) => {
+        const total = wf.tasks?.length || 0;
+        const done = (wf.tasks || []).filter((t: any) => t.status === 'Done').length;
+        return sum + (total ? (done / total) * 100 : 0);
+      }, 0) / (filteredWorkflows.length || 1)
+    );
+
+    this.kpis = [
+      { 
+        label: 'Total Audits', 
+        value: totalAudits, 
+        icon: 'fas fa-clipboard-list', 
+        borderClass: 'border-primary', 
+        textClass: 'text-primary',
+        trend: totalAudits > 5 ? 'up' : 'down' 
+      },
+      { 
+        label: 'Completed Audits', 
+        value: completedAudits, 
+        icon: 'fas fa-check-circle', 
+        borderClass: 'border-success', 
+        textClass: 'text-success',
+        trend: completedAudits > 2 ? 'up' : 'flat' 
+      },
+      { 
+        label: 'Open Observations', 
+        value: openObservations, 
+        icon: 'fas fa-exclamation-triangle', 
+        borderClass: 'border-warning', 
+        textClass: 'text-warning',
+        trend: openObservations > 3 ? 'down' : 'up' 
+      },
+      { 
+        label: 'Workflow Completion', 
+        value: avgWorkflowCompletion + '%', 
+        icon: 'fas fa-tasks', 
+        borderClass: 'border-info', 
+        textClass: 'text-info',
+        trend: avgWorkflowCompletion >= 50 ? 'up' : 'down' 
+      }
+    ];
+
+    // --- Build charts
+    this.buildCharts();
+    this.isLoading = false;
+  }, () => this.isLoading = false);
+}
+
 
   buildCharts() {
-    // BAR: audits by department
-    this.barChartData = {
-      labels: Object.keys(this.auditsByDept),
-      datasets: [{ data: Object.values(this.auditsByDept), label: 'Audits' }]
+    // Color palette for departments
+    const colors: Record<string, string> = {
+      Finance: '#007bff',
+      IT: '#28a745',
+      EBU: '#ffc107',
+      Market: '#dc3545',
+      RND: '#6f42c1'
     };
 
-    // PIE: findings by severity
+    const deptLabels = Object.keys(this.auditsByDept);
+    const deptValues = Object.values(this.auditsByDept);
+
+    this.barChartData = {
+      labels: deptLabels,
+      datasets: [{
+        data: deptValues,
+        label: 'Audits',
+        backgroundColor: deptLabels.map(d => colors[d] || '#999') // fallback grey if new dept
+      }]
+    };
+
     this.pieChartData = {
       labels: Object.keys(this.findingsSeverity),
       datasets: [{ data: Object.values(this.findingsSeverity) }]
     };
 
-    // LINE: audits over time (sorted keys)
-    const labels = Object.keys(this.auditsOverTime).sort();
-    const values = labels.map(k => this.auditsOverTime[k]);
+    const auditLabels = Object.keys(this.auditsOverTime).sort();
     this.lineChartData = {
-      labels,
-      datasets: [{ data: values, label: 'Audits' }]
+      labels: auditLabels,
+      datasets: [{ data: auditLabels.map(k => this.auditsOverTime[k]), label: 'Audits' }]
+    };
+
+    const wfLabels = Object.keys(this.workflowTrends).sort();
+    this.workflowChartData = {
+      labels: wfLabels,
+      datasets: [{ data: wfLabels.map(k => this.workflowTrends[k]), label: 'Avg Completion %' }]
     };
   }
 
@@ -186,5 +316,4 @@ export class DashboardComponent implements OnInit {
     (doc as any).autoTable({ head: [['Department', 'Audits']], body, startY: 30 });
     doc.save(`mis-summary-${new Date().toISOString().slice(0,10)}.pdf`);
   }
-
-};
+}
