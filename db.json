@@ -534,35 +534,6 @@
       }
     },
     {
-      "id": "4e16",
-      "title": "Auto Report 2025-09-21",
-      "type": "auto-generated",
-      "createdAt": "2025-09-21T11:11:57.105Z",
-      "summary": {
-        "auditsByDept": {
-          "Finance": 2,
-          "IT": 1,
-          "EBU": 1,
-          "Market": 1,
-          "RND": 1
-        },
-        "findingsSeverity": {
-          "High": 4,
-          "Medium": 6,
-          "Low": 8,
-          "Unknown": 0
-        },
-        "auditsOverTime": {
-          "2025-01": 1,
-          "2025-02": 1,
-          "2025-09": 4
-        },
-        "totalAudits": 6,
-        "completedAudits": 2,
-        "inProgress": 2
-      }
-    },
-    {
       "id": "57e2",
       "title": "Audits",
       "type": "uploaded",
@@ -604,40 +575,6 @@
           "2025-02": 1,
           "2025-09": 6
         }
-      }
-    },
-    {
-      "id": "2dc8",
-      "title": "Auto Report 2025-09-21",
-      "type": "auto-generated",
-      "createdAt": "2025-09-21T19:21:55.886Z",
-      "uploadedBy": "System",
-      "fileType": "application/pdf",
-      "fileUrl": "data:application/pdf;filename=generated.pdf;base64,JVBERi0xLjMKJbrfrOAKMyAwIG9iago8PC9UeXBlIC9QYWdlCi9QYXJlbnQgMSAwIFIKL1Jlc291cmNlcyAyIDAgUgovTWVkaWFCb3ggWzAgMCA1OTUuMjc5OTk5OTk5OTk5OTcyNyA4NDEuODg5OTk5OTk5OTk5OTg2NF0KL0NvbnRlbnRzIDQgMCBSCj4+CmVuZG9iago0IDAgb2JqCjw8Ci9MZW5ndGggNzU1Cj4+CnN0cmVhbQowLjU2NzAwMDAwMDAwMDAwMDEgdwowIEcKQlQKL0YxIDE2IFRmCjE4LjM5OTk5OTk5OTk5OTk5ODYgVEwKMCBnCjI4LjM0NjQ1NjY5MjkxMzM4ODggODEzLjU0MzU0MzMwNzA4NjU2NTYgVGQKKEF1dG8gUmVwb3J0KSBUagpFVApCVAovRjEgMTYgVGYKMTguMzk5OTk5OTk5OTk5OTk4NiBUTAowIGcKMjguMzQ2NDU2NjkyOTEzMzg4OCA3ODUuMTk3MDg2NjE0MTczMjU4NiBUZAooeykgVGoKVCogKCAgImF1ZGl0c0J5RGVwdCI6IHspIFRqClQqICggICAgIkZpbmFuY2UiOiAyLCkgVGoKVCogKCAgICAiSVQiOiAxLCkgVGoKVCogKCAgICAiRUJVIjogMiwpIFRqClQqICggICAgIk1hcmtldCI6IDEsKSBUagpUKiAoICAgICJSTkQiOiAxLCkgVGoKVCogKCAgICAiUEciOiAxKSBUagpUKiAoICB9LCkgVGoKVCogKCAgImZpbmRpbmdzU2V2ZXJpdHkiOiB7KSBUagpUKiAoICAgICJIaWdoIjogNCwpIFRqClQqICggICAgIk1lZGl1bSI6IDYsKSBUagpUKiAoICAgICJMb3ciOiA4LCkgVGoKVCogKCAgICAiVW5rbm93biI6IDApIFRqClQqICggIH0sKSBUagpUKiAoICAiYXVkaXRzT3ZlclRpbWUiOiB7KSBUagpUKiAoICAgICIyMDI1LTAxIjogMSwpIFRqClQqICggICAgIjIwMjUtMDIiOiAxLCkgVGoKVCogKCAgICAiMjAyNS0wOSI6IDYpIFRqClQqICggIH0sKSBUagpUKiAoICAidG90YWxBdWRpdHMiOiA4LCkgVGoKVCogKCAgImNvbXBsZXRlZEF1ZGl0cyI6IDMsKSBUagpUKiAoICAiaW5Qcm9ncmVzcyI6IDIpIFRqClQqICh9KSBUagpFVAplbmRzdHJlYW0KZW5kb2JqCjEgMCBvYmoKPDwvVHlwZSAvUGFnZXMKL0tpZHMgWzMgMCBSIF0KL0NvdW50IDEKPj4KZW5kb2JqCjUgMCBvYmoKPDwKL1R5cGUgL0ZvbnQKL0Jhc2VGb250IC9IZWx2ZXRpY2EKL1N1YnR5cGUgL1R5cGUxCi9FbmNvZGluZyAvV2luQW5zaUVuY29kaW5nCi9GaXJzdENoYXIgMzIKL0xhc3RDaGFyIDI1NQo+PgplbmRvYmoKNiAwIG9iago8PAovVHlwZSAvRm9udAovQmFzZUZvbnQgL0hlbHZldGljYS1Cb2xkCi9TdWJ0eXBlIC9UeXBlMQovRW5jb2RpbmcgL1dpbkFuc2lFbmNvZGluZwovRmlyc3RDaGFyIDMyCi9MYXN0Q2hhciAyNTUKPj4KZW5kb2JqCjcgMCBvYmoKPDwKL1R5cGUgL0ZvbnQKL0Jhc2VGb250IC9IZWx2ZXRpY2EtT2JsaXF1ZQovU3VidHlwZSAvVHlwZTEKL0VuY29kaW5nIC9XaW5BbnNpRW5jb2RpbmcKL0ZpcnN0Q2hhciAzMgovTGFzdENoYXIgMjU1Cj4+CmVuZG9iago4IDAgb2JqCjw8Ci9UeXBlIC9Gb250Ci9CYXNlRm9udCAvSGVsdmV0aWNhLUJvbGRPYmxpcXVlCi9TdWJ0eXBlIC9UeXBlMQovRW5jb2RpbmcgL1dpbkFuc2lFbmNvZGluZwovRmlyc3RDaGFyIDMyCi9MYXN0Q2hhciAyNTUKPj4KZW5kb2JqCjkgMCBvYmoKPDwKL1R5cGUgL0ZvbnQKL0Jhc2VGb250IC9Db3VyaWVyCi9TdWJ0eXBlIC9UeXBlMQovRW5jb2RpbmcgL1dpbkFuc2lFbmNvZGluZwovRmlyc3RDaGFyIDMyCi9MYXN0Q2hhciAyNTUKPj4KZW5kb2JqCjEwIDAgb2JqCjw8Ci9UeXBlIC9Gb250Ci9CYXNlRm9udCAvQ291cmllci1Cb2xkCi9TdWJ0eXBlIC9UeXBlMQovRW5jb2RpbmcgL1dpbkFuc2lFbmNvZGluZwovRmlyc3RDaGFyIDMyCi9MYXN0Q2hhciAyNTUKPj4KZW5kb2JqCjExIDAgb2JqCjw8Ci9UeXBlIC9Gb250Ci9CYXNlRm9udCAvQ291cmllci1PYmxpcXVlCi9TdWJ0eXBlIC9UeXBlMQovRW5jb2RpbmcgL1dpbkFuc2lFbmNvZGluZwovRmlyc3RDaGFyIDMyCi9MYXN0Q2hhciAyNTUKPj4KZW5kb2JqCjEyIDAgb2JqCjw8Ci9UeXBlIC9Gb250Ci9CYXNlRm9udCAvQ291cmllci1Cb2xkT2JsaXF1ZQovU3VidHlwZSAvVHlwZTEKL0VuY29kaW5nIC9XaW5BbnNpRW5jb2RpbmcKL0ZpcnN0Q2hhciAzMgovTGFzdENoYXIgMjU1Cj4+CmVuZG9iagoxMyAwIG9iago8PAovVHlwZSAvRm9udAovQmFzZUZvbnQgL1RpbWVzLVJvbWFuCi9TdWJ0eXBlIC9UeXBlMQovRW5jb2RpbmcgL1dpbkFuc2lFbmNvZGluZwovRmlyc3RDaGFyIDMyCi9MYXN0Q2hhciAyNTUKPj4KZW5kb2JqCjE0IDAgb2JqCjw8Ci9UeXBlIC9Gb250Ci9CYXNlRm9udCAvVGltZXMtQm9sZAovU3VidHlwZSAvVHlwZTEKL0VuY29kaW5nIC9XaW5BbnNpRW5jb2RpbmcKL0ZpcnN0Q2hhciAzMgovTGFzdENoYXIgMjU1Cj4+CmVuZG9iagoxNSAwIG9iago8PAovVHlwZSAvRm9udAovQmFzZUZvbnQgL1RpbWVzLUl0YWxpYwovU3VidHlwZSAvVHlwZTEKL0VuY29kaW5nIC9XaW5BbnNpRW5jb2RpbmcKL0ZpcnN0Q2hhciAzMgovTGFzdENoYXIgMjU1Cj4+CmVuZG9iagoxNiAwIG9iago8PAovVHlwZSAvRm9udAovQmFzZUZvbnQgL1RpbWVzLUJvbGRJdGFsaWMKL1N1YnR5cGUgL1R5cGUxCi9FbmNvZGluZyAvV2luQW5zaUVuY29kaW5nCi9GaXJzdENoYXIgMzIKL0xhc3RDaGFyIDI1NQo+PgplbmRvYmoKMTcgMCBvYmoKPDwKL1R5cGUgL0ZvbnQKL0Jhc2VGb250IC9aYXBmRGluZ2JhdHMKL1N1YnR5cGUgL1R5cGUxCi9GaXJzdENoYXIgMzIKL0xhc3RDaGFyIDI1NQo+PgplbmRvYmoKMTggMCBvYmoKPDwKL1R5cGUgL0ZvbnQKL0Jhc2VGb250IC9TeW1ib2wKL1N1YnR5cGUgL1R5cGUxCi9GaXJzdENoYXIgMzIKL0xhc3RDaGFyIDI1NQo+PgplbmRvYmoKMiAwIG9iago8PAovUHJvY1NldCBbL1BERiAvVGV4dCAvSW1hZ2VCIC9JbWFnZUMgL0ltYWdlSV0KL0ZvbnQgPDwKL0YxIDUgMCBSCi9GMiA2IDAgUgovRjMgNyAwIFIKL0Y0IDggMCBSCi9GNSA5IDAgUgovRjYgMTAgMCBSCi9GNyAxMSAwIFIKL0Y4IDEyIDAgUgovRjkgMTMgMCBSCi9GMTAgMTQgMCBSCi9GMTEgMTUgMCBSCi9GMTIgMTYgMCBSCi9GMTMgMTcgMCBSCi9GMTQgMTggMCBSCj4+Ci9YT2JqZWN0IDw8Cj4+Cj4+CmVuZG9iagoxOSAwIG9iago8PAovUHJvZHVjZXIgKGpzUERGIDIuNS4xKQovQ3JlYXRpb25EYXRlIChEOjIwMjUwOTIxMjIyMTU1KzAzJzAwJykKPj4KZW5kb2JqCjIwIDAgb2JqCjw8Ci9UeXBlIC9DYXRhbG9nCi9QYWdlcyAxIDAgUgovT3BlbkFjdGlvbiBbMyAwIFIgL0ZpdEggbnVsbF0KL1BhZ2VMYXlvdXQgL09uZUNvbHVtbgo+PgplbmRvYmoKeHJlZgowIDIxCjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDk1OCAwMDAwMCBuIAowMDAwMDAyNzc1IDAwMDAwIG4gCjAwMDAwMDAwMTUgMDAwMDAgbiAKMDAwMDAwMDE1MiAwMDAwMCBuIAowMDAwMDAxMDE1IDAwMDAwIG4gCjAwMDAwMDExNDAgMDAwMDAgbiAKMDAwMDAwMTI3MCAwMDAwMCBuIAowMDAwMDAxNDAzIDAwMDAwIG4gCjAwMDAwMDE1NDAgMDAwMDAgbiAKMDAwMDAwMTY2MyAwMDAwMCBuIAowMDAwMDAxNzkyIDAwMDAwIG4gCjAwMDAwMDE5MjQgMDAwMDAgbiAKMDAwMDAwMjA2MCAwMDAwMCBuIAowMDAwMDAyMTg4IDAwMDAwIG4gCjAwMDAwMDIzMTUgMDAwMDAgbiAKMDAwMDAwMjQ0NCAwMDAwMCBuIAowMDAwMDAyNTc3IDAwMDAwIG4gCjAwMDAwMDI2NzkgMDAwMDAgbiAKMDAwMDAwMzAyMyAwMDAwMCBuIAowMDAwMDAzMTA5IDAwMDAwIG4gCnRyYWlsZXIKPDwKL1NpemUgMjEKL1Jvb3QgMjAgMCBSCi9JbmZvIDE5IDAgUgovSUQgWyA8MjBCMTU5NTk3NTFFODkwREI1NkU1RTU0NTMyN0VCREE+IDwyMEIxNTk1OTc1MUU4OTBEQjU2RTVFNTQ1MzI3RUJEQT4gXQo+PgpzdGFydHhyZWYKMzIxMwolJUVPRg==",
-      "description": "Auto-generated audit summary",
-      "summary": {
-        "auditsByDept": {
-          "Finance": 2,
-          "IT": 1,
-          "EBU": 2,
-          "Market": 1,
-          "RND": 1,
-          "PG": 1
-        },
-        "findingsSeverity": {
-          "High": 4,
-          "Medium": 6,
-          "Low": 8,
-          "Unknown": 0
-        },
-        "auditsOverTime": {
-          "2025-01": 1,
-          "2025-02": 1,
-          "2025-09": 6
-        },
-        "totalAudits": 8,
-        "completedAudits": 3,
-        "inProgress": 2
       }
     }
   ]
