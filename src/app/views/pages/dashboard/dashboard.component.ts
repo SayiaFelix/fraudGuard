@@ -255,47 +255,60 @@ export class DashboardComponent implements OnInit {
   }, () => this.isLoading = false);
 }
 
+buildCharts() {
+  // 🔹 Dynamic color palette (extend as needed)
+  const palette = [
+    '#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1',
+    '#20c997', '#fd7e14', '#6610f2', '#17a2b8', '#e83e8c'
+  ];
 
-  buildCharts() {
-    // Color palette for departments
-    const colors: Record<string, string> = {
-      Finance: '#007bff',
-      IT: '#28a745',
-      EBU: '#ffc107',
-      Market: '#dc3545',
-      RND: '#6f42c1'
-    };
+  const deptLabels = Object.keys(this.auditsByDept);
+  const deptValues = Object.values(this.auditsByDept);
 
-    const deptLabels = Object.keys(this.auditsByDept);
-    const deptValues = Object.values(this.auditsByDept);
+  // 🔹 Assign colors dynamically
+  const backgroundColors = deptLabels.map((_, i) => palette[i % palette.length]);
 
-    this.barChartData = {
-      labels: deptLabels,
-      datasets: [{
-        data: deptValues,
-        label: 'Audits',
-        backgroundColor: deptLabels.map(d => colors[d] || '#999') // fallback grey if new dept
-      }]
-    };
+  this.barChartData = {
+    labels: deptLabels,
+    datasets: [{
+      data: deptValues,
+      label: 'Audits',
+      backgroundColor: backgroundColors
+    }]
+  };
 
-    this.pieChartData = {
-      labels: Object.keys(this.findingsSeverity),
-      datasets: [{ data: Object.values(this.findingsSeverity) }]
-    };
+  this.pieChartData = {
+    labels: Object.keys(this.findingsSeverity),
+    datasets: [{
+      data: Object.values(this.findingsSeverity),
+      backgroundColor: Object.keys(this.findingsSeverity).map((_, i) => palette[i % palette.length])
+    }]
+  };
 
-    const auditLabels = Object.keys(this.auditsOverTime).sort();
-    this.lineChartData = {
-      labels: auditLabels,
-      datasets: [{ data: auditLabels.map(k => this.auditsOverTime[k]), label: 'Audits' }]
-    };
+  const auditLabels = Object.keys(this.auditsOverTime).sort();
+  this.lineChartData = {
+    labels: auditLabels,
+    datasets: [{
+      data: auditLabels.map(k => this.auditsOverTime[k]),
+      label: 'Audits',
+      borderColor: '#007bff',
+      backgroundColor: 'rgba(0,123,255,0.2)',
+      fill: true
+    }]
+  };
 
-    const wfLabels = Object.keys(this.workflowTrends).sort();
-    this.workflowChartData = {
-      labels: wfLabels,
-      datasets: [{ data: wfLabels.map(k => this.workflowTrends[k]), label: 'Avg Completion %' }]
-    };
-  }
-
+  const wfLabels = Object.keys(this.workflowTrends).sort();
+  this.workflowChartData = {
+    labels: wfLabels,
+    datasets: [{
+      data: wfLabels.map(k => this.workflowTrends[k]),
+      label: 'Avg Completion %',
+      borderColor: '#28a745',
+      backgroundColor: 'rgba(40,167,69,0.2)',
+      fill: true
+    }]
+  };
+}
   // Export helpers
   exportExcel() {
     const wb = XLSX.utils.book_new();

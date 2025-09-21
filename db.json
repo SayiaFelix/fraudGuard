@@ -78,13 +78,22 @@
       "id": "2c32"
     },
     {
-      "id": "8dbd",
-      "title": "uewifewfew",
+      "title": "Chatbot system",
       "scope": "safiuewhfiuwe",
       "department": "EBU",
       "status": "Planned",
       "startDate": "2025-09-23",
-      "endDate": "2025-10-01"
+      "endDate": "2025-10-01",
+      "id": "8dbd"
+    },
+    {
+      "title": "Payment",
+      "scope": "dfwfwe",
+      "department": "PG",
+      "status": "Planned",
+      "startDate": "2025-09-30",
+      "endDate": "2025-10-22",
+      "id": "0f4c"
     }
   ],
   "workflows": [
@@ -305,13 +314,26 @@
     {
       "id": "8dbd",
       "auditId": "8dbd",
-      "title": "uewifewfew Workflow",
+      "title": "Chatbot system Workflow",
       "scope": "safiuewhfiuwe",
       "department": "EBU",
       "assignedTo": "",
       "status": "Not Started",
       "startDate": "2025-09-23",
       "dueDate": "2025-10-01",
+      "tasks": [],
+      "miniFindings": []
+    },
+    {
+      "id": "0f4c",
+      "auditId": "0f4c",
+      "title": "Payment Workflow",
+      "scope": "dfwfwe",
+      "department": "PG",
+      "assignedTo": "",
+      "status": "Not Started",
+      "startDate": "2025-09-30",
+      "dueDate": "2025-10-22",
       "tasks": [],
       "miniFindings": []
     }
