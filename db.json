@@ -69,22 +69,22 @@
       "endDate": "2025-09-30"
     },
     {
-      "title": "Progamming",
+      "id": "2c32",
+      "title": "Progamming Workflow",
       "scope": "dsfsdfsd",
       "department": "RND",
-      "status": "Planned",
+      "status": "Completed",
       "startDate": "2025-09-24",
-      "endDate": "2025-10-03",
-      "id": "2c32"
+      "endDate": "2025-10-03"
     },
     {
-      "title": "Chatbot system",
+      "id": "8dbd",
+      "title": "Chatbot system Workflow",
       "scope": "safiuewhfiuwe",
       "department": "EBU",
       "status": "Planned",
       "startDate": "2025-09-23",
-      "endDate": "2025-10-01",
-      "id": "8dbd"
+      "endDate": "2025-10-01"
     },
     {
       "title": "Payment",
@@ -299,41 +299,49 @@
       ]
     },
     {
-      "id": "2c32",
-      "auditId": "2c32",
       "title": "Progamming Workflow",
       "scope": "dsfsdfsd",
       "department": "RND",
-      "assignedTo": "",
+      "assignedTo": "Auditor",
+      "status": "Completed",
       "startDate": "2025-09-24",
       "dueDate": "2025-10-03",
-      "tasks": [],
-      "miniFindings": [],
-      "status": "Not Started"
+      "id": "2c32",
+      "auditId": "2c32",
+      "tasks": [
+        {
+          "id": "t1758476811414",
+          "description": "vfdf",
+          "assignee": "auditor1",
+          "status": "Done",
+          "dueDate": "2025-09-23"
+        }
+      ],
+      "miniFindings": []
     },
     {
-      "id": "8dbd",
-      "auditId": "8dbd",
       "title": "Chatbot system Workflow",
       "scope": "safiuewhfiuwe",
       "department": "EBU",
-      "assignedTo": "",
+      "assignedTo": "Auditor2",
       "status": "Not Started",
       "startDate": "2025-09-23",
       "dueDate": "2025-10-01",
+      "id": "8dbd",
+      "auditId": "8dbd",
       "tasks": [],
       "miniFindings": []
     },
     {
-      "id": "0f4c",
-      "auditId": "0f4c",
       "title": "Payment Workflow",
       "scope": "dfwfwe",
       "department": "PG",
-      "assignedTo": "",
+      "assignedTo": "Auditor2",
       "status": "Not Started",
       "startDate": "2025-09-30",
       "dueDate": "2025-10-22",
+      "id": "0f4c",
+      "auditId": "0f4c",
       "tasks": [],
       "miniFindings": []
     }
