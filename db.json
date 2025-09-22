@@ -436,5 +436,77 @@
       ],
       "id": "cff1"
     }
+  ],
+    "inboxItems": [
+    {
+      "id": 1,
+      "role": "CIA", 
+      "type": "approval",
+      "title": "Draft Report for Approval",
+      "from": "John Doe (Auditor)",
+      "summary": "Draft Audit Report for Q1 Financial Audit is ready for your review and approval.",
+      "isRead": false,
+      "timestamp": "2025-01-20T10:00:00Z",
+      "details": {
+        "subject": "Review and Approve: Draft Report #A1-DR-001",
+        "auditId": "a1"
+      }
+    },
+    {
+      "id": 2,
+      "role": "Auditor", 
+      "type": "response",
+      "title": "Management Response Received",
+      "from": "Audit Unit (Finance)",
+      "summary": "Management has submitted their response to the observations in the IT Security Workflow audit.",
+      "isRead": false,
+      "timestamp": "2025-02-16T14:30:00Z",
+      "details": {
+        "subject": "Management Response to Report #A2-FR-001",
+        "auditId": "a2"
+      }
+    },
+    {
+      "id": 3,
+      "role": "CIA", 
+      "type": "notification",
+      "title": "Compliance Overdue",
+      "from": "System Notification",
+      "summary": "The action plan for the observation 'Weak password policy' is now overdue by 5 days.",
+      "isRead": true,
+      "timestamp": "2025-09-22T09:00:00Z",
+      "details": {
+        "subject": "Overdue Compliance: Observation #o2",
+        "observationId": "o2",
+        "auditId": "a2"
+      }
+    },
+    {
+      "id": 4,
+      "role": "Auditor", 
+      "title": "New Audit Assigned",
+      "from": "System",
+      "summary": "You have been assigned as the lead auditor for the upcoming 'Marketing Audits' engagement.",
+      "isRead": true,
+      "timestamp": "2025-09-21T11:00:00Z",
+      "details": {
+        "subject": "New Assignment: Marketing Audits",
+        "auditId": "64b0"
+      }
+    },
+    {
+      "id": 5,
+      "role": "CIA", 
+      "type": "approval",
+      "title": "Approve Annual Audit Plan",
+      "from": "Jane Smith (Auditor)",
+      "summary": "The draft of the Annual Audit Plan for the upcoming fiscal year is ready for your final approval.",
+      "isRead": false,
+      "timestamp": "2025-09-10T16:00:00Z",
+      "details": {
+        "subject": "Action Required: Approve Annual Audit Plan 2026"
+      }
+    }
   ]
+  
 }

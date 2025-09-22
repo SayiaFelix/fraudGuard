@@ -1,166 +1,90 @@
-<div class="inbox-container" [class.details-sidebar-open]="isDetailsSidebarVisible">
+<div class="inbox-container">
 
+  <!-- ======================= LEFT PANEL: INBOX LIST ======================= -->
   <div class="conversation-list-panel">
-    <!-- Header with Notification Logic -->
     <div class="panel-header">
       <h1 class="inbox-title">Inbox</h1>
-      <div class="header-actions">
-        <button class="btn-icon notification-btn" (click)="toggleNotifications($event)">
-          <i class="feather icon-bell"></i>
-          <span class="notification-badge" *ngIf="pendingApprovals.length > 0">{{ pendingApprovals.length }}</span>
-        </button>
-        <button class="btn-icon"><i class="feather icon-plus"></i></button>
-        <button class="btn-icon"><i class="feather icon-search"></i></button>
-      </div>
-
-      <!-- Notifications Dropdown -->
-      <div class="notifications-dropdown" *ngIf="isNotificationsVisible">
-        <div class="dropdown-header">Pending Approvals</div>
-        <ul class="notification-list" *ngIf="pendingApprovals.length > 0; else noApprovals">
-          <li class="notification-item" *ngFor="let approval of pendingApprovals" (click)="selectConversation(approval)">
-            <div class="avatar" [style.background-color]="approval.avatarColor">{{ approval.initials }}</div>
-            <div class="notification-details">
-              <div class="sender-name">{{ approval.sender }}</div>
-              <div class="message-preview">Requires approval to join.</div>
-            </div>
-          </li>
-        </ul>
-        <ng-template #noApprovals>
-          <div class="no-notifications">No pending approvals.</div>
-        </ng-template>
-      </div>
     </div>
 
-    <!-- Filters -->
+    <!-- Redesigned Filters -->
     <div class="panel-filters">
-      <details class="filter-container">
-        <summary class="filter-button">
-          <span>{{ selectedView?.name || 'All active conversations' }}</span>
-          <i class="feather icon-chevron-down"></i>
-        </summary>
-        <!-- Dropdown content here -->
-      </details>
-      <details class="filter-container">
-        <summary class="sort-button">
-          <i class="feather icon-arrow-up"></i><i class="feather icon-arrow-down"></i><span>Sort</span>
-        </summary>
-         <!-- Dropdown content here -->
-      </details>
+      <select class="form-select filter-dropdown" (change)="filterItems($any($event.target).value)">
+        <option value="all">All Items</option>
+        <option value="awaiting_action">Awaiting My Action</option>
+        <option value="notifications">Notifications</option>
+      </select>
+      <div class="sort-controls">
+        <button class="btn-icon" (click)="sortItems('desc')" title="Sort Newest First"><i class="feather icon-arrow-down"></i></button>
+        <button class="btn-icon" (click)="sortItems('asc')" title="Sort Oldest First"><i class="feather icon-arrow-up"></i></button>
+        <span>Sort</span>
+      </div>
     </div>
 
-    <!-- Conversation List -->
+    <!-- Inbox Items List -->
     <div class="conversation-list">
-      <div *ngIf="isLoading" class="loading-placeholder">Loading...</div>
-      <div *ngIf="!isLoading && conversations.length === 0" class="empty-placeholder">No conversations.</div>
-      <div class="conversation-item" *ngFor="let conversation of conversations" [class.active]="conversation.id === selectedConversation?.id" (click)="selectConversation(conversation)">
-        <div class="avatar" [style.background-color]="conversation.avatarColor">
-          <img *ngIf="conversation.avatarUrl; else initials" [src]="conversation.avatarUrl" alt="Avatar">
-          <ng-template #initials>{{ conversation.initials }}</ng-template>
+      <div *ngIf="isLoading" class="loading-placeholder">Loading items...</div>
+      <div *ngIf="!isLoading && filteredInboxItems.length === 0" class="empty-placeholder">No items in this view.</div>
+      
+      <div 
+        *ngFor="let item of filteredInboxItems"
+        class="conversation-item"
+        [class.active]="selectedItem?.id === item.id"
+        [class.unread]="!item.isRead"
+        (click)="selectItem(item)">
+
+        <div class="avatar" [ngSwitch]="item.type">
+          <i *ngSwitchCase="'approval'" class="feather icon-check-square"></i>
+          <i *ngSwitchCase="'response'" class="feather icon-message-square"></i>
+          <i *ngSwitchCase="'notification'" class="feather icon-bell"></i>
+          <i *ngSwitchCase="'assignment'" class="feather icon-briefcase"></i>
         </div>
+        
         <div class="conversation-details">
-          <div class="details-header"><span class="sender-name">{{ conversation.sender }}</span><span class="timestamp">{{ conversation.timestamp }}</span></div>
-          <div class="message-preview"><i class="channel-icon" [ngClass]="conversation.channelIcon"></i><span>{{ conversation.preview }}</span></div>
+          <div class="details-header">
+            <span class="sender-name">{{ item.title }}</span>
+            <span class="timestamp">{{ item.date }}</span>
+          </div>
+          <div class="message-preview">
+            <span>{{ item.summary }}</span>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  
+  <!-- ======================= RIGHT PANEL: CONTENT DISPLAY ======================= -->
   <div class="message-view-panel">
-    
-    <div class="placeholder-view" *ngIf="!selectedConversation">
-      <p>Select a conversation</p>
+    <!-- Empty State -->
+    <div class="placeholder-view" *ngIf="!selectedItem">
+      <i class="feather icon-inbox"></i>
+      <h3>Select an item to view its details</h3>
+      <p>Your tasks, approvals, and notifications will appear here.</p>
     </div>
 
-    
-    <div class="conversation-view" *ngIf="selectedConversation">
-      <!-- Chat Header -->
+    <!-- Details View -->
+    <div class="conversation-view" *ngIf="selectedItem">
       <div class="chat-header">
         <div class="header-info">
-          <div class="avatar">{{ selectedConversation.initials }}</div>
-          <span class="header-name">{{ selectedConversation.sender }}</span>
+          <span class="header-name">{{ selectedItem.details?.subject || selectedItem.title }}</span>
         </div>
-      </div>
-
-      <!-- Case 1: The selected item is a PENDING APPROVAL -->
-      <div *ngIf="selectedConversation.isPendingApproval" class="approval-view-content">
-        <div class="approval-icon">
-          <i class="feather icon-user-plus"></i>
-        </div>
-        <h2>New Creator Approval</h2>
-        <p class="approval-details">
-          <strong>Name:</strong> {{ selectedConversation.sender }}<br>
-          <strong>Email:</strong> {{ selectedConversation.creatorData?.email }}
-        </p>
-        <p class="approval-instructions">
-          Please review the details in the right-hand panel and choose to either approve or deny this registration request.
-        </p>
-      </div>
-
-      
-      <ng-container *ngIf="!selectedConversation.isPendingApproval">
-        
-        <div class="chat-messages">
-          <div class="message-bubble incoming">
-            <div class="message-text">Welcome! I'm Fahari from NMB Bank Tanzania. Here to guide you through our offerings and answer any queries you might have</div>
-            <div class="message-meta">13:14:48 Bot</div>
-          </div>
-        </div>
-        <!-- Chat Input Area -->
-        <div class="chat-input-area">
-          <textarea class="message-input" placeholder="Type a message..."></textarea>
-          <div class="input-actions">
-            <button class="action-btn livechat-btn">Livechat</button>
-            <button class="action-btn note-btn">Note</button>
-            <div class="icon-buttons">
-              <button class="btn-icon"><i class="feather icon-paperclip"></i></button>
-              <button class="btn-icon"><i class="feather icon-smile"></i></button>
-            </div>
-            <button class="send-btn">Takeover & Send</button>
-          </div>
-        </div>
-      </ng-container>
-    </div>
-  </div>
-
-  
-  <div class="details-sidebar-panel" *ngIf="isDetailsSidebarVisible">
-    
-    <div class="sidebar-tabs">
-      <button class="tab-button" [class.active]="activeTab === 'conversation'" (click)="selectTab('conversation')">Conversation</button>
-      <button class="tab-button" [class.active]="activeTab === 'person'" (click)="selectTab('person')">Person</button>
-    </div>
-    <div class="sidebar-content" *ngIf="selectedConversation && activeTab === 'conversation'">
-      <div class="info-section">
-        <div class="info-row"><label><i class="feather icon-user"></i> Assignee</label><div class="info-value">{{ selectedConversation.assignee }}</div></div>
-        <div class="info-row"><label><i class="feather icon-user-check"></i> Person</label><div class="info-value person-value"><div class="avatar-small"></div><span>{{ selectedConversation.sender }}</span></div></div>
       </div>
       
-      <div *ngIf="selectedConversation.isPendingApproval" class="approval-actions">
-        <p class="approval-prompt">This new creator is awaiting your approval to access the platform.</p>
-        <button class="btn-approve" (click)="approveCreator(selectedConversation.creatorData.id)">
-            <i class="feather icon-check"></i> Approve
-        </button>
-        <button class="btn-deny" (click)="removeCreator(selectedConversation.creatorData.id)">
-            <i class="feather icon-x"></i> Deny
-        </button>
-      </div>
-
-      <details class="details-section" open>
-         <summary class="details-header"><span>Details</span><i class="feather icon-chevron-up"></i></summary>
-         <div class="details-content">
-          <div class="info-row inline"><label><i class="feather icon-hash"></i> ID</label><div class="info-value">{{ selectedConversation.id }}</div></div>
-          <div *ngIf="selectedConversation.isPendingApproval" class="info-row inline"><label><i class="feather icon-mail"></i> Email</label><div class="info-value">{{ selectedConversation.creatorData?.email }}</div></div>
-          <div class="info-row inline status-dropdown-container">
-            <label><i class="feather icon-loader"></i> Status</label>
-            <div class="info-value clickable" (click)="toggleStatusDropdown($event)">
-              <span class="status-badge" [ngClass]="selectedConversation.status.toLowerCase().replace(' ', '-')">{{ selectedConversation.status }}</span>
-              <i class="feather icon-chevron-down"></i>
-            </div>
-            
-          </div>
+      <div class="details-body">
+        <div class="details-meta">
+          <span>From: <strong>{{ selectedItem.from }}</strong></span>
+          <span>Received: <strong>{{ selectedItem.date }}</strong></span>
         </div>
-      </details>
+        <p class="details-summary">{{ selectedItem.summary }}</p>
+        <p>
+          Further details regarding this item would be displayed here. This could include attached documents, specific para information, or more context about the task. The system will provide all necessary information to take action.
+        </p>
+      </div>
+      
+      <div class="details-actions" *ngIf="selectedItem.type === 'approval' || selectedItem.type === 'response'">
+        <button class="btn btn-primary"><i class="feather icon-file-text"></i>View Full Report</button>
+        <button class="btn btn-success" *ngIf="selectedItem.type === 'approval'"><i class="feather icon-check"></i>Approve</button>
+        <button class="btn btn-danger" *ngIf="selectedItem.type === 'approval'"><i class="feather icon-x"></i>Return for Revision</button>
+      </div>
     </div>
   </div>
 </div>
