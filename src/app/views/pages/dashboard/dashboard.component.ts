@@ -21,7 +21,6 @@ import autoTable from 'jspdf-autotable';
 import { ColumnMode } from '@swimlane/ngx-datatable';
 import { AddCustomerComponent } from '../mobile-banking/customers/add-customer/add-customer.component';
 import { DataExportationService } from 'src/app/shared/services/data-exportation.service';
-import { FilesizePipe } from '../mobile-banking/customers/list-customers/list-customers.component';
 import { GlobalService } from 'src/app/shared/services/global.service';
 import { ChartConfiguration, ChartData } from 'chart.js';
 import * as saveAs from 'file-saver';
@@ -73,7 +72,7 @@ interface ConversationMessage {
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
   preserveWhitespaces: true,
-  providers: [FilesizePipe, DatePipe],
+  providers: [DatePipe],
 })
 export class DashboardComponent implements OnInit {
   // Filters

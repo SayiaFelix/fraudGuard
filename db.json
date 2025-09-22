@@ -136,7 +136,8 @@
           "status": "Done",
           "dueDate": "2025-01-18"
         }
-      ]
+      ],
+      "miniFindings": []
     },
     {
       "id": "a2",
@@ -366,7 +367,7 @@
       "auditId": "a1",
       "description": "Unauthorized system access detected",
       "severity": "High",
-      "status": "Open",
+      "status": "In Progress",
       "recommendation": "Implement stronger access controls",
       "createdAt": "2025-09-15",
       "findings": [
@@ -374,35 +375,36 @@
           "id": "f1",
           "description": "2 logins outside business hours",
           "impact": "High",
-          "status": "Done"
+          "status": "Noted"
         },
         {
           "id": "f2",
           "description": "No MFA on admin accounts",
           "impact": "High",
-          "status": "Done"
+          "status": "Confirmed"
         }
-      ]
+      ],
+      "remarks": "We will revist next week ASAP"
     },
     {
       "id": "o2",
       "auditId": "a2",
       "description": "Weak password policy",
       "severity": "High",
-      "status": "Open",
+      "status": "In Progress",
       "recommendation": "Enforce MFA and strong passwords",
       "createdAt": "2025-09-17",
       "findings": [
         {
           "id": "f3",
           "description": "Found 10 users with '12345' passwords",
-          "status": "Noted",
+          "status": "Confirmed",
           "impact": "High"
         },
         {
           "id": "f4",
           "description": "Policy allows passwords under 6 chars",
-          "status": "Done",
+          "status": "Noted",
           "impact": "Medium"
         }
       ]
@@ -590,6 +592,28 @@
           "2025-09": 6
         }
       }
+    }
+  ],
+  "compliance": [
+    {
+      "id": "1fuwe",
+      "observationId": "OBS-101",
+      "auditTitle": "IT Security Audit",
+      "actionPlan": "Implement MFA for all staff by Q4",
+      "responsibleUnit": "IT Department",
+      "targetDate": "2025-12-01",
+      "status": "Pending",
+      "remarks": ""
+    },
+    {
+      "id": "dsfer2",
+      "observationId": "OBS-202",
+      "auditTitle": "Finance Audit",
+      "actionPlan": "Review procurement process",
+      "responsibleUnit": "Finance",
+      "targetDate": "2025-10-15",
+      "status": "Submitted",
+      "remarks": "Documents sent for review"
     }
   ]
 }

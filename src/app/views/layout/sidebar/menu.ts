@@ -42,13 +42,13 @@ export const MENU: MenuItem[] = [
     label: 'MIS Reports',
     icon:'bar-chart',
     link: '/eclectics/analytic/reports',
-    // roles: ['CIA'] // only CIA
+    roles: ['CIA'] // only CIA
   },
   {
     label: 'Compliance',
     icon: 'check-circle',
     link: '/eclectics/compliance/all',
-    roles: ['AuditUnit']
+    // roles: ['AuditUnit', 'CIA']
   },
 
   {
