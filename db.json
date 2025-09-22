@@ -20,6 +20,20 @@
       "email": "unit@gmail.com",
       "password": "unit@123456",
       "role": "AuditUnit"
+    },
+    {
+      "id": "1758520826982",
+      "username": "ciafffff@gmail.com",
+      "email": "ciafffff@gmail.com",
+      "password": "cia@123456safsd",
+      "role": "CIA"
+    },
+    {
+      "id": "af8f",
+      "username": "ciacds@gmail.com",
+      "email": "ciacds@gmail.com",
+      "password": "cia@123456sd",
+      "role": "CIA"
     }
   ],
   "audits": [
