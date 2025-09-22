@@ -1,620 +1,257 @@
-<!-- Main Page Header with Analytics Title on White Background -->
-<header class="main-page-header">
-  <h1 class="main-page-title">Analytics</h1>
-</header>
+<div class="container-fluid">
 
-<div class="analytics-container">
-  <!-- Content wrapper for grey background -->
-  <div class="content-wrapper">
-    <!-- Enhanced Date Range Header with Date Picker -->
-    <header class="secondary-header">
-      <div class="header-left">
-        <div class="date-range-container">
-          <div class="date-range-display" (click)="toggleDatePicker()">
-            <i class="fas fa-calendar-alt"></i>
-            <span>{{ getDateRangeDisplay() }}</span>
-            <i class="fas fa-chevron-down" [class.rotated]="showDatePicker"></i>
-          </div>
+  <!-- Header -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+  <h2 class="fw-bold mb-2 mb-md-0 d-flex align-items-center">
+     MIS Reports
+  </h2>
+  <div class="d-flex gap-2 flex-wrap">
+    <!-- Upload stays standalone -->
+    <button class="btn btn-success btn-sm" (click)="openUploadModal()">
+      <i class="fas fa-upload me-1"></i> Upload Report
+    </button>
 
-          <!-- Date Picker Modal -->
-          <div class="date-picker-modal" *ngIf="showDatePicker">
-            <div class="date-picker-header">
-              <h3>Select Date Range</h3>
-              <button class="close-btn" (click)="cancelDateSelection()">
-                <i class="fas fa-times"></i>
-              </button>
-            </div>
+    <!-- Auto Report group -->
+    <div class="btn-group">
+      <button class="btn btn-outline-primary btn-sm" (click)="createAutoReport()">
+        <i class="fas fa-file-alt me-1"></i> Auto Report
+      </button>
+      <button type="button" class="btn btn-outline-primary btn-sm dropdown-toggle dropdown-toggle-split" 
+              data-bs-toggle="dropdown" aria-expanded="false">
+        <span class="visually-hidden">Toggle Dropdown</span>
+      </button>
+      <ul class="dropdown-menu">
+        <li>
+          <a class="dropdown-item" (click)="previewAutoReport()">
+            <i class="fas fa-eye me-1 text-info"></i> Preview Only
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item" (click)="createAutoReport()">
+            <i class="fas fa-save me-1 text-success"></i> Generate & Save
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
 
-            <div class="date-picker-content">
-              <!-- Calendar Navigation -->
-              <div class="calendar-nav">
-                <button class="nav-btn" (click)="previousMonth()">
-                  <i class="fas fa-chevron-left"></i>
-                </button>
+</div>
 
-                <div class="month-year-selectors">
-                  <select class="month-selector" [ngModel]="currentMonth" (ngModelChange)="onMonthChange($event)">
-                    <option *ngFor="let month of months; let i = index" [value]="i">{{ month }}</option>
-                  </select>
 
-                  <select class="year-selector" [ngModel]="currentYear" (ngModelChange)="onYearChange($event)">
-                    <option *ngFor="let year of years" [value]="year">{{ year }}</option>
-                  </select>
-                </div>
-
-                <button class="nav-btn" (click)="nextMonth()">
-                  <i class="fas fa-chevron-right"></i>
-                </button>
-              </div>
-
-              <!-- Calendar Grid -->
-              <div class="calendar-container">
-                <!-- Week Day Headers -->
-                <div class="calendar-header">
-                  <div *ngFor="let day of weekDays" class="week-day">{{ day }}</div>
-                </div>
-
-                <!-- Calendar Days -->
-                <div class="calendar-grid">
-                  <div
-                    *ngFor="let day of getCalendarDays()"
-                    class="calendar-day"
-                    [class.empty]="day === null"
-                    [class.today]="isToday(day)"
-                    [class.selected]="isDaySelected(day)"
-                    [class.in-range]="isDayInRange(day)"
-                    [class.range-start]="isDayRangeStart(day)"
-                    [class.range-end]="isDayRangeEnd(day)"
-                    (click)="selectDay(day)"
-                  >
-                    <span *ngIf="day !== null">{{ day }}</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Selected Range Display -->
-              <div class="selected-range-info" *ngIf="selectedStartDate">
-                <div class="range-info">
-                  <strong>Selected Range:</strong>
-                  <span *ngIf="selectedStartDate && selectedEndDate">
-                    {{ formatDate(selectedStartDate) }} - {{ formatDate(selectedEndDate) }}
-                  </span>
-                  <span *ngIf="selectedStartDate && !selectedEndDate">
-                    {{ formatDate(selectedStartDate) }} - Select end date
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Date Picker Actions -->
-            <div class="date-picker-actions">
-              <button class="btn btn-secondary" (click)="cancelDateSelection()">
-                Cancel
-              </button>
-              <button
-                class="btn btn-primary"
-                (click)="applyDateRange()"
-                [disabled]="!selectedStartDate || !selectedEndDate"
-              >
-                Apply Range
-              </button>
-            </div>
-          </div>
-
-          <!-- Backdrop -->
-          <div class="date-picker-backdrop" *ngIf="showDatePicker" (click)="cancelDateSelection()"></div>
-        </div>
-      </div>
-    </header>
-
-    <!-- User Stats Summary (Bootstrap Cards) -->
-    <div *ngIf="userStats && !isLoadingUserStats">
-      <div class="row g-4">
-        <div class="col-12 col-sm-6 col-lg-3">
-          <div class="card stat-card h-100">
-            <div class="card-body text-center">
-              <div class="stat-label">Total AI Assistants</div>
-              <div class="stat-value">{{ userStats.total_chatbots || 0 }}</div>
-            </div>
-          </div>
-        </div>
-        <div class="col-12 col-sm-6 col-lg-3">
-          <div class="card stat-card h-100">
-            <div class="card-body text-center">
-              <div class="stat-label">Active</div>
-              <div class="stat-value text-success">{{ userStats.active_chatbots || 0 }}</div>
-            </div>
-          </div>
-        </div>
-        <div class="col-12 col-sm-6 col-lg-3">
-          <div class="card stat-card h-100">
-            <div class="card-body text-center">
-              <div class="stat-label">Inactive</div>
-              <div class="stat-value text-warning">{{ userStats.inactive_chatbots || 0 }}</div>
-            </div>
-          </div>
-        </div>
-        <div class="col-12 col-sm-6 col-lg-3">
-          <div class="card stat-card h-100">
-            <div class="card-body text-center">
-              <div class="stat-label">Avg Intents/Bot</div>
-              <div class="stat-value text-info">{{ userStats.avg_intents_per_chatbot !== undefined ? (userStats.avg_intents_per_chatbot | number:'1.1-1') : 'N/A' }}</div>
-            </div>
-          </div>
-        </div>
+   <!-- KPI Row -->
+  <div class="row mb-4">
+    <div class="col-md-3 col-sm-6 mb-2">
+      <div class="card text-center border-primary border-2 rounded-3 shadow-sm p-3">
+        <i class="fas fa-database fa-2x text-primary mb-2"></i>
+        <h4 class="fw-bold">Total Reports</h4>
+        <h4 class="fw-bold">{{ kpis.total }}</h4>
       </div>
     </div>
 
-    <!-- Loading indicator for user stats -->
-    <div class="loading-indicator" *ngIf="isLoadingUserStats">
-      <i class="fas fa-spinner fa-spin"></i> Loading user statistics...
+    <div class="col-md-3 col-sm-6 mb-2">
+      <div class="card text-center border-success border-2 rounded-3 shadow-sm p-3">
+        <i class="fas fa-upload fa-2x text-success mb-2"></i>
+        <h4 class="fw-bold">Uploaded Reports</h4>
+        <h4 class="fw-bold">{{ kpis.uploaded }}</h4>
+      </div>
     </div>
 
-    <!-- Tab Navigation -->
-    <nav class="tabs-nav">
-      <button class="tab-button" [class.active]="activeTab === 'chats'" (click)="setActiveTab('chats')">
-        <i class="fas fa-comment"></i> Chats
-      </button>
-      <button class="tab-button" [class.active]="activeTab === 'tickets'" (click)="setActiveTab('tickets')">
-        <i class="fas fa-ticket-alt"></i> Tickets
-      </button>
-      <button class="tab-button" [class.active]="activeTab === 'interactions'" (click)="setActiveTab('interactions')">
-        <i class="fas fa-users"></i> Interactions
-      </button>
-    </nav>
+    <div class="col-md-3 col-sm-6 mb-2">
+      <div class="card text-center border-info border-2 rounded-3 shadow-sm p-3">
+        <i class="fas fa-robot fa-2x text-info mb-2"></i>
+        <h4 class="fw-bold">Auto Reports</h4>
+        <h4 class="fw-bold">{{ kpis.auto }}</h4>
+      </div>
+    </div>
 
-    <!-- ======================== -->
-    <!--    CHATS TAB CONTENT     -->
-    <!-- ======================== -->
-    <main *ngIf="activeTab === 'chats'" class="content-area">
-      <!-- Main Chart Panel -->
-      <div class="main-panel">
-        <div class="panel-header">
-          <h2 class="panel-title">Chats</h2>
-          <button class="download-btn" (click)="downloadData()" aria-label="Download data">
-            <i class="fas fa-download"></i>
+    <div class="col-md-3 col-sm-6 mb-2">
+      <div class="card text-center border-warning border-2 rounded-3 shadow-sm p-3">
+        <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+        <h4 class="fw-bold">Latest Report</h4>
+        <h4 class="fw-bold">{{ kpis.latestDate }}</h4>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <!-- Report List Table -->
+  <div class="card shadow-sm border-0" *ngIf="!isLoading">
+    <div class="card-header bg-white">
+      <!-- Title Row -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="mb-0 fw-bold">
+          Report List 
+         <!-- <span class="badge bg-secondary ms-2">{{ filteredReports.length }}</span> -->
+        </h3>
+
+          <!-- Export Dropdown -->
+        <div class="dropdown">
+          <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            <i class="fas fa-file-export me-1"></i> Export
+          </button>
+          <ul class="dropdown-menu">
+            <li>
+              <a class="dropdown-item d-flex align-items-center" 
+                [class.disabled]="filteredReports.length === 0"
+                (click)="filteredReports.length > 0 && exportAsPDF()">
+                <i class="fas fa-file-pdf me-2 text-danger"></i> Export PDF
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item d-flex align-items-center" (click)="exportAsExcel()">
+                <i class="fas fa-file-excel me-2 text-success"></i> Export Excel
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Filter Row -->
+      <div class="row g-2 align-items-end">
+            
+        <div class="col-md-4">
+          <label class="form-label small mb-1">Title</label>
+          <input type="text" class="form-control form-control-sm" placeholder="Search by title" [(ngModel)]="filterTitle" (ngModelChange)="applyFilter()">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label small mb-1">Type</label>
+          <select class="form-select form-select-sm" [(ngModel)]="filterType" (change)="applyFilter()">
+            <option value="">All Types</option>
+            <option value="auto-generated">Auto-Generated</option>
+            <option value="uploaded">Uploaded</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label small mb-1">Created After</label>
+          <input type="date" class="form-control form-control-sm" [(ngModel)]="filterDate" (change)="applyFilter()">
+        </div>
+        <div class="col-md-2">
+          <button class="btn btn-secondary btn-sm w-100" (click)="clearFilters()">
+            <i class="fas fa-times me-1"></i> Clear Filters
           </button>
         </div>
-        <div class="filters-bar">
-          <!-- Group by dropdown -->
-          <div class="filter-dropdown-container">
-            <button class="filter-chip" (click)="toggleGroupByDropdown()">
-              Group by: <span>{{ selectedGroupBy }}</span>
-              <i class="fas fa-chevron-down"></i>
-            </button>
-            <div class="filter-dropdown" *ngIf="showGroupByDropdown">
-              <div
-                *ngFor="let option of groupByOptions"
-                class="filter-option"
-                [class.selected]="selectedGroupBy === option"
-                (click)="selectGroupBy(option)"
-              >
-                {{ option }}
-              </div>
-            </div>
-          </div>
-
-          <!-- Segment by dropdown -->
-          <div class="filter-dropdown-container">
-            <button class="filter-chip" (click)="toggleSegmentByDropdown()">
-              Segment by: <span>{{ selectedSegmentBy }}</span>
-              <i class="fas fa-chevron-down"></i>
-            </button>
-            <div class="filter-dropdown" *ngIf="showSegmentByDropdown">
-              <div
-                *ngFor="let option of segmentByOptions"
-                class="filter-option"
-                (click)="selectSegmentBy(option)"
-              >
-                {{ option }}
-              </div>
-            </div>
-          </div>
-
-          <!-- Chat type dropdown -->
-          <div class="filter-dropdown-container">
-            <button class="filter-chip" (click)="toggleChatTypeDropdown()">
-              Chat type: <span>{{ selectedChatType }}</span>
-              <i class="fas fa-chevron-down"></i>
-            </button>
-            <div class="filter-dropdown" *ngIf="showChatTypeDropdown">
-              <div
-                *ngFor="let option of chatTypeOptions"
-                class="filter-option"
-                [class.selected]="selectedChatType === option"
-                (click)="selectChatType(option)"
-              >
-                {{ option }}
-              </div>
-            </div>
-          </div>
-
-          <!-- AI Assistants dropdown -->
-          <div class="filter-dropdown-container">
-            <button class="filter-chip" (click)="toggleAIAssistantsDropdown()">
-              AI Assistants: <span>{{ getSelectedAIAssistantsDisplay() }}</span>
-              <i class="fas fa-chevron-down"></i>
-            </button>
-            <div class="filter-dropdown" *ngIf="showAIAssistantsDropdown">
-              <div class="filter-search">
-                <input type="text" placeholder="Search" class="search-input">
-              </div>
-              <div
-                *ngFor="let bot of availableChatbots"
-                class="filter-option checkbox-option"
-                (click)="toggleAIAssistantSelection(bot)"
-              >
-                <input
-                  type="checkbox"
-                  [checked]="isAIAssistantSelected(bot)"
-                  (click)="$event.stopPropagation()"
-                >
-                {{ bot.name }}
-              </div>
-            </div>
-          </div>
-
-          <!-- Channels dropdown -->
-          <div class="filter-dropdown-container">
-            <button class="filter-chip" (click)="toggleChannelsDropdown()">
-              Channels: <span>{{ getSelectedChannelsDisplay() }}</span>
-              <i class="fas fa-chevron-down"></i>
-            </button>
-            <div class="filter-dropdown" *ngIf="showChannelsDropdown">
-              <div
-                *ngFor="let channel of availableChannels"
-                class="filter-option checkbox-option"
-                (click)="toggleChannelsSelection(channel)"
-              >
-                <input
-                  type="checkbox"
-                  [checked]="isChannelSelected(channel)"
-                  (click)="$event.stopPropagation()"
-                >
-                {{ channel }}
-              </div>
-            </div>
-          </div>
-
-          <!-- Live Agents dropdown -->
-          <div class="filter-dropdown-container">
-            <button class="filter-chip" (click)="toggleLiveAgentsDropdown()">
-              Live Agents: <span>{{ getSelectedLiveAgentsDisplay() }}</span>
-              <i class="fas fa-chevron-down"></i>
-            </button>
-            <div class="filter-dropdown" *ngIf="showLiveAgentsDropdown">
-              <div class="filter-search">
-                <input type="text" placeholder="Search" class="search-input">
-              </div>
-              <div
-                *ngFor="let agent of availableLiveAgents"
-                class="filter-option checkbox-option"
-                (click)="toggleLiveAgentSelection(agent)"
-              >
-                <input
-                  type="checkbox"
-                  [checked]="isLiveAgentSelected(agent)"
-                  (click)="$event.stopPropagation()"
-                >
-                {{ agent.name }}
-              </div>
-            </div>
-          </div>
-
-          <!-- Teams dropdown -->
-          <div class="filter-dropdown-container">
-            <button class="filter-chip" (click)="toggleTeamsDropdown()">
-              Teams: <span>{{ getSelectedTeamsDisplay() }}</span>
-              <i class="fas fa-chevron-down"></i>
-            </button>
-            <div class="filter-dropdown" *ngIf="showTeamsDropdown">
-              <div
-                *ngFor="let team of availableTeams"
-                class="filter-option checkbox-option"
-                (click)="toggleTeamsSelection(team)"
-              >
-                <input
-                  type="checkbox"
-                  [checked]="isTeamSelected(team)"
-                  (click)="$event.stopPropagation()"
-                >
-                {{ team }}
-              </div>
-            </div>
-          </div>
-
-          <!-- Status dropdown -->
-          <div class="filter-dropdown-container">
-            <button class="filter-chip" (click)="toggleStatusDropdown()">
-              Status: <span>{{ getSelectedStatusDisplay() }}</span>
-              <i class="fas fa-chevron-down"></i>
-            </button>
-            <div class="filter-dropdown" *ngIf="showStatusDropdown">
-              <div
-                *ngFor="let status of statusOptions"
-                class="filter-option status-option"
-                [class.selected]="isStatusSelected(status)"
-                (click)="toggleStatusSelection(status)"
-              >
-                <span
-                  class="status-dot"
-                  [style.backgroundColor]="getStatusColor(status)"
-                ></span>
-                {{ status }}
-              </div>
-            </div>
-          </div>
-
-          <!-- CSAT Rating dropdown -->
-          <div class="filter-dropdown-container">
-            <button class="filter-chip" (click)="toggleCSATRatingDropdown()">
-              CSAT Rating: <span>{{ getSelectedCSATRatingDisplay() }}</span>
-              <i class="fas fa-chevron-down"></i>
-            </button>
-            <div class="filter-dropdown" *ngIf="showCSATRatingDropdown">
-              <div
-                *ngFor="let rating of csatRatingOptions"
-                class="filter-option"
-                [class.selected]="isCSATRatingSelected(rating)"
-                (click)="toggleCSATRatingSelection(rating)"
-              >
-                {{ rating }}
-              </div>
-            </div>
-          </div>
-
-          <a href="javascript:void(0)" class="reset-filters-link" (click)="resetAllFilters()">× Reset all</a>
-        </div>
-
-        <!-- Loading indicator -->
-        <div class="loading-indicator" *ngIf="isLoadingChats || isLoadingUserActivity">
-          <i class="fas fa-spinner fa-spin"></i> Loading chat data...
-        </div>
-
-        <!-- Fixed Bar Chart Display Area -->
-        <div class="data-display-area" *ngIf="!isLoadingChats && !isLoadingUserActivity">
-          <div *ngIf="hasChatData(); else noChatData">
-            <div class="chart-container">
-              <div class="bar-chart">
-                <h4>AI Assistants Created Over Time</h4>
-                <div class="chart-wrapper">
-                  <!-- Y-axis labels -->
-                  <div class="y-axis">
-                    <div class="y-label" *ngFor="let label of getYAxisLabels()">{{ label }}</div>
-                  </div>
-
-                  <!-- Chart area -->
-                  <div class="chart-area">
-                    <!-- Grid lines for better visualization -->
-                    <div class="grid-lines">
-                      <div class="grid-line" *ngFor="let label of getYAxisLabels()"></div>
-                    </div>
-
-                    <div class="chart-bars">
-                      <div
-                        *ngFor="let dataPoint of chartData; let i = index"
-                        class="bar-container"
-                      >
-                        <div
-                          class="bar"
-                          [style.height.%]="getBarHeightPercentage(dataPoint.count)"
-                          [title]="dataPoint.label + ': ' + dataPoint.count + ' assistants'"
-                        >
-                          <div class="bar-value" *ngIf="dataPoint.count > 0">{{ dataPoint.count }}</div>
-                        </div>
-                        <span class="bar-label">{{ dataPoint.label }}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <ng-template #noChatData>
-            <div class="no-data-placeholder">
-              <i class="fas fa-chart-bar"></i>
-              <h3>No Chat Data Available</h3>
-              <p>No chat data to display for the selected period and filters.</p>
-            </div>
-          </ng-template>
-        </div>
       </div>
+     </div>
 
-      <!-- Summary Cards Section -->
-      <div class="summary-section">
-        <div class="summary-grid">
-          <div class="summary-card">
-            <h3>Total new chats</h3>
-            <p class="metric">{{ getTotalSessions() }}</p>
-            <div class="metric-change" *ngIf="conversationMetrics">
-              <small class="change-indicator positive">
-                <i class="fas fa-arrow-up"></i>
-                {{ ((conversationMetrics.completed_sessions / conversationMetrics.total_sessions) * 100 | number:'1.0-0') || 0 }}% completion rate
-              </small>
-            </div>
-          </div>
-
-          <!-- Inside the "Chats by status" summary card -->
-          <div class="summary-card wide">
-            <h3>Chats by status</h3>
-            <div class="status-breakdown">
-              <div class="legend">
-                <div *ngFor="let statusItem of chatStatuses" class="legend-item"> <!-- Renamed 'status' to 'statusItem' for clarity -->
-                  <span class="legend-dot" [style.backgroundColor]="getStatusColor(statusItem.name)"></span> <!-- FIX: Pass statusItem.name -->
-                  {{ statusItem.name }}
-                </div>
-              </div>
-              <div class="metrics">
-                <div *ngFor="let statusItem of chatStatuses" class="metric-item"> <!-- Renamed 'status' to 'statusItem' -->
-                  <p class="metric">
-                    <!-- Assuming conversationMetrics provides status counts or some way to derive them -->
-                    {{ statusItem.name === 'Resolved' ? (getCompletedSessions()) : '-' }}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="summary-card">
-            <h3>Average live agent response time</h3>
-            <p class="metric">{{ getAverageResponseTimeDisplay() }}</p>
-            <div class="metric-description" *ngIf="performanceMetrics">
-              <small>System uptime: {{ getSystemUptimeDisplay() }}</small>
-            </div>
-          </div>
-
-          <div class="summary-card">
-            <h3>Average AI assistant response time</h3>
-            <p class="metric">{{ getAverageAIAssistantResponseTimeDisplay() }}</p>
-            <div class="metric-description" *ngIf="performanceMetrics?.intents_triggered">
-              <small>{{ getIntentsTriggeredDisplay() }} intents triggered</small>
-            </div>
-          </div>
-        </div>
+      <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover table-striped align-middle mb-0">
+          <thead class="table-light text-uppercase small">
+            <tr>
+              <th scope="col">Title</th>
+              <th scope="col">Type</th>
+              <th scope="col">Created</th>
+              <th scope="col" class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of filteredReports">
+              <td class="fw-medium">{{ r.title }}</td>
+              <td>
+                <span 
+                  class="badge"
+                  [ngClass]="{
+                    'bg-primary': r.type === 'auto-generated',
+                    'bg-success': r.type === 'uploaded'
+                  }">
+                  {{ r.type | titlecase }}
+                </span>
+              </td>
+              <td>{{ r.createdAt | date:'medium' }}</td>
+              <td class="text-end">
+                <!-- Preview Button -->
+                   <button class="btn btn-outline-info btn-sm me-1"   title="Preview Report" (click)="previewReport(r)" data-bs-toggle="modal" data-bs-target="#previewModal">
+                      <i class="fas fa-eye"></i>
+                    </button>
+             
+                <!-- Download Button -->
+                <button class="btn btn-sm btn-outline-success me-1" 
+                        (click)="downloadReport(r)" 
+                        title="Download Report">
+                  <i class="fas fa-download"></i>
+                </button>
+                <!-- Delete Button -->
+                <button class="btn btn-sm btn-outline-danger" 
+                        (click)="deleteReport(r)" 
+                        title="Delete Report">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="filteredReports.length === 0">
+              <td colspan="4" class="text-center text-muted py-3">
+                No reports available
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-    </main>
-
-    <!-- ======================== -->
-    <!--   TICKETS TAB CONTENT    -->
-    <!-- ======================== -->
-    <main *ngIf="activeTab === 'tickets'" class="content-area">
-      <div class="main-panel">
-        <div class="panel-header">
-          <h2 class="panel-title">Tickets</h2>
-          <button class="download-btn" (click)="downloadData()" aria-label="Download data">
-            <i class="fas fa-download"></i>
-          </button>
-        </div>
-        <div class="filters-bar">
-          <button class="filter-chip">Group by: <span>Day</span></button>
-          <button class="filter-chip">Segment by: <span>Select</span></button>
-          <button class="filter-chip">Live Agents: <span>Select</span></button>
-          <button class="filter-chip">Teams: <span>Select</span></button>
-          <button class="filter-chip">Status: <span>Select</span></button>
-          <button class="filter-chip">Tags: <span>Select</span></button>
-          <button class="filter-chip">Tag Groups: <span>Select</span></button>
-          <button class="filter-chip">Creator Type: <span>Select</span></button>
-          <button class="filter-chip">Custom Fields: <span>Select</span></button>
-          <a href="javascript:void(0)" class="reset-filters-link" (click)="resetAllFilters()">× Reset all</a>
-        </div>
-
-        <div class="loading-indicator" *ngIf="isLoadingTickets">
-          <i class="fas fa-spinner fa-spin"></i> Loading ticket analytics...
-        </div>
-
-        <div class="data-display-area" *ngIf="!isLoadingTickets">
-          <div *ngIf="hasTicketData(); else noTicketData">
-            <div class="chart-container">
-              <div class="chart-placeholder">
-                <h4>Ticket Analytics Chart</h4>
-                <p>Coming soon when tickets API is implemented</p>
-              </div>
-            </div>
-          </div>
-          <ng-template #noTicketData>
-            <div class="no-data-placeholder">
-              <i class="fas fa-ticket-alt"></i>
-              <h3>No Ticket Data Available</h3>
-              <p>Tickets API coming soon.</p>
-            </div>
-          </ng-template>
-        </div>
-      </div>
-
-      <!-- Summary Cards Section -->
-      <div class="summary-section">
-        <div class="summary-grid">
-          <div class="summary-card">
-            <h3>Total new tickets</h3>
-            <p class="metric">-</p>
-            <div class="metric-description">
-              <small>API coming soon</small>
-            </div>
-          </div>
-
-          <div class="summary-card wide">
-            <h3>Tickets by status</h3>
-            <div class="status-breakdown">
-              <div class="legend">
-                <div *ngFor="let status of ticketStatuses" class="legend-item">
-                  <span class="legend-dot" [style.backgroundColor]="status.color"></span>
-                  {{ status.name }}
-                </div>
-              </div>
-              <div class="metrics">
-                <div *ngFor="let status of ticketStatuses" class="metric-item">
-                  <p class="metric">-</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="summary-card">
-            <h3>Average live agent response time</h3>
-            <p class="metric">-</p>
-            <div class="metric-description">
-              <small>API coming soon</small>
-            </div>
-          </div>
-        </div>
-      </div>
-    </main>
-
-    <!-- ======================== -->
-    <!-- INTERACTIONS TAB CONTENT -->
-    <!-- ======================== -->
-    <main *ngIf="activeTab === 'interactions'" class="content-area">
-      <div class="main-panel">
-        <div class="panel-header">
-          <h2 class="panel-title">Interactions</h2>
-          <button class="download-btn" (click)="downloadData()" aria-label="Download data">
-           <i class="fas fa-download"></i>
-          </button>
-        </div>
-        <div class="filters-bar">
-          <button class="filter-chip">Group by: <span>Day</span></button>
-          <button class="filter-chip">Segment by: <span>Select</span></button>
-          <button class="filter-chip">Conversation type: <span>Select</span></button>
-          <button class="filter-chip">AI Assistants: <span>Select</span></button>
-          <button class="filter-chip">Channels: <span>Select</span></button>
-          <button class="filter-chip">Live Agents: <span>Select</span></button>
-          <button class="filter-chip">Teams: <span>Select</span></button>
-          <button class="filter-chip">Status: <span>Select</span></button>
-          <button class="filter-chip">Sender: <span>Select</span></button>
-          <a href="javascript:void(0)" class="reset-filters-link" (click)="resetAllFilters()">× Reset all</a>
-        </div>
-
-        <div class="loading-indicator" *ngIf="isLoadingInteractions">
-          <i class="fas fa-spinner fa-spin"></i> Loading interaction analytics...
-        </div>
-
-        <div class="data-display-area" *ngIf="!isLoadingInteractions">
-          <div *ngIf="hasInteractionData(); else noInteractionData">
-            <div class="chart-container">
-              <div class="chart-placeholder">
-                <h4>Interaction Analytics Chart</h4>
-                <p>Coming soon when interactions API is implemented</p>
-              </div>
-            </div>
-          </div>
-          <ng-template #noInteractionData>
-            <div class="no-data-placeholder">
-              <i class="fas fa-users"></i>
-              <h3>No Interaction Data Available</h3>
-              <p>Interactions API coming soon.</p>
-            </div>
-          </ng-template>
-        </div>
-      </div>
-    </main>
-
-    <!-- No chatbot selected message -->
-    <!-- <div class="no-chatbot-selected" *ngIf="availableChatbots.length === 0 && !isLoadingAvailableChatbots && !isLoadingUserStats">
-      <div class="empty-state">
-        <i class="fas fa-robot"></i>
-        <h3>No Active AI Assistants</h3>
-        <p>Create and activate an AI Assistant to view analytics data.</p>
-      </div>
-    </div> -->
+    </div>
+    
   </div>
 </div>
+
+<div class="modal fade" id="uploadModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-upload text-success me-2"></i> Upload Report</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-2">
+          <input id="misFile" class="form-control" type="file" (change)="handleFileInput($event)">
+        </div>
+        <div class="mb-3">
+          <input class="form-control" placeholder="Report title" [(ngModel)]="newTitle">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-success" (click)="uploadReportMetadata()" data-bs-dismiss="modal">
+          <i class="fas fa-cloud-upload-alt me-1"></i> Upload
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="previewModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas fa-eye text-info me-2"></i> Report Preview
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-0" style="height:80vh">
+        <ng-container *ngIf="selectedReport">
+          <!-- PDF / DOCX / XLSX preview -->
+          <iframe 
+            *ngIf="selectedReport.fileType === 'application/pdf' || selectedReport.fileType.includes('officedocument')" 
+            [src]="(selectedReport?.fileUrl || '') | safeUrl"
+            class="w-100 h-100 border-0">
+          </iframe>
+
+          <!-- For unsupported files -->
+          <div *ngIf="!selectedReport.fileType.includes('pdf') && !selectedReport.fileType.includes('officedocument')" 
+               class="d-flex flex-column justify-content-center align-items-center h-100">
+            <i class="fas fa-file fa-3x text-muted mb-2"></i>
+            <p class="text-muted">Preview not supported for this file type.</p>
+            <a [href]="selectedReport.fileUrl" download class="btn btn-sm btn-primary">
+              <i class="fas fa-download"></i> Download
+            </a>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div>
+
