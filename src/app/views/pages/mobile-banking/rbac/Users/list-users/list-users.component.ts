@@ -253,6 +253,10 @@ loadWorkflows(): void {
     this.visibleWorkflows = list.slice(0, this.recordsToShow);
   }
 
+  getFindingsForTask(taskId: number) {
+  return this.selectedWorkflow?.miniFindings?.filter(f => f.taskId === taskId) || [];
+}
+
   loadMore(): void {
     this.recordsToShow += 5;
     this.applyFiltersAndPagination();

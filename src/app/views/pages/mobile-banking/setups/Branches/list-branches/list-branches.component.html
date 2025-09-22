@@ -4,7 +4,7 @@
     <div class="col-lg-8 col-md-7"
          [ngClass]="{'col-lg-12 col-md-12': !isDetailsPanelVisible, 'col-lg-8 col-md-7': isDetailsPanelVisible}">
       <div class="user-page">
-        <h1 class="h3 mb-4">User Management</h1>
+        <h2 class="h3 mb-4">User Management</h2>
 
         <div class="d-flex justify-content-between align-items-center mb-3">
           <div class="input-group w-50">
@@ -27,7 +27,7 @@
           <table class="table table-hover align-middle">
             <thead class="table-light">
               <tr>
-                <th scope="col">ID</th>
+                <!-- <th scope="col">ID</th> -->
                 <th scope="col">Username</th>
                 <th scope="col">Email</th>
                 <th scope="col">Role</th>
@@ -40,7 +40,7 @@
                 [class.table-active]="selectedUser && selectedUser.id === user.id"
                 style="cursor:pointer"
               >
-                <td>{{ user.id }}</td>
+                <!-- <td>{{ user.id }}</td> -->
                 <td>{{ user.username }}</td>
                 <td>{{ user.email }}</td>
                 <td>{{ user.role }}</td>
@@ -100,37 +100,57 @@
       </ng-template>
     </div>
   </div>
-   
-   <div
-    class="modal fade show custom-modal-backdrop"
-    tabindex="-1"
-    *ngIf="isAddUserModalVisible"
-    style="display:block; background: rgba(0,0,0,0.5);"
-    (click)="closeAddUserModal()"
+
+  <div
+  class="modal fade show custom-modal-backdrop"
+  tabindex="-1"
+  *ngIf="isAddUserModalVisible"
+  style="display:block; background: rgba(0,0,0,0.5);"
+  (click)="closeAddUserModal()"
+>
+  <div
+    class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
+    (click)="$event.stopPropagation()"
   >
-    <div
-      class="modal-dialog"
-      (click)="$event.stopPropagation()"
-    >
-      <div class="modal-content">
-        <div class="modal-header">
-            <h1 class="h3 mb-0">Add Auditor</h1>
-          <button type="button" class="btn-close" (click)="closeAddUserModal()"></button>
-        </div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="h5 mb-0">➕ Add Auditor</h1>
+        <button type="button" class="btn-close" (click)="closeAddUserModal()"></button>
+      </div>
 
-        <form [formGroup]="addUserForm" (ngSubmit)="saveUser()">
-          <div class="modal-body">
-            <div class="mb-3">
-              <label for="username" class="form-label">Username</label>
-              <input id="username" formControlName="username" type="text" class="form-control" placeholder="Enter username">
-            </div>
+      <form [formGroup]="addUserForm" (ngSubmit)="saveUser()">
+        <div class="modal-body">
 
-            <div class="mb-3">
-              <label for="email" class="form-label">Email</label>
-              <input id="email" formControlName="email" type="email" class="form-control" placeholder="Enter email">
-            </div>
+          <!-- Username -->
+          <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input
+              id="username"
+              formControlName="username"
+              type="text"
+              class="form-control"
+              placeholder="Enter username"
+              [ngClass]="{'is-invalid': addUserForm.get('username')?.touched && addUserForm.get('username')?.invalid}"
+            >
+            <div class="invalid-feedback">Username is required.</div>
+          </div>
 
-            <div class="mb-3">
+          <!-- Email -->
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input
+              id="email"
+              formControlName="email"
+              type="email"
+              class="form-control"
+              placeholder="Enter email"
+              [ngClass]="{'is-invalid': addUserForm.get('email')?.touched && addUserForm.get('email')?.invalid}"
+            >
+            <div class="invalid-feedback">Enter a valid email address.</div>
+          </div>
+
+          <!-- Password -->
+          <div class="mb-3">
             <label for="password" class="form-label">Password</label>
             <div class="input-group">
               <input
@@ -139,36 +159,49 @@
                 [type]="showPassword ? 'text' : 'password'"
                 class="form-control"
                 placeholder="Enter password"
+                [ngClass]="{'is-invalid': addUserForm.get('password')?.touched && addUserForm.get('password')?.invalid}"
               >
               <button
                 type="button"
                 class="btn btn-outline-secondary"
                 (click)="showPassword = !showPassword"
-                type="button"
               >
                 <i class="fas" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
               </button>
+              <div class="invalid-feedback">Password is required.</div>
             </div>
           </div>
 
-            <div class="mb-3">
-              <label for="role" class="form-label">Role</label>
-              <select id="role" formControlName="role" class="form-select">
-                <option value="">Select a role</option>
-                <option value="CIA">Chief Internal Auditor (CIA)</option>
-                <option value="Auditor">Internal Auditor (IA)</option>
-                <option value="AuditUnit">Audit Unit (AU)</option>
-              </select>
-            </div>
+          <!-- Role -->
+          <div class="mb-3">
+            <label for="role" class="form-label">Role</label>
+            <select
+              id="role"
+              formControlName="role"
+              class="form-select"
+              [ngClass]="{'is-invalid': addUserForm.get('role')?.touched && addUserForm.get('role')?.invalid}"
+            >
+              <option value="">Select a role</option>
+              <option value="CIA">Chief Internal Auditor (CIA)</option>
+              <option value="Auditor">Internal Auditor (IA)</option>
+              <option value="AuditUnit">Audit Unit (AU)</option>
+            </select>
+            <div class="invalid-feedback">Role selection is required.</div>
           </div>
+        </div>
 
-          <div class="modal-footer">
-            <button type="button" class="btn btn-sm btn-secondary" (click)="closeAddUserModal()">Cancel</button>
-            <button type="submit" class="btn btn-sm btn-primary btn-test" [disabled]="addUserForm.invalid">Save Auditor</button>
-          </div>
-        </form>
-      </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-sm btn-secondary" (click)="closeAddUserModal()">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-sm btn-primary btn-test fw-semibold" [disabled]="addUserForm.invalid">
+            <i class="fas fa-save me-1"></i> Save Auditor
+          </button>
+        </div>
+      </form>
     </div>
   </div>
+</div>
+
 </div>
 <hr>

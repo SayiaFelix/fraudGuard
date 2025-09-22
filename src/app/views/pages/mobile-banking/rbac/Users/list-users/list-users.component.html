@@ -71,7 +71,8 @@
     </div>
 
     <!-- Right: Details -->
-    <div class="col-lg-4 col-md-5 bg-white border-start shadow-sm" *ngIf="isDetailsPanelVisible">
+    <div class="col-lg-4 col-md-5 bg-white border-start shadow-sm"  style="min-height: 85vh; max-height: 100vh; overflow-y: auto;" 
+       *ngIf="isDetailsPanelVisible">
       <div class="p-3 d-flex justify-content-between align-items-center border-bottom">
         <h2 class="mb-0 fw-bold"><i class="fas fa-tasks me-1"></i> Workflow Details</h2>
         <div>
@@ -80,10 +81,9 @@
         </div>
       </div>
 
-       <div class="p-3" *ngIf="selectedWorkflow">
+       <div class="card p-3 shadow-sm" *ngIf="selectedWorkflow">
         <h3 class="fw-bold"><i class="fas fa-clipboard-list me-2 text-primary"></i> {{ selectedWorkflow.title }}</h3>
-        <p class="text-dark mb-1"><i class="fas fa-align-left me-2 text-muted"></i> {{ selectedWorkflow.scope }}</p>
-
+       
         <p><i class="fas fa-building me-2 text-secondary"></i> <strong>Department:</strong> {{ selectedWorkflow.department }}</p>
         <p><i class="fas fa-user me-2 text-info"></i> <strong>Assigned To:</strong> {{ selectedWorkflow.assignedTo }}</p>
         <p><i class="fas fa-flag me-2 text-warning"></i> <strong>Status: </strong>
@@ -97,18 +97,22 @@
             {{ selectedWorkflow.status }}
           </span>
         </p>
-
-      <div class="mb-3">
-        <i class="fas fa-chart-line me-2 text-success"></i>
-        <div class="progress" style="height:10px;">
-          <div class="progress-bar" role="progressbar" [style.width.%]="taskProgressPercent()"></div>
+    
+        <div class="mb-3 mt-1 d-flex align-items-center">
+          <!-- <i class="fas fa-chart-line me-2 text-success"></i> -->
+          <div class="flex-grow-1">
+            <div class="progress" style="height:10px;">
+              <div class="progress-bar bg-success" role="progressbar" [style.width.%]="taskProgressPercent()"></div>
+            </div>
+            <small class="text-muted">{{ taskProgressPercent() }}% complete</small>
+          </div>
         </div>
-        <small>{{ taskProgressPercent() }}% complete</small>
-      </div>
+        <p class="text-dark mb-1"><i class="fas fa-align-left me-2 text-muted"></i> {{ selectedWorkflow.scope }}</p>
+
      <hr>
 
       <!-- Tasks -->
-      <h3><i class="fas fa-tasks me-2 text-primary"></i> Tasks</h3>
+      <h3 class="fw-bold"><i class="fas fa-tasks me-2 text-primary"></i> Tasks</h3>
       <div *ngIf="!(selectedWorkflow.tasks?.length); else tasksTpl" class="text-muted mb-2">
         No tasks yet.
       </div>
@@ -118,19 +122,18 @@
     <!-- Add Task -->
       <div class="card shadow-sm mb-3">
         <div class="card-body">
-          <h5 class="card-title">
+          <h5 class="card-title fw-bold">
             <i class="fas fa-tasks me-2 text-success"></i> 
             {{ editingTask ? 'Edit Task' : 'Add Task' }}
           </h5>
 
           <form [formGroup]="taskForm" (ngSubmit)="editingTask ? updateTask() : addTaskToWorkflow()">
-            <!-- Description -->
+    
             <div class="mb-3">
               <label class="form-label fw-bold">Task Description</label>
               <input class="form-control" placeholder="Enter task description" formControlName="description">
             </div>
 
-            <!-- Assignee -->
             <div class="mb-3">
               <label class="form-label fw-bold">Assign To</label>
               <select class="form-select" aria-placeholder="-- Select User --" formControlName="assignee">
@@ -141,7 +144,6 @@
               </select>
             </div>
 
-            <!-- Status -->
             <div class="mb-3">
               <label class="form-label fw-bold">Status</label>
               <select class="form-select" formControlName="status">
@@ -151,7 +153,6 @@
               </select>
             </div>
 
-            <!-- Due Date -->
             <div class="mb-3">
               <label class="form-label fw-bold">Due Date</label>
               <input 
@@ -207,34 +208,63 @@
         </ng-template>
         <hr>
 
-      <!-- Mini Findings -->
-      <h3><i class="fas fa-exclamation-circle me-2 text-danger"></i> Mini Findings</h3>
-      <div *ngIf="!(selectedWorkflow?.miniFindings?.length); else mfTpl" class="text-muted mb-2">
-        No mini findings yet.
-      </div>
+        <div style="border-radius: 12px;" class="card shadow-sm p-2">
+            <!-- Mini Findings -->
+          <h3 class="fw-bold"><i class="fas fa-exclamation-circle me-2 text-danger"></i> Mini Findings</h3>
 
-    <ng-template #mfTpl>
-      <ul class="list-group mb-2">
-        <li class="list-group-item d-flex justify-content-between align-items-center"
-            *ngFor="let mf of selectedWorkflow?.miniFindings">
-          <div>
-            <div><strong>{{ mf.description }}</strong></div>
-            <div class="small text-muted">
-              <i class="fas fa-bolt me-1 text-warning"></i> Severity: {{ mf.severity }} • 
-              <i class="fas fa-clipboard-check me-1 text-success"></i> Status: {{ mf.status }} • 
-              <i class="fas fa-calendar-alt me-1 text-muted"></i> {{ mf.createdAt }}
-            </div>
+          <div *ngIf="!(selectedWorkflow?.tasks?.length); else tasksWithFindingsTpl" class="text-muted mb-2">
+            No tasks yet to attach findings.
           </div>
-          <button class="btn btn-sm btn-light" (click)="deleteMiniFinding(mf.id!)" title="Delete Finding">
-            <i class="fas fa-trash text-danger"></i>
-          </button>
-        </li>
-      </ul>
-    </ng-template>
 
-      <button class="btn btn-outline-primary btn-sm save-btn" (click)="openFindingModal()">
-        <i class="fas fa-plus-circle me-1"></i> Add Finding
-      </button>
+          <ng-template #tasksWithFindingsTpl>
+            <div *ngFor="let t of selectedWorkflow?.tasks" class="mb-3">
+              <!-- Task Header -->
+              <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-1">
+                  <i class="fas fa-tasks text-primary me-1"></i> {{ t.description }}
+                </h5>
+                <span class="badge"
+                      [ngClass]="{
+                        'bg-secondary': t.status === 'Pending',
+                        'bg-warning text-dark': t.status === 'In Progress',
+                        'bg-success': t.status === 'Done'
+                      }">{{ t.status }}</span>
+              </div>
+              <small class="text-muted">
+                <i class="fas fa-user-circle me-1"></i> {{ t.assignee }} • due {{ t.dueDate || '—' }}
+              </small>
+
+              <!-- Findings under this task -->
+              <ul class="list-group mt-2" *ngIf="getFindingsForTask(t.id).length; else noFindingsTpl">
+                <li class="list-group-item d-flex justify-content-between align-items-center"
+                    *ngFor="let mf of getFindingsForTask(t.id)">
+                  <div>
+                    <div><strong>{{ mf.description }}</strong></div>
+                    <div class="small text-muted">
+                      <i class="fas fa-bolt me-1 text-warning"></i> Severity: {{ mf.severity || mf.impact }} • 
+                      <i class="fas fa-clipboard-check me-1 text-success"></i> Status: {{ mf.status }} • 
+                      <i class="fas fa-calendar-alt me-1 text-muted"></i> {{ mf.createdAt }}
+                    </div>
+                  </div>
+                  <button class="btn btn-sm btn-light" (click)="deleteMiniFinding(mf.id!)" title="Delete Finding">
+                    <i class="fas fa-trash text-danger"></i>
+                  </button>
+                </li>
+              </ul>
+
+              <!-- If no findings for this task -->
+              <ng-template #noFindingsTpl>
+                <div class="text-muted small fst-italic ms-2">No findings for this task.</div>
+              </ng-template>
+            </div>
+          </ng-template>
+
+          <!-- Add Finding Button -->
+          <button class="btn btn-outline-primary btn-sm save-btn mt-2" (click)="openFindingModal()">
+            <i class="fas fa-plus-circle me-1"></i> Add Finding
+          </button>
+
+        </div>
        </div>
     </div>
   </div>
@@ -410,7 +440,6 @@
                 </select>
               </div>
             </div>
-
           </div>
         </div>
 
@@ -426,3 +455,4 @@
     </div>
   </div>
 </div>
+<hr>
