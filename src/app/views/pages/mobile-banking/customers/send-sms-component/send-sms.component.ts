@@ -105,6 +105,7 @@ hideDetails(): void {
     this.http.get<any[]>(`${this.apiUrl}?auditId=${this.auditId}`).subscribe({
       next: (data) => {
         this.observations = data;
+
         this.applyFilters();
         this.isLoading = false;
       },
