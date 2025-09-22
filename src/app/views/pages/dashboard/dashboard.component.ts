@@ -95,8 +95,6 @@ export class DashboardComponent implements OnInit {
 
   isLoading = false;
 
- 
-
   constructor(private mis: GlobalService) {}
 
   ngOnInit(): void {
