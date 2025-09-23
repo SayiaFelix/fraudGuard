@@ -49,7 +49,7 @@ export class LoginComponent implements OnInit {
     private toastr: ToastrService,
     private globalService: GlobalService
   ) {
-
+ 
     this.form = fb.group({
       email: [
         '',
@@ -67,29 +67,29 @@ export class LoginComponent implements OnInit {
     localStorage.clear();
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
-
+ 
 onSubmit(event: Event) {
   event.preventDefault();
-
+ 
   if (this.isLoading) return;
-
+ 
   this.hasError = false;
   this.isLoading = true;
-
+ 
   const { email, password, role } = this.form.value;
-
+ 
   this.httpService
     .login(email, password)   // <-- should return users[] from db.json
     .subscribe(users => {
       this.isLoading = false;
-
+ 
       if (users.length > 0) {
         const user = users[0];
         if (user.role === role) {
           localStorage.setItem('userRole', user.role);
           localStorage.setItem('userEmail', user.email);
           localStorage.setItem('username', user.username);
-
+ 
           // Redirect
           this.router.navigate(['/dashboard']);
           console.log('Login successful:', user);
@@ -103,8 +103,8 @@ onSubmit(event: Event) {
       }
     });
 }
-
-
+ 
+ 
   toggleShowPassword() {
     this.showingPassword = !this.showingPassword;
     if (this.showingPassword) {
@@ -113,11 +113,11 @@ onSubmit(event: Event) {
       this.inputType = 'password';
     }
   }
-
+ 
   navigateToSignUp() {
     this.router.navigate(['/auth/signup']);
   }
-
+ 
   changeLanguage(lang: string) {
     this.translate.use(lang);
     if (lang === 'en') {
@@ -134,7 +134,7 @@ onSubmit(event: Event) {
     let model = {
       token: accessToken,
     };
-
+ 
     this.httpService.mobileBankingPost('oauth/validate', model).subscribe((res: any) => {
       if (res.status === 200) {
         console.log(res.data);
@@ -146,3 +146,4 @@ onSubmit(event: Event) {
     })
   }
 }
+ 

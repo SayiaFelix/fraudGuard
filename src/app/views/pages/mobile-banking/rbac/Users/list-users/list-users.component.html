@@ -242,7 +242,7 @@
                     <div><strong>{{ mf.description }}</strong></div>
                     <div class="small text-muted">
                       <i class="fas fa-bolt me-1 text-warning"></i> Severity: {{ mf.severity || mf.impact }} • 
-                      <i class="fas fa-clipboard-check me-1 text-success"></i> Status: {{ mf.status }} • 
+                      <i class="fas fa-clipboard-check me-1 text-success"></i> Status: <span class="text-dark">{{ mf.status }}</span> • 
                       <i class="fas fa-calendar-alt me-1 text-muted"></i> {{ mf.createdAt }}
                     </div>
                   </div>
@@ -254,12 +254,11 @@
 
               <!-- If no findings for this task -->
               <ng-template #noFindingsTpl>
-                <div class="text-muted small fst-italic ms-2">No findings for this task.</div>
+                <div class="text-dark small fst-italic ms-2">No findings for this task.</div>
               </ng-template>
             </div>
           </ng-template>
 
-          <!-- Add Finding Button -->
           <button class="btn btn-outline-primary btn-sm save-btn mt-2" (click)="openFindingModal()">
             <i class="fas fa-plus-circle me-1"></i> Add Finding
           </button>
