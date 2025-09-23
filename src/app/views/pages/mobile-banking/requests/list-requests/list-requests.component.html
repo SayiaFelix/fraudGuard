@@ -6,7 +6,6 @@
       <h1 class="inbox-title">Inbox</h1>
     </div>
 
-    <!-- Redesigned Filters -->
     <div class="panel-filters">
       <select class="form-select filter-dropdown" (change)="filterItems($any($event.target).value)">
         <option value="all">All Items</option>
@@ -20,7 +19,6 @@
       </div>
     </div>
 
-    <!-- Inbox Items List -->
     <div class="conversation-list">
       <div *ngIf="isLoading" class="loading-placeholder">Loading items...</div>
       <div *ngIf="!isLoading && filteredInboxItems.length === 0" class="empty-placeholder">No items in this view.</div>
@@ -69,22 +67,62 @@
         </div>
       </div>
       
+      <!-- ======================= CORRECTED DETAILS BODY & ACTIONS ======================= -->
       <div class="details-body">
-        <div class="details-meta">
-          <span>From: <strong>{{ selectedItem.from }}</strong></span>
-          <span>Received: <strong>{{ selectedItem.date }}</strong></span>
-        </div>
+        <!-- Main Summary -->
         <p class="details-summary">{{ selectedItem.summary }}</p>
-        <p>
-          Further details regarding this item would be displayed here. This could include attached documents, specific para information, or more context about the task. The system will provide all necessary information to take action.
-        </p>
+
+        <!-- Key Details Table -->
+        <div class="details-table">
+          <div class="table-row" *ngIf="selectedItem.details?.auditId">
+            <span class="table-label">Audit ID</span>
+            <span class="table-value">#{{ selectedItem.details?.auditId }}</span>
+          </div>
+          <div class="table-row" *ngIf="selectedItem.details?.observationId">
+            <span class="table-label">Observation ID</span>
+            <span class="table-value">#{{ selectedItem.details?.observationId }}</span>
+          </div>
+          <div class="table-row" *ngIf="selectedItem.details?.auditUnit">
+            <span class="table-label">Audit Unit</span>
+            <span class="table-value">{{ selectedItem.details?.auditUnit }}</span>
+          </div>
+          <div class="table-row" *ngIf="selectedItem.details?.reviewPeriod">
+            <span class="table-label">Review Period</span>
+            <span class="table-value">{{ selectedItem.details?.reviewPeriod }}</span>
+          </div>
+          <div class="table-row" *ngIf="selectedItem.details?.dueDate">
+            <span class="table-label">Due Date</span>
+            <span class="table-value danger-text">{{ selectedItem.details?.dueDate }}</span>
+          </div>
+        </div>
+
+        <!-- Attachments Section -->
+        <div class="details-attachments" *ngIf="selectedItem.details?.attachments?.length">
+          <h4>Attachments</h4>
+          <div class="attachment-item" *ngFor="let file of selectedItem.details?.attachments">
+            <i class="mdi {{ file.icon }}"></i>
+            <span>{{ file.name }}</span>
+            <a href="#" class="download-link">Download</a>
+          </div>
+        </div>
+
+        <!-- History / Audit Trail Section -->
+        <div class="details-history" *ngIf="selectedItem.details?.history?.length">
+          <h4>History</h4>
+          <div class="history-item" *ngFor="let event of selectedItem.details?.history">
+            <p class="history-action">{{ event.action }} by <strong>{{ event.user }}</strong></p>
+            <p class="history-date">{{ event.date }}</p>
+          </div>
+        </div>
       </div>
       
+      <!-- Action buttons are now inside the main view but after the body -->
       <div class="details-actions" *ngIf="selectedItem.type === 'approval' || selectedItem.type === 'response'">
         <button class="btn btn-primary"><i class="feather icon-file-text"></i>View Full Report</button>
         <button class="btn btn-success" *ngIf="selectedItem.type === 'approval'"><i class="feather icon-check"></i>Approve</button>
         <button class="btn btn-danger" *ngIf="selectedItem.type === 'approval'"><i class="feather icon-x"></i>Return for Revision</button>
       </div>
+      <!-- =================================================================================== -->
     </div>
   </div>
 </div>

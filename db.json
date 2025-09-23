@@ -595,35 +595,53 @@
     "inboxItems": [
     {
       "id": 1,
-      "role": "CIA", 
+      "role": "CIA",
       "type": "approval",
       "title": "Draft Report for Approval",
       "from": "John Doe (Auditor)",
-      "summary": "Draft Audit Report for Q1 Financial Audit is ready for your review and approval.",
+      "summary": "The draft Audit Report for the Q1 Financial Audit is ready for your review and approval.",
       "isRead": false,
-      "timestamp": "2025-01-20T10:00:00Z",
+      "timestamp": "2025-09-22T14:30:00Z",
       "details": {
-        "subject": "Review and Approve: Draft Report #A1-DR-001",
-        "auditId": "a1"
+        "subject": "Approve: Draft Report #A1-DR-001",
+        "auditId": "a1",
+        "auditUnit": "Finance Department",
+        "reviewPeriod": "Jan 1, 2025 - Mar 31, 2025",
+        "attachments": [
+          { "name": "Draft_Report_A1.pdf", "icon": "mdi-file-pdf-box" },
+          { "name": "Supporting_Evidence.zip", "icon": "mdi-zip-box" }
+        ],
+        "history": [
+          { "user": "John Doe", "action": "Submitted for approval", "date": "Sep 22" },
+          { "user": "John Doe", "action": "Created draft report", "date": "Sep 21" }
+        ]
       }
     },
     {
       "id": 2,
-      "role": "Auditor", 
+      "role": "Auditor",
       "type": "response",
       "title": "Management Response Received",
-      "from": "Audit Unit (Finance)",
+      "from": "Audit Unit (IT)",
       "summary": "Management has submitted their response to the observations in the IT Security Workflow audit.",
-      "isRead": false,
-      "timestamp": "2025-02-16T14:30:00Z",
+      "isRead": true,
+      "timestamp": "2025-09-21T11:00:00Z",
       "details": {
-        "subject": "Management Response to Report #A2-FR-001",
-        "auditId": "a2"
+        "subject": "Management Response: Report #A2-FR-001",
+        "auditId": "a2",
+        "responseDate": "Sep 21, 2025",
+        "attachments": [
+          { "name": "Management_Response_A2.pdf", "icon": "mdi-file-pdf-box" }
+        ],
+        "history": [
+          { "user": "IT Department", "action": "Submitted management response", "date": "Sep 21" },
+          { "user": "System", "action": "Final report sent to unit", "date": "Sep 15" }
+        ]
       }
     },
     {
       "id": 3,
-      "role": "CIA", 
+      "role": "CIA",
       "type": "notification",
       "title": "Compliance Overdue",
       "from": "System Notification",
@@ -633,33 +651,28 @@
       "details": {
         "subject": "Overdue Compliance: Observation #o2",
         "observationId": "o2",
-        "auditId": "a2"
+        "auditId": "a2",
+        "dueDate": "Sep 17, 2025",
+        "history": [
+          { "user": "System", "action": "Sent final reminder", "date": "Sep 22" },
+          { "user": "System", "action": "Sent initial reminder", "date": "Sep 15" }
+        ]
       }
     },
     {
       "id": 4,
-      "role": "Auditor", 
+      "role": "Auditor",
+      "type": "assignment",
       "title": "New Audit Assigned",
       "from": "System",
       "summary": "You have been assigned as the lead auditor for the upcoming 'Marketing Audits' engagement.",
       "isRead": true,
-      "timestamp": "2025-09-21T11:00:00Z",
+      "timestamp": "2025-09-21T08:00:00Z",
       "details": {
         "subject": "New Assignment: Marketing Audits",
-        "auditId": "64b0"
-      }
-    },
-    {
-      "id": 5,
-      "role": "CIA", 
-      "type": "approval",
-      "title": "Approve Annual Audit Plan",
-      "from": "Jane Smith (Auditor)",
-      "summary": "The draft of the Annual Audit Plan for the upcoming fiscal year is ready for your final approval.",
-      "isRead": false,
-      "timestamp": "2025-09-10T16:00:00Z",
-      "details": {
-        "subject": "Action Required: Approve Annual Audit Plan 2026"
+        "auditId": "64b0",
+        "role": "Lead Auditor",
+        "startDate": "Sep 22, 2025"
       }
     }
   ]
