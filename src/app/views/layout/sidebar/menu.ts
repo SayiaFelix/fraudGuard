@@ -12,7 +12,7 @@ export const MENU: MenuItem[] = [
     label: 'Inbox',
     icon: 'inbox',
     link: '/eclectics/user/inbox',
-    // roles: ['CIA', 'AuditUnit']
+    roles: ['CIA', 'AuditUnit']
   },
   {
     isTitle: true,
@@ -48,7 +48,7 @@ export const MENU: MenuItem[] = [
     label: 'Compliance',
     icon: 'check-circle',
     link: '/eclectics/compliance/all',
-    // roles: ['AuditUnit', 'CIA']
+    roles: ['AuditUnit', 'CIA']
   },
 
   {

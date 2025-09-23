@@ -96,7 +96,7 @@
       "title": "Chatbot system Workflow",
       "scope": "safiuewhfiuwe",
       "department": "EBU",
-      "status": "Planned",
+      "status": "Completed",
       "startDate": "2025-09-23",
       "endDate": "2025-10-01"
     },
@@ -339,12 +339,20 @@
       "scope": "safiuewhfiuwe",
       "department": "EBU",
       "assignedTo": "Auditor2",
-      "status": "Not Started",
+      "status": "Completed",
       "startDate": "2025-09-23",
       "dueDate": "2025-10-01",
       "id": "8dbd",
       "auditId": "8dbd",
-      "tasks": [],
+      "tasks": [
+        {
+          "id": "t1758610067437",
+          "description": "backend is lagging",
+          "assignee": "auditor1",
+          "status": "Done",
+          "dueDate": "2025-09-25"
+        }
+      ],
       "miniFindings": []
     },
     {
@@ -503,6 +511,16 @@
         }
       ],
       "id": "cff1"
+    },
+    {
+      "id": "a137",
+      "description": "Customer cant receive message ",
+      "severity": "Medium",
+      "status": "Open",
+      "recommendation": "Fix the issue early ",
+      "auditId": "8dbd",
+      "createdAt": "2025-09-23",
+      "findings": []
     }
   ],
   "misReports": [
