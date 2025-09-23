@@ -14,12 +14,21 @@ export interface InboxItem {
   date: string;
   timestamp: number;
   isRead: boolean;
-  // This is the new property we will use for filtering
-  role: 'Auditor' | 'CIA' | 'AuditUnit'; 
+  role: 'Auditor' | 'CIA' | 'AuditUnit';
+  
+  // This is the part we are updating to include all possible fields
   details?: {
     subject: string;
     reportId?: string;
     paraId?: string;
+    // --- ADDED NEW OPTIONAL PROPERTIES ---
+    auditId?: string;
+    observationId?: string;
+    auditUnit?: string;
+    reviewPeriod?: string;
+    dueDate?: string;
+    attachments?: { name: string; icon: string; }[];
+    history?: { user: string; action: string; date: string; }[];
   };
 }
 
@@ -35,28 +44,14 @@ export class ListRequestsComponent implements OnInit {
   public selectedItem: InboxItem | null = null;
   public isLoading: boolean = true;
   public activeFilter: string = 'all';
-  // To store the current user's role
-  private currentUserRole: string | null = null; 
 
   constructor(
-    private httpService: HttpService,
     private cdr: ChangeDetectorRef,
     private http: HttpClient
   ) { }
 
   ngOnInit(): void {
-    // --- STEP 1: Get the logged-in user's role from localStorage ---
-    this.currentUserRole = localStorage.getItem('userRole');
-
-    if (!this.currentUserRole) {
-      // Handle case where user is not logged in or role is missing
-      console.error("User role not found in localStorage. Cannot filter inbox.");
-      this.isLoading = false;
-      // Optionally, you could redirect to the login page here
-      // this.router.navigate(['/auth/login']); 
-      return;
-    }
-    
+    // We now directly call the function to load data, no role check needed.
     this.loadInboxData();
   }
 
@@ -66,33 +61,27 @@ export class ListRequestsComponent implements OnInit {
 
     this.http.get(fullUrl).pipe(
       map((items: any) => {
-        const allItems = (items as any[]).map((item: any): InboxItem => ({
+        // This maps the raw data from the server to our InboxItem model
+        return (items as any[]).map((item: any): InboxItem => ({
           ...item,
           timestamp: new Date(item.timestamp).getTime(),
           date: new Date(item.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
         }));
-
-        // --- STEP 2: Filter the items based on the current user's role ---
-        if (this.currentUserRole) {
-          return allItems.filter(item => item.role === this.currentUserRole);
-        }
-        // If for some reason there's no role, return an empty array to be safe
-        return []; 
       }),
       catchError(err => {
+        // This handles errors if the server isn't running
         console.error("Failed to load inbox items.", err);
-        Swal.fire('Error', 'Could not load inbox data. Is the mock backend server running?', 'error');
-        return of([]);
+        Swal.fire('Error', 'Could not load inbox data. Please ensure the mock backend server is running.', 'error');
+        return of([]); // Return an empty array to prevent the app from crashing
       })
-    ).subscribe((roleFilteredItems: InboxItem[]) => {
-      this.allInboxItems = roleFilteredItems;
-      this.filterItems(this.activeFilter);
+    ).subscribe((allItems: InboxItem[]) => {
+      // The API call was successful
+      this.allInboxItems = allItems;
+      this.filterItems(this.activeFilter); // Apply the default "All Items" filter
       this.isLoading = false;
       this.cdr.detectChanges();
     });
   }
-
-  // ... (the rest of your component's code remains exactly the same) ...
 
   selectItem(item: InboxItem): void {
     this.selectedItem = item;
@@ -103,6 +92,7 @@ export class ListRequestsComponent implements OnInit {
     this.activeFilter = filter;
     let itemsToFilter = [...this.allInboxItems];
 
+    // The filters for "Awaiting Action" and "Notifications" will still work
     switch (filter) {
       case 'awaiting_action':
         this.filteredInboxItems = itemsToFilter.filter(item => item.type === 'approval' || item.type === 'response');

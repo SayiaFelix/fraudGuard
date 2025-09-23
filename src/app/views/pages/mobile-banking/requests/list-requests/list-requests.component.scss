@@ -159,3 +159,111 @@
   padding: 2rem;
   color: #6c757d;
 }
+
+/* ======================================================= */
+/* NEW STYLES FOR ENHANCED DETAILS VIEW
+/* ======================================================= */
+
+.details-body {
+  flex-grow: 1;
+  padding: 1.5rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  overflow-y: auto; // Allow content to scroll if it's long
+}
+
+.details-meta {
+  display: flex;
+  gap: 1.5rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #f1f3f5;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.details-summary {
+  font-weight: 500;
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+// Key Details Table
+.details-table {
+  margin-bottom: 2rem;
+  .table-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    font-size: 0.9rem;
+    &:not(:last-child) {
+      border-bottom: 1px solid #f1f3f5;
+    }
+  }
+  .table-label {
+    color: #6c757d;
+  }
+  .table-value {
+    font-weight: 500;
+    color: #212529;
+  }
+  .danger-text {
+    color: #dc3545;
+    font-weight: 700;
+  }
+}
+
+// Attachments & History Sections
+.details-attachments, .details-history {
+  margin-bottom: 2rem;
+  h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e9ecef;
+  }
+}
+
+.attachment-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  
+  i {
+    font-size: 1.5rem;
+    color: #0d6efd;
+    margin-right: 0.75rem;
+  }
+  span {
+    flex-grow: 1;
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+  .download-link {
+    font-size: 0.8rem;
+    text-decoration: none;
+  }
+}
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  font-size: 0.9rem;
+  &:not(:last-child) {
+    border-bottom: 1px solid #f1f3f5;
+  }
+  .history-action {
+    margin: 0;
+  }
+  .history-date {
+    margin: 0;
+    color: #6c757d;
+  }
+}
