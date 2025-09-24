@@ -1,13 +1,12 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { HttpService } from 'src/app/shared/services/http.service';
-import Swal from 'sweetalert2';
-import { map, catchError } from 'rxjs/operators';
-import { of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
+import Swal from 'sweetalert2';
 
-// ==========================================================
-// CORRECTED INTERFACE
-// ==========================================================
+// --- ADDITION: Import the new NotificationService ---
+import { NotificationService } from 'src/app/shared/services/NotificationService';
+
 export interface InboxItem {
   id: number;
   type: 'approval' | 'response' | 'notification' | 'assignment';
@@ -19,6 +18,9 @@ export interface InboxItem {
   isRead: boolean;
   role: 'Auditor' | 'CIA' | 'AuditUnit';
   
+  // This is the updated part. We are defining all possible
+  // properties that the 'details' object can have.
+  // The '?' makes them all optional, which is crucial.
   details?: {
     subject: string;
     reportId?: string;
@@ -30,9 +32,9 @@ export interface InboxItem {
     dueDate?: string;
     attachments?: { name: string; icon: string; }[];
     history?: { user: string; action: string; date: string; }[];
-    // --- ADDED THESE TWO NEW OPTIONAL PROPERTIES ---
     role?: string;
     startDate?: string;
+    status?: string;
   };
 }
 
@@ -51,7 +53,9 @@ export class ListRequestsComponent implements OnInit {
 
   constructor(
     private cdr: ChangeDetectorRef,
-    private http: HttpClient
+    private http: HttpClient,
+    // --- ADDITION: Inject the NotificationService ---
+    private notificationService: NotificationService
   ) { }
 
   ngOnInit(): void {
@@ -80,12 +84,21 @@ export class ListRequestsComponent implements OnInit {
       this.filterItems(this.activeFilter);
       this.isLoading = false;
       this.cdr.detectChanges();
+
+      // --- ADDITION: After loading data, find unread items and update the service ---
+      const unreadItems = this.allInboxItems.filter(item => !item.isRead);
+      this.notificationService.updateNotifications(unreadItems);
     });
   }
 
   selectItem(item: InboxItem): void {
     this.selectedItem = item;
+    // Mark the item as read
     item.isRead = true;
+
+    // --- ADDITION: When an item is read, update the notification service again ---
+    const unreadItems = this.allInboxItems.filter(i => !i.isRead);
+    this.notificationService.updateNotifications(unreadItems);
   }
 
   filterItems(filter: string): void {

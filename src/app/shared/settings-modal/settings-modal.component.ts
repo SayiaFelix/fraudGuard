@@ -62,10 +62,10 @@ export class SettingsModalComponent implements OnInit {
       } else if (this.firstName) {
         this.userName = this.firstName;
       } else {
-        this.userName = 'User';
+        this.userName = 'Audit1';
       }
       
-      this.userEmail = localStorage.getItem('email') || localStorage.getItem('user_email') || 'user@eclectics.io';
+      this.userEmail = localStorage.getItem('email') || localStorage.getItem('user_email') || 'audit@internal.io';
       this.userInitials = this.generateInitials(this.userName);
       this.preferredLanguage = localStorage.getItem('preferred_language') || 'en';
       this.browserNotifications = localStorage.getItem('browser_notifications') === 'true';

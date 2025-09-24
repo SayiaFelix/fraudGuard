@@ -71,41 +71,46 @@
         <!-- Main Summary -->
         <p class="details-summary">{{ selectedItem.summary }}</p>
 
-        <!-- Key Details Table -->
-        <!-- ========================================================== -->
-        <!-- CORRECTED DETAILS TABLE -->
-        <!-- ========================================================== -->
+        <!-- ======================================================= -->
+        <!-- START: NEW & IMPROVED DETAILS TABLE -->
+        <!-- ======================================================= -->
         <div class="details-table">
           <div class="table-row" *ngIf="selectedItem.details?.auditId">
-            <span class="table-label">Audit ID</span>
+            <span class="table-label"><i class="feather icon-hash"></i> Audit ID</span>
             <span class="table-value">#{{ selectedItem.details?.auditId }}</span>
           </div>
-          <div class="table-row" *ngIf="selectedItem.details?.observationId">
-            <span class="table-label">Observation ID</span>
-            <span class="table-value">#{{ selectedItem.details?.observationId }}</span>
-          </div>
           <div class="table-row" *ngIf="selectedItem.details?.auditUnit">
-            <span class="table-label">Audit Unit</span>
+            <span class="table-label"><i class="feather icon-briefcase"></i> Audit Unit</span>
             <span class="table-value">{{ selectedItem.details?.auditUnit }}</span>
           </div>
-          <div class="table-row" *ngIf="selectedItem.details?.reviewPeriod">
-            <span class="table-label">Review Period</span>
-            <span class="table-value">{{ selectedItem.details?.reviewPeriod }}</span>
-          </div>
-          <div class="table-row" *ngIf="selectedItem.details?.dueDate">
-            <span class="table-label">Due Date</span>
-            <span class="table-value danger-text">{{ selectedItem.details?.dueDate }}</span>
-          </div>
-          <!-- --- ADDED THESE TWO NEW ROWS --- -->
-          <div class="table-row" *ngIf="selectedItem.details?.role">
-            <span class="table-label">Your Role</span>
-            <span class="table-value">{{ selectedItem.details?.role }}</span>
-          </div>
           <div class="table-row" *ngIf="selectedItem.details?.startDate">
-            <span class="table-label">Start Date</span>
+            <span class="table-label"><i class="feather icon-calendar"></i> Start Date</span>
             <span class="table-value">{{ selectedItem.details?.startDate }}</span>
           </div>
+          <div class="table-row" *ngIf="selectedItem.details?.dueDate">
+            <span class="table-label"><i class="feather icon-flag"></i> Due Date</span>
+            <span class="table-value" [class.danger-text]="selectedItem.type === 'notification'">{{ selectedItem.details?.dueDate }}</span>
+          </div>
+          <div class="table-row" *ngIf="selectedItem.details?.role">
+            <span class="table-label"><i class="feather icon-user"></i> Your Role</span>
+            <span class="table-value">{{ selectedItem.details?.role }}</span>
+          </div>
+          <div class="table-row" *ngIf="selectedItem.details?.status">
+            <span class="table-label"><i class="feather icon-activity"></i> Status</span>
+            <span 
+              class="table-value status-badge" 
+              [ngClass]="{
+                'completed': selectedItem.details?.status === 'Completed',
+                'in-progress': selectedItem.details?.status === 'In Progress',
+                'planned': selectedItem.details?.status === 'Planned'
+              }">
+              {{ selectedItem.details?.status }}
+            </span>
+          </div>
         </div>
+        <!-- ======================================================= -->
+        <!-- END OF DETAILS TABLE -->
+        <!-- ======================================================= -->
 
         <!-- Attachments Section -->
         <div class="details-attachments" *ngIf="selectedItem.details?.attachments?.length">
