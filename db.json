@@ -108,6 +108,42 @@
       "startDate": "2025-09-30",
       "endDate": "2025-10-22",
       "id": "0f4c"
+    },
+    {
+      "id": "338b",
+      "title": "jjdjedn",
+      "scope": "jnndn",
+      "department": "jnednejdn",
+      "status": "Planned",
+      "startDate": "2025-09-23",
+      "endDate": "2025-10-10"
+    },
+    {
+      "id": "2099",
+      "title": "jknfjdr",
+      "scope": "vrjfnrj",
+      "department": "jrnfrjn",
+      "status": "In Progress",
+      "startDate": "2025-09-23",
+      "endDate": "2025-10-03"
+    },
+    {
+      "id": "4270",
+      "title": "hbh",
+      "scope": "knn",
+      "department": "njknk",
+      "status": "Planned",
+      "startDate": "2025-09-23",
+      "endDate": "2025-10-02"
+    },
+    {
+      "id": "3d97",
+      "title": "vvvhg",
+      "scope": "hvhgh",
+      "department": "hghvhb",
+      "status": "In Progress",
+      "startDate": "2025-09-24",
+      "endDate": "2025-10-02"
     }
   ],
   "workflows": [
@@ -358,6 +394,58 @@
       "auditId": "0f4c",
       "tasks": [],
       "miniFindings": []
+    },
+    {
+      "id": "338b",
+      "auditId": "338b",
+      "title": "jjdjedn Workflow",
+      "scope": "jnndn",
+      "department": "jnednejdn",
+      "assignedTo": "",
+      "status": "Not Started",
+      "startDate": "2025-09-23",
+      "dueDate": "2025-10-10",
+      "tasks": [],
+      "miniFindings": []
+    },
+    {
+      "id": "2099",
+      "auditId": "2099",
+      "title": "jknfjdr Workflow",
+      "scope": "vrjfnrj",
+      "department": "jrnfrjn",
+      "assignedTo": "",
+      "status": "In Progress",
+      "startDate": "2025-09-23",
+      "dueDate": "2025-10-03",
+      "tasks": [],
+      "miniFindings": []
+    },
+    {
+      "id": "4270",
+      "auditId": "4270",
+      "title": "hbh Workflow",
+      "scope": "knn",
+      "department": "njknk",
+      "assignedTo": "",
+      "status": "Not Started",
+      "startDate": "2025-09-23",
+      "dueDate": "2025-10-02",
+      "tasks": [],
+      "miniFindings": []
+    },
+    {
+      "id": "3d97",
+      "auditId": "3d97",
+      "title": "vvvhg Workflow",
+      "scope": "hvhgh",
+      "department": "hghvhb",
+      "assignedTo": "",
+      "status": "In Progress",
+      "startDate": "2025-09-24",
+      "dueDate": "2025-10-02",
+      "tasks": [],
+      "miniFindings": []
     }
   ],
   "observations": [
@@ -592,7 +680,7 @@
       }
     }
   ],
-    "inboxItems": [
+  "inboxItems": [
     {
       "id": 1,
       "role": "CIA",
@@ -608,12 +696,26 @@
         "auditUnit": "Finance Department",
         "reviewPeriod": "Jan 1, 2025 - Mar 31, 2025",
         "attachments": [
-          { "name": "Draft_Report_A1.pdf", "icon": "mdi-file-pdf-box" },
-          { "name": "Supporting_Evidence.zip", "icon": "mdi-zip-box" }
+          {
+            "name": "Draft_Report_A1.pdf",
+            "icon": "mdi-file-pdf-box"
+          },
+          {
+            "name": "Supporting_Evidence.zip",
+            "icon": "mdi-zip-box"
+          }
         ],
         "history": [
-          { "user": "John Doe", "action": "Submitted for approval", "date": "Sep 22" },
-          { "user": "John Doe", "action": "Created draft report", "date": "Sep 21" }
+          {
+            "user": "John Doe",
+            "action": "Submitted for approval",
+            "date": "Sep 22"
+          },
+          {
+            "user": "John Doe",
+            "action": "Created draft report",
+            "date": "Sep 21"
+          }
         ]
       }
     },
@@ -631,11 +733,22 @@
         "auditId": "a2",
         "responseDate": "Sep 21, 2025",
         "attachments": [
-          { "name": "Management_Response_A2.pdf", "icon": "mdi-file-pdf-box" }
+          {
+            "name": "Management_Response_A2.pdf",
+            "icon": "mdi-file-pdf-box"
+          }
         ],
         "history": [
-          { "user": "IT Department", "action": "Submitted management response", "date": "Sep 21" },
-          { "user": "System", "action": "Final report sent to unit", "date": "Sep 15" }
+          {
+            "user": "IT Department",
+            "action": "Submitted management response",
+            "date": "Sep 21"
+          },
+          {
+            "user": "System",
+            "action": "Final report sent to unit",
+            "date": "Sep 15"
+          }
         ]
       }
     },
@@ -654,8 +767,16 @@
         "auditId": "a2",
         "dueDate": "Sep 17, 2025",
         "history": [
-          { "user": "System", "action": "Sent final reminder", "date": "Sep 22" },
-          { "user": "System", "action": "Sent initial reminder", "date": "Sep 15" }
+          {
+            "user": "System",
+            "action": "Sent final reminder",
+            "date": "Sep 22"
+          },
+          {
+            "user": "System",
+            "action": "Sent initial reminder",
+            "date": "Sep 15"
+          }
         ]
       }
     },
@@ -674,7 +795,66 @@
         "role": "Lead Auditor",
         "startDate": "Sep 22, 2025"
       }
+    },
+    {
+      "id": "77ae",
+      "role": "Auditor",
+      "type": "assignment",
+      "title": "New Audit Assigned",
+      "from": "System (via CIA)",
+      "summary": "You have been assigned to the new audit: \"jjdjedn\".",
+      "isRead": false,
+      "timestamp": "2025-09-23T13:49:50.179Z",
+      "details": {
+        "subject": "New Assignment: jjdjedn",
+        "auditId": "338b"
+      }
+    },
+    {
+      "id": "a69f",
+      "role": "Auditor",
+      "type": "assignment",
+      "title": "New Audit Assigned",
+      "from": "System (via CIA)",
+      "summary": "You have been assigned to the new audit: \"jknfjdr\".",
+      "isRead": false,
+      "timestamp": "2025-09-23T14:00:14.626Z",
+      "details": {
+        "subject": "New Assignment: jknfjdr",
+        "auditId": "2099"
+      }
+    },
+    {
+      "id": "bc86",
+      "role": "Auditor",
+      "type": "assignment",
+      "title": "New Audit Assigned",
+      "from": "System (via CIA)",
+      "summary": "You have been assigned to the new audit: \"hbh\".",
+      "isRead": false,
+      "timestamp": "2025-09-23T14:15:41.066Z",
+      "details": {
+        "subject": "New Assignment: hbh",
+        "auditId": "4270",
+        "role": "Lead Auditor",
+        "startDate": "2025-09-23"
+      }
+    },
+    {
+      "id": "599d",
+      "role": "Auditor",
+      "type": "assignment",
+      "title": "New Audit Assigned",
+      "from": "System (via CIA)",
+      "summary": "You have been assigned to the new audit: \"vvvhg\".",
+      "isRead": false,
+      "timestamp": "2025-09-24T06:32:08.678Z",
+      "details": {
+        "subject": "New Assignment: vvvhg",
+        "auditId": "3d97",
+        "role": "Lead Auditor",
+        "startDate": "2025-09-24"
+      }
     }
   ]
-  
 }

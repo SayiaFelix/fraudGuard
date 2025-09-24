@@ -164,6 +164,8 @@ openAddAuditModal(): void {
 }
 
 
+// in add-customer.component.ts
+
 saveAudit(): void {
   if (this.addAuditForm.invalid) {
     this.toastr.warning('Please fill all required fields.', 'Invalid Form');
@@ -173,6 +175,7 @@ saveAudit(): void {
   const formData = this.addAuditForm.getRawValue();
 
   if (this.selectedAudit) {
+    // --- THIS IS YOUR EXISTING UPDATE LOGIC (UNCHANGED) ---
     const auditId = this.selectedAudit.id;
 
     this.http.put(`${this.apiUrl}/${auditId}`, { ...formData, id: auditId })
@@ -184,7 +187,7 @@ saveAudit(): void {
           this.hideAuditDetails();
           this.globalService.notifyAuditsChanged();
 
-          // 🔹 Sync linked workflow
+          // Your existing workflow sync logic for updates
           this.http.get<any[]>(`http://localhost:3000/workflows?auditId=${auditId}`).subscribe({
             next: (workflows) => {
               if (workflows.length > 0) {
@@ -193,7 +196,7 @@ saveAudit(): void {
                   ...wf,
                   title: formData.title.includes("Workflow")
                     ? formData.title
-                    : `${formData.title} Workflow`, // keep naming consistent
+                    : `${formData.title} Workflow`,
                   scope: formData.scope,
                   department: formData.department,
                   status: formData.status === 'Planned' ? 'Not Started' : formData.status,
@@ -214,7 +217,7 @@ saveAudit(): void {
       });
 
   } else {
-    // ------------------- CREATE AUDIT -------------------
+    // --- THIS IS YOUR EXISTING CREATE AUDIT LOGIC (WITH THE NEW ADDITION) ---
     this.http.post<any>(this.apiUrl, formData).subscribe({
       next: (createdAudit) => {
         Swal.fire('Created', 'Audit added successfully!', 'success');
@@ -223,6 +226,37 @@ saveAudit(): void {
         this.hideAuditDetails();
         this.globalService.notifyAuditsChanged();
 
+        // =======================================================
+        // --- START: CORRECTED BLOCK FOR INBOX SYNC ---
+        // =======================================================
+        const newInboxItem = {
+          role: "Auditor",
+          type: "assignment",
+          title: "New Audit Assigned",
+          from: "System (via CIA)",
+          summary: `You have been assigned to the new audit: "${createdAudit.title}".`,
+          isRead: false,
+          timestamp: new Date().toISOString(),
+          details: {
+            subject: `New Assignment: ${createdAudit.title}`,
+            auditId: createdAudit.id,
+            // --- ADDED THESE TWO LINES TO POPULATE THE DETAILS VIEW ---
+            role: "Lead Auditor", 
+            startDate: createdAudit.startDate 
+          }
+        };
+
+        // Make the API call to POST the new item to the inbox
+        this.http.post('http://localhost:3000/inboxItems', newInboxItem).subscribe({
+          next: () => console.log('%cSUCCESS: New assignment notification created in inbox.', 'color: green; font-weight: bold;'),
+          error: (err) => console.error('Failed to create inbox notification:', err)
+        });
+        // =======================================================
+        // --- END: CORRECTED BLOCK FOR INBOX SYNC ---
+        // =======================================================
+
+
+        // --- YOUR EXISTING WORKFLOW CREATION LOGIC (UNCHANGED) ---
         const workflowPayload = {
           id: createdAudit.id,
           auditId: createdAudit.id,
@@ -246,7 +280,6 @@ saveAudit(): void {
     });
   }
 }
-
 deleteAudit(id: number): void {
   Swal.fire({
     title: 'Are you sure?',
