@@ -1,5 +1,3 @@
-// src/app/views/layout/sidebar/sidebar.component.ts
-
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit, Renderer2, Inject, Output, EventEmitter } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import MetisMenu from 'metismenujs';
@@ -8,11 +6,8 @@ import { MenuItem } from './menu.model';
 import { Router, NavigationEnd } from '@angular/router';
 import Swal from 'sweetalert2';
 import { Subscription } from 'rxjs';
-
-// --- THESE ARE THE CORRECTED IMPORT PATHS BASED ON YOUR SCREENSHOT ---
 import { NotificationService } from '../../../shared/services/NotificationService';
-import { Notification } from '../../../shared/services/Notification';
-// ---
+import { InboxItem } from '../../pages/mobile-banking/requests/list-requests/list-requests.component'; // Adjust this path if your inbox component is in a different folder
 
 @Component({
   selector: 'app-sidebar',
@@ -21,26 +16,28 @@ import { Notification } from '../../../shared/services/Notification';
 })
 export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
 
+  
   @ViewChild('sidebarToggler') sidebarToggler: ElementRef;
   @Output() helpCenterToggled = new EventEmitter<MouseEvent>();
-
   menuItems: MenuItem[] = [];
   @ViewChild('sidebarMenu') sidebarMenu: ElementRef;
-
   isSettingsModalVisible = false;
   showSubItems: boolean = true;
   logo: string = '\\assets\\images\\TRA_Logo.png';
   showingClass = "d-none";
   selectedParent: string | undefined;
 
+  
   private notificationSub: Subscription;
 
   constructor(
     @Inject(DOCUMENT) private document: Document,
     private renderer: Renderer2,
     private router: Router,
+    
     private notificationService: NotificationService
   ) {
+    
     router.events.forEach((event) => {
       if (event instanceof NavigationEnd) {
         this._activateMenuDropdown();
@@ -51,34 +48,32 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-
   ngOnInit(): void {
-  const role = localStorage.getItem('userRole');
+    
+    const role = localStorage.getItem('userRole');
+    this.menuItems = MENU.filter(item => 
+      !item.roles || item.roles.includes(role!)
+    );
 
-  this.menuItems = MENU.filter(item => 
-    !item.roles || item.roles.includes(role!)
-  );
+    const desktopMedium = window.matchMedia('(min-width:992px) and (max-width: 1199px)');
+    desktopMedium.addEventListener('change', () => this.iconSidebar(desktopMedium));
+    this.iconSidebar(desktopMedium);
 
-  this.notificationSub = this.notificationService.castNotifications.subscribe((notifications: Notification[]) => {
-    this.updateInboxBadge(notifications);
-  });
+    
+    this.notificationSub = this.notificationService.currentNotifications.subscribe((notifications: InboxItem[]) => {
+      this.updateInboxBadge(notifications);
+    });
+  }
 
-  const desktopMedium = window.matchMedia('(min-width:992px) and (max-width: 1199px)');
-  desktopMedium.addEventListener('change', () => {
-    this.iconSidebar;
-  });
-  this.iconSidebar(desktopMedium);
-}
-
-
-
+  
   ngOnDestroy(): void {
     if (this.notificationSub) {
       this.notificationSub.unsubscribe();
     }
   }
 
-  private updateInboxBadge(notifications: Notification[]): void {
+  
+  private updateInboxBadge(notifications: InboxItem[]): void {
     const inboxMenuItem = this.menuItems.find(item => item.label === 'Inbox');
     
     if (inboxMenuItem) {
@@ -86,14 +81,16 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
 
       if (unreadCount > 0) {
         inboxMenuItem.badge = { 
-          text: unreadCount, 
-          variant: 'danger'
+          text: unreadCount.toString(), 
+          variant: 'danger' // This creates a red badge
         };
       } else {
+        
         delete inboxMenuItem.badge;
       }
     }
   }
+
   
   onSettingsClick(event: MouseEvent): void {
     event.preventDefault();
