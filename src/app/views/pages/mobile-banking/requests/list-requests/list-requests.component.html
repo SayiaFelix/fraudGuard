@@ -67,12 +67,14 @@
         </div>
       </div>
       
-      <!-- ======================= CORRECTED DETAILS BODY & ACTIONS ======================= -->
       <div class="details-body">
         <!-- Main Summary -->
         <p class="details-summary">{{ selectedItem.summary }}</p>
 
         <!-- Key Details Table -->
+        <!-- ========================================================== -->
+        <!-- CORRECTED DETAILS TABLE -->
+        <!-- ========================================================== -->
         <div class="details-table">
           <div class="table-row" *ngIf="selectedItem.details?.auditId">
             <span class="table-label">Audit ID</span>
@@ -93,6 +95,15 @@
           <div class="table-row" *ngIf="selectedItem.details?.dueDate">
             <span class="table-label">Due Date</span>
             <span class="table-value danger-text">{{ selectedItem.details?.dueDate }}</span>
+          </div>
+          <!-- --- ADDED THESE TWO NEW ROWS --- -->
+          <div class="table-row" *ngIf="selectedItem.details?.role">
+            <span class="table-label">Your Role</span>
+            <span class="table-value">{{ selectedItem.details?.role }}</span>
+          </div>
+          <div class="table-row" *ngIf="selectedItem.details?.startDate">
+            <span class="table-label">Start Date</span>
+            <span class="table-value">{{ selectedItem.details?.startDate }}</span>
           </div>
         </div>
 
@@ -116,13 +127,12 @@
         </div>
       </div>
       
-      <!-- Action buttons are now inside the main view but after the body -->
+      <!-- Action buttons -->
       <div class="details-actions" *ngIf="selectedItem.type === 'approval' || selectedItem.type === 'response'">
         <button class="btn btn-primary"><i class="feather icon-file-text"></i>View Full Report</button>
         <button class="btn btn-success" *ngIf="selectedItem.type === 'approval'"><i class="feather icon-check"></i>Approve</button>
         <button class="btn btn-danger" *ngIf="selectedItem.type === 'approval'"><i class="feather icon-x"></i>Return for Revision</button>
       </div>
-      <!-- =================================================================================== -->
     </div>
   </div>
 </div>
