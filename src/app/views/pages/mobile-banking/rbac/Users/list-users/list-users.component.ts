@@ -375,7 +375,7 @@ saveWorkflow(): void {
     // ------------------- CREATE WORKFLOW -------------------
     const newPayload = {
       ...payload,
-      title: `${payload.title} Workflow`
+      title: `${payload.title}`
     };
 
     this.globalService.create(newPayload).subscribe({
