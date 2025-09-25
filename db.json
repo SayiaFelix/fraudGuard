@@ -47,13 +47,13 @@
       "endDate": "2025-01-20"
     },
     {
-      "id": "a2",
-      "title": "IT Security Workflow",
+      "title": "IT Security",
       "scope": "System vulnerabilities testing",
       "department": "IT",
       "status": "In Progress",
       "startDate": "2025-02-01",
-      "endDate": "2025-02-15"
+      "endDate": "2025-02-15",
+      "id": "a2"
     },
     {
       "id": "a3",
@@ -65,40 +65,40 @@
       "endDate": "2025-09-30"
     },
     {
-      "id": "64b0",
-      "title": "Marketing Audits",
+      "title": "Marketing Audit",
       "scope": "Review advertising spend and ROI",
       "department": "Market",
       "status": "Planned",
       "startDate": "2025-09-22",
-      "endDate": "2025-10-03"
+      "endDate": "2025-10-03",
+      "id": "64b0"
     },
     {
-      "id": "85aa",
-      "title": "Money Cash Workflow",
+      "title": "Money Cash",
       "scope": "checking cash flow for q1 ",
       "department": "Finance",
       "status": "In Progress",
       "startDate": "2025-09-25",
-      "endDate": "2025-09-30"
+      "endDate": "2025-09-30",
+      "id": "85aa"
     },
     {
-      "id": "2c32",
-      "title": "Progamming Workflow",
+      "title": "Progamming",
       "scope": "dsfsdfsd",
       "department": "RND",
       "status": "Completed",
       "startDate": "2025-09-24",
-      "endDate": "2025-10-03"
+      "endDate": "2025-10-03",
+      "id": "2c32"
     },
     {
-      "id": "8dbd",
-      "title": "Chatbot system Workflow",
+      "title": "Chatbot system",
       "scope": "safiuewhfiuwe",
       "department": "EBU",
       "status": "In Progress",
       "startDate": "2025-09-23",
-      "endDate": "2025-10-01"
+      "endDate": "2025-10-01",
+      "id": "8dbd"
     },
     {
       "title": "Payment",
@@ -110,31 +110,13 @@
       "id": "0f4c"
     },
     {
-      "id": "1cf9",
-      "title": "Staff Audit Workflow",
+      "title": "Staff Audit",
       "scope": "We want to audit staff Cv for this year",
       "department": "HR",
       "status": "Completed",
       "startDate": "2025-09-28",
-      "endDate": "2025-10-04"
-    },
-    {
-      "id": "69dd",
-      "title": "bhjhb",
-      "scope": "bjbjn",
-      "department": "kjnknk",
-      "status": "Planned",
-      "startDate": "2025-09-24",
-      "endDate": "2025-10-03"
-    },
-    {
-      "id": "4ee3",
-      "title": "nekned",
-      "scope": "dbdnjknd",
-      "department": "ebjhebd",
-      "status": "In Progress",
-      "startDate": "2025-09-24",
-      "endDate": "2025-10-03"
+      "endDate": "2025-10-04",
+      "id": "1cf9"
     }
   ],
   "workflows": [
@@ -218,15 +200,15 @@
       ]
     },
     {
-      "title": "Marketing Audits",
+      "title": "Marketing Audit Workflow",
       "scope": "Review advertising spend and ROI",
       "department": "Market",
+      "assignedTo": "auditor1",
       "status": "Not Started",
       "startDate": "2025-09-22",
       "dueDate": "2025-10-03",
       "id": "64b0",
       "auditId": "64b0",
-      "assignedTo": "auditor1",
       "tasks": [
         {
           "id": "t1758439444442",
@@ -454,32 +436,6 @@
           "createdAt": "2025-09-24"
         }
       ]
-    },
-    {
-      "id": "69dd",
-      "auditId": "69dd",
-      "title": "bhjhb Workflow",
-      "scope": "bjbjn",
-      "department": "kjnknk",
-      "assignedTo": "",
-      "status": "Not Started",
-      "startDate": "2025-09-24",
-      "dueDate": "2025-10-03",
-      "tasks": [],
-      "miniFindings": []
-    },
-    {
-      "id": "4ee3",
-      "auditId": "4ee3",
-      "title": "nekned Workflow",
-      "scope": "dbdnjknd",
-      "department": "ebjhebd",
-      "assignedTo": "",
-      "status": "In Progress",
-      "startDate": "2025-09-24",
-      "dueDate": "2025-10-03",
-      "tasks": [],
-      "miniFindings": []
     }
   ],
   "observations": [
@@ -908,86 +864,6 @@
             "date": "Sep 15"
           }
         ]
-      }
-    },
-    {
-      "id": 4,
-      "role": "Auditor",
-      "type": "assignment",
-      "title": "New Audit Assigned",
-      "from": "System",
-      "summary": "You have been assigned as the lead auditor for the upcoming 'Marketing Audits' engagement.",
-      "isRead": true,
-      "timestamp": "2025-09-21T08:00:00Z",
-      "details": {
-        "subject": "New Assignment: Marketing Audits",
-        "auditId": "64b0",
-        "role": "Lead Auditor",
-        "startDate": "Sep 22, 2025"
-      }
-    },
-   
-    {
-      "id": "a69f",
-      "role": "Auditor",
-      "type": "assignment",
-      "title": "New Audit Assigned",
-      "from": "System (via CIA)",
-      "summary": "You have been assigned to the new audit: \"jknfjdr\".",
-      "isRead": false,
-      "timestamp": "2025-09-23T14:00:14.626Z",
-      "details": {
-        "subject": "New Assignment: jknfjdr",
-        "auditId": "2099"
-      }
-    },
-    {
-      "id": "bc86",
-      "role": "Auditor",
-      "type": "assignment",
-      "title": "New Audit Assigned",
-      "from": "System (via CIA)",
-      "summary": "You have been assigned to the new audit: \"hbh\".",
-      "isRead": false,
-      "timestamp": "2025-09-23T14:15:41.066Z",
-      "details": {
-        "subject": "New Assignment: hbh",
-        "auditId": "4270",
-        "role": "Lead Auditor",
-        "startDate": "2025-09-23"
-      }
-    },
-   
-    {
-      "id": "daf0",
-      "role": "Auditor",
-      "type": "assignment",
-      "title": "New Audit Assigned",
-      "from": "System (via CIA)",
-      "summary": "You have been assigned to the new audit: \"Staff Audit\".",
-      "isRead": false,
-      "timestamp": "2025-09-24T07:12:46.940Z",
-      "details": {
-        "subject": "New Assignment: Staff Audit",
-        "auditId": "1cf9",
-        "role": "Lead Auditor",
-        "startDate": "2025-09-28"
-      }
-    },
-    {
-      "id": "a8bb",
-      "role": "Auditor",
-      "type": "assignment",
-      "title": "New Audit Assigned",
-      "from": "System (via CIA)",
-      "summary": "You have been assigned to the new audit: \"bhjhb\".",
-      "isRead": false,
-      "timestamp": "2025-09-24T10:24:23.482Z",
-      "details": {
-        "subject": "New Assignment: bhjhb",
-        "auditId": "69dd",
-        "role": "Lead Auditor",
-        "startDate": "2025-09-24"
       }
     },
     {
