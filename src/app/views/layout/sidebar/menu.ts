@@ -31,6 +31,12 @@ export const MENU: MenuItem[] = [
     link: '/eclectics/executions/workflows',
     roles: ['Auditor', 'CIA'] // workflow part of execution
   },
+   {
+    label: 'Compliance',
+    icon: 'check-circle',
+    link: '/eclectics/compliance/all',
+    roles: ['AuditUnit', 'CIA']
+  },
   {
     label:'User Management',
     icon:'users',
@@ -44,12 +50,7 @@ export const MENU: MenuItem[] = [
     link: '/eclectics/analytic/reports',
     roles: ['CIA'] // only CIA
   },
-  {
-    label: 'Compliance',
-    icon: 'check-circle',
-    link: '/eclectics/compliance/all',
-    roles: ['AuditUnit', 'CIA']
-  },
+ 
 
   {
     isTitle: true,
