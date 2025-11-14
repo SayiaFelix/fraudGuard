@@ -45,7 +45,8 @@ export class AddCustomerComponent implements OnInit {
 
   interviewSchedule: any[] = [];
   logisticsChecklist: any[] = [];
-
+riskInterviewSummary: [''];
+scopingNotes: ['']
   private apiUrl = 'http://localhost:3000/audits';
 
   constructor(
@@ -79,6 +80,7 @@ export class AddCustomerComponent implements OnInit {
       riskSummary: [''],
       kickoffDate: [''],
       planningMemo: [''],
+      riskInterviewSummary: [''],
 
       });
 
@@ -109,15 +111,6 @@ closeInterviewModal() {
   modal?.classList.remove('show');
   modal?.setAttribute('style', 'display:none');
 }
-
-// onCriteriaFilesSelected(event: any) {
-//   this.criteriaFiles = Array.from(event.target.files);
-// }
-
-// onRcmFileSelected(event: any) {
-//   this.rcmFile = event.target.files[0] || null;
-// }
-
 
 openLogisticsModal() {
   const modal = document.getElementById('logisticsModal');
@@ -208,16 +201,6 @@ saveLogisticsChecklist() {
     this.applyFiltersAndPagination();
   }
 
-
-// onExternalFilesSelected(event: any) {
-//   this.externalFiles = Array.from(event.target.files);
-// }
-
-// onInternalFilesSelected(event: any) {
-//   this.internalFiles = Array.from(event.target.files);
-// }
-
-
   loadMoreAudits(): void {
     this.recordsToShow += 20;
     this.visibleAudits = this.filteredAudits.slice(0, this.recordsToShow);
@@ -265,9 +248,6 @@ saveLogisticsChecklist() {
     this.addAuditForm.get('status')?.enable();
   }
 
-  // ===============================
-  // FILE HANDLERS
-  // ===============================
   onCriteriaFilesSelected(event: any) {
     this.criteriaFiles = Array.from(event.target.files);
   }
