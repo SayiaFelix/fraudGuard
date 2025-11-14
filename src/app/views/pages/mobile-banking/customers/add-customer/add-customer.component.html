@@ -157,6 +157,9 @@
         <strong>Planning Memo: </strong>
         <span class="text-muted">{{ selectedAudit?.planningMemo }}</span>
       </p>
+      <p *ngIf="selectedAudit?.unitOrientation">
+  <strong>Unit Orientation:</strong> {{ selectedAudit?.unitOrientation }}
+</p>
       <hr>
 
       <button class="btn btn-outline-primary btn-sm w-100 mb-2" (click)="openObservations(selectedAudit)">
@@ -264,6 +267,7 @@
                 <input formControlName="auditMembers" placeholder="Comma-separated names" class="form-control">
               </div>
 
+              
               <div class="col-md-6 mb-3">
                 <label class="form-label fw-bold">
                   <i class="fas fa-user-tag me-1 text-warning"></i> Third Party Firm
@@ -277,6 +281,23 @@
                 </label>
                 <input formControlName="thirdPartyContact" placeholder="Contact person (optional)" class="form-control">
               </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-bold">
+                  <i class="fas fa-info-circle me-1 text-primary"></i> Unit / Program Orientation Notes
+                </label>
+                <textarea formControlName="unitOrientation" rows="2"
+                          placeholder="Add orientation notes..." class="form-control"></textarea>
+              </div>
+
+              <div class="mb-3">
+                  <label class="form-label fw-bold">
+                    <i class="fas fa-file-alt me-1 text-secondary"></i> Background Information Summary
+                  </label>
+                  <textarea formControlName="backgroundSummary" rows="2"
+                            placeholder="Summary of collected background information..."
+                            class="form-control"></textarea>
+                </div>
 
               <div class="col-md-6 mb-3">
                 <label class="form-label fw-bold">
@@ -316,6 +337,21 @@
                 </label>
                 <textarea formControlName="planningMemo" rows="2" placeholder="Add the Planning Memo..." class="form-control"></textarea>
               </div>
+
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">
+                  <i class="fas fa-upload me-1 text-info"></i> Upload Criteria / Guidelines
+                </label>
+                <input type="file" (change)="onCriteriaFilesSelected($event)" multiple class="form-control">
+              </div>
+
+                <div class="col-md-6 mb-3">
+                  <label class="form-label fw-bold">
+                    <i class="fas fa-table me-1 text-warning"></i> Upload Risk Control Matrix (RCM)
+                  </label>
+                  <input type="file" (change)="onRcmFileSelected($event)" class="form-control">
+                </div>
+
 
               <div class="col-md-6 mb-3">
                 <label class="form-label fw-bold">

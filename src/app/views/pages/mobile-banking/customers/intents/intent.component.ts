@@ -243,8 +243,6 @@ export class IntentComponent implements OnInit {
   });
     }
   
-
-
 openPlanningPanel(audit: any): void {
   this.selectedAudit = { ...audit };
   this.isPlanningPanelVisible = true;
@@ -325,7 +323,6 @@ deleteTask(index: number) {
   });
 }
 
-
 saveTask(): void {
   if (this.addTaskForm.invalid) {
     Swal.fire('Warning', 'Please fill all required fields.', 'warning');
@@ -348,15 +345,9 @@ saveTask(): void {
       this.selectedAudit.planningTasks.push({ ...formData, status: 'Planned' });
     }
 
-    // Update existing task
-    // const index = this.selectedAudit.planningTasks.findIndex((t: any) => t === this.selectedTask);
-    // if (index > -1) this.selectedAudit.planningTasks[index] = { ...formData, status: this.selectedTask.status || 'Planned' };
   } else {
-    // Add new task
     this.selectedAudit.planningTasks.push({ ...formData, status: 'Planned' });
   }
-
-  // Save audit with updated tasks to backend
   this.http.put(`${this.apiUrl}/${this.selectedAudit.id}`, this.selectedAudit)
     .subscribe({
       next: () => {
@@ -368,8 +359,7 @@ saveTask(): void {
     });
 }
 
-
-    loadAudits(): void {
+loadAudits(): void {
       this.isLoading = true;
       this.http.get<any[]>(this.apiUrl).subscribe({
         next: (audits: any[]) => {
@@ -384,7 +374,7 @@ saveTask(): void {
       });
     }
   
-    applyFiltersAndPagination(): void {
+applyFiltersAndPagination(): void {
       let audits = [...this.allAudits];
   
       const search = this.searchTerm.trim().toLowerCase();
@@ -464,7 +454,7 @@ saveTask(): void {
     }
   
   
-    saveAudit(): void {
+saveAudit(): void {
       if (this.addAuditForm.invalid) {
         this.toastr.warning('Please fill all required fields.', 'Invalid Form');
         return;
@@ -568,7 +558,7 @@ saveTask(): void {
       }
     }
     
-    deleteAudit(id: number): void {
+deleteAudit(id: number): void {
       Swal.fire({
         title: 'Are you sure?',
         text: 'This action cannot be undone.',
@@ -595,7 +585,7 @@ saveTask(): void {
       });
     }
   
-    openObservations(audit: any): void {
+openObservations(audit: any): void {
       this.router.navigate(['/eclectics/audit_management/audits/observation', audit.id]);
     }
   
@@ -607,7 +597,7 @@ saveTask(): void {
       // saveAs(data, 'audits.xlsx');
     }
   
-    exportAsCSV(): void {
+exportAsCSV(): void {
       const header = ['Title', 'Department', 'Status', 'Start Date', 'End Date'];
       const rows = this.allAudits.map(a =>
         [a.title, a.department, a.status, a.startDate, a.endDate]
@@ -618,7 +608,7 @@ saveTask(): void {
       saveAs(blob, 'audits.csv');
     }
   
-    exportAsPDF(): void {
+exportAsPDF(): void {
       const doc = new jsPDF();
       const pageWidth = doc.internal.pageSize.getWidth();
   
@@ -658,7 +648,7 @@ saveTask(): void {
       doc.save('audits.pdf');
     }
   
-    exportAsXML(): void {
+exportAsXML(): void {
       let xmlData = '<?xml version="1.0" encoding="UTF-8"?>\n<audits>\n';
       this.allAudits.forEach(audit => {
         xmlData += `  <audit>
