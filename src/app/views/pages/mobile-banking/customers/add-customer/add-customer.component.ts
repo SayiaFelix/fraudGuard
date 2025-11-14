@@ -41,6 +41,8 @@ export class AddCustomerComponent implements OnInit {
   internalFiles: File[] = [];
 
   private apiUrl = 'http://localhost:3000/audits';
+    criteriaFiles: File[] = [];
+    rcmFile: File | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -66,7 +68,10 @@ export class AddCustomerComponent implements OnInit {
         riskRationale: [''],
         riskSummary: [''],
         kickoffDate: [''],
-        planningMemo: ['']
+        planningMemo: [''],
+          // NEW FIELDS
+        unitOrientation: [''],
+        backgroundSummary: [''],
       });
 
   }
@@ -98,6 +103,14 @@ closeInterviewModal() {
   const modal = document.getElementById('interviewModal');
   modal?.classList.remove('show');
   modal?.setAttribute('style', 'display:none');
+}
+
+onCriteriaFilesSelected(event: any) {
+  this.criteriaFiles = Array.from(event.target.files);
+}
+
+onRcmFileSelected(event: any) {
+  this.rcmFile = event.target.files[0] || null;
 }
 
 
@@ -260,7 +273,9 @@ onInternalFilesSelected(event: any) {
       interviewSchedule: this.interviewSchedule,
       logisticsChecklist: this.logisticsChecklist,
       externalFiles: this.externalFiles,
-      internalFiles: this.internalFiles
+      internalFiles: this.internalFiles,
+      criteriaFiles: this.criteriaFiles,
+      rcmFile: this.rcmFile
     };
 
     if (this.selectedAudit) {
