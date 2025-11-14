@@ -154,8 +154,19 @@
         <span class="text-muted">{{ selectedAudit?.planningMemo }}</span>
       </p>
       <p *ngIf="selectedAudit?.unitOrientation">
-  <strong>Unit Orientation:</strong> {{ selectedAudit?.unitOrientation }}
-</p>
+       <strong>Unit Orientation:</strong> {{ selectedAudit?.unitOrientation }}
+      </p>
+      <p *ngIf="selectedAudit?.auditYear">
+        <strong>Audit Year:</strong> {{ selectedAudit?.auditYear }}
+      </p>
+
+      <p *ngIf="selectedAudit?.auditPeriod">
+        <strong>Audit Period:</strong> {{ selectedAudit?.auditPeriod }}
+      </p>
+
+      <p *ngIf="selectedAudit?.clientConfirmation">
+        <strong>Client Confirmation:</strong> {{ selectedAudit?.clientConfirmation }}
+      </p>
       <hr>
 
       <!-- <button class="btn btn-outline-primary btn-sm w-100 mb-2" (click)="openObservations(selectedAudit)">
@@ -271,6 +282,35 @@
                     <input type="date" formControlName="endDate" class="form-control" [attr.min]="addAuditForm.get('startDate')?.value || todayString">
                   </div>
                 </div>
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">
+                      <i class="fas fa-calendar me-1 text-info"></i> Audit Year
+                    </label>
+                    <input formControlName="auditYear"
+                          type="number"
+                          placeholder="e.g. 2025"
+                          class="form-control">
+                          <div class="text-danger" *ngIf="f.auditYear.touched && f.auditYear.errors?.['invalidYear']">
+                      <small>Audit year must be between {{ currentYear }} and 2030.</small>
+                    </div>
+                  </div>
+                  
+
+                <div class="col-md-6 mb-3">
+                  <label class="form-label fw-bold">
+                    <i class="fas fa-clock me-1 text-primary"></i> Audit Period
+                  </label>
+                  <select formControlName="auditPeriod" class="form-select">
+                    <option>Q1</option>
+                    <option>Q2</option>
+                    <option>Q3</option>
+                    <option>Q4</option>
+                    <option>Full Year</option>
+                  </select>
+                </div>
+              </div>
+
               </div>
         </div>
 
@@ -290,7 +330,6 @@
                     </label>
                     <input formControlName="auditMembers" placeholder="Comma-separated names" class="form-control">
                   </div>
-
                   
                   <div class="col-md-6 mb-3">
                     <label class="form-label fw-bold">
@@ -305,6 +344,25 @@
                     </label>
                     <input formControlName="thirdPartyContact" placeholder="Contact person (optional)" class="form-control">
                   </div>
+
+                  <div class="col-md-6 mb-3">
+                      <label class="form-label fw-bold">
+                        <i class="fas fa-check-circle me-1 text-success"></i> Client Confirmation Received?
+                      </label>
+                      <select formControlName="clientConfirmation" class="form-select">
+                        <option>Pending</option>
+                        <option>Yes</option>
+                        <option>No</option>
+                      </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3" *ngIf="addAuditForm.get('clientConfirmation')?.value === 'Yes'">
+                      <label class="form-label fw-bold">
+                        <i class="fas fa-calendar-check me-1 text-primary"></i> Confirmation Date
+                      </label>
+                      <input formControlName="confirmationDate" type="date" [attr.min]="todayString" class="form-control">
+                    </div>
+                    
                 </div>
           </div>
         </div>
@@ -357,9 +415,9 @@
 
                   <div class="mb-3">
                     <label class="form-label fw-bold">
-                      <i class="fas fa-clipboard-list me-1 text-secondary"></i> Risk Summary
+                      <i class="fas fa-clipboard-list me-1 text-secondary"></i>  Risk Assessment Summary
                     </label>
-                    <textarea formControlName="riskSummary" placeholder="Add Risk Assessment Summary..."  rows="2" class="form-control"></textarea>
+                    <textarea formControlName="riskSummary" placeholder="Overall risk assessment summary..."  rows="2" class="form-control"></textarea>
                   </div>
 
                   <div class="mb-3">
@@ -442,6 +500,11 @@
                 {{ selectedAudit ? 'Update Audit' : 'Save Audit' }}
               </button>
             </div>
+              <!-- <div *ngIf="formErrors.length > 0" class="alert alert-danger mt-3">
+                <ul class="mb-0">
+                  <li *ngFor="let err of formErrors">{{ err }}</li>
+                </ul>
+              </div> -->
             
         </div> <!-- end docs -->
       
