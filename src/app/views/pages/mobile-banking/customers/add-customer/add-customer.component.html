@@ -368,6 +368,16 @@
                     </label>
                     <textarea formControlName="planningMemo" rows="2" placeholder="Add the Planning Memo..." class="form-control"></textarea>
                   </div>
+
+                  <div class="mb-3">
+                    <label class="form-label fw-bold">
+                      <i class="fas fa-comments me-1 text-info"></i> Risk Interview Summary
+                    </label>
+                    <textarea formControlName="riskInterviewSummary" rows="2"
+                              placeholder="Summary of risks identified during interviews..."
+                              class="form-control"></textarea>
+                  </div>
+
           </div>
         </div>
 
@@ -376,7 +386,7 @@
             <div class="row">
               <div class="col-md-6 mb-3">
                     <label class="form-label fw-bold">
-                      <i class="fas fa-upload me-1 text-info"></i> Upload Criteria / Guidelines
+                      <i class="fas fa-upload me-1 text-info"></i> Audit Criteria / Guidelines
                     </label>
                     <input type="file" (change)="onCriteriaFilesSelected($event)" multiple class="form-control">
                 </div>

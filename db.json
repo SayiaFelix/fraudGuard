@@ -1296,6 +1296,24 @@
         "dueDate": "2025-11-20",
         "status": "Planned"
       }
+    },
+    {
+      "id": "7db5",
+      "role": "Auditor",
+      "type": "assignment",
+      "title": "New Audit Assigned",
+      "from": "System (via CIA)",
+      "summary": "You have been assigned to the new audit: \"grrere\".",
+      "isRead": false,
+      "timestamp": "2025-11-14T15:37:22.590Z",
+      "details": {
+        "subject": "New Assignment: grrere",
+        "auditId": "a32c",
+        "auditUnit": "ttttttttttttt",
+        "startDate": "2025-11-14",
+        "dueDate": "2025-11-15",
+        "status": "Planned"
+      }
     }
   ]
 }
