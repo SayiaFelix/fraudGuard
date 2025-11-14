@@ -117,22 +117,97 @@
       "id": "0f4c"
     },
     {
-      "id": "1cf9",
-      "title": "Staff Audit Workflow",
-      "scope": "We want to audit staff Cv for this year",
-      "department": "HR",
-      "status": "Completed",
-      "startDate": "2025-09-28",
-      "endDate": "2025-10-04"
+      "title": "Staff EBU",
+      "scope": "efrereg",
+      "department": "New",
+      "status": "Planned",
+      "startDate": "2025-11-15",
+      "endDate": "2025-11-27",
+      "auditLead": "Jay",
+      "auditMembers": "felix,kevin bree",
+      "thirdPartyFirm": "Eclectics",
+      "thirdPartyContact": "Jay",
+      "riskRating": "Low",
+      "riskRationale": "reirhtohoire",
+      "kickoffDate": "2025-11-20",
+      "planningMemo": "rehjreoijoire",
+      "id": "daf6"
     },
     {
-      "id": "5e32",
-      "title": "AMS System Workflow",
-      "scope": "I want to check if all the functionalities are working",
-      "department": "AMSS",
-      "status": "Completed",
-      "startDate": "2025-09-26",
-      "endDate": "2025-10-02"
+      "id": "1b2b",
+      "title": "yugiuhgiu",
+      "scope": "giugiu",
+      "department": "fyugiu",
+      "status": "Planned",
+      "startDate": "2025-11-14",
+      "endDate": "2025-11-19",
+      "auditLead": "tfyfyu",
+      "auditMembers": "vuy,fuy",
+      "thirdPartyFirm": "jhlkjlk",
+      "thirdPartyContact": "dxgfcgf",
+      "riskRating": "Medium",
+      "riskRationale": "iuhoihoi",
+      "riskSummary": "iuhiuhiuhi",
+      "kickoffDate": "2025-11-12",
+      "planningMemo": "fyugfiugui",
+      "interviewSchedule": [
+        {
+          "name": "vj,jhv",
+          "department": "jbjbhjb",
+          "date": "2025-11-20",
+          "notes": "hjbhjb"
+        }
+      ],
+      "logisticsChecklist": [
+        {
+          "name": "fyufyuf",
+          "completed": false
+        },
+        {
+          "name": "vhj",
+          "completed": false
+        }
+      ],
+      "externalFiles": [],
+      "internalFiles": []
+    },
+    {
+      "id": "832a",
+      "title": "rfewe",
+      "scope": "fwefwe",
+      "department": "wefwe",
+      "status": "Planned",
+      "startDate": "2025-11-14",
+      "endDate": "2025-11-19",
+      "auditLead": "feewf",
+      "auditMembers": "eefe,fee",
+      "thirdPartyFirm": "ewffew",
+      "thirdPartyContact": "ewwfe",
+      "riskRating": "Medium",
+      "riskRationale": "wefewfwef",
+      "riskSummary": "fwfewfew",
+      "kickoffDate": "2025-11-19",
+      "planningMemo": "fwfwefwe",
+      "interviewSchedule": [
+        {
+          "name": "wfefwe",
+          "department": "fwewe",
+          "date": "2025-11-19",
+          "notes": "fwefew"
+        }
+      ],
+      "logisticsChecklist": [
+        {
+          "name": "fewfwe",
+          "completed": false
+        }
+      ],
+      "externalFiles": [
+        {}
+      ],
+      "internalFiles": [
+        {}
+      ]
     }
   ],
   "workflows": [
@@ -410,100 +485,43 @@
       "miniFindings": []
     },
     {
-      "title": "Staff Audit Workflow",
-      "scope": "We want to audit staff Cv for this year",
-      "department": "HR",
-      "assignedTo": "Auditor1",
-      "status": "Completed",
-      "startDate": "2025-09-28",
-      "dueDate": "2025-10-04",
-      "id": "1cf9",
-      "auditId": "1cf9",
-      "tasks": [
-        {
-          "id": "t1758698243910",
-          "description": "to do some cert training ",
-          "assignee": "auditor1",
-          "status": "Done",
-          "dueDate": "2025-09-26"
-        },
-        {
-          "id": "t1758698431674",
-          "description": "check the rest of the staff",
-          "assignee": "unit1",
-          "status": "Done",
-          "dueDate": "2025-09-25"
-        }
-      ],
-      "miniFindings": [
-        {
-          "taskId": "t1758698243910",
-          "description": "The staff did the certification as per agreement",
-          "severity": "Medium",
-          "status": "Confirmed",
-          "id": "1758698334480",
-          "createdAt": "2025-09-24"
-        },
-        {
-          "description": "Completed",
-          "impact": "Low",
-          "status": "Confirmed",
-          "id": "1758698627780",
-          "createdAt": "2025-09-24"
-        }
-      ]
+      "id": "daf6",
+      "auditId": "daf6",
+      "title": "Staff EBU Workflow",
+      "scope": "efrereg",
+      "department": "New",
+      "assignedTo": "",
+      "status": "Not Started",
+      "startDate": "2025-11-15",
+      "dueDate": "2025-11-27",
+      "tasks": [],
+      "miniFindings": []
     },
     {
-      "title": "AMS System Workflow",
-      "scope": "I want to check if all the functionalities are working",
-      "department": "AMSS",
-      "assignedTo": "Auditor1",
-      "status": "Completed",
-      "startDate": "2025-09-26",
-      "dueDate": "2025-10-02",
-      "id": "5e32",
-      "auditId": "5e32",
-      "tasks": [
-        {
-          "id": "t1758799378327",
-          "description": "check if the rbac is working",
-          "assignee": "unit1",
-          "status": "Done",
-          "dueDate": "2025-09-27"
-        },
-        {
-          "id": "t1758799603523",
-          "description": "Check the audit management functionatily ",
-          "assignee": "unit1",
-          "status": "Done",
-          "dueDate": "2025-09-29"
-        }
-      ],
-      "miniFindings": [
-        {
-          "description": "They were some internet issues ",
-          "impact": "Low",
-          "status": "Confirmed",
-          "id": "1758798955026",
-          "createdAt": "2025-09-25"
-        },
-        {
-          "taskId": "t1758799378327",
-          "description": "it is working as per designed ",
-          "severity": "Medium",
-          "status": "Noted",
-          "id": "1758799514354",
-          "createdAt": "2025-09-25"
-        },
-        {
-          "taskId": "t1758799603523",
-          "description": "it okay",
-          "severity": "Medium",
-          "status": "Confirmed",
-          "id": "1758799640510",
-          "createdAt": "2025-09-25"
-        }
-      ]
+      "id": "1b2b",
+      "auditId": "1b2b",
+      "title": "yugiuhgiu Workflow",
+      "scope": "giugiu",
+      "department": "fyugiu",
+      "assignedTo": "",
+      "status": "Not Started",
+      "startDate": "2025-11-14",
+      "dueDate": "2025-11-19",
+      "tasks": [],
+      "miniFindings": []
+    },
+    {
+      "id": "832a",
+      "auditId": "832a",
+      "title": "rfewe Workflow",
+      "scope": "fwefwe",
+      "department": "wefwe",
+      "assignedTo": "",
+      "status": "Not Started",
+      "startDate": "2025-11-14",
+      "dueDate": "2025-11-19",
+      "tasks": [],
+      "miniFindings": []
     }
   ],
   "observations": [
@@ -664,7 +682,7 @@
       "severity": "Low",
       "status": "Closed",
       "recommendation": "Done by the end of week after training ",
-      "auditId": "1cf9",
+      "auditId": null,
       "createdAt": "2025-09-24",
       "findings": [
         {
@@ -683,7 +701,7 @@
       "severity": "Medium",
       "status": "Closed",
       "recommendation": "Check on the logs ",
-      "auditId": "5e32",
+      "auditId": null,
       "createdAt": "2025-09-25",
       "findings": [
         {
@@ -901,7 +919,7 @@
   ],
   "inboxItems": [
     {
-      "id": 1,
+      "id": "1",
       "role": "CIA",
       "type": "approval",
       "title": "Draft Report for Approval",
@@ -939,7 +957,7 @@
       }
     },
     {
-      "id": 2,
+      "id": "2",
       "role": "Auditor",
       "type": "response",
       "title": "Management Response Received",
@@ -972,7 +990,7 @@
       }
     },
     {
-      "id": 3,
+      "id": "3",
       "role": "CIA",
       "type": "notification",
       "title": "Compliance Overdue",
@@ -1032,6 +1050,60 @@
         "auditUnit": "AMS",
         "startDate": "2025-09-26",
         "dueDate": "2025-10-03",
+        "status": "Planned"
+      }
+    },
+    {
+      "id": "c656",
+      "role": "Auditor",
+      "type": "assignment",
+      "title": "New Audit Assigned",
+      "from": "System (via CIA)",
+      "summary": "You have been assigned to the new audit: \"Staff EBU\".",
+      "isRead": false,
+      "timestamp": "2025-11-14T06:43:37.093Z",
+      "details": {
+        "subject": "New Assignment: Staff EBU",
+        "auditId": "daf6",
+        "auditUnit": "New",
+        "startDate": "2025-11-14",
+        "dueDate": "2025-11-27",
+        "status": "Planned"
+      }
+    },
+    {
+      "id": "8127",
+      "role": "Auditor",
+      "type": "assignment",
+      "title": "New Audit Assigned",
+      "from": "System (via CIA)",
+      "summary": "You have been assigned to the new audit: \"yugiuhgiu\".",
+      "isRead": false,
+      "timestamp": "2025-11-14T08:26:56.158Z",
+      "details": {
+        "subject": "New Assignment: yugiuhgiu",
+        "auditId": "1b2b",
+        "auditUnit": "fyugiu",
+        "startDate": "2025-11-14",
+        "dueDate": "2025-11-19",
+        "status": "Planned"
+      }
+    },
+    {
+      "id": "1f13",
+      "role": "Auditor",
+      "type": "assignment",
+      "title": "New Audit Assigned",
+      "from": "System (via CIA)",
+      "summary": "You have been assigned to the new audit: \"rfewe\".",
+      "isRead": false,
+      "timestamp": "2025-11-14T08:44:13.402Z",
+      "details": {
+        "subject": "New Assignment: rfewe",
+        "auditId": "832a",
+        "auditUnit": "wefwe",
+        "startDate": "2025-11-14",
+        "dueDate": "2025-11-19",
         "status": "Planned"
       }
     }

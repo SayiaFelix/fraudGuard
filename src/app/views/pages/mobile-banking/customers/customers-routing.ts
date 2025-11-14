@@ -24,7 +24,7 @@ const routes: Routes = [
     path: 'audits',
     component: ListFailedRegistrationsComponent,
     children: [
-      { path: '', redirectTo: 'planning', pathMatch: 'full' },
+      { path: '', redirectTo: 'scoping', pathMatch: 'full' },
       { path: 'planning', component: IntentComponent },
       { path: 'scoping', component: AddCustomerComponent },
       { path: 'observation/:auditId', component: SendSmsComponent },

@@ -12,6 +12,29 @@ import * as saveAs from 'file-saver';
 import jsPDF from 'jspdf';
 import { HttpClient } from '@angular/common/http';
 
+
+interface Audit {
+  id: number;
+  title: string;
+  scope: string;
+  department: string;
+  status: string;
+  startDate: string;
+  endDate: string;
+  planningTasks?: PlanningTask[];
+}
+
+interface PlanningTask {
+  id?: number;
+  name: string;
+  description?: string;
+  assignedTo?: string;
+  startDate: string;
+  endDate: string;
+  status: 'Not Started' | 'In Progress' | 'Completed';
+}
+
+
 interface SurveyQuestion {
   id?: string;
   text: string;
