@@ -25,12 +25,13 @@ const routes: Routes = [
     component: ListFailedRegistrationsComponent,
     children: [
       { path: '', redirectTo: 'planning', pathMatch: 'full' },
-      { path: 'planning', component: AddCustomerComponent },
+      { path: 'planning', component: IntentComponent },
+      { path: 'scoping', component: AddCustomerComponent },
       { path: 'observation/:auditId', component: SendSmsComponent },
-      { path: 'intent/:id', component: IntentComponent },
-      { path: 'llm', component: ViewCustomerComponent },
-      { path: 'publish', component: ReasonsForFailureComponent },
-      { path: 'voice', component: VoiceComponent },
+
+      // { path: 'llm', component: ViewCustomerComponent },
+      // { path: 'publish', component: ReasonsForFailureComponent },
+      // { path: 'voice', component: VoiceComponent },
      
     ]
   }
