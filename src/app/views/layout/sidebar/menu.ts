@@ -31,19 +31,19 @@ export const MENU: MenuItem[] = [
     link: '/eclectics/executions/workflows',
     // roles: ['Auditor', 'CIA'] // workflow part of execution
   },
-
-   {
-    label: 'CAP Monitoring',
-    icon: 'check-circle',
-    link: '/eclectics/compliance/all',
-    // roles: ['AuditUnit', 'CIA']
-  },
   {
     label: 'Reporting',
     icon:'bar-chart',
     link: '/eclectics/analytic/reports',
     // roles: ['CIA', 'Auditor']
   },
+   {
+    label: 'CAP Monitoring',
+    icon: 'check-circle',
+    link: '/eclectics/compliance/all',
+    // roles: ['AuditUnit', 'CIA']
+  },
+
    {
     isTitle: true,
     label: 'ADMINISTRATION',

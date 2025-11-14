@@ -9,6 +9,7 @@ import * as saveAs from 'file-saver';
 import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
 
+
 @Component({
   selector: 'app-add-customer',
   templateUrl: './add-customer.component.html',
@@ -36,6 +37,8 @@ export class AddCustomerComponent implements OnInit {
   // Form & Modal
   addAuditForm: FormGroup;
   isAddAuditModalVisible = false;
+  externalFiles: File[] = [];
+  internalFiles: File[] = [];
 
   private apiUrl = 'http://localhost:3000/audits';
 
@@ -46,14 +49,26 @@ export class AddCustomerComponent implements OnInit {
       private router: Router,
       private globalService: GlobalService
   ) {
+
     this.addAuditForm = this.fb.group({
-      title: ['', Validators.required],
-      scope: ['', Validators.required],
-      department: ['', Validators.required],
-      status: ['Planned', Validators.required],
-      startDate: ['', Validators.required],
-      endDate: ['', Validators.required]
-    });
+        title: ['', Validators.required],
+        scope: ['', Validators.required],
+        department: ['', Validators.required],
+        status: ['Planned', Validators.required],
+        startDate: ['', Validators.required],
+        endDate: ['', Validators.required],
+
+        auditLead: [''],
+        auditMembers: [''],
+        thirdPartyFirm: [''],
+        thirdPartyContact: [''],
+        riskRating: ['Medium'],
+        riskRationale: [''],
+        riskSummary: [''],
+        kickoffDate: [''],
+        planningMemo: ['']
+      });
+
   }
 
   ngOnInit(): void {
@@ -68,6 +83,62 @@ export class AddCustomerComponent implements OnInit {
     }
   });
   }
+
+  interviewSchedule: any[] = [];
+logisticsChecklist: any[] = [];
+
+// Open/Close Modals
+openInterviewModal() {
+  const modal = document.getElementById('interviewModal');
+  modal?.classList.add('show');
+  modal?.setAttribute('style', 'display:block; background: rgba(0,0,0,0.5)');
+}
+
+closeInterviewModal() {
+  const modal = document.getElementById('interviewModal');
+  modal?.classList.remove('show');
+  modal?.setAttribute('style', 'display:none');
+}
+
+
+openLogisticsModal() {
+  const modal = document.getElementById('logisticsModal');
+  modal?.classList.add('show');
+  modal?.setAttribute('style', 'display:block; background: rgba(0,0,0,0.5)');
+}
+
+closeLogisticsModal() {
+  const modal = document.getElementById('logisticsModal');
+  modal?.classList.remove('show');
+  modal?.setAttribute('style', 'display:none');
+}
+
+addInterview() {
+  this.interviewSchedule.push({ name: '', department: '', date: '', notes: '' });
+}
+
+removeInterview(index: number) {
+  this.interviewSchedule.splice(index, 1);
+}
+
+saveInterviewSchedule() {
+  console.log('Saved Interview Schedule:', this.interviewSchedule);
+  this.closeInterviewModal();
+}
+newLogisticsItem: string = '';
+
+addLogisticsItem() {
+  if (this.newLogisticsItem?.trim()) {
+    this.logisticsChecklist.push({ name: this.newLogisticsItem.trim(), completed: false });
+    this.newLogisticsItem = ''; // reset input
+  }
+}
+
+saveLogisticsChecklist() {
+  console.log('Saved Logistics Checklist:', this.logisticsChecklist);
+  this.closeLogisticsModal();
+}
+
 
   loadAudits(): void {
     this.isLoading = true;
@@ -119,6 +190,16 @@ export class AddCustomerComponent implements OnInit {
     this.applyFiltersAndPagination();
   }
 
+
+onExternalFilesSelected(event: any) {
+  this.externalFiles = Array.from(event.target.files);
+}
+
+onInternalFilesSelected(event: any) {
+  this.internalFiles = Array.from(event.target.files);
+}
+
+
   loadMoreAudits(): void {
     this.recordsToShow += 20;
     this.visibleAudits = this.filteredAudits.slice(0, this.recordsToShow);
@@ -154,10 +235,13 @@ export class AddCustomerComponent implements OnInit {
   openAddAuditModal(): void {
     this.addAuditForm.reset({
       status: 'Planned',
-      startDate: this.todayString,  
+      startDate: this.todayString, 
+      kickoffDate: this.todayString, 
       endDate: ''                  
     });
     this.hideAuditDetails();
+    this.interviewSchedule = [];
+    this.logisticsChecklist = [];
     this.isAddAuditModalVisible = true;
     this.selectedAudit = null;
     this.addAuditForm.get('status')?.enable();
@@ -170,7 +254,14 @@ export class AddCustomerComponent implements OnInit {
       return;
     }
 
-    const formData = this.addAuditForm.getRawValue();
+    // const formData = this.addAuditForm.getRawValue();
+    const formData = {
+      ...this.addAuditForm.getRawValue(),
+      interviewSchedule: this.interviewSchedule,
+      logisticsChecklist: this.logisticsChecklist,
+      externalFiles: this.externalFiles,
+      internalFiles: this.internalFiles
+    };
 
     if (this.selectedAudit) {
       
@@ -197,7 +288,16 @@ export class AddCustomerComponent implements OnInit {
                     department: formData.department,
                     status: formData.status === 'Planned' ? 'Not Started' : formData.status,
                     startDate: formData.startDate,
-                    dueDate: formData.endDate
+                    dueDate: formData.endDate,
+                    auditLead: formData.auditLead,
+                    auditMembers: formData.auditMembers,
+                    thirdPartyFirm: formData.thirdPartyFirm,
+                    thirdPartyContact: formData.thirdPartyContact,
+                    riskRating: formData.riskRating,
+                    riskRationale: formData.riskRationale,
+                    riskSummary: formData.riskSummary,
+                    kickoffDate: formData.kickoffDate,
+                    planningMemo: formData.planningMemo
                   };
                   this.http.put(`http://localhost:3000/workflows/${wf.id}`, updatedWf).subscribe({
                     next: () => this.globalService.notifyWorkflowsChanged(),
