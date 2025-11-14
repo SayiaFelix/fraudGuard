@@ -239,6 +239,103 @@
           "status": "Planned"
         }
       ]
+    },
+    {
+      "id": "b015",
+      "title": "sdfsf",
+      "scope": "sdfds",
+      "department": "dsfsdsd",
+      "status": "Planned",
+      "startDate": "2025-11-14",
+      "endDate": "2025-11-17",
+      "auditLead": "fdsfds",
+      "auditMembers": "dsfds,fdsf,fs",
+      "thirdPartyFirm": "fsdsd",
+      "thirdPartyContact": "",
+      "unitOrientation": "dsfsds",
+      "backgroundSummary": "fdsfds",
+      "riskRating": "High",
+      "riskRationale": "fdsfds",
+      "riskSummary": "fdsfsd",
+      "kickoffDate": "2025-11-14",
+      "planningMemo": "fsdfsd",
+      "interviewSchedule": [
+        {
+          "name": "fsdfds",
+          "department": "fsdfds",
+          "date": "2025-11-17",
+          "notes": "fsdfs"
+        },
+        {
+          "name": "fffffffds",
+          "department": "fsfs",
+          "date": "2025-11-18",
+          "notes": "fsfsfs"
+        }
+      ],
+      "logisticsChecklist": [],
+      "externalFiles": [],
+      "internalFiles": [
+        {}
+      ],
+      "criteriaFiles": [
+        {}
+      ],
+      "rcmFile": null
+    },
+    {
+      "id": "e062",
+      "title": "felix",
+      "scope": "dsfdsfds",
+      "department": "JAY",
+      "status": "Planned",
+      "startDate": "2025-11-16",
+      "endDate": "2025-11-20",
+      "auditLead": "WFEWFWE",
+      "auditMembers": "EWF.DSFDS.fds",
+      "thirdPartyFirm": "EWEW",
+      "thirdPartyContact": "FWFEW",
+      "unitOrientation": "dfsdsd",
+      "backgroundSummary": "fdssd",
+      "riskRating": "Medium",
+      "riskRationale": "sdfsdds",
+      "riskSummary": "sfdsdf",
+      "kickoffDate": "2025-11-19",
+      "planningMemo": "fsdfds",
+      "interviewSchedule": [
+        {
+          "name": "safsaf",
+          "department": "asfas",
+          "date": "2025-11-19",
+          "notes": "fafasfsa"
+        },
+        {
+          "name": "fasas",
+          "department": "afsfs",
+          "date": "2025-11-18",
+          "notes": "afafs"
+        }
+      ],
+      "logisticsChecklist": [
+        {
+          "name": "afsfsa",
+          "completed": false
+        },
+        {
+          "name": "fasfsa",
+          "completed": false
+        }
+      ],
+      "externalFiles": [
+        {}
+      ],
+      "internalFiles": [
+        {}
+      ],
+      "criteriaFiles": [
+        {}
+      ],
+      "rcmFile": {}
     }
   ],
   "workflows": [
@@ -551,6 +648,32 @@
       "status": "Not Started",
       "startDate": "2025-11-14",
       "dueDate": "2025-11-19",
+      "tasks": [],
+      "miniFindings": []
+    },
+    {
+      "id": "b015",
+      "auditId": "b015",
+      "title": "sdfsf Workflow",
+      "scope": "sdfds",
+      "department": "dsfsdsd",
+      "assignedTo": "",
+      "status": "Not Started",
+      "startDate": "2025-11-14",
+      "dueDate": "2025-11-17",
+      "tasks": [],
+      "miniFindings": []
+    },
+    {
+      "id": "e062",
+      "auditId": "e062",
+      "title": "felix Workflow",
+      "scope": "dsfdsfds",
+      "department": "JAY",
+      "assignedTo": "",
+      "status": "Not Started",
+      "startDate": "2025-11-16",
+      "dueDate": "2025-11-20",
       "tasks": [],
       "miniFindings": []
     }
@@ -1135,6 +1258,42 @@
         "auditUnit": "wefwe",
         "startDate": "2025-11-14",
         "dueDate": "2025-11-19",
+        "status": "Planned"
+      }
+    },
+    {
+      "id": "ec89",
+      "role": "Auditor",
+      "type": "assignment",
+      "title": "New Audit Assigned",
+      "from": "System (via CIA)",
+      "summary": "You have been assigned to the new audit: \"sdfsf\".",
+      "isRead": false,
+      "timestamp": "2025-11-14T15:00:58.083Z",
+      "details": {
+        "subject": "New Assignment: sdfsf",
+        "auditId": "b015",
+        "auditUnit": "dsfsdsd",
+        "startDate": "2025-11-14",
+        "dueDate": "2025-11-17",
+        "status": "Planned"
+      }
+    },
+    {
+      "id": "f62b",
+      "role": "Auditor",
+      "type": "assignment",
+      "title": "New Audit Assigned",
+      "from": "System (via CIA)",
+      "summary": "You have been assigned to the new audit: \"felix\".",
+      "isRead": false,
+      "timestamp": "2025-11-14T15:17:42.789Z",
+      "details": {
+        "subject": "New Assignment: felix",
+        "auditId": "e062",
+        "auditUnit": "JAY",
+        "startDate": "2025-11-16",
+        "dueDate": "2025-11-20",
         "status": "Planned"
       }
     }
