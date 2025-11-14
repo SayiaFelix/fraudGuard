@@ -11,6 +11,7 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import * as saveAs from 'file-saver';
 import jsPDF from 'jspdf';
 import { HttpClient } from '@angular/common/http';
+import { de } from 'date-fns/locale';
 
 
 interface Audit {
@@ -228,9 +229,11 @@ export class IntentComponent implements OnInit {
       }
     });
 
-      this.addTaskForm = this.fb.group({
+  this.addTaskForm = this.fb.group({
     name: ['', Validators.required],
     owner: ['Unassigned', Validators.required],
+    description: [''],
+    status: ['Not Started'],
     startDate: [this.todayString, Validators.required],
     endDate: [this.todayString, Validators.required]
   });
@@ -331,6 +334,30 @@ deleteTask(index: number) {
     }
   });
 }
+
+deleteTask(index: number) {
+  Swal.fire({
+    title: 'Delete Task?',
+    text: 'This action cannot be undone.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Delete',
+    cancelButtonText: 'Cancel'
+  }).then(result => {
+    if (result.isConfirmed) {
+      // Remove from local array
+      this.selectedAudit.planningTasks.splice(index, 1);
+
+      // Update backend
+      this.http.put(`${this.apiUrl}/${this.selectedAudit.id}`, this.selectedAudit)
+        .subscribe({
+          next: () => Swal.fire('Deleted!', 'Task removed successfully.', 'success'),
+          error: () => Swal.fire('Error', 'Failed to delete task on server.', 'error')
+        });
+    }
+  });
+}
+
 
 saveTask(): void {
   if (this.addTaskForm.invalid) {
