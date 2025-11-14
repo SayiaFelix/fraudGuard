@@ -102,37 +102,40 @@
          <i class="fas fa-clipboard-list me-1 text-primary"></i>Planning Tasks
       </h2>
 
-     
-    
+      <div *ngIf="selectedAudit?.planningTasks?.length > 0; else noTasks">
+        <div *ngFor="let task of selectedAudit?.planningTasks; let i = index"
+            class="shadow-sm p-2 d-flex justify-content-between align-items-center small-task-box">
 
-      <div *ngFor="let task of selectedAudit?.planningTasks; let i = index"
-     class="shadow-sm p-2 d-flex justify-content-between align-items-center small-task-box">
-  <div>
-    <small>
-      {{ i + 1 }}. <strong>{{ task.name }}</strong> |
-      Owner: {{ task.owner }} |
-      Start: {{ task.startDate }} |
-      End: {{ task.endDate }} |
-      Status: <span class="badge bg-info text-dark">{{ task.status }}</span>
-    </small>
-    <div *ngIf="task.description">
-      <small class="text-muted">Description: {{ task.description }}</small>
-    </div>
-  </div>
+          <div>
+            <small>
+              {{ i + 1 }}. <strong>{{ task.name }}</strong> |
+              Owner: {{ task.owner }} |
+              Start: {{ task.startDate }} |
+              End: {{ task.endDate }} |
+              Status: <span class="badge bg-info text-dark">{{ task.status }}</span>
+            </small>
 
-  <!-- Action Buttons -->
-  <div class="d-flex gap-1">
-    <button class="btn btn-sm text-secondary" (click)="editTask(i)" data-bs-toggle="tooltip" title="Edit Task">
-      <i class="fas fa-edit"></i>
-    </button>
-    <button class="btn btn-sm text-danger" (click)="deleteTask(i)" data-bs-toggle="tooltip" title="Delete Task">
-      <i class="fas fa-trash"></i>
-    </button>
-  </div>
-</div>
-  <ng-template #noTasks>
+            <div *ngIf="task.description">
+              <small class="text-muted">Description: {{ task.description }}</small>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="d-flex gap-1">
+            <button class="btn btn-sm text-secondary" (click)="editTask(i)" title="Edit Task">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn btn-sm text-danger" (click)="deleteTask(i)" title="Delete Task">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+
+        </div>
+      </div>
+      <ng-template #noTasks>
         <p class="text-muted mt-1"><em>No planned tasks yet.</em></p>
       </ng-template>
+
         <hr>
 
     <!-- Main Actions -->

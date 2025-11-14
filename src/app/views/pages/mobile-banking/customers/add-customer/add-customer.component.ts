@@ -40,9 +40,13 @@ export class AddCustomerComponent implements OnInit {
   externalFiles: File[] = [];
   internalFiles: File[] = [];
 
+  criteriaFiles: File[] = [];
+  rcmFile: File | null = null;
+
+  interviewSchedule: any[] = [];
+  logisticsChecklist: any[] = [];
+
   private apiUrl = 'http://localhost:3000/audits';
-    criteriaFiles: File[] = [];
-    rcmFile: File | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -53,25 +57,29 @@ export class AddCustomerComponent implements OnInit {
   ) {
 
     this.addAuditForm = this.fb.group({
-        title: ['', Validators.required],
-        scope: ['', Validators.required],
-        department: ['', Validators.required],
-        status: ['Planned', Validators.required],
-        startDate: ['', Validators.required],
-        endDate: ['', Validators.required],
+        // BASIC DETAILS
+      title: ['', Validators.required],
+      scope: ['', Validators.required],
+      department: ['', Validators.required],
+      status: ['Planned', Validators.required],
+      startDate: ['', Validators.required],
+      endDate: ['', Validators.required],
 
-        auditLead: [''],
-        auditMembers: [''],
-        thirdPartyFirm: [''],
-        thirdPartyContact: [''],
-        riskRating: ['Medium'],
-        riskRationale: [''],
-        riskSummary: [''],
-        kickoffDate: [''],
-        planningMemo: [''],
-          // NEW FIELDS
-        unitOrientation: [''],
-        backgroundSummary: [''],
+      // TEAM
+      auditLead: [''],
+      auditMembers: [''],
+      thirdPartyFirm: [''],
+      thirdPartyContact: [''],
+
+      // RISK & PLANNING
+      unitOrientation: [''],
+      backgroundSummary: [''],
+      riskRating: ['Medium'],
+      riskRationale: [''],
+      riskSummary: [''],
+      kickoffDate: [''],
+      planningMemo: [''],
+
       });
 
   }
@@ -89,9 +97,6 @@ export class AddCustomerComponent implements OnInit {
   });
   }
 
-  interviewSchedule: any[] = [];
-logisticsChecklist: any[] = [];
-
 // Open/Close Modals
 openInterviewModal() {
   const modal = document.getElementById('interviewModal');
@@ -105,13 +110,13 @@ closeInterviewModal() {
   modal?.setAttribute('style', 'display:none');
 }
 
-onCriteriaFilesSelected(event: any) {
-  this.criteriaFiles = Array.from(event.target.files);
-}
+// onCriteriaFilesSelected(event: any) {
+//   this.criteriaFiles = Array.from(event.target.files);
+// }
 
-onRcmFileSelected(event: any) {
-  this.rcmFile = event.target.files[0] || null;
-}
+// onRcmFileSelected(event: any) {
+//   this.rcmFile = event.target.files[0] || null;
+// }
 
 
 openLogisticsModal() {
@@ -204,13 +209,13 @@ saveLogisticsChecklist() {
   }
 
 
-onExternalFilesSelected(event: any) {
-  this.externalFiles = Array.from(event.target.files);
-}
+// onExternalFilesSelected(event: any) {
+//   this.externalFiles = Array.from(event.target.files);
+// }
 
-onInternalFilesSelected(event: any) {
-  this.internalFiles = Array.from(event.target.files);
-}
+// onInternalFilesSelected(event: any) {
+//   this.internalFiles = Array.from(event.target.files);
+// }
 
 
   loadMoreAudits(): void {
@@ -260,6 +265,24 @@ onInternalFilesSelected(event: any) {
     this.addAuditForm.get('status')?.enable();
   }
 
+  // ===============================
+  // FILE HANDLERS
+  // ===============================
+  onCriteriaFilesSelected(event: any) {
+    this.criteriaFiles = Array.from(event.target.files);
+  }
+
+  onExternalFilesSelected(event: any) {
+    this.externalFiles = Array.from(event.target.files);
+  }
+
+  onInternalFilesSelected(event: any) {
+    this.internalFiles = Array.from(event.target.files);
+  }
+
+  onRcmFileSelected(event: any) {
+    this.rcmFile = event.target.files[0] || null;
+  }
 
   saveAudit(): void {
     if (this.addAuditForm.invalid) {
