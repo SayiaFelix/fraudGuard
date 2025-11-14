@@ -96,6 +96,16 @@
             <p><strong>End Date:</strong> {{ selectedAudit?.endDate }}</p>
           </div>
         </div>
+<h2 class="mt-4">
+  <i class="fas fa-cogs text-primary"></i> Planning Overview
+</h2>
+
+<div class="card p-2 shadow-sm small">
+  <p><strong>Schedule Confirmed:</strong> {{ selectedAudit?.scheduleConfirmed ? 'Yes' : 'No' }}</p>
+  <p><strong>Team Assigned:</strong> {{ selectedAudit?.teamAssigned ? 'Yes' : 'No' }}</p>
+  <p><strong>Risk Summary:</strong> {{ selectedAudit?.riskSummary || 'Not Provided' }}</p>
+  <p><strong>Meeting Scheduled:</strong> {{ selectedAudit?.planningMeetingDate || 'Not Scheduled' }}</p>
+</div>
 
   <!-- Planning Tasks -->
       <h2 class="mt-4">

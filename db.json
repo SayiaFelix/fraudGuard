@@ -336,6 +336,57 @@
         {}
       ],
       "rcmFile": {}
+    },
+    {
+      "id": "0351",
+      "title": "ewewqewq",
+      "scope": "sdfsds",
+      "department": "fdffddfvgg",
+      "status": "Planned",
+      "startDate": "2025-11-14",
+      "endDate": "2025-11-26",
+      "auditYear": 2025,
+      "auditPeriod": "Q2",
+      "auditLead": "rfr34r43",
+      "auditMembers": "4r4r,443",
+      "thirdPartyFirm": "43r43",
+      "thirdPartyContact": "4r4wee",
+      "clientConfirmation": "Yes",
+      "confirmationDate": "2025-11-26",
+      "unitOrientation": "ewewweew",
+      "backgroundSummary": "rwwe",
+      "riskRating": "Medium",
+      "riskRationale": "erwer",
+      "riskSummary": "rwee",
+      "kickoffDate": "2025-11-19",
+      "planningMemo": "wrewew",
+      "riskInterviewSummary": "werew",
+      "interviewSchedule": [
+        {
+          "name": "rewe",
+          "department": "werwer",
+          "date": "2025-11-20",
+          "notes": "rewwe"
+        }
+      ],
+      "logisticsChecklist": [
+        {
+          "name": "reewr",
+          "completed": false
+        },
+        {
+          "name": "rwrwrrr",
+          "completed": false
+        }
+      ],
+      "externalFiles": [],
+      "internalFiles": [
+        {}
+      ],
+      "criteriaFiles": [
+        {}
+      ],
+      "rcmFile": null
     }
   ],
   "workflows": [
@@ -674,6 +725,19 @@
       "status": "Not Started",
       "startDate": "2025-11-16",
       "dueDate": "2025-11-20",
+      "tasks": [],
+      "miniFindings": []
+    },
+    {
+      "id": "0351",
+      "auditId": "0351",
+      "title": "ewewqewq Workflow",
+      "scope": "sdfsds",
+      "department": "fdffddfvgg",
+      "assignedTo": "",
+      "status": "Not Started",
+      "startDate": "2025-11-14",
+      "dueDate": "2025-11-26",
       "tasks": [],
       "miniFindings": []
     }
@@ -1312,6 +1376,24 @@
         "auditUnit": "ttttttttttttt",
         "startDate": "2025-11-14",
         "dueDate": "2025-11-15",
+        "status": "Planned"
+      }
+    },
+    {
+      "id": "0b15",
+      "role": "Auditor",
+      "type": "assignment",
+      "title": "New Audit Assigned",
+      "from": "System (via CIA)",
+      "summary": "You have been assigned to the new audit: \"ewewqewq\".",
+      "isRead": false,
+      "timestamp": "2025-11-14T16:37:35.177Z",
+      "details": {
+        "subject": "New Assignment: ewewqewq",
+        "auditId": "0351",
+        "auditUnit": "fdffddfvgg",
+        "startDate": "2025-11-14",
+        "dueDate": "2025-11-26",
         "status": "Planned"
       }
     }

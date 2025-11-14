@@ -33,6 +33,8 @@ export class AddCustomerComponent implements OnInit {
   searchTerm = '';
   departmentFilter = '';
   statusFilter = '';
+formErrors: string[] = [];
+currentYear = new Date().getFullYear();
 
   // Form & Modal
   addAuditForm: FormGroup;
@@ -42,7 +44,6 @@ export class AddCustomerComponent implements OnInit {
 
   criteriaFiles: File[] = [];
   rcmFile: File | null = null;
-
   interviewSchedule: any[] = [];
   logisticsChecklist: any[] = [];
 riskInterviewSummary: [''];
@@ -57,32 +58,41 @@ scopingNotes: ['']
       private globalService: GlobalService
   ) {
 
-    this.addAuditForm = this.fb.group({
+      this.addAuditForm = this.fb.group({
+        // ----------------------------------
         // BASIC DETAILS
-      title: ['', Validators.required],
-      scope: ['', Validators.required],
-      department: ['', Validators.required],
-      status: ['Planned', Validators.required],
-      startDate: ['', Validators.required],
-      endDate: ['', Validators.required],
+        // ----------------------------------
+        title: ['', Validators.required],
+        scope: ['', Validators.required],
+        department: ['', Validators.required],
+        status: ['Planned', Validators.required],
+        startDate: ['', Validators.required],
+        endDate: ['', Validators.required],
+        auditYear: ['',[Validators.required,this.validateAuditYear.bind(this)]],
 
-      // TEAM
-      auditLead: [''],
-      auditMembers: [''],
-      thirdPartyFirm: [''],
-      thirdPartyContact: [''],
+        auditPeriod: [''],
 
-      // RISK & PLANNING
-      unitOrientation: [''],
-      backgroundSummary: [''],
-      riskRating: ['Medium'],
-      riskRationale: [''],
-      riskSummary: [''],
-      kickoffDate: [''],
-      planningMemo: [''],
-      riskInterviewSummary: [''],
+        auditLead: [''],
+        auditMembers: [''],
+        thirdPartyFirm: [''],
+        thirdPartyContact: [''],
+        clientConfirmation: ['Pending'],
+        confirmationDate: [''],
+        unitOrientation: [''],
+        backgroundSummary: [''],
+        riskRating: ['Medium'],
+        riskRationale: [''],
 
-      });
+        riskSummary: [''],
+
+        kickoffDate: [''],
+        planningMemo: [''],
+        riskInterviewSummary: [''],
+
+  // NEW FIELD
+  // scopingProgress: [''],
+});
+
 
   }
 
@@ -110,6 +120,37 @@ closeInterviewModal() {
   const modal = document.getElementById('interviewModal');
   modal?.classList.remove('show');
   modal?.setAttribute('style', 'display:none');
+}
+get f() { return this.addAuditForm.controls; }
+validateAuditYear(control: any) {
+  const value = Number(control.value);
+  const currentYear = new Date().getFullYear();
+
+  if (!value || value < currentYear || value > 2030) {
+    return { invalidYear: true };
+  }
+
+  return null;
+}
+
+getFormErrors(): string[] {
+  const errors: string[] = [];
+
+  Object.keys(this.addAuditForm.controls).forEach(key => {
+    const control = this.addAuditForm.get(key);
+
+    if (control && control.errors) {
+      if (control.errors['required']) {
+        errors.push(`${key} is required`);
+      }
+      if (control.errors['invalidYear']) {
+        errors.push(`${key} must be between ${this.currentYear} and 2030`);
+      }
+      // Add more if you need
+    }
+  });
+
+  return errors;
 }
 
 openLogisticsModal() {
@@ -265,11 +306,27 @@ saveLogisticsChecklist() {
   }
 
   saveAudit(): void {
-    if (this.addAuditForm.invalid) {
-      this.toastr.warning('Please fill all required fields.', 'Invalid Form');
-      return;
-    }
 
+    if (this.addAuditForm.invalid) {
+    this.addAuditForm.markAllAsTouched();
+    this.formErrors = this.getFormErrors();
+
+    Swal.fire({
+      icon: 'warning',
+      title: 'Invalid Form',
+      html: `
+        <div style="text-align:left">
+          <p><strong>Please correct the following errors:</strong></p>
+          <ul>
+            ${this.formErrors.map(err => `<li>${err}</li>`).join('')}
+          </ul>
+        </div>
+      `,
+      confirmButtonText: 'OK',
+    });
+
+    return;
+  }
     // const formData = this.addAuditForm.getRawValue();
     const formData = {
       ...this.addAuditForm.getRawValue(),
