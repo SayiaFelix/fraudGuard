@@ -207,6 +207,15 @@
       ],
       "internalFiles": [
         {}
+      ],
+      "planningTasks": [
+        {
+          "name": "regfdddd",
+          "owner": "dggd",
+          "startDate": "2025-11-14",
+          "endDate": "2025-11-17",
+          "status": "Planned"
+        }
       ]
     }
   ],

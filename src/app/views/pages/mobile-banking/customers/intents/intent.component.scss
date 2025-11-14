@@ -4,6 +4,52 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
   border: none;
 }
+.details-panel {
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  background-color: #fff;
+}
+
+.details-panel h5, .details-panel h6 {
+  font-weight: 600;
+}
+
+.details-panel {
+  border-radius: 0.5rem;
+}
+
+.card {
+  border-left-width: 5px;
+}
+
+.card-status-planned { border-left-color: #6c757d; }      /* gray */
+.card-status-inprogress { border-left-color: #ffc107; }   /* yellow */
+.card-status-completed { border-left-color: #28a745; }    /* green */
+
+.card p {
+  margin-bottom: 0.25rem;  /* tighter spacing in cards */
+}
+
+.task-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.small-task-box {
+  background: #f1f3f5;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  width: 100%;
+}
+
+.table th, .table td {
+  vertical-align: middle;
+}
+
+.badge {
+  font-size: 0.85rem;
+}
 
 .btn-test:hover {
   background-color: #0ea908;
