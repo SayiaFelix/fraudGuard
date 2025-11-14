@@ -182,7 +182,9 @@ export class IntentComponent implements OnInit {
   
     recordsToShow = 20;
     isLoading = false;
-  
+  isAddTaskModalVisible = false;
+    addTaskForm: FormGroup;
+    selectedTask: any = null;
     // Filters
     searchTerm = '';
     departmentFilter = '';
@@ -191,6 +193,9 @@ export class IntentComponent implements OnInit {
     // Form & Modal
     addAuditForm: FormGroup;
     isAddAuditModalVisible = false;
+            // Planning state
+    isPlanningPanelVisible = false;
+    planningTasks: any[] = [];
   
     private apiUrl = 'http://localhost:3000/audits';
   
@@ -222,8 +227,154 @@ export class IntentComponent implements OnInit {
         this.addAuditForm.patchValue({ endDate: start }); 
       }
     });
+
+      this.addTaskForm = this.fb.group({
+    name: ['', Validators.required],
+    owner: ['Unassigned', Validators.required],
+    startDate: [this.todayString, Validators.required],
+    endDate: [this.todayString, Validators.required]
+  });
+
+  // Keep endDate >= startDate
+  this.addTaskForm.get('startDate')?.valueChanges.subscribe(start => {
+    if (this.addTaskForm.get('endDate')?.value < start) {
+      this.addTaskForm.patchValue({ endDate: start });
+    }
+  });
     }
   
+
+
+openPlanningPanel(audit: any): void {
+  this.selectedAudit = { ...audit };
+  this.isPlanningPanelVisible = true;
+  this.isDetailsPanelVisible = false;
+
+  // Load tasks or initialize empty
+  this.planningTasks = audit.planningTasks ? [...audit.planningTasks] : [];
+}
+
+closePlanningPanel(): void {
+  this.isPlanningPanelVisible = false;
+  this.planningTasks = [];
+}
+
+openAddTaskModal(task: any = null, index: number | null = null): void {
+  this.selectedTask = task;
+  this.selectedTaskIndex = index;  // ➜ store index globally
+
+  if (task) {
+    this.addTaskForm.patchValue(task);
+  } else {
+    this.addTaskForm.reset({
+      name: '',
+      owner: 'Unassigned',
+      startDate: this.todayString,
+      endDate: this.todayString
+    });
+  }
+
+  this.isAddTaskModalVisible = true;
+}
+selectedTaskIndex: number | null = null;
+
+// Close modal
+closeAddTaskModal(): void {
+  this.isAddTaskModalVisible = false;
+  this.selectedTask = null;
+}
+
+// Save Plan
+savePlanning(): void {
+  if (!this.selectedAudit) return;
+
+  const updatedAudit = {
+    ...this.selectedAudit,
+    planningTasks: [...this.planningTasks]
+  };
+
+  this.http.put(`${this.apiUrl}/${this.selectedAudit.id}`, updatedAudit).subscribe({
+    next: () => {
+      Swal.fire('Saved!', 'Planning saved successfully.', 'success');
+      this.planningTasks = [];
+      this.isPlanningPanelVisible = false;
+      this.isDetailsPanelVisible = true;
+      this.loadAudits();
+    },
+    error: () => Swal.fire('Error', 'Failed to save planning.', 'error')
+  });
+}
+editTask(index: number) {
+  const task = this.selectedAudit.planningTasks[index];
+  this.openAddTaskModal(task, index);
+}
+
+deleteTask(index: number) {
+  Swal.fire({
+    title: 'Delete Task?',
+    text: 'This action cannot be undone.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Delete',
+    cancelButtonText: 'Cancel'
+  }).then(result => {
+    if (result.isConfirmed) {
+      // Remove from local array
+      this.selectedAudit.planningTasks.splice(index, 1);
+
+      // Update backend
+      this.http.put(`${this.apiUrl}/${this.selectedAudit.id}`, this.selectedAudit)
+        .subscribe({
+          next: () => Swal.fire('Deleted!', 'Task removed successfully.', 'success'),
+          error: () => Swal.fire('Error', 'Failed to delete task on server.', 'error')
+        });
+    }
+  });
+}
+
+saveTask(): void {
+  if (this.addTaskForm.invalid) {
+    Swal.fire('Warning', 'Please fill all required fields.', 'warning');
+    return;
+  }
+
+  const formData = this.addTaskForm.getRawValue();
+
+  if (!this.selectedAudit.planningTasks) {
+    this.selectedAudit.planningTasks = [];
+  }
+
+      if (this.selectedTask) {
+        if (this.selectedTaskIndex !== null) {
+      this.selectedAudit.planningTasks[this.selectedTaskIndex] = {
+        ...formData,
+        status: this.selectedTask?.status || 'Planned'
+      };
+    } else {
+      this.selectedAudit.planningTasks.push({ ...formData, status: 'Planned' });
+    }
+
+    // Update existing task
+    // const index = this.selectedAudit.planningTasks.findIndex((t: any) => t === this.selectedTask);
+    // if (index > -1) this.selectedAudit.planningTasks[index] = { ...formData, status: this.selectedTask.status || 'Planned' };
+  } else {
+    // Add new task
+    this.selectedAudit.planningTasks.push({ ...formData, status: 'Planned' });
+  }
+
+  // Save audit with updated tasks to backend
+  this.http.put(`${this.apiUrl}/${this.selectedAudit.id}`, this.selectedAudit)
+    .subscribe({
+      next: () => {
+        Swal.fire('Saved!', 'Planning task saved successfully.', 'success');
+        this.closeAddTaskModal();
+        this.loadAudits();
+      },
+      error: () => Swal.fire('Error', 'Failed to save task.', 'error')
+    });
+}
+
+
     loadAudits(): void {
       this.isLoading = true;
       this.http.get<any[]>(this.apiUrl).subscribe({
