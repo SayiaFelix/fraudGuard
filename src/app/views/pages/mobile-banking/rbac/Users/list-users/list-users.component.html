@@ -470,6 +470,12 @@
             <i class="fas fa-clipboard-check me-1"></i> Pre-Closing Findings
           </a>
         </li>
+
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="fieldworkTab==='documents'" (click)="selectFieldworkTab('documents')">
+              <i class="fas fa-file-alt me-1"></i> Documents
+            </a>
+          </li>
       </ul>
 
       <!-- TAB CONTENT -->
@@ -491,11 +497,11 @@
           <hr>
           <form [formGroup]="fieldworkTaskForm" (ngSubmit)="saveFieldworkTask()">
             <div class="row">
-              <div class="col-md-6 mb-2">
+              <div class="col-md-6 mb-3">
                 <label class="form-label fw-bold">Title</label>
                 <input type="text" class="form-control form-control-sm" formControlName="title" placeholder="Enter task title">
               </div>
-              <div class="col-md-6 mb-2">
+              <div class="col-md-6 mb-3">
                 <label class="form-label fw-bold">Assigned To</label>
                 <select class="form-select form-select-sm" formControlName="assignedTo">
                   <option value="">-- Select Assignee --</option>
@@ -503,12 +509,12 @@
                 </select>
               </div>
             </div>
-            <div class="mb-2">
+            <div class="mb-3">
               <label class="form-label fw-bold">Description</label>
               <textarea class="form-control form-control-sm" rows="2" formControlName="description" placeholder="Task description"></textarea>
             </div>
             <div class="row">
-              <div class="col-md-4 mb-2">
+              <div class="col-md-4 mb-3">
                 <label class="form-label fw-bold">Status</label>
                 <select class="form-select form-select-sm" formControlName="status">
                   <option>Not Started</option>
@@ -516,11 +522,11 @@
                   <option>Completed</option>
                 </select>
               </div>
-              <div class="col-md-4 mb-2">
+              <div class="col-md-4 mb-3">
                 <label class="form-label fw-bold">Due Date</label>
                 <input type="date" class="form-control form-control-sm" formControlName="dueDate">
               </div>
-              <div class="col-md-4 mb-2">
+              <div class="col-md-4 mb-3">
                 <label class="form-label fw-bold">Priority</label>
                 <select class="form-select form-select-sm" formControlName="priority">
                   <option>Low</option>
@@ -592,11 +598,11 @@
               <hr>
               <form [formGroup]="evidenceForm" (ngSubmit)="saveEvidence()">
                 <div class="row">
-                  <div class="col-md-8 mb-2">
+                  <div class="col-md-8 mb-3">
                     <label class="form-label fw-bold">Title</label>
                     <input type="text" class="form-control form-control-sm" formControlName="title" placeholder="Evidence request title">
                   </div>
-                  <div class="col-md-4 mb-2">
+                  <div class="col-md-4 mb-3">
                     <label class="form-label fw-bold">Status</label>
                     <select class="form-select form-select-sm" formControlName="status">
                       <option>Requested</option>
@@ -607,24 +613,24 @@
                   </div>
                 </div>
                 
-                <div class="mb-2">
+                <div class="mb-3">
                   <label class="form-label fw-bold">Details</label>
                   <textarea class="form-control form-control-sm" rows="3" formControlName="details" placeholder="Describe the evidence needed"></textarea>
                 </div>
                 
                 <div class="row">
-                  <div class="col-md-6 mb-2">
+                  <div class="col-md-6 mb-3">
                     <label class="form-label fw-bold">Requested From</label>
                     <input type="text" class="form-control form-control-sm" formControlName="requestedFrom" placeholder="Person/department">
                   </div>
-                  <div class="col-md-6 mb-2">
+                  <div class="col-md-6 mb-3">
                     <label class="form-label fw-bold">Due Date</label>
                     <input type="date" class="form-control form-control-sm" formControlName="dueDate">
                   </div>
                 </div>
 
                 <!-- File Upload Section -->
-                <div class="mb-2">
+                <div class="mb-3">
                   <label class="form-label small fw-bold">Attach Files</label>
                   <div class="file-upload-area border rounded p-3 text-center">
                     <input type="file" class="form-control form-control-sm" 
@@ -729,7 +735,7 @@
               <p>No evidence requests yet.</p>
             </div>
           </ng-template>
-        </div>
+      </div>
 
         <!-- 3. Meetings & Interviews -->
         <div *ngIf="fieldworkTab === 'meetings'">
@@ -747,29 +753,29 @@
               <hr>
               <form [formGroup]="meetingForm" (ngSubmit)="saveMeeting()">
                 <div class="row">
-                  <div class="col-md-6 mb-2">
+                  <div class="col-md-6 mb-3">
                     <label class="form-label fw-bold">Person/Title</label>
                     <input type="text" class="form-control form-control-sm" formControlName="person" placeholder="Interviewee name">
                   </div>
-                  <div class="col-md-6 mb-2">
+                  <div class="col-md-6 mb-3">
                     <label class="form-label fw-bold">Date</label>
                     <input type="date" class="form-control form-control-sm" formControlName="date">
                   </div>
                 </div>
-                <div class="mb-2">
+                <div class="mb-3">
                   <label class="form-label fw-bold">Purpose</label>
                   <input type="text" class="form-control form-control-sm" formControlName="purpose" placeholder="Meeting purpose">
                 </div>
-                <div class="mb-2">
+                <div class="mb-3">
                   <label class="form-label fw-bold">Notes</label>
                   <textarea class="form-control form-control-sm" rows="3" formControlName="notes" placeholder="Meeting notes and key points"></textarea>
                 </div>
                 <div class="row">
-                  <div class="col-md-6 mb-2">
+                  <div class="col-md-6 mb-3">
                     <label class="form-label fw-bold">Attendees</label>
                     <input type="text" class="form-control form-control-sm" formControlName="attendees" placeholder="List attendees">
                   </div>
-                  <div class="col-md-6 mb-2">
+                  <div class="col-md-6 mb-3">
                     <label class="form-label fw-bold">Follow-up Required</label>
                     <select class="form-select form-select-sm" formControlName="followUpRequired">
                       <option value="no">No</option>
@@ -835,28 +841,28 @@
               <h6 class="card-title">New Weekly Update</h6>
               <form [formGroup]="weeklyForm" (ngSubmit)="saveWeeklyUpdate()">
                 <div class="row">
-                  <div class="col-md-4 mb-2">
+                  <div class="col-md-4 mb-3">
                     <label class="form-label fw-bold">Week Number</label>
                     <input type="number" class="form-control form-control-sm" formControlName="week" min="1">
                   </div>
-                  <div class="col-md-4 mb-2">
+                  <div class="col-md-4 mb-3">
                     <label class="form-label fw-bold">Start Date</label>
                     <input type="date" class="form-control form-control-sm" formControlName="startDate">
                   </div>
-                  <div class="col-md-4 mb-2">
+                  <div class="col-md-4 mb-3">
                     <label class="form-label fw-bold">End Date</label>
                     <input type="date" class="form-control form-control-sm" formControlName="endDate">
                   </div>
                 </div>
-                <div class="mb-2">
+                <div class="mb-3">
                   <label class="form-label fw-bold">Progress Summary</label>
                   <textarea class="form-control form-control-sm" rows="4" formControlName="summary" placeholder="What was accomplished this week?"></textarea>
                 </div>
-                <div class="mb-2">
+                <div class="mb-3">
                   <label class="form-label fw-bold">Next Week Plan</label>
                   <textarea class="form-control form-control-sm" rows="2" formControlName="nextWeekPlan" placeholder="Plans for next week"></textarea>
                 </div>
-                <div class="mb-2">
+                <div class="mb-3">
                   <label class="form-label fw-bold">Issues/Challenges</label>
                   <textarea class="form-control form-control-sm" rows="2" formControlName="issues" placeholder="Any challenges faced"></textarea>
                 </div>
@@ -918,11 +924,11 @@
               <hr>
               <form [formGroup]="findingForm" (ngSubmit)="saveFinding()">
                 <div class="row">
-                  <div class="col-md-8 mb-2">
+                  <div class="col-md-8 mb-3">
                     <label class="form-label fw-bold">Title</label>
                     <input type="text" class="form-control form-control-sm" formControlName="title" placeholder="Finding title">
                   </div>
-                  <div class="col-md-4 mb-2">
+                  <div class="col-md-4 mb-3">
                     <label class="form-label fw-bold">Severity</label>
                     <select class="form-select form-select-sm" formControlName="severity">
                       <option>Low</option>
@@ -932,16 +938,16 @@
                     </select>
                   </div>
                 </div>
-                <div class="mb-2">
+                <div class="mb-3">
                   <label class="form-label fw-bold">Details</label>
                   <textarea class="form-control form-control-sm" rows="4" formControlName="details" placeholder="Detailed description of the finding"></textarea>
                 </div>
                 <div class="row">
-                  <div class="col-md-6 mb-2">
+                  <div class="col-md-6 mb-3">
                     <label class="form-label fw-bold">Recommendation</label>
                     <textarea class="form-control form-control-sm" rows="2" formControlName="recommendation" placeholder="Recommended action"></textarea>
                   </div>
-                  <div class="col-md-6 mb-2">
+                  <div class="col-md-6 mb-3">
                     <label class="form-label fw-bold">Status</label>
                     <select class="form-select form-select-sm" formControlName="status">
                       <option>Draft</option>
@@ -961,7 +967,7 @@
 
           <!-- Findings List -->
           <div *ngIf="fieldwork.preClosing.length; else noFindingsTpl">
-            <div *ngFor="let finding of fieldwork.preClosing; let i = index" class="card mb-2">
+            <div *ngFor="let finding of fieldwork.preClosing; let i = index" class="card mb-3">
               <div class="card-body py-2">
                 <div class="d-flex justify-content-between align-items-start">
                   <div class="flex-grow-1">
@@ -998,6 +1004,199 @@
           </ng-template>
         </div>
 
+        <!-- 6. Documents Tab -->
+          <div *ngIf="fieldworkTab === 'documents'">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h3 class="mb-0">Documents Repository</h3>
+              <button class="btn btn-primary btn-sm" (click)="showDocumentForm = !showDocumentForm">
+                <i class="fas fa-plus me-1"></i> {{showDocumentForm ? 'Cancel' : 'Add Document'}}
+              </button>
+            </div>
+
+            <!-- Add Document Form -->
+            <div class="card mb-3" *ngIf="showDocumentForm">
+              <div class="card-body">
+                <h6 class="card-title">{{editingDocument ? 'Edit Document' : 'Upload New Document'}}</h6>
+                <hr>
+                <form [formGroup]="documentForm" (ngSubmit)="saveDocument()">
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label fw-bold">Document Name</label>
+                      <input type="text" class="form-control form-control-sm" formControlName="name" placeholder="Enter document name">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label fw-bold">Document Type</label>
+                      <select class="form-select form-select-sm" formControlName="type">
+                        <option value="">-- Select Type --</option>
+                        <option>Working Paper</option>
+                        <option>Audit Program</option>
+                        <option>Risk Assessment</option>
+                        <option>Checklist</option>
+                        <option>Memo</option>
+                        <option>Report</option>
+                        <option>Evidence</option>
+                        <option>Correspondence</option>
+                        <option>Presentation</option>
+                        <option>Other</option>
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label class="form-label fw-bold">Description</label>
+                    <textarea class="form-control form-control-sm" rows="2" formControlName="description" placeholder="Document description"></textarea>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label fw-bold">Category</label>
+                      <select class="form-select form-select-sm" formControlName="category">
+                        <option>Planning</option>
+                        <option>Fieldwork</option>
+                        <option>Reporting</option>
+                        <option>Administrative</option>
+                        <option>Reference</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label fw-bold">Confidentiality</label>
+                      <select class="form-select form-select-sm" formControlName="confidentiality">
+                        <option>Internal Use</option>
+                        <option>Confidential</option>
+                        <option>Strictly Confidential</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- File Upload Section -->
+                  <div class="mb-3">
+                    <label class="form-label fw-bold">Document File</label>
+                    <div class="file-upload-area border rounded p-3 text-center position-relative">
+                      <input type="file" class="form-control form-control-sm" 
+                            (change)="onDocumentFileSelected($event)" 
+                            accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.txt"
+                            #documentFileInput>
+                      <div class="mt-2">
+                        <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
+                        <p class="small text-muted mb-1">Click to upload or drag and drop</p>
+                        <p class="small text-muted">PDF, DOC, XLS, PPT, JPG, PNG, TXT (Max: 25MB)</p>
+                      </div>
+                    </div>
+                    
+                    <!-- Selected File Preview -->
+                    <div *ngIf="selectedDocumentFile" class="mt-2">
+                      <div class="d-flex justify-content-between align-items-center small border rounded p-2 bg-light">
+                        <div>
+                          <i class="fas fa-file me-1 text-primary"></i>
+                          {{selectedDocumentFile.name}} ({{formatFileSize(selectedDocumentFile.size)}})
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeDocumentFile()">
+                          <i class="fas fa-times"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="modal-footer d-flex justify-content-between">
+                    <button type="button" class="btn btn-outline-secondary btn-sm me-2" (click)="cancelDocument()">Cancel</button>
+                    <button type="submit" class="btn btn-success btn-sm" [disabled]="!selectedDocumentFile">
+                      Upload Document
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <!-- Documents List -->
+            <div *ngIf="fieldwork.documents?.length; else noDocumentsTpl">
+              <!-- Filter and Search -->
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <input type="text" class="form-control form-control-sm" placeholder="Search documents..." 
+                        [(ngModel)]="documentSearch" (ngModelChange)="filterDocuments()">
+                </div>
+                <div class="col-md-3">
+                  <select class="form-select form-select-sm" [(ngModel)]="documentTypeFilter" (ngModelChange)="filterDocuments()">
+                    <option value="">All Types</option>
+                    <option>Working Paper</option>
+                    <option>Audit Program</option>
+                    <option>Risk Assessment</option>
+                    <option>Checklist</option>
+                    <option>Memo</option>
+                    <option>Report</option>
+                    <option>Evidence</option>
+                    <option>Correspondence</option>
+                    <option>Presentation</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <select class="form-select form-select-sm" [(ngModel)]="documentCategoryFilter" (ngModelChange)="filterDocuments()">
+                    <option value="">All Categories</option>
+                    <option>Planning</option>
+                    <option>Fieldwork</option>
+                    <option>Reporting</option>
+                    <option>Administrative</option>
+                    <option>Reference</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Documents Grid -->
+              <div class="row">
+                <div *ngFor="let doc of filteredDocuments; let i = index" class="col-md-6 mb-3">
+                  <div class="card h-100">
+                    <div class="card-body">
+                      <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h6 class="card-title mb-0">{{doc.name}}</h6>
+                        <span class="badge bg-secondary small">{{doc.type}}</span>
+                      </div>
+                      
+                      <p class="card-text small text-muted mb-2">{{doc.description || 'No description'}}</p>
+                      
+                      <div class="mb-2">
+                        <span class="badge bg-light text-dark me-1">{{doc.category}}</span>
+                        <span class="badge" [ngClass]="{
+                          'bg-info': doc.confidentiality === 'Internal Use',
+                          'bg-warning': doc.confidentiality === 'Confidential',
+                          'bg-danger': doc.confidentiality === 'Strictly Confidential'
+                        }">{{doc.confidentiality}}</span>
+                      </div>
+
+                      <!-- File Info -->
+                      <div class="d-flex justify-content-between align-items-center small border-top pt-2">
+                        <div>
+                          <i class="fas fa-paperclip me-1 text-muted"></i>
+                          <span class="text-muted">{{doc.file?.name}}</span>
+                          <br>
+                          <small class="text-muted">{{formatFileSize(doc.file?.size)}} • {{doc.uploadedAt | date:'short'}}</small>
+                        </div>
+                        <div class="btn-group btn-group-sm">
+                          <a [href]="doc.file?.url" target="_blank" class="btn btn-outline-primary" title="Download">
+                            <i class="fas fa-download"></i>
+                          </a>
+                          <button class="btn btn-outline-warning" (click)="editDocument(i)" title="Edit">
+                            <i class="fas fa-edit"></i>
+                          </button>
+                          <button class="btn btn-outline-danger" (click)="deleteDocument(i)" title="Delete">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <ng-template #noDocumentsTpl>
+              <div class="text-center text-muted py-5">
+                <i class="fas fa-file-alt fa-3x mb-3"></i>
+                <h6>No documents uploaded yet</h6>
+                <p class="small">Upload your first document to get started</p>
+              </div>
+            </ng-template>
+          </div>
       </div>
 
       <!-- FOOTER -->
