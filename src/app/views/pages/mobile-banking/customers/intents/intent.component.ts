@@ -35,142 +35,17 @@ interface PlanningTask {
 }
 
 
-interface SurveyQuestion {
-  id?: string;
-  text: string;
-  type: 'text' | 'number' | 'choice' | 'rating';
-  required?: boolean;
-  validation?: {
-    min?: number;
-    max?: number;
-  };
-  options?: string[];
-}
-interface SurveyConfig {
-  questions: SurveyQuestion[];
-  completion_message?: string;
-  persist_responses?: boolean;
-}
-interface SurveyAction {
-  name: string;
-  action_type: 'survey';
-  config: SurveyConfig;
-}
-interface Node {
-  id: number;
-  type: 'action' | 'trigger';
-  name: string;
-  children: Node[]; 
-}
-interface Branch {
-  intent_id: number;
-  order: number;
-  actions: {
-    action_id: number;
-    order: number;
-  }[];
-  children: Branch[];
-}
-interface BaseItem {
-  id: number;
-  name: string;
-  is_active: boolean;
-  order: number;
-  parent_id: number | null;
-  itemType: 'action' | 'trigger';
-}
-interface TriggerItem extends BaseItem {
-  intent_id: number;
-  training_phrases: string[];
-  itemType: 'trigger';
-  children: Array<ActionItem | TriggerItem>;
-  branch_path?: string;
-}
-interface ActionItem extends BaseItem {
-  action_id: number;
-  action_type: string;
-  config: any;
-  itemType: 'action';
-}
-interface ParentContext {
-    id: number;
-    itemType: 'trigger' | 'action';
-    intent_id: number;
-}
-interface ActionModel {
-    name: string;
-    action_type: string;
-    config: any;
-    intent_id: number;
-    parent_action_id: number | null;
-    branch_path: string;
-    order: number;
-}
-interface FileTypeInfo {
-  accept: string;
-  types: string[];  
-  maxSize: number;  
-}
-interface FileTypeInfoMap {
-  image: FileTypeInfo;
-  document: FileTypeInfo;
-  video: FileTypeInfo;
-  audio: FileTypeInfo;
-  [key: string]: FileTypeInfo;
-}
-interface FileSizeMap {
-  image: number;
-  document: number;
-  video: number;
-  audio: number;
-  [key: string]: number; 
-}
-interface VariableConfig {
-  source: 'static' | 'expression' | 'context';
-  value?: string;
-  expression?: string;
-  context_key?: string;
-}
-interface FallbackOptions {
-  delay: number;
-  fallback_message: string;
-}
-interface HumanHandoffConfig {
-  mode: 'direct' | 'hybrid' | 'request';
-  handoff_message: string;
-  team_id: number;
-  priority: 1 | 2 | 3 | 4;
-  fallback_options: FallbackOptions;
-  required_context: string[];
-}
-interface HumanHandoffAction {
-  name: string;
-  action_type: 'human_handoff';
-  config: HumanHandoffConfig;
-}
-interface SetVariableAction {
-  name: string;
-  action_type: 'set_variable';
-  config: {
-    variables: Record<string, VariableConfig>;
-    overwrite: boolean;
-    clear_on_session_end: boolean;
-  };
-}
-
-type FileFormat = 'image' | 'document' | 'video' | 'audio';
-type FileSource = 'upload' | 'link' | 'chat_script';
-const SUPPORTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif'];
-const SUPPORTED_VIDEO_TYPES = ['video/mp4', 'video/webm'];
-
 @Component({
     selector: 'app-intent',
     templateUrl: './intent.component.html',
     styleUrls: ['./intent.component.scss']
 })
 export class IntentComponent implements OnInit {
+removeTeamMember(_t195: any) {
+throw new Error('Method not implemented.');
+}
 
-   @Output() auditsChanged = new EventEmitter<void>();
+  @Output() auditsChanged = new EventEmitter<void>();
     todayString: string;
     // State
     isDetailsPanelVisible = false;
@@ -179,24 +54,34 @@ export class IntentComponent implements OnInit {
     allAudits: any[] = [];
     filteredAudits: any[] = [];
     visibleAudits: any[] = [];
-  
+    isTaskModalVisible: boolean = false;
+    taskForm: FormGroup;
+    editingTaskIndex: number | null = null; // null if adding new
+
     recordsToShow = 20;
     isLoading = false;
-  isAddTaskModalVisible = false;
-    addTaskForm: FormGroup;
-    selectedTask: any = null;
+  // Task Modal State
+    isAddTaskFormVisible: boolean = false;
+
     // Filters
     searchTerm = '';
     departmentFilter = '';
     statusFilter = '';
+  formErrors: string[] = [];
+  currentYear = new Date().getFullYear();
   
     // Form & Modal
     addAuditForm: FormGroup;
     isAddAuditModalVisible = false;
-            // Planning state
-    isPlanningPanelVisible = false;
-    planningTasks: any[] = [];
+    externalFiles: File[] = [];
+    internalFiles: File[] = [];
   
+    criteriaFiles: File[] = [];
+    rcmFile: File | null = null;
+    interviewSchedule: any[] = [];
+    logisticsChecklist: any[] = [];
+  riskInterviewSummary: [''];
+  scopingNotes: ['']
     private apiUrl = 'http://localhost:3000/audits';
   
     constructor(
@@ -206,163 +91,268 @@ export class IntentComponent implements OnInit {
         private router: Router,
         private globalService: GlobalService
     ) {
-      this.addAuditForm = this.fb.group({
-        title: ['', Validators.required],
-        scope: ['', Validators.required],
-        department: ['', Validators.required],
-        status: ['Planned', Validators.required],
-        startDate: ['', Validators.required],
-        endDate: ['', Validators.required]
-      });
+  
+    this.taskForm = this.fb.group({
+    name: ['', Validators.required],
+    description: [''],
+    owner: ['', Validators.required],
+    startDate: ['', Validators.required],
+    endDate: ['', Validators.required],
+    status: ['Not Started']
+  });
+
+  
     }
   
-    ngOnInit(): void {
+ngOnInit(): void {
     const today = new Date();
     this.todayString = today.toISOString().split('T')[0];
     this.loadAudits();
   
     
-    this.addAuditForm.get('startDate')?.valueChanges.subscribe(start => {
-      if (this.addAuditForm.get('endDate')?.value < start) {
-        this.addAuditForm.patchValue({ endDate: start }); 
+    this.taskForm.get('startDate')?.valueChanges.subscribe(start => {
+      if (this.taskForm.get('endDate')?.value < start) {
+        this.taskForm.patchValue({ endDate: start }); 
       }
     });
-
-      this.addTaskForm = this.fb.group({
-    name: ['', Validators.required],
-    owner: ['Unassigned', Validators.required],
-    startDate: [this.todayString, Validators.required],
-    endDate: [this.todayString, Validators.required]
-  });
-
-  // Keep endDate >= startDate
-  this.addTaskForm.get('startDate')?.valueChanges.subscribe(start => {
-    if (this.addTaskForm.get('endDate')?.value < start) {
-      this.addTaskForm.patchValue({ endDate: start });
-    }
-  });
     }
   
-openPlanningPanel(audit: any): void {
-  this.selectedAudit = { ...audit };
-  this.isPlanningPanelVisible = true;
-  this.isDetailsPanelVisible = false;
-
-  // Load tasks or initialize empty
-  this.planningTasks = audit.planningTasks ? [...audit.planningTasks] : [];
-}
-
-closePlanningPanel(): void {
-  this.isPlanningPanelVisible = false;
-  this.planningTasks = [];
-}
-
-openAddTaskModal(task: any = null, index: number | null = null): void {
-  this.selectedTask = task;
-  this.selectedTaskIndex = index;  // ➜ store index globally
-
-  if (task) {
-    this.addTaskForm.patchValue(task);
-  } else {
-    this.addTaskForm.reset({
-      name: '',
-      owner: 'Unassigned',
-      startDate: this.todayString,
-      endDate: this.todayString
-    });
+  // Open/Close Modals
+  openInterviewModal() {
+    const modal = document.getElementById('interviewModal');
+    modal?.classList.add('show');
+    modal?.setAttribute('style', 'display:block; background: rgba(0,0,0,0.5)');
   }
-
-  this.isAddTaskModalVisible = true;
-}
-selectedTaskIndex: number | null = null;
-
-// Close modal
-closeAddTaskModal(): void {
-  this.isAddTaskModalVisible = false;
-  this.selectedTask = null;
-}
-
-// Save Plan
-savePlanning(): void {
+  
+  closeInterviewModal() {
+    const modal = document.getElementById('interviewModal');
+    modal?.classList.remove('show');
+    modal?.setAttribute('style', 'display:none');
+  }
+  get f() { return this.addAuditForm.controls; }
+  validateAuditYear(control: any) {
+    const value = Number(control.value);
+    const currentYear = new Date().getFullYear();
+  
+    if (!value || value < currentYear || value > 2030) {
+      return { invalidYear: true };
+    }
+  
+    return null;
+  }
+  
+  openAddTaskModal(index?: number) {
   if (!this.selectedAudit) return;
 
-  const updatedAudit = {
-    ...this.selectedAudit,
-    planningTasks: [...this.planningTasks]
-  };
+  if (index !== undefined) {
+    // Edit existing task
+    const task = this.selectedAudit.planningTasks[index];
+    this.taskForm.patchValue(task);
+    this.editingTaskIndex = index;
+  } else {
+    // Add new task
+    this.taskForm.reset({ status: 'Not Started' });
+    this.editingTaskIndex = null;
+  }
 
-  this.http.put(`${this.apiUrl}/${this.selectedAudit.id}`, updatedAudit).subscribe({
-    next: () => {
-      Swal.fire('Saved!', 'Planning saved successfully.', 'success');
-      this.planningTasks = [];
-      this.isPlanningPanelVisible = false;
-      this.isDetailsPanelVisible = true;
-      this.loadAudits();
-    },
-    error: () => Swal.fire('Error', 'Failed to save planning.', 'error')
-  });
+  this.isTaskModalVisible = true;
 }
+
+closeTaskModal() {
+  this.isTaskModalVisible = false;
+  this.taskForm.reset({ status: 'Not Started' });
+}
+
+// Open task modal in edit mode
 editTask(index: number) {
+  this.editingTaskIndex = index;
   const task = this.selectedAudit.planningTasks[index];
-  this.openAddTaskModal(task, index);
+
+  // Populate form
+  this.taskForm.patchValue({
+    name: task.name,
+    description: task.description,
+    owner: task.owner,
+    startDate: task.startDate,
+    endDate: task.endDate,
+    status: task.status
+  });
+
+  // Show task modal
+  this.isTaskModalVisible = true;
 }
 
 deleteTask(index: number) {
   Swal.fire({
-    title: 'Delete Task?',
-    text: 'This action cannot be undone.',
+    title: 'Are you sure?',
+    text: "This task will be permanently deleted!",
     icon: 'warning',
     showCancelButton: true,
-    confirmButtonText: 'Delete',
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Yes, delete it!',
     cancelButtonText: 'Cancel'
-  }).then(result => {
+  }).then((result) => {
     if (result.isConfirmed) {
+      // Remove task from array
       this.selectedAudit.planningTasks.splice(index, 1);
-      Swal.fire('Deleted!', 'Task removed.', 'success');
+      
+      // Hit backend to save changes
+      this.savePlanning();
+
+      // Show success message
+      Swal.fire(
+        'Deleted!',
+        'The task has been deleted.',
+        'success'
+      );
     }
   });
 }
 
-saveTask(): void {
-  if (this.addTaskForm.invalid) {
-    Swal.fire('Warning', 'Please fill all required fields.', 'warning');
-    return;
-  }
 
-  const formData = this.addTaskForm.getRawValue();
+saveTask() {
+  if (this.taskForm.invalid) return;
 
-  if (!this.selectedAudit.planningTasks) {
-    this.selectedAudit.planningTasks = [];
-  }
+  const taskData = this.taskForm.value;
 
-      if (this.selectedTask) {
-        if (this.selectedTaskIndex !== null) {
-      this.selectedAudit.planningTasks[this.selectedTaskIndex] = {
-        ...formData,
-        status: this.selectedTask?.status || 'Planned'
-      };
-    } else {
-      this.selectedAudit.planningTasks.push({ ...formData, status: 'Planned' });
-    }
-
+  if (this.editingTaskIndex !== null) {
+    // Update existing task
+    this.selectedAudit.planningTasks[this.editingTaskIndex] = taskData;
+    this.editingTaskIndex = null;
   } else {
-    this.selectedAudit.planningTasks.push({ ...formData, status: 'Planned' });
+    // Add new task
+    if (!this.selectedAudit.planningTasks) this.selectedAudit.planningTasks = [];
+    this.selectedAudit.planningTasks.push(taskData);
   }
-  this.http.put(`${this.apiUrl}/${this.selectedAudit.id}`, this.selectedAudit)
+
+  this.savePlanning(); // Send updated tasks to backend
+  this.taskForm.reset();
+  this.isTaskModalVisible = false;
+}
+
+
+
+savePlanning() {
+  if (!this.selectedAudit) return;
+
+  // Gather all planning info
+  const planningData = {
+    ...this.selectedAudit,
+    scheduleConfirmed: this.selectedAudit.scheduleConfirmed,
+    team: this.selectedAudit.team || [],
+    riskSummary: this.selectedAudit.riskSummary,
+    documents: this.selectedAudit.documents || [],
+    planningMeetingDate: this.selectedAudit.planningMeetingDate,
+    planningAgenda: this.selectedAudit.planningAgenda,
+    planningTasks: this.selectedAudit.planningTasks || []
+  };
+
+  // Send to backend JSON DB
+  this.http.put(`http://localhost:3000/audits/${this.selectedAudit.id}`, planningData)
     .subscribe({
-      next: () => {
-        Swal.fire('Saved!', 'Planning task saved successfully.', 'success');
-        this.closeAddTaskModal();
-        this.loadAudits();
+      next: (res) => {
+        console.log('Planning saved successfully', res);
+        Swal.fire({
+          icon: 'success',
+          title: 'Saved!',
+          text: 'Planning saved successfully!',
+          timer: 2000,
+          showConfirmButton: false
+        });
+        this.closePlanningModal();
+        this.loadAudits(); // Refresh table
       },
-      error: () => Swal.fire('Error', 'Failed to save task.', 'error')
+      error: (err) => {
+        console.error('Error saving planning', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to save planning',
+        });
+      }
     });
 }
 
-loadAudits(): void {
+getFormErrors(): string[] {
+    const errors: string[] = [];
+  
+    Object.keys(this.addAuditForm.controls).forEach(key => {
+      const control = this.addAuditForm.get(key);
+  
+      if (control && control.errors) {
+        if (control.errors['required']) {
+          errors.push(`${key} is required`);
+        }
+        if (control.errors['invalidYear']) {
+          errors.push(`${key} must be between ${this.currentYear} and 2030`);
+        }
+        // Add more if you need
+      }
+    });
+  
+    return errors;
+  }
+  
+// saveTask() {
+//   if (!this.selectedAudit) return;
+//   if (this.taskForm.invalid) {
+//     this.taskForm.markAllAsTouched();
+//     return;
+//   }
+
+//   const taskData = this.taskForm.value as PlanningTask;
+
+//   if (!this.selectedAudit.planningTasks) {
+//     this.selectedAudit.planningTasks = [];
+//   }
+
+//   if (this.editingTaskIndex !== null) {
+//     // Update task locally
+//     this.selectedAudit.planningTasks[this.editingTaskIndex] = taskData;
+//   } else {
+//     // Add new task locally
+//     this.selectedAudit.planningTasks.push(taskData);
+//   }
+
+//   // Hit backend JSON DB
+//   this.http.put(`http://localhost:3000/audits/${this.selectedAudit.id}`, this.selectedAudit)
+//     .subscribe({
+//       next: (res) => {
+//         console.log('Task saved to backend successfully', res);
+//         this.closeTaskModal();
+//       },
+//       error: (err) => {
+//         console.error('Error saving task to backend', err);
+//       }
+//     });
+// }
+  
+  addInterview() {
+    this.interviewSchedule.push({ name: '', department: '', date: '', notes: '' });
+  }
+  
+  removeInterview(index: number) {
+    this.interviewSchedule.splice(index, 1);
+  }
+  
+  saveInterviewSchedule() {
+    console.log('Saved Interview Schedule:', this.interviewSchedule);
+    this.closeInterviewModal();
+  }
+  newLogisticsItem: string = '';
+  
+  addLogisticsItem() {
+    if (this.newLogisticsItem?.trim()) {
+      this.logisticsChecklist.push({ name: this.newLogisticsItem.trim(), completed: false });
+      this.newLogisticsItem = ''; // reset input
+    }
+  }
+  
+    loadAudits(): void {
       this.isLoading = true;
       this.http.get<any[]>(this.apiUrl).subscribe({
-        next: (audits: any[]) => {
+        next: (audits) => {
           this.allAudits = audits;
           this.applyFiltersAndPagination();
           this.isLoading = false;
@@ -374,7 +364,7 @@ loadAudits(): void {
       });
     }
   
-applyFiltersAndPagination(): void {
+    applyFiltersAndPagination(): void {
       let audits = [...this.allAudits];
   
       const search = this.searchTerm.trim().toLowerCase();
@@ -441,26 +431,102 @@ applyFiltersAndPagination(): void {
       this.addAuditForm.get('status')?.disable();
     }
   
-    openAddAuditModal(): void {
-      this.addAuditForm.reset({
-        status: 'Planned',
-        startDate: this.todayString,  
-        endDate: ''                  
-      });
-      this.hideAuditDetails();
-      this.isAddAuditModalVisible = true;
-      this.selectedAudit = null;
-      this.addAuditForm.get('status')?.enable();
+  
+    onCriteriaFilesSelected(event: any) {
+      this.criteriaFiles = Array.from(event.target.files);
     }
   
+    onExternalFilesSelected(event: any) {
+      this.externalFiles = Array.from(event.target.files);
+    }
   
-saveAudit(): void {
+    // ----------------------
+// Modal & Tab States
+// ----------------------
+isPlanningModalVisible: boolean = false;
+tab: string = 'schedule';
+
+// Team assignment fields
+teamMember: string = '';
+teamRole: string = '';
+
+// ----------------------
+// Modal Methods
+// ----------------------
+openPlanningModal() {
+  this.isPlanningModalVisible = true;
+}
+
+closePlanningModal() {
+  this.isPlanningModalVisible = false;
+}
+
+// // ----------------------
+// // Task Modals
+// // ----------------------
+// openAddTaskModal() {
+//   this.isPlanningModalVisible = true;
+// }
+
+openPlanningPanel(audit: any): void {
+  this.selectedAudit = audit;
+  this.isPlanningModalVisible = true;
+}
+
+addTeamMember() {
+  if (!this.teamMember || !this.teamRole) return;
+
+  if (!this.selectedAudit.team) this.selectedAudit.team = [];
+
+  this.selectedAudit.team.push({
+    name: this.teamMember,
+    role: this.teamRole
+  });
+
+  this.teamMember = '';
+  this.teamRole = '';
+}
+
+    onInternalFilesSelected(event: any) {
+      this.internalFiles = Array.from(event.target.files);
+    }
+  
+    onRcmFileSelected(event: any) {
+      this.rcmFile = event.target.files[0] || null;
+    }
+  
+    saveAudit(): void {
+  
       if (this.addAuditForm.invalid) {
-        this.toastr.warning('Please fill all required fields.', 'Invalid Form');
-        return;
-      }
+      this.addAuditForm.markAllAsTouched();
+      this.formErrors = this.getFormErrors();
   
-      const formData = this.addAuditForm.getRawValue();
+      Swal.fire({
+        icon: 'warning',
+        title: 'Invalid Form',
+        html: `
+          <div style="text-align:left">
+            <p><strong>Please correct the following errors:</strong></p>
+            <ul>
+              ${this.formErrors.map(err => `<li>${err}</li>`).join('')}
+            </ul>
+          </div>
+        `,
+        confirmButtonText: 'OK',
+      });
+  
+      return;
+    }
+      // const formData = this.addAuditForm.getRawValue();
+      const formData = {
+        ...this.addAuditForm.getRawValue(),
+        interviewSchedule: this.interviewSchedule,
+        logisticsChecklist: this.logisticsChecklist,
+        externalFiles: this.externalFiles,
+        internalFiles: this.internalFiles,
+        criteriaFiles: this.criteriaFiles,
+        rcmFile: this.rcmFile
+      };
   
       if (this.selectedAudit) {
         
@@ -475,7 +541,7 @@ saveAudit(): void {
               this.globalService.notifyAuditsChanged();
   
               this.http.get<any[]>(`http://localhost:3000/workflows?auditId=${auditId}`).subscribe({
-                next: (workflows: string | any[]) => {
+                next: (workflows) => {
                   if (workflows.length > 0) {
                     const wf = workflows[0];
                     const updatedWf = {
@@ -487,15 +553,24 @@ saveAudit(): void {
                       department: formData.department,
                       status: formData.status === 'Planned' ? 'Not Started' : formData.status,
                       startDate: formData.startDate,
-                      dueDate: formData.endDate
+                      dueDate: formData.endDate,
+                      auditLead: formData.auditLead,
+                      auditMembers: formData.auditMembers,
+                      thirdPartyFirm: formData.thirdPartyFirm,
+                      thirdPartyContact: formData.thirdPartyContact,
+                      riskRating: formData.riskRating,
+                      riskRationale: formData.riskRationale,
+                      riskSummary: formData.riskSummary,
+                      kickoffDate: formData.kickoffDate,
+                      planningMemo: formData.planningMemo
                     };
                     this.http.put(`http://localhost:3000/workflows/${wf.id}`, updatedWf).subscribe({
                       next: () => this.globalService.notifyWorkflowsChanged(),
-                      error: (err: any) => console.error('Workflow sync failed:', err)
+                      error: (err) => console.error('Workflow sync failed:', err)
                     });
                   }
                 },
-                error: (err: any) => console.error('Failed to fetch workflow for sync:', err)
+                error: (err) => console.error('Failed to fetch workflow for sync:', err)
               });
             },
             error: () => this.toastr.error('Failed to update audit')
@@ -504,7 +579,7 @@ saveAudit(): void {
       } else {
         
         this.http.post<any>(this.apiUrl, formData).subscribe({
-          next: (createdAudit: { title: any; id: any; department: any; startDate: any; endDate: any; status: string; scope: any; }) => {
+          next: (createdAudit) => {
             Swal.fire('Created', 'Audit added successfully!', 'success');
             this.loadAudits();
             this.closeAddAuditModal();
@@ -531,7 +606,7 @@ saveAudit(): void {
   
             this.http.post('http://localhost:3000/inboxItems', newInboxItem).subscribe({
               next: () => console.log('%cSUCCESS: New assignment notification created in inbox.', 'color: green; font-weight: bold;'),
-              error: (err: any) => console.error('Failed to create inbox notification:', err)
+              error: (err) => console.error('Failed to create inbox notification:', err)
             });
   
             const workflowPayload = {
@@ -550,7 +625,7 @@ saveAudit(): void {
   
             this.http.post(`http://localhost:3000/workflows`, workflowPayload).subscribe({
               next: () => this.globalService.notifyWorkflowsChanged(),
-              error: (err: any) => console.error('Workflow create failed:', err)
+              error: (err) => console.error('Workflow create failed:', err)
             });
           },
           error: () => this.toastr.error('Failed to create audit')
@@ -558,7 +633,7 @@ saveAudit(): void {
       }
     }
     
-deleteAudit(id: number): void {
+    deleteAudit(id: number): void {
       Swal.fire({
         title: 'Are you sure?',
         text: 'This action cannot be undone.',
@@ -585,7 +660,7 @@ deleteAudit(id: number): void {
       });
     }
   
-openObservations(audit: any): void {
+    openObservations(audit: any): void {
       this.router.navigate(['/eclectics/audit_management/audits/observation', audit.id]);
     }
   
@@ -597,7 +672,7 @@ openObservations(audit: any): void {
       // saveAs(data, 'audits.xlsx');
     }
   
-exportAsCSV(): void {
+    exportAsCSV(): void {
       const header = ['Title', 'Department', 'Status', 'Start Date', 'End Date'];
       const rows = this.allAudits.map(a =>
         [a.title, a.department, a.status, a.startDate, a.endDate]
@@ -608,7 +683,7 @@ exportAsCSV(): void {
       saveAs(blob, 'audits.csv');
     }
   
-exportAsPDF(): void {
+    exportAsPDF(): void {
       const doc = new jsPDF();
       const pageWidth = doc.internal.pageSize.getWidth();
   
@@ -648,7 +723,7 @@ exportAsPDF(): void {
       doc.save('audits.pdf');
     }
   
-exportAsXML(): void {
+    exportAsXML(): void {
       let xmlData = '<?xml version="1.0" encoding="UTF-8"?>\n<audits>\n';
       this.allAudits.forEach(audit => {
         xmlData += `  <audit>
@@ -663,5 +738,4 @@ exportAsXML(): void {
       const blob = new Blob([xmlData], { type: 'application/xml' });
       saveAs(blob, 'audits.xml');
     }
-  
 }
