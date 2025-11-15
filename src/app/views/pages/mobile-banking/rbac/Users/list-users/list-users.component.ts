@@ -92,21 +92,32 @@ findingForm: FormGroup;
   taskForm: FormGroup;
    miniFindingForm: FormGroup;
 
-  fieldwork: {
+fieldwork: {
   tasks: any[];
   evidence: any[];
   meetings: any[];
   weeklyUpdates: any[];
   preClosing: any[];
+  documents: any[];
 } = {
   tasks: [],
   evidence: [],
   meetings: [],
   weeklyUpdates: [],
-  preClosing: []
+  preClosing: [],
+  documents: []
 };
 
-
+fieldworkTab: string = 'tasks';
+selectedEvidenceFiles: File[] = [];
+showDocumentForm = false;
+editingDocument: number | null = null;
+selectedDocumentFile: File | null = null;
+documentForm: FormGroup;
+documentSearch = '';
+documentTypeFilter = '';
+documentCategoryFilter = '';
+filteredDocuments: any[] = [];
   allAudits: any[];
   selectedAudit: any;
 
@@ -139,7 +150,6 @@ findingForm: FormGroup;
     status: ['Noted', Validators.required]
   });
 
-    // Initialize fieldwork forms
   this.fieldworkTaskForm = this.fb.group({
     title: ['', Validators.required],
     description: [''],
@@ -148,7 +158,7 @@ findingForm: FormGroup;
     dueDate: [''],
     priority: ['Medium']
   });
-// Update the evidenceForm initialization in constructor:
+
 this.evidenceForm = this.fb.group({
   title: ['', Validators.required],
   details: [''],
@@ -183,6 +193,14 @@ this.evidenceForm = this.fb.group({
     recommendation: [''],
     status: ['Draft']
   });
+  this.documentForm = this.fb.group({
+  name: ['', Validators.required],
+  type: ['', Validators.required],
+  description: [''],
+  category: ['Fieldwork'],
+  confidentiality: ['Internal Use']
+});
+
   }
 
 ngOnInit(): void {
@@ -192,14 +210,149 @@ ngOnInit(): void {
     
   }
 
-fieldworkTab: string = 'tasks';
+// Document Methods
+onDocumentFileSelected(event: any): void {
+  const file: File = event.target.files[0];
+  if (file) {
+    // Check file size (25MB limit)
+    if (file.size > 25 * 1024 * 1024) {
+      Swal.fire('File too large', `${file.name} exceeds 25MB limit`, 'warning');
+      return;
+    }
+    this.selectedDocumentFile = file;
+    event.target.value = ''; // Reset file input
+  }
+}
 
+removeDocumentFile(): void {
+  this.selectedDocumentFile = null;
+}
 
-// Add these properties to your component
-selectedEvidenceFiles: File[] = [];
+async saveDocument(): Promise<void> {
+  if (this.documentForm.invalid || !this.selectedDocumentFile) {
+    this.documentForm.markAllAsTouched();
+    return;
+  }
 
+  try {
+    // Upload the document file
+    const uploadedFile = await this.uploadDocumentFile(this.selectedDocumentFile);
+    
+    const documentData = {
+      ...this.documentForm.value,
+      file: uploadedFile,
+      uploadedAt: new Date().toISOString(),
+      id: 'doc' + Date.now()
+    };
 
-// Add these methods for file handling:
+    if (this.editingDocument !== null) {
+      this.fieldwork.documents[this.editingDocument] = documentData;
+    } else {
+      this.fieldwork.documents.push(documentData);
+    }
+
+    this.selectedDocumentFile = null;
+    this.cancelDocument();
+    this.filterDocuments(); // Update filtered list
+    Swal.fire('Success', 'Document uploaded successfully!', 'success');
+
+  } catch (error) {
+    console.error('Error uploading document:', error);
+    Swal.fire('Error', 'Failed to upload document', 'error');
+  }
+}
+
+editDocument(index: number): void {
+  if (!this.fieldwork.documents?.[index]) return;
+  
+  const doc = this.fieldwork.documents[index];
+  this.editingDocument = index;
+  this.documentForm.patchValue({
+    name: doc.name,
+    type: doc.type,
+    description: doc.description,
+    category: doc.category,
+    confidentiality: doc.confidentiality
+  });
+  this.showDocumentForm = true;
+}
+
+cancelDocument(): void {
+  this.editingDocument = null;
+  this.showDocumentForm = false;
+  this.selectedDocumentFile = null;
+  this.documentForm.reset({
+    category: 'Fieldwork',
+    confidentiality: 'Internal Use'
+  });
+}
+
+deleteDocument(index: number): void {
+  Swal.fire({
+    title: 'Delete document?',
+    text: 'This action cannot be undone.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete it!'
+  }).then(result => {
+    if (result.isConfirmed) {
+      this.fieldwork.documents.splice(index, 1);
+      this.filterDocuments(); // Update filtered list
+      Swal.fire('Deleted', 'Document deleted successfully', 'success');
+    }
+  });
+}
+
+// Document filtering
+filterDocuments(): void {
+  let filtered = this.fieldwork.documents || [];
+  
+  if (this.documentSearch) {
+    const search = this.documentSearch.toLowerCase();
+    filtered = filtered.filter(doc => 
+      doc.name.toLowerCase().includes(search) ||
+      doc.description.toLowerCase().includes(search) ||
+      doc.type.toLowerCase().includes(search)
+    );
+  }
+  
+  if (this.documentTypeFilter) {
+    filtered = filtered.filter(doc => doc.type === this.documentTypeFilter);
+  }
+  
+  if (this.documentCategoryFilter) {
+    filtered = filtered.filter(doc => doc.category === this.documentCategoryFilter);
+  }
+  
+  this.filteredDocuments = filtered;
+}
+
+// File upload method for documents
+private uploadDocumentFile(file: File): Promise<any> {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const mockUploadedFile = {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        url: URL.createObjectURL(file),
+        uploadedAt: new Date().toISOString()
+      };
+      resolve(mockUploadedFile);
+    }, 1000);
+  });
+}
+
+selectFieldworkTab(tab: string): void {
+  this.fieldworkTab = tab;
+  this.cancelFieldworkTask();
+  this.cancelEvidence();
+  this.cancelMeeting();
+  this.cancelWeekly();
+  this.cancelFinding();
+  this.cancelDocument(); 
+}
+
 onEvidenceFileSelected(event: any): void {
   const files: FileList = event.target.files;
   if (files.length > 0) {
@@ -292,7 +445,7 @@ private uploadFile(file: File): Promise<any> {
         name: file.name,
         size: file.size,
         type: file.type,
-        url: URL.createObjectURL(file), // This is just for demo - use actual uploaded URL
+        url: URL.createObjectURL(file), 
         uploadedAt: new Date().toISOString()
       };
       resolve(mockUploadedFile);
@@ -308,7 +461,6 @@ private uploadFile(file: File): Promise<any> {
   */
 }
 
-// Update cancelEvidence to clear files too:
 cancelEvidence(): void {
   this.editingEvidence = null;
   this.showEvidenceForm = false;
@@ -426,7 +578,6 @@ deleteMeeting(index: number): void {
   });
 }
 
-// Weekly Update Methods
 saveWeeklyUpdate(): void {
   if (this.weeklyForm.invalid) {
     this.weeklyForm.markAllAsTouched();
@@ -470,7 +621,6 @@ deleteWeekly(index: number): void {
   });
 }
 
-// Finding Methods
 saveFinding(): void {
   if (this.findingForm.invalid) {
     this.findingForm.markAllAsTouched();
@@ -534,16 +684,6 @@ saveAllFieldwork(): void {
   
   Swal.fire('Success', 'All fieldwork data saved successfully!', 'success');
   this.closeFieldworkModal();
-}
-
-// Update your existing methods to reset forms when changing tabs
-selectFieldworkTab(tab: string): void {
-  this.fieldworkTab = tab;
-  this.cancelFieldworkTask();
-  this.cancelEvidence();
-  this.cancelMeeting();
-  this.cancelWeekly();
-  this.cancelFinding();
 }
 
 get allFieldworkTasks() {
