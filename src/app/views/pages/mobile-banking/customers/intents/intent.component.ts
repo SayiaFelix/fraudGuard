@@ -125,7 +125,6 @@ updateTeam(index: number) {
   const member = this.selectedAudit.team[index];
   this.teamMember = member.name;
   this.teamRole = member.role;
-  // open modal or form
 }
 
 
@@ -166,11 +165,9 @@ addTeamMember() {
     this.selectedAudit.team.push(newMember);
   }
 
-  // Clear form fields
   this.teamMember = '';
   this.teamRole = '';
 
-  // Save changes to backend
   // this.savePlanning();
 }
 
@@ -219,7 +216,6 @@ closeTaskModal() {
   this.taskForm.reset({ status: 'Not Started' });
 }
 
-// Open task modal in edit mode
 editTask(index: number) {
   this.editingTaskIndex = index;
   const task = this.selectedAudit.planningTasks[index];
@@ -252,11 +248,7 @@ deleteTask(index: number) {
     if (result.isConfirmed) {
       // Remove task from array
       this.selectedAudit.planningTasks.splice(index, 1);
-      
-      // Hit backend to save changes
       this.savePlanning();
-
-      // Show success message
       Swal.fire(
         'Deleted!',
         'The task has been deleted.',
@@ -277,7 +269,6 @@ saveTask() {
     this.selectedAudit.planningTasks[this.editingTaskIndex] = taskData;
     this.editingTaskIndex = null;
   } else {
-    // Add new task
     if (!this.selectedAudit.planningTasks) this.selectedAudit.planningTasks = [];
     this.selectedAudit.planningTasks.push(taskData);
   }
@@ -288,23 +279,68 @@ saveTask() {
 }
 
 
+onDocumentsSelected(event: any, tab: string) {
+  const files: FileList = event.target.files;
+  if (!this.selectedAudit.documents) this.selectedAudit.documents = [];
+
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
+      this.selectedAudit.documents.push({
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        tab: tab, // categorize based on active tab
+        content: e.target.result // base64 string
+      });
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+
+handleFileUpload(event: any, type: string) {
+  if (!this.selectedAudit.documents) this.selectedAudit.documents = [];
+
+  const files: FileList = event.target.files;
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
+      this.selectedAudit.documents.push({
+        name: file.name,
+        type: file.type,
+        content: e.target.result, // base64 content
+        tab: type // track which tab this came from
+      });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  event.target.value = '';
+}
+
+getDocsByTab(tab: string) {
+  if (!this.selectedAudit || !this.selectedAudit.documents) return [];
+  return this.selectedAudit.documents.filter((d: { tab: string; }) => d.tab === tab);
+}
 
 savePlanning() {
   if (!this.selectedAudit) return;
 
-  // Gather all planning info
-  const planningData = {
+    const planningData = {
     ...this.selectedAudit,
-    scheduleConfirmed: this.selectedAudit.scheduleConfirmed,
-    team: this.selectedAudit.team || [],
-    riskSummary: this.selectedAudit.riskSummary,
-    documents: this.selectedAudit.documents || [],
-    planningMeetingDate: this.selectedAudit.planningMeetingDate,
-    planningAgenda: this.selectedAudit.planningAgenda,
-    planningTasks: this.selectedAudit.planningTasks || []
-  };
-
-  // Send to backend JSON DB
+      scheduleConfirmed: this.selectedAudit.scheduleConfirmed,
+      team: this.selectedAudit.team || [],
+      riskSummary: this.selectedAudit.riskSummary,
+      documents: this.selectedAudit.documents || [],
+      planningMeetingDate: this.selectedAudit.planningMeetingDate,
+      planningAgenda: this.selectedAudit.planningAgenda,
+      planningTasks: this.selectedAudit.planningTasks || []
+    };
+  
   this.http.put(`http://localhost:3000/audits/${this.selectedAudit.id}`, planningData)
     .subscribe({
       next: (res) => {
@@ -330,6 +366,36 @@ savePlanning() {
     });
 }
 
+updateAuditDocuments() {
+  this.http.put(`${this.apiUrl}/${this.selectedAudit.id}`, this.selectedAudit)
+    .subscribe({
+      next: () => console.log('Documents updated'),
+      error: (err) => console.log(err)
+    });
+}
+
+removeDocument(doc: any) {
+  Swal.fire({
+    title: 'Are you sure?',
+    text: `Delete "${doc.name}"?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete',
+    cancelButtonText: 'Cancel'
+  }).then(result => {
+    if (result.isConfirmed) {
+
+      const index = this.selectedAudit.documents.indexOf(doc);
+      if (index > -1) this.selectedAudit.documents.splice(index, 1);
+
+      this.updateAuditDocuments(); // save to backend
+
+      Swal.fire('Deleted!', 'Document removed successfully.', 'success');
+    }
+  });
+}
+
+
 getFormErrors(): string[] {
     const errors: string[] = [];
   
@@ -350,39 +416,6 @@ getFormErrors(): string[] {
     return errors;
   }
   
-// saveTask() {
-//   if (!this.selectedAudit) return;
-//   if (this.taskForm.invalid) {
-//     this.taskForm.markAllAsTouched();
-//     return;
-//   }
-
-//   const taskData = this.taskForm.value as PlanningTask;
-
-//   if (!this.selectedAudit.planningTasks) {
-//     this.selectedAudit.planningTasks = [];
-//   }
-
-//   if (this.editingTaskIndex !== null) {
-//     // Update task locally
-//     this.selectedAudit.planningTasks[this.editingTaskIndex] = taskData;
-//   } else {
-//     // Add new task locally
-//     this.selectedAudit.planningTasks.push(taskData);
-//   }
-
-//   // Hit backend JSON DB
-//   this.http.put(`http://localhost:3000/audits/${this.selectedAudit.id}`, this.selectedAudit)
-//     .subscribe({
-//       next: (res) => {
-//         console.log('Task saved to backend successfully', res);
-//         this.closeTaskModal();
-//       },
-//       error: (err) => {
-//         console.error('Error saving task to backend', err);
-//       }
-//     });
-// }
   
   addInterview() {
     this.interviewSchedule.push({ name: '', department: '', date: '', notes: '' });
@@ -405,7 +438,7 @@ getFormErrors(): string[] {
     }
   }
   
-    loadAudits(): void {
+  loadAudits(): void {
       this.isLoading = true;
       this.http.get<any[]>(this.apiUrl).subscribe({
         next: (audits) => {
@@ -487,7 +520,6 @@ getFormErrors(): string[] {
       this.addAuditForm.get('status')?.disable();
     }
   
-  
     onCriteriaFilesSelected(event: any) {
       this.criteriaFiles = Array.from(event.target.files);
     }
@@ -495,20 +527,13 @@ getFormErrors(): string[] {
     onExternalFilesSelected(event: any) {
       this.externalFiles = Array.from(event.target.files);
     }
-  
-    // ----------------------
-// Modal & Tab States
-// ----------------------
+
 isPlanningModalVisible: boolean = false;
 tab: string = 'schedule';
 
-// Team assignment fields
 teamMember: string = '';
 teamRole: string = '';
 
-// ----------------------
-// Modal Methods
-// ----------------------
 openPlanningModal() {
   this.isPlanningModalVisible = true;
 }
@@ -516,13 +541,6 @@ openPlanningModal() {
 closePlanningModal() {
   this.isPlanningModalVisible = false;
 }
-
-// // ----------------------
-// // Task Modals
-// // ----------------------
-// openAddTaskModal() {
-//   this.isPlanningModalVisible = true;
-// }
 
 openPlanningPanel(audit: any): void {
   this.selectedAudit = audit;
@@ -559,7 +577,6 @@ onInternalFilesSelected(event: any) {
   
       return;
     }
-      // const formData = this.addAuditForm.getRawValue();
       const formData = {
         ...this.addAuditForm.getRawValue(),
         interviewSchedule: this.interviewSchedule,
