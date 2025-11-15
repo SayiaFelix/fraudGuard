@@ -22,7 +22,7 @@ const routes: Routes = [
     },
 
   {
-    path: 'workflows',
+    path: 'fieldworks',
     component: ListUsersComponent
   },
 

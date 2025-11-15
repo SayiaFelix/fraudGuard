@@ -12,7 +12,6 @@ export interface Task {
   status: string;
   dueDate?: string; 
 }
-
 export interface Workflow {
   id?: string;
   auditId: string;          // 🔹 add this
@@ -26,7 +25,6 @@ export interface Workflow {
   tasks: any[];
   miniFindings?: any[];
 }
-
 export interface MiniFinding {
   id?: string;
   taskId?: string;
@@ -43,7 +41,8 @@ export interface MiniFinding {
 export class ListUsersComponent implements OnInit {
   
   private api = 'http://localhost:3000/workflows'; 
-  
+  private apiUrl = 'http://localhost:3000/audits';
+
    // UI state
   isDetailsPanelVisible = false;
   selectedWorkflow: Workflow | null = null;
@@ -65,6 +64,22 @@ export class ListUsersComponent implements OnInit {
   workflowForm: FormGroup;
   taskForm: FormGroup;
    miniFindingForm: FormGroup;
+
+  fieldwork: {
+  tasks: any[];
+  evidence: any[];
+  meetings: any[];
+  weeklyUpdates: any[];
+  preClosing: any[];
+} = {
+  tasks: [],
+  evidence: [],
+  meetings: [],
+  weeklyUpdates: [],
+  preClosing: []
+};
+  allAudits: any[];
+  selectedAudit: any;
 
   constructor(
     private http: HttpClient,
@@ -96,12 +111,120 @@ export class ListUsersComponent implements OnInit {
   });
   }
 
-
-  ngOnInit(): void {
-    this.loadWorkflows();
+ngOnInit(): void {
+      this.loadWorkflows();
       this.loadUsers(); 
+      this.loadAudits();
     
   }
+
+fieldworkTab: string = 'tasks';
+selectFieldworkTab(tab: string) {
+  this.fieldworkTab = tab;
+}
+
+loadAudits(): void {
+      this.isLoading = true;
+      this.http.get<any[]>(this.apiUrl).subscribe({
+        next: (audits) => {
+          this.allAudits = audits;
+          console.log('Loaded audits:', audits);
+          this.applyFiltersAndPagination();
+          this.isLoading = false;
+        },
+        error: () => {
+       
+          this.isLoading = false;
+        }
+      });
+    }
+
+
+selectAudit(audit: any) {
+  this.selectedAudit = audit;
+  this.fieldwork.tasks = audit.fieldworkTasks || [];
+}
+ 
+get allFieldworkTasks() {
+  const planningTasks = this.selectedWorkflow?.tasks || [];
+  const fieldworkTasks = this.fieldwork?.tasks || [];
+  return [...planningTasks, ...fieldworkTasks];
+}
+
+get allTasks() {
+  const planningTasks = this.selectedWorkflow?.tasks || [];
+  console.log('Selected Task', planningTasks);
+  const fieldworkTasks = this.fieldwork?.tasks || [];
+   console.log('Selected Task2', fieldworkTasks);
+  return [...planningTasks, ...fieldworkTasks];
+}
+
+isFieldworkModalVisible = false;
+activeFieldworkTab = 'fieldwork';
+
+openFieldworkModal() {
+  this.isFieldworkModalVisible = true;
+}
+
+closeFieldworkModal() {
+  this.isFieldworkModalVisible = false;
+}
+
+addFieldworkTask() {
+  this.fieldwork.tasks.push({
+    title: "New Task",
+    description: "",
+    assignedTo: ""
+  });
+}
+
+editFieldworkTask(i: number) {}
+removeFieldworkTask(i: number) {
+  this.fieldwork.tasks.splice(i, 1);
+}
+
+addEvidenceRequest() {
+  this.fieldwork.evidence.push({
+    title: "New Evidence Request",
+    details: "",
+    status: "Pending"
+  });
+}
+
+editEvidence(i: number) {}
+removeEvidence(i: number) { this.fieldwork.evidence.splice(i, 1); }
+
+addMeeting() {
+  this.fieldwork.meetings.push({
+    person: "Interviewee",
+    notes: "",
+    date: new Date().toISOString().substring(0, 10)
+  });
+}
+
+editMeeting(i: number) {}
+deleteMeeting(i: number) { this.fieldwork.meetings.splice(i, 1); }
+
+addWeeklyUpdate() {
+  this.fieldwork.weeklyUpdates.push({
+    week: this.fieldwork.weeklyUpdates.length + 1,
+    summary: ""
+  });
+}
+
+editWeekly(i: number) {}
+deleteWeekly(i: number) { this.fieldwork.weeklyUpdates.splice(i,1); }
+
+addPreClosingFinding() {
+  this.fieldwork.preClosing.push({
+    title: "New Finding",
+    details: ""
+  });
+}
+
+editFinding(i: number) {}
+deleteFinding(i: number) { this.fieldwork.preClosing.splice(i,1); }
+
 
 users: any[] = [];
 today: string = new Date().toISOString().split('T')[0];
@@ -113,6 +236,7 @@ loadUsers(): void {
   });
 }
 
+cachedPlanningTasks: any[] = [];
 editingTask: any = null; 
 editTask(task: Task): void {
   this.editingTask = task;
@@ -145,15 +269,12 @@ addTaskToWorkflow(): void {
   this.selectedWorkflow.tasks = this.selectedWorkflow.tasks || [];
   this.selectedWorkflow.tasks.push(newTask);
 
-  const updated = { ...this.selectedWorkflow }; // ✅ full updated workflow
-
-  // Save workflow + sync status + audit
+  const updated = { ...this.selectedWorkflow }; 
   this.syncWorkflowAndAudit(updated);
 
   Swal.fire('Task Added', 'New task added successfully!', 'success');
   this.taskForm.reset({ status: 'Pending' });
 }
-
 
 deleteMiniFinding(id: string): void {
   if (!this.selectedWorkflow) return;
@@ -233,7 +354,7 @@ loadWorkflows(): void {
     });
   }
 
-  applyFiltersAndPagination(): void {
+applyFiltersAndPagination(): void {
     let list = [...this.allWorkflows];
     const search = this.searchTerm.trim().toLowerCase();
     if (search) {
@@ -253,47 +374,110 @@ loadWorkflows(): void {
     this.visibleWorkflows = list.slice(0, this.recordsToShow);
   }
 
-  getFindingsForTask(taskId: number) {
+getFindingsForTask(taskId: number) {
   return this.selectedWorkflow?.miniFindings?.filter(f => f.taskId === taskId) || [];
 }
 
-  loadMore(): void {
+loadMore(): void {
     this.recordsToShow += 5;
     this.applyFiltersAndPagination();
   }
 
-  resetFilters(): void {
+resetFilters(): void {
     this.searchTerm = '';
     this.departmentFilter = '';
     this.statusFilter = '';
     this.applyFiltersAndPagination();
   }
 
-  // --- Details panel ----------------------------------------------
-  showWorkflowDetails(w: Workflow): void {
-    if (this.selectedWorkflow && this.selectedWorkflow.id === w.id) {
-      this.hideDetails();
-      return;
-    }
-    // show immediately basic data, and fetch latest (optional)
-    this.selectedWorkflow = { ...w };
-    this.isDetailsPanelVisible = true;
+getAuditPlanningTasks() {
+  if (!this.selectedWorkflow) return [];
 
-    // If you want to refresh from server:
-    if (w.id) {
-      this.globalService.get(w.id).subscribe({
-        next: wf => this.selectedWorkflow = wf,
-        error: err => console.warn('Could not fetch workflow details', err)
-      });
-    }
+  const audit = this.allAudits.find(a => a.id === this.selectedWorkflow?.auditId);
+  console.log('Selected Audit for planning tasks:', audit);
+
+  // Check if planningTasks exists and has data
+  if (!audit?.planningTasks || !Array.isArray(audit.planningTasks) || audit.planningTasks.length === 0) {
+    console.log('No planning tasks found');
+    return [];
   }
 
-  hideDetails(): void {
+  const tasks = audit.planningTasks.map((t: any, index: number) => ({
+    id: t.id || `p${index}`,
+    description: t.name || t.description || '', // Use 'name' from your data structure
+    assignee: t.owner || t.assignee || '',
+    status: t.status || 'Pending',
+    dueDate: t.endDate || t.startDate || '—'
+  }));
+
+  console.log('Mapped Planning Tasks:', tasks);
+  return tasks;
+}
+
+debugAuditData() {
+  if (!this.selectedWorkflow) return;
+  const audit = this.allAudits.find(a => a.id === this.selectedWorkflow?.auditId);
+  console.log('Full audit object:', audit);
+  console.log('Planning tasks raw:', audit?.planningTasks);
+}
+
+showWorkflowDetails(w: Workflow): void {
+  if (this.selectedWorkflow && this.selectedWorkflow.id === w.id) {
+    console.log('content', this.selectedWorkflow);
+    this.hideDetails();
+    return;
+  }
+  
+  this.selectedWorkflow = { ...w };
+  this.isDetailsPanelVisible = true;
+  console.log('Clicked workflow:', w);
+  this.cachePlanningTasks();
+  
+  if (w.id) {
+    this.globalService.get(w.id).subscribe({
+      next: wf => {
+        this.selectedWorkflow = wf;
+        this.cachePlanningTasks(); // Re-cache after loading
+      },
+      error: err => console.warn('Could not fetch workflow details', err)
+    });
+  }
+}
+
+cachePlanningTasks(): void {
+  if (!this.selectedWorkflow) {
+    this.cachedPlanningTasks = [];
+    return;
+  }
+
+  const audit = this.allAudits.find(a => a.id === this.selectedWorkflow?.auditId);
+  console.log('Selected Audit for planning tasks:', audit);
+
+  // Check if planningTasks exists and has data
+  if (!audit?.planningTasks || !Array.isArray(audit.planningTasks) || audit.planningTasks.length === 0) {
+    console.log('No planning tasks found');
+    this.cachedPlanningTasks = [];
+    return;
+  }
+
+  this.cachedPlanningTasks = audit.planningTasks.map((t: any, index: number) => ({
+    id: t.id || `p${index}`,
+    description: t.name || t.description || '',
+    assignee: t.owner || t.assignee || '',
+    status: t.status || 'Pending',
+    dueDate: t.endDate || t.startDate || '—'
+  }));
+
+  console.log('Cached Planning Tasks:', this.cachedPlanningTasks);
+}
+
+hideDetails(): void {
     this.isDetailsPanelVisible = false;
     this.selectedWorkflow = null;
+     this.cachedPlanningTasks = [];
   }
 
-  openAddModal(): void {
+openAddModal(): void {
     this.isEditMode = false;
     this.workflowForm.reset({ status: 'Not Started' });
     const today = new Date().toISOString().split('T')[0];
@@ -302,7 +486,7 @@ loadWorkflows(): void {
     this.selectedWorkflow = null;
   }
 
-  openEditModal(w: Workflow): void {
+openEditModal(w: Workflow): void {
     this.isEditMode = true;
     this.isAddEditModalVisible = true;
     this.selectedWorkflow = w;
@@ -317,12 +501,11 @@ loadWorkflows(): void {
     });
   }
 
-  closeModal(): void {
+closeModal(): void {
     this.isAddEditModalVisible = false;
     this.isEditMode = false;
     this.workflowForm.reset();
   }
-
 
 saveWorkflow(): void { 
   if (this.workflowForm.invalid) {
@@ -344,7 +527,6 @@ saveWorkflow(): void {
       next: () => {
         Swal.fire('Updated', 'Workflow updated successfully!', 'success');
 
-        // 🔹 Sync audit directly (same ID as workflow)
         const auditPayload = {
           id: payload.auditId,
           title: payload.title, 
@@ -523,9 +705,7 @@ deleteTask(taskId: number | string): void {
   Swal.fire('Deleted', 'Task deleted successfully!', 'success');
 }
 
-
-
-  private computeWorkflowStatus(tasks: Task[]): string {
+private computeWorkflowStatus(tasks: Task[]): string {
   if (!tasks || tasks.length === 0) return 'Not Started';
 
   const total = tasks.length;
@@ -566,7 +746,6 @@ private syncWorkflowAndAudit(updated: Workflow): void {
     error: err => console.error('Failed to sync workflow', err)
   });
 }
-
 
   // --- helpers -----------------------------------------------
   taskProgressPercent(w?: Workflow): number {
