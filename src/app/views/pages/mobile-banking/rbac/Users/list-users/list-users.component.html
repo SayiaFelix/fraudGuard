@@ -232,7 +232,7 @@
           </button>
         </div>
 
-        <button class="btn btn-outline-primary btn-sm mt-2" (click)="openFieldworkModal()">
+        <button class="btn btn-outline-success btn-sm mt-2" (click)="openFieldworkModal()">
           <i class="fas fa-briefcase me-1"></i> Fieldwork
         </button>
        </div>
@@ -426,6 +426,7 @@
   </div>
 </div>
 
+
 <!-- FIELDWORK MODAL -->
 <div class="modal-backdrop" *ngIf="isFieldworkModalVisible"
      style="position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:1040">
@@ -438,7 +439,7 @@
       <!-- HEADER -->
       <div class="modal-header bg-primary text-white">
         <h2 class="modal-title fw-bold mb-0">
-          <i class="fas fa-briefcase me-2"></i> Fieldwork Activities
+          <i class="fas fa-briefcase me-2"></i> Fieldwork Activities - {{selectedWorkflow?.title}}
         </h2>
         <button class="btn-close btn-close-white" (click)="closeFieldworkModal()"></button>
       </div>
@@ -469,181 +470,542 @@
             <i class="fas fa-clipboard-check me-1"></i> Pre-Closing Findings
           </a>
         </li>
-       </ul>
-
+      </ul>
 
       <!-- TAB CONTENT -->
       <div class="modal-body" style="max-height:70vh; overflow-y:auto;">
 
         <!-- 1. Fieldwork Tasks -->
-        <div *ngIf="fieldworkTab === 'tasks'">
-          <!-- <button class="btn btn-sm btn-primary mb-3" (click)="addFieldworkTask()">
-              <i class="fas fa-plus"></i> Add Task
-          </button> -->
+    <div *ngIf="fieldworkTab === 'tasks'">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="mb-0">Fieldwork Tasks</h3>
+        <button class="btn btn-primary btn-sm" (click)="showTaskForm = !showTaskForm">
+          <i class="fas fa-plus me-1"></i> {{showTaskForm ? 'Cancel' : 'Add Task'}}
+        </button>
+      </div>
 
-          <div *ngIf="allFieldworkTasks.length; else noTasksTpl">
-            <div *ngFor="let t of allFieldworkTasks; let i = index" class="border rounded p-2 mb-2">
-              <h6><i class="fas fa-tasks me-1"></i> {{t.title || t.description}}</h6>
-              <p class="mb-1">{{t.description}}</p>
-              <small class="text-muted">Assigned to: {{t.assignedTo || t.assignee}}</small>
-              <div class="mt-2">
-                <button class="btn btn-sm btn-warning me-2" *ngIf="fieldwork.tasks.includes(t)" (click)="editFieldworkTask(i)">
+      <!-- Task Form -->
+      <div class="card mb-3" *ngIf="showTaskForm">
+        <div class="card-body">
+          <h6 class="card-title">{{editingFieldworkTask ? 'Edit Task' : 'New Fieldwork Task'}}</h6>
+          <hr>
+          <form [formGroup]="fieldworkTaskForm" (ngSubmit)="saveFieldworkTask()">
+            <div class="row">
+              <div class="col-md-6 mb-2">
+                <label class="form-label fw-bold">Title</label>
+                <input type="text" class="form-control form-control-sm" formControlName="title" placeholder="Enter task title">
+              </div>
+              <div class="col-md-6 mb-2">
+                <label class="form-label fw-bold">Assigned To</label>
+                <select class="form-select form-select-sm" formControlName="assignedTo">
+                  <option value="">-- Select Assignee --</option>
+                  <option *ngFor="let user of users" [value]="user.username">{{user.username}}</option>
+                </select>
+              </div>
+            </div>
+            <div class="mb-2">
+              <label class="form-label fw-bold">Description</label>
+              <textarea class="form-control form-control-sm" rows="2" formControlName="description" placeholder="Task description"></textarea>
+            </div>
+            <div class="row">
+              <div class="col-md-4 mb-2">
+                <label class="form-label fw-bold">Status</label>
+                <select class="form-select form-select-sm" formControlName="status">
+                  <option>Not Started</option>
+                  <option>In Progress</option>
+                  <option>Completed</option>
+                </select>
+              </div>
+              <div class="col-md-4 mb-2">
+                <label class="form-label fw-bold">Due Date</label>
+                <input type="date" class="form-control form-control-sm" formControlName="dueDate">
+              </div>
+              <div class="col-md-4 mb-2">
+                <label class="form-label fw-bold">Priority</label>
+                <select class="form-select form-select-sm" formControlName="priority">
+                  <option>Low</option>
+                  <option>Medium</option>
+                  <option>High</option>
+                </select>
+              </div>
+            </div>
+            <div class="modal-footer d-flex justify-content-between">
+              <button type="button" class="btn btn-outline-secondary btn-sm me-2" (click)="cancelFieldworkTask()">Cancel</button>
+              <button type="submit" class="btn btn-success btn-sm">Save Task</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Tasks List -->
+      <div *ngIf="selectedWorkflow?.tasks?.length; else noTasksTpl">
+        <div *ngFor="let task of selectedWorkflow?.tasks; let i = index" class="card mb-2">
+          <div class="card-body py-2">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="flex-grow-1">
+                <h4 class="mb-1 fw-bold">{{task.title || task.description}}</h4>
+                <p class="mb-1 small text-muted">{{task.description}}</p>
+                <div class="d-flex gap-3 small">
+                  <span><i class="fas fa-user me-1"></i> {{task.assignedTo || task.assignee || 'Unassigned'}}</span>
+                  <span><i class="fas fa-flag me-1"></i> {{task.priority || 'Medium'}}</span>
+                  <span><i class="fas fa-calendar me-1"></i> {{task.dueDate || 'No due date'}}</span>
+                  <span class="badge" [ngClass]="{
+                    'bg-secondary': task.status === 'Not Started' || task.status === 'Pending',
+                    'bg-warning': task.status === 'In Progress',
+                    'bg-success': task.status === 'Completed' || task.status === 'Done'
+                  }">{{task.status}}</span>
+                </div>
+              </div>
+              <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-warning" (click)="editFieldworkTask(i)" title="Edit">
                   <i class="fas fa-edit"></i>
                 </button>
-                <button class="btn btn-sm btn-danger" *ngIf="fieldwork.tasks.includes(t)" (click)="removeFieldworkTask(i)">
+                <button class="btn btn-outline-danger" (click)="removeFieldworkTask(i)" title="Delete">
                   <i class="fas fa-trash"></i>
                 </button>
               </div>
             </div>
           </div>
-
-          <ng-template #noTasksTpl>
-            <div class="text-muted">No tasks yet.</div>
-          </ng-template>
-
-            <div class="card shadow-sm mb-3">
-        <div class="card-body">
-          <h5 class="card-title fw-bold">
-            <i class="fas fa-tasks me-2 text-success"></i> 
-            {{ editingTask ? 'Edit Task' : 'Add Task' }}
-          </h5>
-
-          <form [formGroup]="taskForm" (ngSubmit)="editingTask ? updateTask() : addTaskToWorkflow()">
-    
-            <div class="mb-3">
-              <label class="form-label fw-bold">Task Description</label>
-              <input class="form-control" placeholder="Enter task description" formControlName="description">
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label fw-bold">Assign To</label>
-              <select class="form-select" aria-placeholder="-- Select User --" formControlName="assignee">
-                <option value="">-- Select User --</option>
-                <option *ngFor="let user of users" [value]="user.username">
-                  {{ user.username }} ({{ user.role }})
-                </option>
-              </select>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label fw-bold">Status</label>
-              <select class="form-select" formControlName="status">
-                <option>Pending</option>
-                <option>In Progress</option>
-                <option>Done</option>
-              </select>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label fw-bold">Due Date</label>
-              <input 
-                type="date" 
-                class="form-control" 
-                formControlName="dueDate" 
-                [attr.min]="today">
-            </div>
-
-            <!-- Buttons -->
-            <div class="text-end">
-              <button class="btn btn-secondary btn-sm me-2" type="button" *ngIf="editingTask" (click)="cancelEditTask()">
-                Cancel
-              </button>
-              <button class="btn btn-primary btn-sm save-btn" type="submit">
-                <i class="fas fa-save me-1"></i> {{ editingTask ? 'Update Task' : 'Add Task' }}
-              </button>
-            </div>
-          </form>
         </div>
       </div>
+      <ng-template #noTasksTpl>
+        <div class="text-center text-muted py-3">
+          <i class="fas fa-tasks fa-2x mb-2"></i>
+          <p>No fieldwork tasks yet. Add your first task to get started.</p>
         </div>
+      </ng-template>
+    </div> 
 
         <!-- 2. Evidence Requests -->
-        <div *ngIf="fieldworkTab === 'evidence'">
-          <button class="btn btn-sm btn-primary mb-3" (click)="addEvidenceRequest()">
-          <i class="fas fa-file-upload"></i> New Request
-        </button>
-
-        <div *ngFor="let e of fieldwork.evidence; let i = index" class="border rounded p-2 mb-2">
-          <h6><i class="fas fa-file-alt"></i> {{e.title}}</h6>
-          <p class="mb-1">{{e.details}}</p>
-          <span class="badge bg-info">{{e.status}}</span>
-          <div class="mt-2">
-            <button class="btn btn-sm btn-warning me-2" (click)="editEvidence(i)">
-              <i class="fas fa-edit"></i>
-            </button>
-            <button class="btn btn-sm btn-danger" (click)="removeEvidence(i)">
-              <i class="fas fa-trash"></i>
+      <div *ngIf="fieldworkTab === 'evidence'">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0">Evidence Requests</h3>
+            <button class="btn btn-primary btn-sm" (click)="showEvidenceForm = !showEvidenceForm">
+              <i class="fas fa-plus me-1"></i> {{showEvidenceForm ? 'Cancel' : 'New Request'}}
             </button>
           </div>
-        </div>
+
+          <!--Evidence Form -->
+          <div class="card mb-3" *ngIf="showEvidenceForm">
+            <div class="card-body">
+              <h6 class="card-title">{{editingEvidence ? 'Edit Evidence Request' : 'New Evidence Request'}}</h6>
+              <hr>
+              <form [formGroup]="evidenceForm" (ngSubmit)="saveEvidence()">
+                <div class="row">
+                  <div class="col-md-8 mb-2">
+                    <label class="form-label fw-bold">Title</label>
+                    <input type="text" class="form-control form-control-sm" formControlName="title" placeholder="Evidence request title">
+                  </div>
+                  <div class="col-md-4 mb-2">
+                    <label class="form-label fw-bold">Status</label>
+                    <select class="form-select form-select-sm" formControlName="status">
+                      <option>Requested</option>
+                      <option>Received</option>
+                      <option>Under Review</option>
+                      <option>Completed</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div class="mb-2">
+                  <label class="form-label fw-bold">Details</label>
+                  <textarea class="form-control form-control-sm" rows="3" formControlName="details" placeholder="Describe the evidence needed"></textarea>
+                </div>
+                
+                <div class="row">
+                  <div class="col-md-6 mb-2">
+                    <label class="form-label fw-bold">Requested From</label>
+                    <input type="text" class="form-control form-control-sm" formControlName="requestedFrom" placeholder="Person/department">
+                  </div>
+                  <div class="col-md-6 mb-2">
+                    <label class="form-label fw-bold">Due Date</label>
+                    <input type="date" class="form-control form-control-sm" formControlName="dueDate">
+                  </div>
+                </div>
+
+                <!-- File Upload Section -->
+                <div class="mb-2">
+                  <label class="form-label small fw-bold">Attach Files</label>
+                  <div class="file-upload-area border rounded p-3 text-center">
+                    <input type="file" class="form-control form-control-sm" 
+                          (change)="onEvidenceFileSelected($event)" 
+                          multiple
+                          accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.txt"
+                          #fileInput>
+                    <div class="mt-2">
+                      <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
+                      <p class="small text-muted mb-1">Click to upload or drag and drop</p>
+                      <p class="small text-muted">PDF, DOC, XLS, JPG, PNG, TXT (Max: 10MB each)</p>
+                    </div>
+                  </div>
+                  
+                  <!-- Selected Files List -->
+                  <div *ngIf="selectedEvidenceFiles.length > 0" class="mt-2">
+                    <h6 class="small fw-bold">Selected Files:</h6>
+                    <div *ngFor="let file of selectedEvidenceFiles; let i = index" class="d-flex justify-content-between align-items-center small border rounded p-2 mb-1">
+                      <div>
+                        <i class="fas fa-file me-1 text-primary"></i>
+                        {{file.name}} ({{formatFileSize(file.size)}})
+                      </div>
+                      <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeEvidenceFile(i)">
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Uploaded Files List -->
+                  <div *ngIf="evidenceForm.get('uploadedFiles')?.value?.length > 0" class="mt-2">
+                    <h6 class="small fw-bold">Uploaded Files:</h6>
+                    <div *ngFor="let file of evidenceForm.get('uploadedFiles')?.value; let i = index" class="d-flex justify-content-between align-items-center small border rounded p-2 mb-1 bg-light">
+                      <div>
+                        <i class="fas fa-paperclip me-1 text-success"></i>
+                        {{file.name}}
+                        <small class="text-muted ms-2">(Uploaded)</small>
+                      </div>
+                      <div>
+                        <a [href]="file.url" target="_blank" class="btn btn-sm btn-outline-primary me-1" title="Download">
+                          <i class="fas fa-download"></i>
+                        </a>
+                        <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeUploadedEvidenceFile(i)">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="modal-footer d-flex justify-content-between">
+                  <button type="button" class="btn btn-outline-secondary btn-sm me-2" (click)="cancelEvidence()">Cancel</button>
+                  <button type="submit" class="btn btn-success btn-sm">Save Request</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+           <!-- Evidence List -->
+          <div *ngIf="fieldwork.evidence.length; else noEvidenceTpl">
+            <div *ngFor="let evidence of fieldwork.evidence; let i = index" class="card mb-2">
+              <div class="card-body py-2">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div class="flex-grow-1">
+                    <h6 class="mb-1">{{evidence.title}}</h6>
+                    <p class="mb-1 small text-muted">{{evidence.details}}</p>
+                    
+                    <!-- Show attached files -->
+                    <div *ngIf="evidence.uploadedFiles?.length" class="mt-2">
+                      <div *ngFor="let file of evidence.uploadedFiles" class="d-flex align-items-center small text-muted mb-1">
+                        <i class="fas fa-paperclip me-1"></i>
+                        <a [href]="file.url" target="_blank" class="text-decoration-none">{{file.name}}</a>
+                        <small class="ms-2">({{formatFileSize(file.size)}})</small>
+                      </div>
+                    </div>
+                    
+                    <div class="d-flex gap-3 small">
+                      <span><i class="fas fa-user me-1"></i> {{evidence.requestedFrom || 'Not specified'}}</span>
+                      <span><i class="fas fa-calendar me-1"></i> {{evidence.dueDate || 'No due date'}}</span>
+                      <span class="badge" [ngClass]="{
+                        'bg-warning': evidence.status === 'Requested',
+                        'bg-info': evidence.status === 'Received',
+                        'bg-primary': evidence.status === 'Under Review',
+                        'bg-success': evidence.status === 'Completed'
+                      }">{{evidence.status}}</span>
+                    </div>
+                  </div>
+                  <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-warning" (click)="editEvidence(i)" title="Edit">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-outline-danger" (click)="removeEvidence(i)" title="Delete">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <ng-template #noEvidenceTpl>
+            <div class="text-center text-muted py-3">
+              <i class="fas fa-file-upload fa-2x mb-2"></i>
+              <p>No evidence requests yet.</p>
+            </div>
+          </ng-template>
         </div>
 
-        <!-- 3. Meetings -->
+        <!-- 3. Meetings & Interviews -->
         <div *ngIf="fieldworkTab === 'meetings'">
-           <button class="btn btn-sm btn-primary mb-3" (click)="addMeeting()">
-          <i class="fas fa-users"></i> Add Meeting/Interview
-        </button>
-
-        <div *ngFor="let m of fieldwork.meetings; let i = index" class="border rounded p-2 mb-2">
-          <h6><i class="fas fa-user-tie"></i> {{m.person}}</h6>
-          <p class="mb-1">{{m.notes}}</p>
-          <small class="text-muted">Date: {{m.date}}</small>
-          <div class="mt-2">
-            <button class="btn btn-sm btn-warning me-2" (click)="editMeeting(i)">
-              <i class="fas fa-edit"></i>
-            </button>
-            <button class="btn btn-sm btn-danger" (click)="deleteMeeting(i)">
-              <i class="fas fa-trash"></i>
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0">Meetings & Interviews</h3>
+            <button class="btn btn-primary btn-sm" (click)="showMeetingForm = !showMeetingForm">
+              <i class="fas fa-plus me-1"></i> {{showMeetingForm ? 'Cancel' : 'Add Meeting'}}
             </button>
           </div>
-        </div>
+
+          <!-- Meeting Form -->
+          <div class="card mb-3" *ngIf="showMeetingForm">
+            <div class="card-body">
+              <h6 class="card-title">{{editingMeeting ? 'Edit Meeting' : 'New Meeting/Interview'}}</h6>
+              <hr>
+              <form [formGroup]="meetingForm" (ngSubmit)="saveMeeting()">
+                <div class="row">
+                  <div class="col-md-6 mb-2">
+                    <label class="form-label fw-bold">Person/Title</label>
+                    <input type="text" class="form-control form-control-sm" formControlName="person" placeholder="Interviewee name">
+                  </div>
+                  <div class="col-md-6 mb-2">
+                    <label class="form-label fw-bold">Date</label>
+                    <input type="date" class="form-control form-control-sm" formControlName="date">
+                  </div>
+                </div>
+                <div class="mb-2">
+                  <label class="form-label fw-bold">Purpose</label>
+                  <input type="text" class="form-control form-control-sm" formControlName="purpose" placeholder="Meeting purpose">
+                </div>
+                <div class="mb-2">
+                  <label class="form-label fw-bold">Notes</label>
+                  <textarea class="form-control form-control-sm" rows="3" formControlName="notes" placeholder="Meeting notes and key points"></textarea>
+                </div>
+                <div class="row">
+                  <div class="col-md-6 mb-2">
+                    <label class="form-label fw-bold">Attendees</label>
+                    <input type="text" class="form-control form-control-sm" formControlName="attendees" placeholder="List attendees">
+                  </div>
+                  <div class="col-md-6 mb-2">
+                    <label class="form-label fw-bold">Follow-up Required</label>
+                    <select class="form-select form-select-sm" formControlName="followUpRequired">
+                      <option value="no">No</option>
+                      <option value="yes">Yes</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="modal-footer d-flex justify-content-between">
+                  <button type="button" class="btn btn-outline-secondary btn-sm me-2" (click)="cancelMeeting()">Cancel</button>
+                  <button type="submit" class="btn btn-success btn-sm">Save Meeting</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Meetings List -->
+          <div *ngIf="fieldwork.meetings.length; else noMeetingsTpl">
+            <div *ngFor="let meeting of fieldwork.meetings; let i = index" class="card mb-2">
+              <div class="card-body py-2">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div class="flex-grow-1">
+                    <h4 class="mb-1 fw-bold"><i class="fas fa-user-tie me-1"></i> {{meeting.person}}</h4>
+                    <p class="mb-1 small text-muted">{{meeting.purpose}}</p>
+                    <p class="mb-1 small">{{meeting.notes}}</p>
+                    <div class="d-flex gap-3 small">
+                      <span><i class="fas fa-calendar me-1"></i> {{meeting.date}}</span>
+                      <span><i class="fas fa-users me-1"></i> {{meeting.attendees || 'No attendees listed'}}</span>
+                      <span *ngIf="meeting.followUpRequired === 'yes'" class="badge bg-warning">Follow-up Needed</span>
+                    </div>
+                  </div>
+                  <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-warning" (click)="editMeeting(i)" title="Edit">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-outline-danger" (click)="deleteMeeting(i)" title="Delete">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <ng-template #noMeetingsTpl>
+            <div class="text-center text-muted py-3">
+              <i class="fas fa-users fa-2x mb-2"></i>
+              <p>No meetings or interviews recorded yet.</p>
+            </div>
+          </ng-template>
         </div>
 
         <!-- 4. Weekly Updates -->
         <div *ngIf="fieldworkTab === 'updates'">
-          <button class="btn btn-sm btn-primary mb-3" (click)="addWeeklyUpdate()">
-          <i class="fas fa-calendar-plus"></i> Add Weekly Update
-        </button>
-
-        <div *ngFor="let w of fieldwork.weeklyUpdates; let i = index" class="border rounded p-2 mb-2">
-          <h6><i class="fas fa-calendar-week"></i> Week {{w.week}}</h6>
-          <p>{{w.summary}}</p>
-          <div class="mt-2">
-            <button class="btn btn-sm btn-warning me-2" (click)="editWeekly(i)">
-              <i class="fas fa-edit"></i>
-            </button>
-            <button class="btn btn-sm btn-danger" (click)="deleteWeekly(i)">
-              <i class="fas fa-trash"></i>
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0">Weekly Updates</h3>
+            <button class="btn btn-primary btn-sm" (click)="showWeeklyForm = !showWeeklyForm">
+              <i class="fas fa-plus me-1"></i> {{showWeeklyForm ? 'Cancel' : 'Add Update'}}
             </button>
           </div>
-        </div>
+
+          <!-- Weekly Update Form -->
+          <div class="card mb-3" *ngIf="showWeeklyForm">
+            <div class="card-body">
+              <h6 class="card-title">New Weekly Update</h6>
+              <form [formGroup]="weeklyForm" (ngSubmit)="saveWeeklyUpdate()">
+                <div class="row">
+                  <div class="col-md-4 mb-2">
+                    <label class="form-label fw-bold">Week Number</label>
+                    <input type="number" class="form-control form-control-sm" formControlName="week" min="1">
+                  </div>
+                  <div class="col-md-4 mb-2">
+                    <label class="form-label fw-bold">Start Date</label>
+                    <input type="date" class="form-control form-control-sm" formControlName="startDate">
+                  </div>
+                  <div class="col-md-4 mb-2">
+                    <label class="form-label fw-bold">End Date</label>
+                    <input type="date" class="form-control form-control-sm" formControlName="endDate">
+                  </div>
+                </div>
+                <div class="mb-2">
+                  <label class="form-label fw-bold">Progress Summary</label>
+                  <textarea class="form-control form-control-sm" rows="4" formControlName="summary" placeholder="What was accomplished this week?"></textarea>
+                </div>
+                <div class="mb-2">
+                  <label class="form-label fw-bold">Next Week Plan</label>
+                  <textarea class="form-control form-control-sm" rows="2" formControlName="nextWeekPlan" placeholder="Plans for next week"></textarea>
+                </div>
+                <div class="mb-2">
+                  <label class="form-label fw-bold">Issues/Challenges</label>
+                  <textarea class="form-control form-control-sm" rows="2" formControlName="issues" placeholder="Any challenges faced"></textarea>
+                </div>
+                <div class="modal-footer d-flex justify-content-between">
+                  <button type="button" class="btn btn-outline-secondary btn-sm me-2" (click)="cancelWeekly()">Cancel</button>
+                  <button type="submit" class="btn btn-success btn-sm">Save Update</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Weekly Updates List -->
+          <div *ngIf="fieldwork.weeklyUpdates.length; else noWeeklyTpl">
+            <div *ngFor="let update of fieldwork.weeklyUpdates; let i = index" class="card mb-2">
+              <div class="card-body py-2">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div class="flex-grow-1">
+                    <h4 class="mb-1"><i class="fas fa-calendar-week me-1"></i> Week {{update.week}}</h4>
+                    <p class="mb-1 small"><strong>Progress:</strong> {{update.summary}}</p>
+                    <p class="mb-1 small" *ngIf="update.nextWeekPlan"><strong>Next Week:</strong> {{update.nextWeekPlan}}</p>
+                    <p class="mb-1 small text-muted" *ngIf="update.issues"><strong>Challenges:</strong> {{update.issues}}</p>
+                    <small class="text-muted">
+                      {{update.startDate}} to {{update.endDate}}
+                    </small>
+                  </div>
+                  <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-warning" (click)="editWeekly(i)" title="Edit">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-outline-danger" (click)="deleteWeekly(i)" title="Delete">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <ng-template #noWeeklyTpl>
+            <div class="text-center text-muted py-3">
+              <i class="fas fa-calendar-week fa-2x mb-2"></i>
+              <p>No weekly updates yet.</p>
+            </div>
+          </ng-template>
         </div>
 
         <!-- 5. Pre-Closing Findings -->
         <div *ngIf="fieldworkTab === 'preclosing'">
-          <button class="btn btn-sm btn-primary mb-3" (click)="addPreClosingFinding()">
-          <i class="fas fa-clipboard-check"></i> Add Finding
-        </button>
-
-        <div *ngFor="let f of fieldwork.preClosing; let i = index" class="border rounded p-2 mb-2">
-          <h6><i class="fas fa-exclamation-circle"></i> {{f.title}}</h6>
-          <p>{{f.details}}</p>
-          <div class="mt-2">
-            <button class="btn btn-sm btn-warning me-2" (click)="editFinding(i)">
-              <i class="fas fa-edit"></i>
-            </button>
-            <button class="btn btn-sm btn-danger" (click)="deleteFinding(i)">
-              <i class="fas fa-trash"></i>
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0">Pre-Closing Findings</h3>
+            <button class="btn btn-primary btn-sm" (click)="showFindingForm = !showFindingForm">
+              <i class="fas fa-plus me-1"></i> {{showFindingForm ? 'Cancel' : 'Add Finding'}}
             </button>
           </div>
-        </div>
+
+          <!-- Add Finding Form -->
+          <div class="card mb-3" *ngIf="showFindingForm">
+            <div class="card-body">
+              <h6 class="card-title">{{editingFinding ? 'Edit Finding' : 'New Pre-Closing Finding'}}</h6>
+              <hr>
+              <form [formGroup]="findingForm" (ngSubmit)="saveFinding()">
+                <div class="row">
+                  <div class="col-md-8 mb-2">
+                    <label class="form-label fw-bold">Title</label>
+                    <input type="text" class="form-control form-control-sm" formControlName="title" placeholder="Finding title">
+                  </div>
+                  <div class="col-md-4 mb-2">
+                    <label class="form-label fw-bold">Severity</label>
+                    <select class="form-select form-select-sm" formControlName="severity">
+                      <option>Low</option>
+                      <option>Medium</option>
+                      <option>High</option>
+                      <option>Critical</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="mb-2">
+                  <label class="form-label fw-bold">Details</label>
+                  <textarea class="form-control form-control-sm" rows="4" formControlName="details" placeholder="Detailed description of the finding"></textarea>
+                </div>
+                <div class="row">
+                  <div class="col-md-6 mb-2">
+                    <label class="form-label fw-bold">Recommendation</label>
+                    <textarea class="form-control form-control-sm" rows="2" formControlName="recommendation" placeholder="Recommended action"></textarea>
+                  </div>
+                  <div class="col-md-6 mb-2">
+                    <label class="form-label fw-bold">Status</label>
+                    <select class="form-select form-select-sm" formControlName="status">
+                      <option>Draft</option>
+                      <option>Reviewed</option>
+                      <option>Presented</option>
+                      <option>Resolved</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="modal-footer d-flex justify-content-between">
+                  <button type="button" class="btn btn-outline-secondary btn-sm me-2" (click)="cancelFinding()">Cancel</button>
+                  <button type="submit" class="btn btn-success btn-sm">Save Finding</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Findings List -->
+          <div *ngIf="fieldwork.preClosing.length; else noFindingsTpl">
+            <div *ngFor="let finding of fieldwork.preClosing; let i = index" class="card mb-2">
+              <div class="card-body py-2">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div class="flex-grow-1">
+                    <h4 class="mb-1"><i class="fas fa-exclamation-circle me-1"></i> {{finding.title}}</h4>
+                    <p class="mb-1 small">{{finding.details}}</p>
+                    <p class="mb-1 small" *ngIf="finding.recommendation"><strong>Recommendation:</strong> {{finding.recommendation}}</p>
+                    <div class="d-flex gap-3 small">
+                      <span class="badge" [ngClass]="{
+                        'bg-success': finding.severity === 'Low',
+                        'bg-warning': finding.severity === 'Medium',
+                        'bg-danger': finding.severity === 'High',
+                        'bg-dark': finding.severity === 'Critical'
+                      }">{{finding.severity}}</span>
+                      <span class="badge bg-secondary">{{finding.status}}</span>
+                    </div>
+                  </div>
+                  <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-warning" (click)="editFinding(i)" title="Edit">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-outline-danger" (click)="deleteFinding(i)" title="Delete">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <ng-template #noFindingsTpl>
+            <div class="text-center text-muted py-3">
+              <i class="fas fa-clipboard-check fa-2x mb-2"></i>
+              <p>No pre-closing findings yet.</p>
+            </div>
+          </ng-template>
         </div>
 
       </div>
 
       <!-- FOOTER -->
-      <div class="modal-footer">
-        <button class="btn btn-secondary" (click)="closeFieldworkModal()">Close</button>
+      <div class="modal-footer d-flex justify-content-between">
+        <button class="btn btn-outline-secondary " (click)="closeFieldworkModal()">Close</button>
+        <button class="btn btn-primary save-btn" (click)="saveAllFieldwork()">
+          <i class="fas fa-save me-1"></i> Save All Fieldwork
+        </button>
       </div>
 
     </div>
