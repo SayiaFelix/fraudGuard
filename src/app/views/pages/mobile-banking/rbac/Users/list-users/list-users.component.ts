@@ -12,9 +12,10 @@ export interface Task {
   status: string;
   dueDate?: string; 
 }
+
 export interface Workflow {
   id?: string;
-  auditId: string;          // 🔹 add this
+  auditId: string;
   title: string;
   scope: string;
   department: string;
@@ -24,6 +25,13 @@ export interface Workflow {
   dueDate: string;
   tasks: any[];
   miniFindings?: any[];
+  // Add fieldwork data to workflow
+  fieldwork?: {
+    evidence: any[];
+    meetings: any[];
+    weeklyUpdates: any[];
+    preClosing: any[];
+  };
 }
 export interface MiniFinding {
   id?: string;
@@ -55,6 +63,25 @@ export class ListUsersComponent implements OnInit {
   recordsToShow = 5;
   isLoading = false;
 
+  // Add these properties to your component class
+showTaskForm = false;
+showEvidenceForm = false;
+showMeetingForm = false;
+showWeeklyForm = false;
+showFindingForm = false;
+
+editingFieldworkTask: number | null = null;
+editingEvidence: number | null = null;
+editingMeeting: number | null = null;
+editingFinding: number | null = null;
+
+// Form groups for fieldwork
+fieldworkTaskForm: FormGroup;
+evidenceForm: FormGroup;
+meetingForm: FormGroup;
+weeklyForm: FormGroup;
+findingForm: FormGroup;
+
   // Filters
   searchTerm = '';
   departmentFilter = '';
@@ -78,6 +105,8 @@ export class ListUsersComponent implements OnInit {
   weeklyUpdates: [],
   preClosing: []
 };
+
+
   allAudits: any[];
   selectedAudit: any;
 
@@ -109,6 +138,51 @@ export class ListUsersComponent implements OnInit {
     severity: ['Low', Validators.required],
     status: ['Noted', Validators.required]
   });
+
+    // Initialize fieldwork forms
+  this.fieldworkTaskForm = this.fb.group({
+    title: ['', Validators.required],
+    description: [''],
+    assignedTo: [''],
+    status: ['Not Started'],
+    dueDate: [''],
+    priority: ['Medium']
+  });
+// Update the evidenceForm initialization in constructor:
+this.evidenceForm = this.fb.group({
+  title: ['', Validators.required],
+  details: [''],
+  status: ['Requested'],
+  requestedFrom: [''],
+  dueDate: [''],
+  uploadedFiles: [[]] 
+});
+
+  this.meetingForm = this.fb.group({
+    person: ['', Validators.required],
+    purpose: [''],
+    notes: [''],
+    date: [''],
+    attendees: [''],
+    followUpRequired: ['no']
+  });
+
+  this.weeklyForm = this.fb.group({
+    week: ['', Validators.required],
+    startDate: [''],
+    endDate: [''],
+    summary: [''],
+    nextWeekPlan: [''],
+    issues: ['']
+  });
+
+  this.findingForm = this.fb.group({
+    title: ['', Validators.required],
+    details: [''],
+    severity: ['Medium'],
+    recommendation: [''],
+    status: ['Draft']
+  });
   }
 
 ngOnInit(): void {
@@ -119,8 +193,130 @@ ngOnInit(): void {
   }
 
 fieldworkTab: string = 'tasks';
-selectFieldworkTab(tab: string) {
-  this.fieldworkTab = tab;
+
+
+// Add these properties to your component
+selectedEvidenceFiles: File[] = [];
+
+
+// Add these methods for file handling:
+onEvidenceFileSelected(event: any): void {
+  const files: FileList = event.target.files;
+  if (files.length > 0) {
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      
+      // Check file size (10MB limit)
+      if (file.size > 10 * 1024 * 1024) {
+        Swal.fire('File too large', `${file.name} exceeds 10MB limit`, 'warning');
+        continue;
+      }
+      
+      this.selectedEvidenceFiles.push(file);
+    }
+    event.target.value = ''; // Reset file input
+  }
+}
+
+removeEvidenceFile(index: number): void {
+  this.selectedEvidenceFiles.splice(index, 1);
+}
+
+removeUploadedEvidenceFile(index: number): void {
+  const currentFiles = this.evidenceForm.get('uploadedFiles')?.value || [];
+  currentFiles.splice(index, 1);
+  this.evidenceForm.patchValue({ uploadedFiles: currentFiles });
+}
+
+formatFileSize(bytes: number): string {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+async saveEvidence(): Promise<void> {
+  if (this.evidenceForm.invalid) {
+    this.evidenceForm.markAllAsTouched();
+    return;
+  }
+
+  try {
+    // Upload files if any selected
+    const uploadedFiles: any[] = [];
+    
+    if (this.selectedEvidenceFiles.length > 0) {
+      for (const file of this.selectedEvidenceFiles) {
+        const uploadedFile = await this.uploadFile(file);
+        if (uploadedFile) {
+          uploadedFiles.push(uploadedFile);
+        }
+      }
+    }
+
+    const evidenceData = {
+      ...this.evidenceForm.value,
+      uploadedFiles: [...(this.evidenceForm.value.uploadedFiles || []), ...uploadedFiles]
+    };
+
+    // Rest of your existing save logic...
+    if (this.editingEvidence !== null) {
+      this.fieldwork.evidence[this.editingEvidence] = {
+        ...this.fieldwork.evidence[this.editingEvidence],
+        ...evidenceData
+      };
+    } else {
+      this.fieldwork.evidence.push({
+        id: 'ev' + Date.now(),
+        ...evidenceData
+      });
+    }
+
+    this.selectedEvidenceFiles = []; // Clear selected files
+    this.cancelEvidence();
+    Swal.fire('Success', 'Evidence request saved!', 'success');
+
+  } catch (error) {
+    console.error('Error saving evidence:', error);
+    Swal.fire('Error', 'Failed to save evidence request', 'error');
+  }
+}
+
+// File upload method (you'll need to implement based on your backend)
+private uploadFile(file: File): Promise<any> {
+  return new Promise((resolve, reject) => {
+    // Simulate file upload - replace with your actual file upload service
+    setTimeout(() => {
+      const mockUploadedFile = {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        url: URL.createObjectURL(file), // This is just for demo - use actual uploaded URL
+        uploadedAt: new Date().toISOString()
+      };
+      resolve(mockUploadedFile);
+    }, 1000);
+  });
+  
+  /* 
+  // Real implementation would look something like:
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  return this.http.post('/api/upload', formData).toPromise();
+  */
+}
+
+// Update cancelEvidence to clear files too:
+cancelEvidence(): void {
+  this.editingEvidence = null;
+  this.showEvidenceForm = false;
+  this.selectedEvidenceFiles = [];
+  this.evidenceForm.reset({
+    status: 'Requested',
+    uploadedFiles: []
+  });
 }
 
 loadAudits(): void {
@@ -128,7 +324,7 @@ loadAudits(): void {
       this.http.get<any[]>(this.apiUrl).subscribe({
         next: (audits) => {
           this.allAudits = audits;
-          console.log('Loaded audits:', audits);
+          // console.log('Loaded audits:', audits);
           this.applyFiltersAndPagination();
           this.isLoading = false;
         },
@@ -145,22 +341,245 @@ selectAudit(audit: any) {
   this.fieldwork.tasks = audit.fieldworkTasks || [];
 }
  
+
+cancelFieldworkTask(): void {
+  this.editingFieldworkTask = null;
+  this.showTaskForm = false;
+  this.fieldworkTaskForm.reset({
+    status: 'Not Started',
+    priority: 'Medium'
+  });
+}
+
+editEvidence(index: number): void {
+  this.editingEvidence = index;
+  this.evidenceForm.patchValue(this.fieldwork.evidence[index]);
+  this.showEvidenceForm = true;
+}
+
+removeEvidence(index: number): void {
+  Swal.fire({
+    title: 'Delete evidence request?',
+    text: 'This action cannot be undone.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete it!'
+  }).then(result => {
+    if (result.isConfirmed) {
+      this.fieldwork.evidence.splice(index, 1);
+      Swal.fire('Deleted', 'Evidence request deleted', 'success');
+    }
+  });
+}
+
+// Meeting Methods
+saveMeeting(): void {
+  if (this.meetingForm.invalid) {
+    this.meetingForm.markAllAsTouched();
+    return;
+  }
+
+  const meetingData = this.meetingForm.value;
+
+  if (this.editingMeeting !== null) {
+    this.fieldwork.meetings[this.editingMeeting] = {
+      ...this.fieldwork.meetings[this.editingMeeting],
+      ...meetingData
+    };
+  } else {
+    this.fieldwork.meetings.push({
+      id: 'mt' + Date.now(),
+      ...meetingData
+    });
+  }
+
+  this.cancelMeeting();
+  Swal.fire('Success', 'Meeting saved!', 'success');
+}
+
+editMeeting(index: number): void {
+  this.editingMeeting = index;
+  this.meetingForm.patchValue(this.fieldwork.meetings[index]);
+  this.showMeetingForm = true;
+}
+
+cancelMeeting(): void {
+  this.editingMeeting = null;
+  this.showMeetingForm = false;
+  this.meetingForm.reset({
+    followUpRequired: 'no'
+  });
+}
+
+deleteMeeting(index: number): void {
+  Swal.fire({
+    title: 'Delete meeting?',
+    text: 'This action cannot be undone.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete it!'
+  }).then(result => {
+    if (result.isConfirmed) {
+      this.fieldwork.meetings.splice(index, 1);
+      Swal.fire('Deleted', 'Meeting deleted', 'success');
+    }
+  });
+}
+
+// Weekly Update Methods
+saveWeeklyUpdate(): void {
+  if (this.weeklyForm.invalid) {
+    this.weeklyForm.markAllAsTouched();
+    return;
+  }
+
+  const weeklyData = this.weeklyForm.value;
+
+  this.fieldwork.weeklyUpdates.push({
+    id: 'wk' + Date.now(),
+    ...weeklyData
+  });
+
+  this.cancelWeekly();
+  Swal.fire('Success', 'Weekly update saved!', 'success');
+}
+
+editWeekly(index: number): void {
+  this.weeklyForm.patchValue(this.fieldwork.weeklyUpdates[index]);
+  this.fieldwork.weeklyUpdates.splice(index, 1); // Remove old entry
+  this.showWeeklyForm = true;
+}
+
+cancelWeekly(): void {
+  this.showWeeklyForm = false;
+  this.weeklyForm.reset();
+}
+
+deleteWeekly(index: number): void {
+  Swal.fire({
+    title: 'Delete weekly update?',
+    text: 'This action cannot be undone.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete it!'
+  }).then(result => {
+    if (result.isConfirmed) {
+      this.fieldwork.weeklyUpdates.splice(index, 1);
+      Swal.fire('Deleted', 'Weekly update deleted', 'success');
+    }
+  });
+}
+
+// Finding Methods
+saveFinding(): void {
+  if (this.findingForm.invalid) {
+    this.findingForm.markAllAsTouched();
+    return;
+  }
+
+  const findingData = this.findingForm.value;
+
+  if (this.editingFinding !== null) {
+    this.fieldwork.preClosing[this.editingFinding] = {
+      ...this.fieldwork.preClosing[this.editingFinding],
+      ...findingData
+    };
+  } else {
+    this.fieldwork.preClosing.push({
+      id: 'fd' + Date.now(),
+      ...findingData
+    });
+  }
+
+  this.cancelFinding();
+  Swal.fire('Success', 'Finding saved!', 'success');
+}
+
+editFinding(index: number): void {
+  this.editingFinding = index;
+  this.findingForm.patchValue(this.fieldwork.preClosing[index]);
+  this.showFindingForm = true;
+}
+
+cancelFinding(): void {
+  this.editingFinding = null;
+  this.showFindingForm = false;
+  this.findingForm.reset({
+    severity: 'Medium',
+    status: 'Draft'
+  });
+}
+
+deleteFinding(index: number): void {
+  Swal.fire({
+    title: 'Delete finding?',
+    text: 'This action cannot be undone.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete it!'
+  }).then(result => {
+    if (result.isConfirmed) {
+      this.fieldwork.preClosing.splice(index, 1);
+      Swal.fire('Deleted', 'Finding deleted', 'success');
+    }
+  });
+}
+
+// Save all fieldwork data
+saveAllFieldwork(): void {
+  if (!this.selectedWorkflow) return;
+
+  // Here you would typically save to your backend
+  console.log('Saving fieldwork data:', this.fieldwork);
+  
+  Swal.fire('Success', 'All fieldwork data saved successfully!', 'success');
+  this.closeFieldworkModal();
+}
+
+// Update your existing methods to reset forms when changing tabs
+selectFieldworkTab(tab: string): void {
+  this.fieldworkTab = tab;
+  this.cancelFieldworkTask();
+  this.cancelEvidence();
+  this.cancelMeeting();
+  this.cancelWeekly();
+  this.cancelFinding();
+}
+
 get allFieldworkTasks() {
   const planningTasks = this.selectedWorkflow?.tasks || [];
   const fieldworkTasks = this.fieldwork?.tasks || [];
   return [...planningTasks, ...fieldworkTasks];
 }
 
-get allTasks() {
-  const planningTasks = this.selectedWorkflow?.tasks || [];
-  console.log('Selected Task', planningTasks);
-  const fieldworkTasks = this.fieldwork?.tasks || [];
-   console.log('Selected Task2', fieldworkTasks);
-  return [...planningTasks, ...fieldworkTasks];
-}
 
 isFieldworkModalVisible = false;
 activeFieldworkTab = 'fieldwork';
+
+addFieldworkTask() {
+  this.showTaskForm = true;
+  this.cancelFieldworkTask(); // Reset form
+}
+
+addEvidenceRequest() {
+  this.showEvidenceForm = true;
+  this.cancelEvidence(); // Reset form
+}
+
+addMeeting() {
+  this.showMeetingForm = true;
+  this.cancelMeeting(); // Reset form
+}
+
+addWeeklyUpdate() {
+  this.showWeeklyForm = true;
+  this.cancelWeekly(); // Reset form
+}
+
+addPreClosingFinding() {
+  this.showFindingForm = true;
+  this.cancelFinding(); // Reset form
+}
 
 openFieldworkModal() {
   this.isFieldworkModalVisible = true;
@@ -170,62 +589,6 @@ closeFieldworkModal() {
   this.isFieldworkModalVisible = false;
 }
 
-addFieldworkTask() {
-  this.fieldwork.tasks.push({
-    title: "New Task",
-    description: "",
-    assignedTo: ""
-  });
-}
-
-editFieldworkTask(i: number) {}
-removeFieldworkTask(i: number) {
-  this.fieldwork.tasks.splice(i, 1);
-}
-
-addEvidenceRequest() {
-  this.fieldwork.evidence.push({
-    title: "New Evidence Request",
-    details: "",
-    status: "Pending"
-  });
-}
-
-editEvidence(i: number) {}
-removeEvidence(i: number) { this.fieldwork.evidence.splice(i, 1); }
-
-addMeeting() {
-  this.fieldwork.meetings.push({
-    person: "Interviewee",
-    notes: "",
-    date: new Date().toISOString().substring(0, 10)
-  });
-}
-
-editMeeting(i: number) {}
-deleteMeeting(i: number) { this.fieldwork.meetings.splice(i, 1); }
-
-addWeeklyUpdate() {
-  this.fieldwork.weeklyUpdates.push({
-    week: this.fieldwork.weeklyUpdates.length + 1,
-    summary: ""
-  });
-}
-
-editWeekly(i: number) {}
-deleteWeekly(i: number) { this.fieldwork.weeklyUpdates.splice(i,1); }
-
-addPreClosingFinding() {
-  this.fieldwork.preClosing.push({
-    title: "New Finding",
-    details: ""
-  });
-}
-
-editFinding(i: number) {}
-deleteFinding(i: number) { this.fieldwork.preClosing.splice(i,1); }
-
-
 users: any[] = [];
 today: string = new Date().toISOString().split('T')[0];
 
@@ -233,6 +596,83 @@ loadUsers(): void {
   this.http.get<any[]>('http://localhost:3000/users').subscribe({
     next: (res) => this.users = res,
     error: (err) => console.error('Failed to load users', err)
+  });
+}
+
+
+// Fieldwork Tasks Methods - Now working with selectedWorkflow.tasks
+saveFieldworkTask(): void {
+  if (this.fieldworkTaskForm.invalid || !this.selectedWorkflow) {
+    this.fieldworkTaskForm.markAllAsTouched();
+    return;
+  }
+
+  const taskData = this.fieldworkTaskForm.value;
+
+  // Ensure tasks array exists
+  if (!this.selectedWorkflow.tasks) {
+    this.selectedWorkflow.tasks = [];
+  }
+
+  if (this.editingFieldworkTask !== null) {
+    // Edit existing task
+    this.selectedWorkflow.tasks[this.editingFieldworkTask] = {
+      ...this.selectedWorkflow.tasks[this.editingFieldworkTask],
+      ...taskData
+    };
+  } else {
+    // Add new task
+    this.selectedWorkflow.tasks.push({
+      id: 'fw' + Date.now(),
+      ...taskData
+    });
+  }
+
+  // Update the workflow in the backend
+  this.updateWorkflowTasks();
+  this.cancelFieldworkTask();
+  Swal.fire('Success', 'Fieldwork task saved!', 'success');
+}
+
+editFieldworkTask(index: number): void {
+  if (!this.selectedWorkflow?.tasks?.[index]) return;
+  
+  this.editingFieldworkTask = index;
+  this.fieldworkTaskForm.patchValue(this.selectedWorkflow.tasks[index]);
+  this.showTaskForm = true;
+}
+
+removeFieldworkTask(index: number): void {
+  if (!this.selectedWorkflow?.tasks) return;
+
+  Swal.fire({
+    title: 'Delete task?',
+    text: 'This action cannot be undone.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete it!'
+  }).then(result => {
+    if (result.isConfirmed) {
+      this.selectedWorkflow?.tasks.splice(index, 1);
+      this.updateWorkflowTasks();
+      Swal.fire('Deleted', 'Task deleted successfully', 'success');
+    }
+  });
+}
+
+// Helper method to update workflow tasks in backend
+private updateWorkflowTasks(): void {
+  if (!this.selectedWorkflow?.id) return;
+
+  this.globalService.update(this.selectedWorkflow.id, this.selectedWorkflow).subscribe({
+    next: (updatedWorkflow) => {
+      this.selectedWorkflow = updatedWorkflow;
+      this.loadWorkflows(); // Refresh the list
+    },
+    error: (err) => {
+      console.error('Failed to update workflow tasks', err);
+      Swal.fire('Error', 'Failed to save tasks', 'error');
+    }
   });
 }
 
@@ -451,7 +891,7 @@ cachePlanningTasks(): void {
   }
 
   const audit = this.allAudits.find(a => a.id === this.selectedWorkflow?.auditId);
-  console.log('Selected Audit for planning tasks:', audit);
+  // console.log('Selected Audit for planning tasks:', audit);
 
   // Check if planningTasks exists and has data
   if (!audit?.planningTasks || !Array.isArray(audit.planningTasks) || audit.planningTasks.length === 0) {
@@ -468,7 +908,7 @@ cachePlanningTasks(): void {
     dueDate: t.endDate || t.startDate || '—'
   }));
 
-  console.log('Cached Planning Tasks:', this.cachedPlanningTasks);
+  // console.log('Cached Planning Tasks:', this.cachedPlanningTasks);
 }
 
 hideDetails(): void {
@@ -695,9 +1135,9 @@ updateTask(): void {
 }
 
 deleteTask(taskId: number | string): void {
-  if (!this.selectedWorkflow) return;
+  if (!this.selectedWorkflow?.tasks) return;
 
-  const tasks = (this.selectedWorkflow.tasks || []).filter(t => t.id !== taskId);
+  const tasks = this.selectedWorkflow.tasks.filter(t => t.id !== taskId);
   const updated = { ...this.selectedWorkflow, tasks };
   this.syncWorkflowAndAudit(updated);
   this.loadWorkflows();
