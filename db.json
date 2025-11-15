@@ -299,7 +299,7 @@
       "backgroundSummary": "fdssd",
       "riskRating": "Medium",
       "riskRationale": "sdfsdds",
-      "riskSummary": "sfdsdf",
+      "riskSummary": "sfdsdfrgegregrefeeeeee",
       "kickoffDate": "2025-11-19",
       "planningMemo": "fsdfds",
       "interviewSchedule": [
@@ -335,7 +335,43 @@
       "criteriaFiles": [
         {}
       ],
-      "rcmFile": {}
+      "rcmFile": {},
+      "scheduleConfirmed": true,
+      "team": [
+        {
+          "name": "vdfdsfsd",
+          "role": "Lead Auditor"
+        },
+        {
+          "name": "ewfwe",
+          "role": "IT Auditor"
+        },
+        {
+          "name": "safewewe",
+          "role": "IT Auditor"
+        }
+      ],
+      "documents": [],
+      "planningTasks": [
+        {
+          "name": "sfewfwe",
+          "description": "fewfew",
+          "owner": "ewfwe",
+          "startDate": "2025-11-20",
+          "endDate": "2025-11-25",
+          "status": "Not Started"
+        },
+        {
+          "name": "feewfef",
+          "description": "fefwew",
+          "owner": "wedwef",
+          "startDate": "2025-11-17",
+          "endDate": "2025-11-19",
+          "status": "Not Started"
+        }
+      ],
+      "planningMeetingDate": "2025-11-21T08:28",
+      "planningAgenda": "fdsdfds"
     },
     {
       "id": "0351",
@@ -357,7 +393,7 @@
       "backgroundSummary": "rwwe",
       "riskRating": "Medium",
       "riskRationale": "erwer",
-      "riskSummary": "rweeertertre",
+      "riskSummary": "rweeertertredewdqwdwde",
       "kickoffDate": "2025-11-19",
       "planningMemo": "wrewew",
       "riskInterviewSummary": "werew",
@@ -403,6 +439,14 @@
           "startDate": "2025-11-16",
           "endDate": "2025-11-19",
           "status": "Not Started"
+        },
+        {
+          "name": "cdscdsvvvvv",
+          "description": "dvcdsds",
+          "owner": "dscsd",
+          "startDate": "2025-11-19",
+          "endDate": "2025-11-25",
+          "status": "Not Started"
         }
       ],
       "scheduleConfirmed": true,
@@ -412,12 +456,16 @@
           "role": "Lead Auditor"
         },
         {
-          "name": "retre",
+          "name": "dfewff",
           "role": "Auditor"
+        },
+        {
+          "name": "dfewffgggggg",
+          "role": "IT Auditor"
         }
       ],
-      "planningMeetingDate": "2025-11-22T12:38",
-      "planningAgenda": "treregrg",
+      "planningMeetingDate": "2025-11-22T03:38",
+      "planningAgenda": "treregrgefdew",
       "documents": []
     }
   ],

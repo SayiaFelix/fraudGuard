@@ -17,7 +17,12 @@
 .details-panel {
   border-radius: 0.5rem;
 }
-
+.save-btn:hover {
+  background-color: #0ea908;
+  color: #ffffff;
+  transform: scale(1.05);
+  border-radius: 8px;
+}
 .card {
   border-left-width: 5px;
 }
@@ -42,6 +47,14 @@
   box-shadow: 0 1px 3px rgba(0,0,0,0.08);
   width: 100%;
 }
+.team-list {
+  max-height: 200px; /* adjust as needed */
+  overflow-y: auto;
+}
+.team-list li {
+  padding: 0.5rem 1rem;
+}
+
 
 .table th, .table td {
   vertical-align: middle;
