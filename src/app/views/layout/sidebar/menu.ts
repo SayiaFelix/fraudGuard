@@ -28,7 +28,7 @@ export const MENU: MenuItem[] = [
     {
     label: 'Fieldwork',
     icon: 'git-branch',
-    link: '/eclectics/executions/workflows',
+    link: '/eclectics/executions/fieldworks',
     // roles: ['Auditor', 'CIA'] // workflow part of execution
   },
   {
