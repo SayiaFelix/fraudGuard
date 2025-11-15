@@ -357,7 +357,7 @@
       "backgroundSummary": "rwwe",
       "riskRating": "Medium",
       "riskRationale": "erwer",
-      "riskSummary": "rwee",
+      "riskSummary": "rweeertertre",
       "kickoffDate": "2025-11-19",
       "planningMemo": "wrewew",
       "riskInterviewSummary": "werew",
@@ -386,7 +386,39 @@
       "criteriaFiles": [
         {}
       ],
-      "rcmFile": null
+      "rcmFile": null,
+      "planningTasks": [
+        {
+          "name": "sfewfew",
+          "description": "ewfew",
+          "owner": "ewfew",
+          "startDate": "2025-11-19",
+          "endDate": "2025-11-26",
+          "status": "Not Started"
+        },
+        {
+          "name": "fewfewfew",
+          "description": "ewfewfwe",
+          "owner": "wefewfdew",
+          "startDate": "2025-11-16",
+          "endDate": "2025-11-19",
+          "status": "Not Started"
+        }
+      ],
+      "scheduleConfirmed": true,
+      "team": [
+        {
+          "name": "trtretre",
+          "role": "Lead Auditor"
+        },
+        {
+          "name": "retre",
+          "role": "Auditor"
+        }
+      ],
+      "planningMeetingDate": "2025-11-22T12:38",
+      "planningAgenda": "treregrg",
+      "documents": []
     }
   ],
   "workflows": [
