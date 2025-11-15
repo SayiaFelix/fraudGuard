@@ -6,7 +6,7 @@ import { GlobalService } from 'src/app/shared/services/global.service';
 import { ToastrService } from 'ngx-toastr';
 import Swal from "sweetalert2";
 import { ActivatedRoute, Router } from '@angular/router'; 
-import { catchError, forkJoin, Observable, of, tap } from 'rxjs';
+import { catchError, forkJoin, Observable, of, switchMap, tap } from 'rxjs';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import * as saveAs from 'file-saver';
 import jsPDF from 'jspdf';
@@ -41,6 +41,9 @@ interface PlanningTask {
     styleUrls: ['./intent.component.scss']
 })
 export class IntentComponent implements OnInit {
+  editingMember: any;
+hoverTask: any;
+
 removeTeamMember(_t195: any) {
 throw new Error('Method not implemented.');
 }
@@ -75,13 +78,13 @@ throw new Error('Method not implemented.');
     isAddAuditModalVisible = false;
     externalFiles: File[] = [];
     internalFiles: File[] = [];
-  
+    editingMemberIndex: number | null = null;
     criteriaFiles: File[] = [];
     rcmFile: File | null = null;
     interviewSchedule: any[] = [];
     logisticsChecklist: any[] = [];
-  riskInterviewSummary: [''];
-  scopingNotes: ['']
+   riskInterviewSummary: [''];
+   scopingNotes: ['']
     private apiUrl = 'http://localhost:3000/audits';
   
     constructor(
@@ -109,16 +112,69 @@ ngOnInit(): void {
     this.todayString = today.toISOString().split('T')[0];
     this.loadAudits();
   
-    
     this.taskForm.get('startDate')?.valueChanges.subscribe(start => {
       if (this.taskForm.get('endDate')?.value < start) {
         this.taskForm.patchValue({ endDate: start }); 
       }
     });
     }
-  
-  // Open/Close Modals
-  openInterviewModal() {
+
+
+updateTeam(index: number) {
+  this.editingMemberIndex = index; 
+  const member = this.selectedAudit.team[index];
+  this.teamMember = member.name;
+  this.teamRole = member.role;
+  // open modal or form
+}
+
+
+deleteMember(index: number) {
+  const member = this.selectedAudit.team[index];
+  Swal.fire({
+    title: 'Are you sure?',
+    text: `Delete ${member.name} from the team?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete',
+    cancelButtonText: 'Cancel'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      this.selectedAudit.team.splice(index, 1);
+      // Hit backend if needed
+      this.savePlanning();
+      Swal.fire('Deleted!', `${member.name} has been removed.`, 'success');
+    }
+  });
+}
+
+addTeamMember() {
+  if (!this.teamMember || !this.teamRole) return;
+
+  const newMember = {
+    name: this.teamMember,
+    role: this.teamRole
+  };
+
+  if (this.editingMemberIndex !== null) {
+    // update existing member
+    this.selectedAudit.team[this.editingMemberIndex] = newMember;
+    this.editingMemberIndex = null; // reset
+  } else {
+    // add new member
+    if (!this.selectedAudit.team) this.selectedAudit.team = [];
+    this.selectedAudit.team.push(newMember);
+  }
+
+  // Clear form fields
+  this.teamMember = '';
+  this.teamRole = '';
+
+  // Save changes to backend
+  // this.savePlanning();
+}
+
+openInterviewModal() {
     const modal = document.getElementById('interviewModal');
     modal?.classList.add('show');
     modal?.setAttribute('style', 'display:block; background: rgba(0,0,0,0.5)');
@@ -226,7 +282,7 @@ saveTask() {
     this.selectedAudit.planningTasks.push(taskData);
   }
 
-  this.savePlanning(); // Send updated tasks to backend
+  // this.savePlanning();
   this.taskForm.reset();
   this.isTaskModalVisible = false;
 }
@@ -473,21 +529,7 @@ openPlanningPanel(audit: any): void {
   this.isPlanningModalVisible = true;
 }
 
-addTeamMember() {
-  if (!this.teamMember || !this.teamRole) return;
-
-  if (!this.selectedAudit.team) this.selectedAudit.team = [];
-
-  this.selectedAudit.team.push({
-    name: this.teamMember,
-    role: this.teamRole
-  });
-
-  this.teamMember = '';
-  this.teamRole = '';
-}
-
-    onInternalFilesSelected(event: any) {
+onInternalFilesSelected(event: any) {
       this.internalFiles = Array.from(event.target.files);
     }
   
