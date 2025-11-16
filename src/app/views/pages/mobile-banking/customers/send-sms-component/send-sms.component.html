@@ -15,6 +15,7 @@
         <select class="form-select w-auto me-2 mb-2"
                 [(ngModel)]="severityFilter" (change)="applyFilters()">
           <option value="">All Severities</option>
+          <option value="Critical">Critical</option>
           <option value="High">High</option>
           <option value="Medium">Medium</option>
           <option value="Low">Low</option>
@@ -23,350 +24,158 @@
         <select class="form-select w-auto me-2 mb-2"
                 [(ngModel)]="statusFilter" (change)="applyFilters()">
           <option value="">All Statuses</option>
-          <option value="Open">Open</option>
-          <option value="In Progress">In Progress</option>
-          <option value="Closed">Closed</option>
+          <option value="Draft">Draft</option>
+          <option value="Reviewed">Reviewed</option>
+          <option value="Presented">Presented</option>
+          <option value="Resolved">Resolved</option>
         </select>
 
         <button class="btn btn-outline-secondary btn-sm mb-2" (click)="resetFilters()">
           <i class="fas fa-undo"></i> Reset
         </button>
-
-        <button class="btn btn-sm btn-primary save-btn mb-2" (click)="openAddObservationModal()">
-          <i class="fas fa-plus"></i> Add Observation
-        </button>
       </div>
 
-              <!-- Table -->
-        <div *ngIf="!isLoading">
-          <div *ngIf="filteredObservations.length > 0; else noObsTpl" class="table-responsive">
-            <table class="table table-hover align-middle">
-              <thead class="table-light">
-                <tr>
-                  <th>Description</th>
-                  <th>Severity</th>
-                  <th>Status</th>
-                  <th>Recommendation</th>
-                  <th>Created</th>
-                  <th class="text-end">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let obs of filteredObservations"
-                    (click)="toggleObservationDetails(obs)"
-                    [class.table-active]="selectedObservation?.id === obs.id"
-                    style="cursor:pointer">
-                  <td>{{ obs.description }}</td>
-                  <td>
-                    <span class="badge"
-                          [ngClass]="{
-                            'bg-danger': obs.severity === 'High',
-                            'bg-warning text-dark': obs.severity === 'Medium',
-                            'bg-success': obs.severity === 'Low'
-                          }">{{ obs.severity }}</span>
-                  </td>
-                  <td>
-                    <span [ngClass]="{
-                      'text-danger': obs.status === 'Open',
-                      'text-info': obs.status === 'In Progress',
-                      'text-success': obs.status === 'Closed'
-                    }">{{ obs.status }}</span>
-                  </td>
-                  <td>{{ obs.recommendation }}</td>
-                  <td>{{ obs.createdAt }}</td>
-                  <!-- Actions -->
-                  <td class="text-end">
-                    <button class="btn btn-sm btn-outline-secondary me-1"
-                            (click)="openEditObservationModal(obs); $event.stopPropagation()">
-                      <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger"
-                            (click)="deleteObservation(obs.id); $event.stopPropagation()">
-                      <i class="fas fa-trash"></i>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Empty State -->
-          <ng-template #noObsTpl>
-            <div class="alert alert-info text-center">
-              <i class="fas fa-info-circle me-2"></i>
-              No observations for this audit.
-            </div>
-          </ng-template>
+      <!-- Table -->
+      <div *ngIf="!isLoading">
+        <div *ngIf="filteredObservations.length > 0; else noObsTpl" class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Description</th>
+                <th>Severity</th>
+                <th>Status</th>
+                <th>Recommendation</th>
+                <th>Created</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let obs of filteredObservations"
+                  (click)="toggleObservationDetails(obs)"
+                  [class.table-active]="selectedObservation?.id === obs.id"
+                  style="cursor:pointer">
+                <td>{{ obs.description }}</td>
+                <td>
+                  <span class="badge"
+                        [ngClass]="{
+                          'bg-dark': obs.severity === 'Critical',
+                          'bg-danger': obs.severity === 'High',
+                          'bg-warning text-dark': obs.severity === 'Medium',
+                          'bg-success': obs.severity === 'Low'
+                        }">{{ obs.severity }}</span>
+                </td>
+                <td>
+                  <span class="badge"
+                        [ngClass]="{
+                          'bg-secondary': obs.status === 'Draft',
+                          'bg-info': obs.status === 'Reviewed',
+                          'bg-warning': obs.status === 'Presented',
+                          'bg-success': obs.status === 'Resolved'
+                        }">{{ obs.status }}</span>
+                </td>
+                <td>{{ obs.recommendation }}</td>
+                <td>{{ obs.createdAt }}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
-
+        <ng-template #noObsTpl>
+          <div class="alert alert-info text-center">
+            <i class="fas fa-info-circle me-2"></i>
+            No observations for this audit.
+          </div>
+        </ng-template>
+      </div>
     </div>
 
-     <div style="border-radius: 12px;" class="col-lg-4 col-md-5 border-start shadow-sm " 
-      *ngIf="isDetailsPanelVisible">
-        <div class="card  border-0">
-              <!-- Header -->
-        <div class="p-1 card-header d-flex justify-content-between border-bottom align-items-center">
-          <h2 class="mb-0 fw-bold">
-            <i class="fas fa-eye text-primary me-1"></i>
-            Observation Details
-          </h2>
-          <button class="btn btn-sm btn-light" (click)="hideDetails()">
-            <i class="fas fa-times"></i>
-          </button>
-        </div>
-
-
-          <div class="mt-3" *ngIf="selectedObservation">
-            <p>
-              <strong>Severity: </strong>
-              <span class="badge"
-                    [ngClass]="{
-                      'bg-danger': selectedObservation.severity === 'High',
-                      'bg-warning text-dark': selectedObservation.severity === 'Medium',
-                      'bg-success': selectedObservation.severity === 'Low'
-                    }">{{ selectedObservation.severity }}</span>
-            </p>
-
-            <p>
-              <strong>Status: </strong>
-              <span class="badge"
-                    [ngClass]="{
-                      'bg-danger': selectedObservation.status === 'Open',
-                      'bg-info text-dark': selectedObservation.status === 'In Progress',
-                      'bg-success': selectedObservation.status === 'Closed'
-                    }">{{ selectedObservation.status }}</span>
-            </p>
-
-            <p><strong>Created: </strong> {{ selectedObservation.createdAt }}</p>
-            <hr>
-          
-            <div class="mt-2">
-              <h3 class="fw-bold">
-                <i class="fas fa-comment-dots text-primary me-2"></i> Remark
+   <!-- Details Panel -->
+    <div class="col-lg-4 col-md-5" *ngIf="isDetailsPanelVisible">
+      <div class="card border-1 shadow-lg h-100">
+        <div class="card-header bg-gradient-primary text-white py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h3 class="mb-0 fw-semibold">
+                <i class="fas fa-clipboard-check me-2"></i>
+                Observation Details
               </h3>
-              <p *ngIf="!selectedObservation.remarks" class="text-muted fst-italic">
-                No remark added yet.
-              </p>
-              <div *ngIf="selectedObservation.remarks" class="alert alert-info p-2">
-                {{ selectedObservation.remarks }}
-              </div>
+              <!-- <small class="opacity-75">ID: #{{selectedObservation?.id}}</small> -->
             </div>
-
-            <hr>
-
-            <h3 class="fw-bold mb-3">
-              <i class="fas fa-search me-1 text-primary"></i> Findings
-            </h3>
-
-            <div *ngIf="!(selectedObservation.findings?.length)" class="text-muted mb-2">
-              No findings yet.
-            </div>
-
-            <div *ngIf="selectedObservation.findings?.length" class="d-flex flex-column">
-              <div class="card shadow-sm p-3" *ngFor="let f of selectedObservation.findings">
-                <div class="d-flex justify-content-between align-items-start">
-                  
-                  <!-- Finding Info -->
-                  <div class="mt-1">
-                    <div class="fw-bold">{{ f.description }}</div>
-                    <div class="small text-muted mt-1">Impact: {{ f.impact }}</div>
-                    <div class="small">
-                      Status:
-                      <span class="badge"
-                            [ngClass]="{
-                              'bg-danger': f.status === 'Noted',
-                              'bg-success': f.status === 'Confirmed'
-                            }">{{ f.status }}</span>
-                    </div>
-                  </div>
-
-                  <!-- Vertical Actions -->
-                  <div class="btn-group-vertical btn-group-sm">
-                    <button class="btn btn-sm btn-light"
-                            (click)="toggleFindingStatus(selectedObservation, f)">
-                      <i class="fas fa-sync-alt text-info"></i>
-                    </button>
-
-                    <button class="btn btn-sm btn-light"
-                            (click)="openFindingModal(selectedObservation, f)">
-                      <i class="fas fa-edit text-secondary"></i>
-                    </button>
-
-                    <button class="btn btn-sm btn-light"
-                            (click)="deleteFinding(selectedObservation,f.id)">
-                      <i class="fas fa-trash text-danger"></i>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          
-
-            <!-- Add button -->
-            <button class="btn btn-sm btn-primary save-btn mt-3 w-100"
-                    (click)="openFindingModal(selectedObservation)">
-              <i class="fas fa-plus"></i> Add Finding
+            <button class="btn btn-sm btn-light btn-circle" (click)="hideDetails()">
+              <i class="fas fa-times"></i>
             </button>
-
-            
           </div>
         </div>
-     </div>
 
-   
-
-    <!-- Finding Modal -->
-     <div class="modal fade show" *ngIf="isFindingModalVisible"
-      style="display:block; background:rgba(0,0,0,0.5)" (click)="closeFindingModal()">
-      <div class="modal-dialog modal-lg" (click)="$event.stopPropagation()">
-        <div class="modal-content shadow-lg border-0 rounded-3">
-          <!-- Header -->
-          <div class="modal-header bg-primary text-white">
-            <h2 class="modal-title mb-0">
-              <i class="fas fa-search me-2"></i> Add Finding
-            </h2>
-            <button type="button" class="btn-close btn-close-white" (click)="closeFindingModal()"></button>
-          </div>
-
-          <!-- Form -->
-          <form [formGroup]="findingForm" (ngSubmit)="saveFinding()">
-            <div class="modal-body">
-              <div class="card border-0 shadow-sm p-3">
-                
-                <!-- Description -->
-                <div class="mb-3">
-                  <label class="form-label fw-bold">
-                    <i class="fas fa-align-left me-1 text-secondary"></i> Finding Description
-                  </label>
-                  <textarea class="form-control" rows="3"
-                            placeholder="Enter finding details..."
-                            formControlName="description"></textarea>
+        <div class="card-body p-4">
+          <div *ngIf="selectedObservation" class="observation-details">
+            <div class="detail-section mb-4">
+              <h5 class="section-title text-uppercase text-dark small fw-bold mb-2">
+                <i class="fas fa-align-left text-info me-1"></i> Description
+              </h5>
+              <p class="detail-content text-dark mb-0">{{ selectedObservation.description }}</p>
+            </div>
+            <div class="detail-section mb-4" *ngIf="selectedObservation.details">
+              <h5 class="section-title text-uppercase text-dark small fw-bold mb-2">
+                <i class="fas fa-file-alt text-primary me-1"></i> Detailed Findings
+              </h5>
+              <p class="detail-content text-muted mb-0">{{ selectedObservation.details }}</p>
+            </div>
+                <div class="status-card p-3 rounded-3 border">
+                  <h4 class="text-dark small mb-2">Severity Level</h4>
+                  <span class="badge fs-7 py-2 px-3 w-100"
+                        [ngClass]="{
+                          'bg-dark text-white': selectedObservation.severity === 'Critical',
+                          'bg-danger text-white': selectedObservation.severity === 'High',
+                          'bg-warning text-dark': selectedObservation.severity === 'Medium',
+                          'bg-success text-white': selectedObservation.severity === 'Low'
+                        }">
+                    <i class="fas fa-exclamation-triangle me-1"></i>
+                    {{ selectedObservation.severity }}
+                  </span>
                 </div>
 
-                <!-- Row for Impact & Status -->
-                <div class="row">
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label fw-bold">
-                      <i class="fas fa-bolt me-1 text-warning"></i> Impact
-                    </label>
-                    <select class="form-select" formControlName="impact">
-                      <option value="">Select impact...</option>
-                      <option>Low</option>
-                      <option>Medium</option>
-                      <option>High</option>
-                    </select>
-                  </div>
-
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label fw-bold">
-                      <i class="fas fa-flag me-1 text-info"></i> Status
-                    </label>
-                    <select class="form-select" formControlName="status">
-                      <option value="">Select status...</option>
-                      <option>Noted</option>
-                      <option>Confirmed</option>
-                    </select>
-                  </div>
+               <div class="status-card p-3 rounded-3 border">
+                  <h4 class="text-dark small mb-2">Current Status</h4>
+                  <span class="badge fs-7 py-2 px-3 w-100"
+                        [ngClass]="{
+                          'bg-secondary': selectedObservation.status === 'Draft',
+                          'bg-info text-white': selectedObservation.status === 'Reviewed',
+                          'bg-warning text-dark': selectedObservation.status === 'Presented',
+                          'bg-success text-white': selectedObservation.status === 'Resolved'
+                        }">
+                    <i class="fas fa-tasks me-1"></i>
+                    {{ selectedObservation.status }}
+                  </span>
                 </div>
-
-              </div>
-            </div>
-
-            <!-- Footer -->
-            <div class="modal-footer d-flex justify-content-between">
-              <button type="button" class="btn btn-light border" (click)="closeFindingModal()">
-                <i class="fas fa-times me-1"></i> Cancel
-              </button>
-              <button type="submit" class="btn btn-primary save-btn">
-                <i class="fas fa-save me-1"></i> Save Finding
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Observation Modal -->
-<div class="modal fade show" *ngIf="isAddEditModalVisible"
-     style="display:block; background:rgba(0,0,0,0.5)" (click)="closeModal()">
-  <div class="modal-dialog modal-lg" (click)="$event.stopPropagation()">
-    <div class="modal-content shadow-lg border-0 rounded-3">
-      
-      <!-- Header -->
-      <div class="modal-header bg-primary text-white">
-        <h2 class="modal-title mb-0">
-          <i class="fas fa-clipboard-list me-2"></i>
-          {{ isEditMode ? 'Edit Observation' : 'Add Observation' }}
-        </h2>
-        <button type="button" class="btn-close btn-close-white" (click)="closeModal()"></button>
-      </div>
-
-      <!-- Form -->
-      <form [formGroup]="observationForm" (ngSubmit)="saveObservation()">
-        <div class="modal-body">
-          <div class="card border-0 shadow-sm p-3">
-            
-            <!-- Description -->
-            <div class="mb-3">
-              <label class="form-label fw-bold">
-                <i class="fas fa-align-left me-1 text-secondary"></i> Description
-              </label>
-              <textarea class="form-control" rows="3"
-                        placeholder="Enter observation description..."
-                        formControlName="description"></textarea>
-            </div>
-
-            <!-- Row for Severity & Status -->
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label class="form-label fw-bold">
-                  <i class="fas fa-exclamation-triangle me-1 text-danger"></i> Severity
-                </label>
-                <select class="form-select" formControlName="severity">
-                  <option value="High">High</option>
-                  <option value="Medium">Medium</option>
-                  <option value="Low">Low</option>
-                </select>
-              </div>
-
-              <div class="col-md-6 mb-3">
-                <label class="form-label fw-bold">
-                  <i class="fas fa-flag me-1 text-info"></i> Status
-                </label>
-                <select class="form-select" formControlName="status">
-                  <option value="Open">Open</option>
-                  <option value="In Progress">In Progress</option>
-                  <option value="Closed">Closed</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- Recommendation -->
-            <div class="mb-3">
-              <label class="form-label fw-bold">
+     
+            <div class="detail-section mb-3 mt-1" *ngIf="selectedObservation.recommendation">
+              <h5 class="section-title text-uppercase text-muted small fw-bold mb-2">
                 <i class="fas fa-lightbulb me-1 text-warning"></i> Recommendation
-              </label>
-              <textarea class="form-control" rows="3"
-                        placeholder="Enter recommendation..."
-                        formControlName="recommendation"></textarea>
+              </h5>
+              <div class="recommendation-box bg-light rounded-2 p-3 border-start border-warning border-4">
+                <p class="mb-0 text-dark">{{ selectedObservation.recommendation }}</p>
+              </div>
             </div>
+            <div class="metadata-section pt-3 border-top">
+              <div class="row g-2 text-muted small">
+                <div class="col-12">
+                  <div class="d-flex align-items-center">
+                    <i class="fas fa-calendar-alt me-2 opacity-75"></i>
+                    <span>Created: {{ selectedObservation.createdAt | date:'mediumDate' }}</span>
+                  </div>
+                </div>
+                <div class="col-12" *ngIf="selectedObservation.updatedAt">
+                  <div class="d-flex align-items-center">
+                    <i class="fas fa-sync-alt me-2 opacity-75"></i>
+                    <span>Last Updated: {{ selectedObservation.updatedAt | date:'mediumDate' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
-
-        <!-- Footer -->
-        <div class="modal-footer d-flex justify-content-between">
-          <button type="button" class="btn btn-light border" (click)="closeModal()">
-            <i class="fas fa-times me-1"></i> Cancel
-          </button>
-          <button type="submit" class="btn btn-primary save-btn">
-            <i class="fas fa-save me-1"></i> 
-            {{ isEditMode ? 'Update Observation' : 'Save Observation' }}
-          </button>
-        </div>
-      </form>
+      </div>
     </div>
   </div>
 </div>

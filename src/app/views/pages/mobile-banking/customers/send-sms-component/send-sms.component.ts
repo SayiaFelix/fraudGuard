@@ -1,7 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import Swal from "sweetalert2";
 import { ActivatedRoute } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { GlobalService } from 'src/app/shared/services/global.service';
@@ -14,134 +12,57 @@ import { GlobalService } from 'src/app/shared/services/global.service';
 export class SendSmsComponent implements OnInit {
   auditId!: string | null;
   auditTitle = '';
-  observations: any[] = [];
+  observations: any[] = []; // This will now store preClosing findings
   filteredObservations: any[] = [];
   isLoading = false;
+  currentWorkflow: any = null;
 
   // Filters
   searchTerm = '';
   severityFilter = '';
   statusFilter = '';
 
-  // Observation Modal
-  isAddEditModalVisible = false;
-  isEditMode = false;
+  // View Only - No modals needed
   selectedObservation: any = null;
-  observationForm: FormGroup;
+  isDetailsPanelVisible = false;
 
-  // Finding Modal
-  isFindingModalVisible = false;
-  isFindingEditMode = false;
-  findingForm: FormGroup;
-  targetObservation: any = null;
-  selectedFinding: any = null;
-
-  private apiUrl = 'http://localhost:3000/observations';
-  private auditsUrl = 'http://localhost:3000/audits';
   private workflowsUrl = 'http://localhost:3000/workflows';
 
   constructor(
     private route: ActivatedRoute,
     private http: HttpClient,
-    private fb: FormBuilder,
     private toastr: ToastrService,
     private globalService: GlobalService
-  ) {
-    this.observationForm = this.fb.group({
-      description: ['', Validators.required],
-      severity: ['Medium', Validators.required],
-      status: ['Open', Validators.required],
-      recommendation: ['', Validators.required]
-    });
-
-    this.findingForm = this.fb.group({
-      description: ['', Validators.required],
-      impact: ['Low', Validators.required],
-      status: ['Noted', Validators.required]
-    });
-  }
+  ) {}
 
   ngOnInit(): void {
     this.auditId = this.route.snapshot.paramMap.get('auditId')!;
-    this.loadAuditTitle();
-    this.loadObservations();
+    this.loadWorkflowData();
   }
 
-isDetailsPanelVisible = false;
-
-showObservationDetails(obs: any): void {
-  if (this.selectedObservation && this.selectedObservation.id === obs.id) {
-    // clicked the same row again → close
-    this.hideDetails();
-    return;
-  }
-
-  this.selectedObservation = { ...obs };
-  this.isDetailsPanelVisible = true;
-
-  // optional: if you want to refresh details from server
-  this.http.get<any>(`${this.apiUrl}/${obs.id}`).subscribe({
-    next: res => this.selectedObservation = res,
-    error: err => console.warn('Could not fetch observation details', err)
-  });
-}
-
-hideDetails(): void {
-  this.isDetailsPanelVisible = false;
-  this.selectedObservation = null;
-}
-
-  // ---------------- Audit + Observation ----------------
-  loadAuditTitle(): void {
-    this.http.get<any>(`${this.auditsUrl}/${this.auditId}`).subscribe({
-      next: (audit) => {
-        this.auditTitle = audit?.title || 'Unknown Audit';
-      }
-    });
-  }
-
-  loadObservations(): void {
+  // ---------------- Load Workflow Data ----------------
+  loadWorkflowData(): void {
     this.isLoading = true;
-    this.http.get<any[]>(`${this.apiUrl}?auditId=${this.auditId}`).subscribe({
-      next: (data) => {
-        this.observations = data;
-
+    this.http.get<any>(`${this.workflowsUrl}/${this.auditId}`).subscribe({
+      next: (workflow) => {
+        this.currentWorkflow = workflow;
+        this.auditTitle = workflow?.title || 'Unknown Audit';
+        
+        // Convert preClosing findings to observations format
+        this.observations = this.transformPreClosingToObservations(workflow?.fieldwork?.preClosing || []);
+        
         this.applyFilters();
         this.isLoading = false;
+        
+        // Notify parent component to update risk stats
+        this.globalService.notifyObservationsChanged();
       },
-      error: () => {
-        this.toastr.error('Failed to load observations');
+      error: (error) => {
+        console.error('Error loading workflow:', error);
+        this.toastr.error('Failed to load audit data');
         this.isLoading = false;
       }
     });
-  }
-
-  applyFilters(): void {
-    let obsList = [...this.observations];
-    const search = this.searchTerm.trim().toLowerCase();
-
-    if (search) {
-      obsList = obsList.filter(obs =>
-        obs.description.toLowerCase().includes(search) ||
-        obs.severity.toLowerCase().includes(search) ||
-        obs.status.toLowerCase().includes(search) ||
-        obs.recommendation.toLowerCase().includes(search)
-      );
-    }
-
-    if (this.severityFilter) {
-      obsList = obsList.filter(obs =>
-        obs.severity.toLowerCase() === this.severityFilter.toLowerCase()
-      );
-    }
-
-    if (this.statusFilter) {
-      obsList = obsList.filter(obs =>
-        obs.status.toLowerCase() === this.statusFilter.toLowerCase()
-      );
-    }
-
-    this.filteredObservations = obsList;
   }
 
   resetFilters(): void {
@@ -151,394 +72,59 @@ hideDetails(): void {
     this.applyFilters();
   }
 
-  openAddObservationModal(): void {
-    this.isEditMode = false;
-    this.observationForm.reset({ severity: 'Medium', status: 'Open' });
-    this.isAddEditModalVisible = true;
-    this.selectedObservation = null;
-  }
-
-  openEditObservationModal(obs: any): void {
-  this.isEditMode = true;
-  this.observationForm.patchValue(obs);
-  this.isAddEditModalVisible = true;
-  this.selectedObservation = obs;
+private transformPreClosingToObservations(preClosingFindings: any[]): any[] {
+  return preClosingFindings.map(finding => ({
+    id: finding.id,
+    description: finding.title,
+    details: finding.details,
+    severity: finding.severity,
+    status: finding.status,
+    recommendation: finding.recommendation,
+    createdAt: finding.createdAt || new Date().toISOString().slice(0, 10)
+  }));
 }
 
+applyFilters(): void {
+  let obsList = [...this.observations];
+  const search = this.searchTerm.trim().toLowerCase();
 
-toggleObservationDetails(obs: any): void {
-  if (this.selectedObservation?.id === obs.id) {
-    // If same row clicked again → close
-    this.selectedObservation = null;
-    this.isDetailsPanelVisible = false;
-  } else {
-    this.selectedObservation = obs;
-    this.isDetailsPanelVisible = true;
-  }
-}
-
-
-  closeModal(): void {
-    this.isAddEditModalVisible = false;
-  }
-
-  saveObservation(): void {
-  if (this.observationForm.invalid) {
-    this.observationForm.markAllAsTouched();
-    return;
-  }
-
-  const formData = {
-    ...this.observationForm.value,
-    auditId: this.auditId,
-    createdAt: this.isEditMode ? this.selectedObservation.createdAt : new Date().toISOString().slice(0, 10),
-    findings: this.selectedObservation?.findings || []
-  };
-
-  if (this.isEditMode && this.selectedObservation) {
-    this.http.put(`${this.apiUrl}/${this.selectedObservation.id}`, formData).subscribe(() => {
-      this.loadObservations();
-      this.closeModal();
-      this.globalService.notifyAuditsChanged();
-      this.globalService.notifyObservationsChanged(); 
-    });
-  } else {
-    this.http.post(this.apiUrl, formData).subscribe(() => {
-      this.loadObservations();
-      this.closeModal();
-      this.globalService.notifyAuditsChanged();
-      this.globalService.notifyObservationsChanged(); 
-    });
-  }
-}
-
-deleteObservation(id: string): void {
-  Swal.fire({
-    title: 'Are you sure?',
-    text: 'This observation will be deleted permanently!',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Yes, delete it!'
-  }).then(result => {
-    if (result.isConfirmed) {
-      this.http.delete(`${this.apiUrl}/${id}`).subscribe(() => {
-        Swal.fire('Deleted!', 'Observation deleted', 'success');
-        this.loadObservations();
-        this.globalService.notifyAuditsChanged();
-          this.globalService.notifyObservationsChanged(); 
-        this.selectedObservation = null;
-        this.isDetailsPanelVisible = false;
-      });
-    }
-  });
-}
-
-saveFinding(): void {
-  if (!this.targetObservation) return;
-
-  if (this.findingForm.invalid) {
-    this.findingForm.markAllAsTouched();
-    this.toastr.warning('Please fill all required fields');
-    return;
-  }
-
-  let updatedFindings: any[];
-
-  if (this.isFindingEditMode && this.selectedFinding) {
-    // Update existing finding
-    updatedFindings = (this.targetObservation.findings || []).map((f: any) =>
-      f.id === this.selectedFinding.id
-        ? { ...f, ...this.findingForm.value }
-        : f
+  if (search) {
+    obsList = obsList.filter(obs =>
+      obs.description.toLowerCase().includes(search) ||
+      obs.details.toLowerCase().includes(search) ||
+      obs.severity.toLowerCase().includes(search) ||
+      obs.status.toLowerCase().includes(search) ||
+      obs.recommendation.toLowerCase().includes(search)
     );
-  } else {
-    // Add new finding
-    const newFinding = {
-      ...this.findingForm.value,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString().split('T')[0]
-    };
-    updatedFindings = [...(this.targetObservation.findings || []), newFinding];
   }
 
-  // 🔹 Recalculate Observation status based on findings
-  const newStatus = this.calculateObservationStatus(updatedFindings);
+  if (this.severityFilter) {
+    obsList = obsList.filter(obs =>
+      obs.severity.toLowerCase() === this.severityFilter.toLowerCase()
+    );
+  }
 
-  const updatedObs = {
-    ...this.targetObservation,
-    findings: updatedFindings,
-    status: newStatus
-  };
+  if (this.statusFilter) {
+    obsList = obsList.filter(obs =>
+      obs.status.toLowerCase() === this.statusFilter.toLowerCase()
+    );
+  }
 
-  this.http.put(`${this.apiUrl}/${this.targetObservation.id}`, updatedObs).subscribe({
-    next: () => {
-      if (this.isFindingEditMode) {
-        this.updateFindingInWorkflow(this.selectedFinding.id, this.findingForm.value, this.targetObservation.auditId);
-      } else {
-        this.syncFindingToWorkflow(updatedFindings[updatedFindings.length - 1], this.targetObservation.auditId);
-      }
-
-      this.loadObservations();
-
-      // Refresh selectedObservation details
-      this.http.get<any>(`${this.apiUrl}/${this.targetObservation.id}`).subscribe(res => {
-        this.selectedObservation = res;
-      });
-
-      this.toastr.success('Finding saved successfully');
-      this.closeFindingModal();
-    },
-    error: () => {
-      this.toastr.error('Failed to save finding');
-    }
-  });
+  this.filteredObservations = obsList;
 }
 
-private calculateObservationStatus(findings: any[]): string {
-  if (!findings || findings.length === 0) return 'Open';
-
-  const hasNoted = findings.some(f => f.status === 'Noted');
-  const allConfirmed = findings.every(f => f.status === 'Confirmed');
-
-  if (allConfirmed) return 'Closed';
-  if (hasNoted) return 'In Progress';
-  return 'Open';
-}
-
-toggleFindingStatus(obs: any, finding: any): void {
-  const updatedFindings = (obs.findings || []).map((f: any) =>
-    f.id === finding.id
-      ? { ...f, status: f.status === 'Noted' ? 'Confirmed' : 'Noted' }
-      : f
-  );
-
-  const newStatus = this.calculateObservationStatus(updatedFindings);
-
-  const updatedObs = {
-    ...obs,
-    findings: updatedFindings,
-    status: newStatus
-  };
-
-  this.http.put(`${this.apiUrl}/${obs.id}`, updatedObs).subscribe({
-    next: () => {
-      // also sync to workflow
-      this.updateFindingInWorkflow(finding.id, 
-        { status: finding.status === 'Noted' ? 'Confirmed' : 'Noted' }, 
-        obs.auditId
-      );
-
-      this.loadObservations();
-      this.http.get<any>(`${this.apiUrl}/${obs.id}`).subscribe(res => {
-        this.selectedObservation = res;
-      });
-
-      this.toastr.success('Finding status updated');
-    },
-    error: () => this.toastr.error('Failed to update finding status')
-  });
-}
-
-
-deleteFinding(obs: any, findingId: string): void {
-  Swal.fire({
-    title: 'Are you sure?',
-    text: 'This finding will be deleted permanently!',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Yes, delete it!',
-    cancelButtonText: 'Cancel'
-  }).then(result => {
-    if (result.isConfirmed) {
-      const updatedFindings = (obs.findings || []).filter((f: any) => f.id !== findingId);
-      const newStatus = this.calculateObservationStatus(updatedFindings);
-
-      const updatedObs = {
-        ...obs,
-        findings: updatedFindings,
-        status: newStatus
-      };
-
-      this.http.put(`${this.apiUrl}/${obs.id}`, updatedObs).subscribe({
-        next: () => {
-          this.removeFindingFromWorkflow(findingId, obs.auditId);
-          this.loadObservations();
-
-          this.http.get<any>(`${this.apiUrl}/${obs.id}`).subscribe(res => {
-            this.selectedObservation = res;
-          });
-
-          Swal.fire('Deleted!', 'Finding deleted successfully', 'success');
-        },
-        error: () => Swal.fire('Error', 'Failed to delete finding', 'error')
-      });
-    }
-  });
-}
-
-
-// saveFinding(): void {
-//   if (!this.targetObservation) return;
-
-//   if (this.findingForm.invalid) {
-//     this.findingForm.markAllAsTouched();
-//     this.toastr.warning('Please fill all required fields');
-//     return;
-//   }
-
-//   let updatedFindings: any[];
-
-//   if (this.isFindingEditMode && this.selectedFinding) {
-//     // Update existing finding
-//     updatedFindings = (this.targetObservation.findings || []).map((f: any) =>
-//       f.id === this.selectedFinding.id
-//         ? { ...f, ...this.findingForm.value }
-//         : f
-//     );
-//   } else {
-//     // Add new finding
-//     const newFinding = {
-//       ...this.findingForm.value,
-//       id: Date.now().toString(), // unique id
-//       createdAt: new Date().toISOString().split('T')[0]
-//     };
-//     updatedFindings = [...(this.targetObservation.findings || []), newFinding];
-//   }
-
-//   const updatedObs = {
-//     ...this.targetObservation,
-//     findings: updatedFindings
-//   };
-
-//   this.http.put(`${this.apiUrl}/${this.targetObservation.id}`, updatedObs).subscribe({
-//     next: () => {
-//       if (this.isFindingEditMode) {
-//         this.updateFindingInWorkflow(this.selectedFinding.id, this.findingForm.value, this.targetObservation.auditId);
-//       } else {
-//         this.syncFindingToWorkflow(updatedFindings[updatedFindings.length - 1], this.targetObservation.auditId);
-//       }
-
-//       // Refresh observations list
-//       this.loadObservations();
-
-//       // Refresh the selectedObservation details immediately
-//       this.http.get<any>(`${this.apiUrl}/${this.targetObservation.id}`).subscribe({
-//         next: obs => {
-//           this.selectedObservation = obs;
-//         }
-//       });
-
-//       this.toastr.success('Finding saved successfully');
-//       this.closeFindingModal();
-//     },
-//     error: () => {
-//       this.toastr.error('Failed to save finding');
-//     }
-//   });
-// }
-
-  openFindingModal(obs: any, finding: any = null): void {
-    this.targetObservation = obs;
-    this.isFindingEditMode = !!finding;
-    this.selectedFinding = finding;
-
-    if (finding) {
-      this.findingForm.patchValue(finding);
+  toggleObservationDetails(obs: any): void {
+    if (this.selectedObservation?.id === obs.id) {
+      this.selectedObservation = null;
+      this.isDetailsPanelVisible = false;
     } else {
-      this.findingForm.reset({ severity: 'Low', status: 'Noted' });
+      this.selectedObservation = obs;
+      this.isDetailsPanelVisible = true;
     }
-
-    this.isFindingModalVisible = true;
   }
 
-  closeFindingModal(): void {
-    this.isFindingModalVisible = false;
-    this.targetObservation = null;
-    this.selectedFinding = null;
-  }
-
-
-//   deleteFinding(obs: any, findingId: string): void {
-//   Swal.fire({
-//     title: 'Are you sure?',
-//     text: 'This finding will be deleted permanently!',
-//     icon: 'warning',
-//     showCancelButton: true,
-//     confirmButtonText: 'Yes, delete it!',
-//     cancelButtonText: 'Cancel'
-//   }).then(result => {
-//     if (result.isConfirmed) {
-//       const updatedObs = {
-//         ...obs,
-//         findings: (obs.findings || []).filter((f: any) => f.id !== findingId)
-//       };
-
-//       this.http.put(`${this.apiUrl}/${obs.id}`, updatedObs).subscribe({
-//         next: () => {
-//           this.removeFindingFromWorkflow(findingId, obs.auditId);
-
-//           // Refresh observations list
-//           this.loadObservations();
-
-//           // Refresh the selectedObservation details
-//           this.http.get<any>(`${this.apiUrl}/${obs.id}`).subscribe({
-//             next: freshObs => {
-//               this.selectedObservation = freshObs;
-//             }
-//           });
-
-//           Swal.fire('Deleted!', 'Finding deleted successfully', 'success');
-//         },
-//         error: () => {
-//           Swal.fire('Error', 'Failed to delete finding', 'error');
-//         }
-//       });
-//     }
-//   });
-// }
-
-
-  private syncFindingToWorkflow(finding: any, auditId: string): void {
-    this.http.get<any[]>(`${this.workflowsUrl}?auditId=${auditId}`).subscribe({
-      next: (workflows) => {
-        workflows.forEach(wf => {
-          const updatedWf = {
-            ...wf,
-            miniFindings: [...(wf.miniFindings || []), finding]
-          };
-          this.http.put(`${this.workflowsUrl}/${wf.id}`, updatedWf).subscribe();
-        });
-      }
-    });
-  }
-
-  private updateFindingInWorkflow(findingId: string, updatedData: any, auditId: string): void {
-    this.http.get<any[]>(`${this.workflowsUrl}?auditId=${auditId}`).subscribe({
-      next: (workflows) => {
-        workflows.forEach(wf => {
-          const updatedWf = {
-            ...wf,
-            miniFindings: (wf.miniFindings || []).map((f: any) =>
-              f.id === findingId ? { ...f, ...updatedData } : f
-            )
-          };
-          this.http.put(`${this.workflowsUrl}/${wf.id}`, updatedWf).subscribe();
-        });
-      }
-    });
-  }
-
-  private removeFindingFromWorkflow(findingId: string, auditId: string): void {
-    this.http.get<any[]>(`${this.workflowsUrl}?auditId=${auditId}`).subscribe({
-      next: (workflows) => {
-        workflows.forEach(wf => {
-          const updatedWf = {
-            ...wf,
-            miniFindings: (wf.miniFindings || []).filter((f: any) => f.id !== findingId)
-          };
-          this.http.put(`${this.workflowsUrl}/${wf.id}`, updatedWf).subscribe();
-        });
-      }
-    });
+  hideDetails(): void {
+    this.isDetailsPanelVisible = false;
+    this.selectedObservation = null;
   }
 }
