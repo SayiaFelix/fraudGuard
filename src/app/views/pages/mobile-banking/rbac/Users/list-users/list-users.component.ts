@@ -12,7 +12,6 @@ export interface Task {
   status: string;
   dueDate?: string; 
 }
-
 export interface Workflow {
   id?: string;
   auditId: string;
@@ -25,12 +24,12 @@ export interface Workflow {
   dueDate: string;
   tasks: any[];
   miniFindings?: any[];
-  // Add fieldwork data to workflow
   fieldwork?: {
     evidence: any[];
     meetings: any[];
     weeklyUpdates: any[];
     preClosing: any[];
+    documents: any[];
   };
 }
 export interface MiniFinding {
@@ -63,7 +62,6 @@ export class ListUsersComponent implements OnInit {
   recordsToShow = 5;
   isLoading = false;
 
-  // Add these properties to your component class
 showTaskForm = false;
 showEvidenceForm = false;
 showMeetingForm = false;
@@ -74,15 +72,12 @@ editingFieldworkTask: number | null = null;
 editingEvidence: number | null = null;
 editingMeeting: number | null = null;
 editingFinding: number | null = null;
-
-// Form groups for fieldwork
 fieldworkTaskForm: FormGroup;
 evidenceForm: FormGroup;
 meetingForm: FormGroup;
 weeklyForm: FormGroup;
 findingForm: FormGroup;
 
-  // Filters
   searchTerm = '';
   departmentFilter = '';
   statusFilter = '';
@@ -107,7 +102,7 @@ fieldwork: {
   preClosing: [],
   documents: []
 };
-
+editingWeekly: number | null = null;
 fieldworkTab: string = 'tasks';
 selectedEvidenceFiles: File[] = [];
 showDocumentForm = false;
@@ -120,6 +115,7 @@ documentCategoryFilter = '';
 filteredDocuments: any[] = [];
   allAudits: any[];
   selectedAudit: any;
+showMiniFindingForm = false;
 
   constructor(
     private http: HttpClient,
@@ -164,20 +160,22 @@ this.evidenceForm = this.fb.group({
   details: [''],
   status: ['Requested'],
   requestedFrom: [''],
-  dueDate: [''],
-  uploadedFiles: [[]] 
+  dueDate: ['']
 });
 
-  this.meetingForm = this.fb.group({
-    person: ['', Validators.required],
-    purpose: [''],
-    notes: [''],
-    date: [''],
-    attendees: [''],
-    followUpRequired: ['no']
-  });
+this.meetingForm = this.fb.group({
+  person: ['', Validators.required],
+  purpose: [''],
+  notes: [''],
+  date: ['', Validators.required],
+  startTime: [''],
+  endTime: [''],
+  attendees: [''],
+  followUpRequired: ['no'],
+  location: ['']
+}, { validators: this.timeOrderValidator });
 
-  this.weeklyForm = this.fb.group({
+this.weeklyForm = this.fb.group({
     week: ['', Validators.required],
     startDate: [''],
     endDate: [''],
@@ -200,8 +198,7 @@ this.evidenceForm = this.fb.group({
   category: ['Fieldwork'],
   confidentiality: ['Internal Use']
 });
-
-  }
+}
 
 ngOnInit(): void {
       this.loadWorkflows();
@@ -210,56 +207,265 @@ ngOnInit(): void {
     
   }
 
-// Document Methods
+selectFieldworkTab(tab: string): void {
+  this.fieldworkTab = tab;
+  this.cancelFieldworkTask();
+  this.cancelEvidence();
+  this.cancelMeeting();
+  this.cancelWeekly();
+  this.cancelFinding();
+  this.cancelDocument();
+  this.cancelMiniFindingForm(); 
+}
+
+cancelMiniFindingForm(): void {
+  this.showMiniFindingForm = false;
+  this.miniFindingForm.reset({
+    severity: 'Low',
+    status: 'Noted'
+  });
+}
+
+addMiniFinding(): void {
+  if (!this.selectedWorkflow) return;
+  if (this.miniFindingForm.invalid) {
+    this.miniFindingForm.markAllAsTouched();
+    return;
+  }
+  
+  const finding: any = {
+    ...this.miniFindingForm.value,
+    id: Date.now().toString(),
+    createdAt: new Date().toISOString().split('T')[0]
+  };
+
+  const updated = {
+    ...this.selectedWorkflow,
+    miniFindings: [...(this.selectedWorkflow.miniFindings || []), finding]
+  };
+
+  this.globalService.update(updated.id!, updated).subscribe({
+    next: wf => {
+      this.selectedWorkflow = wf;
+      this.cancelMiniFindingForm();
+      Swal.fire('Success', 'Mini finding added successfully!', 'success');
+    },
+    error: err => console.error('Failed to add mini finding', err)
+  });
+}
+
+deleteMiniFinding(id: string): void {
+  if (!this.selectedWorkflow) return;
+  const updated = {
+    ...this.selectedWorkflow,
+    miniFindings: (this.selectedWorkflow.miniFindings || []).filter(mf => mf.id !== id)
+  };
+
+  this.globalService.update(updated.id!, updated).subscribe({
+    next: wf => {
+      this.selectedWorkflow = wf;
+      this.loadWorkflows();
+      Swal.fire('Deleted', 'Mini finding deleted successfully', 'success');
+    },
+    error: err => console.error('Failed to delete mini finding', err)
+  });
+}
+
+private timeOrderValidator(group: FormGroup): { [key: string]: any } | null {
+  const startTime = group.get('startTime')?.value;
+  const endTime = group.get('endTime')?.value;
+  
+  if (startTime && endTime && startTime >= endTime) {
+    return { 'timeOrder': true };
+  }
+  return null;
+}
+
+saveMeeting(): void {
+  if (this.meetingForm.invalid) {
+    this.meetingForm.markAllAsTouched();
+    if (this.meetingForm.errors?.['timeOrder']) {
+      Swal.fire('Time Error', 'End time must be after start time', 'warning');
+    }
+    return;
+  }
+
+  const meetingData = this.meetingForm.value;
+
+  if (this.editingMeeting !== null) {
+    this.fieldwork.meetings[this.editingMeeting] = {
+      ...this.fieldwork.meetings[this.editingMeeting],
+      ...meetingData
+    };
+  } else {
+    this.fieldwork.meetings.push({
+      id: 'mt' + Date.now(),
+      ...meetingData
+    });
+  }
+
+  this.cancelMeeting();
+  this.saveFieldworkToBackend();
+  Swal.fire('Success', 'Meeting saved!', 'success');
+}
+
+cancelMeeting(): void {
+  this.editingMeeting = null;
+  this.showMeetingForm = false;
+  this.meetingForm.reset({
+    followUpRequired: 'no'
+  });
+}
+
+getMiniFindingsClass(): string {
+  const count = this.getMiniFindingsCount();
+  const baseClass = 'accordion-button';
+  return count > 0 ? `${baseClass} has-items` : `${baseClass} no-items`;
+}
+
+getMiniFindingsCount(): number {
+  return this.selectedWorkflow?.miniFindings?.length || 0;
+}
+validateMeetingTimes(): void {
+  const startTime = this.meetingForm.get('startTime')?.value;
+  const endTime = this.meetingForm.get('endTime')?.value;
+  
+  if (startTime && endTime && startTime >= endTime) {
+    this.meetingForm.get('endTime')?.setErrors({ 'timeOrder': true });
+  } else {
+    this.meetingForm.get('endTime')?.setErrors(null);
+  }
+}
+
+saveEvidence(): void {
+  if (this.evidenceForm.invalid || !this.validateFormBeforeSubmit(this.evidenceForm, 'evidence')) {
+    this.evidenceForm.markAllAsTouched();
+    return;
+  }
+
+  const evidenceData = this.evidenceForm.value;
+
+  if (this.editingEvidence !== null) {
+    this.fieldwork.evidence[this.editingEvidence] = {
+      ...this.fieldwork.evidence[this.editingEvidence],
+      ...evidenceData
+    };
+  } else {
+    this.fieldwork.evidence.push({
+      id: 'ev' + Date.now(),
+      ...evidenceData
+    });
+  }
+
+  this.cancelEvidence();
+  this.saveFieldworkToBackend();
+  Swal.fire('Success', 'Evidence request saved!', 'success');
+}
+
+editWeekly(index: number): void {
+  this.editingWeekly = index;
+  const weeklyUpdate = this.fieldwork.weeklyUpdates[index];
+  this.weeklyForm.patchValue(weeklyUpdate);
+  this.showWeeklyForm = true;
+}
+
+cancelEvidence(): void {
+  this.editingEvidence = null;
+  this.showEvidenceForm = false;
+  this.evidenceForm.reset({
+    status: 'Requested'
+  });
+}
+
+removeEvidence(index: number): void {
+  Swal.fire({
+    title: 'Delete evidence request?',
+    text: 'This action cannot be undone.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete it!'
+  }).then(result => {
+    if (result.isConfirmed) {
+      this.fieldwork.evidence.splice(index, 1);
+      this.saveFieldworkToBackend();
+      Swal.fire('Deleted', 'Evidence request deleted', 'success');
+    }
+  });
+}
+
+showWorkflowDetails(w: Workflow): void {
+  if (this.selectedWorkflow && this.selectedWorkflow.id === w.id) {
+    console.log('content', this.selectedWorkflow);
+    this.hideDetails();
+    return;
+  }
+  
+  this.selectedWorkflow = { 
+    ...w,
+    fieldwork: w.fieldwork || {
+      evidence: [],
+      meetings: [],
+      weeklyUpdates: [],
+      preClosing: [],
+      documents: []
+    }
+  };
+  
+  this.loadFieldworkData();
+  
+  this.isDetailsPanelVisible = true;
+  console.log('Clicked workflow with fieldwork:', this.selectedWorkflow);
+  this.cachePlanningTasks();
+  
+  if (w.id) {
+    this.globalService.get(w.id).subscribe({
+      next: wf => {
+        this.selectedWorkflow = {
+          ...wf,
+          fieldwork: wf.fieldwork || {
+            evidence: [],
+            meetings: [],
+            weeklyUpdates: [],
+            preClosing: [],
+            documents: []
+          }
+        };
+        this.loadFieldworkData();
+        this.cachePlanningTasks();
+      },
+      error: err => console.warn('Could not fetch workflow details', err)
+    });
+  }
+}
+
+private loadFieldworkData(): void {
+  if (this.selectedWorkflow?.fieldwork) {
+    this.fieldwork = {
+      tasks: [],
+      evidence: this.selectedWorkflow.fieldwork.evidence || [],
+      meetings: this.selectedWorkflow.fieldwork.meetings || [],
+      weeklyUpdates: this.selectedWorkflow.fieldwork.weeklyUpdates || [],
+      preClosing: this.selectedWorkflow.fieldwork.preClosing || [],
+      documents: this.selectedWorkflow.fieldwork.documents || []
+    };
+    this.filterDocuments(); 
+  }
+}
+
 onDocumentFileSelected(event: any): void {
   const file: File = event.target.files[0];
   if (file) {
-    // Check file size (25MB limit)
     if (file.size > 25 * 1024 * 1024) {
       Swal.fire('File too large', `${file.name} exceeds 25MB limit`, 'warning');
       return;
     }
     this.selectedDocumentFile = file;
-    event.target.value = ''; // Reset file input
+    event.target.value = ''; 
   }
 }
 
 removeDocumentFile(): void {
   this.selectedDocumentFile = null;
-}
-
-async saveDocument(): Promise<void> {
-  if (this.documentForm.invalid || !this.selectedDocumentFile) {
-    this.documentForm.markAllAsTouched();
-    return;
-  }
-
-  try {
-    // Upload the document file
-    const uploadedFile = await this.uploadDocumentFile(this.selectedDocumentFile);
-    
-    const documentData = {
-      ...this.documentForm.value,
-      file: uploadedFile,
-      uploadedAt: new Date().toISOString(),
-      id: 'doc' + Date.now()
-    };
-
-    if (this.editingDocument !== null) {
-      this.fieldwork.documents[this.editingDocument] = documentData;
-    } else {
-      this.fieldwork.documents.push(documentData);
-    }
-
-    this.selectedDocumentFile = null;
-    this.cancelDocument();
-    this.filterDocuments(); // Update filtered list
-    Swal.fire('Success', 'Document uploaded successfully!', 'success');
-
-  } catch (error) {
-    console.error('Error uploading document:', error);
-    Swal.fire('Error', 'Failed to upload document', 'error');
-  }
 }
 
 editDocument(index: number): void {
@@ -287,23 +493,6 @@ cancelDocument(): void {
   });
 }
 
-deleteDocument(index: number): void {
-  Swal.fire({
-    title: 'Delete document?',
-    text: 'This action cannot be undone.',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Yes, delete it!'
-  }).then(result => {
-    if (result.isConfirmed) {
-      this.fieldwork.documents.splice(index, 1);
-      this.filterDocuments(); // Update filtered list
-      Swal.fire('Deleted', 'Document deleted successfully', 'success');
-    }
-  });
-}
-
-// Document filtering
 filterDocuments(): void {
   let filtered = this.fieldwork.documents || [];
   
@@ -327,7 +516,6 @@ filterDocuments(): void {
   this.filteredDocuments = filtered;
 }
 
-// File upload method for documents
 private uploadDocumentFile(file: File): Promise<any> {
   return new Promise((resolve) => {
     setTimeout(() => {
@@ -343,16 +531,46 @@ private uploadDocumentFile(file: File): Promise<any> {
   });
 }
 
-selectFieldworkTab(tab: string): void {
-  this.fieldworkTab = tab;
-  this.cancelFieldworkTask();
-  this.cancelEvidence();
-  this.cancelMeeting();
-  this.cancelWeekly();
-  this.cancelFinding();
-  this.cancelDocument(); 
+private saveFieldworkToBackend(): void {
+  if (!this.selectedWorkflow?.id) return;
+
+  const updatedWorkflow: Workflow = {
+    ...this.selectedWorkflow,
+    fieldwork: {
+      evidence: this.fieldwork.evidence,
+      meetings: this.fieldwork.meetings,
+      weeklyUpdates: this.fieldwork.weeklyUpdates,
+      preClosing: this.fieldwork.preClosing,
+      documents: this.fieldwork.documents
+    }
+  };
+
+  this.globalService.update(updatedWorkflow.id!, updatedWorkflow).subscribe({
+    next: (savedWorkflow) => {
+      this.selectedWorkflow = savedWorkflow;
+    },
+    error: (err) => {
+      console.error('Failed to save fieldwork data:', err);
+      Swal.fire('Error', 'Failed to save data', 'error');
+    }
+  });
 }
 
+openFieldworkModal() {
+  if (this.selectedWorkflow?.fieldwork) {
+    this.fieldwork = {
+      tasks: [],
+      evidence: this.selectedWorkflow.fieldwork.evidence || [],
+      meetings: this.selectedWorkflow.fieldwork.meetings || [],
+      weeklyUpdates: this.selectedWorkflow.fieldwork.weeklyUpdates || [],
+      preClosing: this.selectedWorkflow.fieldwork.preClosing || [],
+      documents: this.selectedWorkflow.fieldwork.documents || []
+    };
+    this.filterDocuments();
+  }
+  
+  this.isFieldworkModalVisible = true;
+}
 onEvidenceFileSelected(event: any): void {
   const files: FileList = event.target.files;
   if (files.length > 0) {
@@ -367,7 +585,7 @@ onEvidenceFileSelected(event: any): void {
       
       this.selectedEvidenceFiles.push(file);
     }
-    event.target.value = ''; // Reset file input
+    event.target.value = ''; 
   }
 }
 
@@ -389,57 +607,8 @@ formatFileSize(bytes: number): string {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
-async saveEvidence(): Promise<void> {
-  if (this.evidenceForm.invalid) {
-    this.evidenceForm.markAllAsTouched();
-    return;
-  }
-
-  try {
-    // Upload files if any selected
-    const uploadedFiles: any[] = [];
-    
-    if (this.selectedEvidenceFiles.length > 0) {
-      for (const file of this.selectedEvidenceFiles) {
-        const uploadedFile = await this.uploadFile(file);
-        if (uploadedFile) {
-          uploadedFiles.push(uploadedFile);
-        }
-      }
-    }
-
-    const evidenceData = {
-      ...this.evidenceForm.value,
-      uploadedFiles: [...(this.evidenceForm.value.uploadedFiles || []), ...uploadedFiles]
-    };
-
-    // Rest of your existing save logic...
-    if (this.editingEvidence !== null) {
-      this.fieldwork.evidence[this.editingEvidence] = {
-        ...this.fieldwork.evidence[this.editingEvidence],
-        ...evidenceData
-      };
-    } else {
-      this.fieldwork.evidence.push({
-        id: 'ev' + Date.now(),
-        ...evidenceData
-      });
-    }
-
-    this.selectedEvidenceFiles = []; // Clear selected files
-    this.cancelEvidence();
-    Swal.fire('Success', 'Evidence request saved!', 'success');
-
-  } catch (error) {
-    console.error('Error saving evidence:', error);
-    Swal.fire('Error', 'Failed to save evidence request', 'error');
-  }
-}
-
-// File upload method (you'll need to implement based on your backend)
 private uploadFile(file: File): Promise<any> {
   return new Promise((resolve, reject) => {
-    // Simulate file upload - replace with your actual file upload service
     setTimeout(() => {
       const mockUploadedFile = {
         name: file.name,
@@ -451,23 +620,92 @@ private uploadFile(file: File): Promise<any> {
       resolve(mockUploadedFile);
     }, 1000);
   });
-  
-  /* 
-  // Real implementation would look something like:
-  const formData = new FormData();
-  formData.append('file', file);
-  
-  return this.http.post('/api/upload', formData).toPromise();
-  */
+
 }
 
-cancelEvidence(): void {
-  this.editingEvidence = null;
-  this.showEvidenceForm = false;
-  this.selectedEvidenceFiles = [];
-  this.evidenceForm.reset({
-    status: 'Requested',
-    uploadedFiles: []
+validateDueDate(formType: 'task' | 'evidence'): void {
+  let form: FormGroup;
+  
+  if (formType === 'task') {
+    form = this.fieldworkTaskForm;
+  } else {
+    form = this.evidenceForm;
+  }
+  
+  const dueDate = form.get('dueDate')?.value;
+  
+  if (dueDate && new Date(dueDate) < new Date(this.today)) {
+    form.get('dueDate')?.setErrors({ 'min': true });
+  } else {
+    form.get('dueDate')?.setErrors(null);
+  }
+}
+
+validateDateRange(formType: 'weekly' | 'workflow'): void {
+  let form: FormGroup;
+  
+  if (formType === 'weekly') {
+    form = this.weeklyForm;
+  } else {
+    form = this.workflowForm;
+  }
+  
+  const startDate = form.get('startDate')?.value;
+  const endDate = form.get('endDate')?.value || form.get('dueDate')?.value;
+  
+  // Validate start date
+  if (startDate && new Date(startDate) < new Date(this.today)) {
+    form.get('startDate')?.setErrors({ 'min': true });
+  } else {
+    form.get('startDate')?.setErrors(null);
+  }
+  
+  // Validate end date
+  if (endDate && startDate && new Date(endDate) < new Date(startDate)) {
+    form.get(formType === 'weekly' ? 'endDate' : 'dueDate')?.setErrors({ 'min': true });
+  } else {
+    form.get(formType === 'weekly' ? 'endDate' : 'dueDate')?.setErrors(null);
+  }
+}
+
+validateFormBeforeSubmit(form: FormGroup, formType: string): boolean {
+  let isValid = true;
+  
+  const dateFields = [];
+  
+  if (formType === 'workflow') {
+    dateFields.push('startDate', 'dueDate');
+  } else if (formType === 'weekly') {
+    dateFields.push('startDate', 'endDate');
+  } else if (formType === 'task' || formType === 'evidence') {
+    dateFields.push('dueDate');
+  }
+  
+  dateFields.forEach(field => {
+    const control = form.get(field);
+    if (control?.errors?.['min']) {
+      isValid = false;
+      control.markAsTouched();
+    }
+  });
+  
+  return isValid;
+}
+
+deleteMeeting(index: number): void {
+  Swal.fire({
+    title: 'Delete meeting?',
+    text: 'This action cannot be undone.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete it!'
+  }).then(result => {
+    if (result.isConfirmed) {
+      this.fieldwork.meetings.splice(index, 1);
+      // Save to backend immediately
+      this.saveFieldworkToBackend();
+      Swal.fire('Deleted', 'Meeting deleted', 'success');
+    }
   });
 }
 
@@ -476,7 +714,6 @@ loadAudits(): void {
       this.http.get<any[]>(this.apiUrl).subscribe({
         next: (audits) => {
           this.allAudits = audits;
-          // console.log('Loaded audits:', audits);
           this.applyFiltersAndPagination();
           this.isLoading = false;
         },
@@ -486,7 +723,6 @@ loadAudits(): void {
         }
       });
     }
-
 
 selectAudit(audit: any) {
   this.selectedAudit = audit;
@@ -503,122 +739,10 @@ cancelFieldworkTask(): void {
   });
 }
 
-editEvidence(index: number): void {
-  this.editingEvidence = index;
-  this.evidenceForm.patchValue(this.fieldwork.evidence[index]);
-  this.showEvidenceForm = true;
-}
-
-removeEvidence(index: number): void {
-  Swal.fire({
-    title: 'Delete evidence request?',
-    text: 'This action cannot be undone.',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Yes, delete it!'
-  }).then(result => {
-    if (result.isConfirmed) {
-      this.fieldwork.evidence.splice(index, 1);
-      Swal.fire('Deleted', 'Evidence request deleted', 'success');
-    }
-  });
-}
-
-// Meeting Methods
-saveMeeting(): void {
-  if (this.meetingForm.invalid) {
-    this.meetingForm.markAllAsTouched();
-    return;
-  }
-
-  const meetingData = this.meetingForm.value;
-
-  if (this.editingMeeting !== null) {
-    this.fieldwork.meetings[this.editingMeeting] = {
-      ...this.fieldwork.meetings[this.editingMeeting],
-      ...meetingData
-    };
-  } else {
-    this.fieldwork.meetings.push({
-      id: 'mt' + Date.now(),
-      ...meetingData
-    });
-  }
-
-  this.cancelMeeting();
-  Swal.fire('Success', 'Meeting saved!', 'success');
-}
-
-editMeeting(index: number): void {
-  this.editingMeeting = index;
-  this.meetingForm.patchValue(this.fieldwork.meetings[index]);
-  this.showMeetingForm = true;
-}
-
-cancelMeeting(): void {
-  this.editingMeeting = null;
-  this.showMeetingForm = false;
-  this.meetingForm.reset({
-    followUpRequired: 'no'
-  });
-}
-
-deleteMeeting(index: number): void {
-  Swal.fire({
-    title: 'Delete meeting?',
-    text: 'This action cannot be undone.',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Yes, delete it!'
-  }).then(result => {
-    if (result.isConfirmed) {
-      this.fieldwork.meetings.splice(index, 1);
-      Swal.fire('Deleted', 'Meeting deleted', 'success');
-    }
-  });
-}
-
-saveWeeklyUpdate(): void {
-  if (this.weeklyForm.invalid) {
-    this.weeklyForm.markAllAsTouched();
-    return;
-  }
-
-  const weeklyData = this.weeklyForm.value;
-
-  this.fieldwork.weeklyUpdates.push({
-    id: 'wk' + Date.now(),
-    ...weeklyData
-  });
-
-  this.cancelWeekly();
-  Swal.fire('Success', 'Weekly update saved!', 'success');
-}
-
-editWeekly(index: number): void {
-  this.weeklyForm.patchValue(this.fieldwork.weeklyUpdates[index]);
-  this.fieldwork.weeklyUpdates.splice(index, 1); // Remove old entry
-  this.showWeeklyForm = true;
-}
-
 cancelWeekly(): void {
+  this.editingWeekly = null;
   this.showWeeklyForm = false;
   this.weeklyForm.reset();
-}
-
-deleteWeekly(index: number): void {
-  Swal.fire({
-    title: 'Delete weekly update?',
-    text: 'This action cannot be undone.',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Yes, delete it!'
-  }).then(result => {
-    if (result.isConfirmed) {
-      this.fieldwork.weeklyUpdates.splice(index, 1);
-      Swal.fire('Deleted', 'Weekly update deleted', 'success');
-    }
-  });
 }
 
 saveFinding(): void {
@@ -642,22 +766,56 @@ saveFinding(): void {
   }
 
   this.cancelFinding();
+  // Save to backend immediately
+  this.saveFieldworkToBackend();
   Swal.fire('Success', 'Finding saved!', 'success');
 }
 
-editFinding(index: number): void {
-  this.editingFinding = index;
-  this.findingForm.patchValue(this.fieldwork.preClosing[index]);
-  this.showFindingForm = true;
+async saveDocument(): Promise<void> {
+  if (this.documentForm.invalid || !this.selectedDocumentFile) {
+    this.documentForm.markAllAsTouched();
+    return;
+  }
+
+  try {
+    const uploadedFile = await this.uploadDocumentFile(this.selectedDocumentFile);
+    
+    const documentData = {
+      ...this.documentForm.value,
+      file: uploadedFile,
+      uploadedAt: new Date().toISOString(),
+      id: 'doc' + Date.now()
+    };
+
+    if (this.editingDocument !== null) {
+      this.fieldwork.documents[this.editingDocument] = documentData;
+    } else {
+      this.fieldwork.documents.push(documentData);
+    }
+
+    this.selectedDocumentFile = null;
+    this.cancelDocument();
+    this.filterDocuments(); // Update filtered list
+
+    this.saveFieldworkToBackend();
+    Swal.fire('Success', 'Document uploaded successfully!', 'success');
+
+  } catch (error) {
+    console.error('Error uploading document:', error);
+    Swal.fire('Error', 'Failed to upload document', 'error');
+  }
 }
 
-cancelFinding(): void {
-  this.editingFinding = null;
-  this.showFindingForm = false;
-  this.findingForm.reset({
-    severity: 'Medium',
-    status: 'Draft'
-  });
+editEvidence(index: number): void {
+  this.editingEvidence = index;
+  this.evidenceForm.patchValue(this.fieldwork.evidence[index]);
+  this.showEvidenceForm = true;
+}
+
+editMeeting(index: number): void {
+  this.editingMeeting = index;
+  this.meetingForm.patchValue(this.fieldwork.meetings[index]);
+  this.showMeetingForm = true;
 }
 
 deleteFinding(index: number): void {
@@ -670,20 +828,172 @@ deleteFinding(index: number): void {
   }).then(result => {
     if (result.isConfirmed) {
       this.fieldwork.preClosing.splice(index, 1);
+      this.saveFieldworkToBackend();
       Swal.fire('Deleted', 'Finding deleted', 'success');
     }
   });
 }
 
-// Save all fieldwork data
-saveAllFieldwork(): void {
-  if (!this.selectedWorkflow) return;
+deleteDocument(index: number): void {
+  Swal.fire({
+    title: 'Delete document?',
+    text: 'This action cannot be undone.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete it!'
+  }).then(result => {
+    if (result.isConfirmed) {
+      this.fieldwork.documents.splice(index, 1);
+      this.filterDocuments(); 
+      this.saveFieldworkToBackend();
+      Swal.fire('Deleted', 'Document deleted successfully', 'success');
+    }
+  });
+}
 
-  // Here you would typically save to your backend
-  console.log('Saving fieldwork data:', this.fieldwork);
-  
-  Swal.fire('Success', 'All fieldwork data saved successfully!', 'success');
-  this.closeFieldworkModal();
+getFieldworkCount(section: string): number {
+  const fieldworkSection = section as keyof typeof this.fieldwork;
+  return this.fieldwork[fieldworkSection]?.length || 0;
+}
+
+getFieldworkSectionClass(section: string): string {
+  const count = this.getFieldworkCount(section as keyof typeof this.fieldwork);
+  const baseClass = 'accordion-button';
+  return count > 0 ? `${baseClass} has-items` : `${baseClass} no-items`;
+}
+
+getFieldworkTasksClass(): string {
+  const count = this.selectedWorkflow?.tasks?.length || 0;
+  const baseClass = 'accordion-button';
+  return count > 0 ? `${baseClass} has-items` : `${baseClass} no-items`;
+}
+
+getPlanningTasksClass(): string {
+  const count = this.cachedPlanningTasks.length;
+  const baseClass = 'accordion-button';
+  return count > 0 ? `${baseClass} has-items` : `${baseClass} no-items`;
+}
+
+getEvidenceStatusClass(status: string): string {
+  switch (status) {
+    case 'Requested': return 'bg-warning';
+    case 'Received': return 'bg-info';
+    case 'Under Review': return 'bg-primary';
+    case 'Completed': return 'bg-success';
+    default: return 'bg-secondary';
+  }
+}
+
+getFindingSeverityClass(severity: string): string {
+  switch (severity) {
+    case 'Low': return 'bg-success';
+    case 'Medium': return 'bg-warning';
+    case 'High': return 'bg-danger';
+    case 'Critical': return 'bg-dark';
+    default: return 'bg-secondary';
+  }
+}
+
+getDocumentConfidentialityClass(confidentiality: string): string {
+  switch (confidentiality) {
+    case 'Internal Use': return 'bg-info';
+    case 'Confidential': return 'bg-warning';
+    case 'Strictly Confidential': return 'bg-danger';
+    default: return 'bg-secondary';
+  }
+}
+
+saveWeeklyUpdate(): void {
+  if (this.weeklyForm.invalid || !this.validateFormBeforeSubmit(this.weeklyForm, 'weekly')) {
+    this.weeklyForm.markAllAsTouched();
+    return;
+  }
+
+  const weeklyData = this.weeklyForm.value;
+
+  if (this.editingWeekly !== null) {
+    this.fieldwork.weeklyUpdates[this.editingWeekly] = {
+      ...this.fieldwork.weeklyUpdates[this.editingWeekly],
+      ...weeklyData
+    };
+  } else {
+    this.fieldwork.weeklyUpdates.push({
+      id: 'wk' + Date.now(),
+      ...weeklyData
+    });
+  }
+
+  this.cancelWeekly();
+  this.saveFieldworkToBackend();
+  Swal.fire('Success', 'Weekly update saved!', 'success');
+}
+
+editFinding(index: number): void {
+  this.editingFinding = index;
+  this.findingForm.patchValue(this.fieldwork.preClosing[index]);
+  this.showFindingForm = true;
+}
+
+deleteWeekly(index: number): void {
+  Swal.fire({
+    title: 'Delete weekly update?',
+    text: 'This action cannot be undone.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete it!'
+  }).then(result => {
+    if (result.isConfirmed) {
+      if (this.editingWeekly === index) {
+        this.cancelWeekly();
+      } else if (this.editingWeekly !== null && this.editingWeekly > index) {
+        this.editingWeekly--;
+      }
+      
+      this.fieldwork.weeklyUpdates.splice(index, 1);
+      this.saveFieldworkToBackend();
+      Swal.fire('Deleted', 'Weekly update deleted', 'success');
+    }
+  });
+}
+
+cancelFinding(): void {
+  this.editingFinding = null;
+  this.showFindingForm = false;
+  this.findingForm.reset({
+    severity: 'Medium',
+    status: 'Draft'
+  });
+}
+
+saveAllFieldwork(): void {
+  if (!this.selectedWorkflow) {
+    Swal.fire('Error', 'No workflow selected', 'error');
+    return;
+  }
+
+  const updatedWorkflow: Workflow = {
+    ...this.selectedWorkflow,
+    fieldwork: {
+      evidence: this.fieldwork.evidence,
+      meetings: this.fieldwork.meetings,
+      weeklyUpdates: this.fieldwork.weeklyUpdates,
+      preClosing: this.fieldwork.preClosing,
+      documents: this.fieldwork.documents
+    }
+  };
+
+  this.globalService.update(updatedWorkflow.id!, updatedWorkflow).subscribe({
+    next: (savedWorkflow) => {
+      this.selectedWorkflow = savedWorkflow;
+      Swal.fire('Success', 'All fieldwork data saved successfully!', 'success');
+      this.closeFieldworkModal();
+      this.loadWorkflows(); 
+    },
+    error: (err) => {
+      console.error('Failed to save fieldwork data:', err);
+      Swal.fire('Error', 'Failed to save fieldwork data', 'error');
+    }
+  });
 }
 
 get allFieldworkTasks() {
@@ -698,32 +1008,29 @@ activeFieldworkTab = 'fieldwork';
 
 addFieldworkTask() {
   this.showTaskForm = true;
-  this.cancelFieldworkTask(); // Reset form
+  this.cancelFieldworkTask(); 
 }
 
 addEvidenceRequest() {
   this.showEvidenceForm = true;
-  this.cancelEvidence(); // Reset form
+  this.cancelEvidence(); 
 }
 
 addMeeting() {
   this.showMeetingForm = true;
-  this.cancelMeeting(); // Reset form
+  this.cancelMeeting(); 
 }
 
 addWeeklyUpdate() {
   this.showWeeklyForm = true;
-  this.cancelWeekly(); // Reset form
+  this.cancelWeekly(); 
 }
 
 addPreClosingFinding() {
   this.showFindingForm = true;
-  this.cancelFinding(); // Reset form
+  this.cancelFinding();
 }
 
-openFieldworkModal() {
-  this.isFieldworkModalVisible = true;
-}
 
 closeFieldworkModal() {
   this.isFieldworkModalVisible = false;
@@ -739,36 +1046,28 @@ loadUsers(): void {
   });
 }
 
-
-// Fieldwork Tasks Methods - Now working with selectedWorkflow.tasks
 saveFieldworkTask(): void {
-  if (this.fieldworkTaskForm.invalid || !this.selectedWorkflow) {
+ if (this.fieldworkTaskForm.invalid || !this.selectedWorkflow ||!this.validateFormBeforeSubmit(this.fieldworkTaskForm, 'task')) {
     this.fieldworkTaskForm.markAllAsTouched();
     return;
   }
-
   const taskData = this.fieldworkTaskForm.value;
-
-  // Ensure tasks array exists
   if (!this.selectedWorkflow.tasks) {
     this.selectedWorkflow.tasks = [];
   }
 
   if (this.editingFieldworkTask !== null) {
-    // Edit existing task
+ 
     this.selectedWorkflow.tasks[this.editingFieldworkTask] = {
       ...this.selectedWorkflow.tasks[this.editingFieldworkTask],
       ...taskData
     };
   } else {
-    // Add new task
     this.selectedWorkflow.tasks.push({
       id: 'fw' + Date.now(),
       ...taskData
     });
   }
-
-  // Update the workflow in the backend
   this.updateWorkflowTasks();
   this.cancelFieldworkTask();
   Swal.fire('Success', 'Fieldwork task saved!', 'success');
@@ -800,14 +1099,13 @@ removeFieldworkTask(index: number): void {
   });
 }
 
-// Helper method to update workflow tasks in backend
 private updateWorkflowTasks(): void {
   if (!this.selectedWorkflow?.id) return;
 
   this.globalService.update(this.selectedWorkflow.id, this.selectedWorkflow).subscribe({
     next: (updatedWorkflow) => {
       this.selectedWorkflow = updatedWorkflow;
-      this.loadWorkflows(); // Refresh the list
+      this.loadWorkflows(); 
     },
     error: (err) => {
       console.error('Failed to update workflow tasks', err);
@@ -823,7 +1121,6 @@ editTask(task: Task): void {
   this.taskForm.patchValue(task); 
 }
 
-// Cancel editing
 cancelEditTask(): void {
   this.editingTask = null;
   this.taskForm.reset({ status: 'Pending' });
@@ -841,11 +1138,10 @@ addTaskToWorkflow(): void {
   }
 
   const newTask = {
-    id: 't' + Date.now(), // simple unique id
+    id: 't' + Date.now(), 
     ...this.taskForm.value
   };
 
-  // Push into workflow tasks
   this.selectedWorkflow.tasks = this.selectedWorkflow.tasks || [];
   this.selectedWorkflow.tasks.push(newTask);
 
@@ -856,20 +1152,10 @@ addTaskToWorkflow(): void {
   this.taskForm.reset({ status: 'Pending' });
 }
 
-deleteMiniFinding(id: string): void {
-  if (!this.selectedWorkflow) return;
-  const updated = {
-    ...this.selectedWorkflow,
-    miniFindings: (this.selectedWorkflow.miniFindings || []).filter(mf => mf.id !== id)
-  };
-
-  this.globalService.update(updated.id!, updated).subscribe({
-    next: wf => {
-      this.selectedWorkflow = wf;
-      this.loadWorkflows();
-    },
-    error: err => console.error('Failed to delete mini finding', err)
-  });
+getTaskName(taskId: string): string {
+  if (!this.selectedWorkflow?.tasks) return 'Unknown Task';
+  const task = this.selectedWorkflow.tasks.find(t => t.id === taskId);
+  return task?.description || task?.title || 'Unknown Task';
 }
 
 isTaskModalVisible = false;
@@ -888,31 +1174,6 @@ openFindingModal(): void {
 
   closeFindingModal(): void {
     this.isFindingModalVisible = false;
-  }
-
-  addMiniFinding(): void {
-    if (!this.selectedWorkflow) return;
-    if (this.miniFindingForm.invalid) {
-      this.miniFindingForm.markAllAsTouched();
-      return;
-    }
-    const finding: MiniFinding = {
-      ...this.miniFindingForm.value,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString().split('T')[0]
-    };
-    const updated = {
-      ...this.selectedWorkflow,
-      miniFindings: [...(this.selectedWorkflow.miniFindings || []), finding]
-    };
-    this.globalService.update(updated.id!, updated).subscribe({
-      next: wf => {
-        this.selectedWorkflow = wf;
-        this.loadWorkflows();
-        this.closeFindingModal();
-      },
-      error: err => console.error('Failed to add mini finding', err)
-    });
   }
 
 openTaskModal() { this.isTaskModalVisible = true; }
@@ -975,8 +1236,6 @@ getAuditPlanningTasks() {
 
   const audit = this.allAudits.find(a => a.id === this.selectedWorkflow?.auditId);
   console.log('Selected Audit for planning tasks:', audit);
-
-  // Check if planningTasks exists and has data
   if (!audit?.planningTasks || !Array.isArray(audit.planningTasks) || audit.planningTasks.length === 0) {
     console.log('No planning tasks found');
     return [];
@@ -984,7 +1243,7 @@ getAuditPlanningTasks() {
 
   const tasks = audit.planningTasks.map((t: any, index: number) => ({
     id: t.id || `p${index}`,
-    description: t.name || t.description || '', // Use 'name' from your data structure
+    description: t.name || t.description || '',
     assignee: t.owner || t.assignee || '',
     status: t.status || 'Pending',
     dueDate: t.endDate || t.startDate || '—'
@@ -994,35 +1253,29 @@ getAuditPlanningTasks() {
   return tasks;
 }
 
-debugAuditData() {
-  if (!this.selectedWorkflow) return;
-  const audit = this.allAudits.find(a => a.id === this.selectedWorkflow?.auditId);
-  console.log('Full audit object:', audit);
-  console.log('Planning tasks raw:', audit?.planningTasks);
-}
 
-showWorkflowDetails(w: Workflow): void {
-  if (this.selectedWorkflow && this.selectedWorkflow.id === w.id) {
-    console.log('content', this.selectedWorkflow);
-    this.hideDetails();
-    return;
-  }
+// showWorkflowDetails(w: Workflow): void {
+//   if (this.selectedWorkflow && this.selectedWorkflow.id === w.id) {
+//     console.log('content', this.selectedWorkflow);
+//     this.hideDetails();
+//     return;
+//   }
   
-  this.selectedWorkflow = { ...w };
-  this.isDetailsPanelVisible = true;
-  console.log('Clicked workflow:', w);
-  this.cachePlanningTasks();
+//   this.selectedWorkflow = { ...w };
+//   this.isDetailsPanelVisible = true;
+//   console.log('Clicked workflow:', w);
+//   this.cachePlanningTasks();
   
-  if (w.id) {
-    this.globalService.get(w.id).subscribe({
-      next: wf => {
-        this.selectedWorkflow = wf;
-        this.cachePlanningTasks(); // Re-cache after loading
-      },
-      error: err => console.warn('Could not fetch workflow details', err)
-    });
-  }
-}
+//   if (w.id) {
+//     this.globalService.get(w.id).subscribe({
+//       next: wf => {
+//         this.selectedWorkflow = wf;
+//         this.cachePlanningTasks(); // Re-cache after loading
+//       },
+//       error: err => console.warn('Could not fetch workflow details', err)
+//     });
+//   }
+// }
 
 cachePlanningTasks(): void {
   if (!this.selectedWorkflow) {
@@ -1031,9 +1284,7 @@ cachePlanningTasks(): void {
   }
 
   const audit = this.allAudits.find(a => a.id === this.selectedWorkflow?.auditId);
-  // console.log('Selected Audit for planning tasks:', audit);
 
-  // Check if planningTasks exists and has data
   if (!audit?.planningTasks || !Array.isArray(audit.planningTasks) || audit.planningTasks.length === 0) {
     console.log('No planning tasks found');
     this.cachedPlanningTasks = [];
@@ -1047,8 +1298,6 @@ cachePlanningTasks(): void {
     status: t.status || 'Pending',
     dueDate: t.endDate || t.startDate || '—'
   }));
-
-  // console.log('Cached Planning Tasks:', this.cachedPlanningTasks);
 }
 
 hideDetails(): void {
@@ -1088,7 +1337,7 @@ closeModal(): void {
   }
 
 saveWorkflow(): void { 
-  if (this.workflowForm.invalid) {
+  if (this.workflowForm.invalid || !this.validateFormBeforeSubmit(this.workflowForm, 'workflow')) {
     this.workflowForm.markAllAsTouched();
     return;
   }
@@ -1188,7 +1437,6 @@ deleteWorkflow(id?: number | string, auditId?: string): void {
     if (result.isConfirmed) {
       this.globalService.delete(id).subscribe({
         next: () => {
-          // 🔹 Also delete linked audit if auditId is provided
           if (auditId) {
             this.http.delete(`http://localhost:3000/audits/${auditId}`).subscribe({
               next: () => this.globalService.notifyAuditsChanged(),
@@ -1212,7 +1460,6 @@ deleteWorkflow(id?: number | string, auditId?: string): void {
 
   openAddTask(): void {
     this.taskForm.reset({ status: 'Pending' });
-    // We'll use the modal in details panel DOM to add
   }
 
   addTaskToSelected(): void {
@@ -1298,16 +1545,13 @@ private computeWorkflowStatus(tasks: Task[]): string {
 }
 
 private syncWorkflowAndAudit(updated: Workflow): void {
-  // Compute workflow status from tasks
-  updated.status = this.computeWorkflowStatus(updated.tasks);
 
-  // Save workflow
+  updated.status = this.computeWorkflowStatus(updated.tasks);
   this.globalService.update(updated.id!, updated).subscribe({
     next: wf => {
       this.selectedWorkflow = wf;
       this.loadWorkflows();
 
-      // 🔹 Sync linked audit
       const auditPayload = {
         id: updated.auditId,
         title: updated.title,

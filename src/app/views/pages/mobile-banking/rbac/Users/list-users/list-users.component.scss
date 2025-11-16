@@ -39,3 +39,54 @@
   transform: scale(1.05);
   border-radius: 8px;
 }
+.file-upload-area {
+  border: 2px dashed #dee2e6;
+  background-color: #f8f9fa;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.file-upload-area:hover {
+  border-color: #007bff;
+  background-color: #e7f3ff;
+}
+
+.file-upload-area input[type="file"] {
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  cursor: pointer;
+}
+
+.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Add to your component's CSS file */
+.accordion-button.has-items {
+  background-color: #f8f9fa;
+  border-left: 4px solid #007bff;
+}
+
+.accordion-button.no-items {
+  background-color: #f8f9fa;
+  border-left: 4px solid #6c757d;
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: #e7f3ff;
+  color: #0056b3;
+}
+
+.accordion-body {
+  max-height: 300px;
+  overflow-y: auto;
+}
