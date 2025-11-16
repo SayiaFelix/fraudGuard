@@ -50,11 +50,12 @@ export class ListFailedRegistrationsComponent implements OnInit {
   viewDate: NgbDateStruct;
   allAudits: any[] = [];
   upcomingAudits: any[] = [];
-  riskStats = { high: 0, medium: 0, low: 0 };
+  riskStats = { critical: 0, high: 0, medium: 0, low: 0 };
   complianceStats = { completed: 0, pending: 0 };
 
   private apiUrl = 'http://localhost:3000/audits';
   private observationsUrl = 'http://localhost:3000/observations';
+  private workflowsUrl = 'http://localhost:3000/workflows';
 
   constructor(
     private httpService: HttpService,
@@ -93,6 +94,27 @@ ngOnDestroy() {
   this.subs.forEach(s => s.unsubscribe());
 }
 
+// In your parent component (list-failed-registrations.component.ts)
+
+loadRiskStats(): void {
+  this.http.get<any[]>(this.workflowsUrl).subscribe(workflows => {
+    let critical = 0, high = 0, medium = 0, low = 0;
+    
+    workflows.forEach(workflow => {
+      const preClosing = workflow.fieldwork?.preClosing || [];
+      preClosing.forEach((finding: any) => {
+        switch(finding.severity) {
+          case 'Critical': critical++; break;
+          case 'High': high++; break;
+          case 'Medium': medium++; break;
+          case 'Low': low++; break;
+        }
+      });
+    });
+    
+    this.riskStats = { critical, high, medium, low };
+  });
+}
 
   isAuditDay(date: { year: number; month: number; day: number }): boolean {
     const d = `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`;
@@ -161,15 +183,15 @@ get nextThreeAudits() {
   }
 
 
-  loadRiskStats(): void {
-    this.http.get<any[]>(this.observationsUrl).subscribe(obs => {
-      this.riskStats = {
-        high: obs.filter(o => o.severity === 'High').length,
-        medium: obs.filter(o => o.severity === 'Medium').length,
-        low: obs.filter(o => o.severity === 'Low').length
-      };
-    });
-  }
+  // loadRiskStats(): void {
+  //   this.http.get<any[]>(this.observationsUrl).subscribe(obs => {
+  //     this.riskStats = {
+  //       high: obs.filter(o => o.severity === 'High').length,
+  //       medium: obs.filter(o => o.severity === 'Medium').length,
+  //       low: obs.filter(o => o.severity === 'Low').length
+  //     };
+  //   });
+  // }
 
   loadComplianceStats(): void {
     const completed = this.allAudits.filter(a => a.status === 'Completed').length;

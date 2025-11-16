@@ -101,10 +101,11 @@
             <h3 class="fw-bold text-dark mb-2">
               <i class="mdi mdi-alert-octagon-outline me-1 text-danger"></i> Risk Levels
             </h3>
-            <div class="d-flex gap-2">
-              <span class="badge bg-danger rounded-pill px-3 py-2">High: {{ riskStats.high }}</span>
-              <span class="badge bg-warning rounded-pill px-3 py-2">Medium: {{ riskStats.medium }}</span>
-              <span class="badge bg-success rounded-pill px-3 py-2">Low: {{ riskStats.low }}</span>
+            <div class="d-flex justify-content-between gap-1">
+              <span class="badge bg-dark rounded-pill px-2 py-2 small">Critical: {{ riskStats.critical }}</span>
+              <span class="badge bg-danger rounded-pill px-2 py-2 small">High: {{ riskStats.high }}</span>
+              <span class="badge bg-warning rounded-pill px-2 py-2 small">Medium: {{ riskStats.medium }}</span>
+              <span class="badge bg-success rounded-pill px-2 py-2 small">Low: {{ riskStats.low }}</span>
             </div>
           </div>
         </div>

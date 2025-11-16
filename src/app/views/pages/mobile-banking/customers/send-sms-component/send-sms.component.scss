@@ -27,14 +27,61 @@
   vertical-align: middle;
 }
 
-// Style for the on/off toggle switch
+/* Add to your component's SCSS file */
+:host ::ng-deep {
+  .bg-gradient-primary {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  }
+  
+  .btn-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .detail-section {
+    .section-title {
+      letter-spacing: 0.5px;
+    }
+    
+    .detail-content {
+      line-height: 1.5;
+    }
+  }
+  
+  .status-card {
+    transition: transform 0.2s ease;
+    
+    &:hover {
+      transform: translateY(-2px);
+    }
+  }
+  
+  .recommendation-box {
+    background: linear-gradient(135deg, #fffaf0 0%, #fff5e6 100%);
+  }
+  
+  .metadata-section {
+    i {
+      width: 16px;
+      text-align: center;
+    }
+  }
+  
+  .fs-7 {
+    font-size: 0.875rem;
+  }
+}
+
 .form-check.form-switch {
-  padding-left: 3.5em; // Give more space for the larger switch
+  padding-left: 3.5em; 
   .form-check-input {
     width: 3em;
     height: 1.5em;
     cursor: pointer;
-    // Visually centers the thumb in the switch track
     background-position: left center;
 
     &:checked {
@@ -43,7 +90,6 @@
   }
 }
 
-// Uniform styling for the small Edit/Delete icon buttons
 .btn-icon {
   display: inline-flex;
   align-items: center;
