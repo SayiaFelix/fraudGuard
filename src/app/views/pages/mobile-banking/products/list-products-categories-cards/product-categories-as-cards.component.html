@@ -52,7 +52,7 @@
                 <div class="card h-100 border-0 bg-primary bg-opacity-10">
                   <div class="card-body text-center">
                     <i class="fas fa-rocket fa-2x text-primary mb-3"></i>
-                    <h6 class="fw-bold">Instant Summary</h6>
+                    <h5 class="fw-bold">Instant Summary</h5>
                     <p class="small text-muted mb-3">Quick overview from fieldwork</p>
                     <button class="btn btn-primary btn-sm w-100" 
                             (click)="generateQuickSummary()"
@@ -71,7 +71,7 @@
                 <div class="card h-100 border-0 bg-success bg-opacity-10">
                   <div class="card-body text-center">
                     <i class="fas fa-briefcase fa-2x text-success mb-3"></i>
-                    <h6 class="fw-bold">Fieldwork Reports</h6>
+                    <h5 class="fw-bold">Fieldwork Reports</h5>
                     <p class="small text-muted mb-3">Create from fieldwork data</p>
                     <button class="btn btn-success btn-sm w-100" 
                             (click)="generateAllFieldworkReports()"
@@ -87,7 +87,7 @@
                 <div class="card h-100 border-0 bg-info bg-opacity-10">
                   <div class="card-body text-center">
                     <i class="fas fa-chart-pie fa-2x text-info mb-3"></i>
-                    <h6 class="fw-bold">Analytics Report</h6>
+                    <h5 class="fw-bold">Analytics Report</h5>
                     <p class="small text-muted mb-3">Detailed analytics & insights</p>
                     <button class="btn btn-info btn-sm w-100" 
                             (click)="generateAnalyticsReport()"
@@ -106,7 +106,7 @@
                 <div class="card h-100 border-0 bg-warning bg-opacity-10">
                   <div class="card-body text-center">
                     <i class="fas fa-file-excel fa-2x text-warning mb-3"></i>
-                    <h6 class="fw-bold">Export Data</h6>
+                    <h5 class="fw-bold">Export Data</h5>
                     <p class="small text-muted mb-3">Export all reports to Excel</p>
                     <button class="btn btn-warning btn-sm w-100" 
                             (click)="exportAllReports()"
@@ -271,7 +271,6 @@
           </thead>
           <tbody>
             <tr *ngFor="let r of getPaginatedReports()" 
-                [class.table-warning]="isDraftReport(r)" 
                 [class.table-success]="r.draftStatus === 'finalized'"
                 (click)="openReportManagement(r)"
                 style="cursor: pointer;">
@@ -330,22 +329,20 @@
               </td>
               <td class="text-end">
                 <div class="btn-group" role="group">
-                  <!-- Preview Button -->
+
                   <button class="btn btn-outline-info btn-sm" title="Preview Report" 
                           (click)="previewReport(r); $event.stopPropagation()" 
                           data-bs-toggle="modal" 
                           data-bs-target="#previewModal">
                     <i class="fas fa-eye"></i>
                   </button>
-               
-                  <!-- Download Button -->
+
                   <button class="btn btn-outline-success btn-sm" 
                           (click)="downloadReport(r); $event.stopPropagation()" 
                           title="Download Report">
                     <i class="fas fa-download"></i>
                   </button>
 
-                  <!-- Draft Indicator -->
                   <div class="btn-group" role="group" *ngIf="isDraftReport(r)">
                     <button class="btn btn-outline-warning btn-sm" 
                             title="Draft Report - Click row to manage"
@@ -354,7 +351,6 @@
                     </button>
                   </div>
                   
-                  <!-- Delete Button -->
                   <button class="btn btn-outline-danger btn-sm" 
                           (click)="deleteReport(r); $event.stopPropagation()" 
                           title="Delete Report">
@@ -362,7 +358,6 @@
                   </button>
                 </div>
 
-                <!-- Quick Status Info -->
                 <div *ngIf="isDraftReport(r)" class="mt-1 small">
                   <span *ngIf="(r?.revisionCount ?? 0) > 0" class="badge bg-warning me-1">
                     v{{ ((r?.revisionCount ?? 0) || 0) + 1 }}
@@ -384,6 +379,7 @@
             </tr>
           </tbody>
         </table>
+   
       </div>
 
       <div class="card-footer bg-white border-0" *ngIf="filteredReports.length > 0">
@@ -452,52 +448,73 @@
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
       <div class="modal-header" [ngClass]="{
-        'bg-warning': selectedReport?.draftStatus && selectedReport?.draftStatus !== 'finalized',
-        'bg-success': selectedReport?.draftStatus === 'finalized',
-        'bg-primary': !selectedReport?.draftStatus
-      }">
-        <h5 class="modal-title fw-bold text-white">
-          <i class="fas fa-file-alt me-2"></i> 
-          Report Management
-        </h5>
+  'bg-warning': selectedReport?.draftStatus && selectedReport?.draftStatus !== 'finalized',
+  'bg-success': selectedReport?.draftStatus === 'finalized',
+  'bg-primary': !selectedReport?.draftStatus
+}">
+  <h2 class="modal-title fw-bold text-white">
+    <i class="fas fa-file-alt me-2"></i> 
+    Report Management
+  
+    <span *ngIf="selectedReport?.clientComments?.length" class="badge bg-info ms-1">
+      <i class="fas fa-comments me-1"></i>{{ selectedReport?.clientComments?.length }}
+    </span>
+  </h2>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
+  </div>
+
+  
       
       <div class="modal-body" *ngIf="selectedReport">
-        <!-- Report Header -->
         <div class="row mb-4">
           <div class="col-12">
-            <h4 class="fw-bold text-primary mb-2">{{ selectedReport.title }}</h4>
+            <h3 class="fw-bold text-dark mb-2">{{ selectedReport.title }}</h3>
             <div class="row small text-muted">
               <div class="col-md-6">
-                <i class="fas fa-calendar me-1"></i>
+                <i class="fas fa-calendar text-primary me-1"></i>
                 Created: {{ selectedReport.createdAt | date:'medium' }}
               </div>
               <div class="col-md-6">
-                <i class="fas fa-user me-1"></i>
+                <i class="fas fa-user text-info me-1"></i>
                 By: {{ selectedReport.uploadedBy || 'System' }}
               </div>
             </div>
             <div class="row small text-muted mt-1">
               <div class="col-md-6">
-                <i class="fas fa-tag me-1"></i>
+                <i class="fas fa-tag text-dark me-1"></i>
                 Type: <span class="badge bg-primary">{{ selectedReport.type }}</span>
               </div>
               <div class="col-md-6">
-                <i class="fas fa-database me-1"></i>
+                <i class="fas fa-database text-primary me-1"></i>
                 Source: <span class="badge bg-secondary">{{ selectedReport.source || 'Manual' }}</span>
               </div>
             </div>
           </div>
+          <hr class="mt-3">
         </div>
+   
 
         <!-- Status Overview -->
         <div class="row mb-4" *ngIf="isDraftReport(selectedReport)">
           <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h4 class="fw-bold mb-0">Current Status</h4>
+            </div>
             <div class="card border-0 bg-light">
               <div class="card-body">
-                <h6 class="card-title fw-bold mb-3">Current Status</h6>
                 <div class="row text-center">
+                  <div class="col-3">
+                    <div class="fw-bold text-primary">{{ selectedReport.clientComments?.length || 0 }}</div>
+                    <small class="text-dark">Comments</small>
+                  </div>
+                  <div class="col-3">
+                    <div class="fw-bold text-warning">{{ selectedReport.revisionCount || 0 }}</div>
+                    <small class="text-dark">Revisions</small>
+                  </div>
+                  <div class="col-3">
+                    <div class="fw-bold text-danger">{{ selectedReport.findingsCount || 0 }}</div>
+                    <small class="text-dark">Findings</small>
+                  </div>
                   <div class="col-3">
                     <div class="fw-bold" [ngClass]="{
                       'text-info': selectedReport.draftStatus === 'under_review',
@@ -507,38 +524,25 @@
                     }">
                       {{ getDraftStatusText(selectedReport.draftStatus) }}
                     </div>
-                    <small class="text-muted">Status</small>
-                  </div>
-                  <div class="col-3">
-                    <div class="fw-bold text-primary">{{ selectedReport.clientComments?.length || 0 }}</div>
-                    <small class="text-muted">Comments</small>
-                  </div>
-                  <div class="col-3">
-                    <div class="fw-bold text-warning">{{ selectedReport.revisionCount || 0 }}</div>
-                    <small class="text-muted">Revisions</small>
-                  </div>
-                  <div class="col-3">
-                    <div class="fw-bold text-danger">{{ selectedReport.findingsCount || 0 }}</div>
-                    <small class="text-muted">Findings</small>
+                    <small class="text-dark">Status</small>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+          <hr class="mt-3">
         </div>
 
         <div class="row mb-4" *ngIf="isDraftReport(selectedReport)">
           <div class="col-12">
-            <h6 class="fw-bold mb-3">Quick Actions</h6>
+            <h4 class="fw-bold mb-3">Quick Actions</h4>
             <div class="btn-group w-100" role="group">
-              <!-- Preview Button -->
               <button class="btn btn-outline-info btn-sm" 
                       (click)="previewDraftReport(selectedReport)"
                       title="Preview Draft">
                 <i class="fas fa-eye me-1"></i> Preview
               </button>
               
-              <!-- Send to Client Button -->
               <button class="btn btn-outline-warning btn-sm" 
                       (click)="sendToClient(selectedReport)"
                       [disabled]="selectedReport.draftStatus === 'client_review' || selectedReport.draftStatus === 'finalized'"
@@ -546,7 +550,6 @@
                 <i class="fas fa-paper-plane me-1"></i> Send to Client
               </button>
               
-              <!-- View Comments Button -->
               <button class="btn btn-outline-primary btn-sm" 
                       (click)="viewComments(selectedReport)"
                       [disabled]="!selectedReport.clientComments || selectedReport.clientComments.length === 0"
@@ -567,74 +570,104 @@
               </button>
             </div>
           </div>
+          <hr class="mt-3">
         </div>
 
-        <div class="row mb-4" *ngIf="selectedReport.draftStatus === 'client_review'">
-          <div class="col-12">
-            <div class="p-3 bg-light rounded">
-              <h6 class="fw-bold mb-3 text-warning">
-                <i class="fas fa-users me-1"></i> Client Actions
-              </h6>
-              <div class="btn-group w-100" role="group">
-                <button class="btn btn-outline-primary btn-sm" 
-                        (click)="addComment(selectedReport)">
-                  <i class="fas fa-plus me-1"></i>Add Comment
-                </button>
-                <button class="btn btn-outline-success btn-sm" 
-                        (click)="approveDraft(selectedReport)">
-                  <i class="fas fa-thumbs-up me-1"></i>Approve
-                </button>
-                <button class="btn btn-outline-danger btn-sm" 
-                        (click)="requestRevision(selectedReport)">
-                  <i class="fas fa-redo me-1"></i>Request Revision
-                </button>
-              </div>
-            </div>
+        <!-- CLIENT ACTIONS SECTION -->
+      <div class="row mb-4" *ngIf="selectedReport.draftStatus === 'client_review'">
+        <div class="col-12">
+          <div class="p-3 bg-warning bg-opacity-10 rounded border border-warning">
+            <h4 class="fw-bold mb-3 ">
+              <i class="fas fa-users text-warning me-1"></i> Client Review Panel
+            </h4>
+            <p class="small text-muted mb-3">
+              You can add comments, ask questions, or provide feedback on this report.
+            </p>
+
+            <div class="btn-group w-100" role="group">
+                  <button class="btn btn-outline-primary btn-sm" 
+                          (click)="openCommentModal(selectedReport)">
+                    <i class="fas fa-plus me-1"></i>Add Comment
+                  </button>
+                  <button class="btn btn-outline-success btn-sm" 
+                          (click)="approveDraft(selectedReport)">
+                    <i class="fas fa-thumbs-up me-1"></i>Approve
+                  </button>
+                  <button class="btn btn-outline-danger btn-sm" 
+                          (click)="requestRevision(selectedReport)">
+                    <i class="fas fa-redo me-1"></i>Request Revision
+                  </button>
+                </div>
           </div>
         </div>
+      </div>
 
         <!-- Comments Section -->
-        <div class="row mb-4" *ngIf="selectedReport.clientComments && selectedReport.clientComments.length > 0">
-          <div class="col-12">
-            <h6 class="fw-bold mb-3">
-              <i class="fas fa-comments me-2 text-primary"></i>
-              Client Comments ({{ selectedReport.clientComments.length }})
-            </h6>
-            <div class="comments-section" style="max-height: 200px; overflow-y: auto;">
-              <div *ngFor="let comment of selectedReport.clientComments" 
-                   class="card mb-2 border-0 bg-light">
-                <div class="card-body py-2">
-                  <div class="d-flex justify-content-between align-items-start mb-1">
-                    <strong class="text-primary">{{ comment.author || 'Client' }}</strong>
-                    <small class="text-muted">{{ comment.date || 'Recently' }}</small>
+      <div class="row mb-4" *ngIf="selectedReport.clientComments && selectedReport.clientComments.length > 0">
+        <div class="col-12">
+          <h4 class="fw-bold mb-3">
+            <i class="fas fa-comments me-2 text-primary"></i>
+            Comments & Feedback ({{ selectedReport.clientComments.length }})
+          </h4>
+          <div class="comments-section" style="max-height: 300px; overflow-y: auto;">
+            <div *ngFor="let comment of selectedReport.clientComments; let i = index" 
+                class="card mb-3 border-0 shadow-sm">
+              <div class="card-body p-3">
+                <!-- Comment Header -->
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <div>
+                    <strong class="text-primary">
+                      <i class="fas fa-user me-1"></i>
+                      {{ comment.author || 'Client' }}
+                    </strong>
+                    <span class="badge ms-2" [ngClass]="{
+                      'bg-info': comment.type === 'question',
+                      'bg-warning': comment.type === 'revision_request',
+                      'bg-secondary': comment.type === 'comment'
+                    }">
+                      <i class="fas me-1" [ngClass]="{
+                        'fa-question': comment.type === 'question',
+                        'fa-redo': comment.type === 'revision_request',
+                        'fa-comment': comment.type === 'comment'
+                      }"></i>
+                      {{ getCommentTypeText(comment.type) }}
+                    </span>
                   </div>
-                  <p class="mb-1 small">{{ comment.text }}</p>
-                  <span *ngIf="comment.type" class="badge" [ngClass]="{
-                    'bg-info': comment.type === 'question',
-                    'bg-warning': comment.type === 'revision_request',
-                    'bg-secondary': comment.type === 'comment'
-                  }">
-                    {{ comment.type }}
-                  </span>
+                  <small class="text-muted">
+                    <i class="fas fa-clock me-1"></i>
+                    {{ (comment.date | date:'medium') || 'Recently' }}
+                  </small>
+                </div>
+                
+                <!-- Comment Text -->
+                <p class="mb-2" [class.fst-italic]="comment.type === 'question'">
+                  {{ comment.text }}
+                </p>
+                
+                <!-- Revision indicator -->
+                <div *ngIf="comment.type === 'revision_request'" class="alert alert-warning py-1 px-2 small mb-0">
+                  <i class="fas fa-exclamation-triangle me-1"></i>
+                  This comment requested a revision
                 </div>
               </div>
             </div>
           </div>
         </div>
+      </div>
 
         <!-- Report Details -->
         <div class="row">
           <div class="col-12">
-            <h6 class="fw-bold mb-3">Report Details</h6>
+            <h4 class="fw-bold mb-3">Report Details</h4>
             <div class="card border-0 bg-light">
               <div class="card-body">
                 <div class="row small">
                   <div class="col-md-6 mb-2">
-                    <strong>Description:</strong>
+                    <strong>Description </strong>
                     <p class="mb-0">{{ selectedReport.description || 'No description provided' }}</p>
                   </div>
                   <div class="col-md-6 mb-2">
-                    <strong>File Type:</strong>
+                    <strong>File Type </strong>
                     <p class="mb-0">{{ selectedReport.fileType || 'Not specified' }}</p>
                   </div>
                   <div class="col-md-6 mb-2" *ngIf="selectedReport.findingsCount">
@@ -657,19 +690,19 @@
       </div>
       
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-danger" 
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+        <!-- <button type="button" class="btn btn-danger" 
                 (click)="deleteReport(selectedReport!)"
                 data-bs-dismiss="modal">
           <i class="fas fa-trash me-1"></i>Delete Report
-        </button>
-        <button type="button" class="btn btn-primary" 
+        </button> -->
+        <!-- <button type="button" class="btn btn-primary" 
                 (click)="previewReport(selectedReport!)" 
                 data-bs-dismiss="modal"
                 data-bs-toggle="modal" 
                 data-bs-target="#previewModal">
           <i class="fas fa-eye me-1"></i>Preview
-        </button>
+        </button> -->
       </div>
     </div>
   </div>
@@ -679,7 +712,7 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-upload text-success me-2"></i> Upload Report</h5>
+        <h4 class="modal-title"><i class="fas fa-upload text-success me-2"></i> Upload Report</h4>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
@@ -703,22 +736,20 @@
 <div class="modal fade" id="previewModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">
+      <div class="modal-header bg-primary">
+        <h2 class="modal-title text-light">
           <i class="fas fa-eye text-info me-2"></i> Report Preview
-        </h5>
+        </h2>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body p-0" style="height:80vh">
         <ng-container *ngIf="selectedReport">
-          <!-- PDF / DOCX / XLSX preview -->
           <iframe 
             *ngIf="selectedReport?.fileType === 'application/pdf' || selectedReport?.fileType?.includes('officedocument')" 
             [src]="(selectedReport?.fileUrl || '') | safeUrl"
             class="w-100 h-100 border-0">
           </iframe>
 
-          <!-- For unsupported files -->
           <div *ngIf="!(selectedReport?.fileType?.includes('pdf') || selectedReport?.fileType?.includes('officedocument'))" 
                class="d-flex flex-column justify-content-center align-items-center h-100">
             <i class="fas fa-file fa-3x text-muted mb-2"></i>
@@ -733,3 +764,95 @@
   </div>
 </div>
 
+<!-- Bootstrap Comment Modal -->
+<div class="modal fade" id="commentModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      
+      <div class="modal-header" 
+        [ngClass]="{
+          'bg-primary': selectedCommentType === 'comment',
+          'bg-info': selectedCommentType === 'question', 
+          'bg-warning': selectedCommentType === 'revision_request'
+        }">
+
+        <h2 class="modal-title text-white">
+          <i class="fas me-2"
+            [ngClass]="{
+              'fa-comment': selectedCommentType === 'comment',
+              'fa-question': selectedCommentType === 'question',
+              'fa-redo': selectedCommentType === 'revision_request'
+            }"></i>
+          Add {{ getCommentTypeText(selectedCommentType) }}
+        </h2>
+
+        <button type="button" 
+                class="btn-close btn-close-white" 
+                data-bs-dismiss="modal"
+                aria-label="Close">
+        </button>
+      </div>
+
+      <form (ngSubmit)="submitComment()">
+        <div class="modal-body">
+
+          <!-- Comment Type Field -->
+          <div class="mb-3">
+            <label for="commentTypeSelect" class="form-label fw-bold">Comment Type</label>
+            <select id="commentTypeSelect"
+                    class="form-select"
+                    [(ngModel)]="selectedCommentType"
+                    [ngModelOptions]="{standalone: true}"
+                    (change)="onCommentTypeChange()">
+              <option value="comment">Comment</option>
+              <option value="question">Question</option>
+              <option value="revision_request">Revision Request</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="commentTextarea" class="form-label fw-bold">
+              Your {{ getCommentTypeText(selectedCommentType) }}
+            </label>
+            <textarea id="commentTextarea"
+                      class="form-control"
+                      rows="4"
+                      placeholder="Type your message here..."
+                      [(ngModel)]="newCommentText"
+                      [ngModelOptions]="{standalone: true}"
+                      style="resize: vertical;">
+            </textarea>
+            <div *ngIf="commentTextHasError" class="invalid-feedback d-block">
+              {{ commentTextErrorMessage }}
+            </div>
+            <div class="form-text text-end mt-2">
+              {{ newCommentText.length || 0 }}/1000 characters
+            </div>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal">
+            <i class="fas fa-times me-1"></i> Cancel
+          </button>
+
+          <button type="submit"
+                  class="btn"
+                  [ngClass]="{
+                    'btn-primary': selectedCommentType === 'comment',
+                    'btn-info': selectedCommentType === 'question',
+                    'btn-warning': selectedCommentType === 'revision_request'
+                  }"
+                  [disabled]="!newCommentText || newCommentText.length < 5">
+            <i class="fas fa-plus me-1"></i>
+            Add {{ getCommentTypeText(selectedCommentType) }}
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>

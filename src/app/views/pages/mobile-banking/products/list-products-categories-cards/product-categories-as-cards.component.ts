@@ -12,6 +12,7 @@ import jsPDF from 'jspdf';
 import { GlobalService } from 'src/app/shared/services/global.service';
 import Swal from 'sweetalert2';
 import autoTable from 'jspdf-autotable'; 
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 export interface MISReport {
   id?: string;
@@ -91,14 +92,18 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
   newTitle = '';
   uploadingFile?: File;
   filteredReports: MISReport[] = [];
-
+  commentForm!: FormGroup;
   filterTitle = '';
   filterType = '';
   filterSource = '';
   filterDate = '';
   currentPage = 1;
   pageSize = 5;
-
+  newCommentType: 'comment' | 'question' | 'revision_request' = 'comment';
+  newCommentText = '';
+  formSubmitted  = false;
+  showCommentModal = false;
+  selectedReportForComment?: MISReport;
 
   kpis = {
     total: 0,
@@ -115,11 +120,13 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
   private apiUrl = 'http://localhost:3000';
+selectedCommentType: any;
 
   constructor(
     private mis: GlobalService,
     private globalService: GlobalService,
-    private http: HttpClient
+    private http: HttpClient,
+     private fb: FormBuilder 
   ) {}
 
   ngOnInit(): void {
@@ -127,6 +134,130 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
     this.loadReports();
     this.loadFieldworkData();
     this.calculateKPIsFromWorkflows(); 
+    this.initializeCommentForm();
+  }
+
+openCommentModal(report: MISReport): void {
+  this.selectedReportForComment = report;
+  this.selectedCommentType = 'comment';
+  this.newCommentText = '';
+  
+  const modal = new bootstrap.Modal(document.getElementById('commentModal')!);
+  modal.show();
+  
+  setTimeout(() => {
+    const textarea = document.getElementById('commentTextarea') as HTMLTextAreaElement;
+    if (textarea) {
+      textarea.focus();
+    }
+  }, 100);
+}
+
+submitComment(): void {
+  if (!this.selectedReportForComment || !this.newCommentText?.trim()) {
+    Swal.fire('Error', 'Please enter your comment text', 'error');
+    return;
+  }
+
+  if (this.newCommentText.length < 5) {
+    Swal.fire('Error', 'Comment must be at least 5 characters long', 'error');
+    return;
+  }
+
+  const newComment = {
+    text: this.newCommentText.trim(),
+    author: 'Client',
+    date: new Date().toISOString(),
+    type: this.selectedCommentType
+  };
+
+  if (!this.selectedReportForComment.clientComments) {
+    this.selectedReportForComment.clientComments = [];
+  }
+  this.selectedReportForComment.clientComments.push(newComment);
+
+  if (this.selectedCommentType === 'revision_request') {
+    this.selectedReportForComment.draftStatus = 'revised';
+    this.selectedReportForComment.revisionCount = (this.selectedReportForComment.revisionCount || 0) + 1;
+  }
+
+  this.updateReportDraftStatus(this.selectedReportForComment);
+  const modal = bootstrap.Modal.getInstance(document.getElementById('commentModal')!);
+  modal?.hide();
+
+  this.newCommentText = '';
+  this.selectedCommentType = 'comment';
+  
+  Swal.fire(
+    'Success!', 
+    `${this.getCommentTypeText(this.selectedCommentType)} has been added successfully.`,
+    'success'
+  );
+}
+
+onCommentTypeChange(): void {
+  const textarea = document.getElementById('commentTextarea') as HTMLTextAreaElement;
+  
+  if (textarea) {
+    const placeholders: { [key: string]: string } = {
+      'comment': 'Share your feedback or observations about this report...',
+      'question': 'What would you like to ask or clarify about this report?',
+      'revision_request': 'What specific changes or revisions would you like to request?'
+    };
+    
+    textarea.placeholder = placeholders[this.selectedCommentType as string] || 'Type your message here...';
+  }
+  
+  setTimeout(() => {
+    if (textarea) {
+      textarea.focus();
+    }
+  }, 50);
+ 
+  // console.log(`Comment type changed to: ${this.selectedCommentType}`);
+}
+
+getFieldError(fieldName: string): string {
+    const field = this.commentForm.get(fieldName);
+    if (!field || !field.errors) return '';
+    
+    if (field.errors['required']) {
+      return 'This field is required';
+    }
+    if (field.errors['minlength']) {
+      return `Minimum ${field.errors['minlength'].requiredLength} characters required`;
+    }
+    if (field.errors['maxlength']) {
+      return `Maximum ${field.errors['maxlength'].requiredLength} characters allowed`;
+    }
+    return '';
+  }
+
+  get isFormValid(): boolean {
+    return this.commentForm.valid;
+  }
+
+  get f() {
+    return this.commentForm.controls;
+  }
+
+  get commentTextHasError(): boolean {
+    const control = this.commentForm.get('commentText');
+    return control ? (control.invalid && (control.dirty || control.touched)) : false;
+  }
+
+  get commentTextErrorMessage(): string {
+    const control = this.commentForm.get('commentText');
+    if (control?.errors?.['required']) {
+      return 'Comment text is required';
+    }
+    if (control?.errors?.['minlength']) {
+      return `Minimum ${control.errors?.['minlength'].requiredLength} characters required`;
+    }
+    if (control?.errors?.['maxlength']) {
+      return `Maximum ${control.errors?.['maxlength'].requiredLength} characters allowed`;
+    }
+    return '';
   }
 
   private calculateKPIsFromWorkflows(): void {
@@ -187,7 +318,40 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
     }
   }
 
-  private calculateQuickSummaryData(): any {
+
+private initializeCommentForm(): void {
+  this.commentForm = this.fb.group({
+    commentType: ['comment', Validators.required],
+    commentText: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(1000)]]
+  });
+
+  // this.commentForm.get('commentText')?.valueChanges.subscribe(() => {
+  //   // This will trigger change detection for the character count
+  // });
+}
+
+closeCommentModal(): void {
+  this.showCommentModal = false;
+  this.selectedReportForComment = undefined;
+}
+
+onCommentModalBackdropClick(event: MouseEvent): void {
+  const target = event.target as HTMLElement;
+  if (target.classList.contains('modal')) {
+    this.closeCommentModal();
+  }
+}
+
+getCommentTypeText(type: string): string {
+  const typeMap: { [key: string]: string } = {
+    'comment': 'Comment',
+    'question': 'Question',
+    'revision_request': 'Revision Request'
+  };
+  return typeMap[type] || 'Comment';
+}
+
+private calculateQuickSummaryData(): any {
     const workflowsWithFieldwork = this.fieldworkReports.filter(wf => wf.fieldwork);
     const allFindings = this.getAllFindingsFromWorkflows();
     
@@ -204,7 +368,32 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
     };
   }
 
-  private getAllFindingsFromWorkflows(): any {
+private async generateSingleFieldworkReport(audit: FieldworkAudit): Promise<boolean> {
+  const existingReport = this.reports.find(r => 
+    r.title === `Fieldwork Report - ${audit.title}` && 
+    r.type === 'fieldwork'
+  );
+
+  if (existingReport) {
+    console.log(`Report already exists for ${audit.title}, skipping`);
+    return true; // or update existing one instead
+  }
+
+  return new Promise((resolve) => {
+    try {
+      this.generateFieldworkReportForBatch(audit).then(() => {
+        resolve(true);
+      }).catch(() => {
+        resolve(false); 
+      });
+    } catch (error) {
+      console.error(`Failed to generate report for ${audit.title}:`, error);
+      resolve(false); 
+    }
+  });
+}
+
+private getAllFindingsFromWorkflows(): any {
     const findings = { total: 0, critical: 0, high: 0, medium: 0, low: 0 };
     
     this.fieldworkReports.forEach(workflow => {
@@ -224,7 +413,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
     return findings;
   }
 
-  private getDepartmentsFromWorkflows(): string[] {
+private getDepartmentsFromWorkflows(): string[] {
     const departments = new Set<string>();
     this.fieldworkReports.forEach(workflow => {
       if (workflow.department) {
@@ -243,7 +432,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
     return statusCount;
   }
 
-  private generateQuickSummaryPDF(summaryData: any): void {
+private generateQuickSummaryPDF(summaryData: any): void {
     try {
       const doc = new jsPDF();
       
@@ -362,7 +551,6 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
     }
   }
 
-  // NEW: Calculate analytics from actual workflows
   private calculateAnalyticsData(): any {
     const workflowsWithFieldwork = this.fieldworkReports.filter(wf => wf.fieldwork);
     const allFindings = this.getAllFindingsFromWorkflows();
@@ -408,8 +596,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
 private generateAnalyticsPDF(analyticsData: any): void {
   try {
     const doc = new jsPDF();
-    
-    // Analytics Report Header
+
     doc.setFontSize(18);
     doc.setTextColor(0, 0, 128);
     doc.text('FIELDWORK ANALYTICS REPORT', 14, 20);
@@ -475,7 +662,6 @@ private generateAnalyticsPDF(analyticsData: any): void {
       headStyles: { fillColor: [155, 89, 182] }
     });
 
-    // Convert to base64 and save
     const pdfBase64 = doc.output('datauristring');
 
     const payload: MISReport = {
@@ -592,7 +778,6 @@ private batchGenerateFieldworkReports(): void {
     didOpen: () => {
       Swal.showLoading();
       
-      // Generate reports sequentially
       this.fieldworkReports.forEach((audit, index) => {
         setTimeout(() => {
           this.generateSingleFieldworkReport(audit).then((success) => {
@@ -609,21 +794,6 @@ private batchGenerateFieldworkReports(): void {
           });
         }, index * 1000); // Stagger requests by 1 second
       });
-    }
-  });
-}
-
-private async generateSingleFieldworkReport(audit: FieldworkAudit): Promise<boolean> {
-  return new Promise((resolve) => {
-    try {
-      this.generateFieldworkReportForBatch(audit).then(() => {
-        resolve(true);
-      }).catch(() => {
-        resolve(false); 
-      });
-    } catch (error) {
-      console.error(`Failed to generate report for ${audit.title}:`, error);
-      resolve(false); 
     }
   });
 }
@@ -698,8 +868,6 @@ private async generateFieldworkReportForBatch(audit: FieldworkAudit): Promise<vo
         findingsCount: audit.findingsCount,
         evidenceCount: audit.evidenceCount,
         fieldworkData: audit.fieldwork,
-
-        // ADD DRAFT PROPERTIES:
         draftStatus: 'under_review',
         clientComments: [],
         revisionCount: 0,
@@ -707,7 +875,6 @@ private async generateFieldworkReportForBatch(audit: FieldworkAudit): Promise<vo
         finalizedAt: undefined
       };
 
-      // Save to database
       this.globalService.createReport(payload).subscribe({
         next: () => {
           resolve();
@@ -899,55 +1066,6 @@ previewDraftReport(draft: MISReport): void {
   this.openPreviewModal(draft);
 }
 
-sendToClient(draft: MISReport): void {
-  Swal.fire({
-    title: 'Send to Client?',
-    text: 'This will send the draft report to the client for review',
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Yes, send to client!',
-    cancelButtonText: 'Cancel'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      // Update report status
-      draft.draftStatus = 'client_review';
-      this.updateReportDraftStatus(draft);
-      
-      Swal.fire('Sent!', 'Report has been sent to client for review.', 'success');
-    }
-  });
-}
-
-addComment(draft: MISReport): void {
-  Swal.fire({
-    title: 'Add Comment',
-    input: 'textarea',
-    inputLabel: 'Your comment or question',
-    inputPlaceholder: 'Type your comment here...',
-    showCancelButton: true,
-    confirmButtonText: 'Add Comment',
-    cancelButtonText: 'Cancel'
-  }).then((result) => {
-    if (result.isConfirmed && result.value) {
-      const newComment: { text: string; author: string; date: string; type: 'comment' | 'question' | 'revision_request' } = {
-        text: String(result.value),
-        author: 'Client',
-        date: new Date().toLocaleDateString(),
-        type: 'comment'
-      };
-      
-      if (!draft.clientComments) {
-        draft.clientComments = [];
-      }
-      draft.clientComments.push(newComment);
-      this.updateReportDraftStatus(draft);
-      
-      Swal.fire('Added!', 'Your comment has been added.', 'success');
-    }
-  });
-}
 
 getDraftReports(): MISReport[] {
   return this.reports.filter(report => 
@@ -990,89 +1108,69 @@ getDraftStatusText(status?: string): string {
   return status ? statusMap[status] || 'Draft' : 'Draft';
 }
 
-approveDraft(draft: MISReport): void {
-  Swal.fire({
-    title: 'Approve Report?',
-    text: 'This will mark the report as approved by client',
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Yes, approve!',
-    cancelButtonText: 'Cancel'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      draft.draftStatus = 'finalized';
-      this.updateReportDraftStatus(draft);
+// approveDraft(draft: MISReport): void {
+//   Swal.fire({
+//     title: 'Approve Report?',
+//     text: 'This will mark the report as approved by client',
+//     icon: 'question',
+//     showCancelButton: true,
+//     confirmButtonColor: '#3085d6',
+//     cancelButtonColor: '#d33',
+//     confirmButtonText: 'Yes, approve!',
+//     cancelButtonText: 'Cancel'
+//   }).then((result) => {
+//     if (result.isConfirmed) {
+//       draft.draftStatus = 'finalized';
+//       this.updateReportDraftStatus(draft);
       
-      Swal.fire('Approved!', 'Report has been approved and finalized.', 'success');
-    }
-  });
-}
+//       Swal.fire('Approved!', 'Report has been approved and finalized.', 'success');
+//     }
+//   });
+// }
 
-requestRevision(draft: MISReport): void {
-  Swal.fire({
-    title: 'Request Revision',
-    input: 'textarea',
-    inputLabel: 'Revision request details',
-    inputPlaceholder: 'What needs to be revised?',
-    showCancelButton: true,
-    confirmButtonText: 'Request Revision',
-    cancelButtonText: 'Cancel'
-  }).then((result) => {
-    if (result.isConfirmed && result.value) {
-      const revisionComment: { text: string; author: string; date: string; type: 'comment' | 'question' | 'revision_request' } = {
-        text: String(result.value),
-        author: 'Client',
-        date: new Date().toLocaleDateString(),
-        type: 'revision_request'
-      };
+// requestRevision(draft: MISReport): void {
+//   Swal.fire({
+//     title: 'Request Revision',
+//     input: 'textarea',
+//     inputLabel: 'Revision request details',
+//     inputPlaceholder: 'What needs to be revised?',
+//     showCancelButton: true,
+//     confirmButtonText: 'Request Revision',
+//     cancelButtonText: 'Cancel'
+//   }).then((result) => {
+//     if (result.isConfirmed && result.value) {
+//       const revisionComment: { text: string; author: string; date: string; type: 'comment' | 'question' | 'revision_request' } = {
+//         text: String(result.value),
+//         author: 'Client',
+//         date: new Date().toLocaleDateString(),
+//         type: 'revision_request'
+//       };
       
-      if (!draft.clientComments) {
-        draft.clientComments = [];
-      }
-      draft.clientComments.push(revisionComment);
-      draft.draftStatus = 'revised';
-      draft.revisionCount = (draft.revisionCount || 0) + 1;
-      this.updateReportDraftStatus(draft);
+//       if (!draft.clientComments) {
+//         draft.clientComments = [];
+//       }
+//       draft.clientComments.push(revisionComment);
+//       draft.draftStatus = 'revised';
+//       draft.revisionCount = (draft.revisionCount || 0) + 1;
+//       this.updateReportDraftStatus(draft);
       
-      Swal.fire('Requested!', 'Revision has been requested.', 'success');
-    }
-  });
-}
+//       Swal.fire('Requested!', 'Revision has been requested.', 'success');
+//     }
+//   });
+// }
 
-finalizeReport(draft: MISReport): void {
-  Swal.fire({
-    title: 'Finalize Report?',
-    text: 'This will mark the report as finalized and complete',
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Yes, finalize!',
-    cancelButtonText: 'Cancel'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      draft.draftStatus = 'finalized';
-      this.updateReportDraftStatus(draft);
-      
-      Swal.fire('Finalized!', 'Report has been finalized.', 'success');
-    }
-  });
-}
-
-private updateReportDraftStatus(draft: MISReport): void {
-  // Update the report in the backend
-  this.globalService.createReport(draft).subscribe({
-    next: () => {
-      this.loadReports(); // Refresh the list
-    },
-    error: (error) => {
-      console.error('Failed to update report status:', error);
-      Swal.fire('Error!', 'Failed to update report status', 'error');
-    }
-  });
-}
+// private updateReportDraftStatus(draft: MISReport): void {
+//   // Update the report in the backend
+//   this.globalService.createReport(draft).subscribe({
+//     next: () => {
+//       this.loadReports(); // Refresh the list
+//     },
+//     error: (error) => {
+//       console.error('Failed to update report status:', error);
+//       Swal.fire('Error!', 'Failed to update report status', 'error');
+//     }
+//   });
+// }
 
 
 getAddressedCriticalFindings(): number {
@@ -1180,9 +1278,7 @@ private updateKPIs(): void {
   }
 }
 
-
-
-  generateFieldworkReport(audit: FieldworkAudit): void {
+generateFieldworkReport(audit: FieldworkAudit): void {
   this.isLoading = true;
 
   Swal.fire({
@@ -1343,17 +1439,6 @@ selectDraftForManagement(draft: MISReport): void {
   this.selectedDraftReport = draft;
 }
 
-
-sendAllToClient(): void {
-  const underReviewDrafts = this.getDraftsByStatus('under_review');
-  // Implement bulk send logic
-}
-
-finalizeAllApproved(): void {
-  const clientReviewDrafts = this.getDraftsByStatus('client_review');
-  // Implement bulk finalize logic
-}
-
 openReportManagement(report: MISReport): void {
   this.debugReport(report); 
   this.selectedReport = report;
@@ -1465,8 +1550,6 @@ previewAutoReport() {
 
           // Convert PDF to base64
           const pdfBase64 = doc.output('datauristring');
-
-          // Show preview only (not saving)
           this.selectedReport = {
             title: `Auto Report Preview - ${new Date().toISOString().slice(0, 10)}`,
             type: 'auto-generated',
@@ -1641,6 +1724,151 @@ handleFileInput(ev: any) {
       });
     });
   }
+
+  finalizeReport(draft: MISReport): void {
+  Swal.fire({
+    title: 'Finalize Report?',
+    text: 'This will mark the report as finalized and complete',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, finalize!',
+    cancelButtonText: 'Cancel'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // Update the existing report instead of creating a new one
+      draft.draftStatus = 'finalized';
+      draft.finalizedAt = new Date().toISOString();
+      
+      this.updateReportDraftStatus(draft);
+      
+      Swal.fire('Finalized!', 'Report has been finalized.', 'success');
+    }
+  });
+}
+
+get commentTextLength(): number {
+  return this.commentForm.get('commentText')?.value?.length || 0;
+}
+
+onCommentTextInput(): void {
+  const commentTextControl = this.commentForm.get('commentText');
+  if (commentTextControl) {
+    commentTextControl.markAsTouched();
+  }
+}
+
+private updateReportDraftStatus(draft: MISReport): void {
+  if (draft.id) {
+    this.globalService.updateReport(draft.id, draft).subscribe({
+      next: (updatedReport) => {
+      //   console.log('Report updated successfully:', updatedReport);
+        this.loadReports(); 
+      },
+      error: (error) => {
+        console.error('Failed to update report status:', error);
+        console.log('Full error details:', {
+          url: `${this.apiUrl}/misReports/${draft.id}`,
+          report: draft,
+          error: error
+        });
+        Swal.fire('Error!', 'Failed to update report status', 'error');
+      }
+    });
+  } else {
+    console.warn('Report missing ID, creating new one instead of updating');
+    this.globalService.createReport(draft).subscribe({
+      next: () => {
+        this.loadReports();
+      },
+      error: (error) => {
+        console.error('Failed to create report:', error);
+        Swal.fire('Error!', 'Failed to create report', 'error');
+      }
+    });
+  }
+}
+
+sendToClient(draft: MISReport): void {
+  Swal.fire({
+    title: 'Send to Client?',
+    text: 'This will send the draft report to the client for review',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, send to client!',
+    cancelButtonText: 'Cancel'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // Update existing report
+      draft.draftStatus = 'client_review';
+      draft.sentToClientAt = new Date().toISOString();
+      this.updateReportDraftStatus(draft);
+      
+      Swal.fire('Sent!', 'Report has been sent to client for review.', 'success');
+    }
+  });
+}
+
+approveDraft(draft: MISReport): void {
+  Swal.fire({
+    title: 'Approve Report?',
+    text: 'This will mark the report as approved by client',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, approve!',
+    cancelButtonText: 'Cancel'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      draft.draftStatus = 'finalized';
+      draft.finalizedAt = new Date().toISOString();
+      this.updateReportDraftStatus(draft);
+      
+      Swal.fire('Approved!', 'Report has been approved and finalized.', 'success');
+    }
+  });
+}
+
+// Simplified and more reliable error checking
+shouldShowError(fieldName: string): boolean {
+  const field = this.commentForm.get(fieldName);
+  return !!(field && field.invalid && (this.formSubmitted || field.touched));
+}
+
+requestRevision(draft: MISReport): void {
+  Swal.fire({
+    title: 'Request Revision',
+    input: 'textarea',
+    inputLabel: 'Revision request details',
+    inputPlaceholder: 'What needs to be revised?',
+    showCancelButton: true,
+    confirmButtonText: 'Request Revision',
+    cancelButtonText: 'Cancel'
+  }).then((result) => {
+    if (result.isConfirmed && result.value) {
+      const revisionComment = {
+        text: String(result.value),
+        author: 'Client',
+        date: new Date().toISOString(),
+        type: 'revision_request' as const
+      };
+      
+      if (!draft.clientComments) {
+        draft.clientComments = [];
+      }
+      draft.clientComments.push(revisionComment);
+      draft.draftStatus = 'revised';
+      draft.revisionCount = (draft.revisionCount || 0) + 1;
+      this.updateReportDraftStatus(draft);
+      
+      Swal.fire('Requested!', 'Revision has been requested.', 'success');
+    }
+  });
+}
 
  uploadReportMetadata() {
   if (!this.uploadingFile || !this.newTitle) {
