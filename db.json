@@ -1205,49 +1205,6 @@
   ],
   "misReports": [
     {
-      "id": "r1",
-      "title": "Q1 Audit Summary (auto)",
-      "type": "auto-generated",
-      "createdAt": "2025-03-31",
-      "summary": {
-        "totalAudits": 5,
-        "completedAudits": 3,
-        "findingsHigh": 2,
-        "findingsMedium": 4,
-        "findingsLow": 6
-      },
-      "fileUrl": null
-    },
-    {
-      "id": "1d25",
-      "title": "Auto Report 2025-09-21",
-      "type": "auto-generated",
-      "createdAt": "2025-09-21T11:11:55.367Z",
-      "summary": {
-        "auditsByDept": {
-          "Finance": 2,
-          "IT": 1,
-          "EBU": 1,
-          "Market": 1,
-          "RND": 1
-        },
-        "findingsSeverity": {
-          "High": 4,
-          "Medium": 6,
-          "Low": 8,
-          "Unknown": 0
-        },
-        "auditsOverTime": {
-          "2025-01": 1,
-          "2025-02": 1,
-          "2025-09": 4
-        },
-        "totalAudits": 6,
-        "completedAudits": 2,
-        "inProgress": 2
-      }
-    },
-    {
       "id": "57e2",
       "title": "Audits",
       "type": "uploaded",
@@ -1289,7 +1246,18 @@
           "2025-02": 1,
           "2025-09": 6
         }
-      }
+      },
+      "draftStatus": "client_review",
+      "clientComments": [
+        {
+          "text": "vsdfwefewfewf",
+          "author": "Client",
+          "date": "2025-11-17T18:09:47.494Z",
+          "type": "comment"
+        }
+      ],
+      "revisionCount": 0,
+      "sentToClientAt": "2025-11-17T18:09:29.380Z"
     },
     {
       "id": "c483",
@@ -2604,23 +2572,6 @@
       }
     },
     {
-      "id": "r1",
-      "title": "Q1 Audit Summary (auto)",
-      "type": "auto-generated",
-      "createdAt": "2025-03-31",
-      "summary": {
-        "totalAudits": 5,
-        "completedAudits": 3,
-        "findingsHigh": 2,
-        "findingsMedium": 4,
-        "findingsLow": 6
-      },
-      "fileUrl": null,
-      "draftStatus": "under_review",
-      "clientComments": [],
-      "revisionCount": 0
-    },
-    {
       "id": "mfu2pohy",
       "title": "Auto Report 2025-09-21",
       "type": "auto-generated",
@@ -2675,9 +2626,29 @@
         "completedAudits": 2,
         "inProgress": 2
       },
-      "draftStatus": "under_review",
-      "clientComments": [],
-      "revisionCount": 0
+      "draftStatus": "revised",
+      "clientComments": [
+        {
+          "text": "ddsfdsfdsdsfd",
+          "author": "Client",
+          "date": "2025-11-17T17:55:45.323Z",
+          "type": "comment"
+        },
+        {
+          "text": "ewfwefewfwef",
+          "author": "Client",
+          "date": "2025-11-17T17:59:50.593Z",
+          "type": "question"
+        },
+        {
+          "text": "efffffewfwefewfwewefw",
+          "author": "Client",
+          "date": "2025-11-17T18:00:08.875Z",
+          "type": "revision_request"
+        }
+      ],
+      "revisionCount": 1,
+      "sentToClientAt": "2025-11-17T14:56:02.718Z"
     },
     {
       "id": "5106",

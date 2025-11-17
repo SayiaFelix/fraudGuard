@@ -26,8 +26,10 @@ export class GlobalService {
 
   public setting: any = {};
 
-  private apiUrl = 'http://127.0.0.1:5010/api/chat'; 
+  //private apiUrl = 'http://127.0.0.1:5010/api/chat'; 
 
+  private apiUrl = 'http://localhost:3000';
+  
   constructor(private http: HttpClient) {
     
     this.channelManagerHost = environment.customerPortalNest;
@@ -51,22 +53,18 @@ chatbotData$ = this.chatbotDataSubject.asObservable();
 private api = 'http://localhost:3000/workflows'; 
 private apis = 'http://localhost:3000'; 
 
-  // NEW: Get KPIs from backend
   getReportingKPIs(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/reporting-kpis`);
   }
 
-  // NEW: Generate quick summary
   generateQuickSummary(): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/generate-quick-summary`, {});
   }
 
-  // NEW: Generate analytics report
   generateAnalyticsReport(): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/generate-analytics-report`, {});
   }
 
-  // NEW: Get progress status
   getProgressStatus(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/reporting-progress`);
   }
@@ -75,8 +73,11 @@ private apis = 'http://localhost:3000';
     return this.http.get<any[]>(`${this.apis}/audits`);
   }
 
+updateReport(id: string, report: MISReport): Observable<MISReport> {
+  return this.http.put<MISReport>(`${this.apiUrl}/misReports/${id}`, report);
+}
 
-  getMISReports() {
+getMISReports() {
     return this.http.get<any[]>(`${this.apis}/misReports`);
   }
 
