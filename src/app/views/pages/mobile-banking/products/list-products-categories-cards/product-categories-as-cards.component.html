@@ -1,96 +1,189 @@
 <div class="container-fluid">
-
-  <!-- Header -->
   <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
-  <h2 class="fw-bold mb-2 mb-md-0 d-flex align-items-center">
-     MIS Reports
-  </h2>
-  <div class="d-flex gap-2 flex-wrap">
-    <!-- Upload stays standalone -->
-    <button class="btn btn-success btn-sm" (click)="openUploadModal()">
-      <i class="fas fa-upload me-1"></i> Upload Report
-    </button>
+    <h2 class="fw-bold mb-2 mb-md-0 d-flex align-items-center">
+      <i class="fas fa-chart-bar me-2 text-primary"></i> Audit Reports
+    </h2>
+    <div class="d-flex gap-2 flex-wrap">
+      <button class="btn btn-success btn-sm" (click)="openUploadModal()">
+        <i class="fas fa-upload me-1"></i> Upload Report
+      </button>
 
-    <!-- Auto Report group -->
-    <div class="btn-group">
-      <button class="btn btn-outline-primary btn-sm" (click)="createAutoReport()">
-        <i class="fas fa-file-alt me-1"></i> Auto Report
+      <button class="btn btn-primary btn-sm" (click)="generateFromFieldwork()">
+        <i class="fas fa-briefcase me-1"></i> Generate from Fieldwork
       </button>
-      <button type="button" class="btn btn-outline-primary btn-sm dropdown-toggle dropdown-toggle-split" 
-              data-bs-toggle="dropdown" aria-expanded="false">
-        <span class="visually-hidden">Toggle Dropdown</span>
-      </button>
-      <ul class="dropdown-menu">
-        <li>
-          <a class="dropdown-item" (click)="previewAutoReport()">
-            <i class="fas fa-eye me-1 text-info"></i> Preview Only
-          </a>
-        </li>
-        <li>
-          <a class="dropdown-item" (click)="createAutoReport()">
-            <i class="fas fa-save me-1 text-success"></i> Generate & Save
-          </a>
-        </li>
-      </ul>
+      <div class="btn-group">
+        <button class="btn btn-outline-primary btn-sm" (click)="createAutoReport()">
+          <i class="fas fa-file-alt me-1"></i> Auto Report
+        </button>
+        <button type="button" class="btn btn-outline-primary btn-sm dropdown-toggle dropdown-toggle-split" 
+                data-bs-toggle="dropdown" aria-expanded="false">
+          <span class="visually-hidden">Toggle Dropdown</span>
+        </button>
+        <ul class="dropdown-menu">
+          <li>
+            <a class="dropdown-item" (click)="previewAutoReport()">
+              <i class="fas fa-eye me-1 text-info"></i> Preview Only
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" (click)="createAutoReport()">
+              <i class="fas fa-save me-1 text-success"></i> Generate & Save
+            </a>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 
-</div>
-
-
-   <!-- KPI Row -->
   <div class="row mb-4">
-    <div class="col-md-3 col-sm-6 mb-2">
-      <div class="card text-center border-primary border-2 rounded-3 shadow-sm p-3">
-        <i class="fas fa-database fa-2x text-primary mb-2"></i>
-        <h4 class="fw-bold">Total Reports</h4>
-        <h4 class="fw-bold">{{ kpis.total }}</h4>
+      <div class="col-12">
+        <div class="card shadow-sm border-0">
+          <div class="card-header bg-light">
+            <h4 class="mb-0 fw-bold">
+              <i class="fas fa-bolt me-2 text-warning"></i> 
+              Quick Report Actions
+              <small class="text-muted ms-2">(Based on {{fieldworkReports.length}} fieldwork workflows)</small>
+            </h4>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+            
+              <div class="col-md-3 col-sm-6">
+                <div class="card h-100 border-0 bg-primary bg-opacity-10">
+                  <div class="card-body text-center">
+                    <i class="fas fa-rocket fa-2x text-primary mb-3"></i>
+                    <h6 class="fw-bold">Instant Summary</h6>
+                    <p class="small text-muted mb-3">Quick overview from fieldwork</p>
+                    <button class="btn btn-primary btn-sm w-100" 
+                            (click)="generateQuickSummary()"
+                            [disabled]="isLoading || fieldworkReports.length === 0">
+                      <i class="fas fa-bolt me-1"></i> 
+                      Generate
+                      <span *ngIf="fieldworkReports.length > 0" class="badge bg-white text-primary ms-1">
+                        {{fieldworkReports.length}}
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-3 col-sm-6">
+                <div class="card h-100 border-0 bg-success bg-opacity-10">
+                  <div class="card-body text-center">
+                    <i class="fas fa-briefcase fa-2x text-success mb-3"></i>
+                    <h6 class="fw-bold">Fieldwork Reports</h6>
+                    <p class="small text-muted mb-3">Create from fieldwork data</p>
+                    <button class="btn btn-success btn-sm w-100" 
+                            (click)="generateAllFieldworkReports()"
+                            [disabled]="fieldworkReports.length === 0 || isLoading">
+                      <i class="fas fa-cogs me-1"></i> 
+                      Generate All ({{fieldworkReports.length}})
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-3 col-sm-6">
+                <div class="card h-100 border-0 bg-info bg-opacity-10">
+                  <div class="card-body text-center">
+                    <i class="fas fa-chart-pie fa-2x text-info mb-3"></i>
+                    <h6 class="fw-bold">Analytics Report</h6>
+                    <p class="small text-muted mb-3">Detailed analytics & insights</p>
+                    <button class="btn btn-info btn-sm w-100" 
+                            (click)="generateAnalyticsReport()"
+                            [disabled]="isLoading || fieldworkReports.length === 0">
+                      <i class="fas fa-chart-bar me-1"></i> 
+                      Create
+                      <span *ngIf="fieldworkReports.length > 0" class="badge bg-white text-info ms-1">
+                        {{getTotalFindingsCount()}}
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-3 col-sm-6">
+                <div class="card h-100 border-0 bg-warning bg-opacity-10">
+                  <div class="card-body text-center">
+                    <i class="fas fa-file-excel fa-2x text-warning mb-3"></i>
+                    <h6 class="fw-bold">Export Data</h6>
+                    <p class="small text-muted mb-3">Export all reports to Excel</p>
+                    <button class="btn btn-warning btn-sm w-100" 
+                            (click)="exportAllReports()"
+                            [disabled]="reports.length === 0">
+                      <i class="fas fa-download me-1"></i> 
+                      Export
+                      <span *ngIf="reports.length > 0" class="badge bg-white text-warning ms-1">
+                        {{reports.length}}
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="col-md-3 col-sm-6 mb-2">
-      <div class="card text-center border-success border-2 rounded-3 shadow-sm p-3">
-        <i class="fas fa-upload fa-2x text-success mb-2"></i>
-        <h4 class="fw-bold">Uploaded Reports</h4>
-        <h4 class="fw-bold">{{ kpis.uploaded }}</h4>
+    <div class="row mb-4">
+
+      <div class="col-md-6" *ngIf="fieldworkReports.length > 0">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-header bg-light">
+            <h4 class="mb-0 fw-bold">
+              <i class="fas fa-briefcase me-2 text-primary"></i> 
+              Fieldwork Reports Ready for Generation
+              <span class="badge bg-primary ms-2">{{ fieldworkReports.length }}</span>
+            </h4>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-12" *ngFor="let audit of fieldworkReports">
+                <div class="card h-100 border-start border-4 border-success">
+                  <div class="card-body">
+                    <h6 class="card-title fw-bold">{{ audit?.title || 'Untitled Audit' }}</h6>
+                    <p class="small text-muted mb-2">{{ audit?.department || 'No department' }}</p>
+                    
+                    <div class="d-flex justify-content-between small mb-2">
+                      <span>Findings:</span>
+                      <span class="badge bg-warning">{{ audit?.findingsCount || 0 }}</span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between small mb-3">
+                      <span>Evidence:</span>
+                      <span class="badge bg-info">{{ audit?.evidenceCount || 0 }}</span>
+                    </div>
+
+                    <button class="btn btn-sm btn-success w-100" 
+                            (click)="generateFieldworkReport(audit)"
+                            [disabled]="!audit?.preClosing || audit?.preClosing?.length === 0">
+                      <i class="fas fa-file-alt me-1"></i> 
+                      Generate Report
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="col-md-3 col-sm-6 mb-2">
-      <div class="card text-center border-info border-2 rounded-3 shadow-sm p-3">
-        <i class="fas fa-robot fa-2x text-info mb-2"></i>
-        <h4 class="fw-bold">Auto Reports</h4>
-        <h4 class="fw-bold">{{ kpis.auto }}</h4>
-      </div>
-    </div>
-
-    <div class="col-md-3 col-sm-6 mb-2">
-      <div class="card text-center border-warning border-2 rounded-3 shadow-sm p-3">
-        <i class="fas fa-clock fa-2x text-warning mb-2"></i>
-        <h4 class="fw-bold">Latest Report</h4>
-        <h4 class="fw-bold">{{ kpis.latestDate }}</h4>
-      </div>
-    </div>
-  </div>
-
-  <!-- Loading Spinner -->
   <div *ngIf="isLoading" class="text-center py-5">
     <div class="spinner-border text-primary" role="status">
       <span class="visually-hidden">Loading...</span>
     </div>
   </div>
 
-  <!-- Report List Table -->
   <div style="border-radius: 12px;" class="card shadow-sm border-0" *ngIf="!isLoading">
     <div class="card-header bg-white">
-      <!-- Title Row -->
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h3 class="mb-0 fw-bold">
-          Report List 
-         <!-- <span class="badge bg-secondary ms-2">{{ filteredReports.length }}</span> -->
+          <i class="fas fa-list me-2 text-primary"></i> Report List
+          <span class="badge bg-primary ms-2">{{ filteredReports.length }}</span>
         </h3>
 
-          <!-- Export Dropdown -->
         <div class="dropdown">
           <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
             <i class="fas fa-file-export me-1"></i> Export
@@ -112,88 +205,473 @@
         </div>
       </div>
 
-      <!-- Filter Row -->
       <div class="row g-2 align-items-end">
-            
-        <div class="col-md-4">
+        <div class="col-md-2">
           <label class="form-label small mb-1">Title</label>
-          <input type="text" class="form-control form-control-sm" placeholder="Search by title" [(ngModel)]="filterTitle" (ngModelChange)="applyFilter()">
+          <input type="text" class="form-control form-control-sm" placeholder="Search by title" 
+                 [(ngModel)]="filterTitle" (ngModelChange)="applyFilter()">
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
           <label class="form-label small mb-1">Type</label>
           <select class="form-select form-select-sm" [(ngModel)]="filterType" (change)="applyFilter()">
             <option value="">All Types</option>
             <option value="auto-generated">Auto-Generated</option>
             <option value="uploaded">Uploaded</option>
+            <option value="fieldwork">Fieldwork Report</option>
           </select>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
+          <label class="form-label small mb-1">Source</label>
+          <select class="form-select form-select-sm" [(ngModel)]="filterSource" (change)="applyFilter()">
+            <option value="">All Sources</option>
+            <option value="fieldwork">Fieldwork</option>
+            <option value="manual">Manual</option>
+            <option value="system">System</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label small mb-1">Status</label>
+          <select class="form-select form-select-sm" [(ngModel)]="filterStatus" (change)="applyFilter()">
+            <option value="">All Status</option>
+            <option value="draft">Draft</option>
+            <option value="under_review">Under Review</option>
+            <option value="client_review">With Client</option>
+            <option value="revised">Revised</option>
+            <option value="finalized">Finalized</option>
+          </select>
+        </div>
+        <div class="col-md-2">
           <label class="form-label small mb-1">Created After</label>
           <input type="date" class="form-control form-control-sm" [(ngModel)]="filterDate" (change)="applyFilter()">
         </div>
         <div class="col-md-2">
-          <button class="btn btn-secondary btn-sm w-100" (click)="clearFilters()">
-            <i class="fas fa-times me-1"></i> Clear Filters
+          <button class="btn btn-secondary btn-sm me-2" (click)="clearFilters()">
+            <i class="fas fa-times me-1"></i> Clear
+          </button>
+          <button class="btn btn-info btn-sm" (click)="refreshData()">
+            <i class="fas fa-sync-alt me-1"></i> Refresh
           </button>
         </div>
       </div>
-     </div>
+    </div>
 
-      <div class="card-body p-0">
+    <div class="card-body p-0">
       <div class="table-responsive">
         <table class="table table-hover table-striped align-middle mb-0">
           <thead class="table-light text-uppercase small">
             <tr>
               <th scope="col">Title</th>
               <th scope="col">Type</th>
+              <th scope="col">Status</th>
+              <th scope="col">Source</th>
+              <th scope="col">Findings</th>
               <th scope="col">Created</th>
               <th scope="col" class="text-end">Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let r of filteredReports">
-              <td class="fw-medium">{{ r.title }}</td>
+            <tr *ngFor="let r of getPaginatedReports()" 
+                [class.table-warning]="isDraftReport(r)" 
+                [class.table-success]="r.draftStatus === 'finalized'"
+                (click)="openReportManagement(r)"
+                style="cursor: pointer;">
+              <td class="fw-medium">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-file-alt me-2" [ngClass]="{
+                    'text-muted': !isDraftReport(r),
+                    'text-warning': isDraftReport(r) && r.draftStatus !== 'finalized',
+                    'text-success': r.draftStatus === 'finalized'
+                  }"></i>
+                  <div>
+                    <div>{{ r.title }}</div>
+                    <div *ngIf="r.clientComments && r.clientComments.length > 0" class="small text-primary">
+                      <i class="fas fa-comments me-1"></i>{{ r.clientComments.length }} comments
+                    </div>
+                    <div *ngIf="r.revisionCount && r.revisionCount > 0" class="small text-warning">
+                      <i class="fas fa-redo me-1"></i>{{ r.revisionCount }} revisions
+                    </div>
+                  </div>
+                </div>
+              </td>
               <td>
-                <span 
-                  class="badge"
-                  [ngClass]="{
-                    'bg-primary': r.type === 'auto-generated',
-                    'bg-success': r.type === 'uploaded'
-                  }">
+                <span class="badge"
+                      [ngClass]="{
+                        'bg-primary': r.type === 'auto-generated',
+                        'bg-success': r.type === 'uploaded',
+                        'bg-warning': r.type === 'fieldwork'
+                      }">
                   {{ r.type | titlecase }}
                 </span>
               </td>
-              <td>{{ r.createdAt | date:'medium' }}</td>
+              <td>
+                <span *ngIf="isDraftReport(r)" class="badge" [ngClass]="{
+                  'bg-secondary': !r.draftStatus,
+                  'bg-info': r.draftStatus === 'under_review',
+                  'bg-warning': r.draftStatus === 'client_review',
+                  'bg-success': r.draftStatus === 'revised',
+                  'bg-dark': r.draftStatus === 'finalized'
+                }">
+                  {{ getDraftStatusText(r.draftStatus) }}
+                </span>
+                <span *ngIf="!isDraftReport(r)" class="badge bg-light text-dark">Final</span>
+              </td>
+              <td>
+                <span class="badge bg-secondary">{{ r.source || 'Manual' }}</span>
+              </td>
+              <td>
+                <span *ngIf="r.findingsCount" class="badge bg-danger">
+                  {{ r.findingsCount }} Findings
+                </span>
+                <span *ngIf="!r.findingsCount" class="text-muted">—</span>
+              </td>
+              <td>
+                <div>{{ r.createdAt | date:'mediumDate' }}</div>
+                <div class="small text-muted">{{ r.createdAt | date:'shortTime' }}</div>
+              </td>
               <td class="text-end">
-                <!-- Preview Button -->
-                   <button class="btn btn-outline-info btn-sm me-1"   title="Preview Report" (click)="previewReport(r)" data-bs-toggle="modal" data-bs-target="#previewModal">
-                      <i class="fas fa-eye"></i>
+                <div class="btn-group" role="group">
+                  <!-- Preview Button -->
+                  <button class="btn btn-outline-info btn-sm" title="Preview Report" 
+                          (click)="previewReport(r); $event.stopPropagation()" 
+                          data-bs-toggle="modal" 
+                          data-bs-target="#previewModal">
+                    <i class="fas fa-eye"></i>
+                  </button>
+               
+                  <!-- Download Button -->
+                  <button class="btn btn-outline-success btn-sm" 
+                          (click)="downloadReport(r); $event.stopPropagation()" 
+                          title="Download Report">
+                    <i class="fas fa-download"></i>
+                  </button>
+
+                  <!-- Draft Indicator -->
+                  <div class="btn-group" role="group" *ngIf="isDraftReport(r)">
+                    <button class="btn btn-outline-warning btn-sm" 
+                            title="Draft Report - Click row to manage"
+                            disabled>
+                      <i class="fas fa-edit"></i>
                     </button>
-             
-                <!-- Download Button -->
-                <button class="btn btn-sm btn-outline-success me-1" 
-                        (click)="downloadReport(r)" 
-                        title="Download Report">
-                  <i class="fas fa-download"></i>
-                </button>
-                <!-- Delete Button -->
-                <button class="btn btn-sm btn-outline-danger" 
-                        (click)="deleteReport(r)" 
-                        title="Delete Report">
-                  <i class="fas fa-trash-alt"></i>
-                </button>
+                  </div>
+                  
+                  <!-- Delete Button -->
+                  <button class="btn btn-outline-danger btn-sm" 
+                          (click)="deleteReport(r); $event.stopPropagation()" 
+                          title="Delete Report">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </div>
+
+                <!-- Quick Status Info -->
+                <div *ngIf="isDraftReport(r)" class="mt-1 small">
+                  <span *ngIf="(r?.revisionCount ?? 0) > 0" class="badge bg-warning me-1">
+                    v{{ ((r?.revisionCount ?? 0) || 0) + 1 }}
+                  </span>
+                  <span *ngIf="r.draftStatus === 'client_review'" class="badge bg-warning">
+                    <i class="fas fa-clock me-1"></i>With Client
+                  </span>
+                  <span *ngIf="r.draftStatus === 'revised'" class="badge bg-info">
+                    <i class="fas fa-sync me-1"></i>Needs Revision
+                  </span>
+                </div>
               </td>
             </tr>
             <tr *ngIf="filteredReports.length === 0">
-              <td colspan="4" class="text-center text-muted py-3">
-                No reports available
+              <td colspan="7" class="text-center text-muted py-3">
+                <i class="fas fa-inbox fa-2x mb-2"></i>
+                <p>No reports available</p>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
+
+      <div class="card-footer bg-white border-0" *ngIf="filteredReports.length > 0">
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center">
+            <span class="text-muted small me-2">Show</span>
+            <select class="form-select form-select-sm w-auto" [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+              <option value="5">5</option>
+              <option value="10">10</option>
+              <option value="20">20</option>
+              <option value="50">50</option>
+            </select>
+            <span class="text-muted small ms-2">entries</span>
+          </div>
+
+          <div class="text-muted small">
+            Showing {{ getStartIndex() + 1 }} to {{ getEndIndex() }} of {{ filteredReports.length }} entries
+          </div>
+
+          <nav>
+            <ul class="pagination pagination-sm mb-0">
+              <!-- First Page -->
+              <li class="page-item" [class.disabled]="currentPage === 1">
+                <a class="page-link" (click)="goToPage(1)" style="cursor: pointer;">
+                  <i class="fas fa-angle-double-left"></i>
+                </a>
+              </li>
+              
+              <!-- Previous Page -->
+              <li class="page-item" [class.disabled]="currentPage === 1">
+                <a class="page-link" (click)="previousPage()" style="cursor: pointer;">
+                  <i class="fas fa-angle-left"></i>
+                </a>
+              </li>
+
+              <!-- Page Numbers -->
+              <li class="page-item" *ngFor="let page of getPageNumbers()" 
+                  [class.active]="page === currentPage">
+                <a class="page-link" (click)="goToPage(page)" style="cursor: pointer;">
+                  {{ page }}
+                </a>
+              </li>
+
+              <!-- Next Page -->
+              <li class="page-item" [class.disabled]="currentPage === getTotalPages()">
+                <a class="page-link" (click)="nextPage()" style="cursor: pointer;">
+                  <i class="fas fa-angle-right"></i>
+                </a>
+              </li>
+
+              <!-- Last Page -->
+              <li class="page-item" [class.disabled]="currentPage === getTotalPages()">
+                <a class="page-link" (click)="goToPage(getTotalPages())" style="cursor: pointer;">
+                  <i class="fas fa-angle-double-right"></i>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
     </div>
-    
+  </div>
+</div>
+
+<div class="modal fade" id="reportManagementModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header" [ngClass]="{
+        'bg-warning': selectedReport?.draftStatus && selectedReport?.draftStatus !== 'finalized',
+        'bg-success': selectedReport?.draftStatus === 'finalized',
+        'bg-primary': !selectedReport?.draftStatus
+      }">
+        <h5 class="modal-title fw-bold text-white">
+          <i class="fas fa-file-alt me-2"></i> 
+          Report Management
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      
+      <div class="modal-body" *ngIf="selectedReport">
+        <!-- Report Header -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <h4 class="fw-bold text-primary mb-2">{{ selectedReport.title }}</h4>
+            <div class="row small text-muted">
+              <div class="col-md-6">
+                <i class="fas fa-calendar me-1"></i>
+                Created: {{ selectedReport.createdAt | date:'medium' }}
+              </div>
+              <div class="col-md-6">
+                <i class="fas fa-user me-1"></i>
+                By: {{ selectedReport.uploadedBy || 'System' }}
+              </div>
+            </div>
+            <div class="row small text-muted mt-1">
+              <div class="col-md-6">
+                <i class="fas fa-tag me-1"></i>
+                Type: <span class="badge bg-primary">{{ selectedReport.type }}</span>
+              </div>
+              <div class="col-md-6">
+                <i class="fas fa-database me-1"></i>
+                Source: <span class="badge bg-secondary">{{ selectedReport.source || 'Manual' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Status Overview -->
+        <div class="row mb-4" *ngIf="isDraftReport(selectedReport)">
+          <div class="col-12">
+            <div class="card border-0 bg-light">
+              <div class="card-body">
+                <h6 class="card-title fw-bold mb-3">Current Status</h6>
+                <div class="row text-center">
+                  <div class="col-3">
+                    <div class="fw-bold" [ngClass]="{
+                      'text-info': selectedReport.draftStatus === 'under_review',
+                      'text-warning': selectedReport.draftStatus === 'client_review',
+                      'text-success': selectedReport.draftStatus === 'revised',
+                      'text-dark': selectedReport.draftStatus === 'finalized'
+                    }">
+                      {{ getDraftStatusText(selectedReport.draftStatus) }}
+                    </div>
+                    <small class="text-muted">Status</small>
+                  </div>
+                  <div class="col-3">
+                    <div class="fw-bold text-primary">{{ selectedReport.clientComments?.length || 0 }}</div>
+                    <small class="text-muted">Comments</small>
+                  </div>
+                  <div class="col-3">
+                    <div class="fw-bold text-warning">{{ selectedReport.revisionCount || 0 }}</div>
+                    <small class="text-muted">Revisions</small>
+                  </div>
+                  <div class="col-3">
+                    <div class="fw-bold text-danger">{{ selectedReport.findingsCount || 0 }}</div>
+                    <small class="text-muted">Findings</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mb-4" *ngIf="isDraftReport(selectedReport)">
+          <div class="col-12">
+            <h6 class="fw-bold mb-3">Quick Actions</h6>
+            <div class="btn-group w-100" role="group">
+              <!-- Preview Button -->
+              <button class="btn btn-outline-info btn-sm" 
+                      (click)="previewDraftReport(selectedReport)"
+                      title="Preview Draft">
+                <i class="fas fa-eye me-1"></i> Preview
+              </button>
+              
+              <!-- Send to Client Button -->
+              <button class="btn btn-outline-warning btn-sm" 
+                      (click)="sendToClient(selectedReport)"
+                      [disabled]="selectedReport.draftStatus === 'client_review' || selectedReport.draftStatus === 'finalized'"
+                      title="Send to Client">
+                <i class="fas fa-paper-plane me-1"></i> Send to Client
+              </button>
+              
+              <!-- View Comments Button -->
+              <button class="btn btn-outline-primary btn-sm" 
+                      (click)="viewComments(selectedReport)"
+                      [disabled]="!selectedReport.clientComments || selectedReport.clientComments.length === 0"
+                      title="View Comments">
+                <i class="fas fa-comments me-1"></i> 
+                View Comments
+                <span *ngIf="selectedReport.clientComments?.length" class="badge bg-primary ms-1">
+                  {{ selectedReport.clientComments?.length }}
+                </span>
+              </button>
+              
+              <!-- Finalize Button -->
+              <button class="btn btn-outline-success btn-sm" 
+                      (click)="finalizeReport(selectedReport)"
+                      [disabled]="selectedReport.draftStatus === 'finalized'"
+                      title="Finalize Report">
+                <i class="fas fa-check me-1"></i> Finalize
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mb-4" *ngIf="selectedReport.draftStatus === 'client_review'">
+          <div class="col-12">
+            <div class="p-3 bg-light rounded">
+              <h6 class="fw-bold mb-3 text-warning">
+                <i class="fas fa-users me-1"></i> Client Actions
+              </h6>
+              <div class="btn-group w-100" role="group">
+                <button class="btn btn-outline-primary btn-sm" 
+                        (click)="addComment(selectedReport)">
+                  <i class="fas fa-plus me-1"></i>Add Comment
+                </button>
+                <button class="btn btn-outline-success btn-sm" 
+                        (click)="approveDraft(selectedReport)">
+                  <i class="fas fa-thumbs-up me-1"></i>Approve
+                </button>
+                <button class="btn btn-outline-danger btn-sm" 
+                        (click)="requestRevision(selectedReport)">
+                  <i class="fas fa-redo me-1"></i>Request Revision
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comments Section -->
+        <div class="row mb-4" *ngIf="selectedReport.clientComments && selectedReport.clientComments.length > 0">
+          <div class="col-12">
+            <h6 class="fw-bold mb-3">
+              <i class="fas fa-comments me-2 text-primary"></i>
+              Client Comments ({{ selectedReport.clientComments.length }})
+            </h6>
+            <div class="comments-section" style="max-height: 200px; overflow-y: auto;">
+              <div *ngFor="let comment of selectedReport.clientComments" 
+                   class="card mb-2 border-0 bg-light">
+                <div class="card-body py-2">
+                  <div class="d-flex justify-content-between align-items-start mb-1">
+                    <strong class="text-primary">{{ comment.author || 'Client' }}</strong>
+                    <small class="text-muted">{{ comment.date || 'Recently' }}</small>
+                  </div>
+                  <p class="mb-1 small">{{ comment.text }}</p>
+                  <span *ngIf="comment.type" class="badge" [ngClass]="{
+                    'bg-info': comment.type === 'question',
+                    'bg-warning': comment.type === 'revision_request',
+                    'bg-secondary': comment.type === 'comment'
+                  }">
+                    {{ comment.type }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Report Details -->
+        <div class="row">
+          <div class="col-12">
+            <h6 class="fw-bold mb-3">Report Details</h6>
+            <div class="card border-0 bg-light">
+              <div class="card-body">
+                <div class="row small">
+                  <div class="col-md-6 mb-2">
+                    <strong>Description:</strong>
+                    <p class="mb-0">{{ selectedReport.description || 'No description provided' }}</p>
+                  </div>
+                  <div class="col-md-6 mb-2">
+                    <strong>File Type:</strong>
+                    <p class="mb-0">{{ selectedReport.fileType || 'Not specified' }}</p>
+                  </div>
+                  <div class="col-md-6 mb-2" *ngIf="selectedReport.findingsCount">
+                    <strong>Findings Count:</strong>
+                    <p class="mb-0">{{ selectedReport.findingsCount }}</p>
+                  </div>
+                  <div class="col-md-6 mb-2" *ngIf="selectedReport.sentToClientAt">
+                    <strong>Sent to Client:</strong>
+                    <p class="mb-0">{{ selectedReport.sentToClientAt | date:'medium' }}</p>
+                  </div>
+                  <div class="col-md-6 mb-2" *ngIf="selectedReport.finalizedAt">
+                    <strong>Finalized:</strong>
+                    <p class="mb-0">{{ selectedReport.finalizedAt | date:'medium' }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-danger" 
+                (click)="deleteReport(selectedReport!)"
+                data-bs-dismiss="modal">
+          <i class="fas fa-trash me-1"></i>Delete Report
+        </button>
+        <button type="button" class="btn btn-primary" 
+                (click)="previewReport(selectedReport!)" 
+                data-bs-dismiss="modal"
+                data-bs-toggle="modal" 
+                data-bs-target="#previewModal">
+          <i class="fas fa-eye me-1"></i>Preview
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -235,17 +713,17 @@
         <ng-container *ngIf="selectedReport">
           <!-- PDF / DOCX / XLSX preview -->
           <iframe 
-            *ngIf="selectedReport.fileType === 'application/pdf' || selectedReport.fileType.includes('officedocument')" 
+            *ngIf="selectedReport?.fileType === 'application/pdf' || selectedReport?.fileType?.includes('officedocument')" 
             [src]="(selectedReport?.fileUrl || '') | safeUrl"
             class="w-100 h-100 border-0">
           </iframe>
 
           <!-- For unsupported files -->
-          <div *ngIf="!selectedReport.fileType.includes('pdf') && !selectedReport.fileType.includes('officedocument')" 
+          <div *ngIf="!(selectedReport?.fileType?.includes('pdf') || selectedReport?.fileType?.includes('officedocument'))" 
                class="d-flex flex-column justify-content-center align-items-center h-100">
             <i class="fas fa-file fa-3x text-muted mb-2"></i>
             <p class="text-muted">Preview not supported for this file type.</p>
-            <a [href]="selectedReport.fileUrl" download class="btn btn-sm btn-primary">
+            <a [href]="selectedReport?.fileUrl" download class="btn btn-sm btn-primary">
               <i class="fas fa-download"></i> Download
             </a>
           </div>

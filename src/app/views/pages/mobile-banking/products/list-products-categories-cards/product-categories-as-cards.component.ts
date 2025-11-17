@@ -3,7 +3,7 @@ import { HttpService } from 'src/app/shared/services/http.service';
 import { ToastrService } from 'ngx-toastr';
 import { Subject, Observable } from 'rxjs';
 import { takeUntil, finalize, map } from 'rxjs/operators';
-import { forkJoin } from 'rxjs'; // Explicitly import forkJoin
+import { forkJoin } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { ChartData } from 'chart.js';
 import * as XLSX from 'xlsx';
@@ -11,19 +11,44 @@ import * as saveAs from 'file-saver';
 import jsPDF from 'jspdf';
 import { GlobalService } from 'src/app/shared/services/global.service';
 import Swal from 'sweetalert2';
-import autoTable from 'jspdf-autotable'; // make sure to install jspdf-autotable
+import autoTable from 'jspdf-autotable'; 
 
 export interface MISReport {
-uploadedBy: any;
-fileType: string;
-description: any;
-filePath: any;
   id?: string;
   title: string;
-  type: 'auto-generated' | 'uploaded';
+  type: 'auto-generated' | 'uploaded' | 'fieldwork';
+  source?: 'fieldwork' | 'manual' | 'system';
   createdAt: string;
   summary?: any;
   fileUrl?: string | null;
+  uploadedBy?: string;
+  fileType?: string;
+  description?: string;
+  filePath?: any;
+  findingsCount?: number;
+  evidenceCount?: number;
+  fieldworkData?: any; // Store fieldwork findings
+  
+  draftStatus?: 'under_review' | 'client_review' | 'revised' | 'finalized';
+  clientComments?: {
+    text: string;
+    author: string;
+    date: string;
+    type: 'comment' | 'question' | 'revision_request';
+  }[];
+  revisionCount?: number;
+  sentToClientAt?: string;
+  finalizedAt?: string;
+}
+export interface FieldworkAudit {
+  id: string;
+  title: string;
+  department: string;
+  status: string;
+  findingsCount: number;
+  evidenceCount: number;
+  fieldwork?: any;
+  preClosing?: any[];
 }
 
 export interface Audit {
@@ -52,8 +77,6 @@ export interface Observation {
   createdAt: string;
   findings?: any[];
 }
-
-// Add global bootstrap declaration for TypeScript
 declare var bootstrap: any;
 
 @Component({
@@ -63,28 +86,453 @@ declare var bootstrap: any;
 })
 export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
   reports: MISReport[] = [];
+  fieldworkReports: FieldworkAudit[] = [];
   isLoading = false;
   newTitle = '';
   uploadingFile?: File;
   filteredReports: MISReport[] = [];
 
-  // filter fields
   filterTitle = '';
   filterType = '';
+  filterSource = '';
   filterDate = '';
-  private destroy$ = new Subject<void>();
-// Add KPI holders
-kpis = {
-  total: 0,
-  uploaded: 0,
-  auto: 0,
-  latestDate: ''
-};
+  currentPage = 1;
+  pageSize = 5;
 
-  constructor(private mis: GlobalService) {}
+
+  kpis = {
+    total: 0,
+    uploaded: 0,
+    auto: 0,
+    fieldworkReady: 0,
+    criticalFindings: 0,
+    latestDate: '',
+    totalFindings: 0,
+    addressedFindings: 0
+  };
+
+  progressData: any = {};
+
+  private destroy$ = new Subject<void>();
+  private apiUrl = 'http://localhost:3000';
+
+  constructor(
+    private mis: GlobalService,
+    private globalService: GlobalService,
+    private http: HttpClient
+  ) {}
 
   ngOnInit(): void {
     this.load();
+    this.loadReports();
+    this.loadFieldworkData();
+    this.calculateKPIsFromWorkflows(); 
+  }
+
+  private calculateKPIsFromWorkflows(): void {
+    const workflowsWithFieldwork = this.fieldworkReports.filter(wf => wf.fieldwork);
+
+    let totalFindings = 0;
+    let criticalFindings = 0;
+    let highFindings = 0;
+    let mediumFindings = 0;
+    let lowFindings = 0;
+    
+    workflowsWithFieldwork.forEach(workflow => {
+      if (workflow.fieldwork?.preClosing) {
+        totalFindings += workflow.fieldwork.preClosing.length;
+        
+        workflow.fieldwork.preClosing.forEach((finding: any) => {
+          switch (finding.severity?.toLowerCase()) {
+            case 'critical':
+              criticalFindings++;
+              break;
+            case 'high':
+              highFindings++;
+              break;
+            case 'medium':
+              mediumFindings++;
+              break;
+            case 'low':
+              lowFindings++;
+              break;
+          }
+        });
+      }
+    });
+
+    this.kpis.fieldworkReady = workflowsWithFieldwork.length;
+    this.kpis.criticalFindings = criticalFindings + highFindings; 
+  }
+
+  generateQuickSummary(): void {
+    this.isLoading = true;
+    
+    Swal.fire({
+      title: 'Generating Quick Summary...',
+      text: 'Creating instant overview report',
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading()
+    });
+
+    try {
+
+      const summaryData = this.calculateQuickSummaryData();
+      this.generateQuickSummaryPDF(summaryData);
+      
+    } catch (error) {
+      console.error('Error generating quick summary:', error);
+      Swal.fire('Error!', 'Failed to generate quick summary', 'error');
+      this.isLoading = false;
+    }
+  }
+
+  private calculateQuickSummaryData(): any {
+    const workflowsWithFieldwork = this.fieldworkReports.filter(wf => wf.fieldwork);
+    const allFindings = this.getAllFindingsFromWorkflows();
+    
+    return {
+      totalWorkflows: this.fieldworkReports.length,
+      workflowsWithFieldwork: workflowsWithFieldwork.length,
+      totalFindings: allFindings.total,
+      criticalFindings: allFindings.critical,
+      highFindings: allFindings.high,
+      mediumFindings: allFindings.medium,
+      lowFindings: allFindings.low,
+      departments: this.getDepartmentsFromWorkflows(),
+      statusDistribution: this.getStatusDistribution()
+    };
+  }
+
+  private getAllFindingsFromWorkflows(): any {
+    const findings = { total: 0, critical: 0, high: 0, medium: 0, low: 0 };
+    
+    this.fieldworkReports.forEach(workflow => {
+      if (workflow.fieldwork?.preClosing) {
+        workflow.fieldwork.preClosing.forEach((finding: any) => {
+          findings.total++;
+          switch (finding.severity?.toLowerCase()) {
+            case 'critical': findings.critical++; break;
+            case 'high': findings.high++; break;
+            case 'medium': findings.medium++; break;
+            case 'low': findings.low++; break;
+          }
+        });
+      }
+    });
+    
+    return findings;
+  }
+
+  private getDepartmentsFromWorkflows(): string[] {
+    const departments = new Set<string>();
+    this.fieldworkReports.forEach(workflow => {
+      if (workflow.department) {
+        departments.add(workflow.department);
+      }
+    });
+    return Array.from(departments);
+  }
+
+  private getStatusDistribution(): any {
+    const statusCount: any = {};
+    this.fieldworkReports.forEach(workflow => {
+      const status = workflow.status || 'Unknown';
+      statusCount[status] = (statusCount[status] || 0) + 1;
+    });
+    return statusCount;
+  }
+
+  private generateQuickSummaryPDF(summaryData: any): void {
+    try {
+      const doc = new jsPDF();
+      
+      doc.setFontSize(18);
+      doc.setTextColor(0, 0, 128);
+      doc.text('FIELDWORK QUICK SUMMARY REPORT', 14, 20);
+      
+      doc.setFontSize(10);
+      doc.setTextColor(100);
+      doc.text(`Generated: ${new Date().toLocaleDateString()} | Source: Actual Fieldwork Data`, 14, 28);
+
+      let currentY = 40;
+      doc.setFontSize(14);
+      doc.setTextColor(0);
+      doc.text('OVERVIEW', 14, currentY);
+
+      autoTable(doc, {
+        startY: currentY + 10,
+        head: [['Metric', 'Count']],
+        body: [
+          ['Total Workflows', summaryData.totalWorkflows],
+          ['Workflows with Fieldwork', summaryData.workflowsWithFieldwork],
+          ['Departments Involved', summaryData.departments.length],
+          ['Total Findings', summaryData.totalFindings]
+        ],
+        theme: 'grid',
+        headStyles: { fillColor: [41, 128, 185] }
+      });
+
+      // Update Y position
+      currentY = (doc as any).lastAutoTable?.finalY + 15 || 70;
+
+      // Findings by Severity
+      doc.setFontSize(14);
+      doc.text('FINDINGS BY SEVERITY', 14, currentY);
+
+      autoTable(doc, {
+        startY: currentY + 10,
+        head: [['Severity', 'Count', 'Percentage']],
+        body: [
+          ['Critical', summaryData.criticalFindings, this.getProgressPercentage(summaryData.criticalFindings, summaryData.totalFindings) + '%'],
+          ['High', summaryData.highFindings, this.getProgressPercentage(summaryData.highFindings, summaryData.totalFindings) + '%'],
+          ['Medium', summaryData.mediumFindings, this.getProgressPercentage(summaryData.mediumFindings, summaryData.totalFindings) + '%'],
+          ['Low', summaryData.lowFindings, this.getProgressPercentage(summaryData.lowFindings, summaryData.totalFindings) + '%']
+        ],
+        theme: 'grid',
+        headStyles: { fillColor: [52, 152, 219] }
+      });
+
+      // Update Y position
+      currentY = (doc as any).lastAutoTable?.finalY + 15 || 100;
+
+      // Workflow Status
+      doc.setFontSize(14);
+      doc.text('WORKFLOW STATUS DISTRIBUTION', 14, currentY);
+
+      const statusBody = Object.entries(summaryData.statusDistribution).map(([status, count]) => 
+        [status, String(count)]
+      );
+
+      autoTable(doc, {
+        startY: currentY + 10,
+        head: [['Status', 'Count']],
+        body: statusBody,
+        theme: 'grid',
+        headStyles: { fillColor: [155, 89, 182] }
+      });
+
+      // Convert to base64 and save
+      const pdfBase64 = doc.output('datauristring');
+
+      const payload: MISReport = {
+        title: `Fieldwork Quick Summary - ${new Date().toISOString().slice(0, 10)}`,
+        type: 'auto-generated',
+        source: 'fieldwork',
+        createdAt: new Date().toISOString(),
+        uploadedBy: 'System',
+        fileType: 'application/pdf',
+        fileUrl: pdfBase64,
+        description: 'Quick summary generated from actual fieldwork data',
+        findingsCount: summaryData.totalFindings,
+        fieldworkData: summaryData,
+        filePath: undefined,
+        draftStatus: 'under_review',
+        clientComments: [],
+        revisionCount: 0
+      };
+
+      this.saveReportAndRefresh(payload, 'Quick summary generated successfully from fieldwork data!');
+      
+    } catch (error) {
+      console.error('Error generating quick summary PDF:', error);
+      Swal.fire('Error!', 'Failed to generate quick summary PDF', 'error');
+      this.isLoading = false;
+    }
+  }
+
+  generateAnalyticsReport(): void {
+    this.isLoading = true;
+    
+    Swal.fire({
+      title: 'Creating Analytics Report...',
+      text: 'Generating detailed analytics from fieldwork data',
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading()
+    });
+
+    try {
+      const analyticsData = this.calculateAnalyticsData();
+      this.generateAnalyticsPDF(analyticsData);
+      
+    } catch (error) {
+      console.error('Failed to generate analytics report:', error);
+      Swal.fire('Error!', 'Failed to generate analytics report', 'error');
+      this.isLoading = false;
+    }
+  }
+
+  // NEW: Calculate analytics from actual workflows
+  private calculateAnalyticsData(): any {
+    const workflowsWithFieldwork = this.fieldworkReports.filter(wf => wf.fieldwork);
+    const allFindings = this.getAllFindingsFromWorkflows();
+    
+    // Calculate findings by department
+    const findingsByDept: any = {};
+    const workflowsByDept: any = {};
+    
+    this.fieldworkReports.forEach(workflow => {
+      const dept = workflow.department || 'Unknown';
+      
+      // Count workflows by department
+      workflowsByDept[dept] = (workflowsByDept[dept] || 0) + 1;
+      
+      // Count findings by department
+      if (workflow.fieldwork?.preClosing) {
+        findingsByDept[dept] = (findingsByDept[dept] || 0) + workflow.fieldwork.preClosing.length;
+      }
+    });
+
+    // Calculate findings by status
+    const findingsByStatus: any = {};
+    this.fieldworkReports.forEach(workflow => {
+      if (workflow.fieldwork?.preClosing) {
+        workflow.fieldwork.preClosing.forEach((finding: any) => {
+          const status = finding.status || 'Unknown';
+          findingsByStatus[status] = (findingsByStatus[status] || 0) + 1;
+        });
+      }
+    });
+
+    return {
+      totalWorkflows: this.fieldworkReports.length,
+      workflowsWithFindings: workflowsWithFieldwork.length,
+      findingsBySeverity: allFindings,
+      findingsByDepartment: findingsByDept,
+      workflowsByDepartment: workflowsByDept,
+      findingsByStatus: findingsByStatus,
+      departments: Array.from(new Set(this.fieldworkReports.map(wf => wf.department).filter(Boolean)))
+    };
+  }
+
+private generateAnalyticsPDF(analyticsData: any): void {
+  try {
+    const doc = new jsPDF();
+    
+    // Analytics Report Header
+    doc.setFontSize(18);
+    doc.setTextColor(0, 0, 128);
+    doc.text('FIELDWORK ANALYTICS REPORT', 14, 20);
+    
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text(`Generated: ${new Date().toLocaleDateString()} | Source: Actual Fieldwork Data`, 14, 28);
+
+    let currentY = 40;
+
+    // Executive Summary
+    doc.setFontSize(14);
+    doc.setTextColor(0);
+    doc.text('EXECUTIVE SUMMARY', 14, currentY);
+
+    autoTable(doc, {
+      startY: currentY + 10,
+      head: [['Category', 'Count']],
+      body: [
+        ['Total Workflows', analyticsData.totalWorkflows],
+        ['Workflows with Findings', analyticsData.workflowsWithFindings],
+        ['Total Departments', analyticsData.departments.length],
+        ['Total Findings', analyticsData.findingsBySeverity.total]
+      ],
+      theme: 'grid',
+      headStyles: { fillColor: [41, 128, 185] }
+    });
+
+    currentY = (doc as any).lastAutoTable?.finalY + 20 || 70;
+
+    // Findings by Department
+    doc.setFontSize(14);
+    doc.text('FINDINGS BY DEPARTMENT', 14, currentY);
+
+    const deptBody = Object.entries(analyticsData.findingsByDepartment).map(([dept, count]) => 
+      [dept, (count as number).toString(), analyticsData.workflowsByDepartment[dept]?.toString() || '0']
+    );
+
+    autoTable(doc, {
+      startY: currentY + 10,
+      head: [['Department', 'Findings', 'Workflows']],
+      body: deptBody,
+      theme: 'grid',
+      headStyles: { fillColor: [52, 152, 219] }
+    });
+
+    currentY = (doc as any).lastAutoTable?.finalY + 20 || 120;
+
+    // Findings by Status
+    doc.setFontSize(14);
+    doc.text('FINDINGS BY STATUS', 14, currentY);
+
+    const statusBody = Object.entries(analyticsData.findingsByStatus).map(([status, count]) => {
+      const numCount = typeof count === 'number' ? count : Number(count);
+      return [status, String(numCount), this.getProgressPercentage(numCount, analyticsData.findingsBySeverity.total) + '%'];
+    });
+
+    autoTable(doc, {
+      startY: currentY + 10,
+      head: [['Status', 'Count', 'Percentage']],
+      body: statusBody,
+      theme: 'grid',
+      headStyles: { fillColor: [155, 89, 182] }
+    });
+
+    // Convert to base64 and save
+    const pdfBase64 = doc.output('datauristring');
+
+    const payload: MISReport = {
+      title: `Fieldwork Analytics - ${new Date().toISOString().slice(0, 10)}`,
+      type: 'auto-generated',
+      source: 'fieldwork',
+      createdAt: new Date().toISOString(),
+      uploadedBy: 'System',
+      fileType: 'application/pdf',
+      fileUrl: pdfBase64,
+      description: 'Detailed analytics generated from actual fieldwork data',
+      findingsCount: analyticsData.findingsBySeverity.total,
+      fieldworkData: analyticsData,
+      filePath: undefined,
+
+      draftStatus: 'under_review',
+      clientComments: [],
+      revisionCount: 0
+    };
+
+    this.saveReportAndRefresh(payload, 'Analytics report generated successfully from fieldwork data!');
+    
+  } catch (error) {
+    console.error('Error generating analytics PDF:', error);
+    Swal.fire('Error!', 'Failed to generate analytics PDF', 'error');
+    this.isLoading = false;
+  }
+}
+
+  loadFieldworkData(): void {
+    this.http.get<any[]>(`${this.apiUrl}/workflows`).subscribe({
+      next: (workflows) => {
+        if (!workflows) {
+          this.fieldworkReports = [];
+          return;
+        }
+        
+        this.fieldworkReports = workflows
+          .filter(wf => wf?.fieldwork?.preClosing?.length > 0)
+          .map(wf => ({
+            id: wf.id || 'unknown',
+            title: wf.title || 'Untitled Workflow',
+            department: wf.department || 'No Department',
+            status: wf.status || 'Unknown',
+            findingsCount: wf.fieldwork?.preClosing?.length || 0,
+            evidenceCount: wf.fieldwork?.evidence?.length || 0,
+            fieldwork: wf.fieldwork,
+            preClosing: wf.fieldwork?.preClosing || []
+          }));
+      
+        this.calculateKPIsFromWorkflows();
+      },
+      error: (error) => {
+        console.error('Failed to load fieldwork data:', error);
+        this.fieldworkReports = [];
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -92,8 +540,840 @@ kpis = {
     this.destroy$.complete();
   }
 
-  selectedReport?: MISReport;
+
+selectedReport?: MISReport;
 previewContent: string | null = null;
+
+  loadReports(): void {
+    this.isLoading = true;
+    this.globalService.listReports()
+      .pipe(finalize(() => this.isLoading = false), takeUntil(this.destroy$))
+      .subscribe({
+        next: (reports) => {
+          this.reports = reports;
+          this.filteredReports = [...this.reports];
+          this.updateKPIs();
+        },
+        // error: () => this.swal.error('Failed to load reports')
+      });
+  }
+
+generateAllFieldworkReports(): void {
+  if (this.fieldworkReports.length === 0) {
+    Swal.fire('Info', 'No fieldwork reports available to generate', 'info');
+    return;
+  }
+
+  Swal.fire({
+    title: 'Generate All Fieldwork Reports?',
+    text: `This will generate ${this.fieldworkReports.length} individual fieldwork reports`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, generate all!',
+    cancelButtonText: 'Cancel'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      this.batchGenerateFieldworkReports();
+    }
+  });
+}
+
+private batchGenerateFieldworkReports(): void {
+  this.isLoading = true;
+  let completed = 0;
+  const total = this.fieldworkReports.length;
+
+  Swal.fire({
+    title: 'Generating Reports...',
+    html: `Progress: <b>0/${total}</b>`,
+    allowOutsideClick: false,
+    didOpen: () => {
+      Swal.showLoading();
+      
+      // Generate reports sequentially
+      this.fieldworkReports.forEach((audit, index) => {
+        setTimeout(() => {
+          this.generateSingleFieldworkReport(audit).then((success) => {
+            completed++;
+            if (Swal.isVisible()) {
+              Swal.getHtmlContainer()!.innerHTML = `Progress: <b>${completed}/${total}</b>`;
+            }
+            
+            if (completed === total) {
+              Swal.fire('Success!', `All ${total} fieldwork reports generated successfully!`, 'success');
+              this.isLoading = false;
+              this.loadReports(); // Refresh the reports list
+            }
+          });
+        }, index * 1000); // Stagger requests by 1 second
+      });
+    }
+  });
+}
+
+private async generateSingleFieldworkReport(audit: FieldworkAudit): Promise<boolean> {
+  return new Promise((resolve) => {
+    try {
+      this.generateFieldworkReportForBatch(audit).then(() => {
+        resolve(true);
+      }).catch(() => {
+        resolve(false); 
+      });
+    } catch (error) {
+      console.error(`Failed to generate report for ${audit.title}:`, error);
+      resolve(false); 
+    }
+  });
+}
+
+private async generateFieldworkReportForBatch(audit: FieldworkAudit): Promise<void> {
+  return new Promise((resolve, reject) => {
+    try {
+      const doc = new jsPDF();
+      
+      // Report Header
+      doc.setFontSize(18);
+      doc.setTextColor(0, 0, 128);
+      doc.text(`AUDIT REPORT: ${audit.title}`, 14, 20);
+      
+      doc.setFontSize(10);
+      doc.setTextColor(100);
+      doc.text(`Department: ${audit.department} | Generated: ${new Date().toLocaleDateString()}`, 14, 28);
+
+      // Executive Summary
+      doc.setFontSize(14);
+      doc.setTextColor(0);
+      doc.text('EXECUTIVE SUMMARY', 14, 45);
+
+      let startY = 55;
+
+      // Key Findings Summary
+      autoTable(doc, {
+        startY: startY,
+        head: [['Severity', 'Count']],
+        body: this.getFindingsBySeverity(audit.preClosing),
+        theme: 'grid',
+        headStyles: { fillColor: [41, 128, 185] }
+      });
+
+      let currentY = 70;
+      if ((doc as any).lastAutoTable && (doc as any).lastAutoTable.finalY) {
+        currentY = (doc as any).lastAutoTable.finalY + 15;
+      }
+
+      // Detailed Findings
+      doc.setFontSize(14);
+      doc.text('DETAILED FINDINGS', 14, currentY);
+
+      const detailedFindings = (audit.preClosing || []).map((f: any) => [
+        f.title || 'No title',
+        f.severity || 'Unknown',
+        f.status || 'Open',
+        f.recommendation || 'No recommendation'
+      ]);
+
+      autoTable(doc, {
+        startY: currentY + 10,
+        head: [['Finding', 'Severity', 'Status', 'Recommendation']],
+        body: detailedFindings,
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [52, 152, 219] }
+      });
+
+      // Convert to base64
+      const pdfBase64 = doc.output('datauristring');
+
+      // Create report payload
+      const payload: MISReport = {
+        title: `Fieldwork Report - ${audit.title}`,
+        type: 'fieldwork',
+        source: 'fieldwork',
+        createdAt: new Date().toISOString(),
+        uploadedBy: 'System',
+        fileType: 'application/pdf',
+        fileUrl: pdfBase64,
+        description: `Fieldwork report generated from ${audit.title}`,
+        findingsCount: audit.findingsCount,
+        evidenceCount: audit.evidenceCount,
+        fieldworkData: audit.fieldwork,
+
+        // ADD DRAFT PROPERTIES:
+        draftStatus: 'under_review',
+        clientComments: [],
+        revisionCount: 0,
+        sentToClientAt: undefined,
+        finalizedAt: undefined
+      };
+
+      // Save to database
+      this.globalService.createReport(payload).subscribe({
+        next: () => {
+          resolve();
+        },
+        error: (error) => {
+          console.error(`Failed to save report for ${audit.title}:`, error);
+          reject(error);
+        }
+      });
+
+    } catch (error) {
+      console.error(`Error generating report for ${audit.title}:`, error);
+      reject(error);
+    }
+  });
+}
+
+getPaginatedReports(): MISReport[] {
+  const startIndex = (this.currentPage - 1) * this.pageSize;
+  const endIndex = startIndex + this.pageSize;
+  return this.filteredReports.slice(startIndex, endIndex);
+}
+
+getTotalPages(): number {
+  return Math.ceil(this.filteredReports.length / this.pageSize);
+}
+
+getStartIndex(): number {
+  return (this.currentPage - 1) * this.pageSize;
+}
+
+getEndIndex(): number {
+  return Math.min(this.currentPage * this.pageSize, this.filteredReports.length);
+}
+
+getPageNumbers(): number[] {
+  const totalPages = this.getTotalPages();
+  const pages: number[] = [];
+  
+  let startPage = Math.max(1, this.currentPage - 2);
+  let endPage = Math.min(totalPages, startPage + 4);
+  
+  if (endPage - startPage < 4) {
+    startPage = Math.max(1, endPage - 4);
+  }
+  
+  for (let i = startPage; i <= endPage; i++) {
+    pages.push(i);
+  }
+  
+  return pages;
+}
+
+goToPage(page: number): void {
+  if (page >= 1 && page <= this.getTotalPages()) {
+    this.currentPage = page;
+  }
+}
+
+previousPage(): void {
+  if (this.currentPage > 1) {
+    this.currentPage--;
+  }
+}
+
+nextPage(): void {
+  if (this.currentPage < this.getTotalPages()) {
+    this.currentPage++;
+  }
+}
+
+onPageSizeChange(): void {
+  this.currentPage = 1; 
+}
+
+applyFilter(): void {
+  this.filteredReports = this.reports.filter(r => {
+    const matchesTitle = this.filterTitle
+      ? r.title.toLowerCase().includes(this.filterTitle.toLowerCase())
+      : true;
+
+    const matchesType = this.filterType
+      ? r.type === this.filterType
+      : true;
+
+    const matchesSource = this.filterSource
+      ? r.source === this.filterSource
+      : true;
+
+    const matchesStatus = this.filterStatus
+      ? this.matchesStatusFilter(r, this.filterStatus)
+      : true;
+
+    const matchesDate = this.filterDate
+      ? new Date(r.createdAt) >= new Date(this.filterDate)
+      : true;
+
+    return matchesTitle && matchesType && matchesSource && matchesStatus && matchesDate;
+  });
+
+  this.currentPage = 1;
+}
+
+clearFilters() {
+  this.filterTitle = '';
+  this.filterType = '';
+  this.filterSource = '';
+  this.filterStatus = '';
+  this.filterDate = '';
+  this.filteredReports = [...this.reports];
+  this.currentPage = 1;
+}
+
+exportAllReports(): void {
+  this.exportAsExcel();
+}
+
+getProgressPercentage(current: number, total: number): number {
+  if (total === 0) return 0;
+  return Math.round((current / total) * 100);
+}
+
+getOverallProgress(): number {
+  const severityCount = this.getFindingsBySeverityLevel();
+  const totalCriticalHigh = severityCount.critical + severityCount.high;
+  const addressedCriticalHigh = this.getAddressedCriticalFindings();
+  
+  const scores = [
+    this.getProgressPercentage(this.kpis.auto, this.kpis.total),
+    this.getProgressPercentage(this.kpis.fieldworkReady, this.getTotalFieldworkOpportunities()),
+    totalCriticalHigh > 0 ? this.getProgressPercentage(addressedCriticalHigh, totalCriticalHigh) : 0,
+    this.getProgressPercentage(this.getCompletedReports(), this.kpis.total)
+  ];
+
+  const validScores = scores.filter(score => score > 0);
+  return validScores.length > 0 ? Math.round(validScores.reduce((a, b) => a + b, 0) / validScores.length) : 0;
+}
+
+getTotalFieldworkOpportunities(): number {
+  return this.fieldworkReports.filter(wf => wf.fieldwork).length;
+}
+
+getCompletedReports(): number {
+  return this.reports.filter(r => 
+    r.type === 'auto-generated' || r.type === 'fieldwork'
+  ).length;
+}
+
+getPendingReports(): number {
+  return this.reports.filter(r => r.type === 'uploaded').length;
+}
+
+getDraftsByStatus(status: string): MISReport[] {
+  return this.getDraftReports().filter(draft => draft.draftStatus === status);
+}
+
+viewComments(draft: MISReport): void {
+  const comments = draft.clientComments || [];
+  let commentsHtml = '<div class="text-start">';
+  
+  if (comments.length === 0) {
+    commentsHtml += '<p class="text-muted">No comments yet.</p>';
+  } else {
+    comments.forEach((comment: any) => {
+      commentsHtml += `
+        <div class="border-bottom pb-2 mb-2">
+          <div class="d-flex justify-content-between">
+            <strong>${comment.author || 'Client'}</strong>
+            <small class="text-muted">${comment.date || 'Recently'}</small>
+          </div>
+          <p class="mb-1">${comment.text}</p>
+          ${comment.type ? `<span class="badge bg-${comment.type === 'question' ? 'info' : 'warning'}">${comment.type}</span>` : ''}
+        </div>
+      `;
+    });
+  }
+  commentsHtml += '</div>';
+
+  Swal.fire({
+    title: 'Client Comments',
+    html: commentsHtml,
+    confirmButtonText: 'Close',
+    width: '600px'
+  });
+}
+
+previewDraftReport(draft: MISReport): void {
+  this.selectedReport = draft;
+  this.openPreviewModal(draft);
+}
+
+sendToClient(draft: MISReport): void {
+  Swal.fire({
+    title: 'Send to Client?',
+    text: 'This will send the draft report to the client for review',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, send to client!',
+    cancelButtonText: 'Cancel'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // Update report status
+      draft.draftStatus = 'client_review';
+      this.updateReportDraftStatus(draft);
+      
+      Swal.fire('Sent!', 'Report has been sent to client for review.', 'success');
+    }
+  });
+}
+
+addComment(draft: MISReport): void {
+  Swal.fire({
+    title: 'Add Comment',
+    input: 'textarea',
+    inputLabel: 'Your comment or question',
+    inputPlaceholder: 'Type your comment here...',
+    showCancelButton: true,
+    confirmButtonText: 'Add Comment',
+    cancelButtonText: 'Cancel'
+  }).then((result) => {
+    if (result.isConfirmed && result.value) {
+      const newComment: { text: string; author: string; date: string; type: 'comment' | 'question' | 'revision_request' } = {
+        text: String(result.value),
+        author: 'Client',
+        date: new Date().toLocaleDateString(),
+        type: 'comment'
+      };
+      
+      if (!draft.clientComments) {
+        draft.clientComments = [];
+      }
+      draft.clientComments.push(newComment);
+      this.updateReportDraftStatus(draft);
+      
+      Swal.fire('Added!', 'Your comment has been added.', 'success');
+    }
+  });
+}
+
+getDraftReports(): MISReport[] {
+  return this.reports.filter(report => 
+    report.type === 'fieldwork' || report.type === 'auto-generated'
+  ).map(report => ({
+    ...report,
+    draftStatus: report.draftStatus || 'under_review',
+    clientComments: report.clientComments || [],
+    revisionCount: report.revisionCount || 0
+  }));
+}
+
+filterStatus = '';
+
+private matchesStatusFilter(report: MISReport, status: string): boolean {
+  if (status === 'draft') {
+    return this.isDraftReport(report) && report.draftStatus !== 'finalized';
+  }
+  return report.draftStatus === status;
+}
+
+debugReport(report: MISReport): void {
+  console.log('Report debug:', {
+    title: report.title,
+    type: report.type,
+    draftStatus: report.draftStatus,
+    clientComments: report.clientComments,
+    revisionCount: report.revisionCount,
+    isDraftReport: this.isDraftReport(report)
+  });
+}
+
+getDraftStatusText(status?: string): string {
+  const statusMap: { [key: string]: string } = {
+    'under_review': 'Under Review',
+    'client_review': 'With Client',
+    'revised': 'Revised',
+    'finalized': 'Finalized'
+  };
+  return status ? statusMap[status] || 'Draft' : 'Draft';
+}
+
+approveDraft(draft: MISReport): void {
+  Swal.fire({
+    title: 'Approve Report?',
+    text: 'This will mark the report as approved by client',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, approve!',
+    cancelButtonText: 'Cancel'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      draft.draftStatus = 'finalized';
+      this.updateReportDraftStatus(draft);
+      
+      Swal.fire('Approved!', 'Report has been approved and finalized.', 'success');
+    }
+  });
+}
+
+requestRevision(draft: MISReport): void {
+  Swal.fire({
+    title: 'Request Revision',
+    input: 'textarea',
+    inputLabel: 'Revision request details',
+    inputPlaceholder: 'What needs to be revised?',
+    showCancelButton: true,
+    confirmButtonText: 'Request Revision',
+    cancelButtonText: 'Cancel'
+  }).then((result) => {
+    if (result.isConfirmed && result.value) {
+      const revisionComment: { text: string; author: string; date: string; type: 'comment' | 'question' | 'revision_request' } = {
+        text: String(result.value),
+        author: 'Client',
+        date: new Date().toLocaleDateString(),
+        type: 'revision_request'
+      };
+      
+      if (!draft.clientComments) {
+        draft.clientComments = [];
+      }
+      draft.clientComments.push(revisionComment);
+      draft.draftStatus = 'revised';
+      draft.revisionCount = (draft.revisionCount || 0) + 1;
+      this.updateReportDraftStatus(draft);
+      
+      Swal.fire('Requested!', 'Revision has been requested.', 'success');
+    }
+  });
+}
+
+finalizeReport(draft: MISReport): void {
+  Swal.fire({
+    title: 'Finalize Report?',
+    text: 'This will mark the report as finalized and complete',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, finalize!',
+    cancelButtonText: 'Cancel'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      draft.draftStatus = 'finalized';
+      this.updateReportDraftStatus(draft);
+      
+      Swal.fire('Finalized!', 'Report has been finalized.', 'success');
+    }
+  });
+}
+
+private updateReportDraftStatus(draft: MISReport): void {
+  // Update the report in the backend
+  this.globalService.createReport(draft).subscribe({
+    next: () => {
+      this.loadReports(); // Refresh the list
+    },
+    error: (error) => {
+      console.error('Failed to update report status:', error);
+      Swal.fire('Error!', 'Failed to update report status', 'error');
+    }
+  });
+}
+
+
+getAddressedCriticalFindings(): number {
+  let addressedCount = 0;
+  
+  this.fieldworkReports.forEach(workflow => {
+    if (workflow.fieldwork?.preClosing) {
+      addressedCount += workflow.fieldwork.preClosing.filter((f: any) => 
+        (f.severity === 'Critical' || f.severity === 'High') && 
+        (f.status === 'Resolved' || f.status === 'Closed' || f.status === 'Implemented' || f.status === 'Reviewed')
+      ).length;
+    }
+  });
+  
+  return addressedCount;
+}
+
+getFindingsDistribution(): any {
+  const severityCount = this.getFindingsBySeverityLevel();
+  const totalFindings = this.getTotalFindingsCount();
+  
+  return {
+    critical: severityCount.critical,
+    high: severityCount.high,
+    medium: severityCount.medium,
+    low: severityCount.low,
+    total: totalFindings,
+    criticalPercentage: totalFindings > 0 ? Math.round((severityCount.critical / totalFindings) * 100) : 0,
+    highPercentage: totalFindings > 0 ? Math.round((severityCount.high / totalFindings) * 100) : 0
+  };
+}
+
+getFindingsBySeverityLevel(): { low: number, medium: number, high: number, critical: number } {
+  const severityCount = { low: 0, medium: 0, high: 0, critical: 0 };
+  
+  this.fieldworkReports.forEach(workflow => {
+    if (workflow.fieldwork?.preClosing) {
+      workflow.fieldwork.preClosing.forEach((finding: any) => {
+        switch (finding.severity?.toLowerCase()) {
+          case 'critical':
+            severityCount.critical++;
+            break;
+          case 'high':
+            severityCount.high++;
+            break;
+          case 'medium':
+            severityCount.medium++;
+            break;
+          case 'low':
+            severityCount.low++;
+            break;
+          default:
+            severityCount.medium++;
+            break;
+        }
+      });
+    }
+  });
+  
+  return severityCount;
+}
+
+getTotalFindingsCount(): number {
+  let total = 0;
+  this.fieldworkReports.forEach(workflow => {
+    if (workflow.fieldwork?.preClosing) {
+      total += workflow.fieldwork.preClosing.length;
+    }
+  });
+  return total;
+}
+
+getCriticalFindingsProgressClass(): string {
+  const severityCount = this.getFindingsBySeverityLevel();
+  const totalCriticalHigh = severityCount.critical + severityCount.high;
+  const progress = totalCriticalHigh > 0 ? 
+    this.getProgressPercentage(this.getAddressedCriticalFindings(), totalCriticalHigh) : 0;
+    
+  if (progress >= 70) return 'bg-success';
+  if (progress >= 40) return 'bg-warning';
+  return 'bg-danger';
+}
+
+private updateKPIs(): void {
+  this.kpis.total = this.reports.length;
+  this.kpis.uploaded = this.reports.filter(r => r.type === 'uploaded').length;
+  this.kpis.auto = this.reports.filter(r => r.type === 'auto-generated').length;
+  
+  this.kpis.fieldworkReady = this.fieldworkReports.filter(wf => wf.fieldwork?.preClosing?.length > 0).length;
+  
+  const severityCount = this.getFindingsBySeverityLevel();
+  this.kpis.criticalFindings = severityCount.critical + severityCount.high;
+  
+  this.kpis.totalFindings = this.getTotalFindingsCount();
+  
+  this.kpis.addressedFindings = this.getAddressedCriticalFindings();
+
+  if (this.reports.length > 0) {
+    const latest = this.reports
+      .map(r => new Date(r.createdAt))
+      .sort((a, b) => b.getTime() - a.getTime())[0];
+    this.kpis.latestDate = latest.toLocaleDateString();
+  } else {
+    this.kpis.latestDate = 'N/A';
+  }
+}
+
+
+
+  generateFieldworkReport(audit: FieldworkAudit): void {
+  this.isLoading = true;
+
+  Swal.fire({
+    title: 'Generating Fieldwork Report...',
+    text: `Creating report for ${audit.title}`,
+    allowOutsideClick: false,
+    didOpen: () => Swal.showLoading()
+  });
+
+  try {
+    const doc = new jsPDF();
+    
+    // Report Header
+    doc.setFontSize(18);
+    doc.setTextColor(0, 0, 128);
+    doc.text(`AUDIT REPORT: ${audit.title}`, 14, 20);
+    
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text(`Department: ${audit.department} | Generated: ${new Date().toLocaleDateString()}`, 14, 28);
+
+    // Executive Summary
+    doc.setFontSize(14);
+    doc.setTextColor(0);
+    doc.text('EXECUTIVE SUMMARY', 14, 45);
+
+    let startY = 55;
+
+    // Key Findings Summary
+    autoTable(doc, {
+      startY: startY,
+      head: [['Severity', 'Count']],
+      body: this.getFindingsBySeverity(audit.preClosing),
+      theme: 'grid',
+      headStyles: { fillColor: [41, 128, 185] }
+    });
+
+    let currentY = 70; 
+    
+    if ((doc as any).lastAutoTable && (doc as any).lastAutoTable.finalY) {
+      currentY = (doc as any).lastAutoTable.finalY + 15;
+    }
+
+    // Detailed Findings
+    doc.setFontSize(14);
+    doc.text('DETAILED FINDINGS', 14, currentY);
+
+    const detailedFindings = (audit.preClosing || []).map((f: any) => [
+      f.title || 'No title',
+      f.severity || 'Unknown',
+      f.status || 'Open',
+      f.recommendation || 'No recommendation'
+    ]);
+
+    autoTable(doc, {
+      startY: currentY + 10,
+      head: [['Finding', 'Severity', 'Status', 'Recommendation']],
+      body: detailedFindings,
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [52, 152, 219] }
+    });
+
+    // Convert to base64
+    const pdfBase64 = doc.output('datauristring');
+
+    // Create report payload
+    const payload: MISReport = {
+      title: `Fieldwork Report - ${audit.title}`,
+      type: 'fieldwork',
+      source: 'fieldwork',
+      createdAt: new Date().toISOString(),
+      uploadedBy: 'System',
+      fileType: 'application/pdf',
+      fileUrl: pdfBase64,
+      description: `Fieldwork report generated from ${audit.title}`,
+      findingsCount: audit.findingsCount,
+      evidenceCount: audit.evidenceCount,
+      fieldworkData: audit.fieldwork,
+
+      draftStatus: 'under_review',
+      clientComments: [],
+      revisionCount: 0,
+      sentToClientAt: undefined,
+      finalizedAt: undefined
+    };
+
+    this.globalService.createReport(payload).subscribe({
+      next: () => {
+        this.loadReports();
+        Swal.fire('Success!', 'Fieldwork report generated successfully!', 'success');
+      },
+      error: () => {
+        Swal.fire('Error!', 'Failed to save fieldwork report', 'error');
+      }
+    });
+
+  } catch (error) {
+    console.error('Error generating fieldwork report:', error);
+    Swal.fire('Error!', 'Failed to generate report', 'error');
+  } finally {
+    this.isLoading = false;
+  }
+}
+
+private getFindingsBySeverity(findings: any[] = []): any[] {
+  const severityCount: { [key: string]: number } = {};
+  
+  if (!findings || findings.length === 0) {
+    return [['No findings', 0]];
+  }
+  
+  findings.forEach(finding => {
+    const severity = finding?.severity || 'Unknown';
+    severityCount[severity] = (severityCount[severity] || 0) + 1;
+  });
+
+  return Object.entries(severityCount).map(([severity, count]) => [severity, count]);
+}
+
+hasExistingDraft(audit: FieldworkAudit): boolean {
+  const draftTitle = `Fieldwork Report - ${audit.title}`;
+  return this.reports.some(report => 
+    report.title === draftTitle && 
+    this.isDraftReport(report) && 
+    report.draftStatus !== 'finalized'
+  );
+}
+
+openDraftManagementModal(audit: FieldworkAudit): void {
+  const draftTitle = `Fieldwork Report - ${audit.title}`;
+  const draftReport = this.reports.find(report => 
+    report.title === draftTitle && this.isDraftReport(report)
+  );
+  
+  if (draftReport) {
+    this.selectedDraftReport = draftReport;
+    this.openDraftModal();
+  }
+}
+
+selectedDraftReport?: MISReport;
+openDraftModal(): void {
+  const modal = new bootstrap.Modal(document.getElementById('draftManagementModal')!);
+  modal.show();
+}
+
+closeDraftModal(): void {
+  const modal = bootstrap.Modal.getInstance(document.getElementById('draftManagementModal')!);
+  modal?.hide();
+}
+
+openAllDraftsModal(): void {
+  this.selectedDraftReport = undefined; 
+  this.openDraftModal();
+}
+
+selectDraftForManagement(draft: MISReport): void {
+  this.selectedDraftReport = draft;
+}
+
+
+sendAllToClient(): void {
+  const underReviewDrafts = this.getDraftsByStatus('under_review');
+  // Implement bulk send logic
+}
+
+finalizeAllApproved(): void {
+  const clientReviewDrafts = this.getDraftsByStatus('client_review');
+  // Implement bulk finalize logic
+}
+
+openReportManagement(report: MISReport): void {
+  this.debugReport(report); 
+  this.selectedReport = report;
+  const modal = new bootstrap.Modal(document.getElementById('reportManagementModal')!);
+  modal.show();
+}
+
+generateFromFieldwork(): void {
+    if (this.fieldworkReports.length === 0) {
+      Swal.fire('Info', 'No fieldwork data available for reporting', 'info');
+      return;
+    }
+
+    this.generateFieldworkReport(this.fieldworkReports[0]);
+  }
+
+refreshData(): void {
+    this.loadReports();
+    this.loadFieldworkData();
+  }
 
 openUploadModal() {
   const modal = new bootstrap.Modal(document.getElementById('uploadModal')!);
@@ -119,28 +1399,6 @@ previewReport(report: any) {
   this.selectedReport = report;
 }
 
-
-  applyFilter() {
-  this.filteredReports = this.reports.filter(r => {
-    // title filter
-    const matchesTitle = this.filterTitle
-      ? r.title.toLowerCase().includes(this.filterTitle.toLowerCase())
-      : true;
-
-    // type filter
-    const matchesType = this.filterType
-      ? r.type === this.filterType
-      : true;
-
-    // date filter
-    const matchesDate = this.filterDate
-      ? new Date(r.createdAt) >= new Date(this.filterDate)
-      : true;
-
-    return matchesTitle && matchesType && matchesDate;
-  });
-}
-
 load() {
   this.isLoading = true;
   this.mis.listReports()
@@ -155,29 +1413,6 @@ load() {
     });
 }
 
-updateKPIs() {
-  this.kpis.total = this.reports.length;
-  this.kpis.uploaded = this.reports.filter(r => r.type === 'uploaded').length;
-  this.kpis.auto = this.reports.filter(r => r.type === 'auto-generated').length;
-
-  if (this.reports.length > 0) {
-    const latest = this.reports
-      .map(r => new Date(r.createdAt))
-      .sort((a, b) => b.getTime() - a.getTime())[0];
-    this.kpis.latestDate = latest.toLocaleDateString();
-  } else {
-    this.kpis.latestDate = 'N/A';
-  }
-}
-
-clearFilters() {
-  this.filterTitle = '';
-  this.filterType = '';
-  this.filterDate = '';
-  this.filteredReports = [...this.reports];
-}
-
-// 🔹 PREVIEW ONLY (dynamic, no saving, just modal)
 previewAutoReport() {
   this.isLoading = true;
 
@@ -208,7 +1443,6 @@ previewAutoReport() {
             body: [[summary.totalAudits, summary.completedAudits, summary.inProgress]]
           });
 
-          // Audits by Department
           const auditsByDeptTable = autoTable(doc, {
             startY: (quickStatsTable as any)?.finalY ? (quickStatsTable as any).finalY + 15 : 55,
             head: [['Department', 'Count']],
@@ -259,7 +1493,12 @@ previewAutoReport() {
     });
 }
 
-// 🔹 GENERATE & SAVE (dynamic + persists in DB)
+isDraftReport(report: MISReport): boolean {
+  return (report.type === 'fieldwork' || report.type === 'auto-generated') && 
+         report.draftStatus !== undefined && 
+         report.draftStatus !== 'finalized';
+}
+
 createAutoReport() {
   this.isLoading = true;
 
@@ -312,17 +1551,22 @@ createAutoReport() {
 
           const pdfBase64 = doc.output('datauristring');
 
-          const payload: MISReport = {
-            title: `Auto Report ${new Date().toISOString().slice(0, 10)}`,
-            type: 'auto-generated',
-            createdAt: new Date().toISOString(),
-            uploadedBy: 'System',
-            fileType: 'application/pdf',
-            fileUrl: pdfBase64,
-            description: 'Auto-generated audit summary',
-            summary,
-            filePath: undefined
-          };
+            const payload: MISReport = {
+              title: `Auto Report ${new Date().toISOString().slice(0, 10)}`,
+              type: 'auto-generated',
+              createdAt: new Date().toISOString(),
+              uploadedBy: 'System',
+              fileType: 'application/pdf',
+              fileUrl: pdfBase64,
+              description: 'Auto-generated audit summary',
+              summary,
+              filePath: undefined,
+
+              draftStatus: 'under_review',
+              clientComments: [],
+              revisionCount: 0,
+              source: 'system'
+            };
 
           this.mis.createReport(payload).subscribe({
             next: () => {
@@ -343,6 +1587,33 @@ createAutoReport() {
         Swal.fire('Error ❌', 'Failed to generate auto report summary.', 'error');
       }
     });
+}
+
+private saveReportAndRefresh(payload: MISReport, successMessage: string): void {
+  const completePayload: MISReport = {
+    ...payload,
+    ...((payload.type === 'auto-generated' || payload.type === 'fieldwork') && {
+      draftStatus: 'under_review',
+      clientComments: [],
+      revisionCount: 0,
+      sentToClientAt: undefined,
+      finalizedAt: undefined
+    })
+  };
+
+  this.globalService.createReport(completePayload).subscribe({
+    next: () => {
+      this.loadReports();
+      this.calculateKPIsFromWorkflows();
+      this.isLoading = false;
+      Swal.fire('Success!', successMessage, 'success');
+    },
+    error: (error) => {
+      console.error('Failed to save report:', error);
+      this.isLoading = false;
+      Swal.fire('Error!', 'Failed to save report', 'error');
+    }
+  });
 }
 
 
@@ -430,7 +1701,6 @@ handleFileInput(ev: any) {
     }
   }
 
-  // -------------------- DELETE REPORT --------------------
   deleteReport(r: MISReport) {
     if (!r.id) return;
 
@@ -493,6 +1763,4 @@ exportAsExcel() {
   const workbook = { Sheets: { 'Reports': worksheet }, SheetNames: ['Reports'] };
   XLSX.writeFile(workbook, 'MIS_Reports.xlsx');
 }
-
-
 }

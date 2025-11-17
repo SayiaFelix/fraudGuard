@@ -6,45 +6,33 @@
          <h2 class="mb-0 me-3">Audit Management</h2>
        </div>
 
-      <div class="ai-tab-buttons mt-2">
-        <a class="ai-tab-button"
-          [routerLink]="['scoping']"
-          routerLinkActive="active-tab"
-          [routerLinkActiveOptions]="{ exact: true }">
-          <i class="mdi mdi-file-document"></i> Advanced Scoping
-        </a>
+       <div class="ai-tab-buttons mt-2">
+          <a class="ai-tab-button"
+            [routerLink]="['scoping']"
+            routerLinkActive="active-tab"
+            [routerLinkActiveOptions]="{ exact: true }">
+            <i class="mdi mdi-file-document"></i> Advanced Scoping
+          </a>
 
-        <a class="ai-tab-button"
+          <a class="ai-tab-button"
             [routerLink]="['planning']"
             routerLinkActive="active-tab"
             [routerLinkActiveOptions]="{ exact: false }">
             <i class="mdi mdi-plus"></i> Planning
-        </a>
+          </a>
 
-        <a class="ai-tab-button"
-          [routerLink]="['observation']"
-          routerLinkActive="active-tab"
-          [routerLinkActiveOptions]="{ exact: false }"
-          [class.disabled]="isPlanningRoute()"
-          (click)="isPlanningRoute() && $event.preventDefault()">
-          <i class="mdi mdi-eye"></i> Observations
-       </a>
-
-        <!-- 
-        <a class="ai-tab-button" [routerLink]="['voice']" routerLinkActive="active-tab">
-          <i class="mdi mdi-account-multiple"></i> Voice
-        </a>
-        <a class="ai-tab-button" [routerLink]="['publish']" routerLinkActive="active-tab">
-          <i class="mdi mdi-upload"></i> Publish
-        </a> -->
-
-     </div>
-
-
-
-      <div class="mt-4">
-        <router-outlet></router-outlet>
-      </div>
+          <a class="ai-tab-button"
+            [routerLink]="shouldEnableObservations() ? ['observation'] : null"
+            routerLinkActive="active-tab"
+            [routerLinkActiveOptions]="{ exact: false }"
+            [class.disabled]="!shouldEnableObservations()"
+            (click)="!shouldEnableObservations() && $event.preventDefault()">
+            <i class="mdi mdi-eye"></i> Observations
+          </a>
+          </div>
+        <div class="mt-4">
+          <router-outlet></router-outlet>
+        </div>
     </div>
   </div>
 

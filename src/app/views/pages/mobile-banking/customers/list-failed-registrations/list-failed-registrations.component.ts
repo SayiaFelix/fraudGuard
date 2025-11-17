@@ -211,4 +211,11 @@ isObservationRoute(): boolean {
   return this.router.url.includes('observation');
 }
 
+shouldEnableObservations(): boolean {
+  const hasAuditContext = this.allAudits.length > 0; // Or check for specific audit
+  const isBlockedRoute = this.router.url.includes('planning') || this.router.url.includes('scoping');
+  
+  return hasAuditContext && !isBlockedRoute;
+}
+
 }

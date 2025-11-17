@@ -49,8 +49,27 @@ botStatus$ = this.botStatusSubject.asObservable();
 chatbotData$ = this.chatbotDataSubject.asObservable();
 
 private api = 'http://localhost:3000/workflows'; 
-  
-  private apis = 'http://localhost:3000'; 
+private apis = 'http://localhost:3000'; 
+
+  // NEW: Get KPIs from backend
+  getReportingKPIs(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/reporting-kpis`);
+  }
+
+  // NEW: Generate quick summary
+  generateQuickSummary(): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/generate-quick-summary`, {});
+  }
+
+  // NEW: Generate analytics report
+  generateAnalyticsReport(): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/generate-analytics-report`, {});
+  }
+
+  // NEW: Get progress status
+  getProgressStatus(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/reporting-progress`);
+  }
 
   getAudits() {
     return this.http.get<any[]>(`${this.apis}/audits`);
