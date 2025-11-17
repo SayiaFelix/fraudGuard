@@ -1571,7 +1571,6 @@ private syncWorkflowAndAudit(updated: Workflow): void {
   });
 }
 
-  // --- helpers -----------------------------------------------
   taskProgressPercent(w?: Workflow): number {
     const wf = w || this.selectedWorkflow;
     if (!wf || !wf.tasks || wf.tasks.length === 0) return 0;
