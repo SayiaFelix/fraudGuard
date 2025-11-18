@@ -18,7 +18,7 @@
   <div class="row g-3 mb-4">
     <!-- Total CAPs -->
     <div class="col-md-3">
-      <div class="card shadow-sm kpi-card border-top border-3 border-primary h-100">
+      <div class="card shadow-sm kpi-card border-top border-2 border-primary h-100">
         <div class="card-body text-center">
           <i class="fas fa-tasks fa-2x text-primary mb-2"></i>
           <h5 class="text-muted text-uppercase fw-bold small">Total CAPs</h5>
@@ -30,7 +30,7 @@
 
     <!-- In Progress -->
     <div class="col-md-3">
-      <div class="card shadow-sm kpi-card border-top border-3 border-warning h-100">
+      <div class="card shadow-sm kpi-card border-top border-2 border-warning h-100">
         <div class="card-body text-center">
           <i class="fas fa-sync-alt fa-2x text-warning mb-2"></i>
           <h5 class="text-muted text-uppercase fw-bold small">In Progress</h5>
@@ -42,7 +42,7 @@
 
     <!-- Completed -->
     <div class="col-md-3">
-      <div class="card shadow-sm kpi-card border-top border-3 border-success h-100">
+      <div class="card shadow-sm kpi-card border-top border-2 border-success h-100">
         <div class="card-body text-center">
           <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
           <h5 class="text-muted text-uppercase fw-bold small">Completed</h5>
@@ -54,7 +54,7 @@
 
     <!-- Risk Accepted -->
     <div class="col-md-3">
-      <div class="card shadow-sm kpi-card border-top border-3 border-info h-100">
+      <div class="card shadow-sm kpi-card border-top border-2 border-info h-100">
         <div class="card-body text-center">
           <i class="fas fa-shield-alt fa-2x text-info mb-2"></i>
           <h5 class="text-muted text-uppercase fw-bold small">Risk Accepted</h5>
@@ -77,7 +77,7 @@
         <div class="card-body">
           <div class="row g-3">
             <div class="col-md-2 col-sm-6">
-              <button class="btn btn-outline-primary btn-sm w-100" (click)="viewOverdueCAPs()">
+              <button class="btn btn-outline-danger btn-sm w-100" (click)="viewOverdueCAPs()">
                 <i class="fas fa-exclamation-triangle me-1"></i> Overdue ({{ getOverdueCAPs() }})
               </button>
             </div>
@@ -97,12 +97,12 @@
               </button>
             </div>
             <div class="col-md-2 col-sm-6">
-              <button class="btn btn-outline-secondary btn-sm w-100" (click)="viewNewFindings()">
+              <button class="btn btn-outline-dark btn-sm w-100" (click)="viewNewFindings()">
                 <i class="fas fa-plus me-1"></i> New ({{ getNewFindings() }})
               </button>
             </div>
             <div class="col-md-2 col-sm-6">
-              <button class="btn btn-outline-dark btn-sm w-100" (click)="capFilter = 'all'">
+              <button class="btn btn-outline-primary btn-sm w-100" (click)="capFilter = 'all'">
                 <i class="fas fa-list me-1"></i> Show All
               </button>
             </div>
@@ -331,7 +331,7 @@
 
               <tr *ngIf="!getFilteredCAPs().length">
                 <td colspan="7" class="text-center text-muted py-4">
-                  <i class="fas fa-inbox fa-2x mb-3"></i>
+                  <i class="fas fa-inbox text-info fa-2x mb-3"></i>
                   <h5>No Corrective Action Plans Found</h5>
                   <p class="mb-0">No CAPs match the current filter criteria.</p>
                 </td>

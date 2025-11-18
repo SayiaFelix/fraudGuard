@@ -249,7 +249,6 @@ export class ListCustomersComponent implements OnInit {
   }
 
   loadMonitoringData() {
-    // Load workflows and CAPs
     this.http.get<Workflow[]>(this.workflowsApiUrl).subscribe({
       next: (workflows) => {
         this.workflows = workflows;
