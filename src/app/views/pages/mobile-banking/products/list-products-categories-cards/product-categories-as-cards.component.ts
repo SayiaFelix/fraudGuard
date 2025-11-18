@@ -40,6 +40,21 @@ export interface MISReport {
   revisionCount?: number;
   sentToClientAt?: string;
   finalizedAt?: string;
+
+  managementResponses?: {
+    findingId?: string;
+    findingTitle?: string;
+    response: string;
+    actionPlan: string;
+    responsiblePerson: string;
+    targetDate: string;
+    status: 'pending' | 'in_progress' | 'completed' | 'overdue';
+  }[];
+  managementResponseDueDate?: string;
+  managementResponseSubmittedAt?: string;
+  managementResponseStatus?: 'pending' | 'submitted' | 'overdue' | 'accepted';
+  distributedAt?: string;
+  distributedTo?: string[];
 }
 export interface FieldworkAudit {
   id: string;
@@ -121,6 +136,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private apiUrl = 'http://localhost:3000';
 selectedCommentType: any;
+  generatingReports: any;
 
   constructor(
     private mis: GlobalService,
@@ -135,7 +151,437 @@ selectedCommentType: any;
     this.loadFieldworkData();
     this.calculateKPIsFromWorkflows(); 
     this.initializeCommentForm();
+  this.trackResponseDueDates();
   }
+
+
+fieldworkCurrentPage = 1;
+fieldworkPageSize = 10;
+fieldworkSortField = 'title';
+fieldworkSortDirection: 'asc' | 'desc' = 'asc';
+
+getPaginatedFieldworkReports(): FieldworkAudit[] {
+  const reports = this.getFieldworkReportsWithFindings();
+  const sorted = this.sortFieldworkReports(reports);
+  const startIndex = (this.fieldworkCurrentPage - 1) * this.fieldworkPageSize;
+  const endIndex = startIndex + this.fieldworkPageSize;
+  return sorted.slice(startIndex, endIndex);
+}
+
+getFieldworkTotalPages(): number {
+  return Math.ceil(this.getFieldworkReportsWithFindings().length / this.fieldworkPageSize);
+}
+
+getStartsIndex(): number {
+  return (this.fieldworkCurrentPage - 1) * this.fieldworkPageSize;
+}
+
+getEndsIndex(): number {
+  return Math.min(this.fieldworkCurrentPage * this.fieldworkPageSize, this.getFieldworkReportsWithFindings().length);
+}
+
+getFieldworkPageNumbers(): number[] {
+  const totalPages = this.getFieldworkTotalPages();
+  const pages: number[] = [];
+  
+  let startPage = Math.max(1, this.fieldworkCurrentPage - 2);
+  let endPage = Math.min(totalPages, startPage + 4);
+  
+  if (endPage - startPage < 4) {
+    startPage = Math.max(1, endPage - 4);
+  }
+  
+  for (let i = startPage; i <= endPage; i++) {
+    pages.push(i);
+  }
+  
+  return pages;
+}
+
+goToFieldworkPage(page: number): void {
+  if (page >= 1 && page <= this.getFieldworkTotalPages()) {
+    this.fieldworkCurrentPage = page;
+  }
+}
+
+previousFieldworkPage(): void {
+  if (this.fieldworkCurrentPage > 1) {
+    this.fieldworkCurrentPage--;
+  }
+}
+
+nextFieldworkPage(): void {
+  if (this.fieldworkCurrentPage < this.getFieldworkTotalPages()) {
+    this.fieldworkCurrentPage++;
+  }
+}
+
+onFieldworkPageSizeChange(): void {
+  this.fieldworkCurrentPage = 1;
+}
+
+sortFieldwork(field: string): void {
+  if (this.fieldworkSortField === field) {
+    this.fieldworkSortDirection = this.fieldworkSortDirection === 'asc' ? 'desc' : 'asc';
+  } else {
+    this.fieldworkSortField = field;
+    this.fieldworkSortDirection = 'asc';
+  }
+  this.fieldworkCurrentPage = 1;
+}
+
+sortFieldworkReports(reports: FieldworkAudit[]): FieldworkAudit[] {
+  return [...reports].sort((a, b) => {
+    let aValue: any = a[this.fieldworkSortField as keyof FieldworkAudit];
+    let bValue: any = b[this.fieldworkSortField as keyof FieldworkAudit];
+    
+    // Handle nested properties
+    if (this.fieldworkSortField === 'findingsCount') {
+      aValue = a.findingsCount || 0;
+      bValue = b.findingsCount || 0;
+    }
+    
+    // Handle string comparison
+    if (typeof aValue === 'string' && typeof bValue === 'string') {
+      aValue = aValue.toLowerCase();
+      bValue = bValue.toLowerCase();
+    }
+    
+    // Handle null/undefined values
+    if (aValue == null) aValue = '';
+    if (bValue == null) bValue = '';
+    
+    if (aValue < bValue) {
+      return this.fieldworkSortDirection === 'asc' ? -1 : 1;
+    }
+    if (aValue > bValue) {
+      return this.fieldworkSortDirection === 'asc' ? 1 : -1;
+    }
+    return 0;
+  });
+}
+
+// Export functionality
+exportFieldworkTable(): void {
+  const reports = this.getFieldworkReportsWithFindings();
+  const worksheet = XLSX.utils.json_to_sheet(
+    reports.map(audit => ({
+      'Audit Title': audit.title,
+      'Department': audit.department,
+      'Findings Count': audit.findingsCount,
+      'Evidence Count': audit.evidenceCount,
+      'Audit Status': this.getAuditStatusText(audit.status || ''),
+      'Report Status': this.reportExists(audit) ? 'Generated' : 'Ready to Generate',
+      'Has Findings': this.hasFindings(audit) ? 'Yes' : 'No'
+    }))
+  );
+  const workbook = { Sheets: { 'Fieldwork Audits': worksheet }, SheetNames: ['Fieldwork Audits'] };
+  XLSX.writeFile(workbook, 'Fieldwork_Audits_Ready_for_Reports.xlsx');
+}
+
+private updateReportStatus(report: MISReport, newStatus: 'under_review' | 'client_review' | 'revised' | 'finalized'): void {
+  const statusFlow: { [key: string]: string[] } = {
+    'under_review': ['client_review', 'revised', 'finalized'],
+    'client_review': ['revised', 'finalized'],
+    'revised': ['client_review', 'finalized'],
+    'finalized': [] // Final state
+  };
+
+  const currentStatus = report.draftStatus || 'under_review';
+  
+  if (!statusFlow[currentStatus]?.includes(newStatus)) {
+    Swal.fire('Error', `Invalid status transition from ${currentStatus} to ${newStatus}`, 'error');
+    return;
+  }
+
+  report.draftStatus = newStatus;
+  
+  // Set timestamps
+  if (newStatus === 'client_review') {
+    report.sentToClientAt = new Date().toISOString();
+    // Set management response due date (2 weeks from now)
+    const dueDate = new Date();
+    dueDate.setDate(dueDate.getDate() + 14);
+    report.managementResponseDueDate = dueDate.toISOString();
+    report.managementResponseStatus = 'pending';
+  } else if (newStatus === 'finalized') {
+    report.finalizedAt = new Date().toISOString();
+  }
+  
+  this.updateReportDraftStatus(report);
+}
+
+getReportStatus(audit: FieldworkAudit): 'ready' | 'generated' | 'no_findings' | 'generating' {
+  if (this.isReportInProgress(audit)) {
+    return 'generating';
+  }
+  if (!this.hasFindings(audit)) {
+    return 'no_findings';
+  }
+  if (this.reportExists(audit)) {
+    return 'generated';
+  }
+  return 'ready';
+}
+
+getReportStatusText(audit: FieldworkAudit): string {
+  const status = this.getReportStatus(audit);
+  const statusMap = {
+    'ready': 'Ready to Generate',
+    'generated': 'Report Generated',
+    'no_findings': 'No Findings',
+    'generating': 'Generating...'
+  };
+  return statusMap[status];
+}
+
+getDraftStatus(audit: FieldworkAudit): string {
+  const report = this.reports.find(r => 
+    r.title === `Fieldwork Report - ${audit.title}` && 
+    r.type === 'fieldwork'
+  );
+  return report?.draftStatus || '';
+}
+
+getDraftStatusText(audit: FieldworkAudit): string {
+  const draftStatus = this.getDraftStatus(audit);
+  const statusMap: { [key: string]: string } = {
+    'under_review': 'Under Review',
+    'client_review': 'With Client',
+    'revised': 'Revised',
+    'finalized': 'Finalized',
+    '': 'Not Started'
+  };
+  return statusMap[draftStatus] || 'Draft';
+}
+
+getReportGeneratedDate(audit: FieldworkAudit): string {
+  const report = this.reports.find(r => 
+    r.title === `Fieldwork Report - ${audit.title}` && 
+    r.type === 'fieldwork'
+  );
+  return report?.createdAt || '';
+}
+
+openReportManagementByAudit(audit: FieldworkAudit): void {
+  const report = this.reports.find(r => 
+    r.title === `Fieldwork Report - ${audit.title}` && 
+    r.type === 'fieldwork'
+  );
+  
+  if (report) {
+    this.openReportManagement(report);
+  } else {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Report Not Found',
+      text: 'Could not find the generated report for this audit.',
+      confirmButtonText: 'OK'
+    });
+  }
+}
+
+trackResponseDueDates(): void {
+  this.reports.forEach(report => {
+    if (report.draftStatus === 'client_review' && report.sentToClientAt) {
+      const sentDate = new Date(report.sentToClientAt);
+      const dueDate = new Date(sentDate.setDate(sentDate.getDate() + 14));
+      
+      if (new Date() > dueDate && report.managementResponseStatus !== 'submitted') {
+        report.managementResponseStatus = 'overdue';
+        this.updateReportDraftStatus(report);
+      }
+    }
+  });
+}
+
+hasFindings(audit: FieldworkAudit): boolean {
+  const findingsCount = audit.preClosing?.length || audit.findingsCount || 0;
+  return findingsCount > 0;
+}
+
+getFieldworkReportsWithFindings(): FieldworkAudit[] {
+  return this.fieldworkReports.filter(audit => this.hasFindings(audit));
+}
+
+openManagementResponseModal(report: MISReport): void {
+  console.log('🔍 DEBUG - Opening Management Response Modal');
+  console.log('Report:', report);
+  console.log('Fieldwork data:', report.fieldworkData);
+  console.log('Findings:', report.fieldworkData?.preClosing);
+  
+  this.selectedReport = report;
+  
+  if (!report.managementResponses && report.fieldworkData?.preClosing) {
+    console.log('🔄 Initializing management responses from findings');
+    report.managementResponses = report.fieldworkData.preClosing.map((finding: any, index: number) => ({
+      findingId: finding.id || `finding-${index}`,
+      findingTitle: finding.title || `Finding ${index + 1}`,
+      response: '',
+      actionPlan: '',
+      responsiblePerson: '',
+      targetDate: '',
+      status: 'pending' as const
+    }));
+    console.log('✅ Created management responses:', report.managementResponses);
+  } else {
+    console.log('ℹ️ Management responses already exist:', report.managementResponses);
+  }
+  
+  const modal = new bootstrap.Modal(document.getElementById('managementResponseModal')!);
+  modal.show();
+  
+  console.log('🎯 Modal should be visible now');
+}
+
+getResponseDueDate(report: MISReport): Date | null {
+  if (!report.sentToClientAt) return null;
+  const dueDate = new Date(report.sentToClientAt);
+  dueDate.setDate(dueDate.getDate() + 14);
+  return dueDate;
+}
+
+isResponseOverdue(report: MISReport): boolean {
+  const dueDate = this.getResponseDueDate(report);
+  return dueDate ? new Date() > dueDate : false;
+}
+
+generateDraftFinalReport(report: MISReport): void {
+  this.isLoading = true;
+
+  Swal.fire({
+    title: 'Generate Draft Final Report?',
+    text: 'This will create a draft final version for client review',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Generate Draft Final'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      try {
+        const doc = new jsPDF();
+        
+        // Draft Final Report Template
+        doc.setFontSize(16);
+        doc.setTextColor(0, 0, 128);
+        doc.text(`DRAFT FINAL AUDIT REPORT: ${report.title}`, 14, 20);
+        
+        doc.setFontSize(10);
+        doc.setTextColor(100);
+        doc.text(`Department: ${report.fieldworkData?.department || 'N/A'} | Draft Final Version | ${new Date().toLocaleDateString()}`, 14, 28);
+
+        // Management response section
+        doc.setFontSize(12);
+        doc.setTextColor(0);
+        doc.text('MANAGEMENT RESPONSE REQUESTED', 14, 45);
+        doc.setFontSize(10);
+        doc.text('Please provide your formal response to the findings and recommendations below.', 14, 52);
+        doc.text('Response due within two weeks of receipt.', 14, 59);
+
+        let currentY = 70;
+
+        // Findings with response sections
+        if (report.fieldworkData?.preClosing) {
+          report.fieldworkData.preClosing.forEach((finding: any, index: number) => {
+            if (currentY > 250) {
+              doc.addPage();
+              currentY = 20;
+            }
+
+            doc.setFontSize(11);
+            doc.setTextColor(0);
+            doc.text(`Finding ${index + 1}: ${finding.title || 'No Title'}`, 14, currentY);
+            
+            doc.setFontSize(9);
+            doc.setTextColor(100);
+            doc.text(`Severity: ${finding.severity || 'Unknown'} | Status: ${finding.status || 'Open'}`, 14, currentY + 6);
+            
+            if (finding.recommendation) {
+              doc.text(`Recommendation: ${finding.recommendation}`, 14, currentY + 12);
+            }
+            
+            // Response section placeholder
+            doc.setTextColor(150);
+            doc.text('Management Response: ________________________________', 14, currentY + 20);
+            doc.text('Action Plan: ________________________________________', 14, currentY + 26);
+            doc.text('Responsible: ________________ Target Date: __________', 14, currentY + 32);
+            
+            currentY += 45;
+          });
+        }
+
+        const pdfBase64 = doc.output('datauristring');
+
+        // Update the report
+        report.fileUrl = pdfBase64;
+        report.title = `Draft Final - ${report.title.replace('Draft Final - ', '')}`;
+        this.updateReportStatus(report, 'client_review');
+        
+      } catch (error) {
+        console.error('Error generating draft final report:', error);
+        Swal.fire('Error!', 'Failed to generate draft final report', 'error');
+      } finally {
+        this.isLoading = false;
+      }
+    }
+  });
+}
+
+distributeFinalReport(report: MISReport): void {
+  Swal.fire({
+    title: 'Distribute Final Report?',
+    html: `This will distribute the finalized report to:<br>
+           • Audit Committee<br>
+           • Key Stakeholders<br>
+           • Client Department`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, Distribute',
+    cancelButtonText: 'Cancel'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      report.distributedAt = new Date().toISOString();
+      report.distributedTo = [
+        'Audit Committee',
+        'Chief Executive Officer', 
+        'Department Head',
+        'Compliance Officer'
+      ];
+      
+      this.updateReportDraftStatus(report);
+      
+      Swal.fire({
+        title: 'Report Distributed!',
+        html: `Final report has been sent to:<br>${report.distributedTo.join('<br>')}`,
+        icon: 'success'
+      });
+    }
+  });
+}
+
+submitManagementResponses(): void {
+  if (!this.selectedReport?.managementResponses) return;
+
+  const incomplete = this.selectedReport.managementResponses.some(response => 
+    !response.response.trim() || !response.actionPlan.trim() || !response.responsiblePerson.trim()
+  );
+
+  if (incomplete) {
+    Swal.fire('Error', 'Please fill in all management responses, action plans, and responsible persons', 'error');
+    return;
+  }
+
+  this.selectedReport.managementResponseSubmittedAt = new Date().toISOString();
+  this.selectedReport.managementResponseStatus = 'submitted';
+  
+  this.updateReportDraftStatus(this.selectedReport);
+  
+  const modal = bootstrap.Modal.getInstance(document.getElementById('managementResponseModal')!);
+  modal?.hide();
+  
+  Swal.fire('Success!', 'Management responses submitted successfully', 'success');
+}
 
 openCommentModal(report: MISReport): void {
   this.selectedReportForComment = report;
@@ -297,6 +743,25 @@ getFieldError(fieldName: string): string {
   }
 
   generateQuickSummary(): void {
+     const summaryTitle = `Fieldwork Quick Summary - ${new Date().toISOString().slice(0, 10)}`;
+  
+  // Check if quick summary already exists for today
+    const existingSummary = this.reports.find(r => 
+      r.title.includes('Fieldwork Quick Summary') && 
+      r.type === 'auto-generated' &&
+      r.createdAt.includes(new Date().toISOString().slice(0, 10))
+    );
+
+    if (existingSummary) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Quick Summary Already Exists',
+        text: 'A quick summary report for today already exists.',
+        confirmButtonText: 'OK'
+      });
+      return;
+    }
+    
     this.isLoading = true;
     
     Swal.fire({
@@ -317,7 +782,6 @@ getFieldError(fieldName: string): string {
       this.isLoading = false;
     }
   }
-
 
 private initializeCommentForm(): void {
   this.commentForm = this.fb.group({
@@ -351,6 +815,32 @@ getCommentTypeText(type: string): string {
   return typeMap[type] || 'Comment';
 }
 
+private async generateSingleFieldworkReport(audit: FieldworkAudit): Promise<boolean> {
+  const existingReport = this.reports.find(r => 
+    r.title === `Fieldwork Report - ${audit.title}` && 
+    r.type === 'fieldwork'
+  );
+
+  if (existingReport) {
+    console.log(`Report already exists for ${audit.title}, skipping`);
+    return true; // This might be skipping actual generation
+  }
+
+  return new Promise((resolve) => {
+    try {
+      this.generateFieldworkReportForBatch(audit).then(() => {
+        resolve(true);
+      }).catch((error) => {
+        console.error(`Failed to generate report for ${audit.title}:`, error);
+        resolve(false); // This swallows the error!
+      });
+    } catch (error) {
+      console.error(`Failed to generate report for ${audit.title}:`, error);
+      resolve(false); // This also swallows the error!
+    }
+  });
+}
+
 private calculateQuickSummaryData(): any {
     const workflowsWithFieldwork = this.fieldworkReports.filter(wf => wf.fieldwork);
     const allFindings = this.getAllFindingsFromWorkflows();
@@ -368,27 +858,61 @@ private calculateQuickSummaryData(): any {
     };
   }
 
-private async generateSingleFieldworkReport(audit: FieldworkAudit): Promise<boolean> {
-  const existingReport = this.reports.find(r => 
-    r.title === `Fieldwork Report - ${audit.title}` && 
-    r.type === 'fieldwork'
-  );
+private batchGenerateFieldworkReports(): void {
+  this.isLoading = true;
+  let completed = 0;
+  let successful = 0;
+  const total = this.fieldworkReports.length;
 
-  if (existingReport) {
-    console.log(`Report already exists for ${audit.title}, skipping`);
-    return true; // or update existing one instead
-  }
+  console.log(`🚀 Starting batch generation for ${total} reports`);
 
-  return new Promise((resolve) => {
-    try {
-      this.generateFieldworkReportForBatch(audit).then(() => {
-        resolve(true);
-      }).catch(() => {
-        resolve(false); 
+  Swal.fire({
+    title: 'Generating Reports...',
+    html: `Progress: <b>0/${total}</b><br>Successful: <b>0</b>`,
+    allowOutsideClick: false,
+    didOpen: () => {
+      Swal.showLoading();
+      
+      // Process all reports
+      const generationPromises = this.fieldworkReports.map((audit, index) => {
+        return new Promise<void>((resolve) => {
+          setTimeout(async () => {
+            try {
+              const success = await this.generateSingleFieldworkReport(audit);
+              completed++;
+              successful += success ? 1 : 0;
+              
+              if (Swal.isVisible()) {
+                Swal.getHtmlContainer()!.innerHTML = 
+                  `Progress: <b>${completed}/${total}</b><br>Successful: <b>${successful}</b>`;
+              }
+              
+              resolve();
+            } catch (error) {
+              completed++;
+              console.error(`Error in batch generation for ${audit.title}:`, error);
+              resolve();
+            }
+          }, index * 500); // Reduced delay
+        });
       });
-    } catch (error) {
-      console.error(`Failed to generate report for ${audit.title}:`, error);
-      resolve(false); 
+
+      // Wait for all to complete
+      Promise.all(generationPromises).then(() => {
+        console.log(`🎉 Batch generation completed: ${successful}/${total} successful`);
+        
+        // Force refresh the reports list
+        this.loadReports();
+        
+        Swal.fire({
+          title: 'Generation Complete!',
+          html: `Successfully generated <b>${successful}/${total}</b> fieldwork reports!`,
+          icon: successful === total ? 'success' : successful > 0 ? 'warning' : 'error',
+          confirmButtonText: 'OK'
+        });
+        
+        this.isLoading = false;
+      });
     }
   });
 }
@@ -555,7 +1079,6 @@ private generateQuickSummaryPDF(summaryData: any): void {
     const workflowsWithFieldwork = this.fieldworkReports.filter(wf => wf.fieldwork);
     const allFindings = this.getAllFindingsFromWorkflows();
     
-    // Calculate findings by department
     const findingsByDept: any = {};
     const workflowsByDept: any = {};
     
@@ -592,6 +1115,187 @@ private generateQuickSummaryPDF(summaryData: any): void {
       departments: Array.from(new Set(this.fieldworkReports.map(wf => wf.department).filter(Boolean)))
     };
   }
+
+createAutoReport() {
+  const autoReportTitle = `Auto Report ${new Date().toISOString().slice(0, 10)}`;
+  
+  const existingAutoReport = this.reports.find(r => 
+    r.title.includes('Auto Report') && 
+    r.type === 'auto-generated' &&
+    r.createdAt.includes(new Date().toISOString().slice(0, 10))
+  );
+
+  if (existingAutoReport) {
+    Swal.fire({
+      icon: 'info',
+      title: 'Auto Report Already Exists',
+      text: 'An auto report for today already exists.',
+      confirmButtonText: 'OK'
+    });
+    return;
+  }
+
+  this.isLoading = true;
+
+  Swal.fire({
+    title: 'Generating Auto Report...',
+    text: 'Please wait while the report is being generated.',
+    allowOutsideClick: false,
+    didOpen: () => Swal.showLoading()
+  });
+
+  this.mis.generateSummary()
+    .pipe(finalize(() => this.isLoading = false))
+    .subscribe({
+      next: summary => {
+        try {
+          const doc = new jsPDF();
+
+          doc.setFontSize(16);
+          doc.text('Auto Report', 14, 20);
+
+          // Quick Stats
+          doc.setFontSize(12);
+          doc.text('Quick Stats', 14, 35);
+          const quickStatsTable = autoTable(doc, {
+            startY: 40,
+            head: [['Total Audits', 'Completed', 'In Progress']],
+            body: [[summary.totalAudits, summary.completedAudits, summary.inProgress]]
+          });
+
+          // Audits by Department
+          const auditsByDeptTable = autoTable(doc, {
+            startY: (quickStatsTable as any)?.finalY ? (quickStatsTable as any).finalY + 15 : 55,
+            head: [['Department', 'Count']],
+            body: Object.entries(summary.auditsByDept)
+          });
+
+          // Findings by Severity
+          const findingsSeverityTable = autoTable(doc, {
+            startY: (auditsByDeptTable as any)?.finalY ? (auditsByDeptTable as any).finalY + 15 : 70,
+            head: [['Severity', 'Count']],
+            body: Object.entries(summary.findingsSeverity)
+          });
+
+          // Audits Over Time
+          autoTable(doc, {
+            startY: (findingsSeverityTable as any)?.finalY ? (findingsSeverityTable as any).finalY + 15 : 85,
+            head: [['Month', 'Count']],
+            body: Object.entries(summary.auditsOverTime)
+          });
+
+          const pdfBase64 = doc.output('datauristring');
+
+          const payload: MISReport = {
+            title: autoReportTitle,
+            type: 'auto-generated',
+            createdAt: new Date().toISOString(),
+            uploadedBy: 'System',
+            fileType: 'application/pdf',
+            fileUrl: pdfBase64,
+            description: 'Auto-generated audit summary',
+            summary,
+            filePath: undefined,
+            draftStatus: 'under_review',
+            clientComments: [],
+            revisionCount: 0,
+            source: 'system'
+          };
+
+          this.mis.createReport(payload).subscribe({
+            next: () => {
+              this.load();
+              Swal.fire('Success ✅', 'Auto report generated and saved!', 'success');
+            },
+            error: () => {
+              Swal.fire('Error ❌', 'Failed to save the auto report.', 'error');
+            }
+          });
+
+        } catch (err) {
+          console.error(err);
+          Swal.fire('Error ❌', 'Could not generate the report.', 'error');
+        }
+      },
+      error: () => {
+        Swal.fire('Error ❌', 'Failed to generate auto report summary.', 'error');
+      }
+    });
+}
+
+reportExists(audit: FieldworkAudit): boolean {
+  const reportTitle = `Fieldwork Report - ${audit.title}`;
+  return this.reports.some(report => 
+    report.title === reportTitle && 
+    report.type === 'fieldwork'
+  );
+}
+
+getAuditStatusText(status: string): string {
+  const statusMap: { [key: string]: string } = {
+    'completed': 'Completed',
+    'finalized': 'Finalized',
+    'in_progress': 'In Progress',
+    'fieldwork': 'Fieldwork',
+    'planned': 'Planned',
+    'scheduled': 'Scheduled',
+    'review': 'Under Review',
+    'analysis': 'Analysis',
+    'draft': 'Draft',
+    'unknown': 'Unknown'
+  };
+  return statusMap[status || 'unknown'] || 'Unknown';
+}
+
+isReportInProgress(audit: FieldworkAudit): boolean {
+  // You can track in-progress reports in a separate array
+  return this.generatingReports?.includes(audit.id) || false;
+}
+
+getReadyToGenerateCount(): number {
+  return this.getFieldworkReportsWithFindings().filter(audit => 
+    this.hasFindings(audit) && !this.reportExists(audit)
+  ).length;
+}
+
+previewAuditFindings(audit: FieldworkAudit): void {
+  const findings = audit.preClosing || [];
+  
+  let findingsHtml = '<div class="text-start">';
+  
+  if (findings.length === 0) {
+    findingsHtml += '<p class="text-muted">No findings available.</p>';
+  } else {
+    findings.forEach((finding: any, index: number) => {
+      findingsHtml += `
+        <div class="border-bottom pb-2 mb-2">
+          <div class="d-flex justify-content-between align-items-start">
+            <strong>Finding ${index + 1}: ${finding.title || 'Untitled'}</strong>
+            <span class="badge ms-2" style="
+              ${finding.severity === 'Critical' ? 'background-color: #dc3545;' : ''}
+              ${finding.severity === 'High' ? 'background-color: #fd7e14;' : ''}
+              ${finding.severity === 'Medium' ? 'background-color: #ffc107; color: #000;' : ''}
+              ${finding.severity === 'Low' ? 'background-color: #28a745;' : ''}
+            ">${finding.severity || 'Unknown'}</span>
+          </div>
+          <p class="mb-1 small">${finding.description || 'No description'}</p>
+          <div class="d-flex justify-content-between small text-muted">
+            <span>Status: ${finding.status || 'Open'}</span>
+            <span>${finding.recommendation ? 'Has recommendation' : 'No recommendation'}</span>
+          </div>
+        </div>
+      `;
+    });
+  }
+  findingsHtml += '</div>';
+
+  Swal.fire({
+    title: `Findings: ${audit.title}`,
+    html: findingsHtml,
+    confirmButtonText: 'Close',
+    width: '700px'
+  });
+}
 
 private generateAnalyticsPDF(analyticsData: any): void {
   try {
@@ -726,7 +1430,6 @@ private generateAnalyticsPDF(analyticsData: any): void {
     this.destroy$.complete();
   }
 
-
 selectedReport?: MISReport;
 previewContent: string | null = null;
 
@@ -762,38 +1465,6 @@ generateAllFieldworkReports(): void {
   }).then((result) => {
     if (result.isConfirmed) {
       this.batchGenerateFieldworkReports();
-    }
-  });
-}
-
-private batchGenerateFieldworkReports(): void {
-  this.isLoading = true;
-  let completed = 0;
-  const total = this.fieldworkReports.length;
-
-  Swal.fire({
-    title: 'Generating Reports...',
-    html: `Progress: <b>0/${total}</b>`,
-    allowOutsideClick: false,
-    didOpen: () => {
-      Swal.showLoading();
-      
-      this.fieldworkReports.forEach((audit, index) => {
-        setTimeout(() => {
-          this.generateSingleFieldworkReport(audit).then((success) => {
-            completed++;
-            if (Swal.isVisible()) {
-              Swal.getHtmlContainer()!.innerHTML = `Progress: <b>${completed}/${total}</b>`;
-            }
-            
-            if (completed === total) {
-              Swal.fire('Success!', `All ${total} fieldwork reports generated successfully!`, 'success');
-              this.isLoading = false;
-              this.loadReports(); // Refresh the reports list
-            }
-          });
-        }, index * 1000); // Stagger requests by 1 second
-      });
     }
   });
 }
@@ -1098,81 +1769,6 @@ debugReport(report: MISReport): void {
   });
 }
 
-getDraftStatusText(status?: string): string {
-  const statusMap: { [key: string]: string } = {
-    'under_review': 'Under Review',
-    'client_review': 'With Client',
-    'revised': 'Revised',
-    'finalized': 'Finalized'
-  };
-  return status ? statusMap[status] || 'Draft' : 'Draft';
-}
-
-// approveDraft(draft: MISReport): void {
-//   Swal.fire({
-//     title: 'Approve Report?',
-//     text: 'This will mark the report as approved by client',
-//     icon: 'question',
-//     showCancelButton: true,
-//     confirmButtonColor: '#3085d6',
-//     cancelButtonColor: '#d33',
-//     confirmButtonText: 'Yes, approve!',
-//     cancelButtonText: 'Cancel'
-//   }).then((result) => {
-//     if (result.isConfirmed) {
-//       draft.draftStatus = 'finalized';
-//       this.updateReportDraftStatus(draft);
-      
-//       Swal.fire('Approved!', 'Report has been approved and finalized.', 'success');
-//     }
-//   });
-// }
-
-// requestRevision(draft: MISReport): void {
-//   Swal.fire({
-//     title: 'Request Revision',
-//     input: 'textarea',
-//     inputLabel: 'Revision request details',
-//     inputPlaceholder: 'What needs to be revised?',
-//     showCancelButton: true,
-//     confirmButtonText: 'Request Revision',
-//     cancelButtonText: 'Cancel'
-//   }).then((result) => {
-//     if (result.isConfirmed && result.value) {
-//       const revisionComment: { text: string; author: string; date: string; type: 'comment' | 'question' | 'revision_request' } = {
-//         text: String(result.value),
-//         author: 'Client',
-//         date: new Date().toLocaleDateString(),
-//         type: 'revision_request'
-//       };
-      
-//       if (!draft.clientComments) {
-//         draft.clientComments = [];
-//       }
-//       draft.clientComments.push(revisionComment);
-//       draft.draftStatus = 'revised';
-//       draft.revisionCount = (draft.revisionCount || 0) + 1;
-//       this.updateReportDraftStatus(draft);
-      
-//       Swal.fire('Requested!', 'Revision has been requested.', 'success');
-//     }
-//   });
-// }
-
-// private updateReportDraftStatus(draft: MISReport): void {
-//   // Update the report in the backend
-//   this.globalService.createReport(draft).subscribe({
-//     next: () => {
-//       this.loadReports(); // Refresh the list
-//     },
-//     error: (error) => {
-//       console.error('Failed to update report status:', error);
-//       Swal.fire('Error!', 'Failed to update report status', 'error');
-//     }
-//   });
-// }
-
-
 getAddressedCriticalFindings(): number {
   let addressedCount = 0;
   
@@ -1279,6 +1875,33 @@ private updateKPIs(): void {
 }
 
 generateFieldworkReport(audit: FieldworkAudit): void {
+
+  const existingReport = this.reports.find(r => 
+    r.title === `Fieldwork Report - ${audit.title}` && 
+    r.type === 'fieldwork'
+  );
+
+  if (existingReport) {
+    Swal.fire({
+      icon: 'info',
+      title: 'Report Already Exists',
+      text: `A fieldwork report for "${audit.title}" already exists and will not be regenerated.`,
+      confirmButtonText: 'OK'
+    });
+    return;
+  }
+
+   if (!this.hasFindings(audit)) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'No Findings Available',
+      text: `Cannot generate report for "${audit.title}" because there are no findings.`,
+      confirmButtonText: 'OK'
+    });
+    return;
+  }
+
+
   this.isLoading = true;
 
   Swal.fire({
@@ -1582,96 +2205,6 @@ isDraftReport(report: MISReport): boolean {
          report.draftStatus !== 'finalized';
 }
 
-createAutoReport() {
-  this.isLoading = true;
-
-  Swal.fire({
-    title: 'Generating Auto Report...',
-    text: 'Please wait while the report is being generated.',
-    allowOutsideClick: false,
-    didOpen: () => Swal.showLoading()
-  });
-
-  this.mis.generateSummary()
-    .pipe(finalize(() => this.isLoading = false))
-    .subscribe({
-      next: summary => {
-        try {
-          const doc = new jsPDF();
-
-          doc.setFontSize(16);
-          doc.text('Auto Report', 14, 20);
-
-          // Quick Stats
-          doc.setFontSize(12);
-          doc.text('Quick Stats', 14, 35);
-          const quickStatsTable = autoTable(doc, {
-            startY: 40,
-            head: [['Total Audits', 'Completed', 'In Progress']],
-            body: [[summary.totalAudits, summary.completedAudits, summary.inProgress]]
-          });
-
-          // Audits by Department
-          const auditsByDeptTable = autoTable(doc, {
-            startY: (quickStatsTable as any)?.finalY ? (quickStatsTable as any).finalY + 15 : 55,
-            head: [['Department', 'Count']],
-            body: Object.entries(summary.auditsByDept)
-          });
-
-          // Findings by Severity
-          const findingsSeverityTable = autoTable(doc, {
-            startY: (auditsByDeptTable as any)?.finalY ? (auditsByDeptTable as any).finalY + 15 : 70,
-            head: [['Severity', 'Count']],
-            body: Object.entries(summary.findingsSeverity)
-          });
-
-          // Audits Over Time
-          autoTable(doc, {
-            startY: (findingsSeverityTable as any)?.finalY ? (findingsSeverityTable as any).finalY + 15 : 85,
-            head: [['Month', 'Count']],
-            body: Object.entries(summary.auditsOverTime)
-          });
-
-          const pdfBase64 = doc.output('datauristring');
-
-            const payload: MISReport = {
-              title: `Auto Report ${new Date().toISOString().slice(0, 10)}`,
-              type: 'auto-generated',
-              createdAt: new Date().toISOString(),
-              uploadedBy: 'System',
-              fileType: 'application/pdf',
-              fileUrl: pdfBase64,
-              description: 'Auto-generated audit summary',
-              summary,
-              filePath: undefined,
-
-              draftStatus: 'under_review',
-              clientComments: [],
-              revisionCount: 0,
-              source: 'system'
-            };
-
-          this.mis.createReport(payload).subscribe({
-            next: () => {
-              this.load(); // refresh table
-              Swal.fire('Success ✅', 'Auto report generated and saved!', 'success');
-            },
-            error: () => {
-              Swal.fire('Error ❌', 'Failed to save the auto report.', 'error');
-            }
-          });
-
-        } catch (err) {
-          console.error(err);
-          Swal.fire('Error ❌', 'Could not generate the report.', 'error');
-        }
-      },
-      error: () => {
-        Swal.fire('Error ❌', 'Failed to generate auto report summary.', 'error');
-      }
-    });
-}
-
 private saveReportAndRefresh(payload: MISReport, successMessage: string): void {
   const completePayload: MISReport = {
     ...payload,
@@ -1833,7 +2366,6 @@ approveDraft(draft: MISReport): void {
   });
 }
 
-// Simplified and more reliable error checking
 shouldShowError(fieldName: string): boolean {
   const field = this.commentForm.get(fieldName);
   return !!(field && field.invalid && (this.formSubmitted || field.touched));
@@ -1891,7 +2423,6 @@ requestRevision(draft: MISReport): void {
       filePath: undefined
     };
 
-    // Show loading Swal
     Swal.fire({
       title: 'Uploading...',
       text: 'Please wait while the report is being uploaded.',
