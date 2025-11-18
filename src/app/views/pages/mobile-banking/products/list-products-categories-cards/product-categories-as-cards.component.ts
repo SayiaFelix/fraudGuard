@@ -2400,11 +2400,10 @@ getPaginatedReports(): MISReport[] {
   const startIndex = (this.currentPage - 1) * this.pageSize;
   const endIndex = startIndex + this.pageSize;
   
-  // Sort by creation date (newest first)
   const sortedReports = this.filteredReports.sort((a, b) => {
     const dateA = new Date(a.createdAt).getTime();
     const dateB = new Date(b.createdAt).getTime();
-    return dateB - dateA; // Descending order (newest first)
+    return dateB - dateA;
   });
   
   return sortedReports.slice(startIndex, endIndex);
