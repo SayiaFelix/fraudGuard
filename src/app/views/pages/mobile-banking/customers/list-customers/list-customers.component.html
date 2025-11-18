@@ -1,308 +1,635 @@
-<div class="container-fluid compliance-container">
-  <h2 class="fw-bold mb-3">Compliance & Follow-up</h2>
-
-     <!-- KPIs -->
-<!-- KPIs -->
-<div class="row g-3 mb-4">
-  <!-- Total Observations -->
-  <div class="col-md-4" *ngIf="observations.length">
-    <div class="card shadow-sm kpi-card border-top border-3 border-primary h-100">
-      <div class="card-body text-center">
-        <i class="fas fa-clipboard-list fa-2x text-primary mb-2"></i>
-        <h5 class="text-muted text-uppercase fw-bold small">Total Observations</h5>
-        <h2 class="fw-bold text-dark mb-0">{{ observations.length }}</h2>
-      </div>
+<div class="container-fluid monitoring-container">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0 d-flex align-items-center">
+      <i class="fas fa-clipboard-check me-2 text-primary"></i> Monitoring & Follow-up Activities
+    </h2>
+    <div class="d-flex gap-2">
+      <button class="btn btn-primary btn-sm" (click)="generateMonitoringReport()">
+        <i class="fas fa-chart-bar me-1"></i> Monitoring Report
+      </button>
+      <button class="btn btn-success btn-sm" (click)="scheduleFollowUp()">
+        <i class="fas fa-calendar-plus me-1"></i> Schedule Follow-up
+      </button>
     </div>
   </div>
 
-  <!-- Pending / Open -->
-  <div class="col-md-4">
-    <div class="card shadow-sm kpi-card border-top border-3 border-warning h-100">
-      <div class="card-body text-center">
-        <i class="fas fa-hourglass-half fa-2x text-warning mb-2"></i>
-        <h5 class="text-muted text-uppercase fw-bold small">Pending / Open</h5>
-        <h2 class="fw-bold text-dark mb-0">{{ pendingCount }}</h2>
-      </div>
-    </div>
-  </div>
-
-  <!-- Verified / Closed -->
-  <div class="col-md-4">
-    <div class="card shadow-sm kpi-card border-top border-3 border-success h-100">
-      <div class="card-body text-center">
-        <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
-        <h5 class="text-muted text-uppercase fw-bold small">Verified / Closed</h5>
-        <h2 class="fw-bold text-dark mb-0">{{ closedCount }}</h2>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-
-  <div class="row">
-    <!-- Left side table -->
-    <div class="col-lg-8 col-md-7" [class.col-lg-12]="!isDetailsPanelVisible">
-      <div class="card shadow-sm">
-        <div class="card-header">
-          <h3 class="mb-0 fw-bold">Observations</h3>
+  <!-- KPI Cards -->
+  <div class="row g-3 mb-4">
+    <!-- Total CAPs -->
+    <div class="col-md-3">
+      <div class="card shadow-sm kpi-card border-top border-3 border-primary h-100">
+        <div class="card-body text-center">
+          <i class="fas fa-tasks fa-2x text-primary mb-2"></i>
+          <h5 class="text-muted text-uppercase fw-bold small">Total CAPs</h5>
+          <h2 class="fw-bold text-dark mb-0">{{ getTotalCAPs() }}</h2>
+          <small class="text-muted">{{ getOverdueCAPs() }} overdue</small>
         </div>
+      </div>
+    </div>
+
+    <!-- In Progress -->
+    <div class="col-md-3">
+      <div class="card shadow-sm kpi-card border-top border-3 border-warning h-100">
+        <div class="card-body text-center">
+          <i class="fas fa-sync-alt fa-2x text-warning mb-2"></i>
+          <h5 class="text-muted text-uppercase fw-bold small">In Progress</h5>
+          <h2 class="fw-bold text-dark mb-0">{{ getInProgressCAPs() }}</h2>
+          <small class="text-muted">{{ getDueThisWeek() }} due this week</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Completed -->
+    <div class="col-md-3">
+      <div class="card shadow-sm kpi-card border-top border-3 border-success h-100">
+        <div class="card-body text-center">
+          <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+          <h5 class="text-muted text-uppercase fw-bold small">Completed</h5>
+          <h2 class="fw-bold text-dark mb-0">{{ getCompletedCAPs() }}</h2>
+          <small class="text-muted">{{ getVerifiedCAPs() }} verified</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Risk Accepted -->
+    <div class="col-md-3">
+      <div class="card shadow-sm kpi-card border-top border-3 border-info h-100">
+        <div class="card-body text-center">
+          <i class="fas fa-shield-alt fa-2x text-info mb-2"></i>
+          <h5 class="text-muted text-uppercase fw-bold small">Risk Accepted</h5>
+          <h2 class="fw-bold text-dark mb-0">{{ getRiskAcceptedCAPs() }}</h2>
+          <small class="text-muted">Formal risk acceptance</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-light">
+          <h4 class="mb-0 fw-bold">
+            <i class="fas fa-bolt me-2 text-warning"></i> Quick Monitoring Actions
+          </h4>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-2 col-sm-6">
+              <button class="btn btn-outline-primary btn-sm w-100" (click)="viewOverdueCAPs()">
+                <i class="fas fa-exclamation-triangle me-1"></i> Overdue ({{ getOverdueCAPs() }})
+              </button>
+            </div>
+            <div class="col-md-2 col-sm-6">
+              <button class="btn btn-outline-warning btn-sm w-100" (click)="viewDueThisWeek()">
+                <i class="fas fa-clock me-1"></i> Due Soon ({{ getDueThisWeek() }})
+              </button>
+            </div>
+            <div class="col-md-2 col-sm-6">
+              <button class="btn btn-outline-success btn-sm w-100" (click)="viewCompletedCAPs()">
+                <i class="fas fa-check me-1"></i> Completed ({{ getCompletedCAPs() }})
+              </button>
+            </div>
+            <div class="col-md-2 col-sm-6">
+              <button class="btn btn-outline-info btn-sm w-100" (click)="viewRiskAccepted()">
+                <i class="fas fa-shield-alt me-1"></i> Risk Accepted ({{ getRiskAcceptedCAPs() }})
+              </button>
+            </div>
+            <div class="col-md-2 col-sm-6">
+              <button class="btn btn-outline-secondary btn-sm w-100" (click)="viewNewFindings()">
+                <i class="fas fa-plus me-1"></i> New ({{ getNewFindings() }})
+              </button>
+            </div>
+            <div class="col-md-2 col-sm-6">
+              <button class="btn btn-outline-dark btn-sm w-100" (click)="capFilter = 'all'">
+                <i class="fas fa-list me-1"></i> Show All
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CAP Monitoring Table -->
+  <div class="row">
+    <div class="col-lg-8 col-md-7" [class.col-lg-12]="!isDetailsPanelVisible">
+        <div class="card shadow-sm">
+          <div class="card-header bg-light">
+            <div class="d-flex justify-content-between align-items-center">
+              <h3 class="mb-0 fw-bold">
+                <i class="fas fa-clipboard-list me-2 text-primary"></i> 
+                Corrective Action Plans (CAP) Monitoring
+              </h3>
+              <div class="text-muted small">
+                Tracking {{ getTotalCAPs() }} action plans
+              </div>
+            </div>
+          </div>
+
+        <div class="p-3 border-bottom bg-white">
+          <div class="row g-3 align-items-end">
+
+               <!-- Search -->
+            <div class="col-md-3">
+              <label class="form-label small fw-bold text-dark mb-1">Search</label>
+              <div class="input-group input-group-sm">
+                <input type="text" class="form-control" placeholder="Search..." 
+                      [(ngModel)]="searchTerm" (input)="applyCAPFilter()">
+                <button class="btn btn-outline-secondary" type="button" (click)="clearSearch()">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Status Filter -->
+            <div class="col-md-2">
+              <label class="form-label small fw-bold text-dark mb-1">Status</label>
+              <select class="form-select form-select-sm" [(ngModel)]="statusFilter" (change)="applyCAPFilter()">
+                <option value="all">All Status</option>
+                <option value="new">New Findings</option>
+                <option value="open">Open</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+                <option value="verified">Verified</option>
+                <option value="closed">Closed</option>
+                <option value="risk_accepted">Risk Accepted</option>
+              </select>
+            </div>
+
+            <!-- Severity Filter -->
+            <div class="col-md-2">
+              <label class="form-label small fw-bold text-dark mb-1">Severity</label>
+              <select class="form-select form-select-sm" [(ngModel)]="severityFilter" (change)="applyCAPFilter()">
+                <option value="all">All Severity</option>
+                <option value="critical">Critical</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+            </div>
+
+            <!-- Due Date Filter -->
+            <div class="col-md-3">
+              <label class="form-label small fw-bold text-dark mb-1">Due Date</label>
+              <select class="form-select form-select-sm" [(ngModel)]="dueDateFilter" (change)="applyCAPFilter()">
+                <option value="all">All Dates</option>
+                <option value="overdue">Overdue</option>
+                <option value="due_soon">Due This Week</option>
+                <option value="due_month">Due This Month</option>
+                <option value="future">Future Dates</option>
+              </select>
+            </div>
+
+            <!-- Department Filter -->
+            <div class="col-md-2">
+              <label class="form-label small fw-bold text-dark mb-1">Department</label>
+              <select class="form-select form-select-sm" [(ngModel)]="departmentFilter" (change)="applyCAPFilter()">
+                <option value="all">All Departments</option>
+                <option *ngFor="let dept of getUniqueDepartments()" [value]="dept">{{ dept }}</option>
+              </select>
+            </div>
+
+         
+
+            <!-- Action Buttons -->
+            <div class="col-md-12 mt-2">
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="text-muted small">
+                  <!-- Showing {{ getFilteredCAPs().length }} of {{ getTotalCAPs() }} records -->
+                </div>
+                <div class="btn-group btn-group-sm" role="group">
+                  <button class="btn btn-outline-primary" (click)="exportCAPReport()">
+                    <i class="fas fa-file-excel me-1"></i> Export
+                  </button>
+                  <button class="btn btn-outline-secondary" (click)="loadMonitoringData()" title="Refresh">
+                    <i class="fas fa-sync-alt"></i>
+                  </button>
+                  <button class="btn btn-outline-secondary" (click)="clearAllFilters()" title="Clear Filters">
+                    <i class="fas fa-filter-circle-xmark"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Table -->
         <div class="table-responsive">
           <table class="table table-hover align-middle">
             <thead class="table-light">
               <tr>
-                <th>Audit Title</th>
-                <th>Observation</th>
-                 <th>Responsible</th>
-                <th>Action Plan</th>
-                <th>Target Date</th>
-                <th>Status</th>
+                <th width="20%">Audit WF</th>
+                <th width="10%">Severity</th>
+                <th width="15%">Responsible Unit</th>
+                <th width="10%">Target Date</th>
+                <th width="10%">Status</th>
+                <th width="10%">Progress</th>
+                <th width="15%">Actions</th>
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let o of observations"
-                  (click)="toggleDetails(o)"
-                  [class.table-active]="expandedObservation?.id === o.id"
+              <tr *ngFor="let item of getPaginatedCAPs()"
+                  (click)="toggleDetails(item)"
+                  [class.table-warning]="isOverdue(item)"
+                  [class.table-active]="expandedItem?.cap.id === item.cap.id"
                   style="cursor:pointer">
-                <td>{{ o.auditTitle }}</td>
-                <td>{{ o.description }}</td>
-                <td>{{ o.responsibleUnit || '-' }}</td>
-                <td>{{ o.recommendation || '-' }}</td>
-                <td>{{ o.auditEndDate || '-' }}</td>
+                
                 <td>
-                  <span class="badge"
-                    [ngClass]="{
-                      'bg-warning': o.status === 'Open' || o.status === 'Pending',
-                      'bg-success': o.status === 'Submitted',
-                      'bg-info': o.status === 'In Progress' || o.status === 'Verified',
-                      'bg-secondary': o.status === 'Closed'
-                    }">{{ o.status }}
+                  <div class="fw-bold">{{ item.workflowTitle }}</div>
+                  <!-- <small class="text-muted">Dept: {{ item.department }}</small> -->
+                  <!-- <div *ngIf="item.isNew" class="badge bg-primary mt-1">New</div> -->
+                </td>
+                
+                <td>
+                  <span class="badge" [ngClass]="{
+                    'bg-danger': item.finding.severity === 'Critical' || item.finding.severity === 'High',
+                    'bg-warning text-dark': item.finding.severity === 'Medium',
+                    'bg-success': item.finding.severity === 'Low'
+                  }">
+                    {{ item.finding.severity }}
                   </span>
+                </td>
+                
+                <td>
+                  <span class="badge bg-secondary">{{ item.cap.responsibleUnit || '-' }}</span>
+                </td>
+                
+                <td>
+                  <div [class.text-danger]="isOverdue(item)" [class.fw-bold]="isDueSoon(item.cap)">
+                    {{ item.cap.targetDate || '-' }}
+                  </div>
+                  <div *ngIf="isOverdue(item)" class="small text-danger">
+                    <i class="fas fa-exclamation-triangle me-1"></i>Overdue
+                  </div>
+                  <div *ngIf="isDueSoon(item.cap) && !isOverdue(item)" class="small text-warning">
+                    <i class="fas fa-clock me-1"></i>Due soon
+                  </div>
+                </td>
+                
+                <td>
+                  <span class="badge d-inline-flex align-items-center" [ngClass]="{
+                    'bg-warning': item.cap.status === 'Open',
+                    'bg-primary': item.cap.status === 'In Progress',
+                    'bg-success': item.cap.status === 'Completed' || item.cap.status === 'Verified' || item.cap.status === 'Closed',
+                    'bg-info': item.cap.status === 'Verified',
+                    'bg-secondary': item.cap.status === 'Closed',
+                    'bg-dark': item.cap.status === 'Risk Accepted'
+                  }">
+                    <i class="fas me-1" [ngClass]="{
+                      'fa-clock': item.cap.status === 'Open',
+                      'fa-sync-alt': item.cap.status === 'In Progress',
+                      'fa-check': item.cap.status === 'Completed',
+                      'fa-check-double': item.cap.status === 'Verified',
+                      'fa-ban': item.cap.status === 'Closed',
+                      'fa-shield-alt': item.cap.status === 'Risk Accepted'
+                    }"></i>
+                    {{ item.cap.status }}
+                  </span>
+                </td>
+                
+                <td>
+                  <div class="progress" style="height: 8px;">
+                    <div class="progress-bar" [ngClass]="{
+                      'bg-warning': getProgress(item.cap) < 50,
+                      'bg-primary': getProgress(item.cap) >= 50 && getProgress(item.cap) < 100,
+                      'bg-success': getProgress(item.cap) === 100
+                    }" [style.width.%]="getProgress(item.cap)">
+                    </div>
+                  </div>
+                  <small class="text-muted">{{ getProgress(item.cap) }}% complete</small>
+                </td>
+                
+                <td>
+                  <div class="btn-group btn-group-sm">
+                    <button *ngIf="item.isNew" 
+                            class="btn btn-success" 
+                            (click)="initializeCAP(item); $event.stopPropagation()"
+                            title="Initialize CAP">
+                      <i class="fas fa-play"></i>
+                    </button>
+                    <button *ngIf="!item.isNew" 
+                            class="btn btn-outline-primary" 
+                            (click)="updateCAPProgress(item); $event.stopPropagation()"
+                            title="Update Progress">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-outline-info" 
+                            (click)="scheduleFollowUpForCAP(item); $event.stopPropagation()"
+                            title="Schedule Follow-up">
+                      <i class="fas fa-calendar-check"></i>
+                    </button>
+                    <button class="btn btn-outline-warning" 
+                            (click)="sendReminder(item); $event.stopPropagation()"
+                            title="Send Reminder">
+                      <i class="fas fa-bell"></i>
+                    </button>
+                  </div>
                 </td>
               </tr>
 
-              <tr *ngIf="!observations.length">
-                <td colspan="6" class="text-center text-muted">No observations found</td>
+              <tr *ngIf="!getFilteredCAPs().length">
+                <td colspan="7" class="text-center text-muted py-4">
+                  <i class="fas fa-inbox fa-2x mb-3"></i>
+                  <h5>No Corrective Action Plans Found</h5>
+                  <p class="mb-0">No CAPs match the current filter criteria.</p>
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
-      </div>
-    </div>
 
-    <!-- Right side detail -->
-     <div class="col-lg-4 col-md-5 bg-white border-start shadow-sm details-panel" 
-     *ngIf="isDetailsPanelVisible">
-  
-        <!-- Header -->
-        <div class="p-3 d-flex justify-content-between border-bottom align-items-center">
-          <h2 class="mb-0 fw-bold">
-            <i class="fas fa-exclamation-circle text-primary me-2"></i>
-            Observation Details
-          </h2>
-          <button class="btn btn-sm btn-light" (click)="hideDetails()">
-            <i class="fas fa-times"></i>
-          </button>
-        </div>
-
-        <!-- Content -->
-        <div class="p-3">
-          <p><strong>Audit Title:</strong> {{ expandedObservation?.auditTitle }}</p>
-          <p><strong>Responsible Unit:</strong> {{ expandedObservation?.responsibleUnit }}</p>
-          <p><strong>Target Date:</strong> {{ expandedObservation?.auditEndDate }}</p>
-
-          <p><strong>Severity:</strong>
-            <span class="badge"
-              [ngClass]="{
-                'bg-danger': expandedObservation?.severity === 'High',
-                'bg-warning text-dark': expandedObservation?.severity === 'Medium',
-                'bg-success': expandedObservation?.severity === 'Low'
-              }">
-              {{ expandedObservation?.severity }}
-            </span>
-          </p>
-
-          <p><strong>Status:</strong>
-            <span class="badge"
-              [ngClass]="{
-                'bg-warning': expandedObservation?.status === 'Open' || expandedObservation?.status === 'Pending',
-                'bg-success': expandedObservation?.status === 'Submitted',
-                'bg-info': expandedObservation?.status === 'In Progress' || expandedObservation?.status === 'Verified',
-                'bg-secondary': expandedObservation?.status === 'Closed'
-              }">
-              {{ expandedObservation?.status }}
-            </span>
-          </p>
-
-          <p><strong>Action Plan:</strong> 
-            {{ expandedObservation?.recommendation || 'Not provided' }}
-          </p>
-
-          <!-- Findings Section -->
-        <div *ngIf="expandedObservation?.findings?.length" class="mt-3">
-          <div class="card shadow-sm border-0">
-            <div class="card-header bg-light d-flex align-items-center">
-              <i class="fas fa-search text-success me-2"></i>
-              <h3 class="mb-0 fw-bold">Findings</h3>
+        <!-- Pagination -->
+        <div class="card-footer bg-light">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="text-muted small">
+              Showing {{ getStartIndex() }} to {{ getEndIndex() }} of {{ getFilteredCAPs().length }} entries
             </div>
-            <div class="card-body p-0">
-              <ul class="list-group list-group-flush">
-                <li *ngFor="let f of expandedObservation?.findings" class="list-group-item">
-                  <div class="d-flex justify-content-between align-items-start">
-                    <!-- Description -->
-                    <div>
-                      <p class="mb-1">
-                        <i class="fas fa-circle text-muted me-1 small"></i>{{ f.description }}
-                      </p>
-                      <!-- Impact Badge -->
-                      <span class="badge me-2"
-                        [ngClass]="{
-                          'bg-danger': f.impact === 'High',
-                          'bg-warning text-dark': f.impact === 'Medium',
-                          'bg-success': f.impact === 'Low'
-                        }">
-                        Impact: {{ f.impact }}
-                      </span>
-                      <!-- Status Badge -->
-                      <span class="badge"
-                        [ngClass]="{
-                          'bg-secondary': f.status === 'Noted',
-                          'bg-info text-dark': f.status === 'In Progress',
-                          'bg-success': f.status === 'Done'
-                        }">
-                        Status: {{ f.status }}
-                      </span>
-                    </div>
-                  </div>
+            
+            <nav>
+              <ul class="pagination pagination-sm mb-0">
+                <li class="page-item" [class.disabled]="currentPage === 1">
+                  <a class="page-link" href="javascript:void(0)" (click)="goToPage(1)" title="First Page">
+                    <i class="fas fa-angle-double-left"></i>
+                  </a>
+                </li>
+                <li class="page-item" [class.disabled]="currentPage === 1">
+                  <a class="page-link" href="javascript:void(0)" (click)="goToPage(currentPage - 1)" title="Previous">
+                    <i class="fas fa-angle-left"></i>
+                  </a>
+                </li>
+                
+                <li class="page-item" *ngFor="let page of getVisiblePages()" [class.active]="page === currentPage">
+                  <a class="page-link" href="javascript:void(0)" (click)="goToPage(page)">{{ page }}</a>
+                </li>
+                
+                <li class="page-item" [class.disabled]="currentPage === getTotalPages()">
+                  <a class="page-link" href="javascript:void(0)" (click)="goToPage(currentPage + 1)" title="Next">
+                    <i class="fas fa-angle-right"></i>
+                  </a>
+                </li>
+                <li class="page-item" [class.disabled]="currentPage === getTotalPages()">
+                  <a class="page-link" href="javascript:void(0)" (click)="goToPage(getTotalPages())" title="Last Page">
+                    <i class="fas fa-angle-double-right"></i>
+                  </a>
                 </li>
               </ul>
+            </nav>
+
+            <div class="d-flex align-items-center">
+              <label class="form-label small text-muted mb-0 me-2">Page size:</label>
+              <select class="form-select form-select-sm w-auto" [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
             </div>
           </div>
         </div>
-          <hr>
-
-          <!-- Actions -->
-          <button class="btn btn-outline-warning btn-sm w-100 mb-2" (click)="remindUnit(expandedObservation!)">
-            <i class="fas fa-bell"></i> Send Reminder
-          </button>
-          <button class="btn btn-outline-primary btn-sm w-100 mb-2" (click)="openAddModal(expandedObservation!)">
-            <i class="fas fa-edit"></i> Update Action Plan
-          </button>
-       
-          <!-- <button class="btn btn-outline-danger btn-sm w-100" (click)="deleteObservation(expandedObservation!)">
-            <i class="fas fa-trash"></i> Delete
-          </button> -->
-        </div>
-   </div>
-  </div>
-</div>
-
-
-<div class="modal fade show" tabindex="-1" *ngIf="selectedObservation"
-     style="display:block; background: rgba(0,0,0,0.5);"
-     (click)="closeModal()">
-  <div class="modal-dialog modal-lg" (click)="$event.stopPropagation()">
-    <div class="modal-content shadow-lg border-0 rounded-3">
-
-      <!-- Header -->
-      <div class="modal-header bg-primary text-white">
-        <h2 class="modal-title fw-bold mb-0">
-          <i class="fas fa-comment-dots me-2"></i>
-          Follow-up Remark
-        </h2>
-        <button type="button" class="btn-close btn-close-white" (click)="closeModal()"></button>
-      </div>
-
-      <!-- Body -->
-      <div class="modal-body">
-        <div class="card border-0 shadow-sm p-3">
-
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label class="form-label fw-bold">
-                <i class="fas fa-hashtag text-secondary me-1"></i> Observation ID
-              </label>
-              <input type="text" class="form-control" [(ngModel)]="selectedObservation.id" disabled>
-            </div>
-
-            <div class="col-md-6 mb-3">
-              <label class="form-label fw-bold">
-                <i class="fas fa-clipboard-list text-primary me-1"></i> Audit Title
-              </label>
-              <input type="text" class="form-control" [(ngModel)]="selectedObservation.auditTitle" disabled>
-            </div>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label fw-bold">
-              <i class="fas fa-exclamation-circle text-danger me-1"></i> Observation
-            </label>
-            <textarea class="form-control" rows="2" [(ngModel)]="selectedObservation.description" disabled></textarea>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label fw-bold">
-              <i class="fas fa-tasks text-success me-1"></i> Action Plan
-            </label>
-            <textarea class="form-control" rows="2" [(ngModel)]="selectedObservation.recommendation" disabled></textarea>
-          </div>
-
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label class="form-label fw-bold">
-                <i class="fas fa-users text-info me-1"></i> Responsible Unit
-              </label>
-              <input type="text" class="form-control" [(ngModel)]="selectedObservation.responsibleUnit" disabled>
-            </div>
-
-            <div class="col-md-6 mb-3">
-              <label class="form-label fw-bold">
-                <i class="fas fa-calendar-alt text-warning me-1"></i> Target Date
-              </label>
-              <input type="date" class="form-control" [(ngModel)]="selectedObservation.auditEndDate" disabled>
-            </div>
-          </div>
-
-          <!-- Status (system synced, read-only) -->
-          <div class="mb-3">
-            <label class="form-label fw-bold">
-              <i class="fas fa-info-circle text-muted me-1"></i> Status
-            </label>
-            <div>
-              <span class="badge px-3 py-2"
-                [ngClass]="{
-                  'bg-warning': selectedObservation?.status === 'Open' || selectedObservation?.status === 'Pending',
-                  'bg-success': selectedObservation?.status === 'Submitted',
-                  'bg-info text-dark': selectedObservation?.status === 'In Progress' || selectedObservation?.status === 'Verified',
-                  'bg-secondary': selectedObservation?.status === 'Closed'
-                }">
-                {{ selectedObservation?.status }}
-              </span>
-            </div>
-            <small class="text-muted">Status is synced automatically by the system.</small>
-          </div>
-
-          <!-- ✅ Editable Remarks -->
-          <div class="mb-3">
-            <label class="form-label fw-bold">
-              <i class="fas fa-pen text-primary me-1"></i> Remark
-            </label>
-            <textarea class="form-control" rows="3" [(ngModel)]="selectedObservation.remarks"
-                      placeholder="Enter follow-up remark..."></textarea>
-          </div>
-        </div>
-      </div>
-
-      <!-- Footer -->
-      <div class="modal-footer d-flex justify-content-between">
-        <button class="btn btn-light border" (click)="closeModal()">
-          <i class="fas fa-times me-1"></i> Cancel
-        </button>
-        <button class="btn btn-primary save-btn" (click)="saveObservation()">
-          <i class="fas fa-save me-1"></i> Save Remark
-        </button>
       </div>
     </div>
+
+    <!-- Right side detail panel -->
+      <div class="col-lg-4 col-md-5 bg-white border-start shadow-lg details-panel" *ngIf="isDetailsPanelVisible">
+        <div class="p-4 border-bottom bg-light">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h2 class="mb-1 fw-bold text-dark">
+                <i class="fas fa-clipboard-check text-primary me-2"></i>
+                CAP Details
+              </h2>
+              <p class="text-muted mb-0 small">Corrective Action Plan Information</p>
+            </div>
+            <button class="btn btn-outline-secondary btn-sm" (click)="hideDetails()" title="Close panel">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="p-4" style="max-height: calc(100vh - 120px); overflow-y: auto;">
+          <!-- Basic Info Card -->
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-transparent border-bottom-0 py-3">
+              <h5 class="fw-bold text-primary mb-0">
+                <i class="fas fa-info-circle me-2"></i>BASIC INFORMATION
+              </h5>
+            </div>
+            <div class="card-body pt-0">
+              <div class="row g-2">
+                <div class="col-12">
+                  <label class="form-label small text-muted mb-1">Workflow</label>
+                  <p class="fw-medium mb-2">{{ expandedItem?.workflowTitle }}</p>
+                </div>
+                <div class="col-12">
+                  <label class="form-label small text-muted mb-1">Responsible Unit</label>
+                  <p class="fw-medium mb-2">{{ expandedItem?.department }}</p>
+                </div>
+                <!-- <div class="col-6">
+                  <label class="form-label small text-muted mb-1">Responsible Unit</label>
+                  <p class="fw-medium mb-2">
+                    <span class="badge bg-light text-dark border">{{ expandedItem?.cap.responsibleUnit || 'Not assigned' }}</span>
+                  </p>
+                </div> -->
+                <div class="col-12">
+                  <label class="form-label small text-muted mb-1">Target Date</label>
+                  <p class="fw-medium mb-0" [class.text-danger]="isOverdue(expandedItem)" [class.text-warning]="isDueSoon(expandedItem?.cap)">
+                    {{ expandedItem?.cap.targetDate || 'Not set' }}
+                    <span *ngIf="isOverdue(expandedItem)" class="badge bg-danger ms-2">Overdue</span>
+                    <span *ngIf="isDueSoon(expandedItem?.cap) && !isOverdue(expandedItem)" class="badge bg-warning text-dark ms-2">Due Soon</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Finding Details Card -->
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-transparent border-bottom-0 py-3">
+              <h5 class="fw-bold text-primary mb-0">
+                <i class="fas fa-search me-2"></i>FINDING DETAILS
+              </h5>
+            </div>
+            <div class="card-body pt-0">
+              <div class="mb-3">
+                <label class="form-label small text-muted mb-1">Finding Title</label>
+                <p class="fw-medium mb-3">{{ expandedItem?.finding.title }}</p>
+              </div>
+              <div class="mb-3">
+                <label class="form-label small text-muted mb-1">Description</label>
+                <p class="text-muted small mb-3">{{ expandedItem?.finding.details }}</p>
+              </div>
+              <div class="mb-3">
+                <label class="form-label small text-muted mb-1">Severity</label>
+                <div>
+                  <span class="badge" [ngClass]="{
+                    'bg-danger': expandedItem?.finding.severity === 'Critical' || expandedItem?.finding.severity === 'High',
+                    'bg-warning text-dark': expandedItem?.finding.severity === 'Medium',
+                    'bg-success': expandedItem?.finding.severity === 'Low'
+                  }">
+                    {{ expandedItem?.finding.severity }}
+                  </span>
+                </div>
+              </div>
+              <div>
+                <label class="form-label small text-muted mb-1">Recommendation</label>
+                <p class="text-muted small mb-0">{{ expandedItem?.finding.recommendation }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Status & Progress Card -->
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-transparent border-bottom-0 py-3">
+              <h5 class="fw-bold text-primary mb-0">
+                <i class="fas fa-chart-line me-2"></i>STATUS & PROGRESS
+              </h5>
+            </div>
+            <div class="card-body pt-0">
+              <div class="mb-3">
+                <label class="form-label small text-muted mb-1">Current Status</label>
+                <div>
+                  <span class="badge d-inline-flex align-items-center py-2" [ngClass]="{
+                    'bg-warning': expandedItem?.cap.status === 'Open',
+                    'bg-primary': expandedItem?.cap.status === 'In Progress',
+                    'bg-success': expandedItem?.cap.status === 'Completed',
+                    'bg-info': expandedItem?.cap.status === 'Verified',
+                    'bg-secondary': expandedItem?.cap.status === 'Closed',
+                    'bg-dark': expandedItem?.cap.status === 'Risk Accepted'
+                  }">
+                    <i class="fas me-1" [ngClass]="{
+                      'fa-clock': expandedItem?.cap.status === 'Open',
+                      'fa-sync-alt': expandedItem?.cap.status === 'In Progress',
+                      'fa-check': expandedItem?.cap.status === 'Completed',
+                      'fa-check-double': expandedItem?.cap.status === 'Verified',
+                      'fa-ban': expandedItem?.cap.status === 'Closed',
+                      'fa-shield-alt': expandedItem?.cap.status === 'Risk Accepted'
+                    }"></i>
+                    {{ expandedItem?.cap.status }}
+                  </span>
+                </div>
+              </div>
+              <div>
+                <label class="form-label small text-muted mb-1">Progress</label>
+                <div class="d-flex align-items-center mb-2">
+                  <div class="flex-grow-1 me-3">
+                    <div class="progress" style="height: 8px;">
+                      <div class="progress-bar" [ngClass]="{
+                        'bg-warning': getProgress(expandedItem?.cap) < 50,
+                        'bg-primary': getProgress(expandedItem?.cap) >= 50 && getProgress(expandedItem?.cap) < 100,
+                        'bg-success': getProgress(expandedItem?.cap) === 100
+                      }" [style.width.%]="getProgress(expandedItem?.cap)"></div>
+                    </div>
+                  </div>
+                  <span class="fw-bold text-dark small">{{ getProgress(expandedItem?.cap) }}%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Plan Card -->
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-transparent border-bottom-0 py-3">
+              <h5 class="fw-bold text-primary mb-0">
+                <i class="fas fa-tasks me-2"></i>CORRECTIVE ACTION PLAN
+              </h5>
+            </div>
+            <div class="card-body pt-0">
+              <div class="mb-3">
+                <label class="form-label small text-muted mb-1">Action Plan</label>
+                <p class="small mb-3">{{ expandedItem?.cap.actionPlan || 'No action plan provided' }}</p>
+              </div>
+              <div *ngIf="expandedItem?.cap.remarks">
+                <label class="form-label small text-muted mb-1">Remarks</label>
+                <p class="small text-muted mb-0">{{ expandedItem?.cap.remarks }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Follow-up Information Card -->
+          <div class="card border-0 shadow-sm mb-4" *ngIf="expandedItem?.cap.lastFollowUpDate || expandedItem?.cap.nextFollowUpDate">
+            <div class="card-header bg-transparent border-bottom-0 py-3">
+              <h5 class="fw-bold text-primary mb-0">
+                <i class="fas fa-calendar-alt me-2"></i>FOLLOW-UP INFORMATION
+              </h5>
+            </div>
+            <div class="card-body pt-0">
+              <div class="row g-2">
+                <div class="col-6" *ngIf="expandedItem?.cap.lastFollowUpDate">
+                  <label class="form-label small text-muted mb-1">Last Follow-up</label>
+                  <p class="fw-medium small mb-0">{{ expandedItem?.cap.lastFollowUpDate | date:'mediumDate' }}</p>
+                </div>
+                <div class="col-6" *ngIf="expandedItem?.cap.nextFollowUpDate">
+                  <label class="form-label small text-muted mb-1">Next Follow-up</label>
+                  <p class="fw-medium small mb-0">{{ expandedItem?.cap.nextFollowUpDate | date:'mediumDate' }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Risk Acceptance Card -->
+          <div class="card border-0 shadow-sm mb-4" *ngIf="expandedItem?.cap.status === 'Risk Accepted'">
+            <div class="card-header bg-transparent border-bottom-0 py-3">
+              <h5 class="fw-bold text-primary mb-0">
+                <i class="fas fa-shield-alt me-2"></i>RISK ACCEPTANCE
+              </h5>
+            </div>
+            <div class="card-body pt-0">
+              <div class="row g-2">
+                <div class="col-6">
+                  <label class="form-label small text-muted mb-1">Accepted By</label>
+                  <p class="fw-medium small mb-2">{{ expandedItem?.cap.riskAcceptedBy }}</p>
+                </div>
+                <div class="col-6">
+                  <label class="form-label small text-muted mb-1">Accepted Date</label>
+                  <p class="fw-medium small mb-2">{{ expandedItem?.cap.riskAcceptedAt | date:'mediumDate' }}</p>
+                </div>
+                <div class="col-12">
+                  <label class="form-label small text-muted mb-1">Reason</label>
+                  <p class="small text-muted mb-0">{{ expandedItem?.cap.riskAcceptanceReason }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions Card -->
+          <div class="card border-0 shadow-sm">
+            <!-- <div class="card-header bg-transparent border-bottom-0 py-3">
+              <h4 class="fw-bold text-primary mb-0">
+                <i class="fas fa-cogs me-2"></i>ACTIONS
+              </h4>
+            </div> -->
+            <div class="card-body pt-0">
+              <div class="d-grid gap-2">
+                <button *ngIf="expandedItem?.isNew" 
+                        class="btn btn-success btn-sm" 
+                        (click)="initializeCAP(expandedItem!)">
+                  <i class="fas fa-play me-2"></i> Initialize CAP
+                </button>
+                <button *ngIf="!expandedItem?.isNew" 
+                        class="btn btn-outline-primary btn-sm" 
+                        (click)="updateCAPProgress(expandedItem!)">
+                  <i class="fas fa-edit me-2"></i> Update Progress
+                </button>
+                <button class="btn btn-outline-warning btn-sm" 
+                        (click)="sendReminder(expandedItem!)">
+                  <i class="fas fa-bell me-2"></i> Send Reminder
+                </button>
+                <button class="btn btn-outline-info btn-sm" 
+                        (click)="scheduleFollowUpForCAP(expandedItem!)">
+                  <i class="fas fa-calendar-check me-2"></i> Schedule Follow-up
+                </button>
+                <button *ngIf="expandedItem?.cap.status !== 'Risk Accepted'" 
+                        class="btn btn-outline-dark btn-sm" 
+                        (click)="requestRiskAcceptance(expandedItem!)">
+                  <i class="fas fa-shield-alt me-2"></i> Request Risk Acceptance
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
   </div>
 </div>
-<hr>
