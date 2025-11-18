@@ -1,6 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import Swal from 'sweetalert2';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+
+interface ModalData {
+  item: any;
+  type: 'initialize' | 'progress' | 'followup' | 'risk' | 'reminder';
+}
 
 interface Workflow {
   id: string;
@@ -28,7 +34,6 @@ interface PreClosingFinding {
   severity: 'Critical' | 'High' | 'Medium' | 'Low';
   recommendation: string;
   status: string;
-  // Monitoring fields we'll add
   correctiveActionPlan?: CorrectiveActionPlan;
 }
 
@@ -58,52 +63,72 @@ interface CorrectiveActionPlan {
   styleUrls: ['./list-customers.component.scss']
 })
 export class ListCustomersComponent implements OnInit {
-  // Main data arrays
   workflows: Workflow[] = [];
   correctiveActionPlans: CorrectiveActionPlan[] = [];
-  
-  // Combined view for display
+  initializeForm: FormGroup;
+  progressForm: FormGroup;
+  followupForm: FormGroup;
+  riskForm: FormGroup;
   monitoringItems: any[] = [];
-  
-  // UI state
+   selectedItem: any = null;
   selectedCAP: CorrectiveActionPlan | null = null;
   expandedItem: any = null;
   isDetailsPanelVisible = false;
   capFilter = 'all';
-  
-  // API endpoints
   workflowsApiUrl = 'http://localhost:3000/workflows';
-  capsApiUrl = 'http://localhost:3000/correctiveActionPlans'; // New endpoint for CAPs
+  capsApiUrl = 'http://localhost:3000/correctiveActionPlans'; 
 
-  constructor(private http: HttpClient) {}
-
-  ngOnInit(): void {
-    this.loadMonitoringData();
-  }
-
-  // Pagination properties
   currentPage: number = 1;
   pageSize: number = 5;
-
-  // Filter properties
   statusFilter: string = 'all';
   severityFilter: string = 'all';
   dueDateFilter: string = 'all';
   departmentFilter: string = 'all';
   searchTerm: string = '';
 
-  // Pagination methods
-  getPaginatedCAPs(): any[] {
+  constructor(
+    private http: HttpClient,
+    private fb: FormBuilder
+  ) {
+    this.initializeForms();
+  }
+
+  ngOnInit(): void {
+    this.loadMonitoringData();
+  }
+
+  getProgress(cap: CorrectiveActionPlan): number {
+  switch (cap.status) {
+    case 'Open':
+      return 0;
+    case 'In Progress':
+      return cap.progress > 0 ? Math.min(cap.progress, 90) : 25; 
+    case 'Completed':
+      return 80;
+    case 'Verified':
+      return 100;
+    case 'Closed':
+      return 100;
+    case 'Risk Accepted':
+      return 100;
+    case 'Overdue':
+      return cap.progress || 0;
+    default:
+      return cap.progress || 0;
+  }
+}
+
+getPaginatedCAPs(): any[] {
     const filtered = this.getFilteredCAPs();
     const startIndex = (this.currentPage - 1) * this.pageSize;
     return filtered.slice(startIndex, startIndex + this.pageSize);
   }
 
-  getTotalPages(): number {
+getTotalPages(): number {
     return Math.ceil(this.getFilteredCAPs().length / this.pageSize);
   }
 
-  getVisiblePages(): number[] {
+getVisiblePages(): number[] {
     const totalPages = this.getTotalPages();
     const visiblePages = 5;
     const pages: number[] = [];
@@ -120,36 +145,35 @@ export class ListCustomersComponent implements OnInit {
     return pages;
   }
 
-  goToPage(page: number): void {
+goToPage(page: number): void {
     if (page >= 1 && page <= this.getTotalPages()) {
       this.currentPage = page;
     }
   }
 
-  onPageSizeChange(): void {
+onPageSizeChange(): void {
     this.currentPage = 1;
   }
 
-  getStartIndex(): number {
+getStartIndex(): number {
     return (this.currentPage - 1) * this.pageSize + 1;
   }
 
-  getEndIndex(): number {
+getEndIndex(): number {
     return Math.min(this.currentPage * this.pageSize, this.getFilteredCAPs().length);
   }
 
-  // Filter methods
-  getUniqueDepartments(): string[] {
+getUniqueDepartments(): string[] {
     const departments = new Set(this.monitoringItems?.map((item: any) => item.department) || []);
     return Array.from(departments).filter(dept => dept) as string[];
   }
 
-  clearSearch(): void {
+clearSearch(): void {
     this.searchTerm = '';
     this.applyCAPFilter();
   }
 
-  clearAllFilters(): void {
+clearAllFilters(): void {
     this.statusFilter = 'all';
     this.severityFilter = 'all';
     this.dueDateFilter = 'all';
@@ -159,16 +183,452 @@ export class ListCustomersComponent implements OnInit {
     this.applyCAPFilter();
   }
 
-  applyCAPFilter(): void {
+applyCAPFilter(): void {
     this.currentPage = 1;
     // Filter logic is handled in getFilteredCAPs() method
   }
 
-  // Enhanced filtering method
+private initializeForms() {
+    const today = new Date().toISOString().split('T')[0];
+
+    this.initializeForm = this.fb.group({
+      responsibleUnit: ['', Validators.required],
+      targetDate: ['', [Validators.required, this.futureDateValidator()]],
+      detailedPlan: ['', Validators.required]
+    });
+
+    this.progressForm = this.fb.group({
+      progress: [0, [Validators.required, Validators.min(0), Validators.max(100)]],
+      status: ['Open', Validators.required],
+      remarks: ['']
+    });
+
+    this.followupForm = this.fb.group({
+      followUpDate: ['', [Validators.required, this.futureDateValidator()]]
+    });
+
+    this.riskForm = this.fb.group({
+      riskReason: ['', Validators.required],
+      acceptedBy: ['', Validators.required]
+    });
+  }
+
+getTodayDate(): string {
+  return new Date().toISOString().split('T')[0];
+}
+
+private markFormGroupTouched(formGroup: FormGroup) {
+  Object.keys(formGroup.controls).forEach(key => {
+    const control = formGroup.get(key);
+    if (control instanceof FormGroup) {
+      this.markFormGroupTouched(control);
+    } else {
+      control?.markAsTouched();
+    }
+  });
+}
+
+private futureDateValidator() {
+  return (control: any) => {
+    if (!control.value) {
+      return { required: true };
+    }
+    
+    const selectedDate = new Date(control.value);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); 
+    
+    const selectedDateOnly = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
+    
+    if (selectedDateOnly < today) {
+      return { 
+        futureDate: {
+          message: 'Date cannot be before today',
+          selected: selectedDateOnly.toDateString(),
+          today: today.toDateString()
+        }
+      };
+    }
+    
+    return null;
+  };
+}
+
+initializeCAP(item: any) {
+  this.selectedItem = item;
+  const today = new Date().toISOString().split('T')[0];
+  
+  this.initializeForm.patchValue({
+    responsibleUnit: item.department,
+    targetDate:  today, 
+    detailedPlan: item.cap.actionPlan
+  });
+  
+  const modal = new (window as any).bootstrap.Modal(document.getElementById('initializeCAPModal'));
+  modal.show();
+  
+  setTimeout(() => {
+    const dateInput = document.getElementById('targetDate') as HTMLInputElement;
+    if (dateInput) {
+      dateInput.min = today;
+    }
+  }, 100);
+}
+
+scheduleFollowUpForCAP(item: any) {
+  this.selectedItem = item;
+  const today = new Date().toISOString().split('T')[0];
+  
+  this.followupForm.patchValue({
+    followUpDate: item.cap.nextFollowUpDate || today 
+  });
+  
+  const modal = new (window as any).bootstrap.Modal(document.getElementById('scheduleFollowupModal'));
+  modal.show();
+  
+  setTimeout(() => {
+    const dateInput = document.getElementById('followUpDate') as HTMLInputElement;
+    if (dateInput) {
+      dateInput.min = today;
+    }
+  }, 100);
+}
+
+  requestRiskAcceptance(item: any) {
+    this.selectedItem = item;
+    this.riskForm.patchValue({
+      riskReason: item.cap.riskAcceptanceReason || '',
+      acceptedBy: item.cap.riskAcceptedBy || ''
+    });
+    
+    const modal = new (window as any).bootstrap.Modal(document.getElementById('riskAcceptanceModal'));
+    modal.show();
+  }
+
+  sendReminder(item: any) {
+    this.selectedItem = item;
+    const modal = new (window as any).bootstrap.Modal(document.getElementById('reminderModal'));
+    modal.show();
+  }
+
+getAutoProgress(status: string): number {
+  switch (status) {
+    case 'Open': return 0;
+    case 'In Progress': 
+      const currentProgress = this.progressForm?.get('progress')?.value;
+      return currentProgress && currentProgress > 0 ? Math.min(currentProgress, 90) : 25;
+    case 'Completed': return 80;
+    case 'Verified': return 100;
+    case 'Closed': return 100;
+    case 'Risk Accepted': return 100;
+    default: return 0;
+  }
+}
+
+async onInitializeSubmit() {
+  if (this.initializeForm.valid && this.selectedItem) {
+    try {
+      const formValue = this.initializeForm.value;
+      
+      // Double-check date validation
+      const selectedDate = new Date(formValue.targetDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      if (selectedDate < today) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Invalid Date',
+          text: 'Target date cannot be before today',
+          confirmButtonText: 'OK'
+        });
+        return;
+      }
+      
+      const capData: CorrectiveActionPlan = {
+        ...this.selectedItem.cap,
+        responsibleUnit: formValue.responsibleUnit,
+        targetDate: formValue.targetDate,
+        actionPlan: formValue.detailedPlan,
+        status: 'In Progress',
+        progress: 25, 
+        updatedAt: new Date().toISOString()
+      };
+
+      await this.saveCAP(capData);
+      this.hideModal('initializeCAPModal');
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'CAP Initialized!',
+        text: 'Corrective Action Plan has been initialized successfully',
+        timer: 3000,
+        showConfirmButton: false
+      });
+      
+      this.loadMonitoringData();
+      
+    } catch (error) {
+      this.showErrorAlert('Failed to initialize CAP');
+    }
+  }
+}
+
+async onRiskSubmit() {
+  if (this.riskForm.valid && this.selectedItem) {
+    try {
+      const formValue = this.riskForm.value;
+      
+      const capData: CorrectiveActionPlan = {
+        ...this.selectedItem.cap,
+        status: 'Risk Accepted',
+        progress: 100, // Auto-set to 100% for risk acceptance
+        riskAcceptanceReason: formValue.riskReason,
+        riskAcceptedBy: formValue.acceptedBy,
+        riskAcceptedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      await this.saveCAP(capData);
+      this.hideModal('riskAcceptanceModal');
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Risk Accepted!',
+        text: 'Risk acceptance has been recorded successfully',
+        timer: 3000,
+        showConfirmButton: false
+      });
+      
+      this.loadMonitoringData();
+      
+    } catch (error) {
+      this.showErrorAlert('Failed to submit risk acceptance');
+    }
+  }
+}
+
+onStatusChange(event: any) {
+  const status = event.target.value;
+  
+  if (status !== 'In Progress') {
+    const autoProgress = this.getAutoProgress(status);
+    this.progressForm.patchValue({
+      progress: autoProgress
+    });
+  }
+}
+
+updateCAPProgress(item: any) {
+  this.selectedItem = item;
+  const initialProgress = this.getProgress(item.cap);
+  
+  this.progressForm.patchValue({
+    progress: initialProgress,
+    status: item.cap.status,
+    remarks: item.cap.remarks || ''
+  });
+  
+  const modal = new (window as any).bootstrap.Modal(document.getElementById('updateProgressModal'));
+  modal.show();
+}
+
+  async onFollowupSubmit() {
+    if (this.followupForm.valid && this.selectedItem) {
+      try {
+        const formValue = this.followupForm.value;
+        
+        const capData: CorrectiveActionPlan = {
+          ...this.selectedItem.cap,
+          nextFollowUpDate: formValue.followUpDate,
+          updatedAt: new Date().toISOString()
+        };
+
+        await this.saveCAP(capData);
+        this.hideModal('scheduleFollowupModal');
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Follow-up Scheduled!',
+          text: `Follow-up has been scheduled for ${this.formatDate(formValue.followUpDate)}`,
+          timer: 3000,
+          showConfirmButton: false
+        });
+        
+        this.loadMonitoringData();
+        
+      } catch (error) {
+        this.showErrorAlert('Failed to schedule follow-up');
+      }
+    }
+  }
+
+  async onReminderSubmit() {
+    if (this.selectedItem) {
+      try {
+        const capData: CorrectiveActionPlan = {
+          ...this.selectedItem.cap,
+          lastFollowUpDate: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+
+        await this.saveCAP(capData);
+        this.hideModal('reminderModal');
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Reminder Sent!',
+          text: `Reminder has been sent to ${this.selectedItem.cap.responsibleUnit}`,
+          timer: 3000,
+          showConfirmButton: false
+        });
+        
+      } catch (error) {
+        this.showErrorAlert('Failed to send reminder');
+      }
+    }
+  }
+
+  private hideModal(modalId: string) {
+    const modalElement = document.getElementById(modalId);
+    if (modalElement) {
+      const modal = (window as any).bootstrap.Modal.getInstance(modalElement);
+      if (modal) {
+        modal.hide();
+      }
+    }
+  }
+
+  private showErrorAlert(message: string) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: message,
+      confirmButtonText: 'OK'
+    });
+  }
+
+  private formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  }
+
+  onProgressRangeChange(event: any) {
+    // This will automatically update the form value due to two-way binding
+  }
+
+  private async saveCAP(capData: CorrectiveActionPlan): Promise<void> {
+    try {
+      console.log('🔄 Saving CAP to backend:', capData);
+      
+      const existingIndex = this.correctiveActionPlans.findIndex(cap => cap.id === capData.id);
+      
+      if (existingIndex >= 0) {
+        console.log('📝 Updating existing CAP...');
+        const response = await this.http.put(`${this.capsApiUrl}/${capData.id}`, capData).toPromise();
+        console.log('✅ CAP updated successfully:', response);
+        this.correctiveActionPlans[existingIndex] = capData;
+      } else {
+        console.log('🆕 Creating new CAP...');
+        const response = await this.http.post(this.capsApiUrl, capData).toPromise();
+        console.log('✅ CAP created successfully:', response);
+        this.correctiveActionPlans.push(capData);
+      }
+      
+      this.processMonitoringItems();
+      
+    } catch (error) {
+      console.error('❌ Failed to save CAP:', error);
+      throw new Error('Failed to save CAP to server');
+    }
+  }
+
+  exportCAPReport() {
+    try {
+      // Create CSV content
+      const headers = ['Audit WF', 'Finding', 'Severity', 'Responsible Unit', 'Target Date', 'Status', 'Progress'];
+      const csvData = this.monitoringItems.map(item => [
+        item.workflowTitle,
+        // item.department,
+        item.finding.title,
+        item.finding.severity,
+        item.cap.responsibleUnit,
+        item.cap.targetDate,
+        item.cap.status,
+        `${item.cap.progress}%`
+      ]);
+
+      const csvContent = [headers, ...csvData]
+        .map(row => row.map(field => `"${field}"`).join(','))
+        .join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `CAP-Report-${new Date().toISOString().split('T')[0]}.csv`;
+      link.click();
+      window.URL.revokeObjectURL(url);
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Report Exported!',
+        text: 'CAP report has been exported successfully',
+        timer: 3000,
+        showConfirmButton: false
+      });
+      
+    } catch (error) {
+      this.showErrorAlert('Failed to export CAP report');
+    }
+  }
+
+  generateMonitoringReport() {
+    const reportData = {
+      totalCAPs: this.getTotalCAPs(),
+      overdue: this.getOverdueCAPs(),
+      inProgress: this.getInProgressCAPs(),
+      completed: this.getCompletedCAPs(),
+      riskAccepted: this.getRiskAcceptedCAPs(),
+      newFindings: this.getNewFindings(),
+      generatedAt: new Date().toISOString()
+    };
+
+    Swal.fire({
+      title: 'Monitoring Report Generated',
+      html: `
+        <div class="text-start">
+          <p class="fw-bold text-primary">Monitoring Report Summary</p>
+          <div class="row">
+            <div class="col-6">
+              <p><strong>Total CAPs:</strong> ${reportData.totalCAPs}</p>
+              <p><strong>New Findings:</strong> ${reportData.newFindings}</p>
+              <p><strong>Overdue:</strong> ${reportData.overdue}</p>
+            </div>
+            <div class="col-6">
+              <p><strong>In Progress:</strong> ${reportData.inProgress}</p>
+              <p><strong>Completed:</strong> ${reportData.completed}</p>
+              <p><strong>Risk Accepted:</strong> ${reportData.riskAccepted}</p>
+            </div>
+          </div>
+          <hr>
+          <small class="text-muted">Generated: ${new Date().toLocaleString()}</small>
+        </div>
+      `,
+      icon: 'success',
+      confirmButtonText: 'OK',
+      width: 600
+    });
+  }
+
+
   getFilteredCAPs(): any[] {
     let filtered = this.monitoringItems;
 
-    // Apply status filter
     if (this.statusFilter !== 'all') {
       filtered = filtered.filter((item: any) => {
         switch (this.statusFilter) {
@@ -184,7 +644,6 @@ export class ListCustomersComponent implements OnInit {
       });
     }
 
-    // Apply severity filter
     if (this.severityFilter !== 'all') {
       filtered = filtered.filter((item: any) => {
         const severity = item.finding.severity.toLowerCase();
@@ -192,7 +651,6 @@ export class ListCustomersComponent implements OnInit {
       });
     }
 
-    // Apply due date filter
     if (this.dueDateFilter !== 'all') {
       filtered = filtered.filter((item: any) => {
         switch (this.dueDateFilter) {
@@ -205,12 +663,10 @@ export class ListCustomersComponent implements OnInit {
       });
     }
 
-    // Apply department filter
     if (this.departmentFilter !== 'all') {
       filtered = filtered.filter((item: any) => item.department === this.departmentFilter);
     }
 
-    // Apply search filter
     if (this.searchTerm) {
       const searchLower = this.searchTerm.toLowerCase();
       filtered = filtered.filter((item: any) => 
@@ -225,7 +681,6 @@ export class ListCustomersComponent implements OnInit {
     return filtered;
   }
 
-  // Additional date filter methods
   isDueThisMonth(cap: CorrectiveActionPlan): boolean {
     if (!cap.targetDate || cap.status === 'Completed' || cap.status === 'Verified' || cap.status === 'Closed' || cap.status === 'Risk Accepted') {
       return false;
@@ -247,6 +702,7 @@ export class ListCustomersComponent implements OnInit {
 
     return targetDate > today;
   }
+
 
   loadMonitoringData() {
     this.http.get<Workflow[]>(this.workflowsApiUrl).subscribe({
@@ -287,7 +743,6 @@ export class ListCustomersComponent implements OnInit {
       // Process preClosing findings as monitoring items
       if (workflow.fieldwork?.preClosing) {
         workflow.fieldwork.preClosing.forEach(finding => {
-          // Find existing CAP for this finding
           const existingCAP = this.correctiveActionPlans.find(cap => 
             cap.workflowId === workflow.id && cap.findingId === finding.id
           );
@@ -327,7 +782,6 @@ export class ListCustomersComponent implements OnInit {
 
   private calculateTargetDate(workflowDueDate: string): string {
     const dueDate = new Date(workflowDueDate);
-    // Add 30 days to workflow due date for CAP target
     dueDate.setDate(dueDate.getDate() + 30);
     return dueDate.toISOString().split('T')[0];
   }
@@ -337,8 +791,7 @@ export class ListCustomersComponent implements OnInit {
 
     const targetDate = new Date(cap.targetDate);
     const today = new Date();
-    
-    // Check if overdue
+
     if (targetDate < today && cap.status !== 'Completed' && cap.status !== 'Verified' && cap.status !== 'Closed' && cap.status !== 'Risk Accepted') {
       return 'Overdue';
     }
@@ -346,36 +799,76 @@ export class ListCustomersComponent implements OnInit {
     return cap.status;
   }
 
-  getProgress(cap: CorrectiveActionPlan): number {
-    return cap.progress || 0;
+async onProgressSubmit() {
+  if (this.progressForm.valid && this.selectedItem) {
+    try {
+      const formValue = this.progressForm.value;
+      
+      let calculatedProgress = formValue.progress;
+      
+      if (formValue.status === 'Verified' || formValue.status === 'Closed') {
+        calculatedProgress = 100;
+      } else if (formValue.status === 'Open' && formValue.progress > 0) {
+        calculatedProgress = 0;
+      } else if (formValue.status === 'Completed' && formValue.progress > 0) {
+        calculatedProgress = 80;
+      } else if (formValue.status === 'In Progress' && formValue.progress === 0) {
+        calculatedProgress = 25;
+      }
+      
+      const capData: CorrectiveActionPlan = {
+        ...this.selectedItem.cap,
+        progress: calculatedProgress,
+        status: formValue.status,
+        remarks: formValue.remarks,
+        lastFollowUpDate: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      await this.saveCAP(capData);
+      this.hideModal('updateProgressModal');
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Progress Updated!',
+        text: 'CAP progress has been updated successfully',
+        timer: 3000,
+        showConfirmButton: false
+      });
+      
+      this.loadMonitoringData();
+      
+    } catch (error) {
+      this.showErrorAlert('Failed to update CAP progress');
+    }
   }
+}
 
-
-  getTotalCAPs(): number {
+getTotalCAPs(): number {
     return this.monitoringItems.length;
   }
 
-  getInProgressCAPs(): number {
+getInProgressCAPs(): number {
     return this.monitoringItems.filter((item: any) => 
       item.cap.status === 'In Progress'
     ).length;
   }
 
-  getCompletedCAPs(): number {
+getCompletedCAPs(): number {
     return this.monitoringItems.filter((item: any) => 
       item.cap.status === 'Completed' || item.cap.status === 'Verified' || item.cap.status === 'Closed'
     ).length;
   }
 
-  getRiskAcceptedCAPs(): number {
+getRiskAcceptedCAPs(): number {
     return this.monitoringItems.filter((item: any) => item.cap.status === 'Risk Accepted').length;
   }
 
-  getOverdueCAPs(): number {
+getOverdueCAPs(): number {
     return this.monitoringItems.filter((item: any) => this.getCAPStatus(item.cap) === 'Overdue').length;
   }
 
-  getDueThisWeek(): number {
+getDueThisWeek(): number {
     const today = new Date();
     const nextWeek = new Date(today);
     nextWeek.setDate(today.getDate() + 7);
@@ -392,12 +885,12 @@ export class ListCustomersComponent implements OnInit {
     }).length;
   }
 
-  getNewFindings(): number {
+getNewFindings(): number {
     return this.monitoringItems.filter((item: any) => item.isNew).length;
   }
 
 
-  toggleDetails(item: any) {
+toggleDetails(item: any) {
     if (this.expandedItem && this.expandedItem.cap.id === item.cap.id) {
       this.hideDetails();
     } else {
@@ -406,243 +899,9 @@ export class ListCustomersComponent implements OnInit {
     }
   }
 
-  hideDetails() {
+hideDetails() {
     this.expandedItem = null;
     this.isDetailsPanelVisible = false;
-  }
-
-  initializeCAP(item: any) {
-    Swal.fire({
-      title: 'Initialize Corrective Action Plan',
-      html: `
-        <div class="text-start">
-         <hr>
-          <label class="form-label fw-bold">Responsible Unit</label>
-          <input type="text" class="form-control" id="responsibleUnit" value="${item.department}">
-          
-          <label class="form-label fw-bold mt-3">Target Completion Date</label>
-          <input type="date" class="form-control" id="targetDate" 
-                 value="${item.cap.targetDate}" 
-                 min="${new Date().toISOString().split('T')[0]}">
-          
-          <label class="form-label fw-bold mt-3">Detailed Action Plan</label>
-          <textarea class="form-control" rows="3" id="detailedPlan">${item.cap.actionPlan}</textarea>
-        </div>
-      `,
-      showCancelButton: true,
-      confirmButtonText: 'Initialize CAP'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const responsibleUnit = (document.getElementById('responsibleUnit') as HTMLInputElement).value;
-        const targetDate = (document.getElementById('targetDate') as HTMLInputElement).value;
-        const detailedPlan = (document.getElementById('detailedPlan') as HTMLTextAreaElement).value;
-
-        const capData: CorrectiveActionPlan = {
-          ...item.cap,
-          responsibleUnit: responsibleUnit,
-          targetDate: targetDate,
-          actionPlan: detailedPlan,
-          status: 'In Progress',
-          progress: 10,
-          updatedAt: new Date().toISOString()
-        };
-
-        this.saveCAP(capData).then(() => {
-          Swal.fire('CAP Initialized', 'Corrective Action Plan has been initialized', 'success');
-          this.loadMonitoringData();
-        });
-      }
-    });
-  }
-
-  updateCAPProgress(item: any) {
-    Swal.fire({
-      title: 'Update CAP Progress',
-      html: `
-        <div class="text-start">
-          <label class="form-label fw-bold">Progress Percentage</label>
-          <input type="range" class="form-range" min="0" max="100" value="${item.cap.progress}" 
-                 id="progressRange">
-          <div class="text-center mt-2">
-            <span id="progressValue" class="fw-bold">${item.cap.progress}%</span>
-          </div>
-          
-          <label class="form-label fw-bold mt-3">Status</label>
-          <select class="form-select" id="statusSelect">
-            <option value="Open" ${item.cap.status === 'Open' ? 'selected' : ''}>Open</option>
-            <option value="In Progress" ${item.cap.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
-            <option value="Completed" ${item.cap.status === 'Completed' ? 'selected' : ''}>Completed</option>
-            <option value="Verified" ${item.cap.status === 'Verified' ? 'selected' : ''}>Verified</option>
-          </select>
-          
-          <label class="form-label fw-bold mt-3">Progress Remarks</label>
-          <textarea class="form-control" rows="3" id="progressRemarks" 
-                    placeholder="Add progress remarks...">${item.cap.remarks || ''}</textarea>
-        <hr>
-        </div>
-      `,
-      showCancelButton: true,
-      confirmButtonText: 'Update Progress',
-      didOpen: () => {
-        const range = document.getElementById('progressRange') as HTMLInputElement;
-        const value = document.getElementById('progressValue') as HTMLSpanElement;
-        
-        range.addEventListener('input', () => {
-          value.textContent = `${range.value}%`;
-        });
-      }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const range = document.getElementById('progressRange') as HTMLInputElement;
-        const statusSelect = document.getElementById('statusSelect') as HTMLSelectElement;
-        const remarks = document.getElementById('progressRemarks') as HTMLTextAreaElement;
-
-        const capData: CorrectiveActionPlan = {
-          ...item.cap,
-          progress: parseInt(range.value),
-          status: statusSelect.value as CorrectiveActionPlan['status'],
-          remarks: remarks.value,
-          lastFollowUpDate: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        };
-
-        this.saveCAP(capData).then(() => {
-          Swal.fire('Success', 'CAP progress updated successfully', 'success');
-          this.loadMonitoringData();
-        });
-      }
-    });
-  }
-
-  sendReminder(item: any) {
-    Swal.fire({
-      title: 'Send Reminder',
-      html: `Send reminder to <strong>${item.cap.responsibleUnit}</strong> for CAP: <em>${item.cap.description}</em>?`,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'Send Reminder'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Update last follow-up date
-        const capData: CorrectiveActionPlan = {
-          ...item.cap,
-          lastFollowUpDate: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        };
-
-        this.saveCAP(capData).then(() => {
-          Swal.fire('Reminder Sent', `Reminder sent to ${item.cap.responsibleUnit}`, 'success');
-        });
-      }
-    });
-  }
-
-  scheduleFollowUpForCAP(item: any) {
-    Swal.fire({
-      title: 'Schedule Follow-up',
-      html: `
-        <div class="text-start">
-          <hr>
-          <label class="form-label fw-bold">Follow-up Date</label>
-          <input type="date" class="form-control" id="followUpDate" 
-                 min="${new Date().toISOString().split('T')[0]}"
-                 value="${item.cap.nextFollowUpDate || ''}">
-        </div>
-      `,
-      showCancelButton: true,
-      confirmButtonText: 'Schedule Follow-up'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const followUpDate = (document.getElementById('followUpDate') as HTMLInputElement).value;
-        
-        const capData: CorrectiveActionPlan = {
-          ...item.cap,
-          nextFollowUpDate: followUpDate,
-          updatedAt: new Date().toISOString()
-        };
-
-        this.saveCAP(capData).then(() => {
-          Swal.fire('Scheduled', `Follow-up scheduled for ${followUpDate}`, 'success');
-          this.loadMonitoringData();
-        });
-      }
-    });
-  }
-
-  requestRiskAcceptance(item: any) {
-    Swal.fire({
-      title: 'Request Risk Acceptance',
-      html: `
-        <div class="text-start">
-          <hr>
-          <label class="form-label fw-bold">Reason for Risk Acceptance</label>
-          <textarea class="form-control" rows="4" id="riskReason" 
-                    placeholder="Explain why this risk should be accepted...">${item.cap.riskAcceptanceReason || ''}</textarea>
-          
-          <label class="form-label fw-bold mt-3">Accepted By</label>
-          <input type="text" class="form-control" id="acceptedBy" 
-                 placeholder="Name of person accepting risk"
-                 value="${item.cap.riskAcceptedBy || ''}">
-          <hr>
-        </div>
-      `,
-      showCancelButton: true,
-      confirmButtonText: 'Submit Risk Acceptance'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const riskReason = (document.getElementById('riskReason') as HTMLTextAreaElement).value;
-        const acceptedBy = (document.getElementById('acceptedBy') as HTMLInputElement).value;
-
-        if (!riskReason || !acceptedBy) {
-          Swal.fire('Error', 'Please provide both reason and acceptor name', 'error');
-          return;
-        }
-
-        const capData: CorrectiveActionPlan = {
-          ...item.cap,
-          status: 'Risk Accepted',
-          progress: 100,
-          riskAcceptanceReason: riskReason,
-          riskAcceptedBy: acceptedBy,
-          riskAcceptedAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        };
-
-        this.saveCAP(capData).then(() => {
-          Swal.fire('Risk Accepted', 'Risk acceptance has been recorded', 'success');
-          this.loadMonitoringData();
-        });
-      }
-    });
-  }
-
-  private async saveCAP(capData: CorrectiveActionPlan): Promise<void> {
-    // Check if CAP already exists
-    const existingIndex = this.correctiveActionPlans.findIndex(cap => cap.id === capData.id);
-    
-    if (existingIndex >= 0) {
-      // Update existing CAP
-      return this.http.put(`${this.capsApiUrl}/${capData.id}`, capData).toPromise()
-        .then(() => {
-          this.correctiveActionPlans[existingIndex] = capData;
-          this.processMonitoringItems(); // Refresh the view
-        })
-        .catch(error => {
-          console.error('Failed to update CAP:', error);
-          throw error;
-        });
-    } else {
-      // Create new CAP
-      return this.http.post(this.capsApiUrl, capData).toPromise()
-        .then(() => {
-          this.correctiveActionPlans.push(capData);
-          this.processMonitoringItems(); // Refresh the view
-        })
-        .catch(error => {
-          console.error('Failed to create CAP:', error);
-          throw error;
-        });
-    }
   }
 
   viewOverdueCAPs() {
@@ -670,69 +929,8 @@ export class ListCustomersComponent implements OnInit {
     this.applyCAPFilter();
   }
 
-
-  generateMonitoringReport() {
-    const reportData = {
-      totalCAPs: this.getTotalCAPs(),
-      overdue: this.getOverdueCAPs(),
-      inProgress: this.getInProgressCAPs(),
-      completed: this.getCompletedCAPs(),
-      riskAccepted: this.getRiskAcceptedCAPs(),
-      newFindings: this.getNewFindings(),
-      generatedAt: new Date().toISOString()
-    };
-
-    Swal.fire({
-      title: 'Monitoring Report Generated',
-      html: `
-        <div class="text-start">
-          <p><strong>Monitoring Report Summary</strong></p>
-          <p>Total CAPs: ${reportData.totalCAPs}</p>
-          <p>New Findings: ${reportData.newFindings}</p>
-          <p>Overdue: ${reportData.overdue}</p>
-          <p>In Progress: ${reportData.inProgress}</p>
-          <p>Completed: ${reportData.completed}</p>
-          <p>Risk Accepted: ${reportData.riskAccepted}</p>
-          <hr>
-          <small class="text-muted">Generated: ${new Date().toLocaleString()}</small>
-        </div>
-      `,
-      icon: 'success'
-    });
-  }
-
   scheduleFollowUp() {
     Swal.fire('Info', 'Bulk follow-up scheduling feature will be implemented here', 'info');
-  }
-
-  exportCAPReport() {
-    // Create CSV content
-    const headers = ['Workflow', 'Department', 'Finding', 'Severity', 'Responsible Unit', 'Target Date', 'Status', 'Progress'];
-    const csvData = this.monitoringItems.map(item => [
-      item.workflowTitle,
-      item.department,
-      item.finding.title,
-      item.finding.severity,
-      item.cap.responsibleUnit,
-      item.cap.targetDate,
-      item.cap.status,
-      `${item.cap.progress}%`
-    ]);
-
-    const csvContent = [headers, ...csvData]
-      .map(row => row.map(field => `"${field}"`).join(','))
-      .join('\n');
-
-    // Create download link
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `CAP-Report-${new Date().toISOString().split('T')[0]}.csv`;
-    link.click();
-    window.URL.revokeObjectURL(url);
-
-    Swal.fire('Success', 'CAP report exported successfully', 'success');
   }
 
   private updateKPICounts() {
@@ -740,7 +938,6 @@ export class ListCustomersComponent implements OnInit {
     // This method can be used for additional KPI updates if needed
   }
 
- 
   isOverdue(item: any): boolean {
     return this.getCAPStatus(item.cap) === 'Overdue';
   }

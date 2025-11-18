@@ -2971,5 +2971,83 @@
         "status": "Planned"
       }
     }
+  ],
+  "correctiveActionPlans": [
+    {
+      "id": "cap-b015-fd1763450287516",
+      "workflowId": "b015",
+      "findingId": "fd1763450287516",
+      "description": "fdsgvfddssdgds",
+      "actionPlan": "dsgdsdswfewfew",
+      "responsibleUnit": "dsfsdsd",
+      "targetDate": "2025-11-20",
+      "status": "Verified",
+      "progress": 78,
+      "createdAt": "2025-11-18T13:38:36.969Z",
+      "updatedAt": "2025-11-18T13:41:34.711Z",
+      "remarks": "8u43ru043ur043u4",
+      "lastFollowUpDate": "2025-11-18T13:41:34.711Z"
+    },
+    {
+      "id": "cap-e062-fd1763449496837",
+      "workflowId": "e062",
+      "findingId": "fd1763449496837",
+      "description": "fdgfdfdgregrereg",
+      "actionPlan": "gergregregregdfgfd",
+      "responsibleUnit": "JAY",
+      "targetDate": "2025-11-27",
+      "status": "In Progress",
+      "progress": 25,
+      "createdAt": "2025-11-18T13:48:41.530Z",
+      "updatedAt": "2025-11-18T14:26:11.191Z",
+      "nextFollowUpDate": "2025-11-19",
+      "lastFollowUpDate": "2025-11-18T14:26:11.190Z"
+    },
+    {
+      "id": "cap-0351-fd1763303800293",
+      "workflowId": "0351",
+      "findingId": "fd1763303800293",
+      "description": "ewrewrewr",
+      "actionPlan": "werewrewretreetretret",
+      "responsibleUnit": "fdffddfvggr",
+      "targetDate": "2025-11-20",
+      "status": "In Progress",
+      "progress": 25,
+      "createdAt": "2025-11-18T13:58:45.894Z",
+      "updatedAt": "2025-11-18T14:01:07.629Z"
+    },
+    {
+      "id": "cap-0351-fd1763318171072",
+      "workflowId": "0351",
+      "findingId": "fd1763318171072",
+      "description": "yyyyyyyyyyyyyyyyyyyyyy",
+      "actionPlan": "grregregregrevdvsdvdsv",
+      "responsibleUnit": "fdffddfvgg",
+      "targetDate": "2025-11-19",
+      "status": "Completed",
+      "progress": 100,
+      "createdAt": "2025-11-18T14:21:09.442Z",
+      "updatedAt": "2025-11-18T14:23:56.028Z",
+      "remarks": "dsdsddsvsdvds",
+      "lastFollowUpDate": "2025-11-18T14:23:56.028Z"
+    },
+    {
+      "id": "cap-0351-fd1763291033200",
+      "workflowId": "0351",
+      "findingId": "fd1763291033200",
+      "description": "gggergerger",
+      "actionPlan": "gergregegiugiuhiuh",
+      "responsibleUnit": "fdffddfvgg",
+      "targetDate": "2025-11-20",
+      "status": "Risk Accepted",
+      "progress": 100,
+      "createdAt": "2025-11-18T14:26:11.280Z",
+      "updatedAt": "2025-11-18T14:33:32.004Z",
+      "nextFollowUpDate": "2025-11-26",
+      "lastFollowUpDate": "2025-11-18T14:27:39.140Z",
+      "riskAcceptanceReason": "ugugiugiuhiugiu",
+      "riskAcceptedBy": "iiuhiuhoihoihoi",
+      "riskAcceptedAt": "2025-11-18T14:33:32.004Z"
+    }
   ]
 }
