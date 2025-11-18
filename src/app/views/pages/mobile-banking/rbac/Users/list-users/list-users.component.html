@@ -26,7 +26,7 @@
             <tr>
               <th>Title</th>
               <th>Department</th>
-              <th>Assigned</th>
+              <!-- <th>Assigned</th> -->
               <th>Status</th>
               <th>Progress</th>
               <th>Start</th>
@@ -38,7 +38,7 @@
                 [class.table-active]="selectedWorkflow?.id === w.id" style="cursor:pointer">
               <td>{{ w.title }}</td>
               <td>{{ w.department }}</td>
-              <td>{{ w.assignedTo }}</td>
+              <!-- <td>{{ w.assignedTo }}</td> -->
               <td>
                 <span class="badge"
                       [ngClass]="{
@@ -84,7 +84,7 @@
         <h3 class="fw-bold"><i class="fas fa-clipboard-list me-2 text-primary"></i> {{ selectedWorkflow.title }}</h3>
       
         <p><i class="fas fa-building me-2 text-secondary"></i> <strong>Department:</strong> {{ selectedWorkflow.department }}</p>
-        <p><i class="fas fa-user me-2 text-info"></i> <strong>Assigned To:</strong> {{ selectedWorkflow.assignedTo }}</p>
+        <!-- <p><i class="fas fa-user me-2 text-info"></i> <strong>Assigned To:</strong> {{ selectedWorkflow.assignedTo }}</p> -->
         <p><i class="fas fa-flag me-2 text-warning"></i> <strong>Status: </strong>
           <span class="badge"
                 [ngClass]="{
