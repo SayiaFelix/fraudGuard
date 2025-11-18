@@ -42,6 +42,7 @@ export interface MISReport {
   finalizedAt?: string;
 
   managementResponses?: {
+    hasDateError: string | boolean;
     findingId?: string;
     findingTitle?: string;
     response: string;
@@ -65,6 +66,7 @@ export interface FieldworkAudit {
   evidenceCount: number;
   fieldwork?: any;
   preClosing?: any[];
+  createdAt?: string;
 }
 
 export interface Audit {
@@ -160,13 +162,6 @@ fieldworkPageSize = 10;
 fieldworkSortField = 'title';
 fieldworkSortDirection: 'asc' | 'desc' = 'asc';
 
-getPaginatedFieldworkReports(): FieldworkAudit[] {
-  const reports = this.getFieldworkReportsWithFindings();
-  const sorted = this.sortFieldworkReports(reports);
-  const startIndex = (this.fieldworkCurrentPage - 1) * this.fieldworkPageSize;
-  const endIndex = startIndex + this.fieldworkPageSize;
-  return sorted.slice(startIndex, endIndex);
-}
 
 getFieldworkTotalPages(): number {
   return Math.ceil(this.getFieldworkReportsWithFindings().length / this.fieldworkPageSize);
@@ -560,28 +555,28 @@ distributeFinalReport(report: MISReport): void {
   });
 }
 
-submitManagementResponses(): void {
-  if (!this.selectedReport?.managementResponses) return;
+// submitManagementResponses(): void {
+//   if (!this.selectedReport?.managementResponses) return;
 
-  const incomplete = this.selectedReport.managementResponses.some(response => 
-    !response.response.trim() || !response.actionPlan.trim() || !response.responsiblePerson.trim()
-  );
+//   const incomplete = this.selectedReport.managementResponses.some(response => 
+//     !response.response.trim() || !response.actionPlan.trim() || !response.responsiblePerson.trim()
+//   );
 
-  if (incomplete) {
-    Swal.fire('Error', 'Please fill in all management responses, action plans, and responsible persons', 'error');
-    return;
-  }
+//   if (incomplete) {
+//     Swal.fire('Error', 'Please fill in all management responses, action plans, and responsible persons', 'error');
+//     return;
+//   }
 
-  this.selectedReport.managementResponseSubmittedAt = new Date().toISOString();
-  this.selectedReport.managementResponseStatus = 'submitted';
+//   this.selectedReport.managementResponseSubmittedAt = new Date().toISOString();
+//   this.selectedReport.managementResponseStatus = 'submitted';
   
-  this.updateReportDraftStatus(this.selectedReport);
+//   this.updateReportDraftStatus(this.selectedReport);
   
-  const modal = bootstrap.Modal.getInstance(document.getElementById('managementResponseModal')!);
-  modal?.hide();
+//   const modal = bootstrap.Modal.getInstance(document.getElementById('managementResponseModal')!);
+//   modal?.hide();
   
-  Swal.fire('Success!', 'Management responses submitted successfully', 'success');
-}
+//   Swal.fire('Success!', 'Management responses submitted successfully', 'success');
+// }
 
 openCommentModal(report: MISReport): void {
   this.selectedReportForComment = report;
@@ -1563,11 +1558,6 @@ private async generateFieldworkReportForBatch(audit: FieldworkAudit): Promise<vo
   });
 }
 
-getPaginatedReports(): MISReport[] {
-  const startIndex = (this.currentPage - 1) * this.pageSize;
-  const endIndex = startIndex + this.pageSize;
-  return this.filteredReports.slice(startIndex, endIndex);
-}
 
 getTotalPages(): number {
   return Math.ceil(this.filteredReports.length / this.pageSize);
@@ -2400,6 +2390,99 @@ requestRevision(draft: MISReport): void {
       Swal.fire('Requested!', 'Revision has been requested.', 'success');
     }
   });
+}
+
+getTodayDate(): string {
+  return new Date().toISOString().split('T')[0];
+}
+
+getPaginatedReports(): MISReport[] {
+  const startIndex = (this.currentPage - 1) * this.pageSize;
+  const endIndex = startIndex + this.pageSize;
+  
+  // Sort by creation date (newest first)
+  const sortedReports = this.filteredReports.sort((a, b) => {
+    const dateA = new Date(a.createdAt).getTime();
+    const dateB = new Date(b.createdAt).getTime();
+    return dateB - dateA; // Descending order (newest first)
+  });
+  
+  return sortedReports.slice(startIndex, endIndex);
+}
+
+getPaginatedFieldworkReports(): FieldworkAudit[] {
+  const reports = this.getFieldworkReportsWithFindings();
+  const sorted = reports.sort((a, b) => {
+    const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    return dateB - dateA; 
+  });
+  
+  const startIndex = (this.fieldworkCurrentPage - 1) * this.fieldworkPageSize;
+  const endIndex = startIndex + this.fieldworkPageSize;
+  return sorted.slice(startIndex, endIndex);
+}
+
+validateTargetDate(response: any): void {
+  if (response.targetDate) {
+    const selectedDate = new Date(response.targetDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); 
+    
+    response.hasDateError = selectedDate < today;
+  } else {
+    response.hasDateError = false;
+  }
+}
+
+hasInvalidDates(): boolean {
+  if (!this.selectedReport?.managementResponses) return false;
+  
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  return this.selectedReport.managementResponses.some(response => 
+    response.hasDateError || 
+    (response.targetDate && new Date(response.targetDate) < today)
+  );
+}
+
+submitManagementResponses(): void {
+  if (!this.selectedReport?.managementResponses) return;
+
+  // Validate all dates first
+  this.selectedReport.managementResponses.forEach(response => {
+    this.validateTargetDate(response);
+  });
+
+  // Check for invalid dates
+  if (this.hasInvalidDates()) {
+    Swal.fire('Error', 'Please fix all invalid target dates before submitting. Target dates cannot be in the past.', 'error');
+    return;
+  }
+
+  // Validate all responses are filled
+  const incomplete = this.selectedReport.managementResponses.some(response => 
+    !response.response?.trim() || 
+    !response.actionPlan?.trim() || 
+    !response.responsiblePerson?.trim() ||
+    !response.targetDate
+  );
+
+  if (incomplete) {
+    Swal.fire('Error', 'Please fill in all management responses, action plans, responsible persons, and target dates.', 'error');
+    return;
+  }
+
+  this.selectedReport.managementResponseSubmittedAt = new Date().toISOString();
+  this.selectedReport.managementResponseStatus = 'submitted';
+  
+  this.updateReportDraftStatus(this.selectedReport);
+  
+  const modal = bootstrap.Modal.getInstance(document.getElementById('managementResponseModal')!);
+  modal?.hide();
+  
+  Swal.fire('Success!', 'Management responses submitted successfully', 'success');
 }
 
  uploadReportMetadata() {

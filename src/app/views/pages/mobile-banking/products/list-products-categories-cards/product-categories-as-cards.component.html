@@ -127,326 +127,333 @@
       </div>
     </div>
 
-
-<div class="row mb-4">
-  <div class="col-12" *ngIf="fieldworkReports.length > 0">
-    <div class="card shadow-sm border-0">
-      <div class="card-header bg-light">
-        <div class="d-flex justify-content-between align-items-center">
-          <h4 class="mb-0 fw-bold">
-            <i class="fas fa-briefcase me-2 text-primary"></i> 
-            Fieldwork Reports Ready for Generation
-            <span class="badge bg-primary ms-2">{{ getFieldworkReportsWithFindings().length }}</span>
-          </h4>
-          <div class="text-muted small">
-            Showing {{ getStartIndex() + 1 }} to {{ getEndIndex() }} of {{ getFieldworkReportsWithFindings().length }} audits
-          </div>
-        </div>
-      </div>
-      <div class="card-body p-0">
-        <!-- Table Controls -->
-        <div class="p-3 border-bottom bg-white">
-          <div class="row align-items-center">
-            <div class="col-md-6">
-              <div class="d-flex align-items-center">
-                <label class="form-label mb-0 me-2 small text-dark">Show:</label>
-                <select class="form-select form-select-sm w-auto" 
-                        [(ngModel)]="fieldworkPageSize" 
-                        (change)="onFieldworkPageSizeChange()">
-                  <option value="5">5</option>
-                  <option value="10">10</option>
-                  <option value="20">20</option>
-                  <option value="50">50</option>
-                </select>
-                <span class="text-muted small ms-2">entries per page</span>
-              </div>
-            </div>
-            <div class="col-md-6 text-end">
-              <div class="btn-group btn-group-sm" role="group">
-                <button class="btn btn-outline-secondary" 
-                        (click)="exportFieldworkTable()"
-                        title="Export to Excel">
-                  <i class="fas fa-file-excel me-1"></i> Export
-                </button>
-                <button class="btn btn-outline-secondary" 
-                        (click)="loadFieldworkData()"
-                        title="Refresh Data">
-                  <i class="fas fa-sync-alt"></i>
-                </button>
+    <div class="row mb-4">
+      <div class="col-12" *ngIf="fieldworkReports.length > 0">
+        <div class="card shadow-sm border-0">
+          <div class="card-header bg-light">
+            <div class="d-flex justify-content-between align-items-center">
+              <h4 class="mb-0 fw-bold">
+                <i class="fas fa-briefcase me-2 text-primary"></i> 
+                Fieldwork Reports Ready for Generation
+                <span class="badge bg-primary ms-2">{{ getFieldworkReportsWithFindings().length }}</span>
+              </h4>
+              <div class="text-muted small">
+                Showing {{ getStartIndex() + 1 }} to {{ getEndIndex() }} of {{ getFieldworkReportsWithFindings().length }} audits
               </div>
             </div>
           </div>
-        </div>
-
-        <div class="table-responsive">
-          <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
-              <tr>
-                <th width="25%">
+          <div class="card-body p-0">
+            <!-- Table Controls -->
+            <div class="p-3 border-bottom bg-white">
+              <div class="row align-items-center">
+                <div class="col-md-6">
                   <div class="d-flex align-items-center">
-                    <span>Audit Title</span>
-                    <button class="btn btn-sm btn-link p-0 ms-1" 
-                            (click)="sortFieldwork('title')"
-                            title="Sort by Title">
-                      <i class="fas fa-sort text-muted"></i>
-                    </button>
+                    <label class="form-label mb-0 me-2 small text-dark">Show:</label>
+                    <select class="form-select form-select-sm w-auto" 
+                            [(ngModel)]="fieldworkPageSize" 
+                            (change)="onFieldworkPageSizeChange()">
+                      <option value="5">5</option>
+                      <option value="10">10</option>
+                      <option value="20">20</option>
+                      <option value="50">50</option>
+                    </select>
+                    <span class="text-muted small ms-2">entries</span>
                   </div>
-                </th>
-                <th width="15%">Department</th>
-                <th width="10%" class="text-center">
-                  <div class="d-flex align-items-center justify-content-center">
-                    <span>Findings</span>
-                    <button class="btn btn-sm btn-link p-0 ms-1" 
-                            (click)="sortFieldwork('findingsCount')"
-                            title="Sort by Findings">
-                      <i class="fas fa-sort text-muted"></i>
-                    </button>
-                  </div>
-                </th>
-                <th width="10%" class="text-center">Evidence</th>
-                <th width="20%" class="text-center">Report Status</th>
-                <th width="20%" class="text-center">Draft Status</th>
-                <th width="10%" class="text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let audit of getPaginatedFieldworkReports()">
-              <!-- <tr *ngFor="let audit of getPaginatedFieldworkReports()" 
-                  [class.table-success]="getReportStatus(audit) === 'ready'"
-                  [class.table-warning]="getReportStatus(audit) === 'generated'"
-                  [class.table-danger]="getReportStatus(audit) === 'no_findings'"
-                  [class.table-info]="getReportStatus(audit) === 'generating'"> -->
-                <td>
-                  <div class="fw-bold text-dark">{{ audit?.title || 'Untitled Audit' }}</div>
-                  <!-- <small class="text-muted">ID: {{ audit?.id || 'N/A' }}</small> -->
-                </td>
-                <td>
-                  <span class="badge bg-secondary">{{ audit?.department || 'No department' }}</span>
-                </td>
-                <td class="text-center">
-                  <span class="badge" [ngClass]="{
-                    'bg-danger': (audit?.findingsCount || 0) > 5,
-                    'bg-warning': (audit?.findingsCount || 0) > 0 && (audit?.findingsCount || 0) <= 5,
-                    'bg-success': (audit?.findingsCount || 0) === 0
-                  }">
-                    {{ audit?.findingsCount || 0 }}
-                  </span>
-                </td>
-                <td class="text-center">
-                  <span class="badge" [ngClass]="{
-                    'bg-info': (audit?.evidenceCount || 0) > 0,
-                    'bg-light text-dark': (audit?.evidenceCount || 0) === 0
-                  }">
-                    {{ audit?.evidenceCount || 0 }}
-                  </span>
-                </td>
-                     <td class="text-center">
-                  <!-- Main Report Status -->
-                  <div class="mb-1">
-                    <span class="badge d-inline-flex align-items-center" [ngClass]="{
-                      'bg-success': getReportStatus(audit) === 'generated',
-                      'bg-warning': getReportStatus(audit) === 'ready',
-                      'bg-danger': getReportStatus(audit) === 'no_findings',
-                      'bg-info': getReportStatus(audit) === 'generating'
-                    }">
-                      <i class="fas me-1" [ngClass]="{
-                        'fa-check-circle': getReportStatus(audit) === 'generated',
-                        'fa-file-alt': getReportStatus(audit) === 'ready',
-                        'fa-exclamation-triangle': getReportStatus(audit) === 'no_findings',
-                        'fa-sync-alt': getReportStatus(audit) === 'generating'
-                      }"></i>
-                      {{ getReportStatusText(audit) }}
-                    </span>
-                  </div>
-                  
-                  <!-- Additional status info -->
-                  <div *ngIf="getReportStatus(audit) === 'generated'" class="small text-muted">
-                    <i class="fas fa-clock me-1"></i>
-                    {{ getReportGeneratedDate(audit) | date:'shortDate' }}
-                  </div>
-                  <div *ngIf="getReportStatus(audit) === 'ready'" class="small text-success">
-                    <i class="fas fa-bolt me-1"></i>
-                    Ready to generate
-                  </div>
-                  <div *ngIf="getReportStatus(audit) === 'no_findings'" class="small text-danger">
-                    <i class="fas fa-ban me-1"></i>
-                    Cannot generate
-                  </div>
-                  <div *ngIf="getReportStatus(audit) === 'generating'" class="small text-info">
-                    <i class="fas fa-spinner fa-spin me-1"></i>
-                    In progress
-                  </div>
-                </td>
-
-                <td class="text-center">
-                  <!-- Draft Status -->
-                  <div *ngIf="getReportStatus(audit) === 'generated'">
-                    <span class="badge d-inline-flex align-items-center" [ngClass]="{
-                      'bg-success': getDraftStatus(audit) === 'finalized',
-                      'bg-primary': getDraftStatus(audit) === 'under_review',
-                      'bg-warning': getDraftStatus(audit) === 'client_review',
-                      'bg-info': getDraftStatus(audit) === 'revised',
-                      'bg-secondary': !getDraftStatus(audit)
-                    }">
-                      <!-- <i class="fas me-1" [ngClass]="{
-                        'fa-check-double': getDraftStatus(audit) === 'finalized',
-                        'fa-search': getDraftStatus(audit) === 'under_review',
-                        'fa-users': getDraftStatus(audit) === 'client_review',
-                        'fa-redo': getDraftStatus(audit) === 'revised',
-                        'fa-file': !getDraftStatus(audit)
-                      }"></i> -->
-                      {{ getDraftStatusText(audit) }}
-                    </span>
-                    
-                    <!-- Draft status details -->
-                    <div *ngIf="getDraftStatus(audit) === 'client_review'" class="small text-warning mt-1">
-                      <!-- <i class="fas fa-hourglass-half me-1"></i> -->
-                      With client
-                    </div>
-                    <div *ngIf="getDraftStatus(audit) === 'revised'" class="small text-info mt-1">
-                      <!-- <i class="fas fa-comments me-1"></i> -->
-                      Needs revision
-                    </div>
-                    <div *ngIf="getDraftStatus(audit) === 'finalized'" class="small text-success mt-1">
-                      <!-- <i class="fas fa-flag me-1"></i> -->
-                      Finalized
-                    </div>
-                  </div>
-                  
-                  <div *ngIf="getReportStatus(audit) !== 'generated'" class="text-muted small">
-                    <!-- <i class="fas fa-minus me-1"></i> -->
-                    Not generated yet
-                  </div>
-                </td>
-
-           
-             
-                <td class="text-center">
+                </div>
+                <div class="col-md-6 text-end">
                   <div class="btn-group btn-group-sm" role="group">
-                    <button class="btn btn-success" 
-                            (click)="generateFieldworkReport(audit)"
-                            [disabled]="getReportStatus(audit) !== 'ready'"
-                            title="Generate Report">
-                      <i class="fas" [ngClass]="{
-                        'fa-file-alt': getReportStatus(audit) !== 'generating',
-                        'fa-spinner fa-spin': getReportStatus(audit) === 'generating'
-                      }"></i>
-                      <span class="d-none d-md-inline ms-1">
-                        {{ getReportStatus(audit) === 'generating' ? 'Generating...' : 'Generate' }}
+                    <button class="btn btn-outline-secondary" 
+                            (click)="exportFieldworkTable()"
+                            title="Export to Excel">
+                      <i class="fas fa-file-excel me-1"></i> Export
+                    </button>
+                    <button class="btn btn-outline-secondary" 
+                            (click)="loadFieldworkData()"
+                            title="Refresh Data">
+                      <i class="fas fa-sync-alt"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th width="25%">
+                      <div class="d-flex align-items-center">
+                        <span>Audit Title</span>
+                        <button class="btn btn-sm btn-link p-0 ms-1" 
+                                (click)="sortFieldwork('title')"
+                                title="Sort by Title">
+                          <i class="fas fa-sort text-muted"></i>
+                        </button>
+                      </div>
+                    </th>
+                    <th width="15%">Department</th>
+                    <th width="10%" class="text-center">
+                      <div class="d-flex align-items-center justify-content-center">
+                        <span>Findings</span>
+                        <button class="btn btn-sm btn-link p-0 ms-1" 
+                                (click)="sortFieldwork('findingsCount')"
+                                title="Sort by Findings">
+                          <i class="fas fa-sort text-muted"></i>
+                        </button>
+                      </div>
+                    </th>
+                    <th width="10%" class="text-center">Evidence</th>
+                    <th width="20%" class="text-center">Report Status</th>
+                    <th width="20%" class="text-center">Draft Status</th>
+                    <th width="10%" class="text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let audit of getPaginatedFieldworkReports()">
+                  <!-- <tr *ngFor="let audit of getPaginatedFieldworkReports()" 
+                      [class.table-success]="getReportStatus(audit) === 'ready'"
+                      [class.table-warning]="getReportStatus(audit) === 'generated'"
+                      [class.table-danger]="getReportStatus(audit) === 'no_findings'"
+                      [class.table-info]="getReportStatus(audit) === 'generating'"> -->
+                    <td>
+                      <div class="fw-bold text-dark">{{ audit?.title || 'Untitled Audit' }}</div>
+                      <!-- <small class="text-muted">ID: {{ audit?.id || 'N/A' }}</small> -->
+                    </td>
+                    <td>
+                      <span class="badge bg-secondary">{{ audit?.department || 'No department' }}</span>
+                    </td>
+                    <td class="text-center">
+                      <span class="badge" [ngClass]="{
+                        'bg-danger': (audit?.findingsCount || 0) > 5,
+                        'bg-warning': (audit?.findingsCount || 0) > 0 && (audit?.findingsCount || 0) <= 5,
+                        'bg-success': (audit?.findingsCount || 0) === 0
+                      }">
+                        {{ audit?.findingsCount || 0 }}
                       </span>
-                    </button>
-                    <button class="btn btn-outline-primary" 
-                            (click)="previewAuditFindings(audit)"
-                            [disabled]="!hasFindings(audit)"
-                            title="Preview Findings">
-                      <i class="fas fa-eye"></i>
-                    </button>
-                    <!-- <button *ngIf="getReportStatus(audit) === 'generated'" 
-                            class="btn btn-outline-info" 
-                            (click)="openReportManagementByAudit(audit)"
-                            title="Manage Report">
-                      <i class="fas fa-cog"></i>
-                    </button> -->
-                  </div>
-                  
-                  <!-- Status indicators -->
-                  <div *ngIf="getReportStatus(audit) === 'generated'" class="mt-1 small text-success">
-                    <i class="fas fa-check-circle"></i> Report exists
-                  </div>
-                  <div *ngIf="getReportStatus(audit) === 'no_findings'" class="mt-1 small text-danger">
-                    <i class="fas fa-exclamation-triangle"></i> No findings
-                  </div>
-                  <div *ngIf="getReportStatus(audit) === 'generating'" class="mt-1 small text-info">
-                    <i class="fas fa-sync-alt fa-spin"></i> Generating...
-                  </div>
-                </td>
-              </tr>
+                    </td>
+                    <td class="text-center">
+                      <span class="badge" [ngClass]="{
+                        'bg-info': (audit?.evidenceCount || 0) > 0,
+                        'bg-light text-dark': (audit?.evidenceCount || 0) === 0
+                      }">
+                        {{ audit?.evidenceCount || 0 }}
+                      </span>
+                    </td>
+                        <td class="text-center">
+                      <!-- Main Report Status -->
+                      <div class="mb-1">
+                        <span class="badge d-inline-flex align-items-center" [ngClass]="{
+                          'bg-success': getReportStatus(audit) === 'generated',
+                          'bg-warning': getReportStatus(audit) === 'ready',
+                          'bg-danger': getReportStatus(audit) === 'no_findings',
+                          'bg-info': getReportStatus(audit) === 'generating'
+                        }">
+                          <i class="fas me-1" [ngClass]="{
+                            'fa-check-circle': getReportStatus(audit) === 'generated',
+                            'fa-file-alt': getReportStatus(audit) === 'ready',
+                            'fa-exclamation-triangle': getReportStatus(audit) === 'no_findings',
+                            'fa-sync-alt': getReportStatus(audit) === 'generating'
+                          }"></i>
+                          {{ getReportStatusText(audit) }}
+                        </span>
+                      </div>
+                      
+                      <!-- Additional status info -->
+                      <div *ngIf="getReportStatus(audit) === 'generated'" class="small text-muted">
+                        <i class="fas fa-clock me-1"></i>
+                        {{ getReportGeneratedDate(audit) | date:'shortDate' }}
+                      </div>
+                      <div *ngIf="getReportStatus(audit) === 'ready'" class="small text-success">
+                        <i class="fas fa-bolt me-1"></i>
+                        Ready to generate
+                      </div>
+                      <div *ngIf="getReportStatus(audit) === 'no_findings'" class="small text-danger">
+                        <i class="fas fa-ban me-1"></i>
+                        Cannot generate
+                      </div>
+                      <div *ngIf="getReportStatus(audit) === 'generating'" class="small text-info">
+                        <i class="fas fa-spinner fa-spin me-1"></i>
+                        In progress
+                      </div>
+                    </td>
+
+                    <td class="text-center">
+                      <!-- Draft Status -->
+                      <div *ngIf="getReportStatus(audit) === 'generated'">
+                        <span class="badge d-inline-flex align-items-center" [ngClass]="{
+                          'bg-success': getDraftStatus(audit) === 'finalized',
+                          'bg-primary': getDraftStatus(audit) === 'under_review',
+                          'bg-warning': getDraftStatus(audit) === 'client_review',
+                          'bg-info': getDraftStatus(audit) === 'revised',
+                          'bg-secondary': !getDraftStatus(audit)
+                        }">
+                          <!-- <i class="fas me-1" [ngClass]="{
+                            'fa-check-double': getDraftStatus(audit) === 'finalized',
+                            'fa-search': getDraftStatus(audit) === 'under_review',
+                            'fa-users': getDraftStatus(audit) === 'client_review',
+                            'fa-redo': getDraftStatus(audit) === 'revised',
+                            'fa-file': !getDraftStatus(audit)
+                          }"></i> -->
+                          {{ getDraftStatusText(audit) }}
+                        </span>
+                        
+                        <!-- Draft status details -->
+                        <div *ngIf="getDraftStatus(audit) === 'client_review'" class="small text-warning mt-1">
+                          <!-- <i class="fas fa-hourglass-half me-1"></i> -->
+                          With client
+                        </div>
+                        <div *ngIf="getDraftStatus(audit) === 'revised'" class="small text-info mt-1">
+                          <!-- <i class="fas fa-comments me-1"></i> -->
+                          Needs revision
+                        </div>
+                        <div *ngIf="getDraftStatus(audit) === 'finalized'" class="small text-success mt-1">
+                          <!-- <i class="fas fa-flag me-1"></i> -->
+                          Finalized
+                        </div>
+                      </div>
+                      
+                      <div *ngIf="getReportStatus(audit) !== 'generated'" class="text-muted small">
+                        <!-- <i class="fas fa-minus me-1"></i> -->
+                        Not generated yet
+                      </div>
+                    </td>
+
               
-              <!-- Empty state for no reports with findings -->
-              <tr *ngIf="getFieldworkReportsWithFindings().length === 0">
-                <td colspan="7" class="text-center text-muted py-4">
-                  <i class="fas fa-inbox fa-2x mb-3"></i>
-                  <h5>No Reports Ready for Generation</h5>
-                  <p class="mb-0">None of the fieldwork audits have findings to generate reports from.</p>
-                  <button class="btn btn-outline-primary btn-sm mt-2" (click)="loadFieldworkData()">
-                    <i class="fas fa-refresh me-1"></i> Refresh Data
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        
-        <!-- Pagination Footer -->
-        <div class="card-footer bg-white" *ngIf="getFieldworkReportsWithFindings().length > 0">
-          <div class="d-flex justify-content-between align-items-center">
-            <div class="text-muted small">
-              Showing {{ getStartIndex() + 1 }} to {{ getEndIndex() }} of {{ getFieldworkReportsWithFindings().length }} entries
+                
+                    <td class="text-center">
+                      <div class="btn-group btn-group-sm" role="group">
+                        <button class="btn btn-success" 
+                                (click)="generateFieldworkReport(audit)"
+                                [disabled]="getReportStatus(audit) !== 'ready'"
+                                title="Generate Report">
+                          <i class="fas" [ngClass]="{
+                            'fa-file-alt': getReportStatus(audit) !== 'generating',
+                            'fa-spinner fa-spin': getReportStatus(audit) === 'generating'
+                          }"></i>
+                          <span class="d-none d-md-inline ms-1">
+                            {{ getReportStatus(audit) === 'generating' ? 'Generating...' : 'Generate' }}
+                          </span>
+                        </button>
+                        <button class="btn btn-outline-primary" 
+                                (click)="previewAuditFindings(audit)"
+                                [disabled]="!hasFindings(audit)"
+                                title="Preview Findings">
+                          <i class="fas fa-eye"></i>
+                        </button>
+                        <!-- <button *ngIf="getReportStatus(audit) === 'generated'" 
+                                class="btn btn-outline-info" 
+                                (click)="openReportManagementByAudit(audit)"
+                                title="Manage Report">
+                          <i class="fas fa-cog"></i>
+                        </button> -->
+                      </div>
+                      
+                      <!-- Status indicators -->
+                      <div *ngIf="getReportStatus(audit) === 'generated'" class="mt-1 small text-success">
+                        <i class="fas fa-check-circle"></i> Report exists
+                      </div>
+                      <div *ngIf="getReportStatus(audit) === 'no_findings'" class="mt-1 small text-danger">
+                        <i class="fas fa-exclamation-triangle"></i> No findings
+                      </div>
+                      <div *ngIf="getReportStatus(audit) === 'generating'" class="mt-1 small text-info">
+                        <i class="fas fa-sync-alt fa-spin"></i> Generating...
+                      </div>
+                    </td>
+                  </tr>
+                  
+                  <!-- Empty state for no reports with findings -->
+                  <tr *ngIf="getFieldworkReportsWithFindings().length === 0">
+                    <td colspan="7" class="text-center text-muted py-4">
+                      <i class="fas fa-inbox fa-2x mb-3"></i>
+                      <h5>No Reports Ready for Generation</h5>
+                      <p class="mb-0">None of the fieldwork audits have findings to generate reports from.</p>
+                      <button class="btn btn-outline-primary btn-sm mt-2" (click)="loadFieldworkData()">
+                        <i class="fas fa-refresh me-1"></i> Refresh Data
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
             
-            <nav>
-              <ul class="pagination pagination-sm mb-0">
-                <!-- First Page -->
-                <li class="page-item" [class.disabled]="fieldworkCurrentPage === 1">
-                  <a class="page-link" (click)="goToFieldworkPage(1)" style="cursor: pointer;">
-                    <i class="fas fa-angle-double-left"></i>
-                  </a>
-                </li>
+            <!-- Pagination Footer -->
+            <div class="card-footer bg-white" *ngIf="getFieldworkReportsWithFindings().length > 0">
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="text-muted small">
+                  Showing {{ getStartIndex() + 1 }} to {{ getEndIndex() }} of {{ getFieldworkReportsWithFindings().length }} entries
+                </div>
                 
-                <!-- Previous Page -->
-                <li class="page-item" [class.disabled]="fieldworkCurrentPage === 1">
-                  <a class="page-link" (click)="previousFieldworkPage()" style="cursor: pointer;">
-                    <i class="fas fa-angle-left"></i>
-                  </a>
-                </li>
+                <nav>
+                  <ul class="pagination pagination-sm mb-0">
+                    <!-- First Page -->
+                    <li class="page-item" [class.disabled]="fieldworkCurrentPage === 1">
+                      <a class="page-link" (click)="goToFieldworkPage(1)" style="cursor: pointer;">
+                        <i class="fas fa-angle-double-left"></i>
+                      </a>
+                    </li>
+                    
+                    <!-- Previous Page -->
+                    <li class="page-item" [class.disabled]="fieldworkCurrentPage === 1">
+                      <a class="page-link" (click)="previousFieldworkPage()" style="cursor: pointer;">
+                        <i class="fas fa-angle-left"></i>
+                      </a>
+                    </li>
 
-                <!-- Page Numbers -->
-                <li class="page-item" *ngFor="let page of getFieldworkPageNumbers()" 
-                    [class.active]="page === fieldworkCurrentPage">
-                  <a class="page-link" (click)="goToFieldworkPage(page)" style="cursor: pointer;">
-                    {{ page }}
-                  </a>
-                </li>
+                    <!-- Page Numbers -->
+                    <li class="page-item" *ngFor="let page of getFieldworkPageNumbers()" 
+                        [class.active]="page === fieldworkCurrentPage">
+                      <a class="page-link" (click)="goToFieldworkPage(page)" style="cursor: pointer;">
+                        {{ page }}
+                      </a>
+                    </li>
 
-                <!-- Next Page -->
-                <li class="page-item" [class.disabled]="fieldworkCurrentPage === getFieldworkTotalPages()">
-                  <a class="page-link" (click)="nextFieldworkPage()" style="cursor: pointer;">
-                    <i class="fas fa-angle-right"></i>
-                  </a>
-                </li>
+                    <!-- Next Page -->
+                    <li class="page-item" [class.disabled]="fieldworkCurrentPage === getFieldworkTotalPages()">
+                      <a class="page-link" (click)="nextFieldworkPage()" style="cursor: pointer;">
+                        <i class="fas fa-angle-right"></i>
+                      </a>
+                    </li>
 
-                <!-- Last Page -->
-                <li class="page-item" [class.disabled]="fieldworkCurrentPage === getFieldworkTotalPages()">
-                  <a class="page-link" (click)="goToFieldworkPage(getFieldworkTotalPages())" style="cursor: pointer;">
-                    <i class="fas fa-angle-double-right"></i>
-                  </a>
-                </li>
-              </ul>
-            </nav>
+                    <!-- Last Page -->
+                    <li class="page-item" [class.disabled]="fieldworkCurrentPage === getFieldworkTotalPages()">
+                      <a class="page-link" (click)="goToFieldworkPage(getFieldworkTotalPages())" style="cursor: pointer;">
+                        <i class="fas fa-angle-double-right"></i>
+                      </a>
+                    </li>
+                  </ul>
+                </nav>
 
-            <div class="text-muted small">
-              Page {{ fieldworkCurrentPage }} of {{ getFieldworkTotalPages() }}
+                <div class="text-muted small">
+                <div class="text-end">
+                  <button class="btn btn-primary btn-sm" 
+                          (click)="generateAllFieldworkReports()"
+                          [disabled]="getReadyToGenerateCount() === 0 || isLoading">
+                    <i class="fas fa-cogs me-1"></i>
+                    Generate All Ready Reports ({{ getReadyToGenerateCount() }})
+                  </button>
+                </div>
+                  <!-- Page {{ fieldworkCurrentPage }} of {{ getFieldworkTotalPages() }} -->
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-        <div class="card-footer bg-light">
-          <div class="row align-items-center">
-            <div class="col-md-6">
-            </div>
-            <div class="col-md-6 text-end">
-              <button class="btn btn-primary btn-sm" 
-                      (click)="generateAllFieldworkReports()"
-                      [disabled]="getReadyToGenerateCount() === 0 || isLoading">
-                <i class="fas fa-cogs me-1"></i>
-                Generate All Ready Reports ({{ getReadyToGenerateCount() }})
-              </button>
+            <div class="card-footer bg-light">
+              <div class="row align-items-center">
+                <div class="col-md-6">
+                </div>
+                <div class="col-md-6 text-end">
+                  <!-- <button class="btn btn-primary btn-sm" 
+                          (click)="generateAllFieldworkReports()"
+                          [disabled]="getReadyToGenerateCount() === 0 || isLoading">
+                    <i class="fas fa-cogs me-1"></i>
+                    Generate All Ready Reports ({{ getReadyToGenerateCount() }})
+                  </button> -->
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</div>
 
   <div *ngIf="isLoading" class="text-center py-5">
     <div class="spinner-border text-primary" role="status">
@@ -746,8 +753,6 @@
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
   </div>
 
-  
-      
       <div class="modal-body" *ngIf="selectedReport">
         <div class="row mb-4">
           <div class="col-12">
@@ -927,8 +932,6 @@
                     <i class="fas fa-redo me-1"></i>Request Revision
                   </button>
                 </div>
-
-                
           </div>
         </div>
       </div>
@@ -1042,8 +1045,8 @@
 <div class="modal fade" id="uploadModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title"><i class="fas fa-upload text-success me-2"></i> Upload Report</h4>
+      <div class="modal-header bg-primary">
+        <h3 class="modal-title"><i class="fas fa-upload text-success me-2"></i> Upload Report</h3>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
@@ -1054,8 +1057,8 @@
           <input class="form-control" placeholder="Report title" [(ngModel)]="newTitle">
         </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      <div class="modal-footer d-flex justify-content-between">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
         <button class="btn btn-success" (click)="uploadReportMetadata()" data-bs-dismiss="modal">
           <i class="fas fa-cloud-upload-alt me-1"></i> Upload
         </button>
@@ -1236,7 +1239,17 @@
                 <div class="col-md-6">
                   <label class="form-label fw-bold">Target Completion Date *</label>
                   <input type="date" class="form-control" 
-                         [(ngModel)]="response.targetDate">
+                         [(ngModel)]="response.targetDate"
+                         [min]="getTodayDate()"
+                         (change)="validateTargetDate(response)">
+                  <div *ngIf="response.hasDateError" class="text-danger small mt-1">
+                    <i class="fas fa-exclamation-triangle me-1"></i>
+                    Target date cannot be in the past
+                  </div>
+                  <div class="text-muted small mt-1">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Must be today or a future date
+                  </div>
                 </div>
               </div>
             </div>
@@ -1255,7 +1268,7 @@
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
         <button type="button" class="btn btn-success" 
                 (click)="submitManagementResponses()"
-                [disabled]="!selectedReport?.managementResponses || selectedReport?.managementResponses?.length === 0">
+                [disabled]="!selectedReport?.managementResponses || selectedReport?.managementResponses?.length === 0 || hasInvalidDates()">
           <i class="fas fa-paper-plane me-1"></i> Submit All Responses
         </button>
       </div>
