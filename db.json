@@ -73,6 +73,13 @@
       "email": "igiuhiuhu@gmail.com",
       "password": "cia@123456",
       "role": "Director"
+    },
+    {
+      "id": "c9f9",
+      "username": "cia",
+      "email": "rrewgf@gmail.com",
+      "password": "cia@123456",
+      "role": "AuditUnit"
     }
   ],
   "audits": [
