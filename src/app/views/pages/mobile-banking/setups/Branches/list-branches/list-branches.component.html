@@ -1,40 +1,11 @@
 <div class="container-fluid people-page-wrapper">
-  <!-- Enhanced Header Section -->
-  <div class=" ">
-    <div class="header-content">
-      <div class="header-main">
-        <div class="header-icon-wrapper">
-          <i class="fas fa-users-cog header-icon"></i>
-        </div>
-        <div class="header-text">
-          <h1 class="page-title-main">User Management</h1>
-          <p class="page-subtitle">Manage system users, roles, and permissions</p>
-        </div>
-      </div>
-      <div class="header-stats">
-        <div class="stat-item">
-          <div class="stat-number">{{ allUsers.length }}</div>
-          <div class="stat-label">Total Users</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-number">{{ getUsersByRole('Auditor').length }}</div>
-          <div class="stat-label">Auditors</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-number">{{ getUsersByRole('CIA').length }}</div>
-          <div class="stat-label">CIA Users</div>
-        </div>
-      </div>
-    </div>
+  <div class="simple-page-header">
+    <h1 class="page-title-main">User Management</h1>
   </div>
-
-  <!-- Main Content Wrapper with Responsive Layout -->
   <div class="content-wrapper" [class.details-visible]="isDetailsPanelVisible">
     
-    <!-- Table Section - Will shrink when details panel is visible -->
     <div class="table-section" [class.shrink]="isDetailsPanelVisible">
       <div class="people-page">
-        <!-- Enhanced Controls Bar -->
         <div class="controls-bar-enhanced">
           <div class="controls-left">
             <div class="search-wrapper-enhanced">
@@ -72,7 +43,6 @@
           </div>
         </div>
 
-        <!-- Enhanced Table Section -->
         <div class="table-wrapper-enhanced">
           <div class="table-header-enhanced">
             <div class="table-title-section">
@@ -106,9 +76,6 @@
                 [class.selected]="selectedUser && selectedUser.id === user.id"
               >
                 <div class="table-cell enhanced-cell user-cell">
-                  <!-- <div class="user-avatar-small">
-                    <i class="fas fa-user"></i>
-                  </div> -->
                   <div class="user-info">
                     <div class="user-name">{{ user.username }}</div>
                     <div class="user-id">ID: {{ user.id }}</div>
@@ -170,7 +137,6 @@
             </ng-template>
           </div>
 
-          <!-- Pagination -->
           <div class="pagination-enhanced" *ngIf="filteredUsers.length > pageSize">
             <div class="pagination-info">
               Showing {{ (currentPage - 1) * pageSize + 1 }} to {{ getEndIndex() }} of {{ filteredUsers.length }} users
@@ -189,7 +155,6 @@
       </div>
     </div>
 
-    <!-- Details Panel Section - Appears beside the table -->
     <div class="details-section" *ngIf="isDetailsPanelVisible">
       <div class="details-panel-enhanced">
         <div class="panel-header-enhanced">
@@ -209,7 +174,6 @@
 
         <div class="panel-body-enhanced" *ngIf="selectedUser; else loadingTemplate">
           
-          <!-- User Information Section -->
           <div class="panel-section">
             <div class="section-header-enhanced">
               <i class="fas fa-id-card section-icon"></i>
@@ -240,7 +204,6 @@
             </div>
           </div>
 
-          <!-- Role Permissions Section -->
           <div class="panel-section">
             <div class="section-header-enhanced">
               <i class="fas fa-shield-alt section-icon"></i>
@@ -256,7 +219,6 @@
             </div>
           </div>
 
-          <!-- Account Status Section -->
           <div class="panel-section">
             <div class="section-header-enhanced">
               <i class="fas fa-chart-line section-icon"></i>
@@ -282,7 +244,6 @@
             </div>
           </div>
 
-          <!-- Quick Actions -->
           <div class="panel-section">
             <div class="section-header-enhanced">
               <i class="fas fa-bolt section-icon"></i>
@@ -318,105 +279,103 @@
   </div>
 </div>
 
+<div
+  class="modal fade show custom-modal-backdrop"
+  tabindex="-1"
+  *ngIf="isAddUserModalVisible"
+  style="display:block; background: rgba(0,0,0,0.5);"
+  (click)="closeAddUserModal()"
+>
   <div
-    class="modal fade show custom-modal-backdrop"
-    tabindex="-1"
-    *ngIf="isAddUserModalVisible"
-    style="display:block; background: rgba(0,0,0,0.5);"
-    (click)="closeAddUserModal()"
+    class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
+    (click)="$event.stopPropagation()"
   >
-    <div
-      class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
-      (click)="$event.stopPropagation()"
-    >
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="h5 mb-0">➕ Add Auditor</h1>
-          <button type="button" class="btn-close" (click)="closeAddUserModal()"></button>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="h5 mb-0">➕ Add Auditor</h1>
+        <button type="button" class="btn-close" (click)="closeAddUserModal()"></button>
+      </div>
+
+      <form [formGroup]="addUserForm" (ngSubmit)="saveUser()">
+        <div class="modal-body">
+
+          <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input
+              id="username"
+              formControlName="username"
+              type="text"
+              class="form-control"
+              placeholder="Enter username"
+              [ngClass]="{'is-invalid': addUserForm.get('username')?.touched && addUserForm.get('username')?.invalid}"
+            >
+            <div class="invalid-feedback">Username is required.</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input
+              id="email"
+              formControlName="email"
+              type="email"
+              class="form-control"
+              placeholder="Enter email"
+              [ngClass]="{'is-invalid': addUserForm.get('email')?.touched && addUserForm.get('email')?.invalid}"
+            >
+            <div class="invalid-feedback">Enter a valid email address.</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <div class="input-group">
+              <input
+                id="password"
+                formControlName="password"
+                [type]="showPassword ? 'text' : 'password'"
+                class="form-control"
+                placeholder="Enter password"
+                [ngClass]="{'is-invalid': addUserForm.get('password')?.touched && addUserForm.get('password')?.invalid}"
+              >
+              <button
+                type="button"
+                class="btn btn-outline-secondary"
+                (click)="showPassword = !showPassword"
+              >
+                <i class="fas" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+              </button>
+              <div class="invalid-feedback">Password is required.</div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="role" class="form-label">Role</label>
+            <select
+              id="role"
+              formControlName="role"
+              class="form-select"
+              [ngClass]="{'is-invalid': addUserForm.get('role')?.touched && addUserForm.get('role')?.invalid}"
+            >
+              <option value="">Select a role</option>
+              <option value="CIA">Chief Internal Auditor (CIA)</option>
+              <option value="Auditor">Internal Auditor (IA)</option>
+              <option value="AuditUnit">Audit Unit (AU)</option>
+              <option value="Director">Director of Internal Audit</option>
+              <option value="External">External Auditor</option>
+            </select>
+            <div class="invalid-feedback">Role selection is required.</div>
+          </div>
         </div>
 
-        <form [formGroup]="addUserForm" (ngSubmit)="saveUser()">
-          <div class="modal-body">
-
-            <div class="mb-3">
-              <label for="username" class="form-label">Username</label>
-              <input
-                id="username"
-                formControlName="username"
-                type="text"
-                class="form-control"
-                placeholder="Enter username"
-                [ngClass]="{'is-invalid': addUserForm.get('username')?.touched && addUserForm.get('username')?.invalid}"
-              >
-              <div class="invalid-feedback">Username is required.</div>
-            </div>
-
-            <div class="mb-3">
-              <label for="email" class="form-label">Email</label>
-              <input
-                id="email"
-                formControlName="email"
-                type="email"
-                class="form-control"
-                placeholder="Enter email"
-                [ngClass]="{'is-invalid': addUserForm.get('email')?.touched && addUserForm.get('email')?.invalid}"
-              >
-              <div class="invalid-feedback">Enter a valid email address.</div>
-            </div>
-
-            <div class="mb-3">
-              <label for="password" class="form-label">Password</label>
-              <div class="input-group">
-                <input
-                  id="password"
-                  formControlName="password"
-                  [type]="showPassword ? 'text' : 'password'"
-                  class="form-control"
-                  placeholder="Enter password"
-                  [ngClass]="{'is-invalid': addUserForm.get('password')?.touched && addUserForm.get('password')?.invalid}"
-                >
-                <button
-                  type="button"
-                  class="btn btn-outline-secondary"
-                  (click)="showPassword = !showPassword"
-                >
-                  <i class="fas" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
-                </button>
-                <div class="invalid-feedback">Password is required.</div>
-              </div>
-            </div>
-
-            <div class="mb-3">
-              <label for="role" class="form-label">Role</label>
-              <select
-                id="role"
-                formControlName="role"
-                class="form-select"
-                [ngClass]="{'is-invalid': addUserForm.get('role')?.touched && addUserForm.get('role')?.invalid}"
-              >
-                <option value="">Select a role</option>
-                <option value="CIA">Chief Internal Auditor (CIA)</option>
-                <option value="Auditor">Internal Auditor (IA)</option>
-                <option value="AuditUnit">Audit Unit (AU)</option>
-                <option value="Director">Director of Internal Audit</option>
-                <option value="External">External Auditor</option>
-              </select>
-              <div class="invalid-feedback">Role selection is required.</div>
-            </div>
-          </div>
-
-          <div class="modal-footer">
-            <button type="button" class="btn btn-sm btn-secondary" (click)="closeAddUserModal()">
-              Cancel
-            </button>
-            <button type="submit" class="btn btn-sm btn-primary btn-test fw-semibold" [disabled]="addUserForm.invalid">
-              <i class="fas fa-save me-1"></i> Save Auditor
-            </button>
-          </div>
-        </form>
-        <hr>
-      </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-sm btn-secondary" (click)="closeAddUserModal()">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-sm btn-primary btn-test fw-semibold" [disabled]="addUserForm.invalid">
+            <i class="fas fa-save me-1"></i> Save Auditor
+          </button>
+        </div>
+      </form>
+      <hr>
     </div>
   </div>
- 
-
+</div>
