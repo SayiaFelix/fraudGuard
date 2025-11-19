@@ -25,17 +25,6 @@
       ]
     },
     {
-      "id": "1758520826982",
-      "username": "ciafffff@gmail.com",
-      "email": "ciafffff@gmail.com",
-      "password": "cia@123456safsd",
-      "role": "CIA",
-      "activeAuditId": "0f4c",
-      "unitProgram": "PG",
-      "currentPhase": "Planning",
-      "capTracking": []
-    },
-    {
       "id": "af8f",
       "username": "ciacds@gmail.com",
       "email": "ciacds@gmail.com",
@@ -68,18 +57,18 @@
       "role": "Auditor"
     },
     {
-      "id": "e03e",
-      "username": "cia@fewfwefe",
-      "email": "igiuhiuhu@gmail.com",
-      "password": "cia@123456",
-      "role": "Director"
-    },
-    {
       "id": "c9f9",
       "username": "cia",
       "email": "rrewgf@gmail.com",
       "password": "cia@123456",
       "role": "AuditUnit"
+    },
+    {
+      "id": "538b",
+      "username": "Felix",
+      "email": "Sayiafelix18@gmail.com",
+      "password": "12345678",
+      "role": "Director"
     }
   ],
   "audits": [
