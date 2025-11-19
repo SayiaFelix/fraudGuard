@@ -32,6 +32,16 @@ export class ListBranchesComponent implements OnInit {
   roleFilter = '';
   usernameFilter = '';
 
+    currentPage = 1;
+  pageSize = 10;
+  totalPages = 1;
+  
+  // Add these filtering properties if not already present
+  // searchTerm = '';
+  // roleFilter = '';
+  // filteredUsers: any[] = [];
+  // allUsers: any[] = [];
+
   addUserForm: FormGroup;
   isAddUserModalVisible = false;
 
@@ -52,7 +62,295 @@ export class ListBranchesComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadUsers();
+    this.applyFiltersAndPagination();
   }
+
+  applyFiltersAndPagination(): void {
+    let users = [...this.allUsers];
+
+    const search = this.searchTerm.trim().toLowerCase();
+    if (search) {
+      users = users.filter(user =>
+        user.username?.toLowerCase().includes(search) ||
+        user.email?.toLowerCase().includes(search) ||
+        user.role?.toLowerCase().includes(search)
+      );
+    }
+
+    // Apply role filter
+    if (this.roleFilter) {
+      users = users.filter(user => user.role === this.roleFilter);
+    }
+
+    this.filteredUsers = users;
+    this.totalPages = Math.ceil(this.filteredUsers.length / this.pageSize);
+    this.updateVisibleUsers();
+  }
+
+  updateVisibleUsers(): void {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.visibleUsers = this.filteredUsers.slice(startIndex, endIndex);
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.updateVisibleUsers();
+    }
+  }
+
+  getEndIndex(): number {
+    return Math.min(this.currentPage * this.pageSize, this.filteredUsers.length);
+  }
+
+
+ resetFilters(): void {
+    this.searchTerm = '';
+    this.usernameFilter = '';
+    this.idFilter = '';
+    this.emailFilter = '';
+    this.roleFilter = '';
+    this.applyFiltersAndPagination();
+  }
+
+
+  // Helper methods for enhanced functionality
+getUsersByRole(role: string): any[] {
+  return this.allUsers.filter(user => user.role === role);
+}
+
+getRoleIcon(role: string): string {
+  const icons: { [key: string]: string } = {
+    'CIA': 'fa-user-shield',
+    'Auditor': 'fa-user-check',
+    'AuditUnit': 'fa-building',
+    'Director': 'fa-user-tie',
+    'External': 'fa-user-plus'
+  };
+  return icons[role] || 'fa-user';
+}
+
+getRoleDescription(role: string): string {
+  const descriptions: { [key: string]: string } = {
+    'CIA': 'Chief Internal Auditor',
+    'Auditor': 'Internal Auditor',
+    'AuditUnit': 'Audit Unit Member',
+    'Director': 'Director of Internal Audit',
+    'External': 'External Auditor'
+  };
+  return descriptions[role] || '';
+}
+
+getRolePermissions(role: string): string[] {
+  const permissions: { [key: string]: string[] } = {
+    'CIA': ['Full system access', 'User management', 'Audit oversight', 'Report generation'],
+    'Auditor': ['Create audits', 'Manage observations', 'Task management', 'Report viewing'],
+    'AuditUnit': ['View assigned audits', 'Submit responses', 'Track progress'],
+    'Director': ['Audit approval', 'Team management', 'Performance monitoring'],
+    'External': ['Limited audit access', 'Document review', 'Report submission']
+  };
+  return permissions[role] || ['Basic system access'];
+}
+
+sendResetPassword(user: any): void {
+  Swal.fire({
+    title: 'Password Reset Options',
+    html: `
+      <div class="text-start">
+        <p>Choose how to reset password for <strong>${user.username}</strong>:</p>
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="radio" name="resetOption" id="emailReset" value="email" checked>
+          <label class="form-check-label" for="emailReset">
+            <i class="fas fa-envelope text-primary me-2"></i>
+            Send reset link to email
+          </label>
+          <small class="text-muted d-block ms-4">${user.email}</small>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="resetOption" id="temporaryPassword" value="temporary">
+          <label class="form-check-label" for="temporaryPassword">
+            <i class="fas fa-key text-warning me-2"></i>
+            Generate temporary password
+          </label>
+        </div>
+      </div>
+    `,
+    icon: 'info',
+    showCancelButton: true,
+    confirmButtonText: 'Proceed',
+    cancelButtonText: 'Cancel',
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#6c757d',
+    customClass: {
+      confirmButton: 'btn btn-primary',
+      cancelButton: 'btn btn-secondary',
+      popup: 'text-start'
+    },
+    buttonsStyling: false,
+    reverseButtons: true,
+    preConfirm: () => {
+      const selectedOption = document.querySelector('input[name="resetOption"]:checked') as HTMLInputElement;
+      return selectedOption?.value || 'email';
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      const resetOption = result.value;
+      
+      if (resetOption === 'email') {
+        this.sendPasswordResetEmail(user);
+      } else if (resetOption === 'temporary') {
+        this.generateTemporaryPassword(user);
+      }
+    }
+  });
+}
+
+private sendPasswordResetEmail(user: any): void {
+  this.http.post('http://localhost:3000/auth/reset-password', {
+    userId: user.id,
+    email: user.email,
+    type: 'email'
+  }).subscribe({
+    next: () => {
+      Swal.fire({
+        title: 'Reset Link Sent!',
+        html: `
+          <div class="text-center">
+            <i class="fas fa-paper-plane fa-3x text-primary mb-3"></i>
+            <p>Password reset instructions have been sent to:</p>
+            <p class="fw-bold text-primary">${user.email}</p>
+            <div class="alert alert-info mt-3 small">
+              <i class="fas fa-info-circle me-1"></i>
+              The reset link will expire in 24 hours for security.
+            </div>
+          </div>
+        `,
+        icon: 'success',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#28a745',
+        customClass: {
+          confirmButton: 'btn btn-success',
+          popup: 'swal-wide'
+        },
+        buttonsStyling: false
+      });
+    },
+    error: (error) => {
+      this.handleResetError(user, 'email', error);
+    }
+  });
+}
+
+private generateTemporaryPassword(user: any): void {
+  Swal.fire({
+    title: 'Generate Temporary Password?',
+    html: `
+      <div class="text-start">
+        <p>A temporary password will be generated for <strong>${user.username}</strong>.</p>
+        <div class="alert alert-warning small">
+          <i class="fas fa-exclamation-triangle me-1"></i>
+          The user will be forced to change this password on next login.
+        </div>
+      </div>
+    `,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Generate Password',
+    cancelButtonText: 'Cancel',
+    confirmButtonColor: '#ffc107',
+    cancelButtonColor: '#6c757d',
+    customClass: {
+      confirmButton: 'btn btn-warning',
+      cancelButton: 'btn btn-secondary'
+    },
+    buttonsStyling: false
+  }).then((result) => {
+    if (result.isConfirmed) {
+      this.http.post('http://localhost:3000/auth/temporary-password', {
+        userId: user.id,
+        email: user.email,
+        type: 'temporary'
+      }).subscribe({
+        next: (response: any) => {
+          Swal.fire({
+            title: 'Temporary Password Generated!',
+            html: `
+              <div class="text-center">
+                <i class="fas fa-key fa-3x text-warning mb-3"></i>
+                <p>Temporary password has been set for:</p>
+                <p class="fw-bold">${user.username}</p>
+                <div class="alert alert-success mt-3">
+                  <strong>Password will be shown once:</strong>
+                  <div class="temporary-password mt-2 p-2 bg-light rounded font-monospace">
+                    ${response.temporaryPassword}
+                  </div>
+                  <small class="text-muted d-block mt-2">User must change this on next login.</small>
+                </div>
+              </div>
+            `,
+            icon: 'success',
+            confirmButtonText: 'Copy Password',
+            confirmButtonColor: '#28a745',
+            showCancelButton: true,
+            cancelButtonText: 'Close',
+            customClass: {
+              confirmButton: 'btn btn-success',
+              cancelButton: 'btn btn-secondary',
+              popup: 'swal-wide'
+            },
+            buttonsStyling: false,
+            preConfirm: () => {
+              navigator.clipboard.writeText(response.temporaryPassword);
+              return response.temporaryPassword;
+            }
+          }).then((copyResult) => {
+            if (copyResult.isConfirmed) {
+              this.toastr.success('Password copied to clipboard');
+            }
+          });
+        },
+        error: (error) => {
+          this.handleResetError(user, 'temporary', error);
+        }
+      });
+    }
+  });
+}
+
+private handleResetError(user: any, type: string, error: any): void {
+  console.error('Password reset error:', error);
+  
+  Swal.fire({
+    title: 'Reset Failed',
+    html: `
+      <div class="text-center">
+        <i class="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
+        <p>Failed to ${type === 'email' ? 'send reset email' : 'generate temporary password'} for:</p>
+        <p class="fw-bold">${user.username}</p>
+        <div class="alert alert-danger mt-3 small">
+          <i class="fas fa-bug me-1"></i>
+          Please try again or contact system administrator.
+        </div>
+      </div>
+    `,
+    icon: 'error',
+    confirmButtonText: 'Try Again',
+    cancelButtonText: 'Cancel',
+    showCancelButton: true,
+    confirmButtonColor: '#dc3545',
+    cancelButtonColor: '#6c757d',
+    customClass: {
+      confirmButton: 'btn btn-danger',
+      cancelButton: 'btn btn-secondary'
+    },
+    buttonsStyling: false
+  }).then((result) => {
+    if (result.isConfirmed) {
+      this.sendResetPassword(user);
+    }
+  });
+}
 
   showUserDetails(user: any): void {
     if (this.selectedUser && this.selectedUser.id === user.id) {
@@ -127,44 +425,36 @@ export class ListBranchesComponent implements OnInit {
     });
   }
 
-  applyFiltersAndPagination(): void {
-    let users = [...this.allUsers];
+  // applyFiltersAndPagination(): void {
+  //   let users = [...this.allUsers];
 
-    const search = (this.searchTerm || '').trim().toLowerCase();
-    if (search) {
-      users = users.filter(u =>
-        (u.username || '').toLowerCase().includes(search) ||
-        (u.email || '').toLowerCase().includes(search) ||
-        (u.role || '').toLowerCase().includes(search)
-      );
-    }
+  //   const search = (this.searchTerm || '').trim().toLowerCase();
+  //   if (search) {
+  //     users = users.filter(u =>
+  //       (u.username || '').toLowerCase().includes(search) ||
+  //       (u.email || '').toLowerCase().includes(search) ||
+  //       (u.role || '').toLowerCase().includes(search)
+  //     );
+  //   }
 
-    if (this.usernameFilter) {
-      users = users.filter(u => (u.username || '').toLowerCase().includes(this.usernameFilter.toLowerCase()));
-    }
-    if (this.idFilter) {
-      users = users.filter(u => u.id?.toString().includes(this.idFilter));
-    }
-    if (this.emailFilter) {
-      users = users.filter(u => (u.email || '').toLowerCase().includes(this.emailFilter.toLowerCase()));
-    }
-    if (this.roleFilter) {
-      users = users.filter(u => (u.role || '').toLowerCase().includes(this.roleFilter.toLowerCase()));
-    }
+  //   if (this.usernameFilter) {
+  //     users = users.filter(u => (u.username || '').toLowerCase().includes(this.usernameFilter.toLowerCase()));
+  //   }
+  //   if (this.idFilter) {
+  //     users = users.filter(u => u.id?.toString().includes(this.idFilter));
+  //   }
+  //   if (this.emailFilter) {
+  //     users = users.filter(u => (u.email || '').toLowerCase().includes(this.emailFilter.toLowerCase()));
+  //   }
+  //   if (this.roleFilter) {
+  //     users = users.filter(u => (u.role || '').toLowerCase().includes(this.roleFilter.toLowerCase()));
+  //   }
 
-    this.filteredUsers = users;
-    this.visibleUsers = this.filteredUsers.slice(0, this.recordsToShow);
-  }
+  //   this.filteredUsers = users;
+  //   this.visibleUsers = this.filteredUsers.slice(0, this.recordsToShow);
+  // }
 
-  resetFilters(): void {
-    this.searchTerm = '';
-    this.usernameFilter = '';
-    this.idFilter = '';
-    this.emailFilter = '';
-    this.roleFilter = '';
-    this.applyFiltersAndPagination();
-  }
-
+ 
   loadMoreUsers(): void {
     this.recordsToShow += 20;
     this.visibleUsers = this.filteredUsers.slice(0, this.recordsToShow);
