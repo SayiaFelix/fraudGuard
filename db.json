@@ -285,7 +285,7 @@
         },
         {
           "name": "gdssdgsd",
-          "completed": false
+          "completed": true
         }
       ],
       "externalFiles": [
@@ -341,6 +341,68 @@
       ],
       "planningMeetingDate": "2025-11-19T13:13",
       "planningAgenda": "fwefewew"
+    },
+    {
+      "id": "2bd5",
+      "title": "fewwefew",
+      "scope": "fewfewfew",
+      "department": "fewefew",
+      "status": "Planned",
+      "startDate": "2025-11-20",
+      "endDate": "2025-11-28",
+      "auditYear": 2026,
+      "auditPeriod": "Full Year",
+      "auditLead": "3",
+      "auditMembers": "fsdsds",
+      "thirdPartyFirm": "dfsdf",
+      "thirdPartyContact": "fdssdfsd",
+      "clientConfirmation": "Yes",
+      "confirmationDate": "2025-11-21",
+      "unitOrientation": "sdfsdfsd",
+      "backgroundSummary": "ewfwef",
+      "riskRating": "High",
+      "riskRationale": "fwewew",
+      "riskSummary": "fweewwe",
+      "kickoffDate": "2025-11-21",
+      "planningMemo": "ffffefwwe",
+      "riskInterviewSummary": "fewfweew",
+      "interviewSchedule": [
+        {
+          "name": "fwfwefew",
+          "department": "fwefew",
+          "date": "2025-11-25",
+          "notes": "fwwewdwe"
+        },
+        {
+          "name": "wefewfew",
+          "department": "fewfw",
+          "date": "2025-11-21",
+          "notes": "fwefewf"
+        }
+      ],
+      "logisticsChecklist": [
+        {
+          "name": "fweewfwef",
+          "completed": true
+        },
+        {
+          "name": "fewfwefewfeewewfw",
+          "completed": true
+        },
+        {
+          "name": "fwewefew",
+          "completed": true
+        }
+      ],
+      "externalFiles": [],
+      "internalFiles": [
+        {}
+      ],
+      "criteriaFiles": [
+        {}
+      ],
+      "rcmFile": null,
+      "sortDate": "2025-11-20"
     }
   ],
   "workflows": [
@@ -946,6 +1008,22 @@
       "status": "Not Started",
       "startDate": "2025-11-20",
       "dueDate": "2025-11-26",
+      "tasks": [],
+      "miniFindings": []
+    },
+    {
+      "id": "2bd5",
+      "auditId": "2bd5",
+      "title": "fewwefew Workflow",
+      "scope": "fewfewfew",
+      "department": "fewefew",
+      "assignedTo": "unit1",
+      "assignedToId": "3",
+      "auditLeadId": "3",
+      "auditMembers": "fsdsds",
+      "status": "Not Started",
+      "startDate": "2025-11-20",
+      "dueDate": "2025-11-28",
       "tasks": [],
       "miniFindings": []
     }
@@ -2964,6 +3042,24 @@
         "auditUnit": "rerewrwe",
         "startDate": "2025-11-20",
         "dueDate": "2025-11-26",
+        "status": "Planned"
+      }
+    },
+    {
+      "id": "8686",
+      "role": "Auditor",
+      "type": "assignment",
+      "title": "New Audit Assigned",
+      "from": "System (via CIA)",
+      "summary": "You have been assigned to the new audit: \"fewwefew\".",
+      "isRead": false,
+      "timestamp": "2025-11-19T16:21:18.577Z",
+      "details": {
+        "subject": "New Assignment: fewwefew",
+        "auditId": "2bd5",
+        "auditUnit": "fewefew",
+        "startDate": "2025-11-20",
+        "dueDate": "2025-11-28",
         "status": "Planned"
       }
     }
