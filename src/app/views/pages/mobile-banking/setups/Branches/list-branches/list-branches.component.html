@@ -107,6 +107,8 @@
                     </button>
                   </div>
                 </div>
+
+
               </div>
             </div>
             
@@ -156,20 +158,54 @@
               </ng-template>
           </div>
 
-          <div class="pagination-enhanced" *ngIf="filteredUsers.length > pageSize">
-            <div class="pagination-info">
-              Showing {{ (currentPage - 1) * pageSize + 1 }} to {{ getEndIndex() }} of {{ filteredUsers.length }} users
+           <div class="d-flex justify-content-between align-items-center p-3 border-top bg-light" 
+       *ngIf="filteredUsers.length > pageSize">
+    
+    <!-- Pagination Info -->
+    <div class="pagination-info">
+      <span class="text-muted small">
+        Showing <strong>{{ (currentPage - 1) * pageSize + 1 }}</strong> 
+        to <strong>{{ getEndIndex() }}</strong> 
+        of <strong>{{ filteredUsers.length }}</strong> users
+      </span>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="pagination-controls">
+      <nav aria-label="User pagination">
+        <ul class="pagination pagination-sm mb-0">
+          
+          <!-- Previous Button -->
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <button class="page-link" 
+                    (click)="goToPage(currentPage - 1)"
+                    [disabled]="currentPage === 1"
+                    aria-label="Previous page">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+          </li>
+
+          <!-- Current Page Info -->
+          <li class="page-item disabled">
+            <span class="page-link text-dark bg-transparent border-0">
+              Page <strong>{{ currentPage }}</strong> of <strong>{{ totalPages }}</strong>
+            </span>
+          </li>
+
+          <!-- Next Button -->
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <button class="page-link" 
+                    (click)="goToPage(currentPage + 1)"
+                    [disabled]="currentPage === totalPages"
+                    aria-label="Next page">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </li>
+
+        </ul>
+      </nav>
+    </div>
             </div>
-            <div class="pagination-controls">
-              <button class="pagination-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
-                <i class="fas fa-chevron-left"></i>
-              </button>
-              <span class="pagination-page">Page {{ currentPage }} of {{ totalPages }}</span>
-              <button class="pagination-btn" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
-                <i class="fas fa-chevron-right"></i>
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </div>

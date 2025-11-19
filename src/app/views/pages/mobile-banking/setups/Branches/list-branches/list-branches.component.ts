@@ -65,58 +65,134 @@ export class ListBranchesComponent implements OnInit {
     this.applyFiltersAndPagination();
   }
 
-  applyFiltersAndPagination(): void {
-    let users = [...this.allUsers];
+// Apply filters and pagination
+applyFiltersAndPagination(): void {
+  let users = [...this.allUsers];
 
-    const search = this.searchTerm.trim().toLowerCase();
-    if (search) {
-      users = users.filter(user =>
-        user.username?.toLowerCase().includes(search) ||
-        user.email?.toLowerCase().includes(search) ||
-        user.role?.toLowerCase().includes(search)
-      );
-    }
+  const search = this.searchTerm.trim().toLowerCase();
+  if (search) {
+    users = users.filter(user =>
+      user.username?.toLowerCase().includes(search) ||
+      user.email?.toLowerCase().includes(search) ||
+      user.role?.toLowerCase().includes(search)
+    );
+  }
 
-    // Apply role filter
-    if (this.roleFilter) {
-      users = users.filter(user => user.role === this.roleFilter);
-    }
+  // Apply role filter
+  if (this.roleFilter) {
+    users = users.filter(user => user.role === this.roleFilter);
+  }
 
-    this.filteredUsers = users;
-    this.totalPages = Math.ceil(this.filteredUsers.length / this.pageSize);
+  this.filteredUsers = users;
+  this.totalPages = Math.ceil(this.filteredUsers.length / this.pageSize);
+  
+  // Ensure current page is valid
+  if (this.currentPage > this.totalPages && this.totalPages > 0) {
+    this.currentPage = 1;
+  }
+  
+  this.updateVisibleUsers();
+}
+
+// Update visible users based on current page
+updateVisibleUsers(): void {
+  const startIndex = (this.currentPage - 1) * this.pageSize;
+  const endIndex = startIndex + this.pageSize;
+  this.visibleUsers = this.filteredUsers.slice(startIndex, endIndex);
+}
+
+// Navigate to specific page
+goToPage(page: number): void {
+  if (page >= 1 && page <= this.totalPages) {
+    this.currentPage = page;
     this.updateVisibleUsers();
   }
+}
 
-  updateVisibleUsers(): void {
-    const startIndex = (this.currentPage - 1) * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
-    this.visibleUsers = this.filteredUsers.slice(startIndex, endIndex);
-  }
+// Calculate end index for display
+getEndIndex(): number {
+  return Math.min(this.currentPage * this.pageSize, this.filteredUsers.length);
+}
 
-  goToPage(page: number): void {
-    if (page >= 1 && page <= this.totalPages) {
-      this.currentPage = page;
-      this.updateVisibleUsers();
+resetFilters(): void {
+  this.searchTerm = '';
+  this.usernameFilter = '';
+  this.idFilter = '';
+  this.emailFilter = '';
+  this.roleFilter = '';
+  this.currentPage = 1; 
+  this.applyFiltersAndPagination();
+}
+
+loadUsers(): void {
+  this.isLoading = true;
+  this.http.get<any[]>(this.apiUrl).subscribe({
+    next: (users: any[]) => {
+      this.allUsers = users || [];
+      this.currentPage = 1; // Reset to first page when data loads
+      this.applyFiltersAndPagination();
+      this.isLoading = false;
+    },
+    error: (err: any) => {
+      this.toastr.error('Could not load users from mock backend.', 'API Error');
+      this.isLoading = false;
     }
-  }
+  });
+}
 
-  getEndIndex(): number {
-    return Math.min(this.currentPage * this.pageSize, this.filteredUsers.length);
-  }
+  // applyFiltersAndPagination(): void {
+  //   let users = [...this.allUsers];
+
+  //   const search = this.searchTerm.trim().toLowerCase();
+  //   if (search) {
+  //     users = users.filter(user =>
+  //       user.username?.toLowerCase().includes(search) ||
+  //       user.email?.toLowerCase().includes(search) ||
+  //       user.role?.toLowerCase().includes(search)
+  //     );
+  //   }
+
+  //   // Apply role filter
+  //   if (this.roleFilter) {
+  //     users = users.filter(user => user.role === this.roleFilter);
+  //   }
+
+  //   this.filteredUsers = users;
+  //   this.totalPages = Math.ceil(this.filteredUsers.length / this.pageSize);
+  //   this.updateVisibleUsers();
+  // }
+
+  // updateVisibleUsers(): void {
+  //   const startIndex = (this.currentPage - 1) * this.pageSize;
+  //   const endIndex = startIndex + this.pageSize;
+  //   this.visibleUsers = this.filteredUsers.slice(startIndex, endIndex);
+  // }
+
+  // goToPage(page: number): void {
+  //   if (page >= 1 && page <= this.totalPages) {
+  //     this.currentPage = page;
+  //     this.updateVisibleUsers();
+  //   }
+  // }
+
+  // getEndIndex(): number {
+  //   return Math.min(this.currentPage * this.pageSize, this.filteredUsers.length);
+  // }
 
 
- resetFilters(): void {
-    this.searchTerm = '';
-    this.usernameFilter = '';
-    this.idFilter = '';
-    this.emailFilter = '';
-    this.roleFilter = '';
-    this.applyFiltersAndPagination();
-  }
+//  resetFilters(): void {
+//     this.searchTerm = '';
+//     this.usernameFilter = '';
+//     this.idFilter = '';
+//     this.emailFilter = '';
+//     this.roleFilter = '';
+//     this.applyFiltersAndPagination();
+//   }
 
 
   // Helper methods for enhanced functionality
-getUsersByRole(role: string): any[] {
+
+  getUsersByRole(role: string): any[] {
   return this.allUsers.filter(user => user.role === role);
 }
 
@@ -410,20 +486,20 @@ private handleResetError(user: any, type: string, error: any): void {
     return this.http.get<any>(`${this.apiUrl}/${id}`);
   }
 
-  loadUsers(): void {
-    this.isLoading = true;
-    this.http.get<any[]>(this.apiUrl).subscribe({
-      next: (users: any[]) => {
-        this.allUsers = users || [];
-        this.applyFiltersAndPagination();
-        this.isLoading = false;
-      },
-      error: (err: any) => {
-        this.toastr.error('Could not load users from mock backend.', 'API Error');
-        this.isLoading = false;
-      }
-    });
-  }
+  // loadUsers(): void {
+  //   this.isLoading = true;
+  //   this.http.get<any[]>(this.apiUrl).subscribe({
+  //     next: (users: any[]) => {
+  //       this.allUsers = users || [];
+  //       this.applyFiltersAndPagination();
+  //       this.isLoading = false;
+  //     },
+  //     error: (err: any) => {
+  //       this.toastr.error('Could not load users from mock backend.', 'API Error');
+  //       this.isLoading = false;
+  //     }
+  //   });
+  // }
 
   // applyFiltersAndPagination(): void {
   //   let users = [...this.allUsers];
