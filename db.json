@@ -59,6 +59,13 @@
       "email": "peterjosh7365@gmail.com",
       "password": "hdxbchjdb",
       "role": "Auditor"
+    },
+    {
+      "id": "e03e",
+      "username": "cia@fewfwefe",
+      "email": "igiuhiuhu@gmail.com",
+      "password": "cia@123456",
+      "role": "Director"
     }
   ],
   "audits": [
