@@ -186,6 +186,14 @@
                   <i class="fas fa-angle-double-right"></i>
                 </a>
               </li>
+
+              <div class="ms-3 d-flex align-items-center">
+                <label class="me-2 small text-muted">Go to:</label>
+                <input type="number" class="form-control form-control-sm" style="width: 60px;" 
+                      #pageInput min="1" [max]="totalPages" 
+                      (keyup.enter)="goToPage(pageInput.valueAsNumber)"
+                      (blur)="goToPage(pageInput.valueAsNumber)">
+              </div>
             </ul>
           </nav>
         </div>
@@ -193,232 +201,229 @@
 
       <div class="card col-lg-4 col-md-5 bg-white border-start shadow-sm rounded details-panel" *ngIf="isDetailsPanelVisible">
   
-  <!-- Main Header - This is separate -->
-  <div class="p-3 card-header bg-light text-dark">
-    <div class="d-flex justify-content-between align-items-start">
-      <div class="flex-grow-1">
-        <h2 class="mb-1 fw-bold">
-          <i class="fas fa-clipboard-check text-primary me-2"></i>Audit Overview
-        </h2>
-        <h5 class="mb-0 opacity-90">{{ selectedAudit?.title }}</h5>
-      </div>
-      <button class="btn btn-sm btn-light btn-circle" (click)="hideAuditDetails()">
-        <i class="fas fa-times"></i>
-      </button>
-    </div>
-  </div>
-
-  <div class="card-body" style="max-height: 65vh; overflow-y: auto;">
-    <div class="card border-0 shadow-sm mb-4">
-      <div class="card-header bg-light py-2">
-        <h4 class="mb-0 fw-bold text-dark">
-          <i class="fas fa-info-circle me-2 text-primary"></i>Basic Information
-        </h4>
-      </div>
-      <div class="card-body p-3">
-        <div class="row g-2">
-          <div class="col-12">
-            <label class="small text-muted mb-1">Department</label>
-            <p class="mb-2 fw-semibold">{{ selectedAudit?.department || 'Not specified' }}</p>
-          </div>
-          <div class="col-6">
-            <label class="small text-muted mb-1">Status</label>
-            <div class="mb-2">
-              <span class="badge px-2 py-1"
-                    [ngClass]="{
-                      'bg-secondary': selectedAudit?.status === 'Planned',
-                      'bg-warning text-dark': selectedAudit?.status === 'In Progress',
-                      'bg-success': selectedAudit?.status === 'Completed'
-                    }">
-                {{ selectedAudit?.status }}
-              </span>
+        <div class="p-3 card-header bg-light text-dark ">
+          <div class="d-flex justify-content-between align-items-start">
+            <div class="flex-grow-1">
+              <h2 class="mb-1 fw-bold">
+                <i class="fas fa-clipboard-check text-primary me-2"></i>Audit Overview
+              </h2>
+              <h5 class="mb-0 opacity-90">{{ selectedAudit?.title }}</h5>
             </div>
-          </div>
-          <div class="col-6">
-            <label class="small text-muted mb-1">Audit Year</label>
-            <p class="mb-2 fw-semibold">{{ selectedAudit?.auditYear || 'Not specified' }}</p>
-          </div>
-          <div class="col-12">
-            <label class="small text-muted mb-1">Timeline</label>
-            <p class="mb-0 fw-semibold small">
-              {{ selectedAudit?.startDate || 'Not set' }} 
-              <i class="fas fa-arrow-right mx-2 text-muted"></i>
-              {{ selectedAudit?.endDate || 'Not set' }}
-            </p>
-          </div>
-          <div class="col-12">
-            <label class="small text-muted mb-1">Scope</label>
-            <p class="mb-0 text-dark fw-semibold small">{{ selectedAudit?.scope }}</p>
+            <button class="btn btn-sm btn-light btn-circle" (click)="hideAuditDetails()">
+              <i class="fas fa-times"></i>
+            </button>
           </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Collapsible Sections -->
-    <div class="accordion" id="auditAccordion">
-      <!-- Planning Overview -->
-      <div class="accordion-item">
-        <h2 class="accordion-header" id="headingOverview">
-          <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOverview" aria-expanded="false" aria-controls="collapseOverview">
-            <i class="fas fa-info-circle me-2 text-info"></i> Planning Overview
-          </button>
-        </h2>
-        <div id="collapseOverview" class="accordion-collapse collapse" aria-labelledby="headingOverview" data-bs-parent="#auditAccordion">
-          <div class="accordion-body small">
-            <div class="row">
-                 <div class="col-6">
-              <label class="small text-muted mb-1">Schedule Confirmed</label>
-              <p class="mb-0 fw-semibold small">
-              {{ selectedAudit?.scheduleConfirmed ? 'Yes' : 'No' }}
-              </p>
+        <div class="card-body" style="max-height: 65vh; overflow-y: auto;">
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-light py-2">
+              <h4 class="mb-0 fw-bold text-dark">
+                <i class="fas fa-info-circle me-2 text-primary"></i>Basic Information
+              </h4>
             </div>
-            <div class="col-6">
-              <label class="small text-muted mb-1">Meeting Scheduled</label>
-              <p class="mb-0 fw-semibold small">
-            {{ selectedAudit?.planningMeetingDate || 'No plan yet' }}
-              </p>
-            </div>
-            </div>
-         
-          </div>
-        </div>
-      </div>
-
-      <!-- Team Section -->
-      <div class="accordion-item">
-        <h2 class="accordion-header" id="headingTeam">
-          <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTeam" aria-expanded="false" aria-controls="collapseTeam">
-            <i class="fas fa-users me-2 text-success"></i> Team
-          </button>
-        </h2>
-        <div id="collapseTeam" class="accordion-collapse collapse" aria-labelledby="headingTeam" data-bs-parent="#auditAccordion">
-          <div class="accordion-body small">
-            <div *ngIf="selectedAudit?.team?.length > 0; else noTeamAccordion">
-              <div *ngFor="let member of selectedAudit?.team; let i = index" class="shadow-sm p-2 d-flex justify-content-between align-items-center small-task-box mb-1">
-                <div>
-                  <small>
-                    <i class="fas fa-user me-1 text-primary"></i>
-                    {{ i + 1 }}. <strong>{{ member.name }}</strong> | <span class="text-muted">{{ member.role }}</span>
-                  </small>
+            <div class="card-body p-3">
+              <div class="row g-2">
+                <div class="col-12">
+                  <label class="small text-muted mb-1">Department</label>
+                  <p class="mb-2 fw-semibold">{{ selectedAudit?.department || 'Not specified' }}</p>
                 </div>
-                <div class="d-flex gap-1">
-                  <button class="btn btn-sm text-danger" (click)="deleteMember(i)" title="Delete Member">
-                    <i class="fas fa-trash"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-            <ng-template #noTeamAccordion>
-              <p class="text-muted"><em>No team assigned</em></p>
-            </ng-template>
-          </div>
-        </div>
-      </div>
-
-      <!-- Planning Tasks -->
-      <div class="accordion-item">
-        <h2 class="accordion-header" id="headingTasks">
-          <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTasks" aria-expanded="false" aria-controls="collapseTasks">
-            <i class="fas fa-clipboard-check me-2 text-warning"></i> Planning Tasks
-          </button>
-        </h2>
-        <div id="collapseTasks" class="accordion-collapse collapse" aria-labelledby="headingTasks" data-bs-parent="#auditAccordion">
-          <div class="accordion-body small">
-            <div *ngIf="selectedAudit?.planningTasks?.length > 0; else noTasksAccordion">
-              <div *ngFor="let task of selectedAudit?.planningTasks; let i = index" class="shadow-sm p-2 d-flex justify-content-between align-items-center small-task-box mb-1">
-                <div>
-                  <small>{{ i + 1 }}. <strong>{{ task?.name }}</strong> | Owner: {{ task?.owner }} | Start: {{ task?.startDate }} | End: {{ task?.endDate }} | Status:
-                    <span class="badge bg-info text-dark">{{ task?.status }}</span>
-                  </small>
-                  <div *ngIf="task?.description">
-                    <small class="text-muted">Description: {{ task?.description }}</small>
+                <div class="col-6">
+                  <label class="small text-muted mb-1">Status</label>
+                  <div class="mb-2">
+                    <span class="badge px-2 py-1"
+                          [ngClass]="{
+                            'bg-secondary': selectedAudit?.status === 'Planned',
+                            'bg-warning text-dark': selectedAudit?.status === 'In Progress',
+                            'bg-success': selectedAudit?.status === 'Completed'
+                          }">
+                      {{ selectedAudit?.status }}
+                    </span>
                   </div>
                 </div>
-                <div class="d-flex gap-1">
-                  <button class="btn btn-sm text-secondary" (click)="editTask(i)" title="Edit Task">
-                    <i class="fas fa-edit"></i>
-                  </button>
-                  <button class="btn btn-sm text-danger" (click)="deleteTask(i)" title="Delete Task">
-                    <i class="fas fa-trash"></i>
-                  </button>
+                <div class="col-6">
+                  <label class="small text-muted mb-1">Audit Year</label>
+                  <p class="mb-2 fw-semibold">{{ selectedAudit?.auditYear || 'Not specified' }}</p>
+                </div>
+                <div class="col-12">
+                  <label class="small text-muted mb-1">Timeline</label>
+                  <p class="mb-0 fw-semibold small">
+                    {{ selectedAudit?.startDate || 'Not set' }} 
+                    <i class="fas fa-arrow-right mx-2 text-muted"></i>
+                    {{ selectedAudit?.endDate || 'Not set' }}
+                  </p>
+                </div>
+                <div class="col-12">
+                  <label class="small text-muted mb-1">Scope</label>
+                  <p class="mb-0 text-dark fw-semibold small">{{ selectedAudit?.scope }}</p>
                 </div>
               </div>
             </div>
-            <ng-template #noTasksAccordion>
-              <p class="text-muted"><em>No planning tasks yet.</em></p>
-            </ng-template>
           </div>
-        </div>
-      </div>
 
-      <!-- Documents Section -->
-      <div class="accordion-item">
-        <h2 class="accordion-header" id="headingDocs">
-          <button class="accordion-button collapsed fw-bold" type="button"
-            data-bs-toggle="collapse" data-bs-target="#collapseDocs"
-            aria-expanded="false" aria-controls="collapseDocs">
-            <i class="fas fa-folder-open me-2 text-danger fw-bold"></i> Documents
-          </button>
-        </h2>
-
-        <div id="collapseDocs" class="accordion-collapse collapse"
-          aria-labelledby="headingDocs" data-bs-parent="#auditAccordion">
-          <div class="accordion-body small">
-            <div *ngIf="selectedAudit?.documents?.length > 0; else noDocsAccordion">
-              <div *ngFor="let tabGroup of ['schedule','docs','meeting']">
-                <div class="mb-2 mt-3">
-                  <strong class="text-primary text-uppercase">
-                    {{ tabGroup | titlecase }} Files
-                  </strong>
+          <!-- Collapsible Sections -->
+          <div class="accordion" id="auditAccordion">
+            <!-- Planning Overview -->
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="headingOverview">
+                <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOverview" aria-expanded="false" aria-controls="collapseOverview">
+                  <i class="fas fa-info-circle me-2 text-info"></i> Planning Overview
+                </button>
+              </h2>
+              <div id="collapseOverview" class="accordion-collapse collapse" aria-labelledby="headingOverview" data-bs-parent="#auditAccordion">
+                <div class="accordion-body small">
+                  <div class="row">
+                      <div class="col-6">
+                    <label class="small text-muted mb-1">Schedule Confirmed</label>
+                    <p class="mb-0 fw-semibold small">
+                    {{ selectedAudit?.scheduleConfirmed ? 'Yes' : 'No' }}
+                    </p>
+                  </div>
+                  <div class="col-6">
+                    <label class="small text-muted mb-1">Meeting Scheduled</label>
+                    <p class="mb-0 fw-semibold small">
+                  {{ selectedAudit?.planningMeetingDate || 'No plan yet' }}
+                    </p>
+                  </div>
+                  </div>
+              
                 </div>
-                <ng-container *ngIf="getDocsByTab(tabGroup).length > 0; else noFilesForTab">
-                  <div *ngFor="let doc of getDocsByTab(tabGroup)">
-                    <div class="shadow-sm p-2 d-flex justify-content-between align-items-center small-task-box mb-1">
+              </div>
+            </div>
+
+            <!-- Team Section -->
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="headingTeam">
+                <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTeam" aria-expanded="false" aria-controls="collapseTeam">
+                  <i class="fas fa-users me-2 text-success"></i> Team
+                </button>
+              </h2>
+              <div id="collapseTeam" class="accordion-collapse collapse" aria-labelledby="headingTeam" data-bs-parent="#auditAccordion">
+                <div class="accordion-body small">
+                  <div *ngIf="selectedAudit?.team?.length > 0; else noTeamAccordion">
+                    <div *ngFor="let member of selectedAudit?.team; let i = index" class="shadow-sm p-2 d-flex justify-content-between align-items-center small-task-box mb-1">
                       <div>
                         <small>
-                          <i class="fas fa-file-alt me-1 text-primary"></i>
-                          {{ doc.name }}
+                          <i class="fas fa-user me-1 text-primary"></i>
+                          {{ i + 1 }}. <strong>{{ member.name }}</strong> | <span class="text-muted">{{ member.role }}</span>
                         </small>
                       </div>
                       <div class="d-flex gap-1">
-                        <a *ngIf="doc.content" [href]="doc.content" target="_blank"
-                          class="btn btn-sm btn-outline-secondary" title="Download">
-                          <i class="fas fa-download"></i>
-                        </a>
-                        <button class="btn btn-sm btn-outline-danger"
-                          (click)="removeDocument(doc)" title="Delete">
-                          <i class="fas fa-trash-alt"></i>
+                        <button class="btn btn-sm text-danger" (click)="deleteMember(i)" title="Delete Member">
+                          <i class="fas fa-trash"></i>
                         </button>
                       </div>
                     </div>
                   </div>
-                </ng-container>
-                <ng-template #noFilesForTab>
-                  <p class="text-muted ms-3"><em>No {{ tabGroup }} files uploaded</em></p>
-                </ng-template>
+                  <ng-template #noTeamAccordion>
+                    <p class="text-muted"><em>No team assigned</em></p>
+                  </ng-template>
+                </div>
               </div>
             </div>
-            <ng-template #noDocsAccordion>
-              <p class="text-muted"><em>No documents uploaded</em></p>
-            </ng-template>
+
+            <!-- Planning Tasks -->
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="headingTasks">
+                <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTasks" aria-expanded="false" aria-controls="collapseTasks">
+                  <i class="fas fa-clipboard-check me-2 text-warning"></i> Planning Tasks
+                </button>
+              </h2>
+              <div id="collapseTasks" class="accordion-collapse collapse" aria-labelledby="headingTasks" data-bs-parent="#auditAccordion">
+                <div class="accordion-body small">
+                  <div *ngIf="selectedAudit?.planningTasks?.length > 0; else noTasksAccordion">
+                    <div *ngFor="let task of selectedAudit?.planningTasks; let i = index" class="shadow-sm p-2 d-flex justify-content-between align-items-center small-task-box mb-1">
+                      <div>
+                        <small>{{ i + 1 }}. <strong>{{ task?.name }}</strong> | Owner: {{ task?.owner }} | Start: {{ task?.startDate }} | End: {{ task?.endDate }} | Status:
+                          <span class="badge bg-info text-dark">{{ task?.status }}</span>
+                        </small>
+                        <div *ngIf="task?.description">
+                          <small class="text-muted">Description: {{ task?.description }}</small>
+                        </div>
+                      </div>
+                      <div class="d-flex gap-1">
+                        <button class="btn btn-sm text-secondary" (click)="editTask(i)" title="Edit Task">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm text-danger" (click)="deleteTask(i)" title="Delete Task">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <ng-template #noTasksAccordion>
+                    <p class="text-muted"><em>No planning tasks yet.</em></p>
+                  </ng-template>
+                </div>
+              </div>
+            </div>
+
+            <!-- Documents Section -->
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="headingDocs">
+                <button class="accordion-button collapsed fw-bold" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#collapseDocs"
+                  aria-expanded="false" aria-controls="collapseDocs">
+                  <i class="fas fa-folder-open me-2 text-danger fw-bold"></i> Documents
+                </button>
+              </h2>
+
+              <div id="collapseDocs" class="accordion-collapse collapse"
+                aria-labelledby="headingDocs" data-bs-parent="#auditAccordion">
+                <div class="accordion-body small">
+                  <div *ngIf="selectedAudit?.documents?.length > 0; else noDocsAccordion">
+                    <div *ngFor="let tabGroup of ['schedule','docs','meeting']">
+                      <div class="mb-2 mt-3">
+                        <strong class="text-primary text-uppercase">
+                          {{ tabGroup | titlecase }} Files
+                        </strong>
+                      </div>
+                      <ng-container *ngIf="getDocsByTab(tabGroup).length > 0; else noFilesForTab">
+                        <div *ngFor="let doc of getDocsByTab(tabGroup)">
+                          <div class="shadow-sm p-2 d-flex justify-content-between align-items-center small-task-box mb-1">
+                            <div>
+                              <small>
+                                <i class="fas fa-file-alt me-1 text-primary"></i>
+                                {{ doc.name }}
+                              </small>
+                            </div>
+                            <div class="d-flex gap-1">
+                              <a *ngIf="doc.content" [href]="doc.content" target="_blank"
+                                class="btn btn-sm btn-outline-secondary" title="Download">
+                                <i class="fas fa-download"></i>
+                              </a>
+                              <button class="btn btn-sm btn-outline-danger"
+                                (click)="removeDocument(doc)" title="Delete">
+                                <i class="fas fa-trash-alt"></i>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </ng-container>
+                      <ng-template #noFilesForTab>
+                        <p class="text-muted ms-3"><em>No {{ tabGroup }} files uploaded</em></p>
+                      </ng-template>
+                    </div>
+                  </div>
+                  <ng-template #noDocsAccordion>
+                    <p class="text-muted"><em>No documents uploaded</em></p>
+                  </ng-template>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+
+          <!-- Action Buttons -->
+          <hr>
+          <button class="btn btn-outline-success btn-sm w-100 mb-2" (click)="openPlanningPanel(selectedAudit)">
+            <i class="fas fa-tasks"></i> Create Plan
+          </button>
+          <button class="btn btn-outline-primary btn-sm w-100 mb-2" (click)="openObservations(selectedAudit)">
+            <i class="fas fa-eye"></i> View Observations
+          </button>
+          
+        </div> 
       </div>
-    </div>
-
-    <!-- Action Buttons -->
-    <hr>
-    <button class="btn btn-outline-success btn-sm w-100 mb-2" (click)="openPlanningPanel(selectedAudit)">
-      <i class="fas fa-tasks"></i> Create Plan
-    </button>
-    <button class="btn btn-outline-primary btn-sm w-100 mb-2" (click)="openObservations(selectedAudit)">
-      <i class="fas fa-eye"></i> View Observations
-    </button>
-    
-  </div> 
-</div>
-
-
      </div>
    </div>
 

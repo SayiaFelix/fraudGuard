@@ -40,7 +40,7 @@
             </ul>
           </div>
           <button class="btn btn-sm btn-primary save-btn" (click)="openAddAuditModal()">
-            <i class="fas fa-plus"></i> Add Audit
+            <i class="fas fa-plus"></i> Create Audit
           </button>
         </div>
       </div>
@@ -188,6 +188,14 @@
                   <i class="fas fa-angle-double-right"></i>
                 </a>
               </li>
+              <div class="ms-3 d-flex align-items-center">
+                <label class="me-2 small text-muted">Go to:</label>
+                <input type="number" class="form-control form-control-sm" style="width: 60px;" 
+                      #pageInput min="1" [max]="totalPages" 
+                      (keyup.enter)="goToPage(pageInput.valueAsNumber)"
+                      (blur)="goToPage(pageInput.valueAsNumber)">
+              </div>
+
             </ul>
           </nav>
         </div>

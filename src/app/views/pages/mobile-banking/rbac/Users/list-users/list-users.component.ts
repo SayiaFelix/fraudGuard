@@ -78,6 +78,11 @@ meetingForm: FormGroup;
 weeklyForm: FormGroup;
 findingForm: FormGroup;
 
+  currentPage = 1;
+  pageSize = 10;
+  totalPages = 1;
+  filteredWorkflows: Workflow[] = [];
+
   searchTerm = '';
   departmentFilter = '';
   statusFilter = '';
@@ -205,6 +210,128 @@ ngOnInit(): void {
       this.loadUsers(); 
       this.loadAudits();
     
+  }
+
+  loadWorkflows(): void {
+  this.isLoading = true;
+  this.globalService.list().subscribe({
+    next: (res) => {
+      this.allWorkflows = res.map(w => ({ ...w, tasks: w.tasks || [] }))
+        .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
+      
+      this.applyFiltersAndPagination();
+      this.isLoading = false;
+    },
+    error: (err) => {
+      console.error('Failed to load workflows', err);
+      this.isLoading = false;
+    }
+  });
+}
+
+
+applyFiltersAndPagination(): void {
+  let list = [...this.allWorkflows]; 
+  
+  const search = this.searchTerm.trim().toLowerCase();
+
+  if (search) {
+    list = list.filter(w =>
+      (w.title || '').toLowerCase().includes(search) ||
+      (w.department || '').toLowerCase().includes(search) ||
+      (w.assignedTo || '').toLowerCase().includes(search)
+    );
+  }
+  
+  if (this.departmentFilter) {
+    list = list.filter(w => (w.department || '').toLowerCase().includes(this.departmentFilter.toLowerCase()));
+  }
+  
+  if (this.statusFilter) {
+    list = list.filter(w => (w.status || '').toLowerCase() === this.statusFilter.toLowerCase());
+  }
+  this.filteredWorkflows = list;
+
+  this.totalPages = Math.ceil(this.filteredWorkflows.length / this.pageSize);
+  
+  // Ensure current page is valid
+  if (this.currentPage > this.totalPages) {
+    this.currentPage = 1;
+  }
+  
+  const startIndex = (this.currentPage - 1) * this.pageSize;
+  const endIndex = startIndex + this.pageSize;
+  this.visibleWorkflows = this.filteredWorkflows.slice(startIndex, endIndex);
+}
+
+onPageJump(pageNumber: number): void {
+  if (pageNumber >= 1 && pageNumber <= this.totalPages) {
+    this.currentPage = pageNumber;
+    this.applyFiltersAndPagination();
+  }
+}
+
+  onPageSizeChange(): void {
+    this.currentPage = 1; 
+    this.applyFiltersAndPagination();
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.applyFiltersAndPagination();
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.applyFiltersAndPagination();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.applyFiltersAndPagination();
+    }
+  }
+
+  getPageNumbers(): number[] {
+    const pages: number[] = [];
+    const maxVisiblePages = 5;
+    
+    let startPage = Math.max(1, this.currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(this.totalPages, startPage + maxVisiblePages - 1);
+    
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+    
+    return pages;
+  }
+
+  getDisplayRange(): string {
+    const start = (this.currentPage - 1) * this.pageSize + 1;
+    const end = Math.min(this.currentPage * this.pageSize, this.filteredWorkflows.length);
+    return `${start}-${end}`;
+  }
+
+  loadMore(): void {
+    this.pageSize += 5;
+    this.applyFiltersAndPagination();
+  }
+
+  resetFilters(): void {
+    this.searchTerm = '';
+    this.departmentFilter = '';
+    this.statusFilter = '';
+    this.currentPage = 1;
+    this.applyFiltersAndPagination();
   }
 
 selectFieldworkTab(tab: string): void {
@@ -1179,57 +1306,9 @@ openFindingModal(): void {
 openTaskModal() { this.isTaskModalVisible = true; }
 closeTaskModal() { this.isTaskModalVisible = false; }
 
-loadWorkflows(): void {
-    this.isLoading = true;
-    this.globalService.list().subscribe({
-      next: (res) => {
-        // Ensure tasks array present
-        this.allWorkflows = res.map(w => ({ ...w, tasks: w.tasks || [] }));
-        this.applyFiltersAndPagination();
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error('Failed to load workflows', err);
-        this.isLoading = false;
-      }
-    });
-  }
-
-applyFiltersAndPagination(): void {
-    let list = [...this.allWorkflows];
-    const search = this.searchTerm.trim().toLowerCase();
-    if (search) {
-      list = list.filter(w =>
-        (w.title || '').toLowerCase().includes(search) ||
-        (w.department || '').toLowerCase().includes(search) ||
-        (w.assignedTo || '').toLowerCase().includes(search)
-      );
-    }
-    if (this.departmentFilter) {
-      list = list.filter(w => (w.department || '').toLowerCase().includes(this.departmentFilter.toLowerCase()));
-    }
-    if (this.statusFilter) {
-      list = list.filter(w => (w.status || '').toLowerCase() === this.statusFilter.toLowerCase());
-    }
-
-    this.visibleWorkflows = list.slice(0, this.recordsToShow);
-  }
-
 getFindingsForTask(taskId: number) {
   return this.selectedWorkflow?.miniFindings?.filter(f => f.taskId === taskId) || [];
 }
-
-loadMore(): void {
-    this.recordsToShow += 5;
-    this.applyFiltersAndPagination();
-  }
-
-resetFilters(): void {
-    this.searchTerm = '';
-    this.departmentFilter = '';
-    this.statusFilter = '';
-    this.applyFiltersAndPagination();
-  }
 
 getAuditPlanningTasks() {
   if (!this.selectedWorkflow) return [];
