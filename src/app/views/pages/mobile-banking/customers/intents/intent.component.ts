@@ -86,7 +86,15 @@ throw new Error('Method not implemented.');
    riskInterviewSummary: [''];
    scopingNotes: ['']
     private apiUrl = 'http://localhost:3000/audits';
-  
+    sortColumn = 'startDate'; 
+  sortDirection: 'asc' | 'desc' = 'desc'; 
+     currentPage = 1;
+  pageSize = 5;
+  totalPages = 1;
+  yearFilter = '';
+  uniqueDepartments: string[] = [];
+  uniqueYears: number[] = [];
+
     constructor(
       private fb: FormBuilder,
       private http: HttpClient,
@@ -118,6 +126,222 @@ ngOnInit(): void {
       }
     });
     }
+
+    
+loadAudits(): void {
+  this.isLoading = true;
+  this.http.get<any[]>(this.apiUrl).subscribe({
+    next: (audits) => {
+
+      this.allAudits = audits.map(audit => ({
+        ...audit,
+        sortDate: audit.createdAt || audit.startDate
+      }));
+      this.extractUniqueValues();
+      this.applyFiltersAndPagination();
+      this.isLoading = false;
+    },
+    error: () => {
+      this.toastr.error('Could not load audits from backend.', 'API Error');
+      this.isLoading = false;
+    }
+  });
+}
+
+// Helper method to get current date-time in the correct format for datetime-local input
+getCurrentDateTime(): string {
+  const now = new Date();
+  
+  const year = now.getFullYear();
+  const month = (now.getMonth() + 1).toString().padStart(2, '0');
+  const day = now.getDate().toString().padStart(2, '0');
+  const hours = now.getHours().toString().padStart(2, '0');
+  const minutes = now.getMinutes().toString().padStart(2, '0');
+  
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+isMeetingDateInvalid(): boolean {
+  if (!this.selectedAudit?.planningMeetingDate) {
+    return false;
+  }
+  
+  const meetingDate = new Date(this.selectedAudit.planningMeetingDate);
+  const now = new Date();
+  
+  return meetingDate < now;
+}
+
+validateMeetingDate(): void {
+  if (this.isMeetingDateInvalid()) {
+    this.toastr.warning('Meeting date cannot be in the past. Please select a future date.', 'Invalid Date');
+    
+    // Optionally clear the invalid date
+    // this.selectedAudit.planningMeetingDate = '';
+  }
+}
+
+private sortAudits(audits: any[]): any[] {
+  return audits.sort((a, b) => {
+    let aValue = a[this.sortColumn];
+    let bValue = b[this.sortColumn];
+
+    if (this.sortColumn.includes('Date') || this.sortColumn === 'startDate' || this.sortColumn === 'createdAt') {
+ 
+      if (!aValue && !bValue) return 0;
+      if (!aValue) return 1;
+      if (!bValue) return -1;
+      
+      aValue = new Date(aValue).getTime();
+      bValue = new Date(bValue).getTime();
+    }
+
+    // Handle string sorting
+    if (typeof aValue === 'string' && typeof bValue === 'string') {
+      aValue = aValue.toLowerCase();
+      bValue = bValue.toLowerCase();
+    }
+
+    if (aValue == null && bValue == null) return 0;
+    if (aValue == null) return 1;
+    if (bValue == null) return -1;
+
+    if (aValue < bValue) {
+      return this.sortDirection === 'asc' ? -1 : 1;
+    }
+    if (aValue > bValue) {
+      return this.sortDirection === 'asc' ? 1 : -1;
+    }
+    return 0;
+  });
+}
+
+resetToDefaultSort(): void {
+  this.sortColumn = 'startDate'; // or 'createdAt'
+  this.sortDirection = 'desc';
+  this.applyFiltersAndPagination();
+}
+
+
+private extractUniqueValues(): void {
+  this.uniqueDepartments = [...new Set(this.allAudits.map(audit => audit.department).filter(Boolean))].sort();
+  
+  // Extract unique years from start dates
+  const years = this.allAudits.map(audit => {
+    if (audit.startDate) {
+      return new Date(audit.startDate).getFullYear();
+    }
+    return null;
+  }).filter(year => year !== null) as number[];
+  
+  this.uniqueYears = [...new Set(years)].sort((a, b) => b - a); // Descending order
+}
+
+applyFiltersAndPagination(): void {
+  let audits = [...this.allAudits];
+
+  const search = this.searchTerm.trim().toLowerCase();
+  if (search) {
+    audits = audits.filter(a =>
+      a.title?.toLowerCase().includes(search) ||
+      a.department?.toLowerCase().includes(search) ||
+      a.status?.toLowerCase().includes(search)
+    );
+  }
+
+  // Apply department filter
+  if (this.departmentFilter) {
+    audits = audits.filter(a => a.department === this.departmentFilter);
+  }
+
+  // Apply status filter
+  if (this.statusFilter) {
+    audits = audits.filter(a => a.status === this.statusFilter);
+  }
+
+  // Apply year filter
+  if (this.yearFilter) {
+    audits = audits.filter(a => {
+      if (a.startDate) {
+        const year = new Date(a.startDate).getFullYear().toString();
+        return year === this.yearFilter;
+      }
+      return false;
+    });
+  }
+
+  // Apply sorting
+  audits = this.sortAudits(audits);
+
+  this.filteredAudits = audits;
+  this.totalPages = Math.ceil(this.filteredAudits.length / this.pageSize);
+  this.updateVisibleAudits();
+}
+
+// New sorting method
+sortBy(column: string): void {
+  if (this.sortColumn === column) {
+    this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+  } else {
+    this.sortColumn = column;
+    this.sortDirection = 'asc';
+  }
+  this.applyFiltersAndPagination();
+}
+
+updateVisibleAudits(): void {
+  const startIndex = (this.currentPage - 1) * this.pageSize;
+  const endIndex = startIndex + this.pageSize;
+  this.visibleAudits = this.filteredAudits.slice(startIndex, endIndex);
+}
+
+goToPage(page: number): void {
+  if (page >= 1 && page <= this.totalPages) {
+    this.currentPage = page;
+    this.updateVisibleAudits();
+  }
+}
+
+onPageSizeChange(): void {
+  this.currentPage = 1;
+  this.applyFiltersAndPagination();
+}
+
+getPaginationPages(): number[] {
+  const pages: number[] = [];
+  const maxVisiblePages = 5;
+  
+  let startPage = Math.max(1, this.currentPage - Math.floor(maxVisiblePages / 2));
+  let endPage = Math.min(this.totalPages, startPage + maxVisiblePages - 1);
+  
+  if (endPage - startPage + 1 < maxVisiblePages) {
+    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+  }
+  
+  for (let i = startPage; i <= endPage; i++) {
+    pages.push(i);
+  }
+  
+  return pages;
+}
+
+getEndIndex(): number {
+  return Math.min(this.currentPage * this.pageSize, this.filteredAudits.length);
+}
+
+hasActiveFilters(): boolean {
+  return !!(this.searchTerm || this.departmentFilter || this.statusFilter || this.yearFilter);
+}
+
+resetFilters(): void {
+  this.searchTerm = '';
+  this.departmentFilter = '';
+  this.statusFilter = '';
+  this.yearFilter = '';
+  this.currentPage = 1;
+  this.applyFiltersAndPagination();
+}
+
 
 
 updateTeam(index: number) {
@@ -330,6 +554,16 @@ getDocsByTab(tab: string) {
 savePlanning() {
   if (!this.selectedAudit) return;
 
+  if (this.selectedAudit.planningMeetingDate && this.isMeetingDateInvalid()) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Invalid Meeting Date',
+      text: 'Meeting date cannot be in the past. Please select a future date and time.',
+      confirmButtonText: 'OK'
+    });
+    return;
+  }
+
     const planningData = {
     ...this.selectedAudit,
       scheduleConfirmed: this.selectedAudit.scheduleConfirmed,
@@ -437,56 +671,7 @@ getFormErrors(): string[] {
       this.newLogisticsItem = ''; // reset input
     }
   }
-  
-  loadAudits(): void {
-      this.isLoading = true;
-      this.http.get<any[]>(this.apiUrl).subscribe({
-        next: (audits) => {
-          this.allAudits = audits;
-          this.applyFiltersAndPagination();
-          this.isLoading = false;
-        },
-        error: () => {
-          this.toastr.error('Could not load audits from backend.', 'API Error');
-          this.isLoading = false;
-        }
-      });
-    }
-  
-    applyFiltersAndPagination(): void {
-      let audits = [...this.allAudits];
-  
-      const search = this.searchTerm.trim().toLowerCase();
-      if (search) {
-        audits = audits.filter(a =>
-          a.title.toLowerCase().includes(search) ||
-          a.department.toLowerCase().includes(search) ||
-          a.status.toLowerCase().includes(search)
-        );
-      }
-  
-      if (this.departmentFilter) {
-        audits = audits.filter(a =>
-          a.department.toLowerCase().includes(this.departmentFilter.toLowerCase())
-        );
-      }
-  
-      if (this.statusFilter) {
-        audits = audits.filter(a =>
-          a.status.toLowerCase().includes(this.statusFilter.toLowerCase())
-        );
-      }
-  
-      this.filteredAudits = audits;
-      this.visibleAudits = this.filteredAudits.slice(0, this.recordsToShow);
-    }
-  
-    resetFilters(): void {
-      this.searchTerm = '';
-      this.departmentFilter = '';
-      this.statusFilter = '';
-      this.applyFiltersAndPagination();
-    }
+
   
     loadMoreAudits(): void {
       this.recordsToShow += 20;
