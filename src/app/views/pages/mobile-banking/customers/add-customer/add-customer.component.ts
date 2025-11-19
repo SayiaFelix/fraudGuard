@@ -29,6 +29,10 @@ export class AddCustomerComponent implements OnInit {
   recordsToShow = 20;
   isLoading = false;
 
+sortColumn = 'startDate'; 
+sortDirection: 'asc' | 'desc' = 'desc'; 
+
+
   // Filters
   searchTerm = '';
   departmentFilter = '';
@@ -41,14 +45,25 @@ currentYear = new Date().getFullYear();
   isAddAuditModalVisible = false;
   externalFiles: File[] = [];
   internalFiles: File[] = [];
+ // NEW: Users array for dropdown
+  users: any[] = [];
+  filteredUsers: any[] = [];
+
+  private apiUrl = 'http://localhost:3000/audits';
+  private usersUrl = 'http://localhost:3000/users';
 
   criteriaFiles: File[] = [];
   rcmFile: File | null = null;
   interviewSchedule: any[] = [];
   logisticsChecklist: any[] = [];
-riskInterviewSummary: [''];
-scopingNotes: ['']
-  private apiUrl = 'http://localhost:3000/audits';
+  riskInterviewSummary: [''];
+  scopingNotes: ['']
+  currentPage = 1;
+  pageSize = 5;
+  totalPages = 1;
+  yearFilter = '';
+  uniqueDepartments: string[] = [];
+  uniqueYears: number[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -59,9 +74,7 @@ scopingNotes: ['']
   ) {
 
       this.addAuditForm = this.fb.group({
-        // ----------------------------------
-        // BASIC DETAILS
-        // ----------------------------------
+    
         title: ['', Validators.required],
         scope: ['', Validators.required],
         department: ['', Validators.required],
@@ -71,8 +84,7 @@ scopingNotes: ['']
         auditYear: ['',[Validators.required,this.validateAuditYear.bind(this)]],
 
         auditPeriod: [''],
-
-        auditLead: [''],
+        auditLead: ['', Validators.required],
         auditMembers: [''],
         thirdPartyFirm: [''],
         thirdPartyContact: [''],
@@ -91,25 +103,242 @@ scopingNotes: ['']
 
   // NEW FIELD
   // scopingProgress: [''],
-});
+});}
 
-
-  }
-
-  ngOnInit(): void {
+ngOnInit(): void {
   const today = new Date();
   this.todayString = today.toISOString().split('T')[0];
   this.loadAudits();
-
+  this.loadUsers();
   
   this.addAuditForm.get('startDate')?.valueChanges.subscribe(start => {
     if (this.addAuditForm.get('endDate')?.value < start) {
-      this.addAuditForm.patchValue({ endDate: start }); 
+      this.addAuditForm.patchValue({ endDate: start });
     }
   });
+}
+
+
+loadAudits(): void {
+  this.isLoading = true;
+  this.http.get<any[]>(this.apiUrl).subscribe({
+    next: (audits) => {
+
+      this.allAudits = audits.map(audit => ({
+        ...audit,
+        sortDate: audit.createdAt || audit.startDate
+      }));
+      this.extractUniqueValues();
+      this.applyFiltersAndPagination();
+      this.isLoading = false;
+    },
+    error: () => {
+      this.toastr.error('Could not load audits from backend.', 'API Error');
+      this.isLoading = false;
+    }
+  });
+}
+
+private sortAudits(audits: any[]): any[] {
+  return audits.sort((a, b) => {
+    let aValue = a[this.sortColumn];
+    let bValue = b[this.sortColumn];
+
+    if (this.sortColumn.includes('Date') || this.sortColumn === 'startDate' || this.sortColumn === 'createdAt') {
+ 
+      if (!aValue && !bValue) return 0;
+      if (!aValue) return 1;
+      if (!bValue) return -1;
+      
+      aValue = new Date(aValue).getTime();
+      bValue = new Date(bValue).getTime();
+    }
+
+    // Handle string sorting
+    if (typeof aValue === 'string' && typeof bValue === 'string') {
+      aValue = aValue.toLowerCase();
+      bValue = bValue.toLowerCase();
+    }
+
+    if (aValue == null && bValue == null) return 0;
+    if (aValue == null) return 1;
+    if (bValue == null) return -1;
+
+    if (aValue < bValue) {
+      return this.sortDirection === 'asc' ? -1 : 1;
+    }
+    if (aValue > bValue) {
+      return this.sortDirection === 'asc' ? 1 : -1;
+    }
+    return 0;
+  });
+}
+
+resetToDefaultSort(): void {
+  this.sortColumn = 'startDate'; // or 'createdAt'
+  this.sortDirection = 'desc';
+  this.applyFiltersAndPagination();
+}
+
+
+private extractUniqueValues(): void {
+  this.uniqueDepartments = [...new Set(this.allAudits.map(audit => audit.department).filter(Boolean))].sort();
+  
+  // Extract unique years from start dates
+  const years = this.allAudits.map(audit => {
+    if (audit.startDate) {
+      return new Date(audit.startDate).getFullYear();
+    }
+    return null;
+  }).filter(year => year !== null) as number[];
+  
+  this.uniqueYears = [...new Set(years)].sort((a, b) => b - a); // Descending order
+}
+
+applyFiltersAndPagination(): void {
+  let audits = [...this.allAudits];
+
+  const search = this.searchTerm.trim().toLowerCase();
+  if (search) {
+    audits = audits.filter(a =>
+      a.title?.toLowerCase().includes(search) ||
+      a.department?.toLowerCase().includes(search) ||
+      a.status?.toLowerCase().includes(search)
+    );
   }
 
-// Open/Close Modals
+  // Apply department filter
+  if (this.departmentFilter) {
+    audits = audits.filter(a => a.department === this.departmentFilter);
+  }
+
+  // Apply status filter
+  if (this.statusFilter) {
+    audits = audits.filter(a => a.status === this.statusFilter);
+  }
+
+  // Apply year filter
+  if (this.yearFilter) {
+    audits = audits.filter(a => {
+      if (a.startDate) {
+        const year = new Date(a.startDate).getFullYear().toString();
+        return year === this.yearFilter;
+      }
+      return false;
+    });
+  }
+
+  // Apply sorting
+  audits = this.sortAudits(audits);
+
+  this.filteredAudits = audits;
+  this.totalPages = Math.ceil(this.filteredAudits.length / this.pageSize);
+  this.updateVisibleAudits();
+}
+
+// New sorting method
+sortBy(column: string): void {
+  if (this.sortColumn === column) {
+    this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+  } else {
+    this.sortColumn = column;
+    this.sortDirection = 'asc';
+  }
+  this.applyFiltersAndPagination();
+}
+
+updateVisibleAudits(): void {
+  const startIndex = (this.currentPage - 1) * this.pageSize;
+  const endIndex = startIndex + this.pageSize;
+  this.visibleAudits = this.filteredAudits.slice(startIndex, endIndex);
+}
+
+goToPage(page: number): void {
+  if (page >= 1 && page <= this.totalPages) {
+    this.currentPage = page;
+    this.updateVisibleAudits();
+  }
+}
+
+onPageSizeChange(): void {
+  this.currentPage = 1;
+  this.applyFiltersAndPagination();
+}
+
+getPaginationPages(): number[] {
+  const pages: number[] = [];
+  const maxVisiblePages = 5;
+  
+  let startPage = Math.max(1, this.currentPage - Math.floor(maxVisiblePages / 2));
+  let endPage = Math.min(this.totalPages, startPage + maxVisiblePages - 1);
+  
+  if (endPage - startPage + 1 < maxVisiblePages) {
+    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+  }
+  
+  for (let i = startPage; i <= endPage; i++) {
+    pages.push(i);
+  }
+  
+  return pages;
+}
+
+getEndIndex(): number {
+  return Math.min(this.currentPage * this.pageSize, this.filteredAudits.length);
+}
+
+hasActiveFilters(): boolean {
+  return !!(this.searchTerm || this.departmentFilter || this.statusFilter || this.yearFilter);
+}
+
+resetFilters(): void {
+  this.searchTerm = '';
+  this.departmentFilter = '';
+  this.statusFilter = '';
+  this.yearFilter = '';
+  this.currentPage = 1;
+  this.applyFiltersAndPagination();
+}
+
+loadUsers(): void {
+  this.http.get<any[]>(this.usersUrl).subscribe({
+    next: (users) => {
+      this.users = users;
+      this.filteredUsers = users;
+      console.log('Users loaded:', this.users);
+    },
+    error: (error) => {
+      console.error('Error loading users:', error);
+      this.toastr.error('Failed to load users');
+    }
+  });
+}
+
+filterUsers(searchTerm: string): void {
+  if (!searchTerm) {
+    this.filteredUsers = this.users;
+    return;
+  }
+  
+  const search = searchTerm.toLowerCase();
+  this.filteredUsers = this.users.filter(user => 
+    user.username?.toLowerCase().includes(search) ||
+    user.email?.toLowerCase().includes(search) ||
+    user.role?.toLowerCase().includes(search)
+  );
+}
+
+getAuditLeadDisplayName(userId: string): string {
+  if (!userId) return 'Not assigned';
+  
+  const user = this.users.find(u => u.id === userId || u.id === parseInt(userId));
+  return user ? `${user.username} (${user.email}) - ${user.role}` : 'Unknown user';
+}
+
+getUserById(userId: string): any {
+  return this.users.find(u => u.id === userId || u.id === parseInt(userId));
+}
+
 openInterviewModal() {
   const modal = document.getElementById('interviewModal');
   modal?.classList.add('show');
@@ -192,55 +421,9 @@ saveLogisticsChecklist() {
 }
 
 
-  loadAudits(): void {
-    this.isLoading = true;
-    this.http.get<any[]>(this.apiUrl).subscribe({
-      next: (audits) => {
-        this.allAudits = audits;
-        this.applyFiltersAndPagination();
-        this.isLoading = false;
-      },
-      error: () => {
-        this.toastr.error('Could not load audits from backend.', 'API Error');
-        this.isLoading = false;
-      }
-    });
-  }
 
-  applyFiltersAndPagination(): void {
-    let audits = [...this.allAudits];
 
-    const search = this.searchTerm.trim().toLowerCase();
-    if (search) {
-      audits = audits.filter(a =>
-        a.title.toLowerCase().includes(search) ||
-        a.department.toLowerCase().includes(search) ||
-        a.status.toLowerCase().includes(search)
-      );
-    }
 
-    if (this.departmentFilter) {
-      audits = audits.filter(a =>
-        a.department.toLowerCase().includes(this.departmentFilter.toLowerCase())
-      );
-    }
-
-    if (this.statusFilter) {
-      audits = audits.filter(a =>
-        a.status.toLowerCase().includes(this.statusFilter.toLowerCase())
-      );
-    }
-
-    this.filteredAudits = audits;
-    this.visibleAudits = this.filteredAudits.slice(0, this.recordsToShow);
-  }
-
-  resetFilters(): void {
-    this.searchTerm = '';
-    this.departmentFilter = '';
-    this.statusFilter = '';
-    this.applyFiltersAndPagination();
-  }
 
   loadMoreAudits(): void {
     this.recordsToShow += 20;
@@ -419,13 +602,17 @@ saveLogisticsChecklist() {
             error: (err) => console.error('Failed to create inbox notification:', err)
           });
 
+          const auditLeadUser = this.getUserById(createdAudit.auditLead);
           const workflowPayload = {
             id: createdAudit.id,
             auditId: createdAudit.id,
             title: `${createdAudit.title} Workflow`,
             scope: createdAudit.scope,
             department: createdAudit.department,
-            assignedTo: '',
+            assignedTo: auditLeadUser ? auditLeadUser.username : createdAudit.auditLead,
+            assignedToId: createdAudit.auditLead, 
+            auditLeadId: createdAudit.auditLead, // Store user ID
+            auditMembers: createdAudit.auditMembers,
             status: createdAudit.status === 'Planned' ? 'Not Started' : createdAudit.status,
             startDate: createdAudit.startDate,
             dueDate: createdAudit.endDate,

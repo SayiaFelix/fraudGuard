@@ -498,43 +498,111 @@ refresh(): void {
 private processPriorityAlerts(workflows: any[], audits: any[]): void {
   this.priorityAlerts = [];
   const today = new Date();
+  today.setHours(0, 0, 0, 0); // Normalize to start of day
 
-  // Include High severity findings too (not just Critical)
+  console.log('🔍 Processing priority alerts...');
+  console.log('Today:', today.toISOString().split('T')[0]);
+
+  // Process Critical/High findings from workflows
   workflows.forEach((workflow: any) => {
     if (workflow.fieldwork?.preClosing) {
       workflow.fieldwork.preClosing.filter((f: any) => 
         f.severity === 'Critical' || f.severity === 'High'
       ).forEach((finding: any) => {
+        // Calculate actual days left based on workflow due date
+        let daysLeft = 0;
+        let dueDate = 'Not set';
+        
+        if (workflow.dueDate) {
+          try {
+            const due = new Date(workflow.dueDate);
+            due.setHours(0, 0, 0, 0);
+            daysLeft = Math.floor((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+            dueDate = workflow.dueDate;
+            
+            console.log(`📅 Finding: ${finding.title}, Due: ${dueDate}, Days Left: ${daysLeft}`);
+          } catch (error) {
+            console.error('Invalid due date:', workflow.dueDate);
+          }
+        }
+
         this.priorityAlerts.push({
           id: finding.id,
           title: `${finding.severity} Finding: ${finding.title}`,
           severity: finding.severity as any,
           department: workflow.department,
-          dueDate: workflow.dueDate || 'Not set',
-          daysLeft: 0,
+          dueDate: dueDate,
+          daysLeft: daysLeft, // Now calculated properly
           type: 'finding'
         });
       });
     }
   });
 
+  // Add overdue audits as priority alerts
+  audits.forEach((audit: any) => {
+    const deadlineDate = audit.endDate || audit.dueDate;
+    if (!deadlineDate) return;
+    
+    try {
+      const dueDate = new Date(deadlineDate);
+      dueDate.setHours(0, 0, 0, 0);
+      const daysLeft = Math.floor((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      
+      // Include overdue audits or audits due within 3 days
+      if (daysLeft < 3 && audit.status !== 'Completed') {
+        this.priorityAlerts.push({
+          id: audit.id,
+          title: `Audit Deadline: ${audit.title}`,
+          severity: daysLeft < 0 ? 'Critical' : 'High',
+          department: audit.department,
+          dueDate: deadlineDate,
+          daysLeft: daysLeft,
+          type: 'audit'
+        });
+        
+        console.log(`⚠️ Audit Alert: ${audit.title}, Due: ${deadlineDate}, Days: ${daysLeft}`);
+      }
+    } catch (error) {
+      console.error('Invalid audit date:', deadlineDate);
+    }
+  });
+
   // If still no alerts, create a sample for demonstration
   if (this.priorityAlerts.length === 0) {
+    const sampleDueDate = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
     this.priorityAlerts.push({
       id: 'sample-1',
       title: 'Sample: Review quarterly audit findings',
       severity: 'High',
       department: 'Finance',
-      dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 2 days from now
+      dueDate: sampleDueDate.toISOString().split('T')[0],
       daysLeft: 2,
       type: 'audit'
     });
   }
 
+  // Sort by severity and days left (most critical first)
   this.priorityAlerts.sort((a, b) => {
     const severityOrder: any = { 'Critical': 3, 'High': 2, 'Medium': 1 };
-    return severityOrder[b.severity] - severityOrder[a.severity] || a.daysLeft - b.daysLeft;
+    const severityDiff = severityOrder[b.severity] - severityOrder[a.severity];
+    
+    if (severityDiff !== 0) return severityDiff;
+    
+    // If same severity, sort by days left (soonest/overdue first)
+    return a.daysLeft - b.daysLeft;
   });
+
+  console.log(`📊 Total priority alerts: ${this.priorityAlerts.length}`);
+}
+
+// Add this method to your component class
+getDisplayDays(daysLeft: number): string {
+  if (daysLeft < 0) {
+    return Math.abs(daysLeft) + ' days overdue';
+  } else {
+    return daysLeft + ' days left';
+  }
 }
 
 private processUpcomingDeadlines(workflows: any[], audits: any[]): void {
@@ -1002,12 +1070,12 @@ private processAuditStatus(audits: any[]): any {
     XLSX.writeFile(wb, `department-performance-${new Date().toISOString().slice(0,10)}.xlsx`);
   }
 
-  // View methods
   viewAlert(alert: PriorityAlert): void {
     Swal.fire({
       title: alert.title,
       html: `
         <div class="text-start">
+          <hr>
           <p><strong>Severity:</strong> <span class="badge bg-${alert.severity === 'Critical' ? 'danger' : alert.severity === 'High' ? 'warning' : 'info'}">${alert.severity}</span></p>
           <p><strong>Department:</strong> ${alert.department}</p>
           <p><strong>Due Date:</strong> ${alert.dueDate}</p>
@@ -1015,7 +1083,7 @@ private processAuditStatus(audits: any[]): any {
         </div>
       `,
       icon: 'warning',
-      confirmButtonText: 'View Details'
+      confirmButtonText: 'Close'
     });
   }
 
