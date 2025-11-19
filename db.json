@@ -366,35 +366,122 @@
       "id": "0351"
     },
     {
-      "title": "regwge",
-      "scope": "weggewew",
-      "department": "ewgewgew",
+      "id": "1e42",
+      "title": "rgregr",
+      "scope": "regre",
+      "department": "gregre",
       "status": "Planned",
       "startDate": "2025-11-19",
-      "endDate": "2025-11-21",
+      "endDate": "2025-11-27",
       "auditYear": 2025,
       "auditPeriod": "Q3",
-      "auditLead": "efwegf",
-      "auditMembers": "efewf,efe",
-      "thirdPartyFirm": null,
-      "thirdPartyContact": null,
-      "clientConfirmation": null,
+      "auditLead": "gregre",
+      "auditMembers": "grrreg,rgeg,regre",
+      "thirdPartyFirm": "gregre",
+      "thirdPartyContact": "greg",
+      "clientConfirmation": "Pending",
       "confirmationDate": null,
-      "unitOrientation": "fewwefe",
-      "backgroundSummary": "fewwe",
+      "unitOrientation": "gregfe",
+      "backgroundSummary": "ewrewr",
       "riskRating": "Medium",
-      "riskRationale": "fewwe",
-      "riskSummary": "fewfew",
-      "kickoffDate": "2025-11-18",
-      "planningMemo": "feewfew",
-      "riskInterviewSummary": "fewf",
-      "interviewSchedule": [],
-      "logisticsChecklist": [],
-      "externalFiles": [],
-      "internalFiles": [],
-      "criteriaFiles": [],
-      "rcmFile": null,
-      "id": "11ca"
+      "riskRationale": "ewwerew",
+      "riskSummary": "ewwerwe",
+      "kickoffDate": "2025-11-20",
+      "planningMemo": "werwer",
+      "riskInterviewSummary": "ewrwe",
+      "interviewSchedule": [
+        {
+          "name": "ewrwer",
+          "department": "rewewr",
+          "date": "2025-11-21",
+          "notes": "rewreww"
+        },
+        {
+          "name": "",
+          "department": "",
+          "date": "",
+          "notes": ""
+        }
+      ],
+      "logisticsChecklist": [
+        {
+          "name": "rweweew",
+          "completed": false
+        },
+        {
+          "name": "werwe",
+          "completed": false
+        }
+      ],
+      "externalFiles": [
+        {}
+      ],
+      "internalFiles": [
+        {}
+      ],
+      "criteriaFiles": [
+        {}
+      ],
+      "rcmFile": {}
+    },
+    {
+      "id": "3fee",
+      "title": "efewewrewrwerewrewrew",
+      "scope": "erewrewewr",
+      "department": "rerewrwe",
+      "status": "Planned",
+      "startDate": "2025-11-20",
+      "endDate": "2025-11-26",
+      "auditYear": 2025,
+      "auditPeriod": "Q4",
+      "auditLead": "2",
+      "auditMembers": "sdgds,gdsdsg",
+      "thirdPartyFirm": "dsgsdgg",
+      "thirdPartyContact": "fdgdfg",
+      "clientConfirmation": "Pending",
+      "confirmationDate": null,
+      "unitOrientation": "sdgdsgsd",
+      "backgroundSummary": "gsddsgdsg",
+      "riskRating": "Medium",
+      "riskRationale": "sdgsdgds",
+      "riskSummary": "sdgsdgsdg",
+      "kickoffDate": "2025-11-20",
+      "planningMemo": "gdsgdsg",
+      "riskInterviewSummary": "dsgdsgds",
+      "interviewSchedule": [
+        {
+          "name": "dsgds",
+          "department": "dgssd",
+          "date": "2025-11-20",
+          "notes": "dsgds"
+        },
+        {
+          "name": "",
+          "department": "",
+          "date": "",
+          "notes": ""
+        }
+      ],
+      "logisticsChecklist": [
+        {
+          "name": "sdgsds",
+          "completed": false
+        },
+        {
+          "name": "gdssdgsd",
+          "completed": false
+        }
+      ],
+      "externalFiles": [
+        {}
+      ],
+      "internalFiles": [
+        {}
+      ],
+      "criteriaFiles": [
+        {}
+      ],
+      "rcmFile": {}
     }
   ],
   "workflows": [
@@ -1019,6 +1106,35 @@
       "riskSummary": "retre",
       "kickoffDate": "2025-11-19",
       "planningMemo": "retret"
+    },
+    {
+      "id": "1e42",
+      "auditId": "1e42",
+      "title": "rgregr Workflow",
+      "scope": "regre",
+      "department": "gregre",
+      "assignedTo": "",
+      "status": "Not Started",
+      "startDate": "2025-11-19",
+      "dueDate": "2025-11-27",
+      "tasks": [],
+      "miniFindings": []
+    },
+    {
+      "id": "3fee",
+      "auditId": "3fee",
+      "title": "efewewrewrwerewrewrew Workflow",
+      "scope": "erewrewewr",
+      "department": "rerewrwe",
+      "assignedTo": "cia1",
+      "assignedToId": "2",
+      "auditLeadId": "2",
+      "auditMembers": "sdgds,gdsdsg",
+      "status": "Not Started",
+      "startDate": "2025-11-20",
+      "dueDate": "2025-11-26",
+      "tasks": [],
+      "miniFindings": []
     }
   ],
   "observations": [
@@ -2998,6 +3114,42 @@
         "auditId": "0351",
         "auditUnit": "fdffddfvgg",
         "startDate": "2025-11-14",
+        "dueDate": "2025-11-26",
+        "status": "Planned"
+      }
+    },
+    {
+      "id": "34df",
+      "role": "Auditor",
+      "type": "assignment",
+      "title": "New Audit Assigned",
+      "from": "System (via CIA)",
+      "summary": "You have been assigned to the new audit: \"rgregr\".",
+      "isRead": false,
+      "timestamp": "2025-11-19T06:19:19.577Z",
+      "details": {
+        "subject": "New Assignment: rgregr",
+        "auditId": "1e42",
+        "auditUnit": "gregre",
+        "startDate": "2025-11-19",
+        "dueDate": "2025-11-27",
+        "status": "Planned"
+      }
+    },
+    {
+      "id": "9072",
+      "role": "Auditor",
+      "type": "assignment",
+      "title": "New Audit Assigned",
+      "from": "System (via CIA)",
+      "summary": "You have been assigned to the new audit: \"efewewrewrwerewrewrew\".",
+      "isRead": false,
+      "timestamp": "2025-11-19T06:48:48.443Z",
+      "details": {
+        "subject": "New Assignment: efewewrewrwerewrewrew",
+        "auditId": "3fee",
+        "auditUnit": "rerewrwe",
+        "startDate": "2025-11-20",
         "dueDate": "2025-11-26",
         "status": "Planned"
       }
