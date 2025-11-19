@@ -100,9 +100,6 @@ currentYear = new Date().getFullYear();
         kickoffDate: [''],
         planningMemo: [''],
         riskInterviewSummary: [''],
-
-  // NEW FIELD
-  // scopingProgress: [''],
 });}
 
 ngOnInit(): void {
@@ -114,6 +111,227 @@ ngOnInit(): void {
   this.addAuditForm.get('startDate')?.valueChanges.subscribe(start => {
     if (this.addAuditForm.get('endDate')?.value < start) {
       this.addAuditForm.patchValue({ endDate: start });
+    }
+  });
+}
+
+getCompletedLogisticsCount(audit: any): number {
+  if (!audit?.logisticsChecklist) return 0;
+  return audit.logisticsChecklist.filter((item: any) => item.completed).length;
+}
+
+getLogisticsProgress(audit: any): number {
+  if (!audit?.logisticsChecklist || audit.logisticsChecklist.length === 0) return 0;
+  const completed = this.getCompletedLogisticsCount(audit);
+  return Math.round((completed / audit.logisticsChecklist.length) * 100);
+}
+
+
+completeAllLogistics(audit: any): void {
+  Swal.fire({
+    title: 'Complete All Items?',
+    text: 'This will mark all logistics items as completed.',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, complete all',
+    cancelButtonText: 'Cancel'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      this.proceedWithCompleteAll(audit);
+    }
+  });
+}
+
+private proceedWithCompleteAll(audit: any): void {
+  if (!audit?.logisticsChecklist) return;
+  
+  const updatedChecklist = audit.logisticsChecklist.map((item: any) => ({
+    ...item,
+    completed: true
+  }));
+  
+  this.updateAuditChecklist(audit, updatedChecklist, 'All items marked as completed');
+}
+
+markAllPending(audit: any): void {
+  Swal.fire({
+    title: 'Mark All as Pending?',
+    text: 'This will reset all items to pending status.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, mark all pending',
+    cancelButtonText: 'Cancel'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      this.proceedWithMarkAllPending(audit);
+    }
+  });
+}
+
+private proceedWithMarkAllPending(audit: any): void {
+  if (!audit?.logisticsChecklist) return;
+  
+  const updatedChecklist = audit.logisticsChecklist.map((item: any) => ({
+    ...item,
+    completed: false
+  }));
+  
+  this.updateAuditChecklist(audit, updatedChecklist, 'All items marked as pending');
+}
+
+completeByCategory(audit: any, category: string): void {
+  if (!audit?.logisticsChecklist) return;
+  
+  const updatedChecklist = audit.logisticsChecklist.map((item: any) => ({
+    ...item,
+    completed: item.category === category ? true : item.completed
+  }));
+  
+  this.updateAuditChecklist(audit, updatedChecklist, `${category} items completed`);
+}
+
+private updateAuditChecklist(audit: any, updatedChecklist: any[], message?: string): void {
+  const updatedAudit = {
+    ...audit,
+    logisticsChecklist: updatedChecklist
+  };
+
+  this.http.put(`${this.apiUrl}/${audit.id}`, updatedAudit).subscribe({
+    next: () => {
+      // Update local state
+      const auditIndex = this.allAudits.findIndex(a => a.id === audit.id);
+      if (auditIndex > -1) {
+        this.allAudits[auditIndex] = updatedAudit;
+      }
+      
+      if (this.selectedAudit?.id === audit.id) {
+        this.selectedAudit = updatedAudit;
+      }
+      
+      this.toastr.success(message || 'Checklist updated successfully');
+      this.applyFiltersAndPagination();
+    },
+    error: (error) => {
+      this.toastr.error('Failed to update checklist', 'Error');
+      console.error('Error updating checklist:', error);
+    }
+  });
+}
+
+private mergeLogisticsChecklist(): any[] {
+  if (!this.selectedAudit) {
+    return this.logisticsChecklist;
+  }
+
+  const existingLogistics = this.selectedAudit.logisticsChecklist || [];
+  const newLogistics = this.logisticsChecklist || [];
+  
+  const logisticsMap = new Map();
+  
+  existingLogistics.forEach((item: { name: any; }) => {
+    logisticsMap.set(item.name, { ...item });
+  });
+  
+  newLogistics.forEach(newItem => {
+    if (logisticsMap.has(newItem.name)) {
+      const existingItem = logisticsMap.get(newItem.name);
+      logisticsMap.set(newItem.name, {
+        ...newItem,
+        completed: existingItem.completed
+      });
+    } else {
+      // New item, add it
+      logisticsMap.set(newItem.name, { ...newItem });
+    }
+  });
+  
+  return Array.from(logisticsMap.values());
+}
+
+openLogisticsModal() {
+  if (this.selectedAudit?.logisticsChecklist) {
+    const existingNames = new Set(this.logisticsChecklist.map(item => item.name));
+    const additionalItems = this.selectedAudit.logisticsChecklist.filter(
+      (      item: { name: any; }) => !existingNames.has(item.name)
+    );
+    this.logisticsChecklist = [...this.logisticsChecklist, ...additionalItems];
+  }
+  
+  const modal = document.getElementById('logisticsModal');
+  modal?.classList.add('show');
+  modal?.setAttribute('style', 'display:block; background: rgba(0,0,0,0.5)');
+}
+
+isExistingLogisticsItem(item: any): boolean {
+  if (!this.selectedAudit?.logisticsChecklist) return false;
+  
+  return this.selectedAudit.logisticsChecklist.some(
+    (    existingItem: { name: any; }) => existingItem.name === item.name
+  );
+}
+
+removeLogisticsItem(index: number): void {
+  const item = this.logisticsChecklist[index];
+  this.logisticsChecklist.splice(index, 1);
+  
+  this.toastr.info(`"${item.name}" removed from editing session`, 'Item Removed');
+}
+
+addLogisticsItem() {
+  if (this.newLogisticsItem?.trim()) {
+    const newItem = { 
+      name: this.newLogisticsItem.trim(), 
+      completed: false 
+    };
+    
+    const exists = this.logisticsChecklist.some(item => 
+      item.name.toLowerCase() === newItem.name.toLowerCase()
+    );
+    
+    if (!exists) {
+      this.logisticsChecklist.push(newItem);
+      this.newLogisticsItem = '';
+    } else {
+      this.toastr.warning('This item already exists in the checklist', 'Duplicate Item');
+    }
+  }
+}
+
+toggleLogisticsItem(audit: any, item: any, event: any): void {
+  const previousStatus = item.completed;
+  item.completed = event.target.checked;
+  this.updateSingleLogisticsItem(audit, item, previousStatus);
+}
+
+private updateSingleLogisticsItem(audit: any, updatedItem: any, previousStatus: boolean): void {
+  const updatedChecklist = audit.logisticsChecklist.map((item: any) => 
+    item.name === updatedItem.name ? updatedItem : item
+  );
+
+  const updatedAudit = {
+    ...audit,
+    logisticsChecklist: updatedChecklist
+  };
+
+  this.http.put(`${this.apiUrl}/${audit.id}`, updatedAudit).subscribe({
+    next: () => {
+      const auditIndex = this.allAudits.findIndex(a => a.id === audit.id);
+      if (auditIndex > -1) {
+        this.allAudits[auditIndex] = updatedAudit;
+      }
+      
+      if (this.selectedAudit?.id === audit.id) {
+        this.selectedAudit = updatedAudit;
+      }
+      
+      const action = updatedItem.completed ? 'completed' : 'marked as pending';
+      this.toastr.success(`"${updatedItem.name}" ${action}`, 'Checklist Updated');
+      this.applyFiltersAndPagination();
+    },
+    error: (error) => {
+      updatedItem.completed = previousStatus;
+      this.toastr.error('Failed to update checklist item', 'Error');
+      console.error('Error updating logistics item:', error);
     }
   });
 }
@@ -236,7 +454,6 @@ applyFiltersAndPagination(): void {
   this.updateVisibleAudits();
 }
 
-// New sorting method
 sortBy(column: string): void {
   if (this.sortColumn === column) {
     this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
@@ -382,12 +599,6 @@ getFormErrors(): string[] {
   return errors;
 }
 
-openLogisticsModal() {
-  const modal = document.getElementById('logisticsModal');
-  modal?.classList.add('show');
-  modal?.setAttribute('style', 'display:block; background: rgba(0,0,0,0.5)');
-}
-
 closeLogisticsModal() {
   const modal = document.getElementById('logisticsModal');
   modal?.classList.remove('show');
@@ -407,13 +618,6 @@ saveInterviewSchedule() {
   this.closeInterviewModal();
 }
 newLogisticsItem: string = '';
-
-addLogisticsItem() {
-  if (this.newLogisticsItem?.trim()) {
-    this.logisticsChecklist.push({ name: this.newLogisticsItem.trim(), completed: false });
-    this.newLogisticsItem = ''; // reset input
-  }
-}
 
 saveLogisticsChecklist() {
   console.log('Saved Logistics Checklist:', this.logisticsChecklist);
@@ -509,7 +713,8 @@ saveLogisticsChecklist() {
     const formData = {
       ...this.addAuditForm.getRawValue(),
       interviewSchedule: this.interviewSchedule,
-      logisticsChecklist: this.logisticsChecklist,
+      logisticsChecklist: this.mergeLogisticsChecklist(),
+      // logisticsChecklist: this.logisticsChecklist,
       externalFiles: this.externalFiles,
       internalFiles: this.internalFiles,
       criteriaFiles: this.criteriaFiles,

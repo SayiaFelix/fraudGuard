@@ -201,203 +201,323 @@
         </div>
       </div>
 
-      <div class="col-lg-4 col-md-5 border-start shadow-lg card details-panel"
-          *ngIf="isDetailsPanelVisible">
-        
-        <div class="p-3 card-header bg-light text-dark">
-          <div class="d-flex justify-content-between align-items-start">
-            <div class="flex-grow-1">
-              <h3 class="mb-1 fw-bold">
-                <i class="fas fa-clipboard-check me-2"></i>Audit Overview
-              </h3>
-              <h5 class="mb-0 opacity-90">{{ selectedAudit?.title }}</h5>
+
+    <div class="col-lg-4 col-md-5 border-start shadow-lg card details-panel"
+      *ngIf="isDetailsPanelVisible">
+    
+    <div class="p-3 card-header bg-light text-dark">
+      <div class="d-flex justify-content-between align-items-start">
+        <div class="flex-grow-1">
+          <h3 class="mb-1 fw-bold">
+            <i class="fas fa-clipboard-check text-primary me-2"></i>Audit Overview
+          </h3>
+          <h4 class="mb-0 opacity-90">{{ selectedAudit?.title }}</h4>
+        </div>
+        <button class="btn btn-sm btn-light btn-circle" (click)="hideAuditDetails()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="p-3" style="max-height: 70vh; overflow-y: auto;">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-light py-2">
+          <h4 class="mb-0 fw-bold text-dark">
+            <i class="fas fa-info-circle me-2 text-primary"></i>Basic Information
+          </h4>
+        </div>
+        <div class="card-body p-3">
+          <div class="row g-2">
+            <div class="col-12">
+              <label class="small text-muted mb-1">Department</label>
+              <p class="mb-2 fw-semibold">{{ selectedAudit?.department || 'Not specified' }}</p>
             </div>
-            <button class="btn btn-sm btn-light btn-circle" (click)="hideAuditDetails()">
-              <i class="fas fa-times"></i>
-            </button>
+            <div class="col-6">
+              <label class="small text-muted mb-1">Status</label>
+              <div class="mb-2">
+                <span class="badge px-2 py-1"
+                      [ngClass]="{
+                        'bg-secondary': selectedAudit?.status === 'Planned',
+                        'bg-warning text-dark': selectedAudit?.status === 'In Progress',
+                        'bg-success': selectedAudit?.status === 'Completed'
+                      }">
+                  {{ selectedAudit?.status }}
+                </span>
+              </div>
+            </div>
+            <div class="col-6">
+              <label class="small text-muted mb-1">Audit Year</label>
+              <p class="mb-2 fw-semibold">{{ selectedAudit?.auditYear || 'Not specified' }}</p>
+            </div>
+            <div class="col-12">
+              <label class="small text-muted mb-1">Timeline</label>
+              <p class="mb-0 fw-semibold small">
+                {{ selectedAudit?.startDate || 'Not set' }} 
+                <i class="fas fa-arrow-right mx-2 text-muted"></i>
+                {{ selectedAudit?.endDate || 'Not set' }}
+              </p>
+            </div>
           </div>
         </div>
+      </div>
 
-        <!-- Content -->
-        <div class="p-3" style="max-height: 70vh; overflow-y: auto;">
-          <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-light py-2">
-              <h4 class="mb-0 fw-bold text-dark">
-                <i class="fas fa-info-circle me-2 text-primary"></i>Basic Information
-              </h4>
-            </div>
-            <div class="card-body p-3">
-              <div class="row g-2">
-                <div class="col-12">
-                  <label class="small text-muted mb-1">Department</label>
-                  <p class="mb-2 fw-semibold">{{ selectedAudit?.department || 'Not specified' }}</p>
-                </div>
-                <div class="col-6">
-                  <label class="small text-muted mb-1">Status</label>
-                  <div class="mb-2">
-                    <span class="badge px-2 py-1"
-                          [ngClass]="{
-                            'bg-secondary': selectedAudit?.status === 'Planned',
-                            'bg-warning text-dark': selectedAudit?.status === 'In Progress',
-                            'bg-success': selectedAudit?.status === 'Completed'
-                          }">
-                      {{ selectedAudit?.status }}
-                    </span>
-                  </div>
-                </div>
-                <div class="col-6">
-                  <label class="small text-muted mb-1">Audit Year</label>
-                  <p class="mb-2 fw-semibold">{{ selectedAudit?.auditYear || 'Not specified' }}</p>
-                </div>
-                <div class="col-12">
-                  <label class="small text-muted mb-1">Timeline</label>
-                  <p class="mb-0 fw-semibold small">
-                    {{ selectedAudit?.startDate || 'Not set' }} 
-                    <i class="fas fa-arrow-right mx-2 text-muted"></i>
-                    {{ selectedAudit?.endDate || 'Not set' }}
-                  </p>
-                </div>
+      <!-- Scope Card -->
+      <div class="card border-0 shadow-sm mb-4" *ngIf="selectedAudit?.scope">
+        <div class="card-header bg-light py-2">
+          <h4 class="mb-0 fw-bold text-dark">
+            <i class="fas fa-bullseye me-2 text-success"></i>Scope
+          </h4>
+        </div>
+        <div class="card-body p-3">
+          <p class="mb-0 text-dark">{{ selectedAudit?.scope }}</p>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm mb-4" *ngIf="selectedAudit?.interviewSchedule?.length > 0">
+        <div class="card-header bg-light py-2">
+          <h4 class="mb-0 fw-bold text-dark">
+            <i class="fas fa-calendar-alt me-2 text-info"></i>Interview Schedule
+            <span class="badge bg-primary ms-2">{{ selectedAudit?.interviewSchedule?.length }}</span>
+          </h4>
+        </div>
+        <div class="card-body p-3">
+          <div class="interview-list">
+            <div *ngFor="let interview of selectedAudit.interviewSchedule; let i = index" 
+                 class="interview-item mb-3 p-3 border rounded">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h5 class="mb-0 fw-bold text-dark">
+                  <i class="fas fa-user-tie me-2 text-success"></i>
+                  {{ interview.name || 'Unnamed Interview' }}
+                </h5>
+                <span class="badge bg-light text-dark small">
+                  {{ interview.department || 'No department' }}
+                </span>
               </div>
-            </div>
-          </div>
-
-          <!-- Scope Card -->
-          <div class="card border-0 shadow-sm mb-4" *ngIf="selectedAudit?.scope">
-            <div class="card-header bg-light py-2">
-              <h4 class="mb-0 fw-bold text-dark">
-                <i class="fas fa-bullseye me-2 text-success"></i>Scope
-              </h4>
-            </div>
-            <div class="card-body p-3">
-              <p class="mb-0 text-dark">{{ selectedAudit?.scope }}</p>
-            </div>
-          </div>
-
-          <!-- Team & Stakeholders Card -->
-          <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-light py-2">
-              <h4 class="mb-0 fw-bold text-dark">
-                <i class="fas fa-users me-2 text-info"></i>Team & Stakeholders
-              </h4>
-            </div>
-            <div class="card-body p-3">
-              <div class="row g-2">
-                <div class="col-12" *ngIf="selectedAudit?.auditLead">
-                  <label class="small text-muted mb-1">Audit Lead</label>
-                  <p class="mb-2 fw-semibold ">
-                    <i class="fas fa-user-tie text-primary me-1"></i>
-                    {{ getAuditLeadDisplayName(selectedAudit?.auditLead) }}
-                  </p>
+              
+              <div class="row small text-muted">
+                <div class="col-12 mb-1">
+                  <i class="fas fa-calendar-day text-primary me-2"></i>
+                  <strong>Date:</strong> {{ interview.date || 'Not scheduled' }}
                 </div>
-                <div class="col-12" *ngIf="selectedAudit?.auditMembers">
-                  <label class="small text-muted mb-1">Team Members</label>
-                  <p class="mb-2 fw-semibold small">{{ selectedAudit?.auditMembers }}</p>
+                <div class="col-12" *ngIf="interview.notes">
+                  <i class="fas fa-sticky-note me-2"></i>
+                  <strong>Notes:</strong> {{ interview.notes }}
                 </div>
-                <div class="col-12" *ngIf="selectedAudit?.thirdPartyFirm">
-                  <label class="small text-muted mb-1">Third Party Firm</label>
-                  <p class="mb-2 fw-semibold">{{ selectedAudit?.thirdPartyFirm }}</p>
-                </div>
-                <div class="col-12" *ngIf="selectedAudit?.thirdPartyContact">
-                  <label class="small text-muted mb-1">Third Party Contact</label>
-                  <p class="mb-0 fw-semibold">{{ selectedAudit?.thirdPartyContact }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Risk & Planning Card -->
-          <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-light py-2">
-              <h4 class="mb-0 fw-bold text-dark">
-                <i class="fas fa-chart-line me-2 text-warning"></i>Risk & Planning
-              </h4>
-            </div>
-            <div class="card-body p-3">
-              <div class="row g-2">
-                <div class="col-12" *ngIf="selectedAudit?.riskRating">
-                  <label class="small text-muted mb-1">Risk Rating</label>
-                  <div class="mb-2">
-                    <span class="badge px-2 py-1"
-                          [ngClass]="{
-                            'bg-danger': selectedAudit?.riskRating === 'High',
-                            'bg-warning text-dark': selectedAudit?.riskRating === 'Medium',
-                            'bg-success': selectedAudit?.riskRating === 'Low'
-                          }">
-                      {{ selectedAudit?.riskRating }}
-                    </span>
-                  </div>
-                </div>
-                <div class="col-12" *ngIf="selectedAudit?.riskRationale">
-                  <label class="small text-muted mb-1">Risk Rationale</label>
-                  <p class="mb-2 fw-semibold small">{{ selectedAudit?.riskRationale }}</p>
-                </div>
-                <div class="col-12" *ngIf="selectedAudit?.kickoffDate">
-                  <label class="small text-muted mb-1">Kickoff Meeting</label>
-                  <p class="mb-2 fw-semibold">
-                    <i class="fas fa-calendar-day me-1 text-info"></i>
-                    {{ selectedAudit?.kickoffDate }}
-                  </p>
-                </div>
-                <div class="col-12" *ngIf="selectedAudit?.unitOrientation">
-                  <label class="small text-muted mb-1">Unit Orientation</label>
-                  <p class="mb-0 fw-semibold small">{{ selectedAudit?.unitOrientation }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Additional Details Card -->
-          <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-light py-2">
-              <h4 class="mb-0 fw-bold text-dark">
-                <i class="fas fa-file-alt me-2 text-secondary"></i>Additional Details
-              </h4>
-            </div>
-            <div class="card-body p-3">
-              <div class="row g-2">
-                <div class="col-6" *ngIf="selectedAudit?.auditPeriod">
-                  <label class="small text-muted mb-1">Audit Period</label>
-                  <p class="mb-2 fw-semibold">{{ selectedAudit?.auditPeriod }}</p>
-                </div>
-                <div class="col-6" *ngIf="selectedAudit?.clientConfirmation">
-                  <label class="small text-muted mb-1">Client Confirmation</label>
-                  <p class="mb-2 fw-semibold" 
-                    [ngClass]="{
-                      'text-success': selectedAudit?.clientConfirmation === 'Yes',
-                      'text-warning': selectedAudit?.clientConfirmation === 'Pending',
-                      'text-danger': selectedAudit?.clientConfirmation === 'No'
-                    }">
-                    {{ selectedAudit?.clientConfirmation }}
-                  </p>
-                </div>
-                <div class="col-12" *ngIf="selectedAudit?.planningMemo">
-                  <label class="small text-muted mb-1">Planning Memo</label>
-                  <p class="mb-0 fw-semibold small">{{ selectedAudit?.planningMemo }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="card border-0 shadow-sm">
-            <div class="card-body p-3">
-              <div class="d-grid gap-2">
-                <!-- <button class="btn btn-outline-primary btn-sm" (click)="openObservations(selectedAudit)">
-                  <i class="fas fa-eye me-2"></i>View Observations
-                </button> -->
-                
-                <button class="btn btn-outline-secondary btn-sm" (click)="openEditAuditModal(selectedAudit)">
-                  <i class="fas fa-edit me-2"></i>Edit Audit
-                </button>
-
-                <button class="btn btn-outline-danger btn-sm" (click)="deleteAudit(selectedAudit.id)">
-                  <i class="fas fa-trash me-2"></i>Delete Audit
-                </button>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+
+      <div class="card border-0 shadow-sm mb-4" *ngIf="selectedAudit?.logisticsChecklist?.length > 0">
+        <div class="card-header bg-light py-2 d-flex justify-content-between align-items-center">
+          <h4 class="mb-0 fw-bold text-dark">
+            <i class="fas fa-clipboard-list me-2 text-warning"></i>Logistics Checklist
+            <span class="badge bg-primary ms-2">
+              {{ getCompletedLogisticsCount(selectedAudit) }}/{{ selectedAudit?.logisticsChecklist?.length }}
+            </span>
+          </h4>
+          
+          <!-- Bulk Actions Dropdown -->
+          <div class="btn-group" dropdown *ngIf="selectedAudit?.logisticsChecklist?.length > 1">
+            <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fas fa-bolt me-1"></i>Bulk Actions
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li *ngIf="getCompletedLogisticsCount(selectedAudit) !== selectedAudit?.logisticsChecklist?.length">
+                <a class="dropdown-item" (click)="completeAllLogistics(selectedAudit)">
+                  <i class="fas fa-check-double text-success me-2"></i>Complete All
+                </a>
+              </li>
+              <li *ngIf="getCompletedLogisticsCount(selectedAudit) > 0">
+                <a class="dropdown-item" (click)="markAllPending(selectedAudit)">
+                  <i class="fas fa-undo text-warning me-2"></i> Mark All Pending
+                </a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <a class="dropdown-item" (click)="completeByCategory(selectedAudit, 'travel')">
+                  <i class="fas fa-plane text-info me-2"></i> Complete Travel Items
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" (click)="completeByCategory(selectedAudit, 'documentation')">
+                  <i class="fas fa-file-alt text-primary me-2"></i>Complete Documentation
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="card-body p-3">
+          <div class="logistics-list">
+            <div *ngFor="let item of selectedAudit.logisticsChecklist; let i = index" 
+                class="logistics-item d-flex align-items-center mb-2 p-2 border rounded">
+              <div class="form-check me-3">
+                <input class="form-check-input" type="checkbox" 
+                      [checked]="item.completed"
+                      (change)="toggleLogisticsItem(selectedAudit, item, $event)"
+                      [title]="item.completed ? 'Mark as incomplete' : 'Mark as complete'"
+                      style="cursor: pointer;">
+              </div>
+              <div class="flex-grow-1">
+                <span [class.text-muted]="item.completed" 
+                      [class.text-decoration-line-through]="item.completed">
+                  {{ item.name }}
+                  <small *ngIf="item.category" class="badge bg-light text-dark ms-2">
+                    {{ item.category }}
+                  </small>
+                </span>
+              </div>
+              <span class="badge" [ngClass]="item.completed ? 'bg-success' : 'bg-secondary'">
+                {{ item.completed ? 'Completed' : 'Pending' }}
+              </span>
+            </div>
+          </div>
+          
+          <!-- Progress Bar -->
+          <div class="mt-3">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <small class="text-muted">Overall Progress</small>
+              <small class="text-muted">
+                {{ getLogisticsProgress(selectedAudit) }}% Complete
+              </small>
+            </div>
+            <div class="progress" style="height: 6px;">
+              <div class="progress-bar bg-success" 
+                  [style.width.%]="getLogisticsProgress(selectedAudit)">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
+      <!-- Team & Stakeholders Card -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-light py-2">
+          <h4 class="mb-0 fw-bold text-dark">
+            <i class="fas fa-users me-2 text-info"></i>Team & Stakeholders
+          </h4>
+        </div>
+        <div class="card-body p-3">
+          <div class="row g-2">
+            <div class="col-12" *ngIf="selectedAudit?.auditLead">
+              <label class="small text-muted mb-1">Audit Lead</label>
+              <p class="mb-2 fw-semibold ">
+                <i class="fas fa-user-tie text-primary me-1"></i>
+                {{ getAuditLeadDisplayName(selectedAudit?.auditLead) }}
+              </p>
+            </div>
+            <div class="col-12" *ngIf="selectedAudit?.auditMembers">
+              <label class="small text-muted mb-1">Team Members</label>
+              <p class="mb-2 fw-semibold small">{{ selectedAudit?.auditMembers }}</p>
+            </div>
+            <div class="col-12" *ngIf="selectedAudit?.thirdPartyFirm">
+              <label class="small text-muted mb-1">Third Party Firm</label>
+              <p class="mb-2 fw-semibold">{{ selectedAudit?.thirdPartyFirm }}</p>
+            </div>
+            <div class="col-12" *ngIf="selectedAudit?.thirdPartyContact">
+              <label class="small text-muted mb-1">Third Party Contact</label>
+              <p class="mb-0 fw-semibold">{{ selectedAudit?.thirdPartyContact }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Risk & Planning Card -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-light py-2">
+          <h4 class="mb-0 fw-bold text-dark">
+            <i class="fas fa-chart-line me-2 text-warning"></i>Risk & Planning
+          </h4>
+        </div>
+        <div class="card-body p-3">
+          <div class="row g-2">
+            <div class="col-12" *ngIf="selectedAudit?.riskRating">
+              <label class="small text-muted mb-1">Risk Rating</label>
+              <div class="mb-2">
+                <span class="badge px-2 py-1"
+                      [ngClass]="{
+                        'bg-danger': selectedAudit?.riskRating === 'High',
+                        'bg-warning text-dark': selectedAudit?.riskRating === 'Medium',
+                        'bg-success': selectedAudit?.riskRating === 'Low'
+                      }">
+                  {{ selectedAudit?.riskRating }}
+                </span>
+              </div>
+            </div>
+            <div class="col-12" *ngIf="selectedAudit?.riskRationale">
+              <label class="small text-muted mb-1">Risk Rationale</label>
+              <p class="mb-2 fw-semibold small">{{ selectedAudit?.riskRationale }}</p>
+            </div>
+            <div class="col-12" *ngIf="selectedAudit?.kickoffDate">
+              <label class="small text-muted mb-1">Kickoff Meeting</label>
+              <p class="mb-2 fw-semibold">
+                <i class="fas fa-calendar-day me-1 text-info"></i>
+                {{ selectedAudit?.kickoffDate }}
+              </p>
+            </div>
+            <div class="col-12" *ngIf="selectedAudit?.unitOrientation">
+              <label class="small text-muted mb-1">Unit Orientation</label>
+              <p class="mb-0 fw-semibold small">{{ selectedAudit?.unitOrientation }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Details Card -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-light py-2">
+          <h4 class="mb-0 fw-bold text-dark">
+            <i class="fas fa-file-alt me-2 text-secondary"></i>Additional Details
+          </h4>
+        </div>
+        <div class="card-body p-3">
+          <div class="row g-2">
+            <div class="col-6" *ngIf="selectedAudit?.auditPeriod">
+              <label class="small text-muted mb-1">Audit Period</label>
+              <p class="mb-2 fw-semibold">{{ selectedAudit?.auditPeriod }}</p>
+            </div>
+            <div class="col-6" *ngIf="selectedAudit?.clientConfirmation">
+              <label class="small text-muted mb-1">Client Confirmation</label>
+              <p class="mb-2 fw-semibold" 
+                [ngClass]="{
+                  'text-success': selectedAudit?.clientConfirmation === 'Yes',
+                  'text-warning': selectedAudit?.clientConfirmation === 'Pending',
+                  'text-danger': selectedAudit?.clientConfirmation === 'No'
+                }">
+                {{ selectedAudit?.clientConfirmation }}
+              </p>
+            </div>
+            <div class="col-12" *ngIf="selectedAudit?.planningMemo">
+              <label class="small text-muted mb-1">Planning Memo</label>
+              <p class="mb-0 fw-semibold small">{{ selectedAudit?.planningMemo }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-3">
+          <div class="d-grid gap-2">
+            <button class="btn btn-outline-secondary btn-sm" (click)="openEditAuditModal(selectedAudit)">
+              <i class="fas fa-edit me-2"></i>Edit Audit
+            </button>
+            <button class="btn btn-outline-danger btn-sm" (click)="deleteAudit(selectedAudit.id)">
+              <i class="fas fa-trash me-2"></i>Delete Audit
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
 
   </div>
 </div>
@@ -537,7 +657,7 @@
                       <i class="fas fa-user-tie me-1 text-primary"></i> Audit Lead *
                     </label>
                     <select formControlName="auditLead" class="form-select">
-                      <option value="">Select Audit Lead</option>
+                      <option value=""> ---- Select Audit Lead ---- </option>
                       <option *ngFor="let user of filteredUsers" [value]="user.id">
                         {{ user.username }} - {{ user.role }}
                       </option>
@@ -728,7 +848,7 @@
                 </ul>
               </div> -->
             
-        </div> <!-- end docs -->
+        </div> 
       
       </div> 
     </form>
@@ -770,8 +890,8 @@
         </table>
         <button class="btn btn-sm btn-primary" (click)="addInterview()">Add Interview</button>
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-light" (click)="closeInterviewModal()">Close</button>
+      <div class="modal-footer d-flex justify-content-between">
+        <button class="btn btn-outline-secondary" (click)="closeInterviewModal()">Close</button>
         <button class="btn btn-info" (click)="saveInterviewSchedule()">Save</button>
       </div>
     </div>
@@ -780,27 +900,89 @@
 
 <!-- Logistics Checklist Modal -->
 <div class="modal fade" id="logisticsModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-md">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header bg-secondary text-white">
-        <h2 class="modal-title">Logistics Checklist</h2>
+        <h2 class="modal-title">
+          <i class="fas fa-clipboard-list me-2"></i>
+          Logistics Checklist
+          <small class="fs-6 ms-2 opacity-75">
+            ({{ logisticsChecklist.length }} items)
+          </small>
+        </h2>
         <button type="button" class="btn-close btn-close-white" (click)="closeLogisticsModal()"></button>
       </div>
-         <div class="modal-body">
-          <ul class="list-group">
-            <li class="list-group-item" *ngFor="let item of logisticsChecklist; let i = index">
-              <input type="checkbox" [(ngModel)]="item.completed"> {{ item.name }}
-              <button class="btn btn-sm btn-danger float-end" (click)="logisticsChecklist.splice(i,1)">  <i class="fas fa-trash-alt"></i></button>
-            </li>
-          </ul>
-          <div class="input-group mb-2">
-              <input type="text" class="form-control" placeholder="Enter checklist item" [(ngModel)]="newLogisticsItem">
-              <button class="btn btn-primary" (click)="addLogisticsItem()">+ Add</button>
+      <div class="modal-body">
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle me-2"></i>
+          New items will be added to the existing checklist. Existing items will keep their completion status.
+        </div>
+        
+        <div class="logistics-items-container" style="max-height: 400px; overflow-y: auto;">
+          <div *ngFor="let item of logisticsChecklist; let i = index" 
+               class="logistics-item d-flex align-items-center p-3 border-bottom">
+            <div class="form-check me-3">
+              <input type="checkbox" 
+                     [(ngModel)]="item.completed" 
+                     class="form-check-input"
+                     [id]="'logistics-item-' + i">
+            </div>
+            <div class="flex-grow-1">
+              <label [for]="'logistics-item-' + i" 
+                     class="mb-0"
+                     [class.text-muted]="item.completed" 
+                     [class.text-decoration-line-through]="item.completed">
+                {{ item.name }} 
+              </label>
+              <small *ngIf="isExistingLogisticsItem(item)" class="text-success me-2">
+                <!-- <i class="fas fa-database me-2"></i>  -->
+                Existing Logistics
+              </small>
+              <small *ngIf="!isExistingLogisticsItem(item)" class="text-primary me-2">
+                <!-- <i class="fas fa-plus me-1"></i>  -->
+                New Logistics
+              </small>
+            </div>
+            <button class="btn btn-sm btn-outline-danger" 
+                    (click)="removeLogisticsItem(i)"
+                    title="Remove item">
+              <i class="fas fa-trash-alt"></i>
+            </button>
           </div>
+          
+          <div *ngIf="logisticsChecklist.length === 0" class="text-center text-muted py-4">
+            <i class="fas fa-inbox fa-2x mb-2"></i><br>
+            No logistics items added yet.
+          </div>
+        </div>
+        
+        <div class="input-group mt-3">
+          <input type="text" 
+                 class="form-control" 
+                 placeholder="Enter new checklist item..." 
+                 [(ngModel)]="newLogisticsItem"
+                 (keyup.enter)="addLogisticsItem()">
+          <button class="btn btn-primary" 
+                  (click)="addLogisticsItem()"
+                  [disabled]="!newLogisticsItem?.trim()">
+            <i class="fas fa-plus me-1"></i> Add Item
+          </button>
+        </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-light" (click)="closeLogisticsModal()">Close</button>
-        <button class="btn btn-secondary" (click)="saveLogisticsChecklist()">Save</button>
+      <div class="modal-footer d-flex justify-content-between">
+        <button class="btn btn-outline-secondary" (click)="closeLogisticsModal()">
+          <i class="fas fa-times me-1"></i>Cancel
+        </button>
+        <div>
+          <button class="btn btn-outline-warning me-2" 
+                  (click)="logisticsChecklist = []"
+                  [disabled]="logisticsChecklist.length === 0">
+            <i class="fas fa-broom me-1"></i>Clear All
+          </button>
+          <button class="btn btn-success" (click)="saveLogisticsChecklist()">
+            <i class="fas fa-save me-1"></i>Save Changes
+          </button>
+        </div>
       </div>
     </div>
   </div>
