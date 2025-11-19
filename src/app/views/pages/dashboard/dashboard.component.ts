@@ -24,8 +24,6 @@ import { DataExportationService } from 'src/app/shared/services/data-exportation
 import { GlobalService } from 'src/app/shared/services/global.service';
 import { ChartConfiguration, ChartData } from 'chart.js';
 import * as saveAs from 'file-saver';
-
-// Interfaces for new features
 interface ActivityItem {
   type: 'completed' | 'finding' | 'update' | 'created';
   message: string;
@@ -120,8 +118,7 @@ export class DashboardComponent implements OnInit {
   dateTo?: string;
   severityFilter = '';
   statusFilter = '';
-
-  // Enhanced KPI Cards
+ workflows: any[] = [];
   kpis: { 
     label: string; 
     value: number | string; 
@@ -147,7 +144,6 @@ export class DashboardComponent implements OnInit {
   totalRecords = 0;
   lastUpdated = new Date();
 
-  // Chart data holders
   barChartData: ChartData<'bar'> = { labels: [], datasets: [] };
   pieChartData: ChartData<'pie'> = { labels: [], datasets: [] };
   lineChartData: ChartData<'line'> = { labels: [], datasets: [] };
@@ -193,7 +189,7 @@ export class DashboardComponent implements OnInit {
     plugins: { title: { display: true, text: 'CAP Implementation by Department' } }
   };
 
-  constructor(private mis: GlobalService) {}
+  constructor(private mis: GlobalService, private router: Router) {}
 
   ngOnInit(): void {
     this.refresh();
@@ -211,7 +207,6 @@ export class DashboardComponent implements OnInit {
     const severityCount: any = { Critical: 0, High: 0, Medium: 0, Low: 0 };
     
     workflows.forEach((workflow: any) => {
-      // Count preClosing findings
       if (workflow.fieldwork?.preClosing) {
         workflow.fieldwork.preClosing.forEach((finding: any) => {
           const severity = finding.severity || 'Unknown';
@@ -221,7 +216,6 @@ export class DashboardComponent implements OnInit {
         });
       }
       
-      // Count miniFindings
       if (workflow.miniFindings) {
         workflow.miniFindings.forEach((finding: any) => {
           const severity = finding.severity || finding.impact || 'Unknown';
@@ -275,8 +269,7 @@ export class DashboardComponent implements OnInit {
     this.departmentPerformance = Array.from(departments).map((dept: any) => {
       const deptAudits = audits.filter(a => a.department === dept);
       const deptWorkflows = workflows.filter(w => w.department === dept);
-      
-      // Count findings by severity
+
       let critical = 0, high = 0, medium = 0, low = 0;
       
       deptWorkflows.forEach((workflow: any) => {
@@ -306,17 +299,14 @@ export class DashboardComponent implements OnInit {
 
       const totalFindings = critical + high + medium + low;
       
-      // Calculate average severity
       let avgSeverity = 'Low';
       if (critical > 0) avgSeverity = 'Critical';
       else if (high > 0) avgSeverity = 'High';
       else if (medium > 0) avgSeverity = 'Medium';
 
-      // Calculate completion rate (based on audit status)
       const completedAudits = deptAudits.filter(a => a.status === 'Completed').length;
       const completionRate = deptAudits.length ? Math.round((completedAudits / deptAudits.length) * 100) : 0;
 
-      // Calculate risk score (1-10)
       let riskScore = 1;
       if (critical > 0) riskScore = 8 + Math.min(2, critical);
       else if (high > 0) riskScore = 6 + Math.min(2, high);
@@ -337,7 +327,6 @@ export class DashboardComponent implements OnInit {
       };
     });
 
-    // Sort by risk score (highest first)
     this.departmentPerformance.sort((a, b) => b.riskScore - a.riskScore);
   }
 
@@ -349,16 +338,13 @@ export class DashboardComponent implements OnInit {
   this.recentActivities = [];
   const now = new Date();
 
-  // 1. Audit Activities - Only include recent ones
   audits.forEach((audit: any) => {
     const auditDate = new Date(audit.updatedAt || audit.startDate);
     
-    // Only include audits from the last 30 days
     if ((now.getTime() - auditDate.getTime()) > (30 * 24 * 60 * 60 * 1000)) {
-      return; // Skip old audits
+      return; 
     }
 
-    // Audit completions
     if (audit.status === 'Completed') {
       this.recentActivities.push({
         type: 'completed',
@@ -369,7 +355,6 @@ export class DashboardComponent implements OnInit {
       });
     }
     
-    // Audit starts (only recent ones)
     if (audit.status === 'In Progress' && (now.getTime() - auditDate.getTime()) < (7 * 24 * 60 * 60 * 1000)) {
       this.recentActivities.push({
         type: 'update',
@@ -380,7 +365,6 @@ export class DashboardComponent implements OnInit {
       });
     }
 
-    // Planning activities (only recent)
     if (audit.planningMeetingDate && (now.getTime() - new Date(audit.planningMeetingDate).getTime()) < (14 * 24 * 60 * 60 * 1000)) {
       this.recentActivities.push({
         type: 'created',
@@ -391,7 +375,6 @@ export class DashboardComponent implements OnInit {
       });
     }
 
-    // Risk assessments (only recent and high/medium risk)
     if (audit.riskRating && (audit.riskRating === 'High' || audit.riskRating === 'Medium') && (now.getTime() - auditDate.getTime()) < (7 * 24 * 60 * 60 * 1000)) {
       this.recentActivities.push({
         type: 'finding',
@@ -403,11 +386,9 @@ export class DashboardComponent implements OnInit {
     }
   });
 
-  // 2. Workflow Activities - Only recent ones
   workflows.forEach((workflow: any) => {
     const workflowDate = new Date(workflow.updatedAt || workflow.startDate);
     
-    // Only include workflows from the last 30 days
     if ((now.getTime() - workflowDate.getTime()) > (30 * 24 * 60 * 60 * 1000)) {
       return;
     }
@@ -435,15 +416,12 @@ export class DashboardComponent implements OnInit {
     }
   });
 
-  // CORRECT SORTING: Newest first (most recent dates first)
-  // b.time - a.time = puts newer items first
   this.recentActivities.sort((a, b) => {
     const timeA = new Date(a.time).getTime();
     const timeB = new Date(b.time).getTime();
-    return timeB - timeA; // Descending order (newest first)
+    return timeB - timeA; 
   });
 
-  // Format times for display
   this.recentActivities = this.recentActivities.map(activity => ({
     ...activity,
     time: this.formatRelativeTime(activity.time)
@@ -456,7 +434,6 @@ export class DashboardComponent implements OnInit {
 refresh(): void {
   this.isLoading = true;
 
-  // Use only the APIs that actually exist in GlobalService
   forkJoin({
     audits: this.mis.getAudits(),
     workflows: this.mis.getWorkflows(),
@@ -464,7 +441,7 @@ refresh(): void {
   }).subscribe(({ 
     audits, workflows, misReports 
   }) => {
-    // Apply filters to audits and workflows
+    this.workflows = workflows as any[]; 
     let filteredAudits = audits as any[];
     let filteredWorkflows = workflows as any[];
 
@@ -494,7 +471,6 @@ refresh(): void {
     this.processWorkflowTrends(filteredWorkflows);
     this.processDepartmentPerformance(filteredAudits, filteredWorkflows);
     
-    // Enhanced activity processing with available data sources
     this.processRecentActivities(
       filteredAudits, 
       filteredWorkflows, 
@@ -507,8 +483,6 @@ refresh(): void {
 
     // Calculate KPIs
     this.calculateKPIs(filteredAudits, filteredWorkflows);
-
-    // Build charts with real audit data
     this.buildCharts(filteredAudits);
 
     this.isLoading = false;
@@ -569,9 +543,8 @@ private processUpcomingDeadlines(workflows: any[], audits: any[]): void {
 
   console.log('📅 Checking for upcoming deadlines (7-day window)...');
 
-  // FIX: Use endDate for audits instead of dueDate
   const upcomingAudits = audits.filter((a: any) => {
-    const deadlineDate = a.endDate || a.dueDate; // ← FIXED: Check both endDate and dueDate
+    const deadlineDate = a.endDate || a.dueDate; 
     if (!deadlineDate) return false;
     if (a.status === 'Completed') return false;
     
@@ -580,14 +553,13 @@ private processUpcomingDeadlines(workflows: any[], audits: any[]): void {
     
     console.log(`Audit: ${a.title}, endDate: ${a.endDate}, daysLeft: ${daysLeft}`);
     
-    // ONLY include if due within 7 days (0-7 days)
     return daysLeft >= 0 && daysLeft <= 7;
   });
 
   console.log('Upcoming audits within 7 days:', upcomingAudits.length);
 
   upcomingAudits.forEach((audit: any) => {
-    const deadlineDate = audit.endDate || audit.dueDate; // ← FIXED
+    const deadlineDate = audit.endDate || audit.dueDate;
     const dueDate = new Date(deadlineDate);
     const daysLeft = Math.floor((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
     
@@ -596,12 +568,11 @@ private processUpcomingDeadlines(workflows: any[], audits: any[]): void {
       title: audit.title,
       type: 'audit',
       department: audit.department,
-      dueDate: deadlineDate, // ← FIXED: Use the actual date field
+      dueDate: deadlineDate, 
       daysLeft
     });
   });
 
-  // Workflow tasks remain the same (they use dueDate correctly)
   let upcomingTasksCount = 0;
   workflows.forEach((workflow: any) => {
     if (workflow.tasks) {
@@ -613,8 +584,6 @@ private processUpcomingDeadlines(workflows: any[], audits: any[]): void {
         const daysLeft = Math.floor((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
         
         console.log(`Task: ${t.title}, dueDate: ${t.dueDate}, daysLeft: ${daysLeft}`);
-        
-        // ONLY include if due within 7 days (0-7 days)
         return daysLeft >= 0 && daysLeft <= 7;
       });
       
@@ -638,8 +607,6 @@ private processUpcomingDeadlines(workflows: any[], audits: any[]): void {
 
   console.log('Upcoming tasks within 7 days:', upcomingTasksCount);
   console.log('Total upcoming deadlines within 7 days:', this.upcomingDeadlines.length);
-
-  // Sort by days left (closest first)
   this.upcomingDeadlines.sort((a, b) => a.daysLeft - b.daysLeft);
 }
 private processCAPImplementation(workflows: any[]): void {
@@ -649,7 +616,7 @@ private processCAPImplementation(workflows: any[]): void {
     workflows.forEach((workflow: any) => {
       if (workflow.fieldwork?.preClosing) {
         totalFindings += workflow.fieldwork.preClosing.length;
-        // Consider findings with status other than 'Open' as having some action
+  
         findingsWithAction += workflow.fieldwork.preClosing.filter((f: any) => 
           f.status && f.status !== 'Open' && f.status !== 'Reviewed'
         ).length;
@@ -671,7 +638,6 @@ private processCAPImplementation(workflows: any[]): void {
     const completedAudits = audits.filter((a: any) => a.status === 'Completed').length;
     const openFindingsCount = this.countOpenFindings(workflows);
     
-    // Calculate average workflow completion
     const avgWorkflowCompletion = Math.round(
       workflows.reduce((sum: number, wf: any) => {
         const total = wf.tasks?.length || 0;
@@ -680,7 +646,6 @@ private processCAPImplementation(workflows: any[]): void {
       }, 0) / (workflows.length || 1)
     );
 
-    // Calculate risk exposure score
     const riskScore = this.calculateRiskScore(workflows);
 
     this.kpis = [
@@ -783,7 +748,7 @@ private processCAPImplementation(workflows: any[]): void {
 
 
   buildCharts(audits: any[]): void {
-  // Consistent color scheme matching your CAP monitoring
+
   const severityColors: any = {
     'Critical': '#dc3545', // Red
     'High': '#fd7e14',     // Orange  
@@ -812,7 +777,6 @@ private processCAPImplementation(workflows: any[]): void {
     }]
   };
 
-  // Pie Chart - Findings by Severity - CONSISTENT COLORS
   const severityLabels = Object.keys(this.findingsSeverity);
   this.pieChartData = {
     labels: severityLabels,
@@ -824,7 +788,6 @@ private processCAPImplementation(workflows: any[]): void {
     }]
   };
 
-  // Status Pie Chart - REAL DATA with consistent colors
   const auditStatusData = this.processAuditStatus(audits);
   const statusLabels = Object.keys(auditStatusData);
   this.statusPieChartData = {
@@ -886,9 +849,7 @@ private formatRelativeTime(dateString: string): string {
       return 'Invalid date';
     }
     
-    // Check if date is in the future (data issue)
     if (date > now) {
-      // If it's a future date, show the actual date but mark it as future
       return `Future: ${date.toLocaleDateString()}`;
     }
     
@@ -938,11 +899,9 @@ private processAuditStatus(audits: any[]): any {
     this.refresh();
   }
 
-  // Export methods
   exportExcel(): void {
     const wb = XLSX.utils.book_new();
-    
-    // Add multiple sheets
+
     const auditsData = [['Department', 'Audit Count'], ...Object.entries(this.auditsByDept)];
     const findingsData = [['Severity', 'Count'], ...Object.entries(this.findingsSeverity)];
     const deptPerformanceData = [
@@ -970,7 +929,6 @@ private processAuditStatus(audits: any[]): any {
     doc.setFontSize(10);
     doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30);
 
-    // Audits by Department table
     doc.setFontSize(12);
     doc.text('Audits by Department', 14, 45);
     const auditsBody = Object.entries(this.auditsByDept).map(([dept, count]) => [dept, count.toString()]);
@@ -980,7 +938,6 @@ private processAuditStatus(audits: any[]): any {
       startY: 50
     });
 
-    // Department Performance table
     const finalY = (doc as any).lastAutoTable.finalY + 10;
     doc.text('Department Performance', 14, finalY);
     const deptBody = this.departmentPerformance.map(dept => [
@@ -1009,7 +966,6 @@ private processAuditStatus(audits: any[]): any {
       allowOutsideClick: false
     });
 
-    // Simulate report generation
     setTimeout(() => {
       this.exportExcel(); // For now, just export Excel
       Swal.fire({
@@ -1022,7 +978,6 @@ private processAuditStatus(audits: any[]): any {
   }
 
   exportChartData(chartType: string): void {
-    // Implementation for exporting individual chart data
     console.log(`Exporting chart data: ${chartType}`);
     // Similar to exportExcel but for specific chart
   }
@@ -1073,21 +1028,181 @@ private processAuditStatus(audits: any[]): any {
     });
   }
 
-  viewAllCAPs(): void {
-    Swal.fire({
-      title: 'Corrective Action Plans',
-      text: 'Navigating to CAP monitoring dashboard...',
-      icon: 'info',
-      confirmButtonText: 'Continue'
-    });
-  }
+viewAllCAPs(): void {
+  Swal.fire({
+    title: 'Corrective Action Plans',
+    text: 'Opening CAP monitoring dashboard...',
+    icon: 'info',
+    showCancelButton: true,
+    confirmButtonText: 'Open CAP',
+    cancelButtonText: 'Stay Here',
+    showLoaderOnConfirm: true,
+    preConfirm: () => {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          try {
+            this.router.navigate(['/eclectics/compliance/all']);
+            resolve(true);
+          } catch (error) {
+            console.error('Navigation error:', error);
+            resolve(false);
+          }
+        }, 1000);
+      });
+    }
+  }).then((result) => {
+    if (result.isDismissed) {
+    } else if (result.value === false) {
+      Swal.fire('Error', 'Could not open CAP dashboard', 'error');
+    }
+  });
+}
 
-  generateCAPReport(): void {
-    Swal.fire({
-      title: 'CAP Analytics Report',
-      text: 'Generating comprehensive CAP implementation report...',
-      icon: 'info',
-      confirmButtonText: 'Generate'
-    });
+generateCAPReport(): void {
+  Swal.fire({
+    title: 'CAP Analytics Report',
+    text: 'Generating comprehensive CAP implementation report...',
+    icon: 'info',
+    showConfirmButton: false,
+    allowOutsideClick: false,
+    timer: 1500
+  });
+
+  setTimeout(() => {
+    try {
+      this.exportCAPReportToExcel();
+      Swal.fire({
+        title: 'Report Generated!',
+        text: 'CAP analytics report has been downloaded as Excel.',
+        icon: 'success',
+        confirmButtonText: 'OK'
+      });
+    } catch (error) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Failed to generate CAP report. Please try again.',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
+    }
+  }, 1500);
+}
+
+private exportCAPReportToExcel(): void {
+  const wb = XLSX.utils.book_new();
+  
+  // CAP Summary Sheet
+  const summaryData = [
+    ['CAP Implementation Analytics Report'],
+    ['Generated on:', new Date().toLocaleDateString()],
+    ['Overall CAP Implementation Rate:', `${this.overallCapImplementationRate}%`],
+    [''],
+    ['Department', 'Total Audits', 'Total Findings', 'CAP Implemented', 'CAP Rate', 'Risk Score', 'Avg Severity']
+  ];
+  this.departmentPerformance.forEach(dept => {
+    const capRate = this.calculateDepartmentCAPRate(dept.name);
+    const capImplemented = Math.round((capRate / 100) * dept.findingCount);
+    
+    summaryData.push([
+      dept.name,
+      dept.auditCount.toString(),
+      dept.findingCount.toString(),
+      capImplemented.toString(),
+      `${capRate}%`,
+      `${dept.riskScore}/10`,
+      dept.avgSeverity
+    ]);
+  });
+
+  const findingsData = [
+    ['CAP Implementation Details'],
+    ['Department', 'Finding Type', 'Title/Description', 'Severity', 'Status', 'CAP Status']
+  ];
+
+  this.workflows.forEach((workflow: any) => {
+    const department = workflow.department || 'Unknown';
+
+    if (workflow.fieldwork?.preClosing) {
+      workflow.fieldwork.preClosing.forEach((finding: any) => {
+        findingsData.push([
+          department,
+          'Major Finding',
+          finding.title || 'No title',
+          finding.severity || 'Unknown',
+          finding.status || 'Open',
+          this.getCAPStatus(finding)
+        ]);
+      });
+    }
+
+    if (workflow.miniFindings) {
+      workflow.miniFindings.forEach((finding: any) => {
+        findingsData.push([
+          department,
+          'Mini Finding',
+          finding.description || 'No description',
+          finding.severity || finding.impact || 'Unknown',
+          finding.status || 'Noted',
+          this.getCAPStatus(finding)
+        ]);
+      });
+    }
+  });
+
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(summaryData), 'CAP Summary');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(findingsData), 'CAP Details');
+
+  const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+  saveAs(new Blob([wbout]), `cap-analytics-report-${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+
+private calculateDepartmentCAPRate(department: string): number {
+  const deptWorkflows = this.workflows.filter((w: any) => w.department === department);
+  let totalFindings = 0;
+  let findingsWithAction = 0;
+
+  deptWorkflows.forEach((workflow: any) => {
+    if (workflow.fieldwork?.preClosing) {
+      workflow.fieldwork.preClosing.forEach((finding: any) => {
+        totalFindings++;
+        if (finding.status && !['Open', 'Reviewed', 'Draft'].includes(finding.status)) {
+          findingsWithAction++;
+        }
+      });
+    }
+    
+    if (workflow.miniFindings) {
+      workflow.miniFindings.forEach((finding: any) => {
+        totalFindings++;
+        if (finding.status && !['Open', 'Noted'].includes(finding.status)) {
+          findingsWithAction++;
+        }
+      });
+    }
+  });
+
+  return totalFindings ? Math.round((findingsWithAction / totalFindings) * 100) : 0;
+}
+
+private getCAPStatus(finding: any): string {
+  const status = finding.status || 'Open';
+  
+  switch (status) {
+    case 'Open':
+    case 'Reviewed':
+    case 'Noted':
+    case 'Draft':
+      return 'No CAP';
+    case 'Presented':
+    case 'Confirmed':
+      return 'CAP Planned';
+    case 'In Progress':
+      return 'CAP in Progress';
+    case 'Closed':
+    case 'Resolved':
+      return 'CAP Completed';
+    default:
+      return 'Unknown';
   }
+}
 }
