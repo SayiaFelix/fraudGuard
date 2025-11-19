@@ -38,7 +38,7 @@
 }
 
 .page-title-main {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 700;
   margin: 0;
   color: black;
@@ -70,6 +70,54 @@
   opacity: 0.8;
   margin-top: 0.25rem;
 }
+
+/* ---------------------------------------------------- */
+/* --- NEW/MODIFIED STYLES FOR SIDE-BY-SIDE LAYOUT --- */
+/* ---------------------------------------------------- */
+
+.content-wrapper {
+  /* This enables the side-by-side layout when the details panel is visible */
+  display: flex;
+  gap: 1.5rem;
+  
+  /* Ensure the main content uses the available screen height for better scrolling */
+  /* You may need to adjust the height on the parent of people-page-wrapper */
+  /* For this example, we assume we want scrolling handled inside table-section/details-section */
+}
+
+/* Table Section - Will shrink when details panel is visible */
+.table-section {
+  flex-grow: 1;
+  flex-basis: 100%; /* Default to 100% when details aren't visible */
+}
+
+.content-wrapper.details-visible .table-section {
+  /* Shrink to take up about 65-70% of the available horizontal space */
+  flex-basis: 65%;
+  min-width: 0; /* Important for flex items inside flex container */
+}
+
+/* Details Panel Section - Appears beside the table */
+.details-section {
+  /* Set a fixed width for the side panel */
+  width: 380px; 
+  flex-shrink: 0; /* Prevent the panel from shrinking */
+  max-height: 100vh; /* Allow panel to fill vertical space */
+}
+
+/* Enhanced Side Panel: Adjust height to fit the main content area */
+.details-panel-enhanced {
+  background: white;
+  border-left: 1px solid #e1e5e9;
+  box-shadow: -2px 0 8px rgba(0,0,0,0.1);
+  /* height: 100vh;  <-- REMOVED/MODIFIED: Use 100% of parent height */
+  height: 100%; 
+  overflow-y: auto;
+}
+
+/* ---------------------------------------------------- */
+/* --- END OF LAYOUT MODIFICATIONS --- */
+/* ---------------------------------------------------- */
 
 /* Enhanced Controls Bar */
 .controls-bar-enhanced {
@@ -393,14 +441,7 @@
   }
 }
 
-/* Enhanced Side Panel */
-.details-panel-enhanced {
-  background: white;
-  border-left: 1px solid #e1e5e9;
-  box-shadow: -2px 0 8px rgba(0,0,0,0.1);
-  height: 100vh;
-  overflow-y: auto;
-}
+/* Panel Header and Body Styles are kept for the new panel width */
 
 .panel-header-enhanced {
   padding: 1.5rem;
@@ -715,7 +756,34 @@
 }
 
 /* Responsive Design */
+@media (max-width: 1200px) {
+  /* On medium screens, let the table take a little more space, or adjust the panel size */
+  .details-section {
+    width: 300px; /* Smaller panel on smaller screens */
+  }
+}
+
 @media (max-width: 768px) {
+  /* On mobile, stack them vertically again */
+  .content-wrapper {
+    flex-direction: column;
+    gap: 0; /* Remove gap when stacking */
+  }
+
+  .table-section,
+  .content-wrapper.details-visible .table-section {
+    flex-basis: auto;
+    width: 100%;
+  }
+
+  .details-section {
+    width: 100%;
+    /* On mobile, if the panel is open, it takes full width and might overlap the table. 
+       You might need more complex JS/Angular logic to hide the table entirely on mobile 
+       when the panel is open. For now, it will stack below. */
+  }
+
+  /* Other mobile adjustments */
   .header-content {
     flex-direction: column;
     gap: 1rem;
@@ -747,29 +815,29 @@
   }
 
   // Add to your component's SCSS or global styles
-.swal-wide {
-  width: 500px !important;
-}
+  .swal-wide {
+    width: 500px !important;
+  }
 
-.temporary-password {
-  font-family: 'Courier New', monospace;
-  font-size: 1.1rem;
-  font-weight: bold;
-  letter-spacing: 1px;
-  color: #dc3545;
-  border: 1px dashed #dc3545;
-}
+  .temporary-password {
+    font-family: 'Courier New', monospace;
+    font-size: 1.1rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    color: #dc3545;
+    border: 1px dashed #dc3545;
+  }
 
-.swal2-popup {
-  border-radius: 12px !important;
-}
+  .swal2-popup {
+    border-radius: 12px !important;
+  }
 
-.swal2-title {
-  font-size: 1.25rem !important;
-  font-weight: 600 !important;
-}
+  .swal2-title {
+    font-size: 1.25rem !important;
+    font-weight: 600 !important;
+  }
 
-.swal2-html-container {
-  font-size: 0.9rem !important;
-}
+  .swal2-html-container {
+    font-size: 0.9rem !important;
+  }
 }
