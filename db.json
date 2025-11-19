@@ -1,32 +1,39 @@
 {
   "users": [
     {
-      "id": "1",
-      "username": "auditor1",
-      "email": "auditor@gmail.com",
-      "password": "Jaysafu@25",
-      "role": "Auditor"
-    },
-    {
       "id": "2",
       "username": "cia1",
       "email": "cia@gmail.com",
       "password": "cia@123456",
-      "role": "CIA"
+      "role": "CIA",
+      "activeAuditId": "a1",
+      "unitProgram": "Finance",
+      "currentPhase": "Reporting",
+      "capTracking": []
     },
     {
       "id": "3",
       "username": "unit1",
       "email": "unit@gmail.com",
       "password": "unit@123456",
-      "role": "AuditUnit"
+      "role": "AuditUnit",
+      "activeAuditId": "8dbd",
+      "unitProgram": "EBU",
+      "currentPhase": "Monitoring",
+      "capTracking": [
+        "a137"
+      ]
     },
     {
       "id": "1758520826982",
       "username": "ciafffff@gmail.com",
       "email": "ciafffff@gmail.com",
       "password": "cia@123456safsd",
-      "role": "CIA"
+      "role": "CIA",
+      "activeAuditId": "0f4c",
+      "unitProgram": "PG",
+      "currentPhase": "Planning",
+      "capTracking": []
     },
     {
       "id": "af8f",
@@ -40,7 +47,32 @@
       "username": "cia2",
       "email": "ciads@gmail.com",
       "password": "cia@123456",
-      "role": "CIA"
+      "role": "CIA",
+      "activeAuditId": "64b0",
+      "unitProgram": "Market",
+      "currentPhase": "Planning",
+      "capTracking": []
+    },
+    {
+      "id": "11b3",
+      "username": "bridged",
+      "email": "mwende.bridged@eclectics.io",
+      "password": "chcyttgh",
+      "role": "AuditUnit"
+    },
+    {
+      "id": "25e8",
+      "username": "bridged8",
+      "email": "peterjosh7365@gmail.com",
+      "password": "hdxbchjdb",
+      "role": "Auditor"
+    },
+    {
+      "id": "e03e",
+      "username": "cia@fewfwefe",
+      "email": "igiuhiuhu@gmail.com",
+      "password": "cia@123456",
+      "role": "Director"
     }
   ],
   "audits": [
