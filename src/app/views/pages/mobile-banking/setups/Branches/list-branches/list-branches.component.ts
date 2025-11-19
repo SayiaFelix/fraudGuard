@@ -36,12 +36,6 @@ export class ListBranchesComponent implements OnInit {
   pageSize = 10;
   totalPages = 1;
   
-  // Add these filtering properties if not already present
-  // searchTerm = '';
-  // roleFilter = '';
-  // filteredUsers: any[] = [];
-  // allUsers: any[] = [];
-
   addUserForm: FormGroup;
   isAddUserModalVisible = false;
 
@@ -65,7 +59,6 @@ export class ListBranchesComponent implements OnInit {
     this.applyFiltersAndPagination();
   }
 
-// Apply filters and pagination
 applyFiltersAndPagination(): void {
   let users = [...this.allUsers];
 
@@ -94,7 +87,6 @@ applyFiltersAndPagination(): void {
   this.updateVisibleUsers();
 }
 
-// Update visible users based on current page
 updateVisibleUsers(): void {
   const startIndex = (this.currentPage - 1) * this.pageSize;
   const endIndex = startIndex + this.pageSize;
@@ -109,7 +101,6 @@ goToPage(page: number): void {
   }
 }
 
-// Calculate end index for display
 getEndIndex(): number {
   return Math.min(this.currentPage * this.pageSize, this.filteredUsers.length);
 }
@@ -139,58 +130,6 @@ loadUsers(): void {
     }
   });
 }
-
-  // applyFiltersAndPagination(): void {
-  //   let users = [...this.allUsers];
-
-  //   const search = this.searchTerm.trim().toLowerCase();
-  //   if (search) {
-  //     users = users.filter(user =>
-  //       user.username?.toLowerCase().includes(search) ||
-  //       user.email?.toLowerCase().includes(search) ||
-  //       user.role?.toLowerCase().includes(search)
-  //     );
-  //   }
-
-  //   // Apply role filter
-  //   if (this.roleFilter) {
-  //     users = users.filter(user => user.role === this.roleFilter);
-  //   }
-
-  //   this.filteredUsers = users;
-  //   this.totalPages = Math.ceil(this.filteredUsers.length / this.pageSize);
-  //   this.updateVisibleUsers();
-  // }
-
-  // updateVisibleUsers(): void {
-  //   const startIndex = (this.currentPage - 1) * this.pageSize;
-  //   const endIndex = startIndex + this.pageSize;
-  //   this.visibleUsers = this.filteredUsers.slice(startIndex, endIndex);
-  // }
-
-  // goToPage(page: number): void {
-  //   if (page >= 1 && page <= this.totalPages) {
-  //     this.currentPage = page;
-  //     this.updateVisibleUsers();
-  //   }
-  // }
-
-  // getEndIndex(): number {
-  //   return Math.min(this.currentPage * this.pageSize, this.filteredUsers.length);
-  // }
-
-
-//  resetFilters(): void {
-//     this.searchTerm = '';
-//     this.usernameFilter = '';
-//     this.idFilter = '';
-//     this.emailFilter = '';
-//     this.roleFilter = '';
-//     this.applyFiltersAndPagination();
-//   }
-
-
-  // Helper methods for enhanced functionality
 
   getUsersByRole(role: string): any[] {
   return this.allUsers.filter(user => user.role === role);
@@ -293,6 +232,7 @@ private sendPasswordResetEmail(user: any): void {
         title: 'Reset Link Sent!',
         html: `
           <div class="text-center">
+            <hr>
             <i class="fas fa-paper-plane fa-3x text-primary mb-3"></i>
             <p>Password reset instructions have been sent to:</p>
             <p class="fw-bold text-primary">${user.email}</p>
@@ -464,7 +404,6 @@ private handleResetError(user: any, type: string, error: any): void {
     }
   }
 
-  // Role badge helper (single implementation)
   getRoleBadgeClass(role: string): string {
     switch (role) {
       case 'CIA':
@@ -485,51 +424,6 @@ private handleResetError(user: any, type: string, error: any): void {
   getUserById(id: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/${id}`);
   }
-
-  // loadUsers(): void {
-  //   this.isLoading = true;
-  //   this.http.get<any[]>(this.apiUrl).subscribe({
-  //     next: (users: any[]) => {
-  //       this.allUsers = users || [];
-  //       this.applyFiltersAndPagination();
-  //       this.isLoading = false;
-  //     },
-  //     error: (err: any) => {
-  //       this.toastr.error('Could not load users from mock backend.', 'API Error');
-  //       this.isLoading = false;
-  //     }
-  //   });
-  // }
-
-  // applyFiltersAndPagination(): void {
-  //   let users = [...this.allUsers];
-
-  //   const search = (this.searchTerm || '').trim().toLowerCase();
-  //   if (search) {
-  //     users = users.filter(u =>
-  //       (u.username || '').toLowerCase().includes(search) ||
-  //       (u.email || '').toLowerCase().includes(search) ||
-  //       (u.role || '').toLowerCase().includes(search)
-  //     );
-  //   }
-
-  //   if (this.usernameFilter) {
-  //     users = users.filter(u => (u.username || '').toLowerCase().includes(this.usernameFilter.toLowerCase()));
-  //   }
-  //   if (this.idFilter) {
-  //     users = users.filter(u => u.id?.toString().includes(this.idFilter));
-  //   }
-  //   if (this.emailFilter) {
-  //     users = users.filter(u => (u.email || '').toLowerCase().includes(this.emailFilter.toLowerCase()));
-  //   }
-  //   if (this.roleFilter) {
-  //     users = users.filter(u => (u.role || '').toLowerCase().includes(this.roleFilter.toLowerCase()));
-  //   }
-
-  //   this.filteredUsers = users;
-  //   this.visibleUsers = this.filteredUsers.slice(0, this.recordsToShow);
-  // }
-
  
   loadMoreUsers(): void {
     this.recordsToShow += 20;
