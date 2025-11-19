@@ -8,15 +8,13 @@
       <div class="people-page">
         <div class="controls-bar-enhanced">
           <div class="controls-left">
-        <div class="search-container position-relative">
+           <div class="search-container position-relative">
               <div class="input-group w-100">
                 <span class="input-group-text"><i class="fas fa-search"></i></span>
                 <input type="text" class="form-control" placeholder="Search users by username, email, or role..."
                       [(ngModel)]="searchTerm" (ngModelChange)="applyFiltersAndPagination()">
               </div>
 
-            
-            <!-- Results count - positioned absolutely -->
             <div class="search-results-count position-absolute end-0 top-100 mt-1" 
                 *ngIf="filteredUsers.length > 0 && searchTerm">
               <span class="badge bg-primary rounded-pill">
