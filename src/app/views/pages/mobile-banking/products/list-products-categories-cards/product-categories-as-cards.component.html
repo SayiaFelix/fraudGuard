@@ -420,6 +420,14 @@
                         <i class="fas fa-angle-double-right"></i>
                       </a>
                     </li>
+                    
+                    <div class="ms-3 d-flex align-items-center">
+                      <label class="me-2 small text-muted">Go to:</label>
+                      <input type="number" class="form-control form-control-sm" style="width: 60px;" 
+                            #pageInput min="1" [max]="getFieldworkTotalPages()" 
+                            (keyup.enter)="goToFieldworkPage(pageInput.valueAsNumber)"
+                            (blur)="goToFieldworkPage(pageInput.valueAsNumber)">
+                    </div>
                   </ul>
                 </nav>
 
@@ -726,6 +734,14 @@
                   <i class="fas fa-angle-double-right"></i>
                 </a>
               </li>
+
+              <div class="ms-3 d-flex align-items-center">
+                <label class="me-2 small text-muted">Go to:</label>
+                <input type="number" class="form-control form-control-sm" style="width: 60px;" 
+                      #pageInput min="1" [max]="getTotalPages()" 
+                      (keyup.enter)="goToPage(pageInput.valueAsNumber)"
+                      (blur)="goToPage(pageInput.valueAsNumber)">
+              </div>
             </ul>
           </nav>
         </div>
