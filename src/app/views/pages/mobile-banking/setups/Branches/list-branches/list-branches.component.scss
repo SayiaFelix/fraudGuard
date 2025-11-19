@@ -14,15 +14,34 @@
   --primary-blue-light: #e6f2ff;
   --checkbox-blue: #007bff;
   --checkbox-blue-light: rgba(0, 123, 255, 0.1);
+  
+  /* 🟢 NEW ROLE COLORS */
+  --role-cia: #6558F5; 
+  --role-auditor: #10B981; 
+  --role-unit: #FBBF24; 
 }
 
+/* 🟢 FIX: DOCKING THE PANEL TO THE RIGHT VIEWPORT EDGE */
 .details-panel {
   animation: slideIn 0.3s ease-in-out;
+  
+  /* CRUCIAL DOCKING STYLES */
+  position: fixed; 
+  top: 56px; 
+  right: 0; 
+  width: 400px; /* Fixed width for the panel */
+  height: 100vh; /* Full height */
+  z-index: 1030; /* Ensure it's on top */
+  overflow-y: auto; /* Allows panel content to scroll */
+  
+  padding: 1rem;
+  background-color: #fff;
+  border-left: 1px solid #ddd;
 }
 
 @keyframes slideIn {
   from {
-    transform: translateX(100%);
+    transform: translateX(400px); /* Start off-screen by the panel's width */
     opacity: 0;
   }
   to {
@@ -36,22 +55,25 @@
 }
 
 
-/* --- Original Page & Side Panel Styles --- */
+/* -------------------------------------------------------------------------------------------------- */
+/* --- Core Page & Side Panel Styles: Adjusted for 'People/User Management' Look --- */
+/* -------------------------------------------------------------------------------------------------- */
+
 .people-page-wrapper {
   position: relative;
   overflow-x: hidden;
   background-color: var(--bg-color);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  margin-top: -80px; // Move the whole page up a bit more
+  margin-top: -80px;
 }
 
+/* 🟢 FIX: SHIFTING THE MAIN CONTENT WHEN PANEL IS VISIBLE */
 .main-content {
   transition: margin-right 0.3s ease-in-out;
-  // Remove default margin-right when panel is not visible
   margin-right: 0;
   
   &.panel-visible {
-    margin-right: 400px;
+    margin-right: 400px; /* Shifts the main content over by the panel's width */
   }
 }
 
@@ -75,7 +97,6 @@
   margin-bottom: 1.5rem;
   flex-wrap: wrap;
   gap: 1rem;
-  // Add padding to prevent button from touching edge
   padding-right: 1rem;
 }
 
@@ -139,7 +160,6 @@
   font-weight: 600;
   padding: 0.5rem 1rem;
   cursor: pointer;
-  // Add margin to prevent touching edge
   margin-right: 0.5rem;
   &:hover {
     opacity: 0.9;
@@ -232,7 +252,6 @@
     accent-color: var(--checkbox-blue);
     cursor: pointer;
     
-    // Custom checkbox styling for better blue theme integration
     &:checked {
       background-color: var(--checkbox-blue);
       border-color: var(--checkbox-blue);
@@ -249,6 +268,24 @@
 .id-cell { flex: 4 1 0; }
 .email-cell { flex: 2 1 0; }
 .location-cell { flex: 2 1 0; }
+
+/* 🟢 NEW BADGE STYLES FOR ROLES */
+.role-badge {
+    padding: 0.3em 0.7em;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: white;
+    text-transform: uppercase;
+    display: inline-block;
+    
+    &.badge-cia { background-color: var(--role-cia); }
+    &.badge-auditor { background-color: var(--role-auditor); }
+    &.badge-unit { 
+        background-color: var(--role-unit); 
+        color: #6d4d00; /* Darker text for yellow background */
+    }
+}
 
 .footer-actions {
   text-align: center;
@@ -279,72 +316,74 @@
   &:hover { color: var(--text-color); }
 }
 
-.details-panel {
-  min-height: 100%;
-  padding: 1rem;
-  background-color: #fff;
-  border-left: 1px solid #ddd;
-}
-
-
-.user-info {
+.person-info {
   display: flex; align-items: center; padding: 1.5rem;
   gap: 1rem; border-bottom: 1px solid var(--row-border-color); flex-shrink: 0;
 }
-.user-avatar {
+.person-avatar {
   width: 40px; height: 40px; border-radius: 5px; background-color: var(--button-dark-bg);
   display: flex; justify-content: center; align-items: center; font-size: 1.2rem;
   color: var(--text-color);
 }
-.user-name { flex-grow: 1; font-weight: 600; color: #22223b; }
-.panel-body { padding: 1rem 1.5rem; overflow-y: auto; flex-grow: 1; }
+.person-name { flex-grow: 1; font-weight: 600; color: #22223b; }
 
-/* Updated styles for collapsible sections using details/summary */
+.panel-body { 
+  padding: 1rem 1.5rem; 
+  overflow-y: auto; 
+  flex-grow: 1; 
+  max-height: calc(100vh - 120px); 
+}
+
+/* Style for Collapsible Audit Sections (Details/Summary) */
 .detail-section {
   margin-bottom: 1.5rem;
-  border: none;
+  border: 1px solid var(--row-border-color); 
+  border-radius: 8px; 
+  background-color: var(--box-bg-color); 
   
-  /* Style the summary element (the clickable header) */
   summary.section-header {
     display: flex; 
     align-items: center; 
     gap: 0.75rem; 
-    padding: 0.5rem 0;
+    padding: 0.75rem 1rem; 
     font-weight: 600; 
     color: var(--text-muted); 
     cursor: pointer;
-    list-style: none; /* Remove the default triangle */
+    list-style: none; 
     user-select: none;
+    background-color: var(--header-bg); 
+    border-radius: 8px 8px 0 0; 
     
-    /* Hide the default browser disclosure triangle */
     &::-webkit-details-marker {
       display: none;
     }
     
     h4 { 
-      font-size: 0.9rem; 
+      font-size: 1rem; 
       margin: 0; 
       flex-grow: 1; 
       color: var(--text-color); 
     }
     
-    /* Style the chevron icon */
     i.fas.fa-chevron-down {
       transition: transform 0.2s ease;
     }
     
     &:hover {
-      color: var(--text-color);
+      background-color: #f0f0f0;
     }
   }
   
-  /* Rotate the chevron when the details is open */
   &[open] summary.section-header i.fas.fa-chevron-down {
     transform: rotate(180deg);
   }
   
   .section-content {
-    padding: 0.5rem 0 0.5rem 1.5rem;
+    padding: 1rem; 
+    background-color: var(--box-bg-color);
+    border-top: 1px solid var(--row-border-color);
+    border-radius: 0 0 8px 8px;
+    
     &.placeholder-text { 
       color: var(--text-muted); 
       font-size: 0.9rem; 
@@ -354,13 +393,36 @@
 
 .detail-item {
   display: flex; align-items: center; padding: 0.5rem 0; font-size: 0.9rem;
-  i { width: 20px; color: var(--text-muted); margin-right: 0.75rem; text-align: center; }
+  i { 
+    width: 20px; 
+    color: var(--primary-blue); 
+    margin-right: 0.75rem; 
+    text-align: center; 
+  }
   span { flex: 1; color: var(--text-muted); }
   strong { color: var(--text-color); font-weight: 500; }
 }
 
+.cap-badge-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 5px;
+}
+.cap-badge {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+.cap-none {
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+
 /* ======================================================= */
-/* MODAL STYLES                                            */
+/* MODAL STYLES                                            */
 /* ======================================================= */
 :host {
   .people-modal-overlay {
@@ -369,7 +431,6 @@
     left: 0;
     width: 100%;
     height: 100%;
-    // Remove the background shadow
     background-color: transparent;
     z-index: 1050;
     display: flex;
@@ -401,11 +462,11 @@
   }
 
   .btn-test:hover {
-  background-color: #0ea908;
-  color: #ffffff;
-  transform: scale(1.05);
-  border-radius: 8px;
-}
+    background-color: #0ea908;
+    color: #ffffff;
+    transform: scale(1.05);
+    border-radius: 8px;
+  }
   .people-modal-close-btn {
     background: none; border: none; font-size: 28px; font-weight: 300;
     cursor: pointer; color: #888; padding: 0; line-height: 1;
