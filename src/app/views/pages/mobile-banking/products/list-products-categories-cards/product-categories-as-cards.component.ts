@@ -400,10 +400,10 @@ getFieldworkReportsWithFindings(): FieldworkAudit[] {
 }
 
 openManagementResponseModal(report: MISReport): void {
-  console.log('🔍 DEBUG - Opening Management Response Modal');
-  console.log('Report:', report);
-  console.log('Fieldwork data:', report.fieldworkData);
-  console.log('Findings:', report.fieldworkData?.preClosing);
+  // console.log('🔍 DEBUG - Opening Management Response Modal');
+  // console.log('Report:', report);
+  // console.log('Fieldwork data:', report.fieldworkData);
+  // console.log('Findings:', report.fieldworkData?.preClosing);
   
   this.selectedReport = report;
   
