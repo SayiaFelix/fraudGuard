@@ -1,10 +1,9 @@
 <div class="container-fluid">
   <div class="row">
     <!-- Left Side: Audit Table -->
-    <div class="col-lg-8 col-md-7" [class.col-lg-12]="!isDetailsPanelVisible">
-      <!-- <h1 class="h3 mb-4">Audit Scoping</h1> -->
-      
+      <div class="col-lg-8 col-md-7" [class.col-lg-12]="!isDetailsPanelVisible">
       <div class="d-flex justify-content-between align-items-center mb-3">
+        <!-- Search and Filters -->
         <div class="input-group w-50">
           <span class="input-group-text"><i class="fas fa-search"></i></span>
           <input type="text" class="form-control" placeholder="Search audits..."
@@ -12,18 +11,18 @@
         </div>
 
         <div class="d-flex align-items-center gap-2">
+          <!-- Export Button -->
           <div class="btn-group">
-            <button type="button" class="btn btn-outline-info btn-sm dropdown-toggle"  [disabled]="!allAudits.length"
+            <button type="button" class="btn btn-outline-info btn-sm dropdown-toggle" [disabled]="!allAudits.length"
                     data-bs-toggle="dropdown" aria-expanded="false">
               <i class="fas fa-download"></i> Export
             </button>
             <ul class="dropdown-menu">
-               <li>
+              <li>
                 <a class="dropdown-item" (click)="exportAsCSV()">
                   <i class="fas fa-file-csv text-warning me-2"></i> CSV
                 </a>
               </li>
-
               <li>
                 <a class="dropdown-item" (click)="exportAsExcel()">
                   <i class="fas fa-file-excel text-success me-2"></i> Excel
@@ -44,59 +43,188 @@
         </div>
       </div>
 
-      <div class="table-responsive">
-        <table class="table table-hover align-middle">
-          <thead class="table-light">
-            <tr>
-              <th>Title</th>
-              <th>Department</th>
-              <th>Status</th>
-              <th>Start</th>
-              <th>End</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let audit of visibleAudits"
-                (click)="showAuditDetails(audit)"
-                [class.table-active]="selectedAudit?.id === audit.id"
-                style="cursor:pointer">
-              <td>{{ audit.title }}</td>
-              <td>{{ audit.department }}</td>
-              <td>
-                <span class="badge"
-                      [ngClass]="{
-                        'bg-secondary': audit.status === 'Planned',
-                        'bg-warning text-dark': audit.status === 'In Progress',
-                        'bg-success': audit.status === 'Completed'
-                      }">
-                  {{ audit.status }}
-                </span>
-              </td>
-              <td>{{ audit.startDate }}</td>
-              <td>{{ audit.endDate }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+        <!-- Filters Row -->
+        <div class="row mb-3">
+          <div class="col-md-3">
+            <label class="form-label small fw-bold">Department</label>
+            <select class="form-select form-select-sm" [(ngModel)]="departmentFilter" (ngModelChange)="applyFiltersAndPagination()">
+              <option value="">All Departments</option>
+              <option *ngFor="let dept of uniqueDepartments" [value]="dept">{{ dept }}</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label small fw-bold">Status</label>
+            <select class="form-select form-select-sm" [(ngModel)]="statusFilter" (ngModelChange)="applyFiltersAndPagination()">
+              <option value="">All Status</option>
+              <option value="Planned">Planned</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Completed">Completed</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label small fw-bold">Year</label>
+            <select class="form-select form-select-sm" [(ngModel)]="yearFilter" (ngModelChange)="applyFiltersAndPagination()">
+              <option value="">All Years</option>
+              <option *ngFor="let year of uniqueYears" [value]="year">{{ year }}</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label small fw-bold">Items per page</label>
+            <select class="form-select form-select-sm" [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange()">
+              <option value="5">5</option>
+              <option value="10">10</option>
+              <option value="20">20</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </div>
+        </div>
 
-      <!-- Audit Profile -->
-      <div class="col-lg-4 col-md-5 bg-white border-start shadow-sm rounded details-panel" *ngIf="isDetailsPanelVisible">
-        <div class="p-3 d-flex justify-content-between align-items-center border-bottom">
-          <h2 class="mb-0">
-            <i class="fas fa-clipboard-list me-1 text-primary"></i> Audit ( {{ selectedAudit?.title }} ) Overview
-          </h2>
-          <button class="btn btn-sm btn-light" (click)="hideAuditDetails()">
-            <i class="fas fa-times"></i>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="text-muted small">
+            Showing {{ (currentPage - 1) * pageSize + 1 }} to {{ getEndIndex() }} of {{ filteredAudits.length }} audits
+          </div>
+          <button *ngIf="hasActiveFilters()" class="btn btn-sm btn-outline-secondary" (click)="resetFilters()">
+            <i class="fas fa-times me-1"></i> Clear Filters
           </button>
         </div>
 
-        <div class="card shadow-sm border-0 mt-3 mb-2">
-          <div class="card-body p-3">
-            <p><strong>Department: </strong> {{ selectedAudit?.department }}</p>
-            <p>
-              <strong>Status: </strong>
-              <span class="badge" 
+        <!-- Table -->
+        <div class="table-responsive mt-3">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th (click)="sortBy('title')" style="cursor: pointer;">
+                  Title 
+                  <i class="fas fa-sort ms-1" [class.fa-sort-up]="sortColumn === 'title' && sortDirection === 'asc'" 
+                    [class.fa-sort-down]="sortColumn === 'title' && sortDirection === 'desc'"></i>
+                </th>
+                <th (click)="sortBy('department')" style="cursor: pointer;">
+                  Department
+                  <i class="fas fa-sort ms-1" [class.fa-sort-up]="sortColumn === 'department' && sortDirection === 'asc'" 
+                    [class.fa-sort-down]="sortColumn === 'department' && sortDirection === 'desc'"></i>
+                </th>
+                <th (click)="sortBy('status')" style="cursor: pointer;">
+                  Status
+                  <i class="fas fa-sort ms-1" [class.fa-sort-up]="sortColumn === 'status' && sortDirection === 'asc'" 
+                    [class.fa-sort-down]="sortColumn === 'status' && sortDirection === 'desc'"></i>
+                </th>
+                <th (click)="sortBy('startDate')" style="cursor: pointer;">
+                  Start
+                  <i class="fas fa-sort ms-1" [class.fa-sort-up]="sortColumn === 'startDate' && sortDirection === 'asc'" 
+                    [class.fa-sort-down]="sortColumn === 'startDate' && sortDirection === 'desc'"></i>
+                </th>
+                <th (click)="sortBy('endDate')" style="cursor: pointer;">
+                  End
+                  <i class="fas fa-sort ms-1" [class.fa-sort-up]="sortColumn === 'endDate' && sortDirection === 'asc'" 
+                    [class.fa-sort-down]="sortColumn === 'endDate' && sortDirection === 'desc'"></i>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let audit of visibleAudits"
+                  (click)="showAuditDetails(audit)"
+                  [class.table-active]="selectedAudit?.id === audit.id"
+                  style="cursor:pointer">
+                <td>{{ audit.title }}</td>
+                <td>{{ audit.department }}</td>
+                <td>
+                  <span class="badge"
+                        [ngClass]="{
+                          'bg-secondary': audit.status === 'Planned',
+                          'bg-warning text-dark': audit.status === 'In Progress',
+                          'bg-success': audit.status === 'Completed'
+                        }">
+                    {{ audit.status }}
+                  </span>
+                </td>
+                <td>{{ audit.startDate }}</td>
+                <td>{{ audit.endDate }}</td>
+              </tr>
+              <tr *ngIf="visibleAudits.length === 0">
+                <td colspan="5" class="text-center text-muted py-4">
+                  <i class="fas fa-inbox fa-2x mb-2"></i><br>
+                  No audits found matching your criteria.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-3">
+          <div class="text-muted small">
+            Page {{ currentPage }} of {{ totalPages }}
+          </div>
+          
+          <nav>
+            <ul class="pagination pagination-sm mb-0">
+              <li class="page-item" [class.disabled]="currentPage === 1">
+                <a class="page-link" (click)="goToPage(1)" style="cursor: pointer;">
+                  <i class="fas fa-angle-double-left"></i>
+                </a>
+              </li>
+              <li class="page-item" [class.disabled]="currentPage === 1">
+                <a class="page-link" (click)="goToPage(currentPage - 1)" style="cursor: pointer;">
+                  <i class="fas fa-angle-left"></i>
+                </a>
+              </li>
+              
+              <li class="page-item" *ngFor="let page of getPaginationPages()" 
+                  [class.active]="page === currentPage">
+                <a class="page-link" (click)="goToPage(page)" style="cursor: pointer;">
+                  {{ page }}
+                </a>
+              </li>
+              
+              <li class="page-item" [class.disabled]="currentPage === totalPages">
+                <a class="page-link" (click)="goToPage(currentPage + 1)" style="cursor: pointer;">
+                  <i class="fas fa-angle-right"></i>
+                </a>
+              </li>
+              <li class="page-item" [class.disabled]="currentPage === totalPages">
+                <a class="page-link" (click)="goToPage(totalPages)" style="cursor: pointer;">
+                  <i class="fas fa-angle-double-right"></i>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+
+      <div class="card col-lg-4 col-md-5 bg-white border-start shadow-sm rounded details-panel" *ngIf="isDetailsPanelVisible">
+  
+  <!-- Main Header - This is separate -->
+  <div class="p-3 card-header bg-light text-dark">
+    <div class="d-flex justify-content-between align-items-start">
+      <div class="flex-grow-1">
+        <h2 class="mb-1 fw-bold">
+          <i class="fas fa-clipboard-check text-primary me-2"></i>Audit Overview
+        </h2>
+        <h5 class="mb-0 opacity-90">{{ selectedAudit?.title }}</h5>
+      </div>
+      <button class="btn btn-sm btn-light btn-circle" (click)="hideAuditDetails()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="card-body" style="max-height: 65vh; overflow-y: auto;">
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-light py-2">
+        <h4 class="mb-0 fw-bold text-dark">
+          <i class="fas fa-info-circle me-2 text-primary"></i>Basic Information
+        </h4>
+      </div>
+      <div class="card-body p-3">
+        <div class="row g-2">
+          <div class="col-12">
+            <label class="small text-muted mb-1">Department</label>
+            <p class="mb-2 fw-semibold">{{ selectedAudit?.department || 'Not specified' }}</p>
+          </div>
+          <div class="col-6">
+            <label class="small text-muted mb-1">Status</label>
+            <div class="mb-2">
+              <span class="badge px-2 py-1"
                     [ngClass]="{
                       'bg-secondary': selectedAudit?.status === 'Planned',
                       'bg-warning text-dark': selectedAudit?.status === 'In Progress',
@@ -104,180 +232,195 @@
                     }">
                 {{ selectedAudit?.status }}
               </span>
+            </div>
+          </div>
+          <div class="col-6">
+            <label class="small text-muted mb-1">Audit Year</label>
+            <p class="mb-2 fw-semibold">{{ selectedAudit?.auditYear || 'Not specified' }}</p>
+          </div>
+          <div class="col-12">
+            <label class="small text-muted mb-1">Timeline</label>
+            <p class="mb-0 fw-semibold small">
+              {{ selectedAudit?.startDate || 'Not set' }} 
+              <i class="fas fa-arrow-right mx-2 text-muted"></i>
+              {{ selectedAudit?.endDate || 'Not set' }}
             </p>
-            <p><strong>Start Date: </strong> {{ selectedAudit?.startDate }}</p>
-            <p><strong>End Date: </strong> {{ selectedAudit?.endDate }}</p>
-            <p><strong>Scope: </strong> {{ selectedAudit?.scope }}</p>
+          </div>
+          <div class="col-12">
+            <label class="small text-muted mb-1">Scope</label>
+            <p class="mb-0 text-dark fw-semibold small">{{ selectedAudit?.scope }}</p>
           </div>
         </div>
+      </div>
+    </div>
 
-        <!-- Collapsible Sections -->
-        <div class="accordion" id="auditAccordion">
-          <!-- Planning Overview -->
-          <div class="accordion-item">
-            <h2 class="accordion-header" id="headingOverview">
-              <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOverview" aria-expanded="false" aria-controls="collapseOverview">
-                <i class="fas fa-info-circle me-2 text-info"></i> Planning Overview
-              </button>
-            </h2>
-            <div id="collapseOverview" class="accordion-collapse collapse" aria-labelledby="headingOverview" data-bs-parent="#auditAccordion">
-              <div class="accordion-body small">
-                <p><strong>Schedule Confirmed:</strong> {{ selectedAudit?.scheduleConfirmed ? 'Yes' : 'No' }}</p>
-                <!-- <p><strong>Risk Summary:</strong> {{ selectedAudit?.riskSummary || 'No plan yet' }}</p> -->
-                <p><strong>Meeting Scheduled:</strong> {{ selectedAudit?.planningMeetingDate || 'No plan yet' }}</p>
-                <!-- <p><strong>Agenda: </strong> {{ selectedAudit?.planningAgenda || 'No plan yet' }}</p> -->
+    <!-- Collapsible Sections -->
+    <div class="accordion" id="auditAccordion">
+      <!-- Planning Overview -->
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingOverview">
+          <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOverview" aria-expanded="false" aria-controls="collapseOverview">
+            <i class="fas fa-info-circle me-2 text-info"></i> Planning Overview
+          </button>
+        </h2>
+        <div id="collapseOverview" class="accordion-collapse collapse" aria-labelledby="headingOverview" data-bs-parent="#auditAccordion">
+          <div class="accordion-body small">
+            <div class="row">
+                 <div class="col-6">
+              <label class="small text-muted mb-1">Schedule Confirmed</label>
+              <p class="mb-0 fw-semibold small">
+              {{ selectedAudit?.scheduleConfirmed ? 'Yes' : 'No' }}
+              </p>
+            </div>
+            <div class="col-6">
+              <label class="small text-muted mb-1">Meeting Scheduled</label>
+              <p class="mb-0 fw-semibold small">
+            {{ selectedAudit?.planningMeetingDate || 'No plan yet' }}
+              </p>
+            </div>
+            </div>
+         
+          </div>
+        </div>
+      </div>
+
+      <!-- Team Section -->
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingTeam">
+          <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTeam" aria-expanded="false" aria-controls="collapseTeam">
+            <i class="fas fa-users me-2 text-success"></i> Team
+          </button>
+        </h2>
+        <div id="collapseTeam" class="accordion-collapse collapse" aria-labelledby="headingTeam" data-bs-parent="#auditAccordion">
+          <div class="accordion-body small">
+            <div *ngIf="selectedAudit?.team?.length > 0; else noTeamAccordion">
+              <div *ngFor="let member of selectedAudit?.team; let i = index" class="shadow-sm p-2 d-flex justify-content-between align-items-center small-task-box mb-1">
+                <div>
+                  <small>
+                    <i class="fas fa-user me-1 text-primary"></i>
+                    {{ i + 1 }}. <strong>{{ member.name }}</strong> | <span class="text-muted">{{ member.role }}</span>
+                  </small>
+                </div>
+                <div class="d-flex gap-1">
+                  <button class="btn btn-sm text-danger" (click)="deleteMember(i)" title="Delete Member">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
               </div>
             </div>
+            <ng-template #noTeamAccordion>
+              <p class="text-muted"><em>No team assigned</em></p>
+            </ng-template>
           </div>
+        </div>
+      </div>
 
-            <!-- Team Section -->
-          <div class="accordion-item">
-            <h2 class="accordion-header" id="headingTeam">
-              <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTeam" aria-expanded="false" aria-controls="collapseTeam">
-                <i class="fas fa-users me-2 text-success"></i> Team
-              </button>
-            </h2>
-            <div id="collapseTeam" class="accordion-collapse collapse" aria-labelledby="headingTeam" data-bs-parent="#auditAccordion">
-              <div class="accordion-body small">
-                <div *ngIf="selectedAudit?.team?.length > 0; else noTeamAccordion">
-                  <div *ngFor="let member of selectedAudit?.team; let i = index" class="shadow-sm p-2 d-flex justify-content-between align-items-center small-task-box mb-1">
-                    <div>
-                      <small>
-                        <i class="fas fa-user me-1 text-primary"></i>
-                        {{ i + 1 }}. <strong>{{ member.name }}</strong> | <span class="text-muted">{{ member.role }}</span>
-                      </small>
-                    </div>
-                    <div class="d-flex gap-1">
-                      <!-- <button class="btn btn-sm text-secondary" (click)="updateTeam(i)" title="Edit Member">
-                        <i class="fas fa-edit"></i>
-                      </button> -->
-                      <button class="btn btn-sm text-danger" (click)="deleteMember(i)" title="Delete Member">
-                        <i class="fas fa-trash"></i>
-                      </button>
-                    </div>
+      <!-- Planning Tasks -->
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingTasks">
+          <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTasks" aria-expanded="false" aria-controls="collapseTasks">
+            <i class="fas fa-clipboard-check me-2 text-warning"></i> Planning Tasks
+          </button>
+        </h2>
+        <div id="collapseTasks" class="accordion-collapse collapse" aria-labelledby="headingTasks" data-bs-parent="#auditAccordion">
+          <div class="accordion-body small">
+            <div *ngIf="selectedAudit?.planningTasks?.length > 0; else noTasksAccordion">
+              <div *ngFor="let task of selectedAudit?.planningTasks; let i = index" class="shadow-sm p-2 d-flex justify-content-between align-items-center small-task-box mb-1">
+                <div>
+                  <small>{{ i + 1 }}. <strong>{{ task?.name }}</strong> | Owner: {{ task?.owner }} | Start: {{ task?.startDate }} | End: {{ task?.endDate }} | Status:
+                    <span class="badge bg-info text-dark">{{ task?.status }}</span>
+                  </small>
+                  <div *ngIf="task?.description">
+                    <small class="text-muted">Description: {{ task?.description }}</small>
                   </div>
                 </div>
-                <ng-template #noTeamAccordion>
-                  <p class="text-muted"><em>No team assigned</em></p>
-                </ng-template>
+                <div class="d-flex gap-1">
+                  <button class="btn btn-sm text-secondary" (click)="editTask(i)" title="Edit Task">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="btn btn-sm text-danger" (click)="deleteTask(i)" title="Delete Task">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
               </div>
             </div>
+            <ng-template #noTasksAccordion>
+              <p class="text-muted"><em>No planning tasks yet.</em></p>
+            </ng-template>
           </div>
-      
-            <!-- Planning Tasks -->
-          <div class="accordion-item">
-              <h2 class="accordion-header" id="headingTasks">
-                <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTasks" aria-expanded="false" aria-controls="collapseTasks">
-                  <i class="fas fa-clipboard-check me-2 text-warning"></i> Planning Tasks
-                </button>
-              </h2>
-              <div id="collapseTasks" class="accordion-collapse collapse" aria-labelledby="headingTasks" data-bs-parent="#auditAccordion">
-                <div class="accordion-body small">
-                  <div *ngIf="selectedAudit?.planningTasks?.length > 0; else noTasksAccordion">
-                    <div *ngFor="let task of selectedAudit?.planningTasks; let i = index" class="shadow-sm p-2 d-flex justify-content-between align-items-center small-task-box mb-1">
+        </div>
+      </div>
+
+      <!-- Documents Section -->
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingDocs">
+          <button class="accordion-button collapsed fw-bold" type="button"
+            data-bs-toggle="collapse" data-bs-target="#collapseDocs"
+            aria-expanded="false" aria-controls="collapseDocs">
+            <i class="fas fa-folder-open me-2 text-danger fw-bold"></i> Documents
+          </button>
+        </h2>
+
+        <div id="collapseDocs" class="accordion-collapse collapse"
+          aria-labelledby="headingDocs" data-bs-parent="#auditAccordion">
+          <div class="accordion-body small">
+            <div *ngIf="selectedAudit?.documents?.length > 0; else noDocsAccordion">
+              <div *ngFor="let tabGroup of ['schedule','docs','meeting']">
+                <div class="mb-2 mt-3">
+                  <strong class="text-primary text-uppercase">
+                    {{ tabGroup | titlecase }} Files
+                  </strong>
+                </div>
+                <ng-container *ngIf="getDocsByTab(tabGroup).length > 0; else noFilesForTab">
+                  <div *ngFor="let doc of getDocsByTab(tabGroup)">
+                    <div class="shadow-sm p-2 d-flex justify-content-between align-items-center small-task-box mb-1">
                       <div>
-                        <small>{{ i + 1 }}. <strong>{{ task?.name }}</strong> | Owner: {{ task?.owner }} | Start: {{ task?.startDate }} | End: {{ task?.endDate }} | Status:
-                          <span class="badge bg-info text-dark">{{ task?.status }}</span>
+                        <small>
+                          <i class="fas fa-file-alt me-1 text-primary"></i>
+                          {{ doc.name }}
                         </small>
-                        <div *ngIf="task?.description">
-                          <small class="text-muted">Description: {{ task?.description }}</small>
-                        </div>
                       </div>
                       <div class="d-flex gap-1">
-                        <button class="btn btn-sm text-secondary" (click)="editTask(i)" title="Edit Task">
-                          <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-sm text-danger" (click)="deleteTask(i)" title="Delete Task">
-                          <i class="fas fa-trash"></i>
+                        <a *ngIf="doc.content" [href]="doc.content" target="_blank"
+                          class="btn btn-sm btn-outline-secondary" title="Download">
+                          <i class="fas fa-download"></i>
+                        </a>
+                        <button class="btn btn-sm btn-outline-danger"
+                          (click)="removeDocument(doc)" title="Delete">
+                          <i class="fas fa-trash-alt"></i>
                         </button>
                       </div>
                     </div>
                   </div>
-                  <ng-template #noTasksAccordion>
-                    <p class="text-muted"><em>No planning tasks yet.</em></p>
-                  </ng-template>
-                </div>
-              </div>
-          </div>
-
-           <!-- Documents Section -->
-            <div class="accordion-item">
-              <h2 class="accordion-header" id="headingDocs">
-                <button class="accordion-button collapsed fw-bold" type="button"
-                  data-bs-toggle="collapse" data-bs-target="#collapseDocs"
-                  aria-expanded="false" aria-controls="collapseDocs">
-                  <i class="fas fa-folder-open me-2 text-danger fw-bold"></i> Documents
-                </button>
-              </h2>
-
-            <div id="collapseDocs" class="accordion-collapse collapse"
-              aria-labelledby="headingDocs" data-bs-parent="#auditAccordion">
-
-              <div class="accordion-body small">
-                <div *ngIf="selectedAudit?.documents?.length > 0; else noDocsAccordion">
-                  <div *ngFor="let tabGroup of ['schedule','docs','meeting']">
-
-                    <div class="mb-2 mt-3">
-                      <strong class="text-primary text-uppercase">
-                        {{ tabGroup | titlecase }} Files
-                      </strong>
-                    </div>
-                    <ng-container *ngIf="getDocsByTab(tabGroup).length > 0; else noFilesForTab">
-
-                      <div *ngFor="let doc of getDocsByTab(tabGroup)">
-                        <div class="shadow-sm p-2 d-flex justify-content-between align-items-center small-task-box mb-1">
-
-                          <div>
-                            <small>
-                              <i class="fas fa-file-alt me-1 text-primary"></i>
-                              {{ doc.name }}
-                            </small>
-                          </div>
-
-                          <div class="d-flex gap-1">
-                            <a *ngIf="doc.content" [href]="doc.content" target="_blank"
-                              class="btn btn-sm btn-outline-secondary" title="Download">
-                              <i class="fas fa-download"></i>
-                            </a>
-
-                            <button class="btn btn-sm btn-outline-danger"
-                              (click)="removeDocument(doc)" title="Delete">
-                              <i class="fas fa-trash-alt"></i>
-                            </button>
-                          </div>
-
-                        </div>
-                      </div>
-
-                    </ng-container>
-
-                    <ng-template #noFilesForTab>
-                      <p class="text-muted ms-3"><em>No {{ tabGroup }} files uploaded</em></p>
-                    </ng-template>
-
-                  </div>
-
-                </div>
-
-                <ng-template #noDocsAccordion>
-                  <p class="text-muted"><em>No documents uploaded</em></p>
+                </ng-container>
+                <ng-template #noFilesForTab>
+                  <p class="text-muted ms-3"><em>No {{ tabGroup }} files uploaded</em></p>
                 </ng-template>
-
               </div>
-
             </div>
-            </div>
-         </div>
-        <hr>
-        <button class="btn btn-outline-success btn-sm w-100 mb-2" (click)="openPlanningPanel(selectedAudit)">
-          <i class="fas fa-tasks"></i> Create Plan
-        </button>
-        <button class="btn btn-outline-primary btn-sm w-100 mb-2" (click)="openObservations(selectedAudit)">
-          <i class="fas fa-eye"></i> View Observations
-        </button>
+            <ng-template #noDocsAccordion>
+              <p class="text-muted"><em>No documents uploaded</em></p>
+            </ng-template>
+          </div>
+        </div>
       </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <hr>
+    <button class="btn btn-outline-success btn-sm w-100 mb-2" (click)="openPlanningPanel(selectedAudit)">
+      <i class="fas fa-tasks"></i> Create Plan
+    </button>
+    <button class="btn btn-outline-primary btn-sm w-100 mb-2" (click)="openObservations(selectedAudit)">
+      <i class="fas fa-eye"></i> View Observations
+    </button>
+    
+  </div> 
+</div>
+
+
      </div>
- </div>
+   </div>
 
 <div class="modal fade show" *ngIf="isPlanningModalVisible"
      style="display:block; background:rgba(0,0,0,0.5)"
@@ -457,18 +600,35 @@
               </ul>
             </div>
           </div>
-
-         <!-- Meeting Tab -->
           <div *ngIf="tab==='meeting'" class="card border-0 shadow-sm p-3">
-            <label class="form-label fw-bold"><i class="fas fa-calendar-alt me-1 text-info"></i> Meeting Date</label>
-            <input type="datetime-local" [(ngModel)]="selectedAudit.planningMeetingDate" class="form-control form-control-sm mb-2">
+            <label class="form-label fw-bold">
+              <i class="fas fa-calendar-alt me-1 text-info"></i> Meeting Date *
+            </label>
+            <input type="datetime-local" 
+                  [(ngModel)]="selectedAudit.planningMeetingDate" 
+                  class="form-control form-control-sm mb-2"
+                  [min]="getCurrentDateTime()"
+                  [class.is-invalid]="isMeetingDateInvalid()"
+                  (change)="validateMeetingDate()">
+            
+            <div *ngIf="isMeetingDateInvalid()" class="invalid-feedback d-block">
+              <small class="text-danger">
+                <i class="fas fa-exclamation-triangle me-1"></i>
+                Meeting date cannot be in the past. Please select a future date and time.
+              </small>
+            </div>
 
-            <label class="form-label fw-bold"><i class="fas fa-list-alt me-1 text-secondary"></i> Agenda</label>
-            <textarea [(ngModel)]="selectedAudit.planningAgenda" class="form-control form-control-sm mb-2" placeholder="Meeting agenda"></textarea>
+            <label class="form-label fw-bold">
+              <i class="fas fa-list-alt me-1 text-secondary"></i> Agenda
+            </label>
+            <textarea [(ngModel)]="selectedAudit.planningAgenda" 
+                      class="form-control form-control-sm mb-2" 
+                      placeholder="Meeting agenda"></textarea>
 
-             <label class="form-label fw-bold"><i class="fas fa-file-alt me-1 text-success"></i> Upload Minutes</label>
-             <input type="file" multiple class="form-control form-control-sm mb-1"(change)="onDocumentsSelected($event, 'meeting')">
-      
+            <label class="form-label fw-bold">
+              <i class="fas fa-file-alt me-1 text-success"></i> Upload Minutes
+            </label>
+            <input type="file" multiple class="form-control form-control-sm mb-1" (change)="onDocumentsSelected($event, 'meeting')">
           </div>
         </div>
 

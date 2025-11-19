@@ -420,11 +420,6 @@ saveLogisticsChecklist() {
   this.closeLogisticsModal();
 }
 
-
-
-
-
-
   loadMoreAudits(): void {
     this.recordsToShow += 20;
     this.visibleAudits = this.filteredAudits.slice(0, this.recordsToShow);
