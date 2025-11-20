@@ -28,14 +28,16 @@ export interface MISReport {
   filePath?: any;
   findingsCount?: number;
   evidenceCount?: number;
-  fieldworkData?: any; // Store fieldwork findings
-  
+  fieldworkData?: any;
+
   draftStatus?: 'under_review' | 'client_review' | 'revised' | 'finalized';
   clientComments?: {
     text: string;
     author: string;
     date: string;
     type: 'comment' | 'question' | 'revision_request';
+    priority?: 'low' | 'medium' | 'high' | 'urgent'; // ADD THIS
+    dueDate?: string; // ADD THIS
   }[];
   revisionCount?: number;
   sentToClientAt?: string;
@@ -132,13 +134,23 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
     totalFindings: 0,
     addressedFindings: 0
   };
-
+  revisionForm!: FormGroup;
+  selectedReportForRevision?: MISReport;
+  isSubmittingRevision = false;
+  minDueDate = new Date().toISOString().split('T')[0];
   progressData: any = {};
 
   private destroy$ = new Subject<void>();
   private apiUrl = 'http://localhost:3000';
-selectedCommentType: any;
+  selectedCommentType: any;
   generatingReports: any;
+
+  
+fieldworkCurrentPage = 1;
+fieldworkPageSize = 5;
+fieldworkSortField = 'title';
+fieldworkSortDirection: 'asc' | 'desc' = 'asc';
+
 
   constructor(
     private mis: GlobalService,
@@ -153,15 +165,22 @@ selectedCommentType: any;
     this.loadFieldworkData();
     this.calculateKPIsFromWorkflows(); 
     this.initializeCommentForm();
+      this.initializeRevisionForm();
   this.trackResponseDueDates();
   }
 
 
-fieldworkCurrentPage = 1;
-fieldworkPageSize = 10;
-fieldworkSortField = 'title';
-fieldworkSortDirection: 'asc' | 'desc' = 'asc';
-
+private initializeRevisionForm(): void {
+  this.revisionForm = this.fb.group({
+    revisionDetails: ['', [
+      Validators.required, 
+      Validators.minLength(10),
+      Validators.maxLength(1000)
+    ]],
+    priority: ['medium', Validators.required],
+    dueDate: ['']
+  });
+}
 
 getFieldworkTotalPages(): number {
   return Math.ceil(this.getFieldworkReportsWithFindings().length / this.fieldworkPageSize);
@@ -2361,37 +2380,121 @@ shouldShowError(fieldName: string): boolean {
   return !!(field && field.invalid && (this.formSubmitted || field.touched));
 }
 
-requestRevision(draft: MISReport): void {
+get revisionDetails() {
+  return this.revisionForm.get('revisionDetails');
+}
+
+get revisionDetailsLength(): number {
+  return this.revisionDetails?.value?.length || 0;
+}
+
+get revisionDetailsInvalid(): boolean {
+  const control = this.revisionDetails;
+  return !!(control && control.invalid && (control.dirty || control.touched));
+}
+
+submitRevisionRequest(): void {
+  if (this.revisionForm.invalid || !this.selectedReportForRevision) {
+    this.markFormGroupTouched(this.revisionForm);
+    return;
+  }
+
+  this.isSubmittingRevision = true;
+
+  const formValue = this.revisionForm.value;
+  
+  const revisionComment = {
+    text: formValue.revisionDetails,
+    author: 'Client',
+    date: new Date().toISOString(),
+    type: 'revision_request' as const,
+    priority: formValue.priority as 'low' | 'medium' | 'high' | 'urgent', 
+    dueDate: formValue.dueDate || undefined 
+  };
+
+  const draft = this.selectedReportForRevision;
+  
+  if (!draft.clientComments) {
+    draft.clientComments = [];
+  }
+  
+  draft.clientComments.push(revisionComment);
+  draft.draftStatus = 'revised';
+  draft.revisionCount = (draft.revisionCount || 0) + 1;
+
+  this.updateReportDraftStatus(draft);
+
+  // Close modal and reset
+  this.closeRevisionModal();
+  this.isSubmittingRevision = false;
+
   Swal.fire({
-    title: 'Request Revision',
-    input: 'textarea',
-    inputLabel: 'Revision request details',
-    inputPlaceholder: 'What needs to be revised?',
-    showCancelButton: true,
-    confirmButtonText: 'Request Revision',
-    cancelButtonText: 'Cancel'
-  }).then((result) => {
-    if (result.isConfirmed && result.value) {
-      const revisionComment = {
-        text: String(result.value),
-        author: 'Client',
-        date: new Date().toISOString(),
-        type: 'revision_request' as const
-      };
-      
-      if (!draft.clientComments) {
-        draft.clientComments = [];
-      }
-      draft.clientComments.push(revisionComment);
-      draft.draftStatus = 'revised';
-      draft.revisionCount = (draft.revisionCount || 0) + 1;
-      this.updateReportDraftStatus(draft);
-      
-      Swal.fire('Requested!', 'Revision has been requested.', 'success');
-    }
+    title: 'Revision Requested!',
+    html: `
+      <div class="text-start">
+        <p>Your revision request has been submitted successfully.</p>
+        <div class="alert alert-warning mt-2">
+          <strong>Priority:</strong> ${this.getPriorityText(formValue.priority)}<br>
+          ${formValue.dueDate ? `<strong>Requested Date:</strong> ${new Date(formValue.dueDate).toLocaleDateString()}` : ''}
+        </div>
+      </div>
+    `,
+    icon: 'success',
+    confirmButtonText: 'OK'
   });
 }
 
+requestRevision(draft: MISReport): void {
+  this.selectedReportForRevision = draft;
+  this.revisionForm.reset({
+    revisionDetails: '',
+    priority: 'medium',
+    dueDate: ''
+  });
+  
+  // Open the modal
+  const modal = new bootstrap.Modal(document.getElementById('revisionRequestModal')!);
+  modal.show();
+  
+  // Focus on textarea after modal opens
+  setTimeout(() => {
+    const textarea = document.getElementById('revisionDetails') as HTMLTextAreaElement;
+    if (textarea) {
+      textarea.focus();
+    }
+  }, 100);
+}
+
+private markFormGroupTouched(formGroup: FormGroup): void {
+  Object.keys(formGroup.controls).forEach(key => {
+    const control = formGroup.get(key);
+    control?.markAsTouched();
+  });
+}
+
+closeRevisionModal(): void {
+  const modal = bootstrap.Modal.getInstance(document.getElementById('revisionRequestModal')!);
+  modal?.hide();
+  
+  this.selectedReportForRevision = undefined;
+  this.revisionForm.reset({
+    revisionDetails: '',
+    priority: 'medium',
+    dueDate: ''
+  });
+  this.isSubmittingRevision = false;
+}
+
+// Get priority display text
+getPriorityText(priority: string): string {
+  const priorityMap: { [key: string]: string } = {
+    'low': 'Low Priority',
+    'medium': 'Medium Priority', 
+    'high': 'High Priority',
+    'urgent': 'Urgent'
+  };
+  return priorityMap[priority] || 'Medium Priority';
+}
 getTodayDate(): string {
   return new Date().toISOString().split('T')[0];
 }
