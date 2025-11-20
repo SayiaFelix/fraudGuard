@@ -383,7 +383,7 @@
       "logisticsChecklist": [
         {
           "name": "fweewfwef",
-          "completed": true
+          "completed": false
         },
         {
           "name": "fewfwefewfeewewfw",
@@ -722,19 +722,6 @@
       "status": "Not Started",
       "startDate": "2025-11-15",
       "dueDate": "2025-11-27",
-      "tasks": [],
-      "miniFindings": []
-    },
-    {
-      "id": "832a",
-      "auditId": null,
-      "title": "rfewe Workflow",
-      "scope": "fwefwe",
-      "department": "wefwe",
-      "assignedTo": "",
-      "status": "Not Started",
-      "startDate": "2025-11-14",
-      "dueDate": "2025-11-19",
       "tasks": [],
       "miniFindings": []
     },
