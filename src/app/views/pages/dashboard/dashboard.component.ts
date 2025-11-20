@@ -750,7 +750,7 @@ private processCAPImplementation(workflows: any[]): void {
         icon: 'fas fa-radiation', 
         borderClass: 'border-danger', 
         textClass: 'text-danger', 
-        trend: riskScore > 7 ? 'up' : 'down',
+        trend: riskScore > 6 ? 'up' : 'down',
         description: 'Overall risk exposure'
       }
     ];
