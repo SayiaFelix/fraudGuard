@@ -188,8 +188,6 @@
               </select>
             </div>
 
-         
-
             <!-- Action Buttons -->
             <div class="col-md-12 mt-2">
               <div class="d-flex justify-content-between align-items-center">
@@ -221,11 +219,13 @@
                 <th width="10%">Severity</th>
                 <th width="15%">Responsible Unit</th>
                 <th width="10%">Target Date</th>
-                <th width="10%">Status</th>
+                <th width="10%">Finding Status</th> 
+                <th width="10%">CAP Status</th>  
                 <th width="10%">Progress</th>
                 <th width="15%">Actions</th>
               </tr>
             </thead>
+
             <tbody>
               <tr *ngFor="let item of getPaginatedCAPs()"
                   (click)="toggleDetails(item)"
@@ -235,7 +235,7 @@
                 
                 <td>
                   <div class="fw-bold">{{ item.workflowTitle }}</div>
-                  <!-- <small class="text-muted">Dept: {{ item.department }}</small> -->
+                  <small class="text-muted">Dept: {{ item.department }}</small>
                   <div *ngIf="item.isNew" class="badge bg-primary mt-1">New</div>
                 </td>
                 
@@ -265,6 +265,29 @@
                   </div>
                 </td>
                 
+                <!-- NEW: Finding Status Column -->
+                <td>
+                  <span class="badge d-inline-flex align-items-center" [ngClass]="{
+                    'bg-secondary': item.finding.status === 'Draft' || !item.finding.status,
+                    'bg-info': item.finding.status === 'Reviewed',
+                    'bg-warning': item.finding.status === 'Presented',
+                    'bg-primary': item.finding.status === 'Confirmed',
+                    'bg-success': item.finding.status === 'Closed' || item.finding.status === 'Resolved',
+                    'bg-light text-dark': item.finding.status === 'Open'
+                  }">
+                    <i class="fas me-1" [ngClass]="{
+                      'fa-file': item.finding.status === 'Draft' || !item.finding.status,
+                      'fa-search': item.finding.status === 'Reviewed',
+                      'fa-presentation': item.finding.status === 'Presented',
+                      'fa-check-circle': item.finding.status === 'Confirmed',
+                      'fa-check': item.finding.status === 'Closed' || item.finding.status === 'Resolved',
+                      'fa-clock': item.finding.status === 'Open'
+                    }"></i>
+                    {{ getFindingStatusText(item.finding.status) }}
+                  </span>
+                </td>
+                
+                <!-- UPDATED: CAP Status Column (renamed from Status) -->
                 <td>
                   <span class="badge d-inline-flex align-items-center" [ngClass]="{
                     'bg-warning': item.cap.status === 'Open',
@@ -272,7 +295,8 @@
                     'bg-success': item.cap.status === 'Completed' || item.cap.status === 'Verified' || item.cap.status === 'Closed',
                     'bg-info': item.cap.status === 'Verified',
                     'bg-secondary': item.cap.status === 'Closed',
-                    'bg-dark': item.cap.status === 'Risk Accepted'
+                    'bg-dark': item.cap.status === 'Risk Accepted',
+                    'bg-danger': item.cap.status === 'Overdue'
                   }">
                     <i class="fas me-1" [ngClass]="{
                       'fa-clock': item.cap.status === 'Open',
@@ -280,7 +304,8 @@
                       'fa-check': item.cap.status === 'Completed',
                       'fa-check-double': item.cap.status === 'Verified',
                       'fa-ban': item.cap.status === 'Closed',
-                      'fa-shield-alt': item.cap.status === 'Risk Accepted'
+                      'fa-shield-alt': item.cap.status === 'Risk Accepted',
+                      'fa-exclamation-triangle': item.cap.status === 'Overdue'
                     }"></i>
                     {{ item.cap.status }}
                   </span>
@@ -299,7 +324,6 @@
                 </td>
                 
                 <td>
-          
                   <div class="btn-group btn-group-sm">
                     <button *ngIf="item.isNew" 
                             class="btn btn-success" 
@@ -324,14 +348,6 @@
                       <i class="fas fa-bell"></i>
                     </button>
                   </div>
-                </td>
-              </tr>
-
-              <tr *ngIf="!getFilteredCAPs().length">
-                <td colspan="7" class="text-center text-muted py-4">
-                  <i class="fas fa-inbox text-info fa-2x mb-3"></i>
-                  <h5>No Corrective Action Plans Found</h5>
-                  <p class="mb-0">No CAPs match the current filter criteria.</p>
                 </td>
               </tr>
             </tbody>
@@ -492,8 +508,34 @@
               </h4>
             </div>
             <div class="card-body pt-0">
+              <!-- Finding Status -->
               <div class="mb-3">
-                <label class="form-label small text-muted mb-1">Current Status</label>
+                <label class="form-label small text-muted mb-1">Finding Status</label>
+                <div>
+                  <span class="badge d-inline-flex align-items-center py-2" [ngClass]="{
+                    'bg-secondary': expandedItem?.finding.status === 'Draft' || !expandedItem?.finding.status,
+                    'bg-info': expandedItem?.finding.status === 'Reviewed',
+                    'bg-warning': expandedItem?.finding.status === 'Presented',
+                    'bg-primary': expandedItem?.finding.status === 'Confirmed',
+                    'bg-success': expandedItem?.finding.status === 'Closed' || expandedItem?.finding.status === 'Resolved',
+                    'bg-light text-dark': expandedItem?.finding.status === 'Open'
+                  }">
+                    <i class="fas me-1" [ngClass]="{
+                      'fa-file': expandedItem?.finding.status === 'Draft' || !expandedItem?.finding.status,
+                      'fa-search': expandedItem?.finding.status === 'Reviewed',
+                      'fa-presentation': expandedItem?.finding.status === 'Presented',
+                      'fa-check-circle': expandedItem?.finding.status === 'Confirmed',
+                      'fa-check': expandedItem?.finding.status === 'Closed' || expandedItem?.finding.status === 'Resolved',
+                      'fa-clock': expandedItem?.finding.status === 'Open'
+                    }"></i>
+                    {{ getFindingStatusText(expandedItem?.finding.status) }}
+                  </span>
+                </div>
+              </div>
+              
+              <!-- CAP Status -->
+              <div class="mb-3">
+                <label class="form-label small text-muted mb-1">CAP Status</label>
                 <div>
                   <span class="badge d-inline-flex align-items-center py-2" [ngClass]="{
                     'bg-warning': expandedItem?.cap.status === 'Open',
@@ -501,7 +543,8 @@
                     'bg-success': expandedItem?.cap.status === 'Completed',
                     'bg-info': expandedItem?.cap.status === 'Verified',
                     'bg-secondary': expandedItem?.cap.status === 'Closed',
-                    'bg-dark': expandedItem?.cap.status === 'Risk Accepted'
+                    'bg-dark': expandedItem?.cap.status === 'Risk Accepted',
+                    'bg-danger': expandedItem?.cap.status === 'Overdue'
                   }">
                     <i class="fas me-1" [ngClass]="{
                       'fa-clock': expandedItem?.cap.status === 'Open',
@@ -509,14 +552,17 @@
                       'fa-check': expandedItem?.cap.status === 'Completed',
                       'fa-check-double': expandedItem?.cap.status === 'Verified',
                       'fa-ban': expandedItem?.cap.status === 'Closed',
-                      'fa-shield-alt': expandedItem?.cap.status === 'Risk Accepted'
+                      'fa-shield-alt': expandedItem?.cap.status === 'Risk Accepted',
+                      'fa-exclamation-triangle': expandedItem?.cap.status === 'Overdue'
                     }"></i>
                     {{ expandedItem?.cap.status }}
                   </span>
                 </div>
               </div>
+              
+              <!-- Progress -->
               <div>
-                <label class="form-label small text-muted mb-1">Progress</label>
+                <label class="form-label small text-muted mb-1">CAP Progress</label>
                 <div class="d-flex align-items-center mb-2">
                   <div class="flex-grow-1 me-3">
                     <div class="progress" style="height: 8px;">

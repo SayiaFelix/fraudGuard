@@ -720,6 +720,22 @@ updateCAPProgress(item: any) {
   getVerifiedCAPs(): number {
     return this.monitoringItems.filter((item: any) => item.cap.status === 'Verified').length;
   }
+// Add this method to your component class
+getFindingStatusText(status: string): string {
+  if (!status) return 'Draft';
+  
+  const statusMap: { [key: string]: string } = {
+    'Draft': 'Draft',
+    'Open': 'Open',
+    'Reviewed': 'Reviewed', 
+    'Presented': 'Presented',
+    'Confirmed': 'Confirmed',
+    'Closed': 'Closed',
+    'Resolved': 'Resolved'
+  };
+  
+  return statusMap[status] || status;
+}
 
   loadCorrectiveActionPlans() {
     this.http.get<CorrectiveActionPlan[]>(this.capsApiUrl).subscribe({
@@ -729,7 +745,6 @@ updateCAPProgress(item: any) {
       },
       error: (error) => {
         console.error('Failed to load CAPs:', error);
-        // If CAPs endpoint doesn't exist yet, initialize with empty array
         this.correctiveActionPlans = [];
         this.processMonitoringItems();
       }
