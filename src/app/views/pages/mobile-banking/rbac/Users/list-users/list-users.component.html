@@ -354,33 +354,6 @@
             </div>
           </div>
 
-          <!-- Pre-Closing Findings -->
-          <div class="accordion-item">
-            <h2 class="accordion-header">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFindings" 
-                      [class]="getFieldworkSectionClass('preClosing')">
-                <i class="fas fa-clipboard-check me-2 text-warning"></i> Pre-Closing Findings
-                <span class="badge ms-2">{{ getFieldworkCount('preClosing') }}</span>
-              </button>
-            </h2>
-            <div id="collapseFindings" class="accordion-collapse collapse" data-bs-parent="#fieldworkAccordion">
-              <div class="accordion-body">
-                <div *ngIf="fieldwork.preClosing.length; else noFindingsSummary">
-                  <div *ngFor="let finding of fieldwork.preClosing; let i = index" class="mb-2 p-2 border rounded">
-                    <h6 class="mb-1"><i class="fas fa-exclamation-circle me-1"></i> {{ finding.title }}</h6>
-                    <p class="small text-muted mb-1">{{ finding.details }}</p>
-                    <div class="d-flex justify-content-between small">
-                      <span class="badge" [ngClass]="getFindingSeverityClass(finding.severity)">{{ finding.severity }}</span>
-                      <span class="badge bg-secondary">{{ finding.status }}</span>
-                    </div>
-                  </div>
-                </div>
-                <ng-template #noFindingsSummary>
-                  <p class="text-muted small">No pre-closing findings yet.</p>
-                </ng-template>
-              </div>
-            </div>
-          </div>
 
           <!-- Documents -->
           <div class="accordion-item">
@@ -431,11 +404,13 @@
                           <h4 class="mb-0 text-primary">
                             <i class="fas fa-tasks me-1"></i> {{ t.description }}
                           </h4>
-                          <small class="text-muted">
-                              <i class="fas fa-user-circle me-1"></i> {{ t.assignee }} • due {{ t.dueDate || '—' }}
-                          </small>
-                          <span class="badge bg-secondary small">{{ t.status }}</span>
                         </div>
+                           <div class="d-flex justify-content-between align-items-center mb-2">
+                              <small class="text-muted">
+                                  <i class="fas fa-user-circle me-1"></i> {{ t.assignee }} • due {{ t.dueDate || '—' }}
+                              </small>
+                              <span class="badge bg-secondary small">{{ t.status }}</span>
+                            </div>
                         
                         <div *ngFor="let mf of getFindingsForTask(t.id)" class="mb-2 p-2 border rounded">
                           <div class="d-flex justify-content-between align-items-start">
@@ -474,6 +449,35 @@
               </div>
             </div>
           </div>
+
+          <!-- Pre-Closing Findings -->
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFindings" 
+                      [class]="getFieldworkSectionClass('preClosing')">
+                <i class="fas fa-clipboard-check me-2 text-warning"></i> Pre-Closing Findings
+                <span class="badge ms-2">{{ getFieldworkCount('preClosing') }}</span>
+              </button>
+            </h2>
+            <div id="collapseFindings" class="accordion-collapse collapse" data-bs-parent="#fieldworkAccordion">
+              <div class="accordion-body">
+                <div *ngIf="fieldwork.preClosing.length; else noFindingsSummary">
+                  <div *ngFor="let finding of fieldwork.preClosing; let i = index" class="mb-2 p-2 border rounded">
+                    <h5 class="mb-1"><i class="fas fa-exclamation-circle me-1"></i> {{ finding.title }}</h5>
+                    <p class="small text-muted mb-1">{{ finding.details }}</p>
+                    <div class="d-flex justify-content-between small">
+                      <span class="badge" [ngClass]="getFindingSeverityClass(finding.severity)">{{ finding.severity }}</span>
+                      <span class="badge bg-secondary">{{ finding.status }}</span>
+                    </div>
+                  </div>
+                </div>
+                <ng-template #noFindingsSummary>
+                  <p class="text-muted small">No pre-closing findings yet.</p>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+
         </div>
         <hr>
         <button class="btn btn-outline-success btn-sm mt-2" 
