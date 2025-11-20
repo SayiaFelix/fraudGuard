@@ -324,30 +324,32 @@
                 </td>
                 
                 <td>
-                  <div class="btn-group btn-group-sm">
-                    <button *ngIf="item.isNew" 
-                            class="btn btn-success" 
-                            (click)="initializeCAP(item); $event.stopPropagation()"
-                            title="Initialize CAP">
-                      <i class="fas fa-play"></i>
-                    </button>
-                    <button *ngIf="!item.isNew" 
-                            class="btn btn-outline-primary" 
-                            (click)="updateCAPProgress(item); $event.stopPropagation()"
-                            title="Update Progress">
-                      <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-outline-info" 
-                            (click)="scheduleFollowUpForCAP(item); $event.stopPropagation()"
-                            title="Schedule Follow-up">
-                      <i class="fas fa-calendar-check"></i>
-                    </button>
-                    <button class="btn btn-outline-warning" 
-                            (click)="sendReminder(item); $event.stopPropagation()"
-                            title="Send Reminder">
-                      <i class="fas fa-bell"></i>
-                    </button>
-                  </div>
+                  <!-- In your table actions -->
+<div class="btn-group btn-group-sm">
+  <button *ngIf="item.isNew" 
+          class="btn btn-success" 
+          (click)="openInitializeModal(item); $event.stopPropagation()"
+          title="Initialize CAP">
+    <i class="fas fa-play"></i>
+  </button>
+  <button *ngIf="!item.isNew" 
+          class="btn btn-outline-primary" 
+          (click)="openProgressModal(item); $event.stopPropagation()"
+          title="Update Progress">
+    <i class="fas fa-edit"></i>
+  </button>
+  <button class="btn btn-outline-info" 
+          (click)="openFollowupModal(item); $event.stopPropagation()"
+          title="Schedule Follow-up">
+    <i class="fas fa-calendar-check"></i>
+  </button>
+  <button class="btn btn-outline-warning" 
+          (click)="openReminderModal(item); $event.stopPropagation()"
+          title="Send Reminder">
+    <i class="fas fa-bell"></i>
+  </button>
+</div>
+
                 </td>
               </tr>
             </tbody>

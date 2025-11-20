@@ -737,6 +737,80 @@ getFindingStatusText(status: string): string {
   return statusMap[status] || status;
 }
 
+// Improved modal opening methods
+openInitializeModal(item: any) {
+  this.selectedItem = item;
+  const today = new Date().toISOString().split('T')[0];
+  
+  this.initializeForm.patchValue({
+    responsibleUnit: item.department,
+    targetDate: today,
+    detailedPlan: item.cap.actionPlan
+  });
+  
+  // Use this approach instead
+  const modalElement = document.getElementById('initializeCAPModal');
+  if (modalElement) {
+    const modal = new (window as any).bootstrap.Modal(modalElement);
+    modal.show();
+  }
+}
+
+openProgressModal(item: any) {
+  this.selectedItem = item;
+  const initialProgress = this.getProgress(item.cap);
+  
+  this.progressForm.patchValue({
+    progress: initialProgress,
+    status: item.cap.status,
+    remarks: item.cap.remarks || ''
+  });
+  
+  const modalElement = document.getElementById('updateProgressModal');
+  if (modalElement) {
+    const modal = new (window as any).bootstrap.Modal(modalElement);
+    modal.show();
+  }
+}
+
+openFollowupModal(item: any) {
+  this.selectedItem = item;
+  const today = new Date().toISOString().split('T')[0];
+  
+  this.followupForm.patchValue({
+    followUpDate: item.cap.nextFollowUpDate || today
+  });
+  
+  const modalElement = document.getElementById('scheduleFollowupModal');
+  if (modalElement) {
+    const modal = new (window as any).bootstrap.Modal(modalElement);
+    modal.show();
+  }
+}
+
+openRiskModal(item: any) {
+  this.selectedItem = item;
+  this.riskForm.patchValue({
+    riskReason: item.cap.riskAcceptanceReason || '',
+    acceptedBy: item.cap.riskAcceptedBy || ''
+  });
+  
+  const modalElement = document.getElementById('riskAcceptanceModal');
+  if (modalElement) {
+    const modal = new (window as any).bootstrap.Modal(modalElement);
+    modal.show();
+  }
+}
+
+openReminderModal(item: any) {
+  this.selectedItem = item;
+  const modalElement = document.getElementById('reminderModal');
+  if (modalElement) {
+    const modal = new (window as any).bootstrap.Modal(modalElement);
+    modal.show();
+  }
+}
+
   loadCorrectiveActionPlans() {
     this.http.get<CorrectiveActionPlan[]>(this.capsApiUrl).subscribe({
       next: (caps) => {
