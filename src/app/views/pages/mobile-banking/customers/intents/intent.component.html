@@ -416,10 +416,10 @@
           <!-- Action Buttons -->
           <hr>
           <button class="btn btn-outline-success btn-sm w-100 mb-2" (click)="openPlanningPanel(selectedAudit)">
-            <i class="fas fa-tasks"></i> Create Plan
+            <i class="fas fa-tasks"></i>  Audit Planning
           </button>
           <button class="btn btn-outline-primary btn-sm w-100 mb-2" (click)="openObservations(selectedAudit)">
-            <i class="fas fa-eye"></i> View Observations
+            <i class="fas fa-eye"></i> Findings & Issues
           </button>
           
         </div> 
@@ -447,30 +447,34 @@
           </h2>
 
           <div class="card border-0 shadow-sm p-2 mb-3 small">
-            <p>
-              <strong>Schedule Confirmed: </strong>
-              <span class="badge bg-{{ selectedAudit?.scheduleConfirmed ? 'success' : 'secondary' }}">
-                {{ selectedAudit?.scheduleConfirmed ? 'Yes' : 'No' }}
-              </span>
-            </p>
-
-            <p>
-              <strong>Team Assigned: </strong>
-              <span class="badge bg-{{ selectedAudit?.team?.length ? 'info' : 'secondary' }}">
-                {{ selectedAudit?.team?.length ? 'Yes' : 'No' }}
-              </span>
-            </p>
-
-            <p>
-              <strong>Risk Summary: </strong>
-              <span class="text-muted">{{ selectedAudit?.riskSummary || 'Not Provided' }}</span>
-            </p>
-            <p>
-              <strong>Meeting Scheduled: </strong>
-              <span>
-                {{ selectedAudit?.planningMeetingDate || 'Not Scheduled' }}
-              </span>
-            </p>
+            <div class="row">
+                <div class="col-6">
+                    <p>
+                      <strong>Schedule Confirmed </strong>
+                      <span class="badge bg-{{ selectedAudit?.scheduleConfirmed ? 'success' : 'secondary' }}">
+                        {{ selectedAudit?.scheduleConfirmed ? 'Yes' : 'No' }}
+                      </span>
+                    </p>
+                      <p>
+                        <strong>Meeting Scheduled </strong>
+                        <span>
+                          {{ selectedAudit?.planningMeetingDate || 'Not Scheduled' }}
+                        </span>
+                      </p>
+                </div>
+                <div class="col-6">
+                     <p>
+                      <strong>Team Assigned </strong>
+                      <span class="badge bg-{{ selectedAudit?.team?.length ? 'info' : 'secondary' }}">
+                        {{ selectedAudit?.team?.length ? 'Yes' : 'No' }}
+                      </span>
+                    </p>
+                    <p>
+                      <strong>Risk Summary </strong>
+                      <span class="text-muted">{{ selectedAudit?.riskSummary || 'Not Provided' }}</span>
+                    </p>
+               </div>
+            </div>
           </div>
 
         <!-- Tabs -->

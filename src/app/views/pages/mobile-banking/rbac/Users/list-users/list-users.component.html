@@ -476,10 +476,12 @@
           </div>
         </div>
         <hr>
-
-        <button class="btn btn-outline-success btn-sm mt-2" (click)="openFieldworkModal()">
-          <i class="fas fa-briefcase me-1"></i> Fieldwork
+        <button class="btn btn-outline-success btn-sm mt-2" 
+                (click)="openFieldworkModal()"
+                title="Conduct audit fieldwork, gather evidence, and perform testing">
+          <i class="fas fa-briefcase me-1"></i> Fieldwork Execution
         </button>
+
       </div>
      </div>
   </div>
@@ -742,9 +744,10 @@
 
           <!-- Task Form -->
           <div class="card mb-3" *ngIf="showTaskForm">
+            <div class="card-header bg-light">
+                <h6 class="card-title"> <i class="fas fa-tasks text-info me-1"></i> {{editingFieldworkTask ? 'Edit Task' : 'New Fieldwork Task'}}</h6>
+            </div>
             <div class="card-body">
-              <h6 class="card-title">{{editingFieldworkTask ? 'Edit Task' : 'New Fieldwork Task'}}</h6>
-              <hr>
               <form [formGroup]="fieldworkTaskForm" (ngSubmit)="saveFieldworkTask()">
                 <div class="row">
                   <div class="col-md-6 mb-3">
@@ -866,9 +869,10 @@
           </div>
 
         <div class="card mb-3" *ngIf="showEvidenceForm">
+          <div class="card-header bg-light">
+              <h6 class="card-title"> <i class="fas fa-file-upload text-info me-1"></i> {{editingEvidence ? 'Edit Evidence Request' : 'New Evidence Request'}}</h6>
+          </div>
           <div class="card-body">
-            <h6 class="card-title">{{editingEvidence ? 'Edit Evidence Request' : 'New Evidence Request'}}</h6>
-            <hr>
             <form [formGroup]="evidenceForm" (ngSubmit)="saveEvidence()">
               <div class="row">
                 <div class="col-md-8 mb-3">
@@ -967,15 +971,16 @@
             <div class="d-flex justify-content-between align-items-center mb-3">
               <h3 class="mb-0 fw-bold">Meetings & Interviews</h3>
               <button class="btn btn-primary btn-sm" (click)="showMeetingForm = !showMeetingForm">
-                <i class="fas fa-plus me-1"></i> {{showMeetingForm ? 'Cancel' : 'Add Meeting'}}
+                <i class="fas fa-plus me-1"></i> {{showMeetingForm ? 'Cancel' : 'Create Meeting'}}
               </button>
             </div>
 
             <!-- Meeting Form -->
             <div class="card mb-3" *ngIf="showMeetingForm">
+              <div class="card-header bg-light">
+                <h6 class="card-title"><i class="fas fa-users text-info me-1"></i> {{editingMeeting ? 'Edit Meeting' : 'New Meeting / Interview'}}</h6>
+              </div>
               <div class="card-body">
-                <h6 class="card-title">{{editingMeeting ? 'Edit Meeting' : 'New Meeting/Interview'}}</h6>
-                <hr>
                 <form [formGroup]="meetingForm" (ngSubmit)="saveMeeting()">
                   <div class="row">
                     <div class="col-md-6 mb-3">
@@ -1101,8 +1106,10 @@
             </div>
 
           <div class="card mb-3" *ngIf="showWeeklyForm">
+            <div class="card-header bg-light">
+              <h6 class="card-title"> <i class="fas fa-calendar-week text-info me-1"></i> New Weekly Update</h6>
+            </div>
             <div class="card-body">
-              <h6 class="card-title">New Weekly Update</h6>
               <form [formGroup]="weeklyForm" (ngSubmit)="saveWeeklyUpdate()">
                 <div class="row">
                   <div class="col-md-4 mb-3">
@@ -1192,9 +1199,10 @@
           </div>
 
           <div class="card mb-3" *ngIf="showMiniFindingForm">
+            <div class="card-header bg-light">
+              <h6 class="card-title"><i class="fas fa-exclamation-circle text-info me-1"></i> New Finding</h6>
+            </div>
             <div class="card-body">
-              <h6 class="card-title">New Finding</h6>
-              <hr>
               <form [formGroup]="miniFindingForm" (ngSubmit)="addMiniFinding()">
                 <div class="mb-3">
                   <label class="form-label fw-bold">Related Task</label>
@@ -1293,9 +1301,10 @@
             </div>
 
             <div class="card mb-3" *ngIf="showFindingForm">
+              <div class="card-header bg-light">
+                  <h6 class="card-title"><i class="fas fa-clipboard-check text-info me-1"></i> {{editingFinding ? 'Edit Finding' : 'New Pre-Closing Observation'}}</h6>
+              </div>
               <div class="card-body">
-                <h6 class="card-title">{{editingFinding ? 'Edit Finding' : 'New Pre-Closing Observation'}}</h6>
-                <hr>
                 <form [formGroup]="findingForm" (ngSubmit)="saveFinding()">
                   <div class="row">
                     <div class="col-md-8 mb-3">
@@ -1399,9 +1408,10 @@
               </div>
 
               <div class="card mb-3" *ngIf="showDocumentForm">
+                <div class="card-header bg-light">
+                   <h6 class="card-title"><i class="fas fa-file-alt text-info me-1"></i> {{editingDocument ? 'Edit Document' : 'Upload New Document'}}</h6>
+                </div>
                 <div class="card-body">
-                  <h6 class="card-title">{{editingDocument ? 'Edit Document' : 'Upload New Document'}}</h6>
-                  <hr>
                   <form [formGroup]="documentForm" (ngSubmit)="saveDocument()">
                     <div class="row">
                       <div class="col-md-6 mb-3">
