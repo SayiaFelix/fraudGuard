@@ -121,6 +121,12 @@
                   <i class="fas fa-sort ms-1" [class.fa-sort-up]="sortColumn === 'endDate' && sortDirection === 'asc'" 
                     [class.fa-sort-down]="sortColumn === 'endDate' && sortDirection === 'desc'"></i>
                 </th>
+
+                <th (click)="sortBy('stage')" style="cursor: pointer;">
+                  Stage
+                  <i class="fas fa-sort ms-1" [class.fa-sort-up]="sortColumn === 'stage' && sortDirection === 'asc'" 
+                    [class.fa-sort-down]="sortColumn === 'stage' && sortDirection === 'desc'"></i>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -142,6 +148,12 @@
                 </td>
                 <td>{{ audit.startDate }}</td>
                 <td>{{ audit.endDate }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="getStageBadgeClass(audit.stage || determineAuditStage(audit))">
+                      {{ getStageDisplayName(audit.stage || determineAuditStage(audit)) }}
+                      <!-- <i *ngIf="!canEditAudit(audit)" class="fas fa-lock ms-1"></i> -->
+                    </span>
+                  </td>
               </tr>
               <tr *ngIf="visibleAudits.length === 0">
                 <td colspan="5" class="text-center text-muted py-4">
@@ -221,6 +233,7 @@
 
     <!-- Content -->
     <div class="p-3" style="max-height: 70vh; overflow-y: auto;">
+
       <div class="card border-0 shadow-sm mb-4">
         <div class="card-header bg-light py-2">
           <h4 class="mb-0 fw-bold text-dark">
@@ -228,11 +241,66 @@
           </h4>
         </div>
         <div class="card-body p-3">
+            <div class="mb-4" *ngIf="selectedAudit">
+              <label class="small text-muted mb-2 d-block">Audit Progress</label>
+              
+              <!-- Progress Bar -->
+              <div class="progress mb-2" style="height: 10px;">
+                <div class="progress-bar" 
+                    role="progressbar" 
+                    [style.width.%]="getStageProgress(selectedAudit)"
+                    [ngClass]="getStageProgressBarClass(selectedAudit)">
+                </div>
+              </div>
+              
+              <!-- Stage Indicators -->
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="text-center" *ngFor="let stage of getAllStages()" [class.text-primary]="isStageActive(stage, selectedAudit)">
+                      <i class="fas" 
+                        [class.fa-flag]="stage === 'scoping'"
+                        [class.fa-clipboard-list]="stage === 'planning'"
+                        [class.fa-search]="stage === 'fieldwork'"
+                        [class.fa-file-alt]="stage === 'reporting'"
+                        [class.fa-chart-line]="stage === 'monitoring'"
+                        [ngClass]="getStageIconClass(stage, selectedAudit)">
+                      </i>
+                      <div class="small mt-1">{{ getStageShortName(stage) }}</div>
+                    </div>
+                  </div>
+              
+              <!-- Current Stage Info -->
+              <div class="d-flex justify-content-between align-items-center mt-2">
+                <small class="text-muted">
+                  <strong>{{ getStageDisplayName(selectedAudit.stage || determineAuditStage(selectedAudit)) }}</strong>
+                </small>
+                <small class="text-muted fw-bold">
+                  {{ getStageProgress(selectedAudit) }}%
+                </small>
+              </div>
+            </div>
+            <hr>
+
           <div class="row g-2">
-            <div class="col-12">
+            <div class="col-6">
               <label class="small text-muted mb-1">Department</label>
               <p class="mb-2 fw-semibold">{{ selectedAudit?.department || 'Not specified' }}</p>
             </div>
+
+            <div class="col-6">
+              <label class="small text-muted mb-1">Current Stage</label>
+              <div class="mb-2">
+                <span class="badge px-2 py-1" [ngClass]="getStageBadgeClass(selectedAudit?.stage || determineAuditStage(selectedAudit))">
+                  {{ getStageDisplayName(selectedAudit?.stage || determineAuditStage(selectedAudit)) }}
+                </span>
+                <button class="btn btn-sm btn-outline-primary ms-2" 
+                        (click)="progressToNextStage(selectedAudit)"
+                        title="Progress to next stage"
+                        [disabled]="!selectedAudit || (selectedAudit?.stage || determineAuditStage(selectedAudit)) === 'monitoring'">
+                  <i class="fas fa-arrow-right"></i>
+                </button>
+              </div>
+            </div>
+
             <div class="col-6">
               <label class="small text-muted mb-1">Status</label>
               <div class="mb-2">
@@ -246,10 +314,12 @@
                 </span>
               </div>
             </div>
+            
             <div class="col-6">
               <label class="small text-muted mb-1">Audit Year</label>
               <p class="mb-2 fw-semibold">{{ selectedAudit?.auditYear || 'Not specified' }}</p>
             </div>
+            
             <div class="col-12">
               <label class="small text-muted mb-1">Timeline</label>
               <p class="mb-0 fw-semibold small">
@@ -506,15 +576,28 @@
       <div class="card border-0 shadow-sm">
         <div class="card-body p-3">
           <div class="d-grid gap-2">
-            <button class="btn btn-outline-secondary btn-sm" (click)="openEditAuditModal(selectedAudit)">
-              <i class="fas fa-edit me-2"></i>Edit Audit
+            <button class="btn btn-outline-secondary btn-sm" 
+                    (click)="openEditAuditModal(selectedAudit)"
+                    [disabled]="!canEditAudit(selectedAudit)"
+                    [title]="!canEditAudit(selectedAudit) ? 'Cannot edit audit in current stage' : 'Edit Audit'">
+              <i class="fas fa-edit me-2"></i>
+              {{ canEditAudit(selectedAudit) ? 'Edit Audit' : 'Edit Restricted' }}
             </button>
             <button class="btn btn-outline-danger btn-sm" (click)="deleteAudit(selectedAudit.id)">
               <i class="fas fa-trash me-2"></i>Delete Audit
             </button>
           </div>
+          
+          <!-- Show restriction message if audit cannot be edited -->
+          <div *ngIf="selectedAudit && !canEditAudit(selectedAudit)" class="mt-2">
+            <small class="text-warning">
+              <i class="fas fa-exclamation-triangle me-1"></i>
+              This audit is in <strong>{{ getStageDisplayName(selectedAudit.stage || determineAuditStage(selectedAudit)) }}</strong> stage and cannot be edited here.
+            </small>
+          </div>
         </div>
       </div>
+
     </div>
   </div>
   
@@ -534,7 +617,27 @@
           <i class="fas fa-clipboard-check me-2"></i>
           {{ selectedAudit ? 'Edit Audit' : 'Create Audit' }}
         </h2>
-        <button type="button" class="btn-close btn-close-white" (click)="closeAddAuditModal()"></button>
+        <div class="d-flex align-items-center" *ngIf="selectedAudit">
+          <span class="badge bg-light text-dark me-2">
+            Stage: {{ getStageDisplayName(selectedAudit.stage || determineAuditStage(selectedAudit)) }}
+          </span>
+          <button type="button" class="btn-close btn-close-white" (click)="closeAddAuditModal()"></button>
+        </div>
+        <button type="button" class="btn-close btn-close-white" (click)="closeAddAuditModal()" *ngIf="!selectedAudit"></button>
+      </div>
+
+            <!-- Restriction Alert -->
+      <div *ngIf="selectedAudit && !canEditAudit(selectedAudit)" class="alert alert-warning m-0 rounded-0">
+        <div class="d-flex align-items-center">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          <div>
+            <strong>Edit Restricted</strong> - This audit is in 
+            <span class="badge {{getStageBadgeClass(selectedAudit.stage || determineAuditStage(selectedAudit))}}">
+              {{getStageDisplayName(selectedAudit.stage || determineAuditStage(selectedAudit))}}
+            </span> 
+            stage and cannot be modified here.
+          </div>
+        </div>
       </div>
 
       <form [formGroup]="addAuditForm" (ngSubmit)="saveAudit()">

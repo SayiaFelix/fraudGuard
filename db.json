@@ -148,13 +148,13 @@
       "id": "64b0"
     },
     {
-      "title": "Money Cash",
+      "id": "85aa",
+      "title": "Money Cash Workflow",
       "scope": "checking cash flow for q1 ",
       "department": "Finance",
-      "status": "In Progress",
+      "status": "Planned",
       "startDate": "2025-09-25",
-      "endDate": "2025-09-30",
-      "id": "85aa"
+      "endDate": "2025-09-30"
     },
     {
       "id": "2c32",
@@ -228,112 +228,81 @@
       "endDate": "2025-11-26"
     },
     {
-      "id": "2bd5",
-      "title": "fewwefew",
-      "scope": "fewfewfew",
-      "department": "fewefew",
-      "status": "Planned",
-      "startDate": "2025-11-20",
-      "endDate": "2025-11-28",
-      "auditYear": 2026,
-      "auditPeriod": "Full Year",
-      "auditLead": "3",
-      "auditMembers": "fsdsds",
-      "thirdPartyFirm": "dfsdf",
-      "thirdPartyContact": "fdssdfsd",
-      "clientConfirmation": "Yes",
-      "confirmationDate": "2025-11-21",
-      "unitOrientation": "sdfsdfsd",
-      "backgroundSummary": "ewfwef",
-      "riskRating": "High",
-      "riskRationale": "fwewew",
-      "riskSummary": "fweewwe",
-      "kickoffDate": "2025-11-21",
-      "planningMemo": "ffffefwwe",
-      "riskInterviewSummary": "fewfweew",
-      "interviewSchedule": [
-        {
-          "name": "fwfwefew",
-          "department": "fwefew",
-          "date": "2025-11-25",
-          "notes": "fwwewdwe"
-        },
-        {
-          "name": "wefewfew",
-          "department": "fewfw",
-          "date": "2025-11-21",
-          "notes": "fwefewf"
-        }
-      ],
-      "logisticsChecklist": [
-        {
-          "name": "fweewfwef",
-          "completed": false
-        },
-        {
-          "name": "fewfwefewfeewewfw",
-          "completed": true
-        },
-        {
-          "name": "fwewefew",
-          "completed": true
-        }
-      ],
-      "externalFiles": [],
-      "internalFiles": [
-        {}
-      ],
-      "criteriaFiles": [
-        {}
-      ],
-      "rcmFile": null,
-      "sortDate": "2025-11-20"
-    },
-    {
-      "title": "Cybersecurity Compliance Audit ",
-      "scope": "Review access controls, data encryption, user permissions, and cybersecurity protocols for financial systems including SAP, Oracle Financials, and payroll systems",
-      "department": "Finance Department",
+      "title": "gtggtrggggdtrhtrtgfdsae",
+      "scope": "fffewweweewfew",
+      "department": "ecl",
       "status": "Planned",
       "startDate": "2025-11-24",
-      "endDate": "2025-12-31",
+      "endDate": "2025-12-04",
       "auditYear": 2025,
       "auditPeriod": "Q4",
       "auditLead": "2",
-      "auditMembers": "Felix,Charles ,Boni",
-      "thirdPartyFirm": "CyberSec Advisors",
-      "thirdPartyContact": "Lucas",
+      "auditMembers": "rrwer,werwe",
+      "thirdPartyFirm": "Ecl",
+      "thirdPartyContact": "rerereter",
       "clientConfirmation": "Yes",
-      "confirmationDate": "2025-11-25",
-      "unitOrientation": "Finance systems overview completed. Key systems: SAP FI/CO, Oracle Financials, ADP payroll",
-      "backgroundSummary": "Department manages $50M+ in transactions monthly. 45 users with system access. Mix of on-prem and cloud systems.",
-      "riskRating": "High",
-      "riskRationale": "Finance department handles sensitive financial data, PII, and payment information. Recent industry breaches highlight cybersecurity risks.",
-      "riskSummary": "High risk due to sensitive data handling, regulatory requirements (SOX, GDPR), and recent security incidents in financial sector",
+      "confirmationDate": null,
+      "unitOrientation": "erwewewrewe",
+      "backgroundSummary": "ewrwerrew",
+      "riskRating": "Medium",
+      "riskRationale": "rewwweew",
+      "riskSummary": "rrerwrwer",
       "kickoffDate": "2025-11-25",
-      "planningMemo": "Focus on privileged access, data encryption at rest and transit, and incident response capabilities",
-      "riskInterviewSummary": "the summary ",
+      "planningMemo": "r3rertretre",
+      "riskInterviewSummary": "hthttrthhr",
       "interviewSchedule": [],
       "logisticsChecklist": [
         {
-          "name": "Schedule kickoff meeting with Finance team",
-          "completed": true
+          "name": "gtttrgtrhyhyt",
+          "completed": false
         },
         {
-          "name": "Request system access for audit team",
-          "completed": true
+          "name": "gregergergtgt",
+          "completed": false
         }
       ],
-      "externalFiles": [
-        {}
-      ],
-      "internalFiles": [
-        {}
-      ],
-      "criteriaFiles": [
-        {}
-      ],
-      "rcmFile": {},
-      "id": "d299"
+      "externalFiles": [],
+      "internalFiles": [],
+      "criteriaFiles": [],
+      "rcmFile": null,
+      "createdAt": "2025-11-21T06:31:45.881Z",
+      "updatedAt": "2025-11-21T08:03:44.696Z",
+      "id": "bda5",
+      "sortDate": "2025-11-21T06:31:45.881Z",
+      "stage": "planning"
+    },
+    {
+      "title": "Cybersecurity Compliance Audit",
+      "scope": "Review access controls, data encryption, user permissions, and cybersecurity protocols for financial systems including SAP, Oracle Financials, and payroll systems",
+      "department": "Finance",
+      "status": "Planned",
+      "startDate": "2025-11-24",
+      "endDate": "2025-12-09",
+      "auditYear": 2025,
+      "auditPeriod": null,
+      "auditLead": "2",
+      "auditMembers": null,
+      "thirdPartyFirm": null,
+      "thirdPartyContact": null,
+      "clientConfirmation": null,
+      "confirmationDate": null,
+      "unitOrientation": null,
+      "backgroundSummary": null,
+      "riskRating": null,
+      "riskRationale": null,
+      "riskSummary": null,
+      "kickoffDate": null,
+      "planningMemo": null,
+      "riskInterviewSummary": null,
+      "interviewSchedule": [],
+      "logisticsChecklist": [],
+      "externalFiles": [],
+      "internalFiles": [],
+      "criteriaFiles": [],
+      "rcmFile": null,
+      "createdAt": "2025-11-21T08:02:37.525Z",
+      "updatedAt": "2025-11-21T09:00:16.183Z",
+      "id": "bbe1"
     }
   ],
   "workflows": [
@@ -503,7 +472,7 @@
       "scope": "checking cash flow for q1 ",
       "department": "Finance",
       "assignedTo": "auditor",
-      "status": "In Progress",
+      "status": "Not Started",
       "startDate": "2025-09-25",
       "dueDate": "2025-09-30",
       "id": "85aa",
@@ -513,14 +482,14 @@
           "id": "t1758437610671",
           "description": "dsfds",
           "assignee": "cia1",
-          "status": "Done",
+          "status": "Pending",
           "dueDate": "2025-09-30"
         },
         {
           "id": "t1758438875568",
           "description": "gfegege",
           "assignee": "auditor1",
-          "status": "In Progress",
+          "status": "Pending",
           "dueDate": "2025-09-24"
         },
         {
@@ -562,7 +531,14 @@
           "id": "1758441135200",
           "createdAt": "2025-09-21"
         }
-      ]
+      ],
+      "fieldwork": {
+        "evidence": [],
+        "meetings": [],
+        "weeklyUpdates": [],
+        "preClosing": [],
+        "documents": []
+      }
     },
     {
       "title": "Progamming Workflow",
@@ -963,7 +939,7 @@
       "assignedToId": "2",
       "auditLeadId": "2",
       "auditMembers": "sdgds,gdsdsg",
-      "status": "Completed",
+      "status": "In Progress",
       "startDate": "2025-11-21",
       "dueDate": "2025-11-26",
       "tasks": [
@@ -972,7 +948,7 @@
           "title": "User Access Review - SAP System\",",
           "description": "Review and validate user permissions in SAP FI/CO modules",
           "assignedTo": "Felix",
-          "status": "Done",
+          "status": "Pending",
           "dueDate": "2025-11-28",
           "priority": "Medium"
         },
@@ -1120,20 +1096,95 @@
       }
     },
     {
-      "id": "2bd5",
-      "auditId": "2bd5",
-      "title": "fewwefew Workflow",
-      "scope": "fewfewfew",
-      "department": "fewefew",
-      "assignedTo": "unit1",
-      "assignedToId": "3",
-      "auditLeadId": "3",
-      "auditMembers": "fsdsds",
+      "id": "bda5",
+      "auditId": "bda5",
+      "title": "gtggtrggggdtrhtrtgfdsae Workflow",
+      "scope": "fffewweweewfew",
+      "department": "ecl",
       "status": "Not Started",
-      "startDate": "2025-11-20",
-      "dueDate": "2025-11-28",
+      "startDate": "2025-11-24",
+      "endDate": "2025-11-28",
+      "auditYear": 2025,
+      "auditPeriod": "Q4",
+      "assignedTo": "cia1",
+      "assignedToId": "2",
+      "auditLeadId": "2",
+      "auditMembers": "rrwer,werwe",
+      "thirdPartyFirm": "Ecl",
+      "thirdPartyContact": "rerereter",
+      "clientConfirmation": "Yes",
+      "confirmationDate": null,
+      "riskRating": "Medium",
+      "riskRationale": "rewwweew",
+      "riskSummary": "rrerwrwer",
+      "kickoffDate": "2025-11-25",
+      "planningMemo": "r3rertretre",
+      "unitOrientation": "erwewewrewe",
+      "backgroundSummary": "ewrwerrew",
+      "riskInterviewSummary": "hthttrthhr",
+      "interviewSchedule": [],
+      "logisticsChecklist": [
+        {
+          "name": "gtttrgtrhyhyt",
+          "completed": false
+        },
+        {
+          "name": "gregergergtgt",
+          "completed": false
+        }
+      ],
+      "criteriaFiles": [],
+      "rcmFile": "/assets/uploads/bda5_rcm_1763706706001_download.pdf",
+      "externalFiles": [],
+      "internalFiles": [],
       "tasks": [],
-      "miniFindings": []
+      "miniFindings": [],
+      "createdAt": "2025-11-21T06:31:46.143Z",
+      "updatedAt": "2025-11-21T08:03:44.936Z",
+      "stage": "planning",
+      "dueDate": "2025-12-04",
+      "auditLead": "2"
+    },
+    {
+      "id": "bbe1",
+      "auditId": "bbe1",
+      "title": "Cybersecurity Compliance Audit Workflow",
+      "scope": "Review access controls, data encryption, user permissions, and cybersecurity protocols for financial systems including SAP, Oracle Financials, and payroll systems",
+      "department": "Finance",
+      "status": "Not Started",
+      "stage": "planning",
+      "startDate": "2025-11-24",
+      "endDate": "2025-12-06",
+      "auditYear": 2025,
+      "auditPeriod": null,
+      "assignedTo": "cia1",
+      "assignedToId": "2",
+      "auditLeadId": "2",
+      "auditMembers": null,
+      "thirdPartyFirm": null,
+      "thirdPartyContact": null,
+      "clientConfirmation": null,
+      "confirmationDate": null,
+      "riskRating": null,
+      "riskRationale": null,
+      "riskSummary": null,
+      "kickoffDate": null,
+      "planningMemo": null,
+      "unitOrientation": null,
+      "backgroundSummary": null,
+      "riskInterviewSummary": null,
+      "interviewSchedule": [],
+      "logisticsChecklist": [],
+      "criteriaFiles": [],
+      "rcmFile": "",
+      "externalFiles": [],
+      "internalFiles": [],
+      "tasks": [],
+      "miniFindings": [],
+      "createdAt": "2025-11-21T08:02:37.729Z",
+      "updatedAt": "2025-11-21T09:00:16.249Z",
+      "dueDate": "2025-12-09",
+      "auditLead": "2"
     }
   ],
   "observations": [
@@ -3275,6 +3326,60 @@
         "auditUnit": "fewefew",
         "startDate": "2025-11-20",
         "dueDate": "2025-11-28",
+        "status": "Planned"
+      }
+    },
+    {
+      "id": "dbda",
+      "role": "Auditor",
+      "type": "assignment",
+      "title": "New Audit Assigned",
+      "from": "System (via CIA)",
+      "summary": "You have been assigned to the new audit: \"gtggtrggggdtrhtrtgfdsae\".",
+      "isRead": false,
+      "timestamp": "2025-11-21T06:31:46.144Z",
+      "details": {
+        "subject": "New Assignment: gtggtrggggdtrhtrtgfdsae",
+        "auditId": "bda5",
+        "auditUnit": "ecl",
+        "startDate": "2025-11-24",
+        "dueDate": "2025-11-28",
+        "status": "Planned"
+      }
+    },
+    {
+      "id": "4c37",
+      "role": "Auditor",
+      "type": "assignment",
+      "title": "New Audit Assigned",
+      "from": "System (via CIA)",
+      "summary": "You have been assigned to the new audit: \"Cybersecurity Compliance Audit\".",
+      "isRead": false,
+      "timestamp": "2025-11-21T08:02:37.730Z",
+      "details": {
+        "subject": "New Assignment: Cybersecurity Compliance Audit",
+        "auditId": "bbe1",
+        "auditUnit": "Finance",
+        "startDate": "2025-11-24",
+        "dueDate": "2025-12-06",
+        "status": "Planned"
+      }
+    },
+    {
+      "id": "08d8",
+      "role": "Auditor",
+      "type": "assignment",
+      "title": "New Audit Assigned",
+      "from": "System (via CIA)",
+      "summary": "You have been assigned to the new audit: \"ttttttttttttttttttttttttttttttttttt\".",
+      "isRead": false,
+      "timestamp": "2025-11-21T08:59:13.182Z",
+      "details": {
+        "subject": "New Assignment: ttttttttttttttttttttttttttttttttttt",
+        "auditId": "f178",
+        "auditUnit": "gregerg",
+        "startDate": "2025-11-24",
+        "dueDate": "2025-12-05",
         "status": "Planned"
       }
     }

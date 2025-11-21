@@ -1,47 +1,47 @@
 <div class="container-fluid">
   <div class="row">
-    <!-- Left Side: Audit Table -->
+    <!-- Audit Table -->
       <div class="col-lg-8 col-md-7" [class.col-lg-12]="!isDetailsPanelVisible">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <!-- Search and Filters -->
-        <div class="input-group w-50">
-          <span class="input-group-text"><i class="fas fa-search"></i></span>
-          <input type="text" class="form-control" placeholder="Search audits..."
-                [(ngModel)]="searchTerm" (ngModelChange)="applyFiltersAndPagination()">
-        </div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <!-- Search and Filters -->
+          <div class="input-group w-50">
+            <span class="input-group-text"><i class="fas fa-search"></i></span>
+            <input type="text" class="form-control" placeholder="Search audits..."
+                  [(ngModel)]="searchTerm" (ngModelChange)="applyFiltersAndPagination()">
+          </div>
 
-        <div class="d-flex align-items-center gap-2">
-          <!-- Export Button -->
-          <div class="btn-group">
-            <button type="button" class="btn btn-outline-info btn-sm dropdown-toggle" [disabled]="!allAudits.length"
-                    data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="fas fa-download"></i> Export
-            </button>
-            <ul class="dropdown-menu">
-              <li>
-                <a class="dropdown-item" (click)="exportAsCSV()">
-                  <i class="fas fa-file-csv text-warning me-2"></i> CSV
-                </a>
-              </li>
-              <li>
-                <a class="dropdown-item" (click)="exportAsExcel()">
-                  <i class="fas fa-file-excel text-success me-2"></i> Excel
-                </a>
-              </li>
-              <li>
-                <a class="dropdown-item" (click)="exportAsPDF()">
-                  <i class="fas fa-file-pdf text-danger me-2"></i> PDF
-                </a>
-              </li>
-              <li>
-                <a class="dropdown-item" (click)="exportAsXML()">
-                  <i class="fas fa-file-code text-primary me-2"></i> XML
-                </a>
-              </li>
-            </ul>
+          <div class="d-flex align-items-center gap-2">
+            <!-- Export Button -->
+            <div class="btn-group">
+              <button type="button" class="btn btn-outline-info btn-sm dropdown-toggle" [disabled]="!allAudits.length"
+                      data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-download"></i> Export
+              </button>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" (click)="exportAsCSV()">
+                    <i class="fas fa-file-csv text-warning me-2"></i> CSV
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" (click)="exportAsExcel()">
+                    <i class="fas fa-file-excel text-success me-2"></i> Excel
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" (click)="exportAsPDF()">
+                    <i class="fas fa-file-pdf text-danger me-2"></i> PDF
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" (click)="exportAsXML()">
+                    <i class="fas fa-file-code text-primary me-2"></i> XML
+                  </a>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
-      </div>
 
         <!-- Filters Row -->
         <div class="row mb-3">
@@ -119,7 +119,14 @@
                   <i class="fas fa-sort ms-1" [class.fa-sort-up]="sortColumn === 'endDate' && sortDirection === 'asc'" 
                     [class.fa-sort-down]="sortColumn === 'endDate' && sortDirection === 'desc'"></i>
                 </th>
+            
+                   <th (click)="sortBy('stage')" style="cursor: pointer;">
+                  Stage
+                  <i class="fas fa-sort ms-1" [class.fa-sort-up]="sortColumn === 'stage' && sortDirection === 'asc'" 
+                    [class.fa-sort-down]="sortColumn === 'stage' && sortDirection === 'desc'"></i>
+                </th>
               </tr>
+
             </thead>
             <tbody>
               <tr *ngFor="let audit of visibleAudits"
@@ -140,6 +147,11 @@
                 </td>
                 <td>{{ audit.startDate }}</td>
                 <td>{{ audit.endDate }}</td>
+                <td>
+                <span class="badge" [ngClass]="getStageBadgeClass(audit.stage)">
+                    {{ getStageDisplayName(audit.stage) }}
+                  </span>
+                  </td>
               </tr>
               <tr *ngIf="visibleAudits.length === 0">
                 <td colspan="5" class="text-center text-muted py-4">
@@ -200,7 +212,6 @@
       </div>
 
       <div class="card col-lg-4 col-md-5 bg-white border-start shadow-sm rounded details-panel" *ngIf="isDetailsPanelVisible">
-  
         <div class="p-3 card-header bg-light text-dark ">
           <div class="d-flex justify-content-between align-items-start">
             <div class="flex-grow-1">
@@ -224,10 +235,15 @@
             </div>
             <div class="card-body p-3">
               <div class="row g-2">
-                <div class="col-12">
+                <div class="col-6">
                   <label class="small text-muted mb-1">Department</label>
                   <p class="mb-2 fw-semibold">{{ selectedAudit?.department || 'Not specified' }}</p>
                 </div>
+                <div class="col-6">
+                  <label class="small text-muted mb-1">Audit Year</label>
+                  <p class="mb-2 fw-semibold">{{ selectedAudit?.auditYear || 'Not specified' }}</p>
+                </div>
+
                 <div class="col-6">
                   <label class="small text-muted mb-1">Status</label>
                   <div class="mb-2">
@@ -241,10 +257,17 @@
                     </span>
                   </div>
                 </div>
+
                 <div class="col-6">
-                  <label class="small text-muted mb-1">Audit Year</label>
-                  <p class="mb-2 fw-semibold">{{ selectedAudit?.auditYear || 'Not specified' }}</p>
+                  <label class="small text-muted mb-1">Current Stage</label>
+                  <div class="mb-2">
+                    <span class="badge px-2 py-1" [ngClass]="getStageBadgeClass(selectedAudit?.stage)">
+                      {{ getStageDisplayName(selectedAudit?.stage) }}
+                    </span>
+                  </div>
                 </div>
+            
+      
                 <div class="col-12">
                   <label class="small text-muted mb-1">Timeline</label>
                   <p class="mb-0 fw-semibold small">
@@ -434,12 +457,18 @@
   <div class="modal-dialog modal-lg modal-dialog-scrollable" (click)="$event.stopPropagation()">
     <div class="modal-content shadow-lg border-0 rounded-3">
       <div class="modal-header bg-success text-white">
-        <h3 class="modal-title mb-0">
-          <i class="fas fa-tasks me-2"></i>
-          Audit ( {{ selectedAudit?.title }} ) Planning
-        </h3>
-        <button type="button" class="btn-close btn-close-white" (click)="closePlanningModal()"></button>
-      </div>
+          <h3 class="modal-title mb-0">
+            <i class="fas fa-tasks me-2"></i>
+            Audit Planning - {{ selectedAudit?.title }}
+          </h3>
+          <div class="d-flex align-items-center">
+            <span class="badge bg-light text-dark me-2">
+              Stage: {{ getStageDisplayName(selectedAudit?.stage) }}
+            </span>
+
+            <button type="button" class="btn-close btn-close-white" (click)="closePlanningModal()"></button>
+          </div>
+        </div>
 
       <div class="modal-body">
           <h2 class="mb-3">
@@ -557,8 +586,7 @@
           <div *ngIf="selectedAudit?.team?.length > 0; else noTeam">
             <div *ngFor="let member of selectedAudit.team; let i = index" 
                 class="shadow-sm p-2 d-flex justify-content-between align-items-center small-task-box mb-1">
-              
-              <!-- Member info -->
+  
               <div>
                 <small>
                   <i class="fas fa-user me-1 text-primary"></i>
