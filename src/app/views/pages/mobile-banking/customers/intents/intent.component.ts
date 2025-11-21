@@ -13,6 +13,14 @@ import jsPDF from 'jspdf';
 import { HttpClient } from '@angular/common/http';
 
 
+export enum AuditStage {
+  SCOPING = 'scoping',
+  PLANNING = 'planning',
+  FIELDWORK = 'fieldwork',
+  REPORTING = 'reporting',
+  MONITORING = 'monitoring'
+}
+
 interface Audit {
   id: number;
   title: string;
@@ -33,13 +41,12 @@ interface PlanningTask {
   endDate: string;
   status: 'Not Started' | 'In Progress' | 'Completed';
 }
-
-
 @Component({
     selector: 'app-intent',
     templateUrl: './intent.component.html',
     styleUrls: ['./intent.component.scss']
 })
+
 export class IntentComponent implements OnInit {
   editingMember: any;
 hoverTask: any;
@@ -59,21 +66,17 @@ throw new Error('Method not implemented.');
     visibleAudits: any[] = [];
     isTaskModalVisible: boolean = false;
     taskForm: FormGroup;
-    editingTaskIndex: number | null = null; // null if adding new
+    editingTaskIndex: number | null = null; 
 
     recordsToShow = 20;
     isLoading = false;
   // Task Modal State
     isAddTaskFormVisible: boolean = false;
-
-    // Filters
     searchTerm = '';
     departmentFilter = '';
     statusFilter = '';
-  formErrors: string[] = [];
-  currentYear = new Date().getFullYear();
-  
-    // Form & Modal
+   formErrors: string[] = [];
+   currentYear = new Date().getFullYear();
     addAuditForm: FormGroup;
     isAddAuditModalVisible = false;
     externalFiles: File[] = [];
@@ -127,15 +130,15 @@ ngOnInit(): void {
     });
     }
 
-    
 loadAudits(): void {
   this.isLoading = true;
   this.http.get<any[]>(this.apiUrl).subscribe({
     next: (audits) => {
-
       this.allAudits = audits.map(audit => ({
         ...audit,
-        sortDate: audit.createdAt || audit.startDate
+        sortDate: audit.createdAt || audit.startDate,
+        // Preserve the existing stage from the audit data
+        stage: audit.stage || this.determineAuditStage(audit)
       }));
       this.extractUniqueValues();
       this.applyFiltersAndPagination();
@@ -148,7 +151,46 @@ loadAudits(): void {
   });
 }
 
-// Helper method to get current date-time in the correct format for datetime-local input
+isAuditInScopingStage(audit: any): boolean {
+  const stage = audit.stage || this.determineAuditStage(audit);
+  return stage === AuditStage.SCOPING;
+}
+
+isAuditInPlanningStage(audit: any): boolean {
+  const stage = audit.stage || this.determineAuditStage(audit);
+  return stage === AuditStage.PLANNING;
+}
+
+getLogisticsProgress(audit: any): number {
+  if (!audit?.logisticsChecklist || audit.logisticsChecklist.length === 0) return 0;
+  const completed = audit.logisticsChecklist.filter((item: any) => item.completed).length;
+  return Math.round((completed / audit.logisticsChecklist.length) * 100);
+}
+
+showStageRestrictionAlert(audit: any, action: string): void {
+  const currentStage = audit.stage || this.determineAuditStage(audit);
+  const stageNames: { [key: string]: string } = {
+    [AuditStage.SCOPING]: 'Scoping & Creating',
+    [AuditStage.PLANNING]: 'Planning',
+    [AuditStage.FIELDWORK]: 'Fieldwork',
+    [AuditStage.REPORTING]: 'Reporting',
+    [AuditStage.MONITORING]: 'Monitoring'
+  };
+
+  Swal.fire({
+    icon: 'warning',
+    title: 'Stage Restriction',
+    html: `
+      <div class="text-start">
+        <p>You cannot <strong>${action}</strong> an audit that is in the <strong>${stageNames[currentStage]}</strong> stage.</p>
+        <p class="mb-0"><small>Current stage: <span class="badge bg-primary">${stageNames[currentStage]}</span></small></p>
+      </div>
+    `,
+    confirmButtonText: 'OK',
+    confirmButtonColor: '#3085d6'
+  });
+}
+
 getCurrentDateTime(): string {
   const now = new Date();
   
@@ -159,6 +201,66 @@ getCurrentDateTime(): string {
   const minutes = now.getMinutes().toString().padStart(2, '0');
   
   return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+openPlanningPanel(audit: any): void {
+  const currentStage = audit.stage || this.determineAuditStage(audit);
+  
+  if (currentStage === AuditStage.SCOPING) {
+    Swal.fire({
+      icon: 'info',
+      title: 'Start Planning Phase',
+      html: `
+        <div class="text-start">
+          <p>This audit is currently in the <strong>Scoping</strong> stage.</p>
+          <p>Starting planning will move this audit to the <strong>Planning</strong> stage.</p>
+          <p class="mb-0 text-muted"><small>You won't be able to edit scoping information after this.</small></p>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'Start Planning',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#198754'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.moveAuditToPlanningStage(audit);
+        this.selectedAudit = audit;
+        this.isPlanningModalVisible = true;
+      }
+    });
+  } else if (currentStage === AuditStage.PLANNING) {
+    this.selectedAudit = audit;
+    this.isPlanningModalVisible = true;
+  } else {
+   
+    const stageNames: { [key: string]: string } = {
+      [AuditStage.SCOPING]: 'Scoping',
+      [AuditStage.PLANNING]: 'Planning',
+      [AuditStage.FIELDWORK]: 'Fieldwork',
+      [AuditStage.REPORTING]: 'Reporting',
+      [AuditStage.MONITORING]: 'Monitoring'
+    };
+
+    Swal.fire({
+      icon: 'info',
+      title: 'Audit in Advanced Stage',
+      html: `
+        <div class="text-start">
+          <p>This audit is currently in the <strong>${stageNames[currentStage]}</strong> stage.</p>
+          <p class="mb-0">Planning modifications may be restricted based on the current progress.</p>
+        </div>
+      `,
+      confirmButtonText: 'Continue Anyway',
+      cancelButtonText: 'Cancel',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.selectedAudit = audit;
+        this.isPlanningModalVisible = true;
+      }
+    });
+  }
 }
 
 isMeetingDateInvalid(): boolean {
@@ -176,7 +278,6 @@ validateMeetingDate(): void {
   if (this.isMeetingDateInvalid()) {
     this.toastr.warning('Meeting date cannot be in the past. Please select a future date.', 'Invalid Date');
     
-    // Optionally clear the invalid date
     // this.selectedAudit.planningMeetingDate = '';
   }
 }
@@ -217,7 +318,7 @@ private sortAudits(audits: any[]): any[] {
 }
 
 resetToDefaultSort(): void {
-  this.sortColumn = 'startDate'; // or 'createdAt'
+  this.sortColumn = 'startDate';
   this.sortDirection = 'desc';
   this.applyFiltersAndPagination();
 }
@@ -225,8 +326,7 @@ resetToDefaultSort(): void {
 
 private extractUniqueValues(): void {
   this.uniqueDepartments = [...new Set(this.allAudits.map(audit => audit.department).filter(Boolean))].sort();
-  
-  // Extract unique years from start dates
+
   const years = this.allAudits.map(audit => {
     if (audit.startDate) {
       return new Date(audit.startDate).getFullYear();
@@ -249,17 +349,14 @@ applyFiltersAndPagination(): void {
     );
   }
 
-  // Apply department filter
   if (this.departmentFilter) {
     audits = audits.filter(a => a.department === this.departmentFilter);
   }
 
-  // Apply status filter
   if (this.statusFilter) {
     audits = audits.filter(a => a.status === this.statusFilter);
   }
 
-  // Apply year filter
   if (this.yearFilter) {
     audits = audits.filter(a => {
       if (a.startDate) {
@@ -278,7 +375,6 @@ applyFiltersAndPagination(): void {
   this.updateVisibleAudits();
 }
 
-// New sorting method
 sortBy(column: string): void {
   if (this.sortColumn === column) {
     this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
@@ -537,7 +633,7 @@ handleFileUpload(event: any, type: string) {
         name: file.name,
         type: file.type,
         content: e.target.result, // base64 content
-        tab: type // track which tab this came from
+        tab: type 
       });
     };
     reader.readAsDataURL(file);
@@ -643,7 +739,6 @@ getFormErrors(): string[] {
         if (control.errors['invalidYear']) {
           errors.push(`${key} must be between ${this.currentYear} and 2030`);
         }
-        // Add more if you need
       }
     });
   
@@ -727,9 +822,98 @@ closePlanningModal() {
   this.isPlanningModalVisible = false;
 }
 
-openPlanningPanel(audit: any): void {
-  this.selectedAudit = audit;
-  this.isPlanningModalVisible = true;
+private moveAuditToPlanningStage(audit: any): void {
+  const updatedAudit = {
+    ...audit,
+    stage: AuditStage.PLANNING,
+    updatedAt: new Date().toISOString()
+  };
+
+  this.http.put(`${this.apiUrl}/${audit.id}`, updatedAudit).subscribe({
+    next: () => {
+      console.log(`Audit ${audit.id} moved to planning stage`);
+      // Update local state
+      const auditIndex = this.allAudits.findIndex(a => a.id === audit.id);
+      if (auditIndex > -1) {
+        this.allAudits[auditIndex] = updatedAudit;
+      }
+    
+      this.updateWorkflowStage(audit.id, AuditStage.PLANNING);
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Planning Phase Started',
+        text: 'Audit has been moved to the Planning stage.',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    },
+    error: (err) => {
+      console.error('Failed to update audit stage:', err);
+      Swal.fire('Error', 'Failed to start planning phase', 'error');
+    }
+  });
+}
+
+getStageBadgeClass(stage: AuditStage | string): string {
+  const stageClasses: { [key: string]: string } = {
+    [AuditStage.SCOPING]: 'bg-primary',
+    [AuditStage.PLANNING]: 'bg-info',
+    [AuditStage.FIELDWORK]: 'bg-warning text-dark',
+    [AuditStage.REPORTING]: 'bg-secondary',
+    [AuditStage.MONITORING]: 'bg-success'
+  };
+  return stageClasses[stage] || 'bg-primary';
+}
+
+private updateWorkflowStage(auditId: number, stage: AuditStage): void {
+  this.http.get<any[]>(`http://localhost:3000/workflows?auditId=${auditId}`).subscribe({
+    next: (workflows) => {
+      if (workflows.length > 0) {
+        const wf = workflows[0];
+        this.http.patch(`http://localhost:3000/workflows/${wf.id}`, { 
+          stage,
+          updatedAt: new Date().toISOString()
+        }).subscribe({
+          next: () => {
+            console.log('Workflow stage updated successfully');
+            this.globalService.notifyWorkflowsChanged();
+          },
+          error: (err) => {
+            console.error('Failed to update workflow stage:', err);
+          }
+        });
+      }
+    },
+    error: (err) => {
+      console.error('Failed to fetch workflow for stage update:', err);
+    }
+  });
+}
+
+determineAuditStage(audit: any): AuditStage {
+  if (!audit) return AuditStage.SCOPING;
+  
+  if (audit.stage) {
+    return audit.stage as AuditStage;
+  }
+
+  if (audit.status === 'Completed') {
+    return AuditStage.MONITORING;
+  }
+
+  return AuditStage.SCOPING;
+}
+
+getStageDisplayName(stage: AuditStage | string): string {
+  const stageNames: { [key: string]: string } = {
+    [AuditStage.SCOPING]: 'Scoping',
+    [AuditStage.PLANNING]: 'Planning',
+    [AuditStage.FIELDWORK]: 'Fieldwork',
+    [AuditStage.REPORTING]: 'Reporting',
+    [AuditStage.MONITORING]: 'Monitoring'
+  };
+  return stageNames[stage] || 'Scoping';
 }
 
 onInternalFilesSelected(event: any) {
