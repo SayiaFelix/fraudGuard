@@ -5,7 +5,7 @@ services:
     build: ./backend
     container_name: ams_backend
     volumes:
-      - ./backend/data:/app/data  # persist JSON DB
+      - ./backend/db.json:/app/db.json  # persist JSON data
     ports:
       - "3000:3000"
     restart: always
