@@ -50,7 +50,7 @@ export class ListUsersComponent implements OnInit {
   private api = `${environment.apiBase}/workflows`; 
   private apiUrl = `${environment.apiBase}/audits`;
 
-   // UI state
+  // UI state
   isDetailsPanelVisible = false;
   selectedWorkflow: Workflow | null = null;
   isAddEditModalVisible = false;
