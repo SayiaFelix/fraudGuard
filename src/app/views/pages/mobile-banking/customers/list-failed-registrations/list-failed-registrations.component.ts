@@ -15,6 +15,8 @@ import { GlobalService } from 'src/app/shared/services/global.service';
 import { Subject, Subscription } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { trigger, state, style, animate, transition } from '@angular/animations';
+import {environment} from 'src/environments/environment';
+
 
 interface ChatMessage {
   sender: 'bot' | 'user';
@@ -53,9 +55,9 @@ export class ListFailedRegistrationsComponent implements OnInit {
   riskStats = { critical: 0, high: 0, medium: 0, low: 0 };
   complianceStats = { completed: 0, pending: 0 };
 
-  private apiUrl = 'http://localhost:3000/audits';
+  private apiUrl = `${environment.apiBase}/audits`;
   private observationsUrl = 'http://localhost:3000/observations';
-  private workflowsUrl = 'http://localhost:3000/workflows';
+  private workflowsUrl = `${environment.apiBase}/workflows`;
 
   constructor(
     private httpService: HttpService,
@@ -93,8 +95,6 @@ ngOnInit() {
 ngOnDestroy() {
   this.subs.forEach(s => s.unsubscribe());
 }
-
-// In your parent component (list-failed-registrations.component.ts)
 
 loadRiskStats(): void {
   this.http.get<any[]>(this.workflowsUrl).subscribe(workflows => {
@@ -181,17 +181,6 @@ get nextThreeAudits() {
       }
     });
   }
-
-
-  // loadRiskStats(): void {
-  //   this.http.get<any[]>(this.observationsUrl).subscribe(obs => {
-  //     this.riskStats = {
-  //       high: obs.filter(o => o.severity === 'High').length,
-  //       medium: obs.filter(o => o.severity === 'Medium').length,
-  //       low: obs.filter(o => o.severity === 'Low').length
-  //     };
-  //   });
-  // }
 
   loadComplianceStats(): void {
     const completed = this.allAudits.filter(a => a.status === 'Completed').length;

@@ -8,7 +8,7 @@ import { GlobalService } from 'src/app/shared/services/global.service';
 import * as saveAs from 'file-saver';
 import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
-
+import {environment} from 'src/environments/environment';
 
 export enum AuditStage {
   SCOPING = 'scoping',
@@ -58,10 +58,10 @@ currentYear = new Date().getFullYear();
   filteredUsers: any[] = [];
    workflows: any[] = [];
 
-  private apiUrl = 'http://localhost:3000/audits';
-  private usersUrl = 'http://localhost:3000/users';
+  private apiUrl = `${environment.apiBase}/audits`;
+  private usersUrl = `${environment.apiBase}/users`;
+  private workflowsUrl = `${environment.apiBase}/workflows`;
 
-  private workflowsUrl = 'http://localhost:3000/workflows';
   isUsersLoaded = false; 
 
   criteriaFiles: File[] = [];
@@ -1249,7 +1249,7 @@ saveAudit(): void {
               }
             };
 
-            this.http.post('http://localhost:3000/inboxItems', newInboxItem).subscribe({
+            this.http.post(`${environment.apiBase}/inboxItems`, newInboxItem).subscribe({
               next: () => console.log('SUCCESS: New assignment notification created in inbox.'),
               error: (err) => console.error('Failed to create inbox notification:', err)
             });
@@ -1426,7 +1426,7 @@ saveLogisticsChecklist() {
             this.loadAudits();
             this.hideAuditDetails();
 
-            this.http.delete(`http://localhost:3000/workflows/${id}`).subscribe();
+            this.http.delete(`${this.workflowsUrl}/${id}`).subscribe();
             this.globalService.notifyAuditsChanged();
           },
           error: () => {

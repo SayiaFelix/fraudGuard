@@ -5,6 +5,7 @@ import { AuthService } from './auth.service';
 import { map, catchError } from 'rxjs/operators';
 import { forkJoin, Observable, throwError } from 'rxjs';
 import { Router } from '@angular/router';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -21,7 +22,8 @@ export class HttpService {
     private authService: AuthService,
     private router: Router
   ) {}
-  private apiUrl = 'http://localhost:3000/users';
+  private apiUrl = `${environment.apiBase}/users`;
+
   private cytonUrl = 'http://130.61.111.65:5016/api/get_all_charts_kpis'; 
   private apiUrls = 'http://127.0.0.1:5020/api/chat'; 
 

@@ -11,6 +11,7 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import * as saveAs from 'file-saver';
 import jsPDF from 'jspdf';
 import { HttpClient } from '@angular/common/http';
+import {environment} from 'src/environments/environment';
 
 
 export enum AuditStage {
@@ -88,7 +89,9 @@ throw new Error('Method not implemented.');
     logisticsChecklist: any[] = [];
    riskInterviewSummary: [''];
    scopingNotes: ['']
-    private apiUrl = 'http://localhost:3000/audits';
+
+  //  ${environment.apiBase}
+    private apiUrl = `${environment.apiBase}/audits`;
     sortColumn = 'startDate'; 
   sortDirection: 'asc' | 'desc' = 'desc'; 
      currentPage = 1;
@@ -671,7 +674,7 @@ savePlanning() {
       planningTasks: this.selectedAudit.planningTasks || []
     };
   
-  this.http.put(`http://localhost:3000/audits/${this.selectedAudit.id}`, planningData)
+  this.http.put(`${this.apiUrl}/${this.selectedAudit.id}`, planningData)
     .subscribe({
       next: (res) => {
         console.log('Planning saved successfully', res);
@@ -867,11 +870,11 @@ getStageBadgeClass(stage: AuditStage | string): string {
 }
 
 private updateWorkflowStage(auditId: number, stage: AuditStage): void {
-  this.http.get<any[]>(`http://localhost:3000/workflows?auditId=${auditId}`).subscribe({
+  this.http.get<any[]>(`${environment.apiBase}/workflows?auditId=${auditId}`).subscribe({
     next: (workflows) => {
       if (workflows.length > 0) {
         const wf = workflows[0];
-        this.http.patch(`http://localhost:3000/workflows/${wf.id}`, { 
+        this.http.patch(`${environment.apiBase}/workflows/${wf.id}`, { 
           stage,
           updatedAt: new Date().toISOString()
         }).subscribe({
@@ -968,7 +971,7 @@ onInternalFilesSelected(event: any) {
               this.hideAuditDetails();
               this.globalService.notifyAuditsChanged();
   
-              this.http.get<any[]>(`http://localhost:3000/workflows?auditId=${auditId}`).subscribe({
+              this.http.get<any[]>(`${environment.apiBase}/workflows?auditId=${auditId}`).subscribe({
                 next: (workflows) => {
                   if (workflows.length > 0) {
                     const wf = workflows[0];
@@ -992,7 +995,7 @@ onInternalFilesSelected(event: any) {
                       kickoffDate: formData.kickoffDate,
                       planningMemo: formData.planningMemo
                     };
-                    this.http.put(`http://localhost:3000/workflows/${wf.id}`, updatedWf).subscribe({
+                    this.http.put(`${environment.apiBase}/workflows/${wf.id}`, updatedWf).subscribe({
                       next: () => this.globalService.notifyWorkflowsChanged(),
                       error: (err) => console.error('Workflow sync failed:', err)
                     });
@@ -1032,7 +1035,7 @@ onInternalFilesSelected(event: any) {
               }
             };
   
-            this.http.post('http://localhost:3000/inboxItems', newInboxItem).subscribe({
+            this.http.post(`${environment.apiBase}/inboxItems`, newInboxItem).subscribe({
               next: () => console.log('%cSUCCESS: New assignment notification created in inbox.', 'color: green; font-weight: bold;'),
               error: (err) => console.error('Failed to create inbox notification:', err)
             });
@@ -1051,7 +1054,7 @@ onInternalFilesSelected(event: any) {
               miniFindings: []
             };
   
-            this.http.post(`http://localhost:3000/workflows`, workflowPayload).subscribe({
+            this.http.post(` ${environment.apiBase}/workflows`, workflowPayload).subscribe({
               next: () => this.globalService.notifyWorkflowsChanged(),
               error: (err) => console.error('Workflow create failed:', err)
             });
@@ -1077,7 +1080,7 @@ onInternalFilesSelected(event: any) {
               this.loadAudits();
               this.hideAuditDetails();
   
-              this.http.delete(`http://localhost:3000/workflows/${id}`).subscribe();
+              this.http.delete(`${environment.apiBase}/workflows/${id}`).subscribe();
               this.globalService.notifyAuditsChanged();
             },
             error: () => {
