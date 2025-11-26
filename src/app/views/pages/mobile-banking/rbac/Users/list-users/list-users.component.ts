@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { GlobalService } from 'src/app/shared/services/global.service';
 import Swal from 'sweetalert2';
+import {environment} from 'src/environments/environment';
 
 export interface Task {
   id: number;
@@ -46,9 +47,8 @@ export interface MiniFinding {
   styleUrls: ['./list-users.component.scss']
 })
 export class ListUsersComponent implements OnInit {
-  
-  private api = 'http://localhost:3000/workflows'; 
-  private apiUrl = 'http://localhost:3000/audits';
+  private api = `${environment.apiBase}/workflows`; 
+  private apiUrl = `${environment.apiBase}/audits`;
 
    // UI state
   isDetailsPanelVisible = false;
@@ -1167,7 +1167,7 @@ users: any[] = [];
 today: string = new Date().toISOString().split('T')[0];
 
 loadUsers(): void {
-  this.http.get<any[]>('http://localhost:3000/users').subscribe({
+  this.http.get<any[]>('http://localhos:3000/users').subscribe({
     next: (res) => this.users = res,
     error: (err) => console.error('Failed to load users', err)
   });
@@ -1445,7 +1445,7 @@ saveWorkflow(): void {
           endDate: payload.dueDate
         };
 
-        this.http.put(`http://localhost:3000/audits/${payload.auditId}`, auditPayload).subscribe({
+        this.http.put(`${this.apiUrl}/${payload.auditId}`, auditPayload).subscribe({
           next: () => this.globalService.notifyAuditsChanged(),
           error: err => console.error('Audit sync failed:', err)
         });
@@ -1486,7 +1486,7 @@ saveWorkflow(): void {
             title: `${payload.title}`
           };
 
-        this.http.post(`http://localhost:3000/audits`, auditPayloads).subscribe({
+        this.http.post(`${this.apiUrl}`, auditPayloads).subscribe({
           next: () => this.globalService.notifyAuditsChanged(),
           error: err => console.error('Audit create failed:', err)
         });
@@ -1517,7 +1517,7 @@ deleteWorkflow(id?: number | string, auditId?: string): void {
       this.globalService.delete(id).subscribe({
         next: () => {
           if (auditId) {
-            this.http.delete(`http://localhost:3000/audits/${auditId}`).subscribe({
+            this.http.delete(`${this.apiUrl}/${auditId}`).subscribe({
               next: () => this.globalService.notifyAuditsChanged(),
               error: err => console.warn('Failed to delete linked audit', err)
             });
@@ -1641,7 +1641,7 @@ private syncWorkflowAndAudit(updated: Workflow): void {
         endDate: updated.dueDate
       };
 
-      this.http.put(`http://localhost:3000/audits/${updated.auditId}`, auditPayload).subscribe({
+      this.http.put(`${this.apiUrl}/${updated.auditId}`, auditPayload).subscribe({
         next: () => this.globalService.notifyAuditsChanged(),
         error: err => console.error('Audit sync failed:', err)
       });

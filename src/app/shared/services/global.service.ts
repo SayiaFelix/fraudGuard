@@ -6,9 +6,6 @@ import { BehaviorSubject } from 'rxjs';
 import { Workflow } from 'src/app/views/pages/mobile-banking/rbac/Users/list-users/list-users.component';
 import { Audit, MISReport, Observation } from 'src/app/views/pages/mobile-banking/products/list-products-categories-cards/product-categories-as-cards.component';
 
-// In: global.service.ts (or auth.service.ts)
-
-
 @Injectable(
   {
     providedIn: 'root',
@@ -28,7 +25,7 @@ export class GlobalService {
 
   //private apiUrl = 'http://127.0.0.1:5010/api/chat'; 
 
-  private apiUrl = 'http://localhost:3000';
+  private apiUrl = `${environment.apiBase}`;
   
   constructor(private http: HttpClient) {
     
@@ -50,8 +47,15 @@ chatbotId$ = this.chatbotIdSubject.asObservable();
 botStatus$ = this.botStatusSubject.asObservable();
 chatbotData$ = this.chatbotDataSubject.asObservable();
 
-private api = 'http://localhost:3000/workflows'; 
-private apis = 'http://localhost:3000'; 
+// private api = 'http://localhost:3000/workflows'; 
+// private apis = 'http://localhost:3000'; 
+
+private api = `${environment.apiBase}/workflows`; 
+private apis = `${environment.apiBase}`; 
+
+// this.http.get(`${environment.apiBase}/workflows`);
+// this.http.get(`${environment.apiBase}/audits`);
+
 
   getReportingKPIs(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/reporting-kpis`);

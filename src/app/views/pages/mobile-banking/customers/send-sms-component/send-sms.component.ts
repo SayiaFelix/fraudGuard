@@ -3,16 +3,18 @@ import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { GlobalService } from 'src/app/shared/services/global.service';
+import {environment} from 'src/environments/environment';
 
 @Component({
   selector: 'app-list-observations',
   templateUrl: './send-sms.component.html',
   styleUrls: ['./send-sms.component.scss'],
 })
+
 export class SendSmsComponent implements OnInit {
   auditId!: string | null;
   auditTitle = '';
-  observations: any[] = []; // This will now store preClosing findings
+  observations: any[] = [];
   filteredObservations: any[] = [];
   isLoading = false;
   currentWorkflow: any = null;
@@ -26,7 +28,7 @@ export class SendSmsComponent implements OnInit {
   selectedObservation: any = null;
   isDetailsPanelVisible = false;
 
-  private workflowsUrl = 'http://localhost:3000/workflows';
+  private workflowsUrl = `${environment.apiBase}/workflows`;
 
   constructor(
     private route: ActivatedRoute,

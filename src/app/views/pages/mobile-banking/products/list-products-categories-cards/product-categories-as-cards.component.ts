@@ -13,6 +13,7 @@ import { GlobalService } from 'src/app/shared/services/global.service';
 import Swal from 'sweetalert2';
 import autoTable from 'jspdf-autotable'; 
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {environment} from 'src/environments/environment';
 
 export interface MISReport {
   id?: string;
@@ -141,7 +142,7 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
   progressData: any = {};
 
   private destroy$ = new Subject<void>();
-  private apiUrl = 'http://localhost:3000';
+  private apiUrl = `${environment.apiBase}`;
   selectedCommentType: any;
   generatingReports: any;
 
@@ -2257,7 +2258,7 @@ handleFileInput(ev: any) {
       };
 
       // Normally POST to json-server
-      fetch('http://localhost:3000/misReports', {
+      fetch(`${this.apiUrl}/misReports`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newReport)

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import Swal from 'sweetalert2';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {environment} from 'src/environments/environment';
 
 interface ModalData {
   item: any;
@@ -75,8 +76,8 @@ export class ListCustomersComponent implements OnInit {
   expandedItem: any = null;
   isDetailsPanelVisible = false;
   capFilter = 'all';
-  workflowsApiUrl = 'http://localhost:3000/workflows';
-  capsApiUrl = 'http://localhost:3000/correctiveActionPlans'; 
+  workflowsApiUrl = `${environment.apiBase}/workflows`;
+  capsApiUrl = `${environment.apiBase}/correctiveActionPlans`; 
 
   currentPage: number = 1;
   pageSize: number = 5;
@@ -94,8 +95,50 @@ export class ListCustomersComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadMonitoringData();
+  this.loadMonitoringData();
+  // this.initializeBootstrapModals();
+}
+
+private ensureBootstrapLoaded(): Promise<void> {
+  return new Promise((resolve) => {
+    if (typeof (window as any).bootstrap !== 'undefined') {
+      resolve();
+    } else {
+      // Wait for Bootstrap to load
+      const checkBootstrap = setInterval(() => {
+        if (typeof (window as any).bootstrap !== 'undefined') {
+          clearInterval(checkBootstrap);
+          resolve();
+        }
+      }, 100);
+    }
+  });
+}
+
+async openInitializeModal(item: any) {
+  await this.ensureBootstrapLoaded();
+  
+  this.selectedItem = item;
+  const today = new Date().toISOString().split('T')[0];
+  
+  this.initializeForm.patchValue({
+    responsibleUnit: item.department,
+    targetDate: today,
+    detailedPlan: item.cap.actionPlan
+  });
+  
+  const modalElement = document.getElementById('initializeCAPModal');
+  if (modalElement) {
+    // Close any existing modal first
+    const existingModal = (window as any).bootstrap.Modal.getInstance(modalElement);
+    if (existingModal) {
+      existingModal.hide();
+    }
+
+    const modal = new (window as any).bootstrap.Modal(modalElement);
+    modal.show();
   }
+}
 
   getProgress(cap: CorrectiveActionPlan): number {
   switch (cap.status) {
@@ -735,25 +778,6 @@ getFindingStatusText(status: string): string {
   };
   
   return statusMap[status] || status;
-}
-
-// Improved modal opening methods
-openInitializeModal(item: any) {
-  this.selectedItem = item;
-  const today = new Date().toISOString().split('T')[0];
-  
-  this.initializeForm.patchValue({
-    responsibleUnit: item.department,
-    targetDate: today,
-    detailedPlan: item.cap.actionPlan
-  });
-  
-  // Use this approach instead
-  const modalElement = document.getElementById('initializeCAPModal');
-  if (modalElement) {
-    const modal = new (window as any).bootstrap.Modal(modalElement);
-    modal.show();
-  }
 }
 
 openProgressModal(item: any) {
