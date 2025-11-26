@@ -4,6 +4,9 @@ import { HttpClient } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
 import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
+
+
 
 @Component({
   selector: 'app-user-management',
@@ -39,7 +42,7 @@ export class ListBranchesComponent implements OnInit {
   addUserForm: FormGroup;
   isAddUserModalVisible = false;
 
-  private apiUrl = 'http://localhost:3000/users';
+  private apiUrl = `${environment.apiBase}/users`;
 
   constructor(
     private fb: FormBuilder,
@@ -222,7 +225,7 @@ sendResetPassword(user: any): void {
 }
 
 private sendPasswordResetEmail(user: any): void {
-  this.http.post('http://localhost:3000/auth/reset-password', {
+  this.http.post(`${environment.apiBase}/auth/reset-password`, {
     userId: user.id,
     email: user.email,
     type: 'email'
@@ -283,7 +286,7 @@ private generateTemporaryPassword(user: any): void {
     buttonsStyling: false
   }).then((result) => {
     if (result.isConfirmed) {
-      this.http.post('http://localhost:3000/auth/temporary-password', {
+      this.http.post(`${environment.apiBase}/auth/temporary-password`, {
         userId: user.id,
         email: user.email,
         type: 'temporary'
@@ -520,4 +523,4 @@ private handleResetError(user: any, type: string, error: any): void {
       }
     });
   }
-} 
+}
