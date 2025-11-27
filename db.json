@@ -69,6 +69,13 @@
       "email": "Sayiafelix18@gmail.com",
       "password": "12345678",
       "role": "Director"
+    },
+    {
+      "id": "6d8c",
+      "username": " koubassiebangs@yahoo.com",
+      "email": "koubassiebangs@yahoo.com",
+      "password": "yozaudit2",
+      "role": "CIA"
     }
   ],
   "audits": [
@@ -259,39 +266,6 @@
       "createdAt": "2025-11-21T08:02:37.525Z",
       "updatedAt": "2025-11-21T09:00:16.183Z",
       "id": "bbe1"
-    },
-    {
-      "id": "6fe9",
-      "title": "gregregre",
-      "scope": "regregregerg",
-      "department": "grregregreg",
-      "status": "Planned",
-      "startDate": "2025-11-29",
-      "endDate": "2025-12-05",
-      "auditYear": 2025,
-      "auditPeriod": "Q4",
-      "auditLead": "2",
-      "auditMembers": null,
-      "thirdPartyFirm": null,
-      "thirdPartyContact": null,
-      "clientConfirmation": null,
-      "confirmationDate": null,
-      "unitOrientation": null,
-      "backgroundSummary": null,
-      "riskRating": null,
-      "riskRationale": null,
-      "riskSummary": null,
-      "kickoffDate": "2025-11-27",
-      "planningMemo": null,
-      "riskInterviewSummary": null,
-      "interviewSchedule": [],
-      "logisticsChecklist": [],
-      "externalFiles": [],
-      "internalFiles": [],
-      "criteriaFiles": [],
-      "rcmFile": null,
-      "createdAt": "2025-11-27T09:47:11.799Z",
-      "updatedAt": "2025-11-27T09:47:11.799Z"
     }
   ],
   "workflows": [
@@ -1118,12 +1092,96 @@
       "rcmFile": "",
       "externalFiles": [],
       "internalFiles": [],
-      "tasks": [],
-      "miniFindings": [],
+      "tasks": [
+        {
+          "id": "fw1764251683193",
+          "title": "ewfew",
+          "description": "ewfwe",
+          "assignedTo": "unit1",
+          "status": "Not Started",
+          "dueDate": "2025-11-28",
+          "priority": "Medium"
+        }
+      ],
+      "miniFindings": [
+        {
+          "taskId": "fw1764251683193",
+          "description": "fwefwe",
+          "severity": "Medium",
+          "status": "Noted",
+          "id": "1764251787130",
+          "createdAt": "2025-11-27"
+        }
+      ],
       "createdAt": "2025-11-21T08:02:37.729Z",
       "updatedAt": "2025-11-21T09:00:16.249Z",
       "dueDate": "2025-12-09",
-      "auditLead": "2"
+      "auditLead": "2",
+      "fieldwork": {
+        "evidence": [
+          {
+            "id": "ev1764251704071",
+            "title": "ewfew",
+            "details": "fewe",
+            "status": "Received",
+            "requestedFrom": "efewew",
+            "dueDate": "2025-11-28"
+          }
+        ],
+        "meetings": [
+          {
+            "id": "mt1764251745422",
+            "person": "fewew",
+            "purpose": "effew",
+            "notes": "fewew",
+            "date": "2025-11-28",
+            "startTime": "06:55",
+            "endTime": "21:55",
+            "attendees": "fefew,fefe,fefe",
+            "followUpRequired": "no",
+            "location": "online"
+          }
+        ],
+        "weeklyUpdates": [
+          {
+            "id": "wk1764251769097",
+            "week": 1,
+            "startDate": "2025-11-28",
+            "endDate": "2025-12-02",
+            "summary": "dfdfew",
+            "nextWeekPlan": "ewfew",
+            "issues": "ewfew"
+          }
+        ],
+        "preClosing": [
+          {
+            "id": "fd1764251806316",
+            "title": "ewfewfew",
+            "details": "ewffewew",
+            "severity": "Low",
+            "recommendation": "ewfewew",
+            "status": "Draft"
+          }
+        ],
+        "documents": [
+          {
+            "name": "ewfew",
+            "type": "Audit Program",
+            "description": "ewwfeef",
+            "category": "Reporting",
+            "confidentiality": "Internal Use",
+            "file": {
+              "name": "Audit.png",
+              "size": 79495,
+              "type": "image/png",
+              "url": "blob:http://localhost:4200/fec21baa-d3a0-48a5-a212-7a7f4fdbe33d",
+              "uploadedAt": "2025-11-27T13:57:17.975Z"
+            },
+            "uploadedAt": "2025-11-27T13:57:17.975Z",
+            "id": "doc1764251837975"
+          }
+        ]
+      }
     }
   ],
   "observations": [
@@ -3433,12 +3491,12 @@
       "actionPlan": "gergregreg",
       "responsibleUnit": "EBU",
       "targetDate": "2025-11-20",
-      "status": "Completed",
-      "progress": 80,
+      "status": "In Progress",
+      "progress": 25,
       "createdAt": "2025-11-20T07:35:36.956Z",
-      "updatedAt": "2025-11-27T11:27:13.049Z",
+      "updatedAt": "2025-11-27T11:33:04.539Z",
       "remarks": "",
-      "lastFollowUpDate": "2025-11-27T11:27:13.049Z"
+      "lastFollowUpDate": "2025-11-27T11:33:04.539Z"
     },
     {
       "id": "cap-3fee-fd1763642039940",
