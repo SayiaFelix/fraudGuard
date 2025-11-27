@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import Swal from 'sweetalert2';
-
+import { environment } from 'src/environments/environment';
 // --- ADDITION: Import the new NotificationService ---
 import { NotificationService } from 'src/app/shared/services/NotificationService';
 
@@ -64,7 +64,7 @@ export class ListRequestsComponent implements OnInit {
 
   private loadInboxData(): void {
     this.isLoading = true;
-    const fullUrl = 'http://localhost:3000/inboxItems';
+    const fullUrl = `${environment.apiBase}/inboxItems`;
 
     this.http.get(fullUrl).pipe(
       map((items: any) => {
