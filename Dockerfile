@@ -44,3 +44,18 @@ CMD ["nginx", "-g", "daemon off;"]
 
 # # expose on all interfaces so other containers can reach it
 # CMD ["json-server", "--watch", "db.json", "--port", "3000", "--host", "0.0.0.0"]
+
+# FROM node:18-alpine
+
+# WORKDIR /app
+
+# # Install json-server globally
+# RUN npm install -g json-server
+
+# # Copy server and database
+# COPY server.js ./
+# COPY db.json ./
+
+# EXPOSE 3000
+
+# CMD ["node", "server.js"]
