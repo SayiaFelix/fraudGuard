@@ -96,11 +96,10 @@ export class ListCustomersComponent implements OnInit {
 
   ngOnInit(): void {
   this.loadMonitoringData();
-    this.initializeBootstrapModals();
+  this.initializeBootstrapModals();
 }
 
  private initializeBootstrapModals(): void {
-    // Wait for Angular to complete rendering
     setTimeout(() => {
       this.ensureBootstrapLoaded().then(() => {
         const modalIds = [
@@ -111,13 +110,12 @@ export class ListCustomersComponent implements OnInit {
         modalIds.forEach(modalId => {
           const modalElement = document.getElementById(modalId);
           if (modalElement) {
-            // Clean up any existing instances
+  
             const existingModal = (window as any).bootstrap.Modal.getInstance(modalElement);
             if (existingModal) {
               existingModal.dispose();
             }
-            
-            // Create new instance with proper configuration
+
             this.bootstrapModals[modalId] = new (window as any).bootstrap.Modal(modalElement, {
               backdrop: true,
               keyboard: true,

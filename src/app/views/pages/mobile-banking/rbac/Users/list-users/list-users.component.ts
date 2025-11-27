@@ -1167,7 +1167,7 @@ users: any[] = [];
 today: string = new Date().toISOString().split('T')[0];
 
 loadUsers(): void {
-  this.http.get<any[]>('http://localhos:3000/users').subscribe({
+  this.http.get<any[]>(`${environment.apiBase}/users`).subscribe({
     next: (res) => this.users = res,
     error: (err) => console.error('Failed to load users', err)
   });
