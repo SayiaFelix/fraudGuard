@@ -2,7 +2,7 @@ const jsonServer = require('json-server');
 const server = jsonServer.create();
 const fs = require('fs');
 
-// Load database into memory
+// Load database into memory to avoid file locking
 const db = JSON.parse(fs.readFileSync('db.json'));
 const router = jsonServer.router(db); // Use in-memory database
 
@@ -19,11 +19,12 @@ server.use((req, res, next) => {
 server.use(middlewares);
 server.use(router);
 
-// Periodically save to disk (optional)
+// Save to disk periodically (every 30 seconds) instead of on every write
 setInterval(() => {
   fs.writeFileSync('db.json', JSON.stringify(db, null, 2));
-}, 30000); // Save every 30 seconds
+  console.log('Database saved to disk');
+}, 30000);
 
 server.listen(3000, '0.0.0.0', () => {
-  console.log('JSON Server is running on port 3000');
+  console.log('JSON Server is running on port 3000 with in-memory database');
 });

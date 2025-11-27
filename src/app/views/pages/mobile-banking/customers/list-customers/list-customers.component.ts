@@ -78,7 +78,7 @@ export class ListCustomersComponent implements OnInit {
   capFilter = 'all';
   workflowsApiUrl = `${environment.apiBase}/workflows`;
   capsApiUrl = `${environment.apiBase}/correctiveActionPlans`; 
-
+  private bootstrapModals: any = {};
   currentPage: number = 1;
   pageSize: number = 5;
   statusFilter: string = 'all';
@@ -96,69 +96,151 @@ export class ListCustomersComponent implements OnInit {
 
   ngOnInit(): void {
   this.loadMonitoringData();
-  // this.initializeBootstrapModals();
+    this.initializeBootstrapModals();
 }
 
-private ensureBootstrapLoaded(): Promise<void> {
-  return new Promise((resolve) => {
-    if (typeof (window as any).bootstrap !== 'undefined') {
-      resolve();
-    } else {
+  private initializeBootstrapModals(): void {
+    setTimeout(() => {
+      this.ensureBootstrapLoaded().then(() => {
+        const modalIds = [
+          'initializeCAPModal',
+          'updateProgressModal', 
+          'scheduleFollowupModal',
+          'riskAcceptanceModal',
+          'reminderModal'
+        ];
+
+        modalIds.forEach(modalId => {
+          const modalElement = document.getElementById(modalId);
+          if (modalElement) {
+            this.bootstrapModals[modalId] = new (window as any).bootstrap.Modal(modalElement);
+            console.log(`✅ Modal initialized: ${modalId}`);
+          } else {
+            console.warn(`❌ Modal element not found: ${modalId}`);
+          }
+        });
+      }).catch(error => {
+        console.error('Failed to initialize Bootstrap modals:', error);
+      });
+    }, 500);
+  }
+
+  private ensureBootstrapLoaded(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      // Check if Bootstrap is already loaded
+      if (typeof (window as any).bootstrap !== 'undefined' && (window as any).bootstrap.Modal) {
+        resolve();
+        return;
+      }
+
       // Wait for Bootstrap to load
+      const maxWaitTime = 3000;
+      const startTime = Date.now();
+      
       const checkBootstrap = setInterval(() => {
-        if (typeof (window as any).bootstrap !== 'undefined') {
+        if (typeof (window as any).bootstrap !== 'undefined' && (window as any).bootstrap.Modal) {
           clearInterval(checkBootstrap);
           resolve();
+        } else if (Date.now() - startTime > maxWaitTime) {
+          clearInterval(checkBootstrap);
+          reject(new Error('Bootstrap failed to load within 3 seconds'));
         }
       }, 100);
+    });
+  }
+
+  openInitializeModal(item: any): void {
+    this.selectedItem = item;
+    const today = new Date().toISOString().split('T')[0];
+    
+    this.initializeForm.patchValue({
+      responsibleUnit: item.department,
+      targetDate: today,
+      detailedPlan: item.cap.actionPlan
+    });
+    
+    this.showModal('initializeCAPModal');
+  }
+
+  openProgressModal(item: any): void {
+    this.selectedItem = item;
+    const initialProgress = this.getProgress(item.cap);
+    
+    this.progressForm.patchValue({
+      progress: initialProgress,
+      status: item.cap.status,
+      remarks: item.cap.remarks || ''
+    });
+    
+    this.showModal('updateProgressModal');
+  }
+
+  openFollowupModal(item: any): void {
+    this.selectedItem = item;
+    const today = new Date().toISOString().split('T')[0];
+    
+    this.followupForm.patchValue({
+      followUpDate: item.cap.nextFollowUpDate || today
+    });
+    
+    this.showModal('scheduleFollowupModal');
+  }
+
+  openRiskModal(item: any): void {
+    this.selectedItem = item;
+    this.riskForm.patchValue({
+      riskReason: item.cap.riskAcceptanceReason || '',
+      acceptedBy: item.cap.riskAcceptedBy || ''
+    });
+    
+    this.showModal('riskAcceptanceModal');
+  }
+
+  openReminderModal(item: any): void {
+    this.selectedItem = item;
+    this.showModal('reminderModal');
+  }
+
+  private showModal(modalId: string): void {
+    const modal = this.bootstrapModals[modalId];
+    if (modal) {
+      modal.show();
+    } else {
+      console.error(`Modal not found: ${modalId}`);
+      // Fallback: try to initialize on the fly
+      this.initializeSingleModal(modalId);
     }
+  }
+
+  private initializeSingleModal(modalId: string): void {
+    const modalElement = document.getElementById(modalId);
+    if (modalElement) {
+      this.bootstrapModals[modalId] = new (window as any).bootstrap.Modal(modalElement);
+      this.bootstrapModals[modalId].show();
+    }
+  }
+
+  private hideModal(modalId: string): void {
+    const modal = this.bootstrapModals[modalId];
+    if (modal) {
+      modal.hide();
+    }
+  }
+
+
+private handleModalError(error: any, modalName: string) {
+  console.error(`Failed to open ${modalName}:`, error);
+  // Fallback: Show a SweetAlert if modal fails
+  Swal.fire({
+    icon: 'error',
+    title: 'Modal Error',
+    text: `Failed to open ${modalName}. Please refresh the page and try again.`,
+    confirmButtonText: 'OK'
   });
 }
 
-async openInitializeModal(item: any) {
-  await this.ensureBootstrapLoaded();
-  
-  this.selectedItem = item;
-  const today = new Date().toISOString().split('T')[0];
-  
-  this.initializeForm.patchValue({
-    responsibleUnit: item.department,
-    targetDate: today,
-    detailedPlan: item.cap.actionPlan
-  });
-  
-  const modalElement = document.getElementById('initializeCAPModal');
-  if (modalElement) {
-    // Close any existing modal first
-    const existingModal = (window as any).bootstrap.Modal.getInstance(modalElement);
-    if (existingModal) {
-      existingModal.hide();
-    }
-
-    const modal = new (window as any).bootstrap.Modal(modalElement);
-    modal.show();
-  }
-}
-
-  getProgress(cap: CorrectiveActionPlan): number {
-  switch (cap.status) {
-    case 'Open':
-      return 0;
-    case 'In Progress':
-      return cap.progress > 0 ? Math.min(cap.progress, 90) : 25; 
-    case 'Completed':
-      return 80;
-    case 'Verified':
-      return 100;
-    case 'Closed':
-      return 100;
-    case 'Risk Accepted':
-      return 100;
-    case 'Overdue':
-      return cap.progress || 0;
-    default:
-      return cap.progress || 0;
-  }
+onProgressRangeChange(event: any) {
+  console.log('Progress changed to:', event.target.value);
 }
 
 getPaginatedCAPs(): any[] {
@@ -354,20 +436,6 @@ scheduleFollowUpForCAP(item: any) {
     modal.show();
   }
 
-getAutoProgress(status: string): number {
-  switch (status) {
-    case 'Open': return 0;
-    case 'In Progress': 
-      const currentProgress = this.progressForm?.get('progress')?.value;
-      return currentProgress && currentProgress > 0 ? Math.min(currentProgress, 90) : 25;
-    case 'Completed': return 80;
-    case 'Verified': return 100;
-    case 'Closed': return 100;
-    case 'Risk Accepted': return 100;
-    default: return 0;
-  }
-}
-
 async onInitializeSubmit() {
   if (this.initializeForm.valid && this.selectedItem) {
     try {
@@ -451,17 +519,6 @@ async onRiskSubmit() {
   }
 }
 
-onStatusChange(event: any) {
-  const status = event.target.value;
-  
-  if (status !== 'In Progress') {
-    const autoProgress = this.getAutoProgress(status);
-    this.progressForm.patchValue({
-      progress: autoProgress
-    });
-  }
-}
-
 updateCAPProgress(item: any) {
   this.selectedItem = item;
   const initialProgress = this.getProgress(item.cap);
@@ -532,16 +589,6 @@ updateCAPProgress(item: any) {
     }
   }
 
-  private hideModal(modalId: string) {
-    const modalElement = document.getElementById(modalId);
-    if (modalElement) {
-      const modal = (window as any).bootstrap.Modal.getInstance(modalElement);
-      if (modal) {
-        modal.hide();
-      }
-    }
-  }
-
   private showErrorAlert(message: string) {
     Swal.fire({
       icon: 'error',
@@ -558,10 +605,6 @@ updateCAPProgress(item: any) {
       month: 'short',
       day: 'numeric'
     });
-  }
-
-  onProgressRangeChange(event: any) {
-    // This will automatically update the form value due to two-way binding
   }
 
   private async saveCAP(capData: CorrectiveActionPlan): Promise<void> {
@@ -763,7 +806,7 @@ updateCAPProgress(item: any) {
   getVerifiedCAPs(): number {
     return this.monitoringItems.filter((item: any) => item.cap.status === 'Verified').length;
   }
-// Add this method to your component class
+
 getFindingStatusText(status: string): string {
   if (!status) return 'Draft';
   
@@ -778,61 +821,6 @@ getFindingStatusText(status: string): string {
   };
   
   return statusMap[status] || status;
-}
-
-openProgressModal(item: any) {
-  this.selectedItem = item;
-  const initialProgress = this.getProgress(item.cap);
-  
-  this.progressForm.patchValue({
-    progress: initialProgress,
-    status: item.cap.status,
-    remarks: item.cap.remarks || ''
-  });
-  
-  const modalElement = document.getElementById('updateProgressModal');
-  if (modalElement) {
-    const modal = new (window as any).bootstrap.Modal(modalElement);
-    modal.show();
-  }
-}
-
-openFollowupModal(item: any) {
-  this.selectedItem = item;
-  const today = new Date().toISOString().split('T')[0];
-  
-  this.followupForm.patchValue({
-    followUpDate: item.cap.nextFollowUpDate || today
-  });
-  
-  const modalElement = document.getElementById('scheduleFollowupModal');
-  if (modalElement) {
-    const modal = new (window as any).bootstrap.Modal(modalElement);
-    modal.show();
-  }
-}
-
-openRiskModal(item: any) {
-  this.selectedItem = item;
-  this.riskForm.patchValue({
-    riskReason: item.cap.riskAcceptanceReason || '',
-    acceptedBy: item.cap.riskAcceptedBy || ''
-  });
-  
-  const modalElement = document.getElementById('riskAcceptanceModal');
-  if (modalElement) {
-    const modal = new (window as any).bootstrap.Modal(modalElement);
-    modal.show();
-  }
-}
-
-openReminderModal(item: any) {
-  this.selectedItem = item;
-  const modalElement = document.getElementById('reminderModal');
-  if (modalElement) {
-    const modal = new (window as any).bootstrap.Modal(modalElement);
-    modal.show();
-  }
 }
 
   loadCorrectiveActionPlans() {
@@ -912,51 +900,6 @@ openReminderModal(item: any) {
     return cap.status;
   }
 
-async onProgressSubmit() {
-  if (this.progressForm.valid && this.selectedItem) {
-    try {
-      const formValue = this.progressForm.value;
-      
-      let calculatedProgress = formValue.progress;
-      
-      if (formValue.status === 'Verified' || formValue.status === 'Closed') {
-        calculatedProgress = 100;
-      } else if (formValue.status === 'Open' && formValue.progress > 0) {
-        calculatedProgress = 0;
-      } else if (formValue.status === 'Completed' && formValue.progress > 0) {
-        calculatedProgress = 80;
-      } else if (formValue.status === 'In Progress' && formValue.progress === 0) {
-        calculatedProgress = 25;
-      }
-      
-      const capData: CorrectiveActionPlan = {
-        ...this.selectedItem.cap,
-        progress: calculatedProgress,
-        status: formValue.status,
-        remarks: formValue.remarks,
-        lastFollowUpDate: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-
-      await this.saveCAP(capData);
-      this.hideModal('updateProgressModal');
-      
-      Swal.fire({
-        icon: 'success',
-        title: 'Progress Updated!',
-        text: 'CAP progress has been updated successfully',
-        timer: 3000,
-        showConfirmButton: false
-      });
-      
-      this.loadMonitoringData();
-      
-    } catch (error) {
-      this.showErrorAlert('Failed to update CAP progress');
-    }
-  }
-}
-
 getTotalCAPs(): number {
     return this.monitoringItems.length;
   }
@@ -1001,6 +944,88 @@ getDueThisWeek(): number {
 getNewFindings(): number {
     return this.monitoringItems.filter((item: any) => item.isNew).length;
   }
+
+onStatusChange(event: any) {
+  const status = event.target.value;
+  
+  const autoProgress = this.getAutoProgress(status);
+
+  this.progressForm.patchValue({
+    progress: autoProgress
+  });
+}
+
+getProgress(cap: CorrectiveActionPlan): number {
+  if (cap.progress !== undefined && cap.progress !== null) {
+    return cap.progress;
+  }
+  
+  switch (cap.status) {
+    case 'Open':
+      return 0;
+    case 'In Progress':
+      return 25;
+    case 'Completed':
+      return 80;
+    case 'Verified':
+      return 100;
+    case 'Closed':
+      return 100;
+    case 'Risk Accepted':
+      return 100;
+    case 'Overdue':
+      return cap.progress || 0;
+    default:
+      return cap.progress || 0;
+  }
+}
+
+getAutoProgress(status: string): number {
+  switch (status) {
+    case 'Open': return 0;
+    case 'In Progress': return 25;
+    case 'Completed': return 80;
+    case 'Verified': return 100;
+    case 'Closed': return 100;
+    case 'Risk Accepted': return 100;
+    default: return 0;
+  }
+}
+
+  async onProgressSubmit() {
+  if (this.progressForm.valid && this.selectedItem) {
+    try {
+      const formValue = this.progressForm.value;
+    
+      const calculatedProgress = formValue.progress;
+      
+      const capData: CorrectiveActionPlan = {
+        ...this.selectedItem.cap,
+        progress: calculatedProgress,
+        status: formValue.status,
+        remarks: formValue.remarks,
+        lastFollowUpDate: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      await this.saveCAP(capData);
+      this.hideModal('updateProgressModal');
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Progress Updated!',
+        text: 'CAP progress has been updated successfully',
+        timer: 3000,
+        showConfirmButton: false
+      });
+      
+      this.loadMonitoringData();
+      
+    } catch (error) {
+      this.showErrorAlert('Failed to update CAP progress');
+    }
+  }
+}
 
 
 toggleDetails(item: any) {
