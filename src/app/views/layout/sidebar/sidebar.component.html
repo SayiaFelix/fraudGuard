@@ -1,13 +1,11 @@
-<!-- src/app/views/layout/sidebar/sidebar.component.html -->
-
 <!-- The main sidebar container -->
 <nav class="sidebar">
 
   <!-- Sidebar Header with Logo -->
   <div class="sidebar-header" style="background-color: #f8f8f8!important;">
     <a routerLink="dashboard" class="sidebar-brand nobleui-logo">
-      <img src="assets/images/eclectics.png" alt="Eclectics" style="max-height: 40px;">
-      <img src="assets/images/simplifying.png" alt="Portal" style="max-height: 10px;">
+      <img src="assets/images/AU.png" alt="AMS" style="height: 32px; width: 160px;">
+      <!-- <img src="assets/images/simplifying.png" alt="Portal" style="max-height: 10px;"> -->
     </a>
     <div class="sidebar-toggler not-active" #sidebarToggler (click)="toggleSidebar($event)">
       <span></span>
@@ -16,56 +14,40 @@
     </div>
   </div>
 
-  <!-- Sidebar Body with Menu Items -->
   <div class="sidebar-body" style="background-color: #f8f8f8!important;" [perfectScrollbar]>
     <ul class="sidebar-nav metismenu" id="sidebar-menu" #sidebarMenu>
       
       <!-- Loop through all menu items -->
       <ng-container *ngFor="let item of menuItems">
-        
-        <!-- Renders a category title like "MAIN MENU" -->
         <li class="nav-category" *ngIf="item.isTitle">
           {{ item.label }}
         </li>
 
-        <!-- This block renders all clickable menu items -->
         <li class="nav-item" *ngIf="!item.isTitle">
 
-          <!-- Case 1: A REGULAR link that navigates to a new page -->
           <a *ngIf="!item.isLogout && !item.isSettings && !item.isHelpCenter" class="nav-link" [routerLink]="item.link" routerLinkActive="active">
             <i class="link-icon" [attr.data-feather]="item.icon" appFeatherIcon></i>
             <span class="link-title">{{ item.label }}</span>
             
-            <!-- 
-              ================================================================
-              ===                THIS IS THE ONLY NEW CODE                 ===
-              ================================================================
-              This span will display the badge if the `item.badge` object exists.
-              The `ms-auto` class pushes it to the far right.
-            -->
             <span 
               *ngIf="item.badge && item.badge.text > 0" 
               class="badge rounded-pill ms-auto" 
               [ngClass]="'bg-' + item.badge.variant">
               {{ item.badge.text }}
             </span>
-            <!-- ================================================================ -->
             
           </a>
 
-          <!-- Case 2: The LOGOUT button. It calls the onLogout() function. -->
           <a *ngIf="item.isLogout" class="nav-link" href="#" (click)="onLogout($event)">
             <i class="link-icon" [attr.data-feather]="item.icon" appFeatherIcon></i>
             <span class="link-title">{{ item.label }}</span>
           </a>
           
-          <!-- Case 3: The SETTINGS button. It calls the onSettingsClick() function. -->
           <a *ngIf="item.isSettings" class="nav-link" href="#" (click)="onSettingsClick($event)">
             <i class="link-icon" [attr.data-feather]="item.icon" appFeatherIcon></i>
             <span class="link-title">{{ item.label }}</span>
           </a>
 
-          <!-- Case 4: The HELP CENTER button. It calls the onHelpCenterClick() function. -->
           <a *ngIf="item.isHelpCenter" class="nav-link" href="#" (click)="onHelpCenterClick($event)">
             <i class="link-icon" [attr.data-feather]="item.icon" appFeatherIcon></i>
             <span class="link-title">{{ item.label }}</span>
@@ -79,9 +61,4 @@
 
 </nav>
 
-<!-- 
-  The Settings Modal Component
-  This remains at the end of the file. It will only be displayed
-  when isSettingsModalVisible is true.
--->
 <app-settings-modal *ngIf="isSettingsModalVisible" (close)="closeSettingsModal()"></app-settings-modal>
