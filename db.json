@@ -259,6 +259,39 @@
       "createdAt": "2025-11-21T08:02:37.525Z",
       "updatedAt": "2025-11-21T09:00:16.183Z",
       "id": "bbe1"
+    },
+    {
+      "id": "6fe9",
+      "title": "gregregre",
+      "scope": "regregregerg",
+      "department": "grregregreg",
+      "status": "Planned",
+      "startDate": "2025-11-29",
+      "endDate": "2025-12-05",
+      "auditYear": 2025,
+      "auditPeriod": "Q4",
+      "auditLead": "2",
+      "auditMembers": null,
+      "thirdPartyFirm": null,
+      "thirdPartyContact": null,
+      "clientConfirmation": null,
+      "confirmationDate": null,
+      "unitOrientation": null,
+      "backgroundSummary": null,
+      "riskRating": null,
+      "riskRationale": null,
+      "riskSummary": null,
+      "kickoffDate": "2025-11-27",
+      "planningMemo": null,
+      "riskInterviewSummary": null,
+      "interviewSchedule": [],
+      "logisticsChecklist": [],
+      "externalFiles": [],
+      "internalFiles": [],
+      "criteriaFiles": [],
+      "rcmFile": null,
+      "createdAt": "2025-11-27T09:47:11.799Z",
+      "updatedAt": "2025-11-27T09:47:11.799Z"
     }
   ],
   "workflows": [
@@ -1091,6 +1124,45 @@
       "updatedAt": "2025-11-21T09:00:16.249Z",
       "dueDate": "2025-12-09",
       "auditLead": "2"
+    },
+    {
+      "id": "6fe9",
+      "auditId": "6fe9",
+      "title": "gregregre Workflow",
+      "scope": "regregregerg",
+      "department": "grregregreg",
+      "status": "Not Started",
+      "stage": "scoping",
+      "startDate": "2025-11-29",
+      "dueDate": "2025-12-05",
+      "auditYear": 2025,
+      "auditPeriod": "Q4",
+      "assignedTo": "cia1",
+      "assignedToId": "2",
+      "auditLeadId": "2",
+      "auditMembers": null,
+      "thirdPartyFirm": null,
+      "thirdPartyContact": null,
+      "clientConfirmation": null,
+      "confirmationDate": null,
+      "riskRating": null,
+      "riskRationale": null,
+      "riskSummary": null,
+      "kickoffDate": "2025-11-27",
+      "planningMemo": null,
+      "unitOrientation": null,
+      "backgroundSummary": null,
+      "riskInterviewSummary": null,
+      "interviewSchedule": [],
+      "logisticsChecklist": [],
+      "criteriaFiles": [],
+      "rcmFile": "",
+      "externalFiles": [],
+      "internalFiles": [],
+      "tasks": [],
+      "miniFindings": [],
+      "createdAt": "2025-11-27T09:47:11.975Z",
+      "updatedAt": "2025-11-27T09:47:11.975Z"
     }
   ],
   "observations": [
@@ -3306,6 +3378,24 @@
         "dueDate": "2025-11-28",
         "status": "Planned"
       }
+    },
+    {
+      "id": "c471",
+      "role": "Auditor",
+      "type": "assignment",
+      "title": "New Audit Assigned",
+      "from": "System (via CIA)",
+      "summary": "You have been assigned to the new audit: \"gregregre\".",
+      "isRead": false,
+      "timestamp": "2025-11-27T09:47:11.976Z",
+      "details": {
+        "subject": "New Assignment: gregregre",
+        "auditId": "6fe9",
+        "auditUnit": "grregregreg",
+        "startDate": "2025-11-29",
+        "dueDate": "2025-12-05",
+        "status": "Planned"
+      }
     }
   ],
   "correctiveActionPlans": [
@@ -3399,12 +3489,12 @@
       "actionPlan": "gergregreg",
       "responsibleUnit": "EBU",
       "targetDate": "2025-11-20",
-      "status": "Open",
-      "progress": 0,
+      "status": "In Progress",
+      "progress": 25,
       "createdAt": "2025-11-20T07:35:36.956Z",
-      "updatedAt": "2025-11-20T07:36:50.611Z",
+      "updatedAt": "2025-11-27T09:41:59.407Z",
       "remarks": "",
-      "lastFollowUpDate": "2025-11-20T07:36:50.611Z"
+      "lastFollowUpDate": "2025-11-27T09:41:59.407Z"
     },
     {
       "id": "cap-3fee-fd1763642039940",
