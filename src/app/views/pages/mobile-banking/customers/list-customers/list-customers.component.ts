@@ -99,30 +99,35 @@ export class ListCustomersComponent implements OnInit {
     this.initializeBootstrapModals();
 }
 
-  private initializeBootstrapModals(): void {
+ private initializeBootstrapModals(): void {
+    // Wait for Angular to complete rendering
     setTimeout(() => {
       this.ensureBootstrapLoaded().then(() => {
         const modalIds = [
-          'initializeCAPModal',
-          'updateProgressModal', 
-          'scheduleFollowupModal',
-          'riskAcceptanceModal',
-          'reminderModal'
+          'initializeCAPModal', 'updateProgressModal', 'scheduleFollowupModal', 
+          'riskAcceptanceModal', 'reminderModal'
         ];
 
         modalIds.forEach(modalId => {
           const modalElement = document.getElementById(modalId);
           if (modalElement) {
-            this.bootstrapModals[modalId] = new (window as any).bootstrap.Modal(modalElement);
+            // Clean up any existing instances
+            const existingModal = (window as any).bootstrap.Modal.getInstance(modalElement);
+            if (existingModal) {
+              existingModal.dispose();
+            }
+            
+            // Create new instance with proper configuration
+            this.bootstrapModals[modalId] = new (window as any).bootstrap.Modal(modalElement, {
+              backdrop: true,
+              keyboard: true,
+              focus: true
+            });
             console.log(`✅ Modal initialized: ${modalId}`);
-          } else {
-            console.warn(`❌ Modal element not found: ${modalId}`);
           }
         });
-      }).catch(error => {
-        console.error('Failed to initialize Bootstrap modals:', error);
       });
-    }, 500);
+    }, 300);
   }
 
   private ensureBootstrapLoaded(): Promise<void> {
@@ -133,7 +138,6 @@ export class ListCustomersComponent implements OnInit {
         return;
       }
 
-      // Wait for Bootstrap to load
       const maxWaitTime = 3000;
       const startTime = Date.now();
       
