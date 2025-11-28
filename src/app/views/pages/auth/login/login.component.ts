@@ -68,42 +68,6 @@ export class LoginComponent implements OnInit {
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
  
-// onSubmit(event: Event) {
-//   event.preventDefault();
- 
-//   if (this.isLoading) return;
- 
-//   this.hasError = false;
-//   this.isLoading = true;
- 
-//   const { email, password, role } = this.form.value;
- 
-//   this.httpService
-//     .login(email, password)   
-//     .subscribe(users => {
-//       this.isLoading = false;
- 
-//       if (users.length > 0) {
-//         const user = users[0];
-//         if (user.role === role) {
-//           localStorage.setItem('userRole', user.role);
-//           localStorage.setItem('userEmail', user.email);
-//           localStorage.setItem('username', user.username);
- 
-//           // Redirect
-//           this.router.navigate(['/dashboard']);
-//           // console.log('Login successful:', user);
-//         } else {
-//           this.hasError = true;
-//           this.errorMsg = `Role mismatch. You selected "${role}", but your account is "${user.role}".`;
-//         }
-//       } else {
-//         this.hasError = true;
-//         this.errorMsg = 'Invalid credentials';
-//       }
-//     });
-// }
- 
 onSubmit(event: Event) {
   event.preventDefault();
  
@@ -114,52 +78,31 @@ onSubmit(event: Event) {
  
   const { email, password, role } = this.form.value;
  
-  console.log('🔐 Login attempt:', { email, password, role });
- 
   this.httpService
     .login(email, password)   
-    .subscribe({
-      next: (users) => {
-        this.isLoading = false;
-        console.log('✅ Login response:', users);
+    .subscribe(users => {
+      this.isLoading = false;
  
-        if (users.length > 0) {
-          const user = users[0];
-          console.log('👤 User found:', user);
-          
-          if (user.role === role) {
-            // Save to localStorage
-            localStorage.setItem('userRole', user.role);
-            localStorage.setItem('userEmail', user.email);
-            localStorage.setItem('username', user.username);
-            
-            // Verify storage
-            console.log('💾 localStorage after save:', {
-              userRole: localStorage.getItem('userRole'),
-              userEmail: localStorage.getItem('userEmail'),
-              username: localStorage.getItem('username')
-            });
+      if (users.length > 0) {
+        const user = users[0];
+        if (user.role === role) {
+          localStorage.setItem('userRole', user.role);
+          localStorage.setItem('userEmail', user.email);
+          localStorage.setItem('username', user.username);
  
-            // Redirect
-            this.router.navigate(['/dashboard']);
-          } else {
-            this.hasError = true;
-            this.errorMsg = `Role mismatch. You selected "${role}", but your account is "${user.role}".`;
-          }
+          // Redirect
+          this.router.navigate(['/dashboard']);
+          // console.log('Login successful:', user);
         } else {
           this.hasError = true;
-          this.errorMsg = 'Invalid credentials';
+          this.errorMsg = `Role mismatch. You selected "${role}", but your account is "${user.role}".`;
         }
-      },
-      error: (error) => {
-        this.isLoading = false;
+      } else {
         this.hasError = true;
-        this.errorMsg = 'Login failed. Please try again.';
-        console.error('❌ Login error:', error);
+        this.errorMsg = 'Invalid credentials';
       }
     });
 }
-
  
   toggleShowPassword() {
     this.showingPassword = !this.showingPassword;

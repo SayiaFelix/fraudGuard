@@ -20,6 +20,11 @@
         </button> -->
       </div>
 
+        <div *ngIf="isLoading" class="progress mb-3" style="height: 4px;">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                style="width: 100%"></div>
+        </div>
+
       <div class="table-responsive">
         <table class="table table-hover">
           <thead class="table-light">

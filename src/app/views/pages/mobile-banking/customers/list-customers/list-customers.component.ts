@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit,OnDestroy  } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import Swal from 'sweetalert2';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -68,6 +68,7 @@ export class ListCustomersComponent implements OnInit {
   correctiveActionPlans: CorrectiveActionPlan[] = [];
   initializeForm: FormGroup;
   progressForm: FormGroup;
+   isLoading = false;
   followupForm: FormGroup;
   riskForm: FormGroup;
   monitoringItems: any[] = [];
@@ -87,6 +88,12 @@ export class ListCustomersComponent implements OnInit {
   departmentFilter: string = 'all';
   searchTerm: string = '';
 
+    showInitializeModal = false;
+  showProgressModal = false;
+  showFollowupModal = false;
+  showRiskModal = false;
+  showReminderModal = false;
+
   constructor(
     private http: HttpClient,
     private fb: FormBuilder
@@ -94,64 +101,13 @@ export class ListCustomersComponent implements OnInit {
     this.initializeForms();
   }
 
-  ngOnInit(): void {
-  this.loadMonitoringData();
-  this.initializeBootstrapModals();
-}
 
- private initializeBootstrapModals(): void {
-    setTimeout(() => {
-      this.ensureBootstrapLoaded().then(() => {
-        const modalIds = [
-          'initializeCAPModal', 'updateProgressModal', 'scheduleFollowupModal', 
-          'riskAcceptanceModal', 'reminderModal'
-        ];
-
-        modalIds.forEach(modalId => {
-          const modalElement = document.getElementById(modalId);
-          if (modalElement) {
-  
-            const existingModal = (window as any).bootstrap.Modal.getInstance(modalElement);
-            if (existingModal) {
-              existingModal.dispose();
-            }
-
-            this.bootstrapModals[modalId] = new (window as any).bootstrap.Modal(modalElement, {
-              backdrop: true,
-              keyboard: true,
-              focus: true
-            });
-            console.log(`✅ Modal initialized: ${modalId}`);
-          }
-        });
-      });
-    }, 300);
-  }
-
-  private ensureBootstrapLoaded(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      // Check if Bootstrap is already loaded
-      if (typeof (window as any).bootstrap !== 'undefined' && (window as any).bootstrap.Modal) {
-        resolve();
-        return;
-      }
-
-      const maxWaitTime = 3000;
-      const startTime = Date.now();
-      
-      const checkBootstrap = setInterval(() => {
-        if (typeof (window as any).bootstrap !== 'undefined' && (window as any).bootstrap.Modal) {
-          clearInterval(checkBootstrap);
-          resolve();
-        } else if (Date.now() - startTime > maxWaitTime) {
-          clearInterval(checkBootstrap);
-          reject(new Error('Bootstrap failed to load within 3 seconds'));
-        }
-      }, 100);
-    });
+ ngOnInit(): void {
+    this.loadMonitoringData();
   }
 
   openInitializeModal(item: any): void {
+    this.closeAllModals();
     this.selectedItem = item;
     const today = new Date().toISOString().split('T')[0];
     
@@ -161,10 +117,11 @@ export class ListCustomersComponent implements OnInit {
       detailedPlan: item.cap.actionPlan
     });
     
-    this.showModal('initializeCAPModal');
+    this.showInitializeModal = true;
   }
 
   openProgressModal(item: any): void {
+     this.closeAllModals();
     this.selectedItem = item;
     const initialProgress = this.getProgress(item.cap);
     
@@ -174,10 +131,11 @@ export class ListCustomersComponent implements OnInit {
       remarks: item.cap.remarks || ''
     });
     
-    this.showModal('updateProgressModal');
+    this.showProgressModal = true;
   }
 
   openFollowupModal(item: any): void {
+    this.closeAllModals();
     this.selectedItem = item;
     const today = new Date().toISOString().split('T')[0];
     
@@ -185,61 +143,245 @@ export class ListCustomersComponent implements OnInit {
       followUpDate: item.cap.nextFollowUpDate || today
     });
     
-    this.showModal('scheduleFollowupModal');
+    this.showFollowupModal = true;
   }
 
   openRiskModal(item: any): void {
+    this.closeAllModals();
     this.selectedItem = item;
     this.riskForm.patchValue({
       riskReason: item.cap.riskAcceptanceReason || '',
       acceptedBy: item.cap.riskAcceptedBy || ''
     });
     
-    this.showModal('riskAcceptanceModal');
+    this.showRiskModal = true;
   }
 
   openReminderModal(item: any): void {
+    this.closeAllModals();
     this.selectedItem = item;
-    this.showModal('reminderModal');
+    this.showReminderModal = true;
   }
 
-  private showModal(modalId: string): void {
-    const modal = this.bootstrapModals[modalId];
-    if (modal) {
-      modal.show();
-    } else {
-      console.error(`Modal not found: ${modalId}`);
-      // Fallback: try to initialize on the fly
-      this.initializeSingleModal(modalId);
-    }
+  // Modal closing methods
+  closeInitializeModal(): void {
+    this.showInitializeModal = false;
+    this.initializeForm.reset();
   }
 
-  private initializeSingleModal(modalId: string): void {
-    const modalElement = document.getElementById(modalId);
-    if (modalElement) {
-      this.bootstrapModals[modalId] = new (window as any).bootstrap.Modal(modalElement);
-      this.bootstrapModals[modalId].show();
-    }
+  closeProgressModal(): void {
+    this.showProgressModal = false;
+    this.progressForm.reset();
   }
 
-  private hideModal(modalId: string): void {
-    const modal = this.bootstrapModals[modalId];
-    if (modal) {
-      modal.hide();
-    }
+  closeFollowupModal(): void {
+    this.showFollowupModal = false;
+    this.followupForm.reset();
   }
 
+  closeRiskModal(): void {
+    this.showRiskModal = false;
+    this.riskForm.reset();
+  }
 
-private handleModalError(error: any, modalName: string) {
-  console.error(`Failed to open ${modalName}:`, error);
-  // Fallback: Show a SweetAlert if modal fails
-  Swal.fire({
-    icon: 'error',
-    title: 'Modal Error',
-    text: `Failed to open ${modalName}. Please refresh the page and try again.`,
-    confirmButtonText: 'OK'
-  });
+  closeReminderModal(): void {
+    this.showReminderModal = false;
+  }
+
+  // Add this method to your component
+closeAllModals(): void {
+  this.showInitializeModal = false;
+  this.showProgressModal = false;
+  this.showFollowupModal = false;
+  this.showRiskModal = false;
+  this.showReminderModal = false;
+  
+  // Reset all forms
+  this.initializeForm.reset();
+  this.progressForm.reset();
+  this.followupForm.reset();
+  this.riskForm.reset();
 }
+
+  // Form submission methods
+  async onInitializeSubmit() {
+    if (this.initializeForm.valid && this.selectedItem) {
+      try {
+        const formValue = this.initializeForm.value;
+        
+        const selectedDate = new Date(formValue.targetDate);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        if (selectedDate < today) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Invalid Date',
+            text: 'Target date cannot be before today',
+            confirmButtonText: 'OK'
+          });
+          return;
+        }
+        
+        const capData: CorrectiveActionPlan = {
+          ...this.selectedItem.cap,
+          responsibleUnit: formValue.responsibleUnit,
+          targetDate: formValue.targetDate,
+          actionPlan: formValue.detailedPlan,
+          status: 'In Progress',
+          progress: 25, 
+          updatedAt: new Date().toISOString()
+        };
+
+        await this.saveCAP(capData);
+       
+         this.closeAllModals();
+         this.closeInitializeModal(); 
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'CAP Initialized!',
+          text: 'Corrective Action Plan has been initialized successfully',
+          timer: 3000,
+          showConfirmButton: false
+        });
+        
+        this.loadMonitoringData();
+        
+      } catch (error) {
+        this.showErrorAlert('Failed to initialize CAP');
+      }
+    }
+  }
+
+  async onProgressSubmit() {
+    if (this.progressForm.valid && this.selectedItem) {
+      try {
+        const formValue = this.progressForm.value;
+        const calculatedProgress = formValue.progress;
+        
+        const capData: CorrectiveActionPlan = {
+          ...this.selectedItem.cap,
+          progress: calculatedProgress,
+          status: formValue.status,
+          remarks: formValue.remarks,
+          lastFollowUpDate: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+
+        await this.saveCAP(capData);
+        this.closeAllModals();
+        this.closeInitializeModal(); 
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Progress Updated!',
+          text: 'CAP progress has been updated successfully',
+          timer: 3000,
+          showConfirmButton: false
+        });
+        
+        this.loadMonitoringData();
+        
+      } catch (error) {
+        this.showErrorAlert('Failed to update CAP progress');
+      }
+    }
+  }
+
+  async onFollowupSubmit() {
+    if (this.followupForm.valid && this.selectedItem) {
+      try {
+        const formValue = this.followupForm.value;
+        
+        const capData: CorrectiveActionPlan = {
+          ...this.selectedItem.cap,
+          nextFollowUpDate: formValue.followUpDate,
+          updatedAt: new Date().toISOString()
+        };
+
+        await this.saveCAP(capData);
+        this.closeAllModals();
+         this.closeInitializeModal(); 
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Follow-up Scheduled!',
+          text: `Follow-up has been scheduled for ${this.formatDate(formValue.followUpDate)}`,
+          timer: 3000,
+          showConfirmButton: false
+        });
+        
+        this.loadMonitoringData();
+        
+      } catch (error) {
+        this.showErrorAlert('Failed to schedule follow-up');
+      }
+    }
+  }
+
+  async onRiskSubmit() {
+    if (this.riskForm.valid && this.selectedItem) {
+      try {
+        const formValue = this.riskForm.value;
+        
+        const capData: CorrectiveActionPlan = {
+          ...this.selectedItem.cap,
+          status: 'Risk Accepted',
+          progress: 100,
+          riskAcceptanceReason: formValue.riskReason,
+          riskAcceptedBy: formValue.acceptedBy,
+          riskAcceptedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+
+        await this.saveCAP(capData);
+        this.closeAllModals();
+          this.closeInitializeModal();
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Risk Accepted!',
+          text: 'Risk acceptance has been recorded successfully',
+          timer: 3000,
+          showConfirmButton: false
+        });
+        
+        this.loadMonitoringData();
+        
+      } catch (error) {
+        this.showErrorAlert('Failed to submit risk acceptance');
+      }
+    }
+  }
+
+  async onReminderSubmit() {
+    if (this.selectedItem) {
+      try {
+        const capData: CorrectiveActionPlan = {
+          ...this.selectedItem.cap,
+          lastFollowUpDate: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+
+        await this.saveCAP(capData);
+        this.closeAllModals();
+          this.closeInitializeModal();
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Reminder Sent!',
+          text: `Reminder has been sent to ${this.selectedItem.cap.responsibleUnit}`,
+          timer: 3000,
+          showConfirmButton: false
+        });
+        
+      } catch (error) {
+        this.showErrorAlert('Failed to send reminder');
+      }
+    }
+  }
+
 
 onProgressRangeChange(event: any) {
   console.log('Progress changed to:', event.target.value);
@@ -251,9 +393,11 @@ getPaginatedCAPs(): any[] {
     return filtered.slice(startIndex, startIndex + this.pageSize);
   }
 
+
 getTotalPages(): number {
     return Math.ceil(this.getFilteredCAPs().length / this.pageSize);
   }
+
 
 getVisiblePages(): number[] {
     const totalPages = this.getTotalPages();
@@ -438,89 +582,6 @@ scheduleFollowUpForCAP(item: any) {
     modal.show();
   }
 
-async onInitializeSubmit() {
-  if (this.initializeForm.valid && this.selectedItem) {
-    try {
-      const formValue = this.initializeForm.value;
-      
-      // Double-check date validation
-      const selectedDate = new Date(formValue.targetDate);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
-      if (selectedDate < today) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Invalid Date',
-          text: 'Target date cannot be before today',
-          confirmButtonText: 'OK'
-        });
-        return;
-      }
-      
-      const capData: CorrectiveActionPlan = {
-        ...this.selectedItem.cap,
-        responsibleUnit: formValue.responsibleUnit,
-        targetDate: formValue.targetDate,
-        actionPlan: formValue.detailedPlan,
-        status: 'In Progress',
-        progress: 25, 
-        updatedAt: new Date().toISOString()
-      };
-
-      await this.saveCAP(capData);
-      this.hideModal('initializeCAPModal');
-      
-      Swal.fire({
-        icon: 'success',
-        title: 'CAP Initialized!',
-        text: 'Corrective Action Plan has been initialized successfully',
-        timer: 3000,
-        showConfirmButton: false
-      });
-      
-      this.loadMonitoringData();
-      
-    } catch (error) {
-      this.showErrorAlert('Failed to initialize CAP');
-    }
-  }
-}
-
-async onRiskSubmit() {
-  if (this.riskForm.valid && this.selectedItem) {
-    try {
-      const formValue = this.riskForm.value;
-      
-      const capData: CorrectiveActionPlan = {
-        ...this.selectedItem.cap,
-        status: 'Risk Accepted',
-        progress: 100, // Auto-set to 100% for risk acceptance
-        riskAcceptanceReason: formValue.riskReason,
-        riskAcceptedBy: formValue.acceptedBy,
-        riskAcceptedAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-
-      await this.saveCAP(capData);
-      this.hideModal('riskAcceptanceModal');
-      
-      Swal.fire({
-        icon: 'success',
-        title: 'Risk Accepted!',
-        text: 'Risk acceptance has been recorded successfully',
-        timer: 3000,
-        showConfirmButton: false
-      });
-      
-      this.loadMonitoringData();
-      
-    } catch (error) {
-      this.showErrorAlert('Failed to submit risk acceptance');
-    }
-  }
-}
-
 updateCAPProgress(item: any) {
   this.selectedItem = item;
   const initialProgress = this.getProgress(item.cap);
@@ -534,62 +595,6 @@ updateCAPProgress(item: any) {
   const modal = new (window as any).bootstrap.Modal(document.getElementById('updateProgressModal'));
   modal.show();
 }
-
-  async onFollowupSubmit() {
-    if (this.followupForm.valid && this.selectedItem) {
-      try {
-        const formValue = this.followupForm.value;
-        
-        const capData: CorrectiveActionPlan = {
-          ...this.selectedItem.cap,
-          nextFollowUpDate: formValue.followUpDate,
-          updatedAt: new Date().toISOString()
-        };
-
-        await this.saveCAP(capData);
-        this.hideModal('scheduleFollowupModal');
-        
-        Swal.fire({
-          icon: 'success',
-          title: 'Follow-up Scheduled!',
-          text: `Follow-up has been scheduled for ${this.formatDate(formValue.followUpDate)}`,
-          timer: 3000,
-          showConfirmButton: false
-        });
-        
-        this.loadMonitoringData();
-        
-      } catch (error) {
-        this.showErrorAlert('Failed to schedule follow-up');
-      }
-    }
-  }
-
-  async onReminderSubmit() {
-    if (this.selectedItem) {
-      try {
-        const capData: CorrectiveActionPlan = {
-          ...this.selectedItem.cap,
-          lastFollowUpDate: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        };
-
-        await this.saveCAP(capData);
-        this.hideModal('reminderModal');
-        
-        Swal.fire({
-          icon: 'success',
-          title: 'Reminder Sent!',
-          text: `Reminder has been sent to ${this.selectedItem.cap.responsibleUnit}`,
-          timer: 3000,
-          showConfirmButton: false
-        });
-        
-      } catch (error) {
-        this.showErrorAlert('Failed to send reminder');
-      }
-    }
-  }
 
   private showErrorAlert(message: string) {
     Swal.fire({
@@ -793,8 +798,10 @@ updateCAPProgress(item: any) {
 
 
   loadMonitoringData() {
+    this.isLoading = true;
     this.http.get<Workflow[]>(this.workflowsApiUrl).subscribe({
       next: (workflows) => {
+        this.isLoading = false;
         this.workflows = workflows;
         this.loadCorrectiveActionPlans();
       },
@@ -993,42 +1000,6 @@ getAutoProgress(status: string): number {
     default: return 0;
   }
 }
-
-  async onProgressSubmit() {
-  if (this.progressForm.valid && this.selectedItem) {
-    try {
-      const formValue = this.progressForm.value;
-    
-      const calculatedProgress = formValue.progress;
-      
-      const capData: CorrectiveActionPlan = {
-        ...this.selectedItem.cap,
-        progress: calculatedProgress,
-        status: formValue.status,
-        remarks: formValue.remarks,
-        lastFollowUpDate: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-
-      await this.saveCAP(capData);
-      this.hideModal('updateProgressModal');
-      
-      Swal.fire({
-        icon: 'success',
-        title: 'Progress Updated!',
-        text: 'CAP progress has been updated successfully',
-        timer: 3000,
-        showConfirmButton: false
-      });
-      
-      this.loadMonitoringData();
-      
-    } catch (error) {
-      this.showErrorAlert('Failed to update CAP progress');
-    }
-  }
-}
-
 
 toggleDetails(item: any) {
     if (this.expandedItem && this.expandedItem.cap.id === item.cap.id) {
