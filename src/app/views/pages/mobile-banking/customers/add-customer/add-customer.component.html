@@ -1,6 +1,25 @@
 <div class="container-fluid mt-4">
   <div class="row">
     <div class="col-lg-8 col-md-7" [class.col-lg-12]="!isDetailsPanelVisible">
+                <!-- Loading Progress Bar -->
+      <div *ngIf="isLoading" class="progress mb-3" style="height: 4px;">
+        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+            style="width: 100%"></div>
+      </div>
+
+           <!-- Table Loading Overlay -->
+      <!-- <div *ngIf="isLoading" class="position-relative">
+        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center bg-white bg-opacity-75" style="z-index: 10;">
+          <div class="text-center">
+            <div class="spinner-border text-primary mb-2" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <div class="small text-muted">Loading audits...</div>
+          </div>
+        </div>
+      </div> -->
+
+
       <div class="d-flex justify-content-between align-items-center mb-3">
         <!-- Search and Filters -->
         <div class="input-group w-50">

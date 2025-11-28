@@ -1,4 +1,5 @@
 <div class="container-fluid monitoring-container">
+
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="fw-bold mb-0 d-flex align-items-center">
       <i class="fas fa-clipboard-check me-2 text-primary"></i> Monitoring & Follow-up Activities
@@ -12,6 +13,11 @@
       </button>
     </div>
   </div>
+
+     <div *ngIf="isLoading" class="progress mb-3" style="height: 4px;">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                style="width: 100%"></div>
+          </div>
 
   <div class="row g-3 mb-4">
     <div class="col-md-3">
@@ -647,33 +653,32 @@
           <!-- Actions Card -->
           <div class="card border-0 shadow-sm">
             <div class="card-body pt-0">
-
-                <div class="d-grid gap-2">
-                  <button *ngIf="expandedItem?.isNew" 
-                          class="btn btn-success btn-sm" 
-                          (click)="initializeCAP(expandedItem!)">
-                    <i class="fas fa-play me-2"></i> Initialize CAP
-                  </button>
-                  <button *ngIf="!expandedItem?.isNew" 
-                          class="btn btn-outline-primary btn-sm" 
-                          (click)="updateCAPProgress(expandedItem!)">
-                    <i class="fas fa-edit me-2"></i> Update Progress
-                  </button>
-                  <button class="btn btn-outline-warning btn-sm" 
-                          (click)="sendReminder(expandedItem!)">
-                    <i class="fas fa-bell me-2"></i> Send Reminder
-                  </button>
-                  <button class="btn btn-outline-info btn-sm" 
-                          (click)="scheduleFollowUpForCAP(expandedItem!)">
-                    <i class="fas fa-calendar-check me-2"></i> Schedule Follow-up
-                  </button>
-                  <button *ngIf="expandedItem?.cap.status !== 'Risk Accepted'" 
-                          class="btn btn-outline-dark btn-sm" 
-                          (click)="requestRiskAcceptance(expandedItem!)">
-                    <i class="fas fa-shield-alt me-2"></i> Request Risk Acceptance
-                  </button>
-                </div>
-         
+              <div class="d-grid gap-2">
+              
+                <button *ngIf="expandedItem?.isNew" 
+                        class="btn btn-success btn-sm" 
+                        (click)="openInitializeModal(expandedItem!)"> <!-- ✅ CORRECT METHOD -->
+                  <i class="fas fa-play me-2"></i> Initialize CAP
+                </button>
+                <button *ngIf="!expandedItem?.isNew" 
+                        class="btn btn-outline-primary btn-sm" 
+                        (click)="openProgressModal(expandedItem!)"> <!-- ✅ CORRECT METHOD -->
+                  <i class="fas fa-edit me-2"></i> Update Progress
+                </button>
+                <button class="btn btn-outline-warning btn-sm" 
+                        (click)="openReminderModal(expandedItem!)"> <!-- ✅ CORRECT METHOD -->
+                  <i class="fas fa-bell me-2"></i> Send Reminder
+                </button>
+                <button class="btn btn-outline-info btn-sm" 
+                        (click)="openFollowupModal(expandedItem!)"> <!-- ✅ CORRECT METHOD -->
+                  <i class="fas fa-calendar-check me-2"></i> Schedule Follow-up
+                </button>
+                <button *ngIf="expandedItem?.cap.status !== 'Risk Accepted'" 
+                        class="btn btn-outline-dark btn-sm" 
+                        (click)="openRiskModal(expandedItem!)"> <!-- ✅ CORRECT METHOD -->
+                  <i class="fas fa-shield-alt me-2"></i> Request Risk Acceptance
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -682,40 +687,40 @@
 </div>
 
 
-<!-- Initialize CAP Modal -->
-<div class="modal fade" id="initializeCAPModal" tabindex="-1" aria-labelledby="initializeCAPModalLabel" aria-hidden="true">
+
+<!-- Initialize CAP Form -->
+<!-- <div class="modal-backdrop" *ngIf="showInitializeModal"></div> -->
+<div class="modal" *ngIf="showInitializeModal">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header bg-primary text-white">
-        <h2 class="modal-title" id="initializeCAPModalLabel">
+        <h2 class="modal-title">
           <i class="fas fa-play me-2"></i>Initialize Corrective Action Plan
         </h2>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close btn-close-white" (click)="closeInitializeModal()"></button>
       </div>
       <div class="modal-body">
-        <form [formGroup]="initializeForm" (ngSubmit)="onInitializeSubmit()">
+        <form [formGroup]="initializeForm">
           <div class="row">
             <div class="col-md-6 mb-3">
-               <label class="form-label fw-bold">Responsible Unit</label>
-                <input type="text" class="form-control" formControlName="responsibleUnit" 
-                   [class.is-invalid]="initializeForm.get('responsibleUnit')?.invalid && initializeForm.get('responsibleUnit')?.touched">
-                <div class="invalid-feedback">Please enter a responsible unit</div>
-             </div>
-          
-              <div class="col-md-6 mb-3">
-                <label class="form-label fw-bold">Target Completion Date</label>
-                <input type="date" class="form-control" formControlName="targetDate" 
-                      [min]="getTodayDate()"
-                      [class.is-invalid]="initializeForm.get('targetDate')?.invalid && initializeForm.get('targetDate')?.touched">
-                <div class="invalid-feedback" *ngIf="initializeForm.get('targetDate')?.errors?.['required']">
-                  Please select a target date
-                </div>
-                <div class="invalid-feedback" *ngIf="initializeForm.get('targetDate')?.errors?.['futureDate']">
-                  Target date cannot be before today
-                </div>
+              <label class="form-label fw-bold">Responsible Unit</label>
+              <input type="text" class="form-control" formControlName="responsibleUnit" 
+                     [class.is-invalid]="initializeForm.get('responsibleUnit')?.invalid && initializeForm.get('responsibleUnit')?.touched">
+              <div class="invalid-feedback">Please enter a responsible unit</div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Target Completion Date</label>
+              <input type="date" class="form-control" formControlName="targetDate" 
+                     [min]="getTodayDate()"
+                     [class.is-invalid]="initializeForm.get('targetDate')?.invalid && initializeForm.get('targetDate')?.touched">
+              <div class="invalid-feedback" *ngIf="initializeForm.get('targetDate')?.errors?.['required']">
+                Please select a target date
               </div>
+              <div class="invalid-feedback" *ngIf="initializeForm.get('targetDate')?.errors?.['futureDate']">
+                Target date cannot be before today
+              </div>
+            </div>
           </div>
-    
           <div class="mb-3 mt-1">
             <label class="form-label fw-bold">Detailed Action Plan</label>
             <textarea class="form-control" rows="4" formControlName="detailedPlan"
@@ -725,7 +730,7 @@
         </form>
       </div>
       <div class="modal-footer d-flex justify-content-between">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-outline-secondary" (click)="closeInitializeModal()">Cancel</button>
         <button type="button" class="btn btn-success" (click)="onInitializeSubmit()" 
                 [disabled]="initializeForm.invalid">
           Initialize CAP
@@ -735,18 +740,19 @@
   </div>
 </div>
 
-<!-- Update Progress Modal -->
-<div class="modal fade" id="updateProgressModal" tabindex="-1" aria-labelledby="updateProgressModalLabel" aria-hidden="true">
+<!-- Update Progress Form -->
+<!-- <div class="modal-backdrop" *ngIf="showProgressModal"></div> -->
+<div class="modal" *ngIf="showProgressModal">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header bg-primary text-white">
-        <h2 class="modal-title" id="updateProgressModalLabel">
+        <h2 class="modal-title">
           <i class="fas fa-edit me-2"></i>Update CAP Progress
         </h2>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close btn-close-white" (click)="closeProgressModal()"></button>
       </div>
       <div class="modal-body">
-        <form [formGroup]="progressForm" (ngSubmit)="onProgressSubmit()">
+        <form [formGroup]="progressForm">
           <div class="mb-4">
             <label class="form-label fw-bold">Current Progress</label>
             <div class="card bg-light">
@@ -795,7 +801,7 @@
         </form>
       </div>
       <div class="modal-footer d-flex justify-content-between">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-outline-secondary" (click)="closeProgressModal()">Cancel</button>
         <button type="button" class="btn btn-primary" (click)="onProgressSubmit()">
           Update Status & Progress
         </button>
@@ -804,34 +810,35 @@
   </div>
 </div>
 
-<!-- Schedule Follow-up Modal -->
-<div class="modal fade" id="scheduleFollowupModal" tabindex="-1" aria-labelledby="scheduleFollowupModalLabel" aria-hidden="true">
+<!-- Schedule Follow-up Form -->
+<!-- <div class="modal-backdrop" *ngIf="showFollowupModal"></div> -->
+<div class="modal" *ngIf="showFollowupModal">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header bg-info text-white">
-        <h2 class="modal-title" id="scheduleFollowupModalLabel">
+        <h2 class="modal-title">
           <i class="fas fa-calendar-check me-2"></i>Schedule Follow-up
         </h2>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close btn-close-white" (click)="closeFollowupModal()"></button>
       </div>
       <div class="modal-body">
-        <form [formGroup]="followupForm" (ngSubmit)="onFollowupSubmit()">
-            <div class="mb-3">
-              <label class="form-label fw-bold">Follow-up Date</label>
-              <input type="date" class="form-control" formControlName="followUpDate"
-                    [min]="getTodayDate()"
-                    [class.is-invalid]="followupForm.get('followUpDate')?.invalid && followupForm.get('followUpDate')?.touched">
-              <div class="invalid-feedback" *ngIf="followupForm.get('followUpDate')?.errors?.['required']">
-                Please select a follow-up date
-              </div>
-              <div class="invalid-feedback" *ngIf="followupForm.get('followUpDate')?.errors?.['futureDate']">
-                Follow-up date cannot be before today
-              </div>
+        <form [formGroup]="followupForm">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Follow-up Date</label>
+            <input type="date" class="form-control" formControlName="followUpDate"
+                   [min]="getTodayDate()"
+                   [class.is-invalid]="followupForm.get('followUpDate')?.invalid && followupForm.get('followUpDate')?.touched">
+            <div class="invalid-feedback" *ngIf="followupForm.get('followUpDate')?.errors?.['required']">
+              Please select a follow-up date
             </div>
+            <div class="invalid-feedback" *ngIf="followupForm.get('followUpDate')?.errors?.['futureDate']">
+              Follow-up date cannot be before today
+            </div>
+          </div>
         </form>
       </div>
       <div class="modal-footer d-flex justify-content-between">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-outline-secondary" (click)="closeFollowupModal()">Cancel</button>
         <button type="button" class="btn btn-info text-white" (click)="onFollowupSubmit()" 
                 [disabled]="followupForm.invalid">
           Schedule Follow-up
@@ -841,18 +848,19 @@
   </div>
 </div>
 
-<!-- Risk Acceptance Modal -->
-<div class="modal fade" id="riskAcceptanceModal" tabindex="-1" aria-labelledby="riskAcceptanceModalLabel" aria-hidden="true">
+<!-- Risk Acceptance Form -->
+<!-- <div class="modal-backdrop" *ngIf="showRiskModal"></div> -->
+<div class="modal" *ngIf="showRiskModal">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header bg-dark text-white">
-        <h2 class="modal-title" id="riskAcceptanceModalLabel">
+        <h2 class="modal-title">
           <i class="fas fa-shield-alt me-2"></i>Request Risk Acceptance
         </h2>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close btn-close-white" (click)="closeRiskModal()"></button>
       </div>
       <div class="modal-body">
-        <form [formGroup]="riskForm" (ngSubmit)="onRiskSubmit()">
+        <form [formGroup]="riskForm">
           <div class="mb-3">
             <label class="form-label fw-bold">Reason for Risk Acceptance</label>
             <textarea class="form-control" rows="4" formControlName="riskReason" 
@@ -871,7 +879,7 @@
         </form>
       </div>
       <div class="modal-footer d-flex justify-content-between">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-outline-secondary" (click)="closeRiskModal()">Cancel</button>
         <button type="button" class="btn btn-dark" (click)="onRiskSubmit()" 
                 [disabled]="riskForm.invalid">
           Submit Risk Acceptance
@@ -881,15 +889,16 @@
   </div>
 </div>
 
-<!-- Send Reminder Modal -->
-<div class="modal fade" id="reminderModal" tabindex="-1" aria-labelledby="reminderModalLabel" aria-hidden="true">
+<!-- Send Reminder Form -->
+<!-- <div class="modal-backdrop" *ngIf="showReminderModal"></div> -->
+<div class="modal" *ngIf="showReminderModal">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header bg-warning text-dark">
-        <h2 class="modal-title" id="reminderModalLabel">
+        <h2 class="modal-title">
           <i class="fas fa-bell me-2"></i>Send Reminder
         </h2>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close" (click)="closeReminderModal()"></button>
       </div>
       <div class="modal-body">
         <p>Send reminder to <strong>{{ selectedItem?.cap?.responsibleUnit }}</strong> for CAP:</p>
@@ -897,7 +906,7 @@
         <p class="small text-muted">This will update the last follow-up date to today.</p>
       </div>
       <div class="modal-footer d-flex justify-content-between">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-outline-secondary" (click)="closeReminderModal()">Cancel</button>
         <button type="button" class="btn btn-warning" (click)="onReminderSubmit()">
           Send Reminder
         </button>
@@ -905,4 +914,3 @@
     </div>
   </div>
 </div>
-<hr>
