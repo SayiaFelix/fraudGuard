@@ -431,8 +431,25 @@
       "dueDate": "2025-10-22",
       "id": "0f4c",
       "auditId": "0f4c",
-      "tasks": [],
-      "miniFindings": []
+      "tasks": [
+        {
+          "id": "fw1764324188515",
+          "title": "reg",
+          "description": "grregr",
+          "assignedTo": "cia1",
+          "status": "Not Started",
+          "dueDate": "2025-11-29",
+          "priority": "Medium"
+        }
+      ],
+      "miniFindings": [],
+      "fieldwork": {
+        "evidence": [],
+        "meetings": [],
+        "weeklyUpdates": [],
+        "preClosing": [],
+        "documents": []
+      }
     },
     {
       "id": "daf6",

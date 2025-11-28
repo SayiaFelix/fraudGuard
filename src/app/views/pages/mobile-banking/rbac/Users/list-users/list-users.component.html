@@ -444,11 +444,24 @@
                 <ng-template #noMiniFindingsSummary>
                   <p class="text-muted small">No mini findings yet.</p>
                 </ng-template>
-                
-                <!--Finding Button -->
-                <div class="mt-3 text-center">
+
+                    <!-- Finding Button - Only show when tasks exist -->
+                <div class="mt-3 text-center" *ngIf="selectedWorkflow?.tasks?.length">
                   <button class="btn btn-outline-primary w-100 btn-sm save-btn mt-2" (click)="openFindingModal()">
-                      <i class="fas fa-plus-circle me-1"></i> Add Finding
+                    <i class="fas fa-plus-circle me-1"></i> Add Finding
+                  </button>
+                </div>
+                
+                <!-- Message when no tasks exist -->
+        
+                <!-- Message when no tasks exist -->
+                <div class="mt-3 text-center" *ngIf="!selectedWorkflow?.tasks?.length">
+                  <p class="text-muted small mb-2">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Add fieldwork tasks first to create findings
+                  </p>
+                  <button class="btn btn-outline-info btn-sm" (click)="openFieldworkModal()">
+                    <i class="fas fa-plus-square me-1"></i> Add Tasks
                   </button>
                 </div>
               </div>
