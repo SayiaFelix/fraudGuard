@@ -51,7 +51,7 @@
       <!-- 🔹 Bar Chart - Audits by Department -->
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-light d-flex justify-content-between align-items-center">
-          <h4 class="mb-0"><i class="fas fa-chart-bar text-primary me-2"></i>Audits by Department</h4>
+          <h4 class="mb-0 fw-bold"><i class="fas fa-chart-bar text-primary me-2"></i>Audits by Department</h4>
           <button class="btn btn-sm btn-outline-primary" (click)="exportChartData('audits-by-dept')">
             <i class="fas fa-download"></i>
           </button>
@@ -67,7 +67,7 @@
         <div class="col-md-6 mb-4">
           <div class="card shadow-sm h-100">
             <div class="card-header bg-light d-flex justify-content-between align-items-center">
-              <h4 class="mb-0"><i class="fas fa-chart-pie text-success me-2"></i>Findings by Severity</h4>
+              <h4 class="mb-0 fw-bold"><i class="fas fa-chart-pie text-success me-2"></i>Findings by Severity</h4>
               <button class="btn btn-sm btn-outline-success" (click)="exportChartData('findings-severity')">
                 <i class="fas fa-download"></i>
               </button>
@@ -82,7 +82,7 @@
         <div class="col-md-6 mb-4">
           <div class="card shadow-sm h-100">
             <div class="card-header bg-light d-flex justify-content-between align-items-center">
-              <h4 class="mb-0"><i class="fas fa-tasks text-warning me-2"></i>Audit Status Distribution</h4>
+              <h4 class="mb-0 fw-bold"><i class="fas fa-tasks text-warning me-2"></i>Audit Status Distribution</h4>
               <button class="btn btn-sm btn-outline-warning" (click)="exportChartData('audit-status')">
                 <i class="fas fa-download"></i>
               </button>
@@ -99,10 +99,10 @@
       <!-- 🔹 Recent Activity Feed -->
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-light">
-          <h4 class="mb-0"><i class="fas fa-bell me-2"></i>Recent Activity</h4>
+          <h4 class="mb-0 fw-bold"><i class="fas fa-bell me-2"></i>Recent Activity</h4>
         </div>
         <div class="card-body p-0">
-          <div style="max-height: 200px; overflow-y: auto;">
+          <div style="max-height: 320px; overflow-y: auto;">
             <div *ngFor="let activity of recentActivities" 
                  class="activity-item p-3 border-bottom"
                  [ngClass]="{
@@ -136,10 +136,10 @@
       <!-- 🔹 Priority Alerts -->
       <div class="card shadow-sm border-warning mb-4">
         <div class="card-header bg-warning text-dark">
-          <h4 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Priority Alerts</h4>
+          <h4 class="mb-0 fw-bold"><i class="fas fa-exclamation-triangle me-2"></i>Priority Alerts</h4>
         </div>
         <div class="card-body p-0">
-          <div style="max-height: 180px; overflow-y: auto;">
+          <div style="max-height: 310px; overflow-y: auto;">
             <div *ngFor="let alert of priorityAlerts" class="alert-item p-3 border-bottom">
               <div class="d-flex justify-content-between align-items-start mb-2">
                 <span class="badge" [ngClass]="{
@@ -174,42 +174,89 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
 
-      <!-- 🔹 Upcoming Deadlines -->
-      <div class="card shadow-sm border-info">
-        <div class="card-header bg-info text-white">
-          <h4 class="mb-0"><i class="fas fa-calendar-day me-2"></i>Upcoming Deadlines</h4>
-        </div>
-        <div class="card-body p-0">
-          <div style="max-height: 180px; overflow-y: auto;">
-            <div *ngFor="let deadline of upcomingDeadlines" 
-                 class="deadline-item p-3 border-bottom"
-                 [ngClass]="{
-                   'border-start border-danger': deadline.daysLeft <= 1,
-                   'border-start border-warning': deadline.daysLeft <= 3,
-                   'border-start border-info': deadline.daysLeft > 3
-                 }">
-              <div class="d-flex justify-content-between align-items-center mb-1">
-                <strong class="small">{{deadline.title}}</strong>
-                <span class="badge" [ngClass]="{
-                  'bg-danger': deadline.daysLeft <= 1,
-                  'bg-warning': deadline.daysLeft <= 3,
-                  'bg-info': deadline.daysLeft > 3
-                }">
-                  {{deadline.daysLeft}} day{{deadline.daysLeft !== 1 ? 's' : ''}}
-                </span>
+  <div class="card shadow-sm mt-2">
+      <div class="row">
+          <!-- 🔹 Upcoming Deadlines --> 
+        <div class="col-md-6 mb-4">
+          <div class="card shadow-sm h-100">
+            <div class="card shadow-sm border-info">
+              <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                <h4 class="mb-0 fw-bold"><i class="fas fa-calendar-day me-2"></i>Upcoming Deadlines</h4>
+                <span class="badge bg-light text-info">{{upcomingDeadlines.length}}</span>
               </div>
-              <small class="text-muted d-block">{{deadline.type}} • {{deadline.department}}</small>
-              <small class="text-muted">Due: {{deadline.dueDate}}</small>
-            </div>
-            <div *ngIf="upcomingDeadlines.length === 0" class="text-center p-4 text-muted">
-              <i class="fas fa-calendar-check fa-2x mb-2"></i>
-              <p class="mb-0">No upcoming deadlines</p>
+              <div class="card-body p-0">
+                <div style="max-height: 250px; overflow-y: auto;">
+                  <div *ngFor="let deadline of upcomingDeadlines" 
+                      class="deadline-item p-3 border-bottom"
+                      [ngClass]="{
+                        'border-start border-danger': deadline.daysLeft <= 1,
+                        'border-start border-warning': deadline.daysLeft <= 3,
+                        'border-start border-info': deadline.daysLeft > 3
+                      }">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <strong class="small">{{deadline.title}}</strong>
+                      <span class="badge" [ngClass]="{
+                        'bg-danger': deadline.daysLeft <= 1,
+                        'bg-warning': deadline.daysLeft <= 3,
+                        'bg-info': deadline.daysLeft > 3
+                      }">
+                        {{deadline.daysLeft}} day{{deadline.daysLeft !== 1 ? 's' : ''}} left
+                      </span>
+                    </div>
+                    <small class="text-muted d-block">{{deadline.type | titlecase}} • {{deadline.department}}</small>
+                    <small class="text-muted">Due: {{deadline.dueDate}}</small>
+                    <div class="mt-2">
+                      <button class="btn btn-sm btn-outline-primary w-100" (click)="viewDeadlineDetails(deadline)">
+                        <i class="fas fa-eye me-1"></i> View Details
+                      </button>
+                    </div>
+                  </div>
+                  <div *ngIf="upcomingDeadlines.length === 0" class="text-center p-4 text-muted">
+                    <i class="fas fa-calendar-check fa-2x mb-2"></i>
+                    <p class="mb-0">No upcoming deadlines</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
+
+       <!-- 🔹 Overdue Items -->
+        <div class="col-md-6 mb-4">
+          <div class="card shadow-sm h-100">
+            <div class="card shadow-sm border-danger mb-4" *ngIf="overdueDeadlines.length > 0">
+              <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                <h4 class="mb-0 fw-bold"><i class="fas fa-exclamation-circle me-2"></i>Overdue Items</h4>
+                <span class="badge bg-light text-danger">{{overdueDeadlines.length}}</span>
+              </div>
+              <div class="card-body p-0">
+                <div style="max-height: 250px; overflow-y: auto;">
+                  <div *ngFor="let deadline of overdueDeadlines" 
+                      class="deadline-item p-3 border-bottom border-danger">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <strong class="small text-dark">{{deadline.title}}</strong>
+                      <span class="badge bg-danger">
+                        {{abs(deadline.daysLeft)}} day{{isPlural(deadline.daysLeft) ? 's' : ''}} overdue
+                      </span>
+                    </div>
+                    <small class="text-muted d-block">{{deadline.type | titlecase}} • {{deadline.department}}</small>
+                    <small class="text-muted">Due: {{deadline.dueDate}}</small>
+                    <div class="mt-2">
+                      <button class="btn btn-sm btn-outline-danger w-100" (click)="viewDeadlineDetails(deadline)">
+                        <i class="fas fa-exclamation-triangle me-1"></i> View Details
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      
       </div>
-    </div>
   </div>
 
 <div class="card shadow-sm mt-3">
@@ -219,7 +266,7 @@
         <div class="col-md-6 mb-4">
           <div class="card shadow-sm h-100">
             <div class="card-header bg-light d-flex justify-content-between align-items-center">
-              <h4 class="mb-0"><i class="fas fa-chart-line text-info me-2"></i>Audits Over Time</h4>
+              <h4 class="mb-0 fw-bold"><i class="fas fa-chart-line text-info me-2"></i>Audits Over Time</h4>
               <button class="btn btn-sm btn-outline-info" (click)="exportChartData('audits-timeline')">
                 <i class="fas fa-download"></i>
               </button>
@@ -234,7 +281,7 @@
         <div class="col-md-6 mb-4">
           <div class="card shadow-sm h-100">
             <div class="card-header bg-light d-flex justify-content-between align-items-center">
-              <h4 class="mb-0"><i class="fas fa-tasks text-primary me-2"></i>Workflow Completion Trends</h4>
+              <h4 class="mb-0 fw-bold"><i class="fas fa-tasks text-primary me-2"></i>Workflow Completion Trends</h4>
               <button class="btn btn-sm btn-outline-primary" (click)="exportChartData('workflow-trends')">
                 <i class="fas fa-download"></i>
               </button>
@@ -250,7 +297,7 @@
   <!-- 🔹 Department Performance Matrix -->
   <div class="card shadow-sm mt-4">
     <div class="card-header bg-light d-flex justify-content-between align-items-center">
-      <h4 class="mb-0"><i class="fas fa-trophy me-2"></i>Department Performance Matrix</h4>
+      <h4 class="mb-0 fw-bold"><i class="fas fa-trophy me-2"></i>Department Performance Matrix</h4>
       <button class="btn btn-sm btn-outline-primary" (click)="exportDepartmentMatrix()">
         <i class="fas fa-download me-1"></i> Export
       </button>
@@ -333,7 +380,7 @@
   <!-- 🔹 CAP Implementation Progress -->
   <div class="card shadow-sm mt-4">
     <div class="card-header bg-light">
-      <h4 class="mb-0"><i class="fas fa-clipboard-check me-2"></i>CAP Implementation Progress</h4>
+      <h4 class="mb-0 fw-bold"><i class="fas fa-clipboard-check me-2"></i>CAP Implementation Progress</h4>
     </div>
     <div class="card-body">
       <div class="row">
