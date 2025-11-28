@@ -50,32 +50,48 @@ export class SettingsModalComponent implements OnInit {
   }
 
   private loadUserData() {
-    try {
-      this.firstName = localStorage.getItem('first_name') || '';
-      this.lastName = localStorage.getItem('last_name') || '';
-      const userName = localStorage.getItem('user_name') || '';
-      
-      if (this.firstName && this.lastName) {
-        this.userName = `${this.firstName} ${this.lastName}`;
-      } else if (userName) {
-        this.userName = userName;
-      } else if (this.firstName) {
-        this.userName = this.firstName;
-      } else {
-        this.userName = 'Audit1';
-      }
-      
-      this.userEmail = localStorage.getItem('email') || localStorage.getItem('user_email') || 'audit@internal.io';
-      this.userInitials = this.generateInitials(this.userName);
-      this.preferredLanguage = localStorage.getItem('preferred_language') || 'en';
-      this.browserNotifications = localStorage.getItem('browser_notifications') === 'true';
-      this.platformNotifications = localStorage.getItem('platform_notifications') !== 'false';
-      
-    } catch (error) {
-      console.error('Error loading user data:', error);
-      this.setDefaultUserData();
-    }
+  try {
+    // Get the actual data that was saved during login
+    const username = localStorage.getItem('username') || '';
+    const userEmail = localStorage.getItem('userEmail') || '';
+    const userRole = localStorage.getItem('userRole') || '';
+    
+    console.log('🔍 Loading user data from localStorage:', {
+      username,
+      userEmail, 
+      userRole
+    });
+
+    // Use the actual saved data
+    this.userName = username || 'Audit User';
+    this.userEmail = userEmail || 'audit@internal.io';
+    
+    // Generate initials from the actual username
+    this.userInitials = this.generateInitials(this.userName);
+    
+    // Set first/last name if you want to use them separately
+    // But use the actual data from localStorage
+    const nameParts = this.userName.split(' ');
+    this.firstName = nameParts[0] || '';
+    this.lastName = nameParts.slice(1).join(' ') || '';
+    
+    this.preferredLanguage = localStorage.getItem('preferred_language') || 'en';
+    this.browserNotifications = localStorage.getItem('browser_notifications') === 'true';
+    this.platformNotifications = localStorage.getItem('platform_notifications') !== 'false';
+    
+    console.log('✅ Final user data:', {
+      userName: this.userName,
+      userEmail: this.userEmail,
+      userInitials: this.userInitials,
+      firstName: this.firstName,
+      lastName: this.lastName
+    });
+    
+  } catch (error) {
+    console.error('Error loading user data:', error);
+    this.setDefaultUserData();
   }
+}
 
   private loadUserPreferences() {
     try {

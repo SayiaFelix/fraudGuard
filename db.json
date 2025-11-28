@@ -128,39 +128,12 @@
       "id": "a1"
     },
     {
-      "title": "IT Security",
-      "scope": "System vulnerabilities testing",
-      "department": "IT",
-      "status": "In Progress",
-      "startDate": "2025-02-01",
-      "endDate": "2025-02-15",
-      "id": "a2"
-    },
-    {
       "id": "a3",
       "title": "Performance Audit",
       "scope": "Review performance KPIs for last 3 months",
       "department": "EBU",
       "status": "Completed",
       "startDate": "2025-09-11",
-      "endDate": "2025-09-30"
-    },
-    {
-      "title": "Marketing Audit",
-      "scope": "Review advertising spend and ROI",
-      "department": "Market",
-      "status": "Planned",
-      "startDate": "2025-09-22",
-      "endDate": "2025-10-03",
-      "id": "64b0"
-    },
-    {
-      "id": "85aa",
-      "title": "Money Cash Workflow",
-      "scope": "checking cash flow for q1 ",
-      "department": "Finance",
-      "status": "Planned",
-      "startDate": "2025-09-25",
       "endDate": "2025-09-30"
     },
     {
@@ -307,94 +280,6 @@
       "planningMemo": "iuhoihoih"
     },
     {
-      "id": "a2",
-      "auditId": "a2",
-      "title": "IT Security Workflow",
-      "scope": "System vulnerabilities testing",
-      "department": "IT",
-      "assignedTo": "auditor2",
-      "status": "In Progress",
-      "startDate": "2025-02-01",
-      "dueDate": "2025-02-15",
-      "tasks": [
-        {
-          "id": "t3",
-          "description": "Run penetration testing",
-          "assignee": "auditor2",
-          "status": "Done",
-          "dueDate": "2025-02-10"
-        },
-        {
-          "id": "t4",
-          "description": "Review firewall logs",
-          "assignee": "auditor1",
-          "status": "Pending",
-          "dueDate": "2025-02-12"
-        }
-      ],
-      "miniFindings": [
-        {
-          "taskId": "t3",
-          "description": "ggreergre",
-          "severity": "Medium",
-          "status": "Noted",
-          "id": "1758359450338",
-          "createdAt": "2025-09-20"
-        },
-        {
-          "description": "some of the items are not at par\n",
-          "impact": "Low",
-          "status": "Noted",
-          "id": "1758441284441",
-          "createdAt": "2025-09-21"
-        },
-        {
-          "description": "frefwfw",
-          "impact": "Low",
-          "status": "Confirmed",
-          "id": "1758443358305",
-          "createdAt": "2025-09-21"
-        }
-      ]
-    },
-    {
-      "title": "Marketing Audit Workflow",
-      "scope": "Review advertising spend and ROI",
-      "department": "Market",
-      "assignedTo": "auditor1",
-      "status": "Not Started",
-      "startDate": "2025-09-22",
-      "dueDate": "2025-10-03",
-      "id": "64b0",
-      "auditId": "64b0",
-      "tasks": [
-        {
-          "id": "t1758439444442",
-          "description": "fwewe",
-          "assignee": "auditor1",
-          "status": "Pending",
-          "dueDate": "2025-09-23"
-        }
-      ],
-      "miniFindings": [],
-      "fieldwork": {
-        "evidence": [],
-        "meetings": [],
-        "weeklyUpdates": [],
-        "preClosing": [
-          {
-            "id": "fd1763634050269",
-            "title": "ewweetwet",
-            "details": "tewwetew",
-            "severity": "Critical",
-            "recommendation": "wetwetew",
-            "status": "Draft"
-          }
-        ],
-        "documents": []
-      }
-    },
-    {
       "id": "a3",
       "auditId": "a3",
       "title": "Performance Audit Workflow",
@@ -429,79 +314,6 @@
           "createdAt": "2025-09-21"
         }
       ]
-    },
-    {
-      "title": "Money Cash Workflow",
-      "scope": "checking cash flow for q1 ",
-      "department": "Finance",
-      "assignedTo": "auditor",
-      "status": "Not Started",
-      "startDate": "2025-09-25",
-      "dueDate": "2025-09-30",
-      "id": "85aa",
-      "auditId": "85aa",
-      "tasks": [
-        {
-          "id": "t1758437610671",
-          "description": "dsfds",
-          "assignee": "cia1",
-          "status": "Pending",
-          "dueDate": "2025-09-30"
-        },
-        {
-          "id": "t1758438875568",
-          "description": "gfegege",
-          "assignee": "auditor1",
-          "status": "Pending",
-          "dueDate": "2025-09-24"
-        },
-        {
-          "id": "t1758439171124",
-          "description": "vdsfds",
-          "assignee": "auditor1",
-          "status": "Pending",
-          "dueDate": "2025-09-30"
-        }
-      ],
-      "miniFindings": [
-        {
-          "taskId": "t1758438875568",
-          "description": "wewewfwe",
-          "severity": "Medium",
-          "status": "Noted",
-          "id": "1758439520711",
-          "createdAt": "2025-09-21"
-        },
-        {
-          "taskId": "t1758437610671",
-          "description": "rere",
-          "severity": "Medium",
-          "status": "Confirmed",
-          "id": "1758439758681",
-          "createdAt": "2025-09-21"
-        },
-        {
-          "description": "fasfas",
-          "impact": "Low",
-          "status": "Noted",
-          "id": "1758440776356",
-          "createdAt": "2025-09-21"
-        },
-        {
-          "description": "wfewfwe",
-          "impact": "Medium",
-          "status": "Confirmed",
-          "id": "1758441135200",
-          "createdAt": "2025-09-21"
-        }
-      ],
-      "fieldwork": {
-        "evidence": [],
-        "meetings": [],
-        "weeklyUpdates": [],
-        "preClosing": [],
-        "documents": []
-      }
     },
     {
       "title": "Progamming Workflow",
@@ -1211,7 +1023,7 @@
     },
     {
       "id": "o2",
-      "auditId": "a2",
+      "auditId": null,
       "description": "Weak password policy",
       "severity": "High",
       "status": "In Progress",
@@ -1264,7 +1076,7 @@
       "severity": "Low",
       "status": "In Progress",
       "recommendation": "ewewewvdsbhjbsjd",
-      "auditId": "a2",
+      "auditId": null,
       "createdAt": "2025-09-20",
       "findings": [
         {
@@ -1307,7 +1119,7 @@
       "severity": "High",
       "status": "In Progress",
       "recommendation": "wefew",
-      "auditId": "85aa",
+      "auditId": null,
       "createdAt": "2025-09-21",
       "findings": [
         {

@@ -143,7 +143,8 @@ export class DashboardComponent implements OnInit {
   overallCapImplementationRate = 0;
   totalRecords = 0;
   lastUpdated = new Date();
-
+  overdueDeadlines: DeadlineItem[] = [];
+  
   barChartData: ChartData<'bar'> = { labels: [], datasets: [] };
   pieChartData: ChartData<'pie'> = { labels: [], datasets: [] };
   lineChartData: ChartData<'line'> = { labels: [], datasets: [] };
@@ -503,13 +504,12 @@ private processPriorityAlerts(workflows: any[], audits: any[]): void {
   console.log('🔍 Processing priority alerts...');
   console.log('Today:', today.toISOString().split('T')[0]);
 
-  // Process Critical/High findings from workflows
   workflows.forEach((workflow: any) => {
     if (workflow.fieldwork?.preClosing) {
       workflow.fieldwork.preClosing.filter((f: any) => 
         f.severity === 'Critical' || f.severity === 'High'
       ).forEach((finding: any) => {
-        // Calculate actual days left based on workflow due date
+    
         let daysLeft = 0;
         let dueDate = 'Not set';
         
@@ -520,9 +520,9 @@ private processPriorityAlerts(workflows: any[], audits: any[]): void {
             daysLeft = Math.floor((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
             dueDate = workflow.dueDate;
             
-            console.log(`📅 Finding: ${finding.title}, Due: ${dueDate}, Days Left: ${daysLeft}`);
+            // console.log(`📅 Finding: ${finding.title}, Due: ${dueDate}, Days Left: ${daysLeft}`);
           } catch (error) {
-            console.error('Invalid due date:', workflow.dueDate);
+            // console.error('Invalid due date:', workflow.dueDate);
           }
         }
 
@@ -532,14 +532,13 @@ private processPriorityAlerts(workflows: any[], audits: any[]): void {
           severity: finding.severity as any,
           department: workflow.department,
           dueDate: dueDate,
-          daysLeft: daysLeft, // Now calculated properly
+          daysLeft: daysLeft,
           type: 'finding'
         });
       });
     }
   });
 
-  // Add overdue audits as priority alerts
   audits.forEach((audit: any) => {
     const deadlineDate = audit.endDate || audit.dueDate;
     if (!deadlineDate) return;
@@ -548,8 +547,7 @@ private processPriorityAlerts(workflows: any[], audits: any[]): void {
       const dueDate = new Date(deadlineDate);
       dueDate.setHours(0, 0, 0, 0);
       const daysLeft = Math.floor((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-      
-      // Include overdue audits or audits due within 3 days
+    
       if (daysLeft < 3 && audit.status !== 'Completed') {
         this.priorityAlerts.push({
           id: audit.id,
@@ -561,14 +559,13 @@ private processPriorityAlerts(workflows: any[], audits: any[]): void {
           type: 'audit'
         });
         
-        console.log(`⚠️ Audit Alert: ${audit.title}, Due: ${deadlineDate}, Days: ${daysLeft}`);
+        // console.log(`⚠️ Audit Alert: ${audit.title}, Due: ${deadlineDate}, Days: ${daysLeft}`);
       }
     } catch (error) {
       console.error('Invalid audit date:', deadlineDate);
     }
   });
 
-  // If still no alerts, create a sample for demonstration
   if (this.priorityAlerts.length === 0) {
     const sampleDueDate = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
     this.priorityAlerts.push({
@@ -582,14 +579,12 @@ private processPriorityAlerts(workflows: any[], audits: any[]): void {
     });
   }
 
-  // Sort by severity and days left (most critical first)
   this.priorityAlerts.sort((a, b) => {
     const severityOrder: any = { 'Critical': 3, 'High': 2, 'Medium': 1 };
     const severityDiff = severityOrder[b.severity] - severityOrder[a.severity];
     
     if (severityDiff !== 0) return severityDiff;
-    
-    // If same severity, sort by days left (soonest/overdue first)
+  
     return a.daysLeft - b.daysLeft;
   });
 
@@ -605,78 +600,110 @@ getDisplayDays(daysLeft: number): string {
   }
 }
 
+  // Helper methods for template
+  abs(value: number): number {
+    return Math.abs(value);
+  }
+
+  isPlural(value: number): boolean {
+    return Math.abs(value) !== 1;
+  }
+
+
 private processUpcomingDeadlines(workflows: any[], audits: any[]): void {
   this.upcomingDeadlines = [];
+  this.overdueDeadlines = [];
   const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-  console.log('📅 Checking for upcoming deadlines (7-day window)...');
+  console.log('📅 Processing deadlines...');
 
-  const upcomingAudits = audits.filter((a: any) => {
-    const deadlineDate = a.endDate || a.dueDate; 
-    if (!deadlineDate) return false;
-    if (a.status === 'Completed') return false;
+  // Process audits
+  audits.forEach((audit: any) => {
+    const deadlineDate = audit.endDate || audit.dueDate; 
+    if (!deadlineDate) return;
+    if (audit.status === 'Completed') return;
     
     const dueDate = new Date(deadlineDate);
+    dueDate.setHours(0, 0, 0, 0);
     const daysLeft = Math.floor((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
     
-    console.log(`Audit: ${a.title}, endDate: ${a.endDate}, daysLeft: ${daysLeft}`);
-    
-    return daysLeft >= 0 && daysLeft <= 7;
-  });
-
-  console.log('Upcoming audits within 7 days:', upcomingAudits.length);
-
-  upcomingAudits.forEach((audit: any) => {
-    const deadlineDate = audit.endDate || audit.dueDate;
-    const dueDate = new Date(deadlineDate);
-    const daysLeft = Math.floor((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-    
-    this.upcomingDeadlines.push({
+    const deadlineItem: DeadlineItem = {
       id: audit.id,
       title: audit.title,
       type: 'audit',
       department: audit.department,
-      dueDate: deadlineDate, 
+      dueDate: deadlineDate,
       daysLeft
-    });
+    };
+
+    if (daysLeft < 0) {
+      this.overdueDeadlines.push(deadlineItem);
+    } else if (daysLeft <= 7) {
+      this.upcomingDeadlines.push(deadlineItem);
+    }
   });
 
-  let upcomingTasksCount = 0;
+  // Process workflow tasks
   workflows.forEach((workflow: any) => {
     if (workflow.tasks) {
-      const upcomingTasks = workflow.tasks.filter((t: any) => {
-        if (!t.dueDate) return false;
-        if (t.status === 'Done') return false;
+      workflow.tasks.forEach((task: any) => {
+        if (!task.dueDate) return;
+        if (task.status === 'Done') return;
         
-        const dueDate = new Date(t.dueDate);
-        const daysLeft = Math.floor((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-        
-        console.log(`Task: ${t.title}, dueDate: ${t.dueDate}, daysLeft: ${daysLeft}`);
-        return daysLeft >= 0 && daysLeft <= 7;
-      });
-      
-      upcomingTasksCount += upcomingTasks.length;
-      
-      upcomingTasks.forEach((task: any) => {
         const dueDate = new Date(task.dueDate);
+        dueDate.setHours(0, 0, 0, 0);
         const daysLeft = Math.floor((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
         
-        this.upcomingDeadlines.push({
+        const deadlineItem: DeadlineItem = {
           id: task.id,
-          title: task.title,
+          title: task.title || 'Untitled Task',
           type: 'task',
           department: workflow.department,
           dueDate: task.dueDate,
           daysLeft
-        });
+        };
+
+        if (daysLeft < 0) {
+          this.overdueDeadlines.push(deadlineItem);
+        } else if (daysLeft <= 7) {
+          this.upcomingDeadlines.push(deadlineItem);
+        }
       });
     }
   });
 
-  console.log('Upcoming tasks within 7 days:', upcomingTasksCount);
-  console.log('Total upcoming deadlines within 7 days:', this.upcomingDeadlines.length);
-  this.upcomingDeadlines.sort((a, b) => a.daysLeft - b.daysLeft);
+  // Sort both lists
+  this.overdueDeadlines.sort((a, b) => a.daysLeft - b.daysLeft); // Most overdue first
+  this.upcomingDeadlines.sort((a, b) => a.daysLeft - b.daysLeft); // Soonest first
+
+  console.log(`⏰ Overdue items: ${this.overdueDeadlines.length}`);
+  console.log(`📅 Upcoming deadlines: ${this.upcomingDeadlines.length}`);
 }
+
+viewDeadlineDetails(deadline: DeadlineItem): void {
+  Swal.fire({
+    title: deadline.title,
+    html: `
+      <div class="text-start">
+        <p><strong>Type:</strong> ${deadline.type}</p>
+        <p><strong>Department:</strong> ${deadline.department}</p>
+        <p><strong>Due Date:</strong> ${deadline.dueDate}</p>
+        <p><strong>Status:</strong> 
+          <span class="badge ${deadline.daysLeft < 0 ? 'bg-danger' : deadline.daysLeft <= 3 ? 'bg-warning' : 'bg-info'}">
+            ${deadline.daysLeft < 0 ? Math.abs(deadline.daysLeft) + ' days overdue' : deadline.daysLeft + ' days left'}
+          </span>
+        </p>
+      </div>
+    `,
+    icon: deadline.daysLeft < 0 ? 'error' : 'warning',
+    showConfirmButton: false,
+    showCancelButton: true,
+    cancelButtonText: 'Close',
+    focusCancel: true
+  });
+}
+
 private processCAPImplementation(workflows: any[]): void {
     let findingsWithAction = 0;
     let totalFindings = 0;
@@ -1046,7 +1073,7 @@ private processAuditStatus(audits: any[]): any {
   }
 
   exportChartData(chartType: string): void {
-    console.log(`Exporting chart data: ${chartType}`);
+    // console.log(`Exporting chart data: ${chartType}`);
     // Similar to exportExcel but for specific chart
   }
 
