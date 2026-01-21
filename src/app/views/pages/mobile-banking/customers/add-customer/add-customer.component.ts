@@ -230,6 +230,7 @@ loadAudits(): void {
         ...audit,
         sortDate: audit.createdAt || audit.startDate,
         stage: audit.stage || this.determineAuditStage(audit) 
+        
       }));
       this.extractUniqueValues();
       this.applyFiltersAndPagination();
