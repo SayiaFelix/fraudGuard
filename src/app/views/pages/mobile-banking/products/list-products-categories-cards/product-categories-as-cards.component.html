@@ -564,10 +564,11 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let r of getPaginatedReports()" 
-                [class.table-success]="r.draftStatus === 'finalized'"
-                (click)="openReportManagement(r)"
-                style="cursor: pointer;">
+          <!-- To this: -->
+          <tr *ngFor="let r of getPaginatedReports()" 
+              [class.table-success]="r.draftStatus === 'finalized'"
+              (click)="openReportManagementModal(r)"
+              style="cursor: pointer;">
               <td class="fw-medium">
                 <div class="d-flex align-items-center">
                   <i class="fas fa-file-alt me-2" [ngClass]="{
@@ -628,12 +629,11 @@
               <td class="text-end">
                 <div class="btn-group" role="group">
 
-                  <button class="btn btn-outline-info btn-sm" title="Preview Report" 
-                          (click)="previewReport(r); $event.stopPropagation()" 
-                          data-bs-toggle="modal" 
-                          data-bs-target="#previewModal">
+                 <button class="btn btn-outline-info btn-sm" title="Preview Report" 
+                    (click)="openPreviewModal(r); $event.stopPropagation()">
                     <i class="fas fa-eye"></i>
                   </button>
+            
 
                   <button class="btn btn-outline-success btn-sm" 
                           (click)="downloadReport(r); $event.stopPropagation()" 
@@ -750,24 +750,122 @@
   </div>
 </div>
 
-<div class="modal fade" id="reportManagementModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
+
+<!-- Upload Modal -->
+<!-- <div *ngIf="showUploadModal" class="modal-backdrop show"></div> -->
+<div *ngIf="showUploadModal" class="modal show d-block fixed-modal">
+  <div class="modal-dialog modal-dialog-centered"> 
     <div class="modal-content">
-      <div class="modal-header" [ngClass]="{
-  'bg-warning': selectedReport?.draftStatus && selectedReport?.draftStatus !== 'finalized',
-  'bg-success': selectedReport?.draftStatus === 'finalized',
-  'bg-primary': !selectedReport?.draftStatus
-}">
-  <h2 class="modal-title fw-bold text-white">
-    <i class="fas fa-file-alt me-2"></i> 
-    Report Management
-  
-    <span *ngIf="selectedReport?.clientComments?.length" class="badge bg-info ms-1">
-      <i class="fas fa-comments me-1"></i>{{ selectedReport?.clientComments?.length }}
-    </span>
-  </h2>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      <div class="modal-header bg-primary py-2"> 
+        <h4 class="modal-title text-white mb-0"> 
+          <i class="fas fa-upload me-1"></i> Upload Report
+        </h4>
+        <button type="button" class="btn-close btn-close-white" (click)="closeUploadModal()"></button>
+      </div>
+      
+      <div class="modal-body p-3"> <!-- Smaller padding -->
+        <div class="mb-3">
+          <label class="form-label fw-bold small">Select File</label>
+          <input class="form-control form-control-sm" 
+                 type="file" 
+                 (change)="handleFileInput($event)"
+                 accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx">
+          <div class="form-text small">
+            Supported formats: PDF, Word, Excel, PowerPoint
+          </div>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label fw-bold small">Report Title</label>
+          <input class="form-control form-control-sm" 
+                 type="text" 
+                 placeholder="Enter report title"
+                 [(ngModel)]="newTitle">
+        </div>
+        
+        <div *ngIf="uploadingFile" class="alert alert-info p-2 small">
+          <i class="fas fa-file me-1"></i>
+          Selected: <strong>{{ uploadingFile.name }}</strong>
+          ({{ (uploadingFile.size / 1024).toFixed(2) }} KB)
+        </div>
+      </div>
+      
+      <div class="modal-footer p-2"> 
+        <!-- <button type="button" 
+                class="btn btn-outline-secondary btn-sm"
+                (click)="closeUploadModal()">
+          <i class="fas fa-times me-1"></i> Cancel
+        </button> -->
+        
+        <button type="button" 
+                class="btn btn-success btn-sm"
+                (click)="uploadReportMetadata()"
+                [disabled]="!uploadingFile || !newTitle.trim()">
+          <i class="fas fa-cloud-upload-alt me-1"></i> Upload
+        </button>
+      </div>
+    </div>
   </div>
+</div>
+
+
+<!-- Preview Modal -->
+<!-- <div *ngIf="showPreviewModal" class="modal-backdrop show"></div> -->
+<div *ngIf="showPreviewModal" class="modal show d-block fixed-modal">
+  <div class="modal-dialog modal-dialog-centered modal-xl" style="width: 850px; height: 200px;">
+    <div class="modal-content">
+      <div class="modal-header bg-primary">
+        <h2 class="modal-title text-white">
+          <i class="fas fa-eye me-2"></i> Report Preview
+        </h2>
+        <button type="button" class="btn-close btn-close-white" 
+                (click)="closePreviewModal()"></button>
+      </div>
+      
+      <div class="modal-body p-0" style="height:80vh">
+        <ng-container *ngIf="selectedReport">
+          <iframe 
+            *ngIf="selectedReport?.fileType === 'application/pdf' || selectedReport?.fileType?.includes('officedocument')" 
+            [src]="(selectedReport?.fileUrl || '') | safeUrl"
+            class="w-100 h-100 border-0">
+          </iframe>
+
+          <div *ngIf="!(selectedReport?.fileType?.includes('pdf') || selectedReport?.fileType?.includes('officedocument'))" 
+               class="d-flex flex-column justify-content-center align-items-center h-100">
+            <i class="fas fa-file fa-3x text-muted mb-2"></i>
+            <p class="text-muted">Preview not supported for this file type.</p>
+            <a [href]="selectedReport?.fileUrl" download class="btn btn-sm btn-primary">
+              <i class="fas fa-download"></i> Download
+            </a>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Report Management Modal -->
+<!-- <div *ngIf="showReportManagementModal" class="modal-backdrop show"></div> -->
+<div *ngIf="showReportManagementModal" class="modal show d-block fixed-modal">
+  <div class="modal-dialog modal-dialog-centered modal-lg"  style="max-width: 1100px;">
+    <div class="modal-content ">
+      <div class="modal-header" [ngClass]="{
+        'bg-warning': selectedReport?.draftStatus && selectedReport?.draftStatus !== 'finalized',
+        'bg-success': selectedReport?.draftStatus === 'finalized',
+        'bg-primary': !selectedReport?.draftStatus
+      }">
+        <h2 class="modal-title fw-bold text-white">
+          <i class="fas fa-file-alt me-2"></i> 
+          Report Management
+        
+          <span *ngIf="selectedReport?.clientComments?.length" class="badge bg-info ms-1">
+            <i class="fas fa-comments me-1"></i>{{ selectedReport?.clientComments?.length }}
+          </span>
+        </h2>
+            
+      <button type="button" class="btn-close btn btn-close-white" (click)="closeReportManagementModal()"></button>
+      </div>
 
       <div class="modal-body" *ngIf="selectedReport">
         <div class="row mb-4">
@@ -845,11 +943,11 @@
           <div class="col-12">
             <h4 class="fw-bold mb-3">Quick Actions</h4>
             <div class="btn-group w-100" role="group">
-              <button class="btn btn-outline-info btn-sm" 
+              <!-- <button class="btn btn-outline-info btn-sm" 
                       (click)="previewDraftReport(selectedReport)"
                       title="Preview Draft">
                 <i class="fas fa-eye me-1"></i> Preview
-              </button>
+              </button> -->
               
               <button class="btn btn-outline-warning btn-sm" 
                       (click)="sendToClient(selectedReport)"
@@ -1042,7 +1140,8 @@
       </div>
       
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+          <!-- <button type="button" class="btn-close btn btn-outline-secondary" (click)="closeReportManagementModal()">Close</button> -->
+        
         <!-- <button type="button" class="btn btn-danger" 
                 (click)="deleteReport(selectedReport!)"
                 data-bs-dismiss="modal">
@@ -1060,65 +1159,11 @@
   </div>
 </div>
 
-<div class="modal fade" id="uploadModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header bg-primary">
-        <h3 class="modal-title"><i class="fas fa-upload text-success me-2"></i> Upload Report</h3>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <div class="mb-2">
-          <input id="misFile" class="form-control" type="file" (change)="handleFileInput($event)">
-        </div>
-        <div class="mb-3">
-          <input class="form-control" placeholder="Report title" [(ngModel)]="newTitle">
-        </div>
-      </div>
-      <div class="modal-footer d-flex justify-content-between">
-        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button class="btn btn-success" (click)="uploadReportMetadata()" data-bs-dismiss="modal">
-          <i class="fas fa-cloud-upload-alt me-1"></i> Upload
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="modal fade" id="previewModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header bg-primary">
-        <h2 class="modal-title text-light">
-          <i class="fas fa-eye text-info me-2"></i> Report Preview
-        </h2>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body p-0" style="height:80vh">
-        <ng-container *ngIf="selectedReport">
-          <iframe 
-            *ngIf="selectedReport?.fileType === 'application/pdf' || selectedReport?.fileType?.includes('officedocument')" 
-            [src]="(selectedReport?.fileUrl || '') | safeUrl"
-            class="w-100 h-100 border-0">
-          </iframe>
-
-          <div *ngIf="!(selectedReport?.fileType?.includes('pdf') || selectedReport?.fileType?.includes('officedocument'))" 
-               class="d-flex flex-column justify-content-center align-items-center h-100">
-            <i class="fas fa-file fa-3x text-muted mb-2"></i>
-            <p class="text-muted">Preview not supported for this file type.</p>
-            <a [href]="selectedReport?.fileUrl" download class="btn btn-sm btn-primary">
-              <i class="fas fa-download"></i> Download
-            </a>
-          </div>
-        </ng-container>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="modal fade" id="commentModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
+<!-- Comment Modal -->
+<!-- <div *ngIf="showCommentModal" class="modal-backdrop show"></div> -->
+<div *ngIf="showCommentModal" class="modal show d-block fixed-modal">
+  <div class="modal-dialog modal-dialog-centered"  style="width: 500px;"> 
+    <div class="modal-content modal-content-sm">
       
       <div class="modal-header" 
         [ngClass]="{
@@ -1126,100 +1171,92 @@
           'bg-info': selectedCommentType === 'question', 
           'bg-warning': selectedCommentType === 'revision_request'
         }">
-
-        <h2 class="modal-title text-white">
-          <i class="fas me-2"
+        <h4 class="modal-title text-white mb-0"> <!-- Changed from h2 to h4 -->
+          <i class="fas me-1"
             [ngClass]="{
               'fa-comment': selectedCommentType === 'comment',
               'fa-question': selectedCommentType === 'question',
               'fa-redo': selectedCommentType === 'revision_request'
             }"></i>
           Add {{ getCommentTypeText(selectedCommentType) }}
-        </h2>
-
-        <button type="button" 
-                class="btn-close btn-close-white" 
-                data-bs-dismiss="modal"
-                aria-label="Close">
-        </button>
+        </h4>
+        <button type="button" class="btn-close btn-close-white" (click)="closeCommentModal()"></button>
       </div>
 
-      <form (ngSubmit)="submitComment()">
-        <div class="modal-body">
+      <div class="modal-body p-3"> <!-- Added padding -->
+        <div class="mb-3">
+          <label class="form-label fw-bold small">Comment Type</label> <!-- Smaller label -->
+          <select class="form-select form-select-sm"
+                  [(ngModel)]="selectedCommentType"
+                  [ngModelOptions]="{standalone: true}"
+                  (change)="onCommentTypeChange()">
+            <option value="comment">Comment</option>
+            <option value="question">Question</option>
+          </select>
+        </div>
 
-          <!-- Comment Type Field -->
-          <div class="mb-3">
-            <label for="commentTypeSelect" class="form-label fw-bold">Comment Type</label>
-            <select id="commentTypeSelect"
-                    class="form-select"
-                    [(ngModel)]="selectedCommentType"
+        <div class="mb-3">
+          <label class="form-label fw-bold small">
+            Your {{ getCommentTypeText(selectedCommentType) }}
+          </label>
+          <textarea class="form-control form-control-sm" 
+                    rows="3"
+                    placeholder="Type your message here..."
+                    [(ngModel)]="newCommentText"
                     [ngModelOptions]="{standalone: true}"
-                    (change)="onCommentTypeChange()">
-              <option value="comment">Comment</option>
-              <option value="question">Question</option>
-              <!-- <option value="revision_request">Revision Request</option> -->
-            </select>
+                    style="resize: vertical;">
+          </textarea>
+          <div *ngIf="newCommentText && newCommentText.length >= 5" class="text-success small mt-1">
+            <i class="fas fa-check-circle me-1"></i> Ready to submit
           </div>
-
-          <div class="mb-3">
-            <label for="commentTextarea" class="form-label fw-bold">
-              Your {{ getCommentTypeText(selectedCommentType) }}
-            </label>
-            <textarea id="commentTextarea"
-                      class="form-control"
-                      rows="4"
-                      placeholder="Type your message here..."
-                      [(ngModel)]="newCommentText"
-                      [ngModelOptions]="{standalone: true}"
-                      style="resize: vertical;">
-            </textarea>
-            <div *ngIf="commentTextHasError" class="invalid-feedback d-block">
-              {{ commentTextErrorMessage }}
-            </div>
-            <div class="form-text text-end mt-2">
-              {{ newCommentText.length || 0 }}/1000 characters
-            </div>
+          <div *ngIf="newCommentText && newCommentText.length < 5" class="text-warning small mt-1">
+            <i class="fas fa-exclamation-circle me-1"></i> Minimum 5 characters required
           </div>
-
+          <div class="form-text text-end small mt-1">
+            {{ newCommentText.length || 0 }}/1000 characters
+          </div>
         </div>
+      </div>
 
-        <div class="modal-footer d-flex justify-content-between">
-          <button type="button"
-                  class="btn btn-outline-secondary"
-                  data-bs-dismiss="modal">
-            <i class="fas fa-times me-1"></i> Cancel
-          </button>
-
-          <button type="submit"
-                  class="btn"
-                  [ngClass]="{
-                    'btn-primary': selectedCommentType === 'comment',
-                    'btn-info': selectedCommentType === 'question',
-                    'btn-warning': selectedCommentType === 'revision_request'
-                  }"
-                  [disabled]="!newCommentText || newCommentText.length < 5">
-            <i class="fas fa-plus me-1"></i>
-            Add {{ getCommentTypeText(selectedCommentType) }}
-          </button>
-        </div>
-      </form>
+      <div class="modal-footer p-2"> 
+        <!-- <button type="button" 
+                class="btn btn-outline-secondary btn-sm"
+                (click)="closeCommentModal()">
+          <i class="fas fa-times me-1"></i> Cancel
+        </button> -->
+        
+        <button type="button"
+                class="btn btn-sm"
+                [ngClass]="{
+                  'btn-primary': selectedCommentType === 'comment',
+                  'btn-info': selectedCommentType === 'question',
+                  'btn-warning': selectedCommentType === 'revision_request'
+                }"
+                [disabled]="!newCommentText || newCommentText.length < 5"
+                (click)="submitComment()">
+          <i class="fas fa-plus me-1"></i>
+          Add {{ getCommentTypeText(selectedCommentType) }}
+        </button>
+      </div>
 
     </div>
   </div>
 </div>
 
-<div class="modal fade" id="managementResponseModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-xl">
+<!-- Management Response Modal -->
+<!-- <div *ngIf="showManagementResponseModal" class="modal-backdrop show"></div> -->
+<div *ngIf="showManagementResponseModal" class="modal show d-block fixed-modal">
+  <div class="modal-dialog modal-dialog-centered" style="width: 600px;">
     <div class="modal-content">
       <div class="modal-header bg-info">
         <h2 class="modal-title text-white">
           <i class="fas fa-reply me-2"></i> Management Response
         </h2>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close btn-close-white" (click)="closeManagementResponseModal()"></button>
       </div>
       
       <div class="modal-body" *ngIf="selectedReport">
-        <div class="alert alert-warning">
+        <div class="alert alert-warning mb-4">
           <i class="fas fa-exclamation-triangle me-2"></i>
           Please provide your formal response to each finding. Responses are due by 
           <strong>{{ getResponseDueDate(selectedReport) | date:'mediumDate' }}</strong>
@@ -1237,21 +1274,25 @@
                   <label class="form-label fw-bold">Management Response *</label>
                   <textarea class="form-control" rows="3" 
                             [(ngModel)]="response.response"
-                            placeholder="Enter your formal response to this finding..."></textarea>
+                            placeholder="Enter your formal response to this finding..."
+                            (ngModelChange)="selectedReport.managementResponses[i].response = $event">
+                  </textarea>
                 </div>
                 
                 <div class="col-12">
                   <label class="form-label fw-bold">Corrective Action Plan *</label>
                   <input type="text" class="form-control" 
                          [(ngModel)]="response.actionPlan"
-                         placeholder="Describe the specific actions to be taken...">
+                         placeholder="Describe the specific actions to be taken..."
+                         (ngModelChange)="selectedReport.managementResponses[i].actionPlan = $event">
                 </div>
                 
                 <div class="col-md-6">
                   <label class="form-label fw-bold">Responsible Person *</label>
                   <input type="text" class="form-control" 
                          [(ngModel)]="response.responsiblePerson"
-                         placeholder="Name of responsible person...">
+                         placeholder="Name of responsible person..."
+                         (ngModelChange)="selectedReport.managementResponses[i].responsiblePerson = $event">
                 </div>
                 
                 <div class="col-md-6">
@@ -1259,7 +1300,8 @@
                   <input type="date" class="form-control" 
                          [(ngModel)]="response.targetDate"
                          [min]="getTodayDate()"
-                         (change)="validateTargetDate(response)">
+                         (change)="validateTargetDate(response)"
+                         (ngModelChange)="selectedReport.managementResponses[i].targetDate = $event">
                   <div *ngIf="response.hasDateError" class="text-danger small mt-1">
                     <i class="fas fa-exclamation-triangle me-1"></i>
                     Target date cannot be in the past
@@ -1277,13 +1319,12 @@
         <ng-template #noFindings>
           <div class="alert alert-info">
             <i class="fas fa-info-circle me-2"></i>
-            No findings available for management response.
+            No findings available for management response. Please add findings first.
           </div>
         </ng-template>
       </div>
       
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
         <button type="button" class="btn btn-success" 
                 (click)="submitManagementResponses()"
                 [disabled]="!selectedReport?.managementResponses || selectedReport?.managementResponses?.length === 0 || hasInvalidDates()">
@@ -1294,64 +1335,64 @@
   </div>
 </div>
 
-<div class="modal fade" id="revisionRequestModal" tabindex="-1" aria-hidden="true">
+<!-- Revision Request Modal -->
+<!-- <div *ngIf="showRevisionRequestModal" class="modal-backdrop show"></div> -->
+<div *ngIf="showRevisionRequestModal" class="modal show d-block border-1 fixed-modal">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       
       <div class="modal-header bg-warning text-white">
-        <h2 class="modal-title">
-          <i class="fas fa-redo me-2"></i> Request Revision
-        </h2>
+        <h4 class="modal-title mb-0">
+          <i class="fas fa-redo me-1"></i> Request Revision
+        </h4>
         <button type="button" class="btn-close btn-close-white" 
-                data-bs-dismiss="modal" 
-                (click)="closeRevisionModal()">
-        </button>
+                (click)="closeRevisionRequestModal()"></button>
       </div>
 
       <form [formGroup]="revisionForm" (ngSubmit)="submitRevisionRequest()">
-        <div class="modal-body">
+        <div class="modal-body p-3">
         
-          <div class="alert alert-info" *ngIf="selectedReportForRevision">
-            <i class="fas fa-info-circle me-2"></i>
-            Requesting revision for: <strong>{{ selectedReportForRevision.title }}</strong>
+          <div class="alert alert-info py-2 mb-2" *ngIf="selectedReportForRevision">
+            <small><i class="fas fa-info-circle me-1"></i>
+            Requesting: <strong>{{ selectedReportForRevision.title }}</strong></small>
           </div>
-          <div class="mb-3">
-            <label for="revisionDetails" class="form-label fw-bold">
+          
+          <div class="mb-2">
+            <label for="revisionDetails" class="form-label fw-bold small">
               Revision Details <span class="text-danger">*</span>
             </label>
             <textarea id="revisionDetails"
-                      class="form-control"
-                      rows="5"
-                      placeholder="What specific changes or revisions would you like to request? Please be as detailed as possible..."
+                      class="form-control form-control-sm"
+                      rows="3"
+                      placeholder="What specific changes are needed? Please be detailed..."
                       formControlName="revisionDetails"
                       [class.is-invalid]="revisionDetailsInvalid">
             </textarea>
             
-            <!-- Validation Messages -->
-            <div *ngIf="revisionDetailsInvalid" class="invalid-feedback d-block">
+            <div *ngIf="revisionDetailsInvalid" class="invalid-feedback d-block small">
               <div *ngIf="revisionForm.get('revisionDetails')?.errors?.['required']">
                 Revision details are required
               </div>
               <div *ngIf="revisionForm.get('revisionDetails')?.errors?.['minlength']">
-                Revision details must be at least 10 characters
+                Minimum 10 characters
               </div>
               <div *ngIf="revisionForm.get('revisionDetails')?.errors?.['maxlength']">
-                Revision details cannot exceed 1000 characters
+                Maximum 1000 characters
               </div>
             </div>
             
-            <div class="form-text text-end mt-2">
-              {{ revisionDetailsLength }}/1000 characters
+            <div class="form-text text-end small mt-1">
+              {{ revisionForm.get('revisionDetails')?.value?.length || 0 }}/1000
             </div>
           </div>
 
           <!-- Priority Level -->
-          <div class="mb-3">
-            <label for="revisionPriority" class="form-label fw-bold">
+          <div class="mb-2">
+            <label for="revisionPriority" class="form-label fw-bold small">
               Priority Level
             </label>
             <select id="revisionPriority"
-                    class="form-select"
+                    class="form-select form-select-sm"
                     formControlName="priority">
               <option value="low">Low Priority</option>
               <option value="medium">Medium Priority</option>
@@ -1361,34 +1402,33 @@
           </div>
 
           <div class="mb-3">
-            <label for="revisionDueDate" class="form-label fw-bold">
+            <label for="revisionDueDate" class="form-label fw-bold small">
               Requested Completion Date (Optional)
             </label>
             <input type="date"
                    id="revisionDueDate"
-                   class="form-control"
+                   class="form-control form-control-sm"
                    formControlName="dueDate"
                    [min]="minDueDate">
-            <div class="form-text">
-              Suggested date for when you'd like the revisions completed
+            <div class="form-text small">
+              Suggested completion date
             </div>
           </div>
 
         </div>
 
-        <div class="modal-footer d-flex justify-content-between">
-          <button type="button"
-                  class="btn btn-outline-secondary"
-                  data-bs-dismiss="modal"
-                  (click)="closeRevisionModal()">
+        <div class="modal-footer p-2 px-3">
+          <!-- <button type="button"
+                  class="btn btn-outline-secondary btn-sm"
+                  (click)="closeRevisionRequestModal()">
             <i class="fas fa-times me-1"></i> Cancel
-          </button>
+          </button> -->
 
           <button type="submit"
-                  class="btn btn-warning"
+                  class="btn btn-warning btn-sm"
                   [disabled]="revisionForm.invalid || isSubmittingRevision">
             <i class="fas fa-paper-plane me-1"></i>
-            {{ isSubmittingRevision ? 'Submitting...' : 'Submit Revision Request' }}
+            {{ isSubmittingRevision ? 'Submitting...' : 'Submit' }}
           </button>
         </div>
       </form>

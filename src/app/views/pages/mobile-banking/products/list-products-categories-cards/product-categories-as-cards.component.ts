@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, ChangeDetectorRef } from '@angular/core';
 import { HttpService } from 'src/app/shared/services/http.service';
 import { ToastrService } from 'ngx-toastr';
 import { Subject, Observable } from 'rxjs';
@@ -122,7 +122,6 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
   newCommentType: 'comment' | 'question' | 'revision_request' = 'comment';
   newCommentText = '';
   formSubmitted  = false;
-  showCommentModal = false;
   selectedReportForComment?: MISReport;
 
   kpis = {
@@ -146,6 +145,13 @@ export class ProductCategoriesAsCardsComponent implements OnInit, OnDestroy {
   selectedCommentType: any;
   generatingReports: any;
 
+    // Add these properties to manage show/hide state
+  showUploadModal = false;
+  showPreviewModal = false;
+  showReportManagementModal = false;
+  showCommentModal = false;
+  showManagementResponseModal = false;
+  showRevisionRequestModal = false;
   
 fieldworkCurrentPage = 1;
 fieldworkPageSize = 5;
@@ -157,19 +163,37 @@ fieldworkSortDirection: 'asc' | 'desc' = 'asc';
     private mis: GlobalService,
     private globalService: GlobalService,
     private http: HttpClient,
-     private fb: FormBuilder 
+     private fb: FormBuilder,
+    private cdRef: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    this.load();
-    this.loadReports();
-    this.loadFieldworkData();
-    this.calculateKPIsFromWorkflows(); 
-    this.initializeCommentForm();
-      this.initializeRevisionForm();
+  // Ensure all modal states are false
+  this.showUploadModal = false;
+  this.showPreviewModal = false;
+  this.showReportManagementModal = false;
+  this.showCommentModal = false;
+  this.showManagementResponseModal = false;
+  this.showRevisionRequestModal = false;
+  
+  // Force change detection
+  this.cdRef.detectChanges();
+  
+  // Load data
+  this.load();
+  this.loadReports();
+  this.loadFieldworkData();
+  this.calculateKPIsFromWorkflows(); 
+  this.initializeCommentForm();
+  this.initializeRevisionForm();
   this.trackResponseDueDates();
-  }
+}
 
+ngOnDestroy(): void {
+  this.preventBodyScroll(false);
+  this.destroy$.next();
+  this.destroy$.complete();
+}
 
 private initializeRevisionForm(): void {
   this.revisionForm = this.fb.group({
@@ -181,6 +205,555 @@ private initializeRevisionForm(): void {
     priority: ['medium', Validators.required],
     dueDate: ['']
   });
+}
+
+private resetModalState(): void {
+  // Reset modal-specific state
+  this.newTitle = '';
+  this.uploadingFile = undefined;
+  this.newCommentText = '';
+  this.selectedCommentType = 'comment';
+  this.formSubmitted = false;
+  
+  // Reset form validations if needed
+  if (this.commentForm) {
+    this.commentForm.reset({
+      commentType: 'comment',
+      commentText: ''
+    });
+  }
+}
+
+openUploadModal(): void {
+  this.showModal('showUploadModal');
+  this.newTitle = '';
+  this.uploadingFile = undefined;
+}
+
+@HostListener('document:click', ['$event'])
+onDocumentClick(event: MouseEvent): void {
+  const target = event.target as HTMLElement;
+  
+  const modal = target.closest('.modal.show');
+  if (modal && modal.classList.contains('show')) {
+    const dialog = target.closest('.modal-dialog');
+
+    if (!dialog) {
+      if (this.showManagementResponseModal) {
+        this.closeManagementResponseModal();
+      } else if (this.showCommentModal) {
+        this.closeCommentModal();
+      } else if (this.showRevisionRequestModal) {
+        this.closeRevisionRequestModal();
+      } else if (this.showPreviewModal) {
+        this.closePreviewModal();
+      } else if (this.showUploadModal) {
+        this.closeUploadModal();
+      } else if (this.showReportManagementModal) {
+        this.closeReportManagementModal();
+      }
+    }
+  }
+}
+
+openPreviewModal(r: MISReport): void {
+  this.closeAllModals();
+  
+  setTimeout(() => {
+    this.selectedReport = r;
+    this.showPreviewModal = true;
+    
+    // Force Angular to detect changes
+    this.cdRef.markForCheck();
+    this.cdRef.detectChanges();
+    
+    // Small delay to ensure CSS is applied
+    setTimeout(() => {
+      this.preventBodyScroll(true);
+      
+      // Force backdrop to cover entire screen
+      this.ensureBackdropCoversScreen();
+      
+      // Force one more change detection
+      this.cdRef.detectChanges();
+    }, 10);
+  }, 10);
+}
+
+private ensureBackdropCoversScreen(): void {
+  setTimeout(() => {
+    const backdrops = document.querySelectorAll('.modal-backdrop');
+    backdrops.forEach(backdrop => {
+      const el = backdrop as HTMLElement;
+      el.style.position = 'fixed';
+      el.style.top = '0';
+      el.style.left = '0';
+      el.style.right = '0';
+      el.style.bottom = '0';
+      el.style.width = '100vw';
+      el.style.height = '100vh';
+      el.style.zIndex = '1040';
+    });
+  }, 0);
+}
+
+
+private showModal(modalProperty: keyof this): void {
+  // Close all modals first
+  this.closeAllModals();
+  
+  // Reset state if needed
+  this.resetModalState();
+  window.scrollTo({ top: 0, behavior: 'auto' });
+  
+  // Use requestAnimationFrame for better timing
+  requestAnimationFrame(() => {
+    // Set the modal to show
+    (this as any)[modalProperty] = true;
+    
+    // Force Angular to detect changes
+    this.cdRef.markForCheck();
+    this.cdRef.detectChanges();
+    
+    // For preview modal, ensure content is loaded
+    if (modalProperty === 'showPreviewModal') {
+      this.ensurePreviewContentLoaded();
+    }
+    
+    // Small delay to ensure DOM is ready
+    setTimeout(() => {
+      this.forceModalReflow();
+      
+      // Center the modal
+      this.centerModalOnOpen();
+      
+      // Prevent body scroll
+      this.preventBodyScroll(true);
+      
+      // Set focus based on modal type
+      this.setFocusOnModal(modalProperty);
+      
+      // Additional check for preview modal
+      if (modalProperty === 'showPreviewModal') {
+        this.verifyPreviewModalContent();
+      }
+    }, 50);
+  });
+}
+
+private ensurePreviewContentLoaded(): void {
+  if (this.selectedReport?.fileUrl) {
+    // Ensure the preview content is ready
+    this.previewContent = this.selectedReport.fileUrl;
+  }
+}
+
+private verifyPreviewModalContent(): void {
+  setTimeout(() => {
+    console.log('Preview modal verification:', {
+      modalVisible: this.showPreviewModal,
+      selectedReport: this.selectedReport,
+      previewContent: this.previewContent
+    });
+    
+    // Force another change detection if needed
+    this.cdRef.detectChanges();
+  }, 100);
+}
+
+openReportManagement(report: MISReport): void {
+  this.selectedReport = report;
+  this.showModal('showReportManagementModal');
+}
+
+openRevisionRequestModal(report: MISReport): void {
+  this.selectedReportForRevision = report;
+  this.revisionForm.reset({
+    revisionDetails: '',
+    priority: 'medium',
+    dueDate: ''
+  });
+  
+  this.showModal('showRevisionRequestModal');
+}
+
+closeUploadModal(): void {
+  this.showUploadModal = false;
+  this.preventBodyScroll(false);
+  this.cleanupModalState('showUploadModal');
+}
+
+closePreviewModal(): void {
+  this.showPreviewModal = false;
+  this.selectedReport = undefined;
+  this.previewContent = null;
+  this.preventBodyScroll(false);
+  this.cleanupModalState('showPreviewModal');
+}
+
+closeReportManagementModal(): void {
+  this.showReportManagementModal = false;
+  this.selectedReport = undefined;
+  this.preventBodyScroll(false);
+  this.cleanupModalState('showReportManagementModal');
+}
+
+private cleanupModalState(modalProperty: keyof this): void {
+  // Reset the modal property
+  (this as any)[modalProperty] = false;
+  
+  // Remove any leftover modal classes
+  setTimeout(() => {
+    const body = document.body;
+    body.classList.remove('modal-open');
+    body.style.overflow = '';
+    body.style.position = '';
+    body.style.top = '';
+    body.style.left = '';
+    body.style.right = '';
+    
+    // Remove any leftover backdrop
+    const backdrops = document.querySelectorAll('.modal-backdrop');
+    backdrops.forEach(backdrop => backdrop.remove());
+  }, 100);
+}
+
+
+private setFocusOnModal(modalProperty: any): void {
+  setTimeout(() => {
+    switch(modalProperty) {
+      case 'showCommentModal':
+        const commentTextarea = document.getElementById('commentTextarea') as HTMLTextAreaElement;
+        if (commentTextarea) {
+          commentTextarea.focus();
+        }
+        break;
+        
+      case 'showRevisionRequestModal':
+        const revisionDetails = document.getElementById('revisionDetails') as HTMLTextAreaElement;
+        if (revisionDetails) {
+          revisionDetails.focus();
+        }
+        break;
+        
+      case 'showUploadModal':
+        const titleInput = document.querySelector('.modal.show input[type="text"]') as HTMLInputElement;
+        if (titleInput) {
+          titleInput.focus();
+        }
+        break;
+        
+      default:
+        // Focus the first focusable element in the modal
+        const modal = document.querySelector('.modal.show') as HTMLElement;
+        if (modal) {
+          const focusable = modal.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])') as HTMLElement;
+          if (focusable) {
+            focusable.focus();
+          }
+        }
+        break;
+    }
+  }, 100);
+}
+
+  // Comment Modal
+  openCommentModal(report: MISReport): void {
+    this.selectedReportForComment = report;
+    this.selectedCommentType = 'comment';
+    this.newCommentText = '';
+    this.showCommentModal = true;
+    this.preventBodyScroll(true);
+
+    this.cdRef.detectChanges();
+    
+    setTimeout(() => {
+      const textarea = document.getElementById('commentTextarea') as HTMLTextAreaElement;
+      if (textarea) {
+        textarea.focus();
+      }
+    }, 100);
+
+
+  }
+
+  closeCommentModal(): void {
+    this.showCommentModal = false;
+    this.selectedReportForComment = undefined;
+    this.newCommentText = '';
+    this.selectedCommentType = 'comment';
+    this.preventBodyScroll(false);
+  }
+
+  // Management Response Modal
+  openManagementResponseModal(report: MISReport): void {
+    this.selectedReport = report;
+    
+    if (!report.managementResponses && report.fieldworkData?.preClosing) {
+      report.managementResponses = report.fieldworkData.preClosing.map((finding: any, index: number) => ({
+        findingId: finding.id || `finding-${index}`,
+        findingTitle: finding.title || `Finding ${index + 1}`,
+        response: '',
+        actionPlan: '',
+        responsiblePerson: '',
+        targetDate: '',
+        status: 'pending' as const
+      }));
+    }
+    
+    this.showManagementResponseModal = true;
+    this.preventBodyScroll(true);
+
+      this.cdRef.detectChanges();
+  }
+
+  closeManagementResponseModal(): void {
+  this.showManagementResponseModal = false;
+  this.preventBodyScroll(false);
+    this.preventBodyScroll(false);
+  
+}
+
+private forceModalReflow(): void {
+  // Force browser to recalculate layout
+  document.body.clientHeight;
+  
+  // Ensure all modals are properly positioned
+  const modals = document.querySelectorAll('.modal.show');
+  modals.forEach(modal => {
+    const modalElement = modal as HTMLElement;
+    modalElement.style.display = 'flex !important';
+    modalElement.style.position = 'fixed !important';
+    modalElement.style.top = '0 !important';
+    modalElement.style.left = '0 !important';
+    modalElement.style.width = '100vw !important';
+    modalElement.style.height = '100vh !important';
+    modalElement.style.alignItems = 'center !important';
+    modalElement.style.justifyContent = 'center !important';
+    modalElement.style.zIndex = '1055 !important';
+    modalElement.style.overflow = 'hidden !important';
+    modalElement.style.margin = '0 !important';
+    modalElement.style.padding = '0 !important';
+  });
+}
+
+private centerModalOnOpen(): void {
+  // Center all visible modals
+  const modals = document.querySelectorAll('.modal.show');
+  modals.forEach(modal => {
+    const dialog = modal.querySelector('.modal-dialog') as HTMLElement;
+    if (dialog) {
+      dialog.style.margin = 'auto !important';
+      dialog.style.transform = 'none !important';
+      dialog.style.maxHeight = '90vh !important';
+      dialog.style.overflowY = 'auto !important';
+    }
+  });
+}
+
+
+private preventBodyScroll(prevent: boolean): void {
+  const body = document.body;
+  const html = document.documentElement;
+  
+  if (prevent) {
+    // Store current scroll position
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    body.dataset.scrollY = scrollTop.toString();
+    
+    // Scroll to top before preventing scroll
+    window.scrollTo(0, 0);
+    
+    // Prevent scrolling
+    body.style.overflow = 'hidden';
+    body.style.position = 'fixed';
+    body.style.top = '0';
+    body.style.left = '0';
+    body.style.right = '0';
+    body.classList.add('modal-open');
+    
+    html.style.overflow = 'hidden';
+    html.style.height = '100%';
+  } else {
+    // Restore scrolling
+    body.style.overflow = '';
+    body.style.position = '';
+    body.style.top = '';
+    body.style.left = '';
+    body.style.right = '';
+    body.classList.remove('modal-open');
+    
+    html.style.overflow = '';
+    html.style.height = '';
+    
+    // Restore scroll position
+    const scrollY = parseInt(body.dataset.scrollY || '0', 10);
+    setTimeout(() => {
+      window.scrollTo(0, scrollY);
+    }, 10);
+  }
+}
+
+closeAllModals(): void {
+  this.closeUploadModal();
+  this.closePreviewModal();
+  this.closeReportManagementModal(); 
+  this.closeCommentModal();
+  this.closeManagementResponseModal();
+  this.closeRevisionRequestModal();
+}
+
+  closeRevisionRequestModal(): void {
+    this.showRevisionRequestModal = false;
+    this.selectedReportForRevision = undefined;
+    this.revisionForm.reset({
+      revisionDetails: '',
+      priority: 'medium',
+      dueDate: ''
+    });
+    this.isSubmittingRevision = false;
+    this.preventBodyScroll(false);
+  }
+
+submitManagementResponses(): void {
+  if (!this.selectedReport?.managementResponses) return;
+
+  // Validate all dates first
+  this.selectedReport.managementResponses.forEach(response => {
+    this.validateTargetDate(response);
+  });
+
+  // Check for invalid dates
+  if (this.hasInvalidDates()) {
+    Swal.fire('Error', 'Please fix all invalid target dates before submitting. Target dates cannot be in the past.', 'error');
+    return;
+  }
+
+  // Validate all responses are filled
+  const incomplete = this.selectedReport.managementResponses.some(response => 
+    !response.response?.trim() || 
+    !response.actionPlan?.trim() || 
+    !response.responsiblePerson?.trim() ||
+    !response.targetDate
+  );
+
+  if (incomplete) {
+    Swal.fire('Error', 'Please fill in all management responses, action plans, responsible persons, and target dates.', 'error');
+    return;
+  }
+
+  this.selectedReport.managementResponseSubmittedAt = new Date().toISOString();
+  this.selectedReport.managementResponseStatus = 'submitted';
+  
+  this.updateReportDraftStatus(this.selectedReport);
+  
+  // Only close the Management Response Modal
+  this.closeManagementResponseModal();
+  
+  // Show success message
+  Swal.fire('Success!', 'Management responses submitted successfully', 'success').then(() => {
+ 
+    console.log('Management responses saved, parent modal remains open');
+  });
+}
+
+requestRevision(draft: MISReport): void {
+  console.log('📝 Request Revision clicked for:', draft.title);
+  
+  // Set the report for revision
+  this.selectedReportForRevision = draft;
+  
+  // Reset the form
+  this.revisionForm.reset({
+    revisionDetails: '',
+    priority: 'medium',
+    dueDate: ''
+  });
+  
+  // Open the revision modal
+  this.showRevisionRequestModal = true;
+  this.preventBodyScroll(true);
+  
+  console.log('📝 showRevisionRequestModal set to:', this.showRevisionRequestModal);
+  
+  // Force change detection
+  this.cdRef.detectChanges();
+  
+  // Focus on textarea after modal opens
+  setTimeout(() => {
+    const textarea = document.getElementById('revisionDetails') as HTMLTextAreaElement;
+    if (textarea) {
+      textarea.focus();
+    }
+  }, 100);
+}
+
+  openReportManagementModal(report: MISReport): void {
+  this.selectedReport = report;
+  this.showReportManagementModal = true;
+  this.preventBodyScroll(true);
+}
+
+@HostListener('document:keydown.escape', ['$event'])
+onEscapeKey(event: KeyboardEvent): void {
+  // Close modals in reverse order (most recent first)
+  if (this.showManagementResponseModal) {
+    this.closeManagementResponseModal();
+  } else if (this.showCommentModal) {
+    this.closeCommentModal();
+  } else if (this.showRevisionRequestModal) {
+    this.closeRevisionRequestModal();
+  } else if (this.showPreviewModal) {
+    this.closePreviewModal();
+  } else if (this.showUploadModal) {
+    this.closeUploadModal();
+  } else if (this.showReportManagementModal) {
+    this.closeReportManagementModal();
+  }
+}
+
+uploadReportMetadata(): void {
+  if (!this.uploadingFile || !this.newTitle) {
+    Swal.fire('Missing Data', 'Provide a title and select a file', 'warning');
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    const base64 = reader.result as string;
+    const payload: MISReport = {
+      title: this.newTitle,
+      type: 'uploaded',
+      createdAt: new Date().toISOString(),
+      fileUrl: base64,
+      uploadedBy: 'CIA',
+      fileType: this.uploadingFile!.type,
+      description: `Uploaded file: ${this.uploadingFile!.name}`,
+      filePath: undefined
+    };
+
+    Swal.fire({
+      title: 'Uploading...',
+      text: 'Please wait while the report is being uploaded.',
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading()
+    });
+
+    this.mis.createReport(payload).subscribe({
+      next: () => {
+        this.closeUploadModal(); 
+        this.load();
+        Swal.fire('Success', 'Report uploaded successfully!', 'success');
+      },
+      error: (err) => {
+        console.error(err);
+        Swal.fire('Error', 'Failed to upload the report.', 'error');
+      }
+    });
+  };
+
+  reader.readAsDataURL(this.uploadingFile);
 }
 
 getFieldworkTotalPages(): number {
@@ -212,6 +785,95 @@ getFieldworkPageNumbers(): number[] {
   
   return pages;
 }
+
+submitComment(): void {
+  if (!this.selectedReportForComment || !this.newCommentText?.trim()) {
+    Swal.fire('Error', 'Please enter your comment text', 'error');
+    return;
+  }
+
+  if (this.newCommentText.length < 5) {
+    Swal.fire('Error', 'Comment must be at least 5 characters long', 'error');
+    return;
+  }
+
+  const newComment = {
+    text: this.newCommentText.trim(),
+    author: 'Client',
+    date: new Date().toISOString(),
+    type: this.selectedCommentType
+  };
+
+  if (!this.selectedReportForComment.clientComments) {
+    this.selectedReportForComment.clientComments = [];
+  }
+  this.selectedReportForComment.clientComments.push(newComment);
+
+  if (this.selectedCommentType === 'revision_request') {
+    this.selectedReportForComment.draftStatus = 'revised';
+    this.selectedReportForComment.revisionCount = (this.selectedReportForComment.revisionCount || 0) + 1;
+  }
+
+  this.updateReportDraftStatus(this.selectedReportForComment);
+  
+  // Close the modal after successful submission
+  this.closeCommentModal();
+  
+  Swal.fire(
+    'Success!', 
+    `${this.getCommentTypeText(this.selectedCommentType)} has been added successfully.`,
+    'success'
+  );
+}
+
+submitRevisionRequest(): void {
+  if (this.revisionForm.invalid || !this.selectedReportForRevision) {
+    this.markFormGroupTouched(this.revisionForm);
+    return;
+  }
+
+  this.isSubmittingRevision = true;
+
+  const formValue = this.revisionForm.value;
+  
+  const revisionComment = {
+    text: formValue.revisionDetails,
+    author: 'Client',
+    date: new Date().toISOString(),
+    type: 'revision_request' as const,
+    priority: formValue.priority as 'low' | 'medium' | 'high' | 'urgent', 
+    dueDate: formValue.dueDate || undefined 
+  };
+
+  const draft = this.selectedReportForRevision;
+  
+  if (!draft.clientComments) {
+    draft.clientComments = [];
+  }
+  
+  draft.clientComments.push(revisionComment);
+  draft.draftStatus = 'revised';
+  draft.revisionCount = (draft.revisionCount || 0) + 1;
+
+  this.updateReportDraftStatus(draft);
+  this.closeRevisionRequestModal();
+
+  Swal.fire({
+    title: 'Revision Requested!',
+    html: `
+      <div class="text-start">
+        <p>Your revision request has been submitted successfully.</p>
+        <div class="alert alert-warning mt-2">
+          <strong>Priority:</strong> ${this.getPriorityText(formValue.priority)}<br>
+          ${formValue.dueDate ? `<strong>Requested Date:</strong> ${new Date(formValue.dueDate).toLocaleDateString()}` : ''}
+        </div>
+      </div>
+    `,
+    icon: 'success',
+    confirmButtonText: 'OK'
+  });
+}
+
 
 goToFieldworkPage(page: number): void {
   if (page >= 1 && page <= this.getFieldworkTotalPages()) {
@@ -419,35 +1081,6 @@ getFieldworkReportsWithFindings(): FieldworkAudit[] {
   return this.fieldworkReports.filter(audit => this.hasFindings(audit));
 }
 
-openManagementResponseModal(report: MISReport): void {
-  // console.log('🔍 DEBUG - Opening Management Response Modal');
-  // console.log('Report:', report);
-  // console.log('Fieldwork data:', report.fieldworkData);
-  // console.log('Findings:', report.fieldworkData?.preClosing);
-  
-  this.selectedReport = report;
-  
-  if (!report.managementResponses && report.fieldworkData?.preClosing) {
-    console.log('🔄 Initializing management responses from findings');
-    report.managementResponses = report.fieldworkData.preClosing.map((finding: any, index: number) => ({
-      findingId: finding.id || `finding-${index}`,
-      findingTitle: finding.title || `Finding ${index + 1}`,
-      response: '',
-      actionPlan: '',
-      responsiblePerson: '',
-      targetDate: '',
-      status: 'pending' as const
-    }));
-    console.log('✅ Created management responses:', report.managementResponses);
-  } else {
-    console.log('ℹ️ Management responses already exist:', report.managementResponses);
-  }
-  
-  const modal = new bootstrap.Modal(document.getElementById('managementResponseModal')!);
-  modal.show();
-  
-  console.log('🎯 Modal should be visible now');
-}
 
 getResponseDueDate(report: MISReport): Date | null {
   if (!report.sentToClientAt) return null;
@@ -541,119 +1174,6 @@ generateDraftFinalReport(report: MISReport): void {
       }
     }
   });
-}
-
-distributeFinalReport(report: MISReport): void {
-  Swal.fire({
-    title: 'Distribute Final Report?',
-    html: `This will distribute the finalized report to:<br>
-           • Audit Committee<br>
-           • Key Stakeholders<br>
-           • Client Department`,
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonText: 'Yes, Distribute',
-    cancelButtonText: 'Cancel'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      report.distributedAt = new Date().toISOString();
-      report.distributedTo = [
-        'Audit Committee',
-        'Chief Executive Officer', 
-        'Department Head',
-        'Compliance Officer'
-      ];
-      
-      this.updateReportDraftStatus(report);
-      
-      Swal.fire({
-        title: 'Report Distributed!',
-        html: `Final report has been sent to:<br>${report.distributedTo.join('<br>')}`,
-        icon: 'success'
-      });
-    }
-  });
-}
-
-// submitManagementResponses(): void {
-//   if (!this.selectedReport?.managementResponses) return;
-
-//   const incomplete = this.selectedReport.managementResponses.some(response => 
-//     !response.response.trim() || !response.actionPlan.trim() || !response.responsiblePerson.trim()
-//   );
-
-//   if (incomplete) {
-//     Swal.fire('Error', 'Please fill in all management responses, action plans, and responsible persons', 'error');
-//     return;
-//   }
-
-//   this.selectedReport.managementResponseSubmittedAt = new Date().toISOString();
-//   this.selectedReport.managementResponseStatus = 'submitted';
-  
-//   this.updateReportDraftStatus(this.selectedReport);
-  
-//   const modal = bootstrap.Modal.getInstance(document.getElementById('managementResponseModal')!);
-//   modal?.hide();
-  
-//   Swal.fire('Success!', 'Management responses submitted successfully', 'success');
-// }
-
-openCommentModal(report: MISReport): void {
-  this.selectedReportForComment = report;
-  this.selectedCommentType = 'comment';
-  this.newCommentText = '';
-  
-  const modal = new bootstrap.Modal(document.getElementById('commentModal')!);
-  modal.show();
-  
-  setTimeout(() => {
-    const textarea = document.getElementById('commentTextarea') as HTMLTextAreaElement;
-    if (textarea) {
-      textarea.focus();
-    }
-  }, 100);
-}
-
-submitComment(): void {
-  if (!this.selectedReportForComment || !this.newCommentText?.trim()) {
-    Swal.fire('Error', 'Please enter your comment text', 'error');
-    return;
-  }
-
-  if (this.newCommentText.length < 5) {
-    Swal.fire('Error', 'Comment must be at least 5 characters long', 'error');
-    return;
-  }
-
-  const newComment = {
-    text: this.newCommentText.trim(),
-    author: 'Client',
-    date: new Date().toISOString(),
-    type: this.selectedCommentType
-  };
-
-  if (!this.selectedReportForComment.clientComments) {
-    this.selectedReportForComment.clientComments = [];
-  }
-  this.selectedReportForComment.clientComments.push(newComment);
-
-  if (this.selectedCommentType === 'revision_request') {
-    this.selectedReportForComment.draftStatus = 'revised';
-    this.selectedReportForComment.revisionCount = (this.selectedReportForComment.revisionCount || 0) + 1;
-  }
-
-  this.updateReportDraftStatus(this.selectedReportForComment);
-  const modal = bootstrap.Modal.getInstance(document.getElementById('commentModal')!);
-  modal?.hide();
-
-  this.newCommentText = '';
-  this.selectedCommentType = 'comment';
-  
-  Swal.fire(
-    'Success!', 
-    `${this.getCommentTypeText(this.selectedCommentType)} has been added successfully.`,
-    'success'
-  );
 }
 
 onCommentTypeChange(): void {
@@ -807,11 +1327,6 @@ private initializeCommentForm(): void {
   // this.commentForm.get('commentText')?.valueChanges.subscribe(() => {
   //   // This will trigger change detection for the character count
   // });
-}
-
-closeCommentModal(): void {
-  this.showCommentModal = false;
-  this.selectedReportForComment = undefined;
 }
 
 onCommentModalBackdropClick(event: MouseEvent): void {
@@ -1440,11 +1955,6 @@ private generateAnalyticsPDF(analyticsData: any): void {
     });
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
 selectedReport?: MISReport;
 previewContent: string | null = null;
 
@@ -1746,7 +2256,6 @@ previewDraftReport(draft: MISReport): void {
   this.selectedReport = draft;
   this.openPreviewModal(draft);
 }
-
 
 getDraftReports(): MISReport[] {
   return this.reports.filter(report => 
@@ -2072,13 +2581,6 @@ selectDraftForManagement(draft: MISReport): void {
   this.selectedDraftReport = draft;
 }
 
-openReportManagement(report: MISReport): void {
-  this.debugReport(report); 
-  this.selectedReport = report;
-  const modal = new bootstrap.Modal(document.getElementById('reportManagementModal')!);
-  modal.show();
-}
-
 generateFromFieldwork(): void {
     if (this.fieldworkReports.length === 0) {
       Swal.fire('Info', 'No fieldwork data available for reporting', 'info');
@@ -2093,25 +2595,6 @@ refreshData(): void {
     this.loadFieldworkData();
   }
 
-openUploadModal() {
-  const modal = new bootstrap.Modal(document.getElementById('uploadModal')!);
-  modal.show();
-}
-
-openPreviewModal(r: MISReport) {
-  this.selectedReport = r;
-
-  if (r.fileUrl?.startsWith('data:')) {
-    this.previewContent = r.fileUrl;
-  } else if (r.filePath) {
-    this.previewContent = r.filePath;
-  } else {
-    this.previewContent = null;
-  }
-
-  const modal = new bootstrap.Modal(document.getElementById('previewModal')!);
-  modal.show();
-}
 
 previewReport(report: any) {
   this.selectedReport = report;
@@ -2268,29 +2751,6 @@ handleFileInput(ev: any) {
     });
   }
 
-  finalizeReport(draft: MISReport): void {
-  Swal.fire({
-    title: 'Finalize Report?',
-    text: 'This will mark the report as finalized and complete',
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Yes, finalize!',
-    cancelButtonText: 'Cancel'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      // Update the existing report instead of creating a new one
-      draft.draftStatus = 'finalized';
-      draft.finalizedAt = new Date().toISOString();
-      
-      this.updateReportDraftStatus(draft);
-      
-      Swal.fire('Finalized!', 'Report has been finalized.', 'success');
-    }
-  });
-}
-
 get commentTextLength(): number {
   return this.commentForm.get('commentText')?.value?.length || 0;
 }
@@ -2333,49 +2793,6 @@ private updateReportDraftStatus(draft: MISReport): void {
   }
 }
 
-sendToClient(draft: MISReport): void {
-  Swal.fire({
-    title: 'Send to Client?',
-    text: 'This will send the draft report to the client for review',
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Yes, send to client!',
-    cancelButtonText: 'Cancel'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      // Update existing report
-      draft.draftStatus = 'client_review';
-      draft.sentToClientAt = new Date().toISOString();
-      this.updateReportDraftStatus(draft);
-      
-      Swal.fire('Sent!', 'Report has been sent to client for review.', 'success');
-    }
-  });
-}
-
-approveDraft(draft: MISReport): void {
-  Swal.fire({
-    title: 'Approve Report?',
-    text: 'This will mark the report as approved by client',
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Yes, approve!',
-    cancelButtonText: 'Cancel'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      draft.draftStatus = 'finalized';
-      draft.finalizedAt = new Date().toISOString();
-      this.updateReportDraftStatus(draft);
-      
-      Swal.fire('Approved!', 'Report has been approved and finalized.', 'success');
-    }
-  });
-}
-
 shouldShowError(fieldName: string): boolean {
   const field = this.commentForm.get(fieldName);
   return !!(field && field.invalid && (this.formSubmitted || field.touched));
@@ -2394,77 +2811,65 @@ get revisionDetailsInvalid(): boolean {
   return !!(control && control.invalid && (control.dirty || control.touched));
 }
 
-submitRevisionRequest(): void {
-  if (this.revisionForm.invalid || !this.selectedReportForRevision) {
-    this.markFormGroupTouched(this.revisionForm);
-    return;
-  }
-
-  this.isSubmittingRevision = true;
-
-  const formValue = this.revisionForm.value;
-  
-  const revisionComment = {
-    text: formValue.revisionDetails,
-    author: 'Client',
-    date: new Date().toISOString(),
-    type: 'revision_request' as const,
-    priority: formValue.priority as 'low' | 'medium' | 'high' | 'urgent', 
-    dueDate: formValue.dueDate || undefined 
-  };
-
-  const draft = this.selectedReportForRevision;
-  
-  if (!draft.clientComments) {
-    draft.clientComments = [];
-  }
-  
-  draft.clientComments.push(revisionComment);
-  draft.draftStatus = 'revised';
-  draft.revisionCount = (draft.revisionCount || 0) + 1;
-
-  this.updateReportDraftStatus(draft);
-
-  // Close modal and reset
-  this.closeRevisionModal();
-  this.isSubmittingRevision = false;
-
+approveDraft(draft: MISReport): void {
   Swal.fire({
-    title: 'Revision Requested!',
-    html: `
-      <div class="text-start">
-        <p>Your revision request has been submitted successfully.</p>
-        <div class="alert alert-warning mt-2">
-          <strong>Priority:</strong> ${this.getPriorityText(formValue.priority)}<br>
-          ${formValue.dueDate ? `<strong>Requested Date:</strong> ${new Date(formValue.dueDate).toLocaleDateString()}` : ''}
-        </div>
-      </div>
-    `,
-    icon: 'success',
-    confirmButtonText: 'OK'
+    title: 'Approve Report?',
+    text: 'This will mark the report as approved by client',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, approve!',
+    cancelButtonText: 'Cancel'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      draft.draftStatus = 'finalized';
+      draft.finalizedAt = new Date().toISOString();
+      this.updateReportDraftStatus(draft);
+      
+      // Close the Report Management Modal
+      this.closeReportManagementModal();
+      
+      Swal.fire('Approved!', 'Report has been approved and finalized.', 'success');
+    }
   });
 }
 
-requestRevision(draft: MISReport): void {
-  this.selectedReportForRevision = draft;
-  this.revisionForm.reset({
-    revisionDetails: '',
-    priority: 'medium',
-    dueDate: ''
-  });
-  
-  // Open the modal
-  const modal = new bootstrap.Modal(document.getElementById('revisionRequestModal')!);
-  modal.show();
-  
-  // Focus on textarea after modal opens
-  setTimeout(() => {
-    const textarea = document.getElementById('revisionDetails') as HTMLTextAreaElement;
-    if (textarea) {
-      textarea.focus();
+distributeFinalReport(report: MISReport): void {
+  Swal.fire({
+    title: 'Distribute Final Report?',
+    html: `This will distribute the finalized report to:<br>
+           • Audit Committee<br>
+           • Key Stakeholders<br>
+           • Client Department`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, Distribute',
+    cancelButtonText: 'Cancel'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      report.distributedAt = new Date().toISOString();
+      report.distributedTo = [
+        'Audit Committee',
+        'Chief Executive Officer', 
+        'Department Head',
+        'Compliance Officer'
+      ];
+      
+      this.updateReportDraftStatus(report);
+      
+    
+      this.closeAllModals(); 
+      
+      Swal.fire({
+        title: 'Report Distributed!',
+        html: `Final report has been sent to:<br>${report.distributedTo.join('<br>')}`,
+        icon: 'success'
+      });
     }
-  }, 100);
+  });
 }
+
 
 private markFormGroupTouched(formGroup: FormGroup): void {
   Object.keys(formGroup.controls).forEach(key => {
@@ -2550,91 +2955,60 @@ hasInvalidDates(): boolean {
   );
 }
 
-submitManagementResponses(): void {
-  if (!this.selectedReport?.managementResponses) return;
-
-  // Validate all dates first
-  this.selectedReport.managementResponses.forEach(response => {
-    this.validateTargetDate(response);
+sendToClient(draft: MISReport): void {
+  Swal.fire({
+    title: 'Send to Client?',
+    text: 'This will send the draft report to the client for review',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, send to client!',
+    cancelButtonText: 'Cancel'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      draft.draftStatus = 'client_review';
+      draft.sentToClientAt = new Date().toISOString();
+      this.updateReportDraftStatus(draft);
+      
+      // Close the Report Management Modal
+      this.closeReportManagementModal();
+      
+      Swal.fire('Sent!', 'Report has been sent to client for review.', 'success');
+    }
   });
-
-  // Check for invalid dates
-  if (this.hasInvalidDates()) {
-    Swal.fire('Error', 'Please fix all invalid target dates before submitting. Target dates cannot be in the past.', 'error');
-    return;
-  }
-
-  // Validate all responses are filled
-  const incomplete = this.selectedReport.managementResponses.some(response => 
-    !response.response?.trim() || 
-    !response.actionPlan?.trim() || 
-    !response.responsiblePerson?.trim() ||
-    !response.targetDate
-  );
-
-  if (incomplete) {
-    Swal.fire('Error', 'Please fill in all management responses, action plans, responsible persons, and target dates.', 'error');
-    return;
-  }
-
-  this.selectedReport.managementResponseSubmittedAt = new Date().toISOString();
-  this.selectedReport.managementResponseStatus = 'submitted';
-  
-  this.updateReportDraftStatus(this.selectedReport);
-  
-  const modal = bootstrap.Modal.getInstance(document.getElementById('managementResponseModal')!);
-  modal?.hide();
-  
-  Swal.fire('Success!', 'Management responses submitted successfully', 'success');
 }
 
- uploadReportMetadata() {
-  if (!this.uploadingFile || !this.newTitle) {
-    Swal.fire('Missing Data', 'Provide a title and select a file', 'warning');
-    return;
-  }
 
-  const reader = new FileReader();
-
-  reader.onload = () => {
-    const base64 = reader.result as string;
-    const payload: MISReport = {
-      title: this.newTitle,
-      type: 'uploaded',
-      createdAt: new Date().toISOString(),
-      fileUrl: base64,
-      uploadedBy: 'CIA',
-      fileType: this.uploadingFile!.type,
-      description: `Uploaded file: ${this.uploadingFile!.name}`,
-      filePath: undefined
-    };
-
-    Swal.fire({
-      title: 'Uploading...',
-      text: 'Please wait while the report is being uploaded.',
-      allowOutsideClick: false,
-      didOpen: () => Swal.showLoading()
-    });
-
-    this.mis.createReport(payload).subscribe({
-      next: () => {
-        this.newTitle = '';
-        this.uploadingFile = undefined;
-        (document.querySelector<HTMLInputElement>('#misFile')!).value = '';
-        this.load();
-        Swal.fire('Success', 'Report uploaded successfully!', 'success');
-      },
-      error: (err) => {
-        console.error(err);
-        Swal.fire('Error', 'Failed to upload the report.', 'error');
+finalizeReport(draft: MISReport): void {
+  Swal.fire({
+    title: 'Finalize Report?',
+    text: 'This will mark the report as finalized and complete',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, finalize!',
+    cancelButtonText: 'Cancel'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // Update the existing report instead of creating a new one
+      draft.draftStatus = 'finalized';
+      draft.finalizedAt = new Date().toISOString();
+      
+      this.updateReportDraftStatus(draft);
+      
+      // Close the report management modal if it's open
+      if (this.showReportManagementModal) {
+        this.closeReportManagementModal();
       }
-    });
-  };
-
-  reader.readAsDataURL(this.uploadingFile);
+      
+      Swal.fire('Finalized!', 'Report has been finalized.', 'success');
+    }
+  });
 }
 
-  downloadReport(r: MISReport) {
+downloadReport(r: MISReport) {
     if (r.fileUrl?.startsWith('data:')) {
       const blob = this.dataURItoBlob(r.fileUrl);
       const ext = r.fileType?.split('/')[1] || 'pdf';
