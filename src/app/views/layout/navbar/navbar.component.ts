@@ -71,7 +71,7 @@ export class NavbarComponent implements OnInit {
       this.notifications = notifications;
     });
 
-    this.profile = "Audit Management System";
+    this.profile = "FraudSentinel AI System";
     this.userData$ = of({ profile: this.profile });
   }
 
@@ -141,7 +141,7 @@ export class NavbarComponent implements OnInit {
   }
 
   openNotificationModal() {
-    this.router.navigateByUrl(`/eclectics/user/inbox`); // <-- Updated to a more likely inbox route
+    this.router.navigateByUrl(`/fraudsentinelAi/user/inbox`); 
   }
 
   onSubmit(e: Event) {

@@ -47,7 +47,7 @@ export class ListFailedRegistrationsComponent implements OnInit {
 
   isCollapsed = false;
   isDefaultRouteActive = false;
-
+showIntelligencePanel: boolean = true; 
   // Summary data
   viewDate: NgbDateStruct;
   allAudits: any[] = [];
@@ -59,6 +59,10 @@ export class ListFailedRegistrationsComponent implements OnInit {
   private observationsUrl = 'http://localhost:3000/observations';
   private workflowsUrl = `${environment.apiBase}/workflows`;
 
+  currentRoute: string = '';
+
+
+
   constructor(
     private httpService: HttpService,
     private globalService: GlobalService,
@@ -69,32 +73,89 @@ export class ListFailedRegistrationsComponent implements OnInit {
     private dataExploration: DataExportationService,
     private http: HttpClient
   ) {
+        this.checkRoute();
     const today = new Date();
     this.viewDate = { year: today.getFullYear(), month: today.getMonth() + 1, day: today.getDate() };
+
+    
   }
 
  private subs: Subscription[] = [];
 
+ 
 ngOnInit() {
-  this.loadAudits();
+  this.checkRoute();
+  this.router.events.subscribe(() => {
+    this.checkRoute();
+  });
 
-  this.subs.push(
-    this.globalService.observationsChanged$.subscribe(() => {
-      console.log('🔄 Observations changed, refreshing parent...');
-      this.loadAudits();
-    })
-  );
+  // this.loadAudits();
+}
 
-  this.subs.push(
-  this.globalService.auditsChanged$.subscribe(() => {
-    console.log("🔄 auditsChanged received in parent");
-    this.loadAudits();
-  })
-)}
+checkRoute(): void {
+  const currentUrl = this.router.url;
+  this.showIntelligencePanel = currentUrl.includes('live-feed') || currentUrl.includes('risk-analyzer');
+
+  if (!this.showIntelligencePanel && !this.isCollapsed) {
+    this.isCollapsed = true;
+  } else if (this.showIntelligencePanel && this.isCollapsed) {
+
+  }
+  
+  console.log('Route changed:', currentUrl, 'showPanel:', this.showIntelligencePanel);
+}
 
 ngOnDestroy() {
   this.subs.forEach(s => s.unsubscribe());
 }
+
+cm = {
+  truePositives: 120,
+  falseNegatives: 5,
+  falsePositives: 10,
+  trueNegatives: 865
+};
+
+  pendingInvestigations = 4;
+  totalAlerts = 24;
+  currentRiskLevel = 71; 
+
+  recentAIDetections = [
+    { severity: 'Critical', message: 'SIM swap + large transfer detected', time: '2m ago' },
+    { severity: 'High', message: 'Unusual velocity from Nairobi', time: '5m ago' },
+    { severity: 'High', message: 'Multiple failed logins + transfer', time: '12m ago' },
+    { severity: 'Medium', message: 'New device + location mismatch', time: '18m ago' }
+  ];
+
+  riskDistribution = {
+    critical: 342,
+    high: 942,
+    medium: 2456,
+    low: 154692
+  };
+
+ 
+  toggleIntelligencePanel(): void {
+    this.isCollapsed = !this.isCollapsed;
+  }
+
+  canInvestigate(): boolean {
+    return this.pendingInvestigations > 0;
+  }
+
+  runModelRetraining(): void {
+    console.log('Triggering model retraining...');
+    alert('Model retraining started. This will take approximately 5 minutes.');
+  }
+
+  exportFraudReport(): void {
+    console.log('Exporting fraud report...');
+    alert('Fraud report export started. Check downloads folder.');
+  }
+
+  viewAlerts(): void {
+    this.router.navigate(['/fraudsentinelAi/transaction_management/fraud/history']);
+  }
 
 loadRiskStats(): void {
   this.http.get<any[]>(this.workflowsUrl).subscribe(workflows => {
@@ -166,7 +227,6 @@ get nextThreeAudits() {
     .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
     .slice(0, 3);
 }
-
 
   loadAudits(): void {
     this.http.get<any[]>(this.apiUrl).subscribe({

@@ -38,6 +38,20 @@ export class LoginComponent implements OnInit {
   selectedLanguage: any = 'English';
   selectedLanguageFlag: any = 'assets/images/flags/us.svg';
  
+    // Hardcoded credentials for POC
+  readonly demoCredentials = {
+    email: 'investigator@fraudsentinel.ai',
+    password: 'FraudSentinel2026',
+    role: 'FraudInvestigator'
+  };
+
+  readonly roleCredentials = {
+    'RiskAnalyst': { email: 'analyst@fraudsentinel.ai', password: 'Riskanalysit@123' },
+    'FraudInvestigator': { email: 'investigator@fraudsentinel.ai', password: 'FraudSentinel@2026' },
+    'ComplianceOfficer': { email: 'compliance@fraudsentinel.ai', password: 'Complyanalysit@2026' }
+  };
+
+
   constructor(
     private translate: TranslateService,
     private router: Router,
@@ -59,7 +73,7 @@ export class LoginComponent implements OnInit {
         '',
         Validators.compose([Validators.required, Validators.minLength(6)]),
       ],
-      role: ['CIA', Validators.required]  
+      role: ['RiskAnalyst', Validators.required]
     });
   }
  
@@ -68,41 +82,136 @@ export class LoginComponent implements OnInit {
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
  
-onSubmit(event: Event) {
-  event.preventDefault();
- 
-  if (this.isLoading) return;
- 
-  this.hasError = false;
-  this.isLoading = true;
- 
-  const { email, password, role } = this.form.value;
- 
-  this.httpService
-    .login(email, password)   
-    .subscribe(users => {
-      this.isLoading = false;
- 
-      if (users.length > 0) {
-        const user = users[0];
-        if (user.role === role) {
-          localStorage.setItem('userRole', user.role);
-          localStorage.setItem('userEmail', user.email);
-          localStorage.setItem('username', user.username);
- 
-          // Redirect
+   onSubmit(event: Event) {
+    event.preventDefault();
+    if (this.form.invalid) return;
+
+    this.isLoading = true;
+    this.hasError = false;
+    // this.loginSuccess = false;
+
+    const { email, password, role } = this.form.value;
+
+    // Hardcoded validation for POC
+    setTimeout(() => {
+      const validCredentials = this.roleCredentials[role as keyof typeof this.roleCredentials];
+      
+      if (validCredentials && email === validCredentials.email && password === validCredentials.password) {
+        // Success
+        // this.loginSuccess = true;
+        
+        // Store user data
+        localStorage.setItem('isAuthenticated', 'true');
+        localStorage.setItem('userRole', role);
+        localStorage.setItem('userEmail', email);
+        localStorage.setItem('userName', email.split('@')[0]);
+        localStorage.setItem('access_token', 'mock-jwt-token-for-poc');
+        
+        // Show success message
+        this.toastr?.success(`Welcome back, ${role}!`, 'Login Successful');
+        
+        // Navigate to dashboard
+        setTimeout(() => {
           this.router.navigate(['/dashboard']);
-          // console.log('Login successful:', user);
-        } else {
-          this.hasError = true;
-          this.errorMsg = `Role mismatch. You selected "${role}", but your account is "${user.role}".`;
-        }
+        }, 500);
       } else {
+        // Error
         this.hasError = true;
-        this.errorMsg = 'Invalid credentials';
+        // this.loginSuccess = false;
+        this.errorMsg = 'Invalid credentials. Try demo credentials below.';
       }
-    });
-}
+      
+      this.isLoading = false;
+    }, 1200);
+  }
+ 
+
+//   onSubmit(event: Event) {
+//   event.preventDefault();
+
+//   if (this.form.invalid) return;
+
+//   this.hasError = false;
+//   this.isLoading = true;
+
+//   const { email, password, role } = this.form.value;
+
+//   // Hardcoded demo credentials
+//   const demoUsers = [
+//     {
+//       email: 'analyst@fraudsentinel.ai',
+//       password: 'Sentinel@123',
+//       role: 'RiskAnalyst'
+//     },
+//     {
+//       email: 'investigator@fraudsentinel.ai',
+//       password: 'Sentinel@123',
+//       role: 'FraudInvestigator'
+//     },
+//     {
+//       email: 'compliance@fraudsentinel.ai',
+//       password: 'Sentinel@123',
+//       role: 'ComplianceOfficer'
+//     }
+//   ];
+
+//   setTimeout(() => {
+//     const user = demoUsers.find(
+//       u =>
+//         u.email === email &&
+//         u.password === password &&
+//         u.role === role
+//     );
+
+//     if (user) {
+//       localStorage.setItem('userRole', user.role);
+//       localStorage.setItem('userEmail', user.email);
+
+//       this.router.navigate(['/dashboard']);
+//     } else {
+//       this.hasError = true;
+//       this.errorMsg = 'Invalid demo credentials. Please use provided access details.';
+//     }
+
+//     this.isLoading = false;
+//   }, 1000);
+// }
+
+// onSubmit(event: Event) {
+//   event.preventDefault();
+ 
+//   if (this.isLoading) return;
+ 
+//   this.hasError = false;
+//   this.isLoading = true;
+ 
+//   const { email, password, role } = this.form.value;
+ 
+//   this.httpService
+//     .login(email, password)   
+//     .subscribe(users => {
+//       this.isLoading = false;
+ 
+//       if (users.length > 0) {
+//         const user = users[0];
+//         if (user.role === role) {
+//           localStorage.setItem('userRole', user.role);
+//           localStorage.setItem('userEmail', user.email);
+//           localStorage.setItem('username', user.username);
+ 
+//           // Redirect
+//           this.router.navigate(['/dashboard']);
+//           // console.log('Login successful:', user);
+//         } else {
+//           this.hasError = true;
+//           this.errorMsg = `Role mismatch. You selected "${role}", but your account is "${user.role}".`;
+//         }
+//       } else {
+//         this.hasError = true;
+//         this.errorMsg = 'Invalid credentials';
+//       }
+//     });
+// }
  
   toggleShowPassword() {
     this.showingPassword = !this.showingPassword;
@@ -127,6 +236,20 @@ onSubmit(event: Event) {
     }
   }
  
+    fillDemoCredentials(role: string) {
+    const creds = this.roleCredentials[role as keyof typeof this.roleCredentials];
+    if (creds) {
+      this.form.patchValue({
+        role: role,
+        email: creds.email,
+        password: creds.password
+      });
+      
+      // Optional: Show tooltip or notification
+      this.toastr?.info(`Demo credentials loaded for ${role}`, 'Demo Mode');
+    }
+  }
+
   private saveUsernameAndRolesOnLogin() {
     let accessToken = localStorage.getItem("access_token");
  

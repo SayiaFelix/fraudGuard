@@ -454,6 +454,18 @@ html, body {
   display: block;
 }
 
+.login-container {
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  min-height: 100vh;
+}
+
+.demo-note {
+  font-size: 10px;
+  margin-top: 5px;
+  text-align: center;
+  opacity: 0.8;
+}
+
 .footer-note {
   text-align: center;
   color: #6c757d;
@@ -467,15 +479,14 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 1px;
     
-    &::before {
-      content: "🔒";
-      font-size: 10px;
-    }
+    // &::before {
+    //   content: "🔒";
+    //   font-size: 10px;
+    // }
   }
 }
-
 // --- Responsive styles matching signup ---
 @media (max-width: 850px) {
   .login-content {
@@ -498,6 +509,62 @@ html, body {
     .login-form-container {
       border-radius: 14px;
       padding: 32px 8px 24px 8px;
+    }
+  }
+}
+
+.demo-quick-access {
+  margin: 15px 0;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px dashed #94a3b8;
+  
+  .demo-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 8px;
+  }
+  
+  .demo-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    
+    .demo-role-btn {
+      flex: 1;
+      min-width: 120px;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      
+      span { font-weight: 600; }
+      small { font-size: 9px; opacity: 0.9; }
+      
+      &.analyst {
+        background: #dbeafe;
+        color: #1e40af;
+        &:hover { background: #bfdbfe; transform: translateY(-2px); }
+      }
+      
+      &.investigator {
+        background: #fee2e2;
+        color: #991b1b;
+        &:hover { background: #fecaca; transform: translateY(-2px); }
+      }
+      
+      &.compliance {
+        background: #dcfce7;
+        color: #166534;
+        &:hover { background: #bbf7d0; transform: translateY(-2px); }
+      }
     }
   }
 }

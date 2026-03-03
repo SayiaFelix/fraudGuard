@@ -10,40 +10,40 @@ export const MENU: MenuItem[] = [
   {
     label: 'Inbox',
     icon: 'inbox',
-    link: '/eclectics/user/inbox',
+    // link: '/fraudsentinelAi/user/inbox',
     // roles: ['CIA', 'AuditUnit','Director']
   },
 
   {
     isTitle: true,
-    label: 'AUDIT PROCESS',
+    label: 'FRAUD INTELLIGENCE',
     // roles: ['Auditor', 'CIA', 'AuditUnit','Director']
   },
 
   {
-    label: 'Audit Management',
-    icon: 'calendar', 
-    link: '/eclectics/audit_management/audits',
+    label: 'Fraud Alert',
+    icon: 'alert-triangle', 
+    link: '/fraudsentinelAi/transaction_management/fraud',
     // roles: ['Auditor', 'CIA','Director']
   },
-    {
-    label: 'Fieldwork',
-    icon: 'git-branch',
-    link: '/eclectics/executions/fieldworks',
-    // roles: ['Auditor', 'CIA','Director','External']
-  },
+  //   {
+  //   label: 'Fieldwork',
+  //   icon: 'git-branch',
+  //   link: '/eclectics/executions/fieldworks',
+  //   // roles: ['Auditor', 'CIA','Director','External']
+  // },
   {
-    label: 'Reporting',
-    icon:'bar-chart',
-    link: '/eclectics/analytic/reports',
+    label: 'Risk Analytics',
+    icon:'bar-chart-2',
+    // link: '/fraudsentinelAi/analytic/reports',
     // roles: ['CIA', 'Auditor','Director']
   },
-   {
-    label: 'CAP Monitoring',
-    icon: 'check-circle',
-    link: '/eclectics/compliance/all',
-    // roles: ['AuditUnit', 'CIA','Director']
-  },
+  //  {
+  //   label: 'CAP Monitoring',
+  //   icon: 'check-circle',
+  //   link: '/eclectics/compliance/all',
+  //   // roles: ['AuditUnit', 'CIA','Director']
+  // },
 
    {
     isTitle: true,
@@ -54,24 +54,24 @@ export const MENU: MenuItem[] = [
   {
     label:'User Management',
     icon:'users',
-    link: '/eclectics/user_managements/users',
+    // link: '/fraudsentinelAi/user_managements/users',
     // roles: ['CIA'] 
   },
-  {
-    isTitle: true,
-    label: 'SETTINGS',
-  },
-  {
-    label: 'Settings', 
-    icon: 'settings', 
-    isSettings: true,
-  },
-  {
-    label: 'Help Center',
-    icon: 'help-circle', 
-    link: '#', 
-    isHelpCenter: true,
-  },
+  // {
+  //   isTitle: true,
+  //   label: 'SETTINGS',
+  // },
+  // {
+  //   label: 'Settings', 
+  //   icon: 'settings', 
+  //   isSettings: true,
+  // },
+  // {
+  //   label: 'Help Center',
+  //   icon: 'help-circle', 
+  //   link: '#', 
+  //   isHelpCenter: true,
+  // },
   {
     label: 'Logout',
     icon: 'log-out',

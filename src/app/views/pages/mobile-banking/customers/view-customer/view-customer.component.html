@@ -1,193 +1,446 @@
-<div class="add-training-container container-fluid mt-1">
-  <div class="header mb-2">
-    <h2>Add Training</h2>
-    <p class="text-muted">Add triggers and actions for a scripted chat flow. If an action is not triggered, then the enabled LLM will generate a response.</p>
+<div class="fraud-history-container">
+  <!-- Header Stats -->
+  <div class="stats-row row g-3 mb-4">
+    <div class="col-md-2 col-6">
+      <div class="stat-card bg-light rounded-3 p-3">
+        <small class="text-muted d-block">Total Cases</small>
+        <h3 class="fw-bold mb-0">{{ stats.total }}</h3>
+      </div>
+    </div>
+    <div class="col-md-2 col-6">
+      <div class="stat-card bg-danger bg-opacity-10 rounded-3 p-3">
+        <small class="text-danger d-block">Critical</small>
+        <h3 class="fw-bold text-danger mb-0">{{ stats.critical }}</h3>
+      </div>
+    </div>
+    <div class="col-md-2 col-6">
+      <div class="stat-card bg-warning bg-opacity-10 rounded-3 p-3">
+        <small class="text-warning d-block">High</small>
+        <h3 class="fw-bold text-warning mb-0">{{ stats.high }}</h3>
+      </div>
+    </div>
+    <div class="col-md-2 col-6">
+      <div class="stat-card bg-info bg-opacity-10 rounded-3 p-3">
+        <small class="text-info d-block">Medium</small>
+        <h3 class="fw-bold text-info mb-0">{{ stats.medium }}</h3>
+      </div>
+    </div>
+    <div class="col-md-2 col-6">
+      <div class="stat-card bg-success bg-opacity-10 rounded-3 p-3">
+        <small class="text-success d-block">Low</small>
+        <h3 class="fw-bold text-success mb-0">{{ stats.low }}</h3>
+      </div>
+    </div>
+    <div class="col-md-2 col-6">
+      <div class="stat-card bg-primary bg-opacity-10 rounded-3 p-3">
+        <small class="text-primary d-block">Total Amount</small>
+        <h3 class="fw-bold text-primary mb-0">{{ formatAmount(stats.totalAmount) }}</h3>
+      </div>
+    </div>
   </div>
 
-  <form [formGroup]="trainingForm" (ngSubmit)="submitTraining()" class="mb-3" enctype="multipart/form-data">
-    <div class="row">
-        <div class="fallback-section d-flex align-items-center mb-2">
-            <span class="me-2">Fallback to GPT-4o</span>
-            <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" role="switch" id="fallbackSwitch" checked>
-            </div>
-        </div>
-  
-        <div class="info-banner alert alert-info d-flex align-items-start mb-3">
-          <img src="assets/images/Icon2.png" alt="Info Icon" class="me-2" width="20">
-          <p class="mb-0">Enable this option for enhanced natural language understanding and generation capabilities within your AI agent. Enabling the large language model may increase resource usage and response time.</p>
-        </div>
-
-      <!-- Left Panel - Prompt -->
-      <div class="col-md-7">
-        <div class="card mb-1">
-           
-          <div class="card-header">
-            <h5 style="font-family: Roboto;font-weight: 500;font-style: Medium;font-size: 17px;" 
-               class="mb-0">Personalisation Prompt</h5>
-          </div>
-          <div class="card-body">
-            <textarea 
-              formControlName="prompt"
-              placeholder="Enter Personalised Prompt ....." 
-              class="form-control" 
-              rows="10"
-              required
-            ></textarea>
-          </div>
-        </div>
-      </div>
-      
-      <div class="col-md-5">
-        <div class="card">
-          <div class="card-header">
-            <h5 style="font-family: Roboto;font-weight: 500;font-style: Medium;font-size: 17px;" 
-             class="mb-0">Import Training Data</h5>
-          </div>
-          
-          <div class="card-body">
-        
-              <!-- File Upload -->
-              <div class="mb-2">
-                <label class="btn btn-sm import-option w-100 text-start">
-                  <div class="icon">
-                     <i class="feather icon-upload"></i>
-                  </div>
-                  <span class="ms-2">Upload File</span>
-                  <input 
-                    type="file" 
-                    class="d-none" 
-                    (change)="onFileChange($event)"
-                    accept=".pdf,.doc,.docx,.txt"
-                    #fileInput
-                  >
-                </label>
-                <small *ngIf="uploadedFile" class="text-muted d-block mt-1">
-                  {{ uploadedFile.name }}
-                  <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeFile()">
-                    <i class="feather icon-trash-2"></i>
-                  </button>
-                </small>
-              </div>
-              
-              <!-- URL Input -->
-              <div class="mb-2" *ngIf="showUrlInput">
-                <div class="input-group">
-                  <input 
-                    type="url" 
-                    class="form-control" 
-                    formControlName="url"
-                    placeholder="https://www.example.com/article"
-                  >
-                  <button class="btn btn-outline-danger" type="button" (click)="cancelUrlInput()">
-                    <i class="feather icon-x"></i>
-                  </button>
-                </div>
-              </div>
-
-              <!-- URL Button -->
-              <button *ngIf="!showUrlInput" type="button" class="btn btn-sm import-option w-100 text-start mb-2" (click)="toggleUrlInput()">
-                <div class="icon">
-                    <i class="feather icon-link"></i>
-                </div>
-                <span class="ms-2">Add URL</span>
-              </button>
-              
-              <!-- Code Snippet Input -->
-              <div class="mb-2" *ngIf="showCodeInput">
-                <div class="input-group">
-                  <textarea
-                    class="form-control"
-                    formControlName="codeSnippet"
-                    placeholder="Paste your code snippet here..."
-                    rows="3"
-                  ></textarea>
-                  <button class="btn btn-outline-danger" type="button" (click)="cancelCodeInput()">
-                    <i class="feather icon-x"></i>
-                  </button>
-                </div>
-              </div>
-              
-              <button *ngIf="!showCodeInput" type="button" class="btn btn-sm import-option w-100 text-start" (click)="toggleCodeInput()">
-               <div class="icon">
-                 <i class="feather icon-code"></i>
-               </div>                
-                <span class="ms-2">Paste Code Snippet</span>
-              </button>
-              <hr>
-          </div>
+  <!-- Filters Card -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body p-4">
+      <div class="row g-3">
      
-          <div style="margin-top:-20px; padding-right: 20px;" class="text-end mb-3">
-            <button 
-              type="submit" 
-              class="btn btn-primary btn-test" 
-              [disabled]="trainingForm.invalid"
-            >
-              Train
+
+        <!-- Risk Filter -->
+        <div class="col-md-2">
+          <label class="fw-medium d-block mb-2">Risk Level</label>
+          <select class="form-select" [(ngModel)]="riskFilter" (change)="applyFilters()">
+            <option value="all">All Risks</option>
+            <option value="critical">Critical</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+        </div>
+
+        <!-- Status Filter -->
+        <div class="col-md-2">
+          <label class="fw-medium d-block mb-2">Status</label>
+          <select class="form-select" [(ngModel)]="statusFilter" (change)="applyFilters()">
+            <option value="all">All Status</option>
+            <option value="open">Open</option>
+            <option value="investigating">Investigating</option>
+            <option value="resolved">Resolved</option>
+            <option value="falsepositive">False Positive</option>
+          </select>
+        </div>
+
+
+        
+        <!-- Channel Filter -->
+        <div class="col-md-2">
+          <label class="fw-medium d-block mb-2">Channel</label>
+          <select class="form-select" [(ngModel)]="channelFilter" (change)="applyFilters()">
+            <option value="all">All Channels</option>
+            <option value="mobile">Mobile</option>
+            <option value="web">Web</option>
+            <option value="atm">ATM</option>
+            <option value="agent">Agent</option>
+          </select>
+        </div>
+
+           <!-- Search -->
+        <div class="col-md-3">
+          <label class="fw-medium d-block mb-2">Search</label>
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="ID, Customer, Location..."
+                   [(ngModel)]="searchTerm" (keyup.enter)="applyFilters()">
+            <button class="btn btn-outline-primary" type="button" (click)="applyFilters()">
+              <i class="fas fa-search"></i>
             </button>
           </div>
         </div>
-      </div>
-    </div>
-  </form>
 
-  <!-- Existing Training Table -->
-  <div class="existing-training">
-    <div class="card">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="card-title mb-0">Existing Training</h5>
-        <div class="search-box">
-          <input type="text" class="form-control" placeholder="Search">
+        <!-- Date Range -->
+        <div class="col-md-3">
+          <label class="fw-medium d-block mb-2">Date Range</label>
+          <select class="form-select" [(ngModel)]="dateRange" (change)="applyFilters()">
+            <option value="today">Today</option>
+            <option value="week">Last 7 Days</option>
+            <option value="month">Last 30 Days</option>
+            <option value="all">All Time</option>
+          </select>
         </div>
       </div>
-      <div class="card-body p-0">
-        <div class="table-responsive">
-          <table class="table table-hover mb-0">
-            <thead>
-              <tr>
-                <th><input type="checkbox" class="form-check-input"></th>
-                <th>Name</th>
-                <th>Last Updated</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <!-- THIS IS THE UPDATED TABLE BODY -->
-            <tbody>
-              <tr *ngIf="isTrainingLoading">
-                <td colspan="5" class="text-center py-4">
-                  <div class="spinner-border spinner-border-sm" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                  </div>
-                  <span class="ms-2">Loading training data...</span>
-                </td>
-              </tr>
-              <tr *ngIf="!isTrainingLoading && existingTraining.length === 0">
-                <td colspan="5" class="text-center py-4 text-muted">
-                  No existing training found for this chatbot.
-                </td>
-              </tr>
-              <tr *ngFor="let item of existingTraining">
-                <td><input type="checkbox" class="form-check-input"></td>
-                <td>{{ item.name }}</td>
-                <td>{{ item.last_updated ? (item.last_updated | date:'medium') : 'N/A' }}</td>
-                <td>
-                  <span class="badge" [ngClass]="{'bg-success': item.status === 'success', 'bg-warning': item.status !== 'success'}">
-                    {{ item.status }}
-                  </span>
-                </td>
-                <td>
-                  <div class="d-flex align-items-center">
-                    <div class="form-check form-switch me-2">
-                      <input class="form-check-input" type="checkbox" role="switch" checked>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+
+      <!-- Advanced Filters Row -->
+      <div class="row mt-3">
+        <div class="col-md-6">
+          <div class="d-flex gap-2">
+            <input type="date" class="form-control" [(ngModel)]="startDate" placeholder="Start Date">
+            <input type="date" class="form-control" [(ngModel)]="endDate" placeholder="End Date">
+            <button class="btn btn-outline-secondary" (click)="applyFilters()">Apply</button>
+          </div>
+        </div>
+        <div class="col-md-6 text-end">
+          <button class="btn btn-outline-primary me-2" (click)="exportData()">
+            <i class="fas fa-download me-1"></i> Export
+          </button>
+          <button class="btn btn-outline-secondary" (click)="clearFilters()">
+            <i class="fas fa-times me-1"></i> Clear Filters
+          </button>
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Status Summary Cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="status-card bg-danger bg-opacity-10 rounded-3 p-3">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <small class="text-danger d-block">Open Cases</small>
+            <h4 class="fw-bold text-danger mb-0">{{ stats.open }}</h4>
+          </div>
+          <i class="fas fa-exclamation-circle fa-2x text-danger"></i>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="status-card bg-warning bg-opacity-10 rounded-3 p-3">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <small class="text-warning d-block">Investigating</small>
+            <h4 class="fw-bold text-warning mb-0">{{ stats.investigating }}</h4>
+          </div>
+          <i class="fas fa-search fa-2x text-warning"></i>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="status-card bg-success bg-opacity-10 rounded-3 p-3">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <small class="text-success d-block">Resolved</small>
+            <h4 class="fw-bold text-success mb-0">{{ stats.resolved }}</h4>
+          </div>
+          <i class="fas fa-check-circle fa-2x text-success"></i>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="status-card bg-secondary bg-opacity-10 rounded-3 p-3">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <small class="text-secondary d-block">False Positives</small>
+            <h4 class="fw-bold text-secondary mb-0">{{ stats.falsePositive }}</h4>
+          </div>
+          <i class="fas fa-times-circle fa-2x text-secondary"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="card shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="bg-light">
+            <tr>
+              <th class="ps-4">Transaction ID</th>
+              <th>Date & Time</th>
+              <th>Customer</th>
+              <th>Amount</th>
+              <th>Risk</th>
+              <th>Channel</th>
+              <th>Location</th>
+              <th>Status</th>
+              <th>Flagged By</th>
+              <th class="pe-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let case_ of filteredCases | slice: (currentPage-1)*pageSize : currentPage*pageSize">
+              <td class="ps-4 fw-medium">{{ case_.transactionId }}</td>
+              <td>{{ formatDate(case_.timestamp) }}</td>
+              <td>
+                <div>{{ case_.customerName }}</div>
+                <small class="text-muted">{{ case_.customerId }}</small>
+              </td>
+              <td class="fw-bold">{{ formatAmount(case_.amount) }}</td>
+              <td>
+                <span class="badge" [ngClass]="getRiskBadgeClass(case_.riskCategory)">
+                  {{ case_.riskCategory }}
+                </span>
+                <small class="d-block text-muted">{{ case_.riskScore }}/10</small>
+              </td>
+              <td>
+                <i [class]="getChannelIcon(case_.channel) + ' me-1'"></i>
+                {{ case_.channel }}
+              </td>
+              <td class="text-muted">{{ case_.location }}</td>
+              <td>
+                <span class="badge" [ngClass]="getStatusBadgeClass(case_.status)">
+                  {{ case_.status }}
+                </span>
+              </td>
+              <td>
+                <i [class]="getFlaggedByIcon(case_.flaggedBy) + ' me-1'"></i>
+                {{ case_.flaggedBy }}
+              </td>
+              <td class="pe-4">
+                <button class="btn btn-sm btn-link text-primary p-0 me-2" 
+                        (click)="viewCaseDetails(case_)"
+                        title="View Details">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-link text-warning p-0 me-2" 
+                        (click)="investigateCase(case_)"
+                        title="Investigate">
+                  <i class="fas fa-search"></i>
+                </button>
+                <button class="btn btn-sm btn-link text-info p-0" 
+                        (click)="viewTransaction(case_)"
+                        title="View Transaction">
+                  <i class="fas fa-exchange-alt"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="filteredCases.length === 0">
+              <td colspan="10" class="text-center p-5">
+                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                <h5>No Fraud Cases Found</h5>
+                <p class="text-muted">Try adjusting your filters</p>
+                <button class="btn btn-primary" (click)="clearFilters()">Clear Filters</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+<div class="card-footer bg-transparent border-0">
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+
+    <div class="d-flex align-items-center gap-2">
+      <select class="form-select form-select-sm border-0 bg-light" style="width: 70px;" [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+        <option [value]="5">5</option>
+        <option [value]="10">10</option>
+        <option [value]="20">20</option>
+        <option [value]="50">50</option>
+        <option [value]="100">100</option>
+      </select>
+      <span class="text-muted small">entries per page</span>
+      <span class="badge bg-light text-dark ms-2">
+        {{ filteredCases.length > 0 ? (currentPage-1)*pageSize + 1 : 0 }} 
+        - {{ (currentPage*pageSize) > filteredCases.length ? filteredCases.length : currentPage*pageSize }} 
+        of {{ filteredCases.length }}
+      </span>
+    </div>
+
+      <div>
+        <ngb-pagination
+          [(page)]="currentPage"
+          [pageSize]="pageSize"
+          [collectionSize]="filteredCases.length"
+          (pageChange)="onPageChange($event)"
+          [maxSize]="3"
+          [boundaryLinks]="true"
+          size="sm">
+        </ngb-pagination>
+      </div>
+
+  </div>
+</div>
+
+  </div>
+</div>
+
+<!-- Case Details Modal -->
+<div class="modal-overlay" *ngIf="showDetailsModal" (click)="closeModal()">
+  <div class="modal-content modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-header" [ngClass]="getRiskBadgeClass(selectedCase?.riskCategory || '')">
+      <h3 class="modal-title">
+        <i class="fas fa-file-alt me-2"></i>
+        Case Details: {{ selectedCase?.transactionId }}
+      </h3>
+      <button type="button" class="btn-close btn-close-white" (click)="closeModal()"></button>
+    </div>
+    
+    <div class="modal-body" *ngIf="selectedCase">
+
+      <!-- Status Banner -->
+      <div class="status-banner p-3 rounded-3 mb-4">
+        <div class="d-flex align-items-center">
+          <i class="fas fa-info-circle fa-2x me-3" [ngClass]="{
+            'text-danger': selectedCase.status === 'Open',
+            'text-warning': selectedCase.status === 'Investigating',
+            'text-success': selectedCase.status === 'Resolved',
+            'text-secondary': selectedCase.status === 'False Positive'
+          }"></i>
+          <div>
+            <h4 class="fw-bold mb-0 d-flex align-items-center">
+              Case Status: 
+              <span class="badge fs-6 py-2 px-3 ms-3 rounded-pill" 
+                    [ngClass]="{
+                      'bg-danger': selectedCase.status === 'Open',
+                      'bg-warning text-dark': selectedCase.status === 'Investigating',
+                      'bg-success': selectedCase.status === 'Resolved',
+                      'bg-secondary': selectedCase.status === 'False Positive'
+                    }">
+                {{ selectedCase.status }}
+              </span>
+            </h4>
+            <p class="mb-0 small mt-2" *ngIf="selectedCase.resolution">
+              <i class="fas fa-check-circle me-1 text-success"></i>
+              Resolved by {{ selectedCase.resolution.resolvedBy }} 
+              on {{ formatDate(selectedCase.resolution.resolvedAt!) }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Transaction Details -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-4">
+          <div class="detail-box p-3 bg-light rounded-3">
+            <small class="text-muted d-block">Amount</small>
+            <h4 class="fw-bold mb-0">{{ formatAmount(selectedCase.amount) }}</h4>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="detail-box p-3 bg-light rounded-3">
+            <small class="text-muted d-block">Risk Score</small>
+            <h4 class="fw-bold mb-0" [style.color]="selectedCase.riskScore >= 8 ? '#f72585' : 
+                                                        selectedCase.riskScore >= 6 ? '#ff9e00' : 
+                                                        selectedCase.riskScore >= 4 ? '#4cc9f0' : '#06d6a0'">
+              {{ selectedCase.riskScore }}/10
+            </h4>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="detail-box p-3 bg-light rounded-3">
+            <small class="text-muted d-block">Model Agreement</small>
+            <h4 class="fw-bold mb-0">{{ selectedCase.modelAgreement.flagged }}/{{ selectedCase.modelAgreement.total }}</h4>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Explanation -->
+      <div class="ai-explanation p-3 rounded-3 mb-4">
+        <div class="d-flex">
+          <i class="fas fa-robot fa-2x me-3 text-primary"></i>
+          <div>
+            <h4 class="fw-bold mb-2">AI Analysis</h4>
+            <p class="mb-0">{{ selectedCase.aiExplanation }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customer & Device Info -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-6">
+          <h4 class="fw-bold mb-2">Customer Information</h4>
+          <div class="info-grid bg-light p-3 rounded-3">
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Name:</span>
+              <span class="fw-medium">{{ selectedCase.customerName }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">ID:</span>
+              <span class="fw-medium">{{ selectedCase.customerId }}</span>
+            </div>
+            <div class="d-flex justify-content-between">
+              <span class="text-muted">Location:</span>
+              <span class="fw-medium">{{ selectedCase.location }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <h4 class="fw-bold mb-2">Device & Network</h4>
+          <div class="info-grid bg-light p-3 rounded-3">
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Device ID:</span>
+              <span class="fw-medium font-monospace">{{ selectedCase.deviceId }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">IP Address:</span>
+              <span class="fw-medium">{{ selectedCase.ipAddress }}</span>
+            </div>
+            <div class="d-flex justify-content-between">
+              <span class="text-muted">Channel:</span>
+              <span class="fw-medium">{{ selectedCase.channel }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="resolution-notes p-3 rounded-3 mb-4" *ngIf="selectedCase.resolution">
+        <h4 class="fw-bold mb-2">
+          <i class="fas fa-clipboard-check me-2 text-success"></i>
+          Resolution Notes
+        </h4>
+        <p class="mb-2">{{ selectedCase.resolution.notes }}</p>
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="badge" [ngClass]="getResolutionActionClass(selectedCase.resolution.action)">
+            Action: {{ selectedCase.resolution.action }}
+          </span>
+          <small class="text-muted">
+            {{ formatDate(selectedCase.resolution.resolvedAt!) }}
+          </small>
+        </div>
+      </div>
+    </div>
+      <div class="d-flex justify-content-end">
+          <div class="modal-footer gap-2 d-flex justify-content-between">
+            <button class="btn btn-outline-secondary" (click)="viewTransaction(selectedCase!)">
+              <i class="fas fa-exchange-alt me-1"></i> View Transaction
+            </button>
+            <button class="btn btn-outline-primary" (click)="investigateCase(selectedCase!)">
+              <i class="fas fa-search me-1"></i> Investigate
+            </button>
+          
+            <!-- <button class="btn btn-outline-danger" (click)="closeModal()">
+              <i class="fas fa-times me-1"></i> Close
+            </button> -->
+          </div>
+      </div>
+
   </div>
 </div>

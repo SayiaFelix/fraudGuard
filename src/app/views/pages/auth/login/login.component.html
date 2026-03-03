@@ -3,29 +3,46 @@
     <!-- Logo Section -->
     <div class="logo-section">
       <div class="logo-container">
-        <!-- UPDATED: Wrapped logo in a link -->
-        <a href="/" class="clickable-logo-link">
-          <img src="assets/images/Audit.png" alt="Logo" class="logo-icon">
-        </a>
+          <img src="assets/images/imageFraud.png" alt="Logo" class="logo-icon">
       </div>
-      <h2 class="main-title">Audit Management System (AMS)</h2>
-      <p class="subtitle">A secure, workflow-based system for the Government of Sierra Leone to enhance audit planning, execution and compliance</p>
+      <h2 class="main-title">FraudSentinel AI</h2>
+      <p class="subtitle">
+      Agentic Generative AI for Real-Time Fraud Intelligence in Digital Finance
+      </p>
+
+          <div class="demo-quick-access">
+            <p class="demo-label"> Quick Demo Access</p>
+            <div class="demo-buttons">
+              <button type="button" class="demo-role-btn analyst" (click)="fillDemoCredentials('RiskAnalyst')">
+                <span>Analyst</span>
+                <small>analyst@fraudsentinel.ai</small>
+              </button>
+              <button type="button" class="demo-role-btn investigator" (click)="fillDemoCredentials('FraudInvestigator')">
+                <span> Investigator</span>
+                <small>investigator@fraudsentinel.ai</small>
+              </button>
+              <button type="button" class="demo-role-btn compliance" (click)="fillDemoCredentials('ComplianceOfficer')">
+                <span> Compliance</span>
+                <small>compliance@fraudsentinel.ai</small>
+              </button>
+            </div>
+          </div>
+
     </div>
  
-    <!-- Login Form Section -->
     <div class="form-section">
       <div class="login-form-container">
         <div class="form-header">
-          <!-- Add Eclectics Logo -->
+   
           <div class="logo-header">
-            <!-- UPDATED: Wrapped logo in a link -->
-            <a href="/" class="clickable-logo-link">
-              <img class="eclectics-logo" src="assets/images/AU.png" width="350" height="40" alt="eclecticsLogo" />
-            </a>
+              <img class="eclectics-logo" src="assets/images/image1.png" width="400" height="70" alt="Logo" />
+      
           </div>
-         
-          <h3 class="welcome-title">Welcome</h3>
-          <p class="welcome-subtitle">Sign in to account or create a new one</p>
+         <h3 class="welcome-title">Fraud Intelligence Portal</h3>
+          <p class="welcome-subtitle">
+          Secure access for risk analysts and fraud investigators
+          </p>
+     
           <div class="tab-buttons">
             <button type="button" class="tab-button active">Sign In</button>
             <!-- <button type="button" class="tab-button" (click)="navigateToSignUp()">Sign Up</button> -->
@@ -40,9 +57,9 @@
                 id="role"
                 formControlName="role"
                 class="form-input">
-                 <option value="CIA">Chief Internal Auditor (CIA)</option>
-                 <option value="Auditor">Internal Auditor (IA)</option>
-                <option value="AuditUnit">Audit Unit (AU)</option>
+                <option value="RiskAnalyst">Risk Analyst</option>
+                <option value="FraudInvestigator">Fraud Investigator</option>
+                <option value="ComplianceOfficer">Compliance Officer</option>
               </select>
             </div>
  
@@ -105,12 +122,15 @@
             <span *ngIf="!isLoading">SIGN IN</span>
             <span *ngIf="isLoading">Signing in...</span>
           </button>
- 
+           <p class="text-muted demo-note">
+              For demonstration purposes, authentication is mocked. 
+              In production, this integrates with OAuth or core banking IAM.
+            </p>
           <!-- Success Alert -->
           <div class="success-alert" *ngIf="loginResponse$ | async">
             <strong>Login Successfully!</strong>
           </div>
- 
+            
           <!-- Error Alert -->
           <div class="error-alert" *ngIf="hasError">
             <strong>Login Error!</strong> {{errorMsg}}
@@ -123,7 +143,7 @@
         </form>
  
         <div class="footer-note">
-          <p>Your data is protected with system-level encryption and security measures</p>
+          <p> <span class="fw-bold">FraudSentinel AI</span> uses adaptive ML models and explainable AI to secure digital transactions.</p>
         </div>
       </div>
     </div>
