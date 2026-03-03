@@ -3,118 +3,281 @@
   <div class="col content-column">
     <div class="container-fluid">
       <div class="d-flex align-items-center justify-content-between flex-wrap">
-         <h2 class="mb-0 me-3">Audit Management</h2>
-       </div>
-
-       <div class="ai-tab-buttons mt-2">
-          <a class="ai-tab-button"
-            [routerLink]="['scoping']"
-            routerLinkActive="active-tab"
-            [routerLinkActiveOptions]="{ exact: true }">
-            <i class="mdi mdi-file-document"></i> Advanced Scoping
-          </a>
-
-          <a class="ai-tab-button"
-            [routerLink]="['planning']"
-            routerLinkActive="active-tab"
-            [routerLinkActiveOptions]="{ exact: false }">
-            <i class="mdi mdi-plus"></i> Planning
-          </a>
-
-          <a class="ai-tab-button"
-            [routerLink]="shouldEnableObservations() ? ['observation'] : null"
-            routerLinkActive="active-tab"
-            [routerLinkActiveOptions]="{ exact: false }"
-            [class.disabled]="!shouldEnableObservations()"
-            (click)="!shouldEnableObservations() && $event.preventDefault()">
-            <i class="mdi mdi-eye"></i> Observations
-          </a>
-          </div>
-        <div class="mt-4">
-          <router-outlet></router-outlet>
+        <div>
+          <h2 class="mb-0 me-3 fw-bold">
+          
+            Fraud Management</h2>
+            <p class="text-muted small mb-0">
+              Agentic Generative AI for Real-Time Fraud Intelligence  
+              <span class="ms-2 badge bg-dark">Powered by LLM + ML Ensemble</span>
+            </p>
         </div>
+        
+        
+        <div class="status-badge">
+         <span class="badge bg-success d-flex align-items-center">
+            <span class="me-2 position-relative">
+              <span class="pulse-dot"></span>
+            </span>
+            <i class="fas fa-circle me-1" style="font-size: 8px;"></i>
+            AI Model Active
+          </span>
+        </div>
+      </div>
+
+      <!-- Fraud Intelligence Tabs -->
+      <div class="fraud-tab-buttons mt-3">
+        <a class="fraud-tab-button"
+          [routerLink]="['live-feed']"
+          routerLinkActive="active-tab">
+          <i class="fas fa-bolt me-2" style="color: #ff9e00;"></i>
+          Live Transaction Feed
+        </a>
+
+        <a class="fraud-tab-button"
+          [routerLink]="['risk-analyzer']"
+          routerLinkActive="active-tab">
+          <i class="fas fa-microchip me-2" style="color: #4cc9f0;"></i>
+          AI Risk Analyzer
+        </a>
+
+        <a class="fraud-tab-button"
+          [routerLink]="['investigation-graph']"
+          routerLinkActive="active-tab"
+          [class.disabled]="!canInvestigate()"
+          (click)="!canInvestigate() && $event.preventDefault()">
+          <i class="fas fa-project-diagram me-2" style="color: #06d6a0;"></i>
+          Investigation Graph
+          <span *ngIf="pendingInvestigations > 0" class="alert-badge ms-2">{{ pendingInvestigations }}</span>
+        </a>
+
+        <a class="fraud-tab-button"
+          [routerLink]="['ai-insights']"
+          routerLinkActive="active-tab">
+          <i class="fas fa-brain me-2 text-primary"></i>
+          AI Insights
+        </a>
+
+        <a class="fraud-tab-button"
+          [routerLink]="['history']"
+          routerLinkActive="active-tab">
+          <i class="fas fa-history me-2 text-secondary"></i>
+          Fraud History
+        </a>
+
+      </div>
+
+      <div class="mt-4">
+        <router-outlet></router-outlet>
+      </div>
     </div>
   </div>
 
-   <div class="conversation-panel d-flex flex-column" [ngClass]="{ 'collapsed': isCollapsed }" style="height: 100vh;">
-      <div class="panel-header d-flex align-items-center justify-content-start p-2"
-          (click)="toggleConversationPanel()" style="cursor: pointer;">
-        <i class="mdi me-2" [ngClass]="{ 'mdi-chevron-left': isCollapsed, 'mdi-chevron-right': !isCollapsed }"></i>
-        <h2 *ngIf="!isCollapsed" class="mb-0">Audit Summary</h2>
-      </div>
 
-      <div *ngIf="!isCollapsed" class="panel-body p-3 d-flex flex-column flex-grow-1 overflow-auto">
-        <!-- Mini Calendar -->
-        <div class="calendar-card card shadow-sm mb-2">
-          <div class="card-header bg-light border-0">
-            <h3 class="mb-0 fw-bold text-dark">
-              <i class="mdi mdi-calendar-month-outline me-1 text-primary"></i> Audit Calendar
-            </h3>
-          </div>
-          <div class="card-body p-2">
-            <ngb-datepicker [(ngModel)]="viewDate" [dayTemplate]="t" outsideDays="hidden"></ngb-datepicker>
-
-          <ng-template #t let-date="date" let-currentMonth="currentMonth">
-            <span class="custom-day"
-                  [class.text-muted]="!currentMonth"
-                  [class.audit-start-day]="isAuditStartDay(date).length > 0"
-                  [class.audit-end-day]="isAuditEndDay(date).length > 0"
-                  [ngbTooltip]="getAuditTooltip(date)">
-              {{ date.day }}
-            </span>
-          </ng-template>
-          </div>
-        </div>
-
-        <!-- Upcoming Audits -->
-        <div class="card shadow-sm mb-2">
-          <div class="card-header bg-light border-0">
-            <h3 class="mb-0 fw-bold text-dark">
-              <i class="mdi mdi-file-document-outline me-1 text-info"></i> Upcoming Audits
-            </h3>
-          </div>
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item d-flex align-items-center" *ngFor="let audit of upcomingAudits">
-              <i class="mdi mdi-office-building me-2 text-secondary"></i>
-              <span>{{ audit.title }} ({{ audit.department }})</span>
-              <span class="ms-auto text-muted small">{{ audit.startDate | date:'MMM d, y' }}</span>
-            </li>
-            <li *ngIf="upcomingAudits.length === 0" class="list-group-item text-muted">No upcoming audits.</li>
-          </ul>
-        </div>
-
-        <!-- Risk Levels -->
-        <div class="card shadow-sm mb-2">
-          <div class="card-body">
-            <h3 class="fw-bold text-dark mb-2">
-              <i class="mdi mdi-alert-octagon-outline me-1 text-danger"></i> Risk Levels
-            </h3>
-            <div class="d-flex justify-content-between gap-1">
-              <span class="badge bg-dark rounded-pill px-2 py-2 small">Critical: {{ riskStats.critical }}</span>
-              <span class="badge bg-danger rounded-pill px-2 py-2 small">High: {{ riskStats.high }}</span>
-              <span class="badge bg-warning rounded-pill px-2 py-2 small">Medium: {{ riskStats.medium }}</span>
-              <span class="badge bg-success rounded-pill px-2 py-2 small">Low: {{ riskStats.low }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Compliance -->
-        <div class="card shadow-sm">
-          <div class="card-body">
-            <h3 class="fw-bold text-dark mb-2">
-              <i class="mdi mdi-check-decagram-outline me-1 text-info"></i> Compliance Status
-            </h3>
-            <div class="progress mb-2" style="height: 10px;">
-              <div class="progress-bar bg-success" role="progressbar"
-                  [style.width.%]="complianceStats.completed / (complianceStats.completed + complianceStats.pending) * 100">
-              </div>
-            </div>
-            <small class="text-muted">
-              Completed: {{ complianceStats.completed }} |
-              Pending: {{ complianceStats.pending }}
-            </small>
-          </div>
-        </div>
-      </div>
+  <div class="intelligence-panel d-flex flex-column"   
+      *ngIf="showIntelligencePanel"
+      [ngClass]="{ 'collapsed': isCollapsed }" 
+      style="height: 100vh;">
+       
+  <div class="panel-header d-flex align-items-center justify-content-between p-3 border-radius-top"
+       (click)="toggleIntelligencePanel()" 
+       style="cursor: pointer; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    
+    <div class="d-flex align-items-center">
+      <i class="mdi me-2 text-white" 
+         [ngClass]="{ 'mdi-chevron-left': isCollapsed, 'mdi-chevron-right': !isCollapsed }"
+         [attr.title]="isCollapsed ? 'Click to expand panel' : 'Click to collapse panel'"></i>
+      
+      <h4 *ngIf="!isCollapsed" class="mb-0 text-white fw-bold">
+        <i class="fas fa-brain me-2"></i>AI Intelligence
+      </h4>
+     
+      <h4 *ngIf="isCollapsed" class="mb-0 text-white fw-bold">
+        <i class="fas fa-brain" [attr.title]="'Click to expand panel'"></i>
+      </h4>
     </div>
+    <span *ngIf="!isCollapsed" class="badge bg-warning text-dark">Live</span>
+  </div>
+  
+     <div *ngIf="!isCollapsed" class="panel-body p-3 d-flex flex-column flex-grow-1 overflow-auto">
+      <div class="risk-meter-card card shadow-sm mb-3">
+        <div class="card-body">
+          <h4 class="fw-bold text-dark mb-3">
+            <i class="fas fa-thermometer-half me-2 text-danger"></i>
+            Current System Risk
+          </h4>
+          <hr>
+          <div class="risk-meter">
+            <div class="risk-value"
+                [style.width.%]="currentRiskLevel"
+                [ngClass]="{
+                  'bg-success': currentRiskLevel < 40,
+                  'bg-warning': currentRiskLevel >= 40 && currentRiskLevel < 70,
+                  'bg-danger': currentRiskLevel >= 70
+                }">
+              <span class="risk-label">{{ currentRiskLevel }}% Risk</span>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between mt-2 small">
+            <span class="text-success">Low</span>
+            <span class="text-info">Medium</span>
+            <span class="text-warning">High</span>
+            <span class="text-danger">Critical</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mb-3">
+        <div class="card-header bg-transparent border-0">
+          <h4 class="fw-bold mb-0">
+            <i class="fas fa-exclamation-triangle me-2 text-warning"></i>
+            Recent AI Detections
+          </h4>
+        </div>
+        <hr>
+        <div class="list-group list-group-flush">
+          <div class="list-group-item" *ngFor="let alert of recentAIDetections">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <span class="badge" [ngClass]="{
+                  'bg-danger': alert.severity === 'Critical',
+                  'bg-warning': alert.severity === 'High',
+                  'bg-info': alert.severity === 'Medium'
+                }">{{ alert.severity }}</span>
+                <small class="d-block text-muted mt-1">{{ alert.message }}</small>
+              </div>
+              <small class="text-muted">{{ alert.time }}</small>
+            </div>
+          </div>
+          <div *ngIf="recentAIDetections.length === 0" class="list-group-item text-muted">
+            No recent detections
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mb-3">
+        <div class="card-body">
+          <h4 class="fw-bold text-dark mb-3">
+            <i class="fas fa-chart-line me-2 text-primary"></i>
+            Model Performance
+          </h4>
+          <hr>
+          <div class="performance-item mb-2">
+            <div class="d-flex justify-content-between small">
+              <span>Accuracy</span>
+              <span class="fw-bold">98.5%</span>
+            </div>
+            <div class="progress" style="height: 6px;">
+              <div class="progress-bar bg-success" style="width: 98.5%"></div>
+            </div>
+          </div>
+
+          <div class="performance-item mb-2">
+            <div class="d-flex justify-content-between small">
+              <span>Precision</span>
+              <span class="fw-bold">94.2%</span>
+            </div>
+            <div class="progress" style="height: 6px;">
+              <div class="progress-bar bg-primary" style="width: 94.2%"></div>
+            </div>
+          </div>
+
+          <div class="performance-item mb-2">
+            <div class="d-flex justify-content-between small">
+              <span>Recall</span>
+              <span class="fw-bold">92.7%</span>
+            </div>
+            <div class="progress" style="height: 6px;">
+              <div class="progress-bar bg-info" style="width: 92.7%"></div>
+            </div>
+          </div>
+
+          <div class="performance-item">
+            <div class="d-flex justify-content-between small">
+              <span>F1 Score</span>
+              <span class="fw-bold">93.4%</span>
+            </div>
+            <div class="progress" style="height: 6px;">
+              <div class="progress-bar bg-warning" style="width: 93.4%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      
+      <div class="card shadow-sm mb-3">
+        <div class="card-body">
+          <h4 class="fw-bold text-dark mb-3">
+            <i class="fas fa-chart-pie me-2 text-info"></i>
+            Current Risk Distribution
+          </h4>
+          <hr>
+          <div class="risk-distribution">
+            <div class="d-flex justify-content-between mb-1">
+              <span>Critical</span>
+              <span class="fw-bold text-danger">{{ riskDistribution.critical }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-1">
+              <span>High</span>
+              <span class="fw-bold text-warning">{{ riskDistribution.high }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-1">
+              <span>Medium</span>
+              <span class="fw-bold text-info">{{ riskDistribution.medium }}</span>
+            </div>
+            <div class="d-flex justify-content-between">
+              <span>Low</span>
+              <span class="fw-bold text-success">{{ riskDistribution.low }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h4 class="fw-bold text-dark mb-3">
+            <i class="fas fa-bolt me-2 text-warning"></i>
+            Quick Actions
+          </h4>
+          <hr>
+          <div class="d-grid gap-2">
+            <button class="btn btn-sm btn-outline-primary text-start" (click)="runModelRetraining()">
+              <i class="fas fa-sync-alt me-2"></i> Retrain Models
+            </button>
+            <button class="btn btn-sm btn-outline-success text-start" (click)="exportFraudReport()">
+              <i class="fas fa-file-pdf me-2"></i> Export Fraud Report
+            </button>
+            <button class="btn btn-sm btn-outline-danger text-start" (click)="viewAlerts()">
+              <i class="fas fa-bell me-2"></i> View All Alerts
+              <span class="badge bg-danger ms-2">{{ totalAlerts }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="system-status mt-3 p-2 bg-light rounded">
+        <div class="d-flex justify-content-between small">
+          <span><i class="fas fa-database me-1"></i> 158k txns</span>
+          <span><i class="fas fa-clock me-1"></i> 187ms avg</span>
+          <span><i class="fas fa-shield-alt me-1 text-success"></i> Secure</span>
+        </div>
+      </div>
+
+      <div class="mt-1 text-center">
+  <span class="badge"
+        [ngClass]="{
+          'bg-success': currentRiskLevel < 40,
+          'bg-warning': currentRiskLevel >= 40 && currentRiskLevel < 70,
+          'bg-danger': currentRiskLevel >= 70
+        }">
+    Threat Level: 
+    {{
+      currentRiskLevel < 40 ? 'LOW' :
+      currentRiskLevel < 70 ? 'MEDIUM' : 'CRITICAL'
+    }}
+  </span>
+      </div>
+
+    </div>
+</div>
 </div>

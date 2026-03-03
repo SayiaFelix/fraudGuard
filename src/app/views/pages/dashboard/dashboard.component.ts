@@ -1,1303 +1,414 @@
-import { HttpClient, HttpEvent, HttpEventType } from '@angular/common/http';
-import { Component, ViewChild, ElementRef, OnInit, ChangeDetectorRef, Pipe } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
+// dashboard.component.ts
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-
-import { NgbDateStruct, NgbCalendar, NgbActiveModal, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { CustomValidators } from 'ngx-custom-validators';
-import { Observable, map, of } from 'rxjs';
-import { HttpService } from 'src/app/shared/services/http.service';
-import Swal from 'sweetalert2';
-import { DomSanitizer, SafeResourceUrl, SafeUrl } from '@angular/platform-browser';
-import { DatePipe, formatDate } from '@angular/common';
-import { DatatableComponent } from '@swimlane/ngx-datatable/lib/components/datatable.component';
-declare var bootstrap: any
-import { forkJoin } from 'rxjs';
-import * as FileSaver from 'file-saver';
-import * as XLSX from 'xlsx';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-import autoTable from 'jspdf-autotable';
-import { ColumnMode } from '@swimlane/ngx-datatable';
-import { AddCustomerComponent } from '../mobile-banking/customers/add-customer/add-customer.component';
-import { DataExportationService } from 'src/app/shared/services/data-exportation.service';
-import { GlobalService } from 'src/app/shared/services/global.service';
 import { ChartConfiguration, ChartData } from 'chart.js';
-import * as saveAs from 'file-saver';
-interface ActivityItem {
-  type: 'completed' | 'finding' | 'update' | 'created';
-  message: string;
-  details: string;
-  time: string;
-  department?: string;
+
+interface KPI {
+  label: string;
+  value: number | string;
+  icon: string;
+  borderClass: string;
+  textClass: string;
+  trend: 'up' | 'down' | 'flat';
+  description: string;
+  color: string;
 }
 
-interface PriorityAlert {
+interface TransactionAlert {
   id: string;
-  title: string;
-  severity: 'Critical' | 'High' | 'Medium';
-  department: string;
-  dueDate: string;
-  daysLeft: number;
-  type: 'audit' | 'finding' | 'cap';
-}
-
-interface DeadlineItem {
-  id: string;
-  title: string;
-  type: 'audit' | 'finding' | 'cap' | 'task';
-  department: string;
-  dueDate: string;
-  daysLeft: number;
-}
-
-interface DepartmentPerformance {
-  name: string;
-  auditCount: number;
-  findingCount: number;
-  criticalCount: number;
-  highCount: number;
-  mediumCount: number;
-  lowCount: number;
-  avgSeverity: string;
-  completionRate: number;
+  transactionId: string;
+  amount: number;
   riskScore: number;
+  riskCategory: 'Critical' | 'High' | 'Medium' | 'Low';
+  channel: 'Mobile' | 'Web' | 'ATM' | 'Agent';
+  location: string;
+  timestamp: string;
+  status: 'Open' | 'Investigating' | 'Resolved';
+  flaggedBy: 'AI' | 'Rules' | 'Manual';
 }
 
-interface ConversationMessage {
-  sender: 'user' | 'bot';
-  text: string;
-  type?: 'text' | 'file';
-  time: string;
-  fileUrl?: string; 
-  isFileResponse?: boolean;
-  isWelcomeMessage?: boolean;
-  isGeneratingReport?: boolean;
-  status?: 'sending' | 'delivered' | 'error' | 'received' | 'pending' | 'approved' | 'rejected' | 'loading';
-  isLoading?: boolean;
-  isError?: boolean;
-  formattedText?: string;
-  datasetId?: string;
-  fileData?: {
-    filename: string;
-    size: number;
-    format?: string;
-    downloadUrl?: string;
-    mimeType?: string;
-    content?: string;
-    profile?: {
-      overview: any;
-      column_types: any;
-      missing_data: {
-        total_missing: number;
-        pct_missing: number;
-        columns_with_missing: number;
-        missing_value_distribution: {
-          columns: { [key: string]: number };
-          top_5_columns_with_most_missing: { [key: string]: number };
-        };
-      };
-      sample_data: any[];
-    };
-    analysis?: string;
-    message?: string;
-  };
+interface FraudTrend {
+  month: string;
+  fraudCount: number;
+  amount: number;
+}
+
+interface ChannelRisk {
+  channel: string;
+  transactions: number;
+  fraudCases: number;
+  riskPercentage: number;
 }
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss'],
-  preserveWhitespaces: true,
-  providers: [DatePipe],
+  styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
-  // Filters
-  department = '';
-  dateFrom?: string;
-  dateTo?: string;
-  severityFilter = '';
-  statusFilter = '';
- workflows: any[] = [];
-  kpis: { 
-    label: string; 
-    value: number | string; 
-    icon: string; 
-    borderClass: string; 
-    textClass: string; 
-    trend: string;
-    description?: string;
-  }[] = [];
-
-  // Summary data
-  auditsByDept: Record<string, number> = {};
-  findingsSeverity: any = {};
-  auditsOverTime: Record<string, number> = {};
-  workflowTrends: any;
-
-  // New data structures
-  recentActivities: ActivityItem[] = [];
-  priorityAlerts: PriorityAlert[] = [];
-  upcomingDeadlines: DeadlineItem[] = [];
-  departmentPerformance: DepartmentPerformance[] = [];
-  overallCapImplementationRate = 0;
-  totalRecords = 0;
-  lastUpdated = new Date();
-  overdueDeadlines: DeadlineItem[] = [];
-  
-  barChartData: ChartData<'bar'> = { labels: [], datasets: [] };
-  pieChartData: ChartData<'pie'> = { labels: [], datasets: [] };
-  lineChartData: ChartData<'line'> = { labels: [], datasets: [] };
-  workflowChartData: ChartData<'line'> = { labels: [], datasets: [] };
-  statusPieChartData: ChartData<'pie'> = { labels: [], datasets: [] };
-  capProgressChartData: ChartData<'bar'> = { labels: [], datasets: [] };
-
   isLoading = false;
+  lastUpdated = new Date();
+  
+  kpis: KPI[] = [
+  {
+    label: 'Total Transactions',
+    value: '158,432',
+    icon: 'fas fa-exchange-alt',
+    borderClass: 'border-primary',
+    textClass: 'text-primary',
+    trend: 'up',
+    description: 'Last 24 hours',
+    color: '#4361ee'  // Blue
+  },
+  {
+    label: 'High Risk Alerts',
+    value: '1,284',
+    icon: 'fas fa-exclamation-triangle',
+    borderClass: 'border-danger',
+    textClass: 'text-danger',
+    trend: 'up',
+    description: 'Critical + High',
+    color: '#f72585'  // Pink/Red
+  },
+  {
+    label: 'Fraud Blocked',
+    value: 'KES 2.4M',
+    icon: 'fas fa-shield-alt',
+    borderClass: 'border-success',
+    textClass: 'text-success',
+    trend: 'up',
+    description: 'Prevented losses',
+    color: '#06d6a0'  // Green
+  },
+  {
+    label: 'AI Confidence',
+    value: '94%',
+    icon: 'fas fa-brain',
+    borderClass: 'border-info',
+    textClass: 'text-info',
+    trend: 'flat',
+    description: 'Model accuracy',
+    color: '#4cc9f0'  // Light Blue
+  }
+];
 
-  // Chart options
-  barChartOptions: ChartConfiguration<'bar'>['options'] = { 
+  // Recent high-risk transactions
+  recentAlerts: TransactionAlert[] = [
+    {
+      id: '1',
+      transactionId: 'TXN-2024-001',
+      amount: 450000,
+      riskScore: 9.2,
+      riskCategory: 'Critical',
+      channel: 'Mobile',
+      location: 'Nairobi, KE',
+      timestamp: '2024-02-23T14:23:45',
+      status: 'Open',
+      flaggedBy: 'AI'
+    },
+    {
+      id: '2',
+      transactionId: 'TXN-2024-002',
+      amount: 275000,
+      riskScore: 8.7,
+      riskCategory: 'Critical',
+      channel: 'Web',
+      location: 'Mombasa, KE',
+      timestamp: '2024-02-23T13:15:22',
+      status: 'Investigating',
+      flaggedBy: 'AI'
+    },
+    {
+      id: '3',
+      transactionId: 'TXN-2024-003',
+      amount: 89000,
+      riskScore: 7.8,
+      riskCategory: 'High',
+      channel: 'Mobile',
+      location: 'Kisumu, KE',
+      timestamp: '2024-02-23T12:45:10',
+      status: 'Open',
+      flaggedBy: 'Rules'
+    },
+    {
+      id: '4',
+      transactionId: 'TXN-2024-004',
+      amount: 150000,
+      riskScore: 7.2,
+      riskCategory: 'High',
+      channel: 'ATM',
+      location: 'Nakuru, KE',
+      timestamp: '2024-02-23T11:30:05',
+      status: 'Resolved',
+      flaggedBy: 'AI'
+    },
+    {
+      id: '5',
+      transactionId: 'TXN-2024-005',
+      amount: 32000,
+      riskScore: 6.5,
+      riskCategory: 'Medium',
+      channel: 'Agent',
+      location: 'Eldoret, KE',
+      timestamp: '2024-02-23T10:20:30',
+      status: 'Investigating',
+      flaggedBy: 'Manual'
+    }
+  ];
+
+  // Fraud trends over time
+  fraudTrends: FraudTrend[] = [
+    { month: 'Jan', fraudCount: 245, amount: 1250000 },
+    { month: 'Feb', fraudCount: 312, amount: 1890000 },
+    { month: 'Mar', fraudCount: 278, amount: 1560000 },
+    { month: 'Apr', fraudCount: 425, amount: 2340000 },
+    { month: 'May', fraudCount: 389, amount: 2120000 },
+    { month: 'Jun', fraudCount: 456, amount: 2670000 }
+  ];
+
+  // Channel risk distribution
+  channelRisk: ChannelRisk[] = [
+    { channel: 'Mobile Money', transactions: 84500, fraudCases: 623, riskPercentage: 0.74 },
+    { channel: 'Web/Online', transactions: 42300, fraudCases: 487, riskPercentage: 1.15 },
+    { channel: 'ATM', transactions: 18900, fraudCases: 98, riskPercentage: 0.52 },
+    { channel: 'Agent', transactions: 12732, fraudCases: 76, riskPercentage: 0.60 }
+  ];
+
+  // Risk category distribution
+  riskDistribution = {
+    critical: 342,
+    high: 942,
+    medium: 2456,
+    low: 154692
+  };
+
+  // Recent activities
+  recentActivities = [
+    {
+      type: 'critical',
+      message: 'New critical fraud pattern detected',
+      details: 'Multiple SIM swap attempts followed by large transfers',
+      time: '5 minutes ago'
+    },
+    {
+      type: 'update',
+      message: 'Case TXN-2024-001 escalated',
+      details: 'Assigned to Senior Investigator Otieno',
+      time: '15 minutes ago'
+    },
+    {
+      type: 'success',
+      message: 'Fraud blocked: Transaction TXN-2024-002',
+      details: 'KES 275,000 prevented from leaving to mule account',
+      time: '32 minutes ago'
+    },
+    {
+      type: 'warning',
+      message: 'Model drift detected',
+      details: 'Retraining scheduled in 2 hours',
+      time: '1 hour ago'
+    },
+    {
+      type: 'info',
+      message: 'New fraud ring identified',
+      details: 'Connected devices: 12 accounts flagged',
+      time: '2 hours ago'
+    }
+  ];
+
+  // Top fraud locations
+  topLocations = [
+    { city: 'Nairobi', count: 456, riskLevel: 'High' },
+    { city: 'Mombasa', count: 234, riskLevel: 'High' },
+    { city: 'Kisumu', count: 156, riskLevel: 'Medium' },
+    { city: 'International', count: 48, riskLevel: 'Low' },
+    { city: 'Nakuru', count: 98, riskLevel: 'Medium' },
+    { city: 'Eldoret', count: 67, riskLevel: 'Low' }
+  ];
+
+  // Chart Data
+  barChartData: ChartData<'bar'> = {
+    labels: ['Mobile Money', 'Web/Online', 'ATM', 'Agent'],
+    datasets: [{
+      data: [0.74, 1.15, 0.52, 0.60],
+      label: 'Fraud Risk %',
+      backgroundColor: ['#4361ee', '#f72585', '#06d6a0', '#ff9e00'],
+      borderRadius: 6
+    }]
+  };
+
+  barChartOptions: ChartConfiguration<'bar'>['options'] = {
     responsive: true,
-    plugins: { 
-      title: { display: true, text: 'Audits by Department' },
-      legend: { display: false }
+    plugins: {
+      legend: { display: false },
+      title: { display: false }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        grid: { color: '#e9ecef' },
+        title: { display: true, text: 'Risk Percentage (%)' }
+      }
     }
   };
 
-  pieChartOptions: ChartConfiguration<'pie'>['options'] = { 
+  pieChartData: ChartData<'pie'> = {
+    labels: ['Critical', 'High', 'Medium', 'Low'],
+    datasets: [{
+      data: [342, 942, 2456, 154692],
+      backgroundColor: ['#dc3545', '#fd7e14', '#ffc107', '#28a745']
+    }]
+  };
+
+  pieChartOptions: ChartConfiguration<'pie'>['options'] = {
     responsive: true,
-    plugins: { 
-      title: { display: true, text: 'Findings by Severity' },
+    plugins: {
+      legend: { position: 'bottom' },
+      tooltip: { callbacks: { label: (ctx) => `${ctx.raw} cases` } }
+    }
+  };
+
+  lineChartData: ChartData<'line'> = {
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    datasets: [
+      {
+        data: [245, 312, 278, 425, 389, 456],
+        label: 'Fraud Cases',
+        borderColor: '#f72585',
+        backgroundColor: 'rgba(247, 37, 133, 0.1)',
+        tension: 0.4,
+        fill: true
+      },
+      {
+        data: [1.25, 1.89, 1.56, 2.34, 2.12, 2.67],
+        label: 'Amount (M KES)',
+        borderColor: '#4361ee',
+        backgroundColor: 'rgba(67, 97, 238, 0.1)',
+        tension: 0.4,
+        yAxisID: 'y1',
+        fill: true
+      }
+    ]
+  };
+
+  lineChartOptions: ChartConfiguration<'line'>['options'] = {
+    responsive: true,
+    plugins: {
+      legend: { position: 'bottom' }
     },
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: { display: true, text: 'Fraud Cases' },
+        grid: { color: '#e9ecef' }
+      },
+      y1: {
+        position: 'right',
+        beginAtZero: true,
+        title: { display: true, text: 'Amount (Millions KES)' },
+        grid: { drawOnChartArea: false }
+      }
+    }
   };
 
-  statusPieChartOptions: ChartConfiguration<'pie'>['options'] = {
-    responsive: true,
-    plugins: { title: { display: true, text: 'Audit Status' }}
-  };
-
-  lineChartOptions: ChartConfiguration<'line'>['options'] = { 
-    responsive: true,
-    plugins: { title: { display: true, text: 'Audits Over Time' } }
-  };
-
-  workflowChartOptions: ChartConfiguration<'line'>['options'] = { 
-    responsive: true,
-    plugins: { title: { display: true, text: 'Workflow Completion Trends (%)' } }
-  };
-
-  capProgressChartOptions: ChartConfiguration<'bar'>['options'] = { 
-    responsive: true,
-    plugins: { title: { display: true, text: 'CAP Implementation by Department' } }
-  };
-
-  constructor(private mis: GlobalService, private router: Router) {}
+  constructor(private router: Router) {}
 
   ngOnInit(): void {
-    this.refresh();
+    this.lastUpdated = new Date();
   }
-
-  private processAuditsByDepartment(audits: any[]): void {
-    this.auditsByDept = audits.reduce((acc: any, audit: any) => {
-      const dept = audit.department || 'Unknown';
-      acc[dept] = (acc[dept] || 0) + 1;
-      return acc;
-    }, {});
-  }
-
-  private processFindingsSeverity(workflows: any[]): void {
-    const severityCount: any = { Critical: 0, High: 0, Medium: 0, Low: 0 };
-    
-    workflows.forEach((workflow: any) => {
-      if (workflow.fieldwork?.preClosing) {
-        workflow.fieldwork.preClosing.forEach((finding: any) => {
-          const severity = finding.severity || 'Unknown';
-          if (severityCount.hasOwnProperty(severity)) {
-            severityCount[severity]++;
-          }
-        });
-      }
-      
-      if (workflow.miniFindings) {
-        workflow.miniFindings.forEach((finding: any) => {
-          const severity = finding.severity || finding.impact || 'Unknown';
-          if (severityCount.hasOwnProperty(severity)) {
-            severityCount[severity]++;
-          }
-        });
-      }
-    });
-    
-    this.findingsSeverity = severityCount;
-  }
-
-  private processAuditsOverTime(audits: any[]): void {
-    this.auditsOverTime = audits.reduce((acc: any, audit: any) => {
-      if (!audit.startDate) return acc;
-      const month = audit.startDate.slice(0, 7); // YYYY-MM
-      acc[month] = (acc[month] || 0) + 1;
-      return acc;
-    }, {});
-  }
-
-  private processWorkflowTrends(workflows: any[]): void {
-    this.workflowTrends = workflows.reduce((acc: any, workflow: any) => {
-      if (!workflow.startDate) return acc;
-      const month = workflow.startDate.slice(0, 7);
-      const totalTasks = workflow.tasks?.length || 0;
-      const completedTasks = workflow.tasks?.filter((task: any) => task.status === 'Done').length || 0;
-      const completionRate = totalTasks ? Math.round((completedTasks / totalTasks) * 100) : 0;
-      
-      acc[month] = acc[month] || [];
-      acc[month].push(completionRate);
-      return acc;
-    }, {});
-
-    // Calculate average per month
-    this.workflowTrends = Object.fromEntries(
-      Object.entries(this.workflowTrends).map(([month, rates]: [string, any]) => {
-        const average = rates.reduce((sum: number, rate: number) => sum + rate, 0) / rates.length;
-        return [month, Math.round(average)];
-      })
-    );
-  }
-
-  private processDepartmentPerformance(audits: any[], workflows: any[]): void {
-    const departments = new Set([
-      ...audits.map((a: any) => a.department),
-      ...workflows.map((w: any) => w.department)
-    ].filter(dept => dept));
-
-    this.departmentPerformance = Array.from(departments).map((dept: any) => {
-      const deptAudits = audits.filter(a => a.department === dept);
-      const deptWorkflows = workflows.filter(w => w.department === dept);
-
-      let critical = 0, high = 0, medium = 0, low = 0;
-      
-      deptWorkflows.forEach((workflow: any) => {
-        if (workflow.fieldwork?.preClosing) {
-          workflow.fieldwork.preClosing.forEach((finding: any) => {
-            switch (finding.severity) {
-              case 'Critical': critical++; break;
-              case 'High': high++; break;
-              case 'Medium': medium++; break;
-              case 'Low': low++; break;
-            }
-          });
-        }
-        
-        if (workflow.miniFindings) {
-          workflow.miniFindings.forEach((finding: any) => {
-            const severity = finding.severity || finding.impact;
-            switch (severity) {
-              case 'Critical': critical++; break;
-              case 'High': high++; break;
-              case 'Medium': medium++; break;
-              case 'Low': low++; break;
-            }
-          });
-        }
-      });
-
-      const totalFindings = critical + high + medium + low;
-      
-      let avgSeverity = 'Low';
-      if (critical > 0) avgSeverity = 'Critical';
-      else if (high > 0) avgSeverity = 'High';
-      else if (medium > 0) avgSeverity = 'Medium';
-
-      const completedAudits = deptAudits.filter(a => a.status === 'Completed').length;
-      const completionRate = deptAudits.length ? Math.round((completedAudits / deptAudits.length) * 100) : 0;
-
-      let riskScore = 1;
-      if (critical > 0) riskScore = 8 + Math.min(2, critical);
-      else if (high > 0) riskScore = 6 + Math.min(2, high);
-      else if (medium > 0) riskScore = 4 + Math.min(2, medium);
-      else if (low > 0) riskScore = 2 + Math.min(2, low);
-
-      return {
-        name: dept,
-        auditCount: deptAudits.length,
-        findingCount: totalFindings,
-        criticalCount: critical,
-        highCount: high,
-        mediumCount: medium,
-        lowCount: low,
-        avgSeverity,
-        completionRate,
-        riskScore: Math.min(10, riskScore)
-      };
-    });
-
-    this.departmentPerformance.sort((a, b) => b.riskScore - a.riskScore);
-  }
-
-  private processRecentActivities(
-  audits: any[], 
-  workflows: any[], 
-  misReports: any[]
-): void {
-  this.recentActivities = [];
-  const now = new Date();
-
-  audits.forEach((audit: any) => {
-    const auditDate = new Date(audit.updatedAt || audit.startDate);
-    
-    if ((now.getTime() - auditDate.getTime()) > (30 * 24 * 60 * 60 * 1000)) {
-      return; 
-    }
-
-    if (audit.status === 'Completed') {
-      this.recentActivities.push({
-        type: 'completed',
-        message: `Audit completed: ${audit.title}`,
-        details: `Department: ${audit.department}`,
-        time: audit.updatedAt || audit.startDate,
-        department: audit.department
-      });
-    }
-    
-    if (audit.status === 'In Progress' && (now.getTime() - auditDate.getTime()) < (7 * 24 * 60 * 60 * 1000)) {
-      this.recentActivities.push({
-        type: 'update',
-        message: `Audit started: ${audit.title}`,
-        details: `Status: In Progress`,
-        time: audit.startDate,
-        department: audit.department
-      });
-    }
-
-    if (audit.planningMeetingDate && (now.getTime() - new Date(audit.planningMeetingDate).getTime()) < (14 * 24 * 60 * 60 * 1000)) {
-      this.recentActivities.push({
-        type: 'created',
-        message: `Planning meeting: ${audit.title}`,
-        details: `Scheduled recently`,
-        time: audit.planningMeetingDate,
-        department: audit.department
-      });
-    }
-
-    if (audit.riskRating && (audit.riskRating === 'High' || audit.riskRating === 'Medium') && (now.getTime() - auditDate.getTime()) < (7 * 24 * 60 * 60 * 1000)) {
-      this.recentActivities.push({
-        type: 'finding',
-        message: `Risk assessment: ${audit.title}`,
-        details: `Risk: ${audit.riskRating}`,
-        time: audit.startDate,
-        department: audit.department
-      });
-    }
-  });
-
-  workflows.forEach((workflow: any) => {
-    const workflowDate = new Date(workflow.updatedAt || workflow.startDate);
-    
-    if ((now.getTime() - workflowDate.getTime()) > (30 * 24 * 60 * 60 * 1000)) {
-      return;
-    }
-
-    // Workflow completions
-    if (workflow.status === 'Completed') {
-      this.recentActivities.push({
-        type: 'completed',
-        message: `Workflow completed: ${workflow.title}`,
-        details: `Department: ${workflow.department}`,
-        time: workflow.updatedAt || workflow.startDate,
-        department: workflow.department
-      });
-    }
-
-    // Recent workflow starts
-    if (workflow.status === 'In Progress' && (now.getTime() - workflowDate.getTime()) < (7 * 24 * 60 * 60 * 1000)) {
-      this.recentActivities.push({
-        type: 'update',
-        message: `Workflow started: ${workflow.title}`,
-        details: `Fieldwork in progress`,
-        time: workflow.startDate,
-        department: workflow.department
-      });
-    }
-  });
-
-  this.recentActivities.sort((a, b) => {
-    const timeA = new Date(a.time).getTime();
-    const timeB = new Date(b.time).getTime();
-    return timeB - timeA; 
-  });
-
-  this.recentActivities = this.recentActivities.map(activity => ({
-    ...activity,
-    time: this.formatRelativeTime(activity.time)
-  }));
-
-  // Limit to 8 most recent
-  this.recentActivities = this.recentActivities.slice(0, 8);
+// Safe method to get pie chart colors
+getPieChartColor(index: number): string {
+  const colors = ['#dc3545', '#fd7e14', '#ffc107', '#28a745'];
+  return colors[index] || '#6c757d';
 }
 
-refresh(): void {
+// Safe method to get pie chart values
+getPieChartValue(index: number): number {
+  if (this.pieChartData?.datasets?.[0]?.data && 
+      Array.isArray(this.pieChartData.datasets[0].data) && 
+      index < this.pieChartData.datasets[0].data.length) {
+    return this.pieChartData.datasets[0].data[index] as number;
+  }
+  return 0;
+}
+
+// Also add this safe method for bar chart colors if needed
+getBarChartColor(index: number): string {
+  const colors = ['#4361ee', '#f72585', '#06d6a0', '#ff9e00'];
+  return colors[index] || '#6c757d';
+}
+
+  refresh(): void {
   this.isLoading = true;
 
-  forkJoin({
-    audits: this.mis.getAudits(),
-    workflows: this.mis.getWorkflows(),
-    misReports: this.mis.getMISReports ? this.mis.getMISReports() : of([])
-  }).subscribe(({ 
-    audits, workflows, misReports 
-  }) => {
-    this.workflows = workflows as any[]; 
-    let filteredAudits = audits as any[];
-    let filteredWorkflows = workflows as any[];
-
-    if (this.department) {
-      filteredAudits = filteredAudits.filter((a: any) =>
-        a.department?.toLowerCase().includes(this.department.toLowerCase())
-      );
-      filteredWorkflows = filteredWorkflows.filter((wf: any) =>
-        wf.department?.toLowerCase().includes(this.department.toLowerCase())
-      );
-    }
-
-    if (this.dateFrom) {
-      filteredAudits = filteredAudits.filter((a: any) => a.startDate >= this.dateFrom!);
-      filteredWorkflows = filteredWorkflows.filter((wf: any) => wf.startDate >= this.dateFrom!);
-    }
-
-    if (this.dateTo) {
-      filteredAudits = filteredAudits.filter((a: any) => a.startDate <= this.dateTo!);
-      filteredWorkflows = filteredWorkflows.filter((wf: any) => wf.startDate <= this.dateTo!);
-    }
-
-    // Process all data
-    this.processAuditsByDepartment(filteredAudits);
-    this.processFindingsSeverity(filteredWorkflows);
-    this.processAuditsOverTime(filteredAudits);
-    this.processWorkflowTrends(filteredWorkflows);
-    this.processDepartmentPerformance(filteredAudits, filteredWorkflows);
-    
-    this.processRecentActivities(
-      filteredAudits, 
-      filteredWorkflows, 
-      misReports as any[]
-    );
-    
-    this.processPriorityAlerts(filteredWorkflows, filteredAudits);
-    this.processUpcomingDeadlines(filteredWorkflows, filteredAudits);
-    this.processCAPImplementation(filteredWorkflows);
-
-    // Calculate KPIs
-    this.calculateKPIs(filteredAudits, filteredWorkflows);
-    this.buildCharts(filteredAudits);
-
+  setTimeout(() => {
     this.isLoading = false;
     this.lastUpdated = new Date();
-    this.totalRecords = filteredAudits.length + filteredWorkflows.length;
-
-  }, (error) => {
-    console.error('Error loading dashboard data:', error);
-    this.isLoading = false;
-  });
+  }, 2000);
 }
 
-private processPriorityAlerts(workflows: any[], audits: any[]): void {
-  this.priorityAlerts = [];
-  const today = new Date();
-  today.setHours(0, 0, 0, 0); // Normalize to start of day
-
-  console.log('🔍 Processing priority alerts...');
-  console.log('Today:', today.toISOString().split('T')[0]);
-
-  workflows.forEach((workflow: any) => {
-    if (workflow.fieldwork?.preClosing) {
-      workflow.fieldwork.preClosing.filter((f: any) => 
-        f.severity === 'Critical' || f.severity === 'High'
-      ).forEach((finding: any) => {
-    
-        let daysLeft = 0;
-        let dueDate = 'Not set';
-        
-        if (workflow.dueDate) {
-          try {
-            const due = new Date(workflow.dueDate);
-            due.setHours(0, 0, 0, 0);
-            daysLeft = Math.floor((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-            dueDate = workflow.dueDate;
-            
-            // console.log(`📅 Finding: ${finding.title}, Due: ${dueDate}, Days Left: ${daysLeft}`);
-          } catch (error) {
-            // console.error('Invalid due date:', workflow.dueDate);
-          }
-        }
-
-        this.priorityAlerts.push({
-          id: finding.id,
-          title: `${finding.severity} Finding: ${finding.title}`,
-          severity: finding.severity as any,
-          department: workflow.department,
-          dueDate: dueDate,
-          daysLeft: daysLeft,
-          type: 'finding'
-        });
-      });
-    }
-  });
-
-  audits.forEach((audit: any) => {
-    const deadlineDate = audit.endDate || audit.dueDate;
-    if (!deadlineDate) return;
-    
-    try {
-      const dueDate = new Date(deadlineDate);
-      dueDate.setHours(0, 0, 0, 0);
-      const daysLeft = Math.floor((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-    
-      if (daysLeft < 3 && audit.status !== 'Completed') {
-        this.priorityAlerts.push({
-          id: audit.id,
-          title: `Audit Deadline: ${audit.title}`,
-          severity: daysLeft < 0 ? 'Critical' : 'High',
-          department: audit.department,
-          dueDate: deadlineDate,
-          daysLeft: daysLeft,
-          type: 'audit'
-        });
-        
-        // console.log(`⚠️ Audit Alert: ${audit.title}, Due: ${deadlineDate}, Days: ${daysLeft}`);
-      }
-    } catch (error) {
-      console.error('Invalid audit date:', deadlineDate);
-    }
-  });
-
-  if (this.priorityAlerts.length === 0) {
-    const sampleDueDate = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
-    this.priorityAlerts.push({
-      id: 'sample-1',
-      title: 'Sample: Review quarterly audit findings',
-      severity: 'High',
-      department: 'Finance',
-      dueDate: sampleDueDate.toISOString().split('T')[0],
-      daysLeft: 2,
-      type: 'audit'
-    });
+  viewTransaction(transactionId: string): void {
+    this.router.navigate(['/fraudsentinelAi/transaction_management/fraud/alert-detail', transactionId]);
   }
 
-  this.priorityAlerts.sort((a, b) => {
-    const severityOrder: any = { 'Critical': 3, 'High': 2, 'Medium': 1 };
-    const severityDiff = severityOrder[b.severity] - severityOrder[a.severity];
-    
-    if (severityDiff !== 0) return severityDiff;
-  
-    return a.daysLeft - b.daysLeft;
-  });
-
-  console.log(`📊 Total priority alerts: ${this.priorityAlerts.length}`);
-}
-
-// Add this method to your component class
-getDisplayDays(daysLeft: number): string {
-  if (daysLeft < 0) {
-    return Math.abs(daysLeft) + ' days overdue';
-  } else {
-    return daysLeft + ' days left';
-  }
-}
-
-  // Helper methods for template
-  abs(value: number): number {
-    return Math.abs(value);
+  investigateAlert(alertId: string): void {
+    this.router.navigate(['/fraudsentinelAi/transaction_management/fraud/investigation-graph']);
   }
 
-  isPlural(value: number): boolean {
-    return Math.abs(value) !== 1;
-  }
-
-
-private processUpcomingDeadlines(workflows: any[], audits: any[]): void {
-  this.upcomingDeadlines = [];
-  this.overdueDeadlines = [];
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  console.log('📅 Processing deadlines...');
-
-  // Process audits
-  audits.forEach((audit: any) => {
-    const deadlineDate = audit.endDate || audit.dueDate; 
-    if (!deadlineDate) return;
-    if (audit.status === 'Completed') return;
-    
-    const dueDate = new Date(deadlineDate);
-    dueDate.setHours(0, 0, 0, 0);
-    const daysLeft = Math.floor((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-    
-    const deadlineItem: DeadlineItem = {
-      id: audit.id,
-      title: audit.title,
-      type: 'audit',
-      department: audit.department,
-      dueDate: deadlineDate,
-      daysLeft
+  getRiskBadgeClass(riskCategory: string): string {
+    const classes = {
+      'Critical': 'bg-danger',
+      'High': 'bg-warning text-dark',
+      'Medium': 'bg-info',
+      'Low': 'bg-success'
     };
-
-    if (daysLeft < 0) {
-      this.overdueDeadlines.push(deadlineItem);
-    } else if (daysLeft <= 7) {
-      this.upcomingDeadlines.push(deadlineItem);
-    }
-  });
-
-  // Process workflow tasks
-  workflows.forEach((workflow: any) => {
-    if (workflow.tasks) {
-      workflow.tasks.forEach((task: any) => {
-        if (!task.dueDate) return;
-        if (task.status === 'Done') return;
-        
-        const dueDate = new Date(task.dueDate);
-        dueDate.setHours(0, 0, 0, 0);
-        const daysLeft = Math.floor((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-        
-        const deadlineItem: DeadlineItem = {
-          id: task.id,
-          title: task.title || 'Untitled Task',
-          type: 'task',
-          department: workflow.department,
-          dueDate: task.dueDate,
-          daysLeft
-        };
-
-        if (daysLeft < 0) {
-          this.overdueDeadlines.push(deadlineItem);
-        } else if (daysLeft <= 7) {
-          this.upcomingDeadlines.push(deadlineItem);
-        }
-      });
-    }
-  });
-
-  // Sort both lists
-  this.overdueDeadlines.sort((a, b) => a.daysLeft - b.daysLeft); // Most overdue first
-  this.upcomingDeadlines.sort((a, b) => a.daysLeft - b.daysLeft); // Soonest first
-
-  console.log(`⏰ Overdue items: ${this.overdueDeadlines.length}`);
-  console.log(`📅 Upcoming deadlines: ${this.upcomingDeadlines.length}`);
-}
-
-viewDeadlineDetails(deadline: DeadlineItem): void {
-  Swal.fire({
-    title: deadline.title,
-    html: `
-      <div class="text-start">
-        <p><strong>Type:</strong> ${deadline.type}</p>
-        <p><strong>Department:</strong> ${deadline.department}</p>
-        <p><strong>Due Date:</strong> ${deadline.dueDate}</p>
-        <p><strong>Status:</strong> 
-          <span class="badge ${deadline.daysLeft < 0 ? 'bg-danger' : deadline.daysLeft <= 3 ? 'bg-warning' : 'bg-info'}">
-            ${deadline.daysLeft < 0 ? Math.abs(deadline.daysLeft) + ' days overdue' : deadline.daysLeft + ' days left'}
-          </span>
-        </p>
-      </div>
-    `,
-    icon: deadline.daysLeft < 0 ? 'error' : 'warning',
-    showConfirmButton: false,
-    showCancelButton: true,
-    cancelButtonText: 'Close',
-    focusCancel: true
-  });
-}
-
-private processCAPImplementation(workflows: any[]): void {
-    let findingsWithAction = 0;
-    let totalFindings = 0;
-
-    workflows.forEach((workflow: any) => {
-      if (workflow.fieldwork?.preClosing) {
-        totalFindings += workflow.fieldwork.preClosing.length;
-  
-        findingsWithAction += workflow.fieldwork.preClosing.filter((f: any) => 
-          f.status && f.status !== 'Open' && f.status !== 'Reviewed'
-        ).length;
-      }
-      
-      if (workflow.miniFindings) {
-        totalFindings += workflow.miniFindings.length;
-        findingsWithAction += workflow.miniFindings.filter((f: any) => 
-          f.status && f.status !== 'Open' && f.status !== 'Noted'
-        ).length;
-      }
-    });
-
-    this.overallCapImplementationRate = totalFindings ? Math.round((findingsWithAction / totalFindings) * 100) : 0;
+    return classes[riskCategory as keyof typeof classes] || 'bg-secondary';
   }
 
-  private calculateKPIs(audits: any[], workflows: any[]): void {
-    const totalAudits = audits.length;
-    const completedAudits = audits.filter((a: any) => a.status === 'Completed').length;
-    const openFindingsCount = this.countOpenFindings(workflows);
-    
-    const avgWorkflowCompletion = Math.round(
-      workflows.reduce((sum: number, wf: any) => {
-        const total = wf.tasks?.length || 0;
-        const done = wf.tasks?.filter((t: any) => t.status === 'Done').length || 0;
-        return sum + (total ? (done / total) * 100 : 0);
-      }, 0) / (workflows.length || 1)
-    );
-
-    const riskScore = this.calculateRiskScore(workflows);
-
-    this.kpis = [
-      { 
-        label: 'Total Audits', 
-        value: totalAudits, 
-        icon: 'fas fa-clipboard-list', 
-        borderClass: 'border-primary', 
-        textClass: 'text-primary', 
-        trend: totalAudits > 5 ? 'up' : 'down',
-        description: 'All audit activities'
-      },
-      { 
-        label: 'Completed Audits', 
-        value: completedAudits, 
-        icon: 'fas fa-check-circle', 
-        borderClass: 'border-success', 
-        textClass: 'text-success', 
-        trend: completedAudits > 2 ? 'up' : 'flat',
-        description: 'Successfully closed audits'
-      },
-      { 
-      label: 'Open Observations', 
-      value: openFindingsCount, 
-      icon: 'fas fa-exclamation-triangle', 
-      borderClass: 'border-warning', 
-      textClass: 'text-warning', 
-      trend: openFindingsCount > 5 ? 'down' : 'up', 
-      description: 'Observations not yet closed' 
-    },
-      { 
-        label: 'Risk Score', 
-        value: riskScore + '/10', 
-        icon: 'fas fa-radiation', 
-        borderClass: 'border-danger', 
-        textClass: 'text-danger', 
-        trend: riskScore > 6 ? 'up' : 'down',
-        description: 'Overall risk exposure'
-      }
-    ];
+  getStatusBadgeClass(status: string): string {
+    const classes = {
+      'Open': 'bg-danger',
+      'Investigating': 'bg-warning text-dark',
+      'Resolved': 'bg-success'
+    };
+    return classes[status as keyof typeof classes] || 'bg-secondary';
   }
 
-  private countOpenFindings(workflows: any[]): number {
-    let openCount = 0;
-    
-    workflows.forEach((workflow: any) => {
-      if (workflow.fieldwork?.preClosing) {
-        openCount += workflow.fieldwork.preClosing.filter((f: any) => 
-          f.status === 'Draft' || f.status === 'Reviewed' ||  f.status === 'Presented'
-        ).length;
-      }
-      
-      // if (workflow.miniFindings) {
-      //   openCount += workflow.miniFindings.filter((f: any) => 
-      //     f.status === 'Open' || f.status === 'Noted' || !f.status
-      //   ).length;
-      // }
-    });
-    
-    return openCount;
+  getActivityIcon(type: string): string {
+    const icons = {
+      'critical': 'fa-exclamation-circle text-danger',
+      'update': 'fa-sync-alt text-primary',
+      'success': 'fa-check-circle text-success',
+      'warning': 'fa-exclamation-triangle text-warning',
+      'info': 'fa-info-circle text-info'
+    };
+    return icons[type as keyof typeof icons] || 'fa-bell text-secondary';
   }
 
-  private calculateRiskScore(workflows: any[]): number {
-    let critical = 0, high = 0, medium = 0, low = 0;
-    
-    workflows.forEach((workflow: any) => {
-      if (workflow.fieldwork?.preClosing) {
-        workflow.fieldwork.preClosing.forEach((finding: any) => {
-          switch (finding.severity) {
-            case 'Critical': critical++; break;
-            case 'High': high++; break;
-            case 'Medium': medium++; break;
-            case 'Low': low++; break;
-          }
-        });
-      }
-      
-      if (workflow.miniFindings) {
-        workflow.miniFindings.forEach((finding: any) => {
-          const severity = finding.severity || finding.impact;
-          switch (severity) {
-            case 'Critical': critical++; break;
-            case 'High': high++; break;
-            case 'Medium': medium++; break;
-            case 'Low': low++; break;
-          }
-        });
-      }
-    });
-
-    // Weighted risk calculation
-    const weightedScore = (critical * 4) + (high * 3) + (medium * 2) + (low * 1);
-    const totalFindings = critical + high + medium + low;
-    
-    if (totalFindings === 0) return 1;
-    
-    const normalizedScore = (weightedScore / (totalFindings * 4)) * 10;
-    return Math.min(10, Math.max(1, Math.round(normalizedScore)));
+  getLocationRiskClass(riskLevel: string): string {
+    const classes = {
+      'High': 'text-danger fw-bold',
+      'Medium': 'text-warning',
+      'Low': 'text-success'
+    };
+    return classes[riskLevel as keyof typeof classes] || '';
   }
 
-
-  buildCharts(audits: any[]): void {
-
-  const severityColors: any = {
-    'Critical': '#dc3545', // Red
-    'High': '#fd7e14',     // Orange  
-    'Medium': '#ffc107',   // Yellow
-    'Low': '#28a745'       // Green
-  };
-
-  const statusColors: any = {
-    'Planned': '#6f42c1',    // Purple
-    'In Progress': '#007bff', // Blue
-    'Completed': '#28a745'    // Green
-  };
-
-  // Bar Chart - Audits by Department
-  const deptLabels = Object.keys(this.auditsByDept);
-  const deptValues = Object.values(this.auditsByDept);
-  this.barChartData = {
-    labels: deptLabels,
-    datasets: [{
-      data: deptValues,
-      label: 'Audits',
-      backgroundColor: deptLabels.map((_, i) => [
-        '#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1',
-        '#20c997', '#fd7e14', '#6610f2', '#17a2b8', '#e83e8c'
-      ][i % 10])
-    }]
-  };
-
-  const severityLabels = Object.keys(this.findingsSeverity);
-  this.pieChartData = {
-    labels: severityLabels,
-    datasets: [{
-      data: Object.values(this.findingsSeverity),
-      backgroundColor: severityLabels.map(severity => 
-        severityColors[severity] || '#6c757d' // Fallback to gray
-      )
-    }]
-  };
-
-  const auditStatusData = this.processAuditStatus(audits);
-  const statusLabels = Object.keys(auditStatusData);
-  this.statusPieChartData = {
-    labels: statusLabels,
-    datasets: [{
-      data: Object.values(auditStatusData),
-      backgroundColor: statusLabels.map(status => 
-        statusColors[status] || '#6c757d' // Fallback to gray
-      )
-    }]
-  };
-
-  // Line Chart - Audits Over Time
-  const auditLabels = Object.keys(this.auditsOverTime).sort();
-  this.lineChartData = {
-    labels: auditLabels,
-    datasets: [{
-      data: auditLabels.map(k => this.auditsOverTime[k]),
-      label: 'Audits',
-      borderColor: '#007bff',
-      backgroundColor: 'rgba(0,123,255,0.2)',
-      fill: true
-    }]
-  };
-
-  // Workflow Completion Trends
-  const wfLabels = Object.keys(this.workflowTrends).sort();
-  this.workflowChartData = {
-    labels: wfLabels,
-    datasets: [{
-      data: wfLabels.map(k => this.workflowTrends[k]),
-      label: 'Avg Completion %',
-      borderColor: '#28a745',
-      backgroundColor: 'rgba(40,167,69,0.2)',
-      fill: true
-    }]
-  };
-
-  // CAP Progress Chart
-  this.capProgressChartData = {
-    labels: this.departmentPerformance.map(d => d.name),
-    datasets: [{
-      data: this.departmentPerformance.map(d => Math.round(Math.random() * 100)), // Placeholder
-      label: 'CAP Implementation %',
-      backgroundColor: '#007bff' // Consistent blue
-    }]
-  };
-}
-
-private formatRelativeTime(dateString: string): string {
-  if (!dateString) return 'Unknown time';
-  
-  try {
-    const date = new Date(dateString);
-    const now = new Date();
-    
-    // Check if date is invalid
-    if (isNaN(date.getTime())) {
-      return 'Invalid date';
-    }
-    
-    if (date > now) {
-      return `Future: ${date.toLocaleDateString()}`;
-    }
-    
-    const diffMs = now.getTime() - date.getTime();
-    const diffSeconds = Math.floor(diffMs / 1000);
-    const diffMinutes = Math.floor(diffSeconds / 60);
-    const diffHours = Math.floor(diffMinutes / 60);
-    const diffDays = Math.floor(diffHours / 24);
-    const diffWeeks = Math.floor(diffDays / 7);
-    const diffMonths = Math.floor(diffDays / 30);
-
-    if (diffSeconds < 60) return 'Just now';
-    if (diffMinutes < 60) return `${diffMinutes}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) return `${diffDays}d ago`;
-    if (diffWeeks < 4) return `${diffWeeks}w ago`;
-    if (diffMonths < 12) return `${diffMonths}mo ago`;
-    
-    return date.toLocaleDateString();
-  } catch (error) {
-    console.error('Error formatting date:', dateString, error);
-    return 'Date error';
-  }
-}
-
-private processAuditStatus(audits: any[]): any {
-  const statusCount: any = { Planned: 0, 'In Progress': 0, Completed: 0 };
-  
-  audits.forEach((audit: any) => {
-    const status = audit.status || 'Planned';
-    if (statusCount.hasOwnProperty(status)) {
-      statusCount[status]++;
-    }
-  });
-  
-  return statusCount;
-}
-
-  // Filter methods
-  clearFilters(): void {
-    this.department = '';
-    this.dateFrom = undefined;
-    this.dateTo = undefined;
-    this.severityFilter = '';
-    this.statusFilter = '';
-    this.refresh();
+  formatCurrency(amount: number): string {
+    return new Intl.NumberFormat('en-KE', {
+      style: 'currency',
+      currency: 'KES',
+      minimumFractionDigits: 0
+    }).format(amount);
   }
 
   exportExcel(): void {
-    const wb = XLSX.utils.book_new();
-
-    const auditsData = [['Department', 'Audit Count'], ...Object.entries(this.auditsByDept)];
-    const findingsData = [['Severity', 'Count'], ...Object.entries(this.findingsSeverity)];
-    const deptPerformanceData = [
-      ['Department', 'Audits', 'Findings', 'Critical', 'High', 'Medium', 'Low', 'Avg Severity', 'Completion Rate', 'Risk Score'],
-      ...this.departmentPerformance.map(dept => [
-        dept.name, dept.auditCount, dept.findingCount, dept.criticalCount, 
-        dept.highCount, dept.mediumCount, dept.lowCount, dept.avgSeverity, 
-        dept.completionRate + '%', dept.riskScore + '/10'
-      ])
-    ];
-
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(auditsData), 'AuditsByDept');
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(findingsData), 'FindingsBySeverity');
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(deptPerformanceData), 'DeptPerformance');
-
-    const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-    saveAs(new Blob([wbout]), `audit-dashboard-${new Date().toISOString().slice(0,10)}.xlsx`);
+    // Mock export for POC
+    alert('Excel export ready in production version');
   }
 
   exportPDF(): void {
-    const doc = new jsPDF();
-    
-    doc.setFontSize(16);
-    doc.text('Audit Management Dashboard Report', 14, 20);
-    doc.setFontSize(10);
-    doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30);
-
-    doc.setFontSize(12);
-    doc.text('Audits by Department', 14, 45);
-    const auditsBody = Object.entries(this.auditsByDept).map(([dept, count]) => [dept, count.toString()]);
-    (doc as any).autoTable({
-      head: [['Department', 'Count']],
-      body: auditsBody,
-      startY: 50
-    });
-
-    const finalY = (doc as any).lastAutoTable.finalY + 10;
-    doc.text('Department Performance', 14, finalY);
-    const deptBody = this.departmentPerformance.map(dept => [
-      dept.name,
-      dept.auditCount.toString(),
-      dept.findingCount.toString(),
-      dept.avgSeverity,
-      dept.completionRate + '%',
-      dept.riskScore + '/10'
-    ]);
-    (doc as any).autoTable({
-      head: [['Department', 'Audits', 'Findings', 'Avg Severity', 'Completion', 'Risk Score']],
-      body: deptBody,
-      startY: finalY + 5
-    });
-
-    doc.save(`audit-dashboard-${new Date().toISOString().slice(0,10)}.pdf`);
+    // Mock export for POC
+    alert('PDF export ready in production version');
   }
-
-  exportDetailedReport(): void {
-    Swal.fire({
-      title: 'Generating Detailed Report',
-      text: 'Please wait while we compile the comprehensive report...',
-      icon: 'info',
-      showConfirmButton: false,
-      allowOutsideClick: false
-    });
-
-    setTimeout(() => {
-      this.exportExcel(); // For now, just export Excel
-      Swal.fire({
-        title: 'Report Generated!',
-        text: 'Your detailed report has been downloaded.',
-        icon: 'success',
-        confirmButtonText: 'OK'
-      });
-    }, 2000);
-  }
-
-  exportChartData(chartType: string): void {
-    // console.log(`Exporting chart data: ${chartType}`);
-    // Similar to exportExcel but for specific chart
-  }
-
-  exportDepartmentMatrix(): void {
-    const deptData = this.departmentPerformance.map(dept => ({
-      Department: dept.name,
-      'Total Audits': dept.auditCount,
-      'Total Findings': dept.findingCount,
-      'Critical Findings': dept.criticalCount,
-      'High Findings': dept.highCount,
-      'Medium Findings': dept.mediumCount,
-      'Low Findings': dept.lowCount,
-      'Average Severity': dept.avgSeverity,
-      'Completion Rate': dept.completionRate + '%',
-      'Risk Score': dept.riskScore + '/10'
-    }));
-
-    const ws = XLSX.utils.json_to_sheet(deptData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Department Performance');
-    XLSX.writeFile(wb, `department-performance-${new Date().toISOString().slice(0,10)}.xlsx`);
-  }
-
-  viewAlert(alert: PriorityAlert): void {
-    Swal.fire({
-      title: alert.title,
-      html: `
-        <div class="text-start">
-          <hr>
-          <p><strong>Severity:</strong> <span class="badge bg-${alert.severity === 'Critical' ? 'danger' : alert.severity === 'High' ? 'warning' : 'info'}">${alert.severity}</span></p>
-          <p><strong>Department:</strong> ${alert.department}</p>
-          <p><strong>Due Date:</strong> ${alert.dueDate}</p>
-          <p><strong>Days ${alert.daysLeft < 0 ? 'Overdue' : 'Left'}:</strong> ${Math.abs(alert.daysLeft)}</p>
-        </div>
-      `,
-      icon: 'warning',
-      confirmButtonText: 'Close'
-    });
-  }
-
-  viewDepartmentDetails(department: string): void {
-    Swal.fire({
-      title: `Department: ${department}`,
-      text: `Viewing detailed analytics for ${department}`,
-      icon: 'info',
-      confirmButtonText: 'OK'
-    });
-  }
-
-viewAllCAPs(): void {
-  Swal.fire({
-    title: 'Corrective Action Plans',
-    text: 'Opening CAP monitoring dashboard...',
-    icon: 'info',
-    showCancelButton: true,
-    confirmButtonText: 'Open CAP',
-    cancelButtonText: 'Stay Here',
-    showLoaderOnConfirm: true,
-    preConfirm: () => {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          try {
-            this.router.navigate(['/eclectics/compliance/all']);
-            resolve(true);
-          } catch (error) {
-            console.error('Navigation error:', error);
-            resolve(false);
-          }
-        }, 1000);
-      });
-    }
-  }).then((result) => {
-    if (result.isDismissed) {
-    } else if (result.value === false) {
-      Swal.fire('Error', 'Could not open CAP dashboard', 'error');
-    }
-  });
-}
-
-generateCAPReport(): void {
-  Swal.fire({
-    title: 'CAP Analytics Report',
-    text: 'Generating comprehensive CAP implementation report...',
-    icon: 'info',
-    showConfirmButton: false,
-    allowOutsideClick: false,
-    timer: 1500
-  });
-
-  setTimeout(() => {
-    try {
-      this.exportCAPReportToExcel();
-      Swal.fire({
-        title: 'Report Generated!',
-        text: 'CAP analytics report has been downloaded as Excel.',
-        icon: 'success',
-        confirmButtonText: 'OK'
-      });
-    } catch (error) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Failed to generate CAP report. Please try again.',
-        icon: 'error',
-        confirmButtonText: 'OK'
-      });
-    }
-  }, 1500);
-}
-
-private exportCAPReportToExcel(): void {
-  const wb = XLSX.utils.book_new();
-  
-  // CAP Summary Sheet
-  const summaryData = [
-    ['CAP Implementation Analytics Report'],
-    ['Generated on:', new Date().toLocaleDateString()],
-    ['Overall CAP Implementation Rate:', `${this.overallCapImplementationRate}%`],
-    [''],
-    ['Department', 'Total Audits', 'Total Findings', 'CAP Implemented', 'CAP Rate', 'Risk Score', 'Avg Severity']
-  ];
-  this.departmentPerformance.forEach(dept => {
-    const capRate = this.calculateDepartmentCAPRate(dept.name);
-    const capImplemented = Math.round((capRate / 100) * dept.findingCount);
-    
-    summaryData.push([
-      dept.name,
-      dept.auditCount.toString(),
-      dept.findingCount.toString(),
-      capImplemented.toString(),
-      `${capRate}%`,
-      `${dept.riskScore}/10`,
-      dept.avgSeverity
-    ]);
-  });
-
-  const findingsData = [
-    ['CAP Implementation Details'],
-    ['Department', 'Finding Type', 'Title/Description', 'Severity', 'Status', 'CAP Status']
-  ];
-
-  this.workflows.forEach((workflow: any) => {
-    const department = workflow.department || 'Unknown';
-
-    if (workflow.fieldwork?.preClosing) {
-      workflow.fieldwork.preClosing.forEach((finding: any) => {
-        findingsData.push([
-          department,
-          'Major Finding',
-          finding.title || 'No title',
-          finding.severity || 'Unknown',
-          finding.status || 'Open',
-          this.getCAPStatus(finding)
-        ]);
-      });
-    }
-
-    if (workflow.miniFindings) {
-      workflow.miniFindings.forEach((finding: any) => {
-        findingsData.push([
-          department,
-          'Mini Finding',
-          finding.description || 'No description',
-          finding.severity || finding.impact || 'Unknown',
-          finding.status || 'Noted',
-          this.getCAPStatus(finding)
-        ]);
-      });
-    }
-  });
-
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(summaryData), 'CAP Summary');
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(findingsData), 'CAP Details');
-
-  const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-  saveAs(new Blob([wbout]), `cap-analytics-report-${new Date().toISOString().slice(0,10)}.xlsx`);
-}
-
-private calculateDepartmentCAPRate(department: string): number {
-  const deptWorkflows = this.workflows.filter((w: any) => w.department === department);
-  let totalFindings = 0;
-  let findingsWithAction = 0;
-
-  deptWorkflows.forEach((workflow: any) => {
-    if (workflow.fieldwork?.preClosing) {
-      workflow.fieldwork.preClosing.forEach((finding: any) => {
-        totalFindings++;
-        if (finding.status && !['Open', 'Reviewed', 'Draft'].includes(finding.status)) {
-          findingsWithAction++;
-        }
-      });
-    }
-    
-    if (workflow.miniFindings) {
-      workflow.miniFindings.forEach((finding: any) => {
-        totalFindings++;
-        if (finding.status && !['Open', 'Noted'].includes(finding.status)) {
-          findingsWithAction++;
-        }
-      });
-    }
-  });
-
-  return totalFindings ? Math.round((findingsWithAction / totalFindings) * 100) : 0;
-}
-
-private getCAPStatus(finding: any): string {
-  const status = finding.status || 'Open';
-  
-  switch (status) {
-    case 'Open':
-    case 'Reviewed':
-    case 'Noted':
-    case 'Draft':
-      return 'No CAP';
-    case 'Presented':
-    case 'Confirmed':
-      return 'CAP Planned';
-    case 'In Progress':
-      return 'CAP in Progress';
-    case 'Closed':
-    case 'Resolved':
-      return 'CAP Completed';
-    default:
-      return 'Unknown';
-  }
-}
 }

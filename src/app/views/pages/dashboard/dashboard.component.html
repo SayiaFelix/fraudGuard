@@ -1,428 +1,336 @@
-<div class="container-fluid position-relative">
-  <div *ngIf="isLoading" 
-       class="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center bg-white bg-opacity-75"
-       style="z-index: 1000;">
-    <div class="spinner-border text-primary me-2" role="status">
+
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="loading-spinner">
+    <div class="spinner-border" role="status">
       <span class="visually-hidden">Loading...</span>
     </div>
-    <strong>Refreshing data...</strong>
+    <strong>Refreshing dashboard data...</strong>
+    <small class="text-muted">Please wait a moment</small>
   </div>
-
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="mb-0 me-3">Audit Management Dashboard</h2>
-    <div>
-      <button class="btn btn-outline-secondary me-2" (click)="refresh()">
-        <i class="fas fa-sync-alt"></i> Refresh
-      </button>
-      <button class="btn btn-outline-primary me-2" (click)="exportExcel()">
-        <i class="fas fa-file-excel"></i> Excel
-      </button>
-      <button class="btn btn-outline-danger me-2" (click)="exportPDF()">
-        <i class="fas fa-file-pdf"></i> PDF
-      </button>
-      <button class="btn btn-outline-success" (click)="exportDetailedReport()">
-        <i class="fas fa-file-alt"></i> Full Report
-      </button>
-    </div>
-  </div>
-
-  <div class="row mb-4">
-    <div class="col-md-3 col-sm-6 mb-3" *ngFor="let kpi of kpis">
-      <div class="card shadow-sm text-center p-3 border-2 rounded-3 h-100" [ngClass]="kpi.borderClass">
-        <div class="mb-2">
-          <i [class]="kpi.icon + ' fa-2x ' + kpi.textClass"></i>
-        </div>
-        <h4 class="fw-bold mb-1">{{ kpi.label }}</h4>
-        <h3 class="fw-bold d-flex justify-content-center align-items-center">
-          {{ kpi.value }}
-          <span class="ms-2">
-            <i *ngIf="kpi.trend === 'up'" class="fas fa-arrow-up text-success"></i>
-            <i *ngIf="kpi.trend === 'down'" class="fas fa-arrow-down text-danger"></i>
-            <i *ngIf="kpi.trend === 'flat'" class="fas fa-arrow-right text-primary"></i>
-          </span>
-        </h3>
-        <small class="text-muted" *ngIf="kpi.description">{{ kpi.description }}</small>
-      </div>
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-lg-8">
-      <!-- 🔹 Bar Chart - Audits by Department -->
-      <div class="card shadow-sm mb-4">
-        <div class="card-header bg-light d-flex justify-content-between align-items-center">
-          <h4 class="mb-0 fw-bold"><i class="fas fa-chart-bar text-primary me-2"></i>Audits by Department</h4>
-          <button class="btn btn-sm btn-outline-primary" (click)="exportChartData('audits-by-dept')">
-            <i class="fas fa-download"></i>
-          </button>
-        </div>
-        <div class="card-body">
-          <canvas baseChart [data]="barChartData" [options]="barChartOptions" [type]="'bar'"></canvas>
-        </div>
-      </div>
-
-      <!-- 🔹 Pie Charts Row -->
-      <div class="row">
-        <!-- Findings Severity Pie -->
-        <div class="col-md-6 mb-4">
-          <div class="card shadow-sm h-100">
-            <div class="card-header bg-light d-flex justify-content-between align-items-center">
-              <h4 class="mb-0 fw-bold"><i class="fas fa-chart-pie text-success me-2"></i>Findings by Severity</h4>
-              <button class="btn btn-sm btn-outline-success" (click)="exportChartData('findings-severity')">
-                <i class="fas fa-download"></i>
-              </button>
-            </div>
-            <div class="card-body">
-              <canvas baseChart [data]="pieChartData" [options]="pieChartOptions" [type]="'pie'"></canvas>
-            </div>
-          </div>
-        </div>
-
-        <!-- Audit Status Pie -->
-        <div class="col-md-6 mb-4">
-          <div class="card shadow-sm h-100">
-            <div class="card-header bg-light d-flex justify-content-between align-items-center">
-              <h4 class="mb-0 fw-bold"><i class="fas fa-tasks text-warning me-2"></i>Audit Status Distribution</h4>
-              <button class="btn btn-sm btn-outline-warning" (click)="exportChartData('audit-status')">
-                <i class="fas fa-download"></i>
-              </button>
-            </div>
-            <div class="card-body">
-              <canvas baseChart [data]="statusPieChartData" [options]="statusPieChartOptions" [type]="'pie'"></canvas>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-lg-4">
-      <!-- 🔹 Recent Activity Feed -->
-      <div class="card shadow-sm mb-4">
-        <div class="card-header bg-light">
-          <h4 class="mb-0 fw-bold"><i class="fas fa-bell me-2"></i>Recent Activity</h4>
-        </div>
-        <div class="card-body p-0">
-          <div style="max-height: 320px; overflow-y: auto;">
-            <div *ngFor="let activity of recentActivities" 
-                 class="activity-item p-3 border-bottom"
-                 [ngClass]="{
-                   'border-start border-success': activity.type === 'completed',
-                   'border-start border-warning': activity.type === 'finding',
-                   'border-start border-info': activity.type === 'update',
-                   'border-start border-primary': activity.type === 'created'
-                 }">
-              <div class="d-flex justify-content-between align-items-start mb-1">
-                <span class="badge" [ngClass]="{
-                  'bg-success': activity.type === 'completed',
-                  'bg-warning': activity.type === 'finding',
-                  'bg-info': activity.type === 'update',
-                  'bg-primary': activity.type === 'created'
-                }">
-                  {{activity.type | titlecase}}
-                </span>
-                <small class="text-muted">{{activity.time}}</small>
-              </div>
-              <div class="fw-medium small">{{activity.message}}</div>
-              <small class="text-muted">{{activity.details}}</small>
-            </div>
-            <div *ngIf="recentActivities.length === 0" class="text-center p-4 text-muted">
-              <i class="fas fa-inbox fa-2x mb-2"></i>
-              <p class="mb-0">No recent activity</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 🔹 Priority Alerts -->
-      <div class="card shadow-sm border-warning mb-4">
-        <div class="card-header bg-warning text-dark">
-          <h4 class="mb-0 fw-bold"><i class="fas fa-exclamation-triangle me-2"></i>Priority Alerts</h4>
-        </div>
-        <div class="card-body p-0">
-          <div style="max-height: 310px; overflow-y: auto;">
-            <div *ngFor="let alert of priorityAlerts" class="alert-item p-3 border-bottom">
-              <div class="d-flex justify-content-between align-items-start mb-2">
-                <span class="badge" [ngClass]="{
-                  'bg-danger': alert.severity === 'Critical',
-                  'bg-warning': alert.severity === 'High',
-                  'bg-info': alert.severity === 'Medium'
-                }">
-                  {{alert.severity}}
-                </span>
-        
-              <small class="text-muted" [ngClass]="{
-                'text-danger': alert.daysLeft < 0,
-                'text-warning': alert.daysLeft <= 3 && alert.daysLeft >= 0,
-                'text-success': alert.daysLeft > 3
-              }">
-                {{getDisplayDays(alert.daysLeft)}}
-              </small>
-
-              </div>
-              <strong class="d-block mb-1">{{alert.title}}</strong>
-              <small class="text-muted d-block mb-2">{{alert.department}} • Due: {{alert.dueDate}}</small>
-              <button class="btn btn-sm btn-outline-primary w-100" (click)="viewAlert(alert)">
-                <i class="fas fa-eye me-1"></i> View Details
-              </button>
-            </div>
-
-            <div *ngIf="priorityAlerts.length === 0" class="text-center p-4 text-muted">
-              <i class="fas fa-check-circle fa-2x mb-2 text-success"></i>
-              <p class="mb-0">No priority alerts</p>
-            </div>
-
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card shadow-sm mt-2">
-      <div class="row">
-          <!-- 🔹 Upcoming Deadlines --> 
-        <div class="col-md-6 mb-4">
-          <div class="card shadow-sm h-100">
-            <div class="card shadow-sm border-info">
-              <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
-                <h4 class="mb-0 fw-bold"><i class="fas fa-calendar-day me-2"></i>Upcoming Deadlines</h4>
-                <span class="badge bg-light text-info">{{upcomingDeadlines.length}}</span>
-              </div>
-              <div class="card-body p-0">
-                <div style="max-height: 250px; overflow-y: auto;">
-                  <div *ngFor="let deadline of upcomingDeadlines" 
-                      class="deadline-item p-3 border-bottom"
-                      [ngClass]="{
-                        'border-start border-danger': deadline.daysLeft <= 1,
-                        'border-start border-warning': deadline.daysLeft <= 3,
-                        'border-start border-info': deadline.daysLeft > 3
-                      }">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                      <strong class="small">{{deadline.title}}</strong>
-                      <span class="badge" [ngClass]="{
-                        'bg-danger': deadline.daysLeft <= 1,
-                        'bg-warning': deadline.daysLeft <= 3,
-                        'bg-info': deadline.daysLeft > 3
-                      }">
-                        {{deadline.daysLeft}} day{{deadline.daysLeft !== 1 ? 's' : ''}} left
-                      </span>
-                    </div>
-                    <small class="text-muted d-block">{{deadline.type | titlecase}} • {{deadline.department}}</small>
-                    <small class="text-muted">Due: {{deadline.dueDate}}</small>
-                    <div class="mt-2">
-                      <button class="btn btn-sm btn-outline-primary w-100" (click)="viewDeadlineDetails(deadline)">
-                        <i class="fas fa-eye me-1"></i> View Details
-                      </button>
-                    </div>
-                  </div>
-                  <div *ngIf="upcomingDeadlines.length === 0" class="text-center p-4 text-muted">
-                    <i class="fas fa-calendar-check fa-2x mb-2"></i>
-                    <p class="mb-0">No upcoming deadlines</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-       <!-- 🔹 Overdue Items -->
-        <div class="col-md-6 mb-4">
-          <div class="card shadow-sm h-100">
-            <div class="card shadow-sm border-danger mb-4" *ngIf="overdueDeadlines.length > 0">
-              <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
-                <h4 class="mb-0 fw-bold"><i class="fas fa-exclamation-circle me-2"></i>Overdue Items</h4>
-                <span class="badge bg-light text-danger">{{overdueDeadlines.length}}</span>
-              </div>
-              <div class="card-body p-0">
-                <div style="max-height: 250px; overflow-y: auto;">
-                  <div *ngFor="let deadline of overdueDeadlines" 
-                      class="deadline-item p-3 border-bottom border-danger">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                      <strong class="small text-dark">{{deadline.title}}</strong>
-                      <span class="badge bg-danger">
-                        {{abs(deadline.daysLeft)}} day{{isPlural(deadline.daysLeft) ? 's' : ''}} overdue
-                      </span>
-                    </div>
-                    <small class="text-muted d-block">{{deadline.type | titlecase}} • {{deadline.department}}</small>
-                    <small class="text-muted">Due: {{deadline.dueDate}}</small>
-                    <div class="mt-2">
-                      <button class="btn btn-sm btn-outline-danger w-100" (click)="viewDeadlineDetails(deadline)">
-                        <i class="fas fa-exclamation-triangle me-1"></i> View Details
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      
-      </div>
-  </div>
-
-<div class="card shadow-sm mt-3">
-   <!-- 🔹 Line Charts Row -->
-      <div class="row">
-        <!-- Audits Over Time -->
-        <div class="col-md-6 mb-4">
-          <div class="card shadow-sm h-100">
-            <div class="card-header bg-light d-flex justify-content-between align-items-center">
-              <h4 class="mb-0 fw-bold"><i class="fas fa-chart-line text-info me-2"></i>Audits Over Time</h4>
-              <button class="btn btn-sm btn-outline-info" (click)="exportChartData('audits-timeline')">
-                <i class="fas fa-download"></i>
-              </button>
-            </div>
-            <div class="card-body">
-              <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" [type]="'line'"></canvas>
-            </div>
-          </div>
-        </div>
-
-        <!-- Workflow Completion Trends -->
-        <div class="col-md-6 mb-4">
-          <div class="card shadow-sm h-100">
-            <div class="card-header bg-light d-flex justify-content-between align-items-center">
-              <h4 class="mb-0 fw-bold"><i class="fas fa-tasks text-primary me-2"></i>Workflow Completion Trends</h4>
-              <button class="btn btn-sm btn-outline-primary" (click)="exportChartData('workflow-trends')">
-                <i class="fas fa-download"></i>
-              </button>
-            </div>
-            <div class="card-body">
-              <canvas baseChart [data]="workflowChartData" [options]="workflowChartOptions" [type]="'line'"></canvas>
-            </div>
-          </div>
-        </div>
-      </div>
 </div>
 
-  <!-- 🔹 Department Performance Matrix -->
-  <div class="card shadow-sm mt-4">
-    <div class="card-header bg-light d-flex justify-content-between align-items-center">
-      <h4 class="mb-0 fw-bold"><i class="fas fa-trophy me-2"></i>Department Performance Matrix</h4>
-      <button class="btn btn-sm btn-outline-primary" (click)="exportDepartmentMatrix()">
-        <i class="fas fa-download me-1"></i> Export
+<div class="container-fluid py-1">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">
+        <i class="fas fa-shield-alt me-2" style="color: #f72585;"></i>
+        Fraud Intelligence Dashboard
+      </h2>
+      <p class="text-muted mb-0">
+        <i class="fas fa-clock me-1"></i> Last updated: {{ lastUpdated | date:'medium' }}
+        <span class="mx-2">•</span>
+        <span class="badge bg-light text-dark">AI Model v2.3.1</span>
+      </p>
+    </div>
+    
+    <div>
+      <button class="btn btn-outline-primary me-2" (click)="refresh()">
+        <i class="fas fa-sync-alt me-1"></i> Refresh
       </button>
+      <button class="btn btn-outline-success me-2" (click)="exportExcel()">
+        <i class="fas fa-file-excel me-1"></i> Export
+      </button>
+      <button class="btn btn-outline-danger" (click)="exportPDF()">
+        <i class="fas fa-file-pdf me-1"></i> PDF
+      </button>
+    </div>
+  </div>
+
+  <div class="row g-4 mb-4">
+  <div class="col-md-3 col-sm-6" *ngFor="let kpi of kpis">
+    <div class="card kpi-card h-100 border-0 shadow-sm" 
+         [style.borderLeft]="'6px solid ' + kpi.color">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div>
+            <span class="text-muted small text-uppercase">{{ kpi.label }}</span>
+            <h3 class="fw-bold mt-1 mb-0">{{ kpi.value }}</h3>
+          </div>
+          <div class="kpi-icon" [style.backgroundColor]="kpi.color + '20'">
+            <i [class]="kpi.icon" [style.color]="kpi.color"></i>
+          </div>
+        </div>
+        <div class="d-flex align-items-center mt-2">
+          <span class="trend-indicator me-2" [class]="kpi.trend">
+            <i class="fas" [ngClass]="{
+              'fa-arrow-up': kpi.trend === 'up',
+              'fa-arrow-down': kpi.trend === 'down',
+              'fa-minus': kpi.trend === 'flat'
+            }"></i>
+          </span>
+          <small class="text-muted">{{ kpi.description }}</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  <div class="row g-4 mb-4">
+    <!-- Fraud Trend Line Chart -->
+    <div class="col-lg-7">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-transparent border-0 pt-3 px-4">
+          <div class="d-flex justify-content-between align-items-center">
+            <h4 class="fw-bold mb-0">
+              <i class="fas fa-chart-line me-2" style="color: #f72585;"></i>
+              Fraud Detection Trend (6 Months)
+            </h4>
+            <span class="badge bg-light text-dark">Real-time</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <canvas baseChart 
+                  [data]="lineChartData" 
+                  [options]="lineChartOptions" 
+                  [type]="'line'">
+          </canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Risk Distribution Pie -->
+    <div class="col-lg-5">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-transparent border-0 pt-3 px-4">
+          <h4 class="fw-bold mb-0">
+            <i class="fas fa-chart-pie me-2" style="color: #ff9e00;"></i>
+            Risk Severity Distribution
+          </h4>
+        </div>
+        <div class="card-body">
+          <canvas baseChart 
+                  [data]="pieChartData" 
+                  [options]="pieChartOptions" 
+                  [type]="'pie'">
+          </canvas>
+        </div>
+     
+        <div class="card-footer bg-transparent border-0 pb-3 px-4">
+          <div class="row text-center g-2">
+            <div class="col-3" *ngFor="let item of pieChartData.labels; let i = index">
+              <div class="small text-muted">{{ item }}</div>
+              <div class="fw-bold" [style.color]="getPieChartColor(i)">
+                {{ getPieChartValue(i) }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Alerts Table -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-transparent border-0 pt-3 px-4">
+      <div class="d-flex justify-content-between align-items-center">
+        <h4 class="fw-bold mb-0">
+          <i class="fas fa-exclamation-triangle me-2 text-danger"></i>
+          High-Risk Transactions (Last 24 Hours)
+        </h4>
+        <button class="btn btn-sm btn-outline-primary" [routerLink]="['/fraudsentinelAi/transaction_management/fraud/history']">
+          View All <i class="fas fa-arrow-right ms-1"></i>
+        </button>
+      </div>
     </div>
     <div class="card-body p-0">
       <div class="table-responsive">
-        <table class="table table-sm table-hover mb-0">
-          <thead class="table-light">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="bg-light">
             <tr>
-              <th>Department</th>
-              <th>Total Audits</th>
-              <th>Total Findings</th>
-              <th>Critical</th>
-              <th>High</th>
-              <th>Medium</th>
-              <th>Low</th>
-              <th>Avg Severity</th>
-              <th>Completion Rate</th>
+              <th class="ps-4">Transaction ID</th>
+              <th>Amount</th>
               <th>Risk Score</th>
+              <th>Risk Level</th>
+              <th>Channel</th>
+              <th>Location</th>
+              <th>Time</th>
+              <th>Status</th>
+              <th class="pe-4">Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let dept of departmentPerformance" (click)="viewDepartmentDetails(dept.name)" style="cursor: pointer;">
-              <td class="fw-bold text-primary">{{dept.name}}</td>
-              <td>{{dept.auditCount}}</td>
-              <td>{{dept.findingCount}}</td>
-              <td>
-                <span class="badge bg-dark" *ngIf="dept.criticalCount > 0">{{dept.criticalCount}}</span>
-                <span class="text-muted" *ngIf="dept.criticalCount === 0">-</span>
-              </td>
-              <td>
-                <span class="badge bg-danger" *ngIf="dept.highCount > 0">{{dept.highCount}}</span>
-                <span class="text-muted" *ngIf="dept.highCount === 0">-</span>
-              </td>
-              <td>
-                <span class="badge bg-warning" *ngIf="dept.mediumCount > 0">{{dept.mediumCount}}</span>
-                <span class="text-muted" *ngIf="dept.mediumCount === 0">-</span>
-              </td>
-              <td>
-                <span class="badge bg-info" *ngIf="dept.lowCount > 0">{{dept.lowCount}}</span>
-                <span class="text-muted" *ngIf="dept.lowCount === 0">-</span>
-              </td>
-              <td>
-                <span class="badge" [ngClass]="{
-                  'bg-danger': dept.avgSeverity === 'High' || dept.avgSeverity === 'Critical',
-                  'bg-warning': dept.avgSeverity === 'Medium',
-                  'bg-success': dept.avgSeverity === 'Low'
-                }">{{dept.avgSeverity}}</span>
-              </td>
+            <tr *ngFor="let alert of recentAlerts">
+              <td class="ps-4 fw-medium">{{ alert.transactionId }}</td>
+              <td class="fw-semi-bold">{{ formatCurrency(alert.amount) }}</td>
               <td>
                 <div class="d-flex align-items-center">
-                  <div class="progress flex-grow-1 me-2" style="height: 6px;">
-                    <div class="progress-bar" [ngClass]="{
-                      'bg-success': dept.completionRate >= 80,
-                      'bg-warning': dept.completionRate >= 50,
-                      'bg-danger': dept.completionRate < 50
-                    }" [style.width.%]="dept.completionRate"></div>
+                  <span class="risk-score me-2">{{ alert.riskScore }}</span>
+                  <div class="progress" style="width: 60px; height: 6px;">
+                    <div class="progress-bar" 
+                         [style.width.%]="(alert.riskScore/10)*100"
+                         [style.background]="alert.riskScore >= 8 ? '#f72585' : alert.riskScore >= 6 ? '#ff9e00' : '#4cc9f0'">
+                    </div>
                   </div>
-                  <small>{{dept.completionRate}}%</small>
                 </div>
               </td>
               <td>
-                <span class="badge" [ngClass]="{
-                  'bg-danger': dept.riskScore >= 8,
-                  'bg-warning': dept.riskScore >= 5,
-                  'bg-success': dept.riskScore < 5
-                }">{{dept.riskScore}}/10</span>
+                <span class="badge" [ngClass]="getRiskBadgeClass(alert.riskCategory)">
+                  {{ alert.riskCategory }}
+                </span>
+              </td>
+              <td class="fw-semi-bold">
+                <i class="fas" [ngClass]="{
+                  'fa-mobile-alt': alert.channel === 'Mobile',
+                  'fa-globe': alert.channel === 'Web',
+                  'fa-credit-card': alert.channel === 'ATM',
+                  'fa-user-tie': alert.channel === 'Agent'
+                }"></i>
+                {{ alert.channel }}
+              </td>
+              <td>{{ alert.location }}</td>
+              <td>{{ alert.timestamp | date:'HH:mm' }}</td>
+              <td>
+                <span class="badge" [ngClass]="getStatusBadgeClass(alert.status)">
+                  {{ alert.status }}
+                </span>
+              </td>
+              <td class="pe-4">
+                <button class="btn btn-sm btn-link text-primary p-0 me-2" 
+                        (click)="viewTransaction(alert.transactionId)">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-link text-danger p-0" 
+                        (click)="investigateAlert(alert.id)">
+                  <i class="fas fa-search"></i>
+                </button>
               </td>
             </tr>
           </tbody>
         </table>
-        <div *ngIf="departmentPerformance.length === 0" class="text-center p-4 text-muted">
-          <i class="fas fa-building fa-2x mb-2"></i>
-          <p class="mb-0">No department data available</p>
-        </div>
       </div>
     </div>
   </div>
 
-  <!-- 🔹 CAP Implementation Progress -->
-  <div class="card shadow-sm mt-4">
-    <div class="card-header bg-light">
-      <h4 class="mb-0 fw-bold"><i class="fas fa-clipboard-check me-2"></i>CAP Implementation Progress</h4>
-    </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col-md-8">
-          <canvas baseChart [data]="capProgressChartData" [options]="capProgressChartOptions" [type]="'bar'"></canvas>
+  <div class="row g-4">
+    <!-- Channel Risk Bar Chart -->
+    <div class="col-lg-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-transparent border-0 pt-3 px-4">
+          <h4 class="fw-bold mb-0">
+            <i class="fas fa-chart-bar me-2" style="color: #4361ee;"></i>
+            Fraud Risk by Channel
+          </h4>
         </div>
-        <div class="col-md-4">
-          <div class="d-flex flex-column h-100 justify-content-center">
-            <div class="text-center mb-4">
-              <h3 class="text-primary">{{overallCapImplementationRate}}%</h3>
-              <p class="text-muted mb-0">Overall CAP Implementation Rate</p>
+        <div class="card-body">
+          <canvas baseChart 
+                  [data]="barChartData" 
+                  [options]="barChartOptions" 
+                  [type]="'bar'">
+          </canvas>
+        </div>
+        <div class="card-footer bg-transparent border-0">
+          <div class="row text-center">
+            <div class="col-6" *ngFor="let channel of channelRisk">
+              <small class="d-block text-muted">{{ channel.channel }}</small>
+              <span class="fw-bold">{{ channel.riskPercentage }}%</span>
             </div>
-            <div class="d-grid gap-2">
-              <button class="btn btn-outline-primary btn-sm" (click)="viewAllCAPs()">
-                <i class="fas fa-list me-1"></i> View All CAPs
-              </button>
-              <button class="btn btn-outline-success btn-sm" (click)="generateCAPReport()">
-                <i class="fas fa-chart-bar me-1"></i> Generate CAP Analytics
-              </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="row g-4">
+        <!-- Recent Activity -->
+        <div class="col-md-7">
+          <div class="card shadow-sm h-100">
+            <div class="card-header bg-transparent border-0 pt-3 px-4">
+              <h4 class="fw-bold mb-0">
+                <i class="fas fa-bell me-2" style="color: #ff9e00;"></i>
+                Recent Activity
+              </h4>
+            </div>
+            <div class="card-body p-0">
+              <div class="activity-feed">
+                <div *ngFor="let activity of recentActivities" class="activity-item px-4 py-3 border-bottom">
+                  <div class="d-flex">
+                    <div class="activity-icon me-3">
+                      <i class="fas" [ngClass]="getActivityIcon(activity.type)"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                      <div class="d-flex justify-content-between align-items-start">
+                        <strong class="small">{{ activity.message }}</strong>
+                        <small class="text-muted">{{ activity.time }}</small>
+                      </div>
+                      <small class="text-muted d-block">{{ activity.details }}</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      
+        <div class="col-md-5">
+          <div class="card shadow-sm h-100">
+            <div class="card-header bg-transparent border-0 pt-3 px-4">
+              <h4 class="fw-bold mb-0">
+                <i class="fas fa-map-marker-alt me-2" style="color: #06d6a0;"></i>
+                Top Fraud Locations
+              </h4>
+            </div>
+            <div class="card-body">
+              <div *ngFor="let location of topLocations" class="location-item mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <span class="fw-medium">{{ location.city }}</span>
+                  <span class="badge" [ngClass]="getRiskBadgeClass(location.riskLevel)">
+                    {{ location.riskLevel }}
+                  </span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <small class="text-muted">{{ location.count }} cases</small>
+                  <span class="small" [class]="getLocationRiskClass(location.riskLevel)">
+                    <i class="fas" [ngClass]="{
+                      'fa-arrow-up': location.riskLevel === 'High',
+                      'fa-minus': location.riskLevel === 'Medium',
+                      'fa-arrow-down': location.riskLevel === 'Low'
+                    }"></i>
+                  </span>
+                </div>
+                <div class="progress mt-1" style="height: 4px;">
+                  <div class="progress-bar" 
+                       [style.width.%]="(location.count / 456) * 100"
+                       [ngClass]="{
+                         'bg-danger': location.riskLevel === 'High',
+                         'bg-warning': location.riskLevel === 'Medium',
+                         'bg-success': location.riskLevel === 'Low'
+                       }">
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- 🔹 Quick Stats Footer -->
-<div class="container-fluid mt-4">
-  <div class="row">
+  <!-- Footer Stats -->
+  <div class="row mt-4">
     <div class="col-12">
-      <div class="card bg-light">
-        <div class="card-body py-2">
+      <div class="card bg-light border-0">
+        <div class="card-body py-3">
           <div class="row text-center">
             <div class="col">
-              <small class="text-muted">Last Updated: {{lastUpdated | date:'medium'}}</small>
+              <small class="text-muted">
+                <i class="fas fa-microchip me-1"></i>
+                AI Model: Ensemble (RF + XGB + LGBM)
+              </small>
             </div>
             <div class="col">
-              <small class="text-muted">Data Source: Audit Management System</small>
+              <small class="text-muted">
+                <i class="fas fa-database me-1"></i>
+                Transactions Analyzed: 158,432
+              </small>
             </div>
             <div class="col">
-              <small class="text-muted">Total Records: {{totalRecords}}</small>
+              <small class="text-muted">
+                <i class="fas fa-bolt me-1"></i>
+                Avg Response: 187ms
+              </small>
             </div>
           </div>
         </div>

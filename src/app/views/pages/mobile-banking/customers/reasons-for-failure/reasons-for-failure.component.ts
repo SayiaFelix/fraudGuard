@@ -1,25 +1,30 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
-import { NgbModal, NgbModalRef } from "@ng-bootstrap/ng-bootstrap";
-import { ActivatedRoute, Router } from "@angular/router";
-import { HttpService } from "../../../../../shared/services/http.service";
-import { ConfirmDialogComponent } from "../../../../../shared/components/confirm-dialog/confirm-dialog.component";
-import { CompareImageComponent } from "../../../../../shared/components/compare-image-component/compare-image.component";
-import { GlobalService } from '../../../../../shared/services/global.service';
-import { Subscription, of } from 'rxjs'; 
-import { catchError } from 'rxjs/operators'; 
-import Swal from "sweetalert2";
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
 
-export type ChannelType = 'webchat' | 'whatsapp' | 'facebook'; 
-
-export interface Channel {
-  id: number; 
+interface GraphNode {
+  id: string;
   name: string;
-  type: ChannelType;
-  created_at: string; 
-  is_active: boolean; 
-  lastUpdated?: Date; 
-  enabled?: boolean; 
+  type: 'customer' | 'device' | 'account' | 'transaction' | 'phone' | 'ip' | 'location';
+  riskScore?: number;
+  riskCategory?: 'Critical' | 'High' | 'Medium' | 'Low';
+  amount?: number;
+  timestamp?: Date;
+  flagged?: boolean;
+  x?: number;
+  y?: number;
+  transactionId?: string; // For linking
+}
+
+interface GraphLink {
+  source: string;
+  target: string;
+  type: 'transacted' | 'uses_device' | 'connected_to' | 'same_ip' | 'same_phone' | 'transferred_to';
+  count?: number;
+}
+
+interface GraphData {
+  nodes: GraphNode[];
+  links: GraphLink[];
 }
 
 @Component({
@@ -28,461 +33,631 @@ export interface Channel {
   styleUrls: ['./reasons-for-failure.component.scss'],
 })
 export class ReasonsForFailureComponent implements OnInit, OnDestroy {
-
-  // --- Form Groups ---
-  public addChannelForm: FormGroup;
-  public brandForm: FormGroup;
-  public proactiveMessagesForm: FormGroup;
-  public preChatForm: FormGroup;
-  public mobileBehaviourForm: FormGroup;
-  public whatsAppForm: FormGroup;
-  public whatsAppConfigForm: FormGroup;
-  public whatsAppSetupForm: FormGroup;
-  public facebookForm: FormGroup;
-  public facebookSetupForm: FormGroup;
-  public isTesting = false;
-  public isLoadingChannels = true; 
-  public isVerifyingWhatsApp = false;
-
-  // --- UI State & Data ---
-  public copySuccessMessage = '';
-  public webchatId = 'Loading...';
-  public deployScript = 'Waiting for chatbot selection...';
-  public webhookUrl = 'https://v3-api.proto.cx/api/platform/inbound/whatsapp/01K2M81A...';
-  public showAppSecret = false;
-  public showModal = false;
-  public channels: Channel[] = [];
-  public selectedChannel: Channel | null = null;
+ @ViewChild('graphCanvas') graphCanvas!: ElementRef<HTMLCanvasElement>;
   
-  public isSetupSectionOpen = false;
-  public isBasicsSectionOpen = true; 
-  public isProactiveSectionOpen = false;
-  public isBrandSectionOpen = false;
-  public isPreChatFormSectionOpen = false;
-  public isMobileBehaviourSectionOpen = false;
+  // Graph data
+  graphData: GraphData = { nodes: [], links: [] };
+  filteredGraphData: GraphData = { nodes: [], links: [] };
+  
+  // Selected node for details panel
+  selectedNode: GraphNode | null = null;
+  selectedNodeConnections: { nodes: GraphNode[], links: GraphLink[] } = { nodes: [], links: [] };
+  
+  // Investigation context
+  investigationAlertId: string | null = null;
+  investigationNode: GraphNode | null = null;
+  isInvestigationMode = false;
+  
+  // Filters
+  showCriticalOnly = false;
+  showHighOnly = false;
+  showTransactions = true;
+  showCustomers = true;
+  showDevices = true;
+  showAccounts = true;
+  searchTerm = '';
+  timeRange: '1h' | '24h' | '7d' | '30d' | 'all' = '24h';
+  
+  // Stats
+  stats = {
+    totalNodes: 0,
+    totalLinks: 0,
+    criticalNodes: 0,
+    highNodes: 0,
+    mediumNodes: 0,
+    lowNodes: 0,
+    fraudRings: 3,
+    connectedAccounts: 12
+  };
 
-  public isConfigurationSectionOpen = false;
-  public isWebhookSectionOpen = false;
-  public isConnectedPageSectionOpen = false;
-  public activeBrandTab: 'welcome' | 'chat' | 'styles' = 'welcome';
-  
-  private chatbotSub: Subscription;
-  public chatbotData: any;
-  
-  public modalRef: NgbModalRef;
-  public customerId: any;
-  public accountData: any;
+  // Mock fraud rings
+  fraudRings = [
+    { id: 'ring-1', name: 'Nairobi Fraud Ring', size: 8, totalAmount: 2450000, riskLevel: 'Critical' },
+    { id: 'ring-2', name: 'Mombasa Mule Network', size: 5, totalAmount: 1890000, riskLevel: 'High' },
+    { id: 'ring-3', name: 'SIM Swap Syndicate', size: 4, totalAmount: 3200000, riskLevel: 'Critical' }
+  ];
+
+  // Predefined positions for nodes (circular layout)
+  private nodePositions: Map<string, { x: number, y: number }> = new Map();
 
   constructor(
-    private fb: FormBuilder,
-    private modalService: NgbModal,
-    private activatedRoute: ActivatedRoute,
-    private httpService: HttpService,
     private router: Router,
-    private globalService: GlobalService,
-  ) {
-    // Add Channel Form
-    this.addChannelForm = this.fb.group({
-      channelType: ['webchat', Validators.required], 
-      name: ['', Validators.required],
-      language: ['English', Validators.required],
-    });
+    private route: ActivatedRoute
+  ) {}
 
-    // Brand Form
-    this.brandForm = this.fb.group({
-      enableWelcomeScreen: [true],
-      title: ['Brand'],
-      description1: ['Customise the webchat style to match your brand'],
-      description2: ['Customise the webchat style to match your brand'],
-    });
 
-    // Proactive Messages Form
-    this.proactiveMessagesForm = this.fb.group({
-      messageColour: ['#FFFFFF'],
-      quickReplyButtonColour: ['#E3EBF9'],
-      quickReplyButtonBorderColour: ['#2C71F6'],
-    });
-
-    // Initialize the form for the Pre-Chat Form section
-    this.preChatForm = this.fb.group({
-      enablePreChatForm: [true],
-      fields: this.fb.array([
-        this.createPreChatField('Name', true, true),
-        this.createPreChatField('Email', true, true),
-        this.createPreChatField('Phone', false, false),
-      ])
-    });
-
-    this.mobileBehaviourForm = this.fb.group({
-        threshold: [768],
-        displayMode: ['fullscreen'], 
-        width: [100],
-        height: [100]
-    });
-
-    this.whatsAppForm = this.fb.group({
-      enabled: [true],
-      message: ['Please fill in the form before starting the chat.'],
-      language: ['English'],
-      autoCloseChat: [false],
-      autoCloseTimeout: ['15 Minutes']
-    });
-
-    this.whatsAppConfigForm = this.fb.group({
-      appId: ['', Validators.required],
-      appSecret: ['', Validators.required],
-      accessToken: ['', Validators.required],
-      phoneNumberId: ['', Validators.required]
-    });
-
-    this.whatsAppSetupForm = this.fb.group({
-      appId: ['01K2M81A7A67HZ6KHZW6MSM4V3'],
-      appSecret: ['a-very-secret-password-string']
-    });
-
-    this.facebookForm = this.fb.group({
-      enabled: [true],
-      name: ['NIT FB'],
-      language: ['English'],
-      autoCloseChat: [false],
-      autoCloseTimeout: ['15 Minutes']
-    });
-
-    this.facebookSetupForm = this.fb.group({
-      appId: ['01K35X3A7BEAWTVNNJDCHZYAVG']
-    });
-  }
-  
-  createPreChatField(name: string, enabled: boolean, required: boolean): FormGroup {
-    return this.fb.group({
-      name: [name],
-      enabled: [enabled],
-      required: [required]
-    });
-  }
-
-  get preChatFields(): FormArray {
-    return this.preChatForm.get('fields') as FormArray;
-  }
-
-  ngOnInit() {
-    this.subscribeToChatbotData();
-    this.activatedRoute.params.subscribe((params: any) => {
-      if (typeof params.id !== 'undefined') { this.customerId = params.id; }
-    });
-    this.getIndividualData();
-  }
-
-  ngOnDestroy() {
-    if (this.chatbotSub) { this.chatbotSub.unsubscribe(); }
-  }
-
-  private subscribeToChatbotData() {
-    this.chatbotSub = this.globalService.chatbotData$.subscribe(data => {
-      console.log("Received chatbot data:", data);
-      if (data && data.id && data.embed_script) {
-        this.chatbotData = data;
-        this.webchatId = data.id;
-        this.deployScript = data.embed_script;
-        this.fetchChannels(); 
-      } else {
-        this.isLoadingChannels = false; 
-      }
-      console.log("Chatbot data updated:", this.chatbotData);
-    });
-  }
-
-  private getIndividualData() {
-    const model = { id: this.customerId };
-    if (!model.id) { return; }
-    this.httpService.mobileBankingPostNest('accounts/getAccountById', model).subscribe((res: any) => {
-      if (res.status === 201) { this.accountData = res.data; }
-    });
-  }
-
-  private fetchChannels(): void {
-    if (!this.chatbotData || !this.chatbotData.id) {
-        console.warn('Cannot fetch channels: Chatbot ID not available.');
-        this.isLoadingChannels = false;
-        return;
-    }
-
-    this.isLoadingChannels = true;
-    const body = { chatbot_id: this.chatbotData.id };
-
-    this.httpService.mobileBankingPost('builder/channels/list-by-chatbot', body)
-        .pipe(
-            catchError(err => {
-                console.error('HTTP Error while fetching channels:', err);
-                Swal.fire('Error', 'Failed to load channels from the server.', 'error');
-                this.isLoadingChannels = false;
-                return of(null);
-            })
-        )
-        .subscribe({
-            next: (res: any) => {
-                console.log('RAW API RESPONSE RECEIVED:', res);
-                if (res && res.status === '00' && Array.isArray(res.data)) {
-                    const channelData = res.data;
-                    console.log("SUCCESS: Found channels array directly in res.data:", channelData);
-                    if (channelData.length === 0) {
-                        this.channels = [];
-                    } else {
-                        const supportedTypes: ChannelType[] = ['webchat', 'whatsapp', 'facebook'];
-                        this.channels = channelData
-                            .filter((apiChannel: any) => supportedTypes.includes(apiChannel.type))
-                            .map((apiChannel: any) => ({
-                                id: apiChannel.id,
-                                name: apiChannel.name,
-                                type: apiChannel.type as ChannelType,
-                                is_active: apiChannel.is_active,
-                                created_at: apiChannel.created_at,
-                                language: apiChannel.language,
-                                lastUpdated: new Date(apiChannel.created_at),
-                                enabled: apiChannel.is_active
-                            }));
-                    }
-                } else {
-                    console.warn('FAILURE: Response format was not the expected {status: "00", data: [...]}. Response:', res);
-                    this.channels = [];
-                }
-                this.isLoadingChannels = false;
-            },
-            error: (err: any) => {
-                console.error("Subscription-level error:", err);
-                this.isLoadingChannels = false;
-            }
-        });
-  }
-  
-  onVerifyWhatsAppConfig(): void {
-    if (this.whatsAppConfigForm.invalid) {
-      Swal.fire('Error','Please fill in all four configuration fields.', 'error');
-      this.whatsAppConfigForm.markAllAsTouched();
-      return;
-    }
-
-    this.isVerifyingWhatsApp = true; 
-    const payload = {
-      app_id: this.whatsAppConfigForm.value.appId,
-      app_secret: this.whatsAppConfigForm.value.appSecret,
-      user_access_token: this.whatsAppConfigForm.value.accessToken,
-      phone_number_id: this.whatsAppConfigForm.value.phoneNumberId
-    };
-
-    this.httpService.mobileBankingPost('whatsapp/configure', payload)
-      .subscribe({
-        next: (response: any) => {
-          if (response.status === '00') {
-            Swal.fire('Success','Configuration verified successfully!', 'success');
-          } else {
-            Swal.fire('Verification Failed', response.message || 'Please check your credentials.', 'error');
-          }
-          this.isVerifyingWhatsApp = false;
-        },
-        error: (err: any) => {
-          console.error('WhatsApp configuration API error:', err);
-          const errorMessage = err?.error?.message || 'An unexpected error occurred during verification.';
-          this.isVerifyingWhatsApp = false;
-          Swal.fire('API Error', errorMessage, 'error');
-        }
-      });
-  }
- 
-  onAddChannel() {
-    if (this.addChannelForm.invalid) {
-      Swal.fire('Error','Please fill in all required fields.', 'error');
-      return;
-    }
-
-    if (!this.chatbotData || !this.chatbotData.id) {
-        Swal.fire('Error','Cannot create channel: Chatbot data is not available.', 'error');
-        return;
+  ngOnInit(): void {
+  this.route.paramMap.subscribe(params => {
+    this.investigationAlertId = params.get('id');
+    this.generateMockGraphData(); // This now properly populates graphData
+    
+    console.log('After generateMockGraphData - Total nodes:', this.graphData.nodes.length); // Debug
+    
+    if (this.investigationAlertId) {
+      this.enterInvestigationMode(this.investigationAlertId);
+    } else {
+      this.isInvestigationMode = false;
+      // Set filteredGraphData to all nodes initially
+      this.filteredGraphData = { 
+        nodes: [...this.graphData.nodes], 
+        links: [...this.graphData.links] 
+      };
+      this.applyFilters();
     }
     
-    const newChannelPayload = {
-      chatbot_id: this.chatbotData.id,
-      name: this.addChannelForm.value.name,
-      type: this.addChannelForm.value.channelType,
-      language: this.addChannelForm.value.language 
-    };
-                           
-    this.httpService.mobileBankingPost('builder/channels/create', newChannelPayload) 
-      .subscribe({
-        next: (response: any) => {
-          if (response.status === '00') {
-            Swal.fire('Success','Channel created successfully!', 'success');
-            this.closeModal();
-            this.fetchChannels();
-          } else {
-            Swal.fire('Error','Failed to create channel.', 'error');
-          }
-        },
-        error: (err: any) => {
-          console.error('Error creating channel:', err);
-          Swal.fire('Error','An unexpected error occurred.', 'error');
-        }
-      });
+    this.calculateStats(); 
+    this.calculateNodePositions();
+    
+    // Draw graph after positions are calculated
+    setTimeout(() => {
+      this.drawGraph();
+    }, 100);
+  });
+}
+
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.drawGraph();
+    }, 100);
   }
 
-  // --- NEW: Function to delete a channel ---
-  public deleteChannel(channelToDelete: Channel): void {
-    const creatorUserId = localStorage.getItem('user_id');
+  private filterGraphForInvestigation(centerNode: GraphNode): void {
+  // Find all nodes directly connected to the center node
+  const connectedNodeIds = new Set<string>();
+  connectedNodeIds.add(centerNode.id);
+  
+  // First degree connections
+  this.graphData.links.forEach(link => {
+    if (link.source === centerNode.id) {
+      connectedNodeIds.add(link.target as string);
+    }
+    if (link.target === centerNode.id) {
+      connectedNodeIds.add(link.source as string);
+    }
+  });
+  
+  // Also include the center node's own connections
+  this.filteredGraphData.nodes = this.graphData.nodes.filter(node => 
+    connectedNodeIds.has(node.id)
+  );
+  
+  this.filteredGraphData.links = this.graphData.links.filter(link => 
+    connectedNodeIds.has(link.source as string) && connectedNodeIds.has(link.target as string)
+  );
+  
+  console.log('Investigation mode - filtered nodes:', this.filteredGraphData.nodes.length);
+  console.log('Investigation mode - filtered links:', this.filteredGraphData.links.length);
+  
+  this.calculateNodePositions();
+  this.drawGraph();
+}
 
-    if (!creatorUserId) {
-      Swal.fire('Error', 'Could not identify the current user. Please log in again.', 'error');
-      return;
+ngOnDestroy(): void {
+  console.log('Component destroyed');
+}
+
+
+  exitInvestigationMode(): void {
+    this.isInvestigationMode = false;
+    this.investigationNode = null;
+    this.clearSelection();
+    this.resetFilters();
+    this.router.navigate(['/fraudsentinelAi/transaction_management/fraud/investigation-graph']);
+  }
+
+  private generateMockGraphData(): void {
+  const customers: GraphNode[] = [
+    { id: 'cust-1', name: 'John Mwangi', type: 'customer', riskScore: 9.2, riskCategory: 'Critical', flagged: true },
+    { id: 'cust-2', name: 'Sarah Omondi', type: 'customer', riskScore: 8.7, riskCategory: 'Critical', flagged: true },
+    { id: 'cust-3', name: 'Peter Ochieng', type: 'customer', riskScore: 7.8, riskCategory: 'High', flagged: true },
+    { id: 'cust-4', name: 'Mary Akinyi', type: 'customer', riskScore: 7.2, riskCategory: 'High' },
+    { id: 'cust-5', name: 'James Kipchoge', type: 'customer', riskScore: 6.5, riskCategory: 'Medium' },
+    { id: 'cust-6', name: 'Elizabeth Wanjiku', type: 'customer', riskScore: 9.8, riskCategory: 'Critical', flagged: true },
+    { id: 'cust-7', name: 'David Kimani', type: 'customer', riskScore: 4.2, riskCategory: 'Low' },
+    { id: 'cust-8', name: 'Grace Auma', type: 'customer', riskScore: 8.1, riskCategory: 'High', flagged: true },
+  ];
+
+  const devices: GraphNode[] = [
+    { id: 'dev-1', name: 'Samsung A52', type: 'device', riskScore: 9.2 },
+    { id: 'dev-2', name: 'iPhone 13', type: 'device', riskScore: 8.7 },
+    { id: 'dev-3', name: 'Web Browser', type: 'device', riskScore: 7.8 },
+    { id: 'dev-4', name: 'Unknown Device', type: 'device', riskScore: 9.8, flagged: true },
+    { id: 'dev-5', name: 'Agent Terminal', type: 'device', riskScore: 6.5 },
+  ];
+
+  const accounts: GraphNode[] = [
+    { id: 'acc-1', name: 'Account #88432', type: 'account', amount: 450000 },
+    { id: 'acc-2', name: 'Account #77651', type: 'account', amount: 275000 },
+    { id: 'acc-3', name: 'Account #99234', type: 'account', amount: 89000 },
+    { id: 'acc-4', name: 'Account #12378', type: 'account', amount: 1250000, flagged: true },
+  ];
+
+  const phones: GraphNode[] = [
+    { id: 'phone-1', name: '+254 712 345 678', type: 'phone' },
+    { id: 'phone-2', name: '+254 723 456 789', type: 'phone' },
+    { id: 'phone-3', name: '+254 734 567 890', type: 'phone', flagged: true },
+  ];
+
+  const ips: GraphNode[] = [
+    { id: 'ip-1', name: '197.248.0.45', type: 'ip' },
+    { id: 'ip-2', name: '105.27.143.78', type: 'ip' },
+    { id: 'ip-3', name: '154.122.89.34', type: 'ip' },
+    { id: 'ip-4', name: '45.123.89.156', type: 'ip', flagged: true },
+  ];
+
+  const locations: GraphNode[] = [
+    { id: 'loc-1', name: 'Nairobi, KE', type: 'location' },
+    { id: 'loc-2', name: 'Mombasa, KE', type: 'location' },
+    { id: 'loc-3', name: 'International', type: 'location', flagged: true },
+  ];
+
+  const transactions: GraphNode[] = [
+    { id: 'tx-1', name: 'TXN-001', type: 'transaction', amount: 450000, timestamp: new Date(), riskScore: 9.2, transactionId: 'TXN-2024-001' },
+    { id: 'tx-2', name: 'TXN-002', type: 'transaction', amount: 275000, timestamp: new Date(), riskScore: 8.7, transactionId: 'TXN-2024-002' },
+    { id: 'tx-3', name: 'TXN-003', type: 'transaction', amount: 89000, timestamp: new Date(), riskScore: 7.8, transactionId: 'TXN-2024-003' },
+    { id: 'tx-4', name: 'TXN-004', type: 'transaction', amount: 1250000, timestamp: new Date(), riskScore: 9.8, transactionId: 'TXN-2024-004' },
+  ];
+
+  this.graphData.nodes = [
+    ...customers, ...devices, ...accounts, ...phones, ...ips, ...locations, ...transactions
+  ];
+
+  this.graphData.links = [
+    { source: 'cust-1', target: 'dev-1', type: 'uses_device', count: 23 },
+    { source: 'cust-1', target: 'dev-2', type: 'uses_device', count: 5 },
+    { source: 'cust-2', target: 'dev-2', type: 'uses_device', count: 17 },
+    { source: 'cust-3', target: 'dev-3', type: 'uses_device', count: 8 },
+    { source: 'cust-4', target: 'dev-4', type: 'uses_device', count: 2 },
+    { source: 'cust-5', target: 'dev-5', type: 'uses_device', count: 12 },
+    { source: 'cust-6', target: 'dev-4', type: 'uses_device', count: 1 },
+    { source: 'cust-6', target: 'dev-1', type: 'uses_device', count: 3 },
+    { source: 'cust-8', target: 'dev-2', type: 'uses_device', count: 4 },
+    
+    // Customer-account connections
+    { source: 'cust-1', target: 'acc-1', type: 'connected_to' },
+    { source: 'cust-2', target: 'acc-2', type: 'connected_to' },
+    { source: 'cust-3', target: 'acc-3', type: 'connected_to' },
+    { source: 'cust-6', target: 'acc-4', type: 'connected_to' },
+    
+    // Customer-phone connections
+    { source: 'cust-1', target: 'phone-1', type: 'same_phone' },
+    { source: 'cust-2', target: 'phone-2', type: 'same_phone' },
+    { source: 'cust-3', target: 'phone-2', type: 'same_phone' },
+    { source: 'cust-6', target: 'phone-3', type: 'same_phone' },
+    
+    // Customer-ip connections
+    { source: 'cust-1', target: 'ip-1', type: 'same_ip' },
+    { source: 'cust-2', target: 'ip-2', type: 'same_ip' },
+    { source: 'cust-3', target: 'ip-3', type: 'same_ip' },
+    { source: 'cust-6', target: 'ip-4', type: 'same_ip' },
+    
+    // Customer-location connections
+    { source: 'cust-1', target: 'loc-1', type: 'connected_to' },
+    { source: 'cust-2', target: 'loc-2', type: 'connected_to' },
+    { source: 'cust-3', target: 'loc-1', type: 'connected_to' },
+    { source: 'cust-6', target: 'loc-3', type: 'connected_to' },
+    
+    // Transaction connections
+    { source: 'cust-1', target: 'tx-1', type: 'transacted' },
+    { source: 'cust-2', target: 'tx-2', type: 'transacted' },
+    { source: 'cust-3', target: 'tx-3', type: 'transacted' },
+    { source: 'cust-6', target: 'tx-4', type: 'transacted' },
+    
+    // Cross connections (fraud ring)
+    { source: 'dev-1', target: 'dev-2', type: 'connected_to', count: 3 },
+    { source: 'phone-2', target: 'phone-3', type: 'connected_to' },
+    { source: 'ip-1', target: 'ip-4', type: 'connected_to' },
+    { source: 'acc-1', target: 'acc-4', type: 'transferred_to', count: 2 },
+    { source: 'acc-2', target: 'acc-4', type: 'transferred_to', count: 1 },
+  ];
+
+  console.log('Graph Data Generated:', {
+    totalNodes: this.graphData.nodes.length,
+    criticalNodes: this.graphData.nodes.filter(n => n.riskCategory === 'Critical').length,
+    highNodes: this.graphData.nodes.filter(n => n.riskCategory === 'High').length,
+    mediumNodes: this.graphData.nodes.filter(n => n.riskCategory === 'Medium').length,
+    lowNodes: this.graphData.nodes.filter(n => n.riskCategory === 'Low').length,
+  });
+}
+
+  private calculateNodePositions(): void {
+    const centerX = 450;
+    const centerY = 275;
+    const radius = 200;
+    
+    let angleStep = (2 * Math.PI) / this.filteredGraphData.nodes.length;
+    let angle = 0;
+    
+    this.filteredGraphData.nodes.forEach(node => {
+      const x = centerX + radius * Math.cos(angle);
+      const y = centerY + radius * Math.sin(angle);
+      
+      this.nodePositions.set(node.id, { x, y });
+      node.x = x;
+      node.y = y;
+      
+      angle += angleStep;
+    });
+  }
+
+  private enterInvestigationMode(alertId: string): void {
+  this.isInvestigationMode = true;
+  
+  console.log('Entering investigation mode for alert:', alertId);
+  console.log('Available transaction nodes:', this.graphData.nodes.filter(n => n.type === 'transaction'));
+  
+  const transactionNode = this.graphData.nodes.find(node => 
+    node.type === 'transaction' && (node.id === alertId || node.transactionId === alertId)
+  );
+  
+  if (transactionNode) {
+    console.log('Found transaction node:', transactionNode);
+    this.investigationNode = transactionNode;
+  
+    this.filterGraphForInvestigation(transactionNode);
+    
+    setTimeout(() => {
+      this.selectNode(transactionNode);
+    }, 200);
+  } else {
+    console.warn('Transaction node not found for alert ID:', alertId);
+    this.isInvestigationMode = false;
+    this.filteredGraphData = { 
+      nodes: [...this.graphData.nodes], 
+      links: [...this.graphData.links] 
+    };
+    this.calculateNodePositions();
+    this.drawGraph();
+  }
+}
+
+  private drawGraph(): void {
+    const canvas = this.graphCanvas.nativeElement;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    canvas.width = 900;
+    canvas.height = 550;
+
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (this.isInvestigationMode && this.investigationNode) {
+      ctx.save();
+      ctx.fillStyle = 'rgba(67, 97, 238, 0.05)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      const pos = this.nodePositions.get(this.investigationNode.id);
+      if (pos) {
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, 40, 0, 2 * Math.PI);
+        ctx.fillStyle = 'rgba(67, 97, 238, 0.1)';
+        ctx.fill();
+        ctx.strokeStyle = '#4361ee';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 5]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+      ctx.restore();
     }
 
-    Swal.fire({
-      title: 'Are you sure?',
-      text: `You are about to delete the channel "${channelToDelete.name}". This action cannot be undone.`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#dc3545',
-      confirmButtonText: 'Yes, delete it!'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const payload = {
-          channel_id: channelToDelete.id,
-          creator_user_id: parseInt(creatorUserId, 10)
-        };
+    this.filteredGraphData.links.forEach(link => {
+      const sourcePos = this.nodePositions.get(link.source as string);
+      const targetPos = this.nodePositions.get(link.target as string);
+      
+      if (sourcePos && targetPos) {
+        ctx.beginPath();
+        ctx.moveTo(sourcePos.x, sourcePos.y);
+        ctx.lineTo(targetPos.x, targetPos.y);
+        
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = Math.sqrt(link.count || 1) * 1.5;
+        
+        if (link.type === 'connected_to') {
+          ctx.setLineDash([5, 5]);
+        } else {
+          ctx.setLineDash([]);
+        }
+        
+        ctx.stroke();
+      }
+    });
 
-        this.httpService.mobileBankingDel('builder/channels/delete', payload)
-          .subscribe({
-            next: (response: any) => {
-              if (response.status === '00') {
-                Swal.fire('Deleted!', 'The channel has been successfully deleted.', 'success');
-                this.goBackToList();
-                this.fetchChannels();
-              } else {
-                Swal.fire('Deletion Failed', response.message || 'The channel could not be deleted.', 'error');
-              }
-            },
-            error: (err: any) => {
-              console.error('Error deleting channel:', err);
-              Swal.fire('API Error', err.error?.message || 'An unexpected error occurred.', 'error');
-            }
-          });
+    ctx.setLineDash([]);
+
+    this.filteredGraphData.nodes.forEach(node => {
+      const pos = this.nodePositions.get(node.id);
+      if (!pos) return;
+
+
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, this.getNodeSize(node), 0, 2 * Math.PI);
+      
+      ctx.fillStyle = this.getNodeColor(node);
+      ctx.fill();
+
+      if (node.flagged) {
+        ctx.strokeStyle = '#f72585';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+      } else {
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+
+
+      if (this.isInvestigationMode && this.investigationNode && node.id === this.investigationNode.id) {
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, this.getNodeSize(node) + 5, 0, 2 * Math.PI);
+        ctx.strokeStyle = '#4361ee';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([3, 3]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        
+        ctx.font = 'bold 10px Arial';
+        ctx.fillStyle = '#4361ee';
+        ctx.fillText('INVESTIGATING', pos.x - 40, pos.y - 20);
+      }
+
+      ctx.font = '10px Arial';
+      ctx.fillStyle = '#334155';
+      ctx.fillText(this.getNodeLabel(node), pos.x + 15, pos.y + 4);
+    });
+
+    this.setupClickHandler();
+  }
+
+  setupClickHandler(): void {
+    const canvas = this.graphCanvas.nativeElement;
+    
+    canvas.addEventListener('click', (event) => {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      
+      const mouseX = (event.clientX - rect.left) * scaleX;
+      const mouseY = (event.clientY - rect.top) * scaleY;
+
+      let clickedNode: GraphNode | null = null;
+      
+      for (const node of this.filteredGraphData.nodes) {
+        const pos = this.nodePositions.get(node.id);
+        if (!pos) continue;
+        
+        const distance = Math.sqrt(
+          Math.pow(mouseX - pos.x, 2) + Math.pow(mouseY - pos.y, 2)
+        );
+        
+        if (distance <= this.getNodeSize(node) + 5) {
+          clickedNode = node;
+          break;
+        }
+      }
+      
+      if (clickedNode) {
+        this.selectNode(clickedNode);
       }
     });
   }
 
-  copyToClipboard(text: string) { navigator.clipboard.writeText(text).then(() => { this.copySuccessMessage = 'Copied!'; setTimeout(() => { this.copySuccessMessage = ''; }, 2000); }); }
-  onSaveChanges() {
-    console.log("Saving changes for channel:", this.selectedChannel?.name);
-    console.log("Brand Form Saved", this.brandForm.value);
-    console.log("Proactive Messages Form Saved", this.proactiveMessagesForm.value);
-    console.log("Pre-Chat Form Saved", this.preChatForm.value);
+  selectNode(node: GraphNode): void {
+    this.selectedNode = node;
+    
+    const connectedNodeIds = new Set<string>();
+    const connectedLinks = this.graphData.links.filter(link => {
+      if (link.source === node.id || link.target === node.id) {
+        connectedNodeIds.add(link.source === node.id ? link.target as string : link.source as string);
+        return true;
+      }
+      return false;
+    });
+
+    const connectedNodes = this.graphData.nodes.filter(n => 
+      connectedNodeIds.has(n.id) || n.id === node.id
+    );
+
+    this.selectedNodeConnections = {
+      nodes: connectedNodes,
+      links: connectedLinks
+    };
+
+    this.highlightNode(node);
   }
 
-  isDeployScriptValid(): boolean {
-    return !!this.deployScript &&
-           this.deployScript.trim().length > 0 &&
-           !this.deployScript.includes('Waiting for chatbot selection');
-  }
+  private highlightNode(selectedNode: GraphNode): void {
+    const canvas = this.graphCanvas.nativeElement;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-  async onTestClick() {
-    if (this.isTesting) return;
-    this.isTesting = true;
-
-    try {
-      if (!this.webchatId) {
-        alert('No chatbot ID available');
-        return;
-      }
-
-      if (!this.isDeployScriptValid()) {
-        alert('Deploy script is not valid. Please select a chatbot first.');
-        return;
-      }
-
-      const chatbotId = this.webchatId;
-      const chatbotName = this.chatbotData?.name || 'Chatbot';
-
-      const testWindow = window.open('', '_blank');
-      if (!testWindow) {
-        alert('Please allow popups for this site.');
-        return;
-      }
-
-      testWindow.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <title>${chatbotName} Bot Test - ID ${chatbotId}</title>
-          <style>
-            html, body { height: 100%; margin: 0; padding: 0; font-family: Arial, sans-serif; }
-            .container { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; text-align: center; }
-            .loader { margin: 30px auto; border: 5px solid #f3f3f3; border-top: 5px solid #3498db; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
-            @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <h1>Testing ${chatbotName} Chatbot (ID: ${chatbotId})</h1>
-            <div id="status">Initializing chatbot...</div>
-            <div class="loader"></div>
-          </div>
-          <script>
-            (function() {
-              const statusEl = document.getElementById('status');
-              const loaderEl = document.querySelector('.loader');
-              try {
-                const iframe = document.createElement("iframe");
-                iframe.src = "http://130.61.111.65:5040/static/chat-widget.html?chatbot_id=${chatbotId}";
-                iframe.style = "position:fixed;bottom:20px;right:20px;width:400px;height:600px;border:none; z-index:9999;";
-                iframe.onload = function() { statusEl.textContent = 'Chatbot loaded successfully!'; loaderEl.style.display = 'none'; };
-                iframe.onerror = function() { statusEl.textContent = 'Failed to load chatbot.'; loaderEl.style.display = 'none'; };
-                document.body.appendChild(iframe);
-              } catch (err) {
-                statusEl.textContent = 'Error: ' + err.message;
-                loaderEl.style.display = 'none';
-              }
-            })();
-          </script>
-        </body>
-        </html>
-      `);
-      testWindow.document.close();
-
-    } catch (error) {
-      console.error('Error during test:', error);
-    } finally {
-      this.isTesting = false;
+    this.drawGraph();
+    
+    const pos = this.nodePositions.get(selectedNode.id);
+    if (pos) {
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, this.getNodeSize(selectedNode) + 5, 0, 2 * Math.PI);
+      ctx.strokeStyle = '#4361ee';
+      ctx.lineWidth = 3;
+      ctx.setLineDash([5, 5]);
+      ctx.stroke();
+      ctx.setLineDash([]);
     }
   }
 
-  openModal() { this.showModal = true; }
-  closeModal() { this.showModal = false; this.addChannelForm.reset({ channelType: 'webchat', name: '', language: 'English' }); } 
-  viewChannelDetails(channel: Channel) { this.selectedChannel = channel; }
-
-  toggleSetupSection() { this.isSetupSectionOpen = !this.isSetupSectionOpen; }
-  toggleBasicsSection() { this.isBasicsSectionOpen = !this.isBasicsSectionOpen; }
-  toggleProactiveSection() { this.isProactiveSectionOpen = !this.isProactiveSectionOpen; }
-  toggleBrandSection() { this.isBrandSectionOpen = !this.isBrandSectionOpen; }
-  togglePreChatFormSection() { this.isPreChatFormSectionOpen = !this.isPreChatFormSectionOpen; }
-  toggleMobileBehaviourSection() { this.isMobileBehaviourSectionOpen = !this.isMobileBehaviourSectionOpen; }
-  toggleConfigurationSection() { this.isConfigurationSectionOpen = !this.isConfigurationSectionOpen; }
-  toggleWebhookSection() { this.isWebhookSectionOpen = !this.isWebhookSectionOpen; }
-  toggleConnectedPageSection() { this.isConnectedPageSectionOpen = !this.isConnectedPageSectionOpen; }
-
-  setActiveBrandTab(tab: 'welcome' | 'chat' | 'styles') { this.activeBrandTab = tab; }
-
-  goBackToList() {
-    this.selectedChannel = null;
-    this.isSetupSectionOpen = false;
-    this.isBasicsSectionOpen = true;
-    this.isProactiveSectionOpen = false;
-    this.isBrandSectionOpen = false;
-    this.isPreChatFormSectionOpen = false;
-    this.isMobileBehaviourSectionOpen = false;
-    this.isConfigurationSectionOpen = false;
-    this.isWebhookSectionOpen = false;
-    this.isConnectedPageSectionOpen = false;
+  clearSelection(): void {
+    this.selectedNode = null;
+    this.selectedNodeConnections = { nodes: [], links: [] };
+    this.drawGraph();
   }
+
+  applyFilters(): void {
+    if (this.isInvestigationMode) {
+      return;
+    }
+    
+    this.filteredGraphData.nodes = this.graphData.nodes.filter(node => {
+      if (this.showCriticalOnly && node.riskCategory !== 'Critical') return false;
+      if (this.showHighOnly && node.riskCategory !== 'High') return false;
+      
+      // Type filters
+      if (!this.showCustomers && node.type === 'customer') return false;
+      if (!this.showDevices && node.type === 'device') return false;
+      if (!this.showAccounts && node.type === 'account') return false;
+      if (!this.showTransactions && node.type === 'transaction') return false;
+      
+      // Search
+      if (this.searchTerm && !node.name.toLowerCase().includes(this.searchTerm.toLowerCase())) {
+        return false;
+      }
+      
+      return true;
+    });
+
+    const visibleNodeIds = new Set(this.filteredGraphData.nodes.map(n => n.id));
+    this.filteredGraphData.links = this.graphData.links.filter(link => 
+      visibleNodeIds.has(link.source as string) && visibleNodeIds.has(link.target as string)
+    );
+
+    this.calculateNodePositions();
+    this.drawGraph();
+  }
+
+  resetFilters(): void {
+    this.showCriticalOnly = false;
+    this.showHighOnly = false;
+    this.showTransactions = true;
+    this.showCustomers = true;
+    this.showDevices = true;
+    this.showAccounts = true;
+    this.searchTerm = '';
+    this.timeRange = '24h';
+    
+    if (this.isInvestigationMode && this.investigationNode) {
+      this.filterGraphForInvestigation(this.investigationNode);
+    } else {
+      this.filteredGraphData = { nodes: [...this.graphData.nodes], links: [...this.graphData.links] };
+      this.calculateNodePositions();
+      this.drawGraph();
+    }
+  }
+
+  calculateStats(): void {
   
-  approveRecord() { this.modalRef = this.modalService.open(ConfirmDialogComponent, { centered: true }); this.modalRef.componentInstance.title = `Approve Record?`; this.modalRef.componentInstance.body = `Do you want to approve this record?`; }
-  deleteRecord() { this.modalRef = this.modalService.open(ConfirmDialogComponent, { centered: true }); this.modalRef.componentInstance.title = `Delete Record?`; this.modalRef.componentInstance.body = `Do you want to delete this record?`; }
-  openImage() { this.modalRef = this.modalService.open(CompareImageComponent, { centered: true }); this.modalRef.componentInstance.title = `Image Comparison`; this.modalRef.componentInstance.body = `Do you want to approve this record?`; }
+  this.stats = {
+    totalNodes: this.graphData.nodes.length,
+    totalLinks: this.graphData.links.length,
+    criticalNodes: this.graphData.nodes.filter(n => n.riskCategory === 'Critical').length,
+    highNodes: this.graphData.nodes.filter(n => n.riskCategory === 'High').length,
+    mediumNodes: this.graphData.nodes.filter(n => n.riskCategory === 'Medium').length,
+    lowNodes: this.graphData.nodes.filter(n => n.riskCategory === 'Low').length,
+    fraudRings: 3,
+    connectedAccounts: 12
+  };
+  
+  // console.log('Stats calculated:', this.stats);
+}
+
+  investigateRing(ringId: string): void {
+    alert(`Investigating ${ringId} - This would highlight connected nodes in the graph.`);
+  }
+
+  exportGraph(): void {
+    const canvas = this.graphCanvas.nativeElement;
+    const image = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.download = `fraud-graph-${new Date().toISOString().slice(0,10)}.png`;
+    link.href = image;
+    link.click();
+  }
+
+  viewTransactionDetails(transactionId: string): void {
+    this.router.navigate(['/fraudsentinelAi/transaction_management/fraud/alert-detail', transactionId]);
+  }
+
+  getNodeTypeIcon(type: string): string {
+    const icons = {
+      'customer': 'fas fa-user',
+      'device': 'fas fa-mobile-alt',
+      'account': 'fas fa-university',
+      'transaction': 'fas fa-exchange-alt',
+      'phone': 'fas fa-phone',
+      'ip': 'fas fa-network-wired',
+      'location': 'fas fa-map-marker-alt'
+    };
+    return icons[type as keyof typeof icons] || 'fas fa-circle';
+  }
+
+  getRiskBadgeClass(riskCategory?: string): string {
+    const classes = {
+      'Critical': 'bg-danger',
+      'High': 'bg-warning text-dark',
+      'Medium': 'bg-info',
+      'Low': 'bg-success'
+    };
+    return classes[riskCategory as keyof typeof classes] || 'bg-secondary';
+  }
+
+  formatAmount(amount: number): string {
+    return new Intl.NumberFormat('en-KE', {
+      style: 'currency',
+      currency: 'KES',
+      minimumFractionDigits: 0
+    }).format(amount);
+  }
+
+  private getNodeSize(node: GraphNode): number {
+    if (node.type === 'customer') return 12 + (node.riskScore || 0) * 0.5;
+    if (node.type === 'transaction') return 10;
+    if (node.type === 'account') return 14;
+    return 8;
+  }
+
+  public getNodeColor(node: GraphNode): string {
+    if (node.riskCategory === 'Critical') return '#f72585';
+    if (node.riskCategory === 'High') return '#ff9e00';
+    if (node.riskCategory === 'Medium') return '#4cc9f0';
+    if (node.riskCategory === 'Low') return '#06d6a0';
+    if (node.flagged) return '#f72585';
+    
+    const typeColors: { [key: string]: string } = {
+      'customer': '#4361ee',
+      'device': '#4cc9f0',
+      'account': '#f72585',
+      'transaction': '#ff9e00',
+      'phone': '#06d6a0',
+      'ip': '#9c89b8',
+      'location': '#ef476f'
+    };
+    return typeColors[node.type] || '#6c757d';
+  }
+
+  private getNodeLabel(node: GraphNode): string {
+    if (node.type === 'customer') return node.name.split(' ')[0];
+    if (node.type === 'transaction') return `TXN-${node.id.slice(-3)}`;
+    if (node.type === 'account') return `Acc-${node.id.slice(-3)}`;
+    if (node.type === 'phone') return node.name.slice(-9);
+    return node.name.substring(0, 8);
+  }
 }

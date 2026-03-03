@@ -30,7 +30,7 @@ const routes: Routes = [
           import('./customers/customers.module').then((m) => m.CustomersModule)
       },
       {
-        path: 'audit_management',
+        path: 'transaction_management',
         loadChildren: () =>
           import('./customers/customers.module').then((m) => m.CustomersModule)
       },

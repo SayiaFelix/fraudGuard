@@ -9,14 +9,14 @@ import { CheckTokenValidityInterceptor } from './shared/services/checkTokenValid
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'home',
+    redirectTo: 'auth/login',
     pathMatch: 'full'
   },
-  {
-    path: 'home', 
-    loadChildren: () =>
-      import('./views/pages/home/home.module').then((m) => m.HomeModule),
-  },
+  // {
+  //   path: 'home', 
+  //   loadChildren: () =>
+  //     import('./views/pages/home/home.module').then((m) => m.HomeModule),
+  // },
   {
     path: 'auth',
     loadChildren: () =>
@@ -44,7 +44,7 @@ const routes: Routes = [
           import('./views/pages/apps/apps.module').then((m) => m.AppsModule),
       },
       {
-        path: 'eclectics',
+        path: 'fraudsentinelAi',
         loadChildren: () =>
           import('./views/pages/mobile-banking/mobile-banking.module').then(
             (m) => m.MobileBankingModule

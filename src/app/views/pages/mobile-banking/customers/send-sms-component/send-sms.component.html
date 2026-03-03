@@ -1,181 +1,613 @@
-<div class="container-fluid">
-  <h3 class="mb-2">#{{ auditId }} <span class="text-dark fw-bold">{{ auditTitle }}</span></h3>
+<div class="alert-detail-container">
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <h5>Loading Alert Details</h5>
+    <p class="text-muted">Fetching transaction data for ID: {{ alertId }}</p>
+  </div>
 
-  <div class="row">
-    <!-- Left: Observations list -->
-    <div class="col-lg-8 col-md-7" [class.col-lg-12]="!isDetailsPanelVisible">
-      <div class="d-flex justify-content-between mb-3 flex-wrap">
-        <!-- Filters -->
-        <div class="input-group w-25 me-2 mb-2">
-          <span class="input-group-text"><i class="fas fa-search"></i></span>
-          <input type="text" class="form-control" placeholder="Search observations..."
-                 [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()">
-        </div>
+  <!-- Error State (if needed) -->
+  <div class="error-state" *ngIf="!isLoading && !alertData">
+    <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+    <h5>Alert Not Found</h5>
+    <p class="text-muted">The alert with ID {{ alertId }} could not be found.</p>
+    <button class="btn btn-primary" (click)="goBack()">
+      <i class="fas fa-arrow-left me-2"></i> Back to Fraud History
+    </button>
+  </div>
 
-        <select class="form-select w-auto me-2 mb-2"
-                [(ngModel)]="severityFilter" (change)="applyFilters()">
-          <option value="">All Severities</option>
-          <option value="Critical">Critical</option>
-          <option value="High">High</option>
-          <option value="Medium">Medium</option>
-          <option value="Low">Low</option>
-        </select>
+  
+  <!-- Main Content -->
+  <div class="main-content" *ngIf="!isLoading && alertData">
+<!-- Header with Back Button and Title - FIXED icon spacing -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div class="d-flex align-items-center">
+    <button class="btn btn-outline-secondary me-3" (click)="goBack()">
+      <i class="fas fa-arrow-left me-1"></i> Back
+    </button>
+    <div>
+      <h3 class="fw-bold mb-1">
+        <!-- FIXED: Moved me-2 outside the ngClass -->
+        <i class="fas fa-exclamation-triangle me-2" 
+           [class.text-danger]="alertData.riskCategory === 'Critical'"
+           [class.text-warning]="alertData.riskCategory === 'High'"
+           [class.text-info]="alertData.riskCategory === 'Medium'"
+           [class.text-success]="alertData.riskCategory === 'Low'"></i>
+        Alert Details: {{ alertData.transactionId }}
+      </h3>
+      <p class="text-muted mb-0">
+        <i class="fas fa-clock me-1"></i> {{ formatDateTime(alertData.timestamp) }} 
+        ({{ formatDuration(alertData.timestamp) }})
+      </p>
+    </div>
+  </div>
+  <span class="badge fs-6 py-2 px-3" [ngClass]="getRiskBadgeClass(alertData.riskCategory)">
+    {{ alertData.riskCategory }} RISK · Score {{ alertData.riskScore }}/10
+  </span>
+</div>
 
-        <select class="form-select w-auto me-2 mb-2"
-                [(ngModel)]="statusFilter" (change)="applyFilters()">
-          <option value="">All Statuses</option>
-          <option value="Draft">Draft</option>
-          <option value="Reviewed">Reviewed</option>
-          <option value="Presented">Presented</option>
-          <option value="Resolved">Resolved</option>
-        </select>
-
-        <button class="btn btn-outline-secondary btn-sm mb-2" (click)="resetFilters()">
-          <i class="fas fa-undo"></i> Reset
-        </button>
-      </div>
-
-      <!-- Table -->
-      <div *ngIf="!isLoading">
-        <div *ngIf="filteredObservations.length > 0; else noObsTpl" class="table-responsive">
-          <table class="table table-hover align-middle">
-            <thead class="table-light">
-              <tr>
-                <th>Finding</th>
-                <th>Severity</th>
-                <th>Status</th>
-                <th>Recommendation</th>
-                <th>Created</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let obs of filteredObservations"
-                  (click)="toggleObservationDetails(obs)"
-                  [class.table-active]="selectedObservation?.id === obs.id"
-                  style="cursor:pointer">
-                <td>{{ obs.description }}</td>
-                <td>
-                  <span class="badge"
-                        [ngClass]="{
-                          'bg-dark': obs.severity === 'Critical',
-                          'bg-danger': obs.severity === 'High',
-                          'bg-warning text-dark': obs.severity === 'Medium',
-                          'bg-success': obs.severity === 'Low'
-                        }">{{ obs.severity }}</span>
-                </td>
-                <td>
-                  <span class="badge"
-                        [ngClass]="{
-                          'bg-secondary': obs.status === 'Draft',
-                          'bg-info': obs.status === 'Reviewed',
-                          'bg-warning': obs.status === 'Presented',
-                          'bg-success': obs.status === 'Resolved'
-                        }">{{ obs.status }}</span>
-                </td>
-                <td>{{ obs.recommendation }}</td>
-                <td>{{ obs.createdAt }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <ng-template #noObsTpl>
-          <div class="alert alert-info text-center">
-            <i class="fas fa-info-circle me-2"></i>
-            No observations for this audit.
+    <!-- Quick Action Bar -->
+    <div class="action-bar card shadow-sm mb-4">
+      <div class="card-body py-3">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <div class="d-flex align-items-center gap-2">
+            <span class="text-muted">Take Action:</span>
+            <button class="btn btn-danger btn-sm" (click)="openActionModal('block')">
+              <i class="fas fa-ban me-1"></i> Block Transaction
+            </button>
+            <button class="btn btn-success btn-sm" (click)="openActionModal('approve')">
+              <i class="fas fa-check me-1"></i> Approve
+            </button>
+            <button class="btn btn-warning btn-sm text-dark" (click)="openActionModal('flag')">
+              <i class="fas fa-flag me-1"></i> Flag for Review
+            </button>
+            <button class="btn btn-primary btn-sm" (click)="openActionModal('escalate')">
+              <i class="fas fa-arrow-up me-1"></i> Escalate
+            </button>
           </div>
-        </ng-template>
+          <button class="btn btn-outline-primary btn-sm" (click)="goToInvestigation()">
+            <i class="fas fa-project-diagram me-1"></i> View in Investigation Graph
+          </button>
+        </div>
       </div>
     </div>
 
-   <!-- Details Panel -->
-    <div class="col-lg-4 col-md-5" *ngIf="isDetailsPanelVisible">
-      <div class="card border-1 shadow-lg h-100">
-        <div class="card-header bg-gradient-primary text-white py-3">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <h3 class="mb-0 fw-semibold">
-                <i class="fas fa-clipboard-check me-2"></i>
-                Observation Details
-              </h3>
-              <!-- <small class="opacity-75">ID: #{{selectedObservation?.id}}</small> -->
+    <!-- Tabs Navigation -->
+    <ul class="nav nav-tabs mb-4">
+      <li class="nav-item">
+        <a class="nav-link" [class.active]="activeTab === 'overview'" (click)="setActiveTab('overview')">
+          <i class="fas fa-info-circle me-1"></i> Overview
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" [class.active]="activeTab === 'aiAnalysis'" (click)="setActiveTab('aiAnalysis')">
+          <i class="fas fa-robot me-1"></i> AI Analysis
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" [class.active]="activeTab === 'timeline'" (click)="setActiveTab('timeline')">
+          <i class="fas fa-history me-1"></i> Timeline
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" [class.active]="activeTab === 'related'" (click)="setActiveTab('related')">
+          <i class="fas fa-link me-1"></i> Related Transactions
+        </a>
+      </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+      <!-- OVERVIEW TAB -->
+      <div class="tab-pane fade show active" *ngIf="activeTab === 'overview'">
+        <div class="row">
+          <div class="col-lg-6">
+
+            <div class="card shadow-sm mb-4">
+              <div class="card-header bg-transparent border-0 pt-3 px-4">
+                <h4 class="fw-bold mb-0">
+                  <i class="fas fa-exchange-alt me-2 text-primary"></i>
+                  Transaction Summary
+                </h4>
+              </div>
+              <div class="card-body">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <div class="info-item">
+                      <small class="text-muted d-block">Amount</small>
+                      <span class="fw-bold fs-5">{{ formatAmount(alertData.amount) }}</span>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="info-item">
+                      <small class="text-muted d-block">Channel</small>
+                      <span class="fw-medium">
+                        <i [class]="getChannelIcon(alertData.channel) + ' me-1'"></i>
+                        {{ alertData.channel }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="info-item">
+                      <small class="text-muted d-block">Location</small>
+                      <span class="fw-medium">{{ alertData.location }}</span>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="info-item">
+                      <small class="text-muted d-block">Flagged By</small>
+                      <span class="fw-medium">
+                        <i class="fas fa-robot me-1 text-primary"></i>
+                        {{ alertData.flaggedBy }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <div class="info-item">
+                      <small class="text-muted d-block">Status</small>
+                      <span class="badge fs-6 py-1 px-3" [ngClass]="getStatusBadgeClass(alertData.status)">
+                        {{ alertData.status }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <button class="btn btn-sm btn-light btn-circle" (click)="hideDetails()">
-              <i class="fas fa-times"></i>
-            </button>
+
+            <!-- Customer Information Card -->
+            <div class="card shadow-sm mb-4">
+              <div class="card-header bg-transparent border-0 pt-3 px-4">
+                <h4 class="fw-bold mb-0">
+                  <i class="fas fa-user me-2 text-primary"></i>
+                  Customer Information
+                </h4>
+              </div>
+              <div class="card-body">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <div class="info-item">
+                      <small class="text-muted d-block">Name</small>
+                      <span class="fw-medium">{{ alertData.customer.name }}</span>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="info-item">
+                      <small class="text-muted d-block">Customer ID</small>
+                      <span class="fw-medium">{{ alertData.customer.id }}</span>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="info-item">
+                      <small class="text-muted d-block">Email</small>
+                      <span class="fw-medium">{{ alertData.customer.email }}</span>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="info-item">
+                      <small class="text-muted d-block">Phone</small>
+                      <span class="fw-medium">{{ alertData.customer.phone }}</span>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="info-item">
+                      <small class="text-muted d-block">Account Age</small>
+                      <span class="fw-medium">{{ alertData.customer.accountAge }} days</span>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="info-item">
+                      <small class="text-muted d-block">Avg Transaction</small>
+                      <span class="fw-medium">{{ formatAmount(alertData.customer.averageTransaction) }}</span>
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <div class="info-item">
+                      <small class="text-muted d-block">Risk Profile</small>
+                      <span class="badge" [ngClass]="getRiskBadgeClass(alertData.customer.riskProfile)">
+                        {{ alertData.customer.riskProfile }} Risk
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <div class="card-body p-4">
-          <div *ngIf="selectedObservation" class="observation-details">
-            <div class="detail-section mb-4">
-              <h5 class="section-title text-uppercase text-dark small fw-bold mb-2">
-                <i class="fas fa-align-left text-info me-1"></i> Description
-              </h5>
-              <p class="detail-content text-dark mb-0">{{ selectedObservation.description }}</p>
-            </div>
-            <div class="detail-section mb-4" *ngIf="selectedObservation.details">
-              <h5 class="section-title text-uppercase text-dark small fw-bold mb-2">
-                <i class="fas fa-file-alt text-primary me-1"></i> Detailed Findings
-              </h5>
-              <p class="detail-content text-muted mb-0">{{ selectedObservation.details }}</p>
-            </div>
-                <div class="status-card p-3 rounded-3 border">
-                  <h4 class="text-dark small mb-2">Severity Level</h4>
-                  <span class="badge fs-7 py-2 px-3 w-100"
-                        [ngClass]="{
-                          'bg-dark text-white': selectedObservation.severity === 'Critical',
-                          'bg-danger text-white': selectedObservation.severity === 'High',
-                          'bg-warning text-dark': selectedObservation.severity === 'Medium',
-                          'bg-success text-white': selectedObservation.severity === 'Low'
-                        }">
-                    <i class="fas fa-exclamation-triangle me-1"></i>
-                    {{ selectedObservation.severity }}
-                  </span>
-                </div>
-
-               <div class="status-card p-3 rounded-3 border">
-                  <h4 class="text-dark small mb-2">Current Status</h4>
-                  <span class="badge fs-7 py-2 px-3 w-100"
-                        [ngClass]="{
-                          'bg-secondary': selectedObservation.status === 'Draft',
-                          'bg-info text-white': selectedObservation.status === 'Reviewed',
-                          'bg-warning text-dark': selectedObservation.status === 'Presented',
-                          'bg-success text-white': selectedObservation.status === 'Resolved'
-                        }">
-                    <i class="fas fa-tasks me-1"></i>
-                    {{ selectedObservation.status }}
-                  </span>
-                </div>
-     
-            <div class="detail-section mb-3 mt-1" *ngIf="selectedObservation.recommendation">
-              <h5 class="section-title text-uppercase text-muted small fw-bold mb-2">
-                <i class="fas fa-lightbulb me-1 text-warning"></i> Recommendation
-              </h5>
-              <div class="recommendation-box bg-light rounded-2 p-3 border-start border-warning border-4">
-                <p class="mb-0 text-dark">{{ selectedObservation.recommendation }}</p>
+          <!-- Right Column - Device & IP Info -->
+          <div class="col-lg-6">
+            <!-- Device Information Card -->
+            <div class="card shadow-sm mb-4">
+              <div class="card-header bg-transparent border-0 pt-3 px-4">
+                <h4 class="fw-bold mb-0">
+                  <i class="fas fa-mobile-alt me-2 text-primary"></i>
+                  Device Information
+                </h4>
               </div>
-            </div>
-            <div class="metadata-section pt-3 border-top">
-              <div class="row g-2 text-muted small">
-                <div class="col-12">
-                  <div class="d-flex align-items-center">
-                    <i class="fas fa-calendar-alt me-2 opacity-75"></i>
-                    <span>Created: {{ selectedObservation.createdAt | date:'mediumDate' }}</span>
+              <div class="card-body">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <div class="info-item">
+                      <small class="text-muted d-block">Device ID</small>
+                      <span class="fw-medium font-monospace">{{ alertData.device.id }}</span>
+                    </div>
                   </div>
-                </div>
-                <div class="col-12" *ngIf="selectedObservation.updatedAt">
-                  <div class="d-flex align-items-center">
-                    <i class="fas fa-sync-alt me-2 opacity-75"></i>
-                    <span>Last Updated: {{ selectedObservation.updatedAt | date:'mediumDate' }}</span>
+                  <div class="col-md-6">
+                    <div class="info-item">
+                      <small class="text-muted d-block">Device Type</small>
+                      <span class="fw-medium">{{ alertData.device.type }}</span>
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <div class="info-item">
+                      <small class="text-muted d-block">Fingerprint</small>
+                      <span class="fw-medium font-monospace small">{{ alertData.device.fingerprint }}</span>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="info-item">
+                      <small class="text-muted d-block">First Seen</small>
+                      <span class="fw-medium">{{ formatDate(alertData.device.firstSeen) }}</span>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="info-item">
+                      <small class="text-muted d-block">Last Seen</small>
+                      <span class="fw-medium">{{ formatDate(alertData.device.lastSeen) }}</span>
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <div class="info-item">
+                      <small class="text-muted d-block">Trust Status</small>
+                      <span class="badge" [ngClass]="alertData.device.trusted ? 'bg-success' : 'bg-danger'">
+                        {{ alertData.device.trusted ? 'Trusted' : 'Not Trusted' }}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
+            <!-- IP Information Card -->
+            <div class="card shadow-sm mb-4">
+              <div class="card-header bg-transparent border-0 pt-3 px-4">
+                <h4 class="fw-bold mb-0">
+                  <i class="fas fa-network-wired me-2 text-primary"></i>
+                  IP Information
+                </h4>
+              </div>
+              <div class="card-body">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <div class="info-item">
+                      <small class="text-muted d-block">IP Address</small>
+                      <span class="fw-medium">{{ alertData.ipAddress.address }}</span>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="info-item">
+                      <small class="text-muted d-block">Geolocation</small>
+                      <span class="fw-medium">{{ alertData.ipAddress.geolocation }}</span>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="info-item">
+                      <small class="text-muted d-block">ISP</small>
+                      <span class="fw-medium">{{ alertData.ipAddress.isp }}</span>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="info-item">
+                      <small class="text-muted d-block">Proxy/VPN</small>
+                      <span class="badge" [ngClass]="alertData.ipAddress.proxy ? 'bg-warning' : 'bg-success'">
+                        {{ alertData.ipAddress.proxy ? 'Yes' : 'No' }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <div class="info-item">
+                      <small class="text-muted d-block">Blacklist Status</small>
+                      <span class="badge" [ngClass]="alertData.ipAddress.blacklisted ? 'bg-danger' : 'bg-success'">
+                        {{ alertData.ipAddress.blacklisted ? 'Blacklisted' : 'Clean' }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+
+      <!-- AI ANALYSIS TAB -->
+      <div class="tab-pane fade show active" *ngIf="activeTab === 'aiAnalysis'">
+        <div class="row">
+          <div class="col-lg-8">
+            <!-- AI Explanation Card -->
+            <div class="card shadow-sm mb-4">
+              <div class="card-header bg-transparent border-0 pt-3 px-4">
+                <h4 class="fw-bold mb-0">
+                  <i class="fas fa-robot me-2 text-primary"></i>
+                  AI Analysis Explanation
+                </h4>
+              </div>
+              <div class="card-body">
+                <div class="ai-explanation p-4 rounded-3 mb-4"
+                     [ngClass]="{
+                       'critical-bg': alertData.riskCategory === 'Critical',
+                       'high-bg': alertData.riskCategory === 'High',
+                       'medium-bg': alertData.riskCategory === 'Medium',
+                       'low-bg': alertData.riskCategory === 'Low'
+                     }">
+                  <div class="d-flex">
+                    <div class="ai-icon me-3">
+                      <i class="fas fa-brain fa-2x"></i>
+                    </div>
+                    <div>
+                      <p class="analysis-text mb-0">{{ alertData.aiAnalysis.explanation }}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Risk Signals -->
+                <h6 class="fw-bold mb-3">Risk Signals Detected</h6>
+                <div class="row g-3 mb-4">
+                  <div class="col-md-6" *ngFor="let signal of alertData.aiAnalysis.signals">
+                    <div class="signal-card p-3 bg-light rounded-3">
+                      <div class="d-flex align-items-center mb-2">
+                        <span class="badge me-2" [ngClass]="getSignalSeverityClass(signal.severity)">
+                          {{ signal.severity | uppercase }}
+                        </span>
+                        <span class="fw-bold">{{ signal.name }}</span>
+                      </div>
+                      <p class="small text-muted mb-0">{{ signal.description }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <!-- Model Agreement Card -->
+            <div class="card shadow-sm mb-4">
+              <div class="card-header bg-transparent border-0 pt-3 px-4">
+                <h4 class="fw-bold mb-0">
+                  <i class="fas fa-microchip me-2 text-primary"></i>
+                  Model Agreement
+                </h4>
+              </div>
+              <div class="card-body">
+                <div class="text-center mb-3">
+                  <div class="display-4 fw-bold" [style.color]="alertData.riskScore >= 8 ? '#f72585' : 
+                                                                 alertData.riskScore >= 6 ? '#ff9e00' : 
+                                                                 alertData.riskScore >= 4 ? '#4cc9f0' : '#06d6a0'">
+                    {{ alertData.aiAnalysis.modelAgreement.flagged }}/{{ alertData.aiAnalysis.modelAgreement.total }}
+                  </div>
+                  <span class="text-muted">models flagged as fraud</span>
+                </div>
+                
+                <div class="progress mb-4" style="height: 10px;">
+                  <div class="progress-bar" 
+                       [style.width.%]="(alertData.aiAnalysis.modelAgreement.flagged / alertData.aiAnalysis.modelAgreement.total) * 100"
+                       [ngClass]="{
+                         'bg-danger': alertData.riskCategory === 'Critical',
+                         'bg-warning': alertData.riskCategory === 'High',
+                         'bg-info': alertData.riskCategory === 'Medium',
+                         'bg-success': alertData.riskCategory === 'Low'
+                       }">
+                  </div>
+                </div>
+
+                <h6 class="fw-bold mb-3">Individual Model Predictions</h6>
+                <div class="model-list">
+                  <div class="model-item d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded-3"
+                       *ngFor="let model of alertData.aiAnalysis.modelAgreement.models">
+                    <div>
+                      <span class="fw-medium">{{ model.name }}</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="badge" [ngClass]="{
+                        'bg-danger': model.prediction === 'fraud',
+                        'bg-success': model.prediction === 'legitimate',
+                        'bg-warning text-dark': model.prediction === 'uncertain'
+                      }">
+                        {{ model.prediction }}
+                      </span>
+                      <span class="small fw-bold" [ngClass]="getPredictionClass(model.prediction)">
+                        {{ model.confidence }}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mt-3 p-3 bg-light rounded-3">
+                  <small class="text-muted d-block mb-1">AI Confidence</small>
+                  <div class="d-flex align-items-center">
+                    <span class="fw-bold fs-4 me-2" [style.color]="alertData.aiAnalysis.confidence >= 90 ? '#06d6a0' : 
+                                                                     alertData.aiAnalysis.confidence >= 80 ? '#4cc9f0' : '#ff9e00'">
+                      {{ alertData.aiAnalysis.confidence }}%
+                    </span>
+                    <span class="text-muted">overall confidence</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recommended Action Card -->
+            <div class="card shadow-sm recommended-action-card">
+              <div class="card-body">
+                <h4 class="fw-bold mb-2">
+                  <i class="fas fa-exclamation-circle me-2 text-danger"></i>
+                  Recommended Action
+                </h4>
+                <p class="mb-3">{{ alertData.aiAnalysis.recommendedAction }}</p>
+                <button class="btn btn-primary w-100" (click)="openActionModal('block')">
+                  <i class="fas fa-ban me-1"></i> Take Recommended Action
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-pane fade show active" *ngIf="activeTab === 'timeline'">
+        <div class="card shadow-sm">
+          <div class="card-header bg-transparent border-0 pt-3 px-4">
+            <h4 class="fw-bold mb-0">
+              <i class="fas fa-history me-2 text-primary"></i>
+              Case Timeline
+            </h4>
+          </div>
+          <div class="card-body">
+            <div class="timeline">
+              <div class="timeline-item d-flex gap-3 mb-4" *ngFor="let event of alertData.timeline">
+                <div class="timeline-icon">
+                  <div class="icon-circle bg-primary bg-opacity-10">
+                    <i class="fas fa-circle text-primary"></i>
+                  </div>
+                </div>
+                <div class="timeline-content flex-grow-1">
+                  <div class="d-flex justify-content-between align-items-start mb-1">
+                    <h6 class="fw-bold mb-0">{{ event.action }}</h6>
+                    <small class="text-muted">{{ formatDateTime(event.timestamp) }}</small>
+                  </div>
+                  <p class="small text-muted mb-1">{{ event.details }}</p>
+                  <small class="text-muted">
+                    <i class="fas fa-user me-1"></i> {{ event.user }}
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RELATED TRANSACTIONS TAB -->
+      <div class="tab-pane fade show active" *ngIf="activeTab === 'related'">
+        <div class="card shadow-sm">
+          <div class="card-header bg-transparent border-0 pt-3 px-4">
+            <h4 class="fw-bold mb-0">
+              <i class="fas fa-link me-2 text-primary"></i>
+              Related Transactions
+            </h4>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                  <tr>
+                    <th class="ps-4">Transaction ID</th>
+                    <th>Amount</th>
+                    <th>Time</th>
+                    <th>Risk Score</th>
+                    <th>Status</th>
+                    <th class="pe-4">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let tx of alertData.relatedTransactions">
+                    <td class="ps-4 fw-medium">{{ tx.id }}</td>
+                    <td class="fw-bold">{{ formatAmount(tx.amount) }}</td>
+                    <td>{{ formatDateTime(tx.timestamp) }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="getRiskBadgeClass(
+                        tx.riskScore >= 8 ? 'Critical' : 
+                        tx.riskScore >= 6 ? 'High' : 
+                        tx.riskScore >= 4 ? 'Medium' : 'Low'
+                      )">
+                        {{ tx.riskScore }}/10
+                      </span>
+                    </td>
+                    <td>
+                      <span class="badge" [ngClass]="getStatusBadgeClass(tx.status)">
+                        {{ tx.status }}
+                      </span>
+                    </td>
+                    <td class="pe-4">
+                      <button class="btn btn-sm btn-outline-primary" 
+                              [routerLink]="['/fraudsentinelAi/transaction_management/fraud/alert-detail', tx.id]">
+                        <i class="fas fa-eye me-1"></i> View
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal-overlay" *ngIf="showActionModal" (click)="closeActionModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header" [ngClass]="{
+      'bg-danger text-white': actionType === 'block',
+      'bg-success text-white': actionType === 'approve',
+      'bg-warning text-dark': actionType === 'flag',
+      'bg-primary text-white': actionType === 'escalate'
+    }">
+      <h3 class="modal-title">
+  
+        <i class="fas" [ngClass]="{
+          'fa-ban': actionType === 'block',
+          'fa-check': actionType === 'approve',
+          'fa-flag': actionType === 'flag',
+          'fa-arrow-up': actionType === 'escalate'
+        }"></i>
+        <span class="ms-2">{{ actionType === 'block' ? 'Block Transaction' :
+           actionType === 'approve' ? 'Approve Transaction' :
+           actionType === 'flag' ? 'Flag for Review' :
+           'Escalate Case' }}</span>
+      </h3>
+      <button type="button" class="btn-close" [class.btn-close-white]="actionType !== 'flag'" (click)="closeActionModal()"></button>
+    </div>
+    
+    <div class="modal-body">
+      <p class="mb-3">
+        <strong>Transaction:</strong> {{ alertData?.transactionId }}<br>
+        <strong>Amount:</strong> {{ formatAmount(alertData?.amount || 0) }}<br>
+        <strong>Risk Score:</strong> {{ alertData?.riskScore }}/10
+      </p>
+      
+      <div class="mb-3">
+        <label class="form-label fw-medium">Additional Notes</label>
+        <textarea class="form-control" rows="3" 
+                  placeholder="Enter any additional notes or reason for this action..."
+                  [(ngModel)]="actionNotes"></textarea>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-end">
+      <div class="modal-footer d-flex gap-2 justify-content-between">
+              <button class="btn btn-outline-secondary" (click)="closeActionModal()">Cancel</button>
+              <button class="btn" [ngClass]="{
+                'btn-danger': actionType === 'block',
+                'btn-success': actionType === 'approve',
+                'btn-warning': actionType === 'flag',
+                'btn-primary': actionType === 'escalate'
+              }" (click)="submitAction()" [disabled]="actionLoading">
+                <span *ngIf="!actionLoading">
+        
+                  <i class="fas" [ngClass]="{
+                    'fa-ban': actionType === 'block',
+                    'fa-check': actionType === 'approve',
+                    'fa-flag': actionType === 'flag',
+                    'fa-arrow-up': actionType === 'escalate'
+                  }"></i>
+                  <span class="ms-1">Confirm {{ actionType === 'block' ? 'Block' :
+                            actionType === 'approve' ? 'Approval' :
+                            actionType === 'flag' ? 'Flag' : 'Escalation' }}</span>
+                </span>
+                <span *ngIf="actionLoading">
+                  <i class="fas fa-spinner fa-spin me-1"></i> Processing...
+                </span>
+              </button>
+         </div>
     </div>
   </div>
 </div>

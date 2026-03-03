@@ -21,17 +21,21 @@ const routes: Routes = [
   },
 
 {
-    path: 'audits',
+    path: 'fraud',
     component: ListFailedRegistrationsComponent,
     children: [
-      { path: '', redirectTo: 'scoping', pathMatch: 'full' },
-      { path: 'planning', component: IntentComponent },
-      { path: 'scoping', component: AddCustomerComponent },
-      { path: 'observation/:auditId', component: SendSmsComponent },
+      { path: '', redirectTo: 'live-feed', pathMatch: 'full' },
+      { path: 'risk-analyzer', component: IntentComponent },
+      { path: 'live-feed', component: AddCustomerComponent },
+      { path: 'investigation-graph', component: ReasonsForFailureComponent },
+      { path: 'investigation-graph/:id', component: ReasonsForFailureComponent },
+      { path: 'ai-insights', component: VoiceComponent },
+      { path: 'history', component: ViewCustomerComponent },
+  
+      { path: 'alert-detail/:id', component: SendSmsComponent },
 
-      // { path: 'llm', component: ViewCustomerComponent },
-      // { path: 'publish', component: ReasonsForFailureComponent },
-      // { path: 'voice', component: VoiceComponent },
+ 
+
      
     ]
   }
