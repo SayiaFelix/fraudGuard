@@ -7,6 +7,19 @@ import { forkJoin, Observable, throwError,of } from 'rxjs';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 
+export interface FrontendTransaction {
+  id: string;
+  transactionId: string;
+  amount: number;
+  riskScore: number;
+  riskCategory: 'Critical' | 'High' | 'Medium' | 'Low';
+  channel: string;
+  location: string;
+  timestamp: string;
+  status: 'Open' | 'Investigating' | 'Resolved';
+  flaggedBy: 'AI' | 'Rules' | 'Manual';
+}
+
 export interface Transaction {
   transaction_id: string;
   timestamp: string;
@@ -117,19 +130,21 @@ export class HttpService {
 
   private apiUrl = `${environment.customerPortalNest}`;
 
-
-  // Get all transactions with pagination
-  getTransactions(page: number = 1, size: number = 20): Observable<TransactionsResponse> {
-    return this.http.post<TransactionsResponse>(`${this.apiUrl}/transactions`, { page, size })
-      .pipe(
-        catchError(this.handleError<TransactionsResponse>('getTransactions', {
-          status: 'error',
-          message: 'Failed to load transactions',
-          transactions: [],
-          pagination: { page, size, total: 0, has_more: false }
-        }))
-      );
-  }
+  
+getTransactions(page: number = 1, size: number = 20): Observable<TransactionsResponse> {
+  console.log(`Calling API: ${this.apiUrl}/transactions with page=${page}, size=${size}`);
+  
+  return this.http.post<TransactionsResponse>(`${this.apiUrl}/transactions`, { page, size })
+    .pipe(
+      tap(response => console.log('API Response:', response)),
+      catchError(this.handleError<TransactionsResponse>('getTransactions', {
+        status: 'error',
+        message: 'Failed to load transactions',
+        transactions: [],
+        pagination: { page, size, total: 0, has_more: false }
+      }))
+    );
+}
 
   getFraudHistory(page: number = 1, size: number = 20): Observable<FraudHistoryResponse> {
     return this.http.post<FraudHistoryResponse>(`${this.apiUrl}/fraud_history`, { page, size })
@@ -200,6 +215,82 @@ export class HttpService {
       console.error(`${operation} failed:`, error);
       return of(result as T);
     };
+  }
+
+
+
+
+  // Map backend transaction to frontend format
+  mapTransaction(transaction: any): FrontendTransaction {
+    // Determine risk category based on score or category
+    let riskCategory: 'Critical' | 'High' | 'Medium' | 'Low' = 'Low';
+    let riskScore = transaction.risk_score || 0;
+    
+    if (riskScore >= 7) riskCategory = 'Critical';
+    else if (riskScore >= 5) riskCategory = 'High';
+    else if (riskScore >= 3) riskCategory = 'Medium';
+    else riskCategory = 'Low';
+    
+    // Determine channel from transaction type
+    let channel = 'Web';
+    if (transaction.transaction_type === 'POS') channel = 'POS';
+    else if (transaction.transaction_type === 'Transfer') channel = 'Mobile';
+    else if (transaction.transaction_type === 'Online') channel = 'Web';
+    
+    // Determine location
+    let location = 'Unknown';
+    if (transaction.transaction_location === 'Local') location = 'Nairobi, KE';
+    else if (transaction.transaction_location === 'International') location = 'International';
+    
+    return {
+      id: transaction.transaction_id || this.generateId(),
+      transactionId: transaction.transaction_id || this.generateId(),
+      amount: transaction.transaction_amount || 0,
+      riskScore: riskScore,
+      riskCategory: riskCategory,
+      channel: channel,
+      location: location,
+      timestamp: transaction.transaction_date || new Date().toISOString(),
+      status: 'Open',
+      flaggedBy: 'AI'
+    };
+  }
+  
+  // Generate a temporary ID if none exists
+  private generateId(): string {
+    return 'TXN-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+  }
+  
+  // Calculate KPIs from transactions
+  calculateKPIs(transactions: any[]): any {
+    const totalTransactions = transactions.length;
+    const highRisk = transactions.filter(t => (t.risk_score || 0) >= 5).length;
+    const totalAmount = transactions.reduce((sum, t) => sum + (t.transaction_amount || 0), 0);
+    
+    return {
+      totalTransactions,
+      highRiskAlerts: highRisk,
+      fraudBlocked: totalAmount,
+      avgRiskScore: transactions.reduce((sum, t) => sum + (t.risk_score || 0), 0) / totalTransactions || 0
+    };
+  }
+  
+  // Group transactions by month for trend analysis
+  groupByMonth(transactions: any[]): any {
+    const monthlyData: { [key: string]: { count: number; amount: number } } = {};
+    
+    transactions.forEach(t => {
+      const date = new Date(t.transaction_date || Date.now());
+      const month = date.toLocaleString('default', { month: 'short' });
+      
+      if (!monthlyData[month]) {
+        monthlyData[month] = { count: 0, amount: 0 };
+      }
+      monthlyData[month].count++;
+      monthlyData[month].amount += t.transaction_amount || 0;
+    });
+    
+    return monthlyData;
   }
 
   getDashboardData(): Observable<any> {
