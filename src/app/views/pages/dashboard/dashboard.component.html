@@ -144,7 +144,7 @@
               <th>Risk Score</th>
               <th>Risk Level</th>
               <th>Channel</th>
-              <th>Location</th>
+              <!-- <th>Location</th> -->
               <th>Time</th>
               <th>Status</th>
               <th class="pe-4">Actions</th>
@@ -179,7 +179,7 @@
                 }"></i>
                 {{ alert.channel }}
               </td>
-              <td>{{ alert.location }}</td>
+              <!-- <td>{{ alert.location }}</td> -->
               <td>{{ alert.timestamp | date:'HH:mm' }}</td>
               <td>
                 <span class="badge" [ngClass]="getStatusBadgeClass(alert.status)">
@@ -232,9 +232,8 @@
     </div>
 
     <div class="col-lg-6">
-      <div class="row g-4">
+   
         <!-- Recent Activity -->
-        <div class="col-md-7">
           <div class="card shadow-sm h-100">
             <div class="card-header bg-transparent border-0 pt-3 px-4">
               <h4 class="fw-bold mb-0">
@@ -261,9 +260,7 @@
               </div>
             </div>
           </div>
-        </div>
-
-      
+<!--       
         <div class="col-md-5">
           <div class="card shadow-sm h-100">
             <div class="card-header bg-transparent border-0 pt-3 px-4">
@@ -303,8 +300,7 @@
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </div> -->
     </div>
   </div>
 
