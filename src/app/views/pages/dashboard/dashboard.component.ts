@@ -217,7 +217,7 @@ export class DashboardComponent implements OnInit {
     }
   }, 10000);
   
-  this.refreshSubscription = interval(60000).subscribe(() => {
+  this.refreshSubscription = interval(180000).subscribe(() => {
     this.refresh();
   });
 }
@@ -560,7 +560,7 @@ updateKPIs(): void {
     this.kpis[3].description = 
       `Accuracy: ${(xgb.accuracy * 100).toFixed(2)}% | ` + 
       `F1 Score: ${(xgb.f1_score * 100).toFixed(2)}% | ` +
-      `Precision: ${(xgb.precision * 100).toFixed(2)}% |`
+      `Precision: ${(xgb.precision * 100).toFixed(2)}%`
       // `ROC AUC: ${(xgb.roc_auc * 100).toFixed(2)}%`
       ;
   }

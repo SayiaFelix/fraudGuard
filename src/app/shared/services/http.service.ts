@@ -132,7 +132,7 @@ export class HttpService {
 
   
 getTransactions(page: number = 1, size: number = 20): Observable<TransactionsResponse> {
-  console.log(`Calling API: ${this.apiUrl}/transactions with page=${page}, size=${size}`);
+  // console.log(`Calling API: ${this.apiUrl}/transactions with page=${page}, size=${size}`);
   
   return this.http.post<TransactionsResponse>(`${this.apiUrl}/transactions`, { page, size })
     .pipe(
@@ -362,7 +362,7 @@ public customerPortalLogin(endpoint: string, model: any): Observable<any> {
             .pipe(
                 map((result: any) => {
                     if (result['status'] == '00') {
-                      console.log('Activation successful:', result); 
+                      // console.log('Activation successful:', result); 
                     } else {
                         throw new Error(result['message']);
                     }
@@ -407,7 +407,7 @@ public customerPortalLogin(endpoint: string, model: any): Observable<any> {
             // localStorage.setItem('isLoggedin', 'true');
             // localStorage.setItem('token', result['token']);
             // localStorage.setItem('data', JSON.stringify(result['data']));
-            console.log('Reset successful:', result);
+            // console.log('Reset successful:', result);
           } else {
             throwError(() => new Error(result['message']));
           }
@@ -427,7 +427,7 @@ public customerPortalLogin(endpoint: string, model: any): Observable<any> {
       )
       .pipe(
         map((result: any) => {
-          console.log(result)
+          // console.log(result)
           localStorage.setItem(
             'userData',
             JSON.stringify(result['data'])
