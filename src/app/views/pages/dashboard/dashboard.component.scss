@@ -11,7 +11,6 @@
   border-left-width: 4px !important;
 }
 
-// dashboard.component.scss
 .loading-overlay {
   position: fixed;
   top: 0;
@@ -102,7 +101,6 @@
   }
 }
 
-// Custom badge classes
 .badge {
   padding: 0.5em 0.8em;
   font-weight: 500;
@@ -113,7 +111,6 @@
   &.bg-success { background: #06d6a0 !important; }
 }
 
-// Table styles
 .table {
   th {
     font-size: 0.85rem;
@@ -133,7 +130,6 @@
   border-radius: 10px;
 }
 
-// Responsive adjustments
 @media (max-width: 768px) {
   .kpi-card {
     margin-bottom: 1rem;
