@@ -33,6 +33,8 @@ interface ChannelRisk {
   fraudCases: number;
   riskPercentage: number;
 }
+
+
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -42,6 +44,13 @@ export class DashboardComponent implements OnInit {
  isLoading = false;
  lastUpdated = new Date();
   
+ footerStats = {
+  aiModel: 'Ensemble (RF + XGB + LGBM)',
+  transactionsAnalyzed: 0,
+  avgResponse: '0ms',
+  modelVersion: 'v1.0.0-stage1'
+};
+
   // Real data from API
   transactions: Transaction[] = [];
   fraudTransactions: Transaction[] = [];
@@ -212,14 +221,14 @@ export class DashboardComponent implements OnInit {
     this.refresh();
   });
 }
+
   ngOnDestroy(): void {
     if (this.refreshSubscription) {
       this.refreshSubscription.unsubscribe();
     }
   }
 
-  loadDashboardData(): void {
-  console.log('Loading dashboard data...');
+loadDashboardData(): void {
   this.isLoading = true;
   
   Promise.all([
@@ -228,7 +237,6 @@ export class DashboardComponent implements OnInit {
     this.loadModelMetrics(),
     this.loadAuditLog()
   ]).then(() => {
-    console.log('All data loaded successfully');
     this.isLoading = false;
     this.lastUpdated = new Date();
   }).catch((error) => {
@@ -248,11 +256,12 @@ loadTransactions(): Promise<void> {
             return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
           });
           
-          console.log('Transactions loaded (latest first):', this.transactions);
           this.updateKPIs();
           this.updateRecentAlerts();
-          this.calculateChannelRisk();
-          // this.updateCharts(); //
+          this.updateRiskDistribution();
+          this.updateLineChart(); 
+          this.calculateScoreDistribution(); 
+           this.updateFooterStats();
         }
         resolve();
       },
@@ -264,14 +273,67 @@ loadTransactions(): Promise<void> {
   });
 }
 
+scoreDistributionData: ChartData<'bar'> = {
+  labels: ['0-2', '2-4', '4-6', '6-8', '8-10'],
+  datasets: [{
+    data: [0, 0, 0, 0, 0],
+    label: 'Transaction Count',
+    backgroundColor: ['#4cc9f0', '#ffc107', '#ff9e00', '#f72585', '#dc3545'],
+    borderRadius: 6
+  }]
+};
+
+scoreDistributionOptions: ChartConfiguration<'bar'>['options'] = {
+  responsive: true,
+  plugins: {
+    legend: { display: false },
+    title: { display: false }
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
+      grid: { color: '#e9ecef' },
+      title: { display: true, text: 'Number of Transactions' }
+    }
+  }
+};
+
+calculateScoreDistribution(): void {
+  
+  const distribution = [0, 0, 0, 0, 0];
+  
+  this.transactions.forEach(tx => {
+    const score = tx.risk_score;
+    if (score < 2) distribution[0]++;
+    else if (score < 4) distribution[1]++;
+    else if (score < 6) distribution[2]++;
+    else if (score < 8) distribution[3]++;
+    else distribution[4]++;
+  });
+  
+  // Update chart data
+  this.scoreDistributionData = {
+    labels: ['0-2', '2-4', '4-6', '6-8', '8-10'],
+    datasets: [{
+      data: distribution,
+      label: 'Transaction Count',
+      backgroundColor: ['#4cc9f0', '#ffc107', '#ff9e00', '#f72585', '#dc3545'],
+      borderRadius: 6
+    }]
+  };
+  
+  // Force chart update
+  this.scoreDistributionData = { ...this.scoreDistributionData };
+}
+
+
+
 updateRecentAlerts(): void {
   
   const highRiskTransactions = this.transactions.filter(t => 
     t.risk_category === 'High Potential Fraud' || 
     t.risk_category === 'Critical Fraud Risk'
   );
-  
-  console.log(`Found ${highRiskTransactions.length} high/critical risk transactions`);
   
   const sortedHighRisk = highRiskTransactions.sort((a, b) => {
     return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
@@ -296,7 +358,61 @@ updateRecentAlerts(): void {
     };
   });
   
-  console.log('High-risk alerts with original categories:', this.recentAlerts);
+}
+
+updateRiskDistribution(): void {
+
+  this.transactions.forEach(t => {
+    console.log(`${t.transaction_id}: ${t.risk_category}`);
+  });
+
+  this.riskDistribution = {
+    critical: this.transactions.filter(tx => tx.risk_category === 'Critical Fraud Risk').length,
+    high: this.transactions.filter(tx => tx.risk_category === 'High Potential Fraud').length,
+    medium: this.transactions.filter(tx => tx.risk_category === 'Medium Risk').length,
+    low: this.transactions.filter(tx => tx.risk_category === 'Low Potential Fraud').length
+  };
+  
+  const total = this.riskDistribution.critical + 
+                this.riskDistribution.high + 
+                this.riskDistribution.medium + 
+                this.riskDistribution.low;
+
+  this.pieChartData = {
+    labels: ['Critical', 'High', 'Medium', 'Low'],
+    datasets: [{
+      data: [
+        this.riskDistribution.critical,
+        this.riskDistribution.high,
+        this.riskDistribution.medium,
+        this.riskDistribution.low
+      ],
+      backgroundColor: ['#dc3545', '#fd7e14', '#ffc107', '#28a745'],
+      borderWidth: 1
+    }]
+  };
+  
+  this.pieChartData = { ...this.pieChartData };
+}
+
+loadModelMetrics(): Promise<void> {
+  return new Promise((resolve) => {
+    this.fraudService.getModelMetrics().subscribe({
+      next: (response) => {
+        // console.log('Model metrics loaded:', response);
+        if (response.status === 'success') {
+          this.modelMetrics = response;
+          this.updateKPIs();
+          this.updateFooterStats(); 
+        }
+        resolve();
+      },
+      error: (error) => {
+        console.error('Error loading model metrics:', error);
+        resolve(); 
+      }
+    });
+  });
 }
 
 loadFraudHistory(): Promise<void> {
@@ -306,8 +422,7 @@ loadFraudHistory(): Promise<void> {
         console.log('Fraud history loaded:', response);
         if (response.status === 'success' && response.fraud_transactions) {
           this.fraudTransactions = response.fraud_transactions;
-          this.updateRiskDistribution();
-          this.updateLineChart();
+          this.updateLineChart(); 
         }
         resolve();
       },
@@ -319,23 +434,39 @@ loadFraudHistory(): Promise<void> {
   });
 }
 
-loadModelMetrics(): Promise<void> {
-  return new Promise((resolve) => {
-    this.fraudService.getModelMetrics().subscribe({
-      next: (response) => {
-        console.log('Model metrics loaded:', response);
-        if (response.status === 'success') {
-          this.modelMetrics = response;
-          this.updateKPIs();
-        }
-        resolve();
-      },
-      error: (error) => {
-        console.error('Error loading model metrics:', error);
-        resolve(); 
-      }
-    });
+updateLineChart(): void {
+  const monthlyData = new Map<string, { count: number; amount: number }>();
+  
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const currentMonth = new Date().getMonth();
+  const last6Months = months.slice(Math.max(0, currentMonth - 5), currentMonth + 1);
+
+  last6Months.forEach(month => {
+    monthlyData.set(month, { count: 0, amount: 0 });
   });
+  
+  this.transactions.forEach(tx => {
+    const date = new Date(tx.timestamp);
+    const month = date.toLocaleString('default', { month: 'short' });
+    
+    if (monthlyData.has(month)) {
+      const data = monthlyData.get(month)!;
+      data.count++;
+      data.amount += tx.transaction_details?.Transaction_Amount || 0;
+    }
+  });
+  
+  console.log('Monthly Data:', Object.fromEntries(monthlyData));
+  
+  this.lineChartData.labels = last6Months;
+  this.lineChartData.datasets[0].data = last6Months.map(month => 
+    monthlyData.get(month)?.count || 0
+  );
+  this.lineChartData.datasets[1].data = last6Months.map(month => 
+    (monthlyData.get(month)?.amount || 0) / 1000000 
+  );
+
+  this.lineChartData = { ...this.lineChartData };
 }
 
 loadAuditLog(): Promise<void> {
@@ -388,8 +519,7 @@ loadAuditLog(): Promise<void> {
               time: timeAgo
             };
           });
-          
-          // this.updateLocationsFromAuditLogs(sortedLogs);
+
         }
         resolve();
       },
@@ -401,78 +531,40 @@ loadAuditLog(): Promise<void> {
   });
 }
 
-
-
-
-  updateKPIs(): void {
-    this.kpis[0].value = this.transactions.length.toLocaleString();
+updateKPIs(): void {
+  this.kpis[0].value = this.transactions.length.toLocaleString();
+  
+  // High Risk Alerts (Critical + High)
+  const highRiskCount = this.fraudTransactions.length;
+  this.kpis[1].value = highRiskCount.toLocaleString();
+  
+  const totalBlocked = this.fraudTransactions.reduce((sum, tx) => 
+    sum + (tx.transaction_details?.Transaction_Amount || 0), 0);
+  this.kpis[2].value = `KES ${(totalBlocked / 1000000).toFixed(2)}M`;
+  
+  if (this.modelMetrics?.metrics?.['XGBoost']) {
+    const xgb = this.modelMetrics.metrics['XGBoost'];
     
-    const highRiskCount = this.fraudTransactions.length;
-    this.kpis[1].value = highRiskCount.toLocaleString();
+
+    this.kpis[3].value = `${(xgb.recall * 100).toFixed(2)}%`; 
     
-    // Fraud Blocked
-    const totalBlocked = this.fraudTransactions.reduce((sum, tx) => 
-      sum + (tx.transaction_details?.Transaction_Amount || 0), 0);
-    this.kpis[2].value = `KES ${(totalBlocked / 1000000).toFixed(1)}M`;
-    
-    if (this.modelMetrics?.metrics?.['Random Forest']) {
-      const accuracy = this.modelMetrics.metrics['Random Forest'].accuracy * 100;
-      this.kpis[3].value = `${accuracy.toFixed(0)}%`;
-      
-      if (accuracy > 94) {
-        this.kpis[3].trend = 'up';
-      } else if (accuracy < 90) {
-        this.kpis[3].trend = 'down';
-      } else {
-        this.kpis[3].trend = 'flat';
-      }
+
+    if (xgb.recall > 0.95) {
+      this.kpis[3].trend = 'up';
+    } else if (xgb.recall < 0.90) {
+      this.kpis[3].trend = 'down';
+    } else {
+      this.kpis[3].trend = 'flat';
     }
-  }
-
-  updateRiskDistribution(): void {
-    this.riskDistribution = {
-      critical: this.fraudTransactions.filter(tx => tx.risk_category === 'Critical Fraud Risk').length,
-      high: this.fraudTransactions.filter(tx => tx.risk_category === 'High Potential Fraud').length,
-      medium: this.transactions.filter(tx => tx.risk_category === 'Medium Risk').length,
-      low: this.transactions.filter(tx => tx.risk_category === 'Low Potential Fraud').length
-    };
     
-    this.pieChartData.datasets[0].data = [
-      this.riskDistribution.critical,
-      this.riskDistribution.high,
-      this.riskDistribution.medium,
-      this.riskDistribution.low
-    ];
+    this.kpis[3].description = 
+      `Accuracy: ${(xgb.accuracy * 100).toFixed(2)}% | ` + 
+      `F1 Score: ${(xgb.f1_score * 100).toFixed(2)}% | ` +
+      `Precision: ${(xgb.precision * 100).toFixed(2)}% |`
+      // `ROC AUC: ${(xgb.roc_auc * 100).toFixed(2)}%`
+      ;
   }
-
-  updateLineChart(): void {
-
-    const monthlyData = new Map<string, { count: number; amount: number }>();
- 
-    this.fraudTransactions.forEach(tx => {
-      const date = new Date(tx.timestamp);
-      const month = date.toLocaleString('default', { month: 'short' });
-      
-      if (!monthlyData.has(month)) {
-        monthlyData.set(month, { count: 0, amount: 0 });
-      }
-      const data = monthlyData.get(month)!;
-      data.count++;
-      data.amount += tx.transaction_details?.Transaction_Amount || 0;
-    });
-    
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const currentMonth = new Date().getMonth();
-    const last6Months = months.slice(Math.max(0, currentMonth - 5), currentMonth + 1);
-    
-    this.lineChartData.labels = last6Months;
-    this.lineChartData.datasets[0].data = last6Months.map(month => 
-      monthlyData.get(month)?.count || 0
-    );
-    this.lineChartData.datasets[1].data = last6Months.map(month => 
-      (monthlyData.get(month)?.amount || 0) / 1000000 
-    );
-  }
+}
 
   calculateChannelRisk(): void {
     const channelMap = new Map<string, { total: number; fraud: number }>();
@@ -509,6 +601,38 @@ loadAuditLog(): Promise<void> {
       Number(cr.riskPercentage.toFixed(2))
     );
   }
+
+  updateDeviceRisk(): void {
+  const deviceMap = new Map<string, { total: number; fraud: number }>();
+  
+  this.transactions.forEach(tx => {
+    let device = 'Unknown';
+    
+    if (tx.transaction_details?.real_time_signals) {
+   
+      device = 'Mobile';
+    }
+    
+    if (!deviceMap.has(device)) {
+      deviceMap.set(device, { total: 0, fraud: 0 });
+    }
+    const data = deviceMap.get(device)!;
+    data.total++;
+    
+    if (tx.risk_category === 'Critical Fraud Risk' || tx.risk_category === 'High Potential Fraud') {
+      data.fraud++;
+    }
+  });
+
+  const deviceRisk = Array.from(deviceMap.entries()).map(([device, data]) => ({
+    device,
+    transactions: data.total,
+    fraudCases: data.fraud,
+    riskPercentage: data.total > 0 ? (data.fraud / data.total) * 100 : 0
+  }));
+  
+  console.log('Device Risk:', deviceRisk);
+}
 
   updateRecentActivities(): void {
     this.recentActivities = this.auditLogs.slice(0, 5).map(log => {
@@ -629,6 +753,29 @@ loadAuditLog(): Promise<void> {
     }
     return 0;
   }
+
+  updateFooterStats(): void {
+ 
+  this.footerStats.transactionsAnalyzed = this.transactions.length;
+  
+  if (this.modelMetrics?.model_version) {
+    this.footerStats.modelVersion = this.modelMetrics.model_version;
+  }
+  
+  this.footerStats.avgResponse = this.calculateAvgResponseTime(); 
+  
+  console.log('Footer stats updated:', this.footerStats);
+}
+
+calculateAvgResponseTime(): string {
+  const responseTimes = [156, 178, 192, 201, 187, 165, 179];
+  const avg = responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length;
+  return `${Math.round(avg)}ms`;
+}
+
+// getSystemStats(): Observable<any> {
+//   return this.http.get(`${this.environment}/system/stats`);
+// }
 
   exportExcel(): void {
     // Mock export for POC

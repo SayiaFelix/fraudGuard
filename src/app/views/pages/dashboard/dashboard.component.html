@@ -204,37 +204,32 @@
   </div>
 
   <div class="row g-4">
-    <!-- Channel Risk Bar Chart -->
-    <div class="col-lg-6">
-      <div class="card shadow-sm h-100">
-        <div class="card-header bg-transparent border-0 pt-3 px-4">
-          <h4 class="fw-bold mb-0">
-            <i class="fas fa-chart-bar me-2" style="color: #4361ee;"></i>
-            Fraud Risk by Channel
-          </h4>
-        </div>
-        <div class="card-body">
-          <canvas baseChart 
-                  [data]="barChartData" 
-                  [options]="barChartOptions" 
-                  [type]="'bar'">
-          </canvas>
-        </div>
-        <div class="card-footer bg-transparent border-0">
-          <div class="row text-center">
-            <div class="col-6" *ngFor="let channel of channelRisk">
-              <small class="d-block text-muted">{{ channel.channel }}</small>
-              <span class="fw-bold">{{ channel.riskPercentage }}%</span>
+    <!-- Risk Score Distribution -->
+     <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+          <div class="card-header bg-transparent border-0 pt-3 px-4">
+            <h4 class="fw-bold mb-0">
+              <i class="fas fa-chart-bar me-2" style="color: #4361ee;"></i>
+              Risk Score Distribution
+            </h4>
+          </div>
+          <div class="card-body">
+            <div style="height: 300px; position: relative;"> 
+              <canvas baseChart 
+                      [data]="scoreDistributionData" 
+                      [options]="scoreDistributionOptions" 
+                      [type]="'bar'"
+                      style="height: 100%; width: 100%;">
+              </canvas>
             </div>
           </div>
         </div>
       </div>
-    </div>
+
+ 
 
     <div class="col-lg-6">
-   
-        <!-- Recent Activity -->
-          <div class="card shadow-sm h-100">
+      <div class="card shadow-sm h-100">
             <div class="card-header bg-transparent border-0 pt-3 px-4">
               <h4 class="fw-bold mb-0">
                 <i class="fas fa-bell me-2" style="color: #ff9e00;"></i>
@@ -259,78 +254,38 @@
                 </div>
               </div>
             </div>
-          </div>
-<!--       
-        <div class="col-md-5">
-          <div class="card shadow-sm h-100">
-            <div class="card-header bg-transparent border-0 pt-3 px-4">
-              <h4 class="fw-bold mb-0">
-                <i class="fas fa-map-marker-alt me-2" style="color: #06d6a0;"></i>
-                Top Fraud Locations
-              </h4>
-            </div>
-            <div class="card-body">
-              <div *ngFor="let location of topLocations" class="location-item mb-3">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                  <span class="fw-medium">{{ location.city }}</span>
-                  <span class="badge" [ngClass]="getRiskBadgeClass(location.riskLevel)">
-                    {{ location.riskLevel }}
-                  </span>
-                </div>
-                <div class="d-flex justify-content-between align-items-center">
-                  <small class="text-muted">{{ location.count }} cases</small>
-                  <span class="small" [class]="getLocationRiskClass(location.riskLevel)">
-                    <i class="fas" [ngClass]="{
-                      'fa-arrow-up': location.riskLevel === 'High',
-                      'fa-minus': location.riskLevel === 'Medium',
-                      'fa-arrow-down': location.riskLevel === 'Low'
-                    }"></i>
-                  </span>
-                </div>
-                <div class="progress mt-1" style="height: 4px;">
-                  <div class="progress-bar" 
-                       [style.width.%]="(location.count / 456) * 100"
-                       [ngClass]="{
-                         'bg-danger': location.riskLevel === 'High',
-                         'bg-warning': location.riskLevel === 'Medium',
-                         'bg-success': location.riskLevel === 'Low'
-                       }">
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div> -->
+      </div>
     </div>
   </div>
-
+  
   <!-- Footer Stats -->
-  <div class="row mt-4">
-    <div class="col-12">
-      <div class="card bg-light border-0">
-        <div class="card-body py-3">
-          <div class="row text-center">
-            <div class="col">
-              <small class="text-muted">
-                <i class="fas fa-microchip me-1"></i>
-                AI Model: Ensemble (RF + XGB + LGBM)
-              </small>
-            </div>
-            <div class="col">
-              <small class="text-muted">
-                <i class="fas fa-database me-1"></i>
-                Transactions Analyzed: 158,432
-              </small>
-            </div>
-            <div class="col">
-              <small class="text-muted">
-                <i class="fas fa-bolt me-1"></i>
-                Avg Response: 187ms
-              </small>
-            </div>
+<div class="row mt-4">
+  <div class="col-12">
+    <div class="card bg-light border-0">
+      <div class="card-body py-3">
+        <div class="row text-center">
+          <div class="col">
+            <small class="text-muted">
+              <i class="fas fa-microchip me-1"></i>
+              AI Model: {{ footerStats.modelVersion }} | Ensemble (RF + XGB + LGBM)
+            </small>
+          </div>
+          <div class="col">
+            <small class="text-muted">
+              <i class="fas fa-database me-1"></i>
+              Transactions Analyzed: {{ footerStats.transactionsAnalyzed | number }}
+            </small>
+          </div>
+          <div class="col">
+            <small class="text-muted">
+              <i class="fas fa-bolt me-1"></i>
+              Avg Response: {{ footerStats.avgResponse }}
+            </small>
           </div>
         </div>
       </div>
     </div>
   </div>
+</div>
+
 </div>
