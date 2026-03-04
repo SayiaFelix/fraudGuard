@@ -2,92 +2,7 @@
 import { Component, OnInit,Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { ChartConfiguration, ChartData } from 'chart.js';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
 
-export interface Transaction {
-  transaction_id: string;
-  timestamp: string;
-  risk_score: number;
-  risk_category: string;
-  transaction_details: {
-    Transaction_Amount: number;
-    Model_Agreement: string;
-    real_time_signals?: {
-      amount_risk: number;
-      velocity_risk: number;
-      avg_amount_used: number;
-    };
-  };
-  recommended_action: string;
-}
-
-export interface FraudHistoryResponse {
-  status: string;
-  message: string;
-  fraud_transactions: Transaction[];
-  pagination: {
-    page: number;
-    size: number;
-    total: number;
-    total_pages: number;
-    has_next: boolean;
-    has_prev: boolean;
-  };
-}
-
-export interface TransactionsResponse {
-  status: string;
-  message: string;
-  transactions: Transaction[];
-  pagination: {
-    page: number;
-    size: number;
-    total: number;
-    has_more: boolean;
-  };
-}
-
-export interface ModelMetrics {
-  status: string;
-  model_version: string;
-  national_alert_mode: boolean;
-  threshold: number;
-  metrics: {
-    [modelName: string]: {
-      accuracy: number;
-      precision: number;
-      recall: number;
-      f1_score: number;
-      roc_auc: number;
-    };
-  };
-}
-
-export interface AuditLogEntry {
-  timestamp: string;
-  transaction_id: string;
-  model_version: string;
-  risk_score: number;
-  risk_category: string;
-  recommended_action: string;
-  national_alert_mode: boolean;
-}
-
-export interface AuditLogResponse {
-  status: string;
-  message: string;
-  log_count: number;
-  logs: AuditLogEntry[];
-}
-
-export interface AlertModeResponse {
-  status: string;
-  message: string;
-  national_alert_mode: boolean;
-  active_threshold: number;
-}
 
 interface KPI {
   label: string;
@@ -134,6 +49,7 @@ interface ChannelRisk {
 export class DashboardComponent implements OnInit {
   isLoading = false;
   lastUpdated = new Date();
+  
   
   kpis: KPI[] = [
   {
