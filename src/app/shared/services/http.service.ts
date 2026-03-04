@@ -2,10 +2,93 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { GlobalService } from './global.service';
 import { AuthService } from './auth.service';
-import { map, catchError } from 'rxjs/operators';
-import { forkJoin, Observable, throwError } from 'rxjs';
+import { map,tap, catchError } from 'rxjs/operators';
+import { forkJoin, Observable, throwError,of } from 'rxjs';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
+
+export interface Transaction {
+  transaction_id: string;
+  timestamp: string;
+  risk_score: number;
+  risk_category: string;
+  transaction_details: {
+    Transaction_Amount: number;
+    Model_Agreement: string;
+    real_time_signals?: {
+      amount_risk: number;
+      velocity_risk: number;
+      avg_amount_used: number;
+    };
+  };
+  recommended_action: string;
+}
+
+export interface FraudHistoryResponse {
+  status: string;
+  message: string;
+  fraud_transactions: Transaction[];
+  pagination: {
+    page: number;
+    size: number;
+    total: number;
+    total_pages: number;
+    has_next: boolean;
+    has_prev: boolean;
+  };
+}
+
+export interface TransactionsResponse {
+  status: string;
+  message: string;
+  transactions: Transaction[];
+  pagination: {
+    page: number;
+    size: number;
+    total: number;
+    has_more: boolean;
+  };
+}
+
+export interface ModelMetrics {
+  status: string;
+  model_version: string;
+  national_alert_mode: boolean;
+  threshold: number;
+  metrics: {
+    [modelName: string]: {
+      accuracy: number;
+      precision: number;
+      recall: number;
+      f1_score: number;
+      roc_auc: number;
+    };
+  };
+}
+
+export interface AuditLogEntry {
+  timestamp: string;
+  transaction_id: string;
+  model_version: string;
+  risk_score: number;
+  risk_category: string;
+  recommended_action: string;
+  national_alert_mode: boolean;
+}
+
+export interface AuditLogResponse {
+  status: string;
+  message: string;
+  log_count: number;
+  logs: AuditLogEntry[];
+}
+
+export interface AlertModeResponse {
+  status: string;
+  message: string;
+  national_alert_mode: boolean;
+  active_threshold: number;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -22,7 +105,7 @@ export class HttpService {
     private authService: AuthService,
     private router: Router
   ) {}
-  private apiUrl = `${environment.apiBase}/users`;
+
 
   private cytonUrl = 'http://130.61.111.65:5016/api/get_all_charts_kpis'; 
   private apiUrls = 'http://127.0.0.1:5020/api/chat'; 
@@ -31,6 +114,93 @@ export class HttpService {
   private baseUrl = "http://130.61.111.65:5016";
 
   private baseUrls = 'http://localhost:5015/api'; // Flask API Base URL
+
+  private apiUrl = `${environment.customerPortalNest}`;
+
+
+  // Get all transactions with pagination
+  getTransactions(page: number = 1, size: number = 20): Observable<TransactionsResponse> {
+    return this.http.post<TransactionsResponse>(`${this.apiUrl}/transactions`, { page, size })
+      .pipe(
+        catchError(this.handleError<TransactionsResponse>('getTransactions', {
+          status: 'error',
+          message: 'Failed to load transactions',
+          transactions: [],
+          pagination: { page, size, total: 0, has_more: false }
+        }))
+      );
+  }
+
+  getFraudHistory(page: number = 1, size: number = 20): Observable<FraudHistoryResponse> {
+    return this.http.post<FraudHistoryResponse>(`${this.apiUrl}/fraud_history`, { page, size })
+      .pipe(
+        catchError(this.handleError<FraudHistoryResponse>('getFraudHistory', {
+          status: 'error',
+          message: 'Failed to load fraud history',
+          fraud_transactions: [],
+          pagination: { page, size, total: 0, total_pages: 0, has_next: false, has_prev: false }
+        }))
+      );
+  }
+
+  // Get model metrics
+  getModelMetrics(): Observable<ModelMetrics> {
+    return this.http.get<ModelMetrics>(`${this.apiUrl}/model_metrics`)
+      .pipe(
+        catchError(this.handleError<ModelMetrics>('getModelMetrics', {
+          status: 'error',
+          model_version: 'unknown',
+          national_alert_mode: false,
+          threshold: 5.0,
+          metrics: {}
+        }))
+      );
+  }
+
+  // Get audit log
+  getAuditLog(): Observable<AuditLogResponse> {
+    return this.http.get<AuditLogResponse>(`${this.apiUrl}/audit_log`)
+      .pipe(
+        catchError(this.handleError<AuditLogResponse>('getAuditLog', {
+          status: 'error',
+          message: 'Failed to load audit log',
+          log_count: 0,
+          logs: []
+        }))
+      );
+  }
+
+  // Toggle alert mode
+  toggleAlertMode(enable: boolean): Observable<AlertModeResponse> {
+    return this.http.post<AlertModeResponse>(`${this.apiUrl}/system/alert_mode`, { enable })
+      .pipe(
+        catchError(this.handleError<AlertModeResponse>('toggleAlertMode', {
+          status: 'error',
+          message: 'Failed to toggle alert mode',
+          national_alert_mode: false,
+          active_threshold: 5.0
+        }))
+      );
+  }
+
+  // Submit feedback
+  submitFeedback(transactionId: string, feedback: 'confirmed_fraud' | 'false_positive', signals?: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/fraud_feedback`, {
+      transaction_id: transactionId,
+      feedback,
+      signals
+    }).pipe(
+      catchError(this.handleError<any>('submitFeedback', { message: 'Failed to submit feedback' }))
+    );
+  }
+
+  // Error handler
+  private handleError<T>(operation = 'operation', result?: T) {
+    return (error: any): Observable<T> => {
+      console.error(`${operation} failed:`, error);
+      return of(result as T);
+    };
+  }
 
   getDashboardData(): Observable<any> {
     return this.http.get(`${this.baseUrl}/api/get_all_charts_kpis`);
