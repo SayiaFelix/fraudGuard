@@ -51,16 +51,13 @@ export class DashboardComponent implements OnInit {
   modelVersion: 'v1.0.0-stage1'
 };
 
-  // Real data from API
   transactions: Transaction[] = [];
   fraudTransactions: Transaction[] = [];
   modelMetrics: ModelMetrics | null = null;
   auditLogs: any[] = [];
   
-  // Auto-refresh subscription
   private refreshSubscription?: Subscription;
-  
-  // KPIs 
+
   kpis: KPI[] = [
     {
       label: 'Total Transactions',
@@ -201,12 +198,12 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-    constructor(
+  constructor(
     private router: Router,
     private fraudService: HttpService
   ) {}
 
-  ngOnInit(): void {
+ngOnInit(): void {
   this.loadDashboardData();
   this.loadTransactions();
   
