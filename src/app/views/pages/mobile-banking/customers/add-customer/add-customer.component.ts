@@ -27,7 +27,7 @@ interface Transaction {
     signals: string[];
   };
   recommendedAction: string;
-  rawData?: any; // Store original backend data
+  rawData?: any; 
 }
 
 @Component({
@@ -35,14 +35,15 @@ interface Transaction {
   templateUrl: './add-customer.component.html',
   styleUrls: ['./add-customer.component.scss']
 })
+
 export class AddCustomerComponent implements OnInit {
-  @ViewChild('feedContainer') feedContainer!: ElementRef;
+@ViewChild('feedContainer') feedContainer!: ElementRef;
   
   transactions: Transaction[] = [];
   filteredTransactions: Transaction[] = [];
   selectedTransaction: Transaction | null = null;
   autoScroll = true;
-  private modalInstance: any;
+  showModal = false;
   
   // Filters
   riskFilter: string = 'all';
@@ -59,194 +60,26 @@ export class AddCustomerComponent implements OnInit {
     avgRiskScore: 0
   };
 
-  private mockTransactions: Transaction[] = [
-    {
-      id: '1',
-      transactionId: 'TXN-2024-001',
-      amount: 450000,
-      riskScore: 9.2,
-      riskCategory: 'Critical',
-      channel: 'Mobile',
-      location: 'Nairobi, KE',
-      timestamp: new Date(Date.now() - 2 * 60000),
-      status: 'Open',
-      flaggedBy: 'AI',
-      customerName: 'John Mwangi',
-      customerId: 'CUST-001',
-      deviceId: 'DEV-8F7D2A',
-      ipAddress: '197.248.0.45',
-      modelAgreement: { flagged: 6, total: 7 },
-      aiAnalysis: {
-        details: 'The system detected a relatively high transaction amount (4x normal), strong agreement across multiple fraud detection models, a new device (first seen today), and shared IP address with 3 previously flagged accounts. These indicators are consistent with known fraud scenarios observed across similar accounts.',
-        signals: ['Amount anomaly', 'New device', 'Shared IP with flagged accounts', 'Velocity check failed']
-      },
-      recommendedAction: 'Block transaction immediately and notify authorities. Account takeover pattern detected.'
-    },
-    {
-      id: '2',
-      transactionId: 'TXN-2024-002',
-      amount: 275000,
-      riskScore: 8.7,
-      riskCategory: 'Critical',
-      channel: 'Web',
-      location: 'Mombasa, KE',
-      timestamp: new Date(Date.now() - 5 * 60000),
-      status: 'Investigating',
-      flaggedBy: 'AI',
-      customerName: 'Sarah Joy',
-      customerId: 'CUST-002',
-      deviceId: 'DEV-3B5E9C',
-      ipAddress: '105.27.143.78',
-      modelAgreement: { flagged: 5, total: 7 },
-      aiAnalysis: {
-        details: 'The system detected unusual transaction velocity (3 transactions in 5 minutes from different IP addresses), strong agreement across multiple fraud detection models, along with behavioral patterns that differ significantly from the customer\'s historical activity. These indicators are consistent with known fraud scenarios observed across similar accounts.',
-        signals: ['Velocity anomaly', 'Multiple IPs', 'Time pattern unusual']
-      },
-      recommendedAction: 'Flag for review and escalate to fraud investigation team. Possible automated attack.'
-    },
-    {
-      id: '3',
-      transactionId: 'TXN-2024-003',
-      amount: 89000,
-      riskScore: 7.8,
-      riskCategory: 'High',
-      channel: 'Mobile',
-      location: 'Kisumu, KE',
-      timestamp: new Date(Date.now() - 12 * 60000),
-      status: 'Open',
-      flaggedBy: 'Rules',
-      customerName: 'Peter Petro',
-      customerId: 'CUST-003',
-      deviceId: 'DEV-2A1C4D',
-      ipAddress: '154.122.89.34',
-      modelAgreement: { flagged: 4, total: 7 },
-      aiAnalysis: {
-        details: 'The system detected a relatively high transaction amount (340% above daily average), partial agreement across fraud detection models, along with behavioral patterns that differ from the customer\'s historical activity. These indicators warrant additional verification.',
-        signals: ['Amount spike', 'Location mismatch', 'Time unusual']
-      },
-      recommendedAction: 'Require additional verification (2FA) and monitor for follow-up transactions.'
-    },
-    {
-      id: '4',
-      transactionId: 'TXN-2024-004',
-      amount: 150000,
-      riskScore: 7.2,
-      riskCategory: 'High',
-      channel: 'ATM',
-      location: 'Nakuru, KE',
-      timestamp: new Date(Date.now() - 18 * 60000),
-      status: 'Resolved',
-      flaggedBy: 'AI',
-      customerName: 'Mary Ann',
-      customerId: 'CUST-004',
-      deviceId: 'DEV-7E2F1B',
-      ipAddress: '197.250.34.21',
-      modelAgreement: { flagged: 4, total: 7 },
-      aiAnalysis: {
-        details: 'The system detected unusual location (first transaction from this region in 2 years), partial agreement across fraud detection models, along with behavioral patterns that differ from the customer\'s historical activity. These indicators suggest possible account testing.',
-        signals: ['Geographic anomaly', 'First-time location', 'Amount unusual']
-      },
-      recommendedAction: 'Flag for review and contact customer to verify recent travel.'
-    },
-    {
-      id: '5',
-      transactionId: 'TXN-2024-005',
-      amount: 32000,
-      riskScore: 6.5,
-      riskCategory: 'Medium',
-      channel: 'Agent',
-      location: 'Eldoret, KE',
-      timestamp: new Date(Date.now() - 25 * 60000),
-      status: 'Investigating',
-      flaggedBy: 'Manual',
-      customerName: 'Felix Lucas',
-      customerId: 'CUST-005',
-      deviceId: 'DEV-4C8D3E',
-      ipAddress: '105.29.167.92',
-      modelAgreement: { flagged: 3, total: 7 },
-      aiAnalysis: {
-        details: 'The system detected minimal agreement across fraud detection models, but agent trust score is low (this agent has been linked to 2 previous fraud cases). The transaction amount is within normal range, but the channel risk elevates the overall score.',
-        signals: ['Low agent trust score', 'Historical fraud link', 'Channel risk']
-      },
-      recommendedAction: 'Flag agent ID for monitoring and verify with customer via alternate channel.'
-    },
-    {
-      id: '6',
-      transactionId: 'TXN-2024-006',
-      amount: 1250000,
-      riskScore: 9.8,
-      riskCategory: 'Critical',
-      channel: 'Web',
-      location: 'International',
-      timestamp: new Date(Date.now() - 32 * 60000),
-      status: 'Open',
-      flaggedBy: 'AI',
-      customerName: 'Elizabeth Wanjiku',
-      customerId: 'CUST-006',
-      deviceId: 'DEV-9A1B2C',
-      ipAddress: '45.123.89.156',
-      modelAgreement: { flagged: 7, total: 7 },
-      aiAnalysis: {
-        details: 'CRITICAL: The system detected an extremely high international transfer amount, unanimous agreement across all fraud detection models, new device (first seen today), and IP geolocation mismatch with customer profile. These indicators strongly suggest account takeover with immediate financial loss risk.',
-        signals: ['International transfer', 'New device', 'IP geolocation mismatch', 'Amount extreme']
-      },
-      recommendedAction: 'Block transaction immediately, freeze account, and initiate account takeover protocol.'
-    },
-    {
-      id: '7',
-      transactionId: 'TXN-2024-007',
-      amount: 45000,
-      riskScore: 4.2,
-      riskCategory: 'Low',
-      channel: 'Mobile',
-      location: 'Thika, KE',
-      timestamp: new Date(Date.now() - 41 * 60000),
-      status: 'Resolved',
-      flaggedBy: 'Rules',
-      customerName: 'David Omondi',
-      customerId: 'CUST-007',
-      deviceId: 'DEV-5F6E7D',
-      ipAddress: '197.248.12.67',
-      modelAgreement: { flagged: 1, total: 7 },
-      aiAnalysis: {
-        details: 'The system detected minimal agreement across fraud detection models, and the transaction aligns closely with the customer\'s typical behavior and historical transaction patterns. Only minimal risk indicators were observed.',
-        signals: ['Normal pattern', 'Trusted device', 'Regular amount']
-      },
-      recommendedAction: 'Approve transaction with routine monitoring.'
-    },
-    {
-      id: '8',
-      transactionId: 'TXN-2024-008',
-      amount: 230000,
-      riskScore: 8.1,
-      riskCategory: 'High',
-      channel: 'Mobile',
-      location: 'Nairobi, KE',
-      timestamp: new Date(Date.now() - 53 * 60000),
-      status: 'Investigating',
-      flaggedBy: 'AI',
-      customerName: 'Grace Kanene',
-      customerId: 'CUST-008',
-      deviceId: 'DEV-1D2E3F',
-      ipAddress: '154.124.56.89',
-      modelAgreement: { flagged: 5, total: 7 },
-      aiAnalysis: {
-        details: 'The system detected a SIM swap event 3 hours ago followed by this large transfer request, strong agreement across multiple fraud detection models, along with behavioral patterns that differ significantly from the customer\'s historical activity. SIM swap fraud is a known attack vector.',
-        signals: ['Recent SIM swap', 'Large transfer post-SIM swap', 'Device change']
-      },
-      recommendedAction: 'Flag for immediate review. Contact customer via registered email to verify SIM swap.'
-    }
-  ];
+  private refreshSubscription?: Subscription;
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private httpService: HttpService
+  ) {}
 
   ngOnInit(): void {
     this.loadTransactions();
-    this.calculateStats();
     
-    setInterval(() => {
-      this.addRandomTransaction();
-    }, 45000); 
+    // Refresh every 60 seconds
+    this.refreshSubscription = interval(60000).subscribe(() => {
+      this.loadTransactions();
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.refreshSubscription) {
+      this.refreshSubscription.unsubscribe();
+    }
   }
 
   ngAfterViewChecked(): void {
@@ -255,71 +88,97 @@ export class AddCustomerComponent implements OnInit {
     }
   }
 
-  private loadTransactions(): void {
-    this.transactions = [...this.mockTransactions].sort((a, b) => 
-      b.timestamp.getTime() - a.timestamp.getTime()
-    );
-    this.applyFilters();
-  }
-
-  private addRandomTransaction(): void {
-    const channels: Array<'Mobile' | 'Web' | 'ATM' | 'Agent'> = ['Mobile', 'Web', 'ATM', 'Agent'];
-    const locations = ['Nairobi', 'Mombasa', 'Kisumu', 'Nakuru', 'Eldoret', 'Thika', 'Machakos'];
-    const names = ['John', 'Sarah', 'Peter', 'Mary', 'James', 'Elizabeth', 'David', 'Grace'];
-    const riskScores = [9.5, 8.9, 7.5, 6.8, 5.2, 4.1, 3.3, 2.1];
-    
-    const riskScore = riskScores[Math.floor(Math.random() * riskScores.length)];
-    let riskCategory: 'Critical' | 'High' | 'Medium' | 'Low';
-    
-    if (riskScore >= 8) riskCategory = 'Critical';
-    else if (riskScore >= 6) riskCategory = 'High';
-    else if (riskScore >= 4) riskCategory = 'Medium';
-    else riskCategory = 'Low';
-
-    const modelFlagged = Math.floor(Math.random() * 7) + 1;
-    const analysisTexts = {
-      'Critical': 'The system detected a relatively high transaction amount, strong agreement across multiple fraud detection models, along with behavioral patterns that differ significantly from the customer\'s historical activity. These indicators are consistent with known fraud scenarios observed across similar accounts.',
-      'High': 'The system detected unusual patterns including transaction velocity and location anomalies, strong agreement across fraud detection models. These indicators suggest potential fraud and require investigation.',
-      'Medium': 'The system detected minimal agreement across fraud detection models, but some behavioral patterns deviate from historical activity. Additional verification is recommended.',
-      'Low': 'The system detected minimal agreement across fraud detection models, and the transaction aligns closely with the customer\'s typical behavior and historical transaction patterns.'
-    };
-
-    const newTransaction: Transaction = {
-      id: `new-${Date.now()}`,
-      transactionId: `TXN-${Math.floor(Math.random() * 1000)}`,
-      amount: Math.floor(Math.random() * 500000) + 1000,
-      riskScore: riskScore,
-      riskCategory: riskCategory,
-      channel: channels[Math.floor(Math.random() * channels.length)],
-      location: locations[Math.floor(Math.random() * locations.length)] + ', KE',
-      timestamp: new Date(),
-      status: 'Open',
-      flaggedBy: 'AI',
-      customerName: names[Math.floor(Math.random() * names.length)] + ' ' + 
-                     ['Mwangi', 'Omondi', 'Ochieng', 'Akinyi', 'Kipchoge', 'Wanjiku'][Math.floor(Math.random() * 6)],
-      customerId: `CUST-${Math.floor(Math.random() * 1000)}`,
-      deviceId: `DEV-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
-      ipAddress: `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`,
-      modelAgreement: { flagged: modelFlagged, total: 7 },
-      aiAnalysis: {
-        details: analysisTexts[riskCategory],
-        signals: ['Real-time AI analysis', 'Pattern detected']
+  loadTransactions(): void {
+    this.httpService.getTransactions(1, 50).subscribe({
+      next: (response) => {
+        if (response.status === 'success' && response.transactions) {
+          // Converting backend transactions to frontend format
+          this.transactions = response.transactions.map(tx => this.mapBackendTransaction(tx));
+          this.applyFilters();
+          this.calculateStats();
+          console.log('Live transactions loaded:', this.transactions);
+        }
       },
-      recommendedAction: riskCategory === 'Critical' ? 'Block transaction immediately and notify authorities.' :
-                         riskCategory === 'High' ? 'Flag for review and escalate to fraud investigation team.' :
-                         riskCategory === 'Medium' ? 'Require additional verification (2FA).' :
-                         'Approve transaction with monitoring.'
-    };
-
-    this.transactions.unshift(newTransaction);
-    if (this.transactions.length > 50) {
-      this.transactions = this.transactions.slice(0, 50);
-    }
-    this.applyFilters();
-    this.calculateStats();
+      error: (error) => {
+        console.error('Error loading transactions:', error);
+      }
+    });
   }
 
-  private calculateStats(): void {
+  mapBackendTransaction(tx: any): Transaction {
+    let riskCategory: 'Critical' | 'High' | 'Medium' | 'Low' = 'Low';
+    if (tx.risk_category.includes('Critical')) riskCategory = 'Critical';
+    else if (tx.risk_category.includes('High')) riskCategory = 'High';
+    else if (tx.risk_category.includes('Medium')) riskCategory = 'Medium';
+    else if (tx.risk_category.includes('Low')) riskCategory = 'Low';
+
+    // Parse model agreement (e.g., "3/7 models flagged as fraud")
+    const modelAgreement = tx.transaction_details?.Model_Agreement || '0/7 models flagged';
+    const flagged = parseInt(modelAgreement.split('/')[0]) || 0;
+    const total = 7; // Your backend always uses 7 models
+
+    // Extract signals from real_time_signals if available
+    const signals: string[] = [];
+    if (tx.transaction_details?.real_time_signals) {
+      const signals_data = tx.transaction_details.real_time_signals;
+      if (signals_data.amount_risk > 0.7) signals.push('High amount anomaly');
+      else if (signals_data.amount_risk > 0.4) signals.push('Medium amount anomaly');
+      if (signals_data.velocity_risk > 0.7) signals.push('High velocity risk');
+      else if (signals_data.velocity_risk > 0.4) signals.push('Medium velocity risk');
+    }
+
+    let channel = 'Web';
+    // You might have channel info in transaction_details or elsewhere
+
+    // Determine location (you can enhance this)
+    let location = 'Nairobi, KE';
+
+    return {
+      id: tx.transaction_id,
+      transactionId: tx.transaction_id,
+      amount: tx.transaction_details?.Transaction_Amount || 0,
+      riskScore: tx.risk_score,
+      riskCategory: riskCategory,
+      channel: channel,
+      location: location,
+      timestamp: new Date(tx.timestamp),
+      status: 'Open', // Default status
+      flaggedBy: 'AI',
+      customerName: `Customer ${tx.transaction_id.substring(0, 8)}`, 
+      customerId: `CUST-${tx.transaction_id.substring(0, 8)}`, 
+      deviceId: 'Unknown', 
+      ipAddress: 'Unknown', 
+      modelAgreement: {
+        flagged: flagged,
+        total: total
+      },
+      aiAnalysis: {
+        details: this.generateAnalysisDetails(tx),
+        signals: signals
+      },
+      recommendedAction: tx.recommended_action,
+      rawData: tx
+    };
+  }
+
+  generateAnalysisDetails(tx: any): string {
+    const signals = tx.transaction_details?.real_time_signals;
+    let details = `This transaction was flagged as ${tx.risk_category} with a risk score of ${tx.risk_score}. `;
+    
+    if (signals) {
+      if (signals.amount_risk > 0.7) {
+        details += `The amount (KES ${tx.transaction_details?.Transaction_Amount?.toLocaleString()}) is significantly higher than the average (KES ${signals.avg_amount_used?.toLocaleString()}). `;
+      }
+      if (signals.velocity_risk > 0.5) {
+        details += `Unusual transaction frequency detected (${tx.transaction_details?.real_time_signals?.velocity_risk * 5} transactions per hour). `;
+      }
+    }
+    
+    details += tx.transaction_details?.Model_Agreement || '';
+    return details;
+  }
+
+  calculateStats(): void {
     const filtered = this.filteredTransactions.length ? this.filteredTransactions : this.transactions;
     this.stats = {
       total: filtered.length,
@@ -327,7 +186,9 @@ export class AddCustomerComponent implements OnInit {
       high: filtered.filter(t => t.riskCategory === 'High').length,
       medium: filtered.filter(t => t.riskCategory === 'Medium').length,
       low: filtered.filter(t => t.riskCategory === 'Low').length,
-      avgRiskScore: Math.round((filtered.reduce((sum, t) => sum + t.riskScore, 0) / filtered.length) * 10) / 10
+      avgRiskScore: filtered.length > 0 
+        ? Math.round((filtered.reduce((sum, t) => sum + t.riskScore, 0) / filtered.length) * 10) / 10 
+        : 0
     };
   }
 
@@ -384,25 +245,29 @@ export class AddCustomerComponent implements OnInit {
   }
 
   investigateTransaction(): void {
-    if (this.modalInstance) {
-      this.modalInstance.hide();
-    }
-    // if (this.selectedTransaction) {
-    //   this.router.navigate(['/fraudsentinelAi/transaction_management/fraud/investigation-graph', this.selectedTransaction.id]);
-    // }
-      if (this.selectedTransaction) {
+    if (this.selectedTransaction) {
       this.router.navigate(['/fraudsentinelAi/transaction_management/fraud/investigation-graph']);
     }
   }
 
+  showAIAnalysis(transaction: Transaction): void {
+    this.selectedTransaction = transaction;
+    this.showModal = true;
+  }
+
+  closeModal(): void {
+    this.showModal = false;
+    this.selectedTransaction = null;
+  }
+
   getRiskBadgeClass(riskCategory: string): string {
-    const classes = {
+    const classes: { [key: string]: string } = {
       'Critical': 'bg-danger',
       'High': 'bg-warning text-dark',
       'Medium': 'bg-info',
       'Low': 'bg-success'
     };
-    return classes[riskCategory as keyof typeof classes] || 'bg-secondary';
+    return classes[riskCategory] || 'bg-secondary';
   }
 
   getRiskProgressColor(score: number): string {
@@ -411,17 +276,6 @@ export class AddCustomerComponent implements OnInit {
     if (score >= 4) return '#4cc9f0';
     return '#06d6a0';
   }
-
-  showModal: boolean = false;
-
-showAIAnalysis(transaction: Transaction): void {
-  this.selectedTransaction = transaction;
-  this.showModal = true;
-}
-
-closeModal(): void {
-  this.showModal = false;
-}
 
   formatAmount(amount: number): string {
     return new Intl.NumberFormat('en-KE', {
@@ -445,12 +299,16 @@ closeModal(): void {
   }
 
   getChannelIcon(channel: string): string {
-    const icons = {
+    const icons: { [key: string]: string } = {
       'Mobile': 'fa-mobile-alt',
       'Web': 'fa-globe',
       'ATM': 'fa-credit-card',
       'Agent': 'fa-user-tie'
     };
-    return icons[channel as keyof typeof icons] || 'fa-exchange-alt';
+    return icons[channel] || 'fa-exchange-alt';
+  }
+
+  refresh(): void {
+    this.loadTransactions();
   }
 }
