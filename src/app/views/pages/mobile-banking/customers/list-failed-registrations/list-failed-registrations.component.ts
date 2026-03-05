@@ -17,6 +17,7 @@ import { HttpClient } from '@angular/common/http';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 
 interface AIDetection {
+fullDate: any;
   severity: 'Critical' | 'High' | 'Medium' | 'Low';
   message: string;
   time: string;
@@ -261,43 +262,82 @@ export class ListFailedRegistrationsComponent implements OnInit, OnDestroy {
     });
   }
 
-  updateAIDetections(): void {
-    if (!this.auditLogs || this.auditLogs.length === 0) {
-      this.recentAIDetections = [];
-      return;
+updateAIDetections(): void {
+  if (!this.auditLogs || this.auditLogs.length === 0) {
+    this.recentAIDetections = [];
+    return;
+  }
+  
+  const highRiskLogs = this.auditLogs.filter(log => 
+    log.risk_category.includes('Critical') || log.risk_category.includes('High')
+  );
+  
+  const sortedLogs = highRiskLogs.sort((a, b) => {
+    return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+  });
+  
+  this.recentAIDetections = sortedLogs.slice(0, 5).map(log => {
+    let severity: 'Critical' | 'High' | 'Medium' | 'Low' = 'High';
+    if (log.risk_category.includes('Critical')) severity = 'Critical';
+    else if (log.risk_category.includes('High')) severity = 'High';
+    
+    // Format time ago
+    const logTime = new Date(log.timestamp);
+    const now = new Date();
+    const diffMs = now.getTime() - logTime.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    
+    let timeAgo = '';
+    let fullDate = '';
+    
+    if (diffMins < 1) {
+      timeAgo = 'Just now';
+    } else if (diffMins < 60) {
+      timeAgo = `${diffMins}m ago`;
+    } else if (diffMins < 1440) {
+      const hours = Math.floor(diffMins / 60);
+      timeAgo = `${hours}h ago`;
+    } else {
+      const days = Math.floor(diffMins / 1440);
+      timeAgo = `${days}d ago`;
+  
+      fullDate = logTime.toLocaleDateString('en-KE', {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
     }
     
-    //Filter only High and Critical risk transactions
-    const highRiskLogs = this.auditLogs.filter(log => 
-      log.risk_category.includes('Critical') || log.risk_category.includes('High')
-    );
+    let amount = '';
+    if (log.transaction_details?.Transaction_Amount) {
+      amount = `KES ${log.transaction_details.Transaction_Amount.toLocaleString()}`;
+    }
     
-    this.recentAIDetections = highRiskLogs.slice(0, 4).map(log => {
-      let severity: 'Critical' | 'High' | 'Medium' | 'Low' = 'High';
-      if (log.risk_category.includes('Critical')) severity = 'Critical';
-      else if (log.risk_category.includes('High')) severity = 'High';
-      
-      //Format time ago
-      const logTime = new Date(log.timestamp);
-      const now = new Date();
-      const diffMs = now.getTime() - logTime.getTime();
-      const diffMins = Math.floor(diffMs / 60000);
-      
-      let timeAgo = '';
-      if (diffMins < 1) timeAgo = 'Just now';
-      else if (diffMins < 60) timeAgo = `${diffMins}m ago`;
-      else if (diffMins < 1440) timeAgo = `${Math.floor(diffMins / 60)}h ago`;
-      else timeAgo = `${Math.floor(diffMins / 1440)}d ago`;
-      
-      return {
-        severity: severity,
-        message: `${log.risk_category}: KES ${log.transaction_details?.Transaction_Amount?.toLocaleString() || 'Unknown'}`,
-        time: timeAgo,
-        transactionId: log.transaction_id,
-        riskScore: log.risk_score
-      };
-    });
-  }
+    let message = '';
+    if (amount) {
+      message = `${log.risk_category}: ${amount}`;
+    } else {
+      message = `${log.risk_category} detected`;
+    }
+    
+    if (log.transaction_details?.Rule_Flags && log.transaction_details.Rule_Flags.length > 0) {
+      const topRule = log.transaction_details.Rule_Flags[0];
+      message = `${log.risk_category}: ${topRule}`;
+    }
+    
+    return {
+      severity: severity,
+      message: message,
+      time: timeAgo,
+      fullDate: fullDate,
+      transactionId: log.transaction_id,
+      riskScore: log.risk_score
+    };
+  });
+  
+  console.log('Recent AI Detections (latest first):', this.recentAIDetections);
+}
 
   updateRiskDistribution(): void {
     if (!this.transactions || this.transactions.length === 0) return;
@@ -349,8 +389,6 @@ export class ListFailedRegistrationsComponent implements OnInit, OnDestroy {
             timer: 2000,
             showConfirmButton: false
           });
-          
-          // Refresh data
           this.loadDashboardData();
         }
       },
@@ -366,14 +404,6 @@ export class ListFailedRegistrationsComponent implements OnInit, OnDestroy {
       }
     });
   }
-
-  // Existing methods...
-  // cm = {
-  //   truePositives: 120,
-  //   falseNegatives: 5,
-  //   falsePositives: 10,
-  //   trueNegatives: 865
-  // };
 
   toggleIntelligencePanel(): void {
     this.isCollapsed = !this.isCollapsed;
@@ -397,7 +427,6 @@ export class ListFailedRegistrationsComponent implements OnInit, OnDestroy {
   exportFraudReport(): void {
     console.log('Exporting fraud report...');
     
-    // Create report data
     const reportData = {
       timestamp: new Date().toISOString(),
       totalTransactions: this.systemStats.totalTransactions,
@@ -406,7 +435,7 @@ export class ListFailedRegistrationsComponent implements OnInit, OnDestroy {
       recentDetections: this.recentAIDetections
     };
     
-    // Export as JSON (you can enhance this to PDF/Excel)
+    // Export as JSON
     const dataStr = JSON.stringify(reportData, null, 2);
     const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
     const exportFileDefaultName = `fraud-report-${new Date().toISOString().slice(0,10)}.json`;
@@ -418,7 +447,7 @@ export class ListFailedRegistrationsComponent implements OnInit, OnDestroy {
     
     Swal.fire({
       title: 'Report Exported',
-      text: 'Fraud report has been downloaded',
+      text: 'Fraud report has been downloaded ',
       icon: 'success',
       timer: 2000,
       showConfirmButton: false
@@ -429,111 +458,9 @@ export class ListFailedRegistrationsComponent implements OnInit, OnDestroy {
     this.router.navigate(['/fraudsentinelAi/transaction_management/fraud/history']);
   }
 
-  // loadRiskStats(): void {
-  //   this.http.get<any[]>(this.workflowsUrl).subscribe(workflows => {
-  //     let critical = 0, high = 0, medium = 0, low = 0;
-      
-  //     workflows.forEach(workflow => {
-  //       const preClosing = workflow.fieldwork?.preClosing || [];
-  //       preClosing.forEach((finding: any) => {
-  //         switch(finding.severity) {
-  //           case 'Critical': critical++; break;
-  //           case 'High': high++; break;
-  //           case 'Medium': medium++; break;
-  //           case 'Low': low++; break;
-  //         }
-  //       });
-  //     });
-      
-  //     this.riskStats = { critical, high, medium, low };
-  //   });
-  // }
-
-  // isAuditDay(date: { year: number; month: number; day: number }): boolean {
-  //   const d = `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`;
-  //   return this.allAudits.some(audit =>
-  //     audit.startDate === d || audit.endDate === d
-  //   );
-  // }
-
-  // isAuditStartDay(date: { year: number; month: number; day: number }): any[] {
-  //   const d = `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`;
-  //   return this.allAudits.filter(audit => audit.startDate === d);
-  // }
-
-  // isAuditEndDay(date: { year: number; month: number; day: number }): any[] {
-  //   const d = `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`;
-  //   return this.allAudits.filter(audit => audit.endDate === d);
-  // }
-
-  // getAuditTooltip(date: { year: number; month: number; day: number }): string {
-  //   const starts = this.isAuditStartDay(date);
-  //   const ends = this.isAuditEndDay(date);
-
-  //   let tips: string[] = [];
-
-  //   if (starts.length) {
-  //     tips.push(...starts.map(a => `Start: ${a.title} (${a.department})`));
-  //   }
-  //   if (ends.length) {
-  //     tips.push(...ends.map(a => `End: ${a.title} (${a.department})`));
-  //   }
-
-  //   return tips.join(' | ') || '';
-  // }
-
-  // loadUpcomingAudits(): void {
-  //   const today = new Date();
-  //   this.upcomingAudits = this.allAudits
-  //     .filter(a => new Date(a.startDate) >= today)
-  //     .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
-  //     .slice(0, 3);
-  // }
-
-  // get nextThreeAudits() {
-  //   const today = new Date();
-  //   return this.allAudits
-  //     .filter(a => new Date(a.startDate) >= today)
-  //     .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
-  //     .slice(0, 3);
-  // }
-
-  // loadAudits(): void {
-  //   this.http.get<any[]>(this.apiUrl).subscribe({
-  //     next: (audits) => {
-  //       this.allAudits = audits;
-  //       this.loadUpcomingAudits();
-  //       this.loadRiskStats();
-  //       this.loadComplianceStats();
-  //     },
-  //     error: (err) => {
-  //       console.error('Error loading audits:', err);
-  //     }
-  //   });
-  // }
-
-  // loadComplianceStats(): void {
-  //   const completed = this.allAudits.filter(a => a.status === 'Completed').length;
-  //   const pending = this.allAudits.length - completed;
-  //   this.complianceStats = { completed, pending };
-  // }
 
   toggleConversationPanel() {
     this.isCollapsed = !this.isCollapsed;
   }
 
-  // isPlanningRoute(): boolean {
-  //   return this.router.url.includes('planning');
-  // }
-
-  // isObservationRoute(): boolean {
-  //   return this.router.url.includes('observation');
-  // }
-
-  // shouldEnableObservations(): boolean {
-  //   const hasAuditContext = this.allAudits.length > 0;
-  //   const isBlockedRoute = this.router.url.includes('planning') || this.router.url.includes('scoping');
-    
-  //   return hasAuditContext && !isBlockedRoute;
-  // }
 }

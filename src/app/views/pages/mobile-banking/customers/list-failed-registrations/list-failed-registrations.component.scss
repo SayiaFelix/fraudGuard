@@ -506,3 +506,52 @@
     z-index: 1000;
   }
 }
+
+.alert-controls {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  
+  .btn-sm {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+    
+    &.btn-danger {
+      background: linear-gradient(135deg, #dc3545, #b02a37);
+      border: none;
+      
+      &:hover {
+        background: linear-gradient(135deg, #b02a37, #dc3545);
+      }
+    }
+    
+    &.btn-outline-secondary {
+      border-color: #ced4da;
+      
+      &:hover {
+        background-color: #e9ecef;
+      }
+    }
+  }
+  
+  .badge {
+    font-size: 0.75rem;
+    padding: 0.35rem 0.65rem;
+  }
+  
+  .system-indicator {
+    .badge {
+      background-color: #28a745;
+      color: white;
+    }
+  }
+}
+
+.text-muted {
+  font-size: 0.75rem;
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}

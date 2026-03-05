@@ -78,39 +78,50 @@
       [ngClass]="{ 'collapsed': isCollapsed }" 
       style="height: 100vh;">
        
-  <div class="panel-header d-flex align-items-center justify-content-between p-3 border-radius-top"
-       (click)="toggleIntelligencePanel()" 
-       style="cursor: pointer; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-    
-    <div class="d-flex align-items-center">
-      <i class="mdi me-2 text-white" 
-         [ngClass]="{ 'mdi-chevron-left': isCollapsed, 'mdi-chevron-right': !isCollapsed }"
-         [attr.title]="isCollapsed ? 'Click to expand panel' : 'Click to collapse panel'"></i>
+    <div class="panel-header d-flex align-items-center justify-content-between p-3 border-radius-top"
+        (click)="toggleIntelligencePanel()" 
+        style="cursor: pointer; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
       
-      <h4 *ngIf="!isCollapsed" class="mb-0 text-white fw-bold">
-        <i class="fas fa-brain me-2"></i>AI Intelligence
-      </h4>
-     
-      <h4 *ngIf="isCollapsed" class="mb-0 text-white fw-bold">
-        <i class="fas fa-brain" [attr.title]="'Click to expand panel'"></i>
-      </h4>
+      <div class="d-flex align-items-center">
+        <i class="mdi me-2 text-white" 
+          [ngClass]="{ 'mdi-chevron-left': isCollapsed, 'mdi-chevron-right': !isCollapsed }"
+          [attr.title]="isCollapsed ? 'Click to expand panel' : 'Click to collapse panel'"></i>
+        
+        <h4 *ngIf="!isCollapsed" class="mb-0 text-white fw-bold">
+          <i class="fas fa-brain me-2"></i>AI Intelligence
+        </h4>
+      
+        <h4 *ngIf="isCollapsed" class="mb-0 text-white fw-bold">
+          <i class="fas fa-brain" [attr.title]="'Click to expand panel'"></i>
+        </h4>
+      </div>
+
+      <span *ngIf="!isCollapsed" class="badge bg-warning text-dark">Live</span>
     </div>
 
-    <div class="d-flex align-items-center gap-2">
-      <button class="btn btn-sm" 
-              [ngClass]="isAlertModeEnabled ? 'btn-danger' : 'btn-outline-secondary'"
-              (click)="toggleAlertMode()"
-              title="Toggle National Alert Mode">
-        <i class="fas fa-exclamation-triangle me-1"></i>
-        Alert Mode {{ isAlertModeEnabled ? 'ON' : 'OFF' }}
-      </button>
-      <span class="badge" [ngClass]="isAlertModeEnabled ? 'bg-danger' : 'bg-secondary'">
-        Threshold: {{ systemStats.threshold }}
-      </span>
+    <div *ngIf="!isCollapsed" class="alert-controls p-3 border-bottom">
+      <div class="d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-2">
+          <button class="btn btn-sm" 
+                  [ngClass]="isAlertModeEnabled ? 'btn-danger' : 'btn-outline-primary'"
+                  (click)="toggleAlertMode()"
+                  title="Toggle National Alert Mode">
+            <i class="fas fa-exclamation-triangle me-1"></i>
+            Alert Mode {{ isAlertModeEnabled ? 'ON' : 'OFF' }}
+          </button>
+          <span class="badge" [ngClass]="isAlertModeEnabled ? 'bg-secondary' : 'bg-danger'">
+            Threshold: {{ systemStats.threshold }}
+          </span>
+        </div>
+      </div>
+      
+      <!-- Alert mode description-->
+      <div class="mt-2 small text-muted" *ngIf="isAlertModeEnabled">
+        <i class="fas fa-info-circle me-1"></i>
+        Crisis mode active - Lower threshold for enhanced security
+      </div>
     </div>
-    <span *ngIf="!isCollapsed" class="badge bg-warning text-dark">Live</span>
-  </div>
-  
+     
      <div *ngIf="!isCollapsed" class="panel-body p-3 d-flex flex-column flex-grow-1 overflow-auto">
       <div class="risk-meter-card card shadow-sm mb-3">
         <div class="card-body">
@@ -139,13 +150,13 @@
         </div>
       </div>
 
-      <!-- Recent AI Detections-->
+      <!-- Recent AI Detections Card -->
       <div class="card shadow-sm mb-3">
         <div class="card-header bg-transparent border-0">
           <h4 class="fw-bold mb-0">
             <i class="fas fa-exclamation-triangle me-2 text-warning"></i>
             Recent AI Detections
-            <span class="badge bg-danger ms-2">{{ pendingInvestigations }}</span>
+            <!-- <span class="badge bg-danger ms-2">{{ pendingInvestigations }}</span> -->
           </h4>
         </div>
         <hr>
@@ -162,7 +173,10 @@
                   ID: {{ alert.transactionId }}
                 </small>
               </div>
-              <small class="text-muted">{{ alert.time }}</small>
+              <small class="text-muted" 
+                    [title]="alert.fullDate || ''">
+                {{ alert.time }}
+              </small>
             </div>
           </div>
           <div *ngIf="recentAIDetections.length === 0" class="list-group-item text-muted">
@@ -171,7 +185,6 @@
         </div>
       </div>
 
-     <!-- Model Performance Card -->
       <div class="card shadow-sm mb-3">
         <div class="card-body">
           <h4 class="fw-bold text-dark mb-3">
@@ -311,5 +324,5 @@
       </div>
 
     </div>
-</div>
+  </div>
 </div>
