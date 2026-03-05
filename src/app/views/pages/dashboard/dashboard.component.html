@@ -127,7 +127,8 @@
       <div class="d-flex justify-content-between align-items-center">
         <h4 class="fw-bold mb-0">
           <i class="fas fa-exclamation-triangle me-2 text-danger"></i>
-          High-Risk Transactions (Last 24 Hours)
+          High-Risk Transactions
+          <span class="badge bg-secondary ms-2">{{ totalRecords }} total</span>
         </h4>
         <button class="btn btn-sm btn-outline-primary" [routerLink]="['/fraudsentinelAi/transaction_management/fraud/history']">
           View All <i class="fas fa-arrow-right ms-1"></i>
@@ -144,7 +145,6 @@
               <th>Risk Score</th>
               <th>Risk Level</th>
               <th>Channel</th>
-              <!-- <th>Location</th> -->
               <th>Time</th>
               <th>Status</th>
               <th class="pe-4">Actions</th>
@@ -159,8 +159,8 @@
                   <span class="risk-score me-2">{{ alert.riskScore }}</span>
                   <div class="progress" style="width: 60px; height: 6px;">
                     <div class="progress-bar" 
-                         [style.width.%]="(alert.riskScore/10)*100"
-                         [style.background]="alert.riskScore >= 8 ? '#f72585' : alert.riskScore >= 6 ? '#ff9e00' : '#4cc9f0'">
+                        [style.width.%]="(alert.riskScore/10)*100"
+                        [style.background]="alert.riskScore >= 8 ? '#f72585' : alert.riskScore >= 6 ? '#ff9e00' : '#4cc9f0'">
                     </div>
                   </div>
                 </div>
@@ -179,7 +179,6 @@
                 }"></i>
                 {{ alert.channel }}
               </td>
-              <!-- <td>{{ alert.location }}</td> -->
               <td>{{ alert.timestamp | date:'HH:mm' }}</td>
               <td>
                 <span class="badge" [ngClass]="getStatusBadgeClass(alert.status)">
@@ -197,9 +196,55 @@
                 </button>
               </td>
             </tr>
+            <tr *ngIf="recentAlerts.length === 0">
+              <td colspan="8" class="text-center py-4 text-muted">
+                <i class="fas fa-check-circle me-2 text-success"></i>
+                No high-risk transactions found
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
+    </div>
+    
+    <div class="card-footer bg-transparent d-flex justify-content-between align-items-center py-3">
+    
+      <div class="d-flex align-items-center">
+        <small class="text-muted me-2">Rows per page:</small>
+        <select class="form-select form-select-sm" style="width: auto;" 
+                [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+          <option [value]="5">5</option>
+          <option [value]="10">10</option>
+          <option [value]="20">20</option>
+          <option [value]="50">50</option>
+        </select>
+      </div>
+          
+      <div class="pagination-controls">
+        <button class="btn btn-sm btn-outline-secondary me-2" 
+                [disabled]="page === 1"
+                (click)="onPageChange(page - 1)">
+          <i class="fas fa-chevron-left"></i> Previous
+        </button>
+        
+        <span class="mx-2">
+          Page {{ page }} of {{ getTotalPages() }}
+        </span>
+        
+        <button class="btn btn-sm btn-outline-secondary ms-2" 
+                [disabled]="page === getTotalPages()"
+                (click)="onPageChange(page + 1)">
+          Next <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+   
+       <div>
+        <small class="text-muted">
+          Showing {{ ((page - 1) * pageSize) + 1 }} - 
+          {{ min(page * pageSize, totalRecords) }} of {{ totalRecords }} transactions
+        </small>
+      </div>
+ 
     </div>
   </div>
 
