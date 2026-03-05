@@ -1,15 +1,7 @@
-import { Component, ElementRef, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-import { ToastrService } from 'ngx-toastr';
-import Swal from "sweetalert2";
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { GlobalService } from 'src/app/shared/services/global.service';
-import * as saveAs from 'file-saver';
-import jsPDF from 'jspdf';
-import * as XLSX from 'xlsx';
-import {environment} from 'src/environments/environment';
-
+import { HttpService } from 'src/app/shared/services/http.service';
+import { Subscription, interval } from 'rxjs';
 
 interface Transaction {
   id: string;
@@ -17,7 +9,7 @@ interface Transaction {
   amount: number;
   riskScore: number;
   riskCategory: 'Critical' | 'High' | 'Medium' | 'Low';
-  channel: 'Mobile' | 'Web' | 'ATM' | 'Agent';
+  channel: string;
   location: string;
   timestamp: Date;
   status: 'Open' | 'Investigating' | 'Resolved';
@@ -35,6 +27,7 @@ interface Transaction {
     signals: string[];
   };
   recommendedAction: string;
+  rawData?: any; // Store original backend data
 }
 
 @Component({
