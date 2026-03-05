@@ -13,7 +13,7 @@ interface Transaction {
   location: string;
   timestamp: Date;
   status: 'Open' | 'Investigating' | 'Resolved';
-  flaggedBy: 'AI' | 'Rules' | 'Manual';
+  flaggedBy: 'AI' | 'Rules' | 'Manual' | 'AI + Rules (Hybrid)'; 
   customerName: string;
   customerId: string;
   deviceId: string;
@@ -64,7 +64,7 @@ export class AddCustomerComponent implements OnInit {
   selectedTransaction: Transaction | null = null;
   autoScroll = true;
   showModal = false;
-  
+  activeTab: 'final' | 'llm' | 'rule' = 'final';
   // Filters
   riskFilter: string = 'all';
   channelFilter: string = 'all';
@@ -125,6 +125,15 @@ export class AddCustomerComponent implements OnInit {
     });
   }
 
+    setActiveTab(tab: 'final' | 'llm' | 'rule'): void {
+    this.activeTab = tab;
+  }
+
+    showAIAnalysis(transaction: Transaction): void {
+    this.selectedTransaction = transaction;
+    this.activeTab = 'final'; 
+    this.showModal = true;
+  }
   mapBackendTransaction(tx: any): Transaction {
   let riskCategory: 'Critical' | 'High' | 'Medium' | 'Low' = 'Low';
   if (tx.risk_category.includes('Critical')) riskCategory = 'Critical';
@@ -132,14 +141,14 @@ export class AddCustomerComponent implements OnInit {
   else if (tx.risk_category.includes('Medium')) riskCategory = 'Medium';
   else if (tx.risk_category.includes('Low')) riskCategory = 'Low';
 
-  //Parse model agreement
+  // Parse model agreement
   const modelAgreement = tx.transaction_details?.Model_Agreement || '0/7 models flagged';
   const flagged = parseInt(modelAgreement.split('/')[0]) || 0;
   const total = 7;
 
   const mlVotes = tx.transaction_details?.ML_Votes || '0/7';
 
-  //rule engine details
+  // Rule engine details
   const ruleEngine = tx.transaction_details?.Rule_Engine || {
     triggered: false,
     rules: [],
@@ -148,7 +157,21 @@ export class AddCustomerComponent implements OnInit {
 
   const hybridScore = tx.transaction_details?.Hybrid_Score || false;
 
-  //Extract signals from real_time_signals
+
+  let flaggedBy: 'AI' | 'Rules' | 'Manual' | 'AI + Rules (Hybrid)';
+  const mlFlagged = flagged > 0; 
+  const ruleFlagged = ruleEngine.triggered;
+
+  if (mlFlagged && ruleFlagged) {
+    flaggedBy = 'AI + Rules (Hybrid)'; 
+  } else if (mlFlagged) {
+    flaggedBy = 'AI';
+  } else if (ruleFlagged) {
+    flaggedBy = 'Rules';
+  } else {
+    flaggedBy = 'Manual'; // Default
+  }
+
   const signals: string[] = [];
   if (tx.transaction_details?.real_time_signals) {
     const signals_data = tx.transaction_details.real_time_signals;
@@ -184,7 +207,7 @@ export class AddCustomerComponent implements OnInit {
     location: location,
     timestamp: new Date(tx.timestamp),
     status: 'Open',
-    flaggedBy: ruleEngine.triggered ? 'Rules' : 'AI', 
+    flaggedBy: flaggedBy, 
     customerName: `Customer ${tx.transaction_id.substring(0, 8)}`,
     customerId: `CUST-${tx.transaction_id.substring(0, 8)}`,
     deviceId: 'Unknown',
@@ -307,11 +330,6 @@ calculateStats(): void {
     if (this.selectedTransaction) {
       this.router.navigate(['/fraudsentinelAi/transaction_management/fraud/investigation-graph']);
     }
-  }
-
-  showAIAnalysis(transaction: Transaction): void {
-    this.selectedTransaction = transaction;
-    this.showModal = true;
   }
 
   closeModal(): void {
