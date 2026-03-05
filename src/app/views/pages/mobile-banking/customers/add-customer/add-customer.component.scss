@@ -223,7 +223,7 @@
 }
 
 .transaction-item {
-  cursor: default; // Remove pointer cursor
+  cursor: default; 
   
   &:hover {
     background: #f8f9fa;
@@ -292,11 +292,10 @@
   margin-bottom: 0.5rem;
 }
 
-// Add to your existing SCSS
 .ai-analysis-card {
   .btn-group {
     .btn {
-      // Style for tabs that might have no content
+ 
       &[title] {
         position: relative;
       }
