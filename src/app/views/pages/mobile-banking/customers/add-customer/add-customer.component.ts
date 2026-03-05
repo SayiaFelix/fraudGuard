@@ -213,24 +213,33 @@ export class AddCustomerComponent implements OnInit {
   };
 }
 
-  generateAnalysisDetails(tx: any): string {
-    const signals = tx.transaction_details?.real_time_signals;
-    let details = `This transaction was flagged as ${tx.risk_category} with a risk score of ${tx.risk_score}. `;
-    
-    if (signals) {
-      if (signals.amount_risk > 0.7) {
-        details += `The amount (KES ${tx.transaction_details?.Transaction_Amount?.toLocaleString()}) is significantly higher than the average (KES ${signals.avg_amount_used?.toLocaleString()}). `;
-      }
-      if (signals.velocity_risk > 0.5) {
-        details += `Unusual transaction frequency detected (${tx.transaction_details?.real_time_signals?.velocity_risk * 5} transactions per hour). `;
-      }
-    }
-    
-    details += tx.transaction_details?.Model_Agreement || '';
-    return details;
+generateAnalysisDetails(tx: any): string {
+  const signals = tx.transaction_details?.real_time_signals;
+  const ruleEngine = tx.transaction_details?.Rule_Engine;
+  
+  let details = `This transaction was flagged as ${tx.risk_category} with a risk score of ${tx.risk_score}. `;
+  
+  if (ruleEngine?.triggered) {
+    details += `Rule engine triggered: ${ruleEngine.rules.join(', ')}. `;
   }
-
-  calculateStats(): void {
+  
+  if (signals) {
+    if (signals.amount_risk > 0.4) {
+      details += `Amount is ${(signals.amount_risk * 100).toFixed(0)}% ${signals.amount_risk > 0.7 ? 'above' : 'around'} average (KES ${signals.avg_amount_used?.toLocaleString()}). `;
+    }
+    if (signals.velocity_risk > 0.3) {
+      details += `Transaction frequency: ${(signals.velocity_risk * 5).toFixed(0)} transactions per hour. `;
+    }
+  }
+  
+  if (tx.transaction_details?.Hybrid_Score) {
+    details += `Hybrid ML + Rules assessment. `;
+  }
+  
+  details += tx.transaction_details?.Model_Agreement || '';
+  return details;
+}
+calculateStats(): void {
     const filtered = this.filteredTransactions.length ? this.filteredTransactions : this.transactions;
     this.stats = {
       total: filtered.length,
