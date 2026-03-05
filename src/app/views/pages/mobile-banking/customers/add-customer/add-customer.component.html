@@ -86,12 +86,11 @@
       </span>
     </h4>
     <div class="feed-controls">
-      <span class="badge bg-secondary  me-2">{{ filteredTransactions.length }} transactions</span>
+      <span class="badge bg-secondary me-2">{{ filteredTransactions.length }} transactions</span>
       <button class="btn btn-sm btn-outline-primary me-2" (click)="toggleAutoScroll()">
         <i class="fas" [ngClass]="autoScroll ? 'fa-pause' : 'fa-play'"></i>
         {{ autoScroll ? 'Pause' : 'Auto-scroll' }}
       </button>
-
     </div>
   </div>
 
@@ -158,23 +157,41 @@
               <i class="fas fa-robot me-1"></i> View AI Analysis
             </button>
             <div class="d-flex align-items-center mt-1 justify-content-center">
-              <span class="badge bg-light text-dark">
-                <i class="fas fa-microchip me-1"></i>
+              <span class="badge" [ngClass]="{
+                'bg-primary': tx.flaggedBy === 'AI',
+                'bg-warning text-dark': tx.flaggedBy === 'Rules',
+                'bg-secondary': tx.flaggedBy === 'Manual'
+              }">
+                <i class="fas me-1" [ngClass]="{
+                  'fa-robot': tx.flaggedBy === 'AI',
+                  'fa-gavel': tx.flaggedBy === 'Rules',
+                  'fa-user': tx.flaggedBy === 'Manual'
+                }"></i>
                 {{ tx.flaggedBy }}
               </span>
             </div>
           </div>
         </div>
 
+        <!-- Model Agreement Preview with ML vs Rules indicator -->
         <div class="model-agreement-preview mt-2">
           <div class="d-flex align-items-center">
-            <small class="text-muted me-2">Model Agreement </small>
+            <small class="text-muted me-2">Model Agreement</small>
             <div class="progress flex-grow-1 me-2" style="height: 4px; max-width: 200px;">
-              <div class="progress-bar bg-primary" 
+              <div class="progress-bar" 
+                   [ngClass]="{
+                     'bg-primary': !tx.ruleEngine?.triggered,
+                     'bg-warning': tx.ruleEngine?.triggered
+                   }"
                    [style.width.%]="(tx.modelAgreement.flagged / tx.modelAgreement.total) * 100">
               </div>
             </div>
             <small class="text-muted">{{ tx.modelAgreement.flagged }}/{{ tx.modelAgreement.total }} models</small>
+            
+            <!-- Rule indicator -->
+            <span class="ms-2" *ngIf="tx.ruleEngine?.triggered">
+              <i class="fas fa-gavel text-warning" title="Rule engine triggered"></i>
+            </span>
           </div>
         </div>
       </div>
@@ -195,6 +212,7 @@
   </div>
 </div>
 
+<!-- Modal -->
 <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="modal-header p-4" [ngClass]="{
@@ -203,183 +221,185 @@
       'bg-info': selectedTransaction?.riskCategory === 'Medium',
       'bg-success': selectedTransaction?.riskCategory === 'Low'
     }">
-      <h2 class="modal-title mt-1 ml-2">
+      <h2 class="modal-title mt-1 ms-2">
         <i class="fas fa-robot me-2"></i>
         AI Analysis
       </h2>
-      <button type="button" class="btn-close mr-2 " (click)="closeModal()"></button>
+      <button type="button" class="btn-close me-2" (click)="closeModal()"></button>
     </div>
-      <div class="modal-body" *ngIf="selectedTransaction">
- 
-        <div class="transaction-summary bg-light p-3 rounded-3 mb-4">
-          <div class="row">
-            <div class="col-md-4">
-              <small class="text-muted d-block">Transaction ID</small>
-              <strong>{{ selectedTransaction.transactionId }}</strong>
-            </div>
-            <div class="col-md-4">
-              <small class="text-muted d-block">Amount</small>
-              <strong>{{ formatAmount(selectedTransaction.amount) }}</strong>
-            </div>
-            <div class="col-md-4">
-              <small class="text-muted d-block">Risk Score</small>
-              <strong [style.color]="getRiskProgressColor(selectedTransaction.riskScore)">
-                {{ selectedTransaction.riskScore }}/10
-              </strong>
+    
+    <div class="modal-body" *ngIf="selectedTransaction">
+      <div class="transaction-summary bg-light p-3 rounded-3 mb-4">
+        <div class="row">
+          <div class="col-md-4">
+            <small class="text-muted d-block">Transaction ID</small>
+            <strong>{{ selectedTransaction.transactionId }}</strong>
+          </div>
+          <div class="col-md-4">
+            <small class="text-muted d-block">Amount</small>
+            <strong>{{ formatAmount(selectedTransaction.amount) }}</strong>
+          </div>
+          <div class="col-md-4">
+            <small class="text-muted d-block">Risk Score</small>
+            <strong [style.color]="getRiskProgressColor(selectedTransaction.riskScore)">
+              {{ selectedTransaction.riskScore }}/10
+            </strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Analysis Card -->
+      <div class="ai-analysis-card p-4 rounded-3 mb-4" 
+           [ngClass]="{
+             'critical-bg': selectedTransaction.riskCategory === 'Critical',
+             'high-bg': selectedTransaction.riskCategory === 'High',
+             'medium-bg': selectedTransaction.riskCategory === 'Medium',
+             'low-bg': selectedTransaction.riskCategory === 'Low'
+           }">
+        <h4 class="fw-bold mb-3">Explainability</h4>
+        <div class="d-flex mb-3">
+          <div class="ai-icon me-3">
+            <i class="fas fa-brain fa-2x"></i>
+          </div>
+          <div class="ai-content">
+            <p class="analysis-text mb-0">
+              This transaction was flagged as 
+              <strong class="risk-highlight">{{ selectedTransaction.riskCategory }}</strong> 
+              with a risk score of <strong>{{ selectedTransaction.riskScore }}/10</strong>. 
+              {{ selectedTransaction.aiAnalysis.details }}
+            </p>
+          </div>
+        </div>
+        
+        <!-- Model Agreement -->
+        <div class="model-agreement mt-3 pt-3 border-top">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="fw-bold">Model Agreement</span>
+            <span class="badge bg-primary">{{ selectedTransaction.modelAgreement.flagged }}/{{ selectedTransaction.modelAgreement.total }} models flagged as fraud</span>
+          </div>
+          <div class="progress" style="height: 8px;">
+            <div class="progress-bar" 
+                 [style.width.%]="(selectedTransaction.modelAgreement.flagged / selectedTransaction.modelAgreement.total) * 100"
+                 [ngClass]="{
+                   'bg-danger': selectedTransaction.riskCategory === 'Critical',
+                   'bg-warning': selectedTransaction.riskCategory === 'High',
+                   'bg-info': selectedTransaction.riskCategory === 'Medium',
+                   'bg-success': selectedTransaction.riskCategory === 'Low'
+                 }">
             </div>
           </div>
         </div>
+      </div>
 
-        <div class="p-4">
-             <div class="ai-analysis-card p-4 rounded-3 mb-4" 
-             [ngClass]="{
-               'critical-bg': selectedTransaction.riskCategory === 'Critical',
-               'high-bg': selectedTransaction.riskCategory === 'High',
-               'medium-bg': selectedTransaction.riskCategory === 'Medium',
-               'low-bg': selectedTransaction.riskCategory === 'Low'
-             }">
-            <h4 class="fw-bold mb-3"> Explainability </h4>
-          <div class="d-flex mb-3">
-            <div class="ai-icon me-3">
-              <i class="fas fa-brain fa-2x"></i>
-            </div>
-            <div class="ai-content">
-              <p class="analysis-text mb-0">
-                This transaction was flagged as 
-                <strong class="risk-highlight">{{ selectedTransaction.riskCategory }} Potential Fraud</strong> 
-                with a risk score of <strong>{{ selectedTransaction.riskScore }}</strong>. 
-                {{ selectedTransaction.aiAnalysis.details }}
-              </p>
-            </div>
+      <!-- Recommended Action -->
+      <div class="recommended-action-card p-3 rounded-3 mb-4">
+        <h4 class="fw-bold mb-2">
+          <i class="fas fa-exclamation-circle me-2"></i>
+          Recommended Action
+        </h4>
+        <p class="mb-0">{{ selectedTransaction.recommendedAction }}</p>
+      </div>
+
+      <div class="p-3 rounded-3 mb-2">
+        
+      <!-- Hybrid Score Badge -->
+      <div class="mb-3" *ngIf="selectedTransaction?.hybridScore">
+        <span class="badge bg-primary">
+          <i class="fas fa-microchip me-1"></i>
+          Hybrid ML + Rules
+        </span>
+      </div>
+
+      <!-- Rule Engine Section -->
+      <div class="rule-engine-section mb-3" *ngIf="selectedTransaction?.ruleEngine?.triggered">
+        <div class="card border-warning">
+          <div class="card-header bg-warning bg-opacity-10">
+            <h4 class="mb-0">
+              <i class="fas fa-gavel me-2"></i>
+              Rule Engine Triggered
+            </h4>
           </div>
-          
-          <!-- Model Agreement -->
-          <div class="model-agreement mt-3 pt-3 border-top">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <span class="fw-bold">Model Agreement</span>
-              <span class="badge bg-primary">{{ selectedTransaction.modelAgreement.flagged }}/{{ selectedTransaction.modelAgreement.total }} models flagged as fraud</span>
+          <div class="card-body">
+            <div class="d-flex flex-wrap gap-2">
+              <span class="badge bg-warning text-dark" *ngFor="let rule of selectedTransaction.ruleEngine.rules">
+                <i class="fas fa-exclamation-triangle me-1"></i>
+                {{ rule }}
+              </span>
             </div>
-            <div class="progress" style="height: 8px;">
-              <div class="progress-bar" 
-                   [style.width.%]="(selectedTransaction.modelAgreement.flagged / selectedTransaction.modelAgreement.total) * 100"
-                   [ngClass]="{
-                     'bg-danger': selectedTransaction.riskCategory === 'Critical',
-                     'bg-warning': selectedTransaction.riskCategory === 'High',
-                     'bg-info': selectedTransaction.riskCategory === 'Medium',
-                     'bg-success': selectedTransaction.riskCategory === 'Low'
-                   }">
+            <small class="text-muted d-block mt-2">
+              Severity Level: {{ selectedTransaction.ruleEngine.severity }}/10
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <!-- ML Votes Comparison -->
+      <div class="ml-votes-section mb-3" *ngIf="selectedTransaction?.mlVotes">
+        <div class="card border-info">
+          <div class="card-header bg-info bg-opacity-10">
+            <h4 class="mb-0">
+              <i class="fas fa-robot me-2"></i>
+              Model Analysis
+            </h4>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-6">
+                <small class="text-muted d-block">ML Models Only:</small>
+                <strong>{{ selectedTransaction.mlVotes }}</strong>
+              </div>
+              <div class="col-6">
+                <small class="text-muted d-block">Hybrid (ML + Rules):</small>
+                <strong>{{ selectedTransaction.modelAgreement.text || selectedTransaction.modelAgreement.flagged + '/' + selectedTransaction.modelAgreement.total + ' models' }}</strong>
               </div>
             </div>
           </div>
         </div>
-
-        <!-- Recommended Action -->
-        <div class="recommended-action-card p-3 rounded-3">
-          <h4 class="fw-bold mb-2">
-            <i class="fas fa-exclamation-circle me-2"></i>
-            Recommended Action
-          </h4>
-          <p class="mb-0">{{ selectedTransaction.recommendedAction }}</p>
-        </div>
-        </div>
-
-
-<!-- Hybrid Score Badge -->
-<div class="mb-3" *ngIf="selectedTransaction?.hybridScore">
-  <span class="badge bg-primary">
-    <i class="fas fa-microchip me-1"></i>
-    Hybrid ML + Rules
-  </span>
-</div>
-
-<!-- Rule Engine Section -->
-<div class="rule-engine-section mb-3" *ngIf="selectedTransaction?.ruleEngine?.triggered">
-  <div class="card border-warning">
-    <div class="card-header bg-warning bg-opacity-10">
-      <h6 class="mb-0">
-        <i class="fas fa-gavel me-2"></i>
-        Rule Engine Triggered
-      </h6>
-    </div>
-    <div class="card-body">
-      <div class="d-flex flex-wrap gap-2">
-        <span class="badge bg-warning text-dark" *ngFor="let rule of selectedTransaction.ruleEngine.rules">
-          <i class="fas fa-exclamation-triangle me-1"></i>
-          {{ rule }}
-        </span>
       </div>
-      <small class="text-muted d-block mt-2">
-        Severity Level: {{ selectedTransaction.ruleEngine.severity }}/10
-      </small>
-    </div>
-  </div>
-</div>
 
-<!-- ML Votes Comparison -->
-<div class="ml-votes-section mb-3" *ngIf="selectedTransaction?.mlVotes">
-  <div class="card border-info">
-    <div class="card-header bg-info bg-opacity-10">
-      <h6 class="mb-0">
-        <i class="fas fa-robot me-2"></i>
-        Model Analysis
-      </h6>
-    </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col-6">
-          <small class="text-muted d-block">ML Models Only:</small>
-          <strong>{{ selectedTransaction.mlVotes }}</strong>
-        </div>
-        <div class="col-6">
-          <small class="text-muted d-block">Hybrid (ML + Rules):</small>
-          <strong>{{ selectedTransaction.modelAgreement.text }}</strong>
+      <!-- Feedback Effect Section -->
+      <div class="feedback-effect-section mb-3" *ngIf="selectedTransaction?.feedbackEffect">
+        <div class="card border-success">
+          <div class="card-header bg-success bg-opacity-10">
+            <h6 class="mb-0">
+              <i class="fas fa-sync-alt me-2"></i>
+              Learning Effect
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-6">
+                <small class="text-muted d-block">Original Score:</small>
+                <strong>{{ selectedTransaction?.feedbackEffect?.original_score }}</strong>
+                <small class="text-muted d-block">{{ selectedTransaction?.feedbackEffect?.original_category }}</small>
+              </div>
+              <div class="col-6">
+                <small class="text-muted d-block">Adjusted Score:</small>
+                
+                <strong [style.color]="getRiskProgressColor(selectedTransaction?.feedbackEffect?.adjusted_score ?? 0)">
+                  {{ selectedTransaction?.feedbackEffect?.adjusted_score }}
+                </strong>
+                <small class="text-muted d-block">{{ selectedTransaction?.feedbackEffect?.adjusted_category }}</small>
+              </div>
+            </div>
+            <div class="mt-2">
+              <span class="badge bg-info">
+                Feedback: {{ selectedTransaction?.feedbackEffect?.feedback_outcome }}
+              </span>
+              <span class="badge bg-secondary ms-2" *ngIf="selectedTransaction?.feedbackEffect?.weights_adjusted">
+                Weights Adjusted
+              </span>
+            </div>
+            <small class="text-muted d-block mt-2">
+              Difference: {{ selectedTransaction?.feedbackEffect?.difference }}
+            </small>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
-</div>
-
-<!-- Feedback Effect Section -->
-<div class="feedback-effect-section mb-3" *ngIf="selectedTransaction?.feedbackEffect">
-  <div class="card border-success">
-    <div class="card-header bg-success bg-opacity-10">
-      <h6 class="mb-0">
-        <i class="fas fa-sync-alt me-2"></i>
-        Learning Effect
-      </h6>
-    </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col-6">
-          <small class="text-muted d-block">Original Score:</small>
-          <strong>{{ selectedTransaction.feedbackEffect.original_score }}</strong>
-          <small class="text-muted d-block">{{ selectedTransaction.feedbackEffect.original_category }}</small>
-        </div>
-        <div class="col-6">
-          <small class="text-muted d-block">Adjusted Score:</small>
-          <strong [style.color]="getRiskProgressColor(selectedTransaction.feedbackEffect.adjusted_score)">
-            {{ selectedTransaction.feedbackEffect.adjusted_score }}
-          </strong>
-          <small class="text-muted d-block">{{ selectedTransaction.feedbackEffect.adjusted_category }}</small>
-        </div>
       </div>
-      <div class="mt-2">
-        <span class="badge bg-info">
-          Feedback: {{ selectedTransaction.feedbackEffect.feedback_outcome }}
-        </span>
-        <span class="badge bg-secondary ms-2" *ngIf="selectedTransaction.feedbackEffect.weights_adjusted">
-          Weights Adjusted
-        </span>
-      </div>
-      <small class="text-muted d-block mt-2">
-        Difference: {{ selectedTransaction.feedbackEffect.difference }}
-      </small>
-    </div>
-  </div>
-</div>
-     
-
-        <div class="card additional-details-card">
+      
+      <!-- Additional Details Card -->
+      <div class="card additional-details-card">
         <div class="card-body">
           <h4 class="fw-bold mb-3">
             <i class="fas fa-info-circle me-2"></i>
@@ -471,7 +491,19 @@
           <div class="mt-3 pt-2 border-top d-flex justify-content-between align-items-center">
             <small class="text-muted">
               <i class="fas fa-microchip me-1"></i>
-              Flagged by: <span class="fw-medium">{{ selectedTransaction.flaggedBy }}</span>
+              Flagged by: 
+              <span class="badge" [ngClass]="{
+                'bg-primary': selectedTransaction.flaggedBy === 'AI',
+                'bg-warning text-dark': selectedTransaction.flaggedBy === 'Rules',
+                'bg-secondary': selectedTransaction.flaggedBy === 'Manual'
+              }">
+                <i class="fas me-1" [ngClass]="{
+                  'fa-robot': selectedTransaction.flaggedBy === 'AI',
+                  'fa-gavel': selectedTransaction.flaggedBy === 'Rules',
+                  'fa-user': selectedTransaction.flaggedBy === 'Manual'
+                }"></i>
+                {{ selectedTransaction.flaggedBy }}
+              </span>
             </small>
             <small class="text-muted">
               <i class="fas fa-tag me-1"></i>
@@ -480,7 +512,7 @@
           </div>
         </div>
       </div>
-      </div>
+    </div>
        
     <div class="modal-footer d-flex justify-content-between px-4 py-3">
       <button type="button" class="btn btn-outline-primary" (click)="investigateTransaction()">
@@ -488,6 +520,5 @@
       </button>
       <button type="button" class="btn btn-outline-secondary" (click)="closeModal()">Close</button>
     </div>
-
   </div>
 </div>
