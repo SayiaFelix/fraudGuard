@@ -184,7 +184,7 @@ export class AddCustomerComponent implements OnInit {
     location: location,
     timestamp: new Date(tx.timestamp),
     status: 'Open',
-    flaggedBy: ruleEngine.triggered ? 'Rules' : 'AI', // Show Rules if triggered
+    flaggedBy: ruleEngine.triggered ? 'Rules' : 'AI', 
     customerName: `Customer ${tx.transaction_id.substring(0, 8)}`,
     customerId: `CUST-${tx.transaction_id.substring(0, 8)}`,
     deviceId: 'Unknown',
