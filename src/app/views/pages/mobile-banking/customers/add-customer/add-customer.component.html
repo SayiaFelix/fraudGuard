@@ -156,24 +156,34 @@
             <button class="btn btn-sm btn-outline-primary w-100" (click)="showAIAnalysis(tx)">
               <i class="fas fa-robot me-1"></i> View AI Analysis
             </button>
+            
             <div class="d-flex align-items-center mt-1 justify-content-center">
               <span class="badge" [ngClass]="{
                 'bg-primary': tx.flaggedBy === 'AI',
                 'bg-warning text-dark': tx.flaggedBy === 'Rules',
+                'bg-success': tx.flaggedBy === 'AI + Rules (Hybrid)',
                 'bg-secondary': tx.flaggedBy === 'Manual'
               }">
                 <i class="fas me-1" [ngClass]="{
                   'fa-robot': tx.flaggedBy === 'AI',
                   'fa-gavel': tx.flaggedBy === 'Rules',
+                  'fa-microchip': tx.flaggedBy === 'AI + Rules (Hybrid)',
                   'fa-user': tx.flaggedBy === 'Manual'
                 }"></i>
                 {{ tx.flaggedBy }}
               </span>
+
+                <span class="badge bg-light text-dark" title="Has LLM explanation" *ngIf="tx.aiAnalysis?.llm">
+                  <i class="fas fa-robot me-1"></i>LLM
+                </span>
+                <span class="badge bg-light text-dark" title="Has rule-based explanation" *ngIf="tx.aiAnalysis?.ruleBased">
+                  <i class="fas fa-gavel me-1"></i>Rules
+                </span>
+                
             </div>
           </div>
         </div>
 
-        <!-- Model Agreement Preview with ML vs Rules indicator -->
         <div class="model-agreement-preview mt-2">
           <div class="d-flex align-items-center">
             <small class="text-muted me-2">Model Agreement</small>
@@ -196,7 +206,6 @@
         </div>
       </div>
 
-      <!-- Empty State -->
       <div *ngIf="filteredTransactions.length === 0" class="text-center p-5">
         <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
         <h5>No Transactions Found</h5>
@@ -248,44 +257,102 @@
         </div>
       </div>
 
-      <!-- AI Analysis Card -->
+      <!-- AI Analysis -->
       <div class="ai-analysis-card p-4 rounded-3 mb-4" 
-           [ngClass]="{
-             'critical-bg': selectedTransaction.riskCategory === 'Critical',
-             'high-bg': selectedTransaction.riskCategory === 'High',
-             'medium-bg': selectedTransaction.riskCategory === 'Medium',
-             'low-bg': selectedTransaction.riskCategory === 'Low'
-           }">
-        <h4 class="fw-bold mb-3">Explainability</h4>
+          [ngClass]="{
+            'critical-bg': selectedTransaction?.riskCategory === 'Critical',
+            'high-bg': selectedTransaction?.riskCategory === 'High',
+            'medium-bg': selectedTransaction?.riskCategory === 'Medium',
+            'low-bg': selectedTransaction?.riskCategory === 'Low'
+          }">
+        
+        <!-- Header with Tabs -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 class="fw-bold mb-0">Explainability</h4>
+          <div class="btn-group btn-group-sm" role="group">
+            <button type="button" 
+                    class="btn" 
+                    [class.btn-primary]="activeTab === 'final'"
+                    [class.btn-outline-light]="activeTab !== 'final'"
+                    (click)="setActiveTab('final')">
+              Final
+            </button>
+            <button type="button" 
+                    class="btn" 
+                    [class.btn-primary]="activeTab === 'llm'"
+                    [class.btn-outline-light]="activeTab !== 'llm'"
+                    (click)="setActiveTab('llm')"
+                    *ngIf="selectedTransaction?.aiAnalysis?.llm">
+              LLM
+            </button>
+            <button type="button" 
+                    class="btn" 
+                    [class.btn-primary]="activeTab === 'rule'"
+                    [class.btn-outline-light]="activeTab !== 'rule'"
+                    (click)="setActiveTab('rule')"
+                    *ngIf="selectedTransaction?.aiAnalysis?.ruleBased">
+              Rule-Based
+            </button>
+          </div>
+        </div>
+        
+        <!-- AI Icon and Content -->
         <div class="d-flex mb-3">
           <div class="ai-icon me-3">
             <i class="fas fa-brain fa-2x"></i>
           </div>
           <div class="ai-content">
-            <p class="analysis-text mb-0">
-              This transaction was flagged as 
-              <strong class="risk-highlight">{{ selectedTransaction.riskCategory }}</strong> 
-              with a risk score of <strong>{{ selectedTransaction.riskScore }}/10</strong>. 
-              {{ selectedTransaction.aiAnalysis.details }}
-            </p>
+            <!-- Final Explanation Tab -->
+            <div *ngIf="activeTab === 'final'">
+              <p class="analysis-text mb-0">
+                This transaction was flagged as 
+                <strong class="risk-highlight">{{ selectedTransaction?.riskCategory }}</strong> 
+                with a risk score of <strong>{{ selectedTransaction?.riskScore }}/10</strong>.
+              </p>
+              <p class="analysis-text mt-2">
+                {{ selectedTransaction?.aiAnalysis?.final || selectedTransaction?.aiAnalysis?.details }}
+              </p>
+            </div>
+            
+            <!-- LLM Explanation Tab -->
+            <div *ngIf="activeTab === 'llm'">
+              <div class="d-flex align-items-center mb-2">
+                <span class="badge bg-info me-2">LLM Generated</span>
+                <small class="text-muted">Natural language explanation</small>
+              </div>
+              <p class="analysis-text mb-0">
+                {{ selectedTransaction?.aiAnalysis?.llm }}
+              </p>
+            </div>
+            
+            <!-- Rule-Based Explanation Tab -->
+            <div *ngIf="activeTab === 'rule'">
+              <div class="d-flex align-items-center mb-2">
+                <span class="badge bg-warning text-dark me-2">Rule-Based</span>
+                <small class="text-muted">Technical explanation</small>
+              </div>
+              <p class="analysis-text mb-0">
+                {{ selectedTransaction?.aiAnalysis?.ruleBased }}
+              </p>
+            </div>
           </div>
         </div>
         
-        <!-- Model Agreement -->
+        <!-- Model Agreement (shown in all tabs) -->
         <div class="model-agreement mt-3 pt-3 border-top">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold">Model Agreement</span>
-            <span class="badge bg-primary">{{ selectedTransaction.modelAgreement.flagged }}/{{ selectedTransaction.modelAgreement.total }} models flagged as fraud</span>
+            <span class="badge bg-primary">{{ selectedTransaction?.modelAgreement?.flagged }}/{{ selectedTransaction?.modelAgreement?.total }} models flagged as fraud</span>
           </div>
           <div class="progress" style="height: 8px;">
             <div class="progress-bar" 
-                 [style.width.%]="(selectedTransaction.modelAgreement.flagged / selectedTransaction.modelAgreement.total) * 100"
-                 [ngClass]="{
-                   'bg-danger': selectedTransaction.riskCategory === 'Critical',
-                   'bg-warning': selectedTransaction.riskCategory === 'High',
-                   'bg-info': selectedTransaction.riskCategory === 'Medium',
-                   'bg-success': selectedTransaction.riskCategory === 'Low'
-                 }">
+                [style.width.%]="(selectedTransaction?.modelAgreement?.flagged || 0) / (selectedTransaction?.modelAgreement?.total || 7) * 100"
+                [ngClass]="{
+                  'bg-danger': selectedTransaction?.riskCategory === 'Critical',
+                  'bg-warning': selectedTransaction?.riskCategory === 'High',
+                  'bg-info': selectedTransaction?.riskCategory === 'Medium',
+                  'bg-success': selectedTransaction?.riskCategory === 'Low'
+                }">
             </div>
           </div>
         </div>
@@ -397,7 +464,7 @@
         </div>
       </div>
       </div>
-      
+
       <!-- Additional Details Card -->
       <div class="card additional-details-card">
         <div class="card-body">
@@ -495,16 +562,19 @@
               <span class="badge" [ngClass]="{
                 'bg-primary': selectedTransaction.flaggedBy === 'AI',
                 'bg-warning text-dark': selectedTransaction.flaggedBy === 'Rules',
+                'bg-success': selectedTransaction.flaggedBy === 'AI + Rules (Hybrid)',
                 'bg-secondary': selectedTransaction.flaggedBy === 'Manual'
               }">
                 <i class="fas me-1" [ngClass]="{
                   'fa-robot': selectedTransaction.flaggedBy === 'AI',
                   'fa-gavel': selectedTransaction.flaggedBy === 'Rules',
+                  'fa-microchip': selectedTransaction.flaggedBy === 'AI + Rules (Hybrid)',
                   'fa-user': selectedTransaction.flaggedBy === 'Manual'
                 }"></i>
                 {{ selectedTransaction.flaggedBy }}
               </span>
             </small>
+
             <small class="text-muted">
               <i class="fas fa-tag me-1"></i>
               Status: <span class="badge bg-secondary">{{ selectedTransaction.status }}</span>
@@ -518,6 +588,7 @@
       <button type="button" class="btn btn-outline-primary" (click)="investigateTransaction()">
         <i class="fas fa-search me-1"></i> Investigate
       </button>
+      
       <button type="button" class="btn btn-outline-secondary" (click)="closeModal()">Close</button>
     </div>
   </div>
