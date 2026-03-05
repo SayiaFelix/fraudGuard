@@ -282,6 +282,101 @@
           <p class="mb-0">{{ selectedTransaction.recommendedAction }}</p>
         </div>
         </div>
+
+
+<!-- Hybrid Score Badge -->
+<div class="mb-3" *ngIf="selectedTransaction?.hybridScore">
+  <span class="badge bg-primary">
+    <i class="fas fa-microchip me-1"></i>
+    Hybrid ML + Rules
+  </span>
+</div>
+
+<!-- Rule Engine Section -->
+<div class="rule-engine-section mb-3" *ngIf="selectedTransaction?.ruleEngine?.triggered">
+  <div class="card border-warning">
+    <div class="card-header bg-warning bg-opacity-10">
+      <h6 class="mb-0">
+        <i class="fas fa-gavel me-2"></i>
+        Rule Engine Triggered
+      </h6>
+    </div>
+    <div class="card-body">
+      <div class="d-flex flex-wrap gap-2">
+        <span class="badge bg-warning text-dark" *ngFor="let rule of selectedTransaction.ruleEngine.rules">
+          <i class="fas fa-exclamation-triangle me-1"></i>
+          {{ rule }}
+        </span>
+      </div>
+      <small class="text-muted d-block mt-2">
+        Severity Level: {{ selectedTransaction.ruleEngine.severity }}/10
+      </small>
+    </div>
+  </div>
+</div>
+
+<!-- ML Votes Comparison -->
+<div class="ml-votes-section mb-3" *ngIf="selectedTransaction?.mlVotes">
+  <div class="card border-info">
+    <div class="card-header bg-info bg-opacity-10">
+      <h6 class="mb-0">
+        <i class="fas fa-robot me-2"></i>
+        Model Analysis
+      </h6>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-6">
+          <small class="text-muted d-block">ML Models Only:</small>
+          <strong>{{ selectedTransaction.mlVotes }}</strong>
+        </div>
+        <div class="col-6">
+          <small class="text-muted d-block">Hybrid (ML + Rules):</small>
+          <strong>{{ selectedTransaction.modelAgreement.text }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Feedback Effect Section -->
+<div class="feedback-effect-section mb-3" *ngIf="selectedTransaction?.feedbackEffect">
+  <div class="card border-success">
+    <div class="card-header bg-success bg-opacity-10">
+      <h6 class="mb-0">
+        <i class="fas fa-sync-alt me-2"></i>
+        Learning Effect
+      </h6>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-6">
+          <small class="text-muted d-block">Original Score:</small>
+          <strong>{{ selectedTransaction.feedbackEffect.original_score }}</strong>
+          <small class="text-muted d-block">{{ selectedTransaction.feedbackEffect.original_category }}</small>
+        </div>
+        <div class="col-6">
+          <small class="text-muted d-block">Adjusted Score:</small>
+          <strong [style.color]="getRiskProgressColor(selectedTransaction.feedbackEffect.adjusted_score)">
+            {{ selectedTransaction.feedbackEffect.adjusted_score }}
+          </strong>
+          <small class="text-muted d-block">{{ selectedTransaction.feedbackEffect.adjusted_category }}</small>
+        </div>
+      </div>
+      <div class="mt-2">
+        <span class="badge bg-info">
+          Feedback: {{ selectedTransaction.feedbackEffect.feedback_outcome }}
+        </span>
+        <span class="badge bg-secondary ms-2" *ngIf="selectedTransaction.feedbackEffect.weights_adjusted">
+          Weights Adjusted
+        </span>
+      </div>
+      <small class="text-muted d-block mt-2">
+        Difference: {{ selectedTransaction.feedbackEffect.difference }}
+      </small>
+    </div>
+  </div>
+</div>
      
 
         <div class="card additional-details-card">
