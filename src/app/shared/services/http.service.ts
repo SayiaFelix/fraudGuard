@@ -198,7 +198,10 @@ getTransactions(page: number = 1, size: number = 20): Observable<TransactionsRes
       );
   }
 
-  // Submit feedback
+  getSystemStats(): Observable<any> {
+  return this.http.get(`${this.apiUrl}/system/stats`);
+}
+
   submitFeedback(transactionId: string, feedback: 'confirmed_fraud' | 'false_positive', signals?: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/fraud_feedback`, {
       transaction_id: transactionId,
@@ -209,59 +212,13 @@ getTransactions(page: number = 1, size: number = 20): Observable<TransactionsRes
     );
   }
 
-  // Error handler
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
       console.error(`${operation} failed:`, error);
       return of(result as T);
     };
   }
-
-
-
-
-  // Map backend transaction to frontend format
-  mapTransaction(transaction: any): FrontendTransaction {
-    // Determine risk category based on score or category
-    let riskCategory: 'Critical' | 'High' | 'Medium' | 'Low' = 'Low';
-    let riskScore = transaction.risk_score || 0;
-    
-    if (riskScore >= 7) riskCategory = 'Critical';
-    else if (riskScore >= 5) riskCategory = 'High';
-    else if (riskScore >= 3) riskCategory = 'Medium';
-    else riskCategory = 'Low';
-    
-    // Determine channel from transaction type
-    let channel = 'Web';
-    if (transaction.transaction_type === 'POS') channel = 'POS';
-    else if (transaction.transaction_type === 'Transfer') channel = 'Mobile';
-    else if (transaction.transaction_type === 'Online') channel = 'Web';
-    
-    // Determine location
-    let location = 'Unknown';
-    if (transaction.transaction_location === 'Local') location = 'Nairobi, KE';
-    else if (transaction.transaction_location === 'International') location = 'International';
-    
-    return {
-      id: transaction.transaction_id || this.generateId(),
-      transactionId: transaction.transaction_id || this.generateId(),
-      amount: transaction.transaction_amount || 0,
-      riskScore: riskScore,
-      riskCategory: riskCategory,
-      channel: channel,
-      location: location,
-      timestamp: transaction.transaction_date || new Date().toISOString(),
-      status: 'Open',
-      flaggedBy: 'AI'
-    };
-  }
   
-  // Generate a temporary ID if none exists
-  private generateId(): string {
-    return 'TXN-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-  }
-  
-  // Calculate KPIs from transactions
   calculateKPIs(transactions: any[]): any {
     const totalTransactions = transactions.length;
     const highRisk = transactions.filter(t => (t.risk_score || 0) >= 5).length;
@@ -275,7 +232,6 @@ getTransactions(page: number = 1, size: number = 20): Observable<TransactionsRes
     };
   }
   
-  // Group transactions by month for trend analysis
   groupByMonth(transactions: any[]): any {
     const monthlyData: { [key: string]: { count: number; amount: number } } = {};
     
@@ -310,16 +266,12 @@ getTransactions(page: number = 1, size: number = 20): Observable<TransactionsRes
     return this.http.post(`${this.baseUrl}/api/clustered_data`, model);
   }
   
-
-
-  // Upload File API
   uploadFile(file: File): Observable<any> {
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post(`${this.baseUrls}/upload`, formData);
   }
 
-  // AI Chatbot API
   chatWithBot(query: string): Observable<any> {
     return this.http.post(`${this.baseUrls}/chat`, { query });
   }
@@ -384,7 +336,6 @@ public customerPortalLogin(endpoint: string, model: any): Observable<any> {
     return this.http.get<any[]>(`${this.apiUrl}?email=${email}&password=${password}`);
   }
 
-  // http.service.ts
     getUsers(email: string, password: string): Observable<any[]> {
       return this.http.get<any[]>(`http://localhost:3000/users?email=${email}&password=${password}`);
     }
@@ -392,7 +343,6 @@ public customerPortalLogin(endpoint: string, model: any): Observable<any> {
       getUserById(id: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/${id}`);
   }
-  
 
   public customerPortalAuth(endpoint: string, model: any, options?: any): Observable<any> {
     return this.http
@@ -625,8 +575,6 @@ public mobileBankingPatch(endpoint: string, model: any): any {
         })
       );
   }
-
-
 
 public mobileBankingDel(endpoint: string, payload?: any): any {
     const options: any = { 

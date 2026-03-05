@@ -773,10 +773,6 @@ calculateAvgResponseTime(): string {
   return `${Math.round(avg)}ms`;
 }
 
-// getSystemStats(): Observable<any> {
-//   return this.http.get(`${this.environment}/system/stats`);
-// }
-
   exportExcel(): void {
     // Mock export for POC
     alert('Excel export ready in production version');
