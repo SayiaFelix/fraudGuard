@@ -21,13 +21,33 @@ interface Transaction {
   modelAgreement: {
     flagged: number;
     total: number;
+    text: string;
+  };
+  mlVotes: string; 
+  ruleEngine: {  
+    triggered: boolean;
+    rules: string[];
+    severity: number;
+  };
+  hybridScore: boolean; 
+  feedbackEffect?: {  
+    original_score: number;
+    adjusted_score: number;
+    original_category: string;
+    adjusted_category: string;
+    difference: number;
+    feedback_outcome: string;
+    weights_adjusted: boolean;
   };
   aiAnalysis: {
     details: string;
     signals: string[];
+    ruleBased?: string;
+    llm?: string;
+    final?: string;
   };
   recommendedAction: string;
-  rawData?: any; 
+  rawData?: any;
 }
 
 @Component({
@@ -71,7 +91,7 @@ export class AddCustomerComponent implements OnInit {
     this.loadTransactions();
     
     // Refresh every 60 seconds
-    this.refreshSubscription = interval(60000).subscribe(() => {
+    this.refreshSubscription = interval(600000).subscribe(() => {
       this.loadTransactions();
     });
   }
@@ -106,60 +126,92 @@ export class AddCustomerComponent implements OnInit {
   }
 
   mapBackendTransaction(tx: any): Transaction {
-    let riskCategory: 'Critical' | 'High' | 'Medium' | 'Low' = 'Low';
-    if (tx.risk_category.includes('Critical')) riskCategory = 'Critical';
-    else if (tx.risk_category.includes('High')) riskCategory = 'High';
-    else if (tx.risk_category.includes('Medium')) riskCategory = 'Medium';
-    else if (tx.risk_category.includes('Low')) riskCategory = 'Low';
+  let riskCategory: 'Critical' | 'High' | 'Medium' | 'Low' = 'Low';
+  if (tx.risk_category.includes('Critical')) riskCategory = 'Critical';
+  else if (tx.risk_category.includes('High')) riskCategory = 'High';
+  else if (tx.risk_category.includes('Medium')) riskCategory = 'Medium';
+  else if (tx.risk_category.includes('Low')) riskCategory = 'Low';
 
-    // Parse model agreement (e.g., "3/7 models flagged as fraud")
-    const modelAgreement = tx.transaction_details?.Model_Agreement || '0/7 models flagged';
-    const flagged = parseInt(modelAgreement.split('/')[0]) || 0;
-    const total = 7; // Your backend always uses 7 models
+  // Parse model agreement
+  const modelAgreement = tx.transaction_details?.Model_Agreement || '0/7 models flagged';
+  const flagged = parseInt(modelAgreement.split('/')[0]) || 0;
+  const total = 7;
 
-    // Extract signals from real_time_signals if available
-    const signals: string[] = [];
-    if (tx.transaction_details?.real_time_signals) {
-      const signals_data = tx.transaction_details.real_time_signals;
-      if (signals_data.amount_risk > 0.7) signals.push('High amount anomaly');
-      else if (signals_data.amount_risk > 0.4) signals.push('Medium amount anomaly');
-      if (signals_data.velocity_risk > 0.7) signals.push('High velocity risk');
-      else if (signals_data.velocity_risk > 0.4) signals.push('Medium velocity risk');
+  // Get ML Votes (original model votes)
+  const mlVotes = tx.transaction_details?.ML_Votes || '0/7';
+
+  // Get rule engine details
+  const ruleEngine = tx.transaction_details?.Rule_Engine || {
+    triggered: false,
+    rules: [],
+    severity: 0
+  };
+
+  // Check if hybrid score
+  const hybridScore = tx.transaction_details?.Hybrid_Score || false;
+
+  // Extract signals from real_time_signals
+  const signals: string[] = [];
+  if (tx.transaction_details?.real_time_signals) {
+    const signals_data = tx.transaction_details.real_time_signals;
+    if (signals_data.amount_risk > 0.7) {
+      signals.push(`High amount anomaly (${(signals_data.amount_risk * 100).toFixed(0)}% above normal)`);
+    } else if (signals_data.amount_risk > 0.4) {
+      signals.push(`Medium amount anomaly (${(signals_data.amount_risk * 100).toFixed(0)}% above normal)`);
     }
-
-    let channel = 'Web';
-    // You might have channel info in transaction_details or elsewhere
-
-    // Determine location (you can enhance this)
-    let location = 'Nairobi, KE';
-
-    return {
-      id: tx.transaction_id,
-      transactionId: tx.transaction_id,
-      amount: tx.transaction_details?.Transaction_Amount || 0,
-      riskScore: tx.risk_score,
-      riskCategory: riskCategory,
-      channel: channel,
-      location: location,
-      timestamp: new Date(tx.timestamp),
-      status: 'Open', // Default status
-      flaggedBy: 'AI',
-      customerName: `Customer ${tx.transaction_id.substring(0, 8)}`, 
-      customerId: `CUST-${tx.transaction_id.substring(0, 8)}`, 
-      deviceId: 'Unknown', 
-      ipAddress: 'Unknown', 
-      modelAgreement: {
-        flagged: flagged,
-        total: total
-      },
-      aiAnalysis: {
-        details: this.generateAnalysisDetails(tx),
-        signals: signals
-      },
-      recommendedAction: tx.recommended_action,
-      rawData: tx
-    };
+    
+    if (signals_data.velocity_risk > 0.7) {
+      signals.push(`High velocity risk - ${(signals_data.velocity_risk * 5).toFixed(0)} transactions per hour`);
+    } else if (signals_data.velocity_risk > 0.4) {
+      signals.push(`Medium velocity risk - ${(signals_data.velocity_risk * 5).toFixed(0)} transactions per hour`);
+    }
   }
+
+  // Add rule-based signals
+  if (ruleEngine.triggered) {
+    ruleEngine.rules.forEach((rule: string) => {
+      signals.push(`⚠️ Rule: ${rule}`);
+    });
+  }
+
+  let channel = 'Web';
+  let location = 'Nairobi, KE';
+
+  return {
+    id: tx.transaction_id,
+    transactionId: tx.transaction_id,
+    amount: tx.transaction_details?.Transaction_Amount || 0,
+    riskScore: tx.risk_score,
+    riskCategory: riskCategory,
+    channel: channel,
+    location: location,
+    timestamp: new Date(tx.timestamp),
+    status: 'Open',
+    flaggedBy: ruleEngine.triggered ? 'Rules' : 'AI', // Show Rules if triggered
+    customerName: `Customer ${tx.transaction_id.substring(0, 8)}`,
+    customerId: `CUST-${tx.transaction_id.substring(0, 8)}`,
+    deviceId: 'Unknown',
+    ipAddress: 'Unknown',
+    modelAgreement: {
+      flagged: flagged,
+      total: total,
+      text: modelAgreement
+    },
+    mlVotes: mlVotes,
+    ruleEngine: ruleEngine,
+    hybridScore: hybridScore,
+    feedbackEffect: tx.feedback_effect,
+    aiAnalysis: {
+      details: this.generateAnalysisDetails(tx),
+      signals: signals,
+      ruleBased: tx.explanations?.rule_based,
+      llm: tx.explanations?.llm,
+      final: tx.explanations?.final
+    },
+    recommendedAction: tx.recommended_action,
+    rawData: tx
+  };
+}
 
   generateAnalysisDetails(tx: any): string {
     const signals = tx.transaction_details?.real_time_signals;
