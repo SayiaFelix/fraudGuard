@@ -228,6 +228,63 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+page: number = 1;
+pageSize: number = 5;
+totalRecords: number = 0;
+
+onPageChange(event: any): void {
+  this.page = event;
+  this.updateRecentAlerts();
+}
+
+updateRecentAlerts(): void {
+  const highRiskTransactions = this.transactions.filter(t => 
+    t.risk_category === 'High Potential Fraud' || 
+    t.risk_category === 'Critical Fraud Risk'
+  );
+  
+  this.totalRecords = highRiskTransactions.length;
+  
+  const sortedHighRisk = highRiskTransactions.sort((a, b) => {
+    return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+  });
+  
+  //Apply pagination
+  const startIndex = (this.page - 1) * this.pageSize;
+  const endIndex = startIndex + this.pageSize;
+  const paginatedTransactions = sortedHighRisk.slice(startIndex, endIndex);
+  
+  this.recentAlerts = paginatedTransactions.map(t => {
+    return {
+      id: t.transaction_id,
+      transactionId: t.transaction_id,
+      amount: t.transaction_details?.Transaction_Amount || 0,
+      riskScore: t.risk_score,
+      riskCategory: t.risk_category,
+      channel: 'Web',
+      location: 'Nairobi, KE',
+      timestamp: t.timestamp,
+      status: 'Open',
+      flaggedBy: 'AI'
+    };
+  });
+  
+  // console.log(`Showing ${this.recentAlerts.length} of ${this.totalRecords} high-risk transactions`);
+}
+
+getTotalPages(): number {
+  return Math.ceil(this.totalRecords / this.pageSize);
+}
+
+min(a: number, b: number): number {
+  return Math.min(a, b);
+}
+
+onPageSizeChange(): void {
+  this.page = 1; 
+  this.updateRecentAlerts();
+}
+
 loadDashboardData(): void {
   this.isLoading = true;
   
@@ -329,39 +386,6 @@ calculateScoreDistribution(): void {
   };
 
   this.scoreDistributionData = { ...this.scoreDistributionData };
-}
-
-
-
-updateRecentAlerts(): void {
-  const highRiskTransactions = this.transactions.filter(t => 
-    t.risk_category === 'High Potential Fraud' || 
-    t.risk_category === 'Critical Fraud Risk'
-  );
-  
-  const sortedHighRisk = highRiskTransactions.sort((a, b) => {
-    return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
-  });
-  
-  sortedHighRisk.slice(0, 5).forEach(t => {
-    console.log(`${t.transaction_id}: ${t.timestamp} - ${t.risk_category}`);
-  });
-  
-  this.recentAlerts = sortedHighRisk.slice(0, 5).map(t => {
-    return {
-      id: t.transaction_id,
-      transactionId: t.transaction_id,
-      amount: t.transaction_details?.Transaction_Amount || 0,
-      riskScore: t.risk_score,
-      riskCategory: t.risk_category,
-      channel: 'Web',
-      location: 'Nairobi, KE',
-      timestamp: t.timestamp,
-      status: 'Open',
-      flaggedBy: 'AI'
-    };
-  });
-  
 }
 
 updateRiskDistribution(): void {
