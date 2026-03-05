@@ -112,7 +112,7 @@ export class AddCustomerComponent implements OnInit {
     this.httpService.getTransactions(1, 50).subscribe({
       next: (response) => {
         if (response.status === 'success' && response.transactions) {
-          // Converting backend transactions to frontend format
+          //Converting backend transactions to frontend format
           this.transactions = response.transactions.map(tx => this.mapBackendTransaction(tx));
           this.applyFilters();
           this.calculateStats();
@@ -132,25 +132,23 @@ export class AddCustomerComponent implements OnInit {
   else if (tx.risk_category.includes('Medium')) riskCategory = 'Medium';
   else if (tx.risk_category.includes('Low')) riskCategory = 'Low';
 
-  // Parse model agreement
+  //Parse model agreement
   const modelAgreement = tx.transaction_details?.Model_Agreement || '0/7 models flagged';
   const flagged = parseInt(modelAgreement.split('/')[0]) || 0;
   const total = 7;
 
-  // Get ML Votes (original model votes)
   const mlVotes = tx.transaction_details?.ML_Votes || '0/7';
 
-  // Get rule engine details
+  //rule engine details
   const ruleEngine = tx.transaction_details?.Rule_Engine || {
     triggered: false,
     rules: [],
     severity: 0
   };
 
-  // Check if hybrid score
   const hybridScore = tx.transaction_details?.Hybrid_Score || false;
 
-  // Extract signals from real_time_signals
+  //Extract signals from real_time_signals
   const signals: string[] = [];
   if (tx.transaction_details?.real_time_signals) {
     const signals_data = tx.transaction_details.real_time_signals;
@@ -167,10 +165,9 @@ export class AddCustomerComponent implements OnInit {
     }
   }
 
-  // Add rule-based signals
   if (ruleEngine.triggered) {
     ruleEngine.rules.forEach((rule: string) => {
-      signals.push(`⚠️ Rule: ${rule}`);
+      signals.push(` Rule: ${rule}`);
     });
   }
 
@@ -239,6 +236,7 @@ generateAnalysisDetails(tx: any): string {
   details += tx.transaction_details?.Model_Agreement || '';
   return details;
 }
+
 calculateStats(): void {
     const filtered = this.filteredTransactions.length ? this.filteredTransactions : this.transactions;
     this.stats = {
