@@ -1,5 +1,4 @@
 <div class="row">
-  <!-- Main Content Column -->
   <div class="col content-column">
     <div class="container-fluid">
       <div class="d-flex align-items-center justify-content-between flex-wrap">
@@ -96,6 +95,19 @@
         <i class="fas fa-brain" [attr.title]="'Click to expand panel'"></i>
       </h4>
     </div>
+
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-sm" 
+              [ngClass]="isAlertModeEnabled ? 'btn-danger' : 'btn-outline-secondary'"
+              (click)="toggleAlertMode()"
+              title="Toggle National Alert Mode">
+        <i class="fas fa-exclamation-triangle me-1"></i>
+        Alert Mode {{ isAlertModeEnabled ? 'ON' : 'OFF' }}
+      </button>
+      <span class="badge" [ngClass]="isAlertModeEnabled ? 'bg-danger' : 'bg-secondary'">
+        Threshold: {{ systemStats.threshold }}
+      </span>
+    </div>
     <span *ngIf="!isCollapsed" class="badge bg-warning text-dark">Live</span>
   </div>
   
@@ -127,11 +139,13 @@
         </div>
       </div>
 
+      <!-- Recent AI Detections-->
       <div class="card shadow-sm mb-3">
         <div class="card-header bg-transparent border-0">
           <h4 class="fw-bold mb-0">
             <i class="fas fa-exclamation-triangle me-2 text-warning"></i>
             Recent AI Detections
+            <span class="badge bg-danger ms-2">{{ pendingInvestigations }}</span>
           </h4>
         </div>
         <hr>
@@ -141,64 +155,80 @@
               <div>
                 <span class="badge" [ngClass]="{
                   'bg-danger': alert.severity === 'Critical',
-                  'bg-warning': alert.severity === 'High',
-                  'bg-info': alert.severity === 'Medium'
+                  'bg-warning': alert.severity === 'High'
                 }">{{ alert.severity }}</span>
                 <small class="d-block text-muted mt-1">{{ alert.message }}</small>
+                <small class="d-block text-muted" *ngIf="alert.transactionId">
+                  ID: {{ alert.transactionId }}
+                </small>
               </div>
               <small class="text-muted">{{ alert.time }}</small>
             </div>
           </div>
           <div *ngIf="recentAIDetections.length === 0" class="list-group-item text-muted">
-            No recent detections
+            No recent high-risk detections
           </div>
         </div>
       </div>
 
+     <!-- Model Performance Card -->
       <div class="card shadow-sm mb-3">
         <div class="card-body">
           <h4 class="fw-bold text-dark mb-3">
             <i class="fas fa-chart-line me-2 text-primary"></i>
-            Model Performance
+            Model Performance ({{ modelPerformance.modelName }})
           </h4>
           <hr>
+          
+          <!-- Accuracy -->
           <div class="performance-item mb-2">
             <div class="d-flex justify-content-between small">
               <span>Accuracy</span>
-              <span class="fw-bold">98.5%</span>
+              <span class="fw-bold">{{ modelPerformance.accuracy.toFixed(2) }}%</span>
             </div>
             <div class="progress" style="height: 6px;">
-              <div class="progress-bar bg-success" style="width: 98.5%"></div>
+              <div class="progress-bar bg-success" 
+                  [style.width.%]="modelPerformance.accuracy">
+              </div>
             </div>
           </div>
 
+          <!-- Precision -->
           <div class="performance-item mb-2">
             <div class="d-flex justify-content-between small">
               <span>Precision</span>
-              <span class="fw-bold">94.2%</span>
+              <span class="fw-bold">{{ modelPerformance.precision.toFixed(2) }}%</span>
             </div>
             <div class="progress" style="height: 6px;">
-              <div class="progress-bar bg-primary" style="width: 94.2%"></div>
+              <div class="progress-bar bg-primary" 
+                  [style.width.%]="modelPerformance.precision">
+              </div>
             </div>
           </div>
 
+          <!-- Recall -->
           <div class="performance-item mb-2">
             <div class="d-flex justify-content-between small">
               <span>Recall</span>
-              <span class="fw-bold">92.7%</span>
+              <span class="fw-bold">{{ modelPerformance.recall.toFixed(2) }}%</span>
             </div>
             <div class="progress" style="height: 6px;">
-              <div class="progress-bar bg-info" style="width: 92.7%"></div>
+              <div class="progress-bar bg-info" 
+                  [style.width.%]="modelPerformance.recall">
+              </div>
             </div>
           </div>
 
+          <!-- F1 Score -->
           <div class="performance-item">
             <div class="d-flex justify-content-between small">
               <span>F1 Score</span>
-              <span class="fw-bold">93.4%</span>
+              <span class="fw-bold">{{ modelPerformance.f1Score.toFixed(2) }}%</span>
             </div>
             <div class="progress" style="height: 6px;">
-              <div class="progress-bar bg-warning" style="width: 93.4%"></div>
+              <div class="progress-bar bg-warning" 
+                  [style.width.%]="modelPerformance.f1Score">
+              </div>
             </div>
           </div>
         </div>
@@ -251,6 +281,8 @@
               <i class="fas fa-bell me-2"></i> View All Alerts
               <span class="badge bg-danger ms-2">{{ totalAlerts }}</span>
             </button>
+
+         
           </div>
         </div>
       </div>
