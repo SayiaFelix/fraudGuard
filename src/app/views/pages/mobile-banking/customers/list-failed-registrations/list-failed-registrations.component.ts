@@ -84,8 +84,7 @@ export class ListFailedRegistrationsComponent implements OnInit, OnDestroy {
     f1Score: 0,
     modelName: 'XGBoost'
   };
-  
-  // System stats
+
   systemStats = {
     totalTransactions: 0,
     avgResponseMs: 187,
