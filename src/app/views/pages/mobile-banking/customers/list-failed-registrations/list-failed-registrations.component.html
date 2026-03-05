@@ -247,7 +247,6 @@
         </div>
       </div>
 
-      
       <div class="card shadow-sm mb-3">
         <div class="card-body">
           <h4 class="fw-bold text-dark mb-3">
@@ -294,8 +293,6 @@
               <i class="fas fa-bell me-2"></i> View All Alerts
               <span class="badge bg-danger ms-2">{{ totalAlerts }}</span>
             </button>
-
-         
           </div>
         </div>
       </div>
@@ -309,20 +306,19 @@
       </div>
 
       <div class="mt-1 text-center">
-  <span class="badge"
+        <span class="badge"
         [ngClass]="{
           'bg-success': currentRiskLevel < 40,
           'bg-warning': currentRiskLevel >= 40 && currentRiskLevel < 70,
           'bg-danger': currentRiskLevel >= 70
         }">
-    Threat Level: 
-    {{
-      currentRiskLevel < 40 ? 'LOW' :
-      currentRiskLevel < 70 ? 'MEDIUM' : 'CRITICAL'
-    }}
-  </span>
+          Threat Level: 
+          {{
+            currentRiskLevel < 40 ? 'LOW' :
+            currentRiskLevel < 70 ? 'MEDIUM' : 'CRITICAL'
+          }}
+        </span>
       </div>
-
     </div>
   </div>
 </div>
