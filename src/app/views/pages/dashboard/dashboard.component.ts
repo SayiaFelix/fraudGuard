@@ -256,12 +256,19 @@ loadTransactions(): Promise<void> {
             return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
           });
           
+          const fraudCount = this.transactions.filter(tx => 
+            tx.risk_category === 'Critical Fraud Risk' || 
+            tx.risk_category === 'High Potential Fraud'
+          ).length;
+          
+          console.log(`Total transactions: ${this.transactions.length}, Fraud transactions: ${fraudCount}`);
+          
           this.updateKPIs();
           this.updateRecentAlerts();
           this.updateRiskDistribution();
           this.updateLineChart(); 
           this.calculateScoreDistribution(); 
-           this.updateFooterStats();
+          this.updateFooterStats();
         }
         resolve();
       },
@@ -311,7 +318,6 @@ calculateScoreDistribution(): void {
     else distribution[4]++;
   });
   
-  // Update chart data
   this.scoreDistributionData = {
     labels: ['0-2', '2-4', '4-6', '6-8', '8-10'],
     datasets: [{
@@ -321,15 +327,13 @@ calculateScoreDistribution(): void {
       borderRadius: 6
     }]
   };
-  
-  // Force chart update
+
   this.scoreDistributionData = { ...this.scoreDistributionData };
 }
 
 
 
 updateRecentAlerts(): void {
-  
   const highRiskTransactions = this.transactions.filter(t => 
     t.risk_category === 'High Potential Fraud' || 
     t.risk_category === 'Critical Fraud Risk'
@@ -445,7 +449,14 @@ updateLineChart(): void {
     monthlyData.set(month, { count: 0, amount: 0 });
   });
   
-  this.transactions.forEach(tx => {
+  const fraudTransactions = this.transactions.filter(tx => 
+    tx.risk_category === 'Critical Fraud Risk' || 
+    tx.risk_category === 'High Potential Fraud'
+  );
+  
+  // console.log('Fraud transactions for chart:', fraudTransactions.length);
+  
+  fraudTransactions.forEach(tx => {
     const date = new Date(tx.timestamp);
     const month = date.toLocaleString('default', { month: 'short' });
     
@@ -456,8 +467,7 @@ updateLineChart(): void {
     }
   });
   
-  console.log('Monthly Data:', Object.fromEntries(monthlyData));
-  
+  // Update chart data
   this.lineChartData.labels = last6Months;
   this.lineChartData.datasets[0].data = last6Months.map(month => 
     monthlyData.get(month)?.count || 0
@@ -774,12 +784,10 @@ calculateAvgResponseTime(): string {
 }
 
   exportExcel(): void {
-    // Mock export for POC
     alert('Excel export ready in production version');
   }
 
   exportPDF(): void {
-    // Mock export for POC
     alert('PDF export ready in production version');
   }
 }
