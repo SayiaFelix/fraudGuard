@@ -138,7 +138,19 @@ checkTransactionRisk(transactionData: any): Observable<any> {
       }))
     );
 }
-getTransactions(page: number = 1, size: number = 20): Observable<TransactionsResponse> {
+
+getFraudHistory(page: number = 1, size: number = 10): Observable<any> {
+  return this.http.post(`${this.apiUrl}/fraud_history`, { page, size })
+    .pipe(
+      tap(response => console.log('Fraud history response:', response)),
+      catchError(this.handleError<any>('getFraudHistory', { 
+        fraud_transactions: [], 
+        pagination: { total: 0 } 
+      }))
+    );
+}
+
+getTransactions(page: number = 1, size: number = 100): Observable<TransactionsResponse> {
   // console.log(`Calling API: ${this.apiUrl}/transactions with page=${page}, size=${size}`);
   
   return this.http.post<TransactionsResponse>(`${this.apiUrl}/transactions`, { page, size })
@@ -152,18 +164,6 @@ getTransactions(page: number = 1, size: number = 20): Observable<TransactionsRes
       }))
     );
 }
-
-  getFraudHistory(page: number = 1, size: number = 20): Observable<FraudHistoryResponse> {
-    return this.http.post<FraudHistoryResponse>(`${this.apiUrl}/fraud_history`, { page, size })
-      .pipe(
-        catchError(this.handleError<FraudHistoryResponse>('getFraudHistory', {
-          status: 'error',
-          message: 'Failed to load fraud history',
-          fraud_transactions: [],
-          pagination: { page, size, total: 0, total_pages: 0, has_next: false, has_prev: false }
-        }))
-      );
-  }
 
   // Get model metrics
   getModelMetrics(): Observable<ModelMetrics> {

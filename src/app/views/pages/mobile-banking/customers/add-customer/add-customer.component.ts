@@ -109,7 +109,7 @@ export class AddCustomerComponent implements OnInit {
   }
 
   loadTransactions(): void {
-    this.httpService.getTransactions(1, 50).subscribe({
+    this.httpService.getTransactions(1, 100).subscribe({
       next: (response) => {
         if (response.status === 'success' && response.transactions) {
           //Converting backend transactions to frontend format
