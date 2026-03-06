@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 import { HttpService } from 'src/app/shared/services/http.service';
 
 interface RiskAssessmentResponse {
@@ -123,6 +124,7 @@ export class IntentComponent implements OnInit {
   };
   
   constructor(
+    private toastr: ToastrService,
     private fb: FormBuilder, 
     private router: Router,
     private httpService: HttpService
@@ -234,13 +236,17 @@ export class IntentComponent implements OnInit {
 }
 
 showErrorToast(message: string): void {
-  console.error(' Error:', message);
-  this.showTemporaryMessage(message, 'error');
+  this.toastr.error(message, 'Error', {
+    timeOut: 5000,
+    positionClass: 'toast-top-right'
+  });
 }
 
 showSuccessToast(message: string): void {
-  console.log(' Success:', message);
-  this.showTemporaryMessage(message, 'success');
+  this.toastr.success(message, 'Success', {
+    timeOut: 3000,
+    positionClass: 'toast-top-right'
+  });
 }
 
 showTemporaryMessage(message: string, type: 'error' | 'success' | 'info'): void {
