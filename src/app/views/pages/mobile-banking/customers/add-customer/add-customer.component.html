@@ -191,7 +191,7 @@
               <div class="progress-bar" 
                    [ngClass]="{
                      'bg-primary': !tx.ruleEngine?.triggered,
-                     'bg-warning': tx.ruleEngine?.triggered
+                     'bg-success': tx.ruleEngine?.triggered
                    }"
                    [style.width.%]="(tx.modelAgreement.flagged / tx.modelAgreement.total) * 100">
               </div>
@@ -347,8 +347,7 @@
               </div>
           </div>
         </div>
-        
-        <!-- Model Agreement (shown in all tabs) -->
+      
         <div class="model-agreement mt-3 pt-3 border-top">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold">Model Agreement</span>

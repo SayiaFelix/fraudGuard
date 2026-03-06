@@ -348,7 +348,7 @@ calculateStats(): void {
   }
 
    getRiskProgressColor(score: number): string {
-    if (score >= 7) {
+    if (score >= 8) {
       return '#f72585'; 
     } else if (score >= 5) {
       return '#fc7201'; 

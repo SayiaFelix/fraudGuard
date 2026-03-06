@@ -171,7 +171,7 @@ export class ListFailedRegistrationsComponent implements OnInit, OnDestroy {
             if (this.transactions.length > 0) {
               const recentTx = this.transactions.slice(0, 10);
               const avgRisk = recentTx.reduce((sum, tx) => sum + tx.risk_score, 0) / recentTx.length;
-              this.currentRiskLevel = Math.round(avgRisk * 10); // Convert 0-10 to 0-100
+              this.currentRiskLevel = Math.round(avgRisk * 10); //Convert 0-10 to 0-100
             }
           }
           resolve();
