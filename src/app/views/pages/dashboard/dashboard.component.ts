@@ -347,11 +347,11 @@ loadTransactions(): Promise<void> {
 }
 
 scoreDistributionData: ChartData<'bar'> = {
-  labels: ['0-2', '2-4', '4-6', '6-8', '8-10'],
+  labels: ['0-3', '3-5', '5-8', '8-10'],
   datasets: [{
-    data: [0, 0, 0, 0, 0],
+    data: [0, 0, 0, 0],
     label: 'Transaction Count',
-    backgroundColor: ['#4cc9f0', '#ffc107', '#ff9e00', '#f72585', '#dc3545'],
+    backgroundColor: ['#4cc9f0', '#ff9e00', '#f72585', '#dc3545'],
     borderRadius: 6
   }]
 };
@@ -373,23 +373,22 @@ scoreDistributionOptions: ChartConfiguration<'bar'>['options'] = {
 
 calculateScoreDistribution(): void {
   
-  const distribution = [0, 0, 0, 0, 0];
+  const distribution = [0, 0, 0, 0];
   
   this.transactions.forEach(tx => {
     const score = tx.risk_score;
-    if (score < 2) distribution[0]++;
-    else if (score < 4) distribution[1]++;
-    else if (score < 6) distribution[2]++;
-    else if (score < 8) distribution[3]++;
-    else distribution[4]++;
+    if (score < 3) distribution[0]++;
+    else if (score < 5) distribution[1]++;
+    else if (score < 8) distribution[2]++;
+    else distribution[3]++;
   });
   
   this.scoreDistributionData = {
-    labels: ['0-2', '2-4', '4-6', '6-8', '8-10'],
+    labels: ['0-3', '3-5', '5-8', '8-10'],
     datasets: [{
       data: distribution,
       label: 'Transaction Count',
-      backgroundColor: ['#4cc9f0', '#ffc107', '#ff9e00', '#f72585', '#dc3545'],
+      backgroundColor: ['#4cc9f0', '#ff9e00', '#f72585', '#dc3545'],
       borderRadius: 6
     }]
   };
