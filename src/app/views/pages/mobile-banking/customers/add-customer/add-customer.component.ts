@@ -347,11 +347,16 @@ calculateStats(): void {
     return classes[riskCategory] || 'bg-secondary';
   }
 
-  getRiskProgressColor(score: number): string {
-    if (score >= 8) return '#f72585';
-    if (score >= 6) return '#ff9e00';
-    if (score >= 4) return '#4cc9f0';
-    return '#06d6a0';
+   getRiskProgressColor(score: number): string {
+    if (score >= 7) {
+      return '#f72585'; 
+    } else if (score >= 5) {
+      return '#fc7201'; 
+    } else if (score >= 3) {
+      return '#ffc107';
+    } else {
+      return '#28a745'; // 
+    }
   }
 
   formatAmount(amount: number): string {
