@@ -234,6 +234,18 @@ onPageChange(event: any): void {
   this.updateRecentAlerts();
 }
 
+getRiskScoreColor(score: number): string {
+  if (score >= 7) {
+    return '#f72585'; 
+  } else if (score >= 5) {
+    return '#f67205'; 
+  } else if (score >= 3) {
+    return '#ffc107';
+  } else {
+    return '#28a745'; // 
+  }
+}
+
 updateRecentAlerts(): void {
   const highRiskTransactions = this.transactions.filter(t => 
     t.risk_category === 'High Potential Fraud' || 
@@ -246,7 +258,7 @@ updateRecentAlerts(): void {
     return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
   });
   
-  //Apply pagination
+  //pagination
   const startIndex = (this.page - 1) * this.pageSize;
   const endIndex = startIndex + this.pageSize;
   const paginatedTransactions = sortedHighRisk.slice(startIndex, endIndex);

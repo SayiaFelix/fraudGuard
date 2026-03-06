@@ -156,11 +156,17 @@
               <td class="fw-semi-bold">{{ formatCurrency(alert.amount) }}</td>
               <td>
                 <div class="d-flex align-items-center">
-                  <span class="risk-score me-2">{{ alert.riskScore }}</span>
-                  <div class="progress" style="width: 60px; height: 6px;">
+                  <span class="risk-score me-2 fw-bold" 
+                        [style.color]="getRiskScoreColor(alert.riskScore)">
+                    {{ alert.riskScore }}
+                  </span>
+                  <div class="progress" style="width: 60px; height: 8px; border-radius: 4px; background-color: #e9ecef;">
                     <div class="progress-bar" 
                         [style.width.%]="(alert.riskScore/10)*100"
-                        [style.background]="alert.riskScore >= 8 ? '#f72585' : alert.riskScore >= 6 ? '#ff9e00' : '#4cc9f0'">
+                        [style.background]="getRiskScoreColor(alert.riskScore)"
+                        [attr.aria-valuenow]="alert.riskScore"
+                        [attr.aria-valuemin]="0"
+                        [attr.aria-valuemax]="10">
                     </div>
                   </div>
                 </div>
