@@ -8,7 +8,6 @@ interface RiskAssessmentResponse {
   message: string;
   result: RiskAssessmentResult;
 }
-
 interface RiskAssessmentResult {
   transaction_id: string;
   timestamp: string;
@@ -42,12 +41,6 @@ interface RiskAssessmentResult {
   feedback_effect?: any;
   llm_status?: string;
 }
-
-interface ErrorResponse {
-  status: string;
-  message: string;
-}
-
 interface RiskResult {
   transactionId: string;
   actualAmount: number; 
@@ -162,7 +155,6 @@ export class IntentComponent implements OnInit {
       this.riskForm.get(key)?.markAsTouched();
     });
     
-    // Show validation error message
     this.showErrorToast('Please fill in all required fields correctly');
     return;
   }
@@ -170,7 +162,6 @@ export class IntentComponent implements OnInit {
   this.isAnalyzing = true;
   this.showResult = false;
   
-  // Convert form data to backend format
   try {
     var backendPayload = this.mapFormToBackend(this.riskForm.value);
     console.log('Sending payload to backend:', backendPayload);
@@ -180,14 +171,10 @@ export class IntentComponent implements OnInit {
     return;
   }
   
-  // Call real backend API with timeout
+  //Calling real backend API with timeout
   const timeoutMs = 30000; // 30 second timeout
   
   const subscription = this.httpService.checkTransactionRisk(backendPayload)
-    .pipe(
-      // Add timeout to prevent infinite loading
-      // timeout(timeoutMs) // Uncomment if you have the timeout operator
-    )
     .subscribe({
       next: (response: RiskAssessmentResponse) => {
         console.log('Risk assessment response:', response);
@@ -197,7 +184,6 @@ export class IntentComponent implements OnInit {
           this.isAnalyzing = false;
           this.showResult = true;
           
-          // Add to recent analyses
           this.recentAnalyses.unshift(this.analysisResult);
           if (this.recentAnalyses.length > 5) {
             this.recentAnalyses.pop();
@@ -205,10 +191,8 @@ export class IntentComponent implements OnInit {
           
           this.saveRecentAnalyses();
           
-          // Show success message
           this.showSuccessToast('Risk analysis completed successfully');
           
-          // Scroll to results
           setTimeout(() => {
             document.getElementById('analysis-result')?.scrollIntoView({ 
               behavior: 'smooth', 
@@ -222,7 +206,6 @@ export class IntentComponent implements OnInit {
       error: (error: any) => {
         console.error('Error analyzing risk:', error);
         
-        // Handle different types of errors
         let errorMessage = 'Failed to connect to risk analysis service';
         
         if (error.error?.message) {
@@ -250,25 +233,18 @@ export class IntentComponent implements OnInit {
     });
 }
 
-// Simple alert-based notifications (you can replace with a proper toast service)
 showErrorToast(message: string): void {
-  // You can replace this with your preferred notification service
-  // For now, we'll use a styled console error and could add a UI element
-  console.error('❌ Error:', message);
-  
-  // Optional: Show a temporary error message in the UI
+  console.error(' Error:', message);
   this.showTemporaryMessage(message, 'error');
 }
 
 showSuccessToast(message: string): void {
-  console.log('✅ Success:', message);
+  console.log(' Success:', message);
   this.showTemporaryMessage(message, 'success');
 }
 
 showTemporaryMessage(message: string, type: 'error' | 'success' | 'info'): void {
-  // You can implement a toast notification here
-  // For now, we'll just log it
-  // If you have a toast service, use it here
+ console.log(` Showing ${type} message:`, message);
 }
 
 showErrorBanner: boolean = false;
@@ -278,8 +254,7 @@ showError(message: string): void {
   this.errorMessage = message;
   this.showErrorBanner = true;
   this.isAnalyzing = false;
-  
-  // Auto-hide after 5 seconds
+
   setTimeout(() => {
     this.showErrorBanner = false;
   }, 5000);
@@ -289,7 +264,6 @@ handleError(message: string): void {
   this.isAnalyzing = false;
   console.error('Risk analysis error:', message);
   
-  // Show error banner
   this.showError(message);
   
 }
@@ -305,7 +279,7 @@ mapFormToBackend(formData: any): any {
   const locationFields = this.locationMap[formData.location] || { local: 1, international: 0 };
   const typeFields = this.transactionTypeMap[formData.transactionType] || { online: 1, pos: 0 };
   
-  // Determine amount category
+  //amount category
   let amountCategory = {
     'Amount_Category_Low': 0,
     'Amount_Category_Medium': 0,
@@ -313,7 +287,7 @@ mapFormToBackend(formData: any): any {
     'Amount_Category_Very High': 0
   };
   
-  const amount = Number(formData.amount); // Ensure it's a number
+  const amount = Number(formData.amount); 
   
   if (amount < 5000) {
     amountCategory['Amount_Category_Low'] = 1;
@@ -325,7 +299,7 @@ mapFormToBackend(formData: any): any {
     amountCategory['Amount_Category_Very High'] = 1;
   }
   
-  // Determine transaction period based on time slot
+  //transaction period based on time slot
   let period = {
     'Transaction_Period_Morning': 0,
     'Transaction_Period_Afternoon': 0,
@@ -349,11 +323,9 @@ mapFormToBackend(formData: any): any {
     default:
       period['Transaction_Period_Afternoon'] = 1;
   }
-  
-  // Convert IP address to integer
+
   const ipInt = this.ipToInt(formData.ipAddress || '192.168.1.1');
   
-  // Create payload with explicit Number() conversion for all numeric values
   const payload = {
     'Transaction_Amount': Number(amount),
     'Transaction_Hour': Number(new Date().getHours()),
@@ -377,36 +349,33 @@ mapFormToBackend(formData: any): any {
     'tx_count_last_hour': Number(formData.transactionFrequency || 1)
   };
   
-  // Log the payload to verify all values are numbers
-  console.log('Payload being sent:', JSON.stringify(payload, null, 2));
+  // console.log('Payload being sent:', JSON.stringify(payload, null, 2));
   
   return payload;
 }
 
 mapBackendResult(result: RiskAssessmentResult): RiskResult {
-  // Parse risk category
+  //risk category
   let riskCategory: 'Critical' | 'High' | 'Medium' | 'Low' = 'Low';
   if (result.risk_category.includes('Critical')) riskCategory = 'Critical';
   else if (result.risk_category.includes('High')) riskCategory = 'High';
   else if (result.risk_category.includes('Medium')) riskCategory = 'Medium';
   else if (result.risk_category.includes('Low')) riskCategory = 'Low';
 
-  // Parse model agreement
+  //model agreement
   const modelAgreement = result.transaction_details?.Model_Agreement || '0/7 models flagged';
   const flagged = parseInt(modelAgreement.split('/')[0]) || 0;
   const total = 7;
 
-  // Extract signals
   const signals: string[] = [];
   
-  // Add rule-based signals
   if (result.transaction_details?.Rule_Engine?.triggered) {
     result.transaction_details.Rule_Engine.rules.forEach((rule: string) => {
-      signals.push(`⚠️ Rule: ${rule}`);
+      signals.push(` Rule: ${rule}`);
     });
   }
   
-  // Add real-time signals
+  // real-time signals
   if (result.transaction_details?.real_time_signals) {
     const signals_data = result.transaction_details.real_time_signals;
     if (signals_data.amount_risk > 0.7) {
@@ -451,7 +420,6 @@ mapBackendResult(result: RiskAssessmentResult): RiskResult {
 
 ipToInt(ip: string): number {
   try {
-    // Split IP and convert each octet, ensuring we use Number() not bitwise operations
     const octets = ip.split('.');
     if (octets.length === 4) {
       return Number(octets[0]) * 256**3 + 
@@ -459,9 +427,9 @@ ipToInt(ip: string): number {
              Number(octets[2]) * 256 + 
              Number(octets[3]);
     }
-    return 3232235777; // Default 192.168.1.1
+    return 3232235777; //Default 192.168.1.1
   } catch {
-    return 3232235777; // Default 192.168.1.1
+    return 3232235777; //Default 192.168.1.1
   }
 }
 
