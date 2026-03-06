@@ -277,8 +277,7 @@ updateRecentAlerts(): void {
       flaggedBy: 'AI'
     };
   });
-  
-  // console.log(`Showing ${this.recentAlerts.length} of ${this.totalRecords} high-risk transactions`);
+
 }
 
 getTotalPages(): number {
@@ -293,7 +292,6 @@ onPageSizeChange(): void {
   this.page = 1; 
   this.updateRecentAlerts();
 }
-
 loadDashboardData(): void {
   this.isLoading = true;
   
@@ -311,7 +309,6 @@ loadDashboardData(): void {
     this.lastUpdated = new Date();
   });
 }
-
 loadTransactions(): Promise<void> {
   return new Promise((resolve) => {
     this.fraudService.getTransactions(1, 100).subscribe({
