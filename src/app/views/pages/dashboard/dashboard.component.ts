@@ -214,7 +214,7 @@ ngOnInit(): void {
     }
   }, 10000);
   
-  this.refreshSubscription = interval(180000).subscribe(() => {
+  this.refreshSubscription = interval(600000).subscribe(() => {
     this.refresh();
   });
 }

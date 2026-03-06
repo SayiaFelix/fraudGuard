@@ -125,12 +125,19 @@ export class HttpService {
 
   // private baseUrl = "http://130.61.111.65:5016"; 
   private baseUrl = "http://130.61.111.65:5016";
-
-  private baseUrls = 'http://localhost:5015/api'; // Flask API Base URL
-
+  private baseUrls = 'http://localhost:5015/api';
   private apiUrl = `${environment.customerPortalNest}`;
 
-  
+checkTransactionRisk(transactionData: any): Observable<any> {
+  return this.http.post(`${this.apiUrl}/real_time_risk_score`, transactionData)
+    .pipe(
+      tap(response => console.log('Risk assessment response:', response)),
+      catchError(this.handleError<any>('checkTransactionRisk', { 
+        status: 'error', 
+        message: 'Failed to assess transaction risk' 
+      }))
+    );
+}
 getTransactions(page: number = 1, size: number = 20): Observable<TransactionsResponse> {
   // console.log(`Calling API: ${this.apiUrl}/transactions with page=${page}, size=${size}`);
   
