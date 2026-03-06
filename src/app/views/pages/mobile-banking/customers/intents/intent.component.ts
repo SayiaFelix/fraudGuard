@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { HttpService } from 'src/app/shared/services/http.service';
 
 interface RiskResult {
   transactionId: string;
@@ -10,45 +11,100 @@ interface RiskResult {
   modelAgreement: {
     flagged: number;
     total: number;
+    text: string;
+  };
+  mlVotes?: string;
+  ruleEngine?: {
+    triggered: boolean;
+    rules: string[];
+    severity: number;
   };
   aiAnalysis: {
     details: string;
     signals: string[];
+    ruleBased?: string;
+    llm?: string;
+    final?: string;
   };
   recommendedAction: string;
   timestamp: Date;
+  transactionDetails?: any;
+  feedbackEffect?: any;
+  rawData?: any;
 }
 
 @Component({
-    selector: 'app-intent',
-    templateUrl: './intent.component.html',
-    styleUrls: ['./intent.component.scss']
+  selector: 'app-intent',
+  templateUrl: './intent.component.html',
+  styleUrls: ['./intent.component.scss']
 })
-
 export class IntentComponent implements OnInit {
- riskForm: FormGroup;
+  riskForm: FormGroup;
   analysisResult: RiskResult | null = null;
   isAnalyzing = false;
   showResult = false;
   recentAnalyses: RiskResult[] = [];
   
+  // Form dropdown options
   channels = ['Mobile', 'Web', 'ATM', 'Agent'];
   locations = ['Nairobi, KE', 'Mombasa, KE', 'Kisumu, KE', 'Nakuru, KE', 'Eldoret, KE', 'Thika, KE', 'International'];
-  transactionTypes = ['Transfer', 'Withdrawal', 'Payment', 'Deposit', 'Airtime Purchase'];
-  devices = ['Samsung Galaxy', 'iPhone', 'Web Browser', 'ATM Machine', 'Agent Terminal', 'Unknown Device'];
+  transactionTypes = ['Online', 'POS', 'Transfer', 'Withdrawal', 'Payment'];
+  devices = ['iPhone', 'Android', 'MacBook', 'Windows_PC', 'Unknown_Device'];
+  timeSlots = ['Morning (6am-12pm)', 'Afternoon (12pm-6pm)', 'Evening (6pm-11pm)', 'Late Night (11pm-6am)'];
   
-  constructor(private fb: FormBuilder, private router: Router) {
+  // Map for form values to backend feature names
+  deviceTypeMap: { [key: string]: string } = {
+    'iPhone': 'Device_Type_iPhone',
+    'Android': 'Device_Type_Android',
+    'MacBook': 'Device_Type_MacBook',
+    'Windows_PC': 'Device_Type_Windows_PC',
+    'Unknown_Device': 'Device_Type_Unknown_Device'
+  };
+  
+  locationMap: { [key: string]: { local: number; international: number } } = {
+    'Nairobi, KE': { local: 1, international: 0 },
+    'Mombasa, KE': { local: 1, international: 0 },
+    'Kisumu, KE': { local: 1, international: 0 },
+    'Nakuru, KE': { local: 1, international: 0 },
+    'Eldoret, KE': { local: 1, international: 0 },
+    'Thika, KE': { local: 1, international: 0 },
+    'International': { local: 0, international: 1 }
+  };
+  
+  transactionTypeMap: { [key: string]: { online: number; pos: number } } = {
+    'Online': { online: 1, pos: 0 },
+    'POS': { online: 0, pos: 1 },
+    'Transfer': { online: 1, pos: 0 },
+    'Withdrawal': { online: 0, pos: 1 },
+    'Payment': { online: 1, pos: 0 }
+  };
+  
+  amountCategoryMap = {
+    low: [0, 5000],
+    medium: [5000, 10000],
+    high: [10000, 15000],
+    veryHigh: [15000, Infinity]
+  };
+  
+  constructor(
+    private fb: FormBuilder, 
+    private router: Router,
+    private httpService: HttpService
+  ) {
     this.riskForm = this.fb.group({
       amount: ['', [Validators.required, Validators.min(1)]],
       channel: ['Mobile', Validators.required],
       location: ['Nairobi, KE', Validators.required],
-      transactionType: ['Transfer', Validators.required],
-      deviceId: ['', Validators.required],
+      transactionType: ['Online', Validators.required],
+      deviceType: ['iPhone', Validators.required],
       customerId: ['', Validators.required],
       customerName: ['', Validators.required],
-      ipAddress: ['', Validators.pattern('^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$')],
-      timeOfDay: ['Now', Validators.required],
-      previousTransactions: [0, [Validators.min(0)]]
+      ipAddress: ['192.168.1.1'],
+      timeSlot: ['Afternoon (12pm-6pm)'],
+      transactionFrequency: [1, [Validators.min(1)]],
+      accountActivity: [5000],
+      dayOfWeek: [new Date().getDay()],
+      isWeekend: [new Date().getDay() === 0 || new Date().getDay() === 6 ? 1 : 0]
     });
   }
 
@@ -66,184 +122,203 @@ export class IntentComponent implements OnInit {
 
     this.isAnalyzing = true;
     this.showResult = false;
-    setTimeout(() => {
-      const formData = this.riskForm.value;
-      this.analysisResult = this.calculateRiskScore(formData);
-      this.isAnalyzing = false;
-      this.showResult = true;
+    
+    // Convert form data to backend format
+    const backendPayload = this.mapFormToBackend(this.riskForm.value);
+    
+    // Call real backend API
+    this.httpService.checkTransactionRisk(backendPayload).subscribe({
+      next: (response) => {
+        if (response.status === 'success' && response.result) {
+          this.analysisResult = this.mapBackendResult(response.result);
+          this.isAnalyzing = false;
+          this.showResult = true;
+          
+          // Add to recent analyses
+          this.recentAnalyses.unshift(this.analysisResult);
+          if (this.recentAnalyses.length > 5) {
+            this.recentAnalyses.pop();
+          }
+          
+          this.saveRecentAnalyses();
+        } else {
+          this.handleError('Invalid response from server');
+        }
+      },
+      error: (error) => {
+        console.error('Error analyzing risk:', error);
+        this.handleError('Failed to connect to risk analysis service');
+      }
+    });
+  }
 
-      this.recentAnalyses.unshift(this.analysisResult);
-      if (this.recentAnalyses.length > 5) {
-        this.recentAnalyses.pop();
+  mapFormToBackend(formData: any): any {
+    const deviceField = this.deviceTypeMap[formData.deviceType] || 'Device_Type_Unknown_Device';
+    const locationFields = this.locationMap[formData.location] || { local: 1, international: 0 };
+    const typeFields = this.transactionTypeMap[formData.transactionType] || { online: 1, pos: 0 };
+    
+    // Determine amount category
+    let amountCategory = {
+      'Amount_Category_Low': 0,
+      'Amount_Category_Medium': 0,
+      'Amount_Category_High': 0,
+      'Amount_Category_Very High': 0
+    };
+    
+    if (formData.amount < 5000) {
+      amountCategory['Amount_Category_Low'] = 1;
+    } else if (formData.amount < 10000) {
+      amountCategory['Amount_Category_Medium'] = 1;
+    } else if (formData.amount < 15000) {
+      amountCategory['Amount_Category_High'] = 1;
+    } else {
+      amountCategory['Amount_Category_Very High'] = 1;
+    }
+    
+    // Determine transaction period based on time slot
+    let period = {
+      'Transaction_Period_Morning': 0,
+      'Transaction_Period_Afternoon': 0,
+      'Transaction_Period_Evening': 0,
+      'Transaction_Period_Night': 0
+    };
+    
+    switch(formData.timeSlot) {
+      case 'Morning (6am-12pm)':
+        period['Transaction_Period_Morning'] = 1;
+        break;
+      case 'Afternoon (12pm-6pm)':
+        period['Transaction_Period_Afternoon'] = 1;
+        break;
+      case 'Evening (6pm-11pm)':
+        period['Transaction_Period_Evening'] = 1;
+        break;
+      case 'Late Night (11pm-6am)':
+        period['Transaction_Period_Night'] = 1;
+        break;
+      default:
+        period['Transaction_Period_Afternoon'] = 1;
+    }
+    
+    // Convert IP address to integer (simplified)
+    const ipInt = this.ipToInt(formData.ipAddress || '192.168.1.1');
+    
+    return {
+      'Transaction_Amount': formData.amount,
+      'Transaction_Hour': new Date().getHours(),
+      'Transaction_Frequency': formData.transactionFrequency || 1,
+      'Account_Activity': formData.accountActivity || 5000,
+      'Day_of_Week': formData.dayOfWeek,
+      'IP_Address': ipInt,
+      ...amountCategory,
+      'Transaction_Location_International': locationFields.international,
+      'Transaction_Location_Local': locationFields.local,
+      [deviceField]: 1,
+      'Device_Type_iPhone': formData.deviceType === 'iPhone' ? 1 : 0,
+      'Device_Type_Android': formData.deviceType === 'Android' ? 1 : 0,
+      'Device_Type_MacBook': formData.deviceType === 'MacBook' ? 1 : 0,
+      'Device_Type_Windows_PC': formData.deviceType === 'Windows_PC' ? 1 : 0,
+      'Device_Type_Unknown_Device': formData.deviceType === 'Unknown_Device' ? 1 : 0,
+      'Transaction_Type_Online': typeFields.online,
+      'Transaction_Type_POS': typeFields.pos,
+      ...period,
+      'Is_Weekend': formData.isWeekend,
+      'tx_count_last_hour': formData.transactionFrequency || 1
+    };
+  }
+
+  ipToInt(ip: string): number {
+    try {
+      return ip.split('.').reduce((acc, octet) => (acc << 8) + parseInt(octet, 10), 0) >>> 0;
+    } catch {
+      return 3232235777; // Default 192.168.1.1
+    }
+  }
+
+  mapBackendResult(result: any): RiskResult {
+    // Parse risk category
+    let riskCategory: 'Critical' | 'High' | 'Medium' | 'Low' = 'Low';
+    if (result.risk_category.includes('Critical')) riskCategory = 'Critical';
+    else if (result.risk_category.includes('High')) riskCategory = 'High';
+    else if (result.risk_category.includes('Medium')) riskCategory = 'Medium';
+    else if (result.risk_category.includes('Low')) riskCategory = 'Low';
+
+    // Parse model agreement
+    const modelAgreement = result.transaction_details?.Model_Agreement || '0/7 models flagged';
+    const flagged = parseInt(modelAgreement.split('/')[0]) || 0;
+    const total = 7;
+
+    // Extract signals
+    const signals: string[] = [];
+    
+    // Add rule-based signals
+    if (result.transaction_details?.Rule_Engine?.triggered) {
+      result.transaction_details.Rule_Engine.rules.forEach((rule: string) => {
+        signals.push(`⚠️ Rule: ${rule}`);
+      });
+    }
+    
+    // Add real-time signals
+    if (result.transaction_details?.real_time_signals) {
+      const signals_data = result.transaction_details.real_time_signals;
+      if (signals_data.amount_risk > 0.7) {
+        signals.push(`High amount anomaly (${(signals_data.amount_risk * 100).toFixed(0)}% above normal)`);
+      } else if (signals_data.amount_risk > 0.4) {
+        signals.push(`Medium amount anomaly (${(signals_data.amount_risk * 100).toFixed(0)}% above normal)`);
       }
       
-      this.saveRecentAnalyses();
-    }, 2000);
-  }
-
-  
-  private calculateRiskScore(data: any): RiskResult {
-  const amount = data.amount;
-  const channel = data.channel;
-  const location = data.location;
-  const deviceId = data.deviceId;
-  const prevTxns = data.previousTransactions || 0;
-  
-  let riskScore = 0;
-  const signals: string[] = [];
-  
-  // Amount-based risk
-  if (amount > 1000000) {
-    riskScore += 3;
-    signals.push('Exceptionally high amount (>KES 1M)');
-  } else if (amount > 500000) {
-    riskScore += 2.5;
-    signals.push('Very high amount (>KES 500K)');
-  } else if (amount > 100000) {
-    riskScore += 1.5;
-    signals.push('High amount (>KES 100K)');
-  } else if (amount > 50000) {
-    riskScore += 0.5;
-    signals.push('Moderately high amount');
-  }
-  
-  // Channel-based risk
-  if (channel === 'Web') {
-    riskScore += 1.5;
-    signals.push('High-risk channel (Web)');
-  } else if (channel === 'Mobile') {
-    riskScore += 1;
-    signals.push('Medium-risk channel (Mobile)');
-  } else if (channel === 'ATM') {
-    riskScore += 0.5;
-  } else if (channel === 'Agent') {
-    riskScore += 0.5;
-    signals.push('Medium-risk channel (Agent)');
-  }
-  
-  // Location-based risk
-  if (location.includes('International')) {
-    riskScore += 2;
-    signals.push('International transaction');
-  }
-  
-  // Device risk
-  if (deviceId.includes('Unknown') || deviceId.includes('New')) {
-    riskScore += 2;
-    signals.push('New/unknown device');
-  }
-  
-  // Previous transactions risk
-  if (prevTxns === 0) {
-    riskScore += 1.5;
-    signals.push('First transaction from this customer');
-  } else if (prevTxns > 10) {
-    riskScore += 0.5;
-    signals.push('High velocity - many transactions today');
-  }
-  
-  // Time-based risk
-  const hour = new Date().getHours();
-  if (hour >= 23 || hour <= 4) {
-    riskScore += 1;
-    signals.push('Unusual time of day (late night)');
-  }
-  
-  // Normalize to 0-10 scale
-  riskScore = Math.min(10, riskScore);
-
-  // Determine risk category
-  let riskCategory: 'Critical' | 'High' | 'Medium' | 'Low';
-  if (riskScore >= 8) {
-    riskCategory = 'Critical';
-  } else if (riskScore >= 6) {
-    riskCategory = 'High';
-  } else if (riskScore >= 4) {
-    riskCategory = 'Medium';
-  } else {
-    riskCategory = 'Low';
-  }
-  
-  // FIXED: Model agreement calculation - ensure at least 1 model flags for Medium/Low risk
-  const totalModels = 7;
-  let flaggedModels = 0;
-  
-  if (riskScore >= 8) { // Critical
-    flaggedModels = 6 + Math.floor(Math.random() * 2); // 6-7 models
-  } else if (riskScore >= 6) { // High
-    flaggedModels = 4 + Math.floor(Math.random() * 3); // 4-6 models
-  } else if (riskScore >= 4) { // Medium
-    flaggedModels = 2 + Math.floor(Math.random() * 3); // 2-4 models (minimum 2)
-  } else { // Low
-    flaggedModels = 1 + Math.floor(Math.random() * 2); // 1-2 models (minimum 1)
-  }
-  
-  // Ensure we don't exceed total models
-  flaggedModels = Math.min(flaggedModels, totalModels);
-  
-  // Generate analysis details
-  const analysisDetails = this.generateAnalysisDetails(riskCategory, riskScore, signals, data);
-  
-  // Get recommended action
-  const recommendedAction = this.getRecommendedAction(riskCategory);
-  
-  return {
-    transactionId: `TXN-${new Date().getTime().toString().slice(-6)}`,
-    riskScore: parseFloat(riskScore.toFixed(1)),
-    riskCategory,
-    actualAmount: amount,
-    modelAgreement: {
-      flagged: flaggedModels,
-      total: totalModels
-    },
-    aiAnalysis: {
-      details: analysisDetails,
-      signals: signals
-    },
-    recommendedAction,
-    timestamp: new Date()
-  };
-}
-
-  private generateAnalysisDetails(riskCategory: string, riskScore: number, signals: string[], data: any): string {
-    const signalText = signals.length > 0 ? signals.slice(0, 3).join(', ') : 'normal patterns';
-    
-    switch(riskCategory) {
-      case 'Critical':
-        return `The system detected multiple high-risk indicators including ${signalText}. These patterns strongly suggest fraudulent activity with potential immediate financial loss.`;
-      case 'High':
-        return `The system detected significant risk indicators including ${signalText}. These patterns deviate from normal behavior and require investigation.`;
-      case 'Medium':
-        return `The system detected some risk indicators including ${signalText}. While not conclusive, these patterns warrant additional verification.`;
-      case 'Low':
-        return `The system detected minimal risk indicators. The transaction aligns with normal patterns and appears legitimate.`;
-      default:
-        return 'Standard risk assessment completed.';
+      if (signals_data.velocity_risk > 0.7) {
+        signals.push(`High velocity risk - ${(signals_data.velocity_risk * 5).toFixed(0)} transactions per hour`);
+      } else if (signals_data.velocity_risk > 0.4) {
+        signals.push(`Medium velocity risk - ${(signals_data.velocity_risk * 5).toFixed(0)} transactions per hour`);
+      }
     }
+
+    return {
+      transactionId: result.transaction_id,
+      actualAmount: result.transaction_details?.Transaction_Amount || 0,
+      riskScore: result.risk_score,
+      riskCategory: riskCategory,
+      modelAgreement: {
+        flagged: flagged,
+        total: total,
+        text: modelAgreement
+      },
+      mlVotes: result.transaction_details?.ML_Votes,
+      ruleEngine: result.transaction_details?.Rule_Engine,
+      aiAnalysis: {
+        details: result.explanations?.final || result.explanations?.rule_based || 'Risk analysis completed',
+        signals: signals,
+        ruleBased: result.explanations?.rule_based,
+        llm: result.explanations?.llm,
+        final: result.explanations?.final
+      },
+      recommendedAction: result.recommended_action,
+      timestamp: new Date(result.timestamp),
+      transactionDetails: result.transaction_details,
+      feedbackEffect: result.feedback_effect,
+      rawData: result
+    };
   }
 
-  private getRecommendedAction(riskCategory: string): string {
-    switch(riskCategory) {
-      case 'Critical':
-        return 'BLOCK TRANSACTION IMMEDIATELY. Freeze account and initiate fraud investigation protocol. Contact customer via registered phone.';
-      case 'High':
-        return 'Flag for urgent review. Require additional verification (2FA) and monitor account for suspicious activity.';
-      case 'Medium':
-        return 'Require step-up authentication. Flag for monitoring and review if additional anomalies detected.';
-      case 'Low':
-        return 'Approve transaction with routine monitoring. No immediate action required.';
-      default:
-        return 'Review transaction details.';
-    }
+  handleError(message: string): void {
+    this.isAnalyzing = false;
+    // You can add a toast/notification here
+    console.error(message);
+    alert('Analysis failed: ' + message);
   }
 
   resetForm(): void {
     this.riskForm.reset({
       channel: 'Mobile',
       location: 'Nairobi, KE',
-      transactionType: 'Transfer',
-      timeOfDay: 'Now',
-      previousTransactions: 0
+      transactionType: 'Online',
+      deviceType: 'iPhone',
+      timeSlot: 'Afternoon (12pm-6pm)',
+      transactionFrequency: 1,
+      accountActivity: 5000,
+      dayOfWeek: new Date().getDay(),
+      isWeekend: new Date().getDay() === 0 || new Date().getDay() === 6 ? 1 : 0
     });
     this.showResult = false;
     this.analysisResult = null;
@@ -302,13 +377,13 @@ export class IntentComponent implements OnInit {
   }
 
   getRiskBadgeClass(riskCategory: string): string {
-    const classes = {
+    const classes: { [key: string]: string } = {
       'Critical': 'bg-danger',
       'High': 'bg-warning text-dark',
       'Medium': 'bg-info',
       'Low': 'bg-success'
     };
-    return classes[riskCategory as keyof typeof classes] || 'bg-secondary';
+    return classes[riskCategory] || 'bg-secondary';
   }
 
   getRiskProgressColor(score: number): string {
