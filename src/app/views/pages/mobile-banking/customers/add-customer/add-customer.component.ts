@@ -90,8 +90,7 @@ export class AddCustomerComponent implements OnInit {
   ngOnInit(): void {
     this.loadTransactions();
     
-    // Refresh every 60 seconds
-    this.refreshSubscription = interval(30000).subscribe(() => {
+    this.refreshSubscription = interval(60000).subscribe(() => {
       this.loadTransactions();
     });
   }
