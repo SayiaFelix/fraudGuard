@@ -211,6 +211,22 @@
       </div>
     </div>
 
+    <!-- Error Banner -->
+    <div class="alert alert-danger alert-dismissible fade show" 
+        *ngIf="showErrorBanner" 
+        role="alert">
+      <div class="d-flex align-items-center">
+        <i class="fas fa-exclamation-circle fa-2x me-3"></i>
+        <div>
+          <strong>Error!</strong> {{ errorMessage }}
+        </div>
+        <button type="button" 
+                class="btn-close ms-auto" 
+                (click)="hideError()"
+                aria-label="Close"></button>
+      </div>
+    </div>
+
     <!-- Results -->
     <div class="results-section" *ngIf="showResult && analysisResult">
       <!-- Risk Score Card -->
