@@ -206,7 +206,7 @@ export class VoiceComponent implements OnInit, OnDestroy {
               };
             })
             .sort((a, b) => b.importance.rawCombined - a.importance.rawCombined)
-            // .slice(0, 10);
+            .slice(0, 17);
         }
         this.isLoadingFeatureImportance = false;
         resolve();
@@ -251,123 +251,133 @@ calculateStats(): void {
     }
   }
 
-  generateInsights(): void {
-    this.isLoadingInsights = true;
-    const newInsights: InsightData[] = [];
+generateInsights(): void {
+  this.isLoadingInsights = true;
+  const newInsights: InsightData[] = [];
+  
+  // Insight 1: Critical Fraud Transactions
+  const recentCritical = this.transactions
+    .filter(t => t.risk_category === 'Critical Fraud Risk')
+    .slice(0, 5);
+  
+  if (recentCritical.length > 0) {
+    const totalAmount = recentCritical.reduce((sum, t) => sum + (t.transaction_details?.Transaction_Amount || 0), 0);
     
-    const recentCritical = this.transactions
-      .filter(t => t.risk_category === 'Critical Fraud Risk')
-      .slice(0, 3);
-    
-    if (recentCritical.length > 0) {
-      const totalAmount = recentCritical.reduce((sum, t) => sum + (t.transaction_details?.Transaction_Amount || 0), 0);
-      
-      newInsights.push({
-        id: 'insight-critical-1',
-        title: `${recentCritical.length} Critical Fraud Transactions Detected`,
-        description: `AI models have identified ${recentCritical.length} critical fraud transactions requiring immediate attention.`,
-        type: 'fraud_pattern',
-        severity: 'critical',
-        timestamp: new Date(recentCritical[0]?.timestamp || Date.now()),
-        confidence: 98,
-        details: {
-          affectedTransactions: recentCritical.length,
-          amount: totalAmount,
-          modelsInvolved: ['Random Forest', 'XGBoost', 'Ensemble'],
-          signals: recentCritical.map(t => t.transaction_details?.Rule_Flags || []).flat().slice(0, 5),
-          recommendedAction: 'Review and block these transactions immediately'
-        },
-        expanded: false
-      });
-    }
-    
-    const recentHigh = this.transactions
-      .filter(t => t.risk_category === 'High Potential Fraud')
-      .slice(0, 5);
-    
-    if (recentHigh.length > 2) {
-      const commonRules = recentHigh
-        .map(t => t.transaction_details?.Rule_Flags || [])
-        .flat()
-        .reduce((acc: any, rule: string) => {
-          acc[rule] = (acc[rule] || 0) + 1;
-          return acc;
-        }, {});
-      
-      const topRule = Object.entries(commonRules)
-        .sort((a: any, b: any) => b[1] - a[1])
-        .map(entry => entry[0])[0];
-      
-      if (topRule) {
-        newInsights.push({
-          id: 'insight-pattern-1',
-          title: `Emerging Pattern: ${topRule}`,
-          description: `Multiple high-risk transactions share common pattern: ${topRule}`,
-          type: 'risk_trend',
-          severity: 'high',
-          timestamp: new Date(),
-          confidence: 87,
-          details: {
-            affectedTransactions: recentHigh.length,
-            amount: recentHigh.reduce((sum, t) => sum + (t.transaction_details?.Transaction_Amount || 0), 0),
-            signals: [topRule],
-            recommendedAction: `Review rules for ${topRule} and consider additional verification`
-          },
-          expanded: false
-        });
-      }
-    }
-    
-    if (this.modelMetricsData?.metrics) {
-      const xgb = this.modelMetricsData.metrics['XGBoost'];
-      if (xgb && xgb.recall < 0.95) {
-        newInsights.push({
-          id: 'insight-model-1',
-          title: 'XGBoost Performance Degradation',
-          description: `XGBoost recall is at ${(xgb.recall * 100).toFixed(1)}%, below the 95% threshold.`,
-          type: 'model_update',
-          severity: 'medium',
-          timestamp: new Date(),
-          confidence: 92,
-          details: {
-            modelsInvolved: ['XGBoost'],
-            recommendedAction: 'Consider retraining XGBoost with recent data'
-          },
-          expanded: false
-        });
-      }
-    }
-    
-    const recentAnomalies = this.auditLogs
-      .filter(log => log.risk_score > 8)
-      .slice(0, 2);
-    
-    if (recentAnomalies.length > 0) {
-      newInsights.push({
-        id: 'insight-anomaly-1',
-        title: 'High-Scoring Transactions Detected',
-        description: `${recentAnomalies.length} transactions with risk score > 8 detected recently.`,
-        type: 'anomaly',
-        severity: 'high',
-        timestamp: new Date(recentAnomalies[0]?.timestamp || Date.now()),
-        confidence: 95,
-        details: {
-          affectedTransactions: recentAnomalies.length,
-          amount: recentAnomalies.reduce((sum, log) => sum + (log.transaction_details?.Transaction_Amount || 0), 0),
-          recommendedAction: 'Review these high-risk transactions immediately'
-        },
-        expanded: false
-      });
-    }
-    
-    this.insights = newInsights.sort((a, b) => 
-      b.timestamp.getTime() - a.timestamp.getTime()
-    ).slice(0, 10);
-    
-    this.isLoadingInsights = false;
+    newInsights.push({
+      id: 'insight-critical-1',
+      title: `${recentCritical.length} Critical Fraud Transactions Detected`,
+      description: `AI models have identified ${recentCritical.length} critical fraud transactions requiring immediate attention.`,
+      type: 'fraud_pattern',
+      severity: 'critical',
+      timestamp: new Date(recentCritical[0].timestamp), 
+      confidence: 98,
+      details: {
+        affectedTransactions: recentCritical.length,
+        amount: totalAmount,
+        modelsInvolved: ['Random Forest', 'XGBoost', 'Ensemble'],
+        signals: recentCritical.map(t => t.transaction_details?.Rule_Flags || []).flat().slice(0, 5),
+        recommendedAction: 'Review and block these transactions immediately'
+      },
+      expanded: false
+    });
   }
+  
+  // Insight 2: High Risk Pattern
+  const recentHigh = this.transactions
+    .filter(t => t.risk_category === 'High Potential Fraud')
+    .slice(0, 5);
+  
+  if (recentHigh.length > 2) {
+    const commonRules = recentHigh
+      .map(t => t.transaction_details?.Rule_Flags || [])
+      .flat()
+      .reduce((acc: any, rule: string) => {
+        acc[rule] = (acc[rule] || 0) + 1;
+        return acc;
+      }, {});
+    
+    const topRule = Object.entries(commonRules)
+      .sort((a: any, b: any) => b[1] - a[1])
+      .map(entry => entry[0])[0];
+    
+    if (topRule) {
+      // Get the most recent transaction timestamp from this group
+      const latestTimestamp = recentHigh.reduce((latest, t) => {
+        const txTime = new Date(t.timestamp).getTime();
+        return txTime > latest ? txTime : latest;
+      }, 0);
+      
+      newInsights.push({
+        id: 'insight-pattern-1',
+        title: `Emerging Pattern: ${topRule}`,
+        description: `Multiple high-risk transactions share common pattern: ${topRule}`,
+        type: 'risk_trend',
+        severity: 'high',
+        timestamp: new Date(latestTimestamp), // ✅ Use latest transaction timestamp
+        confidence: 87,
+        details: {
+          affectedTransactions: recentHigh.length,
+          amount: recentHigh.reduce((sum, t) => sum + (t.transaction_details?.Transaction_Amount || 0), 0),
+          signals: [topRule],
+          recommendedAction: `Review rules for ${topRule} and consider additional verification`
+        },
+        expanded: false
+      });
+    }
+  }
+  
+  // Insight 3: Model Performance Insight
+  if (this.modelMetricsData?.metrics) {
+    const xgb = this.modelMetricsData.metrics['XGBoost'];
+    if (xgb && xgb.recall < 0.95) {
+      newInsights.push({
+        id: 'insight-model-1',
+        title: 'XGBoost Performance Degradation',
+        description: `XGBoost recall is at ${(xgb.recall * 100).toFixed(1)}%, below the 95% threshold.`,
+        type: 'model_update',
+        severity: 'medium',
+        timestamp: new Date(), 
+        confidence: 92,
+        details: {
+          modelsInvolved: ['XGBoost'],
+          recommendedAction: 'Consider retraining XGBoost with recent data'
+        },
+        expanded: false
+      });
+    }
+  }
+  
+  // Insight 4: High-Scoring Anomalies
+  const recentAnomalies = this.auditLogs
+    .filter(log => log.risk_score > 8)
+    .slice(0, 5);
+  
+  if (recentAnomalies.length > 0) {
+    newInsights.push({
+      id: 'insight-anomaly-1',
+      title: 'High-Scoring Transactions Detected',
+      description: `${recentAnomalies.length} transactions with risk score > 8 detected recently.`,
+      type: 'anomaly',
+      severity: 'high',
+      timestamp: new Date(recentAnomalies[0].timestamp), 
+      confidence: 95,
+      details: {
+        affectedTransactions: recentAnomalies.length,
+        amount: recentAnomalies.reduce((sum, log) => sum + (log.transaction_details?.Transaction_Amount || 0), 0),
+        recommendedAction: 'Review these high-risk transactions immediately'
+      },
+      expanded: false
+    });
+  }
+  
+  this.insights = newInsights.sort((a, b) => 
+    b.timestamp.getTime() - a.timestamp.getTime()
+  ).slice(0, 10);
+  
+  this.isLoadingInsights = false;
+}
 
-  setDefaultFeatureImportance(): void {
+setDefaultFeatureImportance(): void {
   this.featureImportance = [
     { 
       feature: 'Transaction Amount', 
