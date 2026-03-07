@@ -69,10 +69,8 @@ export class VoiceComponent implements OnInit, OnDestroy {
   
   stats = {
     totalPredictions: 0,
-    avgConfidence: 0,
     fraudDetected: 0,
     preventedLoss: 0,
-    modelAccuracy: 0,
     activeModels: 0
   };
 
@@ -208,7 +206,7 @@ export class VoiceComponent implements OnInit, OnDestroy {
               };
             })
             .sort((a, b) => b.importance.rawCombined - a.importance.rawCombined)
-            .slice(0, 10);
+            // .slice(0, 10);
         }
         this.isLoadingFeatureImportance = false;
         resolve();
@@ -239,7 +237,7 @@ calculateStats(): void {
       const models = Object.values(this.modelMetricsData.metrics) as any[];
       if (models.length > 0) {
         const avgAccuracy = models.reduce((sum, m) => sum + (m.accuracy || 0), 0) / models.length;
-        this.stats.modelAccuracy = Math.round(avgAccuracy * 10000) / 100; 
+        // this.stats.modelAccuracy = Math.round(avgAccuracy * 10000) / 100; 
       }
       
       this.stats.activeModels = Object.keys(this.modelMetricsData.metrics).length;
@@ -247,9 +245,9 @@ calculateStats(): void {
     
     if (this.transactions.length > 0) {
       const avgRisk = this.transactions.reduce((sum, t) => sum + (t.risk_score || 0), 0) / this.transactions.length;
-      this.stats.avgConfidence = Math.round((10 - avgRisk) * 10); 
+      // this.stats.avgConfidence = Math.round((10 - avgRisk) * 10); 
     } else {
-      this.stats.avgConfidence = 0;
+      // this.stats.avgConfidence = 0;
     }
   }
 
