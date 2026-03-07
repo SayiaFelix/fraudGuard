@@ -150,6 +150,17 @@ getFraudHistory(page: number = 1, size: number = 10): Observable<any> {
     );
 }
 
+getFeatureImportance(): Observable<any> {
+  return this.http.get(`${this.apiUrl}/feature_importance_weight`)
+    .pipe(
+      tap(response => console.log('Feature importance response:', response)),
+      catchError(this.handleError<any>('getFeatureImportance', { 
+        status: 'error', 
+        feature_importance: {} 
+      }))
+    );
+}
+
 getTransactions(page: number = 1, size: number = 100): Observable<TransactionsResponse> {
   // console.log(`Calling API: ${this.apiUrl}/transactions with page=${page}, size=${size}`);
   
