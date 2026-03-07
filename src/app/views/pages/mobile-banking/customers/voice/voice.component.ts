@@ -39,7 +39,14 @@ interface FraudTrend {
 
 interface FeatureImportance {
   feature: string;
-  importance: number;
+  importance: {
+    combined: number;  
+    rf: number;        
+    xgb: number;      
+    rawCombined: number; 
+    rawRf: number;    
+    rawXgb: number;    
+  };
   category: string;
 }
 
@@ -173,36 +180,50 @@ export class VoiceComponent implements OnInit, OnDestroy {
   }
 
   loadFeatureImportance(): Promise<void> {
-    this.isLoadingFeatureImportance = true;
-    return new Promise((resolve) => {
-      this.httpService.getFeatureImportance().subscribe({
-        next: (response) => {
-          if (response.status === 'success' && response.feature_importance) {
-            const featureData = response.feature_importance;
-            
-            this.featureImportance = Object.entries(featureData)
-              .map(([featureName, data]: [string, any]) => ({
-                feature: this.mapFeatureToDisplayName(featureName),
-                importance: data.Combined_Weight,
-                category: this.determineFeatureCategory(featureName)
-              }))
-              .sort((a, b) => b.importance - a.importance)
-              .slice(0, 10);
-          }
-          this.isLoadingFeatureImportance = false;
-          resolve();
-        },
-        error: (error) => {
-          console.error('Error loading feature importance:', error);
-          this.setDefaultFeatureImportance();
-          this.isLoadingFeatureImportance = false;
-          resolve();
-        }
-      });
-    });
-  }
+  this.isLoadingFeatureImportance = true;
+  return new Promise((resolve) => {
+    this.httpService.getFeatureImportance().subscribe({
+      next: (response) => {
+        if (response.status === 'success' && response.feature_importance) {
+          const featureData = response.feature_importance;
 
-  calculateStats(): void {
+          this.featureImportance = Object.entries(featureData)
+            .map(([featureName, data]: [string, any]) => {
+         
+              const combinedWeight = (data.Combined_Weight * 100).toFixed(2);
+              const rfWeight = (data.RF_Importance * 100).toFixed(2);
+              const xgbWeight = (data.XGB_Importance * 100).toFixed(2);
+              
+              return {
+                feature: this.mapFeatureToDisplayName(featureName),
+                importance: {
+                  combined: parseFloat(combinedWeight),
+                  rf: parseFloat(rfWeight),
+                  xgb: parseFloat(xgbWeight),
+                  rawCombined: data.Combined_Weight,
+                  rawRf: data.RF_Importance,
+                  rawXgb: data.XGB_Importance
+                },
+                category: this.determineFeatureCategory(featureName)
+              };
+            })
+            .sort((a, b) => b.importance.rawCombined - a.importance.rawCombined)
+            .slice(0, 10);
+        }
+        this.isLoadingFeatureImportance = false;
+        resolve();
+      },
+      error: (error) => {
+        console.error('Error loading feature importance:', error);
+        this.setDefaultFeatureImportance();
+        this.isLoadingFeatureImportance = false;
+        resolve();
+      }
+    });
+  });
+}
+
+calculateStats(): void {
     this.stats.totalPredictions = this.transactions.length;
     
     this.stats.fraudDetected = this.transactions.filter(t => 
@@ -348,6 +369,41 @@ export class VoiceComponent implements OnInit, OnDestroy {
     this.isLoadingInsights = false;
   }
 
+  setDefaultFeatureImportance(): void {
+  this.featureImportance = [
+    { 
+      feature: 'Transaction Amount', 
+      importance: { combined: 35.00, rf: 32.50, xgb: 37.50, rawCombined: 0.35, rawRf: 0.325, rawXgb: 0.375 }, 
+      category: 'amount' 
+    },
+    { 
+      feature: 'Device Type', 
+      importance: { combined: 25.00, rf: 24.00, xgb: 26.00, rawCombined: 0.25, rawRf: 0.24, rawXgb: 0.26 }, 
+      category: 'device' 
+    },
+    { 
+      feature: 'Location', 
+      importance: { combined: 18.00, rf: 17.50, xgb: 18.50, rawCombined: 0.18, rawRf: 0.175, rawXgb: 0.185 }, 
+      category: 'geographic' 
+    },
+    { 
+      feature: 'Time of Day', 
+      importance: { combined: 12.00, rf: 11.50, xgb: 12.50, rawCombined: 0.12, rawRf: 0.115, rawXgb: 0.125 }, 
+      category: 'temporal' 
+    },
+    { 
+      feature: 'Transaction Frequency', 
+      importance: { combined: 7.00, rf: 6.50, xgb: 7.50, rawCombined: 0.07, rawRf: 0.065, rawXgb: 0.075 }, 
+      category: 'behavioral' 
+    },
+    { 
+      feature: 'Channel Type', 
+      importance: { combined: 3.00, rf: 2.50, xgb: 3.50, rawCombined: 0.03, rawRf: 0.025, rawXgb: 0.035 }, 
+      category: 'channel' 
+    }
+  ];
+}
+
   calculateModelMetrics(): void {
     this.isLoadingModelMetrics = true;
     const metrics: ModelMetric[] = [];
@@ -440,17 +496,6 @@ export class VoiceComponent implements OnInit, OnDestroy {
     if (featureName.includes('IP')) return 'network';
     if (featureName.includes('Activity')) return 'historical';
     return 'other';
-  }
-
-  setDefaultFeatureImportance(): void {
-    this.featureImportance = [
-      { feature: 'Transaction Amount', importance: 0.35, category: 'amount' },
-      { feature: 'Device Type', importance: 0.25, category: 'device' },
-      { feature: 'Location', importance: 0.18, category: 'geographic' },
-      { feature: 'Time of Day', importance: 0.12, category: 'temporal' },
-      { feature: 'Transaction Frequency', importance: 0.07, category: 'behavioral' },
-      { feature: 'Channel Type', importance: 0.03, category: 'channel' }
-    ];
   }
 
   toggleInsight(insight: InsightData): void {
