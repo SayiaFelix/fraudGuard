@@ -1,6 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HttpService } from 'src/app/shared/services/http.service';
 import { Subscription, interval } from 'rxjs';
+  import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+
 
 interface InsightData {
   id: string;
@@ -608,7 +611,195 @@ setDefaultFeatureImportance(): void {
     }
   }
 
-  exportInsights(): void {
+exportInsights(): void {
+  try {
+    //new PDF document
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
+    
+    doc.setFontSize(20);
+    doc.setTextColor(44, 62, 80);
+    doc.text('AI Insights Report', 105, 20, { align: 'center' });
+    
+    //timestamp
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    const reportDate = new Date().toLocaleString('en-KE', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    doc.text(`Generated: ${reportDate}`, 105, 30, { align: 'center' });
+    
+    doc.setFontSize(14);
+    doc.setTextColor(52, 73, 94);
+    doc.text('Summary Statistics', 14, 45);
+    
+    const statsData = [
+      ['Total Predictions', this.stats.totalPredictions.toString()],
+      ['Fraud Detected', this.stats.fraudDetected.toString()],
+      ['Prevented Loss', this.formatAmount(this.stats.preventedLoss)],
+      ['Active Models', this.stats.activeModels.toString()]
+    ];
+    
+    autoTable(doc, {
+      startY: 50,
+      head: [['Metric', 'Value']],
+      body: statsData,
+      theme: 'striped',
+      headStyles: { fillColor: [52, 73, 94] },
+      columnStyles: {
+        0: { fontStyle: 'bold' }
+      }
+    });
+    
+    let finalY = (doc as any).lastAutoTable.finalY + 10;
+    
+    if (this.insights.length > 0) {
+      doc.setFontSize(14);
+      doc.setTextColor(52, 73, 94);
+      doc.text('AI Insights', 14, finalY);
+      finalY += 5;
+      
+      const insightsData = this.insights.map(insight => [
+        insight.title,
+        insight.severity || 'N/A',
+        insight.confidence + '%',
+        this.formatTimeAgo(insight.timestamp)
+      ]);
+      
+      autoTable(doc, {
+        startY: finalY,
+        head: [['Insight', 'Severity', 'Confidence', 'Time']],
+        body: insightsData,
+        theme: 'striped',
+        headStyles: { fillColor: [52, 73, 94] },
+        columnStyles: {
+          0: { cellWidth: 80 },
+          1: { cellWidth: 30 },
+          2: { cellWidth: 30 },
+          3: { cellWidth: 40 }
+        }
+      });
+      
+      finalY = (doc as any).lastAutoTable.finalY + 10;
+    }
+    
+    // Model Metrics
+    if (this.modelMetrics.length > 0) {
+      doc.setFontSize(14);
+      doc.setTextColor(52, 73, 94);
+      doc.text('Model Performance', 14, finalY);
+      finalY += 5;
+      
+      const modelData = this.modelMetrics.map(model => [
+        model.name,
+        model.accuracy.toFixed(2) + '%',
+        model.precision.toFixed(2) + '%',
+        model.recall.toFixed(2) + '%',
+        model.f1Score.toFixed(2) + '%',
+        model.status
+      ]);
+      
+      autoTable(doc, {
+        startY: finalY,
+        head: [['Model', 'Accuracy', 'Precision', 'Recall', 'F1 Score', 'Status']],
+        body: modelData,
+        theme: 'striped',
+        headStyles: { fillColor: [52, 73, 94] },
+        columnStyles: {
+          0: { cellWidth: 40 },
+          1: { cellWidth: 25 },
+          2: { cellWidth: 25 },
+          3: { cellWidth: 25 },
+          4: { cellWidth: 25 },
+          5: { cellWidth: 25 }
+        }
+      });
+      
+      finalY = (doc as any).lastAutoTable.finalY + 10;
+    }
+    
+    // Feature Importance
+    if (this.featureImportance.length > 0) {
+      doc.setFontSize(14);
+      doc.setTextColor(52, 73, 94);
+      doc.text('Feature Importance (Top 10)', 14, finalY);
+      finalY += 5;
+      
+      const featureData = this.featureImportance.slice(0, 10).map(f => [
+        f.feature,
+        f.importance.combined.toFixed(2) + '%',
+        f.importance.rf.toFixed(2) + '%',
+        f.importance.xgb.toFixed(2) + '%'
+      ]);
+      
+      autoTable(doc, {
+        startY: finalY,
+        head: [['Feature', 'Combined', 'Random Forest', 'XGBoost']],
+        body: featureData,
+        theme: 'striped',
+        headStyles: { fillColor: [52, 73, 94] }
+      });
+      
+      finalY = (doc as any).lastAutoTable.finalY + 10;
+    }
+    
+    if (this.fraudTrends.length > 0) {
+  
+      if (finalY > 250) {
+        doc.addPage();
+        finalY = 20;
+      }
+      
+      doc.setFontSize(14);
+      doc.setTextColor(52, 73, 94);
+      doc.text('Fraud Trends', 14, finalY);
+      finalY += 5;
+      
+      const trendData = this.fraudTrends.map(trend => [
+        new Date(trend.date).toLocaleDateString('en-KE'),
+        trend.predicted.toString(),
+        trend.actual.toString(),
+        trend.confidence + '%'
+      ]);
+      
+      autoTable(doc, {
+        startY: finalY,
+        head: [['Date', 'Predicted', 'Actual', 'Confidence']],
+        body: trendData,
+        theme: 'striped',
+        headStyles: { fillColor: [52, 73, 94] }
+      });
+    }
+    
+    const pageCount = doc.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(150, 150, 150);
+      doc.text(
+        `Page ${i} of ${pageCount}`,
+        doc.internal.pageSize.width / 2,
+        doc.internal.pageSize.height - 10,
+        { align: 'center' }
+      );
+    }
+    
+    const fileName = `ai-insights-${new Date().toISOString().slice(0, 10)}.pdf`;
+    doc.save(fileName);
+    
+    alert('PDF report downloaded successfully!');
+    
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    alert('Failed to generate PDF. Falling back to JSON export.');
+    
     const exportData = {
       timestamp: new Date().toISOString(),
       stats: this.stats,
@@ -626,11 +817,10 @@ setDefaultFeatureImportance(): void {
     linkElement.setAttribute('href', dataUri);
     linkElement.setAttribute('download', exportFileDefaultName);
     linkElement.click();
-    
-    alert('Insights report exported successfully!');
   }
+}
 
-  changePeriod(period: '24h' | '7d' | '30d' | '90d'): void {
+changePeriod(period: '24h' | '7d' | '30d' | '90d'): void {
     this.selectedPeriod = period;
     this.loadAllData(); 
   }
