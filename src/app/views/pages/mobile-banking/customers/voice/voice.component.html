@@ -268,58 +268,6 @@
             </div>
           </div>
         </div>
-      </div>
-
-      <!-- Fraud Trend Prediction -->
-      <div class="card shadow-sm">
-        <div class="card-header bg-transparent border-0 pt-3 px-4">
-          <h4 class="fw-bold mb-0">
-            <i class="fas fa-chart-line me-2 text-warning"></i>
-            Fraud Trend Prediction
-          </h4>
-        </div>
-        <div class="card-body">
-          <div class="trend-legend d-flex justify-content-between mb-3">
-            <div>
-              <span class="badge bg-light text-dark me-2">
-                <i class="fas fa-circle me-1" style="color: #4361ee;"></i> Predicted
-              </span>
-              <span class="badge bg-light text-dark">
-                <i class="fas fa-circle me-1" style="color: #f72585;"></i> Actual
-              </span>
-            </div>
-            <span class="badge bg-info">Avg Confidence: 94.2%</span>
-          </div>
-          
-          <div *ngFor="let trend of fraudTrends.slice(-5)" class="trend-item mb-3">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-              <small class="text-muted">{{ trend.date | date:'MMM d' }}</small>
-              <div>
-                <span class="badge bg-light text-dark me-2">P: {{ trend.predicted }}</span>
-                <span class="badge bg-light text-dark">A: {{ trend.actual }}</span>
-              </div>
-            </div>
-            <div class="position-relative" style="height: 20px;">
-              <!-- Predicted bar -->
-              <div class="progress-bar position-absolute top-0 start-0" 
-                   [style.width.%]="(trend.predicted / 400) * 100"
-                   style="background: #4361ee; height: 8px; border-radius: 4px; opacity: 0.7;">
-              </div>
-              <!-- Actual bar -->
-              <div class="progress-bar position-absolute top-0 start-0" 
-                   [style.width.%]="(trend.actual / 400) * 100"
-                   style="background: #f72585; height: 8px; border-radius: 4px;"
-                   [style.zIndex]="10">
-              </div>
-            </div>
-            <div class="text-end mt-1">
-              <small class="text-muted" *ngIf="trend.confidence">
-                <i class="fas fa-check-circle me-1" style="color: #06d6a0;"></i>
-                {{ trend.confidence }}% confidence
-              </small>
-            </div>
-          </div>
-        </div>
         <div class="card-footer bg-transparent border-0 text-center p-3">
           <button class="btn btn-sm btn-outline-primary" (click)="exportInsights()">
             <i class="fas fa-download me-1"></i> Download Full Report
