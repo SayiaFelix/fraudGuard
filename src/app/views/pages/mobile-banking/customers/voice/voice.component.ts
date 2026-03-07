@@ -52,6 +52,14 @@ export class VoiceComponent implements OnInit, OnDestroy {
 
   selectedPeriod: '24h' | '7d' | '30d' | '90d' = '7d';
   
+  // Loading states
+  isLoading = true;
+  isLoadingStats = true;
+  isLoadingInsights = true;
+  isLoadingModelMetrics = true;
+  isLoadingFeatureImportance = true;
+  isLoadingFraudTrends = true;
+  
   stats = {
     totalPredictions: 0,
     avgConfidence: 0,
@@ -88,17 +96,39 @@ export class VoiceComponent implements OnInit, OnDestroy {
     }
   }
 
+  loadAllData(): void {
+    this.isLoading = true;
+    
+    Promise.all([
+      this.loadTransactions(),
+      this.loadAuditLog(),
+      this.loadModelMetrics(),
+      this.loadFeatureImportance()
+    ]).then(() => {
+      this.calculateStats();
+      this.generateInsights();
+      this.calculateModelMetrics();
+      this.calculateFraudTrends();
+      this.isLoading = false;
+    }).catch(() => {
+      this.isLoading = false;
+    });
+  }
+
   loadTransactions(): Promise<void> {
+    this.isLoadingStats = true;
     return new Promise((resolve) => {
       this.httpService.getTransactions(1, 100).subscribe({
         next: (response) => {
           if (response.status === 'success' && response.transactions) {
             this.transactions = response.transactions;
           }
+          this.isLoadingStats = false;
           resolve();
         },
         error: (error) => {
           console.error('Error loading transactions:', error);
+          this.isLoadingStats = false;
           resolve();
         }
       });
@@ -123,120 +153,67 @@ export class VoiceComponent implements OnInit, OnDestroy {
   }
 
   loadModelMetrics(): Promise<void> {
+    this.isLoadingModelMetrics = true;
     return new Promise((resolve) => {
       this.httpService.getModelMetrics().subscribe({
         next: (response) => {
           if (response.status === 'success' && response.metrics) {
             this.modelMetricsData = response;
           }
+          this.isLoadingModelMetrics = false;
           resolve();
         },
         error: (error) => {
           console.error('Error loading model metrics:', error);
+          this.isLoadingModelMetrics = false;
           resolve();
         }
       });
     });
   }
 
-  calculateFeatureImportance(): void {
-  this.featureImportance = [];
-
-  this.httpService.getFeatureImportance().subscribe({
-    next: (response) => {
-      if (response.status === 'success' && response.feature_importance) {
-        const featureData = response.feature_importance;
-        
-        this.featureImportance = Object.entries(featureData)
-          .map(([featureName, data]: [string, any]) => {
-            const displayName = this.mapFeatureToDisplayName(featureName);
+  loadFeatureImportance(): Promise<void> {
+    this.isLoadingFeatureImportance = true;
+    return new Promise((resolve) => {
+      this.httpService.getFeatureImportance().subscribe({
+        next: (response) => {
+          if (response.status === 'success' && response.feature_importance) {
+            const featureData = response.feature_importance;
             
-            const category = this.determineFeatureCategory(featureName);
-            
-            return {
-              feature: displayName,
-              importance: data.Combined_Weight, 
-              category: category
-            };
-          })
-          .sort((a, b) => b.importance - a.importance) 
-          .slice(0, 10); 
-          
-        // console.log('Feature importance loaded:', this.featureImportance);
-      }
-    },
-    error: (error) => {
-      console.error('Error loading feature importance:', error);
-      this.setDefaultFeatureImportance();
-    }
-  });
-}
+            this.featureImportance = Object.entries(featureData)
+              .map(([featureName, data]: [string, any]) => ({
+                feature: this.mapFeatureToDisplayName(featureName),
+                importance: data.Combined_Weight,
+                category: this.determineFeatureCategory(featureName)
+              }))
+              .sort((a, b) => b.importance - a.importance)
+              .slice(0, 10);
+          }
+          this.isLoadingFeatureImportance = false;
+          resolve();
+        },
+        error: (error) => {
+          console.error('Error loading feature importance:', error);
+          this.setDefaultFeatureImportance();
+          this.isLoadingFeatureImportance = false;
+          resolve();
+        }
+      });
+    });
+  }
 
-mapFeatureToDisplayName(featureName: string): string {
-  const nameMap: { [key: string]: string } = {
-    'Transaction_Amount': 'Transaction Amount',
-    'Transaction_Frequency': 'Transaction Frequency',
-    'Transaction_Hour': 'Time of Day',
-    'Day_of_Week': 'Day of Week',
-    'IP_Address': 'IP Address',
-    'Account_Activity': 'Account Activity',
-    'Amount_Category_Low': 'Low Amount',
-    'Amount_Category_Medium': 'Medium Amount',
-    'Amount_Category_High': 'High Amount',
-    'Amount_Category_Very High': 'Very High Amount',
-    'Transaction_Location_Local': 'Local Location',
-    'Transaction_Location_International': 'International Location',
-    'Device_Type_iPhone': 'iPhone Device',
-    'Device_Type_MacBook': 'MacBook Device',
-    'Device_Type_Unknown_Device': 'Unknown Device',
-    'Transaction_Type_Online': 'Online Transaction',
-    'Transaction_Type_POS': 'POS Transaction',
-    'Transaction_Period_Morning': 'Morning Period',
-    'Transaction_Period_Afternoon': 'Afternoon Period',
-    'Transaction_Period_Evening': 'Evening Period'
-  };
-  
-  return nameMap[featureName] || featureName.replace(/_/g, ' ');
-}
-
-determineFeatureCategory(featureName: string): string {
-  if (featureName.includes('Amount')) return 'amount';
-  if (featureName.includes('Device')) return 'device';
-  if (featureName.includes('Location')) return 'geographic';
-  if (featureName.includes('Period') || featureName.includes('Hour') || featureName.includes('Day')) return 'temporal';
-  if (featureName.includes('Frequency')) return 'behavioral';
-  if (featureName.includes('Type') && (featureName.includes('Online') || featureName.includes('POS'))) return 'channel';
-  if (featureName.includes('IP')) return 'network';
-  if (featureName.includes('Activity')) return 'historical';
-  return 'other';
-}
-
-setDefaultFeatureImportance(): void {
-  this.featureImportance = [
-    { feature: 'Transaction Amount', importance: 0.35, category: 'amount' },
-    { feature: 'Device Type', importance: 0.25, category: 'device' },
-    { feature: 'Location', importance: 0.18, category: 'geographic' },
-    { feature: 'Time of Day', importance: 0.12, category: 'temporal' },
-    { feature: 'Transaction Frequency', importance: 0.07, category: 'behavioral' },
-    { feature: 'Channel Type', importance: 0.03, category: 'channel' }
-  ];
-}
-
-calculateStats(): void {
+  calculateStats(): void {
     this.stats.totalPredictions = this.transactions.length;
     
-    // Fraud detected = Critical + High risk transactions
     this.stats.fraudDetected = this.transactions.filter(t => 
       t.risk_category === 'Critical Fraud Risk' || 
       t.risk_category === 'High Potential Fraud'
     ).length;
     
-    // Prevented loss = sum of fraud transaction amounts
     this.stats.preventedLoss = this.transactions
       .filter(t => t.risk_category === 'Critical Fraud Risk' || t.risk_category === 'High Potential Fraud')
       .reduce((sum, t) => sum + (t.transaction_details?.Transaction_Amount || 0), 0);
     
-    // Model accuracy from XGBoost or average
     if (this.modelMetricsData?.metrics) {
       const models = Object.values(this.modelMetricsData.metrics) as any[];
       if (models.length > 0) {
@@ -256,6 +233,7 @@ calculateStats(): void {
   }
 
   generateInsights(): void {
+    this.isLoadingInsights = true;
     const newInsights: InsightData[] = [];
     
     const recentCritical = this.transactions
@@ -284,7 +262,6 @@ calculateStats(): void {
       });
     }
     
-    // Insight 2: High risk pattern
     const recentHigh = this.transactions
       .filter(t => t.risk_category === 'High Potential Fraud')
       .slice(0, 5);
@@ -322,7 +299,6 @@ calculateStats(): void {
       }
     }
     
-    // Insight 3: Model performance insight
     if (this.modelMetricsData?.metrics) {
       const xgb = this.modelMetricsData.metrics['XGBoost'];
       if (xgb && xgb.recall < 0.95) {
@@ -343,7 +319,6 @@ calculateStats(): void {
       }
     }
     
-    // Insight 4: Recent anomaly
     const recentAnomalies = this.auditLogs
       .filter(log => log.risk_score > 8)
       .slice(0, 2);
@@ -369,9 +344,12 @@ calculateStats(): void {
     this.insights = newInsights.sort((a, b) => 
       b.timestamp.getTime() - a.timestamp.getTime()
     ).slice(0, 10);
+    
+    this.isLoadingInsights = false;
   }
 
   calculateModelMetrics(): void {
+    this.isLoadingModelMetrics = true;
     const metrics: ModelMetric[] = [];
     
     if (this.modelMetricsData?.metrics) {
@@ -392,9 +370,11 @@ calculateStats(): void {
     }
     
     this.modelMetrics = metrics;
+    this.isLoadingModelMetrics = false;
   }
 
   calculateFraudTrends(): void {
+    this.isLoadingFraudTrends = true;
     const dailyData: { [key: string]: { actual: number; predicted: number } } = {};
     
     this.transactions.forEach(t => {
@@ -419,6 +399,58 @@ calculateStats(): void {
       }))
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .slice(0, 7);
+      
+    this.isLoadingFraudTrends = false;
+  }
+
+  mapFeatureToDisplayName(featureName: string): string {
+    const nameMap: { [key: string]: string } = {
+      'Transaction_Amount': 'Transaction Amount',
+      'Transaction_Frequency': 'Transaction Frequency',
+      'Transaction_Hour': 'Time of Day',
+      'Day_of_Week': 'Day of Week',
+      'IP_Address': 'IP Address',
+      'Account_Activity': 'Account Activity',
+      'Amount_Category_Low': 'Low Amount',
+      'Amount_Category_Medium': 'Medium Amount',
+      'Amount_Category_High': 'High Amount',
+      'Amount_Category_Very High': 'Very High Amount',
+      'Transaction_Location_Local': 'Local Location',
+      'Transaction_Location_International': 'International Location',
+      'Device_Type_iPhone': 'iPhone Device',
+      'Device_Type_MacBook': 'MacBook Device',
+      'Device_Type_Unknown_Device': 'Unknown Device',
+      'Transaction_Type_Online': 'Online Transaction',
+      'Transaction_Type_POS': 'POS Transaction',
+      'Transaction_Period_Morning': 'Morning Period',
+      'Transaction_Period_Afternoon': 'Afternoon Period',
+      'Transaction_Period_Evening': 'Evening Period'
+    };
+    
+    return nameMap[featureName] || featureName.replace(/_/g, ' ');
+  }
+
+  determineFeatureCategory(featureName: string): string {
+    if (featureName.includes('Amount')) return 'amount';
+    if (featureName.includes('Device')) return 'device';
+    if (featureName.includes('Location')) return 'geographic';
+    if (featureName.includes('Period') || featureName.includes('Hour') || featureName.includes('Day')) return 'temporal';
+    if (featureName.includes('Frequency')) return 'behavioral';
+    if (featureName.includes('Type') && (featureName.includes('Online') || featureName.includes('POS'))) return 'channel';
+    if (featureName.includes('IP')) return 'network';
+    if (featureName.includes('Activity')) return 'historical';
+    return 'other';
+  }
+
+  setDefaultFeatureImportance(): void {
+    this.featureImportance = [
+      { feature: 'Transaction Amount', importance: 0.35, category: 'amount' },
+      { feature: 'Device Type', importance: 0.25, category: 'device' },
+      { feature: 'Location', importance: 0.18, category: 'geographic' },
+      { feature: 'Time of Day', importance: 0.12, category: 'temporal' },
+      { feature: 'Transaction Frequency', importance: 0.07, category: 'behavioral' },
+      { feature: 'Channel Type', importance: 0.03, category: 'channel' }
+    ];
   }
 
   toggleInsight(insight: InsightData): void {
@@ -446,48 +478,6 @@ calculateStats(): void {
     };
     return classes[type] || 'bg-secondary';
   }
-
-  loadAllData(): void {
-  Promise.all([
-    this.loadTransactions(),
-    this.loadAuditLog(),
-    this.loadModelMetrics(),
-    this.loadFeatureImportance() 
-  ]).then(() => {
-    this.calculateStats();
-    this.generateInsights();
-    this.calculateModelMetrics();
-    this.calculateFraudTrends();
-  });
-}
-
-loadFeatureImportance(): Promise<void> {
-  return new Promise((resolve) => {
-    this.httpService.getFeatureImportance().subscribe({
-      next: (response) => {
-        if (response.status === 'success' && response.feature_importance) {
-          const featureData = response.feature_importance;
-          
-          //Convert and sort feature importance
-          this.featureImportance = Object.entries(featureData)
-            .map(([featureName, data]: [string, any]) => ({
-              feature: this.mapFeatureToDisplayName(featureName),
-              importance: data.Combined_Weight,
-              category: this.determineFeatureCategory(featureName)
-            }))
-            .sort((a, b) => b.importance - a.importance)
-            .slice(0, 10);
-        }
-        resolve();
-      },
-      error: (error) => {
-        console.error('Error loading feature importance:', error);
-        this.setDefaultFeatureImportance();
-        resolve();
-      }
-    });
-  });
-}
 
   getSeverityBadgeClass(severity?: string): string {
     const classes: any = {
