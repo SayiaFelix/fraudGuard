@@ -253,26 +253,20 @@
           <!-- Loading State -->
           <div *ngIf="isLoadingFeatureImportance; else featureContent">
             <div *ngFor="let i of [1,2,3,4,5,6]" class="feature-item mb-3">
-              <div class="d-flex justify-content-between mb-1">
-                <div class="skeleton-loader" style="height: 16px; width: 60%;"></div>
-                <div class="skeleton-loader" style="height: 16px; width: 60px;"></div>
-              </div>
-              <div class="skeleton-loader mb-1" style="height: 6px; width: 100%;"></div>
-              <div class="d-flex justify-content-between">
-                <div class="skeleton-loader" style="height: 12px; width: 70px;"></div>
-                <div class="skeleton-loader" style="height: 12px; width: 70px;"></div>
-              </div>
+              <div class="skeleton-loader" style="height: 20px; width: 100%;"></div>
             </div>
           </div>
           
           <!-- Feature Content -->
           <ng-template #featureContent>
             <div *ngFor="let feature of featureImportance" class="feature-item mb-4">
-              <!-- Feature Name and Combined Weight -->
               <div class="d-flex justify-content-between align-items-center mb-1">
                 <div class="d-flex align-items-center">
                   <i [class]="getCategoryIcon(feature.category) + ' me-2 text-muted'"></i>
                   <span class="fw-medium">{{ feature.feature }}</span>
+                  <i class="fas fa-info-circle ms-2 text-muted" 
+                    [attr.title]="'Relative importance: This feature contributes ' + feature.importance.combined + '% to the overall model decision'"
+                    style="cursor: help; font-size: 14px;"></i>
                 </div>
                 <span class="fw-bold" [style.color]="getFeatureImportanceColor(feature.importance.rawCombined)">
                   {{ feature.importance.combined }}%
@@ -322,7 +316,6 @@
               </div>
             </div>
             
-            <!-- Legend -->
             <div class="mt-3 pt-2 border-top d-flex justify-content-center gap-4">
               <div class="d-flex align-items-center">
                 <span class="badge bg-primary me-1" style="width: 12px; height: 12px;"></span>
@@ -339,13 +332,12 @@
             </div>
           </ng-template>
         </div>
-          <div class="card-footer bg-transparent border-0 text-center p-3">
-                <button class="btn btn-sm btn-outline-primary" (click)="exportInsights()">
-                  <i class="fas fa-download me-1"></i> Download Full Report
-                </button>
+           <div class="card-footer bg-transparent border-0 text-center p-3">
+              <button class="btn btn-sm btn-outline-primary" (click)="exportInsights()">
+                <i class="fas fa-download me-1"></i> Download Full Report
+              </button>
           </div>
       </div>
-
     </div>
   </div>
 </div>
