@@ -237,7 +237,7 @@ onPageChange(event: any): void {
 getRiskScoreColor(score: number): string {
   if (score >= 8) {
     return '#f72585'; 
-  } else if (score >= 5) {
+  } else if (score >= 6) {
     return '#f67205'; 
   } else if (score >= 3) {
     return '#ffc107';
@@ -529,7 +529,7 @@ loadAuditLog(): Promise<void> {
             if (log.risk_score >= 8) {
               type = 'critical';
               icon = 'fa-exclamation-circle';
-            } else if (log.risk_score >= 5) {
+            } else if (log.risk_score >= 6) {
               type = 'warning';
               icon = 'fa-exclamation-triangle';
             } else if (log.risk_score >= 3) {
@@ -678,7 +678,7 @@ updateKPIs(): void {
      
       let type = 'info';
       if (log.risk_score >= 8) type = 'critical';
-      else if (log.risk_score >= 5) type = 'warning';
+      else if (log.risk_score >= 6) type = 'warning';
       else if (log.risk_score >= 3) type = 'info';
       else type = 'success';
       
