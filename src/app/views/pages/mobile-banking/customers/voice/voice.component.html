@@ -237,7 +237,7 @@
           </h4>
         </div>
         
-        <div class="card-body p-3" style="max-height: 500px; overflow-y: auto;">
+        <div class="card-body p-3" style="max-height: 300px; overflow-y: auto;">
           <div *ngIf="isLoadingFeatureImportance; else featureContent">
             <div *ngFor="let i of [1,2,3,4,5,6]" class="feature-item mb-3">
               <div class="skeleton-loader" style="height: 20px; width: 100%;"></div>
@@ -316,14 +316,13 @@
                 <small class="text-muted">Combined</small>
               </div>
             </div>
-
-              <div class="bg-transparent border-top text-center pt-3">
+          </ng-template>
+        </div>
+           <div class="card-footer bg-transparent border-top text-center pt-3">
                 <button class="btn btn-sm btn-outline-primary" (click)="exportInsights()">
                   <i class="fas fa-download me-1"></i> Download Full Report
                 </button>
-              </div>
-          </ng-template>
-        </div>
+            </div>
       </div>
     </div>
   </div>
