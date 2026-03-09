@@ -116,6 +116,59 @@ export class SendSmsComponent implements OnInit {
   });
 }
 
+loadAlertData(): void {
+  this.isLoading = true;
+  
+  this.httpService.getTransactionById(this.alertId!).subscribe({
+    next: (response) => {
+      if (response.status === 'success' && response.transaction_details) {
+        this.alertData = this.mapBackendResponse(response);
+        this.isLoading = false;
+      
+        this.loadRelatedTransactions();
+      } else {
+        this.errorMessage = response.message || 'Alert not found';
+        this.isLoading = false;
+      }
+    },
+    error: (error) => {
+      console.error('Error loading alert details:', error);
+      this.errorMessage = error.error?.message || 'Failed to load alert details';
+      this.isLoading = false;
+    }
+  });
+}
+
+
+loadRelatedTransactions(): void {
+  if (!this.alertData?.transactionId) return;
+  
+  this.isLoadingRelated = true;
+  
+  this.httpService.getRelatedTransactions(this.alertData.transactionId).subscribe({
+    next: (response) => {
+      if (response.status === 'success' && response.related_transactions) {
+      
+        this.alertData!.relatedTransactions = response.related_transactions.map((tx: any) => ({
+          id: tx.transaction_id,
+          amount: tx.amount || 0,
+          timestamp: new Date(tx.timestamp),
+          riskScore: tx.risk_score,
+          status: tx.risk_category?.includes('Critical') ? 'Open' : 
+                  tx.risk_category?.includes('High') ? 'Investigating' : 'Resolved'
+        }));
+        
+        console.log('Related transactions loaded:', this.alertData!.relatedTransactions);
+      }
+      this.isLoadingRelated = false;
+    },
+    error: (error) => {
+      console.error('Error loading related transactions:', error);
+      this.isLoadingRelated = false;
+    }
+  });
+}
+
 loadModelMetrics(): void {
   this.httpService.getModelMetrics().subscribe({
     next: (response) => {
@@ -143,77 +196,14 @@ closeFeedbackModal(): void {
   this.actionNotes = '';
 }
 
-
-
-submitFeedback(): void {
-  if (!this.feedbackType || !this.alertData) return;
-  
-  this.feedbackLoading = true;
-
-  const signals = {
-    transaction_id: this.alertData.transactionId,
-    risk_score: this.alertData.riskScore,
-    risk_category: this.alertData.riskCategory,
-    amount: this.alertData.amount,
-    notes: this.actionNotes
-  };
-  
-  this.httpService.submitFraudFeedback(
-    this.alertData.transactionId,
-    this.feedbackType,
-    signals
-  ).subscribe({
-    next: (response) => {
-      console.log('Feedback submitted:', response);
-      this.feedbackLoading = false;
-      this.closeFeedbackModal();
-      
-      alert(`Feedback submitted successfully! The AI model will learn from this.`);
-      
-      if (this.feedbackType === 'confirmed_fraud') {
-        this.alertData!.status = 'Resolved';
-      } else if (this.feedbackType === 'false_positive') {
-        this.alertData!.status = 'False Positive';
-      }
-    },
-    error: (error) => {
-      console.error('Error submitting feedback:', error);
-      this.feedbackLoading = false;
-      this.closeFeedbackModal();
-      alert('Failed to submit feedback. Please try again.');
-    }
-  });
-}
-
-  loadAlertData(): void {
-    this.isLoading = true;
-    
-    this.httpService.getTransactionById(this.alertId!).subscribe({
-      next: (response) => {
-        if (response.status === 'success' && response.transaction_details) {
-          this.alertData = this.mapBackendResponse(response);
-          this.isLoading = false;
-        } else {
-          this.errorMessage = response.message || 'Alert not found';
-          this.isLoading = false;
-        }
-      },
-      error: (error) => {
-        console.error('Error loading alert details:', error);
-        this.errorMessage = error.error?.message || 'Failed to load alert details';
-        this.isLoading = false;
-      }
-    });
-  }
-
-  
 mapBackendResponse(response: any): AlertDetail {
   const tx = response;
   const riskAssessment = tx.risk_assessment || {};
   const transactionDetails = tx.transaction_details || {};
   const explanations = tx.explanations || {};
+  const customerInfo = tx.customer_info || {}; 
   
-  // risk category from risk_assessment
+  //risk category from risk_assessment
   const riskCategoryStr = riskAssessment.risk_category || tx.risk_category || '';
   
   //risk category
@@ -310,12 +300,12 @@ mapBackendResponse(response: any): AlertDetail {
     flaggedBy: flaggedBy,
     
     customer: {
-      name: `Customer ${(tx.transaction_id || '').substring(0, 8) || 'Unknown'}`,
-      id: `CUST-${(tx.transaction_id || '').substring(0, 8) || 'Unknown'}`,
-      email: `${(tx.transaction_id || '').substring(0, 4)}@example.com`,
-      phone: '+254 XXX XXX XXX',
-      accountAge: 365,
-      averageTransaction: transactionDetails.Transaction_Amount || 0,
+      name: customerInfo.customer_name || `Customer ${(tx.transaction_id || '').substring(0, 8) || 'Unknown'}`,
+      id: customerInfo.customer_id || `CUST-${(tx.transaction_id || '').substring(0, 8) || 'Unknown'}`,
+      email: customerInfo.customer_email || `${(tx.transaction_id || '').substring(0, 4)}@example.com`,
+      phone: customerInfo.customer_phone || '+254 XXX XXX XXX',
+      accountAge: customerInfo.account_age_days || 365,
+      averageTransaction: customerInfo.avg_transaction_amount || transactionDetails.Transaction_Amount || 0,
       riskProfile: riskCategory
     },
     
@@ -349,10 +339,51 @@ mapBackendResponse(response: any): AlertDetail {
       confidence: Math.round(riskScore * 10) // Convert 0-10 to 0-100 scale
     },
     
-    relatedTransactions: [],
+    relatedTransactions: [], 
     timeline: this.generateTimeline(tx, riskCategoryStr, riskScore),
     rawData: tx
   };
+}
+
+
+submitFeedback(): void {
+  if (!this.feedbackType || !this.alertData) return;
+  
+  this.feedbackLoading = true;
+
+  const signals = {
+    transaction_id: this.alertData.transactionId,
+    risk_score: this.alertData.riskScore,
+    risk_category: this.alertData.riskCategory,
+    amount: this.alertData.amount,
+    notes: this.actionNotes
+  };
+  
+  this.httpService.submitFraudFeedback(
+    this.alertData.transactionId,
+    this.feedbackType,
+    signals
+  ).subscribe({
+    next: (response) => {
+      console.log('Feedback submitted:', response);
+      this.feedbackLoading = false;
+      this.closeFeedbackModal();
+      
+      alert(`Feedback submitted successfully! The AI model will learn from this.`);
+      
+      if (this.feedbackType === 'confirmed_fraud') {
+        this.alertData!.status = 'Resolved';
+      } else if (this.feedbackType === 'false_positive') {
+        this.alertData!.status = 'False Positive';
+      }
+    },
+    error: (error) => {
+      console.error('Error submitting feedback:', error);
+      this.feedbackLoading = false;
+      this.closeFeedbackModal();
+      alert('Failed to submit feedback. Please try again.');
+    }
+  });
 }
 
 generateTimeline(tx: any, riskCategory: string, riskScore: number): any[] {
