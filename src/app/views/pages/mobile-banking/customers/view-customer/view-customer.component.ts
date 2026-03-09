@@ -435,137 +435,144 @@ export class ViewCustomerComponent implements OnInit, OnDestroy {
     return classes[action || ''] || 'bg-secondary';
   }
 
-   exportToPDF(): void {
-    try {
-      const doc = new jsPDF({
-        orientation: 'landscape',
-        unit: 'mm',
-        format: 'a4'
-      });
+  exportToPDF(): void {
+  try {
+    const doc = new jsPDF({
+      orientation: 'landscape',
+      unit: 'mm',
+      format: 'a4'
+    });
 
-      //Title
-      doc.setFontSize(18);
-      doc.setTextColor(44, 62, 80);
-      doc.text('Fraud History Report', 148, 15, { align: 'center' });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const centerX = pageWidth / 2;
 
-      // Generated date
-      doc.setFontSize(10);
-      doc.setTextColor(100, 100, 100);
-      const generatedDate = new Date().toLocaleString('en-KE', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-      doc.text(`Generated: ${generatedDate}`, 148, 22, { align: 'center' });
+    // Title
+    doc.setFontSize(18);
+    doc.setTextColor(44, 62, 80);
+    doc.text('Fraud History Report', centerX, 15, { align: 'center' });
 
-      //Filters used
-      let yPos = 30;
-      doc.setFontSize(10);
-      doc.setTextColor(52, 73, 94);
-      doc.text('Filters Applied:', 14, yPos);
-      doc.setFontSize(9);
-      doc.setTextColor(100, 100, 100);
-      
-      const filterText = `Risk: ${this.riskFilter === 'all' ? 'All' : this.riskFilter} | Status: ${this.statusFilter === 'all' ? 'All' : this.statusFilter} | Channel: ${this.channelFilter === 'all' ? 'All' : this.channelFilter} | Date Range: ${this.dateRange}`;
-      doc.text(filterText, 14, yPos + 5);
+    // Generated date
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    const generatedDate = new Date().toLocaleString('en-KE', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    doc.text(`Generated: ${generatedDate}`, centerX, 22, { align: 'center' });
 
-      //Stats Summary
-      yPos += 15;
-      doc.setFontSize(11);
-      doc.setTextColor(52, 73, 94);
-      doc.text('Summary Statistics', 14, yPos);
-      
-      const statsData = [
-        ['Total Cases', this.stats.total.toString()],
-        ['Critical', this.stats.critical.toString()],
-        ['High', this.stats.high.toString()],
-        // ['Medium', this.stats.medium.toString()],
-        // ['Low', this.stats.low.toString()],
-        ['Open', this.stats.open.toString()],
-        ['Investigating', this.stats.investigating.toString()],
-        ['Resolved', this.stats.resolved.toString()],
-        // ['False Positives', this.stats.falsePositive.toString()],
-        ['Total Amount', this.formatAmount(this.stats.totalAmount)]
-      ];
+    // Filters used
+    let yPos = 35;
+    doc.setFontSize(10);
+    doc.setTextColor(52, 73, 94);
+    doc.text('Filters Applied ', centerX, yPos, { align: 'center' });
+    
+    doc.setFontSize(9);
+    doc.setTextColor(100, 100, 100);
+    const filterText = `Risk: ${this.riskFilter === 'all' ? 'All' : this.riskFilter} | Status: ${this.statusFilter === 'all' ? 'All' : this.statusFilter} | Channel: ${this.channelFilter === 'all' ? 'All' : this.channelFilter} | Date Range: ${this.dateRange}`;
+    doc.text(filterText, centerX, yPos + 5, { align: 'center' });
 
-      autoTable(doc, {
-        startY: yPos + 5,
-        head: [['Metric', 'Value']],
-        body: statsData,
-        theme: 'striped',
-        headStyles: { fillColor: [52, 73, 94] },
-        columnStyles: {
-          0: { cellWidth: 60 },
-          1: { cellWidth: 60 }
-        }
-      });
+    // Stats Summary
+    yPos += 15;
+    doc.setFontSize(11);
+    doc.setTextColor(52, 73, 94);
+    doc.text('Summary Statistics', centerX, yPos, { align: 'center' });
+    
+    const statsData = [
+      ['Total Cases', this.stats.total.toString()],
+      ['Critical', this.stats.critical.toString()],
+      ['High', this.stats.high.toString()],
+      ['Open', this.stats.open.toString()],
+      ['Investigating', this.stats.investigating.toString()],
+      ['Resolved', this.stats.resolved.toString()],
+      ['Total Amount', this.formatAmount(this.stats.totalAmount)]
+    ];
 
-      //Fraud Cases Table
-      yPos = (doc as any).lastAutoTable.finalY + 15;
-      
-      if (yPos > 180) {
-        doc.addPage();
-        yPos = 20;
-      }
+    autoTable(doc, {
+      startY: yPos + 5,
+      head: [['Metric', 'Value']],
+      body: statsData,
+      theme: 'striped',
+      headStyles: { fillColor: [52, 73, 94] },
+      columnStyles: {
+        0: { cellWidth: 60, halign: 'left' },
+        1: { cellWidth: 60, halign: 'right' }
+      },
+      margin: { left: (pageWidth - 140) / 2 }, 
+      tableWidth: 140
+    });
 
-      doc.setFontSize(11);
-      doc.setTextColor(52, 73, 94);
-      doc.text('Fraud Cases', 14, yPos);
-
-      const tableData = this.filteredCases.map(case_ => [
-        case_.transactionId,
-        this.datePipe.transform(case_.timestamp, 'yyyy-MM-dd HH:mm') || '',
-        this.formatAmount(case_.amount),
-        case_.riskCategory,
-        `${case_.riskScore}/10`,
-        case_.status,
-        case_.flaggedBy
-      ]);
-
-      autoTable(doc, {
-        startY: yPos + 5,
-        head: [['Transaction ID', 'Date/Time', 'Amount', 'Risk', 'Score', 'Status', 'Flagged By']],
-        body: tableData,
-        theme: 'striped',
-        headStyles: { fillColor: [52, 73, 94] },
-        styles: { fontSize: 8 },
-        columnStyles: {
-          0: { cellWidth: 40 },
-          1: { cellWidth: 35 },
-          2: { cellWidth: 30 },
-          3: { cellWidth: 20 },
-          4: { cellWidth: 15 },
-          5: { cellWidth: 25 },
-          6: { cellWidth: 25 }
-        }
-      });
-
-      //page numbers
-      const pageCount = doc.getNumberOfPages();
-      for (let i = 1; i <= pageCount; i++) {
-        doc.setPage(i);
-        doc.setFontSize(8);
-        doc.setTextColor(150, 150, 150);
-        doc.text(
-          `Page ${i} of ${pageCount}`,
-          doc.internal.pageSize.width / 2,
-          doc.internal.pageSize.height - 10,
-          { align: 'center' }
-        );
-      }
-
-      const fileName = `fraud-history-${new Date().toISOString().slice(0, 10)}.pdf`;
-      doc.save(fileName);
-      
-      alert('PDF report downloaded successfully!');
-      
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      alert('Failed to generate PDF. Please try again.');
+    //Fraud Cases Table
+    yPos = (doc as any).lastAutoTable.finalY + 15;
+    
+    if (yPos > 180) {
+      doc.addPage();
+      yPos = 20;
     }
+
+    doc.setFontSize(11);
+    doc.setTextColor(52, 73, 94);
+    doc.text('Fraud Cases', centerX, yPos, { align: 'center' });
+
+    const tableData = this.filteredCases.map(case_ => [
+      case_.transactionId,
+      this.datePipe.transform(case_.timestamp, 'yyyy-MM-dd HH:mm') || '',
+      this.formatAmount(case_.amount),
+      case_.riskCategory,
+      `${case_.riskScore}/10`,
+      case_.status,
+      case_.flaggedBy
+    ]);
+
+    //total table width
+    const columnWidths = [40, 35, 30, 20, 15, 25, 25];
+    const totalTableWidth = columnWidths.reduce((a, b) => a + b, 0);
+    
+    autoTable(doc, {
+      startY: yPos + 5,
+      head: [['Transaction ID', 'Date/Time', 'Amount', 'Risk', 'Score', 'Status', 'Flagged By']],
+      body: tableData,
+      theme: 'striped',
+      headStyles: { fillColor: [52, 73, 94] },
+      styles: { fontSize: 8 },
+      columnStyles: {
+        0: { cellWidth: 40, halign: 'left' },
+        1: { cellWidth: 35, halign: 'center' },
+        2: { cellWidth: 30, halign: 'right' },
+        3: { cellWidth: 20, halign: 'center' },
+        4: { cellWidth: 15, halign: 'center' },
+        5: { cellWidth: 25, halign: 'center' },
+        6: { cellWidth: 25, halign: 'left' }
+      },
+      margin: { left: (pageWidth - totalTableWidth) / 2 }, 
+      tableWidth: totalTableWidth
+    });
+
+    const pageCount = doc.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(150, 150, 150);
+      doc.text(
+        `Page ${i} of ${pageCount}`,
+        centerX,
+        doc.internal.pageSize.height - 10,
+        { align: 'center' }
+      );
+    }
+
+    const fileName = `fraud-history-${new Date().toISOString().slice(0, 10)}.pdf`;
+    doc.save(fileName);
+    
+    alert('PDF report downloaded successfully!');
+    
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    alert('Failed to generate PDF. Please try again.');
   }
+}
 
   exportData(): void {
     const exportFormat = confirm('Click OK for PDF export, Cancel for JSON export');
