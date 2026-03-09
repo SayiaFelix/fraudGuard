@@ -161,6 +161,17 @@ getFeatureImportance(): Observable<any> {
     );
 }
 
+getTransactionById(transactionId: string): Observable<any> {
+  return this.http.post(`${this.apiUrl}/transactions`, { transaction_id: transactionId })
+    .pipe(
+      tap(response => console.log('Transaction details response:', response)),
+      catchError(this.handleError<any>('getTransactionById', { 
+        status: 'error', 
+        message: 'Failed to load transaction details' 
+      }))
+    );
+}
+
 getTransactions(page: number = 1, size: number = 100): Observable<TransactionsResponse> {
   // console.log(`Calling API: ${this.apiUrl}/transactions with page=${page}, size=${size}`);
   
