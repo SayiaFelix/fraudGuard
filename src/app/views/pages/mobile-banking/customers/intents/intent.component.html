@@ -9,26 +9,10 @@
       <p class="text-muted small mb-0">Enter transaction details for real-time risk assessment</p>
     </div>
     <hr>
+
     <div class="card-body p-4">
       <form [formGroup]="riskForm" (ngSubmit)="analyzeRisk()">
-        <!-- 2-Column Grid for Form Fields -->
         <div class="row g-4">
-          <!-- Amount -->
-          <div class="col-md-6">
-            <label class="form-label fw-medium">
-              <i class="fas fa-coins me-1 text-primary"></i>
-              Amount (KES) <span class="text-danger">*</span>
-            </label>
-            <input type="number" 
-                   class="form-control" 
-                   formControlName="amount"
-                   placeholder="e.g., 50000"
-                   [class.is-invalid]="isFieldInvalid('amount')">
-            <div class="invalid-feedback" *ngIf="isFieldInvalid('amount')">
-              {{ getErrorMessage('amount') }}
-            </div>
-          </div>
-
           <!-- Customer Name -->
           <div class="col-md-6">
             <label class="form-label fw-medium">
@@ -36,10 +20,10 @@
               Customer Name <span class="text-danger">*</span>
             </label>
             <input type="text" 
-                   class="form-control" 
-                   formControlName="customerName"
-                   placeholder="e.g., Felix Sayia"
-                   [class.is-invalid]="isFieldInvalid('customerName')">
+                  class="form-control" 
+                  formControlName="customerName"
+                  placeholder="e.g., Felix Lucas"
+                  [class.is-invalid]="isFieldInvalid('customerName')">
             <div class="invalid-feedback" *ngIf="isFieldInvalid('customerName')">
               {{ getErrorMessage('customerName') }}
             </div>
@@ -52,12 +36,29 @@
               Customer ID <span class="text-danger">*</span>
             </label>
             <input type="text" 
-                   class="form-control" 
-                   formControlName="customerId"
-                   placeholder="e.g., CUST-001"
-                   [class.is-invalid]="isFieldInvalid('customerId')">
+                  class="form-control" 
+                  formControlName="customerId"
+                  placeholder="e.g., CUST-001"
+                  [class.is-invalid]="isFieldInvalid('customerId')">
             <div class="invalid-feedback" *ngIf="isFieldInvalid('customerId')">
               {{ getErrorMessage('customerId') }}
+            </div>
+          </div>
+
+          
+          <!-- Amount -->
+          <div class="col-md-6">
+            <label class="form-label fw-medium">
+              <i class="fas fa-coins me-1 text-primary"></i>
+              Amount (KES) <span class="text-danger">*</span>
+            </label>
+            <input type="number" 
+                  class="form-control" 
+                  formControlName="amount"
+                  placeholder="e.g., 50000"
+                  [class.is-invalid]="isFieldInvalid('amount')">
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('amount')">
+              {{ getErrorMessage('amount') }}
             </div>
           </div>
 
@@ -73,6 +74,7 @@
               </option>
             </select>
           </div>
+
 
           <!-- Transaction Type -->
           <div class="col-md-6">
@@ -99,50 +101,59 @@
               </option>
             </select>
           </div>
-
-          <!-- Device ID -->
+          <!-- Device Type -->
           <div class="col-md-6">
             <label class="form-label fw-medium">
               <i class="fas fa-mobile-alt me-1 text-primary"></i>
-              Device ID <span class="text-danger">*</span>
+              Device Type <span class="text-danger">*</span>
             </label>
-            <input type="text" 
-                   class="form-control" 
-                   formControlName="deviceId"
-                   placeholder="e.g., DEV-8F7D2A or New Device"
-                   [class.is-invalid]="isFieldInvalid('deviceId')">
-            <div class="invalid-feedback" *ngIf="isFieldInvalid('deviceId')">
-              {{ getErrorMessage('deviceId') }}
-            </div>
+            <select class="form-select" formControlName="deviceType">
+              <option *ngFor="let device of devices" [value]="device">
+                {{ device }}
+              </option>
+            </select>
           </div>
 
-          <!-- IP Address (Optional) -->
+          <!-- IP Address -->
           <div class="col-md-6">
             <label class="form-label fw-medium">
               <i class="fas fa-network-wired me-1 text-primary"></i>
               IP Address (Optional)
             </label>
             <input type="text" 
-                   class="form-control" 
-                   formControlName="ipAddress"
-                   placeholder="e.g., 197.248.0.45"
-                   [class.is-invalid]="isFieldInvalid('ipAddress')">
+                  class="form-control" 
+                  formControlName="ipAddress"
+                  placeholder="e.g., 197.248.0.45"
+                  [class.is-invalid]="isFieldInvalid('ipAddress')">
             <div class="invalid-feedback" *ngIf="isFieldInvalid('ipAddress')">
               {{ getErrorMessage('ipAddress') }}
             </div>
           </div>
 
-          <!-- Previous Transactions -->
+          <!-- Transaction Frequency -->
           <div class="col-md-6">
             <label class="form-label fw-medium">
-              <i class="fas fa-history me-1 text-primary"></i>
-              Previous Transactions (today)
+              <i class="fas fa-chart-line me-1 text-primary"></i>
+              Transaction Frequency (per hour)
             </label>
             <input type="number" 
-                   class="form-control" 
-                   formControlName="previousTransactions"
-                   placeholder="e.g., 3"
-                   min="0">
+                  class="form-control" 
+                  formControlName="transactionFrequency"
+                  placeholder="e.g., 1"
+                  min="1">
+          </div>
+
+          <!-- Account Activity -->
+          <div class="col-md-6">
+            <label class="form-label fw-medium">
+              <i class="fas fa-activity me-1 text-primary"></i>
+              Account Activity
+            </label>
+            <input type="number" 
+                  class="form-control" 
+                  formControlName="accountActivity"
+                  placeholder="e.g., 5000"
+                  min="0">
           </div>
 
           <!-- Time of Day -->
@@ -151,13 +162,95 @@
               <i class="fas fa-clock me-1 text-primary"></i>
               Time of Day
             </label>
-            <select class="form-select" formControlName="timeOfDay">
-              <option value="Now">Current Time</option>
-              <option value="Morning">Morning (6am-12pm)</option>
-              <option value="Afternoon">Afternoon (12pm-6pm)</option>
-              <option value="Evening">Evening (6pm-11pm)</option>
-              <option value="Late Night">Late Night (11pm-6am)</option>
+            <select class="form-select" formControlName="timeSlot">
+              <option *ngFor="let slot of timeSlots" [value]="slot">
+                {{ slot }}
+              </option>
             </select>
+          </div>
+        </div>
+
+        <!-- Customer Details Section -->
+        <div class="row pt-3 mt-3">
+          <div class="col-12">
+            <hr>
+            <h4 class="fw-bold mb-2">
+              <i class="fas fa-user-circle me-2 text-primary"></i>
+              Customer Details (For Relationship Tracking)
+            </h4>
+          </div>
+
+          <!-- Customer Email -->
+          <div class="col-md-6">
+            <label class="form-label fw-medium">
+              <i class="fas fa-envelope me-1 text-primary"></i>
+              Customer Email
+            </label>
+            <input type="email" 
+                  class="form-control" 
+                  formControlName="customerEmail"
+                  placeholder="e.g., felix.lucas@example.com">
+          </div>
+
+          <!-- Customer Phone -->
+          <div class="col-md-6">
+            <label class="form-label fw-medium">
+              <i class="fas fa-phone me-1 text-primary"></i>
+              Customer Phone
+            </label>
+            <input type="text" 
+                  class="form-control" 
+                  formControlName="customerPhone"
+                  placeholder="e.g., +254712345678">
+          </div>
+
+          <!-- Account Age -->
+          <div class="col-md-4 mt-2">
+            <label class="form-label fw-medium">
+              <i class="fas fa-calendar-alt me-1 text-primary"></i>
+              Account Age (days)
+            </label>
+            <input type="number" 
+                  class="form-control" 
+                  formControlName="accountAge"
+                  placeholder="e.g., 365"
+                  min="0">
+          </div>
+
+          <!-- Average Transaction -->
+          <div class="col-md-4 mt-2">
+            <label class="form-label fw-medium">
+              <i class="fas fa-chart-line me-1 text-primary"></i>
+              Avg Transaction Amount
+            </label>
+            <input type="number" 
+                  class="form-control" 
+                  formControlName="avgTransaction"
+                  placeholder="e.g., 25000"
+                  min="0">
+          </div>
+
+          <!-- Customer Tier/Risk Profile -->
+          <div class="col-md-4 mt-2">
+            <label class="form-label fw-medium">
+              <i class="fas fa-tag me-1 text-primary"></i>
+              Customer Tier
+            </label>
+            <select class="form-select" formControlName="customerTier">
+              <option value="regular">Regular</option>
+              <option value="premium">Premium</option>
+              <option value="vip">VIP</option>
+              <option value="new">New Customer</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row mt-2">
+          <div class="col-12">
+            <small class="text-muted">
+              <i class="fas fa-info-circle me-1"></i>
+              Customer details help identify related transactions across the system. Transactions with the same customer ID will be linked.
+            </small>
           </div>
         </div>
 
@@ -186,6 +279,7 @@
         </div>
       </form>
     </div>
+
   </div>
 
   <!-- Results Section -->

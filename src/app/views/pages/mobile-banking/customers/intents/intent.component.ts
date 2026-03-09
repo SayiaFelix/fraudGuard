@@ -122,30 +122,36 @@ export class IntentComponent implements OnInit {
     high: [25000, 50000],
     veryHigh: [50000, Infinity]
   };
-  
-  constructor(
-    private toastr: ToastrService,
-    private fb: FormBuilder, 
-    private router: Router,
-    private httpService: HttpService
-  ) {
-    this.riskForm = this.fb.group({
-      amount: ['', [Validators.required, Validators.min(1)]],
-      channel: ['Mobile', Validators.required],
-      location: ['Nairobi, KE', Validators.required],
-      transactionType: ['Online', Validators.required],
-      deviceType: ['iPhone', Validators.required],
-      customerId: ['', Validators.required],
-      customerName: ['', Validators.required],
-      ipAddress: ['192.168.1.1'],
-      timeSlot: ['Afternoon (12pm-6pm)'],
-      transactionFrequency: [1, [Validators.min(1)]],
-      accountActivity: [5000],
-      dayOfWeek: [new Date().getDay()],
-      isWeekend: [new Date().getDay() === 0 || new Date().getDay() === 6 ? 1 : 0]
-    });
-  }
 
+  constructor(
+  private toastr: ToastrService,
+  private fb: FormBuilder, 
+  private router: Router,
+  private httpService: HttpService
+) {
+  this.riskForm = this.fb.group({
+    // Existing fields
+    amount: ['', [Validators.required, Validators.min(1)]],
+    channel: ['Mobile', Validators.required],
+    location: ['Nairobi, KE', Validators.required],
+    transactionType: ['Online', Validators.required],
+    deviceType: ['iPhone', Validators.required],
+    customerId: ['', Validators.required],
+    customerName: ['', Validators.required],
+    ipAddress: ['192.168.1.1'],
+    timeSlot: ['Afternoon (12pm-6pm)'],
+    transactionFrequency: [1, [Validators.min(1)]],
+    accountActivity: [5000],
+    dayOfWeek: [new Date().getDay()],
+    isWeekend: [new Date().getDay() === 0 || new Date().getDay() === 6 ? 1 : 0],
+
+    customerEmail: [''],
+    customerPhone: [''],
+    accountAge: [365],
+    avgTransaction: [50000],
+    customerTier: ['regular']
+  });
+}
   ngOnInit(): void {
     this.loadRecentAnalyses();
   }
@@ -279,7 +285,6 @@ hideError(): void {
   this.errorMessage = '';
 }
 
-
 mapFormToBackend(formData: any): any {
   const deviceField = this.deviceTypeMap[formData.deviceType] || 'Device_Type_Unknown_Device';
   const locationFields = this.locationMap[formData.location] || { local: 1, international: 0 };
@@ -338,7 +343,7 @@ mapFormToBackend(formData: any): any {
     'Transaction_Frequency': Number(formData.transactionFrequency || 1),
     'Account_Activity': Number(formData.accountActivity || 5000),
     'Day_of_Week': Number(formData.dayOfWeek),
-    'IP_Address': Number(ipInt), // Ensure IP is number
+    'IP_Address': Number(ipInt),
     ...amountCategory,
     'Transaction_Location_International': Number(locationFields.international),
     'Transaction_Location_Local': Number(locationFields.local),
@@ -352,12 +357,42 @@ mapFormToBackend(formData: any): any {
     'Transaction_Type_POS': Number(typeFields.pos),
     ...period,
     'Is_Weekend': Number(formData.isWeekend),
-    'tx_count_last_hour': Number(formData.transactionFrequency || 1)
+    'tx_count_last_hour': Number(formData.transactionFrequency || 1),
+    
+    'customer_id': formData.customerId,
+    'customer_name': formData.customerName,
+    'customer_email': formData.customerEmail,
+    'customer_phone': formData.customerPhone,
+    'account_age_days': Number(formData.accountAge || 0),
+    'avg_transaction_amount': Number(formData.avgTransaction || 0),
+    'customer_tier': formData.customerTier
   };
   
   // console.log('Payload being sent:', JSON.stringify(payload, null, 2));
   
   return payload;
+}
+
+resetForm(): void {
+  this.riskForm.reset({
+    channel: 'Mobile',
+    location: 'Nairobi, KE',
+    transactionType: 'Online',
+    deviceType: 'iPhone',
+    timeSlot: 'Afternoon (12pm-6pm)',
+    transactionFrequency: 1,
+    accountActivity: 5000,
+    dayOfWeek: new Date().getDay(),
+    isWeekend: new Date().getDay() === 0 || new Date().getDay() === 6 ? 1 : 0,
+
+    customerEmail: '',
+    customerPhone: '',
+    accountAge: 365,
+    avgTransaction: 50000,
+    customerTier: 'regular'
+  });
+  this.showResult = false;
+  this.analysisResult = null;
 }
 
 mapBackendResult(result: RiskAssessmentResult): RiskResult {
@@ -438,23 +473,6 @@ ipToInt(ip: string): number {
     return 3232235777; //Default 192.168.1.1
   }
 }
-
-
-resetForm(): void {
-    this.riskForm.reset({
-      channel: 'Mobile',
-      location: 'Nairobi, KE',
-      transactionType: 'Online',
-      deviceType: 'iPhone',
-      timeSlot: 'Afternoon (12pm-6pm)',
-      transactionFrequency: 1,
-      accountActivity: 5000,
-      dayOfWeek: new Date().getDay(),
-      isWeekend: new Date().getDay() === 0 || new Date().getDay() === 6 ? 1 : 0
-    });
-    this.showResult = false;
-    this.analysisResult = null;
-  }
 
   loadRecentAnalyses(): void {
     const saved = localStorage.getItem('recentRiskAnalyses');
