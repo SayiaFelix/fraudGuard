@@ -3,6 +3,8 @@ import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { HttpService } from 'src/app/shared/services/http.service';
 import { Subscription, interval } from 'rxjs';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface FraudCase {
   id: string;
@@ -107,15 +109,19 @@ export class ViewCustomerComponent implements OnInit, OnDestroy {
     }
   }
 
-  loadFraudHistory(): void {
+    loadFraudHistory(): void {
     this.isLoading = true;
     
     this.httpService.getFraudHistory(1, 100).subscribe({
       next: (response) => {
         if (response.status === 'success' && response.fraud_transactions) {
-          this.allFraudCases = response.fraud_transactions.map((tx: any) => 
-            this.mapBackendTransaction(tx)
-          );
+          // Map and sort by timestamp (latest first)
+          this.allFraudCases = response.fraud_transactions
+            .map((tx: any) => this.mapBackendTransaction(tx))
+            .sort((a: FraudCase, b: FraudCase) => 
+              new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+            );
+          
           this.totalRecords = response.pagination?.total || this.allFraudCases.length;
           this.totalPages = response.pagination?.total_pages || 1;
           
@@ -129,7 +135,7 @@ export class ViewCustomerComponent implements OnInit, OnDestroy {
       }
     });
   }
-
+  
   mapBackendTransaction(tx: any): FraudCase {
     //risk category
     let riskCategory: 'Critical' | 'High' | 'Medium' | 'Low' = 'Low';
@@ -201,8 +207,9 @@ export class ViewCustomerComponent implements OnInit, OnDestroy {
     if (tx.transaction_details?.Transaction_Type) {
       if (tx.transaction_details.Transaction_Type === 'POS') return 'ATM';
       if (tx.transaction_details.Transaction_Type === 'Online') return 'Web';
+      if (tx.transaction_details.Transaction_Type === 'Mobile') return 'Mobile';
     }
-    return 'Mobile';
+    return 'Web';
   }
 
   determineLocation(tx: any): string {
@@ -366,32 +373,6 @@ export class ViewCustomerComponent implements OnInit, OnDestroy {
     this.router.navigate(['/fraudsentinelAi/transaction_management/fraud/alert-detail', case_.transactionId]);
   }
 
-  exportData(): void {
-    const exportData = {
-      generatedAt: new Date().toISOString(),
-      filters: {
-        riskFilter: this.riskFilter,
-        statusFilter: this.statusFilter,
-        channelFilter: this.channelFilter,
-        dateRange: this.dateRange,
-        searchTerm: this.searchTerm
-      },
-      stats: this.stats,
-      cases: this.filteredCases
-    };
-    
-    const dataStr = JSON.stringify(exportData, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-    const exportFileDefaultName = `fraud-history-${new Date().toISOString().slice(0,10)}.json`;
-    
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
-    
-    alert('Fraud history data exported successfully!');
-  }
-
   getRiskBadgeClass(riskCategory: string): string {
     const classes: any = {
       'Critical': 'bg-danger',
@@ -453,4 +434,170 @@ export class ViewCustomerComponent implements OnInit, OnDestroy {
     };
     return classes[action || ''] || 'bg-secondary';
   }
+
+   exportToPDF(): void {
+    try {
+      const doc = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      //Title
+      doc.setFontSize(18);
+      doc.setTextColor(44, 62, 80);
+      doc.text('Fraud History Report', 148, 15, { align: 'center' });
+
+      // Generated date
+      doc.setFontSize(10);
+      doc.setTextColor(100, 100, 100);
+      const generatedDate = new Date().toLocaleString('en-KE', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      doc.text(`Generated: ${generatedDate}`, 148, 22, { align: 'center' });
+
+      //Filters used
+      let yPos = 30;
+      doc.setFontSize(10);
+      doc.setTextColor(52, 73, 94);
+      doc.text('Filters Applied:', 14, yPos);
+      doc.setFontSize(9);
+      doc.setTextColor(100, 100, 100);
+      
+      const filterText = `Risk: ${this.riskFilter === 'all' ? 'All' : this.riskFilter} | Status: ${this.statusFilter === 'all' ? 'All' : this.statusFilter} | Channel: ${this.channelFilter === 'all' ? 'All' : this.channelFilter} | Date Range: ${this.dateRange}`;
+      doc.text(filterText, 14, yPos + 5);
+
+      //Stats Summary
+      yPos += 15;
+      doc.setFontSize(11);
+      doc.setTextColor(52, 73, 94);
+      doc.text('Summary Statistics', 14, yPos);
+      
+      const statsData = [
+        ['Total Cases', this.stats.total.toString()],
+        ['Critical', this.stats.critical.toString()],
+        ['High', this.stats.high.toString()],
+        // ['Medium', this.stats.medium.toString()],
+        // ['Low', this.stats.low.toString()],
+        ['Open', this.stats.open.toString()],
+        ['Investigating', this.stats.investigating.toString()],
+        ['Resolved', this.stats.resolved.toString()],
+        // ['False Positives', this.stats.falsePositive.toString()],
+        ['Total Amount', this.formatAmount(this.stats.totalAmount)]
+      ];
+
+      autoTable(doc, {
+        startY: yPos + 5,
+        head: [['Metric', 'Value']],
+        body: statsData,
+        theme: 'striped',
+        headStyles: { fillColor: [52, 73, 94] },
+        columnStyles: {
+          0: { cellWidth: 60 },
+          1: { cellWidth: 60 }
+        }
+      });
+
+      //Fraud Cases Table
+      yPos = (doc as any).lastAutoTable.finalY + 15;
+      
+      if (yPos > 180) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      doc.setFontSize(11);
+      doc.setTextColor(52, 73, 94);
+      doc.text('Fraud Cases', 14, yPos);
+
+      const tableData = this.filteredCases.map(case_ => [
+        case_.transactionId,
+        this.datePipe.transform(case_.timestamp, 'yyyy-MM-dd HH:mm') || '',
+        this.formatAmount(case_.amount),
+        case_.riskCategory,
+        `${case_.riskScore}/10`,
+        case_.status,
+        case_.flaggedBy
+      ]);
+
+      autoTable(doc, {
+        startY: yPos + 5,
+        head: [['Transaction ID', 'Date/Time', 'Amount', 'Risk', 'Score', 'Status', 'Flagged By']],
+        body: tableData,
+        theme: 'striped',
+        headStyles: { fillColor: [52, 73, 94] },
+        styles: { fontSize: 8 },
+        columnStyles: {
+          0: { cellWidth: 40 },
+          1: { cellWidth: 35 },
+          2: { cellWidth: 30 },
+          3: { cellWidth: 20 },
+          4: { cellWidth: 15 },
+          5: { cellWidth: 25 },
+          6: { cellWidth: 25 }
+        }
+      });
+
+      //page numbers
+      const pageCount = doc.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(150, 150, 150);
+        doc.text(
+          `Page ${i} of ${pageCount}`,
+          doc.internal.pageSize.width / 2,
+          doc.internal.pageSize.height - 10,
+          { align: 'center' }
+        );
+      }
+
+      const fileName = `fraud-history-${new Date().toISOString().slice(0, 10)}.pdf`;
+      doc.save(fileName);
+      
+      alert('PDF report downloaded successfully!');
+      
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Failed to generate PDF. Please try again.');
+    }
+  }
+
+  exportData(): void {
+    const exportFormat = confirm('Click OK for PDF export, Cancel for JSON export');
+    
+    if (exportFormat) {
+      this.exportToPDF();
+    } else {
+      //JSON export
+      const exportData = {
+        generatedAt: new Date().toISOString(),
+        filters: {
+          riskFilter: this.riskFilter,
+          statusFilter: this.statusFilter,
+          channelFilter: this.channelFilter,
+          dateRange: this.dateRange,
+          searchTerm: this.searchTerm
+        },
+        stats: this.stats,
+        cases: this.filteredCases
+      };
+      
+      const dataStr = JSON.stringify(exportData, null, 2);
+      const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+      const exportFileDefaultName = `fraud-history-${new Date().toISOString().slice(0,10)}.json`;
+      
+      const linkElement = document.createElement('a');
+      linkElement.setAttribute('href', dataUri);
+      linkElement.setAttribute('download', exportFileDefaultName);
+      linkElement.click();
+      
+      alert('Fraud history data exported as JSON!');
+    }
+  }
+
 }
