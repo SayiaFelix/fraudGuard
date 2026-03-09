@@ -102,7 +102,8 @@
            [class.critical]="tx.riskCategory === 'Critical'"
            [class.high]="tx.riskCategory === 'High'"
            [class.medium]="tx.riskCategory === 'Medium'"
-           [class.low]="tx.riskCategory === 'Low'">
+           [class.low]="tx.riskCategory === 'Low'"
+            style="cursor: pointer;">
         
         <div class="row align-items-center">
           <!-- Time & ID -->
@@ -564,6 +565,90 @@
               <i class="fas fa-tag me-1"></i>
               Status: <span class="badge bg-secondary">{{ selectedTransaction.status }}</span>
             </small>
+          </div>
+        </div>
+      </div>
+
+      <div class="related-transactions-section mt-4 p-4" *ngIf="selectedTransaction">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 class="fw-bold mb-0">
+            <i class="fas fa-link me-2 text-primary"></i>
+            Related Transactions
+            <span class="badge bg-secondary ms-2" *ngIf="!isLoadingRelated && selectedTransaction.relatedTransactions?.length">
+              {{ selectedTransaction.relatedTransactions?.length }}
+            </span>
+          </h4>
+          <div *ngIf="isLoadingRelated" class="spinner-border spinner-border-sm text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="isLoadingRelated" class="text-center p-4">
+          <div class="spinner-border text-primary mb-2" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="text-muted small">Searching for related transactions...</p>
+        </div>
+
+        <div class="card" *ngIf="!isLoadingRelated && selectedTransaction.relatedTransactions?.length">
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                  <tr>
+                    <th class="ps-4">Transaction ID</th>
+                    <th>Amount</th>
+                    <th>Risk Score</th>
+                    <th>Risk Level</th>
+                    <th>Status</th>
+                    <!-- <th class="pe-4">Action</th> -->
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let related of selectedTransaction.relatedTransactions">
+                    <td class="ps-4 fw-medium">{{ related.id }}</td>
+                    <td class="fw-bold">{{ formatAmount(related.amount) }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="getRiskBadgeClass(
+                        related.riskScore >= 8 ? 'Critical' : 
+                        related.riskScore >= 6 ? 'High' : 
+                        related.riskScore >= 4 ? 'Medium' : 'Low'
+                      )">
+                        {{ related.riskScore }}/10
+                      </span>
+                    </td>
+                    <td>
+                      <span class="badge" [ngClass]="getRiskBadgeClass(
+                        related.riskScore >= 8 ? 'Critical' : 
+                        related.riskScore >= 6 ? 'High' : 
+                        related.riskScore >= 4 ? 'Medium' : 'Low'
+                      )">
+                        {{ related.riskScore >= 8 ? 'Critical' : 
+                          related.riskScore >= 6 ? 'High' : 
+                          related.riskScore >= 4 ? 'Medium' : 'Low' }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="badge" [ngClass]="getStatusBadgeClass(related.status)">
+                        {{ related.status }}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="alert alert-info" *ngIf="!isLoadingRelated && !selectedTransaction.relatedTransactions?.length">
+          <div class="d-flex align-items-center">
+            <i class="fas fa-info-circle fa-2x me-3"></i>
+            <div>
+              <strong>No Related Transactions</strong>
+              <p class="mb-0 small">This transaction has no direct connections to other transactions in the system.</p>
+            </div>
           </div>
         </div>
       </div>

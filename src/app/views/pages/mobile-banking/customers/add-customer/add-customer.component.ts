@@ -47,6 +47,12 @@ interface Transaction {
     final?: string;
   };
   recommendedAction: string;
+  relatedTransactions?: Array<{ 
+    id: string;
+    amount: number;
+    riskScore: number;
+    status: string;
+  }>;
   rawData?: any;
 }
 
@@ -69,7 +75,7 @@ export class AddCustomerComponent implements OnInit {
   riskFilter: string = 'all';
   channelFilter: string = 'all';
   searchTerm: string = '';
-  
+  isLoadingRelated: boolean = false;
   // Stats
   stats = {
     total: 0,
@@ -107,6 +113,62 @@ export class AddCustomerComponent implements OnInit {
     }
   }
 
+
+loadRelatedTransactions(transactionId: string): void {
+  this.isLoadingRelated = true;
+  
+  this.httpService.getRelatedTransactions(transactionId).subscribe({
+    next: (response) => {
+      if (response.status === 'success' && response.related_transactions) {
+        const related = response.related_transactions.map((tx: any) => ({
+          id: tx.transaction_id,
+          amount: tx.amount || 0,
+          riskScore: tx.risk_score,
+          status: this.mapRiskCategoryToStatus(tx.risk_category)
+        }));
+        
+        if (this.selectedTransaction) {
+          this.selectedTransaction.relatedTransactions = related;
+        }
+      }
+      this.isLoadingRelated = false;
+    },
+    error: (error) => {
+      console.error('Error loading related transactions:', error);
+      if (this.selectedTransaction) {
+        this.selectedTransaction.relatedTransactions = [];
+      }
+      this.isLoadingRelated = false;
+    }
+  });
+}
+
+mapRiskCategoryToStatus(riskCategory: string): string {
+  if (riskCategory?.includes('Critical')) {
+    return 'Open';
+  } else if (riskCategory?.includes('High')) {
+    return 'Investigating';
+  } else if (riskCategory?.includes('Medium')) {
+    return 'Auto-Approved';
+  } else if (riskCategory?.includes('Low')) {
+    return 'Auto-Approved';
+  }
+  return 'Resolved'; // Default
+}
+
+getStatusBadgeClass(status: string): string {
+  const classes: { [key: string]: string } = {
+    'Open': 'bg-danger',
+    'Investigating': 'bg-warning text-dark',
+    'Under Review': 'bg-info',
+    'Auto-Approved': 'bg-success',
+    'Resolved': 'bg-success',
+    'False Positive': 'bg-secondary',
+    'Completed': 'bg-secondary'
+  };
+  return classes[status] || 'bg-secondary';
+}
+
   loadTransactions(): void {
     this.httpService.getTransactions(1, 100).subscribe({
       next: (response) => {
@@ -128,11 +190,15 @@ export class AddCustomerComponent implements OnInit {
     this.activeTab = tab;
   }
 
-    showAIAnalysis(transaction: Transaction): void {
-    this.selectedTransaction = transaction;
-    this.activeTab = 'final'; 
-    this.showModal = true;
-  }
+  showAIAnalysis(transaction: Transaction): void {
+  this.selectedTransaction = transaction;
+  this.activeTab = 'final'; 
+  this.showModal = true;
+ 
+  this.selectedTransaction.relatedTransactions = [];
+  this.loadRelatedTransactions(transaction.transactionId);
+}
+
   mapBackendTransaction(tx: any): Transaction {
   let riskCategory: 'Critical' | 'High' | 'Medium' | 'Low' = 'Low';
   if (tx.risk_category.includes('Critical')) riskCategory = 'Critical';
@@ -325,11 +391,6 @@ calculateStats(): void {
     }
   }
 
-  investigateTransaction(): void {
-    if (this.selectedTransaction) {
-      this.router.navigate(['/fraudsentinelAi/transaction_management/fraud/investigation-graph']);
-    }
-  }
 
   closeModal(): void {
     this.showModal = false;
@@ -357,6 +418,21 @@ calculateStats(): void {
       return '#28a745'; // 
     }
   }
+
+viewTransactionDetail(transaction: Transaction): void {
+  this.router.navigate(['/fraudsentinelAi/transaction_management/fraud/alert-detail', transaction.transactionId]);
+}
+
+
+investigateTransaction(): void {
+  if (this.selectedTransaction) {
+    this.router.navigate([
+      '/fraudsentinelAi/transaction_management/fraud/investigation-graph', 
+      this.selectedTransaction.transactionId  
+    ]);
+    this.closeModal();
+  }
+}
 
   formatAmount(amount: number): string {
     return new Intl.NumberFormat('en-KE', {
