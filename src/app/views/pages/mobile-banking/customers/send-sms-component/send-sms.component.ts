@@ -74,6 +74,7 @@ interface AlertDetail {
   rawData?: any;
 }
 
+
 @Component({
   selector: 'app-list-observations',
   templateUrl: './send-sms.component.html',
@@ -86,11 +87,15 @@ export class SendSmsComponent implements OnInit {
   activeTab: 'overview' | 'aiAnalysis' | 'timeline' | 'related' = 'overview';
   errorMessage: string = '';
   
-  // For action buttons
+  //action buttons
   showActionModal: boolean = false;
   actionType: 'block' | 'approve' | 'flag' | 'escalate' | null = null;
   actionNotes: string = '';
   actionLoading: boolean = false;
+
+  showFeedbackModal: boolean = false;
+  feedbackType: 'confirmed_fraud' | 'false_positive' | null = null;
+  feedbackLoading: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -110,6 +115,58 @@ export class SendSmsComponent implements OnInit {
       }
     });
   }
+
+openFeedbackModal(type: 'confirmed_fraud' | 'false_positive'): void {
+  this.feedbackType = type;
+  this.actionNotes = '';
+  this.showFeedbackModal = true;
+}
+
+closeFeedbackModal(): void {
+  this.showFeedbackModal = false;
+  this.feedbackType = null;
+  this.actionNotes = '';
+}
+
+submitFeedback(): void {
+  if (!this.feedbackType || !this.alertData) return;
+  
+  this.feedbackLoading = true;
+
+  const signals = {
+    transaction_id: this.alertData.transactionId,
+    risk_score: this.alertData.riskScore,
+    risk_category: this.alertData.riskCategory,
+    amount: this.alertData.amount,
+    notes: this.actionNotes
+  };
+  
+  this.httpService.submitFraudFeedback(
+    this.alertData.transactionId,
+    this.feedbackType,
+    signals
+  ).subscribe({
+    next: (response) => {
+      console.log('Feedback submitted:', response);
+      this.feedbackLoading = false;
+      this.closeFeedbackModal();
+      
+      alert(`Feedback submitted successfully! The AI model will learn from this.`);
+      
+      if (this.feedbackType === 'confirmed_fraud') {
+        this.alertData!.status = 'Resolved';
+      } else if (this.feedbackType === 'false_positive') {
+        this.alertData!.status = 'False Positive';
+      }
+    },
+    error: (error) => {
+      console.error('Error submitting feedback:', error);
+      this.feedbackLoading = false;
+      this.closeFeedbackModal();
+      alert('Failed to submit feedback. Please try again.');
+    }
+  });
+}
 
   loadAlertData(): void {
     this.isLoading = true;
@@ -137,7 +194,7 @@ export class SendSmsComponent implements OnInit {
     const transactionDetails = tx.transaction_details || {};
     const explanations = tx.explanations || {};
     
-    // Determine risk category
+    //risk category
     let riskCategory: 'Critical' | 'High' | 'Medium' | 'Low' = 'Low';
     if (tx.risk_category.includes('Critical')) riskCategory = 'Critical';
     else if (tx.risk_category.includes('High')) riskCategory = 'High';
@@ -149,7 +206,7 @@ export class SendSmsComponent implements OnInit {
     const flagged = parseInt(modelAgreement.split('/')[0]) || 0;
     const total = 7;
 
-    // Determine flagged by
+    //flagged by
     let flaggedBy: 'AI' | 'Rules' | 'Manual' | 'AI + Rules (Hybrid)' = 'AI';
     if (transactionDetails.Rule_Engine?.triggered && flagged > 0) {
       flaggedBy = 'AI + Rules (Hybrid)';
@@ -162,7 +219,7 @@ export class SendSmsComponent implements OnInit {
     // Extract signals
     const signals: Array<{name: string; severity: 'high' | 'medium' | 'low'; description: string}> = [];
     
-    // Add rule-based signals
+    //rule-based signals
     if (transactionDetails.Rule_Engine?.triggered) {
       transactionDetails.Rule_Engine.rules.forEach((rule: string) => {
         signals.push({
@@ -173,7 +230,7 @@ export class SendSmsComponent implements OnInit {
       });
     }
     
-    // Add real-time signals
+    //Real-time signals
     if (transactionDetails.real_time_signals) {
       const signals_data = transactionDetails.real_time_signals;
       if (signals_data.amount_risk > 0.7) {
@@ -205,15 +262,14 @@ export class SendSmsComponent implements OnInit {
       }
     }
 
-    // Generate AI explanation
+    //AI explanation
     const aiExplanation = explanations.final || explanations.llm || explanations.rule_based || 
       `This transaction was flagged as ${tx.risk_category} with a risk score of ${tx.risk_score}.`;
 
-    // Determine channel
+    //channel
     let channel: 'Mobile' | 'Web' | 'ATM' | 'Agent' = 'Web';
-    // You can add logic to determine channel from transaction data
-
-    // Determine location
+  
+    //location
     let location = transactionDetails.Transaction_Location === 'International' ? 'International' : 'Nairobi, KE';
 
     return {
@@ -265,10 +321,10 @@ export class SendSmsComponent implements OnInit {
           models: this.generateModelList(flagged, total, riskCategory)
         },
         recommendedAction: tx.recommended_action,
-        confidence: Math.round(tx.risk_score * 10) // Convert 0-10 to 0-100 scale
+        confidence: Math.round(tx.risk_score * 10) 
       },
       
-      relatedTransactions: [], // You can fetch related transactions if needed
+      relatedTransactions: [],
       timeline: this.generateTimeline(tx),
       rawData: tx
     };
@@ -288,7 +344,6 @@ export class SendSmsComponent implements OnInit {
   }
 
   determineDeviceType(tx: any): string {
-    // Check transaction features for device type
     if (tx.transaction_details) {
       if (tx.transaction_details.Device_Type_iPhone) return 'iPhone';
       if (tx.transaction_details.Device_Type_Android) return 'Android';
@@ -334,7 +389,7 @@ export class SendSmsComponent implements OnInit {
       }
     ];
 
-    // Add rule engine trigger if applicable
+    //rule engine trigger if applicable
     if (tx.transaction_details?.Rule_Engine?.triggered) {
       timeline.push({
         action: 'Rule Engine Triggered',
@@ -344,7 +399,7 @@ export class SendSmsComponent implements OnInit {
       });
     }
 
-    // Add feedback if available
+    //feedback if available
     if (tx.feedback_effect) {
       timeline.push({
         action: 'Feedback Applied',

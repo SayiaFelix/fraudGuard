@@ -172,6 +172,25 @@ getTransactionById(transactionId: string): Observable<any> {
     );
 }
 
+submitFraudFeedback(transactionId: string, feedback: 'confirmed_fraud' | 'false_positive', signals?: any): Observable<any> {
+  const payload: any = {
+    transaction_id: transactionId,
+    feedback: feedback
+  };
+  
+  if (signals) {
+    payload.signals = signals;
+  }
+  
+  return this.http.post(`${this.apiUrl}/fraud_feedback`, payload)
+    .pipe(
+      tap(response => console.log('Feedback response:', response)),
+      catchError(this.handleError<any>('submitFraudFeedback', { 
+        message: 'Failed to submit feedback' 
+      }))
+    );
+}
+
 getTransactions(page: number = 1, size: number = 100): Observable<TransactionsResponse> {
   // console.log(`Calling API: ${this.apiUrl}/transactions with page=${page}, size=${size}`);
   
