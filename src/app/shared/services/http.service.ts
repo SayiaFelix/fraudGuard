@@ -172,6 +172,16 @@ getTransactionById(transactionId: string): Observable<any> {
     );
 }
 
+getRelatedTransactions(transactionId: string): Observable<any> {
+  return this.http.post(`${this.apiUrl}/transactions/related`, { transaction_id: transactionId })
+    .pipe(
+      tap(response => console.log('Related transactions response:', response)),
+      catchError(this.handleError<any>('getRelatedTransactions', { 
+        related_transactions: [] 
+      }))
+    );
+}
+
 submitFraudFeedback(transactionId: string, feedback: 'confirmed_fraud' | 'false_positive', signals?: any): Observable<any> {
   const payload: any = {
     transaction_id: transactionId,
