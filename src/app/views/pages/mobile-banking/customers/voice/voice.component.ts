@@ -756,26 +756,6 @@ exportInsights(): void {
         doc.addPage();
         finalY = 20;
       }
-      
-      doc.setFontSize(14);
-      doc.setTextColor(52, 73, 94);
-      doc.text('Fraud Trends', 14, finalY);
-      finalY += 5;
-      
-      const trendData = this.fraudTrends.map(trend => [
-        new Date(trend.date).toLocaleDateString('en-KE'),
-        trend.predicted.toString(),
-        trend.actual.toString(),
-        trend.confidence + '%'
-      ]);
-      
-      autoTable(doc, {
-        startY: finalY,
-        head: [['Date', 'Predicted', 'Actual', 'Confidence']],
-        body: trendData,
-        theme: 'striped',
-        headStyles: { fillColor: [52, 73, 94] }
-      });
     }
     
     const pageCount = doc.getNumberOfPages();
