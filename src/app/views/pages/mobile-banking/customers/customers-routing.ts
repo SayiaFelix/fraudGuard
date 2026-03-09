@@ -31,7 +31,6 @@ const routes: Routes = [
       { path: 'investigation-graph/:id', component: ReasonsForFailureComponent },
       { path: 'ai-insights', component: VoiceComponent },
       { path: 'history', component: ViewCustomerComponent },
-  
       { path: 'alert-detail/:id', component: SendSmsComponent },
 
  
