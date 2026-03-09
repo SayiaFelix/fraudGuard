@@ -206,7 +206,7 @@
                   </div>
                   <div class="col-md-6">
                     <div class="info-item">
-                      <small class="text-muted d-block">Latest Transaction</small>
+                      <small class="text-muted d-block">Avg Transaction</small>
                       <span class="fw-medium">{{ formatAmount(alertData.customer.averageTransaction) }}</span>
                     </div>
                   </div>
@@ -264,7 +264,7 @@
                       <span class="fw-medium">{{ formatDate(alertData.device.lastSeen) }}</span>
                     </div>
                   </div>
-                  <div class="col-12">
+                  <div class="col-md-6">
                     <div class="info-item">
                       <small class="text-muted d-block">Trust Status</small>
                       <span class="badge" [ngClass]="alertData.device.trusted ? 'bg-success' : 'bg-danger'">
@@ -272,12 +272,22 @@
                       </span>
                     </div>
                   </div>
+                  <div class="col-md-6">
+                      <div class="info-item">
+                        <small class="text-muted d-block">Blacklist Status</small>
+                       <span class="badge" [ngClass]="alertData.ipAddress.blacklisted ? 'bg-danger' : 'bg-success'">
+                        {{ alertData.ipAddress.blacklisted ? 'Blacklisted' : 'Clean' }}
+                      </span>
+                    </div>
+                  </div>
+              
+
                 </div>
               </div>
             </div>
 
             <!-- IP Information Card -->
-            <div class="card shadow-sm mb-4">
+            <!-- <div class="card shadow-sm mb-4">
               <div class="card-header bg-transparent border-0 pt-3 px-4">
                 <h4 class="fw-bold mb-0">
                   <i class="fas fa-network-wired me-2 text-primary"></i>
@@ -322,7 +332,7 @@
                   </div>
                 </div>
               </div>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>

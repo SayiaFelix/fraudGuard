@@ -167,7 +167,7 @@ export class ViewCustomerComponent implements OnInit, OnDestroy {
       });
     }
 
-    //AI explanation from available data
+    //AI explanation - prioritize final explanation, then rule-based, then construct basic explanation
     let aiExplanation = tx.explanations?.final || tx.explanations?.rule_based || '';
     if (!aiExplanation) {
       aiExplanation = `This transaction was flagged as ${tx.risk_category} with a risk score of ${tx.risk_score}. `;
@@ -188,8 +188,8 @@ export class ViewCustomerComponent implements OnInit, OnDestroy {
       timestamp: new Date(tx.timestamp),
       status: this.determineStatus(tx),
       flaggedBy: flaggedBy as any,
-      customerName: `Customer ${tx.transaction_id.substring(0, 8)}`,
-      customerId: `CUST-${tx.transaction_id.substring(0, 8)}`,
+      customerName:`${tx.customer_info.customer_name || 'Unknown'}`,
+      customerId: `${tx.customer_info.customer_id || 'Unknown'}`,
       deviceId: 'Unknown',
       ipAddress: 'Unknown',
       resolution: this.determineResolution(tx),

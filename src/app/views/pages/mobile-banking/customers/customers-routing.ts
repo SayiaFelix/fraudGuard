@@ -33,9 +33,6 @@ const routes: Routes = [
       { path: 'history', component: ViewCustomerComponent },
       { path: 'alert-detail/:id', component: SendSmsComponent },
 
- 
-
-     
     ]
   }
 ,
