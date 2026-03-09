@@ -44,32 +44,47 @@
   </span>
 </div>
 
+<!-- Quick Action Bar -->
 <div class="action-bar card shadow-sm mb-4">
-      <div class="card-body py-3">
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-          <div class="d-flex align-items-center gap-2">
-            <span class="text-muted">Take Action:</span>
-            <button class="btn btn-danger btn-sm" (click)="openActionModal('block')">
-              <i class="fas fa-ban me-1"></i> Block Transaction
-            </button>
-            <button class="btn btn-success btn-sm" (click)="openActionModal('approve')">
-              <i class="fas fa-check me-1"></i> Approve
-            </button>
-            <button class="btn btn-warning btn-sm text-dark" (click)="openActionModal('flag')">
-              <i class="fas fa-flag me-1"></i> Flag for Review
-            </button>
-            <button class="btn btn-primary btn-sm" (click)="openActionModal('escalate')">
-              <i class="fas fa-arrow-up me-1"></i> Escalate
-            </button>
-          </div>
-          <button class="btn btn-outline-primary btn-sm" (click)="goToInvestigation()">
-            <i class="fas fa-project-diagram me-1"></i> View in Investigation Graph
-          </button>
-        </div>
+  <div class="card-body py-3">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <div class="d-flex align-items-center gap-2">
+        <span class="text-muted">Take Action:</span>
+        <button class="btn btn-danger btn-sm" (click)="openActionModal('block')">
+          <i class="fas fa-ban me-1"></i> Block Transaction
+        </button>
+        <button class="btn btn-success btn-sm" (click)="openActionModal('approve')">
+          <i class="fas fa-check me-1"></i> Approve
+        </button>
+        <button class="btn btn-warning btn-sm text-dark" (click)="openActionModal('flag')">
+          <i class="fas fa-flag me-1"></i> Flag for Review
+        </button>
+        <button class="btn btn-primary btn-sm" (click)="openActionModal('escalate')">
+          <i class="fas fa-arrow-up me-1"></i> Escalate
+        </button>
       </div>
+      
+      <!-- Feedback Buttons -->
+      <div class="d-flex align-items-center gap-2">
+        <span class="text-muted">AI Feedback:</span>
+        <button class="btn btn-outline-success btn-sm" (click)="openFeedbackModal('confirmed_fraud')" 
+                title="Confirm this is fraud - helps AI learn">
+          <i class="fas fa-check-circle me-1"></i> Confirm Fraud
+        </button>
+        <button class="btn btn-outline-danger btn-sm" (click)="openFeedbackModal('false_positive')"
+                title="Mark as false positive - helps AI improve">
+          <i class="fas fa-times-circle me-1"></i> False Positive
+        </button>
+      </div>
+      
+      <button class="btn btn-outline-primary btn-sm" (click)="goToInvestigation()">
+        <i class="fas fa-project-diagram me-1"></i> View Graph
+      </button>
     </div>
-
-    <!-- Tabs Navigation -->
+  </div>
+</div>
+   
+<!-- Tabs Navigation -->
     <ul class="nav nav-tabs mb-4">
       <li class="nav-item">
         <a class="nav-link" [class.active]="activeTab === 'overview'" (click)="setActiveTab('overview')">
@@ -99,7 +114,6 @@
       <div class="tab-pane fade show active" *ngIf="activeTab === 'overview'">
         <div class="row">
           <div class="col-lg-6">
-
             <div class="card shadow-sm mb-4">
               <div class="card-header bg-transparent border-0 pt-3 px-4">
                 <h4 class="fw-bold mb-0">
@@ -151,7 +165,6 @@
               </div>
             </div>
 
-            <!-- Customer Information Card -->
             <div class="card shadow-sm mb-4">
               <div class="card-header bg-transparent border-0 pt-3 px-4">
                 <h4 class="fw-bold mb-0">
@@ -210,7 +223,6 @@
             </div>
           </div>
 
-          <!-- Right Column - Device & IP Info -->
           <div class="col-lg-6">
             <!-- Device Information Card -->
             <div class="card shadow-sm mb-4">
@@ -479,7 +491,6 @@
         </div>
       </div>
 
-      <!-- RELATED TRANSACTIONS TAB -->
       <div class="tab-pane fade show active" *ngIf="activeTab === 'related'">
         <div class="card shadow-sm">
           <div class="card-header bg-transparent border-0 pt-3 px-4">
@@ -603,6 +614,80 @@
                 </span>
               </button>
          </div>
+    </div>
+  </div>
+</div>
+
+<!-- Feedback Modal -->
+<div class="modal-overlay" *ngIf="showFeedbackModal" (click)="closeFeedbackModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header" [ngClass]="{
+      'bg-success text-white': feedbackType === 'confirmed_fraud',
+      'bg-danger text-white': feedbackType === 'false_positive'
+    }">
+      <h3 class="modal-title">
+        <i class="fas" [ngClass]="{
+          'fa-check-circle': feedbackType === 'confirmed_fraud',
+          'fa-times-circle': feedbackType === 'false_positive'
+        }"></i>
+        <span class="ms-2">{{ feedbackType === 'confirmed_fraud' ? 'Confirm Fraud' : 'False Positive' }}</span>
+      </h3>
+      <button type="button" class="btn-close btn-close-white" (click)="closeFeedbackModal()"></button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="alert" [ngClass]="{
+        'alert-success': feedbackType === 'confirmed_fraud',
+        'alert-danger': feedbackType === 'false_positive'
+      }">
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>How this helps:</strong> Your feedback will be used to retrain the AI models and improve future fraud detection.
+      </div>
+      
+      <p class="mb-3">
+        <strong>Transaction:</strong> {{ alertData?.transactionId }}<br>
+        <strong>Amount:</strong> {{ formatAmount(alertData?.amount || 0) }}<br>
+        <strong>Risk Score:</strong> {{ alertData?.riskScore }}/10<br>
+        <strong>Current Status:</strong> {{ alertData?.status }}
+      </p>
+      
+      <div class="mb-3">
+        <label class="form-label fw-medium">Additional Notes (Optional)</label>
+        <textarea class="form-control" rows="3" 
+                  placeholder="Add any notes about why this is {{ feedbackType === 'confirmed_fraud' ? 'fraud' : 'a false positive' }}..."
+                  [(ngModel)]="actionNotes"></textarea>
+      </div>
+      
+      <div class="bg-light p-3 rounded-3">
+        <small class="text-muted d-block mb-2">What happens next?</small>
+        <ul class="small text-muted mb-0 ps-3">
+          <li *ngIf="feedbackType === 'confirmed_fraud'">This transaction will be marked as confirmed fraud</li>
+          <li *ngIf="feedbackType === 'false_positive'">This transaction will be marked as false positive</li>
+          <li>The AI model weights will be adjusted based on this feedback</li>
+          <li>Similar future transactions will be scored more accurately</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-end">
+      <div class="modal-footer d-flex gap-2 justify-content-between">
+        <button class="btn btn-outline-secondary" (click)="closeFeedbackModal()">Cancel</button>
+        <button class="btn" [ngClass]="{
+          'btn-success': feedbackType === 'confirmed_fraud',
+          'btn-danger': feedbackType === 'false_positive'
+        }" (click)="submitFeedback()" [disabled]="feedbackLoading">
+          <span *ngIf="!feedbackLoading">
+            <i class="fas" [ngClass]="{
+              'fa-check-circle': feedbackType === 'confirmed_fraud',
+              'fa-times-circle': feedbackType === 'false_positive'
+            }"></i>
+            <span class="ms-1">Submit {{ feedbackType === 'confirmed_fraud' ? 'Confirmation' : 'False Positive' }}</span>
+          </span>
+          <span *ngIf="feedbackLoading">
+            <i class="fas fa-spinner fa-spin me-1"></i> Submitting...
+          </span>
+        </button>
+      </div>
     </div>
   </div>
 </div>
