@@ -173,7 +173,7 @@ getStatusBadgeClass(status: string): string {
     this.httpService.getTransactions(1, 100).subscribe({
       next: (response) => {
         if (response.status === 'success' && response.transactions) {
-          //Converting backend transactions to frontend format
+      
           this.transactions = response.transactions.map(tx => this.mapBackendTransaction(tx));
           this.applyFilters();
           this.calculateStats();
@@ -199,7 +199,7 @@ getStatusBadgeClass(status: string): string {
   this.loadRelatedTransactions(transaction.transactionId);
 }
 
-  mapBackendTransaction(tx: any): Transaction {
+mapBackendTransaction(tx: any): Transaction {
   let riskCategory: 'Critical' | 'High' | 'Medium' | 'Low' = 'Low';
   if (tx.risk_category.includes('Critical')) riskCategory = 'Critical';
   else if (tx.risk_category.includes('High')) riskCategory = 'High';

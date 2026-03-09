@@ -107,8 +107,8 @@ export class SendSmsComponent implements OnInit {
   this.route.paramMap.subscribe(params => {
     this.alertId = params.get('id');
     if (this.alertId) {
+      this.activeTab = 'overview';
       this.loadModelMetrics();
-      // this.loadAlertData();
     } else {
       this.errorMessage = 'No alert ID provided';
       this.isLoading = false;
