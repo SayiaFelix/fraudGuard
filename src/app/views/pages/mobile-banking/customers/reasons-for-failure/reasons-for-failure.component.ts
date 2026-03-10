@@ -12,7 +12,7 @@ interface GraphNode {
   flagged?: boolean;
   x?: number;
   y?: number;
-  transactionId?: string; // For linking
+  transactionId?: string; 
 }
 
 interface GraphLink {
@@ -35,11 +35,9 @@ interface GraphData {
 export class ReasonsForFailureComponent implements OnInit, OnDestroy {
  @ViewChild('graphCanvas') graphCanvas!: ElementRef<HTMLCanvasElement>;
   
-  // Graph data
   graphData: GraphData = { nodes: [], links: [] };
   filteredGraphData: GraphData = { nodes: [], links: [] };
   
-  // Selected node for details panel
   selectedNode: GraphNode | null = null;
   selectedNodeConnections: { nodes: GraphNode[], links: GraphLink[] } = { nodes: [], links: [] };
   
@@ -70,14 +68,12 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
     connectedAccounts: 12
   };
 
-  // Mock fraud rings
   fraudRings = [
     { id: 'ring-1', name: 'Nairobi Fraud Ring', size: 8, totalAmount: 2450000, riskLevel: 'Critical' },
     { id: 'ring-2', name: 'Mombasa Mule Network', size: 5, totalAmount: 1890000, riskLevel: 'High' },
     { id: 'ring-3', name: 'SIM Swap Syndicate', size: 4, totalAmount: 3200000, riskLevel: 'Critical' }
   ];
 
-  // Predefined positions for nodes (circular layout)
   private nodePositions: Map<string, { x: number, y: number }> = new Map();
 
   constructor(
@@ -85,19 +81,17 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute
   ) {}
 
-
   ngOnInit(): void {
   this.route.paramMap.subscribe(params => {
     this.investigationAlertId = params.get('id');
-    this.generateMockGraphData(); // This now properly populates graphData
+    this.generateMockGraphData();
     
-    console.log('After generateMockGraphData - Total nodes:', this.graphData.nodes.length); // Debug
+    console.log('After generateMockGraphData - Total nodes:', this.graphData.nodes.length);
     
     if (this.investigationAlertId) {
       this.enterInvestigationMode(this.investigationAlertId);
     } else {
       this.isInvestigationMode = false;
-      // Set filteredGraphData to all nodes initially
       this.filteredGraphData = { 
         nodes: [...this.graphData.nodes], 
         links: [...this.graphData.links] 
@@ -108,13 +102,42 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
     this.calculateStats(); 
     this.calculateNodePositions();
     
-    // Draw graph after positions are calculated
     setTimeout(() => {
       this.drawGraph();
     }, 100);
   });
 }
 
+showFuturePreview: boolean = true;
+futureReleaseDate: string = 'Q3 2026';
+
+
+showRoadmap(): void {
+  const roadmap = `
+    FinGuard AI - Product Roadmap
+    
+    Phase 1-3 (Current - March 2026):
+    • Core ML Models (Random Forest, XGBoost, LightGBM, CatBoost)
+    • Hybrid Rule Engine
+    • LLM-powered Explanations
+    • Real-time Dashboard & Risk Analyzer
+    
+    Phase 4 (Next - Q2 2026):
+    • Agentic AI Response System
+    • Automated Actions (Block/Flag/Approve)
+    • Human-in-the-loop Feedback
+    
+    Phase 5-6 (Post-Hackathon - Q3 2026):
+    • Real world data integration
+    • Graph-based Fraud Detection
+    • Neo4j Integration
+    • Real-time Fraud Rings Detection
+    • Cross-border Transaction Analysis
+    • CBK Reporting Integration
+  `;
+  
+  alert(roadmap);
+}
 
   ngAfterViewInit(): void {
     setTimeout(() => {
@@ -123,11 +146,10 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
   }
 
   private filterGraphForInvestigation(centerNode: GraphNode): void {
-  // Find all nodes directly connected to the center node
+
   const connectedNodeIds = new Set<string>();
   connectedNodeIds.add(centerNode.id);
   
-  // First degree connections
   this.graphData.links.forEach(link => {
     if (link.source === centerNode.id) {
       connectedNodeIds.add(link.target as string);
@@ -137,7 +159,6 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
     }
   });
   
-  // Also include the center node's own connections
   this.filteredGraphData.nodes = this.graphData.nodes.filter(node => 
     connectedNodeIds.has(node.id)
   );
@@ -157,8 +178,7 @@ ngOnDestroy(): void {
   console.log('Component destroyed');
 }
 
-
-  exitInvestigationMode(): void {
+exitInvestigationMode(): void {
     this.isInvestigationMode = false;
     this.investigationNode = null;
     this.clearSelection();
@@ -271,17 +291,9 @@ ngOnDestroy(): void {
     { source: 'acc-1', target: 'acc-4', type: 'transferred_to', count: 2 },
     { source: 'acc-2', target: 'acc-4', type: 'transferred_to', count: 1 },
   ];
-
-  console.log('Graph Data Generated:', {
-    totalNodes: this.graphData.nodes.length,
-    criticalNodes: this.graphData.nodes.filter(n => n.riskCategory === 'Critical').length,
-    highNodes: this.graphData.nodes.filter(n => n.riskCategory === 'High').length,
-    mediumNodes: this.graphData.nodes.filter(n => n.riskCategory === 'Medium').length,
-    lowNodes: this.graphData.nodes.filter(n => n.riskCategory === 'Low').length,
-  });
 }
 
-  private calculateNodePositions(): void {
+private calculateNodePositions(): void {
     const centerX = 450;
     const centerY = 275;
     const radius = 200;
@@ -301,7 +313,7 @@ ngOnDestroy(): void {
     });
   }
 
-  private enterInvestigationMode(alertId: string): void {
+private enterInvestigationMode(alertId: string): void {
   this.isInvestigationMode = true;
   
   console.log('Entering investigation mode for alert:', alertId);
@@ -339,7 +351,6 @@ ngOnDestroy(): void {
     canvas.width = 900;
     canvas.height = 550;
 
-    // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     if (this.isInvestigationMode && this.investigationNode) {
