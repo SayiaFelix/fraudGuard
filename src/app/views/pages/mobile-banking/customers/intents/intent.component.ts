@@ -140,7 +140,7 @@ export class IntentComponent implements OnInit {
     customerName: ['', Validators.required],
     ipAddress: ['192.168.1.1'],
     timeSlot: ['Afternoon (12pm-6pm)'],
-    transactionFrequency: [1, [Validators.min(1)]],
+    transactionFrequency: [1, [Validators.required, Validators.min(1), Validators.max(100)]],
     accountActivity: [5000],
     dayOfWeek: [new Date().getDay()],
     isWeekend: [new Date().getDay() === 0 || new Date().getDay() === 6 ? 1 : 0],
@@ -178,9 +178,8 @@ export class IntentComponent implements OnInit {
     this.handleError('Failed to prepare transaction data. Please check your inputs.');
     return;
   }
-  
-  //Calling real backend API with timeout
-  const timeoutMs = 30000; // 30 second timeout
+
+  const timeoutMs = 30000;
   
   const subscription = this.httpService.checkTransactionRisk(backendPayload)
     .subscribe({
@@ -253,6 +252,53 @@ showSuccessToast(message: string): void {
     timeOut: 3000,
     positionClass: 'toast-top-right'
   });
+}
+
+getErrorMessage(controlName: string): string {
+  const control = this.riskForm.get(controlName);
+  if (!control) return '';
+  
+  if (control.hasError('required')) {
+    if (controlName === 'transactionFrequency') {
+      return 'Transaction frequency is required';
+    }
+    return `${controlName} is required`;
+  }
+  
+  if (control.hasError('min')) {
+    if (controlName === 'transactionFrequency') {
+      return 'Transaction frequency must be at least 1 per hour (zero not allowed)';
+    }
+    const min = control.errors?.['min'].min;
+    return `Value must be greater than ${min}`;
+  }
+  
+  if (control.hasError('max')) {
+    if (controlName === 'transactionFrequency') {
+      return 'Transaction frequency cannot exceed 100 per hour';
+    }
+    const max = control.errors?.['max'].max;
+    return `Value must be less than ${max}`;
+  }
+  
+  if (control.hasError('pattern')) {
+    switch(controlName) {
+      case 'ipAddress':
+        return 'Invalid IP address format (use xxx.xxx.xxx.xxx)';
+      case 'customerEmail':
+        return 'Invalid email format (e.g., name@example.com)';
+      case 'customerPhone':
+        return 'Invalid phone number (10-15 digits, optional +)';
+      case 'customerName':
+        return 'Name can only contain letters, spaces, and hyphens';
+      case 'customerId':
+        return 'Customer ID can only contain uppercase letters, numbers, and hyphens';
+      default:
+        return 'Invalid format';
+    }
+  }
+  
+  return '';
 }
 
 showTemporaryMessage(message: string, type: 'error' | 'success' | 'info'): void {
@@ -474,6 +520,26 @@ ipToInt(ip: string): number {
   }
 }
 
+get transactionFrequency() {
+  return this.riskForm.get('transactionFrequency');
+}
+
+get accountActivity() {
+  return this.riskForm.get('accountActivity');
+}
+
+get accountAge() {
+  return this.riskForm.get('accountAge');
+}
+
+get avgTransaction() {
+  return this.riskForm.get('avgTransaction');
+}
+
+get ipAddress() {
+  return this.riskForm.get('ipAddress');
+}
+
   loadRecentAnalyses(): void {
     const saved = localStorage.getItem('recentRiskAnalyses');
     if (saved) {
@@ -505,20 +571,6 @@ ipToInt(ip: string): number {
     if (this.analysisResult) {
       this.router.navigate(['/fraudsentinelAi/transaction_management/fraud/investigation-graph', this.analysisResult.transactionId]);
     }
-  }
-
-  getErrorMessage(controlName: string): string {
-    const control = this.riskForm.get(controlName);
-    if (control?.hasError('required')) {
-      return `${controlName} is required`;
-    }
-    if (control?.hasError('min')) {
-      return `Amount must be greater than 0`;
-    }
-    if (control?.hasError('pattern')) {
-      return `Invalid IP address format`;
-    }
-    return '';
   }
 
   isFieldInvalid(controlName: string): boolean {

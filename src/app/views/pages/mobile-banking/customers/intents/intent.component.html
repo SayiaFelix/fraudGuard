@@ -1,6 +1,6 @@
 <div class="risk-analyzer-container">
   <!-- Form Card -->
-  <div class="card shadow-sm form-card mb-4">
+    <div class="card shadow-sm form-card mb-4">
     <div class="card-header bg-transparent border-0 pt-4 px-4">
       <h3 class="fw-bold mb-0">
         <i class="fas fa-microchip me-2" style="color: #4cc9f0;"></i>
@@ -23,10 +23,16 @@
                   class="form-control" 
                   formControlName="customerName"
                   placeholder="e.g., Felix Lucas"
-                  [class.is-invalid]="isFieldInvalid('customerName')">
+                  [class.is-invalid]="isFieldInvalid('customerName')"
+                  maxlength="100"
+                  pattern="^[a-zA-Z\s\-']+$"
+                  title="Only letters, spaces, hyphens and apostrophes allowed">
             <div class="invalid-feedback" *ngIf="isFieldInvalid('customerName')">
               {{ getErrorMessage('customerName') }}
             </div>
+            <small class="text-muted" *ngIf="!isFieldInvalid('customerName')">
+              <i class="fas fa-info-circle me-1"></i> Letters, spaces, hyphens only
+            </small>
           </div>
 
           <!-- Customer ID -->
@@ -39,13 +45,18 @@
                   class="form-control" 
                   formControlName="customerId"
                   placeholder="e.g., CUST-001"
-                  [class.is-invalid]="isFieldInvalid('customerId')">
+                  [class.is-invalid]="isFieldInvalid('customerId')"
+                  maxlength="20"
+                  pattern="^[A-Z0-9\-]+$"
+                  title="Uppercase letters, numbers, and hyphens only">
             <div class="invalid-feedback" *ngIf="isFieldInvalid('customerId')">
               {{ getErrorMessage('customerId') }}
             </div>
+            <small class="text-muted" *ngIf="!isFieldInvalid('customerId')">
+              <i class="fas fa-info-circle me-1"></i> Uppercase, numbers, hyphens only
+            </small>
           </div>
 
-          
           <!-- Amount -->
           <div class="col-md-6">
             <label class="form-label fw-medium">
@@ -56,10 +67,17 @@
                   class="form-control" 
                   formControlName="amount"
                   placeholder="e.g., 50000"
-                  [class.is-invalid]="isFieldInvalid('amount')">
+                  [class.is-invalid]="isFieldInvalid('amount')"
+                  min="1"
+                  max="99999999"
+                  step="0.01"
+                  onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46">
             <div class="invalid-feedback" *ngIf="isFieldInvalid('amount')">
               {{ getErrorMessage('amount') }}
             </div>
+            <small class="text-muted" *ngIf="!isFieldInvalid('amount')">
+              <i class="fas fa-info-circle me-1"></i> Min: 1 KES, Max: 99,999,999 KES
+            </small>
           </div>
 
           <!-- Channel -->
@@ -68,13 +86,16 @@
               <i class="fas fa-route me-1 text-primary"></i>
               Channel <span class="text-danger">*</span>
             </label>
-            <select class="form-select" formControlName="channel">
+            <select class="form-select" formControlName="channel"
+                    [class.is-invalid]="isFieldInvalid('channel')">
               <option *ngFor="let channel of channels" [value]="channel">
                 {{ channel }}
               </option>
             </select>
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('channel')">
+              Please select a channel
+            </div>
           </div>
-
 
           <!-- Transaction Type -->
           <div class="col-md-6">
@@ -82,11 +103,15 @@
               <i class="fas fa-exchange-alt me-1 text-primary"></i>
               Transaction Type <span class="text-danger">*</span>
             </label>
-            <select class="form-select" formControlName="transactionType">
+            <select class="form-select" formControlName="transactionType"
+                    [class.is-invalid]="isFieldInvalid('transactionType')">
               <option *ngFor="let type of transactionTypes" [value]="type">
                 {{ type }}
               </option>
             </select>
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('transactionType')">
+              Please select a transaction type
+            </div>
           </div>
 
           <!-- Location -->
@@ -95,23 +120,32 @@
               <i class="fas fa-map-marker-alt me-1 text-primary"></i>
               Location <span class="text-danger">*</span>
             </label>
-            <select class="form-select" formControlName="location">
+            <select class="form-select" formControlName="location"
+                    [class.is-invalid]="isFieldInvalid('location')">
               <option *ngFor="let loc of locations" [value]="loc">
                 {{ loc }}
               </option>
             </select>
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('location')">
+              Please select a location
+            </div>
           </div>
+
           <!-- Device Type -->
           <div class="col-md-6">
             <label class="form-label fw-medium">
               <i class="fas fa-mobile-alt me-1 text-primary"></i>
               Device Type <span class="text-danger">*</span>
             </label>
-            <select class="form-select" formControlName="deviceType">
+            <select class="form-select" formControlName="deviceType"
+                    [class.is-invalid]="isFieldInvalid('deviceType')">
               <option *ngFor="let device of devices" [value]="device">
                 {{ device }}
               </option>
             </select>
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('deviceType')">
+              Please select a device type
+            </div>
           </div>
 
           <!-- IP Address -->
@@ -124,10 +158,16 @@
                   class="form-control" 
                   formControlName="ipAddress"
                   placeholder="e.g., 197.248.0.45"
-                  [class.is-invalid]="isFieldInvalid('ipAddress')">
+                  [class.is-invalid]="isFieldInvalid('ipAddress')"
+                  pattern="^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
+                  maxlength="15"
+                  title="Enter a valid IPv4 address">
             <div class="invalid-feedback" *ngIf="isFieldInvalid('ipAddress')">
               {{ getErrorMessage('ipAddress') }}
             </div>
+            <small class="text-muted" *ngIf="!isFieldInvalid('ipAddress') && ipAddress?.value">
+              <i class="fas fa-info-circle me-1"></i> Valid IPv4 format required
+            </small>
           </div>
 
           <!-- Transaction Frequency -->
@@ -140,8 +180,29 @@
                   class="form-control" 
                   formControlName="transactionFrequency"
                   placeholder="e.g., 1"
-                  min="1">
+                  min="1"
+                  max="100"
+                  step="1"
+                  [class.is-invalid]="isFieldInvalid('transactionFrequency')"
+                  onkeypress="return (event.charCode >= 48 && event.charCode <= 57)">
+
+            <div class="invalid-feedback" *ngIf="transactionFrequency?.errors?.['required']">
+              Transaction frequency is required
+            </div>
+            
+            <div class="invalid-feedback" *ngIf="transactionFrequency?.errors?.['min']">
+              Transaction frequency must be at least 1 per hour (zero not allowed)
+            </div>
+            
+            <div class="invalid-feedback" *ngIf="transactionFrequency?.errors?.['max']">
+              Transaction frequency cannot exceed 100 per hour
+            </div>
+            
+            <small class="text-muted">
+              <i class="fas fa-info-circle me-1"></i> Minimum 1 transaction per hour (zero not allowed)
+            </small>
           </div>
+
 
           <!-- Account Activity -->
           <div class="col-md-6">
@@ -153,7 +214,16 @@
                   class="form-control" 
                   formControlName="accountActivity"
                   placeholder="e.g., 5000"
-                  min="0">
+                  min="0"
+                  max="99999999"
+                  step="1"
+                  onkeypress="return (event.charCode >= 48 && event.charCode <= 57)">
+            <div class="invalid-feedback" *ngIf="accountActivity?.errors?.['min']">
+              Activity cannot be negative
+            </div>
+            <small class="text-muted">
+              <i class="fas fa-info-circle me-1"></i> Non-negative whole numbers only
+            </small>
           </div>
 
           <!-- Time of Day -->
@@ -189,7 +259,13 @@
             <input type="email" 
                   class="form-control" 
                   formControlName="customerEmail"
-                  placeholder="e.g., felix.lucas@example.com">
+                  placeholder="e.g., felix.lucas@example.com"
+                  [class.is-invalid]="isFieldInvalid('customerEmail')"
+                  maxlength="100"
+                  pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$">
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('customerEmail')">
+              Please enter a valid email address
+            </div>
           </div>
 
           <!-- Customer Phone -->
@@ -198,10 +274,17 @@
               <i class="fas fa-phone me-1 text-primary"></i>
               Customer Phone
             </label>
-            <input type="text" 
+            <input type="tel" 
                   class="form-control" 
                   formControlName="customerPhone"
-                  placeholder="e.g., +254712345678">
+                  placeholder="e.g., +254712345678"
+                  [class.is-invalid]="isFieldInvalid('customerPhone')"
+                  pattern="^\+?[0-9]{10,15}$"
+                  maxlength="15"
+                  title="Phone number with optional +, 10-15 digits">
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('customerPhone')">
+              Enter a valid phone number (10-15 digits)
+            </div>
           </div>
 
           <!-- Account Age -->
@@ -214,7 +297,13 @@
                   class="form-control" 
                   formControlName="accountAge"
                   placeholder="e.g., 365"
-                  min="0">
+                  min="0"
+                  max="36500"
+                  step="1"
+                  onkeypress="return (event.charCode >= 48 && event.charCode <= 57)">
+            <div class="invalid-feedback" *ngIf="accountAge?.errors?.['min'] || accountAge?.errors?.['max']">
+              Age must be between 0 and 36,500 days
+            </div>
           </div>
 
           <!-- Average Transaction -->
@@ -227,7 +316,12 @@
                   class="form-control" 
                   formControlName="avgTransaction"
                   placeholder="e.g., 25000"
-                  min="0">
+                  min="0"
+                  max="99999999"
+                  step="0.01">
+            <div class="invalid-feedback" *ngIf="avgTransaction?.errors?.['min']">
+              Amount cannot be negative
+            </div>
           </div>
 
           <!-- Customer Tier/Risk Profile -->
@@ -249,7 +343,7 @@
           <div class="col-12">
             <small class="text-muted">
               <i class="fas fa-info-circle me-1"></i>
-              Customer details help identify related transactions across the system. Transactions with the same customer ID will be linked.
+              Customer details help identify related transactions across the system. All data is validated and sanitized.
             </small>
           </div>
         </div>
@@ -267,7 +361,7 @@
 
             <button type="submit" 
                     class="btn btn-primary px-5 py-2"
-                    [disabled]="isAnalyzing">
+                    [disabled]="isAnalyzing || !riskForm.valid">
               <span *ngIf="!isAnalyzing">
                 <i class="fas fa-microchip me-2"></i> Analyze Risk
               </span>
@@ -277,10 +371,20 @@
             </button>
           </div>
         </div>
+
+        <!-- Form Validation Summary -->
+        <div class="row mt-3" *ngIf="riskForm.invalid && riskForm.touched">
+          <div class="col-12">
+            <div class="alert alert-warning py-2">
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              <small>Please fix the validation errors before submitting</small>
+            </div>
+          </div>
+        </div>
       </form>
     </div>
-
   </div>
+
 
   <!-- Results Section -->
   <div id="analysis-result">
