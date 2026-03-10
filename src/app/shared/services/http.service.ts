@@ -239,7 +239,6 @@ getTransactions(page: number = 1, size: number = 100): Observable<TransactionsRe
     );
 }
 
-  // Get model metrics
   getModelMetrics(): Observable<ModelMetrics> {
     return this.http.get<ModelMetrics>(`${this.apiUrl}/model_metrics`)
       .pipe(
@@ -299,7 +298,40 @@ getTransactions(page: number = 1, size: number = 100): Observable<TransactionsRe
       return of(result as T);
     };
   }
+
+getTransactionStatus(transactionId: string): Observable<any> {
+  return this.http.post(`${this.apiUrl}/get_transactions/status`, { transaction_id: transactionId })
+    .pipe(
+      tap(response => console.log('Status history response:', response)),
+      catchError(this.handleError<any>('getTransactionStatus', { 
+        status: 'error',
+        current_status: 'Open',
+        history: [] 
+      }))
+    );
+}
+
+updateTransactionStatus(transactionId: string, status: string, notes?: string): Observable<any> {
+  const payload: any = {
+    transaction_id: transactionId,
+    status: status,
+    action_by: 'Analyst' 
+  };
   
+  if (notes) {
+    payload.notes = notes;
+  }
+  
+  return this.http.post(`${this.apiUrl}/transactions/status`, payload)
+    .pipe(
+      tap(response => console.log('Status update response:', response)),
+      catchError(this.handleError<any>('updateTransactionStatus', { 
+        status: 'error', 
+        message: 'Failed to update status' 
+      }))
+    );
+}
+
   calculateKPIs(transactions: any[]): any {
     const totalTransactions = transactions.length;
     const highRisk = transactions.filter(t => (t.risk_score || 0) >= 5).length;

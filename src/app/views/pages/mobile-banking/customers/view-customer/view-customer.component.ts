@@ -1,10 +1,11 @@
-import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { HttpService } from 'src/app/shared/services/http.service';
 import { Subscription, interval } from 'rxjs';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { ToastrService } from 'ngx-toastr';
 
 interface FraudCase {
   id: string;
@@ -42,7 +43,12 @@ interface FraudCase {
 })
 export class ViewCustomerComponent implements OnInit, OnDestroy {
   @ViewChild('table') table: any;
+  selectedStatus: string = '';
+  showStatusModal: boolean = false;
+  statusOptions = ['Open', 'Investigating', 'Resolved', 'False Positive'];
 
+  actionNotes: string = '';
+  actionLoading: boolean = false;
   // Filters
   searchTerm: string = '';
   riskFilter: string = 'all';
@@ -89,7 +95,9 @@ export class ViewCustomerComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router, 
     private datePipe: DatePipe,
-    private httpService: HttpService
+    private httpService: HttpService,
+      private toastr: ToastrService,
+        private cdr: ChangeDetectorRef  
   ) {
     this.Math = Math; 
   }
@@ -115,7 +123,7 @@ export class ViewCustomerComponent implements OnInit, OnDestroy {
     this.httpService.getFraudHistory(1, 100).subscribe({
       next: (response) => {
         if (response.status === 'success' && response.fraud_transactions) {
-          // Map and sort by timestamp (latest first)
+       
           this.allFraudCases = response.fraud_transactions
             .map((tx: any) => this.mapBackendTransaction(tx))
             .sort((a: FraudCase, b: FraudCase) => 
@@ -136,73 +144,139 @@ export class ViewCustomerComponent implements OnInit, OnDestroy {
     });
   }
   
-  mapBackendTransaction(tx: any): FraudCase {
-    //risk category
-    let riskCategory: 'Critical' | 'High' | 'Medium' | 'Low' = 'Low';
-    if (tx.risk_category.includes('Critical')) riskCategory = 'Critical';
-    else if (tx.risk_category.includes('High')) riskCategory = 'High';
-    else if (tx.risk_category.includes('Medium')) riskCategory = 'Medium';
-    else if (tx.risk_category.includes('Low')) riskCategory = 'Low';
+openStatusUpdateModal(case_: FraudCase): void {
+  this.selectedCase = case_;
+  this.actionNotes = '';
+  this.showStatusModal = true;
+}
 
-    //model agreement
-    const modelAgreement = tx.transaction_details?.Model_Agreement || '0/7 models flagged';
-    const flagged = parseInt(modelAgreement.split('/')[0]) || 0;
-    const total = 7;
+closeStatusModal(): void {
+  this.showStatusModal = false;
+  this.selectedCase = null;
+  this.actionNotes = '';
+  this.selectedStatus = '';
+  this.cdr.detectChanges(); 
+}
 
-    //flagged by
-    let flaggedBy: 'AI' | 'Rules' | 'Manual' | 'AI + Rules (Hybrid)' = 'AI';
-    if (tx.transaction_details?.Rule_Engine?.triggered && flagged > 0) {
-      flaggedBy = 'AI + Rules (Hybrid)';
-    } else if (tx.transaction_details?.Rule_Engine?.triggered) {
-      flaggedBy = 'Rules';
-    } else if (flagged > 0) {
-      flaggedBy = 'AI';
-    }
+mapBackendTransaction(tx: any): FraudCase {
+  //risk category
+  let riskCategory: 'Critical' | 'High' | 'Medium' | 'Low' = 'Low';
+  if (tx.risk_category.includes('Critical')) riskCategory = 'Critical';
+  else if (tx.risk_category.includes('High')) riskCategory = 'High';
+  else if (tx.risk_category.includes('Medium')) riskCategory = 'Medium';
+  else if (tx.risk_category.includes('Low')) riskCategory = 'Low';
 
-    //signals for AI explanation
-    const signals: string[] = [];
-    if (tx.transaction_details?.Rule_Engine?.triggered) {
-      tx.transaction_details.Rule_Engine.rules.forEach((rule: string) => {
-        signals.push(rule);
-      });
-    }
+  //model agreement
+  const modelAgreement = tx.transaction_details?.Model_Agreement || '0/7 models flagged';
+  const flagged = parseInt(modelAgreement.split('/')[0]) || 0;
+  const total = 7;
 
-    //AI explanation - prioritize final explanation, then rule-based, then construct basic explanation
-    let aiExplanation = tx.explanations?.final || tx.explanations?.rule_based || '';
-    if (!aiExplanation) {
-      aiExplanation = `This transaction was flagged as ${tx.risk_category} with a risk score of ${tx.risk_score}. `;
-      if (signals.length > 0) {
-        aiExplanation += `Detected signals: ${signals.slice(0, 3).join(', ')}. `;
-      }
-      aiExplanation += tx.transaction_details?.Model_Agreement || '';
-    }
-
-    return {
-      id: tx.transaction_id,
-      transactionId: tx.transaction_id,
-      amount: tx.transaction_details?.Transaction_Amount || 0,
-      riskScore: tx.risk_score,
-      riskCategory: riskCategory,
-      channel: this.determineChannel(tx),
-      location: this.determineLocation(tx),
-      timestamp: new Date(tx.timestamp),
-      status: this.determineStatus(tx),
-      flaggedBy: flaggedBy as any,
-      customerName:`${tx.customer_info.customer_name || 'Unknown'}`,
-      customerId: `${tx.customer_info.customer_id || 'Unknown'}`,
-      deviceId: 'Unknown',
-      ipAddress: 'Unknown',
-      resolution: this.determineResolution(tx),
-      aiExplanation: aiExplanation,
-      modelAgreement: {
-        flagged: flagged,
-        total: total
-      },
-      rawData: tx
-    };
+  //flagged by
+  let flaggedBy: 'AI' | 'Rules' | 'Manual' | 'AI + Rules (Hybrid)' = 'AI';
+  if (tx.transaction_details?.Rule_Engine?.triggered && flagged > 0) {
+    flaggedBy = 'AI + Rules (Hybrid)';
+  } else if (tx.transaction_details?.Rule_Engine?.triggered) {
+    flaggedBy = 'Rules';
+  } else if (flagged > 0) {
+    flaggedBy = 'AI';
   }
 
-  determineChannel(tx: any): any {
+  //signals for AI explanation
+  const signals: string[] = [];
+  if (tx.transaction_details?.Rule_Engine?.triggered) {
+    tx.transaction_details.Rule_Engine.rules.forEach((rule: string) => {
+      signals.push(rule);
+    });
+  }
+
+  //AI explanation
+  let aiExplanation = tx.explanations?.final || tx.explanations?.rule_based || '';
+  if (!aiExplanation) {
+    aiExplanation = `This transaction was flagged as ${tx.risk_category} with a risk score of ${tx.risk_score}. `;
+    if (signals.length > 0) {
+      aiExplanation += `Detected signals: ${signals.slice(0, 3).join(', ')}. `;
+    }
+    aiExplanation += tx.transaction_details?.Model_Agreement || '';
+  }
+
+  let status: 'Open' | 'Investigating' | 'Resolved' | 'False Positive';
+  
+  if (tx.status_info?.current) {
+    status = tx.status_info.current;
+  } else {
+    status = this.determineStatus(tx);
+  }
+
+  return {
+    id: tx.transaction_id,
+    transactionId: tx.transaction_id,
+    amount: tx.transaction_details?.Transaction_Amount || 0,
+    riskScore: tx.risk_score,
+    riskCategory: riskCategory,
+    channel: this.determineChannel(tx),
+    location: this.determineLocation(tx),
+    timestamp: new Date(tx.timestamp),
+    status: status,  
+    flaggedBy: flaggedBy as any,
+    customerName: `${tx.customer_info?.customer_name || 'Unknown'}`,
+    customerId: `${tx.customer_info?.customer_id || 'Unknown'}`,
+    deviceId: 'Unknown',
+    ipAddress: 'Unknown',
+    resolution: tx.resolution || this.determineResolution(tx),
+    aiExplanation: aiExplanation,
+    modelAgreement: {
+      flagged: flagged,
+      total: total
+    },
+    rawData: tx
+  };
+}
+
+updateCaseStatus(newStatus: string): void {
+  if (!this.selectedCase) return;
+  
+  this.actionLoading = true;
+  
+  this.httpService.updateTransactionStatus(
+    this.selectedCase.transactionId,
+    newStatus,
+    this.actionNotes
+  ).subscribe({
+    next: (response) => {
+      if (response.status === 'success') {
+   
+        this.selectedCase!.status = newStatus as any;
+   
+        if (newStatus === 'Resolved' || newStatus === 'False Positive') {
+          this.selectedCase!.resolution = {
+            resolvedBy: 'Analyst',
+            resolvedAt: new Date(),
+            notes: this.actionNotes,
+            action: newStatus === 'Resolved' ? 'Blocked' : 'Approved'
+          };
+        }
+        
+        const index = this.allFraudCases.findIndex(c => c.transactionId === this.selectedCase!.transactionId);
+        if (index !== -1) {
+          this.allFraudCases[index] = this.selectedCase!;
+        }
+        
+        this.applyFilters();
+        
+        this.toastr.success(`Status updated to ${newStatus}`, 'Success');
+        this.closeStatusModal();
+      }
+      this.actionLoading = false;
+    },
+    error: (error) => {
+      console.error('Error updating status:', error);
+      this.toastr.error('Failed to update status', 'Error');
+      this.actionLoading = false;
+    }
+  });
+}
+
+determineChannel(tx: any): any {
     //channel from transaction type
     if (tx.transaction_details?.Transaction_Type) {
       if (tx.transaction_details.Transaction_Type === 'POS') return 'ATM';
@@ -220,10 +294,11 @@ export class ViewCustomerComponent implements OnInit, OnDestroy {
   }
 
   determineStatus(tx: any): any {
-    //derive status from risk category
+
     if (tx.risk_category.includes('Critical')) return 'Open';
     if (tx.risk_category.includes('High')) return 'Investigating';
     if (tx.risk_category.includes('Medium')) return 'Resolved';
+    if (tx.risk_category.includes('Low')) return 'Resolved';
     return 'False Positive';
   }
 
