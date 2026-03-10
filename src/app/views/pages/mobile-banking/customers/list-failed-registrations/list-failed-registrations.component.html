@@ -120,27 +120,36 @@
       </small> 
      </div>
 
-     
-    <div *ngIf="!isCollapsed" class="alert-controls p-3 border-bottom">
+
+    <div class="alert-mode-toggle pt-3 pb-3 border-bottom">
       <div class="d-flex align-items-center justify-content-between">
-        <div class="d-flex align-items-center gap-2">
-          <button class="btn btn-sm" 
-                  [ngClass]="isAlertModeEnabled ? 'btn-danger' : 'btn-outline-primary'"
-                  (click)="toggleAlertMode()"
-                  title="Toggle National Alert Mode">
-            <i class="fas fa-exclamation-triangle me-1"></i>
-            Alert Mode {{ isAlertModeEnabled ? 'ON' : 'OFF' }}
-          </button>
-          <span class="badge" [ngClass]="isAlertModeEnabled ? 'bg-secondary' : 'bg-danger'">
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" 
+                [checked]="isAlertModeEnabled" 
+                (change)="toggleAlertMode($any($event.target).checked)"
+                id="alertModeSwitch">
+          <label class="form-check-label fw-medium" for="alertModeSwitch">
+            <i class="fas fa-exclamation-triangle me-1" 
+              [class.text-danger]="isAlertModeEnabled" 
+              [class.text-secondary]="!isAlertModeEnabled"></i>
+            Alert Mode
+          </label>
+        </div>
+        <div class="d-flex align-items-center gap-1">
+          <span class="badge" [ngClass]="isAlertModeEnabled ? 'bg-danger' : 'bg-secondary'">
+            {{ isAlertModeEnabled ? 'ACTIVE' : 'INACTIVE' }}
+          </span>
+          <span class="badge" [ngClass]="isAlertModeEnabled ? 'bg-danger' : 'bg-secondary'">
             Threshold: {{ systemStats.threshold }}
           </span>
         </div>
       </div>
-      
-      <!-- Alert mode description-->
-      <div class="mt-2 small text-muted" *ngIf="isAlertModeEnabled">
+
+      <div class="mt-2 small" [class.text-danger]="isAlertModeEnabled" [class.text-muted]="!isAlertModeEnabled">
         <i class="fas fa-info-circle me-1"></i>
-        Crisis mode active - Lower threshold for enhanced security
+        {{ isAlertModeEnabled ? 
+          'Crisis mode active - Lower threshold (4.0) for enhanced security' : 
+          'Normal National Operation - Standard threshold (6.0)' }}
       </div>
     </div>
 

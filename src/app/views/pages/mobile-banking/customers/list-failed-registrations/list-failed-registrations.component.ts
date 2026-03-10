@@ -138,6 +138,29 @@ export class ListFailedRegistrationsComponent implements OnInit, OnDestroy {
     }
   }
 
+  toggleAlertMode(enable: boolean): void {
+  this.httpService.toggleAlertMode(enable).subscribe({
+    next: (response) => {
+      if (response.status === 'success') {
+        this.isAlertModeEnabled = response.national_alert_mode;
+        this.systemStats.nationalAlertMode = response.national_alert_mode;
+        this.systemStats.threshold = response.active_threshold;
+        
+        this.toastr.success(
+          `Alert Mode ${this.isAlertModeEnabled ? 'enabled' : 'disabled'}. Threshold is now ${this.systemStats.threshold}.`,
+          'Alert Mode'
+        );
+        
+        this.loadDashboardData();
+      }
+    },
+    error: (error) => {
+      console.error('Error toggling alert mode:', error);
+      this.toastr.error('Failed to toggle alert mode', 'Error');
+    }
+  });
+}
+
   checkRoute(): void {
     const currentUrl = this.router.url;
     this.showIntelligencePanel = currentUrl.includes('live-feed') || currentUrl.includes('risk-analyzer');
@@ -408,40 +431,6 @@ updateAIDetections(): void {
     this.totalAlerts = this.transactions.filter(
       t => t.risk_category === 'Critical Fraud Risk' || t.risk_category === 'High Potential Fraud'
     ).length;
-  }
-
-
-  toggleAlertMode(): void {
-    const newMode = !this.isAlertModeEnabled;
-    
-    this.httpService.toggleAlertMode(newMode).subscribe({
-      next: (response) => {
-        if (response.status === 'success') {
-          this.isAlertModeEnabled = response.national_alert_mode;
-          this.systemStats.nationalAlertMode = response.national_alert_mode;
-          this.systemStats.threshold = response.active_threshold;
-          
-          Swal.fire({
-            title: `Alert Mode ${this.isAlertModeEnabled ? 'Enabled' : 'Disabled'}`,
-            text: `Threshold is now ${this.systemStats.threshold}`,
-            icon: 'success',
-            timer: 2000,
-            showConfirmButton: false
-          });
-          this.loadDashboardData();
-        }
-      },
-      error: (error) => {
-        console.error('Error toggling alert mode:', error);
-        Swal.fire({
-          title: 'Error',
-          text: 'Failed to toggle alert mode',
-          icon: 'error',
-          timer: 2000,
-          showConfirmButton: false
-        });
-      }
-    });
   }
 
   toggleIntelligencePanel(): void {
