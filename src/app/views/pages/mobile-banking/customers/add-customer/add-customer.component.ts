@@ -12,7 +12,7 @@ interface Transaction {
   channel: string;
   location: string;
   timestamp: Date;
-  status: 'Open' | 'Investigating' | 'Resolved';
+  status: 'Open' | 'Investigating' | 'Resolved' | 'False Positive' | 'Completed';
   flaggedBy: 'AI' | 'Rules' | 'Manual' | 'AI + Rules (Hybrid)'; 
   customerName: string;
   customerId: string;
@@ -124,9 +124,10 @@ loadRelatedTransactions(transactionId: string): void {
           id: tx.transaction_id,
           amount: tx.amount || 0,
           riskScore: tx.risk_score,
-          status: this.mapRiskCategoryToStatus(tx.risk_category)
+          status:  tx.status_info.current ||this.mapRiskCategoryToStatus(tx.risk_category)
         }));
-        
+
+
         if (this.selectedTransaction) {
           this.selectedTransaction.relatedTransactions = related;
         }
@@ -271,7 +272,7 @@ mapBackendTransaction(tx: any): Transaction {
     channel: channel,
     location: location,
     timestamp: new Date(tx.timestamp),
-    status: 'Open',
+    status: tx.status_info?.current || this.mapRiskCategoryToStatus(riskCategory),
     flaggedBy: flaggedBy, 
     customerName: `${tx.customer_info?.customer_name || 'Unknown'}`,
     customerId: `${tx.customer_info?.customer_id || 'CUST-0000'}`,

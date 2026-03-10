@@ -139,36 +139,6 @@ loadAlertData(): void {
   });
 }
 
-
-loadRelatedTransactions(): void {
-  if (!this.alertData?.transactionId) return;
-  
-  this.isLoadingRelated = true;
-  
-  this.httpService.getRelatedTransactions(this.alertData.transactionId).subscribe({
-    next: (response) => {
-      if (response.status === 'success' && response.related_transactions) {
-      
-        this.alertData!.relatedTransactions = response.related_transactions.map((tx: any) => ({
-          id: tx.transaction_id,
-          amount: tx.amount || 0,
-          timestamp: new Date(tx.timestamp),
-          riskScore: tx.risk_score,
-          status: tx.risk_category?.includes('Critical') ? 'Open' : 
-                  tx.risk_category?.includes('High') ? 'Investigating' : 'Resolved'
-        }));
-        
-        console.log('Related transactions loaded:', this.alertData!.relatedTransactions);
-      }
-      this.isLoadingRelated = false;
-    },
-    error: (error) => {
-      console.error('Error loading related transactions:', error);
-      this.isLoadingRelated = false;
-    }
-  });
-}
-
 loadModelMetrics(): void {
   this.httpService.getModelMetrics().subscribe({
     next: (response) => {
@@ -194,6 +164,32 @@ closeFeedbackModal(): void {
   this.showFeedbackModal = false;
   this.feedbackType = null;
   this.actionNotes = '';
+}
+
+loadRelatedTransactions(): void {
+  if (!this.alertData?.transactionId) return;
+  
+  this.isLoadingRelated = true;
+  
+  this.httpService.getRelatedTransactions(this.alertData.transactionId).subscribe({
+    next: (response) => {
+      if (response.status === 'success' && response.related_transactions) {
+        this.alertData!.relatedTransactions = response.related_transactions.map((tx: any) => ({
+          id: tx.transaction_id,
+          amount: tx.amount || 0,
+          timestamp: new Date(tx.timestamp),
+          riskScore: tx.risk_score,
+          status: tx.status_info?.current || this.determineStatus(tx.risk_category || '')
+        }));
+      }
+      console.log('Related transactions loaded:', this.alertData?.relatedTransactions);
+      this.isLoadingRelated = false;
+    },
+    error: (error) => {
+      console.error('Error loading related transactions:', error);
+      this.isLoadingRelated = false;
+    }
+  });
 }
 
 mapBackendResponse(response: any): AlertDetail {
@@ -287,6 +283,15 @@ mapBackendResponse(response: any): AlertDetail {
   //location
   let location = transactionDetails.Transaction_Location === 'International' ? 'International' : 'Nairobi, KE';
 
+  let status: 'Open' | 'Investigating' | 'Resolved' | 'False Positive';
+
+  if (tx.status_info?.current) {
+    status = tx.status_info.current;
+  } else {
+    status = this.determineStatus(riskCategoryStr);
+  }
+
+
   return {
     id: tx.transaction_id || this.alertId || '',
     transactionId: tx.transaction_id || this.alertId || '',
@@ -296,7 +301,7 @@ mapBackendResponse(response: any): AlertDetail {
     channel: channel,
     location: location,
     timestamp: new Date(tx.timestamp || new Date()),
-    status: this.determineStatus(riskCategory),
+    status: status,
     flaggedBy: flaggedBy,
     
     customer: {
@@ -344,7 +349,6 @@ mapBackendResponse(response: any): AlertDetail {
     rawData: tx
   };
 }
-
 
 submitFeedback(): void {
   if (!this.feedbackType || !this.alertData) return;
@@ -433,11 +437,13 @@ determineSignalSeverity(rule: string, severity: number): 'high' | 'medium' | 'lo
   }
 
 determineStatus(riskCategory: string): 'Open' | 'Investigating' | 'Resolved' | 'False Positive' {
-    if (riskCategory === 'Critical') return 'Open';
-    if (riskCategory === 'High') return 'Investigating';
-    if (riskCategory === 'Medium') return 'Resolved';
-    return 'False Positive';
-  }
+  if (riskCategory.includes('Critical')) return 'Open';
+  if (riskCategory.includes('High')) return 'Investigating';
+  if (riskCategory.includes('Medium')) return 'Resolved';
+  if (riskCategory.includes('Low')) return 'Resolved';
+  return 'Open'; // Default
+}
+
 
 modelMetricsData: any = null;
 
