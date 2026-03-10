@@ -15,6 +15,7 @@ import { GlobalService } from 'src/app/shared/services/global.service';
 import { Subject, Subscription, interval } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { trigger, state, style, animate, transition } from '@angular/animations';
+import { ToastrService } from 'ngx-toastr';
 
 interface AIDetection {
 fullDate: any;
@@ -107,7 +108,8 @@ export class ListFailedRegistrationsComponent implements OnInit, OnDestroy {
     public router: Router,
     public activatedRoute: ActivatedRoute,
     private dataExploration: DataExportationService,
-    private http: HttpClient
+    private http: HttpClient,
+    private toastr: ToastrService
   ) {
     this.checkRoute();
     const today = new Date();
@@ -120,6 +122,8 @@ export class ListFailedRegistrationsComponent implements OnInit, OnDestroy {
       this.checkRoute();
     });
     this.loadDashboardData();
+    this.loadSovereignMode();
+
     
     // Auto-refresh every 10 minutes
     this.refreshSubscription = interval(600000).subscribe(() => {
@@ -183,6 +187,42 @@ export class ListFailedRegistrationsComponent implements OnInit, OnDestroy {
       });
     });
   }
+
+  // In your component (e.g., dashboard or system controls)
+sovereignMode: boolean = true;
+
+loadSovereignMode(): void {
+  this.httpService.getSovereignMode().subscribe({
+    next: (response) => {
+      if (response.status === 'success') {
+        this.sovereignMode = response.sovereign_mode;
+      }
+    },
+    error: (error) => {
+      console.error('Error loading sovereign mode:', error);
+    }
+  });
+}
+
+toggleSovereignMode(enable: boolean): void {
+  this.httpService.toggleSovereignMode(enable).subscribe({
+    next: (response) => {
+      if (response.status === 'success') {
+        this.sovereignMode = response.sovereign_mode;
+        // Show toast notification
+        this.toastr.success(
+          `Sovereign mode ${this.sovereignMode ? 'enabled' : 'disabled'}. ` +
+          `LLM is now ${this.sovereignMode ? 'disabled' : 'enabled'}.`,
+          'Sovereign Mode'
+        );
+      }
+    },
+    error: (error) => {
+      console.error('Error toggling sovereign mode:', error);
+      this.toastr.error('Failed to toggle sovereign mode', 'Error');
+    }
+  });
+}
 
   //(using XGBoost)
   loadModelMetrics(): Promise<void> {

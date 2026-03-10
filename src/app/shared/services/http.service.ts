@@ -172,6 +172,29 @@ getTransactionById(transactionId: string): Observable<any> {
     );
 }
 
+toggleSovereignMode(enable: boolean): Observable<any> {
+  return this.http.post(`${this.apiUrl}/system/sovereign_mode`, { enable })
+    .pipe(
+      tap(response => console.log('Sovereign mode response:', response)),
+      catchError(this.handleError<any>('toggleSovereignMode', { 
+        status: 'error', 
+        message: 'Failed to toggle sovereign mode' 
+      }))
+    );
+}
+
+
+getSovereignMode(): Observable<any> {
+  return this.http.get(`${this.apiUrl}/system/sovereign_mode`)
+    .pipe(
+      tap(response => console.log('Sovereign mode status:', response)),
+      catchError(this.handleError<any>('getSovereignMode', { 
+        sovereign_mode: true 
+      }))
+    );
+}
+
+
 getRelatedTransactions(transactionId: string): Observable<any> {
   return this.http.post(`${this.apiUrl}/transactions/related`, { transaction_id: transactionId })
     .pipe(
