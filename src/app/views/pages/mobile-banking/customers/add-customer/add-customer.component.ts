@@ -273,8 +273,8 @@ mapBackendTransaction(tx: any): Transaction {
     timestamp: new Date(tx.timestamp),
     status: 'Open',
     flaggedBy: flaggedBy, 
-    customerName: `Customer ${tx.transaction_id.substring(0, 8)}`,
-    customerId: `CUST-${tx.c.substring(0, 8)}`,
+    customerName: `${tx.customer_info?.customer_name || 'Unknown'}`,
+    customerId: `${tx.customer_info?.customer_id || 'CUST-0000'}`,
     deviceId: 'Unknown',
     ipAddress: 'Unknown',
     modelAgreement: {
