@@ -39,15 +39,7 @@
           AI Risk Analyzer
         </a>
 
-        <a class="fraud-tab-button"
-          [routerLink]="['investigation-graph']"
-          routerLinkActive="active-tab"
-          [class.disabled]="!canInvestigate()"
-          (click)="!canInvestigate() && $event.preventDefault()">
-          <i class="fas fa-project-diagram me-2" style="color: #06d6a0;"></i>
-          Investigation Graph
-          <span *ngIf="pendingInvestigations > 0" class="alert-badge ms-2">{{ pendingInvestigations }}</span>
-        </a>
+    
 
         <a class="fraud-tab-button"
           [routerLink]="['ai-insights']"
@@ -61,6 +53,16 @@
           routerLinkActive="active-tab">
           <i class="fas fa-history me-2 text-secondary"></i>
           Fraud History
+        </a>
+
+        <a class="fraud-tab-button"
+          [routerLink]="['investigation-graph']"
+          routerLinkActive="active-tab"
+          [class.disabled]="!canInvestigate()"
+          (click)="!canInvestigate() && $event.preventDefault()">
+          <i class="fas fa-project-diagram me-2" style="color: #06d6a0;"></i>
+          Investigation Graph
+          <!-- <span *ngIf="pendingInvestigations > 0" class="alert-badge ms-2">{{ pendingInvestigations }}</span> -->
         </a>
 
       </div>
@@ -98,29 +100,6 @@
       <span *ngIf="!isCollapsed" class="badge bg-warning text-dark">Live</span>
     </div>
 
-    <div class="sovereign-mode-toggle pt-3 pb-3 border-bottom">
-      <div class="d-flex align-items-center justify-content-between">
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" 
-                [checked]="sovereignMode" 
-                (change)="toggleSovereignMode($any($event.target).checked)"
-                id="sovereignModeSwitch">
-          <label class="form-check-label fw-medium" for="sovereignModeSwitch">
-            <i class="fas fa-shield-alt me-1" [class.text-success]="sovereignMode" [class.text-secondary]="!sovereignMode"></i>
-            Sovereign Mode
-          </label>
-        </div>
-        <span class="badge" [ngClass]="sovereignMode ? 'bg-success' : 'bg-secondary'">
-          {{ sovereignMode ? 'ON - LLM Disabled' : 'OFF - LLM Enabled' }}
-        </span>
-      </div>
-      <small class="text-muted d-block mt-1">
-        <i class="fas fa-info-circle me-1"></i>
-        When enabled, all processing stays within national infrastructure - no external API calls
-      </small> 
-     </div>
-
-
     <div class="alert-mode-toggle pt-3 pb-3 border-bottom">
       <div class="d-flex align-items-center justify-content-between">
         <div class="form-check form-switch">
@@ -152,6 +131,29 @@
           'Normal National Operation - Standard threshold (6.0)' }}
       </div>
     </div>
+
+    <div class="sovereign-mode-toggle pt-3 pb-3 border-bottom">
+      <div class="d-flex align-items-center justify-content-between">
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" 
+                [checked]="sovereignMode" 
+                (change)="toggleSovereignMode($any($event.target).checked)"
+                id="sovereignModeSwitch">
+          <label class="form-check-label fw-medium" for="sovereignModeSwitch">
+            <i class="fas fa-shield-alt me-1" [class.text-success]="sovereignMode" [class.text-secondary]="!sovereignMode"></i>
+            Sovereign Mode
+          </label>
+        </div>
+        <span class="badge" [ngClass]="sovereignMode ? 'bg-success' : 'bg-secondary'">
+          {{ sovereignMode ? 'ON - LLM Disabled' : 'OFF - LLM Enabled' }}
+        </span>
+      </div>
+      <small class="text-muted d-block mt-1">
+        <i class="fas fa-info-circle me-1"></i>
+        When enabled, all processing stays within national infrastructure - no external API calls
+      </small> 
+     </div>
+
 
      <div *ngIf="!isCollapsed" class="panel-body p-3 d-flex flex-column flex-grow-1 overflow-auto">
       <div class="risk-meter-card card shadow-sm mb-3">

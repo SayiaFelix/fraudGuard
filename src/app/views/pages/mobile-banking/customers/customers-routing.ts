@@ -32,7 +32,6 @@ const routes: Routes = [
       { path: 'ai-insights', component: VoiceComponent },
       { path: 'history', component: ViewCustomerComponent },
       { path: 'alert-detail/:id', component: SendSmsComponent },
-
     ]
   }
 ,
