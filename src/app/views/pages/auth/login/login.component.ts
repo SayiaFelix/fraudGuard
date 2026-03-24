@@ -99,22 +99,22 @@ onSubmit(event: Event) {
             role: response.user?.role || 'admin'
           });
         
-          Swal.fire({
-            icon: 'success',
-            title: 'Login Successful!',
-            text: `Welcome back, ${response.user?.username || email.split('@')[0]}!`,
-            timer: 800,
-            showConfirmButton: false,
-            backdrop: true,
-            toast: false,
-            position: 'center'
-          });
+          // Swal.fire({
+          //   icon: 'success',
+          //   title: 'Login Successful!',
+          //   text: `Welcome back, ${response.user?.username || email.split('@')[0]}!`,
+          //   timer: 800,
+          //   showConfirmButton: false,
+          //   backdrop: true,
+          //   toast: false,
+          //   position: 'center'
+          // });
         
         const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
         
         setTimeout(() => {
           this.router.navigateByUrl(returnUrl);
-        }, 700);
+        }, 800);
       } else {
         this.hasError = true;
         this.errorMsg = 'Invalid response from server.';
@@ -179,14 +179,14 @@ toggleShowPassword() {
       password: this.adminCredentials.password
     });
     
-    Swal.fire({
-      icon: 'info',
-      title: 'Demo Credentials Loaded',
-      text: `Admin credentials loaded. Click Sign In to continue.`,
-      timer: 400,
-      showConfirmButton: false,
-      toast: false,
-      position: 'center'
-    });
+    // Swal.fire({
+    //   icon: 'info',
+    //   title: 'Demo Credentials Loaded',
+    //   text: `Admin credentials loaded. Click Sign In to continue.`,
+    //   timer: 400,
+    //   showConfirmButton: false,
+    //   toast: false,
+    //   position: 'center'
+    // });
   }
 }
