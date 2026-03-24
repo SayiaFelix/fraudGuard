@@ -21,8 +21,8 @@ import { APP_BASE_HREF } from '@angular/common';
 import { ToastrModule,ToastrConfig, ToastrService } from 'ngx-toastr';
 import { SettingsModalComponent } from './layout/settings-modal/settings-modal.component';
 import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
-import { AuthInterceptor } from './shared/services/auth.interceptor';
 import { AuthGuard } from './shared/services/auth.guard';
+import { AuthInterceptor } from './shared/services/auth.interceptor';
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http);
