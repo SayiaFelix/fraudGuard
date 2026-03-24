@@ -8,20 +8,19 @@
       <div class="people-page">
         <div class="controls-bar-enhanced">
           <div class="controls-left">
-           <div class="search-container position-relative">
+            <div class="search-container position-relative">
               <div class="input-group w-100">
                 <span class="input-group-text"><i class="fas fa-search"></i></span>
                 <input type="text" class="form-control" placeholder="Search users by username, email, or role..."
                       [(ngModel)]="searchTerm" (ngModelChange)="applyFiltersAndPagination()">
               </div>
-
-            <div class="search-results-count position-absolute end-0 top-100 mt-1" 
-                *ngIf="filteredUsers.length > 0 && searchTerm">
-              <span class="badge bg-primary rounded-pill">
-                {{ filteredUsers.length }} user(s) found
-              </span>
+              <div class="search-results-count position-absolute end-0 top-100 mt-1" 
+                  *ngIf="filteredUsers.length > 0 && searchTerm">
+                <span class="badge bg-primary rounded-pill">
+                  {{ filteredUsers.length }} user(s) found
+                </span>
+              </div>
             </div>
-          </div>
           </div>
           
           <div class="controls-right">
@@ -29,11 +28,11 @@
               <label class="filter-label">Filter by Role:</label>
               <select class="filter-select" [(ngModel)]="roleFilter" (ngModelChange)="applyFiltersAndPagination()">
                 <option value="">All Roles</option>
-                <option value="CIA">CIA</option>
-                <option value="Auditor">Auditor</option>
-                <option value="AuditUnit">Audit Unit</option>
-                <option value="Director">Director</option>
-                <option value="External">External</option>
+                <option value="admin">Administrator</option>
+                <option value="analyst">Risk Analyst</option>
+                <option value="investigator">Fraud Investigator</option>
+                <option value="compliance">Compliance Officer</option>
+                <option value="viewer">Viewer (Read-only)</option>
               </select>
             </div>
             
@@ -64,7 +63,7 @@
                 <div class="table-cell enhanced-cell user-cell">
                   <div class="user-info">
                     <div class="user-name">{{ user.username }}</div>
-                    <!-- <div class="user-id">ID: {{ user.id }}</div> -->
+                    <div class="user-id small text-muted">ID: {{ user.id }}</div>
                   </div>
                 </div>
                 
@@ -77,18 +76,18 @@
                 
                 <div class="table-cell enhanced-cell role-cell">
                   <span class="role-badge-enhanced" [ngClass]="getRoleBadgeClass(user.role)">
-                    <i class="fas text-info" [ngClass]="getRoleIcon(user.role)"></i>
-                    {{ user.role }}
-                  </span>
-                  <div class="role-description" *ngIf="getRoleDescription(user.role)">
+                    <i class="fas" [ngClass]="getRoleIcon(user.role)"></i>
                     {{ getRoleDescription(user.role) }}
+                  </span>
+                  <div class="role-description" *ngIf="user.role">
+                    {{ user.role | titlecase }}
                   </div>
                 </div>
                 
                 <div class="table-cell enhanced-cell status-cell">
-                  <span class="status-badge active">
+                  <span class="status-badge" [ngClass]="{'active': user.is_active, 'inactive': !user.is_active}">
                     <i class="fas fa-circle status-dot"></i>
-                    Active
+                    {{ user.is_active ? 'Active' : 'Disabled' }}
                   </span>
                 </div>
                 
@@ -100,359 +99,369 @@
                     <button class="btn-action-small" (click)="openEditUserModal(user); $event.stopPropagation()" title="Edit User">
                       <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn-action-small btn-danger" (click)="deleteUser(user.id); $event.stopPropagation()" title="Delete User">
+                    <button *ngIf="user.is_active" class="btn-action-small btn-warning" 
+                            (click)="disableUserAccount(user); $event.stopPropagation()" title="Disable User">
+                      <i class="fas fa-ban"></i>
+                    </button>
+                    <button *ngIf="!user.is_active" class="btn-action-small btn-success" 
+                            (click)="enableUser(user); $event.stopPropagation()" title="Enable User">
+                      <i class="fas fa-check-circle"></i>
+                    </button>
+                    <button class="btn-action-small btn-danger" 
+                            (click)="deleteUser(user.id); $event.stopPropagation()" title="Delete User">
                       <i class="fas fa-trash"></i>
                     </button>
                   </div>
                 </div>
-
-
               </div>
             </div>
             
-              <ng-template #noUsers>
-                <div class="no-results-enhanced">
-                  <div class="container-fluid">
-                    <div class="row justify-content-center">
-                      <div class="col-12 col-md-8 col-lg-6 text-center">
-                        <!-- Icon Section -->
-                        <div class="no-results-icon mb-4">
-                          <i class="fas fa-users-slash fa-4x text-muted"></i>
+            <ng-template #noUsers>
+              <div class="no-results-enhanced">
+                <div class="container-fluid">
+                  <div class="row justify-content-center">
+                    <div class="col-12 col-md-8 col-lg-6 text-center">
+                      <div class="no-results-icon mb-4">
+                        <i class="fas fa-users-slash fa-4x text-muted"></i>
+                      </div>
+                      <div class="no-results-content mb-4">
+                        <h4 class="text-muted fw-bold mb-3">No Users Found</h4>
+                        <p class="text-muted mb-4 fs-6">
+                          No users match your current search criteria. Try adjusting your filters or search terms.
+                        </p>
+                      </div>
+                      <div class="no-results-actions">
+                        <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
+                          <button class="btn btn-primary btn-lg" (click)="resetFilters()">
+                            <i class="fas fa-refresh me-2"></i>
+                            Reset All Filters
+                          </button>
+                          <button class="btn btn-outline-secondary btn-lg" (click)="openAddUserModal()">
+                            <i class="fas fa-user-plus me-2"></i>
+                            Add New User
+                          </button>
                         </div>
-                        
-                        <!-- Text Content -->
-                        <div class="no-results-content mb-4">
-                          <h4 class="text-muted fw-bold mb-3">No Users Found</h4>
-                          <p class="text-muted mb-4 fs-6">
-                            No users match your current search criteria. Try adjusting your filters or search terms.
-                          </p>
-                        </div>
-                        
-                        <!-- Action Buttons -->
-                        <div class="no-results-actions">
-                          <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
-                            <button class="btn btn-primary btn-lg" (click)="resetFilters()">
-                              <i class="fas fa-refresh me-2"></i>
-                              Reset All Filters
-                            </button>
-                            <button class="btn btn-outline-secondary btn-lg" (click)="openAddUserModal()">
-                              <i class="fas fa-user-plus me-2"></i>
-                              Add New User
-                            </button>
-                          </div>
-                        </div>
-                        
-                        <!-- Additional Help Text -->
-                        <div class="no-results-help mt-4">
-                          <p class="small text-muted">
-                            <i class="fas fa-lightbulb me-1"></i>
-                            Try searching with different keywords or clearing your role filters
-                          </p>
-                        </div>
+                      </div>
+                      <div class="no-results-help mt-4">
+                        <p class="small text-muted">
+                          <i class="fas fa-lightbulb me-1"></i>
+                          Try searching with different keywords or clearing your role filters
+                        </p>
                       </div>
                     </div>
                   </div>
                 </div>
-              </ng-template>
+              </div>
+            </ng-template>
           </div>
 
-           <div class="d-flex justify-content-between align-items-center p-3 border-top bg-light" 
-       *ngIf="filteredUsers.length > pageSize">
-    
-    <!-- Pagination Info -->
-    <div class="pagination-info">
-      <span class="text-muted small">
-        Showing <strong>{{ (currentPage - 1) * pageSize + 1 }}</strong> 
-        to <strong>{{ getEndIndex() }}</strong> 
-        of <strong>{{ filteredUsers.length }}</strong> users
-      </span>
-    </div>
-
-    <!-- Pagination Controls -->
-    <div class="pagination-controls">
-      <nav aria-label="User pagination">
-        <ul class="pagination pagination-sm mb-0">
-          
-          <!-- Previous Button -->
-          <li class="page-item" [class.disabled]="currentPage === 1">
-            <button class="page-link" 
-                    (click)="goToPage(currentPage - 1)"
-                    [disabled]="currentPage === 1"
-                    aria-label="Previous page">
-              <i class="fas fa-chevron-left"></i>
-            </button>
-          </li>
-
-          <!-- Current Page Info -->
-          <li class="page-item disabled">
-            <span class="page-link text-dark bg-transparent border-0">
-              Page <strong>{{ currentPage }}</strong> of <strong>{{ totalPages }}</strong>
-            </span>
-          </li>
-
-          <!-- Next Button -->
-          <li class="page-item" [class.disabled]="currentPage === totalPages">
-            <button class="page-link" 
-                    (click)="goToPage(currentPage + 1)"
-                    [disabled]="currentPage === totalPages"
-                    aria-label="Next page">
-              <i class="fas fa-chevron-right"></i>
-            </button>
-          </li>
-
-        </ul>
-      </nav>
-    </div>
+          <div class="d-flex justify-content-between align-items-center p-3 border-top bg-light" 
+               *ngIf="filteredUsers.length > pageSize">
+            <div class="pagination-info">
+              <span class="text-muted small">
+                Showing <strong>{{ (currentPage - 1) * pageSize + 1 }}</strong> 
+                to <strong>{{ getEndIndex() }}</strong> 
+                of <strong>{{ filteredUsers.length }}</strong> users
+              </span>
             </div>
+            <div class="pagination-controls">
+              <nav aria-label="User pagination">
+                <ul class="pagination pagination-sm mb-0">
+                  <li class="page-item" [class.disabled]="currentPage === 1">
+                    <button class="page-link" 
+                            (click)="goToPage(currentPage - 1)"
+                            [disabled]="currentPage === 1"
+                            aria-label="Previous page">
+                      <i class="fas fa-chevron-left"></i>
+                    </button>
+                  </li>
+                  <li class="page-item disabled">
+                    <span class="page-link text-dark bg-transparent border-0">
+                      Page <strong>{{ currentPage }}</strong> of <strong>{{ totalPages }}</strong>
+                    </span>
+                  </li>
+                  <li class="page-item" [class.disabled]="currentPage === totalPages">
+                    <button class="page-link" 
+                            (click)="goToPage(currentPage + 1)"
+                            [disabled]="currentPage === totalPages"
+                            aria-label="Next page">
+                      <i class="fas fa-chevron-right"></i>
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-      <div class="details-section" *ngIf="isDetailsPanelVisible">
-        <div class="card border-2 shadow-lg h-100">
-          <!-- Header Card -->
-          <div class="card-header bg-primary text-white py-4">
-            <div class="d-flex justify-content-between align-items-start">
+    <!-- Details Panel -->
+    <div class="details-section" *ngIf="isDetailsPanelVisible">
+      <div class="card border-2 shadow-lg h-100">
+        <div class="card-header bg-primary text-white py-4">
+          <div class="d-flex justify-content-between align-items-start">
+            <div class="d-flex align-items-center">
+              <div class="bg-white bg-opacity-20 rounded-circle p-3 me-3">
+                <i class="fas fa-user fa-2x text-dark"></i>
+              </div>
+              <div>
+                <h3 class="card-title mb-1 text-white">{{ selectedUser?.username }}</h3>
+                <p class="card-text text-white-50 mb-0">
+                  <i class="fas fa-envelope me-1"></i>{{ selectedUser?.email }}
+                </p>
+              </div>
+            </div>
+            <button class="btn btn-light btn-sm" (click)="hideUserDetails()">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="card-body p-0" *ngIf="selectedUser; else loadingTemplate">
+          
+          <!-- User Information Card -->
+          <div class="card border-0 rounded-0 border-bottom">
+            <div class="card-header bg-transparent border-0 py-3">
               <div class="d-flex align-items-center">
-                <div class="bg-white bg-opacity-20 rounded-circle p-3 me-3">
-                  <i class="fas fa-user fa-2x text-dark"></i>
-                </div>
-                <div>
-                  <h3 class="card-title mb-1 text-white">{{ selectedUser?.username }}</h3>
-                  <p class="card-text text-white-50 mb-0">
-                    <i class="fas fa-envelope me-1"></i>{{ selectedUser?.email }}
-                  </p>
-                </div>
+                <i class="fas fa-id-card text-primary me-2"></i>
+                <h5 class="card-title mb-0">User Information</h5>
               </div>
-              <button class="btn btn-light btn-sm" (click)="hideUserDetails()">
-                <i class="fas fa-times"></i>
-              </button>
             </div>
-          </div>
-
-          <div class="card-body p-0" *ngIf="selectedUser; else loadingTemplate">
-            
-            <!-- User Information Card -->
-            <div class="card border-0 rounded-0 border-bottom">
-              <div class="card-header bg-transparent border-0 py-3">
-                <div class="d-flex align-items-center">
-                  <i class="fas fa-id-card text-primary me-2"></i>
-                  <h5 class="card-title mb-0">User Information</h5>
-                </div>
-              </div>
-              <div class="card-body">
-                <div class="row g-3">
-                  <div class="col-md-6">
-                    <label class="form-label text-muted small mb-1">Username</label>
-                    <p class="mb-0 fw-semibold">{{ selectedUser.username }}</p>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label text-muted small mb-1">Email Address</label>
-                    <p class="mb-0 fw-semibold">{{ selectedUser.email }}</p>
-                  </div>
-
+            <div class="card-body">
+              <div class="row g-3">
                 <div class="col-md-6">
-                     <label class="form-label text-muted small mb-1">User Role</label>
-                    <div>
-                      <span class="role-badge-enhanced" [ngClass]="getRoleBadgeClass(selectedUser.role)">
-                        <i class="fas text-info me-1" [ngClass]="getRoleIcon(selectedUser.role)"></i>
-                        {{ selectedUser.role }}
-                      </span>
-                    </div>
-                  </div>
-
-          
-                  <!-- <div class="col-md-6">
-                    <label class="form-label text-muted small mb-1">User ID</label>
-                    <p class="mb-0 font-monospace small text-muted">{{ selectedUser.id }}</p>
-                  </div> -->
+                  <label class="form-label text-muted small mb-1">Username</label>
+                  <p class="mb-0 fw-semibold">{{ selectedUser.username }}</p>
                 </div>
-              </div>
-            </div>
-
-            <!-- Role Permissions Card -->
-            <div class="card border-0 rounded-0 border-bottom">
-              <div class="card-header bg-transparent border-0 py-3">
-                <div class="d-flex align-items-center">
-                  <i class="fas fa-shield-alt text-warning me-2"></i>
-                  <h5 class="card-title mb-0">Role Permissions</h5>
+                <div class="col-md-6">
+                  <label class="form-label text-muted small mb-1">Email Address</label>
+                  <p class="mb-0 fw-semibold">{{ selectedUser.email }}</p>
                 </div>
-              </div>
-              <div class="card-body">
-                <div class="row g-2">
-                  <div class="col-md-6" *ngFor="let permission of getRolePermissions(selectedUser.role)">
-                    <div class="d-flex align-items-center p-2 bg-light rounded">
-                      <i class="fas fa-check-circle text-success me-2"></i>
-                      <span class="small">{{ permission }}</span>
-                    </div>
+                <div class="col-md-6">
+                  <label class="form-label text-muted small mb-1">User Role</label>
+                  <div>
+                    <span class="role-badge-enhanced" [ngClass]="getRoleBadgeClass(selectedUser.role)">
+                      <i class="fas" [ngClass]="getRoleIcon(selectedUser.role)"></i>
+                      {{ getRoleDescription(selectedUser.role) }}
+                    </span>
                   </div>
                 </div>
-              </div>
-            </div>
-
-            <!-- Account Status Card -->
-            <div class="card border-0 rounded-0 border-bottom">
-              <div class="card-header bg-transparent border-0 py-3">
-                <div class="d-flex align-items-center">
-                  <i class="fas fa-chart-line text-info me-2"></i>
-                  <h5 class="card-title mb-0">Account Status</h5>
+                <div class="col-md-6">
+                  <label class="form-label text-muted small mb-1">User ID</label>
+                  <p class="mb-0 font-monospace small text-muted">{{ selectedUser.id }}</p>
                 </div>
-              </div>
-              <div class="card-body">
-                <div class="row g-3">
-                  <div class="col-md-6">
-                    <div class="d-flex align-items-center">
-                      <div class="bg-success rounded-circle p-2 me-3">
-                        <i class="fas fa-check text-white"></i>
-                      </div>
-                      <div>
-                        <div class="text-muted small">Account Status</div>
-                        <div class="fw-semibold">Active</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="d-flex align-items-center">
-                      <div class="bg-primary rounded-circle p-2 me-3">
-                        <i class="fas fa-clock text-white"></i>
-                      </div>
-                      <div>
-                        <div class="text-muted small">Last Login</div>
-                        <div class="fw-semibold">Recently</div>
-                      </div>
-                    </div>
-                  </div>
+                <div class="col-md-6">
+                  <label class="form-label text-muted small mb-1">Created At</label>
+                  <p class="mb-0 small">{{ selectedUser.created_at | date:'medium' }}</p>
                 </div>
-              </div>
-            </div>
-
-            <!-- Quick Actions Card -->
-            <div class="card border-0 rounded-0">
-              <div class="card-header bg-transparent border-0 py-3">
-                <div class="d-flex align-items-center">
-                  <!-- <i class="fas fa-bolt text-success me-2"></i> -->
-                  <!-- <h5 class="card-title mb-0">Quick Actions</h5> -->
+                <div class="col-md-6">
+                  <label class="form-label text-muted small mb-1">Last Login</label>
+                  <p class="mb-0 small">{{ selectedUser.last_login | date:'medium' || 'Never' }}</p>
                 </div>
-              </div>
-              <div class="card-body">
-                  <div class="col-md-12 mt-1">
-                    <button class="btn btn-outline-primary w-100" (click)="openEditUserModal(selectedUser)">
-                      <i class="fas fa-edit me-1"></i>
-                      Edit User
-                    </button>
-                  </div>
-                    <div class="col-md-12 mt-2">
-                    <button class="btn btn-outline-warning w-100" (click)="sendResetPassword(selectedUser)">
-                      <i class="fas fa-key me-1"></i>
-                      Reset Password
-                    </button>
-                  </div>
-                  <div class="col-md-12 mt-2">
-                    <button class="btn btn-outline-danger w-100" (click)="deleteUser(selectedUser.id)">
-                      <i class="fas fa-trash me-1"></i>
-                      Delete User
-                    </button>
-                  </div>
               </div>
             </div>
           </div>
 
-          <ng-template #loadingTemplate>
-            <div class="card-body text-center py-5">
-              <div class="spinner-border text-primary mb-3" role="status">
-                <span class="visually-hidden">Loading...</span>
+          <!-- Role Permissions Card -->
+          <div class="card border-0 rounded-0 border-bottom">
+            <div class="card-header bg-transparent border-0 py-3">
+              <div class="d-flex align-items-center">
+                <i class="fas fa-shield-alt text-warning me-2"></i>
+                <h5 class="card-title mb-0">Role Permissions</h5>
               </div>
-              <p class="text-muted mb-0">Loading user details...</p>
             </div>
-          </ng-template>
-        </div>
-      </div>
+            <div class="card-body">
+              <div class="row g-2">
+                <div class="col-md-6" *ngFor="let permission of getRolePermissions(selectedUser.role)">
+                  <div class="d-flex align-items-center p-2 bg-light rounded">
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    <span class="small">{{ permission }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
+          <!-- Account Status Card -->
+          <div class="card border-0 rounded-0 border-bottom">
+            <div class="card-header bg-transparent border-0 py-3">
+              <div class="d-flex align-items-center">
+                <i class="fas fa-chart-line text-info me-2"></i>
+                <h5 class="card-title mb-0">Account Status</h5>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <div class="d-flex align-items-center">
+                    <div class="rounded-circle p-2 me-3" [ngClass]="{'bg-success': selectedUser.is_active, 'bg-secondary': !selectedUser.is_active}">
+                      <i class="fas fa-check text-white"></i>
+                    </div>
+                    <div>
+                      <div class="text-muted small">Account Status</div>
+                      <div class="fw-semibold" [ngClass]="{'text-success': selectedUser.is_active, 'text-danger': !selectedUser.is_active}">
+                        {{ selectedUser.is_active ? 'Active' : 'Disabled' }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="d-flex align-items-center">
+                    <div class="bg-primary rounded-circle p-2 me-3">
+                      <i class="fas fa-clock text-white"></i>
+                    </div>
+                    <div>
+                      <div class="text-muted small">Account Created</div>
+                      <div class="fw-semibold">{{ selectedUser.created_at | date:'MMM d, yyyy' }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions Card -->
+          <div class="card border-0 rounded-0">
+            <div class="card-header bg-transparent border-0 py-3">
+              <div class="d-flex align-items-center">
+                <i class="fas fa-bolt text-success me-2"></i>
+                <h5 class="card-title mb-0">Quick Actions</h5>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="col-md-12 mt-1">
+                <button class="btn btn-outline-primary w-100" (click)="openEditUserModal(selectedUser)">
+                  <i class="fas fa-edit me-1"></i>
+                  Edit User
+                </button>
+              </div>
+              <div class="col-md-12 mt-2">
+                <button class="btn btn-outline-warning w-100" (click)="sendResetPassword(selectedUser)">
+                  <i class="fas fa-key me-1"></i>
+                  Reset Password
+                </button>
+              </div>
+              <div class="col-md-12 mt-2" *ngIf="selectedUser.is_active">
+                <button class="btn btn-outline-warning w-100" (click)="disableUserAccount(selectedUser)">
+                  <i class="fas fa-ban me-1"></i>
+                  Disable Account
+                </button>
+              </div>
+              <div class="col-md-12 mt-2" *ngIf="!selectedUser.is_active">
+                <button class="btn btn-outline-success w-100" (click)="enableUser(selectedUser)">
+                  <i class="fas fa-check-circle me-1"></i>
+                  Enable Account
+                </button>
+              </div>
+              <div class="col-md-12 mt-2">
+                <button class="btn btn-outline-danger w-100" (click)="deleteUser(selectedUser.id)">
+                  <i class="fas fa-trash me-1"></i>
+                  Delete User
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <ng-template #loadingTemplate>
+          <div class="card-body text-center py-5">
+            <div class="spinner-border text-primary mb-3" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="text-muted mb-0">Loading user details...</p>
+          </div>
+        </ng-template>
+      </div>
+    </div>
   </div>
 </div>
 
-<div
-  class="modal fade show custom-modal-backdrop"
-  tabindex="-1"
-  *ngIf="isAddUserModalVisible"
-  style="display:block; background: rgba(0,0,0,0.5);"
-  (click)="closeAddUserModal()"
->
-  <div
-    class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
-    (click)="$event.stopPropagation()"
-  >
+<!-- Add/Edit User Modal -->
+<div class="modal fade show custom-modal-backdrop"
+     tabindex="-1"
+     *ngIf="isAddUserModalVisible"
+     style="display:block; background: rgba(0,0,0,0.5);"
+     (click)="closeAddUserModal()">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
+       (click)="$event.stopPropagation()">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="h5 mb-0">➕ Create User</h1>
+        <h1 class="h5 mb-0">{{ selectedUser ? '✏️ Edit User' : '➕ Create User' }}</h1>
         <button type="button" class="btn-close" (click)="closeAddUserModal()"></button>
       </div>
 
       <form [formGroup]="addUserForm" (ngSubmit)="saveUser()">
         <div class="modal-body">
-
           <div class="mb-3">
-            <label for="username" class="form-label">Username</label>
-            <input
-              id="username"
-              formControlName="username"
-              type="text"
-              class="form-control"
-              placeholder="Enter username"
-              [ngClass]="{'is-invalid': addUserForm.get('username')?.touched && addUserForm.get('username')?.invalid}"
-            >
+            <label for="username" class="form-label">Username *</label>
+            <input id="username"
+                   formControlName="username"
+                   type="text"
+                   class="form-control"
+                   placeholder="Enter username"
+                   [ngClass]="{'is-invalid': addUserForm.get('username')?.touched && addUserForm.get('username')?.invalid}">
             <div class="invalid-feedback">Username is required.</div>
           </div>
 
           <div class="mb-3">
-            <label for="email" class="form-label">Email</label>
-            <input
-              id="email"
-              formControlName="email"
-              type="email"
-              class="form-control"
-              placeholder="Enter email"
-              [ngClass]="{'is-invalid': addUserForm.get('email')?.touched && addUserForm.get('email')?.invalid}"
-            >
+            <label for="email" class="form-label">Email *</label>
+            <input id="email"
+                   formControlName="email"
+                   type="email"
+                   class="form-control"
+                   placeholder="Enter email"
+                   [ngClass]="{'is-invalid': addUserForm.get('email')?.touched && addUserForm.get('email')?.invalid}">
             <div class="invalid-feedback">Enter a valid email address.</div>
           </div>
 
-          <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
+          <div class="mb-3" *ngIf="!selectedUser">
+            <label for="password" class="form-label">Password *</label>
             <div class="input-group">
-              <input
-                id="password"
-                formControlName="password"
-                [type]="showPassword ? 'text' : 'password'"
-                class="form-control"
-                placeholder="Enter password"
-                [ngClass]="{'is-invalid': addUserForm.get('password')?.touched && addUserForm.get('password')?.invalid}"
-              >
-              <button
-                type="button"
-                class="btn btn-outline-secondary"
-                (click)="showPassword = !showPassword"
-              >
+              <input id="password"
+                     formControlName="password"
+                     [type]="showPassword ? 'text' : 'password'"
+                     class="form-control"
+                     placeholder="Enter password"
+                     [ngClass]="{'is-invalid': addUserForm.get('password')?.touched && addUserForm.get('password')?.invalid}">
+              <button type="button"
+                      class="btn btn-outline-secondary"
+                      (click)="showPassword = !showPassword">
                 <i class="fas" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
               </button>
-              <div class="invalid-feedback">Password is required.</div>
+              <div class="invalid-feedback">Password is required (min 6 characters).</div>
             </div>
           </div>
 
+          <div class="mb-3" *ngIf="selectedUser">
+            <label for="password" class="form-label">Password (optional)</label>
+            <div class="input-group">
+              <input id="password"
+                     formControlName="password"
+                     [type]="showPassword ? 'text' : 'password'"
+                     class="form-control"
+                     placeholder="Leave blank to keep current password">
+              <button type="button"
+                      class="btn btn-outline-secondary"
+                      (click)="showPassword = !showPassword">
+                <i class="fas" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+              </button>
+            </div>
+            <small class="text-muted">Only enter if you want to change the password.</small>
+          </div>
+
           <div class="mb-3">
-            <label for="role" class="form-label">Role</label>
-            <select
-              id="role"
-              formControlName="role"
-              class="form-select"
-              [ngClass]="{'is-invalid': addUserForm.get('role')?.touched && addUserForm.get('role')?.invalid}"
-            >
+            <label for="role" class="form-label">Role *</label>
+            <select id="role"
+                    formControlName="role"
+                    class="form-select"
+                    [ngClass]="{'is-invalid': addUserForm.get('role')?.touched && addUserForm.get('role')?.invalid}">
               <option value="">Select a role</option>
-              <option value="CIA">Chief Internal Auditor (CIA)</option>
-              <option value="Auditor">Internal Auditor (IA)</option>
-              <option value="AuditUnit">Audit Unit (AU)</option>
-              <option value="Director">Director of Internal Audit</option>
-              <option value="External">External Auditor</option>
+              <option value="admin">Administrator</option>
+              <option value="analyst">Risk Analyst</option>
+              <option value="investigator">Fraud Investigator</option>
+              <option value="compliance">Compliance Officer</option>
+              <option value="viewer">Viewer (Read-only)</option>
             </select>
             <div class="invalid-feedback">Role selection is required.</div>
           </div>
@@ -462,12 +471,11 @@
           <button type="button" class="btn btn-sm btn-secondary" (click)="closeAddUserModal()">
             Cancel
           </button>
-          <button type="submit" class="btn btn-sm btn-primary btn-test fw-semibold" [disabled]="addUserForm.invalid">
-            <i class="fas fa-save me-1"></i> Save Auditor
+          <button type="submit" class="btn btn-sm btn-primary" [disabled]="addUserForm.invalid">
+            <i class="fas fa-save me-1"></i> {{ selectedUser ? 'Update User' : 'Create User' }}
           </button>
         </div>
       </form>
-      <hr>
     </div>
   </div>
 </div>
