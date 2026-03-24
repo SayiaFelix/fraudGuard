@@ -22,8 +22,8 @@ import { APP_BASE_HREF } from '@angular/common';
 import { ToastrModule,ToastrConfig, ToastrService } from 'ngx-toastr';
 import { SettingsModalComponent } from './layout/settings-modal/settings-modal.component';
 import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
+import { AuthInterceptor } from './shared/services/auth.interceptor';
 
-// AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http);
 }
@@ -61,6 +61,11 @@ export function HttpLoaderFactory(http: HttpClient) {
     {
       provide: HTTP_INTERCEPTORS,
       useClass: CheckTokenValidityInterceptor,
+      multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
       multi: true
     },
     AuthGuard,
