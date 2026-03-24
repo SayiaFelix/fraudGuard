@@ -2082,7 +2082,7 @@ export class NavbarComponent implements OnInit {
    */
   onLogout(e: Event) {
     e.preventDefault();
-    localStorage.clear();
+    <!-- localStorage.clear(); -->
     if (!localStorage.getItem(&#x27;isLoggedin&#x27;)) {
       this.router.navigate([&#x27;/auth/login&#x27;]);
     }

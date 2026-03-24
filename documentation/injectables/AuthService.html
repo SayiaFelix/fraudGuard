@@ -978,7 +978,7 @@ export class AuthService {
 
     public logout(): void {
         localStorage.removeItem(&#x27;access_token&#x27;);
-        localStorage.clear();
+        <!-- localStorage.clear(); -->
         this._router.navigate([&#x27;/auth/login&#x27;]);
         this.loggedIn &#x3D; false;
     }

@@ -15,9 +15,8 @@ import { TranslateService } from '@ngx-translate/core';
 import { HttpService } from 'src/app/shared/services/http.service';
 import Swal from "sweetalert2";
 import { AuthService } from 'src/app/shared/services/auth.service';
-import { ToastrService } from 'ngx-toastr';
 import { GlobalService } from 'src/app/shared/services/global.service';
- 
+
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -38,19 +37,12 @@ export class LoginComponent implements OnInit {
   selectedLanguage: any = 'English';
   selectedLanguageFlag: any = 'assets/images/flags/us.svg';
  
-    // Hardcoded credentials for POC
-  readonly demoCredentials = {
-    email: 'investigator@fraudsentinel.ai',
-    password: 'FraudSentinel2026',
-    role: 'FraudInvestigator'
+  // Admin credentials for demo
+  readonly adminCredentials = {
+    email: 'admin@fraudsentinelAI.com',
+    password: 'admin@123',
+    role: 'admin'
   };
-
-  readonly roleCredentials = {
-    'RiskAnalyst': { email: 'analyst@fraudsentinel.ai', password: 'Riskanalysit@123' },
-    'FraudInvestigator': { email: 'investigator@fraudsentinel.ai', password: 'FraudSentinel@2026' },
-    'ComplianceOfficer': { email: 'compliance@fraudsentinel.ai', password: 'Complyanalysit@2026' }
-  };
-
 
   constructor(
     private translate: TranslateService,
@@ -60,10 +52,8 @@ export class LoginComponent implements OnInit {
     private httpService: HttpService,
     fb: FormBuilder,
     private _router: Router,
-    private toastr: ToastrService,
     private globalService: GlobalService
   ) {
- 
     this.form = fb.group({
       email: [
         '',
@@ -73,147 +63,94 @@ export class LoginComponent implements OnInit {
         '',
         Validators.compose([Validators.required, Validators.minLength(6)]),
       ],
-      role: ['RiskAnalyst', Validators.required]
     });
   }
  
   ngOnInit(): void {
-    localStorage.clear();
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
- 
-   onSubmit(event: Event) {
-    event.preventDefault();
-    if (this.form.invalid) return;
 
-    this.isLoading = true;
-    this.hasError = false;
-    // this.loginSuccess = false;
+onSubmit(event: Event) {
+  event.preventDefault();
+  if (this.form.invalid) return;
 
-    const { email, password, role } = this.form.value;
+  this.isLoading = true;
+  this.hasError = false;
 
-    // Hardcoded validation for POC
-    setTimeout(() => {
-      const validCredentials = this.roleCredentials[role as keyof typeof this.roleCredentials];
-      
-      if (validCredentials && email === validCredentials.email && password === validCredentials.password) {
-        // Success
-        // this.loginSuccess = true;
-        
-        // Store user data
-        localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('userRole', role);
-        localStorage.setItem('userEmail', email);
-        localStorage.setItem('userName', email.split('@')[0]);
-        localStorage.setItem('access_token', 'mock-jwt-token-for-poc');
-        
-        // Show success message
-        this.toastr?.success(`Welcome back, ${role}!`, 'Login Successful');
-        
-        // Navigate to dashboard
-        setTimeout(() => {
-          this.router.navigate(['/dashboard']);
-        }, 500);
-      } else {
-        // Error
-        this.hasError = true;
-        // this.loginSuccess = false;
-        this.errorMsg = 'Invalid credentials. Try demo credentials below.';
-      }
-      
+  const { email, password } = this.form.value;
+  
+  this.authservice.login(email, password).subscribe({
+    next: (response: any) => {
       this.isLoading = false;
-    }, 1200);
-  }
+      
+      if (response && response.access_token) {
+        // Show success
+        console.log('Login successful:', response);
+          localStorage.setItem('access_token', response.access_token);
+          localStorage.setItem('refresh_token', response.refresh_token);
+          localStorage.setItem('userRole', response.user?.role || 'admin');
+          localStorage.setItem('userEmail', response.user?.email || email);
+          localStorage.setItem('userName', response.user?.username || email.split('@')[0]);
+          localStorage.setItem('current_user', JSON.stringify(response.user));
+          
+          console.log('User details stored in localStorage:', {
+            email: response.user?.email || email,
+            username: response.user?.username || email.split('@')[0],
+            role: response.user?.role || 'admin'
+          });
+        
+          Swal.fire({
+            icon: 'success',
+            title: 'Login Successful!',
+            text: `Welcome back, ${response.user?.username || email.split('@')[0]}!`,
+            timer: 800,
+            showConfirmButton: false,
+            backdrop: true,
+            toast: false,
+            position: 'center'
+          });
+        
+        const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
+        
+        setTimeout(() => {
+          this.router.navigateByUrl(returnUrl);
+        }, 700);
+      } else {
+        this.hasError = true;
+        this.errorMsg = 'Invalid response from server.';
+      }
+    },
+    error: (error) => {
+        this.isLoading = false;
+        this.hasError = true;
+        
+        let errorMessage = '';
+        
+        if (error.status === 401) {
+          errorMessage = 'Invalid email or password. Please check your credentials.';
+        } else if (error.status === 403) {
+          errorMessage = 'Your account is disabled. Please contact administrator.';
+        } else if (error.status === 0) {
+          errorMessage = 'Cannot connect to server. Please make sure the backend is running on port 5001.';
+        } else {
+          errorMessage = error.error?.error || 'Login failed. Please try again.';
+        }
+        
+        this.errorMsg = errorMessage;
+        console.error('Login error:', error);
+      
+        // Swal.fire({
+        //   icon: 'error',
+        //   title: 'Login Failed',
+        //   text: errorMessage,
+        //   confirmButtonColor: '#d33',
+        //   confirmButtonText: 'Try Again'
+        // });
+      }
+  });
+}
  
-
-//   onSubmit(event: Event) {
-//   event.preventDefault();
-
-//   if (this.form.invalid) return;
-
-//   this.hasError = false;
-//   this.isLoading = true;
-
-//   const { email, password, role } = this.form.value;
-
-//   // Hardcoded demo credentials
-//   const demoUsers = [
-//     {
-//       email: 'analyst@fraudsentinel.ai',
-//       password: 'Sentinel@123',
-//       role: 'RiskAnalyst'
-//     },
-//     {
-//       email: 'investigator@fraudsentinel.ai',
-//       password: 'Sentinel@123',
-//       role: 'FraudInvestigator'
-//     },
-//     {
-//       email: 'compliance@fraudsentinel.ai',
-//       password: 'Sentinel@123',
-//       role: 'ComplianceOfficer'
-//     }
-//   ];
-
-//   setTimeout(() => {
-//     const user = demoUsers.find(
-//       u =>
-//         u.email === email &&
-//         u.password === password &&
-//         u.role === role
-//     );
-
-//     if (user) {
-//       localStorage.setItem('userRole', user.role);
-//       localStorage.setItem('userEmail', user.email);
-
-//       this.router.navigate(['/dashboard']);
-//     } else {
-//       this.hasError = true;
-//       this.errorMsg = 'Invalid demo credentials. Please use provided access details.';
-//     }
-
-//     this.isLoading = false;
-//   }, 1000);
-// }
-
-// onSubmit(event: Event) {
-//   event.preventDefault();
- 
-//   if (this.isLoading) return;
- 
-//   this.hasError = false;
-//   this.isLoading = true;
- 
-//   const { email, password, role } = this.form.value;
- 
-//   this.httpService
-//     .login(email, password)   
-//     .subscribe(users => {
-//       this.isLoading = false;
- 
-//       if (users.length > 0) {
-//         const user = users[0];
-//         if (user.role === role) {
-//           localStorage.setItem('userRole', user.role);
-//           localStorage.setItem('userEmail', user.email);
-//           localStorage.setItem('username', user.username);
- 
-//           // Redirect
-//           this.router.navigate(['/dashboard']);
-//           // console.log('Login successful:', user);
-//         } else {
-//           this.hasError = true;
-//           this.errorMsg = `Role mismatch. You selected "${role}", but your account is "${user.role}".`;
-//         }
-//       } else {
-//         this.hasError = true;
-//         this.errorMsg = 'Invalid credentials';
-//       }
-//     });
-// }
- 
-  toggleShowPassword() {
+toggleShowPassword() {
     this.showingPassword = !this.showingPassword;
     if (this.showingPassword) {
       this.inputType = 'text';
@@ -236,36 +173,20 @@ export class LoginComponent implements OnInit {
     }
   }
  
-    fillDemoCredentials(role: string) {
-    const creds = this.roleCredentials[role as keyof typeof this.roleCredentials];
-    if (creds) {
-      this.form.patchValue({
-        role: role,
-        email: creds.email,
-        password: creds.password
-      });
-      
-      // Optional: Show tooltip or notification
-      this.toastr?.info(`Demo credentials loaded for ${role}`, 'Demo Mode');
-    }
-  }
-
-  private saveUsernameAndRolesOnLogin() {
-    let accessToken = localStorage.getItem("access_token");
- 
-    let model = {
-      token: accessToken,
-    };
- 
-    this.httpService.mobileBankingPost('oauth/validate', model).subscribe((res: any) => {
-      if (res.status === 200) {
-        console.log(res.data);
-        localStorage.setItem('userName', res.data.username);
-        localStorage.setItem('roles', res.data.roles);
-      } else {
-        Swal.fire('Error', 'Unable to fetch user details.', 'error');
-      }
-    })
+  fillAdminCredentials() {
+    this.form.patchValue({
+      email: this.adminCredentials.email,
+      password: this.adminCredentials.password
+    });
+    
+    Swal.fire({
+      icon: 'info',
+      title: 'Demo Credentials Loaded',
+      text: `Admin credentials loaded. Click Sign In to continue.`,
+      timer: 400,
+      showConfirmButton: false,
+      toast: false,
+      position: 'center'
+    });
   }
 }
- 

@@ -71,7 +71,7 @@ export class ChangePasswordComponent implements OnInit {
             if (result.status === 200) {
               Swal.fire('Password Set',  'Password Set Successfully.',  'success')
 
-              localStorage.clear();
+              // localStorage.clear();
 
               // Navigate back to login screen.
               this.router.navigate(["/auth/login"]);
