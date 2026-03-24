@@ -389,6 +389,225 @@ getHeaders(): { headers: HttpHeaders } {
     return monthlyData;
   }
 
+  // Add these methods to your HttpService class
+
+// User Management Methods
+UserGet(endpoint: string): any {
+  return this.http.get(
+    this.globalService.customerPortalNest + endpoint,
+    this.getHeaders()
+  ).pipe(map((response) => response));
+}
+
+userPost(endpoint: string, model: any): any {
+  return this.http.post(
+    this.globalService.customerPortalNest + endpoint,
+    model,
+    this.getHeaders()
+  ).pipe(map((response) => response));
+}
+
+userPut(endpoint: string, model: any): any {
+  return this.http.put(
+    this.globalService.customerPortalNest + endpoint,
+    model,
+    this.getHeaders()
+  ).pipe(map((response) => response));
+}
+
+userDelete(endpoint: string, payload?: any): any {
+  const options: any = { headers: this.getHeaders().headers };
+  if (payload) {
+    options.body = payload;
+  }
+  return this.http.delete(
+    this.globalService.customerPortalNest + endpoint,
+    options
+  ).pipe(map((response) => response));
+}
+
+adminCreateUser(userData: any): Observable<any> {
+  return this.http.post(`${this.apiUrl}/admin/users`, userData, this.getHeaders());
+}
+
+register(userData: any): Observable<any> {
+  return this.http.post(`${this.apiUrl}/auth/register`, userData, this.getHeaders());
+}
+
+getUserById(userId: number): Observable<any> {
+  return this.http.get(`${this.apiUrl}/admin/users/${userId}`, this.getHeaders());
+}
+
+updateUser(userId: number, userData: any): Observable<any> {
+  return this.http.put(`${this.apiUrl}/admin/users/${userId}/update`, userData, this.getHeaders());
+}
+
+updateUserRole(userId: number, role: string): Observable<any> {
+  return this.http.put(`${this.apiUrl}/admin/users/${userId}/role`, { role }, this.getHeaders());
+}
+
+disableUser(userId: number): Observable<any> {
+  return this.http.put(`${this.apiUrl}/admin/users/${userId}/disable`, {}, this.getHeaders());
+}
+
+enableUser(userId: number): Observable<any> {
+  return this.http.put(`${this.apiUrl}/admin/users/${userId}/enable`, {}, this.getHeaders());
+}
+
+resetPasswordEmail(userId: number): Observable<any> {
+  return this.http.post(`${this.apiUrl}/admin/users/${userId}/reset-password`, { type: 'email' }, this.getHeaders());
+}
+
+generateTemporaryPassword(userId: number): Observable<any> {
+  return this.http.post(`${this.apiUrl}/admin/users/${userId}/reset-password`, { type: 'temporary' }, this.getHeaders());
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   getDashboardData(): Observable<any> {
     return this.http.get(`${this.baseUrl}/api/get_all_charts_kpis`);
   }
@@ -475,10 +694,6 @@ getHeaders(): { headers: HttpHeaders } {
 
   getUsers(email: string, password: string): Observable<any[]> {
     return this.http.get<any[]>(`http://localhost:3000/users?email=${email}&password=${password}`);
-  }
-
-  getUserById(id: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/${id}`);
   }
 
   public customerPortalAuth(endpoint: string, model: any, options?: any): Observable<any> {

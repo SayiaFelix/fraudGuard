@@ -3,9 +3,6 @@ import {RouterModule, Routes} from '@angular/router';
 import {ListRequestsComponent} from "./list-requests/list-requests.component";
 import { ViewRequestsComponent } from './view-requests/view-requests.component';
 
-
-
-
 const routes: Routes = [
 
   {
