@@ -1,91 +1,64 @@
+// src/app/services/auth.service.ts
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { JwtHelperService } from '@auth0/angular-jwt';
-import jwt_decode from 'jwt-decode';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
+
 @Injectable({
-    providedIn: 'root',
+  providedIn: 'root'
 })
 export class AuthService {
-  refreshToken() {
-    throw new Error('Method not implemented.');
+  private apiUrl = 'http://localhost:5001/v1/api/auth';
+  private tokenKey = 'access_token';
+  private refreshTokenKey = 'refresh_token';
+  private userKey = 'current_user';
+
+  private currentUserSubject = new BehaviorSubject<any>(null);
+  public currentUser$ = this.currentUserSubject.asObservable();
+
+  constructor(private http: HttpClient) {
+    this.loadStoredUser();
   }
 
-    private loggedIn = false;
-    private helper = new JwtHelperService();
-    public redirectURL = '';
-    private tokenExpirationTime: Date;
-    constructor(
-        private _router: Router
-        ) {}
+  private loadStoredUser(): void {
+    const user = localStorage.getItem(this.userKey);
+    if (user) {
+      this.currentUserSubject.next(JSON.parse(user));
+    }
+  }
 
-    public logout(): void {
-        localStorage.removeItem('access_token');
-        localStorage.clear();
-        this._router.navigate(['/auth/login']);
-        this.loggedIn = false;
-    }
-  
+  login(username: string, password: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/login`, { username, password })
+      .pipe(tap((response: any) => {
+        if (response.access_token) {
+          localStorage.setItem(this.tokenKey, response.access_token);
+          localStorage.setItem(this.refreshTokenKey, response.refresh_token);
+          localStorage.setItem(this.userKey, JSON.stringify(response.user));
+          this.currentUserSubject.next(response.user);
+        }
+      }));
+  }
 
-    public getRoles(): any {
-      const user_details = localStorage.getItem('user_details');
-      const userDetails = JSON.parse(user_details ? user_details : "");
-        const rolesArray = userDetails.roleList.map((item: any) => item.name);
+  register(userData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/register`, userData);
+  }
 
-        return rolesArray;
-    }
+  logout(): void {
+    localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem(this.refreshTokenKey);
+    localStorage.removeItem(this.userKey);
+    this.currentUserSubject.next(null);
+  }
 
-    public getToken(): any {
-        return localStorage.getItem('access_token');
-    }
-    public unauthorizedAccess(error: any): void {
-        this.logout();
-        this._router.navigate(['/login']);
-    }
-    public isLoggedIn(): boolean {
-         return !this.isExpired();
-    }
-    public isExpired(): boolean | Promise<Boolean> {
-        const isExpired = this.helper.isTokenExpired(this.getToken());
-        return isExpired;
-    }
+  getToken(): string | null {
+    return localStorage.getItem(this.tokenKey);
+  }
 
-    public getJWTValue(): any {
-        return this.helper.decodeToken(this.getToken());
-    }
+  isAuthenticated(): boolean {
+    return !!this.getToken();
+  }
 
-    private tokenKey = 'access_token';
-    private timer: any;
-    private tokenExpirationTimer: any;
-    
-    startExpirationTimer(expirationTime: number) {
-      // Clear the existing timer if it's running
-      if (this.tokenExpirationTimer) {
-        clearTimeout(this.tokenExpirationTimer);
-      }
-  
-      // Start a new timer
-      this.tokenExpirationTimer = setTimeout(() => {
-        // Call your logout or token refresh method here
-
-        this.logout();
-      }, expirationTime);
-    }
-  
-    clearExpirationTimer() {
-      if (this.tokenExpirationTimer) {
-        clearTimeout(this.tokenExpirationTimer);
-      }
-    }
-    
-      setToken(token: string): void {
-        localStorage.setItem(this.tokenKey, token);
-        const tokenData: any = jwt_decode(token);
-        const expirationTime = tokenData.exp * 1000; // Convert expiration time to milliseconds
-        const currentTime = new Date().getTime();
-        const timeToExpire = expirationTime - currentTime;
-        this.startExpirationTimer(timeToExpire);
-      }
-    
-  
+  getCurrentUser(): any {
+    return this.currentUserSubject.value;
+  }
 }
