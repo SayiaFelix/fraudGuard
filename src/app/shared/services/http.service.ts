@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { GlobalService } from './global.service';
 import { AuthService } from './auth.service';
-import { map,tap, catchError } from 'rxjs/operators';
-import { forkJoin, Observable, throwError,of } from 'rxjs';
+import { map, tap, catchError } from 'rxjs/operators';
+import { forkJoin, Observable, throwError, of } from 'rxjs';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 
@@ -109,9 +109,7 @@ export interface AlertModeResponse {
 export class HttpService {
   private subclassDataUrl = 'assets/subclass-data.json';
   userId: any;
-  post(arg0: string, model: { profileId: any; roleIds: any; active: string; remarks: any; }) {
-    throw new Error('Method not implemented.');
-  }
+  
   constructor(
     private http: HttpClient,
     private globalService: GlobalService,
@@ -119,128 +117,122 @@ export class HttpService {
     private router: Router
   ) {}
 
-
   private cytonUrl = 'http://130.61.111.65:5016/api/get_all_charts_kpis'; 
   private apiUrls = 'http://127.0.0.1:5020/api/chat'; 
-
-  // private baseUrl = "http://130.61.111.65:5016"; 
   private baseUrl = "http://130.61.111.65:5016";
   private baseUrls = 'http://localhost:5015/api';
   private apiUrl = `${environment.customerPortalNest}`;
 
-checkTransactionRisk(transactionData: any): Observable<any> {
-  return this.http.post(`${this.apiUrl}/real_time_risk_score`, transactionData)
-    .pipe(
-      tap(response => console.log('Risk assessment response:', response)),
-      catchError(this.handleError<any>('checkTransactionRisk', { 
-        status: 'error', 
-        message: 'Failed to assess transaction risk' 
-      }))
-    );
-}
 
-getFraudHistory(page: number = 1, size: number = 10): Observable<any> {
-  return this.http.post(`${this.apiUrl}/fraud_history`, { page, size })
-    .pipe(
-      tap(response => console.log('Fraud history response:', response)),
-      catchError(this.handleError<any>('getFraudHistory', { 
-        fraud_transactions: [], 
-        pagination: { total: 0 } 
-      }))
-    );
-}
-
-getFeatureImportance(): Observable<any> {
-  return this.http.get(`${this.apiUrl}/feature_importance_weight`)
-    .pipe(
-      tap(response => console.log('Feature importance response:', response)),
-      catchError(this.handleError<any>('getFeatureImportance', { 
-        status: 'error', 
-        feature_importance: {} 
-      }))
-    );
-}
-
-getTransactionById(transactionId: string): Observable<any> {
-  return this.http.post(`${this.apiUrl}/transactions`, { transaction_id: transactionId })
-    .pipe(
-      tap(response => console.log('Transaction details response:', response)),
-      catchError(this.handleError<any>('getTransactionById', { 
-        status: 'error', 
-        message: 'Failed to load transaction details' 
-      }))
-    );
-}
-
-toggleSovereignMode(enable: boolean): Observable<any> {
-  return this.http.post(`${this.apiUrl}/system/sovereign_mode`, { enable })
-    .pipe(
-      tap(response => console.log('Sovereign mode response:', response)),
-      catchError(this.handleError<any>('toggleSovereignMode', { 
-        status: 'error', 
-        message: 'Failed to toggle sovereign mode' 
-      }))
-    );
-}
-
-
-getSovereignMode(): Observable<any> {
-  return this.http.get(`${this.apiUrl}/system/sovereign_mode`)
-    .pipe(
-      tap(response => console.log('Sovereign mode status:', response)),
-      catchError(this.handleError<any>('getSovereignMode', { 
-        sovereign_mode: true 
-      }))
-    );
-}
-
-
-getRelatedTransactions(transactionId: string): Observable<any> {
-  return this.http.post(`${this.apiUrl}/transactions/related`, { transaction_id: transactionId })
-    .pipe(
-      tap(response => console.log('Related transactions response:', response)),
-      catchError(this.handleError<any>('getRelatedTransactions', { 
-        related_transactions: [] 
-      }))
-    );
-}
-
-submitFraudFeedback(transactionId: string, feedback: 'confirmed_fraud' | 'false_positive', signals?: any): Observable<any> {
-  const payload: any = {
-    transaction_id: transactionId,
-    feedback: feedback
-  };
-  
-  if (signals) {
-    payload.signals = signals;
+  checkTransactionRisk(transactionData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/real_time_risk_score`, transactionData, this.getHeaders())
+      .pipe(
+        tap(response => console.log('Risk assessment response:', response)),
+        catchError(this.handleError<any>('checkTransactionRisk', { 
+          status: 'error', 
+          message: 'Failed to assess transaction risk' 
+        }))
+      );
   }
-  
-  return this.http.post(`${this.apiUrl}/fraud_feedback`, payload)
-    .pipe(
-      tap(response => console.log('Feedback response:', response)),
-      catchError(this.handleError<any>('submitFraudFeedback', { 
-        message: 'Failed to submit feedback' 
-      }))
-    );
-}
 
-getTransactions(page: number = 1, size: number = 100): Observable<TransactionsResponse> {
-  // console.log(`Calling API: ${this.apiUrl}/transactions with page=${page}, size=${size}`);
-  
-  return this.http.post<TransactionsResponse>(`${this.apiUrl}/transactions`, { page, size })
-    .pipe(
-      tap(response => console.log('API Response:', response)),
-      catchError(this.handleError<TransactionsResponse>('getTransactions', {
-        status: 'error',
-        message: 'Failed to load transactions',
-        transactions: [],
-        pagination: { page, size, total: 0, has_more: false }
-      }))
-    );
-}
+  getFraudHistory(page: number = 1, size: number = 10): Observable<any> {
+    return this.http.post(`${this.apiUrl}/fraud_history`, { page, size }, this.getHeaders())
+      .pipe(
+        tap(response => console.log('Fraud history response:', response)),
+        catchError(this.handleError<any>('getFraudHistory', { 
+          fraud_transactions: [], 
+          pagination: { total: 0 } 
+        }))
+      );
+  }
+
+  getFeatureImportance(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/feature_importance_weight`, this.getHeaders())
+      .pipe(
+        tap(response => console.log('Feature importance response:', response)),
+        catchError(this.handleError<any>('getFeatureImportance', { 
+          status: 'error', 
+          feature_importance: {} 
+        }))
+      );
+  }
+
+  getTransactionById(transactionId: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/transactions`, { transaction_id: transactionId }, this.getHeaders())
+      .pipe(
+        tap(response => console.log('Transaction details response:', response)),
+        catchError(this.handleError<any>('getTransactionById', { 
+          status: 'error', 
+          message: 'Failed to load transaction details' 
+        }))
+      );
+  }
+
+  toggleSovereignMode(enable: boolean): Observable<any> {
+    return this.http.post(`${this.apiUrl}/system/sovereign_mode`, { enable }, this.getHeaders())
+      .pipe(
+        tap(response => console.log('Sovereign mode response:', response)),
+        catchError(this.handleError<any>('toggleSovereignMode', { 
+          status: 'error', 
+          message: 'Failed to toggle sovereign mode' 
+        }))
+      );
+  }
+
+  getSovereignMode(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/system/sovereign_mode`, this.getHeaders())
+      .pipe(
+        tap(response => console.log('Sovereign mode status:', response)),
+        catchError(this.handleError<any>('getSovereignMode', { 
+          sovereign_mode: true 
+        }))
+      );
+  }
+
+  getRelatedTransactions(transactionId: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/transactions/related`, { transaction_id: transactionId }, this.getHeaders())
+      .pipe(
+        tap(response => console.log('Related transactions response:', response)),
+        catchError(this.handleError<any>('getRelatedTransactions', { 
+          related_transactions: [] 
+        }))
+      );
+  }
+
+  submitFraudFeedback(transactionId: string, feedback: 'confirmed_fraud' | 'false_positive', signals?: any): Observable<any> {
+    const payload: any = {
+      transaction_id: transactionId,
+      feedback: feedback
+    };
+    
+    if (signals) {
+      payload.signals = signals;
+    }
+    
+    return this.http.post(`${this.apiUrl}/fraud_feedback`, payload, this.getHeaders())
+      .pipe(
+        tap(response => console.log('Feedback response:', response)),
+        catchError(this.handleError<any>('submitFraudFeedback', { 
+          message: 'Failed to submit feedback' 
+        }))
+      );
+  }
+
+  getTransactions(page: number = 1, size: number = 100): Observable<TransactionsResponse> {
+    return this.http.post<TransactionsResponse>(`${this.apiUrl}/transactions`, { page, size }, this.getHeaders())
+      .pipe(
+        tap(response => console.log('API Response:', response)),
+        catchError(this.handleError<TransactionsResponse>('getTransactions', {
+          status: 'error',
+          message: 'Failed to load transactions',
+          transactions: [],
+          pagination: { page, size, total: 0, has_more: false }
+        }))
+      );
+  }
 
   getModelMetrics(): Observable<ModelMetrics> {
-    return this.http.get<ModelMetrics>(`${this.apiUrl}/model_metrics`)
+    return this.http.get<ModelMetrics>(`${this.apiUrl}/model_metrics`, this.getHeaders())
       .pipe(
         catchError(this.handleError<ModelMetrics>('getModelMetrics', {
           status: 'error',
@@ -252,9 +244,8 @@ getTransactions(page: number = 1, size: number = 100): Observable<TransactionsRe
       );
   }
 
-  // Get audit log
   getAuditLog(): Observable<AuditLogResponse> {
-    return this.http.get<AuditLogResponse>(`${this.apiUrl}/audit_log`)
+    return this.http.get<AuditLogResponse>(`${this.apiUrl}/audit_log`, this.getHeaders())
       .pipe(
         catchError(this.handleError<AuditLogResponse>('getAuditLog', {
           status: 'error',
@@ -265,9 +256,8 @@ getTransactions(page: number = 1, size: number = 100): Observable<TransactionsRe
       );
   }
 
-  // Toggle alert mode
   toggleAlertMode(enable: boolean): Observable<AlertModeResponse> {
-    return this.http.post<AlertModeResponse>(`${this.apiUrl}/system/alert_mode`, { enable })
+    return this.http.post<AlertModeResponse>(`${this.apiUrl}/system/alert_mode`, { enable }, this.getHeaders())
       .pipe(
         catchError(this.handleError<AlertModeResponse>('toggleAlertMode', {
           status: 'error',
@@ -279,59 +269,96 @@ getTransactions(page: number = 1, size: number = 100): Observable<TransactionsRe
   }
 
   getSystemStats(): Observable<any> {
-  return this.http.get(`${this.apiUrl}/system/stats`);
-}
+    return this.http.get(`${this.apiUrl}/system/stats`, this.getHeaders());
+  }
 
   submitFeedback(transactionId: string, feedback: 'confirmed_fraud' | 'false_positive', signals?: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/fraud_feedback`, {
       transaction_id: transactionId,
       feedback,
       signals
-    }).pipe(
+    }, this.getHeaders()).pipe(
       catchError(this.handleError<any>('submitFeedback', { message: 'Failed to submit feedback' }))
     );
+  }
+
+  getTransactionStatus(transactionId: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/get_transactions/status`, { transaction_id: transactionId }, this.getHeaders())
+      .pipe(
+        tap(response => console.log('Status history response:', response)),
+        catchError(this.handleError<any>('getTransactionStatus', { 
+          status: 'error',
+          current_status: 'Open',
+          history: [] 
+        }))
+      );
+  }
+
+  updateTransactionStatus(transactionId: string, status: string, notes?: string): Observable<any> {
+    const payload: any = {
+      transaction_id: transactionId,
+      status: status,
+      action_by: 'Analyst' 
+    };
+    
+    if (notes) {
+      payload.notes = notes;
+    }
+    
+    return this.http.post(`${this.apiUrl}/transactions/status`, payload, this.getHeaders())
+      .pipe(
+        tap(response => console.log('Status update response:', response)),
+        catchError(this.handleError<any>('updateTransactionStatus', { 
+          status: 'error', 
+          message: 'Failed to update status' 
+        }))
+      );
+  }
+
+getHeaders(): { headers: HttpHeaders } {
+  const token = this.authService.getToken();
+  return {
+    headers: new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': token ? `Bearer ${token}` : ''
+    })
+  };
+}
+
+  getHeadersFile(): any {
+    const token = this.authService.getToken();
+    return {
+      headers: new HttpHeaders({
+        'Authorization': token ? `Bearer ${token}` : ''
+      })
+    };
+  }
+
+  getFormHeaders(): any {
+    const token = this.authService.getToken();
+    return {
+      headers: new HttpHeaders({
+        'Authorization': token ? `Bearer ${token}` : ''
+      })
+    };
   }
 
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
       console.error(`${operation} failed:`, error);
+      
+      // If 401 Unauthorized, redirect to login
+      if (error.status === 401) {
+        console.log('Token expired or invalid, redirecting to login');
+        this.authService.logout();
+        this.router.navigate(['/auth/login']);
+      }
+      
       return of(result as T);
     };
   }
 
-getTransactionStatus(transactionId: string): Observable<any> {
-  return this.http.post(`${this.apiUrl}/get_transactions/status`, { transaction_id: transactionId })
-    .pipe(
-      tap(response => console.log('Status history response:', response)),
-      catchError(this.handleError<any>('getTransactionStatus', { 
-        status: 'error',
-        current_status: 'Open',
-        history: [] 
-      }))
-    );
-}
-
-updateTransactionStatus(transactionId: string, status: string, notes?: string): Observable<any> {
-  const payload: any = {
-    transaction_id: transactionId,
-    status: status,
-    action_by: 'Analyst' 
-  };
-  
-  if (notes) {
-    payload.notes = notes;
-  }
-  
-  return this.http.post(`${this.apiUrl}/transactions/status`, payload)
-    .pipe(
-      tap(response => console.log('Status update response:', response)),
-      catchError(this.handleError<any>('updateTransactionStatus', { 
-        status: 'error', 
-        message: 'Failed to update status' 
-      }))
-    );
-}
-
+  // ... rest of your existing methods (calculateKPIs, groupByMonth, etc.)
   calculateKPIs(transactions: any[]): any {
     const totalTransactions = transactions.length;
     const highRisk = transactions.filter(t => (t.risk_score || 0) >= 5).length;
@@ -389,57 +416,54 @@ updateTransactionStatus(transactionId: string, status: string, notes?: string): 
     return this.http.post(`${this.baseUrls}/chat`, { query });
   }
 
-  public getEnterpriseUsers(endpoint: string):Observable<any> {
-    return this.http.get(this.globalService.customerPortalNest + endpoint)
-  }
-  public channelManagerLogin(){
-
+  public getEnterpriseUsers(endpoint: string): Observable<any> {
+    return this.http.get(this.globalService.customerPortalNest + endpoint);
   }
 
-public customerPortalLogin(endpoint: string, model: any): Observable<any> {
-  return this.http
-    .post(
-      this.globalService.customerPortalNest + endpoint,
-      model,
-      this.generateLoginHeaders()
-    )
-    .pipe(
-      map((result: any) => {
-     
-        if (result.status === '00' && result.token) {
-          localStorage.setItem('isLoggedin', 'true');
-          localStorage.setItem('authToken', result.token); 
-          localStorage.setItem('data', JSON.stringify(result));
-        } else {
-          throwError(() => new Error(result.message || 'Login failed.'));
-        }
-        return result;
-      }),
-      catchError((err) => {
-        return throwError(() => err);
-      })
-    );
-}
+  public channelManagerLogin() {}
+
+  public customerPortalLogin(endpoint: string, model: any): Observable<any> {
+    return this.http
+      .post(
+        this.globalService.customerPortalNest + endpoint,
+        model,
+        this.generateLoginHeaders()
+      )
+      .pipe(
+        map((result: any) => {
+          if (result.status === '00' && result.token) {
+            localStorage.setItem('isLoggedin', 'true');
+            localStorage.setItem('authToken', result.token); 
+            localStorage.setItem('data', JSON.stringify(result));
+          } else {
+            throwError(() => new Error(result.message || 'Login failed.'));
+          }
+          return result;
+        }),
+        catchError((err) => {
+          return throwError(() => err);
+        })
+      );
+  }
   
   public customerPortalActivate(endpoint: string, model: any): Observable<any> {
-        return this.http
-            .post(this.globalService.customerPortalNest + endpoint, model) 
-            .pipe(
-                map((result: any) => {
-                    if (result['status'] == '00') {
-                      // console.log('Activation successful:', result); 
-                    } else {
-                        throw new Error(result['message']);
-                    }
-                    return result;
-                }),
-                catchError((err) => {
-                    console.error('customerPortalActivate error:', err); 
-                    return throwError(() => err); 
-                })
-            );
-    }
-
+    return this.http
+      .post(this.globalService.customerPortalNest + endpoint, model) 
+      .pipe(
+        map((result: any) => {
+          if (result['status'] == '00') {
+            // console.log('Activation successful:', result); 
+          } else {
+            throw new Error(result['message']);
+          }
+          return result;
+        }),
+        catchError((err) => {
+          console.error('customerPortalActivate error:', err); 
+          return throwError(() => err); 
+        })
+      );
+  }
 
   getClassAndSubclassData(): Observable<any> {
     return this.http.get<any>(this.subclassDataUrl);
@@ -449,11 +473,11 @@ public customerPortalLogin(endpoint: string, model: any): Observable<any> {
     return this.http.get<any[]>(`${this.apiUrl}?email=${email}&password=${password}`);
   }
 
-    getUsers(email: string, password: string): Observable<any[]> {
-      return this.http.get<any[]>(`http://localhost:3000/users?email=${email}&password=${password}`);
-    }
+  getUsers(email: string, password: string): Observable<any[]> {
+    return this.http.get<any[]>(`http://localhost:3000/users?email=${email}&password=${password}`);
+  }
 
-      getUserById(id: number): Observable<any> {
+  getUserById(id: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/${id}`);
   }
 
@@ -480,7 +504,6 @@ public customerPortalLogin(endpoint: string, model: any): Observable<any> {
   }
 
   public customerUserDetails(): Observable<any> {
-
     let userId = JSON.parse(localStorage.getItem('data')!).id
     const userDetails$ = this.http
       .get(
@@ -490,7 +513,6 @@ public customerPortalLogin(endpoint: string, model: any): Observable<any> {
       )
       .pipe(
         map((result: any) => {
-          // console.log(result)
           localStorage.setItem(
             'userData',
             JSON.stringify(result['data'])
@@ -501,15 +523,15 @@ public customerPortalLogin(endpoint: string, model: any): Observable<any> {
     return userDetails$;
   }
 
-
-  public customerPortalPostData(endpoint: string,model: { page: { toString: () => string | number | boolean; }; size: { toString: () => string | number | boolean; }; }): any {
+  public customerPortalPostData(endpoint: string, model: { page: { toString: () => string | number | boolean; }; size: { toString: () => string | number | boolean; }; }): any {
     const params = new HttpParams()
-    .set('page', model.page.toString())
-    .set('size', model.size.toString());
+      .set('page', model.page.toString())
+      .set('size', model.size.toString());
     return this.http
       .post(
         this.globalService.customerPortalNest + endpoint,
-        {params},this.getHeaders()
+        { params },
+        this.getHeaders()
       )
       .pipe(
         map((response) => {
@@ -548,6 +570,7 @@ public customerPortalLogin(endpoint: string, model: any): Observable<any> {
         })
       );
   }
+
   public customerPortalGet(endpoint: string, model: any): any {
     return this.http
       .get(
@@ -575,6 +598,7 @@ public customerPortalLogin(endpoint: string, model: any): Observable<any> {
         })
       );
   }
+
   public customerPortalPostsImage(endpoint: string, model: any): any {
     return this.http
       .post(
@@ -589,12 +613,12 @@ public customerPortalLogin(endpoint: string, model: any): Observable<any> {
         })
       );
   }
+
   public customerPortalComments(endpoint: string, model: any): any {
     return this.http
       .post(
         this.globalService.standardComments + endpoint,
         model,
-      
       )
       .pipe(
         map((response) => {
@@ -603,6 +627,7 @@ public customerPortalLogin(endpoint: string, model: any): Observable<any> {
         })
       );
   }
+
   public mobileBankingGetUserDetailsAndPermissions(): Observable<any> {
     const userDetails$ = this.http
       .post(
@@ -660,7 +685,7 @@ public customerPortalLogin(endpoint: string, model: any): Observable<any> {
       );
   }
 
-   public mobileBankingGet(endpoint: string): any {
+  public mobileBankingGet(endpoint: string): any {
     return this.http
       .get(
         this.globalService.customerPortalNest + endpoint,
@@ -674,7 +699,7 @@ public customerPortalLogin(endpoint: string, model: any): Observable<any> {
       );
   }
 
-public mobileBankingPatch(endpoint: string, model: any): any {
+  public mobileBankingPatch(endpoint: string, model: any): any {
     return this.http
       .patch(
         this.globalService.customerPortalNest + endpoint,
@@ -689,49 +714,49 @@ public mobileBankingPatch(endpoint: string, model: any): any {
       );
   }
 
-public mobileBankingDel(endpoint: string, payload?: any): any {
+  public mobileBankingDel(endpoint: string, payload?: any): any {
     const options: any = { 
-        headers: this.getHeaders().headers 
+      headers: this.getHeaders().headers 
     };
 
     if (payload) {
-        options.body = payload;
+      options.body = payload;
     }
 
     return this.http
-        .delete(
-            this.globalService.customerPortalNest + endpoint,
-            options 
-        )
-        .pipe(
-            map((response) => {
-                response = response;
-                return response;
-            })
-        );
-}
+      .delete(
+        this.globalService.customerPortalNest + endpoint,
+        options 
+      )
+      .pipe(
+        map((response) => {
+          response = response;
+          return response;
+        })
+      );
+  }
 
   public mobileBankingPostFormData(endpoint: string, model: FormData): Observable<any> {
     return this.http.post(
-        this.globalService.customerPortalNest + endpoint,
-        model,
-        this.getFormHeaders()
+      this.globalService.customerPortalNest + endpoint,
+      model,
+      this.getFormHeaders()
     ).pipe(
-        map((response) => response) 
+      map((response) => response) 
     );
-}
+  }
 
   public mobileBankingPatchFormData(endpoint: string, model: FormData): Observable<any> {
     return this.http.patch(
-        this.globalService.customerPortalNest + endpoint,
-        model,
-        this.getFormHeaders()
+      this.globalService.customerPortalNest + endpoint,
+      model,
+      this.getFormHeaders()
     ).pipe(
-        map((response) => response) 
+      map((response) => response) 
     );
-}
+  }
 
-public mobileBankingPaginationPost(endpoint: string, model: any): any {
+  public mobileBankingPaginationPost(endpoint: string, model: any): any {
     const updatedModel = {
       page: model.page - 1,
       size: model.size,
@@ -749,7 +774,7 @@ public mobileBankingPaginationPost(endpoint: string, model: any): any {
           return response;
         })
       );
-    }
+  }
 
   public mobileBankingFormRequestPost(endpoint: string, model: any): any {
     return this.http
@@ -775,33 +800,6 @@ public mobileBankingPaginationPost(endpoint: string, model: any): any {
     );
   }
 
- getHeadersFile(): any {
-    return {
-      headers: new HttpHeaders({
-        Authorization: 'Bearer ' + this.globalService.getToken(),
-      }),
-    };
-  }
-
-getHeaders(): any {
-    return {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + this.globalService.getToken(),
-      }),
-    };
-  }
-
-   getFormHeaders(): any {
-    return {
-      headers: new HttpHeaders({
-        // Remove 'Content-Type': 'multipart/form-data' - let the browser set it automatically
-        'Authorization': 'Bearer ' + this.globalService.getToken()
-      })
-    };
-}
-
-
   private generateLoginHeaders(): { headers: HttpHeaders } {
     return {
       headers: new HttpHeaders({
@@ -820,7 +818,6 @@ getHeaders(): any {
   public mobileBankingPostUpdated(endpoint: string, model: any): any {
     return this.http
       .post(
-
         this.globalService.mobileBankingHost + endpoint,
         model,
         this.getHeaders()
@@ -836,7 +833,6 @@ getHeaders(): any {
   public mobileBankingPostNest(endpoint: string, model: any): any {
     return this.http
       .post(
-
         this.globalService.customerPortalNest + endpoint,
         model,
         this.getHeaders()
@@ -848,5 +844,4 @@ getHeaders(): any {
         })
       );
   }
-
 }
