@@ -1,10 +1,9 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { BaseComponent } from './views/layout/base/base.component';
-import { AuthGuard } from './core/guard/auth.guard';
 import { ErrorPageComponent } from './views/pages/error-page/error-page.component';
-import { CheckTokenValidityInterceptor } from './shared/services/checkTokenValidity.interceptor';
-
+import { RoleGuard } from './shared/services/role.guard';
+import { AuthGuard } from './shared/services/auth.guard';
 
 const routes: Routes = [
   {
@@ -12,11 +11,6 @@ const routes: Routes = [
     redirectTo: 'auth/login',
     pathMatch: 'full'
   },
-  // {
-  //   path: 'home', 
-  //   loadChildren: () =>
-  //     import('./views/pages/home/home.module').then((m) => m.HomeModule),
-  // },
   {
     path: 'auth',
     loadChildren: () =>
@@ -25,23 +19,14 @@ const routes: Routes = [
   {
     path: '',
     component: BaseComponent,
-    // canActivateChild: [AuthGuard],
+    canActivate: [AuthGuard],  
     children: [
-      
       {
         path: 'dashboard',
         loadChildren: () =>
           import('./views/pages/dashboard/dashboard.module').then(
             (m) => m.DashboardModule
           ),
-        data: {
-          role: '',
-        },
-      },
-      {
-        path: 'apps',
-        loadChildren: () =>
-          import('./views/pages/apps/apps.module').then((m) => m.AppsModule),
       },
       {
         path: 'fraudsentinelAi',
@@ -49,9 +34,15 @@ const routes: Routes = [
           import('./views/pages/mobile-banking/mobile-banking.module').then(
             (m) => m.MobileBankingModule
           ),
+        canActivate: [AuthGuard, RoleGuard],
         data: {
-          role: ['CORPORATE_ADMIN'],
+          roles: ['admin', 'analyst', 'investigator', 'compliance']
         },
+      },
+      {
+        path: 'apps',
+        loadChildren: () =>
+          import('./views/pages/apps/apps.module').then((m) => m.AppsModule),
       },
       {
         path: 'ui-components',
@@ -108,7 +99,6 @@ const routes: Routes = [
           ),
       },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      // { path: '**', redirectTo: 'dashboard', pathMatch: 'full' }
     ],
   },
   {

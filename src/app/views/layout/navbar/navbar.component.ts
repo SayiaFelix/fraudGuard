@@ -125,7 +125,7 @@ export class NavbarComponent implements OnInit {
 
   onLogout(e: Event) {
     e.preventDefault();
-    localStorage.clear();
+    // localStorage.clear();
     this.router.navigate(['/auth/login']);
   }
 

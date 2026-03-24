@@ -6,17 +6,14 @@ import { FeatherIconModule } from '../../../core/feather-icon/feather-icon.modul
 import { SharedModule } from '../../../shared/shared.module';
 import { MobileBankingComponent } from './mobile-banking.component';
 import { TranslateModule } from '@ngx-translate/core';
-import { AuthGuard } from 'src/app/core/guard/auth.guard';
 import { Ng2TelInputModule } from 'ng2-tel-input';
-
-
-
+import { AuthGuard } from 'src/app/shared/services/auth.guard';
 
 const routes: Routes = [
   {
     path: '',
     component: MobileBankingComponent,
-    // canActivateChild: [AuthGuard],
+    canActivateChild: [AuthGuard],
     children: [
 
       {

@@ -5,7 +5,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppRoutingModule } from './app-routing.module';
 import { LayoutModule } from './views/layout/layout.module';
-import { AuthGuard } from './core/guard/auth.guard';
 import { MatTableModule } from '@angular/material/table';
 import { AppComponent } from './app.component';
 import { ErrorPageComponent } from './views/pages/error-page/error-page.component';
@@ -23,6 +22,7 @@ import { ToastrModule,ToastrConfig, ToastrService } from 'ngx-toastr';
 import { SettingsModalComponent } from './layout/settings-modal/settings-modal.component';
 import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { AuthInterceptor } from './shared/services/auth.interceptor';
+import { AuthGuard } from './shared/services/auth.guard';
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http);
@@ -58,11 +58,11 @@ export function HttpLoaderFactory(http: HttpClient) {
   ],
   providers: [
     { provide: APP_BASE_HREF_TOKEN, useValue: '/tra-customer-portal-uat' }, 
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: CheckTokenValidityInterceptor,
-      multi: true
-    },
+    // {
+    //   provide: HTTP_INTERCEPTORS,
+    //   useClass: CheckTokenValidityInterceptor,
+    //   multi: true
+    // },
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
@@ -70,7 +70,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     },
     AuthGuard,
     {
-      provide: HIGHLIGHT_OPTIONS, // https://www.npmjs.com/package/ngx-highlightjs
+      provide: HIGHLIGHT_OPTIONS,
       useValue: {
         coreLibraryLoader: () => import('highlight.js/lib/core'),
         languages: {

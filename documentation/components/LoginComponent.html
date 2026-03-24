@@ -971,8 +971,6 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
 
-    localStorage.clear();
-
     // get return url from route parameters or default to &#x27;/&#x27;
     this.returnUrl &#x3D; this.route.snapshot.queryParams[&#x27;returnUrl&#x27;] || &#x27;/&#x27;;
   }

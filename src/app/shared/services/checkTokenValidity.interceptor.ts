@@ -33,7 +33,7 @@ export class CheckTokenValidityInterceptor implements HttpInterceptor {
       }
       const token = this.globalService.getToken();
       if (!token) {
-        localStorage.clear();
+        // localStorage.clear();
       } else {
         const helper = new JwtHelperService();
         if (helper.isTokenExpired(token)) {

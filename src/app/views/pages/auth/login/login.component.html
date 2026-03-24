@@ -1,6 +1,5 @@
 <div class="login-container">
   <div class="login-content">
-    <!-- Logo Section -->
     <div class="logo-section">
       <div class="logo-container">
           <img src="assets/images/imageFraud.png" alt="Logo" class="logo-icon">
@@ -10,23 +9,15 @@
       Agentic Generative AI for Real-Time Fraud Intelligence in Digital Finance
       </p>
 
-          <div class="demo-quick-access">
-            <p class="demo-label"> Quick Demo Access</p>
-            <div class="demo-buttons">
-              <button type="button" class="demo-role-btn analyst" (click)="fillDemoCredentials('RiskAnalyst')">
-                <span>Analyst</span>
-                <small>analyst@fraudsentinel.ai</small>
-              </button>
-              <button type="button" class="demo-role-btn investigator" (click)="fillDemoCredentials('FraudInvestigator')">
-                <span> Investigator</span>
-                <small>investigator@fraudsentinel.ai</small>
-              </button>
-              <button type="button" class="demo-role-btn compliance" (click)="fillDemoCredentials('ComplianceOfficer')">
-                <span> Compliance</span>
-                <small>compliance@fraudsentinel.ai</small>
-              </button>
-            </div>
-          </div>
+      <div class="demo-quick-access">
+        <p class="demo-label"> Quick Demo Access</p>
+        <div class="demo-buttons">
+          <button type="button" class="demo-role-btn admin" (click)="fillAdminCredentials()">
+            <span>Administrator</span>
+            <small>admin@fraudsentinelAI.com</small>
+          </button>
+        </div>
+      </div>
 
     </div>
  
@@ -36,37 +27,21 @@
    
           <div class="logo-header">
               <img class="eclectics-logo" src="assets/images/image1.png" width="400" height="70" alt="Logo" />
-      
           </div>
-         <h3 class="welcome-title">Fraud Intelligence Portal</h3>
+          
+          <h3 class="welcome-title">Fraud Intelligence Portal</h3>
           <p class="welcome-subtitle">
-          Secure access for risk analysts and fraud investigators
+          Secure access for fraud detection and investigation
           </p>
      
           <div class="tab-buttons">
             <button type="button" class="tab-button active">Sign In</button>
-            <!-- <button type="button" class="tab-button" (click)="navigateToSignUp()">Sign Up</button> -->
             <button type="button" class="tab-button">Sign Up</button>
           </div>
         </div>
  
         <form class="login-form" [formGroup]="form" (ngSubmit)="onSubmit($event)">
           <div class="form-group">
-              <label for="role">Role</label>
-              <select
-                id="role"
-                formControlName="role"
-                class="form-input">
-                <option value="RiskAnalyst">Risk Analyst</option>
-                <option value="FraudInvestigator">Fraud Investigator</option>
-                <option value="ComplianceOfficer">Compliance Officer</option>
-              </select>
-            </div>
- 
- 
-          <div class="form-group">
- 
- 
             <label for="email">Email</label>
             <input
               type="email"
@@ -122,10 +97,12 @@
             <span *ngIf="!isLoading">SIGN IN</span>
             <span *ngIf="isLoading">Signing in...</span>
           </button>
-           <p class="text-muted demo-note">
-              For demonstration purposes, authentication is mocked. 
-              In production, this integrates with OAuth or core banking IAM.
-            </p>
+          
+          <p class="text-muted demo-note">
+            For demonstration purposes, use the Admin demo button above.
+            In production, this integrates with OAuth or core banking IAM.
+          </p>
+          
           <!-- Success Alert -->
           <div class="success-alert" *ngIf="loginResponse$ | async">
             <strong>Login Successfully!</strong>

@@ -11,7 +11,26 @@ html, body {
   overflow: hidden;
 }
 
-// --- Full-screen layout styles ---
+.demo-role-btn {
+  &.admin {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #5a67d8;
+    
+    &:hover {
+      background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+      transform: translateY(-2px);
+    }
+    
+    span {
+      color: white;
+    }
+    
+    small {
+      color: rgba(255, 255, 255, 0.8);
+    }
+  }
+}
+
 .login-container {
   height: 100vh;
   width: 100vw;
