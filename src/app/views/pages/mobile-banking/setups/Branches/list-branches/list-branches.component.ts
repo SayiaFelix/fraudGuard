@@ -113,59 +113,102 @@ export class ListBranchesComponent implements OnInit {
     this.applyFiltersAndPagination();
   }
 
-  getUsersByRole(role: string): any[] {
-    return this.allUsers.filter(user => user.role === role);
-  }
+closeDetailsPanel(): void {
+  this.isDetailsPanelVisible = false;
+  this.selectedUser = null;
+}
 
-  getRoleIcon(role: string): string {
-    const icons: { [key: string]: string } = {
-      'admin': 'fa-user-shield',
-      'analyst': 'fa-user-check',
-      'investigator': 'fa-search',
-      'compliance': 'fa-building',
-      'viewer': 'fa-eye'
-    };
-    return icons[role] || 'fa-user';
-  }
+closeAddUserModal(): void {
+  this.isAddUserModalVisible = false;
+  this.selectedUser = null;  
+  this.addUserForm.reset();
+  this.isDetailsPanelVisible = false;
+}
 
-  getRoleDescription(role: string): string {
-    const descriptions: { [key: string]: string } = {
-      'admin': 'System Administrator',
-      'analyst': 'Risk Analyst',
-      'investigator': 'Fraud Investigator',
-      'compliance': 'Compliance Officer',
-      'viewer': 'Viewer (Read-only)'
-    };
-    return descriptions[role] || '';
-  }
+openEditUserModal(user: any): void {
+  this.addUserForm.patchValue({
+    username: user.username,
+    email: user.email,
+    role: user.role
+  });
+  this.addUserForm.get('password')?.clearValidators();
+  this.addUserForm.get('password')?.updateValueAndValidity();
 
-  getRolePermissions(role: string): string[] {
-    const permissions: { [key: string]: string[] } = {
-      'admin': ['Full system access', 'User management', 'System settings', 'Audit logs', 'All features'],
-      'analyst': ['Transaction analysis', 'Risk scoring', 'View reports', 'Generate insights'],
-      'investigator': ['Case management', 'Investigation tools', 'Evidence collection', 'Report generation'],
-      'compliance': ['Compliance reports', 'Audit trails', 'Regulatory checks', 'Document review'],
-      'viewer': ['View dashboards', 'Read reports', 'Basic search']
-    };
-    return permissions[role] || ['Basic system access'];
-  }
+  this.selectedUser = user;
+  this.isAddUserModalVisible = true;
+  this.isDetailsPanelVisible = false;
+}
 
-  getRoleBadgeClass(role: string): string {
-    switch (role) {
-      case 'admin':
-        return 'badge-admin';
-      case 'analyst':
-        return 'badge-analyst';
-      case 'investigator':
-        return 'badge-investigator';
-      case 'compliance':
-        return 'badge-compliance';
-      case 'viewer':
-        return 'badge-viewer';
-      default:
-        return '';
-    }
+getAvatarClass(role: string): string {
+  switch (role) {
+    case 'admin':
+      return 'avatar-admin';
+    case 'analyst':
+      return 'avatar-analyst';
+    case 'investigator':
+      return 'avatar-investigator';
+    case 'compliance':
+      return 'avatar-compliance';
+    case 'viewer':
+      return 'avatar-viewer';
+    default:
+      return 'avatar-default';
   }
+}
+
+getRoleBadgeClass(role: string): string {
+  switch (role) {
+    case 'admin':
+      return 'bg-admin';
+    case 'analyst':
+      return 'bg-analyst';
+    case 'investigator':
+      return 'bg-investigator';
+    case 'compliance':
+      return 'bg-compliance';
+    case 'viewer':
+      return 'bg-viewer';
+    default:
+      return 'bg-secondary';
+  }
+}
+
+getRoleIcon(role: string): string {
+  const icons: { [key: string]: string } = {
+    'admin': 'fa-user-shield',
+    'analyst': 'fa-chart-line',
+    'investigator': 'fa-search',
+    'compliance': 'fa-gavel',
+    'viewer': 'fa-eye'
+  };
+  return icons[role] || 'fa-user';
+}
+
+getRoleDescription(role: string): string {
+  const descriptions: { [key: string]: string } = {
+    'admin': 'Administrator',
+    'analyst': 'Risk Analyst',
+    'investigator': 'Fraud Investigator',
+    'compliance': 'Compliance Officer',
+    'viewer': 'Viewer'
+  };
+  return descriptions[role] || role;
+}
+
+getRolePermissions(role: string): string[] {
+  const permissions: { [key: string]: string[] } = {
+    'admin': ['Full system access', 'User management', 'System settings', 'Audit logs', 'All features'],
+    'analyst': ['Transaction analysis', 'Risk scoring', 'View reports', 'Generate insights', 'Dashboard access'],
+    'investigator': ['Case management', 'Investigation tools', 'Evidence collection', 'Report generation', 'Fraud patterns'],
+    'compliance': ['Compliance reports', 'Audit trails', 'Regulatory checks', 'Document review', 'Policy enforcement'],
+    'viewer': ['View dashboards', 'Read reports', 'Basic search', 'Export data']
+  };
+  return permissions[role] || ['Basic system access'];
+}
+
+getUsersByRole(role: string): any[] {
+  return this.allUsers.filter(user => user.role === role);
+}
 
   sendResetPassword(user: any): void {
     Swal.fire({
@@ -304,26 +347,6 @@ export class ListBranchesComponent implements OnInit {
   openAddUserModal(): void {
     this.addUserForm.reset();
     this.selectedUser = null;
-    this.isAddUserModalVisible = true;
-  }
-
-  closeAddUserModal(): void {
-    this.isAddUserModalVisible = false;
-    this.selectedUser = null;
-  
-  }
-
-  openEditUserModal(user: any): void {
-    this.addUserForm.patchValue({
-      username: user.username,
-      email: user.email,
-      role: user.role
-    });
-    // Don't patch password for edit
-    this.addUserForm.get('password')?.clearValidators();
-    this.addUserForm.get('password')?.updateValueAndValidity();
-    
-    this.selectedUser = user;
     this.isAddUserModalVisible = true;
   }
 
