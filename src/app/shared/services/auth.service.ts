@@ -1,4 +1,3 @@
-// src/app/shared/services/auth.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
@@ -86,31 +85,36 @@ export class AuthService {
     console.log('Local storage cleared on logout');
   }
 
-  getToken(): string | null {
-    return localStorage.getItem(this.tokenKey);
-  }
+getToken(): string | null {
 
-  isAuthenticated(): boolean {
-    const token = this.getToken();
-    console.log('isAuthenticated - Token exists?', !!token);
-    
-    if (!token) return false;
-    
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const expired = payload.exp * 1000 < Date.now();
-      if (expired) {
-        console.log('Token expired');
-        this.logout();
-        return false;
-      }
-      console.log('Token valid, expires:', new Date(payload.exp * 1000));
-      return true;
-    } catch (e) {
-      console.error('Error checking token:', e);
+  const token = localStorage.getItem('access_token') || 
+                localStorage.getItem('token') || 
+                sessionStorage.getItem('access_token');
+  
+  console.log('getToken - Retrieved:', token ? `${token.substring(0, 20)}...` : 'null');
+  return token;
+}
+
+isAuthenticated(): boolean {
+  const token = this.getToken();
+  console.log('isAuthenticated - Token exists?', !!token);
+  
+  if (!token) return false;
+  
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const expired = payload.exp * 1000 < Date.now();
+    console.log('isAuthenticated - Expired?', expired);
+    if (expired) {
+      this.logout();
       return false;
     }
+    return true;
+  } catch (e) {
+    console.error('Error checking token:', e);
+    return false;
   }
+}
 
   getCurrentUser(): any {
     return this.currentUserSubject.value;
