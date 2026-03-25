@@ -48,14 +48,14 @@ export const MENU: MenuItem[] = [
    {
     isTitle: true,
     label: 'ADMINISTRATION',
-    // roles: ['CIA']
+    roles: ['admin']
   },
 
   {
     label:'User Management',
     icon:'users',
     link: '/fraudsentinelAi/user_managements/users',
-    // roles: ['CIA'] 
+    roles: ['admin'] 
   },
   {
     isTitle: true,

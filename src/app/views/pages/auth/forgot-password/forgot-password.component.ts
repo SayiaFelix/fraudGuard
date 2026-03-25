@@ -1,8 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { ConfirmDialogComponent } from "../../../../shared/components/confirm-dialog/confirm-dialog.component";
 import Swal from "sweetalert2";
-import { NgbModal, NgbModalRef } from "@ng-bootstrap/ng-bootstrap";
 import { HttpService } from "../../../../shared/services/http.service";
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CustomValidators } from 'ngx-custom-validators';
@@ -15,16 +13,15 @@ import { CustomValidators } from 'ngx-custom-validators';
 export class ForgotPasswordComponent implements OnInit {
   public form: FormGroup;
   returnUrl: any;
-  public modalRef: NgbModalRef;
   errorMsg: string;
   hasError: boolean = false;
   hasSuccess: boolean = false;
   isLoading: boolean = false;
 
-  constructor(private router: Router,
+  constructor(
+    private router: Router,
     private route: ActivatedRoute,
     private httpService: HttpService,
-    private modalService: NgbModal,
     fb: FormBuilder,
   ) {
     this.form = fb.group({
@@ -36,62 +33,143 @@ export class ForgotPasswordComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // get return url from route parameters or default to '/'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
 
   onLoggedin(e: Event) {
     e.preventDefault();
-
     this.resetPassword();
-
-
   }
 
   resetPassword() {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
 
-    this.modalRef = this.modalService.open(ConfirmDialogComponent, { centered: true });
-    this.modalRef.componentInstance.title = 'Reset Password';
-
-    this.modalRef.componentInstance.body = "Do you want to Reset password for this email address?";
-    this.modalRef.result.then((result) => {
-      if (result === 'success') {
+    Swal.fire({
+      title: 'Reset Password?',
+      text: `We will send password reset instructions to ${this.form.value.email}`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, reset it!',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#6c757d'
+    }).then((result) => {
+      if (result.isConfirmed) {
         this.hasError = false;
-        this.hasSuccess = false
+        this.hasSuccess = false;
         this.isLoading = true;
+        
         const model = {
           email: this.form.value.email,
         };
-        this.httpService.customerPortalAuth('auth/forgot-password', model).subscribe(
-          (result: any) => {
-            if (result.status != "00") {
-              setTimeout(() => {
-                Swal.fire('Password Reset', 'Fail to Sent to Password.', 'error')
-                console.log('Reset failed:', result);
-                this.hasError = true;
-                this.errorMsg = result['error'];
-                this.form.reset()
-                this.isLoading = false;
-              }, 2000);
-            } else {
-              setTimeout(() => {
-                Swal.fire('Password Reset', 'Password Sent to Email.', 'success')
-                this.router.navigate(['/auth/change-password']);
-                // console.log('Reset successful:', result);
-                // localStorage.setItem('isLoggedin', 'true');
-                this.hasSuccess = true
-                this.isLoading = false;
-                this.form.reset()
-              }, 1000);
-            }
+        
+        this.httpService.forgotPassword(model).subscribe({
+          next: (response: any) => {
             this.isLoading = false;
+            
+            if (response.status === 'success') {
+              // Show temporary password if returned (for demo)
+              if (response.temporaryPassword) {
+                Swal.fire({
+                  title: 'Password Reset Successful!',
+                  html: `
+                    <div class="text-center">
+                      <i class="fas fa-key fa-3x text-warning mb-3"></i>
+                      <p>A temporary password has been generated for:</p>
+                      <p class="fw-bold text-primary">${response.email}</p>
+                      <div class="alert alert-success mt-3">
+                        <strong>Temporary Password:</strong>
+                        <div class="temporary-password mt-2 p-2 bg-light rounded font-monospace">
+                          ${response.temporaryPassword}
+                        </div>
+                        <small class="text-muted d-block mt-2">
+                          Please use this password to login and change it immediately.
+                        </small>
+                      </div>
+                    </div>
+                  `,
+                  icon: 'success',
+                  confirmButtonText: 'Copy Password & Login',
+                  confirmButtonColor: '#28a745',
+                  showCancelButton: true,
+                  cancelButtonText: 'Close',
+                  customClass: {
+                    confirmButton: 'btn btn-success',
+                    popup: 'swal-wide'
+                  },
+                  preConfirm: () => {
+                    navigator.clipboard.writeText(response.temporaryPassword);
+                    Swal.fire({
+                      icon: 'info',
+                      title: 'Copied!',
+                      text: 'Password copied to clipboard',
+                      timer: 1500,
+                      showConfirmButton: false
+                    });
+                    return response.temporaryPassword;
+                  }
+                }).then((copyResult) => {
+                  if (copyResult.isConfirmed) {
+                    this.router.navigate(['/auth/login']);
+                  }
+                });
+              } else {
+                // Show success message
+                Swal.fire({
+                  title: 'Reset Link Sent!',
+                  html: `
+                    <div class="text-center">
+                      <i class="fas fa-envelope fa-3x text-primary mb-3"></i>
+                      <p class="text-danger"> Feature will be live soon in PRODUCTION !!</p>
+                      <p>Password reset instructions have been sent to:</p>
+                      <p class="fw-bold text-primary">${response.email || this.form.value.email}</p>
+                      <div class="alert alert-info mt-3 small">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Check your email for the reset link.
+                      </div>
+                    </div>
+                  `,
+                  icon: 'success',
+                  confirmButtonText: 'OK',
+                  confirmButtonColor: '#28a745'
+                }).then(() => {
+                  this.router.navigate(['/auth/login']);
+                });
+              }
+              
+              this.hasSuccess = true;
+              this.form.reset();
+            } else {
+              this.hasError = true;
+              this.errorMsg = response.error || 'Failed to reset password. Please try again.';
+              
+              Swal.fire({
+                title: 'Reset Failed',
+                text: this.errorMsg,
+                icon: 'error',
+                confirmButtonColor: '#dc3545'
+              });
+            }
+          },
+          error: (error: any) => {
+            this.isLoading = false;
+            this.hasError = true;
+            this.errorMsg = error.error?.error || 'An error occurred. Please try again.';
+            
+            Swal.fire({
+              title: 'Error',
+              text: this.errorMsg,
+              icon: 'error',
+              confirmButtonColor: '#dc3545'
+            });
+            
+            console.error('Forgot password error:', error);
           }
-        );
-        // Swal.fire('Password Reset',  'Failed To Sent Password ,Try Again.',  'error')
-      } else {
-        console.log("Error occurred")
+        });
       }
     });
   }
-
 }
