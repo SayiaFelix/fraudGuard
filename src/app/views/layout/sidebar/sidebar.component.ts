@@ -197,13 +197,13 @@ onLogout(e: Event) {
       
         Swal.close();
         
-        Swal.fire({
-          icon: 'success',
-          title: 'Logged Out',
-          text: 'You have been successfully logged out.',
-          timer: 700,
-          showConfirmButton: false
-        });
+        // Swal.fire({
+        //   icon: 'success',
+        //   title: 'Logged Out',
+        //   text: 'You have been successfully logged out.',
+        //   timer: 700,
+        //   showConfirmButton: false
+        // });
         
       } catch (error) {
         console.error('Logout error:', error);

@@ -36,7 +36,7 @@ const routes: Routes = [
           ),
         canActivate: [AuthGuard, RoleGuard],
         data: {
-          roles: ['admin', 'analyst', 'investigator', 'compliance']
+          roles: ['admin', 'analyst', 'investigator', 'compliance', 'viewer'] // Allowed roles for this route
         },
       },
       {

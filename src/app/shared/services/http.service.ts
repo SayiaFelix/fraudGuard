@@ -427,7 +427,7 @@ userDelete(endpoint: string, payload?: any): any {
 }
 
 adminCreateUser(userData: any): Observable<any> {
-  return this.http.post(`${this.apiUrl}/admin/users`, userData, this.getHeaders());
+  return this.http.post(`${this.apiUrl}/admin/create_users`, userData, this.getHeaders());
 }
 
 register(userData: any): Observable<any> {
