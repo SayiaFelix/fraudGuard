@@ -310,7 +310,7 @@ getRoleDescription(role: string): string {
       cancelButtonColor: '#6c757d',
       customClass: {
         confirmButton: 'btn btn-primary',
-        cancelButton: 'btn btn-secondary',
+        cancelButton: 'btn btn-secondary me-2',
         popup: 'text-start'
       },
       buttonsStyling: false,
@@ -340,6 +340,7 @@ getRoleDescription(role: string): string {
           html: `
             <div class="text-center">
               <i class="fas fa-paper-plane fa-3x text-primary mb-3"></i>
+              <p class="text-danger">Feature will be live soon in PRODUCTION !!</p>
               <p>Password reset instructions have been sent to:</p>
               <p class="fw-bold text-primary">${user.email}</p>
               <div class="alert alert-info mt-3 small">
@@ -388,7 +389,7 @@ getRoleDescription(role: string): string {
       cancelButtonColor: '#6c757d',
       customClass: {
         confirmButton: 'btn btn-danger',
-        cancelButton: 'btn btn-secondary'
+        cancelButton: 'btn btn-secondary me-2',
       },
       buttonsStyling: false
     }).then((result) => {
@@ -574,7 +575,7 @@ private generateTemporaryPassword(user: any): void {
     confirmButtonColor: '#ffc107',
     cancelButtonColor: '#6c757d',
     customClass: {
-      confirmButton: 'btn btn-warning',
+      confirmButton: 'btn btn-warning me-2',
       cancelButton: 'btn btn-secondary'
     },
     buttonsStyling: false
@@ -604,7 +605,7 @@ private generateTemporaryPassword(user: any): void {
             showCancelButton: true,
             cancelButtonText: 'Close',
             customClass: {
-              confirmButton: 'btn btn-success',
+              confirmButton: 'btn btn-success me-2',
               cancelButton: 'btn btn-secondary',
               popup: 'swal-wide'
             },

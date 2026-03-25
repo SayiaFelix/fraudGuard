@@ -462,7 +462,9 @@ generateTemporaryPassword(userId: number): Observable<any> {
   return this.http.post(`${this.apiUrl}/admin/users/${userId}/reset-password`, { type: 'temporary' }, this.getHeaders());
 }
 
-
+forgotPassword(model: any): Observable<any> {
+  return this.http.post(`${this.apiUrl}/auth/forgot-password`, model);
+}
 
 
 
