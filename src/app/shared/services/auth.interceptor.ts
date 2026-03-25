@@ -21,14 +21,13 @@ export class AuthInterceptor implements HttpInterceptor {
       authReq = req.clone({
         headers: req.headers.set('Authorization', `Bearer ${token}`)
       });
-      console.log('Interceptor - Added Authorization header');
     } else {
       console.log('Interceptor - No token found');
     }
 
     return next.handle(authReq).pipe(
       catchError((error: HttpErrorResponse) => {
-        console.error('Interceptor - Error:', error.status);
+        // console.error('Interceptor - Error:', error.status);
         if (error.status === 401) {
           // Token expired or invalid
           this.authService.logout();

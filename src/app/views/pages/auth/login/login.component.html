@@ -2,11 +2,13 @@
   <div class="login-content">
     <div class="logo-section">
       <div class="logo-container">
-          <img src="assets/images/imageFraud.png" alt="Logo" class="logo-icon">
+        <div class="logo-wrapper">
+          <img src="assets/images/imageFraud.png" alt="FraudSentinel AI" class="logo-icon">
+        </div>
       </div>
       <h2 class="main-title">FraudSentinel AI</h2>
       <p class="subtitle">
-      Agentic Generative AI for Real-Time Fraud Intelligence in Digital Finance
+        Agentic Generative AI for Real-Time Fraud Intelligence in Digital Finance
       </p>
 
       <div class="demo-quick-access">
@@ -18,20 +20,18 @@
           </button>
         </div>
       </div>
-
     </div>
  
     <div class="form-section">
       <div class="login-form-container">
         <div class="form-header">
-   
           <div class="logo-header">
-              <img class="eclectics-logo" src="assets/images/image1.png" width="400" height="70" alt="Logo" />
+            <img class="eclectics-logo" src="assets/images/image1.png" alt="Logo" />
           </div>
           
           <h3 class="welcome-title">Fraud Intelligence Portal</h3>
           <p class="welcome-subtitle">
-          Secure access for fraud detection and investigation
+            Secure access for fraud detection and investigation
           </p>
      
           <div class="tab-buttons">
@@ -98,29 +98,21 @@
             <span *ngIf="isLoading">Signing in...</span>
           </button>
           
-          <p class="text-muted demo-note">
-            For demonstration purposes, use the Admin demo button above.
-            In production, this integrates with OAuth or core banking IAM.
-          </p>
-          
-          <!-- Success Alert -->
           <div class="success-alert" *ngIf="loginResponse$ | async">
             <strong>Login Successfully!</strong>
           </div>
             
-          <!-- Error Alert -->
           <div class="error-alert" *ngIf="hasError">
             <strong>Login Error!</strong> {{errorMsg}}
           </div>
  
-          <!-- Progress Bar -->
           <div class="progress-container" *ngIf="isLoading">
             <ngb-progressbar type="primary" [value]="95" [striped]="true" [animated]="true"></ngb-progressbar>
           </div>
         </form>
  
         <div class="footer-note">
-          <p> <span class="fw-bold">FraudSentinel AI</span> uses adaptive ML models and explainable AI to secure digital transactions.</p>
+          <p> <span class="fw-bold text-dark">FraudSentinel AI</span> uses adaptive ML models and explainable AI to secure digital transactions.</p>
         </div>
       </div>
     </div>

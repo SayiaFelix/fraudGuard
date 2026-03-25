@@ -93,28 +93,24 @@ onSubmit(event: Event) {
           localStorage.setItem('userName', response.user?.username || email.split('@')[0]);
           localStorage.setItem('current_user', JSON.stringify(response.user));
           
-          console.log('User details stored in localStorage:', {
-            email: response.user?.email || email,
-            username: response.user?.username || email.split('@')[0],
-            role: response.user?.role || 'admin'
-          });
         
-          // Swal.fire({
-          //   icon: 'success',
-          //   title: 'Login Successful!',
-          //   text: `Welcome back, ${response.user?.username || email.split('@')[0]}!`,
-          //   timer: 800,
-          //   showConfirmButton: false,
-          //   backdrop: true,
-          //   toast: false,
-          //   position: 'center'
-          // });
+        // Swal.fire({
+        //     icon: 'success',
+        //     title: 'Login Successful!',
+        //     text: `Welcome back, ${response.user?.username || email.split('@')[0]}!`,
+        //     timer: 1500,
+        //     showConfirmButton: false,
+        //     backdrop: true,
+        //     toast: false,
+        //     position: 'center'
+        //   });
         
         const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
+        this.router.navigateByUrl(returnUrl);
         
-        setTimeout(() => {
-          this.router.navigateByUrl(returnUrl);
-        }, 800);
+        // setTimeout(() => {
+        //   this.router.navigateByUrl(returnUrl);
+        // }, 800);
       } else {
         this.hasError = true;
         this.errorMsg = 'Invalid response from server.';

@@ -35,7 +35,7 @@ export class ListBranchesComponent implements OnInit {
   usernameFilter = '';
 
   currentPage = 1;
-  pageSize = 10;
+  pageSize = 5;
   totalPages = 1;
   
   addUserForm: FormGroup;
@@ -58,49 +58,6 @@ export class ListBranchesComponent implements OnInit {
   ngOnInit(): void {
     this.loadUsers();
     this.applyFiltersAndPagination();
-  }
-
-  applyFiltersAndPagination(): void {
-    let users = [...this.allUsers];
-
-    const search = this.searchTerm.trim().toLowerCase();
-    if (search) {
-      users = users.filter(user =>
-        user.username?.toLowerCase().includes(search) ||
-        user.email?.toLowerCase().includes(search) ||
-        user.role?.toLowerCase().includes(search)
-      );
-    }
-
-    if (this.roleFilter) {
-      users = users.filter(user => user.role === this.roleFilter);
-    }
-
-    this.filteredUsers = users;
-    this.totalPages = Math.ceil(this.filteredUsers.length / this.pageSize);
-    
-    if (this.currentPage > this.totalPages && this.totalPages > 0) {
-      this.currentPage = 1;
-    }
-    
-    this.updateVisibleUsers();
-  }
-
-  updateVisibleUsers(): void {
-    const startIndex = (this.currentPage - 1) * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
-    this.visibleUsers = this.filteredUsers.slice(startIndex, endIndex);
-  }
-
-  goToPage(page: number): void {
-    if (page >= 1 && page <= this.totalPages) {
-      this.currentPage = page;
-      this.updateVisibleUsers();
-    }
-  }
-
-  getEndIndex(): number {
-    return Math.min(this.currentPage * this.pageSize, this.filteredUsers.length);
   }
 
   resetFilters(): void {
@@ -139,6 +96,89 @@ openEditUserModal(user: any): void {
   this.isDetailsPanelVisible = false;
 }
 
+onPageSizeChange(): void {
+  this.currentPage = 1; 
+  this.updateVisibleUsers();
+}
+
+getStartIndex(): number {
+  return (this.currentPage - 1) * this.pageSize + 1;
+}
+
+goToPageNumber(page: number | string): void {
+  if (typeof page === 'number' && page >= 1 && page <= this.totalPages && page !== this.currentPage) {
+    this.currentPage = page;
+    this.updateVisibleUsers();
+  }
+}
+
+getEndIndex(): number {
+  return Math.min(this.currentPage * this.pageSize, this.filteredUsers.length);
+}
+
+getPageNumbers(): (number | string)[] {
+  const total = this.totalPages;
+  const current = this.currentPage;
+  const delta = 2;
+  const range: (number | string)[] = [];
+  
+  for (let i = 1; i <= total; i++) {
+
+    if (
+      i === 1 || // First page
+      i === total || // Last page
+      (i >= current - delta && i <= current + delta) 
+    ) {
+      range.push(i);
+    } else if (range[range.length - 1] !== '...') {
+      range.push('...');
+    }
+  }
+  
+  return range;
+}
+
+updateVisibleUsers(): void {
+  const startIndex = (this.currentPage - 1) * this.pageSize;
+  const endIndex = startIndex + this.pageSize;
+  this.visibleUsers = this.filteredUsers.slice(startIndex, endIndex);
+}
+
+goToPage(page: number): void {
+  if (page >= 1 && page <= this.totalPages && page !== this.currentPage) {
+    this.currentPage = page;
+    this.updateVisibleUsers();
+  }
+}
+
+applyFiltersAndPagination(): void {
+  let users = [...this.allUsers];
+
+  const search = this.searchTerm.trim().toLowerCase();
+  if (search) {
+    users = users.filter(user =>
+      user.username?.toLowerCase().includes(search) ||
+      user.email?.toLowerCase().includes(search) ||
+      user.role?.toLowerCase().includes(search)
+    );
+  }
+
+  if (this.roleFilter) {
+    users = users.filter(user => user.role === this.roleFilter);
+  }
+
+  this.filteredUsers = users;
+  this.totalPages = Math.ceil(this.filteredUsers.length / this.pageSize);
+  
+  if (this.currentPage > this.totalPages && this.totalPages > 0) {
+    this.currentPage = 1;
+  } else if (this.totalPages === 0) {
+    this.currentPage = 1;
+  }
+  
+  this.updateVisibleUsers();
+}
+
 getAvatarClass(role: string): string {
   switch (role) {
     case 'admin':
@@ -158,18 +198,12 @@ getAvatarClass(role: string): string {
 
 getRoleBadgeClass(role: string): string {
   switch (role) {
-    case 'admin':
-      return 'bg-admin';
-    case 'analyst':
-      return 'bg-analyst';
-    case 'investigator':
-      return 'bg-investigator';
-    case 'compliance':
-      return 'bg-compliance';
-    case 'viewer':
-      return 'bg-viewer';
-    default:
-      return 'bg-secondary';
+    case 'admin': return 'bg-danger';
+    case 'analyst': return 'bg-info';
+    case 'investigator': return 'bg-warning text-dark';
+    case 'compliance': return 'bg-success';
+    case 'viewer': return 'bg-secondary';
+    default: return 'bg-secondary';
   }
 }
 
@@ -184,32 +218,67 @@ getRoleIcon(role: string): string {
   return icons[role] || 'fa-user';
 }
 
+getRolePermissions(role: string): string[] {
+  const permissions: { [key: string]: string[] } = {
+    'admin': [
+      ' Full system access',
+      ' User management (create, edit, delete users)',
+      ' System settings & configuration',
+      ' Audit logs & compliance monitoring',
+      ' Toggle Sovereign Mode (data localization)',
+      ' Toggle National Alert Mode',
+      ' View all fraud analytics & reports',
+      ' Model management & retraining'
+    ],
+    'analyst': [
+      ' Real-time transaction monitoring',
+      ' Risk scoring & assessment',
+      ' View fraud analytics dashboard',
+      ' Generate fraud reports',
+      ' Transaction search & filtering',
+      ' Export transaction data',
+      ' View model performance metrics'
+    ],
+    'investigator': [
+      ' Advanced fraud case investigation',
+      ' Transaction relationship mapping',
+      ' Case management & documentation',
+      ' Related transaction discovery',
+      ' Investigation notes & findings',
+      ' Submit fraud confirmation feedback',
+      ' Investigation report generation'
+    ],
+    'compliance': [
+      ' Regulatory compliance reports',
+      ' Audit trail review',
+      ' Policy violation detection',
+      ' Document review & approval',
+      ' Central bank reporting',
+      ' Compliance checklists',
+      ' SAR (Suspicious Activity Report) generation'
+    ],
+    'viewer': [
+      ' View dashboard analytics',
+      ' Read fraud reports (read-only)',
+      ' Basic transaction search',
+      ' View risk trends',
+      ' Export reports (limited)',
+      ' Monitor system status'
+    ]
+  };
+  return permissions[role] || [' Basic system access'];
+}
+
 getRoleDescription(role: string): string {
   const descriptions: { [key: string]: string } = {
-    'admin': 'Administrator',
+    'admin': 'System Administrator',
     'analyst': 'Risk Analyst',
     'investigator': 'Fraud Investigator',
     'compliance': 'Compliance Officer',
-    'viewer': 'Viewer'
+    'viewer': 'Viewer (Read-only)'
   };
   return descriptions[role] || role;
 }
-
-getRolePermissions(role: string): string[] {
-  const permissions: { [key: string]: string[] } = {
-    'admin': ['Full system access', 'User management', 'System settings', 'Audit logs', 'All features'],
-    'analyst': ['Transaction analysis', 'Risk scoring', 'View reports', 'Generate insights', 'Dashboard access'],
-    'investigator': ['Case management', 'Investigation tools', 'Evidence collection', 'Report generation', 'Fraud patterns'],
-    'compliance': ['Compliance reports', 'Audit trails', 'Regulatory checks', 'Document review', 'Policy enforcement'],
-    'viewer': ['View dashboards', 'Read reports', 'Basic search', 'Export data']
-  };
-  return permissions[role] || ['Basic system access'];
-}
-
-getUsersByRole(role: string): any[] {
-  return this.allUsers.filter(user => user.role === role);
-}
-
   sendResetPassword(user: any): void {
     Swal.fire({
       title: 'Password Reset Options',
@@ -359,7 +428,7 @@ loadUsers(): void {
         this.allUsers = response.users;
         this.currentPage = 1;
         this.applyFiltersAndPagination();
-        console.log('Users loaded:', this.allUsers.length);
+        // console.log('Users loaded:', this.allUsers.length);
       } else {
         this.allUsers = [];
       }
@@ -426,6 +495,39 @@ saveUser(): void {
     });
   }
 }
+
+getRolesWithUsers(): { name: string; displayName: string; count: number; color: string }[] {
+  const roles = [
+    { name: 'admin', displayName: 'Admins', color: 'success' },
+    { name: 'analyst', displayName: 'Analysts', color: 'info' },
+    { name: 'investigator', displayName: 'Investigators', color: 'warning' },
+    { name: 'compliance', displayName: 'Compliance', color: 'secondary' },
+    { name: 'viewer', displayName: 'Viewers', color: 'muted' }
+  ];
+  
+  return roles
+    .map(role => ({
+      ...role,
+      count: this.getUsersByRole(role.name).length
+    }))
+    .filter(role => role.count > 0); 
+}
+
+getRoleColorClass(roleName: string): string {
+  const colors: { [key: string]: string } = {
+    'admin': 'text-success',
+    'analyst': 'text-info',
+    'investigator': 'text-warning',
+    'compliance': 'text-secondary',
+    'viewer': 'text-muted'
+  };
+  return colors[roleName] || 'text-primary';
+}
+
+getUsersByRole(role: string): any[] {
+  return this.allUsers.filter(user => user.role === role);
+}
+
 
 deleteUser(id: number): void {
   Swal.fire({

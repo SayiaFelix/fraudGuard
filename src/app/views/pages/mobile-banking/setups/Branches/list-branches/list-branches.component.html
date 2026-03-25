@@ -1,5 +1,4 @@
 <div class="container-fluid people-page-wrapper">
-  <!-- Page Header with Gradient -->
   <div class="page-header-enhanced mb-4">
     <div class="d-flex justify-content-between align-items-center">
       <div>
@@ -9,20 +8,18 @@
         </h1>
         <p class="text-muted mt-2 mb-0">Manage system users, roles, and permissions</p>
       </div>
+
       <div class="header-stats">
-        <div class="stat-card bg-light rounded p-3 text-center">
-          <h3 class="mb-0 text-primary">{{ allUsers.length }}</h3>
-          <small class="text-muted">Total Users</small>
+          <div class="stat-card bg-light rounded p-3 text-center">
+            <h3 class="mb-0 text-primary">{{ allUsers.length }}</h3>
+            <small class="text-muted">Total Users</small>
+          </div>
+          
+          <div *ngFor="let role of getRolesWithUsers()" class="stat-card bg-light rounded p-3 text-center">
+            <h3 class="mb-0" [ngClass]="getRoleColorClass(role.name)">{{ role.count }}</h3>
+            <small class="text-muted">{{ role.displayName }}</small>
+          </div>
         </div>
-        <div class="stat-card bg-light rounded p-3 text-center">
-          <h3 class="mb-0 text-success">{{ getUsersByRole('admin').length }}</h3>
-          <small class="text-muted">Admins</small>
-        </div>
-        <div class="stat-card bg-light rounded p-3 text-center">
-          <h3 class="mb-0 text-warning">{{ getUsersByRole('investigator').length }}</h3>
-          <small class="text-muted">Investigators</small>
-        </div>
-      </div>
     </div>
   </div>
 
@@ -92,7 +89,7 @@
               <table class="table table-hover mb-0">
                 <thead class="table-light">
                   <tr>
-                    <th class="ps-4" style="width: 25%">User</th>
+                    <th style="width: 25%">User</th>
                     <th style="width: 30%">Contact</th>
                     <th style="width: 20%">Role & Access</th>
                     <th style="width: 10%">Status</th>
@@ -112,7 +109,7 @@
                         </div>
                         <div>
                           <div class="fw-semibold">{{ user.username }}</div>
-                          <small class="text-muted">ID: {{ user.id }}</small>
+                          <!-- <small class="text-muted">ID: {{ user.id }}</small> -->
                         </div>
                       </div>
                     </td>
@@ -120,13 +117,14 @@
                     <td>
                       <div class="d-flex align-items-center">
                         <i class="fas fa-envelope text-muted me-2"></i>
-                        <span>{{ user.email }}</span>
+                        <span class="text-truncate" style="max-width: 200px;">{{ user.email }}</span>
                       </div>
                     </td>
                     
                     <td>
                       <span class="badge rounded-pill px-3 py-2" 
-                            [ngClass]="getRoleBadgeClass(user.role)">
+                            [ngClass]="getRoleBadgeClass(user.role)"
+                            style="white-space: nowrap;">
                         <i class="fas me-1" [ngClass]="getRoleIcon(user.role)"></i>
                         {{ getRoleDescription(user.role) }}
                       </span>
@@ -134,7 +132,8 @@
                     
                     <td>
                       <span class="badge rounded-pill px-3 py-2" 
-                            [ngClass]="user.is_active ? 'bg-success' : 'bg-secondary'">
+                            [ngClass]="user.is_active ? 'bg-success' : 'bg-secondary'"
+                            style="white-space: nowrap;">
                         <i class="fas me-1" [ngClass]="user.is_active ? 'fa-circle' : 'fa-circle'"></i>
                         {{ user.is_active ? 'Active' : 'Disabled' }}
                       </span>
@@ -142,29 +141,29 @@
                     
                     <td class="text-center">
                       <div class="btn-group btn-group-sm">
-                        <button class="btn btn-outline-primary" 
+                        <button class="btn btn-outline-primary btn-sm" 
                                 (click)="showUserDetails(user); $event.stopPropagation()" 
                                 title="View Details">
                           <i class="fas fa-eye"></i>
                         </button>
-                        <button class="btn btn-outline-secondary" 
+                        <button class="btn btn-outline-secondary btn-sm" 
                                 (click)="openEditUserModal(user); $event.stopPropagation()" 
                                 title="Edit User">
                           <i class="fas fa-edit"></i>
                         </button>
                         <button *ngIf="user.is_active" 
-                                class="btn btn-outline-warning" 
+                                class="btn btn-outline-warning btn-sm" 
                                 (click)="disableUserAccount(user); $event.stopPropagation()" 
                                 title="Disable User">
                           <i class="fas fa-ban"></i>
                         </button>
                         <button *ngIf="!user.is_active" 
-                                class="btn btn-outline-success" 
+                                class="btn btn-outline-success btn-sm" 
                                 (click)="enableUser(user); $event.stopPropagation()" 
                                 title="Enable User">
                           <i class="fas fa-check-circle"></i>
                         </button>
-                        <button class="btn btn-outline-danger" 
+                        <button class="btn btn-outline-danger btn-sm" 
                                 (click)="deleteUser(user.id); $event.stopPropagation()" 
                                 title="Delete User">
                           <i class="fas fa-trash"></i>
@@ -194,43 +193,77 @@
               </table>
             </div>
             
-            <!-- Pagination -->
-            <div class="pagination-wrapper p-3 border-top bg-light" *ngIf="filteredUsers.length > pageSize">
-              <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <div class="pagination-info">
-                  <span class="text-muted small">
-                    Showing <strong>{{ (currentPage - 1) * pageSize + 1 }}</strong> 
-                    to <strong>{{ getEndIndex() }}</strong> 
-                    of <strong>{{ filteredUsers.length }}</strong> users
-                  </span>
-                </div>
-                <div class="pagination-controls">
-                  <nav aria-label="User pagination">
-                    <ul class="pagination pagination-sm mb-0">
-                      <li class="page-item" [class.disabled]="currentPage === 1">
+            
+            <!-- Enhanced Pagination -->
+          <div class="pagination-wrapper p-3 border-top bg-light" *ngIf="filteredUsers.length > 0">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+              <div class="page-size-selector d-flex align-items-center gap-2">
+                <span class="text-muted small">Show</span>
+                <select class="form-select form-select-sm" style="width: 80px;" 
+                        [(ngModel)]="pageSize" 
+                        (ngModelChange)="onPageSizeChange()">
+                  <option [value]="5">5</option>
+                  <option [value]="10">10</option>
+                  <option [value]="20">20</option>
+                  <option [value]="50">50</option>
+                  <option [value]="100">100</option>
+                </select>
+                <span class="text-muted small">entries</span>
+              </div>
+            
+              <div class="pagination-info">
+                <span class="text-muted small">
+                  Showing <strong>{{ getStartIndex() }}</strong> 
+                  to <strong>{{ getEndIndex() }}</strong> 
+                  of <strong>{{ filteredUsers.length }}</strong> users
+                </span>
+              </div>
+              
+              <div class="pagination-controls">
+                <nav aria-label="User pagination">
+                  <ul class="pagination pagination-sm mb-0">
+               
+                    <li class="page-item" [class.disabled]="currentPage === 1">
+                      <button class="page-link" (click)="goToPage(1)" [disabled]="currentPage === 1">
+                        <i class="fas fa-angle-double-left"></i>
+                      </button>
+                    </li>
+                    
+
+                    <li class="page-item" [class.disabled]="currentPage === 1">
+                      <button class="page-link" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
+                        <i class="fas fa-chevron-left"></i>
+                      </button>
+                    </li>
+                    
+                    <ng-container *ngFor="let page of getPageNumbers()">
+                      <li class="page-item" 
+                          [class.active]="currentPage === page" 
+                          [class.disabled]="page === '...'">
                         <button class="page-link" 
-                                (click)="goToPage(currentPage - 1)"
-                                [disabled]="currentPage === 1">
-                          <i class="fas fa-chevron-left"></i>
+                                (click)="goToPageNumber(page)"
+                                [disabled]="page === '...'">
+                          {{ page }}
                         </button>
                       </li>
-                      <li class="page-item disabled">
-                        <span class="page-link bg-transparent border-0">
-                          Page <strong>{{ currentPage }}</strong> of <strong>{{ totalPages }}</strong>
-                        </span>
-                      </li>
-                      <li class="page-item" [class.disabled]="currentPage === totalPages">
-                        <button class="page-link" 
-                                (click)="goToPage(currentPage + 1)"
-                                [disabled]="currentPage === totalPages">
-                          <i class="fas fa-chevron-right"></i>
-                        </button>
-                      </li>
-                    </ul>
-                  </nav>
-                </div>
+                    </ng-container>
+                    
+                    <li class="page-item" [class.disabled]="currentPage === totalPages">
+                      <button class="page-link" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">
+                        <i class="fas fa-chevron-right"></i>
+                      </button>
+                    </li>
+                
+                    <li class="page-item" [class.disabled]="currentPage === totalPages">
+                      <button class="page-link" (click)="goToPage(totalPages)" [disabled]="currentPage === totalPages">
+                        <i class="fas fa-angle-double-right"></i>
+                      </button>
+                    </li>
+                  </ul>
+                </nav>
               </div>
             </div>
+          </div>
           </div>
         </div>
       </div>
@@ -262,9 +295,9 @@
           
           <!-- User Information Card -->
           <div class="info-card p-4 border-bottom">
-            <h6 class="text-primary mb-3">
+            <h4 class="text-primary mb-3">
               <i class="fas fa-id-card me-2"></i>User Information
-            </h6>
+            </h4>
             <div class="row g-3">
               <div class="col-md-6">
                 <label class="text-muted small text-uppercase mb-1">Username</label>
@@ -274,6 +307,12 @@
                 <label class="text-muted small text-uppercase mb-1">Email Address</label>
                 <p class="mb-0">{{ selectedUser.email }}</p>
               </div>
+
+              <div class="col-md-6">
+                <label class="text-muted small text-uppercase mb-1">User ID</label>
+                <p class="font-monospace small mb-0 text-muted">#{{ selectedUser.id }}</p>
+              </div>
+
               <div class="col-md-6">
                 <label class="text-muted small text-uppercase mb-1">User Role</label>
                 <div>
@@ -284,10 +323,7 @@
                   </span>
                 </div>
               </div>
-              <div class="col-md-6">
-                <label class="text-muted small text-uppercase mb-1">User ID</label>
-                <p class="font-monospace small mb-0 text-muted">#{{ selectedUser.id }}</p>
-              </div>
+            
               <div class="col-md-6">
                 <label class="text-muted small text-uppercase mb-1">Created At</label>
                 <p class="mb-0 small">{{ selectedUser.created_at | date:'medium' }}</p>
@@ -301,9 +337,9 @@
 
           <!-- Role Permissions Card -->
           <div class="info-card p-4 border-bottom">
-            <h6 class="text-warning mb-3">
+            <h4 class="text-warning mb-3">
               <i class="fas fa-shield-alt me-2"></i>Role Permissions
-            </h6>
+            </h4>
             <div class="row g-2">
               <div class="col-12" *ngFor="let permission of getRolePermissions(selectedUser.role)">
                 <div class="d-flex align-items-center p-2 bg-light rounded">
@@ -316,9 +352,9 @@
 
           <!-- Account Status Card -->
           <div class="info-card p-4 border-bottom">
-            <h6 class="text-info mb-3">
+            <h4 class="text-info mb-3">
               <i class="fas fa-chart-line me-2"></i>Account Status
-            </h6>
+            </h4>
             <div class="row">
               <div class="col-12">
                 <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded">
@@ -339,9 +375,9 @@
 
           <!-- Quick Actions Card -->
           <div class="p-4">
-            <h6 class="text-success mb-3">
+            <h4 class="text-success mb-3">
               <i class="fas fa-bolt me-2"></i>Quick Actions
-            </h6>
+            </h4>
             <div class="d-grid gap-2">
               <button class="btn btn-outline-primary" (click)="openEditUserModal(selectedUser)">
                 <i class="fas fa-edit me-2"></i>Edit User
@@ -379,7 +415,6 @@
   </div>
 </div>
 
-<!-- Professional Modal with Gradient Header -->
 <div class="modal fade show" 
      *ngIf="isAddUserModalVisible" 
      style="display:block; background: rgba(0,0,0,0.5);"
@@ -396,7 +431,7 @@
             <i class="fas" [ngClass]="selectedUser ? 'fa-edit' : 'fa-user-plus'"></i>
           </div>
           <div>
-            <h5 class="modal-title mb-0">{{ selectedUser ? 'Edit User' : 'Create New User' }}</h5>
+            <h3 class="modal-title mb-0">{{ selectedUser ? 'Edit User' : 'Create New User' }}</h3>
             <small class="text-white-50">
               {{ selectedUser ? 'Update user information and permissions' : 'Add a new user to the system' }}
             </small>
@@ -459,7 +494,6 @@
             <div class="invalid-feedback">Password is required (minimum 6 characters).</div>
           </div>
 
-          <!-- Role Field -->
           <div class="mb-3">
             <label class="form-label fw-semibold">
               <i class="fas fa-tag text-primary me-1"></i>User Role
@@ -469,25 +503,64 @@
                     class="form-select form-select-lg"
                     [class.is-invalid]="addUserForm.get('role')?.touched && addUserForm.get('role')?.invalid">
               <option value="">Select a role</option>
-              <option value="admin">👑 Administrator</option>
-              <option value="analyst">📊 Risk Analyst</option>
-              <option value="investigator">🔍 Fraud Investigator</option>
-              <option value="compliance">⚖️ Compliance Officer</option>
-              <option value="viewer">👁️ Viewer (Read-only)</option>
+              <option value="admin"> Administrator</option>
+              <option value="analyst"> Risk Analyst</option>
+              <option value="investigator"> Fraud Investigator</option>
+              <option value="compliance"> Compliance Officer</option>
+              <option value="viewer"> Viewer (Read-only)</option>
             </select>
             <div class="invalid-feedback">Role selection is required.</div>
-            <div class="mt-2 small text-muted">
-              <i class="fas fa-info-circle me-1"></i>
-              <span *ngIf="addUserForm.get('role')?.value === 'admin'">Full system access, user management, and settings.</span>
-              <span *ngIf="addUserForm.get('role')?.value === 'analyst'">Transaction analysis, risk scoring, and reporting.</span>
-              <span *ngIf="addUserForm.get('role')?.value === 'investigator'">Case management, investigation tools, and evidence collection.</span>
-              <span *ngIf="addUserForm.get('role')?.value === 'compliance'">Compliance reports, audit trails, and regulatory checks.</span>
-              <span *ngIf="addUserForm.get('role')?.value === 'viewer'">Read-only access to dashboards and reports.</span>
+            <div class="mt-2 small text-muted p-2 bg-light rounded">
+              <i class="fas fa-info-circle me-1 text-primary"></i>
+              <div *ngIf="addUserForm.get('role')?.value === 'admin'" class="mt-1">
+                <strong>Administrator Permissions:</strong><br>
+                • Full system access<br>
+                • User management (create, edit, delete users)<br>
+                • System settings & configuration<br>
+                • Audit logs & compliance monitoring<br>
+                • Toggle Sovereign Mode & National Alert Mode<br>
+                • Model management & retraining
+              </div>
+              <div *ngIf="addUserForm.get('role')?.value === 'analyst'" class="mt-1">
+                <strong>Risk Analyst Permissions:</strong><br>
+                • Real-time transaction monitoring<br>
+                • Risk scoring & assessment<br>
+                • View fraud analytics dashboard<br>
+                • Generate fraud reports<br>
+                • Transaction search & filtering<br>
+                • Export transaction data
+              </div>
+              <div *ngIf="addUserForm.get('role')?.value === 'investigator'" class="mt-1">
+                <strong>Fraud Investigator Permissions:</strong><br>
+                • Advanced fraud case investigation<br>
+                • Transaction relationship mapping<br>
+                • Case management & documentation<br>
+                • Related transaction discovery<br>
+                • Submit fraud confirmation feedback<br>
+                • Investigation report generation
+              </div>
+              <div *ngIf="addUserForm.get('role')?.value === 'compliance'" class="mt-1">
+                <strong>Compliance Officer Permissions:</strong><br>
+                • Regulatory compliance reports<br>
+                • Audit trail review<br>
+                • Policy violation detection<br>
+                • Central bank reporting<br>
+                • SAR (Suspicious Activity Report) generation<br>
+                • Compliance checklists
+              </div>
+              <div *ngIf="addUserForm.get('role')?.value === 'viewer'" class="mt-1">
+                <strong>Viewer Permissions (Read-only):</strong><br>
+                • View dashboard analytics<br>
+                • Read fraud reports<br>
+                • Basic transaction search<br>
+                • View risk trends<br>
+                • Monitor system status
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="modal-footer border-0 p-4 pt-0">
+        <div class="modal-footer d-flex justify-content-between border-0 p-4 pt-0">
           <button type="button" class="btn btn-light btn-lg px-4" (click)="closeAddUserModal()">
             <i class="fas fa-times me-2"></i>Cancel
           </button>
