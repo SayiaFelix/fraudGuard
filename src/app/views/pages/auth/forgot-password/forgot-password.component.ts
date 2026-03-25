@@ -36,12 +36,12 @@ export class ForgotPasswordComponent implements OnInit {
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
 
-  onLoggedin(e: Event) {
+onLoggedin(e: Event) {
     e.preventDefault();
     this.resetPassword();
   }
 
-  resetPassword() {
+resetPassword() {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -71,7 +71,6 @@ export class ForgotPasswordComponent implements OnInit {
             this.isLoading = false;
             
             if (response.status === 'success') {
-              // Show temporary password if returned (for demo)
               if (response.temporaryPassword) {
                 Swal.fire({
                   title: 'Password Reset Successful!',
@@ -117,7 +116,6 @@ export class ForgotPasswordComponent implements OnInit {
                   }
                 });
               } else {
-                // Show success message
                 Swal.fire({
                   title: 'Reset Link Sent!',
                   html: `
