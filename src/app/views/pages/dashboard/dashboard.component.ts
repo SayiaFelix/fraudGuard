@@ -3,7 +3,20 @@ import { Router } from '@angular/router';
 import { ChartConfiguration, ChartData } from 'chart.js';
 import { Subscription, interval } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-import { HttpService, ModelMetrics, Transaction } from 'src/app/shared/services/http.service';
+import { HttpService, ModelMetrics } from 'src/app/shared/services/http.service';
+import { Transaction } from 'src/app/shared/services/http.service';
+interface TransactionAlert {
+  id: string;
+  transactionId: string;
+  amount: number;
+  riskScore: number;
+  riskCategory: string; 
+  channel: string;
+  location: string;
+  timestamp: string;
+  status: string;
+  flaggedBy: 'AI' | 'Rules' | 'Manual';
+}
 
 interface KPI {
   label: string;
@@ -14,26 +27,27 @@ interface KPI {
   description: string;
 }
 
-interface TransactionAlert {
-  id: string;
-  transactionId: string;
-  amount: number;
-  riskScore: number;
-  riskCategory: string; 
-  channel: string;
-  location: string;
-  timestamp: string;
-  status: 'Open' | 'Investigating' | 'Resolved';
-  flaggedBy: 'AI' | 'Rules' | 'Manual';
-}
-
 interface ChannelRisk {
   channel: string;
   transactions: number;
   fraudCases: number;
   riskPercentage: number;
 }
-
+interface ExtendedTransaction extends Transaction {
+  status_info?: {
+    current: string;
+    history?: Array<{
+      from: string;
+      to: string;
+      timestamp: string;
+      action_by: string;
+      notes?: string;
+    }>;
+    last_updated?: string;
+    updated_by?: string;
+  };
+  status?: string;
+}
 
 @Component({
   selector: 'app-dashboard',
@@ -41,18 +55,18 @@ interface ChannelRisk {
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
- isLoading = false;
- lastUpdated = new Date();
+  isLoading = false;
+  lastUpdated = new Date();
   
- footerStats = {
-  aiModel: 'Ensemble (RF + XGB + LGBM)',
-  transactionsAnalyzed: 0,
-  avgResponse: '0ms',
-  modelVersion: 'v1.0.0-stage1'
-};
+  footerStats = {
+    aiModel: 'Ensemble (RF + XGB + LGBM)',
+    transactionsAnalyzed: 0,
+    avgResponse: '0ms',
+    modelVersion: 'v1.0.0-stage1'
+  };
 
-  transactions: Transaction[] = [];
-  fraudTransactions: Transaction[] = [];
+  transactions: ExtendedTransaction[] = [];
+  fraudTransactions: ExtendedTransaction[] = [];
   modelMetrics: ModelMetrics | null = null;
   auditLogs: any[] = [];
   
@@ -198,274 +212,348 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  constructor(
-    private router: Router,
-    private fraudService: HttpService
-  ) {}
-
-ngOnInit(): void {
-  this.loadDashboardData();
-  this.loadTransactions();
-  
-  setTimeout(() => {
-    if (this.isLoading) {
-      console.log('Safety timeout - forcing loader off');
-      this.isLoading = false;
-    }
-  }, 10000);
-  
-  this.refreshSubscription = interval(60000).subscribe(() => {
-    this.refresh();
-  });
-}
-
-  ngOnDestroy(): void {
-    if (this.refreshSubscription) {
-      this.refreshSubscription.unsubscribe();
-    }
-  }
-
-page: number = 1;
-pageSize: number = 5;
-totalRecords: number = 0;
-
-onPageChange(event: any): void {
-  this.page = event;
-  this.updateRecentAlerts();
-}
-
-getRiskScoreColor(score: number): string {
-  if (score >= 8) {
-    return '#f72585'; 
-  } else if (score >= 6) {
-    return '#f67205'; 
-  } else if (score >= 3) {
-    return '#ffc107';
-  } else {
-    return '#28a745'; 
-  }
-}
-
-updateRecentAlerts(): void {
-  const highRiskTransactions = this.transactions.filter(t => 
-    t.risk_category === 'High Potential Fraud' || 
-    t.risk_category === 'Critical Fraud Risk'
-  );
-  
-  this.totalRecords = highRiskTransactions.length;
-  
-  const sortedHighRisk = highRiskTransactions.sort((a, b) => {
-    return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
-  });
-  
-  //pagination
-  const startIndex = (this.page - 1) * this.pageSize;
-  const endIndex = startIndex + this.pageSize;
-  const paginatedTransactions = sortedHighRisk.slice(startIndex, endIndex);
-  
-  this.recentAlerts = paginatedTransactions.map(t => {
-    return {
-      id: t.transaction_id,
-      transactionId: t.transaction_id,
-      amount: t.transaction_details?.Transaction_Amount || 0,
-      riskScore: t.risk_score,
-      riskCategory: t.risk_category,
-      channel: 'Web',
-      location: 'Nairobi, KE',
-      timestamp: t.timestamp,
-      status: 'Open',
-      flaggedBy: 'AI'
-    };
-  });
-
-}
-
-getTotalPages(): number {
-  return Math.ceil(this.totalRecords / this.pageSize);
-}
-
-min(a: number, b: number): number {
-  return Math.min(a, b);
-}
-
-onPageSizeChange(): void {
-  this.page = 1; 
-  this.updateRecentAlerts();
-}
-loadDashboardData(): void {
-  this.isLoading = true;
-  
-  Promise.all([
-    this.loadTransactions(),
-    this.loadFraudHistory(),
-    this.loadModelMetrics(),
-    this.loadAuditLog()
-  ]).then(() => {
-    this.isLoading = false;
-    this.lastUpdated = new Date();
-  }).catch((error) => {
-    console.error('Error loading data:', error);
-    this.isLoading = false;
-    this.lastUpdated = new Date();
-  });
-}
-loadTransactions(): Promise<void> {
-  return new Promise((resolve) => {
-    this.fraudService.getTransactions(1, 100).subscribe({
-      next: (response) => {
-        if (response.status === 'success' && response.transactions) {
-   
-          this.transactions = response.transactions.sort((a, b) => {
-            return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
-          });
-          
-          const fraudCount = this.transactions.filter(tx => 
-            tx.risk_category === 'Critical Fraud Risk' || 
-            tx.risk_category === 'High Potential Fraud'
-          ).length;
-          
-          console.log(`Total transactions: ${this.transactions.length}, Fraud transactions: ${fraudCount}`);
-          
-          this.updateKPIs();
-          this.updateRecentAlerts();
-          this.updateRiskDistribution();
-          this.updateLineChart(); 
-          this.calculateScoreDistribution(); 
-          this.updateFooterStats();
-        }
-        resolve();
-      },
-      error: (error) => {
-        console.error('Error loading transactions:', error);
-        resolve(); 
-      }
-    });
-  });
-}
-
-scoreDistributionData: ChartData<'bar'> = {
-  labels: ['0-3', '3-5', '5-8', '8-10'],
-  datasets: [{
-    data: [0, 0, 0, 0],
-    label: 'Transaction Count',
-    backgroundColor: ['#4cc9f0', '#ff9e00', '#f72585', '#dc3545'],
-    borderRadius: 6
-  }]
-};
-
-scoreDistributionOptions: ChartConfiguration<'bar'>['options'] = {
-  responsive: true,
-  plugins: {
-    legend: { display: false },
-    title: { display: false }
-  },
-  scales: {
-    y: {
-      beginAtZero: true,
-      grid: { color: '#e9ecef' },
-      title: { display: true, text: 'Number of Transactions' }
-    }
-  }
-};
-
-calculateScoreDistribution(): void {
-  
-  const distribution = [0, 0, 0, 0];
-  
-  this.transactions.forEach(tx => {
-    const score = tx.risk_score;
-    if (score < 3) distribution[0]++;
-    else if (score < 5) distribution[1]++;
-    else if (score < 8) distribution[2]++;
-    else distribution[3]++;
-  });
-  
-  this.scoreDistributionData = {
+  scoreDistributionData: ChartData<'bar'> = {
     labels: ['0-3', '3-5', '5-8', '8-10'],
     datasets: [{
-      data: distribution,
+      data: [0, 0, 0, 0],
       label: 'Transaction Count',
       backgroundColor: ['#4cc9f0', '#ff9e00', '#f72585', '#dc3545'],
       borderRadius: 6
     }]
   };
 
-  this.scoreDistributionData = { ...this.scoreDistributionData };
-}
-
-updateRiskDistribution(): void {
-
-  this.transactions.forEach(t => {
-    console.log(`${t.transaction_id}: ${t.risk_category}`);
-  });
-
-  this.riskDistribution = {
-    critical: this.transactions.filter(tx => tx.risk_category === 'Critical Fraud Risk').length,
-    high: this.transactions.filter(tx => tx.risk_category === 'High Potential Fraud').length,
-    medium: this.transactions.filter(tx => tx.risk_category === 'Medium Risk').length,
-    low: this.transactions.filter(tx => tx.risk_category === 'Low Potential Fraud').length
-  };
-  
-  const total = this.riskDistribution.critical + 
-                this.riskDistribution.high + 
-                this.riskDistribution.medium + 
-                this.riskDistribution.low;
-
-  this.pieChartData = {
-    labels: ['Critical', 'High', 'Medium', 'Low'],
-    datasets: [{
-      data: [
-        this.riskDistribution.critical,
-        this.riskDistribution.high,
-        this.riskDistribution.medium,
-        this.riskDistribution.low
-      ],
-      backgroundColor: ['#dc3545', '#fd7e14', '#ffc107', '#28a745'],
-      borderWidth: 1
-    }]
-  };
-  
-  this.pieChartData = { ...this.pieChartData };
-}
-
-loadModelMetrics(): Promise<void> {
-  return new Promise((resolve) => {
-    this.fraudService.getModelMetrics().subscribe({
-      next: (response) => {
-        // console.log('Model metrics loaded:', response);
-        if (response.status === 'success') {
-          this.modelMetrics = response;
-          this.updateKPIs();
-          this.updateFooterStats(); 
-        }
-        resolve();
-      },
-      error: (error) => {
-        console.error('Error loading model metrics:', error);
-        resolve(); 
+  scoreDistributionOptions: ChartConfiguration<'bar'>['options'] = {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      title: { display: false }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        grid: { color: '#e9ecef' },
+        title: { display: true, text: 'Number of Transactions' }
       }
-    });
-  });
-}
+    }
+  };
 
-loadFraudHistory(): Promise<void> {
-  return new Promise((resolve) => {
-    this.fraudService.getFraudHistory(1, 100).subscribe({
-      next: (response) => {
-        console.log('Fraud history loaded:', response);
-        if (response.status === 'success' && response.fraud_transactions) {
-          this.fraudTransactions = response.fraud_transactions;
-          this.updateLineChart(); 
-        }
-        resolve();
-      },
-      error: (error) => {
-        console.error('Error loading fraud history:', error);
-        resolve(); 
+  page: number = 1;
+  pageSize: number = 5;
+  totalRecords: number = 0;
+
+  constructor(
+    private router: Router,
+    private fraudService: HttpService
+  ) {}
+
+  ngOnInit(): void {
+    this.loadDashboardData();
+    this.loadTransactions(),
+    this.loadFraudHistory(),
+    
+    setTimeout(() => {
+      if (this.isLoading) {
+        console.log('Safety timeout - forcing loader off');
+        this.isLoading = false;
       }
+    }, 10000);
+    
+    this.refreshSubscription = interval(60000).subscribe(() => {
+      this.refresh();
     });
-  });
-}
+  }
+
+ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.updateLineChart();
+    }, 500);
+  }
+
+ngOnDestroy(): void {
+    if (this.refreshSubscription) {
+      this.refreshSubscription.unsubscribe();
+    }
+  }
+
+  onPageChange(event: any): void {
+    this.page = event;
+    this.updateRecentAlerts();
+  }
+
+  getStatusBadgeClass(status: string): string {
+    const classes: { [key: string]: string } = {
+      'Open': 'bg-danger',
+      'Investigating': 'bg-warning text-dark',
+      'Resolved': 'bg-success',
+      'False Positive': 'bg-secondary'
+    };
+    return classes[status] || 'bg-secondary';
+  }
+
+  getRiskScoreColor(score: number): string {
+    if (score >= 8) {
+      return '#f72585'; 
+    } else if (score >= 6) {
+      return '#f67205'; 
+    } else if (score >= 3) {
+      return '#ffc107';
+    } else {
+      return '#28a745'; 
+    }
+  }
+
+  updateRecentAlerts(): void {
+    const highRiskTransactions = this.transactions.filter(t => 
+      t.risk_category === 'High Potential Fraud' || 
+      t.risk_category === 'Critical Fraud Risk'
+    );
+    
+    // console.log('High risk transactions:', highRiskTransactions);
+    
+    this.totalRecords = highRiskTransactions.length;
+    
+    const sortedHighRisk = highRiskTransactions.sort((a, b) => {
+      return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+    });
+    
+    const startIndex = (this.page - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    const paginatedTransactions = sortedHighRisk.slice(startIndex, endIndex);
+    
+    this.recentAlerts = paginatedTransactions.map(t => {
+      let status = 'Open';
+      
+      const extendedT = t as ExtendedTransaction;
+      if (extendedT.status_info?.current) {
+        status = extendedT.status_info.current;
+      } else if (extendedT.status) {
+        status = extendedT.status;
+      }
+      
+      let channel = 'Web/Online';
+      if (t.transaction_details?.real_time_signals) {
+        channel = 'Mobile Money';
+      }
+      
+      // Get location
+      let location = 'Nairobi, KE';
+      
+      return {
+        id: t.transaction_id,
+        transactionId: t.transaction_id,
+        amount: t.transaction_details?.Transaction_Amount || 0,
+        riskScore: t.risk_score,
+        riskCategory: t.risk_category,
+        channel: channel,
+        location: location,
+        timestamp: t.timestamp,
+        status: status,
+        flaggedBy: 'AI'
+      };
+    });
+  }
+
+  getTotalPages(): number {
+    return Math.ceil(this.totalRecords / this.pageSize);
+  }
+
+  min(a: number, b: number): number {
+    return Math.min(a, b);
+  }
+
+  onPageSizeChange(): void {
+    this.page = 1; 
+    this.updateRecentAlerts();
+  }
+
+  loadDashboardData(): void {
+    this.isLoading = true;
+    
+    Promise.all([
+      this.loadTransactions(),
+      this.loadFraudHistory(),
+      this.loadModelMetrics(),
+      this.loadAuditLog()
+    ]).then(() => {
+      this.isLoading = false;
+      this.lastUpdated = new Date();
+    }).catch((error) => {
+      console.error('Error loading data:', error);
+      this.isLoading = false;
+      this.lastUpdated = new Date();
+    });
+  }
+
+  loadTransactions(): Promise<void> {
+    return new Promise((resolve) => {
+      this.fraudService.getTransactions(1, 100).subscribe({
+        next: (response) => {
+          if (response.status === 'success' && response.transactions) {
+            this.transactions = response.transactions.sort((a, b) => {
+              return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+            });
+            
+            const fraudCount = this.transactions.filter(tx => 
+              tx.risk_category === 'Critical Fraud Risk' || 
+              tx.risk_category === 'High Potential Fraud'
+            ).length;
+            
+            // console.log(`Total transactions: ${this.transactions.length}, Fraud transactions: ${fraudCount}`);
+            
+            this.updateKPIs();
+            this.updateRecentAlerts();
+            this.updateRiskDistribution();
+            this.updateLineChart(); 
+            this.calculateScoreDistribution(); 
+            this.updateFooterStats();
+          }
+          resolve();
+        },
+        error: (error) => {
+          console.error('Error loading transactions:', error);
+          resolve(); 
+        }
+      });
+    });
+  }
+
+  calculateScoreDistribution(): void {
+    const distribution = [0, 0, 0, 0];
+    
+    this.transactions.forEach(tx => {
+      const score = tx.risk_score;
+      if (score < 3) distribution[0]++;
+      else if (score < 5) distribution[1]++;
+      else if (score < 8) distribution[2]++;
+      else distribution[3]++;
+    });
+    
+    this.scoreDistributionData = {
+      labels: ['0-3', '3-5', '5-8', '8-10'],
+      datasets: [{
+        data: distribution,
+        label: 'Transaction Count',
+        backgroundColor: ['#4cc9f0', '#ff9e00', '#f72585', '#dc3545'],
+        borderRadius: 6
+      }]
+    };
+  }
+
+  updateRiskDistribution(): void {
+    this.riskDistribution = {
+      critical: this.transactions.filter(tx => tx.risk_category === 'Critical Fraud Risk').length,
+      high: this.transactions.filter(tx => tx.risk_category === 'High Potential Fraud').length,
+      medium: this.transactions.filter(tx => tx.risk_category === 'Medium Risk').length,
+      low: this.transactions.filter(tx => tx.risk_category === 'Low Potential Fraud').length
+    };
+    
+    this.pieChartData = {
+      labels: ['Critical', 'High', 'Medium', 'Low'],
+      datasets: [{
+        data: [
+          this.riskDistribution.critical,
+          this.riskDistribution.high,
+          this.riskDistribution.medium,
+          this.riskDistribution.low
+        ],
+        backgroundColor: ['#dc3545', '#fd7e14', '#ffc107', '#28a745'],
+        borderWidth: 1
+      }]
+    };
+  }
+
+  loadModelMetrics(): Promise<void> {
+    return new Promise((resolve) => {
+      this.fraudService.getModelMetrics().subscribe({
+        next: (response) => {
+          if (response.status === 'success') {
+            this.modelMetrics = response;
+            this.updateKPIs();
+            this.updateFooterStats(); 
+          }
+          resolve();
+        },
+        error: (error) => {
+          console.error('Error loading model metrics:', error);
+          resolve(); 
+        }
+      });
+    });
+  }
+
+  loadFraudHistory(): Promise<void> {
+    return new Promise((resolve) => {
+      this.fraudService.getFraudHistory(1, 100).subscribe({
+        next: (response) => {
+          // console.log('Fraud history loaded:', response);
+          if (response.status === 'success' && response.fraud_transactions) {
+            this.fraudTransactions = response.fraud_transactions;
+            this.updateLineChart(); 
+          }
+          resolve();
+        },
+        error: (error) => {
+          console.error('Error loading fraud history:', error);
+          resolve(); 
+        }
+      });
+    });
+  }
+
+loadAuditLog(): Promise<void> {
+    return new Promise((resolve) => {
+      this.fraudService.getAuditLog().subscribe({
+        next: (response) => {
+          // console.log('Audit log loaded:', response);
+          
+          if (response.status === 'success' && response.logs) {
+            this.auditLogs = response.logs;
+          
+            const sortedLogs = response.logs.sort((a, b) => {
+              return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+            });
+          
+            this.recentActivities = sortedLogs.slice(0, 5).map(log => {
+              let type = 'info';
+              
+              if (log.risk_score >= 8) {
+                type = 'critical';
+              } else if (log.risk_score >= 6) {
+                type = 'warning';
+              } else if (log.risk_score >= 3) {
+                type = 'info';
+              } else {
+                type = 'success';
+              }
+              
+              const logTime = new Date(log.timestamp);
+              const now = new Date();
+              const diffMs = now.getTime() - logTime.getTime();
+              const diffMins = Math.floor(diffMs / 60000);
+              
+              let timeAgo = '';
+              if (diffMins < 1) timeAgo = 'Just now';
+              else if (diffMins < 60) timeAgo = `${diffMins} minutes ago`;
+              else if (diffMins < 1440) timeAgo = `${Math.floor(diffMins / 60)} hours ago`;
+              else timeAgo = `${Math.floor(diffMins / 1440)} days ago`;
+              
+              return {
+                type: type,
+                message: `Transaction ${log.transaction_id} - ${log.risk_category}`,
+                details: `Score: ${log.risk_score}/10 - ${log.recommended_action}`,
+                time: timeAgo
+              };
+            });
+          }
+          resolve();
+        },
+        error: (error) => {
+          console.error('Error loading audit log:', error);
+          resolve();
+        }
+      });
+    });
+  }
 
 updateLineChart(): void {
   const monthlyData = new Map<string, { count: number; amount: number }>();
@@ -484,135 +572,89 @@ updateLineChart(): void {
   );
   
   // console.log('Fraud transactions for chart:', fraudTransactions.length);
+  // console.log('Last 6 months:', last6Months);
   
   fraudTransactions.forEach(tx => {
-    const date = new Date(tx.timestamp);
-    const month = date.toLocaleString('default', { month: 'short' });
-    
-    if (monthlyData.has(month)) {
-      const data = monthlyData.get(month)!;
-      data.count++;
-      data.amount += tx.transaction_details?.Transaction_Amount || 0;
+    try {
+      const date = new Date(tx.timestamp);
+      const month = date.toLocaleString('default', { month: 'short' });
+      // console.log(`Transaction ${tx.transaction_id} - Date: ${tx.timestamp} - Month: ${month}`);
+      
+      if (monthlyData.has(month)) {
+        const data = monthlyData.get(month)!;
+        data.count++;
+        data.amount += tx.transaction_details?.Transaction_Amount || 0;
+      }
+    } catch (e) {
+      console.error('Error parsing date:', tx.timestamp);
     }
   });
-  
-  // Update chart data
-  this.lineChartData.labels = last6Months;
-  this.lineChartData.datasets[0].data = last6Months.map(month => 
-    monthlyData.get(month)?.count || 0
-  );
-  this.lineChartData.datasets[1].data = last6Months.map(month => 
-    (monthlyData.get(month)?.amount || 0) / 1000000 
-  );
 
+  monthlyData.forEach((value, key) => {
+    // console.log(`${key}: ${value.count} cases, KES ${value.amount}`);
+  });
+
+  this.lineChartData = {
+    labels: last6Months,
+    datasets: [
+      {
+        data: last6Months.map(month => monthlyData.get(month)?.count || 0),
+        label: 'Fraud Cases',
+        borderColor: '#f72585',
+        backgroundColor: 'rgba(247, 37, 133, 0.1)',
+        tension: 0.4,
+        fill: true
+      },
+      {
+        data: last6Months.map(month => (monthlyData.get(month)?.amount || 0) / 1000000),
+        label: 'Amount (M KES)',
+        borderColor: '#4361ee',
+        backgroundColor: 'rgba(67, 97, 238, 0.1)',
+        tension: 0.4,
+        yAxisID: 'y1',
+        fill: true
+      }
+    ]
+  };
+  
+  // Force change detection by creating a new object reference
   this.lineChartData = { ...this.lineChartData };
 }
 
-loadAuditLog(): Promise<void> {
-  return new Promise((resolve) => {
-    this.fraudService.getAuditLog().subscribe({
-      next: (response) => {
-        console.log('Audit log loaded:', response);
-        
-        if (response.status === 'success' && response.logs) {
-          this.auditLogs = response.logs;
-        
-          const sortedLogs = response.logs.sort((a, b) => {
-            return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
-          });
-        
-          this.recentActivities = sortedLogs.slice(0, 5).map(log => {
-         
-            let type = 'info';
-            let icon = 'fa-info-circle';
-            
-            if (log.risk_score >= 8) {
-              type = 'critical';
-              icon = 'fa-exclamation-circle';
-            } else if (log.risk_score >= 6) {
-              type = 'warning';
-              icon = 'fa-exclamation-triangle';
-            } else if (log.risk_score >= 3) {
-              type = 'info';
-              icon = 'fa-info-circle';
-            } else {
-              type = 'success';
-              icon = 'fa-check-circle';
-            }
-            
-            const logTime = new Date(log.timestamp);
-            const now = new Date();
-            const diffMs = now.getTime() - logTime.getTime();
-            const diffMins = Math.floor(diffMs / 60000);
-            
-            let timeAgo = '';
-            if (diffMins < 1) timeAgo = 'Just now';
-            else if (diffMins < 60) timeAgo = `${diffMins} minutes ago`;
-            else if (diffMins < 1440) timeAgo = `${Math.floor(diffMins / 60)} hours ago`;
-            else timeAgo = `${Math.floor(diffMins / 1440)} days ago`;
-            
-            return {
-              type: type,
-              message: `Transaction ${log.transaction_id} - ${log.risk_category}`,
-              details: `Score: ${log.risk_score}/10 - ${log.recommended_action}`,
-              time: timeAgo
-            };
-          });
-
-        }
-        resolve();
-      },
-      error: (error) => {
-        console.error('Error loading audit log:', error);
-        resolve();
-      }
-    });
-  });
-}
-
 updateKPIs(): void {
-  this.kpis[0].value = this.transactions.length.toLocaleString();
-  
-  // High Risk Alerts (Critical + High)
-  const highRiskCount = this.fraudTransactions.length;
-  this.kpis[1].value = highRiskCount.toLocaleString();
-  
-  const totalBlocked = this.fraudTransactions.reduce((sum, tx) => 
-    sum + (tx.transaction_details?.Transaction_Amount || 0), 0);
-  this.kpis[2].value = `KES ${(totalBlocked / 1000000).toFixed(2)}M`;
-  
-  if (this.modelMetrics?.metrics?.['XGBoost']) {
-    const xgb = this.modelMetrics.metrics['XGBoost'];
+    this.kpis[0].value = this.transactions.length.toLocaleString();
     
-
-    this.kpis[3].value = `${(xgb.recall * 100).toFixed(2)}%`; 
+    const highRiskCount = this.fraudTransactions.length;
+    this.kpis[1].value = highRiskCount.toLocaleString();
     
-
-    if (xgb.recall > 0.95) {
-      this.kpis[3].trend = 'up';
-    } else if (xgb.recall < 0.90) {
-      this.kpis[3].trend = 'down';
-    } else {
-      this.kpis[3].trend = 'flat';
+    const totalBlocked = this.fraudTransactions.reduce((sum, tx) => 
+      sum + (tx.transaction_details?.Transaction_Amount || 0), 0);
+    this.kpis[2].value = `KES ${(totalBlocked / 1000000).toFixed(2)}M`;
+    
+    if (this.modelMetrics?.metrics?.['XGBoost']) {
+      const xgb = this.modelMetrics.metrics['XGBoost'];
+      this.kpis[3].value = `${(xgb.recall * 100).toFixed(2)}%`; 
+      
+      if (xgb.recall > 0.95) {
+        this.kpis[3].trend = 'up';
+      } else if (xgb.recall < 0.90) {
+        this.kpis[3].trend = 'down';
+      } else {
+        this.kpis[3].trend = 'flat';
+      }
+      
+      this.kpis[3].description = 
+        `Accuracy: ${(xgb.accuracy * 100).toFixed(2)}% | ` + 
+        `F1 Score: ${(xgb.f1_score * 100).toFixed(2)}% | ` +
+        `Precision: ${(xgb.precision * 100).toFixed(2)}%`;
     }
-    
-    this.kpis[3].description = 
-      `Accuracy: ${(xgb.accuracy * 100).toFixed(2)}% | ` + 
-      `F1 Score: ${(xgb.f1_score * 100).toFixed(2)}% | ` +
-      `Precision: ${(xgb.precision * 100).toFixed(2)}%`
-      // `ROC AUC: ${(xgb.roc_auc * 100).toFixed(2)}%`
-      ;
   }
-}
 
-  calculateChannelRisk(): void {
+calculateChannelRisk(): void {
     const channelMap = new Map<string, { total: number; fraud: number }>();
     
     this.transactions.forEach(tx => {
-      let channel = 'Web/Online'; // Default
-      if (tx.transaction_details?.Model_Agreement) {
-  
-      }
+      let channel = 'Web/Online';
       
       if (!channelMap.has(channel)) {
         channelMap.set(channel, { total: 0, fraud: 0 });
@@ -641,41 +683,39 @@ updateKPIs(): void {
     );
   }
 
-  updateDeviceRisk(): void {
-  const deviceMap = new Map<string, { total: number; fraud: number }>();
-  
-  this.transactions.forEach(tx => {
-    let device = 'Unknown';
+updateDeviceRisk(): void {
+    const deviceMap = new Map<string, { total: number; fraud: number }>();
     
-    if (tx.transaction_details?.real_time_signals) {
-   
-      device = 'Mobile';
-    }
-    
-    if (!deviceMap.has(device)) {
-      deviceMap.set(device, { total: 0, fraud: 0 });
-    }
-    const data = deviceMap.get(device)!;
-    data.total++;
-    
-    if (tx.risk_category === 'Critical Fraud Risk' || tx.risk_category === 'High Potential Fraud') {
-      data.fraud++;
-    }
-  });
+    this.transactions.forEach(tx => {
+      let device = 'Unknown';
+      
+      if (tx.transaction_details?.real_time_signals) {
+        device = 'Mobile';
+      }
+      
+      if (!deviceMap.has(device)) {
+        deviceMap.set(device, { total: 0, fraud: 0 });
+      }
+      const data = deviceMap.get(device)!;
+      data.total++;
+      
+      if (tx.risk_category === 'Critical Fraud Risk' || tx.risk_category === 'High Potential Fraud') {
+        data.fraud++;
+      }
+    });
 
-  const deviceRisk = Array.from(deviceMap.entries()).map(([device, data]) => ({
-    device,
-    transactions: data.total,
-    fraudCases: data.fraud,
-    riskPercentage: data.total > 0 ? (data.fraud / data.total) * 100 : 0
-  }));
-  
-  console.log('Device Risk:', deviceRisk);
-}
+    const deviceRisk = Array.from(deviceMap.entries()).map(([device, data]) => ({
+      device,
+      transactions: data.total,
+      fraudCases: data.fraud,
+      riskPercentage: data.total > 0 ? (data.fraud / data.total) * 100 : 0
+    }));
+    
+    // console.log('Device Risk:', deviceRisk);
+  }
 
-  updateRecentActivities(): void {
+updateRecentActivities(): void {
     this.recentActivities = this.auditLogs.slice(0, 5).map(log => {
-     
       let type = 'info';
       if (log.risk_score >= 8) type = 'critical';
       else if (log.risk_score >= 6) type = 'warning';
@@ -702,7 +742,7 @@ updateKPIs(): void {
     });
   }
 
-  calculateLocations(): void {
+calculateLocations(): void {
     const locations = [
       { city: 'Nairobi', count: 0, riskLevel: 'Low' },
       { city: 'Mombasa', count: 0, riskLevel: 'Low' },
@@ -710,48 +750,35 @@ updateKPIs(): void {
       { city: 'International', count: 0, riskLevel: 'Low' }
     ];
     
-    this.fraudTransactions.forEach(tx => {
-  
-    });
-    
     this.topLocations = locations.sort((a, b) => b.count - a.count).slice(0, 5);
   }
 
-  refresh(): void {
+refresh(): void {
     this.loadDashboardData();
   }
 
-  viewTransaction(transactionId: string): void {
+viewTransaction(transactionId: string): void {
     this.router.navigate(['/fraudsentinelAi/transaction_management/fraud/alert-detail', transactionId]);
   }
 
-  investigateAlert(alertId: string): void {
+investigateAlert(alertId: string): void {
     this.router.navigate(['/fraudsentinelAi/transaction_management/fraud/investigation-graph']);
   }
 
-  getRiskBadgeClass(riskCategory: string): string {
-  if (riskCategory.includes('Critical')) {
-    return 'bg-danger';
-  } else if (riskCategory.includes('High')) {
-    return 'bg-warning text-dark';
-  } else if (riskCategory.includes('Medium')) {
-    return 'bg-info';
-  } else if (riskCategory.includes('Low')) {
-    return 'bg-success';
-  }
-  return 'bg-secondary';
-}
-
-  getStatusBadgeClass(status: string): string {
-    const classes: { [key: string]: string } = {
-      'Open': 'bg-danger',
-      'Investigating': 'bg-warning text-dark',
-      'Resolved': 'bg-success'
-    };
-    return classes[status] || 'bg-secondary';
+getRiskBadgeClass(riskCategory: string): string {
+    if (riskCategory.includes('Critical')) {
+      return 'bg-danger';
+    } else if (riskCategory.includes('High')) {
+      return 'bg-warning text-dark';
+    } else if (riskCategory.includes('Medium')) {
+      return 'bg-info';
+    } else if (riskCategory.includes('Low')) {
+      return 'bg-success';
+    }
+    return 'bg-secondary';
   }
 
-  getActivityIcon(type: string): string {
+getActivityIcon(type: string): string {
     const icons: { [key: string]: string } = {
       'critical': 'fa-exclamation-circle text-danger',
       'update': 'fa-sync-alt text-primary',
@@ -762,7 +789,7 @@ updateKPIs(): void {
     return icons[type] || 'fa-bell text-secondary';
   }
 
-  getLocationRiskClass(riskLevel: string): string {
+getLocationRiskClass(riskLevel: string): string {
     const classes: { [key: string]: string } = {
       'High': 'text-danger fw-bold',
       'Medium': 'text-warning',
@@ -771,7 +798,7 @@ updateKPIs(): void {
     return classes[riskLevel] || '';
   }
 
-  formatCurrency(amount: number): string {
+formatCurrency(amount: number): string {
     return new Intl.NumberFormat('en-KE', {
       style: 'currency',
       currency: 'KES',
@@ -784,7 +811,7 @@ updateKPIs(): void {
     return colors[index] || '#6c757d';
   }
 
-  getPieChartValue(index: number): number {
+getPieChartValue(index: number): number {
     if (this.pieChartData?.datasets?.[0]?.data && 
         Array.isArray(this.pieChartData.datasets[0].data) && 
         index < this.pieChartData.datasets[0].data.length) {
@@ -793,24 +820,23 @@ updateKPIs(): void {
     return 0;
   }
 
-  updateFooterStats(): void {
- 
-  this.footerStats.transactionsAnalyzed = this.transactions.length;
-  
-  if (this.modelMetrics?.model_version) {
-    this.footerStats.modelVersion = this.modelMetrics.model_version;
+updateFooterStats(): void {
+    this.footerStats.transactionsAnalyzed = this.transactions.length;
+    
+    if (this.modelMetrics?.model_version) {
+      this.footerStats.modelVersion = this.modelMetrics.model_version;
+    }
+    
+    this.footerStats.avgResponse = this.calculateAvgResponseTime(); 
+    
+    // console.log('Footer stats updated:', this.footerStats);
   }
-  
-  this.footerStats.avgResponse = this.calculateAvgResponseTime(); 
-  
-  console.log('Footer stats updated:', this.footerStats);
-}
 
 calculateAvgResponseTime(): string {
-  const responseTimes = [156, 178, 192, 201, 187, 165, 179];
-  const avg = responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length;
-  return `${Math.round(avg)}ms`;
-}
+    const responseTimes = [156, 178, 192, 201, 187, 165, 179];
+    const avg = responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length;
+    return `${Math.round(avg)}ms`;
+  }
 
   exportExcel(): void {
     alert('Excel export ready in production version');

@@ -658,7 +658,8 @@ disableUserAccount(user: any): void {
     showCancelButton: true,
     confirmButtonText: 'Yes, disable!',
     cancelButtonText: 'Cancel',
-    confirmButtonColor: '#dc3545'
+    confirmButtonColor: '#dc3545',
+    cancelButtonColor: '#6c757d'
   }).then(result => {
     if (result.isConfirmed) {
       this.httpService.userPut(`/admin/users/${user.id}/disable`, {}).subscribe({

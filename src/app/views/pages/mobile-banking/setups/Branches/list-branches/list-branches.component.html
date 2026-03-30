@@ -91,7 +91,7 @@
                   <tr>
                     <th style="width: 25%">User</th>
                     <th style="width: 30%">Contact</th>
-                    <th style="width: 20%">Role & Access</th>
+                    <th style="width: 20%">Role</th>
                     <th style="width: 10%">Status</th>
                     <th style="width: 15%" class="text-center">Actions</th>
                   </tr>
@@ -272,148 +272,149 @@
     <!-- Details Panel -->
     <div class="details-section" *ngIf="isDetailsPanelVisible">
       <div class="card border-0 shadow-lg h-100">
-        <div class="card-header bg-gradient-primary text-white py-4">
-          <div class="d-flex justify-content-between align-items-start">
-            <div class="d-flex align-items-center">
-              <div class="avatar-circle-large bg-white bg-opacity-20 me-3">
-                <i class="fas fa-user fa-2x text-white"></i>
-              </div>
-              <div>
-                <h3 class="card-title mb-1 text-white">{{ selectedUser?.username }}</h3>
-                <p class="card-text text-white-50 mb-0">
-                  <i class="fas fa-envelope me-1"></i>{{ selectedUser?.email }}
-                </p>
-              </div>
-            </div>
-            <button class="btn btn-light btn-sm rounded-circle" (click)="closeDetailsPanel()">
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
-        </div>
-
-        <div class="card-body p-0" *ngIf="selectedUser; else loadingTemplate">
-          
-          <!-- User Information Card -->
-          <div class="info-card p-4 border-bottom">
-            <h4 class="text-primary mb-3">
-              <i class="fas fa-id-card me-2"></i>User Information
-            </h4>
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="text-muted small text-uppercase mb-1">Username</label>
-                <p class="fw-semibold mb-0">{{ selectedUser.username }}</p>
-              </div>
-              <div class="col-md-6">
-                <label class="text-muted small text-uppercase mb-1">Email Address</label>
-                <p class="mb-0">{{ selectedUser.email }}</p>
-              </div>
-
-              <div class="col-md-6">
-                <label class="text-muted small text-uppercase mb-1">User ID</label>
-                <p class="font-monospace small mb-0 text-muted">#{{ selectedUser.id }}</p>
-              </div>
-
-              <div class="col-md-6">
-                <label class="text-muted small text-uppercase mb-1">User Role</label>
-                <div>
-                  <span class="badge rounded-pill px-3 py-2" 
-                        [ngClass]="getRoleBadgeClass(selectedUser.role)">
-                    <i class="fas me-1" [ngClass]="getRoleIcon(selectedUser.role)"></i>
-                    {{ getRoleDescription(selectedUser.role) }}
-                  </span>
+            <div class="card-header bg-gradient-primary text-white py-4">
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="d-flex align-items-center">
+      <div class="avatar-circle-large me-3" [ngClass]="getAvatarClass(selectedUser?.role)">
+        <span>{{ selectedUser?.username?.charAt(0)?.toUpperCase() }}</span>
+      </div>
+      <div>
+        <h3 class="card-title mb-1 text-white">{{ selectedUser?.username }}</h3>
+        <p class="card-text text-white-50 mb-0">
+          <i class="fas fa-envelope me-1"></i>{{ selectedUser?.email }}
+        </p>
+      </div>
                 </div>
-              </div>
-            
-              <div class="col-md-6">
-                <label class="text-muted small text-uppercase mb-1">Created At</label>
-                <p class="mb-0 small">{{ selectedUser.created_at | date:'medium' }}</p>
-              </div>
-              <div class="col-md-6">
-                <label class="text-muted small text-uppercase mb-1">Last Login</label>
-                <p class="mb-0 small">{{ selectedUser.last_login | date:'medium' || 'Never' }}</p>
+
+                <button class="btn btn-light btn-sm rounded-circle" (click)="closeDetailsPanel()">
+                  <i class="fas fa-times"></i>
+                </button>
               </div>
             </div>
-          </div>
 
-          <!-- Role Permissions Card -->
-          <div class="info-card p-4 border-bottom">
-            <h4 class="text-warning mb-3">
-              <i class="fas fa-shield-alt me-2"></i>Role Permissions
-            </h4>
-            <div class="row g-2">
-              <div class="col-12" *ngFor="let permission of getRolePermissions(selectedUser.role)">
-                <div class="d-flex align-items-center p-2 bg-light rounded">
-                  <i class="fas fa-check-circle text-success me-2"></i>
-                  <span class="small">{{ permission }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
+            <div class="card-body p-0" *ngIf="selectedUser; else loadingTemplate">
+              
+              <!-- User Information Card -->
+              <div class="info-card p-4 border-bottom">
+                <h4 class="text-primary mb-3">
+                  <i class="fas fa-id-card me-2"></i>User Information
+                </h4>
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="text-muted small text-uppercase mb-1">Username</label>
+                    <p class="fw-semibold mb-0">{{ selectedUser.username }}</p>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="text-muted small text-uppercase mb-1">Email Address</label>
+                    <p class="mb-0">{{ selectedUser.email }}</p>
+                  </div>
 
-          <!-- Account Status Card -->
-          <div class="info-card p-4 border-bottom">
-            <h4 class="text-info mb-3">
-              <i class="fas fa-chart-line me-2"></i>Account Status
-            </h4>
-            <div class="row">
-              <div class="col-12">
-                <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded">
-                  <div>
-                    <div class="text-muted small">Current Status</div>
-                    <div class="fw-bold" [ngClass]="{'text-success': selectedUser.is_active, 'text-danger': !selectedUser.is_active}">
-                      {{ selectedUser.is_active ? 'Active' : 'Disabled' }}
+                  <div class="col-md-6">
+                    <label class="text-muted small text-uppercase mb-1">User ID</label>
+                    <p class="font-monospace small mb-0 text-muted">#{{ selectedUser.id }}</p>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="text-muted small text-uppercase mb-1">User Role</label>
+                    <div>
+                      <span class="badge rounded-pill px-3 py-2" 
+                            [ngClass]="getRoleBadgeClass(selectedUser.role)">
+                        <i class="fas me-1" [ngClass]="getRoleIcon(selectedUser.role)"></i>
+                        {{ getRoleDescription(selectedUser.role) }}
+                      </span>
                     </div>
                   </div>
-                  <div>
-                    <div class="text-muted small">Member Since</div>
-                    <div class="fw-semibold">{{ selectedUser.created_at | date:'MMM d, yyyy' }}</div>
+                
+                  <div class="col-md-6">
+                    <label class="text-muted small text-uppercase mb-1">Created At</label>
+                    <p class="mb-0 small">{{ selectedUser.created_at | date:'medium' }}</p>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="text-muted small text-uppercase mb-1">Last Login</label>
+                    <p class="mb-0 small">{{ selectedUser.last_login | date:'medium' || 'Never' }}</p>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          <!-- Quick Actions Card -->
-          <div class="p-4">
-            <h4 class="text-success mb-3">
-              <i class="fas fa-bolt me-2"></i>Quick Actions
-            </h4>
-            <div class="d-grid gap-2">
-              <button class="btn btn-outline-primary" (click)="openEditUserModal(selectedUser)">
-                <i class="fas fa-edit me-2"></i>Edit User
-              </button>
-              <button class="btn btn-outline-warning" (click)="sendResetPassword(selectedUser)">
-                <i class="fas fa-key me-2"></i>Reset Password
-              </button>
-              <button *ngIf="selectedUser.is_active" 
-                      class="btn btn-outline-warning" 
-                      (click)="disableUserAccount(selectedUser)">
-                <i class="fas fa-ban me-2"></i>Disable Account
-              </button>
-              <button *ngIf="!selectedUser.is_active" 
-                      class="btn btn-outline-success" 
-                      (click)="enableUser(selectedUser)">
-                <i class="fas fa-check-circle me-2"></i>Enable Account
-              </button>
-              <button class="btn btn-outline-danger" (click)="deleteUser(selectedUser.id)">
-                <i class="fas fa-trash me-2"></i>Delete User
-              </button>
+              <!-- Role Permissions Card -->
+              <div class="info-card p-4 border-bottom">
+                <h4 class="text-warning mb-3">
+                  <i class="fas fa-shield-alt me-2"></i>Role Permissions
+                </h4>
+                <div class="row g-2">
+                  <div class="col-12" *ngFor="let permission of getRolePermissions(selectedUser.role)">
+                    <div class="d-flex align-items-center p-2 bg-light rounded">
+                      <i class="fas fa-check-circle text-success me-2"></i>
+                      <span class="small">{{ permission }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Account Status Card -->
+              <div class="info-card p-4 border-bottom">
+                <h4 class="text-info mb-3">
+                  <i class="fas fa-chart-line me-2"></i>Account Status
+                </h4>
+                <div class="row">
+                  <div class="col-12">
+                    <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded">
+                      <div>
+                        <div class="text-muted small">Current Status</div>
+                        <div class="fw-bold" [ngClass]="{'text-success': selectedUser.is_active, 'text-danger': !selectedUser.is_active}">
+                          {{ selectedUser.is_active ? 'Active' : 'Disabled' }}
+                        </div>
+                      </div>
+                      <div>
+                        <div class="text-muted small">Member Since</div>
+                        <div class="fw-semibold">{{ selectedUser.created_at | date:'MMM d, yyyy' }}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Quick Actions Card -->
+              <div class="p-4">
+                <h4 class="text-success mb-3">
+                  <i class="fas fa-bolt me-2"></i>Quick Actions
+                </h4>
+                <div class="d-grid gap-2">
+                  <button class="btn btn-outline-primary" (click)="openEditUserModal(selectedUser)">
+                    <i class="fas fa-edit me-2"></i>Edit User
+                  </button>
+                  <button class="btn btn-outline-warning" (click)="sendResetPassword(selectedUser)">
+                    <i class="fas fa-key me-2"></i>Reset Password
+                  </button>
+                  <button *ngIf="selectedUser.is_active" 
+                          class="btn btn-outline-warning" 
+                          (click)="disableUserAccount(selectedUser)">
+                    <i class="fas fa-ban me-2"></i>Disable Account
+                  </button>
+                  <button *ngIf="!selectedUser.is_active" 
+                          class="btn btn-outline-success" 
+                          (click)="enableUser(selectedUser)">
+                    <i class="fas fa-check-circle me-2"></i>Enable Account
+                  </button>
+                  <button class="btn btn-outline-danger" (click)="deleteUser(selectedUser.id)">
+                    <i class="fas fa-trash me-2"></i>Delete User
+                  </button>
+                </div>
+              </div>
             </div>
+
+            <ng-template #loadingTemplate>
+              <div class="text-center py-5">
+                <div class="spinner-border text-primary mb-3" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="text-muted mb-0">Loading user details...</p>
+              </div>
+            </ng-template>
           </div>
         </div>
-
-        <ng-template #loadingTemplate>
-          <div class="text-center py-5">
-            <div class="spinner-border text-primary mb-3" role="status">
-              <span class="visually-hidden">Loading...</span>
-            </div>
-            <p class="text-muted mb-0">Loading user details...</p>
-          </div>
-        </ng-template>
       </div>
     </div>
-  </div>
-</div>
 
 <div class="modal fade show" 
      *ngIf="isAddUserModalVisible" 
