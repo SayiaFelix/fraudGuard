@@ -127,7 +127,7 @@ export class HttpService {
   checkTransactionRisk(transactionData: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/real_time_risk_score`, transactionData, this.getHeaders())
       .pipe(
-        tap(response => console.log('Risk assessment response:', response)),
+        // tap(response => console.log('Risk assessment response:', response)),
         catchError(this.handleError<any>('checkTransactionRisk', { 
           status: 'error', 
           message: 'Failed to assess transaction risk' 
@@ -138,7 +138,7 @@ export class HttpService {
   getFraudHistory(page: number = 1, size: number = 10): Observable<any> {
     return this.http.post(`${this.apiUrl}/fraud_history`, { page, size }, this.getHeaders())
       .pipe(
-        tap(response => console.log('Fraud history response:', response)),
+        // tap(response => console.log('Fraud history response:', response)),
         catchError(this.handleError<any>('getFraudHistory', { 
           fraud_transactions: [], 
           pagination: { total: 0 } 
@@ -149,7 +149,7 @@ export class HttpService {
   getFeatureImportance(): Observable<any> {
     return this.http.get(`${this.apiUrl}/feature_importance_weight`, this.getHeaders())
       .pipe(
-        tap(response => console.log('Feature importance response:', response)),
+        // tap(response => console.log('Feature importance response:', response)),
         catchError(this.handleError<any>('getFeatureImportance', { 
           status: 'error', 
           feature_importance: {} 
@@ -160,7 +160,7 @@ export class HttpService {
   getTransactionById(transactionId: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/transactions`, { transaction_id: transactionId }, this.getHeaders())
       .pipe(
-        tap(response => console.log('Transaction details response:', response)),
+        // tap(response => console.log('Transaction details response:', response)),
         catchError(this.handleError<any>('getTransactionById', { 
           status: 'error', 
           message: 'Failed to load transaction details' 
@@ -171,7 +171,7 @@ export class HttpService {
   toggleSovereignMode(enable: boolean): Observable<any> {
     return this.http.post(`${this.apiUrl}/system/sovereign_mode`, { enable }, this.getHeaders())
       .pipe(
-        tap(response => console.log('Sovereign mode response:', response)),
+        // tap(response => console.log('Sovereign mode response:', response)),
         catchError(this.handleError<any>('toggleSovereignMode', { 
           status: 'error', 
           message: 'Failed to toggle sovereign mode' 
@@ -182,7 +182,7 @@ export class HttpService {
   getSovereignMode(): Observable<any> {
     return this.http.get(`${this.apiUrl}/system/sovereign_mode`, this.getHeaders())
       .pipe(
-        tap(response => console.log('Sovereign mode status:', response)),
+        // tap(response => console.log('Sovereign mode status:', response)),
         catchError(this.handleError<any>('getSovereignMode', { 
           sovereign_mode: true 
         }))
@@ -192,7 +192,7 @@ export class HttpService {
   getRelatedTransactions(transactionId: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/transactions/related`, { transaction_id: transactionId }, this.getHeaders())
       .pipe(
-        tap(response => console.log('Related transactions response:', response)),
+        // tap(response => console.log('Related transactions response:', response)),
         catchError(this.handleError<any>('getRelatedTransactions', { 
           related_transactions: [] 
         }))
@@ -211,7 +211,7 @@ export class HttpService {
     
     return this.http.post(`${this.apiUrl}/fraud_feedback`, payload, this.getHeaders())
       .pipe(
-        tap(response => console.log('Feedback response:', response)),
+        // tap(response => console.log('Feedback response:', response)),
         catchError(this.handleError<any>('submitFraudFeedback', { 
           message: 'Failed to submit feedback' 
         }))
@@ -221,7 +221,7 @@ export class HttpService {
   getTransactions(page: number = 1, size: number = 100): Observable<TransactionsResponse> {
     return this.http.post<TransactionsResponse>(`${this.apiUrl}/transactions`, { page, size }, this.getHeaders())
       .pipe(
-        tap(response => console.log('API Response:', response)),
+        // tap(response => console.log('API Response:', response)),
         catchError(this.handleError<TransactionsResponse>('getTransactions', {
           status: 'error',
           message: 'Failed to load transactions',
@@ -285,7 +285,7 @@ export class HttpService {
   getTransactionStatus(transactionId: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/get_transactions/status`, { transaction_id: transactionId }, this.getHeaders())
       .pipe(
-        tap(response => console.log('Status history response:', response)),
+        // tap(response => console.log('Status history response:', response)),
         catchError(this.handleError<any>('getTransactionStatus', { 
           status: 'error',
           current_status: 'Open',
@@ -307,7 +307,7 @@ export class HttpService {
     
     return this.http.post(`${this.apiUrl}/transactions/status`, payload, this.getHeaders())
       .pipe(
-        tap(response => console.log('Status update response:', response)),
+        // tap(response => console.log('Status update response:', response)),
         catchError(this.handleError<any>('updateTransactionStatus', { 
           status: 'error', 
           message: 'Failed to update status' 
@@ -347,9 +347,8 @@ getHeaders(): { headers: HttpHeaders } {
     return (error: any): Observable<T> => {
       console.error(`${operation} failed:`, error);
       
-      // If 401 Unauthorized, redirect to login
       if (error.status === 401) {
-        console.log('Token expired or invalid, redirecting to login');
+        // console.log('Token expired or invalid, redirecting to login');
         this.authService.logout();
         this.router.navigate(['/auth/login']);
       }
@@ -357,8 +356,7 @@ getHeaders(): { headers: HttpHeaders } {
       return of(result as T);
     };
   }
-
-  // ... rest of your existing methods (calculateKPIs, groupByMonth, etc.)
+  
   calculateKPIs(transactions: any[]): any {
     const totalTransactions = transactions.length;
     const highRisk = transactions.filter(t => (t.risk_score || 0) >= 5).length;
