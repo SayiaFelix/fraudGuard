@@ -191,8 +191,8 @@
             <div class="progress flex-grow-1 me-2" style="height: 4px; max-width: 200px;">
               <div class="progress-bar" 
                    [ngClass]="{
-                     'bg-primary': !tx.ruleEngine?.triggered,
-                     'bg-success': tx.ruleEngine?.triggered
+                     'bg-primary': !tx.ruleEngine.triggered,
+                     'bg-success': tx.ruleEngine.triggered
                    }"
                    [style.width.%]="(tx.modelAgreement.flagged / tx.modelAgreement.total) * 100">
               </div>
@@ -200,7 +200,7 @@
             <small class="text-muted">{{ tx.modelAgreement.flagged }}/{{ tx.modelAgreement.total }} models</small>
             
             <!-- Rule indicator -->
-            <span class="ms-2" *ngIf="tx.ruleEngine?.triggered">
+            <span class="ms-2" *ngIf="tx.ruleEngine.triggered">
               <i class="fas fa-gavel text-warning" title="Rule engine triggered"></i>
             </span>
           </div>
@@ -261,10 +261,10 @@
       <!-- AI Analysis -->
       <div class="ai-analysis-card p-4 rounded-3 mb-4" 
           [ngClass]="{
-            'critical-bg': selectedTransaction?.riskCategory === 'Critical',
-            'high-bg': selectedTransaction?.riskCategory === 'High',
-            'medium-bg': selectedTransaction?.riskCategory === 'Medium',
-            'low-bg': selectedTransaction?.riskCategory === 'Low'
+            'critical-bg': selectedTransaction.riskCategory === 'Critical',
+            'high-bg': selectedTransaction.riskCategory === 'High',
+            'medium-bg': selectedTransaction.riskCategory === 'Medium',
+            'low-bg': selectedTransaction.riskCategory === 'Low'
           }">
         
         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -317,11 +317,11 @@
             <div *ngIf="activeTab === 'final'">
               <p class="analysis-text mb-0">
                 This transaction was flagged as 
-                <strong class="risk-highlight">{{ selectedTransaction?.riskCategory }}</strong> 
-                with a risk score of <strong>{{ selectedTransaction?.riskScore }}/10</strong>.
+                <strong class="risk-highlight">{{ selectedTransaction.riskCategory }}</strong> 
+                with a risk score of <strong>{{ selectedTransaction.riskScore }}/10</strong>.
               </p>
               <p class="analysis-text mt-2">
-                {{ selectedTransaction?.aiAnalysis?.final || selectedTransaction?.aiAnalysis?.details }}
+                {{ selectedTransaction.aiAnalysis.final || selectedTransaction.aiAnalysis.details }}
               </p>
             </div>
 
@@ -332,7 +332,7 @@
                   <small class="text-muted">Natural language explanation</small>
                 </div>
                 <p class="analysis-text mb-0">
-                  {{ selectedTransaction?.aiAnalysis?.llm || 'No LLM explanation available for this transaction.' }}
+                  {{ selectedTransaction.aiAnalysis.llm || 'No LLM explanation available for this transaction.' }}
                 </p>
               </div>
 
@@ -343,7 +343,7 @@
                   <small class="text-muted">Technical explanation</small>
                 </div>
                 <p class="analysis-text mb-0">
-                  {{ selectedTransaction?.aiAnalysis?.ruleBased || 'No rule-based explanation available for this transaction.' }}
+                  {{ selectedTransaction.aiAnalysis.ruleBased || 'No rule-based explanation available for this transaction.' }}
                 </p>
               </div>
           </div>
@@ -352,16 +352,16 @@
         <div class="model-agreement mt-3 pt-3 border-top">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold">Model Agreement</span>
-            <span class="badge bg-primary">{{ selectedTransaction?.modelAgreement?.flagged }}/{{ selectedTransaction?.modelAgreement?.total }} models flagged as fraud</span>
+            <span class="badge bg-primary">{{ selectedTransaction.modelAgreement.flagged }}/{{ selectedTransaction.modelAgreement.total }} models flagged as fraud</span>
           </div>
           <div class="progress" style="height: 8px;">
             <div class="progress-bar" 
-                [style.width.%]="(selectedTransaction?.modelAgreement?.flagged || 0) / (selectedTransaction?.modelAgreement?.total || 7) * 100"
+                [style.width.%]="(selectedTransaction.modelAgreement.flagged || 0) / (selectedTransaction.modelAgreement.total || 7) * 100"
                 [ngClass]="{
-                  'bg-danger': selectedTransaction?.riskCategory === 'Critical',
-                  'bg-warning': selectedTransaction?.riskCategory === 'High',
-                  'bg-info': selectedTransaction?.riskCategory === 'Medium',
-                  'bg-success': selectedTransaction?.riskCategory === 'Low'
+                  'bg-danger': selectedTransaction.riskCategory === 'Critical',
+                  'bg-warning': selectedTransaction.riskCategory === 'High',
+                  'bg-info': selectedTransaction.riskCategory === 'Medium',
+                  'bg-success': selectedTransaction.riskCategory === 'Low'
                 }">
             </div>
           </div>
@@ -380,7 +380,7 @@
       <div class="p-3 rounded-3 mb-2">
         
       <!-- Hybrid Score Badge -->
-      <div class="mb-3" *ngIf="selectedTransaction?.hybridScore">
+      <div class="mb-3" *ngIf="selectedTransaction.hybridScore">
         <span class="badge bg-primary">
           <i class="fas fa-microchip me-1"></i>
           Hybrid ML + Rules
@@ -388,7 +388,7 @@
       </div>
 
       <!-- Rule Engine Section -->
-      <div class="rule-engine-section mb-3" *ngIf="selectedTransaction?.ruleEngine?.triggered">
+      <div class="rule-engine-section mb-3" *ngIf="selectedTransaction.ruleEngine.triggered">
         <div class="card border-warning">
           <div class="card-header bg-warning bg-opacity-10">
             <h4 class="mb-0">
@@ -411,7 +411,7 @@
       </div>
 
       <!-- Feedback Effect Section -->
-      <div class="feedback-effect-section mb-3" *ngIf="selectedTransaction?.feedbackEffect">
+      <div class="feedback-effect-section mb-3" *ngIf="selectedTransaction.feedbackEffect">
         <div class="card border-success">
           <div class="card-header bg-success bg-opacity-10">
             <h4 class="mb-0">
@@ -423,28 +423,28 @@
             <div class="row">
               <div class="col-6">
                 <small class="text-muted d-block">Original Score:</small>
-                <strong>{{ selectedTransaction?.feedbackEffect?.original_score }}</strong>
-                <small class="text-muted d-block">{{ selectedTransaction?.feedbackEffect?.original_category }}</small>
+                <strong>{{ selectedTransaction.feedbackEffect.original_score }}</strong>
+                <small class="text-muted d-block">{{ selectedTransaction.feedbackEffect.original_category }}</small>
               </div>
               <div class="col-6">
                 <small class="text-muted d-block">Adjusted Score:</small>
                 
-                <strong [style.color]="getRiskProgressColor(selectedTransaction?.feedbackEffect?.adjusted_score ?? 0)">
-                  {{ selectedTransaction?.feedbackEffect?.adjusted_score }}
+                <strong [style.color]="getRiskProgressColor(selectedTransaction.feedbackEffect?.adjusted_score ?? 0)">
+                  {{ selectedTransaction.feedbackEffect.adjusted_score }}
                 </strong>
-                <small class="text-muted d-block">{{ selectedTransaction?.feedbackEffect?.adjusted_category }}</small>
+                <small class="text-muted d-block">{{ selectedTransaction.feedbackEffect.adjusted_category }}</small>
               </div>
             </div>
             <div class="mt-2">
               <span class="badge bg-info">
-                Feedback: {{ selectedTransaction?.feedbackEffect?.feedback_outcome }}
+                Feedback: {{ selectedTransaction.feedbackEffect.feedback_outcome }}
               </span>
-              <span class="badge bg-secondary ms-2" *ngIf="selectedTransaction?.feedbackEffect?.weights_adjusted">
+              <span class="badge bg-secondary ms-2" *ngIf="selectedTransaction.feedbackEffect.weights_adjusted">
                 Weights Adjusted
               </span>
             </div>
             <small class="text-muted d-block mt-2">
-              Difference: {{ selectedTransaction?.feedbackEffect?.difference }}
+              Difference: {{ selectedTransaction.feedbackEffect.difference }}
             </small>
           </div>
         </div>
