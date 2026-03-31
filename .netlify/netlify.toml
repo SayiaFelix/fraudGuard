@@ -7,7 +7,7 @@ redirects = []
 [functions."*"]
 
 [build]
-publish = "C:\\Users\\Felix\\OneDrive\\Documents\\Projects\\Portals\\chatbot_admin\\dist"
+publish = "C:\\Users\\Felix\\OneDrive\\Documents\\Projects\\Portals\\FraudGuard\\dist"
 publishOrigin = "config"
 commandOrigin = "config"
 command = "echo 'No build needed'"
