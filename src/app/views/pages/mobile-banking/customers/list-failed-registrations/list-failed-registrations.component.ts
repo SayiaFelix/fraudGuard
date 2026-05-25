@@ -231,18 +231,24 @@ toggleSovereignMode(enable: boolean): void {
   this.httpService.toggleSovereignMode(enable).subscribe({
     next: (response) => {
       if (response.status === 'success') {
+        // Just assign the value from backend directly
         this.sovereignMode = response.sovereign_mode;
-        // Show toast notification
-        this.toastr.success(
-          `Sovereign mode ${this.sovereignMode ? 'enabled' : 'disabled'}. ` +
-          `LLM is now ${this.sovereignMode ? 'disabled' : 'enabled'}.`,
-          'Sovereign Mode'
-        );
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Sovereign Mode',
+          text: `Sovereign mode ${this.sovereignMode ? 'enabled' : 'disabled'}. ` +
+            `LLM is now ${this.sovereignMode ? 'enabled' : 'disabled'}.`
+        });
       }
     },
     error: (error) => {
       console.error('Error toggling sovereign mode:', error);
-      this.toastr.error('Failed to toggle sovereign mode', 'Error');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to toggle sovereign mode'
+      });
     }
   });
 }
