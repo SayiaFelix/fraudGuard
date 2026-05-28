@@ -253,8 +253,8 @@ toggleSovereignMode(enable: boolean): void {
   });
 }
 
-  //(using XGBoost)
-  loadModelMetrics(): Promise<void> {
+//(using XGBoost)
+loadModelMetrics(): Promise<void> {
     return new Promise((resolve) => {
       this.httpService.getModelMetrics().subscribe({
         next: (response) => {
