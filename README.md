@@ -6,6 +6,13 @@
 [![Bootstrap](https://img.shields.io/badge/bootstrap-5.3-purple.svg)](https://getbootstrap.com/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
+### Related Repositories
+
+- [Frontend](https://github.com/SayiaFelix/fraudGuard.git)
+- [Backend](https://github.com/SayiaFelix/finGuardAI.git)
+
+**NB**: For full system detail, see the [Backend README](https://github.com/SayiaFelix/finGuardAI)
+
 > **BeOrchid Africa Hackathon 2026 - Top 30 Finalist** 🏆
 
 ## Table of Contents
@@ -58,7 +65,7 @@ The demo covers
 - Fraud history and investigation tools
 - User management and role-based access
 
-**Live Demo:** [http://130.61.111.65:5002](http://130.61.111.65:5002)
+**Deployed Live Link:** [FraudSentinel AI Portal](http://130.61.111.65:5002)
 
 ## Architecture
 
@@ -106,8 +113,8 @@ After accessing the deployed link `http://130.61.111.65:5002`, use,
 
 | Role | Email | Password |
 |------|-------|----------|
-| Admin | admin@fraudsentinel.com | admin123 |
-| Analyst | analyst@fraudsentinel.com | analyst123 |
+| Admin | admin@fraudsentinel.com | admin@123 |
+| Analyst | analyst@fraudsentinel.com | analyst@123 |
 
 💡 **Quick Demo Access:** Click the button on the right side of the login form to auto-fill Admin credentials, then press **Login**.
 
@@ -148,3 +155,5 @@ ng serve -o
 
 ### Event
 - Beorchid Africa Developers Hackathon 2026
+
+
