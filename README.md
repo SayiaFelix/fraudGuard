@@ -11,7 +11,7 @@
 - [Frontend](https://github.com/SayiaFelix/fraudGuard.git)
 - [Backend](https://github.com/SayiaFelix/finGuardAI.git)
 
-**NB**: For full system detail, see the [Backend README](https://github.com/SayiaFelix/finGuardAI)
+**Note**: For full system detail, see the [Backend README](https://github.com/SayiaFelix/finGuardAI)
 
 > **BeOrchid Africa Hackathon 2026 - Top 30 Finalist** 🏆
 
@@ -41,15 +41,15 @@ FraudSentinel AI Frontend is an Angular-based dashboard for real-time fraud dete
 
 | Login Page | Dashboard |
 |------------|-----------|
-| ![Login](docs/screenshots/login.png) | ![Dashboard](docs/screenshots/dashboard.png) |
+| ![Login](src/assets/images/login.png) | ![Dashboard](src/assets/images/dashboard.png) |
 
 | Risk Analyzer | Fraud History |
 |---------------|----------------|
-| ![Risk Analyzer](docs/screenshots/risk-analyzer.png) | ![Fraud History](docs/screenshots/fraud-history.png) |
+| ![Risk Analyzer](src/assets/images/risk-analyzer.png) | ![Fraud History](src/assets/images/fraud.png) |
 
 | Transaction Details | User Management |
 |---------------------|-----------------|
-| ![Transaction Details](docs/screenshots/transaction-details.png) | ![User Management](docs/screenshots/user-management.png) |
+| ![Transaction Details](src/assets/images/transactions.png) | ![User Management](src/assets/images/user-management.png) |
 
 
 ## Demo Video
