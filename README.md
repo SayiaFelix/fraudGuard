@@ -102,7 +102,7 @@ For full system architecture, see the [Backend README](https://github.com/SayiaF
 
 ## Test Credentials
 
-After accessing the deployed link `http://130.61.111.65:5002`, use:
+After accessing the deployed link `http://130.61.111.65:5002`, use,
 
 | Role | Email | Password |
 |------|-------|----------|
