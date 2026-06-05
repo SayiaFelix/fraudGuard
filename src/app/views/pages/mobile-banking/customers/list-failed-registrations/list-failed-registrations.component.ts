@@ -211,7 +211,6 @@ export class ListFailedRegistrationsComponent implements OnInit, OnDestroy {
     });
   }
 
-  // In your component (e.g., dashboard or system controls)
 sovereignMode: boolean = true;
 
 loadSovereignMode(): void {
