@@ -109,6 +109,7 @@ After accessing the deployed link `http://130.61.111.65:5002`, use:
 | Admin | admin@fraudsentinel.com | admin123 |
 | Analyst | analyst@fraudsentinel.com | analyst123 |
 
+💡 **Quick Demo Access:** Click the button on the right side of the login form to auto-fill Admin credentials, then press **Login**.
 
 ## Prerequisites
 
@@ -140,7 +141,7 @@ ng serve -o
 ## Team
 
 ### Team Lead
-- Felix Lucas Sayia
+- Felix Sayia
 
 ### Project
 - FraudSentinel AI
