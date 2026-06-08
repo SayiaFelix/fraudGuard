@@ -29,7 +29,7 @@
 
 ## Overview
 
-FraudSentinel AI Frontend is an Angular-based dashboard for real-time fraud detection and risk monitoring. It provides financial institutions with an intuitive interface to:
+FraudSentinel AI Frontend is an Angular-based dashboard for real-time fraud detection and risk monitoring. It provides financial institutions with an intuitive interface to,
 
 - Monitor transactions in real-time
 - Analyze fraud risk scores
@@ -54,7 +54,7 @@ FraudSentinel AI Frontend is an Angular-based dashboard for real-time fraud dete
 
 ## Demo Video
 
-**Watch the full walkthrough (5 minutes):** [FraudSentinel AI Demo](https://youtu.be/YOUR_VIDEO_ID)
+**Watch the full walkthrough (5 minutes):** [FraudSentinel AI Demo](https://youtu.be/ i will update this once receorded )
 
 
 **Click to watch the 5-minute walkthrough**
