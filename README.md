@@ -11,7 +11,8 @@
 - [Frontend](https://github.com/SayiaFelix/fraudGuard.git)
 - [Backend](https://github.com/SayiaFelix/finGuardAI.git)
 
-**Note**: For full system detail, see the [Backend README](https://github.com/SayiaFelix/finGuardAI)
+**Note**
+#### For full system detail, see the [Backend README](https://github.com/SayiaFelix/finGuardAI)
 
 > **BeOrchid Africa Hackathon 2026 - Top 30 Finalist** 🏆
 
@@ -114,8 +115,8 @@ After accessing the deployed link `http://130.61.111.65:5002`, use,
 
 | Role | Email | Password |
 |------|-------|----------|
-| Admin | admin@fraudsentinel.com | admin@123 |
-| Analyst | analyst@fraudsentinel.com | analyst@123 |
+| Admin | admin@fraudsentinelAI.com | admin@123 |
+<!-- | Analyst | analyst@fraudsentinel.com | analyst@123 | -->
 
   **Quick Demo Access:** Click the button on the right side of the login form to auto-fill Admin credentials, then press **Login**.
 
