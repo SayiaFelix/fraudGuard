@@ -443,6 +443,15 @@ investigateTransaction(): void {
     }).format(amount);
   }
 
+formatDate(timestamp: string): string {
+    if (!timestamp) return '--/--/----';
+    const date = new Date(timestamp);
+    return date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric', 
+        year: 'numeric' 
+    });
+}
   formatTime(timestamp: Date): string {
     const now = new Date();
     const diff = now.getTime() - timestamp.getTime();

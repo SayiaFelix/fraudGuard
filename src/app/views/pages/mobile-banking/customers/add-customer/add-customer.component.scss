@@ -1,3 +1,52 @@
+/* ===== TIME & ID DISPLAY ===== */
+.time-display {
+    min-width: 90px;
+}
+
+.time-text {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.time-date {
+    font-size: 0.7rem;
+    color: #95a5a6;
+}
+
+.tx-id-wrapper {
+    padding-left: 4px;
+}
+
+.tx-id {
+    font-family: 'Courier New', monospace;
+    font-size: 0.75rem;
+    color: #7f8c8d;
+    word-break: break-all;
+    background: #f8f9fa;
+    // padding: 2px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tx-id-wrapper:hover .tx-id {
+    white-space: normal;
+    word-break: break-all;
+    max-width: 100%;
+}
+
+@media (max-width: 768px) {
+    .tx-id {
+        font-size: 0.65rem;
+        max-width: 120px;
+    }
+}
+
+/* ===== LIVE FEED CONTAINER ===== */
 .live-feed-container {
   padding: 20px;
   max-width: 1600px;
@@ -58,6 +107,7 @@
   }
 }
 
+/* ===== TRANSACTION ITEM ===== */
 .transaction-item {
   cursor: pointer;
   transition: all 0.2s;
@@ -66,12 +116,6 @@
   
   &:hover {
     background: #f8f9fa;
-    
-    .transaction-hover-details {
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0);
-    }
   }
   
   &.critical {
@@ -92,49 +136,19 @@
   }
 }
 
-.transaction-hover-details {
-  position: absolute;
-  top: 100%;
-  left: 20px;
-  right: 20px;
-  z-index: 1000;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-10px);
-  transition: all 0.3s;
-  
-  .details-card {
-    background: white;
-    border-radius: 8px;
-    padding: 15px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-    border: 1px solid #e9ecef;
-    margin-top: 5px;
-  }
-}
-
-.tx-id {
-  font-family: 'Monaco', 'Courier New', monospace;
-  font-size: 12px;
-  background: #f1f3f5;
-  padding: 2px 6px;
-  border-radius: 4px;
-}
-
+/* ===== RISK SCORE ===== */
 .risk-score {
   font-size: 16px;
   min-width: 40px;
 }
 
-.ai-preview {
-  max-width: 250px;
-  color: #495057;
-  background: #f8f9fa;
-  padding: 4px 8px;
-  border-radius: 4px;
-  border-left: 2px solid #4cc9f0;
+/* ===== MODEL AGREEMENT ===== */
+.model-agreement-preview {
+  border-top: 1px dashed #e9ecef;
+  padding-top: 8px;
 }
 
+/* ===== SCROLL INDICATOR ===== */
 .scroll-indicator {
   position: fixed;
   bottom: 10px;
@@ -149,6 +163,7 @@
   z-index: 1000;
 }
 
+/* ===== ANIMATIONS ===== */
 @keyframes pulse {
   0% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.5; transform: scale(1.1); }
@@ -160,17 +175,31 @@
   50% { opacity: 1; }
 }
 
-// Responsive
-@media (max-width: 992px) {
-  .scroll-indicator {
-    right: 10px;
-  }
+/* ===== MODAL ===== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
   
-  .transaction-item {
-    padding: 12px;
+  .modal-content {
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
   }
 }
 
+/* ===== AI ANALYSIS CARD ===== */
 .ai-analysis-card {
   border-left: 6px solid;
   transition: all 0.3s;
@@ -212,53 +241,21 @@
   }
 }
 
+/* ===== RECOMMENDED ACTION ===== */
 .recommended-action-card {
   background: #f8f9fa;
   border-left: 4px solid #4361ee;
 }
 
-.model-agreement-preview {
-  border-top: 1px dashed #e9ecef;
-  padding-top: 8px;
-}
-
-.transaction-item {
-  cursor: default; 
-  
-  &:hover {
-    background: #f8f9fa;
-  }
-}
-
+/* ===== MODAL HEADER ===== */
 .modal-header {
   &.bg-danger { background: #f72585 !important; }
   &.bg-warning { background: #ff9e00 !important; }
   &.bg-info { background: #4cc9f0 !important; }
   &.bg-success { background: #06d6a0 !important; }
 }
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1050;
-  
-  .modal-content {
-    width: 90%;
-    max-width: 800px;
-    max-height: 90vh;
-    overflow-y: auto;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
-  }
-}
 
+/* ===== ADDITIONAL DETAILS CARD ===== */
 .additional-details-card {
   border: 1px solid #e9ecef;
   border-radius: 12px;
@@ -288,24 +285,13 @@
   }
 }
 
-.additional-details-card {
-  margin-bottom: 0.5rem;
-}
-
-.ai-analysis-card {
-  .btn-group {
-    .btn {
- 
-      &[title] {
-        position: relative;
-      }
-    }
+/* ===== RESPONSIVE ===== */
+@media (max-width: 992px) {
+  .scroll-indicator {
+    right: 10px;
   }
   
-  .analysis-text {
-    .text-muted-fallback {
-      color: #6c757d;
-      font-style: italic;
-    }
+  .transaction-item {
+    padding: 12px;
   }
 }
