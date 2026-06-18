@@ -95,126 +95,119 @@
   </div>
 
   <!-- Live Feed List -->
-  <div class="feed-list card shadow-sm" #feedContainer>
+   <div class="feed-list card shadow-sm" #feedContainer>
     <div class="list-group list-group-flush">
-      <div *ngFor="let tx of filteredTransactions" 
-           class="list-group-item transaction-item p-3"
-           [class.critical]="tx.riskCategory === 'Critical'"
-           [class.high]="tx.riskCategory === 'High'"
-           [class.medium]="tx.riskCategory === 'Medium'"
-           [class.low]="tx.riskCategory === 'Low'"
-            style="cursor: pointer;">
-        
-        <div class="row align-items-center">
-          <!-- Time & ID -->
-          <div class="col-lg-2 col-md-3">
-            <div class="d-flex align-items-center">
-              <div class="time-indicator me-2">
-                <small class="text-dark">{{ formatTime(tx.timestamp) }}</small>
-              </div>
-              <span class="tx-id small fw-mono">{{ tx.transactionId }}</span>
-            </div>
-          </div>
-
-          <!-- Amount & Customer -->
-          <div class="col-lg-2 col-md-3">
-            <div class="fw-bold">{{ formatAmount(tx.amount) }}</div>
-            <small class="text-muted">{{ tx.customerName }}</small>
-          </div>
-
-          <!-- Risk Score -->
-          <div class="col-lg-2 col-md-2">
-            <div class="d-flex align-items-center">
-              <span class="risk-score me-2 fw-bold" [style.color]="getRiskProgressColor(tx.riskScore)">
-                {{ tx.riskScore }}
-              </span>
-              <div class="progress flex-grow-1" style="height: 6px;">
-                <div class="progress-bar" 
-                     [style.width.%]="(tx.riskScore/10)*100"
-                     [style.background]="getRiskProgressColor(tx.riskScore)">
+        <div *ngFor="let tx of filteredTransactions" 
+             class="list-group-item transaction-item p-3"
+             [class.critical]="tx.riskCategory === 'Critical'"
+             [class.high]="tx.riskCategory === 'High'"
+             [class.medium]="tx.riskCategory === 'Medium'"
+             [class.low]="tx.riskCategory === 'Low'"
+             style="cursor: pointer;">
+            
+            <div class="row align-items-center">
+                <div class="col-lg-2 col-md-3">
+                    <div class="time-display">
+                        <span class="time-text fw-bold">{{ formatTime(tx.timestamp) }}</span>
+                        <span class="time-date d-block small text-muted">{{ formatDate(tx.timestamp.toString()) }}</span>
+                        <span class="tx-id small fw-mono text-muted">
+                            <i class="fas fa-hashtag"></i>{{ tx.transactionId }}
+                        </span>
+                    </div>
                 </div>
-              </div>
-            </div>
-            <span class="badge mt-1" [ngClass]="getRiskBadgeClass(tx.riskCategory)">
-              {{ tx.riskCategory }}
-            </span>
-          </div>
 
-          <!-- Channel & Location -->
-          <div class="col-lg-2 col-md-2">
-            <div class="d-flex align-items-center">
-              <i class="fas me-2" [ngClass]="getChannelIcon(tx.channel)"></i>
-              <span>{{ tx.channel }}</span>
-            </div>
-            <small class="text-muted d-block">
-              <i class="fas fa-map-marker-alt me-1 small"></i>
-              {{ tx.location }}
-            </small>
-          </div>
+                <!-- Amount & Customer -->
+                <div class="col-lg-2 col-md-3">
+                    <div class="fw-bold">{{ formatAmount(tx.amount) }}</div>
+                    <!-- <small class="text-muted">{{ tx.customerName }}</small> -->
+                </div>
 
-          <!-- AI Analysis Button -->
-          <div class="col-lg-2 col-md-2">
-            <button class="btn btn-sm btn-outline-primary w-100" (click)="showAIAnalysis(tx)">
-              <i class="fas fa-robot me-1"></i> View AI Analysis
-            </button>
-            
-            <div class="d-flex align-items-center mt-1 justify-content-center">
-              <span class="badge" [ngClass]="{
-                'bg-primary': tx.flaggedBy === 'AI',
-                'bg-warning text-dark': tx.flaggedBy === 'Rules',
-                'bg-success': tx.flaggedBy === 'AI + Rules (Hybrid)',
-                'bg-secondary': tx.flaggedBy === 'Manual'
-              }">
-                <i class="fas me-1" [ngClass]="{
-                  'fa-robot': tx.flaggedBy === 'AI',
-                  'fa-gavel': tx.flaggedBy === 'Rules',
-                  'fa-microchip': tx.flaggedBy === 'AI + Rules (Hybrid)',
-                  'fa-user': tx.flaggedBy === 'Manual'
-                }"></i>
-                {{ tx.flaggedBy }}
-              </span>
+                <!-- Risk Score -->
+                <div class="col-lg-2 col-md-3">
+                    <div class="d-flex align-items-center">
+                        <span class="risk-score me-2 fw-bold" [style.color]="getRiskProgressColor(tx.riskScore)">
+                            {{ tx.riskScore }}
+                        </span>
+                        <div class="progress flex-grow-1" style="height: 6px;">
+                            <div class="progress-bar" 
+                                 [style.width.%]="(tx.riskScore/10)*100"
+                                 [style.background]="getRiskProgressColor(tx.riskScore)">
+                            </div>
+                        </div>
+                    </div>
+                    <span class="badge mt-1" [ngClass]="getRiskBadgeClass(tx.riskCategory)">
+                        {{ tx.riskCategory }}
+                    </span>
+                </div>
 
-                <!-- <span class="badge bg-light text-dark" title="Has LLM explanation" *ngIf="tx.aiAnalysis?.llm">
-                  <i class="fas fa-robot me-1"></i>LLM
-                </span>
-                <span class="badge bg-light text-dark" title="Has rule-based explanation" *ngIf="tx.aiAnalysis?.ruleBased">
-                  <i class="fas fa-gavel me-1"></i>Rules
-                </span> -->
-                
+                <!-- Channel & Location -->
+                <div class="col-lg-2 col-md-3">
+                    <div class="d-flex align-items-center">
+                        <i class="fas me-2" [ngClass]="getChannelIcon(tx.channel)"></i>
+                        <span>{{ tx.channel }}</span>
+                    </div>
+                    <small class="text-muted d-block">
+                        <i class="fas fa-map-marker-alt me-1 small"></i>
+                        {{ tx.location }}
+                    </small>
+                </div>
+
+                <!-- AI Analysis Button -->
+                <div class="col-lg-2 col-md-3">
+                    <button class="btn btn-sm btn-outline-primary w-100" (click)="showAIAnalysis(tx)">
+                        <i class="fas fa-robot me-1"></i> View AI Analysis
+                    </button>
+                    
+                    <div class="d-flex align-items-center mt-1 justify-content-center">
+                        <span class="badge" [ngClass]="{
+                            'bg-primary': tx.flaggedBy === 'AI',
+                            'bg-warning text-dark': tx.flaggedBy === 'Rules',
+                            'bg-success': tx.flaggedBy === 'AI + Rules (Hybrid)',
+                            'bg-secondary': tx.flaggedBy === 'Manual'
+                        }">
+                            <i class="fas me-1" [ngClass]="{
+                                'fa-robot': tx.flaggedBy === 'AI',
+                                'fa-gavel': tx.flaggedBy === 'Rules',
+                                'fa-microchip': tx.flaggedBy === 'AI + Rules (Hybrid)',
+                                'fa-user': tx.flaggedBy === 'Manual'
+                            }"></i>
+                            {{ tx.flaggedBy }}
+                        </span>
+                    </div>
+                </div>
             </div>
-          </div>
+
+            <!-- Model Agreement -->
+            <div class="model-agreement-preview mt-2">
+                <div class="d-flex align-items-center">
+                    <small class="text-muted me-2">Model Agreement</small>
+                    <div class="progress flex-grow-1 me-2" style="height: 4px; max-width: 200px;">
+                        <div class="progress-bar" 
+                             [ngClass]="{
+                                 'bg-primary': !tx.ruleEngine.triggered,
+                                 'bg-success': tx.ruleEngine.triggered
+                             }"
+                             [style.width.%]="(tx.modelAgreement.flagged / tx.modelAgreement.total) * 100">
+                        </div>
+                    </div>
+                    <small class="text-muted">{{ tx.modelAgreement.flagged }}/{{ tx.modelAgreement.total }} models</small>
+                    
+                    <!-- Rule indicator -->
+                    <span class="ms-2" *ngIf="tx.ruleEngine.triggered">
+                        <i class="fas fa-gavel text-warning" title="Rule engine triggered"></i>
+                    </span>
+                </div>
+            </div>
         </div>
 
-        <div class="model-agreement-preview mt-2">
-          <div class="d-flex align-items-center">
-            <small class="text-muted me-2">Model Agreement</small>
-            <div class="progress flex-grow-1 me-2" style="height: 4px; max-width: 200px;">
-              <div class="progress-bar" 
-                   [ngClass]="{
-                     'bg-primary': !tx.ruleEngine.triggered,
-                     'bg-success': tx.ruleEngine.triggered
-                   }"
-                   [style.width.%]="(tx.modelAgreement.flagged / tx.modelAgreement.total) * 100">
-              </div>
-            </div>
-            <small class="text-muted">{{ tx.modelAgreement.flagged }}/{{ tx.modelAgreement.total }} models</small>
-            
-            <!-- Rule indicator -->
-            <span class="ms-2" *ngIf="tx.ruleEngine.triggered">
-              <i class="fas fa-gavel text-warning" title="Rule engine triggered"></i>
-            </span>
-          </div>
+        <div *ngIf="filteredTransactions.length === 0" class="text-center p-5">
+            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+            <h5>No Transactions Found</h5>
+            <p class="text-muted">Try adjusting your filters</p>
+            <button class="btn btn-primary" (click)="clearFilters()">Clear Filters</button>
         </div>
-      </div>
-
-      <div *ngIf="filteredTransactions.length === 0" class="text-center p-5">
-        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-        <h5>No Transactions Found</h5>
-        <p class="text-muted">Try adjusting your filters</p>
-        <button class="btn btn-primary" (click)="clearFilters()">Clear Filters</button>
-      </div>
     </div>
-  </div>
+</div>
 
   <!-- Auto-scroll indicator -->
   <div class="scroll-indicator" *ngIf="autoScroll">
