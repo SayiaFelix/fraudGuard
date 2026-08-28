@@ -25,6 +25,24 @@
 
         <li class="nav-item" *ngIf="!item.isTitle">
 
+          <!-- If item has subItems render parent and nested list -->
+          <ng-container *ngIf="item.subItems && item.subItems.length > 0; else singleLink">
+            <a class="nav-link" href="javascript:void(0);">
+              <i class="link-icon" [attr.data-feather]="item.icon" appFeatherIcon></i>
+              <span class="link-title">{{ item.label }}</span>
+            </a>
+            <ul class="nav-second-level">
+              <li *ngFor="let sub of item.subItems">
+                <a class="nav-link" [routerLink]="sub.link" routerLinkActive="active">
+                  <i class="link-icon" [attr.data-feather]="sub.icon" appFeatherIcon></i>
+                  <span class="link-title">{{ sub.label }}</span>
+                </a>
+              </li>
+            </ul>
+          </ng-container>
+
+          <!-- Single link fallback -->
+          <ng-template #singleLink>
           <a *ngIf="!item.isLogout && !item.isSettings && !item.isHelpCenter" class="nav-link" [routerLink]="item.link" routerLinkActive="active">
             <i class="link-icon" [attr.data-feather]="item.icon" appFeatherIcon></i>
             <span class="link-title">{{ item.label }}</span>
@@ -37,6 +55,7 @@
             </span>
             
           </a>
+          </ng-template>
 
           <a *ngIf="item.isLogout" class="nav-link" href="#" (click)="onLogout($event)">
             <i class="link-icon" [attr.data-feather]="item.icon" appFeatherIcon></i>

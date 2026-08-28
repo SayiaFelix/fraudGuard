@@ -10,7 +10,7 @@ export const MENU: MenuItem[] = [
   {
     label: 'Inbox',
     icon: 'inbox',
-    // link: '/fraudsentinelAi/user/inbox',
+    link: '/fraudsentinelAi/user/inbox',
     // roles: ['CIA', 'AuditUnit','Director']
   },
 
@@ -21,10 +21,9 @@ export const MENU: MenuItem[] = [
   },
 
   {
-    label: 'Fraud Alert',
-    icon: 'alert-triangle', 
-    link: '/fraudsentinelAi/transaction_management/fraud',
-    // roles: ['Auditor', 'CIA','Director']
+    label: 'Transactions',
+    icon: 'activity',
+    link: '/fraudsentinelAi/transaction_management/fraud/transactions'
   },
   //   {
   //   label: 'Fieldwork',
@@ -32,11 +31,33 @@ export const MENU: MenuItem[] = [
   //   link: '/eclectics/executions/fieldworks',
   //   // roles: ['Auditor', 'CIA','Director','External']
   // },
+  // Commented out per module rework - Risk Analytics temporarily removed
+  // {
+  //   label: 'Risk Analytics',
+  //   icon:'bar-chart-2',
+  //   // link: '/fraudsentinelAi/analytic/reports',
+  //   // roles: ['CIA', 'Auditor','Director']
+  // },
+
   {
-    label: 'Risk Analytics',
-    icon:'bar-chart-2',
-    // link: '/fraudsentinelAi/analytic/reports',
-    // roles: ['CIA', 'Auditor','Director']
+    label: 'Rule Management',
+    icon: 'layers',
+    link: '/fraudsentinelAi/transaction_management/rule-management'
+  },
+  {
+    label: 'Customer Profiling',
+    icon: 'user-check',
+    link: '/fraudsentinelAi/transaction_management/customer-profiling'
+  },
+  {
+    label: 'Case Management',
+    icon: 'clipboard',
+    link: '/fraudsentinelAi/transaction_management/case-management'
+  },
+  {
+    label: 'Risk Scoring Engine',
+    icon: 'cpu',
+    link: '/fraudsentinelAi/transaction_management/risk-scoring'
   },
   //  {
   //   label: 'CAP Monitoring',

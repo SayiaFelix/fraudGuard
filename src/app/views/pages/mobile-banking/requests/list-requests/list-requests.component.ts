@@ -101,6 +101,32 @@ export class ListRequestsComponent implements OnInit {
     this.notificationService.updateNotifications(unreadItems);
   }
 
+  /**
+   * Convert the selected inbox item into a minimal alert payload and broadcast it.
+   */
+  sendAlert(): void {
+    if (!this.selectedItem) return;
+
+    const payload = {
+      transaction_id: `INBOX-${this.selectedItem.id}`,
+      timestamp: new Date().toISOString(),
+      risk_score: 5,
+      risk_category: 'High Potential Fraud',
+      transaction_details: {
+        Transaction_Amount: 0,
+        Model_Agreement: '0/7 models flagged'
+      },
+      customer_info: {
+        customer_name: this.selectedItem.title,
+        customer_id: `INBOX-CUST-${this.selectedItem.id}`
+      },
+      recommended_action: this.selectedItem.summary
+    };
+
+    this.notificationService.sendAlert(payload);
+    Swal.fire('Sent', 'Alert sent to live transactions feed.', 'success');
+  }
+
   filterItems(filter: string): void {
     this.activeFilter = filter;
     let itemsToFilter = [...this.allInboxItems];

@@ -135,8 +135,9 @@
       <!-- Action buttons -->
       <div class="details-actions" *ngIf="selectedItem.type === 'approval' || selectedItem.type === 'response'">
         <button class="btn btn-primary"><i class="feather icon-file-text"></i>View Full Report</button>
-        <button class="btn btn-success" *ngIf="selectedItem.type === 'approval'"><i class="feather icon-check"></i>Approve</button>
-        <button class="btn btn-danger" *ngIf="selectedItem.type === 'approval'"><i class="feather icon-x"></i>Return for Revision</button>
+        <button class="btn btn-outline-warning ms-2" (click)="sendAlert()"><i class="feather icon-bell"></i>Send Alert</button>
+        <button class="btn btn-success ms-2" *ngIf="selectedItem.type === 'approval'"><i class="feather icon-check"></i>Approve</button>
+        <button class="btn btn-danger ms-2" *ngIf="selectedItem.type === 'approval'"><i class="feather icon-x"></i>Return for Revision</button>
       </div>
     </div>
   </div>

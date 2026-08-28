@@ -13,6 +13,10 @@ export class NotificationService {
   
   public currentNotifications = this.notificationsSource.asObservable();
 
+  // Alerts (transactions) observable - used to broadcast new alerts into the live feed
+  private alertsSource = new BehaviorSubject<any | null>(null);
+  public currentAlerts = this.alertsSource.asObservable();
+
   constructor() { }
 
   /**
@@ -21,5 +25,12 @@ export class NotificationService {
    */
   updateNotifications(unreadItems: InboxItem[]): void {
     this.notificationsSource.next(unreadItems);
+  }
+
+  /**
+   * Broadcast a new alert (transaction payload) to listeners.
+   */
+  sendAlert(alertPayload: any): void {
+    this.alertsSource.next(alertPayload);
   }
 }
