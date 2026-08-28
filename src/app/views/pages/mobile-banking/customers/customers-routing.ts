@@ -20,13 +20,20 @@ const routes: Routes = [
     component: ListCustomersComponent
   },
 
+  {
+    path: 'transactions',
+    component: AddCustomerComponent
+  },
+
 {
     path: 'fraud',
     component: ListFailedRegistrationsComponent,
     children: [
-      { path: '', redirectTo: 'live-feed', pathMatch: 'full' },
+      { path: '', redirectTo: 'transactions', pathMatch: 'full' },
       { path: 'risk-analyzer', component: IntentComponent },
-      { path: 'live-feed', component: AddCustomerComponent },
+      { path: 'live-feed', redirectTo: 'transactions', pathMatch: 'full' },
+      // Unified transactions page (live feed + fraud alerts)
+      { path: 'transactions', component: AddCustomerComponent },
       { path: 'investigation-graph', component: ReasonsForFailureComponent },
       { path: 'investigation-graph/:id', component: ReasonsForFailureComponent },
       { path: 'ai-insights', component: VoiceComponent },

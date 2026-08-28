@@ -1,6 +1,7 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpService } from 'src/app/shared/services/http.service';
+import { NotificationService } from 'src/app/shared/services/NotificationService';
 import { Subscription, interval } from 'rxjs';
 
 interface Transaction {
@@ -17,6 +18,11 @@ interface Transaction {
   customerName: string;
   customerId: string;
   deviceId: string;
+  senderDeviceId?: string;
+  recipientDeviceId?: string;
+  senderDeviceType?: string;
+  recipientDeviceType?: string;
+  deviceType?: string;
   ipAddress: string;
   modelAgreement: {
     flagged: number;
@@ -91,6 +97,7 @@ export class AddCustomerComponent implements OnInit {
   constructor(
     private router: Router,
     private httpService: HttpService
+    , private notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -98,6 +105,22 @@ export class AddCustomerComponent implements OnInit {
     
     this.refreshSubscription = interval(60000).subscribe(() => {
       this.loadTransactions();
+    });
+
+    // Subscribe to alerts broadcast from Inbox/other modules and prepend them
+    this.notificationService.currentAlerts.subscribe((payload) => {
+      if (payload) {
+        try {
+          const tx = this.mapBackendTransaction(payload);
+          // Insert at top of the feed
+          this.transactions.unshift(tx);
+          this.applyFilters();
+          this.calculateStats();
+          console.log('Received alert from NotificationService:', tx);
+        } catch (err) {
+          console.error('Failed to map incoming alert payload', err);
+        }
+      }
     });
   }
 
@@ -260,8 +283,46 @@ mapBackendTransaction(tx: any): Transaction {
     });
   }
 
-  let channel = 'Web';
+  // normalize channel information from backend when available
+  let channel = 'Other';
+  if (tx.channel) {
+    channel = tx.channel;
+  } else if (tx.transaction_details?.Channel) {
+    channel = tx.transaction_details.Channel;
+  } else if (tx.channel_type) {
+    channel = tx.channel_type;
+  } else if (tx.service_channel) {
+    channel = tx.service_channel;
+  }
+
+  // normalize common channel labels
+  const ch = String(channel).toLowerCase();
+  if (ch.includes('mobile') || ch.includes('momo') || ch.includes('mpesa')) channel = 'Mobile';
+  else if (ch.includes('web') || ch.includes('online')) channel = 'Web';
+  else if (ch.includes('atm')) channel = 'ATM';
+  else if (ch.includes('agent')) channel = 'Agent';
+  else if (ch.includes('pos')) channel = 'Agent';
+  else channel = channel; // keep as-is or 'Other'
+
   let location = 'Nairobi, KE';
+
+  // Device extraction and basic type inference
+  const senderDeviceId = tx.sender_device?.id || tx.transaction_details?.Sender_Device_Id || tx.device_id || tx.customer_info?.device_id || tx.device?.sender_id || null;
+  const recipientDeviceId = tx.recipient_device?.id || tx.transaction_details?.Recipient_Device_Id || tx.device?.recipient_id || null;
+
+  const inferDeviceType = (idOrType: any) => {
+    if (!idOrType) return 'Unknown';
+    const s = String(idOrType).toLowerCase();
+    if (s.includes('tecno')) return 'Tecno';
+    if (s.includes('huawei')) return 'Huawei';
+    if (s.includes('windows') || s.includes('win')) return 'Windows';
+    if (s.includes('iphone') || s.includes('ios')) return 'iOS';
+    if (s.includes('android')) return 'Android';
+    return (idOrType && idOrType.type) ? idOrType.type : 'Unknown';
+  };
+
+  const senderDeviceType = tx.sender_device?.type || tx.transaction_details?.Sender_Device_Type || inferDeviceType(senderDeviceId) || 'Unknown';
+  const recipientDeviceType = tx.recipient_device?.type || tx.transaction_details?.Recipient_Device_Type || inferDeviceType(recipientDeviceId) || 'Unknown';
 
   return {
     id: tx.transaction_id,
@@ -276,7 +337,12 @@ mapBackendTransaction(tx: any): Transaction {
     flaggedBy: flaggedBy, 
     customerName: `${tx.customer_info?.customer_name || 'Unknown'}`,
     customerId: `${tx.customer_info?.customer_id || 'CUST-0000'}`,
-    deviceId: 'Unknown',
+    deviceId: senderDeviceId || recipientDeviceId || 'Unknown',
+    senderDeviceId: senderDeviceId || undefined,
+    recipientDeviceId: recipientDeviceId || undefined,
+    senderDeviceType: senderDeviceType,
+    recipientDeviceType: recipientDeviceType,
+    deviceType: senderDeviceType || recipientDeviceType || 'Unknown',
     ipAddress: 'Unknown',
     modelAgreement: {
       flagged: flagged,

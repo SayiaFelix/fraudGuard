@@ -152,6 +152,26 @@
                     </small>
                 </div>
 
+                <!-- Devices -->
+                <div class="col-lg-2 col-md-3">
+                  <div class="d-flex flex-column">
+                    <div class="d-flex align-items-center mb-1">
+                      <i class="fas fa-mobile-alt me-2"></i>
+                      <div>
+                        <small class="text-muted d-block">Sender</small>
+                        <div class="fw-medium">{{ tx.senderDeviceId || 'N/A' }} <small class="text-muted">({{ tx.senderDeviceType || tx.deviceType }})</small></div>
+                      </div>
+                    </div>
+                    <div class="d-flex align-items-center">
+                      <i class="fas fa-user me-2"></i>
+                      <div>
+                        <small class="text-muted d-block">Recipient</small>
+                        <div class="fw-medium">{{ tx.recipientDeviceId || 'N/A' }} <small class="text-muted">({{ tx.recipientDeviceType || 'N/A' }})</small></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <!-- AI Analysis Button -->
                 <div class="col-lg-2 col-md-3">
                     <button class="btn btn-sm btn-outline-primary w-100" (click)="showAIAnalysis(tx)">

@@ -33,6 +33,27 @@ const routes: Routes = [
       },
 
       {
+        path: 'transaction_management/rule-management',
+        loadChildren: () =>
+          import('./rule-management/rule-management.module').then((m) => m.RuleManagementModule)
+      },
+      {
+        path: 'transaction_management/customer-profiling',
+        loadChildren: () =>
+          import('./customer-profiling/customer-profiling.module').then((m) => m.CustomerProfilingModule)
+      },
+      {
+        path: 'transaction_management/case-management',
+        loadChildren: () =>
+          import('./case-management/case-management.module').then((m) => m.CaseManagementModule)
+      },
+      {
+        path: 'transaction_management/risk-scoring',
+        loadChildren: () =>
+          import('./risk-scoring/risk-scoring.module').then((m) => m.RiskScoringModule)
+      },
+
+      {
         path: 'analytic',
         loadChildren: () =>
           import('./products/products.module').then((m) => m.ProductsModule),
