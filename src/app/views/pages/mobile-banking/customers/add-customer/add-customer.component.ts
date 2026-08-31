@@ -74,8 +74,10 @@ export class AddCustomerComponent implements OnInit {
   transactions: Transaction[] = [];
   filteredTransactions: Transaction[] = [];
   selectedTransaction: Transaction | null = null;
-  autoScroll = true;
+  autoScroll = false;
   showModal = false;
+  currentPage = 1;
+  pageSize = 5;
   activeTab: 'final' | 'llm' | 'rule' = 'final';
   // Filters
   riskFilter: string = 'all';
@@ -130,14 +132,28 @@ export class AddCustomerComponent implements OnInit {
     }
   }
 
-  ngAfterViewChecked(): void {
-    if (this.autoScroll) {
-      this.scrollToBottom();
+  get paginatedTransactions(): Transaction[] {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    return this.filteredTransactions.slice(startIndex, startIndex + this.pageSize);
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredTransactions.length / this.pageSize));
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage -= 1;
     }
   }
 
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage += 1;
+    }
+  }
 
-loadRelatedTransactions(transactionId: string): void {
+  loadRelatedTransactions(transactionId: string): void {
   this.isLoadingRelated = true;
   
   this.httpService.getRelatedTransactions(transactionId).subscribe({
@@ -197,8 +213,10 @@ getStatusBadgeClass(status: string): string {
     this.httpService.getTransactions(1, 100).subscribe({
       next: (response) => {
         if (response.status === 'success' && response.transactions) {
-      
-          this.transactions = response.transactions.map(tx => this.mapBackendTransaction(tx));
+          this.transactions = response.transactions
+            .map(tx => this.mapBackendTransaction(tx))
+            .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+          this.currentPage = 1;
           this.applyFilters();
           this.calculateStats();
           console.log('Live transactions loaded:', this.transactions);
@@ -407,28 +425,28 @@ calculateStats(): void {
   }
 
   applyFilters(): void {
-    this.filteredTransactions = this.transactions.filter(t => {
-      // Risk filter
-      if (this.riskFilter !== 'all' && t.riskCategory.toLowerCase() !== this.riskFilter) {
-        return false;
-      }
-      
-      // Channel filter
-      if (this.channelFilter !== 'all' && t.channel.toLowerCase() !== this.channelFilter) {
-        return false;
-      }
-      
-      // Search term
-      if (this.searchTerm) {
-        const term = this.searchTerm.toLowerCase();
-        return t.transactionId.toLowerCase().includes(term) ||
-               t.customerName.toLowerCase().includes(term) ||
-               t.location.toLowerCase().includes(term);
-      }
-      
-      return true;
-    });
-    
+    this.filteredTransactions = this.transactions
+      .filter(t => {
+        if (this.riskFilter !== 'all' && t.riskCategory.toLowerCase() !== this.riskFilter) {
+          return false;
+        }
+
+        if (this.channelFilter !== 'all' && t.channel.toLowerCase() !== this.channelFilter) {
+          return false;
+        }
+
+        if (this.searchTerm) {
+          const term = this.searchTerm.toLowerCase();
+          return t.transactionId.toLowerCase().includes(term) ||
+                 t.customerName.toLowerCase().includes(term) ||
+                 t.location.toLowerCase().includes(term);
+        }
+
+        return true;
+      })
+      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+    this.currentPage = Math.min(this.currentPage, this.totalPages);
     this.calculateStats();
   }
 
@@ -440,24 +458,51 @@ calculateStats(): void {
   }
 
   toggleAutoScroll(): void {
-    this.autoScroll = !this.autoScroll;
-    if (this.autoScroll) {
-      this.scrollToBottom();
-    }
+    this.autoScroll = false;
   }
 
-  private scrollToBottom(): void {
-    try {
-      setTimeout(() => {
-        if (this.feedContainer) {
-          this.feedContainer.nativeElement.scrollTop = this.feedContainer.nativeElement.scrollHeight;
-        }
-      }, 100);
-    } catch (err) {
-      console.error('Scroll error:', err);
+  getCounterpartyDisplay(transaction: Transaction): string {
+    const raw = transaction.rawData || {};
+    const senderValue = this.normalizeCounterparty(
+      raw.sender_name ||
+      raw.sender_customer_name ||
+      raw.sender?.name ||
+      raw.sender?.customer_name ||
+      raw.sender_device?.id ||
+      raw.sender_device?.name ||
+      transaction.senderDeviceId ||
+      'Sender'
+    );
+    const recipientValue = this.normalizeCounterparty(
+      raw.recipient_name ||
+      raw.recipient_customer_name ||
+      raw.recipient?.name ||
+      raw.recipient?.customer_name ||
+      raw.recipient_device?.id ||
+      raw.recipient_device?.name ||
+      transaction.recipientDeviceId ||
+      'Recipient'
+    );
+
+    const currentCustomerId = transaction.customerId || raw.customer_info?.customer_id;
+    const senderId = raw.sender_device?.id || raw.sender?.customer_id || raw.sender_customer_id || transaction.senderDeviceId;
+    const recipientId = raw.recipient_device?.id || raw.recipient?.customer_id || raw.recipient_customer_id || transaction.recipientDeviceId;
+    const customerIsSender = !!currentCustomerId && !!senderId && String(currentCustomerId) === String(senderId) &&
+      (!recipientId || String(currentCustomerId) !== String(recipientId));
+
+    if (customerIsSender) {
+      return recipientValue || 'Recipient unavailable';
     }
+
+    return senderValue || recipientValue || 'Counterparty unavailable';
   }
 
+  private normalizeCounterparty(value: string | null | undefined): string {
+    if (!value || value === 'null' || value === 'undefined' || value === 'N/A' || value === 'Unknown') {
+      return '';
+    }
+    return String(value).trim();
+  }
 
   closeModal(): void {
     this.showModal = false;

@@ -84,8 +84,8 @@ export class IntentComponent implements OnInit {
   showResult = false;
   recentAnalyses: RiskResult[] = [];
   
-  channels = ['Mobile', 'Web', 'ATM', 'Agent'];
-  locations = ['Nairobi, KE', 'Mombasa, KE', 'Kisumu, KE', 'Nakuru, KE', 'Eldoret, KE', 'Thika, KE', 'International'];
+  channels = ['Mobile banking', 'Internet banking', 'Core banking', 'Cards', 'Agency', 'ATM/POS', 'USSD'];
+  locations = ['Nairobi, KE', 'Mombasa, KE', 'Kisumu, KE', 'Nakuru, KE', 'Eldoret, KE', 'Thika, KE', 'Kampala, UG', 'Entebbe, UG', 'International'];
   transactionTypes = ['Online', 'POS', 'Transfer', 'Withdrawal', 'Payment'];
   devices = ['iPhone', 'Android', 'MacBook', 'Windows_PC', 'Unknown_Device'];
   timeSlots = ['Morning (6am-12pm)', 'Afternoon (12pm-6pm)', 'Evening (6pm-11pm)', 'Late Night (11pm-6am)'];
@@ -105,6 +105,8 @@ export class IntentComponent implements OnInit {
     'Nakuru, KE': { local: 1, international: 0 },
     'Eldoret, KE': { local: 1, international: 0 },
     'Thika, KE': { local: 1, international: 0 },
+    'Kampala, UG': { local: 1, international: 0 },
+    'Entebbe, UG': { local: 1, international: 0 },
     'International': { local: 0, international: 1 }
   };
   
@@ -132,8 +134,8 @@ export class IntentComponent implements OnInit {
   this.riskForm = this.fb.group({
     // Existing fields
     amount: ['', [Validators.required, Validators.min(1)]],
-    channel: ['Mobile', Validators.required],
-    location: ['Nairobi, KE', Validators.required],
+    channel: ['Mobile banking', Validators.required],
+    location: ['Kampala, UG', Validators.required],
     transactionType: ['Online', Validators.required],
     deviceType: ['iPhone', Validators.required],
     customerId: ['', Validators.required],
@@ -421,8 +423,8 @@ mapFormToBackend(formData: any): any {
 
 resetForm(): void {
   this.riskForm.reset({
-    channel: 'Mobile',
-    location: 'Nairobi, KE',
+    channel: 'Mobile banking',
+    location: 'Kampala, UG',
     transactionType: 'Online',
     deviceType: 'iPhone',
     timeSlot: 'Afternoon (12pm-6pm)',

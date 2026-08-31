@@ -48,12 +48,6 @@ const routes: Routes = [
           import('./case-management/case-management.module').then((m) => m.CaseManagementModule)
       },
       {
-        path: 'transaction_management/risk-scoring',
-        loadChildren: () =>
-          import('./risk-scoring/risk-scoring.module').then((m) => m.RiskScoringModule)
-      },
-
-      {
         path: 'analytic',
         loadChildren: () =>
           import('./products/products.module').then((m) => m.ProductsModule),
