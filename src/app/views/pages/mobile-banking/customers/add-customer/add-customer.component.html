@@ -1,4 +1,5 @@
 <div class="live-feed-container">
+  <!-- Stats Row -->
   <div class="stats-row row g-3 mb-4">
     <div class="col-md-2 col-6">
       <div class="stat-card bg-light rounded-3 p-3">
@@ -38,6 +39,30 @@
     </div>
   </div>
 
+  <!-- Simulation Controls - Left aligned -->
+  <div class="simulation-controls mb-3 d-flex align-items-center flex-wrap gap-2">
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-primary" (click)="openSimulationModal()">
+        <i class="fas fa-play-circle me-2"></i>
+        Run Batch Simulation
+      </button>
+      <button class="btn btn-outline-secondary" (click)="refresh()">
+        <i class="fas fa-sync-alt me-1"></i> Refresh
+      </button>
+    </div>
+    
+    <!-- Stats Badges - moved to right side -->
+    <div class="ms-auto d-flex align-items-center gap-2">
+      <span class="badge bg-secondary">{{ transactions.length }} total</span>
+      <span class="badge bg-danger" *ngIf="stats.alerts > 0">
+        <i class="fas fa-bell me-1"></i> {{ stats.alerts }} Alerts
+      </span>
+      <span class="badge bg-warning text-dark" *ngIf="stats.cases > 0">
+        <i class="fas fa-folder-open me-1"></i> {{ stats.cases }} Cases
+      </span>
+    </div>
+  </div>
+
   <!-- Filters -->
   <div class="filters-card card shadow-sm mb-4">
     <div class="card-body">
@@ -56,10 +81,9 @@
           <label class="form-label small fw-bold">Channel</label>
           <select class="form-select" [(ngModel)]="channelFilter" (change)="applyFilters()">
             <option value="all">All Channels</option>
-            <option value="mobile">Mobile</option>
-            <option value="web">Web</option>
-            <option value="atm">ATM</option>
-            <option value="agent">Agent</option>
+            <option *ngFor="let channel of channelOptions" [value]="channel.toLowerCase()">
+              {{ channel }}
+            </option>
           </select>
         </div>
         <div class="col-md-4">
@@ -90,72 +114,345 @@
     </div>
   </div>
 
+  <!-- Feed List -->
   <div class="feed-list card shadow-sm">
     <div class="table-responsive">
       <table class="table table-hover align-middle mb-0">
         <thead class="table-light">
           <tr>
-            <th>Time</th>
-            <th>Txn ID</th>
-            <th>Amount</th>
-            <th>Risk</th>
-            <th>Channel</th>
-            <th>Counterparty</th>
-            <th>Status</th>
-            <th class="text-end">Action</th>
+            <th style="width: 15%;">Time</th>
+            <th style="width: 15%;">Txn ID</th>
+            <th style="width: 12%;">Amount</th>
+            <th style="width: 18%;">Risk</th>
+            <th style="width: 15%;">Channel</th>
+            <th style="width: 10%;">Status</th>
+            <th class="text-end" style="width: 5%;">Action</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let tx of paginatedTransactions" [class.table-warning]="tx.riskCategory === 'High' || tx.riskCategory === 'Critical'">
-            <td>
-              <div class="fw-bold">{{ formatTime(tx.timestamp) }}</div>
-              <small class="text-muted">{{ formatDate(tx.timestamp.toString()) }}</small>
-            </td>
-            <td class="fw-medium">{{ tx.transactionId }}</td>
-            <td class="fw-bold">{{ formatAmount(tx.amount) }}</td>
-            <td>
-              <span class="badge" [ngClass]="getRiskBadgeClass(tx.riskCategory)">{{ tx.riskCategory }}</span>
-              <div class="small text-muted mt-1">{{ tx.riskScore }}/10</div>
-            </td>
-            <td>
-              <div class="d-flex align-items-center">
-                <i class="fas me-2" [ngClass]="getChannelIcon(tx.channel)"></i>
-                {{ tx.channel }}
+          <!-- Loading State -->
+          <tr *ngIf="isLoading">
+            <td colspan="7" class="text-center p-5">
+              <div class="d-flex flex-column align-items-center">
+                <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+                <h5>Loading Transactions...</h5>
+                <p class="text-muted">Please wait while we fetch the latest data</p>
+                <div class="progress w-50 mt-2" style="height: 4px;">
+                  <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" style="width: 100%;"></div>
+                </div>
               </div>
             </td>
-            <td>{{ getCounterpartyDisplay(tx) }}</td>
-            <td>
-              <span class="badge" [ngClass]="getStatusBadgeClass(tx.status)">{{ tx.status }}</span>
-            </td>
-            <td class="text-end">
-              <button class="btn btn-sm btn-outline-primary" (click)="showAIAnalysis(tx)">
-                <i class="fas fa-robot me-1"></i> View
-              </button>
-            </td>
           </tr>
-          <tr *ngIf="filteredTransactions.length === 0">
-            <td colspan="8" class="text-center p-5">
+
+          <!-- Empty State -->
+          <tr *ngIf="!isLoading && filteredTransactions.length === 0">
+            <td colspan="7" class="text-center p-5">
               <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
               <h5>No Transactions Found</h5>
               <p class="text-muted">Try adjusting your filters</p>
               <button class="btn btn-primary" (click)="clearFilters()">Clear Filters</button>
             </td>
           </tr>
+
+          <!-- Data Rows -->
+          <ng-container *ngIf="!isLoading && filteredTransactions.length > 0">
+            <tr *ngFor="let tx of paginatedTransactions" 
+                [class.table-warning]="tx.riskCategory === 'High' || tx.riskCategory === 'Critical'">
+              <td>
+                <div class="fw-bold">{{ formatTime(tx.timestamp) }}</div>
+                <small class="text-muted">{{ formatDate(tx.timestamp.toString()) }}</small>
+              </td>
+              <td class="fw-medium tx-id-wrapper">
+                <span class="tx-id">{{ tx.transactionId }}</span>
+              </td>
+              <td class="fw-bold">{{ formatAmount(tx.amount) }}</td>
+              <td>
+                <span class="badge" [ngClass]="getRiskBadgeClass(tx.riskCategory)">{{ tx.riskCategory }}</span>
+                <div class="small mt-1">
+                  <span class="text-muted">Score: </span>
+                  <span [style.color]="getRiskProgressColor(tx.riskScore)">{{ tx.riskScore }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="fas me-2" [ngClass]="getChannelIcon(tx.channel)"></i>
+                  {{ tx.channel }}
+                </div>
+              </td>
+              <td>
+                <span class="badge" [ngClass]="getStatusBadgeClass(tx.status)">{{ tx.status }}</span>
+                <div class="small text-muted" *ngIf="tx.decision && tx.decision !== 'N/A'">
+                  {{ tx.decision }}
+                </div>
+              </td>
+              <td class="text-end">
+                <button class="btn btn-sm btn-outline-primary" (click)="showAIAnalysis(tx)">
+                  <i class="fas fa-robot me-1"></i> View
+                </button>
+              </td>
+            </tr>
+          </ng-container>
         </tbody>
       </table>
     </div>
 
-    <div class="d-flex justify-content-between align-items-center p-3 border-top" *ngIf="filteredTransactions.length > 0">
-      <small class="text-muted">Showing {{ paginatedTransactions.length }} of {{ filteredTransactions.length }} transactions</small>
-      <div class="btn-group btn-group-sm">
-        <button class="btn btn-outline-secondary" [disabled]="currentPage === 1" (click)="previousPage()">Previous</button>
-        <button class="btn btn-outline-primary" [disabled]="currentPage >= totalPages" (click)="nextPage()">Next</button>
+    <!-- Pagination -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center p-3 border-top" 
+         *ngIf="!isLoading && filteredTransactions.length > 0">
+      <div class="d-flex align-items-center gap-2">
+        <small class="text-muted">
+          Showing {{ startIndex }} - {{ endIndex }} of {{ filteredTransactions.length }} transactions
+        </small>
+        
+        <div class="ms-3 d-flex align-items-center">
+          <label class="text-muted small me-2 mb-0">Rows:</label>
+          <select class="form-select form-select-sm" style="width: auto; padding: 2px 8px;" 
+                  [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+            <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="d-flex align-items-center gap-2">
+        <nav aria-label="Page navigation">
+          <ul class="pagination pagination-sm mb-0">
+            <li class="page-item" [class.disabled]="currentPage === 1">
+              <a class="page-link" (click)="previousPage()">
+                <i class="fas fa-chevron-left"></i>
+              </a>
+            </li>
+            
+            <li class="page-item" *ngFor="let page of getPageNumbers()" 
+                [class.active]="page === currentPage"
+                [class.disabled]="page === -1">
+              <a class="page-link" (click)="page !== -1 && goToPage(page)">
+                {{ page === -1 ? '…' : page }}
+              </a>
+            </li>
+            
+            <li class="page-item" [class.disabled]="currentPage >= totalPages">
+              <a class="page-link" (click)="nextPage()">
+                <i class="fas fa-chevron-right"></i>
+              </a>
+            </li>
+          </ul>
+        </nav>
+        
+        <small class="text-muted ms-2">
+          Page {{ currentPage }} of {{ totalPages }}
+        </small>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Modal -->
+<!-- Simulation Modal -->
+<div class="modal-overlay" *ngIf="showSimulationModal" (click)="closeSimulationModal()">
+  <div class="modal-content simulation-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header bg-primary text-white p-4">
+      <h2 class="modal-title mt-1 ms-2">
+        <i class="fas fa-play-circle me-2"></i>
+        Batch Transaction Simulator
+      </h2>
+      <button type="button" class="btn-close btn-close-white me-2" (click)="closeSimulationModal()" [disabled]="simulation.isRunning"></button>
+    </div>
+    
+    <div class="modal-body p-4">
+      <div class="simulation-config bg-light p-4 rounded-3 mb-4">
+        <div class="row g-4">
+          <div class="col-md-6">
+            <label class="form-label fw-bold">
+              <i class="fas fa-hashtag me-1"></i>
+              Number of Transactions
+            </label>
+            <div class="d-flex align-items-center">
+              <input type="range" class="form-range" min="1" max="50" 
+                     [(ngModel)]="simulation.count" 
+                     [disabled]="simulation.isRunning">
+              <span class="badge bg-primary ms-3 fs-6">{{ simulation.count }}</span>
+            </div>
+            <small class="text-muted">1 to 50 transactions per batch</small>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold">
+              <i class="fas fa-percent me-1"></i>
+              Fraud Ratio
+            </label>
+            <div class="d-flex align-items-center">
+              <input type="range" class="form-range" min="0" max="1" step="0.05"
+                     [(ngModel)]="simulation.fraudRatio" 
+                     [disabled]="simulation.isRunning">
+              <span class="badge bg-danger ms-3 fs-6">{{ (simulation.fraudRatio * 100).toFixed(0) }}%</span>
+            </div>
+            <small class="text-muted">0% to 100% fraudulent transactions</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <div *ngIf="simulation.isRunning || simulation.progress > 0" class="mb-4">
+        <div class="d-flex justify-content-between mb-1">
+          <span class="fw-bold">Processing...</span>
+          <span>{{ simulation.progress.toFixed(0) }}%</span>
+        </div>
+        <div class="progress" style="height: 20px;">
+          <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" 
+               [style.width.%]="simulation.progress">
+          </div>
+        </div>
+        <small class="text-muted" *ngIf="simulation.isRunning">Please wait while transactions are being processed...</small>
+      </div>
+
+      <!-- Results Summary -->
+      <div *ngIf="simulation.summary" class="results-summary mb-4">
+        <h5 class="fw-bold mb-3">
+          <i class="fas fa-chart-bar me-2 text-success"></i>
+          Simulation Results
+        </h5>
+        <div class="row g-3">
+          <div class="col-md-3 col-6">
+            <div class="stat-card bg-light rounded-3 p-3">
+              <small class="text-muted d-block">Total</small>
+              <h4 class="fw-bold mb-0">{{ simulation.summary.total }}</h4>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="stat-card bg-danger bg-opacity-10 rounded-3 p-3">
+              <small class="text-danger d-block">Blocked</small>
+              <h4 class="fw-bold text-danger mb-0">{{ simulation.summary.blocked }}</h4>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="stat-card bg-warning bg-opacity-10 rounded-3 p-3">
+              <small class="text-warning d-block">Challenged</small>
+              <h4 class="fw-bold text-warning mb-0">{{ simulation.summary.challenged }}</h4>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="stat-card bg-success bg-opacity-10 rounded-3 p-3">
+              <small class="text-success d-block">Approved</small>
+              <h4 class="fw-bold text-success mb-0">{{ simulation.summary.approved }}</h4>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="stat-card bg-danger bg-opacity-10 rounded-3 p-3">
+              <small class="text-danger d-block">Alerts</small>
+              <h4 class="fw-bold text-danger mb-0">{{ simulation.summary.alerts }}</h4>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="stat-card bg-warning bg-opacity-10 rounded-3 p-3">
+              <small class="text-warning d-block">Cases</small>
+              <h4 class="fw-bold text-warning mb-0">{{ simulation.summary.cases }}</h4>
+            </div>
+          </div>
+        </div>
+
+        <!-- Risk Distribution -->
+        <div class="mt-3" *ngIf="simulation.summary.risk_distribution">
+          <small class="text-muted d-block">Risk Distribution</small>
+          <div class="d-flex gap-2 flex-wrap">
+            <span class="badge bg-danger" *ngIf="simulation.summary.risk_distribution.CRITICAL > 0">
+              Critical: {{ simulation.summary.risk_distribution.CRITICAL }}
+            </span>
+            <span class="badge bg-warning text-dark" *ngIf="simulation.summary.risk_distribution.HIGH > 0">
+              High: {{ simulation.summary.risk_distribution.HIGH }}
+            </span>
+            <span class="badge bg-info" *ngIf="simulation.summary.risk_distribution.MEDIUM > 0">
+              Medium: {{ simulation.summary.risk_distribution.MEDIUM }}
+            </span>
+            <span class="badge bg-success" *ngIf="simulation.summary.risk_distribution.LOW > 0">
+              Low: {{ simulation.summary.risk_distribution.LOW }}
+            </span>
+          </div>
+        </div>
+        
+        <!-- Channel Breakdown -->
+        <div class="mt-2" *ngIf="simulation.summary.by_channel">
+          <small class="text-muted d-block">Channel Breakdown</small>
+          <div class="d-flex gap-2 flex-wrap">
+            <span class="badge bg-secondary" *ngFor="let item of simulation.summary.by_channel | keyvalue">
+              {{ item.key }}: {{ item.value }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Results Preview -->
+      <div *ngIf="simulation.results.length > 0" class="recent-results">
+        <h6 class="fw-bold mb-2">
+          <i class="fas fa-list me-2"></i>
+          Recent Transactions
+        </h6>
+        <div class="table-responsive" style="max-height: 200px; overflow-y: auto;">
+          <table class="table table-sm table-hover">
+            <thead class="table-light sticky-top">
+              <tr>
+                <th>ID</th>
+                <th>Amount</th>
+                <th>Risk</th>
+                <th>Decision</th>
+                <th>Alert</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let result of simulation.results.slice(0, 5)">
+                <td class="font-monospace small">{{ result.result?.transaction_id || result.transaction_id || 'N/A' }}</td>
+                <td>{{ formatAmount(result.finca_specific?.transaction_amount || result.amount || 0) }}</td>
+                <td>
+                  <span class="badge" [ngClass]="getRiskBadgeClass(
+                    result.result?.final_risk_level || result.final_risk_level || 'Low'
+                  )">
+                    {{ (result.result?.risk_score || result.risk_score || 0) > 10 ? 
+                       ((result.result?.risk_score || result.risk_score || 0) / 10).toFixed(1) : 
+                       (result.result?.risk_score || result.risk_score || 0) }}/10
+                  </span>
+                </td>
+                <td>
+                  <span class="badge" [ngClass]="{
+                    'bg-danger': result.result?.decision === 'BLOCK' || result.decision === 'BLOCK',
+                    'bg-warning text-dark': result.result?.decision === 'CHALLENGE' || result.decision === 'CHALLENGE',
+                    'bg-success': result.result?.decision === 'APPROVE' || result.decision === 'APPROVE'
+                  }">
+                    {{ result.result?.decision || result.decision || 'N/A' }}
+                  </span>
+                </td>
+                <td>
+                  <i class="fas" [ngClass]="{
+                    'fa-check-circle text-success': !(result.finca_specific?.alert_id || result.alert_id),
+                    'fa-exclamation-triangle text-danger': result.finca_specific?.alert_id || result.alert_id
+                  }"></i>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <small class="text-muted" *ngIf="simulation.results.length > 5">
+          + {{ simulation.results.length - 5 }} more transactions
+        </small>
+      </div>
+    </div>
+    
+    <div class="modal-footer d-flex justify-content-between px-4 py-3">
+      <div>
+        <button class="btn btn-success" (click)="runSimulation()" [disabled]="simulation.isRunning">
+          <i class="fas fa-play me-1"></i>
+          {{ simulation.isRunning ? 'Running...' : 'Run Simulation' }}
+        </button>
+        <button class="btn btn-outline-secondary ms-2" (click)="closeSimulationModal()" [disabled]="simulation.isRunning">
+          Close
+        </button>
+      </div>
+      <span class="text-muted small" *ngIf="simulation.results.length > 0">
+        {{ simulation.results.length }} transactions processed
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- AI Analysis Modal -->
 <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="modal-header p-4" [ngClass]="{
@@ -203,40 +500,40 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h4 class="fw-bold mb-0">Explainability</h4>
           <div class="btn-group btn-group-sm" role="group">
-              <button type="button" 
-                      class="btn" 
-                      [ngClass]="{
-                        'btn-primary': activeTab === 'final',
-                        'btn-outline-light': activeTab !== 'final',
-                        'text-dark': activeTab !== 'final'
-                      }"
-                      (click)="setActiveTab('final')"
-                      title="Combined explanation from all sources">
-                Final
-              </button>
-              <button type="button" 
-                      class="btn" 
-                      [ngClass]="{
-                        'btn-primary': activeTab === 'llm',
-                        'btn-outline-light': activeTab !== 'llm',
-                        'text-dark': activeTab !== 'llm'
-                      }"
-                      (click)="setActiveTab('llm')"
-                      title="Natural language explanation generated by LLM">
-                LLM
-              </button>
-              <button type="button" 
-                      class="btn" 
-                      [ngClass]="{
-                        'btn-primary': activeTab === 'rule',
-                        'btn-outline-light': activeTab !== 'rule',
-                        'text-dark': activeTab !== 'rule'
-                      }"
-                      (click)="setActiveTab('rule')"
-                      title="Technical explanation from rule engine">
-                Rule-Based
-              </button>
-            </div>
+            <button type="button" 
+                    class="btn" 
+                    [ngClass]="{
+                      'btn-primary': activeTab === 'final',
+                      'btn-outline-light': activeTab !== 'final',
+                      'text-dark': activeTab !== 'final'
+                    }"
+                    (click)="setActiveTab('final')"
+                    title="Combined explanation from all sources">
+              Final
+            </button>
+            <button type="button" 
+                    class="btn" 
+                    [ngClass]="{
+                      'btn-primary': activeTab === 'llm',
+                      'btn-outline-light': activeTab !== 'llm',
+                      'text-dark': activeTab !== 'llm'
+                    }"
+                    (click)="setActiveTab('llm')"
+                    title="Natural language explanation generated by LLM">
+              LLM
+            </button>
+            <button type="button" 
+                    class="btn" 
+                    [ngClass]="{
+                      'btn-primary': activeTab === 'rule',
+                      'btn-outline-light': activeTab !== 'rule',
+                      'text-dark': activeTab !== 'rule'
+                    }"
+                    (click)="setActiveTab('rule')"
+                    title="Technical explanation from rule engine">
+              Rule-Based
+            </button>
+          </div>
         </div>
         
         <!-- AI Icon and Content -->
@@ -245,8 +542,7 @@
             <i class="fas fa-brain fa-2x"></i>
           </div>
           <div class="ai-content">
-
-                 <!-- Final Explanation Tab -->
+            <!-- Final Explanation Tab -->
             <div *ngIf="activeTab === 'final'">
               <p class="analysis-text mb-0">
                 This transaction was flagged as 
@@ -259,26 +555,26 @@
             </div>
 
             <!-- LLM Explanation Tab -->
-              <div *ngIf="activeTab === 'llm'">
-                <div class="d-flex align-items-center mb-2">
-                  <span class="badge bg-info me-2">LLM Generated</span>
-                  <small class="text-muted">Natural language explanation</small>
-                </div>
-                <p class="analysis-text mb-0">
-                  {{ selectedTransaction.aiAnalysis.llm || 'No LLM explanation available for this transaction.' }}
-                </p>
+            <div *ngIf="activeTab === 'llm'">
+              <div class="d-flex align-items-center mb-2">
+                <span class="badge bg-info me-2">LLM Generated</span>
+                <small class="text-muted">Natural language explanation</small>
               </div>
+              <p class="analysis-text mb-0">
+                {{ selectedTransaction.aiAnalysis.llm || 'No LLM explanation available for this transaction.' }}
+              </p>
+            </div>
 
-              <!-- Rule-Based Explanation Tab -->
-              <div *ngIf="activeTab === 'rule'">
-                <div class="d-flex align-items-center mb-2">
-                  <span class="badge bg-warning text-dark me-2">Rule-Based</span>
-                  <small class="text-muted">Technical explanation</small>
-                </div>
-                <p class="analysis-text mb-0">
-                  {{ selectedTransaction.aiAnalysis.ruleBased || 'No rule-based explanation available for this transaction.' }}
-                </p>
+            <!-- Rule-Based Explanation Tab -->
+            <div *ngIf="activeTab === 'rule'">
+              <div class="d-flex align-items-center mb-2">
+                <span class="badge bg-warning text-dark me-2">Rule-Based</span>
+                <small class="text-muted">Technical explanation</small>
               </div>
+              <p class="analysis-text mb-0">
+                {{ selectedTransaction.aiAnalysis.ruleBased || 'No rule-based explanation available for this transaction.' }}
+              </p>
+            </div>
           </div>
         </div>
       
@@ -311,77 +607,75 @@
       </div>
 
       <div class="p-3 rounded-3 mb-2">
-        
-      <!-- Hybrid Score Badge -->
-      <div class="mb-3" *ngIf="selectedTransaction.hybridScore">
-        <span class="badge bg-primary">
-          <i class="fas fa-microchip me-1"></i>
-          Hybrid ML + Rules
-        </span>
-      </div>
+        <!-- Hybrid Score Badge -->
+        <div class="mb-3" *ngIf="selectedTransaction.hybridScore">
+          <span class="badge bg-primary">
+            <i class="fas fa-microchip me-1"></i>
+            Hybrid ML + Rules
+          </span>
+        </div>
 
-      <!-- Rule Engine Section -->
-      <div class="rule-engine-section mb-3" *ngIf="selectedTransaction.ruleEngine.triggered">
-        <div class="card border-warning">
-          <div class="card-header bg-warning bg-opacity-10">
-            <h4 class="mb-0">
-              <i class="fas fa-gavel me-2"></i>
-              Rule Engine Triggered
-            </h4>
-          </div>
-          <div class="card-body">
-            <div class="d-flex flex-wrap gap-2">
-              <span class="badge bg-warning text-dark" *ngFor="let rule of selectedTransaction.ruleEngine.rules">
-                <i class="fas fa-exclamation-triangle me-1"></i>
-                {{ rule }}
-              </span>
+        <!-- Rule Engine Section -->
+        <div class="rule-engine-section mb-3" *ngIf="selectedTransaction.ruleEngine.triggered">
+          <div class="card border-warning">
+            <div class="card-header bg-warning bg-opacity-10">
+              <h4 class="mb-0">
+                <i class="fas fa-gavel me-2"></i>
+                Rule Engine Triggered
+              </h4>
             </div>
-            <small class="text-muted d-block mt-2">
-              Severity Level: {{ selectedTransaction.ruleEngine.severity }}/10
-            </small>
+            <div class="card-body">
+              <div class="d-flex flex-wrap gap-2">
+                <span class="badge bg-warning text-dark" *ngFor="let rule of selectedTransaction.ruleEngine.rules">
+                  <i class="fas fa-exclamation-triangle me-1"></i>
+                  {{ rule }}
+                </span>
+              </div>
+              <small class="text-muted d-block mt-2">
+                Severity Level: {{ selectedTransaction.ruleEngine.severity }}/10
+              </small>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Feedback Effect Section -->
-      <div class="feedback-effect-section mb-3" *ngIf="selectedTransaction.feedbackEffect">
-        <div class="card border-success">
-          <div class="card-header bg-success bg-opacity-10">
-            <h4 class="mb-0">
-              <i class="fas fa-sync-alt me-2"></i>
-              Learning Effect
-            </h4>
-          </div>
-          <div class="card-body">
-            <div class="row">
-              <div class="col-6">
-                <small class="text-muted d-block">Original Score:</small>
-                <strong>{{ selectedTransaction.feedbackEffect.original_score }}</strong>
-                <small class="text-muted d-block">{{ selectedTransaction.feedbackEffect.original_category }}</small>
-              </div>
-              <div class="col-6">
-                <small class="text-muted d-block">Adjusted Score:</small>
-                
-                <strong [style.color]="getRiskProgressColor(selectedTransaction.feedbackEffect?.adjusted_score ?? 0)">
-                  {{ selectedTransaction.feedbackEffect.adjusted_score }}
-                </strong>
-                <small class="text-muted d-block">{{ selectedTransaction.feedbackEffect.adjusted_category }}</small>
-              </div>
+        <!-- Feedback Effect Section -->
+        <div class="feedback-effect-section mb-3" *ngIf="selectedTransaction.feedbackEffect">
+          <div class="card border-success">
+            <div class="card-header bg-success bg-opacity-10">
+              <h4 class="mb-0">
+                <i class="fas fa-sync-alt me-2"></i>
+                Learning Effect
+              </h4>
             </div>
-            <div class="mt-2">
-              <span class="badge bg-info">
-                Feedback: {{ selectedTransaction.feedbackEffect.feedback_outcome }}
-              </span>
-              <span class="badge bg-secondary ms-2" *ngIf="selectedTransaction.feedbackEffect.weights_adjusted">
-                Weights Adjusted
-              </span>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-6">
+                  <small class="text-muted d-block">Original Score:</small>
+                  <strong>{{ selectedTransaction.feedbackEffect.original_score }}</strong>
+                  <small class="text-muted d-block">{{ selectedTransaction.feedbackEffect.original_category }}</small>
+                </div>
+                <div class="col-6">
+                  <small class="text-muted d-block">Adjusted Score:</small>
+                  <strong [style.color]="getRiskProgressColor(selectedTransaction.feedbackEffect?.adjusted_score ?? 0)">
+                    {{ selectedTransaction.feedbackEffect.adjusted_score }}
+                  </strong>
+                  <small class="text-muted d-block">{{ selectedTransaction.feedbackEffect.adjusted_category }}</small>
+                </div>
+              </div>
+              <div class="mt-2">
+                <span class="badge bg-info">
+                  Feedback: {{ selectedTransaction.feedbackEffect.feedback_outcome }}
+                </span>
+                <span class="badge bg-secondary ms-2" *ngIf="selectedTransaction.feedbackEffect.weights_adjusted">
+                  Weights Adjusted
+                </span>
+              </div>
+              <small class="text-muted d-block mt-2">
+                Difference: {{ selectedTransaction.feedbackEffect.difference }}
+              </small>
             </div>
-            <small class="text-muted d-block mt-2">
-              Difference: {{ selectedTransaction.feedbackEffect.difference }}
-            </small>
           </div>
         </div>
-      </div>
       </div>
 
       <!-- Additional Details Card -->
@@ -406,32 +700,6 @@
                 </div>
               </div>
             </div>
-            
-            <!-- Device ID -->
-            <!-- <div class="col-md-6">
-              <div class="d-flex">
-                <div class="detail-icon me-2">
-                  <i class="fas fa-mobile-alt text-primary"></i>
-                </div>
-                <div>
-                  <small class="text-muted d-block">Device ID</small>
-                  <span class="font-monospace fw-medium">{{ selectedTransaction.deviceId }}</span>
-                </div>
-              </div>
-            </div> -->
-            
-            <!-- IP Address -->
-            <!-- <div class="col-md-6">
-              <div class="d-flex">
-                <div class="detail-icon me-2">
-                  <i class="fas fa-network-wired text-primary"></i>
-                </div>
-                <div>
-                  <small class="text-muted d-block">IP Address</small>
-                  <span class="fw-medium">{{ selectedTransaction.ipAddress }}</span>
-                </div>
-              </div>
-            </div> -->
             
             <!-- Location -->
             <div class="col-md-6">
@@ -535,7 +803,6 @@
                     <th>Risk Score</th>
                     <th>Risk Level</th>
                     <th>Status</th>
-                    <!-- <th class="pe-4">Action</th> -->
                   </tr>
                 </thead>
                 <tbody>
