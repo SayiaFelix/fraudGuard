@@ -90,7 +90,7 @@ export class AddCustomerComponent implements OnInit {
   showModal = false;
   currentPage = 1;
   pageSizeOptions: number[] = [5, 10, 25, 50, 100];
-  pageSize: number = 10;
+  pageSize: number = 5;
   totalItems: number = 0;
   activeTab: 'final' | 'llm' | 'rule' = 'final';
 

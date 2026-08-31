@@ -136,7 +136,7 @@ export class HttpService {
   }
 
   simulateBatch(payload: { count: number; fraud_ratio: number }): Observable<any> {
-  return this.http.post(`${this.apiUrl}/v1/api/finca/simulate_batch`, payload, this.getHeaders());
+  return this.http.post(`${this.apiUrl}/finca/simulate_batch`, payload, this.getHeaders());
 }
 
   getFraudHistory(page: number = 1, size: number = 10): Observable<any> {
