@@ -54,7 +54,7 @@ describe('AddCustomerComponent', () => {
     expect(component.totalPages).toBe(3);
     expect(component.paginatedTransactions.length).toBe(5);
 
-    component.nextPage();
+    component.onPageChange(2);
     expect(component.currentPage).toBe(2);
     expect(component.paginatedTransactions.length).toBe(5);
   });

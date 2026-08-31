@@ -141,16 +141,28 @@ export class AddCustomerComponent implements OnInit {
     return Math.max(1, Math.ceil(this.filteredTransactions.length / this.pageSize));
   }
 
-  previousPage(): void {
-    if (this.currentPage > 1) {
-      this.currentPage -= 1;
-    }
+  get pageNumbers(): number[] {
+    return Array.from({ length: this.totalPages }, (_, index) => index + 1);
   }
 
-  nextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage += 1;
+  onPageChange(page: number): void {
+    this.currentPage = page;
+  }
+
+  onPageSizeChange(): void {
+    this.currentPage = 1;
+  }
+
+  min(a: number, b: number): number {
+    return Math.min(a, b);
+  }
+
+  normalizeRiskScore(score: number | null | undefined): number {
+    const value = Number(score) || 0;
+    if (value <= 10) {
+      return Math.round(value * 100) / 10;
     }
+    return Math.round(value * 10) / 10;
   }
 
   loadRelatedTransactions(transactionId: string): void {
@@ -162,7 +174,7 @@ export class AddCustomerComponent implements OnInit {
         const related = response.related_transactions.map((tx: any) => ({
           id: tx.transaction_id,
           amount: tx.amount || 0,
-          riskScore: tx.risk_score,
+          riskScore: this.normalizeRiskScore(tx.risk_score),
           status:  tx.status_info.current ||this.mapRiskCategoryToStatus(tx.risk_category)
         }));
 
@@ -301,26 +313,36 @@ mapBackendTransaction(tx: any): Transaction {
     });
   }
 
-  // normalize channel information from backend when available
+  const transactionDetails = tx.transaction_details || {};
   let channel = 'Other';
   if (tx.channel) {
     channel = tx.channel;
-  } else if (tx.transaction_details?.Channel) {
-    channel = tx.transaction_details.Channel;
+  } else if (transactionDetails.finca_channel) {
+    channel = transactionDetails.finca_channel;
+  } else if (transactionDetails.Channel) {
+    channel = transactionDetails.Channel;
+  } else if (transactionDetails.Transaction_Type) {
+    if (transactionDetails.Transaction_Type === 'POS') channel = 'ATM/POS';
+    else if (transactionDetails.Transaction_Type === 'Online') channel = 'Internet banking';
+    else if (transactionDetails.Transaction_Type === 'Mobile') channel = 'Mobile banking';
+    else channel = transactionDetails.Transaction_Type;
+  } else if (transactionDetails.Transaction_Type_Online === 1) {
+    channel = 'Internet banking';
+  } else if (transactionDetails.Transaction_Type_POS === 1) {
+    channel = 'ATM/POS';
   } else if (tx.channel_type) {
     channel = tx.channel_type;
   } else if (tx.service_channel) {
     channel = tx.service_channel;
+  } else if (tx.finca_specific?.channel) {
+    channel = tx.finca_specific.channel;
   }
 
-  // normalize common channel labels
   const ch = String(channel).toLowerCase();
-  if (ch.includes('mobile') || ch.includes('momo') || ch.includes('mpesa')) channel = 'Mobile';
-  else if (ch.includes('web') || ch.includes('online')) channel = 'Web';
-  else if (ch.includes('atm')) channel = 'ATM';
-  else if (ch.includes('agent')) channel = 'Agent';
-  else if (ch.includes('pos')) channel = 'Agent';
-  else channel = channel; // keep as-is or 'Other'
+  if (ch.includes('mobile') || ch.includes('momo') || ch.includes('mpesa') || ch.includes('ussd')) channel = 'Mobile';
+  else if (ch.includes('internet') || ch.includes('web') || ch.includes('online') || ch.includes('core')) channel = 'Web';
+  else if (ch.includes('atm') || ch.includes('pos') || ch.includes('card')) channel = 'ATM';
+  else if (ch.includes('agent') || ch.includes('agency')) channel = 'Agent';
 
   let location = 'Nairobi, KE';
 
@@ -346,7 +368,7 @@ mapBackendTransaction(tx: any): Transaction {
     id: tx.transaction_id,
     transactionId: tx.transaction_id,
     amount: tx.transaction_details?.Transaction_Amount || 0,
-    riskScore: tx.risk_score,
+    riskScore: this.normalizeRiskScore(tx.risk_score),
     riskCategory: riskCategory,
     channel: channel,
     location: location,
@@ -387,7 +409,7 @@ generateAnalysisDetails(tx: any): string {
   const signals = tx.transaction_details?.real_time_signals;
   const ruleEngine = tx.transaction_details?.Rule_Engine;
   
-  let details = `This transaction was flagged as ${tx.risk_category} with a risk score of ${tx.risk_score}. `;
+  let details = `This transaction was flagged as ${tx.risk_category} with a risk score of ${this.normalizeRiskScore(tx.risk_score)}/100. `;
   
   if (ruleEngine?.triggered) {
     details += `Rule engine triggered: ${ruleEngine.rules.join(', ')}. `;
@@ -520,14 +542,15 @@ calculateStats(): void {
   }
 
    getRiskProgressColor(score: number): string {
-    if (score >= 8) {
+    const normalizedScore = this.normalizeRiskScore(score);
+    if (normalizedScore >= 80) {
       return '#f72585'; 
-    } else if (score >= 6) {
+    } else if (normalizedScore >= 60) {
       return '#fc7201'; 
-    } else if (score >= 3) {
+    } else if (normalizedScore >= 30) {
       return '#ffc107';
     } else {
-      return '#28a745'; // 
+      return '#28a745';
     }
   }
 
