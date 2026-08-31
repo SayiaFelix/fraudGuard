@@ -73,7 +73,7 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
 
   
   private updateInboxBadge(notifications: InboxItem[]): void {
-    const inboxMenuItem = this.menuItems.find(item => item.label === 'Inbox');
+    const inboxMenuItem = this.menuItems.find(item => item.label === 'Alerts');
     
     if (inboxMenuItem) {
       const unreadCount = notifications.length;

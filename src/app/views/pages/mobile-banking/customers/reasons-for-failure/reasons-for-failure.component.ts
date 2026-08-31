@@ -114,7 +114,7 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
 
   showRoadmap(): void {
     const roadmap = `
-      Finca Fraud Guard - Product Roadmap
+      FRAUD SENTINAL AI SYSTEM - Product Roadmap
 
       Phase 1-3 (Current):
       • Core ML Models (Random Forest, XGBoost, LightGBM, CatBoost)

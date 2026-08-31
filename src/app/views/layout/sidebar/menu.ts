@@ -3,15 +3,14 @@ import { MenuItem } from './menu.model';
 export const MENU: MenuItem[] = [
 
   {
-    label: 'Customer 360',
+    label: 'Dashboard',
     icon: 'home',
     link: '/dashboard',
   },
   {
-    label: 'Inbox',
-    icon: 'inbox',
-    link: '/fraudsentinelAi/user/inbox',
-    // roles: ['CIA', 'AuditUnit','Director']
+    label: 'Customer Profiling',
+    icon: 'user-check',
+    link: '/fraudsentinelAi/transaction_management/customer-profiling'
   },
 
   {
@@ -45,19 +44,15 @@ export const MENU: MenuItem[] = [
     link: '/fraudsentinelAi/transaction_management/rule-management'
   },
   {
-    label: 'Customer Profiling',
-    icon: 'user-check',
-    link: '/fraudsentinelAi/transaction_management/customer-profiling'
-  },
-  {
     label: 'Case Management',
     icon: 'clipboard',
     link: '/fraudsentinelAi/transaction_management/case-management'
   },
   {
-    label: 'Risk Scoring Engine',
-    icon: 'cpu',
-    link: '/fraudsentinelAi/transaction_management/risk-scoring'
+    label: 'Alerts',
+    icon: 'inbox',
+    link: '/fraudsentinelAi/user/inbox',
+    // roles: ['CIA', 'AuditUnit','Director']
   },
   //  {
   //   label: 'CAP Monitoring',
