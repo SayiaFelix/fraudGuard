@@ -125,7 +125,7 @@ export class HttpService {
 
 
   checkTransactionRisk(transactionData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/real_time_risk_score`, transactionData, this.getHeaders())
+    return this.http.post(`${this.apiUrl}/finca/transactions`, transactionData, this.getHeaders())
       .pipe(
         // tap(response => console.log('Risk assessment response:', response)),
         catchError(this.handleError<any>('checkTransactionRisk', { 
