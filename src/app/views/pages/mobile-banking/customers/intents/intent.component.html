@@ -1,6 +1,6 @@
 <div class="risk-analyzer-container">
   <!-- Form Card -->
-    <div class="card shadow-sm form-card mb-4">
+  <div class="card shadow-sm form-card mb-4">
     <div class="card-header bg-transparent border-0 pt-4 px-4">
       <h3 class="fw-bold mb-0">
         <i class="fas fa-microchip me-2" style="color: #4cc9f0;"></i>
@@ -185,24 +185,19 @@
                   step="1"
                   [class.is-invalid]="isFieldInvalid('transactionFrequency')"
                   onkeypress="return (event.charCode >= 48 && event.charCode <= 57)">
-
             <div class="invalid-feedback" *ngIf="transactionFrequency?.errors?.['required']">
               Transaction frequency is required
             </div>
-            
             <div class="invalid-feedback" *ngIf="transactionFrequency?.errors?.['min']">
               Transaction frequency must be at least 1 per hour (zero not allowed)
             </div>
-            
             <div class="invalid-feedback" *ngIf="transactionFrequency?.errors?.['max']">
               Transaction frequency cannot exceed 100 per hour
             </div>
-            
             <small class="text-muted">
               <i class="fas fa-info-circle me-1"></i> Minimum 1 transaction per hour (zero not allowed)
             </small>
           </div>
-
 
           <!-- Account Activity -->
           <div class="col-md-6">
@@ -351,14 +346,12 @@
         <!-- Action Buttons -->
         <div class="row mt-5">
           <div class="col-12 d-flex gap-3 justify-content-center">
-                    
             <button type="button" 
                     class="btn btn-outline-secondary px-5 py-2 text-dark"
                     (click)="resetForm()"
                     [disabled]="isAnalyzing">
               <i class="fas fa-redo me-2"></i> Reset
             </button>
-
             <button type="submit" 
                     class="btn btn-primary px-5 py-2"
                     [disabled]="isAnalyzing || !riskForm.valid">
@@ -384,7 +377,6 @@
       </form>
     </div>
   </div>
-
 
   <!-- Results Section -->
   <div id="analysis-result">
@@ -446,12 +438,13 @@
             <div class="d-flex justify-content-between align-items-center mb-2">
               <span class="fw-bold">Risk Score</span>
               <span class="h2 mb-0" [style.color]="getRiskProgressColor(analysisResult.riskScore)">
-                {{ analysisResult.riskScore }}/10
+                <!-- {{ analysisResult.riskScore }}/100 -->
+                 {{ (analysisResult.riskScore).toFixed(1) }}/100
               </span>
             </div>
             <div class="progress" style="height: 16px;">
               <div class="progress-bar" 
-                   [style.width.%]="(analysisResult.riskScore/10)*100"
+                   [style.width.%]="analysisResult.riskScore"
                    [style.background]="getRiskProgressColor(analysisResult.riskScore)">
               </div>
             </div>
@@ -464,19 +457,160 @@
                 <span class="fw-medium fs-6">{{ analysisResult.transactionId }}</span>
               </div>
             </div>
-        
             <div class="col-md-4">
               <div class="summary-item p-3 bg-light rounded-3">
                 <small class="text-muted d-block">Amount</small>
                 <span class="fw-medium">{{ formatAmount(analysisResult.actualAmount) }}</span> 
               </div>
             </div>
-        
             <div class="col-md-4">
               <div class="summary-item p-3 bg-light rounded-3">
                 <small class="text-muted d-block">Time</small>
                 <span class="fw-medium fs-6">{{ formatTime(analysisResult.timestamp) }}</span>
               </div>
+            </div>
+          </div>
+
+          <!-- ============================================ -->
+          <!-- FINCA DETAILS SECTION - FULLY SAFE -->
+          <!-- ============================================ -->
+          <div class="finca-details p-4 rounded-3 mb-4" 
+               style="background: #f8f9fa; border-left: 4px solid #4361ee;"
+               *ngIf="analysisResult?.fincaDetails">
+            <h4 class="fw-bold mb-3">
+              <i class="fas fa-info-circle me-2" style="color: #4361ee;"></i>
+              Transaction Details
+            </h4>
+            <div class="row g-3">
+              <div class="col-md-3">
+                <div class="p-2">
+                  <small class="text-muted d-block">Channel</small>
+                  <span class="fw-medium">
+                    <i class="fas fa-route me-1 text-primary"></i>
+                    {{ analysisResult.fincaDetails?.channel || 'N/A' }}
+                  </span>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="p-2">
+                  <small class="text-muted d-block">Device</small>
+                  <span class="fw-medium">
+                    <i class="fas fa-mobile-alt me-1 text-primary"></i>
+                    {{ analysisResult.fincaDetails?.deviceType || 'N/A' }}
+                  </span>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="p-2">
+                  <small class="text-muted d-block">Location</small>
+                  <span class="fw-medium">
+                    <i class="fas fa-map-marker-alt me-1 text-primary"></i>
+                    {{ analysisResult.fincaDetails?.location || 'N/A' }}
+                  </span>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="p-2">
+                  <small class="text-muted d-block">Decision</small>
+                  <span class="fw-medium" [ngClass]="{
+                    'text-danger': analysisResult.fincaDetails?.decision === 'BLOCK',
+                    'text-warning': analysisResult.fincaDetails?.decision === 'CHALLENGE',
+                    'text-success': analysisResult.fincaDetails?.decision === 'APPROVE'
+                  }">
+                    <i class="fas fa-gavel me-1"></i>
+                    {{ analysisResult.fincaDetails?.decision || 'N/A' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Risk Levels -->
+            <div class="row g-3 mt-2">
+              <div class="col-md-4">
+                <div class="p-2">
+                  <small class="text-muted d-block">ML Risk Level</small>
+                  <span class="badge" [ngClass]="{
+                    'bg-danger': analysisResult.fincaDetails?.mlRiskLevel === 'CRITICAL',
+                    'bg-warning text-dark': analysisResult.fincaDetails?.mlRiskLevel === 'HIGH',
+                    'bg-info': analysisResult.fincaDetails?.mlRiskLevel === 'MEDIUM',
+                    'bg-success': analysisResult.fincaDetails?.mlRiskLevel === 'LOW'
+                  }">{{ analysisResult.fincaDetails?.mlRiskLevel || 'LOW' }}</span>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="p-2">
+                  <small class="text-muted d-block">Rule Risk Level</small>
+                  <span class="badge" [ngClass]="{
+                    'bg-danger': analysisResult.fincaDetails?.ruleRiskLevel === 'CRITICAL',
+                    'bg-warning text-dark': analysisResult.fincaDetails?.ruleRiskLevel === 'HIGH',
+                    'bg-info': analysisResult.fincaDetails?.ruleRiskLevel === 'MEDIUM',
+                    'bg-success': analysisResult.fincaDetails?.ruleRiskLevel === 'LOW'
+                  }">{{ analysisResult.fincaDetails?.ruleRiskLevel || 'LOW' }}</span>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="p-2">
+                  <small class="text-muted d-block">Final Risk Level</small>
+                  <span class="badge" [ngClass]="{
+                    'bg-danger': analysisResult.fincaDetails?.finalRiskLevel === 'CRITICAL',
+                    'bg-warning text-dark': analysisResult.fincaDetails?.finalRiskLevel === 'HIGH',
+                    'bg-info': analysisResult.fincaDetails?.finalRiskLevel === 'MEDIUM',
+                    'bg-success': analysisResult.fincaDetails?.finalRiskLevel === 'LOW'
+                  }">{{ analysisResult.fincaDetails?.finalRiskLevel || 'LOW' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ============================================ -->
+          <!-- RULES TRIGGERED SECTION - FULLY SAFE -->
+          <!-- ============================================ -->
+          <div class="rules-triggered p-4 rounded-3 mb-4" 
+               style="background: #fff3cd; border-left: 4px solid #ffc107;"
+               *ngIf="analysisResult?.fincaDetails?.rulesTriggered?.length">
+            <h4 class="fw-bold mb-3">
+              <i class="fas fa-gavel me-2" style="color: #ffc107;"></i>
+              Rules Triggered ({{ analysisResult.fincaDetails?.rulesTriggered?.length || 0 }})
+            </h4>
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Rule ID</th>
+                    <th>Rule Name</th>
+                    <th>Reason</th>
+                    <th class="text-end">Points</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let rule of analysisResult.fincaDetails?.rulesTriggered || []">
+                    <td><span class="badge bg-secondary">{{ rule.rule_id }}</span></td>
+                    <td>{{ rule.rule_name }}</td>
+                    <td><small>{{ rule.reason }}</small></td>
+                    <td class="text-end"><span class="badge bg-warning text-dark">+{{ rule.rule_points }}</span></td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr class="table-active">
+                    <td colspan="3" class="text-end fw-bold">Total Rule Points:</td>
+                    <td class="text-end fw-bold">
+                      {{ analysisResult.fincaDetails?.totalRulePoints || 0 }} 
+                      <span class="text-muted small">(capped: {{ analysisResult.fincaDetails?.cappedRulePoints || 0 }})</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colspan="3" class="text-end fw-bold">Rule Risk Level:</td>
+                    <td class="text-end">
+                      <span class="badge" [ngClass]="{
+                        'bg-danger': analysisResult.fincaDetails?.ruleRiskLevel === 'CRITICAL',
+                        'bg-warning text-dark': analysisResult.fincaDetails?.ruleRiskLevel === 'HIGH',
+                        'bg-info': analysisResult.fincaDetails?.ruleRiskLevel === 'MEDIUM',
+                        'bg-success': analysisResult.fincaDetails?.ruleRiskLevel === 'LOW'
+                      }">{{ analysisResult.fincaDetails?.ruleRiskLevel || 'LOW' }}</span>
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
             </div>
           </div>
 
@@ -498,6 +632,7 @@
               </div>
             </div>
           </div>
+
           <div class="row g-4 mb-4">
             <!-- Risk Signals -->
             <div class="col-md-6" *ngIf="analysisResult.aiAnalysis.signals.length">
@@ -554,6 +689,22 @@
             </div>
           </div>
 
+          <!-- Alert and Case IDs - FULLY SAFE -->
+          <div class="row g-3 mb-4" *ngIf="analysisResult?.fincaDetails">
+            <div class="col-md-6">
+              <div class="p-3 bg-light rounded-3">
+                <small class="text-muted d-block">Alert ID</small>
+                <span class="fw-medium">{{ analysisResult.fincaDetails?.alertId || 'N/A' }}</span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="p-3 bg-light rounded-3">
+                <small class="text-muted d-block">Case ID</small>
+                <span class="fw-medium">{{ analysisResult.fincaDetails?.caseId || 'N/A' }}</span>
+              </div>
+            </div>
+          </div>
+
           <!-- Action Buttons -->
           <div class="d-flex justify-content-end gap-3">
             <button class="btn btn-outline-primary px-4 py-2" (click)="investigateTransaction()">
@@ -589,7 +740,7 @@
                 </div>
                 <div class="d-flex align-items-center">
                   <small class="text-muted me-3">{{ formatTime(item.timestamp) }}</small>
-                  <span class="badge bg-light text-dark">{{ item.riskScore }}/10</span>
+                  <span class="badge bg-light text-dark">{{ item.riskScore }}/100</span>
                 </div>
               </div>
             </div>
@@ -614,7 +765,7 @@
             <i class="fas fa-check-circle text-success me-2"></i>
             7 Ensemble Models (RF, XGB, LGBM, CatBoost, etc.)
           </div>
-            <div class="feature-item mb-2">
+          <div class="feature-item mb-2">
             <i class="fas fa-check-circle text-success me-2"></i>
             Fraud pattern detection and signal analysis
           </div>
@@ -622,7 +773,6 @@
             <i class="fas fa-check-circle text-success me-2"></i>
             Real-time risk scoring with explainable AI
           </div>
-       
           <div class="feature-item">
             <i class="fas fa-check-circle text-success me-2"></i>
             Actionable recommendations
