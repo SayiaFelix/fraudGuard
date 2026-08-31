@@ -33,7 +33,7 @@
     <div class="col-md-2 col-6">
       <div class="stat-card bg-primary bg-opacity-10 rounded-3 p-3">
         <small class="text-primary d-block">Avg Risk Score</small>
-        <h3 class="fw-bold text-primary mb-0">{{ stats.avgRiskScore }}</h3>
+        <h3 class="fw-bold text-primary mb-0">{{ stats.avgRiskScore }}/100</h3>
       </div>
     </div>
   </div>
@@ -115,7 +115,7 @@
             <td class="fw-bold">{{ formatAmount(tx.amount) }}</td>
             <td>
               <span class="badge" [ngClass]="getRiskBadgeClass(tx.riskCategory)">{{ tx.riskCategory }}</span>
-              <div class="small text-muted mt-1">{{ tx.riskScore }}/10</div>
+              <div class="small text-muted mt-1">{{ tx.riskScore }}/100</div>
             </td>
             <td>
               <div class="d-flex align-items-center">
@@ -145,11 +145,46 @@
       </table>
     </div>
 
-    <div class="d-flex justify-content-between align-items-center p-3 border-top" *ngIf="filteredTransactions.length > 0">
-      <small class="text-muted">Showing {{ paginatedTransactions.length }} of {{ filteredTransactions.length }} transactions</small>
-      <div class="btn-group btn-group-sm">
-        <button class="btn btn-outline-secondary" [disabled]="currentPage === 1" (click)="previousPage()">Previous</button>
-        <button class="btn btn-outline-primary" [disabled]="currentPage >= totalPages" (click)="nextPage()">Next</button>
+    <div class="card-footer bg-transparent d-flex justify-content-between align-items-center py-3 border-top" *ngIf="filteredTransactions.length > 0">
+      <div class="d-flex align-items-center">
+        <small class="text-muted me-2">Rows per page:</small>
+        <select class="form-select form-select-sm" style="width: auto;"
+                [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+          <option [value]="5">5</option>
+          <option [value]="10">10</option>
+          <option [value]="20">20</option>
+          <option [value]="50">50</option>
+        </select>
+      </div>
+
+      <div class="pagination-controls d-flex align-items-center">
+        <button class="btn btn-sm btn-outline-secondary me-2"
+                [disabled]="currentPage === 1"
+                (click)="onPageChange(currentPage - 1)">
+          <i class="fas fa-chevron-left"></i> Previous
+        </button>
+
+        <span class="mx-2 d-flex align-items-center">
+          Page
+          <select class="form-select form-select-sm mx-2" style="width: auto;"
+                  [(ngModel)]="currentPage" (change)="onPageChange(currentPage)">
+            <option *ngFor="let pageNumber of pageNumbers" [value]="pageNumber">{{ pageNumber }}</option>
+          </select>
+          of {{ totalPages }}
+        </span>
+
+        <button class="btn btn-sm btn-outline-secondary ms-2"
+                [disabled]="currentPage >= totalPages"
+                (click)="onPageChange(currentPage + 1)">
+          Next <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+
+      <div>
+        <small class="text-muted">
+          Showing {{ ((currentPage - 1) * pageSize) + 1 }} -
+          {{ min(currentPage * pageSize, filteredTransactions.length) }} of {{ filteredTransactions.length }} transactions
+        </small>
       </div>
     </div>
   </div>
@@ -185,7 +220,7 @@
           <div class="col-md-4">
             <small class="text-muted d-block">Risk Score</small>
             <strong [style.color]="getRiskProgressColor(selectedTransaction.riskScore)">
-              {{ selectedTransaction.riskScore }}/10
+              {{ selectedTransaction.riskScore }}/100
             </strong>
           </div>
         </div>
@@ -251,7 +286,7 @@
               <p class="analysis-text mb-0">
                 This transaction was flagged as 
                 <strong class="risk-highlight">{{ selectedTransaction.riskCategory }}</strong> 
-                with a risk score of <strong>{{ selectedTransaction.riskScore }}/10</strong>.
+                with a risk score of <strong>{{ selectedTransaction.riskScore }}/100</strong>.
               </p>
               <p class="analysis-text mt-2">
                 {{ selectedTransaction.aiAnalysis.final || selectedTransaction.aiAnalysis.details }}
@@ -544,22 +579,22 @@
                     <td class="fw-bold">{{ formatAmount(related.amount) }}</td>
                     <td>
                       <span class="badge" [ngClass]="getRiskBadgeClass(
-                        related.riskScore >= 8 ? 'Critical' : 
-                        related.riskScore >= 6 ? 'High' : 
-                        related.riskScore >= 4 ? 'Medium' : 'Low'
+                        related.riskScore >= 80 ? 'Critical' : 
+                        related.riskScore >= 60 ? 'High' : 
+                        related.riskScore >= 40 ? 'Medium' : 'Low'
                       )">
-                        {{ related.riskScore }}/10
+                        {{ related.riskScore }}/100
                       </span>
                     </td>
                     <td>
                       <span class="badge" [ngClass]="getRiskBadgeClass(
-                        related.riskScore >= 8 ? 'Critical' : 
-                        related.riskScore >= 6 ? 'High' : 
-                        related.riskScore >= 4 ? 'Medium' : 'Low'
+                        related.riskScore >= 80 ? 'Critical' : 
+                        related.riskScore >= 60 ? 'High' : 
+                        related.riskScore >= 40 ? 'Medium' : 'Low'
                       )">
-                        {{ related.riskScore >= 8 ? 'Critical' : 
-                          related.riskScore >= 6 ? 'High' : 
-                          related.riskScore >= 4 ? 'Medium' : 'Low' }}
+                        {{ related.riskScore >= 80 ? 'Critical' : 
+                          related.riskScore >= 60 ? 'High' : 
+                          related.riskScore >= 40 ? 'Medium' : 'Low' }}
                       </span>
                     </td>
                     <td>
