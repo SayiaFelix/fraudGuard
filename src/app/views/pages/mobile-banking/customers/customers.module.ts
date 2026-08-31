@@ -18,7 +18,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { VoiceComponent } from './voice/voice.component';
 import { IntentComponent } from './intents/intent.component';
 import { FilterPipe } from './file.pipe';
-import { TestPageComponent } from './test-page/test-page.component';
+// TestPageComponent is a demo/test page — exclude from module declarations for demos
+// import { TestPageComponent } from './test-page/test-page.component';
 import { FileDropDirective } from './file-drop.directive';
 import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 
@@ -45,7 +46,7 @@ import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
     VoiceComponent,
     IntentComponent,
     FilterPipe,
-    TestPageComponent,
+    // TestPageComponent, // removed from declarations to hide demo/test page
      FileDropDirective
     // CreateProductComponent
   ],

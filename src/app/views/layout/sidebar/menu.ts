@@ -3,7 +3,7 @@ import { MenuItem } from './menu.model';
 export const MENU: MenuItem[] = [
 
   {
-    label: 'Dashboard',
+    label: 'Customer 360',
     icon: 'home',
     link: '/dashboard',
   },
