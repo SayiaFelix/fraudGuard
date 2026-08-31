@@ -5,11 +5,12 @@ import {ViewCustomerComponent} from "./view-customer/view-customer.component";
 import {ListFailedRegistrationsComponent} from "./list-failed-registrations/list-failed-registrations.component";
 import {SendSmsComponent} from "./send-sms-component/send-sms.component";
 import {ReasonsForFailureComponent} from "./reasons-for-failure/reasons-for-failure.component";
-import { add } from 'ngx-bootstrap/chronos';
+// import { add } from 'ngx-bootstrap/chronos'; // unused - commented out
 import { AddCustomerComponent } from './add-customer/add-customer.component';
 import { VoiceComponent } from './voice/voice.component';
 import { IntentComponent } from './intents/intent.component';
-import { TestComponentRenderer } from '@angular/core/testing';
+// Test route removed for demo: TestComponentRenderer import commented out
+// import { TestComponentRenderer } from '@angular/core/testing';
 
 
 
@@ -43,7 +44,7 @@ const routes: Routes = [
   }
 ,
 
- { path: 'test', component: TestComponentRenderer },
+ // { path: 'test', component: TestComponentRenderer }, // Demo/test route commented out for production demos
   // {
   //   path: 'action',
   //   component: SendSmsComponent

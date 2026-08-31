@@ -108,36 +108,36 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
   });
 }
 
-showFuturePreview: boolean = true;
-futureReleaseDate: string = 'Q3 2026';
+   showFuturePreview: boolean = false; // default to false so demos show implemented UI only
+  futureReleaseDate: string = 'Q3 2026';
 
 
-showRoadmap(): void {
-  const roadmap = `
-    FinGuard AI - Product Roadmap
-    
-    Phase 1-3 (Current - March 2026):
-    • Core ML Models (Random Forest, XGBoost, LightGBM, CatBoost)
-    • Hybrid Rule Engine
-    • LLM-powered Explanations
-    • Real-time Dashboard & Risk Analyzer
-    
-    Phase 4 (Next - Q2 2026):
-    • Agentic AI Response System
-    • Automated Actions (Block/Flag/Approve)
-    • Human-in-the-loop Feedback
-    
-    Phase 5-6 (Post-Hackathon - Q3 2026):
-    • Real world data integration
-    • Graph-based Fraud Detection
-    • Neo4j Integration
-    • Real-time Fraud Rings Detection
-    • Cross-border Transaction Analysis
-    • CBK Reporting Integration
-  `;
-  
-  alert(roadmap);
-}
+  showRoadmap(): void {
+    const roadmap = `
+      Finca Fraud Guard - Product Roadmap
+
+      Phase 1-3 (Current):
+      • Core ML Models (Random Forest, XGBoost, LightGBM, CatBoost)
+      • Hybrid Rule Engine
+      • LLM-powered Explanations
+      • Real-time Dashboard & Risk Analyzer
+
+      Phase 4 (Planned):
+      • Agentic AI Response System
+      • Automated Actions (Block/Flag/Approve)
+      • Human-in-the-loop Feedback
+
+      Phase 5-6 (Target Q3 2026):
+      • Real world data integration
+      • Graph-based Fraud Detection
+      • Neo4j Integration
+      • Real-time Fraud Rings Detection
+      • Cross-border Transaction Analysis
+      • CBK Reporting Integration
+    `;
+
+    alert(roadmap);
+  }
 
   ngAfterViewInit(): void {
     setTimeout(() => {
