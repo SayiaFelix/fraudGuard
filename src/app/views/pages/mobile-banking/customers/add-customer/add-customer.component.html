@@ -39,20 +39,10 @@
     </div>
   </div>
 
-  <!-- Simulation Controls - Left aligned -->
+  <!-- Simulation Controls - Far Right aligned -->
   <div class="simulation-controls mb-3 d-flex align-items-center flex-wrap gap-2">
+    <!-- Stats Badges - Left side -->
     <div class="d-flex align-items-center gap-2">
-      <button class="btn btn-primary" (click)="openSimulationModal()">
-        <i class="fas fa-play-circle me-2"></i>
-        Run Batch Simulation
-      </button>
-      <button class="btn btn-outline-secondary" (click)="refresh()">
-        <i class="fas fa-sync-alt me-1"></i> Refresh
-      </button>
-    </div>
-    
-    <!-- Stats Badges - moved to right side -->
-    <div class="ms-auto d-flex align-items-center gap-2">
       <span class="badge bg-secondary">{{ transactions.length }} total</span>
       <span class="badge bg-danger" *ngIf="stats.alerts > 0">
         <i class="fas fa-bell me-1"></i> {{ stats.alerts }} Alerts
@@ -60,6 +50,17 @@
       <span class="badge bg-warning text-dark" *ngIf="stats.cases > 0">
         <i class="fas fa-folder-open me-1"></i> {{ stats.cases }} Cases
       </span>
+    </div>
+    
+    <!-- Buttons - Far Right side -->
+    <div class="ms-auto d-flex align-items-center gap-2">
+      <button class="btn btn-outline-secondary btn-sm" (click)="refresh()">
+        <i class="fas fa-sync-alt me-1"></i> Refresh
+      </button>
+      <button class="btn btn-primary" (click)="openSimulationModal()">
+        <i class="fas fa-play-circle me-2"></i>
+        Run Batch Simulation
+      </button>
     </div>
   </div>
 
@@ -109,9 +110,9 @@
         <span class="dot"></span> LIVE
       </span>
     </h4>
-    <div class="feed-controls">
+    <!-- <div class="feed-controls">
       <span class="badge bg-secondary me-2">{{ filteredTransactions.length }} transactions</span>
-    </div>
+    </div> -->
   </div>
 
   <!-- Feed List -->
