@@ -1523,6 +1523,102 @@ exportDataWithOptions(): void {
   });
 }
 
+exportSingleTransaction(): void {
+  if (!this.selectedTransaction) return;
+  
+  const tx = this.selectedTransaction;
+  const data = [{
+    transactionId: tx.transactionId,
+    amount: tx.amount,
+    riskCategory: tx.finalRiskCategory,
+    mlRiskScore: tx.mlRiskScore || tx.riskScore,
+    channel: tx.channel,
+    location: tx.location,
+    status: tx.status,
+    decision: tx.decision || 'N/A',
+    customerName: tx.customerName,
+    customerId: tx.customerId,
+    flaggedBy: tx.flaggedBy,
+    fincaDecision: tx.fincaFinalDecision || 'N/A',
+    fincaRulePoints: tx.fincaTotalRulePoints || 0,
+    fincaRuleCount: tx.fincaRuleCount || 0,
+    ruleRiskLevel: tx.fincaRuleRiskLevel || 'N/A',
+    timestamp: tx.timestamp
+  }];
+  
+  const headers = Object.keys(data[0]);
+  const rows = data.map(obj => headers.map(key => obj[key as keyof typeof obj]));
+  const csvContent = [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
+  
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `transaction_${tx.transactionId}_${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  window.URL.revokeObjectURL(url);
+  
+  Swal.fire({
+    icon: 'success',
+    title: '✅ Transaction Exported!',
+    text: `${tx.transactionId} exported successfully.`,
+    timer: 2000,
+    showConfirmButton: false
+  });
+}
+
+exportSimulationResults(): void {
+  if (this.simulation.results.length === 0) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'No Results',
+      text: 'No simulation results to export.',
+      confirmButtonText: 'OK'
+    });
+    return;
+  }
+
+  const data = this.simulation.results.map(result => ({
+    transactionId: result.result?.transaction_id || result.transaction_id || 'N/A',
+    amount: result.finca_specific?.transaction_amount || result.amount || 0,
+    channel: result.finca_specific?.channel || result.channel || 'N/A',
+    riskLevel: result.result?.final_risk_level || result.final_risk_level || 'Low',
+    riskScore: result.result?.risk_score || result.risk_score || 0,
+    decision: result.result?.decision || result.decision || 'N/A',
+    alertId: result.finca_specific?.alert_id || result.alert_id || 'None'
+  }));
+
+  const headers = Object.keys(data[0]);
+  const rows = data.map(obj => headers.map(key => obj[key as keyof typeof obj]));
+  const csvContent = [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
+  
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `simulation_results_${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  window.URL.revokeObjectURL(url);
+
+  Swal.fire({
+    icon: 'success',
+    title: '✅ Simulation Results Exported!',
+    text: `${data.length} transactions exported as CSV.`,
+    timer: 2000,
+    showConfirmButton: false
+  });
+}
+
+getRiskColor(riskCategory: string): string {
+  const colors: { [key: string]: string } = {
+    'Critical': '#dc3545',
+    'High': '#ffc107',
+    'Medium': '#17a2b8',
+    'Low': '#28a745'
+  };
+  return colors[riskCategory] || '#6c757d';
+}
+
 // CSV Export
 exportCSV(data: Transaction[]): void {
   const headers = ['Transaction ID', 'Amount', 'Risk Category', 'Channel', 'Customer', 'Location', 'Status', 'Decision'];
