@@ -961,62 +961,6 @@ getInvestigationSteps(tx: Transaction): string {
   return steps;
 }
 
-private formatSearchResults(results: Transaction[], filters: any): string {
-  const riskEmoji: { [key: string]: string } = {
-    'Critical': '🔴',
-    'High': '🟠',
-    'Medium': '🟡',
-    'Low': '🟢'
-  };
-
-  if (results.length === 0) {
-    return `🔍 Mukwano AI: No transactions found matching your search.
-
-💡 Mukwano AI suggests:
-• Try different keywords
-• Check your filters
-• Ask me to help you search
-
-💬 Try these searches:
-• "Find transactions over KES 100,000"
-• "Show me Critical risks"
-• "Search Mobile Banking transactions"
-
-📢 Mukwano AI says: "Nkukwanira!" (I'm here for you!)`;
-  }
-
-  let response = `🤝 Mukwano AI found ${results.length} transactions for you!\n\n`;
-  
-  const appliedFilters: string[] = [];
-  if (filters.risk) appliedFilters.push(`Risk: ${filters.risk}`);
-  if (filters.minAmount) appliedFilters.push(`Amount > KES ${filters.minAmount.toLocaleString()}`);
-  if (filters.channel) appliedFilters.push(`Channel: ${filters.channel}`);
-  if (filters.time) appliedFilters.push(`Time: ${filters.time}`);
-  
-  if (appliedFilters.length > 0) {
-    response += `📌 Filters: ${appliedFilters.join(' | ')}\n\n`;
-  }
-  
-  const displayResults = results.slice(0, 5);
-  displayResults.forEach((tx, index) => {
-    response += `${index + 1}. ${tx.transactionId} | ${this.formatAmount(tx.amount)}\n`;
-    response += `   ${riskEmoji[tx.finalRiskCategory] || '⚪'} ${tx.finalRiskCategory} | ${tx.channel} | ${tx.customerName}\n`;
-    response += `   ${tx.location} | ${this.formatTime(tx.timestamp)}\n\n`;
-  });
-
-  if (results.length > 5) {
-    response += `📊 + ${results.length - 5} more transactions\n\n`;
-  }
-
-  response += `💡 What would you like to do?\n`;
-  response += `• Type "view [TXN-ID]" to analyze a transaction\n`;
-  response += `• Type "export" to download results\n`;
-  response += `• Type "investigate" to create investigation cases\n\n`;
-  response += `📢 Mukwano AI says: "Nkukwanira!" (I'm here for you!)`;
-
-  return response;
-}
-
 analyzeTransactionAI(tx: Transaction): string {
   const riskEmoji = tx.finalRiskCategory === 'Critical' ? '🔴' : 
                     tx.finalRiskCategory === 'High' ? '🟠' : 
@@ -1477,6 +1421,65 @@ private isSearchQuery(query: string): boolean {
     'where', 'what', 'which', 'who', 'over', 'above', 'less', 'under'
   ];
   return searchTerms.some(term => query.toLowerCase().includes(term));
+}
+
+
+private formatSearchResults(results: Transaction[], filters: any): string {
+  const riskEmoji: { [key: string]: string } = {
+    'Critical': '🔴',
+    'High': '🟠',
+    'Medium': '🟡',
+    'Low': '🟢'
+  };
+
+  if (results.length === 0) {
+    return `🔍 Mukwano AI: No transactions found matching your search.
+
+💡 Mukwano AI suggests:
+• Try different keywords
+• Check your filters
+• Ask me to help you search
+
+💬 Try these searches:
+• "Find transactions over KES 100,000"
+• "Show me Critical risks"
+• "Search Mobile Banking transactions"
+
+📢 Mukwano AI says: "Nkukwanira!" (I'm here for you!)`;
+  }
+
+  let response = `🤝 Mukwano AI found ${results.length} transactions for you!\n\n`;
+  
+  const appliedFilters: string[] = [];
+  if (filters.risk) appliedFilters.push(`Risk: ${filters.risk}`);
+  if (filters.minAmount) appliedFilters.push(`Amount > KES ${filters.minAmount.toLocaleString()}`);
+  if (filters.maxAmount) appliedFilters.push(`Amount < KES ${filters.maxAmount.toLocaleString()}`);
+  if (filters.channel) appliedFilters.push(`Channel: ${filters.channel}`);
+  if (filters.time) appliedFilters.push(`Time: ${filters.time}`);
+  
+  if (appliedFilters.length > 0) {
+    response += `📌 Filters: ${appliedFilters.join(' | ')}\n\n`;
+  }
+  
+  const displayResults = results.slice(0, 5);
+  displayResults.forEach((tx, index) => {
+    // Use formatAmount to display KES correctly
+    response += `${index + 1}. ${tx.transactionId} | ${this.formatAmount(tx.amount)}\n`;
+    response += `   ${riskEmoji[tx.finalRiskCategory] || '⚪'} ${tx.finalRiskCategory} | ${tx.channel} | ${tx.customerName}\n`;
+    response += `   ${tx.location} | ${this.formatTime(tx.timestamp)}\n\n`;
+  });
+
+  if (results.length > 5) {
+    response += `📊 + ${results.length - 5} more transactions\n\n`;
+  }
+
+  response += `💡 What would you like to do?\n`;
+  response += `• Type "view [TXN-ID]" to analyze a transaction\n`;
+  response += `• Type "export" to download results\n`;
+  response += `• Type "investigate" to create investigation cases\n\n`;
+  response += `📢 Mukwano AI says: "Nkukwanira!" (I'm here for you!)`;
+
+  return response;
 }
 
 private extractSearchFilters(query: string): any {

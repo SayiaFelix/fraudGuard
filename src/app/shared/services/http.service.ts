@@ -142,7 +142,6 @@ export class HttpService {
   getFraudHistory(page: number = 1, size: number = 10): Observable<any> {
     return this.http.post(`${this.apiUrl}/fraud_history`, { page, size }, this.getHeaders())
       .pipe(
-        // tap(response => console.log('Fraud history response:', response)),
         catchError(this.handleError<any>('getFraudHistory', { 
           fraud_transactions: [], 
           pagination: { total: 0 } 
