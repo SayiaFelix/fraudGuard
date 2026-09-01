@@ -146,6 +146,77 @@ export class HttpService {
       );
   }
 
+  
+  getCustomers(
+    page: number = 1,
+    size: number = 10,
+    search: string = '',
+    segment: string = '',
+    riskProfile: string = ''
+  ): Observable<any> {
+
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    if (search.trim()) {
+      params = params.set('search', search.trim());
+    }
+
+    if (segment) {
+      params = params.set('segment', segment);
+    }
+
+    if (riskProfile) {
+      params = params.set('risk_profile', riskProfile);
+    }
+
+    return this.http.get(
+      'http://127.0.0.1:5001/finca/v1/customers',
+      {
+        headers: this.getHeaders().headers,
+        params: params
+      }
+    ).pipe(
+      catchError(
+        this.handleError<any>(
+          'getCustomers',
+          {
+            status: 'error',
+            customers: [],
+            pagination: {
+              page,
+              size,
+              total: 0,
+              total_pages: 0,
+              has_more: false
+            }
+          }
+        )
+      )
+    );
+  }
+
+
+  getCustomer360(
+    customerId: string
+  ): Observable<any> {
+
+    return this.http.get(
+      `http://127.0.0.1:5001/finca/v1/customers/${customerId}/360`,
+      this.getHeaders()
+    ).pipe(
+      catchError(
+        this.handleError<any>(
+          'getCustomer360',
+          {
+            status: 'error',
+            customer_360: null
+          }
+        )
+      )
+    );
+  }
   getFeatureImportance(): Observable<any> {
     return this.http.get(`${this.apiUrl}/feature_importance_weight`, this.getHeaders())
       .pipe(
