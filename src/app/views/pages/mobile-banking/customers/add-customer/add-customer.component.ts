@@ -1251,105 +1251,6 @@ handleSearchQuery(query: string): string {
   return this.formatSearchResults(results, filters);
 }
 
-private isSearchQuery(query: string): boolean {
-  const searchTerms = [
-    'find', 'search', 'show me', 'list', 'get', 'fetch',
-    'transactions', 'customers', 'cases', 'alerts',
-    'where', 'what', 'which', 'who'
-  ];
-  return searchTerms.some(term => query.toLowerCase().includes(term));
-}
-
-private extractSearchFilters(query: string): any {
-  const lower = query.toLowerCase();
-  const filters: any = {};
-
-  // === AMOUNT FILTERS ===
-  const amountMatches = [
-    ...lower.matchAll(/(?:over|above|>|=|at least)\s*(\d+(?:,\d+)*)\s*(?:k|k\'?s|kes)?/gi),
-    ...lower.matchAll(/(\d+(?:,\d+)*)\s*(?:k|k\'?s|kes)?\s*(?:and above|and over|plus)/gi)
-  ];
-  if (amountMatches.length > 0) {
-    const amountStr = amountMatches[0][1].replace(/,/g, '');
-    filters.minAmount = parseInt(amountStr);
-  }
-
-  // === RISK LEVEL ===
-  if (lower.includes('critical') || lower.includes('urgent') || lower.includes('high risk')) {
-    filters.risk = 'Critical';
-  } else if (lower.includes('high')) {
-    filters.risk = 'High';
-  } else if (lower.includes('medium')) {
-    filters.risk = 'Medium';
-  } else if (lower.includes('low')) {
-    filters.risk = 'Low';
-  }
-
-  // === CHANNEL ===
-  const channelMap: { [key: string]: string } = {
-    'mobile': 'Mobile banking',
-    'momo': 'Mobile banking',
-    'mpesa': 'Mobile banking',
-    'internet': 'Internet banking',
-    'web': 'Internet banking',
-    'online': 'Internet banking',
-    'card': 'Cards',
-    'credit': 'Cards',
-    'debit': 'Cards',
-    'atm': 'ATM/POS',
-    'pos': 'ATM/POS',
-    'ussd': 'USSD',
-    'agent': 'Agency',
-    'agency': 'Agency',
-    'core': 'Core banking'
-  };
-
-  for (const [key, value] of Object.entries(channelMap)) {
-    if (lower.includes(key)) {
-      filters.channel = value;
-      break;
-    }
-  }
-
-  // === TIME RANGE ===
-  if (lower.includes('today') || lower.includes('now')) {
-    filters.time = 'today';
-  } else if (lower.includes('yesterday')) {
-    filters.time = 'yesterday';
-  } else if (lower.includes('week') || lower.includes('this week')) {
-    filters.time = 'week';
-  } else if (lower.includes('month') || lower.includes('this month')) {
-    filters.time = 'month';
-  } else if (lower.includes('hour') || lower.includes('last hour')) {
-    filters.time = 'hour';
-  }
-
-  // === STATUS ===
-  if (lower.includes('blocked') || lower.includes('block')) {
-    filters.status = 'BLOCK';
-  } else if (lower.includes('approved') || lower.includes('approve')) {
-    filters.status = 'APPROVE';
-  } else if (lower.includes('challenged') || lower.includes('challenge')) {
-    filters.status = 'CHALLENGE';
-  } else if (lower.includes('pending')) {
-    filters.status = 'PENDING';
-  }
-
-  // === CUSTOMER NAME ===
-  const customerMatch = lower.match(/(?:customer|for|from)\s*([a-z\s]+?)(?:\s+(?:from|with|in|$))/i);
-  if (customerMatch && customerMatch[1].trim().length > 2) {
-    filters.customerName = customerMatch[1].trim();
-  }
-
-  // === TRANSACTION ID ===
-  const txMatch = lower.match(/(?:txn|transaction|id)\s*([a-z0-9\-]+)/i);
-  if (txMatch) {
-    filters.transactionId = txMatch[1];
-  }
-
-  return filters;
-}
-
 exportData(): void {
   const data = this.filteredTransactions.length > 0 ? this.filteredTransactions : this.transactions;
   
@@ -1564,6 +1465,198 @@ exportSingleTransaction(): void {
     text: `${tx.transactionId} exported successfully.`,
     timer: 2000,
     showConfirmButton: false
+  });
+}
+
+// ============= AI SEARCH METHODS =============
+
+private isSearchQuery(query: string): boolean {
+  const searchTerms = [
+    'find', 'search', 'show me', 'list', 'get', 'fetch',
+    'transactions', 'customers', 'cases', 'alerts',
+    'where', 'what', 'which', 'who', 'over', 'above', 'less', 'under'
+  ];
+  return searchTerms.some(term => query.toLowerCase().includes(term));
+}
+
+private extractSearchFilters(query: string): any {
+  const lower = query.toLowerCase();
+  const filters: any = {};
+
+  // === AMOUNT FILTERS - IMPROVED ===
+  const amountMatch = lower.match(/(?:over|above|>=|>|at least|more than|less than|under|<=|<|below)\s*(\d+(?:,\d+)*)\s*(?:k|k\'?s|kes)?/gi);
+  
+  if (amountMatch) {
+    // Process all amount matches
+    amountMatch.forEach(match => {
+      const matchLower = match.toLowerCase();
+      const amountStr = match.replace(/[^0-9]/g, '');
+      if (amountStr) {
+        const amount = parseInt(amountStr);
+        
+        if (matchLower.includes('over') || matchLower.includes('above') || matchLower.includes('more than') || matchLower.includes('>') || matchLower.includes('at least')) {
+          filters.minAmount = amount;
+        } else if (matchLower.includes('less than') || matchLower.includes('under') || matchLower.includes('below') || matchLower.includes('<')) {
+          filters.maxAmount = amount;
+        }
+      }
+    });
+  }
+
+  // Also check for exact amounts
+  const exactAmount = lower.match(/(?:is|are)?\s*(\d+(?:,\d+)*)\s*(?:k|k\'?s|kes)?\s*(?:exactly|equal)?/i);
+  if (exactAmount && !filters.minAmount && !filters.maxAmount) {
+    const amount = parseInt(exactAmount[1].replace(/,/g, ''));
+    filters.minAmount = amount;
+    filters.maxAmount = amount;
+  }
+
+  // === RISK LEVEL ===
+  if (lower.includes('critical') || lower.includes('urgent') || lower.includes('high risk')) {
+    filters.risk = 'Critical';
+  } else if (lower.includes('high')) {
+    filters.risk = 'High';
+  } else if (lower.includes('medium')) {
+    filters.risk = 'Medium';
+  } else if (lower.includes('low')) {
+    filters.risk = 'Low';
+  }
+
+  // === CHANNEL ===
+  const channelMap: { [key: string]: string } = {
+    'mobile': 'Mobile banking',
+    'momo': 'Mobile banking',
+    'mpesa': 'Mobile banking',
+    'internet': 'Internet banking',
+    'web': 'Internet banking',
+    'online': 'Internet banking',
+    'card': 'Cards',
+    'credit': 'Cards',
+    'debit': 'Cards',
+    'atm': 'ATM/POS',
+    'pos': 'ATM/POS',
+    'ussd': 'USSD',
+    'agent': 'Agency',
+    'agency': 'Agency',
+    'core': 'Core banking'
+  };
+
+  for (const [key, value] of Object.entries(channelMap)) {
+    if (lower.includes(key)) {
+      filters.channel = value;
+      break;
+    }
+  }
+
+  // === TIME RANGE ===
+  if (lower.includes('today') || lower.includes('now')) {
+    filters.time = 'today';
+  } else if (lower.includes('yesterday')) {
+    filters.time = 'yesterday';
+  } else if (lower.includes('week') || lower.includes('this week')) {
+    filters.time = 'week';
+  } else if (lower.includes('month') || lower.includes('this month')) {
+    filters.time = 'month';
+  } else if (lower.includes('hour') || lower.includes('last hour')) {
+    filters.time = 'hour';
+  }
+
+  // === STATUS ===
+  if (lower.includes('blocked') || lower.includes('block')) {
+    filters.status = 'BLOCK';
+  } else if (lower.includes('approved') || lower.includes('approve')) {
+    filters.status = 'APPROVE';
+  } else if (lower.includes('challenged') || lower.includes('challenge')) {
+    filters.status = 'CHALLENGE';
+  } else if (lower.includes('pending')) {
+    filters.status = 'PENDING';
+  }
+
+  // === CUSTOMER NAME ===
+  const customerMatch = lower.match(/(?:customer|for|from)\s*([a-z\s]+?)(?:\s+(?:from|with|in|$))/i);
+  if (customerMatch && customerMatch[1].trim().length > 2) {
+    filters.customerName = customerMatch[1].trim();
+  }
+
+  // === TRANSACTION ID ===
+  const txMatch = lower.match(/(?:txn|transaction|id)\s*([a-z0-9\-]+)/i);
+  if (txMatch) {
+    filters.transactionId = txMatch[1];
+  }
+
+  return filters;
+}
+
+private findTransactionsWithFilters(filters: any): Transaction[] {
+  return this.transactions.filter(tx => {
+    let match = true;
+
+    // Amount filter - MIN
+    if (filters.minAmount && tx.amount < filters.minAmount) {
+      match = false;
+    }
+
+    // Amount filter - MAX
+    if (filters.maxAmount && tx.amount > filters.maxAmount) {
+      match = false;
+    }
+
+    // Risk level filter
+    if (filters.risk && tx.finalRiskCategory !== filters.risk) {
+      match = false;
+    }
+
+    // Channel filter
+    if (filters.channel && tx.channel !== filters.channel) {
+      match = false;
+    }
+
+    // Status filter
+    if (filters.status) {
+      if (filters.status === 'BLOCK' && tx.decision !== 'BLOCK' && tx.finalRiskCategory !== 'Critical') {
+        match = false;
+      } else if (filters.status === 'APPROVE' && tx.decision !== 'APPROVE' && tx.finalRiskCategory !== 'Low') {
+        match = false;
+      }
+    }
+
+    // Customer name filter
+    if (filters.customerName && !tx.customerName.toLowerCase().includes(filters.customerName.toLowerCase())) {
+      match = false;
+    }
+
+    // Transaction ID filter
+    if (filters.transactionId && !tx.transactionId.toLowerCase().includes(filters.transactionId.toLowerCase())) {
+      match = false;
+    }
+
+    // Time filter
+    if (filters.time) {
+      const now = new Date();
+      const txDate = new Date(tx.timestamp);
+
+      if (filters.time === 'today') {
+        match = match && txDate.toDateString() === now.toDateString();
+      } else if (filters.time === 'yesterday') {
+        const yesterday = new Date(now);
+        yesterday.setDate(yesterday.getDate() - 1);
+        match = match && txDate.toDateString() === yesterday.toDateString();
+      } else if (filters.time === 'week') {
+        const weekAgo = new Date(now);
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        match = match && txDate >= weekAgo;
+      } else if (filters.time === 'month') {
+        const monthAgo = new Date(now);
+        monthAgo.setMonth(monthAgo.getMonth() - 1);
+        match = match && txDate >= monthAgo;
+      } else if (filters.time === 'hour') {
+        const hourAgo = new Date(now);
+        hourAgo.setHours(hourAgo.getHours() - 1);
+        match = match && txDate >= hourAgo;
+      }
+    }
+
+    return match;
   });
 }
 
@@ -1917,74 +2010,6 @@ getAISmartResponse(userMessage: string, context: any): string {
   
   // === DEFAULT RESPONSE ===
   return this.getDefaultResponse(userMessage, context);
-}
-
-private findTransactionsWithFilters(filters: any): Transaction[] {
-  return this.transactions.filter(tx => {
-    let match = true;
-
-    // Amount filter
-    if (filters.minAmount && tx.amount < filters.minAmount) {
-      match = false;
-    }
-
-    // Risk level filter
-    if (filters.risk && tx.finalRiskCategory !== filters.risk) {
-      match = false;
-    }
-
-    // Channel filter
-    if (filters.channel && tx.channel !== filters.channel) {
-      match = false;
-    }
-
-    // Status filter
-    if (filters.status) {
-      if (filters.status === 'BLOCK' && tx.decision !== 'BLOCK' && tx.finalRiskCategory !== 'Critical') {
-        match = false;
-      } else if (filters.status === 'APPROVE' && tx.decision !== 'APPROVE' && tx.finalRiskCategory !== 'Low') {
-        match = false;
-      }
-    }
-
-    // Customer name filter
-    if (filters.customerName && !tx.customerName.toLowerCase().includes(filters.customerName.toLowerCase())) {
-      match = false;
-    }
-
-    // Transaction ID filter
-    if (filters.transactionId && !tx.transactionId.toLowerCase().includes(filters.transactionId.toLowerCase())) {
-      match = false;
-    }
-
-    // Time filter
-    if (filters.time) {
-      const now = new Date();
-      const txDate = new Date(tx.timestamp);
-
-      if (filters.time === 'today') {
-        match = match && txDate.toDateString() === now.toDateString();
-      } else if (filters.time === 'yesterday') {
-        const yesterday = new Date(now);
-        yesterday.setDate(yesterday.getDate() - 1);
-        match = match && txDate.toDateString() === yesterday.toDateString();
-      } else if (filters.time === 'week') {
-        const weekAgo = new Date(now);
-        weekAgo.setDate(weekAgo.getDate() - 7);
-        match = match && txDate >= weekAgo;
-      } else if (filters.time === 'month') {
-        const monthAgo = new Date(now);
-        monthAgo.setMonth(monthAgo.getMonth() - 1);
-        match = match && txDate >= monthAgo;
-      } else if (filters.time === 'hour') {
-        const hourAgo = new Date(now);
-        hourAgo.setHours(hourAgo.getHours() - 1);
-        match = match && txDate >= hourAgo;
-      }
-    }
-
-    return match;
-  });
 }
 
 getInvestigationRecommendations(context: any): string {
