@@ -19,7 +19,7 @@ export const MENU: MenuItem[] = [
     // roles: ['Auditor', 'CIA', 'AuditUnit','Director']
   },
   {
-    label: 'Transactions',
+    label: 'Transactions Feed',
     icon: 'activity',
     link: '/fraudsentinelAi/transaction_management/fraud/transactions'
   },
