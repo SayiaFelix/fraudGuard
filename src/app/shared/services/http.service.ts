@@ -716,49 +716,6 @@ escalateCase(caseId: string, level: string = 'URGENT', analyst: string = 'Superv
   return this.assignCase(caseId, analyst);
 }
 
-
-listAlerts(page: number = 1, size: number = 100, status?: string): Observable<any> {
-  const payload: any = { page, size };
-  if (status) payload.status = status;
-  
-  return this.http.post(`${this.apiUrl}/finca/alerts`, payload, this.getHeaders())
-    .pipe(
-      catchError(this.handleError<any>('listAlerts', { 
-        status: 'error', 
-        alerts: [], 
-        pagination: { total: 0 } 
-      }))
-    );
-}
-
-getAlert(alertId: string): Observable<any> {
-  return this.http.get(`${this.apiUrl}/finca/alerts/${alertId}`, this.getHeaders())
-    .pipe(
-      catchError(this.handleError<any>('getAlert', { 
-        status: 'error', 
-        alert: null 
-      }))
-    );
-}
-
-assignAlert(alertId: string, analyst: string): Observable<any> {
-  return this.http.post(`${this.apiUrl}/finca/alerts/${alertId}/assign`, { analyst }, this.getHeaders())
-    .pipe(
-      catchError(this.handleError<any>('assignAlert', { 
-        status: 'error' 
-      }))
-    );
-}
-
-markAlertRead(alertId: string): Observable<any> {
-  return this.http.post(`${this.apiUrl}/finca/alerts/${alertId}/read`, {}, this.getHeaders())
-    .pipe(
-      catchError(this.handleError<any>('markAlertRead', { 
-        status: 'error' 
-      }))
-    );
-}
-
 createCaseBackend(payload: any): Observable<any> {
   return this.http.post(`${this.apiUrl}/finca/case`, payload, this.getHeaders())
     .pipe(
@@ -786,14 +743,7 @@ deleteCaseBackend(caseId: string): Observable<any> {
     );
 }
 
-// ============================================================
-// ============= FINCA DASHBOARD =============
-// ============================================================
 
-/**
- * Get FINCA dashboard metrics
- * GET /v1/api/finca/dashboard
- */
 getFincaDashboard(): Observable<any> {
   return this.http.get(`${this.apiUrl}/finca/dashboard`, this.getHeaders())
     .pipe(
@@ -804,21 +754,37 @@ getFincaDashboard(): Observable<any> {
     );
 }
 
-/**
- * Get dashboard (alias for getFincaDashboard)
- */
+markAlertRead(alertId: string): Observable<any> {
+  // Try backend, but don't fail
+  return this.http.post(`${this.apiUrl}/finca/alerts/${alertId}/read`, {}, this.getHeaders())
+    .pipe(
+      catchError(() => {
+        // ✅ Just return success locally
+        this.updateAlertReadLocally(alertId);
+        return of({ status: 'success', local: true });
+      })
+    );
+}
+
+private updateAlertReadLocally(alertId: string): void {
+  try {
+    const stored = localStorage.getItem('finca_alerts');
+    if (stored) {
+      const alerts = JSON.parse(stored);
+      const idx = alerts.findIndex((a: any) => a.id === alertId);
+      if (idx >= 0) {
+        alerts[idx].read = true;
+        localStorage.setItem('finca_alerts', JSON.stringify(alerts));
+      }
+    }
+  } catch (e) {}
+}
+
 getDashboard(): Observable<any> {
   return this.getFincaDashboard();
 }
 
-// ============================================================
-// ============= FINCA TRANSACTIONS =============
-// ============================================================
 
-/**
- * Get FINCA transactions list
- * POST /v1/api/finca/get_transactions
- */
 getFincaTransactions(page: number = 1, size: number = 100): Observable<any> {
   return this.http.post(`${this.apiUrl}/finca/get_transactions`, { page, size }, this.getHeaders())
     .pipe(
@@ -854,12 +820,104 @@ allowTransaction(transactionId: string): Observable<any> {
 }
 
 
+getLocalAlerts(): any[] {
+  try {
+    const stored = localStorage.getItem('finca_alerts');
+    return stored ? JSON.parse(stored) : [];
+  } catch (e) {
+    return [];
+  }
+}
 
+updateAlertLocal(alertId: string, changes: any): Observable<any> {
+  try {
+    const stored = localStorage.getItem('finca_alerts');
+    const alerts = stored ? JSON.parse(stored) : [];
+    const idx = alerts.findIndex((a: any) => a.id === alertId);
+    if (idx >= 0) {
+      alerts[idx] = { ...alerts[idx], ...changes };
+      localStorage.setItem('finca_alerts', JSON.stringify(alerts));
+      return of({ success: true, alert: alerts[idx] });
+    }
+    return of({ success: false });
+  } catch (e) {
+    return of({ success: false });
+  }
+}
 
+deleteAlertLocal(alertId: string): Observable<any> {
+  try {
+    const stored = localStorage.getItem('finca_alerts');
+    const alerts = stored ? JSON.parse(stored) : [];
+    const filtered = alerts.filter((a: any) => a.id !== alertId);
+    localStorage.setItem('finca_alerts', JSON.stringify(filtered));
+    return of({ success: true });
+  } catch (e) {
+    return of({ success: false });
+  }
+}
 
+markAlertsRead(alertIds: string[]): Observable<any> {
+  const payload = { alert_ids: alertIds };
+  return this.http.post(`${this.apiUrl}/finca/alerts/mark_read`, payload, this.getHeaders())
+    .pipe(
+      catchError(this.handleError<any>('markAlertsRead', { success: false }))
+    );
+}
 
+dismissAlerts(alertIds: string[], reason: string = 'Bulk dismissed'): Observable<any> {
+  const payload = { alert_ids: alertIds, reason };
+  return this.http.post(`${this.apiUrl}/finca/alerts/dismiss`, payload, this.getHeaders())
+    .pipe(
+      catchError(this.handleError<any>('dismissAlerts', { success: false }))
+    );
+}
 
+getAlertById(alertId: string): Observable<any> {
+  return this.getAlert(alertId);
+}
 
+listAlerts(page: number = 1, size: number = 1000, status?: string): Observable<any> {
+  const payload: any = { page, size };
+  if (status) payload.status = status;
+  
+  return this.http.post(`${this.apiUrl}/finca/alerts`, payload, this.getHeaders())
+    .pipe(
+      catchError(this.handleError<any>('listAlerts', { 
+        status: 'error', 
+        alerts: [], 
+        pagination: { total: 0 } 
+      }))
+    );
+}
+
+getAlert(alertId: string): Observable<any> {
+  return this.http.get(`${this.apiUrl}/finca/alerts/${alertId}`, this.getHeaders())
+    .pipe(
+      catchError(this.handleError<any>('getAlert', { 
+        status: 'error', 
+        alert: null 
+      }))
+    );
+}
+
+assignAlert(alertId: string, analyst: string): Observable<any> {
+  return this.http.post(`${this.apiUrl}/finca/alerts/${alertId}/assign`, { analyst }, this.getHeaders())
+    .pipe(
+      catchError(this.handleError<any>('assignAlert', { 
+        status: 'error' 
+      }))
+    );
+}
+
+saveAlerts(alerts: any[]): Observable<any> {
+  try {
+    localStorage.setItem('finca_alerts', JSON.stringify(alerts));
+    return of({ success: true });
+  } catch (e) {
+    return of({ success: false });
+  }
+}
 
 
 

@@ -2,6 +2,7 @@ import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { FincaService } from 'src/app/shared/services/finca.service';
+import { HttpService } from 'src/app/shared/services/http.service';
 
 @Component({
   selector: 'app-finca-alerts',
@@ -55,7 +56,7 @@ export class FincaAlertsComponent implements OnInit, OnDestroy {
   private previousAlertCount = 0;
   private selectedIndex = -1;
 
-  constructor(private finca: FincaService, private router: Router, private toastr: ToastrService) {}
+  constructor(private finca: HttpService, private router: Router, private toastr: ToastrService) {}
 
   ngOnInit(): void {
     this.load();
@@ -138,8 +139,8 @@ export class FincaAlertsComponent implements OnInit, OnDestroy {
       { label: 'New', value: newCount, bgClass: 'bg-danger bg-opacity-10', textClass: 'text-danger' },
       { label: 'Assigned', value: assigned, bgClass: 'bg-primary bg-opacity-10', textClass: 'text-primary' },
       { label: 'Critical', value: critical, bgClass: 'bg-danger bg-opacity-10', textClass: 'text-danger' },
-      { label: 'High Risk', value: high, bgClass: 'bg-warning bg-opacity-10', textClass: 'text-warning' },
-      { label: 'Unread', value: unread, bgClass: 'bg-info bg-opacity-10', textClass: 'text-info' },
+      // { label: 'High Risk', value: high, bgClass: 'bg-warning bg-opacity-10', textClass: 'text-warning' },
+      // { label: 'Unread', value: unread, bgClass: 'bg-info bg-opacity-10', textClass: 'text-info' },
       { label: 'Total', value: this.alerts.length, bgClass: 'bg-secondary bg-opacity-10', textClass: 'text-secondary' }
     ];
   }
