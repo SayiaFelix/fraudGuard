@@ -9,10 +9,18 @@ interface Transaction {
   id: string;
   transactionId: string;
   amount: number;
-  riskScore: number;           // Raw risk score from backend (0-100)
+  // Table display: ML Risk (from transaction_details.ml_risk_level)
   riskCategory: 'Critical' | 'High' | 'Medium' | 'Low';
-  mlRiskLevel: string;         // ml_risk_level from backend
-  finalRiskLevel: string;      // final_risk_level from backend
+  // Final combined risk (from root/risk_assessment.risk_category)
+  finalRiskCategory: 'Critical' | 'High' | 'Medium' | 'Low';
+  // Final combined score (from root/risk_assessment.risk_score)
+  riskScore: number;
+  // ML Risk Level (raw string from transaction_details)
+  mlRiskLevel: string;
+  // ML Risk Score (from transaction_details)
+  mlRiskScore?: number;
+  // Final Risk Level (raw string from root/risk_assessment)
+  finalRiskLevel: string;
   channel: string;
   location: string;
   timestamp: Date;
@@ -63,6 +71,11 @@ interface Transaction {
   fincaRuleRiskLevel?: string;
   fincaFinalDecision?: string;
   fincaRuleCount?: number;
+  // Additional FINCA fields for analysis
+  fincaChannel?: string;
+  fincaDeviceType?: string;
+  fincaLocation?: string;
+  transactionAmount?: number;
 }
 
 interface SimulationConfig {
@@ -93,11 +106,8 @@ export class AddCustomerComponent implements OnInit {
   pageSize: number = 5;
   totalItems: number = 0;
   activeTab: 'final' | 'llm' | 'rule' = 'final';
-
-  // ✅ Loading state
   isLoading: boolean = false;
 
-  // ✅ Updated channel options
   channelOptions: string[] = [
     'Mobile banking',
     'Internet banking',
@@ -108,13 +118,11 @@ export class AddCustomerComponent implements OnInit {
     'USSD'
   ];
 
-  // Filters
   riskFilter: string = 'all';
   channelFilter: string = 'all';
   searchTerm: string = '';
   isLoadingRelated: boolean = false;
 
-  // Simulation
   showSimulationModal: boolean = false;
   simulation: SimulationConfig = {
     count: 10,
@@ -125,7 +133,6 @@ export class AddCustomerComponent implements OnInit {
     summary: null
   };
 
-  // Stats
   stats = {
     total: 0,
     critical: 0,
@@ -151,7 +158,7 @@ export class AddCustomerComponent implements OnInit {
   ngOnInit(): void {
     this.loadTransactions();
 
-    this.refreshSubscription = interval(30000).subscribe(() => {
+    this.refreshSubscription = interval(8640000).subscribe(() => {
       this.loadTransactions();
     });
 
@@ -281,23 +288,33 @@ export class AddCustomerComponent implements OnInit {
 
           this.processSimulationResults(response.transactions || []);
 
+          const criticalCount = response.summary?.risk_distribution?.CRITICAL || 0;
+          const criticalAlert = criticalCount > 0 
+            ? `<div class="alert alert-danger mt-2">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>${criticalCount} Critical Risk Transactions Detected!</strong>
+                <br><small>These require immediate investigation.</small>
+               </div>`
+            : '';
+
           Swal.fire({
-            icon: 'success',
-            title: 'Simulation Complete!',
+            icon: criticalCount > 0 ? 'warning' : 'success',
+            title: criticalCount > 0 ? '⚠️ Critical Risks Detected!' : 'Simulation Complete!',
             html: `
               <div class="text-start">
                 <p><strong>${response.summary.total}</strong> transactions processed</p>
                 <div class="d-flex gap-2 flex-wrap mt-2">
-                  <span class="badge bg-success">✅ Approved: ${response.summary.approved}</span>
-                  <span class="badge bg-warning text-dark">⚠️ Challenged: ${response.summary.challenged}</span>
                   <span class="badge bg-danger">🚫 Blocked: ${response.summary.blocked}</span>
+                  <span class="badge bg-warning text-dark">⚠️ Challenged: ${response.summary.challenged}</span>
+                  <span class="badge bg-success">✅ Approved: ${response.summary.approved}</span>
                   <span class="badge bg-danger">🔔 Alerts: ${response.summary.alerts}</span>
                   <span class="badge bg-warning text-dark">📁 Cases: ${response.summary.cases}</span>
                 </div>
+                ${criticalAlert}
               </div>
             `,
             confirmButtonText: 'View Transactions',
-            confirmButtonColor: '#4361ee'
+            confirmButtonColor: criticalCount > 0 ? '#dc3545' : '#4361ee'
           }).then((result) => {
             if (result.isConfirmed) {
               this.loadTransactions();
@@ -358,8 +375,8 @@ export class AddCustomerComponent implements OnInit {
 
   // ============= MAPPING METHODS =============
 
-  mapRiskCategory(mlRiskLevel: string): 'Critical' | 'High' | 'Medium' | 'Low' {
-    const upper = (mlRiskLevel || '').toUpperCase();
+  mapRiskCategory(riskLevel: string): 'Critical' | 'High' | 'Medium' | 'Low' {
+    const upper = (riskLevel || '').toUpperCase();
     if (upper === 'CRITICAL') return 'Critical';
     if (upper === 'HIGH') return 'High';
     if (upper === 'MEDIUM') return 'Medium';
@@ -391,6 +408,38 @@ export class AddCustomerComponent implements OnInit {
     return classes[status] || 'bg-secondary';
   }
 
+  // ============= HELPER METHODS =============
+
+  roundToTwo(value: number): number {
+    return Math.round((value || 0) * 100) / 100;
+  }
+
+  normalizeChannel(channel: string): string {
+    if (!channel) return 'Other';
+    
+    const ch = String(channel).toLowerCase();
+    
+    if (ch.includes('mobile') || ch.includes('momo') || ch.includes('mpesa')) {
+      return 'Mobile banking';
+    } else if (ch.includes('internet') || ch.includes('web') || ch.includes('online')) {
+      return 'Internet banking';
+    } else if (ch.includes('core') || ch.includes('core_banking')) {
+      return 'Core banking';
+    } else if (ch.includes('card') || ch.includes('credit') || ch.includes('debit')) {
+      return 'Cards';
+    } else if (ch.includes('agent') || ch.includes('agency')) {
+      return 'Agency';
+    } else if (ch.includes('atm') || ch.includes('pos')) {
+      return 'ATM/POS';
+    } else if (ch.includes('ussd')) {
+      return 'USSD';
+    }
+    
+    return channel.charAt(0).toUpperCase() + channel.slice(1).toLowerCase();
+  }
+
+  // ============= EXISTING METHODS =============
+
   loadRelatedTransactions(transactionId: string): void {
     this.isLoadingRelated = true;
 
@@ -400,7 +449,7 @@ export class AddCustomerComponent implements OnInit {
           const related = response.related_transactions.map((tx: any) => ({
             id: tx.transaction_id,
             amount: tx.amount || 0,
-            riskScore: tx.risk_score || 0,
+            riskScore: this.roundToTwo(tx.risk_score || 0),
             status: tx.status_info?.current || 'Resolved'
           }));
 
@@ -463,32 +512,7 @@ export class AddCustomerComponent implements OnInit {
     this.loadRelatedTransactions(transaction.transactionId);
   }
 
-  //
-  normalizeChannel(channel: string): string {
-    if (!channel) return 'Other';
-    
-    const ch = String(channel).toLowerCase();
-    
-    // Map backend channel names to display names
-    if (ch.includes('mobile') || ch.includes('momo') || ch.includes('mpesa')) {
-      return 'Mobile banking';
-    } else if (ch.includes('internet') || ch.includes('web') || ch.includes('online')) {
-      return 'Internet banking';
-    } else if (ch.includes('core') || ch.includes('core_banking')) {
-      return 'Core banking';
-    } else if (ch.includes('card') || ch.includes('credit') || ch.includes('debit')) {
-      return 'Cards';
-    } else if (ch.includes('agent') || ch.includes('agency')) {
-      return 'Agency';
-    } else if (ch.includes('atm') || ch.includes('pos')) {
-      return 'ATM/POS';
-    } else if (ch.includes('ussd')) {
-      return 'USSD';
-    }
-    
-    // Return original if no match, or capitalize first letter
-    return channel.charAt(0).toUpperCase() + channel.slice(1).toLowerCase();
-  }
+  // ============= MAIN MAPPING FUNCTIONS =============
 
   mapBatchTransaction(result: any): Transaction | null {
     try {
@@ -496,16 +520,20 @@ export class AddCustomerComponent implements OnInit {
       const fincaSpecific = result.finca_specific || {};
       const txDetails = resultData.transaction_details || {};
 
+      // ML Risk (from transaction_details)
       const mlRiskLevel = txDetails.ml_risk_level || 'LOW';
-      const riskCategory = this.mapRiskCategory(mlRiskLevel);
-      const riskScore = txDetails.ml_risk_score || resultData.risk_score || 0;
+      const mlRiskCategory = this.mapRiskCategory(mlRiskLevel);
+      const mlRiskScore = this.roundToTwo(txDetails.ml_risk_score || 0);
 
-      // Parse model agreement
+      // Final Risk (from root/risk_assessment)
+      const finalRiskLevelFromRoot = resultData.risk_category || resultData.final_risk_level || 'LOW';
+      const finalRiskCategory = this.mapRiskCategory(finalRiskLevelFromRoot);
+      const finalRiskScore = this.roundToTwo(resultData.risk_score || 0);
+
       const modelAgreement = txDetails.Model_Agreement || '0/7 models flagged';
       const flagged = parseInt(modelAgreement.split('/')[0]) || 0;
       const total = 7;
 
-      // Rule engine details
       const ruleEngine = txDetails.Rule_Engine || {
         triggered: false,
         rules: [],
@@ -547,12 +575,11 @@ export class AddCustomerComponent implements OnInit {
         });
       }
 
-      // ✅ Normalize channel using the new method
       let channel = fincaSpecific.channel || 'Other';
       channel = this.normalizeChannel(channel);
 
       const decision = txDetails.finca_final_decision || resultData.decision || 'N/A';
-      const status = this.mapStatusFromRisk(riskCategory, decision);
+      const status = this.mapStatusFromRisk(finalRiskCategory, decision);
 
       let location = fincaSpecific.location || 'Nairobi, KE';
       if (location === 'International') location = 'International';
@@ -561,10 +588,17 @@ export class AddCustomerComponent implements OnInit {
         id: resultData.transaction_id || fincaSpecific.transaction_id || 'TXN-0000',
         transactionId: resultData.transaction_id || fincaSpecific.transaction_id || 'TXN-0000',
         amount: fincaSpecific.transaction_amount || 0,
-        riskScore: riskScore,
-        riskCategory: riskCategory,
+        
+        // Table display: ML Risk
+        riskCategory: mlRiskCategory,
         mlRiskLevel: mlRiskLevel,
-        finalRiskLevel: txDetails.final_risk_level || 'LOW',
+        mlRiskScore: mlRiskScore,
+        
+        // KPS & Final: Combined risk
+        finalRiskCategory: finalRiskCategory,
+        finalRiskLevel: finalRiskLevelFromRoot,
+        riskScore: finalRiskScore,
+        
         channel: channel,
         location: location,
         timestamp: new Date(resultData.timestamp || new Date()),
@@ -604,6 +638,10 @@ export class AddCustomerComponent implements OnInit {
         fincaRuleRiskLevel: txDetails.finca_rule_risk_level || 'LOW',
         fincaFinalDecision: txDetails.finca_final_decision || 'N/A',
         fincaRuleCount: txDetails.finca_rule_count || 0,
+        fincaChannel: txDetails.finca_channel || fincaSpecific.channel || '',
+        fincaDeviceType: txDetails.finca_device_type || fincaSpecific.device_type || '',
+        fincaLocation: txDetails.finca_location || fincaSpecific.location || '',
+        transactionAmount: fincaSpecific.transaction_amount || 0,
         rawData: result
       };
     } catch (error) {
@@ -616,9 +654,25 @@ export class AddCustomerComponent implements OnInit {
     try {
       const txDetails = tx.transaction_details || {};
       
-      const mlRiskLevel = txDetails.ml_risk_level || tx.ml_risk_level || 'LOW';
-      const riskCategory = this.mapRiskCategory(mlRiskLevel);
-      const riskScore = txDetails.ml_risk_score || tx.risk_score || 0;
+      // ML Risk (from transaction_details)
+      const mlRiskLevel = txDetails.ml_risk_level || 'LOW';
+      const mlRiskCategory = this.mapRiskCategory(mlRiskLevel);
+      const mlRiskScore = this.roundToTwo(txDetails.ml_risk_score || 0);
+
+      // Final Risk (from root/risk_assessment)
+      const finalRiskLevelFromRoot = tx.risk_category || tx.risk_assessment?.risk_category || 'LOW';
+      const finalRiskCategory = this.mapRiskCategory(finalRiskLevelFromRoot);
+      const finalRiskScore = this.roundToTwo(tx.risk_score || tx.risk_assessment?.risk_score || 0);
+
+      console.log('📊 Mapping transaction:', {
+        transaction_id: tx.transaction_id,
+        ml_risk_level: mlRiskLevel,
+        ml_risk_category: mlRiskCategory,
+        final_risk_category: finalRiskLevelFromRoot,
+        final_risk_category_mapped: finalRiskCategory,
+        final_risk_score: finalRiskScore,
+        ml_risk_score: mlRiskScore
+      });
 
       const modelAgreement = txDetails.Model_Agreement || '0/7 models flagged';
       const flagged = parseInt(modelAgreement.split('/')[0]) || 0;
@@ -669,24 +723,30 @@ export class AddCustomerComponent implements OnInit {
         });
       }
 
-      // ✅ Normalize channel using the new method
       let channel = tx.channel || txDetails.finca_channel || 'Other';
       channel = this.normalizeChannel(channel);
 
       let location = txDetails.finca_location || tx.location || 'Nairobi, KE';
       if (location === 'International') location = 'International';
 
-      const decision = tx.decision || 'N/A';
-      const status = this.mapStatusFromRisk(riskCategory, decision);
+      const decision = txDetails.finca_final_decision || tx.decision || 'N/A';
+      const status = this.mapStatusFromRisk(finalRiskCategory, decision);
 
       return {
         id: tx.transaction_id || 'TXN-0000',
         transactionId: tx.transaction_id || 'TXN-0000',
         amount: txDetails.Transaction_Amount || txDetails.finca_transaction_amount || 0,
-        riskScore: riskScore,
-        riskCategory: riskCategory,
+        
+        // Table display: ML Risk
+        riskCategory: mlRiskCategory,
         mlRiskLevel: mlRiskLevel,
-        finalRiskLevel: tx.final_risk_level || 'LOW',
+        mlRiskScore: mlRiskScore,
+        
+        // KPS & Final: Combined risk
+        finalRiskCategory: finalRiskCategory,
+        finalRiskLevel: finalRiskLevelFromRoot,
+        riskScore: finalRiskScore,
+        
         channel: channel,
         location: location,
         timestamp: new Date(tx.timestamp || new Date()),
@@ -725,6 +785,10 @@ export class AddCustomerComponent implements OnInit {
         fincaRuleRiskLevel: txDetails.finca_rule_risk_level || 'LOW',
         fincaFinalDecision: txDetails.finca_final_decision || 'N/A',
         fincaRuleCount: txDetails.finca_rule_count || 0,
+        fincaChannel: txDetails.finca_channel || tx.channel || '',
+        fincaDeviceType: txDetails.finca_device_type || tx.device_type || '',
+        fincaLocation: txDetails.finca_location || tx.location || '',
+        transactionAmount: txDetails.Transaction_Amount || txDetails.finca_transaction_amount || 0,
         rawData: tx
       };
     } catch (error) {
@@ -737,7 +801,7 @@ export class AddCustomerComponent implements OnInit {
     const signals = tx.transaction_details?.real_time_signals;
     const ruleEngine = tx.transaction_details?.Rule_Engine;
 
-    let details = `This transaction was flagged as ${tx.risk_category || 'Unknown'} with a risk score of ${tx.risk_score || 0}. `;
+    let details = `This transaction was flagged as ${tx.risk_category || 'Unknown'} with a risk score of ${this.roundToTwo(tx.risk_score || 0)}. `;
 
     if (ruleEngine?.triggered) {
       details += `Rule engine triggered: ${ruleEngine.rules.join(', ')}. `;
@@ -764,53 +828,54 @@ export class AddCustomerComponent implements OnInit {
     const filtered = this.filteredTransactions.length ? this.filteredTransactions : this.transactions;
     this.stats = {
       total: filtered.length,
-      critical: filtered.filter(t => t.riskCategory === 'Critical').length,
-      high: filtered.filter(t => t.riskCategory === 'High').length,
-      medium: filtered.filter(t => t.riskCategory === 'Medium').length,
-      low: filtered.filter(t => t.riskCategory === 'Low').length,
+      critical: filtered.filter(t => t.finalRiskCategory === 'Critical').length,
+      high: filtered.filter(t => t.finalRiskCategory === 'High').length,
+      medium: filtered.filter(t => t.finalRiskCategory === 'Medium').length,
+      low: filtered.filter(t => t.finalRiskCategory === 'Low').length,
       avgRiskScore: filtered.length > 0
         ? Math.round((filtered.reduce((sum, t) => sum + t.riskScore, 0) / filtered.length) * 10) / 10
         : 0,
       alerts: filtered.filter(t => t.alertId).length,
       cases: filtered.filter(t => t.caseId).length,
-      blocked: filtered.filter(t => t.decision === 'BLOCK' || t.riskCategory === 'Critical').length,
-      challenged: filtered.filter(t => t.decision === 'CHALLENGE' || t.riskCategory === 'High').length,
-      approved: filtered.filter(t => t.decision === 'APPROVE' || t.riskCategory === 'Low').length
+      blocked: filtered.filter(t => t.decision === 'BLOCK' || t.finalRiskCategory === 'Critical').length,
+      challenged: filtered.filter(t => t.decision === 'CHALLENGE' || t.finalRiskCategory === 'High').length,
+      approved: filtered.filter(t => t.decision === 'APPROVE' || t.finalRiskCategory === 'Low').length
     };
   }
 
   applyFilters(): void {
-    this.filteredTransactions = this.transactions
-      .filter(t => {
-        if (this.riskFilter !== 'all' && t.riskCategory.toLowerCase() !== this.riskFilter) {
-          return false;
-        }
+  this.filteredTransactions = this.transactions
+    .filter(t => {
+      // ✅ Use finalRiskCategory for filtering (combined ML + Rules)
+      if (this.riskFilter !== 'all' && t.finalRiskCategory.toLowerCase() !== this.riskFilter) {
+        return false;
+      }
 
-        if (this.channelFilter !== 'all' && t.channel.toLowerCase() !== this.channelFilter.toLowerCase()) {
-          return false;
-        }
+      if (this.channelFilter !== 'all' && t.channel.toLowerCase() !== this.channelFilter.toLowerCase()) {
+        return false;
+      }
 
-        if (this.searchTerm) {
-          const term = this.searchTerm.toLowerCase();
-          return t.transactionId.toLowerCase().includes(term) ||
-            t.customerName.toLowerCase().includes(term) ||
-            t.location.toLowerCase().includes(term);
-        }
+      if (this.searchTerm) {
+        const term = this.searchTerm.toLowerCase();
+        return t.transactionId.toLowerCase().includes(term) ||
+          t.customerName.toLowerCase().includes(term) ||
+          t.location.toLowerCase().includes(term);
+      }
 
-        return true;
-      })
-      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+      return true;
+    })
+    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
-    this.currentPage = Math.min(this.currentPage, this.totalPages);
-    this.calculateStats();
-  }
+  this.currentPage = Math.min(this.currentPage, this.totalPages);
+  this.calculateStats();
+}
 
-  clearFilters(): void {
-    this.riskFilter = 'all';
-    this.channelFilter = 'all';
-    this.searchTerm = '';
-    this.applyFilters();
-  }
+clearFilters(): void {
+  this.riskFilter = 'all';
+  this.channelFilter = 'all';
+  this.searchTerm = '';
+  this.applyFilters();
+}
 
   getCounterpartyDisplay(transaction: Transaction): string {
     const raw = transaction.rawData || {};

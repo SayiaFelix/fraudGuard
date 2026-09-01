@@ -169,13 +169,31 @@
                 <span class="tx-id">{{ tx.transactionId }}</span>
               </td>
               <td class="fw-bold">{{ formatAmount(tx.amount) }}</td>
-              <td>
+              <!-- <td>
                 <span class="badge" [ngClass]="getRiskBadgeClass(tx.riskCategory)">{{ tx.riskCategory }}</span>
                 <div class="small mt-1">
                   <span class="text-muted">Score: </span>
                   <span [style.color]="getRiskProgressColor(tx.riskScore)">{{ tx.riskScore }}</span>
                 </div>
-              </td>
+              </td> -->
+
+              <td>
+  <!-- ML Risk (from transaction_details) -->
+  <span class="badge" [ngClass]="getRiskBadgeClass(tx.riskCategory)">{{ tx.riskCategory }}</span>
+  <div class="small mt-1">
+    <span class="text-muted">ML Score: </span>
+    <span [style.color]="getRiskProgressColor(tx.mlRiskScore || tx.riskScore)">{{ tx.mlRiskScore || tx.riskScore }}</span>
+  </div>
+  <!-- Final Risk (from root/risk_assessment) -->
+  <div class="small mt-1" *ngIf="tx.riskCategory !== tx.finalRiskCategory">
+    <span class="text-muted">Final: </span>
+    <span class="badge" [ngClass]="getRiskBadgeClass(tx.finalRiskCategory)" style="font-size: 0.65rem;">
+      {{ tx.finalRiskCategory }}
+    </span>
+    <span class="text-muted ms-1">({{ tx.riskScore }})</span>
+  </div>
+</td>
+
               <td>
                 <div class="d-flex align-items-center">
                   <i class="fas me-2" [ngClass]="getChannelIcon(tx.channel)"></i>
@@ -184,9 +202,9 @@
               </td>
               <td>
                 <span class="badge" [ngClass]="getStatusBadgeClass(tx.status)">{{ tx.status }}</span>
-                <div class="small text-muted" *ngIf="tx.decision && tx.decision !== 'N/A'">
+                <!-- <div class="small text-muted" *ngIf="tx.decision && tx.decision !== 'N/A'">
                   {{ tx.decision }}
-                </div>
+                </div> -->
               </td>
               <td class="text-end">
                 <button class="btn btn-sm btn-outline-primary" (click)="showAIAnalysis(tx)">
@@ -306,47 +324,71 @@
         <small class="text-muted" *ngIf="simulation.isRunning">Please wait while transactions are being processed...</small>
       </div>
 
-      <!-- Results Summary -->
+      <!-- Enhanced Simulation Modal - Results Summary Section -->
       <div *ngIf="simulation.summary" class="results-summary mb-4">
         <h5 class="fw-bold mb-3">
           <i class="fas fa-chart-bar me-2 text-success"></i>
           Simulation Results
         </h5>
+        
+        <!-- Enhanced Stats Row with Risk Indicators -->
         <div class="row g-3">
-          <div class="col-md-3 col-6">
+          <div class="col-md-2 col-4">
             <div class="stat-card bg-light rounded-3 p-3">
               <small class="text-muted d-block">Total</small>
               <h4 class="fw-bold mb-0">{{ simulation.summary.total }}</h4>
             </div>
           </div>
-          <div class="col-md-3 col-6">
+          <div class="col-md-2 col-4">
+            <div class="stat-card bg-danger bg-opacity-10 rounded-3 p-3 critical-stat">
+              <small class="text-danger d-block">
+                <span class="risk-indicator critical"></span> Critical
+              </small>
+              <h4 class="fw-bold text-danger mb-0">{{ simulation.summary.risk_distribution?.CRITICAL || 0 }}</h4>
+            </div>
+          </div>
+          <div class="col-md-2 col-4">
+            <div class="stat-card bg-warning bg-opacity-10 rounded-3 p-3 high-stat">
+              <small class="text-warning d-block">
+                <span class="risk-indicator high"></span> High
+              </small>
+              <h4 class="fw-bold text-warning mb-0">{{ simulation.summary.risk_distribution?.HIGH || 0 }}</h4>
+            </div>
+          </div>
+          <div class="col-md-2 col-4">
+            <div class="stat-card bg-info bg-opacity-10 rounded-3 p-3">
+              <small class="text-info d-block">
+                <span class="risk-indicator medium"></span> Medium
+              </small>
+              <h4 class="fw-bold text-info mb-0">{{ simulation.summary.risk_distribution?.MEDIUM || 0 }}</h4>
+            </div>
+          </div>
+          <div class="col-md-2 col-4">
+            <div class="stat-card bg-success bg-opacity-10 rounded-3 p-3">
+              <small class="text-success d-block">
+                <span class="risk-indicator low"></span> Low
+              </small>
+              <h4 class="fw-bold text-success mb-0">{{ simulation.summary.risk_distribution?.LOW || 0 }}</h4>
+            </div>
+          </div>
+          <div class="col-md-2 col-4">
             <div class="stat-card bg-danger bg-opacity-10 rounded-3 p-3">
               <small class="text-danger d-block">Blocked</small>
               <h4 class="fw-bold text-danger mb-0">{{ simulation.summary.blocked }}</h4>
             </div>
           </div>
-          <div class="col-md-3 col-6">
-            <div class="stat-card bg-warning bg-opacity-10 rounded-3 p-3">
-              <small class="text-warning d-block">Challenged</small>
-              <h4 class="fw-bold text-warning mb-0">{{ simulation.summary.challenged }}</h4>
-            </div>
-          </div>
-          <div class="col-md-3 col-6">
-            <div class="stat-card bg-success bg-opacity-10 rounded-3 p-3">
-              <small class="text-success d-block">Approved</small>
-              <h4 class="fw-bold text-success mb-0">{{ simulation.summary.approved }}</h4>
-            </div>
-          </div>
-          <div class="col-md-3 col-6">
-            <div class="stat-card bg-danger bg-opacity-10 rounded-3 p-3">
-              <small class="text-danger d-block">Alerts</small>
-              <h4 class="fw-bold text-danger mb-0">{{ simulation.summary.alerts }}</h4>
-            </div>
-          </div>
-          <div class="col-md-3 col-6">
-            <div class="stat-card bg-warning bg-opacity-10 rounded-3 p-3">
-              <small class="text-warning d-block">Cases</small>
-              <h4 class="fw-bold text-warning mb-0">{{ simulation.summary.cases }}</h4>
+        </div>
+
+        <!-- Critical Alert Warning -->
+        <div class="mt-3" *ngIf="simulation.summary?.risk_distribution?.CRITICAL > 0">
+          <div class="alert alert-danger d-flex align-items-center" role="alert">
+            <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+            <div>
+              <strong>{{ simulation.summary.risk_distribution.CRITICAL }} Critical Risk Transactions Detected!</strong>
+              <p class="mb-0 small">
+                These transactions have been flagged for immediate investigation due to high-risk patterns 
+                (unknown devices, international locations, unusual amounts, and high velocity).
+              </p>
             </div>
           </div>
         </div>
@@ -355,16 +397,21 @@
         <div class="mt-3" *ngIf="simulation.summary.risk_distribution">
           <small class="text-muted d-block">Risk Distribution</small>
           <div class="d-flex gap-2 flex-wrap">
-            <span class="badge bg-danger" *ngIf="simulation.summary.risk_distribution.CRITICAL > 0">
+            <span class="badge bg-danger" *ngIf="simulation.summary.risk_distribution.CRITICAL > 0" style="font-size: 0.9rem; padding: 6px 14px;">
+              <i class="fas fa-skull me-1"></i>
               Critical: {{ simulation.summary.risk_distribution.CRITICAL }}
+              <span class="ms-1 text-white-50">(High Priority)</span>
             </span>
-            <span class="badge bg-warning text-dark" *ngIf="simulation.summary.risk_distribution.HIGH > 0">
+            <span class="badge bg-warning text-dark" *ngIf="simulation.summary.risk_distribution.HIGH > 0" style="font-size: 0.9rem; padding: 6px 14px;">
+              <i class="fas fa-exclamation-triangle me-1"></i>
               High: {{ simulation.summary.risk_distribution.HIGH }}
             </span>
-            <span class="badge bg-info" *ngIf="simulation.summary.risk_distribution.MEDIUM > 0">
+            <span class="badge bg-info" *ngIf="simulation.summary.risk_distribution.MEDIUM > 0" style="font-size: 0.9rem; padding: 6px 14px;">
+              <i class="fas fa-chart-line me-1"></i>
               Medium: {{ simulation.summary.risk_distribution.MEDIUM }}
             </span>
-            <span class="badge bg-success" *ngIf="simulation.summary.risk_distribution.LOW > 0">
+            <span class="badge bg-success" *ngIf="simulation.summary.risk_distribution.LOW > 0" style="font-size: 0.9rem; padding: 6px 14px;">
+              <i class="fas fa-check-circle me-1"></i>
               Low: {{ simulation.summary.risk_distribution.LOW }}
             </span>
           </div>
@@ -483,7 +530,7 @@
           <div class="col-md-4">
             <small class="text-muted d-block">Risk Score</small>
             <strong [style.color]="getRiskProgressColor(selectedTransaction.riskScore)">
-              {{ selectedTransaction.riskScore }}/10
+              {{ selectedTransaction.riskScore }}
             </strong>
           </div>
         </div>
@@ -548,7 +595,7 @@
               <p class="analysis-text mb-0">
                 This transaction was flagged as 
                 <strong class="risk-highlight">{{ selectedTransaction.riskCategory }}</strong> 
-                with a risk score of <strong>{{ selectedTransaction.riskScore }}/10</strong>.
+                with a risk score of <strong>{{ selectedTransaction.riskScore }}/100</strong>.
               </p>
               <p class="analysis-text mt-2">
                 {{ selectedTransaction.aiAnalysis.final || selectedTransaction.aiAnalysis.details }}
@@ -638,6 +685,69 @@
             </div>
           </div>
         </div>
+
+        <!-- FINCA Rules Triggered Section - Add this inside the modal-body after Rule Engine Section -->
+<div class="finca-rules-section mb-3" *ngIf="selectedTransaction.fincaRulesTriggered && selectedTransaction.fincaRulesTriggered.length > 0">
+  <div class="card border-danger">
+    <div class="card-header bg-danger bg-opacity-10">
+      <h4 class="mb-0">
+        <i class="fas fa-gavel me-2 text-danger"></i>
+        FINCA Rules Triggered
+      </h4>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-sm table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Rule ID</th>
+              <th>Rule Name</th>
+              <th>Reason</th>
+              <th class="text-end">Points</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let rule of selectedTransaction.fincaRulesTriggered">
+              <td><span class="badge bg-secondary">{{ rule.rule_id || 'N/A' }}</span></td>
+              <td><strong>{{ rule.rule_name || 'Unknown Rule' }}</strong></td>
+              <td>{{ rule.reason || 'No reason provided' }}</td>
+              <td class="text-end"><span class="badge bg-warning text-dark">{{ rule.rule_points || 0 }}</span></td>
+            </tr>
+          </tbody>
+          <tfoot class="table-light">
+            <tr>
+              <td colspan="3" class="fw-bold">Total Rule Points</td>
+              <td class="text-end fw-bold">
+                <span class="badge bg-danger">{{ selectedTransaction.fincaTotalRulePoints || 0 }}</span>
+                <small class="text-muted ms-1">(capped: {{ selectedTransaction.fincaCappedRulePoints || 0 }})</small>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div class="mt-2 d-flex gap-2">
+        <span class="badge" [ngClass]="{
+          'bg-danger': selectedTransaction.fincaRuleRiskLevel === 'CRITICAL',
+          'bg-warning text-dark': selectedTransaction.fincaRuleRiskLevel === 'HIGH',
+          'bg-info': selectedTransaction.fincaRuleRiskLevel === 'MEDIUM',
+          'bg-success': selectedTransaction.fincaRuleRiskLevel === 'LOW'
+        }">
+          Rule Risk Level: {{ selectedTransaction.fincaRuleRiskLevel || 'N/A' }}
+        </span>
+        <span class="badge" [ngClass]="{
+          'bg-danger': selectedTransaction.fincaFinalDecision === 'BLOCK',
+          'bg-warning text-dark': selectedTransaction.fincaFinalDecision === 'CHALLENGE',
+          'bg-success': selectedTransaction.fincaFinalDecision === 'APPROVE'
+        }">
+          FINCA Decision: {{ selectedTransaction.fincaFinalDecision || 'N/A' }}
+        </span>
+        <span class="badge bg-secondary">
+          Rules Count: {{ selectedTransaction.fincaRuleCount || 0 }}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
 
         <!-- Feedback Effect Section -->
         <div class="feedback-effect-section mb-3" *ngIf="selectedTransaction.feedbackEffect">
@@ -803,7 +913,7 @@
                     <th>Amount</th>
                     <th>Risk Score</th>
                     <th>Risk Level</th>
-                    <th>Status</th>
+                    <!-- <th>Status</th> -->
                   </tr>
                 </thead>
                 <tbody>
@@ -812,29 +922,29 @@
                     <td class="fw-bold">{{ formatAmount(related.amount) }}</td>
                     <td>
                       <span class="badge" [ngClass]="getRiskBadgeClass(
-                        related.riskScore >= 8 ? 'Critical' : 
-                        related.riskScore >= 6 ? 'High' : 
-                        related.riskScore >= 4 ? 'Medium' : 'Low'
+                        related.riskScore >= 80 ? 'Critical' : 
+                        related.riskScore >= 60 ? 'High' : 
+                        related.riskScore >= 40 ? 'Medium' : 'Low'
                       )">
-                        {{ related.riskScore }}/10
+                        {{ related.riskScore }}
                       </span>
                     </td>
                     <td>
                       <span class="badge" [ngClass]="getRiskBadgeClass(
-                        related.riskScore >= 8 ? 'Critical' : 
-                        related.riskScore >= 6 ? 'High' : 
-                        related.riskScore >= 4 ? 'Medium' : 'Low'
+                        related.riskScore >= 80 ? 'Critical' : 
+                        related.riskScore >= 60 ? 'High' : 
+                        related.riskScore >= 40 ? 'Medium' : 'Low'
                       )">
-                        {{ related.riskScore >= 8 ? 'Critical' : 
-                          related.riskScore >= 6 ? 'High' : 
-                          related.riskScore >= 4 ? 'Medium' : 'Low' }}
+                        {{ related.riskScore >= 80 ? 'Critical' : 
+                          related.riskScore >= 60 ? 'High' : 
+                          related.riskScore >= 40 ? 'Medium' : 'Low' }}
                       </span>
                     </td>
-                    <td>
+                    <!-- <td>
                       <span class="badge" [ngClass]="getStatusBadgeClass(related.status)">
                         {{ related.status }}
                       </span>
-                    </td>
+                    </td> -->
                   </tr>
                 </tbody>
               </table>
