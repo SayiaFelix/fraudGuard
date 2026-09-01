@@ -39,8 +39,8 @@ export class LoginComponent implements OnInit {
  
   // Admin credentials for demo
   readonly adminCredentials = {
-    email: 'admin@fraudsentinelAI.com',
-    password: 'admin@123',
+    email: 'sayia.felix@eclectics.io',
+    password: 'sFelixAdmin@123',
     role: 'admin'
   };
 
