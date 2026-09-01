@@ -1,0 +1,1485 @@
+<div class="customer-profiling-page">
+
+  <!-- =====================================================
+       PAGE HEADER
+  ====================================================== -->
+
+  <div
+    class="page-header"
+    *ngIf="!selectedCustomer">
+
+    <div>
+
+      <h1>
+        Customer Profiling
+      </h1>
+
+      <p>
+        Customer 360 intelligence,
+        behavioural insights and transaction activity
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <!-- =====================================================
+       ERROR
+  ====================================================== -->
+
+  <div
+    class="error-banner"
+    *ngIf="errorMessage">
+
+    {{ errorMessage }}
+
+  </div>
+
+
+  <!-- =====================================================
+       CUSTOMER LIST
+  ====================================================== -->
+
+  <ng-container
+    *ngIf="!selectedCustomer">
+
+
+    <!-- FILTERS -->
+
+    <div class="filter-card">
+
+      <div class="filter-group search-group">
+
+        <label>
+          Search
+        </label>
+
+        <input
+          type="text"
+          [value]="search"
+          (input)="onSearch($event)"
+          (keyup.enter)="loadCustomers(1)"
+          placeholder="Customer ID, name, phone or email">
+
+      </div>
+
+
+      <div class="filter-group">
+
+        <label>
+          Segment
+        </label>
+
+        <select
+          [value]="segment"
+          (change)="onSegmentChange($event)">
+
+          <option value="">
+            All Segments
+          </option>
+
+          <option value="RETAIL_LOW">
+            Retail
+          </option>
+
+          <option value="SALARIED">
+            Salaried
+          </option>
+
+          <option value="SME">
+            SME
+          </option>
+
+          <option value="LOAN">
+            Loan
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="filter-group">
+
+        <label>
+          Risk Level
+        </label>
+
+        <select
+          [value]="riskProfile"
+          (change)="onRiskChange($event)">
+
+          <option value="">
+            All Risk Levels
+          </option>
+
+          <option value="LOW">
+            Low
+          </option>
+
+          <option value="MEDIUM">
+            Medium
+          </option>
+
+          <option value="HIGH">
+            High
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <button
+        class="search-button"
+        (click)="loadCustomers(1)">
+
+        Search
+
+      </button>
+
+
+      <button
+        class="clear-button"
+        (click)="clearFilters()">
+
+        Clear
+
+      </button>
+
+    </div>
+
+
+    <!-- TABLE CARD -->
+
+    <div class="customer-table-card">
+
+      <div class="table-heading">
+
+        <div>
+
+          <h2>
+            Customers
+          </h2>
+
+          <span>
+            {{ pagination.total }}
+            customer profiles
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <!-- LOADING -->
+
+      <div
+        class="loading-state"
+        *ngIf="loading">
+
+        Loading customers...
+
+      </div>
+
+
+      <!-- TABLE -->
+
+      <div
+        class="table-responsive"
+        *ngIf="!loading">
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>
+                Customer ID
+              </th>
+
+              <th>
+                Customer
+              </th>
+
+              <th>
+                Segment
+              </th>
+
+              <th>
+                City
+              </th>
+
+              <th>
+                Branch
+              </th>
+
+              <th>
+                Status
+              </th>
+
+              <th>
+                Risk
+              </th>
+
+              <th>
+              </th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody>
+
+            <tr
+              *ngFor="let customer of customers"
+              (click)="openCustomer(customer.customer_id)"
+              class="customer-row">
+
+              <td class="customer-id">
+
+                {{ customer.customer_id }}
+
+              </td>
+
+
+              <td>
+
+                <div class="customer-name">
+
+                  <div class="customer-avatar">
+
+                    {{
+                      customer.full_name
+                        .charAt(0)
+                    }}
+
+                  </div>
+
+                  <strong>
+                    {{ customer.full_name }}
+                  </strong>
+
+                </div>
+
+              </td>
+
+
+              <td>
+
+                {{
+                  formatLabel(
+                    customer.customer_segment
+                  )
+                }}
+
+              </td>
+
+
+              <td>
+
+                {{
+                  formatLabel(
+                    customer.home_city
+                  )
+                }}
+
+              </td>
+
+
+              <td>
+
+                {{ customer.branch_code }}
+
+              </td>
+
+
+              <td>
+
+                <span class="active-badge">
+
+                  {{
+                    formatLabel(
+                      customer.account_status
+                    )
+                  }}
+
+                </span>
+
+              </td>
+
+
+              <td>
+
+                <span
+                  class="risk-badge"
+                  [ngClass]="
+                    getRiskClass(
+                      customer.risk_profile
+                    )
+                  ">
+
+                  {{ customer.risk_profile }}
+
+                </span>
+
+              </td>
+
+
+              <td class="view-cell">
+
+                View →
+
+              </td>
+
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+
+      <!-- PAGINATION -->
+
+      <div class="pagination-bar">
+
+        <div>
+
+          Showing page
+
+          <strong>
+            {{ pagination.page }}
+          </strong>
+
+          of
+
+          <strong>
+            {{ pagination.total_pages }}
+          </strong>
+
+        </div>
+
+
+        <div class="pagination-actions">
+
+          <button
+            (click)="previousPage()"
+            [disabled]="pagination.page <= 1">
+
+            Previous
+
+          </button>
+
+          <button
+            (click)="nextPage()"
+            [disabled]="!pagination.has_more">
+
+            Next
+
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </ng-container>
+
+
+
+  <!-- =====================================================
+       CUSTOMER 360 DETAILS
+  ====================================================== -->
+
+  <ng-container
+    *ngIf="selectedCustomer as profile">
+
+
+    <!-- BACK -->
+
+    <button
+      class="back-button"
+      (click)="backToCustomers()">
+
+      ← Back to Customers
+
+    </button>
+
+
+    <!-- PROFILE HEADER -->
+
+    <div class="profile-header-card">
+
+      <div class="profile-main">
+
+        <div class="large-avatar">
+
+          {{
+            profile.customer.full_name
+              .charAt(0)
+          }}
+
+        </div>
+
+
+        <div>
+
+          <h1>
+
+            {{
+              profile.customer.full_name
+            }}
+
+          </h1>
+
+
+          <div class="customer-meta">
+
+            <span>
+              {{
+                profile.customer.customer_id
+              }}
+            </span>
+
+            <span>
+              •
+            </span>
+
+            <span>
+              {{
+                formatLabel(
+                  profile.customer.customer_segment
+                )
+              }}
+            </span>
+
+            <span>
+              •
+            </span>
+
+            <span>
+              {{
+                formatLabel(
+                  profile.customer.home_city
+                )
+              }}
+            </span>
+
+            <span>
+              •
+            </span>
+
+            <span>
+              {{
+                profile.customer.branch_code
+              }}
+            </span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="profile-status">
+
+        <span
+          class="risk-badge large"
+          [ngClass]="
+            getRiskClass(
+              profile.customer.risk_profile
+            )
+          ">
+
+          {{
+            profile.customer.risk_profile
+          }}
+          RISK
+
+        </span>
+
+
+        <span class="active-badge">
+
+          {{
+            profile.customer.account_status
+          }}
+
+        </span>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         KPI CARDS
+    ====================================================== -->
+
+    <div class="kpi-grid">
+
+      <div class="kpi-card">
+
+        <span>
+          Total Balance
+        </span>
+
+        <strong>
+
+          {{
+            formatCurrency(
+              profile.kpis.total_balance
+            )
+          }}
+
+        </strong>
+
+        <small>
+          Across all accounts
+        </small>
+
+      </div>
+
+
+      <div class="kpi-card">
+
+        <span>
+          Transactions 30D
+        </span>
+
+        <strong>
+
+          {{
+            profile.kpis.transactions_30d
+          }}
+
+        </strong>
+
+        <small>
+          Last 30 days
+        </small>
+
+      </div>
+
+
+      <div class="kpi-card">
+
+        <span>
+          Avg Transaction
+        </span>
+
+        <strong>
+
+          {{
+            formatCurrency(
+              profile.kpis
+                .average_transaction_amount
+            )
+          }}
+
+        </strong>
+
+        <small>
+          Observed history
+        </small>
+
+      </div>
+
+
+      <div class="kpi-card">
+
+        <span>
+          Accounts
+        </span>
+
+        <strong>
+
+          {{
+            profile.kpis.account_count
+          }}
+
+        </strong>
+
+        <small>
+          Active relationships
+        </small>
+
+      </div>
+
+
+      <div class="kpi-card">
+
+        <span>
+          Known Devices
+        </span>
+
+        <strong>
+
+          {{
+            profile.kpis.known_devices
+          }}
+
+        </strong>
+
+        <small>
+          Digital footprint
+        </small>
+
+      </div>
+
+
+      <div class="kpi-card">
+
+        <span>
+          Failed Logins
+        </span>
+
+        <strong>
+
+          {{
+            profile.kpis.failed_logins
+          }}
+
+        </strong>
+
+        <small>
+          Authentication events
+        </small>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         CHART + BEHAVIOUR
+    ====================================================== -->
+
+    <div class="analytics-grid">
+
+
+      <!-- TRANSACTION GRAPH -->
+
+      <div class="content-card trend-card">
+
+        <div class="card-title">
+
+          <div>
+
+            <h2>
+              Transaction Activity
+            </h2>
+
+            <p>
+              Transaction value over the latest 30 days
+            </p>
+
+          </div>
+
+
+          <span class="metric-badge">
+
+            30 Days
+
+          </span>
+
+        </div>
+
+
+        <div class="trend-chart">
+
+          <div
+            class="trend-column"
+            *ngFor="
+              let point of profile.transaction_trend;
+              let i = index
+            "
+            [title]="
+              point.date +
+              ' - ' +
+              formatCurrency(
+                point.total_amount
+              )
+            ">
+
+            <div class="trend-bar-container">
+
+              <div
+                class="trend-bar"
+                [style.height.%]="
+                  getTrendHeight(
+                    point.total_amount
+                  )
+                ">
+
+              </div>
+
+            </div>
+
+
+            <span
+              class="trend-date"
+              *ngIf="i % 5 === 0">
+
+              {{
+                point.date
+                  | date:'dd MMM'
+              }}
+
+            </span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- NORMAL BEHAVIOUR -->
+
+      <div class="content-card">
+
+        <div class="card-title">
+
+          <div>
+
+            <h2>
+              Normal Behaviour
+            </h2>
+
+            <p>
+              Historical behavioural baseline
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="behaviour-list">
+
+          <div>
+
+            <span>
+              Typical Amount
+            </span>
+
+            <strong>
+
+              {{
+                formatCurrency(
+                  profile.behavior_profile
+                    .typical_amount_range.min
+                )
+              }}
+
+              –
+
+              {{
+                formatCurrency(
+                  profile.behavior_profile
+                    .typical_amount_range.max
+                )
+              }}
+
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Average Amount
+            </span>
+
+            <strong>
+
+              {{
+                formatCurrency(
+                  profile.behavior_profile
+                    .average_transaction_amount
+                )
+              }}
+
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Median Amount
+            </span>
+
+            <strong>
+
+              {{
+                formatCurrency(
+                  profile.behavior_profile
+                    .median_transaction_amount
+                )
+              }}
+
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Typical Location
+            </span>
+
+            <strong>
+
+              {{
+                profile.behavior_profile
+                  .typical_locations
+                  .join(', ')
+              }}
+
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Preferred Channels
+            </span>
+
+            <strong>
+
+              <ng-container
+                *ngFor="
+                  let channel of
+                  profile.behavior_profile
+                    .typical_channels;
+                  let last = last
+                ">
+
+                {{
+                  formatLabel(channel)
+                }}{{ !last ? ', ' : '' }}
+
+              </ng-container>
+
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Typical Device
+            </span>
+
+            <strong>
+
+              {{
+                profile.behavior_profile
+                  .typical_device_names[0]
+                  || '-'
+              }}
+
+            </strong>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         CUSTOMER DETAILS + TRANSACTION SUMMARY
+    ====================================================== -->
+
+    <div class="analytics-grid">
+
+      <div class="content-card">
+
+        <div class="card-title">
+
+          <h2>
+            Customer Information
+          </h2>
+
+        </div>
+
+
+        <div class="info-grid">
+
+          <div>
+
+            <span>
+              Email
+            </span>
+
+            <strong>
+              {{ profile.customer.email }}
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Phone
+            </span>
+
+            <strong>
+              {{ profile.customer.phone_number }}
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Segment
+            </span>
+
+            <strong>
+
+              {{
+                formatLabel(
+                  profile.customer.customer_segment
+                )
+              }}
+
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Home City
+            </span>
+
+            <strong>
+
+              {{
+                formatLabel(
+                  profile.customer.home_city
+                )
+              }}
+
+            </strong>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="content-card">
+
+        <div class="card-title">
+
+          <h2>
+            Transaction Summary
+          </h2>
+
+        </div>
+
+
+        <div class="info-grid">
+
+          <div>
+
+            <span>
+              Total Transactions
+            </span>
+
+            <strong>
+
+              {{
+                profile.transaction_summary
+                  .total_transactions
+              }}
+
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Preferred Channel
+            </span>
+
+            <strong>
+
+              {{
+                formatLabel(
+                  profile.transaction_summary
+                    .preferred_channel
+                )
+              }}
+
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Largest Transaction
+            </span>
+
+            <strong>
+
+              {{
+                formatCurrency(
+                  profile.transaction_summary
+                    .maximum_transaction_amount
+                )
+              }}
+
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Last Activity
+            </span>
+
+            <strong>
+
+              {{
+                profile.transaction_summary
+                  .last_transaction
+                  | date:'dd MMM yyyy, HH:mm'
+              }}
+
+            </strong>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         ACCOUNTS
+    ====================================================== -->
+
+    <div class="content-card section-card">
+
+      <div class="card-title">
+
+        <h2>
+          Accounts
+        </h2>
+
+      </div>
+
+
+      <div class="table-responsive">
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>
+                Type
+              </th>
+
+              <th>
+                Account
+              </th>
+
+              <th>
+                Balance
+              </th>
+
+              <th>
+                Status
+              </th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody>
+
+            <tr
+              *ngFor="
+                let account of profile.accounts
+              ">
+
+              <td>
+
+                {{
+                  formatLabel(
+                    account.account_type
+                  )
+                }}
+
+              </td>
+
+              <td>
+
+                {{
+                  account.masked_account_number
+                }}
+
+              </td>
+
+              <td class="amount">
+
+                {{
+                  formatCurrency(
+                    account.current_balance
+                  )
+                }}
+
+              </td>
+
+              <td>
+
+                <span class="active-badge">
+
+                  {{ account.status }}
+
+                </span>
+
+              </td>
+
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         DEVICES
+    ====================================================== -->
+
+    <div class="content-card section-card">
+
+      <div class="card-title">
+
+        <h2>
+          Known Devices
+        </h2>
+
+      </div>
+
+
+      <div class="device-grid">
+
+        <div
+          class="device-card"
+          *ngFor="
+            let device of profile.devices
+          ">
+
+          <div class="device-header">
+
+            <div class="device-icon">
+
+              📱
+
+            </div>
+
+
+            <div>
+
+              <strong>
+
+                {{ device.device_name }}
+
+              </strong>
+
+              <span>
+
+                {{
+                  device.os_version
+                }}
+
+                •
+
+                {{
+                  device.device_model
+                }}
+
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <div class="device-details">
+
+            <div>
+
+              <span>
+                Trust Score
+              </span>
+
+              <strong>
+
+                {{
+                  device.trust_score
+                }}
+
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <span>
+                Status
+              </span>
+
+              <strong
+                [class.trusted]="
+                  device.is_trusted
+                ">
+
+                {{
+                  device.is_trusted
+                    ? 'Trusted'
+                    : 'Untrusted'
+                }}
+
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <span>
+                Last Seen
+              </span>
+
+              <strong>
+
+                {{
+                  device.last_seen
+                    | date:'dd MMM yyyy'
+                }}
+
+              </strong>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         RECENT TRANSACTIONS
+    ====================================================== -->
+
+    <div class="content-card section-card">
+
+      <div class="card-title">
+
+        <div>
+
+          <h2>
+            Recent Transactions
+          </h2>
+
+          <p>
+            Latest customer transaction activity
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="table-responsive">
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>
+                Date
+              </th>
+
+              <th>
+                Transaction ID
+              </th>
+
+              <th>
+                Type
+              </th>
+
+              <th>
+                Channel
+              </th>
+
+              <th>
+                Location
+              </th>
+
+              <th>
+                Amount
+              </th>
+
+              <th>
+                Status
+              </th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody>
+
+            <tr
+              *ngFor="
+                let tx of
+                profile.recent_transactions
+              ">
+
+              <td>
+
+                {{
+                  tx.transaction_date
+                    | date:'dd MMM yyyy'
+                }}
+
+              </td>
+
+
+              <td class="transaction-id">
+
+                {{ tx.transaction_id }}
+
+              </td>
+
+
+              <td>
+
+                {{
+                  formatLabel(
+                    tx.transaction_type
+                  )
+                }}
+
+              </td>
+
+
+              <td>
+
+                {{
+                  formatLabel(
+                    tx.channel
+                  )
+                }}
+
+              </td>
+
+
+              <td>
+
+                {{
+                  formatLabel(
+                    tx.location_city
+                  )
+                }}
+
+              </td>
+
+
+              <td class="amount">
+
+                {{
+                  formatCurrency(
+                    tx.amount
+                  )
+                }}
+
+              </td>
+
+
+              <td>
+
+                <span
+                  class="status-badge"
+                  [ngClass]="
+                    getStatusClass(
+                      tx.status
+                    )
+                  ">
+
+                  {{ tx.status }}
+
+                </span>
+
+              </td>
+
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </ng-container>
+
+</div>
