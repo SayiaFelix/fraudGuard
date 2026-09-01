@@ -756,7 +756,7 @@
                 </div>
                 <div class="col-6">
                   <small class="text-muted d-block">Adjusted Score:</small>
-                  <strong [style.color]="getRiskProgressColor(selectedTransaction.feedbackEffect?.adjusted_score ?? 0)">
+                  <strong [style.color]="getRiskProgressColor(selectedTransaction.feedbackEffect.adjusted_score ?? 0)">
                     {{ selectedTransaction.feedbackEffect.adjusted_score }}
                   </strong>
                   <small class="text-muted d-block">{{ selectedTransaction.feedbackEffect.adjusted_category }}</small>
