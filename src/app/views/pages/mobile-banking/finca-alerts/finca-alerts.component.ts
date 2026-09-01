@@ -86,7 +86,7 @@ export class FincaAlertsComponent implements OnInit, OnDestroy {
           read: a.read || false
         }));
         if (this.alerts.length === 0 && !silent) {
-          this.finca.listFraudHistory(this.page, this.size).subscribe({
+          this.finca.getFraudHistory(this.page, this.size).subscribe({
             next: (hres) => {
               this.alerts = (hres.fraud_transactions || []).map((a: any) => ({
                 ...a,

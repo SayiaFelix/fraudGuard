@@ -1,5 +1,5 @@
 <div class="p-4 case-mgmt">
-  <!-- Header -->
+  <!-- ===== HEADER ===== -->
   <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-2">
     <div>
       <h3 class="mb-1 fw-bold">
@@ -8,44 +8,50 @@
       <small class="text-muted">Detection → Investigation → Resolution — full analyst workflow</small>
     </div>
     <div class="d-flex flex-wrap gap-2">
+      <!-- Keyboard shortcuts hint -->
+      <span class="text-muted small d-none d-md-inline-block me-1" style="font-size:0.65rem; align-self:center;">
+        <kbd>Ctrl+N</kbd> new · <kbd>Ctrl+R</kbd> refresh · <kbd>ESC</kbd> close
+      </span>
       <button class="btn btn-sm btn-outline-secondary" (click)="refresh()" [disabled]="loading">
         <i class="fas fa-sync-alt me-1" [class.fa-spin]="loading"></i> Refresh
       </button>
       <button class="btn btn-sm btn-outline-dark" (click)="exportCases()">
         <i class="fas fa-download me-1"></i> Export
       </button>
-      <button class="btn btn-sm btn-success" (click)="openNewCase()">
+      <button class="btn btn-sm btn-success" (click)="openCreateCaseModal()">
         <i class="fas fa-plus me-1"></i> Create Case
       </button>
     </div>
   </div>
 
-  <!-- Stats -->
+  <!-- ===== STATS ===== -->
   <div class="row g-3 mb-4">
     <div class="col-md-2 col-6" *ngFor="let s of statCards">
       <div class="stat-card rounded-3 p-3" [ngClass]="s.bgClass">
-        <small class="d-block" [ngClass]="s.textClass">{{ s.label }}</small>
+        <small class="d-block" [ngClass]="s.textClass">
+          <i class="fas me-1" [ngClass]="s.icon"></i>{{ s.label }}
+        </small>
         <h3 class="fw-bold mb-0" [ngClass]="s.textClass">{{ s.value }}</h3>
       </div>
     </div>
   </div>
 
-  <!-- Live Dashboard Metrics -->
+  <!-- ===== LIVE DASHBOARD METRICS ===== -->
   <div class="card shadow-sm mb-4" *ngIf="dashboardMetrics">
     <div class="card-body py-2">
       <div class="d-flex flex-wrap gap-4 align-items-center justify-content-between">
         <small class="text-muted fw-bold"><i class="fas fa-chart-bar me-1"></i> Platform Metrics</small>
-        <div class="d-flex flex-wrap gap-3">
+        <!-- <div class="d-flex flex-wrap gap-3">
           <span class="small"><i class="fas fa-exchange-alt text-primary me-1"></i> <strong>{{ dashboardMetrics.total_transactions || 0 }}</strong> transactions</span>
           <span class="small"><i class="fas fa-bell text-danger me-1"></i> <strong>{{ dashboardMetrics.total_alerts || 0 }}</strong> alerts</span>
           <span class="small"><i class="fas fa-briefcase text-warning me-1"></i> <strong>{{ dashboardMetrics.open_cases || 0 }}</strong> open cases</span>
           <span class="small"><i class="fas fa-ban text-dark me-1"></i> <strong>{{ dashboardMetrics.blocked || 0 }}</strong> blocked</span>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
 
-  <!-- Workflow Pipeline -->
+  <!-- ===== WORKFLOW PIPELINE ===== -->
   <div class="card shadow-sm mb-4">
     <div class="card-body py-2">
       <div class="workflow-pipeline">
@@ -60,29 +66,30 @@
     </div>
   </div>
 
-  <!-- View Switcher -->
+  <!-- ===== VIEW SWITCHER ===== -->
   <div class="view-switcher btn-group mb-3" role="group">
-    <button class="btn btn-sm" [class.btn-primary]="activeView==='queue'" [class.btn-outline-primary]="activeView!=='queue'" (click)="activeView='queue'">
+    <button class="btn btn-sm" [class.btn-primary]="activeView==='queue'" [class.btn-outline-primary]="activeView!=='queue'" (click)="activeView='queue'; clearFilters()">
       <i class="fas fa-list me-1"></i> Case Queue
     </button>
-    <button class="btn btn-sm" [class.btn-primary]="activeView==='my'" [class.btn-outline-primary]="activeView!=='my'" (click)="activeView='my'; filterAssigned='mine'">
+    <button class="btn btn-sm" [class.btn-primary]="activeView==='my'" [class.btn-outline-primary]="activeView!=='my'" (click)="activeView='my'; filterAssigned='mine'; applyFilter()">
       <i class="fas fa-user me-1"></i> My Cases
     </button>
-    <button class="btn btn-sm" [class.btn-primary]="activeView==='escalated'" [class.btn-outline-primary]="activeView!=='escalated'" (click)="activeView='escalated'; filterPriority='URGENT'">
+    <button class="btn btn-sm" [class.btn-primary]="activeView==='escalated'" [class.btn-outline-primary]="activeView!=='escalated'" (click)="activeView='escalated'; filterPriority='URGENT'; applyFilter()">
       <i class="fas fa-exclamation-triangle me-1"></i> Escalations
     </button>
-    <button class="btn btn-sm" [class.btn-primary]="activeView==='resolved'" [class.btn-outline-primary]="activeView!=='resolved'" (click)="activeView='resolved'; filterStatus='RESOLVED'">
+    <button class="btn btn-sm" [class.btn-primary]="activeView==='resolved'" [class.btn-outline-primary]="activeView!=='resolved'" (click)="activeView='resolved'; filterStatus='RESOLVED'; applyFilter()">
       <i class="fas fa-check-circle me-1"></i> Resolved
     </button>
   </div>
 
+  <!-- ===== MAIN CONTENT ===== -->
   <div class="row">
-    <!-- Left: Case List -->
+    <!-- ===== LEFT: CASE LIST ===== -->
     <div class="col-lg-4">
       <!-- Filters -->
       <div class="card shadow-sm mb-3">
         <div class="card-body p-3">
-          <input class="form-control form-control-sm mb-2" placeholder="Search ID, customer, alert..." [(ngModel)]="filterText" (input)="applyFilter()" />
+          <input class="form-control form-control-sm mb-2" placeholder="🔍 Search ID, customer, alert..." [(ngModel)]="filterText" (input)="applyFilter()" />
           <div class="row g-2">
             <div class="col-6">
               <select class="form-select form-select-sm" [(ngModel)]="filterStatus" (change)="applyFilter()">
@@ -127,8 +134,9 @@
         <button class="btn btn-link btn-sm p-0" (click)="clearFilters()">Clear filters</button>
       </div>
 
-      <div class="list-group" style="max-height: 55vh; overflow-y: auto;">
-        <div *ngFor="let c of filteredCases"
+      <!-- Case List -->
+      <div class="list-group" style="max-height: 45vh; overflow-y: auto;">
+        <div *ngFor="let c of paginatedCases"
              class="list-group-item list-group-item-action case-list-item p-3"
              [class.active]="selected?.id === c.id"
              [class.urgent]="c.priority === 'URGENT'"
@@ -154,9 +162,35 @@
             <i class="fas fa-user me-1"></i>{{ c.assigned_to }}
           </div>
         </div>
-        <div *ngIf="filteredCases.length === 0" class="empty-state">
-          <i class="fas fa-folder-open fa-2x mb-2"></i>
-          <p class="mb-0">No cases match filters</p>
+        <div *ngIf="filteredCases.length === 0" class="empty-state p-4 text-center">
+          <i class="fas fa-folder-open fa-2x mb-2 text-muted"></i>
+          <p class="mb-0 text-muted">No cases match filters</p>
+        </div>
+      </div>
+
+      <!-- ===== PAGINATION CONTROLS ===== -->
+      <div class="d-flex justify-content-between align-items-center mt-3" *ngIf="filteredCases.length > 0">
+        <small class="text-muted" style="font-size: 0.7rem;">
+          Showing {{ (currentPage - 1) * pageSize + 1 }} - 
+          {{ Math.min(currentPage * pageSize, filteredCases.length) }} 
+          of {{ filteredCases.length }} cases
+        </small>
+        <div class="btn-group btn-group-sm">
+          <button class="btn btn-outline-secondary" 
+                  [disabled]="currentPage === 1" 
+                  (click)="previousPage()"
+                  title="Previous page">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <span class="btn btn-outline-secondary disabled" style="pointer-events: none; min-width: 50px; text-align: center;">
+            {{ currentPage }} / {{ totalPages }}
+          </span>
+          <button class="btn btn-outline-secondary" 
+                  [disabled]="currentPage >= totalPages" 
+                  (click)="nextPage()"
+                  title="Next page">
+            <i class="fas fa-chevron-right"></i>
+          </button>
         </div>
       </div>
 
@@ -177,20 +211,23 @@
       </div>
     </div>
 
-    <!-- Right: Case Detail -->
+    <!-- ===== RIGHT: CASE DETAIL ===== -->
     <div class="col-lg-8">
+      <!-- Empty State -->
       <div *ngIf="!selected" class="card shadow-sm">
-        <div class="empty-state">
+        <div class="empty-state p-5 text-center">
           <i class="fas fa-search fa-3x mb-3 text-muted"></i>
           <h5>Select a case to investigate</h5>
           <p class="text-muted">Open a case from the queue to assign, investigate, escalate, or resolve.</p>
-          <button class="btn btn-primary btn-sm" (click)="openNewCase()">
+          <button class="btn btn-primary btn-sm" (click)="openCreateCaseModal()">
             <i class="fas fa-plus me-1"></i> Create New Case
           </button>
         </div>
       </div>
 
+      <!-- Case Detail -->
       <div *ngIf="selected" class="card shadow-sm">
+        <!-- Card Header -->
         <div class="card-header bg-white">
           <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
             <div>
@@ -211,6 +248,7 @@
           </div>
         </div>
 
+        <!-- Card Body -->
         <div class="card-body">
           <!-- Sub-page tabs -->
           <ul class="nav nav-pills sub-nav mb-3 flex-wrap">
@@ -221,7 +259,7 @@
             </li>
           </ul>
 
-          <!-- OVERVIEW -->
+          <!-- ===== OVERVIEW TAB ===== -->
           <div *ngIf="activeTab === 'overview'">
             <div class="row">
               <div class="col-md-7">
@@ -253,7 +291,7 @@
                       <tbody>
                         <tr *ngIf="selected.transaction.transaction_details">
                           <td class="text-muted" style="width:35%">Amount</td>
-                          <td>{{ formatAmount(selected.transaction.transaction_details?.transaction_amount) }}</td>
+                          <td>{{ formatAmount(selected.transaction.transaction_details?.transaction_amount || selected.transaction.transaction_details?.Transaction_Amount) }}</td>
                         </tr>
                         <tr *ngIf="selected.transaction.customer_info">
                           <td class="text-muted">Customer</td>
@@ -261,11 +299,11 @@
                         </tr>
                         <tr *ngIf="selected.transaction.transaction_details">
                           <td class="text-muted">Channel</td>
-                          <td>{{ selected.transaction.transaction_details?.channel || '—' }}</td>
+                          <td>{{ selected.transaction.transaction_details?.channel || selected.transaction.transaction_details?.finca_channel || '—' }}</td>
                         </tr>
                         <tr *ngIf="selected.transaction.transaction_details">
                           <td class="text-muted">Location</td>
-                          <td>{{ selected.transaction.transaction_details?.location || '—' }}</td>
+                          <td>{{ selected.transaction.transaction_details?.location || selected.transaction.transaction_details?.finca_location || '—' }}</td>
                         </tr>
                       </tbody>
                     </table>
@@ -300,12 +338,15 @@
                   <button class="btn btn-outline-primary btn-sm" (click)="navigateToInvestigationGraph()">
                     <i class="fas fa-project-diagram me-2"></i>Fraud Graph
                   </button>
+                  <button class="btn btn-outline-danger btn-sm" (click)="deleteCase()" *ngIf="selected">
+                    <i class="fas fa-trash me-2"></i>Delete Case
+                  </button>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- ASSIGNMENT -->
+          <!-- ===== ASSIGNMENT TAB ===== -->
           <div *ngIf="activeTab === 'assignment'">
             <h6 class="fw-bold">Case Assignment</h6>
             <p class="text-muted small">Assign this case to an analyst for investigation.</p>
@@ -347,7 +388,7 @@
             </div>
           </div>
 
-          <!-- INVESTIGATION -->
+          <!-- ===== INVESTIGATION TAB ===== -->
           <div *ngIf="activeTab === 'investigation'">
             <h6 class="fw-bold">Investigation Workspace</h6>
             <div class="row g-3 mb-3">
@@ -400,7 +441,7 @@
             </button>
           </div>
 
-          <!-- PLAYBOOK -->
+          <!-- ===== PLAYBOOK TAB ===== -->
           <div *ngIf="activeTab === 'playbook'">
             <div class="d-flex justify-content-between align-items-center mb-3">
               <h6 class="fw-bold mb-0">Investigation Playbook</h6>
@@ -428,19 +469,19 @@
             </div>
           </div>
 
-          <!-- EVIDENCE -->
+          <!-- ===== EVIDENCE TAB ===== -->
           <div *ngIf="activeTab === 'evidence'">
             <h6 class="fw-bold">Evidence Locker</h6>
             <div class="row g-3 mb-3">
               <div class="col-md-4">
-                <div class="evidence-card">
+                <div class="evidence-card p-3 text-center border rounded-3">
                   <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
                   <p class="small text-muted mb-2">Upload evidence files</p>
                   <input type="file" class="form-control form-control-sm" (change)="onEvidenceUpload($event)" multiple />
                 </div>
               </div>
               <div class="col-md-8">
-                <div class="d-flex gap-2 mb-2">
+                <div class="d-flex gap-2 mb-2 flex-wrap">
                   <button class="btn btn-sm btn-outline-primary" (click)="addEvidenceLink()">
                     <i class="fas fa-link me-1"></i>Add Link
                   </button>
@@ -470,47 +511,59 @@
             </div>
           </div>
 
-          <!-- RELATED -->
-          <div *ngIf="activeTab === 'related'">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h6 class="fw-bold mb-0">Related Transactions</h6>
-              <button class="btn btn-sm btn-outline-primary" (click)="loadRelated()" [disabled]="relatedLoading">
-                <i class="fas fa-sync-alt me-1" [class.fa-spin]="relatedLoading"></i> Refresh
-              </button>
-            </div>
-            <div *ngIf="relatedLoading" class="text-center py-4">
-              <i class="fas fa-spinner fa-spin fa-2x text-muted"></i>
-            </div>
-            <div class="table-responsive" *ngIf="!relatedLoading && related.length">
-              <table class="table table-sm table-hover">
-                <thead class="table-light">
-                  <tr>
-                    <th>Txn ID</th>
-                    <th>Amount</th>
-                    <th>Risk</th>
-                    <th>Strength</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let r of related">
-                    <td class="fw-medium">{{ r.transaction_id }}</td>
-                    <td>{{ formatAmount(r.transaction_amount || r.amount) }}</td>
-                    <td><span class="badge" [ngClass]="getRiskBadge(r.risk_level || r.final_risk_level)">{{ r.risk_score || '—' }}</span></td>
-                    <td>{{ r.relationship?.strength || '—' }}</td>
-                    <td>
-                      <button class="btn btn-sm btn-outline-primary" (click)="viewTransaction(r.transaction_id)">View</button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div *ngIf="!relatedLoading && related.length === 0" class="text-center py-4 text-muted">
-              <button class="btn btn-primary btn-sm" (click)="loadRelated()">Load Related Transactions</button>
-            </div>
+          <!-- RELATED TAB -->
+        <div *ngIf="activeTab === 'related'">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold mb-0">Related Transactions</h6>
+            <button class="btn btn-sm btn-outline-primary" (click)="loadRelated()" [disabled]="relatedLoading">
+              <i class="fas fa-sync-alt me-1" [class.fa-spin]="relatedLoading"></i> Refresh
+            </button>
           </div>
+          <div *ngIf="relatedLoading" class="text-center py-4">
+            <i class="fas fa-spinner fa-spin fa-2x text-muted"></i>
+            <p class="text-muted mt-2">Loading related transactions...</p>
+          </div>
+          <div class="table-responsive" *ngIf="!relatedLoading && related.length">
+            <table class="table table-sm table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th>Txn ID</th>
+                  <th>Amount</th>
+                  <th>Risk</th>
+                  <th>Strength</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let r of related">
+                  <td class="fw-medium">{{ r.transaction_id }}</td>
+                  <td>{{ formatAmount(r.transaction_amount || r.amount) }}</td>
+                  <td><span class="badge" [ngClass]="getRiskBadge(r.risk_level || r.final_risk_level)">{{ r.risk_score || '—' }}</span></td>
+                  <td>{{ r.relationship?.strength || '—' }}</td>
+                  <td>
+                    <div class="btn-group btn-group-sm">
+                      <button class="btn btn-outline-primary" (click)="viewTransaction(r.transaction_id)" title="View Transaction">
+                        <i class="fas fa-eye"></i>
+                      </button>
+                      <!-- ✅ ADD CREATE CASE BUTTON -->
+                      <button class="btn btn-outline-success" (click)="openCreateCaseFromTransaction(r)" title="Create Case from Transaction">
+                        <i class="fas fa-plus-circle"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div *ngIf="!relatedLoading && related.length === 0" class="text-center py-4">
+            <p class="text-muted">No related transactions found</p>
+            <button class="btn btn-primary btn-sm" (click)="loadRelated()">
+              <i class="fas fa-search me-1"></i>Load Related Transactions
+            </button>
+          </div>
+        </div>
 
-          <!-- CUSTOMER -->
+          <!-- ===== CUSTOMER TAB ===== -->
           <div *ngIf="activeTab === 'customer'">
             <div class="d-flex align-items-center mb-3" *ngIf="customerProfile">
               <div class="customer-avatar me-3">{{ getInitials(customerProfile.customer_name || selected.customer_id) }}</div>
@@ -558,11 +611,11 @@
             </div>
           </div>
 
-          <!-- NOTES -->
+          <!-- ===== NOTES TAB ===== -->
           <div *ngIf="activeTab === 'notes'">
             <h6 class="fw-bold">Case Notes</h6>
             <textarea class="form-control mb-2" rows="3" [(ngModel)]="noteText" placeholder="Add investigation note..."></textarea>
-            <div class="d-flex gap-2 mb-3">
+            <div class="d-flex gap-2 mb-3 flex-wrap">
               <button class="btn btn-primary btn-sm" (click)="addNote()">
                 <i class="fas fa-plus me-1"></i>Add Note
               </button>
@@ -585,7 +638,7 @@
             </div>
           </div>
 
-          <!-- ESCALATION -->
+          <!-- ===== ESCALATION TAB ===== -->
           <div *ngIf="activeTab === 'escalation'">
             <h6 class="fw-bold">Escalation</h6>
             <div class="row g-3">
@@ -623,7 +676,7 @@
             </div>
           </div>
 
-          <!-- RESOLUTION -->
+          <!-- ===== RESOLUTION TAB ===== -->
           <div *ngIf="activeTab === 'resolution'">
             <h6 class="fw-bold">Case Resolution</h6>
             <div *ngIf="selected.resolution" class="alert alert-info">
@@ -670,7 +723,7 @@
             </div>
           </div>
 
-          <!-- TIMELINE -->
+          <!-- ===== TIMELINE TAB ===== -->
           <div *ngIf="activeTab === 'timeline'">
             <h6 class="fw-bold">Case Timeline</h6>
             <div class="mt-3">
@@ -686,7 +739,8 @@
           </div>
         </div>
 
-        <div class="card-footer bg-white d-flex justify-content-between">
+        <!-- ===== CARD FOOTER ===== -->
+        <div class="card-footer bg-white d-flex justify-content-between flex-wrap gap-2">
           <button class="btn btn-sm btn-outline-secondary" (click)="closeSelected()">
             <i class="fas fa-arrow-left me-1"></i>Back to Queue
           </button>
@@ -697,6 +751,9 @@
             <button class="btn btn-sm btn-outline-primary" (click)="linkCase()">
               <i class="fas fa-link me-1"></i>Link Case
             </button>
+            <button class="btn btn-sm btn-outline-danger" (click)="deleteCase()" *ngIf="selected">
+              <i class="fas fa-trash me-1"></i>Delete
+            </button>
           </div>
         </div>
       </div>
@@ -704,8 +761,8 @@
   </div>
 </div>
 
-<!-- Customer Profile Modal -->
-<div class="modal fade show d-block" *ngIf="showCustomerModal" style="background:rgba(0,0,0,0.5)" (click)="showCustomerModal=false">
+<!-- ===== CUSTOMER PROFILE MODAL ===== -->
+<div class="modal fade show d-block" *ngIf="showCustomerModal" style="background:rgba(0,0,0,0.5); z-index:1050;" (click)="showCustomerModal=false">
   <div class="modal-dialog modal-lg" (click)="$event.stopPropagation()">
     <div class="modal-content">
       <div class="modal-header">
@@ -732,6 +789,90 @@
       <div class="modal-footer">
         <button class="btn btn-sm btn-outline-primary" (click)="viewCustomerTransactions()">View Transactions</button>
         <button class="btn btn-sm btn-secondary" (click)="showCustomerModal=false">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== CREATE CASE MODAL ===== -->
+<div class="modal fade show d-block" *ngIf="showCreateCaseModal" style="background:rgba(0,0,0,0.5); z-index:1060;" (click)="closeCreateCaseModal()">
+  <div class="modal-dialog modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title">
+          <i class="fas fa-plus-circle me-2"></i>Create New Case
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeCreateCaseModal()"></button>
+      </div>
+      <div class="modal-body">
+        <form #caseForm="ngForm">
+          <div class="row g-3">
+            <!-- Customer ID -->
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Customer ID <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" 
+                     [(ngModel)]="caseFormData.customerId" 
+                     name="customerId"
+                     placeholder="Enter Customer ID"
+                     required>
+            </div>
+
+            <!-- Customer Name -->
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Customer Name</label>
+              <input type="text" class="form-control" 
+                     [(ngModel)]="caseFormData.customerName" 
+                     name="customerName"
+                     placeholder="Enter Customer Name">
+            </div>
+
+            <!-- Risk Level -->
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Risk Level <span class="text-danger">*</span></label>
+              <select class="form-select" [(ngModel)]="caseFormData.riskLevel" name="riskLevel" required>
+                <option value="LOW">Low</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HIGH">High</option>
+                <option value="CRITICAL">Critical</option>
+              </select>
+            </div>
+
+            <!-- Priority -->
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Priority</label>
+              <select class="form-select" [(ngModel)]="caseFormData.priority" name="priority">
+                <option value="NORMAL">Normal</option>
+                <option value="HIGH">High</option>
+                <option value="URGENT">Urgent</option>
+              </select>
+            </div>
+
+            <!-- Assigned To -->
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Assign To</label>
+              <select class="form-select" [(ngModel)]="caseFormData.assignedTo" name="assignedTo">
+                <option value="">— Unassigned —</option>
+                <option *ngFor="let a of analysts" [value]="a">{{ a }}</option>
+              </select>
+            </div>
+
+            <!-- Notes -->
+            <div class="col-12">
+              <label class="form-label fw-bold">Case Notes</label>
+              <textarea class="form-control" rows="3" 
+                        [(ngModel)]="caseFormData.notes" 
+                        name="notes"
+                        placeholder="Add initial case notes..."></textarea>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeCreateCaseModal()">Cancel</button>
+        <button class="btn btn-success" (click)="submitCreateCase()" [disabled]="!caseFormData.customerId || !caseFormData.riskLevel">
+          <i class="fas fa-plus-circle me-1"></i> Create Case
+        </button>
       </div>
     </div>
   </div>
