@@ -56,6 +56,7 @@ export class ListFailedRegistrationsComponent implements OnInit, OnDestroy {
   
   
   currentRoute: string = '';
+  hideTopNav: boolean = false;
 
   transactions: any[] = [];
   modelMetrics: any = null;
@@ -164,6 +165,8 @@ export class ListFailedRegistrationsComponent implements OnInit, OnDestroy {
   checkRoute(): void {
     const currentUrl = this.router.url;
     this.showIntelligencePanel = currentUrl.includes('live-feed') || currentUrl.includes('risk-analyzer');
+    // Hide the fraud-tab-buttons/top navigation on AI Insights and Investigation Graph pages
+    this.hideTopNav = currentUrl.includes('ai-insights') || currentUrl.includes('investigation-graph');
 
     if (!this.showIntelligencePanel && !this.isCollapsed) {
       this.isCollapsed = true;

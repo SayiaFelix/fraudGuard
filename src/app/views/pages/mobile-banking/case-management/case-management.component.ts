@@ -71,6 +71,7 @@ export class CaseManagementComponent implements OnInit, OnDestroy {
   dashboardMetrics: any = null;
   showActivityFeed = true;
   recentActivity: any[] = [];
+  highRiskUsers: any[] = [];
   playbookItems = [
     { id: 'identity', label: 'Verify customer identity', done: false },
     { id: 'device', label: 'Review device fingerprint', done: false },
@@ -104,12 +105,18 @@ export class CaseManagementComponent implements OnInit, OnDestroy {
     if (!silent) this.loading = true;
     this.finca.listCases(1, 200).subscribe({
       next: (r) => {
-        this.cases = (r.cases || []).map((c: any) => ({
+        const fetched = (r.cases || []).map((c: any) => ({
           ...c,
           display_score: this.normalizeScore(c.risk_score),
           timeline: c.timeline || [],
           notes: c.notes || []
         }));
+        // dedupe by id keeping the latest entry
+        const byId: any = {};
+        fetched.forEach((c: any) => { byId[c.id] = c; });
+        this.cases = Object.keys(byId).map(k => byId[k]);
+        // persist cases locally so they remain visible across reloads
+        this.finca.saveCases(this.cases).subscribe({ next: () => {}, error: () => {} });
         this.computeStats();
         this.buildActivityFeed();
         this.applyFilter();
@@ -141,6 +148,8 @@ export class CaseManagementComponent implements OnInit, OnDestroy {
       { label: 'Critical', value: critical, bgClass: 'bg-warning bg-opacity-10', textClass: 'text-warning' },
       { label: 'Unassigned', value: unassigned, bgClass: 'bg-secondary bg-opacity-10', textClass: 'text-secondary' }
     ];
+    // Also refresh high risk users aggregation
+    this.highRiskUsers = this.aggregateHighRiskUsers();
   }
 
   applyFilter(): void {
@@ -250,11 +259,23 @@ export class CaseManagementComponent implements OnInit, OnDestroy {
       notes: [],
       created_at: new Date().toISOString()
     };
-    this.cases.unshift(newCase);
-    this.computeStats();
-    this.applyFilter();
-    this.selectCase(newCase);
-    this.toastr.success('Case created', 'Success');
+    this.finca.createCase(newCase).subscribe({
+      next: (r) => {
+        const c = (r && r.case) ? r.case : newCase;
+        this.cases.unshift(c);
+        this.computeStats();
+        this.applyFilter();
+        this.selectCase(c);
+        this.toastr.success('Case created', 'Success');
+      },
+      error: () => {
+        this.cases.unshift(newCase);
+        this.computeStats();
+        this.applyFilter();
+        this.selectCase(newCase);
+        this.toastr.success('Case created (local)', 'Success');
+      }
+    });
   }
 
   assignSelected(): void {
@@ -276,6 +297,8 @@ export class CaseManagementComponent implements OnInit, OnDestroy {
         this.selected.priority = this.assignPriority;
         this.pushTimeline(`Assigned to ${name} (local)`);
         this.updateWorkflowSteps();
+        // small risk bump for assignment
+        this.adjustRisk(3, `Assigned to ${name}`);
         this.toastr.info(`Assigned to ${name} (offline)`, 'Local Update');
       }
     });
@@ -287,6 +310,7 @@ export class CaseManagementComponent implements OnInit, OnDestroy {
     this.selected.status = 'OPEN';
     this.pushTimeline('Case unassigned');
     this.updateWorkflowSteps();
+    this.finca.updateCaseLocal(this.selected.id, { assigned_to: null, status: 'OPEN' }).subscribe();
     this.toastr.info('Case unassigned', 'Assignment');
   }
 
@@ -325,6 +349,9 @@ export class CaseManagementComponent implements OnInit, OnDestroy {
     this.pushTimeline('Investigation started');
     this.activeTab = 'investigation';
     this.updateWorkflowSteps();
+    // small risk increase when investigation starts
+    this.adjustRisk(5, 'Investigation started');
+    this.finca.updateCaseLocal(this.selected.id, { status: 'INVESTIGATING' }).subscribe();
     this.toastr.info('Investigation started', 'Case');
   }
 
@@ -332,7 +359,18 @@ export class CaseManagementComponent implements OnInit, OnDestroy {
     if (!this.selected) return;
     (this.investigationChecks as any)[type] = true;
     const labels: any = { device: 'Device fingerprint verified', velocity: 'Velocity check passed', network: 'Network analysis complete' };
-    this.pushTimeline(labels[type] || `Check: ${type}`);
+    // For device check, only add risk when device is suspicious. Prompt analyst (or integrate device analysis later).
+    if (type === 'device') {
+      const suspicious = confirm('Run device analysis: Mark device as suspicious? Click OK if suspicious, Cancel if benign.');
+      this.pushTimeline(suspicious ? 'Device check: suspicious' : 'Device check: benign');
+      if (suspicious) this.adjustRisk(10, `Investigation check: ${type} (suspicious)`);
+    } else {
+      this.pushTimeline(labels[type] || `Check: ${type}`);
+      // weight checks differently
+      const weights: any = { velocity: 8, network: 7 };
+      const w = weights[type] || 5;
+      this.adjustRisk(w, `Investigation check: ${type}`);
+    }
   }
 
   requestInfo(): void {
@@ -410,12 +448,15 @@ export class CaseManagementComponent implements OnInit, OnDestroy {
         this.selected.priority = 'URGENT';
         this.pushTimeline(`Escalated to ${level}: ${this.escalationReason || 'No reason provided'}`);
         this.updateWorkflowSteps();
+        // escalate increases risk
+        this.adjustRisk(20, `Escalated to ${level}`);
         this.toastr.warning(`Escalated to ${level}`, 'Escalation');
       },
       error: () => {
         this.selected.priority = 'URGENT';
         this.pushTimeline(`Escalated to ${level} (local)`);
         this.updateWorkflowSteps();
+        this.adjustRisk(20, `Escalated to ${level} (local)`);
         this.toastr.warning(`Escalated to ${level} (offline)`, 'Escalation');
       }
     });
@@ -432,7 +473,9 @@ export class CaseManagementComponent implements OnInit, OnDestroy {
     this.finca.resolveCase(this.selected.id, 'FRAUD_CONFIRMED', notes, 'Analyst').subscribe({
       next: (r) => {
         this.selected.status = 'RESOLVED';
+        // mark as fraud sets risk to max
         this.selected.resolution = r.case?.resolution || { verdict: 'FRAUD_CONFIRMED', resolved_at: new Date().toISOString(), resolved_by: 'Analyst' };
+        this.adjustRisk(1000, 'Case resolved: FRAUD CONFIRMED');
         this.pushTimeline('Case resolved: FRAUD CONFIRMED');
         this.updateWorkflowSteps();
         this.loadAll(true);
@@ -441,6 +484,7 @@ export class CaseManagementComponent implements OnInit, OnDestroy {
       error: () => {
         this.selected.status = 'RESOLVED';
         this.selected.resolution = { verdict: 'FRAUD_CONFIRMED', resolved_at: new Date().toISOString(), resolved_by: 'Analyst' };
+        this.adjustRisk(1000, 'Case resolved: FRAUD CONFIRMED (local)');
         this.pushTimeline('Case resolved: FRAUD CONFIRMED (local)');
         this.updateWorkflowSteps();
         this.toastr.error('Marked as fraud (offline)', 'Resolved');
@@ -454,18 +498,29 @@ export class CaseManagementComponent implements OnInit, OnDestroy {
     this.finca.resolveCase(this.selected.id, 'FALSE_POSITIVE', notes, 'Analyst').subscribe({
       next: (r) => {
         this.selected.status = 'RESOLVED';
+        // false positive lowers risk significantly and remove case from active list
         this.selected.resolution = r.case?.resolution || { verdict: 'FALSE_POSITIVE', resolved_at: new Date().toISOString(), resolved_by: 'Analyst' };
+        this.adjustRisk(-50, 'Case resolved: FALSE POSITIVE');
         this.pushTimeline('Case resolved: FALSE POSITIVE');
         this.updateWorkflowSteps();
-        this.loadAll(true);
-        this.toastr.success('Marked as false positive', 'Resolved');
+        // remove from local cases and show popup
+        this.finca.deleteCaseLocal(this.selected.id).subscribe(() => {
+          this.cases = this.cases.filter(c => c.id !== this.selected.id);
+          this.applyFilter();
+          this.toastr.info('Case removed from Case Management (false positive)', 'Removed');
+        });
       },
       error: () => {
         this.selected.status = 'RESOLVED';
         this.selected.resolution = { verdict: 'FALSE_POSITIVE', resolved_at: new Date().toISOString(), resolved_by: 'Analyst' };
+        this.adjustRisk(-50, 'Case resolved: FALSE POSITIVE (local)');
         this.pushTimeline('Case resolved: FALSE POSITIVE (local)');
         this.updateWorkflowSteps();
-        this.toastr.success('Marked as false positive (offline)', 'Resolved');
+        this.finca.deleteCaseLocal(this.selected.id).subscribe(() => {
+          this.cases = this.cases.filter(c => c.id !== this.selected.id);
+          this.applyFilter();
+          this.toastr.info('Case removed from Case Management (false positive, offline)', 'Removed');
+        });
       }
     });
   }
@@ -485,7 +540,7 @@ export class CaseManagementComponent implements OnInit, OnDestroy {
     this.selected.status = 'CLOSED';
     this.pushTimeline('Case force closed');
     this.updateWorkflowSteps();
-    this.loadAll(true);
+    this.finca.updateCaseLocal(this.selected.id, { status: 'CLOSED' }).subscribe(() => this.loadAll(true));
     this.toastr.info('Case force closed', 'Closed');
   }
 
@@ -495,6 +550,7 @@ export class CaseManagementComponent implements OnInit, OnDestroy {
     this.selected.resolution = null;
     this.pushTimeline('Case reopened');
     this.updateWorkflowSteps();
+    this.finca.updateCaseLocal(this.selected.id, { status: 'OPEN', resolution: null }).subscribe();
   }
 
   flagForCompliance(): void { this.pushTimeline('Flagged for compliance review'); this.activeTab = 'escalation'; }
@@ -554,9 +610,25 @@ export class CaseManagementComponent implements OnInit, OnDestroy {
     item.done = !item.done;
     if (item.done) this.pushTimeline(`Playbook: ${item.label} completed`);
     const done = this.playbookItems.filter(p => p.done).length;
+    // small incremental risk for each completed playbook item
+    if (item.done) this.adjustRisk(5, `Playbook item completed: ${item.label}`);
     if (done === this.playbookItems.length) {
       this.toastr.success('Investigation playbook complete', 'Playbook');
     }
+  }
+
+  deleteCase(caseId?: string): void {
+    const id = caseId || this.selected?.id;
+    if (!id) return;
+    if (!confirm('WARNING: Deleting a case is permanent. Click OK to proceed with delete.')) return;
+    // perform local delete and update UI
+    this.finca.deleteCaseLocal(id).subscribe(() => {
+      this.cases = this.cases.filter(c => c.id !== id);
+      if (this.selected && this.selected.id === id) this.selected = null;
+      this.applyFilter();
+      this.computeStats();
+      this.toastr.info('Case deleted locally', 'Delete');
+    });
   }
 
   getPlaybookProgress(): number {
@@ -582,6 +654,25 @@ export class CaseManagementComponent implements OnInit, OnDestroy {
     this.toastr.success(`Exported ${rows.length} rows`, 'CSV');
   }
 
+  aggregateHighRiskUsers(): any[] {
+    const map: any = {};
+    (this.cases || []).forEach((c: any) => {
+      if (c.final_risk_level === 'HIGH' || c.final_risk_level === 'CRITICAL') {
+        if (!map[c.customer_id]) map[c.customer_id] = { customer_id: c.customer_id, cases: 0, highest: c.final_risk_level, score: c.risk_score || c.display_score || 0 };
+        map[c.customer_id].cases += 1;
+        if (c.risk_score > map[c.customer_id].score) map[c.customer_id].score = c.risk_score;
+        if (c.final_risk_level === 'CRITICAL') map[c.customer_id].highest = 'CRITICAL';
+      }
+    });
+    return Object.keys(map).map(k => map[k]).sort((a: any, b: any) => b.score - a.score);
+  }
+
+  selectHighRiskUser(customerId: string): void {
+    // filter the case list to this customer
+    this.filterText = customerId;
+    this.applyFilter();
+  }
+
   viewAlert(): void {
     this.router.navigate(['/fraudsentinelAi/transaction_management/alerts']);
   }
@@ -602,6 +693,35 @@ export class CaseManagementComponent implements OnInit, OnDestroy {
   pushTimeline(action: string): void {
     if (!this.selected.timeline) this.selected.timeline = [];
     this.selected.timeline.unshift({ timestamp: new Date().toISOString(), action, actor: 'Analyst' });
+  }
+
+  adjustRisk(delta: number, action?: string): void {
+    if (!this.selected) return;
+    // If delta is very large (marker to set max), handle specially
+    let current = Number(this.selected.risk_score || this.selected.display_score || 0);
+    if (isNaN(current)) current = 0;
+    let newScore = current;
+    if (delta >= 1000) {
+      newScore = 100;
+    } else {
+      newScore = Math.min(100, Math.max(0, Math.round(current + delta)));
+    }
+    this.selected.risk_score = newScore;
+    this.selected.display_score = this.getDisplayScore(this.selected);
+    // derive level
+    let level = 'LOW';
+    if (newScore >= 80) level = 'CRITICAL';
+    else if (newScore >= 60) level = 'HIGH';
+    else if (newScore >= 40) level = 'MEDIUM';
+    this.selected.final_risk_level = level;
+    if (action) this.pushTimeline(action);
+    // persist locally
+    this.finca.updateCaseLocal(this.selected.id, { risk_score: newScore, final_risk_level: level }).subscribe();
+    // update lists/statistics
+    const idx = this.cases.findIndex(c => c.id === this.selected.id);
+    if (idx >= 0) { this.cases[idx] = { ...this.cases[idx], ...this.selected }; }
+    this.computeStats();
+    this.applyFilter();
   }
 
   normalizeScore(score: any): number {
