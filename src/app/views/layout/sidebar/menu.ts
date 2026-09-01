@@ -18,12 +18,38 @@ export const MENU: MenuItem[] = [
     label: 'FRAUD INTELLIGENCE',
     // roles: ['Auditor', 'CIA', 'AuditUnit','Director']
   },
-
   {
     label: 'Transactions',
     icon: 'activity',
     link: '/fraudsentinelAi/transaction_management/fraud/transactions'
   },
+  {
+    label: 'Rule Management',
+    icon: 'layers',
+    link: '/fraudsentinelAi/transaction_management/rule-management'
+  },
+  {
+    label: 'Case Management',
+    icon: 'clipboard',
+    link: '/fraudsentinelAi/transaction_management/case-management'
+  },
+  {
+    label: 'Alerts Management',
+    icon: 'inbox',
+    link: '/fraudsentinelAi/transaction_management/alerts',
+    // roles: ['CIA', 'AuditUnit','Director']
+  },
+  {
+    label: 'Investigation Graph',
+    icon: 'bar-chart-2',
+    link: '/fraudsentinelAi/transaction_management/fraud/investigation-graph'
+  },
+  {
+    label: 'AI Insights',
+    icon: 'zap',
+    link: '/fraudsentinelAi/transaction_management/fraud/ai-insights'
+  },
+
   //   {
   //   label: 'Fieldwork',
   //   icon: 'git-branch',
@@ -38,22 +64,8 @@ export const MENU: MenuItem[] = [
   //   // roles: ['CIA', 'Auditor','Director']
   // },
 
-  {
-    label: 'Rule Management',
-    icon: 'layers',
-    link: '/fraudsentinelAi/transaction_management/rule-management'
-  },
-  {
-    label: 'Case Management',
-    icon: 'clipboard',
-    link: '/fraudsentinelAi/transaction_management/case-management'
-  },
-  {
-    label: 'Alerts',
-    icon: 'inbox',
-    link: '/fraudsentinelAi/user/inbox',
-    // roles: ['CIA', 'AuditUnit','Director']
-  },
+  
+
   //  {
   //   label: 'CAP Monitoring',
   //   icon: 'check-circle',

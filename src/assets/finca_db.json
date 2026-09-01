@@ -1,0 +1,150 @@
+{
+  "alerts": [
+    {
+      "id": "ALRT1001",
+      "transaction_id": "TXN1001",
+      "customer_id": "CUST1001",
+      "risk_score": 72,
+      "display_score": 72,
+      "ml_risk_level": "HIGH",
+      "final_risk_level": "HIGH",
+      "decision": "REVIEW",
+      "read": false,
+      "channel": "Mobile Money",
+      "amount": 1500,
+      "currency": "KES",
+      "transaction_summary": "Outgoing payment to vendor X",
+      "rules_triggered": ["velocity_rule", "blacklisted_account"],
+      "status": "NEW",
+      "created_at": "2026-01-01T08:00:00.000Z"
+    },
+    {
+      "id": "ALRT1002",
+      "transaction_id": "TXN1002",
+      "customer_id": "CUST1002",
+      "risk_score": 88,
+      "display_score": 88,
+      "ml_risk_level": "CRITICAL",
+      "final_risk_level": "CRITICAL",
+      "decision": "BLOCK",
+      "read": false,
+      "channel": "Card",
+      "amount": 12000,
+      "currency": "KES",
+      "transaction_summary": "Card transaction to online merchant Y",
+      "rules_triggered": ["card_bin_mismatch", "high_amount"],
+      "status": "NEW",
+      "created_at": "2026-01-02T10:30:00.000Z"
+    },
+    {
+      "id": "ALRT1003",
+      "transaction_id": "TXN1003",
+      "customer_id": "CUST1003",
+      "risk_score": 82,
+      "display_score": 82,
+      "ml_risk_level": "HIGH",
+      "final_risk_level": "HIGH",
+      "decision": "REVIEW",
+      "read": false,
+      "channel": "Mobile Money",
+      "amount": 9000,
+      "currency": "KES",
+      "transaction_summary": "Transfer to new payee Z",
+      "rules_triggered": ["new_payee", "velocity_rule"],
+      "status": "NEW",
+      "created_at": "2026-01-03T09:15:00.000Z"
+    }
+  ],
+  "cases": [
+    {
+      "id": "CASE1001",
+      "alert_id": "ALRT1001",
+      "customer_id": "CUST1001",
+      "final_risk_level": "HIGH",
+      "risk_score": 72,
+      "display_score": 72,
+      "status": "OPEN",
+      "priority": "NORMAL",
+      "assigned_to": null,
+      "assigned_at": null,
+      "created_by": "System",
+      "resolution": null,
+      "timeline": [
+        { "timestamp": "2026-01-01T08:05:00.000Z", "action": "Case created from alert ALRT1001", "actor": "System" }
+      ],
+      "notes": [],
+      "created_at": "2026-01-01T08:05:00.000Z"
+    },
+    {
+      "id": "CASE1002",
+      "alert_id": "ALRT1002",
+      "customer_id": "CUST1002",
+      "final_risk_level": "CRITICAL",
+      "risk_score": 88,
+      "display_score": 88,
+      "status": "OPEN",
+      "priority": "HIGH",
+      "assigned_to": null,
+      "assigned_at": null,
+      "created_by": "System",
+      "resolution": null,
+      "timeline": [
+        { "timestamp": "2026-01-02T10:35:00.000Z", "action": "Case created from alert ALRT1002", "actor": "System" }
+      ],
+      "notes": [],
+      "created_at": "2026-01-02T10:35:00.000Z"
+    },
+    {
+      "id": "CASE1003",
+      "alert_id": "ALRT1003",
+      "customer_id": "CUST1003",
+      "final_risk_level": "HIGH",
+      "risk_score": 82,
+      "display_score": 82,
+      "status": "OPEN",
+      "priority": "NORMAL",
+      "assigned_to": null,
+      "assigned_at": null,
+      "created_by": "System",
+      "resolution": null,
+      "timeline": [
+        { "timestamp": "2026-01-03T09:20:00.000Z", "action": "Case created from alert ALRT1003", "actor": "System" }
+      ],
+      "notes": [],
+      "created_at": "2026-01-03T09:20:00.000Z"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "TXN1001",
+      "transaction_id": "TXN1001",
+      "amount": 1500,
+      "currency": "KES",
+      "customer_id": "CUST1001",
+      "status": "HOLD",
+      "customer_info": { "customer_id": "CUST1001", "customer_name": "Jane Doe" }
+    },
+    {
+      "id": "TXN1002",
+      "transaction_id": "TXN1002",
+      "amount": 12000,
+      "currency": "KES",
+      "customer_id": "CUST1002",
+      "status": "HOLD",
+      "customer_info": { "customer_id": "CUST1002", "customer_name": "John Smith" }
+    },
+    {
+      "id": "TXN1003",
+      "transaction_id": "TXN1003",
+      "amount": 9000,
+      "currency": "KES",
+      "customer_id": "CUST1003",
+      "status": "HOLD",
+      "customer_info": { "customer_id": "CUST1003", "customer_name": "Alice Mwangi" }
+    }
+  ],
+  "metrics": {
+    "alerts_today": 3,
+    "open_cases": 3
+  }
+}
