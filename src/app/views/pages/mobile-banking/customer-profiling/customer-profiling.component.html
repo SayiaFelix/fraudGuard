@@ -161,9 +161,13 @@
 
       <div class="table-heading">
 
-        <h2>
-          Customers
-        </h2>
+        <div class="section-title-row">
+
+          <h2>
+            Customers
+          </h2>
+
+        </div>
 
       </div>
 
@@ -234,7 +238,12 @@
                   customer.customer_id
                 )
               "
-              class="customer-row">
+              class="customer-row"
+              [ngClass]="
+                getCustomerRowClass(
+                  customer
+                )
+              ">
 
               <td class="customer-id">
 
@@ -359,7 +368,20 @@
 
               <td class="view-cell">
 
-                View →
+                <button
+                  type="button"
+                  class="table-action-button"
+                  (click)="
+                    $event.stopPropagation();
+                    openCustomer(
+                      customer.customer_id
+                    )
+                  ">
+
+                  <i class="fas fa-eye"></i>
+                  View
+
+                </button>
 
               </td>
 
@@ -374,52 +396,59 @@
 
       <!-- PAGINATION -->
 
-      <div class="pagination-bar">
+      <div class="table-footer">
 
-        <div>
+        <div class="rows-control">
 
-          Showing page
+          <span>Rows:</span>
 
-          <strong>
-            {{
-              pagination.page
-            }}
-          </strong>
+          <select
+            [value]="pagination.size"
+            (change)="onCustomerPageSizeChange($event)">
 
-          of
+            <option
+              *ngFor="let size of pageSizeOptions"
+              [value]="size">
+              {{ size }}
+            </option>
 
-          <strong>
-            {{
-              pagination.total_pages
-            }}
-          </strong>
+          </select>
 
         </div>
 
 
-        <div class="pagination-actions">
+        <div class="page-navigation">
 
           <button
+            class="pager-button"
             (click)="previousPage()"
-            [disabled]="
-              pagination.page <= 1
-            ">
+            [disabled]="pagination.page <= 1">
 
-            Previous
+            <i class="fas fa-chevron-left"></i>
+            Prev
 
           </button>
 
+          <span class="page-indicator">
+            Page {{ pagination.page }} of {{ pagination.total_pages }}
+          </span>
 
           <button
+            class="pager-button"
             (click)="nextPage()"
-            [disabled]="
-              !pagination.has_more
-            ">
+            [disabled]="!pagination.has_more">
 
             Next
+            <i class="fas fa-chevron-right"></i>
 
           </button>
 
+        </div>
+
+
+        <div class="range-indicator">
+          {{ getCustomerRangeStart() }} - {{ getCustomerRangeEnd() }}
+          of {{ pagination.total }}
         </div>
 
       </div>
@@ -441,13 +470,23 @@
 
     <!-- BACK -->
 
-    <button
-      class="back-button"
-      (click)="backToCustomers()">
+    <div class="detail-toolbar">
 
-      ← Back to Customers
+      <button
+        class="back-button"
+        (click)="backToCustomers()">
 
-    </button>
+        <i class="fas fa-arrow-left"></i>
+        Back to Customers
+
+      </button>
+
+      <div class="detail-toolbar-title">
+        <i class="fas fa-id-card"></i>
+        Customer 360
+      </div>
+
+    </div>
 
 
     <!-- PROFILE HEADER -->
@@ -1699,14 +1738,17 @@
 
         <div>
 
-          <h2>
-            Recent Transactions
-          </h2>
+          <div class="section-title-row">
 
-          <p>
-            Latest customer transaction activity
-            with fraud risk context
-          </p>
+            <h2>
+              Recent Transactions
+            </h2>
+
+            <span class="total-badge">
+              {{ profile.recent_transactions.length }} total
+            </span>
+
+          </div>
 
         </div>
 
@@ -1767,7 +1809,12 @@
             <tr
               *ngFor="
                 let tx of
-                  profile.recent_transactions
+                  paginatedRecentTransactions
+              "
+              [ngClass]="
+                getTransactionRowClass(
+                  tx.risk_level
+                )
               ">
 
               <td>
@@ -1909,6 +1956,64 @@
           </tbody>
 
         </table>
+
+      </div>
+
+
+      <div class="table-footer">
+
+        <div class="rows-control">
+
+          <span>Rows:</span>
+
+          <select
+            [value]="recentTxPageSize"
+            (change)="onRecentTxPageSizeChange($event)">
+
+            <option
+              *ngFor="let size of pageSizeOptions"
+              [value]="size">
+              {{ size }}
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="page-navigation">
+
+          <button
+            class="pager-button"
+            (click)="previousRecentTxPage()"
+            [disabled]="recentTxPage <= 1">
+
+            <i class="fas fa-chevron-left"></i>
+            Prev
+
+          </button>
+
+          <span class="page-indicator">
+            Page {{ recentTxPage }} of {{ getRecentTxTotalPages() }}
+          </span>
+
+          <button
+            class="pager-button"
+            (click)="nextRecentTxPage()"
+            [disabled]="recentTxPage >= getRecentTxTotalPages()">
+
+            Next
+            <i class="fas fa-chevron-right"></i>
+
+          </button>
+
+        </div>
+
+
+        <div class="range-indicator">
+          {{ getRecentTxRangeStart() }} - {{ getRecentTxRangeEnd() }}
+          of {{ profile.recent_transactions.length }}
+        </div>
 
       </div>
 
