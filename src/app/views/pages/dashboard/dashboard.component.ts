@@ -1000,6 +1000,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     alert('Excel export ready in production version');
   }
 
+  
+
   exportPDF(): void {
     alert('PDF export ready in production version');
   }

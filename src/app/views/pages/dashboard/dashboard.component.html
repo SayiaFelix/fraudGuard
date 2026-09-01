@@ -14,7 +14,7 @@
     <div>
       <h2 class="fw-bold mb-1" style="font-size: 1.5rem;">
         <i class="fas fa-shield-alt me-2" style="color: #f72585;"></i>
-        FRAUD GUARD AI SYSTEM
+        FINGUARD AI SYSTEM
       </h2>
       <p class="text-muted mb-0" style="font-size: 0.85rem;">
         <i class="fas fa-clock me-1"></i> Last updated: {{ lastUpdated | date:'medium' }}
@@ -364,28 +364,35 @@
     </div>
   </div>
   
-  <!-- Footer Stats -->
+  
+ <!-- Footer Stats with FINCA Branding -->
   <div class="row mt-4">
     <div class="col-12">
-      <div class="card bg-light border-0">
+      <div class="card border-0" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
         <div class="card-body py-2">
           <div class="row text-center">
             <div class="col">
-              <small class="text-muted" style="font-size: 0.65rem;">
-                <i class="fas fa-microchip me-1"></i>
-                AI Model: {{ footerStats.modelVersion }} | Ensemble (RF + XGB + LGBM)
+              <small class="text-muted" style="font-size: 0.6rem;">
+                <i class="fas fa-microchip me-1" style="color: #00563B;"></i>
+                AI Model: {{ footerStats.modelVersion }} • Ensemble (RF + XGB + LGBM)
               </small>
             </div>
             <div class="col">
-              <small class="text-muted" style="font-size: 0.65rem;">
-                <i class="fas fa-database me-1"></i>
+              <small class="text-muted" style="font-size: 0.6rem;">
+                <i class="fas fa-database me-1" style="color: #00563B;"></i>
                 Transactions Analyzed: {{ footerStats.transactionsAnalyzed | number }}
               </small>
             </div>
             <div class="col">
-              <small class="text-muted" style="font-size: 0.65rem;">
-                <i class="fas fa-bolt me-1"></i>
+              <small class="text-muted" style="font-size: 0.6rem;">
+                <i class="fas fa-bolt me-1" style="color: #FFD700;"></i>
                 Avg Response: {{ footerStats.avgResponse }}
+              </small>
+            </div>
+            <div class="col">
+              <small class="text-muted" style="font-size: 0.6rem;">
+                <i class="fas fa-shield-alt me-1" style="color: #00563B;"></i>
+                Powered by <strong style="color: #00563B;">FinGuardAI</strong> for FINCA Uganda
               </small>
             </div>
           </div>
