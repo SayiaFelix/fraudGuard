@@ -41,12 +41,13 @@
 
     
 
-        <a class="fraud-tab-button"
+        <!-- AI Insights moved to independent sidebar menu to avoid duplication -->
+        <!-- <a class="fraud-tab-button"
           [routerLink]="['ai-insights']"
           routerLinkActive="active-tab">
           <i class="fas fa-brain me-2 text-primary"></i>
           AI Insights
-        </a>
+        </a> -->
 
         <a class="fraud-tab-button"
           [routerLink]="['history']"
@@ -55,15 +56,16 @@
           Fraud History
         </a>
 
-        <a class="fraud-tab-button"
+        <!-- Investigation Graph moved to independent sidebar menu to avoid duplication -->
+        <!-- <a class="fraud-tab-button"
           [routerLink]="['investigation-graph']"
           routerLinkActive="active-tab"
           [class.disabled]="!canInvestigate()"
           (click)="!canInvestigate() && $event.preventDefault()">
           <i class="fas fa-project-diagram me-2" style="color: #06d6a0;"></i>
           Investigation Graph
-          <!-- <span *ngIf="pendingInvestigations > 0" class="alert-badge ms-2">{{ pendingInvestigations }}</span> -->
-        </a>
+          <span *ngIf="pendingInvestigations > 0" class="alert-badge ms-2">{{ pendingInvestigations }}</span>
+        </a> -->
 
       </div>
 

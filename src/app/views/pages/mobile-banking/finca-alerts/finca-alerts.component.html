@@ -1,0 +1,600 @@
+<div class="p-4 alerts-inbox">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-2">
+    <div>
+      <h3 class="mb-1 fw-bold">
+        <i class="fas fa-inbox me-2 text-danger"></i>Alert Inbox
+      </h3>
+      <small class="text-muted">
+        Fraud alerts &amp; high-risk transactions
+        <span class="live-pulse ms-2"><span class="dot"></span> LIVE</span>
+      </small>
+    </div>
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+      <small class="text-muted me-2">Updated {{ lastRefreshed | date:'shortTime' }}</small>
+      <button class="btn btn-sm btn-outline-secondary" (click)="refresh()" [disabled]="loading">
+        <i class="fas fa-sync-alt me-1" [class.fa-spin]="loading"></i> Refresh
+      </button>
+      <button class="btn btn-sm btn-outline-primary" (click)="markAllRead()">
+        <i class="fas fa-check-double me-1"></i> Mark All Read
+      </button>
+      <button class="btn btn-sm" [class.btn-warning]="bulkMode" [class.btn-outline-warning]="!bulkMode" (click)="toggleBulkMode()">
+        <i class="fas fa-check-square me-1"></i> Bulk Select
+      </button>
+      <button class="btn btn-sm btn-outline-dark" (click)="exportAlert()">
+        <i class="fas fa-download me-1"></i> Export
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-2 col-4" *ngFor="let s of statCards">
+      <div class="stat-card rounded-3 p-3" [ngClass]="s.bgClass">
+        <small class="d-block" [ngClass]="s.textClass">{{ s.label }}</small>
+        <h3 class="fw-bold mb-0" [ngClass]="s.textClass">{{ s.value }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard Metrics -->
+  <div class="card shadow-sm mb-3" *ngIf="dashboardMetrics">
+    <div class="card-body py-2">
+      <div class="d-flex flex-wrap gap-4 align-items-center justify-content-between">
+        <small class="text-muted fw-bold"><i class="fas fa-chart-bar me-1"></i> Platform Metrics</small>
+        <div class="d-flex flex-wrap gap-3">
+          <span class="small"><i class="fas fa-exchange-alt text-primary me-1"></i> <strong>{{ dashboardMetrics.total_transactions || 0 }}</strong> txns</span>
+          <span class="small"><i class="fas fa-bell text-danger me-1"></i> <strong>{{ dashboardMetrics.total_alerts || 0 }}</strong> alerts</span>
+          <span class="small"><i class="fas fa-briefcase text-warning me-1"></i> <strong>{{ dashboardMetrics.open_cases || 0 }}</strong> cases</span>
+          <span class="small"><i class="fas fa-ban text-dark me-1"></i> <strong>{{ dashboardMetrics.blocked || 0 }}</strong> blocked</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Keyboard Hints -->
+  <div class="mb-3">
+    <small class="text-muted">
+      <i class="fas fa-keyboard me-1"></i>
+      Shortcuts: <kbd>j</kbd>/<kbd>k</kbd> navigate · <kbd>r</kbd> refresh · <kbd>Esc</kbd> close
+    </small>
+  </div>
+
+  <!-- Bulk Action Bar -->
+  <div class="card shadow-sm mb-3 border-warning" *ngIf="bulkMode">
+    <div class="card-body py-2 d-flex flex-wrap gap-2 align-items-center">
+      <small class="fw-bold text-warning me-2">
+        <i class="fas fa-check-square me-1"></i>{{ selectedIds.size }} selected
+      </small>
+      <button class="btn btn-sm btn-outline-primary" (click)="toggleSelectAll()">
+        {{ selectedIds.size === filteredAlerts.length ? 'Deselect All' : 'Select All' }}
+      </button>
+      <button class="btn btn-sm btn-primary" (click)="bulkAssign()" [disabled]="!selectedIds.size">
+        <i class="fas fa-user-plus me-1"></i> Bulk Assign
+      </button>
+      <button class="btn btn-sm btn-outline-success" (click)="bulkMarkRead()" [disabled]="!selectedIds.size">
+        <i class="fas fa-check me-1"></i> Mark Read
+      </button>
+      <button class="btn btn-sm btn-outline-danger" (click)="bulkDismiss()" [disabled]="!selectedIds.size">
+        <i class="fas fa-times me-1"></i> Bulk Dismiss
+      </button>
+    </div>
+  </div>
+
+  <!-- Inbox View Switcher -->
+  <div class="btn-group mb-3" role="group">
+    <button class="btn btn-sm" [class.btn-primary]="inboxView==='all'" [class.btn-outline-primary]="inboxView!=='all'" (click)="inboxView='all'; applyFilters()">
+      <i class="fas fa-inbox me-1"></i> All
+    </button>
+    <button class="btn btn-sm" [class.btn-danger]="inboxView==='new'" [class.btn-outline-danger]="inboxView!=='new'" (click)="inboxView='new'; applyFilters()">
+      <i class="fas fa-bell me-1"></i> New
+    </button>
+    <button class="btn btn-sm" [class.btn-warning]="inboxView==='critical'" [class.btn-outline-warning]="inboxView!=='critical'" (click)="inboxView='critical'; applyFilters()">
+      <i class="fas fa-exclamation-circle me-1"></i> Critical
+    </button>
+    <button class="btn btn-sm" [class.btn-info]="inboxView==='unread'" [class.btn-outline-info]="inboxView!=='unread'" (click)="inboxView='unread'; applyFilters()">
+      <i class="fas fa-envelope me-1"></i> Unread
+    </button>
+    <button class="btn btn-sm" [class.btn-secondary]="inboxView==='assigned'" [class.btn-outline-secondary]="inboxView!=='assigned'" (click)="inboxView='assigned'; applyFilters()">
+      <i class="fas fa-user-check me-1"></i> Assigned
+    </button>
+  </div>
+
+  <div class="row">
+    <!-- Left: Inbox List -->
+    <div class="col-lg-4">
+      <!-- Filters -->
+      <div class="card shadow-sm mb-3">
+        <div class="card-body p-3">
+          <input class="form-control form-control-sm mb-2" placeholder="Search alert, txn, customer..." [(ngModel)]="searchText" (input)="applyFilters()" />
+          <div class="row g-2">
+            <div class="col-6">
+              <select class="form-select form-select-sm" [(ngModel)]="filterStatus" (change)="applyFilters()">
+                <option value="">All Status</option>
+                <option value="NEW">New</option>
+                <option value="ASSIGNED">Assigned</option>
+                <option value="DISMISSED">Dismissed</option>
+                <option value="SNOOZED">Snoozed</option>
+              </select>
+            </div>
+            <div class="col-6">
+              <select class="form-select form-select-sm" [(ngModel)]="filterRisk" (change)="applyFilters()">
+                <option value="">All Risk</option>
+                <option value="CRITICAL">Critical</option>
+                <option value="HIGH">High</option>
+                <option value="MEDIUM">Medium</option>
+              </select>
+            </div>
+            <div class="col-6">
+              <select class="form-select form-select-sm" [(ngModel)]="filterDecision" (change)="applyFilters()">
+                <option value="">All Decisions</option>
+                <option value="BLOCK">Block</option>
+                <option value="CHALLENGE">Challenge</option>
+                <option value="ALLOW">Allow</option>
+              </select>
+            </div>
+            <div class="col-6">
+              <select class="form-select form-select-sm" [(ngModel)]="sortBy" (change)="applyFilters()">
+                <option value="newest">Newest</option>
+                <option value="oldest">Oldest</option>
+                <option value="risk">Highest Risk</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <small class="text-muted">{{ filteredAlerts.length }} alerts</small>
+        <button class="btn btn-link btn-sm p-0" (click)="clearFilters()">Clear</button>
+      </div>
+
+      <div *ngIf="loading" class="text-center py-4">
+        <i class="fas fa-spinner fa-spin fa-2x text-muted"></i>
+      </div>
+
+      <div class="card shadow-sm inbox-list" *ngIf="!loading">
+        <div *ngFor="let a of filteredAlerts"
+             class="alert-item border-bottom"
+             [class.active]="selected?.id === a.id"
+             [class.unread]="!a.read"
+             [class.critical]="(a.final_risk_level || a.ml_risk_level) === 'CRITICAL'"
+             [class.high]="(a.final_risk_level || a.ml_risk_level) === 'HIGH'"
+             (click)="open(a)">
+          <div class="d-flex align-items-start gap-2">
+            <input *ngIf="bulkMode" type="checkbox" class="form-check-input mt-2 flex-shrink-0"
+                   [checked]="selectedIds.has(a.id)" (click)="toggleSelect(a, $event)" />
+            <span class="unread-dot mt-2" *ngIf="!a.read && !bulkMode"></span>
+            <span class="mt-2" *ngIf="a.read && !bulkMode" style="width:8px"></span>
+            <div class="flex-grow-1 min-width-0">
+              <div class="d-flex justify-content-between align-items-start">
+                <span class="alert-subject small fw-medium text-truncate">{{ a.id }}</span>
+                <small class="text-muted flex-shrink-0 ms-2">{{ getTimeAgo(a.created_at) }}</small>
+              </div>
+              <div class="small text-muted text-truncate">
+                <i class="fas fa-user me-1"></i>{{ a.customer_id || '—' }}
+                <span class="mx-1">·</span>
+                <i class="fas fa-exchange-alt me-1"></i>{{ a.transaction_id || '—' }}
+              </div>
+              <div class="d-flex align-items-center gap-2 mt-1">
+                <span class="badge" [ngClass]="getRiskBadge(a.final_risk_level || a.ml_risk_level)" style="font-size:10px">
+                  {{ a.final_risk_level || a.ml_risk_level || '—' }}
+                </span>
+                <span class="badge" [ngClass]="getStatusBadge(a.status)" style="font-size:10px">{{ a.status }}</span>
+                <div class="risk-bar flex-grow-1">
+                  <div class="fill" [style.width.%]="a.display_score" [style.background]="getRiskBarColor(a.display_score)"></div>
+                </div>
+                <small class="text-muted">{{ a.display_score }}%</small>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="filteredAlerts.length === 0" class="empty-inbox">
+          <i class="fas fa-inbox fa-3x mb-3"></i>
+          <h6>Inbox Zero</h6>
+          <p class="small mb-0">No alerts match your filters</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Alert Detail -->
+    <div class="col-lg-8">
+      <div *ngIf="!selected" class="card shadow-sm detail-panel">
+        <div class="empty-inbox">
+          <i class="fas fa-envelope-open fa-3x mb-3 text-muted"></i>
+          <h5>Select an alert to review</h5>
+          <p class="text-muted">Click an alert from the inbox to investigate, assign, or take action.</p>
+        </div>
+      </div>
+
+      <div *ngIf="selected" class="card shadow-sm detail-panel">
+        <div class="card-header bg-white">
+          <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+            <div>
+              <h5 class="mb-0 fw-bold">
+                <i class="fas fa-bell text-danger me-2"></i>{{ selected.id }}
+              </h5>
+              <small class="text-muted">
+                {{ selected.created_at | date:'medium' }}
+                <span class="mx-1">·</span>
+                Txn: <a href="#" class="text-decoration-none" (click)="$event.preventDefault(); viewTransactionDetail()">{{ selected.transaction_id }}</a>
+              </small>
+            </div>
+            <div class="d-flex gap-1 flex-wrap">
+              <span class="badge" [ngClass]="getRiskBadge(selected.final_risk_level || selected.ml_risk_level)">
+                {{ selected.final_risk_level || selected.ml_risk_level }}
+              </span>
+              <span class="badge" [ngClass]="getStatusBadge(selected.status)">{{ selected.status }}</span>
+              <span class="badge bg-dark" *ngIf="selected.decision">{{ selected.decision }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <!-- Quick action bar -->
+          <div class="d-flex flex-wrap gap-2 mb-3 pb-3 border-bottom">
+            <button class="btn btn-sm btn-primary" (click)="assign()">
+              <i class="fas fa-user-plus me-1"></i> Assign
+            </button>
+            <button class="btn btn-sm btn-outline-info" (click)="investigate()">
+              <i class="fas fa-search me-1"></i> Investigate
+            </button>
+            <button class="btn btn-sm btn-outline-success" (click)="createCase()">
+              <i class="fas fa-briefcase me-1"></i> Create Case
+            </button>
+            <button class="btn btn-sm btn-outline-warning" (click)="escalateAlert()">
+              <i class="fas fa-level-up-alt me-1"></i> Escalate
+            </button>
+            <button class="btn btn-sm btn-outline-secondary" (click)="snoozeAlert()">
+              <i class="fas fa-clock me-1"></i> Snooze
+            </button>
+            <button class="btn btn-sm btn-outline-danger" (click)="dismissAlert()">
+              <i class="fas fa-times me-1"></i> Dismiss
+            </button>
+            <button class="btn btn-sm btn-outline-dark" (click)="viewTransactionDetail()">
+              <i class="fas fa-external-link-alt me-1"></i> Full Detail
+            </button>
+          </div>
+
+          <!-- Detail sub-tabs -->
+          <ul class="nav nav-pills sub-nav mb-3 flex-wrap">
+            <li class="nav-item" *ngFor="let tab of detailTabs">
+              <button class="nav-link" [class.active]="activeDetailTab === tab.id" (click)="activeDetailTab = tab.id">
+                <i class="fas me-1" [ngClass]="tab.icon"></i>{{ tab.label }}
+              </button>
+            </li>
+          </ul>
+
+          <div *ngIf="loadingDetail" class="text-center py-4">
+            <i class="fas fa-spinner fa-spin fa-2x text-muted"></i>
+            <p class="text-muted mt-2">Loading alert details...</p>
+          </div>
+
+          <!-- OVERVIEW -->
+          <div *ngIf="activeDetailTab === 'overview' && !loadingDetail">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="card bg-light border-0">
+                  <div class="card-body">
+                    <h6 class="fw-bold mb-2">Risk Assessment</h6>
+                    <div class="d-flex align-items-center mb-2">
+                      <div class="display-6 fw-bold me-3" [style.color]="getRiskBarColor(selected.display_score)">
+                        {{ selected.display_score }}
+                      </div>
+                      <div>
+                        <div class="small">ML: <strong>{{ selected.ml_risk_level || '—' }}</strong></div>
+                        <div class="small">Final: <strong>{{ selected.final_risk_level || '—' }}</strong></div>
+                        <div class="small">Decision: <strong>{{ selected.decision || '—' }}</strong></div>
+                      </div>
+                    </div>
+                    <div class="risk-bar">
+                      <div class="fill" [style.width.%]="selected.display_score" [style.background]="getRiskBarColor(selected.display_score)"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card bg-light border-0">
+                  <div class="card-body">
+                    <h6 class="fw-bold mb-2">Assignment</h6>
+                    <p class="mb-1 small"><strong>Status:</strong> {{ selected.status }}</p>
+                    <p class="mb-1 small"><strong>Assigned to:</strong> {{ selected.assigned_to || 'Unassigned' }}</p>
+                    <p class="mb-0 small" *ngIf="selected.assigned_at"><strong>Since:</strong> {{ selected.assigned_at | date:'short' }}</p>
+                    <div class="mt-2" *ngIf="!selected.assigned_to">
+                      <select class="form-select form-select-sm d-inline-block" style="width:auto" [(ngModel)]="assignAnalyst">
+                        <option value="">Select analyst</option>
+                        <option *ngFor="let a of analysts" [value]="a">{{ a }}</option>
+                      </select>
+                      <button class="btn btn-sm btn-primary ms-1" (click)="assign()">Assign</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-3" *ngIf="selected.reasons?.length">
+              <h6 class="fw-bold">Alert Reasons</h6>
+              <ul class="list-unstyled">
+                <li *ngFor="let r of selected.reasons" class="mb-1">
+                  <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                  <span class="small">{{ r }}</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- TRANSACTION -->
+          <div *ngIf="activeDetailTab === 'transaction' && !loadingDetail">
+            <div *ngIf="transactionDetail; else noTxn">
+              <div class="table-responsive">
+                <table class="table table-sm table-bordered">
+                  <tbody>
+                    <tr *ngIf="transactionDetail.transaction_details">
+                      <td class="text-muted" style="width:35%">Transaction ID</td>
+                      <td class="fw-medium">{{ transactionDetail.transaction_details.transaction_id || selected.transaction_id }}</td>
+                    </tr>
+                    <tr *ngIf="transactionDetail.transaction_details">
+                      <td class="text-muted">Amount</td>
+                      <td class="fw-bold">{{ formatAmount(transactionDetail.transaction_details.transaction_amount) }}</td>
+                    </tr>
+                    <tr *ngIf="transactionDetail.transaction_details">
+                      <td class="text-muted">Channel</td>
+                      <td>{{ transactionDetail.transaction_details.channel || '—' }}</td>
+                    </tr>
+                    <tr *ngIf="transactionDetail.transaction_details">
+                      <td class="text-muted">Device</td>
+                      <td>{{ transactionDetail.transaction_details.device_type || '—' }}</td>
+                    </tr>
+                    <tr *ngIf="transactionDetail.transaction_details">
+                      <td class="text-muted">Location</td>
+                      <td>{{ transactionDetail.transaction_details.location || '—' }}</td>
+                    </tr>
+                    <tr *ngIf="transactionDetail.risk_assessment">
+                      <td class="text-muted">Risk Score</td>
+                      <td>
+                        <span class="badge" [ngClass]="getRiskBadge(transactionDetail.risk_assessment.final_risk_level)">
+                          {{ transactionDetail.risk_assessment.risk_score }} — {{ transactionDetail.risk_assessment.final_risk_level }}
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div *ngIf="relatedTransactions.length" class="mt-3">
+                <h6 class="fw-bold">Related Transactions ({{ relatedTransactions.length }})</h6>
+                <div class="table-responsive">
+                  <table class="table table-sm table-hover">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Txn ID</th>
+                        <th>Amount</th>
+                        <th>Risk</th>
+                        <th>Strength</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let r of relatedTransactions">
+                        <td>
+                          <a href="#" class="text-decoration-none" (click)="$event.preventDefault(); viewRelatedTransaction(r.transaction_id)">
+                            {{ r.transaction_id }}
+                          </a>
+                        </td>
+                        <td>{{ formatAmount(r.transaction_amount || r.amount) }}</td>
+                        <td>{{ r.risk_score || '—' }}</td>
+                        <td><span class="badge bg-secondary">{{ r.relationship?.strength || '—' }}</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <ng-template #noTxn>
+              <p class="text-muted">Transaction details not available. <button class="btn btn-sm btn-link" (click)="viewTransactionDetail()">View full detail page</button></p>
+            </ng-template>
+          </div>
+
+          <!-- CUSTOMER -->
+          <div *ngIf="activeDetailTab === 'customer' && !loadingDetail">
+            <div *ngIf="customerProfile || selected.customer_id">
+              <div class="d-flex align-items-center mb-3 p-3 bg-light rounded customer-chip" (click)="openCustomerProfile()">
+                <div class="rounded-circle d-flex align-items-center justify-content-center me-3 text-white fw-bold"
+                     style="width:48px;height:48px;background:linear-gradient(135deg,#667eea,#764ba2);font-size:18px">
+                  {{ getInitials(customerProfile?.customer_name || selected.customer_id) }}
+                </div>
+                <div>
+                  <h6 class="mb-0">{{ customerProfile?.customer_name || selected.customer_id }}</h6>
+                  <small class="text-muted">{{ customerProfile?.customer_id || selected.customer_id }}</small>
+                </div>
+                <i class="fas fa-chevron-right ms-auto text-muted"></i>
+              </div>
+
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <div class="card border-0 bg-light">
+                    <div class="card-body">
+                      <h6 class="fw-bold">Contact Info</h6>
+                      <p class="mb-1 small"><i class="fas fa-envelope me-2 text-muted"></i>{{ customerProfile?.customer_email || '—' }}</p>
+                      <p class="mb-0 small"><i class="fas fa-phone me-2 text-muted"></i>{{ customerProfile?.customer_phone || '—' }}</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="card border-0 bg-light">
+                    <div class="card-body">
+                      <h6 class="fw-bold">Account Profile</h6>
+                      <p class="mb-1 small">Account Age: <strong>{{ customerProfile?.account_age_days || 0 }} days</strong></p>
+                      <p class="mb-0 small">Avg Transaction: <strong>{{ formatAmount(customerProfile?.avg_transaction_amount) }}</strong></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex flex-wrap gap-2 mt-3">
+                <button class="btn btn-sm btn-outline-primary" (click)="viewCustomerTransactions()">
+                  <i class="fas fa-list me-1"></i> All Transactions
+                </button>
+                <button class="btn btn-sm btn-outline-info" (click)="openCustomerProfile()">
+                  <i class="fas fa-user me-1"></i> Full Profile
+                </button>
+                <button class="btn btn-sm btn-outline-warning" (click)="flagForReview()">
+                  <i class="fas fa-flag me-1"></i> Flag Customer
+                </button>
+              </div>
+            </div>
+            <div *ngIf="!customerProfile && !selected.customer_id" class="text-muted text-center py-4">
+              No customer information available
+            </div>
+          </div>
+
+          <!-- RULES -->
+          <div *ngIf="activeDetailTab === 'rules' && !loadingDetail">
+            <h6 class="fw-bold">Triggered Rules</h6>
+            <div *ngIf="(selected.triggered_rules || []).length; else noRules">
+              <div *ngFor="let r of selected.triggered_rules" class="card mb-2 border-0 bg-light">
+                <div class="card-body py-2 px-3">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <span class="badge bg-warning text-dark me-2">{{ r.rule_name || r.rule_id }}</span>
+                      <span class="small">{{ r.reason }}</span>
+                    </div>
+                    <span class="badge bg-danger" *ngIf="r.severity">{{ r.severity }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <ng-template #noRules>
+              <p class="text-muted">No rules triggered for this alert</p>
+            </ng-template>
+
+            <div class="mt-3" *ngIf="transactionDetail?.explanations">
+              <h6 class="fw-bold">AI Explanations</h6>
+              <div class="p-3 bg-light rounded small" style="max-height:200px;overflow:auto">
+                <pre class="mb-0" style="white-space:pre-wrap">{{ transactionDetail.explanations | json }}</pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- ACTIONS -->
+          <div *ngIf="activeDetailTab === 'actions' && !loadingDetail">
+            <h6 class="fw-bold mb-3">Alert Actions</h6>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Assign to Analyst</label>
+                <div class="input-group input-group-sm">
+                  <select class="form-select" [(ngModel)]="assignAnalyst">
+                    <option value="">Select...</option>
+                    <option *ngFor="let a of analysts" [value]="a">{{ a }}</option>
+                  </select>
+                  <button class="btn btn-primary" (click)="assign()">Assign</button>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Snooze Duration</label>
+                <div class="input-group input-group-sm">
+                  <select class="form-select" [(ngModel)]="snoozeDuration">
+                    <option value="1h">1 Hour</option>
+                    <option value="4h">4 Hours</option>
+                    <option value="24h">24 Hours</option>
+                    <option value="7d">7 Days</option>
+                  </select>
+                  <button class="btn btn-outline-secondary" (click)="snoozeAlert()">Snooze</button>
+                </div>
+              </div>
+              <div class="col-12">
+                <label class="form-label small fw-bold">Dismiss Reason</label>
+                <div class="input-group input-group-sm">
+                  <input class="form-control" [(ngModel)]="dismissReason" placeholder="Reason for dismissal..." />
+                  <button class="btn btn-outline-danger" (click)="dismissAlert()">Dismiss</button>
+                </div>
+              </div>
+            </div>
+
+            <hr />
+            <div class="d-flex flex-wrap gap-2">
+              <button class="btn btn-sm btn-outline-danger" (click)="blockTransaction()">
+                <i class="fas fa-ban me-1"></i> Block Transaction
+              </button>
+              <button class="btn btn-sm btn-outline-danger" (click)="confirmFraud()">
+                <i class="fas fa-skull me-1"></i> Confirm Fraud
+              </button>
+              <button class="btn btn-sm btn-outline-success" (click)="confirmFalsePositive()">
+                <i class="fas fa-check me-1"></i> False Positive
+              </button>
+              <button class="btn btn-sm btn-warning" (click)="sendChallenge()">
+                <i class="fas fa-shield-alt me-1"></i> Send Challenge
+              </button>
+              <button class="btn btn-sm btn-outline-info" (click)="investigate()">
+                <i class="fas fa-project-diagram me-1"></i> Fraud Graph
+              </button>
+              <button class="btn btn-sm btn-outline-success" (click)="createCase()">
+                <i class="fas fa-briefcase me-1"></i> Open Case
+              </button>
+              <button class="btn btn-sm btn-outline-dark" (click)="escalateAlert()">
+                <i class="fas fa-level-up-alt me-1"></i> Escalate
+              </button>
+              <button class="btn btn-sm btn-outline-primary" (click)="flagForReview()">
+                <i class="fas fa-flag me-1"></i> Flag for Review
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-footer bg-white d-flex justify-content-between">
+          <button class="btn btn-sm btn-outline-secondary" (click)="close()">
+            <i class="fas fa-arrow-left me-1"></i> Back to Inbox
+          </button>
+          <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-outline-dark" (click)="exportAlert()">
+              <i class="fas fa-download me-1"></i> Export
+            </button>
+            <button class="btn btn-sm btn-primary" (click)="viewTransactionDetail()">
+              <i class="fas fa-external-link-alt me-1"></i> Open Full Detail
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Customer Profile Modal -->
+<div class="modal fade show d-block" *ngIf="showCustomerModal" style="background:rgba(0,0,0,0.5)" (click)="showCustomerModal=false">
+  <div class="modal-dialog modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-user me-2"></i>Customer Profile</h5>
+        <button type="button" class="btn-close" (click)="showCustomerModal=false"></button>
+      </div>
+      <div class="modal-body">
+        <div class="d-flex align-items-center mb-4">
+          <div class="rounded-circle d-flex align-items-center justify-content-center me-3 text-white fw-bold"
+               style="width:64px;height:64px;background:linear-gradient(135deg,#667eea,#764ba2);font-size:24px">
+            {{ getInitials(customerProfile?.customer_name || selected?.customer_id) }}
+          </div>
+          <div>
+            <h5 class="mb-0">{{ customerProfile?.customer_name || selected?.customer_id }}</h5>
+            <span class="badge bg-secondary">{{ customerProfile?.customer_id || selected?.customer_id }}</span>
+          </div>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6"><strong>Email:</strong> {{ customerProfile?.customer_email || '—' }}</div>
+          <div class="col-md-6"><strong>Phone:</strong> {{ customerProfile?.customer_phone || '—' }}</div>
+          <div class="col-md-6"><strong>Account Age:</strong> {{ customerProfile?.account_age_days || 0 }} days</div>
+          <div class="col-md-6"><strong>Avg Transaction:</strong> {{ formatAmount(customerProfile?.avg_transaction_amount) }}</div>
+        </div>
+        <div class="mt-3 p-3 bg-light rounded">
+          <h6 class="fw-bold">Related Alert</h6>
+          <p class="mb-1 small">Alert: {{ selected?.id }}</p>
+          <p class="mb-1 small">Transaction: {{ selected?.transaction_id }}</p>
+          <p class="mb-0 small">Risk: {{ selected?.final_risk_level }} ({{ selected?.display_score }}%)</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-sm btn-outline-primary" (click)="viewCustomerTransactions()">View All Transactions</button>
+        <button class="btn btn-sm btn-outline-info" (click)="investigate()">Investigate</button>
+        <button class="btn btn-sm btn-secondary" (click)="showCustomerModal=false">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
