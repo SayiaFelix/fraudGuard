@@ -24,7 +24,7 @@
       </div>
 
       <!-- Fraud Intelligence Tabs -->
-      <div class="fraud-tab-buttons mt-3">
+      <div class="fraud-tab-buttons mt-3" *ngIf="!hideTopNav">
         <a class="fraud-tab-button"
           [routerLink]="['live-feed']"
           routerLinkActive="active-tab">
