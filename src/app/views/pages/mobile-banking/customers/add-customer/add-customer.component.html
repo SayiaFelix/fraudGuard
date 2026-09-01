@@ -39,30 +39,56 @@
     </div>
   </div>
 
-  <!-- Simulation Controls - Far Right aligned -->
-  <div class="simulation-controls mb-3 d-flex align-items-center flex-wrap gap-2">
-    <!-- Stats Badges - Left side -->
-    <div class="d-flex align-items-center gap-2">
-      <span class="badge bg-secondary">{{ transactions.length }} total</span>
-      <span class="badge bg-danger" *ngIf="stats.alerts > 0">
-        <i class="fas fa-bell me-1"></i> {{ stats.alerts }} Alerts
-      </span>
-      <span class="badge bg-warning text-dark" *ngIf="stats.cases > 0">
-        <i class="fas fa-folder-open me-1"></i> {{ stats.cases }} Cases
-      </span>
+  <!-- Smart Alert Banner -->
+  <div class="alert alert-danger d-flex align-items-center mb-4" 
+       *ngIf="stats.critical > 0" 
+       style="border-left: 6px solid #dc3545; background: linear-gradient(135deg, rgba(220,53,69,0.08), rgba(220,53,69,0.02));">
+    <div class="me-3" style="font-size: 2rem;">
+      <i class="fas fa-exclamation-triangle text-danger"></i>
     </div>
-    
-    <!-- Buttons - Far Right side -->
-    <div class="ms-auto d-flex align-items-center gap-2">
-      <button class="btn btn-outline-secondary btn-sm" (click)="refresh()">
-        <i class="fas fa-sync-alt me-1"></i> Refresh
-      </button>
-      <button class="btn btn-primary" (click)="openSimulationModal()">
-        <i class="fas fa-play-circle me-2"></i>
-        Run Batch Simulation
-      </button>
+    <div>
+      <strong class="text-danger">🚨 {{ stats.critical }} Critical Risk Transactions Detected!</strong>
+      <p class="mb-0 small text-muted">
+        Immediate investigation required for these high-risk transactions. 
+        <span class="text-danger fw-bold">SLA: Respond within 5 minutes</span>
+      </p>
     </div>
+    <button class="btn btn-danger btn-sm ms-auto" (click)="riskFilter='critical'; applyFilters()">
+      View Critical <i class="fas fa-arrow-right ms-1"></i>
+    </button>
   </div>
+
+  <!-- In your simulation-controls section -->
+<div class="simulation-controls mb-3 d-flex align-items-center flex-wrap gap-2">
+  <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-sm btn-outline-primary ms-2" (click)="openAIChat()" title="Open AI Assistant">
+      <i class="fas fa-robot me-1"></i> AI Chat
+    </button>
+  
+    <button class="btn btn-sm btn-outline-success ms-2" (click)="exportDataWithOptions()" title="Export Transactions">
+      <i class="fas fa-file-export me-1"></i> Export
+    </button>
+  </div>
+
+    <span class="badge bg-secondary">{{ transactions.length }} total</span>
+    <span class="badge bg-danger" *ngIf="stats.alerts > 0">
+      <i class="fas fa-bell me-1"></i> {{ stats.alerts }} Alerts
+    </span>
+    <span class="badge bg-warning text-dark" *ngIf="stats.cases > 0">
+      <i class="fas fa-folder-open me-1"></i> {{ stats.cases }} Cases
+    </span>
+  
+  
+  <div class="ms-auto d-flex align-items-center gap-2">
+    <button class="btn btn-outline-secondary btn-sm" (click)="refresh()">
+      <i class="fas fa-sync-alt me-1"></i> Refresh
+    </button>
+    <button class="btn btn-primary" (click)="openSimulationModal()">
+      <i class="fas fa-play-circle me-2"></i>
+      Run Batch Simulation
+    </button>
+  </div>
+</div>
 
   <!-- Filters -->
   <div class="filters-card card shadow-sm mb-4">
@@ -72,10 +98,10 @@
           <label class="form-label small fw-bold">Risk Level</label>
           <select class="form-select" [(ngModel)]="riskFilter" (change)="applyFilters()">
             <option value="all">All Risk Levels</option>
-            <option value="critical">Critical</option>
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
+            <option value="critical">Critical 🔴</option>
+            <option value="high">High 🟠</option>
+            <option value="medium">Medium 🟡</option>
+            <option value="low">Low 🟢</option>
           </select>
         </div>
         <div class="col-md-3">
@@ -89,9 +115,29 @@
         </div>
         <div class="col-md-4">
           <label class="form-label small fw-bold">Search</label>
-          <input type="text" class="form-control" placeholder="Transaction ID, Customer, Location..."
-                 [(ngModel)]="searchTerm" (keyup)="applyFilters()">
+          <div class="position-relative">
+            <input type="text" class="form-control" 
+                  placeholder="🔍 Search by ID, Customer, Location..."
+                  [(ngModel)]="searchTerm" 
+                  (input)="onSearchInput($event)"
+                  (focus)="searchSuggestions.length > 0 && (showSuggestions = true)"
+                  (blur)="onBlurSuggestions()">  <!-- ✅ Fixed -->
+            
+            <!-- Search Suggestions Dropdown -->
+            <div class="search-suggestions" *ngIf="showSuggestions && searchSuggestions.length > 0">
+              <div class="suggestion-item" *ngFor="let suggestion of searchSuggestions"
+                  (click)="applySearchSuggestion(suggestion)">
+                <i class="fas" [ngClass]="suggestion.icon" [class]="suggestion.color"></i>
+                <span class="suggestion-text">{{ suggestion.text }}</span>
+                <span class="suggestion-type" *ngIf="suggestion.type !== 'ai'">{{ suggestion.type }}</span>
+                <span class="suggestion-type ai-badge" *ngIf="suggestion.type === 'ai'">
+                  <i class="fas fa-robot me-1"></i> AI
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
+
         <div class="col-md-2 d-flex align-items-end">
           <button class="btn btn-outline-secondary w-100" (click)="clearFilters()">
             <i class="fas fa-times me-1"></i> Clear
@@ -110,9 +156,6 @@
         <span class="dot"></span> LIVE
       </span>
     </h4>
-    <!-- <div class="feed-controls">
-      <span class="badge bg-secondary me-2">{{ filteredTransactions.length }} transactions</span>
-    </div> -->
   </div>
 
   <!-- Feed List -->
@@ -121,35 +164,33 @@
       <table class="table table-hover align-middle mb-0">
         <thead class="table-light">
           <tr>
-            <th style="width: 15%;">Time</th>
-            <th style="width: 15%;">Txn ID</th>
-            <th style="width: 12%;">Amount</th>
+            <th style="width: 12%;">Time</th>
+            <th style="width: 14%;">Txn ID</th>
+            <th style="width: 10%;">Amount</th>
             <th style="width: 18%;">Risk</th>
-            <th style="width: 15%;">Channel</th>
+            <th style="width: 12%;">Channel</th>
             <th style="width: 10%;">Status</th>
-            <th class="text-end" style="width: 5%;">Action</th>
+            <th style="width: 8%; text-align: center;">AI</th>
+            <th class="text-end" style="width: 12%;">Action</th>
           </tr>
         </thead>
         <tbody>
           <!-- Loading State -->
           <tr *ngIf="isLoading">
-            <td colspan="7" class="text-center p-5">
+            <td colspan="8" class="text-center p-5">
               <div class="d-flex flex-column align-items-center">
                 <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
                   <span class="visually-hidden">Loading...</span>
                 </div>
                 <h5>Loading Transactions...</h5>
                 <p class="text-muted">Please wait while we fetch the latest data</p>
-                <div class="progress w-50 mt-2" style="height: 4px;">
-                  <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" style="width: 100%;"></div>
-                </div>
               </div>
             </td>
           </tr>
 
           <!-- Empty State -->
           <tr *ngIf="!isLoading && filteredTransactions.length === 0">
-            <td colspan="7" class="text-center p-5">
+            <td colspan="8" class="text-center p-5">
               <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
               <h5>No Transactions Found</h5>
               <p class="text-muted">Try adjusting your filters</p>
@@ -160,56 +201,76 @@
           <!-- Data Rows -->
           <ng-container *ngIf="!isLoading && filteredTransactions.length > 0">
             <tr *ngFor="let tx of paginatedTransactions" 
-                [class.table-warning]="tx.riskCategory === 'High' || tx.riskCategory === 'Critical'">
-              <td>
-                <div class="fw-bold">{{ formatTime(tx.timestamp) }}</div>
-                <small class="text-muted">{{ formatDate(tx.timestamp.toString()) }}</small>
+                [class.table-danger]="tx.finalRiskCategory === 'Critical'"
+                [class.table-warning]="tx.finalRiskCategory === 'High'"
+                style="transition: background-color 0.15s; cursor: pointer;">
+              <td (click)="showAIAnalysis(tx)">
+                <div class="fw-bold" style="font-size: 0.8rem;">{{ formatTime(tx.timestamp) }}</div>
+                <small class="text-muted" style="font-size: 0.65rem;">{{ formatDate(tx.timestamp.toString()) }}</small>
               </td>
-              <td class="fw-medium tx-id-wrapper">
+              <td (click)="showAIAnalysis(tx)" class="fw-medium tx-id-wrapper">
                 <span class="tx-id">{{ tx.transactionId }}</span>
               </td>
-              <td class="fw-bold">{{ formatAmount(tx.amount) }}</td>
-              <!-- <td>
+              <td (click)="showAIAnalysis(tx)" class="fw-bold">{{ formatAmount(tx.amount) }}</td>
+              <td (click)="showAIAnalysis(tx)">
                 <span class="badge" [ngClass]="getRiskBadgeClass(tx.riskCategory)">{{ tx.riskCategory }}</span>
-                <div class="small mt-1">
-                  <span class="text-muted">Score: </span>
-                  <span [style.color]="getRiskProgressColor(tx.riskScore)">{{ tx.riskScore }}</span>
+                <div class="small mt-1" style="font-size: 0.65rem;">
+                  <span class="text-muted">ML Score: </span>
+                  <span [style.color]="getRiskProgressColor(tx.mlRiskScore || tx.riskScore)" style="font-weight: 500;">
+                    {{ tx.mlRiskScore || tx.riskScore }}
+                  </span>
                 </div>
-              </td> -->
-
-              <td>
-  <!-- ML Risk (from transaction_details) -->
-  <span class="badge" [ngClass]="getRiskBadgeClass(tx.riskCategory)">{{ tx.riskCategory }}</span>
-  <div class="small mt-1">
-    <span class="text-muted">ML Score: </span>
-    <span [style.color]="getRiskProgressColor(tx.mlRiskScore || tx.riskScore)">{{ tx.mlRiskScore || tx.riskScore }}</span>
-  </div>
-  <!-- Final Risk (from root/risk_assessment) -->
-  <div class="small mt-1" *ngIf="tx.riskCategory !== tx.finalRiskCategory">
-    <span class="text-muted">Final: </span>
-    <span class="badge" [ngClass]="getRiskBadgeClass(tx.finalRiskCategory)" style="font-size: 0.65rem;">
-      {{ tx.finalRiskCategory }}
-    </span>
-    <span class="text-muted ms-1">({{ tx.riskScore }})</span>
-  </div>
-</td>
-
-              <td>
-                <div class="d-flex align-items-center">
-                  <i class="fas me-2" [ngClass]="getChannelIcon(tx.channel)"></i>
+                <div class="small mt-1" *ngIf="tx.riskCategory !== tx.finalRiskCategory" style="font-size: 0.6rem;">
+                  <span class="text-muted">Final: </span>
+                  <span class="badge" [ngClass]="getRiskBadgeClass(tx.finalRiskCategory)" style="font-size: 0.55rem; padding: 2px 6px;">
+                    {{ tx.finalRiskCategory }}
+                  </span>
+                  <span class="text-muted ms-1">({{ tx.riskScore }})</span>
+                </div>
+              </td>
+              <td (click)="showAIAnalysis(tx)">
+                <div class="d-flex align-items-center" style="font-size: 0.75rem;">
+                  <i class="fas me-1" [ngClass]="getChannelIcon(tx.channel)" style="font-size: 0.7rem;"></i>
                   {{ tx.channel }}
                 </div>
               </td>
-              <td>
-                <span class="badge" [ngClass]="getStatusBadgeClass(tx.status)">{{ tx.status }}</span>
-                <!-- <div class="small text-muted" *ngIf="tx.decision && tx.decision !== 'N/A'">
+              <td (click)="showAIAnalysis(tx)">
+                <span class="badge" [ngClass]="getStatusBadgeClass(tx.status)" style="font-size: 0.6rem; padding: 3px 8px;">
+                  {{ tx.status }}
+                </span>
+                <div class="text-muted" style="font-size: 0.55rem; margin-top: 1px;" *ngIf="tx.decision && tx.decision !== 'N/A'">
                   {{ tx.decision }}
-                </div> -->
+                </div>
+              </td>
+              <td style="text-align: center;">
+                <span class="badge bg-info" style="font-size: 0.5rem; padding: 2px 6px; cursor: pointer;" 
+                      (click)="quickAIAnalyze(tx)" title="Quick AI Analysis">
+                  <i class="fas fa-robot me-1"></i> AI
+                </span>
+                <div class="small text-muted" style="font-size: 0.5rem; margin-top: 2px;">
+                  {{ tx.flaggedBy }}
+                </div>
               </td>
               <td class="text-end">
-                <button class="btn btn-sm btn-outline-primary" (click)="showAIAnalysis(tx)">
-                  <i class="fas fa-robot me-1"></i> View
-                </button>
+                <div class="btn-group btn-group-sm">
+                  <button class="btn btn-sm btn-outline-primary" style="font-size: 0.6rem; padding: 2px 8px;" 
+                          (click)="showAIAnalysis(tx)" title="View AI Analysis">
+                    <i class="fas fa-robot me-1" style="font-size: 0.55rem;"></i> View
+                  </button>
+                  <button class="btn btn-sm btn-outline-success" style="font-size: 0.6rem; padding: 2px 8px;" 
+                          (click)="quickAIAnalyze(tx)" title="Quick AI Analysis">
+                    <i class="fas fa-magic" style="font-size: 0.55rem;"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-warning" style="font-size: 0.6rem; padding: 2px 8px;" 
+                          (click)="openAIChatForTransaction(tx)" title="Chat with AI">
+                    <i class="fas fa-comment-dots" style="font-size: 0.55rem;"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger" style="font-size: 0.6rem; padding: 2px 8px;" 
+                          (click)="investigateTransaction()" *ngIf="tx.finalRiskCategory === 'Critical'"
+                          title="Investigate">
+                    <i class="fas fa-search" style="font-size: 0.55rem;"></i>
+                  </button>
+                </div>
               </td>
             </tr>
           </ng-container>
@@ -217,44 +278,199 @@
       </table>
     </div>
 
-    
     <!-- Pagination -->
-<div class="d-flex flex-wrap justify-content-between align-items-center p-3 border-top" 
-     *ngIf="!isLoading && filteredTransactions.length > 0">
-  <div class="d-flex align-items-center gap-2">
-    <small class="text-muted">
-      Showing {{ startIndex }} - {{ endIndex }} of {{ filteredTransactions.length }} transactions
-    </small>
-    
-    <div class="ms-3 d-flex align-items-center">
-      <label class="text-muted small me-2 mb-0">Rows:</label>
-      <select class="form-select form-select-sm" style="width: auto; padding: 2px 6px; font-size: 0.7rem; height: 28px;" 
-              [(ngModel)]="pageSize" (change)="onPageSizeChange()">
-        <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</option>
-      </select>
+    <div class="d-flex flex-wrap justify-content-between align-items-center p-3 border-top" 
+         *ngIf="!isLoading && filteredTransactions.length > 0">
+      <div class="d-flex align-items-center gap-2">
+        <small class="text-muted" style="font-size: 0.7rem;">
+          Showing {{ startIndex }} - {{ endIndex }} of {{ filteredTransactions.length }} transactions
+        </small>
+        
+        <div class="ms-3 d-flex align-items-center">
+          <label class="text-muted small me-2 mb-0" style="font-size: 0.65rem;">Rows:</label>
+          <select class="form-select form-select-sm" style="width: auto; padding: 2px 6px; font-size: 0.7rem; height: 28px;" 
+                  [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+            <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-sm btn-outline-secondary me-2" style="font-size: 0.7rem; padding: 2px 10px; height: 28px;" 
+                [disabled]="currentPage === 1"
+                (click)="previousPage()">
+          <i class="fas fa-chevron-left" style="font-size: 0.6rem;"></i> Prev
+        </button>
+        
+        <span style="font-size: 0.7rem; color: #6c757d;">
+          Page {{ currentPage }} of {{ totalPages }}
+        </span>
+        
+        <button class="btn btn-sm btn-outline-secondary ms-2" style="font-size: 0.7rem; padding: 2px 10px; height: 28px;" 
+                [disabled]="currentPage >= totalPages"
+                (click)="nextPage()">
+          Next <i class="fas fa-chevron-right" style="font-size: 0.6rem;"></i>
+        </button>
+      </div>
     </div>
   </div>
+</div>
+
+<!-- Chat Button -->
+<div class="ai-chat-button" (click)="toggleAIChat()" *ngIf="!isAIChatOpen">
+  <button class="btn btn-success rounded-pill shadow-sm" 
+          style="position: fixed; bottom: 30px; right: 30px; z-index: 9999; padding: 12px 20px; border-radius: 50px; background: #00563B; border: none;">
+    <i class="fas fa-handshake me-2"></i>
+    Mukwano AI
+    <!-- <i class="fas fa-robot"></i> -->
+    <span class="badge bg-danger ms-2" *ngIf="stats.critical > 0">{{ stats.critical }}</span>
+  </button>
+</div>
+
+<!-- Chat Panel -->
+<div class="ai-chat-panel" *ngIf="isAIChatOpen" 
+     style="position: fixed; bottom: 30px; right: 30px; width: 420px; max-width: 90vw; height: 550px; max-height: 80vh; background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 9999; display: flex; flex-direction: column; border: 1px solid rgba(0,0,0,0.1);">
   
-  <div class="d-flex align-items-center gap-2">
-    <button class="btn btn-sm btn-outline-secondary me-2" style="font-size: 0.7rem; padding: 2px 10px; height: 28px;" 
-            [disabled]="currentPage === 1"
-            (click)="previousPage()">
-      <i class="fas fa-chevron-left" style="font-size: 0.6rem;"></i> Prev
-    </button>
+  <!-- Chat Header -->
+  <div class="chat-header p-3 text-white rounded-top" 
+       style="display: flex; justify-content: space-between; align-items: center; border-radius: 16px 16px 0 0; background: linear-gradient(135deg, #00563B 0%, #007A4D 100%);">
+    <div>
+      <i class="fas fa-handshake me-2"></i>
+      <strong>Mukwano AI</strong>
+       
+      <span class="badge bg-light text-dark ms-2" style="font-size: 0.55rem;">
+        <i class="fas fa-circle text-success me-1" style="font-size: 0.35rem;"></i> Online
+      </span>
+
+    </div>
+    <div>
+      <button class="btn btn-sm btn-light me-1" (click)="clearChat()" title="Clear chat">
+        <i class="fas fa-trash-alt"></i>
+      </button>
+      <button class="btn btn-sm btn-light" (click)="toggleAIChat()" title="Close chat">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Chat Messages -->
+  <div class="chat-messages p-3" #chatMessagesContainer 
+       style="flex: 1; overflow-y: auto; background: #f8f9fa; min-height: 200px;">
     
-    <span style="font-size: 0.7rem; color: #6c757d;">
-      Page {{ currentPage }} of {{ totalPages }}
-    </span>
-    
-    <button class="btn btn-sm btn-outline-secondary ms-2" style="font-size: 0.7rem; padding: 2px 10px; height: 28px;" 
-            [disabled]="currentPage >= totalPages"
-            (click)="nextPage()">
-      Next <i class="fas fa-chevron-right" style="font-size: 0.6rem;"></i>
+    <!-- Welcome Message -->
+    <div class="chat-message ai-message mb-3" *ngIf="chatMessages.length === 0">
+      <div class="d-flex">
+        <div class="ai-avatar me-2" style="width: 32px; height: 32px; background: #00563B; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0;">
+          <i class="fas fa-handshake" style="font-size: 14px;"></i>
+        </div>
+        <div class="message-content p-2 rounded" style="background: white; border-radius: 8px; max-width: 85%; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+          <small class="text-muted d-block mb-1" style="font-size: 0.55rem;">Mukwano AI</small>
+          <p class="mb-0" style="font-size: 0.85rem; white-space: pre-wrap;">
+            Olunaku olulungi! 😊
+
+        I'm Mukwano AI, your trusted friend and intelligent fraud detection companion.
+
+        I can help you with:
+        • Analyze transactions
+        • Detect fraud patterns
+        • Provide recommendations
+        • Search through data
+
+💬 Try: "Find transactions over KES 500,000" or "Show me critical risks"
+          </p>
+          <small class="text-muted d-block mt-1" style="font-size: 0.55rem;">
+            <i class="fas fa-handshake me-1"></i> Nkukwanira! (I'm here for you!)
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat Messages Loop -->
+    <div class="chat-message mb-3" *ngFor="let msg of chatMessages">
+      <div class="d-flex" [class.flex-row-reverse]="msg.role === 'user'">
+        <div class="avatar me-2" [class.ms-2]="msg.role === 'user'" 
+             style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"
+             [style.background]="msg.role === 'user' ? '#00563B' : '#6c757d'"
+             [style.color]="'white'">
+          <i class="fas" [ngClass]="msg.role === 'user' ? 'fa-user' : 'fa-robot'" style="font-size: 14px;"></i>
+        </div>
+        <div class="message-content p-2 rounded" 
+             [style.background]="msg.role === 'user' ? '#00563B' : 'white'"
+             [style.color]="msg.role === 'user' ? 'white' : 'inherit'"
+             style="max-width: 85%; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+          <small class="d-block mb-1" style="font-size: 0.55rem;" [class.text-white-50]="msg.role === 'user'" [class.text-muted]="msg.role === 'ai'">
+            {{ msg.role === 'user' ? 'You' : 'Mukwano AI' }}
+          </small>
+          <p class="mb-0" style="font-size: 0.85rem; white-space: pre-wrap;">{{ msg.content }}</p>
+          <small class="d-block mt-1" style="font-size: 0.5rem;" [class.text-white-50]="msg.role === 'user'" [class.text-muted]="msg.role === 'ai'">
+            {{ msg.timestamp | date:'shortTime' }}
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="chat-message ai-message mb-3" *ngIf="isChatLoading">
+      <div class="d-flex">
+        <div class="ai-avatar me-2" style="width: 32px; height: 32px; background: #00563B; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0;">
+          <i class="fas fa-handshake" style="font-size: 14px;"></i>
+        </div>
+        <div class="message-content p-2 rounded" style="background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+          <div class="typing-indicator">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <small class="text-muted d-block mt-1" style="font-size: 0.5rem;">Mukwano AI is thinking...</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat Input -->
+<div class="chat-input p-3 border-top" style="background: white; border-radius: 0 0 16px 16px;">
+  <div class="d-flex gap-2">
+    <input type="text" class="form-control form-control-sm" 
+           [(ngModel)]="chatInput" 
+           (keyup.enter)="sendChatMessage()"
+           placeholder="Ask Mukwano AI anything..."
+           [disabled]="isChatLoading"
+           style="border-radius: 20px; font-size: 0.85rem; border-color: #00563B;">
+    <button class="btn btn-success btn-sm" (click)="sendChatMessage()" 
+            [disabled]="!chatInput || isChatLoading" 
+            style="border-radius: 20px; padding: 5px 16px; background: #00563B; border: none;">
+      <i class="fas fa-paper-plane"></i>
     </button>
   </div>
-</div>
+  
+  <!-- Quick Actions -->
+  <div class="quick-actions mt-2 d-flex gap-2 flex-wrap">
+    <button class="btn btn-sm btn-outline-success" (click)="quickAnalyze()" title="Quickly analyze selected transaction">
+      📊 Analyze
+    </button>
+    <button class="btn btn-sm btn-outline-danger" (click)="quickInvestigate()" title="Investigate high-risk transactions">
+      🔍 Investigate
+    </button>
+    <button class="btn btn-sm btn-outline-info" (click)="quickSearch()" title="Open search suggestions">
+      🔎 Search
+    </button>
+    <button class="btn btn-outline-success btn-sm" (click)="exportData()">
+      <i class="fas fa-file-export me-1"></i> Export
+    </button>
+    <button class="btn btn-sm btn-outline-warning" (click)="playMukwanoSound()" title="Play notification sound">
+      🔊 Sound
+    </button>
+  </div>
+  
+  <div class="mt-1">
+    <small class="text-muted" style="font-size: 0.55rem;">
+      <i class="fas fa-handshake me-1" style="color: #00563B;"></i>
+      Try: "Find transactions over KES 500,000" or "Olunaku olulungi!"
+    </small>
   </div>
 </div>
+</div>
+
 
 <!-- Simulation Modal -->
 <div class="modal-overlay" *ngIf="showSimulationModal" (click)="closeSimulationModal()">
@@ -320,7 +536,6 @@
           Simulation Results
         </h5>
         
-        <!-- Enhanced Stats Row with Risk Indicators -->
         <div class="row g-3">
           <div class="col-md-2 col-4">
             <div class="stat-card bg-light rounded-3 p-3">
@@ -375,8 +590,7 @@
             <div>
               <strong>{{ simulation.summary.risk_distribution.CRITICAL }} Critical Risk Transactions Detected!</strong>
               <p class="mb-0 small">
-                These transactions have been flagged for immediate investigation due to high-risk patterns 
-                (unknown devices, international locations, unusual amounts, and high velocity).
+                These transactions have been flagged for immediate investigation due to high-risk patterns.
               </p>
             </div>
           </div>
@@ -519,7 +733,7 @@
           <div class="col-md-4">
             <small class="text-muted d-block">Risk Score</small>
             <strong [style.color]="getRiskProgressColor(selectedTransaction.riskScore)">
-              {{ selectedTransaction.riskScore }}
+              {{ selectedTransaction.riskScore }}/100
             </strong>
           </div>
         </div>
@@ -675,68 +889,68 @@
           </div>
         </div>
 
-        <!-- FINCA Rules Triggered Section - Add this inside the modal-body after Rule Engine Section -->
-<div class="finca-rules-section mb-3" *ngIf="selectedTransaction.fincaRulesTriggered && selectedTransaction.fincaRulesTriggered.length > 0">
-  <div class="card border-danger">
-    <div class="card-header bg-danger bg-opacity-10">
-      <h4 class="mb-0">
-        <i class="fas fa-gavel me-2 text-danger"></i>
-        FINCA Rules Triggered
-      </h4>
-    </div>
-    <div class="card-body">
-      <div class="table-responsive">
-        <table class="table table-sm table-hover mb-0">
-          <thead class="table-light">
-            <tr>
-              <th>Rule ID</th>
-              <th>Rule Name</th>
-              <th>Reason</th>
-              <th class="text-end">Points</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let rule of selectedTransaction.fincaRulesTriggered">
-              <td><span class="badge bg-secondary">{{ rule.rule_id || 'N/A' }}</span></td>
-              <td><strong>{{ rule.rule_name || 'Unknown Rule' }}</strong></td>
-              <td>{{ rule.reason || 'No reason provided' }}</td>
-              <td class="text-end"><span class="badge bg-warning text-dark">{{ rule.rule_points || 0 }}</span></td>
-            </tr>
-          </tbody>
-          <tfoot class="table-light">
-            <tr>
-              <td colspan="3" class="fw-bold">Total Rule Points</td>
-              <td class="text-end fw-bold">
-                <span class="badge bg-danger">{{ selectedTransaction.fincaTotalRulePoints || 0 }}</span>
-                <small class="text-muted ms-1">(capped: {{ selectedTransaction.fincaCappedRulePoints || 0 }})</small>
-              </td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-      <div class="mt-2 d-flex gap-2">
-        <span class="badge" [ngClass]="{
-          'bg-danger': selectedTransaction.fincaRuleRiskLevel === 'CRITICAL',
-          'bg-warning text-dark': selectedTransaction.fincaRuleRiskLevel === 'HIGH',
-          'bg-info': selectedTransaction.fincaRuleRiskLevel === 'MEDIUM',
-          'bg-success': selectedTransaction.fincaRuleRiskLevel === 'LOW'
-        }">
-          Rule Risk Level: {{ selectedTransaction.fincaRuleRiskLevel || 'N/A' }}
-        </span>
-        <span class="badge" [ngClass]="{
-          'bg-danger': selectedTransaction.fincaFinalDecision === 'BLOCK',
-          'bg-warning text-dark': selectedTransaction.fincaFinalDecision === 'CHALLENGE',
-          'bg-success': selectedTransaction.fincaFinalDecision === 'APPROVE'
-        }">
-          FINCA Decision: {{ selectedTransaction.fincaFinalDecision || 'N/A' }}
-        </span>
-        <span class="badge bg-secondary">
-          Rules Count: {{ selectedTransaction.fincaRuleCount || 0 }}
-        </span>
-      </div>
-    </div>
-  </div>
-</div>
+        <!-- FINCA Rules Triggered Section -->
+        <div class="finca-rules-section mb-3" *ngIf="selectedTransaction.fincaRulesTriggered && selectedTransaction.fincaRulesTriggered.length > 0">
+          <div class="card border-danger">
+            <div class="card-header bg-danger bg-opacity-10">
+              <h4 class="mb-0">
+                <i class="fas fa-gavel me-2 text-danger"></i>
+                FINCA Rules Triggered
+              </h4>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-sm table-hover mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Rule ID</th>
+                      <th>Rule Name</th>
+                      <th>Reason</th>
+                      <th class="text-end">Points</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let rule of selectedTransaction.fincaRulesTriggered">
+                      <td><span class="badge bg-secondary">{{ rule.rule_id || 'N/A' }}</span></td>
+                      <td><strong>{{ rule.rule_name || 'Unknown Rule' }}</strong></td>
+                      <td>{{ rule.reason || 'No reason provided' }}</td>
+                      <td class="text-end"><span class="badge bg-warning text-dark">{{ rule.rule_points || 0 }}</span></td>
+                    </tr>
+                  </tbody>
+                  <tfoot class="table-light">
+                    <tr>
+                      <td colspan="3" class="fw-bold">Total Rule Points</td>
+                      <td class="text-end fw-bold">
+                        <span class="badge bg-danger">{{ selectedTransaction.fincaTotalRulePoints || 0 }}</span>
+                        <small class="text-muted ms-1">(capped: {{ selectedTransaction.fincaCappedRulePoints || 0 }})</small>
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+              <div class="mt-2 d-flex gap-2">
+                <span class="badge" [ngClass]="{
+                  'bg-danger': selectedTransaction.fincaRuleRiskLevel === 'CRITICAL',
+                  'bg-warning text-dark': selectedTransaction.fincaRuleRiskLevel === 'HIGH',
+                  'bg-info': selectedTransaction.fincaRuleRiskLevel === 'MEDIUM',
+                  'bg-success': selectedTransaction.fincaRuleRiskLevel === 'LOW'
+                }">
+                  Rule Risk Level: {{ selectedTransaction.fincaRuleRiskLevel || 'N/A' }}
+                </span>
+                <span class="badge" [ngClass]="{
+                  'bg-danger': selectedTransaction.fincaFinalDecision === 'BLOCK',
+                  'bg-warning text-dark': selectedTransaction.fincaFinalDecision === 'CHALLENGE',
+                  'bg-success': selectedTransaction.fincaFinalDecision === 'APPROVE'
+                }">
+                  FINCA Decision: {{ selectedTransaction.fincaFinalDecision || 'N/A' }}
+                </span>
+                <span class="badge bg-secondary">
+                  Rules Count: {{ selectedTransaction.fincaRuleCount || 0 }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <!-- Feedback Effect Section -->
         <div class="feedback-effect-section mb-3" *ngIf="selectedTransaction.feedbackEffect">
@@ -787,7 +1001,6 @@
           </h4>
           
           <div class="row g-3">
-            <!-- Customer -->
             <div class="col-md-6">
               <div class="d-flex">
                 <div class="detail-icon me-2">
@@ -801,7 +1014,6 @@
               </div>
             </div>
             
-            <!-- Location -->
             <div class="col-md-6">
               <div class="d-flex">
                 <div class="detail-icon me-2">
@@ -814,7 +1026,6 @@
               </div>
             </div>
             
-            <!-- Timestamp -->
             <div class="col-md-6">
               <div class="d-flex">
                 <div class="detail-icon me-2">
@@ -828,7 +1039,6 @@
               </div>
             </div>
             
-            <!-- Channel -->
             <div class="col-md-6">
               <div class="d-flex">
                 <div class="detail-icon me-2">
@@ -884,7 +1094,6 @@
           </div>
         </div>
 
-        <!-- Loading State -->
         <div *ngIf="isLoadingRelated" class="text-center p-4">
           <div class="spinner-border text-primary mb-2" role="status">
             <span class="visually-hidden">Loading...</span>
@@ -902,7 +1111,6 @@
                     <th>Amount</th>
                     <th>Risk Score</th>
                     <th>Risk Level</th>
-                    <!-- <th>Status</th> -->
                   </tr>
                 </thead>
                 <tbody>
@@ -929,11 +1137,6 @@
                           related.riskScore >= 40 ? 'Medium' : 'Low' }}
                       </span>
                     </td>
-                    <!-- <td>
-                      <span class="badge" [ngClass]="getStatusBadgeClass(related.status)">
-                        {{ related.status }}
-                      </span>
-                    </td> -->
                   </tr>
                 </tbody>
               </table>
@@ -941,7 +1144,6 @@
           </div>
         </div>
 
-        <!-- Empty State -->
         <div class="alert alert-info" *ngIf="!isLoadingRelated && !selectedTransaction.relatedTransactions?.length">
           <div class="d-flex align-items-center">
             <i class="fas fa-info-circle fa-2x me-3"></i>
@@ -963,3 +1165,4 @@
     </div>
   </div>
 </div>
+<hr>
