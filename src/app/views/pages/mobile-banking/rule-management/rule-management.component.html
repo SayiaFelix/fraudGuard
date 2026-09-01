@@ -1,0 +1,280 @@
+<div class="container-fluid p-4">
+
+  <!-- LOADING OVERLAY -->
+  <div *ngIf="loading" class="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-white bg-opacity-75" style="z-index: 9999;">
+    <div class="spinner-border text-primary" role="status"></div>
+    <span class="mt-2 fw-bold text-primary">Synchronizing with AI Engine...</span>
+  </div>
+
+  <!-- 1. MAIN RULE LIST VIEW -->
+  <div *ngIf="view === 'list'">
+    <div class="row g-4">
+      
+      <!-- LEFT CONTENT: Rule List (9 Columns) -->
+      <div class="col-lg-9">
+        <div class="row mb-4 align-items-center">
+          <div class="col">
+            <h4 class="fw-bold mb-0">Rule Management <span class="badge bg-soft-primary text-primary ms-2 small" style="font-size: 11px; vertical-align: middle;">AI-ENABLED</span></h4>
+            <p class="text-muted small mb-0">Orchestrate fraud logic and monitor real-time rule performance.</p>
+          </div>
+          <div class="col-auto">
+            <button class="btn btn-primary shadow-sm px-4" (click)="showCreateForm()">
+              <i class="bi bi-plus-lg me-1"></i> Create New Rule
+            </button>
+          </div>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="card border-0 shadow-sm mb-4 bg-light">
+          <div class="card-body py-2">
+            <div class="row g-3 align-items-center">
+              <div class="col-auto small fw-bold text-muted">INSIGHT FILTERS:</div>
+              <div class="col-md-3">
+                <select class="form-select form-select-sm border-0" [(ngModel)]="filterCategory">
+                  <option value="">All Categories</option>
+                  <option value="TIME">Time Analysis</option>
+                  <option value="AMOUNT">Transaction Volume</option>
+                  <option value="LOCATION">Geographic Anomaly</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <select class="form-select form-select-sm border-0" [(ngModel)]="filterStatus">
+                  <option value="">All Rules Status</option>
+                  <option value="active">Operational</option>
+                  <option value="inactive">Paused</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Enhanced Table with Visual Metrics -->
+        <div class="card border-0 shadow-sm">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="bg-light text-muted extra-small fw-bold text-uppercase">
+                <tr>
+                  <th class="ps-4">Rule Intelligence</th>
+                  <th>Category</th>
+                  <th>7-Day Activity</th>
+                  <th>AI Accuracy</th>
+                  <th>Status</th>
+                  <th class="text-end pe-4">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let rule of rules" class="cursor-pointer">
+                  <td class="ps-4">
+                    <div class="fw-bold text-primary mb-0">{{ rule.name }}</div>
+                    <div class="extra-small text-muted">ID: {{ rule.id }} • Prevents ${{ rule.impact }} daily</div>
+                  </td>
+                  <td><span class="badge bg-light text-dark border-secondary-subtle">{{ rule.category }}</span></td>
+                  
+                  <!-- Performance Sparkline -->
+                  <td>
+                    <svg width="80" height="25" class="d-block">
+                      <polyline fill="none" stroke="#0d6efd" stroke-width="2" [attr.points]="rule.trendPoints" />
+                    </svg>
+                  </td>
+
+                  <td>
+                    <div class="small fw-bold text-success">{{ rule.accuracy }}%</div>
+                    <div class="extra-small text-muted">Reliability</div>
+                  </td>
+
+                  <td>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" 
+                             [checked]="rule.is_active" 
+                             (change)="toggleRuleStatus(rule)">
+                    </div>
+                  </td>
+                  <td class="text-end pe-4">
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3" (click)="openSimulator(rule)">
+                       Simulate
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT SIDEBAR: AI Insights (3 Columns) -->
+      <div class="col-lg-3">
+        <div class="card border-0 shadow-sm bg-primary text-white mb-4">
+          <div class="card-body">
+            <h6 class="fw-bold mb-3 d-flex align-items-center">
+              <i class="bi bi-robot fs-5 me-2"></i> Sentinel AI Copilot
+            </h6>
+            <p class="extra-small opacity-75">AI analysis of live traffic across FINCA networks.</p>
+            <div class="p-2 bg-white bg-opacity-10 rounded small mb-3 border border-white border-opacity-10">
+              <i class="bi bi-lightning-fill text-warning me-1"></i>
+              Detection precision improved by <strong>14.2%</strong> since last optimization.
+            </div>
+            <button class="btn btn-sm btn-light w-100 fw-bold py-2">Generate Report</button>
+          </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white py-3 fw-bold small text-uppercase letter-spacing-1">
+            <i class="bi bi-stars text-primary me-2"></i>AI Suggestions
+          </div>
+          <div class="card-body p-0">
+            <div class="p-3 border-bottom border-light">
+              <div class="small fw-bold text-primary">New Trend Identified</div>
+              <p class="extra-small text-muted mb-2">Midnight mobile withdrawals spike. Recommend +15pts risk weight.</p>
+              <button class="btn btn-xs btn-primary py-0 px-2 small shadow-none" style="font-size: 10px;">Apply Optimization</button>
+            </div>
+            <div class="p-3">
+              <div class="small fw-bold">Anomaly Detected</div>
+              <p class="extra-small text-muted mb-2">Rule <strong>R005</strong> has high false-positives (8%). Recommend review.</p>
+              <button class="btn btn-xs btn-outline-secondary py-0 px-2 small shadow-none" style="font-size: 10px;">Review Logic</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. SIMULATOR VIEW -->
+  <div *ngIf="view === 'simulator'">
+    <div class="row mb-4 align-items-center">
+      <div class="col">
+        <button class="btn btn-link btn-sm p-0 mb-2 text-decoration-none" (click)="showList()">
+          <i class="bi bi-arrow-left"></i> Back to Rule List
+        </button>
+        <h4 class="fw-bold mb-0">Impact Simulator: <span class="text-primary">{{ selectedRule?.name }}</span></h4>
+        <p class="text-muted small">Stress-test logic before production deployment.</p>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-5">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white fw-bold small">TRANSACTION METADATA (JSON)</div>
+          <div class="card-body">
+            <textarea class="form-control font-monospace text-success bg-dark p-3" 
+                      rows="12" [(ngModel)]="simulatorInput" style="font-size: 13px;"></textarea>
+            <button class="btn btn-success w-100 mt-3 py-2 fw-bold" (click)="runSimulation()">
+              EXECUTE REAL-TIME TEST
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-7">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-header bg-white fw-bold small">AI ENGINE EVALUATION</div>
+          <div class="card-body">
+            <div *ngIf="!simulationResult" class="text-center py-5 opacity-50">
+              <i class="bi bi-cpu-fill h1 d-block mb-2 text-primary"></i>
+              <p>Feed a transaction payload to the engine to start analysis.</p>
+            </div>
+
+            <div *ngIf="simulationResult">
+               <div class="alert shadow-sm border-0" [ngClass]="simulationResult.triggered ? 'alert-danger' : 'alert-success'">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="alert-heading mb-0 fw-bold">
+                      {{ simulationResult.triggered ? 'THRESHOLD BREACHED' : 'LOGIC VALIDATED' }}
+                    </h5>
+                    <span class="badge py-2 px-3 fs-6" [ngClass]="simulationResult.triggered ? 'bg-danger' : 'bg-success'">
+                      {{ simulationResult.decision }}
+                    </span>
+                  </div>
+                  <hr>
+                  <p class="mb-0 fw-bold">Diagnostic: <span class="fw-normal">{{ simulationResult.reason || 'Conforms to safety guidelines.' }}</span></p>
+               </div>
+
+               <div class="mt-4 card bg-light border-0">
+                  <div class="card-body">
+                    <h6 class="fw-bold small mb-3">RISK SCORECARD:</h6>
+                    <div class="d-flex justify-content-between mb-2">
+                      <span class="text-muted">Logic Weight Points:</span>
+                      <span class="fw-bold" [class.text-danger]="simulationResult.triggered">+{{ simulationResult.risk_points }} pts</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                      <span class="text-muted">Engine Confidence:</span>
+                      <span class="fw-bold text-success">98.2%</span>
+                    </div>
+                  </div>
+               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. CREATE RULE VIEW -->
+  <div *ngIf="view === 'create'" class="card border-0 shadow-sm mx-auto" style="max-width: 800px;">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
+      <h5 class="mb-0 fw-bold">Decision Logic Builder</h5>
+      <button class="btn btn-sm btn-light" (click)="showList()">Cancel</button>
+    </div>
+    <div class="card-body p-4">
+      <div class="row g-3">
+        <div class="col-md-8">
+          <label class="form-label small fw-bold">Rule Definition Name</label>
+          <input type="text" class="form-control bg-light border-0" [(ngModel)]="newRule.name">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small fw-bold">Vector Category</label>
+          <select class="form-select bg-light border-0" [(ngModel)]="newRule.category">
+            <option>TIME</option><option>AMOUNT</option><option>LOCATION</option><option>GENERAL</option>
+          </select>
+        </div>
+
+        <div class="col-12 mt-4">
+          <div class="p-3 bg-light rounded-4 border-0">
+            <h6 class="small fw-bold text-primary mb-3">IF TRIGGER MET:</h6>
+            <div class="row g-2">
+              <div class="col-md-4">
+                <select class="form-select border-0 shadow-sm" [(ngModel)]="newRule.conditions.field">
+                  <option value="transaction_amount">Amount</option>
+                  <option value="transaction_hour">Hour</option>
+                  <option value="location">Location</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <select class="form-select border-0 shadow-sm" [(ngModel)]="newRule.conditions.operator">
+                  <option value="greater_than">Greater Than</option>
+                  <option value="between">Between</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <input type="text" class="form-control border-0 shadow-sm" [(ngModel)]="newRule.conditions.value">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 mt-4">
+          <h6 class="small fw-bold text-success mb-3">THEN ACTION:</h6>
+          <div class="row g-3 p-3 border rounded-4 bg-white shadow-sm mx-0">
+            <div class="col-md-4">
+              <label class="form-label extra-small fw-bold text-muted">RISK WEIGHT (POINTS)</label>
+              <input type="number" class="form-control border-0 bg-light" [(ngModel)]="newRule.action.risk_points">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label extra-small fw-bold text-muted">SYSTEM DECISION</label>
+              <select class="form-select border-0 bg-light" [(ngModel)]="newRule.action.decision">
+                <option>BLOCK</option><option>CHALLENGE</option><option>FLAG</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label extra-small fw-bold text-muted">PRIORITY INDEX</label>
+              <input type="number" class="form-control border-0 bg-light" [(ngModel)]="newRule.priority">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-footer bg-light p-3 text-end border-top-0 rounded-bottom-4">
+      <button class="btn btn-link text-muted me-2 text-decoration-none" (click)="showList()">Discard</button>
+      <button class="btn btn-primary px-5 rounded-pill shadow-sm" (click)="saveRule()" [disabled]="!newRule.name">Deploy Rule</button>
+    </div>
+  </div>
+
+</div>
