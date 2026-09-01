@@ -66,7 +66,7 @@
                 <tr *ngFor="let rule of rules" class="cursor-pointer">
                   <td class="ps-4">
                     <div class="fw-bold text-primary mb-0">{{ rule.name }}</div>
-                    <div class="extra-small text-muted">ID: {{ rule.id }} • Prevents ${{ rule.impact }} daily</div>
+                    <div class="extra-small text-muted">ID: {{ rule.id }} • Prevents KSh {{ rule.impact }} daily</div>
                   </td>
                   <td><span class="badge bg-light text-dark border-secondary-subtle">{{ rule.category }}</span></td>
                   
@@ -105,15 +105,18 @@
       <div class="col-lg-3">
         <div class="card border-0 shadow-sm bg-primary text-white mb-4">
           <div class="card-body">
-            <h6 class="fw-bold mb-3 d-flex align-items-center">
-              <i class="bi bi-robot fs-5 me-2"></i> Sentinel AI Copilot
-            </h6>
+            <h4 class="fw-bold mb-3 d-flex align-items-center">
+              <i class="bi bi-robot fs-5 me-2"></i> AI Traffic Analysis
+            </h4>
             <p class="extra-small opacity-75">AI analysis of live traffic across FINCA networks.</p>
             <div class="p-2 bg-white bg-opacity-10 rounded small mb-3 border border-white border-opacity-10">
               <i class="bi bi-lightning-fill text-warning me-1"></i>
               Detection precision improved by <strong>14.2%</strong> since last optimization.
             </div>
-            <button class="btn btn-sm btn-light w-100 fw-bold py-2">Generate Report</button>
+            <!-- ADDED: click event for report generation -->
+            <button class="btn btn-sm btn-light w-100 fw-bold py-2" (click)="generateAiReport()">
+              Generate Report
+            </button>
           </div>
         </div>
 
@@ -125,12 +128,20 @@
             <div class="p-3 border-bottom border-light">
               <div class="small fw-bold text-primary">New Trend Identified</div>
               <p class="extra-small text-muted mb-2">Midnight mobile withdrawals spike. Recommend +15pts risk weight.</p>
-              <button class="btn btn-xs btn-primary py-0 px-2 small shadow-none" style="font-size: 10px;">Apply Optimization</button>
+              <button class="btn btn-xs btn-primary py-0 px-2 small shadow-none" 
+                      style="font-size: 12px;"
+                      (click)="applyAiOptimization()">
+                Apply Optimization
+              </button>
             </div>
-            <div class="p-3">
+            <div class="p-4">
               <div class="small fw-bold">Anomaly Detected</div>
               <p class="extra-small text-muted mb-2">Rule <strong>R005</strong> has high false-positives (8%). Recommend review.</p>
-              <button class="btn btn-xs btn-outline-secondary py-0 px-2 small shadow-none" style="font-size: 10px;">Review Logic</button>
+              <button class="btn btn-xs btn-outline-secondary py-0 px-2 small shadow-none" 
+                      style="font-size: 12px;" 
+                      (click)="editRule('R005')">
+                Review Logic
+              </button>
             </div>
           </div>
         </div>
@@ -207,10 +218,10 @@
     </div>
   </div>
 
-  <!-- 3. CREATE RULE VIEW -->
-  <div *ngIf="view === 'create'" class="card border-0 shadow-sm mx-auto" style="max-width: 800px;">
+  <!-- 3. CREATE / EDIT RULE VIEW -->
+  <div *ngIf="view === 'create' || view === 'edit'" class="card border-0 shadow-sm mx-auto" style="max-width: 800px;">
     <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
-      <h5 class="mb-0 fw-bold">Decision Logic Builder</h5>
+      <h5 class="mb-0 fw-bold">{{ view === 'edit' ? 'Review & Optimize Rule Logic' : 'Decision Logic Builder' }}</h5>
       <button class="btn btn-sm btn-light" (click)="showList()">Cancel</button>
     </div>
     <div class="card-body p-4">
@@ -273,7 +284,53 @@
     </div>
     <div class="card-footer bg-light p-3 text-end border-top-0 rounded-bottom-4">
       <button class="btn btn-link text-muted me-2 text-decoration-none" (click)="showList()">Discard</button>
-      <button class="btn btn-primary px-5 rounded-pill shadow-sm" (click)="saveRule()" [disabled]="!newRule.name">Deploy Rule</button>
+      <button class="btn btn-primary px-5 rounded-pill shadow-sm" (click)="saveRule()" [disabled]="!newRule.name">
+        {{ view === 'edit' ? 'Update & Deploy Rule' : 'Deploy Rule' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- AI REPORT MODAL OVERLAY -->
+  <div *ngIf="showReport" class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-50" style="z-index: 10000;">
+    <div class="card border-0 shadow-lg" style="max-width: 500px; width: 90%;">
+      <div class="card-header bg-primary text-white py-3 d-flex justify-content-between align-items-center border-0">
+        <h4 class="mb-0 fw-bold"><i class="bi bi-file-earmark-bar-graph me-2"></i>Sentinel AI Intelligence Report</h4>
+        <button class="btn-close btn-close-white shadow-none" (click)="closeReport()"></button>
+      </div>
+      <div class="card-body p-4 text-dark">
+        <div class="text-center mb-4">
+          <div class="display-6 fw-bold text-primary">KSh {{ reportSummary?.savings }}</div>
+          <div class="text-muted small text-uppercase fw-bold">Estimated Fraud Savings</div>
+        </div>
+        
+        <div class="row g-3 text-dark">
+          <div class="col-6">
+            <div class="p-3 bg-light rounded shadow-sm text-center border">
+              <div class="small text-muted">Threats Blocked</div>
+              <div class="fw-bold fs-5 text-danger">{{ reportSummary?.threatsBlocked }}</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="p-3 bg-light rounded shadow-sm text-center border">
+              <div class="small text-muted">AI Precision</div>
+              <div class="fw-bold fs-5 text-success">{{ reportSummary?.precision }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 pt-3 border-top text-dark">
+          <h6 class="extra-small fw-bold text-muted text-uppercase mb-2">Key AI Insight:</h6>
+          <p class="small mb-0">
+            Network traffic shows a high correlation between <span class="badge bg-soft-primary text-primary">{{ reportSummary?.topVector }}</span> and unauthorized access attempts. 
+            Optimization of <strong>Rule R005</strong> has reduced false positives by 14.2%.
+          </p>
+        </div>
+      </div>
+      <div class="card-footer bg-white border-0 p-3">
+        <button class="btn btn-primary w-100 py-2 rounded-pill shadow-sm" (click)="closeReport()">
+          <i class="bi bi-download me-2"></i>Export as PDF
+        </button>
+      </div>
     </div>
   </div>
 
