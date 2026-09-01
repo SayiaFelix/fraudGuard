@@ -252,6 +252,21 @@ export class CustomerProfilingComponent implements OnInit {
   };
 
 
+  /* =======================================================
+     TABLE PAGE SIZE OPTIONS
+  ======================================================= */
+
+  pageSizeOptions: number[] = [5, 10, 20, 50];
+
+
+  /* =======================================================
+     RECENT TRANSACTION PAGINATION
+  ======================================================= */
+
+  recentTxPage = 1;
+  recentTxPageSize = 5;
+
+
   constructor(
     private fraudService: HttpService
   ) {}
@@ -348,6 +363,8 @@ export class CustomerProfilingComponent implements OnInit {
           ) {
             this.selectedCustomer =
               response.customer_360;
+
+            this.recentTxPage = 1;
 
             this.errorMessage = '';
 
@@ -474,6 +491,90 @@ export class CustomerProfilingComponent implements OnInit {
 
 
   /* =======================================================
+     CUSTOMER TABLE PAGE SIZE
+  ======================================================= */
+
+  onCustomerPageSizeChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    this.pagination.size = Number(select.value) || 10;
+    this.loadCustomers(1);
+  }
+
+  getCustomerRangeStart(): number {
+    if (!this.pagination.total) {
+      return 0;
+    }
+
+    return ((this.pagination.page - 1) * this.pagination.size) + 1;
+  }
+
+  getCustomerRangeEnd(): number {
+    return Math.min(
+      this.pagination.page * this.pagination.size,
+      this.pagination.total
+    );
+  }
+
+
+  /* =======================================================
+     RECENT TRANSACTION PAGINATION
+  ======================================================= */
+
+  get paginatedRecentTransactions() {
+    if (!this.selectedCustomer?.recent_transactions?.length) {
+      return [];
+    }
+
+    const start = (this.recentTxPage - 1) * this.recentTxPageSize;
+    const end = start + this.recentTxPageSize;
+
+    return this.selectedCustomer.recent_transactions.slice(start, end);
+  }
+
+  getRecentTxTotalPages(): number {
+    const total = this.selectedCustomer?.recent_transactions?.length || 0;
+    return Math.max(1, Math.ceil(total / this.recentTxPageSize));
+  }
+
+  getRecentTxRangeStart(): number {
+    const total = this.selectedCustomer?.recent_transactions?.length || 0;
+
+    if (!total) {
+      return 0;
+    }
+
+    return ((this.recentTxPage - 1) * this.recentTxPageSize) + 1;
+  }
+
+  getRecentTxRangeEnd(): number {
+    const total = this.selectedCustomer?.recent_transactions?.length || 0;
+
+    return Math.min(
+      this.recentTxPage * this.recentTxPageSize,
+      total
+    );
+  }
+
+  previousRecentTxPage(): void {
+    if (this.recentTxPage > 1) {
+      this.recentTxPage--;
+    }
+  }
+
+  nextRecentTxPage(): void {
+    if (this.recentTxPage < this.getRecentTxTotalPages()) {
+      this.recentTxPage++;
+    }
+  }
+
+  onRecentTxPageSizeChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    this.recentTxPageSize = Number(select.value) || 5;
+    this.recentTxPage = 1;
+  }
+
+
+  /* =======================================================
      CUSTOMER PROFILE HELPERS
   ======================================================= */
 
@@ -494,6 +595,18 @@ export class CustomerProfilingComponent implements OnInit {
     return (
       customer.customer_profile?.score ??
       null
+    );
+  }
+
+
+  getCustomerRowClass(
+    customer: CustomerSummary
+  ): string {
+
+    return (
+      'profile-row-' +
+      this.getCustomerProfileLevel(customer)
+        .toLowerCase()
     );
   }
 
@@ -1067,6 +1180,21 @@ export class CustomerProfilingComponent implements OnInit {
 
     return this.getRiskClass(
       risk
+    );
+  }
+
+
+  getTransactionRowClass(
+    risk:
+      string |
+      null |
+      undefined
+  ): string {
+
+    return (
+      'transaction-row-' +
+      (risk || 'LOW')
+        .toLowerCase()
     );
   }
 
