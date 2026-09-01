@@ -1483,7 +1483,7 @@ private extractSearchFilters(query: string): any {
   const lower = query.toLowerCase();
   const filters: any = {};
 
-  // === AMOUNT FILTERS - IMPROVED ===
+  // === AMOUNT FILTERS  ===
   const amountMatch = lower.match(/(?:over|above|>=|>|at least|more than|less than|under|<=|<|below)\s*(\d+(?:,\d+)*)\s*(?:k|k\'?s|kes)?/gi);
   
   if (amountMatch) {
