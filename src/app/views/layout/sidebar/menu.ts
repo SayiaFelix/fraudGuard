@@ -24,6 +24,16 @@ export const MENU: MenuItem[] = [
     icon: 'activity',
     link: '/fraudsentinelAi/transaction_management/fraud/transactions'
   },
+  {
+    label: 'AI Insights',
+    icon: 'activity',
+    link: '/fraudsentinelAi/transaction_management/fraud/ai-insights'
+  },
+  {
+    label: 'Investigation Graph',
+    icon: 'bar-chart-2',
+    link: '/fraudsentinelAi/transaction_management/fraud/investigation-graph'
+  },
   //   {
   //   label: 'Fieldwork',
   //   icon: 'git-branch',
@@ -51,7 +61,7 @@ export const MENU: MenuItem[] = [
   {
     label: 'Alerts',
     icon: 'inbox',
-    link: '/fraudsentinelAi/user/inbox',
+    link: '/fraudsentinelAi/transaction_management/alerts',
     // roles: ['CIA', 'AuditUnit','Director']
   },
   //  {

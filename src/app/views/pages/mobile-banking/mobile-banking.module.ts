@@ -48,6 +48,11 @@ const routes: Routes = [
           import('./case-management/case-management.module').then((m) => m.CaseManagementModule)
       },
       {
+        path: 'transaction_management/alerts',
+        loadChildren: () =>
+          import('./finca-alerts/finca-alerts.module').then((m) => m.FincaAlertsModule)
+      },
+      {
         path: 'analytic',
         loadChildren: () =>
           import('./products/products.module').then((m) => m.ProductsModule),
