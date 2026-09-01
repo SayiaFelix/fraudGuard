@@ -1,15 +1,15 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { FincaAlertsComponent } from './finca-alerts.component';
 import { FormsModule } from '@angular/forms';
-import { CaseManagementComponent } from './case-management.component';
 
 @NgModule({
-  declarations: [CaseManagementComponent],
+  declarations: [FincaAlertsComponent],
   imports: [
     CommonModule,
     FormsModule,
-    RouterModule.forChild([{ path: '', component: CaseManagementComponent }])
+    RouterModule.forChild([{ path: '', component: FincaAlertsComponent }])
   ]
 })
-export class CaseManagementModule { }
+export class FincaAlertsModule { }

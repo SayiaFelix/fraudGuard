@@ -420,6 +420,9 @@ export class IntentComponent implements OnInit {
     'Device_Type_MacBook': formData.deviceType === 'MacBook' ? 1 : 0,
     'Device_Type_Windows_PC': formData.deviceType === 'Windows_PC' ? 1 : 0,
     'Device_Type_Unknown_Device': formData.deviceType === 'Unknown_Device' ? 1 : 0,
+    'channel': formData.channel,
+    'Channel': formData.channel,
+    'Transaction_Type': formData.transactionType,
     'Transaction_Type_Online': Number(typeFields.online),
     'Transaction_Type_POS': Number(typeFields.pos),
     ...period,
@@ -435,13 +438,9 @@ export class IntentComponent implements OnInit {
     'avg_transaction_amount': Number(formData.avgTransaction || 0),
     'customer_tier': formData.customerTier || 'regular',
 
-    // ============================================
-    // FINCA-SPECIFIC FIELDS (for finca_specific)
-    // These match exactly what FINCA expects
-    // ============================================
     'device_type': deviceType,
     'location': location,
-    'channel': channel
+    // 'channel': channel
   };
 
   console.log('📤 FINCA Payload:', JSON.stringify(payload, null, 2));
