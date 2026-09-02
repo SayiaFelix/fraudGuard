@@ -83,3 +83,73 @@
 .nav-item.mm-active > .nav-link::before {
   content: none;
 }
+
+:host {
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .sidebar-body {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+}
+
+.sidebar-user-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-top: 1px solid #e5e7eb;
+  background-color: #f8f8f8;
+  border-right: 1px solid #e5e7eb;
+  flex-shrink: 0;
+
+  .user-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+  }
+
+  .user-details {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .user-name {
+    font-family: Roboto, sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1f2937;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+  }
+
+  .user-title {
+    font-family: Roboto, sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    color: #6b7280;
+    text-transform: capitalize;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+  }
+}
