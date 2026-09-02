@@ -76,7 +76,7 @@ caseFormData: any = {
     { id: 'investigation', label: 'Investigation', icon: 'fa-search' },
     { id: 'playbook', label: 'Playbook', icon: 'fa-tasks' },
     { id: 'evidence', label: 'Evidence', icon: 'fa-paperclip' },
-    { id: 'related', label: 'Related', icon: 'fa-link' },
+    // { id: 'related', label: 'Related', icon: 'fa-link' },
     { id: 'customer', label: 'Customer', icon: 'fa-user' },
     { id: 'notes', label: 'Notes', icon: 'fa-sticky-note' },
     { id: 'escalation', label: 'Escalation', icon: 'fa-level-up-alt' },
