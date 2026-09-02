@@ -379,192 +379,137 @@
           </div>
 
           <!-- TRANSACTION -->
-          <div *ngIf="activeDetailTab === 'transaction' && !loadingDetail">
-            <div *ngIf="transactionDetail; else noTxn">
-              
-              <!-- ===== TRANSACTION DETAILS TABLE ===== -->
-              <div class="table-responsive">
-                <table class="table table-sm table-bordered">
-                  <tbody>
-                    <!-- Transaction ID -->
-                    <tr>
-                      <td class="text-muted" style="width:35%; background: #f8f9fa; font-weight: 600;">Transaction ID</td>
-                      <td class="fw-medium font-monospace">
-                        {{ transactionDetail.transaction_id || transactionDetail.transaction_details?.transaction_id || selected?.transaction_id || '—' }}
-                      </td>
-                    </tr>
-                    
-                    <!-- Amount -->
-                    <tr>
-                      <td class="text-muted" style="background: #f8f9fa; font-weight: 600;">Amount</td>
-                      <td class="fw-bold">
-                        {{ formatAmount(transactionDetail.transaction_details?.Transaction_Amount || transactionDetail.transaction_details?.transaction_amount || transactionDetail.amount) }}
-                      </td>
-                    </tr>
-                    
-                    <!-- Channel -->
-                    <tr>
-                      <td class="text-muted" style="background: #f8f9fa; font-weight: 600;">Channel</td>
-                      <td>
-                        <span class="badge bg-info">
-                          {{ transactionDetail.transaction_details?.finca_channel || transactionDetail.transaction_details?.channel || transactionDetail.channel || '—' }}
-                        </span>
-                      </td>
-                    </tr>
-                    
-                    <!-- Device -->
-                    <tr>
-                      <td class="text-muted" style="background: #f8f9fa; font-weight: 600;">Device</td>
-                      <td>
-                        <span class="badge bg-secondary">
-                          {{ transactionDetail.transaction_details?.finca_device_type || transactionDetail.transaction_details?.device_type || transactionDetail.device_type || '—' }}
-                        </span>
-                      </td>
-                    </tr>
-                    
-                    <!-- Location -->
-                    <tr>
-                      <td class="text-muted" style="background: #f8f9fa; font-weight: 600;">Location</td>
-                      <td>
-                        <i class="fas fa-map-marker-alt me-1 text-danger"></i>
-                        {{ transactionDetail.transaction_details?.finca_location || transactionDetail.transaction_details?.location || transactionDetail.location || '—' }}
-                      </td>
-                    </tr>
-                    
-                    <!-- Timestamp -->
-                    <tr>
-                      <td class="text-muted" style="background: #f8f9fa; font-weight: 600;">Timestamp</td>
-                      <td>
-                        <i class="fas fa-clock me-1 text-muted"></i>
-                        {{ transactionDetail.timestamp | date:'medium' }}
-                      </td>
-                    </tr>
-                    
-                    <!-- Risk Score -->
-                    <tr>
-                      <td class="text-muted" style="background: #f8f9fa; font-weight: 600;">Risk Score</td>
-                      <td>
-                        <span class="badge" 
-                              [ngClass]="getRiskBadge(transactionDetail.risk_assessment?.risk_category || transactionDetail.transaction_details?.final_risk_level || selected?.final_risk_level)"
-                              style="font-size: 0.8rem; padding: 5px 12px;">
-                          {{ transactionDetail.risk_assessment?.risk_score || transactionDetail.transaction_details?.ml_risk_score || selected?.risk_score || 0 }}% 
-                          — 
-                          {{ transactionDetail.risk_assessment?.risk_category || transactionDetail.transaction_details?.final_risk_level || selected?.final_risk_level || 'Unknown' }}
-                        </span>
-                      </td>
-                    </tr>
-                    
-                    <!-- Decision -->
-                    <tr *ngIf="transactionDetail.transaction_details?.finca_final_decision || selected?.decision">
-                      <td class="text-muted" style="background: #f8f9fa; font-weight: 600;">Decision</td>
-                      <td>
-                        <span class="badge" 
-                              [ngClass]="{
-                                'bg-danger': transactionDetail.transaction_details?.finca_final_decision === 'BLOCK' || selected?.decision === 'BLOCK',
-                                'bg-warning text-dark': transactionDetail.transaction_details?.finca_final_decision === 'CHALLENGE' || selected?.decision === 'CHALLENGE',
-                                'bg-success': transactionDetail.transaction_details?.finca_final_decision === 'APPROVE' || selected?.decision === 'APPROVE'
-                              }"
-                              style="font-size: 0.8rem; padding: 5px 12px;">
-                          <i class="fas" 
-                            [ngClass]="{
-                              'fa-ban': transactionDetail.transaction_details?.finca_final_decision === 'BLOCK' || selected?.decision === 'BLOCK',
-                              'fa-shield-alt': transactionDetail.transaction_details?.finca_final_decision === 'CHALLENGE' || selected?.decision === 'CHALLENGE',
-                              'fa-check': transactionDetail.transaction_details?.finca_final_decision === 'APPROVE' || selected?.decision === 'APPROVE'
-                            }"></i>
-                          {{ transactionDetail.transaction_details?.finca_final_decision || selected?.decision }}
-                        </span>
-                      </td>
-                    </tr>
-                    
-                    <!-- Rule Points -->
-                    <tr *ngIf="transactionDetail.transaction_details?.finca_total_rule_points">
-                      <td class="text-muted" style="background: #f8f9fa; font-weight: 600;">Rule Points</td>
-                      <td>
-                        <span class="badge bg-warning text-dark">
-                          {{ transactionDetail.transaction_details?.finca_total_rule_points }} points 
-                          (capped: {{ transactionDetail.transaction_details?.finca_capped_rule_points }})
-                        </span>
-                        <span class="badge bg-secondary ms-1" *ngIf="transactionDetail.transaction_details?.finca_rule_count">
-                          {{ transactionDetail.transaction_details?.finca_rule_count }} rules
-                        </span>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-                    <!-- ===== RELATED TRANSACTIONS ===== -->
-                    <div *ngIf="relatedTransactions.length" class="mt-4">
-                      <h4 class="fw-bold mb-3">
-                        <i class="fas fa-link me-2 text-primary"></i>
-                        Related Transactions
-                        <span class="badge bg-secondary ms-2">{{ relatedTransactions.length }}</span>
-                      </h4>
-                      <div class="table-responsive">
-                        <table class="table table-sm table-hover table-bordered">
-                          <thead class="table-light">
-                            <tr>
-                              <th>Transaction ID</th>
-                              <th>Amount</th>
-                              <th>Risk Score</th>
-                              <th>Relationship</th>
-                              <th>Action</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr *ngFor="let r of relatedTransactions">
-                              <td class="font-monospace small">{{ r.transaction_id || r.id }}</td>
-                              <td class="fw-bold">{{ formatAmount(r.transaction_amount || r.amount) }}</td>
-                              <td>
-                                <span class="badge" [ngClass]="getRiskBadge(r.risk_level || r.risk_category || 'LOW')">
-                                  {{ r.risk_score || r.risk_score || '—' }}
-                                </span>
-                              </td>
-                              <td>
-                                <span class="badge" [ngClass]="{
-                                  'bg-success': r.relationship?.strength === 'strong',
-                                  'bg-warning text-dark': r.relationship?.strength === 'medium',
-                                  'bg-secondary': r.relationship?.strength === 'weak'
-                                }">
-                                  {{ r.relationship?.strength || '—' }}
-                                </span>
-                                <small class="text-muted d-block" *ngIf="r.relationship?.reasons">
-                                  {{ r.relationship?.reasons?.join(', ') }}
-                                </small>
-                              </td>
-                              <td>
-                                <button class="btn btn-sm btn-outline-primary" 
-                                        (click)="viewRelatedTransaction(r.transaction_id || r.id)">
-                                  <i class="fas fa-eye me-1"></i> View
-                                </button>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                    
-                    <!-- No related transactions -->
-                    <div *ngIf="!relatedTransactions.length" class="mt-3 text-center py-3 bg-light rounded">
-                      <i class="fas fa-link fa-2x text-muted mb-2"></i>
-                      <p class="text-muted mb-0">No related transactions found</p>
-                    </div>
-              
-            </div>
-            
-                  <!-- ===== NO TRANSACTION DETAILS ===== -->
-                  <ng-template #noTxn>
-                    <div class="text-center py-5 bg-light rounded">
-                      <i class="fas fa-exchange-alt fa-3x text-muted mb-3"></i>
-                      <h5>Transaction Details Not Available</h5>
-                      <p class="text-muted">The full transaction details could not be loaded.</p>
-                      <button class="btn btn-primary btn-sm" (click)="viewTransactionDetail()">
-                        <i class="fas fa-external-link-alt me-1"></i> View Full Detail Page
-                      </button>
-                    </div>
-                  </ng-template>
-          </div>
-
+<div *ngIf="activeDetailTab === 'transaction' && !loadingDetail">
+  <div *ngIf="transactionDetail">
+    
+    <!-- ===== TRANSACTION DETAILS TABLE ===== -->
+    <div class="table-responsive">
+      <table class="table table-sm table-bordered">
+        <tbody>
+          <!-- Transaction ID -->
+          <tr>
+            <td class="text-muted" style="width:35%; background: #f8f9fa; font-weight: 600;">Transaction ID</td>
+            <td class="fw-medium font-monospace">
+              {{ transactionDetail.transaction_id || transactionDetail.transaction_details?.transaction_id || selected?.transaction_id || '—' }}
+            </td>
+          </tr>
+          
+          <!-- Amount -->
+          <tr>
+            <td class="text-muted" style="background: #f8f9fa; font-weight: 600;">Amount</td>
+            <td class="fw-bold">
+              {{ formatAmount(transactionDetail.transaction_details?.Transaction_Amount || transactionDetail.transaction_details?.transaction_amount || transactionDetail.amount) }}
+            </td>
+          </tr>
+          
+          <!-- Channel -->
+          <tr>
+            <td class="text-muted" style="background: #f8f9fa; font-weight: 600;">Channel</td>
+            <td>
+              <span class="badge bg-info">
+                {{ transactionDetail.transaction_details?.finca_channel || transactionDetail.transaction_details?.channel || transactionDetail.channel || '—' }}
+              </span>
+            </td>
+          </tr>
+          
+          <!-- Device -->
+          <tr>
+            <td class="text-muted" style="background: #f8f9fa; font-weight: 600;">Device</td>
+            <td>
+              <span class="badge bg-secondary">
+                {{ transactionDetail.transaction_details?.finca_device_type || transactionDetail.transaction_details?.device_type || transactionDetail.device_type || '—' }}
+              </span>
+            </td>
+          </tr>
+          
+          <!-- Location -->
+          <tr>
+            <td class="text-muted" style="background: #f8f9fa; font-weight: 600;">Location</td>
+            <td>
+              <i class="fas fa-map-marker-alt me-1 text-danger"></i>
+              {{ transactionDetail.transaction_details?.finca_location || transactionDetail.transaction_details?.location || transactionDetail.location || '—' }}
+            </td>
+          </tr>
+          
+          <!-- Timestamp -->
+          <tr>
+            <td class="text-muted" style="background: #f8f9fa; font-weight: 600;">Timestamp</td>
+            <td>
+              <i class="fas fa-clock me-1 text-muted"></i>
+              {{ transactionDetail.timestamp | date:'medium' }}
+            </td>
+          </tr>
+          
+          <!-- Risk Score -->
+          <tr>
+            <td class="text-muted" style="background: #f8f9fa; font-weight: 600;">Risk Score</td>
+            <td>
+              <span class="badge" 
+                    [ngClass]="getRiskBadge(transactionDetail.risk_assessment?.risk_category || transactionDetail.transaction_details?.final_risk_level || selected?.final_risk_level)"
+                    style="font-size: 0.8rem; padding: 5px 12px;">
+                {{ transactionDetail.risk_assessment?.risk_score || transactionDetail.transaction_details?.ml_risk_score || selected?.risk_score || 0 }}% 
+                — 
+                {{ transactionDetail.risk_assessment?.risk_category || transactionDetail.transaction_details?.final_risk_level || selected?.final_risk_level || 'Unknown' }}
+              </span>
+            </td>
+          </tr>
+          
+          <!-- Decision -->
+          <tr *ngIf="transactionDetail.transaction_details?.finca_final_decision || selected?.decision">
+            <td class="text-muted" style="background: #f8f9fa; font-weight: 600;">Decision</td>
+            <td>
+              <span class="badge" 
+                    [ngClass]="{
+                      'bg-danger': transactionDetail.transaction_details?.finca_final_decision === 'BLOCK' || selected?.decision === 'BLOCK',
+                      'bg-warning text-dark': transactionDetail.transaction_details?.finca_final_decision === 'CHALLENGE' || selected?.decision === 'CHALLENGE',
+                      'bg-success': transactionDetail.transaction_details?.finca_final_decision === 'APPROVE' || selected?.decision === 'APPROVE'
+                    }"
+                    style="font-size: 0.8rem; padding: 5px 12px;">
+                <i class="fas" 
+                  [ngClass]="{
+                    'fa-ban': transactionDetail.transaction_details?.finca_final_decision === 'BLOCK' || selected?.decision === 'BLOCK',
+                    'fa-shield-alt': transactionDetail.transaction_details?.finca_final_decision === 'CHALLENGE' || selected?.decision === 'CHALLENGE',
+                    'fa-check': transactionDetail.transaction_details?.finca_final_decision === 'APPROVE' || selected?.decision === 'APPROVE'
+                  }"></i>
+                {{ transactionDetail.transaction_details?.finca_final_decision || selected?.decision }}
+              </span>
+            </td>
+          </tr>
+          
+          <!-- Rule Points -->
+          <tr *ngIf="transactionDetail.transaction_details?.finca_total_rule_points">
+            <td class="text-muted" style="background: #f8f9fa; font-weight: 600;">Rule Points</td>
+            <td>
+              <span class="badge bg-warning text-dark">
+                {{ transactionDetail.transaction_details?.finca_total_rule_points }} points 
+                (capped: {{ transactionDetail.transaction_details?.finca_capped_rule_points }})
+              </span>
+              <span class="badge bg-secondary ms-1" *ngIf="transactionDetail.transaction_details?.finca_rule_count">
+                {{ transactionDetail.transaction_details?.finca_rule_count }} rules
+              </span>
+            </td>
+          </tr>
+          
+          <!-- Rule Risk Level -->
+          <tr *ngIf="transactionDetail.transaction_details?.finca_rule_risk_level">
+            <td class="text-muted" style="background: #f8f9fa; font-weight: 600;">Rule Risk Level</td>
+            <td>
+              <span class="badge" [ngClass]="{
+                'bg-danger': transactionDetail.transaction_details?.finca_rule_risk_level === 'CRITICAL',
+                'bg-warning text-dark': transactionDetail.transaction_details?.finca_rule_risk_level === 'HIGH',
+                'bg-info': transactionDetail.transaction_details?.finca_rule_risk_level === 'MEDIUM',
+                'bg-success': transactionDetail.transaction_details?.finca_rule_risk_level === 'LOW'
+              }">
+                {{ transactionDetail.transaction_details?.finca_rule_risk_level }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+          
+  </div>
+</div>
           <!-- RULES -->
           <div *ngIf="activeDetailTab === 'rules' && !loadingDetail">
             <!-- ===== TRIGGERED RULES ===== -->
@@ -690,7 +635,6 @@
             </div>
           </div>
           </div>
-
 
           <!-- ACTIONS -->
           <div *ngIf="activeDetailTab === 'actions' && !loadingDetail">
