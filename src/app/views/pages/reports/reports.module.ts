@@ -6,8 +6,7 @@ import { NgApexchartsModule } from 'ng-apexcharts';
 import { FraudReportsComponent } from './fraud-reports/fraud-reports.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'fraud', pathMatch: 'full' },
-  { path: 'fraud', component: FraudReportsComponent }
+  { path: '', component: FraudReportsComponent }
 ];
 
 @NgModule({
