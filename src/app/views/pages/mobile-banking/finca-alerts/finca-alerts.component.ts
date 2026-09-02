@@ -1,4 +1,4 @@
-import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit,ChangeDetectorRef  } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { FincaService } from 'src/app/shared/services/finca.service';
@@ -16,6 +16,7 @@ export class FincaAlertsComponent implements OnInit, OnDestroy {
   loading = false;
   lastRefreshed: Date = new Date();
 
+  Math : Math;
   page = 1;
   size = 1000;
 
@@ -56,7 +57,11 @@ export class FincaAlertsComponent implements OnInit, OnDestroy {
   private previousAlertCount = 0;
   private selectedIndex = -1;
 
-  constructor(private finca: HttpService, private router: Router, private toastr: ToastrService) {}
+  relatedLoading = false; 
+  relatedPage = 1;
+  relatedPageSize = 5;
+
+  constructor(private finca: HttpService, private router: Router, private toastr: ToastrService,private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.load();
@@ -68,6 +73,52 @@ export class FincaAlertsComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.pollInterval) clearInterval(this.pollInterval);
   }
+
+  loadAlertDetail(alert: any): void {
+  this.loadingDetail = true;
+  const txnId = alert.transaction_id;
+  if (!txnId) { 
+    this.loadingDetail = false; 
+    return; 
+  }
+
+  // Load transaction details
+  this.finca.getTransaction(txnId).subscribe({
+    next: (res) => {
+      this.transactionDetail = this.transformTransactionData(res);
+      this.customerProfile = res?.customer_info || null;
+      this.loadingDetail = false;
+      this.cdr.detectChanges(); // ✅ Force update
+    },
+    error: () => { 
+      this.loadingDetail = false;
+      this.cdr.detectChanges();
+    }
+  });
+
+  // ✅ Load related transactions
+  this.relatedLoading = true;
+  this.relatedTransactions = []; // ✅ Clear previous data
+  this.cdr.detectChanges(); // ✅ Force update to show loading state
+  
+  this.finca.getRelatedTransactions(txnId).subscribe({
+    next: (r) => {
+      this.relatedTransactions = r.related_transactions || [];
+      this.relatedLoading = false;
+      this.relatedPage = 1;
+      this.cdr.detectChanges(); // ✅ Force update to show data
+      
+      console.log('✅ Related transactions loaded:', this.relatedTransactions.length);
+    },
+    error: (err) => { 
+      this.relatedTransactions = [];
+      this.relatedLoading = false;
+      this.relatedPage = 1;
+      this.cdr.detectChanges(); // ✅ Force update
+      console.error('❌ Error loading related transactions:', err);
+    }
+  });
+}
 
   normalizeScore(score: any): number {
     if (score === null || score === undefined) return 0;
@@ -128,6 +179,7 @@ export class FincaAlertsComponent implements OnInit, OnDestroy {
     this.finca.saveAlerts(this.alerts).subscribe({ next: () => {}, error: () => {} });
   }
 
+
   computeStats(): void {
     const newCount = this.alerts.filter(a => a.status === 'NEW').length;
     const assigned = this.alerts.filter(a => a.status === 'ASSIGNED').length;
@@ -183,24 +235,13 @@ getRiskBadgeClass(level: string): string {
   return map[level] || 'bg-secondary';
 }
 
-loadAlertDetail(alert: any): void {
-  this.loadingDetail = true;
-  const txnId = alert.transaction_id;
-  if (!txnId) { this.loadingDetail = false; return; }
+get relatedTotalPages(): number {
+  return Math.ceil(this.relatedTransactions.length / this.relatedPageSize);
+}
 
-  this.finca.getTransaction(txnId).subscribe({
-    next: (res) => {
-      this.transactionDetail = this.transformTransactionData(res);
-      this.customerProfile = res?.customer_info || null;
-      this.loadingDetail = false;
-    },
-    error: () => { this.loadingDetail = false; }
-  });
-
-  this.finca.getRelatedTransactions(txnId).subscribe({
-    next: (r) => { this.relatedTransactions = r.related_transactions || []; },
-    error: () => { this.relatedTransactions = []; }
-  });
+get paginatedRelatedAlerts(): any[] {
+  const start = (this.relatedPage - 1) * this.relatedPageSize;
+  return this.relatedTransactions.slice(start, start + this.relatedPageSize);
 }
 
 transformTransactionData(data: any): any {
