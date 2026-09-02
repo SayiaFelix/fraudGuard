@@ -259,10 +259,12 @@
             </li>
           </ul>
 
+
           <!-- ===== OVERVIEW TAB ===== -->
           <div *ngIf="activeTab === 'overview'">
             <div class="row">
               <div class="col-md-7">
+                <!-- Risk Ring -->
                 <div class="d-flex align-items-center mb-3">
                   <div class="risk-ring" [style.background]="getRiskGradient(selected)">
                     {{ getDisplayScore(selected) }}
@@ -275,35 +277,182 @@
                   </div>
                 </div>
 
-                <h6 class="fw-bold">Triggered Rules</h6>
-                <ul class="list-unstyled" *ngIf="(selected.triggered_rules || []).length; else noRules">
-                  <li *ngFor="let r of selected.triggered_rules" class="mb-1">
-                    <span class="badge bg-warning text-dark me-1">{{ r.rule_name || r.rule_id }}</span>
-                    <small>{{ r.reason }}</small>
-                  </li>
-                </ul>
-                <ng-template #noRules><p class="text-muted small">No rules triggered</p></ng-template>
+                <!-- ===== SECTION 1: RULE FLAGS (Quick Overview) ===== -->
+                <h4 class="fw-bold">
+                  <i class="fas fa-flag me-2 text-danger"></i>
+                  Rule Flags
+                  <span class="badge bg-secondary ms-2" *ngIf="getRuleFlags(selected).length > 0">
+                    {{ getRuleFlags(selected).length }}
+                  </span>
+                </h4>
+                
+                <div *ngIf="getRuleFlags(selected).length > 0; else noRuleFlags">
+                  <div class="d-flex flex-wrap gap-2 mb-3">
+                    <span *ngFor="let flag of getRuleFlags(selected)" 
+                          class="badge bg-danger bg-opacity-10 text-danger" 
+                          style="font-size: 0.8rem; padding: 6px 14px; border: 1px solid rgba(220,53,69,0.2);">
+                      <i class="fas fa-exclamation-triangle me-1"></i>
+                      {{ flag }}
+                    </span>
+                  </div>
+                </div>
+                <ng-template #noRuleFlags>
+                  <p class="text-muted small">
+                    <i class="fas fa-check-circle text-success me-1"></i>
+                    No rule flags triggered
+                  </p>
+                </ng-template>
 
-                <div *ngIf="selected.transaction" class="mt-3">
-                  <h6 class="fw-bold">Transaction Snapshot</h6>
+                <!-- ===== SECTION 2: FINCA RULES TRIGGERED (Detailed) ===== -->
+                <div class="mt-4" *ngIf="getFincaRules(selected).length > 0">
+                  <h4 class="fw-bold">
+                    <i class="fas fa-gavel me-2 text-warning"></i>
+                    Rules Triggered
+                    <span class="badge bg-secondary ms-2">{{ getFincaRules(selected).length }}</span>
+                  </h4>
+                  
+                  <div class="table-responsive">
+                    <table class="table table-sm table-bordered table-hover">
+                      <thead class="table-light">
+                        <tr>
+                          <th style="width: 15%;">Rule ID</th>
+                          <th style="width: 25%;">Rule Name</th>
+                          <th style="width: 40%;">Reason</th>
+                          <th style="width: 20%;" class="text-end">Points</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let rule of getFincaRules(selected)">
+                          <td>
+                            <span class="badge bg-secondary">{{ rule.rule_id || 'N/A' }}</span>
+                          </td>
+                          <td>
+                            <strong>{{ rule.rule_name || 'Unknown Rule' }}</strong>
+                          </td>
+                          <td>
+                            <small>{{ rule.reason || 'No reason provided' }}</small>
+                          </td>
+                          <td class="text-end">
+                            <span class="badge bg-warning text-dark">{{ rule.rule_points || 0 }}</span>
+                          </td>
+                        </tr>
+                      </tbody>
+                      <tfoot class="table-light" *ngIf="selected.transaction?.transaction_details?.finca_total_rule_points">
+                        <tr>
+                          <td colspan="3" class="fw-bold">Total Rule Points</td>
+                          <td class="text-end fw-bold">
+                            <span class="badge bg-danger">
+                              {{ selected.transaction?.transaction_details?.finca_total_rule_points || 0 }}
+                            </span>
+                            <small class="text-muted ms-1" *ngIf="selected.transaction?.transaction_details?.finca_capped_rule_points">
+                              (capped: {{ selected.transaction?.transaction_details?.finca_capped_rule_points }})
+                            </small>
+                          </td>
+                        </tr>
+                        <tr *ngIf="selected.transaction?.transaction_details?.finca_rule_risk_level">
+                          <td colspan="3" class="fw-bold">Rule Risk Level</td>
+                          <td class="text-end">
+                            <span class="badge" [ngClass]="{
+                              'bg-danger': selected.transaction?.transaction_details?.finca_rule_risk_level === 'CRITICAL',
+                              'bg-warning text-dark': selected.transaction?.transaction_details?.finca_rule_risk_level === 'HIGH',
+                              'bg-info': selected.transaction?.transaction_details?.finca_rule_risk_level === 'MEDIUM',
+                              'bg-success': selected.transaction?.transaction_details?.finca_rule_risk_level === 'LOW'
+                            }">
+                              {{ selected.transaction?.transaction_details?.finca_rule_risk_level }}
+                            </span>
+                          </td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+
+                  <!-- Rule Summary Cards -->
+                  <div class="row g-2 mt-2">
+                    <div class="col-md-3 col-6" *ngIf="selected.transaction?.transaction_details?.finca_total_rule_points">
+                      <div class="p-2 bg-light rounded text-center">
+                        <small class="text-muted d-block">Total Points</small>
+                        <span class="fw-bold text-danger">{{ selected.transaction?.transaction_details?.finca_total_rule_points }}</span>
+                      </div>
+                    </div>
+                    <div class="col-md-3 col-6" *ngIf="selected.transaction?.transaction_details?.finca_rule_count">
+                      <div class="p-2 bg-light rounded text-center">
+                        <small class="text-muted d-block">Rules Count</small>
+                        <span class="fw-bold text-primary">{{ selected.transaction?.transaction_details?.finca_rule_count }}</span>
+                      </div>
+                    </div>
+                    <div class="col-md-3 col-6" *ngIf="selected.transaction?.transaction_details?.finca_rule_risk_level">
+                      <div class="p-2 bg-light rounded text-center">
+                        <small class="text-muted d-block">Rule Risk Level</small>
+                        <span class="fw-bold" [ngClass]="{
+                          'text-danger': selected.transaction?.transaction_details?.finca_rule_risk_level === 'CRITICAL',
+                          'text-warning': selected.transaction?.transaction_details?.finca_rule_risk_level === 'HIGH',
+                          'text-info': selected.transaction?.transaction_details?.finca_rule_risk_level === 'MEDIUM',
+                          'text-success': selected.transaction?.transaction_details?.finca_rule_risk_level === 'LOW'
+                        }">
+                          {{ selected.transaction?.transaction_details?.finca_rule_risk_level }}
+                        </span>
+                      </div>
+                    </div>
+                    <div class="col-md-3 col-6" *ngIf="selected.transaction?.transaction_details?.finca_capped_rule_points">
+                      <div class="p-2 bg-light rounded text-center">
+                        <small class="text-muted d-block">Capped Points</small>
+                        <span class="fw-bold text-secondary">{{ selected.transaction?.transaction_details?.finca_capped_rule_points }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ===== TRANSACTION SNAPSHOT ===== -->
+                <div *ngIf="selected.transaction" class="mt-4">
+                  <h4 class="fw-bold">
+                    <i class="fas fa-exchange-alt me-2 text-primary"></i>
+                    Transaction Snapshot
+                  </h4>
                   <div class="table-responsive">
                     <table class="table table-sm table-bordered">
                       <tbody>
                         <tr *ngIf="selected.transaction.transaction_details">
-                          <td class="text-muted" style="width:35%">Amount</td>
-                          <td>{{ formatAmount(selected.transaction.transaction_details?.transaction_amount || selected.transaction.transaction_details?.Transaction_Amount) }}</td>
+                          <td class="text-muted" style="width:35%; background: #f8f9fa; font-weight: 600;">Amount</td>
+                          <td class="fw-bold">
+                            {{ formatAmount(selected.transaction.transaction_details?.transaction_amount || selected.transaction.transaction_details?.Transaction_Amount) }}
+                          </td>
                         </tr>
                         <tr *ngIf="selected.transaction.customer_info">
-                          <td class="text-muted">Customer</td>
+                          <td class="text-muted" style="background: #f8f9fa; font-weight: 600;">Customer</td>
                           <td>{{ selected.transaction.customer_info.customer_name || selected.customer_id }}</td>
                         </tr>
                         <tr *ngIf="selected.transaction.transaction_details">
-                          <td class="text-muted">Channel</td>
-                          <td>{{ selected.transaction.transaction_details?.channel || selected.transaction.transaction_details?.finca_channel || '—' }}</td>
+                          <td class="text-muted" style="background: #f8f9fa; font-weight: 600;">Channel</td>
+                          <td>
+                            <span class="badge bg-info">
+                              {{ selected.transaction.transaction_details?.channel || selected.transaction.transaction_details?.finca_channel || '—' }}
+                            </span>
+                          </td>
                         </tr>
                         <tr *ngIf="selected.transaction.transaction_details">
-                          <td class="text-muted">Location</td>
-                          <td>{{ selected.transaction.transaction_details?.location || selected.transaction.transaction_details?.finca_location || '—' }}</td>
+                          <td class="text-muted" style="background: #f8f9fa; font-weight: 600;">Location</td>
+                          <td>
+                            <i class="fas fa-map-marker-alt me-1 text-danger"></i>
+                            {{ selected.transaction.transaction_details?.location || selected.transaction.transaction_details?.finca_location || '—' }}
+                          </td>
+                        </tr>
+                        <!-- Final Decision -->
+                        <tr *ngIf="selected.transaction.transaction_details?.finca_final_decision">
+                          <td class="text-muted" style="background: #f8f9fa; font-weight: 600;">Final Decision</td>
+                          <td>
+                            <span class="badge" [ngClass]="{
+                              'bg-danger': selected.transaction.transaction_details?.finca_final_decision === 'BLOCK',
+                              'bg-warning text-dark': selected.transaction.transaction_details?.finca_final_decision === 'CHALLENGE',
+                              'bg-success': selected.transaction.transaction_details?.finca_final_decision === 'APPROVE'
+                            }" style="font-size: 0.85rem; padding: 6px 12px;">
+                              <i class="fas" [ngClass]="{
+                                'fa-ban': selected.transaction.transaction_details?.finca_final_decision === 'BLOCK',
+                                'fa-shield-alt': selected.transaction.transaction_details?.finca_final_decision === 'CHALLENGE',
+                                'fa-check': selected.transaction.transaction_details?.finca_final_decision === 'APPROVE'
+                              }"></i>
+                              {{ selected.transaction.transaction_details?.finca_final_decision }}
+                            </span>
+                          </td>
                         </tr>
                       </tbody>
                     </table>
@@ -311,8 +460,12 @@
                 </div>
               </div>
 
+              <!-- ===== QUICK ACTIONS ===== -->
               <div class="col-md-5">
-                <h6 class="fw-bold mb-2">Quick Actions</h6>
+                <h4 class="fw-bold mb-2">
+                  <i class="fas fa-bolt me-2 text-warning"></i>
+                  Quick Actions
+                </h4>
                 <div class="d-grid gap-2 action-grid">
                   <button class="btn btn-outline-primary btn-sm" (click)="activeTab='assignment'">
                     <i class="fas fa-user-plus me-2"></i>Assign Case
@@ -348,7 +501,7 @@
 
           <!-- ===== ASSIGNMENT TAB ===== -->
           <div *ngIf="activeTab === 'assignment'">
-            <h6 class="fw-bold">Case Assignment</h6>
+            <h4 class="fw-bold">Case Assignment</h4>
             <p class="text-muted small">Assign this case to an analyst for investigation.</p>
             <div class="row g-3">
               <div class="col-md-6">
@@ -390,7 +543,9 @@
 
           <!-- ===== INVESTIGATION TAB ===== -->
           <div *ngIf="activeTab === 'investigation'">
-            <h6 class="fw-bold">Investigation Workspace</h6>
+            <h4 class="fw-bold">Investigation Workspace</h4>
+            
+            <!-- Investigation Checks -->
             <div class="row g-3 mb-3">
               <div class="col-md-4">
                 <div class="card bg-light border-0">
@@ -420,9 +575,12 @@
                 </div>
               </div>
             </div>
+            
+            <!-- Action Buttons -->
             <div class="d-flex flex-wrap gap-2 mb-3">
-              <button class="btn btn-sm btn-outline-primary" (click)="loadRelated()">
-                <i class="fas fa-link me-1"></i>Load Related Txns
+              <button class="btn btn-sm btn-outline-primary" (click)="loadRelated()" [disabled]="relatedLoading">
+                <i class="fas fa-link me-1" [class.fa-spin]="relatedLoading"></i>
+                {{ relatedLoading ? 'Loading...' : 'Load Related Txns' }}
               </button>
               <button class="btn btn-sm btn-outline-dark" (click)="navigateToInvestigationGraph()">
                 <i class="fas fa-project-diagram me-1"></i>Open Fraud Graph
@@ -434,17 +592,131 @@
                 <i class="fas fa-gavel me-1"></i>Flag Compliance
               </button>
             </div>
-            <label class="form-label small fw-bold">Investigation Findings</label>
-            <textarea class="form-control mb-2" rows="4" [(ngModel)]="noteText" placeholder="Document your investigation findings..."></textarea>
-            <button class="btn btn-primary btn-sm" (click)="addNote()">
-              <i class="fas fa-save me-1"></i>Save Findings
-            </button>
+
+            <!-- ===== RELATED TRANSACTIONS WITH PAGINATION ===== -->
+            <div class="mt-3">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5 class="fw-bold mb-0">
+                  <i class="fas fa-link me-2 text-primary"></i>
+                  Related Transactions
+                  <span class="badge bg-secondary ms-2" *ngIf="related.length > 0">
+                    {{ related.length }}
+                  </span>
+                </h5>
+                <small class="text-muted" *ngIf="related.length > 0">
+                  Showing {{ (relatedPage - 1) * relatedPageSize + 1 }} - 
+                  {{ Math.min(relatedPage * relatedPageSize, related.length) }} 
+                  of {{ related.length }}
+                </small>
+              </div>
+
+              <!-- Loading State -->
+              <div *ngIf="relatedLoading" class="text-center py-4">
+                <i class="fas fa-spinner fa-spin fa-2x text-muted"></i>
+                <p class="text-muted mt-2">Loading related transactions...</p>
+              </div>
+
+              <!-- Data Display with Pagination -->
+              <div *ngIf="!relatedLoading && related.length > 0">
+                <div class="table-responsive">
+                  <table class="table table-sm table-hover table-bordered">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Transaction ID</th>
+                        <th>Amount</th>
+                        <th>Risk</th>
+                        <th>Relationship</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let r of paginatedRelated">
+                        <td class="font-monospace small">{{ r.transaction_id || r.id }}</td>
+                        <td class="fw-bold">{{ formatAmount(r.transaction_amount || r.amount) }}</td>
+                        <td>
+                          <span class="badge" [ngClass]="getRiskBadge(r.risk_category || r.risk_level || 'LOW')">
+                            {{ r.risk_score || r.risk_score || '—' }}
+                          </span>
+                        </td>
+                        <td>
+                          <span class="badge" [ngClass]="{
+                            'bg-success': r.relationship?.strength === 'strong',
+                            'bg-warning text-dark': r.relationship?.strength === 'medium',
+                            'bg-secondary': r.relationship?.strength === 'weak'
+                          }">
+                            {{ r.relationship?.strength || '—' }}
+                          </span>
+                          <small class="text-muted d-block" *ngIf="r.relationship?.reasons">
+                            {{ r.relationship?.reasons?.join(', ') }}
+                          </small>
+                        </td>
+                        <td>
+                          <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary" (click)="viewTransaction(r.transaction_id || r.id)" title="View Transaction">
+                              <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-outline-success" (click)="openCreateCaseFromTransaction(r)" title="Create Case from Transaction">
+                              <i class="fas fa-plus-circle"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mt-2" 
+                    *ngIf="!relatedLoading && related.length > relatedPageSize">
+                  <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-secondary" 
+                            [disabled]="relatedPage === 1" 
+                            (click)="relatedPage = relatedPage - 1"
+                            title="Previous page">
+                      <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <span class="btn btn-outline-secondary disabled" style="pointer-events: none; min-width: 50px; text-align: center;">
+                      {{ relatedPage }} / {{ relatedTotalPages }}
+                    </span>
+                    <button class="btn btn-outline-secondary" 
+                            [disabled]="relatedPage >= relatedTotalPages" 
+                            (click)="relatedPage = relatedPage + 1"
+                            title="Next page">
+                      <i class="fas fa-chevron-right"></i>
+                    </button>
+                  </div>
+                  <div class="d-flex align-items-center gap-2">
+                    <small class="text-muted">Rows:</small>
+                    <select class="form-select form-select-sm" style="width: auto; padding: 2px 6px; font-size: 0.7rem; height: 28px;" 
+                            [(ngModel)]="relatedPageSize" (change)="relatedPage = 1">
+                      <option *ngFor="let size of [5, 10, 20, 50]" [value]="size">{{ size }}</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Empty State -->
+              <div *ngIf="!relatedLoading && related.length === 0" class="text-center py-4 bg-light rounded">
+                <i class="fas fa-link fa-2x text-muted mb-2"></i>
+                <p class="text-muted mb-0">No related transactions found</p>
+                <button class="btn btn-primary btn-sm mt-2" (click)="loadRelated()">
+                  <i class="fas fa-search me-1"></i>Load Related Transactions
+                </button>
+              </div>
+            </div>
+
+            <!-- Investigation Findings -->
+            <div class="mt-4">
+              <label class="form-label small fw-bold">Investigation Findings</label>
+              <textarea class="form-control mb-2" rows="4" [(ngModel)]="noteText" placeholder="Document your investigation findings..."></textarea>
+              <button class="btn btn-primary btn-sm" (click)="addNote()">
+                <i class="fas fa-save me-1"></i>Save Findings
+              </button>
+            </div>
           </div>
 
           <!-- ===== PLAYBOOK TAB ===== -->
           <div *ngIf="activeTab === 'playbook'">
             <div class="d-flex justify-content-between align-items-center mb-3">
-              <h6 class="fw-bold mb-0">Investigation Playbook</h6>
+              <h4 class="fw-bold mb-0">Investigation Playbook</h4>
               <span class="badge" [class.bg-success]="getPlaybookProgress()===100" [class.bg-primary]="getPlaybookProgress()<100">
                 {{ getPlaybookProgress() }}% complete
               </span>
@@ -471,7 +743,7 @@
 
           <!-- ===== EVIDENCE TAB ===== -->
           <div *ngIf="activeTab === 'evidence'">
-            <h6 class="fw-bold">Evidence Locker</h6>
+            <h4 class="fw-bold">Evidence Locker</h4>
             <div class="row g-3 mb-3">
               <div class="col-md-4">
                 <div class="evidence-card p-3 text-center border rounded-3">
@@ -510,65 +782,13 @@
               </div>
             </div>
           </div>
-
-          <!-- RELATED TAB -->
-        <div *ngIf="activeTab === 'related'">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h6 class="fw-bold mb-0">Related Transactions</h6>
-            <button class="btn btn-sm btn-outline-primary" (click)="loadRelated()" [disabled]="relatedLoading">
-              <i class="fas fa-sync-alt me-1" [class.fa-spin]="relatedLoading"></i> Refresh
-            </button>
-          </div>
-          <div *ngIf="relatedLoading" class="text-center py-4">
-            <i class="fas fa-spinner fa-spin fa-2x text-muted"></i>
-            <p class="text-muted mt-2">Loading related transactions...</p>
-          </div>
-          <div class="table-responsive" *ngIf="!relatedLoading && related.length">
-            <table class="table table-sm table-hover">
-              <thead class="table-light">
-                <tr>
-                  <th>Txn ID</th>
-                  <th>Amount</th>
-                  <th>Risk</th>
-                  <th>Strength</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let r of related">
-                  <td class="fw-medium">{{ r.transaction_id }}</td>
-                  <td>{{ formatAmount(r.transaction_amount || r.amount) }}</td>
-                  <td><span class="badge" [ngClass]="getRiskBadge(r.risk_level || r.final_risk_level)">{{ r.risk_score || '—' }}</span></td>
-                  <td>{{ r.relationship?.strength || '—' }}</td>
-                  <td>
-                    <div class="btn-group btn-group-sm">
-                      <button class="btn btn-outline-primary" (click)="viewTransaction(r.transaction_id)" title="View Transaction">
-                        <i class="fas fa-eye"></i>
-                      </button>
-                      <!-- ✅ ADD CREATE CASE BUTTON -->
-                      <button class="btn btn-outline-success" (click)="openCreateCaseFromTransaction(r)" title="Create Case from Transaction">
-                        <i class="fas fa-plus-circle"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div *ngIf="!relatedLoading && related.length === 0" class="text-center py-4">
-            <p class="text-muted">No related transactions found</p>
-            <button class="btn btn-primary btn-sm" (click)="loadRelated()">
-              <i class="fas fa-search me-1"></i>Load Related Transactions
-            </button>
-          </div>
-        </div>
-
+          
           <!-- ===== CUSTOMER TAB ===== -->
           <div *ngIf="activeTab === 'customer'">
             <div class="d-flex align-items-center mb-3" *ngIf="customerProfile">
               <div class="customer-avatar me-3">{{ getInitials(customerProfile.customer_name || selected.customer_id) }}</div>
               <div>
-                <h5 class="mb-0">{{ customerProfile.customer_name || selected.customer_id }}</h5>
+                <h4 class="mb-0">{{ customerProfile.customer_name || selected.customer_id }}</h4>
                 <small class="text-muted">{{ customerProfile.customer_id || selected.customer_id }}</small>
               </div>
             </div>
@@ -576,7 +796,7 @@
               <div class="col-md-6">
                 <div class="card bg-light border-0">
                   <div class="card-body">
-                    <h6 class="fw-bold">Contact</h6>
+                    <h5 class="fw-bold">Contact</h5>
                     <p class="mb-1 small"><i class="fas fa-envelope me-2 text-muted"></i>{{ customerProfile.customer_email || '—' }}</p>
                     <p class="mb-0 small"><i class="fas fa-phone me-2 text-muted"></i>{{ customerProfile.customer_phone || '—' }}</p>
                   </div>
@@ -585,7 +805,7 @@
               <div class="col-md-6">
                 <div class="card bg-light border-0">
                   <div class="card-body">
-                    <h6 class="fw-bold">Risk Profile</h6>
+                    <h5 class="fw-bold">Risk Profile</h5>
                     <p class="mb-1 small">Account Age: <strong>{{ customerProfile.account_age_days || 0 }} days</strong></p>
                     <p class="mb-0 small">Avg Txn: <strong>{{ formatAmount(customerProfile.avg_transaction_amount) }}</strong></p>
                   </div>
@@ -613,7 +833,7 @@
 
           <!-- ===== NOTES TAB ===== -->
           <div *ngIf="activeTab === 'notes'">
-            <h6 class="fw-bold">Case Notes</h6>
+            <h4 class="fw-bold">Case Notes</h4>
             <textarea class="form-control mb-2" rows="3" [(ngModel)]="noteText" placeholder="Add investigation note..."></textarea>
             <div class="d-flex gap-2 mb-3 flex-wrap">
               <button class="btn btn-primary btn-sm" (click)="addNote()">
@@ -640,7 +860,7 @@
 
           <!-- ===== ESCALATION TAB ===== -->
           <div *ngIf="activeTab === 'escalation'">
-            <h6 class="fw-bold">Escalation</h6>
+            <h4 class="fw-bold">Escalation</h4>
             <div class="row g-3">
               <div class="col-md-6">
                 <label class="form-label small fw-bold">Escalation Level</label>
@@ -678,7 +898,7 @@
 
           <!-- ===== RESOLUTION TAB ===== -->
           <div *ngIf="activeTab === 'resolution'">
-            <h6 class="fw-bold">Case Resolution</h6>
+            <h4 class="fw-bold">Case Resolution</h4>
             <div *ngIf="selected.resolution" class="alert alert-info">
               <strong>Resolved:</strong> {{ selected.resolution.verdict }}
               <span *ngIf="selected.resolution.resolved_by"> by {{ selected.resolution.resolved_by }}</span>
@@ -725,7 +945,7 @@
 
           <!-- ===== TIMELINE TAB ===== -->
           <div *ngIf="activeTab === 'timeline'">
-            <h6 class="fw-bold">Case Timeline</h6>
+            <h4 class="fw-bold">Case Timeline</h4>
             <div class="mt-3">
               <div *ngFor="let t of (selected.timeline || [])" class="timeline-item">
                 <div class="timeline-dot"></div>
@@ -766,7 +986,7 @@
   <div class="modal-dialog modal-lg" (click)="$event.stopPropagation()">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-user me-2"></i>Customer Profile</h5>
+        <h4 class="modal-title"><i class="fas fa-user me-2"></i>Customer Profile</h4>
         <button type="button" class="btn-close" (click)="showCustomerModal=false"></button>
       </div>
       <div class="modal-body" *ngIf="customerProfile">
@@ -800,9 +1020,9 @@
   <div class="modal-dialog modal-lg" (click)="$event.stopPropagation()">
     <div class="modal-content">
       <div class="modal-header bg-success text-white">
-        <h5 class="modal-title">
+        <h4 class="modal-title">
           <i class="fas fa-plus-circle me-2"></i>Create New Case
-        </h5>
+        </h4>
         <button type="button" class="btn-close btn-close-white" (click)="closeCreateCaseModal()"></button>
       </div>
       <div class="modal-body">

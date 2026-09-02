@@ -442,59 +442,198 @@ getRiskScoreFromLevel(level: string): number {
       }
     });
   }
-
   loadCaseTransaction(c: any): void {
-    const txnId = c.transaction_id || c.alert_transaction_id || c.alert_id;
-    if (!txnId) return;
-
-    this.finca.getTransaction(txnId).subscribe({
-      next: (res) => {
-        if (res?.status === 'success' && res.transaction_details) {
-          this.selected.transaction = res;
-          if (res.customer_info) {
-            this.customerProfile = res.customer_info;
-          }
-        } else if (res?.result) {
-          this.selected.transaction = res.result || res;
-          if (res.result?.customer_info) {
-            this.customerProfile = res.result.customer_info;
-          }
-        } else if (res?.transaction_details) {
-          this.selected.transaction = res;
-          if (res.customer_info) {
-            this.customerProfile = res.customer_info;
-          }
+  
+  let txnId = c.transaction_id || 
+              c.alert_transaction_id || 
+              c.alert?.transaction_id ||
+              c.alert?.alert_transaction_id;
+  
+  if (!txnId && c.alert_id) {
+ 
+    this.finca.getAlert(c.alert_id).subscribe({
+      next: (alert) => {
+        if (alert?.transaction_id) {
+          this.loadTransaction(alert.transaction_id);
+        } else {
+          this.loadCustomerOnly(c);
         }
-        this.updateWorkflowSteps();
       },
-      error: () => {}
+      error: () => this.loadCustomerOnly(c)
     });
+    return;
+  }
+  
+  if (txnId && txnId.startsWith('ALT')) {
+    this.loadCustomerOnly(c);
+    return;
   }
 
-  loadRelated(): void {
-    if (!this.selected) return;
-    const transactionId = this.selected.transaction_id || this.selected.alert_id || this.selected.id;
-    if (!transactionId) {
-      this.toastr.warning('No transaction ID found for this case', 'Warning');
-      return;
-    }
+  if (txnId) {
+    this.loadTransaction(txnId);
+  } else {
+    this.loadCustomerOnly(c);
+  }
+}
 
-    this.relatedLoading = true;
-    this.finca.getRelatedTransactions(transactionId).subscribe({
-      next: (r) => {
-        this.relatedLoading = false;
-        this.related = r.related_transactions || [];
-        if (this.related.length > 0) {
-          this.toastr.success(`Found ${this.related.length} related transactions`, 'Related');
-        }
-      },
-      error: () => {
-        this.relatedLoading = false;
-        this.related = [];
-        this.toastr.error('Could not load related transactions', 'Error');
+selectCase(c: any): void {
+  this.selected = c;
+  this.activeTab = 'overview';
+  this.noteText = '';
+  this.evidenceFiles = [];
+  this.related = [];
+  this.customerProfile = null;
+  this.investigationChecks = { device: false, velocity: false, network: false };
+  this.resetPlaybook();
+  this.updateWorkflowSteps();
+  
+  this.customerProfile = {
+    customer_id: c.customer_id || 'Unknown',
+    customer_name: c.customer_name || c.customer_id || 'Unknown'
+  };
+  
+  if (!c.transaction_id && c.alert?.transaction_id) {
+    c.transaction_id = c.alert.transaction_id;
+  }
+
+  this.loadCaseTransaction(c);
+}
+
+loadRelatedTransactions(transactionId: string): void {
+  this.relatedLoading = true;
+  
+  this.finca.getRelatedTransactions(transactionId).subscribe({
+    next: (r) => {
+      this.relatedLoading = false;
+      this.related = r.related_transactions || [];
+      if (this.related.length > 0) {
+        this.toastr.success(`Found ${this.related.length} related transactions`, 'Related');
+      } else {
+        this.toastr.info('No related transactions found', 'Related');
       }
-    });
+    },
+    error: (err) => {
+      this.relatedLoading = false;
+      this.related = [];
+      console.error('Error loading related transactions:', err);
+      this.toastr.error('Could not load related transactions', 'Error');
+    }
+  });
+}
+
+loadCustomerOnly(c: any): void {
+  this.customerProfile = {
+    customer_id: c.customer_id || 'Unknown',
+    customer_name: c.customer_name || c.customer_id || 'Unknown',
+    customer_email: c.customer_email || '',
+    customer_phone: c.customer_phone || '',
+    account_age_days: c.account_age_days || 0,
+    avg_transaction_amount: c.avg_transaction_amount || 0
+  };
+  this.updateWorkflowSteps();
+}
+
+loadTransaction(txnId: string): void {
+  this.finca.getTransaction(txnId).subscribe({
+    next: (res) => {
+      if (res?.status === 'success' || res?.transaction_id) {
+        this.selected.transaction = res;
+        if (res.customer_info) {
+          this.customerProfile = res.customer_info;
+        } else if (this.selected?.customer_id) {
+          this.customerProfile = {
+            customer_id: this.selected.customer_id,
+            customer_name: this.selected.customer_name || this.selected.customer_id
+          };
+        }
+      }
+      this.updateWorkflowSteps();
+    },
+    error: () => {
+      // Fallback to customer info from case
+      if (this.selected?.customer_id) {
+        this.customerProfile = {
+          customer_id: this.selected.customer_id,
+          customer_name: this.selected.customer_name || this.selected.customer_id
+        };
+      }
+      this.updateWorkflowSteps();
+    }
+  });
+}
+
+getRuleFlags(caseData: any): string[] {
+  if (!caseData) return [];
+  
+  // Check multiple sources for rule flags
+  const flags = caseData.Rule_Flags || 
+                caseData.rule_flags ||
+                caseData.transaction?.transaction_details?.Rule_Flags ||
+                caseData.transaction?.transaction_details?.rule_flags ||
+                [];
+  
+  return flags;
+}
+
+getFincaRules(caseData: any): any[] {
+  if (!caseData) return [];
+  
+  const rules = caseData.finca_rules_triggered ||
+                caseData.transaction?.transaction_details?.finca_rules_triggered ||
+                caseData.triggered_rules ||
+                [];
+  
+  if (rules.length > 0 && typeof rules[0] === 'string') {
+    return rules.map((rule: string) => ({
+      rule_id: rule,
+      rule_name: this.getRuleName(rule),
+      reason: this.getRuleReason(rule),
+      rule_points: 0
+    }));
   }
+  
+  return rules;
+}
+getRuleName(ruleId: string): string {
+  const map: any = {
+    'R001': 'New Device + High Value',
+    'R002': 'Location Anomaly',
+    'R003': 'Transaction Velocity',
+    'R004': 'Amount Anomaly',
+    'R011': 'Location Anomaly',
+    'R012': 'Unusual Time',
+    'NEW_DEVICE': 'New Device',
+    'LOCATION_ANOMALY': 'Location Anomaly',
+    'AMOUNT_ANOMALY': 'Amount Anomaly',
+    'VELOCITY_ANOMALY': 'Velocity Anomaly',
+    'UNUSUAL_TIME': 'Unusual Time'
+  };
+  return map[ruleId] || ruleId;
+}
+
+getRuleReason(ruleId: string): string {
+  const map: any = {
+    'R001': 'New/unrecognized device detected',
+    'R002': 'Location anomaly detected',
+    'R003': 'Transaction velocity exceeds threshold',
+    'R004': 'Amount exceeds normal pattern',
+    'R011': 'Unusual location detected',
+    'R012': 'Transaction at unusual hour',
+    'NEW_DEVICE': 'New/unrecognized device detected',
+    'LOCATION_ANOMALY': 'Unusual location detected',
+    'AMOUNT_ANOMALY': 'Amount exceeds normal pattern',
+    'VELOCITY_ANOMALY': 'High transaction frequency',
+    'UNUSUAL_TIME': 'Transaction at unusual hour'
+  };
+  return map[ruleId] || 'Rule triggered';
+}
+
+hasFincaRules(caseData: any): boolean {
+  if (!caseData) return false;
+  
+  const rules = this.getFincaRules(caseData);
+  return rules.length > 0;
+}
 
   loadCustomerProfile(): void {
     if (this.customerProfile) return;
@@ -531,6 +670,27 @@ getRiskScoreFromLevel(level: string): number {
       }
     });
   }
+getCaseRules(caseData: any): any[] {
+  if (!caseData) return [];
+  
+  // Check multiple possible locations
+  const rules = caseData.triggered_rules || 
+                caseData.finca_rules_triggered || 
+                caseData.alert?.finca_rules_triggered ||
+                [];
+  
+  // If rules are strings, convert to objects
+  if (rules.length > 0 && typeof rules[0] === 'string') {
+    return rules.map((rule: string) => ({
+      rule_id: rule,
+      rule_name: this.getRuleName(rule),
+      reason: this.getRuleReason(rule),
+      rule_points: 0
+    }));
+  }
+  
+  return rules;
+}
 
   // ============= STATS & FILTERS =============
 
@@ -622,20 +782,76 @@ getRiskScoreFromLevel(level: string): number {
     this.applyFilter();
   }
 
-  // ============= CASE SELECTION =============
+relatedPage = 1;
+relatedPageSize = 5;
 
-  selectCase(c: any): void {
-    this.selected = c;
-    this.activeTab = 'overview';
-    this.noteText = '';
-    this.evidenceFiles = [];
-    this.related = [];
-    this.customerProfile = null;
-    this.investigationChecks = { device: false, velocity: false, network: false };
-    this.resetPlaybook();
-    this.updateWorkflowSteps();
-    this.loadCaseTransaction(c);
+get relatedTotalPages(): number {
+  return Math.ceil(this.related.length / this.relatedPageSize);
+}
+
+get paginatedRelated(): any[] {
+  const start = (this.relatedPage - 1) * this.relatedPageSize;
+  return this.related.slice(start, start + this.relatedPageSize);
+}
+
+loadRelated(): void {
+  if (!this.selected) return;
+  
+  // ✅ Get transaction ID
+  let transactionId = this.getTransactionIdFromCase(this.selected);
+  
+  if (!transactionId) {
+    this.toastr.warning('No transaction ID found for this case', 'Warning');
+    this.relatedLoading = false;
+    return;
   }
+
+  this.relatedLoading = true;
+  
+  this.finca.getRelatedTransactions(transactionId).subscribe({
+    next: (r) => {
+      this.relatedLoading = false;
+      
+      // ✅ Assign the data
+      this.related = r.related_transactions || r.transactions || r.data || [];
+      
+      // ✅ Reset to first page
+      this.relatedPage = 1;
+      
+      if (this.related.length > 0) {
+        this.toastr.success(`Found ${this.related.length} related transactions`, 'Related');
+      } else {
+        this.toastr.info('No related transactions found', 'Related');
+      }
+    },
+    error: (err) => {
+      this.relatedLoading = false;
+      this.related = [];
+      console.error('Error loading related transactions:', err);
+      this.toastr.error('Could not load related transactions', 'Error');
+    }
+  });
+}
+
+getTransactionIdFromCase(caseData: any): string | null {
+  if (!caseData) return null;
+  
+  // Priority 1: From transaction object
+  if (caseData.transaction?.transaction_id) {
+    return caseData.transaction.transaction_id;
+  }
+  
+  // Priority 2: From case.transaction_id (if not an alert ID)
+  if (caseData.transaction_id && !caseData.transaction_id.startsWith('ALT')) {
+    return caseData.transaction_id;
+  }
+
+  if (caseData.alert?.transaction_id) {
+    return caseData.alert.transaction_id;
+  }
+  
+  return null;
+}
 
   closeSelected(): void {
     this.selected = null;
