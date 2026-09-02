@@ -17,7 +17,7 @@ export class FincaAlertsComponent implements OnInit, OnDestroy {
   lastRefreshed: Date = new Date();
 
   page = 1;
-  size = 50;
+  size = 1000;
 
   filterStatus = '';
   filterRisk = '';
