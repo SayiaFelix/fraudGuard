@@ -1,24 +1,164 @@
 :host {
   display: block;
   min-height: 100vh;
-  background-color: #f4f7f6;
+  background-color: #ffffff; /* Matching the clean white background of page 1 */
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #1a1d21;
 }
 
-.font-monospace {
-  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace !important;
+/* 1. Header & Typography */
+h2, h4 {
+  color: #000000;
+  letter-spacing: -0.02em;
+}
+
+.text-muted {
+  color: #6c757d !important;
 }
 
 .extra-small {
   font-size: 11px;
+  font-weight: 600;
 }
 
+/* 2. KPI Cards - Matching Image 1 Pastel Palette */
+.kpi-card {
+  border-radius: 8px;
+  padding: 1.25rem;
+  border: none;
+  height: 100%;
+}
+
+.kpi-total { background-color: #f1f3f5; }    /* Grey */
+.kpi-critical { background-color: #fff0f3; } /* Soft Red */
+.kpi-high { background-color: #fff8f0; }     /* Soft Orange */
+.kpi-medium { background-color: #f0faff; }   /* Soft Teal */
+.kpi-low { background-color: #f0fff4; }      /* Soft Green */
+.kpi-score { background-color: #f0f2ff; }    /* Soft Blue */
+
+.kpi-label {
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.kpi-value {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+/* 3. Filter Bar - Styled like the Search Bar in Image 1 */
+.filter-bar {
+  background: #ffffff;
+  border: 1px solid #f1f3f5;
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+.filter-group {
+  border-right: 1px solid #f1f3f5;
+  padding: 0 15px;
+}
+
+.filter-group:last-child {
+  border-right: none;
+}
+
+.filter-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #000;
+  margin-bottom: 2px;
+}
+
+.form-select, .form-control {
+  border: none !important;
+  padding: 0;
+  font-size: 13px;
+  background-color: transparent;
+  box-shadow: none !important;
+}
+
+/* 4. Table Styling */
 .table {
+  margin-bottom: 0;
+  
   thead th {
+    background-color: #f8f9fa; /* Grey header from Image 1 */
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.05em;
-    border-top: none;
+    color: #8a92a6;
+    text-transform: uppercase;
+    padding: 12px 16px;
+    border: none;
   }
+
+  tbody td {
+    padding: 16px;
+    border-bottom: 1px solid #f1f3f5;
+    vertical-align: middle;
+  }
+}
+
+/* 5. Buttons - Matching Image 1 specific colors */
+.btn-simulation {
+  background-color: #5c67f2 !important; /* The specific blue-purple in Image 1 */
+  border: none;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.btn-export {
+  color: #198754;
+  border-color: #198754;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.btn-export:hover {
+  background-color: #198754;
+  color: white;
+}
+
+.btn-ai-chat {
+  color: #5c67f2;
+  border-color: #5c67f2;
+  font-weight: 700;
+}
+
+/* 6. Navigation Tabs */
+.nav-tab-item {
+  font-size: 13px;
+  font-weight: 700;
+  color: #6c757d;
+  cursor: pointer;
+  padding-bottom: 15px;
+  transition: all 0.2s;
+}
+
+.nav-tab-item.active {
+  color: #5c67f2;
+  border-bottom: 2px solid #5c67f2;
+}
+
+.nav-tab-item i {
+  margin-right: 6px;
+}
+
+/* 7. Badges & Indicators */
+.badge-ai-active {
+  background-color: #198754;
+  color: white;
+  font-weight: 700;
+  padding: 6px 12px;
+}
+
+.badge-live {
+  background-color: #ff3366;
+  font-size: 10px;
+  padding: 2px 8px;
 }
 
 .form-switch .form-check-input {
@@ -27,16 +167,9 @@
   cursor: pointer;
 }
 
-.alert-white {
-  background-color: #fff;
-  border-left: 4px solid #0d6efd !important;
-}
-
-.btn-white {
-  background: #fff;
-  &.active {
-    background-color: #f8f9fa;
-    font-weight: bold;
-    border-color: #dee2e6 !important;
-  }
+/* Loading Overlay */
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+  color: #5c67f2 !important;
 }
