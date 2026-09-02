@@ -71,7 +71,7 @@ export class NavbarComponent implements OnInit {
       this.notifications = notifications;
     });
 
-    this.profile = "FRAUD GUARD AI SYSTEM";
+    this.profile = "FRAUD GUARD AI";
     this.userData$ = of({ profile: this.profile });
   }
 
