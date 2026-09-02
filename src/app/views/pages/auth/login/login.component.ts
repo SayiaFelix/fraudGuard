@@ -92,6 +92,8 @@ onSubmit(event: Event) {
           localStorage.setItem('userEmail', response.user?.email || email);
           localStorage.setItem('userName', response.user?.username || email.split('@')[0]);
           localStorage.setItem('current_user', JSON.stringify(response.user));
+          localStorage.setItem('userDisplayName', this.authservice.getUserDisplayName());
+          localStorage.setItem('userTitle', this.authservice.getUserTitle());
           
         
         // Swal.fire({

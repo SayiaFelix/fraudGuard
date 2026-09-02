@@ -40,6 +40,17 @@ const routes: Routes = [
         },
       },
       {
+        path: 'reports',
+        loadChildren: () =>
+          import('./views/pages/reports/reports.module').then(
+            (m) => m.ReportsModule
+          ),
+        canActivate: [AuthGuard, RoleGuard],
+        data: {
+          roles: ['admin']
+        },
+      },
+      {
         path: 'apps',
         loadChildren: () =>
           import('./views/pages/apps/apps.module').then((m) => m.AppsModule),

@@ -21,6 +21,9 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('sidebarToggler') sidebarToggler: ElementRef;
   @Output() helpCenterToggled = new EventEmitter<MouseEvent>();
   menuItems: MenuItem[] = [];
+  userDisplayName = '';
+  userTitle = '';
+  userInitials = '';
   @ViewChild('sidebarMenu') sidebarMenu: ElementRef;
   isSettingsModalVisible = false;
   showSubItems: boolean = true;
@@ -53,6 +56,10 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
     this.menuItems = MENU.filter(item => 
       !item.roles || item.roles.includes(role!)
     );
+
+    this.userDisplayName = this.authservice.getUserDisplayName();
+    this.userTitle = this.authservice.getUserTitle();
+    this.userInitials = this.getInitials(this.userDisplayName);
 
     const desktopMedium = window.matchMedia('(min-width:992px) and (max-width: 1199px)');
     desktopMedium.addEventListener('change', () => this.iconSidebar(desktopMedium));
@@ -192,6 +199,8 @@ onLogout(e: Event) {
         localStorage.removeItem('userRole');
         localStorage.removeItem('userEmail');
         localStorage.removeItem('userName');
+        localStorage.removeItem('userDisplayName');
+        localStorage.removeItem('userTitle');
 
         this.router.navigate(['/auth/login']);
       
@@ -310,5 +319,14 @@ onLogout(e: Event) {
       return true;
     } else
     return false;
+  }
+
+  private getInitials(name: string): string {
+    if (!name) return 'U';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
   }
 }

@@ -78,6 +78,15 @@
     </ul>
   </div>
 
+  <!-- Sidebar User Footer -->
+  <div class="sidebar-user-footer">
+    <div class="user-avatar">{{ userInitials }}</div>
+    <div class="user-details">
+      <span class="user-name">{{ userDisplayName }}</span>
+      <span class="user-title">{{ userTitle }}</span>
+    </div>
+  </div>
+
 </nav>
 
 <app-settings-modal *ngIf="isSettingsModalVisible" (close)="closeSettingsModal()"></app-settings-modal>

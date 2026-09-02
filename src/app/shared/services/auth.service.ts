@@ -12,6 +12,8 @@ export class AuthService {
   private tokenKey = 'access_token';
   private refreshTokenKey = 'refresh_token';
   private userKey = 'current_user';
+  private displayNameKey = 'userDisplayName';
+  private userTitleKey = 'userTitle';
 
   private currentUserSubject = new BehaviorSubject<any>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
@@ -48,6 +50,8 @@ export class AuthService {
         localStorage.setItem('userRole', response.user?.role || 'admin');
         localStorage.setItem('userEmail', response.user?.email || email);
         localStorage.setItem('userName', response.user?.username || email.split('@')[0]);
+        localStorage.setItem(this.displayNameKey, this.resolveDisplayName(response.user, email));
+        localStorage.setItem(this.userTitleKey, this.resolveUserTitle(response.user));
         
         // console.log('Stored in localStorage:', {
         //   token: !!localStorage.getItem(this.tokenKey),
@@ -80,6 +84,8 @@ export class AuthService {
     localStorage.removeItem('userRole');
     localStorage.removeItem('userEmail');
     localStorage.removeItem('userName');
+    localStorage.removeItem(this.displayNameKey);
+    localStorage.removeItem(this.userTitleKey);
     
     this.currentUserSubject.next(null);
     console.log('Local storage cleared on logout');
@@ -122,6 +128,34 @@ isAuthenticated(): boolean {
 
   getUserRole(): string | null {
     return localStorage.getItem('userRole');
+  }
+
+  getUserDisplayName(): string {
+    return localStorage.getItem(this.displayNameKey) || 'User';
+  }
+
+  getUserTitle(): string {
+    const title = localStorage.getItem(this.userTitleKey);
+    if (title) return title;
+    const role = this.getUserRole();
+    return role ? role.charAt(0).toUpperCase() + role.slice(1) : 'User';
+  }
+
+  private resolveDisplayName(user: any, email: string): string {
+    if (user?.full_name) return user.full_name;
+    if (user?.name) return user.name;
+    if (user?.display_name) return user.display_name;
+    const username = user?.username || email.split('@')[0];
+    return username
+      .replace(/[._-]/g, ' ')
+      .replace(/\b\w/g, (c: string) => c.toUpperCase());
+  }
+
+  private resolveUserTitle(user: any): string {
+    if (user?.title) return user.title;
+    if (user?.job_title) return user.job_title;
+    const role = user?.role || 'admin';
+    return role.charAt(0).toUpperCase() + role.slice(1);
   }
 
   refreshToken(): Observable<any> {
