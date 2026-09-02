@@ -7,12 +7,73 @@ import { RuleService } from './rule-management.service';
   styleUrls: ['./rule-management.component.scss']
 })
 export class RuleManagementComponent implements OnInit {
-  view: 'list' | 'create' | 'simulator' | 'edit' = 'list';
+  // FIX: Declared as string to stop the "always false" compiler error
+  public view: string = 'list'; 
+  
   loading: boolean = false;
   filterCategory: string = '';
   filterStatus: string = '';
   rules: any[] = [];
   selectedRule: any = null;
+
+  // PAGINATION PROPERTIES
+  currentPage: number = 1;
+  itemsPerPage: number = 5;
+  
+  // FIX: Expose Math to the HTML template so Math.min works
+  Math = Math;
+
+  // PAGINATION LOGIC
+  onPageChange() {
+    this.currentPage = 1; // Reset to first page when changing rows per page
+  }
+
+  prevPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
+  nextPage() {
+    if (!this.isLastPage()) {
+      this.currentPage++;
+    }
+  }
+
+
+  // 1. THIS HELPER FILTERS THE RULES FIRST
+  get filteredRules() {
+    return this.rules.filter(rule => {
+      // Category filter logic
+      const matchesCategory = !this.filterCategory || rule.category === this.filterCategory;
+      
+      // Status filter logic (Maps dropdown strings to data booleans)
+      let matchesStatus = true;
+      if (this.filterStatus === 'active') {
+        matchesStatus = rule.is_active === true;
+      } else if (this.filterStatus === 'inactive') {
+        matchesStatus = rule.is_active === false;
+      }
+
+      return matchesCategory && matchesStatus;
+    });
+  }
+
+  // 2. THIS SLICES THE *FILTERED* LIST FOR THE TABLE
+  get paginatedRules() {
+    const filtered = this.filteredRules;
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    return filtered.slice(startIndex, startIndex + this.itemsPerPage);
+  }
+
+  // 3. UPDATE THESE TO LOOK AT THE FILTERED COUNT INSTEAD OF TOTAL RULES
+  get totalVisibleItems(): number {
+    return Math.min(this.currentPage * this.itemsPerPage, this.filteredRules.length);
+  }
+
+  isLastPage(): boolean {
+    return this.currentPage * this.itemsPerPage >= this.filteredRules.length;
+  }
 
   // PROFESSIONAL STATUS ALERT STATE
   statusAlert = {
