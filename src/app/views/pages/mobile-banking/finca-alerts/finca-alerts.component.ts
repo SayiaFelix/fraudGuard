@@ -145,6 +145,91 @@ export class FincaAlertsComponent implements OnInit, OnDestroy {
     ];
   }
 
+  // ===== GET FINAL EXPLANATION =====
+getFinalExplanation(): string {
+  if (!this.selected) return '';
+  
+  // Check if explanations exist
+  const explanations = this.selected.explanations || this.transactionDetail?.explanations;
+  
+  if (!explanations) return '';
+  
+  // Priority: final > llm > rule_based
+  return explanations.final || explanations.llm || explanations.rule_based || '';
+}
+
+// ===== GET RISK BADGE CLASS (for rule badges) =====
+getRuleBadgeClass(rule: string): string {
+  const map: any = {
+    'NEW_DEVICE': 'bg-danger',
+    'LOCATION_ANOMALY': 'bg-danger',
+    'AMOUNT_ANOMALY': 'bg-warning text-dark',
+    'VELOCITY_ANOMALY': 'bg-warning text-dark',
+    'UNUSUAL_TIME': 'bg-info',
+    'WEEKEND_TXN': 'bg-info',
+    'HIGH_FREQUENCY': 'bg-warning text-dark',
+    'INTERNATIONAL_TXN': 'bg-danger'
+  };
+  return map[rule] || 'bg-secondary';
+}
+
+getRiskBadgeClass(level: string): string {
+  const map: any = {
+    'CRITICAL': 'bg-danger',
+    'HIGH': 'bg-warning text-dark',
+    'MEDIUM': 'bg-info text-dark',
+    'LOW': 'bg-success'
+  };
+  return map[level] || 'bg-secondary';
+}
+
+loadAlertDetail(alert: any): void {
+  this.loadingDetail = true;
+  const txnId = alert.transaction_id;
+  if (!txnId) { this.loadingDetail = false; return; }
+
+  this.finca.getTransaction(txnId).subscribe({
+    next: (res) => {
+      this.transactionDetail = this.transformTransactionData(res);
+      this.customerProfile = res?.customer_info || null;
+      this.loadingDetail = false;
+    },
+    error: () => { this.loadingDetail = false; }
+  });
+
+  this.finca.getRelatedTransactions(txnId).subscribe({
+    next: (r) => { this.relatedTransactions = r.related_transactions || []; },
+    error: () => { this.relatedTransactions = []; }
+  });
+}
+
+transformTransactionData(data: any): any {
+  if (!data) return null;
+  
+  return {
+    ...data,
+    transaction_details: {
+      transaction_id: data.transaction_id,
+      Transaction_Amount: data.transaction_details?.Transaction_Amount || data.transaction_details?.transaction_amount,
+      channel: data.transaction_details?.finca_channel || data.transaction_details?.channel,
+      device_type: data.transaction_details?.finca_device_type || data.transaction_details?.device_type,
+      location: data.transaction_details?.finca_location || data.transaction_details?.location,
+      final_risk_level: data.transaction_details?.final_risk_level || data.risk_assessment?.risk_category,
+      ml_risk_score: data.transaction_details?.ml_risk_score || data.risk_assessment?.risk_score,
+      finca_total_rule_points: data.transaction_details?.finca_total_rule_points,
+      finca_capped_rule_points: data.transaction_details?.finca_capped_rule_points,
+      finca_rule_count: data.transaction_details?.finca_rule_count,
+      finca_final_decision: data.transaction_details?.finca_final_decision,
+      finca_rules_triggered: data.transaction_details?.finca_rules_triggered || [],
+      ...data.transaction_details
+    },
+    risk_assessment: data.risk_assessment || {
+      risk_score: data.transaction_details?.ml_risk_score || data.risk_score,
+      risk_category: data.transaction_details?.final_risk_level || data.risk_category
+    }
+  };
+}
+
   applyFilters(): void {
     let list = [...this.alerts];
     const q = (this.searchText || '').toLowerCase();
@@ -192,32 +277,11 @@ export class FincaAlertsComponent implements OnInit, OnDestroy {
     this.transactionDetail = null;
     this.relatedTransactions = [];
     this.loadAlertDetail(alert);
-    // persist read status via service (falls back to local storage)
+  
     this.finca.markAlertRead(alert.id).subscribe({ next: () => {}, error: () => {} });
     this.computeStats();
     this.applyFilters();
   }
-
-  loadAlertDetail(alert: any): void {
-    this.loadingDetail = true;
-    const txnId = alert.transaction_id;
-    if (!txnId) { this.loadingDetail = false; return; }
-
-    this.finca.getTransaction(txnId).subscribe({
-      next: (res) => {
-        this.transactionDetail = res;
-        this.customerProfile = res?.customer_info || null;
-        this.loadingDetail = false;
-      },
-      error: () => { this.loadingDetail = false; }
-    });
-
-    this.finca.getRelatedTransactions(txnId).subscribe({
-      next: (r) => { this.relatedTransactions = r.related_transactions || []; },
-      error: () => { this.relatedTransactions = []; }
-    });
-  }
-
   close(): void {
     this.selected = null;
     this.customerProfile = null;
