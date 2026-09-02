@@ -86,6 +86,18 @@ export const MENU: MenuItem[] = [
     roles: ['admin'] 
   },
   {
+    label: 'Reports & Analytics',
+    icon: 'bar-chart-2',
+    roles: ['admin'],
+    subItems: [
+      {
+        label: 'Fraud Reports',
+        icon: 'file-text',
+        link: '/reports/fraud'
+      }
+    ]
+  },
+  {
     isTitle: true,
     label: 'SETTINGS',
   },
