@@ -41,8 +41,8 @@ export class FincaAlertsComponent implements OnInit, OnDestroy {
 
   detailTabs = [
     { id: 'overview', label: 'Overview', icon: 'fa-home' },
-    { id: 'transaction', label: 'Transaction', icon: 'fa-exchange-alt' },
     { id: 'customer', label: 'Customer', icon: 'fa-user' },
+    { id: 'transaction', label: 'Transaction', icon: 'fa-exchange-alt' },
     { id: 'rules', label: 'Rules', icon: 'fa-shield-alt' },
     { id: 'actions', label: 'Actions', icon: 'fa-bolt' }
   ];
