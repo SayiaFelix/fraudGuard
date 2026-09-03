@@ -53,6 +53,27 @@ interface FeatureImportance {
   category: string;
 }
 
+interface StaticInsightMetric {
+  label: string;
+  value: number;
+  tone: 'primary' | 'success' | 'warning' | 'danger' | 'info';
+  helper: string;
+}
+
+interface StaticModelStatus {
+  name: string;
+  status: 'active' | 'monitoring' | 'scheduled';
+  accuracy: string;
+  note: string;
+}
+
+interface StaticPipelineStage {
+  name: string;
+  description: string;
+  state: 'live' | 'watching' | 'ready';
+  icon: string;
+}
+
 @Component({
   selector: 'app-voice',
   templateUrl: './voice.component.html',
@@ -61,6 +82,7 @@ interface FeatureImportance {
 export class VoiceComponent implements OnInit, OnDestroy {
 
   selectedPeriod: '24h' | '7d' | '30d' | '90d' = '7d';
+  currentDate = new Date();
   
   // Loading states
   isLoading = true;
@@ -81,6 +103,34 @@ export class VoiceComponent implements OnInit, OnDestroy {
   modelMetrics: ModelMetric[] = [];
   fraudTrends: FraudTrend[] = [];
   featureImportance: FeatureImportance[] = [];
+
+  aiInsightMetrics: StaticInsightMetric[] = [
+    { label: 'Model Accuracy', value: 96, tone: 'success', helper: 'Current fraud ensemble benchmark' },
+    { label: 'Alert Precision', value: 91, tone: 'primary', helper: 'Flag quality across reviewed alerts' },
+    { label: 'System Availability', value: 99, tone: 'info', helper: 'Inference service uptime status' }
+  ];
+
+  aiModelStatusCards: StaticModelStatus[] = [
+    { name: 'Fraud Ensemble', status: 'active', accuracy: '96.4%', note: 'Primary decisioning model for high-risk scoring.' },
+    { name: 'Behavior Model', status: 'monitoring', accuracy: '93.1%', note: 'Watching drift on repeat transaction behavior.' },
+    { name: 'Device Trust Model', status: 'scheduled', accuracy: '94.8%', note: 'Next refresh planned during nightly training window.' }
+  ];
+
+  aiPipelineStages: StaticPipelineStage[] = [
+    { name: 'Signal Ingestion', description: 'Transactions, devices, channels, and rules are collected for scoring.', state: 'live', icon: 'fas fa-database' },
+    { name: 'Risk Scoring', description: 'Ensemble models evaluate fraud probability and assign confidence bands.', state: 'live', icon: 'fas fa-brain' },
+    { name: 'Analyst Review', description: 'High-risk cases are queued for investigation and manual confirmation.', state: 'watching', icon: 'fas fa-user-shield' },
+    { name: 'Model Retraining', description: 'Approved feedback is prepared for the next training cycle.', state: 'ready', icon: 'fas fa-robot' }
+  ];
+
+  keySignals: string[] = [
+    'Transaction velocity spike',
+    'Device mismatch',
+    'Cross-border access pattern',
+    'High-value transfer burst',
+    'Unusual login hour',
+    'Repeat rule-trigger combinations'
+  ];
 
   transactions: any[] = [];
   auditLogs: any[] = [];
@@ -549,9 +599,25 @@ setDefaultFeatureImportance(): void {
     const classes: any = {
       'active': 'bg-success',
       'training': 'bg-warning text-dark',
-      'degraded': 'bg-danger'
+      'degraded': 'bg-danger',
+      'monitoring': 'bg-warning text-dark',
+      'scheduled': 'bg-info text-dark'
     };
     return classes[status] || 'bg-secondary';
+  }
+
+  getLastEnsembleUpdate(): Date | null {
+    return this.modelMetrics[this.modelMetrics.length - 1]?.lastTrained || null;
+  }
+
+  getPipelineStageClass(state: string): string {
+    const classes: Record<string, string> = {
+      live: 'bg-success-subtle text-success',
+      watching: 'bg-warning-subtle text-warning',
+      ready: 'bg-primary-subtle text-primary'
+    };
+
+    return classes[state] || 'bg-light text-muted';
   }
 
   formatTimeAgo(date: Date): string {

@@ -57,6 +57,7 @@ export class ListFailedRegistrationsComponent implements OnInit, OnDestroy {
   
   currentRoute: string = '';
   hideTopNav: boolean = false;
+  pageTitle: string = 'Fraud Management';
 
   transactions: any[] = [];
   modelMetrics: any = null;
@@ -168,6 +169,14 @@ export class ListFailedRegistrationsComponent implements OnInit, OnDestroy {
     // Hide the fraud-tab-buttons/top navigation on AI Insights and Investigation Graph pages
     this.hideTopNav = currentUrl.includes('ai-insights') || currentUrl.includes('investigation-graph');
 
+    // Set the page title dynamically for specific subpages
+    if (currentUrl.includes('ai-insights')) {
+      this.pageTitle = 'AI Insights';
+    } else if (currentUrl.includes('investigation-graph')) {
+      this.pageTitle = 'Investigation graph';
+    } else {
+      this.pageTitle = 'Fraud Management';
+    }
     if (!this.showIntelligencePanel && !this.isCollapsed) {
       this.isCollapsed = true;
     } else if (this.showIntelligencePanel && this.isCollapsed) {
