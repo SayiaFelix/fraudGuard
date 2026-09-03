@@ -223,7 +223,7 @@
         </div>
         <div class="card-footer bg-transparent border-0 text-end p-3">
           <small class="text-muted">
-            Last ensemble update: {{ modelMetrics[5].lastTrained | date:'medium' }}
+            Last ensemble update: {{ (getLastEnsembleUpdate() || currentDate) | date:'medium' }}
           </small>
         </div>
       </div>
@@ -323,6 +323,127 @@
                   <i class="fas fa-download me-1"></i> Download Full Report
                 </button>
             </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mt-1">
+    <div class="col-lg-7">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-transparent border-0 pt-3 px-4">
+          <h4 class="fw-bold mb-0">
+            <i class="fas fa-satellite-dish me-2 text-primary"></i>
+            AI Monitoring Snapshot
+          </h4>
+        </div>
+        <div class="card-body px-4 pb-4">
+          <div class="row g-3">
+            <div class="col-md-4" *ngFor="let metric of aiInsightMetrics">
+              <div class="snapshot-card h-100">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <small class="text-muted">{{ metric.label }}</small>
+                  <span class="badge rounded-pill" [ngClass]="'bg-' + metric.tone">{{ metric.value }}%</span>
+                </div>
+                <div class="progress insight-progress mb-2">
+                  <div class="progress-bar" [ngClass]="'bg-' + metric.tone" [style.width.%]="metric.value"></div>
+                </div>
+                <p class="small text-muted mb-0">{{ metric.helper }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="insight-signals mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h6 class="fw-bold mb-0">Key AI Signals</h6>
+              <small class="text-muted">Static frontend showcase</small>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+              <span class="badge text-dark signal-chip" *ngFor="let signal of keySignals">
+                <i class="fas fa-bolt me-1 text-primary"></i>{{ signal }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-transparent border-0 pt-3 px-4">
+          <h4 class="fw-bold mb-0">
+            <i class="fas fa-project-diagram me-2 text-info"></i>
+            Insight Processing Flow
+          </h4>
+        </div>
+        <div class="card-body px-4 pb-4">
+          <div class="pipeline-list">
+            <div class="pipeline-step" *ngFor="let stage of aiPipelineStages">
+              <div class="pipeline-icon">
+                <i [class]="stage.icon"></i>
+              </div>
+              <div class="pipeline-content">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <h6 class="fw-bold mb-0">{{ stage.name }}</h6>
+                  <span class="badge rounded-pill" [ngClass]="getPipelineStageClass(stage.state)">
+                    {{ stage.state | titlecase }}
+                  </span>
+                </div>
+                <p class="text-muted mb-0">{{ stage.description }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-transparent border-0 pt-3 px-4">
+          <h4 class="fw-bold mb-0">
+            <i class="fas fa-heartbeat me-2 text-success"></i>
+            Model Status Overview
+          </h4>
+        </div>
+        <div class="card-body px-4 pb-4">
+          <div class="status-card" *ngFor="let item of aiModelStatusCards">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <div>
+                <h6 class="fw-bold mb-1">{{ item.name }}</h6>
+                <p class="small text-muted mb-0">{{ item.note }}</p>
+              </div>
+              <span class="badge" [ngClass]="getModelStatusClass(item.status)">
+                {{ item.status | titlecase }}
+              </span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center small mt-3">
+              <span class="text-muted">Expected accuracy</span>
+              <span class="fw-bold">{{ item.accuracy }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-transparent border-0 pt-3 px-4">
+          <h4 class="fw-bold mb-0">
+            <i class="fas fa-shield-alt me-2 text-warning"></i>
+            AI Insight Notes
+          </h4>
+        </div>
+        <div class="card-body px-4 pb-4">
+          <div class="note-panel note-panel-primary">
+            <h6 class="fw-bold">What this page highlights</h6>
+            <p class="text-muted mb-0">
+              This area summarizes how fraud models are performing, which signals are influencing decisions,
+              and what stage the AI pipeline is currently in.
+            </p>
+          </div>
+          <div class="note-panel note-panel-light">
+            <h6 class="fw-bold">Static demo content</h6>
+            <p class="text-muted mb-0">
+              The cards in this section are intentionally frontend-only so the AI Insights page still communicates value
+              even before live visual data is expanded further.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   </div>

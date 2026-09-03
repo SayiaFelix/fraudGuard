@@ -41,7 +41,7 @@ export const MENU: MenuItem[] = [
   },
   {
     label: 'Investigation Graph',
-    icon: 'bar-chart-2',
+    icon: 'git-branch',
     link: '/fraudsentinelAi/transaction_management/fraud/investigation-graph'
   },
   {
@@ -86,8 +86,14 @@ export const MENU: MenuItem[] = [
     roles: ['admin'] 
   },
   {
+    label: 'Channel Monitoring',
+    icon: 'radio',
+    roles: ['admin'],
+    link: '/channel-monitoring'
+  },
+  {
     label: 'Reports & Analytics',
-    icon: 'bar-chart-2',
+    icon: 'pie-chart',
     roles: ['admin'],
     link: '/reports'
   },
