@@ -1,3 +1,33 @@
+/* =========================================================
+   FRAUD SENTINEL DESIGN TOKENS
+========================================================= */
+
+$primary: #5574ff;
+$primary-soft: #eef1ff;
+
+$info: #22a7d8;
+$info-soft: #e8f7fc;
+
+$success: #08a65c;
+$success-soft: #dff6e9;
+
+$warning: #d99000;
+$warning-soft: #fff3cf;
+
+$high: #e56b15;
+$high-soft: #ffe9da;
+
+$critical: #d92945;
+$critical-soft: #ffe0e5;
+
+$ai: #715cff;
+$ai-soft: #f0edff;
+
+$neutral: #7d8ba8;
+$neutral-soft: #eef1f5;
+
+
+
 :host {
   display: block;
 }
@@ -371,6 +401,31 @@ tbody tr:last-child td {
   color: #c51f3a;
 }
 
+.risk-low {
+  background: $success-soft;
+  color: $success;
+}
+
+.risk-medium {
+  background: $warning-soft;
+  color: $warning;
+}
+
+.risk-high {
+  background: $high-soft;
+  color: $high;
+}
+
+.risk-critical {
+  background: $critical-soft;
+  color: $critical;
+}
+
+.ai-badge {
+  background: $ai-soft;
+  color: $ai;
+}
+
 .active-badge,
 .status-approved {
   background: #dcf7e7;
@@ -404,6 +459,42 @@ tbody tr:last-child td {
   background: #7d8ba8;
   color: #ffffff;
   font-size: 11px;
+}
+
+
+.kpi-card {
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: $primary;
+  }
+}
+
+.kpi-card:nth-child(2)::before {
+  background: $info;
+}
+
+.kpi-card:nth-child(3)::before {
+  background: $primary;
+}
+
+.kpi-card:nth-child(4)::before {
+  background: $ai;
+}
+
+.kpi-card:nth-child(5)::before {
+  background: $success;
+}
+
+.kpi-card:nth-child(6)::before {
+  background: $critical;
 }
 
 /* =========================================================
