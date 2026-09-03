@@ -40,6 +40,17 @@ const routes: Routes = [
         },
       },
       {
+        path: 'channel-monitoring',
+        loadChildren: () =>
+          import('./views/pages/channel-monitoring/channel-monitoring.module').then(
+            (m) => m.ChannelMonitoringModule
+          ),
+        canActivate: [AuthGuard, RoleGuard],
+        data: {
+          roles: ['admin']
+        },
+      },
+      {
         path: 'reports',
         loadChildren: () =>
           import('./views/pages/reports/reports.module').then(
