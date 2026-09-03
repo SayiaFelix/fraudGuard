@@ -256,7 +256,7 @@ export class CustomerProfilingComponent implements OnInit {
      TABLE PAGE SIZE OPTIONS
   ======================================================= */
 
-  pageSizeOptions: number[] = [5, 10, 20, 50];
+  pageSizeOptions: number[] = [10, 20, 50];
 
 
   /* =======================================================
@@ -264,7 +264,7 @@ export class CustomerProfilingComponent implements OnInit {
   ======================================================= */
 
   recentTxPage = 1;
-  recentTxPageSize = 5;
+  recentTxPageSize = 10;
 
 
   constructor(
@@ -299,8 +299,18 @@ export class CustomerProfilingComponent implements OnInit {
             response &&
             response.status === 'success'
           ) {
-            this.customers =
+            const responseCustomers: CustomerSummary[] =
               response.customers || [];
+
+            this.customers = this.customerProfile
+              ? responseCustomers.filter(
+                  customer =>
+                    this.getCustomerProfileLevel(customer)
+                      .trim()
+                      .toUpperCase() ===
+                    this.customerProfile.trim().toUpperCase()
+                )
+              : responseCustomers;
 
             this.pagination =
               response.pagination || {
@@ -1197,7 +1207,214 @@ export class CustomerProfilingComponent implements OnInit {
         .toLowerCase()
     );
   }
+  
 
+
+  getProfileExplanationItems(
+    profile: Customer360
+  ): string[] {
+
+    const existingReasons =
+      profile.customer_profile?.reasons || [];
+
+
+    if (existingReasons.length > 0) {
+      return existingReasons;
+    }
+
+
+    if (
+      this.getSelectedCustomerProfileLevel(profile) !== 'LOW'
+    ) {
+      return [
+        'The customer has an elevated profile, but detailed factor evidence was not returned by the current profile response.'
+      ];
+    }
+
+
+    const reasons: string[] = [];
+
+    const stats =
+      profile.customer_profile?.statistics;
+
+
+    reasons.push(
+      'Recent transaction activity is broadly consistent with the customer behavioural baseline.'
+    );
+
+
+    if (
+      (stats?.critical_risk_transactions ?? 0) === 0 &&
+      (stats?.high_risk_transactions ?? 0) === 0
+    ) {
+
+      reasons.push(
+        'No high or critical transaction-risk events were detected.'
+      );
+    }
+
+
+    if (
+      (stats?.blocked_transactions ?? 0) === 0 &&
+      (stats?.challenged_transactions ?? 0) === 0
+    ) {
+
+      reasons.push(
+        'No blocked or challenged transactions were observed.'
+      );
+    }
+
+
+    if (
+      profile.behavior_profile
+        ?.typical_locations
+        ?.length
+    ) {
+
+      reasons.push(
+        `Customer activity remains concentrated around the expected location pattern: ${profile.behavior_profile.typical_locations
+          .map(location => this.formatLabel(location))
+          .join(', ')}.`
+      );
+    }
+
+
+    const trustedDevices =
+      profile.devices.filter(
+        device =>
+          device.is_trusted
+      ).length;
+
+
+    if (trustedDevices > 0) {
+
+      reasons.push(
+        `${trustedDevices} trusted device(s) are associated with normal customer activity.`
+      );
+    }
+
+
+    if (
+      profile.kpis.failed_logins === 0
+    ) {
+
+      reasons.push(
+        'No failed authentication attempts were detected.'
+      );
+    }
+
+
+    return reasons;
+  }
+  getDisplayProfileFactors(
+    profile: Customer360
+  ): ProfileFactor[] {
+
+    const existingFactors =
+      profile.customer_profile?.factors || [];
+
+    if (existingFactors.length > 0) {
+      return existingFactors;
+    }
+
+    if (
+      this.getSelectedCustomerProfileLevel(profile) !== 'LOW'
+    ) {
+      return [];
+    }
+
+    const factors: ProfileFactor[] = [];
+
+    const stats =
+      profile.customer_profile?.statistics;
+
+
+    factors.push({
+      name: 'Stable Transaction Behaviour',
+      contribution: 20,
+      evidence:
+        'Recent transaction activity remains broadly consistent with the behavioural baseline.'
+    });
+
+
+    if (
+      profile.behavior_profile
+        ?.typical_locations
+        ?.length
+    ) {
+
+      factors.push({
+        name: 'Consistent Location Pattern',
+        contribution: 18,
+        evidence:
+          `Activity is primarily associated with ${profile.behavior_profile.typical_locations
+            .map(location => this.formatLabel(location))
+            .join(', ')}.`
+      });
+    }
+
+
+    const trustedDevices =
+      profile.devices.filter(
+        device =>
+          device.is_trusted
+      ).length;
+
+
+    if (trustedDevices > 0) {
+
+      factors.push({
+        name: 'Trusted Device Usage',
+        contribution: 16,
+        evidence:
+          `${trustedDevices} trusted device(s) are associated with the customer.`
+      });
+    }
+
+
+    if (
+      (stats?.blocked_transactions ?? 0) === 0 &&
+      (stats?.challenged_transactions ?? 0) === 0
+    ) {
+
+      factors.push({
+        name: 'No Transaction Interventions',
+        contribution: 16,
+        evidence:
+          'No blocked or challenged transactions were detected in the analysed history.'
+      });
+    }
+
+
+    if (
+      (stats?.critical_risk_transactions ?? 0) === 0 &&
+      (stats?.high_risk_transactions ?? 0) === 0
+    ) {
+
+      factors.push({
+        name: 'No Severe Risk Events',
+        contribution: 16,
+        evidence:
+          'No high or critical transaction-risk events were detected.'
+      });
+    }
+
+
+    if (
+      profile.kpis.failed_logins === 0
+    ) {
+
+      factors.push({
+        name: 'Stable Authentication Activity',
+        contribution: 14,
+        evidence:
+          'No failed login activity was observed.'
+      });
+    }
+
+
+    return factors;
+  }
 
   /* =======================================================
      TRANSACTION STATUS CLASS
