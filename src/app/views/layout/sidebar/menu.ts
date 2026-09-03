@@ -86,6 +86,12 @@ export const MENU: MenuItem[] = [
     roles: ['admin'] 
   },
   {
+    label: 'Channel Monitoring',
+    icon: 'radio',
+    roles: ['admin'],
+    link: '/channel-monitoring'
+  },
+  {
     label: 'Reports & Analytics',
     icon: 'bar-chart-2',
     roles: ['admin'],
