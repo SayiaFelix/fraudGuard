@@ -171,7 +171,7 @@ export class HttpService {
     }
 
     if (riskProfile) {
-      params = params.set('risk_profile', riskProfile);
+      params = params.set('customer_profile', riskProfile);
     }
 
     return this.http.get(
