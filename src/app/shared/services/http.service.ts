@@ -139,10 +139,6 @@ export class HttpService {
   return this.http.post(`${this.apiUrl}/finca/simulate_batch`, payload, this.getHeaders());
 }
 
-  /**
-   * Demo: Fraud History reuses the get-transactions API so the table
-   * shows the same live transaction data instead of empty fraud_history zeros.
-   */
   getFraudHistory(page: number = 1, size: number = 10): Observable<any> {
     return this.getTransactions(page, size).pipe(
       map((response) => {
@@ -245,6 +241,7 @@ export class HttpService {
       )
     );
   }
+
   getFeatureImportance(): Observable<any> {
     return this.http.get(`${this.apiUrl}/feature_importance_weight`, this.getHeaders())
       .pipe(
@@ -486,8 +483,6 @@ getHeaders(): { headers: HttpHeaders } {
     return monthlyData;
   }
 
-  // Add these methods to your HttpService class
-
 // User Management Methods
 UserGet(endpoint: string): any {
   return this.http.get(
@@ -564,14 +559,7 @@ forgotPassword(model: any): Observable<any> {
   return this.http.post(`${this.apiUrl}/auth/forgot-password`, model);
 }
 
-
-
-
 // ============= CASE MANAGEMENT HELPERS =============
-
-/**
- * Save cases locally (for offline/fallback)
- */
 saveCases(cases: any[]): Observable<any> {
   try {
     localStorage.setItem('finca_cases', JSON.stringify(cases));
@@ -582,9 +570,6 @@ saveCases(cases: any[]): Observable<any> {
   }
 }
 
-/**
- * Update a case locally (for offline/fallback)
- */
 updateCaseLocal(caseId: string, changes: any): Observable<any> {
   try {
     const stored = localStorage.getItem('finca_cases');
@@ -602,9 +587,6 @@ updateCaseLocal(caseId: string, changes: any): Observable<any> {
   }
 }
 
-/**
- * Delete a case locally (for offline/fallback)
- */
 deleteCaseLocal(caseId: string): Observable<any> {
   try {
     const stored = localStorage.getItem('finca_cases');
@@ -618,18 +600,10 @@ deleteCaseLocal(caseId: string): Observable<any> {
   }
 }
 
-/**
- * Get transaction by ID (alias for getTransactionById)
- * POST /v1/api/transactions
- */
 getTransaction(transactionId: string): Observable<any> {
   return this.getTransactionById(transactionId);
 }
 
-/**
- * Create a new case (with local fallback)
- * POST /v1/api/finca/cases/create
- */
 createCase(payload: any): Observable<any> {
   return this.http.post(`${this.apiUrl}/finca/cases/create`, payload, this.getHeaders()).pipe(
     map((res: any) => {
@@ -647,9 +621,6 @@ createCase(payload: any): Observable<any> {
   );
 }
 
-/**
- * Helper to save a single case locally
- */
 private saveCasesLocally(caseData: any): void {
   try {
     const stored = localStorage.getItem('finca_cases');
@@ -767,7 +738,6 @@ deleteCaseBackend(caseId: string): Observable<any> {
     );
 }
 
-
 getFincaDashboard(): Observable<any> {
   return this.http.get(`${this.apiUrl}/finca/dashboard`, this.getHeaders())
     .pipe(
@@ -820,10 +790,6 @@ getFincaTransactions(page: number = 1, size: number = 100): Observable<any> {
     );
 }
 
-/**
- * Submit FINCA transaction
- * POST /v1/api/finca/transactions
- */
 submitFincaTransaction(transactionData: any): Observable<any> {
   return this.http.post(`${this.apiUrl}/finca/transactions`, transactionData, this.getHeaders())
     .pipe(
@@ -833,7 +799,6 @@ submitFincaTransaction(transactionData: any): Observable<any> {
     );
 }
 
-
 allowTransaction(transactionId: string): Observable<any> {
   return this.http.post(`${this.apiUrl}/finca/allow_transaction`, { transaction_id: transactionId }, this.getHeaders())
     .pipe(
@@ -842,7 +807,6 @@ allowTransaction(transactionId: string): Observable<any> {
       }))
     );
 }
-
 
 getLocalAlerts(): any[] {
   try {
@@ -942,125 +906,6 @@ saveAlerts(alerts: any[]): Observable<any> {
     return of({ success: false });
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   getDashboardData(): Observable<any> {
     return this.http.get(`${this.baseUrl}/api/get_all_charts_kpis`);

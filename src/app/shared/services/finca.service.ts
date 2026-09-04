@@ -101,7 +101,6 @@ createCase(payload: any): Observable<any> {
       return { status: 'success', case: c };
     }),
     catchError(() => {
-      // If backend fails, save locally
       this.localData.cases = this.localData.cases || [];
       this.localData.cases.unshift(payload);
       this.saveLocal();
@@ -144,10 +143,6 @@ createCase(payload: any): Observable<any> {
     );
   }
 
-  /**
-   * Get single alert
-   * GET /v1/api/finca/alerts/<alert_id>
-   */
   getAlert(alertId: string): Observable<any> {
     return this.http.get<any>(`${this.base}/finca/alerts/${alertId}`, this.headers()).pipe(
       catchError(() => of({ 
@@ -156,10 +151,6 @@ createCase(payload: any): Observable<any> {
     );
   }
 
-  /**
-   * Assign alert to analyst
-   * POST /v1/api/finca/alerts/<alert_id>/assign
-   */
   assignAlert(alertId: string, analyst: string): Observable<any> {
     return this.http.post<any>(
       `${this.base}/finca/alerts/${alertId}/assign`, 
@@ -216,9 +207,6 @@ createCase(payload: any): Observable<any> {
     );
   }
 
-  /**
-   * Save alerts locally (for offline/fallback)
-   */
   saveAlerts(alerts: any[]): Observable<any> {
     this.localData.alerts = alerts || [];
     this.saveLocal();
@@ -261,10 +249,6 @@ createCase(payload: any): Observable<any> {
     );
   }
 
-  /**
-   * Get single case
-   * GET /v1/api/finca/cases/<case_id>
-   */
   getCase(caseId: string): Observable<any> {
     return this.http.get<any>(`${this.base}/finca/cases/${caseId}`, this.headers()).pipe(
       map((res) => {
@@ -286,10 +270,6 @@ createCase(payload: any): Observable<any> {
     );
   }
 
-  /**
-   * Assign case to analyst
-   * POST /v1/api/finca/cases/<case_id>/assign
-   */
   assignCase(caseId: string, analyst: string): Observable<any> {
     return this.http.post<any>(
       `${this.base}/finca/cases/${caseId}/assign`, 
@@ -319,10 +299,6 @@ createCase(payload: any): Observable<any> {
     );
   }
 
-  /**
-   * Add case note
-   * POST /v1/api/finca/cases/<case_id>/notes
-   */
   addCaseNote(caseId: string, note: string, analyst = 'Analyst'): Observable<any> {
     return this.http.post<any>(
       `${this.base}/finca/cases/${caseId}/notes`, 
@@ -359,10 +335,6 @@ createCase(payload: any): Observable<any> {
     );
   }
 
-  /**
-   * Resolve case
-   * POST /v1/api/finca/cases/<case_id>/resolve
-   */
   resolveCase(
     caseId: string, 
     resolution: 'FRAUD_CONFIRMED' | 'FALSE_POSITIVE', 
@@ -406,10 +378,6 @@ createCase(payload: any): Observable<any> {
     );
   }
 
-  /**
-   * Escalate case (uses assign with priority override)
-   * POST /v1/api/finca/cases/<case_id>/assign
-   */
   escalateCase(caseId: string, level = 'URGENT', analyst = 'Supervisor'): Observable<any> {
     return this.assignCase(caseId, analyst).pipe(
       map((res) => {
@@ -554,9 +522,6 @@ createCase(payload: any): Observable<any> {
     );
   }
 
-  /**
-   * Demo: Fraud History reuses get_transactions so UI shares live transaction data.
-   */
   getFraudHistory(page: number = 1, size: number = 1000): Observable<any> {
     return this.http.post<any>(
       `${this.base}/transactions`,
