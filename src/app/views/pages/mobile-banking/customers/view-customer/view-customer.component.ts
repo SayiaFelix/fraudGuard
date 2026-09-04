@@ -54,7 +54,7 @@ export class ViewCustomerComponent implements OnInit, OnDestroy {
   riskFilter: string = 'all';
   statusFilter: string = 'all';
   channelFilter: string = 'all';
-  dateRange: 'today' | 'week' | 'month' | 'all' = 'week';
+  dateRange: 'today' | 'week' | 'month' | 'all' = 'all';
   startDate: string = '';
   endDate: string = '';
 
@@ -117,28 +117,31 @@ export class ViewCustomerComponent implements OnInit, OnDestroy {
     }
   }
 
-    loadFraudHistory(): void {
+  loadFraudHistory(): void {
     this.isLoading = true;
-    
-    this.httpService.getFraudHistory(1, 100).subscribe({
+
+    // Shares the get-transactions endpoint (via HttpService.getFraudHistory)
+    this.httpService.getFraudHistory(1, 1000).subscribe({
       next: (response) => {
-        if (response.status === 'success' && response.fraud_transactions) {
-       
-          this.allFraudCases = response.fraud_transactions
-            .map((tx: any) => this.mapBackendTransaction(tx))
-            .sort((a: FraudCase, b: FraudCase) => 
-              new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-            );
-          
-          this.totalRecords = response.pagination?.total || this.allFraudCases.length;
-          this.totalPages = response.pagination?.total_pages || 1;
-          
-          this.applyFilters();
-          this.isLoading = false;
-        }
+        const rows = response?.fraud_transactions || response?.transactions || [];
+
+        this.allFraudCases = rows
+          .map((tx: any) => this.mapBackendTransaction(tx))
+          .filter((c: FraudCase | null): c is FraudCase => !!c)
+          .sort((a: FraudCase, b: FraudCase) =>
+            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+          );
+
+        this.totalRecords = response?.pagination?.total || this.allFraudCases.length;
+        this.totalPages = response?.pagination?.total_pages || 1;
+
+        this.applyFilters();
+        this.isLoading = false;
       },
       error: (error) => {
         console.error('Error loading fraud history:', error);
+        this.allFraudCases = [];
+        this.applyFilters();
         this.isLoading = false;
       }
     });
@@ -158,78 +161,107 @@ closeStatusModal(): void {
   this.cdr.detectChanges(); 
 }
 
-mapBackendTransaction(tx: any): FraudCase {
-  //risk category
-  let riskCategory: 'Critical' | 'High' | 'Medium' | 'Low' = 'Low';
-  if (tx.risk_category.includes('Critical')) riskCategory = 'Critical';
-  else if (tx.risk_category.includes('High')) riskCategory = 'High';
-  else if (tx.risk_category.includes('Medium')) riskCategory = 'Medium';
-  else if (tx.risk_category.includes('Low')) riskCategory = 'Low';
-
-  //model agreement
-  const modelAgreement = tx.transaction_details?.Model_Agreement || '0/7 models flagged';
-  const flagged = parseInt(modelAgreement.split('/')[0]) || 0;
-  const total = 7;
-
-  //flagged by
-  let flaggedBy: 'AI' | 'Rules' | 'Manual' | 'AI + Rules (Hybrid)' = 'AI';
-  if (tx.transaction_details?.Rule_Engine?.triggered && flagged > 0) {
-    flaggedBy = 'AI + Rules (Hybrid)';
-  } else if (tx.transaction_details?.Rule_Engine?.triggered) {
-    flaggedBy = 'Rules';
-  } else if (flagged > 0) {
-    flaggedBy = 'AI';
+mapBackendTransaction(tx: any): FraudCase | null {
+  if (!tx) {
+    return null;
   }
 
-  //signals for AI explanation
-  const signals: string[] = [];
-  if (tx.transaction_details?.Rule_Engine?.triggered) {
-    tx.transaction_details.Rule_Engine.rules.forEach((rule: string) => {
-      signals.push(rule);
-    });
-  }
+  try {
+    const txDetails = tx.transaction_details || {};
+    const riskCategoryRaw = String(
+      tx.risk_category || tx.risk_assessment?.risk_category || txDetails.ml_risk_level || 'Low'
+    );
 
-  //AI explanation
-  let aiExplanation = tx.explanations?.final || tx.explanations?.rule_based || '';
-  if (!aiExplanation) {
-    aiExplanation = `This transaction was flagged as ${tx.risk_category} with a risk score of ${tx.risk_score}. `;
-    if (signals.length > 0) {
-      aiExplanation += `Detected signals: ${signals.slice(0, 3).join(', ')}. `;
+    let riskCategory: 'Critical' | 'High' | 'Medium' | 'Low' = 'Low';
+    const riskLower = riskCategoryRaw.toLowerCase();
+    if (riskLower.includes('critical')) riskCategory = 'Critical';
+    else if (riskLower.includes('high')) riskCategory = 'High';
+    else if (riskLower.includes('medium')) riskCategory = 'Medium';
+    else if (riskLower.includes('low')) riskCategory = 'Low';
+
+    const modelAgreement = txDetails.Model_Agreement || '0/7 models flagged';
+    const flagged = parseInt(String(modelAgreement).split('/')[0], 10) || 0;
+    const total = 7;
+
+    const ruleEngine = txDetails.Rule_Engine || { triggered: false, rules: [] };
+
+    let flaggedBy: 'AI' | 'Rules' | 'Manual' | 'AI + Rules (Hybrid)' = 'AI';
+    if (ruleEngine.triggered && flagged > 0) {
+      flaggedBy = 'AI + Rules (Hybrid)';
+    } else if (ruleEngine.triggered) {
+      flaggedBy = 'Rules';
+    } else if (flagged > 0) {
+      flaggedBy = 'AI';
+    } else {
+      flaggedBy = 'Manual';
     }
-    aiExplanation += tx.transaction_details?.Model_Agreement || '';
-  }
 
-  let status: 'Open' | 'Investigating' | 'Resolved' | 'False Positive';
-  
-  if (tx.status_info?.current) {
-    status = tx.status_info.current;
-  } else {
-    status = this.determineStatus(tx);
-  }
+    const signals: string[] = [];
+    if (ruleEngine.triggered && Array.isArray(ruleEngine.rules)) {
+      ruleEngine.rules.forEach((rule: string) => signals.push(rule));
+    }
 
-  return {
-    id: tx.transaction_id,
-    transactionId: tx.transaction_id,
-    amount: tx.transaction_details?.Transaction_Amount || 0,
-    riskScore: tx.risk_score,
-    riskCategory: riskCategory,
-    channel: this.determineChannel(tx),
-    location: this.determineLocation(tx),
-    timestamp: new Date(tx.timestamp),
-    status: status,  
-    flaggedBy: flaggedBy as any,
-    customerName: `${tx.customer_info?.customer_name || 'Unknown'}`,
-    customerId: `${tx.customer_info?.customer_id || 'Unknown'}`,
-    deviceId: 'Unknown',
-    ipAddress: 'Unknown',
-    resolution: tx.resolution || this.determineResolution(tx),
-    aiExplanation: aiExplanation,
-    modelAgreement: {
-      flagged: flagged,
-      total: total
-    },
-    rawData: tx
-  };
+    let aiExplanation = tx.explanations?.final || tx.explanations?.rule_based || '';
+    if (!aiExplanation) {
+      aiExplanation = `This transaction was flagged as ${riskCategoryRaw} with a risk score of ${tx.risk_score ?? 0}. `;
+      if (signals.length > 0) {
+        aiExplanation += `Detected signals: ${signals.slice(0, 3).join(', ')}. `;
+      }
+      aiExplanation += modelAgreement;
+    }
+
+    let status: 'Open' | 'Investigating' | 'Resolved' | 'False Positive';
+    if (tx.status_info?.current) {
+      status = tx.status_info.current;
+    } else {
+      status = this.determineStatus({ ...tx, risk_category: riskCategoryRaw });
+    }
+
+    const amount =
+      txDetails.Transaction_Amount ??
+      txDetails.finca_transaction_amount ??
+      tx.amount ??
+      0;
+
+    const customerName =
+      tx.customer_info?.customer_name ||
+      tx.customer_name ||
+      txDetails.customer_name ||
+      'Unknown';
+
+    const customerId =
+      tx.customer_info?.customer_id ||
+      tx.customer_id ||
+      txDetails.customer_id ||
+      'Unknown';
+
+    return {
+      id: tx.transaction_id || tx.id || `TXN-${Date.now()}`,
+      transactionId: tx.transaction_id || tx.id || `TXN-${Date.now()}`,
+      amount: Number(amount) || 0,
+      riskScore: Number(tx.risk_score ?? tx.risk_assessment?.risk_score ?? 0) || 0,
+      riskCategory,
+      channel: this.determineChannel(tx),
+      location: this.determineLocation(tx),
+      timestamp: new Date(tx.timestamp || Date.now()),
+      status,
+      flaggedBy,
+      customerName,
+      customerId: String(customerId),
+      deviceId: txDetails.finca_device_type || tx.device_id || 'Unknown',
+      ipAddress: tx.ip_address || 'Unknown',
+      resolution: tx.resolution || this.determineResolution({ ...tx, risk_category: riskCategoryRaw }),
+      aiExplanation,
+      modelAgreement: {
+        flagged,
+        total
+      },
+      rawData: tx
+    };
+  } catch (error) {
+    console.error('Error mapping fraud history transaction:', error, tx);
+    return null;
+  }
 }
 
 updateCaseStatus(newStatus: string): void {
@@ -276,39 +308,52 @@ updateCaseStatus(newStatus: string): void {
   });
 }
 
-determineChannel(tx: any): any {
-    //channel from transaction type
-    if (tx.transaction_details?.Transaction_Type) {
-      if (tx.transaction_details.Transaction_Type === 'POS') return 'ATM';
-      if (tx.transaction_details.Transaction_Type === 'Online') return 'Web';
-      if (tx.transaction_details.Transaction_Type === 'Mobile') return 'Mobile';
+determineChannel(tx: any): 'Mobile' | 'Web' | 'ATM' | 'Agent' {
+    const txDetails = tx.transaction_details || {};
+    const raw = String(
+      tx.channel ||
+      txDetails.finca_channel ||
+      txDetails.Transaction_Type ||
+      txDetails.channel ||
+      ''
+    ).toLowerCase();
+
+    if (raw.includes('agent') || raw.includes('agency')) return 'Agent';
+    if (raw.includes('atm') || raw.includes('pos') || raw.includes('card')) return 'ATM';
+    if (raw.includes('web') || raw.includes('online') || raw.includes('internet')) return 'Web';
+    if (raw.includes('mobile') || raw.includes('ussd') || raw.includes('momo') || raw.includes('mpesa')) {
+      return 'Mobile';
     }
+
     return 'Web';
   }
 
   determineLocation(tx: any): string {
-    if (tx.transaction_details?.Transaction_Location === 'International') {
-      return 'International';
-    }
-    return 'Nairobi, KE'; // Default
+    const txDetails = tx.transaction_details || {};
+    const location = txDetails.finca_location || tx.location || txDetails.Transaction_Location;
+    if (!location) return 'Nairobi, KE';
+    if (String(location).toLowerCase() === 'international') return 'International';
+    return String(location);
   }
 
-  determineStatus(tx: any): any {
+  determineStatus(tx: any): 'Open' | 'Investigating' | 'Resolved' | 'False Positive' {
+    const risk = String(tx.risk_category || '').toLowerCase();
 
-    if (tx.risk_category.includes('Critical')) return 'Open';
-    if (tx.risk_category.includes('High')) return 'Investigating';
-    if (tx.risk_category.includes('Medium')) return 'Resolved';
-    if (tx.risk_category.includes('Low')) return 'Resolved';
+    if (risk.includes('critical')) return 'Open';
+    if (risk.includes('high')) return 'Investigating';
+    if (risk.includes('medium')) return 'Resolved';
+    if (risk.includes('low')) return 'Resolved';
     return 'False Positive';
   }
 
   determineResolution(tx: any): any {
-    if (tx.risk_category.includes('Medium') || tx.risk_category.includes('Low')) {
+    const risk = String(tx.risk_category || '').toLowerCase();
+    if (risk.includes('medium') || risk.includes('low')) {
       return {
         resolvedBy: 'System',
-        resolvedAt: new Date(tx.timestamp),
+        resolvedAt: new Date(tx.timestamp || Date.now()),
         notes: 'Transaction reviewed and approved by system.',
-        action: tx.risk_category.includes('Medium') ? 'Flagged' : 'Approved'
+        action: risk.includes('medium') ? 'Flagged' : 'Approved'
       };
     }
     return undefined;
@@ -422,7 +467,7 @@ determineChannel(tx: any): any {
     this.riskFilter = 'all';
     this.statusFilter = 'all';
     this.channelFilter = 'all';
-    this.dateRange = 'week';
+    this.dateRange = 'all';
     this.startDate = '';
     this.endDate = '';
     this.applyFilters();

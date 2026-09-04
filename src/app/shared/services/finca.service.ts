@@ -554,15 +554,39 @@ createCase(payload: any): Observable<any> {
     );
   }
 
+  /**
+   * Demo: Fraud History reuses get_transactions so UI shares live transaction data.
+   */
   getFraudHistory(page: number = 1, size: number = 1000): Observable<any> {
     return this.http.post<any>(
-      `${this.base}/fraud_history`, 
-      { page, size }, 
+      `${this.base}/transactions`,
+      { page, size },
       this.headers()
     ).pipe(
-      catchError(() => of({ 
-        fraud_transactions: [], 
-        pagination: { total: 0 } 
+      map((response) => {
+        const transactions = response?.transactions || [];
+        const total = response?.pagination?.total ?? transactions.length;
+        const pageSize = response?.pagination?.size ?? size;
+        const currentPage = response?.pagination?.page ?? page;
+
+        return {
+          status: response?.status || 'success',
+          message: response?.message || 'Fraud history loaded from transactions',
+          fraud_transactions: transactions,
+          pagination: {
+            page: currentPage,
+            size: pageSize,
+            total,
+            total_pages: Math.max(1, Math.ceil(total / (pageSize || 1))),
+            has_next: response?.pagination?.has_more ?? false,
+            has_prev: currentPage > 1
+          }
+        };
+      }),
+      catchError(() => of({
+        status: 'error',
+        fraud_transactions: [],
+        pagination: { page, size, total: 0, total_pages: 0, has_next: false, has_prev: false }
       }))
     );
   }
