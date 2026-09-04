@@ -67,7 +67,7 @@
 
       </div>
 
-      <div class="mt-4">
+      <div [ngClass]="hideTopNav ? 'mt-2' : 'mt-4'">
         <router-outlet></router-outlet>
       </div>
     </div>

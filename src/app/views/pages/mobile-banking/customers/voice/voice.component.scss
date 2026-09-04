@@ -1,7 +1,21 @@
 .ai-insights-container {
-  padding: 20px;
+  padding: 8px 16px 20px;
   max-width: 1800px;
   margin: 0 auto;
+}
+
+.insights-top {
+  .stat-card,
+  .period-selector-card {
+    min-height: 88px;
+  }
+}
+
+.period-selector-card {
+  background: #f8fafc;
+  border: 1px solid #edf1f7;
+  border-radius: 12px;
+  padding: 12px 16px;
 }
 
 .stat-card {
@@ -157,8 +171,11 @@
 
 .period-selector {
   .btn-group {
+    width: 100%;
+
     .btn {
-      padding: 6px 16px;
+      flex: 1;
+      padding: 6px 12px;
       font-weight: 500;
       
       &.btn-primary {
@@ -199,10 +216,8 @@
     margin-bottom: 20px;
   }
   
-  .period-selector {
-    flex-direction: column;
-    align-items: start !important;
-    gap: 10px;
+  .period-selector-card {
+    margin-top: 0;
   }
 }
 
