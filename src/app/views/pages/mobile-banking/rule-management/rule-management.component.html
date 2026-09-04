@@ -1,4 +1,4 @@
-<div class="container-fluid p-4 bg-white" style="min-height: 100vh; font-family: 'Inter', sans-serif;">
+<div class="rule-management-page">
 
   <!-- LOADING OVERLAY -->
   <div *ngIf="loading" class="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-white bg-opacity-75" style="z-index: 9999;">
@@ -14,8 +14,11 @@
       <div class="col-lg-9">
         <div class="row mb-4 align-items-center">
           <div class="col">
-            <h2 class="fw-bold mb-1 text-dark">Rule Management <span class="badge bg-soft-primary text-primary ms-2 small" style="font-size: 11px; vertical-align: middle;">AI-ENABLED</span></h2>
-            <p class="text-muted mb-0" style="font-size: 16px;">
+            <h2 class="page-title fw-bold mb-1 text-dark">
+  Rule Management 
+  <span class="badge bg-soft-primary text-primary ms-2" style="font-size: 12px; padding: 5px 9px;">AI-ENABLED</span>
+</h2>
+<p class="text-muted mb-0" style="font-size: 14px;">
   Orchestrate fraud logic and monitor real-time rule performance.
 </p>
           </div>
@@ -30,7 +33,7 @@
         <div class="card border-0 shadow-sm mb-4 border border-light" style="border-radius: 12px;">
           <div class="card-body py-3">
             <div class="row g-3 align-items-center">
-              <div class="col-auto small fw-bold text-dark uppercase" style="font-size: 10px; letter-spacing: 0.5px;">INSIGHT FILTERS:</div>
+              <div class="col-auto fw-bold text-dark uppercase" style="font-size: 13px; letter-spacing: 0.01em;">INSIGHT FILTERS:</div>
               <div class="col-md-3 border-start ps-3">
                 <select class="form-select form-select-sm border-0 bg-transparent fw-bold text-muted" [(ngModel)]="filterCategory">
                   <option value="">All Categories</option>
@@ -88,7 +91,7 @@
                     </div>
                   </td>
                   <td class="text-end pe-4">
-                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold" style="font-size: 11px;" (click)="openSimulator(rule)">
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold" style="font-size: 12px;" (click)="openSimulator(rule)">
                        Simulate
                     </button>
                   </td>
@@ -130,7 +133,7 @@
       <div class="col-lg-3">
         <div class="card border-0 shadow-sm text-white mb-4" style="background-color: #5c67f2; border-radius: 15px;">
           <div class="card-body">
-            <h6 class="fw-bold mb-3 d-flex align-items-center"><i class="bi bi-robot fs-5 me-2"></i> AI Traffic Analysis</h6>
+            <h2 class="fw-bold mb-3" style="font-size: 18px; color: #111827;">AI Traffic Analysis</h2>
             <p class="extra-small opacity-75">AI analysis of live traffic across FINCA networks.</p>
             <div class="p-2 bg-white bg-opacity-10 rounded small mb-3 border border-white border-opacity-10">
               <i class="bi bi-lightning-fill text-warning me-1"></i>
@@ -141,16 +144,16 @@
         </div>
 
         <div class="card border-0 shadow-sm border border-light" style="border-radius: 15px;">
-          <div class="card-header bg-white py-3 fw-bold small text-uppercase border-0"><i class="bi bi-stars text-primary me-2"></i>AI Suggestions</div>
+          <div class="card-header bg-white py-3 fw-bold text-uppercase border-0"><i class="bi bi-stars text-primary me-2"></i>AI Suggestions</div>
           <div class="card-body p-0">
             <div class="p-3 border-bottom border-light">
-              <div class="small fw-bold text-primary">New Trend Identified</div>
-              <p class="extra-small text-muted mb-2">Midnight mobile withdrawals spike.</p>
+              <div class="fw-bold text-primary">New Trend Identified</div>
+              <p class="small text-muted mb-2">Midnight mobile withdrawals spike.</p>
               <button class="btn btn-xs btn-primary py-1 px-3 shadow-none fw-bold" style="font-size: 11px; border-radius: 6px; background-color: #5c67f2; border:none;" (click)="applyAiOptimization()">Apply Optimization</button>
             </div>
             <div class="p-3">
-              <div class="small fw-bold text-dark">Anomaly Detected</div>
-              <p class="extra-small text-muted mb-2">Rule <strong>R005</strong> has high false-positives (8%).</p>
+              <div class="fw-bold text-dark">Anomaly Detected</div>
+              <p class="small text-muted mb-2">Rule <strong>R005</strong> has high false-positives (8%).</p>
               <button class="btn btn-xs btn-outline-secondary py-1 px-3 shadow-none fw-bold" style="font-size: 11px; border-radius: 6px;" (click)="editRule('R005')">Review Logic</button>
             </div>
           </div>
@@ -387,13 +390,3 @@
 
 </div> <!-- FINAL CLOSING DIV ADDED HERE -->
 
-<style>
-body { font-family: 'Inter', sans-serif; }
-.extra-small { font-size: 11px; }
-.uppercase { text-transform: uppercase; }
-.rounded-4 { border-radius: 16px !important; }
-.bg-soft-primary { background-color: #f0f2ff; }
-.form-select, .form-control { font-size: 13px; box-shadow: none !important; }
-@keyframes progressShrink { from { width: 100%; } to { width: 0%; } }
-#alertProgress { animation: progressShrink 3s linear forwards; }
-</style>
