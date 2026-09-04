@@ -139,14 +139,39 @@ export class HttpService {
   return this.http.post(`${this.apiUrl}/finca/simulate_batch`, payload, this.getHeaders());
 }
 
+  /**
+   * Demo: Fraud History reuses the get-transactions API so the table
+   * shows the same live transaction data instead of empty fraud_history zeros.
+   */
   getFraudHistory(page: number = 1, size: number = 10): Observable<any> {
-    return this.http.post(`${this.apiUrl}/fraud_history`, { page, size }, this.getHeaders())
-      .pipe(
-        catchError(this.handleError<any>('getFraudHistory', { 
-          fraud_transactions: [], 
-          pagination: { total: 0 } 
-        }))
-      );
+    return this.getTransactions(page, size).pipe(
+      map((response) => {
+        const transactions = response?.transactions || [];
+        const total = response?.pagination?.total ?? transactions.length;
+        const pageSize = response?.pagination?.size ?? size;
+        const currentPage = response?.pagination?.page ?? page;
+
+        return {
+          status: response?.status || 'success',
+          message: response?.message || 'Fraud history loaded from transactions',
+          fraud_transactions: transactions,
+          pagination: {
+            page: currentPage,
+            size: pageSize,
+            total,
+            total_pages: Math.max(1, Math.ceil(total / (pageSize || 1))),
+            has_next: response?.pagination?.has_more ?? false,
+            has_prev: currentPage > 1
+          }
+        };
+      }),
+      catchError(this.handleError<any>('getFraudHistory', {
+        status: 'error',
+        message: 'Failed to load fraud history',
+        fraud_transactions: [],
+        pagination: { page, size, total: 0, total_pages: 0, has_next: false, has_prev: false }
+      }))
+    );
   }
 
   

@@ -13,72 +13,99 @@
     </div>
   </div>
   
-  <!-- Header Stats -->
-  <div class="stats-row row g-3 mb-4">
-    <div class="col-md-3 col-6">
-      <div class="stat-card bg-primary bg-opacity-10 rounded-3 p-3">
+  <!-- Compact top: remaining KPIs + period controls -->
+  <div class="insights-top row g-3 align-items-stretch mb-3">
+    <div class="col-md-4 col-6">
+      <div class="stat-card bg-primary bg-opacity-10 rounded-3 p-3 h-100">
         <small class="text-primary d-block">Total Predictions</small>
-        <h3 class="fw-bold  text-primary mb-0">{{ stats.totalPredictions | number }}</h3>
+        <h3 class="fw-bold text-primary mb-0">{{ stats.totalPredictions | number }}</h3>
       </div>
     </div>
-    <div class="col-md-3 col-6">
-      <div class="stat-card bg-danger bg-opacity-10 rounded-3 p-3">
-        <small class="text-danger d-block">Fraud Detected</small>
-        <h3 class="fw-bold text-danger mb-0">{{ stats.fraudDetected | number }}</h3>
-      </div>
-    </div>
-    <div class="col-md-3 col-6">
-      <div class="stat-card bg-success bg-opacity-10 rounded-3 p-3">
-        <small class="text-success d-block">Prevented Loss</small>
-        <h3 class="fw-bold text-success mb-0">{{ formatAmount(stats.preventedLoss) }}</h3>
-      </div>
-    </div>
-    <div class="col-md-3 col-6">
-      <div class="stat-card bg-warning bg-opacity-10 rounded-3 p-3">
+    <div class="col-md-4 col-6">
+      <div class="stat-card bg-warning bg-opacity-10 rounded-3 p-3 h-100">
         <small class="text-warning d-block">Active Models</small>
         <h3 class="fw-bold text-warning mb-0">{{ stats.activeModels }}</h3>
       </div>
     </div>
+    <div class="col-md-4">
+      <div class="period-selector period-selector-card h-100 d-flex flex-column justify-content-center">
+        <small class="text-muted d-block mb-2">Analytics period</small>
+        <div class="btn-group" role="group">
+          <button class="btn btn-sm"
+                  [class.btn-primary]="selectedPeriod === '24h'"
+                  [class.btn-outline-primary]="selectedPeriod !== '24h'"
+                  (click)="changePeriod('24h')">
+            24H
+          </button>
+          <button class="btn btn-sm"
+                  [class.btn-primary]="selectedPeriod === '7d'"
+                  [class.btn-outline-primary]="selectedPeriod !== '7d'"
+                  (click)="changePeriod('7d')">
+            7D
+          </button>
+          <button class="btn btn-sm"
+                  [class.btn-primary]="selectedPeriod === '30d'"
+                  [class.btn-outline-primary]="selectedPeriod !== '30d'"
+                  (click)="changePeriod('30d')">
+            30D
+          </button>
+          <button class="btn btn-sm"
+                  [class.btn-primary]="selectedPeriod === '90d'"
+                  [class.btn-outline-primary]="selectedPeriod !== '90d'"
+                  (click)="changePeriod('90d')">
+            90D
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- Period Selector -->
-  <div class="period-selector mb-4 d-flex justify-content-between align-items-center">
-    <h4 class="fw-bold mb-0">
-      <i class="fas fa-brain me-2 text-primary"></i>
-      AI Insights & Analytics
-    </h4>
-    <div class="btn-group" role="group">
-      <button class="btn btn-sm" 
-              [class.btn-primary]="selectedPeriod === '24h'"
-              [class.btn-outline-primary]="selectedPeriod !== '24h'"
-              (click)="changePeriod('24h')">
-        24H
-      </button>
-      <button class="btn btn-sm"
-              [class.btn-primary]="selectedPeriod === '7d'"
-              [class.btn-outline-primary]="selectedPeriod !== '7d'"
-              (click)="changePeriod('7d')">
-        7D
-      </button>
-      <button class="btn btn-sm"
-              [class.btn-primary]="selectedPeriod === '30d'"
-              [class.btn-outline-primary]="selectedPeriod !== '30d'"
-              (click)="changePeriod('30d')">
-        30D
-      </button>
-      <button class="btn btn-sm"
-              [class.btn-primary]="selectedPeriod === '90d'"
-              [class.btn-outline-primary]="selectedPeriod !== '90d'"
-              (click)="changePeriod('90d')">
-        90D
-      </button>
+  <!-- Monitoring snapshot sits near the top to fill the page -->
+  <div class="card shadow-sm mb-3">
+    <div class="card-header bg-transparent border-0 pt-3 px-4">
+      <h4 class="fw-bold mb-0">
+        <i class="fas fa-satellite-dish me-2 text-primary"></i>
+        AI Monitoring Snapshot
+      </h4>
+    </div>
+    <div class="card-body px-4 pb-4">
+      <div class="row g-3">
+        <div class="col-md-4" *ngFor="let metric of aiInsightMetrics">
+          <div class="snapshot-card h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <small class="text-muted">{{ metric.label }}</small>
+              <span class="badge rounded-pill" [ngClass]="'bg-' + metric.tone">{{ metric.value }}%</span>
+            </div>
+            <div class="progress insight-progress mb-2">
+              <div class="progress-bar" [ngClass]="'bg-' + metric.tone" [style.width.%]="metric.value"></div>
+            </div>
+            <p class="small text-muted mb-0">{{ metric.helper }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="insight-signals mt-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h6 class="fw-bold mb-0">Key AI Signals</h6>
+          <small class="text-muted">Static frontend showcase</small>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+          <span class="badge text-dark signal-chip" *ngFor="let signal of keySignals">
+            <i class="fas fa-bolt me-1 text-primary"></i>{{ signal }}
+          </span>
+        </div>
+      </div>
     </div>
   </div>
 
   <div class="row">
     <div class="col-lg-7">
       <!-- Insights Feed -->
-      <div class="insights-feed">
+      <div class="insights-feed mb-2">
+        <h5 class="fw-bold mb-3">
+          <i class="fas fa-lightbulb me-2 text-primary"></i>
+          Latest Insights
+        </h5>
         <div *ngFor="let insight of insights" class="card shadow-sm mb-3 insight-card">
           <div class="card-body p-4" (click)="toggleInsight(insight)" style="cursor: pointer;">
             <div class="d-flex">
@@ -327,45 +354,8 @@
     </div>
   </div>
 
-  <div class="row g-4 mt-1">
+  <div class="row g-4 mt-0">
     <div class="col-lg-7">
-      <div class="card shadow-sm mb-4">
-        <div class="card-header bg-transparent border-0 pt-3 px-4">
-          <h4 class="fw-bold mb-0">
-            <i class="fas fa-satellite-dish me-2 text-primary"></i>
-            AI Monitoring Snapshot
-          </h4>
-        </div>
-        <div class="card-body px-4 pb-4">
-          <div class="row g-3">
-            <div class="col-md-4" *ngFor="let metric of aiInsightMetrics">
-              <div class="snapshot-card h-100">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                  <small class="text-muted">{{ metric.label }}</small>
-                  <span class="badge rounded-pill" [ngClass]="'bg-' + metric.tone">{{ metric.value }}%</span>
-                </div>
-                <div class="progress insight-progress mb-2">
-                  <div class="progress-bar" [ngClass]="'bg-' + metric.tone" [style.width.%]="metric.value"></div>
-                </div>
-                <p class="small text-muted mb-0">{{ metric.helper }}</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="insight-signals mt-4">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <h6 class="fw-bold mb-0">Key AI Signals</h6>
-              <small class="text-muted">Static frontend showcase</small>
-            </div>
-            <div class="d-flex flex-wrap gap-2">
-              <span class="badge text-dark signal-chip" *ngFor="let signal of keySignals">
-                <i class="fas fa-bolt me-1 text-primary"></i>{{ signal }}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-transparent border-0 pt-3 px-4">
           <h4 class="fw-bold mb-0">
