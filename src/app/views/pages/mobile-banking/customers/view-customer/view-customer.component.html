@@ -207,7 +207,7 @@
                 <span class="badge" [ngClass]="getRiskBadgeClass(case_.riskCategory)">
                   {{ case_.riskCategory }}
                 </span>
-                <small class="d-block text-muted">{{ case_.riskScore }}/10</small>
+                <small class="d-block text-muted">{{ case_.riskScore | number:'1.2-2' }}</small>
               </td>
               <td>
                 <i [class]="getChannelIcon(case_.channel) + ' me-1'"></i>
@@ -351,10 +351,10 @@
         <div class="col-md-4">
           <div class="detail-box p-3 bg-light rounded-3">
             <small class="text-muted d-block">Risk Score</small>
-            <h4 class="fw-bold mb-0" [style.color]="selectedCase.riskScore >= 8 ? '#f72585' : 
+              <h4 class="fw-bold mb-0" [style.color]="selectedCase.riskScore >= 8 ? '#f72585' : 
                                                         selectedCase.riskScore >= 6 ? '#ff9e00' : 
                                                         selectedCase.riskScore >= 4 ? '#4cc9f0' : '#06d6a0'">
-              {{ selectedCase.riskScore }}/10
+              {{ selectedCase.riskScore | number:'1.2-2' }}
             </h4>
           </div>
         </div>
