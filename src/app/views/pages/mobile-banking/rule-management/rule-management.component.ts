@@ -13,6 +13,13 @@ export class RuleManagementComponent implements OnInit {
   filterCategory = '';
   filterStatus = '';
   rules: any[] = [];
+  ruleStats: any = {
+    total_rules: 0,
+    active_rules: 0,
+    inactive_rules: 0,
+    by_category: {},
+    top_rules: []
+  };
   selectedRule: any = null;
 
   currentPage = 1;
@@ -46,6 +53,7 @@ export class RuleManagementComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadRules();
+    this.loadRuleStats();
     this.resetSimulatorInput();
   }
 
@@ -252,6 +260,17 @@ export class RuleManagementComponent implements OnInit {
     });
   }
 
+  loadRuleStats() {
+    this.httpService.getRuleStats().subscribe({
+      next: (res: any) => {
+        this.ruleStats = res?.stats || this.ruleStats;
+      },
+      error: (err: any) => {
+        console.error('Error fetching rule stats:', err);
+      }
+    });
+  }
+
   applyAiOptimization() {
     this.loading = true;
 
@@ -299,6 +318,7 @@ export class RuleManagementComponent implements OnInit {
       this.httpService.updateRule(this.newRule.id, payload).subscribe({
         next: () => {
           this.loadRules();
+          this.loadRuleStats();
           this.showList();
           this.triggerProfessionalAlert(
             'Rule Updated',
@@ -318,6 +338,7 @@ export class RuleManagementComponent implements OnInit {
     this.httpService.createRule(payload).subscribe({
       next: () => {
         this.loadRules();
+        this.loadRuleStats();
         this.showList();
         this.triggerProfessionalAlert(
           'Rule Deployed',
@@ -388,6 +409,7 @@ export class RuleManagementComponent implements OnInit {
       next: (res: any) => {
         const updated = res?.rule || res?.data?.rule || rule;
         rule.is_active = updated.is_active;
+        this.loadRuleStats();
 
         if (rule.is_active) {
           this.triggerProfessionalAlert(
@@ -411,6 +433,32 @@ export class RuleManagementComponent implements OnInit {
     });
   }
 
+  deleteRule(rule: any) {
+    if (!rule?.id || !window.confirm(`Delete rule ${rule.id}?`)) {
+      return;
+    }
+
+    this.loading = true;
+
+    this.httpService.deleteRule(rule.id).subscribe({
+      next: (res: any) => {
+        this.rules = this.rules.filter((item) => item.id !== rule.id);
+        this.loadRuleStats();
+        this.loading = false;
+        this.triggerProfessionalAlert(
+          'Rule Deleted',
+          res?.message || `Rule ${rule.id} was deleted successfully.`,
+          'bi-trash3',
+          'text-success'
+        );
+      },
+      error: (err: any) => {
+        console.error('Error deleting rule:', err);
+        this.loading = false;
+      }
+    });
+  }
+
   triggerProfessionalAlert(title: string, message: string, icon: string, iconColor: string) {
     this.statusAlert = { show: true, title, message, icon, iconColor };
 
@@ -426,7 +474,6 @@ export class RuleManagementComponent implements OnInit {
 
     try {
       const payload = {
-        rule_id: this.selectedRule.id,
         transaction: JSON.parse(this.simulatorInput)
       };
 
@@ -467,10 +514,15 @@ export class RuleManagementComponent implements OnInit {
     this.simulatorInput = JSON.stringify(
       {
         customer_id: 'CUST-003',
-        transaction_amount: 500000,
+        transaction_amount: 6000000,
         transaction_hour: 2,
         channel: 'mobile',
-        location: 'Nairobi'
+        location: 'Nairobi',
+        device_type: 'new',
+        beneficiary: 'NEW_BEN_7',
+        tx_count_last_hour: 7,
+        avg_transaction_amount: 1000000,
+        normal_location: 'Kampala'
       },
       null,
       2

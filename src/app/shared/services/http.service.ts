@@ -249,6 +249,30 @@ export class HttpService {
     );
   }
 
+  deleteRule(ruleId: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/finca/rules/${ruleId}`, this.getHeaders()).pipe(
+      catchError(this.handleError<any>('deleteRule', {
+        status: 'error',
+        message: 'Failed to delete rule'
+      }))
+    );
+  }
+
+  getRuleStats(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/finca/rules/stats`, this.getHeaders()).pipe(
+      catchError(this.handleError<any>('getRuleStats', {
+        status: 'error',
+        stats: {
+          total_rules: 0,
+          active_rules: 0,
+          inactive_rules: 0,
+          by_category: {},
+          top_rules: []
+        }
+      }))
+    );
+  }
+
   simulateRule(payload: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/finca/rules/simulate`, payload, this.getHeaders()).pipe(
       catchError(this.handleError<any>('simulateRule', {
