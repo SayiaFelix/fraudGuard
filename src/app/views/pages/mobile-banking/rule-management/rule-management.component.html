@@ -1,49 +1,54 @@
 <div class="rule-management-page">
 
-  <!-- LOADING OVERLAY -->
-  <div *ngIf="loading" class="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-white bg-opacity-75" style="z-index: 9999;">
+  <div *ngIf="loading"
+    class="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-white bg-opacity-75"
+    style="z-index: 9999;">
     <div class="spinner-border text-primary" role="status"></div>
     <span class="mt-2 fw-bold text-primary">Synchronizing with AI Engine...</span>
   </div>
 
-  <!-- 1. MAIN RULE LIST VIEW -->
   <div *ngIf="view === 'list'">
     <div class="row g-4">
-      
-      <!-- LEFT CONTENT: Rule List (9 Columns) -->
       <div class="col-lg-9">
         <div class="row mb-4 align-items-center">
           <div class="col">
             <h2 class="page-title fw-bold mb-1 text-dark">
-  Rule Management 
-  <span class="badge bg-soft-primary text-primary ms-2" style="font-size: 12px; padding: 5px 9px;">AI-ENABLED</span>
-</h2>
-<p class="text-muted mb-0" style="font-size: 14px;">
-  Orchestrate fraud logic and monitor real-time rule performance.
-</p>
+              Rule Management
+              <span class="badge bg-soft-primary text-primary ms-2"
+                style="font-size: 12px; padding: 5px 9px;">AI-ENABLED</span>
+            </h2>
+            <p class="text-muted mb-0" style="font-size: 14px;">
+              Orchestrate fraud logic and monitor real-time rule performance.
+            </p>
           </div>
           <div class="col-auto">
-            <button class="btn btn-primary shadow-sm px-4 fw-bold" style="background-color: #5c67f2; border: none; border-radius: 8px;" (click)="showCreateForm()">
+            <button class="btn btn-primary shadow-sm px-4 fw-bold"
+              style="background-color: #5c67f2; border: none; border-radius: 8px;" (click)="showCreateForm()">
               <i class="bi bi-plus-lg me-1"></i> Create New Rule
             </button>
           </div>
         </div>
 
-        <!-- Filters Section -->
         <div class="card border-0 shadow-sm mb-4 border border-light" style="border-radius: 12px;">
           <div class="card-body py-3">
             <div class="row g-3 align-items-center">
-              <div class="col-auto fw-bold text-dark uppercase" style="font-size: 13px; letter-spacing: 0.01em;">INSIGHT FILTERS:</div>
+              <div class="col-auto fw-bold text-dark uppercase" style="font-size: 13px; letter-spacing: 0.01em;">INSIGHT
+                FILTERS:</div>
+
               <div class="col-md-3 border-start ps-3">
-                <select class="form-select form-select-sm border-0 bg-transparent fw-bold text-muted" [(ngModel)]="filterCategory">
+                <select class="form-select form-select-sm border-0 bg-transparent fw-bold text-muted"
+                  [(ngModel)]="filterCategory">
                   <option value="">All Categories</option>
-                  <option value="TIME">Time Analysis</option>
-                  <option value="AMOUNT">Transaction Volume</option>
-                  <option value="LOCATION">Geographic Anomaly</option>
+                  <option value="TIME">TIME</option>
+                  <option value="AMOUNT">AMOUNT</option>
+                  <option value="DEVICE">DEVICE</option>
+                  <option value="LOCATION">LOCATION</option>
                 </select>
               </div>
+
               <div class="col-md-3 border-start ps-3">
-                <select class="form-select form-select-sm border-0 bg-transparent fw-bold text-muted" [(ngModel)]="filterStatus">
+                <select class="form-select form-select-sm border-0 bg-transparent fw-bold text-muted"
+                  [(ngModel)]="filterStatus">
                   <option value="">All Rules Status</option>
                   <option value="active">Operational</option>
                   <option value="inactive">Paused</option>
@@ -53,7 +58,6 @@
           </div>
         </div>
 
-        <!-- Enhanced Table with Pagination -->
         <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 12px;">
           <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
@@ -67,13 +71,20 @@
                   <th class="text-end pe-4 py-3 border-0">Actions</th>
                 </tr>
               </thead>
+
               <tbody>
                 <tr *ngFor="let rule of paginatedRules" class="cursor-pointer border-bottom">
                   <td class="ps-4">
                     <div class="fw-bold text-dark mb-0">{{ rule.name }}</div>
-                    <div class="extra-small text-muted">ID: {{ rule.id }} • Prevents KSh {{ rule.impact }} daily</div>
+                    <div class="extra-small text-muted">ID: {{ rule.id }} • {{ rule.description }}</div>
                   </td>
-                  <td><span class="badge bg-light text-muted border px-2 py-1 uppercase" style="font-size: 10px;">{{ rule.category }}</span></td>
+
+                  <td>
+                    <span class="badge bg-light text-muted border px-2 py-1 uppercase" style="font-size: 10px;">
+                      {{ rule.category }}
+                    </span>
+                  </td>
+
                   <td>
                     <div class="d-flex justify-content-center">
                       <svg width="80" height="25" class="d-block">
@@ -81,18 +92,28 @@
                       </svg>
                     </div>
                   </td>
+
                   <td>
                     <div class="small fw-bold text-success">{{ rule.accuracy }}%</div>
                     <div class="extra-small text-muted">Reliability</div>
                   </td>
+
                   <td>
                     <div class="form-check form-switch">
-                      <input class="form-check-input" type="checkbox" [checked]="rule.is_active" (change)="toggleRuleStatus(rule)">
+                      <input class="form-check-input" type="checkbox" [checked]="rule.is_active"
+                        (change)="toggleRuleStatus(rule)" />
                     </div>
                   </td>
+
                   <td class="text-end pe-4">
-                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold" style="font-size: 12px;" (click)="openSimulator(rule)">
-                       Simulate
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold me-2"
+                      style="font-size: 12px;" (click)="editRule(rule.id)">
+                      Edit
+                    </button>
+
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold" style="font-size: 12px;"
+                      (click)="openSimulator(rule)">
+                      Simulate
                     </button>
                   </td>
                 </tr>
@@ -100,26 +121,33 @@
             </table>
           </div>
 
-          <!-- Pagination Footer -->
           <div class="card-footer bg-white border-top py-3 px-4">
             <div class="row align-items-center">
               <div class="col-sm-6 d-flex align-items-center">
                 <span class="extra-small fw-bold text-muted uppercase me-2">Rows:</span>
-                <select class="form-select form-select-sm border-0 bg-light" style="width: 65px; font-size: 11px; border-radius: 6px;" [(ngModel)]="itemsPerPage" (change)="onPageChange()">
+                <select class="form-select form-select-sm border-0 bg-light"
+                  style="width: 65px; font-size: 11px; border-radius: 6px;" [(ngModel)]="itemsPerPage"
+                  (change)="onPageChange()">
                   <option [value]="5">5</option>
                   <option [value]="10">10</option>
                   <option [value]="20">20</option>
                 </select>
+
                 <span class="extra-small text-muted ms-3">
-                  Showing {{ (currentPage - 1) * itemsPerPage + 1 }}-{{ Math.min(currentPage * itemsPerPage, filteredRules.length) }} of {{ filteredRules.length }} rules
+                  Showing {{ (currentPage - 1) * itemsPerPage + 1 }}-{{ Math.min(currentPage * itemsPerPage,
+                  filteredRules.length) }} of {{ filteredRules.length }} rules
                 </span>
               </div>
+
               <div class="col-sm-6 text-end">
                 <div class="btn-group">
-                  <button class="btn btn-sm btn-outline-secondary px-3 fw-bold" (click)="prevPage()" [disabled]="currentPage === 1">
+                  <button class="btn btn-sm btn-outline-secondary px-3 fw-bold" (click)="prevPage()"
+                    [disabled]="currentPage === 1">
                     <i class="bi bi-chevron-left me-1"></i> Previous
                   </button>
-                  <button class="btn btn-sm btn-outline-secondary px-3 fw-bold" (click)="nextPage()" [disabled]="isLastPage()">
+
+                  <button class="btn btn-sm btn-outline-secondary px-3 fw-bold" (click)="nextPage()"
+                    [disabled]="isLastPage()">
                     Next <i class="bi bi-chevron-right ms-1"></i>
                   </button>
                 </div>
@@ -129,32 +157,46 @@
         </div>
       </div>
 
-      <!-- RIGHT SIDEBAR -->
       <div class="col-lg-3">
         <div class="card border-0 shadow-sm text-white mb-4" style="background-color: #5c67f2; border-radius: 15px;">
           <div class="card-body">
             <h2 class="fw-bold mb-3" style="font-size: 18px; color: #111827;">AI Traffic Analysis</h2>
             <p class="extra-small opacity-75">AI analysis of live traffic across FINCA networks.</p>
+
             <div class="p-2 bg-white bg-opacity-10 rounded small mb-3 border border-white border-opacity-10">
               <i class="bi bi-lightning-fill text-warning me-1"></i>
               Detection precision improved by <strong>14.2%</strong>.
             </div>
-            <button class="btn btn-sm btn-light w-100 fw-bold py-2 shadow-sm" (click)="generateAiReport()">Generate Report</button>
+
+            <button class="btn btn-sm btn-light w-100 fw-bold py-2 shadow-sm" (click)="generateAiReport()">
+              Generate Report
+            </button>
           </div>
         </div>
 
         <div class="card border-0 shadow-sm border border-light" style="border-radius: 15px;">
-          <div class="card-header bg-white py-3 fw-bold text-uppercase border-0"><i class="bi bi-stars text-primary me-2"></i>AI Suggestions</div>
+          <div class="card-header bg-white py-3 fw-bold text-uppercase border-0">
+            <i class="bi bi-stars text-primary me-2"></i>AI Suggestions
+          </div>
+
           <div class="card-body p-0">
             <div class="p-3 border-bottom border-light">
               <div class="fw-bold text-primary">New Trend Identified</div>
               <p class="small text-muted mb-2">Midnight mobile withdrawals spike.</p>
-              <button class="btn btn-xs btn-primary py-1 px-3 shadow-none fw-bold" style="font-size: 11px; border-radius: 6px; background-color: #5c67f2; border:none;" (click)="applyAiOptimization()">Apply Optimization</button>
+              <button class="btn btn-xs btn-primary py-1 px-3 shadow-none fw-bold"
+                style="font-size: 11px; border-radius: 6px; background-color: #5c67f2; border:none;"
+                (click)="applyAiOptimization()">
+                Apply Optimization
+              </button>
             </div>
+
             <div class="p-3">
               <div class="fw-bold text-dark">Anomaly Detected</div>
               <p class="small text-muted mb-2">Rule <strong>R005</strong> has high false-positives (8%).</p>
-              <button class="btn btn-xs btn-outline-secondary py-1 px-3 shadow-none fw-bold" style="font-size: 11px; border-radius: 6px;" (click)="editRule('R005')">Review Logic</button>
+              <button class="btn btn-xs btn-outline-secondary py-1 px-3 shadow-none fw-bold"
+                style="font-size: 11px; border-radius: 6px;" (click)="editRule('R005')">
+                Review Logic
+              </button>
             </div>
           </div>
         </div>
@@ -162,14 +204,18 @@
     </div>
   </div>
 
-  <!-- 2. SIMULATOR VIEW -->
   <div *ngIf="view === 'simulator'">
     <div class="row mb-4 align-items-center">
       <div class="col">
         <button class="btn btn-link btn-sm p-0 mb-2 text-decoration-none text-muted fw-bold" (click)="showList()">
           <i class="bi bi-arrow-left"></i> Back to Rule List
         </button>
-        <h4 class="fw-bold mb-0">Impact Simulator: <span class="text-primary">{{ selectedRule?.name }}</span></h4>
+
+        <h4 class="fw-bold mb-0">
+          Impact Simulator:
+          <span class="text-primary">{{ selectedRule?.name }}</span>
+        </h4>
+
         <p class="text-muted small">Stress-test logic before production deployment.</p>
       </div>
     </div>
@@ -178,13 +224,16 @@
       <div class="col-lg-5">
         <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 12px;">
           <div class="card-header bg-light fw-bold extra-small text-muted">TRANSACTION METADATA (JSON)</div>
+
           <div class="card-body p-0">
-            <textarea class="form-control font-monospace text-success bg-dark p-3 border-0" 
-                      rows="12" [(ngModel)]="simulatorInput" style="font-size: 13px; border-radius: 0;"></textarea>
+            <textarea class="form-control font-monospace text-success bg-dark p-3 border-0" rows="12"
+              [(ngModel)]="simulatorInput" style="font-size: 13px; border-radius: 0;"></textarea>
+
             <div class="p-3 bg-white">
-                <button class="btn btn-success w-100 py-2 fw-bold shadow-sm" style="border-radius: 8px;" (click)="runSimulation()">
-                    EXECUTE REAL-TIME TEST
-                </button>
+              <button class="btn btn-success w-100 py-2 fw-bold shadow-sm" style="border-radius: 8px;"
+                (click)="runSimulation()">
+                EXECUTE REAL-TIME TEST
+              </button>
             </div>
           </div>
         </div>
@@ -199,194 +248,249 @@
               <p>Feed a transaction payload to start analysis.</p>
             </div>
 
-            <!-- RESTORED CONTENT BELOW -->
             <div *ngIf="simulationResult">
-               <div class="alert shadow-sm border-0 rounded-4" [ngClass]="simulationResult.triggered ? 'alert-danger' : 'alert-success'">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="alert-heading mb-0 fw-bold">
-                      {{ simulationResult.triggered ? 'THRESHOLD BREACHED' : 'LOGIC VALIDATED' }}
-                    </h5>
-                    <span class="badge py-2 px-3 fs-6 rounded-pill" [ngClass]="simulationResult.triggered ? 'bg-danger' : 'bg-success'">
-                      {{ simulationResult.decision }}
+              <div class="alert shadow-sm border-0 rounded-4"
+                [ngClass]="simulationResult.triggered ? 'alert-danger' : 'alert-success'">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h5 class="alert-heading mb-0 fw-bold">
+                    {{ simulationResult.triggered ? 'THRESHOLD BREACHED' : 'LOGIC VALIDATED' }}
+                  </h5>
+
+                  <span class="badge py-2 px-3 fs-6 rounded-pill"
+                    [ngClass]="simulationResult.triggered ? 'bg-danger' : 'bg-success'">
+                    {{ simulationResult.decision }}
+                  </span>
+                </div>
+
+                <hr />
+
+                <p class="mb-0 fw-bold">
+                  Diagnostic:
+                  <span class="fw-normal">{{ simulationResult.reason || 'Conforms to safety guidelines.' }}</span>
+                </p>
+              </div>
+
+              <div class="mt-4 card bg-light border-0 rounded-4">
+                <div class="card-body">
+                  <h6 class="fw-bold extra-small mb-3 text-muted uppercase">RISK SCORECARD:</h6>
+
+                  <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Logic Weight Points:</span>
+                    <span class="fw-bold" [class.text-danger]="simulationResult.triggered">
+                      +{{ simulationResult.risk_points }} pts
                     </span>
                   </div>
-                  <hr>
-                  <p class="mb-0 fw-bold">Diagnostic: <span class="fw-normal">{{ simulationResult.reason || 'Conforms to safety guidelines.' }}</span></p>
-               </div>
 
-               <div class="mt-4 card bg-light border-0 rounded-4">
-                  <div class="card-body">
-                    <h6 class="fw-bold extra-small mb-3 text-muted uppercase">RISK SCORECARD:</h6>
-                    <div class="d-flex justify-content-between mb-2">
-                      <span class="text-muted">Logic Weight Points:</span>
-                      <span class="fw-bold" [class.text-danger]="simulationResult.triggered">+{{ simulationResult.risk_points }} pts</span>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                      <span class="text-muted">Engine Confidence:</span>
-                      <span class="fw-bold text-success">98.2%</span>
-                    </div>
+                  <div class="d-flex justify-content-between">
+                    <span class="text-muted">Engine Confidence:</span>
+                    <span class="fw-bold text-success">98.2%</span>
                   </div>
-               </div>
+                </div>
+              </div>
             </div>
-            <!-- END RESTORED CONTENT -->
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 3. CREATE / EDIT RULE VIEW -->
-  <div *ngIf="view === 'create' || view === 'edit'" class="card border-0 shadow-lg mx-auto overflow-hidden" style="max-width: 850px; border-radius: 20px;">
-    <!-- Blue Header matching simulator popup -->
-    <div class="card-header py-4 px-4 d-flex justify-content-between align-items-center border-0" style="background-color: #5c67f2;">
-      <h5 class="mb-0 fw-bold text-white">{{ view === 'edit' ? 'Review & Optimize Rule Logic' : 'Decision Logic Builder' }}</h5>
-      <button class="btn btn-sm text-white opacity-75 border-0 shadow-none fs-5" (click)="showList()"><i class="bi bi-x-lg"></i></button>
+  <div *ngIf="view === 'create' || view === 'edit'" class="card border-0 shadow-lg mx-auto overflow-hidden"
+    style="max-width: 850px; border-radius: 20px;">
+    <div class="card-header py-4 px-4 d-flex justify-content-between align-items-center border-0"
+      style="background-color: #5c67f2;">
+      <h5 class="mb-0 fw-bold text-white">
+        {{ view === 'edit' ? 'Review & Optimize Rule Logic' : 'Decision Logic Builder' }}
+      </h5>
+
+      <button class="btn btn-sm text-white opacity-75 border-0 shadow-none fs-5" (click)="showList()">
+        <i class="bi bi-x-lg"></i>
+      </button>
     </div>
-    
+
     <div class="card-body p-4 bg-white">
       <div class="row g-3">
         <div class="col-md-8">
           <label class="form-label extra-small fw-bold text-dark uppercase mb-1">Rule Name</label>
-          <input type="text" class="form-control bg-light border-0 py-2 px-3" style="border-radius: 8px;" [(ngModel)]="newRule.name" placeholder="Enter rule name">
+          <input type="text" class="form-control bg-light border-0 py-2 px-3" style="border-radius: 8px;"
+            [(ngModel)]="newRule.name" placeholder="Enter rule name" />
         </div>
+
         <div class="col-md-4">
           <label class="form-label extra-small fw-bold text-dark uppercase mb-1">Category</label>
-          <select class="form-select bg-light border-0 py-2 px-3" style="border-radius: 8px;" [(ngModel)]="newRule.category">
+          <select class="form-select bg-light border-0 py-2 px-3" style="border-radius: 8px;"
+            [(ngModel)]="newRule.category">
             <option value="GENERAL">GENERAL</option>
             <option value="TIME">TIME</option>
             <option value="AMOUNT">AMOUNT</option>
+            <option value="DEVICE">DEVICE</option>
             <option value="LOCATION">LOCATION</option>
           </select>
         </div>
 
         <div class="col-12 mt-4">
-  <div class="p-4 bg-light rounded-4 border-0">
-    <h6 class="extra-small fw-bold text-primary mb-3 uppercase" style="letter-spacing: 0.5px;">IF TRIGGER MET:</h6>
-    <div class="row g-3">
-      <!-- Added Sub-Label for Field -->
-      <div class="col-md-4">
-        <label class="extra-small fw-bold text-muted uppercase mb-1">Select Field</label>
-        <select class="form-select border-0 shadow-sm py-2 px-3" style="border-radius: 8px;" [(ngModel)]="newRule.conditions.field">
-          <option value="transaction_amount">Amount</option>
-          <option value="transaction_hour">Hour</option>
-          <option value="location">Location</option>
-        </select>
-      </div>
-      <!-- Added Sub-Label for Operator -->
-      <div class="col-md-4">
-        <label class="extra-small fw-bold text-muted uppercase mb-1">Condition</label>
-        <select class="form-select border-0 shadow-sm py-2 px-3" style="border-radius: 8px;" [(ngModel)]="newRule.conditions.operator">
-          <option value="greater_than">Greater Than</option>
-          <option value="between">Between</option>
-          <option value="equals">Equals</option>
-        </select>
-      </div>
-      <!-- Added Sub-Label and Example Placeholder -->
-      <div class="col-md-4">
-        <label class="extra-small fw-bold text-muted uppercase mb-1">Target Value</label>
-        <input type="text" class="form-control border-0 shadow-sm py-2 px-3" 
-               style="border-radius: 8px;" 
-               [(ngModel)]="newRule.conditions.value" 
-               placeholder="e.g. Nairobi or 100000">
-      </div>
-    </div>
-  </div>
-</div>
+          <div class="p-4 bg-light rounded-4 border-0">
+            <h6 class="extra-small fw-bold text-primary mb-3 uppercase" style="letter-spacing: 0.5px;">IF TRIGGER MET:
+            </h6>
+
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="extra-small fw-bold text-muted uppercase mb-1">Select Field</label>
+                <select class="form-select border-0 shadow-sm py-2 px-3" style="border-radius: 8px;"
+                  [(ngModel)]="newRule.conditions.field">
+                  <option value="transaction_amount">Amount</option>
+                  <option value="transaction_hour">Hour</option>
+                  <option value="device_type">Device Type</option>
+                  <option value="location">Location</option>
+                </select>
+              </div>
+
+              <div class="col-md-4">
+                <label class="extra-small fw-bold text-muted uppercase mb-1">Condition</label>
+                <select class="form-select border-0 shadow-sm py-2 px-3" style="border-radius: 8px;"
+                  [(ngModel)]="newRule.conditions.operator">
+                  <option value="greater_than">Greater Than</option>
+                  <option value="between">Between</option>
+                  <option value="equals">Equals</option>
+                  <option value="is_new">Is New</option>
+                  <option value="contains">Contains</option>
+                </select>
+              </div>
+
+              <div class="col-md-4">
+                <label class="extra-small fw-bold text-muted uppercase mb-1">Target Value</label>
+                <input type="text" class="form-control border-0 shadow-sm py-2 px-3" style="border-radius: 8px;"
+                  [(ngModel)]="newRule.conditions.value" placeholder="e.g. Nairobi, 100000, [0,5], true" />
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="col-12 mt-4">
           <h6 class="extra-small fw-bold text-success mb-3 uppercase" style="letter-spacing: 0.5px;">THEN ACTION:</h6>
+
           <div class="row g-3 p-4 border border-light rounded-4 bg-white shadow-sm mx-0">
             <div class="col-md-4">
               <label class="form-label extra-small fw-bold text-muted uppercase">Risk Weight (Points)</label>
-              <input type="number" class="form-control border-0 bg-light py-2" [(ngModel)]="newRule.action.risk_points">
+              <input type="number" class="form-control border-0 bg-light py-2"
+                [(ngModel)]="newRule.action.risk_points" />
             </div>
+
             <div class="col-md-4">
               <label class="form-label extra-small fw-bold text-muted uppercase">System Decision</label>
-              <select class="form-select border-0 bg-light py-2 px-3" style="border-radius: 8px;" [(ngModel)]="newRule.action.decision">
+              <select class="form-select border-0 bg-light py-2 px-3" style="border-radius: 8px;"
+                [(ngModel)]="newRule.action.decision">
                 <option value="BLOCK">BLOCK</option>
                 <option value="CHALLENGE">CHALLENGE</option>
                 <option value="FLAG">FLAG</option>
               </select>
             </div>
+
             <div class="col-md-4">
               <label class="form-label extra-small fw-bold text-muted uppercase">Priority Index</label>
-              <input type="number" class="form-control border-0 bg-light py-2" [(ngModel)]="newRule.priority">
+              <input type="number" class="form-control border-0 bg-light py-2" [(ngModel)]="newRule.priority" />
+            </div>
+
+            <div class="col-md-12">
+              <label class="form-label extra-small fw-bold text-muted uppercase">Rule Description</label>
+              <textarea class="form-control border-0 bg-light py-2" rows="3" [(ngModel)]="newRule.description"
+                placeholder="Describe the risk condition"></textarea>
+            </div>
+
+            <div class="col-md-12">
+              <div class="form-check form-switch mt-2">
+                <input class="form-check-input" type="checkbox" [(ngModel)]="newRule.is_active" />
+                <label class="form-check-label ms-2">Rule Active</label>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Footer buttons with high visibility fix -->
     <div class="card-footer bg-light p-3 text-end border-0 d-flex justify-content-end align-items-center gap-3">
-      <button class="btn btn-link text-muted text-decoration-none fw-bold" (click)="showList()">Discard</button>
-      <button class="btn btn-primary px-5 py-2 rounded-pill fw-bold" 
-              style="background-color: #5c67f2; border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); opacity: 1;" 
-              (click)="saveRule()" 
-              [disabled]="!newRule.name">
+      <button class="btn btn-link text-muted text-decoration-none fw-bold" (click)="showList()">
+        Discard
+      </button>
+
+      <button class="btn btn-primary px-5 py-2 rounded-pill fw-bold"
+        style="background-color: #5c67f2; border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); opacity: 1;"
+        (click)="saveRule()" [disabled]="!newRule.name">
         {{ view === 'edit' ? 'Update & Deploy Rule' : 'Deploy Rule' }}
       </button>
     </div>
   </div>
 
-  <!-- AI REPORT MODAL OVERLAY - FIXED WITH MISSING WORDING -->
-  <div *ngIf="showReport" class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-50" style="z-index: 10000; backdrop-filter: blur(4px);">
+  <div *ngIf="showReport"
+    class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-50"
+    style="z-index: 10000; backdrop-filter: blur(4px);">
     <div class="card border-0 shadow-lg overflow-hidden" style="max-width: 500px; width: 90%; border-radius: 24px;">
-      
-      <!-- Purple Header -->
-      <div class="card-header py-4 px-4 d-flex justify-content-between align-items-center border-0" style="background-color: #5c67f2;">
+      <div class="card-header py-4 px-4 d-flex justify-content-between align-items-center border-0"
+        style="background-color: #5c67f2;">
         <h5 class="mb-0 fw-bold text-white">Sentinel AI Report</h5>
         <button class="btn-close btn-close-white shadow-none" (click)="closeReport()"></button>
       </div>
 
       <div class="card-body p-4 bg-white text-dark">
-        <!-- Big Number Section -->
         <div class="text-center mb-4">
           <div class="display-6 fw-bold" style="color: #5c67f2;">KSh {{ reportSummary?.savings || '45,200,000' }}</div>
-          <div class="text-muted extra-small fw-bold uppercase mt-1" style="letter-spacing: 0.5px;">FRAUD SAVINGS BLOCKED</div>
-        </div>
-        
-        <!-- Metrics Grey Box -->
-        <div class="p-4 bg-light rounded-4 mb-4 border-0">
-            <div class="row g-3 text-center">
-                <div class="col-6 border-end">
-                    <div class="extra-small text-muted fw-bold uppercase mb-1">BLOCKED</div>
-                    <div class="fw-bold fs-5 text-danger">{{ reportSummary?.threatsBlocked || '842' }}</div>
-                </div>
-                <div class="col-6">
-                    <div class="extra-small text-muted fw-bold uppercase mb-1">PRECISION</div>
-                    <div class="fw-bold fs-5 text-success">{{ reportSummary?.precision || '99.1%' }}</div>
-                </div>
-            </div>
+          <div class="text-muted extra-small fw-bold uppercase mt-1" style="letter-spacing: 0.5px;">FRAUD SAVINGS
+            BLOCKED</div>
         </div>
 
-        <!-- RE-ADDED WORDING: Key AI Insight Section -->
+        <div class="p-4 bg-light rounded-4 mb-4 border-0">
+          <div class="row g-3 text-center">
+            <div class="col-6 border-end">
+              <div class="extra-small text-muted fw-bold uppercase mb-1">BLOCKED</div>
+              <div class="fw-bold fs-5 text-danger">{{ reportSummary?.threatsBlocked || '842' }}</div>
+            </div>
+
+            <div class="col-6">
+              <div class="extra-small text-muted fw-bold uppercase mb-1">PRECISION</div>
+              <div class="fw-bold fs-5 text-success">{{ reportSummary?.precision || '99.1%' }}</div>
+            </div>
+          </div>
+        </div>
+
         <div class="mt-4 pt-2">
           <h4 class="extra-small fw-bold text-muted uppercase mb-2" style="letter-spacing: 0.5px;">Key AI Insight:</h4>
           <p class="small mb-1 text-muted" style="line-height: 1.5;">
-            Network traffic shows a high correlation between <span class="badge bg-soft-primary text-primary px-2">{{ reportSummary?.topVector || 'Mobile-Channel' }}</span> and unauthorized access attempts. 
-            Optimization of <strong>Rule R005</strong> has reduced false positives by 14.2% since last month.
+            Network traffic shows a high correlation between
+            <span class="badge bg-soft-primary text-primary px-2">{{ reportSummary?.topVector || 'Mobile-Channel'
+              }}</span>
+            and unauthorized access attempts. Optimization of <strong>Rule R005</strong> has reduced false positives by
+            14.2% since last month.
           </p>
         </div>
       </div>
 
-      <!-- Export Button -->
       <div class="card-footer bg-white border-0 p-4 pt-0">
-        <button class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm" 
-                style="background-color: #5c67f2; border:none;" (click)="closeReport()">
+        <button class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm"
+          style="background-color: #5c67f2; border:none;" (click)="closeReport()">
           Export as PDF
         </button>
       </div>
     </div>
   </div>
-  <!-- STATUS ALERT -->
-  <div *ngIf="statusAlert.show" class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="z-index: 10005; backdrop-filter: blur(4px);">
+
+  <div *ngIf="statusAlert.show"
+    class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+    style="z-index: 10005; backdrop-filter: blur(4px);">
     <div class="card border-0 shadow-lg text-center p-4" style="width: 380px; border-radius: 24px;">
-      <div class="mb-3"><div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-light" style="width: 80px; height: 80px;"><i class="bi {{ statusAlert.icon }} {{ statusAlert.iconColor }}" style="font-size: 2.5rem;"></i></div></div>
+      <div class="mb-3">
+        <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-light"
+          style="width: 80px; height: 80px;">
+          <i class="bi {{ statusAlert.icon }} {{ statusAlert.iconColor }}" style="font-size: 2.5rem;"></i>
+        </div>
+      </div>
+
       <h4 class="fw-bold text-dark mb-1">{{ statusAlert.title }}</h4>
       <p class="text-muted small px-3 mb-0">{{ statusAlert.message }}</p>
-      <div class="position-absolute bottom-0 start-0 w-100 px-4 pb-2"><div class="progress" style="height: 3px; background-color: #f0f0f0;"><div class="progress-bar bg-primary" role="progressbar" id="alertProgress"></div></div></div>
+
+      <div class="position-absolute bottom-0 start-0 w-100 px-4 pb-2">
+        <div class="progress" style="height: 3px; background-color: #f0f0f0;">
+          <div class="progress-bar bg-primary" role="progressbar" id="alertProgress"></div>
+        </div>
+      </div>
     </div>
   </div>
-
-</div> <!-- FINAL CLOSING DIV ADDED HERE -->
-
+</div>

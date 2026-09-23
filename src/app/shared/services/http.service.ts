@@ -103,41 +103,264 @@ export interface AlertModeResponse {
   active_threshold: number;
 }
 
+export interface FraudRuleCondition {
+  field: string;
+  operator: string;
+  value?: any;
+  amount_threshold?: number;
+}
+
+export interface FraudRuleAction {
+  risk_points: number;
+  decision: string;
+  alert: boolean;
+}
+
+export interface FraudRule {
+  id?: string;
+  name: string;
+  description: string;
+  conditions: FraudRuleCondition;
+  action: FraudRuleAction;
+  priority: number;
+  is_active: boolean;
+  category: string;
+  created_at?: string;
+  updated_at?: string;
+  created_by?: string;
+  version?: number;
+  trigger_count?: number;
+  false_positive_rate?: number;
+  last_triggered?: string | null;
+  deleted_at?: string | null;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class HttpService {
   private subclassDataUrl = 'assets/subclass-data.json';
   userId: any;
-  
+
   constructor(
     private http: HttpClient,
     private globalService: GlobalService,
     private authService: AuthService,
     private router: Router
-  ) {}
+  ) { }
 
-  private cytonUrl = 'http://130.61.111.65:5016/api/get_all_charts_kpis'; 
-  private apiUrls = 'http://127.0.0.1:5020/api/chat'; 
+  private cytonUrl = 'http://130.61.111.65:5016/api/get_all_charts_kpis';
+  private apiUrls = 'http://127.0.0.1:5020/api/chat';
   private baseUrl = "http://130.61.111.65:5016";
   private baseUrls = 'http://localhost:5015/api';
   private apiUrl = `${environment.customerPortalNest}`;
 
+  // =========================
+  // RULE MANAGEMENT APIs
+  // =========================
+
+  getRules(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/finca/rules`, this.getHeaders()).pipe(
+      catchError(this.handleError<any>('getRules', {
+        status: 'error',
+        rules: [],
+        total: 0
+      }))
+    );
+  }
+
+  getRule(ruleId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/finca/rules/${ruleId}`, this.getHeaders()).pipe(
+      catchError(this.handleError<any>('getRule', {
+        status: 'error',
+        rule: null
+      }))
+    );
+  }
+
+  createRule(ruleData: any): Observable<any> {
+    const payload = {
+      name: ruleData.name,
+      description: ruleData.description,
+      category: ruleData.category,
+      priority: Number(ruleData.priority ?? 1),
+      is_active: !!ruleData.is_active,
+      conditions: {
+        field: ruleData.conditions?.field || '',
+        operator: ruleData.conditions?.operator || 'equals',
+        value: this.normalizeConditionValue(ruleData.conditions),
+        ...(ruleData.conditions?.amount_threshold !== undefined
+          ? { amount_threshold: Number(ruleData.conditions.amount_threshold) }
+          : {})
+      },
+      action: {
+        risk_points: Number(ruleData.action?.risk_points ?? 0),
+        decision: ruleData.action?.decision || 'FLAG',
+        alert: !!ruleData.action?.alert
+      },
+      ...(ruleData.created_by ? { created_by: ruleData.created_by } : {})
+    };
+
+    return this.http.post(`${this.apiUrl}/finca/rules`, payload, this.getHeaders()).pipe(
+      catchError(this.handleError<any>('createRule', {
+        status: 'error',
+        message: 'Failed to create rule'
+      }))
+    );
+  }
+
+  updateRule(ruleId: string, ruleData: any): Observable<any> {
+    const payload = {
+      name: ruleData.name,
+      description: ruleData.description,
+      category: ruleData.category,
+      priority: Number(ruleData.priority ?? 1),
+      is_active: !!ruleData.is_active,
+      conditions: {
+        field: ruleData.conditions?.field || '',
+        operator: ruleData.conditions?.operator || 'equals',
+        value: this.normalizeConditionValue(ruleData.conditions),
+        ...(ruleData.conditions?.amount_threshold !== undefined
+          ? { amount_threshold: Number(ruleData.conditions.amount_threshold) }
+          : {})
+      },
+      action: {
+        risk_points: Number(ruleData.action?.risk_points ?? 0),
+        decision: ruleData.action?.decision || 'FLAG',
+        alert: !!ruleData.action?.alert
+      },
+      ...(ruleData.created_by ? { created_by: ruleData.created_by } : {})
+    };
+
+    return this.http.put(`${this.apiUrl}/finca/rules/${ruleId}`, payload, this.getHeaders()).pipe(
+      catchError(this.handleError<any>('updateRule', {
+        status: 'error',
+        message: 'Failed to update rule'
+      }))
+    );
+  }
+
+  toggleRule(ruleId: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/finca/rules/${ruleId}/toggle`, {}, this.getHeaders()).pipe(
+      catchError(this.handleError<any>('toggleRule', {
+        status: 'error',
+        message: 'Failed to toggle rule'
+      }))
+    );
+  }
+
+  simulateRule(payload: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/finca/rules/simulate`, payload, this.getHeaders()).pipe(
+      catchError(this.handleError<any>('simulateRule', {
+        status: 'error',
+        message: 'Simulation failed'
+      }))
+    );
+  }
+
+  private normalizeConditionValue(condition: any): any {
+    if (!condition) {
+      return '';
+    }
+
+    const value = condition.value;
+
+    if (condition.operator === 'between') {
+      if (Array.isArray(value)) {
+        return value.map((item: any) => this.toPrimitive(item));
+      }
+
+      if (typeof value === 'string') {
+        const parts = value
+          .split(',')
+          .map((item: string) => item.trim())
+          .filter((item: string) => item !== '');
+
+        return parts.map((item: string) => this.toPrimitive(item));
+      }
+
+      return [];
+    }
+
+    if (condition.operator === 'is_new') {
+      if (typeof value === 'string') {
+        return value.toLowerCase() === 'true';
+      }
+      return !!value;
+    }
+
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+
+      if (trimmed === '') {
+        return '';
+      }
+
+      if (trimmed === 'true' || trimmed === 'false') {
+        return trimmed === 'true';
+      }
+
+      const parsedNumber = Number(trimmed);
+
+      if (!Number.isNaN(parsedNumber) && trimmed !== '') {
+        return parsedNumber;
+      }
+
+      return trimmed;
+    }
+
+    if (typeof value === 'number' || typeof value === 'boolean') {
+      return value;
+    }
+
+    if (Array.isArray(value)) {
+      return value.map((item: any) => this.toPrimitive(item));
+    }
+
+    return value;
+  }
+
+  private toPrimitive(value: any): any {
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+
+      if (trimmed === '') {
+        return '';
+      }
+
+      if (trimmed === 'true' || trimmed === 'false') {
+        return trimmed === 'true';
+      }
+
+      const parsedNumber = Number(trimmed);
+
+      if (!Number.isNaN(parsedNumber)) {
+        return parsedNumber;
+      }
+
+      return trimmed;
+    }
+
+    return value;
+  }
+
+  // =========================
+  // EXISTING HTTP METHODS
+  // =========================
 
   checkTransactionRisk(transactionData: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/finca/transactions`, transactionData, this.getHeaders())
       .pipe(
-        // tap(response => console.log('Risk assessment response:', response)),
-        catchError(this.handleError<any>('checkTransactionRisk', { 
-          status: 'error', 
-          message: 'Failed to assess transaction risk' 
+        catchError(this.handleError<any>('checkTransactionRisk', {
+          status: 'error',
+          message: 'Failed to assess transaction risk'
         }))
       );
   }
 
   simulateBatch(payload: { count: number; fraud_ratio: number }): Observable<any> {
-  return this.http.post(`${this.apiUrl}/finca/simulate_batch`, payload, this.getHeaders());
-}
+    return this.http.post(`${this.apiUrl}/finca/simulate_batch`, payload, this.getHeaders());
+  }
 
   getFraudHistory(page: number = 1, size: number = 10): Observable<any> {
     return this.getTransactions(page, size).pipe(
@@ -170,7 +393,6 @@ export class HttpService {
     );
   }
 
-  
   getCustomers(
     page: number = 1,
     size: number = 10,
@@ -221,7 +443,6 @@ export class HttpService {
     );
   }
 
-
   getCustomer360(
     customerId: string
   ): Observable<any> {
@@ -245,10 +466,9 @@ export class HttpService {
   getFeatureImportance(): Observable<any> {
     return this.http.get(`${this.apiUrl}/feature_importance_weight`, this.getHeaders())
       .pipe(
-        // tap(response => console.log('Feature importance response:', response)),
-        catchError(this.handleError<any>('getFeatureImportance', { 
-          status: 'error', 
-          feature_importance: {} 
+        catchError(this.handleError<any>('getFeatureImportance', {
+          status: 'error',
+          feature_importance: {}
         }))
       );
   }
@@ -256,10 +476,9 @@ export class HttpService {
   getTransactionById(transactionId: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/transactions`, { transaction_id: transactionId }, this.getHeaders())
       .pipe(
-        // tap(response => console.log('Transaction details response:', response)),
-        catchError(this.handleError<any>('getTransactionById', { 
-          status: 'error', 
-          message: 'Failed to load transaction details' 
+        catchError(this.handleError<any>('getTransactionById', {
+          status: 'error',
+          message: 'Failed to load transaction details'
         }))
       );
   }
@@ -267,10 +486,9 @@ export class HttpService {
   toggleSovereignMode(enable: boolean): Observable<any> {
     return this.http.post(`${this.apiUrl}/system/sovereign_mode`, { enable }, this.getHeaders())
       .pipe(
-        // tap(response => console.log('Sovereign mode response:', response)),
-        catchError(this.handleError<any>('toggleSovereignMode', { 
-          status: 'error', 
-          message: 'Failed to toggle sovereign mode' 
+        catchError(this.handleError<any>('toggleSovereignMode', {
+          status: 'error',
+          message: 'Failed to toggle sovereign mode'
         }))
       );
   }
@@ -278,9 +496,8 @@ export class HttpService {
   getSovereignMode(): Observable<any> {
     return this.http.get(`${this.apiUrl}/system/sovereign_mode`, this.getHeaders())
       .pipe(
-        // tap(response => console.log('Sovereign mode status:', response)),
-        catchError(this.handleError<any>('getSovereignMode', { 
-          sovereign_mode: true 
+        catchError(this.handleError<any>('getSovereignMode', {
+          sovereign_mode: true
         }))
       );
   }
@@ -288,9 +505,8 @@ export class HttpService {
   getRelatedTransactions(transactionId: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/transactions/related`, { transaction_id: transactionId }, this.getHeaders())
       .pipe(
-        // tap(response => console.log('Related transactions response:', response)),
-        catchError(this.handleError<any>('getRelatedTransactions', { 
-          related_transactions: [] 
+        catchError(this.handleError<any>('getRelatedTransactions', {
+          related_transactions: []
         }))
       );
   }
@@ -300,16 +516,15 @@ export class HttpService {
       transaction_id: transactionId,
       feedback: feedback
     };
-    
+
     if (signals) {
       payload.signals = signals;
     }
-    
+
     return this.http.post(`${this.apiUrl}/fraud_feedback`, payload, this.getHeaders())
       .pipe(
-        // tap(response => console.log('Feedback response:', response)),
-        catchError(this.handleError<any>('submitFraudFeedback', { 
-          message: 'Failed to submit feedback' 
+        catchError(this.handleError<any>('submitFraudFeedback', {
+          message: 'Failed to submit feedback'
         }))
       );
   }
@@ -317,7 +532,6 @@ export class HttpService {
   getTransactions(page: number = 1, size: number = 100): Observable<TransactionsResponse> {
     return this.http.post<TransactionsResponse>(`${this.apiUrl}/transactions`, { page, size }, this.getHeaders())
       .pipe(
-        // tap(response => console.log('API Response:', response)),
         catchError(this.handleError<TransactionsResponse>('getTransactions', {
           status: 'error',
           message: 'Failed to load transactions',
@@ -381,11 +595,10 @@ export class HttpService {
   getTransactionStatus(transactionId: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/get_transactions/status`, { transaction_id: transactionId }, this.getHeaders())
       .pipe(
-        // tap(response => console.log('Status history response:', response)),
-        catchError(this.handleError<any>('getTransactionStatus', { 
+        catchError(this.handleError<any>('getTransactionStatus', {
           status: 'error',
           current_status: 'Open',
-          history: [] 
+          history: []
         }))
       );
   }
@@ -394,32 +607,31 @@ export class HttpService {
     const payload: any = {
       transaction_id: transactionId,
       status: status,
-      action_by: 'Analyst' 
+      action_by: 'Analyst'
     };
-    
+
     if (notes) {
       payload.notes = notes;
     }
-    
+
     return this.http.post(`${this.apiUrl}/transactions/status`, payload, this.getHeaders())
       .pipe(
-        // tap(response => console.log('Status update response:', response)),
-        catchError(this.handleError<any>('updateTransactionStatus', { 
-          status: 'error', 
-          message: 'Failed to update status' 
+        catchError(this.handleError<any>('updateTransactionStatus', {
+          status: 'error',
+          message: 'Failed to update status'
         }))
       );
   }
 
-getHeaders(): { headers: HttpHeaders } {
-  const token = this.authService.getToken();
-  return {
-    headers: new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': token ? `Bearer ${token}` : ''
-    })
-  };
-}
+  getHeaders(): { headers: HttpHeaders } {
+    const token = this.authService.getToken();
+    return {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Authorization': token ? `Bearer ${token}` : ''
+      })
+    };
+  }
 
   getHeadersFile(): any {
     const token = this.authService.getToken();
@@ -442,22 +654,21 @@ getHeaders(): { headers: HttpHeaders } {
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
       console.error(`${operation} failed:`, error);
-      
+
       if (error.status === 401) {
-        // console.log('Token expired or invalid, redirecting to login');
         this.authService.logout();
         this.router.navigate(['/auth/login']);
       }
-      
+
       return of(result as T);
     };
   }
-  
+
   calculateKPIs(transactions: any[]): any {
     const totalTransactions = transactions.length;
     const highRisk = transactions.filter(t => (t.risk_score || 0) >= 5).length;
     const totalAmount = transactions.reduce((sum, t) => sum + (t.transaction_amount || 0), 0);
-    
+
     return {
       totalTransactions,
       highRiskAlerts: highRisk,
@@ -465,447 +676,448 @@ getHeaders(): { headers: HttpHeaders } {
       avgRiskScore: transactions.reduce((sum, t) => sum + (t.risk_score || 0), 0) / totalTransactions || 0
     };
   }
-  
+
   groupByMonth(transactions: any[]): any {
     const monthlyData: { [key: string]: { count: number; amount: number } } = {};
-    
+
     transactions.forEach(t => {
       const date = new Date(t.transaction_date || Date.now());
       const month = date.toLocaleString('default', { month: 'short' });
-      
+
       if (!monthlyData[month]) {
         monthlyData[month] = { count: 0, amount: 0 };
       }
       monthlyData[month].count++;
       monthlyData[month].amount += t.transaction_amount || 0;
     });
-    
+
     return monthlyData;
   }
 
-// User Management Methods
-UserGet(endpoint: string): any {
-  return this.http.get(
-    this.globalService.customerPortalNest + endpoint,
-    this.getHeaders()
-  ).pipe(map((response) => response));
-}
-
-userPost(endpoint: string, model: any): any {
-  return this.http.post(
-    this.globalService.customerPortalNest + endpoint,
-    model,
-    this.getHeaders()
-  ).pipe(map((response) => response));
-}
-
-userPut(endpoint: string, model: any): any {
-  return this.http.put(
-    this.globalService.customerPortalNest + endpoint,
-    model,
-    this.getHeaders()
-  ).pipe(map((response) => response));
-}
-
-userDelete(endpoint: string, payload?: any): any {
-  const options: any = { headers: this.getHeaders().headers };
-  if (payload) {
-    options.body = payload;
+  // User Management Methods
+  UserGet(endpoint: string): any {
+    return this.http.get(
+      this.globalService.customerPortalNest + endpoint,
+      this.getHeaders()
+    ).pipe(map((response) => response));
   }
-  return this.http.delete(
-    this.globalService.customerPortalNest + endpoint,
-    options
-  ).pipe(map((response) => response));
-}
 
-adminCreateUser(userData: any): Observable<any> {
-  return this.http.post(`${this.apiUrl}/admin/create_users`, userData, this.getHeaders());
-}
-
-register(userData: any): Observable<any> {
-  return this.http.post(`${this.apiUrl}/auth/register`, userData, this.getHeaders());
-
-}
-
-getUserById(userId: number): Observable<any> {
-  return this.http.get(`${this.apiUrl}/admin/users/${userId}`, this.getHeaders());
-}
-
-updateUser(userId: number, userData: any): Observable<any> {
-  return this.http.put(`${this.apiUrl}/admin/users/${userId}/update`, userData, this.getHeaders());
-}
-
-updateUserRole(userId: number, role: string): Observable<any> {
-  return this.http.put(`${this.apiUrl}/admin/users/${userId}/role`, { role }, this.getHeaders());
-}
-
-disableUser(userId: number): Observable<any> {
-  return this.http.put(`${this.apiUrl}/admin/users/${userId}/disable`, {}, this.getHeaders());
-}
-
-enableUser(userId: number): Observable<any> {
-  return this.http.put(`${this.apiUrl}/admin/users/${userId}/enable`, {}, this.getHeaders());
-}
-
-resetPasswordEmail(userId: number): Observable<any> {
-  return this.http.post(`${this.apiUrl}/admin/users/${userId}/reset-password`, { type: 'email' }, this.getHeaders());
-}
-
-generateTemporaryPassword(userId: number): Observable<any> {
-  return this.http.post(`${this.apiUrl}/admin/users/${userId}/reset-password`, { type: 'temporary' }, this.getHeaders());
-}
-
-forgotPassword(model: any): Observable<any> {
-  return this.http.post(`${this.apiUrl}/auth/forgot-password`, model);
-}
-
-// ============= CASE MANAGEMENT HELPERS =============
-saveCases(cases: any[]): Observable<any> {
-  try {
-    localStorage.setItem('finca_cases', JSON.stringify(cases));
-    return of({ success: true });
-  } catch (e) {
-    console.error('Failed to save cases locally:', e);
-    return of({ success: false });
+  userPost(endpoint: string, model: any): any {
+    return this.http.post(
+      this.globalService.customerPortalNest + endpoint,
+      model,
+      this.getHeaders()
+    ).pipe(map((response) => response));
   }
-}
 
-updateCaseLocal(caseId: string, changes: any): Observable<any> {
-  try {
-    const stored = localStorage.getItem('finca_cases');
-    const cases = stored ? JSON.parse(stored) : [];
-    const idx = cases.findIndex((c: any) => c.id === caseId);
-    if (idx >= 0) {
-      cases[idx] = { ...cases[idx], ...changes };
+  userPut(endpoint: string, model: any): any {
+    return this.http.put(
+      this.globalService.customerPortalNest + endpoint,
+      model,
+      this.getHeaders()
+    ).pipe(map((response) => response));
+  }
+
+  userDelete(endpoint: string, payload?: any): any {
+    const options: any = { headers: this.getHeaders().headers };
+    if (payload) {
+      options.body = payload;
+    }
+    return this.http.delete(
+      this.globalService.customerPortalNest + endpoint,
+      options
+    ).pipe(map((response) => response));
+  }
+
+
+  adminCreateUser(userData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/admin/create_users`, userData, this.getHeaders());
+  }
+
+  register(userData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/auth/register`, userData, this.getHeaders());
+
+  }
+
+  getUserById(userId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/admin/users/${userId}`, this.getHeaders());
+  }
+
+  updateUser(userId: number, userData: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/admin/users/${userId}/update`, userData, this.getHeaders());
+  }
+
+  updateUserRole(userId: number, role: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/admin/users/${userId}/role`, { role }, this.getHeaders());
+  }
+
+  disableUser(userId: number): Observable<any> {
+    return this.http.put(`${this.apiUrl}/admin/users/${userId}/disable`, {}, this.getHeaders());
+  }
+
+  enableUser(userId: number): Observable<any> {
+    return this.http.put(`${this.apiUrl}/admin/users/${userId}/enable`, {}, this.getHeaders());
+  }
+
+  resetPasswordEmail(userId: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/admin/users/${userId}/reset-password`, { type: 'email' }, this.getHeaders());
+  }
+
+  generateTemporaryPassword(userId: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/admin/users/${userId}/reset-password`, { type: 'temporary' }, this.getHeaders());
+  }
+
+  forgotPassword(model: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/auth/forgot-password`, model);
+  }
+
+  // ============= CASE MANAGEMENT HELPERS =============
+  saveCases(cases: any[]): Observable<any> {
+    try {
       localStorage.setItem('finca_cases', JSON.stringify(cases));
-      return of({ success: true, case: cases[idx] });
+      return of({ success: true });
+    } catch (e) {
+      console.error('Failed to save cases locally:', e);
+      return of({ success: false });
     }
-    return of({ success: false, message: 'Case not found' });
-  } catch (e) {
-    console.error('Failed to update case locally:', e);
-    return of({ success: false });
   }
-}
 
-deleteCaseLocal(caseId: string): Observable<any> {
-  try {
-    const stored = localStorage.getItem('finca_cases');
-    const cases = stored ? JSON.parse(stored) : [];
-    const filtered = cases.filter((c: any) => c.id !== caseId);
-    localStorage.setItem('finca_cases', JSON.stringify(filtered));
-    return of({ success: true, removed: cases.length - filtered.length });
-  } catch (e) {
-    console.error('Failed to delete case locally:', e);
-    return of({ success: false });
-  }
-}
-
-getTransaction(transactionId: string): Observable<any> {
-  return this.getTransactionById(transactionId);
-}
-
-createCase(payload: any): Observable<any> {
-  return this.http.post(`${this.apiUrl}/finca/cases/create`, payload, this.getHeaders()).pipe(
-    map((res: any) => {
-      // Save to local storage as backup
-      const c = (res && res.case) ? res.case : payload;
-      this.saveCasesLocally(c);
-      return res;
-    }),
-    catchError((error) => {
-      console.warn('Create case API failed, saving locally:', error);
-      // Save locally as fallback
-      this.saveCasesLocally(payload);
-      return of({ status: 'success', case: payload, message: 'Case created locally (API unavailable)' });
-    })
-  );
-}
-
-private saveCasesLocally(caseData: any): void {
-  try {
-    const stored = localStorage.getItem('finca_cases');
-    const cases = stored ? JSON.parse(stored) : [];
-    // Check if already exists
-    const idx = cases.findIndex((c: any) => c.id === caseData.id);
-    if (idx >= 0) {
-      cases[idx] = { ...cases[idx], ...caseData };
-    } else {
-      cases.unshift(caseData);
+  updateCaseLocal(caseId: string, changes: any): Observable<any> {
+    try {
+      const stored = localStorage.getItem('finca_cases');
+      const cases = stored ? JSON.parse(stored) : [];
+      const idx = cases.findIndex((c: any) => c.id === caseId);
+      if (idx >= 0) {
+        cases[idx] = { ...cases[idx], ...changes };
+        localStorage.setItem('finca_cases', JSON.stringify(cases));
+        return of({ success: true, case: cases[idx] });
+      }
+      return of({ success: false, message: 'Case not found' });
+    } catch (e) {
+      console.error('Failed to update case locally:', e);
+      return of({ success: false });
     }
-    localStorage.setItem('finca_cases', JSON.stringify(cases));
-  } catch (e) {
-    // Silent fail
   }
-}
 
-getLocalCases(): any[] {
-  try {
-    const stored = localStorage.getItem('finca_cases');
-    return stored ? JSON.parse(stored) : [];
-  } catch (e) {
-    return [];
+  deleteCaseLocal(caseId: string): Observable<any> {
+    try {
+      const stored = localStorage.getItem('finca_cases');
+      const cases = stored ? JSON.parse(stored) : [];
+      const filtered = cases.filter((c: any) => c.id !== caseId);
+      localStorage.setItem('finca_cases', JSON.stringify(filtered));
+      return of({ success: true, removed: cases.length - filtered.length });
+    } catch (e) {
+      console.error('Failed to delete case locally:', e);
+      return of({ success: false });
+    }
   }
-}
 
-clearLocalCases(): Observable<any> {
-  try {
-    localStorage.removeItem('finca_cases');
-    return of({ success: true });
-  } catch (e) {
-    return of({ success: false });
+  getTransaction(transactionId: string): Observable<any> {
+    return this.getTransactionById(transactionId);
   }
-}
 
-listCases(page: number = 1, size: number = 100, status?: string): Observable<any> {
-  const payload: any = { page, size };
-  if (status) payload.status = status;
-  
-  return this.http.post(`${this.apiUrl}/finca/cases`, payload, this.getHeaders())
-    .pipe(
-      catchError(this.handleError<any>('listCases', { 
-        status: 'error', 
-        cases: [], 
-        pagination: { total: 0 } 
-      }))
-    );
-}
-
-getCase(caseId: string): Observable<any> {
-  return this.http.get(`${this.apiUrl}/finca/cases/${caseId}`, this.getHeaders())
-    .pipe(
-      catchError(this.handleError<any>('getCase', { 
-        status: 'error', 
-        case: null 
-      }))
-    );
-}
-
-assignCase(caseId: string, analyst: string): Observable<any> {
-  return this.http.post(`${this.apiUrl}/finca/cases/${caseId}/assign`, { analyst }, this.getHeaders())
-    .pipe(
-      catchError(this.handleError<any>('assignCase', { 
-        status: 'error' 
-      }))
-    );
-}
-
-addCaseNote(caseId: string, note: string, analyst: string = 'Analyst'): Observable<any> {
-  return this.http.post(`${this.apiUrl}/finca/cases/${caseId}/notes`, { note, analyst }, this.getHeaders())
-    .pipe(
-      catchError(this.handleError<any>('addCaseNote', { 
-        status: 'error' 
-      }))
-    );
-}
-
-resolveCase(caseId: string, resolution: 'FRAUD_CONFIRMED' | 'FALSE_POSITIVE', notes: string = '', analyst: string = 'Analyst'): Observable<any> {
-  return this.http.post(`${this.apiUrl}/finca/cases/${caseId}/resolve`, { resolution, notes, analyst }, this.getHeaders())
-    .pipe(
-      catchError(this.handleError<any>('resolveCase', { 
-        status: 'error' 
-      }))
-    );
-}
-
-escalateCase(caseId: string, level: string = 'URGENT', analyst: string = 'Supervisor'): Observable<any> {
-  return this.assignCase(caseId, analyst);
-}
-
-createCaseBackend(payload: any): Observable<any> {
-  return this.http.post(`${this.apiUrl}/finca/case`, payload, this.getHeaders())
-    .pipe(
-      catchError(this.handleError<any>('createCaseBackend', { 
-        status: 'error' 
-      }))
-    );
-}
-
-updateCaseBackend(caseId: string, payload: any): Observable<any> {
-  return this.http.put(`${this.apiUrl}/finca/case/${caseId}`, payload, this.getHeaders())
-    .pipe(
-      catchError(this.handleError<any>('updateCaseBackend', { 
-        status: 'error' 
-      }))
-    );
-}
-
-deleteCaseBackend(caseId: string): Observable<any> {
-  return this.http.delete(`${this.apiUrl}/finca/case/${caseId}`, this.getHeaders())
-    .pipe(
-      catchError(this.handleError<any>('deleteCaseBackend', { 
-        status: 'error' 
-      }))
-    );
-}
-
-getFincaDashboard(): Observable<any> {
-  return this.http.get(`${this.apiUrl}/finca/dashboard`, this.getHeaders())
-    .pipe(
-      catchError(this.handleError<any>('getFincaDashboard', { 
-        status: 'error', 
-        metrics: { total_transactions: 0, total_alerts: 0, open_cases: 0, blocked: 0 } 
-      }))
-    );
-}
-
-markAlertRead(alertId: string): Observable<any> {
-  // Try backend, but don't fail
-  return this.http.post(`${this.apiUrl}/finca/alerts/${alertId}/read`, {}, this.getHeaders())
-    .pipe(
-      catchError(() => {
-        // ✅ Just return success locally
-        this.updateAlertReadLocally(alertId);
-        return of({ status: 'success', local: true });
+  createCase(payload: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/finca/cases/create`, payload, this.getHeaders()).pipe(
+      map((res: any) => {
+        // Save to local storage as backup
+        const c = (res && res.case) ? res.case : payload;
+        this.saveCasesLocally(c);
+        return res;
+      }),
+      catchError((error) => {
+        console.warn('Create case API failed, saving locally:', error);
+        // Save locally as fallback
+        this.saveCasesLocally(payload);
+        return of({ status: 'success', case: payload, message: 'Case created locally (API unavailable)' });
       })
     );
-}
+  }
 
-private updateAlertReadLocally(alertId: string): void {
-  try {
-    const stored = localStorage.getItem('finca_alerts');
-    if (stored) {
-      const alerts = JSON.parse(stored);
+  private saveCasesLocally(caseData: any): void {
+    try {
+      const stored = localStorage.getItem('finca_cases');
+      const cases = stored ? JSON.parse(stored) : [];
+      // Check if already exists
+      const idx = cases.findIndex((c: any) => c.id === caseData.id);
+      if (idx >= 0) {
+        cases[idx] = { ...cases[idx], ...caseData };
+      } else {
+        cases.unshift(caseData);
+      }
+      localStorage.setItem('finca_cases', JSON.stringify(cases));
+    } catch (e) {
+      // Silent fail
+    }
+  }
+
+  getLocalCases(): any[] {
+    try {
+      const stored = localStorage.getItem('finca_cases');
+      return stored ? JSON.parse(stored) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  clearLocalCases(): Observable<any> {
+    try {
+      localStorage.removeItem('finca_cases');
+      return of({ success: true });
+    } catch (e) {
+      return of({ success: false });
+    }
+  }
+
+  listCases(page: number = 1, size: number = 100, status?: string): Observable<any> {
+    const payload: any = { page, size };
+    if (status) payload.status = status;
+
+    return this.http.post(`${this.apiUrl}/finca/cases`, payload, this.getHeaders())
+      .pipe(
+        catchError(this.handleError<any>('listCases', {
+          status: 'error',
+          cases: [],
+          pagination: { total: 0 }
+        }))
+      );
+  }
+
+  getCase(caseId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/finca/cases/${caseId}`, this.getHeaders())
+      .pipe(
+        catchError(this.handleError<any>('getCase', {
+          status: 'error',
+          case: null
+        }))
+      );
+  }
+
+  assignCase(caseId: string, analyst: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/finca/cases/${caseId}/assign`, { analyst }, this.getHeaders())
+      .pipe(
+        catchError(this.handleError<any>('assignCase', {
+          status: 'error'
+        }))
+      );
+  }
+
+  addCaseNote(caseId: string, note: string, analyst: string = 'Analyst'): Observable<any> {
+    return this.http.post(`${this.apiUrl}/finca/cases/${caseId}/notes`, { note, analyst }, this.getHeaders())
+      .pipe(
+        catchError(this.handleError<any>('addCaseNote', {
+          status: 'error'
+        }))
+      );
+  }
+
+  resolveCase(caseId: string, resolution: 'FRAUD_CONFIRMED' | 'FALSE_POSITIVE', notes: string = '', analyst: string = 'Analyst'): Observable<any> {
+    return this.http.post(`${this.apiUrl}/finca/cases/${caseId}/resolve`, { resolution, notes, analyst }, this.getHeaders())
+      .pipe(
+        catchError(this.handleError<any>('resolveCase', {
+          status: 'error'
+        }))
+      );
+  }
+
+  escalateCase(caseId: string, level: string = 'URGENT', analyst: string = 'Supervisor'): Observable<any> {
+    return this.assignCase(caseId, analyst);
+  }
+
+  createCaseBackend(payload: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/finca/case`, payload, this.getHeaders())
+      .pipe(
+        catchError(this.handleError<any>('createCaseBackend', {
+          status: 'error'
+        }))
+      );
+  }
+
+  updateCaseBackend(caseId: string, payload: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/finca/case/${caseId}`, payload, this.getHeaders())
+      .pipe(
+        catchError(this.handleError<any>('updateCaseBackend', {
+          status: 'error'
+        }))
+      );
+  }
+
+  deleteCaseBackend(caseId: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/finca/case/${caseId}`, this.getHeaders())
+      .pipe(
+        catchError(this.handleError<any>('deleteCaseBackend', {
+          status: 'error'
+        }))
+      );
+  }
+
+  getFincaDashboard(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/finca/dashboard`, this.getHeaders())
+      .pipe(
+        catchError(this.handleError<any>('getFincaDashboard', {
+          status: 'error',
+          metrics: { total_transactions: 0, total_alerts: 0, open_cases: 0, blocked: 0 }
+        }))
+      );
+  }
+
+  markAlertRead(alertId: string): Observable<any> {
+    // Try backend, but don't fail
+    return this.http.post(`${this.apiUrl}/finca/alerts/${alertId}/read`, {}, this.getHeaders())
+      .pipe(
+        catchError(() => {
+          // ✅ Just return success locally
+          this.updateAlertReadLocally(alertId);
+          return of({ status: 'success', local: true });
+        })
+      );
+  }
+
+  private updateAlertReadLocally(alertId: string): void {
+    try {
+      const stored = localStorage.getItem('finca_alerts');
+      if (stored) {
+        const alerts = JSON.parse(stored);
+        const idx = alerts.findIndex((a: any) => a.id === alertId);
+        if (idx >= 0) {
+          alerts[idx].read = true;
+          localStorage.setItem('finca_alerts', JSON.stringify(alerts));
+        }
+      }
+    } catch (e) { }
+  }
+
+  getDashboard(): Observable<any> {
+    return this.getFincaDashboard();
+  }
+
+
+  getFincaTransactions(page: number = 1, size: number = 100): Observable<any> {
+    return this.http.post(`${this.apiUrl}/finca/get_transactions`, { page, size }, this.getHeaders())
+      .pipe(
+        catchError(this.handleError<any>('getFincaTransactions', {
+          status: 'error',
+          transactions: [],
+          pagination: { total: 0 }
+        }))
+      );
+  }
+
+  submitFincaTransaction(transactionData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/finca/transactions`, transactionData, this.getHeaders())
+      .pipe(
+        catchError(this.handleError<any>('submitFincaTransaction', {
+          status: 'error'
+        }))
+      );
+  }
+
+  allowTransaction(transactionId: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/finca/allow_transaction`, { transaction_id: transactionId }, this.getHeaders())
+      .pipe(
+        catchError(this.handleError<any>('allowTransaction', {
+          status: 'error'
+        }))
+      );
+  }
+
+  getLocalAlerts(): any[] {
+    try {
+      const stored = localStorage.getItem('finca_alerts');
+      return stored ? JSON.parse(stored) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  updateAlertLocal(alertId: string, changes: any): Observable<any> {
+    try {
+      const stored = localStorage.getItem('finca_alerts');
+      const alerts = stored ? JSON.parse(stored) : [];
       const idx = alerts.findIndex((a: any) => a.id === alertId);
       if (idx >= 0) {
-        alerts[idx].read = true;
+        alerts[idx] = { ...alerts[idx], ...changes };
         localStorage.setItem('finca_alerts', JSON.stringify(alerts));
+        return of({ success: true, alert: alerts[idx] });
       }
+      return of({ success: false });
+    } catch (e) {
+      return of({ success: false });
     }
-  } catch (e) {}
-}
-
-getDashboard(): Observable<any> {
-  return this.getFincaDashboard();
-}
-
-
-getFincaTransactions(page: number = 1, size: number = 100): Observable<any> {
-  return this.http.post(`${this.apiUrl}/finca/get_transactions`, { page, size }, this.getHeaders())
-    .pipe(
-      catchError(this.handleError<any>('getFincaTransactions', { 
-        status: 'error', 
-        transactions: [], 
-        pagination: { total: 0 } 
-      }))
-    );
-}
-
-submitFincaTransaction(transactionData: any): Observable<any> {
-  return this.http.post(`${this.apiUrl}/finca/transactions`, transactionData, this.getHeaders())
-    .pipe(
-      catchError(this.handleError<any>('submitFincaTransaction', { 
-        status: 'error' 
-      }))
-    );
-}
-
-allowTransaction(transactionId: string): Observable<any> {
-  return this.http.post(`${this.apiUrl}/finca/allow_transaction`, { transaction_id: transactionId }, this.getHeaders())
-    .pipe(
-      catchError(this.handleError<any>('allowTransaction', { 
-        status: 'error' 
-      }))
-    );
-}
-
-getLocalAlerts(): any[] {
-  try {
-    const stored = localStorage.getItem('finca_alerts');
-    return stored ? JSON.parse(stored) : [];
-  } catch (e) {
-    return [];
   }
-}
 
-updateAlertLocal(alertId: string, changes: any): Observable<any> {
-  try {
-    const stored = localStorage.getItem('finca_alerts');
-    const alerts = stored ? JSON.parse(stored) : [];
-    const idx = alerts.findIndex((a: any) => a.id === alertId);
-    if (idx >= 0) {
-      alerts[idx] = { ...alerts[idx], ...changes };
+  deleteAlertLocal(alertId: string): Observable<any> {
+    try {
+      const stored = localStorage.getItem('finca_alerts');
+      const alerts = stored ? JSON.parse(stored) : [];
+      const filtered = alerts.filter((a: any) => a.id !== alertId);
+      localStorage.setItem('finca_alerts', JSON.stringify(filtered));
+      return of({ success: true });
+    } catch (e) {
+      return of({ success: false });
+    }
+  }
+
+  markAlertsRead(alertIds: string[]): Observable<any> {
+    const payload = { alert_ids: alertIds };
+    return this.http.post(`${this.apiUrl}/finca/alerts/mark_read`, payload, this.getHeaders())
+      .pipe(
+        catchError(this.handleError<any>('markAlertsRead', { success: false }))
+      );
+  }
+
+  dismissAlerts(alertIds: string[], reason: string = 'Bulk dismissed'): Observable<any> {
+    const payload = { alert_ids: alertIds, reason };
+    return this.http.post(`${this.apiUrl}/finca/alerts/dismiss`, payload, this.getHeaders())
+      .pipe(
+        catchError(this.handleError<any>('dismissAlerts', { success: false }))
+      );
+  }
+
+  getAlertById(alertId: string): Observable<any> {
+    return this.getAlert(alertId);
+  }
+
+  listAlerts(page: number = 1, size: number = 1000, status?: string): Observable<any> {
+    const payload: any = { page, size };
+    if (status) payload.status = status;
+
+    return this.http.post(`${this.apiUrl}/finca/alerts`, payload, this.getHeaders())
+      .pipe(
+        catchError(this.handleError<any>('listAlerts', {
+          status: 'error',
+          alerts: [],
+          pagination: { total: 0 }
+        }))
+      );
+  }
+
+  getAlert(alertId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/finca/alerts/${alertId}`, this.getHeaders())
+      .pipe(
+        catchError(this.handleError<any>('getAlert', {
+          status: 'error',
+          alert: null
+        }))
+      );
+  }
+
+  assignAlert(alertId: string, analyst: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/finca/alerts/${alertId}/assign`, { analyst }, this.getHeaders())
+      .pipe(
+        catchError(this.handleError<any>('assignAlert', {
+          status: 'error'
+        }))
+      );
+  }
+
+  saveAlerts(alerts: any[]): Observable<any> {
+    try {
       localStorage.setItem('finca_alerts', JSON.stringify(alerts));
-      return of({ success: true, alert: alerts[idx] });
+      return of({ success: true });
+    } catch (e) {
+      return of({ success: false });
     }
-    return of({ success: false });
-  } catch (e) {
-    return of({ success: false });
   }
-}
-
-deleteAlertLocal(alertId: string): Observable<any> {
-  try {
-    const stored = localStorage.getItem('finca_alerts');
-    const alerts = stored ? JSON.parse(stored) : [];
-    const filtered = alerts.filter((a: any) => a.id !== alertId);
-    localStorage.setItem('finca_alerts', JSON.stringify(filtered));
-    return of({ success: true });
-  } catch (e) {
-    return of({ success: false });
-  }
-}
-
-markAlertsRead(alertIds: string[]): Observable<any> {
-  const payload = { alert_ids: alertIds };
-  return this.http.post(`${this.apiUrl}/finca/alerts/mark_read`, payload, this.getHeaders())
-    .pipe(
-      catchError(this.handleError<any>('markAlertsRead', { success: false }))
-    );
-}
-
-dismissAlerts(alertIds: string[], reason: string = 'Bulk dismissed'): Observable<any> {
-  const payload = { alert_ids: alertIds, reason };
-  return this.http.post(`${this.apiUrl}/finca/alerts/dismiss`, payload, this.getHeaders())
-    .pipe(
-      catchError(this.handleError<any>('dismissAlerts', { success: false }))
-    );
-}
-
-getAlertById(alertId: string): Observable<any> {
-  return this.getAlert(alertId);
-}
-
-listAlerts(page: number = 1, size: number = 1000, status?: string): Observable<any> {
-  const payload: any = { page, size };
-  if (status) payload.status = status;
-  
-  return this.http.post(`${this.apiUrl}/finca/alerts`, payload, this.getHeaders())
-    .pipe(
-      catchError(this.handleError<any>('listAlerts', { 
-        status: 'error', 
-        alerts: [], 
-        pagination: { total: 0 } 
-      }))
-    );
-}
-
-getAlert(alertId: string): Observable<any> {
-  return this.http.get(`${this.apiUrl}/finca/alerts/${alertId}`, this.getHeaders())
-    .pipe(
-      catchError(this.handleError<any>('getAlert', { 
-        status: 'error', 
-        alert: null 
-      }))
-    );
-}
-
-assignAlert(alertId: string, analyst: string): Observable<any> {
-  return this.http.post(`${this.apiUrl}/finca/alerts/${alertId}/assign`, { analyst }, this.getHeaders())
-    .pipe(
-      catchError(this.handleError<any>('assignAlert', { 
-        status: 'error' 
-      }))
-    );
-}
-
-saveAlerts(alerts: any[]): Observable<any> {
-  try {
-    localStorage.setItem('finca_alerts', JSON.stringify(alerts));
-    return of({ success: true });
-  } catch (e) {
-    return of({ success: false });
-  }
-}
 
   getDashboardData(): Observable<any> {
     return this.http.get(`${this.baseUrl}/api/get_all_charts_kpis`);
@@ -918,12 +1130,12 @@ saveAlerts(alerts: any[]): Observable<any> {
   sendMessage(userMessage: string): Observable<{ reply: string }> {
     return this.http.post<{ reply: string }>(this.apiUrl, { message: userMessage });
   }
-  
+
   getCytonData(page: number, page_size: number): Observable<any> {
     const model = { page, page_size };
     return this.http.post(`${this.baseUrl}/api/clustered_data`, model);
   }
-  
+
   uploadFile(file: File): Observable<any> {
     const formData = new FormData();
     formData.append('file', file);
@@ -938,7 +1150,7 @@ saveAlerts(alerts: any[]): Observable<any> {
     return this.http.get(this.globalService.customerPortalNest + endpoint);
   }
 
-  public channelManagerLogin() {}
+  public channelManagerLogin() { }
 
   public customerPortalLogin(endpoint: string, model: any): Observable<any> {
     return this.http
@@ -951,7 +1163,7 @@ saveAlerts(alerts: any[]): Observable<any> {
         map((result: any) => {
           if (result.status === '00' && result.token) {
             localStorage.setItem('isLoggedin', 'true');
-            localStorage.setItem('authToken', result.token); 
+            localStorage.setItem('authToken', result.token);
             localStorage.setItem('data', JSON.stringify(result));
           } else {
             throwError(() => new Error(result.message || 'Login failed.'));
@@ -963,10 +1175,10 @@ saveAlerts(alerts: any[]): Observable<any> {
         })
       );
   }
-  
+
   public customerPortalActivate(endpoint: string, model: any): Observable<any> {
     return this.http
-      .post(this.globalService.customerPortalNest + endpoint, model) 
+      .post(this.globalService.customerPortalNest + endpoint, model)
       .pipe(
         map((result: any) => {
           if (result['status'] == '00') {
@@ -977,8 +1189,8 @@ saveAlerts(alerts: any[]): Observable<any> {
           return result;
         }),
         catchError((err) => {
-          console.error('customerPortalActivate error:', err); 
-          return throwError(() => err); 
+          console.error('customerPortalActivate error:', err);
+          return throwError(() => err);
         })
       );
   }
@@ -1000,7 +1212,7 @@ saveAlerts(alerts: any[]): Observable<any> {
       .post(
         this.globalService.customerPortalNest + endpoint,
         model,
-        options 
+        options
       )
       .pipe(
         map((result: any) => {
@@ -1022,7 +1234,7 @@ saveAlerts(alerts: any[]): Observable<any> {
     const userDetails$ = this.http
       .get(
         this.globalService.customerPortalNest +
-          `api/v1/auth/userProfile/${userId}`,
+        `api/v1/auth/userProfile/${userId}`,
         this.getHeaders()
       )
       .pipe(
@@ -1098,7 +1310,7 @@ saveAlerts(alerts: any[]): Observable<any> {
         })
       );
   }
-  
+
   public customerPortalPosts(endpoint: string, model: any): any {
     return this.http
       .post(
@@ -1146,7 +1358,7 @@ saveAlerts(alerts: any[]): Observable<any> {
     const userDetails$ = this.http
       .post(
         this.globalService.channelManagerHost +
-          'api/v1/corporate/admin/corporate/details',
+        'api/v1/corporate/admin/corporate/details',
         {},
         this.getHeaders()
       )
@@ -1163,7 +1375,7 @@ saveAlerts(alerts: any[]): Observable<any> {
     const userPermissions$ = this.http
       .post(
         this.globalService.channelManagerHost +
-          'api/v1/corporate/admin/permissions',
+        'api/v1/corporate/admin/permissions',
         {},
         this.getHeaders()
       )
@@ -1229,8 +1441,8 @@ saveAlerts(alerts: any[]): Observable<any> {
   }
 
   public mobileBankingDel(endpoint: string, payload?: any): any {
-    const options: any = { 
-      headers: this.getHeaders().headers 
+    const options: any = {
+      headers: this.getHeaders().headers
     };
 
     if (payload) {
@@ -1240,7 +1452,7 @@ saveAlerts(alerts: any[]): Observable<any> {
     return this.http
       .delete(
         this.globalService.customerPortalNest + endpoint,
-        options 
+        options
       )
       .pipe(
         map((response) => {
@@ -1256,7 +1468,7 @@ saveAlerts(alerts: any[]): Observable<any> {
       model,
       this.getFormHeaders()
     ).pipe(
-      map((response) => response) 
+      map((response) => response)
     );
   }
 
@@ -1266,7 +1478,7 @@ saveAlerts(alerts: any[]): Observable<any> {
       model,
       this.getFormHeaders()
     ).pipe(
-      map((response) => response) 
+      map((response) => response)
     );
   }
 
