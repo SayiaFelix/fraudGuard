@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { FincaService } from 'src/app/shared/services/finca.service';
 import { HttpService } from 'src/app/shared/services/http.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-case-management',
@@ -19,6 +20,10 @@ export class CaseManagementComponent implements OnInit, OnDestroy {
   // ============= CREATE CASE =============
 showCreateCaseModal = false;
 selectedTransactionForCase: any = null;
+
+availableAlerts: any[] = [];
+alertsLoading = false;
+
 caseFormData: any = {
   customerId: '',
   customerName: '',
@@ -180,16 +185,23 @@ nextPage(): void {
 }
 
 submitCreateCase(): void {
-  if (!this.caseFormData.customerId || !this.caseFormData.riskLevel) {
-    this.toastr.warning('Please fill in all required fields', 'Warning');
-    return;
-  }
+  if (
+  !this.caseFormData.customerId ||
+  !this.caseFormData.riskLevel ||
+  !this.caseFormData.alertId
+) {
+  this.showWarningAlert(
+    'Customer ID, Risk Level and Alert ID are required',
+    'Warning'
+  );
+  return;
+}
 
   const riskScore = this.getRiskScoreFromLevel(this.caseFormData.riskLevel);
   
   const newCase = {
     id: 'CASE-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4).toUpperCase(),
-    alert_id: null,
+    alert_id: this.caseFormData.alertId,
     customer_id: this.caseFormData.customerId,
     customer_name: this.caseFormData.customerName || this.caseFormData.customerId,
     final_risk_level: this.caseFormData.riskLevel,
@@ -200,7 +212,10 @@ submitCreateCase(): void {
     status: 'OPEN',
     priority: this.caseFormData.priority || 'NORMAL',
     assigned_to: this.caseFormData.assignedTo || null,
-    triggered_rules: [],
+    triggered_rules:
+  this.caseFormData.triggeredRules || [],
+     transaction_id:
+  this.caseFormData.transactionId || null,
     timeline: [{
       timestamp: new Date().toISOString(),
       action: 'Case created manually by analyst',
@@ -227,7 +242,7 @@ submitCreateCase(): void {
         this.applyFilter();
         this.selectCase(backendCase);
         this.closeCreateCaseModal();
-        this.toastr.success('Case created on server', 'Success');
+        this.showSuccessAlert('Case created on server', 'Success');
       }
     },
     error: (err: any) => {
@@ -239,14 +254,14 @@ submitCreateCase(): void {
       this.applyFilter();
       this.selectCase(newCase);
       this.closeCreateCaseModal();
-      this.toastr.success('Case saved locally (server sync pending)', 'Offline Mode');
+      this.showErrorAlert('Case saved locally (server sync pending)', 'Create Case Failed');
     }
   });
 }
 
 openCreateCaseFromTransaction(transaction: any): void {
   if (!transaction) {
-    this.toastr.warning('No transaction selected', 'Warning');
+    this.showWarningAlert('No transaction selected', 'Warning');
     return;
   }
 
@@ -321,14 +336,14 @@ createCaseFromTransaction(transaction: any): void {
       this.computeStats();
       this.applyFilter();
       this.selectCase(c);
-      this.toastr.success('Case created from transaction', 'Success');
+      this.showSuccessAlert('Case created from transaction', 'Success');
     },
     error: () => {
       this.cases.unshift(newCase);
       this.computeStats();
       this.applyFilter();
       this.selectCase(newCase);
-      this.toastr.success('Case created (local)', 'Success');
+      this.showErrorAlert('Case created locally only because the server request failed', 'Create Case Failed');
     }
   });
 }
@@ -394,7 +409,9 @@ loadAll(silent = false): void {
       this.loading = false;
       
       // Show success message
-      this.toastr.success(`Loaded ${this.cases.length} cases`, 'Success');
+      if (!silent) {
+        this.showSuccessAlert(`Loaded ${this.cases.length} cases`, 'Cases Loaded');
+      }
     },
     error: (err: any) => {
       console.error('Error loading cases:', err);
@@ -405,7 +422,7 @@ loadAll(silent = false): void {
       this.buildActivityFeed();
       this.applyFilter();
       this.loading = false;
-      this.toastr.warning('Using locally cached cases', 'Offline Mode');
+      this.showErrorAlert('Could not load cases from the server. Using locally cached cases.', 'Load Cases Failed');
     }
   });
 }
@@ -417,9 +434,90 @@ openCreateCaseModal(): void {
     riskLevel: 'MEDIUM',
     priority: 'NORMAL',
     assignedTo: '',
-    notes: ''
+    alertId: '',
+    transactionId: '',
+    notes: '',
+    triggeredRules: []
   };
+
   this.showCreateCaseModal = true;
+
+  this.loadAvailableAlerts();
+}
+
+onAlertSelected(): void {
+
+  if (!this.caseFormData.alertId) {
+    return;
+  }
+
+  const selectedAlert = this.availableAlerts.find(
+    (alert: any) =>
+      (alert.alert_id || alert.id) ===
+      this.caseFormData.alertId
+  );
+
+  if (!selectedAlert) {
+    console.warn(
+      'Selected alert not found:',
+      this.caseFormData.alertId
+    );
+    return;
+  }
+
+  console.log(
+    'Selected alert:',
+    selectedAlert
+  );
+
+  // Customer
+  this.caseFormData.customerId =
+    selectedAlert.customer_id ||
+    selectedAlert.customer?.customer_id ||
+    '';
+
+  this.caseFormData.customerName =
+    selectedAlert.customer_name ||
+    selectedAlert.customer?.customer_name ||
+    '';
+
+  // Transaction
+  this.caseFormData.transactionId =
+    selectedAlert.transaction_id ||
+    selectedAlert.transaction?.transaction_id ||
+    '';
+
+  // Risk
+  const riskLevel =
+    selectedAlert.risk_level ||
+    selectedAlert.final_risk_level ||
+    selectedAlert.risk_category ||
+    'MEDIUM';
+
+  this.caseFormData.riskLevel =
+    riskLevel.toUpperCase();
+
+  // Automatically suggest priority
+  if (
+    this.caseFormData.riskLevel === 'CRITICAL'
+  ) {
+    this.caseFormData.priority = 'URGENT';
+
+  } else if (
+    this.caseFormData.riskLevel === 'HIGH'
+  ) {
+    this.caseFormData.priority = 'HIGH';
+
+  } else {
+    this.caseFormData.priority = 'NORMAL';
+  }
+
+  // Triggered rules
+  this.caseFormData.triggeredRules =
+    selectedAlert.triggered_rules ||
+    selectedAlert.finca_rules_triggered ||
+    selectedAlert.rules_triggered ||
+    [];
 }
 
 getRiskScoreFromLevel(level: string): number {
@@ -476,6 +574,57 @@ getRiskScoreFromLevel(level: string): number {
   }
 }
 
+loadAvailableAlerts(): void {
+  this.alertsLoading = true;
+
+  this.finca.listAlerts(1, 1000).subscribe({
+    next: (res: any) => {
+
+      console.log('Available alerts:', res);
+
+      const alerts =
+        res?.alerts ||
+        res?.data ||
+        [];
+
+      // Prefer alerts that have not already finished their lifecycle
+      this.availableAlerts = alerts.filter((alert: any) => {
+
+        const status = (
+          alert.status || ''
+        ).toUpperCase();
+
+        return ![
+          'RESOLVED',
+          'CLOSED'
+        ].includes(status);
+      });
+
+      this.alertsLoading = false;
+
+      console.log(
+        'Selectable alerts:',
+        this.availableAlerts
+      );
+    },
+
+    error: (err: any) => {
+      console.error(
+        'Could not load alerts:',
+        err
+      );
+
+      this.availableAlerts = [];
+      this.alertsLoading = false;
+
+      this.showErrorAlert(
+        'Could not load available alerts',
+        'Alerts'
+      );
+    }
+  });
+}
+
 selectCase(c: any): void {
   this.selected = c;
   this.activeTab = 'overview';
@@ -507,16 +656,16 @@ loadRelatedTransactions(transactionId: string): void {
       this.relatedLoading = false;
       this.related = r.related_transactions || [];
       if (this.related.length > 0) {
-        this.toastr.success(`Found ${this.related.length} related transactions`, 'Related');
+        this.showSuccessAlert(`Found ${this.related.length} related transactions`, 'Related');
       } else {
-        this.toastr.info('No related transactions found', 'Related');
+        this.showInfoAlert('No related transactions found', 'Related');
       }
     },
     error: (err) => {
       this.relatedLoading = false;
       this.related = [];
       console.error('Error loading related transactions:', err);
-      this.toastr.error('Could not load related transactions', 'Error');
+      this.showErrorAlert('Could not load related transactions', 'Error');
     }
   });
 }
@@ -801,7 +950,7 @@ loadRelated(): void {
   let transactionId = this.getTransactionIdFromCase(this.selected);
   
   if (!transactionId) {
-    this.toastr.warning('No transaction ID found for this case', 'Warning');
+    this.showWarningAlert('No transaction ID found for this case', 'Warning');
     this.relatedLoading = false;
     return;
   }
@@ -819,16 +968,16 @@ loadRelated(): void {
       this.relatedPage = 1;
       
       if (this.related.length > 0) {
-        this.toastr.success(`Found ${this.related.length} related transactions`, 'Related');
+        this.showSuccessAlert(`Found ${this.related.length} related transactions`, 'Related');
       } else {
-        this.toastr.info('No related transactions found', 'Related');
+        this.showInfoAlert('No related transactions found', 'Related');
       }
     },
     error: (err) => {
       this.relatedLoading = false;
       this.related = [];
       console.error('Error loading related transactions:', err);
-      this.toastr.error('Could not load related transactions', 'Error');
+      this.showErrorAlert('Could not load related transactions', 'Error');
     }
   });
 }
@@ -896,7 +1045,7 @@ getTransactionIdFromCase(caseData: any): string | null {
         this.pushTimeline(`Assigned to ${name}${this.assignNotes ? ': ' + this.assignNotes : ''}`);
         this.updateWorkflowSteps();
         this.assignNotes = '';
-        this.toastr.success(`Assigned to ${name}`, 'Case Assigned');
+        this.showSuccessAlert(`Assigned to ${name}`, 'Case Assigned');
         this.adjustRisk(3, `Assigned to ${name}`);
       },
       error: () => {
@@ -906,7 +1055,7 @@ getTransactionIdFromCase(caseData: any): string | null {
         this.pushTimeline(`Assigned to ${name} (local)`);
         this.updateWorkflowSteps();
         this.adjustRisk(3, `Assigned to ${name}`);
-        this.toastr.info(`Assigned to ${name} (offline)`, 'Local Update');
+        this.showErrorAlert(`Server assignment failed. ${name} was applied locally only.`, 'Assignment Failed');
       }
     });
   }
@@ -918,13 +1067,13 @@ getTransactionIdFromCase(caseData: any): string | null {
     this.pushTimeline('Case unassigned');
     this.updateWorkflowSteps();
     this.finca.updateCaseLocal(this.selected.id, { assigned_to: null, status: 'OPEN' }).subscribe();
-    this.toastr.info('Case unassigned', 'Assignment');
+    this.showSuccessAlert('Case unassigned successfully', 'Assignment Successful');
   }
 
   reassignCase(): void {
     this.assignAnalyst = '';
     this.activeTab = 'assignment';
-    this.toastr.info('Select a new analyst and confirm assignment', 'Reassign');
+    this.showInfoAlert('Select a new analyst and confirm assignment', 'Reassign');
   }
 
   startInvestigation(): void {
@@ -935,14 +1084,14 @@ getTransactionIdFromCase(caseData: any): string | null {
     this.updateWorkflowSteps();
     this.adjustRisk(5, 'Investigation started');
     this.finca.updateCaseLocal(this.selected.id, { status: 'INVESTIGATING' }).subscribe();
-    this.toastr.info('Investigation started', 'Case');
+    this.showSuccessAlert('Investigation started successfully', 'Investigation Started');
   }
 
   // ============= NOTES =============
 
   addNote(): void {
     if (!this.selected || !this.noteText.trim()) {
-      this.toastr.warning('Please enter a note', 'Warning');
+      this.showWarningAlert('Please enter a note', 'Warning');
       return;
     }
 
@@ -962,7 +1111,7 @@ getTransactionIdFromCase(caseData: any): string | null {
         }
         this.pushTimeline(`Note added: ${this.noteText.substring(0, 50)}...`);
         this.noteText = '';
-        this.toastr.success('Note saved', 'Investigation');
+        this.showSuccessAlert('Note saved', 'Investigation');
       },
       error: () => {
         if (!this.selected.notes) this.selected.notes = [];
@@ -973,7 +1122,7 @@ getTransactionIdFromCase(caseData: any): string | null {
         });
         this.pushTimeline(`Note: ${this.noteText.substring(0, 50)}...`);
         this.noteText = '';
-        this.toastr.info('Note saved locally', 'Offline');
+        this.showErrorAlert('The note could not be saved on the server. It was saved locally only.', 'Add Note Failed');
       }
     });
   }
@@ -1004,14 +1153,14 @@ getTransactionIdFromCase(caseData: any): string | null {
       this.adjustRisk(w, `Investigation check: ${type}`);
     }
 
-    this.toastr.info(`${labels[type] || type}`, 'Check Complete');
+    this.showSuccessAlert(`${labels[type] || type}`, 'Check Complete');
   }
 
   requestInfo(): void {
     const who = prompt('Request info from (e.g., Ops, Customer):', 'Ops');
     if (!who || !this.selected) return;
     this.pushTimeline(`Requested additional info from ${who}`);
-    this.toastr.info(`Info requested from ${who}`, 'Request Sent');
+    this.showSuccessAlert(`Info requested from ${who}`, 'Request Sent');
   }
 
   // ============= EVIDENCE =============
@@ -1028,13 +1177,13 @@ getTransactionIdFromCase(caseData: any): string | null {
       });
     }
     this.pushTimeline(`${files.length} evidence file(s) uploaded`);
-    this.toastr.success(`${files.length} file(s) uploaded`, 'Evidence');
+    this.showSuccessAlert(`${files.length} file(s) uploaded`, 'Evidence');
     event.target.value = '';
   }
 
   removeEvidence(i: number): void {
     this.evidenceFiles.splice(i, 1);
-    this.toastr.info('Evidence removed', 'Evidence');
+    this.showSuccessAlert('Evidence removed successfully', 'Evidence Updated');
   }
 
   addEvidenceLink(): void {
@@ -1046,7 +1195,7 @@ getTransactionIdFromCase(caseData: any): string | null {
         type: 'link'
       });
       this.pushTimeline(`Evidence link added: ${url}`);
-      this.toastr.success('Link added to evidence', 'Evidence');
+      this.showSuccessAlert('Link added to evidence', 'Evidence');
     }
   }
 
@@ -1057,18 +1206,18 @@ getTransactionIdFromCase(caseData: any): string | null {
       type: 'screenshot'
     });
     this.pushTimeline('Screenshot captured');
-    this.toastr.success('Screenshot captured', 'Evidence');
+    this.showSuccessAlert('Screenshot captured', 'Evidence');
   }
 
   exportEvidence(): void {
     if (this.evidenceFiles.length === 0) {
-      this.toastr.warning('No evidence to export', 'Export');
+      this.showWarningAlert('No evidence to export', 'Export');
       return;
     }
-    this.toastr.info(`Bundling ${this.evidenceFiles.length} evidence items`, 'Export');
+    this.showInfoAlert(`Bundling ${this.evidenceFiles.length} evidence items`, 'Export');
     // Simulate download
     setTimeout(() => {
-      this.toastr.success('Evidence bundle ready for download', 'Export');
+      this.showSuccessAlert('Evidence bundle ready for download', 'Export');
     }, 1500);
   }
 
@@ -1085,14 +1234,14 @@ getTransactionIdFromCase(caseData: any): string | null {
         this.pushTimeline(`Escalated to ${level}: ${this.escalationReason || 'No reason provided'}`);
         this.updateWorkflowSteps();
         this.adjustRisk(20, `Escalated to ${level}`);
-        this.toastr.warning(`Escalated to ${level}`, 'Escalation');
+        this.showSuccessAlert(`Escalated to ${level}`, 'Escalation Successful');
       },
       error: () => {
         this.selected.priority = 'URGENT';
         this.pushTimeline(`Escalated to ${level} (local)`);
         this.updateWorkflowSteps();
         this.adjustRisk(20, `Escalated to ${level} (local)`);
-        this.toastr.warning(`Escalated to ${level} (offline)`, 'Escalation');
+        this.showErrorAlert(`Server escalation failed. Escalation to ${level} was applied locally only.`, 'Escalation Failed');
       }
     });
   }
@@ -1105,7 +1254,7 @@ getTransactionIdFromCase(caseData: any): string | null {
   flagForCompliance(): void {
     this.pushTimeline('Flagged for compliance review');
     this.activeTab = 'escalation';
-    this.toastr.info('Case flagged for compliance review', 'Compliance');
+    this.showSuccessAlert('Case flagged for compliance review', 'Compliance Action Successful');
   }
 
   // ============= RESOLUTION =============
@@ -1128,7 +1277,7 @@ getTransactionIdFromCase(caseData: any): string | null {
         this.pushTimeline('Case resolved: FRAUD CONFIRMED');
         this.updateWorkflowSteps();
         this.loadAll(true);
-        this.toastr.error('Case marked as fraud', 'Resolved');
+        this.showSuccessAlert('Case marked as fraud', 'Resolution Successful');
       },
       error: () => {
         this.selected.status = 'RESOLVED';
@@ -1141,7 +1290,7 @@ getTransactionIdFromCase(caseData: any): string | null {
         this.adjustRisk(1000, 'Case resolved: FRAUD CONFIRMED (local)');
         this.pushTimeline('Case resolved: FRAUD CONFIRMED (local)');
         this.updateWorkflowSteps();
-        this.toastr.error('Marked as fraud (offline)', 'Resolved');
+        this.showErrorAlert('Server resolution failed. FRAUD CONFIRMED was applied locally only.', 'Resolution Failed');
       }
     });
   }
@@ -1171,7 +1320,7 @@ getTransactionIdFromCase(caseData: any): string | null {
             this.selected = null;
           }
           this.applyFilter();
-          this.toastr.info('Case removed from queue (false positive)', 'Removed');
+          this.showSuccessAlert('Case resolved as false positive and removed from the active queue', 'Resolution Successful');
         });
       },
       error: () => {
@@ -1190,7 +1339,7 @@ getTransactionIdFromCase(caseData: any): string | null {
           this.selected = null;
         }
         this.applyFilter();
-        this.toastr.info('Case removed (offline)', 'Removed');
+        this.showErrorAlert('Server resolution failed. FALSE POSITIVE was applied locally only.', 'Resolution Failed');
       }
     });
   }
@@ -1204,11 +1353,11 @@ getTransactionIdFromCase(caseData: any): string | null {
     this.finca.allowTransaction(txnId).subscribe({
       next: () => {
         this.pushTimeline(`Transaction ${txnId} allowed`);
-        this.toastr.success('Transaction allowed', 'Action');
+        this.showSuccessAlert('Transaction allowed', 'Action');
       },
       error: () => {
         this.pushTimeline(`Transaction ${txnId} allowed (local)`);
-        this.toastr.info('Transaction allowed (offline)', 'Action');
+        this.showErrorAlert('The transaction could not be allowed on the server. The action was recorded locally only.', 'Action Failed');
       }
     });
   }
@@ -1220,7 +1369,7 @@ getTransactionIdFromCase(caseData: any): string | null {
     this.pushTimeline('Case force closed');
     this.updateWorkflowSteps();
     this.finca.updateCaseLocal(this.selected.id, { status: 'CLOSED' }).subscribe(() => this.loadAll(true));
-    this.toastr.info('Case force closed', 'Closed');
+    this.showSuccessAlert('Case force closed successfully', 'Case Closed');
   }
 
   reopenCase(): void {
@@ -1231,7 +1380,7 @@ getTransactionIdFromCase(caseData: any): string | null {
     this.pushTimeline('Case reopened');
     this.updateWorkflowSteps();
     this.finca.updateCaseLocal(this.selected.id, { status: 'OPEN', resolution: null }).subscribe();
-    this.toastr.info('Case reopened', 'Reopen');
+    this.showSuccessAlert('Case reopened successfully', 'Reopen Successful');
   }
 
   deleteCase(caseId?: string): void {
@@ -1247,7 +1396,7 @@ getTransactionIdFromCase(caseData: any): string | null {
       }
       this.applyFilter();
       this.computeStats();
-      this.toastr.info('Case deleted locally', 'Delete');
+      this.showSuccessAlert('Case deleted locally successfully', 'Delete Successful');
     });
   }
 
@@ -1255,7 +1404,7 @@ getTransactionIdFromCase(caseData: any): string | null {
 
   resetPlaybook(): void {
     this.playbookItems.forEach(p => p.done = false);
-    this.toastr.info('Playbook reset', 'Playbook');
+    this.showSuccessAlert('Playbook reset successfully', 'Playbook Updated');
   }
 
   togglePlaybookItem(item: any): void {
@@ -1267,7 +1416,7 @@ getTransactionIdFromCase(caseData: any): string | null {
 
     const done = this.playbookItems.filter(p => p.done).length;
     if (done === this.playbookItems.length) {
-      this.toastr.success('Investigation playbook complete! 🎉', 'Playbook');
+      this.showSuccessAlert('Investigation playbook complete! 🎉', 'Playbook');
     }
   }
 
@@ -1284,19 +1433,19 @@ getTransactionIdFromCase(caseData: any): string | null {
 
   flagCustomer(): void {
     this.pushTimeline(`Customer ${this.selected?.customer_id} flagged`);
-    this.toastr.warning(`Customer ${this.selected?.customer_id} flagged for review`, 'Flagged');
+    this.showSuccessAlert(`Customer ${this.selected?.customer_id} flagged for review`, 'Customer Flagged');
   }
 
   blockCustomer(): void {
     if (confirm('Block this customer account?')) {
       this.pushTimeline(`Customer ${this.selected?.customer_id} blocked (simulated)`);
-      this.toastr.error(`Customer ${this.selected?.customer_id} account blocked`, 'Blocked');
+      this.showSuccessAlert(`Customer ${this.selected?.customer_id} account blocked`, 'Block Action Successful');
     }
   }
 
   sendCustomerAlert(): void {
     this.pushTimeline('Alert SMS sent to customer (simulated)');
-    this.toastr.info('Customer alert SMS sent', 'Alert');
+    this.showSuccessAlert('Customer alert SMS sent', 'Alert Sent');
   }
 
   // ============= NAVIGATION =============
@@ -1316,7 +1465,7 @@ getTransactionIdFromCase(caseData: any): string | null {
   navigateToInvestigationGraph(): void {
     const id = this.selected?.transaction_id || this.selected?.alert_id || this.selected?.id;
     if (!id) {
-      this.toastr.warning('No transaction ID available for graph', 'Warning');
+      this.showWarningAlert('No transaction ID available for graph', 'Warning');
       return;
     }
     this.router.navigate(['/fraudsentinelAi/transaction_management/fraud/investigation-graph', id]);
@@ -1326,7 +1475,7 @@ getTransactionIdFromCase(caseData: any): string | null {
     const id = prompt('Link to case ID:');
     if (id) {
       this.pushTimeline(`Linked to case ${id}`);
-      this.toastr.success(`Linked to case ${id}`, 'Link');
+      this.showSuccessAlert(`Linked to case ${id}`, 'Link');
     }
   }
 
@@ -1336,6 +1485,58 @@ getTransactionIdFromCase(caseData: any): string | null {
 
   exportCases(): void {
     this.downloadCsv(this.filteredCases, 'cases');
+  }
+
+  // ============= SWEET ALERT FEEDBACK =============
+
+  /**
+   * Success popup card for completed actions.
+   */
+  private showSuccessAlert(message: string, title: string = 'Success'): void {
+    Swal.fire({
+      icon: 'success',
+      title,
+      text: message,
+      confirmButtonText: 'OK',
+      allowOutsideClick: false
+    });
+  }
+
+  /**
+   * Error popup card for failed actions.
+   */
+  private showErrorAlert(message: string, title: string = 'Error'): void {
+    Swal.fire({
+      icon: 'error',
+      title,
+      text: message,
+      confirmButtonText: 'OK',
+      allowOutsideClick: false
+    });
+  }
+
+  /**
+   * Warning popup card for validation or actions that need attention.
+   */
+  private showWarningAlert(message: string, title: string = 'Warning'): void {
+    Swal.fire({
+      icon: 'warning',
+      title,
+      text: message,
+      confirmButtonText: 'OK'
+    });
+  }
+
+  /**
+   * Informational popup card.
+   */
+  private showInfoAlert(message: string, title: string = 'Information'): void {
+    Swal.fire({
+      icon: 'info',
+      title,
+      text: message,
+      confirmButtonText: 'OK'
+    });
   }
 
   // ============= UTILITY =============
@@ -1479,7 +1680,7 @@ getTransactionIdFromCase(caseData: any): string | null {
     if (c) {
       this.selectCase(c);
     } else {
-      this.toastr.warning('Case not found', 'Warning');
+      this.showWarningAlert('Case not found', 'Warning');
     }
   }
 
@@ -1512,14 +1713,14 @@ getTransactionIdFromCase(caseData: any): string | null {
   selectHighRiskUser(customerId: string): void {
     this.filterText = customerId;
     this.applyFilter();
-    this.toastr.info(`Filtering cases for customer: ${customerId}`, 'Filter Applied');
+    this.showSuccessAlert(`Filtering cases for customer: ${customerId}`, 'Filter Applied');
   }
 
   // ============= EXPORT =============
 
   downloadCsv(rows: any[], filename: string): void {
     if (!rows.length) {
-      this.toastr.warning('Nothing to export', 'Export');
+      this.showWarningAlert('Nothing to export', 'Export');
       return;
     }
 
@@ -1533,7 +1734,7 @@ getTransactionIdFromCase(caseData: any): string | null {
     a.href = URL.createObjectURL(blob);
     a.download = `${filename}_${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
-    this.toastr.success(`Exported ${rows.length} rows`, 'CSV');
+    this.showSuccessAlert(`Exported ${rows.length} rows`, 'CSV');
   }
 
   // ============= FORMAT HELPERS =============
