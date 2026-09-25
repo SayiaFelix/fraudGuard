@@ -1047,6 +1047,62 @@
                      placeholder="Enter Customer Name">
             </div>
 
+            <!-- Alert Selection -->
+<div class="col-md-6">
+
+  <label class="form-label fw-bold">
+    Source Alert
+    <span class="text-danger">*</span>
+  </label>
+
+  <select
+    class="form-select"
+    [(ngModel)]="caseFormData.alertId"
+    name="alertId"
+    (change)="onAlertSelected()"
+    [disabled]="alertsLoading"
+    required>
+
+    <option value="">
+      {{ alertsLoading
+        ? 'Loading alerts...'
+        : '— Select Alert —'
+      }}
+    </option>
+
+    <option
+      *ngFor="let alert of availableAlerts"
+      [value]="alert.alert_id || alert.id">
+
+      {{ alert.alert_id || alert.id }}
+      -
+      {{ alert.customer_name || alert.customer_id || 'Unknown Customer' }}
+      -
+      {{ alert.risk_level || alert.final_risk_level || alert.risk_category || 'N/A' }}
+
+    </option>
+
+  </select>
+
+  <small
+    class="text-muted"
+    *ngIf="!alertsLoading && availableAlerts.length > 0">
+
+    {{ availableAlerts.length }}
+    available alert(s)
+
+  </small>
+
+  <small
+    class="text-danger"
+    *ngIf="!alertsLoading && availableAlerts.length === 0">
+
+    No active alerts available.
+
+  </small>
+
+</div>
+
             <!-- Risk Level -->
             <div class="col-md-4">
               <label class="form-label fw-bold">Risk Level <span class="text-danger">*</span></label>
@@ -1089,11 +1145,30 @@
         </form>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" (click)="closeCreateCaseModal()">Cancel</button>
-        <button class="btn btn-success" (click)="submitCreateCase()" [disabled]="!caseFormData.customerId || !caseFormData.riskLevel">
-          <i class="fas fa-plus-circle me-1"></i> Create Case
-        </button>
-      </div>
+
+  <button
+    type="button"
+    class="btn btn-secondary"
+    (click)="closeCreateCaseModal()">
+    Cancel
+  </button>
+
+  <button
+    type="button"
+    class="btn btn-success"
+    (click)="submitCreateCase()"
+    [disabled]="
+      !caseFormData.customerId ||
+      !caseFormData.riskLevel ||
+      !caseFormData.alertId
+    ">
+
+    <i class="fas fa-plus-circle me-1"></i>
+    Create Case
+
+  </button>
+
+</div>
     </div>
   </div>
 </div>
