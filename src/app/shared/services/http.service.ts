@@ -575,11 +575,13 @@ updateCaseLocal(caseId: string, changes: any): Observable<any> {
     const stored = localStorage.getItem('finca_cases');
     const cases = stored ? JSON.parse(stored) : [];
     const idx = cases.findIndex((c: any) => c.id === caseId);
+
     if (idx >= 0) {
       cases[idx] = { ...cases[idx], ...changes };
       localStorage.setItem('finca_cases', JSON.stringify(cases));
       return of({ success: true, case: cases[idx] });
     }
+
     return of({ success: false, message: 'Case not found' });
   } catch (e) {
     console.error('Failed to update case locally:', e);
@@ -592,8 +594,13 @@ deleteCaseLocal(caseId: string): Observable<any> {
     const stored = localStorage.getItem('finca_cases');
     const cases = stored ? JSON.parse(stored) : [];
     const filtered = cases.filter((c: any) => c.id !== caseId);
+
     localStorage.setItem('finca_cases', JSON.stringify(filtered));
-    return of({ success: true, removed: cases.length - filtered.length });
+
+    return of({
+      success: true,
+      removed: cases.length - filtered.length
+    });
   } catch (e) {
     console.error('Failed to delete case locally:', e);
     return of({ success: false });
@@ -604,40 +611,219 @@ getTransaction(transactionId: string): Observable<any> {
   return this.getTransactionById(transactionId);
 }
 
+
+/**
+ * =====================================================
+ * FINCA CASE MANAGEMENT BACKEND APIs
+ * =====================================================
+ */
+
+
+/**
+ * CREATE CASE
+ * POST /v1/api/finca/cases/create
+ */
 createCase(payload: any): Observable<any> {
-  return this.http.post(`${this.apiUrl}/finca/cases/create`, payload, this.getHeaders()).pipe(
+  return this.http.post(
+    `${this.apiUrl}/finca/cases/create`,
+    payload,
+    this.getHeaders()
+  ).pipe(
     map((res: any) => {
-      // Save to local storage as backup
-      const c = (res && res.case) ? res.case : payload;
-      this.saveCasesLocally(c);
+      // Keep local storage as a backup after successful backend creation
+      const caseData = res?.case || res?.data || res?.result || payload;
+      this.saveCasesLocally(caseData);
       return res;
     }),
     catchError((error) => {
-      console.warn('Create case API failed, saving locally:', error);
-      // Save locally as fallback
-      this.saveCasesLocally(payload);
-      return of({ status: 'success', case: payload, message: 'Case created locally (API unavailable)' });
+      console.error('createCase failed:', error);
+      return throwError(() => error);
     })
   );
 }
 
+
+/**
+ * LIST CASES
+ * POST /v1/api/finca/cases/list
+ */
+listCases(
+  page: number = 1,
+  size: number = 100,
+  status?: string
+): Observable<any> {
+  const payload: any = { page, size };
+
+  if (status) {
+    payload.status = status;
+  }
+
+  return this.http.post(
+    `${this.apiUrl}/finca/cases/list`,
+    payload,
+    this.getHeaders()
+  ).pipe(
+    catchError((error) => {
+      console.error('listCases failed:', error);
+      return throwError(() => error);
+    })
+  );
+}
+
+/**
+ * UPDATE CASE
+ * PUT /v1/api/finca/cases/{caseId}
+ */
+updateCase(caseId: string, payload: any): Observable<any> {
+  return this.http.put(
+    `${this.apiUrl}/finca/cases/${encodeURIComponent(caseId)}`,
+    payload,
+    this.getHeaders()
+  ).pipe(
+    map((res: any) => {
+      const caseData = res?.case || res?.data || res?.result;
+      if (caseData) {
+        this.saveCasesLocally(caseData);
+      }
+      return res;
+    }),
+    catchError((error) => {
+      console.error('updateCase failed:', error);
+      return throwError(() => error);
+    })
+  );
+}
+
+/**
+ * ASSIGN CASE
+ * POST /v1/api/finca/cases/assign/{caseId}
+ */
+assignCase(
+  caseId: string,
+  analyst: string,
+  priority?: string,
+  notes?: string
+): Observable<any> {
+  const payload: any = { analyst };
+
+  if (priority) {
+    payload.priority = priority;
+  }
+
+  if (notes) {
+    payload.notes = notes;
+  }
+
+  return this.http.post(
+    `${this.apiUrl}/finca/cases/assign/${encodeURIComponent(caseId)}`,
+    payload,
+    this.getHeaders()
+  ).pipe(
+    catchError((error) => {
+      console.error('assignCase failed:', error);
+      return throwError(() => error);
+    })
+  );
+}
+
+/**
+ * ADD CASE NOTE
+ * POST /v1/api/finca/cases/notes/{caseId}
+ */
+addCaseNote(
+  caseId: string,
+  note: string,
+  analyst: string
+): Observable<any> {
+  return this.http.post(
+    `${this.apiUrl}/finca/cases/notes/${encodeURIComponent(caseId)}`,
+    { note, analyst },
+    this.getHeaders()
+  ).pipe(
+    catchError((error) => {
+      console.error('addCaseNote failed:', error);
+      return throwError(() => error);
+    })
+  );
+}
+
+/**
+ * ESCALATE CASE
+ * POST /v1/api/finca/cases/escalate/{caseId}
+ */
+escalateCase(
+  caseId: string,
+  level: string,
+  reason: string = '',
+  notify: string = 'email',
+  analyst: string = 'Supervisor'
+): Observable<any> {
+  return this.http.post(
+    `${this.apiUrl}/finca/cases/escalate/${encodeURIComponent(caseId)}`,
+    { level, reason, notify, analyst },
+    this.getHeaders()
+  ).pipe(
+    catchError((error) => {
+      console.error('escalateCase failed:', error);
+      return throwError(() => error);
+    })
+  );
+}
+
+/**
+ * RESOLVE CASE
+ * POST /v1/api/finca/cases/resolve/{caseId}
+ */
+resolveCase(
+  caseId: string,
+  resolution: string,
+  notes: string,
+  analyst: string
+): Observable<any> {
+  return this.http.post(
+    `${this.apiUrl}/finca/cases/resolve/${encodeURIComponent(caseId)}`,
+    { resolution, notes, analyst },
+    this.getHeaders()
+  ).pipe(
+    catchError((error) => {
+      console.error('resolveCase failed:', error);
+      return throwError(() => error);
+    })
+  );
+}
+
+/**
+ * Helper to save a single case locally
+ */
 private saveCasesLocally(caseData: any): void {
   try {
     const stored = localStorage.getItem('finca_cases');
     const cases = stored ? JSON.parse(stored) : [];
-    // Check if already exists
+
     const idx = cases.findIndex((c: any) => c.id === caseData.id);
+
     if (idx >= 0) {
-      cases[idx] = { ...cases[idx], ...caseData };
+      cases[idx] = {
+        ...cases[idx],
+        ...caseData
+      };
     } else {
       cases.unshift(caseData);
     }
-    localStorage.setItem('finca_cases', JSON.stringify(cases));
+
+    localStorage.setItem(
+      'finca_cases',
+      JSON.stringify(cases)
+    );
   } catch (e) {
-    // Silent fail
+    console.error('Failed to save case locally:', e);
   }
 }
 
+
+/**
+ * Get locally cached cases
+ */
 getLocalCases(): any[] {
   try {
     const stored = localStorage.getItem('finca_cases');
@@ -647,6 +833,10 @@ getLocalCases(): any[] {
   }
 }
 
+
+/**
+ * Clear locally cached cases
+ */
 clearLocalCases(): Observable<any> {
   try {
     localStorage.removeItem('finca_cases');
@@ -656,86 +846,53 @@ clearLocalCases(): Observable<any> {
   }
 }
 
-listCases(page: number = 1, size: number = 100, status?: string): Observable<any> {
-  const payload: any = { page, size };
-  if (status) payload.status = status;
-  
-  return this.http.post(`${this.apiUrl}/finca/cases`, payload, this.getHeaders())
-    .pipe(
-      catchError(this.handleError<any>('listCases', { 
-        status: 'error', 
-        cases: [], 
-        pagination: { total: 0 } 
-      }))
-    );
-}
 
-getCase(caseId: string): Observable<any> {
-  return this.http.get(`${this.apiUrl}/finca/cases/${caseId}`, this.getHeaders())
-    .pipe(
-      catchError(this.handleError<any>('getCase', { 
-        status: 'error', 
-        case: null 
-      }))
-    );
-}
-
-assignCase(caseId: string, analyst: string): Observable<any> {
-  return this.http.post(`${this.apiUrl}/finca/cases/${caseId}/assign`, { analyst }, this.getHeaders())
-    .pipe(
-      catchError(this.handleError<any>('assignCase', { 
-        status: 'error' 
-      }))
-    );
-}
-
-addCaseNote(caseId: string, note: string, analyst: string = 'Analyst'): Observable<any> {
-  return this.http.post(`${this.apiUrl}/finca/cases/${caseId}/notes`, { note, analyst }, this.getHeaders())
-    .pipe(
-      catchError(this.handleError<any>('addCaseNote', { 
-        status: 'error' 
-      }))
-    );
-}
-
-resolveCase(caseId: string, resolution: 'FRAUD_CONFIRMED' | 'FALSE_POSITIVE', notes: string = '', analyst: string = 'Analyst'): Observable<any> {
-  return this.http.post(`${this.apiUrl}/finca/cases/${caseId}/resolve`, { resolution, notes, analyst }, this.getHeaders())
-    .pipe(
-      catchError(this.handleError<any>('resolveCase', { 
-        status: 'error' 
-      }))
-    );
-}
-
-escalateCase(caseId: string, level: string = 'URGENT', analyst: string = 'Supervisor'): Observable<any> {
-  return this.assignCase(caseId, analyst);
-}
-
+/**
+ * Compatibility method retained because the component currently
+ * calls createCaseBackend().
+ *
+ * It now points to the correct create-case endpoint.
+ */
 createCaseBackend(payload: any): Observable<any> {
-  return this.http.post(`${this.apiUrl}/finca/case`, payload, this.getHeaders())
-    .pipe(
-      catchError(this.handleError<any>('createCaseBackend', { 
-        status: 'error' 
-      }))
-    );
+  return this.createCase(payload);
 }
 
-updateCaseBackend(caseId: string, payload: any): Observable<any> {
-  return this.http.put(`${this.apiUrl}/finca/case/${caseId}`, payload, this.getHeaders())
-    .pipe(
-      catchError(this.handleError<any>('updateCaseBackend', { 
-        status: 'error' 
-      }))
-    );
+
+/**
+ * Compatibility method retained because existing code may call
+ * updateCaseBackend().
+ *
+ * It now points to the correct update-case endpoint.
+ */
+updateCaseBackend(
+  caseId: string,
+  payload: any
+): Observable<any> {
+  return this.updateCase(caseId, payload);
 }
 
+
+/**
+ * Existing delete method retained so nothing using it breaks.
+ *
+ * NOTE:
+ * A delete-case API was not included in the endpoints supplied.
+ * This keeps the existing backend delete behavior unchanged.
+ */
 deleteCaseBackend(caseId: string): Observable<any> {
-  return this.http.delete(`${this.apiUrl}/finca/case/${caseId}`, this.getHeaders())
-    .pipe(
-      catchError(this.handleError<any>('deleteCaseBackend', { 
-        status: 'error' 
-      }))
-    );
+  return this.http.delete(
+    `${this.apiUrl}/finca/case/${caseId}`,
+    this.getHeaders()
+  ).pipe(
+    catchError(
+      this.handleError<any>(
+        'deleteCaseBackend',
+        {
+          status: 'error'
+        }
+      )
+    )
+  );
 }
 
 getFincaDashboard(): Observable<any> {
