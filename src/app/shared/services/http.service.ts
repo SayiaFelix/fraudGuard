@@ -103,6 +103,38 @@ export interface AlertModeResponse {
   active_threshold: number;
 }
 
+export interface FraudRuleCondition {
+  field: string;
+  operator: string;
+  value?: any;
+  amount_threshold?: number;
+}
+
+export interface FraudRuleAction {
+  risk_points: number;
+  decision: string;
+  alert: boolean;
+}
+
+export interface FraudRule {
+  id?: string;
+  name: string;
+  description: string;
+  conditions: FraudRuleCondition;
+  action: FraudRuleAction;
+  priority: number;
+  is_active: boolean;
+  category: string;
+  created_at?: string;
+  updated_at?: string;
+  created_by?: string;
+  version?: number;
+  trigger_count?: number;
+  false_positive_rate?: number;
+  last_triggered?: string | null;
+  deleted_at?: string | null;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -122,6 +154,219 @@ export class HttpService {
   private baseUrl = "http://130.61.111.65:5016";
   private baseUrls = 'http://localhost:5015/api';
   private apiUrl = `${environment.customerPortalNest}`;
+
+// =========================
+  // RULE MANAGEMENT APIs
+  // =========================
+
+  getRules(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/finca/rules`, this.getHeaders()).pipe(
+      catchError(this.handleError<any>('getRules', {
+        status: 'error',
+        rules: [],
+        total: 0
+      }))
+    );
+  }
+
+  getRule(ruleId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/finca/rules/${ruleId}`, this.getHeaders()).pipe(
+      catchError(this.handleError<any>('getRule', {
+        status: 'error',
+        rule: null
+      }))
+    );
+  }
+
+  createRule(ruleData: any): Observable<any> {
+    const payload = {
+      name: ruleData.name,
+      description: ruleData.description,
+      category: ruleData.category,
+      priority: Number(ruleData.priority ?? 1),
+      is_active: !!ruleData.is_active,
+      conditions: {
+        field: ruleData.conditions?.field || '',
+        operator: ruleData.conditions?.operator || 'equals',
+        value: this.normalizeConditionValue(ruleData.conditions),
+        ...(ruleData.conditions?.amount_threshold !== undefined
+          ? { amount_threshold: Number(ruleData.conditions.amount_threshold) }
+          : {})
+      },
+      action: {
+        risk_points: Number(ruleData.action?.risk_points ?? 0),
+        decision: ruleData.action?.decision || 'FLAG',
+        alert: !!ruleData.action?.alert
+      },
+      ...(ruleData.created_by ? { created_by: ruleData.created_by } : {})
+    };
+
+    return this.http.post(`${this.apiUrl}/finca/rules`, payload, this.getHeaders()).pipe(
+      catchError(this.handleError<any>('createRule', {
+        status: 'error',
+        message: 'Failed to create rule'
+      }))
+    );
+  }
+
+  updateRule(ruleId: string, ruleData: any): Observable<any> {
+    const payload = {
+      name: ruleData.name,
+      description: ruleData.description,
+      category: ruleData.category,
+      priority: Number(ruleData.priority ?? 1),
+      is_active: !!ruleData.is_active,
+      conditions: {
+        field: ruleData.conditions?.field || '',
+        operator: ruleData.conditions?.operator || 'equals',
+        value: this.normalizeConditionValue(ruleData.conditions),
+        ...(ruleData.conditions?.amount_threshold !== undefined
+          ? { amount_threshold: Number(ruleData.conditions.amount_threshold) }
+          : {})
+      },
+      action: {
+        risk_points: Number(ruleData.action?.risk_points ?? 0),
+        decision: ruleData.action?.decision || 'FLAG',
+        alert: !!ruleData.action?.alert
+      },
+      ...(ruleData.created_by ? { created_by: ruleData.created_by } : {})
+    };
+
+    return this.http.put(`${this.apiUrl}/finca/rules/${ruleId}`, payload, this.getHeaders()).pipe(
+      catchError(this.handleError<any>('updateRule', {
+        status: 'error',
+        message: 'Failed to update rule'
+      }))
+    );
+  }
+
+  toggleRule(ruleId: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/finca/rules/${ruleId}/toggle`, {}, this.getHeaders()).pipe(
+      catchError(this.handleError<any>('toggleRule', {
+        status: 'error',
+        message: 'Failed to toggle rule'
+      }))
+    );
+  }
+
+  deleteRule(ruleId: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/finca/rules/${ruleId}`, this.getHeaders()).pipe(
+      catchError(this.handleError<any>('deleteRule', {
+        status: 'error',
+        message: 'Failed to delete rule'
+      }))
+    );
+  }
+
+  getRuleStats(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/finca/rules/stats`, this.getHeaders()).pipe(
+      catchError(this.handleError<any>('getRuleStats', {
+        status: 'error',
+        stats: {
+          total_rules: 0,
+          active_rules: 0,
+          inactive_rules: 0,
+          by_category: {},
+          top_rules: []
+        }
+      }))
+    );
+  }
+
+  simulateRule(payload: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/finca/rules/simulate`, payload, this.getHeaders()).pipe(
+      catchError(this.handleError<any>('simulateRule', {
+        status: 'error',
+        message: 'Simulation failed'
+      }))
+    );
+  }
+
+  private normalizeConditionValue(condition: any): any {
+    if (!condition) {
+      return '';
+    }
+
+    const value = condition.value;
+
+    if (condition.operator === 'between') {
+      if (Array.isArray(value)) {
+        return value.map((item: any) => this.toPrimitive(item));
+      }
+
+      if (typeof value === 'string') {
+        const parts = value
+          .split(',')
+          .map((item: string) => item.trim())
+          .filter((item: string) => item !== '');
+
+        return parts.map((item: string) => this.toPrimitive(item));
+      }
+
+      return [];
+    }
+
+    if (condition.operator === 'is_new') {
+      if (typeof value === 'string') {
+        return value.toLowerCase() === 'true';
+      }
+      return !!value;
+    }
+
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+
+      if (trimmed === '') {
+        return '';
+      }
+
+      if (trimmed === 'true' || trimmed === 'false') {
+        return trimmed === 'true';
+      }
+
+      const parsedNumber = Number(trimmed);
+
+      if (!Number.isNaN(parsedNumber) && trimmed !== '') {
+        return parsedNumber;
+      }
+
+      return trimmed;
+    }
+
+    if (typeof value === 'number' || typeof value === 'boolean') {
+      return value;
+    }
+
+    if (Array.isArray(value)) {
+      return value.map((item: any) => this.toPrimitive(item));
+    }
+
+    return value;
+  }
+
+  private toPrimitive(value: any): any {
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+
+      if (trimmed === '') {
+        return '';
+      }
+
+      if (trimmed === 'true' || trimmed === 'false') {
+        return trimmed === 'true';
+      }
+
+      const parsedNumber = Number(trimmed);
+
+      if (!Number.isNaN(parsedNumber)) {
+        return parsedNumber;
+      }
+
+      return trimmed;
+    }
+
+    return value;
+  }
 
 
   checkTransactionRisk(transactionData: any): Observable<any> {
@@ -693,6 +938,20 @@ updateCase(caseId: string, payload: any): Observable<any> {
     })
   );
 }
+
+/**
+ * GET CASE
+ * GET /v1/api/finca/cases/{caseId}
+ */
+getCase(caseId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/finca/cases/${caseId}`, this.getHeaders())
+      .pipe(
+        catchError(this.handleError<any>('getCase', {
+          status: 'error',
+          case: null
+        }))
+      );
+  }
 
 /**
  * ASSIGN CASE
