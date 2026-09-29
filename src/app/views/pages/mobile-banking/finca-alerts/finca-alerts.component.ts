@@ -1,7 +1,6 @@
-import { Component, HostListener, OnDestroy, OnInit,ChangeDetectorRef  } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { FincaService } from 'src/app/shared/services/finca.service';
 import { HttpService } from 'src/app/shared/services/http.service';
 
 @Component({
@@ -16,7 +15,7 @@ export class FincaAlertsComponent implements OnInit, OnDestroy {
   loading = false;
   lastRefreshed: Date = new Date();
 
-  Math : Math;
+  Math: Math;
   page = 1;
   size = 1000;
 
@@ -37,6 +36,8 @@ export class FincaAlertsComponent implements OnInit, OnDestroy {
   assignAnalyst = '';
   snoozeDuration = '1h';
   dismissReason = '';
+  showSnoozeOptions = false;
+  showDismissOptions = false;
 
   analysts = ['Analyst', 'Senior Analyst', 'Fraud Investigator', 'Compliance Officer'];
 
@@ -44,8 +45,7 @@ export class FincaAlertsComponent implements OnInit, OnDestroy {
     { id: 'overview', label: 'Overview', icon: 'fa-home' },
     { id: 'customer', label: 'Customer', icon: 'fa-user' },
     { id: 'transaction', label: 'Transaction', icon: 'fa-exchange-alt' },
-    { id: 'rules', label: 'Rules', icon: 'fa-shield-alt' },
-    { id: 'actions', label: 'Actions', icon: 'fa-bolt' }
+    { id: 'rules', label: 'Rules', icon: 'fa-shield-alt' }
   ];
 
   statCards: any[] = [];
@@ -57,11 +57,11 @@ export class FincaAlertsComponent implements OnInit, OnDestroy {
   private previousAlertCount = 0;
   private selectedIndex = -1;
 
-  relatedLoading = false; 
+  relatedLoading = false;
   relatedPage = 1;
   relatedPageSize = 5;
 
-  constructor(private finca: HttpService, private router: Router, private toastr: ToastrService,private cdr: ChangeDetectorRef) {}
+  constructor(private finca: HttpService, private router: Router, private toastr: ToastrService, private cdr: ChangeDetectorRef) { }
 
   ngOnInit(): void {
     this.load();
@@ -75,50 +75,50 @@ export class FincaAlertsComponent implements OnInit, OnDestroy {
   }
 
   loadAlertDetail(alert: any): void {
-  this.loadingDetail = true;
-  const txnId = alert.transaction_id;
-  if (!txnId) { 
-    this.loadingDetail = false; 
-    return; 
+    this.loadingDetail = true;
+    const txnId = alert.transaction_id;
+    if (!txnId) {
+      this.loadingDetail = false;
+      return;
+    }
+
+    // Load transaction details
+    this.finca.getTransaction(txnId).subscribe({
+      next: (res) => {
+        this.transactionDetail = this.transformTransactionData(res);
+        this.customerProfile = res?.customer_info || null;
+        this.loadingDetail = false;
+        this.cdr.detectChanges(); // ✅ Force update
+      },
+      error: () => {
+        this.loadingDetail = false;
+        this.cdr.detectChanges();
+      }
+    });
+
+    // ✅ Load related transactions
+    this.relatedLoading = true;
+    this.relatedTransactions = []; // ✅ Clear previous data
+    this.cdr.detectChanges(); // ✅ Force update to show loading state
+
+    this.finca.getRelatedTransactions(txnId).subscribe({
+      next: (r) => {
+        this.relatedTransactions = r.related_transactions || [];
+        this.relatedLoading = false;
+        this.relatedPage = 1;
+        this.cdr.detectChanges(); // ✅ Force update to show data
+
+        console.log('✅ Related transactions loaded:', this.relatedTransactions.length);
+      },
+      error: (err) => {
+        this.relatedTransactions = [];
+        this.relatedLoading = false;
+        this.relatedPage = 1;
+        this.cdr.detectChanges(); // ✅ Force update
+        console.error('❌ Error loading related transactions:', err);
+      }
+    });
   }
-
-  // Load transaction details
-  this.finca.getTransaction(txnId).subscribe({
-    next: (res) => {
-      this.transactionDetail = this.transformTransactionData(res);
-      this.customerProfile = res?.customer_info || null;
-      this.loadingDetail = false;
-      this.cdr.detectChanges(); // ✅ Force update
-    },
-    error: () => { 
-      this.loadingDetail = false;
-      this.cdr.detectChanges();
-    }
-  });
-
-  // ✅ Load related transactions
-  this.relatedLoading = true;
-  this.relatedTransactions = []; // ✅ Clear previous data
-  this.cdr.detectChanges(); // ✅ Force update to show loading state
-  
-  this.finca.getRelatedTransactions(txnId).subscribe({
-    next: (r) => {
-      this.relatedTransactions = r.related_transactions || [];
-      this.relatedLoading = false;
-      this.relatedPage = 1;
-      this.cdr.detectChanges(); // ✅ Force update to show data
-      
-      console.log('✅ Related transactions loaded:', this.relatedTransactions.length);
-    },
-    error: (err) => { 
-      this.relatedTransactions = [];
-      this.relatedLoading = false;
-      this.relatedPage = 1;
-      this.cdr.detectChanges(); // ✅ Force update
-      console.error('❌ Error loading related transactions:', err);
-    }
-  });
-}
 
   normalizeScore(score: any): number {
     if (score === null || score === undefined) return 0;
@@ -176,7 +176,7 @@ export class FincaAlertsComponent implements OnInit, OnDestroy {
     this.applyFilters();
     this.loading = false;
     // ensure alerts persisted locally for offline visibility
-    this.finca.saveAlerts(this.alerts).subscribe({ next: () => {}, error: () => {} });
+    this.finca.saveAlerts(this.alerts).subscribe({ next: () => { }, error: () => { } });
   }
 
 
@@ -198,78 +198,78 @@ export class FincaAlertsComponent implements OnInit, OnDestroy {
   }
 
   // ===== GET FINAL EXPLANATION =====
-getFinalExplanation(): string {
-  if (!this.selected) return '';
-  
-  // Check if explanations exist
-  const explanations = this.selected.explanations || this.transactionDetail?.explanations;
-  
-  if (!explanations) return '';
-  
-  // Priority: final > llm > rule_based
-  return explanations.final || explanations.llm || explanations.rule_based || '';
-}
+  getFinalExplanation(): string {
+    if (!this.selected) return '';
 
-// ===== GET RISK BADGE CLASS (for rule badges) =====
-getRuleBadgeClass(rule: string): string {
-  const map: any = {
-    'NEW_DEVICE': 'bg-danger',
-    'LOCATION_ANOMALY': 'bg-danger',
-    'AMOUNT_ANOMALY': 'bg-warning text-dark',
-    'VELOCITY_ANOMALY': 'bg-warning text-dark',
-    'UNUSUAL_TIME': 'bg-info',
-    'WEEKEND_TXN': 'bg-info',
-    'HIGH_FREQUENCY': 'bg-warning text-dark',
-    'INTERNATIONAL_TXN': 'bg-danger'
-  };
-  return map[rule] || 'bg-secondary';
-}
+    // Check if explanations exist
+    const explanations = this.selected.explanations || this.transactionDetail?.explanations;
 
-getRiskBadgeClass(level: string): string {
-  const map: any = {
-    'CRITICAL': 'bg-danger',
-    'HIGH': 'bg-warning text-dark',
-    'MEDIUM': 'bg-info text-dark',
-    'LOW': 'bg-success'
-  };
-  return map[level] || 'bg-secondary';
-}
+    if (!explanations) return '';
 
-get relatedTotalPages(): number {
-  return Math.ceil(this.relatedTransactions.length / this.relatedPageSize);
-}
+    // Priority: final > llm > rule_based
+    return explanations.final || explanations.llm || explanations.rule_based || '';
+  }
 
-get paginatedRelatedAlerts(): any[] {
-  const start = (this.relatedPage - 1) * this.relatedPageSize;
-  return this.relatedTransactions.slice(start, start + this.relatedPageSize);
-}
+  // ===== GET RISK BADGE CLASS (for rule badges) =====
+  getRuleBadgeClass(rule: string): string {
+    const map: any = {
+      'NEW_DEVICE': 'bg-danger',
+      'LOCATION_ANOMALY': 'bg-danger',
+      'AMOUNT_ANOMALY': 'bg-warning text-dark',
+      'VELOCITY_ANOMALY': 'bg-warning text-dark',
+      'UNUSUAL_TIME': 'bg-info',
+      'WEEKEND_TXN': 'bg-info',
+      'HIGH_FREQUENCY': 'bg-warning text-dark',
+      'INTERNATIONAL_TXN': 'bg-danger'
+    };
+    return map[rule] || 'bg-secondary';
+  }
 
-transformTransactionData(data: any): any {
-  if (!data) return null;
-  
-  return {
-    ...data,
-    transaction_details: {
-      transaction_id: data.transaction_id,
-      Transaction_Amount: data.transaction_details?.Transaction_Amount || data.transaction_details?.transaction_amount,
-      channel: data.transaction_details?.finca_channel || data.transaction_details?.channel,
-      device_type: data.transaction_details?.finca_device_type || data.transaction_details?.device_type,
-      location: data.transaction_details?.finca_location || data.transaction_details?.location,
-      final_risk_level: data.transaction_details?.final_risk_level || data.risk_assessment?.risk_category,
-      ml_risk_score: data.transaction_details?.ml_risk_score || data.risk_assessment?.risk_score,
-      finca_total_rule_points: data.transaction_details?.finca_total_rule_points,
-      finca_capped_rule_points: data.transaction_details?.finca_capped_rule_points,
-      finca_rule_count: data.transaction_details?.finca_rule_count,
-      finca_final_decision: data.transaction_details?.finca_final_decision,
-      finca_rules_triggered: data.transaction_details?.finca_rules_triggered || [],
-      ...data.transaction_details
-    },
-    risk_assessment: data.risk_assessment || {
-      risk_score: data.transaction_details?.ml_risk_score || data.risk_score,
-      risk_category: data.transaction_details?.final_risk_level || data.risk_category
-    }
-  };
-}
+  getRiskBadgeClass(level: string): string {
+    const map: any = {
+      'CRITICAL': 'bg-danger',
+      'HIGH': 'bg-warning text-dark',
+      'MEDIUM': 'bg-info text-dark',
+      'LOW': 'bg-success'
+    };
+    return map[level] || 'bg-secondary';
+  }
+
+  get relatedTotalPages(): number {
+    return Math.ceil(this.relatedTransactions.length / this.relatedPageSize);
+  }
+
+  get paginatedRelatedAlerts(): any[] {
+    const start = (this.relatedPage - 1) * this.relatedPageSize;
+    return this.relatedTransactions.slice(start, start + this.relatedPageSize);
+  }
+
+  transformTransactionData(data: any): any {
+    if (!data) return null;
+
+    return {
+      ...data,
+      transaction_details: {
+        transaction_id: data.transaction_id,
+        Transaction_Amount: data.transaction_details?.Transaction_Amount || data.transaction_details?.transaction_amount,
+        channel: data.transaction_details?.finca_channel || data.transaction_details?.channel,
+        device_type: data.transaction_details?.finca_device_type || data.transaction_details?.device_type,
+        location: data.transaction_details?.finca_location || data.transaction_details?.location,
+        final_risk_level: data.transaction_details?.final_risk_level || data.risk_assessment?.risk_category,
+        ml_risk_score: data.transaction_details?.ml_risk_score || data.risk_assessment?.risk_score,
+        finca_total_rule_points: data.transaction_details?.finca_total_rule_points,
+        finca_capped_rule_points: data.transaction_details?.finca_capped_rule_points,
+        finca_rule_count: data.transaction_details?.finca_rule_count,
+        finca_final_decision: data.transaction_details?.finca_final_decision,
+        finca_rules_triggered: data.transaction_details?.finca_rules_triggered || [],
+        ...data.transaction_details
+      },
+      risk_assessment: data.risk_assessment || {
+        risk_score: data.transaction_details?.ml_risk_score || data.risk_score,
+        risk_category: data.transaction_details?.final_risk_level || data.risk_category
+      }
+    };
+  }
 
   applyFilters(): void {
     let list = [...this.alerts];
@@ -311,6 +311,8 @@ transformTransactionData(data: any): any {
 
   open(alert: any): void {
     this.selected = alert;
+    this.showSnoozeOptions = false;
+    this.showDismissOptions = false;
     alert.read = true;
     this.selectedIndex = this.filteredAlerts.findIndex(a => a.id === alert.id);
     this.activeDetailTab = 'overview';
@@ -318,8 +320,8 @@ transformTransactionData(data: any): any {
     this.transactionDetail = null;
     this.relatedTransactions = [];
     this.loadAlertDetail(alert);
-  
-    this.finca.markAlertRead(alert.id).subscribe({ next: () => {}, error: () => {} });
+
+    this.finca.markAlertRead(alert.id).subscribe({ next: () => { }, error: () => { } });
     this.computeStats();
     this.applyFilters();
   }
@@ -332,10 +334,20 @@ transformTransactionData(data: any): any {
   refresh(): void { this.load(); }
 
   markAllRead(): void {
-    this.alerts.forEach(a => a.read = true);
-    this.computeStats();
-    this.applyFilters();
-    this.toastr.success('All alerts marked as read', 'Inbox');
+    const alertIds = this.alerts.map(alert => alert.id).filter(Boolean);
+    if (!alertIds.length) return;
+
+    this.finca.markAlertsRead(alertIds).subscribe({
+      next: () => {
+        this.alerts.forEach(alert => {
+          alert.read = true;
+          if (alert.status === 'NEW') alert.status = 'READ';
+        });
+        this.saveAndRefresh();
+        this.toastr.success('All alerts marked as read', 'Inbox');
+      },
+      error: () => this.toastr.error('Failed to mark alerts as read', 'Inbox')
+    });
   }
 
   toggleBulkMode(): void {
@@ -375,26 +387,42 @@ transformTransactionData(data: any): any {
   }
 
   bulkDismiss(): void {
+    const alertIds = Array.from(this.selectedIds);
+    if (!alertIds.length) return;
+
     const reason = this.dismissReason || 'Bulk dismissed';
-    this.filteredAlerts.filter(a => this.selectedIds.has(a.id)).forEach(a => {
-      a.status = 'DISMISSED';
-      a.dismiss_reason = reason;
+    this.finca.dismissAlerts(alertIds, reason).subscribe({
+      next: () => {
+        this.filteredAlerts.filter(alert => this.selectedIds.has(alert.id)).forEach(alert => {
+          alert.status = 'DISMISSED';
+          alert.dismiss_reason = reason;
+        });
+        this.saveAndRefresh();
+        this.toastr.info(`Dismissed ${alertIds.length} alert(s)`, 'Bulk Action');
+        this.selectedIds.clear();
+        this.bulkMode = false;
+      },
+      error: () => this.toastr.error('Failed to dismiss alerts', 'Bulk Action')
     });
-    this.finca.saveAlerts(this.alerts).subscribe();
-    this.toastr.info(`Dismissed ${this.selectedIds.size} alert(s)`, 'Bulk Action');
-    this.selectedIds.clear();
-    this.bulkMode = false;
-    this.computeStats();
-    this.applyFilters();
   }
 
   bulkMarkRead(): void {
-    this.filteredAlerts.filter(a => this.selectedIds.has(a.id)).forEach(a => a.read = true);
-    this.finca.saveAlerts(this.alerts).subscribe();
-    this.toastr.success(`Marked ${this.selectedIds.size} alert(s) as read`, 'Bulk Action');
-    this.selectedIds.clear();
-    this.computeStats();
-    this.applyFilters();
+    const alertIds = Array.from(this.selectedIds);
+    if (!alertIds.length) return;
+
+    this.finca.markAlertsRead(alertIds).subscribe({
+      next: () => {
+        this.filteredAlerts.filter(alert => this.selectedIds.has(alert.id)).forEach(alert => {
+          alert.read = true;
+          if (alert.status === 'NEW') alert.status = 'READ';
+        });
+        this.saveAndRefresh();
+        this.toastr.success(`Marked ${alertIds.length} alert(s) as read`, 'Bulk Action');
+        this.selectedIds.clear();
+        this.bulkMode = false;
+      },
+      error: () => this.toastr.error('Failed to mark alerts as read', 'Bulk Action')
+    });
   }
 
   @HostListener('document:keydown', ['$event'])
@@ -485,64 +513,156 @@ transformTransactionData(data: any): any {
     this.router.navigate(['/fraudsentinelAi/transaction_management/fraud/transactions']);
   }
 
+  toggleSnoozeOptions(): void {
+    this.showSnoozeOptions = !this.showSnoozeOptions;
+    if (this.showSnoozeOptions) this.showDismissOptions = false;
+  }
+
+  toggleDismissOptions(): void {
+    this.showDismissOptions = !this.showDismissOptions;
+    if (this.showDismissOptions) {
+      this.showSnoozeOptions = false;
+    } else {
+      this.dismissReason = '';
+    }
+  }
+
   dismissAlert(): void {
     if (!this.selected) return;
-    const reason = this.dismissReason || prompt('Dismiss reason:', 'False positive');
-    if (!reason) return;
-    this.selected.status = 'DISMISSED';
-    this.selected.dismiss_reason = reason;
-    this.finca.saveAlerts(this.alerts).subscribe();
-    this.computeStats();
-    this.applyFilters();
-    this.close();
-    this.toastr.info('Alert dismissed', 'Inbox');
+    const reason = this.dismissReason.trim();
+    if (!reason) {
+      this.toastr.warning('Enter a dismissal reason to continue', 'Dismiss Alert');
+      return;
+    }
+
+    this.finca.dismissAlert(this.selected.id, reason).subscribe({
+      next: (response) => {
+        Object.assign(this.selected, response?.alert || {
+          status: 'DISMISSED',
+          dismiss_reason: reason
+        });
+        this.saveAndRefresh();
+        this.showDismissOptions = false;
+        this.dismissReason = '';
+        this.close();
+        this.toastr.info('Alert dismissed', 'Inbox');
+      },
+      error: () => this.toastr.error('Failed to dismiss alert', 'Inbox')
+    });
   }
 
   snoozeAlert(): void {
     if (!this.selected) return;
-    this.selected.status = 'SNOOZED';
-    this.selected.snoozed_until = new Date(Date.now() + 3600000).toISOString();
-    this.finca.saveAlerts(this.alerts).subscribe();
-    this.computeStats();
-    this.applyFilters();
-    this.toastr.info('Alert snoozed for 1 hour', 'Inbox');
+
+    const durationMinutes: Record<string, number> = {
+      '1h': 60,
+      '4h': 240,
+      '24h': 1440,
+      '7d': 10080
+    };
+    const minutes = durationMinutes[this.snoozeDuration] || 60;
+
+    this.finca.snoozeAlert(this.selected.id, minutes).subscribe({
+      next: (response) => {
+        Object.assign(this.selected, response?.alert || { status: 'SNOOZED' });
+        this.saveAndRefresh();
+        this.showSnoozeOptions = false;
+        this.toastr.info('Alert snoozed', 'Inbox');
+      },
+      error: () => this.toastr.error('Failed to snooze alert', 'Inbox')
+    });
   }
 
   escalateAlert(): void {
     if (!this.selected) return;
-    this.selected.priority = 'URGENT';
-    this.selected.status = 'ESCALATED';
-    this.finca.saveAlerts(this.alerts).subscribe();
-    this.computeStats();
-    this.applyFilters();
-    this.toastr.warning('Alert escalated', 'Escalation');
+
+    const reason = prompt(
+      'Escalation reason:',
+      'High-value customer, repeated risk signals'
+    );
+    if (!reason) return;
+
+    this.finca.escalateAlert(this.selected.id, 'URGENT', reason).subscribe({
+      next: (response) => {
+        Object.assign(this.selected, response?.alert || {
+          status: 'ESCALATED',
+          priority: 'URGENT'
+        });
+        this.saveAndRefresh();
+        this.toastr.warning('Alert escalated', 'Escalation');
+      },
+      error: () => this.toastr.error('Failed to escalate alert', 'Escalation')
+    });
   }
 
   flagForReview(): void {
     if (!this.selected) return;
-    this.selected.flagged = true;
-    this.finca.saveAlerts(this.alerts).subscribe();
-    this.toastr.info('Alert flagged for review', 'Flag');
+
+    const reviewReason = prompt(
+      'Review reason:',
+      'Manual review required by compliance'
+    );
+    if (!reviewReason) return;
+
+    this.finca.flagAlertForReview(this.selected.id, reviewReason).subscribe({
+      next: (response) => {
+        Object.assign(this.selected, response?.alert || {
+          flagged: true,
+          review_reason: reviewReason
+        });
+        this.saveAndRefresh();
+        this.toastr.info('Alert flagged for review', 'Flag');
+      },
+      error: () => this.toastr.error('Failed to flag alert', 'Flag')
+    });
   }
 
   blockTransaction(): void {
     if (!this.selected || !confirm('Block this transaction?')) return;
-    this.selected.decision = 'BLOCK';
-    this.selected.status = 'BLOCKED';
-    if (this.selected.transaction_id) {
-      this.finca.updateTransactionStatus(this.selected.transaction_id, 'Resolved', 'Blocked by analyst').subscribe({
-        next: () => this.toastr.error('Transaction blocked', 'Action'),
-        error: () => this.toastr.error('Transaction blocked (offline)', 'Action')
-      });
-      this.finca.saveAlerts(this.alerts).subscribe();
-    }
+
+    const transactionId = this.selected.transaction_id;
+    const reason = prompt('Block reason:', 'Blocked by analyst');
+    if (!transactionId || !reason) return;
+
+    this.finca.blockAlert(this.selected.id, transactionId, reason).subscribe({
+      next: (response) => {
+        Object.assign(this.selected, response?.alert || {
+          status: 'BLOCKED',
+          decision: 'BLOCK'
+        });
+        this.saveAndRefresh();
+        this.toastr.error('Transaction blocked', 'Action');
+      },
+      error: () => this.toastr.error('Failed to block transaction', 'Action')
+    });
   }
 
   sendChallenge(): void {
     if (!this.selected) return;
-    this.selected.decision = 'CHALLENGE';
-    this.finca.saveAlerts(this.alerts).subscribe();
-    this.toastr.info('Challenge sent to customer', 'Action');
+
+    const message = prompt('Challenge message:', 'Please confirm this transaction');
+    if (!message) return;
+
+    this.finca.challengeCustomer(this.selected.id, message).subscribe({
+      next: (response) => {
+        Object.assign(this.selected, response?.alert || {
+          status: 'CHALLENGED',
+          decision: 'CHALLENGE'
+        });
+        this.saveAndRefresh();
+        this.toastr.info('Challenge sent to customer', 'Action');
+      },
+      error: () => this.toastr.error('Failed to challenge customer', 'Action')
+    });
+  }
+
+  private saveAndRefresh(): void {
+    this.finca.saveAlerts(this.alerts).subscribe({
+      next: () => {
+        this.computeStats();
+        this.applyFilters();
+      }
+    });
   }
 
   confirmFraud(): void {
