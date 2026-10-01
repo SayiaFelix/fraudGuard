@@ -2121,6 +2121,7 @@ getTransactionIdFromCase(caseData: any): string | null {
     this.selected.assigned_to = null;
 
     this.selected.status = 'OPEN';
+    
 
     this.pushTimeline('Case unassigned');
 
@@ -2148,7 +2149,9 @@ getTransactionIdFromCase(caseData: any): string | null {
 
   startInvestigation(): void {
 
-    if (!this.selected) return;
+    if (!this.canModifyCase()) {
+    return;
+  }
 
     this.selected.status = 'INVESTIGATING';
 
@@ -2245,6 +2248,25 @@ getTransactionIdFromCase(caseData: any): string | null {
     });
 
   }
+
+  canModifyCase(): boolean {
+
+  if (!this.selected) {
+    return false;
+  }
+
+  if (this.isCaseResolved()) {
+
+    this.showWarningAlert(
+      'This case has already been resolved. Reopen the case before making changes.',
+      'Case Resolved'
+    );
+
+    return false;
+  }
+
+  return true;
+}
 
 
 
@@ -2545,6 +2567,7 @@ getTransactionIdFromCase(caseData: any): string | null {
       next: (r: any) => {
 
         this.selected.status = 'RESOLVED';
+        this.activeTab = 'resolution';
 
         this.selected.resolution = r.case?.resolution || {
 
@@ -2573,6 +2596,7 @@ getTransactionIdFromCase(caseData: any): string | null {
       error: () => {
 
         this.selected.status = 'RESOLVED';
+        this.activeTab = 'resolution';
 
         this.selected.resolution = {
 
@@ -2755,6 +2779,7 @@ getTransactionIdFromCase(caseData: any): string | null {
     if (!confirmed) return;
 
     this.selected.status = 'CLOSED';
+    this.activeTab = 'resolution';
 
     this.pushTimeline('Case force closed');
 
@@ -2775,6 +2800,7 @@ getTransactionIdFromCase(caseData: any): string | null {
 
 
     this.selected.status = 'OPEN';
+    this.activeTab = 'overview';
 
     this.selected.resolution = null;
 
@@ -3241,6 +3267,23 @@ getTransactionIdFromCase(caseData: any): string | null {
     return map[level] || 'bg-secondary';
 
   }
+
+  isCaseResolved(): boolean {
+  const status = (this.selected?.status || '').toUpperCase();
+
+  return status === 'RESOLVED' || status === 'CLOSED';
+}
+
+get visibleDetailTabs(): any[] {
+  if (!this.isCaseResolved()) {
+    return this.detailTabs;
+  }
+
+  // Resolved/closed cases become read-only.
+  return this.detailTabs.filter(tab =>
+    ['overview', 'customer', 'resolution', 'timeline'].includes(tab.id)
+  );
+}
 
 
 

@@ -1875,6 +1875,28 @@ export class HttpService {
       );
   }
 
+  getFraudReportKpis(): Observable<any> {
+  return this.http.post(
+    `${this.apiUrl}/reports/kpis`,
+    this.getHeaders()
+  ).pipe(
+    catchError(
+      this.handleError<any>('getFraudReportKpis', {
+        status: 'error',
+        metrics: {
+          total_fraud_cases: 0,
+          amount_at_risk: 0,
+          detection_rate: 0,
+          false_positive_rate: 0,
+          avg_resolution_time_hours: 0,
+          compliance_score: 0
+        },
+        data_quality: {}
+      })
+    )
+  );
+}
+
   public mobileBankingPostNest(endpoint: string, model: any): any {
     return this.http
       .post(

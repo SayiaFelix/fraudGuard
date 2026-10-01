@@ -1,5 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { FRAUD_KPIS, FRAUD_REPORTS, TOP_PATTERNS, FraudReportRow } from './fraud-reports.mock';
+import { HttpService } from 'src/app/shared/services/http.service';
+
+import {
+  FRAUD_REPORTS,
+  TOP_PATTERNS,
+  FraudReportRow
+} from './fraud-reports.mock';
 
 @Component({
   selector: 'app-fraud-reports',
@@ -7,10 +13,14 @@ import { FRAUD_KPIS, FRAUD_REPORTS, TOP_PATTERNS, FraudReportRow } from './fraud
   styleUrls: ['./fraud-reports.component.scss']
 })
 export class FraudReportsComponent implements OnInit {
-  kpis = FRAUD_KPIS;
+
+  kpis: any[] = [];
+
   reports = FRAUD_REPORTS;
   topPatterns = TOP_PATTERNS;
+
   filteredReports: FraudReportRow[] = [];
+
   selectedPeriod = 'quarter';
   selectedChannel = 'all';
   searchTerm = '';
@@ -34,9 +44,89 @@ export class FraudReportsComponent implements OnInit {
     font: "'Roboto', Helvetica, sans-serif"
   };
 
+  constructor(
+    private httpService: HttpService
+  ) {}
+
   ngOnInit(): void {
     this.filteredReports = [...this.reports];
+    this.loadKpis();
     this.initCharts();
+  }
+
+  private loadKpis(): void {
+    this.httpService.getFraudReportKpis().subscribe({
+      next: (response: any) => {
+
+        if (response?.status !== 'success') {
+          console.error('Unable to load fraud report KPIs');
+          return;
+        }
+
+        const metrics = response.metrics;
+
+        this.kpis = [
+          {
+            label: 'Total Fraud Cases',
+            value: metrics.total_fraud_cases.toLocaleString(),
+            icon: 'fa-shield-alt',
+            color: this.colors.danger,
+            trend: 'flat',
+            change: '',
+            description: 'Total fraud cases'
+          },
+          {
+            label: 'Amount at Risk',
+            value: this.formatCompact(metrics.amount_at_risk),
+            icon: 'fa-money-bill-wave',
+            color: this.colors.warning,
+            trend: 'flat',
+            change: '',
+            description: 'Total exposure'
+          },
+          {
+            label: 'Detection Rate',
+            value: `${metrics.detection_rate.toFixed(1)}%`,
+            icon: 'fa-search',
+            color: this.colors.primary,
+            trend: 'flat',
+            change: '',
+            description: 'Fraud detection rate'
+          },
+          {
+            label: 'False Positive Rate',
+            value: `${metrics.false_positive_rate.toFixed(1)}%`,
+            icon: 'fa-exclamation-triangle',
+            color: '#ffc107',
+            trend: 'flat',
+            change: '',
+            description: 'False positive rate'
+          },
+          {
+            label: 'Avg Resolution Time',
+            value: `${metrics.avg_resolution_time_hours.toFixed(2)} hrs`,
+            icon: 'fa-clock',
+            color: this.colors.info,
+            trend: 'flat',
+            change: '',
+            description: 'Average resolution time'
+          },
+          {
+            label: 'Compliance Score',
+            value: `${metrics.compliance_score.toFixed(1)}%`,
+            icon: 'fa-check-circle',
+            color: this.colors.success,
+            trend: 'flat',
+            change: '',
+            description: 'Compliance performance'
+          }
+        ];
+      },
+
+      error: (error: any) => {
+        console.error('Error loading report KPIs:', error);
+      }
+    });
   }
 
   applyFilters(): void {
@@ -175,3 +265,5 @@ export class FraudReportsComponent implements OnInit {
     return days.map(d => ({ x: d, y: Math.floor(Math.random() * 25) + 2 }));
   }
 }
+
+
