@@ -1,11 +1,35 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpService } from 'src/app/shared/services/http.service';
 
-import {
-  FRAUD_REPORTS,
-  TOP_PATTERNS,
-  FraudReportRow
-} from './fraud-reports.mock';
+interface FraudReportRow {
+  id: string;
+  date: string;
+  type: string;
+  channel: string;
+  region: string;
+  amount: number;
+  currency: string;
+  riskScore: number;
+  status: string;
+  analyst: string;
+}
+
+interface FraudPatternRow {
+  rank: number;
+  rule_id: string;
+  pattern: string;
+  category: string;
+  description: string;
+  priority: number;
+  is_active: boolean;
+  decision: string;
+  risk_points: number;
+  raises_alert: boolean;
+  trigger_count: number;
+  rule_false_positive_rate: number;
+  last_triggered_at: string | null;
+  blocked_alerts_count: number;
+}
 
 @Component({
   selector: 'app-fraud-reports',
@@ -16,14 +40,21 @@ export class FraudReportsComponent implements OnInit {
 
   kpis: any[] = [];
 
-  reports = FRAUD_REPORTS;
-  topPatterns = TOP_PATTERNS;
-
+  reports: FraudReportRow[] = [];
   filteredReports: FraudReportRow[] = [];
+
+  topPatterns: FraudPatternRow[] = [];
 
   selectedPeriod = 'quarter';
   selectedChannel = 'all';
   searchTerm = '';
+
+  currentPage = 1;
+  pageSize = 10;
+  totalReports = 0;
+  totalPages = 0;
+  hasNextPage = false;
+  hasPreviousPage = false;
 
   fraudTrendOptions: any = {};
   channelBreakdownOptions: any = {};
@@ -49,221 +80,1489 @@ export class FraudReportsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.filteredReports = [...this.reports];
-    this.loadKpis();
+
     this.initCharts();
+
+    this.loadKpis();
+
+    this.loadMonthlyTrend();
+
+    this.loadChannelBreakdown();
+
+    this.loadFraudTypes();
+
+    this.loadDetectionRecovery();
+
+    this.loadRegionHeatmap();
+
+    this.loadDetectionSource();
+
+    this.loadTopPatterns();
+
+    this.loadRecentReports();
   }
 
+
+  // =====================================================
+  // KPI CARDS
+  // =====================================================
+
   private loadKpis(): void {
+
     this.httpService.getFraudReportKpis().subscribe({
+
       next: (response: any) => {
 
         if (response?.status !== 'success') {
-          console.error('Unable to load fraud report KPIs');
+
+          console.error(
+            'Unable to load fraud report KPIs',
+            response
+          );
+
+          this.kpis = [];
+
           return;
         }
 
-        const metrics = response.metrics;
+        const metrics = response?.metrics || {};
 
         this.kpis = [
+
           {
             label: 'Total Fraud Cases',
-            value: metrics.total_fraud_cases.toLocaleString(),
+
+            value: Number(
+              metrics.total_fraud_cases ?? 0
+            ).toLocaleString(),
+
             icon: 'fa-shield-alt',
+
             color: this.colors.danger,
+
             trend: 'flat',
+
             change: '',
+
             description: 'Total fraud cases'
           },
+
           {
             label: 'Amount at Risk',
-            value: this.formatCompact(metrics.amount_at_risk),
+
+            value: this.formatCompact(
+              Number(
+                metrics.amount_at_risk ?? 0
+              )
+            ),
+
             icon: 'fa-money-bill-wave',
+
             color: this.colors.warning,
+
             trend: 'flat',
+
             change: '',
+
             description: 'Total exposure'
           },
+
           {
             label: 'Detection Rate',
-            value: `${metrics.detection_rate.toFixed(1)}%`,
+
+            value: `${Number(
+              metrics.detection_rate ?? 0
+            ).toFixed(1)}%`,
+
             icon: 'fa-search',
+
             color: this.colors.primary,
+
             trend: 'flat',
+
             change: '',
+
             description: 'Fraud detection rate'
           },
+
           {
             label: 'False Positive Rate',
-            value: `${metrics.false_positive_rate.toFixed(1)}%`,
+
+            value: `${Number(
+              metrics.false_positive_rate ?? 0
+            ).toFixed(1)}%`,
+
             icon: 'fa-exclamation-triangle',
+
             color: '#ffc107',
+
             trend: 'flat',
+
             change: '',
+
             description: 'False positive rate'
           },
+
           {
             label: 'Avg Resolution Time',
-            value: `${metrics.avg_resolution_time_hours.toFixed(2)} hrs`,
+
+            value: `${Number(
+              metrics.avg_resolution_time_hours ?? 0
+            ).toFixed(2)} hrs`,
+
             icon: 'fa-clock',
+
             color: this.colors.info,
+
             trend: 'flat',
+
             change: '',
+
             description: 'Average resolution time'
           },
+
           {
             label: 'Compliance Score',
-            value: `${metrics.compliance_score.toFixed(1)}%`,
+
+            value: `${Number(
+              metrics.compliance_score ?? 0
+            ).toFixed(1)}%`,
+
             icon: 'fa-check-circle',
+
             color: this.colors.success,
+
             trend: 'flat',
+
             change: '',
+
             description: 'Compliance performance'
           }
+
         ];
       },
 
       error: (error: any) => {
-        console.error('Error loading report KPIs:', error);
+
+        console.error(
+          'Error loading fraud report KPIs:',
+          error
+        );
+
+        this.kpis = [];
       }
+
     });
   }
+
+
+  // =====================================================
+  // MONTHLY FRAUD TREND
+  // =====================================================
+
+  private loadMonthlyTrend(): void {
+
+    this.httpService
+      .getFraudMonthlyTrend()
+      .subscribe({
+
+        next: (response: any) => {
+
+          if (response?.status !== 'success') {
+
+            console.error(
+              'Unable to load monthly fraud trend'
+            );
+
+            return;
+          }
+
+          const data = response?.series || [];
+
+          this.fraudTrendOptions = {
+
+            series: [
+
+              {
+                name: 'Fraud Cases',
+
+                type: 'column',
+
+                data: data.map(
+                  (item: any) =>
+                    Number(
+                      item.confirmed_fraud_cases ?? 0
+                    )
+                )
+              },
+
+              {
+                name: 'Amount (M KES)',
+
+                type: 'line',
+
+                data: data.map(
+                  (item: any) =>
+                    Number(
+                      (
+                        Number(
+                          item.amount_stolen ?? 0
+                        ) / 1000000
+                      ).toFixed(2)
+                    )
+                )
+              }
+
+            ],
+
+            chart: {
+              height: 340,
+              type: 'line',
+
+              toolbar: {
+                show: false
+              },
+
+              fontFamily: this.colors.font
+            },
+
+            stroke: {
+              width: [0, 3],
+              curve: 'smooth'
+            },
+
+            colors: [
+              this.colors.danger,
+              this.colors.primary
+            ],
+
+            plotOptions: {
+              bar: {
+                borderRadius: 4,
+                columnWidth: '55%'
+              }
+            },
+
+            fill: {
+              opacity: [0.85, 1]
+            },
+
+            labels: data.map(
+              (item: any) =>
+                this.formatMonth(
+                  item.period
+                )
+            ),
+
+            markers: {
+              size: 4
+            },
+
+            xaxis: {
+              labels: {
+                style: {
+                  fontSize: '11px'
+                }
+              }
+            },
+
+            yaxis: [
+
+              {
+                title: {
+                  text: 'Cases'
+                }
+              },
+
+              {
+                opposite: true,
+
+                title: {
+                  text: 'Amount (M KES)'
+                }
+              }
+
+            ],
+
+            legend: {
+              position: 'top',
+              horizontalAlign: 'right'
+            },
+
+            grid: {
+              borderColor: this.colors.grid
+            }
+
+          };
+        },
+
+        error: (error: any) => {
+
+          console.error(
+            'Error loading monthly fraud trend:',
+            error
+          );
+
+        }
+
+      });
+  }
+
+
+  // =====================================================
+  // FRAUD BY CHANNEL
+  // =====================================================
+
+  private loadChannelBreakdown(): void {
+
+    this.httpService
+      .getFraudByChannel()
+      .subscribe({
+
+        next: (response: any) => {
+
+          if (response?.status !== 'success') {
+
+            console.error(
+              'Unable to load fraud by channel'
+            );
+
+            return;
+          }
+
+          const data = response?.series || [];
+
+          this.channelBreakdownOptions = {
+
+            series: [
+
+              {
+                name: 'Fraud Cases',
+
+                data: data.map(
+                  (item: any) =>
+                    Number(
+                      item.count ?? 0
+                    )
+                )
+              }
+
+            ],
+
+            chart: {
+              type: 'bar',
+              height: 300,
+
+              toolbar: {
+                show: false
+              },
+
+              fontFamily: this.colors.font
+            },
+
+            plotOptions: {
+
+              bar: {
+                horizontal: true,
+                borderRadius: 4,
+                barHeight: '65%'
+              }
+
+            },
+
+            colors: [
+              this.colors.primary
+            ],
+
+            xaxis: {
+
+              categories: data.map(
+                (item: any) =>
+                  item.label ||
+                  item.channel
+              )
+
+            },
+
+            grid: {
+              borderColor: this.colors.grid
+            }
+
+          };
+        },
+
+        error: (error: any) => {
+
+          console.error(
+            'Error loading fraud by channel:',
+            error
+          );
+
+        }
+
+      });
+  }
+
+
+  // =====================================================
+  // FRAUD TYPES
+  // =====================================================
+
+  private loadFraudTypes(): void {
+
+    this.httpService
+      .getFraudTypes()
+      .subscribe({
+
+        next: (response: any) => {
+
+          if (response?.status !== 'success') {
+
+            console.error(
+              'Unable to load fraud types'
+            );
+
+            return;
+          }
+
+          const data = response?.series || [];
+
+          this.fraudTypeOptions = {
+
+            series: data.map(
+              (item: any) =>
+                Number(
+                  item.count ?? 0
+                )
+            ),
+
+            chart: {
+              type: 'donut',
+              height: 300,
+              fontFamily: this.colors.font
+            },
+
+            labels: data.map(
+              (item: any) =>
+                item.label ||
+                item.fraud_type
+            ),
+
+            colors: [
+              this.colors.danger,
+              this.colors.warning,
+              this.colors.primary,
+              this.colors.purple,
+              this.colors.info,
+              this.colors.muted
+            ],
+
+            legend: {
+              position: 'bottom'
+            },
+
+            plotOptions: {
+
+              pie: {
+
+                donut: {
+
+                  size: '62%',
+
+                  labels: {
+
+                    show: true,
+
+                    total: {
+                      show: true,
+                      label: 'Total Cases',
+                      fontSize: '12px'
+                    }
+
+                  }
+
+                }
+
+              }
+
+            },
+
+            dataLabels: {
+              enabled: false
+            }
+
+          };
+        },
+
+        error: (error: any) => {
+
+          console.error(
+            'Error loading fraud types:',
+            error
+          );
+
+        }
+
+      });
+  }
+
+
+  // =====================================================
+  // DETECTION / BLOCKING / RECOVERY
+  // =====================================================
+
+  private loadDetectionRecovery(): void {
+
+    this.httpService
+      .getDetectionRecovery()
+      .subscribe({
+
+        next: (response: any) => {
+
+          if (response?.status !== 'success') {
+
+            console.error(
+              'Unable to load detection/recovery'
+            );
+
+            return;
+          }
+
+          const data = response?.series || [];
+
+          this.monthlyComparisonOptions = {
+
+            series: [
+
+              {
+                name: 'Detected',
+
+                data: data.map(
+                  (item: any) =>
+                    Number(
+                      item.detected ?? 0
+                    )
+                )
+              },
+
+              {
+                name: 'Blocked',
+
+                data: data.map(
+                  (item: any) =>
+                    Number(
+                      item.blocked ?? 0
+                    )
+                )
+              },
+
+              {
+                name: 'Recovered',
+
+                data: data.map(
+                  (item: any) =>
+                    Number(
+                      item.recovered ?? 0
+                    )
+                )
+              }
+
+            ],
+
+            chart: {
+
+              type: 'area',
+
+              height: 300,
+
+              toolbar: {
+                show: false
+              },
+
+              fontFamily: this.colors.font
+
+            },
+
+            colors: [
+              this.colors.primary,
+              this.colors.success,
+              this.colors.info
+            ],
+
+            stroke: {
+              curve: 'smooth',
+              width: 2
+            },
+
+            fill: {
+
+              type: 'gradient',
+
+              gradient: {
+                opacityFrom: 0.4,
+                opacityTo: 0.05
+              }
+
+            },
+
+            xaxis: {
+
+              categories: data.map(
+                (item: any) =>
+                  this.formatMonth(
+                    item.period
+                  )
+              )
+
+            },
+
+            legend: {
+              position: 'top'
+            },
+
+            grid: {
+              borderColor: this.colors.grid
+            }
+
+          };
+        },
+
+        error: (error: any) => {
+
+          console.error(
+            'Error loading detection/recovery:',
+            error
+          );
+
+        }
+
+      });
+  }
+
+
+  // =====================================================
+  // REGIONAL HEATMAP
+  // =====================================================
+
+  private loadRegionHeatmap(): void {
+
+    this.httpService
+      .getRegionalFraudHeatmap()
+      .subscribe({
+
+        next: (response: any) => {
+
+          if (response?.status !== 'success') {
+
+            console.error(
+              'Unable to load regional fraud heatmap'
+            );
+
+            return;
+          }
+
+          const series = (
+            response?.series || []
+          ).map(
+            (region: any) => ({
+
+              name: region.name,
+
+              data: (
+                region.data || []
+              ).map(
+                (item: any) => ({
+
+                  x: item.x,
+
+                  y: Number(
+                    item.y ?? 0
+                  ),
+
+                  level:
+                    item.level,
+
+                  transaction_count:
+                    item.transaction_count,
+
+                  risk_counts:
+                    item.risk_counts
+
+                })
+              )
+
+            })
+          );
+
+          this.regionHeatmapOptions = {
+
+            series,
+
+            chart: {
+              type: 'heatmap',
+              height: 280,
+
+              toolbar: {
+                show: false
+              },
+
+              fontFamily: this.colors.font
+            },
+
+            dataLabels: {
+              enabled: false
+            },
+
+            plotOptions: {
+
+              heatmap: {
+
+                shadeIntensity: 0.5,
+
+                colorScale: {
+
+                  ranges: [
+
+                    {
+                      from: 0,
+                      to: 1,
+                      color: '#e8f4fd',
+                      name: 'Low'
+                    },
+
+                    {
+                      from: 2,
+                      to: 2,
+                      color: '#4cc9f0',
+                      name: 'Medium'
+                    },
+
+                    {
+                      from: 3,
+                      to: 100,
+                      color: '#f72585',
+                      name: 'High'
+                    }
+
+                  ]
+
+                }
+
+              }
+
+            },
+
+            xaxis: {
+              type: 'category'
+            },
+
+            grid: {
+              borderColor: this.colors.grid
+            }
+
+          };
+        },
+
+        error: (error: any) => {
+
+          console.error(
+            'Error loading regional heatmap:',
+            error
+          );
+
+        }
+
+      });
+  }
+
+
+  // =====================================================
+  // DETECTION SOURCE
+  // =====================================================
+
+  private loadDetectionSource(): void {
+
+    this.httpService
+      .getDetectionSource()
+      .subscribe({
+
+        next: (response: any) => {
+
+          if (response?.status !== 'success') {
+
+            console.error(
+              'Unable to load detection source'
+            );
+
+            return;
+          }
+
+          const data = response?.series || [];
+
+          this.detectionSourceOptions = {
+
+            series: data.map(
+              (item: any) =>
+                Number(
+                  item.count ?? 0
+                )
+            ),
+
+            chart: {
+              type: 'pie',
+              height: 280,
+              fontFamily: this.colors.font
+            },
+
+            labels: data.map(
+              (item: any) =>
+                item.label ||
+                item.source
+            ),
+
+            colors: [
+              this.colors.primary,
+              this.colors.warning,
+              this.colors.success
+            ],
+
+            legend: {
+              position: 'bottom'
+            },
+
+            dataLabels: {
+
+              formatter:
+                (val: number) =>
+                  `${val.toFixed(1)}%`
+
+            }
+
+          };
+        },
+
+        error: (error: any) => {
+
+          console.error(
+            'Error loading detection source:',
+            error
+          );
+
+        }
+
+      });
+  }
+
+
+  // =====================================================
+  // TOP FRAUD PATTERNS
+  // =====================================================
+
+  private loadTopPatterns(): void {
+
+    this.httpService
+      .getTopFraudPatterns()
+      .subscribe({
+
+        next: (response: any) => {
+
+          if (response?.status !== 'success') {
+
+            console.error(
+              'Unable to load top fraud patterns'
+            );
+
+            this.topPatterns = [];
+
+            return;
+          }
+
+          this.topPatterns =
+            response?.patterns || [];
+        },
+
+        error: (error: any) => {
+
+          console.error(
+            'Error loading top fraud patterns:',
+            error
+          );
+
+          this.topPatterns = [];
+        }
+
+      });
+  }
+
+
+  // =====================================================
+  // RECENT FRAUD REPORTS
+  // =====================================================
+
+  private loadRecentReports(
+    page: number = this.currentPage
+  ): void {
+
+    const payload = {
+
+      page: page,
+
+      page_size:
+        this.pageSize,
+
+      search:
+        this.searchTerm?.trim() || '',
+
+      channel:
+        this.selectedChannel || 'all',
+
+      status: 'all'
+
+    };
+
+    this.httpService
+      .getRecentFraudReports(
+        payload
+      )
+      .subscribe({
+
+        next: (response: any) => {
+
+          if (response?.status !== 'success') {
+
+            console.error(
+              'Unable to load recent fraud reports'
+            );
+
+            this.reports = [];
+
+            this.filteredReports = [];
+
+            return;
+          }
+
+          const apiReports =
+            response?.reports || [];
+
+          this.reports =
+            apiReports.map(
+              (
+                item: any
+              ): FraudReportRow => ({
+
+                id:
+                  item.report_id || '',
+
+                date:
+                  item.date || '',
+
+                type:
+                  item.fraud_type ||
+                  'Unknown',
+
+                channel:
+                  item.channel ||
+                  'Unknown',
+
+                region:
+                  item.region ||
+                  'Unknown',
+
+                amount:
+                  Number(
+                    item.amount ?? 0
+                  ),
+
+                currency:
+                  item.currency ||
+                  'KES',
+
+                riskScore:
+                  Number(
+                    item.risk_score ?? 0
+                  ),
+
+                status:
+                  item.status ||
+                  'Unknown',
+
+                analyst:
+                  item.analyst ||
+                  'Unassigned'
+
+              })
+            );
+
+          this.filteredReports = [
+            ...this.reports
+          ];
+
+          const pagination =
+            response?.pagination || {};
+
+          this.currentPage =
+            Number(
+              pagination.page ??
+              page
+            );
+
+          this.pageSize =
+            Number(
+              pagination.page_size ??
+              this.pageSize
+            );
+
+          this.totalReports =
+            Number(
+              pagination.total_reports ??
+              0
+            );
+
+          this.totalPages =
+            Number(
+              pagination.total_pages ??
+              0
+            );
+
+          this.hasNextPage =
+            Boolean(
+              pagination.has_next
+            );
+
+          this.hasPreviousPage =
+            Boolean(
+              pagination.has_previous
+            );
+
+        },
+
+        error: (error: any) => {
+
+          console.error(
+            'Error loading recent fraud reports:',
+            error
+          );
+
+          this.reports = [];
+
+          this.filteredReports = [];
+
+        }
+
+      });
+  }
+
+
+  // =====================================================
+  // FILTERS
+  // =====================================================
 
   applyFilters(): void {
-    this.filteredReports = this.reports.filter(r => {
-      const matchChannel = this.selectedChannel === 'all' || r.channel === this.selectedChannel;
-      const matchSearch = !this.searchTerm ||
-        r.id.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        r.type.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        r.analyst.toLowerCase().includes(this.searchTerm.toLowerCase());
-      return matchChannel && matchSearch;
-    });
+
+    this.currentPage = 1;
+
+    this.loadRecentReports(
+      1
+    );
   }
 
-  getStatusClass(status: string): string {
-    const map: Record<string, string> = {
-      'Confirmed': 'status-confirmed',
-      'Under Review': 'status-review',
-      'False Positive': 'status-fp',
-      'Escalated': 'status-escalated'
+
+  // =====================================================
+  // STATUS
+  // =====================================================
+
+  getStatusClass(
+    status: string
+  ): string {
+
+    const map:
+      Record<string, string> = {
+
+      'Confirmed':
+        'status-confirmed',
+
+      'Under Review':
+        'status-review',
+
+      'False Positive':
+        'status-fp',
+
+      'Escalated':
+        'status-escalated'
+
     };
+
     return map[status] || '';
   }
 
-  getRiskColor(score: number): string {
-    if (score >= 90) return '#f72585';
-    if (score >= 75) return '#fd7e14';
-    if (score >= 50) return '#ffc107';
+
+  getRiskColor(
+    score: number
+  ): string {
+
+    if (score >= 90) {
+      return '#f72585';
+    }
+
+    if (score >= 75) {
+      return '#fd7e14';
+    }
+
+    if (score >= 50) {
+      return '#ffc107';
+    }
+
     return '#06d6a0';
   }
 
-  formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('en-KE', {
-      style: 'currency',
-      currency: 'KES',
-      minimumFractionDigits: 0
-    }).format(amount);
+
+  // =====================================================
+  // FORMATTERS
+  // =====================================================
+
+  formatCurrency(
+    amount: number,
+    currency: string = 'KES'
+  ): string {
+
+    return new Intl.NumberFormat(
+      'en-KE',
+      {
+        style: 'currency',
+        currency: currency,
+        minimumFractionDigits: 0
+      }
+    ).format(
+      Number(amount || 0)
+    );
   }
 
-  formatCompact(amount: number): string {
-    if (amount >= 1000000) return `KES ${(amount / 1000000).toFixed(1)}M`;
-    if (amount >= 1000) return `KES ${(amount / 1000).toFixed(0)}K`;
-    return this.formatCurrency(amount);
+
+  formatCompact(
+    amount: number
+  ): string {
+
+    const value =
+      Number(amount || 0);
+
+    if (
+      value >= 1000000000
+    ) {
+
+      return `KES ${(
+        value / 1000000000
+      ).toFixed(1)}B`;
+
+    }
+
+    if (
+      value >= 1000000
+    ) {
+
+      return `KES ${(
+        value / 1000000
+      ).toFixed(1)}M`;
+
+    }
+
+    if (
+      value >= 1000
+    ) {
+
+      return `KES ${(
+        value / 1000
+      ).toFixed(0)}K`;
+
+    }
+
+    return this.formatCurrency(
+      value
+    );
   }
+
+
+  private formatMonth(
+    period: string
+  ): string {
+
+    if (!period) {
+
+      return '';
+
+    }
+
+    const parts =
+      period.split('-');
+
+    if (
+      parts.length < 2
+    ) {
+
+      return period;
+
+    }
+
+    const year =
+      Number(parts[0]);
+
+    const month =
+      Number(parts[1]);
+
+    return new Date(
+      year,
+      month - 1,
+      1
+    ).toLocaleString(
+      'en-US',
+      {
+        month: 'short'
+      }
+    );
+  }
+
+
+  // =====================================================
+  // EXPORT
+  // =====================================================
 
   exportReport(): void {
-    alert('Report export will be available in production.');
+
+    alert(
+      'Report export will be available in production.'
+    );
+
   }
+
+
+  // =====================================================
+  // EMPTY INITIAL CHART CONFIGURATION
+  // =====================================================
 
   private initCharts(): void {
+
     this.fraudTrendOptions = {
-      series: [
-        { name: 'Fraud Cases', type: 'column', data: [89, 112, 98, 134, 156, 142, 168, 187, 201, 178, 195, 214] },
-        { name: 'Amount (M KES)', type: 'line', data: [3.2, 4.1, 3.8, 5.4, 6.2, 5.8, 7.1, 8.3, 9.2, 7.8, 8.9, 10.4] }
+
+      series: [],
+
+      chart: {
+        height: 340,
+        type: 'line',
+
+        toolbar: {
+          show: false
+        },
+
+        fontFamily:
+          this.colors.font
+      },
+
+      stroke: {
+        width: [0, 3],
+        curve: 'smooth'
+      },
+
+      colors: [
+        this.colors.danger,
+        this.colors.primary
       ],
-      chart: { height: 340, type: 'line', toolbar: { show: false }, fontFamily: this.colors.font },
-      stroke: { width: [0, 3], curve: 'smooth' },
-      colors: [this.colors.danger, this.colors.primary],
-      plotOptions: { bar: { borderRadius: 4, columnWidth: '55%' } },
-      fill: { opacity: [0.85, 1] },
-      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-      markers: { size: 4 },
-      xaxis: { labels: { style: { fontSize: '11px' } } },
-      yaxis: [
-        { title: { text: 'Cases' } },
-        { opposite: true, title: { text: 'Amount (M KES)' } }
-      ],
-      legend: { position: 'top', horizontalAlign: 'right' },
-      grid: { borderColor: this.colors.grid }
+
+      labels: [],
+
+      grid: {
+        borderColor:
+          this.colors.grid
+      }
+
     };
+
 
     this.channelBreakdownOptions = {
-      series: [{ name: 'Fraud Cases', data: [412, 287, 198, 156, 134, 97] }],
-      chart: { type: 'bar', height: 300, toolbar: { show: false }, fontFamily: this.colors.font },
-      plotOptions: { bar: { horizontal: true, borderRadius: 4, barHeight: '65%' } },
-      colors: [this.colors.primary],
-      xaxis: { categories: ['Mobile Banking', 'Internet Banking', 'USSD', 'ATM/POS', 'Agency', 'Core Banking'] },
-      grid: { borderColor: this.colors.grid }
+
+      series: [
+        {
+          name:
+            'Fraud Cases',
+
+          data: []
+        }
+      ],
+
+      chart: {
+        type: 'bar',
+        height: 300,
+
+        toolbar: {
+          show: false
+        },
+
+        fontFamily:
+          this.colors.font
+      },
+
+      plotOptions: {
+
+        bar: {
+          horizontal: true,
+          borderRadius: 4,
+          barHeight: '65%'
+        }
+
+      },
+
+      colors: [
+        this.colors.primary
+      ],
+
+      xaxis: {
+        categories: []
+      },
+
+      grid: {
+        borderColor:
+          this.colors.grid
+      }
+
     };
+
 
     this.fraudTypeOptions = {
-      series: [28, 22, 18, 14, 10, 8],
-      chart: { type: 'donut', height: 300, fontFamily: this.colors.font },
-      labels: ['Account Takeover', 'SIM Swap', 'Phishing', 'Card Skimming', 'Money Mule', 'Other'],
-      colors: [this.colors.danger, this.colors.warning, this.colors.primary, this.colors.purple, this.colors.info, this.colors.muted],
-      legend: { position: 'bottom' },
-      plotOptions: { pie: { donut: { size: '62%', labels: { show: true, total: { show: true, label: 'Total Cases', fontSize: '12px' } } } } },
-      dataLabels: { enabled: false }
+
+      series: [],
+
+      chart: {
+        type: 'donut',
+        height: 300,
+        fontFamily:
+          this.colors.font
+      },
+
+      labels: [],
+
+      colors: [
+        this.colors.danger,
+        this.colors.warning,
+        this.colors.primary,
+        this.colors.purple,
+        this.colors.info,
+        this.colors.muted
+      ],
+
+      legend: {
+        position: 'bottom'
+      },
+
+      dataLabels: {
+        enabled: false
+      }
+
     };
+
 
     this.monthlyComparisonOptions = {
+
       series: [
-        { name: 'Detected', data: [78, 92, 85, 110, 124, 118, 142, 156, 168, 152, 171, 189] },
-        { name: 'Blocked', data: [72, 88, 80, 105, 119, 112, 138, 150, 162, 147, 165, 182] },
-        { name: 'Recovered', data: [45, 52, 48, 68, 78, 72, 89, 98, 105, 94, 108, 120] }
+
+        {
+          name: 'Detected',
+          data: []
+        },
+
+        {
+          name: 'Blocked',
+          data: []
+        },
+
+        {
+          name: 'Recovered',
+          data: []
+        }
+
       ],
-      chart: { type: 'area', height: 300, toolbar: { show: false }, fontFamily: this.colors.font },
-      colors: [this.colors.primary, this.colors.success, this.colors.info],
-      stroke: { curve: 'smooth', width: 2 },
-      fill: { type: 'gradient', gradient: { opacityFrom: 0.4, opacityTo: 0.05 } },
-      xaxis: { categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] },
-      legend: { position: 'top' },
-      grid: { borderColor: this.colors.grid }
+
+      chart: {
+        type: 'area',
+        height: 300,
+
+        toolbar: {
+          show: false
+        },
+
+        fontFamily:
+          this.colors.font
+      },
+
+      colors: [
+        this.colors.primary,
+        this.colors.success,
+        this.colors.info
+      ],
+
+      stroke: {
+        curve: 'smooth',
+        width: 2
+      },
+
+      xaxis: {
+        categories: []
+      },
+
+      grid: {
+        borderColor:
+          this.colors.grid
+      }
+
     };
+
 
     this.regionHeatmapOptions = {
-      series: [
-        { name: 'Nairobi', data: this.generateHeatmapData() },
-        { name: 'Mombasa', data: this.generateHeatmapData() },
-        { name: 'Kisumu', data: this.generateHeatmapData() },
-        { name: 'Nakuru', data: this.generateHeatmapData() },
-        { name: 'Eldoret', data: this.generateHeatmapData() }
-      ],
-      chart: { type: 'heatmap', height: 280, toolbar: { show: false }, fontFamily: this.colors.font },
-      dataLabels: { enabled: false },
-      colors: [this.colors.danger],
-      xaxis: { categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] },
-      plotOptions: { heatmap: { shadeIntensity: 0.5, colorScale: { ranges: [
-        { from: 0, to: 5, color: '#e8f4fd', name: 'Low' },
-        { from: 6, to: 15, color: '#4cc9f0', name: 'Medium' },
-        { from: 16, to: 30, color: '#f72585', name: 'High' }
-      ] } } }
+
+      series: [],
+
+      chart: {
+        type: 'heatmap',
+        height: 280,
+
+        toolbar: {
+          show: false
+        },
+
+        fontFamily:
+          this.colors.font
+      },
+
+      dataLabels: {
+        enabled: false
+      }
+
     };
+
 
     this.detectionSourceOptions = {
-      series: [58, 28, 14],
-      chart: { type: 'pie', height: 280, fontFamily: this.colors.font },
-      labels: ['AI / ML Models', 'Rule Engine', 'Manual Review'],
-      colors: [this.colors.primary, this.colors.warning, this.colors.success],
-      legend: { position: 'bottom' },
-      dataLabels: { formatter: (val: number) => `${val.toFixed(1)}%` }
+
+      series: [],
+
+      chart: {
+        type: 'pie',
+        height: 280,
+
+        fontFamily:
+          this.colors.font
+      },
+
+      labels: [],
+
+      colors: [
+        this.colors.primary,
+        this.colors.warning,
+        this.colors.success
+      ],
+
+      legend: {
+        position: 'bottom'
+      }
+
     };
+
   }
 
-  private generateHeatmapData(): { x: string; y: number }[] {
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    return days.map(d => ({ x: d, y: Math.floor(Math.random() * 25) + 2 }));
-  }
 }
-
-
