@@ -206,21 +206,60 @@
         </div>
         <div class="card-body pt-0 px-0">
           <div class="pattern-list">
-            <div class="pattern-item" *ngFor="let p of topPatterns; let i = index">
-              <div class="pattern-rank">{{ i + 1 }}</div>
-              <div class="pattern-info">
-                <div class="pattern-name">{{ p.pattern }}</div>
-                <div class="pattern-meta">
-                  <span><i class="fas fa-hashtag"></i> {{ p.occurrences }} cases</span>
-                  <span><i class="fas fa-shield-alt"></i> {{ formatCompact(p.lossPrevented) }} saved</span>
-                </div>
-              </div>
-              <div class="pattern-trend" [class.positive]="p.trend > 0" [class.negative]="p.trend < 0">
-                <i class="fas" [ngClass]="p.trend > 0 ? 'fa-arrow-up' : 'fa-arrow-down'"></i>
-                {{ p.trend > 0 ? '+' : '' }}{{ p.trend }}%
-              </div>
-            </div>
-          </div>
+
+  <div
+    class="pattern-item"
+    *ngFor="let p of topPatterns; let i = index"
+  >
+
+    <div class="pattern-rank">
+      {{ p.rank || (i + 1) }}
+    </div>
+
+    <div class="pattern-info">
+
+      <div class="pattern-name">
+        {{ p.pattern }}
+      </div>
+
+      <div class="pattern-meta">
+
+        <span>
+          <i class="fas fa-hashtag"></i>
+          {{ p.trigger_count }} triggers
+        </span>
+
+        <span>
+          <i class="fas fa-shield-alt"></i>
+          {{ p.risk_points }} risk points
+        </span>
+
+      </div>
+
+    </div>
+
+    <div
+      class="pattern-trend"
+      [class.positive]="p.is_active"
+      [class.negative]="!p.is_active"
+    >
+
+      <i
+        class="fas"
+        [ngClass]="
+          p.is_active
+            ? 'fa-check-circle'
+            : 'fa-pause-circle'
+        "
+      ></i>
+
+      {{ p.is_active ? 'Active' : 'Inactive' }}
+
+    </div>
+
+  </div>
+
+</div>
         </div>
       </div>
     </div>

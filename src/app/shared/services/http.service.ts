@@ -2008,6 +2008,7 @@ export class HttpService {
   getFraudReportKpis(): Observable<any> {
     return this.http.post(
       `${this.apiUrl}/reports/kpis`,
+      {},
       this.getHeaders()
     ).pipe(
       catchError(
@@ -2022,6 +2023,146 @@ export class HttpService {
             compliance_score: 0
           },
           data_quality: {}
+        })
+      )
+    );
+  }
+
+  // =====================================================
+  // FRAUD REPORTING APIs
+  // =====================================================
+
+  getFraudMonthlyTrend(): Observable<any> {
+    return this.http.post(
+      `${this.apiUrl}/reports/monthly-trend`,
+      this.getHeaders()
+    ).pipe(
+      catchError(
+        this.handleError<any>('getFraudMonthlyTrend', {
+          status: 'error',
+          series: []
+        })
+      )
+    );
+  }
+
+  getFraudTypes(): Observable<any> {
+    return this.http.post(
+      `${this.apiUrl}/reports/fraud-types`,
+      this.getHeaders()
+    ).pipe(
+      catchError(
+        this.handleError<any>('getFraudTypes', {
+          status: 'error',
+          total_confirmed_fraud_cases: 0,
+          series: []
+        })
+      )
+    );
+  }
+
+  getFraudByChannel(): Observable<any> {
+    return this.http.post(
+      `${this.apiUrl}/reports/fraud-by-channel`,
+      this.getHeaders()
+    ).pipe(
+      catchError(
+        this.handleError<any>('getFraudByChannel', {
+          status: 'error',
+          total_flagged_transactions: 0,
+          series: []
+        })
+      )
+    );
+  }
+
+  getDetectionRecovery(): Observable<any> {
+    return this.http.post(
+      `${this.apiUrl}/reports/detection-recovery`,
+      this.getHeaders()
+    ).pipe(
+      catchError(
+        this.handleError<any>('getDetectionRecovery', {
+          status: 'error',
+          series: []
+        })
+      )
+    );
+  }
+
+  getDetectionSource(): Observable<any> {
+    return this.http.post(
+      `${this.apiUrl}/reports/detection-source`,
+      this.getHeaders()
+    ).pipe(
+      catchError(
+        this.handleError<any>('getDetectionSource', {
+          status: 'error',
+          total_confirmed_fraud_cases: 0,
+          series: []
+        })
+      )
+    );
+  }
+
+  getRegionalFraudHeatmap(): Observable<any> {
+    return this.http.post(
+      `${this.apiUrl}/reports/regional-activity-heatmap`,
+      this.getHeaders()
+    ).pipe(
+      catchError(
+        this.handleError<any>('getRegionalFraudHeatmap', {
+          status: 'error',
+          series: []
+        })
+      )
+    );
+  }
+
+  getTopFraudPatterns(): Observable<any> {
+    return this.http.post(
+      `${this.apiUrl}/reports/top-fraud-patterns`,
+      {},
+      this.getHeaders()
+    ).pipe(
+      catchError(
+        this.handleError<any>('getTopFraudPatterns', {
+          status: 'error',
+          summary: {},
+          patterns: []
+        })
+      )
+    );
+  }
+
+  getRecentFraudReports(
+    payload: {
+      page?: number;
+      page_size?: number;
+      search?: string;
+      channel?: string;
+      status?: string;
+      start_date?: string;
+      end_date?: string;
+    }
+  ): Observable<any> {
+    return this.http.post(
+      `${this.apiUrl}/reports/recent-fraud-reports`,
+      payload,
+      this.getHeaders()
+    ).pipe(
+      catchError(
+        this.handleError<any>('getRecentFraudReports', {
+          status: 'error',
+          reports: [],
+          pagination: {
+            page: 1,
+            page_size: 10,
+            total_reports: 0,
+            total_pages: 0,
+            has_next: false,
+            has_previous: false
+          }
         })
       )
     );
