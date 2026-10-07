@@ -16,7 +16,7 @@ export interface ChannelHealth {
   fraudRate: number;
   avgLatencyMs: number;
   uptime: number;
-  blockedToday: number;
+  blockedInPeriod: number;
   color: string;
   icon: string;
 }
@@ -109,7 +109,7 @@ export const CHANNEL_HEALTH: ChannelHealth[] = [
     fraudRate: 0.42,
     avgLatencyMs: 186,
     uptime: 99.97,
-    blockedToday: 128,
+    blockedInPeriod: 128,
     color: '#4361ee',
     icon: 'fa-mobile-alt'
   },
@@ -121,7 +121,7 @@ export const CHANNEL_HEALTH: ChannelHealth[] = [
     fraudRate: 0.31,
     avgLatencyMs: 142,
     uptime: 99.99,
-    blockedToday: 54,
+    blockedInPeriod: 54,
     color: '#06d6a0',
     icon: 'fa-globe'
   },
@@ -133,7 +133,7 @@ export const CHANNEL_HEALTH: ChannelHealth[] = [
     fraudRate: 0.78,
     avgLatencyMs: 312,
     uptime: 98.64,
-    blockedToday: 97,
+    blockedInPeriod: 97,
     color: '#fd7e14',
     icon: 'fa-keyboard'
   },
@@ -145,7 +145,7 @@ export const CHANNEL_HEALTH: ChannelHealth[] = [
     fraudRate: 0.25,
     avgLatencyMs: 98,
     uptime: 99.91,
-    blockedToday: 31,
+    blockedInPeriod: 31,
     color: '#4cc9f0',
     icon: 'fa-credit-card'
   },
@@ -157,7 +157,7 @@ export const CHANNEL_HEALTH: ChannelHealth[] = [
     fraudRate: 1.24,
     avgLatencyMs: 428,
     uptime: 96.12,
-    blockedToday: 62,
+    blockedInPeriod: 62,
     color: '#f72585',
     icon: 'fa-store'
   },
@@ -169,7 +169,7 @@ export const CHANNEL_HEALTH: ChannelHealth[] = [
     fraudRate: 0.18,
     avgLatencyMs: 76,
     uptime: 99.99,
-    blockedToday: 12,
+    blockedInPeriod: 12,
     color: '#7209b7',
     icon: 'fa-university'
   }
