@@ -38,39 +38,39 @@ export class CaseManagementComponent implements OnInit, OnDestroy {
 
   // ============= CREATE CASE =============
 
-showCreateCaseModal = false;
+  showCreateCaseModal = false;
 
-selectedTransactionForCase: any = null;
-
-
-
-availableAlerts: any[] = [];
-
-alertsLoading = false;
+  selectedTransactionForCase: any = null;
 
 
 
-caseFormData: any = {
+  availableAlerts: any[] = [];
 
-  customerId: '',
+  alertsLoading = false;
 
-  customerName: '',
 
-  riskLevel: 'MEDIUM',
 
-  priority: 'NORMAL',
+  caseFormData: any = {
 
-  assignedTo: '',
+    customerId: '',
 
-  alertId: '',
+    customerName: '',
 
-  transactionId: '',
+    riskLevel: 'MEDIUM',
 
-  notes: '',
+    priority: 'NORMAL',
 
-  triggeredRules: []
+    assignedTo: '',
 
-};
+    alertId: '',
+
+    transactionId: '',
+
+    notes: '',
+
+    triggeredRules: []
+
+  };
 
 
 
@@ -288,7 +288,7 @@ caseFormData: any = {
 
     private toastr: ToastrService
 
-  ) {}
+  ) { }
 
 
 
@@ -301,8 +301,6 @@ caseFormData: any = {
     this.loadAll();
 
     this.loadDashboard();
-
-    this.loadLocalData();
 
     this.pollInterval = setInterval(() => this.loadAll(true), 30000);
 
@@ -322,159 +320,183 @@ caseFormData: any = {
 
 
 
-currentPage = 1;
+  currentPage = 1;
 
-pageSize = 20;
-
-
-
-get totalPages(): number {
-
-  return Math.ceil(this.filteredCases.length / this.pageSize);
-
-}
+  pageSize = 20;
 
 
 
-get paginatedCases(): any[] {
+  get totalPages(): number {
 
-  const start = (this.currentPage - 1) * this.pageSize;
-
-  return this.filteredCases.slice(start, start + this.pageSize);
-
-}
-
-
-
-previousPage(): void {
-
-  if (this.currentPage > 1) {
-
-    this.currentPage--;
+    return Math.ceil(this.filteredCases.length / this.pageSize);
 
   }
 
-}
 
 
+  get paginatedCases(): any[] {
 
-nextPage(): void {
+    const start = (this.currentPage - 1) * this.pageSize;
 
-  if (this.currentPage < this.totalPages) {
-
-    this.currentPage++;
+    return this.filteredCases.slice(start, start + this.pageSize);
 
   }
 
-}
+
+
+  previousPage(): void {
+
+    if (this.currentPage > 1) {
+
+      this.currentPage--;
+
+    }
+
+  }
 
 
 
-submitCreateCase(): void {
+  nextPage(): void {
 
-  if (
+    if (this.currentPage < this.totalPages) {
 
-  !this.caseFormData.customerId ||
+      this.currentPage++;
 
-  !this.caseFormData.riskLevel ||
+    }
 
-  !this.caseFormData.alertId
-
-) {
-
-  this.showWarningAlert(
-
-    'Customer ID, Risk Level and Alert ID are required',
-
-    'Warning'
-
-  );
-
-  return;
-
-}
+  }
 
 
 
-  const riskScore = this.getRiskScoreFromLevel(this.caseFormData.riskLevel);
+  submitCreateCase(): void {
+
+    if (
+
+      !this.caseFormData.customerId ||
+
+      !this.caseFormData.riskLevel ||
+
+      !this.caseFormData.alertId
+
+    ) {
+
+      this.showWarningAlert(
+
+        'Customer ID, Risk Level and Alert ID are required',
+
+        'Warning'
+
+      );
+
+      return;
+
+    }
 
 
 
-  const newCase = {
-
-    id: 'CASE-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4).toUpperCase(),
-
-    alert_id: this.caseFormData.alertId,
-
-    customer_id: this.caseFormData.customerId,
-
-    customer_name: this.caseFormData.customerName || this.caseFormData.customerId,
-
-    final_risk_level: this.caseFormData.riskLevel,
-
-    risk_score: riskScore,
-
-    display_score: riskScore,
-
-    ml_risk_level: this.caseFormData.riskLevel === 'CRITICAL' ? 'HIGH' :
-
-                   this.caseFormData.riskLevel === 'HIGH' ? 'MEDIUM' : 'LOW',
-
-    status: 'OPEN',
-
-    priority: this.caseFormData.priority || 'NORMAL',
-
-    assigned_to: this.caseFormData.assignedTo || null,
-
-    triggered_rules:
-
-  this.caseFormData.triggeredRules || [],
-
-     transaction_id:
-
-  this.caseFormData.transactionId || null,
-
-    timeline: [{
-
-      timestamp: new Date().toISOString(),
-
-      action: 'Case created manually by analyst',
-
-      actor: 'Analyst'
-
-    }],
-
-    notes: this.caseFormData.notes ? [{
-
-      timestamp: new Date().toISOString(),
-
-      analyst: 'Analyst',
-
-      note: this.caseFormData.notes
-
-    }] : [],
-
-    created_at: new Date().toISOString(),
-
-    updated_at: new Date().toISOString()
-
-  };
+    const riskScore = this.getRiskScoreFromLevel(this.caseFormData.riskLevel);
 
 
 
-  // ✅ Try backend first
+    const newCase = {
 
-  this.finca.createCaseBackend(newCase).subscribe({
+      id: 'CASE-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4).toUpperCase(),
 
-    next: (res: any) => {
+      alert_id: this.caseFormData.alertId,
 
-      if (res && res.case) {
+      customer_id: this.caseFormData.customerId,
 
-        // Use backend case data
+      customer_name: this.caseFormData.customerName || this.caseFormData.customerId,
 
-        const backendCase = res.case;
+      final_risk_level: this.caseFormData.riskLevel,
 
-        this.cases.unshift(backendCase);
+      risk_score: riskScore,
+
+      display_score: riskScore,
+
+      ml_risk_level: this.caseFormData.riskLevel === 'CRITICAL' ? 'HIGH' :
+
+        this.caseFormData.riskLevel === 'HIGH' ? 'MEDIUM' : 'LOW',
+
+      status: 'OPEN',
+
+      priority: this.caseFormData.priority || 'NORMAL',
+
+      assigned_to: this.caseFormData.assignedTo || null,
+
+      triggered_rules:
+
+        this.caseFormData.triggeredRules || [],
+
+      transaction_id:
+
+        this.caseFormData.transactionId || null,
+
+      timeline: [{
+
+        timestamp: new Date().toISOString(),
+
+        action: 'Case created manually by analyst',
+
+        actor: 'Analyst'
+
+      }],
+
+      notes: this.caseFormData.notes ? [{
+
+        timestamp: new Date().toISOString(),
+
+        analyst: 'Analyst',
+
+        note: this.caseFormData.notes
+
+      }] : [],
+
+      created_at: new Date().toISOString(),
+
+      updated_at: new Date().toISOString()
+
+    };
+
+
+
+    // ✅ Try backend first
+
+    this.finca.createCaseBackend(newCase).subscribe({
+
+      next: (res: any) => {
+
+        if (res && res.case) {
+
+          // Use backend case data
+
+          const backendCase = res.case;
+
+          this.cases.unshift(backendCase);
+
+          this.finca.saveCases(this.cases).subscribe();
+
+          this.computeStats();
+
+          this.applyFilter();
+
+          this.selectCase(backendCase);
+
+          this.closeCreateCaseModal();
+
+          this.showSuccessAlert('Case created on server', 'Success');
+
+        }
+
+      },
+
+      error: (err: any) => {
+
+        console.warn('Backend create failed, saving locally:', err);
+
+        // Fallback to local
+
+        this.cases.unshift(newCase);
 
         this.finca.saveCases(this.cases).subscribe();
 
@@ -482,265 +504,203 @@ submitCreateCase(): void {
 
         this.applyFilter();
 
-        this.selectCase(backendCase);
+        this.selectCase(newCase);
 
         this.closeCreateCaseModal();
 
-        this.showSuccessAlert('Case created on server', 'Success');
+        this.showErrorAlert('Case saved locally (server sync pending)', 'Create Case Failed');
 
       }
 
-    },
-
-    error: (err: any) => {
-
-      console.warn('Backend create failed, saving locally:', err);
-
-      // Fallback to local
-
-      this.cases.unshift(newCase);
-
-      this.finca.saveCases(this.cases).subscribe();
-
-      this.computeStats();
-
-      this.applyFilter();
-
-      this.selectCase(newCase);
-
-      this.closeCreateCaseModal();
-
-      this.showErrorAlert('Case saved locally (server sync pending)', 'Create Case Failed');
-
-    }
-
-  });
-
-}
-
-
-
-openCreateCaseFromTransaction(transaction: any): void {
-
-  if (!transaction) {
-
-    this.showWarningAlert('No transaction selected', 'Warning');
-
-    return;
+    });
 
   }
 
 
 
-  this.selectedTransactionForCase = transaction;
+  openCreateCaseFromTransaction(transaction: any): void {
 
+    if (!transaction) {
 
+      this.showWarningAlert('No transaction selected', 'Warning');
 
-  // Pre-fill form data from transaction
-
-  this.caseFormData = {
-
-    customerId: transaction.customer_id || transaction.customer_info?.customer_id || '',
-
-    customerName: transaction.customer_name || transaction.customer_info?.customer_name || '',
-
-    riskLevel: transaction.risk_category || transaction.final_risk_level || 'MEDIUM',
-
-    priority: transaction.risk_category === 'CRITICAL' || transaction.final_risk_level === 'CRITICAL' ? 'URGENT' : 'NORMAL',
-
-    assignedTo: '',
-
-    alertId: transaction.alert_id || transaction.id || '',
-
-    transactionId: transaction.transaction_id || transaction.id || '',
-
-    notes: `Case created from transaction ${transaction.transaction_id || transaction.id}`,
-
-    triggeredRules: transaction.triggered_rules || transaction.rules_triggered || []
-
-  };
-
-
-
-  this.showCreateCaseModal = true;
-
-}
-
-
-
-closeCreateCaseModal(): void {
-
-  this.showCreateCaseModal = false;
-
-  this.selectedTransactionForCase = null;
-
-  this.resetCaseForm();
-
-}
-
-
-
-resetCaseForm(): void {
-
-  this.caseFormData = {
-
-    customerId: '',
-
-    customerName: '',
-
-    riskLevel: 'MEDIUM',
-
-    priority: 'NORMAL',
-
-    assignedTo: '',
-
-    alertId: '',
-
-    transactionId: '',
-
-    notes: '',
-
-    triggeredRules: []
-
-  };
-
-}
-
-
-
-createCaseFromTransaction(transaction: any): void {
-
-  if (!transaction) return;
-
-
-
-  const newCase = {
-
-    id: 'CASE-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4).toUpperCase(),
-
-    alert_id: transaction.transaction_id || null,
-
-    customer_id: transaction.customer_id || transaction.customer_info?.customer_id || 'UNKNOWN',
-
-    customer_name: transaction.customer_name || transaction.customer_info?.customer_name || 'Unknown',
-
-    final_risk_level: transaction.risk_category || transaction.final_risk_level || 'MEDIUM',
-
-    risk_score: transaction.risk_score || 50,
-
-    display_score: transaction.risk_score || 50,
-
-    ml_risk_level: transaction.ml_risk_level || 'MEDIUM',
-
-    status: 'OPEN',
-
-    priority: transaction.risk_category === 'CRITICAL' || transaction.final_risk_level === 'CRITICAL' ? 'URGENT' : 'NORMAL',
-
-    assigned_to: null,
-
-    triggered_rules: transaction.triggered_rules || [],
-
-    timeline: [{
-
-      timestamp: new Date().toISOString(),
-
-      action: `Case created from transaction ${transaction.transaction_id}`,
-
-      actor: 'System'
-
-    }],
-
-    notes: [],
-
-    created_at: new Date().toISOString(),
-
-    updated_at: new Date().toISOString()
-
-  };
-
-
-
-  this.finca.createCase(newCase).subscribe({
-
-    next: (r) => {
-
-      const c = (r && r.case) ? r.case : newCase;
-
-      this.cases.unshift(c);
-
-      this.computeStats();
-
-      this.applyFilter();
-
-      this.selectCase(c);
-
-      this.showSuccessAlert('Case created from transaction', 'Success');
-
-    },
-
-    error: () => {
-
-      this.cases.unshift(newCase);
-
-      this.computeStats();
-
-      this.applyFilter();
-
-      this.selectCase(newCase);
-
-      this.showErrorAlert('Case created locally only because the server request failed', 'Create Case Failed');
+      return;
 
     }
 
-  });
-
-}
 
 
-
-updatePagination(): void {
-
-  // Update the displayed cases
-
-  this.applyFilter();
-
-}
+    this.selectedTransactionForCase = transaction;
 
 
 
-  // ============= LOCAL DATA =============
+    // Pre-fill form data from transaction
+
+    this.caseFormData = {
+
+      customerId: transaction.customer_id || transaction.customer_info?.customer_id || '',
+
+      customerName: transaction.customer_name || transaction.customer_info?.customer_name || '',
+
+      riskLevel: transaction.risk_category || transaction.final_risk_level || 'MEDIUM',
+
+      priority: transaction.risk_category === 'CRITICAL' || transaction.final_risk_level === 'CRITICAL' ? 'URGENT' : 'NORMAL',
+
+      assignedTo: '',
+
+      alertId: transaction.alert_id || transaction.id || '',
+
+      transactionId: transaction.transaction_id || transaction.id || '',
+
+      notes: `Case created from transaction ${transaction.transaction_id || transaction.id}`,
+
+      triggeredRules: transaction.triggered_rules || transaction.rules_triggered || []
+
+    };
 
 
 
-  loadLocalData(): void {
+    this.showCreateCaseModal = true;
 
-    try {
+  }
 
-      const saved = localStorage.getItem('finca_cases');
 
-      if (saved) {
 
-        const parsed = JSON.parse(saved);
+  closeCreateCaseModal(): void {
 
-        if (parsed.length > 0 && this.cases.length === 0) {
+    this.showCreateCaseModal = false;
 
-          this.cases = parsed;
+    this.selectedTransactionForCase = null;
 
-          this.computeStats();
+    this.resetCaseForm();
 
-          this.buildActivityFeed();
+  }
 
-          this.applyFilter();
 
-        }
+
+  resetCaseForm(): void {
+
+    this.caseFormData = {
+
+      customerId: '',
+
+      customerName: '',
+
+      riskLevel: 'MEDIUM',
+
+      priority: 'NORMAL',
+
+      assignedTo: '',
+
+      alertId: '',
+
+      transactionId: '',
+
+      notes: '',
+
+      triggeredRules: []
+
+    };
+
+  }
+
+
+
+  createCaseFromTransaction(transaction: any): void {
+
+    if (!transaction) return;
+
+
+
+    const newCase = {
+
+      id: 'CASE-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4).toUpperCase(),
+
+      alert_id: transaction.transaction_id || null,
+
+      customer_id: transaction.customer_id || transaction.customer_info?.customer_id || 'UNKNOWN',
+
+      customer_name: transaction.customer_name || transaction.customer_info?.customer_name || 'Unknown',
+
+      final_risk_level: transaction.risk_category || transaction.final_risk_level || 'MEDIUM',
+
+      risk_score: transaction.risk_score || 50,
+
+      display_score: transaction.risk_score || 50,
+
+      ml_risk_level: transaction.ml_risk_level || 'MEDIUM',
+
+      status: 'OPEN',
+
+      priority: transaction.risk_category === 'CRITICAL' || transaction.final_risk_level === 'CRITICAL' ? 'URGENT' : 'NORMAL',
+
+      assigned_to: null,
+
+      triggered_rules: transaction.triggered_rules || [],
+
+      timeline: [{
+
+        timestamp: new Date().toISOString(),
+
+        action: `Case created from transaction ${transaction.transaction_id}`,
+
+        actor: 'System'
+
+      }],
+
+      notes: [],
+
+      created_at: new Date().toISOString(),
+
+      updated_at: new Date().toISOString()
+
+    };
+
+
+
+    this.finca.createCase(newCase).subscribe({
+
+      next: (r) => {
+
+        const c = (r && r.case) ? r.case : newCase;
+
+        this.cases.unshift(c);
+
+        this.computeStats();
+
+        this.applyFilter();
+
+        this.selectCase(c);
+
+        this.showSuccessAlert('Case created from transaction', 'Success');
+
+      },
+
+      error: () => {
+
+        this.cases.unshift(newCase);
+
+        this.computeStats();
+
+        this.applyFilter();
+
+        this.selectCase(newCase);
+
+        this.showErrorAlert('Case created locally only because the server request failed', 'Create Case Failed');
 
       }
 
-    } catch (e) {
+    });
 
-      // ignore
+  }
 
-    }
+
+
+  updatePagination(): void {
+
+    // Update the displayed cases
+
+    this.applyFilter();
 
   }
 
@@ -758,299 +718,293 @@ updatePagination(): void {
 
 
 
-loadAll(silent = false): void {
+  loadAll(silent = false): void {
 
-  if (!silent) this.loading = true;
-
-
-
-  this.finca.listCases(1, 1000).subscribe({
-
-    next: (r: any) => {
-
-      console.log('📋 Cases loaded:', r); // Debug log
+    if (!silent) this.loading = true;
 
 
 
-      const fetched = (r.cases || []).map((c: any) => ({
+    this.finca.listCases(1, 1000).subscribe({
 
-        ...c,
+      next: (r: any) => {
 
-        display_score: this.normalizeScore(c.risk_score),
-
-        // Ensure these fields exist for the UI
-
-        timeline: c.timeline || [],
-
-        notes: c.notes || [],
-
-        // If customer_name is not in the response, use customer_id
-
-        customer_name: c.customer_name || c.customer_id || 'Unknown'
-
-      }));
+        console.log('📋 Cases loaded:', r); // Debug log
 
 
 
-      // Dedupe by ID
+        const fetched = (r.cases || []).map((c: any) => ({
 
-      const byId: any = {};
+          ...c,
 
-      fetched.forEach((c: any) => { byId[c.id] = c; });
+          display_score: this.normalizeScore(c.risk_score),
 
-      this.cases = Object.keys(byId).map(k => byId[k]);
+          // Ensure these fields exist for the UI
+
+          timeline: c.timeline || [],
+
+          notes: c.notes || [],
+
+          // If customer_name is not in the response, use customer_id
+
+          customer_name: c.customer_name || c.customer_id || 'Unknown'
+
+        }));
 
 
 
-      // Save to local storage as backup
+        // Dedupe by ID
 
-      this.finca.saveCases(this.cases).subscribe();
+        const byId: any = {};
+
+        fetched.forEach((c: any) => { byId[c.id] = c; });
+
+        this.cases = Object.keys(byId).map(k => byId[k]);
 
 
 
-      this.computeStats();
+        this.computeStats();
 
-      this.buildActivityFeed();
+        this.buildActivityFeed();
 
-      this.applyFilter();
+        this.applyFilter();
 
-      this.loading = false;
+        this.loading = false;
 
-      // Normal case loading is intentionally silent.
+        // Normal case loading is intentionally silent.
 
-    },
+      },
 
-    error: (err: any) => {
+      error: (err: any) => {
 
-      console.error('Error loading cases:', err);
+        console.error('Error loading cases:', err);
 
-      // Fallback to local storage
+        // Fallback to local storage
 
-      const saved = JSON.parse(localStorage.getItem('finca_cases') || '[]');
+        const saved = JSON.parse(localStorage.getItem('finca_cases') || '[]');
 
-      this.cases = saved.length > 0 ? saved : [];
+        this.cases = saved.length > 0 ? saved : [];
 
-      this.computeStats();
+        this.computeStats();
 
-      this.buildActivityFeed();
+        this.buildActivityFeed();
 
-      this.applyFilter();
+        this.applyFilter();
 
-      this.loading = false;
+        this.loading = false;
 
-      this.showErrorAlert('Could not load cases from the server. Using locally cached cases.', 'Load Cases Failed');
+        this.showErrorAlert('Could not load cases from the server. Using locally cached cases.', 'Load Cases Failed');
+
+      }
+
+    });
+
+  }
+
+
+
+  openCreateCaseModal(): void {
+
+    this.caseFormData = {
+
+      customerId: '',
+
+      customerName: '',
+
+      riskLevel: 'MEDIUM',
+
+      priority: 'NORMAL',
+
+      assignedTo: '',
+
+      alertId: '',
+
+      transactionId: '',
+
+      notes: '',
+
+      triggeredRules: []
+
+    };
+
+
+
+    this.showCreateCaseModal = true;
+
+
+
+    this.loadAvailableAlerts();
+
+  }
+
+
+
+  onAlertSelected(): void {
+
+
+
+    if (!this.caseFormData.alertId) {
+
+      return;
 
     }
 
-  });
-
-}
 
 
+    const selectedAlert = this.availableAlerts.find(
 
-openCreateCaseModal(): void {
+      (alert: any) =>
 
-  this.caseFormData = {
+        (alert.alert_id || alert.id) ===
 
-    customerId: '',
-
-    customerName: '',
-
-    riskLevel: 'MEDIUM',
-
-    priority: 'NORMAL',
-
-    assignedTo: '',
-
-    alertId: '',
-
-    transactionId: '',
-
-    notes: '',
-
-    triggeredRules: []
-
-  };
-
-
-
-  this.showCreateCaseModal = true;
-
-
-
-  this.loadAvailableAlerts();
-
-}
-
-
-
-onAlertSelected(): void {
-
-
-
-  if (!this.caseFormData.alertId) {
-
-    return;
-
-  }
-
-
-
-  const selectedAlert = this.availableAlerts.find(
-
-    (alert: any) =>
-
-      (alert.alert_id || alert.id) ===
-
-      this.caseFormData.alertId
-
-  );
-
-
-
-  if (!selectedAlert) {
-
-    console.warn(
-
-      'Selected alert not found:',
-
-      this.caseFormData.alertId
+        this.caseFormData.alertId
 
     );
 
-    return;
+
+
+    if (!selectedAlert) {
+
+      console.warn(
+
+        'Selected alert not found:',
+
+        this.caseFormData.alertId
+
+      );
+
+      return;
+
+    }
+
+
+
+    console.log(
+
+      'Selected alert:',
+
+      selectedAlert
+
+    );
+
+
+
+    // Customer
+
+    this.caseFormData.customerId =
+
+      selectedAlert.customer_id ||
+
+      selectedAlert.customer?.customer_id ||
+
+      '';
+
+
+
+    this.caseFormData.customerName =
+
+      selectedAlert.customer_name ||
+
+      selectedAlert.customer?.customer_name ||
+
+      '';
+
+
+
+    // Transaction
+
+    this.caseFormData.transactionId =
+
+      selectedAlert.transaction_id ||
+
+      selectedAlert.transaction?.transaction_id ||
+
+      '';
+
+
+
+    // Risk
+
+    const riskLevel =
+
+      selectedAlert.risk_level ||
+
+      selectedAlert.final_risk_level ||
+
+      selectedAlert.risk_category ||
+
+      'MEDIUM';
+
+
+
+    this.caseFormData.riskLevel =
+
+      riskLevel.toUpperCase();
+
+
+
+    // Automatically suggest priority
+
+    if (
+
+      this.caseFormData.riskLevel === 'CRITICAL'
+
+    ) {
+
+      this.caseFormData.priority = 'URGENT';
+
+
+
+    } else if (
+
+      this.caseFormData.riskLevel === 'HIGH'
+
+    ) {
+
+      this.caseFormData.priority = 'HIGH';
+
+
+
+    } else {
+
+      this.caseFormData.priority = 'NORMAL';
+
+    }
+
+
+
+    // Triggered rules
+
+    this.caseFormData.triggeredRules =
+
+      selectedAlert.triggered_rules ||
+
+      selectedAlert.finca_rules_triggered ||
+
+      selectedAlert.rules_triggered ||
+
+      [];
 
   }
 
 
 
-  console.log(
+  getRiskScoreFromLevel(level: string): number {
 
-    'Selected alert:',
+    const map: any = {
 
-    selectedAlert
+      'LOW': 30,
 
-  );
+      'MEDIUM': 50,
 
+      'HIGH': 70,
 
+      'CRITICAL': 85
 
-  // Customer
+    };
 
-  this.caseFormData.customerId =
-
-    selectedAlert.customer_id ||
-
-    selectedAlert.customer?.customer_id ||
-
-    '';
-
-
-
-  this.caseFormData.customerName =
-
-    selectedAlert.customer_name ||
-
-    selectedAlert.customer?.customer_name ||
-
-    '';
-
-
-
-  // Transaction
-
-  this.caseFormData.transactionId =
-
-    selectedAlert.transaction_id ||
-
-    selectedAlert.transaction?.transaction_id ||
-
-    '';
-
-
-
-  // Risk
-
-  const riskLevel =
-
-    selectedAlert.risk_level ||
-
-    selectedAlert.final_risk_level ||
-
-    selectedAlert.risk_category ||
-
-    'MEDIUM';
-
-
-
-  this.caseFormData.riskLevel =
-
-    riskLevel.toUpperCase();
-
-
-
-  // Automatically suggest priority
-
-  if (
-
-    this.caseFormData.riskLevel === 'CRITICAL'
-
-  ) {
-
-    this.caseFormData.priority = 'URGENT';
-
-
-
-  } else if (
-
-    this.caseFormData.riskLevel === 'HIGH'
-
-  ) {
-
-    this.caseFormData.priority = 'HIGH';
-
-
-
-  } else {
-
-    this.caseFormData.priority = 'NORMAL';
+    return map[level] || 50;
 
   }
-
-
-
-  // Triggered rules
-
-  this.caseFormData.triggeredRules =
-
-    selectedAlert.triggered_rules ||
-
-    selectedAlert.finca_rules_triggered ||
-
-    selectedAlert.rules_triggered ||
-
-    [];
-
-}
-
-
-
-getRiskScoreFromLevel(level: string): number {
-
-  const map: any = {
-
-    'LOW': 30,
-
-    'MEDIUM': 50,
-
-    'HIGH': 70,
-
-    'CRITICAL': 85
-
-  };
-
-  return map[level] || 50;
-
-}
 
 
 
@@ -1078,301 +1032,323 @@ getRiskScoreFromLevel(level: string): number {
 
 
 
-  let txnId = c.transaction_id || 
+    let txnId = c.transaction_id ||
 
-              c.alert_transaction_id || 
+      c.alert_transaction_id ||
 
-              c.alert?.transaction_id ||
+      c.alert?.transaction_id ||
 
-              c.alert?.alert_transaction_id;
-
-
-
-  if (!txnId && c.alert_id) {
+      c.alert?.alert_transaction_id;
 
 
 
-    this.finca.getAlert(c.alert_id).subscribe({
+    if (!txnId && c.alert_id) {
 
-      next: (alert) => {
 
-        if (alert?.transaction_id) {
 
-          this.loadTransaction(alert.transaction_id);
+      this.finca.getAlert(c.alert_id).subscribe({
+
+        next: (alert) => {
+
+          if (alert?.transaction_id) {
+
+            this.loadTransaction(alert.transaction_id);
+
+          } else {
+
+            this.loadCustomerOnly(c);
+
+          }
+
+        },
+
+        error: () => this.loadCustomerOnly(c)
+
+      });
+
+      return;
+
+    }
+
+
+
+    if (txnId && txnId.startsWith('ALT')) {
+
+      this.loadCustomerOnly(c);
+
+      return;
+
+    }
+
+
+
+    if (txnId) {
+
+      this.loadTransaction(txnId);
+
+    } else {
+
+      this.loadCustomerOnly(c);
+
+    }
+
+  }
+
+
+
+  loadAvailableAlerts(): void {
+
+    this.alertsLoading = true;
+
+
+
+    this.finca.listAlerts(1, 1000).subscribe({
+
+      next: (res: any) => {
+
+
+
+        console.log('Available alerts:', res);
+
+
+
+        const alerts =
+
+          res?.alerts ||
+
+          res?.data ||
+
+          [];
+
+
+
+        // Prefer alerts that have not already finished their lifecycle
+
+        this.availableAlerts = alerts.filter((alert: any) => {
+
+
+
+          const status = (
+
+            alert.status || ''
+
+          ).toUpperCase();
+
+
+
+          return ![
+
+            'RESOLVED',
+
+            'CLOSED'
+
+          ].includes(status);
+
+        });
+
+
+
+        this.alertsLoading = false;
+
+
+
+        console.log(
+
+          'Selectable alerts:',
+
+          this.availableAlerts
+
+        );
+
+      },
+
+
+
+      error: (err: any) => {
+
+        console.error(
+
+          'Could not load alerts:',
+
+          err
+
+        );
+
+
+
+        this.availableAlerts = [];
+
+        this.alertsLoading = false;
+
+
+
+        this.showErrorAlert(
+
+          'Could not load available alerts',
+
+          'Alerts'
+
+        );
+
+      }
+
+    });
+
+  }
+
+
+
+  selectCase(c: any): void {
+
+    this.selected = c;
+
+    this.activeTab = 'overview';
+
+    this.noteText = '';
+
+    this.evidenceFiles = [];
+
+    this.related = [];
+
+    this.customerProfile = null;
+
+    this.investigationChecks = { device: false, velocity: false, network: false };
+
+    this.resetPlaybook();
+
+    this.updateWorkflowSteps();
+
+
+
+    this.customerProfile = {
+
+      customer_id: c.customer_id || 'Unknown',
+
+      customer_name: c.customer_name || c.customer_id || 'Unknown'
+
+    };
+
+
+
+    if (!c.transaction_id && c.alert?.transaction_id) {
+
+      c.transaction_id = c.alert.transaction_id;
+
+    }
+
+
+
+    this.loadCaseTransaction(c);
+
+  }
+
+
+
+  loadRelatedTransactions(transactionId: string): void {
+
+    this.relatedLoading = true;
+
+
+
+    this.finca.getRelatedTransactions(transactionId).subscribe({
+
+      next: (r) => {
+
+        this.relatedLoading = false;
+
+        this.related = r.related_transactions || [];
+
+        if (this.related.length > 0) {
+
+          this.showSuccessAlert(`Found ${this.related.length} related transactions`, 'Related');
 
         } else {
 
-          this.loadCustomerOnly(c);
+          this.showInfoAlert('No related transactions found', 'Related');
 
         }
 
       },
 
-      error: () => this.loadCustomerOnly(c)
+      error: (err) => {
 
-    });
+        this.relatedLoading = false;
 
-    return;
+        this.related = [];
 
-  }
+        console.error('Error loading related transactions:', err);
 
-
-
-  if (txnId && txnId.startsWith('ALT')) {
-
-    this.loadCustomerOnly(c);
-
-    return;
-
-  }
-
-
-
-  if (txnId) {
-
-    this.loadTransaction(txnId);
-
-  } else {
-
-    this.loadCustomerOnly(c);
-
-  }
-
-}
-
-
-
-loadAvailableAlerts(): void {
-
-  this.alertsLoading = true;
-
-
-
-  this.finca.listAlerts(1, 1000).subscribe({
-
-    next: (res: any) => {
-
-
-
-      console.log('Available alerts:', res);
-
-
-
-      const alerts =
-
-        res?.alerts ||
-
-        res?.data ||
-
-        [];
-
-
-
-      // Prefer alerts that have not already finished their lifecycle
-
-      this.availableAlerts = alerts.filter((alert: any) => {
-
-
-
-        const status = (
-
-          alert.status || ''
-
-        ).toUpperCase();
-
-
-
-        return ![
-
-          'RESOLVED',
-
-          'CLOSED'
-
-        ].includes(status);
-
-      });
-
-
-
-      this.alertsLoading = false;
-
-
-
-      console.log(
-
-        'Selectable alerts:',
-
-        this.availableAlerts
-
-      );
-
-    },
-
-
-
-    error: (err: any) => {
-
-      console.error(
-
-        'Could not load alerts:',
-
-        err
-
-      );
-
-
-
-      this.availableAlerts = [];
-
-      this.alertsLoading = false;
-
-
-
-      this.showErrorAlert(
-
-        'Could not load available alerts',
-
-        'Alerts'
-
-      );
-
-    }
-
-  });
-
-}
-
-
-
-selectCase(c: any): void {
-
-  this.selected = c;
-
-  this.activeTab = 'overview';
-
-  this.noteText = '';
-
-  this.evidenceFiles = [];
-
-  this.related = [];
-
-  this.customerProfile = null;
-
-  this.investigationChecks = { device: false, velocity: false, network: false };
-
-  this.resetPlaybook();
-
-  this.updateWorkflowSteps();
-
-
-
-  this.customerProfile = {
-
-    customer_id: c.customer_id || 'Unknown',
-
-    customer_name: c.customer_name || c.customer_id || 'Unknown'
-
-  };
-
-
-
-  if (!c.transaction_id && c.alert?.transaction_id) {
-
-    c.transaction_id = c.alert.transaction_id;
-
-  }
-
-
-
-  this.loadCaseTransaction(c);
-
-}
-
-
-
-loadRelatedTransactions(transactionId: string): void {
-
-  this.relatedLoading = true;
-
-
-
-  this.finca.getRelatedTransactions(transactionId).subscribe({
-
-    next: (r) => {
-
-      this.relatedLoading = false;
-
-      this.related = r.related_transactions || [];
-
-      if (this.related.length > 0) {
-
-        this.showSuccessAlert(`Found ${this.related.length} related transactions`, 'Related');
-
-      } else {
-
-        this.showInfoAlert('No related transactions found', 'Related');
+        this.showErrorAlert('Could not load related transactions', 'Error');
 
       }
 
-    },
+    });
 
-    error: (err) => {
-
-      this.relatedLoading = false;
-
-      this.related = [];
-
-      console.error('Error loading related transactions:', err);
-
-      this.showErrorAlert('Could not load related transactions', 'Error');
-
-    }
-
-  });
-
-}
+  }
 
 
 
-loadCustomerOnly(c: any): void {
+  loadCustomerOnly(c: any): void {
 
-  this.customerProfile = {
+    this.customerProfile = {
 
-    customer_id: c.customer_id || 'Unknown',
+      customer_id: c.customer_id || 'Unknown',
 
-    customer_name: c.customer_name || c.customer_id || 'Unknown',
+      customer_name: c.customer_name || c.customer_id || 'Unknown',
 
-    customer_email: c.customer_email || '',
+      customer_email: c.customer_email || '',
 
-    customer_phone: c.customer_phone || '',
+      customer_phone: c.customer_phone || '',
 
-    account_age_days: c.account_age_days || 0,
+      account_age_days: c.account_age_days || 0,
 
-    avg_transaction_amount: c.avg_transaction_amount || 0
+      avg_transaction_amount: c.avg_transaction_amount || 0
 
-  };
+    };
 
-  this.updateWorkflowSteps();
+    this.updateWorkflowSteps();
 
-}
+  }
 
 
 
-loadTransaction(txnId: string): void {
+  loadTransaction(txnId: string): void {
 
-  this.finca.getTransaction(txnId).subscribe({
+    this.finca.getTransaction(txnId).subscribe({
 
-    next: (res) => {
+      next: (res) => {
 
-      if (res?.status === 'success' || res?.transaction_id) {
+        if (res?.status === 'success' || res?.transaction_id) {
 
-        this.selected.transaction = res;
+          this.selected.transaction = res;
 
-        if (res.customer_info) {
+          if (res.customer_info) {
 
-          this.customerProfile = res.customer_info;
+            this.customerProfile = res.customer_info;
 
-        } else if (this.selected?.customer_id) {
+          } else if (this.selected?.customer_id) {
+
+            this.customerProfile = {
+
+              customer_id: this.selected.customer_id,
+
+              customer_name: this.selected.customer_name || this.selected.customer_id
+
+            };
+
+          }
+
+        }
+
+        this.updateWorkflowSteps();
+
+      },
+
+      error: () => {
+
+        // Fallback to customer info from case
+
+        if (this.selected?.customer_id) {
 
           this.customerProfile = {
 
@@ -1384,181 +1360,159 @@ loadTransaction(txnId: string): void {
 
         }
 
-      }
-
-      this.updateWorkflowSteps();
-
-    },
-
-    error: () => {
-
-      // Fallback to customer info from case
-
-      if (this.selected?.customer_id) {
-
-        this.customerProfile = {
-
-          customer_id: this.selected.customer_id,
-
-          customer_name: this.selected.customer_name || this.selected.customer_id
-
-        };
+        this.updateWorkflowSteps();
 
       }
 
-      this.updateWorkflowSteps();
-
-    }
-
-  });
-
-}
-
-
-
-getRuleFlags(caseData: any): string[] {
-
-  if (!caseData) return [];
-
-
-
-  // Check multiple sources for rule flags
-
-  const flags = caseData.Rule_Flags || 
-
-                caseData.rule_flags ||
-
-                caseData.transaction?.transaction_details?.Rule_Flags ||
-
-                caseData.transaction?.transaction_details?.rule_flags ||
-
-                [];
-
-
-
-  return flags;
-
-}
-
-
-
-getFincaRules(caseData: any): any[] {
-
-  if (!caseData) return [];
-
-
-
-  const rules = caseData.finca_rules_triggered ||
-
-                caseData.transaction?.transaction_details?.finca_rules_triggered ||
-
-                caseData.triggered_rules ||
-
-                [];
-
-
-
-  if (rules.length > 0 && typeof rules[0] === 'string') {
-
-    return rules.map((rule: string) => ({
-
-      rule_id: rule,
-
-      rule_name: this.getRuleName(rule),
-
-      reason: this.getRuleReason(rule),
-
-      rule_points: 0
-
-    }));
+    });
 
   }
 
 
 
-  return rules;
+  getRuleFlags(caseData: any): string[] {
 
-}
-
-getRuleName(ruleId: string): string {
-
-  const map: any = {
-
-    'R001': 'New Device + High Value',
-
-    'R002': 'Location Anomaly',
-
-    'R003': 'Transaction Velocity',
-
-    'R004': 'Amount Anomaly',
-
-    'R011': 'Location Anomaly',
-
-    'R012': 'Unusual Time',
-
-    'NEW_DEVICE': 'New Device',
-
-    'LOCATION_ANOMALY': 'Location Anomaly',
-
-    'AMOUNT_ANOMALY': 'Amount Anomaly',
-
-    'VELOCITY_ANOMALY': 'Velocity Anomaly',
-
-    'UNUSUAL_TIME': 'Unusual Time'
-
-  };
-
-  return map[ruleId] || ruleId;
-
-}
+    if (!caseData) return [];
 
 
 
-getRuleReason(ruleId: string): string {
+    // Check multiple sources for rule flags
 
-  const map: any = {
+    const flags = caseData.Rule_Flags ||
 
-    'R001': 'New/unrecognized device detected',
+      caseData.rule_flags ||
 
-    'R002': 'Location anomaly detected',
+      caseData.transaction?.transaction_details?.Rule_Flags ||
 
-    'R003': 'Transaction velocity exceeds threshold',
+      caseData.transaction?.transaction_details?.rule_flags ||
 
-    'R004': 'Amount exceeds normal pattern',
-
-    'R011': 'Unusual location detected',
-
-    'R012': 'Transaction at unusual hour',
-
-    'NEW_DEVICE': 'New/unrecognized device detected',
-
-    'LOCATION_ANOMALY': 'Unusual location detected',
-
-    'AMOUNT_ANOMALY': 'Amount exceeds normal pattern',
-
-    'VELOCITY_ANOMALY': 'High transaction frequency',
-
-    'UNUSUAL_TIME': 'Transaction at unusual hour'
-
-  };
-
-  return map[ruleId] || 'Rule triggered';
-
-}
+      [];
 
 
 
-hasFincaRules(caseData: any): boolean {
+    return flags;
 
-  if (!caseData) return false;
+  }
 
 
 
-  const rules = this.getFincaRules(caseData);
+  getFincaRules(caseData: any): any[] {
 
-  return rules.length > 0;
+    if (!caseData) return [];
 
-}
+
+
+    const rules = caseData.finca_rules_triggered ||
+
+      caseData.transaction?.transaction_details?.finca_rules_triggered ||
+
+      caseData.triggered_rules ||
+
+      [];
+
+
+
+    if (rules.length > 0 && typeof rules[0] === 'string') {
+
+      return rules.map((rule: string) => ({
+
+        rule_id: rule,
+
+        rule_name: this.getRuleName(rule),
+
+        reason: this.getRuleReason(rule),
+
+        rule_points: 0
+
+      }));
+
+    }
+
+
+
+    return rules;
+
+  }
+
+  getRuleName(ruleId: string): string {
+
+    const map: any = {
+
+      'R001': 'New Device + High Value',
+
+      'R002': 'Location Anomaly',
+
+      'R003': 'Transaction Velocity',
+
+      'R004': 'Amount Anomaly',
+
+      'R011': 'Location Anomaly',
+
+      'R012': 'Unusual Time',
+
+      'NEW_DEVICE': 'New Device',
+
+      'LOCATION_ANOMALY': 'Location Anomaly',
+
+      'AMOUNT_ANOMALY': 'Amount Anomaly',
+
+      'VELOCITY_ANOMALY': 'Velocity Anomaly',
+
+      'UNUSUAL_TIME': 'Unusual Time'
+
+    };
+
+    return map[ruleId] || ruleId;
+
+  }
+
+
+
+  getRuleReason(ruleId: string): string {
+
+    const map: any = {
+
+      'R001': 'New/unrecognized device detected',
+
+      'R002': 'Location anomaly detected',
+
+      'R003': 'Transaction velocity exceeds threshold',
+
+      'R004': 'Amount exceeds normal pattern',
+
+      'R011': 'Unusual location detected',
+
+      'R012': 'Transaction at unusual hour',
+
+      'NEW_DEVICE': 'New/unrecognized device detected',
+
+      'LOCATION_ANOMALY': 'Unusual location detected',
+
+      'AMOUNT_ANOMALY': 'Amount exceeds normal pattern',
+
+      'VELOCITY_ANOMALY': 'High transaction frequency',
+
+      'UNUSUAL_TIME': 'Transaction at unusual hour'
+
+    };
+
+    return map[ruleId] || 'Rule triggered';
+
+  }
+
+
+
+  hasFincaRules(caseData: any): boolean {
+
+    if (!caseData) return false;
+
+
+
+    const rules = this.getFincaRules(caseData);
+
+    return rules.length > 0;
+
+  }
 
 
 
@@ -1632,47 +1586,47 @@ hasFincaRules(caseData: any): boolean {
 
   }
 
-getCaseRules(caseData: any): any[] {
+  getCaseRules(caseData: any): any[] {
 
-  if (!caseData) return [];
-
-
-
-  // Check multiple possible locations
-
-  const rules = caseData.triggered_rules || 
-
-                caseData.finca_rules_triggered || 
-
-                caseData.alert?.finca_rules_triggered ||
-
-                [];
+    if (!caseData) return [];
 
 
 
-  // If rules are strings, convert to objects
+    // Check multiple possible locations
 
-  if (rules.length > 0 && typeof rules[0] === 'string') {
+    const rules = caseData.triggered_rules ||
 
-    return rules.map((rule: string) => ({
+      caseData.finca_rules_triggered ||
 
-      rule_id: rule,
+      caseData.alert?.finca_rules_triggered ||
 
-      rule_name: this.getRuleName(rule),
+      [];
 
-      reason: this.getRuleReason(rule),
 
-      rule_points: 0
 
-    }));
+    // If rules are strings, convert to objects
+
+    if (rules.length > 0 && typeof rules[0] === 'string') {
+
+      return rules.map((rule: string) => ({
+
+        rule_id: rule,
+
+        rule_name: this.getRuleName(rule),
+
+        reason: this.getRuleReason(rule),
+
+        rule_points: 0
+
+      }));
+
+    }
+
+
+
+    return rules;
 
   }
-
-
-
-  return rules;
-
-}
 
 
 
@@ -1856,145 +1810,145 @@ getCaseRules(caseData: any): any[] {
 
 
 
-relatedPage = 1;
+  relatedPage = 1;
 
-relatedPageSize = 5;
-
-
-
-get relatedTotalPages(): number {
-
-  return Math.ceil(this.related.length / this.relatedPageSize);
-
-}
+  relatedPageSize = 5;
 
 
 
-get paginatedRelated(): any[] {
+  get relatedTotalPages(): number {
 
-  const start = (this.relatedPage - 1) * this.relatedPageSize;
-
-  return this.related.slice(start, start + this.relatedPageSize);
-
-}
-
-
-
-loadRelated(): void {
-
-  if (!this.selected) return;
-
-
-
-  // ✅ Get transaction ID
-
-  let transactionId = this.getTransactionIdFromCase(this.selected);
-
-
-
-  if (!transactionId) {
-
-    this.showWarningAlert('No transaction ID found for this case', 'Warning');
-
-    this.relatedLoading = false;
-
-    return;
+    return Math.ceil(this.related.length / this.relatedPageSize);
 
   }
 
 
 
-  this.relatedLoading = true;
+  get paginatedRelated(): any[] {
+
+    const start = (this.relatedPage - 1) * this.relatedPageSize;
+
+    return this.related.slice(start, start + this.relatedPageSize);
+
+  }
 
 
 
-  this.finca.getRelatedTransactions(transactionId).subscribe({
+  loadRelated(): void {
 
-    next: (r) => {
-
-      this.relatedLoading = false;
+    if (!this.selected) return;
 
 
 
-      // ✅ Assign the data
+    // ✅ Get transaction ID
 
-      this.related = r.related_transactions || r.transactions || r.data || [];
-
-
-
-      // ✅ Reset to first page
-
-      this.relatedPage = 1;
+    let transactionId = this.getTransactionIdFromCase(this.selected);
 
 
 
-      if (this.related.length > 0) {
+    if (!transactionId) {
 
-        this.showSuccessAlert(`Found ${this.related.length} related transactions`, 'Related');
-
-      } else {
-
-        this.showInfoAlert('No related transactions found', 'Related');
-
-      }
-
-    },
-
-    error: (err) => {
+      this.showWarningAlert('No transaction ID found for this case', 'Warning');
 
       this.relatedLoading = false;
 
-      this.related = [];
-
-      console.error('Error loading related transactions:', err);
-
-      this.showErrorAlert('Could not load related transactions', 'Error');
+      return;
 
     }
 
-  });
-
-}
 
 
-
-getTransactionIdFromCase(caseData: any): string | null {
-
-  if (!caseData) return null;
+    this.relatedLoading = true;
 
 
 
-  // Priority 1: From transaction object
+    this.finca.getRelatedTransactions(transactionId).subscribe({
 
-  if (caseData.transaction?.transaction_id) {
+      next: (r) => {
 
-    return caseData.transaction.transaction_id;
+        this.relatedLoading = false;
+
+
+
+        // ✅ Assign the data
+
+        this.related = r.related_transactions || r.transactions || r.data || [];
+
+
+
+        // ✅ Reset to first page
+
+        this.relatedPage = 1;
+
+
+
+        if (this.related.length > 0) {
+
+          this.showSuccessAlert(`Found ${this.related.length} related transactions`, 'Related');
+
+        } else {
+
+          this.showInfoAlert('No related transactions found', 'Related');
+
+        }
+
+      },
+
+      error: (err) => {
+
+        this.relatedLoading = false;
+
+        this.related = [];
+
+        console.error('Error loading related transactions:', err);
+
+        this.showErrorAlert('Could not load related transactions', 'Error');
+
+      }
+
+    });
 
   }
 
 
 
-  // Priority 2: From case.transaction_id (if not an alert ID)
+  getTransactionIdFromCase(caseData: any): string | null {
 
-  if (caseData.transaction_id && !caseData.transaction_id.startsWith('ALT')) {
+    if (!caseData) return null;
 
-    return caseData.transaction_id;
+
+
+    // Priority 1: From transaction object
+
+    if (caseData.transaction?.transaction_id) {
+
+      return caseData.transaction.transaction_id;
+
+    }
+
+
+
+    // Priority 2: From case.transaction_id (if not an alert ID)
+
+    if (caseData.transaction_id && !caseData.transaction_id.startsWith('ALT')) {
+
+      return caseData.transaction_id;
+
+    }
+
+
+
+    if (caseData.alert?.transaction_id) {
+
+      return caseData.alert.transaction_id;
+
+    }
+
+
+
+    return null;
 
   }
-
-
-
-  if (caseData.alert?.transaction_id) {
-
-    return caseData.alert.transaction_id;
-
-  }
-
-
-
-  return null;
-
-}
 
 
 
@@ -2121,7 +2075,7 @@ getTransactionIdFromCase(caseData: any): string | null {
     this.selected.assigned_to = null;
 
     this.selected.status = 'OPEN';
-    
+
 
     this.pushTimeline('Case unassigned');
 
@@ -2150,8 +2104,8 @@ getTransactionIdFromCase(caseData: any): string | null {
   startInvestigation(): void {
 
     if (!this.canModifyCase()) {
-    return;
-  }
+      return;
+    }
 
     this.selected.status = 'INVESTIGATING';
 
@@ -2251,22 +2205,22 @@ getTransactionIdFromCase(caseData: any): string | null {
 
   canModifyCase(): boolean {
 
-  if (!this.selected) {
-    return false;
+    if (!this.selected) {
+      return false;
+    }
+
+    if (this.isCaseResolved()) {
+
+      this.showWarningAlert(
+        'This case has already been resolved. Reopen the case before making changes.',
+        'Case Resolved'
+      );
+
+      return false;
+    }
+
+    return true;
   }
-
-  if (this.isCaseResolved()) {
-
-    this.showWarningAlert(
-      'This case has already been resolved. Reopen the case before making changes.',
-      'Case Resolved'
-    );
-
-    return false;
-  }
-
-  return true;
-}
 
 
 
@@ -3269,21 +3223,21 @@ getTransactionIdFromCase(caseData: any): string | null {
   }
 
   isCaseResolved(): boolean {
-  const status = (this.selected?.status || '').toUpperCase();
+    const status = (this.selected?.status || '').toUpperCase();
 
-  return status === 'RESOLVED' || status === 'CLOSED';
-}
-
-get visibleDetailTabs(): any[] {
-  if (!this.isCaseResolved()) {
-    return this.detailTabs;
+    return status === 'RESOLVED' || status === 'CLOSED';
   }
 
-  // Resolved/closed cases become read-only.
-  return this.detailTabs.filter(tab =>
-    ['overview', 'customer', 'resolution', 'timeline'].includes(tab.id)
-  );
-}
+  get visibleDetailTabs(): any[] {
+    if (!this.isCaseResolved()) {
+      return this.detailTabs;
+    }
+
+    // Resolved/closed cases become read-only.
+    return this.detailTabs.filter(tab =>
+      ['overview', 'customer', 'resolution', 'timeline'].includes(tab.id)
+    );
+  }
 
 
 

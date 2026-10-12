@@ -124,6 +124,7 @@ I combine the warmth of a friend with the power of artificial intelligence to pr
 
   // Main Data
   transactions: Transaction[] = [];
+  totalTransactionCount = 0;
   filteredTransactions: Transaction[] = [];
   selectedTransaction: Transaction | null = null;
   paginatedTransactions: Transaction[] = [];
@@ -612,7 +613,7 @@ calculateStats(): void {
   const prevStats = { ...this.stats };
   
   this.stats = {
-    total: filtered.length,
+    total: this.totalTransactionCount,
     critical: filtered.filter(t => t.finalRiskCategory === 'Critical').length,
     high: filtered.filter(t => t.finalRiskCategory === 'High').length,
     medium: filtered.filter(t => t.finalRiskCategory === 'Medium').length,
@@ -2289,6 +2290,7 @@ viewTransactionFromChat(txId: string): string {
     this.httpService.getTransactions(1, 1000).subscribe({
       next: (response) => {
         if (response.status === 'success' && response.transactions) {
+          this.totalTransactionCount = response.pagination?.total ?? response.transactions.length;
           const mappedTransactions: Transaction[] = [];
           response.transactions.forEach((tx: any) => {
             const mapped = this.mapBackendTransaction(tx);

@@ -1559,15 +1559,6 @@ export class HttpService {
     );
   }
 
-  saveAlerts(alerts: any[]): Observable<any> {
-    try {
-      localStorage.setItem('finca_alerts', JSON.stringify(alerts));
-      return of({ success: true });
-    } catch (e) {
-      return of({ success: false });
-    }
-  }
-
   getDashboardData(): Observable<any> {
     return this.http.get(`${this.baseUrl}/api/get_all_charts_kpis`);
   }
