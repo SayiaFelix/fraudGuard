@@ -175,8 +175,6 @@ export class FincaAlertsComponent implements OnInit, OnDestroy {
     this.computeStats();
     this.applyFilters();
     this.loading = false;
-    // ensure alerts persisted locally for offline visibility
-    this.finca.saveAlerts(this.alerts).subscribe({ next: () => { }, error: () => { } });
   }
 
 
@@ -343,7 +341,7 @@ export class FincaAlertsComponent implements OnInit, OnDestroy {
           alert.read = true;
           if (alert.status === 'NEW') alert.status = 'READ';
         });
-        this.saveAndRefresh();
+        this.refreshAlerts();
         this.toastr.success('All alerts marked as read', 'Inbox');
       },
       error: () => this.toastr.error('Failed to mark alerts as read', 'Inbox')
@@ -397,7 +395,7 @@ export class FincaAlertsComponent implements OnInit, OnDestroy {
           alert.status = 'DISMISSED';
           alert.dismiss_reason = reason;
         });
-        this.saveAndRefresh();
+        this.refreshAlerts();
         this.toastr.info(`Dismissed ${alertIds.length} alert(s)`, 'Bulk Action');
         this.selectedIds.clear();
         this.bulkMode = false;
@@ -416,7 +414,7 @@ export class FincaAlertsComponent implements OnInit, OnDestroy {
           alert.read = true;
           if (alert.status === 'NEW') alert.status = 'READ';
         });
-        this.saveAndRefresh();
+        this.refreshAlerts();
         this.toastr.success(`Marked ${alertIds.length} alert(s) as read`, 'Bulk Action');
         this.selectedIds.clear();
         this.bulkMode = false;
@@ -541,7 +539,7 @@ export class FincaAlertsComponent implements OnInit, OnDestroy {
           status: 'DISMISSED',
           dismiss_reason: reason
         });
-        this.saveAndRefresh();
+        this.refreshAlerts();
         this.showDismissOptions = false;
         this.dismissReason = '';
         this.close();
@@ -565,7 +563,7 @@ export class FincaAlertsComponent implements OnInit, OnDestroy {
     this.finca.snoozeAlert(this.selected.id, minutes).subscribe({
       next: (response) => {
         Object.assign(this.selected, response?.alert || { status: 'SNOOZED' });
-        this.saveAndRefresh();
+        this.refreshAlerts();
         this.showSnoozeOptions = false;
         this.toastr.info('Alert snoozed', 'Inbox');
       },
@@ -588,7 +586,7 @@ export class FincaAlertsComponent implements OnInit, OnDestroy {
           status: 'ESCALATED',
           priority: 'URGENT'
         });
-        this.saveAndRefresh();
+        this.refreshAlerts();
         this.toastr.warning('Alert escalated', 'Escalation');
       },
       error: () => this.toastr.error('Failed to escalate alert', 'Escalation')
@@ -610,7 +608,7 @@ export class FincaAlertsComponent implements OnInit, OnDestroy {
           flagged: true,
           review_reason: reviewReason
         });
-        this.saveAndRefresh();
+        this.refreshAlerts();
         this.toastr.info('Alert flagged for review', 'Flag');
       },
       error: () => this.toastr.error('Failed to flag alert', 'Flag')
@@ -630,7 +628,7 @@ export class FincaAlertsComponent implements OnInit, OnDestroy {
           status: 'BLOCKED',
           decision: 'BLOCK'
         });
-        this.saveAndRefresh();
+        this.refreshAlerts();
         this.toastr.error('Transaction blocked', 'Action');
       },
       error: () => this.toastr.error('Failed to block transaction', 'Action')
@@ -649,20 +647,15 @@ export class FincaAlertsComponent implements OnInit, OnDestroy {
           status: 'CHALLENGED',
           decision: 'CHALLENGE'
         });
-        this.saveAndRefresh();
+        this.refreshAlerts();
         this.toastr.info('Challenge sent to customer', 'Action');
       },
       error: () => this.toastr.error('Failed to challenge customer', 'Action')
     });
   }
 
-  private saveAndRefresh(): void {
-    this.finca.saveAlerts(this.alerts).subscribe({
-      next: () => {
-        this.computeStats();
-        this.applyFilters();
-      }
-    });
+  private refreshAlerts(): void {
+    this.load(true);
   }
 
   confirmFraud(): void {
