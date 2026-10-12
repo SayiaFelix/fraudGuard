@@ -274,18 +274,65 @@
           Recent Fraud Reports
         </h5>
         <div class="d-flex gap-2 flex-wrap">
-          <input type="text" class="form-control form-control-sm search-input"
-            placeholder="Search reports..." [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()">
-          <select class="form-select form-select-sm channel-select" [(ngModel)]="selectedChannel" (ngModelChange)="applyFilters()">
-            <option value="all">All Channels</option>
-            <option value="Mobile Banking">Mobile Banking</option>
-            <option value="Internet Banking">Internet Banking</option>
-            <option value="USSD">USSD</option>
-            <option value="ATM/POS">ATM/POS</option>
-            <option value="Agency">Agency</option>
-            <option value="Core Banking">Core Banking</option>
-          </select>
-        </div>
+
+  <!-- Search -->
+  <input
+    type="text"
+    class="form-control form-control-sm search-input"
+    placeholder="Search reports..."
+    [(ngModel)]="searchTerm"
+    (ngModelChange)="applyFilters()"
+  >
+
+  <!-- Channel -->
+  <select
+    class="form-select form-select-sm channel-select"
+    [(ngModel)]="selectedChannel"
+    (ngModelChange)="applyFilters()"
+  >
+    <option value="all">All Channels</option>
+    <option value="Mobile Banking">Mobile Banking</option>
+    <option value="Internet Banking">Internet Banking</option>
+    <option value="USSD">USSD</option>
+    <option value="ATM/POS">ATM/POS</option>
+    <option value="Agency">Agency</option>
+    <option value="Core Banking">Core Banking</option>
+  </select>
+
+  <!-- Region -->
+  <select
+    class="form-select form-select-sm filter-select"
+    [(ngModel)]="selectedRegion"
+    (ngModelChange)="applyFilters()"
+  >
+    <option value="all">All Regions</option>
+
+    <option value="Nairobi">Nairobi</option>
+    <option value="Central">Central</option>
+    <option value="Coast">Mombasa</option>
+    <option value="Eastern">Eldoret</option>
+    <option value="Western">Western</option>
+    <option value="Nyanza">Nyanza</option>
+    <option value="Rift Valley">Rift Valley</option>
+    <option value="North Eastern">North Eastern</option>
+  </select>
+
+  <!-- Status -->
+  <select
+    class="form-select form-select-sm filter-select"
+    [(ngModel)]="selectedStatus"
+    (ngModelChange)="applyFilters()"
+  >
+    <option value="all">All Statuses</option>
+    <option value="Confirmed">Confirmed</option>
+    <option value="Under Review">Under Review</option>
+    <option value="False Positive">False Positive</option>
+    <option value="Escalated">Escalated</option>
+    <option value="Resolved">Resolved</option>
+    <option value="Pending">Pending</option>
+  </select>
+
+</div>
       </div>
     </div>
     <div class="card-body p-0">
@@ -295,7 +342,6 @@
             <tr>
               <th>Report ID</th>
               <th>Date</th>
-              <th>Fraud Type</th>
               <th>Channel</th>
               <th>Region</th>
               <th>Amount</th>
@@ -308,24 +354,86 @@
             <tr *ngFor="let report of filteredReports">
               <td class="fw-semibold text-primary">{{ report.id }}</td>
               <td>{{ report.date }}</td>
-              <td>{{ report.type }}</td>
-              <td>
-                <span class="channel-badge">{{ report.channel }}</span>
-              </td>
-              <td>{{ report.region }}</td>
-              <td class="fw-semibold">{{ formatCurrency(report.amount) }}</td>
-              <td>
-                <div class="risk-score-cell">
-                  <div class="risk-bar">
-                    <div class="risk-fill" [style.width.%]="report.riskScore" [style.backgroundColor]="getRiskColor(report.riskScore)"></div>
-                  </div>
-                  <span class="risk-value" [style.color]="getRiskColor(report.riskScore)">{{ report.riskScore }}</span>
-                </div>
-              </td>
-              <td>
-                <span class="status-badge" [ngClass]="getStatusClass(report.status)">{{ report.status }}</span>
-              </td>
-              <td>{{ report.analyst }}</td>
+              <!-- Channel -->
+<td>
+  <span
+    class="table-badge channel-badge"
+    [ngClass]="getChannelClass(report.channel)"
+  >
+    <i
+      class="fas me-1"
+      [ngClass]="getChannelIcon(report.channel)"
+    ></i>
+    {{ report.channel }}
+  </span>
+</td>
+
+<td>{{ report.region }}</td>
+
+<td class="fw-semibold">
+  {{ formatCurrency(report.amount) }}
+</td>
+
+<!-- Risk Score -->
+<td>
+  <div class="risk-score-cell">
+
+    <div class="risk-score-top">
+      <span
+        class="risk-badge"
+        [ngClass]="getRiskClass(report.riskScore)"
+      >
+        {{ report.riskScore }}
+      </span>
+
+      <small
+        class="risk-label"
+        [style.color]="getRiskColor(report.riskScore)"
+      >
+        {{ getRiskLabel(report.riskScore) }}
+      </small>
+    </div>
+
+    <div class="risk-bar">
+      <div
+        class="risk-fill"
+        [style.width.%]="report.riskScore"
+        [style.backgroundColor]="getRiskColor(report.riskScore)"
+      ></div>
+    </div>
+
+  </div>
+</td>
+
+<!-- Status -->
+<td>
+  <span
+    class="table-badge status-badge"
+    [ngClass]="getStatusClass(report.status)"
+  >
+    <span class="status-dot"></span>
+    {{ report.status }}
+  </span>
+</td>
+
+<!-- Analyst -->
+<td>
+  <span
+    class="analyst-badge"
+    [ngClass]="getAnalystClass(report.analyst)"
+  >
+    <i
+      class="fas"
+      [ngClass]="
+        report.analyst === 'Unassigned'
+          ? 'fa-user-clock'
+          : 'fa-user-shield'
+      "
+    ></i>
+
+    {{ report.analyst }}
+  </span>
+</td>
             </tr>
           </tbody>
         </table>
