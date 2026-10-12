@@ -9,18 +9,20 @@
       <p class="page-subtitle mb-0">
         <i class="fas fa-satellite-dish me-1"></i> Real-time channel &amp; fraud watch
         <span class="mx-2 text-muted">•</span>
-        <span class="text-muted">Live feed (static demo)</span>
+        <span class="text-muted">Live channel &amp; fraud feed</span>
       </p>
     </div>
     <div class="d-flex gap-2 align-items-center flex-wrap">
       <span class="live-pill">
-        <span class="live-dot"></span> Monitoring active
+        <span class="live-dot"></span> Monitoring {{ monitoringStatus }}
       </span>
-      <button class="btn btn-outline-primary btn-sm" (click)="refreshFeed()">
-        <i class="fas fa-sync-alt me-1"></i> Refresh
+      <button class="btn btn-outline-primary btn-sm" (click)="refreshFeed()" [disabled]="loading">
+        <i class="fas fa-sync-alt me-1" [class.fa-spin]="loading"></i> Refresh
       </button>
     </div>
   </div>
+
+  <div class="alert alert-danger py-2" *ngIf="errorMessage">{{ errorMessage }}</div>
 
   <!-- KPI Cards -->
   <div class="row g-3 mb-4">
@@ -37,9 +39,7 @@
             </div>
           </div>
           <div class="d-flex align-items-center mt-2">
-            <span class="trend-badge"
-              [class.trend-up]="kpi.trend === 'up'"
-              [class.trend-down]="kpi.trend === 'down'"
+            <span class="trend-badge" [class.trend-up]="kpi.trend === 'up'" [class.trend-down]="kpi.trend === 'down'"
               [class.trend-flat]="kpi.trend === 'flat'">
               <i class="fas" [ngClass]="{
                 'fa-arrow-up': kpi.trend === 'up',
@@ -89,7 +89,7 @@
             </div>
             <div class="metric-row">
               <span>Blocked</span>
-              <strong class="text-danger">{{ ch.blockedToday }}</strong>
+              <strong class="text-danger">{{ ch.blockedInPeriod }}</strong>
             </div>
           </div>
         </div>
@@ -108,17 +108,10 @@
           </h5>
         </div>
         <div class="card-body pt-0 px-3">
-          <apx-chart
-            [series]="volumeTrendOptions.series"
-            [chart]="volumeTrendOptions.chart"
-            [colors]="volumeTrendOptions.colors"
-            [stroke]="volumeTrendOptions.stroke"
-            [fill]="volumeTrendOptions.fill"
-            [xaxis]="volumeTrendOptions.xaxis"
-            [yaxis]="volumeTrendOptions.yaxis"
-            [legend]="volumeTrendOptions.legend"
-            [grid]="volumeTrendOptions.grid"
-            [dataLabels]="volumeTrendOptions.dataLabels">
+          <apx-chart [series]="volumeTrendOptions.series" [chart]="volumeTrendOptions.chart"
+            [colors]="volumeTrendOptions.colors" [stroke]="volumeTrendOptions.stroke" [fill]="volumeTrendOptions.fill"
+            [xaxis]="volumeTrendOptions.xaxis" [yaxis]="volumeTrendOptions.yaxis" [legend]="volumeTrendOptions.legend"
+            [grid]="volumeTrendOptions.grid" [dataLabels]="volumeTrendOptions.dataLabels">
           </apx-chart>
         </div>
       </div>
@@ -132,13 +125,9 @@
           </h5>
         </div>
         <div class="card-body pt-0">
-          <apx-chart
-            [series]="blockedByChannelOptions.series"
-            [chart]="blockedByChannelOptions.chart"
-            [labels]="blockedByChannelOptions.labels"
-            [colors]="blockedByChannelOptions.colors"
-            [legend]="blockedByChannelOptions.legend"
-            [plotOptions]="blockedByChannelOptions.plotOptions"
+          <apx-chart [series]="blockedByChannelOptions.series" [chart]="blockedByChannelOptions.chart"
+            [labels]="blockedByChannelOptions.labels" [colors]="blockedByChannelOptions.colors"
+            [legend]="blockedByChannelOptions.legend" [plotOptions]="blockedByChannelOptions.plotOptions"
             [dataLabels]="blockedByChannelOptions.dataLabels">
           </apx-chart>
         </div>
@@ -157,16 +146,10 @@
           </h5>
         </div>
         <div class="card-body pt-0">
-          <apx-chart
-            [series]="fraudRateOptions.series"
-            [chart]="fraudRateOptions.chart"
-            [plotOptions]="fraudRateOptions.plotOptions"
-            [colors]="fraudRateOptions.colors"
-            [xaxis]="fraudRateOptions.xaxis"
-            [yaxis]="fraudRateOptions.yaxis"
-            [legend]="fraudRateOptions.legend"
-            [grid]="fraudRateOptions.grid"
-            [dataLabels]="fraudRateOptions.dataLabels">
+          <apx-chart [series]="fraudRateOptions.series" [chart]="fraudRateOptions.chart"
+            [plotOptions]="fraudRateOptions.plotOptions" [colors]="fraudRateOptions.colors"
+            [xaxis]="fraudRateOptions.xaxis" [yaxis]="fraudRateOptions.yaxis" [legend]="fraudRateOptions.legend"
+            [grid]="fraudRateOptions.grid" [dataLabels]="fraudRateOptions.dataLabels">
           </apx-chart>
         </div>
       </div>
@@ -180,17 +163,11 @@
           </h5>
         </div>
         <div class="card-body pt-0">
-          <apx-chart
-            [series]="hourlyActivityOptions.series"
-            [chart]="hourlyActivityOptions.chart"
-            [stroke]="hourlyActivityOptions.stroke"
-            [plotOptions]="hourlyActivityOptions.plotOptions"
-            [colors]="hourlyActivityOptions.colors"
-            [fill]="hourlyActivityOptions.fill"
-            [labels]="hourlyActivityOptions.labels"
-            [markers]="hourlyActivityOptions.markers"
-            [yaxis]="hourlyActivityOptions.yaxis"
-            [legend]="hourlyActivityOptions.legend"
+          <apx-chart [series]="hourlyActivityOptions.series" [chart]="hourlyActivityOptions.chart"
+            [stroke]="hourlyActivityOptions.stroke" [plotOptions]="hourlyActivityOptions.plotOptions"
+            [colors]="hourlyActivityOptions.colors" [fill]="hourlyActivityOptions.fill"
+            [labels]="hourlyActivityOptions.labels" [markers]="hourlyActivityOptions.markers"
+            [yaxis]="hourlyActivityOptions.yaxis" [legend]="hourlyActivityOptions.legend"
             [grid]="hourlyActivityOptions.grid">
           </apx-chart>
         </div>
@@ -205,15 +182,9 @@
           </h5>
         </div>
         <div class="card-body pt-0">
-          <apx-chart
-            [series]="riskRadarOptions.series"
-            [chart]="riskRadarOptions.chart"
-            [colors]="riskRadarOptions.colors"
-            [stroke]="riskRadarOptions.stroke"
-            [fill]="riskRadarOptions.fill"
-            [markers]="riskRadarOptions.markers"
-            [xaxis]="riskRadarOptions.xaxis"
-            [yaxis]="riskRadarOptions.yaxis"
+          <apx-chart [series]="riskRadarOptions.series" [chart]="riskRadarOptions.chart"
+            [colors]="riskRadarOptions.colors" [stroke]="riskRadarOptions.stroke" [fill]="riskRadarOptions.fill"
+            [markers]="riskRadarOptions.markers" [xaxis]="riskRadarOptions.xaxis" [yaxis]="riskRadarOptions.yaxis"
             [legend]="riskRadarOptions.legend">
           </apx-chart>
         </div>
@@ -275,20 +246,20 @@
           Monitored Transactions
         </h5>
         <div class="d-flex gap-2 flex-wrap">
-          <input type="text" class="form-control form-control-sm search-input"
-            placeholder="Search txn / rule..." [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()">
-          <select class="form-select form-select-sm channel-select"
-            [(ngModel)]="selectedChannel" (ngModelChange)="applyFilters()">
+          <input type="text" class="form-control form-control-sm search-input" placeholder="Search txn / rule..."
+            [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()">
+          <select class="form-select form-select-sm channel-select" [(ngModel)]="selectedChannel"
+            (ngModelChange)="applyFilters()">
             <option value="all">All Channels</option>
-            <option value="Mobile Banking">Mobile Banking</option>
-            <option value="Internet Banking">Internet Banking</option>
+            <option value="MOBILE_BANKING">Mobile Banking</option>
+            <option value="INTERNET_BANKING">Internet Banking</option>
             <option value="USSD">USSD</option>
-            <option value="ATM / POS">ATM / POS</option>
-            <option value="Agency Banking">Agency Banking</option>
-            <option value="Core Banking">Core Banking</option>
+            <option value="ATM_POS">ATM / POS</option>
+            <option value="AGENCY">Agency Banking</option>
+            <option value="CORE_BANKING">Core Banking</option>
           </select>
-          <select class="form-select form-select-sm flag-select"
-            [(ngModel)]="selectedFlag" (ngModelChange)="applyFilters()">
+          <select class="form-select form-select-sm flag-select" [(ngModel)]="selectedFlag"
+            (ngModelChange)="applyFilters()">
             <option value="all">All Flags</option>
             <option value="None">None</option>
             <option value="Suspicious">Suspicious</option>
@@ -325,8 +296,7 @@
               <td>
                 <div class="risk-score-cell">
                   <div class="risk-bar">
-                    <div class="risk-fill"
-                      [style.width.%]="t.riskScore"
+                    <div class="risk-fill" [style.width.%]="t.riskScore"
                       [style.backgroundColor]="getRiskColor(t.riskScore)"></div>
                   </div>
                   <span class="risk-value" [style.color]="getRiskColor(t.riskScore)">{{ t.riskScore }}</span>
@@ -337,14 +307,28 @@
               </td>
               <td class="small text-muted">{{ t.ruleHit }}</td>
             </tr>
+            <tr *ngIf="loadingTransactions">
+              <td colspan="9" class="text-center text-muted py-4">Loading transactions...</td>
+            </tr>
+            <tr *ngIf="!loadingTransactions && filteredTransactions.length === 0">
+              <td colspan="9" class="text-center text-muted py-4">No transactions found.</td>
+            </tr>
           </tbody>
         </table>
       </div>
     </div>
     <div class="card-footer bg-transparent border-0 py-3 px-4">
       <div class="d-flex justify-content-between align-items-center text-muted small">
-        <span>Showing {{ filteredTransactions.length }} of {{ transactions.length }} transactions</span>
-        <span><i class="fas fa-info-circle me-1"></i> Data refreshed: {{ lastRefreshed }}</span>
+        <span>Showing {{ filteredTransactions.length }} of {{ totalTransactions }} transactions</span>
+        <div class="d-flex align-items-center gap-3">
+          <button class="btn btn-outline-secondary btn-sm" (click)="setPage(page - 1)"
+            [disabled]="loadingTransactions || page <= 1">Previous</button>
+          <span>Page {{ page }} of {{ totalPages || 1 }}</span>
+          <button class="btn btn-outline-secondary btn-sm" (click)="setPage(page + 1)"
+            [disabled]="loadingTransactions || page >= totalPages">Next</button>
+          <span><i class="fas fa-info-circle me-1"></i> Data refreshed: {{ lastRefreshed ? (lastRefreshed |
+            date:'medium') : 'Not yet refreshed' }}</span>
+        </div>
       </div>
     </div>
   </div>
