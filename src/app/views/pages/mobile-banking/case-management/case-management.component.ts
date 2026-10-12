@@ -302,8 +302,6 @@ caseFormData: any = {
 
     this.loadDashboard();
 
-    this.loadLocalData();
-
     this.pollInterval = setInterval(() => this.loadAll(true), 30000);
 
     this.slaInterval = setInterval(() => this.updateSlaIndicators(), 60000);
@@ -462,7 +460,6 @@ submitCreateCase(): void {
 
 
 
-  // ✅ Try backend first
 
   this.finca.createCaseBackend(newCase).subscribe({
 
@@ -475,8 +472,6 @@ submitCreateCase(): void {
         const backendCase = res.case;
 
         this.cases.unshift(backendCase);
-
-        this.finca.saveCases(this.cases).subscribe();
 
         this.computeStats();
 
@@ -493,26 +488,13 @@ submitCreateCase(): void {
     },
 
     error: (err: any) => {
+  console.error('Failed to create case:', err);
 
-      console.warn('Backend create failed, saving locally:', err);
-
-      // Fallback to local
-
-      this.cases.unshift(newCase);
-
-      this.finca.saveCases(this.cases).subscribe();
-
-      this.computeStats();
-
-      this.applyFilter();
-
-      this.selectCase(newCase);
-
-      this.closeCreateCaseModal();
-
-      this.showErrorAlert('Case saved locally (server sync pending)', 'Create Case Failed');
-
-    }
+  this.showErrorAlert(
+    'Failed to create case. Please try again.',
+    'Create Case Failed'
+  );
+}
 
   });
 
@@ -678,19 +660,14 @@ createCaseFromTransaction(transaction: any): void {
 
     },
 
-    error: () => {
+    error: (err) => {
+  console.error('Failed to create case from transaction:', err);
 
-      this.cases.unshift(newCase);
-
-      this.computeStats();
-
-      this.applyFilter();
-
-      this.selectCase(newCase);
-
-      this.showErrorAlert('Case created locally only because the server request failed', 'Create Case Failed');
-
-    }
+  this.showErrorAlert(
+    'Failed to create case from transaction.',
+    'Create Case Failed'
+  );
+}
 
   });
 
@@ -802,12 +779,6 @@ loadAll(silent = false): void {
 
 
 
-      // Save to local storage as backup
-
-      this.finca.saveCases(this.cases).subscribe();
-
-
-
       this.computeStats();
 
       this.buildActivityFeed();
@@ -821,26 +792,19 @@ loadAll(silent = false): void {
     },
 
     error: (err: any) => {
+  console.error('Error loading cases:', err);
 
-      console.error('Error loading cases:', err);
+  this.cases = [];
+  this.computeStats();
+  this.buildActivityFeed();
+  this.applyFilter();
+  this.loading = false;
 
-      // Fallback to local storage
-
-      const saved = JSON.parse(localStorage.getItem('finca_cases') || '[]');
-
-      this.cases = saved.length > 0 ? saved : [];
-
-      this.computeStats();
-
-      this.buildActivityFeed();
-
-      this.applyFilter();
-
-      this.loading = false;
-
-      this.showErrorAlert('Could not load cases from the server. Using locally cached cases.', 'Load Cases Failed');
-
-    }
+  this.showErrorAlert(
+    'Could not load cases from the server.',
+    'Load Cases Failed'
+  );
+}
 
   });
 
@@ -2090,23 +2054,14 @@ getTransactionIdFromCase(caseData: any): string | null {
 
       },
 
-      error: () => {
+      error: (err) => {
+  console.error('Assignment failed:', err);
 
-        this.selected.assigned_to = name;
-
-        this.selected.status = 'INVESTIGATING';
-
-        this.selected.priority = this.assignPriority || 'NORMAL';
-
-        this.pushTimeline(`Assigned to ${name} (local)`);
-
-        this.updateWorkflowSteps();
-
-        this.adjustRisk(3, `Assigned to ${name}`);
-
-        this.showErrorAlert(`Server assignment failed. ${name} was applied locally only.`, 'Assignment Failed');
-
-      }
+  this.showErrorAlert(
+    'Failed to assign case. Please try again.',
+    'Assignment Failed'
+  );
+}
 
     });
 
@@ -2223,27 +2178,14 @@ getTransactionIdFromCase(caseData: any): string | null {
 
       },
 
-      error: () => {
+      error: (err) => {
+  console.error('Failed to add note:', err);
 
-        if (!this.selected.notes) this.selected.notes = [];
-
-        this.selected.notes.push({
-
-          timestamp: new Date().toISOString(),
-
-          analyst: 'Analyst',
-
-          note
-
-        });
-
-        this.pushTimeline(`Note: ${this.noteText.substring(0, 50)}...`);
-
-        this.noteText = '';
-
-        this.showErrorAlert('The note could not be saved on the server. It was saved locally only.', 'Add Note Failed');
-
-      }
+  this.showErrorAlert(
+    'Failed to save note. Please try again.',
+    'Add Note Failed'
+  );
+}
 
     });
 
@@ -2500,19 +2442,14 @@ getTransactionIdFromCase(caseData: any): string | null {
 
       },
 
-      error: () => {
+      error: (err) => {
+  console.error('Failed to escalate case:', err);
 
-        this.selected.priority = 'URGENT';
-
-        this.pushTimeline(`Escalated to ${level} (local)`);
-
-        this.updateWorkflowSteps();
-
-        this.adjustRisk(20, `Escalated to ${level} (local)`);
-
-        this.showCriticalError(`Server escalation failed. Escalation to ${level} was applied locally only.`, 'Escalation Failed');
-
-      }
+  this.showCriticalError(
+    'Failed to escalate case. Please try again.',
+    'Escalation Failed'
+  );
+}
 
     });
 
@@ -2593,32 +2530,14 @@ getTransactionIdFromCase(caseData: any): string | null {
 
       },
 
-      error: () => {
+      error: (err) => {
+  console.error('Failed to resolve fraud case:', err);
 
-        this.selected.status = 'RESOLVED';
-        this.activeTab = 'resolution';
-
-        this.selected.resolution = {
-
-          verdict: 'FRAUD_CONFIRMED',
-
-          resolved_at: new Date().toISOString(),
-
-          resolved_by: 'Analyst',
-
-          notes
-
-        };
-
-        this.adjustRisk(1000, 'Case resolved: FRAUD CONFIRMED (local)');
-
-        this.pushTimeline('Case resolved: FRAUD CONFIRMED (local)');
-
-        this.updateWorkflowSteps();
-
-        this.showCriticalError('Server resolution failed. FRAUD CONFIRMED was applied locally only.', 'Resolution Failed');
-
-      }
+  this.showErrorAlert(
+    'Failed to resolve case. Please try again.',
+    'Resolution Failed'
+  );
+}
 
     });
 
@@ -2668,61 +2587,24 @@ getTransactionIdFromCase(caseData: any): string | null {
 
 
 
-        // Remove from active cases
+      this.loadAll();
+      this.selected = null;
 
-        this.finca.deleteCaseLocal(this.selected.id).subscribe(() => {
-
-          this.cases = this.cases.filter(c => c.id !== this.selected.id);
-
-          if (this.selected) {
-
-            this.selected = null;
-
-          }
-
-          this.applyFilter();
-
-          this.showSuccessAlert('Case resolved as false positive and removed from the active queue', 'Resolution Successful');
-
-        });
+      this.showSuccessAlert(
+       'Case resolved as false positive',
+       'Resolution Successful'
+);
 
       },
 
-      error: () => {
+      error: (err) => {
+  console.error('Failed to resolve fraud case:', err);
 
-        this.selected.status = 'RESOLVED';
-
-        this.selected.resolution = {
-
-          verdict: 'FALSE_POSITIVE',
-
-          resolved_at: new Date().toISOString(),
-
-          resolved_by: 'Analyst',
-
-          notes
-
-        };
-
-        this.adjustRisk(-50, 'Case resolved: FALSE POSITIVE (local)');
-
-        this.pushTimeline('Case resolved: FALSE POSITIVE (local)');
-
-        this.updateWorkflowSteps();
-
-        this.cases = this.cases.filter(c => c.id !== this.selected.id);
-
-        if (this.selected) {
-
-          this.selected = null;
-
-        }
-
-        this.applyFilter();
-
-        this.showCriticalError('Server resolution failed. FALSE POSITIVE was applied locally only.', 'Resolution Failed');
-
-      }
+  this.showErrorAlert(
+    'Failed to resolve case as false positive.',
+    'Resolution Failed'
+  );
+}
 
     });
 
