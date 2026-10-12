@@ -47,6 +47,8 @@ export class FraudReportsComponent implements OnInit {
 
   selectedPeriod = 'quarter';
   selectedChannel = 'all';
+  selectedRegion = 'all';
+  selectedStatus = 'all';
   searchTerm = '';
 
   currentPage = 1;
@@ -1005,20 +1007,24 @@ export class FraudReportsComponent implements OnInit {
 
     const payload = {
 
-      page: page,
+  page: page,
 
-      page_size:
-        this.pageSize,
+  page_size:
+    this.pageSize,
 
-      search:
-        this.searchTerm?.trim() || '',
+  search:
+    this.searchTerm?.trim() || '',
 
-      channel:
-        this.selectedChannel || 'all',
+  channel:
+    this.selectedChannel || 'all',
 
-      status: 'all'
+  region:
+    this.selectedRegion || 'all',
 
-    };
+  status:
+    this.selectedStatus || 'all'
+
+};
 
     this.httpService
       .getRecentFraudReports(
@@ -1036,7 +1042,7 @@ export class FraudReportsComponent implements OnInit {
 
             this.reports = [];
 
-            this.filteredReports = [];
+            this.applyLocalFilters();
 
             return;
           }
@@ -1159,41 +1165,229 @@ export class FraudReportsComponent implements OnInit {
 
   applyFilters(): void {
 
-    this.currentPage = 1;
+  this.currentPage = 1;
 
-    this.loadRecentReports(
-      1
-    );
-  }
+  this.applyLocalFilters();
 
+}
+
+
+private applyLocalFilters(): void {
+
+
+  const search =
+    (this.searchTerm || '')
+      .trim()
+      .toLowerCase();
+
+  this.filteredReports =
+    this.reports.filter(report => {
+
+      const matchesSearch =
+        !search ||
+        report.id
+          .toLowerCase()
+          .includes(search) ||
+        report.channel
+          .toLowerCase()
+          .includes(search) ||
+        report.region
+          .toLowerCase()
+          .includes(search) ||
+        report.status
+          .toLowerCase()
+          .includes(search) ||
+        report.analyst
+          .toLowerCase()
+          .includes(search);
+
+      const matchesChannel =
+        this.selectedChannel === 'all' ||
+        report.channel ===
+          this.selectedChannel;
+
+      const matchesRegion =
+        this.selectedRegion === 'all' ||
+        (report.region || '').trim().toLowerCase() ===
+        (this.selectedRegion || '').trim().toLowerCase();
+
+      const matchesStatus =
+        this.selectedStatus === 'all' ||
+        report.status ===
+          this.selectedStatus;
+
+      return (
+        matchesSearch &&
+        matchesChannel &&
+        matchesRegion &&
+        matchesStatus
+      );
+
+    });
+
+}
 
   // =====================================================
   // STATUS
   // =====================================================
 
-  getStatusClass(
-    status: string
-  ): string {
+  getStatusClass(status: string): string {
 
-    const map:
-      Record<string, string> = {
+  switch ((status || '').toLowerCase()) {
 
-      'Confirmed':
-        'status-confirmed',
+    case 'confirmed':
+      return 'status-confirmed';
 
-      'Under Review':
-        'status-review',
+    case 'under review':
+      return 'status-review';
 
-      'False Positive':
-        'status-fp',
+    case 'false positive':
+      return 'status-fp';
 
-      'Escalated':
-        'status-escalated'
+    case 'escalated':
+      return 'status-escalated';
 
-    };
+    case 'resolved':
+      return 'status-resolved';
 
-    return map[status] || '';
+    case 'pending':
+      return 'status-pending';
+
+    default:
+      return 'status-default';
   }
+}
+
+  getChannelClass(channel: string): string {
+  const value = (channel || '').toLowerCase();
+
+  if (value.includes('mobile')) {
+    return 'channel-mobile';
+  }
+
+  if (value.includes('internet')) {
+    return 'channel-internet';
+  }
+
+  if (value.includes('ussd')) {
+    return 'channel-ussd';
+  }
+
+  if (value.includes('atm') || value.includes('pos')) {
+    return 'channel-atm';
+  }
+
+  if (value.includes('agency')) {
+    return 'channel-agency';
+  }
+
+  if (value.includes('core')) {
+    return 'channel-core';
+  }
+
+  return 'channel-default';
+}
+
+
+getChannelIcon(channel: string): string {
+  const value = (channel || '').toLowerCase();
+
+  if (value.includes('mobile')) {
+    return 'fa-mobile-alt';
+  }
+
+  if (value.includes('internet')) {
+    return 'fa-globe';
+  }
+
+  if (value.includes('ussd')) {
+    return 'fa-keyboard';
+  }
+
+  if (value.includes('atm')) {
+    return 'fa-credit-card';
+  }
+
+  if (value.includes('pos')) {
+    return 'fa-cash-register';
+  }
+
+  if (value.includes('agency')) {
+    return 'fa-store';
+  }
+
+  if (value.includes('core')) {
+    return 'fa-database';
+  }
+
+  return 'fa-network-wired';
+}
+
+
+getRiskClass(score: number): string {
+  if (score >= 90) {
+    return 'risk-critical';
+  }
+
+  if (score >= 75) {
+    return 'risk-high';
+  }
+
+  if (score >= 50) {
+    return 'risk-medium';
+  }
+
+  return 'risk-low';
+}
+
+
+getRiskLabel(score: number): string {
+  if (score >= 90) {
+    return 'Critical';
+  }
+
+  if (score >= 75) {
+    return 'High';
+  }
+
+  if (score >= 50) {
+    return 'Medium';
+  }
+
+  return 'Low';
+}
+
+
+getAnalystClass(analyst: string): string {
+  if (
+    !analyst ||
+    analyst.toLowerCase() === 'unassigned'
+  ) {
+    return 'analyst-unassigned';
+  }
+
+  /*
+   * Deterministically assign a color based on the analyst name.
+   * The same analyst will always receive the same color.
+   */
+  const classes = [
+    'analyst-blue',
+    'analyst-purple',
+    'analyst-green',
+    'analyst-orange',
+    'analyst-cyan'
+  ];
+
+  const hash = analyst
+    .split('')
+    .reduce(
+      (total, character) =>
+        total + character.charCodeAt(0),
+      0
+    );
+
+  return classes[hash % classes.length];
+}
 
 
   getRiskColor(
