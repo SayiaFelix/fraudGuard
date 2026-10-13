@@ -108,7 +108,7 @@
           </h5>
         </div>
         <div class="card-body pt-0 px-3">
-          <apx-chart [series]="volumeTrendOptions.series" [chart]="volumeTrendOptions.chart"
+          <apx-chart *ngIf="chartsReady" [series]="volumeTrendOptions.series" [chart]="volumeTrendOptions.chart"
             [colors]="volumeTrendOptions.colors" [stroke]="volumeTrendOptions.stroke" [fill]="volumeTrendOptions.fill"
             [xaxis]="volumeTrendOptions.xaxis" [yaxis]="volumeTrendOptions.yaxis" [legend]="volumeTrendOptions.legend"
             [grid]="volumeTrendOptions.grid" [dataLabels]="volumeTrendOptions.dataLabels">
@@ -125,7 +125,7 @@
           </h5>
         </div>
         <div class="card-body pt-0">
-          <apx-chart [series]="blockedByChannelOptions.series" [chart]="blockedByChannelOptions.chart"
+          <apx-chart *ngIf="chartsReady" [series]="blockedByChannelOptions.series" [chart]="blockedByChannelOptions.chart"
             [labels]="blockedByChannelOptions.labels" [colors]="blockedByChannelOptions.colors"
             [legend]="blockedByChannelOptions.legend" [plotOptions]="blockedByChannelOptions.plotOptions"
             [dataLabels]="blockedByChannelOptions.dataLabels">
@@ -146,7 +146,7 @@
           </h5>
         </div>
         <div class="card-body pt-0">
-          <apx-chart [series]="fraudRateOptions.series" [chart]="fraudRateOptions.chart"
+          <apx-chart *ngIf="chartsReady" [series]="fraudRateOptions.series" [chart]="fraudRateOptions.chart"
             [plotOptions]="fraudRateOptions.plotOptions" [colors]="fraudRateOptions.colors"
             [xaxis]="fraudRateOptions.xaxis" [yaxis]="fraudRateOptions.yaxis" [legend]="fraudRateOptions.legend"
             [grid]="fraudRateOptions.grid" [dataLabels]="fraudRateOptions.dataLabels">
@@ -163,7 +163,7 @@
           </h5>
         </div>
         <div class="card-body pt-0">
-          <apx-chart [series]="hourlyActivityOptions.series" [chart]="hourlyActivityOptions.chart"
+          <apx-chart *ngIf="chartsReady" [series]="hourlyActivityOptions.series" [chart]="hourlyActivityOptions.chart"
             [stroke]="hourlyActivityOptions.stroke" [plotOptions]="hourlyActivityOptions.plotOptions"
             [colors]="hourlyActivityOptions.colors" [fill]="hourlyActivityOptions.fill"
             [labels]="hourlyActivityOptions.labels" [markers]="hourlyActivityOptions.markers"
@@ -182,7 +182,7 @@
           </h5>
         </div>
         <div class="card-body pt-0">
-          <apx-chart [series]="riskRadarOptions.series" [chart]="riskRadarOptions.chart"
+          <apx-chart *ngIf="chartsReady" [series]="riskRadarOptions.series" [chart]="riskRadarOptions.chart"
             [colors]="riskRadarOptions.colors" [stroke]="riskRadarOptions.stroke" [fill]="riskRadarOptions.fill"
             [markers]="riskRadarOptions.markers" [xaxis]="riskRadarOptions.xaxis" [yaxis]="riskRadarOptions.yaxis"
             [legend]="riskRadarOptions.legend">
