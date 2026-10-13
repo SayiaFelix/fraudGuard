@@ -141,16 +141,43 @@
              [class.active]="selected?.id === c.id"
              [class.urgent]="c.priority === 'URGENT'"
              (click)="selectCase(c)">
-          <div class="d-flex justify-content-between align-items-start">
-            <div>
-              <div class="fw-bold small">{{ c.id }}</div>
-              <div class="text-muted" style="font-size:11px">{{ c.customer_id || '—' }}</div>
-            </div>
-            <div class="text-end">
-              <span class="badge" [ngClass]="getRiskBadge(c.final_risk_level)">{{ c.final_risk_level || '—' }}</span>
-              <div class="small text-muted mt-1">{{ getDisplayScore(c) }}%</div>
-            </div>
-          </div>
+         
+<div class="d-flex justify-content-between align-items-start">
+  <div class="case-list-main">
+    <div class="fw-bold small">{{ c.id }}</div>
+    <div class="text-muted" style="font-size:11px">
+      {{ c.customer_id || '—' }}
+    </div>
+  </div>
+
+  <div class="text-end case-list-meta">
+
+    <!-- Relative creation time -->
+    <div
+      *ngIf="c.created_at"
+      class="case-created-time"
+      [title]="c.created_at | date:'medium'"
+    >
+      <i class="far fa-clock me-1"></i>
+      {{ getCaseTimeAgo(c.created_at) }}
+    </div>
+
+    <!-- Existing risk badge -->
+    <span
+      class="badge"
+      [ngClass]="getRiskBadge(c.final_risk_level)"
+    >
+      {{ c.final_risk_level || '—' }}
+    </span>
+
+    <!-- Existing risk score -->
+    <div class="small text-muted mt-1">
+      {{ getDisplayScore(c) }}%
+    </div>
+
+  </div>
+</div>
+
           <div class="d-flex justify-content-between mt-2">
             <span class="badge bg-secondary" style="font-size:10px">{{ c.status }}</span>
             <span class="badge" [ngClass]="getSlaStatus(c).class" style="font-size:10px" *ngIf="c.status !== 'RESOLVED' && c.status !== 'CLOSED'">
@@ -469,12 +496,59 @@
                 <div
                 class="d-grid gap-2 action-grid"
                 *ngIf="!isCaseResolved()">
-                  <button class="btn btn-outline-primary btn-sm" (click)="activeTab='assignment'">
-                    <i class="fas fa-user-plus me-2"></i>Assign Case
-                  </button>
-                  <button class="btn btn-outline-info btn-sm" (click)="startInvestigation()">
-                    <i class="fas fa-search me-2"></i>Start Investigation
-                  </button>
+                  
+<!-- Assign Case: only when unassigned -->
+<button
+  *ngIf="!selected?.assigned_to"
+  class="btn btn-outline-primary btn-sm"
+  (click)="activeTab='assignment'"
+>
+  <i class="fas fa-user-plus me-2"></i>
+  Assign Case
+</button>
+
+<!-- Unassign Case: only when assigned -->
+<button
+  *ngIf="selected?.assigned_to"
+  class="btn btn-outline-danger btn-sm"
+  (click)="unassignCase()"
+>
+  <i class="fas fa-user-times me-2"></i>
+  Unassign Case
+</button>
+
+<!-- Reassign Case: only when assigned -->
+<button
+  *ngIf="selected?.assigned_to"
+  class="btn btn-outline-primary btn-sm"
+  (click)="reassignCase()"
+>
+  <i class="fas fa-exchange-alt me-2"></i>
+  Reassign Case
+</button>
+
+                  
+<button
+  class="btn btn-outline-info btn-sm"
+  (click)="startInvestigation()"
+  [disabled]="investigationStarting"
+>
+  <i
+    class="fas me-2"
+    [ngClass]="investigationStarting
+      ? 'fa-spinner fa-spin'
+      : 'fa-search'"
+  ></i>
+
+  {{
+    investigationStarting
+      ? 'Starting...'
+      : selected.status === 'INVESTIGATING'
+        ? 'Continue Investigation'
+        : 'Start Investigation'
+  }}
+</button>
+
                   <button class="btn btn-outline-secondary btn-sm" (click)="activeTab='notes'">
                     <i class="fas fa-sticky-note me-2"></i>Add Note
                   </button>
@@ -530,9 +604,12 @@
               <button class="btn btn-primary btn-sm" (click)="assignSelected()">
                 <i class="fas fa-user-check me-1"></i>Confirm Assignment
               </button>
-              <button class="btn btn-outline-secondary btn-sm" (click)="unassignCase()">
-                <i class="fas fa-user-times me-1"></i>Unassign
-              </button>
+              <button
+  class="btn btn-outline-info btn-sm"
+  (click)="startInvestigation()">
+  <i class="fas fa-search me-2"></i>
+  Start Investigation
+</button>
               <button class="btn btn-outline-info btn-sm" (click)="reassignCase()">
                 <i class="fas fa-exchange-alt me-1"></i>Reassign
               </button>
@@ -547,6 +624,15 @@
           <div *ngIf="activeTab === 'investigation'">
             <h4 class="fw-bold">Investigation Workspace</h4>
             
+
+<div
+  class="alert alert-info py-2"
+  *ngIf="selected.status === 'INVESTIGATING'"
+>
+  <i class="fas fa-search me-2"></i>
+  Investigation in progress
+</div>
+
             <!-- Investigation Checks -->
             <div class="row g-3 mb-3">
               <div class="col-md-4">

@@ -195,4 +195,34 @@
 
     .fill { height: 100%; border-radius: 2px; }
   }
+
+  
+.case-list-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.case-list-id {
+  font-size: 11px;
+  font-weight: 600;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.case-list-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.case-time {
+  font-size: 10px;
+  color: #718096;
+  white-space: nowrap;
+}
+
 }
