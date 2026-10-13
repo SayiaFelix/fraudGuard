@@ -473,7 +473,7 @@ export class CaseManagementComponent implements OnInit, OnDestroy {
 
           this.cases.unshift(backendCase);
 
-          this.finca.saveCases(this.cases).subscribe();
+          
 
           this.computeStats();
 
@@ -502,7 +502,39 @@ export class CaseManagementComponent implements OnInit, OnDestroy {
 
   }
 
+  
+getCaseTimeAgo(createdAt: string | null | undefined): string {
+  if (!createdAt) return '';
 
+  const created = new Date(createdAt).getTime();
+
+  if (!Number.isFinite(created)) return '';
+
+  const seconds = Math.max(
+    0,
+    Math.floor((Date.now() - created) / 1000)
+  );
+
+  if (seconds < 60) return 'Just now';
+
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+
+  const weeks = Math.floor(days / 7);
+  if (days < 30) return `${weeks}w ago`;
+
+  const months = Math.floor(days / 30);
+  if (days < 365) return `${months}mo ago`;
+
+  const years = Math.floor(days / 365);
+  return `${years}y ago`;
+}
 
   openCreateCaseFromTransaction(transaction: any): void {
 
@@ -648,7 +680,8 @@ export class CaseManagementComponent implements OnInit, OnDestroy {
 
       next: (r) => {
 
-        const c = (r && r.case) ? r.case : newCase;
+        if (r?.status !== 'success' || !r?.case) { this.showErrorAlert(r?.message || 'Case creation not confirmed', 'Create Failed'); return; }
+        const c = r.case;
 
         this.cases.unshift(c);
 
@@ -740,6 +773,13 @@ export class CaseManagementComponent implements OnInit, OnDestroy {
         fetched.forEach((c: any) => { byId[c.id] = c; });
 
         this.cases = Object.keys(byId).map(k => byId[k]);
+        if (this.selected) {
+          const current = this.cases.find((c: any) => c.id === this.selected.id);
+          if (current) {
+            this.selected = { ...this.selected, ...current };
+            this.updateWorkflowSteps();
+          }
+        }
 
 
 
@@ -1616,7 +1656,7 @@ export class CaseManagementComponent implements OnInit, OnDestroy {
 
     const resolved = this.cases.filter(c => c.status === 'RESOLVED' || c.status === 'Resolved' || c.status === 'CLOSED').length;
 
-    const escalated = this.cases.filter(c => c.priority === 'URGENT').length;
+    const escalated = this.cases.filter(c => c.status === 'ESCALATED' || c.escalated === true).length;
 
     const critical = this.cases.filter(c => c.final_risk_level === 'CRITICAL').length;
 
@@ -1948,7 +1988,7 @@ export class CaseManagementComponent implements OnInit, OnDestroy {
 
     const isResolved = s === 'RESOLVED' || s === 'CLOSED';
 
-    const isEscalated = this.selected.priority === 'URGENT';
+    const isEscalated = s === 'ESCALATED' || this.selected.escalated === true;
 
 
 
@@ -1960,7 +2000,7 @@ export class CaseManagementComponent implements OnInit, OnDestroy {
 
       { num: 3, label: 'Assignment', done: hasAssign, active: s === 'OPEN' && !hasAssign },
 
-      { num: 4, label: 'Investigation', done: s === 'INVESTIGATING' || isResolved, active: s === 'INVESTIGATING' },
+      { num: 4, label: 'Investigation', done: s === 'INVESTIGATING' || isResolved || isEscalated, active: s === 'INVESTIGATING' },
 
       { num: 5, label: 'Escalation', done: isEscalated, active: isEscalated && !isResolved },
 
@@ -1984,73 +2024,61 @@ export class CaseManagementComponent implements OnInit, OnDestroy {
 
   // ============= CASE ACTIONS =============
 
-  assignSelected(): void {
-
-    const name = this.assignAnalyst || prompt('Assign to (analyst name):', 'Analyst');
-
-    if (!name || !this.selected) return;
-
-
-
-    this.finca.assignCase(this.selected.id, name).subscribe({
-
-      next: (r) => {
-
-        this.selected.assigned_to = name;
-
-        this.selected.status = 'INVESTIGATING';
-
-        if (this.assignPriority) {
-
-          this.selected.priority = this.assignPriority;
-
-        }
-
-        this.pushTimeline(`Assigned to ${name}${this.assignNotes ? ': ' + this.assignNotes : ''}`);
-
-        this.updateWorkflowSteps();
-
-        this.assignNotes = '';
-
-        this.showSuccessAlert(`Assigned to ${name}`, 'Case Assigned');
-
-        this.adjustRisk(3, `Assigned to ${name}`);
-
-      },
-
-      error: (err) => {
-  console.error('Assignment failed:', err);
-
-  this.showErrorAlert(
-    'Failed to assign case. Please try again.',
-    'Assignment Failed'
-  );
-}
-
-    });
-
+  // Apply only backend-confirmed changes. Responses may be partial case objects.
+  private applyServerCase(serverCase: any): void {
+    if (!serverCase?.id) return;
+    const previous = this.cases.find((c: any) => c.id === serverCase.id);
+    const merged = { ...(previous || {}), ...serverCase };
+    this.cases = this.cases.map((c: any) => c.id === serverCase.id ? merged : c);
+    if (this.selected?.id === serverCase.id) {
+      this.selected = { ...this.selected, ...serverCase };
+      this.updateWorkflowSteps();
+    }
+    this.computeStats();
+    this.applyFilter();
+    this.buildActivityFeed();
   }
 
+  private serverCaseOK(res: any): boolean {
+    return res?.status === 'success' && !!res?.case?.id;
+  }
 
+  private caseActionError(error: any, title: string): void {
+    console.error(title, error);
+    this.showErrorAlert(error?.error?.message || 'Server request failed. No changes were saved.', title);
+  }
+
+  assignSelected(): void {
+    if (!this.selected) return;
+    const name = (this.assignAnalyst || '').trim();
+    if (!name) { this.showWarningAlert('Select an analyst', 'Assignment'); return; }
+    this.finca.assignCase(this.selected.id, name, this.assignPriority, this.assignNotes).subscribe({
+      next: (res: any) => {
+        if (!this.serverCaseOK(res)) { this.showErrorAlert(res?.message || 'Assignment was not confirmed', 'Assignment Failed'); return; }
+        this.applyServerCase(res.case);
+        this.assignNotes = '';
+        this.showSuccessAlert(res.message || 'Case assigned', 'Assignment Successful');
+      },
+      error: (err: any) => this.caseActionError(err, 'Assignment Failed')
+    });
+  }
 
   unassignCase(): void {
-
     if (!this.selected) return;
-
-    this.selected.assigned_to = null;
-
-    this.selected.status = 'OPEN';
-
-
-    this.pushTimeline('Case unassigned');
-
-    this.updateWorkflowSteps();
-
-    this.finca.updateCaseLocal(this.selected.id, { assigned_to: null, status: 'OPEN' }).subscribe();
-
-    this.showSuccessAlert('Case unassigned successfully', 'Assignment Successful');
-
+    const id = this.selected.id;
+    this.finca.unassignCase(id).subscribe({
+      next: (res: any) => {
+        if (!this.serverCaseOK(res)) { this.showErrorAlert(res?.message || 'Unassign not confirmed', 'Unassign Failed'); return; }
+        this.applyServerCase(res.case);
+        this.assignAnalyst = '';
+        this.assignNotes = '';
+        this.showSuccessAlert(res.message || 'Case unassigned', 'Unassign Successful');
+      },
+      error: (err: any) => this.caseActionError(err, 'Unassign Failed')
+    });
   }
+
+
 
 
 
@@ -2065,95 +2093,49 @@ export class CaseManagementComponent implements OnInit, OnDestroy {
   }
 
 
+  
+investigationStarting = false;
 
   startInvestigation(): void {
-
-    if (!this.canModifyCase()) {
-      return;
-    }
-
-    this.selected.status = 'INVESTIGATING';
-
-    this.pushTimeline('Investigation started');
-
-    this.activeTab = 'investigation';
-
-    this.updateWorkflowSteps();
-
-    this.adjustRisk(5, 'Investigation started');
-
-    this.finca.updateCaseLocal(this.selected.id, { status: 'INVESTIGATING' }).subscribe();
-
-    this.showSuccessAlert('Investigation started successfully', 'Investigation Started');
-
+    if (!this.selected || !this.canModifyCase() || this.investigationStarting) return;
+    if (this.selected.status === 'INVESTIGATING') { this.activeTab = 'investigation'; return; }
+    if (this.selected.status === 'ESCALATED') { this.showWarningAlert('Escalated case cannot be restarted here', 'Investigation'); return; }
+    const id = this.selected.id;
+    this.investigationStarting = true;
+    this.finca.startCaseInvestigation(id, 'Reviewing suspicious activity').subscribe({
+      next: (res: any) => {
+        this.investigationStarting = false;
+        if (!this.serverCaseOK(res)) { this.showErrorAlert(res?.message || 'Investigation start not confirmed', 'Investigation Failed'); return; }
+        this.applyServerCase(res.case);
+        if (this.selected?.id === id) this.activeTab = 'investigation';
+        this.showSuccessAlert(res.message || 'Investigation started', 'Investigation Started');
+      },
+      error: (err: any) => { this.investigationStarting = false; this.caseActionError(err, 'Investigation Failed'); }
+    });
   }
+
+
+
+
 
 
 
   // ============= NOTES =============
 
-
-
   addNote(): void {
-
-    if (!this.selected || !this.noteText.trim()) {
-
-      this.showWarningAlert('Please enter a note', 'Warning');
-
-      return;
-
-    }
-
-
-
-    const note = `[${this.noteCategory}] ${this.noteText}`;
-
-
-
+    if (!this.selected || !this.noteText.trim()) { this.showWarningAlert('Please enter a note', 'Warning'); return; }
+    const note = `[${this.noteCategory}] ${this.noteText.trim()}`;
     this.finca.addCaseNote(this.selected.id, note, 'Analyst').subscribe({
-
-      next: (r) => {
-
-        if (r.case) {
-
-          this.selected = { ...this.selected, ...r.case };
-
-        } else {
-
-          if (!this.selected.notes) this.selected.notes = [];
-
-          this.selected.notes.push({
-
-            timestamp: new Date().toISOString(),
-
-            analyst: 'Analyst',
-
-            note
-
-          });
-
-        }
-
-        this.pushTimeline(`Note added: ${this.noteText.substring(0, 50)}...`);
-
+      next: (res: any) => {
+        if (!this.serverCaseOK(res)) { this.showErrorAlert(res?.message || 'Note not saved', 'Note Failed'); return; }
+        this.applyServerCase(res.case);
         this.noteText = '';
-
-        this.showSuccessAlert('Note saved', 'Investigation');
-
+        this.showSuccessAlert(res.message || 'Note saved', 'Investigation');
       },
-
-      error: (err) => {
-  console.error('Failed to add note:', err);
-
-  this.showErrorAlert(
-    'Failed to save note. Please try again.',
-    'Add Note Failed'
-  );
-}
-
+      error: (err: any) => this.caseActionError(err, 'Note Failed')
     });
-
   }
+
 
   canModifyCase(): boolean {
 
@@ -2366,58 +2348,19 @@ export class CaseManagementComponent implements OnInit, OnDestroy {
 
   // ============= ESCALATION =============
 
-
-
   escalate(): void {
-
     if (!this.selected) return;
-
-
-
     const level = this.escalationLevel || 'URGENT';
-
-
-
-    this.finca.escalateCase(
-
-      this.selected.id,
-
-      level,
-
-      this.escalationReason,
-
-      this.escalationNotify,
-
-      'Supervisor'
-
-    ).subscribe({
-
-      next: () => {
-
-        this.selected.priority = 'URGENT';
-
-        this.pushTimeline(`Escalated to ${level}: ${this.escalationReason || 'No reason provided'}`);
-
-        this.updateWorkflowSteps();
-
-        this.adjustRisk(20, `Escalated to ${level}`);
-
-        this.showSuccessAlert(`Escalated to ${level}`, 'Escalation Successful');
-
+    this.finca.escalateCase(this.selected.id, level, this.escalationReason, this.escalationNotify, 'Supervisor').subscribe({
+      next: (res: any) => {
+        if (!this.serverCaseOK(res)) { this.showErrorAlert(res?.message || 'Escalation not confirmed', 'Escalation Failed'); return; }
+        this.applyServerCase(res.case);
+        this.showSuccessAlert(res.message || `Escalated to ${level}`, 'Escalation Successful');
       },
-
-      error: (err) => {
-  console.error('Failed to escalate case:', err);
-
-  this.showCriticalError(
-    'Failed to escalate case. Please try again.',
-    'Escalation Failed'
-  );
-}
-
+      error: (err: any) => this.caseActionError(err, 'Escalation Failed')
     });
-
   }
+
 
 
 
@@ -2429,272 +2372,119 @@ export class CaseManagementComponent implements OnInit, OnDestroy {
 
   }
 
-
-
   flagForCompliance(): void {
-
-    this.pushTimeline('Flagged for compliance review');
-
-    this.activeTab = 'escalation';
-
-    this.showSuccessAlert('Case flagged for compliance review', 'Compliance Action Successful');
-
+    if (!this.selected) return;
+    const reason = 'AML review';
+    this.finca.flagCaseForCompliance(this.selected.id, reason).subscribe({
+      next: (res: any) => {
+        if (!this.serverCaseOK(res)) { this.showErrorAlert(res?.message || 'Compliance flag not confirmed', 'Compliance Failed'); return; }
+        this.applyServerCase(res.case);
+        this.showSuccessAlert(res.message || 'Flagged for compliance review', 'Compliance');
+      },
+      error: (err: any) => this.caseActionError(err, 'Compliance Failed')
+    });
   }
+
 
 
 
   // ============= RESOLUTION =============
 
-
-
   async markFraud(): Promise<void> {
-
     if (!this.selected) return;
-
-    const confirmed = await this.confirmAction(
-      'Confirm Fraud',
-      'Are you sure you want to mark this case as confirmed fraud?',
-      'Mark as Fraud'
-    );
-
-    if (!confirmed) return;
-
+    if (!await this.confirmAction('Confirm Fraud', 'Are you sure you want to mark this case as confirmed fraud?', 'Mark as Fraud')) return;
     const notes = this.resolutionNotes || 'Marked by analyst';
-
-
-
-    this.finca.resolveCase(this.selected.id, 'FRAUD_CONFIRMED', notes, 'Analyst').subscribe({
-
-      next: (r: any) => {
-
-        this.selected.status = 'RESOLVED';
-        this.activeTab = 'resolution';
-
-        this.selected.resolution = r.case?.resolution || {
-
-          verdict: 'FRAUD_CONFIRMED',
-
-          resolved_at: new Date().toISOString(),
-
-          resolved_by: 'Analyst',
-
-          notes
-
-        };
-
-        this.adjustRisk(1000, 'Case resolved: FRAUD CONFIRMED');
-
-        this.pushTimeline('Case resolved: FRAUD CONFIRMED');
-
-        this.updateWorkflowSteps();
-
-        this.loadAll(true);
-
-        this.showSuccessAlert('Case marked as fraud', 'Resolution Successful');
-
+    const id = this.selected.id;
+    this.finca.resolveCase(id, 'FRAUD_CONFIRMED', notes, 'Analyst').subscribe({
+      next: (res: any) => {
+        if (!this.serverCaseOK(res)) { this.showErrorAlert(res?.message || 'Resolution not confirmed', 'Resolution Failed'); return; }
+        this.applyServerCase(res.case);
+        if (this.selected?.id === id) this.activeTab = 'resolution';
+        this.showSuccessAlert(res.message || 'Case marked as fraud', 'Resolution Successful');
       },
-
-      error: (err) => {
-  console.error('Failed to resolve fraud case:', err);
-
-  this.showErrorAlert(
-    'Failed to resolve case. Please try again.',
-    'Resolution Failed'
-  );
-}
-
+      error: (err: any) => this.caseActionError(err, 'Resolution Failed')
     });
-
   }
-
-
 
   async markFalsePositive(): Promise<void> {
-
     if (!this.selected) return;
-
-    const confirmed = await this.confirmAction(
-      'Confirm False Positive',
-      'Are you sure you want to resolve this case as a false positive?',
-      'Confirm'
-    );
-
-    if (!confirmed) return;
-
+    if (!await this.confirmAction('Confirm False Positive', 'Are you sure you want to resolve this case as a false positive?', 'Confirm')) return;
     const notes = this.resolutionNotes || 'Marked false positive';
-
-
-
-    this.finca.resolveCase(this.selected.id, 'FALSE_POSITIVE', notes, 'Analyst').subscribe({
-
-      next: (r: any) => {
-
-        this.selected.status = 'RESOLVED';
-
-        this.selected.resolution = r.case?.resolution || {
-
-          verdict: 'FALSE_POSITIVE',
-
-          resolved_at: new Date().toISOString(),
-
-          resolved_by: 'Analyst',
-
-          notes
-
-        };
-
-        this.adjustRisk(-50, 'Case resolved: FALSE POSITIVE');
-
-        this.pushTimeline('Case resolved: FALSE POSITIVE');
-
-        this.updateWorkflowSteps();
-
-
-
-      this.loadAll();
-      this.selected = null;
-
-      this.showSuccessAlert(
-       'Case resolved as false positive',
-       'Resolution Successful'
-);
-
+    const id = this.selected.id;
+    this.finca.resolveCase(id, 'FALSE_POSITIVE', notes, 'Analyst').subscribe({
+      next: (res: any) => {
+        if (!this.serverCaseOK(res)) { this.showErrorAlert(res?.message || 'Resolution not confirmed', 'Resolution Failed'); return; }
+        this.applyServerCase(res.case);
+        if (this.selected?.id === id) this.activeTab = 'resolution';
+        this.showSuccessAlert(res.message || 'Case resolved as false positive', 'Resolution Successful');
       },
-
-      error: (err) => {
-  console.error('Failed to resolve fraud case:', err);
-
-  this.showErrorAlert(
-    'Failed to resolve case as false positive.',
-    'Resolution Failed'
-  );
-}
-
+      error: (err: any) => this.caseActionError(err, 'Resolution Failed')
     });
-
   }
-
-
 
   allowTransaction(): void {
-
     if (!this.selected) return;
-
-
-
-    const txnId = this.selected.transaction_id || this.selected.alert_id || prompt('Transaction ID to allow:');
-
-    if (!txnId) return;
-
-
-
+    const txnId = this.selected.transaction_id || this.selected.transaction?.transaction_id;
+    if (!txnId) { this.showWarningAlert('No transaction ID associated with this case', 'Allow Transaction'); return; }
     this.finca.allowTransaction(txnId).subscribe({
-
-      next: () => {
-
-        this.pushTimeline(`Transaction ${txnId} allowed`);
-
-        this.showSuccessAlert('Transaction allowed', 'Action');
-
+      next: (res: any) => {
+        if (res?.status !== 'success' || !res?.transaction) { this.showErrorAlert(res?.message || 'Transaction allow not confirmed', 'Transaction Failed'); return; }
+        if (this.selected?.transaction_id === txnId) this.selected = { ...this.selected, transaction: res.transaction };
+        this.showSuccessAlert(res.message || 'Transaction allowed', 'Action');
       },
-
-      error: () => {
-
-        this.pushTimeline(`Transaction ${txnId} allowed (local)`);
-
-        this.showErrorAlert('The transaction could not be allowed on the server. The action was recorded locally only.', 'Action Failed');
-
-      }
-
+      error: (err: any) => this.caseActionError(err, 'Transaction Failed')
     });
-
   }
-
-
 
   async forceClose(): Promise<void> {
-
     if (!this.selected) return;
-
-    const confirmed = await this.confirmAction(
-      'Force Close Case?',
-      'This will close the case outside the normal resolution flow.',
-      'Force Close'
-    );
-
-    if (!confirmed) return;
-
-    this.selected.status = 'CLOSED';
-    this.activeTab = 'resolution';
-
-    this.pushTimeline('Case force closed');
-
-    this.updateWorkflowSteps();
-
-    this.finca.updateCaseLocal(this.selected.id, { status: 'CLOSED' }).subscribe(() => this.loadAll(true));
-
-    this.showSuccessAlert('Case force closed successfully', 'Case Closed');
-
+    if (!await this.confirmAction('Force Close Case?', 'This will close the case outside the normal resolution flow.', 'Force Close')) return;
+    const id = this.selected.id;
+    const reason = this.resolutionNotes || 'Force closed by analyst';
+    this.finca.closeCaseBackend(id, reason).subscribe({
+      next: (res: any) => {
+        if (!this.serverCaseOK(res) || res.case.status !== 'CLOSED') { this.showErrorAlert(res?.message || 'Close not confirmed', 'Close Failed'); return; }
+        this.applyServerCase(res.case);
+        if (this.selected?.id === id) this.activeTab = 'resolution';
+        this.showSuccessAlert(res.message || 'Case closed', 'Case Closed');
+      },
+      error: (err: any) => this.caseActionError(err, 'Close Failed')
+    });
   }
-
-
 
   reopenCase(): void {
-
     if (!this.selected) return;
-
-
-
-    this.selected.status = 'OPEN';
-    this.activeTab = 'overview';
-
-    this.selected.resolution = null;
-
-    this.pushTimeline('Case reopened');
-
-    this.updateWorkflowSteps();
-
-    this.finca.updateCaseLocal(this.selected.id, { status: 'OPEN', resolution: null }).subscribe();
-
-    this.showSuccessAlert('Case reopened successfully', 'Reopen Successful');
-
+    const id = this.selected.id;
+    const reason = this.resolutionNotes || 'Reopened for further review';
+    this.finca.reopenCaseBackend(id, reason, 'Analyst').subscribe({
+      next: (res: any) => {
+        if (!this.serverCaseOK(res)) { this.showErrorAlert(res?.message || 'Reopen not confirmed', 'Reopen Failed'); return; }
+        this.applyServerCase(res.case);
+        if (this.selected?.id === id) this.activeTab = 'overview';
+        this.showSuccessAlert(res.message || 'Case reopened', 'Reopen Successful');
+      },
+      error: (err: any) => this.caseActionError(err, 'Reopen Failed')
+    });
   }
-
-
 
   async deleteCase(caseId?: string): Promise<void> {
-
     const id = caseId || this.selected?.id;
-
     if (!id) return;
-
-    const confirmed = await this.confirmAction(
-      'Delete Case?',
-      'This action is permanent and the case will be deleted.',
-      'Delete'
-    );
-
-    if (!confirmed) return;
-
-    this.finca.deleteCaseLocal(id).subscribe(() => {
-
-      this.cases = this.cases.filter(c => c.id !== id);
-
-      if (this.selected && this.selected.id === id) {
-
-        this.selected = null;
-
-      }
-
-      this.applyFilter();
-
-      this.computeStats();
-
-      this.showSuccessAlert('Case deleted locally successfully', 'Delete Successful');
-
+    if (!await this.confirmAction('Delete Case?', 'This action is permanent and the case will be deleted.', 'Delete')) return;
+    this.finca.deleteCaseBackend(id).subscribe({
+      next: (res: any) => {
+        if (res?.status !== 200) {
+          this.showErrorAlert(res?.message || 'Delete not confirmed', 'Delete Failed'); return;
+        }
+        this.cases = this.cases.filter((c: any) => c.id !== id);
+        if (this.selected?.id === id) this.selected = null;
+        this.computeStats(); this.applyFilter(); this.buildActivityFeed();
+        this.showSuccessAlert(res.body?.message || 'Case deleted', 'Delete Successful');
+      },
+      error: (err: any) => this.caseActionError(err, 'Delete Failed')
     });
-
   }
+
 
 
 
@@ -2990,83 +2780,10 @@ export class CaseManagementComponent implements OnInit, OnDestroy {
 
   }
 
-
-
   adjustRisk(delta: number, action?: string): void {
-
-    if (!this.selected) return;
-
-
-
-    let current = Number(this.selected.risk_score || this.selected.display_score || 0);
-
-    if (isNaN(current)) current = 0;
-
-
-
-    let newScore = current;
-
-    if (delta >= 1000) {
-
-      newScore = 100;
-
-    } else {
-
-      newScore = Math.min(100, Math.max(0, Math.round(current + delta)));
-
-    }
-
-
-
-    this.selected.risk_score = newScore;
-
-    this.selected.display_score = this.getDisplayScore(this.selected);
-
-
-
-    let level = 'LOW';
-
-    if (newScore >= 80) level = 'CRITICAL';
-
-    else if (newScore >= 60) level = 'HIGH';
-
-    else if (newScore >= 40) level = 'MEDIUM';
-
-    this.selected.final_risk_level = level;
-
-
-
-    if (action) {
-
-      this.pushTimeline(`${action} (Risk: ${current} → ${newScore})`);
-
-    }
-
-
-
-    this.finca.updateCaseLocal(this.selected.id, {
-
-      risk_score: newScore,
-
-      final_risk_level: level
-
-    }).subscribe();
-
-
-
-    const idx = this.cases.findIndex(c => c.id === this.selected.id);
-
-    if (idx >= 0) {
-
-      this.cases[idx] = { ...this.cases[idx], ...this.selected };
-
-    }
-
-    this.computeStats();
-
-    this.applyFilter();
-
+    console.warn('Local risk adjustment disabled; request a backend risk-reassessment endpoint.', { delta, action });
   }
+
 
 
 
@@ -3140,6 +2857,7 @@ export class CaseManagementComponent implements OnInit, OnDestroy {
       'OPEN': 'bg-primary',
 
       'INVESTIGATING': 'bg-info',
+      'ESCALATED': 'bg-warning text-dark',
 
       'RESOLVED': 'bg-success',
 
