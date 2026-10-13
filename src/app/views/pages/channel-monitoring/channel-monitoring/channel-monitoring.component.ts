@@ -22,6 +22,7 @@ export class ChannelMonitoringComponent implements OnInit, OnDestroy {
   monitoringStatus = 'unknown';
   loading = false;
   loadingTransactions = false;
+  chartsReady = false;
   errorMessage = '';
   page = 1;
   pageSize = 25;
@@ -293,6 +294,7 @@ export class ChannelMonitoringComponent implements OnInit, OnDestroy {
         categories: response.risk_and_detection_coverage.map((channel: any) => channel.name)
       }
     };
+    this.chartsReady = true;
   }
 
   private applyTransactionResponse(response: any): void {
