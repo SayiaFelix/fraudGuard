@@ -127,7 +127,7 @@
     <div class="flex-grow-1">
       <h5 class="alert-heading mb-1">Investigation Mode Active</h5>
       <p class="mb-0">
-        Currently investigating transaction 
+        Currently investigating entity 
         <strong>{{ investigationNode.transactionId || investigationNode.id }}</strong> 
         and its connections ({{ filteredGraphData.nodes.length }} entities, {{ filteredGraphData.links.length }} connections)
       </p>
@@ -174,10 +174,16 @@
           </div>
           -->
           
-          <div class="loading-overlay" *ngIf="!graphData.nodes.length">
+          <div class="loading-overlay" *ngIf="loading">
             <div class="spinner-border text-primary" role="status">
               <span class="visually-hidden">Loading...</span>
             </div>
+          </div>
+          <div class="loading-overlay text-center p-4" *ngIf="!loading && errorMessage">
+            <div class="alert alert-danger mb-0" role="alert">{{ errorMessage }}</div>
+          </div>
+          <div class="loading-overlay text-center p-4" *ngIf="!loading && !errorMessage && !graphData.nodes.length">
+            <div class="alert alert-info mb-0" role="status">No investigation graph data is available.</div>
           </div>
         </div>
         <div class="card-footer bg-transparent border-0 text-muted small">
