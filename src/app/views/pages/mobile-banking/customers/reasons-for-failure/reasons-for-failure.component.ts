@@ -1,24 +1,27 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, ParamMap } from '@angular/router';
+import { EMPTY, Subscription } from 'rxjs';
+import { catchError, switchMap } from 'rxjs/operators';
+import { FincaService, InvestigationGraphNode, InvestigationGraphLink, InvestigationFraudRing } from 'src/app/shared/services/finca.service';
 
 interface GraphNode {
   id: string;
   name: string;
-  type: 'customer' | 'device' | 'account' | 'transaction' | 'phone' | 'ip' | 'location';
+  type: string;
   riskScore?: number;
-  riskCategory?: 'Critical' | 'High' | 'Medium' | 'Low';
+  riskCategory?: string;
   amount?: number;
-  timestamp?: Date;
+  timestamp?: Date | string;
   flagged?: boolean;
   x?: number;
   y?: number;
-  transactionId?: string; 
+  transactionId?: string;
 }
 
 interface GraphLink {
   source: string;
   target: string;
-  type: 'transacted' | 'uses_device' | 'connected_to' | 'same_ip' | 'same_phone' | 'transferred_to';
+  type: string;
   count?: number;
 }
 
@@ -45,6 +48,9 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
   investigationAlertId: string | null = null;
   investigationNode: GraphNode | null = null;
   isInvestigationMode = false;
+  loading = false;
+  errorMessage: string | null = null;
+  meta: { transaction_count: number; transaction_limit: number; truncated: boolean; data_sources: string[]; generated_at: string } | null = null;
   
   // Filters
   showCriticalOnly = false;
@@ -64,48 +70,60 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
     highNodes: 0,
     mediumNodes: 0,
     lowNodes: 0,
-    fraudRings: 3,
-    connectedAccounts: 12
+    fraudRings: 0,
+    connectedAccounts: 0
   };
 
-  fraudRings = [
-    { id: 'ring-1', name: 'Nairobi Fraud Ring', size: 8, totalAmount: 2450000, riskLevel: 'Critical' },
-    { id: 'ring-2', name: 'Mombasa Mule Network', size: 5, totalAmount: 1890000, riskLevel: 'High' },
-    { id: 'ring-3', name: 'SIM Swap Syndicate', size: 4, totalAmount: 3200000, riskLevel: 'Critical' }
-  ];
+  fraudRings: InvestigationFraudRing[] = [];
 
   private nodePositions: Map<string, { x: number, y: number }> = new Map();
+  private graphSubscription?: Subscription;
 
   constructor(
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private fincaService: FincaService
   ) {}
 
   ngOnInit(): void {
-  this.route.paramMap.subscribe(params => {
-    this.investigationAlertId = params.get('id');
-    this.generateMockGraphData();
-    
-    console.log('After generateMockGraphData - Total nodes:', this.graphData.nodes.length);
-    
-    if (this.investigationAlertId) {
-      this.enterInvestigationMode(this.investigationAlertId);
-    } else {
-      this.isInvestigationMode = false;
-      this.filteredGraphData = { 
-        nodes: [...this.graphData.nodes], 
-        links: [...this.graphData.links] 
+    this.graphSubscription = this.route.paramMap.pipe(
+      switchMap((params: ParamMap) => {
+        this.investigationAlertId = params.get('id');
+        this.loading = true;
+        this.errorMessage = null;
+        return this.fincaService.getInvestigationGraph(this.investigationAlertId).pipe(
+          catchError((error: unknown) => {
+            console.error('Failed to load investigation graph:', error);
+            this.loading = false;
+            this.errorMessage = 'Unable to load the investigation graph. Please try again.';
+            return EMPTY;
+          })
+        );
+      })
+    ).subscribe(response => {
+      const data = response.data;
+      this.graphData = {
+        nodes: data.nodes.map((node: InvestigationGraphNode) => ({ ...node })),
+        links: data.links.map((link: InvestigationGraphLink) => ({ ...link }))
       };
-      this.applyFilters();
-    }
-    
-    this.calculateStats(); 
-    this.calculateNodePositions();
-    
-    setTimeout(() => {
-      this.drawGraph();
-    }, 100);
-  });
+      this.filteredGraphData = {
+        nodes: [...this.graphData.nodes],
+        links: [...this.graphData.links]
+      };
+      this.fraudRings = data.fraud_rings || [];
+      this.stats = { ...data.stats };
+      this.meta = data.meta;
+      this.isInvestigationMode = !!this.investigationAlertId;
+      const centerNodeId = data.investigation.center_node_id || this.investigationAlertId;
+      this.investigationNode = centerNodeId
+        ? this.graphData.nodes.find(node =>
+            node.id === centerNodeId || node.transactionId === centerNodeId
+          ) || null
+        : null;
+      this.loading = false;
+      this.calculateNodePositions();
+      setTimeout(() => this.drawGraph(), 100);
+    });
 }
 
    showFuturePreview: boolean = false; // default to false so demos show implemented UI only
@@ -175,7 +193,7 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
 }
 
 ngOnDestroy(): void {
-  console.log('Component destroyed');
+  this.graphSubscription?.unsubscribe();
 }
 
 exitInvestigationMode(): void {
