@@ -5,6 +5,66 @@ import { catchError, map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { AuthService } from './auth.service';
 
+export interface InvestigationGraphNode {
+  id: string;
+  name: string;
+  type: string;
+  riskScore?: number;
+  riskCategory?: string;
+  amount?: number;
+  timestamp?: string;
+  flagged?: boolean;
+  transactionId?: string;
+}
+
+export interface InvestigationGraphLink {
+  source: string;
+  target: string;
+  type: string;
+  count?: number;
+}
+
+export interface InvestigationFraudRing {
+  id: string;
+  name: string;
+  size: number;
+  totalAmount: number;
+  riskLevel: string;
+  sharedSignals: string[];
+  customerIds: string[];
+}
+
+export interface InvestigationGraphResponse {
+  status: string;
+  data: {
+    nodes: InvestigationGraphNode[];
+    links: InvestigationGraphLink[];
+    fraud_rings: InvestigationFraudRing[];
+    stats: {
+      totalNodes: number;
+      totalLinks: number;
+      criticalNodes: number;
+      highNodes: number;
+      mediumNodes: number;
+      lowNodes: number;
+      fraudRings: number;
+      connectedAccounts: number;
+    };
+    investigation: {
+      entity_id: string | null;
+      center_node_id: string | null;
+      mode: string;
+    };
+    meta: {
+      transaction_count: number;
+      transaction_limit: number;
+      truncated: boolean;
+      data_sources: string[];
+      generated_at: string;
+    };
+  };
+}
+
 @Injectable({ providedIn: 'root' })
 export class FincaService {
   private base = environment.customerPortalNest; // http://localhost:5001/v1/api
@@ -82,6 +142,14 @@ export class FincaService {
       console.error(`${operation} failed:`, error);
       return of(fallback);
     };
+  }
+
+  getInvestigationGraph(entityId?: string | null): Observable<InvestigationGraphResponse> {
+    const endpoint = entityId
+      ? `${this.base}/finca/investigation-graph/${encodeURIComponent(entityId)}`
+      : `${this.base}/finca/investigation-graph`;
+
+    return this.http.get<InvestigationGraphResponse>(endpoint, this.headers());
   }
 
   // ============= ALERTS =============
