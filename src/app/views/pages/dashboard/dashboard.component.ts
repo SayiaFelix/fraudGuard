@@ -99,7 +99,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   allTransactions: DashboardTransaction[] = [];
   
   modelMetrics: ModelMetrics | null = null;
-  auditLogs: any[] = [];
   
   private refreshSubscription?: Subscription;
 
@@ -207,11 +206,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
   };
 
   scoreDistributionData: ChartData<'bar'> = {
-    labels: ['0-20', '21-40', '41-60', '61-80', '81-100'],
+    labels: [
+      'Below 0', '0-<10', '10-<20', '20-<30', '30-<40', '40-<50',
+      '50-<60', '60-<70', '70-<80', '80-<90', '90-100', 'Above 100'
+    ],
     datasets: [{
-      data: [0, 0, 0, 0, 0],
+      data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       label: 'Transactions',
-      backgroundColor: ['#4cc9f0', '#ff9e00', '#ffc107', '#fd7e14', '#dc3545'],
+      backgroundColor: [
+        '#6c757d', '#4cc9f0', '#27b4d8', '#28a745', '#75b798', '#ffc107',
+        '#ff9e00', '#fd7e14', '#e85d04', '#dc3545', '#b02a37', '#6f42c1'
+      ],
       borderRadius: 6
     }]
   };
@@ -302,7 +307,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.loadTransactions(),
       this.loadFraudHistory(),
       this.loadModelMetrics(),
-      this.loadAuditLog()
+      this.loadFincaDashboard(),
+      this.loadRiskDistribution(),
+      this.loadMlRiskScoreDistribution(),
+      this.loadRecentTransactionActivity()
     ]).then(() => {
       this.isLoading = false;
       this.lastUpdated = new Date();
@@ -345,11 +353,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
             
             console.log('🔴 High risk transactions:', this.allHighRiskTransactions.length);
             
-            this.updateKPIs();
             this.applyFiltersAndPaginate();
-            this.updateRiskDistribution();
             this.updateLineChart();
-            this.calculateScoreDistribution();
             this.updateFooterStats();
             
             this.cdr.detectChanges();
@@ -386,7 +391,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
           console.log('📊 Model metrics loaded');
           if (response.status === 'success') {
             this.modelMetrics = response;
-            this.updateKPIs();
             this.updateFooterStats();
             this.cdr.detectChanges();
           }
@@ -400,24 +404,174 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
-  loadAuditLog(): Promise<void> {
+  loadFincaDashboard(): Promise<void> {
     return new Promise((resolve) => {
-      this.fraudService.getAuditLog().subscribe({
+      this.fraudService.getFincaDashboard().subscribe({
         next: (response) => {
-          console.log('📊 Audit log loaded:', response.logs?.length || 0);
-          if (response.status === 'success' && response.logs) {
-            this.auditLogs = response.logs;
-            this.updateRecentActivities();
-            this.cdr.detectChanges();
+          if (response.status === 'success') {
+            this.kpis[0].value = response.kpis.total_transactions.value.toLocaleString();
+            this.kpis[0].description = this.formatPeriod(response.kpis.total_transactions.period);
+            this.kpis[1].value = response.kpis.high_risk_alerts.value.toLocaleString();
+            this.kpis[1].description = this.formatPeriod(response.kpis.high_risk_alerts.period);
+
+            const blocked = response.kpis.fraud_blocked;
+            this.kpis[2].value = `${blocked.currency} ${blocked.value.toLocaleString('en-KE', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            })}`;
+            this.kpis[2].description = blocked.basis;
+
+            const confidence = response.kpis.ai_confidence;
+            this.kpis[3].value = confidence.available && confidence.value !== null
+              ? `${confidence.value}%`
+              : 'N/A';
+            this.kpis[3].description = confidence.available
+              ? [confidence.model_name, confidence.model_version].filter(Boolean).join(' ') || confidence.basis
+              : confidence.reason || 'No model evaluation available';
+          } else {
+            console.error('Dashboard summary returned an unsuccessful status:', response.status);
           }
+          this.cdr.detectChanges();
           resolve();
         },
         error: (error) => {
-          console.error('❌ Error loading audit log:', error);
+          console.error('❌ Error loading dashboard summary:', error);
           resolve();
         }
       });
     });
+  }
+
+  loadRiskDistribution(): Promise<void> {
+    return new Promise((resolve) => {
+      this.fraudService.getFincaRiskDistribution().subscribe({
+        next: (response) => {
+          if (response.status === 'success') {
+            const counts: { [category: string]: number } = {};
+            response.chart.labels.forEach((label, index) => {
+              counts[label.toUpperCase()] = response.chart.datasets[0]?.data[index] || 0;
+            });
+            this.pieChartData = {
+              labels: ['Critical', 'High', 'Medium', 'Low'],
+              datasets: [{
+                data: [
+                  counts['CRITICAL'] || 0,
+                  counts['HIGH'] || 0,
+                  counts['MEDIUM'] || 0,
+                  counts['LOW'] || 0
+                ],
+                backgroundColor: ['#dc3545', '#fd7e14', '#ffc107', '#28a745'],
+                borderWidth: 1
+              }]
+            };
+            this.cdr.detectChanges();
+          } else {
+            console.error('Risk distribution returned an unsuccessful status:', response.status);
+          }
+          resolve();
+        },
+        error: (error) => {
+          console.error('❌ Error loading risk distribution:', error);
+          resolve();
+        }
+      });
+    });
+  }
+
+  loadMlRiskScoreDistribution(): Promise<void> {
+    return new Promise((resolve) => {
+      this.fraudService.getFincaMlRiskScoreDistribution().subscribe({
+        next: (response) => {
+          if (response.status === 'success') {
+            const dataset = response.chart.datasets[0];
+            this.scoreDistributionData = {
+              labels: response.chart.labels,
+              datasets: [{
+                data: dataset?.data || [],
+                label: dataset?.label || 'Transactions',
+                backgroundColor: [
+                  '#6c757d', '#4cc9f0', '#27b4d8', '#28a745', '#75b798', '#ffc107',
+                  '#ff9e00', '#fd7e14', '#e85d04', '#dc3545', '#b02a37', '#6f42c1'
+                ],
+                borderRadius: 6
+              }]
+            };
+            this.scoreDistributionOptions = {
+              ...this.scoreDistributionOptions,
+              scales: {
+                ...this.scoreDistributionOptions?.scales,
+                x: {
+                  ...this.scoreDistributionOptions?.scales?.['x'],
+                  title: {
+                    display: true,
+                    text: response.x_axis,
+                    font: { size: 12, weight: 'bold' }
+                  }
+                },
+                y: {
+                  ...this.scoreDistributionOptions?.scales?.['y'],
+                  title: {
+                    display: true,
+                    text: response.y_axis,
+                    font: { size: 12, weight: 'bold' }
+                  }
+                }
+              }
+            };
+            this.cdr.detectChanges();
+          } else {
+            console.error('ML risk score distribution returned an unsuccessful status:', response.status);
+          }
+          resolve();
+        },
+        error: (error) => {
+          console.error('❌ Error loading ML risk score distribution:', error);
+          resolve();
+        }
+      });
+    });
+  }
+
+  loadRecentTransactionActivity(): Promise<void> {
+    return new Promise((resolve) => {
+      this.fraudService.getFincaRecentTransactionActivity(1, 10).subscribe({
+        next: (response) => {
+          if (response.status === 'success') {
+            this.recentActivities = response.transactions.map((transaction) => {
+              const category = transaction.risk_category || 'UNKNOWN';
+              const normalizedCategory = category.toUpperCase();
+              const type = normalizedCategory === 'CRITICAL'
+                ? 'critical'
+                : normalizedCategory === 'HIGH'
+                  ? 'warning'
+                  : normalizedCategory === 'MEDIUM'
+                    ? 'info'
+                    : 'success';
+              const timestamp = new Date(transaction.timestamp);
+
+              return {
+                type,
+                message: `Transaction ${transaction.transaction_id} - ${category}`,
+                details: `${transaction.risk_score} ${transaction.risk_score_scale} | ${transaction.status} | ${transaction.decision} | ${transaction.currency} ${transaction.amount.toLocaleString()} | ${transaction.channel} | ${transaction.customer_id} | ${transaction.recommended_action}`,
+                time: Number.isNaN(timestamp.getTime()) ? 'Time unavailable' : this.formatTime(timestamp)
+              };
+            });
+            this.cdr.detectChanges();
+          } else {
+            console.error('Recent transaction activity returned an unsuccessful status:', response.status);
+          }
+          resolve();
+        },
+        error: (error) => {
+          console.error('❌ Error loading recent transaction activity:', error);
+          resolve();
+        }
+      });
+    });
+  }
+
+  private formatPeriod(period: string): string {
+    return period.replace(/_/g, ' ').replace(/\b\w/g, (character) => character.toUpperCase());
   }
 
   // ============= MAPPING METHODS =============
@@ -642,24 +796,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   // ============= UI UPDATE METHODS =============
 
-  updateKPIs(): void {
-    this.kpis[0].value = this.allTransactions.length.toLocaleString();
-    
-    const highRiskCount = this.allHighRiskTransactions.length;
-    this.kpis[1].value = highRiskCount.toLocaleString();
-    
-    const totalBlocked = this.allHighRiskTransactions
-      .reduce((sum, tx) => sum + (tx.amount || 0), 0);
-    this.kpis[2].value = `KES ${(totalBlocked / 1000000).toFixed(1)}M`;
-    
-    if (this.modelMetrics?.metrics?.['XGBoost']) {
-      const xgb = this.modelMetrics.metrics['XGBoost'];
-      this.kpis[3].value = `${(xgb.accuracy * 100).toFixed(1)}%`;
-      this.kpis[3].description = `Precision: ${(xgb.precision * 100).toFixed(1)}% | Recall: ${(xgb.recall * 100).toFixed(1)}%`;
-      this.kpis[3].trend = xgb.accuracy > 0.95 ? 'up' : xgb.accuracy > 0.90 ? 'flat' : 'down';
-    }
-  }
-
   // ✅ Apply filters and paginate in one method
   applyFiltersAndPaginate(): void {
     // Step 1: Filter all high risk transactions
@@ -717,22 +853,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.applyFiltersAndPaginate();
   }
 
-  updateRiskDistribution(): void {
-    const critical = this.allTransactions.filter(tx => tx.finalRiskCategory === 'Critical').length;
-    const high = this.allTransactions.filter(tx => tx.finalRiskCategory === 'High').length;
-    const medium = this.allTransactions.filter(tx => tx.finalRiskCategory === 'Medium').length;
-    const low = this.allTransactions.filter(tx => tx.finalRiskCategory === 'Low').length;
-    
-    this.pieChartData = {
-      labels: ['Critical', 'High', 'Medium', 'Low'],
-      datasets: [{
-        data: [critical, high, medium, low],
-        backgroundColor: ['#dc3545', '#fd7e14', '#ffc107', '#28a745'],
-        borderWidth: 1
-      }]
-    };
-  }
-
   updateLineChart(): void {
     const monthlyData = new Map<string, { count: number; amount: number }>();
     
@@ -785,63 +905,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
       ]
     };
-  }
-
-  calculateScoreDistribution(): void {
-    const distribution = [0, 0, 0, 0, 0];
-    
-    this.allTransactions.forEach(tx => {
-      const mlScore = tx.mlRiskScore || tx.riskScore || 0;
-      
-      if (mlScore <= 20) distribution[0]++;
-      else if (mlScore <= 40) distribution[1]++;
-      else if (mlScore <= 60) distribution[2]++;
-      else if (mlScore <= 80) distribution[3]++;
-      else distribution[4]++;
-    });
-    
-    this.scoreDistributionData = {
-      labels: ['0-20', '21-40', '41-60', '61-80', '81-100'],
-      datasets: [{
-        data: distribution,
-        label: 'Transactions',
-        backgroundColor: ['#4cc9f0', '#ff9e00', '#ffc107', '#fd7e14', '#dc3545'],
-        borderRadius: 6
-      }]
-    };
-  }
-
-  updateRecentActivities(): void {
-    const sortedLogs = this.auditLogs.sort((a, b) => {
-      return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
-    });
-    
-    this.recentActivities = sortedLogs.slice(0, 5).map(log => {
-      let type = 'info';
-      const riskScore = log.risk_score || 0;
-      if (riskScore >= 8) type = 'critical';
-      else if (riskScore >= 6) type = 'warning';
-      else if (riskScore >= 3) type = 'info';
-      else type = 'success';
-      
-      const logTime = new Date(log.timestamp);
-      const now = new Date();
-      const diffMs = now.getTime() - logTime.getTime();
-      const diffMins = Math.floor(diffMs / 60000);
-      
-      let timeAgo = 'Just now';
-      if (diffMins < 1) timeAgo = 'Just now';
-      else if (diffMins < 60) timeAgo = `${diffMins} minutes ago`;
-      else if (diffMins < 1440) timeAgo = `${Math.floor(diffMins / 60)} hours ago`;
-      else timeAgo = `${Math.floor(diffMins / 1440)} days ago`;
-      
-      return {
-        type: type,
-        message: `Transaction ${log.transaction_id} - ${log.risk_category || 'Unknown'}`,
-        details: `Score: ${riskScore}/10 - ${log.recommended_action || 'Review required'}`,
-        time: timeAgo
-      };
-    });
   }
 
   updateFooterStats(): void {
