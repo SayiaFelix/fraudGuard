@@ -1,6 +1,6 @@
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 
 import { ToastrService } from 'ngx-toastr';
 
@@ -285,6 +285,7 @@ export class CaseManagementComponent implements OnInit, OnDestroy {
     private finca: HttpService,
 
     private router: Router,
+    private route: ActivatedRoute,
 
     private toastr: ToastrService
 
@@ -296,17 +297,31 @@ export class CaseManagementComponent implements OnInit, OnDestroy {
 
 
 
-  ngOnInit(): void {
+  
+ngOnInit(): void {
+  this.loadAll();
+  this.loadDashboard();
 
-    this.loadAll();
+  // Open the exact case passed from Alerts Inbox
+  this.route.queryParamMap.subscribe(params => {
+    const caseId = params.get('caseId');
 
-    this.loadDashboard();
+    if (caseId) {
+      this.openLinkedCase(caseId);
+    }
+  });
 
-    this.pollInterval = setInterval(() => this.loadAll(true), 30000);
+  this.pollInterval = setInterval(
+    () => this.loadAll(true),
+    30000
+  );
 
-    this.slaInterval = setInterval(() => this.updateSlaIndicators(), 60000);
+  this.slaInterval = setInterval(
+    () => this.updateSlaIndicators(),
+    60000
+  );
+}
 
-  }
 
 
 
@@ -719,6 +734,30 @@ getCaseTimeAgo(createdAt: string | null | undefined): string {
   }
 
 
+
+  /** Load a deep-linked case from Alerts without relying on queue pagination. */
+  private openLinkedCase(caseId: string): void {
+    this.finca.getCase(caseId).subscribe({
+      next: (res: any) => {
+        if (res?.status !== 'success' || !res?.case?.id) {
+          this.showErrorAlert(res?.message || 'The case was not found.', 'Open Case');
+          return;
+        }
+        if (!this.cases.some((c: any) => c.id === res.case.id)) {
+          this.cases.unshift(res.case);
+        } else {
+          this.cases = this.cases.map((c: any) =>
+            c.id === res.case.id ? { ...c, ...res.case } : c
+          );
+        }
+        this.applyFilter();
+        this.selectCase({ ...res.case });
+      },
+      error: (err: any) => this.showErrorAlert(
+        err?.error?.message || 'Could not load the linked case.', 'Open Case'
+      )
+    });
+  }
 
   // ============= LOAD METHODS =============
 
@@ -2063,20 +2102,51 @@ getCaseTimeAgo(createdAt: string | null | undefined): string {
     });
   }
 
-  unassignCase(): void {
-    if (!this.selected) return;
-    const id = this.selected.id;
-    this.finca.unassignCase(id).subscribe({
-      next: (res: any) => {
-        if (!this.serverCaseOK(res)) { this.showErrorAlert(res?.message || 'Unassign not confirmed', 'Unassign Failed'); return; }
-        this.applyServerCase(res.case);
-        this.assignAnalyst = '';
-        this.assignNotes = '';
-        this.showSuccessAlert(res.message || 'Case unassigned', 'Unassign Successful');
-      },
-      error: (err: any) => this.caseActionError(err, 'Unassign Failed')
-    });
-  }
+  
+unassignCase(): void {
+  if (!this.selected) return;
+
+  const id = this.selected.id;
+
+  this.showActionLoading('Unassigning case...');
+
+  this.finca.unassignCase(id).subscribe({
+    next: (res: any) => {
+      this.closeActionLoading();
+
+      if (!this.serverCaseOK(res)) {
+        this.showActionError(
+          'Unassign Failed',
+          res?.message || 'The server did not confirm the action.'
+        );
+        return;
+      }
+
+      this.applyServerCase(res.case);
+
+      this.assignAnalyst = '';
+      this.assignNotes = '';
+
+      this.showSuccessAlert(
+        res.message || 'Case unassigned successfully',
+        'Unassign Successful'
+      );
+    },
+
+    error: (err: any) => {
+      this.closeActionLoading();
+
+      console.error('Unassign failed:', err);
+
+      this.showActionError(
+        'Unassign Failed',
+        err?.error?.message ||
+        'The case could not be unassigned. Please try again.'
+      );
+    }
+  });
+}
+
 
 
 
@@ -2348,18 +2418,55 @@ investigationStarting = false;
 
   // ============= ESCALATION =============
 
-  escalate(): void {
-    if (!this.selected) return;
-    const level = this.escalationLevel || 'URGENT';
-    this.finca.escalateCase(this.selected.id, level, this.escalationReason, this.escalationNotify, 'Supervisor').subscribe({
-      next: (res: any) => {
-        if (!this.serverCaseOK(res)) { this.showErrorAlert(res?.message || 'Escalation not confirmed', 'Escalation Failed'); return; }
-        this.applyServerCase(res.case);
-        this.showSuccessAlert(res.message || `Escalated to ${level}`, 'Escalation Successful');
-      },
-      error: (err: any) => this.caseActionError(err, 'Escalation Failed')
-    });
-  }
+  
+escalate(): void {
+  if (!this.selected) return;
+
+  const level = this.escalationLevel || 'URGENT';
+  const caseId = this.selected.id;
+
+  this.showActionLoading('Escalating case...');
+
+  this.finca.escalateCase(
+    caseId,
+    level,
+    this.escalationReason,
+    this.escalationNotify,
+    'Supervisor'
+  ).subscribe({
+    next: (res: any) => {
+      this.closeActionLoading();
+
+      if (!this.serverCaseOK(res)) {
+        this.showActionError(
+          'Escalation Failed',
+          res?.message || 'Escalation was not confirmed.'
+        );
+        return;
+      }
+
+      this.applyServerCase(res.case);
+
+      this.showActionSuccess(
+        'Escalation Successful',
+        res.message || `Case escalated to ${level} successfully.`
+      );
+    },
+
+    error: (err: any) => {
+      this.closeActionLoading();
+
+      console.error('Escalation failed:', err);
+
+      this.showActionError(
+        'Escalation Failed',
+        err?.error?.message ||
+          'Unable to escalate case. Please try again.'
+      );
+    }
+  });
+}
+
 
 
 
@@ -2473,13 +2580,13 @@ investigationStarting = false;
     if (!await this.confirmAction('Delete Case?', 'This action is permanent and the case will be deleted.', 'Delete')) return;
     this.finca.deleteCaseBackend(id).subscribe({
       next: (res: any) => {
-        if (res?.status !== 200) {
+        if (res?.status !== 'success' || res?.case_id !== id) {
           this.showErrorAlert(res?.message || 'Delete not confirmed', 'Delete Failed'); return;
         }
         this.cases = this.cases.filter((c: any) => c.id !== id);
         if (this.selected?.id === id) this.selected = null;
         this.computeStats(); this.applyFilter(); this.buildActivityFeed();
-        this.showSuccessAlert(res.body?.message || 'Case deleted', 'Delete Successful');
+        this.showSuccessAlert(res.message || 'Case deleted', 'Delete Successful');
       },
       error: (err: any) => this.caseActionError(err, 'Delete Failed')
     });
@@ -2757,6 +2864,51 @@ investigationStarting = false;
     return result.isConfirmed;
 
   }
+
+  
+private showActionLoading(message: string): void {
+  Swal.fire({
+    title: 'Processing Request',
+    text: message,
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+    showConfirmButton: false,
+    didOpen: () => {
+      Swal.showLoading();
+    }
+  });
+}
+
+private closeActionLoading(): void {
+  Swal.close();
+}
+
+private showActionSuccess(
+  title: string,
+  message: string
+): void {
+  Swal.fire({
+    icon: 'success',
+    title,
+    text: message,
+    confirmButtonText: 'OK',
+    confirmButtonColor: '#198754'
+  });
+}
+
+private showActionError(
+  title: string,
+  message: string
+): void {
+  Swal.fire({
+    icon: 'error',
+    title,
+    text: message,
+    confirmButtonText: 'OK',
+    confirmButtonColor: '#dc3545'
+  });
+}
+
 
   // ============= UTILITY =============
 
