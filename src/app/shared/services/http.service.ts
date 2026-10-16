@@ -221,6 +221,94 @@ export interface ChannelMonitoringTransactionsResponse {
   };
 }
 
+export interface FincaDashboardResponse {
+  status: string;
+  kpis: {
+    ai_confidence: {
+      available: boolean;
+      basis: string;
+      evaluated_at: string | null;
+      model_name: string | null;
+      model_version: string | null;
+      reason: string | null;
+      unit: string;
+      value: number | null;
+    };
+    fraud_blocked: {
+      basis: string;
+      currency: string;
+      period: string;
+      value: number;
+    };
+    high_risk_alerts: { period: string; value: number };
+    total_transactions: { period: string; value: number };
+  };
+  metrics: {
+    blocked: number;
+    open_cases: number;
+    total_alerts: number;
+    total_transactions: number;
+  };
+  risk_distribution: { [category: string]: number };
+}
+
+export interface FincaRiskDistributionResponse {
+  status: string;
+  period: string;
+  total_transactions: number;
+  chart: {
+    labels: string[];
+    datasets: Array<{ label: string; data: number[] }>;
+  };
+  categories: Array<{ label: string; count: number; percentage: number }>;
+}
+
+export interface FincaMlRiskScoreDistributionResponse {
+  status: string;
+  period: string;
+  metric: string;
+  x_axis: string;
+  y_axis: string;
+  total_transactions: number;
+  scored_transactions: number;
+  unscored_transactions: number;
+  observed_score_range: { minimum: number | null; maximum: number | null };
+  bucket_policy: string;
+  chart: {
+    labels: string[];
+    datasets: Array<{ label: string; data: number[] }>;
+  };
+}
+
+export interface RecentTransactionActivity {
+  transaction_id: string;
+  timestamp: string;
+  risk_score: number;
+  risk_score_scale: string;
+  risk_category: string;
+  status: string;
+  decision: string;
+  recommended_action: string;
+  amount: number;
+  currency: string;
+  customer_id: string;
+  channel: string;
+}
+
+export interface RecentTransactionActivityResponse {
+  status: string;
+  sort: string;
+  transactions: RecentTransactionActivity[];
+  pagination: {
+    page: number;
+    size: number;
+    total: number;
+    total_pages: number;
+    has_next: boolean;
+    has_prev: boolean;
+  };
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -1185,12 +1273,32 @@ export class HttpService {
       { alert_id: alertId }, this.getHeaders());
   }
 
-  getFincaDashboard(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/finca/dashboard`, this.getHeaders())
+  getFincaDashboard(): Observable<FincaDashboardResponse> {
+    return this.http.post<FincaDashboardResponse>(
+      `${this.apiUrl}/finca/dashboard`,
+      {},
+      this.getHeaders()
+    )
       .pipe(
-        catchError(this.handleError<any>('getFincaDashboard', {
+        catchError(this.handleError<FincaDashboardResponse>('getFincaDashboard', {
           status: 'error',
-          metrics: { total_transactions: 0, total_alerts: 0, open_cases: 0, blocked: 0 }
+          kpis: {
+            ai_confidence: {
+              available: false,
+              basis: '',
+              evaluated_at: null,
+              model_name: null,
+              model_version: null,
+              reason: 'Dashboard data is unavailable.',
+              unit: 'percent',
+              value: null
+            },
+            fraud_blocked: { basis: '', currency: 'KES', period: 'all_time', value: 0 },
+            high_risk_alerts: { period: 'all_time', value: 0 },
+            total_transactions: { period: 'all_time', value: 0 }
+          },
+          metrics: { total_transactions: 0, total_alerts: 0, open_cases: 0, blocked: 0 },
+          risk_distribution: {}
         }))
       );
   }
@@ -1223,6 +1331,33 @@ export class HttpService {
 
   getDashboard(): Observable<any> {
     return this.getFincaDashboard();
+  }
+
+  getFincaRiskDistribution(): Observable<FincaRiskDistributionResponse> {
+    return this.http.post<FincaRiskDistributionResponse>(
+      `${this.apiUrl}/finca/dashboard/risk-distribution`,
+      {},
+      this.getHeaders()
+    );
+  }
+
+  getFincaMlRiskScoreDistribution(): Observable<FincaMlRiskScoreDistributionResponse> {
+    return this.http.post<FincaMlRiskScoreDistributionResponse>(
+      `${this.apiUrl}/finca/dashboard/ml-risk-score-distribution`,
+      {},
+      this.getHeaders()
+    );
+  }
+
+  getFincaRecentTransactionActivity(
+    page: number = 1,
+    size: number = 10
+  ): Observable<RecentTransactionActivityResponse> {
+    return this.http.post<RecentTransactionActivityResponse>(
+      `${this.apiUrl}/finca/dashboard/recent-transaction-activity`,
+      { page, size },
+      this.getHeaders()
+    );
   }
 
   getChannelMonitoringOverview(
