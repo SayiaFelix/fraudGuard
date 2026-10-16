@@ -1231,23 +1231,31 @@ private applyLocalFilters(): void {
   // STATUS
   // =====================================================
 
-  getStatusClass(status: string): string {
-
-  switch ((status || '').toLowerCase()) {
-
+getStatusClass(status: string): string {
+  switch ((status || '').trim().toLowerCase()) {
     case 'confirmed':
+    case 'fraud_confirmed':
       return 'status-confirmed';
 
+    case 'investigating':
+    case 'investigation in progress':
+      return 'status-investigating';
+
     case 'under review':
+    case 'open':
       return 'status-review';
 
     case 'false positive':
+    case 'false_positive':
       return 'status-fp';
 
     case 'escalated':
       return 'status-escalated';
 
     case 'resolved':
+      return 'status-resolved';
+
+    case 'closed':
       return 'status-resolved';
 
     case 'pending':
@@ -1257,6 +1265,7 @@ private applyLocalFilters(): void {
       return 'status-default';
   }
 }
+
 
   getChannelClass(channel: string): string {
   const value = (channel || '').toLowerCase();

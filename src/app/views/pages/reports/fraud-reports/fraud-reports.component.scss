@@ -452,4 +452,13 @@
   flex: 0 1 155px;
   min-width: 135px;
 }
+
+.status-investigating {
+  color: #0891b2;
+  background-color: #ecfeff;
+  border: 1px solid #67e8f9;
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-weight: 600;
+}
 }

@@ -990,69 +990,65 @@ export class HttpService {
 
   /**
    * UPDATE CASE
-   * PUT /v1/api/finca/cases/{caseId}
+   * POST /v1/api/finca/cases/update
    */
 
   updateCase(caseId: string, payload: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/finca/cases/${encodeURIComponent(caseId)}`, payload, this.getHeaders());
+    return this.http.post(`${this.apiUrl}/finca/cases/update`,
+      { ...payload, case_id: caseId }, this.getHeaders());
   }
 
 
   /**
    * GET CASE
-   * GET /v1/api/finca/cases/{caseId}
+   * POST /v1/api/finca/cases/get
    */
   getCase(caseId: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/finca/cases/${caseId}`, this.getHeaders())
-      .pipe(
-        catchError(this.handleError<any>('getCase', {
-          status: 'error',
-          case: null
-        }))
-      );
+    return this.http.post(`${this.apiUrl}/finca/cases/get`,
+      { case_id: caseId }, this.getHeaders());
   }
 
   /**
    * ASSIGN CASE
-   * POST /v1/api/finca/cases/assign/{caseId}
+   * POST /v1/api/finca/cases/assign
    */
 
   assignCase(caseId: string, analyst: string, priority?: string, notes?: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/finca/cases/${encodeURIComponent(caseId)}/assign`,
-      { analyst, ...(priority ? { priority } : {}), ...(notes ? { notes } : {}) }, this.getHeaders());
+    return this.http.post(`${this.apiUrl}/finca/cases/assign`,
+      { case_id: caseId, analyst, ...(priority ? { priority } : {}), ...(notes ? { notes } : {}) }, this.getHeaders());
   }
 
 
   /**
    * ADD CASE NOTE
-   * POST /v1/api/finca/cases/notes/{caseId}
+   * POST /v1/api/finca/cases/notes
    */
 
   addCaseNote(caseId: string, note: string, analyst: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/finca/cases/${encodeURIComponent(caseId)}/notes`,
-      { note, analyst }, this.getHeaders());
+    return this.http.post(`${this.apiUrl}/finca/cases/notes`,
+      { case_id: caseId, note, analyst }, this.getHeaders());
   }
 
 
   /**
    * ESCALATE CASE
-   * POST /v1/api/finca/cases/escalate/{caseId}
+   * POST /v1/api/finca/cases/escalate
    */
 
   escalateCase(caseId: string, level: string, reason: string = '', notify: string = 'email', analyst: string = 'Supervisor'): Observable<any> {
-    return this.http.post(`${this.apiUrl}/finca/cases/escalate/${encodeURIComponent(caseId)}`,
-      { level, reason, analyst }, this.getHeaders());
+    return this.http.post(`${this.apiUrl}/finca/cases/escalate`,
+      { case_id: caseId, level, reason, notify, analyst }, this.getHeaders());
   }
 
 
   /**
    * RESOLVE CASE
-   * POST /v1/api/finca/cases/resolve/{caseId}
+   * POST /v1/api/finca/cases/resolve
    */
 
   resolveCase(caseId: string, resolution: string, notes: string, analyst: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/finca/cases/${encodeURIComponent(caseId)}/resolve`,
-      { resolution, notes, analyst }, this.getHeaders());
+    return this.http.post(`${this.apiUrl}/finca/cases/resolve`,
+      { case_id: caseId, resolution, notes, analyst }, this.getHeaders());
   }
 
 
@@ -1112,30 +1108,22 @@ export class HttpService {
   
 /**
  * UNASSIGN CASE
- * POST /v1/api/finca/cases/{caseId}/unassign
+ * POST /v1/api/finca/cases/unassign
  */
-unassignCase(caseId: string): Observable<any> {
-  return this.http.post(
-    `${this.apiUrl}/finca/cases/${encodeURIComponent(caseId)}/unassign`,
-    {},
-    this.getHeaders()
-  ).pipe(
-    catchError((error) => {
-      console.error('unassignCase failed:', error);
-      return throwError(() => error);
-    })
-  );
-}
+  unassignCase(caseId: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/finca/cases/unassign`,
+      { case_id: caseId }, this.getHeaders());
+  }
 
 
 /**
  * START CASE INVESTIGATION
- * POST /v1/api/finca/cases/{caseId}/start-investigation
+ * POST /v1/api/finca/cases/start-investigation
  */
 
   startCaseInvestigation(caseId: string, reason: string = 'Reviewing suspicious activity'): Observable<any> {
-    return this.http.post(`${this.apiUrl}/finca/cases/${encodeURIComponent(caseId)}/start-investigation`,
-      { reason }, this.getHeaders());
+    return this.http.post(`${this.apiUrl}/finca/cases/start-investigation`,
+      { case_id: caseId, reason }, this.getHeaders());
   }
 
 
@@ -1149,13 +1137,16 @@ unassignCase(caseId: string): Observable<any> {
    */
 
   flagCaseForCompliance(caseId: string, reason: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/finca/cases/${encodeURIComponent(caseId)}/flag-compliance`, { reason }, this.getHeaders());
+    return this.http.post(`${this.apiUrl}/finca/cases/flag-compliance`,
+      { case_id: caseId, reason }, this.getHeaders());
   }
   closeCaseBackend(caseId: string, reason: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/finca/cases/${encodeURIComponent(caseId)}/close`, { reason }, this.getHeaders());
+    return this.http.post(`${this.apiUrl}/finca/cases/close`,
+      { case_id: caseId, reason }, this.getHeaders());
   }
   reopenCaseBackend(caseId: string, reason: string, analyst: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/finca/cases/${encodeURIComponent(caseId)}/reopen`, { reason, analyst }, this.getHeaders());
+    return this.http.post(`${this.apiUrl}/finca/cases/reopen`,
+      { case_id: caseId, reason, analyst }, this.getHeaders());
   }
 
   createCaseBackend(payload: any): Observable<any> {
@@ -1178,19 +1169,21 @@ unassignCase(caseId: string): Observable<any> {
 
 
   /**
-   * Existing delete method retained so nothing using it breaks.
-   *
-   * NOTE:
-   * A delete-case API was not included in the endpoints supplied.
-   * This keeps the existing backend delete behavior unchanged.
+   * Delete case using new POST body contract.
    */
 
   deleteCaseBackend(caseId: string): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/finca/cases/${encodeURIComponent(caseId)}`,
-      { ...this.getHeaders(), observe: 'response' });
+    return this.http.post(`${this.apiUrl}/finca/cases/delete`,
+      { case_id: caseId }, this.getHeaders());
   }
 
 
+
+  /** Creates or retrieves an existing case from an alert. */
+  createCaseFromAlert(alertId: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/finca/alerts/create-case`,
+      { alert_id: alertId }, this.getHeaders());
+  }
 
   getFincaDashboard(): Observable<any> {
     return this.http.get(`${this.apiUrl}/finca/dashboard`, this.getHeaders())
