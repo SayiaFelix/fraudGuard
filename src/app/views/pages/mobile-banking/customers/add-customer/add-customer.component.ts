@@ -193,6 +193,15 @@ I combine the warmth of a friend with the power of artificial intelligence to pr
     approved: 0
   };
 
+  private allTimeRiskDistribution: {
+    critical: number;
+    high: number;
+    medium: number;
+    low: number;
+  } | null = null;
+  private statsAnimationTimeout: ReturnType<typeof setTimeout> | null = null;
+  private statsAnimationFrame: number | null = null;
+
   // Model Metrics
   modelMetrics: any = null;
 
@@ -614,10 +623,14 @@ calculateStats(): void {
   
   this.stats = {
     total: this.totalTransactionCount,
-    critical: filtered.filter(t => t.finalRiskCategory === 'Critical').length,
-    high: filtered.filter(t => t.finalRiskCategory === 'High').length,
-    medium: filtered.filter(t => t.finalRiskCategory === 'Medium').length,
-    low: filtered.filter(t => t.finalRiskCategory === 'Low').length,
+    critical: this.allTimeRiskDistribution?.critical
+      ?? filtered.filter(t => t.finalRiskCategory === 'Critical').length,
+    high: this.allTimeRiskDistribution?.high
+      ?? filtered.filter(t => t.finalRiskCategory === 'High').length,
+    medium: this.allTimeRiskDistribution?.medium
+      ?? filtered.filter(t => t.finalRiskCategory === 'Medium').length,
+    low: this.allTimeRiskDistribution?.low
+      ?? filtered.filter(t => t.finalRiskCategory === 'Low').length,
     avgRiskScore: filtered.length > 0
       ? Math.round((filtered.reduce((sum, t) => sum + t.riskScore, 0) / filtered.length) * 10) / 10
       : 0,
@@ -638,7 +651,17 @@ calculateStats(): void {
       this.playMukwanoSound();
     }
     // Animate stats after a brief delay
-    setTimeout(() => this.animateStats(), 300);
+    if (this.statsAnimationTimeout !== null) {
+      clearTimeout(this.statsAnimationTimeout);
+    }
+    if (this.statsAnimationFrame !== null) {
+      cancelAnimationFrame(this.statsAnimationFrame);
+      this.statsAnimationFrame = null;
+    }
+    this.statsAnimationTimeout = setTimeout(() => {
+      this.statsAnimationTimeout = null;
+      this.animateStats();
+    }, 300);
   }
 }
 
@@ -713,7 +736,11 @@ playMukwanoSound(): void {
 }
 
 animateStats(): void {
-  // Target values
+if (this.statsAnimationFrame !== null) {
+  cancelAnimationFrame(this.statsAnimationFrame);
+}
+
+// Target values
   const targets = {
     total: this.stats.total,
     critical: this.stats.critical,
@@ -758,8 +785,9 @@ animateStats(): void {
     this.stats.avgRiskScore = Math.round(currentAvg * 10) / 10;
     
     if (progress < 1) {
-      requestAnimationFrame(animate);
+      this.statsAnimationFrame = requestAnimationFrame(animate);
     } else {
+      this.statsAnimationFrame = null;
       // Final values
       this.stats.total = targets.total;
       this.stats.critical = targets.critical;
@@ -775,7 +803,7 @@ animateStats(): void {
     }
   };
   
-  requestAnimationFrame(animate);
+  this.statsAnimationFrame = requestAnimationFrame(animate);
 }
 
 private checkChatLoading(): string | null {
@@ -2307,12 +2335,62 @@ viewTransactionFromChat(txId: string): string {
           this.applyFilters();
           this.calculateStats();
           this.updatePagination();
+          this.loadAllTimeRiskDistribution();
         }
         this.isLoading = false;
       },
       error: (error) => {
         console.error('Error loading transactions:', error);
         this.isLoading = false;
+      }
+    });
+  }
+
+  private loadAllTimeRiskDistribution(): void {
+    this.httpService.getFincaRiskDistribution().subscribe({
+      next: response => {
+        if (response.status !== 'success' || !Array.isArray(response.categories)) {
+          console.error('Risk distribution returned an invalid response:', response);
+          return;
+        }
+
+        const counts = new Map(
+          response.categories.map(category => [category.label.toUpperCase(), category.count])
+        );
+        this.allTimeRiskDistribution = {
+          critical: counts.get('CRITICAL') ?? 0,
+          high: counts.get('HIGH') ?? 0,
+          medium: counts.get('MEDIUM') ?? 0,
+          low: counts.get('LOW') ?? 0
+        };
+        if (this.statsAnimationTimeout !== null) {
+          clearTimeout(this.statsAnimationTimeout);
+          this.statsAnimationTimeout = null;
+        }
+        if (this.statsAnimationFrame !== null) {
+          cancelAnimationFrame(this.statsAnimationFrame);
+          this.statsAnimationFrame = null;
+        }
+        const displayedTransactions = this.filteredTransactions.length
+          ? this.filteredTransactions
+          : this.transactions;
+        this.stats = {
+          ...this.stats,
+          total: this.totalTransactionCount,
+          critical: this.allTimeRiskDistribution.critical,
+          high: this.allTimeRiskDistribution.high,
+          medium: this.allTimeRiskDistribution.medium,
+          low: this.allTimeRiskDistribution.low,
+          avgRiskScore: displayedTransactions.length
+            ? Math.round(
+                displayedTransactions.reduce((sum, transaction) => sum + transaction.riskScore, 0)
+                / displayedTransactions.length * 10
+              ) / 10
+            : 0
+        };
+      },
+      error: error => {
+        console.error('Failed to load all-time risk distribution:', error);
       }
     });
   }
