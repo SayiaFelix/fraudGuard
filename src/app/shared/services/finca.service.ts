@@ -30,8 +30,21 @@ export interface InvestigationFraudRing {
   size: number;
   totalAmount: number;
   riskLevel: string;
-  sharedSignals: string[];
-  customerIds: string[];
+  sharedSignals?: string[];
+  customerIds?: string[];
+  signals?: Array<{ type: string; label?: string; customerCount?: number }>;
+  memberIds?: string[];
+  transactionIds?: string[];
+  summary?: string;
+}
+
+export interface InvestigationContext {
+  entityId?: string | null;
+  entity_id?: string | null;
+  centerNodeId?: string | null;
+  center_node_id?: string | null;
+  mode?: string;
+  [key: string]: unknown;
 }
 
 export interface InvestigationGraphResponse {
@@ -50,11 +63,7 @@ export interface InvestigationGraphResponse {
       fraudRings: number;
       connectedAccounts: number;
     };
-    investigation: {
-      entity_id: string | null;
-      center_node_id: string | null;
-      mode: string;
-    };
+    investigation: InvestigationContext | null;
     meta: {
       transaction_count: number;
       transaction_limit: number;
