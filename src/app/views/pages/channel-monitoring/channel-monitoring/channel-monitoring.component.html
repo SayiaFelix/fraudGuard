@@ -81,11 +81,11 @@
             </div>
             <div class="metric-row">
               <span>Latency</span>
-              <strong>{{ ch.avgLatencyMs }} ms</strong>
+              <strong>{{ ch.avgLatencyMs == null ? '—' : (ch.avgLatencyMs + ' ms') }}</strong>
             </div>
             <div class="metric-row">
               <span>Uptime</span>
-              <strong>{{ ch.uptime }}%</strong>
+              <strong>{{ ch.uptime == null ? '—' : (ch.uptime + '%') }}</strong>
             </div>
             <div class="metric-row">
               <span>Blocked</span>
@@ -104,7 +104,7 @@
         <div class="card-header bg-transparent border-0 pt-3 px-4">
           <h5 class="card-heading mb-0">
             <i class="fas fa-chart-area me-2 text-primary"></i>
-            Transaction Volume by Channel — 12 Months
+            Transaction volume by day
           </h5>
         </div>
         <div class="card-body pt-0 px-3">
