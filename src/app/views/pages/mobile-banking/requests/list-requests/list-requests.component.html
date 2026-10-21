@@ -1,0 +1,144 @@
+<div class="inbox-container">
+
+  <!-- ======================= LEFT PANEL: INBOX LIST ======================= -->
+  <div class="conversation-list-panel">
+    <div class="panel-header">
+      <h1 class="inbox-title">Alerts</h1>
+    </div>
+
+    <div class="panel-filters">
+      <select class="form-select filter-dropdown" (change)="filterItems($any($event.target).value)">
+        <option value="all">All Items</option>
+        <option value="awaiting_action">Awaiting My Action</option>
+        <option value="notifications">Notifications</option>
+      </select>
+      <div class="sort-controls">
+        <button class="btn-icon" (click)="sortItems('desc')" title="Sort Newest First"><i class="feather icon-arrow-down"></i></button>
+        <button class="btn-icon" (click)="sortItems('asc')" title="Sort Oldest First"><i class="feather icon-arrow-up"></i></button>
+        <span>Sort</span>
+      </div>
+    </div>
+
+    <div class="conversation-list">
+      <div *ngIf="isLoading" class="loading-placeholder">Loading items...</div>
+      <div *ngIf="!isLoading && filteredInboxItems.length === 0" class="empty-placeholder">No items in this view.</div>
+      
+      <div 
+        *ngFor="let item of filteredInboxItems"
+        class="conversation-item"
+        [class.active]="selectedItem?.id === item.id"
+        [class.unread]="!item.isRead"
+        (click)="selectItem(item)">
+
+        <div class="avatar" [ngSwitch]="item.type">
+          <i *ngSwitchCase="'approval'" class="feather icon-check-square"></i>
+          <i *ngSwitchCase="'response'" class="feather icon-message-square"></i>
+          <i *ngSwitchCase="'notification'" class="feather icon-bell"></i>
+          <i *ngSwitchCase="'assignment'" class="feather icon-briefcase"></i>
+        </div>
+        
+        <div class="conversation-details">
+          <div class="details-header">
+            <span class="sender-name">{{ item.title }}</span>
+            <span class="timestamp">{{ item.date }}</span>
+          </div>
+          <div class="message-preview">
+            <span>{{ item.summary }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================= RIGHT PANEL: CONTENT DISPLAY ======================= -->
+  <div class="message-view-panel">
+    <!-- Empty State -->
+    <div class="placeholder-view" *ngIf="!selectedItem">
+      <i class="feather icon-inbox"></i>
+      <h3>Select an item to view its details</h3>
+      <p>Your tasks, approvals, and notifications will appear here.</p>
+    </div>
+
+    <!-- Details View -->
+    <div class="conversation-view" *ngIf="selectedItem">
+      <div class="chat-header">
+        <div class="header-info">
+          <span class="header-name">{{ selectedItem.details?.subject || selectedItem.title }}</span>
+        </div>
+      </div>
+      
+      <div class="details-body">
+        <!-- Main Summary -->
+        <p class="details-summary">{{ selectedItem.summary }}</p>
+
+        <!-- ======================================================= -->
+        <!-- START: NEW & IMPROVED DETAILS TABLE -->
+        <!-- ======================================================= -->
+        <div class="details-table">
+          <div class="table-row" *ngIf="selectedItem.details?.auditId">
+            <span class="table-label"><i class="feather icon-hash"></i> Audit ID</span>
+            <span class="table-value">#{{ selectedItem.details?.auditId }}</span>
+          </div>
+          <div class="table-row" *ngIf="selectedItem.details?.auditUnit">
+            <span class="table-label"><i class="feather icon-briefcase"></i> Audit Unit</span>
+            <span class="table-value">{{ selectedItem.details?.auditUnit }}</span>
+          </div>
+          <div class="table-row" *ngIf="selectedItem.details?.startDate">
+            <span class="table-label"><i class="feather icon-calendar"></i> Start Date</span>
+            <span class="table-value">{{ selectedItem.details?.startDate }}</span>
+          </div>
+          <div class="table-row" *ngIf="selectedItem.details?.dueDate">
+            <span class="table-label"><i class="feather icon-flag"></i> Due Date</span>
+            <span class="table-value" [class.danger-text]="selectedItem.type === 'notification'">{{ selectedItem.details?.dueDate }}</span>
+          </div>
+          <div class="table-row" *ngIf="selectedItem.details?.role">
+            <span class="table-label"><i class="feather icon-user"></i> Your Role</span>
+            <span class="table-value">{{ selectedItem.details?.role }}</span>
+          </div>
+          <div class="table-row" *ngIf="selectedItem.details?.status">
+            <span class="table-label"><i class="feather icon-activity"></i> Status</span>
+            <span 
+              class="table-value status-badge" 
+              [ngClass]="{
+                'completed': selectedItem.details?.status === 'Completed',
+                'in-progress': selectedItem.details?.status === 'In Progress',
+                'planned': selectedItem.details?.status === 'Planned'
+              }">
+              {{ selectedItem.details?.status }}
+            </span>
+          </div>
+        </div>
+        <!-- ======================================================= -->
+        <!-- END OF DETAILS TABLE -->
+        <!-- ======================================================= -->
+
+        <!-- Attachments Section -->
+        <div class="details-attachments" *ngIf="selectedItem.details?.attachments?.length">
+          <h4>Attachments</h4>
+          <div class="attachment-item" *ngFor="let file of selectedItem.details?.attachments">
+            <i class="mdi {{ file.icon }}"></i>
+            <span>{{ file.name }}</span>
+            <a href="#" class="download-link">Download</a>
+          </div>
+        </div>
+
+        <!-- History / Audit Trail Section -->
+        <div class="details-history" *ngIf="selectedItem.details?.history?.length">
+          <h4>History</h4>
+          <div class="history-item" *ngFor="let event of selectedItem.details?.history">
+            <p class="history-action">{{ event.action }} by <strong>{{ event.user }}</strong></p>
+            <p class="history-date">{{ event.date }}</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Action buttons -->
+      <div class="details-actions" *ngIf="selectedItem.type === 'approval' || selectedItem.type === 'response'">
+        <button class="btn btn-primary"><i class="feather icon-file-text"></i>View Full Report</button>
+        <button class="btn btn-outline-warning ms-2" (click)="sendAlert()"><i class="feather icon-bell"></i>Send Alert</button>
+        <button class="btn btn-success ms-2" *ngIf="selectedItem.type === 'approval'"><i class="feather icon-check"></i>Approve</button>
+        <button class="btn btn-danger ms-2" *ngIf="selectedItem.type === 'approval'"><i class="feather icon-x"></i>Return for Revision</button>
+      </div>
+    </div>
+  </div>
+</div>

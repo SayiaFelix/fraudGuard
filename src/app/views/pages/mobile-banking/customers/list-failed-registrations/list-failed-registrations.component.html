@@ -1,0 +1,358 @@
+<div class="row">
+  <div class="col content-column">
+    <div class="container-fluid">
+      <div class="d-flex align-items-center justify-content-between flex-wrap">
+        <div>
+          <h2 class="mb-0 me-3 fw-bold">{{ pageTitle }}</h2>
+            <p class="text-muted small mb-0">
+              Agentic Generative AI for Real-Time Fraud Intelligence  
+              <span class="ms-2 badge bg-dark">Powered by ML Ensemble + LLM (optional) </span>
+            </p>
+        </div>
+        
+        <div class="status-badge">
+         <span class="badge bg-success d-flex align-items-center">
+            <span class="me-2 position-relative">
+              <span class="pulse-dot"></span>
+            </span>
+            <i class="fas fa-circle me-1" style="font-size: 8px;"></i>
+            AI Model Active
+          </span>
+        </div>
+      </div>
+
+      <!-- Fraud Intelligence Tabs -->
+      <div class="fraud-tab-buttons mt-3" *ngIf="!hideTopNav">
+        <a class="fraud-tab-button"
+          [routerLink]="['transactions']"
+          routerLinkActive="active-tab">
+          <i class="fas fa-bolt me-2" style="color: #ff9e00;"></i>
+          Live Transaction Feed
+        </a>
+
+        <a class="fraud-tab-button"
+          [routerLink]="['risk-analyzer']"
+          routerLinkActive="active-tab">
+          <i class="fas fa-microchip me-2" style="color: #4cc9f0;"></i>
+          AI Risk Analyzer
+        </a>
+
+    
+
+        <!-- AI Insights moved to independent sidebar menu to avoid duplication -->
+        <!-- <a class="fraud-tab-button"
+          [routerLink]="['ai-insights']"
+          routerLinkActive="active-tab">
+          <i class="fas fa-brain me-2 text-primary"></i>
+          AI Insights
+        </a> -->
+
+        <a class="fraud-tab-button"
+          [routerLink]="['history']"
+          routerLinkActive="active-tab">
+          <i class="fas fa-history me-2 text-dark"></i>
+          Fraud History
+        </a>
+
+        <!-- Investigation Graph moved to independent sidebar menu to avoid duplication -->
+        <!-- <a class="fraud-tab-button"
+          [routerLink]="['investigation-graph']"
+          routerLinkActive="active-tab"
+          [class.disabled]="!canInvestigate()"
+          (click)="!canInvestigate() && $event.preventDefault()">
+          <i class="fas fa-project-diagram me-2" style="color: #06d6a0;"></i>
+          Investigation Graph
+          <span *ngIf="pendingInvestigations > 0" class="alert-badge ms-2">{{ pendingInvestigations }}</span>
+        </a> -->
+
+      </div>
+
+      <div [ngClass]="hideTopNav ? 'mt-2' : 'mt-4'">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="intelligence-panel d-flex flex-column"   
+      *ngIf="showIntelligencePanel"
+      [ngClass]="{ 'collapsed': isCollapsed }" 
+      style="height: 100vh;">
+       
+    <div class="panel-header d-flex align-items-center justify-content-between p-3 border-radius-top"
+        (click)="toggleIntelligencePanel()" 
+        style="cursor: pointer; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+      
+      <div class="d-flex align-items-center">
+        <i class="mdi me-2 text-white" 
+          [ngClass]="{ 'mdi-chevron-left': isCollapsed, 'mdi-chevron-right': !isCollapsed }"
+          [attr.title]="isCollapsed ? 'Click to expand panel' : 'Click to collapse panel'"></i>
+        
+        <h4 *ngIf="!isCollapsed" class="mb-0 text-white fw-bold">
+          <i class="fas fa-brain me-2"></i>AI Intelligence
+        </h4>
+      
+        <h4 *ngIf="isCollapsed" class="mb-0 text-white fw-bold">
+          <i class="fas fa-brain" [attr.title]="'Click to expand panel'"></i>
+        </h4>
+      </div>
+
+      <span *ngIf="!isCollapsed" class="badge bg-warning text-dark">Live</span>
+    </div>
+
+    <!-- <div *ngIf="!isCollapsed" class="alert-mode-toggle pt-3 pb-3 border-bottom">
+      <div class="d-flex align-items-center justify-content-between">
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" 
+                [checked]="isAlertModeEnabled" 
+                (change)="toggleAlertMode($any($event.target).checked)"
+                id="alertModeSwitch">
+          <label class="form-check-label fw-medium" for="alertModeSwitch">
+            <i class="fas fa-exclamation-triangle me-1" 
+              [class.text-danger]="isAlertModeEnabled" 
+              [class.text-secondary]="!isAlertModeEnabled"></i>
+            Alert Mode
+          </label>
+        </div>
+        <div  class="d-flex align-items-center gap-1">
+          <span class="badge" [ngClass]="isAlertModeEnabled ? 'bg-danger' : 'bg-secondary'">
+            {{ isAlertModeEnabled ? 'ACTIVE' : 'INACTIVE' }}
+          </span>
+          <span class="badge" [ngClass]="isAlertModeEnabled ? 'bg-danger' : 'bg-secondary'">
+            Threshold: {{ systemStats.threshold }}
+          </span>
+        </div>
+      </div>
+
+      <div class="mt-2 small" [class.text-danger]="isAlertModeEnabled" [class.text-muted]="!isAlertModeEnabled">
+        <i class="fas fa-info-circle me-1"></i>
+        {{ isAlertModeEnabled ? 
+          'Crisis mode active - Lower threshold (4.0) for enhanced security' : 
+          'Normal National Operation - Standard threshold (6.0)' }}
+      </div>
+    </div> -->
+
+    <div *ngIf="!isCollapsed" class="sovereign-mode-toggle pt-3 pb-3 border-bottom">
+      <div class="d-flex align-items-center justify-content-between">
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" 
+                [checked]="sovereignMode" 
+                (change)="toggleSovereignMode($any($event.target).checked)"
+                id="sovereignModeSwitch">
+          <label class="form-check-label fw-medium" for="sovereignModeSwitch">
+            <i class="fas fa-shield-alt me-1" [class.text-success]="sovereignMode" [class.text-secondary]="!sovereignMode"></i>
+            Sovereign Mode
+          </label>
+        </div>
+        <span class="badge" [ngClass]="sovereignMode ? 'bg-success' : 'bg-secondary'">
+          {{ sovereignMode ? 'ON - LLM Enabled' : 'OFF - LLM Disabled' }}
+        </span>
+
+      </div>
+      <small class="text-muted d-block mt-1">
+        <i class="fas fa-info-circle me-1"></i>
+        When enabled, external AI/LLM services are allowed
+      </small>
+    </div>
+
+
+    <div *ngIf="!isCollapsed" class="panel-body p-3 d-flex flex-column flex-grow-1 overflow-auto">
+      <div class="risk-meter-card card shadow-sm mb-3">
+        <div class="card-body">
+          <h4 class="fw-bold text-dark mb-3">
+            <i class="fas fa-thermometer-half me-2 text-danger"></i>
+            Current System Risk
+          </h4>
+          <hr>
+          <div class="risk-meter">
+            <div class="risk-value"
+                [style.width.%]="currentRiskLevel"
+                [ngClass]="{
+                  'bg-success': currentRiskLevel < 40,
+                  'bg-warning': currentRiskLevel >= 40 && currentRiskLevel < 70,
+                  'bg-danger': currentRiskLevel >= 70
+                }">
+              <span class="risk-label">{{ currentRiskLevel }}% Risk</span>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between mt-2 small">
+            <span class="text-success">Low</span>
+            <span class="text-info">Medium</span>
+            <span class="text-warning">High</span>
+            <span class="text-danger">Critical</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent AI Detections Card -->
+      <div class="card shadow-sm mb-3">
+        <div class="card-header bg-transparent border-0">
+          <h4 class="fw-bold mb-0">
+            <i class="fas fa-exclamation-triangle me-2 text-warning"></i>
+            Recent AI Detections
+            <!-- <span class="badge bg-danger ms-2">{{ pendingInvestigations }}</span> -->
+          </h4>
+        </div>
+        <hr>
+        <div class="list-group list-group-flush">
+          <div class="list-group-item" *ngFor="let alert of recentAIDetections">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <span class="badge" [ngClass]="{
+                  'bg-danger': alert.severity === 'Critical',
+                  'bg-warning': alert.severity === 'High'
+                }">{{ alert.severity }}</span>
+                <small class="d-block text-muted mt-1">{{ alert.message }}</small>
+                <small class="d-block text-muted" *ngIf="alert.transactionId">
+                  ID: {{ alert.transactionId }}
+                </small>
+              </div>
+              <small class="text-muted" 
+                    [title]="alert.fullDate || ''">
+                {{ alert.time }}
+              </small>
+            </div>
+          </div>
+          <div *ngIf="recentAIDetections.length === 0" class="list-group-item text-muted">
+            No recent high-risk detections
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mb-3">
+        <div class="card-body">
+          <h4 class="fw-bold text-dark mb-3">
+            <i class="fas fa-chart-line me-2 text-primary"></i>
+            Model Performance ({{ modelPerformance.modelName }})
+          </h4>
+          <hr>
+          
+          <!-- Accuracy -->
+          <div class="performance-item mb-2">
+            <div class="d-flex justify-content-between small">
+              <span>Accuracy</span>
+              <span class="fw-bold">{{ modelPerformance.accuracy.toFixed(2) }}%</span>
+            </div>
+            <div class="progress" style="height: 6px;">
+              <div class="progress-bar bg-success" 
+                  [style.width.%]="modelPerformance.accuracy">
+              </div>
+            </div>
+          </div>
+
+          <!-- Precision -->
+          <div class="performance-item mb-2">
+            <div class="d-flex justify-content-between small">
+              <span>Precision</span>
+              <span class="fw-bold">{{ modelPerformance.precision.toFixed(2) }}%</span>
+            </div>
+            <div class="progress" style="height: 6px;">
+              <div class="progress-bar bg-primary" 
+                  [style.width.%]="modelPerformance.precision">
+              </div>
+            </div>
+          </div>
+
+          <!-- Recall -->
+          <div class="performance-item mb-2">
+            <div class="d-flex justify-content-between small">
+              <span>Recall</span>
+              <span class="fw-bold">{{ modelPerformance.recall.toFixed(2) }}%</span>
+            </div>
+            <div class="progress" style="height: 6px;">
+              <div class="progress-bar bg-info" 
+                  [style.width.%]="modelPerformance.recall">
+              </div>
+            </div>
+          </div>
+
+          <!-- F1 Score -->
+          <div class="performance-item">
+            <div class="d-flex justify-content-between small">
+              <span>F1 Score</span>
+              <span class="fw-bold">{{ modelPerformance.f1Score.toFixed(2) }}%</span>
+            </div>
+            <div class="progress" style="height: 6px;">
+              <div class="progress-bar bg-warning" 
+                  [style.width.%]="modelPerformance.f1Score">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mb-3">
+        <div class="card-body">
+          <h4 class="fw-bold text-dark mb-3">
+            <i class="fas fa-chart-pie me-2 text-info"></i>
+            Current Risk Distribution
+          </h4>
+          <hr>
+          <div class="risk-distribution">
+            <div class="d-flex justify-content-between mb-1">
+              <span>Critical</span>
+              <span class="fw-bold text-danger">{{ riskDistribution.critical }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-1">
+              <span>High</span>
+              <span class="fw-bold text-warning">{{ riskDistribution.high }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-1">
+              <span>Medium</span>
+              <span class="fw-bold text-info">{{ riskDistribution.medium }}</span>
+            </div>
+            <div class="d-flex justify-content-between">
+              <span>Low</span>
+              <span class="fw-bold text-success">{{ riskDistribution.low }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h4 class="fw-bold text-dark mb-3">
+            <i class="fas fa-bolt me-2 text-warning"></i>
+            Quick Actions
+          </h4>
+          <hr>
+          <div class="d-grid gap-2">
+            <button class="btn btn-sm btn-outline-primary text-start" (click)="runModelRetraining()">
+              <i class="fas fa-sync-alt me-2"></i> Retrain Models
+            </button>
+            <button class="btn btn-sm btn-outline-success text-start" (click)="exportFraudReport()">
+              <i class="fas fa-file-pdf me-2"></i> Export Fraud Report
+            </button>
+            <button class="btn btn-sm btn-outline-danger text-start" (click)="viewAlerts()">
+              <i class="fas fa-bell me-2"></i> View All Alerts
+              <span class="badge bg-danger ms-2">{{ totalAlerts }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="system-status mt-3 p-2 bg-light rounded">
+        <div class="d-flex justify-content-between small">
+          <span><i class="fas fa-database me-1"></i> 158k txns</span>
+          <span><i class="fas fa-clock me-1"></i> 187ms avg</span>
+          <span><i class="fas fa-shield-alt me-1 text-success"></i> Secure</span>
+        </div>
+      </div>
+
+      <div class="mt-1 text-center">
+        <span class="badge"
+        [ngClass]="{
+          'bg-success': currentRiskLevel < 40,
+          'bg-warning': currentRiskLevel >= 40 && currentRiskLevel < 70,
+          'bg-danger': currentRiskLevel >= 70
+        }">
+          Threat Level: 
+          {{
+            currentRiskLevel < 40 ? 'LOW' :
+            currentRiskLevel < 70 ? 'MEDIUM' : 'CRITICAL'
+          }}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>

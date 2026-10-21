@@ -1,0 +1,101 @@
+<div class="signup-container">
+  <div class="signup-card">
+    <!-- Left side with illustration -->
+    <div class="signup-left">
+      <div class="illustration-wrapper">
+        <!-- UPDATED: Made logo clickable -->
+        <a href="/" class="clickable-logo-link">
+          <img src="assets/images/image1.png" alt="Secure Banking Illustration" class="illustration-image">
+        </a>
+      </div>
+      <h2>Security First</h2>
+      <p>A secure, workflow-based system for the Government of Sierra Leone to enhance audit planning, execution and compliance</p>
+    </div>
+
+    <!-- Right side with form -->
+    <div class="signup-right">
+      <div class="signup-form-container">
+        <!-- Eclectics Logo -->
+        <div class="logo-container">
+          <!-- UPDATED: Made logo clickable -->
+          <a href="/" class="clickable-logo-link">
+            <img class="img-fluid eclectics-logo" src="assets/images/AU.png" width="350" height="40" alt="eclecticsLogo" />
+          </a>
+        </div>
+        
+        <h3>Set New Password</h3>
+        <p class="signup-subtitle">Please enter and confirm your new password below.</p>
+        
+        <form class="signup-form" [formGroup]="form" (ngSubmit)="onSubmit($event)">
+          
+          <!-- Old Password -->
+          <div class="form-group">
+            <label for="oldPassword">Old Password</label>
+            <input type="password" id="oldPassword" class="form-control" formControlName="lookUpToken" placeholder="Enter your old password">
+            <div class="error-message" *ngIf="form.get('lookUpToken')?.touched && form.get('lookUpToken')?.hasError('required')">
+              Old Password is required
+            </div>
+          </div>
+          
+          <!-- New Password -->
+          <div class="form-group password-group">
+            <label for="password">New Password</label>
+            <input [type]="inputType" id="password" class="form-control" formControlName="password" placeholder="Enter new password">
+            <span class="password-toggle-icon" (click)="toggleShowPassword()">
+              <i class="mdi" [ngClass]="showingPassword ? 'mdi-eye-off' : 'mdi-eye'"></i>
+            </span>
+            <div class="error-message" *ngIf="form.get('password')?.touched && form.get('password')?.hasError('required')">
+              Password is required
+            </div>
+            <div class="error-message" *ngIf="form.get('password')?.touched && form.get('password')?.hasError('minlength')">
+              Password must be at least 8 characters long
+            </div>
+            <div class="error-message" *ngIf="form.get('password')?.touched && form.get('password')?.hasError('complexPassword')">
+              Must contain uppercase, lowercase, number, and special character.
+            </div>
+          </div>
+
+          <!-- Confirm New Password -->
+          <div class="form-group password-group">
+            <label for="confirmPassword">Confirm New Password</label>
+            <input [type]="inputType" id="confirmPassword" class="form-control" formControlName="confirmPassword" placeholder="Confirm new password">
+            <span class="password-toggle-icon" (click)="toggleShowPassword()">
+              <i class="mdi" [ngClass]="showingPassword ? 'mdi-eye-off' : 'mdi-eye'"></i>
+            </span>
+            <div class="error-message" *ngIf="form.get('confirmPassword')?.touched && form.get('confirmPassword')?.hasError('required')">
+              Confirm Password is required
+            </div>
+            <div class="error-message" *ngIf="form.controls['confirmPassword'].dirty && form.hasError('MatchPassword','confirmPassword')">
+               Passwords do not match
+            </div>
+          </div>
+
+          <!-- Status Messages -->
+          <div class="status-container" *ngIf="isLoading || hasError">
+            <div class="progress-bar-wrapper" *ngIf="isLoading">
+              <div class="progress-bar-fill loading"></div>
+            </div>
+            <p class="status-message error-text" *ngIf="hasError && !isLoading">
+              <strong>Error Occurred!</strong> {{ errorMsg }}
+            </p>
+          </div>
+
+          <button type="submit" class="submit-btn" [disabled]="!form.valid || isLoading" [class.loading]="isLoading">
+            <span>{{ isLoading ? 'Updating Password...' : 'Set Password' }}</span>
+          </button>
+
+          <div class="login-link">
+            <a routerLink="/auth/login">Back to Login</a>
+          </div>
+
+        </form>
+
+        <!-- ADDED THIS SECTION -->
+        <div class="footer-note">
+          <p>Your data is protected with system-level encryption and security measures</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

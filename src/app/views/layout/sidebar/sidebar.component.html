@@ -1,0 +1,92 @@
+<!-- The main sidebar container -->
+<nav class="sidebar">
+
+  <!-- Sidebar Header with Logo -->
+  <div class="sidebar-header" style="background-color: #f8f8f8!important;">
+    <a routerLink="dashboard" class="sidebar-brand nobleui-logo">
+      <img src="assets/images/image1.png" alt="FinGuard AI" style="height: 70px; width: 130px;">
+      <!-- <img src="assets/images/simplifying.png" alt="Portal" style="max-height: 10px;"> -->
+    </a>
+    <div class="sidebar-toggler not-active" #sidebarToggler (click)="toggleSidebar($event)">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </div>
+
+  <div class="sidebar-body" style="background-color: #f8f8f8!important;" [perfectScrollbar]>
+    <ul class="sidebar-nav metismenu" id="sidebar-menu" #sidebarMenu>
+      
+      <!-- Loop through all menu items -->
+      <ng-container *ngFor="let item of menuItems">
+        <li class="nav-category" *ngIf="item.isTitle">
+          {{ item.label }}
+        </li>
+
+        <li class="nav-item" *ngIf="!item.isTitle">
+
+          <!-- If item has subItems render parent and nested list -->
+          <ng-container *ngIf="item.subItems && item.subItems.length > 0; else singleLink">
+            <a class="nav-link" href="javascript:void(0);">
+              <i class="link-icon" [attr.data-feather]="item.icon" appFeatherIcon></i>
+              <span class="link-title">{{ item.label }}</span>
+            </a>
+            <ul class="nav-second-level">
+              <li *ngFor="let sub of item.subItems">
+                <a class="nav-link" [routerLink]="sub.link" routerLinkActive="active">
+                  <i class="link-icon" [attr.data-feather]="sub.icon" appFeatherIcon></i>
+                  <span class="link-title">{{ sub.label }}</span>
+                </a>
+              </li>
+            </ul>
+          </ng-container>
+
+          <!-- Single link fallback -->
+          <ng-template #singleLink>
+          <a *ngIf="!item.isLogout && !item.isSettings && !item.isHelpCenter" class="nav-link" [routerLink]="item.link" routerLinkActive="active">
+            <i class="link-icon" [attr.data-feather]="item.icon" appFeatherIcon></i>
+            <span class="link-title">{{ item.label }}</span>
+            
+            <span 
+              *ngIf="item.badge && item.badge.text > 0" 
+              class="badge rounded-pill ms-auto" 
+              [ngClass]="'bg-' + item.badge.variant">
+              {{ item.badge.text }}
+            </span>
+            
+          </a>
+          </ng-template>
+
+          <a *ngIf="item.isLogout" class="nav-link" href="#" (click)="onLogout($event)">
+            <i class="link-icon" [attr.data-feather]="item.icon" appFeatherIcon></i>
+            <span class="link-title">{{ item.label }}</span>
+          </a>
+          
+          <a *ngIf="item.isSettings" class="nav-link" href="#" (click)="onSettingsClick($event)">
+            <i class="link-icon" [attr.data-feather]="item.icon" appFeatherIcon></i>
+            <span class="link-title">{{ item.label }}</span>
+          </a>
+
+          <a *ngIf="item.isHelpCenter" class="nav-link" href="#" (click)="onHelpCenterClick($event)">
+            <i class="link-icon" [attr.data-feather]="item.icon" appFeatherIcon></i>
+            <span class="link-title">{{ item.label }}</span>
+          </a>
+
+        </li>
+
+      </ng-container>
+    </ul>
+  </div>
+
+  <!-- Sidebar User Footer -->
+  <div class="sidebar-user-footer">
+    <div class="user-avatar">{{ userInitials }}</div>
+    <div class="user-details">
+      <span class="user-name">{{ userDisplayName }}</span>
+      <span class="user-title">{{ userTitle }}</span>
+    </div>
+  </div>
+
+</nav>
+
+<app-settings-modal *ngIf="isSettingsModalVisible" (close)="closeSettingsModal()"></app-settings-modal>

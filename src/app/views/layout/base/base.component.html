@@ -1,0 +1,32 @@
+<div class="main-wrapper" style="background-color: #f8fafc;">
+  <!-- partial:sidebar - MODIFIED: Listen for helpCenterToggled event -->
+  <app-sidebar (helpCenterToggled)="onHelpCenterToggled($event)"></app-sidebar>
+  <!-- partial -->
+  <div class="page-wrapper">
+    <!-- partial:navbar -->
+    <app-navbar></app-navbar>
+    <!-- partial -->
+    <div class="page-content">
+      <!-- Spinner for lazyload modules -->
+      <div *ngIf="isLoading" class="spinner-wrapper">
+        <div class="spinner">Loading...</div>
+      </div>
+      <div contentAnimate *ngIf="!isLoading">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+    <!-- partial:footer -->
+    <!-- <app-footer></app-footer> -->
+    <!-- partial -->
+  </div>
+
+  <!-- ADD: Help Center Popover - Show when isHelpCenterVisible is true -->
+  <div 
+    *ngIf="isHelpCenterVisible" 
+    class="help-center-overlay"
+    [style.top]="helpCenterPosition.top"
+    [style.left]="helpCenterPosition.left">
+    <app-help-center (close)="onHelpCenterClose()"></app-help-center>
+  </div>
+
+</div>

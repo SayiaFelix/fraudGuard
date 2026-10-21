@@ -1,0 +1,329 @@
+<div class="investigation-graph-container">
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-transparent border-0 pt-1">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h4 class="fw-bold mb-0">
+            <i class="fas fa-project-diagram me-2" style="color: #06d6a0;"></i>
+            Fraud Network Graph
+          </h4>
+          <!-- Preview/roadmap badges removed to only show implemented features -->
+        </div>
+          <div class="d-flex align-items-center gap-3">
+            <span class="badge bg-info me-2">{{ filteredGraphData.nodes.length }} nodes</span>
+            <span class="badge bg-secondary">{{ filteredGraphData.links.length }} connections</span>
+          </div>
+      </div>
+    </div>
+
+    <div class="card-body p-4" *ngIf="!showFuturePreview">
+      <div class="row g-4">
+        <div class="col-md-8">
+          <div class="d-flex flex-wrap gap-3">
+            <!-- Risk Level Filters -->
+            <div class="filter-group">
+              <label class="fw-medium d-block mb-2">Risk Level</label>
+              <div class="btn-group" role="group">
+                <button class="btn btn-sm" 
+                        [class.btn-danger]="showCriticalOnly"
+                        [class.btn-outline-danger]="!showCriticalOnly"
+                        (click)="showCriticalOnly = !showCriticalOnly; applyFilters()">
+                  Critical
+                </button>
+                <button class="btn btn-sm"
+                        [class.btn-warning]="showHighOnly"
+                        [class.btn-outline-warning]="!showHighOnly"
+                        (click)="showHighOnly = !showHighOnly; applyFilters()">
+                  High
+                </button>
+              </div>
+            </div>
+
+            <!-- Entity Type Filters -->
+            <div class="filter-group">
+              <label class="fw-medium d-block mb-2">Entity Type</label>
+              <div class="d-flex flex-wrap gap-2">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="showCustomers" 
+                         [(ngModel)]="showCustomers" (change)="applyFilters()">
+                  <label class="form-check-label" for="showCustomers">
+                    <i class="fas fa-user me-1"></i> Customers
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="showDevices" 
+                         [(ngModel)]="showDevices" (change)="applyFilters()">
+                  <label class="form-check-label" for="showDevices">
+                    <i class="fas fa-mobile-alt me-1"></i> Devices
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="showAccounts" 
+                         [(ngModel)]="showAccounts" (change)="applyFilters()">
+                  <label class="form-check-label" for="showAccounts">
+                    <i class="fas fa-university me-1"></i> Accounts
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="showTransactions" 
+                         [(ngModel)]="showTransactions" (change)="applyFilters()">
+                  <label class="form-check-label" for="showTransactions">
+                    <i class="fas fa-exchange-alt me-1"></i> Transactions
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Search -->
+        <div class="col-md-4">
+          <label class="fw-medium d-block mb-2">Search</label>
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="Search entities..."
+                   [(ngModel)]="searchTerm" (keyup.enter)="applyFilters()">
+            <button class="btn btn-outline-primary" type="button" (click)="applyFilters()">
+              <i class="fas fa-search"></i>
+            </button>
+            <button class="btn btn-outline-secondary" type="button" (click)="resetFilters()">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Legend and Export -->
+      <div class="row mt-3">
+        <div class="col-12">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <span class="badge bg-light text-dark me-2">
+                <i class="fas fa-circle me-1" style="color: #f72585;"></i> Critical Risk
+              </span>
+              <span class="badge bg-light text-dark me-2">
+                <i class="fas fa-circle me-1" style="color: #ff9e00;"></i> High Risk
+              </span>
+              <span class="badge bg-light text-dark me-2">
+                <i class="fas fa-circle me-1" style="color: #4cc9f0;"></i> Medium Risk
+              </span>
+              <span class="badge bg-light text-dark me-2">
+                <i class="fas fa-circle me-1" style="color: #06d6a0;"></i> Low Risk
+              </span>
+            </div>
+            <button class="btn btn-sm btn-outline-primary" (click)="exportGraph()">
+              <i class="fas fa-download me-1"></i> Export Graph
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Investigation Mode Banner -->
+  <div class="investigation-banner alert alert-primary d-flex align-items-center mb-4" 
+       *ngIf="isInvestigationMode && investigationNode"
+       role="alert">
+    <i class="fas fa-search fa-2x me-3"></i>
+    <div class="flex-grow-1">
+      <h5 class="alert-heading mb-1">Investigation Mode Active</h5>
+      <p class="mb-0">
+        Currently investigating entity 
+        <strong>{{ investigationNode.transactionId || investigationNode.id }}</strong> 
+        and its connections ({{ filteredGraphData.nodes.length }} entities, {{ filteredGraphData.links.length }} connections)
+      </p>
+    </div>
+    <button class="btn btn-outline-primary" (click)="exitInvestigationMode()">
+      <i class="fas fa-times me-1"></i> Exit Investigation
+    </button>
+  </div>
+
+  <!-- Main Graph Area -->
+  <div class="row">
+    <div class="col-lg-9">
+      <div class="card shadow-sm graph-card">
+        <div class="card-body p-0 position-relative">
+          <canvas #graphCanvas 
+                  class="graph-canvas" 
+                  width="900" 
+                  height="550"
+                  style="width: 100%; height: auto; cursor: pointer;">
+          </canvas>
+          
+          <!-- Future preview/roadmap content commented out to avoid showing 'coming soon' or hackathon messaging in demos -->
+          <!--
+          <div class="future-overlay" *ngIf="showFuturePreview" (click)="showFuturePreview = false">
+            <div class="overlay-content" (click)="$event.stopPropagation()">
+              <h3 class="fw-bold text-white mb-2">Fraud Network Investigation</h3>
+              <p class="text-white-50 mb-4">Advanced graph-based fraud detection (planned enhancements)</p>
+              <div class="feature-preview bg-dark bg-opacity-50 p-4 rounded-3 mb-4">
+                <h5 class="text-white mb-3"> Planned Features:</h5>
+                <div class="row g-3">
+                  <div class="col-6"><div class="d-flex align-items-center text-white"><i class="fas fa-check-circle text-success me-2"></i><span>Real-time fraud rings</span></div></div>
+                  <div class="col-6"><div class="d-flex align-items-center text-white"><i class="fas fa-check-circle text-success me-2"></i><span>Mule account detection</span></div></div>
+                  <div class="col-6"><div class="d-flex align-items-center text-white"><i class="fas fa-check-circle text-success me-2"></i><span>SIM swap networks</span></div></div>
+                  <div class="col-6"><div class="d-flex align-items-center text-white"><i class="fas fa-check-circle text-success me-2"></i><span>Cross-border analysis</span></div></div>
+                  <div class="col-6"><div class="d-flex align-items-center text-white"><i class="fas fa-check-circle text-success me-2"></i><span>Neo4j integration</span></div></div>
+                  <div class="col-6"><div class="d-flex align-items-center text-white"><i class="fas fa-check-circle text-success me-2"></i><span>Temporal analysis</span></div></div>
+                </div>
+              </div>
+              <div class="d-flex gap-3 justify-content-center">
+                <button class="btn btn-outline-light" (click)="showFuturePreview = false"><i class="fas fa-eye me-2"></i>Preview Current Version</button>
+                <button class="btn btn-primary" (click)="showRoadmap()"><i class="fas fa-road me-2"></i>View Full Roadmap</button>
+              </div>
+            </div>
+          </div>
+          -->
+          
+          <div class="loading-overlay" *ngIf="loading">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+          <div class="loading-overlay text-center p-4" *ngIf="!loading && errorMessage">
+            <div class="alert alert-danger mb-0" role="alert">{{ errorMessage }}</div>
+          </div>
+          <div class="loading-overlay text-center p-4" *ngIf="!loading && !errorMessage && !graphData.nodes.length">
+            <div class="alert alert-info mb-0" role="status">No investigation graph data is available.</div>
+          </div>
+        </div>
+        <div class="card-footer bg-transparent border-0 text-muted small">
+          <i class="fas fa-info-circle me-1"></i> Click on nodes to view details • Export to save graph
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3">
+      <div class="card shadow-sm details-card mb-4" *ngIf="selectedNode">
+        <div class="card-header bg-transparent border-0 pt-3 px-4">
+          <h4 class="fw-bold mb-0">
+            <i class="fas fa-info-circle me-2 text-primary"></i>
+            Entity Details
+          </h4>
+        </div>
+        <div class="card-body">
+          <div class="text-center mb-3">
+            <div class="entity-icon mb-2">
+              <i [class]="getNodeTypeIcon(selectedNode.type) + ' fa-3x'" 
+                 [style.color]="getNodeColor(selectedNode)"></i>
+            </div>
+            <h5 class="fw-bold mb-1">{{ selectedNode.name }}</h5>
+            <span class="badge" [ngClass]="getRiskBadgeClass(selectedNode.riskCategory)">
+              {{ selectedNode.riskCategory || 'Normal' }} Risk
+            </span>
+          </div>
+
+          <div class="detail-list p-3 bg-light rounded-3">
+            <div class="detail-item d-flex justify-content-between mb-2 pb-2 border-bottom border-light">
+              <span class="text-muted">Type:</span>
+              <span class="fw-medium text-capitalize">{{ selectedNode.type }}</span>
+            </div>
+            <div class="detail-item d-flex justify-content-between mb-2 pb-2 border-bottom border-light" *ngIf="selectedNode.riskScore">
+              <span class="text-muted">Risk Score:</span>
+              <span class="fw-medium" [style.color]="getNodeColor(selectedNode)">
+                {{ selectedNode.riskScore }}/10
+              </span>
+            </div>
+            <div class="detail-item d-flex justify-content-between mb-2 pb-2 border-bottom border-light" *ngIf="selectedNode.amount">
+              <span class="text-muted">Amount:</span>
+              <span class="fw-medium">{{ formatAmount(selectedNode.amount) }}</span>
+            </div>
+            <div class="detail-item d-flex justify-content-between mb-2 pb-2 border-bottom border-light" *ngIf="selectedNode.timestamp">
+              <span class="text-muted">Time:</span>
+              <span class="fw-medium">{{ selectedNode.timestamp | date:'short' }}</span>
+            </div>
+            <div class="detail-item d-flex justify-content-between">
+              <span class="text-muted">Connections:</span>
+              <span class="fw-medium">{{ selectedNodeConnections.links.length }}</span>
+            </div>
+          </div>
+
+          <div class="mt-3" *ngIf="selectedNodeConnections.nodes.length > 0">
+            <h4 class="fw-bold mb-2">Connected Entities</h4>
+            <div class="connected-list" style="max-height: 150px; overflow-y: auto;">
+              <div *ngFor="let node of selectedNodeConnections.nodes.slice(0, 5)" 
+                   class="connected-item p-2 mb-1 bg-light rounded-3 d-flex align-items-center"
+                   (click)="selectNode(node)" style="cursor: pointer;">
+                <i [class]="getNodeTypeIcon(node.type) + ' me-2'" style="width: 20px; color: #4361ee;"></i>
+                <span class="small">{{ node.name }}</span>
+                <span class="ms-auto small text-muted" *ngIf="node.riskScore">{{ node.riskScore }}</span>
+              </div>
+              <div *ngIf="selectedNodeConnections.nodes.length > 5" class="text-center small text-muted mt-1">
+                +{{ selectedNodeConnections.nodes.length - 5 }} more connections
+              </div>
+            </div>
+          </div>
+
+          <div class="d-grid gap-2 mt-3">
+            <button class="btn btn-sm btn-outline-primary" (click)="clearSelection()">
+              <i class="fas fa-times me-1"></i> Clear Selection
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fraud Rings -->
+      <div class="card shadow-sm rings-card">
+        <div class="card-header bg-transparent border-0 pt-3 px-4">
+            <h4 class="fw-bold mb-0">
+            <i class="fas fa-ring me-2 text-warning"></i>
+            Detected Fraud Rings
+          </h4>
+        </div>
+        <hr>
+        <div class="card-body p-0">
+          <div class="list-group list-group-flush">
+            <div class="list-group-item p-3" *ngFor="let ring of fraudRings">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h5 class="fw-bold mb-0">{{ ring.name }}</h5>
+                <span class="badge" [ngClass]="{
+                  'bg-danger': ring.riskLevel === 'Critical',
+                  'bg-warning': ring.riskLevel === 'High'
+                }">{{ ring.riskLevel }}</span>
+              </div>
+              <div class="small text-muted mb-2">
+                <span class="me-3"><i class="fas fa-users me-1"></i> {{ ring.size }} entities</span>
+                <span><i class="fas fa-coins me-1"></i> {{ formatAmount(ring.totalAmount) }}</span>
+              </div>
+              <button class="btn btn-sm btn-outline-primary w-100" (click)="investigateRing(ring.id)">
+                <i class="fas fa-search me-1"></i> Investigate Ring
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Legend Card -->
+      <div class="card shadow-sm mt-4">
+        <div class="card-body p-3">
+          <h4 class="fw-bold mb-2">
+            <i class="fas fa-info-circle me-2 text-info"></i>
+            Graph Legend
+          </h4>
+          <hr>
+          <div class="small">
+            <div class="d-flex align-items-center mb-2">
+              <span class="legend-dot me-2" style="background: #f72585;"></span>
+              <span>Critical Risk / Flagged</span>
+            </div>
+            <div class="d-flex align-items-center mb-2">
+              <span class="legend-dot me-2" style="background: #ff9e00;"></span>
+              <span>High Risk</span>
+            </div>
+            <div class="d-flex align-items-center mb-2">
+              <span class="legend-dot me-2" style="background: #4cc9f0;"></span>
+              <span>Medium Risk</span>
+            </div>
+            <div class="d-flex align-items-center mb-2">
+              <span class="legend-dot me-2" style="background: #06d6a0;"></span>
+              <span>Low Risk</span>
+            </div>
+            <div class="d-flex align-items-center">
+              <span class="legend-dot me-2" style="background: #4361ee;"></span>
+              <span>Normal Entity</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

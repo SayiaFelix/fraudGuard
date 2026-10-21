@@ -1,0 +1,78 @@
+<div class="d-flex justify-content-between align-items-center flex-wrap grid-margin">
+  <div>
+    <h4 class="mb-3 mb-md-0">All Roles</h4>
+  </div>
+  <app-table-header
+    [allColumns]="allColumns"
+    [rows]="filteredRows.length > 0 ? filteredRows : rows"
+    [title]="title"
+    [showAddButton]="true"
+    (changeColumnsEvent)="updateColumns($event)"
+    (openAddModalEvent)="openAddRoleModal()"
+  ></app-table-header>
+</div>
+
+<div class="row">
+  <div class="col-md-12 stretch-card">
+    <div class="card" *ngIf="rows.length > 0">
+        <app-custom-ngx-table
+          [columns]="columns"
+          [rows]="rows"
+          [actions]="actions"
+          [loadingIndicator]="loading"
+          [totalItems]="totalRecords"
+          (outputEvent)="triggerEvent($event)"
+          (updateFilteredRows)="updateFilteredRowsEvent($event)"
+        ></app-custom-ngx-table>
+    </div>
+    <div class="card" *ngIf="!(rolesList$ | async)">
+      <div class="spinner-border text-success" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<ng-template #verticalCenteredModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title" id="exampleModalLabel">Add Role</h5>
+    <button (click)="modal.close('by: close icon')" aria-label="Close" class="btn-close" type="button"></button>
+  </div>
+  <div class="modal-body" [formGroup]="form">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="mb-3">
+          <label class="form-label">Role Name</label>
+          <input class="form-control" formControlName="name" type="text">
+          <small *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')" class="text-danger">Required
+            Field</small>
+        </div>
+      </div>
+      <div class="col-sm-12">
+        <div class="mb-3">
+          <label class="form-label">Role Code</label>
+          <input class="form-control" formControlName="code" type="text">
+          <small *ngIf="form.get('code')?.touched && form.get('code')?.hasError('required')" class="text-danger">Required
+            Field</small>
+        </div>
+      </div>
+      <div class="col-sm-12">
+        <div class="mb-3">
+          <label class="text-gray">Description</label>
+          <textarea class="form-control" formControlName="description" type="text"></textarea>
+          <small *ngIf="form.get('description')?.touched &&
+          form.get('description')?.hasError('required')" class="text-danger">Required
+            Field</small>
+        </div>
+      </div>
+
+    </div>
+
+
+  </div>
+  <div class="modal-footer">
+    <button (click)="modal.close('by: close button')" class="btn btn-secondary" type="button">Close</button>
+    <button (click)="modal.close('by: save button')" class="btn btn-primary" type="button">Save changes</button>
+  </div>
+</ng-template>
