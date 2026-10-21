@@ -1,11 +1,22 @@
-// user-management.component.ts
+
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
-import { Observable } from 'rxjs';
+
 import { HttpService } from 'src/app/shared/services/http.service';
 import { AuthService } from 'src/app/shared/services/auth.service';
+
+interface ManagedUser {
+  id: number | string;
+  username: string;
+  email: string;
+  role: string;
+  is_active?: boolean;
+  created_at?: string | null;
+  last_login?: string | null;
+  [key: string]: any;
+}
 
 @Component({
   selector: 'app-user-management',
@@ -13,33 +24,46 @@ import { AuthService } from 'src/app/shared/services/auth.service';
   styleUrls: ['./list-branches.component.scss']
 })
 export class ListBranchesComponent implements OnInit {
+
+  // User listing
+  allUsers: ManagedUser[] = [];
+  filteredUsers: ManagedUser[] = [];
+  visibleUsers: ManagedUser[] = [];
+
+  selectedUser: ManagedUser | null = null;
   isDetailsPanelVisible = false;
-  selectedUser: any = null;
-  visibleUsers: any[] = [];
-  allUsers: any[] = [];
-  filteredUsers: any[] = [];
+
+  // Loading states
   isLoading = false;
-  showPassword = false;
+  isSavingUser = false;
+  isResendingInvitation = false;
+  isResettingPassword = false;
 
-  recordsToShow = 20;
-  user: any;
-
-  get totalRecords(): number {
-    return this.filteredUsers.length;
-  }
-
+  // Search and filtering
   searchTerm = '';
   idFilter = '';
   emailFilter = '';
   roleFilter = '';
   usernameFilter = '';
 
+  // Pagination
   currentPage = 1;
   pageSize = 5;
   totalPages = 1;
-  
+  recordsToShow = 20;
+
+  // Invite user modal
   addUserForm: FormGroup;
   isAddUserModalVisible = false;
+
+  // Supported backend roles
+  roles = [
+    { value: 'admin', label: 'Administrator' },
+    { value: 'analyst', label: 'Risk Analyst' },
+    { value: 'investigator', label: 'Fraud Investigator' },
+    { value: 'compliance', label: 'Compliance Officer' },
+    { value: 'viewer', label: 'Viewer (Read-only)' }
+  ];
 
   constructor(
     private fb: FormBuilder,
@@ -47,18 +71,141 @@ export class ListBranchesComponent implements OnInit {
     private toastr: ToastrService,
     private authService: AuthService
   ) {
+    // No password field: backend generates
+    // and emails the temporary password.
     this.addUserForm = this.fb.group({
-      username: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      username: ['', [
+        Validators.required,
+        Validators.pattern(/\S/)
+      ]],
+      email: ['', [
+        Validators.required,
+        Validators.email
+      ]],
       role: ['', Validators.required]
     });
   }
 
   ngOnInit(): void {
     this.loadUsers();
-    this.applyFiltersAndPagination();
   }
+
+  get totalRecords(): number {
+    return this.filteredUsers.length;
+  }
+
+  // =====================================================
+  // API ERROR HANDLING
+  // =====================================================
+
+  private getErrorMessage(error: any): string {
+    if (error.status === 0) {
+      return 'Unable to connect to the server. Please check your connection.';
+    }
+
+    if (error.status === 401) {
+      return 'Your session has expired or is invalid. Please log in again.';
+    }
+
+    if (error.status === 403) {
+      return 'You do not have permission to perform this operation.';
+    }
+
+    if (error.status === 409) {
+      return error.error?.error ||
+        error.error?.message ||
+        'A user with these details already exists.';
+    }
+
+    const detail = error.error?.detail;
+
+    if (typeof detail === 'string') {
+      return detail;
+    }
+
+    if (Array.isArray(detail)) {
+      return detail.map((item: any) =>
+        item.msg || item.message || 'Invalid input'
+      ).join('; ');
+    }
+
+    return error.error?.error ||
+      error.error?.message ||
+      error.message ||
+      'An unexpected error occurred.';
+  }
+
+  // =====================================================
+  // GET USERS
+  // GET /v1/api/admin/users
+  // =====================================================
+
+  loadUsers(): void {
+    this.isLoading = true;
+
+    this.httpService.UserGet('/admin/users').subscribe({
+      next: (response: any) => {
+
+        // Support common response envelopes.
+        // The actual backend response must be verified.
+        let users: any = null;
+
+        if (Array.isArray(response)) {
+          users = response;
+        } else if (Array.isArray(response?.users)) {
+          users = response.users;
+        } else if (Array.isArray(response?.data?.users)) {
+          users = response.data.users;
+        } else if (Array.isArray(response?.data)) {
+          users = response.data;
+        }
+
+        if (!Array.isArray(users)) {
+          this.isLoading = false;
+
+          this.toastr.error(
+            'The server returned an unexpected users response.',
+            'Invalid API Response'
+          );
+          return;
+        }
+
+        this.allUsers = users;
+        this.currentPage = 1;
+
+        // Refresh selected user if detail panel is open
+        if (this.selectedUser) {
+          const refreshedUser = this.allUsers.find(
+            user => user.id === this.selectedUser?.id
+          );
+
+          if (refreshedUser) {
+            this.selectedUser = { ...refreshedUser };
+          } else {
+            this.hideUserDetails();
+          }
+        }
+
+        this.applyFiltersAndPagination();
+        this.isLoading = false;
+      },
+
+      error: (error: any) => {
+        this.isLoading = false;
+
+        Swal.fire({
+          title: 'Unable to Load Users',
+          text: this.getErrorMessage(error),
+          icon: 'error',
+          confirmButtonColor: '#3085d6'
+        });
+      }
+    });
+  }
+
+  // =====================================================
+  // FILTERING
+  // =====================================================
 
   resetFilters(): void {
     this.searchTerm = '';
@@ -66,341 +213,129 @@ export class ListBranchesComponent implements OnInit {
     this.idFilter = '';
     this.emailFilter = '';
     this.roleFilter = '';
-    this.currentPage = 1; 
+
+    this.currentPage = 1;
     this.applyFiltersAndPagination();
   }
 
-closeDetailsPanel(): void {
-  this.isDetailsPanelVisible = false;
-  this.selectedUser = null;
-}
+  applyFiltersAndPagination(): void {
+    let users = [...this.allUsers];
 
-closeAddUserModal(): void {
-  this.isAddUserModalVisible = false;
-  this.selectedUser = null;  
-  this.addUserForm.reset();
-  this.isDetailsPanelVisible = false;
-}
+    const search = this.searchTerm.trim().toLowerCase();
 
-openEditUserModal(user: any): void {
-  this.addUserForm.patchValue({
-    username: user.username,
-    email: user.email,
-    role: user.role
-  });
-  this.addUserForm.get('password')?.clearValidators();
-  this.addUserForm.get('password')?.updateValueAndValidity();
-
-  this.selectedUser = user;
-  this.isAddUserModalVisible = true;
-  this.isDetailsPanelVisible = false;
-}
-
-onPageSizeChange(): void {
-  this.currentPage = 1; 
-  this.updateVisibleUsers();
-}
-
-getStartIndex(): number {
-  return (this.currentPage - 1) * this.pageSize + 1;
-}
-
-goToPageNumber(page: number | string): void {
-  if (typeof page === 'number' && page >= 1 && page <= this.totalPages && page !== this.currentPage) {
-    this.currentPage = page;
-    this.updateVisibleUsers();
-  }
-}
-
-getEndIndex(): number {
-  return Math.min(this.currentPage * this.pageSize, this.filteredUsers.length);
-}
-
-getPageNumbers(): (number | string)[] {
-  const total = this.totalPages;
-  const current = this.currentPage;
-  const delta = 2;
-  const range: (number | string)[] = [];
-  
-  for (let i = 1; i <= total; i++) {
-
-    if (
-      i === 1 || // First page
-      i === total || // Last page
-      (i >= current - delta && i <= current + delta) 
-    ) {
-      range.push(i);
-    } else if (range[range.length - 1] !== '...') {
-      range.push('...');
+    if (search) {
+      users = users.filter(user =>
+        (user.username || '').toLowerCase().includes(search) ||
+        (user.email || '').toLowerCase().includes(search) ||
+        (user.role || '').toLowerCase().includes(search)
+      );
     }
-  }
-  
-  return range;
-}
 
-updateVisibleUsers(): void {
-  const startIndex = (this.currentPage - 1) * this.pageSize;
-  const endIndex = startIndex + this.pageSize;
-  this.visibleUsers = this.filteredUsers.slice(startIndex, endIndex);
-}
+    if (this.roleFilter) {
+      users = users.filter(
+        user => user.role === this.roleFilter
+      );
+    }
 
-goToPage(page: number): void {
-  if (page >= 1 && page <= this.totalPages && page !== this.currentPage) {
-    this.currentPage = page;
+    this.filteredUsers = users;
+    this.totalPages = Math.max(
+      1,
+      Math.ceil(this.filteredUsers.length / this.pageSize)
+    );
+
+    if (this.currentPage > this.totalPages) {
+      this.currentPage = this.totalPages;
+    }
+
     this.updateVisibleUsers();
   }
-}
 
-applyFiltersAndPagination(): void {
-  let users = [...this.allUsers];
+  // =====================================================
+  // PAGINATION
+  // =====================================================
 
-  const search = this.searchTerm.trim().toLowerCase();
-  if (search) {
-    users = users.filter(user =>
-      user.username?.toLowerCase().includes(search) ||
-      user.email?.toLowerCase().includes(search) ||
-      user.role?.toLowerCase().includes(search)
+  onPageSizeChange(): void {
+    this.pageSize = Number(this.pageSize);
+    this.currentPage = 1;
+    this.applyFiltersAndPagination();
+  }
+
+  updateVisibleUsers(): void {
+    const startIndex =
+      (this.currentPage - 1) * this.pageSize;
+
+    const endIndex = startIndex + this.pageSize;
+
+    this.visibleUsers = this.filteredUsers.slice(
+      startIndex,
+      endIndex
     );
   }
 
-  if (this.roleFilter) {
-    users = users.filter(user => user.role === this.roleFilter);
+  getStartIndex(): number {
+    if (this.filteredUsers.length === 0) {
+      return 0;
+    }
+
+    return (this.currentPage - 1) * this.pageSize + 1;
   }
 
-  this.filteredUsers = users;
-  this.totalPages = Math.ceil(this.filteredUsers.length / this.pageSize);
-  
-  if (this.currentPage > this.totalPages && this.totalPages > 0) {
-    this.currentPage = 1;
-  } else if (this.totalPages === 0) {
-    this.currentPage = 1;
+  getEndIndex(): number {
+    return Math.min(
+      this.currentPage * this.pageSize,
+      this.filteredUsers.length
+    );
   }
-  
-  this.updateVisibleUsers();
-}
 
-getAvatarClass(role: string): string {
-  switch (role) {
-    case 'admin':
-      return 'avatar-admin';
-    case 'analyst':
-      return 'avatar-analyst';
-    case 'investigator':
-      return 'avatar-investigator';
-    case 'compliance':
-      return 'avatar-compliance';
-    case 'viewer':
-      return 'avatar-viewer';
-    default:
-      return 'avatar-default';
+  goToPage(page: number): void {
+    if (
+      page >= 1 &&
+      page <= this.totalPages &&
+      page !== this.currentPage
+    ) {
+      this.currentPage = page;
+      this.updateVisibleUsers();
+    }
   }
-}
 
-getRoleBadgeClass(role: string): string {
-  switch (role) {
-    case 'admin': return 'bg-danger';
-    case 'analyst': return 'bg-info';
-    case 'investigator': return 'bg-warning text-dark';
-    case 'compliance': return 'bg-success';
-    case 'viewer': return 'bg-secondary';
-    default: return 'bg-secondary';
+  goToPageNumber(page: number | string): void {
+    if (typeof page === 'number') {
+      this.goToPage(page);
+    }
   }
-}
 
-getRoleIcon(role: string): string {
-  const icons: { [key: string]: string } = {
-    'admin': 'fa-user-shield',
-    'analyst': 'fa-chart-line',
-    'investigator': 'fa-search',
-    'compliance': 'fa-gavel',
-    'viewer': 'fa-eye'
-  };
-  return icons[role] || 'fa-user';
-}
+  getPageNumbers(): (number | string)[] {
+    const total = this.totalPages;
+    const current = this.currentPage;
+    const delta = 2;
 
-getRolePermissions(role: string): string[] {
-  const permissions: { [key: string]: string[] } = {
-    'admin': [
-      ' Full system access',
-      ' User management (create, edit, delete users)',
-      ' System settings & configuration',
-      ' Audit logs & compliance monitoring',
-      ' Toggle Sovereign Mode (data localization)',
-      ' Toggle National Alert Mode',
-      ' View all fraud analytics & reports',
-      ' Model management & retraining'
-    ],
-    'analyst': [
-      ' Real-time transaction monitoring',
-      ' Risk scoring & assessment',
-      ' View fraud analytics dashboard',
-      ' Generate fraud reports',
-      ' Transaction search & filtering',
-      ' Export transaction data',
-      ' View model performance metrics'
-    ],
-    'investigator': [
-      ' Advanced fraud case investigation',
-      ' Transaction relationship mapping',
-      ' Case management & documentation',
-      ' Related transaction discovery',
-      ' Investigation notes & findings',
-      ' Submit fraud confirmation feedback',
-      ' Investigation report generation'
-    ],
-    'compliance': [
-      ' Regulatory compliance reports',
-      ' Audit trail review',
-      ' Policy violation detection',
-      ' Document review & approval',
-      ' Central bank reporting',
-      ' Compliance checklists',
-      ' SAR (Suspicious Activity Report) generation'
-    ],
-    'viewer': [
-      ' View dashboard analytics',
-      ' Read fraud reports (read-only)',
-      ' Basic transaction search',
-      ' View risk trends',
-      ' Export reports (limited)',
-      ' Monitor system status'
-    ]
-  };
-  return permissions[role] || [' Basic system access'];
-}
+    const range: (number | string)[] = [];
 
-getRoleDescription(role: string): string {
-  const descriptions: { [key: string]: string } = {
-    'admin': 'System Administrator',
-    'analyst': 'Risk Analyst',
-    'investigator': 'Fraud Investigator',
-    'compliance': 'Compliance Officer',
-    'viewer': 'Viewer (Read-only)'
-  };
-  return descriptions[role] || role;
-}
-  sendResetPassword(user: any): void {
-    Swal.fire({
-      title: 'Password Reset Options',
-      html: `
-        <div class="text-start">
-          <p>Choose how to reset password for <strong>${user.username}</strong>:</p>
-          <div class="form-check mb-2">
-            <input class="form-check-input" type="radio" name="resetOption" id="emailReset" value="email" checked>
-            <label class="form-check-label" for="emailReset">
-              <i class="fas fa-envelope text-primary me-2"></i>
-              Send reset link to email
-            </label>
-            <small class="text-muted d-block ms-4">${user.email}</small>
-          </div>
-          <div class="form-check">
-            <input class="form-check-input" type="radio" name="resetOption" id="temporaryPassword" value="temporary">
-            <label class="form-check-label" for="temporaryPassword">
-              <i class="fas fa-key text-warning me-2"></i>
-              Generate temporary password
-            </label>
-          </div>
-        </div>
-      `,
-      icon: 'info',
-      showCancelButton: true,
-      confirmButtonText: 'Proceed',
-      cancelButtonText: 'Cancel',
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#6c757d',
-      customClass: {
-        confirmButton: 'btn btn-primary',
-        cancelButton: 'btn btn-secondary me-2',
-        popup: 'text-start'
-      },
-      buttonsStyling: false,
-      reverseButtons: true,
-      preConfirm: () => {
-        const selectedOption = document.querySelector('input[name="resetOption"]:checked') as HTMLInputElement;
-        return selectedOption?.value || 'email';
+    for (let i = 1; i <= total; i++) {
+      if (
+        i === 1 ||
+        i === total ||
+        (i >= current - delta && i <= current + delta)
+      ) {
+        range.push(i);
+      } else if (range[range.length - 1] !== '...') {
+        range.push('...');
       }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const resetOption = result.value;
-        
-        if (resetOption === 'email') {
-          this.sendPasswordResetEmail(user);
-        } else if (resetOption === 'temporary') {
-          this.generateTemporaryPassword(user);
-        }
-      }
-    });
+    }
+
+    return range;
   }
 
-  private sendPasswordResetEmail(user: any): void {
-    this.httpService.userPost(`/admin/users/${user.id}/reset-password`, { type: 'email' }).subscribe({
-      next: () => {
-        Swal.fire({
-          title: 'Reset Link Sent!',
-          html: `
-            <div class="text-center">
-              <i class="fas fa-paper-plane fa-3x text-primary mb-3"></i>
-              <p class="text-danger">Feature will be live soon in PRODUCTION !!</p>
-              <p>Password reset instructions have been sent to:</p>
-              <p class="fw-bold text-primary">${user.email}</p>
-              <div class="alert alert-info mt-3 small">
-                <i class="fas fa-info-circle me-1"></i>
-                The reset link will expire in 24 hours for security.
-              </div>
-            </div>
-          `,
-          icon: 'success',
-          confirmButtonText: 'OK',
-          confirmButtonColor: '#28a745',
-          customClass: {
-            confirmButton: 'btn btn-success',
-            popup: 'swal-wide'
-          },
-          buttonsStyling: false
-        });
-      },
-      error: (error: any) => {
-        this.handleResetError(user, 'email', error);
-      }
-    });
-  }
+  // =====================================================
+  // USER DETAILS
+  // =====================================================
 
-  private handleResetError(user: any, type: string, error: any): void {
-    console.error('Password reset error:', error);
-    
-    Swal.fire({
-      title: 'Reset Failed',
-      html: `
-        <div class="text-center">
-          <i class="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
-          <p>Failed to ${type === 'email' ? 'send reset email' : 'generate temporary password'} for:</p>
-          <p class="fw-bold">${user.username}</p>
-          <div class="alert alert-danger mt-3 small">
-            <i class="fas fa-bug me-1"></i>
-            ${error.error?.error || 'Please try again or contact system administrator.'}
-          </div>
-        </div>
-      `,
-      icon: 'error',
-      confirmButtonText: 'Try Again',
-      cancelButtonText: 'Cancel',
-      showCancelButton: true,
-      confirmButtonColor: '#dc3545',
-      cancelButtonColor: '#6c757d',
-      customClass: {
-        confirmButton: 'btn btn-danger',
-        cancelButton: 'btn btn-secondary me-2',
-      },
-      buttonsStyling: false
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.sendResetPassword(user);
-      }
-    });
-  }
-
-  showUserDetails(user: any): void {
-    if (this.selectedUser && this.selectedUser.id === user.id) {
+  showUserDetails(user: ManagedUser): void {
+    if (
+      this.selectedUser &&
+      this.selectedUser.id === user.id &&
+      this.isDetailsPanelVisible
+    ) {
       this.hideUserDetails();
       return;
     }
@@ -414,279 +349,415 @@ getRoleDescription(role: string): string {
     this.selectedUser = null;
   }
 
+  closeDetailsPanel(): void {
+    this.hideUserDetails();
+  }
+
+  // =====================================================
+  // OPEN INVITE USER MODAL
+  // =====================================================
+
   openAddUserModal(): void {
-    this.addUserForm.reset();
-    this.selectedUser = null;
+    this.addUserForm.reset({
+      username: '',
+      email: '',
+      role: ''
+    });
+
     this.isAddUserModalVisible = true;
   }
 
-loadUsers(): void {
-  this.isLoading = true;
-  
-  this.httpService.UserGet('/admin/users').subscribe({
-    next: (response: any) => {
-      if (response.status === 'success' && response.users) {
-        this.allUsers = response.users;
-        this.currentPage = 1;
-        this.applyFiltersAndPagination();
-        // console.log('Users loaded:', this.allUsers.length);
-      } else {
-        this.allUsers = [];
-      }
-      this.isLoading = false;
-    },
-    error: (err: any) => {
-      console.error('Error loading users:', err);
-      if (err.status === 401) {
-        this.toastr.error('Session expired. Please login again.', 'Authentication Error');
-      } else {
-        this.toastr.error(err.error?.message || 'Could not load users from server.', 'API Error');
-      }
-      this.isLoading = false;
+  closeAddUserModal(): void {
+    if (this.isSavingUser) {
+      return;
     }
-  });
-}
 
-saveUser(): void {
-  if (this.addUserForm.invalid) {
-    this.addUserForm.markAllAsTouched();
-    this.toastr.warning('Please fill all required fields.', 'Invalid Form');
-    return;
+    this.isAddUserModalVisible = false;
+
+    this.addUserForm.reset({
+      username: '',
+      email: '',
+      role: ''
+    });
   }
 
-  const formData = this.addUserForm.value;
+  // =====================================================
+  // INVITE USER
+  // POST /v1/api/admin/users/invite
+  // =====================================================
 
-  if (this.selectedUser) {
+  saveUser(): void {
+    if (this.isSavingUser) {
+      return;
+    }
 
-    this.httpService.updateUser(this.selectedUser.id, {
-      username: formData.username,
-      email: formData.email,
-      role: formData.role,
-      password: formData.password || undefined
-    }).subscribe({
-      next: () => {
-        Swal.fire('Updated', 'User updated successfully!', 'success');
-        this.loadUsers();
-        this.closeAddUserModal();
-        this.selectedUser = null;
-        this.hideUserDetails();
-      },
-      error: (err: any) => {
-        console.error('Update failed:', err);
-        Swal.fire('Error', err.error?.error || 'Could not update user.', 'error');
-      }
-    });
-  } else {
- 
-    this.httpService.adminCreateUser({
-      email: formData.email,
-      username: formData.username,
-      password: formData.password,
+    if (this.addUserForm.invalid) {
+      this.addUserForm.markAllAsTouched();
+
+      this.toastr.warning(
+        'Please provide a valid username, email and role.',
+        'Invalid Form'
+      );
+      return;
+    }
+
+    const formData = this.addUserForm.value;
+
+    const payload = {
+      username: formData.username.trim(),
+      email: formData.email.trim(),
       role: formData.role
-    }).subscribe({
+    };
+
+    this.isSavingUser = true;
+
+    this.httpService.userPost(
+      '/admin/users/invite',
+      payload
+    ).subscribe({
+
       next: () => {
-        Swal.fire('Success', 'User added successfully!', 'success');
-        this.loadUsers();
+        this.isSavingUser = false;
         this.closeAddUserModal();
+
+        Swal.fire({
+          title: 'Invitation Sent!',
+          html: `
+            <div class="text-center">
+              <i class="fas fa-envelope-open-text
+                        fa-3x text-success mb-3"></i>
+
+              <p>The user invitation was created successfully.</p>
+
+              <p>
+                A temporary password has been sent to
+                the user's registered email address.
+              </p>
+
+              <div class="alert alert-info mt-3">
+                <i class="fas fa-clock me-2"></i>
+                <strong>Temporary password validity:</strong>
+                10 minutes
+              </div>
+
+              <p class="small text-muted">
+                The user must log in and set a permanent
+                password before accessing the system.
+              </p>
+            </div>
+          `,
+          icon: 'success',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#28a745'
+        });
+
+        this.loadUsers();
       },
-      error: (err: any) => {
-        console.error('Add user failed:', err);
-        Swal.fire('Error', err.error?.error || 'Could not add user.', 'error');
+
+      error: (error: any) => {
+        this.isSavingUser = false;
+
+        Swal.fire({
+          title: 'Invitation Failed',
+          text: this.getErrorMessage(error),
+          icon: 'error',
+          confirmButtonText: 'Try Again',
+          confirmButtonColor: '#dc3545'
+        });
       }
     });
   }
-}
 
-getRolesWithUsers(): { name: string; displayName: string; count: number; color: string }[] {
-  const roles = [
-    { name: 'admin', displayName: 'Admins', color: 'success' },
-    { name: 'analyst', displayName: 'Analysts', color: 'info' },
-    { name: 'investigator', displayName: 'Investigators', color: 'warning' },
-    { name: 'compliance', displayName: 'Compliance', color: 'secondary' },
-    { name: 'viewer', displayName: 'Viewers', color: 'muted' }
-  ];
-  
-  return roles
-    .map(role => ({
+  // =====================================================
+  // RESEND INVITATION
+  // POST /v1/api/admin/users/{id}/resend-invitation
+  // =====================================================
+
+  resendInvitation(user: ManagedUser): void {
+    if (this.isResendingInvitation) {
+      return;
+    }
+
+    Swal.fire({
+      title: 'Resend Invitation?',
+      text:
+        `A new temporary password will be sent to ${user.email}. ` +
+        'Previous temporary credentials and sessions will be invalidated.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Resend Invitation',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#6c757d'
+    }).then(result => {
+
+      if (!result.isConfirmed) {
+        return;
+      }
+
+      this.isResendingInvitation = true;
+
+      this.httpService.userPost(
+        `/admin/users/${encodeURIComponent(String(user.id))}/resend-invitation`,
+        {}
+      ).subscribe({
+
+        next: () => {
+          this.isResendingInvitation = false;
+
+          Swal.fire({
+            title: 'Invitation Resent!',
+            text:
+              'A fresh temporary password has been emailed. ' +
+              'It is valid for 10 minutes.',
+            icon: 'success',
+            confirmButtonColor: '#28a745'
+          });
+
+          this.loadUsers();
+        },
+
+        error: (error: any) => {
+          this.isResendingInvitation = false;
+
+          Swal.fire({
+            title: 'Failed to Resend Invitation',
+            text: this.getErrorMessage(error),
+            icon: 'error',
+            confirmButtonColor: '#dc3545'
+          });
+        }
+      });
+    });
+  }
+
+  // =====================================================
+  // RESET PASSWORD
+  // POST /v1/api/admin/users/{id}/reset-password
+  // =====================================================
+
+  sendResetPassword(user: ManagedUser): void {
+    if (this.isResettingPassword) {
+      return;
+    }
+
+    Swal.fire({
+      title: 'Reset User Password?',
+      text:
+        `Reset the password for ${user.username}? ` +
+        `A new temporary password will be emailed to ${user.email}. ` +
+        'Existing sessions will be invalidated.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Reset Password',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: '#6c757d'
+    }).then(result => {
+
+      if (!result.isConfirmed) {
+        return;
+      }
+
+      this.isResettingPassword = true;
+
+      this.httpService.userPost(
+        `/admin/users/${encodeURIComponent(String(user.id))}/reset-password`,
+        {}
+      ).subscribe({
+
+        next: () => {
+          this.isResettingPassword = false;
+
+          Swal.fire({
+            title: 'Password Reset Successful!',
+            text:
+              'A new temporary password has been emailed ' +
+              'to the user. It is valid for 10 minutes.',
+            icon: 'success',
+            confirmButtonColor: '#28a745'
+          });
+
+          this.loadUsers();
+        },
+
+        error: (error: any) => {
+          this.isResettingPassword = false;
+
+          Swal.fire({
+            title: 'Password Reset Failed',
+            text: this.getErrorMessage(error),
+            icon: 'error',
+            confirmButtonColor: '#dc3545'
+          });
+        }
+      });
+    });
+  }
+
+  // =====================================================
+  // ROLE DISPLAY HELPERS
+  // =====================================================
+
+  getAvatarClass(role: string): string {
+    const classes: { [key: string]: string } = {
+      admin: 'avatar-admin',
+      analyst: 'avatar-analyst',
+      investigator: 'avatar-investigator',
+      compliance: 'avatar-compliance',
+      viewer: 'avatar-viewer'
+    };
+
+    return classes[role] || 'avatar-default';
+  }
+
+  getRoleBadgeClass(role: string): string {
+    const classes: { [key: string]: string } = {
+      admin: 'bg-danger',
+      analyst: 'bg-info',
+      investigator: 'bg-warning text-dark',
+      compliance: 'bg-success',
+      viewer: 'bg-secondary'
+    };
+
+    return classes[role] || 'bg-secondary';
+  }
+
+  getRoleIcon(role: string): string {
+    const icons: { [key: string]: string } = {
+      admin: 'fa-user-shield',
+      analyst: 'fa-chart-line',
+      investigator: 'fa-search',
+      compliance: 'fa-gavel',
+      viewer: 'fa-eye'
+    };
+
+    return icons[role] || 'fa-user';
+  }
+
+  getRoleDescription(role: string): string {
+    const descriptions: { [key: string]: string } = {
+      admin: 'System Administrator',
+      analyst: 'Risk Analyst',
+      investigator: 'Fraud Investigator',
+      compliance: 'Compliance Officer',
+      viewer: 'Viewer (Read-only)'
+    };
+
+    return descriptions[role] || role;
+  }
+
+  getRolePermissions(role: string): string[] {
+    // Existing frontend role descriptions.
+    // Actual permissions must be enforced by the backend.
+    const permissions: { [key: string]: string[] } = {
+      admin: [
+        'Full system access',
+        'User management',
+        'System settings & configuration',
+        'Audit logs & compliance monitoring',
+        'Toggle Sovereign Mode',
+        'Toggle National Alert Mode',
+        'View all fraud analytics & reports',
+        'Model management & retraining'
+      ],
+      analyst: [
+        'Real-time transaction monitoring',
+        'Risk scoring & assessment',
+        'View fraud analytics dashboard',
+        'Generate fraud reports',
+        'Transaction search & filtering',
+        'Export transaction data',
+        'View model performance metrics'
+      ],
+      investigator: [
+        'Advanced fraud case investigation',
+        'Transaction relationship mapping',
+        'Case management & documentation',
+        'Related transaction discovery',
+        'Investigation notes & findings',
+        'Submit fraud confirmation feedback',
+        'Investigation report generation'
+      ],
+      compliance: [
+        'Regulatory compliance reports',
+        'Audit trail review',
+        'Policy violation detection',
+        'Document review & approval',
+        'Central bank reporting',
+        'Compliance checklists',
+        'SAR generation'
+      ],
+      viewer: [
+        'View dashboard analytics',
+        'Read fraud reports (read-only)',
+        'Basic transaction search',
+        'View risk trends',
+        'Export reports (limited)',
+        'Monitor system status'
+      ]
+    };
+
+    return permissions[role] || [
+      'Basic system access'
+    ];
+  }
+
+  getRolesWithUsers(): {
+    name: string;
+    displayName: string;
+    count: number;
+    color: string;
+  }[] {
+    const roles = [
+      {
+        name: 'admin',
+        displayName: 'Admins',
+        color: 'success'
+      },
+      {
+        name: 'analyst',
+        displayName: 'Analysts',
+        color: 'info'
+      },
+      {
+        name: 'investigator',
+        displayName: 'Investigators',
+        color: 'warning'
+      },
+      {
+        name: 'compliance',
+        displayName: 'Compliance',
+        color: 'secondary'
+      },
+      {
+        name: 'viewer',
+        displayName: 'Viewers',
+        color: 'muted'
+      }
+    ];
+
+    return roles.map(role => ({
       ...role,
       count: this.getUsersByRole(role.name).length
-    }))
-    .filter(role => role.count > 0); 
-}
+    })).filter(role => role.count > 0);
+  }
 
-getRoleColorClass(roleName: string): string {
-  const colors: { [key: string]: string } = {
-    'admin': 'text-success',
-    'analyst': 'text-info',
-    'investigator': 'text-warning',
-    'compliance': 'text-secondary',
-    'viewer': 'text-muted'
-  };
-  return colors[roleName] || 'text-primary';
-}
+  getRoleColorClass(roleName: string): string {
+    const colors: { [key: string]: string } = {
+      admin: 'text-success',
+      analyst: 'text-info',
+      investigator: 'text-warning',
+      compliance: 'text-secondary',
+      viewer: 'text-muted'
+    };
 
-getUsersByRole(role: string): any[] {
-  return this.allUsers.filter(user => user.role === role);
-}
+    return colors[roleName] || 'text-primary';
+  }
 
-
-deleteUser(id: number): void {
-  Swal.fire({
-    title: 'Are you sure?',
-    text: 'This action cannot be undone.',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Yes, delete it!',
-    cancelButtonText: 'Cancel',
-    confirmButtonColor: '#d33'
-  }).then(result => {
-    if (result.isConfirmed) {
-      this.httpService.userDelete(`/admin/users/${id}`).subscribe({
-        next: () => {
-          Swal.fire('Deleted!', 'User has been deleted.', 'success');
-          this.loadUsers();
-          this.hideUserDetails();
-        },
-        error: (err: any) => {
-          console.error('Delete failed:', err);
-          Swal.fire('Error', err.error?.error || 'Could not delete user.', 'error');
-        }
-      });
-    }
-  });
-}
-
-private generateTemporaryPassword(user: any): void {
-  Swal.fire({
-    title: 'Generate Temporary Password?',
-    html: `
-      <div class="text-start">
-        <p>A temporary password will be generated for <strong>${user.username}</strong>.</p>
-        <div class="alert alert-warning small">
-          <i class="fas fa-exclamation-triangle me-1"></i>
-          The user will be forced to change this password on next login.
-        </div>
-      </div>
-    `,
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Generate Password',
-    cancelButtonText: 'Cancel',
-    confirmButtonColor: '#ffc107',
-    cancelButtonColor: '#6c757d',
-    customClass: {
-      confirmButton: 'btn btn-warning me-2',
-      cancelButton: 'btn btn-secondary'
-    },
-    buttonsStyling: false
-  }).then((result) => {
-    if (result.isConfirmed) {
-      this.httpService.userPost(`/admin/users/${user.id}/reset-password`, { type: 'temporary' }).subscribe({
-        next: (response: any) => {
-          Swal.fire({
-            title: 'Temporary Password Generated!',
-            html: `
-              <div class="text-center">
-                <i class="fas fa-key fa-3x text-warning mb-3"></i>
-                <p>Temporary password has been set for:</p>
-                <p class="fw-bold">${user.username}</p>
-                <div class="alert alert-success mt-3">
-                  <strong>Temporary Password:</strong>
-                  <div class="temporary-password mt-2 p-2 bg-light rounded font-monospace">
-                    ${response.temporaryPassword}
-                  </div>
-                  <small class="text-muted d-block mt-2">User must change this on next login.</small>
-                </div>
-              </div>
-            `,
-            icon: 'success',
-            confirmButtonText: 'Copy Password',
-            confirmButtonColor: '#28a745',
-            showCancelButton: true,
-            cancelButtonText: 'Close',
-            customClass: {
-              confirmButton: 'btn btn-success me-2',
-              cancelButton: 'btn btn-secondary',
-              popup: 'swal-wide'
-            },
-            buttonsStyling: false,
-            preConfirm: () => {
-              navigator.clipboard.writeText(response.temporaryPassword);
-              this.toastr.success('Password copied to clipboard');
-              return response.temporaryPassword;
-            }
-          });
-        },
-        error: (error: any) => {
-          this.handleResetError(user, 'temporary', error);
-        }
-      });
-    }
-  });
-}
-
-enableUser(user: any): void {
-  Swal.fire({
-    title: 'Enable User?',
-    text: `Are you sure you want to enable ${user.username}?`,
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonText: 'Yes, enable!',
-    cancelButtonText: 'Cancel',
-    confirmButtonColor: '#28a745'
-  }).then(result => {
-    if (result.isConfirmed) {
-      this.httpService.userPut(`/admin/users/${user.id}/enable`, {}).subscribe({
-        next: () => {
-          Swal.fire('Enabled', 'User has been enabled.', 'success');
-          this.loadUsers();
-        },
-        error: (err: any) => {
-          Swal.fire('Error', err.error?.error || 'Could not enable user.', 'error');
-        }
-      });
-    }
-  });
-}
-
-// Disable user
-disableUserAccount(user: any): void {
-  Swal.fire({
-    title: 'Disable User?',
-    text: `Are you sure you want to disable ${user.username}? They will not be able to login.`,
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Yes, disable!',
-    cancelButtonText: 'Cancel',
-    confirmButtonColor: '#dc3545',
-    cancelButtonColor: '#6c757d'
-  }).then(result => {
-    if (result.isConfirmed) {
-      this.httpService.userPut(`/admin/users/${user.id}/disable`, {}).subscribe({
-        next: () => {
-          Swal.fire('Disabled', 'User has been disabled.', 'success');
-          this.loadUsers();
-        },
-        error: (err: any) => {
-          Swal.fire('Error', err.error?.error || 'Could not disable user.', 'error');
-        }
-      });
-    }
-  });
-}
-
-getUserDetails(userId: number): void {
-  this.httpService.getUserById(userId).subscribe({
-    next: (response: any) => {
-      if (response.status === 'success' && response.user) {
-        this.selectedUser = response.user;
-        this.isDetailsPanelVisible = true;
-      }
-    },
-    error: (err: any) => {
-      console.error('Error fetching user details:', err);
-      this.toastr.error('Could not load user details');
-    }
-  });
-}
+  getUsersByRole(role: string): ManagedUser[] {
+    return this.allUsers.filter(
+      user => user.role === role
+    );
+  }
 }
