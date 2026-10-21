@@ -1,101 +1,296 @@
+
 <div class="signup-container">
+
   <div class="signup-card">
-    <!-- Left side with illustration -->
+
+    <!-- LEFT SIDE -->
     <div class="signup-left">
+
       <div class="illustration-wrapper">
-        <!-- UPDATED: Made logo clickable -->
-        <a href="/" class="clickable-logo-link">
-          <img src="assets/images/image1.png" alt="Secure Banking Illustration" class="illustration-image">
-        </a>
+
+        <img
+          src="assets/images/imageFraud.png"
+          alt="Fraud Guard AI"
+          class="illustration-image">
+
       </div>
-      <h2>Security First</h2>
-      <p>A secure, workflow-based system for the Government of Sierra Leone to enhance audit planning, execution and compliance</p>
+
+      <h2>FRAUD GUARD AI</h2>
+
+      <p>
+        Security goes beyond the perimeter.
+        Protecting financial institutions through
+        intelligent fraud detection, investigation
+        and risk intelligence.
+      </p>
+
     </div>
 
-    <!-- Right side with form -->
+    <!-- RIGHT SIDE -->
     <div class="signup-right">
+
       <div class="signup-form-container">
-        <!-- Eclectics Logo -->
+
+        <!-- ECLECTICS LOGO -->
         <div class="logo-container">
-          <!-- UPDATED: Made logo clickable -->
-          <a href="/" class="clickable-logo-link">
-            <img class="img-fluid eclectics-logo" src="assets/images/AU.png" width="350" height="40" alt="eclecticsLogo" />
-          </a>
+
+          <img
+            class="img-fluid eclectics-logo"
+            src="assets/images/image1.png"
+            width="250"
+            alt="Eclectics Logo">
+
         </div>
-        
-        <h3>Set New Password</h3>
-        <p class="signup-subtitle">Please enter and confirm your new password below.</p>
-        
-        <form class="signup-form" [formGroup]="form" (ngSubmit)="onSubmit($event)">
-          
-          <!-- Old Password -->
-          <div class="form-group">
-            <label for="oldPassword">Old Password</label>
-            <input type="password" id="oldPassword" class="form-control" formControlName="lookUpToken" placeholder="Enter your old password">
-            <div class="error-message" *ngIf="form.get('lookUpToken')?.touched && form.get('lookUpToken')?.hasError('required')">
-              Old Password is required
-            </div>
-          </div>
-          
-          <!-- New Password -->
+
+        <!-- TITLE -->
+        <h3>Set Your Permanent Password</h3>
+
+        <p class="signup-subtitle">
+          Welcome to Fraud Guard AI.
+          Please create a permanent password
+          to complete your account setup.
+        </p>
+
+        <!-- USERNAME -->
+        <div
+          class="alert alert-info"
+          *ngIf="username">
+
+          <i class="fas fa-user-shield me-2"></i>
+
+          Setting up account for:
+
+          <strong>{{ username }}</strong>
+
+        </div>
+
+        <!-- EXPIRY INFORMATION -->
+        <div
+          class="alert alert-warning"
+          *ngIf="expiresAt && !isExpired">
+
+          <i class="fas fa-clock me-2"></i>
+
+          Please complete your password setup before:
+
+          <strong>
+            {{ expiresAt | date:'medium' }}
+          </strong>
+
+        </div>
+
+        <!-- PASSWORD FORM -->
+        <form
+          class="signup-form"
+          [formGroup]="form"
+          (ngSubmit)="onSubmit($event)">
+
+          <!-- NEW PASSWORD -->
           <div class="form-group password-group">
-            <label for="password">New Password</label>
-            <input [type]="inputType" id="password" class="form-control" formControlName="password" placeholder="Enter new password">
-            <span class="password-toggle-icon" (click)="toggleShowPassword()">
-              <i class="mdi" [ngClass]="showingPassword ? 'mdi-eye-off' : 'mdi-eye'"></i>
-            </span>
-            <div class="error-message" *ngIf="form.get('password')?.touched && form.get('password')?.hasError('required')">
-              Password is required
+
+            <label for="password">
+              New Password
+              <span class="text-danger">*</span>
+            </label>
+
+            <input
+              [type]="inputType"
+              id="password"
+              class="form-control"
+              formControlName="password"
+              placeholder="Enter your new password"
+              autocomplete="new-password">
+
+            <button
+              type="button"
+              class="password-toggle-icon"
+              (click)="toggleShowPassword()"
+              [attr.aria-label]="showingPassword ? 'Hide password' : 'Show password'">
+
+              <i
+                class="mdi"
+                [ngClass]="showingPassword ?
+                  'mdi-eye-off' : 'mdi-eye'">
+              </i>
+
+            </button>
+
+            <!-- REQUIRED -->
+            <div
+              class="error-message"
+              *ngIf="form.get('password')?.touched &&
+                     form.get('password')?.hasError('required')">
+
+              New password is required.
+
             </div>
-            <div class="error-message" *ngIf="form.get('password')?.touched && form.get('password')?.hasError('minlength')">
-              Password must be at least 8 characters long
+
+            <!-- MIN LENGTH -->
+            <div
+              class="error-message"
+              *ngIf="form.get('password')?.touched &&
+                     form.get('password')?.hasError('minlength')">
+
+              Password must contain at least 12 characters.
+
             </div>
-            <div class="error-message" *ngIf="form.get('password')?.touched && form.get('password')?.hasError('complexPassword')">
-              Must contain uppercase, lowercase, number, and special character.
+
+            <!-- MAX UTF-8 BYTES -->
+            <div
+              class="error-message"
+              *ngIf="form.get('password')?.touched &&
+                     form.get('password')?.hasError('maxUtf8Bytes')">
+
+              Password must not exceed 72 UTF-8 bytes.
+
             </div>
+
           </div>
 
-          <!-- Confirm New Password -->
+          <!-- CONFIRM PASSWORD -->
           <div class="form-group password-group">
-            <label for="confirmPassword">Confirm New Password</label>
-            <input [type]="inputType" id="confirmPassword" class="form-control" formControlName="confirmPassword" placeholder="Confirm new password">
-            <span class="password-toggle-icon" (click)="toggleShowPassword()">
-              <i class="mdi" [ngClass]="showingPassword ? 'mdi-eye-off' : 'mdi-eye'"></i>
-            </span>
-            <div class="error-message" *ngIf="form.get('confirmPassword')?.touched && form.get('confirmPassword')?.hasError('required')">
-              Confirm Password is required
+
+            <label for="confirmPassword">
+              Confirm New Password
+              <span class="text-danger">*</span>
+            </label>
+
+            <input
+              [type]="inputType"
+              id="confirmPassword"
+              class="form-control"
+              formControlName="confirmPassword"
+              placeholder="Confirm your new password"
+              autocomplete="new-password">
+
+            <div
+              class="error-message"
+              *ngIf="form.get('confirmPassword')?.touched &&
+                     form.get('confirmPassword')?.hasError('required')">
+
+              Confirm password is required.
+
             </div>
-            <div class="error-message" *ngIf="form.controls['confirmPassword'].dirty && form.hasError('MatchPassword','confirmPassword')">
-               Passwords do not match
+
+            <div
+              class="error-message"
+              *ngIf="form.hasError('passwordMismatch') &&
+                     form.get('confirmPassword')?.touched">
+
+              Passwords do not match.
+
             </div>
+
           </div>
 
-          <!-- Status Messages -->
-          <div class="status-container" *ngIf="isLoading || hasError">
-            <div class="progress-bar-wrapper" *ngIf="isLoading">
+          <!-- PASSWORD REQUIREMENTS -->
+          <div class="alert alert-info mt-3">
+
+            <strong>
+              <i class="fas fa-shield-alt me-2"></i>
+              Password Requirements
+            </strong>
+
+            <ul class="mb-0 mt-2">
+
+              <li>
+                Minimum 12 characters
+              </li>
+
+              <li>
+                Maximum 72 UTF-8 bytes
+              </li>
+
+              <li>
+                Passwords must match
+              </li>
+
+              <li>
+                Must differ from your temporary password
+              </li>
+
+            </ul>
+
+          </div>
+
+          <!-- ERRORS -->
+          <div
+            class="status-container"
+            *ngIf="isLoading || hasError">
+
+            <div
+              class="progress-bar-wrapper"
+              *ngIf="isLoading">
+
               <div class="progress-bar-fill loading"></div>
+
             </div>
-            <p class="status-message error-text" *ngIf="hasError && !isLoading">
-              <strong>Error Occurred!</strong> {{ errorMsg }}
+
+            <p
+              class="status-message error-text"
+              *ngIf="hasError && !isLoading">
+
+              <strong>Error Occurred!</strong>
+
+              {{ errorMsg }}
+
             </p>
+
           </div>
 
-          <button type="submit" class="submit-btn" [disabled]="!form.valid || isLoading" [class.loading]="isLoading">
-            <span>{{ isLoading ? 'Updating Password...' : 'Set Password' }}</span>
+          <!-- SUBMIT -->
+          <button
+            type="submit"
+            class="submit-btn"
+            [disabled]="form.invalid ||
+                        isLoading ||
+                        !hasValidSetupSession"
+            [class.loading]="isLoading">
+
+            <span *ngIf="!isLoading">
+              Set Permanent Password
+            </span>
+
+            <span *ngIf="isLoading">
+
+              <i class="fas fa-spinner fa-spin me-2"></i>
+
+              Updating Password...
+
+            </span>
+
           </button>
 
+          <!-- BACK TO LOGIN -->
           <div class="login-link">
-            <a routerLink="/auth/login">Back to Login</a>
+
+            <a
+              routerLink="/auth/login"
+              (click)="backToLogin(); $event.preventDefault()">
+
+              Back to Login
+
+            </a>
+
           </div>
 
         </form>
 
-        <!-- ADDED THIS SECTION -->
+        <!-- FOOTER -->
         <div class="footer-note">
-          <p>Your data is protected with system-level encryption and security measures</p>
+
+          <p>
+            Your account is protected through
+            secure authentication and password
+            management controls.
+          </p>
+
         </div>
 
       </div>
+
     </div>
+
   </div>
+
 </div>
