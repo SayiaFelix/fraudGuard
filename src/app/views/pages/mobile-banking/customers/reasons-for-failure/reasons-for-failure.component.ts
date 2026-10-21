@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 import { EMPTY, Subscription } from 'rxjs';
-import { catchError, switchMap } from 'rxjs/operators';
-import { FincaService, InvestigationGraphNode, InvestigationGraphLink, InvestigationFraudRing } from 'src/app/shared/services/finca.service';
+import { catchError, finalize, map, switchMap } from 'rxjs/operators';
+import { FincaService, InvestigationGraphNode, InvestigationGraphLink, InvestigationFraudRing, InvestigationGraphResponse } from 'src/app/shared/services/finca.service';
 
 interface GraphNode {
   id: string;
@@ -92,11 +92,27 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
         this.loading = true;
         this.errorMessage = null;
         return this.fincaService.getInvestigationGraph(this.investigationAlertId).pipe(
+          map((response: InvestigationGraphResponse) => {
+            if (
+              !response ||
+              response.status !== 'success' ||
+              !response.data ||
+              !Array.isArray(response.data.nodes) ||
+              !Array.isArray(response.data.links)
+            ) {
+              throw new Error('The investigation graph API returned an invalid response.');
+            }
+            return response;
+          }),
           catchError((error: unknown) => {
             console.error('Failed to load investigation graph:', error);
-            this.loading = false;
-            this.errorMessage = 'Unable to load the investigation graph. Please try again.';
+            this.errorMessage = error instanceof Error
+              ? error.message
+              : 'Unable to load the investigation graph. Please try again.';
             return EMPTY;
+          }),
+          finalize(() => {
+            this.loading = false;
           })
         );
       })
@@ -114,13 +130,14 @@ export class ReasonsForFailureComponent implements OnInit, OnDestroy {
       this.stats = { ...data.stats };
       this.meta = data.meta;
       this.isInvestigationMode = !!this.investigationAlertId;
-      const centerNodeId = data.investigation.center_node_id || this.investigationAlertId;
+      const centerNodeId = data.investigation?.centerNodeId
+        ?? data.investigation?.center_node_id
+        ?? this.investigationAlertId;
       this.investigationNode = centerNodeId
         ? this.graphData.nodes.find(node =>
             node.id === centerNodeId || node.transactionId === centerNodeId
           ) || null
         : null;
-      this.loading = false;
       this.calculateNodePositions();
       setTimeout(() => this.drawGraph(), 100);
     });

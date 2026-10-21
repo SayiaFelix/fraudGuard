@@ -109,7 +109,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       icon: 'fas fa-exchange-alt',
       color: '#4361ee',
       trend: 'flat',
-      description: 'Last 24 hours'
+      description: 'All stored transactions'
     },
     {
       label: 'High Risk Alerts',
