@@ -1,0 +1,285 @@
+// --- Full-screen layout styles ---
+.signup-container {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+}
+
+.signup-card {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  background: white;
+  overflow: hidden;
+}
+
+// --- Styles for the left side (Banking theme) ---
+.signup-left {
+  flex: 1;
+  background: #00A9E0;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: white;
+
+  h2 {
+    font-size: 32px;
+    font-weight: 700;
+    margin-top: 25px;
+    margin-bottom: 15px;
+  }
+  p {
+    max-width: 440px;
+    font-size: 16px;
+    line-height: 1.6;
+    opacity: 0.9;
+  }
+}
+
+.illustration-wrapper {
+  width: 440px;
+  height: 241px;
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.illustration-image {
+  max-width: 400px;
+  height: auto;
+}
+
+// --- Right side styles ---
+.signup-right {
+  flex: 1;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #f7f8fa;
+
+  .signup-form-container {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(44, 62, 80, 0.10);
+    padding: 40px 32px 32px 32px;
+    max-width: 480px;
+    width: 100%;
+    margin: auto;
+  }
+}
+
+// --- Logo container styles ---
+.logo-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+  
+  .eclectics-logo {
+    max-width: 350px;
+    height: auto;
+  }
+}
+
+// --- Form container content styles ---
+.signup-form-container {
+  h3, .signup-subtitle {
+    text-align: center;
+  }
+  h3 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #212529;
+    margin-bottom: 8px;
+  }
+  .signup-subtitle {
+    color: #6c757d;
+    font-size: 15px;
+    margin-bottom: 40px;
+  }
+}
+
+.signup-form {
+  .form-group {
+    margin-bottom: 20px;
+    text-align: left;
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      font-size: 14px;
+    }
+    .form-control {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #ced4da;
+      border-radius: 8px;
+      font-size: 15px;
+      &:focus {
+        outline: none;
+        border-color: #5b9dff;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+      }
+    }
+  }
+  
+  .password-group {
+    position: relative;
+  }
+  
+  .password-toggle-icon {
+    position: absolute;
+    top: 42px;
+    right: 16px;
+    cursor: pointer;
+    color: #6c757d;
+    font-size: 20px;
+    
+    &:hover {
+      color: #343a40;
+    }
+  }
+
+  .error-message {
+    color: #d93025;
+    font-size: 13px;
+    font-weight: 500;
+    margin-top: 6px;
+  }
+}
+
+// --- Button styles ---
+.submit-btn {
+  width: 100%;
+  padding: 14px 0;
+  background-color: #4A90E2;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 10px;
+  margin-bottom: 20px;
+
+  &:hover:not(:disabled) {
+    background-color: #357ABD;
+  }
+}
+
+// --- Status container styles ---
+.status-container, .progress-bar-wrapper {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+.status-message.error-text {
+  color: #e53935;
+  font-weight: 600;
+}
+
+// --- Login link & Footer ---
+.login-link {
+  text-align: center;
+  font-size: 14px;
+  a {
+    color: #0d6efd;
+    text-decoration: none;
+    font-weight: 500;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// --- ADDED: Footer Note Styles ---
+.footer-note {
+  text-align: center;
+  color: #6c757d;
+  font-size: 13px;
+  margin-top: 20px;
+  
+  p {
+    color: #666;
+    font-size: 10px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    
+    &::before {
+      content: "🔒";
+      font-size: 10px;
+    }
+  }
+}
+
+// --- ADDED: Clickable Logo Styles ---
+.clickable-logo-link {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+
+  img {
+    transition: transform 0.3s ease;
+  }
+
+  &::after {
+    content: 'Go to home page';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 8px;
+    background-color: #00A9E0;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+    pointer-events: none;
+  }
+
+  &:hover {
+    img {
+      transform: scale(1.05);
+    }
+    &::after {
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+}
+
+// --- Responsive styles ---
+@media (max-width: 850px) {
+  .signup-card {
+    flex-direction: column;
+  }
+  .signup-left {
+    display: none;
+  }
+  .signup-right {
+    flex: 1;
+    padding: 20px 15px;
+    .signup-form-container {
+      box-shadow: none;
+    }
+  }
+}

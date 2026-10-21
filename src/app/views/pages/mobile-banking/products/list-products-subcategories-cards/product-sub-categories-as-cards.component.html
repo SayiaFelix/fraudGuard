@@ -1,0 +1,76 @@
+<div
+  class="d-flex justify-content-between align-items-center flex-wrap grid-margin"
+>
+  <div>
+    <h4 class="mb-3 mb-md-0">Subcategories: Category</h4>
+  </div>
+
+
+  <div
+    class="d-flex justify-content-between align-items-center flex-wrap grid-margin"
+    style="text-align: right!important;"
+  >
+    <div ngbDropdown style="display: inline-block!important;">
+      <button class="btn btn-outline-primary btn-xs" id="dropdownBasic1" ngbDropdownToggle>Select View</button>
+      <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+        <button ngbDropdownItem routerLink="/mobile-banking/products/list-categories-as-cards">Card View</button>
+        <button ngbDropdownItem routerLink="/mobile-banking/products/list-categories">Table View</button>
+      </div>
+    </div>
+
+    <app-table-header
+      [allColumns]="allColumns"
+      [rows]="rows"
+      [title]="title"
+      [showAddButton]="true"
+      [hideExtraOptions]="true"
+      (changeColumnsEvent)="updateColumns($event)"
+      (openAddModalEvent)="openAddProductModal()"
+    ></app-table-header>
+  </div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+  <div class="col-6" *ngFor="let category of fetchedSubCategories" [id]="category.id">
+    <div class="card unique-card">
+
+      <div class="p-1">
+        <div ngbDropdown class="d-flex justify-content-end">
+          <button class="btn p-0 no-dropdown-toggle-icon" id="dropdownMenuButton" ngbDropdownToggle type="button">
+            <i class="feather icon-more-horizontal icon-lg text-muted pb-3px"></i>
+          </button>
+          <div aria-labelledby="dropdownMenuButton" ngbDropdownMenu>
+            <a (click)="false" class="d-flex align-items-center" ngbDropdownItem
+               (click)="openDeleteModal(category)"
+            ><i class="feather icon-trash-2 icon-sm me-2 text-danger"></i> <span class="text-danger">Delete</span></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- <img src="assets/images/others/placeholder.jpg" class="card-img-top" alt="..."> -->
+      <img class="card-img-top text-center m-auto" [src]="category?.categoryUrl.trim()" [alt]="category.alt"
+           style="padding: 0 12px!important">
+      <div class="card-body" style="padding:24px 12px 24px 12px!important;">
+        <h5 class="card-title">{{category.name}}</h5>
+        <p class="card-text text" style=" min-height: 65px!important;">{{category.description}}</p>
+        <div class="d-flex justify-content-between pt-2">
+          <a [routerLink]="'/mobile-banking/products/list-products-as-cards/' + category.id"
+             class="btn btn-primary btn-sm"
+             style="width:140px!important; margin-left: 0!important"
+             *ngIf="category?.children?.length === 0">
+            View Products
+          </a>
+          <a
+            style="width:140px!important; margin-left: 0!important"
+            (click)="viewSubProducts(category)"
+            class="btn btn-primary btn-sm"
+            *ngIf="category?.children?.length > 0">
+            Business Type
+          </a>
+          <a (click)="editProduct(category)" class="btn btn-secondary btn-sm" style="width:140px!important; margin-right: 0!important">Edit</a>
+<!--          <a (click)="openDeleteModal(category)" class="btn btn-danger btn-sm"> Delete</a>-->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

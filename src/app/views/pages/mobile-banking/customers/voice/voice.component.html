@@ -1,0 +1,435 @@
+<div class="ai-insights-container">
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="loading-spinner">
+      <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <h5>Loading AI Insights</h5>
+      <p class="text-muted mb-0">Fetching latest data from AI models...</p>
+      <div class="progress mt-3" style="height: 6px; width: 300px;">
+        <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" 
+             style="width: 100%"></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Compact top: remaining KPIs + period controls -->
+  <div class="insights-top row g-3 align-items-stretch mb-3">
+    
+    <div class="col-md-4 col-6">
+      <div class="stat-card bg-warning bg-opacity-10 rounded-3 p-3 h-100">
+        <small class="text-warning d-block">Active Models</small>
+        <h3 class="fw-bold text-warning mb-0">{{ stats.activeModels }}</h3>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="period-selector period-selector-card h-100 d-flex flex-column justify-content-center">
+        <small class="text-muted d-block mb-2">Analytics period</small>
+        <div class="btn-group" role="group">
+          <button class="btn btn-sm"
+                  [class.btn-primary]="selectedPeriod === '24h'"
+                  [class.btn-outline-primary]="selectedPeriod !== '24h'"
+                  (click)="changePeriod('24h')">
+            24H
+          </button>
+          <button class="btn btn-sm"
+                  [class.btn-primary]="selectedPeriod === '7d'"
+                  [class.btn-outline-primary]="selectedPeriod !== '7d'"
+                  (click)="changePeriod('7d')">
+            7D
+          </button>
+          <button class="btn btn-sm"
+                  [class.btn-primary]="selectedPeriod === '30d'"
+                  [class.btn-outline-primary]="selectedPeriod !== '30d'"
+                  (click)="changePeriod('30d')">
+            30D
+          </button>
+          <button class="btn btn-sm"
+                  [class.btn-primary]="selectedPeriod === '90d'"
+                  [class.btn-outline-primary]="selectedPeriod !== '90d'"
+                  (click)="changePeriod('90d')">
+            90D
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Monitoring snapshot sits near the top to fill the page -->
+  <div class="card shadow-sm mb-3">
+    <div class="card-header bg-transparent border-0 pt-3 px-4">
+      <h4 class="fw-bold mb-0">
+        <i class="fas fa-satellite-dish me-2 text-primary"></i>
+        AI Monitoring Snapshot
+      </h4>
+    </div>
+    <div class="card-body px-4 pb-4">
+      <div class="row g-3">
+        <div class="col-md-4" *ngFor="let metric of aiInsightMetrics">
+          <div class="snapshot-card h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <small class="text-muted">{{ metric.label }}</small>
+              <span class="badge rounded-pill" [ngClass]="'bg-' + metric.tone">{{ metric.value }}%</span>
+            </div>
+            <div class="progress insight-progress mb-2">
+              <div class="progress-bar" [ngClass]="'bg-' + metric.tone" [style.width.%]="metric.value"></div>
+            </div>
+            <p class="small text-muted mb-0">{{ metric.helper }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="insight-signals mt-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h6 class="fw-bold mb-0">Key AI Signals</h6>
+          <small class="text-muted">Static frontend showcase</small>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+          <span class="badge text-dark signal-chip" *ngFor="let signal of keySignals">
+            <i class="fas fa-bolt me-1 text-primary"></i>{{ signal }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-7">
+      <!-- Insights Feed -->
+      <div class="insights-feed mb-2">
+        <h5 class="fw-bold mb-3">
+          <i class="fas fa-lightbulb me-2 text-primary"></i>
+          Latest Insights
+        </h5>
+        <div *ngFor="let insight of insights" class="card shadow-sm mb-3 insight-card">
+          <div class="card-body p-4" (click)="toggleInsight(insight)" style="cursor: pointer;">
+            <div class="d-flex">
+              <!-- Icon -->
+              <div class="insight-icon me-3" [ngClass]="getInsightBadgeClass(insight.type)">
+                <i [class]="getInsightIcon(insight.type) + ' fa-lg'"></i>
+              </div>
+              
+              <!-- Content -->
+              <div class="flex-grow-1">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <div>
+                    <span class="badge me-2" [ngClass]="getInsightBadgeClass(insight.type)">
+                      {{ insight.type.replace('_', ' ') | titlecase }}
+                    </span>
+                    <span class="badge" *ngIf="insight.severity" [ngClass]="getSeverityBadgeClass(insight.severity)">
+                      {{ insight.severity | titlecase }}
+                    </span>
+                  </div>
+                  <small class="text-muted">{{ formatTimeAgo(insight.timestamp) }}</small>
+                </div>
+                
+                <h5 class="fw-bold mb-2">{{ insight.title }}</h5>
+                <p class="text-muted mb-2">{{ insight.description }}</p>
+                
+                <!-- Confidence Bar -->
+                <div class="d-flex align-items-center mb-2">
+                  <small class="text-muted me-2">AI Confidence:</small>
+                  <div class="progress flex-grow-1 me-2" style="height: 4px;">
+                    <div class="progress-bar" 
+                         [style.width.%]="insight.confidence"
+                         [style.background]="insight.confidence >= 90 ? '#06d6a0' : insight.confidence >= 80 ? '#4cc9f0' : '#ff9e00'">
+                    </div>
+                  </div>
+                  <small class="fw-bold" [style.color]="insight.confidence >= 90 ? '#06d6a0' : insight.confidence >= 80 ? '#4cc9f0' : '#ff9e00'">
+                    {{ insight.confidence }}%
+                  </small>
+                </div>
+
+                <!-- Expand/Collapse Icon -->
+                <div class="text-center">
+                  <i class="fas" [ngClass]="insight.expanded ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Expanded Details -->
+          <div class="card-footer bg-light border-0 p-4" *ngIf="insight.expanded">
+            <div class="row g-3">
+              <div class="col-md-6" *ngIf="insight.details.affectedTransactions">
+                <div class="detail-item">
+                  <small class="text-muted d-block">Affected Transactions</small>
+                  <span class="fw-bold">{{ insight.details.affectedTransactions }}</span>
+                </div>
+              </div>
+              <div class="col-md-6" *ngIf="insight.details.amount">
+                <div class="detail-item">
+                  <small class="text-muted d-block">Total Amount</small>
+                  <span class="fw-bold">{{ formatAmount(insight.details.amount) }}</span>
+                </div>
+              </div>
+              <div class="col-12" *ngIf="insight.details.signals?.length">
+                <small class="text-muted d-block mb-2">Signals Detected</small>
+                <div class="d-flex flex-wrap gap-2">
+                  <span class="badge bg-light text-dark p-2" *ngFor="let signal of insight.details.signals">
+                    {{ signal }}
+                  </span>
+                </div>
+              </div>
+              <div class="col-12" *ngIf="insight.details.modelsInvolved?.length">
+                <small class="text-muted d-block mb-2">Models Involved</small>
+                <div class="d-flex flex-wrap gap-2">
+                  <span class="badge bg-primary p-2" *ngFor="let model of insight.details.modelsInvolved">
+                    <i class="fas fa-microchip me-1"></i>{{ model }}
+                  </span>
+                </div>
+              </div>
+              <div class="col-12" *ngIf="insight.details.recommendedAction">
+                <div class="recommended-action p-3 rounded-3 mt-2">
+                  <small class="text-muted d-block mb-1">Recommended Action</small>
+                  <p class="mb-2">{{ insight.details.recommendedAction }}</p>
+                  <button class="btn btn-sm btn-outline-primary" (click)="takeRecommendedAction(insight)">
+                    <i class="fas fa-check me-1"></i> Take Action
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <!-- Model Performance -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-transparent border-0 pt-3 px-4">
+          <div class="d-flex justify-content-between align-items-center">
+            <h4 class="fw-bold mb-0">
+              <i class="fas fa-microchip me-2 text-primary"></i>
+              Model Performance
+            </h4>
+            <button class="btn btn-sm btn-outline-primary" (click)="exportInsights()">
+              <i class="fas fa-download me-1"></i> Export
+            </button>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="bg-light">
+                <tr>
+                  <th class="ps-4">Model</th>
+                  <th>Accuracy</th>
+                  <th>Precision</th>
+                  <th>Recall</th>
+                  <th>F1</th>
+                  <th class="pe-4">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let model of modelMetrics">
+                  <td class="ps-4 fw-medium">{{ model.name }}</td>
+                  <td>{{ model.accuracy }}%</td>
+                  <td>{{ model.precision }}%</td>
+                  <td>{{ model.recall }}%</td>
+                  <td>{{ model.f1Score }}%</td>
+                  <td class="pe-4">
+                    <span class="badge" [ngClass]="getModelStatusClass(model.status)">
+                      {{ model.status }}
+                    </span>
+                    <button class="btn btn-sm btn-link p-0 ms-2" 
+                            *ngIf="model.status === 'degraded'"
+                            (click)="retrainModel(model.name)">
+                      <i class="fas fa-sync-alt text-warning"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card-footer bg-transparent border-0 text-end p-3">
+          <small class="text-muted">
+            Last ensemble update: {{ (getLastEnsembleUpdate() || currentDate) | date:'medium' }}
+          </small>
+        </div>
+      </div>
+
+      <!-- Feature Importance -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-transparent border-0 pt-3 px-4">
+          <h4 class="fw-bold mb-0">
+            <i class="fas fa-chart-bar me-2 text-info"></i>
+            Feature Importance
+          </h4>
+        </div>
+        
+        <div class="card-body p-3" style="max-height: 300px; overflow-y: auto;">
+          <div *ngIf="isLoadingFeatureImportance; else featureContent">
+            <div *ngFor="let i of [1,2,3,4,5,6]" class="feature-item mb-3">
+              <div class="skeleton-loader" style="height: 20px; width: 100%;"></div>
+            </div>
+          </div>
+          
+          <!-- Feature Content -->
+          <ng-template #featureContent>
+            <div *ngFor="let feature of featureImportance" class="feature-item mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <div class="d-flex align-items-center">
+                  <i [class]="getCategoryIcon(feature.category) + ' me-2 text-muted'"></i>
+                  <span class="fw-medium">{{ feature.feature }}</span>
+                  <i class="fas fa-info-circle ms-2 text-muted" 
+                    [attr.title]="'Relative importance: This feature contributes ' + feature.importance.combined + '% to the overall model decision'"
+                    style="cursor: help; font-size: 14px;"></i>
+                </div>
+                <span class="fw-bold" [style.color]="getFeatureImportanceColor(feature.importance.rawCombined)">
+                  {{ feature.importance.combined }}%
+                </span>
+              </div>
+              
+              <!-- Combined Progress Bar -->
+              <div class="progress mb-2" style="height: 8px;">
+                <div class="progress-bar" 
+                    [style.width.%]="feature.importance.combined"
+                    [style.background]="getFeatureImportanceColor(feature.importance.rawCombined)">
+                </div>
+              </div>
+              
+              <!-- RF vs XGB Comparison -->
+              <div class="d-flex justify-content-between small">
+                <div class="d-flex align-items-center">
+                  <span class="badge bg-primary me-1" style="width: 8px; height: 8px; padding: 0;"></span>
+                  <span class="text-muted me-2">RF:</span>
+                  <span class="fw-medium" [style.color]="'#4361ee'">{{ feature.importance.rf }}%</span>
+                </div>
+                <div class="d-flex align-items-center">
+                  <span class="badge bg-success me-1" style="width: 8px; height: 8px; padding: 0;"></span>
+                  <span class="text-muted me-2">XGB:</span>
+                  <span class="fw-medium" [style.color]="'#f72585'">{{ feature.importance.xgb }}%</span>
+                </div>
+              </div>
+              
+              <div class="d-flex gap-2 mt-1">
+                <div class="flex-grow-1">
+                  <div class="progress" style="height: 3px;">
+                    <div class="progress-bar bg-primary" 
+                        [style.width.%]="feature.importance.rf"
+                        style="opacity: 0.7;">
+                    </div>
+                  </div>
+                </div>
+                <div class="flex-grow-1">
+                  <div class="progress" style="height: 3px;">
+                    <div class="progress-bar bg-success" 
+                        [style.width.%]="feature.importance.xgb"
+                        style="opacity: 0.7;">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+    
+            <div class="mt-3 pt-3 border-top d-flex justify-content-center gap-4">
+              <div class="d-flex align-items-center">
+                <span class="badge bg-primary me-1" style="width: 12px; height: 12px;"></span>
+                <small class="text-muted">Random Forest</small>
+              </div>
+              <div class="d-flex align-items-center">
+                <span class="badge bg-success me-1" style="width: 12px; height: 12px;"></span>
+                <small class="text-muted">XGBoost</small>
+              </div>
+              <div class="d-flex align-items-center">
+                <span class="badge" style="width: 12px; height: 12px; background: #4cc9f0;"></span>
+                <small class="text-muted">Combined</small>
+              </div>
+            </div>
+          </ng-template>
+        </div>
+           <div class="card-footer bg-transparent border-top text-center pt-2">
+                <button class="btn btn-sm btn-outline-primary" (click)="exportInsights()">
+                  <i class="fas fa-download me-1"></i> Download Full Report
+                </button>
+            </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mt-0">
+    <div class="col-lg-7">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-transparent border-0 pt-3 px-4">
+          <h2 class="fw-bold mb-0">
+            <i class="fas fa-project-diagram me-2 text-info"></i>
+            Insight Processing Flow
+          </h2>
+        </div>
+        <div class="card-body px-4 pb-4">
+          <div class="pipeline-list">
+            <div class="pipeline-step" *ngFor="let stage of aiPipelineStages">
+              <div class="pipeline-icon">
+                <i [class]="stage.icon"></i>
+              </div>
+              <div class="pipeline-content">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <h6 class="fw-bold mb-0">{{ stage.name }}</h6>
+                  <span class="badge rounded-pill" [ngClass]="getPipelineStageClass(stage.state)">
+                    {{ stage.state | titlecase }}
+                  </span>
+                </div>
+                <p class="text-muted mb-0">{{ stage.description }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-transparent border-0 pt-3 px-4">
+          <h2 class="fw-bold mb-0">
+            <i class="fas fa-heartbeat me-2 text-success"></i>
+            Model Status Overview
+          </h2>
+        </div>
+        <div class="card-body px-4 pb-4">
+          <div class="status-card" *ngFor="let item of aiModelStatusCards">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <div>
+                <h6 class="fw-bold mb-1">{{ item.name }}</h6>
+                <p class="small text-muted mb-0">{{ item.note }}</p>
+              </div>
+              <span class="badge" [ngClass]="getModelStatusClass(item.status)">
+                {{ item.status | titlecase }}
+              </span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center small mt-3">
+              <span class="text-muted">Expected accuracy</span>
+              <span class="fw-bold">{{ item.accuracy }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-transparent border-0 pt-3 px-4">
+          <h2 class="fw-bold mb-0">
+            <i class="fas fa-shield-alt me-2 text-warning"></i>
+            AI Insight Notes
+          </h2>
+        </div>
+        <div class="card-body px-4 pb-4">
+          <div class="note-panel note-panel-primary">
+            <h6 class="fw-bold">What this page highlights</h6>
+            <p class="text-muted mb-0">
+              This area summarizes how fraud models are performing, which signals are influencing decisions,
+              and what stage the AI pipeline is currently in.
+            </p>
+          </div>
+          <div class="note-panel note-panel-light">
+            <h6 class="fw-bold">Static demo content</h6>
+            <p class="text-muted mb-0">
+              The cards in this section are intentionally frontend-only so the AI Insights page still communicates value
+              even before live visual data is expanded further.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

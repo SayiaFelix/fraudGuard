@@ -1,0 +1,205 @@
+:host {
+  display: block;
+  background-color: #f7f9fc; // Matches Profiling page background
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #172033;
+  font-size: 14px; // Base body size from Page 2
+}
+.rule-management-page {
+  min-height: calc(100vh - 70px); 
+  padding: 28px 32px 50px; 
+  
+  background-color: #f7f9fc;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  color: #172033;
+  
+  box-sizing: border-box; 
+
+   h2.page-title {
+    margin-top: 0 !important;
+    font-size: 28px !important;
+    letter-spacing: -0.02em !important;
+  }
+}
+
+
+h2 {
+  &.page-title {
+    font-size: 28px !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.02em !important; // Secret to the premium look
+    color: #111827;
+    margin-bottom: 4px;
+  }
+
+  &.sidebar-card-title {
+    font-size: 18px !important;
+    font-weight: 650 !important;
+    letter-spacing: -0.01em;
+    color: #111827;
+  }
+}
+
+p.page-description {
+  font-size: 14px !important;
+  color: #7583a1 !important;
+  margin-top: 7px;
+  line-height: 1.5;
+}
+
+.row-title {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #263247;
+}
+
+.row-meta {
+  font-size: 11px !important;
+  font-weight: 600;
+  color: #8793a8; // Muted blue-grey from Page 2
+}
+
+.filter-label-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+
+/* =========================================================
+   2. TABLE STYLING (Matching the Recent Transactions Bar)
+========================================================= */
+
+.table-container {
+  border: 1px solid #e3e8ef;
+  border-radius: 5px;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.045);
+  overflow: hidden;
+
+  .table {
+    thead th {
+      background-color: #e9edf2 !important; // Exact header bar color from Page 2
+      color: #6f7c8f !important;           // Muted header text
+      font-size: 11px !important;
+      font-weight: 700 !important;
+      text-transform: uppercase !important;
+      letter-spacing: 0.05em !important;
+      padding: 14px 15px !important;
+      border: none !important;
+    }
+
+    tbody td {
+      padding: 17px 15px !important;
+      border-bottom: 1px solid #e4e9ef !important;
+      white-space: nowrap;
+      color: #263247;
+      
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+    
+    tbody tr:hover {
+      background: #fafbff; // Subtle hover state from Page 2
+    }
+  }
+}
+
+/* =========================================================
+   3. BUTTONS (Matching the 'View' outlined style)
+========================================================= */
+
+.btn-table-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px !important;
+  border: 1px solid #6378ff !important;
+  border-radius: 4px !important;
+  background: #ffffff !important;
+  color: #5574ff !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: #f5f7ff !important;
+  }
+
+  i {
+    font-size: 11px;
+  }
+}
+
+.btn-pager {
+  height: 34px;
+  padding: 0 11px;
+  border: 1px solid #afbad0 !important;
+  border-radius: 4px !important;
+  background: #ffffff;
+  color: #66758f;
+  font-size: 12px;
+  font-weight: 600;
+  
+  &:disabled {
+    opacity: 0.45;
+  }
+}
+
+/* =========================================================
+   4. UI ELEMENTS & BADGES
+========================================================= */
+
+.filter-card {
+  border: 1px solid #e3e8ef;
+  border-radius: 5px;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+}
+
+.badge-ai-enabled {
+  background-color: #eef1ff; // Light blue AI badge
+  color: #5574ff;
+  padding: 5px 9px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.category-badge {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.table-footer {
+  background-color: #ffffff;
+  border-top: 1px solid #e7ebf1;
+  color: #74829b;
+  font-size: 12px;
+  
+  .form-select-pagination {
+    border: 1px solid #d5dce7;
+    border-radius: 4px;
+    font-size: 12px;
+    padding: 2px 5px;
+  }
+}
+
+/* Loading Overlay Spinner */
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+  color: #5c67f2 !important;
+}

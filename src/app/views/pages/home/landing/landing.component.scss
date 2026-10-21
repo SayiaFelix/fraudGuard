@@ -1,0 +1,243 @@
+
+.body {
+  overflow-y: hidden;
+  overflow-x: hidden;
+}
+
+.home{
+  display: flex;
+  height: 72px;
+  padding: 5px 90px;
+  justify-content: space-between;
+  align-items: center;
+  align-self: stretch;
+}
+
+.hero{
+display: flex;
+padding: 50px 90px;
+align-items: center;
+gap: 50px;
+align-self: stretch;
+background: #096f91;;
+
+ img {
+    max-width: 500px; // This is the key property to control the size. Adjust as needed.
+    width: 100%;      // Ensures the image is responsive and shrinks on smaller screens.
+    height: auto;     // Maintains the aspect ratio of the image.
+    border-radius: 8px;
+  }
+}
+.login-btn {
+  display: flex;
+  height: 36px;
+  padding: 8px 12px;
+  justify-content: center;
+  align-items: center;
+  background-color : #096f91;
+  border: 2px solid #096f91;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+}
+
+.login-btn:hover {
+  background-color: #096f91;
+  color: #ffffff;
+  transform: scale(1.05);
+  border-radius: 8px;
+}
+.open_btn:hover {
+  background-color: #096f91;
+  color: #ffffff;
+  transform: scale(1.05);
+  border-radius: 8px;
+}
+
+.login-btn span {
+    color: var(--Light-Mode-Background-Default, #FFF);
+    font-family: Roboto;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 100%; /* 14px */
+}
+.banking-intro {
+  // padding: 16px 0px;
+  // margin-top: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  background: #096f91;
+  flex: 1 0 0;
+}
+.main-heading {
+color: #F0F5FB;
+font-family: Roboto;
+font-size: 40px;
+font-style: normal;
+font-weight: 600;
+line-height: 100%; /* 40px */
+letter-spacing: 2px;
+transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.main-heading:hover {
+  color: #ffffff;
+  transform: translateY(5px);
+}
+
+.sub-heading {
+  color: rgba(240, 245, 251, 0.70);
+}
+
+.description {
+  color: rgba(240, 245, 251, 0.70);
+  font-family: Roboto;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 125%;
+  letter-spacing: 1px;
+}
+
+.secure_bank {
+ 
+display: flex;
+padding: 50px 90px;
+flex-direction: column;
+justify-content: center;
+background: #F8FAFC;
+gap: 24px;
+align-self: stretch;
+}
+
+
+.card.secure {
+  transition: all 0.3s ease;
+  box-shadow: 0 0 0 transparent;
+  gap: 5px;
+  flex: 1 0 0;
+  border-radius: 8px;
+  border: 1px solid #E3E8EF;
+  background: #FFF;
+}
+
+.card.secure:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  transform: translateY(-5px);
+}
+
+.main-title {
+color: #394557;
+font-family: Roboto;
+font-size: 32px;
+font-style: normal;
+font-weight: 600;
+line-height: 100%; /* 32px */
+margin-bottom: 10px; 
+}
+.subtitle {
+color: #6E7B8F;
+font-family: Roboto;
+font-size: 24px;
+font-style: normal;
+font-weight: 400;
+line-height: 100%; /* 24px */
+
+}
+
+
+.secure h3{
+  color: #394557;
+  font-family: Roboto;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 100%; /* 20px */
+}
+
+.secure img {
+display: flex;
+width: 40px;
+height: 40px;
+padding: 0px 3px;
+justify-content: center;
+align-items: center;
+flex-shrink: 0;
+aspect-ratio: 1/1;
+}
+
+
+.secure p {
+color: #6E7B8F;
+font-family: Roboto;
+font-size: 16px;
+font-style: normal;
+font-weight: 400;
+line-height: 20px;
+// margin-bottom: 100px;         
+}
+
+.ready
+{
+display: flex;
+padding: 50px 90px;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+gap: 24px;
+align-self: stretch;
+background: #FFF;
+}
+
+.open_btn{
+display: flex;
+height: 50px;
+padding: 14px 24px;
+justify-content: center;
+align-items: center;
+gap: 12px;
+border-radius: 6px;
+background: var(--Light-Mode-Background-Primary, #096f91);
+
+}
+
+
+.bronchure-btn {
+  color: #ffffff;
+  background-color: #f7941d;
+  border-radius: 8px;
+}
+.btn-close::after {
+  color: red; /* Set the desired color for the aria-label text */
+}
+
+.tab-content{
+  background-color: #F8F8F8;
+  ;
+}
+owl-carousel-o  img {
+  width: 100% !important;
+  height: 250px !important;
+}
+
+// .carousel-container{
+//   height: 300px !important;
+// }
+
+.iconI{
+  height:30px !important;
+  width: 100% !important;
+}
+
+.carousel-form-container {
+  position: relative;
+  max-width: 100%;
+  height: auto;
+}
+
+.carousel-container {
+  position: relative;
+  max-width: 100%;
+  height: auto;
+}

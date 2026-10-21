@@ -1,0 +1,120 @@
+.curl_template: &trigger_awx_deploy_to_testing |
+ curl --insecure --header "X-Gitlab-Token: $AWX_WEBHOOK_KEY" -X POST $AWX_WEBHOOK_URL -H "Content-Type: application/json" -d '{"ci_commit_sha" : "'"$CI_COMMIT_SHA"'", "deploy_environment" : "'"$DEPLOY_ENVIRONMENT"'", "tag" : "false", "deploy_branch" : "'"$DEPLOY_BRANCH"'", "title": "TRA Deployment Successful ", "appName": "Customer Portal", "description": "'"$(echo $CI_COMMIT_AUTHOR | cut -d '<' -f 1)"' committed: '"$CI_COMMIT_TITLE"'" , "notificationUrl": "https://test-portal.ekenya.co.ke/tra-customer-portal", "targetGroupChatId":"19:5289d22e5e894a499db1f713ce1a980d@thread.v2" }'
+
+stages:
+  - scan
+  - preBuild
+  - build
+  - deploy
+  - notify
+
+snyk-scan:
+  stage: scan
+  tags:
+    - scan
+  image: node:16.16.0
+  rules:
+    - if: ($CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'developer') || ($CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'uat')
+  script:
+    - npm install -g @angular/cli@14.2.9
+    - yarn install
+    - curl --compressed https://static.snyk.io/cli/latest/snyk-linux -o snyk
+    - chmod +x ./snyk
+    - mv ./snyk /usr/local/bin/
+    - snyk auth $SNYK_TOKEN
+    - snyk code test --json-file-output=results.json && test $? -eq 0 || echo "Something went wrong"
+  artifacts:
+    paths:
+      - results.json
+    when: always
+    expire_in: 10 min
+
+format-snyk-results:
+  stage: scan
+  image:
+    name: node:16.16.0
+  needs:
+    - job: snyk-scan
+      artifacts: true
+  rules:
+    - if: ($CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'developer') || ($CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'uat')
+  script:
+    - npm install snyk-to-html -g
+    - snyk-to-html -i results.json -o results.html
+  artifacts:
+    paths:
+      - results.html
+    when: always
+    expire_in: 15 days
+
+sonarqube-scan:
+  stage: scan
+  rules:
+    - if: ($CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'developer') || ($CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'uat')
+  image: sonarsource/sonar-scanner-cli:latest
+  variables:
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
+    SONAR_SCANNER_OPTS: "-Dsonar.projectKey=rnd_tra-project_customer-portal_AYoIo9-V8rmPqdA_Sl_S"
+  script:
+    - sonar-scanner
+
+buildBaseImage:
+  stage: preBuild
+  tags:
+    - angular
+  image:
+    name: node:16.16.0
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'developer'
+      variables:
+        BASE_HREF: "/tra-customer-portal/"
+    - if: $CI_COMMIT_BRANCH == 'uat'
+      variables:
+        BASE_HREF: "/tra-customer-portal-uat/"
+  script:
+    - npm install -g @angular/cli@14.2.9
+    - yarn install
+    - ng build --configuration production --base-href "$BASE_HREF" --deploy-url "$BASE_HREF"
+  artifacts:
+    paths:
+      - dist/
+      - package*.json
+    expire_in: 1 week
+    when: always
+
+buildImage:
+  stage: build
+  needs:
+    - job: buildBaseImage
+      artifacts: true
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'developer'
+      variables:          
+        IMAGE_TAG: "latest"
+    - if: $CI_COMMIT_BRANCH == 'uat'
+      variables:
+        IMAGE_TAG: "uat"
+  script:
+    - /kaniko/executor
+      --context "$PWD"
+      --dockerfile "Dockerfile"
+      --destination devops-registry.ekenya.co.ke/tra-project/customer-portal:"$IMAGE_TAG"
+
+deploy-application:
+  stage: deploy
+  image: devops-registry.ekenya.co.ke/library/busybox-with-curl:latest
+  variables:
+    DEPLOY_ENVIRONMENT: "development"
+    DEPLOY_BRANCH: "developer"
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'cicd-testing' || $CI_COMMIT_BRANCH == 'developer'
+      variables:                            
+        DEPLOY_BRANCH: $CI_COMMIT_BRANCH
+    - if: $CI_COMMIT_BRANCH == 'uat'
+      when: never
+  script:
+    - *trigger_awx_deploy_to_testing
+

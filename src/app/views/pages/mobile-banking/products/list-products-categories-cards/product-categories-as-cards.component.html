@@ -1,0 +1,1438 @@
+<div class="container-fluid">
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-2 mb-md-0 d-flex align-items-center">
+      <i class="fas fa-chart-bar me-2 text-primary"></i> Audit Reports
+    </h2>
+    <div class="d-flex gap-2 flex-wrap">
+      <button class="btn btn-success btn-sm" (click)="openUploadModal()">
+        <i class="fas fa-upload me-1"></i> Upload Report
+      </button>
+
+      <button class="btn btn-primary btn-sm" (click)="generateFromFieldwork()">
+        <i class="fas fa-briefcase me-1"></i> Generate from Fieldwork
+      </button>
+      <div class="btn-group">
+        <button class="btn btn-outline-primary btn-sm" (click)="createAutoReport()">
+          <i class="fas fa-file-alt me-1"></i> Auto Report
+        </button>
+        <button type="button" class="btn btn-outline-primary btn-sm dropdown-toggle dropdown-toggle-split" 
+                data-bs-toggle="dropdown" aria-expanded="false">
+          <span class="visually-hidden">Toggle Dropdown</span>
+        </button>
+        <ul class="dropdown-menu">
+          <li>
+            <a class="dropdown-item" (click)="previewAutoReport()">
+              <i class="fas fa-eye me-1 text-info"></i> Preview Only
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" (click)="createAutoReport()">
+              <i class="fas fa-save me-1 text-success"></i> Generate & Save
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-4">
+      <div class="col-12">
+        <div class="card shadow-sm border-0">
+          <div class="card-header bg-light">
+            <h4 class="mb-0 fw-bold">
+              <i class="fas fa-bolt me-2 text-warning"></i> 
+              Quick Report Actions
+              <small class="text-muted ms-2">(Based on {{fieldworkReports.length}} fieldwork workflows)</small>
+            </h4>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+    
+              <div class="col-md-3 col-sm-6">
+                <div class="card h-100 border-0 bg-primary bg-opacity-10">
+                  <div class="card-body text-center">
+                    <i class="fas fa-rocket fa-2x text-primary mb-3"></i>
+                    <h5 class="fw-bold">Instant Summary</h5>
+                    <p class="small text-muted mb-3">Quick overview from fieldwork</p>
+                    <button class="btn btn-primary btn-sm w-100" 
+                            (click)="generateQuickSummary()"
+                            [disabled]="isLoading || getFieldworkReportsWithFindings().length === 0">
+                      <i class="fas fa-bolt me-1"></i> 
+                      Generate
+                      <span *ngIf="getFieldworkReportsWithFindings().length > 0" class="badge bg-white text-primary ms-1">
+                        {{getFieldworkReportsWithFindings().length}}
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+             <div class="col-md-3 col-sm-6">
+              <div class="card h-100 border-0 bg-success bg-opacity-10">
+                <div class="card-body text-center">
+                  <i class="fas fa-briefcase fa-2x text-success mb-3"></i>
+                  <h5 class="fw-bold">Fieldwork Reports</h5>
+                  <p class="small text-muted mb-3">Create from fieldwork data</p>
+                  <button class="btn btn-success btn-sm w-100" 
+                          (click)="generateAllFieldworkReports()"
+                          [disabled]="getFieldworkReportsWithFindings().length === 0 || isLoading">
+                    <i class="fas fa-cogs me-1"></i> 
+                    Generate All ({{ getFieldworkReportsWithFindings().length }})
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            
+            <div class="col-md-3 col-sm-6">
+                <div class="card h-100 border-0 bg-info bg-opacity-10">
+                  <div class="card-body text-center">
+                    <i class="fas fa-chart-pie fa-2x text-info mb-3"></i>
+                    <h5 class="fw-bold">Analytics Report</h5>
+                    <p class="small text-muted mb-3">Detailed analytics & insights</p>
+                    <button class="btn btn-info btn-sm w-100" 
+                            (click)="generateAnalyticsReport()"
+                            [disabled]="isLoading || getFieldworkReportsWithFindings().length === 0">
+                      <i class="fas fa-chart-bar me-1"></i> 
+                      Create
+                      <span *ngIf="getFieldworkReportsWithFindings().length > 0" class="badge bg-white text-info ms-1">
+                        {{getTotalFindingsCount()}}
+                      </span>
+                    </button>
+                  </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+                <div class="card h-100 border-0 bg-warning bg-opacity-10">
+                  <div class="card-body text-center">
+                    <i class="fas fa-file-excel fa-2x text-warning mb-3"></i>
+                    <h5 class="fw-bold">Export Data</h5>
+                    <p class="small text-muted mb-3">Export all reports to Excel</p>
+                    <button class="btn btn-warning btn-sm w-100" 
+                            (click)="exportAllReports()"
+                            [disabled]="reports.length === 0">
+                      <i class="fas fa-download me-1"></i> 
+                      Export
+                      <span *ngIf="reports.length > 0" class="badge bg-white text-warning ms-1">
+                        {{reports.length}}
+                      </span>
+                    </button>
+                  </div>
+                </div>
+            </div>
+           </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mb-4">
+      <div class="col-12" *ngIf="fieldworkReports.length > 0">
+        <div class="card shadow-sm border-0">
+          <div class="card-header bg-light">
+            <div class="d-flex justify-content-between align-items-center">
+              <h4 class="mb-0 fw-bold">
+                <i class="fas fa-briefcase me-2 text-primary"></i> 
+                Fieldwork Reports Ready for Generation
+                <span class="badge bg-primary ms-2">{{ getFieldworkReportsWithFindings().length }}</span>
+              </h4>
+              <div class="text-muted small">
+                Showing {{ getStartIndex() + 1 }} to {{ getEndIndex() }} of {{ getFieldworkReportsWithFindings().length }} audits
+              </div>
+            </div>
+          </div>
+          <div class="card-body p-0">
+            <!-- Table Controls -->
+            <div class="p-3 border-bottom bg-white">
+              <div class="row align-items-center">
+                <div class="col-md-6">
+                  <div class="d-flex align-items-center">
+                    <label class="form-label mb-0 me-2 small text-dark">Show:</label>
+                    <select class="form-select form-select-sm w-auto" 
+                            [(ngModel)]="fieldworkPageSize" 
+                            (change)="onFieldworkPageSizeChange()">
+                      <option value="5">5</option>
+                      <option value="10">10</option>
+                      <option value="20">20</option>
+                      <option value="50">50</option>
+                    </select>
+                    <span class="text-muted small ms-2">entries</span>
+                  </div>
+                </div>
+                <div class="col-md-6 text-end">
+                  <div class="btn-group btn-group-sm" role="group">
+                    <button class="btn btn-outline-secondary" 
+                            (click)="exportFieldworkTable()"
+                            title="Export to Excel">
+                      <i class="fas fa-file-excel me-1"></i> Export
+                    </button>
+                    <button class="btn btn-outline-secondary" 
+                            (click)="loadFieldworkData()"
+                            title="Refresh Data">
+                      <i class="fas fa-sync-alt"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th width="25%">
+                      <div class="d-flex align-items-center">
+                        <span>Audit Title</span>
+                        <button class="btn btn-sm btn-link p-0 ms-1" 
+                                (click)="sortFieldwork('title')"
+                                title="Sort by Title">
+                          <i class="fas fa-sort text-muted"></i>
+                        </button>
+                      </div>
+                    </th>
+                    <th width="15%">Department</th>
+                    <th width="10%" class="text-center">
+                      <div class="d-flex align-items-center justify-content-center">
+                        <span>Findings</span>
+                        <button class="btn btn-sm btn-link p-0 ms-1" 
+                                (click)="sortFieldwork('findingsCount')"
+                                title="Sort by Findings">
+                          <i class="fas fa-sort text-muted"></i>
+                        </button>
+                      </div>
+                    </th>
+                    <th width="10%" class="text-center">Evidence</th>
+                    <th width="20%" class="text-center">Report Status</th>
+                    <th width="20%" class="text-center">Draft Status</th>
+                    <th width="10%" class="text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let audit of getPaginatedFieldworkReports()">
+                  <!-- <tr *ngFor="let audit of getPaginatedFieldworkReports()" 
+                      [class.table-success]="getReportStatus(audit) === 'ready'"
+                      [class.table-warning]="getReportStatus(audit) === 'generated'"
+                      [class.table-danger]="getReportStatus(audit) === 'no_findings'"
+                      [class.table-info]="getReportStatus(audit) === 'generating'"> -->
+                    <td>
+                      <div class="fw-bold text-dark">{{ audit?.title || 'Untitled Audit' }}</div>
+                      <!-- <small class="text-muted">ID: {{ audit?.id || 'N/A' }}</small> -->
+                    </td>
+                    <td>
+                      <span class="badge bg-secondary">{{ audit?.department || 'No department' }}</span>
+                    </td>
+                    <td class="text-center">
+                      <span class="badge" [ngClass]="{
+                        'bg-danger': (audit?.findingsCount || 0) > 5,
+                        'bg-warning': (audit?.findingsCount || 0) > 0 && (audit?.findingsCount || 0) <= 5,
+                        'bg-success': (audit?.findingsCount || 0) === 0
+                      }">
+                        {{ audit?.findingsCount || 0 }}
+                      </span>
+                    </td>
+                    <td class="text-center">
+                      <span class="badge" [ngClass]="{
+                        'bg-info': (audit?.evidenceCount || 0) > 0,
+                        'bg-light text-dark': (audit?.evidenceCount || 0) === 0
+                      }">
+                        {{ audit?.evidenceCount || 0 }}
+                      </span>
+                    </td>
+                        <td class="text-center">
+                      <!-- Main Report Status -->
+                      <div class="mb-1">
+                        <span class="badge d-inline-flex align-items-center" [ngClass]="{
+                          'bg-success': getReportStatus(audit) === 'generated',
+                          'bg-warning': getReportStatus(audit) === 'ready',
+                          'bg-danger': getReportStatus(audit) === 'no_findings',
+                          'bg-info': getReportStatus(audit) === 'generating'
+                        }">
+                          <i class="fas me-1" [ngClass]="{
+                            'fa-check-circle': getReportStatus(audit) === 'generated',
+                            'fa-file-alt': getReportStatus(audit) === 'ready',
+                            'fa-exclamation-triangle': getReportStatus(audit) === 'no_findings',
+                            'fa-sync-alt': getReportStatus(audit) === 'generating'
+                          }"></i>
+                          {{ getReportStatusText(audit) }}
+                        </span>
+                      </div>
+                      
+                      <!-- Additional status info -->
+                      <div *ngIf="getReportStatus(audit) === 'generated'" class="small text-muted">
+                        <i class="fas fa-clock me-1"></i>
+                        {{ getReportGeneratedDate(audit) | date:'shortDate' }}
+                      </div>
+                      <div *ngIf="getReportStatus(audit) === 'ready'" class="small text-success">
+                        <i class="fas fa-bolt me-1"></i>
+                        Ready to generate
+                      </div>
+                      <div *ngIf="getReportStatus(audit) === 'no_findings'" class="small text-danger">
+                        <i class="fas fa-ban me-1"></i>
+                        Cannot generate
+                      </div>
+                      <div *ngIf="getReportStatus(audit) === 'generating'" class="small text-info">
+                        <i class="fas fa-spinner fa-spin me-1"></i>
+                        In progress
+                      </div>
+                    </td>
+
+                    <td class="text-center">
+                      <!-- Draft Status -->
+                      <div *ngIf="getReportStatus(audit) === 'generated'">
+                        <span class="badge d-inline-flex align-items-center" [ngClass]="{
+                          'bg-success': getDraftStatus(audit) === 'finalized',
+                          'bg-primary': getDraftStatus(audit) === 'under_review',
+                          'bg-warning': getDraftStatus(audit) === 'client_review',
+                          'bg-info': getDraftStatus(audit) === 'revised',
+                          'bg-secondary': !getDraftStatus(audit)
+                        }">
+                          <!-- <i class="fas me-1" [ngClass]="{
+                            'fa-check-double': getDraftStatus(audit) === 'finalized',
+                            'fa-search': getDraftStatus(audit) === 'under_review',
+                            'fa-users': getDraftStatus(audit) === 'client_review',
+                            'fa-redo': getDraftStatus(audit) === 'revised',
+                            'fa-file': !getDraftStatus(audit)
+                          }"></i> -->
+                          {{ getDraftStatusText(audit) }}
+                        </span>
+                        
+                        <!-- Draft status details -->
+                        <div *ngIf="getDraftStatus(audit) === 'client_review'" class="small text-warning mt-1">
+                          <!-- <i class="fas fa-hourglass-half me-1"></i> -->
+                          With client
+                        </div>
+                        <div *ngIf="getDraftStatus(audit) === 'revised'" class="small text-info mt-1">
+                          <!-- <i class="fas fa-comments me-1"></i> -->
+                          Needs revision
+                        </div>
+                        <div *ngIf="getDraftStatus(audit) === 'finalized'" class="small text-success mt-1">
+                          <!-- <i class="fas fa-flag me-1"></i> -->
+                          Finalized
+                        </div>
+                      </div>
+                      
+                      <div *ngIf="getReportStatus(audit) !== 'generated'" class="text-muted small">
+                        <!-- <i class="fas fa-minus me-1"></i> -->
+                        Not generated yet
+                      </div>
+                    </td>
+
+              
+                
+                    <td class="text-center">
+                      <div class="btn-group btn-group-sm" role="group">
+                        <button class="btn btn-success" 
+                                (click)="generateFieldworkReport(audit)"
+                                [disabled]="getReportStatus(audit) !== 'ready'"
+                                title="Generate Report">
+                          <i class="fas" [ngClass]="{
+                            'fa-file-alt': getReportStatus(audit) !== 'generating',
+                            'fa-spinner fa-spin': getReportStatus(audit) === 'generating'
+                          }"></i>
+                          <span class="d-none d-md-inline ms-1">
+                            {{ getReportStatus(audit) === 'generating' ? 'Generating...' : 'Generate' }}
+                          </span>
+                        </button>
+                        <button class="btn btn-outline-primary" 
+                                (click)="previewAuditFindings(audit)"
+                                [disabled]="!hasFindings(audit)"
+                                title="Preview Findings">
+                          <i class="fas fa-eye"></i>
+                        </button>
+                        <!-- <button *ngIf="getReportStatus(audit) === 'generated'" 
+                                class="btn btn-outline-info" 
+                                (click)="openReportManagementByAudit(audit)"
+                                title="Manage Report">
+                          <i class="fas fa-cog"></i>
+                        </button> -->
+                      </div>
+                      
+                      <!-- Status indicators -->
+                      <div *ngIf="getReportStatus(audit) === 'generated'" class="mt-1 small text-success">
+                        <i class="fas fa-check-circle"></i> Report exists
+                      </div>
+                      <div *ngIf="getReportStatus(audit) === 'no_findings'" class="mt-1 small text-danger">
+                        <i class="fas fa-exclamation-triangle"></i> No findings
+                      </div>
+                      <div *ngIf="getReportStatus(audit) === 'generating'" class="mt-1 small text-info">
+                        <i class="fas fa-sync-alt fa-spin"></i> Generating...
+                      </div>
+                    </td>
+                  </tr>
+                  
+                  <!-- Empty state for no reports with findings -->
+                  <tr *ngIf="getFieldworkReportsWithFindings().length === 0">
+                    <td colspan="7" class="text-center text-muted py-4">
+                      <i class="fas fa-inbox fa-2x mb-3"></i>
+                      <h5>No Reports Ready for Generation</h5>
+                      <p class="mb-0">None of the fieldwork audits have findings to generate reports from.</p>
+                      <button class="btn btn-outline-primary btn-sm mt-2" (click)="loadFieldworkData()">
+                        <i class="fas fa-refresh me-1"></i> Refresh Data
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <!-- Pagination Footer -->
+            <div class="card-footer bg-white" *ngIf="getFieldworkReportsWithFindings().length > 0">
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="text-muted small">
+                  Showing {{ getStartIndex() + 1 }} to {{ getEndIndex() }} of {{ getFieldworkReportsWithFindings().length }} entries
+                </div>
+                
+                <nav>
+                  <ul class="pagination pagination-sm mb-0">
+                    <!-- First Page -->
+                    <li class="page-item" [class.disabled]="fieldworkCurrentPage === 1">
+                      <a class="page-link" (click)="goToFieldworkPage(1)" style="cursor: pointer;">
+                        <i class="fas fa-angle-double-left"></i>
+                      </a>
+                    </li>
+                    
+                    <!-- Previous Page -->
+                    <li class="page-item" [class.disabled]="fieldworkCurrentPage === 1">
+                      <a class="page-link" (click)="previousFieldworkPage()" style="cursor: pointer;">
+                        <i class="fas fa-angle-left"></i>
+                      </a>
+                    </li>
+
+                    <!-- Page Numbers -->
+                    <li class="page-item" *ngFor="let page of getFieldworkPageNumbers()" 
+                        [class.active]="page === fieldworkCurrentPage">
+                      <a class="page-link" (click)="goToFieldworkPage(page)" style="cursor: pointer;">
+                        {{ page }}
+                      </a>
+                    </li>
+
+                    <!-- Next Page -->
+                    <li class="page-item" [class.disabled]="fieldworkCurrentPage === getFieldworkTotalPages()">
+                      <a class="page-link" (click)="nextFieldworkPage()" style="cursor: pointer;">
+                        <i class="fas fa-angle-right"></i>
+                      </a>
+                    </li>
+
+                    <!-- Last Page -->
+                    <li class="page-item" [class.disabled]="fieldworkCurrentPage === getFieldworkTotalPages()">
+                      <a class="page-link" (click)="goToFieldworkPage(getFieldworkTotalPages())" style="cursor: pointer;">
+                        <i class="fas fa-angle-double-right"></i>
+                      </a>
+                    </li>
+                    
+                    <div class="ms-3 d-flex align-items-center">
+                      <label class="me-2 small text-muted">Go to:</label>
+                      <input type="number" class="form-control form-control-sm" style="width: 60px;" 
+                            #pageInput min="1" [max]="getFieldworkTotalPages()" 
+                            (keyup.enter)="goToFieldworkPage(pageInput.valueAsNumber)"
+                            (blur)="goToFieldworkPage(pageInput.valueAsNumber)">
+                    </div>
+                  </ul>
+                </nav>
+
+                <div class="text-muted small">
+                <div class="text-end">
+                  <button class="btn btn-primary btn-sm" 
+                          (click)="generateAllFieldworkReports()"
+                          [disabled]="getReadyToGenerateCount() === 0 || isLoading">
+                    <i class="fas fa-cogs me-1"></i>
+                    Generate All Ready Reports ({{ getReadyToGenerateCount() }})
+                  </button>
+                </div>
+                  <!-- Page {{ fieldworkCurrentPage }} of {{ getFieldworkTotalPages() }} -->
+                </div>
+              </div>
+            </div>
+            <div class="card-footer bg-light">
+              <div class="row align-items-center">
+                <div class="col-md-6">
+                </div>
+                <div class="col-md-6 text-end">
+                  <!-- <button class="btn btn-primary btn-sm" 
+                          (click)="generateAllFieldworkReports()"
+                          [disabled]="getReadyToGenerateCount() === 0 || isLoading">
+                    <i class="fas fa-cogs me-1"></i>
+                    Generate All Ready Reports ({{ getReadyToGenerateCount() }})
+                  </button> -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <hr>
+  <div style="border-radius: 12px;" class="card shadow-sm border-0" *ngIf="!isLoading">
+    <div class="card-header bg-white">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="mb-0 fw-bold">
+          <i class="fas fa-list me-2 text-primary"></i> Report List
+          <span class="badge bg-primary ms-2">{{ filteredReports.length }}</span>
+        </h3>
+
+        <div class="dropdown">
+          <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            <i class="fas fa-file-export me-1"></i> Export
+          </button>
+          <ul class="dropdown-menu">
+            <li>
+              <a class="dropdown-item d-flex align-items-center" 
+                [class.disabled]="filteredReports.length === 0"
+                (click)="filteredReports.length > 0 && exportAsPDF()">
+                <i class="fas fa-file-pdf me-2 text-danger"></i> Export PDF
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item d-flex align-items-center" (click)="exportAsExcel()">
+                <i class="fas fa-file-excel me-2 text-success"></i> Export Excel
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="row g-2 align-items-end">
+        <div class="col-md-2">
+          <label class="form-label small mb-1">Title</label>
+          <input type="text" class="form-control form-control-sm" placeholder="Search by title" 
+                 [(ngModel)]="filterTitle" (ngModelChange)="applyFilter()">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label small mb-1">Type</label>
+          <select class="form-select form-select-sm" [(ngModel)]="filterType" (change)="applyFilter()">
+            <option value="">All Types</option>
+            <option value="auto-generated">Auto-Generated</option>
+            <option value="uploaded">Uploaded</option>
+            <option value="fieldwork">Fieldwork Report</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label small mb-1">Source</label>
+          <select class="form-select form-select-sm" [(ngModel)]="filterSource" (change)="applyFilter()">
+            <option value="">All Sources</option>
+            <option value="fieldwork">Fieldwork</option>
+            <option value="manual">Manual</option>
+            <option value="system">System</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label small mb-1">Status</label>
+          <select class="form-select form-select-sm" [(ngModel)]="filterStatus" (change)="applyFilter()">
+            <option value="">All Status</option>
+            <option value="draft">Draft</option>
+            <option value="under_review">Under Review</option>
+            <option value="client_review">With Client</option>
+            <option value="revised">Revised</option>
+            <option value="finalized">Finalized</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label small mb-1">Created After</label>
+          <input type="date" class="form-control form-control-sm" [(ngModel)]="filterDate" (change)="applyFilter()">
+        </div>
+        <div class="col-md-2">
+          <button class="btn btn-secondary btn-sm me-2" (click)="clearFilters()">
+            <i class="fas fa-times me-1"></i> Clear
+          </button>
+          <button class="btn btn-info btn-sm" (click)="refreshData()">
+            <i class="fas fa-sync-alt me-1"></i> Refresh
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover table-striped align-middle mb-0">
+          <thead class="table-light text-uppercase small">
+            <tr>
+              <th scope="col">Title</th>
+              <th scope="col">Type</th>
+              <th scope="col">Status</th>
+              <th scope="col">Source</th>
+              <th scope="col">Findings</th>
+              <th scope="col">Created</th>
+              <th scope="col" class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+          <!-- To this: -->
+          <tr *ngFor="let r of getPaginatedReports()" 
+              [class.table-success]="r.draftStatus === 'finalized'"
+              (click)="openReportManagementModal(r)"
+              style="cursor: pointer;">
+              <td class="fw-medium">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-file-alt me-2" [ngClass]="{
+                    'text-muted': !isDraftReport(r),
+                    'text-warning': isDraftReport(r) && r.draftStatus !== 'finalized',
+                    'text-success': r.draftStatus === 'finalized'
+                  }"></i>
+                  <div>
+                    <div>{{ r.title }}</div>
+                    <div *ngIf="r.clientComments && r.clientComments.length > 0" class="small text-primary">
+                      <i class="fas fa-comments me-1"></i>{{ r.clientComments.length }} comments
+                    </div>
+                    <div *ngIf="r.revisionCount && r.revisionCount > 0" class="small text-warning">
+                      <i class="fas fa-redo me-1"></i>{{ r.revisionCount }} revisions
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="badge"
+                      [ngClass]="{
+                        'bg-primary': r.type === 'auto-generated',
+                        'bg-success': r.type === 'uploaded',
+                        'bg-warning': r.type === 'fieldwork'
+                      }">
+                  {{ r.type | titlecase }}
+                </span>
+              </td>
+              <td>
+                <span *ngIf="isDraftReport(r)" class="badge" [ngClass]="{
+                  'bg-secondary': !r.draftStatus,
+                  'bg-info': r.draftStatus === 'under_review',
+                  'bg-warning': r.draftStatus === 'client_review',
+                  'bg-success': r.draftStatus === 'revised',
+                  'bg-dark': r.draftStatus === 'finalized'
+                }">
+                  {{ r.draftStatus === 'finalized' ? 'Finalized' 
+                     : r.draftStatus === 'under_review' ? 'Under Review' 
+                     : r.draftStatus === 'client_review' ? 'With Client' 
+                     : r.draftStatus === 'revised' ? 'Revised' 
+                     : (r.draftStatus || 'Draft') }}
+                </span>
+                <span *ngIf="!isDraftReport(r)" class="badge bg-light text-dark">Final</span>
+              </td>
+              <td>
+                <span class="badge bg-secondary">{{ r.source || 'Manual' }}</span>
+              </td>
+              <td>
+                <span *ngIf="r.findingsCount" class="badge bg-danger">
+                  {{ r.findingsCount }} Findings
+                </span>
+                <span *ngIf="!r.findingsCount" class="text-muted">—</span>
+              </td>
+              <td>
+                <div>{{ r.createdAt | date:'mediumDate' }}</div>
+                <div class="small text-muted">{{ r.createdAt | date:'shortTime' }}</div>
+              </td>
+              <td class="text-end">
+                <div class="btn-group" role="group">
+
+                 <button class="btn btn-outline-info btn-sm" title="Preview Report" 
+                    (click)="openPreviewModal(r); $event.stopPropagation()">
+                    <i class="fas fa-eye"></i>
+                  </button>
+            
+
+                  <button class="btn btn-outline-success btn-sm" 
+                          (click)="downloadReport(r); $event.stopPropagation()" 
+                          title="Download Report">
+                    <i class="fas fa-download"></i>
+                  </button>
+
+                  <div class="btn-group" role="group" *ngIf="isDraftReport(r)">
+                    <button class="btn btn-outline-warning btn-sm" 
+                            title="Draft Report - Click row to manage"
+                            disabled>
+                      <i class="fas fa-edit"></i>
+                    </button>
+                  </div>
+                  
+                  <button class="btn btn-outline-danger btn-sm" 
+                          (click)="deleteReport(r); $event.stopPropagation()" 
+                          title="Delete Report">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </div>
+
+                <div *ngIf="isDraftReport(r)" class="mt-1 small">
+                  <span *ngIf="(r?.revisionCount ?? 0) > 0" class="badge bg-warning me-1">
+                    v{{ ((r?.revisionCount ?? 0) || 0) + 1 }}
+                  </span>
+                  <span *ngIf="r.draftStatus === 'client_review'" class="badge bg-warning">
+                    <i class="fas fa-clock me-1"></i>With Client
+                  </span>
+                  <span *ngIf="r.draftStatus === 'revised'" class="badge bg-info">
+                    <i class="fas fa-sync me-1"></i>Needs Revision
+                  </span>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="filteredReports.length === 0">
+              <td colspan="7" class="text-center text-muted py-3">
+                <i class="fas fa-inbox fa-2x mb-2"></i>
+                <p>No reports available</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+   
+      </div>
+
+      <div class="card-footer bg-white border-0" *ngIf="filteredReports.length > 0">
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center">
+            <span class="text-muted small me-2">Show</span>
+            <select class="form-select form-select-sm w-auto" [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+              <option value="5">5</option>
+              <option value="10">10</option>
+              <option value="20">20</option>
+              <option value="50">50</option>
+            </select>
+            <span class="text-muted small ms-2">entries</span>
+          </div>
+
+          <div class="text-muted small">
+            Showing {{ getStartIndex() + 1 }} to {{ getEndIndex() }} of {{ filteredReports.length }} entries
+          </div>
+
+          <nav>
+            <ul class="pagination pagination-sm mb-0">
+              <!-- First Page -->
+              <li class="page-item" [class.disabled]="currentPage === 1">
+                <a class="page-link" (click)="goToPage(1)" style="cursor: pointer;">
+                  <i class="fas fa-angle-double-left"></i>
+                </a>
+              </li>
+              
+              <!-- Previous Page -->
+              <li class="page-item" [class.disabled]="currentPage === 1">
+                <a class="page-link" (click)="previousPage()" style="cursor: pointer;">
+                  <i class="fas fa-angle-left"></i>
+                </a>
+              </li>
+
+              <!-- Page Numbers -->
+              <li class="page-item" *ngFor="let page of getPageNumbers()" 
+                  [class.active]="page === currentPage">
+                <a class="page-link" (click)="goToPage(page)" style="cursor: pointer;">
+                  {{ page }}
+                </a>
+              </li>
+
+              <!-- Next Page -->
+              <li class="page-item" [class.disabled]="currentPage === getTotalPages()">
+                <a class="page-link" (click)="nextPage()" style="cursor: pointer;">
+                  <i class="fas fa-angle-right"></i>
+                </a>
+              </li>
+
+              <!-- Last Page -->
+              <li class="page-item" [class.disabled]="currentPage === getTotalPages()">
+                <a class="page-link" (click)="goToPage(getTotalPages())" style="cursor: pointer;">
+                  <i class="fas fa-angle-double-right"></i>
+                </a>
+              </li>
+
+              <div class="ms-3 d-flex align-items-center">
+                <label class="me-2 small text-muted">Go to:</label>
+                <input type="number" class="form-control form-control-sm" style="width: 60px;" 
+                      #pageInput min="1" [max]="getTotalPages()" 
+                      (keyup.enter)="goToPage(pageInput.valueAsNumber)"
+                      (blur)="goToPage(pageInput.valueAsNumber)">
+              </div>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Upload Modal -->
+<!-- <div *ngIf="showUploadModal" class="modal-backdrop show"></div> -->
+<div *ngIf="showUploadModal" class="modal show d-block fixed-modal">
+  <div class="modal-dialog modal-dialog-centered"> 
+    <div class="modal-content">
+      <div class="modal-header bg-primary py-2"> 
+        <h4 class="modal-title text-white mb-0"> 
+          <i class="fas fa-upload me-1"></i> Upload Report
+        </h4>
+        <button type="button" class="btn-close btn-close-white" (click)="closeUploadModal()"></button>
+      </div>
+      
+      <div class="modal-body p-3"> <!-- Smaller padding -->
+        <div class="mb-3">
+          <label class="form-label fw-bold small">Select File</label>
+          <input class="form-control form-control-sm" 
+                 type="file" 
+                 (change)="handleFileInput($event)"
+                 accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx">
+          <div class="form-text small">
+            Supported formats: PDF, Word, Excel, PowerPoint
+          </div>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label fw-bold small">Report Title</label>
+          <input class="form-control form-control-sm" 
+                 type="text" 
+                 placeholder="Enter report title"
+                 [(ngModel)]="newTitle">
+        </div>
+        
+        <div *ngIf="uploadingFile" class="alert alert-info p-2 small">
+          <i class="fas fa-file me-1"></i>
+          Selected: <strong>{{ uploadingFile.name }}</strong>
+          ({{ (uploadingFile.size / 1024).toFixed(2) }} KB)
+        </div>
+      </div>
+      
+      <div class="modal-footer p-2"> 
+        <!-- <button type="button" 
+                class="btn btn-outline-secondary btn-sm"
+                (click)="closeUploadModal()">
+          <i class="fas fa-times me-1"></i> Cancel
+        </button> -->
+        
+        <button type="button" 
+                class="btn btn-success btn-sm"
+                (click)="uploadReportMetadata()"
+                [disabled]="!uploadingFile || !newTitle.trim()">
+          <i class="fas fa-cloud-upload-alt me-1"></i> Upload
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Preview Modal -->
+<!-- <div *ngIf="showPreviewModal" class="modal-backdrop show"></div> -->
+<div *ngIf="showPreviewModal" class="modal show d-block fixed-modal">
+  <div class="modal-dialog modal-dialog-centered modal-xl" style="width: 850px; height: 200px;">
+    <div class="modal-content">
+      <div class="modal-header bg-primary">
+        <h2 class="modal-title text-white">
+          <i class="fas fa-eye me-2"></i> Report Preview
+        </h2>
+        <button type="button" class="btn-close btn-close-white" 
+                (click)="closePreviewModal()"></button>
+      </div>
+      
+      <div class="modal-body p-0" style="height:80vh">
+        <ng-container *ngIf="selectedReport">
+          <!-- <iframe 
+            *ngIf="selectedReport?.fileType === 'application/pdf' || selectedReport?.fileType?.includes('officedocument')" 
+            [src]="(selectedReport?.fileUrl || '') | safeUrl"
+            class="w-100 h-100 border-0">
+          </iframe> -->
+
+          <!-- <div *ngIf="!(selectedReport?.fileType?.includes('pdf') || selectedReport?.fileType?.includes('officedocument'))" 
+               class="d-flex flex-column justify-content-center align-items-center h-100">
+            <i class="fas fa-file fa-3x text-muted mb-2"></i>
+            <p class="text-muted">Preview not supported for this file type.</p>
+            <!-- <a [href]="selectedReport?.fileUrl" download class="btn btn-sm btn-primary"> -->
+              <!-- <i class="fas fa-download"></i> Download -->
+            <!-- </a> --
+          </div> -->
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Report Management Modal -->
+<!-- <div *ngIf="showReportManagementModal" class="modal-backdrop show"></div> -->
+<div *ngIf="showReportManagementModal" class="modal show d-block fixed-modal">
+  <div class="modal-dialog modal-dialog-centered modal-lg"  style="max-width: 1100px;">
+    <div class="modal-content ">
+      <div class="modal-header" [ngClass]="{
+        'bg-warning': selectedReport?.draftStatus && selectedReport?.draftStatus !== 'finalized',
+        'bg-success': selectedReport?.draftStatus === 'finalized',
+        'bg-primary': !selectedReport?.draftStatus
+      }">
+        <h2 class="modal-title fw-bold text-white">
+          <i class="fas fa-file-alt me-2"></i> 
+          Report Management
+        
+          <span *ngIf="selectedReport?.clientComments?.length" class="badge bg-info ms-1">
+            <i class="fas fa-comments me-1"></i>{{ selectedReport?.clientComments?.length }}
+          </span>
+        </h2>
+            
+      <button type="button" class="btn-close btn btn-close-white" (click)="closeReportManagementModal()"></button>
+      </div>
+
+      <div class="modal-body" *ngIf="selectedReport">
+        <div class="row mb-4">
+          <div class="col-12">
+            <h3 class="fw-bold text-dark mb-2">{{ selectedReport.title }}</h3>
+            <div class="row small text-muted">
+              <div class="col-md-6">
+                <i class="fas fa-calendar text-primary me-1"></i>
+                Created: {{ selectedReport.createdAt | date:'medium' }}
+              </div>
+              <div class="col-md-6">
+                <i class="fas fa-user text-info me-1"></i>
+                By: {{ selectedReport.uploadedBy || 'System' }}
+              </div>
+            </div>
+            <div class="row small text-muted mt-1">
+              <div class="col-md-6">
+                <i class="fas fa-tag text-dark me-1"></i>
+                Type: <span class="badge bg-primary">{{ selectedReport.type }}</span>
+              </div>
+              <div class="col-md-6">
+                <i class="fas fa-database text-primary me-1"></i>
+                Source: <span class="badge bg-secondary">{{ selectedReport.source || 'Manual' }}</span>
+              </div>
+            </div>
+          </div>
+          <hr class="mt-3">
+        </div>
+   
+
+        <!-- Status Overview -->
+        <div class="row mb-4" *ngIf="isDraftReport(selectedReport)">
+          <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h4 class="fw-bold mb-0">Current Status</h4>
+            </div>
+            <div class="card border-0 bg-light">
+              <div class="card-body">
+                <div class="row text-center">
+                  <div class="col-3">
+                    <div class="fw-bold text-primary">{{ selectedReport.clientComments?.length || 0 }}</div>
+                    <small class="text-dark">Comments</small>
+                  </div>
+                  <div class="col-3">
+                    <div class="fw-bold text-warning">{{ selectedReport.revisionCount || 0 }}</div>
+                    <small class="text-dark">Revisions</small>
+                  </div>
+                  <div class="col-3">
+                    <div class="fw-bold text-danger">{{ selectedReport.findingsCount || 0 }}</div>
+                    <small class="text-dark">Findings</small>
+                  </div>
+                  <div class="col-3">
+                    <div class="fw-bold" [ngClass]="{
+                      'text-info': selectedReport.draftStatus === 'under_review',
+                      'text-warning': selectedReport.draftStatus === 'client_review',
+                      'text-success': selectedReport.draftStatus === 'revised',
+                      'text-dark': selectedReport.draftStatus === 'finalized'
+                    }">
+                      {{ selectedReport.draftStatus === 'finalized' ? 'Finalized' 
+                         : selectedReport.draftStatus === 'under_review' ? 'Under Review' 
+                         : selectedReport.draftStatus === 'client_review' ? 'With Client' 
+                         : selectedReport.draftStatus === 'revised' ? 'Revised' 
+                         : (selectedReport.draftStatus || 'Draft') }}
+                    </div>
+                    <small class="text-dark">Status</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <hr class="mt-3">
+        </div>
+
+        <div class="row mb-4" *ngIf="isDraftReport(selectedReport)">
+          <div class="col-12">
+            <h4 class="fw-bold mb-3">Quick Actions</h4>
+            <div class="btn-group w-100" role="group">
+              <!-- <button class="btn btn-outline-info btn-sm" 
+                      (click)="previewDraftReport(selectedReport)"
+                      title="Preview Draft">
+                <i class="fas fa-eye me-1"></i> Preview
+              </button> -->
+              
+              <button class="btn btn-outline-warning btn-sm" 
+                      (click)="sendToClient(selectedReport)"
+                      [disabled]="selectedReport.draftStatus === 'client_review' || selectedReport.draftStatus === 'finalized'"
+                      title="Send to Client">
+                <i class="fas fa-paper-plane me-1"></i> Send to Client
+              </button>
+              
+              <button class="btn btn-outline-primary btn-sm" 
+                      (click)="viewComments(selectedReport)"
+                      [disabled]="!selectedReport.clientComments || selectedReport.clientComments.length === 0"
+                      title="View Comments">
+                <i class="fas fa-comments me-1"></i> 
+                View Comments
+                <span *ngIf="selectedReport.clientComments?.length" class="badge bg-primary ms-1">
+                  {{ selectedReport.clientComments?.length }}
+                </span>
+              </button>
+              
+              <!-- Finalize Button -->
+              <button class="btn btn-outline-success btn-sm" 
+                      (click)="finalizeReport(selectedReport)"
+                      [disabled]="selectedReport.draftStatus === 'finalized'"
+                      title="Finalize Report">
+                <i class="fas fa-check me-1"></i> Finalize
+              </button>
+            </div>
+          </div>
+          <hr class="mt-3">
+        </div>
+
+           <!-- For reports in under_review status -->
+        <div class="row mb-3" *ngIf="selectedReport?.draftStatus === 'under_review'">
+          <div class="col-12">
+            <div class="btn-group w-100">
+              <button class="btn btn-outline-success" (click)="generateDraftFinalReport(selectedReport)">
+                <i class="fas fa-file-contract me-1"></i> Generate Draft Final For Client
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mb-3" *ngIf="selectedReport?.draftStatus === 'client_review'">
+          <div class="col-12">
+            <div class="btn-group w-100">
+              <button class="btn btn-info" (click)="openManagementResponseModal(selectedReport)">
+                <i class="fas fa-reply me-1"></i> Provide Management Response
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- For finalized reports -->
+        <div class="row mb-3" *ngIf="selectedReport?.draftStatus === 'finalized'">
+          <div class="col-12">
+            <div class="btn-group w-100">
+              <button class="btn btn-success" (click)="distributeFinalReport(selectedReport)">
+                <i class="fas fa-share-alt me-1"></i> Distribute Final Report
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add overdue warning -->
+        <div *ngIf="selectedReport?.draftStatus === 'client_review' && isResponseOverdue(selectedReport)" 
+             class="alert alert-danger mb-3">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          <strong>Management Response Overdue!</strong> 
+          The response was due on {{ getResponseDueDate(selectedReport) | date:'mediumDate' }}
+        </div>
+
+        <!-- CLIENT ACTIONS SECTION -->
+        <div class="row mb-4" *ngIf="selectedReport.draftStatus === 'client_review'">
+          <div class="col-12">
+            <div class="p-3 bg-warning bg-opacity-10 rounded border border-warning">
+              <h4 class="fw-bold mb-3">
+                <i class="fas fa-users text-warning me-1"></i> Client Review Panel
+              </h4>
+              <p class="small text-muted mb-3">
+                You can add comments, ask questions, or provide feedback on this report.
+              </p>
+
+              <div class="btn-group w-100" role="group">
+                <button class="btn btn-outline-primary btn-sm" 
+                        (click)="openCommentModal(selectedReport)">
+                  <i class="fas fa-plus me-1"></i>Add Comment
+                </button>
+                <button class="btn btn-outline-success btn-sm" 
+                        (click)="approveDraft(selectedReport)">
+                  <i class="fas fa-thumbs-up me-1"></i>Approve
+                </button>
+                <button class="btn btn-outline-danger btn-sm" 
+                        (click)="requestRevision(selectedReport)">
+                  <i class="fas fa-redo me-1"></i>Request Revision
+                </button>
+              </div> 
+            </div>
+          </div>
+        </div>
+
+        <!-- Comments Section -->
+      <div class="row mb-4" *ngIf="selectedReport.clientComments && selectedReport.clientComments.length > 0">
+        <div class="col-12">
+          <h4 class="fw-bold mb-3">
+            <i class="fas fa-comments me-2 text-primary"></i>
+            Comments & Feedback ({{ selectedReport.clientComments.length }})
+          </h4>
+          <div class="comments-section" style="max-height: 300px; overflow-y: auto;">
+            <div *ngFor="let comment of selectedReport.clientComments; let i = index" 
+                class="card mb-3 border-0 shadow-sm">
+              <div class="card-body p-3">
+                <!-- Comment Header -->
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <div>
+                    <strong class="text-primary">
+                      <i class="fas fa-user me-1"></i>
+                      {{ comment.author || 'Client' }}
+                    </strong>
+                    <span class="badge ms-2" [ngClass]="{
+                      'bg-info': comment.type === 'question',
+                      'bg-warning': comment.type === 'revision_request',
+                      'bg-secondary': comment.type === 'comment'
+                    }">
+                      <i class="fas me-1" [ngClass]="{
+                        'fa-question': comment.type === 'question',
+                        'fa-redo': comment.type === 'revision_request',
+                        'fa-comment': comment.type === 'comment'
+                      }"></i>
+                      {{ getCommentTypeText(comment.type) }}
+                    </span>
+                  </div>
+                  <small class="text-muted">
+                    <i class="fas fa-clock me-1"></i>
+                    {{ (comment.date | date:'medium') || 'Recently' }}
+                  </small>
+                </div>
+                
+                <!-- Comment Text -->
+                <p class="mb-2" [class.fst-italic]="comment.type === 'question'">
+                  {{ comment.text }}
+                </p>
+        
+              <div *ngIf="comment.type === 'revision_request'" class="alert alert-warning py-1 px-2 small mb-0">
+                <i class="fas fa-redo me-1"></i>
+                <strong>Revision Request</strong> -
+                Priority: {{ getPriorityText(comment.priority || 'medium') }}
+                <span *ngIf="comment.dueDate">
+                  | Requested by: {{ comment.dueDate | date:'mediumDate' }}
+                </span>
+              </div>
+          
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+        <!-- Report Details -->
+        <div class="row">
+          <div class="col-12">
+            <h4 class="fw-bold mb-3">Report Details</h4>
+            <div class="card border-0 bg-light">
+              <div class="card-body">
+                <div class="row small">
+                  <div class="col-md-6 mb-2">
+                    <strong>Description </strong>
+                    <p class="mb-0">{{ selectedReport.description || 'No description provided' }}</p>
+                  </div>
+                  <div class="col-md-6 mb-2">
+                    <strong>File Type </strong>
+                    <p class="mb-0">{{ selectedReport.fileType || 'Not specified' }}</p>
+                  </div>
+                  <div class="col-md-6 mb-2" *ngIf="selectedReport.findingsCount">
+                    <strong>Findings Count:</strong>
+                    <p class="mb-0">{{ selectedReport.findingsCount }}</p>
+                  </div>
+                  <div class="col-md-6 mb-2" *ngIf="selectedReport.sentToClientAt">
+                    <strong>Sent to Client:</strong>
+                    <p class="mb-0">{{ selectedReport.sentToClientAt | date:'medium' }}</p>
+                  </div>
+                  <div class="col-md-6 mb-2" *ngIf="selectedReport.finalizedAt">
+                    <strong>Finalized:</strong>
+                    <p class="mb-0">{{ selectedReport.finalizedAt | date:'medium' }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+          <!-- <button type="button" class="btn-close btn btn-outline-secondary" (click)="closeReportManagementModal()">Close</button> -->
+        
+        <!-- <button type="button" class="btn btn-danger" 
+                (click)="deleteReport(selectedReport!)"
+                data-bs-dismiss="modal">
+          <i class="fas fa-trash me-1"></i>Delete Report
+        </button> -->
+        <!-- <button type="button" class="btn btn-primary" 
+                (click)="previewReport(selectedReport!)" 
+                data-bs-dismiss="modal"
+                data-bs-toggle="modal" 
+                data-bs-target="#previewModal">
+          <i class="fas fa-eye me-1"></i>Preview
+        </button> -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Comment Modal -->
+<!-- <div *ngIf="showCommentModal" class="modal-backdrop show"></div> -->
+<div *ngIf="showCommentModal" class="modal show d-block fixed-modal">
+  <div class="modal-dialog modal-dialog-centered"  style="width: 500px;"> 
+    <div class="modal-content modal-content-sm">
+      
+      <div class="modal-header" 
+        [ngClass]="{
+          'bg-primary': selectedCommentType === 'comment',
+          'bg-info': selectedCommentType === 'question', 
+          'bg-warning': selectedCommentType === 'revision_request'
+        }">
+        <h4 class="modal-title text-white mb-0"> <!-- Changed from h2 to h4 -->
+          <i class="fas me-1"
+            [ngClass]="{
+              'fa-comment': selectedCommentType === 'comment',
+              'fa-question': selectedCommentType === 'question',
+              'fa-redo': selectedCommentType === 'revision_request'
+            }"></i>
+          Add {{ getCommentTypeText(selectedCommentType) }}
+        </h4>
+        <button type="button" class="btn-close btn-close-white" (click)="closeCommentModal()"></button>
+      </div>
+
+      <div class="modal-body p-3"> <!-- Added padding -->
+        <div class="mb-3">
+          <label class="form-label fw-bold small">Comment Type</label> <!-- Smaller label -->
+          <select class="form-select form-select-sm"
+                  [(ngModel)]="selectedCommentType"
+                  [ngModelOptions]="{standalone: true}"
+                  (change)="onCommentTypeChange()">
+            <option value="comment">Comment</option>
+            <option value="question">Question</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold small">
+            Your {{ getCommentTypeText(selectedCommentType) }}
+          </label>
+          <textarea class="form-control form-control-sm" 
+                    rows="3"
+                    placeholder="Type your message here..."
+                    [(ngModel)]="newCommentText"
+                    [ngModelOptions]="{standalone: true}"
+                    style="resize: vertical;">
+          </textarea>
+          <div *ngIf="newCommentText && newCommentText.length >= 5" class="text-success small mt-1">
+            <i class="fas fa-check-circle me-1"></i> Ready to submit
+          </div>
+          <div *ngIf="newCommentText && newCommentText.length < 5" class="text-warning small mt-1">
+            <i class="fas fa-exclamation-circle me-1"></i> Minimum 5 characters required
+          </div>
+          <div class="form-text text-end small mt-1">
+            {{ newCommentText.length || 0 }}/1000 characters
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer p-2"> 
+        <!-- <button type="button" 
+                class="btn btn-outline-secondary btn-sm"
+                (click)="closeCommentModal()">
+          <i class="fas fa-times me-1"></i> Cancel
+        </button> -->
+        
+        <button type="button"
+                class="btn btn-sm"
+                [ngClass]="{
+                  'btn-primary': selectedCommentType === 'comment',
+                  'btn-info': selectedCommentType === 'question',
+                  'btn-warning': selectedCommentType === 'revision_request'
+                }"
+                [disabled]="!newCommentText || newCommentText.length < 5"
+                (click)="submitComment()">
+          <i class="fas fa-plus me-1"></i>
+          Add {{ getCommentTypeText(selectedCommentType) }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Management Response Modal -->
+<!-- <div *ngIf="showManagementResponseModal" class="modal-backdrop show"></div> -->
+<div *ngIf="showManagementResponseModal" class="modal show d-block fixed-modal">
+  <div class="modal-dialog modal-dialog-centered" style="width: 600px;">
+    <div class="modal-content">
+      <div class="modal-header bg-info">
+        <h2 class="modal-title text-white">
+          <i class="fas fa-reply me-2"></i> Management Response
+        </h2>
+        <button type="button" class="btn-close btn-close-white" (click)="closeManagementResponseModal()"></button>
+      </div>
+      
+      <div class="modal-body" *ngIf="selectedReport">
+        <div class="alert alert-warning mb-4">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          Please provide your formal response to each finding. Responses are due by 
+          <strong>{{ getResponseDueDate(selectedReport) | date:'mediumDate' }}</strong>
+        </div>
+
+        <!-- Check if managementResponses exists and has data -->
+        <div *ngIf="selectedReport.managementResponses && selectedReport.managementResponses.length > 0; else noFindings">
+          <div *ngFor="let response of selectedReport.managementResponses; let i = index" class="card mb-4 border-0 shadow-sm">
+            <div class="card-header bg-light">
+              <h5 class="mb-0">Finding {{i + 1}}: {{response.findingTitle || 'Finding ' + (i + 1)}}</h5>
+            </div>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="form-label fw-bold">Management Response *</label>
+                  <textarea class="form-control" rows="3" 
+                            [(ngModel)]="response.response"
+                            placeholder="Enter your formal response to this finding..."
+                            (ngModelChange)="selectedReport.managementResponses[i].response = $event">
+                  </textarea>
+                </div>
+                
+                <div class="col-12">
+                  <label class="form-label fw-bold">Corrective Action Plan *</label>
+                  <input type="text" class="form-control" 
+                         [(ngModel)]="response.actionPlan"
+                         placeholder="Describe the specific actions to be taken..."
+                         (ngModelChange)="selectedReport.managementResponses[i].actionPlan = $event">
+                </div>
+                
+                <div class="col-md-6">
+                  <label class="form-label fw-bold">Responsible Person *</label>
+                  <input type="text" class="form-control" 
+                         [(ngModel)]="response.responsiblePerson"
+                         placeholder="Name of responsible person..."
+                         (ngModelChange)="selectedReport.managementResponses[i].responsiblePerson = $event">
+                </div>
+                
+                <div class="col-md-6">
+                  <label class="form-label fw-bold">Target Completion Date *</label>
+                  <input type="date" class="form-control" 
+                         [(ngModel)]="response.targetDate"
+                         [min]="getTodayDate()"
+                         (change)="validateTargetDate(response)"
+                         (ngModelChange)="selectedReport.managementResponses[i].targetDate = $event">
+                  <div *ngIf="response.hasDateError" class="text-danger small mt-1">
+                    <i class="fas fa-exclamation-triangle me-1"></i>
+                    Target date cannot be in the past
+                  </div>
+                  <div class="text-muted small mt-1">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Must be today or a future date
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <ng-template #noFindings>
+          <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            No findings available for management response. Please add findings first.
+          </div>
+        </ng-template>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" 
+                (click)="submitManagementResponses()"
+                [disabled]="!selectedReport?.managementResponses || selectedReport?.managementResponses?.length === 0 || hasInvalidDates()">
+          <i class="fas fa-paper-plane me-1"></i> Submit All Responses
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Revision Request Modal -->
+<!-- <div *ngIf="showRevisionRequestModal" class="modal-backdrop show"></div> -->
+<div *ngIf="showRevisionRequestModal" class="modal show d-block border-1 fixed-modal">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      
+      <div class="modal-header bg-warning text-white">
+        <h4 class="modal-title mb-0">
+          <i class="fas fa-redo me-1"></i> Request Revision
+        </h4>
+        <button type="button" class="btn-close btn-close-white" 
+                (click)="closeRevisionRequestModal()"></button>
+      </div>
+
+      <form [formGroup]="revisionForm" (ngSubmit)="submitRevisionRequest()">
+        <div class="modal-body p-3">
+        
+          <div class="alert alert-info py-2 mb-2" *ngIf="selectedReportForRevision">
+            <small><i class="fas fa-info-circle me-1"></i>
+            Requesting: <strong>{{ selectedReportForRevision.title }}</strong></small>
+          </div>
+          
+          <div class="mb-2">
+            <label for="revisionDetails" class="form-label fw-bold small">
+              Revision Details <span class="text-danger">*</span>
+            </label>
+            <textarea id="revisionDetails"
+                      class="form-control form-control-sm"
+                      rows="3"
+                      placeholder="What specific changes are needed? Please be detailed..."
+                      formControlName="revisionDetails"
+                      [class.is-invalid]="revisionDetailsInvalid">
+            </textarea>
+            
+            <div *ngIf="revisionDetailsInvalid" class="invalid-feedback d-block small">
+              <div *ngIf="revisionForm.get('revisionDetails')?.errors?.['required']">
+                Revision details are required
+              </div>
+              <div *ngIf="revisionForm.get('revisionDetails')?.errors?.['minlength']">
+                Minimum 10 characters
+              </div>
+              <div *ngIf="revisionForm.get('revisionDetails')?.errors?.['maxlength']">
+                Maximum 1000 characters
+              </div>
+            </div>
+            
+            <div class="form-text text-end small mt-1">
+              {{ revisionForm.get('revisionDetails')?.value?.length || 0 }}/1000
+            </div>
+          </div>
+
+          <!-- Priority Level -->
+          <div class="mb-2">
+            <label for="revisionPriority" class="form-label fw-bold small">
+              Priority Level
+            </label>
+            <select id="revisionPriority"
+                    class="form-select form-select-sm"
+                    formControlName="priority">
+              <option value="low">Low Priority</option>
+              <option value="medium">Medium Priority</option>
+              <option value="high">High Priority</option>
+              <option value="urgent">Urgent</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="revisionDueDate" class="form-label fw-bold small">
+              Requested Completion Date (Optional)
+            </label>
+            <input type="date"
+                   id="revisionDueDate"
+                   class="form-control form-control-sm"
+                   formControlName="dueDate"
+                   [min]="minDueDate">
+            <div class="form-text small">
+              Suggested completion date
+            </div>
+          </div>
+
+        </div>
+
+        <div class="modal-footer p-2 px-3">
+          <!-- <button type="button"
+                  class="btn btn-outline-secondary btn-sm"
+                  (click)="closeRevisionRequestModal()">
+            <i class="fas fa-times me-1"></i> Cancel
+          </button> -->
+
+          <button type="submit"
+                  class="btn btn-warning btn-sm"
+                  [disabled]="revisionForm.invalid || isSubmittingRevision">
+            <i class="fas fa-paper-plane me-1"></i>
+            {{ isSubmittingRevision ? 'Submitting...' : 'Submit' }}
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>

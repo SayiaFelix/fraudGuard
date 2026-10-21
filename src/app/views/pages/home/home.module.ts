@@ -1,0 +1,79 @@
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Routes, RouterModule } from '@angular/router';
+import {ForgotPasswordComponent} from "./forgot-password/forgot-password.component";
+import {ReactiveFormsModule} from "@angular/forms";
+import {FeatherIconModule} from "../../../core/feather-icon/feather-icon.module";
+import {SharedModule} from "../../../shared/shared.module";
+import {TranslateModule} from "@ngx-translate/core";
+import {FirstTimeLoginComponent} from "./first-time-login/first-time-login.component";
+import {ChangePasswordComponent} from "./change-password/change-password.component";
+import { LandingComponent } from './landing/landing.component';
+import { StandardsComponent } from './all-standards/all-standards.component';
+import { ViewStandardsComponent } from './view-standards/view-standards.component';
+import { HomeComponent } from './home.component';
+import { NgbActiveModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { CarouselModule } from 'ngx-owl-carousel-o';
+import { Ng2TelInputModule } from 'ng2-tel-input';
+
+const routes: Routes = [
+  {
+    path: '',
+    component: HomeComponent,
+    children: [
+      {
+        path: '',
+        component: LandingComponent
+      },
+      
+      {
+        path: 'all-standards',
+        component: StandardsComponent
+      },
+      {
+        path: ':id',
+        component: ViewStandardsComponent
+      },
+      // {
+      //   path: 'forgot-password',
+      //   component: ForgotPasswordComponent
+      // },
+      // {
+      //   path: 'first-time-login',
+      //   component: FirstTimeLoginComponent
+      // },
+      // {
+      //   path: 'change-password',
+      //   component: ChangePasswordComponent
+      // }
+    ]
+  },
+]
+
+@NgModule({
+  declarations: [
+    LandingComponent,
+    StandardsComponent,
+    ViewStandardsComponent,
+    ForgotPasswordComponent,
+    HomeComponent,
+    FirstTimeLoginComponent,
+    ChangePasswordComponent
+  ],
+    imports: [
+        CommonModule,
+        Ng2TelInputModule,
+        RouterModule.forChild(routes),
+        SharedModule,
+        NgbModule,
+        CarouselModule,
+        ReactiveFormsModule,
+        FeatherIconModule,
+        TranslateModule
+    ],
+    providers: [
+      NgbActiveModal,
+    ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA]
+})
+export class HomeModule { }

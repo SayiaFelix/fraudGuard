@@ -1,0 +1,133 @@
+<div class="modal-header">
+    <h4 class="modal-title">{{title}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-body" [formGroup]="form">
+    <div class="row">
+
+      <div class="col-sm-12">
+        <div class="form-group">
+          <label class="text-gray fw-bold">Product Image</label>
+          <input #fileUpload (change)="onFileChange($event)"
+                 accept="image/*"
+                 class="form-control"
+                 id="file"
+                 type="file"
+          />
+        </div>
+      </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="text-gray fw-bold">Product Name</label>
+                <input formControlName="name" class="form-control" type="text" >
+                <p *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')"
+                   class="text-danger mt-1 mb-1 pt-0 small text-center">Required
+                    Field</p>
+            </div>
+        </div>
+
+      <div class="col-sm-6">
+        <div class="form-group">
+          <label class="text-gray fw-bold">Product Code</label>
+          <input formControlName="productCode" class="form-control" type="text" >
+          <p *ngIf="form.get('productCode')?.touched && form.get('productCode')?.hasError('required')"
+             class="text-danger mt-1 mb-1 pt-0 small text-center">Required
+            Field</p>
+        </div>
+      </div>
+
+
+        <div class="col-sm-12">
+            <div class="form-group">
+                <label class="text-gray fw-bold">Summary</label>
+                <textarea formControlName="shortDescription" class="form-control" type="text"></textarea>
+                <p *ngIf="form.get('shortDescription')?.touched && form.get('shortDescription')?.hasError('required')"
+                   class="text-danger mt-1 mb-1 pt-0 small text-center">Required
+                    Field</p>
+            </div>
+        </div>
+
+      <div class="col-sm-12">
+            <div class="form-group">
+                <label class="text-gray fw-bold">Long Description (Narration)</label>
+              <textarea formControlName="productDescription" class="form-control" type="text"></textarea>
+                <p *ngIf="form.get('productDescription')?.touched && form.get('productDescription')?.hasError('required')"
+                   class="text-danger mt-1 mb-1 pt-0 small text-center">Required
+                    Field</p>
+            </div>
+      </div>
+
+<!--      <div class="col-sm-6">-->
+<!--        <div class="form-group">-->
+<!--          <div class="row">-->
+<!--            <div class="col-10">-->
+<!--              <label class="text-gray">Features</label>-->
+<!--              <input formControlName="feature" class="form-control" type="text" maxlength="36">-->
+<!--              <p *ngIf="form.get('feature')?.touched && form.get('feature')?.hasError('required')"-->
+<!--                 class="text-danger mt-1 mb-1 pt-0 small text-center">Required-->
+<!--                Field</p>-->
+<!--            </div>-->
+<!--            <div class="col-2 pt-4">-->
+<!--              <button type="button" class="btn  btn-md btn-primary" (click)="addFeature()">Add</button>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
+
+<!--      <div class="col-sm-6">-->
+
+<!--            <div class="form-group">-->
+<!--              <div class="row">-->
+<!--                <div class="col-10">-->
+<!--                  <label class="text-gray">Requirements</label>-->
+<!--                  <input formControlName="requirement" class="form-control" type="text" maxlength="36">-->
+<!--                  <p *ngIf="form.get('requirement')?.touched && form.get('requirement')?.hasError('required')"-->
+<!--                     class="text-danger mt-1 mb-1 pt-0 small text-center">Required Field</p>-->
+<!--                </div>-->
+<!--                <div class="col-2 pt-4">-->
+<!--                  <button type="button" class="btn btn-md btn-primary"  (click)="addRequirement()">Add</button>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            </div>-->
+
+<!--      </div>-->
+
+<!--      <div class="col-12">-->
+<!--        <div class="row">-->
+<!--          <div class="col-6">-->
+<!--            <h5 class="text-left">Features</h5>-->
+<!--            <div>-->
+<!--              <ul>-->
+<!--                <li *ngFor="let item of features">{{item}}</li>-->
+<!--              </ul>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--          <div class="col-6">-->
+<!--            <h5 class="text-left">Requirements</h5>-->
+<!--            <div>-->
+<!--              <ul>-->
+<!--                <li *ngFor="let item of requirements">{{item}}</li>-->
+<!--              </ul>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
+
+    </div>
+
+    <div *ngIf="loading" class="progress">
+        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75"
+             aria-valuemin="0" aria-valuemax="100" style="width: 75%"></div>
+    </div>
+    <div *ngIf="errorMessages" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <div *ngFor="let err of errorMessages">{{err}}</div>
+    </div>
+    <div class="modal-footer">
+
+        <button type="button" class="btn btn-outline-dark" (click)="activeModal.close('Close click')">Close</button>
+        <button [disabled]="!form.valid" type="button" class="btn  btn-md btn-primary" *ngIf="!this.formData" (click)="submitData()">Create Record</button>
+        <button [disabled]="!form.valid" type="button" class="btn  btn-md btn-primary" *ngIf="this.formData" (click)="submitData()">Save Record</button>
+
+    </div>

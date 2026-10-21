@@ -1,0 +1,253 @@
+<div class="tickets-container">
+
+  <div class="main-view-wrapper" [class.sidebar-open]="isSidebarOpen">
+
+    
+    <div class="main-content">
+      <!-- Main Content Card -->
+      <div class="card main-content-card">
+        <div class="page-header">
+          <h2 class="page-title">Tickets</h2>
+          <p class="page-description">
+            Track, manage, and resolve customer support tickets. Use the filters to find specific tickets and the button below to create new ones.
+          </p>
+        </div>
+        <div class="controls-wrapper">
+          <div class="search-bar">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>
+            <input type="text" placeholder="Search" />
+          </div>
+          <div class="filters">
+              <details class="filter-item-details">
+                <summary class="filter-item"><span>Assignee: <strong>Select</strong></span></summary>
+                <div class="filter-dropdown"><div class="no-results">No results</div></div>
+              </details>
+              <details class="filter-item-details">
+                <summary class="filter-item"><span>Assigned team: <strong>Select</strong></span></summary>
+                <div class="filter-dropdown"><div class="no-results">No results</div></div>
+              </details>
+              <details class="filter-item-details">
+                <summary class="filter-item"><span>Created by: <strong>Select</strong></span></summary>
+                <div class="filter-dropdown"><div class="no-results">No results</div></div>
+              </details>
+              <details class="filter-item-details">
+                <summary class="filter-item"><span>Custom fields: <strong>Select</strong></span></summary>
+                <div class="filter-dropdown"><div class="no-results">No results</div></div>
+              </details>
+              <details class="filter-item-details">
+                <summary class="filter-item"><span>Tags: <strong>Select</strong></span></summary>
+                <div class="filter-dropdown"><div class="no-results">No results</div></div>
+              </details>
+              <details class="filter-item-details">
+                <summary class="filter-item"><span>Status: <strong>Select</strong></span></summary>
+                <div class="filter-dropdown status-dropdown">
+                  <ul class="status-list">
+                    <li *ngFor="let status of statusList"><span class="status-badge" [ngClass]="'status-' + status.name.toLowerCase().replace(' ', '-')">{{ status.name }}</span></li>
+                  </ul>
+                </div>
+              </details>
+              <details class="filter-item-details">
+                <summary class="filter-item"><span>Created on: <strong>Select</strong></span></summary>
+                <div class="filter-dropdown date-dropdown">
+                  <div class="date-picker-container"><label>Start date</label><input type="text" placeholder="DD/MM/YYYY"><div class="calendar"><div class="calendar-header"><select><option>August</option></select><select><option>2025</option></select></div><div class="calendar-grid"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span class="other-month">27</span><span class="other-month">28</span><span class="other-month">29</span><span class="other-month">30</span><span class="other-month">31</span><span>1</span><span>2</span><span>3</span><span>4</span><span class="selected">5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span><span>16</span><span>17</span><span>18</span><span>19</span><span>20</span><span>21</span><span>22</span><span>23</span><span>24</span><span>25</span><span>26</span><span>27</span><span>28</span><span>29</span><span>30</span><span>31</span><span class="other-month">1</span><span class="other-month">2</span><span class="other-month">3</span><span class="other-month">4</span><span class="other-month">5</span><span class="other-month">6</span></div></div></div>
+                  <div class="date-picker-container"><label>End date</label><input type="text" placeholder="DD/MM/YYYY"><div class="calendar"><div class="calendar-header"><select><option>August</option></select><select><option>2025</option></select></div><div class="calendar-grid"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span class="other-month">27</span><span class="other-month">28</span><span class="other-month">29</span><span class="other-month">30</span><span class="other-month">31</span><span>1</span><span>2</span><span>3</span><span>4</span><span class="selected">5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span><span>16</span><span>17</span><span>18</span><span>19</span><span>20</span><span>21</span><span>22</span><span>23</span><span>24</span><span>25</span><span>26</span><span>27</span><span>28</span><span>29</span><span>30</span><span>31</span><span class="other-month">1</span><span class="other-month">2</span><span class="other-month">3</span><span class="other-month">4</span><span class="other-month">5</span><span class="other-month">6</span></div></div></div>
+                </div>
+              </details>
+              <a href="#" class="reset-all-btn"><i class="feather icon-x"></i><span>Reset all</span></a>
+          </div>
+          <button class="btn create-ticket-btn" (click)="openCreateTicketModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/></svg>
+            Create Ticket
+          </button>
+        </div>
+        <!-- Table -->
+        <div class="table-responsive" *ngIf="!loading && rows.length > 0">
+          <ngx-datatable
+            class="material"
+            [rows]="rows"
+            [headerHeight]="50"
+            [footerHeight]="0"
+            [rowHeight]="65"
+            [columnMode]="ColumnMode.force"
+            [selectionType]="SelectionType.single"
+            (select)="openDetailsSidebar($event.selected[0])">
+            <ngx-datatable-column [width]="50" [sortable]="false" [canAutoResize]="false" [draggable]="false" [resizeable]="false">
+              <ng-template ngx-datatable-header-template><input type="checkbox" /></ng-template>
+              <ng-template ngx-datatable-cell-template let-row="row" let-isSelected="isSelected"><input type="checkbox" [checked]="isSelected" /></ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Short ID" prop="ShortID"></ngx-datatable-column>
+            <ngx-datatable-column name="Person" prop="Person"></ngx-datatable-column>
+            <ngx-datatable-column name="Status" prop="Status">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                <span class="status-badge" [ngClass]="'status-' + row.Status.toLowerCase().replace(' ', '-')">{{ row.Status }}</span>
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Subject" prop="Subject"></ngx-datatable-column>
+            <ngx-datatable-column name="Tags" prop="Tags"></ngx-datatable-column>
+            <ngx-datatable-column name="Assignee" prop="Assignee">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                <div class="assignee-cell">
+                  <div class="assignee-initials">{{ row.assigneeInitials }}</div>
+                  <span>{{ row.assigneeFullName }}</span>
+                </div>
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Assigned Teams" prop="AssignedTeams"></ngx-datatable-column>
+          </ngx-datatable>
+        </div>
+      </div>
+      <!-- Footer -->
+      <div *ngIf="!loading && rows.length > 0" class="page-footer">
+        <span>Showing</span>
+        <input type="text" [value]="rows.length" class="ticket-count" readonly />
+        <span>ticket from {{ totalRecords }}</span>
+      </div>
+      <div *ngIf="!loading && rows.length === 0" class="no-more-tickets-container">
+          <p class="no-more-tickets">No more ticket</p>
+      </div>
+    </div> <!-- End of .main-content -->
+
+    <!-- Sidebar -->
+    <ng-container *ngIf="isSidebarOpen">
+      <div class="sidebar-container">
+        <!-- Sidebar Header -->
+        <div class="sidebar-header">
+          <div class="sidebar-title">
+            <i class="feather icon-tag"></i>
+            <span>Ticket</span>
+          </div>
+          <div class="header-actions">
+            <button class="btn-icon-close" (click)="closeDetailsSidebar()">
+              <i class="feather icon-x"></i>
+            </button>
+          </div>
+        </div>
+    
+        <!-- Sidebar Body -->
+        <div class="sidebar-body" *ngIf="selectedTicket">
+          
+          <!-- General Info Section -->
+          <div class="info-section">
+            <div class="info-row">
+              <div class="info-label"><i class="feather icon-user"></i> Assignee</div>
+              <div class="info-value">{{ selectedTicket.assigneeFullName || '-' }}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label"><i class="feather icon-users"></i> Assigned Teams</div>
+              <div class="info-value">{{ selectedTicket.AssignedTeams || '-' }}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label"><i class="feather icon-user-check"></i> Person</div>
+              <div class="info-value person-value">
+                <i class="feather icon-user"></i>
+                <span>{{ selectedTicket.Person || 'Unknown' }}</span>
+              </div>
+            </div>
+          </div>
+    
+          <!-- Details Section (Collapsible) -->
+          <details class="collapsible-section" open>
+            <summary class="collapsible-header">
+              <i class="feather icon-chevron-down"></i>
+              <span>Details</span>
+            </summary>
+            <div class="collapsible-content">
+              <div class="info-row">
+                <div class="info-label"><i class="feather icon-hash"></i> Livechat ID</div>
+                <div class="info-value">{{ selectedTicket.ShortID || '-' }}</div>
+              </div>
+              <div class="info-row">
+                <div class="info-label"><i class="feather icon-message-circle"></i> Channel</div>
+                <div class="info-value channel-value">
+                    <i class="feather icon-message-square"></i>
+                    <span>Test</span>
+                </div>
+              </div>
+              <div class="info-row">
+                <div class="info-label"><i class="feather icon-align-left"></i> Description</div>
+                <div class="info-value">{{ selectedTicket.Subject || '-' }}</div>
+              </div>
+              <div class="info-row">
+                <div class="info-label"><i class="feather icon-loader"></i> Status</div>
+                <div class="info-value">
+                  <span class="status-badge" [ngClass]="'status-' + selectedTicket.Status.toLowerCase().replace(' ', '-')">{{ selectedTicket.Status }}</span>
+                </div>
+              </div>
+              <div class="info-row">
+                <div class="info-label"><i class="feather icon-clock"></i> Created</div>
+                <div class="info-value">05 Aug 2025 01:14 PM</div>
+              </div>
+               <div class="info-row">
+                <div class="info-label"><i class="feather icon-star"></i> Rating</div>
+                <div class="info-value">-</div>
+              </div>
+            </div>
+          </details>
+          
+          <!-- Other Collapsible Sections -->
+           <details class="collapsible-section">
+          <summary class="collapsible-header">
+            <i class="feather icon-chevron-down"></i>
+            <span>Custom Fields</span>
+          </summary>
+          <div class="collapsible-content">
+            <div class="empty-state-message">
+              <span>Create a custom field to get started</span>
+            </div>
+          </div>
+        </details>
+        
+        <!-- Notes Section -->
+        <details class="collapsible-section">
+          <summary class="collapsible-header">
+            <i class="feather icon-chevron-down"></i>
+            <span>Notes</span>
+            <i class="feather icon-plus"></i>
+          </summary>
+          <div class="collapsible-content">
+            <div class="empty-state-message">
+              <span>Create the first note</span>
+            </div>
+          </div>
+        </details>
+        
+        <!-- Tags Section -->
+        <details class="collapsible-section">
+          <summary class="collapsible-header">
+            <i class="feather icon-chevron-down"></i>
+            <span>Tags</span>
+            <i class="feather icon-plus"></i>
+          </summary>
+          <div class="collapsible-content">
+             <div class="empty-state-message">
+              <span>Select a tag or tag group</span>
+            </div>
+          </div>
+        </details>
+        </div>
+      </div>
+    </ng-container>
+
+  </div> 
+</div>
+
+
+<ng-template #createTicketModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-title">Create Ticket</h4>
+    <button type="button" class="btn-close" aria-describedby="modal-title" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="ticketForm">
+      <div class="form-group"><label for="subject">Subject</label><input type="text" id="subject" class="form-control" formControlName="subject" placeholder="Subject"><small class="form-text">Email subject line seen by inboxes.</small></div>
+      <div class="form-group"><label for="fromEmail">From email</label><select id="fromEmail" class="form-control" formControlName="fromEmail"><option value="v3.proto.cx (default)">v3.proto.cx (default)</option><option value="support@example.com">support@example.com</option></select></div>
+      <div class="form-group"><label for="assignee">Assignee</label><select id="assignee" class="form-control" formControlName="assignee"><option value="" disabled>Select assignee</option><option *ngFor="let user of userList" [value]="user.id">{{ user.name }}</option></select></div>
+      <div class="form-group"><label for="assignedTeams">Assigned teams</label><select id="assignedTeams" class="form-control" formControlName="assignedTeams"><option value="" disabled>Select teams</option><option *ngFor="let team of teamList" [value]="team.id">{{ team.name }}</option></select></div>
+      <div class="form-group"><label>Recipient</label><div class="btn-group"><button type="button" class="btn-segment" [class.active]="activeRecipientSegment === 'existing'" (click)="activeRecipientSegment = 'existing'">Existing person</button><button type="button" class="btn-segment" [class.active]="activeRecipientSegment === 'add'" (click)="activeRecipientSegment = 'add'">Add person</button></div><div *ngIf="activeRecipientSegment === 'existing'" class="mt-2"><select class="form-control" formControlName="recipient"><option value="" disabled>Select person</option><option *ngFor="let user of userList" [value]="user.id">{{ user.name }}</option></select></div></div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-light" (click)="modal.close('Close click')">Cancel</button>
+    <button type="button" class="btn btn-dark" (click)="submitTicket()">Create Ticket</button>
+  </div>
+</ng-template>
