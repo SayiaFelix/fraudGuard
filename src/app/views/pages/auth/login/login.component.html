@@ -1,120 +1,233 @@
+
 <div class="login-container">
+
   <div class="login-content">
+
+    <!-- LEFT SECTION -->
     <div class="logo-section">
+
       <div class="logo-container">
         <div class="logo-wrapper">
-          <img src="assets/images/imageFraud.png" alt="FRAUD GUARD AI SYSTEM" class="logo-icon">
+
+          <img
+            src="assets/images/imageFraud.png"
+            alt="FRAUD GUARD AI SYSTEM"
+            class="logo-icon">
+
         </div>
       </div>
-      <h2 class="main-title">FRAUD GUARD AI</h2>
+
+      <h2 class="main-title">
+        FRAUD GUARD AI
+      </h2>
+
       <p class="subtitle">
         Security goes beyond the perimeter.
       </p>
 
-      <div class="demo-quick-access">
-        <p class="demo-label"> Quick Demo Access</p>
-        <div class="demo-buttons">
-          <button type="button" class="demo-role-btn admin" (click)="fillAdminCredentials()">
-            <span>Administrator</span>
-            <small>sayia.felix@eclectics.io</small>
-          </button>
-        </div>
-      </div>
     </div>
- 
+
+    <!-- RIGHT SECTION -->
     <div class="form-section">
+
       <div class="login-form-container">
+
+        <!-- FORM HEADER -->
         <div class="form-header">
+
           <div class="logo-header">
-            <img class="eclectics-logo" src="assets/images/image1.png" alt="Logo" />
+
+            <img
+              class="eclectics-logo"
+              src="assets/images/image1.png"
+              alt="Eclectics Logo">
+
           </div>
-          
-          <h3 class="welcome-title">Fraud Intelligence Portal</h3>
+
+          <h3 class="welcome-title">
+            Fraud Intelligence Portal
+          </h3>
+
           <p class="welcome-subtitle">
-            Secure access for fraud detection and investigation
+            Secure access for fraud detection
+            and investigation
           </p>
-     
+
           <div class="tab-buttons">
-            <button type="button" class="tab-button active">Sign In</button>
-            <button type="button" class="tab-button">Sign Up</button>
+
+            <button
+              type="button"
+              class="tab-button active">
+
+              Sign In
+
+            </button>
+
           </div>
+
         </div>
- 
-        <form class="login-form" [formGroup]="form" (ngSubmit)="onSubmit($event)">
+
+        <!-- LOGIN FORM -->
+        <form
+          class="login-form"
+          [formGroup]="form"
+          (ngSubmit)="onSubmit($event)">
+
+          <!-- USERNAME -->
           <div class="form-group">
-            <label for="email">Email</label>
+
+            <label for="username">
+              Username
+            </label>
+
             <input
-              type="email"
-              id="email"
-              formControlName="email"
-              placeholder="Enter your email"
+              type="text"
+              id="username"
+              formControlName="username"
+              placeholder="Enter your username"
               class="form-input"
-            >
-            <small class="error-message" *ngIf="form.get('email')?.touched && form.get('email')?.hasError('required')">
-              Email is required
+              autocomplete="username">
+
+            <small
+              class="error-message"
+              *ngIf="form.get('username')?.touched &&
+                     form.get('username')?.hasError('required')">
+
+              Username is required.
+
             </small>
-            <small class="error-message" *ngIf="form.get('email')?.touched && form.get('email')?.hasError('email')">
-              Please enter a valid email
-            </small>
+
           </div>
- 
+
+          <!-- PASSWORD -->
           <div class="form-group">
-            <label for="password">Password</label>
+
+            <label for="password">
+              Password
+            </label>
+
             <div class="password-input-container">
+
               <input
                 [type]="inputType"
                 id="password"
                 formControlName="password"
                 placeholder="Enter your password"
                 class="form-input"
-              >
-              <button type="button" class="password-toggle" (click)="toggleShowPassword()">
-                <i class="mdi" [ngClass]="showingPassword ? 'mdi-eye-off' : 'mdi-eye'"></i>
+                autocomplete="current-password">
+
+              <button
+                type="button"
+                class="password-toggle"
+                (click)="toggleShowPassword()"
+                [attr.aria-label]="showingPassword ? 'Hide password' : 'Show password'">
+
+                <i
+                  class="mdi"
+                  [ngClass]="showingPassword ?
+                    'mdi-eye-off' : 'mdi-eye'">
+                </i>
+
               </button>
+
             </div>
-            <small class="error-message" *ngIf="form.get('password')?.touched && form.get('password')?.hasError('required')">
-              Password is required
+
+            <small
+              class="error-message"
+              *ngIf="form.get('password')?.touched &&
+                     form.get('password')?.hasError('required')">
+
+              Password is required.
+
             </small>
-            <small class="error-message" *ngIf="form.get('password')?.touched && form.get('password')?.hasError('minlength')">
-              Password must be at least 6 characters
-            </small>
+
           </div>
- 
+
+          <!-- OPTIONS -->
           <div class="form-options">
+
             <div class="remember-me">
-              <input type="checkbox" id="remember" class="checkbox">
-              <label for="remember">Remember for 30 days</label>
+
+              <span class="text-muted small">
+                Use the credentials provided
+                by your administrator.
+              </span>
+
             </div>
-            <a routerLink="/auth/forgot-password" class="forgot-password">Forgot Password?</a>
+
           </div>
- 
+
+          <!-- SUBMIT -->
           <button
             type="submit"
             class="sign-in-button"
-            [disabled]="!form.valid || isLoading"
-            [class.loading]="isLoading"
-          >
-            <span *ngIf="!isLoading">SIGN IN</span>
-            <span *ngIf="isLoading">Signing in...</span>
+            [disabled]="form.invalid || isLoading"
+            [class.loading]="isLoading">
+
+            <span *ngIf="!isLoading">
+
+              SIGN IN
+
+            </span>
+
+            <span *ngIf="isLoading">
+
+              <i class="fas fa-spinner fa-spin me-2"></i>
+              Signing in...
+
+            </span>
+
           </button>
-          
-          <div class="success-alert" *ngIf="loginResponse$ | async">
-            <strong>Login Successfully!</strong>
+
+          <!-- LOGIN ERROR -->
+          <div
+            class="error-alert"
+            *ngIf="hasError"
+            role="alert">
+
+            <strong>Login Error!</strong>
+
+            {{ errorMsg }}
+
           </div>
-            
-          <div class="error-alert" *ngIf="hasError">
-            <strong>Login Error!</strong> {{errorMsg}}
+
+          <!-- LOADING PROGRESS -->
+          <div
+            class="progress-container"
+            *ngIf="isLoading">
+
+            <ngb-progressbar
+              type="primary"
+              [value]="100"
+              [striped]="true"
+              [animated]="true">
+            </ngb-progressbar>
+
           </div>
- 
-          <div class="progress-container" *ngIf="isLoading">
-            <ngb-progressbar type="primary" [value]="95" [striped]="true" [animated]="true"></ngb-progressbar>
-          </div>
+
         </form>
- 
+
+        <!-- FOOTER -->
         <div class="footer-note">
-          <p> <span class="fw-bold text-dark">FRAUD GUARD AI</span> protects both the firm and its customers using adaptive ML models and explainable AI to secure digital transactions.</p>
+
+          <p>
+
+            <span class="fw-bold text-dark">
+              FRAUD GUARD AI
+            </span>
+
+            protects both the firm and its customers
+            using adaptive ML models and explainable
+            AI to secure digital transactions.
+
+          </p>
+
         </div>
+
       </div>
+
     </div>
+
   </div>
+
 </div>

@@ -1,11 +1,17 @@
+
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
-import {ConfirmDialogComponent} from "../../../../shared/components/confirm-dialog/confirm-dialog.component";
-import Swal from "sweetalert2";
-import {NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
-import {HttpService} from "../../../../shared/services/http.service";
-import {AbstractControl, FormBuilder, FormGroup, ValidatorFn, Validators} from "@angular/forms";
-import {CustomValidators} from "ngx-custom-validators";
+import { Router } from '@angular/router';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormGroup,
+  ValidationErrors,
+  ValidatorFn,
+  Validators
+} from '@angular/forms';
+
+import Swal from 'sweetalert2';
+import { HttpService } from '../../../../shared/services/http.service';
 
 @Component({
   selector: 'app-first-time-login',
@@ -13,138 +19,387 @@ import {CustomValidators} from "ngx-custom-validators";
   styleUrls: ['./first-time-login.component.scss']
 })
 export class FirstTimeLoginComponent implements OnInit {
-  errorMsg: string;
-  hasError: boolean = false;
-  isLoading: boolean = false;
-  returnUrl: any;
-  public modalRef: NgbModalRef;
+
+  errorMsg = '';
+  hasError = false;
+  isLoading = false;
 
   public form: FormGroup;
+
   public showingPassword = false;
   inputType = 'password';
 
-  MatchPassword(passName: string, confirmPassName: string) {
-    return (formGroup: FormGroup) => {
-      const control = formGroup.controls[passName];
-      const matchingControl = formGroup.controls[confirmPassName];
-      if (matchingControl.errors && !matchingControl.errors['MatchPass']) {
-        return
-      }
-      if (control.value !== matchingControl.value) {
-        matchingControl.setErrors({ MatchPassword: true });
-      }
-      else {
-        matchingControl.setErrors(null);
-      }
-    }
+  username = '';
+  expiresAt: string | null = null;
+  isExpired = false;
 
-  }
+  private passwordChangeToken: string | null = null;
 
   constructor(
     private router: Router,
-    private route: ActivatedRoute,
     private httpService: HttpService,
-    private modalService: NgbModal,
-    fb: FormBuilder,
+    private fb: FormBuilder
   ) {
-    this.form = fb.group({
-      lookUpToken: ['', Validators.required],
-      password: ['', [Validators.required, Validators.minLength(8), this.complexPasswordValidator()]],
-      confirmPassword: ['', [Validators.required, Validators.minLength(8)]]
-    }, {
-      validators: this.MatchPassword('password', 'confirmPassword')
-    });
+
+    this.form = this.fb.group(
+      {
+        password: [
+          '',
+          [
+            Validators.required,
+            Validators.minLength(12),
+            this.maxUtf8BytesValidator(72)
+          ]
+        ],
+
+        confirmPassword: [
+          '',
+          [Validators.required]
+        ]
+      },
+      {
+        validators: this.matchPasswordValidator()
+      }
+    );
   }
+
+  // =====================================================
+  // INITIALIZATION
+  // =====================================================
 
   ngOnInit(): void {
-    // get return url from route parameters or default to '/'
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+
+    this.passwordChangeToken =
+      sessionStorage.getItem('password_change_token');
+
+    this.username =
+      sessionStorage.getItem('password_change_username') || '';
+
+    this.expiresAt =
+      sessionStorage.getItem('password_change_expires_at');
+
+    if (!this.passwordChangeToken) {
+
+      this.showError(
+        'No password setup session was found. ' +
+        'Please log in using your temporary password.'
+      );
+
+      return;
+    }
+
+    this.checkTokenExpiry();
   }
 
-  complexPasswordValidator(): ValidatorFn {
-    return (control: AbstractControl): { [key: string]: any } | null => {
-      const value = control.value;
-  
-      // Define the password complexity rules here
-      const hasUpperCase = /[A-Z]/.test(value);
-      const hasLowerCase = /[a-z]/.test(value);
-      const hasNumbers = /\d/.test(value);
-      const hasSpecialChars = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(value);
-      const isComplex = hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChars;
-  
-      // Return the validation result
-      return isComplex ? null : { complexPassword: true };
+  // =====================================================
+  // PASSWORD VALIDATION
+  // =====================================================
+
+  private maxUtf8BytesValidator(maxBytes: number): ValidatorFn {
+
+    return (
+      control: AbstractControl
+    ): ValidationErrors | null => {
+
+      const value = String(control.value || '');
+
+      if (!value) {
+        return null;
+      }
+
+      const byteLength =
+        new TextEncoder().encode(value).length;
+
+      return byteLength > maxBytes
+        ? {
+            maxUtf8Bytes: {
+              max: maxBytes,
+              actual: byteLength
+            }
+          }
+        : null;
     };
   }
-  
-  onSubmit(e: Event) {
-    console.log("On button click")
-    e.preventDefault();
-    this.setPassword();
+
+  private matchPasswordValidator(): ValidatorFn {
+
+    return (
+      control: AbstractControl
+    ): ValidationErrors | null => {
+
+      const password =
+        control.get('password')?.value;
+
+      const confirmPassword =
+        control.get('confirmPassword')?.value;
+
+      if (!password || !confirmPassword) {
+        return null;
+      }
+
+      return password === confirmPassword
+        ? null
+        : { passwordMismatch: true };
+    };
   }
 
-setPassword() {
-    this.modalRef = this.modalService.open(ConfirmDialogComponent, { centered: true });
-    this.modalRef.componentInstance.title = 'Set Password';
-    this.modalRef.componentInstance.body = "Do you want to set this as your new password?";
+  // =====================================================
+  // TOKEN EXPIRY
+  // =====================================================
 
-    this.modalRef.result.then((result) => {
-      if (result === 'success') {
-        this.hasError = false;
-        this.isLoading = true;
+  checkTokenExpiry(): void {
 
-        // Make sure the token is present and valid
-        const access_token = localStorage.getItem('access_token');
-        if (!access_token) {
-          this.hasError = true;
-          this.errorMsg = 'No authentication token found. Please log in again.';
-          Swal.fire('Error', this.errorMsg, 'error');
-          this.isLoading = false;
-          return;
-        }
+    if (!this.expiresAt) {
+      return;
+    }
 
-        // Prepare payload according to backend requirements
-        const model = {
-          old_password: this.form.value.lookUpToken,
-          new_password: this.form.value.password,
-          confirm_password: this.form.value.confirmPassword
-        };
+    const expiry = new Date(this.expiresAt).getTime();
 
-        const headers = { Authorization: `Bearer ${access_token}` };
+    if (Number.isNaN(expiry)) {
+      return;
+    }
 
-        this.httpService.customerPortalAuth('auth/change-password', model, { headers }).subscribe({
-          next: (response: any) => {
-            if (response.status === '00') {
-              Swal.fire('Password Set', 'Password Set Successfully.', 'success');
-              this.router.navigate(["/auth/login"]);
-              localStorage.setItem('isLoggedin', 'true');
-            } else {
-              Swal.fire('Error', response.error || 'You have entered an incorrect password', 'error');
-              this.hasError = true;
-              this.errorMsg = response.error || 'An unknown error occurred.';
-              this.form.reset();
-            }
-            this.isLoading = false;
-          },
-          error: (err) => {
-            this.hasError = true;
-            this.errorMsg = 'A network error occurred or you are not authorized. Please check your token and try again.';
-            Swal.fire('Network Error', this.errorMsg, 'error');
-            this.isLoading = false;
-          }
-        });
+    if (Date.now() >= expiry) {
+
+      this.isExpired = true;
+
+      this.clearPasswordChangeSession();
+
+      this.showError(
+        'Your password setup session has expired. ' +
+        'Please contact your administrator to ' +
+        'resend the invitation or reset your password.'
+      );
+    }
+  }
+
+  get hasValidSetupSession(): boolean {
+
+    return !!this.passwordChangeToken &&
+      !this.isExpired;
+  }
+
+  // =====================================================
+  // SHOW / HIDE PASSWORD
+  // =====================================================
+
+  toggleShowPassword(): void {
+
+    this.showingPassword = !this.showingPassword;
+
+    this.inputType =
+      this.showingPassword ? 'text' : 'password';
+  }
+
+  // =====================================================
+  // SUBMIT
+  // =====================================================
+
+  onSubmit(event: Event): void {
+
+    event.preventDefault();
+
+    if (this.isLoading) {
+      return;
+    }
+
+    this.hasError = false;
+    this.errorMsg = '';
+
+    this.checkTokenExpiry();
+
+    if (!this.hasValidSetupSession) {
+
+      this.showError(
+        'Your password setup session is missing or expired. ' +
+        'Please log in again.'
+      );
+
+      return;
+    }
+
+    if (this.form.invalid) {
+
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    Swal.fire({
+      title: 'Set Permanent Password?',
+      text:
+        'Your temporary password will be replaced ' +
+        'with the new permanent password.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Set Password',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#6c757d'
+    }).then(result => {
+
+      if (result.isConfirmed) {
+
+        this.setPassword();
+
       }
-    }).catch(() => {
-      console.log('Password set cancelled by user.');
     });
   }
-  toggleShowPassword() {
-    this.showingPassword = !this.showingPassword;
-    if (this.showingPassword) {
-      this.inputType = 'text';
-    } else {
-      this.inputType = 'password';
+
+  // =====================================================
+  // SET FIRST PERMANENT PASSWORD
+  // POST /v1/api/auth/change-password
+  // =====================================================
+
+  setPassword(): void {
+
+    if (this.isLoading || this.form.invalid) {
+      return;
     }
+
+    this.checkTokenExpiry();
+
+    if (!this.hasValidSetupSession) {
+
+      this.showError(
+        'Your password setup session is missing or expired.'
+      );
+
+      return;
+    }
+
+    const payload = {
+
+      password_change_token: this.passwordChangeToken,
+
+      new_password: this.form.value.password,
+
+      confirm_password: this.form.value.confirmPassword
+
+    };
+
+    this.isLoading = true;
+
+    this.hasError = false;
+    this.errorMsg = '';
+
+    this.httpService.setFirstTimePassword(
+      payload.password_change_token!,
+      payload.new_password,
+      payload.confirm_password
+    ).subscribe({
+
+      next: () => {
+
+        this.isLoading = false;
+
+        // Clear restricted credentials immediately.
+        this.clearPasswordChangeSession();
+
+        // Remove passwords from the form.
+        this.form.reset();
+
+        Swal.fire({
+          title: 'Password Set Successfully!',
+          text:
+            'Your permanent password has been created. ' +
+            'Please log in using your username ' +
+            'and new password.',
+          icon: 'success',
+          confirmButtonText: 'Go to Login',
+          confirmButtonColor: '#28a745',
+          allowOutsideClick: false
+        }).then(() => {
+
+          this.router.navigate(['/auth/login']);
+
+        });
+
+      },
+
+      error: (error: any) => {
+
+        this.isLoading = false;
+
+        const errorCode = error.error?.code;
+
+        let message =
+          error.error?.error ||
+          error.error?.message ||
+          'Could not set your password. Please try again.';
+
+        if (
+          error.status === 401 ||
+          errorCode === 'TEMPORARY_PASSWORD_EXPIRED'
+        ) {
+
+          message =
+            'Your password setup credentials are invalid ' +
+            'or expired. Please request a new invitation ' +
+            'or password reset.';
+
+          this.isExpired = true;
+
+          this.clearPasswordChangeSession();
+
+        } else if (error.status === 0) {
+
+          message =
+            'Unable to connect to the server. ' +
+            'Please check your connection.';
+
+        }
+
+        this.showError(message);
+
+        Swal.fire({
+          title: 'Password Setup Failed',
+          text: message,
+          icon: 'error',
+          confirmButtonColor: '#dc3545'
+        });
+
+      }
+
+    });
+  }
+
+  // =====================================================
+  // ERROR HANDLING
+  // =====================================================
+
+  private showError(message: string): void {
+
+    this.hasError = true;
+    this.errorMsg = message;
+
+  }
+
+  // =====================================================
+  // CLEAR RESTRICTED SESSION
+  // =====================================================
+
+  private clearPasswordChangeSession(): void {
+
+    sessionStorage.removeItem('password_change_token');
+
+    sessionStorage.removeItem('password_change_username');
+
+    sessionStorage.removeItem('password_change_expires_at');
+
+    this.passwordChangeToken = null;
+  }
+
+  // =====================================================
+  // BACK TO LOGIN
+  // =====================================================
+
+  backToLogin(): void {
+
+    this.clearPasswordChangeSession();
+
+    this.form.reset();
+
+    this.router.navigate(['/auth/login']);
   }
 
 }
