@@ -1,0 +1,51 @@
+<section class="kpi-grid scoring-kpis">
+  <article class="cd-card kpi"><div><p>Scorecard</p><strong>{{ model.name }}</strong><small>{{ model.version }} · demo</small></div></article>
+  <article class="cd-card kpi"><div><p>Gini</p><strong>{{ model.gini | number:'1.2-2' }}</strong><small>Rank-ordering power</small></div></article>
+  <article class="cd-card kpi"><div><p>KS</p><strong>{{ model.ks }}</strong><small>Separation of good and bad</small></div></article>
+  <article class="cd-card kpi"><div><p>PSI</p><strong>{{ model.psi | number:'1.2-2' }}</strong><small>Population is stable</small></div></article>
+</section>
+
+<section class="mid-grid">
+  <article class="cd-card">
+    <div class="cd-card-head"><h2>Score bands</h2></div>
+    <table class="cd-table">
+      <thead>
+        <tr><th>Band</th><th>Grade</th><th>Share</th><th>Policy</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let band of bands">
+          <td>{{ band.band }}</td>
+          <td>{{ band.label }}</td>
+          <td>
+            <div class="bar-line"><i [style.width.%]="band.share"></i></div>
+            {{ band.share }}%
+          </td>
+          <td>{{ band.decision }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </article>
+
+  <article class="cd-card" *ngIf="selected as app">
+    <div class="cd-card-head">
+      <h2>Applicant contribution</h2>
+    </div>
+    <label class="select-line">
+      Application
+      <select [(ngModel)]="selectedId">
+        <option *ngFor="let item of apps" [value]="item.id">{{ item.applicant }} · {{ item.score }}</option>
+      </select>
+    </label>
+    <div class="case-score">
+      <strong [ngClass]="credit.riskClass(app.risk)">{{ app.score }}</strong>
+      <span>{{ app.risk }} risk · {{ app.decision }}</span>
+    </div>
+    <div class="factor" *ngFor="let factor of app.factors">
+      <div><span>{{ factor.label }}</span><b [class.neg]="factor.impact < 0">{{ factor.impact > 0 ? '+' : '' }}{{ factor.impact }}</b></div>
+      <i [style.width.%]="factorBar(factor.impact)" [class.neg]="factor.impact < 0"></i>
+    </div>
+    <ul class="reason-list">
+      <li *ngFor="let reason of app.reasonCodes">{{ reason }}</li>
+    </ul>
+  </article>
+</section>

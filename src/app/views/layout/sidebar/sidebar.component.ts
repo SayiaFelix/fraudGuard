@@ -9,6 +9,7 @@ import { Subscription } from 'rxjs';
 import { NotificationService } from '../../../shared/services/NotificationService';
 import { InboxItem } from '../../pages/mobile-banking/requests/list-requests/list-requests.component'; // Adjust this path if your inbox component is in a different folder
 import { AuthService } from 'src/app/shared/services/auth.service';
+import { CreditDataService } from '../../pages/credit/credit-data.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -37,7 +38,8 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
     private renderer: Renderer2,
     private router: Router,
      private authservice: AuthService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private creditData: CreditDataService
   ) {
     
     router.events.forEach((event) => {
@@ -68,6 +70,23 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
     
     this.notificationSub = this.notificationService.currentNotifications.subscribe((notifications: InboxItem[]) => {
       this.updateInboxBadge(notifications);
+    });
+
+    this.creditData.summary$.subscribe(summary => {
+      const applications = this.menuItems.find(item => item.link === '/applications');
+      if (applications) {
+        applications.badge = { text: summary.openApplications, variant: 'uba' };
+      }
+    });
+
+    this.creditData.applications$.subscribe(apps => {
+      const open = apps.filter(item => item.decision === 'Refer' && item.caseStatus !== 'Closed').length;
+      ['/alerts', '/decision-queue'].forEach(link => {
+        const item = this.menuItems.find(entry => entry.link === link);
+        if (item) {
+          item.badge = { text: open, variant: 'uba' };
+        }
+      });
     });
   }
 
@@ -147,11 +166,12 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   iconSidebar(mq: MediaQueryList) {
-    if (mq.matches) {
-      this.document.body.classList.add('sidebar-folded');
-    } else {
-      this.document.body.classList.remove('sidebar-folded');
-    }
+    // Credit workspace keeps the labelled navigation open.
+    // if (mq.matches) {
+    //   this.document.body.classList.add('sidebar-folded');
+    // } else {
+    this.document.body.classList.remove('sidebar-folded');
+    // }
   }
 
   onSidebarThemeChange(event: Event) {
@@ -202,7 +222,7 @@ onLogout(e: Event) {
         localStorage.removeItem('userDisplayName');
         localStorage.removeItem('userTitle');
 
-        this.router.navigate(['/auth/login']);
+        this.router.navigate(['/dashboard']);
       
         Swal.close();
         

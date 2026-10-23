@@ -1,0 +1,17 @@
+<article class="cd-card">
+  <div class="cd-card-head">
+    <div>
+      <h2>Active policy</h2>
+      <p class="fine">Switches apply immediately to new applications and the policy simulator. Nothing is sent to a server.</p>
+    </div>
+  </div>
+  <div class="rule" *ngFor="let rule of rules">
+    <button type="button" class="switch" [class.on]="rule.enabled" (click)="toggle(rule)" [attr.aria-pressed]="rule.enabled"></button>
+    <div>
+      <strong>{{ rule.code }} · {{ rule.name }}</strong>
+      <p>{{ rule.condition }}</p>
+    </div>
+    <span class="pill" [ngClass]="credit.decisionClass(rule.action)">{{ rule.action }}</span>
+    <em>{{ rule.severity }}</em>
+  </div>
+</article>
