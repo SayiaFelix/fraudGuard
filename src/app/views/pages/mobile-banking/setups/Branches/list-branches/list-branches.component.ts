@@ -634,7 +634,6 @@ export class ListBranchesComponent implements OnInit {
 
     return icons[role] || 'fa-user';
   }
-
   getRoleDescription(role: string): string {
     const descriptions: { [key: string]: string } = {
       admin: 'System Administrator',
