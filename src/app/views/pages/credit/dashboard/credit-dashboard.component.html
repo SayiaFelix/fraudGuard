@@ -99,7 +99,7 @@
         <thead>
           <tr>
             <th>Applicant</th>
-            <th>Amount (₦)</th>
+            <th>Amount (KSh)</th>
             <th>Score</th>
             <th>Decision</th>
             <th>Time</th>
@@ -108,7 +108,7 @@
         <tbody>
           <tr *ngFor="let row of recent" [routerLink]="['/applications', row.id]">
             <td>{{ row.applicant }}</td>
-            <td>{{ row.amount | number }}</td>
+            <td>{{ credit.money(row.amount) }}</td>
             <td><span class="score-pill" [ngClass]="credit.riskClass(row.risk)">{{ row.score }}</span></td>
             <td><span class="pill" [ngClass]="credit.decisionClass(row.decision)">{{ row.decision === 'Refer' ? 'Refer' : row.decision }}</span></td>
             <td>{{ row.submittedAt | date:'h:mm a' }}</td>

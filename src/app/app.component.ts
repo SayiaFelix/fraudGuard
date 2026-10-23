@@ -17,7 +17,7 @@ export class AppComponent implements OnInit {
     localStorage.setItem('userDisplayName', 'Demo User');
     localStorage.setItem('userTitle', 'Bank Officer');
     localStorage.setItem('userRole', 'analyst');
-    localStorage.setItem('userEmail', 'demo.user@ubagroup.com');
+    localStorage.setItem('userEmail', 'demo.user@eclectics.io');
     localStorage.setItem('isLoggedin', 'true');
     localStorage.setItem('access_token', 'frontend-demo-token');
   }

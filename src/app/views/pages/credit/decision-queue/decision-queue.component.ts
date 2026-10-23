@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { CreditApplication } from '../credit-demo.data';
 import { CreditDataService } from '../credit-data.service';
@@ -19,6 +19,7 @@ export class DecisionQueueComponent implements OnInit, OnDestroy {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     public credit: CreditDataService
   ) {}
 
@@ -37,6 +38,14 @@ export class DecisionQueueComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.sub.unsubscribe();
+  }
+
+  get queueLabel(): string {
+    const count = this.queue.length;
+    if (this.router.url.includes('decision-queue')) {
+      return count === 1 ? '1 case in the queue' : `${count} cases in the queue`;
+    }
+    return count === 1 ? '1 open alert' : `${count} open alerts`;
   }
 
   get queue(): CreditApplication[] {

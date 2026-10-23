@@ -80,11 +80,13 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     this.creditData.applications$.subscribe(apps => {
-      const alerts = this.menuItems.find(item => item.link === '/alerts');
-      if (alerts) {
-        const open = apps.filter(item => item.decision === 'Refer' && item.caseStatus !== 'Closed').length;
-        alerts.badge = { text: open, variant: 'uba' };
-      }
+      const open = apps.filter(item => item.decision === 'Refer' && item.caseStatus !== 'Closed').length;
+      ['/alerts', '/decision-queue'].forEach(link => {
+        const item = this.menuItems.find(entry => entry.link === link);
+        if (item) {
+          item.badge = { text: open, variant: 'uba' };
+        }
+      });
     });
   }
 

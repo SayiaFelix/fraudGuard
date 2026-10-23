@@ -11,7 +11,7 @@ import { CreditDataService } from './credit-data.service';
 })
 export class CreditShellComponent implements OnInit, OnDestroy {
   title = 'Good morning, Demo User';
-  subtitle = 'UBA Digital Credit Decisioning';
+  subtitle = 'Digital Credit Decisioning';
   now = new Date();
   showNotes = false;
   showUser = false;
@@ -59,9 +59,9 @@ export class CreditShellComponent implements OnInit, OnDestroy {
     const data = current.snapshot.data || {};
     if (data['greeting']) {
       this.title = this.greeting();
-      this.subtitle = 'UBA Digital Credit Decisioning';
+      this.subtitle = 'Digital Credit Decisioning';
     } else {
-      this.title = data['title'] || 'UBA Credit Decisioning';
+      this.title = data['title'] || 'Credit Decisioning';
       this.subtitle = data['subtitle'] || 'Demo environment';
     }
     this.closePopovers();

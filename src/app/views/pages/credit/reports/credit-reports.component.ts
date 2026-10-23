@@ -59,7 +59,7 @@ export class CreditReportsComponent implements OnInit, OnDestroy {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `uba-${this.active}.csv`;
+    link.download = `eclectics-${this.active}.csv`;
     link.click();
     URL.revokeObjectURL(url);
   }

@@ -2,7 +2,7 @@
   <div class="chips">
     <button type="button" *ngFor="let item of ['All', 'High', 'Medium', 'Unassigned']" [class.on]="filter === item" (click)="setFilter(item)">{{ item }}</button>
   </div>
-  <span class="queue-count">{{ queue.length }} open {{ queue.length === 1 ? 'alert' : 'alerts' }}</span>
+  <span class="queue-count">{{ queueLabel }}</span>
 </div>
 
 <section class="queue-grid">

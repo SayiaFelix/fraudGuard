@@ -189,7 +189,7 @@ export const SCORE_BANDS = [
 ];
 
 export const MODEL_METRICS = {
-  name: 'UBA Retail Scorecard',
+  name: 'Eclectics Retail Scorecard',
   version: 'v3.2',
   gini: 0.48,
   ks: 32,
