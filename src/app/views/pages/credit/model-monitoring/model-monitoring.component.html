@@ -1,0 +1,29 @@
+<section class="kpi-grid">
+  <article class="cd-card kpi"><div><p>Gini</p><strong>{{ model.gini | number:'1.2-2' }}</strong><small>Stable versus last champion build</small></div></article>
+  <article class="cd-card kpi"><div><p>KS</p><strong>{{ model.ks }}</strong><small>Good / bad separation</small></div></article>
+  <article class="cd-card kpi"><div><p>PSI</p><strong>{{ model.psi | number:'1.2-2' }}</strong><small>Below the 0.10 watch line</small></div></article>
+  <article class="cd-card kpi"><div><p>Override rate</p><strong>{{ model.overrideRate }}%</strong><small>Analyst decisions against the scorecard</small></div></article>
+</section>
+
+<article class="cd-card" style="margin-top: 16px">
+  <div class="cd-card-head">
+    <div>
+      <h2>{{ model.name }} {{ model.version }}</h2>
+      <p class="fine">Population stability by score band. A shift above 2 points is the watch threshold in this demo.</p>
+    </div>
+    <span class="pill is-ok">Healthy</span>
+  </div>
+  <table class="cd-table">
+    <thead>
+      <tr><th>Score band</th><th>Expected %</th><th>Actual %</th><th>Drift</th></tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let row of model.population">
+        <td>{{ row.band }}</td>
+        <td>{{ row.expected }}</td>
+        <td>{{ row.actual }}</td>
+        <td [class.neg]="drift(row.actual, row.expected) > 1">{{ drift(row.actual, row.expected) > 0 ? '+' : '' }}{{ drift(row.actual, row.expected) }} pts</td>
+      </tr>
+    </tbody>
+  </table>
+</article>

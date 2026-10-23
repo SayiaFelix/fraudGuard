@@ -1,0 +1,99 @@
+<div class="toolbar">
+  <div class="chips">
+    <button type="button" *ngFor="let item of ['All', 'High', 'Medium', 'Unassigned']" [class.on]="filter === item" (click)="setFilter(item)">{{ item }}</button>
+  </div>
+  <span class="queue-count">{{ queueLabel }}</span>
+</div>
+
+<section class="queue-grid">
+  <article class="cd-card">
+    <div class="table-scroll">
+      <table class="cd-table">
+        <thead>
+          <tr>
+            <th>Applicant</th>
+            <th>Product</th>
+            <th>Amount</th>
+            <th>Score</th>
+            <th>Status</th>
+            <th>Owner</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of queue" (click)="select(row.id)" [class.selected]="row.id === selectedId">
+            <td>
+              <strong>{{ row.applicant }}</strong>
+              <small>{{ row.id }}</small>
+            </td>
+            <td>{{ row.product }}</td>
+            <td>{{ credit.money(row.amount) }}</td>
+            <td><span class="score-pill" [ngClass]="credit.riskClass(row.risk)">{{ row.score }}</span></td>
+            <td>{{ row.caseStatus }}</td>
+            <td>{{ row.assignedTo }}</td>
+          </tr>
+          <tr *ngIf="!queue.length">
+            <td colspan="6" class="cd-empty">Nothing in this slice of the queue.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </article>
+
+  <article class="cd-card case-panel" *ngIf="selected as app">
+    <p class="eyebrow">{{ app.id }} · {{ app.country }}</p>
+    <div class="case-title">
+      <h2>{{ app.applicant }}</h2>
+      <span class="pill" [ngClass]="credit.decisionClass(app.decision)">{{ app.decision }}</span>
+    </div>
+    <p class="case-meta">{{ app.product }} · {{ credit.money(app.amount) }} · {{ app.tenorMonths }} months</p>
+    <div class="case-score">
+      <strong [ngClass]="credit.riskClass(app.risk)">{{ app.score }}</strong>
+      <span>{{ app.risk }} risk · DTI {{ app.dti | percent:'1.0-0' }} · {{ app.bureau }}</span>
+    </div>
+
+    <ul class="reason-list">
+      <li *ngFor="let reason of app.reasonCodes">{{ reason }}</li>
+    </ul>
+
+    <div class="mini-facts">
+      <span>Income {{ credit.money(app.income) }}</span>
+      <span>{{ app.employment }}</span>
+      <span>{{ app.channel }}</span>
+      <span>{{ app.caseStatus }}</span>
+    </div>
+
+    <p class="banner" *ngIf="banner">{{ banner }}</p>
+
+    <div class="case-actions" *ngIf="app.decision === 'Refer' && app.caseStatus !== 'Closed'">
+      <button type="button" class="btn-primary" (click)="act('approve')">Approve</button>
+      <button type="button" class="btn-danger" (click)="act('decline')">Decline</button>
+      <button type="button" class="btn-ghost" (click)="act('request-info')">Request info</button>
+      <button type="button" class="btn-ghost" (click)="act('escalate')">Escalate</button>
+    </div>
+    <p class="fine" *ngIf="app.caseStatus === 'Closed'">This case is closed. The decision is already on the book.</p>
+
+    <div class="assign-row" *ngIf="app.decision === 'Refer' && app.caseStatus !== 'Closed'">
+      <select [(ngModel)]="assignee">
+        <option *ngFor="let analyst of credit.analysts">{{ analyst }}</option>
+      </select>
+      <button type="button" class="btn-ghost" (click)="act('assign')">Assign</button>
+    </div>
+
+    <label class="note-box">
+      Case note
+      <textarea [(ngModel)]="note" rows="3" placeholder="Affordability checked against salary credit."></textarea>
+    </label>
+    <button type="button" class="btn-ghost" (click)="act('note')" [disabled]="!note.trim()">Add note</button>
+
+    <div class="note" *ngFor="let item of app.notes">
+      <strong>{{ item.author }}</strong>
+      <span>{{ item.time }}</span>
+      <p>{{ item.text }}</p>
+    </div>
+  </article>
+
+  <article class="cd-card case-panel" *ngIf="!selected">
+    <h2>Select a case</h2>
+    <p class="fine">Alerts and case actions live on this queue. Approve, decline, request information, escalate, or assign without leaving the page.</p>
+  </article>
+</section>

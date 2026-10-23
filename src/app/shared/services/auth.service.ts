@@ -1,7 +1,7 @@
 
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, of, tap, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -60,76 +60,58 @@ export class AuthService {
     password: string
   ): Observable<any> {
 
-    return this.http.post<any>(
-      `${this.apiUrl}/auth/login`,
-      {
-        username: username.trim(),
-        password
-      }
-    ).pipe(
+    // Frontend demo. POST /v1/api/auth/login is not called.
+    const demoUser = {
+      username: (username || 'demo.user').trim(),
+      email: 'demo.user@eclectics.io',
+      role: 'analyst',
+      name: 'Demo User',
+      title: 'Bank Officer'
+    };
+    const demoResponse = {
+      access_token: 'frontend-demo-token',
+      refresh_token: 'frontend-demo-refresh',
+      user: demoUser
+    };
 
-      tap((response: any) => {
-
-        // FIRST-TIME LOGIN
-        if (
-          response?.must_change_password === true ||
-          response?.status === 'password_change_required'
-        ) {
-
-          if (!response?.password_change_token) {
-            throw new Error(
-              'Password change token missing from login response.'
-            );
-          }
-
-          // A restricted token must never become
-          // a normal authenticated session.
-          this.clearLocalSession();
-          this.clearPasswordChangeSession();
-
-          sessionStorage.setItem(
-            this.passwordChangeTokenKey,
-            response.password_change_token
-          );
-
-          sessionStorage.setItem(
-            this.passwordChangeUsernameKey,
-            username.trim()
-          );
-
-          if (response.expires_at) {
-            sessionStorage.setItem(
-              this.passwordChangeExpiryKey,
-              response.expires_at
-            );
-          }
-
-          return;
-        }
-
-        // NORMAL LOGIN
-        if (
-          response?.access_token &&
-          response?.refresh_token &&
-          response?.user
-        ) {
-
-          this.clearPasswordChangeSession();
-          this.saveAuthenticatedSession(
-            response,
-            username
-          );
-
-          return;
-        }
-
-        throw new Error(
-          'Invalid authentication response from server.'
-        );
-
+    return of(demoResponse).pipe(
+      tap(() => {
+        this.saveAuthenticatedSession(demoResponse, demoUser.username);
       })
-
     );
+
+    // return this.http.post<any>(
+    //   `${this.apiUrl}/auth/login`,
+    //   {
+    //     username: username.trim(),
+    //     password
+    //   }
+    // ).pipe(
+    //   tap((response: any) => {
+    //     if (
+    //       response?.must_change_password === true ||
+    //       response?.status === 'password_change_required'
+    //     ) {
+    //       if (!response?.password_change_token) {
+    //         throw new Error('Password change token missing from login response.');
+    //       }
+    //       this.clearLocalSession();
+    //       this.clearPasswordChangeSession();
+    //       sessionStorage.setItem(this.passwordChangeTokenKey, response.password_change_token);
+    //       sessionStorage.setItem(this.passwordChangeUsernameKey, username.trim());
+    //       if (response.expires_at) {
+    //         sessionStorage.setItem(this.passwordChangeExpiryKey, response.expires_at);
+    //       }
+    //       return;
+    //     }
+    //     if (response?.access_token && response?.refresh_token && response?.user) {
+    //       this.clearPasswordChangeSession();
+    //       this.saveAuthenticatedSession(response, username);
+    //       return;
+    //     }
+    //     throw new Error('Invalid authentication response from server.');
+    //   })
+    // );
   }
 
   // =====================================================
@@ -201,40 +183,25 @@ export class AuthService {
     confirmPassword: string
   ): Observable<any> {
 
-    const restrictedToken =
-      this.getPasswordChangeToken();
+    // POST /v1/api/auth/change-password is disabled in the frontend demo.
+    return throwError(() => new Error('Password change is disabled in the frontend demo.'));
 
-    if (!restrictedToken) {
-      return throwError(() =>
-        new Error(
-          'Password setup session missing or expired.'
-        )
-      );
-    }
-
-    return this.http.post<any>(
-      `${this.apiUrl}/auth/change-password`,
-      {
-        password_change_token: restrictedToken,
-        new_password: newPassword,
-        confirm_password: confirmPassword
-      },
-      {
-        headers: new HttpHeaders({
-          'Content-Type': 'application/json'
-        })
-      }
-    ).pipe(
-
-      tap(() => {
-
-        // After HTTP 200, user must log in again.
-        this.clearPasswordChangeSession();
-        this.clearLocalSession();
-
-      })
-
-    );
+    // const restrictedToken = this.getPasswordChangeToken();
+    // if (!restrictedToken) {
+    //   return throwError(() => new Error('Password setup session missing or expired.'));
+    // }
+    // return this.http.post<any>(
+    //   `${this.apiUrl}/auth/change-password`,
+    //   {
+    //     password_change_token: restrictedToken,
+    //     new_password: newPassword,
+    //     confirm_password: confirmPassword
+    //   },
+    //   { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+    // ).pipe(tap(() => {
+    //   this.clearPasswordChangeSession();
+    //   this.clearLocalSession();
+    // }));
   }
 
   // =====================================================
@@ -305,70 +272,16 @@ export class AuthService {
 
   fetchCurrentUser(): Observable<any> {
 
-    const token = this.getToken();
+    // GET /v1/api/auth/me is disabled in the frontend demo.
+    return of(this.getCurrentUser());
 
-    if (!token) {
-      return throwError(() =>
-        new Error('No authentication token available.')
-      );
-    }
-
-    return this.http.get<any>(
-      `${this.apiUrl}/auth/me`,
-      {
-        headers: new HttpHeaders({
-          Authorization: `Bearer ${token}`
-        })
-      }
-    ).pipe(
-
-      tap((response: any) => {
-
-        // Exact response shape must be confirmed.
-        const user = response?.user || response?.data || response;
-
-        if (
-          user &&
-          typeof user === 'object' &&
-          user.username
-        ) {
-
-          localStorage.setItem(
-            this.userKey,
-            JSON.stringify(user)
-          );
-
-          localStorage.setItem(
-            'userRole',
-            user.role || ''
-          );
-
-          localStorage.setItem(
-            'userEmail',
-            user.email || ''
-          );
-
-          localStorage.setItem(
-            'userName',
-            user.username
-          );
-
-          localStorage.setItem(
-            this.displayNameKey,
-            this.resolveDisplayName(user, user.username)
-          );
-
-          localStorage.setItem(
-            this.userTitleKey,
-            this.resolveUserTitle(user)
-          );
-
-          this.currentUserSubject.next(user);
-        }
-
-      })
-
-    );
+    // const token = this.getToken();
+    // if (!token) {
+    //   return throwError(() => new Error('No authentication token available.'));
+    // }
+    // return this.http.get<any>(`${this.apiUrl}/auth/me`, {
+    //   headers: new HttpHeaders({ Authorization: `Bearer ${token}` })
+    // });
   }
 
   // =====================================================
@@ -521,43 +434,14 @@ export class AuthService {
 
   refreshToken(): Observable<any> {
 
-    const refreshToken =
-      localStorage.getItem(this.refreshTokenKey);
+    // POST /auth/refresh is disabled in the frontend demo.
+    return of({ access_token: 'frontend-demo-token' });
 
-    if (!refreshToken) {
-      return throwError(() =>
-        new Error('Refresh token not available.')
-      );
-    }
-
-    return this.http.post<any>(
-      `${this.apiUrl}/auth/refresh`,
-      {
-        refresh_token: refreshToken
-      }
-    ).pipe(
-
-      tap((response: any) => {
-
-        if (response?.access_token) {
-
-          localStorage.setItem(
-            this.tokenKey,
-            response.access_token
-          );
-
-          if (response.refresh_token) {
-
-            localStorage.setItem(
-              this.refreshTokenKey,
-              response.refresh_token
-            );
-          }
-        }
-
-      })
-
-    );
+    // const refreshToken = localStorage.getItem(this.refreshTokenKey);
+    // if (!refreshToken) {
+    //   return throwError(() => new Error('Refresh token not available.'));
+    // }
+    // return this.http.post<any>(`${this.apiUrl}/auth/refresh`, { refresh_token: refreshToken });
   }
 
   // =====================================================
@@ -566,28 +450,17 @@ export class AuthService {
 
   logout(): void {
 
-    const refreshToken =
-      localStorage.getItem(this.refreshTokenKey);
-
-    // Clear local credentials immediately.
-    this.clearLocalSession();
-    this.clearPasswordChangeSession();
-
-    // Server logout remains provisional until
-    // backend endpoint is confirmed.
-    if (refreshToken) {
-
-      this.http.post(
-        `${this.apiUrl}/auth/logout`,
-        {
-          refresh_token: refreshToken
-        }
-      ).subscribe({
-        next: () => {},
-        error: () => {}
-      });
-
-    }
+    // Frontend demo: POST /auth/logout is not called,
+    // and the local demo session stays on this browser.
+    // const refreshToken = localStorage.getItem(this.refreshTokenKey);
+    // this.clearLocalSession();
+    // this.clearPasswordChangeSession();
+    // if (refreshToken) {
+    //   this.http.post(`${this.apiUrl}/auth/logout`, { refresh_token: refreshToken }).subscribe({
+    //     next: () => {},
+    //     error: () => {}
+    //   });
+    // }
   }
 
   // =====================================================
@@ -624,10 +497,9 @@ export class AuthService {
 
   register(userData: any): Observable<any> {
 
-    return this.http.post(
-      `${this.apiUrl}/auth/register`,
-      userData
-    );
+    // POST /auth/register is disabled in the frontend demo.
+    return throwError(() => new Error('Registration is disabled in the frontend demo.'));
+    // return this.http.post(`${this.apiUrl}/auth/register`, userData);
   }
 
 }

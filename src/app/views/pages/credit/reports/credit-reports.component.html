@@ -1,0 +1,37 @@
+<div class="report-picker">
+  <button type="button" *ngFor="let report of reports" [class.on]="active === report.id" (click)="active = report.id">
+    <strong>{{ report.name }}</strong>
+    <span>{{ report.detail }}</span>
+  </button>
+</div>
+
+<article class="cd-card">
+  <div class="cd-card-head">
+    <h2>{{ activeLabel }}</h2>
+    <button class="btn-ghost" type="button" (click)="download()">Download CSV</button>
+  </div>
+  <table class="cd-table">
+    <thead>
+      <tr>
+        <th>Reference</th>
+        <th>Applicant</th>
+        <th>Product</th>
+        <th>Amount</th>
+        <th>Score</th>
+        <th>Decision</th>
+        <th>Case</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let row of rows">
+        <td>{{ row.id }}</td>
+        <td>{{ row.applicant }}</td>
+        <td>{{ row.product }}</td>
+        <td>{{ credit.money(row.amount) }}</td>
+        <td>{{ row.score }}</td>
+        <td><span class="pill" [ngClass]="credit.decisionClass(row.decision)">{{ row.decision }}</span></td>
+        <td>{{ row.caseStatus }}</td>
+      </tr>
+    </tbody>
+  </table>
+</article>
