@@ -1,0 +1,168 @@
+<section class="kpi-grid" *ngIf="summary">
+  <article class="cd-card kpi">
+    <div class="kpi-icon tone-blue">
+      <svg viewBox="0 0 24 24"><path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4M9 13h6M9 17h4"/></svg>
+    </div>
+    <div>
+      <p>Total Applications</p>
+      <strong>{{ summary.total | number }}</strong>
+      <span class="delta up">▲ {{ summary.deltas.total }}% <em>vs 7 days</em></span>
+    </div>
+  </article>
+  <article class="cd-card kpi">
+    <div class="kpi-icon tone-green">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12.5 2.2 2.2 4.8-5"/></svg>
+    </div>
+    <div>
+      <p>Approved</p>
+      <strong>{{ summary.approved | number }}</strong>
+      <small>{{ credit.pct(summary.approved, summary.total) }} approval rate</small>
+      <span class="delta up">▲ {{ summary.deltas.approved }}% <em>vs 7 days</em></span>
+    </div>
+  </article>
+  <article class="cd-card kpi">
+    <div class="kpi-icon tone-red">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m9 9 6 6M15 9l-6 6"/></svg>
+    </div>
+    <div>
+      <p>Declined</p>
+      <strong>{{ summary.declined | number }}</strong>
+      <small>{{ credit.pct(summary.declined, summary.total) }} decline rate</small>
+      <span class="delta up">▲ {{ summary.deltas.declined }}% <em>vs 7 days</em></span>
+    </div>
+  </article>
+  <article class="cd-card kpi">
+    <div class="kpi-icon tone-amber">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v5l3 2"/></svg>
+    </div>
+    <div>
+      <p>Referred for Review</p>
+      <strong>{{ summary.referred | number }}</strong>
+      <small>{{ credit.pct(summary.referred, summary.total) }} referral rate</small>
+      <span class="delta down">▼ {{ summary.deltas.referred * -1 }}% <em>vs 7 days</em></span>
+    </div>
+  </article>
+</section>
+
+<section class="mid-grid" *ngIf="summary">
+  <article class="cd-card">
+    <div class="cd-card-head">
+      <h2>Application Decisions Trend</h2>
+    </div>
+    <apx-chart
+      [series]="trend.series"
+      [chart]="trend.chart"
+      [colors]="trend.colors"
+      [stroke]="trend.stroke"
+      [dataLabels]="trend.dataLabels"
+      [fill]="trend.fill"
+      [xaxis]="trend.xaxis"
+      [yaxis]="trend.yaxis"
+      [grid]="trend.grid"
+      [legend]="trend.legend"
+      [tooltip]="trend.tooltip">
+    </apx-chart>
+  </article>
+
+  <article class="cd-card">
+    <div class="cd-card-head">
+      <h2>Risk Distribution</h2>
+    </div>
+    <div class="donut-wrap">
+      <apx-chart
+        [series]="donut.series"
+        [chart]="donut.chart"
+        [labels]="donut.labels"
+        [colors]="donut.colors"
+        [dataLabels]="donut.dataLabels"
+        [stroke]="donut.stroke"
+        [legend]="donut.legend"
+        [plotOptions]="donut.plotOptions">
+      </apx-chart>
+      <ul class="risk-legend">
+        <li><i class="dot low"></i><span>Low Risk</span><b>{{ credit.pct(summary.lowRisk, summary.total) }}</b><em>{{ summary.lowRisk | number }}</em></li>
+        <li><i class="dot mid"></i><span>Medium Risk</span><b>{{ credit.pct(summary.mediumRisk, summary.total) }}</b><em>{{ summary.mediumRisk | number }}</em></li>
+        <li><i class="dot high"></i><span>High Risk</span><b>{{ credit.pct(summary.highRisk, summary.total) }}</b><em>{{ summary.highRisk | number }}</em></li>
+      </ul>
+    </div>
+  </article>
+</section>
+
+<section class="low-grid" *ngIf="summary">
+  <article class="cd-card">
+    <div class="cd-card-head">
+      <h2>Recent Applications</h2>
+      <a routerLink="/applications">View all →</a>
+    </div>
+    <div class="table-scroll">
+      <table class="cd-table">
+        <thead>
+          <tr>
+            <th>Applicant</th>
+            <th>Amount (₦)</th>
+            <th>Score</th>
+            <th>Decision</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of recent" [routerLink]="['/applications', row.id]">
+            <td>{{ row.applicant }}</td>
+            <td>{{ row.amount | number }}</td>
+            <td><span class="score-pill" [ngClass]="credit.riskClass(row.risk)">{{ row.score }}</span></td>
+            <td><span class="pill" [ngClass]="credit.decisionClass(row.decision)">{{ row.decision === 'Refer' ? 'Refer' : row.decision }}</span></td>
+            <td>{{ row.submittedAt | date:'h:mm a' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </article>
+
+  <article class="cd-card">
+    <div class="cd-card-head"><h2>Quick Actions</h2></div>
+    <a class="qa" routerLink="/applications/new">
+      <span class="tone-blue"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>
+      <em><strong>New Loan Application</strong><small>Submit a mobile loan request</small></em>
+    </a>
+    <a class="qa" routerLink="/policy-simulator">
+      <span class="tone-violet"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h10M4 17h7"/></svg></span>
+      <em><strong>Policy Simulator</strong><small>Test different lending scenarios</small></em>
+    </a>
+    <a class="qa" routerLink="/applications">
+      <span class="tone-green"><svg viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12"/><path d="M4 6h.01M4 12h.01M4 18h.01"/></svg></span>
+      <em><strong>View Applications</strong><small>Search and manage applications</small></em>
+    </a>
+    <a class="qa" routerLink="/portfolio">
+      <span class="tone-blue"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16"/><path d="m7 14 4-4 3 3 5-6"/></svg></span>
+      <em><strong>Portfolio Analytics</strong><small>Explore portfolio performance</small></em>
+    </a>
+  </article>
+
+  <article class="cd-card">
+    <div class="cd-card-head"><h2>Key Highlights</h2></div>
+    <div class="highlight">
+      <span class="tone-green"><svg viewBox="0 0 24 24"><path d="m5 15 5-5 4 4 6-7"/></svg></span>
+      <div>
+        <small>Portfolio Approval Rate</small>
+        <strong>{{ credit.pct(summary.approved, summary.total) }}</strong>
+        <em class="up">▲ {{ summary.deltas.approved }}% vs 7 days</em>
+      </div>
+    </div>
+    <div class="highlight">
+      <span class="tone-blue"><svg viewBox="0 0 24 24"><path d="M12 3 5 7v5c0 4.5 3 7.5 7 9 4-1.5 7-4.5 7-9V7z"/></svg></span>
+      <div>
+        <small>Average Credit Score</small>
+        <strong>{{ summary.avgScore }}</strong>
+        <em class="up">▲ {{ summary.deltas.score }} vs 7 days</em>
+      </div>
+    </div>
+    <div class="highlight">
+      <span class="tone-amber"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v5l3 2"/></svg></span>
+      <div>
+        <small>Average Decision Time</small>
+        <strong>{{ summary.avgDecisionSeconds }}s</strong>
+        <em class="up">▼ {{ summary.deltas.decisionTime * -1 }}% vs 7 days</em>
+      </div>
+    </div>
+  </article>
+</section>

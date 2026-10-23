@@ -98,8 +98,11 @@ export class LoginComponent implements OnInit {
 
     const password = this.form.value.password;
 
-    // AuthService must send:
-    // { username, password }
+    // Frontend demo: do not call POST /v1/api/auth/login.
+    this.router.navigate(['/dashboard']);
+    return;
+
+    /*
     this.authservice.login(username, password).subscribe({
 
       next: (response: any) => {
@@ -263,6 +266,7 @@ export class LoginComponent implements OnInit {
       }
 
     });
+    */
 
   }
 

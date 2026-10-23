@@ -12,20 +12,17 @@ export class AuthGuard implements CanActivate, CanActivateChild {
   ) {}
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
-    // console.log('AuthGuard - Checking route:', state.url);
-    // console.log('AuthGuard - Token exists?', !!this.authService.getToken());
-    
-    if (this.authService.isAuthenticated()) {
-    //   console.log('AuthGuard - User is authenticated, allowing access');
-      return true;
-    }
-    
-    // console.log('AuthGuard - User NOT authenticated, redirecting to login');
-    this.authService.redirectURL = state.url;
-    this.router.navigate(['/auth/login'], { 
-      queryParams: { returnUrl: state.url }
-    });
-    return false;
+    // Frontend demo: the login gate is disabled. The previous check is kept below.
+    return true;
+
+    // if (this.authService.isAuthenticated()) {
+    //   return true;
+    // }
+    // this.authService.redirectURL = state.url;
+    // this.router.navigate(['/auth/login'], {
+    //   queryParams: { returnUrl: state.url }
+    // });
+    // return false;
   }
 
   canActivateChild(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {

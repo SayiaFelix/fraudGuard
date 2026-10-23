@@ -1,0 +1,11 @@
+<article class="cd-card">
+  <div class="audit" *ngFor="let event of events">
+    <div>
+      <strong>{{ event.action }}</strong>
+      <p>{{ event.detail }}</p>
+    </div>
+    <span class="pill" [ngClass]="credit.decisionClass(event.decision)">{{ event.decision }}</span>
+    <em>{{ event.actor }}</em>
+    <time>{{ event.time | date:'d MMM, h:mm a' }}</time>
+  </div>
+</article>

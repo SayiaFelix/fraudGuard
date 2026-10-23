@@ -13,6 +13,13 @@ export class AppComponent implements OnInit {
     translate.addLangs(['en', 'kis']);
     translate.setDefaultLang('en');
     translate.use('en');
+    document.body.classList.add('uba-credit');
+    localStorage.setItem('userDisplayName', 'Demo User');
+    localStorage.setItem('userTitle', 'Bank Officer');
+    localStorage.setItem('userRole', 'analyst');
+    localStorage.setItem('userEmail', 'demo.user@ubagroup.com');
+    localStorage.setItem('isLoggedin', 'true');
+    localStorage.setItem('access_token', 'frontend-demo-token');
   }
 
   ngOnInit(): void {}
