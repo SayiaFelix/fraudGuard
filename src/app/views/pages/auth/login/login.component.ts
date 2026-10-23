@@ -1,48 +1,39 @@
+
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import {
-  AbstractControl,
   FormBuilder,
   FormGroup,
-  Validators,
+  Validators
 } from '@angular/forms';
-import { CustomValidators } from 'ngx-custom-validators';
-import { HttpParams } from '@angular/common/http';
- 
-import { catchError, concat, Observable, of, throwError } from 'rxjs';
-import { delay, map } from 'rxjs/operators';
+
 import { TranslateService } from '@ngx-translate/core';
-import { HttpService } from 'src/app/shared/services/http.service';
-import Swal from "sweetalert2";
 import { AuthService } from 'src/app/shared/services/auth.service';
+import { HttpService } from 'src/app/shared/services/http.service';
 import { GlobalService } from 'src/app/shared/services/global.service';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss'],
+  styleUrls: ['./login.component.scss']
 })
 export class LoginComponent implements OnInit {
-  returnUrl: any;
+
+  returnUrl: string = '/dashboard';
+
   public form: FormGroup;
+
   public showingPassword = false;
   inputType = 'password';
- 
-  loginResponse$: Observable<any>;
- 
-  errorMsg: string;
-  hasError: boolean = false;
-  isLoading: boolean = false;
- 
-  selectedLanguage: any = 'English';
-  selectedLanguageFlag: any = 'assets/images/flags/us.svg';
- 
-  // Admin credentials for demo
-  readonly adminCredentials = {
-    email: 'sayia.felix@eclectics.io',
-    password: 'sFelixAdmin@123',
-    role: 'admin'
-  };
+
+  errorMsg = '';
+  hasError = false;
+  isLoading = false;
+
+  selectedLanguage = 'English';
+  selectedLanguageFlag = 'assets/images/flags/us.svg';
+
+  private readonly passwordChangeRoute = '/auth/first-time-password';
 
   constructor(
     private translate: TranslateService,
@@ -50,141 +41,352 @@ export class LoginComponent implements OnInit {
     private route: ActivatedRoute,
     private authservice: AuthService,
     private httpService: HttpService,
-    fb: FormBuilder,
-    private _router: Router,
+    private fb: FormBuilder,
     private globalService: GlobalService
   ) {
-    this.form = fb.group({
-      email: [
+
+    this.form = this.fb.group({
+      username: [
         '',
-        Validators.compose([Validators.required, CustomValidators.email]),
+        [
+          Validators.required
+        ]
       ],
       password: [
         '',
-        Validators.compose([Validators.required, Validators.minLength(6)]),
-      ],
+        [
+          Validators.required
+        ]
+      ]
     });
+
   }
- 
+
   ngOnInit(): void {
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+
+    this.returnUrl =
+      this.route.snapshot.queryParams['returnUrl'] ||
+      '/dashboard';
+
   }
 
-onSubmit(event: Event) {
-  event.preventDefault();
-  if (this.form.invalid) return;
+  // =====================================================
+  // LOGIN
+  // POST /v1/api/auth/login
+  // =====================================================
 
-  this.isLoading = true;
-  this.hasError = false;
+  onSubmit(event: Event): void {
 
-  const { email, password } = this.form.value;
-  
-  this.authservice.login(email, password).subscribe({
-    next: (response: any) => {
-      this.isLoading = false;
-      
-      if (response && response.access_token) {
-        // Show success
-        console.log('Login successful:', response);
-          localStorage.setItem('access_token', response.access_token);
-          localStorage.setItem('refresh_token', response.refresh_token);
-          localStorage.setItem('userRole', response.user?.role || 'admin');
-          localStorage.setItem('userEmail', response.user?.email || email);
-          localStorage.setItem('userName', response.user?.username || email.split('@')[0]);
-          localStorage.setItem('current_user', JSON.stringify(response.user));
-          localStorage.setItem('userDisplayName', this.authservice.getUserDisplayName());
-          localStorage.setItem('userTitle', this.authservice.getUserTitle());
-          
-        
-        // Swal.fire({
-        //     icon: 'success',
-        //     title: 'Login Successful!',
-        //     text: `Welcome back, ${response.user?.username || email.split('@')[0]}!`,
-        //     timer: 1500,
-        //     showConfirmButton: false,
-        //     backdrop: true,
-        //     toast: false,
-        //     position: 'center'
-        //   });
-        
-        const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
-        this.router.navigateByUrl(returnUrl);
-        
-        // setTimeout(() => {
-        //   this.router.navigateByUrl(returnUrl);
-        // }, 800);
-      } else {
-        this.hasError = true;
-        this.errorMsg = 'Invalid response from server.';
-      }
-    },
-    error: (error) => {
+    event.preventDefault();
+
+    if (this.isLoading) {
+      return;
+    }
+
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    this.isLoading = true;
+    this.hasError = false;
+    this.errorMsg = '';
+
+    const username = String(
+      this.form.value.username || ''
+    ).trim();
+
+    const password = this.form.value.password;
+
+    // AuthService must send:
+    // { username, password }
+    this.authservice.login(username, password).subscribe({
+
+      next: (response: any) => {
+
         this.isLoading = false;
-        this.hasError = true;
-        
-        let errorMessage = '';
-        
-        if (error.status === 401) {
-          errorMessage = 'Invalid email or password. Please check your credentials.';
-        } else if (error.status === 403) {
-          errorMessage = 'Your account is disabled. Please contact administrator.';
-        } else if (error.status === 0) {
-          errorMessage = 'Cannot connect to server. Please make sure the backend is running on port 5001.';
-        } else {
-          errorMessage = error.error?.error || 'Login failed. Please try again.';
+
+        // =================================================
+        // CASE 1: FIRST-TIME LOGIN
+        // =================================================
+
+        if (
+          response?.must_change_password === true ||
+          response?.status === 'password_change_required'
+        ) {
+
+          if (!response.password_change_token) {
+            this.showError(
+              'The server did not return a password change token.'
+            );
+            return;
+          }
+
+          // Remove any previous normal authentication
+          // credentials to prevent stale-session access.
+          this.clearLoginSession();
+
+          // Restricted token is NOT a normal access token.
+          // Keep it separate and temporary.
+          sessionStorage.setItem(
+            'password_change_token',
+            response.password_change_token
+          );
+
+          sessionStorage.setItem(
+            'password_change_username',
+            username
+          );
+
+          if (response.expires_at) {
+            sessionStorage.setItem(
+              'password_change_expires_at',
+              response.expires_at
+            );
+          }
+
+          // Never retain the temporary password.
+          this.form.patchValue({
+            password: ''
+          });
+
+          this.router.navigate(
+            [this.passwordChangeRoute],
+            {
+              queryParams: {
+                firstTime: 'true'
+              }
+            }
+          ).then(navigated => {
+            if (!navigated) {
+              this.showError(
+                'Password change page could not be opened. Check the authentication route.'
+              );
+            }
+          });
+
+          return;
         }
-        
-        this.errorMsg = errorMessage;
-        console.error('Login error:', error);
-      
-        // Swal.fire({
-        //   icon: 'error',
-        //   title: 'Login Failed',
-        //   text: errorMessage,
-        //   confirmButtonColor: '#d33',
-        //   confirmButtonText: 'Try Again'
-        // });
+
+        // =================================================
+        // CASE 2: NORMAL LOGIN
+        // =================================================
+
+        if (
+          response?.access_token &&
+          response?.refresh_token &&
+          response?.user
+        ) {
+
+          // Remove any old first-time login state.
+          this.clearPasswordChangeSession();
+
+          localStorage.setItem(
+            'access_token',
+            response.access_token
+          );
+
+          localStorage.setItem(
+            'refresh_token',
+            response.refresh_token
+          );
+
+          const user = response.user;
+
+          localStorage.setItem(
+            'userRole',
+            user.role || ''
+          );
+
+          localStorage.setItem(
+            'userEmail',
+            user.email || ''
+          );
+
+          localStorage.setItem(
+            'userName',
+            user.username || username
+          );
+
+          localStorage.setItem(
+            'current_user',
+            JSON.stringify(user)
+          );
+
+          localStorage.setItem(
+            'userDisplayName',
+            this.authservice.getUserDisplayName()
+          );
+
+          localStorage.setItem(
+            'userTitle',
+            this.authservice.getUserTitle()
+          );
+
+          // Only allow an internal application route.
+          const destination =
+            this.returnUrl.startsWith('/') &&
+            !this.returnUrl.startsWith('//') &&
+            !this.returnUrl.includes('\\') &&
+            !this.returnUrl.startsWith('/auth/')
+              ? this.returnUrl
+              : '/dashboard';
+
+          this.router.navigateByUrl(destination)
+            .then(navigated => {
+              if (!navigated) {
+                this.showError(
+                  'Login succeeded, but the dashboard could not be opened.'
+                );
+              }
+            });
+
+          return;
+        }
+
+        // =================================================
+        // CASE 3: UNEXPECTED RESPONSE
+        // =================================================
+
+        this.showError(
+          'Invalid login response received from the server.'
+        );
+
+      },
+
+      error: (error: any) => {
+
+        this.isLoading = false;
+
+        this.handleLoginError(error);
+
       }
-  });
-}
- 
-toggleShowPassword() {
-    this.showingPassword = !this.showingPassword;
-    if (this.showingPassword) {
-      this.inputType = 'text';
-    } else {
-      this.inputType = 'password';
-    }
-  }
- 
-  navigateToSignUp() {
-    this.router.navigate(['/auth/signup']);
-  }
- 
-  changeLanguage(lang: string) {
-    this.translate.use(lang);
-    if (lang === 'en') {
-      this.selectedLanguage = 'English';
-    } else if (lang === 'kis') {
-      this.selectedLanguage = 'Kiswahili';
-      this.selectedLanguageFlag = 'assets/images/flags/ke.svg';
-    }
-  }
- 
-  fillAdminCredentials() {
-    this.form.patchValue({
-      email: this.adminCredentials.email,
-      password: this.adminCredentials.password
+
     });
-    
-    // Swal.fire({
-    //   icon: 'info',
-    //   title: 'Demo Credentials Loaded',
-    //   text: `Admin credentials loaded. Click Sign In to continue.`,
-    //   timer: 400,
-    //   showConfirmButton: false,
-    //   toast: false,
-    //   position: 'center'
-    // });
+
   }
+
+  // =====================================================
+  // HANDLE LOGIN ERRORS
+  // =====================================================
+
+  private handleLoginError(error: any): void {
+
+    const errorCode = error.error?.code;
+
+    let message = '';
+
+    if (
+      error.status === 401 &&
+      errorCode === 'TEMPORARY_PASSWORD_EXPIRED'
+    ) {
+
+      message =
+        'Your temporary password has expired. ' +
+        'Please contact your administrator to resend ' +
+        'the invitation or reset your password.';
+
+    } else if (error.status === 401) {
+
+      message =
+        'Invalid username or password. ' +
+        'Please check your credentials and try again.';
+
+    } else if (error.status === 403) {
+
+      message =
+        'Your account does not have permission to log in. ' +
+        'Please contact your administrator.';
+
+    } else if (error.status === 429) {
+
+      message =
+        'Too many login attempts. Please try again later.';
+
+    } else if (error.status === 0) {
+
+      message =
+        'Unable to connect to the authentication server. ' +
+        'Please check your connection and try again.';
+
+    } else {
+
+      message =
+        error.error?.error ||
+        error.error?.message ||
+        'Login failed. Please try again.';
+
+    }
+
+    this.showError(message);
+
+  }
+
+  private showError(message: string): void {
+    this.hasError = true;
+    this.errorMsg = message;
+  }
+
+  // =====================================================
+  // CLEAN UP PREVIOUS SESSIONS
+  // =====================================================
+
+  private clearLoginSession(): void {
+
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('current_user');
+    localStorage.removeItem('userDisplayName');
+    localStorage.removeItem('userTitle');
+
+  }
+
+  private clearPasswordChangeSession(): void {
+
+    sessionStorage.removeItem('password_change_token');
+    sessionStorage.removeItem('password_change_username');
+    sessionStorage.removeItem('password_change_expires_at');
+
+  }
+
+  // =====================================================
+  // PASSWORD VISIBILITY
+  // =====================================================
+
+  toggleShowPassword(): void {
+
+    this.showingPassword = !this.showingPassword;
+
+    this.inputType =
+      this.showingPassword ? 'text' : 'password';
+
+  }
+
+  // =====================================================
+  // LANGUAGE
+  // =====================================================
+
+  changeLanguage(lang: string): void {
+
+    this.translate.use(lang);
+
+    if (lang === 'en') {
+
+      this.selectedLanguage = 'English';
+      this.selectedLanguageFlag =
+        'assets/images/flags/us.svg';
+
+    } else if (lang === 'kis') {
+
+      this.selectedLanguage = 'Kiswahili';
+      this.selectedLanguageFlag =
+        'assets/images/flags/ke.svg';
+
+    }
+
+  }
+
 }
