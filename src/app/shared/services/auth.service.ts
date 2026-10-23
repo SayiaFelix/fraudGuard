@@ -1,21 +1,28 @@
+
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { BehaviorSubject, Observable, tap, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = `${environment.customerPortalNest}`
+
+  private apiUrl = `${environment.customerPortalNest}`;
+
   private tokenKey = 'access_token';
   private refreshTokenKey = 'refresh_token';
   private userKey = 'current_user';
   private displayNameKey = 'userDisplayName';
   private userTitleKey = 'userTitle';
 
+  private passwordChangeTokenKey = 'password_change_token';
+  private passwordChangeUsernameKey = 'password_change_username';
+  private passwordChangeExpiryKey = 'password_change_expires_at';
+
   private currentUserSubject = new BehaviorSubject<any>(null);
+
   public currentUser$ = this.currentUserSubject.asObservable();
   public redirectURL: string | null = null;
 
@@ -23,148 +30,604 @@ export class AuthService {
     this.loadStoredUser();
   }
 
+  // =====================================================
+  // LOAD STORED USER
+  // =====================================================
+
   private loadStoredUser(): void {
+
     const user = localStorage.getItem(this.userKey);
-    if (user) {
-      try {
-        this.currentUserSubject.next(JSON.parse(user));
-        // console.log('Loaded stored user:', JSON.parse(user));
-      } catch (e) {
-        console.error('Error parsing stored user', e);
-        this.logout();
-      }
+
+    if (!user) {
+      return;
+    }
+
+    try {
+      this.currentUserSubject.next(JSON.parse(user));
+    } catch (error) {
+      console.error('Invalid stored user information');
+      this.clearLocalSession();
     }
   }
 
-  login(email: string, password: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/auth/login`, { 
-      username: email, 
-      password: password 
-    }).pipe(tap((response: any) => {
-      if (response.access_token) {
-        // console.log('Login response:', response);
-        
-        localStorage.setItem(this.tokenKey, response.access_token);
-        localStorage.setItem(this.refreshTokenKey, response.refresh_token);
-        localStorage.setItem(this.userKey, JSON.stringify(response.user));
-        localStorage.setItem('userRole', response.user?.role || 'admin');
-        localStorage.setItem('userEmail', response.user?.email || email);
-        localStorage.setItem('userName', response.user?.username || email.split('@')[0]);
-        localStorage.setItem(this.displayNameKey, this.resolveDisplayName(response.user, email));
-        localStorage.setItem(this.userTitleKey, this.resolveUserTitle(response.user));
-        
-        // console.log('Stored in localStorage:', {
-        //   token: !!localStorage.getItem(this.tokenKey),
-        //   role: localStorage.getItem('userRole'),
-        //   email: localStorage.getItem('userEmail')
-        // });
-        
-        this.currentUserSubject.next(response.user);
+  // =====================================================
+  // LOGIN
+  // POST /v1/api/auth/login
+  // =====================================================
+
+  login(
+    username: string,
+    password: string
+  ): Observable<any> {
+
+    return this.http.post<any>(
+      `${this.apiUrl}/auth/login`,
+      {
+        username: username.trim(),
+        password
       }
-    }));
+    ).pipe(
+
+      tap((response: any) => {
+
+        // FIRST-TIME LOGIN
+        if (
+          response?.must_change_password === true ||
+          response?.status === 'password_change_required'
+        ) {
+
+          if (!response?.password_change_token) {
+            throw new Error(
+              'Password change token missing from login response.'
+            );
+          }
+
+          // A restricted token must never become
+          // a normal authenticated session.
+          this.clearLocalSession();
+          this.clearPasswordChangeSession();
+
+          sessionStorage.setItem(
+            this.passwordChangeTokenKey,
+            response.password_change_token
+          );
+
+          sessionStorage.setItem(
+            this.passwordChangeUsernameKey,
+            username.trim()
+          );
+
+          if (response.expires_at) {
+            sessionStorage.setItem(
+              this.passwordChangeExpiryKey,
+              response.expires_at
+            );
+          }
+
+          return;
+        }
+
+        // NORMAL LOGIN
+        if (
+          response?.access_token &&
+          response?.refresh_token &&
+          response?.user
+        ) {
+
+          this.clearPasswordChangeSession();
+          this.saveAuthenticatedSession(
+            response,
+            username
+          );
+
+          return;
+        }
+
+        throw new Error(
+          'Invalid authentication response from server.'
+        );
+
+      })
+
+    );
   }
 
-  register(userData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/auth/register`, userData);
+  // =====================================================
+  // SAVE NORMAL AUTHENTICATED SESSION
+  // =====================================================
+
+  private saveAuthenticatedSession(
+    response: any,
+    username: string
+  ): void {
+
+    const user = response.user;
+
+    localStorage.setItem(
+      this.tokenKey,
+      response.access_token
+    );
+
+    localStorage.setItem(
+      this.refreshTokenKey,
+      response.refresh_token
+    );
+
+    localStorage.setItem(
+      this.userKey,
+      JSON.stringify(user)
+    );
+
+    localStorage.setItem(
+      'userRole',
+      user.role || ''
+    );
+
+    localStorage.setItem(
+      'userEmail',
+      user.email || ''
+    );
+
+    localStorage.setItem(
+      'userName',
+      user.username || username
+    );
+
+    localStorage.setItem(
+      this.displayNameKey,
+      this.resolveDisplayName(user, username)
+    );
+
+    localStorage.setItem(
+      this.userTitleKey,
+      this.resolveUserTitle(user)
+    );
+
+    localStorage.setItem(
+      'isLoggedin',
+      'true'
+    );
+
+    this.currentUserSubject.next(user);
   }
 
-  logout(): void {
-    const refreshToken = localStorage.getItem(this.refreshTokenKey);
-    if (refreshToken) {
-      this.http.post(`${this.apiUrl}/auth/logout`, { refresh_token: refreshToken }).subscribe({
-        next: () => console.log('Logged out from server'),
-        error: (err) => console.error('Logout error:', err)
-      });
+  // =====================================================
+  // FIRST-TIME PASSWORD CHANGE
+  // POST /v1/api/auth/change-password
+  // =====================================================
+
+  setFirstTimePassword(
+    newPassword: string,
+    confirmPassword: string
+  ): Observable<any> {
+
+    const restrictedToken =
+      this.getPasswordChangeToken();
+
+    if (!restrictedToken) {
+      return throwError(() =>
+        new Error(
+          'Password setup session missing or expired.'
+        )
+      );
     }
-    
-    // Clear storage
-    localStorage.removeItem(this.tokenKey);
-    localStorage.removeItem(this.refreshTokenKey);
-    localStorage.removeItem(this.userKey);
-    localStorage.removeItem('userRole');
-    localStorage.removeItem('userEmail');
-    localStorage.removeItem('userName');
-    localStorage.removeItem(this.displayNameKey);
-    localStorage.removeItem(this.userTitleKey);
-    
-    this.currentUserSubject.next(null);
-    console.log('Local storage cleared on logout');
+
+    return this.http.post<any>(
+      `${this.apiUrl}/auth/change-password`,
+      {
+        password_change_token: restrictedToken,
+        new_password: newPassword,
+        confirm_password: confirmPassword
+      },
+      {
+        headers: new HttpHeaders({
+          'Content-Type': 'application/json'
+        })
+      }
+    ).pipe(
+
+      tap(() => {
+
+        // After HTTP 200, user must log in again.
+        this.clearPasswordChangeSession();
+        this.clearLocalSession();
+
+      })
+
+    );
   }
 
-getToken(): string | null {
+  // =====================================================
+  // RESTRICTED TOKEN
+  // =====================================================
 
-  const token = localStorage.getItem('access_token') || 
-                localStorage.getItem('token') || 
-                sessionStorage.getItem('access_token');
-  
-  // console.log('getToken - Retrieved:', token ? `${token.substring(0, 20)}...` : 'null');
-  return token;
-}
+  getPasswordChangeToken(): string | null {
 
-isAuthenticated(): boolean {
-  const token = this.getToken();
-  console.log('isAuthenticated - Token exists?', !!token);
-  
-  if (!token) return false;
-  
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    const expired = payload.exp * 1000 < Date.now();
-    // console.log('isAuthenticated - Expired?', expired);
-    if (expired) {
-      this.logout();
+    const token = sessionStorage.getItem(
+      this.passwordChangeTokenKey
+    );
+
+    const expiry = sessionStorage.getItem(
+      this.passwordChangeExpiryKey
+    );
+
+    if (expiry) {
+
+      const expiryTime = new Date(expiry).getTime();
+
+      if (
+        !Number.isNaN(expiryTime) &&
+        Date.now() >= expiryTime
+      ) {
+
+        this.clearPasswordChangeSession();
+
+        return null;
+      }
+    }
+
+    return token;
+  }
+
+  getPasswordChangeUsername(): string {
+
+    return sessionStorage.getItem(
+      this.passwordChangeUsernameKey
+    ) || '';
+  }
+
+  getPasswordChangeExpiry(): string | null {
+
+    return sessionStorage.getItem(
+      this.passwordChangeExpiryKey
+    );
+  }
+
+  clearPasswordChangeSession(): void {
+
+    sessionStorage.removeItem(
+      this.passwordChangeTokenKey
+    );
+
+    sessionStorage.removeItem(
+      this.passwordChangeUsernameKey
+    );
+
+    sessionStorage.removeItem(
+      this.passwordChangeExpiryKey
+    );
+  }
+
+  // =====================================================
+  // CURRENT USER
+  // GET /v1/api/auth/me
+  // =====================================================
+
+  fetchCurrentUser(): Observable<any> {
+
+    const token = this.getToken();
+
+    if (!token) {
+      return throwError(() =>
+        new Error('No authentication token available.')
+      );
+    }
+
+    return this.http.get<any>(
+      `${this.apiUrl}/auth/me`,
+      {
+        headers: new HttpHeaders({
+          Authorization: `Bearer ${token}`
+        })
+      }
+    ).pipe(
+
+      tap((response: any) => {
+
+        // Exact response shape must be confirmed.
+        const user = response?.user || response?.data || response;
+
+        if (
+          user &&
+          typeof user === 'object' &&
+          user.username
+        ) {
+
+          localStorage.setItem(
+            this.userKey,
+            JSON.stringify(user)
+          );
+
+          localStorage.setItem(
+            'userRole',
+            user.role || ''
+          );
+
+          localStorage.setItem(
+            'userEmail',
+            user.email || ''
+          );
+
+          localStorage.setItem(
+            'userName',
+            user.username
+          );
+
+          localStorage.setItem(
+            this.displayNameKey,
+            this.resolveDisplayName(user, user.username)
+          );
+
+          localStorage.setItem(
+            this.userTitleKey,
+            this.resolveUserTitle(user)
+          );
+
+          this.currentUserSubject.next(user);
+        }
+
+      })
+
+    );
+  }
+
+  // =====================================================
+  // GET NORMAL ACCESS TOKEN
+  // =====================================================
+
+  getToken(): string | null {
+
+    return localStorage.getItem(this.tokenKey);
+  }
+
+  // =====================================================
+  // CHECK AUTHENTICATION STATUS
+  // =====================================================
+
+  isAuthenticated(): boolean {
+
+    const token = this.getToken();
+
+    if (!token) {
       return false;
     }
-    return true;
-  } catch (e) {
-    // console.error('Error checking token:', e);
-    return false;
+
+    try {
+
+      const parts = token.split('.');
+
+      if (parts.length !== 3) {
+        return false;
+      }
+
+      const payload = JSON.parse(
+        atob(
+          parts[1]
+            .replace(/-/g, '+')
+            .replace(/_/g, '/')
+            .padEnd(Math.ceil(parts[1].length / 4) * 4, '=')
+        )
+      );
+
+      if (
+        typeof payload.exp !== 'number' ||
+        payload.exp * 1000 <= Date.now()
+      ) {
+
+        this.clearLocalSession();
+
+        return false;
+      }
+
+      return true;
+
+    } catch (error) {
+
+      return false;
+    }
   }
-}
+
+  // =====================================================
+  // USER DETAILS
+  // =====================================================
 
   getCurrentUser(): any {
+
     return this.currentUserSubject.value;
   }
 
   getUserRole(): string | null {
+
     return localStorage.getItem('userRole');
   }
 
   getUserDisplayName(): string {
-    return localStorage.getItem(this.displayNameKey) || 'User';
+
+    return localStorage.getItem(
+      this.displayNameKey
+    ) || 'User';
   }
 
   getUserTitle(): string {
-    const title = localStorage.getItem(this.userTitleKey);
-    if (title) return title;
+
+    const title = localStorage.getItem(
+      this.userTitleKey
+    );
+
+    if (title) {
+      return title;
+    }
+
     const role = this.getUserRole();
-    return role ? role.charAt(0).toUpperCase() + role.slice(1) : 'User';
+
+    return role
+      ? role.charAt(0).toUpperCase() + role.slice(1)
+      : 'User';
   }
 
-  private resolveDisplayName(user: any, email: string): string {
-    if (user?.full_name) return user.full_name;
-    if (user?.name) return user.name;
-    if (user?.display_name) return user.display_name;
-    const username = user?.username || email.split('@')[0];
-    return username
+  // =====================================================
+  // DISPLAY NAME HELPERS
+  // =====================================================
+
+  private resolveDisplayName(
+    user: any,
+    username: string
+  ): string {
+
+    if (user?.full_name) {
+      return user.full_name;
+    }
+
+    if (user?.name) {
+      return user.name;
+    }
+
+    if (user?.display_name) {
+      return user.display_name;
+    }
+
+    const resolvedUsername =
+      user?.username || username;
+
+    return resolvedUsername
       .replace(/[._-]/g, ' ')
-      .replace(/\b\w/g, (c: string) => c.toUpperCase());
+      .replace(/\b\w/g, (character: string) =>
+        character.toUpperCase()
+      );
   }
 
   private resolveUserTitle(user: any): string {
-    if (user?.title) return user.title;
-    if (user?.job_title) return user.job_title;
-    const role = user?.role || 'admin';
-    return role.charAt(0).toUpperCase() + role.slice(1);
+
+    if (user?.title) {
+      return user.title;
+    }
+
+    if (user?.job_title) {
+      return user.job_title;
+    }
+
+    const role = user?.role || '';
+
+    return role
+      ? role.charAt(0).toUpperCase() + role.slice(1)
+      : 'User';
   }
 
+  // =====================================================
+  // REFRESH ACCESS TOKEN
+  // Endpoint exists in previous implementation;
+  // confirm backend contract.
+  // =====================================================
+
   refreshToken(): Observable<any> {
-    const refreshToken = localStorage.getItem(this.refreshTokenKey);
-    return this.http.post(`${this.apiUrl}/auth/refresh`, { refresh_token: refreshToken })
-      .pipe(tap((response: any) => {
-        if (response.access_token) {
-          localStorage.setItem(this.tokenKey, response.access_token);
+
+    const refreshToken =
+      localStorage.getItem(this.refreshTokenKey);
+
+    if (!refreshToken) {
+      return throwError(() =>
+        new Error('Refresh token not available.')
+      );
+    }
+
+    return this.http.post<any>(
+      `${this.apiUrl}/auth/refresh`,
+      {
+        refresh_token: refreshToken
+      }
+    ).pipe(
+
+      tap((response: any) => {
+
+        if (response?.access_token) {
+
+          localStorage.setItem(
+            this.tokenKey,
+            response.access_token
+          );
+
+          if (response.refresh_token) {
+
+            localStorage.setItem(
+              this.refreshTokenKey,
+              response.refresh_token
+            );
+          }
         }
-      }));
+
+      })
+
+    );
   }
+
+  // =====================================================
+  // LOGOUT
+  // =====================================================
+
+  logout(): void {
+
+    const refreshToken =
+      localStorage.getItem(this.refreshTokenKey);
+
+    // Clear local credentials immediately.
+    this.clearLocalSession();
+    this.clearPasswordChangeSession();
+
+    // Server logout remains provisional until
+    // backend endpoint is confirmed.
+    if (refreshToken) {
+
+      this.http.post(
+        `${this.apiUrl}/auth/logout`,
+        {
+          refresh_token: refreshToken
+        }
+      ).subscribe({
+        next: () => {},
+        error: () => {}
+      });
+
+    }
+  }
+
+  // =====================================================
+  // CLEAR LOCAL AUTHENTICATION
+  // =====================================================
+
+  private clearLocalSession(): void {
+
+    localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem(this.refreshTokenKey);
+    localStorage.removeItem(this.userKey);
+
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('userName');
+
+    localStorage.removeItem(this.displayNameKey);
+    localStorage.removeItem(this.userTitleKey);
+
+    localStorage.removeItem('isLoggedin');
+
+    // Remove older token keys to prevent
+    // accidental fallback authentication.
+    localStorage.removeItem('token');
+    localStorage.removeItem('authToken');
+
+    this.currentUserSubject.next(null);
+  }
+
+  // =====================================================
+  // LEGACY REGISTRATION
+  // Not used by the invitation-only authentication flow.
+  // =====================================================
+
+  register(userData: any): Observable<any> {
+
+    return this.http.post(
+      `${this.apiUrl}/auth/register`,
+      userData
+    );
+  }
+
 }

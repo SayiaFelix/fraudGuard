@@ -903,6 +903,138 @@ export class HttpService {
   }
 
   // User Management Methods
+
+  
+  // =====================================================
+  // NEW FRAUD GUARD AUTHENTICATION APIs
+  // =====================================================
+
+  /**
+   * LOGIN
+   * POST /v1/api/auth/login
+   * No bearer token required.
+   */
+  loginFraudGuard(
+    username: string,
+    password: string
+  ): Observable<any> {
+
+    return this.http.post<any>(
+      `${this.apiUrl}/auth/login`,
+      {
+        username,
+        password
+      },
+      {
+        headers: new HttpHeaders({
+          'Content-Type': 'application/json'
+        })
+      }
+    );
+  }
+
+  /**
+   * FIRST-TIME PERMANENT PASSWORD
+   * POST /v1/api/auth/change-password
+   * Uses restricted token in request body.
+   * No normal bearer token required.
+   */
+  setFirstTimePassword(
+    passwordChangeToken: string,
+    newPassword: string,
+    confirmPassword: string
+  ): Observable<any> {
+
+    return this.http.post<any>(
+      `${this.apiUrl}/auth/change-password`,
+      {
+        password_change_token: passwordChangeToken,
+        new_password: newPassword,
+        confirm_password: confirmPassword
+      },
+      {
+        headers: new HttpHeaders({
+          'Content-Type': 'application/json'
+        })
+      }
+    );
+  }
+
+  // =====================================================
+  // USER MANAGEMENT APIs
+  // =====================================================
+
+  /**
+   * LIST USERS
+   * GET /v1/api/admin/users
+   */
+  listFraudGuardUsers(): Observable<any> {
+
+    return this.http.get<any>(
+      `${this.apiUrl}/admin/users`,
+      this.getHeaders()
+    );
+  }
+
+  /**
+   * INVITE USER
+   * POST /v1/api/admin/users/invite
+   */
+  inviteFraudGuardUser(payload: {
+    username: string;
+    email: string;
+    role: string;
+  }): Observable<any> {
+
+    return this.http.post<any>(
+      `${this.apiUrl}/admin/users/invite`,
+      payload,
+      this.getHeaders()
+    );
+  }
+
+  /**
+   * RESEND INVITATION
+   * POST /v1/api/admin/users/{user_id}/resend-invitation
+   */
+  resendFraudGuardInvitation(
+    userId: string | number
+  ): Observable<any> {
+
+    return this.http.post<any>(
+      `${this.apiUrl}/admin/users/${encodeURIComponent(String(userId))}/resend-invitation`,
+      {},
+      this.getHeaders()
+    );
+  }
+
+  /**
+   * RESET USER PASSWORD
+   * POST /v1/api/admin/users/{user_id}/reset-password
+   */
+  resetFraudGuardUserPassword(
+    userId: string | number
+  ): Observable<any> {
+
+    return this.http.post<any>(
+      `${this.apiUrl}/admin/users/${encodeURIComponent(String(userId))}/reset-password`,
+      {},
+      this.getHeaders()
+    );
+  }
+
+  /**
+   * CURRENT AUTHENTICATED USER
+   * GET /v1/api/auth/me
+   */
+  getFraudGuardCurrentUser(): Observable<any> {
+
+    return this.http.get<any>(
+      `${this.apiUrl}/auth/me`,
+      this.getHeaders()
+    );
+  }
+
   UserGet(endpoint: string): any {
     return this.http.get(
       this.globalService.customerPortalNest + endpoint,
