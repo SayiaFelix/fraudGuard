@@ -63,7 +63,7 @@ export class AuthService {
     // Frontend demo. POST /v1/api/auth/login is not called.
     const demoUser = {
       username: (username || 'demo.user').trim(),
-      email: 'demo.user@ubagroup.com',
+      email: 'demo.user@eclectics.io',
       role: 'analyst',
       name: 'Demo User',
       title: 'Bank Officer'

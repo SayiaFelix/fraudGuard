@@ -101,7 +101,7 @@ export class CreditDataService {
   }
 
   money(value: number): string {
-    return '₦' + Math.round(value || 0).toLocaleString('en-NG');
+    return 'KSh ' + Math.round(value || 0).toLocaleString('en-KE');
   }
 
   pct(part: number, total: number): string {
@@ -305,7 +305,7 @@ export class CreditDataService {
       next.declineBelow = next.approveFrom - 40;
     }
     this.policySubject.next(next);
-    localStorage.setItem('uba-credit-policy', JSON.stringify(next));
+    localStorage.setItem('eclectics-credit-policy', JSON.stringify(next));
   }
 
   simulate(draft: PolicySettings): SimulationResult {
@@ -438,7 +438,7 @@ export class CreditDataService {
 
   private readPolicy(): PolicySettings {
     try {
-      const saved = localStorage.getItem('uba-credit-policy');
+      const saved = localStorage.getItem('eclectics-credit-policy');
       if (!saved) return clone(DEFAULT_POLICY);
       const parsed = JSON.parse(saved);
       return {

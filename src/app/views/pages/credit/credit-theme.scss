@@ -41,11 +41,23 @@ body.uba-credit .sidebar .sidebar-body {
   flex: 1 1 auto;
   min-height: 0 !important;
   height: auto !important;
+  overflow-x: hidden !important;
   overflow-y: auto !important;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+body.uba-credit .sidebar .sidebar-body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
 }
 
 body.uba-credit .sidebar .sidebar-body .sidebar-nav {
   padding: 4px 12px 16px !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
 }
 
 body.uba-credit .sidebar .nav-category {
@@ -68,7 +80,7 @@ body.uba-credit .sidebar .sidebar-body .sidebar-nav .nav-item > .nav-link {
   min-height: 40px;
   padding: 9px 12px !important;
   border-radius: 10px;
-  color: #D5DEEA !important;
+  color: #ffffff !important;
   font-family: Manrope, Roboto, sans-serif;
   font-size: 14px;
   font-weight: 600;
@@ -82,30 +94,53 @@ body.uba-credit .sidebar .sidebar-body .sidebar-nav .nav-item > .nav-link .link-
   width: 18px !important;
   height: 18px !important;
   margin: 0 !important;
-  color: #A9B8CE !important;
+  color: #ffffff !important;
   stroke: currentColor;
 }
 
-body.uba-credit .sidebar .sidebar-body .sidebar-nav .nav-item > .nav-link .link-title {
+body.uba-credit .sidebar .sidebar-body .sidebar-nav .nav-item > .nav-link .link-title,
+body.uba-credit .sidebar .sidebar-body .sidebar-nav .nav-item:hover > .nav-link .link-title,
+body.uba-credit .sidebar .sidebar-body .sidebar-nav .nav-item > .nav-link:hover .link-title,
+body.uba-credit .sidebar .sidebar-body .sidebar-nav .nav-item.mm-active > .nav-link .link-title,
+body.uba-credit .sidebar .sidebar-body .sidebar-nav .nav-item > .nav-link.active .link-title,
+body.uba-credit .sidebar .sidebar-body .sidebar-nav .nav-item > .nav-link.mm-active .link-title {
   margin: 0;
   padding: 0;
-  color: inherit;
+  color: #ffffff !important;
+  opacity: 1 !important;
 }
 
+body.uba-credit .sidebar .sidebar-body .sidebar-nav .nav-item:hover > .nav-link,
 body.uba-credit .sidebar .sidebar-body .sidebar-nav .nav-item > .nav-link:hover {
-  background: rgba(255, 255, 255, 0.06);
-  color: #fff !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+}
+
+body.uba-credit .sidebar .sidebar-body .sidebar-nav .nav-item:hover > .nav-link .link-icon,
+body.uba-credit .sidebar .sidebar-body .sidebar-nav .nav-item > .nav-link:hover .link-icon,
+body.uba-credit .sidebar .sidebar-body .sidebar-nav .nav-item.mm-active > .nav-link .link-icon,
+body.uba-credit .sidebar .sidebar-body .sidebar-nav .nav-item > .nav-link.active .link-icon,
+body.uba-credit .sidebar .sidebar-body .sidebar-nav .nav-item > .nav-link.mm-active .link-icon {
+  color: #ffffff !important;
+  fill: none !important;
+  stroke: #ffffff !important;
+}
+
+body.uba-credit .sidebar .sidebar-body .sidebar-nav .nav-item.mm-active {
+  background: transparent !important;
 }
 
 body.uba-credit .sidebar .sidebar-body .sidebar-nav .nav-item > .nav-link.active,
-body.uba-credit .sidebar .sidebar-body .sidebar-nav .nav-item > .nav-link.mm-active {
+body.uba-credit .sidebar .sidebar-body .sidebar-nav .nav-item > .nav-link.mm-active,
+body.uba-credit .sidebar .sidebar-body .sidebar-nav .nav-item.mm-active > .nav-link {
   background: #2F6BFF !important;
-  color: #fff !important;
+  color: #ffffff !important;
 }
 
 body.uba-credit .sidebar .sidebar-body .sidebar-nav .nav-item > .nav-link.active .link-icon,
 body.uba-credit .sidebar .sidebar-body .sidebar-nav .nav-item > .nav-link.mm-active .link-icon {
-  color: #fff !important;
+  color: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 body.uba-credit .sidebar .badge.bg-uba {
@@ -149,12 +184,12 @@ body.uba-credit .navbar {
 }
 
 .eclectics-logo {
-  height: 36px;
+  height: 52px;
   width: auto;
-  max-width: 196px;
+  max-width: 228px;
   background: #fff;
-  border-radius: 8px;
-  padding: 6px 10px;
+  border-radius: 10px;
+  padding: 8px 12px;
   object-fit: contain;
   display: block;
 }
@@ -185,6 +220,11 @@ body.uba-credit .navbar {
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.sidebar-status,
+.sidebar-version {
+  flex-shrink: 0;
 }
 
 .sidebar-status {

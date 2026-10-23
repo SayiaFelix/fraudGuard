@@ -1,7 +1,7 @@
 import { MenuItem } from './menu.model';
 
 // Fraud Guard navigation is retained and commented out.
-// The live menu is the UBA credit decisioning workspace.
+// The live menu is the Eclectics credit decisioning workspace.
 // export const MENU: MenuItem[] = [
 //   { label: 'Dashboard', icon: 'home', link: '/dashboard' },
 //   { label: 'Customer Profiling', icon: 'user-check', link: '/fraudsentinelAi/transaction_management/customer-profiling' },
@@ -21,8 +21,9 @@ import { MenuItem } from './menu.model';
 // ];
 
 export const MENU: MenuItem[] = [
-  { isTitle: true, label: 'Workspace' },
   { label: 'Dashboard', icon: 'home', link: '/dashboard', exact: true },
+
+  { isTitle: true, label: 'Workspace' },
   { label: 'New Application', icon: 'plus-circle', link: '/applications/new', exact: true },
   {
     label: 'Applications',
@@ -31,7 +32,7 @@ export const MENU: MenuItem[] = [
     exact: true,
     badge: { text: 124, variant: 'uba' }
   },
-  { label: 'Alerts', icon: 'bell', link: '/alerts', exact: true, badge: { text: 8, variant: 'uba' } },
+  { label: 'Decision Queue', icon: 'inbox', link: '/decision-queue', exact: true, badge: { text: 8, variant: 'uba' } },
 
   { isTitle: true, label: 'Risk & Decisioning' },
   { label: 'Credit Scoring', icon: 'percent', link: '/credit-scoring', exact: true },
@@ -43,6 +44,7 @@ export const MENU: MenuItem[] = [
   { label: 'Reports', icon: 'bar-chart-2', link: '/reports', exact: true },
 
   { isTitle: true, label: 'Administration' },
+  { label: 'Alerts', icon: 'bell', link: '/alerts', exact: true, badge: { text: 8, variant: 'uba' } },
   { label: 'Model Monitoring', icon: 'activity', link: '/model-monitoring', exact: true },
   { label: 'Audit Logs', icon: 'shield', link: '/audit-logs', exact: true },
   { label: 'Integrations', icon: 'link', link: '/integrations', exact: true },
