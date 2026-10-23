@@ -1,0 +1,83 @@
+<form class="form-layout" [formGroup]="form" (ngSubmit)="submit()" *ngIf="!created">
+  <section class="cd-card form-card">
+    <h2>Applicant</h2>
+    <div class="form-grid">
+      <label>Full name<input formControlName="applicant" placeholder="Adaeze Okonkwo" /></label>
+      <label>Mobile number<input formControlName="phone" placeholder="+234 800 000 0000" /></label>
+      <label>National ID<input formControlName="nationalId" placeholder="NIN or national ID" /></label>
+      <label>Country
+        <select formControlName="country">
+          <option *ngFor="let country of credit.countries">{{ country }}</option>
+        </select>
+      </label>
+      <label>Branch<input formControlName="branch" /></label>
+      <label>Channel
+        <select formControlName="channel">
+          <option>Mobile app</option>
+          <option>USSD</option>
+          <option>Branch</option>
+          <option>Agent</option>
+        </select>
+      </label>
+    </div>
+  </section>
+
+  <section class="cd-card form-card">
+    <h2>Facility</h2>
+    <div class="form-grid">
+      <label>Product
+        <select formControlName="product">
+          <option *ngFor="let product of credit.products">{{ product }}</option>
+        </select>
+      </label>
+      <label>Requested amount (₦)<input type="number" formControlName="amount" /></label>
+      <label>Tenor (months)<input type="number" formControlName="tenorMonths" /></label>
+      <label>Monthly income (₦)<input type="number" formControlName="income" /></label>
+      <label>Monthly obligations (₦)<input type="number" formControlName="obligations" /></label>
+      <label>Employment
+        <select formControlName="employment">
+          <option>Salaried</option>
+          <option>Self employed</option>
+          <option>Business owner</option>
+        </select>
+      </label>
+      <label>Bureau
+        <select formControlName="bureau">
+          <option>Clean</option>
+          <option>Thin file</option>
+          <option>Adverse</option>
+        </select>
+      </label>
+    </div>
+    <p class="form-error" *ngIf="form.invalid && form.touched">Enter the applicant, identity, amount, tenor, and income before scoring.</p>
+    <div class="form-actions">
+      <button class="btn-primary" type="submit">Score and submit</button>
+    </div>
+  </section>
+</form>
+
+<section class="result-layout" *ngIf="created">
+  <article class="cd-card result-hero">
+    <p>Decision</p>
+    <h2 [ngClass]="credit.decisionClass(created.decision)">{{ created.decision === 'Refer' ? 'Referred for review' : created.decision }}</h2>
+    <div class="result-score">
+      <strong>{{ created.score }}</strong>
+      <span>score · {{ created.risk }} risk · DTI {{ created.dti | percent:'1.0-0' }}</span>
+    </div>
+    <ul>
+      <li *ngFor="let reason of created.reasonCodes">{{ reason }}</li>
+    </ul>
+    <div class="form-actions">
+      <button class="btn-primary" type="button" (click)="openCase()">{{ created.decision === 'Refer' ? 'Open in alerts' : 'View application' }}</button>
+      <a class="btn-ghost" routerLink="/applications/new" (click)="created = null">Score another</a>
+    </div>
+  </article>
+  <article class="cd-card">
+    <h2>What the score used</h2>
+    <div class="factor" *ngFor="let factor of created.factors">
+      <div><span>{{ factor.label }}</span><b [class.neg]="factor.impact < 0">{{ factor.impact > 0 ? '+' : '' }}{{ factor.impact }}</b></div>
+      <i [style.width.%]="factorBar(factor.impact)"></i>
+    </div>
+    <p class="fine">{{ created.id }} is now on the applications book. This scorecard is illustrative until the decisioning JSON is connected.</p>
+  </article>
+</section>

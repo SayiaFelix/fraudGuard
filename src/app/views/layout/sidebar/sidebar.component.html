@@ -1,12 +1,17 @@
 <!-- The main sidebar container -->
 <nav class="sidebar">
 
-  <!-- Sidebar Header with Logo -->
-  <div class="sidebar-header" style="background-color: #f8f8f8!important;">
+  <div class="sidebar-header">
+    <a routerLink="/dashboard" class="uba-brand">
+      <img src="assets/images/eclectics-logo.png" alt="Eclectics" class="eclectics-logo">
+      <span class="uba-product">Digital Credit Decisioning</span>
+      <!-- <span class="uba-mark">UBA</span> -->
+    </a>
+    <!-- Fraud Guard logo retained
     <a routerLink="dashboard" class="sidebar-brand nobleui-logo">
       <img src="assets/images/image1.png" alt="FinGuard AI" style="height: 70px; width: 130px;">
-      <!-- <img src="assets/images/simplifying.png" alt="Portal" style="max-height: 10px;"> -->
     </a>
+    -->
     <div class="sidebar-toggler not-active" #sidebarToggler (click)="toggleSidebar($event)">
       <span></span>
       <span></span>
@@ -14,10 +19,9 @@
     </div>
   </div>
 
-  <div class="sidebar-body" style="background-color: #f8f8f8!important;" [perfectScrollbar]>
+  <div class="sidebar-body">
     <ul class="sidebar-nav metismenu" id="sidebar-menu" #sidebarMenu>
       
-      <!-- Loop through all menu items -->
       <ng-container *ngFor="let item of menuItems">
         <li class="nav-category" *ngIf="item.isTitle">
           {{ item.label }}
@@ -25,7 +29,6 @@
 
         <li class="nav-item" *ngIf="!item.isTitle">
 
-          <!-- If item has subItems render parent and nested list -->
           <ng-container *ngIf="item.subItems && item.subItems.length > 0; else singleLink">
             <a class="nav-link" href="javascript:void(0);">
               <i class="link-icon" [attr.data-feather]="item.icon" appFeatherIcon></i>
@@ -41,9 +44,8 @@
             </ul>
           </ng-container>
 
-          <!-- Single link fallback -->
           <ng-template #singleLink>
-          <a *ngIf="!item.isLogout && !item.isSettings && !item.isHelpCenter" class="nav-link" [routerLink]="item.link" routerLinkActive="active">
+          <a *ngIf="!item.isLogout && !item.isSettings && !item.isHelpCenter" class="nav-link" [routerLink]="item.link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: !!item.exact }">
             <i class="link-icon" [attr.data-feather]="item.icon" appFeatherIcon></i>
             <span class="link-title">{{ item.label }}</span>
             
@@ -78,7 +80,16 @@
     </ul>
   </div>
 
-  <!-- Sidebar User Footer -->
+  <div class="sidebar-status">
+    <span class="status-dot"></span>
+    <div>
+      <strong>System operational</strong>
+      <small>Demo environment</small>
+    </div>
+  </div>
+  <div class="sidebar-version">UBA Digital Credit · v0.1.0</div>
+
+  <!-- Previous user footer
   <div class="sidebar-user-footer">
     <div class="user-avatar">{{ userInitials }}</div>
     <div class="user-details">
@@ -86,6 +97,7 @@
       <span class="user-title">{{ userTitle }}</span>
     </div>
   </div>
+  -->
 
 </nav>
 

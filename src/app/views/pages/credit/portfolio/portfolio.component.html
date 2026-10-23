@@ -1,0 +1,28 @@
+<section class="mid-grid">
+  <article class="cd-card">
+    <div class="cd-card-head"><h2>Product mix</h2></div>
+    <div class="mix" *ngFor="let item of products">
+      <div><strong>{{ item.name }}</strong><span>{{ item.count | number }} · {{ item.approval }}% approved</span></div>
+      <i [style.width.%]="item.count / 4.2"></i>
+    </div>
+  </article>
+  <article class="cd-card">
+    <div class="cd-card-head"><h2>Country mix</h2></div>
+    <div class="mix" *ngFor="let item of countries">
+      <div><strong>{{ item.name }}</strong><span>{{ item.count | number }} · {{ item.approval }}% approved</span></div>
+      <i [style.width.%]="item.count / 4.86"></i>
+    </div>
+  </article>
+</section>
+
+<article class="cd-card" style="margin-top: 16px">
+  <div class="cd-card-head"><h2>Early performance buckets</h2></div>
+  <div class="bucket-row">
+    <div><small>Current</small><strong>91%</strong><span>of disbursed book</span></div>
+    <div><small>1–30 days</small><strong>5.4%</strong><span>past due</span></div>
+    <div><small>31–60 days</small><strong>2.2%</strong><span>past due</span></div>
+    <div><small>61–90 days</small><strong>0.9%</strong><span>past due</span></div>
+    <div><small>90+ days</small><strong>0.5%</strong><span>past due</span></div>
+  </div>
+  <p class="fine">Portfolio composition is the demonstration book. Delinquency buckets will be replaced when the JSON extract arrives.</p>
+</article>

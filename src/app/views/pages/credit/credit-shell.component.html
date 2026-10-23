@@ -1,0 +1,53 @@
+<header class="cd-topbar">
+  <div class="cd-topbar-title">
+    <button class="cd-menu" type="button" (click)="toggleSidebar()" aria-label="Open navigation">
+      <span></span><span></span><span></span>
+    </button>
+    <div>
+      <h1>{{ title }}</h1>
+      <p>{{ subtitle }}</p>
+    </div>
+  </div>
+
+  <div class="cd-topbar-tools">
+    <div class="cd-date">
+      <strong>{{ now | date:'EEE, d MMM y' }}</strong>
+      <span>{{ now | date:'h:mm a' }}</span>
+    </div>
+
+    <div class="cd-pop-wrap">
+      <button class="cd-bell" type="button" (click)="showNotes = !showNotes; showUser = false" aria-label="Alerts">
+        <svg viewBox="0 0 24 24"><path d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5"/><path d="M9 17a3 3 0 0 0 6 0"/></svg>
+        <i *ngIf="queue.length"></i>
+      </button>
+      <div class="cd-pop" *ngIf="showNotes">
+        <div class="cd-pop-head">Alerts</div>
+        <a *ngFor="let item of queue" [routerLink]="['/alerts']" [queryParams]="{ id: item.id }" (click)="closePopovers()">
+          <b>{{ item.applicant }}</b>
+          <span>{{ item.product }} · {{ item.score }}</span>
+        </a>
+        <p *ngIf="!queue.length" class="cd-empty">The queue is clear.</p>
+      </div>
+    </div>
+
+    <div class="cd-pop-wrap">
+      <button class="cd-user" type="button" (click)="showUser = !showUser; showNotes = false">
+        <span>DU</span>
+        <em>
+          <strong>Demo User</strong>
+          <small>Bank Officer</small>
+        </em>
+        <svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+      <div class="cd-pop cd-pop-user" *ngIf="showUser">
+        <strong>Demo User</strong>
+        <span>demo.user@ubagroup.com</span>
+        <span>Frontend demo session</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="cd-body">
+  <router-outlet></router-outlet>
+</div>
