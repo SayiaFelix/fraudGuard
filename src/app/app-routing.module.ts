@@ -39,6 +39,8 @@ const routes: Routes = [
           roles: ['admin', 'analyst', 'investigator', 'compliance', 'viewer'] // Allowed roles for this route
         },
       },
+
+      
       {
         path: 'channel-monitoring',
         loadChildren: () =>
@@ -132,6 +134,8 @@ const routes: Routes = [
       desc: "Ooops!! The page you were looking for doesn't exist.",
     },
   },
+
+  
   {
     path: 'error/:type',
     component: ErrorPageComponent,
