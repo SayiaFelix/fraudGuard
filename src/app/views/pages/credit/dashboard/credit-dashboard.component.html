@@ -1,84 +1,146 @@
+<!-- PAGE HEADER -->
+<header class="page-head">
+  <div class="page-title">
+    <span class="eyebrow">Credit operations · Lending portfolio</span>
+    <h1>Portfolio Decisioning Dashboard</h1>
+    <p>Monitor application flow, underwriting outcomes, and portfolio risk.</p>
+  </div>
+  <div class="page-actions">
+    <div class="filter-dropdown">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>7-day trend</span>
+    </div>
+
+    <div class="live-badge" [ngClass]="summary ? 'live' : 'loading'">
+      <span class="dot"></span>
+      {{ summary ? 'Live' : 'Loading Data' }}
+      <small *ngIf="lastRefreshed">Updated {{ lastRefreshed | date:'h:mm a' }}</small>
+    </div>
+
+    <a class="btn-primary" routerLink="/applications/new">
+      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      New application
+    </a>
+  </div>
+</header>
+
+<!-- LOADING SKELETON -->
+<section class="kpi-grid" *ngIf="!summary">
+  <div class="cd-card kpi skeleton" *ngFor="let i of [1,2,3,4]">
+    <div class="skel-icon"></div>
+    <div style="flex:1">
+      <div class="skel-line" style="width: 60%"></div>
+      <div class="skel-line" style="width: 40%; height: 28px; margin-top: 8px"></div>
+      <div class="skel-line" style="width: 50%"></div>
+    </div>
+  </div>
+</section>
+
+<!-- KPI CARDS -->
 <section class="kpi-grid" *ngIf="summary">
-  <article class="cd-card kpi">
+  <!-- Total Applications (Blue) -->
+  <article class="cd-card kpi border-blue">
     <div class="kpi-icon tone-blue">
       <svg viewBox="0 0 24 24"><path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4M9 13h6M9 17h4"/></svg>
     </div>
-    <div>
+    <div class="kpi-content">
       <p>Total Applications</p>
       <strong>{{ summary.total | number }}</strong>
-      <span class="delta up">▲ {{ summary.deltas.total }}% <em>vs 7 days</em></span>
+      <span class="delta up text-success">▲ {{ summary.deltas.total }}% <em>vs 7 days</em></span>
+    </div>
+    <div class="kpi-chart-wrapper">
+      <apx-chart [series]="sparkTotal.series" [chart]="sparkTotal.chart" [colors]="sparkTotal.colors" [stroke]="sparkTotal.stroke" [tooltip]="sparkTotal.tooltip" [dataLabels]="sparkTotal.dataLabels"></apx-chart>
     </div>
   </article>
-  <article class="cd-card kpi">
+
+  <!-- Approved (Green) -->
+  <article class="cd-card kpi border-green">
     <div class="kpi-icon tone-green">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12.5 2.2 2.2 4.8-5"/></svg>
     </div>
-    <div>
+    <div class="kpi-content">
       <p>Approved</p>
       <strong>{{ summary.approved | number }}</strong>
       <small>{{ credit.pct(summary.approved, summary.total) }} approval rate</small>
-      <span class="delta up">▲ {{ summary.deltas.approved }}% <em>vs 7 days</em></span>
+      <span class="delta up text-success">▲ {{ summary.deltas.approved }}% <em>vs 7 days</em></span>
+    </div>
+    <div class="kpi-chart-wrapper">
+      <apx-chart [series]="sparkApproved.series" [chart]="sparkApproved.chart" [colors]="sparkApproved.colors" [stroke]="sparkApproved.stroke" [tooltip]="sparkApproved.tooltip" [dataLabels]="sparkApproved.dataLabels"></apx-chart>
     </div>
   </article>
-  <article class="cd-card kpi">
+
+  <!-- Declined (Red) -->
+  <article class="cd-card kpi border-red">
     <div class="kpi-icon tone-red">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m9 9 6 6M15 9l-6 6"/></svg>
     </div>
-    <div>
+    <div class="kpi-content">
       <p>Declined</p>
       <strong>{{ summary.declined | number }}</strong>
       <small>{{ credit.pct(summary.declined, summary.total) }} decline rate</small>
-      <span class="delta up">▲ {{ summary.deltas.declined }}% <em>vs 7 days</em></span>
+      <span class="delta up text-danger">▲ {{ summary.deltas.declined }}% <em>vs 7 days</em></span>
+    </div>
+    <div class="kpi-chart-wrapper">
+      <apx-chart [series]="sparkDeclined.series" [chart]="sparkDeclined.chart" [colors]="sparkDeclined.colors" [stroke]="sparkDeclined.stroke" [tooltip]="sparkDeclined.tooltip" [dataLabels]="sparkDeclined.dataLabels"></apx-chart>
     </div>
   </article>
-  <article class="cd-card kpi">
+
+  <!-- Referred (Amber/Warning) -->
+  <article class="cd-card kpi border-amber">
     <div class="kpi-icon tone-amber">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v5l3 2"/></svg>
     </div>
-    <div>
+    <div class="kpi-content">
       <p>Referred for Review</p>
       <strong>{{ summary.referred | number }}</strong>
       <small>{{ credit.pct(summary.referred, summary.total) }} referral rate</small>
-      <span class="delta down">▼ {{ summary.deltas.referred * -1 }}% <em>vs 7 days</em></span>
+      <span class="delta down text-danger">▼ {{ summary.deltas.referred * -1 }}% <em>vs 7 days</em></span>
+    </div>
+    <div class="kpi-chart-wrapper">
+      <apx-chart [series]="sparkReferred.series" [chart]="sparkReferred.chart" [colors]="sparkReferred.colors" [stroke]="sparkReferred.stroke" [tooltip]="sparkReferred.tooltip" [dataLabels]="sparkReferred.dataLabels"></apx-chart>
     </div>
   </article>
 </section>
 
+<!-- OPERATIONS STRIP -->
+<section class="ops-strip" *ngIf="summary">
+  <div class="ops-item">
+    <span class="ops-label">High-risk exposure</span>
+    <strong class="ops-value warn">{{ credit.money(summary.exposureAtRisk) }}</strong>
+    <small>Across {{ summary.highRisk | number }} high-risk applications</small>
+  </div>
+  <div class="ops-divider"></div>
+  <div class="ops-item">
+    <span class="ops-label">Avg Decision Time</span>
+    <strong class="ops-value good">{{ summary.avgDecisionSeconds }}s</strong>
+    <small>Down {{ summary.deltas.decisionTime * -1 }}% vs prior 7 days</small>
+  </div>
+  <div class="ops-divider"></div>
+  <div class="ops-item">
+    <span class="ops-label">Referred decisions</span>
+    <strong class="ops-value">{{ summary.referred | number }}</strong>
+    <small>Flagged for analyst review</small>
+  </div>
+</section>
+
+<!-- MID GRID -->
 <section class="mid-grid" *ngIf="summary">
   <article class="cd-card">
     <div class="cd-card-head">
       <h2>Application Decisions Trend</h2>
+      <div class="legend-inline">
+        <span><i class="dot low"></i>Approved</span>
+        <span><i class="dot high"></i>Declined</span>
+        <span><i class="dot mid"></i>Referred</span>
+      </div>
     </div>
-    <apx-chart
-      [series]="trend.series"
-      [chart]="trend.chart"
-      [colors]="trend.colors"
-      [stroke]="trend.stroke"
-      [dataLabels]="trend.dataLabels"
-      [fill]="trend.fill"
-      [xaxis]="trend.xaxis"
-      [yaxis]="trend.yaxis"
-      [grid]="trend.grid"
-      [legend]="trend.legend"
-      [tooltip]="trend.tooltip">
-    </apx-chart>
+    <apx-chart [series]="trend.series" [chart]="trend.chart" [colors]="trend.colors" [stroke]="trend.stroke" [dataLabels]="trend.dataLabels" [fill]="trend.fill" [xaxis]="trend.xaxis" [yaxis]="trend.yaxis" [grid]="trend.grid" [legend]="trend.legend" [tooltip]="trend.tooltip"></apx-chart>
   </article>
 
   <article class="cd-card">
-    <div class="cd-card-head">
-      <h2>Risk Distribution</h2>
-    </div>
+    <div class="cd-card-head"><h2>Risk Distribution</h2></div>
     <div class="donut-wrap">
-      <apx-chart
-        [series]="donut.series"
-        [chart]="donut.chart"
-        [labels]="donut.labels"
-        [colors]="donut.colors"
-        [dataLabels]="donut.dataLabels"
-        [stroke]="donut.stroke"
-        [legend]="donut.legend"
-        [plotOptions]="donut.plotOptions">
-      </apx-chart>
+      <apx-chart [series]="donut.series" [chart]="donut.chart" [labels]="donut.labels" [colors]="donut.colors" [dataLabels]="donut.dataLabels" [stroke]="donut.stroke" [legend]="donut.legend" [plotOptions]="donut.plotOptions"></apx-chart>
       <ul class="risk-legend">
         <li><i class="dot low"></i><span>Low Risk</span><b>{{ credit.pct(summary.lowRisk, summary.total) }}</b><em>{{ summary.lowRisk | number }}</em></li>
         <li><i class="dot mid"></i><span>Medium Risk</span><b>{{ credit.pct(summary.mediumRisk, summary.total) }}</b><em>{{ summary.mediumRisk | number }}</em></li>
@@ -88,6 +150,7 @@
   </article>
 </section>
 
+<!-- LOWER GRID -->
 <section class="low-grid" *ngIf="summary">
   <article class="cd-card">
     <div class="cd-card-head">
@@ -107,7 +170,15 @@
         </thead>
         <tbody>
           <tr *ngFor="let row of recent" [routerLink]="['/applications', row.id]">
-            <td>{{ row.applicant }}</td>
+            <td>
+              <div class="applicant-cell">
+                <div class="avatar">{{ row.applicant.charAt(0) }}</div>
+                <div>
+                  <strong>{{ row.applicant }}</strong>
+                  <small>{{ row.id }}</small>
+                </div>
+              </div>
+            </td>
             <td>{{ credit.money(row.amount) }}</td>
             <td><span class="score-pill" [ngClass]="credit.riskClass(row.risk)">{{ row.score }}</span></td>
             <td><span class="pill" [ngClass]="credit.decisionClass(row.decision)">{{ row.decision === 'Refer' ? 'Refer' : row.decision }}</span></td>
@@ -126,7 +197,7 @@
     </a>
     <a class="qa" routerLink="/policy-simulator">
       <span class="tone-violet"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h10M4 17h7"/></svg></span>
-      <em><strong>Policy Simulator</strong><small>Test different lending scenarios</small></em>
+      <em><strong>Policy Simulator</strong><small>Test lending threshold scenarios</small></em>
     </a>
     <a class="qa" routerLink="/applications">
       <span class="tone-green"><svg viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12"/><path d="M4 6h.01M4 12h.01M4 18h.01"/></svg></span>
@@ -166,3 +237,5 @@
     </div>
   </article>
 </section>
+
+<hr>
