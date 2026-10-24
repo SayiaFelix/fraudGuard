@@ -51,6 +51,10 @@ export interface PortfolioSummary {
   highRisk: number;
   avgScore: number;
   avgDecisionSeconds: number;
+
+  /** NEW: Sum of loan amounts for high-risk applications (in KSh). */
+  exposureAtRisk: number;
+
   deltas: {
     total: number;
     approved: number;
@@ -112,7 +116,7 @@ export const COUNTRIES = [
   'Kenya',
   'Uganda',
   'Cameroon',
-  'Côte d\'Ivoire',
+  "Côte d'Ivoire",
   'Senegal',
   'Tanzania'
 ];
@@ -132,6 +136,11 @@ export const DEFAULT_POLICY: PolicySettings = {
   maxAmount: 2000000
 };
 
+/**
+ * Portfolio summary for the dashboard.
+ * `exposureAtRisk` is the sum of loan amounts for applications tagged High risk.
+ * It's declared explicitly here so the dashboard template can bind it safely.
+ */
 export const PORTFOLIO_SUMMARY: PortfolioSummary = {
   total: 1248,
   approved: 682,
@@ -143,6 +152,7 @@ export const PORTFOLIO_SUMMARY: PortfolioSummary = {
   highRisk: 200,
   avgScore: 612,
   avgDecisionSeconds: 42,
+  exposureAtRisk: 9_000_000, // 👈 KSh 9.0M across 200 high-risk accounts
   deltas: {
     total: 12,
     approved: 8,
@@ -175,7 +185,7 @@ export const COUNTRY_MIX = [
   { name: 'Kenya', count: 176, approval: 51 },
   { name: 'Uganda', count: 98, approval: 49 },
   { name: 'Cameroon', count: 86, approval: 46 },
-  { name: 'Côte d\'Ivoire', count: 74, approval: 52 },
+  { name: "Côte d'Ivoire", count: 74, approval: 52 },
   { name: 'Senegal', count: 62, approval: 55 },
   { name: 'Tanzania', count: 52, approval: 48 }
 ];
@@ -236,7 +246,7 @@ export const APPLICATIONS: CreditApplication[] = [
   app('APP-10454', 'Ama Serwaa', 'Device Finance', 250000, 634, 'Refer', 'New', 'Mobile app', 'Ghana', 'Accra', '2026-10-22T10:14:00', 'Medium', ['Thin credit file'], 'Unassigned', 'Self employed', 'Thin file', 190000, 30000, 8, 0.32, '+233 20 558 1142', 'GHA-110293'),
   app('APP-10451', 'Mary Wanjiku', 'Personal Loan', 400000, 612, 'Refer', 'In review', 'Mobile app', 'Kenya', 'Nairobi', '2026-10-22T09:02:00', 'Medium', ['Score below auto-approval'], 'Adaobi Nwankwo', 'Salaried', 'Clean', 220000, 50000, 12, 0.38, '+254 723 009 441', 'KE-1002934'),
   app('APP-10448', 'Chisom Eze', 'Salary Advance', 150000, 455, 'Declined', 'Closed', 'USSD', 'Nigeria', 'Enugu', '2026-10-21T18:22:00', 'High', ['Score below decline cutoff', 'Adverse bureau status'], 'Demo User', 'Self employed', 'Adverse', 90000, 40000, 1, 0.71, '+234 703 228 1190', '77301928334'),
-  app('APP-10444', 'Mohamed Camara', 'SME Working Capital', 2100000, 598, 'Refer', 'New', 'Branch', 'Côte d\'Ivoire', 'Abidjan', '2026-10-21T13:41:00', 'Medium', ['Amount above auto-approval limit'], 'Unassigned', 'Business owner', 'Clean', 700000, 180000, 12, 0.41, '+225 07 44 21 90', 'CI-229103')
+  app('APP-10444', 'Mohamed Camara', 'SME Working Capital', 2100000, 598, 'Refer', 'New', 'Branch', "Côte d'Ivoire", 'Abidjan', '2026-10-21T13:41:00', 'Medium', ['Amount above auto-approval limit'], 'Unassigned', 'Business owner', 'Clean', 700000, 180000, 12, 0.41, '+225 07 44 21 90', 'CI-229103')
 ];
 
 export const AUDIT_EVENTS: AuditEvent[] = [
@@ -274,14 +284,27 @@ function app(
 ): CreditApplication {
   const notes: CaseNote[] = [];
   if (caseStatus === 'In review') {
-    notes.push({ author: assignedTo, text: 'Opened for manual review. Affordability is the open question.', time: 'Oct 23, 9:10 AM' });
+    notes.push({
+      author: assignedTo,
+      text: 'Opened for manual review. Affordability is the open question.',
+      time: 'Oct 23, 9:10 AM'
+    });
   }
   if (caseStatus === 'Awaiting information') {
-    notes.push({ author: assignedTo, text: 'Asked the applicant for a current salary slip.', time: 'Oct 22, 3:18 PM' });
+    notes.push({
+      author: assignedTo,
+      text: 'Asked the applicant for a current salary slip.',
+      time: 'Oct 22, 3:18 PM'
+    });
   }
   if (caseStatus === 'Escalated') {
-    notes.push({ author: 'Demo User', text: 'Escalated because the score sits on the decline boundary and exposure is material.', time: 'Oct 22, 11:40 AM' });
+    notes.push({
+      author: 'Demo User',
+      text: 'Escalated because the score sits on the decline boundary and exposure is material.',
+      time: 'Oct 22, 11:40 AM'
+    });
   }
+
   return {
     id,
     applicant,
