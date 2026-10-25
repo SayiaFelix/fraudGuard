@@ -14,16 +14,16 @@ import './views/pages/reports/reports.module';
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'dashboard',
+    redirectTo: 'auth/login',
     pathMatch: 'full'
   },
   // Login stays in the project, but it is not mounted.
   // The demo opens straight on the credit workspace.
-  // {
-  //   path: 'auth',
-  //   loadChildren: () =>
-  //     import('./views/pages/auth/auth.module').then((m) => m.AuthModule),
-  // },
+   {
+    path: 'auth',
+    loadChildren: () =>
+    import('./views/pages/auth/auth.module').then((m) => m.AuthModule),
+  },
   {
     path: '',
     component: BaseComponent,
