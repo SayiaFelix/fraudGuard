@@ -226,7 +226,10 @@ export class CreditDataService {
     else if (created.decision === 'Declined') summary.declined += 1;
     else summary.referred += 1;
     if (created.risk === 'Low') summary.lowRisk += 1;
-    else if (created.risk === 'High') summary.highRisk += 1;
+    else if (created.risk === 'High') {
+      summary.highRisk += 1;
+      summary.exposureAtRisk += created.amount;
+    }
     else summary.mediumRisk += 1;
     this.summarySubject.next(summary);
     this.pushAudit(created, created.decision === 'Refer' ? 'Referred to queue' : `Application ${created.decision.toLowerCase()}`);

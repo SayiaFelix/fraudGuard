@@ -92,39 +92,22 @@ export class AuthInterceptor implements HttpInterceptor {
 
         if (error.status === 401) {
 
-          // Login and first-time password setup
-          // must handle their own errors.
-          if (isPublicAuthEndpoint) {
-            return throwError(() => error);
-          }
-
-          // Only invalidate the user's normal session
-          // when the failed request belongs to the
-          // Fraud Guard API and used the current
-          // authenticated access token.
-          const requestToken =
-            authReq.headers.get('Authorization');
-
-          const currentToken =
-            this.authService.getToken();
-
-          if (
-            isFraudGuardApi &&
-            currentToken &&
-            requestToken === `Bearer ${currentToken}`
-          ) {
-
-            // Clear local login without triggering
-            // a second API request from here.
-            this.authService.logout();
-
-            this.router.navigate(['/auth/login'], {
-              queryParams: {
-                returnUrl: this.router.url
-              }
-            });
-
-          }
+          // Frontend demo: do not clear the session or send the user to login.
+          // if (isPublicAuthEndpoint) {
+          //   return throwError(() => error);
+          // }
+          // const requestToken = authReq.headers.get('Authorization');
+          // const currentToken = this.authService.getToken();
+          // if (
+          //   isFraudGuardApi &&
+          //   currentToken &&
+          //   requestToken === `Bearer ${currentToken}`
+          // ) {
+          //   this.authService.logout();
+          //   this.router.navigate(['/auth/login'], {
+          //     queryParams: { returnUrl: this.router.url }
+          //   });
+          // }
 
         }
 
