@@ -1,27 +1,34 @@
 
+/* =========================================================
+   ECLECTICS CREDIT INTELLIGENCE
+   PORTFOLIO ANALYTICS — NAVY / BLUE THEME
+   ========================================================= */
+
 :host {
   display: block;
   width: 100%;
   min-width: 0;
 }
 
-/* ==========================================
-   UBA PORTFOLIO THEME
-   ========================================== */
-
 .uba-portfolio {
-  --uba-red: #c8102e;
-  --uba-red-dark: #a30d24;
-  --uba-red-soft: #fff0f2;
-  --uba-dark: #202631;
-  --uba-navy: #243b5a;
+  --uba-red: #2f6bfa;
+  --uba-red-dark: #2058df;
+  --uba-red-soft: #eaf1ff;
+  --uba-dark: #17253c;
+  --uba-navy: #0d213d;
   --uba-text: #344054;
   --uba-muted: #667085;
-  --uba-border: #e7eaf0;
-  --uba-background: #f6f7f9;
+  --uba-border: #e3eaf4;
+  --uba-background: #f2f5fb;
   --uba-white: #ffffff;
   --uba-green: #15803d;
   --uba-amber: #b45309;
+
+  --ec-blue: #2f6bfa;
+  --ec-blue-dark: #2058df;
+  --ec-blue-soft: #eaf1ff;
+  --ec-navy: #0d213d;
+  --ec-border: #e3eaf4;
 
   width: 100%;
   min-height: 100vh;
@@ -53,9 +60,9 @@
   }
 }
 
-/* ==========================================
-   HEADER
-   ========================================== */
+/* =========================================================
+   PAGE HEADER
+   ========================================================= */
 
 .portfolio-header {
   display: flex;
@@ -69,7 +76,7 @@
   min-width: 0;
 
   h1 {
-    color: #202631;
+    color: #17253c;
     font-size: 27px;
     font-weight: 750;
     letter-spacing: -0.6px;
@@ -103,11 +110,11 @@
   flex-wrap: wrap;
 }
 
-/* ==========================================
+/* =========================================================
    BUTTONS
-   ========================================== */
+   ========================================================= */
 
-.uba-btn {
+.uba-portfolio .uba-btn {
   min-height: 41px;
   display: inline-flex;
   align-items: center;
@@ -119,39 +126,46 @@
   font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
-  transition: all 0.2s ease;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
 
   &:focus-visible {
-    outline: 3px solid rgba(200, 16, 46, 0.2);
+    outline: 3px solid rgba(47, 107, 250, 0.25);
     outline-offset: 2px;
   }
 
   &.primary {
-    background: #c8102e;
-    border-color: #c8102e;
+    background: #2f6bfa;
+    border-color: #2f6bfa;
     color: #ffffff;
+    box-shadow: 0 5px 14px rgba(47, 107, 250, 0.14);
 
     &:not(:disabled):hover {
-      background: #a30d24;
-      border-color: #a30d24;
+      background: #2058df;
+      border-color: #2058df;
+      color: #ffffff;
     }
   }
 
   &.secondary {
     background: #ffffff;
-    border-color: #d0d5dd;
+    border-color: #d6e0ed;
     color: #344054;
 
     &:not(:disabled):hover {
-      border-color: #c8102e;
-      color: #c8102e;
+      border-color: #2f6bfa;
+      color: #2f6bfa;
+      background: #f5f8ff;
     }
   }
 }
 
-/* ==========================================
+/* =========================================================
    NOTIFICATIONS
-   ========================================== */
+   ========================================================= */
 
 .portfolio-notice {
   display: flex;
@@ -193,15 +207,15 @@
   }
 }
 
-/* ==========================================
+/* =========================================================
    PORTFOLIO TABS
-   ========================================== */
+   ========================================================= */
 
 .portfolio-tabs {
   display: flex;
   align-items: center;
   gap: 25px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #dfe7f2;
   margin-bottom: 20px;
 
   button {
@@ -218,12 +232,12 @@
     transition: color 0.2s ease;
 
     &:hover {
-      color: #c8102e;
+      color: #2f6bfa;
     }
 
     &.active {
-      color: #c8102e;
-      border-bottom-color: #c8102e;
+      color: #2f6bfa;
+      border-bottom-color: #2f6bfa;
     }
 
     i {
@@ -232,17 +246,17 @@
   }
 }
 
-/* ==========================================
+/* =========================================================
    FILTER CARD
-   ========================================== */
+   ========================================================= */
 
 .portfolio-filter-card {
   background: #ffffff;
-  border: 1px solid #eaecf0;
+  border: 1px solid #e3eaf4;
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 20px;
-  box-shadow: 0 3px 14px rgba(16, 24, 40, 0.025);
+  box-shadow: 0 3px 14px rgba(13, 33, 61, 0.035);
 }
 
 .filter-card-title {
@@ -253,13 +267,13 @@
   margin-bottom: 18px;
 
   h2 {
-    color: #202631;
+    color: #17253c;
     margin: 0 0 7px;
     font-size: 14px;
     font-weight: 750;
 
     i {
-      color: #c8102e;
+      color: #2f6bfa;
       margin-right: 7px;
     }
   }
@@ -276,8 +290,8 @@
   align-items: center;
   padding: 7px 11px;
   border-radius: 20px;
-  background: #fff0f2;
-  color: #c8102e;
+  background: #eaf1ff;
+  color: #2058df;
   font-size: 10px;
   font-weight: 700;
   white-space: nowrap;
@@ -307,7 +321,7 @@
     width: 100%;
     min-height: 42px;
     padding: 9px 12px;
-    border: 1px solid #d0d5dd;
+    border: 1px solid #d6e0ed;
     border-radius: 8px;
     outline: none;
     background: #ffffff;
@@ -315,8 +329,8 @@
     font-size: 12px;
 
     &:focus {
-      border-color: #c8102e;
-      box-shadow: 0 0 0 3px rgba(200, 16, 46, 0.08);
+      border-color: #2f6bfa;
+      box-shadow: 0 0 0 3px rgba(47, 107, 250, 0.1);
     }
   }
 }
@@ -331,12 +345,13 @@
     transform: translateY(-50%);
     color: #98a2b3;
     font-size: 12px;
+    pointer-events: none;
   }
 
   input {
     width: 100%;
     min-height: 42px;
-    border: 1px solid #d0d5dd;
+    border: 1px solid #d6e0ed;
     border-radius: 8px;
     outline: none;
     padding: 10px 12px 10px 36px;
@@ -345,15 +360,15 @@
     font-size: 12px;
 
     &:focus {
-      border-color: #c8102e;
-      box-shadow: 0 0 0 3px rgba(200, 16, 46, 0.08);
+      border-color: #2f6bfa;
+      box-shadow: 0 0 0 3px rgba(47, 107, 250, 0.1);
     }
   }
 }
 
-/* ==========================================
+/* =========================================================
    KPI CARDS
-   ========================================== */
+   ========================================================= */
 
 .portfolio-kpis {
   display: grid;
@@ -367,16 +382,18 @@
   display: flex;
   flex-direction: column;
   background: #ffffff;
-  border: 1px solid #eaecf0;
-  border-top: 3px solid #c8102e;
+  border: 1px solid #e3eaf4;
+  border-top: 3px solid #2f6bfa;
   border-radius: 12px;
   padding: 19px;
-  box-shadow: 0 3px 14px rgba(16, 24, 40, 0.025);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 3px 14px rgba(13, 33, 61, 0.035);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(16, 24, 40, 0.07);
+    box-shadow: 0 10px 25px rgba(13, 33, 61, 0.07);
   }
 }
 
@@ -406,8 +423,8 @@
   flex-shrink: 0;
 
   &.red {
-    color: #c8102e;
-    background: #fff0f2;
+    color: #2f6bfa;
+    background: #eaf1ff;
   }
 
   &.green {
@@ -421,8 +438,8 @@
   }
 
   &.blue {
-    color: #2563eb;
-    background: #eff6ff;
+    color: #2058df;
+    background: #eaf1ff;
   }
 }
 
@@ -434,7 +451,7 @@
 }
 
 .kpi-value {
-  color: #202631;
+  color: #17253c;
   font-size: 30px;
   line-height: 1.15;
   font-weight: 800;
@@ -448,9 +465,9 @@
   margin-top: 12px;
 }
 
-/* ==========================================
+/* =========================================================
    CHART GRID
-   ========================================== */
+   ========================================================= */
 
 .portfolio-charts {
   display: grid;
@@ -463,14 +480,14 @@
 .portfolio-chart-card {
   min-width: 0;
   overflow: hidden;
-  border: 1px solid #eaecf0;
+  border: 1px solid #e3eaf4;
   border-radius: 13px;
   background: #ffffff;
-  box-shadow: 0 4px 20px rgba(16, 24, 40, 0.035);
+  box-shadow: 0 4px 20px rgba(13, 33, 61, 0.035);
   transition: box-shadow 0.2s ease;
 
   &:hover {
-    box-shadow: 0 10px 28px rgba(16, 24, 40, 0.07);
+    box-shadow: 0 10px 28px rgba(13, 33, 61, 0.07);
   }
 }
 
@@ -484,10 +501,10 @@
   align-items: flex-start;
   gap: 15px;
   padding: 22px 24px;
-  border-bottom: 1px solid #eef0f4;
+  border-bottom: 1px solid #edf1f7;
 
   h2 {
-    color: #202631;
+    color: #17253c;
     font-size: 16px;
     font-weight: 750;
     line-height: 1.35;
@@ -503,7 +520,7 @@
 }
 
 .chart-eyebrow {
-  color: #c8102e;
+  color: #2f6bfa;
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 1px;
@@ -515,15 +532,15 @@
   display: grid;
   place-items: center;
   border-radius: 10px;
-  background: #fff0f2;
-  color: #c8102e;
+  background: #eaf1ff;
+  color: #2f6bfa;
   font-size: 16px;
   flex-shrink: 0;
 }
 
-/* ==========================================
+/* =========================================================
    DOUGHNUT CHART
-   ========================================== */
+   ========================================================= */
 
 .donut-section {
   min-height: 370px;
@@ -539,8 +556,10 @@
   width: min(100%, 345px);
   height: 310px;
   position: relative;
+  min-width: 0;
 
   canvas {
+    display: block;
     width: 100% !important;
     height: 100% !important;
   }
@@ -558,7 +577,7 @@
   }
 
   strong {
-    color: #202631;
+    color: #17253c;
     font-weight: 800;
     font-size: 30px;
   }
@@ -569,9 +588,9 @@
   }
 }
 
-/* ==========================================
-   VERTICAL CHARTS
-   ========================================== */
+/* =========================================================
+   VERTICAL AND STACKED CHARTS
+   ========================================================= */
 
 .standard-canvas,
 .wide-canvas {
@@ -579,8 +598,10 @@
   width: 100%;
   height: 370px;
   padding: 22px;
+  min-width: 0;
 
   canvas {
+    display: block;
     width: 100% !important;
     height: 100% !important;
   }
@@ -596,22 +617,22 @@
   inset: 0;
   display: grid;
   place-items: center;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.94);
   color: #98a2b3;
   font-size: 12px;
 }
 
 .chart-footer {
-  border-top: 1px solid #eef0f4;
+  border-top: 1px solid #edf1f7;
   padding: 13px 24px;
   color: #98a2b3;
   font-size: 10px;
   line-height: 1.5;
 }
 
-/* ==========================================
+/* =========================================================
    PORTFOLIO INSIGHTS
-   ========================================== */
+   ========================================================= */
 
 .portfolio-insights {
   margin-bottom: 25px;
@@ -622,7 +643,7 @@
 
   h2 {
     font-size: 18px;
-    color: #202631;
+    color: #17253c;
     font-weight: 750;
     margin: 0 0 7px;
   }
@@ -645,11 +666,11 @@
   display: flex;
   align-items: flex-start;
   gap: 13px;
-  border: 1px solid #eaecf0;
+  border: 1px solid #e3eaf4;
   border-radius: 11px;
   background: #ffffff;
   padding: 18px;
-  box-shadow: 0 3px 12px rgba(16, 24, 40, 0.025);
+  box-shadow: 0 3px 12px rgba(13, 33, 61, 0.035);
 
   &.positive {
     border-left: 3px solid #15803d;
@@ -660,7 +681,7 @@
   }
 
   &.neutral {
-    border-left: 3px solid #c8102e;
+    border-left: 3px solid #2f6bfa;
   }
 }
 
@@ -669,10 +690,20 @@
   height: 38px;
   display: grid;
   place-items: center;
-  background: #fff0f2;
-  color: #c8102e;
+  background: #eaf1ff;
+  color: #2f6bfa;
   border-radius: 9px;
   font-size: 15px;
+}
+
+.insight-card.positive .insight-icon {
+  background: #ecfdf3;
+  color: #15803d;
+}
+
+.insight-card.warning .insight-icon {
+  background: #fff4e5;
+  color: #b45309;
 }
 
 .insight-content {
@@ -693,17 +724,17 @@
   }
 }
 
-/* ==========================================
-   DETAILS TABLE
-   ========================================== */
+/* =========================================================
+   DETAILED ANALYTICS TABLE
+   ========================================================= */
 
 .portfolio-table-card {
   background: #ffffff;
-  border: 1px solid #eaecf0;
+  border: 1px solid #e3eaf4;
   border-radius: 13px;
   overflow: hidden;
   margin-bottom: 22px;
-  box-shadow: 0 3px 15px rgba(16, 24, 40, 0.025);
+  box-shadow: 0 3px 15px rgba(13, 33, 61, 0.035);
 }
 
 .table-card-header {
@@ -712,10 +743,10 @@
   justify-content: space-between;
   gap: 15px;
   padding: 22px 24px;
-  border-bottom: 1px solid #eef0f4;
+  border-bottom: 1px solid #edf1f7;
 
   h2 {
-    color: #202631;
+    color: #17253c;
     font-size: 16px;
     margin: 9px 0 7px;
     font-weight: 750;
@@ -730,8 +761,8 @@
 }
 
 .record-badge {
-  color: #c8102e;
-  background: #fff0f2;
+  color: #2058df;
+  background: #eaf1ff;
   border-radius: 20px;
   padding: 7px 11px;
   font-size: 10px;
@@ -751,7 +782,7 @@
   text-align: left;
 
   thead {
-    background: #f9fafb;
+    background: #f6f8fc;
   }
 
   th {
@@ -760,7 +791,7 @@
     color: #667085;
     white-space: nowrap;
     padding: 15px 16px;
-    border-bottom: 1px solid #eaecf0;
+    border-bottom: 1px solid #e3eaf4;
 
     button {
       display: inline-flex;
@@ -774,7 +805,7 @@
       font-weight: inherit;
 
       &:hover {
-        color: #c8102e;
+        color: #2f6bfa;
       }
 
       i {
@@ -788,11 +819,11 @@
     color: #344054;
     font-size: 11px;
     vertical-align: middle;
-    border-bottom: 1px solid #f0f1f4;
+    border-bottom: 1px solid #edf1f7;
   }
 
   tbody tr:hover {
-    background: #fdfafb;
+    background: #f3f7ff;
   }
 
   tbody tr:last-child td {
@@ -803,7 +834,7 @@
 .table-name {
   strong {
     font-size: 12px;
-    color: #202631;
+    color: #17253c;
     font-weight: 700;
   }
 }
@@ -819,21 +850,25 @@
   width: 65px;
   height: 8px;
   border-radius: 10px;
-  background: #f2f4f7;
+  background: #edf1f7;
   overflow: hidden;
 
   span {
     display: block;
     height: 100%;
-    background: #c8102e;
+    background: #2f6bfa;
     border-radius: inherit;
   }
 }
 
 .approval-value {
-  color: #202631 !important;
+  color: #17253c !important;
   font-weight: 750;
 }
+
+/* =========================================================
+   PERFORMANCE BADGES
+   ========================================================= */
 
 .performance-pill {
   display: inline-flex;
@@ -860,6 +895,10 @@
   }
 }
 
+/* =========================================================
+   EMPTY TABLE STATE
+   ========================================================= */
+
 .table-empty {
   padding: 45px;
   text-align: center;
@@ -869,7 +908,7 @@
   gap: 10px;
 
   i {
-    color: #c8102e;
+    color: #2f6bfa;
     font-size: 25px;
   }
 
@@ -885,16 +924,16 @@
   }
 }
 
-/* ==========================================
-   PAGINATION
-   ========================================== */
+/* =========================================================
+   TABLE PAGINATION
+   ========================================================= */
 
 .table-pagination {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 15px;
-  border-top: 1px solid #eaecf0;
+  border-top: 1px solid #e3eaf4;
   padding: 16px 22px;
   color: #667085;
   font-size: 11px;
@@ -914,46 +953,40 @@
 
   select,
   button {
-    border: 1px solid #d0d5dd;
+    border: 1px solid #d6e0ed;
     border-radius: 7px;
-    background: #fff;
+    background: #ffffff;
     color: #344054;
     padding: 8px 11px;
     font-size: 11px;
   }
 
   button:not(:disabled):hover {
-    color: #c8102e;
-    border-color: #c8102e;
+    color: #2f6bfa;
+    border-color: #2f6bfa;
+    background: #f5f8ff;
+  }
+
+  select:focus {
+    outline: none;
+    border-color: #2f6bfa;
+    box-shadow: 0 0 0 3px rgba(47, 107, 250, 0.1);
   }
 }
 
-/* ==========================================
-   METHODOLOGY
-   ========================================== */
+/* =========================================================
+   METHODOLOGY CARD
+   ========================================================= */
 
 .methodology-card {
   display: flex;
   align-items: flex-start;
   gap: 13px;
   background: #ffffff;
-  border: 1px solid #eaecf0;
+  border: 1px solid #e3eaf4;
   border-radius: 10px;
   padding: 18px 20px;
-}
 
-.methodology-icon {
-  flex: 0 0 32px;
-  width: 32px;
-  height: 32px;
-  display: grid;
-  place-items: center;
-  border-radius: 8px;
-  background: #fff0f2;
-  color: #c8102e;
-}
-
-.methodology-card {
   strong {
     color: #344054;
     font-size: 12px;
@@ -968,14 +1001,24 @@
   }
 }
 
-/* ==========================================
-   RESPONSIVE STYLES
-   ========================================== */
+.methodology-icon {
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: #eaf1ff;
+  color: #2f6bfa;
+}
+
+/* =========================================================
+   RESPONSIVE DESIGN
+   ========================================================= */
 
 @media (max-width: 1450px) {
   .portfolio-kpis {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 

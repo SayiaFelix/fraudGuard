@@ -13,6 +13,7 @@ import {
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent implements OnInit {
+  public currentYear: number = new Date().getFullYear();
 
   returnUrl = '/dashboard';
 
@@ -25,7 +26,6 @@ export class LoginComponent implements OnInit {
   public hasError = false;
   public errorMsg = '';
 
-  public currentYear = new Date().getFullYear();
 
   private readonly DEMO_USERNAME =
     'sayia.felix@eclectics.io';
