@@ -5,8 +5,8 @@
       <p>Scorecard decisions, analyst overrides, assignments, and case notes on this workspace.</p>
     </div>
     <div class="ops-head-actions ops-no-print">
-      <button class="ops-btn ghost" type="button" (click)="download()">Download CSV</button>
-      <button class="ops-btn ghost" type="button" (click)="printView()">Print</button>
+      <button class="ops-btn ghost" type="button" (click)="download()" title="Download this slice of the trail">Download CSV</button>
+      <button class="ops-btn ghost" type="button" (click)="printView()" title="Print the audit view">Print</button>
     </div>
   </header>
 
@@ -67,7 +67,7 @@
             <tr><th>When</th><th>Actor</th><th>Action</th><th>Decision</th></tr>
           </thead>
           <tbody>
-            <tr *ngFor="let event of pageRows" (click)="select(event)" [class.on]="event.id === selectedId">
+            <tr *ngFor="let event of pageRows" (click)="select(event)" [class.on]="event.id === selectedId" title="Open this event">
               <td class="who"><strong>{{ event.time | date:'d MMM, h:mm a' }}</strong><small>{{ event.id }}</small></td>
               <td>{{ event.actor }}</td>
               <td class="who"><strong>{{ event.action }}</strong><small>{{ event.detail }}</small></td>
@@ -118,8 +118,8 @@
         <textarea [(ngModel)]="reviewNote" rows="2" placeholder="Bureau matches the ID. Affordability note is on the file."></textarea>
       </label>
       <div class="ops-actions ops-no-print">
-        <button type="button" class="ops-btn primary" (click)="markReviewed()">Sign off</button>
-        <button type="button" class="ops-btn ghost" (click)="evidence()">Evidence pack</button>
+        <button type="button" class="ops-btn primary" (click)="markReviewed()" title="Record a compliance sign-off on this event">Sign off</button>
+        <button type="button" class="ops-btn ghost" (click)="evidence()" title="Download every event for this application">Evidence pack</button>
         <a class="ops-btn ghost" *ngIf="appId(event.detail) as id" [routerLink]="['/applications', id]">Application</a>
         <a class="ops-btn ghost" *ngIf="appId(event.detail) as id" [routerLink]="['/alerts']" [queryParams]="{ id: id }">Open case</a>
       </div>

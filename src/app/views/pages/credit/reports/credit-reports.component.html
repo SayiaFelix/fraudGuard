@@ -5,8 +5,8 @@
       <p>Portfolio, distribution, and decision outcomes from this book.</p>
     </div>
     <div class="ops-head-actions ops-no-print">
-      <button class="ops-btn ghost" type="button" (click)="download()">Download CSV</button>
-      <button class="ops-btn primary" type="button" (click)="print()">Print report</button>
+      <button class="ops-btn ghost" type="button" (click)="download()" title="Download this report as CSV">Download CSV</button>
+      <button class="ops-btn primary" type="button" (click)="print()" title="Open a printable copy of this report">Print report</button>
     </div>
   </header>
 
@@ -109,7 +109,7 @@
         <table class="ops-table">
           <thead><tr><th>Applicant</th><th>Score</th><th>Decision</th></tr></thead>
           <tbody>
-            <tr *ngFor="let row of file" [routerLink]="['/alerts']" [queryParams]="{ id: row.id }">
+            <tr *ngFor="let row of file" [routerLink]="['/alerts']" [queryParams]="{ id: row.id }" title="Open this application on the alerts desk">
               <td class="who"><strong>{{ row.applicant }}</strong><small>{{ row.id }} · {{ row.product }}</small></td>
               <td>{{ row.score }}</td>
               <td><span class="ops-pill" [ngClass]="row.decision === 'Approved' ? 'ok' : row.decision === 'Declined' ? 'bad' : 'refer'">{{ row.decision }}</span></td>
@@ -214,7 +214,7 @@
           <tr><th>Applicant</th><th>Score</th><th>Change</th><th>Limit</th><th>Repayment</th></tr>
         </thead>
         <tbody>
-          <tr *ngFor="let row of movements" [routerLink]="['/alerts']" [queryParams]="{ id: row.app.id }">
+          <tr *ngFor="let row of movements" [routerLink]="['/alerts']" [queryParams]="{ id: row.app.id }" title="Open this application on the alerts desk">
             <td class="who"><strong>{{ row.app.applicant }}</strong><small>{{ row.app.id }} · {{ row.app.product }}</small></td>
             <td>{{ row.standing.openingScore }} → {{ row.standing.standingScore }}</td>
             <td [class.ops-up]="row.standing.scoreDelta > 0" [class.ops-down]="row.standing.scoreDelta < 0">{{ row.standing.scoreDelta > 0 ? '+' : '' }}{{ row.standing.scoreDelta }}</td>
