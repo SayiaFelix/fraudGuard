@@ -1,233 +1,206 @@
 
-<div class="login-container">
+<div class="uba-login-page">
 
-  <div class="login-content">
+  <!-- LEFT SECTION -->
+  <section class="uba-brand-panel">
 
-    <!-- LEFT SECTION -->
-    <div class="logo-section">
+    <div class="brand-top">
+      <div class="uba-wordmark">
+        <span class="uba-name">UBA</span>
+        <span class="uba-country">KENYA</span>
+      </div>
+    </div>
 
-      <div class="logo-container">
-        <div class="logo-wrapper">
+    <div class="brand-content">
 
-          <img
-            src="assets/images/imageFraud.png"
-            alt="FRAUD GUARD AI SYSTEM"
-            class="logo-icon">
-
-        </div>
+      <div class="brand-eyebrow">
+        MSME CREDIT INTELLIGENCE
       </div>
 
-      <h2 class="main-title">
-        FRAUD GUARD AI
-      </h2>
+      <h1>
+        Smarter lending.<br>
+        <span>Stronger businesses.</span>
+      </h1>
 
-      <p class="subtitle">
-        Security goes beyond the perimeter.
+      <p class="brand-description">
+        Make confident credit decisions with
+        intelligent credit scoring, automated risk
+        assessments, and real-time portfolio insights.
       </p>
+
+      <div class="brand-features">
+
+        <div class="feature">
+          <span class="feature-icon">
+            <i class="fas fa-chart-line"></i>
+          </span>
+          <span>Intelligent Credit Scoring</span>
+        </div>
+
+        <div class="feature">
+          <span class="feature-icon">
+            <i class="fas fa-shield-alt"></i>
+          </span>
+          <span>Risk Assessment &amp; Monitoring</span>
+        </div>
+
+        <div class="feature">
+          <span class="feature-icon">
+            <i class="fas fa-chart-pie"></i>
+          </span>
+          <span>Portfolio Intelligence</span>
+        </div>
+
+      </div>
 
     </div>
 
-    <!-- RIGHT SECTION -->
-    <div class="form-section">
+    <div class="brand-bottom">
+      <i class="fas fa-shield-alt"></i>
+      <span>Enterprise Credit Intelligence</span>
+    </div>
 
-      <div class="login-form-container">
+    <div class="brand-circle circle-one"></div>
+    <div class="brand-circle circle-two"></div>
 
-        <!-- FORM HEADER -->
-        <div class="form-header">
+  </section>
 
-          <div class="logo-header">
+  <!-- RIGHT SECTION -->
+  <section class="uba-form-panel">
 
-            <img
-              class="eclectics-logo"
-              src="assets/images/image1.png"
-              alt="Eclectics Logo">
+    <div class="login-card">
 
+      <div class="mobile-brand">
+        <span class="mobile-uba">UBA</span>
+        <span class="mobile-kenya">KENYA</span>
+      </div>
+
+      <div class="login-header">
+        <div class="welcome-label">
+          WELCOME BACK
+        </div>
+
+        <h2>
+          Sign in to your workspace
+        </h2>
+
+        <p>
+          Enter your credentials to continue.
+        </p>
+      </div>
+
+      <div
+        class="login-error"
+        *ngIf="hasError"
+        role="alert">
+
+        <i class="fas fa-exclamation-circle"></i>
+        <span>{{ errorMsg }}</span>
+
+      </div>
+
+      <form
+        [formGroup]="form"
+        (ngSubmit)="onSubmit($event)"
+        novalidate>
+
+        <div class="form-field">
+          <label for="username">Username</label>
+
+          <div class="input-wrapper">
+            <i class="far fa-user input-icon"></i>
+
+            <input
+              id="username"
+              type="text"
+              formControlName="username"
+              placeholder="Enter your username"
+              autocomplete="username">
           </div>
 
-          <h3 class="welcome-title">
-            Fraud Intelligence Portal
-          </h3>
+          <small
+            class="field-error"
+            *ngIf="
+              form.get('username')?.invalid &&
+              form.get('username')?.touched
+            ">
+            Username is required.
+          </small>
+        </div>
 
-          <p class="welcome-subtitle">
-            Secure access for fraud detection
-            and investigation
-          </p>
+        <div class="form-field">
+          <label for="password">Password</label>
 
-          <div class="tab-buttons">
+          <div class="input-wrapper">
+            <i class="fas fa-lock input-icon"></i>
+
+            <input
+              id="password"
+              [type]="inputType"
+              formControlName="password"
+              placeholder="Enter your password"
+              autocomplete="off">
 
             <button
               type="button"
-              class="tab-button active">
-
-              Sign In
-
+              class="password-toggle"
+              (click)="toggleShowPassword()"
+              [attr.aria-label]="
+                showingPassword
+                  ? 'Hide password'
+                  : 'Show password'
+              ">
+              <i
+                class="far"
+                [ngClass]="
+                  showingPassword
+                    ? 'fa-eye-slash'
+                    : 'fa-eye'
+                ">
+              </i>
             </button>
-
           </div>
 
+          <small
+            class="field-error"
+            *ngIf="
+              form.get('password')?.invalid &&
+              form.get('password')?.touched
+            ">
+            Password is required.
+          </small>
         </div>
 
-        <!-- LOGIN FORM -->
-        <form
-          class="login-form"
-          [formGroup]="form"
-          (ngSubmit)="onSubmit($event)">
+        <button
+          class="login-submit"
+          type="submit"
+          [disabled]="isLoading">
 
-          <!-- USERNAME -->
-          <div class="form-group">
+          <ng-container *ngIf="!isLoading">
+            <span>Sign In</span>
+            <i class="fas fa-arrow-right"></i>
+          </ng-container>
 
-            <label for="username">
-              Username
-            </label>
+          <ng-container *ngIf="isLoading">
+            <i class="fas fa-spinner fa-spin"></i>
+            <span>Signing in...</span>
+          </ng-container>
 
-            <input
-              type="text"
-              id="username"
-              formControlName="username"
-              placeholder="Enter your username"
-              class="form-input"
-              autocomplete="username">
+        </button>
 
-            <small
-              class="error-message"
-              *ngIf="form.get('username')?.touched &&
-                     form.get('username')?.hasError('required')">
+      </form>
 
-              Username is required.
+      <div class="login-security">
+        <i class="fas fa-shield-alt"></i>
+        <span>Credit Intelligence Workspace</span>
+      </div>
 
-            </small>
-
-          </div>
-
-          <!-- PASSWORD -->
-          <div class="form-group">
-
-            <label for="password">
-              Password
-            </label>
-
-            <div class="password-input-container">
-
-              <input
-                [type]="inputType"
-                id="password"
-                formControlName="password"
-                placeholder="Enter your password"
-                class="form-input"
-                autocomplete="current-password">
-
-              <button
-                type="button"
-                class="password-toggle"
-                (click)="toggleShowPassword()"
-                [attr.aria-label]="showingPassword ? 'Hide password' : 'Show password'">
-
-                <i
-                  class="mdi"
-                  [ngClass]="showingPassword ?
-                    'mdi-eye-off' : 'mdi-eye'">
-                </i>
-
-              </button>
-
-            </div>
-
-            <small
-              class="error-message"
-              *ngIf="form.get('password')?.touched &&
-                     form.get('password')?.hasError('required')">
-
-              Password is required.
-
-            </small>
-
-          </div>
-
-          <!-- OPTIONS -->
-          <div class="form-options">
-
-            <div class="remember-me">
-
-              <span class="text-muted small">
-                Use the credentials provided
-                by your administrator.
-              </span>
-
-            </div>
-
-          </div>
-
-          <!-- SUBMIT -->
-          <button
-            type="submit"
-            class="sign-in-button"
-            [disabled]="form.invalid || isLoading"
-            [class.loading]="isLoading">
-
-            <span *ngIf="!isLoading">
-
-              SIGN IN
-
-            </span>
-
-            <span *ngIf="isLoading">
-
-              <i class="fas fa-spinner fa-spin me-2"></i>
-              Signing in...
-
-            </span>
-
-          </button>
-
-          <!-- LOGIN ERROR -->
-          <div
-            class="error-alert"
-            *ngIf="hasError"
-            role="alert">
-
-            <strong>Login Error!</strong>
-
-            {{ errorMsg }}
-
-          </div>
-
-          <!-- LOADING PROGRESS -->
-          <div
-            class="progress-container"
-            *ngIf="isLoading">
-
-            <ngb-progressbar
-              type="primary"
-              [value]="100"
-              [striped]="true"
-              [animated]="true">
-            </ngb-progressbar>
-
-          </div>
-
-        </form>
-
-        <!-- FOOTER -->
-        <div class="footer-note">
-
-          <p>
-
-            <span class="fw-bold text-dark">
-              FRAUD GUARD AI
-            </span>
-
-            protects both the firm and its customers
-            using adaptive ML models and explainable
-            AI to secure digital transactions.
-
-          </p>
-
-        </div>
-
+      <div class="login-footer">
+        &copy; {{ currentYear }} Credit Intelligence Platform
       </div>
 
     </div>
 
-  </div>
+  </section>
 
 </div>
