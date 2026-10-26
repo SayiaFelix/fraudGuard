@@ -31,7 +31,7 @@
 
   <section class="ops-desk work">
     <article class="ops-card">
-      <button type="button" class="conn" *ngFor="let item of connectors" [class.on]="item.id === selectedId" (click)="select(item)">
+      <button type="button" class="conn" *ngFor="let item of connectors" [class.on]="item.id === selectedId" (click)="select(item)" [title]="'Open ' + item.name">
         <span class="ops-pill" [ngClass]="tone(item.status)">{{ item.status }}</span>
         <span>
           <strong>{{ item.name }}</strong>
@@ -56,7 +56,7 @@
       <p class="ops-banner" *ngIf="banner" [class.ok]="item.status !== 'Paused'" [class.bad]="item.status === 'Paused'">{{ banner }}</p>
 
       <div class="ops-actions ops-no-print">
-        <button type="button" class="ops-btn" [class.danger]="item.status !== 'Paused'" [class.primary]="item.status === 'Paused'" (click)="toggle(item)">
+        <button type="button" class="ops-btn" [class.danger]="item.status !== 'Paused'" [class.primary]="item.status === 'Paused'" (click)="toggle(item)" [title]="item.status === 'Paused' ? 'Let decisions call this connector again' : 'Stop decisions from calling this connector'">
           {{ item.status === 'Paused' ? 'Resume connector' : 'Pause connector' }}
         </button>
       </div>
@@ -67,7 +67,7 @@
           <option *ngFor="let app of applicants" [value]="app.id">{{ app.applicant }} · {{ app.id }} · {{ app.product }}</option>
         </select>
       </label>
-      <button type="button" class="ops-btn primary" (click)="runCheck()">Run check</button>
+      <button type="button" class="ops-btn primary" (click)="runCheck()" title="Run this connector against the selected application">Run check</button>
 
       <div *ngIf="result as found" class="ops-banner" [class.ok]="found.tone === 'ok'" [class.bad]="found.tone === 'bad'" [class.info]="found.tone === 'wait'">
         <strong>{{ found.title }}</strong>
