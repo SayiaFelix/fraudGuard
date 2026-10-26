@@ -1,10 +1,79 @@
-<section class="integration-grid">
-  <article class="cd-card" *ngFor="let item of integrations">
-    <div class="cd-card-head">
-      <h2>{{ item.name }}</h2>
-      <span class="pill is-wait">Paused</span>
+<div class="ops">
+  <header class="ops-head">
+    <div>
+      <h1>Integrations</h1>
+      <p>The systems a credit decision actually calls. Pause one, or run a check against an application already on this book.</p>
     </div>
-    <p>{{ item.detail }}</p>
-    <p class="fine">{{ item.status }}. No connector is called in this demo.</p>
-  </article>
-</section>
+  </header>
+
+  <section class="ops-kpis">
+    <article class="ops-kpi">
+      <div class="ops-kpi-top"><p>Live</p><span class="ops-kpi-icon money"><svg viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg></span></div>
+      <strong>{{ count('Live') }}</strong>
+      <small>Used by scoring, payout, or notices</small>
+    </article>
+    <article class="ops-kpi">
+      <div class="ops-kpi-top"><p>Degraded</p><span class="ops-kpi-icon high"><svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg></span></div>
+      <strong>{{ count('Degraded') }}</strong>
+      <small>Slow enough that a referral is safer</small>
+    </article>
+    <article class="ops-kpi">
+      <div class="ops-kpi-top"><p>Paused</p><span class="ops-kpi-icon crit"><svg viewBox="0 0 24 24"><path d="M8 6v12M16 6v12"/></svg></span></div>
+      <strong>{{ count('Paused') }}</strong>
+      <small>Decisions will not call these</small>
+    </article>
+    <article class="ops-kpi">
+      <div class="ops-kpi-top"><p>Checks today</p><span class="ops-kpi-icon info"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16"/><path d="m7 14 4-4 3 3 5-6"/></svg></span></div>
+      <strong>{{ callsToday }}</strong>
+      <small>Includes checks you run from this desk</small>
+    </article>
+  </section>
+
+  <section class="ops-desk work">
+    <article class="ops-card">
+      <button type="button" class="conn" *ngFor="let item of connectors" [class.on]="item.id === selectedId" (click)="select(item)">
+        <span class="ops-pill" [ngClass]="tone(item.status)">{{ item.status }}</span>
+        <span>
+          <strong>{{ item.name }}</strong>
+          <small>{{ item.system }} · {{ item.latencyMs ? item.latencyMs + ' ms' : 'not calling' }} · {{ item.success ? item.success + '% ok' : 'no traffic' }}</small>
+        </span>
+      </button>
+    </article>
+
+    <article class="ops-card ops-detail" *ngIf="selected as item">
+      <p class="ops-kicker">{{ item.owner }} · {{ item.callsToday }} checks today</p>
+      <div class="ops-detail-title">
+        <h2>{{ item.name }}</h2>
+        <span class="ops-pill" [ngClass]="tone(item.status)">{{ item.status }}</span>
+      </div>
+      <p class="ops-muted">{{ item.purpose }}</p>
+      <div class="ops-metrics">
+        <div class="ops-metric"><span>Decision uses it for</span><strong>{{ item.usedBy }}</strong></div>
+        <div class="ops-metric"><span>Success</span><strong>{{ item.success ? item.success + '%' : '—' }}</strong></div>
+        <div class="ops-metric"><span>Latency</span><strong>{{ item.latencyMs ? item.latencyMs + ' ms' : '—' }}</strong></div>
+      </div>
+
+      <p class="ops-banner" *ngIf="banner" [class.ok]="item.status !== 'Paused'" [class.bad]="item.status === 'Paused'">{{ banner }}</p>
+
+      <div class="ops-actions ops-no-print">
+        <button type="button" class="ops-btn" [class.danger]="item.status !== 'Paused'" [class.primary]="item.status === 'Paused'" (click)="toggle(item)">
+          {{ item.status === 'Paused' ? 'Resume connector' : 'Pause connector' }}
+        </button>
+      </div>
+
+      <label class="ops-field">
+        Check against an application
+        <select [(ngModel)]="applicantId">
+          <option *ngFor="let app of applicants" [value]="app.id">{{ app.applicant }} · {{ app.id }} · {{ app.product }}</option>
+        </select>
+      </label>
+      <button type="button" class="ops-btn primary" (click)="runCheck()">Run check</button>
+
+      <div *ngIf="result as found" class="ops-banner" [class.ok]="found.tone === 'ok'" [class.bad]="found.tone === 'bad'" [class.info]="found.tone === 'wait'">
+        <strong>{{ found.title }}</strong>
+        <p *ngFor="let line of found.lines">{{ line }}</p>
+      </div>
+      <p class="ops-note">A check reads the same applicant the alerts desk and the audit trail use. Pausing a connector is written to the trail.</p>
+    </article>
+  </section>
+</div>

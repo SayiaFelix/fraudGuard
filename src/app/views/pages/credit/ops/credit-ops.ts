@@ -37,10 +37,10 @@ export interface AlertRow {
   item: OpsCase;
 }
 
-export function slaHoursFor(app: CreditApplication): number {
-  if (app.risk === 'High') return 12;
-  if (app.product === 'Salary Advance') return 8;
-  return 24;
+export function slaHoursFor(app: CreditApplication, policy?: PolicySettings): number {
+  if (app.risk === 'High') return policy?.highRiskSla || 12;
+  if (app.product === 'Salary Advance') return policy?.salaryAdvanceSla || 8;
+  return policy?.standardSla || 24;
 }
 
 export function formatDuration(ms: number): string {
@@ -56,7 +56,7 @@ export function formatDuration(ms: number): string {
 export function buildOpsCase(app: CreditApplication, policy: PolicySettings, now = Date.now()): OpsCase {
   const submitted = new Date(app.submittedAt).getTime();
   const ageMs = Number.isNaN(submitted) ? 0 : Math.max(0, now - submitted);
-  const slaHours = slaHoursFor(app);
+  const slaHours = slaHoursFor(app, policy);
   const slaRatio = slaHours > 0 ? ageMs / (slaHours * 3600000) : 0;
   const open = app.decision === 'Refer' && app.caseStatus !== 'Closed';
   const breached = open && slaRatio >= 1;

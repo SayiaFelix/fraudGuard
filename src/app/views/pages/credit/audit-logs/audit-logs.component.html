@@ -4,7 +4,10 @@
       <h1>Audit trail</h1>
       <p>Scorecard decisions, analyst overrides, assignments, and case notes on this workspace.</p>
     </div>
-    <button class="ops-btn ghost ops-no-print" type="button" (click)="download()">Download CSV</button>
+    <div class="ops-head-actions ops-no-print">
+      <button class="ops-btn ghost" type="button" (click)="download()">Download CSV</button>
+      <button class="ops-btn ghost" type="button" (click)="printView()">Print</button>
+    </div>
   </header>
 
   <section class="ops-kpis">
@@ -25,8 +28,8 @@
     </article>
     <article class="ops-kpi">
       <div class="ops-kpi-top"><p>Overrides</p><span class="ops-kpi-icon crit"><svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg></span></div>
-      <strong>{{ overrideCount }}</strong>
-      <small>Approve or decline taken by an officer, not the scorecard</small>
+      <strong>{{ openReviews }}</strong>
+      <small>{{ overrideCount }} officer overrides · {{ openReviews }} still unsigned</small>
     </article>
   </section>
 
@@ -39,6 +42,10 @@
 
   <section class="ops-desk">
     <article class="ops-card">
+      <div class="ops-filters">
+        <button type="button" class="ops-chip" *ngFor="let item of windows" [class.on]="window === item" (click)="setWindow(item)">{{ item }}</button>
+        <button type="button" class="ops-chip" [class.on]="onlyReview" (click)="toggleReview()">Needs sign-off <b>{{ openReviews }}</b></button>
+      </div>
       <div class="ops-filters">
         <button type="button" class="ops-chip" *ngFor="let item of families" [class.on]="family === item" (click)="setFamily(item)">{{ item }} <b>{{ count(item) }}</b></button>
       </div>
@@ -84,7 +91,9 @@
         <span class="ops-pill" [ngClass]="decisionTone(event.decision)">{{ event.decision }}</span>
       </div>
       <p class="ops-muted">{{ event.actor }} · {{ event.time | date:'EEE d MMM y, h:mm a' }}</p>
-      <p class="ops-banner info">{{ event.detail }}. Decision standing after this event: {{ event.decision }}.</p>
+      <p class="ops-banner info">{{ purpose(event) }}</p>
+      <p class="ops-banner ok" *ngIf="banner">{{ banner }}</p>
+      <p class="ops-muted">{{ event.detail }}</p>
       <div class="ops-metrics">
         <div class="ops-metric"><span>Actor</span><strong>{{ event.actor }}</strong><small>{{ isScorecard(event) ? 'Model or rules' : 'Officer action' }}</small></div>
         <div class="ops-metric"><span>Family</span><strong>{{ kind(event) }}</strong><small>{{ event.id }}</small></div>
@@ -98,10 +107,21 @@
       </div>
       <p class="ops-note">Cutoffs shown are the policy on this workspace now. They explain the scorecard band around the decision. Limit events record each repayment step that moved the facility.</p>
       <app-credit-behaviour *ngIf="linked(event) as app" [app]="app" mode="compact"></app-credit-behaviour>
-      <div class="ops-actions" *ngIf="appId(event.detail) as id">
-        <a class="ops-btn primary" [routerLink]="['/applications', id]">Application</a>
-        <a class="ops-btn ghost" [routerLink]="['/alerts']" [queryParams]="{ id: id }">Open case</a>
-        <a class="ops-btn ghost" [routerLink]="['/alerts']" [queryParams]="{ id: id }">Alerts</a>
+      <h3 class="ops-behaviour-title">Same application</h3>
+      <div class="ops-feed" *ngFor="let item of chain(event)">
+        <strong>{{ item.action }}</strong>
+        <span>{{ item.actor }} · {{ item.time | date:'d MMM, h:mm a' }}</span>
+        <p>{{ item.detail }}</p>
+      </div>
+      <label class="ops-note-box ops-no-print">
+        Compliance sign-off
+        <textarea [(ngModel)]="reviewNote" rows="2" placeholder="Bureau matches the ID. Affordability note is on the file."></textarea>
+      </label>
+      <div class="ops-actions ops-no-print">
+        <button type="button" class="ops-btn primary" (click)="markReviewed()">Sign off</button>
+        <button type="button" class="ops-btn ghost" (click)="evidence()">Evidence pack</button>
+        <a class="ops-btn ghost" *ngIf="appId(event.detail) as id" [routerLink]="['/applications', id]">Application</a>
+        <a class="ops-btn ghost" *ngIf="appId(event.detail) as id" [routerLink]="['/alerts']" [queryParams]="{ id: id }">Open case</a>
       </div>
     </article>
     <ng-template #emptyAudit>

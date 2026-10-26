@@ -279,6 +279,34 @@
 .ops-up { color: #067647; }
 .ops-down { color: #b42318; }
 
+.conn {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--ops-line);
+  background: #fff;
+  border-radius: 14px;
+  padding: 12px;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+.conn strong, .conn small { display: block; }
+.conn small { color: var(--ops-muted); font-size: 12px; font-weight: 650; margin-top: 2px; }
+.conn.on { border-color: var(--ops-blue); background: #f5f8ff; box-shadow: inset 3px 0 0 var(--ops-blue); }
+.ops-field, .ops-check { display: block; color: var(--ops-muted); font-size: 12px; font-weight: 800; margin: 12px 0; }
+.ops-field input, .ops-field select {
+  display: block; width: 100%; margin-top: 6px; border: 1px solid var(--ops-line); border-radius: 12px;
+  padding: 10px 12px; font: inherit; color: var(--ops-text); background: #fff;
+}
+.ops-check { display: flex; gap: 10px; align-items: flex-start; }
+.ops-check input { margin-top: 3px; }
+.ops-check strong, .ops-check small { display: block; color: var(--ops-text); }
+.ops-check small { color: var(--ops-muted); font-weight: 650; margin-top: 2px; }
+.ops-banner strong, .ops-banner p { display: block; }
+.ops-banner p { margin-top: 4px; font-weight: 650; }
+
 @media (max-width: 1280px) {
   .ops-desk, .ops-desk.work, .ops-split, .ops-summary-grid, .ops-rail { grid-template-columns: 1fr; }
   .ops-detail { position: static; }
