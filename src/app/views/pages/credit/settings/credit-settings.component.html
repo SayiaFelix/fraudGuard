@@ -1,22 +1,76 @@
-<section class="mid-grid">
-  <article class="cd-card">
-    <h2>Product</h2>
-    <div class="setting-row"><span>Product</span><strong>Eclectics</strong></div>
-    <div class="setting-row"><span>Workspace</span><strong>Digital Credit Decisioning</strong></div>
-    <div class="setting-row"><span>Environment</span><strong>Demo · frontend only</strong></div>
-    <div class="setting-row"><span>Officer</span><strong>Demo User</strong></div>
-    <p class="fine">Login and backend connectors are switched off. Policy values on the right are stored in this browser.</p>
-  </article>
-
-  <article class="cd-card">
-    <h2>Decision cutoffs</h2>
-    <label>Approve from score<input type="number" [(ngModel)]="policy.approveFrom" /></label>
-    <label>Decline below score<input type="number" [(ngModel)]="policy.declineBelow" /></label>
-    <label>Maximum DTI<input type="number" step="0.01" [(ngModel)]="policy.maxDti" /></label>
-    <label>Auto-approval limit (KSh)<input type="number" [(ngModel)]="policy.maxAmount" /></label>
-    <div class="form-actions">
-      <button class="btn-primary" type="button" (click)="save()">Save cutoffs</button>
-      <span class="fine" *ngIf="saved">Saved in this browser.</span>
+<div class="ops">
+  <header class="ops-head">
+    <div>
+      <h1>Settings</h1>
+      <p>The credit policy this workspace actually applies. Saving it changes new decisions, the alert clock, and writes a line on the audit trail.</p>
     </div>
+    <div class="ops-head-actions">
+      <button class="ops-btn ghost" type="button" (click)="reset()">Restore standard policy</button>
+      <button class="ops-btn primary" type="button" (click)="save()">Save policy</button>
+    </div>
+  </header>
+
+  <section class="ops-kpis">
+    <article class="ops-kpi">
+      <p>Approve from</p>
+      <strong>{{ policy.approveFrom }}</strong>
+      <small>Scorecard can say yes at or above this</small>
+    </article>
+    <article class="ops-kpi">
+      <p>Decline below</p>
+      <strong>{{ policy.declineBelow }}</strong>
+      <small>Scorecard says no under this</small>
+    </article>
+    <article class="ops-kpi">
+      <p>Debt-service cap</p>
+      <strong>{{ policy.maxDti | percent:'1.0-0' }}</strong>
+      <small>Above this, the file is referred</small>
+    </article>
+    <article class="ops-kpi">
+      <p>Auto-approval limit</p>
+      <strong>{{ credit.money(policy.maxAmount) }}</strong>
+      <small>Larger tickets need an officer</small>
+    </article>
+  </section>
+
+  <p class="ops-banner ok" *ngIf="saved">{{ saved }}</p>
+  <p class="ops-banner info">{{ band }}</p>
+
+  <section class="ops-summary-grid">
+    <article class="ops-card">
+      <h2>Decision cutoffs</h2>
+      <label class="ops-field">Approve from score<input type="number" [(ngModel)]="policy.approveFrom" /></label>
+      <label class="ops-field">Decline below score<input type="number" [(ngModel)]="policy.declineBelow" /></label>
+      <label class="ops-field">Maximum debt service<input type="number" step="0.01" [(ngModel)]="policy.maxDti" /></label>
+      <label class="ops-field">Auto-approval limit (KSh)<input type="number" [(ngModel)]="policy.maxAmount" /></label>
+      <label class="ops-field">Maximum tenor (months)<input type="number" [(ngModel)]="policy.maxTenorMonths" /></label>
+      <label class="ops-field">Bureau file, maximum age (days)<input type="number" [(ngModel)]="policy.bureauMaxAgeDays" /></label>
+    </article>
+
+    <article class="ops-card">
+      <h2>How fast a case must move</h2>
+      <p class="ops-note">The alerts desk marks a case past SLA from these clocks. Salary advance is short because the customer is waiting on wages. High risk is short because the loss shows up faster.</p>
+      <label class="ops-field">Salary advance (hours)<input type="number" [(ngModel)]="policy.salaryAdvanceSla" /></label>
+      <label class="ops-field">High risk (hours)<input type="number" [(ngModel)]="policy.highRiskSla" /></label>
+      <label class="ops-field">Every other product (hours)<input type="number" [(ngModel)]="policy.standardSla" /></label>
+      <label class="ops-check">
+        <input type="checkbox" [(ngModel)]="policy.makerChecker" />
+        <span>
+          <strong>Maker-checker on officer decisions</strong>
+          <small>Approve and decline on the alerts desk need a written reason. Turn this off only for a supervised pilot.</small>
+        </span>
+      </label>
+    </article>
+  </section>
+
+  <article class="ops-card" style="margin-top:14px">
+    <h2>Recent control changes</h2>
+    <div class="ops-feed" *ngFor="let event of events">
+      <strong>{{ event.action }}</strong>
+      <span>{{ event.actor }} · {{ event.time | date:'d MMM, h:mm a' }}</span>
+      <p>{{ event.detail }}</p>
+    </div>
+    <p class="ops-empty" *ngIf="!events.length">No policy or connector changes yet.</p>
+    <a class="ops-link" routerLink="/audit-logs">Open the full audit trail</a>
   </article>
-</section>
+</div>

@@ -5,20 +5,27 @@ import { AuditEvent, CreditApplication, DEFAULT_POLICY, PolicySettings } from '.
 import { CreditDataService } from '../credit-data.service';
 import { downloadCsv, eventAppId, limitEvents } from '../ops/credit-ops';
 
-type AuditFamily = 'All' | 'Approvals' | 'Declines' | 'Referrals' | 'Case work' | 'Scorecard' | 'Limit changes';
+type AuditFamily = 'All' | 'Approvals' | 'Declines' | 'Referrals' | 'Case work' | 'Scorecard' | 'Limit changes' | 'Controls';
+type AuditWindow = 'All' | 'Today' | 'Decision day';
 
 @Component({
   selector: 'app-audit-logs',
   templateUrl: './audit-logs.component.html'
 })
 export class AuditLogsComponent implements OnInit, OnDestroy {
-  readonly families: AuditFamily[] = ['All', 'Approvals', 'Declines', 'Referrals', 'Case work', 'Scorecard', 'Limit changes'];
+  readonly families: AuditFamily[] = ['All', 'Approvals', 'Declines', 'Referrals', 'Case work', 'Scorecard', 'Limit changes', 'Controls'];
+  readonly windows: AuditWindow[] = ['All', 'Today', 'Decision day'];
   readonly appId = eventAppId;
 
   events: AuditEvent[] = [];
   visible: AuditEvent[] = [];
   family: AuditFamily = 'All';
+  window: AuditWindow = 'All';
+  onlyReview = false;
   actor = 'All';
+  reviewNote = '';
+  banner = '';
+  private reviewed = new Set<string>();
   query = '';
   page = 1;
   pageSize = 8;
@@ -88,8 +95,24 @@ export class AuditLogsComponent implements OnInit, OnDestroy {
     return this.events.filter(event => this.isOverride(event)).length;
   }
 
+  get openReviews(): number {
+    return this.events.filter(event => this.needsReview(event)).length;
+  }
+
   setFamily(family: AuditFamily): void {
     this.family = family;
+    this.page = 1;
+    this.apply();
+  }
+
+  setWindow(window: AuditWindow): void {
+    this.window = window;
+    this.page = 1;
+    this.apply();
+  }
+
+  toggleReview(): void {
+    this.onlyReview = !this.onlyReview;
     this.page = 1;
     this.apply();
   }
@@ -122,9 +145,59 @@ export class AuditLogsComponent implements OnInit, OnDestroy {
     return id ? this.credit.find(id) : undefined;
   }
 
+  needsReview(event: AuditEvent): boolean {
+    return this.isOverride(event) && !this.reviewed.has(event.id) && !/compliance reviewed/i.test(event.action);
+  }
+
+  purpose(event: AuditEvent): string {
+    const kind = this.kind(event);
+    if (kind === 'Limit changes') return 'Servicing. This is why the standing score and the limit moved after repayment.';
+    if (kind === 'Scorecard') return 'Origination. The model decided. No officer touched the file.';
+    if (kind === 'Approvals' || kind === 'Declines') return 'Override. An officer replaced the scorecard. A regulator will ask for the note.';
+    if (kind === 'Controls') return 'Control. Policy, bureau, identity, or a connector changed how decisions are made.';
+    if (kind === 'Referrals') return 'Queue. The file was held for a person because policy would not auto-decide.';
+    return 'Case work. Assignment, a question to the customer, or an escalation.';
+  }
+
+  chain(event: AuditEvent): AuditEvent[] {
+    const id = eventAppId(event.detail);
+    if (!id) return [event];
+    return this.events.filter(item => eventAppId(item.detail) === id || item.detail.includes(id));
+  }
+
+  markReviewed(): void {
+    const event = this.selected;
+    if (!event || !this.reviewNote.trim()) {
+      this.banner = 'Write what you checked before you sign the event off.';
+      return;
+    }
+    this.reviewed.add(event.id);
+    this.credit.recordControl(
+      'Compliance reviewed',
+      `${event.id} · ${event.action}. ${this.reviewNote.trim()}`,
+      event.decision || 'Policy'
+    );
+    this.banner = 'Signed off. The review is now its own line on the trail.';
+    this.reviewNote = '';
+  }
+
+  evidence(): void {
+    const event = this.selected;
+    if (!event) return;
+    const rows = this.chain(event);
+    downloadCsv(`eclectics-evidence-${this.appId(event.detail) || event.id}.csv`, ['Id', 'Time', 'Actor', 'Action', 'Decision', 'Detail'], rows.map(item => [
+      item.id, item.time, item.actor, item.action, item.decision, item.detail
+    ]));
+  }
+
+  printView(): void {
+    window.print();
+  }
+
   kind(event: AuditEvent): AuditFamily {
     const actor = event.actor.toLowerCase();
     const action = event.action.toLowerCase();
+    if (/policy|bureau|disburse|compliance|connector|identity/.test(action)) return 'Controls';
     if (action.includes('limit') || action.includes('standing score') || action.includes('repay')) return 'Limit changes';
     const machine = actor.includes('scorecard') || actor.includes('decision rule');
     if (action.includes('refer')) return 'Referrals';
@@ -138,6 +211,7 @@ export class AuditLogsComponent implements OnInit, OnDestroy {
   decisionTone(decision: string): string {
     if (decision === 'Approved') return 'ok';
     if (decision === 'Declined') return 'bad';
+    if (decision === 'Policy') return 'review';
     return 'refer';
   }
 
@@ -158,6 +232,8 @@ export class AuditLogsComponent implements OnInit, OnDestroy {
     const needle = this.query.trim().toLowerCase();
     const list = this.events.filter(event => {
       if (this.family !== 'All' && this.kind(event) !== this.family) return false;
+      if (!this.matchesWindow(event)) return false;
+      if (this.onlyReview && !this.needsReview(event)) return false;
       if (this.actor !== 'All' && event.actor !== this.actor) return false;
       if (!needle) return true;
       return [event.id, event.actor, event.action, event.detail, event.decision].join(' ').toLowerCase().includes(needle);
@@ -166,6 +242,15 @@ export class AuditLogsComponent implements OnInit, OnDestroy {
     const pages = Math.max(1, Math.ceil(list.length / this.pageSize));
     if (this.page > pages) this.page = 1;
     if (!list.some(event => event.id === this.selectedId)) this.selectedId = list[0]?.id || '';
+  }
+
+  private matchesWindow(event: AuditEvent): boolean {
+    if (this.window === 'All') return true;
+    const day = event.time.slice(0, 10);
+    if (this.window === 'Decision day') return day === '2026-10-23';
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    return day === today;
   }
 
   private isMachine(event: AuditEvent): boolean {

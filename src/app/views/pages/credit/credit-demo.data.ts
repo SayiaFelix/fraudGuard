@@ -76,6 +76,12 @@ export interface PolicySettings {
   declineBelow: number;
   maxDti: number;
   maxAmount: number;
+  maxTenorMonths: number;
+  bureauMaxAgeDays: number;
+  salaryAdvanceSla: number;
+  highRiskSla: number;
+  standardSla: number;
+  makerChecker: boolean;
 }
 
 export interface AuditEvent {
@@ -130,7 +136,13 @@ export const DEFAULT_POLICY: PolicySettings = {
   approveFrom: 700,
   declineBelow: 580,
   maxDti: 0.45,
-  maxAmount: 2000000
+  maxAmount: 2000000,
+  maxTenorMonths: 24,
+  bureauMaxAgeDays: 30,
+  salaryAdvanceSla: 8,
+  highRiskSla: 12,
+  standardSla: 24,
+  makerChecker: true
 };
 
 export const PORTFOLIO_SUMMARY: PortfolioSummary = {
@@ -241,12 +253,15 @@ export const APPLICATIONS: CreditApplication[] = [
 ];
 
 export const AUDIT_EVENTS: AuditEvent[] = [
+  { id: 'AUD-2212', time: '2026-10-23T11:05:00', actor: 'Demo User', action: 'Disbursement held', detail: 'APP-10482 · David Munya. Approved on the scorecard. Payout waits for a fresh identity match.', decision: 'Approved' },
+  { id: 'AUD-2210', time: '2026-10-23T10:48:00', actor: 'Nelly Cheruiyot', action: 'Bureau pull', detail: 'APP-10479 · Simon Kilonzo. CRC returned a thin file. The enquiry is on the bureau record.', decision: 'Refer' },
   { id: 'AUD-2201', time: '2026-10-23T10:12:20', actor: 'Scorecard v3.2', action: 'Auto approved', detail: 'APP-10482 · David Munya', decision: 'Approved' },
   { id: 'AUD-2200', time: '2026-10-23T09:58:40', actor: 'Decision rules', action: 'Referred to queue', detail: 'APP-10479 · Simon Kilonzo', decision: 'Refer' },
   { id: 'AUD-2198', time: '2026-10-23T09:32:10', actor: 'Scorecard v3.2', action: 'Auto approved', detail: 'APP-10474 · Grace Gitau', decision: 'Approved' },
   { id: 'AUD-2194', time: '2026-10-23T09:05:33', actor: 'Felix Oduor', action: 'Application declined', detail: 'APP-10468 · James Were', decision: 'Declined' },
   { id: 'AUD-2188', time: '2026-10-22T15:18:02', actor: 'Moses Kipchoge', action: 'Information requested', detail: 'APP-10463 · Kevin Owino', decision: 'Refer' },
-  { id: 'AUD-2181', time: '2026-10-22T11:40:18', actor: 'Demo User', action: 'Case escalated', detail: 'APP-10457 · Samuel Omondi', decision: 'Refer' }
+  { id: 'AUD-2181', time: '2026-10-22T11:40:18', actor: 'Demo User', action: 'Case escalated', detail: 'APP-10457 · Samuel Omondi', decision: 'Refer' },
+  { id: 'AUD-2164', time: '2026-10-21T08:15:00', actor: 'Demo User', action: 'Policy updated', detail: 'Decline below 580. Auto-approval from 700. Maximum tenor 24 months.', decision: 'Policy' }
 ];
 
 function app(

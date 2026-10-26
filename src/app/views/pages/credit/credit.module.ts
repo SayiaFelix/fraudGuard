@@ -42,8 +42,8 @@ const routes: Routes = [
       { path: 'reports', component: CreditReportsComponent, data: { ownHeader: true } },
       { path: 'model-monitoring', component: ModelMonitoringComponent, data: { title: 'Model monitoring', subtitle: 'Gini, KS, and population stability' } },
       { path: 'audit-logs', component: AuditLogsComponent, data: { ownHeader: true } },
-      { path: 'integrations', component: IntegrationsComponent, data: { title: 'Integrations', subtitle: 'Connectors stay paused until the JSON feed is ready' } },
-      { path: 'settings', component: CreditSettingsComponent, data: { title: 'Settings', subtitle: 'Demo environment and decision cutoffs' } }
+      { path: 'integrations', component: IntegrationsComponent, data: { ownHeader: true } },
+      { path: 'settings', component: CreditSettingsComponent, data: { ownHeader: true } }
     ]
   }
 ];

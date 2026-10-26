@@ -213,8 +213,11 @@ export class AlertsComponent implements OnInit, OnDestroy {
   act(action: 'approve' | 'decline' | 'request-info' | 'escalate' | 'assign' | 'note'): void {
     const row = this.selected;
     if (!row) return;
-    if ((action === 'approve' || action === 'decline') && this.overrideRequired(row.app) && !this.note.trim()) {
-      this.banner = 'Add a case note. This decision overrides the scorecard.';
+    const needsNote = this.policy.makerChecker || this.overrideRequired(row.app);
+    if ((action === 'approve' || action === 'decline') && needsNote && !this.note.trim()) {
+      this.banner = this.policy.makerChecker
+        ? 'Add a case note. Maker-checker is on, so an officer decision needs a written reason.'
+        : 'Add a case note. This decision overrides the scorecard.';
       this.bannerTone = 'bad';
       return;
     }

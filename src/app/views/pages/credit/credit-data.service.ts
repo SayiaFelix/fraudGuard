@@ -322,17 +322,28 @@ export class CreditDataService {
   }
 
   updatePolicy(policy: PolicySettings): void {
-    const next = {
-      approveFrom: clamp(Math.round(policy.approveFrom), 500, 850),
-      declineBelow: clamp(Math.round(policy.declineBelow), 400, 750),
-      maxDti: Math.round(policy.maxDti * 100) / 100,
-      maxAmount: Math.max(100000, Math.round(policy.maxAmount))
-    };
-    if (next.declineBelow >= next.approveFrom) {
-      next.declineBelow = next.approveFrom - 40;
-    }
+    const before = this.policy;
+    const next = this.normalisePolicy(policy);
     this.policySubject.next(next);
     localStorage.setItem('eclectics-credit-policy', JSON.stringify(next));
+    const changes = this.policyChanges(before, next);
+    if (changes.length) {
+      this.recordControl('Policy updated', changes.join('. ') + '.', 'Policy');
+    }
+  }
+
+  recordControl(action: string, detail: string, decision = 'Policy'): void {
+    this.auditSubject.next([
+      {
+        id: 'AUD-' + Date.now().toString().slice(-6),
+        time: new Date().toISOString(),
+        actor: 'Demo User',
+        action,
+        detail,
+        decision
+      },
+      ...this.auditSubject.value
+    ]);
   }
 
   simulate(draft: PolicySettings): SimulationResult {
@@ -407,6 +418,9 @@ export class CreditDataService {
       : row.score < policy.declineBelow
         ? 'Declined'
         : 'Refer';
+    if (policy.maxTenorMonths && row.tenor > policy.maxTenorMonths && decision === 'Approved') {
+      decision = 'Refer';
+    }
 
     this.rules.filter(rule => rule.enabled).forEach(rule => {
       const effect = this.ruleEffect(rule, row, policy);
@@ -455,6 +469,9 @@ export class CreditDataService {
         reasons.push(rule.name);
       }
     });
+    if (policy.maxTenorMonths && row.tenor > policy.maxTenorMonths) {
+      reasons.push(`Tenor longer than ${policy.maxTenorMonths} months`);
+    }
     if (row.score < policy.approveFrom && row.score >= policy.declineBelow) {
       reasons.unshift('Score is below the auto-approval cutoff');
     }
@@ -465,6 +482,40 @@ export class CreditDataService {
       reasons.push('Held for analyst review');
     }
     return reasons;
+  }
+
+  private normalisePolicy(policy: PolicySettings): PolicySettings {
+    const next: PolicySettings = {
+      approveFrom: clamp(Math.round(Number(policy.approveFrom)), 500, 850),
+      declineBelow: clamp(Math.round(Number(policy.declineBelow)), 400, 750),
+      maxDti: Math.round(Number(policy.maxDti) * 100) / 100,
+      maxAmount: Math.max(100000, Math.round(Number(policy.maxAmount))),
+      maxTenorMonths: clamp(Math.round(Number(policy.maxTenorMonths) || DEFAULT_POLICY.maxTenorMonths), 1, 60),
+      bureauMaxAgeDays: clamp(Math.round(Number(policy.bureauMaxAgeDays) || DEFAULT_POLICY.bureauMaxAgeDays), 1, 180),
+      salaryAdvanceSla: clamp(Math.round(Number(policy.salaryAdvanceSla) || DEFAULT_POLICY.salaryAdvanceSla), 1, 72),
+      highRiskSla: clamp(Math.round(Number(policy.highRiskSla) || DEFAULT_POLICY.highRiskSla), 1, 72),
+      standardSla: clamp(Math.round(Number(policy.standardSla) || DEFAULT_POLICY.standardSla), 1, 96),
+      makerChecker: policy.makerChecker !== false
+    };
+    if (next.declineBelow >= next.approveFrom) {
+      next.declineBelow = next.approveFrom - 40;
+    }
+    return next;
+  }
+
+  private policyChanges(before: PolicySettings, next: PolicySettings): string[] {
+    const lines: string[] = [];
+    if (before.approveFrom !== next.approveFrom) lines.push(`Approve from ${before.approveFrom} to ${next.approveFrom}`);
+    if (before.declineBelow !== next.declineBelow) lines.push(`Decline below ${before.declineBelow} to ${next.declineBelow}`);
+    if (before.maxDti !== next.maxDti) lines.push(`Maximum DTI ${Math.round(before.maxDti * 100)}% to ${Math.round(next.maxDti * 100)}%`);
+    if (before.maxAmount !== next.maxAmount) lines.push(`Auto-approval limit ${this.money(before.maxAmount)} to ${this.money(next.maxAmount)}`);
+    if (before.maxTenorMonths !== next.maxTenorMonths) lines.push(`Maximum tenor ${before.maxTenorMonths} to ${next.maxTenorMonths} months`);
+    if (before.bureauMaxAgeDays !== next.bureauMaxAgeDays) lines.push(`Bureau freshness ${before.bureauMaxAgeDays} to ${next.bureauMaxAgeDays} days`);
+    if (before.salaryAdvanceSla !== next.salaryAdvanceSla || before.highRiskSla !== next.highRiskSla || before.standardSla !== next.standardSla) {
+      lines.push(`SLA ${next.salaryAdvanceSla}h salary advance, ${next.highRiskSla}h high risk, ${next.standardSla}h standard`);
+    }
+    if (before.makerChecker !== next.makerChecker) lines.push(next.makerChecker ? 'Maker-checker turned on' : 'Maker-checker turned off');
+    return lines;
   }
 
   private risk(score: number): RiskBand {
@@ -478,12 +529,7 @@ export class CreditDataService {
       const saved = localStorage.getItem('eclectics-credit-policy');
       if (!saved) return clone(DEFAULT_POLICY);
       const parsed = JSON.parse(saved);
-      return {
-        approveFrom: Number(parsed.approveFrom) || DEFAULT_POLICY.approveFrom,
-        declineBelow: Number(parsed.declineBelow) || DEFAULT_POLICY.declineBelow,
-        maxDti: Number(parsed.maxDti) || DEFAULT_POLICY.maxDti,
-        maxAmount: Number(parsed.maxAmount) || DEFAULT_POLICY.maxAmount
-      };
+      return this.normalisePolicy({ ...DEFAULT_POLICY, ...parsed });
     } catch {
       return clone(DEFAULT_POLICY);
     }
