@@ -1,0 +1,229 @@
+<div class="ops">
+  <header class="ops-head">
+    <div>
+      <h1>Reports</h1>
+      <p>Portfolio, distribution, and decision outcomes from this book.</p>
+    </div>
+    <div class="ops-head-actions ops-no-print">
+      <button class="ops-btn ghost" type="button" (click)="download()">Download CSV</button>
+      <button class="ops-btn primary" type="button" (click)="print()">Print report</button>
+    </div>
+  </header>
+
+  <div class="ops-report-switch">
+    <button type="button" *ngFor="let report of reports" [class.on]="active === report.id" (click)="active = report.id">
+      <strong>{{ report.name }}</strong>
+      <span>{{ report.detail }}</span>
+    </button>
+  </div>
+
+  <div class="ops-toolbar">
+    <p class="ops-note">Tables use the same applications as Alerts, Cases, and Audit. Book headlines are the origination totals. Filters apply to this file only.</p>
+    <div class="ops-filters ops-no-print">
+      <label class="ops-select">
+        <select [ngModel]="product" (ngModelChange)="setProduct($event)">
+          <option value="All">All products</option>
+          <option *ngFor="let item of credit.products" [value]="item">{{ item }}</option>
+        </select>
+      </label>
+      <label class="ops-select">
+        <select [ngModel]="country" (ngModelChange)="setCountry($event)">
+          <option value="All">All countries</option>
+          <option *ngFor="let item of credit.countries" [value]="item">{{ item }}</option>
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <ng-container *ngIf="active === 'summary'">
+    <section class="ops-kpis">
+      <article class="ops-kpi"><p>Book applications</p><strong>{{ summary.total | number }}</strong><small>{{ credit.pct(summary.approved, summary.total) }} approved</small></article>
+      <article class="ops-kpi"><p>Book referred</p><strong>{{ summary.referred | number }}</strong><small>Average score {{ summary.avgScore }}</small></article>
+      <article class="ops-kpi"><p>Worklist</p><strong>{{ file.length }}</strong><small>{{ credit.money(fileAmount) }} requested</small></article>
+      <article class="ops-kpi"><p>Still referred</p><strong>{{ referredFile.length }}</strong><small>{{ credit.money(referredAmount) }} undecided</small></article>
+    </section>
+    <section class="ops-summary-grid">
+      <article class="ops-card">
+        <div class="ops-card-head">
+          <h2>{{ chartMode === 'book' ? 'Book decisions' : 'Worklist decisions' }}</h2>
+          <div class="ops-filters ops-no-print" style="margin:0">
+            <button type="button" class="ops-chip" [class.on]="chartMode === 'worklist'" (click)="setChart('worklist')">This file</button>
+            <button type="button" class="ops-chip" [class.on]="chartMode === 'book'" (click)="setChart('book')">Origination book</button>
+          </div>
+        </div>
+        <div class="ops-chart">
+          <div class="ops-chart-y"><span *ngFor="let tick of ticks">{{ tick }}</span></div>
+          <div class="ops-chart-plot">
+            <div class="ops-bar" *ngFor="let bar of bars">
+              <i [style.height.%]="bar.height" [style.background]="bar.color"></i>
+              <span>{{ bar.label }}<small>{{ bar.value | number }}</small></span>
+            </div>
+          </div>
+        </div>
+      </article>
+      <article class="ops-card">
+        <h2>Book versus file</h2>
+        <table class="ops-table">
+          <thead><tr><th>Measure</th><th>Book</th><th>This file</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let row of compare">
+              <td>{{ row.measure }}</td>
+              <td><strong>{{ row.book }}</strong><small>{{ row.bookSub }}</small></td>
+              <td><strong>{{ row.file }}</strong><small>{{ row.fileSub }}</small></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="ops-note" style="margin-top:10px">Approving or declining a referral updates both the book referred count and this file.</p>
+      </article>
+    </section>
+  </ng-container>
+
+  <section class="ops-mix-grid" *ngIf="active === 'distribution'">
+    <article class="ops-card" *ngFor="let group of mixes">
+      <h2>{{ group.title }}</h2>
+      <div class="ops-mix" *ngFor="let row of group.rows">
+        <div class="ops-mix-top"><strong>{{ row.name }}</strong><span>{{ row.count }} · {{ row.rate }}% approved · {{ credit.money(row.amount) }}</span></div>
+        <div class="ops-sla"><i [style.width.%]="row.share"></i></div>
+      </div>
+      <p class="ops-empty" *ngIf="!group.rows.length">No applications in this slice.</p>
+    </article>
+  </section>
+
+  <ng-container *ngIf="active === 'outcomes'">
+    <section class="ops-kpis">
+      <article class="ops-kpi"><p>Approved</p><strong>{{ countDecision('Approved') }}</strong><small>{{ credit.money(amountDecision('Approved')) }} · {{ credit.pct(countDecision('Approved'), file.length) }}</small></article>
+      <article class="ops-kpi"><p>Referred</p><strong>{{ countDecision('Refer') }}</strong><small>{{ credit.money(amountDecision('Refer')) }} · {{ credit.pct(countDecision('Refer'), file.length) }}</small></article>
+      <article class="ops-kpi"><p>Declined</p><strong>{{ countDecision('Declined') }}</strong><small>{{ credit.money(amountDecision('Declined')) }} · {{ credit.pct(countDecision('Declined'), file.length) }}</small></article>
+      <article class="ops-kpi"><p>Reason codes</p><strong>{{ reasons.length }}</strong><small>Distinct reasons on this file</small></article>
+    </section>
+    <section class="ops-summary-grid">
+      <article class="ops-card">
+        <h2>Reason codes</h2>
+        <div class="ops-mix" *ngFor="let row of reasons">
+          <div class="ops-mix-top"><strong>{{ row.name }}</strong><span>{{ row.count }}</span></div>
+          <div class="ops-sla"><i [style.width.%]="reasonShare(row.count)"></i></div>
+        </div>
+      </article>
+      <article class="ops-card">
+        <h2>This file</h2>
+        <table class="ops-table">
+          <thead><tr><th>Applicant</th><th>Score</th><th>Decision</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let row of file" [routerLink]="['/alerts']" [queryParams]="{ id: row.id }">
+              <td class="who"><strong>{{ row.applicant }}</strong><small>{{ row.id }} · {{ row.product }}</small></td>
+              <td>{{ row.score }}</td>
+              <td><span class="ops-pill" [ngClass]="row.decision === 'Approved' ? 'ok' : row.decision === 'Declined' ? 'bad' : 'refer'">{{ row.decision }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </article>
+    </section>
+  </ng-container>
+
+  <ng-container *ngIf="active === 'exceptions'">
+    <section class="ops-kpis">
+      <article class="ops-kpi" *ngFor="let card of exceptions">
+        <p>{{ card.name }}</p>
+        <strong>{{ card.count }}</strong>
+        <small>{{ card.detail }} · {{ credit.money(card.amount) }}</small>
+      </article>
+    </section>
+    <article class="ops-card" style="margin-top:14px">
+      <h2>Files hitting policy</h2>
+      <table class="ops-table">
+        <thead><tr><th>Applicant</th><th>Score</th><th>DTI</th><th>Amount</th><th>Breaks</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let row of exceptionRows">
+            <td class="who"><strong>{{ row.app.applicant }}</strong><small>{{ row.app.id }} · {{ row.app.product }}</small></td>
+            <td>{{ row.app.score }}</td>
+            <td>{{ row.app.dti | percent:'1.0-0' }}</td>
+            <td>{{ credit.money(row.app.amount) }}</td>
+            <td>{{ row.hits }}</td>
+          </tr>
+          <tr *ngIf="!exceptionRows.length"><td colspan="5" class="ops-empty">No policy breaks in this slice.</td></tr>
+        </tbody>
+      </table>
+    </article>
+  </ng-container>
+
+  <ng-container *ngIf="active === 'turnaround'">
+    <section class="ops-kpis">
+      <article class="ops-kpi"><p>Within SLA</p><strong>{{ withinSla }}</strong><small>Open referrals still inside the product clock</small></article>
+      <article class="ops-kpi"><p>Breached</p><strong>{{ breached }}</strong><small>Salary advance 8h · high risk 12h · standard 24h</small></article>
+      <article class="ops-kpi"><p>Average age</p><strong>{{ averageAge }}</strong><small>{{ openOps.length }} open referrals</small></article>
+      <article class="ops-kpi"><p>Oldest</p><strong>{{ oldest?.ageLabel || '—' }}</strong><small>{{ oldest?.app?.applicant || 'Queue is clear' }}</small></article>
+    </section>
+    <section class="ops-summary-grid">
+      <article class="ops-card">
+        <h2>Age of open referrals</h2>
+        <div class="ops-ages" style="margin-top:12px">
+          <div *ngFor="let bucket of turnaroundBuckets"><strong>{{ bucket.count }}</strong><span>{{ bucket.label }}</span></div>
+        </div>
+      </article>
+      <article class="ops-card">
+        <h2>By owner</h2>
+        <table class="ops-table">
+          <thead><tr><th>Owner</th><th>Open</th><th>Breached</th><th>Exposure</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let row of ownerRows">
+              <td>{{ row.name }}</td>
+              <td>{{ row.count }}</td>
+              <td>{{ row.breached }}</td>
+              <td>{{ credit.money(row.amount) }}</td>
+            </tr>
+            <tr *ngIf="!ownerRows.length"><td colspan="4" class="ops-empty">No open referrals in this slice.</td></tr>
+          </tbody>
+        </table>
+      </article>
+    </section>
+  </ng-container>
+
+  <ng-container *ngIf="active === 'limits'">
+    <section class="ops-kpis">
+      <article class="ops-kpi"><p>Limits raised</p><strong>{{ countDirection('Raised') }}</strong><small>On-time repayment grew the facility</small></article>
+      <article class="ops-kpi"><p>Limits cut</p><strong>{{ countDirection('Cut') }}</strong><small>Late payments or defaults reduced it</small></article>
+      <article class="ops-kpi"><p>Unchanged</p><strong>{{ countDirection('Unchanged') }}</strong><small>No repayment cycle on the file yet</small></article>
+      <article class="ops-kpi"><p>Average score move</p><strong>{{ averageMove > 0 ? '+' : '' }}{{ averageMove }}</strong><small>Standing score against origination</small></article>
+    </section>
+    <section class="ops-summary-grid">
+      <article class="ops-card">
+        <h2>How the limit moves</h2>
+        <div class="ops-chart">
+          <div class="ops-chart-y"><span *ngFor="let tick of movementTicks">{{ tick }}</span></div>
+          <div class="ops-chart-plot">
+            <div class="ops-bar" *ngFor="let bar of movementBars">
+              <i [style.height.%]="bar.height" [style.background]="bar.color"></i>
+              <span>{{ bar.label }}<small>{{ bar.value | number }}</small></span>
+            </div>
+          </div>
+        </div>
+      </article>
+      <article class="ops-card">
+        <h2>What each cycle does</h2>
+        <div class="ops-feed" *ngFor="let rule of behaviourRules">
+          <strong>{{ rule.name }}</strong>
+          <p>{{ rule.effect }}</p>
+        </div>
+        <p class="ops-note">The score stays between 300 and 900. Post an on-time repayment, a late payment, or a default on the alerts desk and this report updates from the same file.</p>
+      </article>
+    </section>
+    <article class="ops-card" style="margin-top:14px">
+      <h2>This file</h2>
+      <table class="ops-table">
+        <thead>
+          <tr><th>Applicant</th><th>Score</th><th>Change</th><th>Limit</th><th>Repayment</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of movements" [routerLink]="['/alerts']" [queryParams]="{ id: row.app.id }">
+            <td class="who"><strong>{{ row.app.applicant }}</strong><small>{{ row.app.id }} · {{ row.app.product }}</small></td>
+            <td>{{ row.standing.openingScore }} → {{ row.standing.standingScore }}</td>
+            <td [class.ops-up]="row.standing.scoreDelta > 0" [class.ops-down]="row.standing.scoreDelta < 0">{{ row.standing.scoreDelta > 0 ? '+' : '' }}{{ row.standing.scoreDelta }}</td>
+            <td>{{ credit.money(row.standing.openingLimit) }} → {{ credit.money(row.standing.standingLimit) }}</td>
+            <td>{{ row.standing.onTime }} on time · {{ row.standing.late }} late · {{ row.standing.defaults }} default{{ row.standing.defaults === 1 ? '' : 's' }}</td>
+          </tr>
+          <tr *ngIf="!movements.length"><td colspan="5" class="ops-empty">No applications in this slice.</td></tr>
+        </tbody>
+      </table>
+    </article>
+  </ng-container>
+</div>

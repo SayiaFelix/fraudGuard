@@ -1,0 +1,22 @@
+<section class="mid-grid">
+  <article class="cd-card">
+    <h2>Product</h2>
+    <div class="setting-row"><span>Product</span><strong>Eclectics</strong></div>
+    <div class="setting-row"><span>Workspace</span><strong>Digital Credit Decisioning</strong></div>
+    <div class="setting-row"><span>Environment</span><strong>Demo · frontend only</strong></div>
+    <div class="setting-row"><span>Officer</span><strong>Demo User</strong></div>
+    <p class="fine">Login and backend connectors are switched off. Policy values on the right are stored in this browser.</p>
+  </article>
+
+  <article class="cd-card">
+    <h2>Decision cutoffs</h2>
+    <label>Approve from score<input type="number" [(ngModel)]="policy.approveFrom" /></label>
+    <label>Decline below score<input type="number" [(ngModel)]="policy.declineBelow" /></label>
+    <label>Maximum DTI<input type="number" step="0.01" [(ngModel)]="policy.maxDti" /></label>
+    <label>Auto-approval limit (KSh)<input type="number" [(ngModel)]="policy.maxAmount" /></label>
+    <div class="form-actions">
+      <button class="btn-primary" type="button" (click)="save()">Save cutoffs</button>
+      <span class="fine" *ngIf="saved">Saved in this browser.</span>
+    </div>
+  </article>
+</section>

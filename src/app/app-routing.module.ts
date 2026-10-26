@@ -2,30 +2,46 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { BaseComponent } from './views/layout/base/base.component';
 import { ErrorPageComponent } from './views/pages/error-page/error-page.component';
+// Fraud, channel, and legacy dashboard modules stay in the build so their
+// templates still type-check. Their routes are commented out below.
+import './views/pages/mobile-banking/mobile-banking.module';
+import './views/pages/dashboard/dashboard.module';
+import './views/pages/channel-monitoring/channel-monitoring.module';
+import './views/pages/reports/reports.module';
 import { RoleGuard } from './shared/services/role.guard';
 import { AuthGuard } from './shared/services/auth.guard';
 
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'auth/login',
+    redirectTo: 'dashboard',
     pathMatch: 'full'
   },
-  {
-    path: 'auth',
-    loadChildren: () =>
-      import('./views/pages/auth/auth.module').then((m) => m.AuthModule),
-  },
+  // Login stays in the project, but it is not mounted.
+  // The demo opens straight on the credit workspace.
+  // {
+  //   path: 'auth',
+  //   loadChildren: () =>
+  //     import('./views/pages/auth/auth.module').then((m) => m.AuthModule),
+  // },
   {
     path: '',
     component: BaseComponent,
-    canActivate: [AuthGuard],  
+    // canActivate: [AuthGuard],
     children: [
+      // Fraud dashboard called the scoring API on load. It is replaced by the credit workspace.
+      // {
+      //   path: 'dashboard',
+      //   loadChildren: () =>
+      //     import('./views/pages/dashboard/dashboard.module').then(
+      //       (m) => m.DashboardModule
+      //     ),
+      // },
       {
-        path: 'dashboard',
+        path: '',
         loadChildren: () =>
-          import('./views/pages/dashboard/dashboard.module').then(
-            (m) => m.DashboardModule
+          import('./views/pages/credit/credit.module').then(
+            (m) => m.CreditModule
           ),
       },
       {

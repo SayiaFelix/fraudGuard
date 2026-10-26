@@ -13,5 +13,6 @@ export interface MenuItem {
   isLogout?: boolean; 
   action?: string;
   isSettings?: boolean;
-  isHelpCenter?: boolean; 
+  isHelpCenter?: boolean;
+  exact?: boolean;
 }

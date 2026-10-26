@@ -1,0 +1,10 @@
+<section class="integration-grid">
+  <article class="cd-card" *ngFor="let item of integrations">
+    <div class="cd-card-head">
+      <h2>{{ item.name }}</h2>
+      <span class="pill is-wait">Paused</span>
+    </div>
+    <p>{{ item.detail }}</p>
+    <p class="fine">{{ item.status }}. No connector is called in this demo.</p>
+  </article>
+</section>

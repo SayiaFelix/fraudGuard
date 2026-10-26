@@ -1,0 +1,54 @@
+<section class="sim-layout">
+  <article class="cd-card">
+    <h2>Scenario</h2>
+    <p class="fine">Run the current rules over a 240-application sample book. Moving a cutoff shows who would change decision.</p>
+    <label>Approve from score {{ draft.approveFrom }}
+      <input type="range" min="620" max="820" [(ngModel)]="draft.approveFrom" (ngModelChange)="run()" />
+    </label>
+    <label>Decline below score {{ draft.declineBelow }}
+      <input type="range" min="450" max="680" [(ngModel)]="draft.declineBelow" (ngModelChange)="run()" />
+    </label>
+    <label>Maximum DTI {{ draft.maxDti | percent:'1.0-0' }}
+      <input type="range" min="0.25" max="0.7" step="0.01" [(ngModel)]="draft.maxDti" (ngModelChange)="run()" />
+    </label>
+    <label>Auto-approval limit {{ credit.money(draft.maxAmount) }}
+      <input type="range" min="200000" max="5000000" step="50000" [(ngModel)]="draft.maxAmount" (ngModelChange)="run()" />
+    </label>
+    <div class="form-actions">
+      <button class="btn-primary" type="button" (click)="save()">Use these cutoffs</button>
+      <span class="fine" *ngIf="saved">Saved in this browser.</span>
+    </div>
+  </article>
+
+  <div *ngIf="result as sim">
+    <section class="kpi-grid">
+      <article class="cd-card kpi"><div><p>Would approve</p><strong>{{ sim.next.approved }}</strong><small>{{ share(sim.next.approved, sim.bookSize) }} of {{ sim.bookSize }} · now {{ share(sim.current.approved, sim.bookSize) }}</small></div></article>
+      <article class="cd-card kpi"><div><p>Would refer</p><strong>{{ sim.next.referred }}</strong><small>now {{ sim.current.referred }}</small></div></article>
+      <article class="cd-card kpi"><div><p>Would decline</p><strong>{{ sim.next.declined }}</strong><small>now {{ sim.current.declined }}</small></div></article>
+      <article class="cd-card kpi"><div><p>Decisions that move</p><strong>{{ sim.changeCount }}</strong><small>against the saved policy</small></div></article>
+    </section>
+
+    <article class="cd-card" style="margin-top: 16px">
+      <div class="cd-card-head"><h2>Sample of changed decisions</h2></div>
+      <table class="cd-table">
+        <thead>
+          <tr><th>Record</th><th>Applicant</th><th>Score</th><th>DTI</th><th>Amount</th><th>From</th><th>To</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of sim.changes">
+            <td>{{ row.id }}</td>
+            <td>{{ row.applicant }}</td>
+            <td>{{ row.score }}</td>
+            <td>{{ row.dti | percent:'1.0-0' }}</td>
+            <td>{{ credit.money(row.amount) }}</td>
+            <td><span class="pill" [ngClass]="credit.decisionClass(row.from)">{{ row.from }}</span></td>
+            <td><span class="pill" [ngClass]="credit.decisionClass(row.to)">{{ row.to }}</span></td>
+          </tr>
+          <tr *ngIf="!sim.changes.length">
+            <td colspan="7" class="cd-empty">This scenario matches the saved policy.</td>
+          </tr>
+        </tbody>
+      </table>
+    </article>
+  </div>
+</section>

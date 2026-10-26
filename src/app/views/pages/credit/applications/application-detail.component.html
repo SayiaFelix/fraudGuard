@@ -1,0 +1,55 @@
+<article class="cd-card missing" *ngIf="!application">
+  <h2>Application not on this book</h2>
+  <a routerLink="/applications">Back to applications</a>
+</article>
+
+<section class="detail-grid" *ngIf="application as app">
+  <article class="cd-card">
+    <div class="cd-card-head">
+      <div>
+        <p class="eyebrow">{{ app.id }} · {{ app.country }} · {{ app.branch }}</p>
+        <h2>{{ app.applicant }}</h2>
+      </div>
+      <span class="pill" [ngClass]="credit.decisionClass(app.decision)">{{ app.decision }}</span>
+    </div>
+    <div class="fact-grid">
+      <div><small>Product</small><strong>{{ app.product }}</strong></div>
+      <div><small>Amount</small><strong>{{ credit.money(app.amount) }}</strong></div>
+      <div><small>Tenor</small><strong>{{ app.tenorMonths }} months</strong></div>
+      <div><small>Score</small><strong>{{ app.score }} · {{ app.risk }}</strong></div>
+      <div><small>DTI</small><strong>{{ app.dti | percent:'1.0-0' }}</strong></div>
+      <div><small>Income</small><strong>{{ credit.money(app.income) }}</strong></div>
+      <div><small>Bureau</small><strong>{{ app.bureau }}</strong></div>
+      <div><small>Employment</small><strong>{{ app.employment }}</strong></div>
+      <div><small>Channel</small><strong>{{ app.channel }}</strong></div>
+      <div><small>Case</small><strong>{{ app.caseStatus }}</strong></div>
+      <div><small>Owner</small><strong>{{ app.assignedTo }}</strong></div>
+      <div><small>Submitted</small><strong>{{ app.submittedAt | date:'d MMM y, h:mm a' }}</strong></div>
+    </div>
+    <div class="form-actions" *ngIf="app.decision === 'Refer' && app.caseStatus !== 'Closed'">
+      <a class="btn-primary" [routerLink]="['/alerts']" [queryParams]="{ id: app.id }">Take case action</a>
+    </div>
+  </article>
+
+  <article class="cd-card">
+    <h2>Reason codes</h2>
+    <ul class="reason-list">
+      <li *ngFor="let reason of app.reasonCodes">{{ reason }}</li>
+    </ul>
+    <h2>Score factors</h2>
+    <div class="factor" *ngFor="let factor of app.factors">
+      <div><span>{{ factor.label }}</span><b [class.neg]="factor.impact < 0">{{ factor.impact > 0 ? '+' : '' }}{{ factor.impact }}</b></div>
+      <i [style.width.%]="factorBar(factor.impact)"></i>
+    </div>
+  </article>
+
+  <article class="cd-card notes-card">
+    <h2>Case notes</h2>
+    <p class="cd-empty" *ngIf="!app.notes.length">No notes yet. Case actions are taken from Alerts.</p>
+    <div class="note" *ngFor="let note of app.notes">
+      <strong>{{ note.author }}</strong>
+      <span>{{ note.time }}</span>
+      <p>{{ note.text }}</p>
+    </div>
+  </article>
+</section>

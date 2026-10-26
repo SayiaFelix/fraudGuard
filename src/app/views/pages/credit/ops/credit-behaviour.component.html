@@ -1,0 +1,38 @@
+<section class="ops-behaviour" *ngIf="standing as book">
+  <ng-container *ngIf="mode !== 'steps'">
+  <h3>Why the score and limit moved</h3>
+  <p class="ops-banner info">{{ book.summary }}</p>
+  <div class="ops-metrics">
+    <div class="ops-metric">
+      <span>Standing score</span>
+      <strong [class.ops-up]="book.scoreDelta > 0" [class.ops-down]="book.scoreDelta < 0">{{ book.standingScore }}</strong>
+      <small>Origination {{ book.openingScore }} · {{ signed(book.scoreDelta) }}</small>
+    </div>
+    <div class="ops-metric">
+      <span>Credit limit</span>
+      <strong [class.ops-up]="book.limitDelta > 0" [class.ops-down]="book.limitDelta < 0">{{ credit.money(book.standingLimit) }}</strong>
+      <small>Opened at {{ credit.money(book.openingLimit) }}</small>
+    </div>
+    <div class="ops-metric">
+      <span>Repayment</span>
+      <strong>{{ book.onTime }} on time</strong>
+      <small>{{ book.late }} late · {{ book.defaults }} default{{ book.defaults === 1 ? '' : 's' }}</small>
+    </div>
+  </div>
+  <div class="ops-reasons" *ngIf="book.factors.length">
+    <span *ngFor="let factor of book.factors">{{ factor.label }} {{ signed(factor.impact) }}</span>
+  </div>
+  </ng-container>
+  <ng-container *ngIf="mode !== 'compact'">
+    <div class="ops-feed" *ngFor="let step of book.steps">
+      <strong>{{ step.when }} · {{ step.outcome }}</strong>
+      <span>Score {{ step.scoreBefore }} → {{ step.scoreAfter }} · Limit {{ credit.money(step.limitBefore) }} → {{ credit.money(step.limitAfter) }}</span>
+      <p>{{ step.reason }}</p>
+    </div>
+    <p class="ops-empty" *ngIf="!book.steps.length">No instalment has fallen due yet.</p>
+  </ng-container>
+  <div class="ops-feed" *ngIf="mode === 'compact' && latest as step">
+    <strong>Latest cycle · {{ step.when }} · {{ step.outcome }}</strong>
+    <p>{{ step.reason }}</p>
+  </div>
+</section>

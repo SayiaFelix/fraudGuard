@@ -1,0 +1,46 @@
+<div class="toolbar">
+  <label class="search">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input [(ngModel)]="search" placeholder="Search applicant, product, or ID" />
+  </label>
+  <div class="chips">
+    <button type="button" *ngFor="let item of ['All', 'Approved', 'Refer', 'Declined']" [class.on]="decision === item" (click)="decision = item">{{ item }}</button>
+  </div>
+  <a class="btn-primary" routerLink="/applications/new">New application</a>
+</div>
+
+<article class="cd-card">
+  <div class="table-scroll">
+    <table class="cd-table">
+      <thead>
+        <tr>
+          <th>Reference</th>
+          <th>Applicant</th>
+          <th>Product</th>
+          <th>Country</th>
+          <th>Amount</th>
+          <th>Score</th>
+          <th>Decision</th>
+          <th>Case</th>
+          <th>Submitted</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of rows" [routerLink]="['/applications', row.id]">
+          <td>{{ row.id }}</td>
+          <td>{{ row.applicant }}</td>
+          <td>{{ row.product }}</td>
+          <td>{{ row.country }}</td>
+          <td>{{ credit.money(row.amount) }}</td>
+          <td><span class="score-pill" [ngClass]="credit.riskClass(row.risk)">{{ row.score }}</span></td>
+          <td><span class="pill" [ngClass]="credit.decisionClass(row.decision)">{{ row.decision }}</span></td>
+          <td>{{ row.caseStatus }}</td>
+          <td>{{ row.submittedAt | date:'d MMM, h:mm a' }}</td>
+        </tr>
+        <tr *ngIf="!rows.length">
+          <td colspan="9" class="cd-empty">No applications match this filter.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</article>
