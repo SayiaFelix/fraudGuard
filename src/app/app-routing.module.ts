@@ -8,10 +8,8 @@ import './views/pages/mobile-banking/mobile-banking.module';
 import './views/pages/dashboard/dashboard.module';
 import './views/pages/channel-monitoring/channel-monitoring.module';
 import './views/pages/reports/reports.module';
-import { AuthGuard } from './shared/services/auth.guard';
 import { RoleGuard } from './shared/services/role.guard';
-// import { RoleGuard } from './shared/services/role.guard';
-// import { AuthGuard } from './shared/services/auth.guard';
+import { AuthGuard } from './shared/services/auth.guard';
 
 const routes: Routes = [
   {

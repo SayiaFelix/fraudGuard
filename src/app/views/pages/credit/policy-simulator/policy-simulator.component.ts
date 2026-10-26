@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { PolicySettings } from '../credit-demo.data';
+import { DEFAULT_POLICY, PolicySettings } from '../credit-demo.data';
 import { CreditDataService, SimulationResult } from '../credit-data.service';
 
 @Component({
@@ -8,7 +8,7 @@ import { CreditDataService, SimulationResult } from '../credit-data.service';
   templateUrl: './policy-simulator.component.html'
 })
 export class PolicySimulatorComponent implements OnInit, OnDestroy {
-  draft: PolicySettings = { approveFrom: 700, declineBelow: 580, maxDti: 0.45, maxAmount: 2000000 };
+  draft: PolicySettings = { ...DEFAULT_POLICY };
   result: SimulationResult | null = null;
   saved = false;
   private sub = new Subscription();
@@ -28,6 +28,7 @@ export class PolicySimulatorComponent implements OnInit, OnDestroy {
 
   run(): void {
     this.draft = {
+      ...this.draft,
       approveFrom: Number(this.draft.approveFrom),
       declineBelow: Number(this.draft.declineBelow),
       maxDti: Number(this.draft.maxDti),

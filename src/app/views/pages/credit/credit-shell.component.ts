@@ -10,8 +10,9 @@ import { CreditDataService } from './credit-data.service';
   templateUrl: './credit-shell.component.html'
 })
 export class CreditShellComponent implements OnInit, OnDestroy {
-  title = 'Good morning, Demo User';
-  subtitle = 'Digital Credit Decisioning';
+  pageTitle = '';
+  pageSubtitle = '';
+  ownHeader = false;
   now = new Date();
   showNotes = false;
   showUser = false;
@@ -34,7 +35,7 @@ export class CreditShellComponent implements OnInit, OnDestroy {
     this.sub.add(this.credit.applications$.subscribe(apps => {
       this.queue = apps.filter(item => item.decision === 'Refer' && item.caseStatus !== 'Closed').slice(0, 5);
     }));
-    this.sub.add(interval(30000).subscribe(() => this.now = new Date()));
+    this.sub.add(interval(1000).subscribe(() => this.now = new Date()));
     queueMicrotask(() => this.syncTitle());
   }
 
@@ -57,19 +58,14 @@ export class CreditShellComponent implements OnInit, OnDestroy {
       current = current.firstChild;
     }
     const data = current.snapshot.data || {};
-    if (data['greeting']) {
-      this.title = this.greeting();
-      this.subtitle = 'Digital Credit Decisioning';
+    this.ownHeader = !!data['ownHeader'];
+    if (data['greeting'] || data['ownHeader']) {
+      this.pageTitle = '';
+      this.pageSubtitle = '';
     } else {
-      this.title = data['title'] || 'Credit Decisioning';
-      this.subtitle = data['subtitle'] || 'Demo environment';
+      this.pageTitle = data['title'] || 'Credit Decisioning';
+      this.pageSubtitle = data['subtitle'] || 'Demo environment';
     }
     this.closePopovers();
-  }
-
-  private greeting(): string {
-    const hour = new Date().getHours();
-    const part = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
-    return `${part}, Demo User`;
   }
 }

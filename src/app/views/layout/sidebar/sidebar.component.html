@@ -80,6 +80,11 @@
     </ul>
   </div>
 
+  <button type="button" class="sidebar-ai" (click)="toggleAi($event)" title="Ask about scores, alerts, reports, and policy">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3V12a8 8 0 1 1 18 0z"/><path d="M8 12h.01M12 12h.01M16 12h.01"/></svg>
+    <span>Ask AI</span>
+  </button>
+
   <div class="sidebar-status">
     <span class="status-dot"></span>
     <div>
@@ -102,3 +107,22 @@
 </nav>
 
 <app-settings-modal *ngIf="isSettingsModalVisible" (close)="closeSettingsModal()"></app-settings-modal>
+
+<aside class="ai-panel" *ngIf="aiOpen" aria-label="Digital Credit assistant">
+  <header>
+    <strong>Digital Credit assistant</strong>
+    <button type="button" (click)="aiOpen = false">Close</button>
+  </header>
+  <div class="ai-log">
+    <p *ngFor="let message of aiMessages" [class.you]="message.from === 'you'">{{ message.text }}</p>
+  </div>
+  <div class="ai-suggest">
+    <button type="button" (click)="askAi('How does the credit score move?')">Score movement</button>
+    <button type="button" (click)="askAi('How do I work an alert?')">Work an alert</button>
+    <button type="button" (click)="askAi('Where are reports and the audit trail?')">Reports and audit</button>
+  </div>
+  <form (submit)="askAi(aiBox.value); aiBox.value = ''; $event.preventDefault()">
+    <input #aiBox type="text" placeholder="Ask about a case or a score" />
+    <button type="submit">Send</button>
+  </form>
+</aside>
