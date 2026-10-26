@@ -1,22 +1,33 @@
 
+/* =====================================================
+   ECLECTICS CREDIT DECISIONING
+   POLICY SIMULATOR — NAVY / BLUE / WHITE THEME
+   ===================================================== */
+
 :host {
   display: block;
-  min-width: 0;
   width: 100%;
+  min-width: 0;
 }
 
 .uba-policy-simulator {
-  --uba-red: #c8102e;
-  --uba-red-dark: #a30d24;
-  --uba-red-soft: #fff0f2;
-  --uba-dark: #202631;
+  --uba-red: #2f6bfa;
+  --uba-red-dark: #2058df;
+  --uba-red-soft: #eaf1ff;
+  --uba-dark: #17253c;
   --uba-text: #344054;
   --uba-muted: #667085;
-  --uba-border: #e8ebf0;
-  --uba-background: #f6f7f9;
+  --uba-border: #e3eaf4;
+  --uba-background: #f2f5fb;
   --uba-green: #15803d;
   --uba-orange: #b45309;
 
+  --ec-blue: #2f6bfa;
+  --ec-blue-dark: #2058df;
+  --ec-blue-soft: #eaf1ff;
+  --ec-navy: #0d213d;
+
+  width: 100%;
   min-height: 100vh;
   padding: 26px;
   background: var(--uba-background);
@@ -41,12 +52,14 @@
   }
 
   button:disabled {
-    cursor: not-allowed;
     opacity: 0.5;
+    cursor: not-allowed;
   }
 }
 
-/* HEADER */
+/* =====================================================
+   HEADER
+   ===================================================== */
 
 .page-header {
   display: flex;
@@ -57,13 +70,13 @@
 }
 
 .breadcrumb {
-  color: #98a2b3;
+  color: #8492a6;
   font-size: 12px;
   margin-bottom: 12px;
 
   span {
     margin: 0 8px;
-    color: #c4c9d2;
+    color: #bdc8d8;
   }
 }
 
@@ -71,18 +84,18 @@
   min-width: 0;
 
   h1 {
+    color: #17253c;
     font-size: 27px;
-    letter-spacing: -0.5px;
-    color: #202631;
     font-weight: 750;
+    letter-spacing: -0.5px;
     margin: 0 0 8px;
   }
 
   p {
-    margin: 0;
     color: #667085;
     font-size: 13px;
     line-height: 1.6;
+    margin: 0;
   }
 }
 
@@ -92,7 +105,11 @@
   gap: 10px;
 }
 
-.btn {
+/* =====================================================
+   BUTTONS
+   ===================================================== */
+
+.uba-policy-simulator .btn {
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -100,53 +117,62 @@
   padding: 10px 16px;
   min-height: 41px;
   border-radius: 8px;
+  border: 1px solid transparent;
   font-size: 12px;
   font-weight: 700;
-  border: 1px solid transparent;
-  transition: all 0.2s ease;
   white-space: nowrap;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 
   &:focus-visible {
-    outline: 3px solid rgba(200, 16, 46, 0.2);
+    outline: 3px solid rgba(47, 107, 250, 0.25);
     outline-offset: 2px;
   }
 }
 
-.btn-primary {
-  background: #c8102e;
-  border-color: #c8102e;
-  color: white;
+.uba-policy-simulator .btn-primary {
+  background: #2f6bfa;
+  border-color: #2f6bfa;
+  color: #ffffff;
+  box-shadow: 0 5px 14px rgba(47, 107, 250, 0.13);
 
   &:not(:disabled):hover {
-    background: #a30d24;
-    border-color: #a30d24;
+    background: #2058df;
+    border-color: #2058df;
+    color: #ffffff;
   }
 }
 
-.btn-outline {
+.uba-policy-simulator .btn-outline {
   color: #344054;
-  background: #fff;
-  border-color: #d0d5dd;
+  background: #ffffff;
+  border-color: #d6e0ed;
 
   &:not(:disabled):hover {
-    color: #c8102e;
-    border-color: #c8102e;
-    background: #fffafb;
+    color: #2f6bfa;
+    border-color: #2f6bfa;
+    background: #f5f8ff;
   }
 }
 
-/* POLICY STATUS */
+/* =====================================================
+   ACTIVE POLICY STATUS
+   ===================================================== */
 
 .policy-status {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  background: #fff;
-  border: 1px solid #eaecf0;
+  background: #ffffff;
+  border: 1px solid #e3eaf4;
   border-radius: 11px;
   padding: 16px 20px;
   margin-bottom: 20px;
+  box-shadow: 0 3px 12px rgba(13, 33, 61, 0.035);
 }
 
 .status-left {
@@ -156,7 +182,7 @@
 
   strong {
     font-size: 12px;
-    color: #202631;
+    color: #17253c;
   }
 
   p {
@@ -214,7 +240,9 @@
   color: #b42318;
 }
 
-/* MAIN WORKSPACE */
+/* =====================================================
+   WORKSPACE LAYOUT
+   ===================================================== */
 
 .workspace-grid {
   display: grid;
@@ -228,19 +256,23 @@
 .policy-panel,
 .analysis-card,
 .impact-card {
-  background: #fff;
-  border: 1px solid #eaecf0;
+  background: #ffffff;
+  border: 1px solid #e3eaf4;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(16, 24, 40, 0.025);
+  box-shadow: 0 3px 14px rgba(13, 33, 61, 0.035);
 }
 
 .policy-panel {
   overflow: hidden;
 }
 
+/* =====================================================
+   SCENARIO CONFIGURATION
+   ===================================================== */
+
 .panel-header {
   padding: 21px;
-  border-bottom: 1px solid #eaecf0;
+  border-bottom: 1px solid #e3eaf4;
 }
 
 .panel-title {
@@ -249,7 +281,7 @@
   gap: 12px;
 
   h2 {
-    color: #202631;
+    color: #17253c;
     font-size: 15px;
     margin: 0 0 6px;
   }
@@ -267,8 +299,8 @@
   border-radius: 9px;
   display: grid;
   place-items: center;
-  background: #fff0f2;
-  color: #c8102e;
+  background: #eaf1ff;
+  color: #2f6bfa;
   font-size: 17px;
 }
 
@@ -278,14 +310,14 @@
 
 .parameter-section {
   padding: 22px 0;
-  border-bottom: 1px solid #eaecf0;
+  border-bottom: 1px solid #e3eaf4;
 
   &:last-child {
     border-bottom: 0;
   }
 
   h3 {
-    color: #202631;
+    color: #17253c;
     font-size: 12px;
     margin: 0 0 21px;
     display: flex;
@@ -293,7 +325,7 @@
     gap: 9px;
 
     i {
-      color: #c8102e;
+      color: #2f6bfa;
       font-size: 12px;
     }
   }
@@ -308,17 +340,23 @@
 
   p {
     font-size: 11px;
-    color: #98a2b3;
+    color: #8492a6;
     line-height: 1.65;
     margin: 8px 0 16px;
   }
 
   input[type="range"] {
+    display: block;
     width: 100%;
-    accent-color: #c8102e;
+    accent-color: #2f6bfa;
     cursor: pointer;
     height: 6px;
     margin: 8px 0;
+
+    &:focus-visible {
+      outline: 3px solid rgba(47, 107, 250, 0.2);
+      outline-offset: 4px;
+    }
   }
 }
 
@@ -335,8 +373,8 @@
   }
 
   strong {
-    color: #c8102e;
-    background: #fff0f2;
+    color: #2f6bfa;
+    background: #eaf1ff;
     padding: 6px 10px;
     border-radius: 6px;
     font-size: 13px;
@@ -358,7 +396,7 @@
 }
 
 .current-value {
-  background: #f9fafb;
+  background: #f6f8fc;
   border-radius: 7px;
   padding: 10px;
   margin-top: 13px;
@@ -377,7 +415,7 @@
   display: flex;
   flex-direction: column;
   gap: 11px;
-  background: #f9fafb;
+  background: #f6f8fc;
   padding: 14px;
   border-radius: 8px;
 
@@ -394,6 +432,10 @@
     }
   }
 }
+
+/* =====================================================
+   DECISION LEGENDS
+   ===================================================== */
 
 .zone-dot,
 .legend-dot {
@@ -412,10 +454,16 @@
     background: #f59e0b;
   }
 
-  &.declined,
-  &.changed,
+  &.declined {
+    background: #dc3545;
+  }
+
+  &.changed {
+    background: #2f6bfa;
+  }
+
   &.proposed {
-    background: #c8102e;
+    background: #2f6bfa;
   }
 
   &.current {
@@ -428,11 +476,13 @@
   justify-content: space-between;
   gap: 10px;
   padding: 16px 21px;
-  background: #f9fafb;
-  border-top: 1px solid #eaecf0;
+  background: #f6f8fc;
+  border-top: 1px solid #e3eaf4;
 }
 
-/* ANALYTICS */
+/* =====================================================
+   ANALYSIS WORKSPACE
+   ===================================================== */
 
 .analysis-panel {
   min-width: 0;
@@ -446,7 +496,7 @@
   margin-bottom: 17px;
 
   h2 {
-    color: #202631;
+    color: #17253c;
     margin: 0 0 6px;
     font-size: 17px;
   }
@@ -464,13 +514,13 @@
   align-items: center;
   gap: 11px;
   padding: 11px 15px;
-  background: #fff;
-  border: 1px solid #eaecf0;
+  background: #ffffff;
+  border: 1px solid #e3eaf4;
   border-radius: 9px;
   white-space: nowrap;
 
   > i {
-    color: #c8102e;
+    color: #2f6bfa;
     font-size: 20px;
   }
 
@@ -486,12 +536,14 @@
   }
 
   strong {
-    color: #202631;
+    color: #17253c;
     font-size: 17px;
   }
 }
 
-/* KPI CARDS */
+/* =====================================================
+   IMPACT KPI CARDS
+   ===================================================== */
 
 .impact-kpis {
   display: grid;
@@ -506,6 +558,14 @@
   align-items: flex-start;
   padding: 17px;
   min-width: 0;
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(13, 33, 61, 0.07);
+  }
 
   .impact-label {
     color: #667085;
@@ -515,7 +575,7 @@
 
   .impact-value {
     font-size: 27px;
-    color: #202631;
+    color: #17253c;
     font-weight: 750;
     line-height: 1.1;
   }
@@ -552,8 +612,8 @@
   }
 
   &.changed {
-    color: #c8102e;
-    background: #fff0f2;
+    color: #2f6bfa;
+    background: #eaf1ff;
   }
 }
 
@@ -592,12 +652,14 @@
   }
 }
 
-/* TABS */
+/* =====================================================
+   ANALYSIS TABS
+   ===================================================== */
 
 .analysis-tabs {
   display: flex;
   gap: 23px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e3eaf4;
   margin-bottom: 20px;
 
   button {
@@ -612,9 +674,13 @@
     font-size: 12px;
     font-weight: 650;
 
+    &:hover {
+      color: #2f6bfa;
+    }
+
     &.active {
-      color: #c8102e;
-      border-bottom-color: #c8102e;
+      color: #2f6bfa;
+      border-bottom-color: #2f6bfa;
     }
 
     > span {
@@ -623,10 +689,17 @@
       border-radius: 10px;
       font-size: 10px;
     }
+
+    &.active > span {
+      background: #eaf1ff;
+      color: #2058df;
+    }
   }
 }
 
-/* ANALYSIS CARDS */
+/* =====================================================
+   ANALYSIS CARDS
+   ===================================================== */
 
 .analysis-card {
   overflow: hidden;
@@ -639,11 +712,11 @@
   justify-content: space-between;
   gap: 15px;
   padding: 20px 22px;
-  border-bottom: 1px solid #f0f1f4;
+  border-bottom: 1px solid #edf1f7;
 
   h3 {
     font-size: 15px;
-    color: #202631;
+    color: #17253c;
     margin: 0 0 7px;
   }
 
@@ -655,7 +728,9 @@
   }
 }
 
-/* DISTRIBUTION */
+/* =====================================================
+   DISTRIBUTION ANALYSIS
+   ===================================================== */
 
 .distribution-legend {
   display: flex;
@@ -679,7 +754,7 @@
 .distribution-item {
   padding: 0 0 23px;
   margin-bottom: 23px;
-  border-bottom: 1px solid #f0f1f4;
+  border-bottom: 1px solid #edf1f7;
 
   &:last-child {
     padding-bottom: 0;
@@ -728,7 +803,7 @@
 .bar-track {
   height: 11px;
   border-radius: 20px;
-  background: #f2f4f7;
+  background: #edf1f7;
   overflow: hidden;
 }
 
@@ -738,7 +813,7 @@
   transition: width 0.25s ease;
 
   &.current {
-    background: #bac1cc;
+    background: #aebed4;
   }
 
   &.proposed.approved {
@@ -750,7 +825,7 @@
   }
 
   &.proposed.declined {
-    background: #c8102e;
+    background: #dc3545;
   }
 }
 
@@ -765,7 +840,9 @@
   }
 }
 
-/* COMPARISON TABLE */
+/* =====================================================
+   COMPARISON TABLE
+   ===================================================== */
 
 .comparison-table-wrap {
   overflow-x: auto;
@@ -778,7 +855,7 @@
 
   th {
     text-align: left;
-    background: #f9fafb;
+    background: #f6f8fc;
     color: #667085;
     font-size: 11px;
     font-weight: 700;
@@ -790,23 +867,25 @@
     font-size: 11px;
     color: #344054;
     padding: 15px 16px;
-    border-top: 1px solid #eaecf0;
+    border-top: 1px solid #e3eaf4;
   }
 
   tbody tr:hover {
-    background: #fdfafb;
+    background: #f3f7ff;
   }
 }
 
 .comparison-table {
   td.modified {
-    color: #c8102e;
+    color: #2058df;
     font-weight: 750;
-    background: #fff7f8;
+    background: #eef4ff;
   }
 }
 
-/* DECISION STABILITY */
+/* =====================================================
+   DECISION STABILITY
+   ===================================================== */
 
 .stability-content {
   padding: 22px;
@@ -831,7 +910,7 @@
 
   strong {
     font-size: 22px;
-    color: #202631;
+    color: #17253c;
   }
 }
 
@@ -841,7 +920,7 @@
   height: 18px;
   overflow: hidden;
   border-radius: 20px;
-  background: #f2f4f7;
+  background: #edf1f7;
 
   .unchanged {
     background: #16a34a;
@@ -849,7 +928,7 @@
   }
 
   .changed {
-    background: #c8102e;
+    background: #2f6bfa;
     transition: width 0.25s ease;
   }
 }
@@ -868,13 +947,15 @@
   }
 }
 
-/* CHANGED APPLICATIONS */
+/* =====================================================
+   CHANGED APPLICATIONS
+   ===================================================== */
 
 .record-count {
   border-radius: 20px;
   padding: 7px 11px;
-  color: #c8102e;
-  background: #fff0f2;
+  color: #2058df;
+  background: #eaf1ff;
   font-weight: 700;
   font-size: 11px;
   white-space: nowrap;
@@ -890,11 +971,17 @@
   select {
     min-height: 39px;
     padding: 0 12px;
-    background: #fff;
-    border: 1px solid #d0d5dd;
+    background: #ffffff;
+    border: 1px solid #d6e0ed;
     border-radius: 7px;
     color: #344054;
     font-size: 11px;
+
+    &:focus {
+      outline: none;
+      border-color: #2f6bfa;
+      box-shadow: 0 0 0 3px rgba(47, 107, 250, 0.1);
+    }
   }
 }
 
@@ -912,9 +999,9 @@
   }
 
   input {
-    border: 1px solid #d0d5dd;
+    border: 1px solid #d6e0ed;
     border-radius: 7px;
-    background: #fff;
+    background: #ffffff;
     outline: none;
     padding: 0 12px 0 34px;
     width: 100%;
@@ -923,7 +1010,8 @@
     font-size: 11px;
 
     &:focus {
-      border-color: #c8102e;
+      border-color: #2f6bfa;
+      box-shadow: 0 0 0 3px rgba(47, 107, 250, 0.1);
     }
   }
 }
@@ -937,10 +1025,14 @@
   min-width: 800px;
 
   .reference-cell {
-    color: #c8102e;
+    color: #2f6bfa;
     font-weight: 700;
   }
 }
+
+/* =====================================================
+   DECISION PILLS
+   ===================================================== */
 
 .decision-pill {
   display: inline-flex;
@@ -972,9 +1064,13 @@
   }
 }
 
+/* =====================================================
+   PAGINATION
+   ===================================================== */
+
 .table-pagination {
   padding: 16px 20px;
-  border-top: 1px solid #eaecf0;
+  border-top: 1px solid #e3eaf4;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -989,26 +1085,31 @@
   }
 
   button {
-    background: #fff;
-    border: 1px solid #d0d5dd;
+    background: #ffffff;
+    border: 1px solid #d6e0ed;
     border-radius: 6px;
     padding: 8px 12px;
     color: #344054;
     font-size: 11px;
 
     &:not(:disabled):hover {
-      border-color: #c8102e;
-      color: #c8102e;
+      border-color: #2f6bfa;
+      color: #2f6bfa;
+      background: #f5f8ff;
     }
   }
 }
+
+/* =====================================================
+   EMPTY STATE
+   ===================================================== */
 
 .empty-state {
   text-align: center;
   padding: 50px 20px;
 
   > i {
-    color: #c8102e;
+    color: #2f6bfa;
     font-size: 30px;
     margin-bottom: 15px;
   }
@@ -1025,7 +1126,9 @@
   }
 }
 
-/* RESPONSIVE */
+/* =====================================================
+   RESPONSIVE DESIGN
+   ===================================================== */
 
 @media (max-width: 1450px) {
   .impact-kpis {
@@ -1105,19 +1208,10 @@
 
   .analysis-tabs {
     gap: 12px;
+    flex-wrap: wrap;
 
     button {
       font-size: 10px;
     }
   }
-/* TEMPORARY STYLING TEST */
-:host {
-  outline: 8px solid red !important;
-  display: block !important;
-}
-
-.uba-policy-simulator {
-  background: yellow !important;
-}
-  
 }
