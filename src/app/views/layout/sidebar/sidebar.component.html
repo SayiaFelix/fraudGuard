@@ -1,12 +1,17 @@
 <!-- The main sidebar container -->
 <nav class="sidebar">
 
-  <!-- Sidebar Header with Logo -->
-  <div class="sidebar-header" style="background-color: #f8f8f8!important;">
+  <div class="sidebar-header">
+    <a routerLink="/dashboard" class="uba-brand">
+      <img src="assets/images/eclectics-logo.png" alt="Eclectics" class="eclectics-logo">
+      <!-- <span class="uba-product">Digital Credit Decisioning</span> -->
+      <!-- <span class="uba-mark">UBA</span> -->
+    </a>
+    <!-- Fraud Guard logo retained
     <a routerLink="dashboard" class="sidebar-brand nobleui-logo">
       <img src="assets/images/image1.png" alt="FinGuard AI" style="height: 70px; width: 130px;">
-      <!-- <img src="assets/images/simplifying.png" alt="Portal" style="max-height: 10px;"> -->
     </a>
+    -->
     <div class="sidebar-toggler not-active" #sidebarToggler (click)="toggleSidebar($event)">
       <span></span>
       <span></span>
@@ -14,10 +19,9 @@
     </div>
   </div>
 
-  <div class="sidebar-body" style="background-color: #f8f8f8!important;" [perfectScrollbar]>
+  <div class="sidebar-body">
     <ul class="sidebar-nav metismenu" id="sidebar-menu" #sidebarMenu>
       
-      <!-- Loop through all menu items -->
       <ng-container *ngFor="let item of menuItems">
         <li class="nav-category" *ngIf="item.isTitle">
           {{ item.label }}
@@ -25,7 +29,6 @@
 
         <li class="nav-item" *ngIf="!item.isTitle">
 
-          <!-- If item has subItems render parent and nested list -->
           <ng-container *ngIf="item.subItems && item.subItems.length > 0; else singleLink">
             <a class="nav-link" href="javascript:void(0);">
               <i class="link-icon" [attr.data-feather]="item.icon" appFeatherIcon></i>
@@ -41,9 +44,8 @@
             </ul>
           </ng-container>
 
-          <!-- Single link fallback -->
           <ng-template #singleLink>
-          <a *ngIf="!item.isLogout && !item.isSettings && !item.isHelpCenter" class="nav-link" [routerLink]="item.link" routerLinkActive="active">
+          <a *ngIf="!item.isLogout && !item.isSettings && !item.isHelpCenter" class="nav-link" [routerLink]="item.link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: !!item.exact }">
             <i class="link-icon" [attr.data-feather]="item.icon" appFeatherIcon></i>
             <span class="link-title">{{ item.label }}</span>
             
@@ -78,7 +80,21 @@
     </ul>
   </div>
 
-  <!-- Sidebar User Footer -->
+  <button type="button" class="sidebar-ai" (click)="toggleAi($event)">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3V12a8 8 0 1 1 18 0z"/><path d="M8 12h.01M12 12h.01M16 12h.01"/></svg>
+    <span>Ask AI</span>
+  </button>
+
+  <div class="sidebar-status">
+    <span class="status-dot"></span>
+    <div>
+      <strong>System operational</strong>
+      <small>Demo environment</small>
+    </div>
+  </div>
+  <div class="sidebar-version">Eclectics · v0.1.0</div>
+
+  <!-- Previous user footer
   <div class="sidebar-user-footer">
     <div class="user-avatar">{{ userInitials }}</div>
     <div class="user-details">
@@ -86,7 +102,27 @@
       <span class="user-title">{{ userTitle }}</span>
     </div>
   </div>
+  -->
 
 </nav>
 
 <app-settings-modal *ngIf="isSettingsModalVisible" (close)="closeSettingsModal()"></app-settings-modal>
+
+<aside class="ai-panel" *ngIf="aiOpen" aria-label="Digital Credit assistant">
+  <header>
+    <strong>Digital Credit assistant</strong>
+    <button type="button" (click)="aiOpen = false">Close</button>
+  </header>
+  <div class="ai-log">
+    <p *ngFor="let message of aiMessages" [class.you]="message.from === 'you'">{{ message.text }}</p>
+  </div>
+  <div class="ai-suggest">
+    <button type="button" (click)="askAi('How does the credit score move?')">Score movement</button>
+    <button type="button" (click)="askAi('How do I work an alert?')">Work an alert</button>
+    <button type="button" (click)="askAi('Where are reports and the audit trail?')">Reports and audit</button>
+  </div>
+  <form (submit)="askAi(aiBox.value); aiBox.value = ''; $event.preventDefault()">
+    <input #aiBox type="text" placeholder="Ask about a case or a score" />
+    <button type="submit">Send</button>
+  </form>
+</aside>

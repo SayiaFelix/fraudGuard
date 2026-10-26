@@ -9,6 +9,7 @@ import { Subscription } from 'rxjs';
 import { NotificationService } from '../../../shared/services/NotificationService';
 import { InboxItem } from '../../pages/mobile-banking/requests/list-requests/list-requests.component'; // Adjust this path if your inbox component is in a different folder
 import { AuthService } from 'src/app/shared/services/auth.service';
+import { CreditDataService } from '../../pages/credit/credit-data.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -26,6 +27,11 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
   userInitials = '';
   @ViewChild('sidebarMenu') sidebarMenu: ElementRef;
   isSettingsModalVisible = false;
+  aiOpen = false;
+  aiDraft = '';
+  aiMessages: Array<{ from: 'ai' | 'you'; text: string }> = [
+    { from: 'ai', text: 'I can walk through an alert, a case status, or how a standing score moves. This assistant is a demo and stays on this page.' }
+  ];
   showSubItems: boolean = true;
   logo: string = '\\assets\\images\\TRA_Logo.png';
   showingClass = "d-none";
@@ -37,7 +43,8 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
     private renderer: Renderer2,
     private router: Router,
      private authservice: AuthService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private creditData: CreditDataService
   ) {
     
     router.events.forEach((event) => {
@@ -69,6 +76,23 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
     this.notificationSub = this.notificationService.currentNotifications.subscribe((notifications: InboxItem[]) => {
       this.updateInboxBadge(notifications);
     });
+
+    this.creditData.summary$.subscribe(summary => {
+      const applications = this.menuItems.find(item => item.link === '/applications');
+      if (applications) {
+        applications.badge = { text: summary.openApplications, variant: 'uba' };
+      }
+    });
+
+    this.creditData.applications$.subscribe(apps => {
+      const open = apps.filter(item => item.decision === 'Refer' && item.caseStatus !== 'Closed').length;
+      ['/alerts', '/decision-queue'].forEach(link => {
+        const item = this.menuItems.find(entry => entry.link === link);
+        if (item) {
+          item.badge = { text: open, variant: 'uba' };
+        }
+      });
+    });
   }
 
   
@@ -79,22 +103,30 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   
-  private updateInboxBadge(notifications: InboxItem[]): void {
-    const inboxMenuItem = this.menuItems.find(item => item.label === 'Alerts');
-    
-    if (inboxMenuItem) {
-      const unreadCount = notifications.length;
+  private updateInboxBadge(_notifications: InboxItem[]): void {
+    // The Alerts badge follows the open credit cases, not the legacy inbox.
+  }
 
-      if (unreadCount > 0) {
-        inboxMenuItem.badge = { 
-          text: unreadCount.toString(), 
-          variant: 'danger' // This creates a red badge
-        };
-      } else {
-        
-        delete inboxMenuItem.badge;
-      }
+  toggleAi(event: Event): void {
+    event.preventDefault();
+    this.aiOpen = !this.aiOpen;
+  }
+
+  askAi(prompt?: string): void {
+    const text = (prompt || this.aiDraft).trim();
+    if (!text) return;
+    this.aiMessages = [...this.aiMessages, { from: 'you', text }];
+    this.aiDraft = '';
+    const lower = text.toLowerCase();
+    let reply = 'I can help with alerts, case statuses, repayment scores, reports, and the audit trail. Try one of the suggestions.';
+    if (/score|repay|limit|default|late/.test(lower)) {
+      reply = 'On-time repayment raises the standing score by 4, and every third on-time cycle adds another 6. A late payment cuts 6. A default cuts 28. The case decision still uses the origination score.';
+    } else if (/alert|case|escalat|review/.test(lower)) {
+      reply = 'Alerts and cases are one desk. Open a row, then approve, decline, request information, assign, or escalate. Statuses are Open, In review, Escalated, and Resolved.';
+    } else if (/report|audit|export|csv/.test(lower)) {
+      reply = 'Reports and the audit trail use the same applications as the alerts desk. You can download CSV or print a report, and every case action is written to the trail.';
     }
+    this.aiMessages = [...this.aiMessages, { from: 'ai', text: reply }];
   }
 
   
@@ -147,11 +179,12 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   iconSidebar(mq: MediaQueryList) {
-    if (mq.matches) {
-      this.document.body.classList.add('sidebar-folded');
-    } else {
-      this.document.body.classList.remove('sidebar-folded');
-    }
+    // Credit workspace keeps the labelled navigation open.
+    // if (mq.matches) {
+    //   this.document.body.classList.add('sidebar-folded');
+    // } else {
+    this.document.body.classList.remove('sidebar-folded');
+    // }
   }
 
   onSidebarThemeChange(event: Event) {
@@ -202,7 +235,7 @@ onLogout(e: Event) {
         localStorage.removeItem('userDisplayName');
         localStorage.removeItem('userTitle');
 
-        this.router.navigate(['/auth/login']);
+        this.router.navigate(['/dashboard']);
       
         Swal.close();
         
