@@ -11,25 +11,37 @@
   </header>
 
   <section class="ops-kpis">
-    <article class="ops-kpi">
-      <p>Approve from</p>
-      <strong>{{ policy.approveFrom }}</strong>
-      <small>Scorecard can say yes at or above this</small>
+    <article class="ops-kpi tone-green">
+      <span class="ops-kpi-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12.5 2.2 2.2 4.8-5"/></svg></span>
+      <span class="ops-kpi-copy">
+        <p>Approve from</p>
+        <strong>{{ policy.approveFrom }}</strong>
+        <small>Scorecard can say yes at or above this</small>
+      </span>
     </article>
-    <article class="ops-kpi">
-      <p>Decline below</p>
-      <strong>{{ policy.declineBelow }}</strong>
-      <small>Scorecard says no under this</small>
+    <article class="ops-kpi tone-red">
+      <span class="ops-kpi-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m9 9 6 6M15 9l-6 6"/></svg></span>
+      <span class="ops-kpi-copy">
+        <p>Decline below</p>
+        <strong>{{ policy.declineBelow }}</strong>
+        <small>Scorecard says no under this</small>
+      </span>
     </article>
-    <article class="ops-kpi">
-      <p>Debt-service cap</p>
-      <strong>{{ policy.maxDti | percent:'1.0-0' }}</strong>
-      <small>Above this, the file is referred</small>
+    <article class="ops-kpi tone-amber">
+      <span class="ops-kpi-icon"><svg viewBox="0 0 24 24"><path d="M12 3v18M7 8h7.5a3.5 3.5 0 0 1 0 7H7"/></svg></span>
+      <span class="ops-kpi-copy">
+        <p>Debt-service cap</p>
+        <strong>{{ policy.maxDti | percent:'1.0-0' }}</strong>
+        <small>Above this, the file is referred</small>
+      </span>
     </article>
-    <article class="ops-kpi">
-      <p>Auto-approval limit</p>
-      <strong>{{ credit.money(policy.maxAmount) }}</strong>
-      <small>Larger tickets need an officer</small>
+    <article class="ops-kpi tone-blue">
+      <span class="ops-kpi-icon"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg></span>
+      <span class="ops-kpi-copy">
+        <p>Auto-approval limit</p>
+        <strong>{{ credit.money(policy.maxAmount) }}</strong>
+        <small>Larger tickets need an officer</small>
+      </span>
     </article>
   </section>
 
