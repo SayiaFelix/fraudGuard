@@ -52,6 +52,7 @@ export interface PortfolioSummary {
   highRisk: number;
   avgScore: number;
   avgDecisionSeconds: number;
+  exposureAtRisk: number;
   deltas: {
     total: number;
     approved: number;
@@ -156,6 +157,7 @@ export const PORTFOLIO_SUMMARY: PortfolioSummary = {
   highRisk: 200,
   avgScore: 612,
   avgDecisionSeconds: 42,
+  exposureAtRisk: 9_000_000,
   deltas: {
     total: 12,
     approved: 8,

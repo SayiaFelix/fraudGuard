@@ -863,9 +863,9 @@ export class HttpService {
       console.error(`${operation} failed:`, error);
 
       if (error.status === 401) {
-        // console.log('Token expired or invalid, redirecting to login');
-        this.authService.logout();
-        this.router.navigate(['/auth/login']);
+        // Frontend demo: do not call logout or open the login page.
+        // this.authService.logout();
+        // this.router.navigate(['/auth/login']);
       }
 
       return of(result as T);
