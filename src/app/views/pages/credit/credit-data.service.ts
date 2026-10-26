@@ -19,6 +19,7 @@ import {
   RiskBand,
   ScoreFactor
 } from './credit-demo.data';
+import { BehaviourStanding, explainBehaviour } from './ops/credit-ops';
 
 export interface ApplicationDraft {
   applicant: string;
@@ -60,9 +61,9 @@ export interface SimulationResult {
 }
 
 const NAMES = [
-  'Ngozi Adeyemi', 'Samuel Boateng', 'Aisha Yusuf', 'Daniel Kariuki',
-  'Fatou Ndiaye', 'Brian Otieno', 'Chioma Nwosu', 'Yaw Asare',
-  'Amina Hassan', 'Peter Okello', 'Zainab Conteh', 'Eric Mugisha'
+  'David Munya', 'Simon Kilonzo', 'Mary Mwende', 'Grace Gitau',
+  'Peter Odhiambo', 'James Were', 'Kevin Owino', 'Faith Achieng',
+  'Mercy Chebet', 'Samuel Omondi', 'Lucy Atieno', 'Ann Njeri'
 ];
 
 @Injectable({ providedIn: 'root' })
@@ -225,7 +226,10 @@ export class CreditDataService {
     else if (created.decision === 'Declined') summary.declined += 1;
     else summary.referred += 1;
     if (created.risk === 'Low') summary.lowRisk += 1;
-    else if (created.risk === 'High') summary.highRisk += 1;
+    else if (created.risk === 'High') {
+      summary.highRisk += 1;
+      summary.exposureAtRisk += created.amount;
+    }
     else summary.mediumRisk += 1;
     this.summarySubject.next(summary);
     this.pushAudit(created, created.decision === 'Refer' ? 'Referred to queue' : `Application ${created.decision.toLowerCase()}`);
@@ -237,7 +241,7 @@ export class CreditDataService {
     action: 'approve' | 'decline' | 'request-info' | 'escalate' | 'assign' | 'note',
     extra?: { note?: string; assignee?: string }
   ): void {
-    const apps = this.applications.map(item => ({ ...item, notes: [...item.notes], reasonCodes: [...item.reasonCodes] }));
+    const apps = this.cloneApplications();
     const target = apps.find(item => item.id === id);
     if (!target) {
       return;
@@ -290,22 +294,59 @@ export class CreditDataService {
     this.pushAudit(target, labels[action]);
   }
 
+  recordActivity(id: string, outcome: 'On time' | 'Late' | 'Default'): BehaviourStanding | null {
+    const apps = this.cloneApplications();
+    const target = apps.find(item => item.id === id);
+    if (!target) {
+      return null;
+    }
+    target.extraCycles = [...(target.extraCycles || []), outcome];
+    const before = explainBehaviour({ ...target, extraCycles: target.extraCycles.slice(0, -1) });
+    const standing = explainBehaviour(target);
+    const step = standing.standingScore - before.standingScore;
+    const stepWay = step > 0 ? `up ${step}` : step < 0 ? `down ${Math.abs(step)}` : 'unchanged';
+    const note = outcome === 'On time'
+      ? `On-time repayment recorded. Standing score is ${standing.standingScore}.`
+      : outcome === 'Late'
+        ? `Late payment recorded. Standing score is ${standing.standingScore}.`
+        : `Default recorded. Standing score is ${standing.standingScore}.`;
+    target.notes.unshift({ author: 'Demo User', text: note, time: 'Just now' });
+    this.applicationsSubject.next(apps);
+    this.pushAudit(
+      target,
+      step < 0 ? 'Standing score reduced' : 'Standing score raised',
+      `${target.id} · ${target.applicant}. ${outcome}. This cycle moved the score ${stepWay} to ${standing.standingScore}.`
+    );
+    return standing;
+  }
+
   toggleRule(code: string): void {
     this.rulesSubject.next(this.rules.map(rule => rule.code === code ? { ...rule, enabled: !rule.enabled } : rule));
   }
 
   updatePolicy(policy: PolicySettings): void {
-    const next = {
-      approveFrom: clamp(Math.round(policy.approveFrom), 500, 850),
-      declineBelow: clamp(Math.round(policy.declineBelow), 400, 750),
-      maxDti: Math.round(policy.maxDti * 100) / 100,
-      maxAmount: Math.max(100000, Math.round(policy.maxAmount))
-    };
-    if (next.declineBelow >= next.approveFrom) {
-      next.declineBelow = next.approveFrom - 40;
-    }
+    const before = this.policy;
+    const next = this.normalisePolicy(policy);
     this.policySubject.next(next);
     localStorage.setItem('eclectics-credit-policy', JSON.stringify(next));
+    const changes = this.policyChanges(before, next);
+    if (changes.length) {
+      this.recordControl('Policy updated', changes.join('. ') + '.', 'Policy');
+    }
+  }
+
+  recordControl(action: string, detail: string, decision = 'Policy'): void {
+    this.auditSubject.next([
+      {
+        id: 'AUD-' + Date.now().toString().slice(-6),
+        time: new Date().toISOString(),
+        actor: 'Demo User',
+        action,
+        detail,
+        decision
+      },
+      ...this.auditSubject.value
+    ]);
   }
 
   simulate(draft: PolicySettings): SimulationResult {
@@ -336,14 +377,24 @@ export class CreditDataService {
     this.summarySubject.next(summary);
   }
 
-  private pushAudit(app: CreditApplication, action: string): void {
+  private cloneApplications(): CreditApplication[] {
+    return this.applications.map(item => ({
+      ...item,
+      notes: [...item.notes],
+      reasonCodes: [...item.reasonCodes],
+      factors: [...item.factors],
+      extraCycles: [...(item.extraCycles || [])]
+    }));
+  }
+
+  private pushAudit(app: CreditApplication, action: string, detail?: string): void {
     this.auditSubject.next([
       {
         id: 'AUD-' + Date.now().toString().slice(-6),
         time: new Date().toISOString(),
         actor: 'Demo User',
         action,
-        detail: `${app.id} · ${app.applicant}`,
+        detail: detail || `${app.id} · ${app.applicant}`,
         decision: app.decision
       },
       ...this.auditSubject.value
@@ -370,6 +421,9 @@ export class CreditDataService {
       : row.score < policy.declineBelow
         ? 'Declined'
         : 'Refer';
+    if (policy.maxTenorMonths && row.tenor > policy.maxTenorMonths && decision === 'Approved') {
+      decision = 'Refer';
+    }
 
     this.rules.filter(rule => rule.enabled).forEach(rule => {
       const effect = this.ruleEffect(rule, row, policy);
@@ -418,6 +472,9 @@ export class CreditDataService {
         reasons.push(rule.name);
       }
     });
+    if (policy.maxTenorMonths && row.tenor > policy.maxTenorMonths) {
+      reasons.push(`Tenor longer than ${policy.maxTenorMonths} months`);
+    }
     if (row.score < policy.approveFrom && row.score >= policy.declineBelow) {
       reasons.unshift('Score is below the auto-approval cutoff');
     }
@@ -428,6 +485,40 @@ export class CreditDataService {
       reasons.push('Held for analyst review');
     }
     return reasons;
+  }
+
+  private normalisePolicy(policy: PolicySettings): PolicySettings {
+    const next: PolicySettings = {
+      approveFrom: clamp(Math.round(Number(policy.approveFrom)), 500, 850),
+      declineBelow: clamp(Math.round(Number(policy.declineBelow)), 400, 750),
+      maxDti: Math.round(Number(policy.maxDti) * 100) / 100,
+      maxAmount: Math.max(100000, Math.round(Number(policy.maxAmount))),
+      maxTenorMonths: clamp(Math.round(Number(policy.maxTenorMonths) || DEFAULT_POLICY.maxTenorMonths), 1, 60),
+      bureauMaxAgeDays: clamp(Math.round(Number(policy.bureauMaxAgeDays) || DEFAULT_POLICY.bureauMaxAgeDays), 1, 180),
+      salaryAdvanceSla: clamp(Math.round(Number(policy.salaryAdvanceSla) || DEFAULT_POLICY.salaryAdvanceSla), 1, 72),
+      highRiskSla: clamp(Math.round(Number(policy.highRiskSla) || DEFAULT_POLICY.highRiskSla), 1, 72),
+      standardSla: clamp(Math.round(Number(policy.standardSla) || DEFAULT_POLICY.standardSla), 1, 96),
+      makerChecker: policy.makerChecker !== false
+    };
+    if (next.declineBelow >= next.approveFrom) {
+      next.declineBelow = next.approveFrom - 40;
+    }
+    return next;
+  }
+
+  private policyChanges(before: PolicySettings, next: PolicySettings): string[] {
+    const lines: string[] = [];
+    if (before.approveFrom !== next.approveFrom) lines.push(`Approve from ${before.approveFrom} to ${next.approveFrom}`);
+    if (before.declineBelow !== next.declineBelow) lines.push(`Decline below ${before.declineBelow} to ${next.declineBelow}`);
+    if (before.maxDti !== next.maxDti) lines.push(`Maximum DTI ${Math.round(before.maxDti * 100)}% to ${Math.round(next.maxDti * 100)}%`);
+    if (before.maxAmount !== next.maxAmount) lines.push(`Auto-approval limit ${this.money(before.maxAmount)} to ${this.money(next.maxAmount)}`);
+    if (before.maxTenorMonths !== next.maxTenorMonths) lines.push(`Maximum tenor ${before.maxTenorMonths} to ${next.maxTenorMonths} months`);
+    if (before.bureauMaxAgeDays !== next.bureauMaxAgeDays) lines.push(`Bureau freshness ${before.bureauMaxAgeDays} to ${next.bureauMaxAgeDays} days`);
+    if (before.salaryAdvanceSla !== next.salaryAdvanceSla || before.highRiskSla !== next.highRiskSla || before.standardSla !== next.standardSla) {
+      lines.push(`SLA ${next.salaryAdvanceSla}h salary advance, ${next.highRiskSla}h high risk, ${next.standardSla}h standard`);
+    }
+    if (before.makerChecker !== next.makerChecker) lines.push(next.makerChecker ? 'Maker-checker turned on' : 'Maker-checker turned off');
+    return lines;
   }
 
   private risk(score: number): RiskBand {
@@ -441,12 +532,7 @@ export class CreditDataService {
       const saved = localStorage.getItem('eclectics-credit-policy');
       if (!saved) return clone(DEFAULT_POLICY);
       const parsed = JSON.parse(saved);
-      return {
-        approveFrom: Number(parsed.approveFrom) || DEFAULT_POLICY.approveFrom,
-        declineBelow: Number(parsed.declineBelow) || DEFAULT_POLICY.declineBelow,
-        maxDti: Number(parsed.maxDti) || DEFAULT_POLICY.maxDti,
-        maxAmount: Number(parsed.maxAmount) || DEFAULT_POLICY.maxAmount
-      };
+      return this.normalisePolicy({ ...DEFAULT_POLICY, ...parsed });
     } catch {
       return clone(DEFAULT_POLICY);
     }

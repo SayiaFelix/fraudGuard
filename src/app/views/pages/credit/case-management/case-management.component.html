@@ -1,0 +1,218 @@
+<div class="ops">
+  <header class="ops-head">
+    <div>
+      <h1>Case management</h1>
+      <p>Open, in review, escalated, and resolved on the shared application file.</p>
+    </div>
+    <button class="ops-btn ghost ops-no-print" type="button" (click)="download()">Download CSV</button>
+  </header>
+
+  <section class="ops-kpis">
+    <article class="ops-kpi">
+      <div class="ops-kpi-top">
+        <p>Active cases</p>
+        <span class="ops-kpi-icon info"><svg viewBox="0 0 24 24"><path d="M4 7h16v12H4z"/><path d="M8 7V5h8v2"/></svg></span>
+      </div>
+      <strong>{{ activeCases.length }}</strong>
+      <small>{{ credit.money(activeExposure) }} still undecided</small>
+    </article>
+    <article class="ops-kpi">
+      <div class="ops-kpi-top">
+        <p>Open</p>
+        <span class="ops-kpi-icon high"><svg viewBox="0 0 24 24"><path d="M4 4h16v12H4z"/><path d="m4 4 8 7 8-7"/></svg></span>
+      </div>
+      <strong>{{ openCount }}</strong>
+      <small>Not yet in an analyst's hands</small>
+    </article>
+    <article class="ops-kpi">
+      <div class="ops-kpi-top">
+        <p>Escalated</p>
+        <span class="ops-kpi-icon violet"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></span>
+      </div>
+      <strong>{{ escalatedCount }}</strong>
+      <small>Waiting on the credit committee</small>
+    </article>
+    <article class="ops-kpi">
+      <div class="ops-kpi-top">
+        <p>Past SLA</p>
+        <span class="ops-kpi-icon crit"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v5l3 2"/></svg></span>
+      </div>
+      <strong>{{ breachedCount }}</strong>
+      <small>Salary advance 8h · high risk 12h · standard 24h</small>
+    </article>
+  </section>
+
+  <section class="ops-split">
+    <article class="ops-card">
+      <h2>Age of the active book</h2>
+      <div class="ops-ages" style="margin-top:12px">
+        <div><strong>{{ ageBuckets.within }}</strong><span>Within 24h</span></div>
+        <div><strong>{{ ageBuckets.mid }}</strong><span>24–48h</span></div>
+        <div><strong>{{ ageBuckets.over }}</strong><span>Over 48h</span></div>
+      </div>
+    </article>
+    <article class="ops-card">
+      <h2>Analyst load</h2>
+      <div class="ops-load" *ngFor="let row of analystLoad">
+        <span>{{ row.name }}</span>
+        <div class="ops-sla"><i [style.width.%]="row.width" [style.background]="row.color"></i></div>
+        <em>{{ row.count }} · {{ credit.money(row.amount) }}</em>
+      </div>
+      <p class="ops-empty" *ngIf="!analystLoad.length">No active cases on the desk.</p>
+    </article>
+  </section>
+
+  <section class="ops-desk">
+    <article class="ops-card">
+      <div class="ops-filters">
+        <button type="button" class="ops-chip" *ngFor="let item of filters" [class.on]="filter === item" (click)="setFilter(item)">{{ item }} <b>{{ count(item) }}</b></button>
+      </div>
+      <div class="ops-filters">
+        <label class="ops-select">
+          <select [ngModel]="priority" (ngModelChange)="setPriority($event)">
+            <option *ngFor="let item of priorities" [value]="item">{{ item === 'All' ? 'All priorities' : item }}</option>
+          </select>
+        </label>
+        <label class="ops-select">
+          <select [ngModel]="owner" (ngModelChange)="onOwner($event)">
+            <option value="All">All owners</option>
+            <option *ngFor="let name of owners" [value]="name">{{ name }}</option>
+          </select>
+        </label>
+        <label class="ops-search">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
+          <input [ngModel]="query" (ngModelChange)="onSearch($event)" placeholder="Applicant, reference, product, owner" />
+        </label>
+      </div>
+      <div class="ops-table-wrap">
+        <table class="ops-table">
+          <thead>
+            <tr>
+              <th>Applicant</th>
+              <th><button type="button" class="ops-sort" (click)="toggleSort('priority')">Priority</button></th>
+              <th>Status</th>
+              <th><button type="button" class="ops-sort" (click)="toggleSort('sla')">SLA</button></th>
+              <th>Owner</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of pageRows" (click)="select(row)" [class.on]="row.app.id === selectedId">
+              <td class="who">
+                <div class="ops-person">
+                  <div>
+                    <strong>{{ row.app.applicant }}</strong>
+                    <small>{{ row.app.id }} · {{ row.app.product }}</small>
+                  </div>
+                </div>
+              </td>
+              <td><span class="ops-pill" [ngClass]="tone(row.priority)">{{ row.priority }}</span></td>
+              <td><span class="ops-pill" [ngClass]="statusTone(row.app.caseStatus)">{{ statusLabel(row.app.caseStatus) }}</span></td>
+              <td>
+                <div class="ops-sla" [ngClass]="slaTone(row)"><i [style.width.%]="barWidth(row)"></i></div>
+                <span class="ops-sla-text" [class.ops-age]="row.breached" [class.bad]="row.breached">{{ row.ageLabel }} / {{ row.slaHours }}h</span>
+              </td>
+              <td>{{ row.app.assignedTo }}</td>
+            </tr>
+            <tr *ngIf="!pageRows.length"><td colspan="5" class="ops-empty">Nothing in this slice of the book.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="ops-pager">
+        <button type="button" class="ops-btn ghost" (click)="prev()" [disabled]="page === 1">Previous</button>
+        <span class="ops-muted">Page {{ page }} / {{ pages }}</span>
+        <button type="button" class="ops-btn ghost" (click)="next()" [disabled]="page === pages">Next</button>
+      </div>
+    </article>
+
+    <article class="ops-card ops-detail" *ngIf="selected as item; else emptyCase">
+      <p class="ops-kicker">{{ item.app.id }} · {{ item.app.country }} · {{ item.app.branch }}</p>
+      <div class="ops-detail-title">
+        <h2>{{ item.app.applicant }}</h2>
+        <span class="ops-pill" [ngClass]="item.app.decision === 'Approved' ? 'ok' : item.app.decision === 'Declined' ? 'bad' : 'refer'">{{ item.app.decision }}</span>
+      </div>
+      <p class="ops-muted">{{ item.app.product }} · {{ credit.money(item.app.amount) }} · {{ item.app.tenorMonths }} months · {{ item.app.channel }}</p>
+      <div class="ops-score" [ngClass]="riskTone(item.app.risk)">{{ item.app.score }}</div>
+      <p class="ops-muted">Origination, out of 900 · {{ item.app.risk }} risk · DTI {{ item.app.dti | percent:'1.0-0' }} · {{ item.app.bureau }}</p>
+      <app-credit-behaviour [app]="item.app" mode="compact"></app-credit-behaviour>
+
+      <div class="ops-metrics">
+        <div class="ops-metric"><span>Score</span><strong>{{ item.app.score }}</strong><small>Decline {{ policy.declineBelow }} · Approve {{ policy.approveFrom }}</small></div>
+        <div class="ops-metric"><span>Affordability</span><strong>{{ item.affordability }}%</strong><small>Cap {{ policy.maxDti | percent:'1.0-0' }} · Income {{ credit.money(item.app.income) }}</small></div>
+        <div class="ops-metric"><span>Ticket</span><strong>{{ credit.money(item.app.amount) }}</strong><small>Limit {{ credit.money(policy.maxAmount) }}</small></div>
+      </div>
+      <div class="ops-reasons">
+        <span *ngFor="let reason of item.app.reasonCodes">{{ reason }}</span>
+        <span *ngFor="let signal of item.signals">{{ signal }}</span>
+      </div>
+      <p class="ops-banner info">{{ narrative(item) }}</p>
+      <p class="ops-banner" *ngIf="banner" [class.ok]="bannerTone === 'ok'" [class.bad]="bannerTone === 'bad'">{{ banner }}</p>
+
+      <div class="ops-actions ops-no-print" *ngIf="item.app.decision === 'Refer' && item.app.caseStatus !== 'Closed'">
+        <button type="button" class="ops-btn primary" (click)="act('approve')">Approve</button>
+        <button type="button" class="ops-btn danger" (click)="act('decline')">Decline</button>
+        <button type="button" class="ops-btn ghost" (click)="act('request-info')">Request info</button>
+        <button type="button" class="ops-btn ghost" (click)="act('escalate')">Escalate</button>
+      </div>
+      <p class="ops-muted" *ngIf="item.app.caseStatus === 'Closed'">This case is closed. The decision is already on the book.</p>
+      <div class="ops-assign ops-no-print" *ngIf="item.app.caseStatus !== 'Closed'">
+        <select [(ngModel)]="assignee">
+          <option *ngFor="let analyst of credit.analysts">{{ analyst }}</option>
+        </select>
+        <button type="button" class="ops-btn ghost" (click)="act('assign')">Assign</button>
+      </div>
+      <label class="ops-note-box ops-no-print">
+        Case note
+        <textarea [(ngModel)]="note" rows="3" placeholder="Affordability checked against salary credit."></textarea>
+        <small>Required when the decision overrides policy.</small>
+      </label>
+      <button type="button" class="ops-btn ghost ops-no-print" style="margin-top:8px" (click)="act('note')" [disabled]="!note.trim()">Add note</button>
+
+      <div class="ops-tabs">
+        <button type="button" class="ops-tab" [class.on]="tab === 'score'" (click)="tab = 'score'">Score</button>
+        <button type="button" class="ops-tab" [class.on]="tab === 'application'" (click)="tab = 'application'">Application</button>
+        <button type="button" class="ops-tab" [class.on]="tab === 'audit'" (click)="tab = 'audit'">Audit trail</button>
+        <button type="button" class="ops-tab" [class.on]="tab === 'alerts'" (click)="tab = 'alerts'">Alerts</button>
+      </div>
+
+      <div *ngIf="tab === 'score'">
+        <h3 class="ops-behaviour-title">Each instalment</h3>
+        <app-credit-behaviour [app]="item.app" mode="steps"></app-credit-behaviour>
+      </div>
+      <div *ngIf="tab === 'application'">
+        <div class="ops-facts">
+          <div><span>Employment</span><strong>{{ item.app.employment }}</strong></div>
+          <div><span>Obligations</span><strong>{{ credit.money(item.app.obligations) }}</strong></div>
+          <div><span>Phone</span><strong>{{ item.app.phone }}</strong></div>
+          <div><span>National ID</span><strong>{{ item.app.nationalId }}</strong></div>
+          <div><span>Channel</span><strong>{{ item.app.channel }}</strong></div>
+          <div><span>Owner</span><strong>{{ item.app.assignedTo }}</strong></div>
+        </div>
+        <a class="ops-link" [routerLink]="['/applications', item.app.id]">Open the full application</a>
+        <div class="ops-feed" *ngFor="let entry of item.app.notes">
+          <strong>{{ entry.author }}</strong>
+          <span>{{ entry.time }}</span>
+          <p>{{ entry.text }}</p>
+        </div>
+      </div>
+      <div *ngIf="tab === 'audit'">
+        <div class="ops-feed" *ngFor="let event of caseEvents(item.app.id)">
+          <strong>{{ event.action }}</strong>
+          <span>{{ event.actor }} · {{ event.time | date:'d MMM, h:mm a' }}</span>
+          <p>{{ event.detail }}</p>
+        </div>
+        <p class="ops-empty" *ngIf="!caseEvents(item.app.id).length">No audit events for this case yet.</p>
+      </div>
+      <div *ngIf="tab === 'alerts'">
+        <div class="ops-feed" *ngFor="let signal of item.signals">
+          <strong>{{ signal }}</strong>
+          <p>{{ narrative(item, signal) }}</p>
+        </div>
+        <a class="ops-link" [routerLink]="['/alerts']" [queryParams]="{ id: item.app.id }">Open on the alerts desk</a>
+        <p class="ops-empty" *ngIf="!item.signals.length">No open signals on this file.</p>
+      </div>
+    </article>
+    <ng-template #emptyCase>
+      <article class="ops-card"><h2>Select a case</h2><p class="ops-muted">Approve, decline, request information, or escalate without leaving the desk.</p></article>
+    </ng-template>
+  </section>
+</div>

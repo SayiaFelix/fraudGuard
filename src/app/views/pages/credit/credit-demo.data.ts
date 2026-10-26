@@ -38,6 +38,7 @@ export interface CreditApplication {
   employment: string;
   bureau: string;
   factors: ScoreFactor[];
+  extraCycles?: Array<'On time' | 'Late' | 'Default'>;
 }
 
 export interface PortfolioSummary {
@@ -51,10 +52,7 @@ export interface PortfolioSummary {
   highRisk: number;
   avgScore: number;
   avgDecisionSeconds: number;
-
-  /** NEW: Sum of loan amounts for high-risk applications (in KSh). */
   exposureAtRisk: number;
-
   deltas: {
     total: number;
     approved: number;
@@ -79,6 +77,12 @@ export interface PolicySettings {
   declineBelow: number;
   maxDti: number;
   maxAmount: number;
+  maxTenorMonths: number;
+  bureauMaxAgeDays: number;
+  salaryAdvanceSla: number;
+  highRiskSla: number;
+  standardSla: number;
+  makerChecker: boolean;
 }
 
 export interface AuditEvent {
@@ -116,16 +120,16 @@ export const COUNTRIES = [
   'Kenya',
   'Uganda',
   'Cameroon',
-  "Côte d'Ivoire",
+  'Côte d\'Ivoire',
   'Senegal',
   'Tanzania'
 ];
 
 export const ANALYSTS = [
   'Demo User',
-  'Adaobi Nwankwo',
-  'Ibrahim Sule',
-  'Chidi Okeke',
+  'Nelly Cheruiyot',
+  'Moses Kipchoge',
+  'Felix Oduor',
   'Credit committee'
 ];
 
@@ -133,14 +137,15 @@ export const DEFAULT_POLICY: PolicySettings = {
   approveFrom: 700,
   declineBelow: 580,
   maxDti: 0.45,
-  maxAmount: 2000000
+  maxAmount: 2000000,
+  maxTenorMonths: 24,
+  bureauMaxAgeDays: 30,
+  salaryAdvanceSla: 8,
+  highRiskSla: 12,
+  standardSla: 24,
+  makerChecker: true
 };
 
-/**
- * Portfolio summary for the dashboard.
- * `exposureAtRisk` is the sum of loan amounts for applications tagged High risk.
- * It's declared explicitly here so the dashboard template can bind it safely.
- */
 export const PORTFOLIO_SUMMARY: PortfolioSummary = {
   total: 1248,
   approved: 682,
@@ -152,7 +157,7 @@ export const PORTFOLIO_SUMMARY: PortfolioSummary = {
   highRisk: 200,
   avgScore: 612,
   avgDecisionSeconds: 42,
-  exposureAtRisk: 9_000_000, // 👈 KSh 9.0M across 200 high-risk accounts
+  exposureAtRisk: 9_000_000,
   deltas: {
     total: 12,
     approved: 8,
@@ -185,7 +190,7 @@ export const COUNTRY_MIX = [
   { name: 'Kenya', count: 176, approval: 51 },
   { name: 'Uganda', count: 98, approval: 49 },
   { name: 'Cameroon', count: 86, approval: 46 },
-  { name: "Côte d'Ivoire", count: 74, approval: 52 },
+  { name: 'Côte d\'Ivoire', count: 74, approval: 52 },
   { name: 'Senegal', count: 62, approval: 55 },
   { name: 'Tanzania', count: 52, approval: 48 }
 ];
@@ -233,29 +238,32 @@ export const DECISION_RULES: DecisionRule[] = [
 ];
 
 export const APPLICATIONS: CreditApplication[] = [
-  app('APP-10482', 'Adaeze Okonkwo', 'Personal Loan', 500000, 742, 'Approved', 'Closed', 'Mobile app', 'Nigeria', 'Lagos', '2026-10-23T10:12:00', 'Low', ['Score inside auto-approval band', 'Clean bureau'], 'Demo User', 'Salaried', 'Clean', 850000, 120000, 12, 0.22, '+234 803 441 2201', '12445890123'),
-  app('APP-10479', 'Chinedu Okafor', 'SME Working Capital', 2500000, 621, 'Refer', 'In review', 'Branch', 'Nigeria', 'Abuja', '2026-10-23T09:58:00', 'Medium', ['Amount above auto-approval limit', 'Debt service near the policy edge'], 'Adaobi Nwankwo', 'Business owner', 'Thin file', 920000, 310000, 18, 0.48, '+234 809 220 1184', '22891004561'),
-  app('APP-10477', 'Fatima Bello', 'School Fees', 350000, 688, 'Refer', 'New', 'Mobile app', 'Nigeria', 'Kano', '2026-10-23T09:47:00', 'Medium', ['Thin credit file', 'Score below auto-approval'], 'Unassigned', 'Salaried', 'Thin file', 240000, 40000, 9, 0.33, '+234 701 552 9033', '33129088421'),
-  app('APP-10474', 'Kwame Mensah', 'Device Finance', 180000, 705, 'Approved', 'Closed', 'Agent', 'Ghana', 'Accra', '2026-10-23T09:32:00', 'Low', ['Score inside auto-approval band', 'Clean bureau'], 'Demo User', 'Salaried', 'Clean', 420000, 60000, 6, 0.21, '+233 24 411 9088', 'GHA-229184'),
-  app('APP-10471', 'Amina Diallo', 'Salary Advance', 120000, 590, 'Refer', 'New', 'USSD', 'Senegal', 'Dakar', '2026-10-23T09:20:00', 'Medium', ['Score below auto-approval', 'Thin credit file'], 'Unassigned', 'Salaried', 'Thin file', 180000, 20000, 1, 0.28, '+221 77 441 2033', 'SN-449120'),
-  app('APP-10468', 'Joseph Mwangi', 'Asset Finance', 1800000, 540, 'Declined', 'Closed', 'Branch', 'Kenya', 'Nairobi', '2026-10-23T09:05:00', 'High', ['Score below decline cutoff', 'Debt service above policy'], 'Chidi Okeke', 'Self employed', 'Adverse', 260000, 140000, 24, 0.62, '+254 712 880 221', 'KE-3391208'),
-  app('APP-10466', 'Grace Adebayo', 'Personal Loan', 750000, 801, 'Approved', 'Closed', 'Mobile app', 'Nigeria', 'Lagos', '2026-10-22T16:40:00', 'Low', ['Clean auto-approval'], 'Demo User', 'Salaried', 'Clean', 1200000, 150000, 24, 0.18, '+234 805 119 3340', '10992384711'),
-  app('APP-10463', 'Ayo Balogun', 'Salary Advance', 90000, 660, 'Refer', 'Awaiting information', 'Mobile app', 'Nigeria', 'Ibadan', '2026-10-22T15:10:00', 'Medium', ['Income document not attached'], 'Ibrahim Sule', 'Salaried', 'Clean', 210000, 45000, 1, 0.36, '+234 816 300 2291', '55201938447'),
-  app('APP-10460', 'Linda Nankya', 'School Fees', 420000, 715, 'Approved', 'Closed', 'Agent', 'Uganda', 'Kampala', '2026-10-22T14:02:00', 'Low', ['Score inside auto-approval band'], 'Demo User', 'Salaried', 'Clean', 480000, 70000, 10, 0.23, '+256 772 441 908', 'UG-229184'),
-  app('APP-10457', 'Jean-Pierre Ndayisaba', 'Personal Loan', 600000, 575, 'Refer', 'Escalated', 'Branch', 'Cameroon', 'Douala', '2026-10-22T11:26:00', 'High', ['Score on the decline boundary', 'Existing exposure'], 'Credit committee', 'Business owner', 'Clean', 300000, 90000, 18, 0.44, '+237 677 220 184', 'CM-881203'),
-  app('APP-10454', 'Ama Serwaa', 'Device Finance', 250000, 634, 'Refer', 'New', 'Mobile app', 'Ghana', 'Accra', '2026-10-22T10:14:00', 'Medium', ['Thin credit file'], 'Unassigned', 'Self employed', 'Thin file', 190000, 30000, 8, 0.32, '+233 20 558 1142', 'GHA-110293'),
-  app('APP-10451', 'Mary Wanjiku', 'Personal Loan', 400000, 612, 'Refer', 'In review', 'Mobile app', 'Kenya', 'Nairobi', '2026-10-22T09:02:00', 'Medium', ['Score below auto-approval'], 'Adaobi Nwankwo', 'Salaried', 'Clean', 220000, 50000, 12, 0.38, '+254 723 009 441', 'KE-1002934'),
-  app('APP-10448', 'Chisom Eze', 'Salary Advance', 150000, 455, 'Declined', 'Closed', 'USSD', 'Nigeria', 'Enugu', '2026-10-21T18:22:00', 'High', ['Score below decline cutoff', 'Adverse bureau status'], 'Demo User', 'Self employed', 'Adverse', 90000, 40000, 1, 0.71, '+234 703 228 1190', '77301928334'),
-  app('APP-10444', 'Mohamed Camara', 'SME Working Capital', 2100000, 598, 'Refer', 'New', 'Branch', "Côte d'Ivoire", 'Abidjan', '2026-10-21T13:41:00', 'Medium', ['Amount above auto-approval limit'], 'Unassigned', 'Business owner', 'Clean', 700000, 180000, 12, 0.41, '+225 07 44 21 90', 'CI-229103')
+  app('APP-10482', 'David Munya', 'Personal Loan', 500000, 742, 'Approved', 'Closed', 'Mobile app', 'Nigeria', 'Lagos', '2026-10-23T10:12:00', 'Low', ['Score inside auto-approval band', 'Clean bureau'], 'Demo User', 'Salaried', 'Clean', 850000, 120000, 12, 0.22, '+234 803 441 2201', '12445890123'),
+  app('APP-10479', 'Simon Kilonzo', 'SME Working Capital', 2500000, 621, 'Refer', 'In review', 'Branch', 'Nigeria', 'Abuja', '2026-10-23T09:58:00', 'Medium', ['Amount above auto-approval limit', 'Debt service near the policy edge'], 'Nelly Cheruiyot', 'Business owner', 'Thin file', 920000, 310000, 18, 0.48, '+234 809 220 1184', '22891004561'),
+  app('APP-10477', 'Mary Mwende', 'School Fees', 350000, 688, 'Refer', 'New', 'Mobile app', 'Nigeria', 'Kano', '2026-10-23T09:47:00', 'Medium', ['Thin credit file', 'Score below auto-approval'], 'Unassigned', 'Salaried', 'Thin file', 240000, 40000, 9, 0.33, '+234 701 552 9033', '33129088421'),
+  app('APP-10474', 'Grace Gitau', 'Device Finance', 180000, 705, 'Approved', 'Closed', 'Agent', 'Ghana', 'Accra', '2026-10-23T09:32:00', 'Low', ['Score inside auto-approval band', 'Clean bureau'], 'Demo User', 'Salaried', 'Clean', 420000, 60000, 6, 0.21, '+233 24 411 9088', 'GHA-229184'),
+  app('APP-10471', 'Peter Odhiambo', 'Salary Advance', 120000, 590, 'Refer', 'New', 'USSD', 'Senegal', 'Dakar', '2026-10-23T09:20:00', 'Medium', ['Score below auto-approval', 'Thin credit file'], 'Unassigned', 'Salaried', 'Thin file', 180000, 20000, 1, 0.28, '+221 77 441 2033', 'SN-449120'),
+  app('APP-10468', 'James Were', 'Asset Finance', 1800000, 540, 'Declined', 'Closed', 'Branch', 'Kenya', 'Nairobi', '2026-10-23T09:05:00', 'High', ['Score below decline cutoff', 'Debt service above policy'], 'Felix Oduor', 'Self employed', 'Adverse', 260000, 140000, 24, 0.62, '+254 712 880 221', 'KE-3391208'),
+  app('APP-10466', 'Faith Achieng', 'Personal Loan', 750000, 801, 'Approved', 'Closed', 'Mobile app', 'Nigeria', 'Lagos', '2026-10-22T16:40:00', 'Low', ['Clean auto-approval'], 'Demo User', 'Salaried', 'Clean', 1200000, 150000, 24, 0.18, '+234 805 119 3340', '10992384711'),
+  app('APP-10463', 'Kevin Owino', 'Salary Advance', 90000, 660, 'Refer', 'Awaiting information', 'Mobile app', 'Nigeria', 'Ibadan', '2026-10-22T15:10:00', 'Medium', ['Income document not attached'], 'Moses Kipchoge', 'Salaried', 'Clean', 210000, 45000, 1, 0.36, '+234 816 300 2291', '55201938447'),
+  app('APP-10460', 'Mercy Chebet', 'School Fees', 420000, 715, 'Approved', 'Closed', 'Agent', 'Uganda', 'Kampala', '2026-10-22T14:02:00', 'Low', ['Score inside auto-approval band'], 'Demo User', 'Salaried', 'Clean', 480000, 70000, 10, 0.23, '+256 772 441 908', 'UG-229184'),
+  app('APP-10457', 'Samuel Omondi', 'Personal Loan', 600000, 575, 'Refer', 'Escalated', 'Branch', 'Cameroon', 'Douala', '2026-10-22T11:26:00', 'High', ['Score on the decline boundary', 'Existing exposure'], 'Credit committee', 'Business owner', 'Clean', 300000, 90000, 18, 0.44, '+237 677 220 184', 'CM-881203'),
+  app('APP-10454', 'Lucy Atieno', 'Device Finance', 250000, 634, 'Refer', 'New', 'Mobile app', 'Ghana', 'Accra', '2026-10-22T10:14:00', 'Medium', ['Thin credit file'], 'Unassigned', 'Self employed', 'Thin file', 190000, 30000, 8, 0.32, '+233 20 558 1142', 'GHA-110293'),
+  app('APP-10451', 'Ann Njeri', 'Personal Loan', 400000, 612, 'Refer', 'In review', 'Mobile app', 'Kenya', 'Nairobi', '2026-10-22T09:02:00', 'Medium', ['Score below auto-approval'], 'Nelly Cheruiyot', 'Salaried', 'Clean', 220000, 50000, 12, 0.38, '+254 723 009 441', 'KE-1002934'),
+  app('APP-10448', 'Stephen Odongo', 'Salary Advance', 150000, 455, 'Declined', 'Closed', 'USSD', 'Nigeria', 'Enugu', '2026-10-21T18:22:00', 'High', ['Score below decline cutoff', 'Adverse bureau status'], 'Demo User', 'Self employed', 'Adverse', 90000, 40000, 1, 0.71, '+234 703 228 1190', '77301928334'),
+  app('APP-10444', 'Joseph Owino', 'SME Working Capital', 2100000, 598, 'Refer', 'New', 'Branch', 'Côte d\'Ivoire', 'Abidjan', '2026-10-21T13:41:00', 'Medium', ['Amount above auto-approval limit'], 'Unassigned', 'Business owner', 'Clean', 700000, 180000, 12, 0.41, '+225 07 44 21 90', 'CI-229103')
 ];
 
 export const AUDIT_EVENTS: AuditEvent[] = [
-  { id: 'AUD-2201', time: '2026-10-23T10:12:20', actor: 'Scorecard v3.2', action: 'Auto approved', detail: 'APP-10482 · Adaeze Okonkwo', decision: 'Approved' },
-  { id: 'AUD-2200', time: '2026-10-23T09:58:40', actor: 'Decision rules', action: 'Referred to queue', detail: 'APP-10479 · Chinedu Okafor', decision: 'Refer' },
-  { id: 'AUD-2198', time: '2026-10-23T09:32:10', actor: 'Scorecard v3.2', action: 'Auto approved', detail: 'APP-10474 · Kwame Mensah', decision: 'Approved' },
-  { id: 'AUD-2194', time: '2026-10-23T09:05:33', actor: 'Chidi Okeke', action: 'Application declined', detail: 'APP-10468 · Joseph Mwangi', decision: 'Declined' },
-  { id: 'AUD-2188', time: '2026-10-22T15:18:02', actor: 'Ibrahim Sule', action: 'Information requested', detail: 'APP-10463 · Ayo Balogun', decision: 'Refer' },
-  { id: 'AUD-2181', time: '2026-10-22T11:40:18', actor: 'Demo User', action: 'Case escalated', detail: 'APP-10457 · Jean-Pierre Ndayisaba', decision: 'Refer' }
+  { id: 'AUD-2212', time: '2026-10-23T11:05:00', actor: 'Demo User', action: 'Disbursement held', detail: 'APP-10482 · David Munya. Approved on the scorecard. Payout waits for a fresh identity match.', decision: 'Approved' },
+  { id: 'AUD-2210', time: '2026-10-23T10:48:00', actor: 'Nelly Cheruiyot', action: 'Bureau pull', detail: 'APP-10479 · Simon Kilonzo. CRC returned a thin file. The enquiry is on the bureau record.', decision: 'Refer' },
+  { id: 'AUD-2201', time: '2026-10-23T10:12:20', actor: 'Scorecard v3.2', action: 'Auto approved', detail: 'APP-10482 · David Munya', decision: 'Approved' },
+  { id: 'AUD-2200', time: '2026-10-23T09:58:40', actor: 'Decision rules', action: 'Referred to queue', detail: 'APP-10479 · Simon Kilonzo', decision: 'Refer' },
+  { id: 'AUD-2198', time: '2026-10-23T09:32:10', actor: 'Scorecard v3.2', action: 'Auto approved', detail: 'APP-10474 · Grace Gitau', decision: 'Approved' },
+  { id: 'AUD-2194', time: '2026-10-23T09:05:33', actor: 'Felix Oduor', action: 'Application declined', detail: 'APP-10468 · James Were', decision: 'Declined' },
+  { id: 'AUD-2188', time: '2026-10-22T15:18:02', actor: 'Moses Kipchoge', action: 'Information requested', detail: 'APP-10463 · Kevin Owino', decision: 'Refer' },
+  { id: 'AUD-2181', time: '2026-10-22T11:40:18', actor: 'Demo User', action: 'Case escalated', detail: 'APP-10457 · Samuel Omondi', decision: 'Refer' },
+  { id: 'AUD-2164', time: '2026-10-21T08:15:00', actor: 'Demo User', action: 'Policy updated', detail: 'Decline below 580. Auto-approval from 700. Maximum tenor 24 months.', decision: 'Policy' }
 ];
 
 function app(
@@ -284,27 +292,14 @@ function app(
 ): CreditApplication {
   const notes: CaseNote[] = [];
   if (caseStatus === 'In review') {
-    notes.push({
-      author: assignedTo,
-      text: 'Opened for manual review. Affordability is the open question.',
-      time: 'Oct 23, 9:10 AM'
-    });
+    notes.push({ author: assignedTo, text: 'Opened for manual review. Affordability is the open question.', time: 'Oct 23, 9:10 AM' });
   }
   if (caseStatus === 'Awaiting information') {
-    notes.push({
-      author: assignedTo,
-      text: 'Asked the applicant for a current salary slip.',
-      time: 'Oct 22, 3:18 PM'
-    });
+    notes.push({ author: assignedTo, text: 'Asked the applicant for a current salary slip.', time: 'Oct 22, 3:18 PM' });
   }
   if (caseStatus === 'Escalated') {
-    notes.push({
-      author: 'Demo User',
-      text: 'Escalated because the score sits on the decline boundary and exposure is material.',
-      time: 'Oct 22, 11:40 AM'
-    });
+    notes.push({ author: 'Demo User', text: 'Escalated because the score sits on the decline boundary and exposure is material.', time: 'Oct 22, 11:40 AM' });
   }
-
   return {
     id,
     applicant,
