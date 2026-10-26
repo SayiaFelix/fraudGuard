@@ -1,0 +1,119 @@
+- Generating browser application bundles (phase: setup)...
+✔ Browser application bundle generation complete.
+✔ Browser application bundle generation complete.
+
+Initial Chunk Files                                                                   | Names                                        |  Raw Size
+vendor.js                                                                             | vendor                                       |   8.76 MB |
+main.js                                                                               | main                                         |   1.11 MB |
+styles.css                                                                            | styles                                       |   1.09 MB |
+polyfills.js                                                                          | polyfills                                    | 967.24 kB |
+scripts.js                                                                            | scripts                                      | 525.78 kB |
+runtime.js                                                                            | runtime                                      |  13.99 kB |
+
+| Initial Total                                |  12.44 MB
+
+Lazy Chunk Files                                                                      | Names                                        |  Raw Size
+src_app_views_pages_mobile-banking_customers_customers_module_ts.js                   | customers-customers-module                   |   1.15 MB |
+src_app_views_pages_mobile-banking_rbac_rbac_module_ts.js                             | rbac-rbac-module                             | 609.64 kB |
+src_app_views_pages_credit_credit_module_ts.js                                        | views-pages-credit-credit-module             | 545.66 kB |
+node_modules_canvg_lib_index_es_js.js                                                 | canvg                                        | 428.86 kB |
+node_modules_html2canvas_dist_html2canvas_js.js                                       | html2canvas                                  | 390.81 kB |
+src_app_views_pages_auth_auth_module_ts.js                                            | views-pages-auth-auth-module                 | 358.66 kB |
+src_app_views_pages_mobile-banking_products_products_module_ts.js                     | products-products-module                     | 340.26 kB |
+src_app_views_pages_mobile-banking_case-management_case-management_module_ts.js       | case-management-case-management-module       | 309.13 kB |
+src_app_views_pages_mobile-banking_setups_setups_module_ts.js                         | setups-setups-module                         | 308.29 kB |
+src_app_views_pages_mobile-banking_customer-profiling_customer-profiling_module_ts.js | customer-profiling-customer-profiling-module | 183.13 kB |
+src_app_views_pages_mobile-banking_finca-alerts_finca-alerts_module_ts.js             | finca-alerts-finca-alerts-module             | 171.00 kB |
+default-node_modules_ng-select_ng-select_fesm2020_ng-select-ng-select_mjs.js          | requests-requests-module                     | 160.77 kB |
+src_app_views_pages_mobile-banking_rule-management_rule-management_module_ts.js       | rule-management-rule-management-module       | 111.90 kB |
+src_app_views_pages_mobile-banking_requests_requests_module_ts.js                     | requests-requests-module                     |  96.21 kB |
+node_modules_highlight_js_es_core_js.js                                               | highlight-js-lib-core                        |  74.94 kB |
+node_modules_dompurify_dist_purify_js.js                                              | dompurify                                    |  64.57 kB |
+node_modules_highlight_js_es_languages_typescript_js.js                               | highlight-js-lib-languages-typescript        |  17.99 kB |
+node_modules_highlight_js_es_languages_scss_js.js                                     | highlight-js-lib-languages-scss              |  14.21 kB |
+node_modules_highlight_js_es_languages_xml_js.js                                      | highlight-js-lib-languages-xml               |   6.51 kB |
+
+Build at: 2026-10-26T06:10:13.413Z - Hash: 3f96ea08453d5290 - Time: 52925ms
+
+Warning: src/app/views/pages/mobile-banking/setups/Branches/list-branches/list-branches.component.html:205:47 - warning NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator.
+
+205                             {{ user.username?.charAt(0)?.toUpperCase() }}
+                                                  ~~~~~~
+
+  src/app/views/pages/mobile-banking/setups/Branches/list-branches/list-branches.component.ts:23:16
+    23   templateUrl: './list-branches.component.html',
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Error occurs in the template of component ListBranchesComponent.
+
+
+Warning: C:/Users/mbridged/Documents/projects/Fraud_guard/finca_fraud_portal/src/app/shared/settings-modal/settings-modal.component.scss exceeded maximum budget. Budget 50.00 kB was not met by 13.38 kB with a total of 63.38 kB.
+
+Warning: C:/Users/mbridged/Documents/projects/Fraud_guard/finca_fraud_portal/src/app/views/pages/credit/decision-rules/decision-rules.component.scss exceeded maximum budget. Budget 50.00 kB was not met by 7.90 kB with a total of 57.90 kB.
+
+Warning: C:/Users/mbridged/Documents/projects/Fraud_guard/finca_fraud_portal/src/app/views/pages/credit/policy-simulator/policy-simulator.component.scss exceeded maximum budget. Budget 50.00 kB was not met by 3.12 kB with a total of 53.12 kB.
+
+Warning: C:/Users/mbridged/Documents/projects/Fraud_guard/finca_fraud_portal/src/app/views/pages/mobile-banking/customer-profiling/customer-profiling.component.scss exceeded maximum budget. Budget 50.00 kB was not met by 13.38 kB with a total of 63.38 kB.
+
+Warning: C:/Users/mbridged/Documents/projects/Fraud_guard/finca_fraud_portal/src/app/views/pages/mobile-banking/setups/Branches/list-branches/list-branches.component.scss exceeded maximum budget. Budget 50.00 kB was not met by 9.86 kB with a total of 59.86 kB.
+
+Warning: C:\Users\mbridged\Documents\projects\Fraud_guard\finca_fraud_portal\node_modules\canvg\lib\index.es.js depends on 'core-js/modules/es.array.index-of.js'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: C:\Users\mbridged\Documents\projects\Fraud_guard\finca_fraud_portal\node_modules\canvg\lib\index.es.js depends on 'core-js/modules/es.array.iterator.js'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: C:\Users\mbridged\Documents\projects\Fraud_guard\finca_fraud_portal\node_modules\canvg\lib\index.es.js depends on 'core-js/modules/es.array.reduce.js'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: C:\Users\mbridged\Documents\projects\Fraud_guard\finca_fraud_portal\node_modules\canvg\lib\index.es.js depends on 'core-js/modules/es.array.reverse.js'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: C:\Users\mbridged\Documents\projects\Fraud_guard\finca_fraud_portal\node_modules\canvg\lib\index.es.js depends on 'core-js/modules/es.promise.js'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: C:\Users\mbridged\Documents\projects\Fraud_guard\finca_fraud_portal\node_modules\canvg\lib\index.es.js depends on 'core-js/modules/es.regexp.to-string.js'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: C:\Users\mbridged\Documents\projects\Fraud_guard\finca_fraud_portal\node_modules\canvg\lib\index.es.js depends on 'core-js/modules/es.string.ends-with.js'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: C:\Users\mbridged\Documents\projects\Fraud_guard\finca_fraud_portal\node_modules\canvg\lib\index.es.js depends on 'core-js/modules/es.string.includes.js'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: C:\Users\mbridged\Documents\projects\Fraud_guard\finca_fraud_portal\node_modules\canvg\lib\index.es.js depends on 'core-js/modules/es.string.match.js'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: C:\Users\mbridged\Documents\projects\Fraud_guard\finca_fraud_portal\node_modules\canvg\lib\index.es.js depends on 'core-js/modules/es.string.replace.js'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: C:\Users\mbridged\Documents\projects\Fraud_guard\finca_fraud_portal\node_modules\canvg\lib\index.es.js depends on 'core-js/modules/es.string.split.js'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: C:\Users\mbridged\Documents\projects\Fraud_guard\finca_fraud_portal\node_modules\canvg\lib\index.es.js depends on 'core-js/modules/es.string.starts-with.js'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: C:\Users\mbridged\Documents\projects\Fraud_guard\finca_fraud_portal\node_modules\canvg\lib\index.es.js depends on 'core-js/modules/es.string.trim.js'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: C:\Users\mbridged\Documents\projects\Fraud_guard\finca_fraud_portal\node_modules\canvg\lib\index.es.js depends on 'core-js/modules/web.dom-collections.iterator.js'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: C:\Users\mbridged\Documents\projects\Fraud_guard\finca_fraud_portal\node_modules\canvg\lib\index.es.js depends on 'raf'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: C:\Users\mbridged\Documents\projects\Fraud_guard\finca_fraud_portal\node_modules\canvg\lib\index.es.js depends on 'rgbcolor'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: C:\Users\mbridged\Documents\projects\Fraud_guard\finca_fraud_portal\src\app\views\pages\mobile-banking\customers\view-customer\view-customer.component.ts depends on 'jspdf-autotable'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: C:\Users\mbridged\Documents\projects\Fraud_guard\finca_fraud_portal\src\app\views\pages\mobile-banking\products\list-products-categories-cards\product-categories-as-cards.component.ts depends on 'file-saver'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: bundle initial exceeded maximum budget. Budget 2.00 MB was not met by 10.44 MB with a total of 12.44 MB.
+
+
+
+Error: bundle initial exceeded maximum budget. Budget 5.00 MB was not met by 7.44 MB with a total of 12.44 MB.
+
+

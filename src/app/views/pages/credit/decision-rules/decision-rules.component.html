@@ -1,17 +1,922 @@
-<article class="cd-card">
-  <div class="cd-card-head">
-    <div>
-      <h2>Active policy</h2>
-      <p class="fine">Switches apply immediately to new applications and the policy simulator. Nothing is sent to a server.</p>
+
+<div class="uba-rules-page">
+
+  <!-- PAGE HEADER -->
+  <header class="page-header">
+    <div class="header-info">
+      <div class="breadcrumb">
+        Lending Operations
+        <span>/</span>
+        Credit Decisioning
+        <span>/</span>
+        Decision Rules
+      </div>
+
+      <h1></h1>
+
+      <p>
+        Configure, manage and evaluate lending policies
+        used in automated credit decisioning.
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <button
+        type="button"
+        class="btn btn-outline"
+        (click)="setTab('tester')">
+        <i class="fas fa-flask"></i>
+        Test Policy
+      </button>
+
+      <button
+        type="button"
+        class="btn btn-primary"
+        (click)="openCreateModal()">
+        <i class="fas fa-plus"></i>
+        Create New Rule
+      </button>
+    </div>
+  </header>
+
+  <!-- POLICY METRICS -->
+  <section class="stats-grid">
+
+    <article class="stat-card">
+      <div class="stat-icon red">
+        <i class="fas fa-list-alt"></i>
+      </div>
+      <div>
+        <span>Total Rules</span>
+        <strong>{{ totalRules }}</strong>
+        <small>Configured lending rules</small>
+      </div>
+    </article>
+
+    <article class="stat-card">
+      <div class="stat-icon green">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div>
+        <span>Active Rules</span>
+        <strong>{{ activeRules }}</strong>
+        <small>Included in policy evaluation</small>
+      </div>
+    </article>
+
+    <article class="stat-card">
+      <div class="stat-icon gray">
+        <i class="fas fa-pause-circle"></i>
+      </div>
+      <div>
+        <span>Inactive Rules</span>
+        <strong>{{ inactiveRules }}</strong>
+        <small>Excluded from evaluation</small>
+      </div>
+    </article>
+
+    <article class="stat-card">
+      <div class="stat-icon orange">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+      <div>
+        <span>Critical Rules</span>
+        <strong>{{ criticalRules }}</strong>
+        <small>Active critical-severity rules</small>
+      </div>
+    </article>
+
+  </section>
+
+  <!-- TABS -->
+  <nav class="page-tabs">
+
+    <button
+      type="button"
+      [class.active]="activeTab === 'rules'"
+      (click)="setTab('rules')">
+      <i class="fas fa-sliders-h"></i>
+      Rule Management
+    </button>
+
+    <button
+      type="button"
+      [class.active]="activeTab === 'tester'"
+      (click)="setTab('tester')">
+      <i class="fas fa-clipboard-check"></i>
+      Policy Evaluation
+    </button>
+
+  </nav>
+
+  <!-- RULE MANAGEMENT -->
+  <section *ngIf="activeTab === 'rules'" class="content-card">
+
+    <div class="section-heading">
+      <div>
+        <h2>Lending Policy Rules</h2>
+        <p>
+          Manage eligibility conditions, risk controls
+          and automated decision actions.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="btn btn-text"
+        (click)="resetPolicies()">
+        <i class="fas fa-undo"></i>
+        Restore Rules
+      </button>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filters">
+
+      <div class="search-field">
+        <i class="fas fa-search"></i>
+
+        <input
+          type="search"
+          placeholder="Search by rule name, code or description"
+          [(ngModel)]="searchTerm"
+          aria-label="Search lending rules">
+      </div>
+
+      <select
+        [(ngModel)]="categoryFilter"
+        aria-label="Filter category">
+        <option value="All">All Categories</option>
+
+        <option
+          *ngFor="let category of categories"
+          [value]="category">
+          {{ category }}
+        </option>
+      </select>
+
+      <select
+        [(ngModel)]="statusFilter"
+        aria-label="Filter status">
+        <option value="All">All Statuses</option>
+        <option value="Active">Active</option>
+        <option value="Inactive">Inactive</option>
+      </select>
+
+      <select
+        [(ngModel)]="actionFilter"
+        aria-label="Filter action">
+        <option value="All">All Actions</option>
+
+        <option
+          *ngFor="let action of actions"
+          [value]="action">
+          {{ action }}
+        </option>
+      </select>
+
+      <button
+        type="button"
+        class="clear-btn"
+        (click)="clearFilters()">
+        Clear
+      </button>
+
+    </div>
+
+    <!-- RULE TABLE -->
+    <div class="table-wrapper">
+      <table class="rules-table">
+
+        <thead>
+          <tr>
+            <th>Rule</th>
+            <th>Category</th>
+            <th>Condition</th>
+            <th>Action</th>
+            <th>Severity</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th class="actions-column">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr
+            *ngFor="
+              let rule of filteredRules;
+              trackBy: trackByRule
+            ">
+
+            <td>
+              <div class="rule-identity">
+                <strong>{{ rule.name }}</strong>
+                <span>{{ rule.code }}</span>
+                <small>{{ rule.description }}</small>
+              </div>
+            </td>
+
+            <td>
+              <span class="category-label">
+                {{ rule.category }}
+              </span>
+            </td>
+
+            <td>
+              <span class="condition-text">
+                {{ getCondition(rule) }}
+              </span>
+            </td>
+
+            <td>
+              <span
+                class="status-pill"
+                [ngClass]="getActionClass(rule.action)">
+                {{ rule.action }}
+              </span>
+            </td>
+
+            <td>
+              <span
+                class="severity-pill"
+                [ngClass]="getSeverityClass(rule.severity)">
+                {{ rule.severity }}
+              </span>
+            </td>
+
+            <td>
+              <span class="priority-number">
+                {{ rule.priority }}
+              </span>
+            </td>
+
+            <td>
+              <div class="status-control">
+
+                <button
+                  type="button"
+                  class="rule-switch"
+                  [class.on]="rule.enabled"
+                  [attr.aria-label]="
+                    (rule.enabled ? 'Deactivate ' : 'Activate ')
+                    + rule.name
+                  "
+                  [attr.aria-pressed]="rule.enabled"
+                  (click)="toggleRule(rule)">
+                  <span></span>
+                </button>
+
+                <span [class.active-text]="rule.enabled">
+                  {{ rule.enabled ? 'Active' : 'Inactive' }}
+                </span>
+
+              </div>
+            </td>
+
+            <td>
+              <div class="row-actions">
+
+                <button
+                  type="button"
+                  class="icon-btn"
+                  title="Edit rule"
+                  [attr.aria-label]="'Edit ' + rule.name"
+                  (click)="openEditModal(rule)">
+                  <i class="fas fa-pen"></i>
+                </button>
+
+                <button
+                  type="button"
+                  class="icon-btn danger"
+                  title="Delete rule"
+                  [attr.aria-label]="'Delete ' + rule.name"
+                  (click)="requestDelete(rule)">
+                  <i class="fas fa-trash"></i>
+                </button>
+
+              </div>
+            </td>
+
+          </tr>
+
+          <tr *ngIf="filteredRules.length === 0">
+            <td colspan="8">
+              <div class="empty-state">
+                <i class="fas fa-search"></i>
+                <h3>No matching rules</h3>
+                <p>Try changing your search or filters.</p>
+
+                <button
+                  type="button"
+                  class="btn btn-outline"
+                  (click)="clearFilters()">
+                  Clear Filters
+                </button>
+              </div>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+
+    <footer class="table-footer">
+      Showing {{ filteredRules.length }} of
+      {{ totalRules }} lending rules
+    </footer>
+
+  </section>
+
+  <!-- APPLICANT POLICY TESTER -->
+  <section
+    *ngIf="activeTab === 'tester'"
+    class="tester-layout">
+
+    <article class="content-card">
+
+      <div class="section-heading">
+        <div>
+          <h2>Applicant Policy Evaluation</h2>
+          <p>
+            Enter applicant information to evaluate
+            the currently active lending rules.
+          </p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+
+        <label class="form-field">
+          Credit Score
+          <input
+            type="number"
+            min="300"
+            max="850"
+            [(ngModel)]="applicant.creditScore"
+            (ngModelChange)="onApplicantChange()">
+        </label>
+
+        <label class="form-field">
+          Monthly Income (KES)
+          <input
+            type="number"
+            min="0"
+            [(ngModel)]="applicant.monthlyIncome"
+            (ngModelChange)="onApplicantChange()">
+        </label>
+
+        <label class="form-field">
+          Monthly Debt Repayments (KES)
+          <input
+            type="number"
+            min="0"
+            [(ngModel)]="applicant.monthlyDebt"
+            (ngModelChange)="onApplicantChange()">
+        </label>
+
+        <label class="form-field">
+          Requested Loan Amount (KES)
+          <input
+            type="number"
+            min="0"
+            [(ngModel)]="applicant.requestedAmount"
+            (ngModelChange)="onApplicantChange()">
+        </label>
+
+        <label class="form-field">
+          Loan Tenure (Months)
+          <input
+            type="number"
+            min="1"
+            max="120"
+            [(ngModel)]="applicant.loanTenure"
+            (ngModelChange)="onApplicantChange()">
+        </label>
+
+        <label class="form-field">
+          Applicant Age
+          <input
+            type="number"
+            min="0"
+            max="120"
+            [(ngModel)]="applicant.age"
+            (ngModelChange)="onApplicantChange()">
+        </label>
+
+        <label class="form-field">
+          Overdue Loans
+          <input
+            type="number"
+            min="0"
+            [(ngModel)]="applicant.overdueLoans"
+            (ngModelChange)="onApplicantChange()">
+        </label>
+
+        <label class="form-field">
+          Existing Active Loans
+          <input
+            type="number"
+            min="0"
+            [(ngModel)]="applicant.existingLoans"
+            (ngModelChange)="onApplicantChange()">
+        </label>
+
+        <label class="form-field">
+          Employment Duration (Months)
+          <input
+            type="number"
+            min="0"
+            [(ngModel)]="applicant.employmentMonths"
+            (ngModelChange)="onApplicantChange()">
+        </label>
+
+        <div class="derived-field">
+          <span>Calculated Debt-to-Income Ratio</span>
+          <strong>
+            {{ applicantDti === null
+              ? 'Unavailable'
+              : (applicantDti | number:'1.1-2') + '%' }}
+          </strong>
+          <small>
+            Monthly debt repayments / monthly income
+          </small>
+        </div>
+
+      </div>
+
+      <div class="form-actions">
+        <button
+          type="button"
+          class="btn btn-outline"
+          (click)="resetApplicant()">
+          Reset Values
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="evaluateApplicant()">
+          <i class="fas fa-play"></i>
+          Evaluate Application
+        </button>
+      </div>
+
+    </article>
+
+    <!-- RESULTS -->
+    <article class="content-card results-card">
+
+      <div class="section-heading">
+        <div>
+          <h2>Evaluation Results</h2>
+          <p>
+            Decision recommendation based on
+            active policy conditions.
+          </p>
+        </div>
+      </div>
+
+      <ng-container *ngIf="evaluated; else noEvaluation">
+
+        <div class="outcome-banner"
+             [ngClass]="getOutcomeClass()">
+
+          <small>Proposed Decision</small>
+          <h2>{{ outcome }}</h2>
+
+          <span>
+            {{ evaluationTime }}
+          </span>
+
+        </div>
+
+        <div class="evaluation-summary">
+
+          <div>
+            <strong>{{ evaluation.length }}</strong>
+            <span>Evaluated</span>
+          </div>
+
+          <div>
+            <strong>{{ triggeredRules.length }}</strong>
+            <span>Triggered</span>
+          </div>
+
+          <div>
+            <strong>{{ passedRules.length }}</strong>
+            <span>Passed</span>
+          </div>
+
+          <div>
+            <strong>{{ missingRules.length }}</strong>
+            <span>Missing</span>
+          </div>
+
+        </div>
+
+        <div class="evaluation-list">
+
+          <h3>Rule-by-Rule Assessment</h3>
+
+          <div
+            class="evaluation-item"
+            *ngFor="let result of evaluation">
+
+            <div class="evaluation-icon"
+                 [class.triggered]="result.matched"
+                 [class.missing]="result.missing">
+
+              <i
+                class="fas"
+                [ngClass]="{
+                  'fa-exclamation-circle': result.matched,
+                  'fa-question-circle': result.missing,
+                  'fa-check-circle':
+                    !result.matched && !result.missing
+                }">
+              </i>
+
+            </div>
+
+            <div class="evaluation-description">
+
+              <strong>{{ result.rule.name }}</strong>
+
+              <span>
+                {{ getCondition(result.rule) }}
+              </span>
+
+              <small>
+                Applicant value:
+                {{ result.actual === null
+                  ? 'Not available'
+                  : formatValue(
+                      result.actual,
+                      result.rule.field
+                    ) }}
+              </small>
+
+            </div>
+
+            <span
+              class="evaluation-status"
+              [class.failed]="result.matched"
+              [class.missing]="result.missing">
+
+              {{ result.missing
+                ? 'Missing Data'
+                : result.matched
+                  ? 'Triggered'
+                  : 'Passed' }}
+
+            </span>
+
+          </div>
+
+          <div
+            *ngIf="evaluation.length === 0"
+            class="empty-state">
+            <p>No active rules are available for evaluation.</p>
+          </div>
+
+        </div>
+
+      </ng-container>
+
+      <ng-template #noEvaluation>
+        <div class="empty-state evaluation-empty">
+          <i class="fas fa-clipboard-check"></i>
+          <h3>No evaluation performed</h3>
+          <p>
+            Enter applicant details and select
+            Evaluate Application to view the policy result.
+          </p>
+        </div>
+      </ng-template>
+
+    </article>
+
+  </section>
+
+  <!-- CREATE / EDIT RULE MODAL -->
+  <div
+    class="modal-overlay"
+    *ngIf="showRuleModal"
+    role="presentation">
+
+    <div
+      class="rule-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="rule-modal-title">
+
+      <div class="modal-header">
+
+        <div>
+          <span class="modal-eyebrow">LENDING POLICY</span>
+
+          <h2 id="rule-modal-title">
+            {{ editingRuleId ? 'Edit Lending Rule'
+                             : 'Create Lending Rule' }}
+          </h2>
+
+          <p>
+            Configure the conditions that determine
+            a lending policy action.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          class="modal-close"
+          (click)="closeRuleModal()"
+          aria-label="Close rule form">
+          &times;
+        </button>
+
+      </div>
+
+      <form (ngSubmit)="saveRule()">
+
+        <div class="modal-body">
+
+          <div
+            *ngIf="formError"
+            class="form-error"
+            role="alert">
+            {{ formError }}
+          </div>
+
+          <h3>Rule Information</h3>
+
+          <div class="form-grid">
+
+            <label class="form-field">
+              Rule Code
+              <input
+                type="text"
+                [value]="ruleForm.code"
+                readonly>
+            </label>
+
+            <label class="form-field">
+              Rule Name *
+              <input
+                type="text"
+                name="ruleName"
+                [(ngModel)]="ruleForm.name"
+                placeholder="Enter rule name"
+                maxlength="100"
+                required>
+            </label>
+
+            <label class="form-field full">
+              Description
+              <textarea
+                name="ruleDescription"
+                rows="3"
+                [(ngModel)]="ruleForm.description"
+                placeholder="Describe the purpose of this rule">
+              </textarea>
+            </label>
+
+            <label class="form-field">
+              Rule Category
+              <select
+                name="ruleCategory"
+                [(ngModel)]="ruleForm.category"
+                (ngModelChange)="onCategoryChange()">
+
+                <option
+                  *ngFor="let category of categories"
+                  [value]="category">
+                  {{ category }}
+                </option>
+
+              </select>
+            </label>
+
+            <label class="form-field">
+              Priority
+              <input
+                type="number"
+                name="priority"
+                min="1"
+                step="1"
+                [(ngModel)]="ruleForm.priority"
+                required>
+            </label>
+
+          </div>
+
+          <h3>Rule Condition</h3>
+
+          <div class="form-grid">
+
+            <label class="form-field">
+              Applicant Attribute
+              <select
+                name="ruleField"
+                [(ngModel)]="ruleForm.field">
+
+                <option
+                  *ngFor="let field of availableFields"
+                  [value]="field.key">
+                  {{ field.label }}
+                </option>
+
+              </select>
+            </label>
+
+            <label class="form-field">
+              Comparison Operator
+              <select
+                name="ruleOperator"
+                [(ngModel)]="ruleForm.operator">
+
+                <option
+                  *ngFor="let operator of operators"
+                  [value]="operator.value">
+                  {{ operator.label }}
+                </option>
+
+              </select>
+            </label>
+
+            <label class="form-field">
+              Threshold Value
+              <input
+                type="number"
+                name="ruleValue"
+                [(ngModel)]="ruleForm.value"
+                required>
+            </label>
+
+          </div>
+
+          <h3>Decision Configuration</h3>
+
+          <div class="form-grid">
+
+            <label class="form-field">
+              Decision Action
+              <select
+                name="ruleAction"
+                [(ngModel)]="ruleForm.action">
+
+                <option
+                  *ngFor="let action of actions"
+                  [value]="action">
+                  {{ action }}
+                </option>
+
+              </select>
+            </label>
+
+            <label class="form-field">
+              Severity
+              <select
+                name="ruleSeverity"
+                [(ngModel)]="ruleForm.severity">
+
+                <option
+                  *ngFor="let severity of severities"
+                  [value]="severity">
+                  {{ severity }}
+                </option>
+
+              </select>
+            </label>
+
+          </div>
+
+          <div class="preview-box">
+
+            <strong>Rule Condition Preview</strong>
+
+            <p>
+              If
+              <b>{{ getFieldLabel(ruleForm.field) }}</b>
+              {{ getOperatorSymbol(ruleForm.operator) }}
+              <b>
+                {{ formatValue(
+                    ruleForm.value,
+                    ruleForm.field
+                  ) }}
+              </b>,
+              then
+              <b>{{ ruleForm.action }}</b>.
+            </p>
+
+          </div>
+
+          <label class="activation-checkbox">
+            <input
+              type="checkbox"
+              name="ruleEnabled"
+              [(ngModel)]="ruleForm.enabled">
+
+            <span>
+              <strong>Activate rule</strong>
+              <small>
+                Include this rule in policy evaluations.
+              </small>
+            </span>
+          </label>
+
+        </div>
+
+        <div class="modal-footer">
+
+          <button
+            type="button"
+            class="btn btn-outline"
+            (click)="closeRuleModal()">
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            class="btn btn-primary">
+            <i class="fas fa-save"></i>
+            {{ editingRuleId ? 'Save Changes'
+                             : 'Create Rule' }}
+          </button>
+
+        </div>
+
+      </form>
+
     </div>
   </div>
-  <div class="rule" *ngFor="let rule of rules">
-    <button type="button" class="switch" [class.on]="rule.enabled" (click)="toggle(rule)" [attr.aria-pressed]="rule.enabled"></button>
-    <div>
-      <strong>{{ rule.code }} · {{ rule.name }}</strong>
-      <p>{{ rule.condition }}</p>
+
+  <!-- DELETE CONFIRMATION -->
+  <div
+    class="modal-overlay"
+    *ngIf="showDeleteModal">
+
+    <div
+      class="delete-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="delete-modal-title">
+
+      <div class="delete-icon">
+        <i class="fas fa-trash-alt"></i>
+      </div>
+
+      <h2 id="delete-modal-title">Delete Lending Rule?</h2>
+
+      <p>
+        You are about to delete
+        <strong>{{ deletingRule?.name }}</strong>.
+        This action cannot be undone.
+      </p>
+
+      <div class="delete-actions">
+
+        <button
+          type="button"
+          class="btn btn-outline"
+          (click)="cancelDelete()">
+          Cancel
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-danger"
+          (click)="confirmDelete()">
+          Delete Rule
+        </button>
+
+      </div>
+
     </div>
-    <span class="pill" [ngClass]="credit.decisionClass(rule.action)">{{ rule.action }}</span>
-    <em>{{ rule.severity }}</em>
   </div>
-</article>
+
+  <!-- NOTIFICATION -->
+  <div
+    class="toast-notification"
+    *ngIf="toastMessage"
+    [class.toast-error]="toastType === 'error'"
+    role="status">
+
+    <i
+      class="fas"
+      [ngClass]="toastType === 'success'
+        ? 'fa-check-circle'
+        : 'fa-exclamation-circle'">
+    </i>
+
+    <span>{{ toastMessage }}</span>
+
+    <button
+      type="button"
+      (click)="dismissToast()"
+      aria-label="Dismiss notification">
+      &times;
+    </button>
+
+  </div>
+
+</div>

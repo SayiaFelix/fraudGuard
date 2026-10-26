@@ -13,6 +13,7 @@ import {
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent implements OnInit {
+  public currentYear: number = new Date().getFullYear();
 
   returnUrl = '/dashboard';
 
@@ -25,35 +26,44 @@ export class LoginComponent implements OnInit {
   public hasError = false;
   public errorMsg = '';
 
-  public currentYear = new Date().getFullYear();
+
+  private readonly DEMO_USERNAME =
+    'sayia.felix@eclectics.io';
+
+  private readonly DEMO_PASSWORD =
+    'Demo@123';
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private fb: FormBuilder
   ) {
+
     this.form = this.fb.group({
-  username: [
-    'sayia.felix@eclectics.io',
-    [Validators.required]
-  ],
-  password: [
-    '',
-    [Validators.required]
-  ]
-});
+      username: [
+        '',
+        [Validators.required]
+      ],
+      password: [
+        '',
+        [Validators.required]
+      ]
+    });
+
   }
 
   ngOnInit(): void {
+
     const requestedUrl =
       this.route.snapshot.queryParams['returnUrl'];
 
-    this.returnUrl = this.getSafeReturnUrl(requestedUrl);
+    this.returnUrl =
+      this.getSafeReturnUrl(requestedUrl);
+
   }
 
   // ==========================================
-  // FRONTEND DEMO LOGIN
-  // NO BACKEND CALLS
+  // FRONTEND-ONLY LOGIN
   // ==========================================
 
   onSubmit(event?: Event): void {
@@ -81,45 +91,38 @@ export class LoginComponent implements OnInit {
       this.form.value.password || ''
     );
 
-    // ==========================================
-// VALIDATE PREDEFINED DEMO CREDENTIALS
-// ==========================================
+    // Validate predefined credentials
+    if (
+      username !== this.DEMO_USERNAME ||
+      password !== this.DEMO_PASSWORD
+    ) {
 
-if (
-  username !== this.DEMO_USERNAME ||
-  password !== this.DEMO_PASSWORD
-) {
-  this.showError(
-    'Invalid username or password. Please try again.'
-  );
-  return;
-}
-
-    if (!username || !password) {
       this.showError(
-        'Please enter your username and password.'
+        'Invalid username or password.'
       );
+
       return;
     }
 
-    // Mock user for presentation purposes only.
+    // ==========================================
+    // CREATE MOCK USER SESSION
+    // ==========================================
+
     const demoUser = {
       id: 1,
       username: username,
-      email: '',
+      email: username,
       role: 'CREDIT_ANALYST',
-      first_name: username.split('.')[0],
-      last_name: '',
+      first_name: 'Felix',
+      last_name: 'Sayia',
       is_active: true,
       is_demo: true
     };
 
-    // Do not create or forge access tokens.
-    // Remove any stale real authentication session.
+    // Remove any stale backend tokens
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
 
-    // Isolated, non-sensitive demo state.
     sessionStorage.setItem(
       'uba_demo_mode',
       'true'
@@ -130,28 +133,41 @@ if (
       JSON.stringify(demoUser)
     );
 
-    // For existing UI components that rely
-    // on display-name storage.
     sessionStorage.setItem(
       'uba_demo_display_name',
-      username
+      'Felix Sayia'
     );
 
-    // Never store the entered password.
-    this.form.patchValue({ password: '' });
+    // ==========================================
+    // NAVIGATE TO DASHBOARD
+    // ==========================================
 
-    this.router.navigate(['/dashboard']).then(navigated => {
-  this.isLoading = false;
+    // ==========================================
+// NAVIGATE TO CREDIT DASHBOARD
+// ==========================================
 
-  if (!navigated) {
-    this.showError('Unable to open dashboard.');
-  }
-})
-      .catch(() => {
-        this.showError(
-          'Unable to open the dashboard.'
-        );
+this.router.navigateByUrl('/dashboard')
+  .then(navigated => {
+
+    this.isLoading = false;
+
+    if (navigated) {
+      this.form.patchValue({
+        password: ''
       });
+    } else {
+      this.showError(
+        'Unable to open Credit Intelligence Dashboard.'
+      );
+    }
+
+  })
+  .catch(() => {
+    this.showError(
+      'Dashboard navigation failed.'
+    );
+  });
+
   }
 
   // ==========================================
@@ -159,18 +175,23 @@ if (
   // ==========================================
 
   toggleShowPassword(): void {
-    this.showingPassword = !this.showingPassword;
 
-    this.inputType = this.showingPassword
-      ? 'text'
-      : 'password';
+    this.showingPassword =
+      !this.showingPassword;
+
+    this.inputType =
+      this.showingPassword
+        ? 'text'
+        : 'password';
+
   }
 
   // ==========================================
-  // SAFE INTERNAL REDIRECT
+  // SAFE RETURN URL
   // ==========================================
 
   private getSafeReturnUrl(value: any): string {
+
     if (typeof value !== 'string') {
       return '/dashboard';
     }
@@ -179,13 +200,13 @@ if (
       !value.startsWith('/') ||
       value.startsWith('//') ||
       value.includes('\\') ||
-      value.startsWith('/auth/') ||
-      /[\r\n]/.test(value)
+      value.startsWith('/auth/')
     ) {
       return '/dashboard';
     }
 
     return value;
+
   }
 
   // ==========================================
@@ -193,12 +214,11 @@ if (
   // ==========================================
 
   private showError(message: string): void {
+
     this.isLoading = false;
     this.hasError = true;
     this.errorMsg = message;
-  }
 
-  private readonly DEMO_USERNAME = 'sayia.felix@eclectics.io';
-private readonly DEMO_PASSWORD = 'Demo@123';
+  }
 
 }
