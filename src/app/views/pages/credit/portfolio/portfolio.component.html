@@ -1,28 +1,862 @@
-<section class="mid-grid">
-  <article class="cd-card">
-    <div class="cd-card-head"><h2>Product mix</h2></div>
-    <div class="mix" *ngFor="let item of products">
-      <div><strong>{{ item.name }}</strong><span>{{ item.count | number }} · {{ item.approval }}% approved</span></div>
-      <i [style.width.%]="item.count / 4.2"></i>
-    </div>
-  </article>
-  <article class="cd-card">
-    <div class="cd-card-head"><h2>Country mix</h2></div>
-    <div class="mix" *ngFor="let item of countries">
-      <div><strong>{{ item.name }}</strong><span>{{ item.count | number }} · {{ item.approval }}% approved</span></div>
-      <i [style.width.%]="item.count / 4.86"></i>
-    </div>
-  </article>
-</section>
 
-<article class="cd-card" style="margin-top: 16px">
-  <div class="cd-card-head"><h2>Early performance buckets</h2></div>
-  <div class="bucket-row">
-    <div><small>Current</small><strong>91%</strong><span>of disbursed book</span></div>
-    <div><small>1–30 days</small><strong>5.4%</strong><span>past due</span></div>
-    <div><small>31–60 days</small><strong>2.2%</strong><span>past due</span></div>
-    <div><small>61–90 days</small><strong>0.9%</strong><span>past due</span></div>
-    <div><small>90+ days</small><strong>0.5%</strong><span>past due</span></div>
+<div class="uba-portfolio">
+
+  <!-- =====================================
+       PAGE HEADER
+       ===================================== -->
+
+  <header class="portfolio-header">
+
+    <div class="header-content">
+
+      <div class="breadcrumb">
+        Lending Operations
+        <span>/</span>
+        Credit Decisioning
+        <span>/</span>
+        Portfolio Analytics
+      </div>
+
+      <h1>Portfolio Analytics</h1>
+
+      <p>
+        Monitor application distribution,
+        lending performance and portfolio composition.
+      </p>
+
+    </div>
+
+    <div class="header-actions">
+
+      <button
+        type="button"
+        class="uba-btn secondary"
+        (click)="clearFilters()"
+        [disabled]="!hasActiveFilters">
+
+        <i class="fas fa-undo"></i>
+        Reset Filters
+
+      </button>
+
+      <button
+        type="button"
+        class="uba-btn primary"
+        (click)="exportCsv()"
+        [disabled]="rows.length === 0">
+
+        <i class="fas fa-file-export"></i>
+        Export Report
+
+      </button>
+
+    </div>
+
+  </header>
+
+  <!-- =====================================
+       NOTIFICATIONS
+       ===================================== -->
+
+  <div
+    class="portfolio-notice"
+    *ngIf="!dataTotalsMatch">
+
+    <i class="fas fa-info-circle"></i>
+
+    <span>
+      Product and country records have different
+      application totals. Each view uses its
+      respective source data.
+    </span>
+
   </div>
-  <p class="fine">Portfolio composition is the demonstration book. Delinquency buckets will be replaced when the JSON extract arrives.</p>
-</article>
+
+  <div
+    class="success-notice"
+    *ngIf="notification">
+
+    <span>{{ notification }}</span>
+
+    <button
+      type="button"
+      (click)="clearNotification()">
+      &times;
+    </button>
+
+  </div>
+
+  <!-- =====================================
+       PORTFOLIO VIEW TABS
+       ===================================== -->
+
+  <nav class="portfolio-tabs">
+
+    <button
+      type="button"
+      [class.active]="activeTab === 'products'"
+      (click)="setTab('products')">
+
+      <i class="fas fa-wallet"></i>
+      Product Performance
+
+    </button>
+
+    <button
+      type="button"
+      [class.active]="activeTab === 'countries'"
+      (click)="setTab('countries')">
+
+      <i class="fas fa-globe-africa"></i>
+      Geographic Distribution
+
+    </button>
+
+  </nav>
+
+  <!-- =====================================
+       FILTERS
+       ===================================== -->
+
+  <section class="portfolio-filter-card">
+
+    <div class="filter-card-title">
+
+      <div>
+        <h2>
+          <i class="fas fa-filter"></i>
+          Portfolio Filters
+        </h2>
+
+        <p>
+          Refine the portfolio analysis
+          using the available records.
+        </p>
+      </div>
+
+      <span class="filter-label">
+        {{ filteredSummary.categories }}
+        segments selected
+      </span>
+
+    </div>
+
+    <div class="filter-grid">
+
+      <div class="filter-field">
+
+        <label>
+          Search {{ activeLabel }}
+        </label>
+
+        <div class="search-box">
+
+          <i class="fas fa-search"></i>
+
+          <input
+            type="search"
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="onFiltersChange()"
+            [placeholder]="
+              activeTab === 'products'
+                ? 'Search lending products'
+                : 'Search countries'
+            ">
+
+        </div>
+
+      </div>
+
+      <div class="filter-field">
+
+        <label>Approval Performance</label>
+
+        <select
+          [(ngModel)]="approvalBand"
+          (ngModelChange)="onFiltersChange()">
+
+          <option value="all">
+            All Approval Rates
+          </option>
+
+          <option value="high">
+            High (80% and above)
+          </option>
+
+          <option value="medium">
+            Medium (60%–79.9%)
+          </option>
+
+          <option value="low">
+            Low (below 60%)
+          </option>
+
+        </select>
+
+      </div>
+
+      <div class="filter-field">
+
+        <label>Minimum Applications</label>
+
+        <select
+          [(ngModel)]="minimumVolume"
+          (ngModelChange)="onFiltersChange()">
+
+          <option [ngValue]="0">
+            All Volumes
+          </option>
+
+          <option [ngValue]="100">
+            100+
+          </option>
+
+          <option [ngValue]="500">
+            500+
+          </option>
+
+          <option [ngValue]="1000">
+            1,000+
+          </option>
+
+          <option [ngValue]="5000">
+            5,000+
+          </option>
+
+        </select>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- =====================================
+       KPI CARDS
+       ===================================== -->
+
+  <section class="portfolio-kpis">
+
+    <article class="portfolio-kpi">
+
+      <div class="kpi-top">
+
+        <div class="kpi-icon red">
+          <i class="fas fa-file-invoice"></i>
+        </div>
+
+        <span class="kpi-category">
+          PORTFOLIO VOLUME
+        </span>
+
+      </div>
+
+      <span class="kpi-title">
+        Total Applications
+      </span>
+
+      <strong class="kpi-value">
+        {{ totalApplications | number }}
+      </strong>
+
+      <div class="kpi-footer">
+        Within the selected portfolio view
+      </div>
+
+    </article>
+
+    <article class="portfolio-kpi">
+
+      <div class="kpi-top">
+
+        <div class="kpi-icon green">
+          <i class="fas fa-check-circle"></i>
+        </div>
+
+        <span class="kpi-category">
+          LENDING OUTCOMES
+        </span>
+
+      </div>
+
+      <span class="kpi-title">
+        Estimated Approvals
+      </span>
+
+      <strong class="kpi-value">
+        {{ estimatedApprovals | number }}
+      </strong>
+
+      <div class="kpi-footer">
+        Derived from reported approval rates
+      </div>
+
+    </article>
+
+    <article class="portfolio-kpi">
+
+      <div class="kpi-top">
+
+        <div class="kpi-icon amber">
+          <i class="fas fa-percentage"></i>
+        </div>
+
+        <span class="kpi-category">
+          APPROVAL PERFORMANCE
+        </span>
+
+      </div>
+
+      <span class="kpi-title">
+        Weighted Approval Rate
+      </span>
+
+      <strong class="kpi-value">
+        {{ formatPercent(approvalRate) }}
+      </strong>
+
+      <div class="kpi-footer">
+        Weighted by application volume
+      </div>
+
+    </article>
+
+    <article class="portfolio-kpi">
+
+      <div class="kpi-top">
+
+        <div class="kpi-icon blue">
+          <i class="fas fa-layer-group"></i>
+        </div>
+
+        <span class="kpi-category">
+          PORTFOLIO STRUCTURE
+        </span>
+
+      </div>
+
+      <span class="kpi-title">
+
+        {{ activeTab === 'products'
+          ? 'Lending Products'
+          : 'Countries Represented' }}
+
+      </span>
+
+      <strong class="kpi-value">
+        {{ filteredSummary.categories }}
+      </strong>
+
+      <div class="kpi-footer">
+        Matching portfolio segments
+      </div>
+
+    </article>
+
+  </section>
+
+  <!-- =====================================
+       CHARTS SECTION
+       ===================================== -->
+
+  <section class="portfolio-charts">
+
+    <!-- DOUGHNUT CHART -->
+
+    <article class="portfolio-chart-card">
+
+      <div class="chart-header">
+
+        <div>
+
+          <span class="chart-eyebrow">
+            PORTFOLIO STRUCTURE
+          </span>
+
+          <h2>
+
+            {{ activeTab === 'products'
+              ? 'Product Distribution'
+              : 'Geographic Distribution' }}
+
+          </h2>
+
+          <p>
+            Application share across portfolio segments
+          </p>
+
+        </div>
+
+        <div class="chart-header-icon">
+          <i class="fas fa-chart-pie"></i>
+        </div>
+
+      </div>
+
+      <div class="donut-section">
+
+        <div class="donut-canvas">
+
+          <canvas #compositionChart></canvas>
+
+          <div
+            class="chart-no-data"
+            *ngIf="chartRows.length === 0">
+            No chart data available
+          </div>
+
+        </div>
+
+        <div class="donut-summary">
+
+          <span>
+            Total Applications
+          </span>
+
+          <strong>
+            {{ totalApplications | number }}
+          </strong>
+
+          <small>
+            {{ filteredSummary.categories }}
+            portfolio segments
+          </small>
+
+        </div>
+
+      </div>
+
+    </article>
+
+    <!-- APPROVAL RATE CHART -->
+
+    <article class="portfolio-chart-card">
+
+      <div class="chart-header">
+
+        <div>
+
+          <span class="chart-eyebrow">
+            LENDING PERFORMANCE
+          </span>
+
+          <h2>
+            Approval Rate by
+            {{ activeTab === 'products'
+              ? 'Product'
+              : 'Country' }}
+          </h2>
+
+          <p>
+            Compare approval performance across
+            portfolio segments
+          </p>
+
+        </div>
+
+        <div class="chart-header-icon">
+          <i class="fas fa-chart-bar"></i>
+        </div>
+
+      </div>
+
+      <div class="standard-canvas">
+
+        <canvas #approvalChart></canvas>
+
+        <div
+          class="chart-no-data"
+          *ngIf="chartRows.length === 0">
+          No approval data available
+        </div>
+
+      </div>
+
+    </article>
+
+    <!-- STACKED BAR CHART -->
+
+    <article
+      class="portfolio-chart-card wide-chart">
+
+      <div class="chart-header">
+
+        <div>
+
+          <span class="chart-eyebrow">
+            DECISION DISTRIBUTION
+          </span>
+
+          <h2>Estimated Application Outcomes</h2>
+
+          <p>
+            Estimated approved and non-approved
+            applications across portfolio segments
+          </p>
+
+        </div>
+
+        <div class="chart-header-icon">
+          <i class="fas fa-chart-bar"></i>
+        </div>
+
+      </div>
+
+      <div class="wide-canvas">
+
+        <canvas #outcomeChart></canvas>
+
+        <div
+          class="chart-no-data"
+          *ngIf="chartRows.length === 0">
+          No application outcome data available
+        </div>
+
+      </div>
+
+      <div class="chart-footer">
+        Estimates are calculated from aggregate
+        application volumes and approval percentages.
+      </div>
+
+    </article>
+
+  </section>
+
+  <!-- =====================================
+       INSIGHTS
+       ===================================== -->
+
+  <section class="portfolio-insights">
+
+    <div class="section-heading">
+
+      <div>
+        <h2>Portfolio Intelligence</h2>
+        <p>
+          Key observations from the current portfolio
+          selection.
+        </p>
+      </div>
+
+    </div>
+
+    <div class="insight-grid">
+
+      <article
+        class="insight-card"
+        *ngFor="let insight of insights"
+        [ngClass]="insight.type">
+
+        <div class="insight-icon">
+
+          <i
+            class="fas"
+            [ngClass]="insight.icon">
+          </i>
+
+        </div>
+
+        <div class="insight-content">
+
+          <strong>
+            {{ insight.title }}
+          </strong>
+
+          <p>
+            {{ insight.description }}
+          </p>
+
+        </div>
+
+      </article>
+
+    </div>
+
+  </section>
+
+  <!-- =====================================
+       DETAILED ANALYTICS TABLE
+       ===================================== -->
+
+  <section class="portfolio-table-card">
+
+    <div class="table-card-header">
+
+      <div>
+
+        <span class="chart-eyebrow">
+          DETAILED ANALYTICS
+        </span>
+
+        <h2>
+
+          {{ activeTab === 'products'
+            ? 'Product Performance Details'
+            : 'Geographic Performance Details' }}
+
+        </h2>
+
+        <p>
+          Application distribution, approval performance
+          and estimated lending outcomes.
+        </p>
+
+      </div>
+
+      <span class="record-badge">
+        {{ rows.length }} Records
+      </span>
+
+    </div>
+
+    <div class="table-scroll">
+
+      <table class="portfolio-table">
+
+        <thead>
+
+          <tr>
+
+            <th>
+
+              <button
+                type="button"
+                (click)="setSort('name')">
+
+                {{ activeLabel }}
+                <i class="fas fa-sort"></i>
+
+              </button>
+
+            </th>
+
+            <th>
+
+              <button
+                type="button"
+                (click)="setSort('count')">
+
+                Applications
+                <i class="fas fa-sort"></i>
+
+              </button>
+
+            </th>
+
+            <th>
+              Portfolio Share
+            </th>
+
+            <th>
+
+              <button
+                type="button"
+                (click)="setSort('approval')">
+
+                Approval Rate
+                <i class="fas fa-sort"></i>
+
+              </button>
+
+            </th>
+
+            <th>
+              Estimated Approved
+            </th>
+
+            <th>
+              Estimated Not Approved
+            </th>
+
+            <th>
+              Performance
+            </th>
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          <tr
+            *ngFor="
+              let row of paginatedRows;
+              trackBy: trackByName
+            ">
+
+            <td class="table-name">
+              <strong>{{ row.name }}</strong>
+            </td>
+
+            <td>
+              {{ row.count | number }}
+            </td>
+
+            <td>
+
+              <div class="share-cell">
+
+                <div class="mini-progress">
+
+                  <span
+                    [style.width.%]="row.share">
+                  </span>
+
+                </div>
+
+                <span>
+                  {{ formatPercent(row.share) }}
+                </span>
+
+              </div>
+
+            </td>
+
+            <td class="approval-value">
+              {{ formatPercent(row.approval) }}
+            </td>
+
+            <td>
+              {{ row.estimatedApproved | number }}
+            </td>
+
+            <td>
+              {{ row.estimatedNotApproved | number }}
+            </td>
+
+            <td>
+
+              <span
+                class="performance-pill"
+                [ngClass]="getApprovalClass(row.approval)">
+
+                {{ row.approval >= 80
+                  ? 'High'
+                  : row.approval >= 60
+                    ? 'Medium'
+                    : 'Low' }}
+
+              </span>
+
+            </td>
+
+          </tr>
+
+          <tr *ngIf="paginatedRows.length === 0">
+
+            <td colspan="7">
+
+              <div class="table-empty">
+
+                <i class="fas fa-search"></i>
+
+                <strong>
+                  No matching portfolio records
+                </strong>
+
+                <p>
+                  Adjust the search or filter selection.
+                </p>
+
+              </div>
+
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+    <!-- PAGINATION -->
+
+    <div class="table-pagination">
+
+      <span>
+        Showing {{ pageStart }}–{{ pageEnd }}
+        of {{ rows.length }} records
+      </span>
+
+      <div class="pagination-actions">
+
+        <label>
+
+          Rows per page
+
+          <select
+            [(ngModel)]="pageSize"
+            (ngModelChange)="onPageSizeChange()">
+
+            <option
+              *ngFor="let size of pageSizes"
+              [ngValue]="size">
+
+              {{ size }}
+
+            </option>
+
+          </select>
+
+        </label>
+
+        <button
+          type="button"
+          (click)="previousPage()"
+          [disabled]="currentPage === 1">
+
+          Previous
+
+        </button>
+
+        <span>
+          {{ currentPage }} / {{ totalPages }}
+        </span>
+
+        <button
+          type="button"
+          (click)="nextPage()"
+          [disabled]="currentPage === totalPages">
+
+          Next
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- =====================================
+       METHODOLOGY
+       ===================================== -->
+
+  <section class="methodology-card">
+
+    <div class="methodology-icon">
+      <i class="fas fa-info-circle"></i>
+    </div>
+
+    <div>
+
+      <strong>Portfolio Metrics</strong>
+
+      <p>
+        Application volumes and reported approval rates
+        are sourced from the available product and country
+        aggregates. Estimated approval counts are
+        calculated using the weighted approval rate.
+        Non-approved applications include all outcomes
+        other than approval, because separate referral
+        and decline counts are not available in these
+        aggregate datasets.
+      </p>
+
+    </div>
+
+  </section>
+
+</div>
