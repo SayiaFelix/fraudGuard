@@ -1,83 +1,47 @@
-<form class="form-layout" [formGroup]="form" (ngSubmit)="submit()" *ngIf="!created">
-  <section class="cd-card form-card">
-    <h2>Applicant</h2>
-    <div class="form-grid">
-      <label>Full name<input formControlName="applicant" placeholder="David Munya" /></label>
-      <label>Mobile number<input formControlName="phone" placeholder="+234 800 000 0000" /></label>
-      <label>National ID<input formControlName="nationalId" placeholder="NIN or national ID" /></label>
-      <label>Country
-        <select formControlName="country">
-          <option *ngFor="let country of credit.countries">{{ country }}</option>
-        </select>
-      </label>
-      <label>Branch<input formControlName="branch" /></label>
-      <label>Channel
-        <select formControlName="channel">
-          <option>Mobile app</option>
-          <option>USSD</option>
-          <option>Branch</option>
-          <option>Agent</option>
-        </select>
-      </label>
-    </div>
+<div class="loan-workflow">
+  <header class="ai-page-hero"><div><span class="ai-eyebrow">ECLECTICS / INTELLIGENT LENDING</span><h2>New loan application</h2><p>Bring customer insight, model perspectives and lending policy into one assessment.</p></div><div class="ai-hero-aside"><span class="ai-mode"><i></i>Demo environment</span><small>Profile → Model ensemble → Officer review</small></div></header>
+  <div class="wf-error" *ngIf="workflow.storageError" role="alert">{{ workflow.storageError }}</div>
+  <div class="ai-flow-steps" *ngIf="tab === 'individual'"><div [class.current]="!customer && !created"><b>01</b><span>Identify customer<small>Retrieve the financial profile</small></span></div><div [class.current]="!!customer && !created"><b>02</b><span>Shape the facility<small>Confirm terms and assess</small></span></div><div [class.current]="!!created"><b>03</b><span>Explore the insights<small>Review the recommended next step</small></span></div></div>
+  <div class="intake-mode-tabs" role="tablist" aria-label="New application options"><button type="button" *ngFor="let mode of modes; let i = index" role="tab" [id]="'intake-tab-' + mode.id" [attr.aria-controls]="'intake-panel-' + mode.id" [attr.aria-selected]="tab === mode.id" [attr.tabindex]="tab === mode.id ? 0 : -1" [class.active]="tab === mode.id" [disabled]="busy || processing || reading || integrationBusy || (!!reassessmentId && mode.id !== 'individual')" (click)="setTab(mode.id)" (keydown)="modeKey($event, i)"><span class="intake-mode-number">{{ mode.icon }}</span><span><strong>{{ mode.label }}</strong><small>{{ mode.detail }}</small></span><span class="intake-mode-arrow">↗</span></button></div>
+  <div class="wf-error" *ngIf="error" role="alert">{{ error }}</div>
+  <section *ngIf="tab === 'individual'" role="tabpanel" id="intake-panel-individual" aria-labelledby="intake-tab-individual">
+    <article class="ai-panel" *ngIf="!created"><div class="ai-panel-heading"><div><span class="ai-eyebrow">CUSTOMER LOOKUP</span><h3>{{ reassessmentId ? 'Revisit this application' : 'Start with a national ID' }}</h3></div><span class="ai-small-tag">{{ reassessmentId ? 'New assessment version' : 'Customer profile' }}</span></div>
+      <p *ngIf="reassessmentId" class="wf-muted">{{ reassessmentId }} · Earlier results and review history will be retained.</p>
+      <div class="wf-lookup"><label>National ID<input [(ngModel)]="nationalId" (ngModelChange)="clearCustomer()" [disabled]="!!reassessmentId || busy || looking" (keyup.enter)="!reassessmentId && lookup()" placeholder="Enter the customer's national ID" /></label><button type="button" class="btn-primary" *ngIf="!reassessmentId" [disabled]="looking || busy || !nationalId.trim()" (click)="lookup()"><span class="ai-button-spinner" *ngIf="looking"></span>{{ looking ? 'Retrieving profile…' : 'Retrieve profile →' }}</button></div>
+      <details class="ai-directory" *ngIf="!reassessmentId"><summary>Browse available customers</summary><div class="ai-directory-grid"><button type="button" *ngFor="let item of workflow.customers" (click)="chooseCustomer(item.profile.nationalId)" [disabled]="busy || looking"><span class="ai-avatar">{{ workflow.initials(item.profile.applicant) }}</span><span><strong>{{ item.profile.applicant }}</strong><small>{{ item.profile.nationalId }} · {{ item.profile.branch }}</small><span class="pill customer-risk" [ngClass]="workflow.credit.riskClass(workflow.customerRisk(item))">{{ workflow.customerRisk(item) }} risk</span></span><b>↗</b></button></div></details>
+    </article>
+    <form *ngIf="customer && !created" [formGroup]="form" (ngSubmit)="submit()" class="wf-section">
+      <div class="ai-form-layout"><article class="ai-panel"><div class="ai-customer-heading"><span class="ai-avatar large">{{ workflow.initials(customer.profile.applicant) }}</span><div><span class="ai-eyebrow">CUSTOMER PROFILE RETRIEVED</span><h3>{{ customer.profile.applicant }}</h3><p>{{ customer.profile.nationalId }} · {{ customer.profile.country }} / {{ customer.profile.branch }}</p></div><span class="ai-check">Profile ready</span></div>
+        <div class="ai-panel-heading wf-section"><h3>Configure the facility</h3><span>Amounts in KSh</span></div><fieldset [disabled]="busy"><div class="form-grid">
+          <label>Loan product<select formControlName="product"><option *ngFor="let product of workflow.products">{{ product }}</option></select></label><label>Requested principal<input type="number" formControlName="amount" min="10000" /></label><label>Repayment period · months<input type="number" formControlName="tenorMonths" min="1" max="60" step="1" /></label><label>Monthly income<input type="number" formControlName="income" min="1" /></label><label>Monthly obligations<input type="number" formControlName="obligations" min="0" /></label><label>Employment<select formControlName="employment"><option>Salaried</option><option>Self employed</option><option>Business owner</option></select></label><label>Bureau profile<select formControlName="bureau"><option>Clean</option><option>Thin file</option><option>Adverse</option></select></label><label>Application channel<select formControlName="channel"><option>Mobile app</option><option>USSD</option><option>Branch</option><option>Agent</option></select></label>
+        </div></fieldset>
+        <details class="ai-verification-form wf-section" open><summary>Verification &amp; credit history</summary><p class="wf-muted">Review the customer record used by the seven policy checks. Select Unknown or leave a numeric value empty when evidence is unavailable.</p><fieldset formGroupName="customerFacts" [disabled]="busy"><div class="form-grid"><label *ngFor="let field of verificationFields">{{ field.label }}<select [formControlName]="field.key"><option [ngValue]="null">Unknown</option><option [ngValue]="true">Yes</option><option [ngValue]="false">No</option></select></label><label *ngFor="let field of customerNumberFields">{{ field.label }}<input type="number" [formControlName]="field.key" min="0" [step]="field.step" [attr.max]="field.key === 'ageYears' ? 120 : null" placeholder="Unknown" /></label></div></fieldset></details>
+        <label class="wf-section" *ngIf="reassessmentId">New evidence / reassessment reason<textarea [ngModelOptions]="{standalone: true}" [(ngModel)]="reassessmentNote" [disabled]="busy" maxlength="2000" placeholder="Record the updated information and evidence reviewed."></textarea></label><p class="form-error" *ngIf="form.invalid && form.touched">Check the amount, whole-month term and required financial values.</p>
+        <div class="ai-submit-row"><button type="submit" class="btn-primary" [disabled]="busy || !!workflow.storageError"><span class="ai-button-spinner" *ngIf="busy"></span>{{ busy ? 'Analysing financial signals…' : '✦ Run AI assessment' }}</button><a routerLink="/applications" class="ai-text-button">View applications →</a></div>
+      </article><aside class="ai-intelligence-preview"><span class="ai-eyebrow">YOUR ASSESSMENT WILL INCLUDE</span><h3>The right amount. A clearer decision.</h3><div class="ai-preview-item"><span>◈</span><div><strong>Three model perspectives</strong><p>Compare linear, boosted-tree and forest-style outputs in one simulation.</p></div></div><div class="ai-preview-item"><span>✦</span><div><strong>Credit copilot briefing</strong><p>Review strengths, concerns and the next best actions.</p></div></div><div class="ai-preview-item"><span>↔</span><div><strong>Explainability & scenarios</strong><p>See risk sensitivities and explore changes to amount and term.</p></div></div><div class="ai-preview-item"><span>↗</span><div><strong>Recommended lending limit</strong><p>See the supported limit and a smaller offer when the request is too high.</p></div></div><hr /><span class="ai-eyebrow">LIVE REPAYMENT VIEW</span><strong class="ai-preview-number">{{ workflow.money(liveInstallment) }}<small> / month</small></strong><div class="ai-budget-line"><span>Debt service / income</span><b>{{ liveDti | percent:'1.1-1' }}</b></div><p class="ai-footnote">Principal-only estimate from the inputs on the left. Review the completed assessment for configured policy checks.</p></aside></div>
+    </form>
+    <ng-container *ngIf="created as result"><article class="ai-success-panel wf-section" aria-live="polite"><span class="ai-success-icon">✓</span><div><span class="ai-eyebrow">ASSESSMENT COMPLETE</span><h3>Assessment completed.</h3><p>{{ result.customerName }} · assessment v{{ workflow.latest(result).version }} · awaiting officer decision</p></div><div class="form-actions"><a class="btn-primary" routerLink="/decision-queue" [queryParams]="{id: result.id}">Review decision →</a><a class="btn-ghost" [routerLink]="['/applications', result.id]">View saved assessment</a><a class="ai-text-button" routerLink="/applications/new" (click)="reset()">Start another</a></div></article><app-loan-assessment class="wf-section" [assessment]="workflow.latest(result)"></app-loan-assessment></ng-container>
   </section>
-
-  <section class="cd-card form-card">
-    <h2>Facility</h2>
-    <div class="form-grid">
-      <label>Product
-        <select formControlName="product">
-          <option *ngFor="let product of credit.products">{{ product }}</option>
-        </select>
-      </label>
-      <label>Requested amount (KSh)<input type="number" formControlName="amount" /></label>
-      <label>Tenor (months)<input type="number" formControlName="tenorMonths" /></label>
-      <label>Monthly income (KSh)<input type="number" formControlName="income" /></label>
-      <label>Monthly obligations (KSh)<input type="number" formControlName="obligations" /></label>
-      <label>Employment
-        <select formControlName="employment">
-          <option>Salaried</option>
-          <option>Self employed</option>
-          <option>Business owner</option>
-        </select>
-      </label>
-      <label>Bureau
-        <select formControlName="bureau">
-          <option>Clean</option>
-          <option>Thin file</option>
-          <option>Adverse</option>
-        </select>
-      </label>
-    </div>
-    <p class="form-error" *ngIf="form.invalid && form.touched">Enter the applicant, identity, amount, tenor, and income before scoring.</p>
-    <div class="form-actions">
-      <button class="btn-primary" type="submit">Score and submit</button>
-    </div>
+  <section *ngIf="tab === 'bulk'" role="tabpanel" id="intake-panel-bulk" aria-labelledby="intake-tab-bulk">
+    <article class="ai-panel"><div class="ai-panel-heading"><div><span class="ai-eyebrow">PORTFOLIO INTAKE</span><h3>Assess applications in bulk</h3></div><button type="button" class="btn-ghost" (click)="downloadTemplate()">↓ Download template</button></div><p class="wf-muted">Upload CSV, XLSX or XLS files up to 2 MB / 500 applications. The same assessment workflow runs for each valid row.</p><label class="ai-dropzone"><span class="ai-upload-icon">↑</span><strong>Choose your application file</strong><span>Preview and validate before assessment</span><input type="file" accept=".csv,.xlsx,.xls" [disabled]="reading || processing" (change)="upload($event)" /></label><p class="wf-muted" *ngIf="reading" role="status">Preparing the file and validating customer applications…</p><details class="ai-directory"><summary>File columns and reassessment</summary><p class="wf-muted">Required: <code>national_id, requested_amount, tenor_months, product</code>. Optional: <code>application_id, reassessment_note</code>. Use an existing application ID to append a new assessment. Excel national IDs must be Text; the first worksheet is processed. Verification and credit-history facts are retrieved from the selected customer record for each row.</p></details></article>
+    <article class="ai-panel wf-section" *ngIf="rows.length"><div class="ai-panel-heading"><div><span class="ai-eyebrow">VALIDATION PREVIEW</span><h3>{{ fileName }}</h3></div><a class="ai-text-button" routerLink="/applications">View applications →</a></div><div class="ai-batch-counts"><span><b>{{ rows.length }}</b> total</span><span class="positive"><b>{{ readyCount }}</b> ready / retryable</span><span class="caution"><b>{{ invalidCount }}</b> invalid</span><span class="positive"><b>{{ savedCount }}</b> saved</span><span><b>{{ failedCount }}</b> failed</span></div><div class="form-actions"><button type="button" class="btn-primary" [disabled]="processing || !readyCount || !!workflow.storageError" (click)="processBulk()"><span class="ai-button-spinner" *ngIf="processing"></span>{{ processing ? 'Generating assessments…' : '✦ Assess valid / retry failed rows' }}</button><button type="button" class="btn-ghost" *ngIf="processing" (click)="bulkCancelled = true">Stop after current row</button></div><progress class="wf-progress" *ngIf="processing" [value]="bulkDone" [max]="rows.length" aria-label="Bulk assessment progress"></progress><p class="wf-muted" *ngIf="bulkCancelled">Processing paused. Resume to assess the remaining rows.</p>
+      <div class="table-scroll"><table class="cd-table wf-table"><thead><tr><th>Row</th><th>Customer</th><th>Product</th><th>Requested</th><th>Months</th><th>Readiness</th><th>Result / action</th></tr></thead><tbody><tr *ngFor="let row of rows"><td>{{ row.row }}</td><td>{{ customerName(row.nationalId) }}<small>{{ row.nationalId }}</small></td><td>{{ row.product }}</td><td>{{ workflow.money(row.amount) }}</td><td>{{ row.tenorMonths }}</td><td><span class="ai-check" [class.triggered]="row.state === 'Invalid' || row.state === 'Failed'">{{ row.state }}</span></td><td><div class="wf-row-error" *ngFor="let issue of row.errors">{{ issue }}</div><span>{{ row.message }}</span><a *ngIf="row.resultId" class="ai-text-button" [routerLink]="['/applications', row.resultId]">Explore insights →</a></td></tr></tbody></table></div>
+    </article>
   </section>
-</form>
-
-<section class="result-layout" *ngIf="created">
-  <article class="cd-card result-hero">
-    <p>Decision</p>
-    <h2 [ngClass]="credit.decisionClass(created.decision)">{{ created.decision === 'Refer' ? 'Referred for review' : created.decision }}</h2>
-    <div class="result-score">
-      <strong>{{ created.score }}</strong>
-      <span>score · {{ created.risk }} risk · DTI {{ created.dti | percent:'1.0-0' }}</span>
+  <section *ngIf="tab === 'integration'" role="tabpanel" id="intake-panel-integration" aria-labelledby="intake-tab-integration" class="loan-connectors">
+    <header class="connector-header"><div><span class="ai-eyebrow">INTEGRATION DESK</span><h2>Connected credit decisions</h2><p>Inspect the data sources, pause a connector or run a check against a saved application.</p></div><span class="ai-mode"><i></i>Connector simulation</span></header>
+    <div class="connector-kpis"><article><span class="connector-kpi-icon live">✓</span><div><span>Live</span><strong>{{ workflow.integration.count('Live') }}</strong><small>Available for simulated checks</small></div></article><article><span class="connector-kpi-icon degraded">!</span><div><span>Degraded</span><strong>{{ workflow.integration.count('Degraded') }}</strong><small>Slow response / review</small></div></article><article><span class="connector-kpi-icon paused">Ⅱ</span><div><span>Paused</span><strong>{{ workflow.integration.count('Paused') }}</strong><small>No checks are called</small></div></article><article><span class="connector-kpi-icon">↗</span><div><span>Checks today</span><strong>{{ workflow.integration.callsToday }}</strong><small>Checks run from this desk · EAT</small></div></article></div>
+    <div class="wf-error" *ngIf="workflow.integration.storageError" role="alert">{{ workflow.integration.storageError }}</div>
+    <div class="wf-error" *ngIf="integrationError" role="alert">{{ integrationError }}</div>
+    <div class="connector-desk"><aside class="connector-list ai-panel"><div class="ai-panel-heading"><h3>Data connectors</h3><span>8 adapters</span></div><button type="button" *ngFor="let item of workflow.integration.connectors" class="connector-row" [class.selected]="item.id === connectorId" [attr.aria-pressed]="item.id === connectorId" [disabled]="integrationBusy" (click)="selectConnector(item)"><span class="connector-row-top"><strong>{{ item.name }}</strong><span class="connector-status" [attr.data-status]="item.status">{{ item.status }}</span></span><small>{{ item.system }}</small><span class="connector-row-metrics">{{ item.latencyMs ? item.latencyMs + ' ms simulated' : 'Not calling' }} · {{ item.callsToday }} checks today</span></button></aside>
+      <article class="ai-panel connector-detail" *ngIf="selectedConnector as item"><div class="ai-panel-heading"><div><span class="ai-eyebrow">{{ item.owner }} · {{ item.callsToday }} CHECKS TODAY</span><h3>{{ item.name }}</h3></div><span class="connector-status" [attr.data-status]="item.status">{{ item.status }}</span></div><p class="wf-muted">{{ item.purpose }}</p><div class="connector-metrics"><div><span>Used for</span><strong>{{ item.usedBy }}</strong></div><div><span>Response delivery</span><strong>{{ item.success === null ? 'No checks yet' : item.success + '%' }}</strong></div><div><span>Simulated latency</span><strong>{{ item.latencyMs ? item.latencyMs + ' ms' : '—' }}</strong></div></div>
+        <div class="connector-control"><div><strong>{{ item.required ? 'Required for a supported offer' : 'Operational / preview adapter' }}</strong><p>{{ item.required ? 'Paused or degraded availability holds new assessments for review. Saved assessments retain their original availability snapshot.' : 'This adapter does not change the credit score or eligibility result.' }}</p></div><button type="button" class="btn-ghost" [class.pause-action]="item.status !== 'Paused'" [disabled]="integrationBusy" (click)="toggleConnector()">{{ item.status === 'Paused' ? 'Resume connector' : 'Pause connector' }}</button></div>
+        <p class="wf-success" *ngIf="integrationBanner" role="status">{{ integrationBanner }}</p>
+        <div class="connector-check"><span class="ai-eyebrow">APPLICATION CHECK</span><h4>Use a saved assessment</h4><ng-container *ngIf="integrationApplicants.length; else noSavedApplications"><label>Application<select [(ngModel)]="integrationApplicantId" (ngModelChange)="integrationResult = null; integrationError = ''" [disabled]="integrationBusy"><option *ngFor="let app of integrationApplicants" [value]="app.id">{{ app.customerName }} · {{ app.id }} · {{ workflow.latest(app).input.product }}</option></select></label><div class="form-actions"><button type="button" class="btn-primary" [disabled]="integrationBusy || !integrationApplicantId" (click)="runIntegrationCheck()"><span class="ai-button-spinner" *ngIf="integrationBusy"></span>{{ integrationBusy ? 'Running check…' : 'Run check' }}</button><a class="ai-text-button" [routerLink]="['/applications', integrationApplicantId]">Open assessment ↗</a></div></ng-container><ng-template #noSavedApplications><p class="wf-muted">Assess an individual application or a bulk file first. The saved application will then be available here.</p><button type="button" class="btn-primary" (click)="setTab('individual')">Start an application →</button></ng-template></div>
+        <div class="connector-result" *ngIf="integrationResult as result" [attr.data-tone]="result.tone" role="status"><span class="ai-eyebrow">CHECK RESULT · ASSESSMENT v{{ result.assessmentVersion }}</span><h4>{{ result.title }}</h4><p *ngFor="let line of result.lines">{{ line }}</p><small>{{ result.checkedAt | date:'dd MMM y, HH:mm:ss':'+0300' }} EAT · {{ result.applicationId }}</small></div>
+        <p class="ai-footnote">Checks read the same saved assessment as Decision Queue. Counts and delivery rates come from this browser's simulated checks. No bank, bureau, identity, sanctions, SMS or payout endpoint is called.</p>
+      </article>
     </div>
-    <ul>
-      <li *ngFor="let reason of created.reasonCodes">{{ reason }}</li>
-    </ul>
-    <div class="form-actions">
-      <button class="btn-primary" type="button" (click)="openCase()">{{ created.decision === 'Refer' ? 'Open in alerts' : 'View application' }}</button>
-      <a class="btn-ghost" routerLink="/applications/new" (click)="created = null">Score another</a>
-    </div>
-  </article>
-  <article class="cd-card">
-    <h2>What the score used</h2>
-    <div class="factor" *ngFor="let factor of created.factors">
-      <div><span>{{ factor.label }}</span><b [class.neg]="factor.impact < 0">{{ factor.impact > 0 ? '+' : '' }}{{ factor.impact }}</b></div>
-      <i [style.width.%]="factorBar(factor.impact)"></i>
-    </div>
-    <p class="fine">{{ created.id }} is now on the applications book. This scorecard is illustrative until the decisioning JSON is connected.</p>
-  </article>
-</section>
+    <article class="ai-panel wf-section"><div class="ai-panel-heading"><div><span class="ai-eyebrow">INTEGRATION ACTIVITY</span><h3>Checks and connector controls</h3></div><span>Latest {{ workflow.integration.events.length }} events</span></div><div class="table-scroll"><table class="cd-table wf-table"><thead><tr><th>Time · EAT</th><th>Connector</th><th>Action</th><th>Application</th><th>Outcome</th></tr></thead><tbody><tr *ngFor="let event of workflow.integration.events"><td>{{ event.at | date:'dd MMM, HH:mm:ss':'+0300' }}</td><td>{{ event.connector }}</td><td>{{ event.action }}</td><td><a *ngIf="event.applicationId" class="ai-text-button" [routerLink]="['/applications', event.applicationId]">{{ event.applicationId }}</a><small *ngIf="event.assessmentVersion">Assessment v{{ event.assessmentVersion }}</small><span *ngIf="!event.applicationId">Connector control</span></td><td>{{ event.outcome }}</td></tr><tr *ngIf="!workflow.integration.events.length"><td colspan="5"><p class="wf-muted">Run a check or pause/resume a connector to start the activity trail.</p></td></tr></tbody></table></div><p class="ai-footnote">Browser-local activity trail. It records demonstration checks and controls and is not a server-authenticated audit log.</p></article>
+  </section>
+</div>
