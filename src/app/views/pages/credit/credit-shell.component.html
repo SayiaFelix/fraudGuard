@@ -36,17 +36,17 @@
 
       <div class="cd-pop-wrap">
         <button class="cd-user" type="button" (click)="showUser = !showUser; showNotes = false" title="Account">
-          <span>DU</span>
+          <span>{{ initials }}</span>
           <em>
-            <strong>Demo User</strong>
-            <small>Bank Officer</small>
+            <strong>{{ displayName }}</strong>
+            <small>{{ title }}</small>
           </em>
           <svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div class="cd-pop cd-pop-user" *ngIf="showUser">
-          <strong>Demo User</strong>
-          <span>demo.user@eclectics.io</span>
-          <span>Frontend demo session</span>
+          <strong>{{ displayName }}</strong>
+          <span>{{ email || 'Signed-in officer' }}</span>
+          <span>{{ title }}</span>
         </div>
       </div>
     </div>

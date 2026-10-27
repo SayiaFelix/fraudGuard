@@ -1,24 +1,23 @@
-<div class="ops">
+<div class="ops command">
   <header class="ops-head">
     <div>
+      <span class="eyebrow">Credit operations · Reporting</span>
       <h1>Reports</h1>
-      <p>Portfolio, distribution, and decision outcomes from this book.</p>
+      <p>Book totals, distribution, and decision outcomes.</p>
     </div>
     <div class="ops-head-actions ops-no-print">
-      <button class="ops-btn ghost" type="button" (click)="download()" title="Download this report as CSV">Download CSV</button>
+      <button class="ops-btn ghost" type="button" (click)="download()" title="Export this report as CSV">Export CSV</button>
       <button class="ops-btn primary" type="button" (click)="print()" title="Open a printable copy of this report">Print report</button>
     </div>
   </header>
 
-  <div class="ops-report-switch">
+  <div class="ops-report-switch ops-tabs">
     <button type="button" *ngFor="let report of reports" [class.on]="active === report.id" (click)="active = report.id">
       <strong>{{ report.name }}</strong>
-      <span>{{ report.detail }}</span>
     </button>
   </div>
 
   <div class="ops-toolbar">
-    <p class="ops-note">Tables use the same applications as Alerts, Cases, and Audit. Book headlines are the origination totals. Filters apply to this file only.</p>
     <div class="ops-filters ops-no-print">
       <label class="ops-select">
         <select [ngModel]="product" (ngModelChange)="setProduct($event)">

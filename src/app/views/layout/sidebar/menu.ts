@@ -39,14 +39,13 @@ export const MENU: MenuItem[] = [
   { label: 'Decision Rules', icon: 'sliders', link: '/decision-rules', exact: true },
   { label: 'Policy Simulator', icon: 'shuffle', link: '/policy-simulator', exact: true },
 
-  { isTitle: true, label: 'Portfolio & Insights' },
-  { label: 'Portfolio Analytics', icon: 'pie-chart', link: '/portfolio', exact: true },
+  { isTitle: true, label: 'Insights' },
   { label: 'Reports', icon: 'bar-chart-2', link: '/reports', exact: true },
 
   { isTitle: true, label: 'Administration' },
   { label: 'Alerts', icon: 'bell', link: '/alerts', exact: true, badge: { text: 8, variant: 'uba' } },
-  { label: 'Model Monitoring', icon: 'activity', link: '/model-monitoring', exact: true },
   { label: 'Audit Logs', icon: 'shield', link: '/audit-logs', exact: true },
   { label: 'Integrations', icon: 'link', link: '/integrations', exact: true },
-  { label: 'Settings', icon: 'settings', link: '/settings', exact: true }
+  { label: 'Model Monitoring', icon: 'activity', link: '/model-monitoring', exact: true },
+  { label: 'Log out', icon: 'log-out', isLogout: true }
 ];

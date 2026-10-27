@@ -4,6 +4,39 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, tap, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
+/** Prefer the signed-in first and last name. Otherwise split `sayia.felix@…` on the dot. */
+export function officerDisplayName(user: any, loginId = ''): string {
+  const first = String(user?.first_name || user?.firstName || '').trim();
+  const last = String(user?.last_name || user?.lastName || '').trim();
+  if (first && last) {
+    return `${first} ${last}`;
+  }
+  return displayNameFromLoginId(loginId || user?.email || user?.username || user?.name || '');
+}
+
+/** Turn `sayia.felix@eclectics.io` into `Sayia Felix`. */
+export function displayNameFromLoginId(loginId: string): string {
+  const local = String(loginId || '').split('@')[0].trim();
+  const parts = local.split('.').map(part => part.trim()).filter(Boolean);
+  if (!parts.length) {
+    return 'User';
+  }
+  return parts
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(' ');
+}
+
+export function initialsFromName(name: string): string {
+  const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) {
+    return 'U';
+  }
+  if (parts.length === 1) {
+    return parts[0].slice(0, 2).toUpperCase();
+  }
+  return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -61,11 +94,12 @@ export class AuthService {
   ): Observable<any> {
 
     // Frontend demo. POST /v1/api/auth/login is not called.
+    const loginId = (username || '').trim();
     const demoUser = {
-      username: (username || 'demo.user').trim(),
-      email: 'demo.user@eclectics.io',
+      username: loginId || 'user',
+      email: loginId.includes('@') ? loginId : `${loginId || 'user'}@eclectics.io`,
       role: 'analyst',
-      name: 'Demo User',
+      name: displayNameFromLoginId(loginId),
       title: 'Bank Officer'
     };
     const demoResponse = {

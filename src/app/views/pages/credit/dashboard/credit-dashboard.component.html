@@ -17,12 +17,92 @@
       <small *ngIf="lastRefreshed">Updated {{ lastRefreshed | date:'h:mm a' }}</small>
     </div>
 
+    <button type="button" class="btn-brief" (click)="generateBrief()" [disabled]="!summary || briefState === 'reading'">
+      <svg viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><path d="m6.5 6.5 2 2M15.5 15.5l2 2M17.5 6.5l-2 2M8.5 15.5l-2 2"/></svg>
+      {{ briefState === 'reading' ? 'Preparing brief…' : 'Generate Portfolio Insights' }}
+    </button>
+
     <a class="btn-primary" routerLink="/applications/new">
       <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
       New application
     </a>
   </div>
 </header>
+
+<section class="brief" *ngIf="briefState !== 'idle'" aria-live="polite">
+  <div class="brief-top">
+    <div>
+      <span class="eyebrow">Portfolio Intelligence Brief</span>
+      <h2>{{ brief?.lead || 'Reading the book' }}</h2>
+      <p *ngIf="brief">{{ brief.period }}<span *ngIf="briefAt"> · Prepared {{ briefAt | date:'h:mm a' }}</span></p>
+    </div>
+    <button type="button" class="brief-close" (click)="closeBrief()">Close</button>
+  </div>
+
+  <div class="brief-reading" *ngIf="briefState === 'reading'">
+    <span></span>
+    Counting decisions, reasons, and the recorded movement on the current book.
+  </div>
+
+  <ng-container *ngIf="brief as report">
+    <div class="brief-rates">
+      <article *ngFor="let rate of report.rates">
+        <small>{{ rate.label }}</small>
+        <strong>{{ rate.value }}</strong>
+        <em>{{ rate.note }}</em>
+      </article>
+    </div>
+    <p class="brief-note">{{ report.rateNote }}</p>
+
+    <div class="brief-split">
+      <section>
+        <h3>Reasons for decline and referral</h3>
+        <ol *ngIf="report.reasons.length; else noReasons">
+          <li *ngFor="let reason of report.reasons">
+            <b>{{ reason.label }}</b>
+            <span>{{ reason.count }} {{ reason.count === 1 ? 'file' : 'files' }} · {{ reason.share }} · {{ reason.split }}</span>
+          </li>
+        </ol>
+        <ng-template #noReasons><p class="brief-note">No declined or referred reason codes are on the loaded files.</p></ng-template>
+        <p class="brief-note">{{ report.reasonNote }}</p>
+      </section>
+      <section>
+        <h3>Risk distribution</h3>
+        <ul class="brief-risk">
+          <li *ngFor="let band of report.risk">
+            <span>{{ band.label }}</span>
+            <b>{{ band.value }}</b>
+            <em>{{ band.note }}</em>
+          </li>
+        </ul>
+        <p class="brief-note">{{ report.riskNote }}</p>
+      </section>
+    </div>
+
+    <section class="brief-block">
+      <h3>Change versus the prior period</h3>
+      <ul>
+        <li *ngFor="let line of report.movement">{{ line }}</li>
+      </ul>
+      <p class="brief-note">{{ report.movementNote }}</p>
+    </section>
+
+    <div class="brief-split">
+      <section>
+        <h3>Operational issues</h3>
+        <ul>
+          <li *ngFor="let line of report.operations">{{ line }}</li>
+        </ul>
+      </section>
+      <section>
+        <h3>Where to look next</h3>
+        <ul>
+          <li *ngFor="let line of report.investigate">{{ line }}</li>
+        </ul>
+      </section>
+    </div>
+  </ng-container>
+</section>
 
 <!-- LOADING SKELETON -->
 <section class="kpi-grid" *ngIf="!summary">
@@ -48,9 +128,6 @@
       <strong>{{ summary.total | number }}</strong>
       <span class="delta up text-success">▲ {{ summary.deltas.total }}% <em>vs 7 days</em></span>
     </div>
-    <div class="kpi-chart-wrapper">
-      <apx-chart [series]="sparkTotal.series" [chart]="sparkTotal.chart" [colors]="sparkTotal.colors" [stroke]="sparkTotal.stroke" [tooltip]="sparkTotal.tooltip" [dataLabels]="sparkTotal.dataLabels"></apx-chart>
-    </div>
   </article>
 
   <!-- Approved (Green) -->
@@ -63,9 +140,6 @@
       <strong>{{ summary.approved | number }}</strong>
       <small>{{ credit.pct(summary.approved, summary.total) }} approval rate</small>
       <span class="delta up text-success">▲ {{ summary.deltas.approved }}% <em>vs 7 days</em></span>
-    </div>
-    <div class="kpi-chart-wrapper">
-      <apx-chart [series]="sparkApproved.series" [chart]="sparkApproved.chart" [colors]="sparkApproved.colors" [stroke]="sparkApproved.stroke" [tooltip]="sparkApproved.tooltip" [dataLabels]="sparkApproved.dataLabels"></apx-chart>
     </div>
   </article>
 
@@ -80,9 +154,6 @@
       <small>{{ credit.pct(summary.declined, summary.total) }} decline rate</small>
       <span class="delta up text-danger">▲ {{ summary.deltas.declined }}% <em>vs 7 days</em></span>
     </div>
-    <div class="kpi-chart-wrapper">
-      <apx-chart [series]="sparkDeclined.series" [chart]="sparkDeclined.chart" [colors]="sparkDeclined.colors" [stroke]="sparkDeclined.stroke" [tooltip]="sparkDeclined.tooltip" [dataLabels]="sparkDeclined.dataLabels"></apx-chart>
-    </div>
   </article>
 
   <!-- Referred (Amber/Warning) -->
@@ -95,9 +166,6 @@
       <strong>{{ summary.referred | number }}</strong>
       <small>{{ credit.pct(summary.referred, summary.total) }} referral rate</small>
       <span class="delta down text-danger">▼ {{ summary.deltas.referred * -1 }}% <em>vs 7 days</em></span>
-    </div>
-    <div class="kpi-chart-wrapper">
-      <apx-chart [series]="sparkReferred.series" [chart]="sparkReferred.chart" [colors]="sparkReferred.colors" [stroke]="sparkReferred.stroke" [tooltip]="sparkReferred.tooltip" [dataLabels]="sparkReferred.dataLabels"></apx-chart>
     </div>
   </article>
 </section>
@@ -198,9 +266,9 @@
       <span class="tone-green"><svg viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12"/><path d="M4 6h.01M4 12h.01M4 18h.01"/></svg></span>
       <em><strong>View Applications</strong><small>Search and manage applications</small></em>
     </a>
-    <a class="qa" routerLink="/portfolio">
+    <a class="qa" routerLink="/reports">
       <span class="tone-blue"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16"/><path d="m7 14 4-4 3 3 5-6"/></svg></span>
-      <em><strong>Portfolio Analytics</strong><small>Explore portfolio performance</small></em>
+      <em><strong>Reports</strong><small>Book, distribution, and outcomes</small></em>
     </a>
   </article>
 

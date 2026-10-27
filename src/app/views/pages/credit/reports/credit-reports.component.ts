@@ -16,13 +16,13 @@ interface ExceptionCard { name: string; detail: string; count: number; amount: n
   templateUrl: './credit-reports.component.html'
 })
 export class CreditReportsComponent implements OnInit, OnDestroy {
-  readonly reports: Array<{ id: ReportId; name: string; detail: string }> = [
-    { id: 'summary', name: 'Portfolio summary', detail: 'Book headlines next to the shared application file' },
-    { id: 'distribution', name: 'Application distribution', detail: 'Product, country, channel, and employment on this file' },
-    { id: 'outcomes', name: 'Decision outcomes', detail: 'Approve, refer, and decline with the reason codes' },
-    { id: 'exceptions', name: 'Policy exceptions', detail: 'Cutoff, affordability, bureau, and amount breaks' },
-    { id: 'turnaround', name: 'Turnaround', detail: 'How long referred cases have waited against the SLA' },
-    { id: 'limits', name: 'Limit movement', detail: 'How repayment raises or cuts the score and the facility' }
+  readonly reports: Array<{ id: ReportId; name: string }> = [
+    { id: 'summary', name: 'Summary' },
+    { id: 'distribution', name: 'Distribution' },
+    { id: 'outcomes', name: 'Outcomes' },
+    { id: 'exceptions', name: 'Exceptions' },
+    { id: 'turnaround', name: 'Turnaround' },
+    { id: 'limits', name: 'Limits' }
   ];
   readonly behaviourRules = BEHAVIOUR_RULES;
 
