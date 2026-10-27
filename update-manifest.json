@@ -1,0 +1,100 @@
+{
+  "base_package": "Loan_Workflow_Modern_UI_Decision_Fix_Files.zip",
+  "incremental_update": true,
+  "application_files": 12,
+  "test_scripts": 1,
+  "scope": [
+    "New Application including Integration tab",
+    "Applications (shared data and assessment)",
+    "Decision Queue (shared data and limits)"
+  ],
+  "validation": {
+    "workflow_model_and_integration_checks": "passed",
+    "strict_angular_templates": "passed",
+    "full_development_build": "passed with the existing development bundle budget temporarily disabled; original configuration restored unchanged",
+    "rendered_browser_checks": "passed: tabs, eight-profile bulk coverage, positive High-risk reviewed proposals, hover/focus/Escape graph, connector controls/checks/activity, availability/reassessment, mobile layout",
+    "desktop_mobile_visual_review": "passed",
+    "patch_application": "passed",
+    "unrelated_files_unchanged": true
+  },
+  "files": [
+    {
+      "path": "scripts/check-loan-workflow.mjs",
+      "action": "replace",
+      "base_sha256": "5e2ed82a2cdcdbc4edf97e991c2a0a16901308117c1dabfcea8a003c34923183",
+      "updated_sha256": "0be997df4a8efb2176bb4b8b49c2b8de1ee4ca88ff231f805fd2feebe595c1dc"
+    },
+    {
+      "path": "src/app/views/pages/credit/applications/applications.component.html",
+      "action": "replace",
+      "base_sha256": "79a5169a744a3184f6ea75b2d324543aa65d061be6909dd8d9c76d7f836e45e2",
+      "updated_sha256": "20c806c0f9c8d9f4bc76b69b65e7e209da08e313190914638fc1cbf51587ed7d"
+    },
+    {
+      "path": "src/app/views/pages/credit/new-application/loan-intake-integration.scss",
+      "action": "add",
+      "base_sha256": null,
+      "updated_sha256": "b4010f0f7250eb01f49bd4ceaa802c4c836abb62c6b81f36114431c030f759d3"
+    },
+    {
+      "path": "src/app/views/pages/credit/new-application/new-application.component.html",
+      "action": "replace",
+      "base_sha256": "c6fb6e3e76d025e3bd9c0bc68d9c3208ea68fd272bd87596b49148ea44fbc82d",
+      "updated_sha256": "ece8d7851e644831362a4ac0b376daba7a71d6649a23faecd247c101839e30d8"
+    },
+    {
+      "path": "src/app/views/pages/credit/new-application/new-application.component.ts",
+      "action": "replace",
+      "base_sha256": "07bdb826c8e9d3e839c15973120e1399fcdd04cff93b5a895ce60b2f93dbe5ec",
+      "updated_sha256": "ba4ce4e357a508a54812d178373b723abcc579611808496260055f77ad40bdfa"
+    },
+    {
+      "path": "src/app/views/pages/credit/workflow/loan-assessment.component.html",
+      "action": "replace",
+      "base_sha256": "03e5af5ef591ec690a3c5908f733436f1338a712c0d101ae559c7d3401102615",
+      "updated_sha256": "3657f51d590bfe854cc91d398fd8771f70f7e61b590caf99762d520d0abdac6d"
+    },
+    {
+      "path": "src/app/views/pages/credit/workflow/loan-assessment.component.ts",
+      "action": "replace",
+      "base_sha256": "691f0a5461b358892e5ac2fe1eeef04afa82ba2e2710e5a22adcb98db08513c7",
+      "updated_sha256": "beaa2bde81a53d2ac690c513407f890de36551b6c658016e1c962805c30425f2"
+    },
+    {
+      "path": "src/app/views/pages/credit/workflow/loan-customers.data.ts",
+      "action": "add",
+      "base_sha256": null,
+      "updated_sha256": "f2075041875f7bafeccc18d5310961009753a122d0960c41eed5768e436432f5"
+    },
+    {
+      "path": "src/app/views/pages/credit/workflow/loan-integration.service.ts",
+      "action": "add",
+      "base_sha256": null,
+      "updated_sha256": "b71227df28748658a1faa53284a48e4d5f9a7399d9d21fd70af726dcbb612a02"
+    },
+    {
+      "path": "src/app/views/pages/credit/workflow/loan-limit.engine.ts",
+      "action": "replace",
+      "base_sha256": "6138ad8ab9acc026110982fa26af9be896075f37088007122fcccf375bfe8eee",
+      "updated_sha256": "c72d26471dd43f71fdabfbb278e4f1e85c044c59d452ba6b7758400e9a4e9b0b"
+    },
+    {
+      "path": "src/app/views/pages/credit/workflow/loan-workflow.models.ts",
+      "action": "replace",
+      "base_sha256": "bd8515a4ff5b2cf38622320764d5e5cdca5596ee17e99b31e291df9498f6fe64",
+      "updated_sha256": "3a36920aa76c682109e825a6c64327b1b1a34df73662639253ffd0189660895c"
+    },
+    {
+      "path": "src/app/views/pages/credit/workflow/loan-workflow.scss",
+      "action": "replace",
+      "base_sha256": "b0ce74e3ca8a63b1637e956a168690c7ab5dd47dfa41352e23e1e80416d30289",
+      "updated_sha256": "0c220a82d89258adbeabbd962e71ce695cce9d4334dbd522d6b1839151798a7d"
+    },
+    {
+      "path": "src/app/views/pages/credit/workflow/loan-workflow.service.ts",
+      "action": "replace",
+      "base_sha256": "6046bd3bc44acf528cd660346a9ca35a1f271c37451f706e5d21d31f36565d9d",
+      "updated_sha256": "6f75538726a2c0bc1ef807039c51b32440c1418f7fd0bc125f7bad75883e7cee"
+    }
+  ]
+}

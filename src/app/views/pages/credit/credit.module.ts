@@ -20,6 +20,7 @@ import { ModelMonitoringComponent } from './model-monitoring/model-monitoring.co
 import { AuditLogsComponent } from './audit-logs/audit-logs.component';
 import { IntegrationsComponent } from './integrations/integrations.component';
 import { CreditBehaviourComponent } from './ops/credit-behaviour.component';
+import { LoanAssessmentComponent } from './workflow/loan-assessment.component';
 
 const routes: Routes = [
   {
@@ -28,9 +29,9 @@ const routes: Routes = [
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: CreditDashboardComponent, data: { greeting: true } },
-      { path: 'applications/new', component: NewApplicationComponent, data: { title: 'New application', subtitle: 'Score a request on the demo scorecard' } },
+      { path: 'applications/new', component: NewApplicationComponent, data: { ownHeader: true } },
       { path: 'applications/:id', component: ApplicationDetailComponent, data: { title: 'Application', subtitle: 'Score, reasons, and case notes' } },
-      { path: 'applications', component: ApplicationsComponent, data: { title: 'Applications', subtitle: 'Origination book and decision outcomes' } },
+      { path: 'applications', component: ApplicationsComponent, data: { ownHeader: true } },
       { path: 'alerts', component: AlertsComponent, data: { ownHeader: true } },
       { path: 'case-management', component: AlertsComponent, data: { ownHeader: true } },
       { path: 'decision-queue', component: DecisionQueueComponent, data: { title: 'Decision Queue', subtitle: 'Referred applications waiting for a decision' } },
@@ -52,6 +53,7 @@ const routes: Routes = [
     CreditShellComponent,
     CreditDashboardComponent,
     NewApplicationComponent,
+    LoanAssessmentComponent,
     ApplicationsComponent,
     ApplicationDetailComponent,
     DecisionQueueComponent,
