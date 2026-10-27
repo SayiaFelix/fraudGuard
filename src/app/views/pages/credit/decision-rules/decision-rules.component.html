@@ -1,922 +1,1071 @@
 
-<div class="uba-rules-page">
+<div class="di-page">
 
   <!-- PAGE HEADER -->
-  <header class="page-header">
-    <div class="header-info">
-      <div class="breadcrumb">
+  <header class="di-header">
+    <div>
+      <div class="di-breadcrumb">
         Lending Operations
         <span>/</span>
-        Credit Decisioning
+        Credit Intelligence
         <span>/</span>
         Decision Rules
       </div>
 
-      <h1></h1>
-
-      <p>
-        Configure, manage and evaluate lending policies
-        used in automated credit decisioning.
-      </p>
+      <div class="di-title-line">
+        <span class="di-brand-icon">
+          <i class="fas fa-brain"></i>
+        </span>
+        <div>
+          <h1>Decision Intelligence Studio</h1>
+          <p>
+            Intelligent lending policies, application decisions
+            and explainable insights.
+          </p>
+        </div>
+      </div>
     </div>
 
-    <div class="header-actions">
-      <button
-        type="button"
-        class="btn btn-outline"
-        (click)="setTab('tester')">
-        <i class="fas fa-flask"></i>
-        Test Policy
-      </button>
-
-      <button
-        type="button"
-        class="btn btn-primary"
-        (click)="openCreateModal()">
-        <i class="fas fa-plus"></i>
-        Create New Rule
-      </button>
-    </div>
+    <span class="di-demo-pill">
+      <i class="fas fa-circle"></i>
+      DEMO ENVIRONMENT
+    </span>
   </header>
 
-  <!-- POLICY METRICS -->
-  <section class="stats-grid">
+  <!-- WORKSPACE NAVIGATION -->
+  <nav class="di-tabs" aria-label="Credit decisioning workspaces">
 
-    <article class="stat-card">
-      <div class="stat-icon red">
-        <i class="fas fa-list-alt"></i>
-      </div>
-      <div>
-        <span>Total Rules</span>
-        <strong>{{ totalRules }}</strong>
-        <small>Configured lending rules</small>
-      </div>
-    </article>
-
-    <article class="stat-card">
-      <div class="stat-icon green">
-        <i class="fas fa-check-circle"></i>
-      </div>
-      <div>
-        <span>Active Rules</span>
-        <strong>{{ activeRules }}</strong>
-        <small>Included in policy evaluation</small>
-      </div>
-    </article>
-
-    <article class="stat-card">
-      <div class="stat-icon gray">
-        <i class="fas fa-pause-circle"></i>
-      </div>
-      <div>
-        <span>Inactive Rules</span>
-        <strong>{{ inactiveRules }}</strong>
-        <small>Excluded from evaluation</small>
-      </div>
-    </article>
-
-    <article class="stat-card">
-      <div class="stat-icon orange">
-        <i class="fas fa-exclamation-triangle"></i>
-      </div>
-      <div>
-        <span>Critical Rules</span>
-        <strong>{{ criticalRules }}</strong>
-        <small>Active critical-severity rules</small>
-      </div>
-    </article>
-
-  </section>
-
-  <!-- TABS -->
-  <nav class="page-tabs">
-
-    <button
-      type="button"
+    <button type="button"
       [class.active]="activeTab === 'rules'"
       (click)="setTab('rules')">
       <i class="fas fa-sliders-h"></i>
-      Rule Management
+      <span>Policy Rules</span>
     </button>
 
-    <button
-      type="button"
-      [class.active]="activeTab === 'tester'"
-      (click)="setTab('tester')">
-      <i class="fas fa-clipboard-check"></i>
-      Policy Evaluation
+    <button type="button"
+      [class.active]="activeTab === 'applications'"
+      (click)="setTab('applications')">
+      <i class="fas fa-file-invoice"></i>
+      <span>Applications</span>
+    </button>
+
+    <button type="button"
+      [class.active]="activeTab === 'batch'"
+      (click)="setTab('batch')">
+      <i class="fas fa-layer-group"></i>
+      <span>Batch Intelligence</span>
+    </button>
+
+    <button type="button"
+      [class.active]="activeTab === 'copilot'"
+      (click)="openCopilot()">
+      <i class="fas fa-magic"></i>
+      <span>AI Credit Copilot</span>
     </button>
 
   </nav>
 
-  <!-- RULE MANAGEMENT -->
-  <section *ngIf="activeTab === 'rules'" class="content-card">
+  <!-- ====================================================
+       1. POLICY RULES
+       ==================================================== -->
 
-    <div class="section-heading">
+  <section *ngIf="activeTab === 'rules'" class="di-section">
+
+    <div class="di-section-header">
       <div>
-        <h2>Lending Policy Rules</h2>
-        <p>
-          Manage eligibility conditions, risk controls
-          and automated decision actions.
-        </p>
+        <span class="di-eyebrow">POLICY GOVERNANCE</span>
+        <h2>Policy Rules</h2>
+        <p>Manage the lending conditions used by the decision engine.</p>
       </div>
 
-      <button
-        type="button"
-        class="btn btn-text"
-        (click)="resetPolicies()">
-        <i class="fas fa-undo"></i>
-        Restore Rules
-      </button>
+      <div class="di-header-buttons">
+        <button class="di-btn outline" type="button"
+          (click)="showPolicyHealth = !showPolicyHealth">
+          <i class="fas fa-shield-alt"></i>
+          Policy Health
+          <span class="di-counter">{{ policyFindings.length }}</span>
+        </button>
+
+        <button class="di-btn primary" type="button"
+          (click)="openCreateRule()">
+          <i class="fas fa-plus"></i>
+          Create Rule
+        </button>
+      </div>
     </div>
 
-    <!-- FILTERS -->
-    <div class="filters">
+    <!-- KPIs -->
+    <div class="di-kpis">
+      <article class="di-kpi">
+        <span class="di-kpi-icon blue">
+          <i class="fas fa-list-alt"></i>
+        </span>
+        <div>
+          <small>Total Rules</small>
+          <strong>{{ totalRules }}</strong>
+          <span>Configured rules</span>
+        </div>
+      </article>
 
-      <div class="search-field">
-        <i class="fas fa-search"></i>
+      <article class="di-kpi">
+        <span class="di-kpi-icon green">
+          <i class="fas fa-check-circle"></i>
+        </span>
+        <div>
+          <small>Active Rules</small>
+          <strong>{{ activeRules }}</strong>
+          <span>Included in evaluation</span>
+        </div>
+      </article>
 
-        <input
-          type="search"
-          placeholder="Search by rule name, code or description"
-          [(ngModel)]="searchTerm"
-          aria-label="Search lending rules">
+      <article class="di-kpi">
+        <span class="di-kpi-icon purple">
+          <i class="fas fa-shield-alt"></i>
+        </span>
+        <div>
+          <small>Policy Coverage</small>
+          <strong>{{ policyCoverage }}%</strong>
+          <span>Categories represented</span>
+        </div>
+      </article>
+
+      <article class="di-kpi">
+        <span class="di-kpi-icon amber">
+          <i class="fas fa-exclamation-triangle"></i>
+        </span>
+        <div>
+          <small>Critical Rules</small>
+          <strong>{{ criticalRules }}</strong>
+          <span>Active critical controls</span>
+        </div>
+      </article>
+    </div>
+
+    <!-- POLICY HEALTH -->
+    <div class="di-card di-health" *ngIf="showPolicyHealth">
+      <div class="di-card-header">
+        <div>
+          <h3>Policy Health Diagnostics</h3>
+          <p>Basic configuration, duplicate-rule and coverage checks.</p>
+        </div>
+        <button class="di-icon-button" type="button"
+          (click)="showPolicyHealth = false">
+          <i class="fas fa-times"></i>
+        </button>
       </div>
 
-      <select
-        [(ngModel)]="categoryFilter"
-        aria-label="Filter category">
-        <option value="All">All Categories</option>
+      <div class="di-health-content">
+        <div class="di-positive"
+          *ngIf="policyFindings.length === 0">
+          <i class="fas fa-check-circle"></i>
+          No basic configuration issues detected.
+        </div>
 
-        <option
-          *ngFor="let category of categories"
-          [value]="category">
-          {{ category }}
-        </option>
-      </select>
+        <div class="di-warning"
+          *ngFor="let finding of policyFindings">
+          <i class="fas fa-exclamation-circle"></i>
+          {{ finding }}
+        </div>
 
-      <select
-        [(ngModel)]="statusFilter"
-        aria-label="Filter status">
-        <option value="All">All Statuses</option>
-        <option value="Active">Active</option>
-        <option value="Inactive">Inactive</option>
-      </select>
-
-      <select
-        [(ngModel)]="actionFilter"
-        aria-label="Filter action">
-        <option value="All">All Actions</option>
-
-        <option
-          *ngFor="let action of actions"
-          [value]="action">
-          {{ action }}
-        </option>
-      </select>
-
-      <button
-        type="button"
-        class="clear-btn"
-        (click)="clearFilters()">
-        Clear
-      </button>
-
+        <p class="di-footnote">
+          These checks are illustrative and do not constitute
+          a full lending-policy compliance audit.
+        </p>
+      </div>
     </div>
 
     <!-- RULE TABLE -->
-    <div class="table-wrapper">
-      <table class="rules-table">
+    <div class="di-card">
 
-        <thead>
-          <tr>
-            <th>Rule</th>
-            <th>Category</th>
-            <th>Condition</th>
-            <th>Action</th>
-            <th>Severity</th>
-            <th>Priority</th>
-            <th>Status</th>
-            <th class="actions-column">Actions</th>
-          </tr>
-        </thead>
+      <div class="di-card-header">
+        <div>
+          <h3>Configured Lending Rules</h3>
+          <p>Search, review and maintain lending controls.</p>
+        </div>
 
-        <tbody>
-          <tr
-            *ngFor="
-              let rule of filteredRules;
-              trackBy: trackByRule
-            ">
+        <button class="di-btn text" type="button"
+          (click)="restoreRules()">
+          <i class="fas fa-undo"></i>
+          Restore Defaults
+        </button>
+      </div>
 
-            <td>
-              <div class="rule-identity">
-                <strong>{{ rule.name }}</strong>
-                <span>{{ rule.code }}</span>
-                <small>{{ rule.description }}</small>
-              </div>
-            </td>
+      <div class="di-toolbar">
+        <div class="di-search">
+          <i class="fas fa-search"></i>
+          <input type="search"
+            placeholder="Search rule, category or code"
+            [(ngModel)]="ruleSearch">
+        </div>
 
-            <td>
-              <span class="category-label">
-                {{ rule.category }}
-              </span>
-            </td>
+        <select [(ngModel)]="ruleCategory"
+          aria-label="Filter rule category">
+          <option value="All">All Categories</option>
+          <option *ngFor="let category of categories"
+            [value]="category">{{ category }}</option>
+        </select>
 
-            <td>
-              <span class="condition-text">
-                {{ getCondition(rule) }}
-              </span>
-            </td>
+        <select [(ngModel)]="ruleStatus"
+          aria-label="Filter rule status">
+          <option value="All">All Statuses</option>
+          <option value="Active">Active</option>
+          <option value="Inactive">Inactive</option>
+        </select>
+      </div>
 
-            <td>
-              <span
-                class="status-pill"
-                [ngClass]="getActionClass(rule.action)">
-                {{ rule.action }}
-              </span>
-            </td>
+      <div class="di-table-scroll">
+        <table class="di-table">
+          <thead>
+            <tr>
+              <th>Rule</th>
+              <th>Category</th>
+              <th>Condition</th>
+              <th>Effect</th>
+              <th>Severity</th>
+              <th>Priority</th>
+              <th>Status</th>
+              <th class="di-right">Actions</th>
+            </tr>
+          </thead>
 
-            <td>
-              <span
-                class="severity-pill"
-                [ngClass]="getSeverityClass(rule.severity)">
-                {{ rule.severity }}
-              </span>
-            </td>
+          <tbody>
+            <tr *ngFor="let rule of filteredRules; trackBy: trackRule">
 
-            <td>
-              <span class="priority-number">
-                {{ rule.priority }}
-              </span>
-            </td>
+              <td>
+                <div class="di-cell-main">
+                  <strong>{{ rule.name }}</strong>
+                  <small>{{ rule.code }}</small>
+                </div>
+              </td>
 
-            <td>
-              <div class="status-control">
+              <td>{{ rule.category }}</td>
+              <td class="di-condition">{{ getCondition(rule) }}</td>
 
-                <button
-                  type="button"
-                  class="rule-switch"
+              <td>
+                <span class="di-badge"
+                  [class.declined]="rule.action === 'Decline'"
+                  [class.refer]="rule.action === 'Manual Review'">
+                  {{ rule.action }}
+                </span>
+              </td>
+
+              <td>
+                <span class="di-badge severity"
+                  [class.critical]="rule.severity === 'Critical'">
+                  {{ rule.severity }}
+                </span>
+              </td>
+
+              <td>{{ rule.priority }}</td>
+
+              <td>
+                <button type="button" class="di-switch"
                   [class.on]="rule.enabled"
-                  [attr.aria-label]="
-                    (rule.enabled ? 'Deactivate ' : 'Activate ')
-                    + rule.name
-                  "
+                  [attr.aria-label]="'Toggle ' + rule.name"
                   [attr.aria-pressed]="rule.enabled"
                   (click)="toggleRule(rule)">
                   <span></span>
                 </button>
-
-                <span [class.active-text]="rule.enabled">
+                <span class="di-status-text">
                   {{ rule.enabled ? 'Active' : 'Inactive' }}
                 </span>
+              </td>
 
-              </div>
-            </td>
+              <td>
+                <div class="di-row-actions">
+                  <button type="button" class="di-icon-button"
+                    title="Edit rule" (click)="editRule(rule)">
+                    <i class="fas fa-pen"></i>
+                  </button>
+                  <button type="button" class="di-icon-button danger"
+                    title="Delete rule" (click)="askDeleteRule(rule)">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
 
-            <td>
-              <div class="row-actions">
+            <tr *ngIf="filteredRules.length === 0">
+              <td colspan="8" class="di-empty-cell">
+                No lending rules match your filters.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-                <button
-                  type="button"
-                  class="icon-btn"
-                  title="Edit rule"
-                  [attr.aria-label]="'Edit ' + rule.name"
-                  (click)="openEditModal(rule)">
-                  <i class="fas fa-pen"></i>
-                </button>
-
-                <button
-                  type="button"
-                  class="icon-btn danger"
-                  title="Delete rule"
-                  [attr.aria-label]="'Delete ' + rule.name"
-                  (click)="requestDelete(rule)">
-                  <i class="fas fa-trash"></i>
-                </button>
-
-              </div>
-            </td>
-
-          </tr>
-
-          <tr *ngIf="filteredRules.length === 0">
-            <td colspan="8">
-              <div class="empty-state">
-                <i class="fas fa-search"></i>
-                <h3>No matching rules</h3>
-                <p>Try changing your search or filters.</p>
-
-                <button
-                  type="button"
-                  class="btn btn-outline"
-                  (click)="clearFilters()">
-                  Clear Filters
-                </button>
-              </div>
-            </td>
-          </tr>
-
-        </tbody>
-      </table>
+      <div class="di-table-footer">
+        Showing {{ filteredRules.length }} of {{ totalRules }} rules
+      </div>
     </div>
 
-    <footer class="table-footer">
-      Showing {{ filteredRules.length }} of
-      {{ totalRules }} lending rules
-    </footer>
+    <div class="di-next-banner">
+      <div>
+        <strong>Ready to evaluate credit applications?</strong>
+        <p>Apply these rules to a synthetic customer portfolio.</p>
+      </div>
+
+      <button type="button" class="di-btn primary"
+        (click)="setTab('applications')">
+        Explore Applications
+        <i class="fas fa-arrow-right"></i>
+      </button>
+    </div>
 
   </section>
 
-  <!-- APPLICANT POLICY TESTER -->
-  <section
-    *ngIf="activeTab === 'tester'"
-    class="tester-layout">
+  <!-- ====================================================
+       2. APPLICATIONS
+       ==================================================== -->
 
-    <article class="content-card">
+  <section *ngIf="activeTab === 'applications'" class="di-section">
 
-      <div class="section-heading">
-        <div>
-          <h2>Applicant Policy Evaluation</h2>
-          <p>
-            Enter applicant information to evaluate
-            the currently active lending rules.
-          </p>
-        </div>
+    <div class="di-section-header">
+      <div>
+        <span class="di-eyebrow">APPLICATION EXPLORER</span>
+        <h2>Applications</h2>
+        <p>Origination book and policy decision outcomes.</p>
       </div>
 
-      <div class="form-grid">
+      <span class="di-demo-label">
+        {{ applications.length }} synthetic applications
+      </span>
+    </div>
 
-        <label class="form-field">
-          Credit Score
-          <input
-            type="number"
-            min="300"
-            max="850"
-            [(ngModel)]="applicant.creditScore"
-            (ngModelChange)="onApplicantChange()">
-        </label>
-
-        <label class="form-field">
-          Monthly Income (KES)
-          <input
-            type="number"
-            min="0"
-            [(ngModel)]="applicant.monthlyIncome"
-            (ngModelChange)="onApplicantChange()">
-        </label>
-
-        <label class="form-field">
-          Monthly Debt Repayments (KES)
-          <input
-            type="number"
-            min="0"
-            [(ngModel)]="applicant.monthlyDebt"
-            (ngModelChange)="onApplicantChange()">
-        </label>
-
-        <label class="form-field">
-          Requested Loan Amount (KES)
-          <input
-            type="number"
-            min="0"
-            [(ngModel)]="applicant.requestedAmount"
-            (ngModelChange)="onApplicantChange()">
-        </label>
-
-        <label class="form-field">
-          Loan Tenure (Months)
-          <input
-            type="number"
-            min="1"
-            max="120"
-            [(ngModel)]="applicant.loanTenure"
-            (ngModelChange)="onApplicantChange()">
-        </label>
-
-        <label class="form-field">
-          Applicant Age
-          <input
-            type="number"
-            min="0"
-            max="120"
-            [(ngModel)]="applicant.age"
-            (ngModelChange)="onApplicantChange()">
-        </label>
-
-        <label class="form-field">
-          Overdue Loans
-          <input
-            type="number"
-            min="0"
-            [(ngModel)]="applicant.overdueLoans"
-            (ngModelChange)="onApplicantChange()">
-        </label>
-
-        <label class="form-field">
-          Existing Active Loans
-          <input
-            type="number"
-            min="0"
-            [(ngModel)]="applicant.existingLoans"
-            (ngModelChange)="onApplicantChange()">
-        </label>
-
-        <label class="form-field">
-          Employment Duration (Months)
-          <input
-            type="number"
-            min="0"
-            [(ngModel)]="applicant.employmentMonths"
-            (ngModelChange)="onApplicantChange()">
-        </label>
-
-        <div class="derived-field">
-          <span>Calculated Debt-to-Income Ratio</span>
-          <strong>
-            {{ applicantDti === null
-              ? 'Unavailable'
-              : (applicantDti | number:'1.1-2') + '%' }}
-          </strong>
-          <small>
-            Monthly debt repayments / monthly income
-          </small>
-        </div>
-
+    <div class="di-application-toolbar">
+      <div class="di-search">
+        <i class="fas fa-search"></i>
+        <input type="search"
+          [(ngModel)]="applicationSearch"
+          placeholder="Search applicant, product, or ID">
       </div>
 
-      <div class="form-actions">
-        <button
-          type="button"
-          class="btn btn-outline"
-          (click)="resetApplicant()">
-          Reset Values
-        </button>
+      <div class="di-filter-pills">
+        <button type="button"
+          [class.active]="applicationFilter === 'All'"
+          (click)="applicationFilter = 'All'">All</button>
 
-        <button
-          type="button"
-          class="btn btn-primary"
-          (click)="evaluateApplicant()">
+        <button type="button"
+          [class.active]="applicationFilter === 'Approved'"
+          (click)="applicationFilter = 'Approved'">Approved</button>
+
+        <button type="button"
+          [class.active]="applicationFilter === 'Refer'"
+          (click)="applicationFilter = 'Refer'">Refer</button>
+
+        <button type="button"
+          [class.active]="applicationFilter === 'Declined'"
+          (click)="applicationFilter = 'Declined'">Declined</button>
+
+        <button type="button"
+          [class.active]="applicationFilter === 'Incomplete'"
+          (click)="applicationFilter = 'Incomplete'">Incomplete</button>
+      </div>
+
+      
+    </div>
+
+    <div class="di-card">
+      <div class="di-table-scroll">
+        <table class="di-table applications-table">
+          <thead>
+            <tr>
+              <th>Reference</th>
+              <th>Applicant</th>
+              <th>Product</th>
+              <th>Country</th>
+              <th>Amount</th>
+              <th>Score</th>
+              <th>Decision</th>
+              <th>Submitted</th>
+              <th></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="
+              let app of filteredApplications | slice:0:100;
+              trackBy: trackApplication
+            ">
+              <td><strong>{{ app.id }}</strong></td>
+              <td>{{ app.name }}</td>
+              <td>{{ app.product }}</td>
+              <td>{{ app.country }}</td>
+              <td>KES {{ app.amount | number:'1.0-0' }}</td>
+
+              <td>
+                <span class="di-score"
+                  [class.good]="app.score !== null && app.score >= 700"
+                  [class.low]="app.score !== null && app.score < 600">
+                  {{ app.score === null ? 'N/A' : app.score }}
+                </span>
+              </td>
+
+              <td>
+                <span class="di-badge"
+                  [ngClass]="getDecisionClass(decisionFor(app))">
+                  {{ decisionFor(app) }}
+                </span>
+              </td>
+
+              <td>{{ app.submitted | date:'dd MMM, h:mm a' }}</td>
+
+              <td>
+                <button class="di-link-button" type="button"
+                  (click)="openApplication(app)">
+                  Inspect
+                  <i class="fas fa-arrow-right"></i>
+                </button>
+              </td>
+            </tr>
+
+            <tr *ngIf="filteredApplications.length === 0">
+              <td colspan="9" class="di-empty-cell">
+                No matching applications.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="di-table-footer">
+        Showing up to 100 of {{ filteredApplications.length }}
+        matching applications
+      </div>
+    </div>
+
+    <div class="di-next-banner">
+      <div>
+        <strong>Need to evaluate the entire application book?</strong>
+        <p>Run every application through the same policy engine.</p>
+      </div>
+      <button type="button" class="di-btn primary"
+        (click)="setTab('batch')">
+        Open Batch Intelligence
+        <i class="fas fa-arrow-right"></i>
+      </button>
+    </div>
+
+  </section>
+
+  <!-- ====================================================
+       3. BATCH INTELLIGENCE
+       ==================================================== -->
+
+  <section *ngIf="activeTab === 'batch'" class="di-section">
+
+    <div class="di-section-header">
+      <div>
+        <span class="di-eyebrow">PORTFOLIO PROCESSING</span>
+        <h2>Batch Intelligence</h2>
+        <p>
+          Evaluate the synthetic lending portfolio against
+          the current policy configuration.
+        </p>
+      </div>
+
+      <span class="di-demo-label">
+        Browser-based evaluation
+      </span>
+    </div>
+
+    <div class="di-batch-hero">
+      <div>
+        <span class="di-hero-eyebrow">BATCH DECISION ENGINE</span>
+        <h3>Evaluate {{ applications.length | number }} applications</h3>
+        <p>
+          Apply {{ activeRules }} active policy rules to the
+          application portfolio and examine the distribution
+          of recommendations.
+        </p>
+
+        <button class="di-btn primary" type="button"
+          (click)="runBatch()">
           <i class="fas fa-play"></i>
-          Evaluate Application
+          {{ batchCompleted ? 'Re-run Batch Evaluation' : 'Run Batch Evaluation' }}
         </button>
       </div>
 
-    </article>
+      <div class="di-batch-graphic">
+        <i class="fas fa-project-diagram"></i>
+      </div>
+    </div>
 
-    <!-- RESULTS -->
-    <article class="content-card results-card">
+    <ng-container *ngIf="batchCompleted">
 
-      <div class="section-heading">
-        <div>
-          <h2>Evaluation Results</h2>
-          <p>
-            Decision recommendation based on
-            active policy conditions.
-          </p>
+      <div class="di-batch-notice">
+        <i class="fas fa-check-circle"></i>
+        Evaluation completed for {{ batchResults.length }}
+        synthetic applications. Results reflect the currently
+        configured policy.
+      </div>
+
+      <div class="di-kpis batch-kpis">
+        <article class="di-kpi">
+          <span class="di-kpi-icon blue">
+            <i class="fas fa-layer-group"></i>
+          </span>
+          <div>
+            <small>Evaluated</small>
+            <strong>{{ batchResults.length }}</strong>
+            <span>Applications processed</span>
+          </div>
+        </article>
+
+        <article class="di-kpi">
+          <span class="di-kpi-icon green">
+            <i class="fas fa-check-circle"></i>
+          </span>
+          <div>
+            <small>Approved</small>
+            <strong>{{ batchApproved }}</strong>
+            <span>{{ batchPercentage(batchApproved) | number:'1.1-1' }}%</span>
+          </div>
+        </article>
+
+        <article class="di-kpi">
+          <span class="di-kpi-icon amber">
+            <i class="fas fa-user-clock"></i>
+          </span>
+          <div>
+            <small>Referred</small>
+            <strong>{{ batchReferred }}</strong>
+            <span>{{ batchPercentage(batchReferred) | number:'1.1-1' }}%</span>
+          </div>
+        </article>
+
+        <article class="di-kpi">
+          <span class="di-kpi-icon red">
+            <i class="fas fa-times-circle"></i>
+          </span>
+          <div>
+            <small>Declined</small>
+            <strong>{{ batchDeclined }}</strong>
+            <span>{{ batchPercentage(batchDeclined) | number:'1.1-1' }}%</span>
+          </div>
+        </article>
+      </div>
+
+      <div class="di-card di-distribution">
+        <div class="di-card-header">
+          <div>
+            <h3>Decision Distribution</h3>
+            <p>Outcomes calculated from the evaluated portfolio.</p>
+          </div>
+        </div>
+
+        <div class="di-distribution-body">
+          <div class="di-bar-row">
+            <span>Approved</span>
+            <div class="di-track">
+              <div class="di-bar approved"
+                [style.width.%]="batchPercentage(batchApproved)"></div>
+            </div>
+            <strong>{{ batchPercentage(batchApproved) | number:'1.1-1' }}%</strong>
+          </div>
+
+          <div class="di-bar-row">
+            <span>Referred</span>
+            <div class="di-track">
+              <div class="di-bar refer"
+                [style.width.%]="batchPercentage(batchReferred)"></div>
+            </div>
+            <strong>{{ batchPercentage(batchReferred) | number:'1.1-1' }}%</strong>
+          </div>
+
+          <div class="di-bar-row">
+            <span>Declined</span>
+            <div class="di-track">
+              <div class="di-bar declined"
+                [style.width.%]="batchPercentage(batchDeclined)"></div>
+            </div>
+            <strong>{{ batchPercentage(batchDeclined) | number:'1.1-1' }}%</strong>
+          </div>
+
+          <div class="di-bar-row">
+            <span>Incomplete</span>
+            <div class="di-track">
+              <div class="di-bar incomplete"
+                [style.width.%]="batchPercentage(batchIncomplete)"></div>
+            </div>
+            <strong>{{ batchPercentage(batchIncomplete) | number:'1.1-1' }}%</strong>
+          </div>
         </div>
       </div>
 
-      <ng-container *ngIf="evaluated; else noEvaluation">
-
-        <div class="outcome-banner"
-             [ngClass]="getOutcomeClass()">
-
-          <small>Proposed Decision</small>
-          <h2>{{ outcome }}</h2>
-
-          <span>
-            {{ evaluationTime }}
-          </span>
-
+      <div class="di-card">
+        <div class="di-card-header">
+          <div>
+            <h3>Evaluated Application Results</h3>
+            <p>Inspect any calculated outcome.</p>
+          </div>
         </div>
 
-        <div class="evaluation-summary">
-
-          <div>
-            <strong>{{ evaluation.length }}</strong>
-            <span>Evaluated</span>
+        <div class="di-toolbar">
+          <div class="di-search">
+            <i class="fas fa-search"></i>
+            <input type="search" [(ngModel)]="batchSearch"
+              placeholder="Search result by name or reference">
           </div>
 
-          <div>
-            <strong>{{ triggeredRules.length }}</strong>
-            <span>Triggered</span>
-          </div>
-
-          <div>
-            <strong>{{ passedRules.length }}</strong>
-            <span>Passed</span>
-          </div>
-
-          <div>
-            <strong>{{ missingRules.length }}</strong>
-            <span>Missing</span>
-          </div>
-
+          <select [(ngModel)]="batchFilter"
+            aria-label="Filter batch outcome">
+            <option value="All">All Outcomes</option>
+            <option value="Approved">Approved</option>
+            <option value="Refer">Refer</option>
+            <option value="Declined">Declined</option>
+            <option value="Incomplete">Incomplete</option>
+          </select>
         </div>
 
-        <div class="evaluation-list">
+        <div class="di-table-scroll">
+          <table class="di-table">
+            <thead>
+              <tr>
+                <th>Reference</th>
+                <th>Applicant</th>
+                <th>Product</th>
+                <th>Triggered Rules</th>
+                <th>Decision</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let result of batchFilteredResults | slice:0:100">
+                <td>{{ result.application.id }}</td>
+                <td><strong>{{ result.application.name }}</strong></td>
+                <td>{{ result.application.product }}</td>
+                <td>
+                  {{ (result.results | slice:0:result.results.length).length }}
+                  evaluated
+                </td>
+                <td>
+                  <span class="di-badge"
+                    [ngClass]="getDecisionClass(result.decision)">
+                    {{ result.decision }}
+                  </span>
+                </td>
+                <td>
+                  <button type="button" class="di-link-button"
+                    (click)="inspectBatch(result)">
+                    Inspect
+                    <i class="fas fa-arrow-right"></i>
+                  </button>
+                </td>
+              </tr>
 
-          <h3>Rule-by-Rule Assessment</h3>
-
-          <div
-            class="evaluation-item"
-            *ngFor="let result of evaluation">
-
-            <div class="evaluation-icon"
-                 [class.triggered]="result.matched"
-                 [class.missing]="result.missing">
-
-              <i
-                class="fas"
-                [ngClass]="{
-                  'fa-exclamation-circle': result.matched,
-                  'fa-question-circle': result.missing,
-                  'fa-check-circle':
-                    !result.matched && !result.missing
-                }">
-              </i>
-
-            </div>
-
-            <div class="evaluation-description">
-
-              <strong>{{ result.rule.name }}</strong>
-
-              <span>
-                {{ getCondition(result.rule) }}
-              </span>
-
-              <small>
-                Applicant value:
-                {{ result.actual === null
-                  ? 'Not available'
-                  : formatValue(
-                      result.actual,
-                      result.rule.field
-                    ) }}
-              </small>
-
-            </div>
-
-            <span
-              class="evaluation-status"
-              [class.failed]="result.matched"
-              [class.missing]="result.missing">
-
-              {{ result.missing
-                ? 'Missing Data'
-                : result.matched
-                  ? 'Triggered'
-                  : 'Passed' }}
-
-            </span>
-
-          </div>
-
-          <div
-            *ngIf="evaluation.length === 0"
-            class="empty-state">
-            <p>No active rules are available for evaluation.</p>
-          </div>
-
+              <tr *ngIf="batchFilteredResults.length === 0">
+                <td colspan="6" class="di-empty-cell">
+                  No batch results match the filter.
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
-      </ng-container>
-
-      <ng-template #noEvaluation>
-        <div class="empty-state evaluation-empty">
-          <i class="fas fa-clipboard-check"></i>
-          <h3>No evaluation performed</h3>
-          <p>
-            Enter applicant details and select
-            Evaluate Application to view the policy result.
-          </p>
+        <div class="di-table-footer">
+          Showing up to 100 of {{ batchFilteredResults.length }} results
         </div>
-      </ng-template>
+      </div>
 
-    </article>
+    </ng-container>
+
+    <div *ngIf="!batchCompleted" class="di-empty-batch">
+      <i class="fas fa-layer-group"></i>
+      <h3>Your batch is ready</h3>
+      <p>Run the evaluation to calculate portfolio-wide outcomes.</p>
+    </div>
 
   </section>
 
-  <!-- CREATE / EDIT RULE MODAL -->
-  <div
-    class="modal-overlay"
-    *ngIf="showRuleModal"
-    role="presentation">
+  <!-- ====================================================
+       4. AI CREDIT COPILOT
+       ==================================================== -->
 
-    <div
-      class="rule-modal"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="rule-modal-title">
+  <section *ngIf="activeTab === 'copilot'" class="di-section">
 
-      <div class="modal-header">
+    <div class="di-section-header">
+      <div>
+        <span class="di-eyebrow">EXPLAINABLE CREDIT INTELLIGENCE</span>
+        <h2>AI Credit Copilot</h2>
+        <p>
+          Explore decisions, risk observations and next steps
+          using the selected application.
+        </p>
+      </div>
 
+      <span class="di-demo-label">
+        <i class="fas fa-magic"></i>
+        Simulated AI Experience
+      </span>
+    </div>
+
+    <div class="di-copilot-hero">
+      <span class="di-copilot-icon">
+        <i class="fas fa-brain"></i>
+      </span>
+      <div>
+        <small>ECLECTICS INTELLIGENCE</small>
+        <h3>Credit Decision Copilot</h3>
+        <p>
+          Contextual explanations generated from active lending rules.
+        </p>
+      </div>
+    </div>
+
+    <div class="di-copilot-layout" *ngIf="selectedEvaluation">
+
+      <aside class="di-card di-copilot-menu">
+        <h3>Explore Insights</h3>
+        <p>Select what you want to understand.</p>
+
+        <button type="button"
+          [class.active]="activeInsight === 'explanation'"
+          (click)="activeInsight = 'explanation'">
+          <i class="fas fa-comment-alt"></i>
+          Explain Decision
+          <i class="fas fa-chevron-right"></i>
+        </button>
+
+        <button type="button"
+          [class.active]="activeInsight === 'factors'"
+          (click)="activeInsight = 'factors'">
+          <i class="fas fa-exclamation-triangle"></i>
+          Key Risk Factors
+          <i class="fas fa-chevron-right"></i>
+        </button>
+
+        <button type="button"
+          [class.active]="activeInsight === 'actions'"
+          (click)="activeInsight = 'actions'">
+          <i class="fas fa-lightbulb"></i>
+          Suggested Next Steps
+          <i class="fas fa-chevron-right"></i>
+        </button>
+
+        <button type="button"
+          [class.active]="activeInsight === 'summary'"
+          (click)="activeInsight = 'summary'">
+          <i class="fas fa-file-alt"></i>
+          Assessment Summary
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      </aside>
+
+      <article class="di-card di-copilot-answer">
+        <div class="di-card-header">
+          <div>
+            <h3>{{ selectedEvaluation.application.name }}</h3>
+            <p>
+              {{ selectedEvaluation.application.id }}
+              · {{ selectedEvaluation.application.product }}
+            </p>
+          </div>
+          <span class="di-badge"
+            [ngClass]="getDecisionClass(selectedEvaluation.decision)">
+            {{ selectedEvaluation.decision }}
+          </span>
+        </div>
+
+        <div class="di-answer-body">
+
+          <ng-container *ngIf="activeInsight === 'explanation'">
+            <span class="di-eyebrow">DECISION EXPLANATION</span>
+            <h3>Why was this recommendation generated?</h3>
+
+            <div class="di-ai-response">
+              <i class="fas fa-magic"></i>
+              <p>{{ copilotExplanation }}</p>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="activeInsight === 'factors'">
+            <span class="di-eyebrow">RISK OBSERVATIONS</span>
+            <h3>Which conditions influenced the outcome?</h3>
+
+            <div class="di-insight-row"
+              *ngFor="let factor of copilotFactors">
+              <i class="fas fa-info-circle"></i>
+              <p>{{ factor }}</p>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="activeInsight === 'actions'">
+            <span class="di-eyebrow">RECOMMENDED WORKFLOW</span>
+            <h3>Suggested actions for the credit team</h3>
+
+            <div class="di-insight-row"
+              *ngFor="let action of copilotActions; let i = index">
+              <span class="di-step-index">{{ i + 1 }}</span>
+              <p>{{ action }}</p>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="activeInsight === 'summary'">
+            <span class="di-eyebrow">ASSESSMENT GENERATOR</span>
+            <h3>Credit Assessment Summary</h3>
+
+            <pre class="di-report">{{ assessmentReport }}</pre>
+
+            <button class="di-btn primary" type="button"
+              (click)="copyReport()">
+              <i class="fas fa-copy"></i>
+              Copy Assessment
+            </button>
+          </ng-container>
+
+        </div>
+
+        <footer class="di-ai-footer">
+          <i class="fas fa-shield-alt"></i>
+          Rule-based demonstration intelligence.
+          No trained ML model or production API is involved.
+        </footer>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ====================================================
+       APPLICATION INSPECTION
+       ==================================================== -->
+
+  <div class="di-overlay" *ngIf="selectedApplication && selectedEvaluation">
+    <div class="di-dialog di-inspection"
+      role="dialog" aria-modal="true">
+
+      <div class="di-dialog-header">
         <div>
-          <span class="modal-eyebrow">LENDING POLICY</span>
-
-          <h2 id="rule-modal-title">
-            {{ editingRuleId ? 'Edit Lending Rule'
-                             : 'Create Lending Rule' }}
-          </h2>
-
+          <span class="di-eyebrow">CREDIT DECISION INVESTIGATION</span>
+          <h2>{{ selectedApplication.name }}</h2>
           <p>
-            Configure the conditions that determine
-            a lending policy action.
+            {{ selectedApplication.id }}
+            · {{ selectedApplication.product }}
           </p>
         </div>
 
-        <button
-          type="button"
-          class="modal-close"
-          (click)="closeRuleModal()"
-          aria-label="Close rule form">
-          &times;
+        <button class="di-icon-button" type="button"
+          aria-label="Close application"
+          (click)="closeApplication()">
+          <i class="fas fa-times"></i>
         </button>
+      </div>
 
+      <div class="di-dialog-body">
+
+        <div class="di-inspection-summary">
+          <div>
+            <small>Requested Amount</small>
+            <strong>KES {{ selectedApplication.amount | number:'1.0-0' }}</strong>
+          </div>
+          <div>
+            <small>Credit Score</small>
+            <strong>{{ selectedApplication.score === null
+              ? 'N/A' : selectedApplication.score }}</strong>
+          </div>
+          <div>
+            <small>Debt-to-Income</small>
+            <strong>
+              {{ getDti(selectedApplication) === null
+                ? 'N/A'
+                : ((getDti(selectedApplication) || 0) | number:'1.1-1') + '%' }}
+            </strong>
+          </div>
+        </div>
+
+        <div class="di-decision-banner"
+          [ngClass]="getDecisionClass(selectedEvaluation.decision)">
+          <span>POLICY RECOMMENDATION</span>
+          <h3>{{ selectedEvaluation.decision }}</h3>
+          <p>{{ copilotExplanation }}</p>
+        </div>
+
+        <div class="di-inspection-checks">
+          <h3>Evaluated Policy Checks</h3>
+
+          <div *ngFor="let check of selectedEvaluation.results"
+            class="di-check-row">
+            <div>
+              <strong>{{ check.rule.name }}</strong>
+              <small>{{ getCondition(check.rule) }}</small>
+            </div>
+
+            <span class="di-badge"
+              [class.refer]="check.triggered"
+              [class.incomplete]="check.missing"
+              [class.approved]="!check.triggered && !check.missing">
+              {{ check.missing ? 'Missing'
+                : check.triggered ? 'Triggered' : 'Passed' }}
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="di-dialog-footer">
+        <button class="di-btn outline" type="button"
+          (click)="closeApplication()">Close</button>
+
+        <button class="di-btn primary" type="button"
+          (click)="closeApplication(); openCopilot()">
+          <i class="fas fa-magic"></i>
+          Explain with AI Copilot
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- ====================================================
+       CREATE / EDIT POLICY RULE MODAL
+       ==================================================== -->
+
+  <div class="di-overlay" *ngIf="showRuleModal">
+    <div class="di-dialog" role="dialog" aria-modal="true">
+
+      <div class="di-dialog-header">
+        <div>
+          <span class="di-eyebrow">LENDING POLICY CONFIGURATION</span>
+          <h2>{{ editingRuleId ? 'Edit Rule' : 'Create Lending Rule' }}</h2>
+          <p>Define the condition and action for this rule.</p>
+        </div>
+
+        <button class="di-icon-button" type="button"
+          (click)="showRuleModal = false">
+          <i class="fas fa-times"></i>
+        </button>
       </div>
 
       <form (ngSubmit)="saveRule()">
+        <div class="di-dialog-body">
 
-        <div class="modal-body">
+          <p class="di-form-error" *ngIf="ruleError">{{ ruleError }}</p>
 
-          <div
-            *ngIf="formError"
-            class="form-error"
-            role="alert">
-            {{ formError }}
-          </div>
+          <div class="di-form-grid">
 
-          <h3>Rule Information</h3>
-
-          <div class="form-grid">
-
-            <label class="form-field">
-              Rule Code
-              <input
-                type="text"
-                [value]="ruleForm.code"
-                readonly>
+            <label>Rule Code
+              <input type="text" [value]="ruleForm.code" readonly>
             </label>
 
-            <label class="form-field">
-              Rule Name *
-              <input
-                type="text"
-                name="ruleName"
-                [(ngModel)]="ruleForm.name"
-                placeholder="Enter rule name"
-                maxlength="100"
-                required>
+            <label>Rule Name *
+              <input type="text" name="name"
+                [(ngModel)]="ruleForm.name" required>
             </label>
 
-            <label class="form-field full">
-              Description
-              <textarea
-                name="ruleDescription"
-                rows="3"
-                [(ngModel)]="ruleForm.description"
-                placeholder="Describe the purpose of this rule">
-              </textarea>
+            <label class="full">Description
+              <textarea name="description" rows="2"
+                [(ngModel)]="ruleForm.description"></textarea>
             </label>
 
-            <label class="form-field">
-              Rule Category
-              <select
-                name="ruleCategory"
+            <label>Category
+              <select name="category"
                 [(ngModel)]="ruleForm.category"
-                (ngModelChange)="onCategoryChange()">
-
-                <option
-                  *ngFor="let category of categories"
-                  [value]="category">
-                  {{ category }}
-                </option>
-
+                (ngModelChange)="onRuleCategoryChange()">
+                <option *ngFor="let c of categories"
+                  [value]="c">{{ c }}</option>
               </select>
             </label>
 
-            <label class="form-field">
-              Priority
-              <input
-                type="number"
-                name="priority"
-                min="1"
-                step="1"
-                [(ngModel)]="ruleForm.priority"
-                required>
+            <label>Applicant Attribute
+              <select name="field" [(ngModel)]="ruleForm.field">
+                <option *ngFor="let field of availableFields"
+                  [value]="field.key">{{ field.name }}</option>
+              </select>
+            </label>
+
+            <label>Comparison
+              <select name="operator" [(ngModel)]="ruleForm.operator">
+                <option *ngFor="let op of operators"
+                  [value]="op.value">{{ op.label }}</option>
+              </select>
+            </label>
+
+            <label>Threshold
+              <input type="number" name="value"
+                [(ngModel)]="ruleForm.value" required>
+            </label>
+
+            <label>Action
+              <select name="action" [(ngModel)]="ruleForm.action">
+                <option *ngFor="let a of actions"
+                  [value]="a">{{ a }}</option>
+              </select>
+            </label>
+
+            <label>Severity
+              <select name="severity" [(ngModel)]="ruleForm.severity">
+                <option *ngFor="let s of severities"
+                  [value]="s">{{ s }}</option>
+              </select>
+            </label>
+
+            <label>Priority
+              <input type="number" name="priority" min="1"
+                [(ngModel)]="ruleForm.priority">
+            </label>
+
+            <label class="di-checkbox-label">
+              <input type="checkbox" name="enabled"
+                [(ngModel)]="ruleForm.enabled">
+              Activate rule
             </label>
 
           </div>
 
-          <h3>Rule Condition</h3>
-
-          <div class="form-grid">
-
-            <label class="form-field">
-              Applicant Attribute
-              <select
-                name="ruleField"
-                [(ngModel)]="ruleForm.field">
-
-                <option
-                  *ngFor="let field of availableFields"
-                  [value]="field.key">
-                  {{ field.label }}
-                </option>
-
-              </select>
-            </label>
-
-            <label class="form-field">
-              Comparison Operator
-              <select
-                name="ruleOperator"
-                [(ngModel)]="ruleForm.operator">
-
-                <option
-                  *ngFor="let operator of operators"
-                  [value]="operator.value">
-                  {{ operator.label }}
-                </option>
-
-              </select>
-            </label>
-
-            <label class="form-field">
-              Threshold Value
-              <input
-                type="number"
-                name="ruleValue"
-                [(ngModel)]="ruleForm.value"
-                required>
-            </label>
-
-          </div>
-
-          <h3>Decision Configuration</h3>
-
-          <div class="form-grid">
-
-            <label class="form-field">
-              Decision Action
-              <select
-                name="ruleAction"
-                [(ngModel)]="ruleForm.action">
-
-                <option
-                  *ngFor="let action of actions"
-                  [value]="action">
-                  {{ action }}
-                </option>
-
-              </select>
-            </label>
-
-            <label class="form-field">
-              Severity
-              <select
-                name="ruleSeverity"
-                [(ngModel)]="ruleForm.severity">
-
-                <option
-                  *ngFor="let severity of severities"
-                  [value]="severity">
-                  {{ severity }}
-                </option>
-
-              </select>
-            </label>
-
-          </div>
-
-          <div class="preview-box">
-
-            <strong>Rule Condition Preview</strong>
-
+          <div class="di-rule-preview">
+            <strong>Rule Preview</strong>
             <p>
-              If
-              <b>{{ getFieldLabel(ruleForm.field) }}</b>
-              {{ getOperatorSymbol(ruleForm.operator) }}
-              <b>
-                {{ formatValue(
-                    ruleForm.value,
-                    ruleForm.field
-                  ) }}
-              </b>,
-              then
-              <b>{{ ruleForm.action }}</b>.
+              If {{ getCondition(ruleForm) }},
+              then {{ ruleForm.action }}.
             </p>
-
           </div>
-
-          <label class="activation-checkbox">
-            <input
-              type="checkbox"
-              name="ruleEnabled"
-              [(ngModel)]="ruleForm.enabled">
-
-            <span>
-              <strong>Activate rule</strong>
-              <small>
-                Include this rule in policy evaluations.
-              </small>
-            </span>
-          </label>
-
         </div>
 
-        <div class="modal-footer">
-
-          <button
-            type="button"
-            class="btn btn-outline"
-            (click)="closeRuleModal()">
-            Cancel
-          </button>
-
-          <button
-            type="submit"
-            class="btn btn-primary">
+        <div class="di-dialog-footer">
+          <button class="di-btn outline" type="button"
+            (click)="showRuleModal = false">Cancel</button>
+          <button class="di-btn primary" type="submit">
             <i class="fas fa-save"></i>
-            {{ editingRuleId ? 'Save Changes'
-                             : 'Create Rule' }}
+            Save Rule
           </button>
-
         </div>
-
       </form>
-
     </div>
   </div>
 
   <!-- DELETE CONFIRMATION -->
-  <div
-    class="modal-overlay"
-    *ngIf="showDeleteModal">
-
-    <div
-      class="delete-modal"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="delete-modal-title">
-
-      <div class="delete-icon">
+  <div class="di-overlay" *ngIf="showDeleteModal">
+    <div class="di-confirm" role="dialog" aria-modal="true">
+      <span class="di-delete-icon">
         <i class="fas fa-trash-alt"></i>
-      </div>
-
-      <h2 id="delete-modal-title">Delete Lending Rule?</h2>
-
+      </span>
+      <h3>Delete Lending Rule?</h3>
       <p>
-        You are about to delete
-        <strong>{{ deletingRule?.name }}</strong>.
-        This action cannot be undone.
+        Delete <strong>{{ deletingRule?.name }}</strong>?
+        This cannot be undone.
       </p>
-
-      <div class="delete-actions">
-
-        <button
-          type="button"
-          class="btn btn-outline"
-          (click)="cancelDelete()">
-          Cancel
-        </button>
-
-        <button
-          type="button"
-          class="btn btn-danger"
-          (click)="confirmDelete()">
-          Delete Rule
-        </button>
-
+      <div class="di-confirm-actions">
+        <button class="di-btn outline" type="button"
+          (click)="showDeleteModal = false">Cancel</button>
+        <button class="di-btn danger" type="button"
+          (click)="deleteRule()">Delete Rule</button>
       </div>
-
     </div>
   </div>
 
   <!-- NOTIFICATION -->
-  <div
-    class="toast-notification"
-    *ngIf="toastMessage"
-    [class.toast-error]="toastType === 'error'"
-    role="status">
+  <div *ngIf="toastMessage"
+    class="di-toast" [class.error]="toastError" role="status">
+    <i class="fas"
+      [class.fa-check-circle]="!toastError"
+      [class.fa-exclamation-circle]="toastError"></i>
 
-    <i
-      class="fas"
-      [ngClass]="toastType === 'success'
-        ? 'fa-check-circle'
-        : 'fa-exclamation-circle'">
-    </i>
+    {{ toastMessage }}
 
-    <span>{{ toastMessage }}</span>
-
-    <button
-      type="button"
-      (click)="dismissToast()"
-      aria-label="Dismiss notification">
+    <button type="button" (click)="dismissToast()">
       &times;
     </button>
-
   </div>
 
 </div>

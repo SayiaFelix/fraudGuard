@@ -1,982 +1,874 @@
 
-<div class="uba-policy-simulator">
+<div class="policy-studio">
 
-  <!-- PAGE HEADER -->
-  <header class="page-header">
-
-    <div class="header-content">
-      <div class="breadcrumb">
-        Lending Operations
-        <span>/</span>
-        Credit Decisioning
-        <span>/</span>
+  <!-- HEADER -->
+  <header class="studio-header">
+    <div>
+      <div class="breadcrumbs">
+        Lending Operations <span>/</span>
+        Credit Intelligence <span>/</span>
         Policy Simulator
       </div>
 
-      <h1>Credit Policy Simulator</h1>
-
+      <span class="eyebrow">STRATEGIC LENDING INTELLIGENCE</span>
+      <h1>Policy Intelligence Studio</h1>
       <p>
-        Analyze the impact of lending-policy adjustments
-        before applying them to credit decisions.
+        Explore lending strategies, compare policy outcomes
+        and understand the implications before activation.
       </p>
     </div>
 
-    <div class="header-actions">
-      <button
-        type="button"
-        class="btn btn-outline"
-        [disabled]="!hasChanges"
-        (click)="reset()">
-        <i class="fas fa-undo"></i>
-        Reset Changes
-      </button>
-
-      <button
-        type="button"
-        class="btn btn-primary"
-        [disabled]="!hasChanges || !!validationError"
-        (click)="save()">
-        <i class="fas fa-check"></i>
-        Apply Policy
-      </button>
-    </div>
-
+    <span class="demo-label">
+      <i class="fas fa-circle"></i>
+      DEMO ENVIRONMENT
+    </span>
   </header>
 
   <!-- POLICY STATUS -->
-  <section class="policy-status">
-
-    <div class="status-left">
-      <span class="status-indicator"></span>
-
+  <div class="policy-status">
+    <div class="status-group">
+      <span class="status-symbol">
+        <i class="fas fa-shield-alt"></i>
+      </span>
       <div>
-        <strong>Active Lending Policy</strong>
+        <strong>Active lending policy</strong>
+        <small>
+          Score {{ currentPolicy.approveFrom }}
+          · DTI {{ pct(currentPolicy.maxDti) }}
+          · Max {{ money(currentPolicy.maxAmount) }}
+        </small>
+      </div>
+    </div>
+
+    <span class="state-chip"
+      [class.draft]="hasChanges">
+      <i class="fas fa-circle"></i>
+      {{ hasChanges ? 'Scenario Not Applied' : 'Current Policy' }}
+    </span>
+  </div>
+
+  <!-- NAVIGATION -->
+  <nav class="studio-tabs" aria-label="Policy simulator workspaces">
+    <button
+      type="button"
+      *ngFor="let tab of tabs"
+      [class.active]="activeTab === tab.id"
+      (click)="setTab(tab.id)">
+      <i class="fas" [ngClass]="tab.icon"></i>
+      <span>{{ tab.label }}</span>
+    </button>
+  </nav>
+
+  <div *ngIf="validationError" class="message-error">
+    <i class="fas fa-exclamation-circle"></i>
+    {{ validationError }}
+  </div>
+
+  <!-- ================================================
+       TAB 1 — SCENARIO BUILDER
+       ================================================ -->
+  <section *ngIf="activeTab === 'scenario'">
+
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">STRATEGY DESIGN</span>
+        <h2>Build a Lending Scenario</h2>
         <p>
-          {{ hasChanges
-            ? 'You have unapplied policy changes.'
-            : 'All displayed parameters match the saved policy.' }}
+          Start with a strategic objective or adjust
+          individual policy thresholds.
         </p>
       </div>
     </div>
 
-    <span
-      class="status-badge"
-      [class.unsaved]="hasChanges">
-      {{ hasChanges ? 'Changes Pending' : 'Current Policy' }}
-    </span>
+    <!-- STRATEGY PRESETS -->
+    <div class="strategy-grid">
+
+      <button class="strategy-card"
+        type="button"
+        [class.selected]="selectedStrategy === 'Growth'"
+        (click)="chooseStrategy('Growth')">
+        <span class="strategy-icon blue">
+          <i class="fas fa-chart-line"></i>
+        </span>
+        <strong>Growth Strategy</strong>
+        <small>Explore broader credit eligibility.</small>
+        <span class="strategy-select">
+          {{ selectedStrategy === 'Growth' ? 'Selected' : 'Select Strategy' }}
+        </span>
+      </button>
+
+      <button class="strategy-card"
+        type="button"
+        [class.selected]="selectedStrategy === 'Balanced'"
+        (click)="chooseStrategy('Balanced')">
+        <span class="strategy-icon purple">
+          <i class="fas fa-balance-scale"></i>
+        </span>
+        <strong>Balanced Strategy</strong>
+        <small>Explore moderate lending thresholds.</small>
+        <span class="strategy-select">
+          {{ selectedStrategy === 'Balanced' ? 'Selected' : 'Select Strategy' }}
+        </span>
+      </button>
+
+      <button class="strategy-card"
+        type="button"
+        [class.selected]="selectedStrategy === 'Conservative'"
+        (click)="chooseStrategy('Conservative')">
+        <span class="strategy-icon green">
+          <i class="fas fa-shield-alt"></i>
+        </span>
+        <strong>Conservative Strategy</strong>
+        <small>Explore stricter credit requirements.</small>
+        <span class="strategy-select">
+          {{ selectedStrategy === 'Conservative' ? 'Selected' : 'Select Strategy' }}
+        </span>
+      </button>
+
+      <button class="strategy-card"
+        type="button"
+        [class.selected]="selectedStrategy === 'Custom'"
+        (click)="chooseStrategy('Custom')">
+        <span class="strategy-icon gray">
+          <i class="fas fa-sliders-h"></i>
+        </span>
+        <strong>Custom Strategy</strong>
+        <small>Configure a policy scenario manually.</small>
+        <span class="strategy-select">
+          {{ selectedStrategy === 'Custom' ? 'Selected' : 'Customize' }}
+        </span>
+      </button>
+
+    </div>
+
+    <!-- POLICY PARAMETERS -->
+    <div class="studio-card">
+      <div class="card-heading">
+        <div>
+          <h3>Proposed Policy Settings</h3>
+          <p>
+            Adjust the draft thresholds.
+            The current policy remains unchanged.
+          </p>
+        </div>
+        <span class="soft-pill">{{ selectedStrategy }} Scenario</span>
+      </div>
+
+      <div class="parameters-grid">
+
+        <div class="parameter">
+          <div class="parameter-title">
+            <label for="approval-score">Automatic Approval Score</label>
+            <strong>{{ draft.approveFrom }}</strong>
+          </div>
+          <p>Minimum credit score for automatic approval eligibility.</p>
+          <input id="approval-score" type="range"
+            min="620" max="820" step="10"
+            [(ngModel)]="draft.approveFrom"
+            (ngModelChange)="onPolicyChange()">
+          <div class="parameter-foot">
+            <span>Current policy</span>
+            <b>{{ currentPolicy.approveFrom }}</b>
+          </div>
+        </div>
+
+        <div class="parameter">
+          <div class="parameter-title">
+            <label for="decline-score">Decline Score Threshold</label>
+            <strong>{{ draft.declineBelow }}</strong>
+          </div>
+          <p>Applications below this score are declined under the score policy.</p>
+          <input id="decline-score" type="range"
+            min="450" max="680" step="10"
+            [(ngModel)]="draft.declineBelow"
+            (ngModelChange)="onPolicyChange()">
+          <div class="parameter-foot">
+            <span>Current policy</span>
+            <b>{{ currentPolicy.declineBelow }}</b>
+          </div>
+        </div>
+
+        <div class="parameter">
+          <div class="parameter-title">
+            <label for="dti">Maximum Debt-to-Income Ratio</label>
+            <strong>{{ pct(draft.maxDti) }}</strong>
+          </div>
+          <p>Maximum permitted existing debt obligations relative to income.</p>
+          <input id="dti" type="range"
+            min="0.25" max="0.70" step="0.05"
+            [(ngModel)]="draft.maxDti"
+            (ngModelChange)="onPolicyChange()">
+          <div class="parameter-foot">
+            <span>Current policy</span>
+            <b>{{ pct(currentPolicy.maxDti) }}</b>
+          </div>
+        </div>
+
+        <div class="parameter">
+          <div class="parameter-title">
+            <label for="amount">Maximum Lending Amount</label>
+            <strong>{{ money(draft.maxAmount) }}</strong>
+          </div>
+          <p>Maximum loan amount permitted by this policy scenario.</p>
+          <input id="amount" type="range"
+            min="200000" max="5000000" step="100000"
+            [(ngModel)]="draft.maxAmount"
+            (ngModelChange)="onPolicyChange()">
+          <div class="parameter-foot">
+            <span>Current policy</span>
+            <b>{{ money(currentPolicy.maxAmount) }}</b>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="action-footer">
+        <button type="button" class="btn outline"
+          (click)="reset()">
+          <i class="fas fa-undo"></i>
+          Reset to Current
+        </button>
+
+        <button type="button" class="btn primary"
+          [disabled]="loading"
+          (click)="runAndViewImpact()">
+          <i class="fas fa-play"></i>
+          Run Simulation
+          <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- STRATEGY BATTLE -->
+    <div class="studio-card">
+      <div class="card-heading">
+        <div>
+          <span class="eyebrow">ADDITIONAL ANALYSIS</span>
+          <h3>Strategy Battle</h3>
+          <p>
+            Compare Conservative, Balanced and Growth presets
+            using the existing simulation engine.
+          </p>
+        </div>
+
+        <button type="button" class="btn outline"
+          [disabled]="!ready"
+          (click)="compareStrategies()">
+          <i class="fas fa-columns"></i>
+          Compare Strategies
+        </button>
+      </div>
+
+      <div class="strategy-comparison" *ngIf="showStrategyBattle">
+        <div class="strategy-result"
+          *ngFor="let strategy of strategyComparisons">
+
+          <h4>{{ strategy.name }}</h4>
+
+          <div class="strategy-stat">
+            <span>Approval rate</span>
+            <strong>{{ strategy.approvalRate | number:'1.1-1' }}%</strong>
+          </div>
+
+          <div class="strategy-stat">
+            <span>Referral rate</span>
+            <strong>{{ strategy.referralRate | number:'1.1-1' }}%</strong>
+          </div>
+
+          <div class="strategy-stat">
+            <span>Changed decisions</span>
+            <strong>{{ strategy.changed | number }}</strong>
+          </div>
+
+          <button type="button" class="btn outline"
+            (click)="useComparedStrategy(strategy.name)">
+            Use This Scenario
+          </button>
+        </div>
+      </div>
+
+      <p class="fine-print">
+        Presets are illustrative. Results show policy eligibility
+        outcomes, not predicted default or profitability.
+      </p>
+    </div>
 
   </section>
 
-  <!-- NOTIFICATIONS -->
-  <div
-    class="success-alert"
-    *ngIf="saved"
-    role="status">
-    <i class="fas fa-check-circle"></i>
-    Policy parameters have been successfully applied.
-  </div>
-
-  <div
-    class="error-alert"
-    *ngIf="validationError"
-    role="alert">
-    <i class="fas fa-exclamation-triangle"></i>
-    {{ validationError }}
-  </div>
-
-  <!-- WORKSPACE -->
-  <div class="workspace-grid">
-
-    <!-- CONFIGURATION PANEL -->
-    <aside class="policy-panel">
-
-      <div class="panel-header">
-        <div class="panel-title">
-          <div class="panel-icon">
-            <i class="fas fa-sliders-h"></i>
-          </div>
-
-          <div>
-            <h2>Scenario Configuration</h2>
-            <p>Adjust lending-policy parameters</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="panel-body">
-
-        <!-- SCORE PARAMETERS -->
-        <div class="parameter-section">
-
-          <h3>
-            <i class="fas fa-tachometer-alt"></i>
-            Credit Score Thresholds
-          </h3>
-
-          <div class="parameter-group">
-
-            <div class="parameter-heading">
-              <label for="approve-score">
-                Automatic Approval Score
-              </label>
-
-              <strong>
-                {{ draft.approveFrom }}
-              </strong>
-            </div>
-
-            <p>
-              Applicants at or above this score
-              may qualify for automatic approval,
-              subject to other lending conditions.
-            </p>
-
-            <input
-              id="approve-score"
-              type="range"
-              min="620"
-              max="820"
-              step="5"
-              [(ngModel)]="draft.approveFrom"
-              (ngModelChange)="onPolicyChange()">
-
-            <div class="range-labels">
-              <span>620</span>
-              <span>820</span>
-            </div>
-
-            <div class="current-value">
-              Current threshold:
-              <strong>
-                {{ currentPolicy.approveFrom }}
-              </strong>
-            </div>
-
-          </div>
-
-          <div class="parameter-group">
-
-            <div class="parameter-heading">
-              <label for="decline-score">
-                Decline Below Score
-              </label>
-
-              <strong>
-                {{ draft.declineBelow }}
-              </strong>
-            </div>
-
-            <p>
-              Applications scoring below this
-              threshold fall within the decline
-              range of the score policy.
-            </p>
-
-            <input
-              id="decline-score"
-              type="range"
-              min="450"
-              max="680"
-              step="5"
-              [(ngModel)]="draft.declineBelow"
-              (ngModelChange)="onPolicyChange()">
-
-            <div class="range-labels">
-              <span>450</span>
-              <span>680</span>
-            </div>
-
-            <div class="current-value">
-              Current threshold:
-              <strong>
-                {{ currentPolicy.declineBelow }}
-              </strong>
-            </div>
-
-          </div>
-
-          <div class="score-zone-info">
-
-            <div>
-              <span class="zone-dot declined"></span>
-              Decline:
-              <strong>
-                Below {{ draft.declineBelow }}
-              </strong>
-            </div>
-
-            <div>
-              <span class="zone-dot referred"></span>
-              Review:
-              <strong>
-                {{ draft.declineBelow }}
-                – {{ draft.approveFrom - 1 }}
-              </strong>
-            </div>
-
-            <div>
-              <span class="zone-dot approved"></span>
-              Approval range:
-              <strong>
-                {{ draft.approveFrom }}+
-              </strong>
-            </div>
-
-          </div>
-
-        </div>
-
-        <!-- AFFORDABILITY -->
-        <div class="parameter-section">
-
-          <h3>
-            <i class="fas fa-wallet"></i>
-            Affordability Controls
-          </h3>
-
-          <div class="parameter-group">
-
-            <div class="parameter-heading">
-              <label for="max-dti">
-                Maximum Debt-to-Income Ratio
-              </label>
-
-              <strong>
-                {{ draft.maxDti | percent:'1.0-0' }}
-              </strong>
-            </div>
-
-            <p>
-              Maximum permitted proportion of
-              monthly income committed to debt
-              repayments under the policy.
-            </p>
-
-            <input
-              id="max-dti"
-              type="range"
-              min="0.25"
-              max="0.70"
-              step="0.01"
-              [(ngModel)]="draft.maxDti"
-              (ngModelChange)="onPolicyChange()">
-
-            <div class="range-labels">
-              <span>25%</span>
-              <span>70%</span>
-            </div>
-
-            <div class="current-value">
-              Current threshold:
-              <strong>
-                {{ currentPolicy.maxDti | percent:'1.0-0' }}
-              </strong>
-            </div>
-
-          </div>
-
-        </div>
-
-        <!-- LOAN LIMIT -->
-        <div class="parameter-section">
-
-          <h3>
-            <i class="fas fa-money-bill-wave"></i>
-            Loan Exposure Controls
-          </h3>
-
-          <div class="parameter-group">
-
-            <div class="parameter-heading amount-heading">
-              <label for="max-amount">
-                Auto-Approval Loan Limit
-              </label>
-
-              <strong>
-                {{ money(draft.maxAmount) }}
-              </strong>
-            </div>
-
-            <p>
-              Maximum requested loan amount
-              eligible for automatic approval,
-              subject to scoring and affordability.
-            </p>
-
-            <input
-              id="max-amount"
-              type="range"
-              min="200000"
-              max="5000000"
-              step="50000"
-              [(ngModel)]="draft.maxAmount"
-              (ngModelChange)="onPolicyChange()">
-
-            <div class="range-labels">
-              <span>KES 200K</span>
-              <span>KES 5M</span>
-            </div>
-
-            <div class="current-value">
-              Current limit:
-              <strong>
-                {{ money(currentPolicy.maxAmount) }}
-              </strong>
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-      <div class="panel-footer">
-        <button
-          type="button"
-          class="btn btn-outline"
-          (click)="reset()"
-          [disabled]="!hasChanges">
-          Reset
-        </button>
-
-        <button
-          type="button"
-          class="btn btn-primary"
-          (click)="save()"
-          [disabled]="!hasChanges || !!validationError">
-          Apply Changes
-        </button>
-      </div>
-
-    </aside>
-
-    <!-- ANALYTICS WORKSPACE -->
-    <main class="analysis-panel">
-
-      <ng-container *ngIf="result as sim">
-
-        <!-- PORTFOLIO HEADER -->
-        <section class="portfolio-heading">
-
-          <div>
-            <h2>Portfolio Impact Analysis</h2>
-            <p>
-              Comparison of current and proposed
-              credit-policy outcomes.
-            </p>
-          </div>
-
-          <div class="portfolio-count">
-            <i class="fas fa-layer-group"></i>
-
-            <div>
-              <span>Applications Evaluated</span>
-              <strong>{{ bookSize | number }}</strong>
-            </div>
-          </div>
-
-        </section>
-
-        <!-- KPI GRID -->
-        <section class="impact-kpis">
-
-          <article class="impact-card">
-
-            <div class="impact-icon approved">
-              <i class="fas fa-check-circle"></i>
-            </div>
-
-            <span class="impact-label">
-              Would Approve
-            </span>
-
-            <strong class="impact-value">
-              {{ sim.next.approved | number }}
-            </strong>
-
-            <div class="impact-footer">
-
-              <span>
-                {{ share(sim.next.approved, bookSize) }}
-                of applications
-              </span>
-
-              <span
-                class="change-indicator"
-                [ngClass]="getDifferenceClass(
-                  approvedDifference
-                )">
-                {{ signedNumber(approvedDifference) }}
-              </span>
-
-            </div>
-
-            <small>
-              Current approvals:
-              {{ sim.current.approved | number }}
-            </small>
-
-          </article>
-
-          <article class="impact-card">
-
-            <div class="impact-icon referred">
-              <i class="fas fa-user-clock"></i>
-            </div>
-
-            <span class="impact-label">
-              Would Refer
-            </span>
-
-            <strong class="impact-value">
-              {{ sim.next.referred | number }}
-            </strong>
-
-            <div class="impact-footer">
-
-              <span>
-                {{ share(sim.next.referred, bookSize) }}
-                of applications
-              </span>
-
-              <span
-                class="change-indicator"
-                [ngClass]="getDifferenceClass(
-                  referredDifference
-                )">
-                {{ signedNumber(referredDifference) }}
-              </span>
-
-            </div>
-
-            <small>
-              Current referrals:
-              {{ sim.current.referred | number }}
-            </small>
-
-          </article>
-
-          <article class="impact-card">
-
-            <div class="impact-icon declined">
-              <i class="fas fa-times-circle"></i>
-            </div>
-
-            <span class="impact-label">
-              Would Decline
-            </span>
-
-            <strong class="impact-value">
-              {{ sim.next.declined | number }}
-            </strong>
-
-            <div class="impact-footer">
-
-              <span>
-                {{ share(sim.next.declined, bookSize) }}
-                of applications
-              </span>
-
-              <span
-                class="change-indicator"
-                [ngClass]="getDifferenceClass(
-                  declinedDifference
-                )">
-                {{ signedNumber(declinedDifference) }}
-              </span>
-
-            </div>
-
-            <small>
-              Current declines:
-              {{ sim.current.declined | number }}
-            </small>
-
-          </article>
-
-          <article class="impact-card">
-
-            <div class="impact-icon changed">
-              <i class="fas fa-exchange-alt"></i>
-            </div>
-
-            <span class="impact-label">
-              Decisions Changed
-            </span>
-
-            <strong class="impact-value">
-              {{ changedCount | number }}
-            </strong>
-
-            <div class="impact-footer">
-              <span>
-                {{ changedPercentage | number:'1.1-1' }}%
-                of applications
-              </span>
-            </div>
-
-            <small>
-              {{ unchangedCount | number }}
-              decisions unchanged
-            </small>
-
-          </article>
-
-        </section>
-
-        <!-- NAVIGATION -->
-        <div class="analysis-tabs">
-
-          <button
-            type="button"
-            [class.active]="activeTab === 'overview'"
-            (click)="setTab('overview')">
-            <i class="fas fa-chart-bar"></i>
-            Scenario Overview
-          </button>
-
-          <button
-            type="button"
-            [class.active]="activeTab === 'applications'"
-            (click)="setTab('applications')">
-            <i class="fas fa-list"></i>
-            Affected Applications
-            <span>{{ changedCount }}</span>
-          </button>
-
-        </div>
-
-        <!-- OVERVIEW TAB -->
-        <ng-container *ngIf="activeTab === 'overview'">
-
-          <!-- DECISION DISTRIBUTION -->
-          <article class="analysis-card">
-
-            <div class="card-heading">
-              <div>
-                <h3>Decision Distribution</h3>
-                <p>
-                  Compare the allocation of applications
-                  under each policy configuration.
-                </p>
-              </div>
-            </div>
-
-            <div class="distribution-legend">
-              <span>
-                <i class="legend-dot current"></i>
-                Current Policy
-              </span>
-
-              <span>
-                <i class="legend-dot proposed"></i>
-                Proposed Policy
-              </span>
-            </div>
-
-            <div class="distribution-list">
-
-              <div
-                class="distribution-item"
-                *ngFor="let item of summary">
-
-                <div class="distribution-title">
-                  <strong>{{ item.label }}</strong>
-
-                  <span>
-                    {{ item.proposed }} applications
-                  </span>
-                </div>
-
-                <div class="distribution-row">
-
-                  <span>Current</span>
-
-                  <div class="bar-track">
-                    <div
-                      class="bar-fill current"
-                      [style.width.%]="item.currentPct">
-                    </div>
-                  </div>
-
-                  <strong>
-                    {{ item.currentPct | number:'1.1-1' }}%
-                  </strong>
-
-                </div>
-
-                <div class="distribution-row">
-
-                  <span>Proposed</span>
-
-                  <div class="bar-track">
-                    <div
-                      class="bar-fill proposed"
-                      [ngClass]="item.colorClass"
-                      [style.width.%]="item.proposedPct">
-                    </div>
-                  </div>
-
-                  <strong>
-                    {{ item.proposedPct | number:'1.1-1' }}%
-                  </strong>
-
-                </div>
-
-                <div class="distribution-difference">
-                  Net change:
-                  <strong>
-                    {{ signedNumber(item.difference) }}
-                    applications
-                  </strong>
-                </div>
-
-              </div>
-
-            </div>
-
-          </article>
-
-          <!-- CURRENT VS PROPOSED POLICY -->
-          <article class="analysis-card">
-
-            <div class="card-heading">
-              <div>
-                <h3>Policy Parameter Comparison</h3>
-                <p>
-                  Review the proposed thresholds against
-                  the currently saved lending policy.
-                </p>
-              </div>
-            </div>
-
-            <div class="comparison-table-wrap">
-
-              <table class="comparison-table">
-                <thead>
-                  <tr>
-                    <th>Policy Parameter</th>
-                    <th>Current</th>
-                    <th>Proposed</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-
-                  <tr>
-                    <td>Automatic Approval Score</td>
-                    <td>{{ currentPolicy.approveFrom }}</td>
-                    <td
-                      [class.modified]="
-                        draft.approveFrom !==
-                        currentPolicy.approveFrom
-                      ">
-                      {{ draft.approveFrom }}
-                    </td>
-                  </tr>
-
-                  <tr>
-                    <td>Decline Below Score</td>
-                    <td>{{ currentPolicy.declineBelow }}</td>
-                    <td
-                      [class.modified]="
-                        draft.declineBelow !==
-                        currentPolicy.declineBelow
-                      ">
-                      {{ draft.declineBelow }}
-                    </td>
-                  </tr>
-
-                  <tr>
-                    <td>Maximum DTI</td>
-                    <td>
-                      {{ currentPolicy.maxDti | percent:'1.0-0' }}
-                    </td>
-                    <td
-                      [class.modified]="
-                        draft.maxDti !== currentPolicy.maxDti
-                      ">
-                      {{ draft.maxDti | percent:'1.0-0' }}
-                    </td>
-                  </tr>
-
-                  <tr>
-                    <td>Auto-Approval Loan Limit</td>
-                    <td>{{ money(currentPolicy.maxAmount) }}</td>
-                    <td
-                      [class.modified]="
-                        draft.maxAmount !== currentPolicy.maxAmount
-                      ">
-                      {{ money(draft.maxAmount) }}
-                    </td>
-                  </tr>
-
-                </tbody>
-              </table>
-
-            </div>
-
-          </article>
-
-          <!-- OVERALL IMPACT -->
-          <article class="analysis-card">
-
-            <div class="card-heading">
-              <div>
-                <h3>Decision Stability</h3>
-                <p>
-                  Proportion of applications whose decisions
-                  remain unchanged after policy adjustment.
-                </p>
-              </div>
-            </div>
-
-            <div class="stability-content">
-
-              <div class="stability-numbers">
-                <div>
-                  <span>Unchanged Decisions</span>
-                  <strong>
-                    {{ unchangedCount | number }}
-                  </strong>
-                </div>
-
-                <div>
-                  <span>Changed Decisions</span>
-                  <strong>
-                    {{ changedCount | number }}
-                  </strong>
-                </div>
-              </div>
-
-              <div class="stability-bar">
-                <div
-                  class="unchanged"
-                  [style.width.%]="unchangedPercentage">
-                </div>
-
-                <div
-                  class="changed"
-                  [style.width.%]="changedPercentage">
-                </div>
-              </div>
-
-              <div class="stability-legend">
-
-                <span>
-                  <i class="legend-dot stable"></i>
-                  {{ unchangedPercentage | number:'1.1-1' }}%
-                  unchanged
-                </span>
-
-                <span>
-                  <i class="legend-dot changed"></i>
-                  {{ changedPercentage | number:'1.1-1' }}%
-                  changed
-                </span>
-
-              </div>
-
-            </div>
-
-          </article>
-
-        </ng-container>
-
-        <!-- AFFECTED APPLICATIONS -->
-        <ng-container *ngIf="activeTab === 'applications'">
-
-          <article class="analysis-card">
-
-            <div class="card-heading">
-              <div>
-                <h3>Applications With Changed Decisions</h3>
-                <p>
-                  Review the records affected by the
-                  proposed policy configuration.
-                </p>
-              </div>
-
-              <span class="record-count">
-                {{ changedCount }} changed
-              </span>
-            </div>
-
-            <div class="table-filters">
-
-              <div class="search-box">
-                <i class="fas fa-search"></i>
-
-                <input
-                  type="search"
-                  placeholder="Search application or applicant"
-                  [(ngModel)]="searchTerm"
-                  (ngModelChange)="onFilterChange()">
-              </div>
-
-              <select
-                aria-label="Filter proposed decision"
-                [(ngModel)]="decisionFilter"
-                (ngModelChange)="onFilterChange()">
-
-                <option value="All">
-                  All Decisions
-                </option>
-
-                <option value="Approve">
-                  Approve
-                </option>
-
-                <option value="Refer">
-                  Refer
-                </option>
-
-                <option value="Decline">
-                  Decline
-                </option>
-
-              </select>
-
-            </div>
-
-            <div class="table-container">
-              <table class="applications-table">
-
-                <thead>
-                  <tr>
-                    <th>Application Ref.</th>
-                    <th>Applicant</th>
-                    <th>Credit Score</th>
-                    <th>DTI</th>
-                    <th>Requested Amount</th>
-                    <th>Current</th>
-                    <th>Proposed</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-
-                  <tr *ngFor="let row of paginatedChanges">
-
-                    <td class="reference-cell">
-                      {{ row.id }}
-                    </td>
-
-                    <td>
-                      <strong>{{ row.applicant }}</strong>
-                    </td>
-
-                    <td>{{ row.score }}</td>
-
-                    <td>
-                      {{ row.dti | percent:'1.0-0' }}
-                    </td>
-
-                    <td>
-                      {{ money(row.amount) }}
-                    </td>
-
-                    <td>
-                      <span
-                        class="decision-pill"
-                        [ngClass]="getDecisionClass(row.from)">
-                        {{ row.from }}
-                      </span>
-                    </td>
-
-                    <td>
-                      <span
-                        class="decision-pill"
-                        [ngClass]="getDecisionClass(row.to)">
-                        {{ row.to }}
-                      </span>
-                    </td>
-
-                  </tr>
-
-                  <tr *ngIf="!filteredChanges.length">
-                    <td colspan="7">
-
-                      <div class="empty-state">
-                        <i class="fas fa-check-circle"></i>
-
-                        <h3>
-                          No matching decision changes
-                        </h3>
-
-                        <p>
-                          No applications match the current
-                          scenario and filter selection.
-                        </p>
-                      </div>
-
-                    </td>
-                  </tr>
-
-                </tbody>
-              </table>
-            </div>
-
-            <div
-              class="table-pagination"
-              *ngIf="filteredChanges.length > 0">
-
-              <span>
-                Showing
-                {{ (currentPage - 1) * pageSize + 1 }}
-                –
-                {{ currentPage * pageSize > filteredChanges.length
-                    ? filteredChanges.length
-                    : currentPage * pageSize }}
-                of {{ filteredChanges.length }}
-              </span>
-
-              <div>
-                <button
-                  type="button"
-                  (click)="previousPage()"
-                  [disabled]="currentPage === 1">
-                  Previous
-                </button>
-
-                <span>
-                  {{ currentPage }} / {{ totalPages }}
-                </span>
-
-                <button
-                  type="button"
-                  (click)="nextPage()"
-                  [disabled]="currentPage === totalPages">
-                  Next
-                </button>
-              </div>
-
-            </div>
-
-          </article>
-
-        </ng-container>
-
-      </ng-container>
-
-      <!-- EMPTY RESULTS -->
-      <div
-        class="analysis-card empty-state"
-        *ngIf="!result">
-
-        <i class="fas fa-chart-line"></i>
-
-        <h3>Simulation Results Unavailable</h3>
-
+  <!-- ================================================
+       TAB 2 — IMPACT ANALYSIS
+       ================================================ -->
+  <section *ngIf="activeTab === 'impact'">
+
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">EXECUTIVE POLICY ANALYTICS</span>
+        <h2>Impact Analysis</h2>
         <p>
-          Review the policy parameters and correct
-          any validation issues to continue.
+          Compare the current and proposed policy using
+          the same application portfolio.
         </p>
+      </div>
+
+      <span class="soft-pill" *ngIf="ready">
+        {{ bookSize | number }} Applications
+      </span>
+    </div>
+
+    <ng-container *ngIf="ready && result; else needsSimulation">
+
+      <div class="metric-grid">
+
+        <div class="metric-card">
+          <small>Applications Evaluated</small>
+          <strong>{{ bookSize | number }}</strong>
+          <span>Same portfolio under both policies</span>
+        </div>
+
+        <div class="metric-card">
+          <small>Approved Applications</small>
+          <strong>{{ result.next.approved | number }}</strong>
+          <span [ngClass]="differenceClass(approvedDelta)">
+            {{ signed(approvedDelta) }} vs. current
+          </span>
+        </div>
+
+        <div class="metric-card">
+          <small>Approval Rate Movement</small>
+          <strong>
+            {{ approvalRateDelta > 0 ? '+' : '' }}
+            {{ approvalRateDelta | number:'1.1-1' }} pp
+          </strong>
+          <span>Percentage-point change</span>
+        </div>
+
+        <div class="metric-card">
+          <small>Changed Decisions</small>
+          <strong>{{ changedCount | number }}</strong>
+          <span>{{ changedRate | number:'1.1-1' }}% of portfolio</span>
+        </div>
 
       </div>
 
-    </main>
+      <div class="studio-card">
+        <div class="card-heading">
+          <div>
+            <h3>Current vs Proposed Decision Outcomes</h3>
+            <p>Counts and proportions of evaluated applications.</p>
+          </div>
+        </div>
 
+        <div class="comparison-list">
+
+          <div class="comparison-item" *ngFor="let item of comparisons">
+            <div class="comparison-item-heading">
+              <strong>{{ item.label }}</strong>
+              <span [ngClass]="differenceClass(item.difference)">
+                {{ signed(item.difference) }} applications
+              </span>
+            </div>
+
+            <div class="comparison-line">
+              <span>Current</span>
+              <div class="bar-track">
+                <div class="bar-fill current"
+                  [style.width.%]="item.currentPct"></div>
+              </div>
+              <strong>{{ item.currentPct | number:'1.1-1' }}%</strong>
+            </div>
+
+            <div class="comparison-line">
+              <span>Proposed</span>
+              <div class="bar-track">
+                <div class="bar-fill"
+                  [ngClass]="item.key"
+                  [style.width.%]="item.proposedPct"></div>
+              </div>
+              <strong>{{ item.proposedPct | number:'1.1-1' }}%</strong>
+            </div>
+
+            <div class="comparison-foot">
+              {{ item.current | number }} current
+              <span>→</span>
+              {{ item.proposed | number }} proposed
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="studio-card">
+        <div class="card-heading">
+          <div>
+            <h3>Decision Stability</h3>
+            <p>How much of the portfolio changes recommendation?</p>
+          </div>
+        </div>
+
+        <div class="stability-section">
+          <div class="stability-summary">
+            <div>
+              <small>Unchanged</small>
+              <strong>{{ stableCount | number }}</strong>
+            </div>
+
+            <div>
+              <small>Changed</small>
+              <strong>{{ changedCount | number }}</strong>
+            </div>
+          </div>
+
+          <div class="stability-track">
+            <div class="stable"
+              [style.width.%]="percentOf(stableCount, bookSize)"></div>
+            <div class="changed"
+              [style.width.%]="changedRate"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="next-banner">
+        <div>
+          <strong>Which applicants are affected?</strong>
+          <p>Inspect applications that move between decision outcomes.</p>
+        </div>
+        <button type="button" class="btn primary"
+          (click)="setTab('migration')">
+          Explore Migrations
+          <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+
+    </ng-container>
+  </section>
+
+  <!-- ================================================
+       TAB 3 — APPLICANT MIGRATION
+       ================================================ -->
+  <section *ngIf="activeTab === 'migration'">
+
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">APPLICANT DECISION MOVEMENT</span>
+        <h2>Applicant Migration</h2>
+        <p>
+          Identify applications whose decisions change
+          between the two policies.
+        </p>
+      </div>
+
+      <span class="soft-pill" *ngIf="ready">
+        {{ changedCount }} Changes
+      </span>
+    </div>
+
+    <ng-container *ngIf="ready; else needsSimulation">
+
+      <div class="studio-card">
+        <div class="migration-toolbar">
+          <div class="search-input">
+            <i class="fas fa-search"></i>
+            <input type="search"
+              [(ngModel)]="searchTerm"
+              (ngModelChange)="onFiltersChanged()"
+              placeholder="Search applicant or application ID">
+          </div>
+
+          <select [(ngModel)]="transitionFilter"
+            (ngModelChange)="onFiltersChanged()"
+            aria-label="Filter new decision">
+            <option value="All">All New Decisions</option>
+            <option value="approv">Approved</option>
+            <option value="refer">Referred</option>
+            <option value="declin">Declined</option>
+          </select>
+        </div>
+
+        <div class="table-scroll">
+          <table class="migration-table">
+            <thead>
+              <tr>
+                <th>Reference</th>
+                <th>Applicant</th>
+                <th>Current</th>
+                <th>Proposed</th>
+                <th>Decision Explanation</th>
+                <th></th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr *ngFor="let row of paginatedMigrations">
+                <td><strong>{{ row.id }}</strong></td>
+                <td>{{ row.applicant }}</td>
+                <td>
+                  <span class="decision-chip"
+                    [ngClass]="decisionClass(row.from)">
+                    {{ row.from }}
+                  </span>
+                </td>
+                <td>
+                  <span class="decision-chip"
+                    [ngClass]="decisionClass(row.to)">
+                    {{ row.to }}
+                  </span>
+                </td>
+                <td>{{ row.explanation }}</td>
+                <td>
+                  <button type="button" class="inline-action"
+                    (click)="inspectMigration(row)">
+                    Inspect
+                  </button>
+                </td>
+              </tr>
+
+              <tr *ngIf="paginatedMigrations.length === 0">
+                <td colspan="6" class="empty-cell">
+                  No applications match these filters.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pagination">
+          <span>
+            {{ filteredMigrations.length }} matching records
+            · Page {{ currentPage }} of {{ totalPages }}
+          </span>
+          <div>
+            <button type="button"
+              [disabled]="currentPage <= 1"
+              (click)="previousPage()">Previous</button>
+            <button type="button"
+              [disabled]="currentPage >= totalPages"
+              (click)="nextPage()">Next</button>
+          </div>
+        </div>
+      </div>
+
+      <p class="fine-print">
+        Migration explanations identify the direction of the decision
+        change. Attribute-level causality requires additional
+        per-application evaluation data from the shared service.
+      </p>
+
+    </ng-container>
+  </section>
+
+  <!-- ================================================
+       TAB 4 — RISK INTELLIGENCE
+       ================================================ -->
+  <section *ngIf="activeTab === 'risk'">
+
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">RISK APPETITE REVIEW</span>
+        <h2>Risk Intelligence</h2>
+        <p>
+          Examine how the proposed policy shifts eligibility
+          thresholds and decision outcomes.
+        </p>
+      </div>
+    </div>
+
+    <ng-container *ngIf="ready; else needsSimulation">
+
+      <div class="risk-grid">
+        <div class="risk-card">
+          <span class="risk-icon blue">
+            <i class="fas fa-arrow-down"></i>
+          </span>
+          <small>Approval Score Movement</small>
+          <strong>{{ signed(scoreChange) }} points</strong>
+          <p>
+            Current {{ currentPolicy.approveFrom }}
+            → Proposed {{ draft.approveFrom }}
+          </p>
+        </div>
+
+        <div class="risk-card">
+          <span class="risk-icon amber">
+            <i class="fas fa-percent"></i>
+          </span>
+          <small>Maximum DTI Movement</small>
+          <strong>{{ signed(dtiChangePoints) }} pp</strong>
+          <p>
+            {{ pct(currentPolicy.maxDti) }}
+            → {{ pct(draft.maxDti) }}
+          </p>
+        </div>
+
+        <div class="risk-card">
+          <span class="risk-icon purple">
+            <i class="fas fa-money-bill-wave"></i>
+          </span>
+          <small>Loan Amount Limit</small>
+          <strong>{{ money(draft.maxAmount) }}</strong>
+          <p>
+            Previously {{ money(currentPolicy.maxAmount) }}
+          </p>
+        </div>
+
+        <div class="risk-card">
+          <span class="risk-icon green">
+            <i class="fas fa-layer-group"></i>
+          </span>
+          <small>Eligibility Control Changes</small>
+          <strong>
+            {{ loosenedControls }} relaxed
+            · {{ tightenedControls }} tightened
+          </strong>
+          <p>Based on four configurable policy thresholds.</p>
+        </div>
+      </div>
+
+      <div class="studio-card">
+        <div class="card-heading">
+          <div>
+            <h3>Strategic Risk Observations</h3>
+            <p>
+              Explainable observations derived from the proposed settings.
+            </p>
+          </div>
+        </div>
+
+        <div class="risk-observations">
+          <div *ngFor="let note of riskObservations">
+            <i class="fas fa-info-circle"></i>
+            <p>{{ note }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="studio-card">
+        <div class="card-heading">
+          <div>
+            <h3>Underwriting Guardrails</h3>
+            <p>Controls to consider before adopting the scenario.</p>
+          </div>
+        </div>
+
+        <div class="guardrail-content">
+          <i class="fas fa-shield-alt"></i>
+          <p>{{ guardrailText }}</p>
+        </div>
+      </div>
+
+      <div class="limitation-note">
+        <i class="fas fa-info-circle"></i>
+        This view reports threshold movements and decision outcomes.
+        It does not estimate defaults, credit losses, customer-level
+        risk-band migration or portfolio profitability without
+        the additional underlying data and validated models.
+      </div>
+
+    </ng-container>
+  </section>
+
+  <!-- ================================================
+       TAB 5 — AI STRATEGY ADVISOR
+       ================================================ -->
+  <section *ngIf="activeTab === 'advisor'">
+
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">EXECUTIVE DECISION SUPPORT</span>
+        <h2>AI Strategy Advisor</h2>
+        <p>
+          An explainable strategic briefing based on your
+          simulated policy outcomes.
+        </p>
+      </div>
+
+      <span class="soft-pill">Simulated Intelligence</span>
+    </div>
+
+    <ng-container *ngIf="ready; else needsSimulation">
+
+      <div class="advisor-hero">
+        <div class="advisor-logo">
+          <i class="fas fa-brain"></i>
+        </div>
+        <div>
+          <small>ECLECTICS INTELLIGENCE</small>
+          <h3>Executive Policy Briefing</h3>
+          <p>
+            Strategic guidance from policy configuration
+            and simulation results.
+          </p>
+        </div>
+      </div>
+
+      <div class="studio-card advisor-card">
+        <div class="card-heading">
+          <div>
+            <h3>Executive Summary</h3>
+            <p>{{ selectedStrategy }} lending scenario</p>
+          </div>
+        </div>
+
+        <div class="advisor-section">
+          <div class="advisor-message">
+            <i class="fas fa-magic"></i>
+            <p>{{ executiveSummary }}</p>
+          </div>
+
+          <h4>Key Observations</h4>
+
+          <div class="advisor-observation"
+            *ngFor="let note of riskObservations">
+            <i class="fas fa-check-circle"></i>
+            <p>{{ note }}</p>
+          </div>
+
+          <h4>Strategic Recommendation</h4>
+
+          <div class="advisor-recommendation">
+            <i class="fas fa-lightbulb"></i>
+            <p>{{ strategicRecommendation }}</p>
+          </div>
+        </div>
+
+        <div class="action-footer">
+          <button type="button" class="btn outline"
+            (click)="copyBriefing()">
+            <i class="fas fa-copy"></i>
+            {{ briefingCopied ? 'Copied' : 'Copy Executive Briefing' }}
+          </button>
+
+          <button type="button" class="btn primary"
+            (click)="showApprovalWorkflow = !showApprovalWorkflow">
+            <i class="fas fa-check-double"></i>
+            Policy Governance
+          </button>
+        </div>
+      </div>
+
+      <!-- GOVERNANCE -->
+      <div class="studio-card" *ngIf="showApprovalWorkflow">
+        <div class="card-heading">
+          <div>
+            <h3>Policy Approval Workflow</h3>
+            <p>
+              Demonstration governance sequence.
+              No production approval permissions are enforced.
+            </p>
+          </div>
+
+          <span class="soft-pill">
+            {{ approvalState }}
+          </span>
+        </div>
+
+        <div class="governance-body">
+          <div class="governance-steps">
+            <span [class.active]="approvalState === 'Draft'">Draft</span>
+            <span [class.active]="approvalState === 'Simulated'">Simulated</span>
+            <span [class.active]="approvalState === 'Submitted'">Submitted</span>
+            <span [class.active]="approvalState === 'Approved'">Approved</span>
+            <span [class.active]="approvalState === 'Activated'">Activated</span>
+          </div>
+
+          <p *ngIf="approvalNote">{{ approvalNote }}</p>
+
+          <div class="governance-actions">
+            <button type="button" class="btn outline"
+              [disabled]="!hasChanges || approvalState !== 'Simulated'"
+              (click)="submitForApproval()">
+              Submit for Review
+            </button>
+
+            <button type="button" class="btn outline"
+              [disabled]="approvalState !== 'Submitted'"
+              (click)="approveScenario()">
+              Demo Approve
+            </button>
+
+            <button type="button" class="btn primary"
+              [disabled]="approvalState !== 'Approved'"
+              (click)="applyApprovedPolicy()">
+              Activate Demo Policy
+            </button>
+          </div>
+
+          <p class="fine-print">
+            Activation updates the existing CreditDataService demo
+            policy only. Production maker-checker authorization
+            would require backend access controls and audit logs.
+          </p>
+        </div>
+      </div>
+
+    </ng-container>
+  </section>
+
+  <!-- REUSABLE EMPTY STATE -->
+  <ng-template #needsSimulation>
+    <div class="empty-state">
+      <i class="fas fa-chart-line"></i>
+      <h3>No current simulation result</h3>
+      <p>
+        Configure your scenario and run a simulation to
+        see the calculated analysis.
+      </p>
+      <button type="button" class="btn primary"
+        (click)="setTab('scenario')">
+        Open Scenario Builder
+      </button>
+    </div>
+  </ng-template>
+
+  <!-- MIGRATION DETAIL -->
+  <div class="modal-overlay" *ngIf="selectedMigration">
+    <div class="migration-modal" role="dialog" aria-modal="true">
+      <div class="card-heading">
+        <div>
+          <span class="eyebrow">DECISION MIGRATION</span>
+          <h3>{{ selectedMigration.applicant }}</h3>
+          <p>{{ selectedMigration.id }}</p>
+        </div>
+        <button type="button" class="close-button"
+          (click)="selectedMigration = null">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="migration-comparison">
+          <div>
+            <small>Current Decision</small>
+            <span class="decision-chip"
+              [ngClass]="decisionClass(selectedMigration.from)">
+              {{ selectedMigration.from }}
+            </span>
+          </div>
+          <i class="fas fa-arrow-right"></i>
+          <div>
+            <small>Proposed Decision</small>
+            <span class="decision-chip"
+              [ngClass]="decisionClass(selectedMigration.to)">
+              {{ selectedMigration.to }}
+            </span>
+          </div>
+        </div>
+
+        <h4>Decision Explanation</h4>
+        <p>{{ selectedMigration.explanation }}</p>
+
+        <p class="fine-print">
+          Attribute-level evidence is not provided by the
+          current changed-application summary.
+        </p>
+      </div>
+
+      <div class="action-footer">
+        <button type="button" class="btn outline"
+          (click)="selectedMigration = null">
+          Close
+        </button>
+      </div>
+    </div>
   </div>
 
 </div>
