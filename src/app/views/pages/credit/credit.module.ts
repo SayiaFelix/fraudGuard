@@ -34,7 +34,7 @@ const routes: Routes = [
       { path: 'alerts', component: AlertsComponent, data: { ownHeader: true } },
       { path: 'case-management', component: AlertsComponent, data: { ownHeader: true } },
       { path: 'decision-queue', component: DecisionQueueComponent, data: { title: 'Decision Queue', subtitle: 'Referred applications waiting for a decision' } },
-      { path: 'credit-scoring', component: CreditScoringComponent, data: { title: 'Credit scoring', subtitle: 'Retail scorecard v3.2' } },
+      { path: 'credit-scoring', component: CreditScoringComponent, data: { ownHeader: true } },
       { path: 'decision-rules', component: DecisionRulesComponent, data: { title: 'Decision rules', subtitle: 'Policy that sits on top of the score' } },
       { path: 'policy-simulator', component: PolicySimulatorComponent, data: { title: 'Policy simulator', subtitle: 'See who would move if the cutoffs change' } },
       { path: 'portfolio', component: PortfolioComponent, data: { ownHeader: true } },

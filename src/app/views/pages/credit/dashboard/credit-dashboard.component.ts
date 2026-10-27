@@ -1,4 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { AuditEvent, COUNTRY_MIX, CreditApplication, DECISION_TREND, PRODUCT_MIX, PortfolioSummary } from '../credit-demo.data';
 import { CreditDataService } from '../credit-data.service';
 import { Subscription } from 'rxjs';
@@ -106,7 +108,125 @@ export class CreditDashboardComponent implements OnInit, OnDestroy {
       this.briefAt = new Date();
       this.briefState = 'ready';
       this.briefTimer = null;
+      this.downloadBriefPdf(this.brief);
     }, 700);
+  }
+
+  private downloadBriefPdf(brief: PortfolioBrief): void {
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const margin = 16;
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const contentWidth = pageWidth - margin * 2;
+    let y = 18;
+
+    const ensure = (needed: number) => {
+      if (y + needed > pageHeight - 16) {
+        doc.addPage();
+        y = 18;
+      }
+    };
+
+    const write = (text: string, size: number, color: [number, number, number], weight: 'normal' | 'bold' = 'normal', gap = 3) => {
+      doc.setFont('helvetica', weight);
+      doc.setFontSize(size);
+      doc.setTextColor(color[0], color[1], color[2]);
+      const lines = doc.splitTextToSize(text, contentWidth) as string[];
+      const lineMm = (doc.getFontSize() * doc.getLineHeightFactor() * 25.4) / 72;
+      const block = lines.length * lineMm;
+      ensure(block + gap);
+      doc.text(lines, margin, y);
+      y += block + gap;
+    };
+
+    const section = (title: string) => {
+      ensure(14);
+      y += 2;
+      write(title, 12, [18, 32, 51], 'bold', 3);
+    };
+
+    const bullets = (lines: string[]) => {
+      lines.forEach(line => write(`-  ${line}`, 10, [18, 32, 51], 'normal', 1.5));
+    };
+
+    [[31, 111, 235], [18, 183, 106], [245, 180, 0], [225, 6, 0]].forEach((color, index) => {
+      doc.setFillColor(color[0], color[1], color[2]);
+      doc.rect(index * (pageWidth / 4), 0, pageWidth / 4 + 0.3, 3.2, 'F');
+    });
+
+    write('Portfolio Insights', 18, [18, 32, 51], 'bold', 2);
+    const prepared = (this.briefAt || new Date()).toLocaleString('en-GB', {
+      day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit'
+    });
+    write(`Digital Credit Decisioning  ·  ${prepared}`, 10, [102, 117, 138], 'normal', 5);
+    write(brief.lead, 12, [15, 23, 42], 'bold', 2);
+    write(brief.period, 9, [102, 117, 138], 'normal', 4);
+
+    section('Decision rates');
+    autoTable(doc, {
+      startY: y,
+      margin: { left: margin, right: margin },
+      head: [['Measure', 'Rate', 'Count']],
+      body: brief.rates.map(rate => [rate.label, rate.value, rate.note]),
+      styles: { font: 'helvetica', fontSize: 9, cellPadding: 2.4, textColor: [18, 32, 51] },
+      headStyles: { fillColor: [15, 40, 74], textColor: 255, fontStyle: 'bold' },
+      theme: 'striped'
+    });
+    y = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 4;
+    write(brief.rateNote, 9, [102, 117, 138], 'normal', 3);
+
+    section('Reasons for decline and referral');
+    if (brief.reasons.length) {
+      autoTable(doc, {
+        startY: y,
+        margin: { left: margin, right: margin },
+        head: [['Reason', 'Files', 'Share', 'Split']],
+        body: brief.reasons.map(reason => [reason.label, String(reason.count), reason.share, reason.split]),
+        styles: { font: 'helvetica', fontSize: 9, cellPadding: 2.4, textColor: [18, 32, 51] },
+        headStyles: { fillColor: [15, 40, 74], textColor: 255, fontStyle: 'bold' },
+        theme: 'striped'
+      });
+      y = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 4;
+    } else {
+      write('No declined or referred reason codes are on the loaded files.', 10, [18, 32, 51]);
+    }
+    write(brief.reasonNote, 9, [102, 117, 138], 'normal', 3);
+
+    section('Risk distribution');
+    autoTable(doc, {
+      startY: y,
+      margin: { left: margin, right: margin },
+      head: [['Band', 'Share', 'Count']],
+      body: brief.risk.map(band => [band.label, band.value, band.note]),
+      styles: { font: 'helvetica', fontSize: 9, cellPadding: 2.4, textColor: [18, 32, 51] },
+      headStyles: { fillColor: [15, 40, 74], textColor: 255, fontStyle: 'bold' },
+      theme: 'striped'
+    });
+    y = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 4;
+    write(brief.riskNote, 9, [102, 117, 138], 'normal', 3);
+
+    section('Change versus the prior period');
+    bullets(brief.movement);
+    write(brief.movementNote, 9, [102, 117, 138], 'normal', 3);
+
+    section('Operational issues');
+    bullets(brief.operations.length ? brief.operations : ['No operational issues are recorded on the current book.']);
+
+    section('Where to look next');
+    bullets(brief.investigate);
+
+    const pages = doc.getNumberOfPages();
+    for (let page = 1; page <= pages; page++) {
+      doc.setPage(page);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(120, 130, 145);
+      doc.text('Eclectics  ·  Portfolio Insights', margin, pageHeight - 8);
+      doc.text(`${page} / ${pages}`, pageWidth - margin, pageHeight - 8, { align: 'right' });
+    }
+
+    const stamp = (this.briefAt || new Date()).toISOString().slice(0, 10);
+    doc.save(`portfolio-insights-${stamp}.pdf`);
   }
 
   closeBrief(): void {

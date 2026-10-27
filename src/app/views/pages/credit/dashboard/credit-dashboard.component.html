@@ -17,15 +17,11 @@
       <small *ngIf="lastRefreshed">Updated {{ lastRefreshed | date:'h:mm a' }}</small>
     </div>
 
-    <button type="button" class="btn-brief" (click)="generateBrief()" [disabled]="!summary || briefState === 'reading'">
+    <button type="button" class="btn-brief" (click)="generateBrief()" [disabled]="!summary || briefState === 'reading'" title="Print as PDF">
       <svg viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><path d="m6.5 6.5 2 2M15.5 15.5l2 2M17.5 6.5l-2 2M8.5 15.5l-2 2"/></svg>
       {{ briefState === 'reading' ? 'Preparing brief…' : 'Generate Portfolio Insights' }}
+      <span class="btn-tip">Print as PDF</span>
     </button>
-
-    <a class="btn-primary" routerLink="/applications/new">
-      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-      Ingestion
-    </a>
   </div>
 </header>
 
