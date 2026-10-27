@@ -1,17 +1,77 @@
-<article class="cd-card">
-  <div class="cd-card-head">
+<div class="policy-page">
+  <header class="page-heading">
     <div>
-      <h2>Active policy</h2>
-      <p class="fine">Switches apply immediately to new applications and the policy simulator. Nothing is sent to a server.</p>
+      <div class="eyebrow">LENDING OPERATIONS / POLICY MANAGEMENT</div>
+      <h1>Credit Decision Rules</h1>
+      <p>Manage lending eligibility criteria, configure decision actions and evaluate applications.</p>
     </div>
+    <button type="button" class="btn btn-primary" (click)="openCreate()">+ Create Rule</button>
+  </header>
+
+  <div class="stats">
+    <article class="stat"><span>Total Rules</span><strong>{{ totalRules }}</strong></article>
+    <article class="stat"><span>Active Rules</span><strong class="positive">{{ activeRules }}</strong></article>
+    <article class="stat"><span>Inactive Rules</span><strong>{{ inactiveRules }}</strong></article>
   </div>
-  <div class="rule" *ngFor="let rule of rules">
-    <button type="button" class="switch" [class.on]="rule.enabled" (click)="toggle(rule)" [attr.aria-pressed]="rule.enabled"></button>
-    <div>
-      <strong>{{ rule.code }} · {{ rule.name }}</strong>
-      <p>{{ rule.condition }}</p>
+
+  <section class="panel">
+    <div class="panel-heading"><div><h2>Decision Policy</h2><p>Rules are evaluated when their conditions match application data.</p></div>
+      <button type="button" class="btn btn-outline" (click)="resetPolicies()">Restore Defaults</button>
     </div>
-    <span class="pill" [ngClass]="credit.decisionClass(rule.action)">{{ rule.action }}</span>
-    <em>{{ rule.severity }}</em>
+    <div class="filters">
+      <input aria-label="Search rules" placeholder="Search by rule name, code or condition" [value]="searchTerm" (input)="searchTerm = $any($event.target).value" />
+      <select aria-label="Filter by category" [value]="categoryFilter" (change)="categoryFilter = $any($event.target).value"><option value="All">All categories</option><option *ngFor="let category of categories" [value]="category">{{ category }}</option></select>
+      <select aria-label="Filter by status" [value]="statusFilter" (change)="statusFilter = $any($event.target).value"><option value="All">All statuses</option><option value="Active">Active</option><option value="Inactive">Inactive</option></select>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Rule</th><th>Condition</th><th>Action</th><th>Severity</th><th>Status</th><th>Manage</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let rule of filteredRules; trackBy: trackRule">
+            <td><strong>{{ rule.name }}</strong><small>{{ rule.code }} · {{ rule.category }}</small></td>
+            <td>{{ rule.condition }}</td>
+            <td><span class="pill" [class.decline]="rule.action === 'Decline'" [class.review]="rule.action === 'Manual Review'" [class.approve]="rule.action === 'Approve'">{{ rule.action }}</span></td>
+            <td><span class="severity">{{ rule.severity }}</span></td>
+            <td><button type="button" class="switch" role="switch" [class.on]="rule.enabled" [attr.aria-checked]="rule.enabled" [attr.aria-label]="'Toggle ' + rule.name" (click)="toggle(rule)"><span></span></button><small>{{ rule.enabled ? 'Active' : 'Inactive' }}</small></td>
+            <td class="actions"><button type="button" class="link" (click)="openEdit(rule)">Edit</button><button type="button" class="link danger-text" (click)="deleteRule(rule)">Delete</button></td>
+          </tr>
+          <tr *ngIf="filteredRules.length === 0"><td colspan="6" class="empty">No rules match your filters.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel tester">
+    <div class="panel-heading"><div><h2>Policy Evaluation</h2><p>Enter application information to assess it against active rules.</p></div></div>
+    <div class="form-grid">
+      <label *ngFor="let field of fields">{{ field.label }}<input type="number" [attr.min]="0" [value]="applicant[field.key]" (input)="applicant[field.key] = $any($event.target).value === '' ? null : +$any($event.target).value; evaluation = null; outcome = ''" /></label>
+    </div>
+    <button type="button" class="btn btn-primary" (click)="evaluate()">Evaluate Application</button>
+    <div class="result" *ngIf="evaluation !== null">
+      <h3>Assessment Result <span class="pill" [class.decline]="outcome === 'Decline'" [class.review]="outcome === 'Manual Review' || outcome === 'Incomplete Information'" [class.approve]="outcome === 'Approve'">{{ outcome }}</span></h3>
+      <p *ngIf="evaluation.length === 0">No rules are active. The result below does not imply a complete credit assessment.</p>
+      <div class="result-line" *ngFor="let result of evaluation"><span>{{ result.rule.name }}</span><strong [class.danger-text]="result.matched || result.missing">{{ result.missing ? 'Missing information' : (result.matched ? 'Triggered · ' + result.rule.action : 'Not triggered') }}</strong></div>
+    </div>
+    <p class="notice" *ngIf="notice">{{ notice }}</p>
+  </section>
+
+  <div class="modal-backdrop" *ngIf="showForm" (click)="closeForm()">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="rule-form-title" (click)="$event.stopPropagation()">
+      <div class="modal-title"><div><h2 id="rule-form-title">{{ editingCode ? 'Edit Decision Rule' : 'Create Decision Rule' }}</h2><p>Configure when the rule triggers and what action is recommended.</p></div><button type="button" class="close" aria-label="Close" (click)="closeForm()">×</button></div>
+      <form (submit)="$event.preventDefault(); saveRule()">
+        <div class="form-grid">
+          <label class="full">Rule name <input name="ruleName" required [value]="form.name" (input)="form.name = $any($event.target).value" placeholder="e.g. High debt-to-income ratio" /></label>
+          <label>Category <select name="category" [value]="form.category" (change)="setCategory($any($event.target).value)"><option *ngFor="let category of categories" [value]="category">{{ category }}</option></select></label>
+          <label>Applicant attribute <select name="field" [value]="form.field" (change)="form.field = $any($event.target).value"><option *ngFor="let field of availableFields" [value]="field.key">{{ field.label }}</option></select></label>
+          <label>Operator <select name="operator" [value]="form.operator" (change)="form.operator = $any($event.target).value"><option *ngFor="let operator of operators" [value]="operator.key">{{ operator.label }}</option></select></label>
+          <label>Threshold <input name="threshold" required type="number" min="0" step="any" [value]="form.value" (input)="form.value = $any($event.target).value === '' ? null : +$any($event.target).value" placeholder="Enter value" /></label>
+          <label>Decision action <select name="action" [value]="form.action" (change)="form.action = $any($event.target).value"><option value="Approve">Approve</option><option value="Manual Review">Manual Review</option><option value="Decline">Decline</option></select></label>
+          <label>Severity <select name="severity" [value]="form.severity" (change)="form.severity = $any($event.target).value"><option>Low</option><option>Medium</option><option>High</option><option>Critical</option></select></label>
+        </div>
+        <label class="checkbox-line"><input type="checkbox" [checked]="form.enabled" (change)="form.enabled = $any($event.target).checked" /> Activate this rule</label>
+        <p class="error" *ngIf="formError">{{ formError }}</p>
+        <div class="modal-footer"><button type="button" class="btn btn-outline" (click)="closeForm()">Cancel</button><button type="submit" class="btn btn-primary">{{ editingCode ? 'Save Changes' : 'Create Rule' }}</button></div>
+      </form>
+    </section>
   </div>
-</article>
+</div>

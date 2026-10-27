@@ -2,18 +2,49 @@
   <article class="cd-card">
     <h2>Scenario</h2>
     <p class="fine">Run the current rules over a 240-application sample book. Moving a cutoff shows who would change decision.</p>
+
     <label>Approve from score {{ draft.approveFrom }}
-      <input type="range" min="620" max="820" [(ngModel)]="draft.approveFrom" (ngModelChange)="run()" />
+      <input
+        type="range"
+        min="620"
+        max="820"
+        [ngModel]="draft.approveFrom"
+        (ngModelChange)="draft.approveFrom = +$event; run()"
+      />
     </label>
+
     <label>Decline below score {{ draft.declineBelow }}
-      <input type="range" min="450" max="680" [(ngModel)]="draft.declineBelow" (ngModelChange)="run()" />
+      <input
+        type="range"
+        min="450"
+        max="680"
+        [ngModel]="draft.declineBelow"
+        (ngModelChange)="draft.declineBelow = +$event; run()"
+      />
     </label>
+
     <label>Maximum DTI {{ draft.maxDti | percent:'1.0-0' }}
-      <input type="range" min="0.25" max="0.7" step="0.01" [(ngModel)]="draft.maxDti" (ngModelChange)="run()" />
+      <input
+        type="range"
+        min="0.25"
+        max="0.7"
+        step="0.01"
+        [ngModel]="draft.maxDti"
+        (ngModelChange)="draft.maxDti = +$event; run()"
+      />
     </label>
+
     <label>Auto-approval limit {{ credit.money(draft.maxAmount) }}
-      <input type="range" min="200000" max="5000000" step="50000" [(ngModel)]="draft.maxAmount" (ngModelChange)="run()" />
+      <input
+        type="range"
+        min="200000"
+        max="5000000"
+        step="50000"
+        [ngModel]="draft.maxAmount"
+        (ngModelChange)="draft.maxAmount = +$event; run()"
+      />
     </label>
+
     <div class="form-actions">
       <button class="btn-primary" type="button" (click)="save()">Use these cutoffs</button>
       <span class="fine" *ngIf="saved">Saved in this browser.</span>

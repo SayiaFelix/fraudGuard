@@ -10,12 +10,13 @@
 
   <article class="cd-card">
     <h2>Decision cutoffs</h2>
-    <label>Approve from score<input type="number" [(ngModel)]="policy.approveFrom" /></label>
-    <label>Decline below score<input type="number" [(ngModel)]="policy.declineBelow" /></label>
-    <label>Maximum DTI<input type="number" step="0.01" [(ngModel)]="policy.maxDti" /></label>
-    <label>Auto-approval limit (KSh)<input type="number" [(ngModel)]="policy.maxAmount" /></label>
+    <label>Approve from score<input #approveFromInput type="number" [value]="policy.approveFrom" (input)="setNumber('approveFrom', approveFromInput.valueAsNumber)" required /></label>
+    <label>Decline below score<input #declineBelowInput type="number" [value]="policy.declineBelow" (input)="setNumber('declineBelow', declineBelowInput.valueAsNumber)" required /></label>
+    <label>Maximum DTI<input #maxDtiInput type="number" step="0.01" [value]="policy.maxDti" (input)="setNumber('maxDti', maxDtiInput.valueAsNumber)" required /></label>
+    <label>Auto-approval limit (KSh)<input #maxAmountInput type="number" [value]="policy.maxAmount" (input)="setNumber('maxAmount', maxAmountInput.valueAsNumber)" required /></label>
+    <p class="form-error" *ngIf="hasInvalidInput" role="alert">Enter a valid number in every cutoff field before saving.</p>
     <div class="form-actions">
-      <button class="btn-primary" type="button" (click)="save()">Save cutoffs</button>
+      <button class="btn-primary" type="button" [disabled]="hasInvalidInput" (click)="save()">Save cutoffs</button>
       <span class="fine" *ngIf="saved">Saved in this browser.</span>
     </div>
   </article>

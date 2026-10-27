@@ -10,6 +10,7 @@ import { NotificationService } from '../../../shared/services/NotificationServic
 import { InboxItem } from '../../pages/mobile-banking/requests/list-requests/list-requests.component'; // Adjust this path if your inbox component is in a different folder
 import { AuthService } from 'src/app/shared/services/auth.service';
 import { CreditDataService } from '../../pages/credit/credit-data.service';
+import { LoanWorkflowService } from '../../pages/credit/workflow/loan-workflow.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -32,6 +33,7 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
   showingClass = "d-none";
   selectedParent: string | undefined;
   private notificationSub: Subscription;
+  private loanSub: Subscription;
 
   constructor(
     @Inject(DOCUMENT) private document: Document,
@@ -39,7 +41,8 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
     private router: Router,
      private authservice: AuthService,
     private notificationService: NotificationService,
-    private creditData: CreditDataService
+    private creditData: CreditDataService,
+    private loanWorkflow: LoanWorkflowService
   ) {
     
     router.events.forEach((event) => {
@@ -72,16 +75,16 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
       this.updateInboxBadge(notifications);
     });
 
-    this.creditData.summary$.subscribe(summary => {
+    this.loanSub = this.loanWorkflow.applications$.subscribe(apps => {
       const applications = this.menuItems.find(item => item.link === '/applications');
-      if (applications) {
-        applications.badge = { text: summary.openApplications, variant: 'uba' };
-      }
+      const queue = this.menuItems.find(item => item.link === '/decision-queue');
+      if (applications) applications.badge = { text: apps.length, variant: 'uba' };
+      if (queue) queue.badge = { text: apps.filter(item => this.loanWorkflow.pending(item)).length, variant: 'uba' };
     });
 
     this.creditData.applications$.subscribe(apps => {
       const open = apps.filter(item => item.decision === 'Refer' && item.caseStatus !== 'Closed').length;
-      ['/alerts', '/decision-queue'].forEach(link => {
+      ['/alerts'].forEach(link => {
         const item = this.menuItems.find(entry => entry.link === link);
         if (item) {
           item.badge = { text: open, variant: 'uba' };
@@ -92,6 +95,7 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
 
   
   ngOnDestroy(): void {
+    this.loanSub?.unsubscribe();
     if (this.notificationSub) {
       this.notificationSub.unsubscribe();
     }

@@ -1,0 +1,64 @@
+<div class="loan-workflow modern-workspace">
+  <header class="ai-page-hero compact">
+    <div><span class="ai-eyebrow">LENDING / DECISIONS</span><h2>Decision workspace</h2><p>Review the evidence, compare the offer and record a clear outcome.</p></div>
+    <div class="ai-hero-aside"><span class="ai-mode"><i></i>Demo environment</span><a class="btn-primary" routerLink="/applications/new">+ New application</a></div>
+  </header>
+  <div class="wf-error" *ngIf="workflow.storageError" role="alert">{{ workflow.storageError }}</div>
+  <div class="ai-queue-kpis">
+    <button type="button" [class.active]="scope === 'pending'" [attr.aria-pressed]="scope === 'pending'" (click)="scope = 'pending'; page = 1"><span class="ai-card-icon">◈</span><span><strong>{{ awaiting + information }}</strong><small>Pending decisions</small></span><b>→</b></button>
+    <button type="button" [class.active]="scope === 'information'" [attr.aria-pressed]="scope === 'information'" (click)="scope = 'information'; page = 1"><span class="ai-card-icon amber">↔</span><span><strong>{{ information }}</strong><small>Awaiting information</small></span><b>→</b></button>
+    <button type="button" [class.active]="scope === 'final'" [attr.aria-pressed]="scope === 'final'" (click)="scope = 'final'; page = 1"><span class="ai-card-icon mint">✓</span><span><strong>{{ finalised }}</strong><small>Decisions recorded</small></span><b>→</b></button>
+  </div>
+  <div class="queue-workbench">
+    <aside class="queue-inbox ai-panel">
+      <div class="ai-panel-heading"><div><span class="ai-eyebrow">REVIEW INBOX</span><h3>{{ rows.length }} applications</h3></div><button type="button" class="ai-text-button" [disabled]="!canOpenNext || busy" (click)="nextCase()">Next →</button></div>
+      <label class="queue-search">Find a case<input type="search" [(ngModel)]="search" (ngModelChange)="page = 1" placeholder="Name, ID or reference" /></label>
+      <div class="queue-filter-grid"><label>View<select [(ngModel)]="scope" (ngModelChange)="page = 1"><option value="pending">Pending</option><option value="information">Needs information</option><option value="final">Finalised</option><option value="all">All applications</option></select></label><label>Risk<select [(ngModel)]="risk" (ngModelChange)="page = 1"><option value="">All risks</option><option>Low</option><option>Medium</option><option>High</option></select></label></div>
+      <label class="queue-sort">Order by<select [(ngModel)]="sort" (ngModelChange)="page = 1"><option value="priority">Priority, then oldest</option><option value="oldest">Oldest first</option><option value="score">Lowest credit score</option><option value="amount">Largest request</option></select></label>
+      <div class="queue-cases">
+        <button type="button" class="queue-case-card" *ngFor="let app of pageRows; trackBy: track" [class.selected]="app.id === selectedId" [attr.aria-pressed]="app.id === selectedId" [disabled]="busy" (click)="select(app.id)">
+          <span class="queue-case-top"><span class="ai-avatar">{{ workflow.initials(app.customerName) }}</span><span class="queue-person"><strong>{{ app.customerName }}</strong><small>{{ app.nationalId }}</small></span><span class="pill" [ngClass]="workflow.credit.riskClass(workflow.riskFor(latest(app)))">{{ workflow.riskFor(latest(app)) }}</span></span>
+          <span class="queue-case-amount"><strong>{{ workflow.money(latest(app).input.amount) }}</strong><small>{{ latest(app).input.tenorMonths }} months</small></span>
+          <span class="queue-offer">{{ latest(app).limit?.offer ? 'Suggested offer ' + workflow.money(latest(app).limit!.recommendedAmount) : workflow.recommendationLabel(latest(app)) }}</span>
+          <span class="queue-case-bottom"><span class="ai-status" [attr.data-status]="app.status">{{ app.status }}</span><small>{{ app.submittedAt | date:'dd MMM':'+0300' }}</small></span>
+        </button>
+        <div class="ai-empty compact-empty" *ngIf="!pageRows.length"><span>◎</span><h3>No matching cases</h3><p>Try a different search or queue view.</p></div>
+      </div>
+      <div class="queue-pagination"><button type="button" class="btn-ghost" [disabled]="page <= 1 || busy" (click)="page = page - 1" aria-label="Previous queue page">←</button><span>{{ page }} / {{ pages }}</span><button type="button" class="btn-ghost" [disabled]="page >= pages || busy" (click)="page = page + 1" aria-label="Next queue page">→</button></div>
+    </aside>
+    <main class="queue-detail" *ngIf="selected as app; else chooseCase">
+      <article id="ai-selected-case" class="ai-review-heading">
+        <div class="ai-customer-heading"><span class="ai-avatar large">{{ workflow.initials(app.customerName) }}</span><div><span class="ai-eyebrow">APPLICATION REVIEW</span><h3>{{ app.customerName }}</h3><p>{{ app.nationalId }} · {{ latest(app).input.product }}</p></div><span class="ai-status" [attr.data-status]="app.status">{{ app.status }}</span></div>
+        <div class="queue-facility-summary"><div><span>Requested</span><strong>{{ workflow.money(latest(app).input.amount) }}</strong></div><div><span>Proposed offer</span><strong>{{ latest(app).limit?.offer ? workflow.money(latest(app).limit!.recommendedAmount) : 'Review required' }}</strong></div><div><span>Assessment</span><strong>v{{ latest(app).version }} <small>· {{ latest(app).input.tenorMonths }} months</small></strong></div></div>
+        <div class="form-actions"><a class="ai-text-button" [routerLink]="['/applications', app.id]">Versions &amp; history ↗</a><a class="ai-text-button" *ngIf="workflow.pending(app)" routerLink="/applications/new" [queryParams]="{reassess: app.id}">Reassess / update evidence ↗</a></div>
+      </article>
+      <article class="ai-decision-panel wf-section" aria-label="Officer decision">
+        <div class="ai-panel-heading"><div><span class="ai-eyebrow">OFFICER ACTION</span><h3>{{ workflow.pending(app) ? 'Record your decision' : 'Decision saved' }}</h3></div><span class="ai-small-tag">Human review</span></div>
+        <div id="decision-result" class="wf-success" *ngIf="message" role="status" tabindex="-1"><strong>Saved successfully.</strong> {{ message }}</div>
+        <ng-container *ngIf="workflow.pending(app)">
+          <p class="wf-muted">Recommendation: <strong>{{ workflow.recommendationLabel(latest(app)) }}</strong>. Review the assessment below before submitting your outcome.</p>
+          <p class="ai-outstanding" *ngIf="app.status === 'More information required'"><strong>Evidence outstanding:</strong> {{ outstanding(app) }}. Reassess after receiving it to enable approval.</p>
+          <div class="ai-decision-choices">
+            <button type="button" class="ai-choice approve" [class.chosen]="confirmation === 'Approve'" [disabled]="app.status === 'More information required' || busy" (click)="begin('Approve')"><b>✓</b><span>Approve<small>Choose the approved amount</small></span></button>
+            <button type="button" class="ai-choice decline" [class.chosen]="confirmation === 'Decline'" [disabled]="busy" (click)="begin('Decline')"><b>×</b><span>Decline<small>Explain the decision</small></span></button>
+            <button type="button" class="ai-choice info" [class.chosen]="confirmation === 'Request information'" [disabled]="busy" (click)="begin('Request information')"><b>↔</b><span>Request information<small>Specify missing evidence</small></span></button>
+          </div>
+          <form class="wf-confirm" *ngIf="confirmation" (ngSubmit)="confirmDecision()" novalidate aria-label="Confirm officer action">
+            <div class="ai-panel-heading"><h3>{{ confirmationLabel }}</h3><button type="button" class="ai-text-button" (click)="draftNote()" [disabled]="busy">✦ Show assessment context</button></div>
+            <div class="copilot-context" *ngIf="copilotContext"><span class="ai-eyebrow">ASSESSMENT CONTEXT</span><p>{{ copilotContext }}</p><small>Use this evidence to inform your own rationale below.</small></div>
+            <div class="ai-approval-amount" *ngIf="confirmation === 'Approve'"><label>Amount to approve<select name="approvalBasis" [(ngModel)]="approvalBasis" (ngModelChange)="override = false" [disabled]="busy"><option *ngIf="latest(app).limit?.offer" value="recommended">Recommended offer · {{ workflow.money(latest(app).limit!.recommendedAmount) }}</option><option value="requested">Original request · {{ workflow.money(latest(app).input.amount) }}</option></select></label><p><strong>{{ workflow.money(approvalAmount) }}</strong> over {{ latest(app).input.tenorMonths }} months</p><small>To propose other terms, reassess the application first.</small></div>
+            <label for="decision-rationale">{{ confirmation === 'Request information' ? 'Information or documents required' : 'Officer evidence and rationale' }}</label><textarea id="decision-rationale" name="decisionRationale" [(ngModel)]="note" maxlength="2000" [disabled]="busy" [attr.aria-invalid]="decisionErrors.length && !officerRationaleReady ? true : null" aria-describedby="rationale-help" placeholder="Record the evidence reviewed and your reason for this action."></textarea>
+            <div id="rationale-help" class="rationale-help"><span>Minimum {{ confirmation === 'Approve' && requiresOverride ? '20' : '10' }} characters{{ confirmation === 'Approve' && requiresOverride ? ' for an override' : '' }}</span><span>{{ noteLength }} / 2,000</span></div>
+            <label class="wf-check"><input type="checkbox" name="reviewAcknowledgement" [(ngModel)]="reviewed" [disabled]="busy" /><span>I reviewed the latest assessment, policy findings and model limitations.</span></label>
+            <label class="wf-check override-check" *ngIf="confirmation === 'Approve' && requiresOverride"><input type="checkbox" name="overrideAcknowledgement" [(ngModel)]="override" [disabled]="busy" /><span>I acknowledge that approving this amount overrides the recommendation. My rationale explains the exception.</span></label>
+            <div id="decision-feedback" class="wf-error" *ngIf="decisionErrors.length" role="alert" tabindex="-1"><strong>This action has not been saved.</strong><ul><li *ngFor="let issue of decisionErrors">{{ issue }}</li></ul></div>
+            <div class="decision-submit-row"><button type="submit" class="btn-primary" [disabled]="busy"><span *ngIf="busy" class="ai-button-spinner"></span>{{ busy ? 'Saving decision…' : confirmationLabel }}</button><button type="button" class="btn-ghost" [disabled]="busy" (click)="cancelDecision()">Cancel</button><span class="wf-muted">The outcome appears in Applications immediately.</span></div>
+          </form>
+        </ng-container>
+        <ng-container *ngIf="!workflow.pending(app)"><div class="decision-complete"><span class="ai-success-icon">✓</span><div><h3>{{ app.status }}</h3><p *ngIf="app.approvedAmount !== undefined">Approved principal: <strong>{{ workflow.money(app.approvedAmount!) }}</strong></p><p>The outcome and assessment history are saved with this application.</p></div></div><a class="ai-text-button" [routerLink]="['/applications', app.id]">View decision history →</a></ng-container>
+      </article>
+      <app-loan-assessment class="wf-section" [assessment]="latest(app)"></app-loan-assessment>
+    </main>
+    <ng-template #chooseCase><main class="queue-detail"><div class="wf-error" *ngIf="error" role="alert">{{ error }}</div><article class="ai-panel"><div class="ai-empty"><span>◈</span><h3>Select an application to begin</h3><p>Review customer evidence, policy findings and the model outlook in one workspace.</p><a class="btn-primary" routerLink="/applications/new">Create an application</a></div></article></main></ng-template>
+  </div>
+</div>

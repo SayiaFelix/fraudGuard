@@ -2,35 +2,23 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { CreditApplication } from '../credit-demo.data';
-import { CreditDataService } from '../credit-data.service';
+import { LoanAssessment, LoanRecord } from '../workflow/loan-workflow.models';
+import { LoanWorkflowService } from '../workflow/loan-workflow.service';
 
-@Component({
-  selector: 'app-application-detail',
-  templateUrl: './application-detail.component.html'
-})
+@Component({ selector: 'app-application-detail', templateUrl: './application-detail.component.html', styleUrls: ['../workflow/loan-workflow.scss'] })
 export class ApplicationDetailComponent implements OnInit, OnDestroy {
-  application: CreditApplication | null = null;
-  private sub = new Subscription();
-
-  constructor(
-    private route: ActivatedRoute,
-    public credit: CreditDataService
-  ) {}
-
+  application: LoanRecord | null = null; legacy: CreditApplication | null = null; selectedVersion = 0; private id = '';
+  private subscription = new Subscription();
+  constructor(private route: ActivatedRoute, public workflow: LoanWorkflowService) {}
   ngOnInit(): void {
-    this.sub.add(this.route.paramMap.subscribe(params => this.load(params.get('id'))));
-    this.sub.add(this.credit.applications$.subscribe(() => this.load(this.route.snapshot.paramMap.get('id'))));
+    this.subscription.add(this.route.paramMap.subscribe(params => { this.id = params.get('id') || ''; this.selectedVersion = 0; this.load(); }));
+    this.subscription.add(this.workflow.applications$.subscribe(() => this.load()));
   }
-
-  ngOnDestroy(): void {
-    this.sub.unsubscribe();
-  }
-
-  factorBar(impact: number): number {
-    return Math.max(8, Math.min(100, Math.abs(impact)));
-  }
-
-  private load(id: string | null): void {
-    this.application = id ? this.credit.find(id) || null : null;
+  ngOnDestroy(): void { this.subscription.unsubscribe(); }
+  get assessment(): LoanAssessment | undefined { return this.application?.assessments.find(a => a.version === this.selectedVersion); }
+  private load(): void {
+    this.application = this.workflow.find(this.id) || null;
+    this.legacy = !this.application ? this.workflow.credit.find(this.id) || null : null;
+    if (this.application && (this.selectedVersion < 1 || this.selectedVersion > this.application.assessments.length)) { this.selectedVersion = this.application.assessments.length; }
   }
 }

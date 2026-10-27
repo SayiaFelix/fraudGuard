@@ -10,19 +10,40 @@ import { CreditDataService } from '../credit-data.service';
 export class CreditSettingsComponent implements OnInit, OnDestroy {
   policy: PolicySettings = { approveFrom: 700, declineBelow: 580, maxDti: 0.45, maxAmount: 2000000 };
   saved = false;
+  private invalidFields = new Set<keyof PolicySettings>();
   private sub = new Subscription();
 
   constructor(private credit: CreditDataService) {}
 
   ngOnInit(): void {
-    this.sub.add(this.credit.policy$.subscribe(policy => this.policy = { ...policy }));
+    this.sub.add(this.credit.policy$.subscribe(policy => {
+      this.policy = { ...policy };
+      this.invalidFields.clear();
+    }));
   }
 
   ngOnDestroy(): void {
     this.sub.unsubscribe();
   }
 
+  setNumber(field: keyof PolicySettings, value: number): void {
+    this.saved = false;
+    if (!Number.isFinite(value)) {
+      this.invalidFields.add(field);
+      return;
+    }
+    this.invalidFields.delete(field);
+    this.policy[field] = value;
+  }
+
+  get hasInvalidInput(): boolean {
+    return this.invalidFields.size > 0 || !Object.values(this.policy).every(Number.isFinite);
+  }
+
   save(): void {
+    if (this.hasInvalidInput) {
+      return;
+    }
     this.credit.updatePolicy({
       approveFrom: Number(this.policy.approveFrom),
       declineBelow: Number(this.policy.declineBelow),
